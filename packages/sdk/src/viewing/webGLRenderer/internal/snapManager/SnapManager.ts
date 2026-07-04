@@ -13,6 +13,7 @@ import {MeshManager} from "../meshManager/MeshManager";
 import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {RENDER_PASSES} from "../RENDER_PASSES";
+import {getEffectiveResolutionScale} from "../resolutionScale";
 
 const tempVec3a = createVec3Float64();
 const tempVec4a = createVec4Float64();
@@ -171,10 +172,10 @@ export class SnapManager {
     // Cursor → clip-space NDC for the snap viewport remap. Same
     // formula PickManager uses for its 1×1 case; the snap viewport
     // gives the cursor a (2r+1)² window of pixels around it.
-    const resolutionScale = view.resolutionScale;
+    const effectiveResolutionScale = getEffectiveResolutionScale(view);
     renderContext.snapClipPos = createVec2Float64([
-      this._clipPosX(params.canvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
-      this._clipPosY(params.canvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight),
+      this._clipPosX(params.canvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth),
+      this._clipPosY(params.canvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight),
     ]);
     renderContext.snapBufferSize = createVec2Float64([dim, dim]);
 
@@ -285,8 +286,8 @@ export class SnapManager {
     const wClip = clipHomog[3] || 1;
     const ndcX = clipHomog[0] / wClip;
     const ndcY = clipHomog[1] / wClip;
-    const cssWidth  = gl.drawingBufferWidth  / resolutionScale.resolutionScale;
-    const cssHeight = gl.drawingBufferHeight / resolutionScale.resolutionScale;
+    const cssWidth  = gl.drawingBufferWidth  / effectiveResolutionScale;
+    const cssHeight = gl.drawingBufferHeight / effectiveResolutionScale;
     snappedCanvasPos[0] = (ndcX + 1) * 0.5 * cssWidth;
     snappedCanvasPos[1] = (1 - ndcY) * 0.5 * cssHeight;
 

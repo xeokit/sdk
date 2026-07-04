@@ -20,6 +20,7 @@ import {SceneMesh} from "../../../../model/scene";
 import {RENDER_PASSES} from "../RENDER_PASSES";
 import {createRTCViewMat} from "../../../../base/math/rtc";
 import {GaussianSplatPickTechnique, SPLAT_PICK_SENTINEL} from "../drawOps/techniques/splats/GaussianSplatPickTechnique";
+import {getEffectiveResolutionScale} from "../resolutionScale";
 
 const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
@@ -289,7 +290,7 @@ export class PickManager {
 
     const view = rendererView.view;
     const viewIndex = view.viewIndex;
-    const resolutionScale = view.resolutionScale;
+    const effectiveResolutionScale = getEffectiveResolutionScale(view);
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
     const pickBuffer = this._pickBuffer;
@@ -311,8 +312,8 @@ export class PickManager {
     renderContext.pickProjMatrix = pickProjMatrix;
     renderContext.pickInvisible = !!pickInvisible;
     renderContext.pickClipPos = [
-      this._getClipPosX(pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
-      this._getClipPosY(pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+      this._getClipPosX(pickCanvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth),
+      this._getClipPosY(pickCanvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight)
     ];
 
     gl.viewport(0, 0, 1, 1);

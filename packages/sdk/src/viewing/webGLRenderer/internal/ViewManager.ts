@@ -14,6 +14,7 @@ import {SceneTransform} from "../../../model/scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
 import {RenderInspector, ShaderInspector} from "./inspectors";
+import {getEffectiveResolutionScale} from "./resolutionScale";
 
 /**
  * Top-level, internal rendering and pipeline manager within a {@link WebGLRenderer}.
@@ -764,9 +765,7 @@ export class ViewManager {
     const top = Math.round(rect.top);
 
     // Resolution scaling affects only the backing buffer size.
-    const resolutionScale = view.resolutionScale.applied
-      ? Math.max(0.05, view.resolutionScale.resolutionScale)
-      : 1.0;
+    const resolutionScale = getEffectiveResolutionScale(view);
 
     const pixelWidth = Math.max(1, Math.round(cssWidth * resolutionScale));
     const pixelHeight = Math.max(1, Math.round(cssHeight * resolutionScale));

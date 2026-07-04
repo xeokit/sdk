@@ -19,6 +19,11 @@ export interface PropertySetParams {
   id: string;
 
   /**
+   * The ID of this PropertySet in the originating system, if available.
+   */
+  originalSystemId?: string;
+
+  /**
    * The human-readable name of the PropertySet.
    */
   name: string;

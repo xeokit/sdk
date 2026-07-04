@@ -378,6 +378,8 @@ describe("Data + DataModel build lifecycle", () => {
       type: "Pset",
       properties: [{name: "Code", value: "A"}],
     }).ok).toBe(true);
+    expect(m1.stats.numPropertySets).toBe(1);
+    expect(m2.stats.numPropertySets).toBe(1);
 
     const destroyedPropertySets: string[] = [];
     data.events.onPropertySetDestroyed.subscribe((_data, propertySet) => destroyedPropertySets.push(propertySet.id));
@@ -390,6 +392,58 @@ describe("Data + DataModel build lifecycle", () => {
     m2.destroy();
     expect(data.propertySets.sharedPs).toBeUndefined();
     expect(destroyedPropertySets).toEqual(["sharedPs"]);
+  });
+
+  it("rejects sharing an existing property set with conflicting metadata", () => {
+    const data = new Data();
+    const m1 = data.createModel({id: "psConflictA"}).value;
+    const m2 = data.createModel({id: "psConflictB"}).value;
+    const propertySet = m1.createPropertySet({
+      id: "sharedPs",
+      originalSystemId: "source-a",
+      name: "Shared Props",
+      type: "Pset",
+      properties: [{name: "Code", value: "A"}],
+    }).value;
+
+    const result = m2.createPropertySet({
+      id: "sharedPs",
+      originalSystemId: "source-b",
+      name: "Shared Props",
+      type: "Pset",
+      properties: [{name: "Code", value: "A"}],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(data.propertySets.sharedPs).toBe(propertySet);
+    expect(m2.propertySets.sharedPs).toBeUndefined();
+    expect(propertySet.models).toEqual([m1]);
+    expect(m2.stats.numPropertySets).toBe(0);
+  });
+
+  it("rejects sharing an existing property set with different properties", () => {
+    const data = new Data();
+    const m1 = data.createModel({id: "psPropsA"}).value;
+    const m2 = data.createModel({id: "psPropsB"}).value;
+    const propertySet = m1.createPropertySet({
+      id: "sharedPs",
+      name: "Shared Props",
+      type: "Pset",
+      properties: [{name: "Code", value: {class: "A", tags: ["one"]}}],
+    }).value;
+
+    const result = m2.createPropertySet({
+      id: "sharedPs",
+      name: "Shared Props",
+      type: "Pset",
+      properties: [{name: "Code", value: {class: "A", tags: ["two"]}}],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(data.propertySets.sharedPs).toBe(propertySet);
+    expect(m2.propertySets.sharedPs).toBeUndefined();
+    expect(propertySet.models).toEqual([m1]);
+    expect(m2.stats.numPropertySets).toBe(0);
   });
 
   it("fires onDataObjectDestroyed once per destroyed object, regardless of shared type", () => {

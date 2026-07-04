@@ -62,6 +62,7 @@ export class PropertySet {
     propertySetCfg: PropertySetParams) {
     this.models = [dataModel];
     this.id = propertySetCfg.id;
+    this.originalSystemId = propertySetCfg.originalSystemId;
     this.name = propertySetCfg.name;
     this.type = propertySetCfg.type;
     this.schema = propertySetCfg.schema;

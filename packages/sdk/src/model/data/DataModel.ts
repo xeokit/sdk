@@ -265,8 +265,13 @@ export class DataModel  {
           error: `[DataModel.createPropertySet] PropertySet "${propertySetCfg.id}" already exists with schema "${propertySet.schema}", which does not match this DataModel's schema "${this.schema}"`
         });
       }
+      const reuseResult = this.#validateSharedPropertySetReuse(propertySet, propertySetCfg);
+      if (reuseResult.ok !== true) {
+        return reuseResult;
+      }
       this.propertySets[propertySetCfg.id] = propertySet;
       propertySet.models.push(this);
+      this.stats.numPropertySets++;
       return {
         ok: true,
         value: propertySet
@@ -730,6 +735,48 @@ export class DataModel  {
     };
   }
 
+  #validateSharedPropertySetReuse(propertySet: PropertySet, propertySetParams: PropertySetParams): SDKResult<void> {
+    if (propertySetParams.name !== propertySet.name) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with name "${propertySet.name}", which does not match requested name "${propertySetParams.name}"`
+      });
+    }
+    if (propertySetParams.type !== propertySet.type) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with type "${propertySet.type}", which does not match requested type "${propertySetParams.type}"`
+      });
+    }
+    if (propertySetParams.schema !== undefined && propertySetParams.schema !== propertySet.schema) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with schema "${propertySet.schema}", which does not match requested schema "${propertySetParams.schema}"`
+      });
+    }
+    if (propertySetParams.originalSystemId !== undefined && propertySetParams.originalSystemId !== propertySet.originalSystemId) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with originalSystemId "${propertySet.originalSystemId}", which does not match requested originalSystemId "${propertySetParams.originalSystemId}"`
+      });
+    }
+    if (!propertyParamsListEqual(propertySet.properties, propertySetParams.properties || [])) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with different properties`
+      });
+    }
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
   #snapshotTransactionState(): DataModelTransactionState {
     const models = new Set<DataModel>();
     models.add(this);
@@ -1027,4 +1074,56 @@ function relationshipLocator(relationship: Relationship): string {
   const relatingId = relationship.relatingObject ? relationship.relatingObject.id : "?";
   const relatedId = relationship.relatedObject ? relationship.relatedObject.id : "?";
   return `${relatingId}->${relatedId}#${relationship.type}`;
+}
+
+function propertyParamsListEqual(properties: readonly PropertyParams[], propertyParams: readonly PropertyParams[]): boolean {
+  if (properties.length !== propertyParams.length) {
+    return false;
+  }
+  for (let i = 0, len = properties.length; i < len; i++) {
+    const property = properties[i];
+    const propertyParam = propertyParams[i];
+    if (
+      property.name !== propertyParam.name ||
+      property.type !== propertyParam.type ||
+      property.valueType !== propertyParam.valueType ||
+      property.description !== propertyParam.description ||
+      !propertyValueEqual(property.value, propertyParam.value)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function propertyValueEqual(a: any, b: any): boolean {
+  if (Object.is(a, b)) {
+    return true;
+  }
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) {
+    return false;
+  }
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) {
+      return false;
+    }
+    for (let i = 0, len = a.length; i < len; i++) {
+      if (!propertyValueEqual(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) {
+    return false;
+  }
+  for (let i = 0, len = aKeys.length; i < len; i++) {
+    const key = aKeys[i];
+    if (!Object.prototype.hasOwnProperty.call(b, key) || !propertyValueEqual(a[key], b[key])) {
+      return false;
+    }
+  }
+  return true;
 }

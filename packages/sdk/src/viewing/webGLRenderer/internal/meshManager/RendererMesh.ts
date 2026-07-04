@@ -120,6 +120,11 @@ export class RendererMesh {
     }
   }
 
+  isObjectVisible(viewIndex: number): boolean {
+    this._assertViewIndex(viewIndex, "isObjectVisible");
+    return this._hasFlag(viewIndex, ViewStateBits.ObjectVisible);
+  }
+
   /**
    * Sets the transformation matrix for the mesh, updating the assigned GPU tile as needed based on the new center position.
    * @param matrix

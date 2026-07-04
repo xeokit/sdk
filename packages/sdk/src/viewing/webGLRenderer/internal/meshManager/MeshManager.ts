@@ -308,15 +308,35 @@ export class MeshManager {
 
   private _synchronizeCreatedRendererObject(sceneObject: SceneObject, rendererMeshes: RendererMesh[]): void {
     const viewer = this._renderContext.viewer;
-    for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
+    const numViews = Math.min(viewer.numViews, this._renderContext.memoryConfigs.maxViews);
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       const viewObject = viewer.viewList[viewIndex]?.objects[sceneObject.id];
-      if (!viewObject || !this._viewObjectStateNeedsInitialSync(viewObject)) {
+      const hasDetachedRendererMesh = this._rendererMeshesNeedObjectStateSync(rendererMeshes, viewIndex);
+      if (viewObject) {
+        if (!hasDetachedRendererMesh && !this._viewObjectStateNeedsInitialSync(viewObject)) {
+          continue;
+        }
+        for (let i = 0, n = rendererMeshes.length; i < n; i++) {
+          this._synchronizeRendererMeshWithViewObject(rendererMeshes[i], viewObject);
+        }
+        continue;
+      }
+      if (!hasDetachedRendererMesh && sceneObject.clippable !== false) {
         continue;
       }
       for (let i = 0, n = rendererMeshes.length; i < n; i++) {
-        this._synchronizeRendererMeshWithViewObject(rendererMeshes[i], viewObject);
+        this._synchronizeRendererMeshWithDefaultObjectState(rendererMeshes[i], viewIndex, sceneObject);
       }
     }
+  }
+
+  private _rendererMeshesNeedObjectStateSync(rendererMeshes: RendererMesh[], viewIndex: number): boolean {
+    for (let i = 0, len = rendererMeshes.length; i < len; i++) {
+      if (!rendererMeshes[i].isObjectVisible(viewIndex)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private _viewObjectStateNeedsInitialSync(viewObject: ViewObject): boolean {
@@ -569,13 +589,16 @@ export class MeshManager {
   /**
    * Unregisters a {@link model!scene.SceneObject | SceneObject}.
    *
-   * Destroys the {@link RendererObject}.
+   * Detaches and removes the {@link RendererObject}. The underlying
+   * {@link RendererMesh} instances stay registered until their SceneMeshes are
+   * destroyed.
    *
    * @param sceneObject - The object to unregister.
    * @returns {@link base!core.SDKResult | SDKResult} indicating success, or `ok:false` if the object is not registered.
    */
   public sceneObjectDestroyed(sceneObject: SceneObject): SDKResult<any> {
-    if (!this._rendererObjects[sceneObject.id]) {
+    const rendererObject = this._rendererObjects[sceneObject.id];
+    if (!rendererObject) {
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
@@ -583,10 +606,14 @@ export class MeshManager {
       };
     }
 
+    for (const sceneMesh of sceneObject.meshes ?? []) {
+      const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
+      if (rendererMesh) {
+        this._detachRendererMeshFromObject(rendererObject, rendererMesh);
+      }
+    }
+
     delete this._rendererObjects[sceneObject.id];
-
-    sceneObject.meshes?.forEach((mesh) => this._removeMesh(mesh));
-
     this._batchesDirty = true;
 
     return {ok: true, value: undefined};
@@ -635,7 +662,8 @@ export class MeshManager {
 
     const objectId = sceneObject.id;
     const viewer = this._renderContext.viewer;
-    for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
+    const numViews = Math.min(viewer.numViews, this._renderContext.memoryConfigs.maxViews);
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       const view = viewer.viewList[viewIndex];
       const viewObject = view.objects[objectId];
       if (!viewObject) {
@@ -674,6 +702,26 @@ export class MeshManager {
     rendererMesh.setOpacityInView(viewIndex, viewObject.opacityUpdated ? viewObject.opacity : null);
   }
 
+  private _synchronizeRendererMeshWithDefaultObjectState(rendererMesh: RendererMesh, viewIndex: number, sceneObject: SceneObject): void {
+    rendererMesh.setObjectVisible(viewIndex, true);
+    rendererMesh.setXRayed(viewIndex, false);
+    rendererMesh.setHighlighted(viewIndex, false);
+    rendererMesh.setSelected(viewIndex, false);
+    rendererMesh.setCulled(viewIndex, false);
+    rendererMesh.setPickable(viewIndex, true);
+    rendererMesh.setClippable(viewIndex, sceneObject.clippable !== false);
+    rendererMesh.setColorInView(viewIndex, null);
+    rendererMesh.setOpacityInView(viewIndex, null);
+  }
+
+  private _detachRendererMeshFromObject(rendererObject: RendererObject, rendererMesh: RendererMesh): void {
+    rendererObject.removeRendererMesh(rendererMesh);
+    const numViews = Math.min(this._renderContext.viewer.viewList.length, this._renderContext.memoryConfigs.maxViews);
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      rendererMesh.setObjectVisible(viewIndex, false);
+    }
+  }
+
   /**
    * Disconnects an existing {@link model!scene.SceneMesh | SceneMesh} from an existing {@link model!scene.SceneObject | SceneObject}.
    * The mesh remains cached, but is no longer rendered as part of the object.
@@ -698,10 +746,7 @@ export class MeshManager {
         error: `[MeshManager.sceneObjectMeshRemoved] SceneMesh not attached with this globalId: ${sceneMesh.uniqueId}`
       };
     }
-    rendererObject.removeRendererMesh(rendererMesh);
-    for (let viewIndex = 0, numViews = this._renderContext.viewer.viewList.length; viewIndex < numViews; viewIndex++) {
-      rendererMesh.setObjectVisible(viewIndex, false);
-    }
+    this._detachRendererMeshFromObject(rendererObject, rendererMesh);
     return {ok: true, value: undefined};
   }
 

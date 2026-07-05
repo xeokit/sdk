@@ -8,6 +8,8 @@
   "scripts": {
     "sdk-test": "jest --passWithNoTests",
     "sdk-test:formats": "jest src/formats",
+    "sdk-perf": "RUN_PERF=1 jest src/perf",
+    "sdk-perf:update": "RUN_PERF=1 UPDATE_PERF_BASELINE=1 jest src/perf",
     "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
     "sdk-publish": "npm publish --access public",
     "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
@@ -42,6 +44,7 @@
     "@loaders.gl/math": "^4.0.4",
     "@loaders.gl/polyfills": "^4.0.4",
     "@loaders.gl/textures": "^4.0.4",
+    "@napi-rs/canvas": "^1.0.1",
     "commander": "^11.0.0",
     "pako": "^2.0.4",
     "strongly-typed-events": "3.0.7",

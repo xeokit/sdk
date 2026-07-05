@@ -1,7 +1,7 @@
 /**
- *  XGF v3 file-format payload — extends v2 with 3D Gaussian Splatting
- *  geometry: per-splat scales and rotation quaternions, plus the
- *  `GaussianSplatsPrimitive` primitive type.
+ *  XGF v1 file-format payload — geometry, PBR materials, textures, and 3D
+ *  Gaussian Splatting geometry (per-splat scales and rotation quaternions,
+ *  plus the `GaussianSplatsPrimitive` primitive type).
  *
  *  Pack order in the binary form is the field-declaration order below;
  *  `packXGF` and `unpackXGF` read/write it positionally.

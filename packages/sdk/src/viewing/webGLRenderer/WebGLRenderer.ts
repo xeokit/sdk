@@ -14,6 +14,8 @@ import {ShaderInspector, RenderInspector, type MemoryInspector} from "./internal
 import {type MeshManagerStepStats} from "./internal/meshManager";
 import {type PickParams, type PickResult} from "../viewer";
 import {createDefaultMemoryConfigs} from "./defaultMemoryConfigs";
+import {MarkerOcclusionTester} from "./MarkerOcclusionTester";
+import type {MarkerOcclusionTesterParams} from "./MarkerOcclusionTesterParams";
 
 interface DeferredSceneModelRegistrations {
   geometries: Set<SceneGeometry>;
@@ -910,6 +912,40 @@ export class WebGLRenderer {
       });
     }
     return this._viewManager.pick(view, pickParams);
+  }
+
+  /**
+   * Creates a marker occlusion tester for a {@link viewing!viewer.View | View}.
+   *
+   * The tester batches world-space marker anchors and reports whether each
+   * marker should be shown as a floating UI element. The current implementation
+   * uses the scene BVH; `params.mode: "auto"` resolves to that backend.
+   *
+   * @param view View whose camera and visual object state drive occlusion.
+   * @param params Optional filtering, bias, and hysteresis settings.
+   */
+  createMarkerOcclusionTester(
+    view: View,
+    params: MarkerOcclusionTesterParams = {}
+  ): SDKResult<MarkerOcclusionTester> {
+    if (!this._viewManager || !this._viewer?.scene) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.createMarkerOcclusionTester] Viewer with Scene is not currently attached."
+      });
+    }
+    if (view.viewer !== this._viewer) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.createMarkerOcclusionTester] The specified View does not belong to the currently attached Viewer."
+      });
+    }
+    return {
+      ok: true,
+      value: new MarkerOcclusionTester({view, params})
+    };
   }
 
   /**

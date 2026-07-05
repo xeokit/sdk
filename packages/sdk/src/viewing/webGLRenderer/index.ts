@@ -238,5 +238,8 @@ export * from "./Capabilities";
 export * from "./MemoryConfigs";
 export * from "./createMemoryConfigs";
 export * from "./MemoryUsage";
+export * from "./MarkerOcclusionTester";
+export * from "./MarkerOcclusionTesterParams";
+export * from "./MarkerOcclusionResult";
 
 export * as internal from "./internal";

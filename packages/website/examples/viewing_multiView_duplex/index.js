@@ -229,8 +229,8 @@ async function main() {
     coordinateSystem: {
       basis: [
         1, 0, 0,
-        0, 0, 1,
-        0, 1, 0
+        0, 1, 0,
+        0, 0, 1
       ],
       origin: [0, 0, 0],
       units: "meters",
@@ -241,6 +241,10 @@ async function main() {
   const dataModel = must(data.createModel({
     id: "demoModel"
   }), "DataModel");
+
+  const markerModel = must(scene.createModel({
+    id: "cameraMarkers"
+  }), "camera marker SceneModel");
 
   const sphere = must(xeokit.model.procgen.buildGeometry.buildSphere({
     radius: 1,
@@ -257,14 +261,14 @@ async function main() {
     farHalfHeight: 0.28
   });
 
-  sceneModel.createGeometry({
+  markerModel.createGeometry({
     id: "cameraBodyGeometry",
     primitive: xeokit.base.constants.TrianglesPrimitive,
     positions: sphere.positions,
     indices: sphere.indices
   });
 
-  sceneModel.createGeometry({
+  markerModel.createGeometry({
     id: "cameraFrustumGeometry",
     primitive: xeokit.base.constants.TrianglesPrimitive,
     positions: frustum.positions,
@@ -292,12 +296,12 @@ async function main() {
   // Each marker SceneObject gets its own layerId. Because ViewLayers group
   // ViewObjects by SceneObject.layerId, each View can independently show or
   // hide each marker layer.
-  const markerA = createCameraMarker(sceneModel, "cameraAMarker", [0.98, 0.40, 0.12], cameraALayerId);
-  const markerB = createCameraMarker(sceneModel, "cameraBMarker", [0.18, 0.48, 0.95], cameraBLayerId);
+  const markerA = createCameraMarker(markerModel, "cameraAMarker", [0.98, 0.40, 0.12], cameraALayerId);
+  const markerB = createCameraMarker(markerModel, "cameraBMarker", [0.18, 0.48, 0.95], cameraBLayerId);
 
 
   const syncMarkers = () => {
-    syncCameraMarkers(sceneModel, viewA, viewB, markerA, markerB);
+    syncCameraMarkers(markerModel, viewA, viewB, markerA, markerB);
   };
 
   syncMarkers();

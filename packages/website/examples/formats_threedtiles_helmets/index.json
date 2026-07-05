@@ -13,5 +13,6 @@
     "Importing",
     "3D Tiles"
   ],
-  "topic": "import.threedtiles"
+  "topic": "import.threedtiles",
+  "snapshotTimeoutMs": 90000
 }

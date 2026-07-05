@@ -32,8 +32,8 @@ studio.init().then(async () => {
     coordinateSystem: {
       basis: [
         1, 0, 0,
-        0, 0, 1,
         0, 1, 0,
+        0, 0, 1,
       ],
       origin: [0, 0, 0],
       units: "meters",

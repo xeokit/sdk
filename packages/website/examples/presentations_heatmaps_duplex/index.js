@@ -30,10 +30,8 @@ async function main() {
 
     // ── DataModel + SceneModel populated from the Duplex assets.
     //
-    // Same coordinate-system swap as AttachSceneModelMaterials_Duplex —
-    // Duplex's source is Z-up; the basis remaps Y↔Z so worldUp comes
-    // out as +Y in scene space, which matches the camera and the rest
-    // of the sample assets.
+    // Duplex is authored Y-up; the Scene is Z-up by default. Declaring the
+    // model basis here keeps the loaded building upright in scene space.
     const dataModelResult = data.createModel({ id: "duplex" });
     if (!dataModelResult.ok) throw new Error(dataModelResult.error);
     const dataModel = dataModelResult.value;
@@ -43,8 +41,8 @@ async function main() {
         coordinateSystem: {
             basis: [
                 1, 0, 0,
-                0, 0, 1,
-                0, 1, 0
+                0, 1, 0,
+                0, 0, 1
             ],
             origin: [0, 0, 0],
             units: "meters",

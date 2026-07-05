@@ -25,16 +25,16 @@ async function main() {
     }
   });
 
-  // Create a SceneModel to hold renderable content. The coordinate
-  // system is defined explicitly to ensure consistent interpretation
-  // of axes and units.
+  // Create a SceneModel to hold renderable content. Duplex is authored
+  // Y-up, while the Scene is Z-up by default; this basis lets the SceneModel
+  // transform keep the building upright.
   const sceneModelResult = scene.createModel({
     id: "demoModel",
     coordinateSystem: {
       basis: [
         1, 0, 0, // Right
-        0, 0, 1, // Up
-        0, 1, 0  // Forward
+        0, 1, 0, // Up
+        0, 0, 1  // Forward
       ],
       origin: [0, 0, 0],
       units: "meters",

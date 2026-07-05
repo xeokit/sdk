@@ -43,13 +43,6 @@ studio.init().then(() => {
     },
   });
 
-  new xeokit.studio.panels.NavCube({
-    view,
-    cameraFlight: studio.viewManager.views[view.id].cameraFlight,
-    cameraFly: false,
-    size: 110,
-  });
-
   // Lines need to be thick enough that the dash / gap visibility
   // reads at typical screen scales. The View-level value applies
   // wherever a material doesn't override.

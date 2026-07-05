@@ -1,0 +1,527 @@
+{
+  "stats": {
+    "startTime": 40906.60000002384,
+    "endTime": 93425.89999997616,
+    "elapsedTime": 52519.299999952316,
+    "aabb": [
+      -166.9410704200245,
+      -124.00380762727417,
+      -12.864585264319441,
+      151.00026337735167,
+      123.02037389430589,
+      287.1305254329638
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 140,
+      "numMeshes": 140,
+      "numGeometries": 140,
+      "numTextures": 0,
+      "numMaterials": 25,
+      "numTriangles": 145882,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 230405,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 46.345855712890625,
+      "usedMB": 13.309572219848633
+    },
+    "renderer": {
+      "tiles": {
+        "-80-40-40": {
+          "id": "-80-40-40",
+          "rtcCenter": [
+            -80,
+            40,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 4,
+          "numMeshes": 2
+        },
+        "-80-40-160": {
+          "id": "-80-40-160",
+          "rtcCenter": [
+            -80,
+            40,
+            160
+          ],
+          "size": 40,
+          "tileIndex": 5,
+          "numMeshes": 2
+        },
+        "-80-40-0": {
+          "id": "-80-40-0",
+          "rtcCenter": [
+            -80,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 6,
+          "numMeshes": 43
+        },
+        "0-40-160": {
+          "id": "0-40-160",
+          "rtcCenter": [
+            0,
+            40,
+            160
+          ],
+          "size": 40,
+          "tileIndex": 7,
+          "numMeshes": 3
+        },
+        "0--80-160": {
+          "id": "0--80-160",
+          "rtcCenter": [
+            0,
+            -80,
+            160
+          ],
+          "size": 40,
+          "tileIndex": 8,
+          "numMeshes": 4
+        },
+        "80-40-0": {
+          "id": "80-40-0",
+          "rtcCenter": [
+            80,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 9,
+          "numMeshes": 5
+        },
+        "40--80-0": {
+          "id": "40--80-0",
+          "rtcCenter": [
+            40,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 10,
+          "numMeshes": 4
+        },
+        "0-40-0": {
+          "id": "0-40-0",
+          "rtcCenter": [
+            0,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 11,
+          "numMeshes": 1
+        },
+        "-40-40-0": {
+          "id": "-40-40-0",
+          "rtcCenter": [
+            -40,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 12,
+          "numMeshes": 4
+        },
+        "-40--80-0": {
+          "id": "-40--80-0",
+          "rtcCenter": [
+            -40,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 13,
+          "numMeshes": 6
+        },
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 14,
+          "numMeshes": 1
+        },
+        "40-40-0": {
+          "id": "40-40-0",
+          "rtcCenter": [
+            40,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 15,
+          "numMeshes": 8
+        },
+        "80-0-0": {
+          "id": "80-0-0",
+          "rtcCenter": [
+            80,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 16,
+          "numMeshes": 3
+        },
+        "80--40-0": {
+          "id": "80--40-0",
+          "rtcCenter": [
+            80,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 17,
+          "numMeshes": 6
+        },
+        "0--40-0": {
+          "id": "0--40-0",
+          "rtcCenter": [
+            0,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 18,
+          "numMeshes": 2
+        },
+        "-80-120-0": {
+          "id": "-80-120-0",
+          "rtcCenter": [
+            -80,
+            120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 19,
+          "numMeshes": 2
+        },
+        "-40-80-0": {
+          "id": "-40-80-0",
+          "rtcCenter": [
+            -40,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 20,
+          "numMeshes": 2
+        },
+        "80-80-0": {
+          "id": "80-80-0",
+          "rtcCenter": [
+            80,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 21,
+          "numMeshes": 2
+        },
+        "40-40-40": {
+          "id": "40-40-40",
+          "rtcCenter": [
+            40,
+            40,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 22,
+          "numMeshes": 3
+        },
+        "0--40-120": {
+          "id": "0--40-120",
+          "rtcCenter": [
+            0,
+            -40,
+            120
+          ],
+          "size": 40,
+          "tileIndex": 23,
+          "numMeshes": 1
+        },
+        "0--80-80": {
+          "id": "0--80-80",
+          "rtcCenter": [
+            0,
+            -80,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 24,
+          "numMeshes": 1
+        },
+        "40-40-80": {
+          "id": "40-40-80",
+          "rtcCenter": [
+            40,
+            40,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 25,
+          "numMeshes": 1
+        },
+        "-160-80-0": {
+          "id": "-160-80-0",
+          "rtcCenter": [
+            -160,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 26,
+          "numMeshes": 2
+        },
+        "-120-80-0": {
+          "id": "-120-80-0",
+          "rtcCenter": [
+            -120,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 27,
+          "numMeshes": 2
+        },
+        "-120--40-0": {
+          "id": "-120--40-0",
+          "rtcCenter": [
+            -120,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 28,
+          "numMeshes": 2
+        },
+        "-160--40-0": {
+          "id": "-160--40-0",
+          "rtcCenter": [
+            -160,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 29,
+          "numMeshes": 2
+        },
+        "-40-0-0": {
+          "id": "-40-0-0",
+          "rtcCenter": [
+            -40,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 30,
+          "numMeshes": 11
+        },
+        "0-0-160": {
+          "id": "0-0-160",
+          "rtcCenter": [
+            0,
+            0,
+            160
+          ],
+          "size": 40,
+          "tileIndex": 31,
+          "numMeshes": 6
+        },
+        "0--40-160": {
+          "id": "0--40-160",
+          "rtcCenter": [
+            0,
+            -40,
+            160
+          ],
+          "size": 40,
+          "tileIndex": 32,
+          "numMeshes": 3
+        },
+        "40--40-200": {
+          "id": "40--40-200",
+          "rtcCenter": [
+            40,
+            -40,
+            200
+          ],
+          "size": 40,
+          "tileIndex": 33,
+          "numMeshes": 6
+        }
+      },
+      "views": [
+        {
+          "viewId": "7ddb2e6b-9f30-462f-a233-2b952cf423ac",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "saoPrep",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 141274
+                  },
+                  "timeMs": {
+                    "start": 93938.60000002384,
+                    "end": 93938.70000004768,
+                    "duration": 0.10000002384185791
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 93938.39999997616,
+                "end": 93938.70000004768,
+                "duration": 0.30000007152557373
+              }
+            },
+            {
+              "name": "shadowPrep",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 141274
+                  },
+                  "timeMs": {
+                    "start": 93939.39999997616,
+                    "end": 93939.5,
+                    "duration": 0.10000002384185791
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 141274
+                  },
+                  "timeMs": {
+                    "start": 93939.5,
+                    "end": 93939.5,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 141274
+                  },
+                  "timeMs": {
+                    "start": 93939.5,
+                    "end": 93939.60000002384,
+                    "duration": 0.10000002384185791
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 141274
+                  },
+                  "timeMs": {
+                    "start": 93939.60000002384,
+                    "end": 93939.70000004768,
+                    "duration": 0.10000002384185791
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 93938.70000004768,
+                "end": 93939.70000004768,
+                "duration": 1
+              }
+            },
+            {
+              "name": "opaqueSAOShadow",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 141274
+                  },
+                  "timeMs": {
+                    "start": 93939.70000004768,
+                    "end": 93939.70000004768,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 93939.70000004768,
+                "end": 93939.70000004768,
+                "duration": 0
+              }
+            },
+            {
+              "name": "normalFillTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 141274,
+                    "numPrims": 4608
+                  },
+                  "timeMs": {
+                    "start": 93939.89999997616,
+                    "end": 93939.89999997616,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 93939.79999995232,
+                "end": 93939.89999997616,
+                "duration": 0.10000002384185791
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 93936.70000004768,
+            "end": 93940,
+            "duration": 3.299999952316284
+          },
+          "numDrawCalls": 7,
+          "numPrims": 852252
+        }
+      ]
+    }
+  }
+}

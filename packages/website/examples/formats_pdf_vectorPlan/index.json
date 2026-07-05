@@ -14,5 +14,6 @@
     "Importing",
     "Drawings"
   ],
-  "topic": "import.pdf"
+  "topic": "import.pdf",
+  "snapshotTimeoutMs": 90000
 }

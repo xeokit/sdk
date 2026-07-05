@@ -434,7 +434,8 @@
       "Formats",
       "Drawings"
     ],
-    "topic": "formats.dwg"
+    "topic": "formats.dwg",
+    "snapshotTimeoutMs": 90000
   },
   "formats_dxf_floorPlan": {
     "id": "formats_dxf_floorPlan",
@@ -469,7 +470,8 @@
       "Importing",
       "FBX"
     ],
-    "topic": "import.fbx"
+    "topic": "import.fbx",
+    "snapshotTimeoutMs": 90000
   },
   "formats_gltf_damagedHelmet": {
     "id": "formats_gltf_damagedHelmet",
@@ -545,7 +547,8 @@
       "Importing",
       "glTF"
     ],
-    "topic": "import.gltf"
+    "topic": "import.gltf",
+    "snapshotTimeoutMs": 90000
   },
   "formats_gltf_sponzaPbr": {
     "id": "formats_gltf_sponzaPbr",
@@ -690,7 +693,8 @@
       "Importing",
       "Drawings"
     ],
-    "topic": "import.pdf"
+    "topic": "import.pdf",
+    "snapshotTimeoutMs": 90000
   },
   "formats_pdf_importPanel": {
     "id": "formats_pdf_importPanel",
@@ -726,7 +730,8 @@
       "Importing",
       "Drawings"
     ],
-    "topic": "import.pdf"
+    "topic": "import.pdf",
+    "snapshotTimeoutMs": 90000
   },
   "formats_splat_room": {
     "id": "formats_splat_room",
@@ -762,7 +767,8 @@
       "Exporting",
       "Splat"
     ],
-    "topic": "import.splat"
+    "topic": "import.splat",
+    "snapshotTimeoutMs": 180000
   },
   "formats_splat_streaming": {
     "id": "formats_splat_streaming",
@@ -799,7 +805,8 @@
       "Exporting",
       "Splat"
     ],
-    "topic": "import.splat"
+    "topic": "import.splat",
+    "snapshotTimeoutMs": 240000
   },
   "formats_threedtiles_helmets": {
     "id": "formats_threedtiles_helmets",
@@ -816,7 +823,8 @@
       "Importing",
       "3D Tiles"
     ],
-    "topic": "import.threedtiles"
+    "topic": "import.threedtiles",
+    "snapshotTimeoutMs": 90000
   },
   "formats_threedtiles_streamingBuilding": {
     "id": "formats_threedtiles_streamingBuilding",
@@ -852,7 +860,8 @@
       "Importing",
       "3D Tiles"
     ],
-    "topic": "import.threedtiles"
+    "topic": "import.threedtiles",
+    "snapshotTimeoutMs": 90000
   },
   "formats_threedxml_assembly": {
     "id": "formats_threedxml_assembly",
@@ -910,22 +919,6 @@
       "USDZ"
     ],
     "topic": "import.usdz"
-  },
-  "formats_xgf_holterTower": {
-    "id": "formats_xgf_holterTower",
-    "title": "Viewing XGF using XGFLoader",
-    "description": "How to use XGFLoader to view an XGF model in the browser with a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "XGF",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "XGF"
-    ],
-    "topic": "import.xgf"
   },
   "formats_xgf_housePlanPbr": {
     "id": "formats_xgf_housePlanPbr",
@@ -998,7 +991,8 @@
       "Importing",
       "XKT"
     ],
-    "topic": "import.xkt"
+    "topic": "import.xkt",
+    "snapshotTimeoutMs": 90000
   },
   "formats_xkt_roundTrip": {
     "id": "formats_xkt_roundTrip",
@@ -1018,7 +1012,8 @@
       "Exporting",
       "XKT"
     ],
-    "topic": "export.xkt"
+    "topic": "export.xkt",
+    "snapshotTimeoutMs": 90000
   },
   "inspect_dataModel_duplex": {
     "id": "inspect_dataModel_duplex",
@@ -1056,7 +1051,8 @@
       "Optimization",
       "IFC"
     ],
-    "topic": "sceneModelInspector.interactive"
+    "topic": "sceneModelInspector.interactive",
+    "snapshotTimeoutMs": 90000
   },
   "perf_loading_comparison": {
     "id": "perf_loading_comparison",
@@ -1339,6 +1335,26 @@
     ],
     "topic": "collision.bvh"
   },
+  "spatial_markerOcclusion_duplex": {
+    "id": "spatial_markerOcclusion_duplex",
+    "title": "Marker Occlusion for HTML Annotations",
+    "description": "Shows WebGLRenderer marker occlusion on the Duplex XGF model. HTML annotation labels are pinned to world-space marker anchors around the building; each camera update projects the anchors to canvas space and uses the BVH-backed marker occlusion tester to hide labels behind model geometry.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "BVH",
+      "Annotations",
+      "Occlusion",
+      "WebGLRenderer",
+      "XGF",
+      "Duplex"
+    ],
+    "categories": [
+      "Picking",
+      "Renderer"
+    ],
+    "topic": "picking.occlusion"
+  },
   "spatial_snapping_table": {
     "id": "spatial_snapping_table",
     "title": "Snap-to-vertex / snap-to-edge picking",
@@ -1376,31 +1392,6 @@
       "Picking"
     ],
     "topic": "picking.snap"
-  },
-  "viewing_effects_cityscape": {
-    "id": "viewing_effects_cityscape",
-    "title": "Full Effects Stack on the Cityscape Model",
-    "description": "Every post-process and shading knob on one Cityscape XGF model — SAO, cascaded directional shadows, edges with depth fade, ACES tonemap with supersampling, hemispherical IBL, bloom, and FXAA. Collapsible sections let you tune each effect in isolation.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "SAO",
-      "Shadows",
-      "CSM",
-      "Edges",
-      "Tonemap",
-      "IBL",
-      "Bloom",
-      "FXAA",
-      "HDR",
-      "XGF",
-      "Renderer"
-    ],
-    "categories": [
-      "Effects",
-      "Renderer"
-    ],
-    "topic": "effects.full.cityscape"
   },
   "viewing_effects_duplex": {
     "id": "viewing_effects_duplex",
@@ -1544,20 +1535,6 @@
       "Materials"
     ],
     "topic": "rendering.shaderVariants"
-  },
-  "viewing_viewLayers_auto": {
-    "id": "viewing_viewLayers_auto",
-    "title": "Creating a Viewer with automatic ViewLayers",
-    "description": "Create a viewer with automatically managed ViewLayers to control scene partitioning and rendering behavior.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [],
-    "categories": [
-      "Viewer",
-      "Views",
-      "ViewLayers"
-    ],
-    "topic": "viewer.view.viewlayer"
   },
   "viewing_viewLayers_manual": {
     "id": "viewing_viewLayers_manual",

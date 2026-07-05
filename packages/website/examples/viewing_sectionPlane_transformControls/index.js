@@ -45,10 +45,9 @@ studio.init().then(async () => {
 
   // ── Load Duplex (IFC) ───────────────────────────────────────
   //
-  // IFC is natively Z-up — basis stays identity. The IFCLoader
-  // populates both the SceneModel and DataModel from the single
-  // source file, keeping the SceneObject ↔ DataObject id
-  // mapping intact.
+  // Duplex is authored Y-up. The SceneModel basis declares that
+  // source frame so the Scene's default Z-up basis rotates it upright
+  // while keeping the SceneObject ↔ DataObject id mapping intact.
   const sceneModel = mustCreate(scene.createModel({
     id: "duplex",
     coordinateSystem: {

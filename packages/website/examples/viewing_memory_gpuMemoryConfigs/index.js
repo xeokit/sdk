@@ -44,6 +44,14 @@ const dotBIMLoader = new xeokit.formats.dotbim.DotBIMLoader();
 studio.init()
   .then(() => {
 
+    // This example creates its own core components so it can pass a custom
+    // memory configuration into WebGLRenderer. Attach them to Studio before
+    // calling finished(), otherwise Studio cannot collect snapshot stats.
+    studio.scene = scene;
+    studio.data = data;
+    studio.viewer = viewer;
+    studio.renderer = renderer;
+
     // Create a View and connect it to the canvas element in the page.
     // A Viewer can manage multiple Views, each with its own camera state.
     const view = viewer.createView({

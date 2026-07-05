@@ -10,7 +10,7 @@ studio.init().then(() => {
   const { scene, data} = studio;
 
   // Create a ModelConverter instance configured to convert our .BIM file into SceneModelParams and DataModelParams JSON.
-  // We configure the ModelConverter with a DotBIMLoader to load BIM files, a SceneModelParamsExporter, and a DataModelParamsExporter. We'll also
+  // We configure the ModelConverter with a DotBIMLoader to load BIM files, a SceneModelExporter, and a DataModelExporter. We'll also
   // configure the ModelConveter with a single pipeline, "scenemodel", which connects our loader and exporters together into a pipeline.
 
   const modelConverter = new xeokit.convert.modelConverter.ModelConverter({
@@ -18,8 +18,8 @@ studio.init().then(() => {
       "dotbim": new xeokit.formats.dotbim.DotBIMLoader()
     },
     exporters: {
-      "datamodel": new xeokit.formats.datamodel.DataModelParamsExporter(),
-      "scenemodel": new xeokit.formats.scenemodel.SceneModelParamsExporter()
+      "datamodel": new xeokit.formats.datamodel.DataModelExporter(),
+      "scenemodel": new xeokit.formats.scenemodel.SceneModelExporter()
     },
     pipelines: {
       "dotbim2json": {
@@ -74,13 +74,13 @@ studio.init().then(() => {
 
   const dataModel = dataModelResult.value;
 
-  // Create an SceneModelParamsLoader to load the geometry and materials into our Viewer's Scene
+  // Create a SceneModelImporter to load the geometry and materials into our Viewer's Scene
 
-  const sceneModelParamsLoader = new xeokit.formats.scenemodel.SceneModelParamsLoader();
+  const sceneModelParamsLoader = new xeokit.formats.scenemodel.SceneModelImporter();
 
-  // Create an DataModelParamsLoader to load semantic data into our Viewer's Data
+  // Create a DataModelImporter to load semantic data into our Viewer's Data
 
-  const dataModelParamsLoader = new xeokit.formats.datamodel.DataModelParamsLoader();
+  const dataModelParamsLoader = new xeokit.formats.datamodel.DataModelImporter();
 
   // Fetch the .BIM file containing the source model
 

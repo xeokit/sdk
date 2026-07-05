@@ -38,8 +38,8 @@ studio.init().then(() => {
     las:      {id: "las",        readAs: "arraybuffer", LoaderClass: xeokit.formats.las.LASLoader},
     laz:      {id: "las",        readAs: "arraybuffer", LoaderClass: xeokit.formats.las.LASLoader},
     obj:      {id: "obj",        readAs: "text",        LoaderClass: xeokit.formats.obj.OBJLoader},
-    scenemodel: {id: "scenemodel", readAs: "json",        LoaderClass: xeokit.formats.scenemodel.SceneModelParamsLoader},
-    datamodel:  {id: "datamodel",  readAs: "json",        LoaderClass: xeokit.formats.datamodel.DataModelParamsLoader}
+    scenemodel: {id: "scenemodel", readAs: "json",        LoaderClass: xeokit.formats.scenemodel.SceneModelImporter},
+    datamodel:  {id: "datamodel",  readAs: "json",        LoaderClass: xeokit.formats.datamodel.DataModelImporter}
   };
 
   // Output format -> exporter descriptor + the loader that can
@@ -60,15 +60,15 @@ studio.init().then(() => {
       payloadKind:   "arraybuffer"
     },
     scenemodel: {
-      ExporterClass: xeokit.formats.scenemodel.SceneModelParamsExporter,
-      LoaderClass:   xeokit.formats.scenemodel.SceneModelParamsLoader,
+      ExporterClass: xeokit.formats.scenemodel.SceneModelExporter,
+      LoaderClass:   xeokit.formats.scenemodel.SceneModelImporter,
       extension:     "scenemodel.json",
       mime:          "application/json",
       payloadKind:   "json"
     },
     datamodel: {
-      ExporterClass: xeokit.formats.datamodel.DataModelParamsExporter,
-      LoaderClass:   xeokit.formats.datamodel.DataModelParamsLoader,
+      ExporterClass: xeokit.formats.datamodel.DataModelExporter,
+      LoaderClass:   xeokit.formats.datamodel.DataModelImporter,
       extension:     "datamodel.json",
       mime:          "application/json",
       payloadKind:   "json"

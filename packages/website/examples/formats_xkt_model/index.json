@@ -14,5 +14,6 @@
     "Importing",
     "XKT"
   ],
-  "topic": "import.xkt"
+  "topic": "import.xkt",
+  "snapshotTimeoutMs": 90000
 }

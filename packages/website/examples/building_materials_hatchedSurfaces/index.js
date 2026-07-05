@@ -53,13 +53,6 @@ studio.init().then(() => {
     },
   });
 
-  new xeokit.studio.panels.NavCube({
-    view,
-    cameraFlight: studio.viewManager.views[view.id].cameraFlight,
-    cameraFly: false,
-    size: 110,
-  });
-
   // ── Material → preset name mapping ──
   //
   // Each material is bound to one preset name from

@@ -12,14 +12,10 @@
 // To overlay the IFC on this plan in a follow-up:
 //   1. Load this PDF (here).
 //   2. Load models/Duplex/xgf into the same studio, units already
-//      metres. With the default Y/Z swap basis, the IFC's plan
-//      (its native XY) lands in the scene's XZ plane — visible from
-//      a top-down (-Y) camera framing the same {0..10.5, 0..14} extent.
-//   3. Rotate this PDF SceneModel 90° around X so it shares the IFC's
-//      XZ plan plane — or, simpler, load the IFC with an identity
-//      basis so its XY plan stays in scene XY where the PDF already
-//      sits. The example below frames the PDF from +Z (top-down on
-//      scene XY) so option (3) is the natural next step.
+//      metres and declare models/Duplex/coordSys.json on the SceneModel.
+//      Duplex is Y-up, so its native XZ floor plane lands in scene XY,
+//      exactly where the PDF already sits. The example below frames the
+//      PDF from +Z (top-down on scene XY).
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 import {buildLevelOnePlanPdf} from "./duplexLevel1Pdf.js";

@@ -1,0 +1,135 @@
+{
+  "stats": {
+    "startTime": 8097.699999928474,
+    "endTime": 9181.599999904633,
+    "elapsedTime": 1083.8999999761581,
+    "aabb": [],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 0,
+      "numMeshes": 0,
+      "numGeometries": 0,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 0,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 0,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 2,
+      "usedMB": 0
+    },
+    "renderer": {
+      "tiles": {},
+      "views": []
+    },
+    "benchmark": {
+      "model": "Duplex",
+      "iterations": 6,
+      "env": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/131.0.0.0 Safari/537.36",
+        "deviceMemoryGB": 8,
+        "hardwareConcurrency": 32,
+        "webglRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "gpuSupported": false,
+      "results": [
+        {
+          "id": "ifc",
+          "label": "IFC — source BIM → scene",
+          "splat": false,
+          "fileMB": 1.2370843887329102,
+          "median": 655.8500000238419,
+          "min": 646.3999999761581,
+          "max": 728.3999999761581,
+          "mad": 8.450000047683716,
+          "samples": [
+            646.3999999761581,
+            648.3999999761581,
+            655.3000000715256,
+            656.3999999761581,
+            692.5,
+            728.3999999761581
+          ],
+          "mbPerSec": 1.8862306757458853,
+          "prims": 25706,
+          "primsPerSec": 39194.93786546546,
+          "primLabel": "triangles"
+        },
+        {
+          "id": "gltf",
+          "label": "glTF — delivery → scene",
+          "splat": false,
+          "fileMB": 0.613525390625,
+          "median": 31.25,
+          "min": 27.699999928474426,
+          "max": 35.5,
+          "mad": 0.699999988079071,
+          "samples": [
+            27.699999928474426,
+            30.299999952316284,
+            31.100000023841858,
+            31.399999976158142,
+            31.699999928474426,
+            35.5
+          ],
+          "mbPerSec": 19.6328125,
+          "prims": 11684,
+          "primsPerSec": 373888,
+          "primLabel": "triangles"
+        },
+        {
+          "id": "xgf",
+          "label": "XGF — native → scene",
+          "splat": false,
+          "fileMB": 0.38246917724609375,
+          "median": 2.299999952316284,
+          "min": 1.899999976158142,
+          "max": 2.8000000715255737,
+          "mad": 0,
+          "samples": [
+            1.899999976158142,
+            2.299999952316284,
+            2.299999952316284,
+            2.299999952316284,
+            2.299999952316284,
+            2.8000000715255737
+          ],
+          "mbPerSec": 166.29095007628877,
+          "prims": 11684,
+          "primsPerSec": 5080000.105318818,
+          "primLabel": "triangles"
+        },
+        {
+          "id": "splat",
+          "label": ".splat — reality capture",
+          "splat": true,
+          "fileMB": 31.3265380859375,
+          "median": 99,
+          "min": 91.19999992847443,
+          "max": 100.90000009536743,
+          "mad": 1.9000000357627869,
+          "samples": [
+            91.19999992847443,
+            95.40000009536743,
+            98.29999995231628,
+            99.70000004768372,
+            100.89999997615814,
+            100.90000009536743
+          ],
+          "mbPerSec": 316.42967763573233,
+          "prims": 1026508,
+          "primsPerSec": 10368767.676767677,
+          "primLabel": "splats"
+        }
+      ]
+    }
+  }
+}

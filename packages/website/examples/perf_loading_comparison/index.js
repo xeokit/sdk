@@ -36,6 +36,12 @@ import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 // ── Config ──────────────────────────────────────────────────────────────────
 const MODEL = "Duplex";        // present as ifc + gltf + xgf
+const MODEL_COORDINATE_SYSTEM = {
+  basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+  origin: [0, 0, 0],
+  units: "meters",
+  scaleToMeters: 1
+};
 const ITERATIONS = 6;          // timed runs per format
 const WARMUP = 1;              // discarded runs per format
 const YIELD_MS = 1e9;          // minimise loader cooperative-yields while timing
@@ -76,7 +82,10 @@ function countPrimitives(sceneModel) {
 async function timedLoad(fmt, buffer) {
   const scene = new xeokit.model.scene.Scene();
   const data = fmt.semantic ? new xeokit.model.data.Data() : null;
-  const sceneModel = scene.createModel({id: "m"}).value;
+  const sceneModel = scene.createModel({
+    id: "m",
+    ...(!fmt.splat ? {coordinateSystem: MODEL_COORDINATE_SYSTEM} : {})
+  }).value;
   const dataModel = data ? data.createModel({id: "m"}).value : undefined;
 
   const params = {fileData: buffer.slice(0), sceneModel};  // fresh copy per run
@@ -230,7 +239,10 @@ function captureGpuFrames(view, inspector, frames, timeoutMs = 5000) {
 }
 
 async function measureGpuDraw(studio, view, inspector, fmt, buffer) {
-  const sceneModel = studio.scene.createModel({id: "gpu"}).value;
+  const sceneModel = studio.scene.createModel({
+    id: "gpu",
+    ...(!fmt.splat ? {coordinateSystem: MODEL_COORDINATE_SYSTEM} : {})
+  }).value;
   const dataModel = fmt.semantic ? studio.data.createModel({id: "gpu"}).value : undefined;
   const params = {fileData: buffer.slice(0), sceneModel};
   if (dataModel) params.dataModel = dataModel;
@@ -245,9 +257,7 @@ async function measureGpuDraw(studio, view, inspector, fmt, buffer) {
   return vals.length ? stats(vals).median : undefined;  // median per-frame GPU draw ms
 }
 
-async function gpuPass(results) {
-  const studio = new xeokit.studio.Studio({});
-  await studio.init();
+async function gpuPass(results, studio) {
   const view = studio.viewManager.createView({camera: {eye: [0, 0, 10], look: [0, 0, 0], up: [0, 1, 0]}});
   const inspector = studio.renderer.getRenderInspector().value;
   for (const fmt of [...BIM_FORMATS, SPLAT_FORMAT]) {
@@ -265,6 +275,8 @@ async function gpuPass(results) {
 async function run() {
   const env = collectEnv();
   const results = [];
+  let studio = null;
+
   for (const fmt of [...BIM_FORMATS, SPLAT_FORMAT]) {
     try {
       results.push(await benchmark(fmt));
@@ -277,7 +289,9 @@ async function run() {
   const gpuSupported = MEASURE_GPU && timerQuerySupported();
   if (gpuSupported) {
     setStatus("GPU draw timing…");
-    try { await gpuPass(results); } catch (e) { console.warn("[perf] GPU pass failed:", e); }
+    studio = new xeokit.studio.Studio({});
+    await studio.init();
+    try { await gpuPass(results, studio); } catch (e) { console.warn("[perf] GPU pass failed:", e); }
   }
 
   setStatus("");
@@ -288,12 +302,14 @@ async function run() {
     gpuMs: r.gpuMs != null ? +r.gpuMs.toFixed(2) : null,
   })));
 
-  // Signal completion for the headless snapshot runner (same channel Studio uses).
-  const payload = {stats: {model: MODEL, iterations: ITERATIONS, env, gpuSupported, results}};
-  setInterval(() => window.postMessage({type: "xeokit.visualTestJson", payload}, "*"), 1000);
-  const done = document.createElement("div");
-  done.id = "ExampleLoaded";
-  document.body.appendChild(done);
+  // Signal completion through Studio so snapshots use the same ready path as
+  // the other examples. Preserve the benchmark payload inside Studio's stats.
+  if (!studio) {
+    studio = new xeokit.studio.Studio({});
+    await studio.init();
+  }
+  studio.stats.benchmark = {model: MODEL, iterations: ITERATIONS, env, gpuSupported, results};
+  studio.finished();
 }
 
 run();

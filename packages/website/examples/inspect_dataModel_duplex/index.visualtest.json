@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 14617,
-    "endTime": 14871.200000047684,
-    "elapsedTime": 254.20000004768372,
+    "startTime": 16787.600000023842,
+    "endTime": 16892.300000071526,
+    "elapsedTime": 104.70000004768372,
     "aabb": [],
     "scene": {
       "numTransforms": 0,
@@ -23,7 +23,7 @@
       "numPropertySets": 398
     },
     "memory": {
-      "allocatedMB": 0.9765625,
+      "allocatedMB": 2,
       "usedMB": 0
     },
     "renderer": {

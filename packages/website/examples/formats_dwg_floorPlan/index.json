@@ -15,5 +15,6 @@
     "Formats",
     "Drawings"
   ],
-  "topic": "formats.dwg"
+  "topic": "formats.dwg",
+  "snapshotTimeoutMs": 90000
 }

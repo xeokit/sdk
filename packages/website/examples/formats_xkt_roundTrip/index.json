@@ -16,5 +16,6 @@
     "Exporting",
     "XKT"
   ],
-  "topic": "export.xkt"
+  "topic": "export.xkt",
+  "snapshotTimeoutMs": 90000
 }

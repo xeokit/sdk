@@ -13,5 +13,6 @@
     "Importing",
     "FBX"
   ],
-  "topic": "import.fbx"
+  "topic": "import.fbx",
+  "snapshotTimeoutMs": 90000
 }

@@ -52,13 +52,14 @@ export async function placeBuildings(xeokit, studio, model, {
 
   // Duplex — loaded into its own SceneModel whose UTM origin carries the
   // double-precision offset (UTM east/north + the anchor's local x/y), so its
-  // float32 vertices stay small. Same Z-up basis as the archipelago.
+  // float32 vertices stay small. Duplex is authored Y-up; the SceneModel basis
+  // lets the Scene's Z-up world do the Y/Z remap.
   if (duplexAnchor) {
     const [drx, dry, drz] = duplexAnchor;
     const duplexResult = scene.createModel({
       id: "duplex",
       coordinateSystem: {
-        basis:  [1, 0, 0,   0, 0, 1,   0, 1, 0],
+        basis:  [1, 0, 0,   0, 1, 0,   0, 0, 1],
         origin: [UTM_EAST + drx, drz + 3.0, UTM_NORTH + dry],
         units:  "meters",
         scaleToMeters: 1

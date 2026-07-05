@@ -44,12 +44,19 @@ studio.init().then(() => {
   //   - duplexModel  → loaded from the Duplex XGF.
   //   - slabModel    → a single fixed slab beneath the building.
   //
-  // Both share the same Z-up basis as the Duplex XGF (matches
-  // models/Duplex/coordSys.json) so gravity = [0, 0, ±n] points the
-  // way you'd expect.
+  // Duplex is authored Y-up, while the scene and slab are Z-up. The
+  // SceneModel basis on the Duplex model remaps it into the scene so
+  // gravity = [0, 0, ±n] points the way you'd expect.
   // -----------------------------------------------------------------
 
-  const Z_UP_BASIS = {
+  const DUPLEX_Y_UP_BASIS = {
+    basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+    origin: [0, 0, 0],
+    units: "meters",
+    scaleToMeters: 1
+  };
+
+  const SCENE_Z_UP_BASIS = {
     basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
     origin: [0, 0, 0],
     units: "meters",
@@ -58,7 +65,7 @@ studio.init().then(() => {
 
   const duplexModel = mustOK(scene.createModel({
     id: "duplexModel",
-    coordinateSystem: Z_UP_BASIS
+    coordinateSystem: DUPLEX_Y_UP_BASIS
   }));
 
   const view = studio.viewManager.createView({
@@ -104,7 +111,7 @@ studio.init().then(() => {
     const buildingAABB = studio.picking.collisionIndex.getSceneAABB();
     const slabModel = mustOK(scene.createModel({
       id: "slabModel",
-      coordinateSystem: Z_UP_BASIS
+      coordinateSystem: SCENE_Z_UP_BASIS
     }));
 
     const slabBoxGeom = mustOK(xeokit.model.procgen.buildGeometry.buildBox({

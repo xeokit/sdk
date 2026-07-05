@@ -15,5 +15,6 @@
     "Importing",
     "glTF"
   ],
-  "topic": "import.gltf"
+  "topic": "import.gltf",
+  "snapshotTimeoutMs": 90000
 }

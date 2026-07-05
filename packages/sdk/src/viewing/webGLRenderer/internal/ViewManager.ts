@@ -73,7 +73,7 @@ export class ViewManager {
   /** Map of view id -> renderer view wrapper.
    * @internal
    */
-  _rendererViews: Record<string, ViewRenderState> = {};
+  private _rendererViews: Record<string, ViewRenderState> = {};
 
   /** Ordered list of renderer views, aligned with {@link View.viewIndex}. */
   private _rendererViewsList: ViewRenderState[] = [];
@@ -85,33 +85,33 @@ export class ViewManager {
    *
    * @internal
    */
-  public _activeView: ViewRenderState;
+  private _activeView: ViewRenderState;
 
   /** Executes draw passes for the active view.
    * @internal
    */
-  public _renderManager: RenderManager;
+  private _renderManager: RenderManager;
 
   /** Manages GPU picking resources and queries.
    * @internal
    */
-  public _pickManager: PickManager;
+  private _pickManager: PickManager;
 
   /** Manages GPU snap-to-vertex / snap-to-edge picking.
    * @internal
    */
-  public _snapManager: SnapManager;
+  private _snapManager: SnapManager;
 
   /** Owns GPU-side geometry/mesh buffers and data-texture uploads.
    * @internal
    */
-  public _gpuMemoryManager: GPUMemoryManager;
+  private _gpuMemoryManager: GPUMemoryManager;
 
   /**
    * Translates scene/view changes into GPU uploads (transforms, colors, flags, etc.).
    * @internal
    */
-  public _meshManager: MeshManager;
+  private _meshManager: MeshManager;
 
   /** Schedules at most one alignment pass per animation frame. */
   private _alignCanvasRAF: number | null = null;

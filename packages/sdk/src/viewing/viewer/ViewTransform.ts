@@ -423,7 +423,7 @@ export class ViewTransform {
   // ---------------------------------------------------------------------------------------------
 
   /** @private */
-  _updateGlobal(force: boolean = false): void {
+  private _updateGlobal(force: boolean = false): void {
     if (this._parentTransform) {
       this._parentTransform._updateGlobal(force);
       mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);

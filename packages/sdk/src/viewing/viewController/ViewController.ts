@@ -165,7 +165,7 @@ export class ViewController {
    */
   events: ViewControllerEvents;
 
-  _configs: {
+  private _configs: {
     rotationInertia: number;
     mouseWheelDollyRate: number;
     snapToEdge: boolean;
@@ -198,7 +198,7 @@ export class ViewController {
     doublePickFlyTo: boolean;
   };
 
-  _states: {
+  private _states: {
     mouseDownCursorX: number;
     tapStartTime: number;
     lastTapTime: number;
@@ -214,7 +214,7 @@ export class ViewController {
     touchStartTime: null;
   };
 
-  _updates: {
+  private _updates: {
     panDeltaZ: number;
     panDeltaY: number;
     panDeltaX: number;
@@ -223,7 +223,7 @@ export class ViewController {
     rotateDeltaY: number;
   };
 
-  _controllers: {
+  private _controllers: {
     pickController: any;
     viewController: any;
     pivotController: any;
@@ -231,10 +231,10 @@ export class ViewController {
     panController: any;
   };
 
-  _handlers: any[];
-  _cameraUpdater: any;
+  private _handlers: any[];
+  private _cameraUpdater: any;
 
-  _keyMap: any;
+  private _keyMap: any;
 
   /**
    * @private
@@ -479,7 +479,7 @@ export class ViewController {
    * @param keyDownMap
    * @private
    */
-  _isKeyDownForAction(action: number, keyDownMap?: any) {
+  private _isKeyDownForAction(action: number, keyDownMap?: any) {
     const keys = this._keyMap[action];
     if (!keys) {
       return false;
@@ -646,7 +646,7 @@ export class ViewController {
     this._configs.pointerEnabled = !!value;
   }
 
-  _reset() {
+  private _reset() {
     for (let i = 0, len = this._handlers.length; i < len; i++) {
       const handler = this._handlers[i];
       if (handler.reset) {
@@ -1206,7 +1206,7 @@ export class ViewController {
     this.events.clear();
   }
 
-  _destroyHandlers() {
+  private _destroyHandlers() {
     for (let i = 0, len = this._handlers.length; i < len; i++) {
       const handler = this._handlers[i];
       if (handler.destroy) {
@@ -1215,7 +1215,7 @@ export class ViewController {
     }
   }
 
-  _destroyControllers() {
+  private _destroyControllers() {
     for (const key in this._controllers) {
       const controller = this._controllers[key];
       if (controller.destroy) {

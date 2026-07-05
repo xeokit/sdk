@@ -47,16 +47,16 @@ export class SceneMaterial {
    */
   readonly uniqueId: string;
 
-  _color: Vec3;
+  private _color: Vec3;
 
   /** @internal Emissive color factor (RGB, [0..1]). */
-  _emissiveColor: Vec3;
+  private _emissiveColor: Vec3;
 
-  _opacity: number;
+  private _opacity: number;
 
-  _roughness: number;
+  private _roughness: number;
 
-  _metallic: number;
+  private _metallic: number;
 
   /**
    * Alpha-handling mode encoded as a small integer:
@@ -65,13 +65,13 @@ export class SceneMaterial {
    * `discard` low-alpha fragments (`MASK`) or pass alpha through to the
    * blender (`BLEND`).
    */
-  _alphaMode: number;
+  private _alphaMode: number;
 
   /**
    * Cut-off threshold for `MASK` mode. Fragments with
    * `albedoAlpha < alphaCutoff` are discarded.
    */
-  _alphaCutoff: number;
+  private _alphaCutoff: number;
 
   /**
    * World-space repeat distance for the renderer's triplanar
@@ -80,7 +80,7 @@ export class SceneMaterial {
    * per texture repeat. Materials whose meshes all carry UVs
    * ignore this value.
    */
-  _triplanarScale: number;
+  private _triplanarScale: number;
 
   /**
    * Per-material pixel line thickness for the renderer's thick
@@ -88,7 +88,7 @@ export class SceneMaterial {
    * `linesMaterial.lineWidth` fallback"; any positive value
    * overrides that fallback per-material.
    */
-  _lineWidth: number;
+  private _lineWidth: number;
 
   /**
    * Per-material dash / gap pattern, in line-width units. `len`
@@ -96,7 +96,7 @@ export class SceneMaterial {
    * sentinel; any positive `len` overrides per-material. See
    * {@link linePattern}.
    */
-  _linePattern: NormalisedLinePattern;
+  private _linePattern: NormalisedLinePattern;
 
   /**
    * Original user-facing value of {@link linePattern}, kept so
@@ -104,7 +104,7 @@ export class SceneMaterial {
    * vs. an equivalent `[3, 2]`) rather than the normalised
    * internal form.
    */
-  _linePatternUserValue: LineStyle | number[];
+  private _linePatternUserValue: LineStyle | number[];
 
   /**
    * Per-material screen-space hatch pattern for triangle-surface
@@ -112,7 +112,7 @@ export class SceneMaterial {
    * sentinel; any positive `count` paints one to four line
    * families over the surface. See {@link hatchPattern}.
    */
-  _hatchPattern: NormalisedHatchPattern;
+  private _hatchPattern: NormalisedHatchPattern;
 
   /**
    * Original user-facing value of {@link hatchPattern}, kept so
@@ -120,7 +120,7 @@ export class SceneMaterial {
    * name or {@link HatchParams}) rather than the normalised
    * internal form.
    */
-  _hatchPatternUserValue: HatchStyle | HatchParams;
+  private _hatchPatternUserValue: HatchStyle | HatchParams;
 
   /**
    * The color {@link SceneTexture} in this set.

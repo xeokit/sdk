@@ -134,7 +134,7 @@ export class SceneTransform {
    *
    * @private
    */
-  _worldMatrix: Mat4;
+  private _worldMatrix: Mat4;
 
   /** True when {@link _localMatrix} needs rebuilding from TRS. */
   private _localMatrixDirty = false;
@@ -583,7 +583,7 @@ export class SceneTransform {
    *
    * @private
    */
-  _updateGlobal(force: boolean = false): void {
+  private _updateGlobal(force: boolean = false): void {
     if (this._parentTransform) {
       this._parentTransform._updateGlobal(force);
       mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);

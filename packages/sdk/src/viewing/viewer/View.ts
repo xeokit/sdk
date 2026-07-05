@@ -586,7 +586,7 @@ class View {
   /**
    * @private
    */
-  _attachViewObject(viewObject: ViewObject) {
+  private _attachViewObject(viewObject: ViewObject) {
     const objectId = viewObject.id;
     if (this.objects[objectId]) {
       return;
@@ -609,7 +609,7 @@ class View {
   /**
    * @private
    */
-  _deattachViewObject(viewObject: ViewObject) {
+  private _deattachViewObject(viewObject: ViewObject) {
     const objectId = viewObject.id;
     if (!this.objects[objectId]) {
       return;
@@ -1850,7 +1850,7 @@ class View {
     };
   }
 
-  _destroyTransform(viewTransform: ViewTransform) {
+  private _destroyTransform(viewTransform: ViewTransform) {
     delete this.transforms[viewTransform.id];
     this.viewer.events.onViewTransformDestroyed.dispatch(this, viewTransform);
   }
@@ -1884,7 +1884,7 @@ class View {
    * @private
    * @param sectionPlane
    */
-  _deregisterSectionPlane(sectionPlane: SectionPlane) {
+  private _deregisterSectionPlane(sectionPlane: SectionPlane) {
     for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
       if (this.sectionPlanesList[i].id === sectionPlane.id) {
         this.sectionPlanesList.splice(i, 1);
@@ -2131,7 +2131,7 @@ class View {
     this.destroyed = true;
   }
 
-  _destroyViewLayers() {
+  private _destroyViewLayers() {
     const layers = Object.values(this.layers);
     for (let i = 0, len = layers.length; i < len; i++) {
       const viewLayer = layers[i];
@@ -2139,7 +2139,7 @@ class View {
     }
   }
 
-  _destroyViewObjects() {
+  private _destroyViewObjects() {
     const objectIds = Object.keys(this.objects);
     for (let i = 0, len = objectIds.length; i < len; i++) {
       const viewObject = this.objects[objectIds[i]];

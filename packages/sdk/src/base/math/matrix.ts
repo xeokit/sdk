@@ -1,6 +1,6 @@
 /**
  *
- * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="../../assets/3D-Cart.svg"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
  *
  * # xeokit Matrix Math Utilities
  *

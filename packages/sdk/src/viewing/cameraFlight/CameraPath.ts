@@ -26,10 +26,10 @@ type SceneLike = {
  * Stores frame data plus spline curves for eye, look, and up.
  */
 class CameraPath {
-  protected _frames: CameraPathFrame[] = [];
-  protected _eyeCurve: SplineCurve;
-  protected _lookCurve: SplineCurve;
-  protected _upCurve: SplineCurve;
+  private _frames: CameraPathFrame[] = [];
+  private _eyeCurve: SplineCurve;
+  private _lookCurve: SplineCurve;
+  private _upCurve: SplineCurve;
 
   /**
    * The target camera.

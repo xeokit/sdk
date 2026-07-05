@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:30px; padding-bottom:30px;" src="../../assets/tree_view_icon.png"/>
+ * <img style="padding:0px; padding-top:30px; padding-bottom:30px;" src="https://xeokit.github.io/sdk/docs/assets/tree_view_icon.png"/>
  *
  * <br>
  *

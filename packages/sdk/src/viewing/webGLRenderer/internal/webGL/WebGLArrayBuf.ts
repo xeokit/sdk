@@ -163,7 +163,7 @@ export class WebGLArrayBuf {
     this._allocate(data);
   }
 
-  _allocate(data: any) {
+  private _allocate(data: any) {
     this.allocated = false;
     // @ts-ignore
     this.handle = this.gl.createBuffer();

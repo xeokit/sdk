@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="../../assets/example_cityJSON.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="https://xeokit.github.io/sdk/docs/assets/example_cityJSON.png"/>
  *
  * # xeokit View Controller
  *

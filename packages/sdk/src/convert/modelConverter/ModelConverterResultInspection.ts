@@ -1,7 +1,6 @@
 import type {ApplyFixesResult, InspectionReport} from "../../inspect/sceneModel";
 
-/** Per-SceneModel inspection record stored on
- *  {@link ModelConverterResult.inspection.bySceneModel}. */
+/** Per-SceneModel inspection record stored on `ModelConverterResult.inspection.bySceneModel`. */
 export interface ModelConverterResultInspection {
 
   /** SceneModel id (mirrors the map key — convenient when iterating

@@ -11,7 +11,7 @@ import { catmullRomInterpolate } from "./index";
  */
 class SplineCurve extends Curve {
 
-  protected _points: Vec3[] = [];
+  private _points: Vec3[] = [];
 
   /**
    * @param cfg Configs

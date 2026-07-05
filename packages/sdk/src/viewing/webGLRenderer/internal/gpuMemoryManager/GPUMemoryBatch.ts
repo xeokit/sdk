@@ -1607,7 +1607,7 @@ export class GPUMemoryBatch {
     return null;
   }
 
-  _getFreeMeshIndex(): number {
+  private _getFreeMeshIndex(): number {
     const maxMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
     for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % maxMeshes) {
       if (this._meshIndicesUsed[i] === 0) {
@@ -1622,14 +1622,14 @@ export class GPUMemoryBatch {
     }
   }
 
-  _putFreeMeshIndex(index: number): void {
+  private _putFreeMeshIndex(index: number): void {
     if (this._meshIndicesUsed[index] !== 0) {
       this._meshIndicesUsed[index] = 0;
       this._lastFreeMeshIndex = index;
     }
   }
 
-  _getFreeGeometryIndex(): number {
+  private _getFreeGeometryIndex(): number {
     const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
     for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % maxGeometries) {
       if (this._geometryIndicesUsed[i] === 0) {
@@ -1641,7 +1641,7 @@ export class GPUMemoryBatch {
     }
   }
 
-  _putFreeGeometryIndex(index: number): void {
+  private _putFreeGeometryIndex(index: number): void {
     if (this._geometryIndicesUsed[index] !== 0) {
       this._geometryIndicesUsed[index] = 0;
       this._lastFreeGeometryIndex = index;

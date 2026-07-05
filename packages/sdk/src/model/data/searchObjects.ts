@@ -10,7 +10,7 @@ import type {SearchParams} from "./SearchParams";
  * Usually used to recursively find DataObjects of specific {@link DataObject.type | types}
  * within a hierarchy.
  *
- * See {@link data | @xeokit/sdk/model/data} for usage.
+ * See `@xeokit/sdk/model/data` for usage.
  *
  * @param data The Data to search.
  * @param searchParams Search parameters.

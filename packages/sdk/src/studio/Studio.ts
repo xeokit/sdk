@@ -970,7 +970,7 @@ export class Studio {
   }
 
   /**
-   * Toggle the DistanceMeasurementTool's mouse control on {@link view},
+   * Toggle the DistanceMeasurementTool's mouse control on `view`,
    * ensuring the tool exists first. Returns the
    * `MouseDistanceMeasurementsControl` after the toggle.
    *
@@ -987,7 +987,7 @@ export class Studio {
   }
 
   /**
-   * Toggle the AngleMeasurementsTool's mouse control on {@link view},
+   * Toggle the AngleMeasurementsTool's mouse control on `view`,
    * ensuring the tool exists first. Returns the
    * `MouseAngleMeasurementsControl` after the toggle.
    */
@@ -1001,9 +1001,9 @@ export class Studio {
   }
 
   /**
-   * Mount the {@link TransformControls} on {@link view} (creating
-   * them on first call), attach them to {@link target}, and switch
-   * to {@link mode} when supplied.
+   * Mount the {@link TransformControls} on `view` (creating
+   * them on first call), attach them to `target`, and switch
+   * to `mode` when supplied.
    *
    * `pivotWorld` is the world-space anchor the handles render
    * around — typically the surface point the picker returned from
@@ -1023,7 +1023,7 @@ export class Studio {
   }
 
   /**
-   * Detach the {@link TransformControls} on {@link view} if mounted.
+   * Detach the {@link TransformControls} on `view` if mounted.
    * Leaves the controls live so the next {@link attachTransformControls}
    * call reuses the same instance.
    */

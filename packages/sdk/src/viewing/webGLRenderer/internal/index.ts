@@ -1,7 +1,7 @@
 /**
  * <img
  *   style="padding-top:20px; padding-bottom:30px; height:100px;"
- *   src="../../assets/xeokit_webgl_logo.svg"
+ *   src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"
  * />
  *
  * # WebGLRenderer Internals

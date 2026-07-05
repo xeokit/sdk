@@ -808,8 +808,8 @@ export class VolumeOverlayPanel extends FloatingPanelBase {
 
   /**
    * Swap the panel's data source. The first scalar array becomes
-   * the new {@link grid}; the first vector array (if any) becomes
-   * the new {@link vectorGrid}. The panel re-derives default
+   * the new `grid`; the first vector array (if any) becomes
+   * the new `vectorGrid`. The panel re-derives default
    * value-range, slice-position bounds, isovalue range, etc., from
    * the new field and re-bakes the active technique.
    *

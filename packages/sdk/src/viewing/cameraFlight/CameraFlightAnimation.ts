@@ -143,44 +143,44 @@ export class CameraFlightAnimation {
    */
   public readonly camera: Camera;
 
-  _duration: number;
-  _look1: Vec3;
-  _eye1: Vec3;
-  _up1: Vec3;
-  _look2: Vec3;
-  _eye2: Vec3;
-  _up2: Vec3;
-  _orthoScale1: number;
-  _orthoScale2: number;
-  _fit: boolean;
-  _trail: boolean;
-  _flying: boolean;
-  _flyEyeLookUp: boolean;
-  _flyingEye: boolean;
-  _flyingLook: boolean;
-  _callback: any;
-  _callbackScope: any;
-  _time1: number | null;
-  _time2: number | null;
+  private _duration: number;
+  private _look1: Vec3;
+  private _eye1: Vec3;
+  private _up1: Vec3;
+  private _look2: Vec3;
+  private _eye2: Vec3;
+  private _up2: Vec3;
+  private _orthoScale1: number;
+  private _orthoScale2: number;
+  private _fit: boolean;
+  private _trail: boolean;
+  private _flying: boolean;
+  private _flyEyeLookUp: boolean;
+  private _flyingEye: boolean;
+  private _flyingLook: boolean;
+  private _callback: any;
+  private _callbackScope: any;
+  private _time1: number | null;
+  private _time2: number | null;
   easing: boolean;
-  _flyingEyeLookUp: boolean;
-  _fitFOV: number;
-  _projection2: number | null;
-  _projMatrix1: Mat4;
-  _projMatrix2: Mat4;
+  private _flyingEyeLookUp: boolean;
+  private _fitFOV: number;
+  private _projection2: number | null;
+  private _projMatrix1: Mat4;
+  private _projMatrix2: Mat4;
 
   // Arc-flight state. `_arcAmount` is the apex height in metres along
   // `_arcDir`; both are recomputed per-flight in flyTo() once the
   // start/end eye positions are known. `_arcAmount = 0` disables the
   // bulge, so a non-arc flight pays only a single zero-check per tick.
-  _arc: boolean;
-  _arcAmount: number;
-  _arcDir: Vec3;
+  private _arc: boolean;
+  private _arcAmount: number;
+  private _arcDir: Vec3;
 
   // Per-flight easing curve, resolved from `FlyToParams.easing` (or
   // falling back to the class-level `easing` flag) at flyTo time.
   // The tick reads this each frame to pick the time-warp function.
-  _easingMode: "default" | "inThenOut" | "none";
+  private _easingMode: "default" | "inThenOut" | "none";
 
   private _animationTask: SDKTask;
 
@@ -198,7 +198,7 @@ export class CameraFlightAnimation {
    * Fires when the camera animation is cancelled.
    */
   readonly onCancelled: EventEmitter<CameraFlightAnimation, null>;
-  _aabbIndex: any;
+  private _aabbIndex: any;
 
   /**
    * Creates a new CameraFlightAnimation instance.
@@ -537,7 +537,7 @@ export class CameraFlightAnimation {
     this._jumpTo(params);
   }
 
-  _jumpTo(params: any) {
+  private _jumpTo(params: any) {
 
     if (this._flying) {
       this.stop();
@@ -610,7 +610,7 @@ export class CameraFlightAnimation {
     }
   }
 
-  static _ease(t: number, b: number, c: number, d: number) { // Quadratic easing out - decelerating to zero velocity http://gizma.com/easing
+  private static _ease(t: number, b: number, c: number, d: number) { // Quadratic easing out - decelerating to zero velocity http://gizma.com/easing
     t /= d;
     return -c * t * (t - 2) + b;
   }
@@ -625,7 +625,7 @@ export class CameraFlightAnimation {
   // — linear ramp up from rest, linear ramp down to rest — so the
   // camera leaves and arrives at zero velocity but accelerates and
   // decelerates at a constant rate inside each half.
-  static _easeInThenOut(t: number): number {
+  private static _easeInThenOut(t: number): number {
     if (t < 0.5) {
       return 2 * t * t;                      // ease-in,  [0, 0.5] → [0, 0.5]
     }
@@ -633,12 +633,12 @@ export class CameraFlightAnimation {
     return 1 - 2 * u * u;                    // ease-out, [0.5, 1] → [0.5, 1]
   }
 
-  static _easeInCubic(t: number, b: number, c: number, d: number) {
+  private static _easeInCubic(t: number, b: number, c: number, d: number) {
     t /= d;
     return c * t * t * t + b;
   }
 
-  static _easeOutExpo(t: number, b: number, c: number, d: number) {
+  private static _easeOutExpo(t: number, b: number, c: number, d: number) {
     return c * (-Math.pow(2, -10 * t / d) + 1) + b;
   }
 

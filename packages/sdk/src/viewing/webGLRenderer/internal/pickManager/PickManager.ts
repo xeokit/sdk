@@ -500,17 +500,17 @@ export class PickManager {
     return {sceneMesh, batchIndex, meshIndex, worldPos};
   }
 
-  _unpackDepth(depthZ) {
+  private _unpackDepth(depthZ) {
     const vec = createVec4Float64([depthZ[0] / 256.0, depthZ[1] / 256.0, depthZ[2] / 256.0, depthZ[3] / 256.0]);
     const bitShift = createVec4Float64([1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0]);
     return dotVec4(vec, bitShift);
   }
 
-  _getClipPosX(pos: number, size: number) {
+  private _getClipPosX(pos: number, size: number) {
     return 2 * (pos / size) - 1;
   }
 
-  _getClipPosY(pos: number, size: number) {
+  private _getClipPosY(pos: number, size: number) {
     return 1 - 2 * (pos / size);
   }
 

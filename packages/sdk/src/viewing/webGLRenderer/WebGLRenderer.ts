@@ -53,7 +53,7 @@ export class WebGLRenderer {
    *
    * @internal
    */
-  _viewManager: ViewManager;
+  private _viewManager: ViewManager;
 
   private _viewerSubs: (() => void)[];
   private _viewManagerSubs: (() => void)[];

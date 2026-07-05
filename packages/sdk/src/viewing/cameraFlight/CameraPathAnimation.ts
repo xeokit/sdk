@@ -26,15 +26,15 @@ enum CameraPathAnimationState {
  * direct flight to a recorded frame.
  */
 class CameraPathAnimation {
-  protected _cameraFlightAnimation: CameraFlightAnimation;
-  protected _cameraPath?: CameraPath;
-  protected _t = 0;
-  protected _playingFromT = 0;
-  protected _playingToT = 0;
-  protected _playingRate = 1.0;
-  protected _playingDir = 1.0;
-  protected _lastTime: number | null = null;
-  protected _tick: unknown;
+  private _cameraFlightAnimation: CameraFlightAnimation;
+  private _cameraPath?: CameraPath;
+  private _t = 0;
+  private _playingFromT = 0;
+  private _playingToT = 0;
+  private _playingRate = 1.0;
+  private _playingDir = 1.0;
+  private _lastTime: number | null = null;
+  private _tick: unknown;
 
   /**
    * Current playback state.
@@ -72,7 +72,7 @@ class CameraPathAnimation {
   /**
    * Advances animation state on each scene tick.
    */
-  protected _updateT = (): void => {
+  private _updateT = (): void => {
     const cameraPath = this._cameraPath;
 
     if (!cameraPath) {
@@ -140,7 +140,7 @@ class CameraPathAnimation {
    * @param d Duration
    * @returns Interpolated value
    */
-  protected _ease(t: number, b: number, c: number, d: number): number {
+  private _ease(t: number, b: number, c: number, d: number): number {
     t /= d;
     return -c * t * (t - 2) + b;
   }
@@ -305,7 +305,7 @@ class CameraPathAnimation {
    *
    * Replace or extend if you add an event system.
    */
-  protected _onStopped(): void {
+  private _onStopped(): void {
     // no-op
   }
 

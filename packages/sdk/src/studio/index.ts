@@ -1,5 +1,5 @@
 /**
- * <img style="padding:10px" src="../../assets/xeokit_components_icon.png"/>
+ * <img style="padding:10px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_components_icon.png"/>
  *
  * # xeokit Studio
  *

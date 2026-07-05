@@ -1,5 +1,5 @@
 /**
- * <img style="padding: 20px 0 30px;" src="../../assets/autzen.png"/>
+ * <img style="padding: 20px 0 30px;" src="https://xeokit.github.io/sdk/docs/assets/autzen.png"/>
  *
  * # xeokit LAS Importer
  *

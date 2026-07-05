@@ -197,7 +197,7 @@ class Spinner  {
   }
 
   /** @private */
-  _createDefaultSpinner() {
+  private _createDefaultSpinner() {
     this._injectDefaultCSS();
     const element = document.createElement('div');
     const style = element.style;
@@ -227,7 +227,7 @@ class Spinner  {
   /**
    * @private
    */
-  _injectDefaultCSS() {
+  private _injectDefaultCSS() {
     const elementId = "xeokit-spinner-css";
     if (document.getElementById(elementId)) {
       return;
@@ -241,7 +241,7 @@ class Spinner  {
   /**
    * @private
    */
-  _adjustPosition() { // (Re)positions spinner DIV over the center of the canvas - called by View
+  private _adjustPosition() { // (Re)positions spinner DIV over the center of the canvas - called by View
     if (this._isCustom) {
       return;
     }
@@ -298,7 +298,7 @@ class Spinner  {
     return this._processes;
   }
 
-  _destroy() {
+  private _destroy() {
     if (this._element && (!this._isCustom)) {
       this._element.parentNode.removeChild(this._element);
       this._element = null;

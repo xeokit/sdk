@@ -1,5 +1,5 @@
 /**
- * <img style="padding:10px" src="../../assets/dwg_hero.jpg"/>
+ * <img style="padding:10px" src="https://xeokit.github.io/sdk/docs/assets/dwg_hero.jpg"/>
  *
  * # xeokit AutoCAD DWG Loader
  *

@@ -6,9 +6,9 @@ import { b2 } from "./index";
  * A QuadraticBezierCurve is a Curve along which a 3D position can be animated.
  */
 class QuadraticBezierCurve extends Curve {
-  protected _v0: Vec3 = createVec3Float64();
-  protected _v1: Vec3 = createVec3Float64();
-  protected _v2: Vec3 = createVec3Float64();
+  private _v0: Vec3 = createVec3Float64();
+  private _v1: Vec3 = createVec3Float64();
+  private _v2: Vec3 = createVec3Float64();
 
   /**
    * @param cfg Configuration

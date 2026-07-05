@@ -1,6 +1,6 @@
 /**
  * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;"
- *      src="../../assets/xeokit_logo_mesh.png"/>
+ *      src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
  * # xeokit Legacy XKT Importer / Exporter
  *

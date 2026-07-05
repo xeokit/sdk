@@ -1,6 +1,6 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; height:130px;"
- *      src="../../assets/cityJSONLogo.svg"/>
+ *      src="https://xeokit.github.io/sdk/docs/assets/cityJSONLogo.svg"/>
  *
  * # cityjson — CityJSON Importer / Exporter
  *

@@ -8,10 +8,10 @@ import { b3 } from "./index";
  * A CubicBezierCurve is defined by four control points.
  */
 class CubicBezierCurve extends Curve {
-  protected _v0: Vec3 = createVec3Float64();
-  protected _v1: Vec3 = createVec3Float64();
-  protected _v2: Vec3 = createVec3Float64();
-  protected _v3: Vec3 = createVec3Float64();
+  private _v0: Vec3 = createVec3Float64();
+  private _v1: Vec3 = createVec3Float64();
+  private _v2: Vec3 = createVec3Float64();
+  private _v3: Vec3 = createVec3Float64();
 
   /**
    * @param cfg Configs

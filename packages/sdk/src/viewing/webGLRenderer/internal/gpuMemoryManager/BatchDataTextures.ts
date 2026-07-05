@@ -61,14 +61,14 @@ export interface BatchDataTextures {
      * dependent mesh state (e.g. visibility, transparency, selection) may cause
      * primitives to move between pass partitions or be removed entirely.
      *
-     * The per-pass partitions of this draw list are defined by {@link renderPassPrimitiveRanges}.
+     * The per-pass partitions of this draw list are defined by `renderPassPrimitiveRanges`.
      */
     primitiveMeshIndexTexture: PrimitiveMeshIndexTexture;
 
     /**
      * Edge primitive-to-mesh index table for this View.
      *
-     * Similar to {@link primitiveMeshIndexTexture}, but contains indices for edge rendering.
+     * Similar to `primitiveMeshIndexTexture`, but contains indices for edge rendering.
      *
      * Only exists if the batch is for meshes with triangle primitives.
      */
@@ -88,7 +88,7 @@ export interface BatchDataTextures {
      * Primitive ranges to draw for each render pass.
      *
      * For each render pass ID, this map provides a contiguous range of primitive
-     * indices within {@link primitiveMeshIndexTexture} that should be drawn for that pass.
+     * indices within `primitiveMeshIndexTexture` that should be drawn for that pass.
      *
      * These ranges are intended to be used directly with `gl.drawArrays`
      * to issue one draw call per pass.
@@ -98,7 +98,7 @@ export interface BatchDataTextures {
     /**
      * Edge primitive ranges to draw for each render pass.
      *
-     * Similar to {@link renderPassPrimitiveRanges}, but contains ranges for edge rendering.
+     * Similar to `renderPassPrimitiveRanges`, but contains ranges for edge rendering.
      *
      * Only exists if the batch is for meshes with triangle primitives.
      */
@@ -112,7 +112,7 @@ export interface BatchDataTextures {
     /**
      * Overall edge-primitive range to draw for this View when snap-picking.
      *
-     * Analogous to {@link pickPrimitiveRange} but covers edges from the
+     * Analogous to `pickPrimitiveRange` but covers edges from the
      * dihedral-angle-thresholded edge index buffer — i.e. the
      * silhouette / crease edges only, never the interior diagonals
      * shared between coplanar triangles. Snap-to-vertex and

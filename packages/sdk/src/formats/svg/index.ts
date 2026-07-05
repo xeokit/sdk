@@ -1,5 +1,5 @@
 /**
- * <img style="padding:10px" src="../../assets/svg_icon.png"/>
+ * <img style="padding:10px" src="https://xeokit.github.io/sdk/docs/assets/svg_icon.png"/>
  *
  * # xeokit SVG Drawing Loader
  *

@@ -47,7 +47,7 @@ export class DistanceMeasurementTool {
     `</svg>`;
   }
 
-  /** Returns the live tool bound to {@link view}, if any. */
+  /** Returns the live tool bound to `view`, if any. */
   static getFor(view: View): DistanceMeasurementTool | undefined {
     const inst = DistanceMeasurementTool._instances.get(view);
     return inst && !inst._destroyed ? inst : undefined;
@@ -303,7 +303,7 @@ export class DistanceMeasurementTool {
    *
    * @internal
    */
-  _project(p: Vec3, out: [number, number, number]): void {
+  private _project(p: Vec3, out: [number, number, number]): void {
     const camera = this.view.camera as any;
     const v = camera.viewMatrix as ArrayLike<number>;
     const m = camera.projMatrix as ArrayLike<number>;

@@ -379,21 +379,21 @@ class ViewLayer {
    */
   readonly autoDestroy: boolean;
 
-  _renderModes: number[];
-  _numObjects: number;
-  _objectIds: string[] | null;
-  _numVisibleObjects: number;
-  _visibleObjectIds: string[] | null;
-  _numXRayedObjects: number;
-  _xrayedObjectIds: string[] | null;
-  _numHighlightedObjects: number;
-  _highlightedObjectIds: string[] | null;
-  _numSelectedObjects: number;
-  _selectedObjectIds: string[] | null;
-  _numColorizedObjects: number;
-  _colorizedObjectIds: string[] | null;
-  _numOpacityObjects: number;
-  _opacityObjectIds: string[] | null;
+  private _renderModes: number[];
+  private _numObjects: number;
+  private _objectIds: string[] | null;
+  private _numVisibleObjects: number;
+  private _visibleObjectIds: string[] | null;
+  private _numXRayedObjects: number;
+  private _xrayedObjectIds: string[] | null;
+  private _numHighlightedObjects: number;
+  private _highlightedObjectIds: string[] | null;
+  private _numSelectedObjects: number;
+  private _selectedObjectIds: string[] | null;
+  private _numColorizedObjects: number;
+  private _colorizedObjectIds: string[] | null;
+  private _numOpacityObjects: number;
+  private _opacityObjectIds: string[] | null;
 
   gammaOutput: boolean;
 

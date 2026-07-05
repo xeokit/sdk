@@ -181,7 +181,7 @@ export class Scene {
   }
 
   /** @private */
-  _deregisterObjects(model: SceneModel) {
+  private _deregisterObjects(model: SceneModel) {
     for (const id in model.objects) {
       this._deregisterObject(model.objects[id]);
     }

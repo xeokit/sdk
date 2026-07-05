@@ -74,7 +74,7 @@ export class CoordinateSystem  {
     }
 
     /** @private */
-    _notifyUpdated() {
+    private _notifyUpdated() {
         if (!this._notifyUpdatedScheduled) {
             this._notifyUpdatedScheduled = true;
             setTimeout(() => {

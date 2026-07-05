@@ -3,7 +3,7 @@
  * property sets). Both are renderer-agnostic and run identically in the browser and Node. Streaming and procedural
  * authoring live here too.
  *
- * @submodule model
+ * 
  */
 export * as data from "./data";
 export * as procgen from "./procgen";

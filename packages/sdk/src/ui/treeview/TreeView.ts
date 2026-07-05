@@ -298,29 +298,29 @@ export class TreeView {
    */
   public readonly view: View;
 
-  _linkTypes: string[];
-  _groupTypes: string[];
-  _containerElement: HTMLElement;
-  _hierarchy: number;
-  _dataModels: { [key: string]: DataModel };
-  _autoAddModels: boolean;
-  _autoExpandDepth: number;
-  _sortNodes: boolean | undefined;
-  _pruneEmptyNodes: boolean;
-  _viewer: Viewer;
-  _rootElement: HTMLUListElement | null;
-  _muteSceneEvents: boolean;
-  _muteTreeEvents: boolean;
-  _rootNodes: TreeViewNode[];
-  _objectNodes: { [key: string]: TreeViewNode };
-  _rootName: any;
-  _showListItemElementId: string | null;
-  _spatialSortFunc: ((node1: TreeViewNode, node2: TreeViewNode) => number) | null;
-  _switchExpandHandler: (event: MouseEvent) => void;
-  _switchCollapseHandler: (event: MouseEvent) => void;
-  _checkboxChangeHandler: (event: Event) => void;
-  _destroyed: boolean;
-  _ownsContainerElement: boolean;
+  private _linkTypes: string[];
+  private _groupTypes: string[];
+  private _containerElement: HTMLElement;
+  private _hierarchy: number;
+  private _dataModels: { [key: string]: DataModel };
+  private _autoAddModels: boolean;
+  private _autoExpandDepth: number;
+  private _sortNodes: boolean | undefined;
+  private _pruneEmptyNodes: boolean;
+  private _viewer: Viewer;
+  private _rootElement: HTMLUListElement | null;
+  private _muteSceneEvents: boolean;
+  private _muteTreeEvents: boolean;
+  private _rootNodes: TreeViewNode[];
+  private _objectNodes: { [key: string]: TreeViewNode };
+  private _rootName: any;
+  private _showListItemElementId: string | null;
+  private _spatialSortFunc: ((node1: TreeViewNode, node2: TreeViewNode) => number) | null;
+  private _switchExpandHandler: (event: MouseEvent) => void;
+  private _switchCollapseHandler: (event: MouseEvent) => void;
+  private _checkboxChangeHandler: (event: Event) => void;
+  private _destroyed: boolean;
+  private _ownsContainerElement: boolean;
 
   private _onSceneModelCreated: () => void;
   private _onSceneModelDestroyed: () => void;
@@ -777,7 +777,7 @@ export class TreeView {
   /**
    * Adds a model to this tree view.
    */
-  _addModel(modelId: string, options = {}): void {
+  private _addModel(modelId: string, options = {}): void {
     if (!this._containerElement) {
       return;
     }
@@ -799,7 +799,7 @@ export class TreeView {
   /**
    * Removes a model from this tree view.
    */
-  _removeModel(modelId: string): void {
+  private _removeModel(modelId: string): void {
     if (!this._containerElement) {
       return;
     }
@@ -811,7 +811,7 @@ export class TreeView {
     this._rebuildNodes();
   }
 
-  _rebuildNodes(): void {
+  private _rebuildNodes(): void {
     if (this._rootElement && this._rootElement.parentNode) {
       this._rootElement.parentNode.removeChild(this._rootElement);
       this._rootElement = null;
@@ -827,7 +827,7 @@ export class TreeView {
     this._createEnabledNodes();
   }
 
-  _handleDataObjectCreated(dataObject: DataObject): void {
+  private _handleDataObjectCreated(dataObject: DataObject): void {
     if (!this._containerElement || this._objectNodes[dataObject.id]) {
       return;
     }
@@ -850,7 +850,7 @@ export class TreeView {
     }
   }
 
-  _handleDataObjectDestroyed(dataObject: DataObject): void {
+  private _handleDataObjectDestroyed(dataObject: DataObject): void {
     if (!this._containerElement) {
       return;
     }
@@ -873,7 +873,7 @@ export class TreeView {
     }
   }
 
-  _validate(): boolean {
+  private _validate(): boolean {
     switch (this._hierarchy) {
       case TreeView.GroupsHierarchy:
       case TreeView.TypesHierarchy:
@@ -883,11 +883,11 @@ export class TreeView {
     }
   }
 
-  _validateMetaModelForStoreysHierarchy(level = 0, ctx: any, buildingNode: any): boolean {
+  private _validateMetaModelForStoreysHierarchy(level = 0, ctx: any, buildingNode: any): boolean {
     return true;
   }
 
-  _createEnabledNodes(): void {
+  private _createEnabledNodes(): void {
     if (this._pruneEmptyNodes) {
       this._findEmptyNodes();
     }
@@ -914,7 +914,7 @@ export class TreeView {
     this.expandToDepth(this._autoExpandDepth);
   }
 
-  _createDisabledNodes(): void {
+  private _createDisabledNodes(): void {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
@@ -940,12 +940,12 @@ export class TreeView {
     }
   }
 
-  _recomputePruneCounts(): void {
+  private _recomputePruneCounts(): void {
     this._dataObjectSceneObjectCounts = {};
     this._findEmptyNodes();
   }
 
-  _findEmptyNodes(): void {
+  private _findEmptyNodes(): void {
     this._dataObjectSceneObjectCounts = {};
     const objects = this.data.objects;
     for (const objectId in objects) {
@@ -957,7 +957,7 @@ export class TreeView {
     }
   }
 
-  _findEmptyNodes2(dataObject: DataObject): number {
+  private _findEmptyNodes2(dataObject: DataObject): number {
     const scene = this._viewer.scene;
     const aggregations = this._getRelatedObjects(dataObject);
     const objectId = dataObject.id;
@@ -981,7 +981,7 @@ export class TreeView {
     return sceneObjectCounts;
   }
 
-  _buildGroupsNodes(): void {
+  private _buildGroupsNodes(): void {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
@@ -992,7 +992,7 @@ export class TreeView {
     }
   }
 
-  _buildGroupsNodes2(dataObject: DataObject): void {
+  private _buildGroupsNodes2(dataObject: DataObject): void {
     if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
@@ -1007,14 +1007,14 @@ export class TreeView {
     }
   }
 
-  _buildTypesNodes(): void {
+  private _buildTypesNodes(): void {
     const objects = this.data.objects;
     for (const objectId in objects) {
       this._buildTypesNodes2(objects[objectId]);
     }
   }
 
-  _buildTypesNodes2(dataObject: DataObject): void {
+  private _buildTypesNodes2(dataObject: DataObject): void {
     if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
@@ -1056,7 +1056,7 @@ export class TreeView {
     this._objectNodes[node.objectId] = node;
   }
 
-  _buildAggregationNodes(): void {
+  private _buildAggregationNodes(): void {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
@@ -1067,7 +1067,7 @@ export class TreeView {
     }
   }
 
-  _buildAggregationNodes2(dataObject: DataObject, parentNode: TreeViewNode | null): void {
+  private _buildAggregationNodes2(dataObject: DataObject, parentNode: TreeViewNode | null): void {
     if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
@@ -1099,7 +1099,7 @@ export class TreeView {
     }
   }
 
-  _insertAggregationNode(dataObject: DataObject): void {
+  private _insertAggregationNode(dataObject: DataObject): void {
     if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
@@ -1157,7 +1157,7 @@ export class TreeView {
     }
   }
 
-  _removeAggregationNode(objectId: string): void {
+  private _removeAggregationNode(objectId: string): void {
     const node = this._objectNodes[objectId];
     if (!node) {
       return;
@@ -1193,7 +1193,7 @@ export class TreeView {
     }
   }
 
-  _insertTypesNode(dataObject: DataObject): void {
+  private _insertTypesNode(dataObject: DataObject): void {
     if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
@@ -1251,7 +1251,7 @@ export class TreeView {
     this._insertNodeIntoDOM(node);
   }
 
-  _removeTypesNode(objectId: string): void {
+  private _removeTypesNode(objectId: string): void {
     const node = this._objectNodes[objectId];
     if (!node) {
       return;
@@ -1285,7 +1285,7 @@ export class TreeView {
     }
   }
 
-  _getGroupPathNodesForObject(dataObject: DataObject): DataObject[] {
+  private _getGroupPathNodesForObject(dataObject: DataObject): DataObject[] {
     const chain: DataObject[] = [];
     let current: DataObject | null = dataObject;
 
@@ -1319,15 +1319,15 @@ export class TreeView {
     return result;
   }
 
-  _getGroupNodeKey(pathObjects: DataObject[], index: number): string {
+  private _getGroupNodeKey(pathObjects: DataObject[], index: number): string {
     return `group:${pathObjects.slice(0, index + 1).map((o) => o.id).join("/")}`;
   }
 
-  _getGroupsTypeNodeKey(parentNode: TreeViewNode, type: string): string {
+  private _getGroupsTypeNodeKey(parentNode: TreeViewNode, type: string): string {
     return `grouptype:${parentNode.objectId}:${type}`;
   }
 
-  _insertGroupsNode(dataObject: DataObject, building = false): void {
+  private _insertGroupsNode(dataObject: DataObject, building = false): void {
     if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
@@ -1468,7 +1468,7 @@ export class TreeView {
     }
   }
 
-  _removeGroupsNode(objectId: string): void {
+  private _removeGroupsNode(objectId: string): void {
     const node = this._objectNodes[objectId];
     if (!node) {
       return;
@@ -1493,14 +1493,14 @@ export class TreeView {
     }
   }
 
-  _doSortNodes(): void {
+  private _doSortNodes(): void {
     this._rootNodes.sort(this._alphaSortFunc.bind(this));
     for (let i = 0, len = this._rootNodes.length; i < len; i++) {
       this._sortChildNodes(this._rootNodes[i]);
     }
   }
 
-  _sortChildNodes(node: TreeViewNode): void {
+  private _sortChildNodes(node: TreeViewNode): void {
     const childNodes = node.childNodes;
     if (!childNodes || childNodes.length === 0) {
       return;
@@ -1511,11 +1511,11 @@ export class TreeView {
     }
   }
 
-  _getSpatialSortFunc() {
+  private _getSpatialSortFunc() {
     return this._spatialSortFunc;
   }
 
-  _alphaSortFunc(node1: TreeViewNode, node2: TreeViewNode): number {
+  private _alphaSortFunc(node1: TreeViewNode, node2: TreeViewNode): number {
     const title1 = node1.title.toUpperCase();
     const title2 = node2.title.toUpperCase();
     if (title1 < title2) {
@@ -1527,7 +1527,7 @@ export class TreeView {
     return 0;
   }
 
-  _synchNodesToEntities(): void {
+  private _synchNodesToEntities(): void {
     const objectIds = Object.keys(this.data.objects);
     const viewObjects = this.view.objects;
 
@@ -1566,7 +1566,7 @@ export class TreeView {
     }
   }
 
-  _withNodeTree(node: TreeViewNode, callback: (node: TreeViewNode) => void): void {
+  private _withNodeTree(node: TreeViewNode, callback: (node: TreeViewNode) => void): void {
     callback(node);
     const childNodes = node.childNodes;
     if (!childNodes) {
@@ -1577,7 +1577,7 @@ export class TreeView {
     }
   }
 
-  _createNodeElements(): void {
+  private _createNodeElements(): void {
     if (this._rootNodes.length === 0) {
       return;
     }
@@ -1590,7 +1590,7 @@ export class TreeView {
     this._rootElement = ul;
   }
 
-  _createNodeElement(node: TreeViewNode): HTMLElement {
+  private _createNodeElement(node: TreeViewNode): HTMLElement {
     const nodeElement = document.createElement("li");
     const nodeId = node.nodeId;
 
@@ -1667,7 +1667,7 @@ export class TreeView {
     return nodeElement;
   }
 
-  _buildActionButton(
+  private _buildActionButton(
     kind:    string,
     title:   string,
     iconSvg: string,
@@ -1697,7 +1697,7 @@ export class TreeView {
     return btn;
   }
 
-  _expandSwitchElement(switchElement: HTMLElement): void {
+  private _expandSwitchElement(switchElement: HTMLElement): void {
     const parentElement = switchElement.parentElement;
     if (!parentElement) {
       return;
@@ -1729,7 +1729,7 @@ export class TreeView {
     switchElement.addEventListener("click", this._switchCollapseHandler);
   }
 
-  _collapseNode(objectId: string): void {
+  private _collapseNode(objectId: string): void {
     const switchElementId = `switch-${objectId}`;
     const switchElement = document.getElementById(switchElementId);
     if (!switchElement) {
@@ -1738,7 +1738,7 @@ export class TreeView {
     this._collapseSwitchElement(switchElement as HTMLElement);
   }
 
-  _collapseSwitchElement(switchElement: HTMLElement): void {
+  private _collapseSwitchElement(switchElement: HTMLElement): void {
     const parent = switchElement.parentElement;
     if (!parent) {
       return;
@@ -1755,11 +1755,11 @@ export class TreeView {
     switchElement.addEventListener("click", this._switchExpandHandler);
   }
 
-  _isDefaultishName(name: string | undefined | null): boolean {
+  private _isDefaultishName(name: string | undefined | null): boolean {
     return !name || name === "" || name === "Undefined" || name === "Default";
   }
 
-  _getDisplayTitle(dataObject: DataObject, isRoot = false): string {
+  private _getDisplayTitle(dataObject: DataObject, isRoot = false): string {
     const type = dataObject.type;
     const name = dataObject.name;
     if (isRoot) {
@@ -1768,7 +1768,7 @@ export class TreeView {
     return this._isDefaultishName(name) ? type : (name as string);
   }
 
-  _getRelatedObjects(dataObject: DataObject): DataObject[] {
+  private _getRelatedObjects(dataObject: DataObject): DataObject[] {
     if (!dataObject.related) return [];
     const result: DataObject[] = [];
     for (const lt of this._linkTypes) {
@@ -1782,7 +1782,7 @@ export class TreeView {
     return result;
   }
 
-  _getAggregationParentDataObject(dataObject: DataObject): DataObject | null {
+  private _getAggregationParentDataObject(dataObject: DataObject): DataObject | null {
     if (!dataObject.relating) return null;
     for (const lt of this._linkTypes) {
       const rels = dataObject.relating[lt];
@@ -1793,14 +1793,14 @@ export class TreeView {
     return null;
   }
 
-  _shouldIncludeDataObject(dataObject: DataObject): boolean {
+  private _shouldIncludeDataObject(dataObject: DataObject): boolean {
     if (!this._pruneEmptyNodes) {
       return true;
     }
     return !!this._dataObjectSceneObjectCounts[dataObject.id];
   }
 
-  _syncSingleNodeToEntity(node: TreeViewNode): void {
+  private _syncSingleNodeToEntity(node: TreeViewNode): void {
     const viewObject = this.view.objects[node.objectId];
     if (!viewObject) {
       node.numViewObjects = 0;
@@ -1816,7 +1816,7 @@ export class TreeView {
     node.numVisibleViewObjects = viewObject.visible ? 1 : 0;
   }
 
-  _bubbleNodeCountsToParents(node: TreeViewNode): void {
+  private _bubbleNodeCountsToParents(node: TreeViewNode): void {
     let parentNode = node.parentNode;
     while (parentNode) {
       parentNode.numViewObjects += node.numViewObjects;
@@ -1832,7 +1832,7 @@ export class TreeView {
     }
   }
 
-  _subtractNodeCountsFromParents(node: TreeViewNode): void {
+  private _subtractNodeCountsFromParents(node: TreeViewNode): void {
     let parentNode = node.parentNode;
     while (parentNode) {
       parentNode.numViewObjects -= node.numViewObjects;
@@ -1854,7 +1854,7 @@ export class TreeView {
     }
   }
 
-  _ensureRootElement(): HTMLUListElement {
+  private _ensureRootElement(): HTMLUListElement {
     if (!this._rootElement) {
       this._rootElement = document.createElement("ul");
       this._containerElement.appendChild(this._rootElement);
@@ -1862,7 +1862,7 @@ export class TreeView {
     return this._rootElement;
   }
 
-  _getDirectChildUL(parentElement: HTMLElement): HTMLUListElement | null {
+  private _getDirectChildUL(parentElement: HTMLElement): HTMLUListElement | null {
     const children = parentElement.children;
     for (let i = 0, len = children.length; i < len; i++) {
       const child = children[i];
@@ -1873,11 +1873,11 @@ export class TreeView {
     return null;
   }
 
-  _ensureExpandedChildrenContainer(parentElement: HTMLElement): HTMLUListElement | null {
+  private _ensureExpandedChildrenContainer(parentElement: HTMLElement): HTMLUListElement | null {
     return this._getDirectChildUL(parentElement);
   }
 
-  _ensureSwitchElement(node: TreeViewNode): void {
+  private _ensureSwitchElement(node: TreeViewNode): void {
     const li = document.getElementById(`node-${node.nodeId}`);
     if (!li) {
       return;
@@ -1898,7 +1898,7 @@ export class TreeView {
     li.insertBefore(switchElement, li.firstChild);
   }
 
-  _removeSwitchElementIfLeaf(node: TreeViewNode): void {
+  private _removeSwitchElementIfLeaf(node: TreeViewNode): void {
     if (node.childNodes.length > 0) {
       return;
     }
@@ -1911,7 +1911,7 @@ export class TreeView {
     switchElement.parentElement.removeChild(switchElement);
   }
 
-  _insertNodeIntoDOM(node: TreeViewNode): void {
+  private _insertNodeIntoDOM(node: TreeViewNode): void {
     const nodeElement = this._createNodeElement(node);
 
     if (!node.parentNode) {
@@ -1937,7 +1937,7 @@ export class TreeView {
     this._insertElementAtSortedIndex(parentUL, nodeElement, node.parentNode.childNodes, node);
   }
 
-  _insertElementAtSortedIndex(
+  private _insertElementAtSortedIndex(
     container: HTMLElement,
     nodeElement: HTMLElement,
     siblings: TreeViewNode[],
@@ -1956,7 +1956,7 @@ export class TreeView {
     }
   }
 
-  _removeNodeElement(node: TreeViewNode): void {
+  private _removeNodeElement(node: TreeViewNode): void {
     const li = document.getElementById(`node-${node.nodeId}`);
     if (li && li.parentNode) {
       li.parentNode.removeChild(li);
@@ -1966,7 +1966,7 @@ export class TreeView {
     }
   }
 
-  _removeStructuralNodeFromIndexes(node: TreeViewNode): void {
+  private _removeStructuralNodeFromIndexes(node: TreeViewNode): void {
     if (node.objectId.indexOf("group:") === 0 || node.objectId.indexOf("groupfallback:") === 0) {
       delete this._groupNodeIndex[node.objectId];
       return;
@@ -1982,7 +1982,7 @@ export class TreeView {
     }
   }
 
-  _cleanupEmptyStructuralAncestors(node: TreeViewNode | null): void {
+  private _cleanupEmptyStructuralAncestors(node: TreeViewNode | null): void {
     let current = node;
 
     while (current) {
@@ -2027,7 +2027,7 @@ export class TreeView {
     }
   }
 
-  _ensureStyles(): void {
+  private _ensureStyles(): void {
     if (typeof document === "undefined") {
       return;
     }
@@ -2044,7 +2044,7 @@ export class TreeView {
     document.head.appendChild(styleElement);
   }
 
-  _createDefaultContainerElement(): HTMLElement {
+  private _createDefaultContainerElement(): HTMLElement {
     if (typeof document === "undefined") {
       throw new Error("Config expected: containerElement");
     }

@@ -289,7 +289,7 @@ export class MeshBatchImpl implements MeshBatch {
    * Sets the render flags for a mesh in a specific view based on its visibility and interaction states.
    * @private
    */
-  _setMeshObjectFlags(viewIndex: number, meshHandle: MeshBatchMeshHandle, renderFlags: number): void {
+  private _setMeshObjectFlags(viewIndex: number, meshHandle: MeshBatchMeshHandle, renderFlags: number): void {
     // const isPickable = (renderFlags & RENDER_FLAGS.PICKABLE) !== 0;
     // const isClippable = (renderFlags & RENDER_FLAGS.CLIPPABLE) !== 0;
     // const pickFlag = isPickable ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;

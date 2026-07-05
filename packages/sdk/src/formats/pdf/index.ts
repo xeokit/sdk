@@ -1,5 +1,5 @@
 /**
- * <img style="padding:10px" src="../../assets/pdf_hero.jpg"/>
+ * <img style="padding:10px" src="https://xeokit.github.io/sdk/docs/assets/pdf_hero.jpg"/>
  *
  * # xeokit PDF Drawing Loader
  *

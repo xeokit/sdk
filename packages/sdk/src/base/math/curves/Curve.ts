@@ -8,7 +8,7 @@ import {subVec3, type Vec3, createVec3Float64, normalizeVec3, lenVec3} from "../
  */
 abstract class Curve  {
   protected _t: number = 0;
-  protected __arcLengthDivisions?: number;
+  private __arcLengthDivisions?: number;
   protected cacheArcLengths?: number[];
   protected needsUpdate?: boolean;
 
@@ -37,7 +37,7 @@ abstract class Curve  {
   }
 
   /**
-   * Normalized tangent at the current {@link t}.
+   * Normalized tangent at the current `t`.
    */
   get tangent(): Vec3 {
     return this.getTangent(this._t);
@@ -58,7 +58,7 @@ abstract class Curve  {
    *
    * Uses a small finite difference around `t`.
    *
-   * @param t Curve parameter in the range `[0..1]`. Defaults to the current {@link t}.
+   * @param t Curve parameter in the range `[0..1]`. Defaults to the current `t`.
    * @returns Normalized tangent vector
    */
   getTangent(t?: number): Vec3 {
@@ -124,7 +124,7 @@ abstract class Curve  {
    * @param divisions Number of sampling divisions used to approximate arc length
    * @returns Cumulative arc lengths
    */
-  protected _getLengths(divisions?: number): number[] {
+  private _getLengths(divisions?: number): number[] {
     if (!divisions) {
       divisions = this.__arcLengthDivisions ? this.__arcLengthDivisions : 200;
     }

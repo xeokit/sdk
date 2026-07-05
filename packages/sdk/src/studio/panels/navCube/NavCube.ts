@@ -178,7 +178,7 @@ export class NavCube extends FloatingPanelBase {
   }
 
   /**
-   * Returns the live NavCube bound to {@link view}, or `undefined`
+   * Returns the live NavCube bound to `view`, or `undefined`
    * if none has been created yet (or the previous one was destroyed).
    */
   static getFor(view: View): NavCube | undefined {

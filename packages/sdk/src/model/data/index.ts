@@ -1,5 +1,5 @@
 /**
- * <img style="padding:50px" src="../../assets/xeokit_datamodel_icon.png"/>
+ * <img style="padding:50px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_datamodel_icon.png"/>
  *
  * # xeokit Semantic Data Graph
  *

@@ -1,6 +1,6 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; width:180px;"
- *      src="../../assets/dotbim-logo.png"/>
+ *      src="https://xeokit.github.io/sdk/docs/assets/dotbim-logo.png"/>
  *
  * # dotbim — .BIM Importer and Exporter
  *

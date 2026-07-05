@@ -1,5 +1,5 @@
 /**
- * <img style="padding:20px; padding-bottom:10px;" src="../../assets/bcf_logo.png"/>
+ * <img style="padding:20px; padding-bottom:10px;" src="https://xeokit.github.io/sdk/docs/assets/bcf_logo.png"/>
  *
  * # xeokit BCF Viewpoint Importer and Exporter
  *

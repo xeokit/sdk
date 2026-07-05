@@ -356,7 +356,7 @@ export class WebGLTexture implements WebGLAbstractTexture {
     gl.bindTexture(this.target, null);
   }
 
-  _uploadProps(props: {
+  private _uploadProps(props: {
     format?: number,
     internalFormat?: number,
     encoding?: number,

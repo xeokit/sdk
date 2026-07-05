@@ -307,7 +307,7 @@ export class AngleMeasurementsPanel extends FloatingPanelBase {
   }
 
   /**
-   * Returns the live panel bound to {@link view}, or `undefined`
+   * Returns the live panel bound to `view`, or `undefined`
    * if none has been constructed (or the prior instance was
    * destroyed). Lets callers check for an existing panel without
    * the show side-effect of {@link openFor}.

@@ -151756,6 +151756,26 @@ var FrustumProjection = class {
 
 // ../sdk/src/viewing/viewer/OrthoProjection.ts
 var import_strongly_typed_events7 = __toESM(require_dist8());
+
+// ../sdk/src/viewing/viewer/getElementCssSize.ts
+function getElementCssSize(element) {
+  const rect = element.getBoundingClientRect();
+  const width = finitePositive(rect.width) ? rect.width : fallbackDimension(element.clientWidth, element.offsetWidth);
+  const height = finitePositive(rect.height) ? rect.height : fallbackDimension(element.clientHeight, element.offsetHeight);
+  return { width, height };
+}
+function finitePositive(value) {
+  return Number.isFinite(value) && value > 0;
+}
+function fallbackDimension(client, offset) {
+  if (finitePositive(client))
+    return client;
+  if (finitePositive(offset))
+    return offset;
+  return 1;
+}
+
+// ../sdk/src/viewing/viewer/OrthoProjection.ts
 var tempVec4a5 = createVec4Float64();
 var tempVec4b5 = createVec4Float64();
 var tempVec4c3 = createVec4Float64();
@@ -151970,8 +151990,9 @@ var OrthoProjection = class {
    */
   unproject(canvasPos2, screenZ, screenPos2, viewPos2, worldPos) {
     const htmlElement = this.camera.view.htmlElement;
-    const halfViewWidth = htmlElement.offsetWidth / 2;
-    const halfViewHeight = htmlElement.offsetHeight / 2;
+    const cssSize = getElementCssSize(htmlElement);
+    const halfViewWidth = cssSize.width / 2;
+    const halfViewHeight = cssSize.height / 2;
     screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
     screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
     screenPos2[2] = screenZ;
@@ -152277,8 +152298,9 @@ var PerspectiveProjection = class {
    */
   unproject(canvasPos2, screenZ, screenPos2, viewPos2, worldPos) {
     const htmlElement = this.camera.view.htmlElement;
-    const halfViewWidth = htmlElement.offsetWidth / 2;
-    const halfViewHeight = htmlElement.offsetHeight / 2;
+    const cssSize = getElementCssSize(htmlElement);
+    const halfViewWidth = cssSize.width / 2;
+    const halfViewHeight = cssSize.height / 2;
     screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
     screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
     screenPos2[2] = screenZ;
@@ -168171,6 +168193,7 @@ var ViewController2 = class _ViewController {
 // ../sdk/src/viewing/webGLRenderer/index.ts
 var webGLRenderer_exports = {};
 __export(webGLRenderer_exports, {
+  MarkerOcclusionTester: () => MarkerOcclusionTester,
   WebGLRenderer: () => WebGLRenderer3,
   createMemoryConfigs: () => createMemoryConfigs,
   internal: () => internal_exports
@@ -183950,8 +183973,9 @@ var PickManager = class {
       pickResult.canvasPos = pickParams.canvasPos;
     } else {
       rayPick = true;
-      pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
-      pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
+      const cssSize = getElementCssSize(view.htmlElement);
+      pickCanvasPos[0] = cssSize.width * 0.5;
+      pickCanvasPos[1] = cssSize.height * 0.5;
       if (pickParams.rayMatrix) {
         this._gpuMemoryManager.setViewPickMatrix(view, pickParams.rayMatrix);
         pickViewMatrix.set(pickParams.rayMatrix);
@@ -184095,9 +184119,9 @@ var PickManager = class {
       if (!splatMesh) {
         return null;
       }
-      const canvas4 = view.htmlElement;
-      const sx = (pickCanvasPos[0] - canvas4.clientWidth / 2) / (canvas4.clientWidth / 2);
-      const sy = -(pickCanvasPos[1] - canvas4.clientHeight / 2) / (canvas4.clientHeight / 2);
+      const cssSize2 = getElementCssSize(view.htmlElement);
+      const sx = (pickCanvasPos[0] - cssSize2.width / 2) / (cssSize2.width / 2);
+      const sy = -(pickCanvasPos[1] - cssSize2.height / 2) / (cssSize2.height / 2);
       const splatPvm = mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b2);
       const splatPvmInv = inverseMat4(splatPvm, tempMat4c);
       tempVec4a8[0] = sx;
@@ -184125,9 +184149,9 @@ var PickManager = class {
     if (!gpuTile) {
       return null;
     }
-    const canvas3 = view.htmlElement;
-    const x = (pickCanvasPos[0] - canvas3.clientWidth / 2) / (canvas3.clientWidth / 2);
-    const y = -(pickCanvasPos[1] - canvas3.clientHeight / 2) / (canvas3.clientHeight / 2);
+    const cssSize = getElementCssSize(view.htmlElement);
+    const x = (pickCanvasPos[0] - cssSize.width / 2) / (cssSize.width / 2);
+    const y = -(pickCanvasPos[1] - cssSize.height / 2) / (cssSize.height / 2);
     const tileOrigin = gpuTile.center;
     const gotOrigin = tileOrigin[0] !== 0 || tileOrigin[1] !== 0 || tileOrigin[2] !== 0;
     const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix, tileOrigin, tempMat4a6) : pickViewMatrix;
@@ -192011,6 +192035,327 @@ function createDefaultMemoryConfigs(overrides = {}) {
   };
 }
 
+// ../sdk/src/viewing/webGLRenderer/MarkerOcclusionTester.ts
+var DEFAULT_DEPTH_BIAS = 0.01;
+var DEFAULT_HIDE_DELAY_FRAMES = 2;
+var DEFAULT_SHOW_DELAY_FRAMES = 1;
+var DEFAULT_MAX_RAYCAST_STEPS = 32;
+var RAYCAST_STEP_EPSILON = 1e-5;
+var tempWorld = createVec4Float64();
+var tempView = createVec4Float64();
+var tempClip = createVec4Float64();
+var tempScreen = createVec3Float64();
+var tempViewPos = createVec3Float64();
+var tempNear = createVec3Float64();
+var tempFar = createVec3Float64();
+var tempMarkerDelta = createVec3Float64();
+var MarkerOcclusionTester = class {
+  view;
+  /** Resolved backend used by this tester. */
+  mode = "bvh";
+  _raycaster;
+  _params;
+  _globalExcludeObjectIds;
+  _history = /* @__PURE__ */ new Map();
+  _markers = [];
+  _results = [];
+  _destroyed = false;
+  constructor(config2) {
+    this.view = config2.view;
+    this._raycaster = config2.raycaster ?? new SceneRaycaster(config2.view.viewer.scene);
+    const params = config2.params ?? {};
+    this._params = {
+      depthBias: finiteNumber(params.depthBias, DEFAULT_DEPTH_BIAS),
+      includeTransparent: params.includeTransparent === true,
+      includeXRayed: params.includeXRayed === true,
+      respectSectionPlanes: params.respectSectionPlanes !== false,
+      hideDelayFrames: nonNegativeInteger(params.hideDelayFrames, DEFAULT_HIDE_DELAY_FRAMES),
+      showDelayFrames: nonNegativeInteger(params.showDelayFrames, DEFAULT_SHOW_DELAY_FRAMES),
+      maxRaycastSteps: Math.max(1, nonNegativeInteger(params.maxRaycastSteps, DEFAULT_MAX_RAYCAST_STEPS)),
+      excludeObjectIds: params.excludeObjectIds,
+      occluderFilter: params.occluderFilter
+    };
+    this._globalExcludeObjectIds = new Set(params.excludeObjectIds ?? []);
+  }
+  /**
+   * Replaces the marker set tested by subsequent {@link update} calls.
+   */
+  setMarkers(markers) {
+    if (this._destroyed) {
+      return destroyedResult("[MarkerOcclusionTester.setMarkers]");
+    }
+    const validation = validateMarkers(markers);
+    if (validation.ok === false) {
+      return validation;
+    }
+    this._markers = markers.slice();
+    for (const id of Array.from(this._history.keys())) {
+      if (!this._markers.some((marker) => marker.id === id)) {
+        this._history.delete(id);
+      }
+    }
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Tests every marker and returns the latest visibility results.
+   *
+   * Passing `markers` is equivalent to calling {@link setMarkers} first.
+   */
+  update(markers) {
+    if (this._destroyed) {
+      return destroyedResult("[MarkerOcclusionTester.update]");
+    }
+    if (markers) {
+      const setResult = this.setMarkers(markers);
+      if (setResult.ok === false) {
+        return setResult;
+      }
+    }
+    const results = [];
+    for (let i = 0, len = this._markers.length; i < len; i++) {
+      results.push(this._testMarker(this._markers[i]));
+    }
+    this._results = results;
+    return { ok: true, value: this._results };
+  }
+  /**
+   * Returns the latest completed result set. Empty until {@link update} runs.
+   */
+  getVisibility() {
+    return this._results;
+  }
+  /**
+   * Releases references held by this tester.
+   */
+  destroy() {
+    this._destroyed = true;
+    this._markers = [];
+    this._results = [];
+    this._history.clear();
+  }
+  _testMarker(marker) {
+    const projected = this._project(marker.worldPos);
+    if (!projected.inFrustum || !projected.canvasPos) {
+      this._history.set(marker.id, { visible: false, visibleFrames: 0, occludedFrames: 0 });
+      return this._makeResult(marker, projected, null, false, null);
+    }
+    const ray = this._makeRay(projected.canvasPos, marker.worldPos);
+    if (!ray || ray.distanceToMarker <= this._params.depthBias) {
+      this._history.set(marker.id, { visible: false, visibleFrames: 0, occludedFrames: 0 });
+      return this._makeResult(marker, projected, ray, false, null);
+    }
+    const hit = this._raycast(marker, ray);
+    const occluded = hit !== null;
+    this._applyHysteresis(marker.id, !occluded);
+    return this._makeResult(marker, projected, ray, occluded, hit);
+  }
+  _project(worldPos) {
+    tempWorld[0] = worldPos[0];
+    tempWorld[1] = worldPos[1];
+    tempWorld[2] = worldPos[2];
+    tempWorld[3] = 1;
+    transformVec4(this.view.camera.viewMatrix, tempWorld, tempView);
+    transformVec4(this.view.camera.projMatrix, tempView, tempClip);
+    const w2 = tempClip[3];
+    if (!Number.isFinite(w2) || Math.abs(w2) < 1e-12) {
+      return { inFrustum: false, canvasPos: null };
+    }
+    const ndcX = tempClip[0] / w2;
+    const ndcY = tempClip[1] / w2;
+    const ndcZ = tempClip[2] / w2;
+    if (!Number.isFinite(ndcX) || !Number.isFinite(ndcY) || !Number.isFinite(ndcZ)) {
+      return { inFrustum: false, canvasPos: null };
+    }
+    const cssSize = getElementCssSize(this.view.htmlElement);
+    const canvasPos2 = createVec2Float64();
+    canvasPos2[0] = (ndcX + 1) * 0.5 * cssSize.width;
+    canvasPos2[1] = (1 - ndcY) * 0.5 * cssSize.height;
+    return {
+      inFrustum: ndcX >= -1 && ndcX <= 1 && ndcY >= -1 && ndcY <= 1 && ndcZ >= -1 && ndcZ <= 1,
+      canvasPos: canvasPos2
+    };
+  }
+  _makeRay(canvasPos2, markerWorldPos) {
+    const projection = this.view.camera.projection;
+    projection.unproject(canvasPos2, -1, tempScreen, tempViewPos, tempNear);
+    projection.unproject(canvasPos2, 1, tempScreen, tempViewPos, tempFar);
+    const dir = createVec3Float64();
+    subVec3(tempFar, tempNear, dir);
+    const dirLen = lenVec3(dir);
+    if (!Number.isFinite(dirLen) || dirLen <= 1e-12) {
+      return null;
+    }
+    normalizeVec3(dir, dir);
+    subVec3(markerWorldPos, tempNear, tempMarkerDelta);
+    const distanceToMarker = dotVec3(tempMarkerDelta, dir);
+    if (!Number.isFinite(distanceToMarker)) {
+      return null;
+    }
+    return {
+      origin: createVec3Float64(tempNear),
+      dir,
+      distanceToMarker
+    };
+  }
+  _raycast(marker, ray) {
+    let tMin = RAYCAST_STEP_EPSILON;
+    const tMax = Math.max(tMin, ray.distanceToMarker - this._params.depthBias);
+    const filter = (objectId) => this._acceptsOccluder(marker, objectId);
+    for (let step2 = 0; step2 < this._params.maxRaycastSteps && tMin < tMax; step2++) {
+      const result = this._raycaster.pick({
+        view: this.view,
+        ray: { origin: ray.origin, dir: ray.dir },
+        tMin,
+        tMax,
+        filter,
+        visiblePickableOnly: false
+      });
+      if (result.ok === false || !result.value.hit) {
+        return null;
+      }
+      if (!this._isHitClipped(result.value)) {
+        return result.value;
+      }
+      tMin = (result.value.tHit ?? tMin) + RAYCAST_STEP_EPSILON;
+    }
+    return null;
+  }
+  _acceptsOccluder(marker, objectId) {
+    if (this._globalExcludeObjectIds.has(objectId)) {
+      return false;
+    }
+    if (marker.excludeObjectIds?.includes(objectId)) {
+      return false;
+    }
+    const viewObject = this.view.objects[objectId];
+    if (!viewObject || !viewObject.visible || viewObject.culled) {
+      return false;
+    }
+    if (!this._params.includeXRayed && viewObject.xrayed) {
+      return false;
+    }
+    if (!this._params.includeTransparent && viewObject.opacityUpdated && viewObject.opacity < 1) {
+      return false;
+    }
+    if (marker.occluderFilter && !marker.occluderFilter(objectId)) {
+      return false;
+    }
+    if (this._params.occluderFilter && !this._params.occluderFilter(objectId, marker)) {
+      return false;
+    }
+    return true;
+  }
+  _isHitClipped(hit) {
+    if (!this._params.respectSectionPlanes || !hit.worldPos || !hit.objectId) {
+      return false;
+    }
+    const viewObject = this.view.objects[hit.objectId];
+    if (!viewObject?.clippable) {
+      return false;
+    }
+    const planes = this.view.sectionPlanes;
+    for (const id in planes) {
+      const plane = planes[id];
+      if (!plane.active) {
+        continue;
+      }
+      if (dotVec3(plane.dir, hit.worldPos) + plane.dist > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _applyHysteresis(markerId, candidateVisible) {
+    const prev = this._history.get(markerId);
+    if (!prev) {
+      const next = {
+        visible: candidateVisible,
+        visibleFrames: candidateVisible ? 1 : 0,
+        occludedFrames: candidateVisible ? 0 : 1
+      };
+      this._history.set(markerId, next);
+      return next.visible;
+    }
+    let visible = prev.visible;
+    let visibleFrames = prev.visibleFrames;
+    let occludedFrames = prev.occludedFrames;
+    if (candidateVisible) {
+      visibleFrames++;
+      occludedFrames = 0;
+      if (!visible && visibleFrames >= this._params.showDelayFrames) {
+        visible = true;
+      }
+    } else {
+      occludedFrames++;
+      visibleFrames = 0;
+      if (visible && occludedFrames >= this._params.hideDelayFrames) {
+        visible = false;
+      }
+    }
+    this._history.set(markerId, { visible, visibleFrames, occludedFrames });
+    return visible;
+  }
+  _makeResult(marker, projected, ray, occluded, hit) {
+    const history = this._history.get(marker.id);
+    return {
+      markerId: marker.id,
+      marker,
+      mode: this.mode,
+      visible: !!history?.visible,
+      occluded,
+      inFrustum: projected.inFrustum,
+      canvasPos: projected.canvasPos,
+      rayOrigin: ray ? createVec3Float64(ray.origin) : null,
+      rayDir: ray ? createVec3Float64(ray.dir) : null,
+      distanceToMarker: ray ? ray.distanceToMarker : null,
+      occluderObjectId: hit?.objectId ?? null,
+      occluderMeshId: hit?.meshId ?? null
+    };
+  }
+};
+function validateMarkers(markers) {
+  const ids2 = /* @__PURE__ */ new Set();
+  for (let i = 0, len = markers.length; i < len; i++) {
+    const marker = markers[i];
+    if (!marker || !marker.id) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[MarkerOcclusionTester.setMarkers] Marker at index ${i} has no id.`
+      };
+    }
+    if (ids2.has(marker.id)) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[MarkerOcclusionTester.setMarkers] Duplicate marker id: ${marker.id}`
+      };
+    }
+    ids2.add(marker.id);
+    if (!marker.worldPos || marker.worldPos.length < 3 || !Number.isFinite(marker.worldPos[0]) || !Number.isFinite(marker.worldPos[1]) || !Number.isFinite(marker.worldPos[2])) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[MarkerOcclusionTester.setMarkers] Marker '${marker.id}' has an invalid worldPos.`
+      };
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+function finiteNumber(value, fallback) {
+  return Number.isFinite(value) ? value : fallback;
+}
+function nonNegativeInteger(value, fallback) {
+  return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : fallback;
+}
+function destroyedResult(prefix) {
+  return {
+    ok: false,
+    type: 1 /* InvalidOperation */,
+    error: `${prefix} MarkerOcclusionTester has been destroyed.`
+  };
+}
+
 // ../sdk/src/viewing/webGLRenderer/WebGLRenderer.ts
 var WebGLRenderer3 = class {
   _viewer = null;
@@ -192784,6 +193129,36 @@ var WebGLRenderer3 = class {
       });
     }
     return this._viewManager.pick(view, pickParams);
+  }
+  /**
+   * Creates a marker occlusion tester for a {@link viewing!viewer.View | View}.
+   *
+   * The tester batches world-space marker anchors and reports whether each
+   * marker should be shown as a floating UI element. The current implementation
+   * uses the scene BVH; `params.mode: "auto"` resolves to that backend.
+   *
+   * @param view View whose camera and visual object state drive occlusion.
+   * @param params Optional filtering, bias, and hysteresis settings.
+   */
+  createMarkerOcclusionTester(view, params = {}) {
+    if (!this._viewManager || !this._viewer?.scene) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGLRenderer.createMarkerOcclusionTester] Viewer with Scene is not currently attached."
+      });
+    }
+    if (view.viewer !== this._viewer) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGLRenderer.createMarkerOcclusionTester] The specified View does not belong to the currently attached Viewer."
+      });
+    }
+    return {
+      ok: true,
+      value: new MarkerOcclusionTester({ view, params })
+    };
   }
   /**
    * Gets a snapshot image of the current rendered output for a specified {@link viewing!viewer.View | View}.
@@ -201722,7 +202097,7 @@ var DistanceMeasurementTool = class _DistanceMeasurementTool {
     const camera = this.view.camera;
     const v = camera.viewMatrix;
     const m = camera.projMatrix;
-    const canvas3 = this.view.htmlElement;
+    const cssSize = getElementCssSize(this.view.htmlElement);
     const x = p[0], y = p[1], z = p[2];
     const vx = v[0] * x + v[4] * y + v[8] * z + v[12];
     const vy = v[1] * x + v[5] * y + v[9] * z + v[13];
@@ -201739,8 +202114,8 @@ var DistanceMeasurementTool = class _DistanceMeasurementTool {
     }
     const ndcX = cx / cw;
     const ndcY = cy / cw;
-    out[0] = (ndcX + 1) * 0.5 * canvas3.clientWidth;
-    out[1] = (1 - ndcY) * 0.5 * canvas3.clientHeight;
+    out[0] = (ndcX + 1) * 0.5 * cssSize.width;
+    out[1] = (1 - ndcY) * 0.5 * cssSize.height;
     out[2] = cw;
   }
   /**
@@ -202547,7 +202922,7 @@ var AngleMeasurementsTool = class _AngleMeasurementsTool {
     const camera = this.view.camera;
     const v = camera.viewMatrix;
     const m = camera.projMatrix;
-    const canvas3 = this.view.htmlElement;
+    const cssSize = getElementCssSize(this.view.htmlElement);
     const x = p[0], y = p[1], z = p[2];
     const vx = v[0] * x + v[4] * y + v[8] * z + v[12];
     const vy = v[1] * x + v[5] * y + v[9] * z + v[13];
@@ -202564,8 +202939,8 @@ var AngleMeasurementsTool = class _AngleMeasurementsTool {
     }
     const ndcX = cx / cw;
     const ndcY = cy / cw;
-    out[0] = (ndcX + 1) * 0.5 * canvas3.clientWidth;
-    out[1] = (1 - ndcY) * 0.5 * canvas3.clientHeight;
+    out[0] = (ndcX + 1) * 0.5 * cssSize.width;
+    out[1] = (1 - ndcY) * 0.5 * cssSize.height;
     out[2] = cw;
   }
   _syncOverlayBounds() {

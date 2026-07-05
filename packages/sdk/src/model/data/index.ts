@@ -165,7 +165,7 @@
  *
  * Enforced mode:
  *
- * ````ts
+ * ```ts
  * const data = new Data();
  *
  * const modelRes = data.createModel({ id: "tower", schema: "IFC4" });
@@ -187,11 +187,11 @@
  * });
  * // bad.ok === false
  * // bad.error → "DataObject schema \"IFC2X3\" does not match DataModel schema \"IFC4\" — ..."
- * ````
+ * ```
  *
  * Free mode:
  *
- * ````ts
+ * ```ts
  * const data = new Data();
  *
  * // No `schema` field — DataModel runs in free mode.
@@ -210,7 +210,7 @@
  *   relatingObjectId: "c",
  *   relatedObjectId:  "a"
  * });
- * ````
+ * ```
  *
  * <br>
  *
@@ -218,15 +218,15 @@
  *
  * ### Installation
  *
- * ````bash
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
  * ### Creating a DataModel
  *
  * Build a simple semantic model with objects, properties, and relationships:
  *
- * ````ts
+ * ```ts
  * import { Data, type DataModel } from "@xeokit/sdk/model/data";
  *
  * const data = new Data();
@@ -261,7 +261,7 @@
  * } else {
  *   console.log("Model created:", result.value.id);
  * }
- * ````
+ * ```
  *
  * <br>
  *
@@ -271,7 +271,7 @@
  *
  * Use builder methods for step-by-step construction:
  *
- * ````ts
+ * ```ts
  * const modelRes = data.createModel({ id: "my-model", schema: "MyApp/v1" });
  * if (!modelRes.ok) throw new Error(modelRes.error);
  *
@@ -302,13 +302,13 @@
  *   relatingObjectId: "building",
  *   relatedObjectId: "wall-1",
  * });
- * ````
+ * ```
  *
  * ### Traversing the Graph
  *
  * Access objects and follow relationships directly:
  *
- * ````ts
+ * ```ts
  * // Get an object by ID
  * const table = data.objects["table"];
  *
@@ -322,13 +322,13 @@
  *
  * // Get incoming relationships (what relates to this leg)
  * const relatingRels = leg.relating["supports"] || [];
- * ````
+ * ```
  *
  * ### Querying Objects
  *
  * Use {@link searchObjects} to traverse and filter hierarchies:
  *
- * ````ts
+ * ```ts
  * const resultIds: string[] = [];
  *
  * searchObjects(data, {
@@ -339,31 +339,31 @@
  * });
  *
  * console.log("Found components:", resultIds);
- * ````
+ * ```
  *
  * ### Serializing a Model
  *
  * Export model structure to JSON:
  *
- * ````ts
+ * ```ts
  * const params = model.toParams();
  * const jsonStr = JSON.stringify(params);
- * ````
+ * ```
  *
  * Import from JSON:
  *
- * ````ts
+ * ```ts
  * const modelRes = data.createModel({ id: "restored" });
  * if (modelRes.ok) {
  *   modelRes.value.fromParams(params);
  * }
- * ````
+ * ```
  *
  * ### Loading from Files
  *
  * Use format-specific loaders to populate data from standard formats:
  *
- * ````ts
+ * ```ts
  * import { dotBIMLoader } from "@xeokit/sdk/formats";
  *
  * const dataRes = data.createModel({ id: "loaded" });
@@ -374,13 +374,13 @@
  *   fileData,
  *   dataModel: dataRes.value,
  * });
- * ````
+ * ```
  *
  * ### Listening to Events
  *
  * React to model lifecycle changes:
  *
- * ````ts
+ * ```ts
  * data.events.onModelCreated.subscribe((data, model) => {
  *   console.log(`Model created: ${model.id}`);
  * });
@@ -392,7 +392,7 @@
  * data.events.onError.subscribe((data, error) => {
  *   console.error("Data error:", error);
  * });
- * ````
+ * ```
  *
  * <br>
  *
@@ -400,13 +400,13 @@
  *
  * Clean up resources explicitly:
  *
- * ````ts
+ * ```ts
  * // Destroy a single model
  * model.destroy();
  *
  * // Destroy all models and data
  * data.destroy();
- * ````
+ * ```
  *
  * @module data
  */

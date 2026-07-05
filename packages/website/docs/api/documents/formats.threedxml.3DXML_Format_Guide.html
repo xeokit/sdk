@@ -11,9 +11,9 @@ v1 honours, and the pipeline a file follows from bytes to a live scene (and back
 <p>Entries are normally DEFLATE-compressed; the loader's ZIP reader (<code>unzip.ts</code>)
 inflates them via <code>pako</code> (STORED entries pass through). XML is parsed with the
 browser's native <code>DOMParser</code>.</p>
-<a id="manifest" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Manifest<a href="#manifest" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="xml"><Manifest xmlns="http://www.3ds.com/xsd/3DXML">
-  <Root>Product.3dxml</Root>
-</Manifest>
+<a id="manifest" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Manifest<a href="#manifest" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="xml">&lt;Manifest xmlns=&quot;http://www.3ds.com/xsd/3DXML&quot;&gt;
+  &lt;Root&gt;Product.3dxml&lt;/Root&gt;
+&lt;/Manifest&gt;
 </code><button type="button">Copy</button></pre>
 
 <p><code>&lt;Root&gt;</code> names the product-structure document inside the archive. References may
@@ -51,14 +51,14 @@ to an archive entry by basename, case-insensitively, as a fallback.</p>
 when declared, otherwise the one <code>Reference3D</code> no <code>Instance3D</code> instantiates.</p>
 <p><code>&lt;RelativeMatrix&gt;</code> is 12 numbers — three 3-vectors (the local X / Y / Z axes)
 then the translation, i.e. the upper 3×4 of a column-major transform.</p>
-<a id="representation-tessellation" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Representation (tessellation)<a href="#representation-tessellation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="xml"><Rep>
-  <SurfaceAttributes><Color red="1" green="0" blue="0" alpha="1"/></SurfaceAttributes>
-  <Faces><Face triangles="0 1 2 3 4 5 …"/></Faces>
-  <VertexBuffer>
-    <Positions>x y z  x y z  …</Positions>
-    <Normals>nx ny nz  …</Normals>
-  </VertexBuffer>
-</Rep>
+<a id="representation-tessellation" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Representation (tessellation)<a href="#representation-tessellation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="xml">&lt;Rep&gt;
+  &lt;SurfaceAttributes&gt;&lt;Color red=&quot;1&quot; green=&quot;0&quot; blue=&quot;0&quot; alpha=&quot;1&quot;/&gt;&lt;/SurfaceAttributes&gt;
+  &lt;Faces&gt;&lt;Face triangles=&quot;0 1 2 3 4 5 …&quot;/&gt;&lt;/Faces&gt;
+  &lt;VertexBuffer&gt;
+    &lt;Positions&gt;x y z  x y z  …&lt;/Positions&gt;
+    &lt;Normals&gt;nx ny nz  …&lt;/Normals&gt;
+  &lt;/VertexBuffer&gt;
+&lt;/Rep&gt;
 </code><button type="button">Copy</button></pre>
 
 <p>A <code>Rep</code> may nest child <code>Rep</code>s (&quot;bags&quot;); each <code>Rep</code> that owns a <code>VertexBuffer</code>

@@ -212,7 +212,7 @@ Entity into <code>ContextMenu</code> via the context object, then show the <code
 be enabled. If we click an item, its <code>doAction()</code> callback will be invoked with our context object.</p>
 <p>Remember that we must set the context on our <code>ContextMenu</code> before we show it, otherwise it will log an error to the console,
 and ignore our attempt to show it.</p>
-<pre><code class="javascript*">viewer.scene.canvas.canvas.oncontextmenu = (e) => { // Right-clicked on the canvas
+<pre><code class="javascript*">viewer.scene.canvas.canvas.oncontextmenu = (e) =&gt; { // Right-clicked on the canvas
 
     if (!objectContextMenu.enabled) {
         return;

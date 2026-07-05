@@ -1,7 +1,7 @@
 {
     "counts": {
         "sceneModels": 1,
-        "fixed": 8,
+        "fixed": 6,
         "skipped": 2,
         "errors": 0
     },
@@ -28,12 +28,12 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:53:55.662Z",
+            "generatedAt": "2026-07-04T08:08:59.161Z",
             "counts": {
-                "fixed": 8,
+                "fixed": 6,
                 "skipped": 2,
                 "errors": 0,
-                "total": 10
+                "total": 8
             },
             "fixed": [
                 {
@@ -155,54 +155,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'cylinderGeometry': merged 44 duplicate of 86 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'gridGeometry' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "gridGeometry",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "geometries"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'gridGeometry': AABB tightened (was 99% / 0% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'textGeometry' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "textGeometry",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.9998321507591363,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "geometries"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'textGeometry': AABB tightened (was 99% / 99% / 0% used → 100%)"
                 }
             ],
             "skipped": [

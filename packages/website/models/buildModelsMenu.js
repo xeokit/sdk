@@ -2,7 +2,7 @@ export function buildModelsMenu(params) {
 
   const {
     modelsIndex,
-    defaultViewerSrc = "./../examples/ModelLoader_viewModel/index.html",
+    defaultViewerSrc = "./../examples/model_viewer/index.html",
     defaultModelId,
     defaultDataset
   } = params;

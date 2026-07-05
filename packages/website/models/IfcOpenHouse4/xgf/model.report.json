@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:54:04.958Z",
+            "generatedAt": "2026-07-04T08:09:08.007Z",
             "counts": {
                 "fixed": 22,
                 "skipped": 66,
@@ -40,7 +40,7 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '0' could absorb '2' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '0' could absorb '2' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "0",
                         "context": {
@@ -56,13 +56,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'0' kept; merged 1 mesh, destroyed: 2"
+                    "trace": "'0' kept; merged 1 mesh; destroyed: 2"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "5 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '16' could absorb '18', '20', '22', '24' via instancing",
+                        "message": "5 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '16' could absorb '18', '20', '22', '24' via instancing",
                         "summary": "→ collapses 4 others",
                         "resourceId": "16",
                         "context": {
@@ -84,13 +84,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'16' kept; merged 4 meshes, destroyed: 18, 20, 22, 24"
+                    "trace": "'16' kept; merged 4 meshes; destroyed: 18, 20, 22, 24"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '28' could absorb '30' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '28' could absorb '30' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "28",
                         "context": {
@@ -105,13 +105,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'28' kept; merged 1 mesh, destroyed: 30"
+                    "trace": "'28' kept; merged 1 mesh; destroyed: 30"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "10 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '36' could absorb '38', '44', '46', '52', '54', '60', '62', '68', '70' via instancing",
+                        "message": "10 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '36' could absorb '38', '44', '46', '52', '54', '60', '62', '68', '70' via instancing",
                         "summary": "→ collapses 9 others",
                         "resourceId": "36",
                         "context": {
@@ -143,13 +143,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'36' kept; merged 9 meshes, destroyed: 38, 44, 46, 52, 54, 60, 62, 68, 70"
+                    "trace": "'36' kept; merged 9 meshes; destroyed: 38, 44, 46, 52, 54, 60, 62, 68, 70"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "10 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '40' could absorb '42', '48', '50', '56', '58', '64', '66', '72', '74' via instancing",
+                        "message": "10 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '40' could absorb '42', '48', '50', '56', '58', '64', '66', '72', '74' via instancing",
                         "summary": "→ collapses 9 others",
                         "resourceId": "40",
                         "context": {
@@ -181,7 +181,7 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'40' kept; merged 9 meshes, destroyed: 42, 48, 50, 56, 58, 64, 66, 72, 74"
+                    "trace": "'40' kept; merged 9 meshes; destroyed: 42, 48, 50, 56, 58, 64, 66, 72, 74"
                 },
                 {
                     "issue": {

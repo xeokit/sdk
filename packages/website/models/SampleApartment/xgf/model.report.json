@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:56:28.824Z",
+            "generatedAt": "2026-07-04T08:11:25.724Z",
             "counts": {
                 "fixed": 1,
                 "skipped": 4,
@@ -40,23 +40,23 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_OVER_BUDGET",
-                        "message": "SceneGeometry '544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' is over the storage budget (154876 vertices > 65535; 252532 primitives > 32768) — consider splitting via splitDenseGeometry",
-                        "summary": "154,876 verts · 252,532 tris",
-                        "resourceId": "544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
+                        "message": "SceneGeometry '1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' is over the storage budget (154876 vertices > 65535; 252532 primitives > 32768) — consider splitting via splitDenseGeometry",
+                        "summary": "154,876 verts · 252,532 prims",
+                        "resourceId": "1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
                         "context": {
                             "maxVertices": 65535,
                             "maxPrimitives": 32768,
                             "vertCount": 154876,
-                            "triCount": 252532
+                            "primitiveCount": 252532
                         },
                         "highlight": {
                             "objectIds": [
-                                "entity-544a1a80-0fcb-428c-a01b-4adc46e909f3-3"
+                                "entity-1287ac72-71de-487a-8493-528ad4a6a29a-3"
                             ]
                         }
                     },
                     "strategy": "Split dense geometry in half",
-                    "trace": "'544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' → split into '544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596_a' / '544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596_b'; 1 mesh rebuilt"
+                    "trace": "'1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' → split into '1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596_a' / '1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596_b'; 1 mesh rebuilt"
                 }
             ],
             "skipped": [
@@ -64,16 +64,16 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DEGENERATE_TRIANGLES",
-                        "message": "SceneGeometry '544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 9346 of 252532 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "message": "SceneGeometry '1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 9346 of 252532 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
                         "summary": "9,346 of 252,532 triangles",
-                        "resourceId": "544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
+                        "resourceId": "1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
                         "context": {
                             "degenerate": 9346,
                             "triCount": 252532
                         },
                         "highlight": {
                             "objectIds": [
-                                "entity-544a1a80-0fcb-428c-a01b-4adc46e909f3-3"
+                                "entity-1287ac72-71de-487a-8493-528ad4a6a29a-3"
                             ]
                         }
                     },
@@ -84,16 +84,16 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
-                        "message": "SceneGeometry '544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 7109 of 154876 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "message": "SceneGeometry '1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 7109 of 154876 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "7,109 of 154,876 vertices",
-                        "resourceId": "544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
+                        "resourceId": "1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
                         "context": {
                             "duplicate": 7109,
                             "vertCount": 154876
                         },
                         "highlight": {
                             "objectIds": [
-                                "entity-544a1a80-0fcb-428c-a01b-4adc46e909f3-3"
+                                "entity-1287ac72-71de-487a-8493-528ad4a6a29a-3"
                             ]
                         }
                     },
@@ -104,16 +104,16 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_INDICES",
-                        "message": "SceneGeometry '544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 2 of 252532 triangles that duplicate another (same vertex set, any rotation / winding) — invisible overdraw; prune via dropDuplicateTriangles",
+                        "message": "SceneGeometry '1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 2 of 252532 triangles that duplicate another (same vertex set, any rotation / winding) — invisible overdraw; prune via dropDuplicateTriangles",
                         "summary": "2 of 252,532 triangles",
-                        "resourceId": "544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
+                        "resourceId": "1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
                         "context": {
                             "duplicate": 2,
                             "triCount": 252532
                         },
                         "highlight": {
                             "objectIds": [
-                                "entity-544a1a80-0fcb-428c-a01b-4adc46e909f3-3"
+                                "entity-1287ac72-71de-487a-8493-528ad4a6a29a-3"
                             ]
                         }
                     },
@@ -124,15 +124,15 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_INCONSISTENT_WINDING",
-                        "message": "SceneGeometry '544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 1 directed edges shared by ≥2 triangles in the same direction — adjacent faces wind inconsistently (backface-cull artefacts); unify via unifyTriangleWinding",
+                        "message": "SceneGeometry '1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596' has 1 directed edges shared by ≥2 triangles in the same direction — adjacent faces wind inconsistently (backface-cull artefacts); unify via unifyTriangleWinding",
                         "summary": "1 same-direction edge",
-                        "resourceId": "544a1a80-0fcb-428c-a01b-4adc46e909f3.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
+                        "resourceId": "1287ac72-71de-487a-8493-528ad4a6a29a.accessor-1.154876.accessor-2.154876.4.accessor-0.757596",
                         "context": {
                             "conflictingEdges": 1
                         },
                         "highlight": {
                             "objectIds": [
-                                "entity-544a1a80-0fcb-428c-a01b-4adc46e909f3-3"
+                                "entity-1287ac72-71de-487a-8493-528ad4a6a29a-3"
                             ]
                         }
                     },

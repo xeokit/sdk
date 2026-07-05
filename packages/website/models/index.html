@@ -10,42 +10,71 @@
 
   <title>xeokit - 3D Web Programming Toolkit for BIM and Engineering Visualization</title>
 
-  <link href="http://localhost:8080/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="http://localhost:8080/css/business-frontpage.css" rel="stylesheet">
+  <link href="../libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/business-frontpage.css" rel="stylesheet">
 
   <link href="https://fonts.googleapis.com/css?family=Rubik" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-  <script src="http://localhost:8080/libs/jquery/jquery.min.js"></script>
-  <script src="http://localhost:8080/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../libs/jquery/jquery.min.js"></script>
+  <script src="../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <title></title>
-  <link href='http://localhost:8080/css/index.css' rel='stylesheet' type='text/css'>
+  <link href="../css/index.css" rel="stylesheet" type="text/css">
+  <style>
+    .models-index-toggle {
+      position: fixed;
+      top: 76px;
+      left: 16px;
+      z-index: 200000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      background: rgba(33, 37, 41, 0.95);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .models-index-toggle:hover {
+      background: rgba(52, 58, 64, 0.98);
+      color: #fff;
+    }
+
+    #index_toggle:checked + .models-index-toggle {
+      left: 450px;
+      z-index: 200000;
+    }
+  </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
-  <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent"
-                                                                                                href="http://localhost:8080">@xeokit/sdk</a>/<a
-    class="navbar-brand" href="http://localhost:8080/models/index.html">Models</a></span>
+	  <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent"
+	                                                                                                href="../index.html">@xeokit/sdk</a>/<a
+	    class="navbar-brand" href="./index.html">Models</a></span>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
 </button>
 <div class="collapse navbar-collapse" id="navbarResponsive">
     <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-            <a class="nav-link" href="http://localhost:8080/index.html?foo=0">Home</a>
+	            <a class="nav-link" href="../index.html?foo=0">Home</a>
         </li>
         <li class="nav-item dropdown">
-            <a class="nav-link" href="http://localhost:8080/examples/index.html">Examples</a>
+	            <a class="nav-link" href="../examples/index.html">Examples</a>
         </li>
         <li class="nav-item dropdown">
-            <a class="nav-link" href="http://localhost:8080/models/index.html">Models</a>
+	            <a class="nav-link" href="./index.html">Models</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="http://localhost:8080/userguide/index.html">User Guide</a>
+	            <a class="nav-link" href="../userguide/index.html">User Guide</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="http://localhost:8080/api-docs.html#/sdk/docs/api/modules.html">API Docs</a>
+	            <a class="nav-link" href="../api-docs.html#/sdk/docs/api/modules.html">API Docs</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="https://github.com/xeokit/sdk">GitHub</a>
@@ -65,9 +94,9 @@
     <div class="row" style="max-width:100%; height:100vh; margin: 0;">
       <div class="col-lg-12 h-100" style="padding-left: 0; padding-right: 0;  height:100vh">
         <input type="checkbox" id="index_toggle"/>
-        <label for="index_toggle" class="index-button"><i class="fas fa-2x fa-bars"></i></label>
+        <label for="index_toggle" class="index-button models-index-toggle" title="Models index"><i class="fa fa-bars fa-2x" aria-hidden="true"></i></label>
         <div class="page-title" id="page-title"></div>
-        <div class="viewSourceButton" id="viewSourceButton"><i class="fas fa-2x fa-code"></i></div>
+        <div class="viewSourceButton" id="viewSourceButton"><i class="fa fa-code fa-2x" aria-hidden="true"></i></div>
         <div class="content-overlay" id="viewer-overlay"></div>
         <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:100vh">
           <iframe class="embed-responsive-item " style=" height:100vh; background-color: lightgray;" id="viewer"
@@ -86,7 +115,7 @@
             <div class="col-md-4 col-sm-12 mb-3  text-left">
                 <h2>xeokit SDK</h2>
                 <p>Powering Engineering Graphics on the Web</p>
-                <img src="http://localhost:8080/images/xeokitLogoAlphaBG.png">
+                <img src="../images/xeokitLogoAlphaBG.png">
             </div>
             <div class="col-md-8 col-sm-12">
 
@@ -94,11 +123,11 @@
                     <h5 class="mb-4 font-weight-bold text-uppercase ">Learn</h5>
                     <ul class="list-group">
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
-                            href="http://localhost:8080/examples">Examples</a></li>
+	                            href="../examples">Examples</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
-                            href="http://localhost:8080/userguide">User Guide</a></li>
+	                            href="../userguide">User Guide</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
-                            href="http://localhost:8080/api-docs.html#/sdk/docs/api/modules.html">API Docs</a></li>
+	                            href="../api-docs.html#/sdk/docs/api/modules.html">API Docs</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
                             href="">Pricing</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
@@ -148,7 +177,7 @@
 ;
 
 <script type="module">
-  import {buildModelsMenu} from "../js/buildModelsMenu.js"; // "http://localhost:8080/js/buildModelsMenu.js";
+	  import {buildModelsMenu} from "./buildModelsMenu.js";
 
   fetch("./index.json").then(response => {
     response.json().then(modelsIndex => {

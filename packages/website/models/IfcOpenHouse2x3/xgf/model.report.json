@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:54:03.836Z",
+            "generatedAt": "2026-07-04T08:09:06.862Z",
             "counts": {
                 "fixed": 23,
                 "skipped": 24,
@@ -40,7 +40,7 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '42' could absorb '48' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '42' could absorb '48' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "42",
                         "context": {
@@ -56,13 +56,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'42' kept; merged 1 mesh, destroyed: 48"
+                    "trace": "'42' kept; merged 1 mesh; destroyed: 48"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '50' could absorb '56' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '50' could absorb '56' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "50",
                         "context": {
@@ -78,7 +78,7 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'50' kept; merged 1 mesh, destroyed: 56"
+                    "trace": "'50' kept; merged 1 mesh; destroyed: 56"
                 },
                 {
                     "issue": {

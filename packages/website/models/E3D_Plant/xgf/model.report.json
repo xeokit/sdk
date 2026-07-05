@@ -1,8 +1,8 @@
 {
     "counts": {
         "sceneModels": 1,
-        "fixed": 2361,
-        "skipped": 3449,
+        "fixed": 2357,
+        "skipped": 3408,
         "errors": 0
     },
     "bytes": {
@@ -28,19 +28,19 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:53:38.062Z",
+            "generatedAt": "2026-07-04T08:08:41.516Z",
             "counts": {
-                "fixed": 2361,
-                "skipped": 3449,
+                "fixed": 2357,
+                "skipped": 3408,
                 "errors": 0,
-                "total": 5810
+                "total": 5765
             },
             "fixed": [
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022870656' could absorb 'fbx-geom-2033022879360' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022870656' could absorb 'fbx-geom-2033022879360' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022870656",
                         "context": {
@@ -56,13 +56,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022870656' kept; merged 1 mesh, destroyed: fbx-geom-2033022879360"
+                    "trace": "'fbx-geom-2033022870656' kept; merged 1 mesh; destroyed: fbx-geom-2033022879360"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022886016' could absorb 'fbx-geom-2033022886528' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022886016' could absorb 'fbx-geom-2033022886528' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022886016",
                         "context": {
@@ -78,13 +78,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022886016' kept; merged 1 mesh, destroyed: fbx-geom-2033022886528"
+                    "trace": "'fbx-geom-2033022886016' kept; merged 1 mesh; destroyed: fbx-geom-2033022886528"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022618768' could absorb 'fbx-geom-2033022600336' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022618768' could absorb 'fbx-geom-2033022600336' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022618768",
                         "context": {
@@ -100,13 +100,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022618768' kept; merged 1 mesh, destroyed: fbx-geom-2033022600336"
+                    "trace": "'fbx-geom-2033022618768' kept; merged 1 mesh; destroyed: fbx-geom-2033022600336"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022612112' could absorb 'fbx-geom-2033022625936' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022612112' could absorb 'fbx-geom-2033022625936' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022612112",
                         "context": {
@@ -122,13 +122,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022612112' kept; merged 1 mesh, destroyed: fbx-geom-2033022625936"
+                    "trace": "'fbx-geom-2033022612112' kept; merged 1 mesh; destroyed: fbx-geom-2033022625936"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022539408' could absorb 'fbx-geom-2033022573712' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022539408' could absorb 'fbx-geom-2033022573712' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022539408",
                         "context": {
@@ -144,13 +144,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022539408' kept; merged 1 mesh, destroyed: fbx-geom-2033022573712"
+                    "trace": "'fbx-geom-2033022539408' kept; merged 1 mesh; destroyed: fbx-geom-2033022573712"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022539920' could absorb 'fbx-geom-2033022588048' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022539920' could absorb 'fbx-geom-2033022588048' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022539920",
                         "context": {
@@ -166,13 +166,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022539920' kept; merged 1 mesh, destroyed: fbx-geom-2033022588048"
+                    "trace": "'fbx-geom-2033022539920' kept; merged 1 mesh; destroyed: fbx-geom-2033022588048"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022575760' could absorb 'fbx-geom-2033022570640' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022575760' could absorb 'fbx-geom-2033022570640' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022575760",
                         "context": {
@@ -188,13 +188,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022575760' kept; merged 1 mesh, destroyed: fbx-geom-2033022570640"
+                    "trace": "'fbx-geom-2033022575760' kept; merged 1 mesh; destroyed: fbx-geom-2033022570640"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022594192' could absorb 'fbx-geom-2033022577296' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022594192' could absorb 'fbx-geom-2033022577296' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022594192",
                         "context": {
@@ -210,13 +210,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022594192' kept; merged 1 mesh, destroyed: fbx-geom-2033022577296"
+                    "trace": "'fbx-geom-2033022594192' kept; merged 1 mesh; destroyed: fbx-geom-2033022577296"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022576784' could absorb 'fbx-geom-2033000862912' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022576784' could absorb 'fbx-geom-2033000862912' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022576784",
                         "context": {
@@ -232,13 +232,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022576784' kept; merged 1 mesh, destroyed: fbx-geom-2033000862912"
+                    "trace": "'fbx-geom-2033022576784' kept; merged 1 mesh; destroyed: fbx-geom-2033000862912"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033022578832' could absorb 'fbx-geom-2033000862400' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033022578832' could absorb 'fbx-geom-2033000862400' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033022578832",
                         "context": {
@@ -254,13 +254,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033022578832' kept; merged 1 mesh, destroyed: fbx-geom-2033000862400"
+                    "trace": "'fbx-geom-2033022578832' kept; merged 1 mesh; destroyed: fbx-geom-2033000862400"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000863424' could absorb 'fbx-geom-2033000606912' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000863424' could absorb 'fbx-geom-2033000606912' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000863424",
                         "context": {
@@ -276,13 +276,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000863424' kept; merged 1 mesh, destroyed: fbx-geom-2033000606912"
+                    "trace": "'fbx-geom-2033000863424' kept; merged 1 mesh; destroyed: fbx-geom-2033000606912"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000863936' could absorb 'fbx-geom-2033000613568' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000863936' could absorb 'fbx-geom-2033000613568' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000863936",
                         "context": {
@@ -298,13 +298,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000863936' kept; merged 1 mesh, destroyed: fbx-geom-2033000613568"
+                    "trace": "'fbx-geom-2033000863936' kept; merged 1 mesh; destroyed: fbx-geom-2033000613568"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000624320' could absorb 'fbx-geom-2033000620736' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000624320' could absorb 'fbx-geom-2033000620736' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000624320",
                         "context": {
@@ -320,13 +320,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000624320' kept; merged 1 mesh, destroyed: fbx-geom-2033000620736"
+                    "trace": "'fbx-geom-2033000624320' kept; merged 1 mesh; destroyed: fbx-geom-2033000620736"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000652480' could absorb 'fbx-geom-2033000635584' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000652480' could absorb 'fbx-geom-2033000635584' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000652480",
                         "context": {
@@ -342,13 +342,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000652480' kept; merged 1 mesh, destroyed: fbx-geom-2033000635584"
+                    "trace": "'fbx-geom-2033000652480' kept; merged 1 mesh; destroyed: fbx-geom-2033000635584"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000661696' could absorb 'fbx-geom-2033000671936' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000661696' could absorb 'fbx-geom-2033000671936' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000661696",
                         "context": {
@@ -364,13 +364,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000661696' kept; merged 1 mesh, destroyed: fbx-geom-2033000671936"
+                    "trace": "'fbx-geom-2033000661696' kept; merged 1 mesh; destroyed: fbx-geom-2033000671936"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000663744' could absorb 'fbx-geom-2033000676544' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000663744' could absorb 'fbx-geom-2033000676544' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000663744",
                         "context": {
@@ -386,13 +386,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000663744' kept; merged 1 mesh, destroyed: fbx-geom-2033000676544"
+                    "trace": "'fbx-geom-2033000663744' kept; merged 1 mesh; destroyed: fbx-geom-2033000676544"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000677568' could absorb 'fbx-geom-2033000679104' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000677568' could absorb 'fbx-geom-2033000679104' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000677568",
                         "context": {
@@ -408,13 +408,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000677568' kept; merged 1 mesh, destroyed: fbx-geom-2033000679104"
+                    "trace": "'fbx-geom-2033000677568' kept; merged 1 mesh; destroyed: fbx-geom-2033000679104"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000672448' could absorb 'fbx-geom-2033000685760' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000672448' could absorb 'fbx-geom-2033000685760' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000672448",
                         "context": {
@@ -430,13 +430,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000672448' kept; merged 1 mesh, destroyed: fbx-geom-2033000685760"
+                    "trace": "'fbx-geom-2033000672448' kept; merged 1 mesh; destroyed: fbx-geom-2033000685760"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000687296' could absorb 'fbx-geom-2033000695488' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000687296' could absorb 'fbx-geom-2033000695488' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000687296",
                         "context": {
@@ -452,13 +452,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000687296' kept; merged 1 mesh, destroyed: fbx-geom-2033000695488"
+                    "trace": "'fbx-geom-2033000687296' kept; merged 1 mesh; destroyed: fbx-geom-2033000695488"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000697536' could absorb 'fbx-geom-2033000714944' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000697536' could absorb 'fbx-geom-2033000714944' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000697536",
                         "context": {
@@ -474,13 +474,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000697536' kept; merged 1 mesh, destroyed: fbx-geom-2033000714944"
+                    "trace": "'fbx-geom-2033000697536' kept; merged 1 mesh; destroyed: fbx-geom-2033000714944"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000694976' could absorb 'fbx-geom-2033000725184' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000694976' could absorb 'fbx-geom-2033000725184' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000694976",
                         "context": {
@@ -496,13 +496,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000694976' kept; merged 1 mesh, destroyed: fbx-geom-2033000725184"
+                    "trace": "'fbx-geom-2033000694976' kept; merged 1 mesh; destroyed: fbx-geom-2033000725184"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — 'fbx-geom-2033000667840' could absorb 'fbx-geom-2033000716992' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — 'fbx-geom-2033000667840' could absorb 'fbx-geom-2033000716992' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "fbx-geom-2033000667840",
                         "context": {
@@ -518,7 +518,7 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'fbx-geom-2033000667840' kept; merged 1 mesh, destroyed: fbx-geom-2033000716992"
+                    "trace": "'fbx-geom-2033000667840' kept; merged 1 mesh; destroyed: fbx-geom-2033000716992"
                 },
                 {
                     "issue": {
@@ -16651,30 +16651,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032200823120' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032200823120",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/200-B-4/002"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'fbx-geom-2032200823120': AABB tightened (was 99% / 99% / 0% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032200823120' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -17551,30 +17527,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'fbx-geom-2032872778864': merged 948 duplicate of 1,380 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872779376' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032872779376",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/001"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'fbx-geom-2032872779376': AABB tightened (was 99% / 99% / 0% used → 100%)"
                 },
                 {
                     "issue": {
@@ -19579,30 +19531,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741455488' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032741455488",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/018"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'fbx-geom-2032741455488': AABB tightened (was 99% / 0% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741455488' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -19979,30 +19907,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'fbx-geom-2032884706432': merged 3,933 duplicate of 5,172 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884703360' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032884703360",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/037"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'fbx-geom-2032884703360': AABB tightened (was 99% / 99% / 0% used → 100%)"
                 },
                 {
                     "issue": {
@@ -58409,30 +58313,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032200827216' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032200827216",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/200-B-4/003"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032200827216' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -58608,30 +58488,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032200838480' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032200838480",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/200-B-4/011"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032200838480' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -58663,30 +58519,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032200833360' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032200833360",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/200-B-4/012"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -58742,30 +58574,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032200822608' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032200822608",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/200-B-4/013"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -59200,30 +59008,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872788080' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032872788080",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/003"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032872788080' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -59255,30 +59039,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872767600' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032872767600",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/004"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -59358,30 +59118,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872776816' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872776816",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/006"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032872776816' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -59433,30 +59169,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872764016' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032872764016",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/007"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -59516,30 +59228,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872766576' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032872766576",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/008"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032872766576' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -59571,30 +59259,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872768112' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032872768112",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/009"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -59694,30 +59358,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872770160' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032872770160",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/011"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032872770160' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -59749,30 +59389,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872771184' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032872771184",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/012"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -59832,30 +59448,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872772720' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872772720",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/013"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032872772720' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -59887,30 +59479,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872779888' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872779888",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/014"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -59966,30 +59534,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872782448' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872782448",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/015"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -60089,30 +59633,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872757872' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032872757872",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/017"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032872757872' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -60144,30 +59664,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872733808' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032872733808",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/018"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -60227,30 +59723,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872731760' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872731760",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/019"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032872731760' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -60282,30 +59754,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872733296' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872733296",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/020"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -60361,30 +59809,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872738928' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872738928",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/021"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -60520,30 +59944,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032872736880' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032872736880",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-B-8/022"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -61623,30 +61023,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741441664' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032741441664",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/005"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741441664' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -61698,30 +61074,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741445248' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032741445248",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/006"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -61781,30 +61133,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741466752' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032741466752",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/007"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741466752' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -61856,30 +61184,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741470336' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032741470336",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/008"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -61999,30 +61303,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741448320' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032741448320",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/011"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741448320' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -62078,30 +61358,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741449856' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032741449856",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/012"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741449856' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -62133,30 +61389,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741452416' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032741452416",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/013"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -62236,30 +61468,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741467776' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032741467776",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/015"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741467776' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -62291,30 +61499,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741444224' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032741444224",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/016"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -62409,30 +61593,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741446784' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032741446784",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/019"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741446784' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -62508,30 +61668,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741471872' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032741471872",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/024"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741471872' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -62563,30 +61699,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741466240' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032741466240",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/025"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -62646,30 +61758,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032741472896' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032741472896",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/026"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032741472896' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -62701,30 +61789,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884701824' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032884701824",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/027"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -62784,30 +61848,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884713600' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032884713600",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/028"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032884713600' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -62839,30 +61879,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884683392' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "fbx-geom-2032884683392",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/029"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -62922,30 +61938,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884702336' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032884702336",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/031"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032884702336' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -63001,30 +61993,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884710528' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032884710528",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/033"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'fbx-geom-2032884710528' has 126 of 192 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "126 of 192 vertices",
@@ -63056,30 +62024,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884714624' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "fbx-geom-2032884714624",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/034"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -63135,30 +62079,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'fbx-geom-2032884703872' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "fbx-geom-2032884703872",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "/100-C-12/036"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {

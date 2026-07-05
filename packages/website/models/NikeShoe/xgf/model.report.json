@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:55:09.014Z",
+            "generatedAt": "2026-07-04T08:10:10.034Z",
             "counts": {
                 "fixed": 0,
                 "skipped": 1,
@@ -41,14 +41,14 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_OVER_BUDGET",
-                        "message": "SceneGeometry 'splats' is over the storage budget (270491 vertices > 65535) — consider splitting via splitDenseGeometry",
-                        "summary": "270,491 verts · 0 tris",
+                        "message": "SceneGeometry 'splats' is over the storage budget (270491 vertices > 65535; 270491 primitives > 32768) — consider splitting via splitDenseGeometry",
+                        "summary": "270,491 verts · 270,491 prims",
                         "resourceId": "splats",
                         "context": {
                             "maxVertices": 65535,
                             "maxPrimitives": 32768,
                             "vertCount": 270491,
-                            "triCount": 0
+                            "primitiveCount": 270491
                         },
                         "highlight": {
                             "objectIds": [

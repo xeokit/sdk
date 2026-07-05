@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:56:33.387Z",
+            "generatedAt": "2026-07-04T08:11:30.270Z",
             "counts": {
                 "fixed": 919,
                 "skipped": 297,
@@ -40,7 +40,7 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '1988' could absorb '1998' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '1988' could absorb '1998' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "1988",
                         "context": {
@@ -56,13 +56,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'1988' kept; merged 1 mesh, destroyed: 1998"
+                    "trace": "'1988' kept; merged 1 mesh; destroyed: 1998"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '1990' could absorb '2000' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '1990' could absorb '2000' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "1990",
                         "context": {
@@ -78,13 +78,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'1990' kept; merged 1 mesh, destroyed: 2000"
+                    "trace": "'1990' kept; merged 1 mesh; destroyed: 2000"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '1992' could absorb '2002' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '1992' could absorb '2002' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "1992",
                         "context": {
@@ -100,13 +100,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'1992' kept; merged 1 mesh, destroyed: 2002"
+                    "trace": "'1992' kept; merged 1 mesh; destroyed: 2002"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '1994' could absorb '2004' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '1994' could absorb '2004' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "1994",
                         "context": {
@@ -122,13 +122,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'1994' kept; merged 1 mesh, destroyed: 2004"
+                    "trace": "'1994' kept; merged 1 mesh; destroyed: 2004"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '1996' could absorb '2006' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '1996' could absorb '2006' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "1996",
                         "context": {
@@ -144,13 +144,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'1996' kept; merged 1 mesh, destroyed: 2006"
+                    "trace": "'1996' kept; merged 1 mesh; destroyed: 2006"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '2058' could absorb '2068' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '2058' could absorb '2068' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "2058",
                         "context": {
@@ -166,13 +166,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'2058' kept; merged 1 mesh, destroyed: 2068"
+                    "trace": "'2058' kept; merged 1 mesh; destroyed: 2068"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '2060' could absorb '2070' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '2060' could absorb '2070' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "2060",
                         "context": {
@@ -188,13 +188,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'2060' kept; merged 1 mesh, destroyed: 2070"
+                    "trace": "'2060' kept; merged 1 mesh; destroyed: 2070"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '2062' could absorb '2072' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '2062' could absorb '2072' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "2062",
                         "context": {
@@ -210,13 +210,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'2062' kept; merged 1 mesh, destroyed: 2072"
+                    "trace": "'2062' kept; merged 1 mesh; destroyed: 2072"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '2064' could absorb '2074' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '2064' could absorb '2074' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "2064",
                         "context": {
@@ -232,13 +232,13 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'2064' kept; merged 1 mesh, destroyed: 2074"
+                    "trace": "'2064' kept; merged 1 mesh; destroyed: 2074"
                 },
                 {
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE",
-                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '2066' could absorb '2076' via instancing",
+                        "message": "2 SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '2066' could absorb '2076' via instancing",
                         "summary": "→ collapses 1 other",
                         "resourceId": "2066",
                         "context": {
@@ -254,7 +254,7 @@
                         }
                     },
                     "strategy": "Coalesce duplicate geometries",
-                    "trace": "'2066' kept; merged 1 mesh, destroyed: 2076"
+                    "trace": "'2066' kept; merged 1 mesh; destroyed: 2076"
                 },
                 {
                     "issue": {

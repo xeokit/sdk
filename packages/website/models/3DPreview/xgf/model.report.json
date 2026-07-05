@@ -1,8 +1,8 @@
 {
     "counts": {
         "sceneModels": 1,
-        "fixed": 62,
-        "skipped": 89,
+        "fixed": 44,
+        "skipped": 84,
         "errors": 0
     },
     "bytes": {
@@ -28,12 +28,12 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-07-03T02:53:23.184Z",
+            "generatedAt": "2026-07-04T08:08:26.971Z",
             "counts": {
-                "fixed": 62,
-                "skipped": 89,
+                "fixed": 44,
+                "skipped": 84,
                 "errors": 0,
-                "total": 151
+                "total": 128
             },
             "fixed": [
                 {
@@ -281,32 +281,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-7-0' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "geom-7-0",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-0",
-                                "object-3",
-                                "object-5"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-7-0': AABB tightened (was 99% / 0% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'geom-7-0' has 4 of 22 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "4 of 22 vertices",
@@ -417,32 +391,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-7-19' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "geom-7-19",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-0",
-                                "object-3",
-                                "object-5"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-7-19': AABB tightened (was 99% / 0% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'geom-7-19' has 8 of 50 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "8 of 50 vertices",
@@ -461,32 +409,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'geom-7-19': merged 8 duplicate of 50 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-7-20' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "geom-7-20",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.9998321507591363
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-0",
-                                "object-3",
-                                "object-5"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-7-20': AABB tightened (was 99% / 0% / 99% used → 100%)"
                 },
                 {
                     "issue": {
@@ -531,32 +453,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'geom-7-21': merged 44 duplicate of 114 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-7-28' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "geom-7-28",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.9998321507591363
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-0",
-                                "object-3",
-                                "object-5"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-7-28': AABB tightened (was 99% / 0% / 99% used → 100%)"
                 },
                 {
                     "issue": {
@@ -671,58 +567,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-0' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-0",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-0': AABB tightened (was 99% / 99% / 0% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-1' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "geom-89-1",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-1': AABB tightened (was 99% / 0% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'geom-89-1' has 8 of 31 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "8 of 31 vertices",
@@ -745,58 +589,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-2' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-2",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-2': AABB tightened (was 99% / 99% / 0% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-3' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "geom-89-3",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-3': AABB tightened (was 99% / 0% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'geom-89-3' has 8 of 31 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "8 of 31 vertices",
@@ -815,110 +607,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'geom-89-3': merged 8 duplicate of 31 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-4' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-89-4",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-4': AABB tightened (was 0% / 99% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-5' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-5",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-5': AABB tightened (was 99% / 99% / 0% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-6' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 0% / 99%",
-                        "resourceId": "geom-89-6",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-6': AABB tightened (was 99% / 0% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-7' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-7",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-7': AABB tightened (was 99% / 99% / 0% used → 100%)"
                 },
                 {
                     "issue": {
@@ -967,32 +655,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-13' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-13",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-13': AABB tightened (was 99% / 99% / 0% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'geom-89-15' has 34 of 93 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "34 of 93 vertices",
@@ -1033,32 +695,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'geom-89-16': merged 28 duplicate of 79 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-17' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-17",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-89-17': AABB tightened (was 99% / 99% / 0% used → 100%)"
                 },
                 {
                     "issue": {
@@ -1127,30 +763,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-114-1' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-114-1",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-2"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-114-1': AABB tightened (was 0% / 99% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'geom-114-1' has 12 of 82 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "12 of 82 vertices",
@@ -1211,30 +823,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-114-4' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-114-4",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-2"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-114-4': AABB tightened (was 0% / 99% / 99% used → 100%)"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
                         "message": "SceneGeometry 'geom-114-4' has 4 of 60 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "4 of 60 vertices",
@@ -1271,30 +859,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'geom-114-5': merged 2 duplicate of 60 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-114-6' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-114-6",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-2"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-114-6': AABB tightened (was 0% / 99% / 99% used → 100%)"
                 },
                 {
                     "issue": {
@@ -1375,30 +939,6 @@
                     },
                     "strategy": "Coalesce duplicate vertices",
                     "trace": "'geom-114-9': merged 130 duplicate of 304 vertex slots"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-114-10' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-114-10",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-2"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "trace": "'geom-114-10': AABB tightened (was 0% / 99% / 99% used → 100%)"
                 },
                 {
                     "issue": {
@@ -1950,32 +1490,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-7-23' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-7-23",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.9998321507591363
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-0",
-                                "object-3",
-                                "object-5"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_ZERO_VOLUME_AABB",
                         "message": "SceneGeometry 'geom-7-26' AABB has zero extent on X — degenerate (point or line); won't render visibly",
                         "summary": "zero on X",
@@ -1989,32 +1503,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-7-26' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-7-26",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.9998321507591363
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-0",
-                                "object-3",
-                                "object-5"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {
@@ -3135,32 +2623,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-8' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 0% / 99% / 99%",
-                        "resourceId": "geom-89-8",
-                        "context": {
-                            "fill": [
-                                0,
-                                0.999847409781033,
-                                0.999847409781033
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_ZERO_VOLUME_AABB",
                         "message": "SceneGeometry 'geom-89-13' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
                         "summary": "zero on Z",
@@ -3195,32 +2657,6 @@
                 {
                     "issue": {
                         "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-14' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-14",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
                         "code": "GEOMETRY_ZERO_VOLUME_AABB",
                         "message": "SceneGeometry 'geom-89-17' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
                         "summary": "zero on Z",
@@ -3251,32 +2687,6 @@
                         }
                     },
                     "reason": "no-strategy"
-                },
-                {
-                    "issue": {
-                        "severity": "warning",
-                        "code": "GEOMETRY_AABB_NOT_TIGHT",
-                        "message": "SceneGeometry 'geom-89-19' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
-                        "summary": "fill 99% / 99% / 0%",
-                        "resourceId": "geom-89-19",
-                        "context": {
-                            "fill": [
-                                0.999847409781033,
-                                0.999847409781033,
-                                0
-                            ],
-                            "threshold": 0.5
-                        },
-                        "highlight": {
-                            "objectIds": [
-                                "object-1",
-                                "object-4",
-                                "object-6"
-                            ]
-                        }
-                    },
-                    "strategy": "Tighten AABB and re-quantize positions",
-                    "reason": "target-missing"
                 },
                 {
                     "issue": {

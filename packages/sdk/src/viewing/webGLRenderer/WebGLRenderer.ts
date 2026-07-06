@@ -16,6 +16,7 @@ import {type PickParams, type PickResult} from "../viewer";
 import {createDefaultMemoryConfigs} from "./defaultMemoryConfigs";
 import {MarkerOcclusionTester} from "./MarkerOcclusionTester";
 import type {MarkerOcclusionTesterParams} from "./MarkerOcclusionTesterParams";
+import type {Renderer} from "../renderer";
 
 interface DeferredSceneModelRegistrations {
   geometries: Set<SceneGeometry>;
@@ -35,7 +36,7 @@ interface DeferredSceneModelRegistrations {
  *
  * See {@link "webGLRenderer" | @xeokit/webGLRenderer} for usage.
  */
-export class WebGLRenderer {
+export class WebGLRenderer implements Renderer {
 
   private _viewer: Viewer | null = null; // The currently attached Viewer
 
@@ -133,12 +134,22 @@ export class WebGLRenderer {
     webglContextLost: new EventEmitter(new EventDispatcher<WebGLRenderer, WebGLContextEvent>()),
 
     /**
+     * Backend-neutral alias for {@link webglContextLost}.
+     */
+    onContextLost: new EventEmitter(new EventDispatcher<WebGLRenderer, Event>()),
+
+    /**
      * Emitted when the underlying WebGL context is restored.
      *
      * At this point, the renderer will have automatically reinitialized its internal state and
      * resumed rendering.
      */
     webglContextRestored: new EventEmitter(new EventDispatcher<WebGLRenderer, void>()),
+
+    /**
+     * Backend-neutral alias for {@link webglContextRestored}.
+     */
+    onContextRestored: new EventEmitter(new EventDispatcher<WebGLRenderer, void>()),
 
     /**
      * Emitted when an error occurs within the renderer.
@@ -818,6 +829,7 @@ export class WebGLRenderer {
       // lost, so their gl.delete* calls are no-ops instead of errors against
       // the restored context.
       viewManager.webglContextLost();
+      this.events.onContextLost.dispatch(this, event);
       this.events.webglContextLost.dispatch(this, event as WebGLContextEvent);
     };
 
@@ -841,6 +853,7 @@ export class WebGLRenderer {
           views[i]?.needsRender();
         }
       }
+      this.events.onContextRestored.dispatch(this);
       this.events.webglContextRestored.dispatch(this);
     };
 

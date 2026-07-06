@@ -1,11 +1,12 @@
 import {EventEmitter, SDKErrorType} from "../../base/core";
 import {WebGLRenderer} from "./WebGLRenderer";
 import {View, Viewer} from "../viewer";
+import type {RendererEvents} from "../renderer";
 
 /**
  * Events for WebGLRenderer.
  */
-export interface WebGLRendererEvents {
+export interface WebGLRendererEvents extends RendererEvents<WebGLRenderer> {
 
   /**
    * Emits an event when the `WebGLRenderer` is attached to a `Viewer`.
@@ -45,11 +46,21 @@ export interface WebGLRendererEvents {
   readonly webglContextLost: EventEmitter<WebGLRenderer, WebGLContextEvent>,
 
   /**
+   * Backend-neutral alias for {@link webglContextLost}.
+   */
+  readonly onContextLost: EventEmitter<WebGLRenderer, Event>,
+
+  /**
    * Emits an event when the WebGL context is restored.
    *
    * At this point, the `WebGLRenderer` should have automatically recovered and resumed rendering.
    */
   readonly webglContextRestored: EventEmitter<WebGLRenderer, void>,
+
+  /**
+   * Backend-neutral alias for {@link webglContextRestored}.
+   */
+  readonly onContextRestored: EventEmitter<WebGLRenderer, void>,
 
   /**
    * Emits an event when an error occurs within the `WebGLRenderer`.

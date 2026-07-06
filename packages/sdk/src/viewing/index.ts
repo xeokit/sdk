@@ -10,3 +10,4 @@ export * as viewController from "./viewController";
 export * as viewer from "./viewer";
 export * as renderer from "./renderer";
 export * as webGLRenderer from "./webGLRenderer";
+export * as webGPURenderer from "./webGPURenderer";

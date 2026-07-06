@@ -1,26 +1,15 @@
 /**
- * # xeokit Heat Maps
- *
- * ---
- *
- * **Per-geometry heat-map painting for {@link model!scene.SceneModel | SceneModels}
- * — bake a scalar field into a coloured texture, then optionally
- * paint live brush strokes onto individual meshes' textures
- * afterwards.**
- *
- * ---
+ * # Heat Maps
  *
  * The `heatmaps` module mutates a SceneModel in place to display a
  * per-vertex scalar field (elevation, temperature, FEA stress,
- * daylight irradiance, anything indexable per vertex) as a coloured
- * heat map on every triangle-bearing geometry. Two entry points:
+ * daylight irradiance, or another per-vertex value) as a coloured
+ * heat map on triangle-bearing geometry. Two entry points:
  *
- * - {@link applyHeatMapMaterials} — bulk: walk a SceneModel, paint
- *   each geometry's heat-map texture, swap in heat-map materials on
- *   every mesh.
- * - {@link paintHeatMapPoint} — per-brush: draw a single radial
- *   brush of texels onto one mesh's already-painted heat-map
- *   texture, given a world-space point.
+ * - {@link applyHeatMapMaterials} — walks a SceneModel, paints each
+ *   geometry's heat-map texture, and swaps heat-map materials onto meshes.
+ * - {@link paintHeatMapPoint} — draws one radial brush of texels onto an
+ *   already-painted mesh texture from a world-space point.
  *
  * <br>
  *
@@ -84,31 +73,26 @@
  *
  * <br>
  *
- * ## Features
+ * ## Behavior
  *
- * - **Per-geometry texture + UV layout** — heat maps are only
- *   meaningful for the geometry they were painted for, so each
+ * - **Per-geometry texture + UV layout** — each
  *   {@link model!scene.SceneGeometry | SceneGeometry} ends up with its
- *   own bespoke colour map and UV unwrap. Heat maps don't pool
- *   across geometries.
+ *   own colour map and UV unwrap. Heat maps are not pooled across geometries.
  * - **Caller-supplied scalar field** — pass a `scalars` callback
  *   that returns `geometry.positionsCompressed.length / 3` values
- *   per geometry; the default is per-vertex world-space elevation
- *   along `worldUp`, useful as a smoke-test "low = blue, high = red"
- *   gradient.
+ *   per geometry; the default is per-vertex world-space elevation along
+ *   `worldUp`.
  * - **Three normalisation strategies** — fixed `[lo, hi]` for
  *   cross-scene comparability, auto-computed union range, or
  *   `"perGeometry"` for per-geometry stretch (each geometry uses
  *   its full ramp regardless of where it sits in the global
  *   distribution).
- * - **Debug grid overlay** — `grid: true` paints a coordinate grid
- *   onto every heat map so the planar UV unwrap is visible at a
- *   glance; useful for diagnosing collapsed projections.
+ * - **Debug grid overlay** — `grid: true` paints a coordinate grid onto
+ *   every heat map to show the planar UV unwrap.
  * - **Transparent passthrough** — when a mesh's original material
  *   was translucent (IFC glass, curtain wall), the heat map adopts
  *   `max(originalOpacity, transparentOpacityFloor)` and the
- *   original `alphaMode`, so glass still reads as glass while
- *   showing the gradient.
+ *   original `alphaMode`.
  * - **Preserve pre-baked UVs** — `preserveExistingUvs: true`
  *   honours `uvsCompressed` already on a SceneGeometry instead of
  *   re-projecting. Right for shapes where planar projection
@@ -116,31 +100,21 @@
  *   worldUp) and the caller has a hand-built unwrap.
  * - **Live brush updates** — {@link paintHeatMapPoint} mutates a
  *   single mesh's heat-map {@link model!scene.SceneTexture | SceneTexture}
- *   in place; useful for "splat sensor readings as they arrive"
- *   without rebaking the whole model. Returns the bounds of mutated
- *   texels so the host can re-upload just that sub-region if
- *   needed.
+ *   in place without rebaking the whole model. It returns the bounds of
+ *   mutated texels so the host can re-upload just that sub-region if needed.
  * - **Detach + destroy + recreate pattern** — `applyHeatMapMaterials`
  *   uses the SDK's supported mesh-mutation pattern: snapshot mesh
  *   params, detach + destroy the old mesh, create a fresh mesh with
  *   the same id bound to the heat-map material, re-attach to the
  *   same SceneObject. The object keeps its identity; only the mesh
- *   churn happens. Why: the renderer packs meshes into batches
+ *   changes. The renderer packs meshes into batches
  *   sized for the GPU, so changing a mesh's material in place would
- *   require batch migration — destroy + recreate keeps the renderer
- *   bookkeeping to two simple events.
+ *   require batch migration; destroy + recreate keeps the renderer
+ *   bookkeeping explicit.
  *
  * <br>
  *
- * ## Installation
- *
- * ```bash
- * npm install @xeokit/sdk
- * ```
- *
- * <br>
- *
- * ## Quick Start
+ * ## Usage
  *
  * ### 1) Import the entry points
  *
@@ -156,8 +130,7 @@
  * ### 2) Bake elevation heat maps (default scalar field)
  *
  * Walks the SceneModel and paints every triangle-bearing geometry
- * with a per-vertex elevation gradient (world-space height along
- * `worldUp`). Useful as a smoke test before connecting a real field.
+ * with a per-vertex elevation gradient (world-space height along `worldUp`).
  *
  * ```javascript
  * const result = applyHeatMapMaterials({
@@ -201,9 +174,8 @@
  *
  * ### 5) Debug the UV unwrap with a grid
  *
- * Set `grid: true` to overlay a grid onto every heat map — handy
- * when planar projection collapsed a face and the gradient looks
- * wrong. Pass a `HeatMapGridOptions` object to tune cell size and
+ * Set `grid: true` to overlay a grid onto every heat map. Pass a
+ * `HeatMapGridOptions` object to tune cell size and
  * colour.
  *
  * ```javascript
@@ -219,13 +191,12 @@
  *
  * `transparentOpacityFloor` controls the heat map's opacity floor
  * when the original mesh material was transparent. The heat map
- * adopts `max(originalOpacity, this)` so glass stays glass-like
- * while showing the gradient.
+ * adopts `max(originalOpacity, this)`.
  *
  * ```javascript
  * applyHeatMapMaterials({
  *   sceneModel,
- *   transparentOpacityFloor: 0.5      // glass-readable
+ *   transparentOpacityFloor: 0.5      // keep transparent meshes translucent
  * });
  *
  * applyHeatMapMaterials({
@@ -240,8 +211,7 @@
  *
  * After `applyHeatMapMaterials` has painted the model,
  * {@link paintHeatMapPoint} mutates one mesh's heat-map texture in
- * place — useful for "splat sensor readings as they arrive" or for
- * letting the user mark up a heat map interactively.
+ * place.
  *
  * ```javascript
  * const result = paintHeatMapPoint({

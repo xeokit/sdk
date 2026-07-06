@@ -3,20 +3,12 @@
  * stop-array of RGB triples evenly distributed across the value
  * range `[0, 1]`; callers interpolate between adjacent stops.
  *
- * Names + palettes follow the matplotlib / D3 conventions so users
- * coming from those ecosystems read the same image. The included
- * set covers the four shading conventions that account for ~90% of
- * scientific-viz output:
+ * Names and palettes follow matplotlib / D3 conventions.
  *
- *   - **Perceptual** (`viridis`, `plasma`) — uniform luminance ramp;
- *     scientifically defensible for unbiased magnitude reading.
- *   - **Diverging** (`coolwarm`) — symmetric around a midpoint;
- *     ideal for fields with a "neutral" centre (temperature
- *     anomaly, pressure differential).
- *   - **Sequential warm** (`thermal`) — black-body-radiation
- *     analogue; reads as "hotter = brighter" intuitively.
- *   - **Rainbow** (`jet`) — discouraged for precision but still
- *     widely used in legacy CFD output; included for parity.
+ *   - **Perceptual** (`viridis`, `plasma`) — uniform luminance ramp.
+ *   - **Diverging** (`coolwarm`) — symmetric around a midpoint.
+ *   - **Sequential warm** (`thermal`) — black-body-radiation analogue.
+ *   - **Rainbow** (`jet`) — included for legacy CFD output.
  *
  * @module presentations/volumeOverlay
  */
@@ -70,7 +62,7 @@ export const COLORMAP_COOLWARM: ColormapStops = [
 ];
 
 
-/** Black-body sequence — heatmap "thermal" look. */
+/** Black-body sequence. */
 export const COLORMAP_THERMAL: ColormapStops = [
   [0.000, 0.000, 0.000],
   [0.150, 0.030, 0.180],
@@ -85,7 +77,7 @@ export const COLORMAP_THERMAL: ColormapStops = [
 ];
 
 
-/** Classic CFD rainbow. Included for legacy parity; prefer viridis. */
+/** CFD rainbow colormap. Prefer viridis for new views. */
 export const COLORMAP_JET: ColormapStops = [
   [0.000, 0.000, 0.500],
   [0.000, 0.000, 1.000],

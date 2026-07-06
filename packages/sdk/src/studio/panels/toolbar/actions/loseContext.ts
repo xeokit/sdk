@@ -5,6 +5,7 @@
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";
+import {asWebGLRenderer} from "../../resolveWebGLRenderer";
 
 
 export const loseContext: ToolbarActionDescriptor = {
@@ -16,6 +17,11 @@ export const loseContext: ToolbarActionDescriptor = {
       console.warn("[Toolbar] loseContext — no Studio renderer available.");
       return;
     }
-    renderer.loseContext();
+    const webGLRenderer = asWebGLRenderer(renderer);
+    if (!webGLRenderer) {
+      console.warn("[Toolbar] loseContext requires WebGLRenderer.");
+      return;
+    }
+    webGLRenderer.loseContext();
   }
 };

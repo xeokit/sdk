@@ -1,21 +1,10 @@
 /**
- * # xeokit Scene Model Exploder
+ * # Scene Model Exploder
  *
- * ---
- *
- * **Radial "explode" effect for a {@link model!scene.SceneModel | SceneModel}:
- * displaces every {@link model!scene.SceneMesh | SceneMesh} away from the
- * model centre by a slider-driven factor, with a built-in HTML slider
- * control for live interaction.**
- *
- * ---
- *
- * The `exploder` module gives a model the classic exploded-view look —
- * BIM rooms drift apart, engine assemblies fan out into a service
- * diagram — by translating each SceneMesh along the world-space vector
- * from the model centre to that mesh's centre, scaled by a single
- * factor. The displacement is purely visual: it lives in `mesh.matrix`,
- * doesn't touch geometry, and reverts to zero with one call.
+ * The `exploder` module offsets each {@link model!scene.SceneMesh | SceneMesh}
+ * in a {@link model!scene.SceneModel | SceneModel} away from the model centre.
+ * The offset is controlled by a numeric factor and is written to
+ * `mesh.matrix`; geometry and materials are not changed.
  *
  * <br>
  *
@@ -92,12 +81,11 @@
  *
  * <br>
  *
- * ## Features
+ * ## Behavior
  *
- * - **One radial direction per mesh** — direction is from the model
+ * - **One radial direction per mesh** — the direction is from the model
  *   centre to the mesh's world-AABB centre (read once via the supplied
  *   {@link spatial!collision.SceneCollisionIndex | SceneCollisionIndex}).
- *   Multi-mesh assemblies fan out coherently.
  * - **Cross-coordinate-system aware** — the displacement vector is
  *   computed in the {@link model!scene.Scene | Scene}'s world frame and
  *   transformed into the SceneModel's local frame before being
@@ -107,8 +95,8 @@
  * - **One-shot rebuild** — the rest pose (per-mesh base matrix +
  *   centre) is cached at first
  *   {@link SceneModelExploder.setFactor | setFactor} (or explicit
- *   {@link SceneModelExploder.rebuild | rebuild}), then replayed on
- *   every subsequent slider tick. No per-tick traversal.
+ *   {@link SceneModelExploder.rebuild | rebuild}), then reused on
+ *   subsequent slider ticks.
  * - **Pure transform displacement** — touches only `mesh.matrix`;
  *   geometry, materials, and bindings are untouched. `reset()`
  *   restores the rest pose.
@@ -122,17 +110,7 @@
  *   {@link SceneModelExploder.rebuild | rebuild} to recapture the
  *   new rest pose.
  *
- * <br>
- *
- * ## Installation
- *
- * ```bash
- * npm install @xeokit/sdk
- * ```
- *
- * <br>
- *
- * ## Quick Start
+ * ## Usage
  *
  * ### 1) Import the entry point
  *
@@ -147,7 +125,7 @@
  * Pass the {@link model!scene.Scene | Scene}, the target
  * {@link model!scene.SceneModel | SceneModel}, and the
  * {@link spatial!collision.SceneCollisionIndex | SceneCollisionIndex}
- * the exploder reads world AABBs from. The HTML slider auto-mounts
+ * used to read world AABBs. The HTML slider mounts
  * on `document.body`.
  *
  * ```javascript
@@ -167,7 +145,7 @@
  * ### 3) Drive the factor programmatically
  *
  * Set `factor` (or call {@link SceneModelExploder.setFactor | setFactor})
- * to animate the explode in code. The slider's value follows so the
+ * to animate the offset in code. The slider's value follows so the
  * UI stays in sync.
  *
  * ```javascript
@@ -180,9 +158,8 @@
  *
  * ### 4) Tune the slider range
  *
- * Override `minFactor` / `maxFactor` / `step` on construction to
- * match the model's natural scale (default range `[0, 2]`, step
- * `0.05` works for typical BIM and product-design models).
+ * Override `minFactor` / `maxFactor` / `step` on construction. The
+ * default range is `[0, 2]` with step `0.05`.
  *
  * ```javascript
  * const exploder = new SceneModelExploder({
@@ -218,7 +195,7 @@
  * {@link SceneModelExploder.destroy | destroy} resets the factor to
  * `0` (so the model lands at rest), unmounts the slider element,
  * and drops the cached state. Idempotent — call it whenever the
- * panel hosting the exploder hides or the SceneModel is destroyed.
+ * hosting UI hides or the SceneModel is destroyed.
  *
  * ```javascript
  * exploder.destroy();

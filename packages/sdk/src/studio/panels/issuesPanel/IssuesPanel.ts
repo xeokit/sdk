@@ -16,7 +16,7 @@
 import {Scene} from "../../../model/scene";
 import {Data} from "../../../model/data";
 import {Viewer} from "../../../viewing/viewer";
-import {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import type {Renderer} from "../../../viewing/renderer";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 
 
@@ -66,8 +66,8 @@ export interface IssuesPanelParams {
   /** Data to monitor. */
   data: Data;
 
-  /** WebGLRenderer to monitor. */
-  renderer: WebGLRenderer;
+  /** Renderer to monitor. */
+  renderer: Renderer;
 
   /**
    * Optional `Studio.events` hub to monitor. When supplied, the
@@ -545,7 +545,7 @@ export class IssuesPanel extends FloatingPanelBase {
   readonly viewer: Viewer;
   readonly scene: Scene;
   readonly data: Data;
-  readonly renderer: WebGLRenderer;
+  readonly renderer: Renderer;
   private readonly _studioEvents?: { onError?: any; onWarning?: any };
 
   // DOM refs.
@@ -1363,4 +1363,3 @@ function formatTime(ts: number): string {
   const ss = String(d.getSeconds()).padStart(2, "0");
   return `${hh}:${mm}:${ss}`;
 }
-

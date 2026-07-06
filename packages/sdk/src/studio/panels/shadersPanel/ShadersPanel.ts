@@ -22,11 +22,11 @@
  * prefix.
  *
  */
-import {
+import type {
+  DrawTechniqueRecord,
   ShaderInspector,
-  type DrawTechniqueRecord,
-  type ShaderVariantName,
-  type ShaderVariantRecord,
+  ShaderVariantName,
+  ShaderVariantRecord,
 } from "../../../viewing/webGLRenderer/internal/inspectors";
 
 import {el} from "../../utils/el";

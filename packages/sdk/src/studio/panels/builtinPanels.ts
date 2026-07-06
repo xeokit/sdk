@@ -51,6 +51,7 @@ import {AngleMeasurementsTool} from "../../tools/measurements/angle/AngleMeasure
 import type {AngleMeasurementsToolParams} from "../../tools/measurements/angle/AngleMeasurementsToolParams";
 import {TransformControls} from "../../viewing/transformControls";
 import type {TransformControlsParams} from "../../viewing/transformControls";
+import {asWebGLRenderer} from "./resolveWebGLRenderer";
 
 import type {PanelRegistry, PanelContext} from "./PanelRegistry";
 
@@ -189,14 +190,19 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   });
 
   registry.register("tilesPanel", {
-    find: (ctx) => TilesPanel.getFor(ctx.studio.scene),
+    find: (ctx) => asWebGLRenderer(ctx.studio.renderer) ? TilesPanel.getFor(ctx.studio.scene) : undefined,
     create: (ctx) => {
       const view = ctx.studio.viewer?.viewList?.[0];
       if (!view) {
         ctx.studio.reportWarning("[PanelRegistry/tilesPanel] No View available — needs a View for the camera-pose pointer.");
         return undefined;
       }
-      const inspectorRes = ctx.studio.renderer.getRenderInspector();
+      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
+      if (!webGLRenderer) {
+        ctx.studio.reportWarning("[PanelRegistry/tilesPanel] Requires WebGLRenderer.");
+        return undefined;
+      }
+      const inspectorRes = webGLRenderer.getRenderInspector();
       if (inspectorRes.ok === false) {
         ctx.studio.reportWarning(`[PanelRegistry/tilesPanel] Renderer doesn't expose a RenderInspector:: ${inspectorRes.error}`);
         return undefined;
@@ -227,11 +233,18 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
 
   registry.register("shadersPanel", {
     find: (ctx) => {
-      const res = ctx.studio.renderer.getShaderInspector();
+      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
+      if (!webGLRenderer) return undefined;
+      const res = webGLRenderer.getShaderInspector();
       return res.ok ? ShadersPanel.getFor(res.value) : undefined;
     },
     create: (ctx) => {
-      const res = ctx.studio.renderer.getShaderInspector();
+      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
+      if (!webGLRenderer) {
+        ctx.studio.reportWarning("[PanelRegistry/shadersPanel] Requires WebGLRenderer.");
+        return undefined;
+      }
+      const res = webGLRenderer.getShaderInspector();
       if (res.ok === false) {
         ctx.studio.reportWarning(`[PanelRegistry/shadersPanel] Renderer doesn't expose a ShaderInspector:: ${res.error}`);
         return undefined;
@@ -242,13 +255,20 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
 
   registry.register("dataTexturesPanel", {
     find: (ctx) => {
-      const res = ctx.studio.renderer.getMemoryInspector();
+      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
+      if (!webGLRenderer) return undefined;
+      const res = webGLRenderer.getMemoryInspector();
       if (res.ok === false) return undefined;
       const dt = res.value.dataTextures;
       return dt ? DataTexturesPanel.getFor(dt) : undefined;
     },
     create: (ctx) => {
-      const res = ctx.studio.renderer.getMemoryInspector();
+      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
+      if (!webGLRenderer) {
+        ctx.studio.reportWarning("[PanelRegistry/dataTexturesPanel] Requires WebGLRenderer.");
+        return undefined;
+      }
+      const res = webGLRenderer.getMemoryInspector();
       if (res.ok === false) {
         ctx.studio.reportWarning(`[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:: ${res.error}`);
         return undefined;
@@ -341,21 +361,43 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   });
 
   registry.register("gpuMemory", {
-    find:   (ctx) => GPUMemoryPanel.getFor(ctx.studio.renderer),
-    create: (ctx) => GPUMemoryPanel.openFor({renderer: ctx.studio.renderer}),
+    find: (ctx) => {
+      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
+      return webGLRenderer ? GPUMemoryPanel.getFor(ctx.studio.renderer) : undefined;
+    },
+    create: (ctx) => {
+      if (!asWebGLRenderer(ctx.studio.renderer)) {
+        ctx.studio.reportWarning("[PanelRegistry/gpuMemory] Requires WebGLRenderer.");
+        return undefined;
+      }
+      return GPUMemoryPanel.openFor({renderer: ctx.studio.renderer});
+    },
   });
 
   registry.register("rendererPanel", {
-    find:   (ctx) => RendererPanel.getFor(ctx.studio.renderer),
-    create: (ctx) => RendererPanel.openFor({renderer: ctx.studio.renderer}),
+    find: (ctx) => {
+      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
+      return webGLRenderer ? RendererPanel.getFor(ctx.studio.renderer) : undefined;
+    },
+    create: (ctx) => {
+      if (!asWebGLRenderer(ctx.studio.renderer)) {
+        ctx.studio.reportWarning("[PanelRegistry/rendererPanel] Requires WebGLRenderer.");
+        return undefined;
+      }
+      return RendererPanel.openFor({renderer: ctx.studio.renderer});
+    },
   });
 
   registry.register("cullingPanel", {
-    find: (ctx) => ctx.studio.viewer ? CullingPanel.getFor(ctx.studio.viewer) : undefined,
+    find: (ctx) => ctx.studio.viewer && asWebGLRenderer(ctx.studio.renderer) ? CullingPanel.getFor(ctx.studio.viewer) : undefined,
     create: (ctx) => {
       const {viewer, renderer} = ctx.studio;
       if (!viewer || !renderer) {
         ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
+        return undefined;
+      }
+      if (!asWebGLRenderer(renderer)) {
+        ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Requires WebGLRenderer.");
         return undefined;
       }
       return CullingPanel.openFor({viewer, renderer});
@@ -363,11 +405,15 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   });
 
   registry.register("adaptiveQualityPanel", {
-    find: (ctx) => ctx.studio.viewer ? AdaptiveQualityPanel.getFor(ctx.studio.viewer) : undefined,
+    find: (ctx) => ctx.studio.viewer && asWebGLRenderer(ctx.studio.renderer) ? AdaptiveQualityPanel.getFor(ctx.studio.viewer) : undefined,
     create: (ctx) => {
       const {viewer, renderer} = ctx.studio;
       if (!viewer || !renderer) {
         ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
+        return undefined;
+      }
+      if (!asWebGLRenderer(renderer)) {
+        ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Requires WebGLRenderer.");
         return undefined;
       }
       return AdaptiveQualityPanel.openFor({viewer, renderer});

@@ -4,26 +4,24 @@ import type {Vec3} from "../../../base/math/vector";
  * Per-source-object filled-polygon emission alongside the
  * wireframe edges. The projector derives one fill mesh per
  * source SceneObject from the same depth buffer that drives
- * HLE, so fill silhouettes coincide exactly with the wireframe
- * edges — no halo at occlusion boundaries.
+ * HLE, so fill silhouettes use the same visibility boundary as
+ * the wireframe edges.
  */
 export interface FillSpec {
   /**
    * RGB fill colour (each channel in `[0, 1]`) applied to every
-   * emitted fill mesh. Default `[0.92, 0.93, 0.95]` — a cool
-   * off-white that reads as paper against the line work.
+   * emitted fill mesh. Default `[0.92, 0.93, 0.95]`.
    */
   color?: Vec3;
   /**
    * Fill opacity in `[0, 1]`. Default `1.0`. Lower values let
-   * the panel quad behind show through, useful for a ghosted
-   * look; opaque fills produce the crispest drawing reads.
+   * the panel quad behind show through.
    */
   opacity?: number;
   /**
    * Skip source SceneObjects whose owner buffer has fewer than
    * this many pixels. Filters out salt-and-pepper noise from
-   * triangles that only just-barely win the depth test along
+   * triangles that only barely win the depth test along
    * an edge they don't really cover. Default `4`.
    */
   minPixelArea?: number;
@@ -47,11 +45,10 @@ export interface FillSpec {
   /**
    * Per-tile pixel size (square) for the tiled fill extractor.
    * Memory peaks at `O(tileSize²)` regardless of `resolution`,
-   * so this is what makes very-high-resolution drawings
-   * practical. Default `1024`. Set to `0` (or any value ≥
+   * so this bounds memory for high-resolution drawings. Default
+   * `1024`. Set to `0` (or any value ≥
    * `resolution`) to disable tiling and use the legacy
-   * single-buffer extractor — useful for very small models
-   * where the tile overhead doesn't pay back.
+   * single-buffer extractor.
    */
   tileSize?: number;
 }

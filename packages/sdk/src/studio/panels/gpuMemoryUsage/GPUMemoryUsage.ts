@@ -19,12 +19,18 @@
  * `xkt-gpu-` CSS prefix.
  *
  */
-import type {WebGLRenderer, MemoryUsage, MemoryConfigs} from "../../../viewing/webGLRenderer";
+import type {
+  MemoryConfigs,
+  MemoryUsage,
+  WebGLRenderer,
+} from "../../../viewing/webGLRenderer";
+import type {Renderer} from "../../../viewing/renderer";
 import {clamp} from "../../../base/math";
 
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
+import {requireWebGLRenderer} from "../resolveWebGLRenderer";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -37,7 +43,7 @@ export interface GPUMemoryPanelParams {
    * {@link GPUMemoryPanel.openFor} idempotence — one panel per
    * renderer.
    */
-  renderer: WebGLRenderer;
+  renderer: Renderer;
 
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
@@ -403,7 +409,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
    * gets destroyed elsewhere doesn't keep the panel alive for
    * GC.
    */
-  private static readonly _instances = new WeakMap<WebGLRenderer, GPUMemoryPanel>();
+  private static readonly _instances = new WeakMap<Renderer, GPUMemoryPanel>();
 
   /**
    * SVG markup for the panel's title-bar glyph (RAM stick — chip
@@ -425,7 +431,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
     `</svg>`;
   }
 
-  static getFor(renderer: WebGLRenderer): GPUMemoryPanel | undefined {
+  static getFor(renderer: Renderer): GPUMemoryPanel | undefined {
     const inst = GPUMemoryPanel._instances.get(renderer);
     return inst && !inst._destroyed ? inst : undefined;
   }
@@ -440,7 +446,8 @@ export class GPUMemoryPanel extends FloatingPanelBase {
     return inst;
   }
 
-  readonly renderer: WebGLRenderer;
+  readonly renderer: Renderer;
+  private readonly _webGLRenderer: WebGLRenderer;
 
   // DOM refs.
   private _bodyEl!: HTMLElement;
@@ -472,6 +479,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
       classPrefix: "xkt-gpu",
     });
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "GPUMemoryPanel");
 
     // Replace any prior panel bound to the same renderer.
     const prior = GPUMemoryPanel._instances.get(params.renderer);
@@ -705,7 +713,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
   // ── Rendering ─────────────────────────────────────────────────
 
   private _renderUsage(): void {
-    const usage: MemoryUsage = this.renderer.getMemoryUsage();
+    const usage: MemoryUsage = this._webGLRenderer.getMemoryUsage();
     const allocated = Number(usage?.allocatedMB) || 0;
     const used      = Number(usage?.usedMB)      || 0;
     const free      = Math.max(0, allocated - used);
@@ -731,7 +739,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
 
   private _renderConfigs(): void {
     this._configsBody.innerHTML = "";
-    const configs: MemoryConfigs = this.renderer.getMemoryConfigs();
+    const configs: MemoryConfigs = this._webGLRenderer.getMemoryConfigs();
     if (!configs) {
       this._configsBody.appendChild(el("div", "xkt-gpu-empty", {textContent: "No memory configs available."}));
       return;

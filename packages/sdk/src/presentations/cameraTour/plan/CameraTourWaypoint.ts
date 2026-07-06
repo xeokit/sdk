@@ -9,10 +9,10 @@ import type {Vec3} from "../../../base/math/vector";
  *
  * Waypoints alternate between two roles in a played tour:
  *  - **In-space stops** — `spaceId` populated, camera dwells for
- *    `dwellMs` so the viewer can absorb the room.
+ *    `dwellMs`.
  *  - **Portal transits** — `spaceId === undefined`, generated
  *    automatically by the smoother on cross-portal edges so the
- *    camera threads the door instead of clipping the wall.
+ *    camera crosses through the door instead of clipping the wall.
  */
 export interface CameraTourWaypoint {
 

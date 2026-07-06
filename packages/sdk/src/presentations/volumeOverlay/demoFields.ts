@@ -3,16 +3,12 @@ import type {VectorGrid} from "./VectorGrid";
 
 
 /**
- * Demo scalar field generator — produces a {@link VoxelGrid} that
- * looks like a plausible building-interior thermal field over the
- * supplied bbox. Vertical stratification (warm at the ceiling)
- * plus a Gaussian "heat plume" centred 1/3 of the way along x/y so
- * the asymmetry reads in slice / iso views.
+ * Demo scalar field generator. Produces a {@link VoxelGrid} with
+ * vertical stratification and a Gaussian heat plume inside the supplied
+ * bbox.
  *
- * Used by the Toolbar's Volume Overlay button as its cold-start
- * fallback (when the application hasn't supplied a real field),
- * and exported as a library utility for quick demos / tests
- * without needing a CFD pipeline.
+ * Used by the Toolbar's Volume Overlay button when the application has
+ * not supplied a field, and exported for demos and tests.
  *
  * @module presentations/volumeOverlay
  */
@@ -62,13 +58,12 @@ export function makeDemoScalarField(
 
 
 /**
- * Demo vector field generator — paired with
- * {@link makeDemoScalarField} to give natural-convection-style
- * streamlines (buoyant updraft over the same plume location +
- * floor inflow + ceiling outflow).
+ * Demo vector field generator paired with {@link makeDemoScalarField}.
+ * Produces a simple natural-convection field: updraft over the plume,
+ * floor inflow, and ceiling outflow.
  *
- * Used by the Toolbar's Volume Overlay button so streamlines work
- * by default; useful as a quick demo generator otherwise.
+ * Used by the Toolbar's Volume Overlay button when no vector field is
+ * supplied.
  */
 export function makeDemoVectorField(
   min: [number, number, number],

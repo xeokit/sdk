@@ -1,11 +1,10 @@
 /**
  * # 4D Construction Scheduling
  *
- * Drives a {@link viewing!viewer.View | View} from a project schedule:
- * map each task to the SceneObject ids it builds / installs /
- * commissions, scrub the time cursor, and the scene transitions
- * through Pending → InProgress → Complete states for every object as
- * its task starts and finishes.
+ * Maps schedule tasks to SceneObject ids and applies task state to a
+ * {@link viewing!viewer.View | View} as the time cursor changes. Objects
+ * transition through Pending, InProgress, and Complete as their tasks
+ * start and finish.
  *
  * ## Usage
  *

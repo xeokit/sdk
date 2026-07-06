@@ -32,6 +32,7 @@
  */
 import type {Viewer, View} from "../../../viewing/viewer";
 import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import type {Renderer} from "../../../viewing/renderer";
 import {AdaptiveQuality} from "../../../viewing/adaptiveQuality";
 import {
   DetailedRender,
@@ -41,6 +42,7 @@ import {
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
+import {requireWebGLRenderer} from "../resolveWebGLRenderer";
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -53,7 +55,7 @@ export interface AdaptiveQualityPanelParams {
   viewer: Viewer;
 
   /** Renderer queried for per-View FPS / frame-time. */
-  renderer: WebGLRenderer;
+  renderer: Renderer;
 
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
@@ -391,7 +393,8 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
   }
 
   readonly viewer: Viewer;
-  readonly renderer: WebGLRenderer;
+  readonly renderer: Renderer;
+  private readonly _webGLRenderer: WebGLRenderer;
 
   private _restMs = DEFAULT_REST_MS;
 
@@ -422,6 +425,7 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "AdaptiveQualityPanel");
 
     const prior = AdaptiveQualityPanel._instances.get(params.viewer);
     if (prior && !prior._destroyed) prior.destroy();
@@ -672,13 +676,13 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
   // ── Live stats ────────────────────────────────────────────────
 
   private _enableInspector(): void {
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     if (res.ok) res.value.enabled = true;
   }
 
   private _renderStats(): void {
     if (this._destroyed) return;
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     const inspector = res.ok ? res.value : null;
 
     for (const {view, fpsEl, frameEl, modeChip, modeEl} of this._viewRows.values()) {

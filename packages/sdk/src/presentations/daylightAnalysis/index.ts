@@ -1,13 +1,13 @@
 /**
  * # Annual Daylight Analysis
  *
- * Cumulative direct-sun-hours analysis across a horizontal work
- * plane, paired with a heatmap-mesh builder for visual output.
+ * Computes direct sun hours across a horizontal work plane and can
+ * convert the result to a heatmap mesh.
  *
  * Implements the time-step daylight integration used in LEED EQ
  * Credit 8.1, BREEAM Hea 01, and EN 17037 §6.2: walk the year hour
  * by hour, raycast from each work-plane sample toward the sun,
- * accumulate sunlit time when the ray clears all occluders.
+ * accumulate sunlit time for unoccluded samples.
  *
  * ## Usage
  *

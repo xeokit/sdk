@@ -1,18 +1,10 @@
 /**
- * # xeokit Section Caps
- *
- * ---
- *
- * **Generates filled cap geometry along arbitrary world-space cut planes
- * through a {@link model!scene.SceneModel | SceneModel}, so sliced models read
- * as solid cross-sections instead of hollow shells.**
- *
- * ---
+ * # Section Caps
  *
  * The `sectionCaps` module complements
  * {@link viewing!viewer.SectionPlane | SectionPlane}-style clipping: where a
  * SectionPlane hides everything on the clipped side of a plane,
- * `sectionCaps` *fills the hole* the plane leaves behind. Output is
+ * `sectionCaps` builds geometry on the cut face. Output is
  * embedded into a caller-owned target {@link model!scene.SceneModel | SceneModel}
  * as flat `TrianglesPrimitive` meshes lying on the cut planes, one
  * {@link model!scene.SceneObject | SceneObject} per source object that
@@ -80,63 +72,48 @@
  *
  * <br>
  *
- * ## Features
+ * ## Behavior
  *
- * - **Watertight cap fills** — every cut produces a closed,
- *   triangulated polygon (per source mesh per plane) so the model
- *   reads as a solid cross-section rather than a hollow shell.
+ * - **Cap fills** — closed cuts produce a triangulated polygon per source
+ *   mesh per plane.
  * - **Multi-plane caps** — caps from intersecting cut planes are
  *   trimmed against each other's kept half-spaces (Sutherland-Hodgman),
  *   so two cuts don't double-cover their shared corner.
  * - **Outer / hole topology** — loops are classified by signed area
  *   and holes attached to their tightest container, so cross-sections
  *   through hollow members (pipes, walls with openings) render with
- *   their interiors open rather than filled.
+ *   their interiors open.
  * - **Hatch-pattern preservation** — the cap's
  *   {@link model!scene.SceneMaterial | SceneMaterial} inherits the source
  *   mesh material's `hatchPattern` (when present), so sectioned
- *   masonry, concrete, and metal read with the same engineering
- *   hatch convention as the rest of the model.
+ *   masonry, concrete, and metal keep the same hatch convention as the
+ *   rest of the model.
  * - **Per-mesh colour passthrough** — when no `capColor` is supplied,
  *   each cap inherits its source mesh's effective colour (material
- *   colour first, then mesh-level colour, then a neutral grey
- *   fallback). Reads better on multi-material BIM models than a
- *   single global tint.
+ *   colour first, then mesh-level colour, then a neutral grey fallback).
  * - **{@link viewing!viewer.SectionPlane | SectionPlane}-compatible
  *   convention** — `CapPlane.dir` and `CapPlane.dist` match the
- *   accessors on a viewer-side SectionPlane verbatim, so a cap can
- *   be built directly from any clipping plane the host already drives.
+ *   accessors on a viewer-side SectionPlane, so a cap can be built from
+ *   an existing clipping plane.
  * - **Cross-Scene** — source and target
  *   {@link model!scene.SceneModel | SceneModels} may live in different
  *   Scenes.
  * - **Object filtering** — restrict the cap pass with
  *   `includeObjectIds`, `excludeObjectIds`, and/or an arbitrary
- *   `includeObject` predicate. Right for "cap walls + slabs but not
- *   furniture" or "cap whatever's visible right now."
+ *   `includeObject` predicate.
  * - **ViewLayer parking** — pass `layerId` to assign every emitted
  *   SceneObject to a named
  *   {@link viewing!viewer.ViewLayer | ViewLayer}; the host can then hide,
  *   show, or style caps collectively.
- * - **Progressive emission** — yield between batches so very large
- *   models cap progressively without blocking the main thread.
+ * - **Progressive emission** — yields between batches for large models.
  * - **Diagnostic counts** — `numUnclosedMeshes` flags non-watertight
  *   source geometry that produced no cap.
  *
- * <br>
+ * ## Usage
  *
- * ## Installation
- *
- * ```bash
- * npm install @xeokit/sdk
- * ```
- *
- * <br>
- *
- * ## Quick Start
- *
- * The snippets below assume a {@link model!scene.Scene | Scene} with a
+ * These snippets assume a {@link model!scene.Scene | Scene} with a
  * source {@link model!scene.SceneModel | SceneModel} already loaded (via any
- * SDK importer — for example, `DotBIMLoader` or `IFCLoader`).
+ * SDK importer, for example `DotBIMLoader` or `IFCLoader`).
  *
  * <br>
  *
@@ -155,7 +132,7 @@
  * ### 2) Cap one source model against one plane
  *
  * The caller creates the target {@link model!scene.SceneModel | SceneModel}
- * and passes it in — `buildSectionCaps` populates it. The plane
+ * and passes it in; `buildSectionCaps` populates it. The plane
  * convention matches {@link viewing!viewer.SectionPlane | SectionPlane}: the
  * half-space `dot(dir, p) + dist > 0` is clipped (discarded) and the
  * cap's face normal is `+dir`.
@@ -208,7 +185,7 @@
  *
  * {@link CapPlane} mirrors the `dir` / `dist` accessors on a
  * {@link viewing!viewer.SectionPlane | SectionPlane}, so the host's existing
- * clipping plane can be reused verbatim — cap geometry lands on the
+ * clipping plane can be reused directly. Cap geometry lands on the
  * same plane the viewer is already clipping against.
  *
  * ```javascript
@@ -230,7 +207,7 @@
  * `idPrefix` namespaces every emitted geometry, material, mesh, and
  * object id (`"{idPrefix}__{sourceObjectId}__…"`). Pick a unique
  * prefix per pass when running the extractor more than once into the
- * same target — e.g. one prefix per cap-plane set, or one per
+ * same target, for example one prefix per cap-plane set, or one per
  * source model when capping a federation against the same plane.
  *
  * ```javascript
@@ -257,12 +234,9 @@
  * {@link model!scene.SceneMaterial | SceneMaterial}. Omit `capColor` to
  * inherit each cap's tint from its source mesh's effective colour
  * (material colour first, then mesh-level colour, then a neutral
- * grey fallback) — useful on multi-material BIM models where a
- * single global tint would erase material differences. When the
+ * grey fallback). When the
  * corresponding source mesh's material carries a `hatchPattern`,
- * the cap material inherits it — sectioned masonry, concrete, or
- * metal then renders with the same engineering hatch as the rest
- * of the model.
+ * the cap material inherits it.
  *
  * ```javascript
  * // Inherit per-mesh colour from the source material:
@@ -281,7 +255,7 @@
  *
  * Pass `layerId` to assign every emitted SceneObject to a named
  * {@link viewing!viewer.ViewLayer | ViewLayer}. The host can then hide,
- * show, or restyle the caps collectively without touching the
+ * show, or restyle the caps without touching the
  * source model.
  *
  * ```javascript
@@ -339,9 +313,8 @@
  * ### 9) Progressive emission
  *
  * For large source models, pass `progressive: true` so the function
- * yields between batches of source-object emissions and the caps
- * paint into the View as they build. Pass a {@link ProgressiveSpec}
- * for finer control.
+ * yields between batches of source-object emissions. Pass a
+ * {@link ProgressiveSpec} for batch size and yield control.
  *
  * ```javascript
  * await buildSectionCaps({
@@ -363,9 +336,7 @@
  *
  * The function only reads source geometry and writes to the target,
  * so the two {@link model!scene.SceneModel | SceneModels} may live in
- * different {@link model!scene.Scene | Scenes}. Useful when capping a
- * federation loaded in one Scene into a "drawings" Scene that the
- * host renders on a separate canvas / view.
+ * different {@link model!scene.Scene | Scenes}.
  *
  * ```javascript
  * const liveScene     = new Scene();

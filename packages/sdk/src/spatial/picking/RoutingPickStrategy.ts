@@ -1,6 +1,6 @@
 import type {Scene} from "../../model/scene";
 import {GaussianSplatsPrimitive} from "../../base/constants";
-import type {WebGLRenderer} from "../../viewing/webGLRenderer";
+import type {Renderer} from "../../viewing/renderer";
 import {BVHPickStrategy} from "./BVHPickStrategy";
 import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";
@@ -45,7 +45,7 @@ export class RoutingPickStrategy implements PickStrategy {
   private readonly _scene: Scene;
   private readonly _bvh: BVHPickStrategy;
   private readonly _gpu: RendererPickStrategy | null;
-  private readonly _renderer: WebGLRenderer | null;
+  private readonly _renderer: Renderer | null;
 
   /** Live unsubscribers from renderer event subscriptions. */
   private readonly _unsubs: Array<() => void> = [];
@@ -72,7 +72,7 @@ export class RoutingPickStrategy implements PickStrategy {
    *   omitted, the strategy is BVH-only forever (snap requests
    *   silently degrade).
    */
-  constructor(scene: Scene, renderer?: WebGLRenderer) {
+  constructor(scene: Scene, renderer?: Renderer) {
     this._scene    = scene;
     this._bvh      = new BVHPickStrategy(scene);
     this._renderer = renderer ?? null;
@@ -148,19 +148,19 @@ export class RoutingPickStrategy implements PickStrategy {
    * machine trivially correct as the renderer's event surface
    * evolves.
    */
-  private _wireRenderer(renderer: WebGLRenderer): void {
+  private _wireRenderer(renderer: Renderer): void {
     const events = renderer.events;
     const handle = () => this._refreshGpuReady();
 
-    // Event names match `WebGLRenderer.events` (see
-    // packages/sdk/src/webGLRenderer/WebGLRenderer.ts).
     this._unsubs.push(events.onViewerAttached.subscribe(handle));
     this._unsubs.push(events.onViewerDetached.subscribe(handle));
     this._unsubs.push(events.onRendererStarted.subscribe(handle));
     this._unsubs.push(events.onRendererStopped.subscribe(handle));
     this._unsubs.push(events.onRendererDestroyed.subscribe(handle));
-    this._unsubs.push(events.webglContextLost.subscribe(handle));
-    this._unsubs.push(events.webglContextRestored.subscribe(handle));
+    const contextLost = events.onContextLost ?? (events as any).webglContextLost;
+    const contextRestored = events.onContextRestored ?? (events as any).webglContextRestored;
+    if (contextLost) this._unsubs.push(contextLost.subscribe(handle));
+    if (contextRestored) this._unsubs.push(contextRestored.subscribe(handle));
   }
 
   private _refreshGpuReady(): void {

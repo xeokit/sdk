@@ -21,20 +21,20 @@ export interface ApplyHeatMapMaterialsParams {
    * Scalar range mapped onto the colour ramp's `[0, 1]` domain. When
    * supplied, every geometry shares this range so values are visually
    * comparable across the scene. When omitted, the range is auto-
-   * computed from the **union** of all per-geometry scalars — also
+   * computed from the **union** of all per-geometry scalars; also
    * comparable cross-scene, just without a fixed scale.
    *
    * Pass `"perGeometry"` to instead normalise each geometry to its
    * own min/max (each geometry uses its full ramp regardless of how
-   * its values sit in the global distribution). Useful for emphasis,
-   * misleading for comparison.
+   * its values sit in the global distribution). Use only when
+   * per-geometry contrast matters more than cross-geometry comparison.
    */
   range?: [number, number] | "perGeometry";
 
   /**
    * Texture size in pixels (square). Default `512`. Larger sizes give
    * more pixels per triangle in the painted heat map and reduce
-   * minification moiré on dense geometries — the renderer doesn't
+   * minification moiré on dense geometries. The renderer doesn't
    * generate mipmaps for scene textures, so the painted base level
    * is the only level the GPU samples.
    */
@@ -65,7 +65,7 @@ export interface ApplyHeatMapMaterialsParams {
    * painted using those UVs verbatim rather than re-projected. Use
    * for shapes whose faces would collapse under planar projection
    * (axis-aligned boxes, cylinders aligned with worldUp) when the
-   * caller has pre-baked a per-face unwrap. Default `false` — the
+   * caller has pre-baked a per-face unwrap. Default `false`; the
    * painter regenerates planar UVs, which is correct for most
    * irregular meshes (IFC walls, slabs, doors, etc.).
    */
@@ -77,9 +77,7 @@ export interface ApplyHeatMapMaterialsParams {
    * heat map adopts `max(originalOpacity, this)` and the original
    * `alphaMode` (typically `BLEND` for glass). Set to `1` to make
    * heat maps fully opaque regardless of the underlying mesh; set
-   * lower (or to `0`) to fully preserve the original opacity.
-   * Default `0.5` — keeps glass readable as glass while still
-   * showing the gradient.
+   * lower (or to `0`) to preserve the original opacity. Default `0.5`.
    */
   transparentOpacityFloor?: number;
 }

@@ -7,13 +7,12 @@ import type {FillPolygons} from "../fills/FillPolygons";
  *
  * `inscribedRadius` is the largest gap between the placement
  * anchor and any boundary edge of the polygon; the caller sizes
- * the label to a fraction of this radius so it fits comfortably
- * inside the polygon.
+ * the label to a fraction of this radius.
  *
  * `area` is the polygon's signed-area sum across the triangle
  * soup, in basis-space units². Callers can multiply by
- * `world-units-per-(u, v)` (always 1 — the projection basis is
- * orthonormal) for a world-space area. Useful for the optional
+ * `world-units-per-(u, v)` (always 1; the projection basis is
+ * orthonormal) for a world-space area. Used for the optional
  * "12.4 m²" subtitle and for the min-area cutoff filter.
  */
 export interface LabelPlacement {
@@ -46,11 +45,9 @@ export interface LabelPlacement {
  *      the largest min-distance is the placement anchor; that
  *      distance is the inscribed radius.
  *
- * This is a coarse-grid approximation of the recursive
- * subdivision used in Mapbox's `polylabel` — accurate to one
- * cell at the chosen grid resolution, which is sub-decimetre
- * at the default 32×32 grid on a typical 5–15 m room. Fine for
- * label placement; not fine enough to drive a CAM tool.
+ * This is a coarse-grid approximation of the recursive subdivision used
+ * in Mapbox's `polylabel`, accurate to one cell at the chosen grid
+ * resolution.
  *
  * Returns `null` when the polygon has no boundary edges (every
  * edge was shared by two triangles — degenerate input) or no

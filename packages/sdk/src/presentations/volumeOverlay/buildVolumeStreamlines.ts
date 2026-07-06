@@ -23,38 +23,31 @@ export interface BuildVolumeStreamlinesOptions {
   /**
    * Seeds are laid out in a `seedDensity³`-ish regular lattice
    * inside the volume bbox. Default `6` → about 216 streamlines,
-   * which fits comfortably inside the WebGL line-batch limit at
-   * typical step counts. Crank up for finer coverage at the cost
-   * of mesh size.
+   * which fits inside the WebGL line-batch limit at typical step counts.
+   * Increase for more seed coverage at the cost of mesh size.
    */
   seedDensity?: number;
 
   /**
    * Per-streamline integration step in world units. Default =
-   * half of the smallest voxel spacing — keeps streamlines smooth
-   * through tight features without aliasing. Smaller is finer +
-   * costlier.
+   * half of the smallest voxel spacing. Smaller is finer and more expensive.
    */
   stepSize?: number;
 
   /**
    * Max integration steps per streamline. Caps both compute and
-   * resulting mesh size — a few hundred steps usually covers the
-   * volume in either direction. Default `200`.
+   * resulting mesh size. Default `200`.
    */
   maxSteps?: number;
 
   /**
-   * Speed below which the integrator gives up — flows below
-   * this magnitude are too slow to read as motion. Default `1e-4`
+   * Speed below which the integrator stops. Default `1e-4`
    * (in whatever units the field carries).
    */
   minSpeed?: number;
 
   /**
-   * Integrate forward AND backward from each seed (the seed sits
-   * roughly mid-streamline). Default `true` — gives more uniform
-   * coverage of upstream / downstream sides.
+   * Integrate forward and backward from each seed. Default `true`.
    */
   bidirectional?: boolean;
 
@@ -73,9 +66,8 @@ export interface BuildVolumeStreamlinesOptions {
    * Colour mode for the lines:
    *
    *   - `"speed"` — per-vertex colour from {@link colormap} at the
-   *     normalised local speed. The classic CFD streamline look.
-   *   - `"uniform"` — all lines a single solid colour (passed via
-   *     {@link uniformColor}). Faster, more legible in dense fields.
+   *     normalised local speed.
+   *   - `"uniform"` — all lines use {@link uniformColor}.
    *
    * Default `"speed"`.
    */
@@ -87,7 +79,7 @@ export interface BuildVolumeStreamlinesOptions {
   /**
    * Pixel thickness of the streamline polylines. Forwarded to the
    * renderer's thick-line draw technique via a per-mesh
-   * {@link SceneMaterial.lineWidth} override. Default `2` — visible
+   * {@link SceneMaterial.lineWidth} override. Default `2`.
    * but not so chunky it occludes adjacent streamlines.
    *
    * Set to `0` to fall back to the View's default

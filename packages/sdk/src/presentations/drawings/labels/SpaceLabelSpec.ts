@@ -6,9 +6,8 @@ import type {Vec3} from "../../../base/math/vector";
  *
  * Phase 1 of the labelling system: emits text **inside** each
  * eligible source object's projected fill polygon, anchored at
- * the pole-of-inaccessibility (max-distance interior point —
- * robust on L/U/T-shaped rooms). No leader lines, no collision
- * with other labels — Phase 1 is purely interior placement.
+ * the pole-of-inaccessibility (max-distance interior point). No leader
+ * lines or collision checks with other labels.
  *
  * Eligibility is the intersection of:
  *
@@ -23,8 +22,7 @@ import type {Vec3} from "../../../base/math/vector";
  *     {@link SpaceLabelSpec.minArea | minArea} world units².
  *
  * Typography defaults to all-caps single-line text, sized to a
- * fraction of the inscribed circle's radius — so a 12 m² room
- * gets a label scaled to fit inside it. Override
+ * fraction of the inscribed circle's radius. Override
  * {@link SpaceLabelSpec.fontScale | fontScale} to tighten or
  * loosen the fit.
  */
@@ -32,9 +30,8 @@ export interface SpaceLabelSpec {
 
   /**
    * {@link model!data.DataObject.type | DataObject.type} values
-   * eligible for labels. Default `["IfcSpace"]` — the canonical
-   * AEC "room" class. Pass other types
-   * (e.g. `["IfcZone", "IfcSpatialZone"]`) to extend the pass.
+   * eligible for labels. Default `["IfcSpace"]`. Pass other types
+   * such as `["IfcZone", "IfcSpatialZone"]` to extend the pass.
    * Empty array disables the pass entirely.
    */
   dataTypes?: string[];
@@ -42,10 +39,7 @@ export interface SpaceLabelSpec {
   /**
    * Minimum fill polygon area (world units², measured on the
    * projection plane) below which a label is skipped. Default
-   * `0.5` m² — drops salt-and-pepper specks left over from the
-   * fill extractor's min-pixel-area filter while keeping every
-   * habitable room. Set to `0` to label everything that has
-   * any fill at all.
+   * `0.5` m². Set to `0` to label everything that has any fill.
    */
   minArea?: number;
 
@@ -53,9 +47,7 @@ export interface SpaceLabelSpec {
    * Label height as a fraction of the polygon's inscribed-circle
    * radius (the radius of the largest circle that fits inside
    * the polygon, centred at the pole of inaccessibility).
-   * Default `0.30` — a label fills ~60 % of its inscribed
-   * circle's diameter, which reads comfortably without
-   * touching the walls.
+   * Default `0.30`.
    *
    * Final font size is clamped to
    * {@link SpaceLabelSpec.maxFontSize | maxFontSize} so giant
@@ -64,9 +56,7 @@ export interface SpaceLabelSpec {
   fontScale?: number;
 
   /**
-   * Hard ceiling on label height in world units. Default `0.45` —
-   * about head-height text at architectural scale. Stops large
-   * spaces from getting absurdly oversized labels.
+   * Hard ceiling on label height in world units. Default `0.45`.
    */
   maxFontSize?: number;
 
@@ -80,10 +70,8 @@ export interface SpaceLabelSpec {
 
   /**
    * When `true` (default), label text is rendered in upper-case
-   * regardless of how the source name is stored —
-   * `"Kitchen"` → `"KITCHEN"`. Standard AEC drafting
-   * convention for room labels. Set to `false` to preserve
-   * source casing.
+   * regardless of how the source name is stored:
+   * `"Kitchen"` → `"KITCHEN"`. Set to `false` to preserve source casing.
    */
   upperCase?: boolean;
 

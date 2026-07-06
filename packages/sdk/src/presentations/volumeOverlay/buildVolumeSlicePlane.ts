@@ -17,10 +17,8 @@ import type {SDKResult} from "../../base/core";
 
 
 /**
- * Slice-plane axis. World coords are Z-up by convention in this SDK,
- * so most CFD / HVAC review uses `"z"` to scrub through floor-by-
- * floor temperature stratification. `"x"` / `"y"` give east-west
- * and north-south cross-sections.
+ * Slice-plane axis. World coords are Z-up by convention in this SDK.
+ * `"z"` gives horizontal slices; `"x"` and `"y"` give vertical slices.
  *
  * @module presentations/volumeOverlay
  */
@@ -38,8 +36,8 @@ export interface BuildVolumeSlicePlaneOptions {
   id?: string;
 
   /**
-   * Which axis the slice is perpendicular to. Default `"z"` —
-   * horizontal slice, the most common HVAC / thermal study form.
+   * Which axis the slice is perpendicular to. Default `"z"` for a
+   * horizontal slice.
    */
   axis?: SliceAxis;
 
@@ -51,15 +49,13 @@ export interface BuildVolumeSlicePlaneOptions {
 
   /**
    * Sampling resolution on the slice plane, in cells along the two
-   * in-plane axes. Default `80 × 80` — smooth enough to read without
-   * a noticeable bake cost. Higher resolution costs `O(nu · nv)`
-   * sample lookups per rebuild.
+   * in-plane axes. Higher resolution costs `O(nu · nv)` sample lookups
+   * per rebuild. Default `80 × 80`.
    */
   resolution?: [number, number];
 
   /**
-   * Colormap stops. Default `viridis` — perceptually uniform, the
-   * scientifically defensible choice for unbiased magnitude reading.
+   * Colormap stops. Default `viridis`.
    */
   colormap?: ColormapStops;
 
@@ -71,8 +67,7 @@ export interface BuildVolumeSlicePlaneOptions {
   range?: [number, number];
 
   /**
-   * Opacity for the slice. Default `0.85` — the building behind
-   * still reads faintly through.
+   * Opacity for the slice. Default `0.85`.
    */
   opacity?: number;
 
@@ -84,21 +79,20 @@ export interface BuildVolumeSlicePlaneOptions {
   zOffset?: number;
 
   /**
-   * Texel filtering. Default `"linear"` — smooth interpolation
-   * between samples. `"nearest"` reads as a stepped voxel block,
-   * useful for low-resolution diagnostic views.
+   * Texel filtering. Default `"linear"`. Use `"nearest"` for stepped
+   * voxel output.
    */
   filter?: "linear" | "nearest";
 }
 
 
 /**
- * Bake a slice through a {@link VoxelGrid} into a SceneModel — a
+ * Bake a slice through a {@link VoxelGrid} into a SceneModel: a
  * single textured quad whose RGBA texels carry the colormap-mapped
  * scalar values across the slice plane.
  *
  * One SceneModel, one geometry, one material, one texture, one
- * mesh, one object — total renderer cost is independent of slice
+ * mesh, one object. Total renderer cost is independent of slice
  * resolution. A 200 × 200 slice costs the same to draw as a 20 × 20.
  *
  * The returned SceneModel owns the lifetime of the texture and

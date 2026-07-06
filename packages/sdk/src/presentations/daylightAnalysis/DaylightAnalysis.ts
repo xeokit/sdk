@@ -17,9 +17,9 @@ const PEAK_DIRECT_NORMAL_LUX = 100000;
 
 
 /**
- * Computes annual cumulative direct-sun hours on a horizontal
- * work plane, for daylight-compliance analysis (LEED EQ 8.1, BREEAM
- * Hea 01, EN 17037 §6.2) and design-review massing studies.
+ * Computes annual cumulative direct-sun hours on a horizontal work
+ * plane for daylight analysis (LEED EQ 8.1, BREEAM Hea 01,
+ * EN 17037 §6.2) and massing studies.
  *
  * ## What it does
  *
@@ -36,8 +36,8 @@ const PEAK_DIRECT_NORMAL_LUX = 100000;
  *    worth of "direct-sun hours" into the cell's running total.
  *
  * After every cell completes, the runner yields cooperatively via
- * the SDK's {@link base!utils.yieldToHost | yieldToHost} so the
- * browser stays responsive and a progress callback can paint UI.
+ * the SDK's {@link base!utils.yieldToHost | yieldToHost}; callers can
+ * use the progress callback to update UI.
  *
  * ## Defaults
  *
@@ -46,20 +46,16 @@ const PEAK_DIRECT_NORMAL_LUX = 100000;
  *   hourly through each evaluated day.
  * - Spatial resolution: caller-supplied (`grid.resolution`).
  * - Occlusion test: object-AABB-level via the collision index's
- *   `intersectRay`. Conservative on the "shadow" side — a ray that
+ *   `intersectRay`. Conservative on the "shadow" side: a ray that
  *   clips through a corner of an AABB but misses the geometry is
- *   counted as occluded. Sufficient for compliance work; future
- *   work could route through a triangle-level raycaster for
- *   pixel-exact results at much higher cost.
+ *   counted as occluded.
  *
  * ## Performance
  *
  * For a 30×30 grid with default 288 samples per cell, expect ~260k
  * ray casts total. The BVH does each in O(log n) AABB tests; on a
- * mid-spec laptop the run finishes in 1–3 seconds for a single-
- * building model, scaling roughly linearly with `nx × ny × samples`.
- * The runner yields ~60×/sec so a 10-second analysis paints a
- * smooth progress bar.
+ * mid-spec laptop the run finishes in 1–3 seconds for a single-building
+ * model, scaling roughly linearly with `nx × ny × samples`.
  *
  * @module presentations/daylightAnalysis
  */
@@ -80,8 +76,7 @@ export class DaylightAnalysis {
    *
    * @param onProgress  Optional progress callback. Receives a value
    *                    in `[0, 1]` after each row of cells completes
-   *                    (not every cell — that'd be unnecessarily
-   *                    noisy for typical UI binding).
+   *                    (not every cell).
    */
   public async run(
     onProgress?: (fraction: number) => void,

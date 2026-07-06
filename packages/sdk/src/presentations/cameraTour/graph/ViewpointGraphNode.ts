@@ -6,7 +6,7 @@ import type {Vec3} from "../../../base/math/vector";
  * Produced by a {@link ViewpointSampler}; consumed by the
  * {@link TourPlanner}, which picks one per visited space.
  *
- * `position` / `look` / `up` are full Camera state — sampling the
+ * `position` / `look` / `up` are full Camera state. Sampling the
  * graph and feeding the result straight into a `View.camera` (or
  * a `CameraFlightAnimation`) renders the viewpoint without
  * further interpretation.
@@ -23,10 +23,8 @@ export interface ViewpointGraphNode {
   position: Vec3;
 
   /**
-   * World-space point the camera looks at. Default samplers point
-   * the camera toward the nearest exit door so a tour through the
-   * space reads as "approach → cross threshold → next room"
-   * rather than "spin in place".
+   * World-space point the camera looks at. Default samplers point the
+   * camera toward the nearest exit door.
    */
   look: Vec3;
 

@@ -9,7 +9,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * pressure on the same grid is the common case), so the loader
  * returns them keyed by name and partitioned by component count.
  *
- * Pick what you need:
+ * Example:
  *
  * ```ts
  * const r = loadVTI(text);
@@ -22,11 +22,9 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * panel.open(..., { grid: T, vectorGrid: vel });
  * ```
  *
- * `warnings` carries non-fatal skip notices — e.g. an N-component
+ * `warnings` carries non-fatal skip notices, for example an N-component
  * array that doesn't fit the scalar / vector buckets, or a
- * compressed `<DataArray>` block we don't support yet. Surface
- * these via `studio.reportWarning` if the caller has a Studio
- * handy.
+ * compressed `<DataArray>` block that is not supported.
  *
  * @module presentations/volumeOverlay
  */
@@ -44,8 +42,7 @@ export interface VTIFile {
 
 /**
  * Parse a VTK XML ImageData (`.vti`) file into voxel / vector
- * grids. Handles the two `<DataArray>` encodings that account for
- * >95% of `.vti` files in the wild:
+ * grids. Handles these `<DataArray>` encodings:
  *
  *   - `format="ascii"` — whitespace-separated numbers in the XML
  *     text node.
@@ -54,12 +51,9 @@ export interface VTIFile {
  *
  * Does NOT support:
  *
- *   - `format="appended"` — raw bytes after the XML doc. Used for
- *     very large files; trivial to add later when needed.
- *   - Compression (`zlib`, `lz4`). Same reason — usable but
- *     unimplemented for first cut.
- *   - Big-endian byte order. Modern x86 / ARM are little-endian;
- *     90's MIPS workstation files are vanishingly rare.
+ *   - `format="appended"` — raw bytes after the XML doc.
+ *   - Compression (`zlib`, `lz4`).
+ *   - Big-endian byte order.
  *
  * Component count picks the destination bucket: `1` → scalar
  * (VoxelGrid); `3` → vector (VectorGrid). Other counts are

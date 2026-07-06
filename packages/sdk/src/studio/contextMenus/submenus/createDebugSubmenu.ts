@@ -7,7 +7,8 @@
  * @module studio/viewObjectContextMenu/submenus/createDebugSubmenu
  */
 
-import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import type {Renderer} from "../../../viewing/renderer";
 import type {BaseViewContext} from "../BaseViewContext";
 
 
@@ -31,6 +32,10 @@ export function createDebugSubmenu(debug: boolean) {
 /**
  * Forces the renderer's WebGL context to be lost.
  */
-function loseWebGLContext(renderer: WebGLRenderer): void {
-  // TODO
+function loseWebGLContext(renderer: Renderer): void {
+  if (!(renderer instanceof WebGLRenderer)) {
+    console.warn("[Studio] Lose WebGL Context requires WebGLRenderer.");
+    return;
+  }
+  renderer.loseContext();
 }

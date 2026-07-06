@@ -30,7 +30,7 @@ export interface BuildVolumeIsosurfaceOptions {
   isovalue?: number;
 
   /**
-   * Surface colour. Default `null` — sample the colormap at the
+   * Surface colour. Default `null` samples the colormap at the
    * isovalue's normalised position (the colour that pixel would
    * have on a slice through the same field). Pass an explicit
    * `[r, g, b]` to override.
@@ -62,9 +62,8 @@ export interface BuildVolumeIsosurfaceOptions {
  *
  * Returns `{ok: true, value: null}` when the iso-surface is empty
  * (the iso-value falls entirely outside the field's range, or
- * every cell sits on the same side) — an empty result is a
- * legitimate outcome, not an error. SceneModel create-call
- * failures propagate as `ok: false`.
+ * every cell sits on the same side). An empty result is not an
+ * error. SceneModel create-call failures propagate as `ok: false`.
  *
  * @module presentations/volumeOverlay
  */

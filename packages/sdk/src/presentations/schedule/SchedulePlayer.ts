@@ -195,8 +195,7 @@ export class SchedulePlayer {
     return this._destroyed;
   }
 
-  /** Cursor position as `[0, 1]` across the schedule's full range —
-   *  handy for binding to a `<input type="range" min="0" max="1">`. */
+  /** Cursor position as `[0, 1]` across the schedule's full range. */
   public get progress(): number {
     const startMs = this.schedule.startDate.getTime();
     const endMs   = this.schedule.endDate.getTime();

@@ -13,7 +13,7 @@ const NIGHT_COLOR:        [number, number, number] = [0.04, 0.07, 0.14]; // moon
 
 
 /**
- * Daylight / sun-study controller for a {@link viewing!viewer.View | View}.
+ * Daylight and sun-study controller for a {@link viewing!viewer.View | View}.
  *
  * Owns:
  *   - A geo-location ({@link latitude}, {@link longitude}) and the
@@ -27,29 +27,26 @@ const NIGHT_COLOR:        [number, number, number] = [0.04, 0.07, 0.14]; // moon
  * the NOAA solar-position algorithm in {@link SunPosition.computeSunPosition},
  * converts altitude / azimuth into a world-space direction-of-light
  * vector, and writes the result to its DirLight. Output is also
- * exposed through {@link sunPosition} so other systems (analysis
- * passes, shaders, sky shaders, time-of-day UI readouts) can subscribe.
+ * exposed through {@link sunPosition} for analysis passes, shaders, and
+ * time-of-day UI.
  *
- * ## What it's for
+ * ## Use cases
  *
- * - **Shadow / daylight studies.** Place a model at its real site
- *   coordinates, scrub a date / time, watch shadows fall the way
- *   they actually would. Couples cleanly with the shadow pipeline.
+ * - **Shadow / daylight studies.** Place a model at site coordinates,
+ *   scrub a date/time, and update shadows through the normal shadow pipeline.
  * - **Code-compliance analyses** (LEED EQ Credit 8.1 daylight
  *   factor, BREEAM Hea 01, EN 17037 daylight provision). Compute the
  *   sun position at every hour across the year; sample illumination
  *   at each interior surface; surface as a `presentations/heatmaps`
  *   gradient.
- * - **Client presentation / marketing.** Animate a day-in-the-life
- *   sequence with the {@link AnnualSunPlayer} — sunrise warms the
- *   east facade, midday casts hard shadows, sunset lights the
- *   atrium glazing.
+ * - **Time playback.** Use {@link AnnualSunPlayer} to animate a day or
+ *   year while the light follows the time cursor.
  *
  * ## How it talks to the rest of the SDK
  *
  * - The sun is **a DirLight** registered through `View.registerLight`,
  *   same as any application-supplied directional light. Existing
- *   shadow / PBR pipelines pick it up with no extra setup.
+ *   shadow and PBR pipelines use it through the normal light path.
  * - The {@link onDateChanged} event fires after every cursor change,
  *   so a heatmap-analysis runner, a sky shader, or a date-readout UI
  *   stay in lockstep.
@@ -61,7 +58,7 @@ export class SunStudy {
   /**
    * Most recently constructed (and not yet destroyed) SunStudy.
    * Used by the Toolbar's "Sun Study" button to open the panel
-   * even when the app hasn't pre-mounted it — the button picks
+   * even when the app hasn't pre-mounted it; the button picks
    * up whichever SunStudy the app most recently created.
    */
   private static _latest: SunStudy | null = null;

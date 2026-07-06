@@ -1,17 +1,13 @@
 /**
  * # Hidden-Line Elimination
  *
- * ---
+ * CPU-side orthographic depth-buffer rasterisation and edge visibility
+ * tests for the drawings pipeline.
  *
- * **CPU-side orthographic depth-buffer rasterisation and edge-visibility
- * testing for the drawings pipeline.**
- *
- * ---
- *
- * Rasterises every triangle of a source {@link model!scene.SceneModel | SceneModel}
+ * Rasterises source {@link model!scene.SceneModel | SceneModel} triangles
  * into an orthographic {@link HLEDepthBuffer} along an arbitrary
- * {@link ProjectionBasis | projection basis}, then exposes point and edge
- * visibility tests downstream stages use to drop occluded geometry.
+ * {@link ProjectionBasis | projection basis}. Downstream stages use the
+ * resulting point and edge tests to drop occluded geometry.
  *
  * The depth buffer carries "distance-toward-camera" values in row-major
  * pixel order. When built with `withOwners: true`, it also carries a
@@ -35,10 +31,8 @@
  *
  * ## Usage
  *
- * The orchestrating {@link buildDrawing} entry point hides these calls,
- * but they are also useful standalone — for instance to test custom
- * annotation geometry against a model's visibility along an arbitrary
- * direction.
+ * {@link buildDrawing} calls this internally. Use it directly when custom
+ * annotation or overlay geometry needs the same visibility test.
  *
  * ```javascript
  * import {
@@ -82,9 +76,9 @@
  * Buffer memory is `4 × width × height` bytes (Float32 depths) plus an
  * equal-size Int32 owner buffer when `withOwners: true`. At the default
  * 2048-pixel longer axis, peak memory is ~16 MB for the depth buffer
- * and another ~16 MB for owners — fine for a single drawing on a desktop.
- * For very-high-resolution drawings on dense BIM models, prefer the
- * tile-at-a-time `fills` extractor which keeps peak memory bounded
+ * and another ~16 MB for owners. For high-resolution drawings on dense
+ * models, use the tile-at-a-time `fills` extractor to keep peak memory
+ * bounded
  * at `O(tileSize²)` regardless of `resolution`.
  *
  * @module hle

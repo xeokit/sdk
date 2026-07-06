@@ -2,8 +2,9 @@ import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} fr
 import {Data, DataModel, type DataModelStats} from "../model/data";
 import {View, Viewer, ViewObject, type ViewParams} from "../viewing/viewer";
 import {type MemoryConfigs, type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
+import type {RenderStats} from "../viewing/webGLRenderer/internal/inspectors";
+import type {Renderer} from "../viewing/renderer";
 import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../base/core";
-import {type RenderStats} from "../viewing/webGLRenderer/internal/inspectors";
 import type {ImportProvenance} from "./panels/modelsPanel/ImportProvenance";
 import {StudioEvents} from "./StudioEvents";
 // IssuesPanel is the one panel Studio still touches directly — init()
@@ -147,9 +148,9 @@ export class Studio {
   public viewer: Viewer;
 
   /**
-   * The WebGLRenderer created by the Studio.
+   * The renderer created by the Studio.
    */
-  public renderer: WebGLRenderer;
+  public renderer: Renderer;
 
   /**
    * Owns the lifecycle of every View created through Studio — the
@@ -356,7 +357,7 @@ export class Studio {
           {maxViews: merged.maxViews ?? 4},
         );
 
-        this.renderer = new WebGLRenderer({
+        const webGLRenderer = new WebGLRenderer({
           debugging: this.debug,
           memoryConfigs: {
             tileSize: 200,
@@ -371,6 +372,7 @@ export class Studio {
             maxViews: this.viewManager.maxViews,
           }
         });
+        this.renderer = webGLRenderer;
 
         const log = (eventName: string, sender: any, args: any) => {
           console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
@@ -380,7 +382,7 @@ export class Studio {
           new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
           new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
           new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
-          new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]", log});
+          new EventsLogger(webGLRenderer.events, {prefix: "[WebGLRenderer]", log});
         }
 
         const onError = (_, result: SDKResult<any>) => {
@@ -425,7 +427,7 @@ export class Studio {
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
 
-        const renderInspectorResult = this.renderer.getRenderInspector();
+        const renderInspectorResult = webGLRenderer.getRenderInspector();
         if (renderInspectorResult.ok !== true) {
           reject(renderInspectorResult.error);
           return;
@@ -1288,7 +1290,7 @@ export class Studio {
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
 
-    if (this.renderer) {
+    if (this.renderer instanceof WebGLRenderer) {
       stats.renderer = {
         tiles: {},
         views: []

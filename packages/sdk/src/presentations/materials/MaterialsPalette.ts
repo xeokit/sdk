@@ -156,13 +156,14 @@ const DEFAULT_CATALOG: PainterCatalogEntry[] = [
 
 
 /**
- * Catalog of {@link model!procgen.paintMaterials | paintMaterials} painters plus a method to
- * swap a {@link model!scene.SceneMesh | SceneMesh}'s material to one of them at runtime.
+ * Catalog of {@link model!procgen.paintMaterials | paintMaterials} painters
+ * plus a method to swap a {@link model!scene.SceneMesh | SceneMesh}'s material
+ * to one of them at runtime.
  *
  * Per-(SceneModel, painter) materials are created on first use and
- * cached, so applying the same painter to many meshes — or to many
- * objects — produces a single shared {@link model!scene.SceneMaterial | SceneMaterial} backing
- * all of them rather than a fresh material per mesh.
+ * cached, so applying the same painter to many meshes produces one shared
+ * {@link model!scene.SceneMaterial | SceneMaterial} instead of one material
+ * per mesh.
  *
  * The mesh-replacement path mirrors the supported mutation pattern
  * the SDK documents: snapshot the mesh's params (id, geometryId,
@@ -214,8 +215,8 @@ export class MaterialsPalette {
    * Creates a MaterialsPalette.
    *
    * @param params.catalog Override the default catalog. When omitted,
-   *   the palette ships with every applicable {@link model!procgen.paintMaterials | paintMaterials}
-   *   painter pre-registered.
+   *   every applicable {@link model!procgen.paintMaterials | paintMaterials}
+   *   painter is pre-registered.
    * @param params.textureSize Painter texture size in pixels. Default
    *   `256`.
    * @param params.uvScale Metres of geometry per texture repeat,

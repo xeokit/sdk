@@ -1,21 +1,12 @@
 /**
- * # xeokit Materials Palette
- *
- * ---
- *
- * **Runtime material swap for any
- * {@link model!scene.SceneMesh | SceneMesh} — pick a procedural painter
- * from a curated catalog and the palette repaints the mesh's
- * material in place.**
- *
- * ---
+ * # Materials Palette
  *
  * The `materials` module wraps every applicable
  * {@link model!procgen.paintMaterials | procgen/paintMaterials} painter into a
  * lookup table the host can drive from a context menu or button bar.
  * Per-(SceneModel, painter) {@link model!scene.SceneMaterial | SceneMaterials}
  * are created on first use and shared across every mesh that adopts
- * them — applying the same painter to a thousand objects produces
+ * them. Applying the same painter to a thousand objects produces
  * one material, not a thousand.
  *
  * Material swapping uses the SDK's supported mutation pattern:
@@ -102,14 +93,12 @@
  *
  * <br>
  *
- * ## Features
+ * ## Behavior
  *
- * - **Curated default catalog** — every applicable
+ * - **Default catalog** — every applicable
  *   {@link model!procgen.paintMaterials | procgen/paintMaterials} painter is
- *   pre-registered in a default catalog (brick, concrete, marble,
- *   oak, polished steel, copper, gold, glass, …), grouped into four
- *   coarse categories (`"Masonry"`, `"Interior"`, `"Metal"`,
- *   `"Glass"`) so menus can group entries naturally.
+ *   pre-registered (brick, concrete, marble, oak, polished steel, copper,
+ *   gold, glass, etc.) and grouped into categories.
  * - **Per-(SceneModel, painter) sharing** — repainting a thousand
  *   meshes with the same painter creates one
  *   {@link model!scene.SceneMaterial | SceneMaterial}, not a thousand.
@@ -121,33 +110,22 @@
  *   concrete, etc.); the painted material binds the hatch into
  *   `hatchPattern`, so section caps and Detailed-mode body shading
  *   pick it up automatically.
- * - **Transparent dielectrics** — glass + other transparent
+ * - **Transparent dielectrics** — glass and other transparent
  *   painters carry `opacity` / `alphaMode: "BLEND"` in their entry,
- *   so swapping to glass produces a translucent material without
- *   per-call overrides.
+ *   so no per-call override is required.
  * - **Triplanar by default** — painted materials forward
- *   {@link MaterialsPalette.uvScale | uvScale} as
- *   `triplanarScale`, so painters apply correctly to UV-less BIM
- *   geometry via the renderer's triplanar fallback.
+ *   {@link MaterialsPalette.uvScale | uvScale} as `triplanarScale` for
+ *   UV-less geometry.
  * - **In-place repaint** — `paintMaterial` keeps the source
  *   {@link model!scene.SceneObject | SceneObject} intact; only the mesh's
  *   material binding changes, via the SDK's supported
  *   detach + destroy + recreate + reattach pattern.
- * - **Custom catalogs** — pass `catalog` to the constructor to
- *   replace the default with a host-defined set of painter entries
- *   (e.g. a project-specific palette of branded materials).
+ * - **Custom catalogs** — pass `catalog` to the constructor to replace
+ *   the default with host-defined painter entries.
  *
  * <br>
  *
- * ## Installation
- *
- * ```bash
- * npm install @xeokit/sdk
- * ```
- *
- * <br>
- *
- * ## Quick Start
+ * ## Usage
  *
  * ### 1) Import the entry points
  *
@@ -159,7 +137,7 @@
  *
  * ### 2) Construct the palette
  *
- * With no params, the palette ships with the full default catalog.
+ * With no params, the palette uses the default catalog.
  *
  * ```javascript
  * const palette = new MaterialsPalette();
@@ -209,7 +187,7 @@
  * {@link MaterialsPalette.painterIds | painterIds} returns the
  * registered ids in catalog order; {@link MaterialsPalette.getEntry | getEntry}
  * looks up an entry for label / category metadata. Together they're
- * enough to build a context-menu submenu grouped by category.
+ * enough to build a menu grouped by category.
  *
  * ```javascript
  * const byCategory = new Map();
@@ -228,8 +206,7 @@
  *
  * ### 6) Custom catalog
  *
- * Pass a catalog to bypass the default — useful for project-specific
- * brand materials or stripped-down palettes.
+ * Pass a catalog to replace the default.
  *
  * ```javascript
  * import { paintBrick, paintConcrete } from "@xeokit/sdk/model/procgen/paintMaterials";

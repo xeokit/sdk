@@ -32,10 +32,12 @@
  */
 import type {Viewer, View} from "../../../viewing/viewer";
 import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import type {Renderer} from "../../../viewing/renderer";
 import {ViewCuller, DEFAULT_CULL_PARAMS} from "../../../spatial/culling";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
+import {requireWebGLRenderer} from "../resolveWebGLRenderer";
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -48,7 +50,7 @@ export interface CullingPanelParams {
   viewer: Viewer;
 
   /** Renderer queried for per-View FPS / frame-time / primitive stats. */
-  renderer: WebGLRenderer;
+  renderer: Renderer;
 
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
@@ -392,7 +394,8 @@ export class CullingPanel extends FloatingPanelBase {
   }
 
   readonly viewer: Viewer;
-  readonly renderer: WebGLRenderer;
+  readonly renderer: Renderer;
+  private readonly _webGLRenderer: WebGLRenderer;
 
   // Config — global to the panel, applied to every ViewCuller.
   private _solidAngleLimit = DEFAULT_CULL_PARAMS.solidAngleLimit;
@@ -429,6 +432,7 @@ export class CullingPanel extends FloatingPanelBase {
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "CullingPanel");
 
     // Replace any prior panel bound to the same Viewer.
     const prior = CullingPanel._instances.get(params.viewer);
@@ -749,14 +753,14 @@ export class CullingPanel extends FloatingPanelBase {
   // ── Live stats ────────────────────────────────────────────────
 
   private _enableInspector(): void {
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     if (res.ok) res.value.enabled = true;
   }
 
   /** Update FPS / frame time / culled count for every View row. */
   private _renderStats(): void {
     if (this._destroyed) return;
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     const inspector = res.ok ? res.value : null;
 
     for (const {view, fpsEl, frameEl, culledEl} of this._viewRows.values()) {

@@ -1,16 +1,10 @@
 /**
- * # xeokit Camera Tour Planner
+ * # Camera Tour Planner
  *
- * ---
- *
- * **Plans automatic camera walkthroughs of BIM building models.**
- *
- * ---
- *
- * Generates an ordered, cinematically smoothed sequence of
- * camera waypoints that tours every space in a building, threading
- * doors between rooms and dwelling on each so the viewer can
- * absorb the geometry. Inspired by Liu, Xu & Sun (2012),
+ * Builds camera waypoint sequences for building walkthroughs.
+ * The planner extracts spaces and portals, samples viewpoints,
+ * orders them, then smooths the result into a {@link CameraTour}.
+ * Inspired by Liu, Xu & Sun (2012),
  * *"Automatic camera path planning for IFC building models"*
  * (Automation in Construction).
  *
@@ -19,33 +13,28 @@
  *     (default: IFC semantic walk over a paired DataModel).
  *  2. **Sample** candidate viewpoints inside each space, scored
  *     by visibility coverage.
- *  3. **Plan** the tour order (greedy nearest-neighbour seed,
- *     refined by 2-opt by default; pass `planTourGreedy` to skip
- *     the refinement pass on time-critical paths).
- *  4. **Smooth** the discrete stops into a waypoint list ready
- *     for the existing
+ *  3. **Plan** the tour order. The default starts with a greedy
+ *     nearest-neighbour pass and refines with 2-opt. Pass
+ *     `planTourGreedy` to skip refinement.
+ *  4. **Smooth** the stops into a waypoint list ready for
  *     {@link viewing!cameraFlight.CameraPath | CameraPath} +
  *     {@link viewing!cameraFlight.CameraPathAnimation | CameraPathAnimation}
- *     playback infrastructure.
+ *     playback.
  *
- * The planner is headless and returns pure data ({@link CameraTour})
- * — driving a View's Camera is the separate `playCameraTour`
- * helper's job, so the planning step can run on a server to
- * precompute tours shipped alongside the model.
+ * The planner returns data only. `playCameraTour` applies a tour to
+ * a View's Camera, so tours can be planned server-side and loaded
+ * with a model.
  *
  * Source files are bucketed into `graph/` (the space + viewpoint
  * graph types), `plan/` (planning entry point + result/options
  * types), `build/` (the smoothing leg), and `play/` (playback
  * runtime). The strategy subdirs (`extractors/`, `samplers/`,
- * `planners/`) plus `internal/` round out the module. Every
- * symbol stays in this barrel's flat namespace — the subdirs
- * organise source files only.
+ * `planners/`) and `internal/` are part of the same module. The
+ * public symbols are re-exported from this barrel.
  *
  * ## Usage
  *
- * Three steps: plan → play → drive. Each runs in isolation, so
- * planning can move to a server while the play + drive halves stay
- * client-side.
+ * Three steps: plan, play, then drive the playback handle from UI.
  *
  * ```ts
  * import {
@@ -57,10 +46,8 @@
  *
  * ### 1) Plan
  *
- * Pure data in, pure data out — safe to run on a server and cache
- * the result alongside the model. The IFC space extractor is the
- * default; pass `extractor: extractSpacesFromGeometry` for non-IFC
- * sources.
+ * Planning is data-only. The IFC space extractor is the default;
+ * pass `extractor: extractSpacesFromGeometry` for non-IFC sources.
  *
  * ```ts
  * const planResult = await planCameraTour({
@@ -79,8 +66,8 @@
  *
  * ### 2) Play
  *
- * Drives the View's Camera through the planned waypoints. Returns a
- * {@link CameraTourPlayback} handle for pause / seek / dispose.
+ * Drives the View's Camera through the planned waypoints and returns
+ * a {@link CameraTourPlayback} handle for pause, seek, and disposal.
  *
  * ```ts
  * const playResult = playCameraTour(view, tour, {
@@ -95,9 +82,7 @@
  *
  * ### 3) Drive
  *
- * Wire the handle to your UI. Same control surface the demo
- * `cameraTourPanel` Studio panel uses, so this snippet doubles as
- * the contract for any custom UI.
+ * Wire the playback handle to the host UI.
  *
  * ```ts
  * pauseBtn.onclick   = () => playback.pause();
@@ -109,8 +94,8 @@
  *
  * ### Non-IFC sources
  *
- * For glTF / OBJ / dotbim models without `IfcSpace` metadata, swap
- * in the geometry-only extractor. Everything else stays the same.
+ * For glTF, OBJ, dotbim, or other sources without `IfcSpace`
+ * metadata, use the geometry-only extractor.
  *
  * ```ts
  * const planResult = await planCameraTour({

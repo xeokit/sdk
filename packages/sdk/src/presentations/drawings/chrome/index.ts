@@ -1,22 +1,15 @@
 /**
  * # Drawing Chrome
  *
- * ---
+ * Backing panel and title-block specs for drawing output.
  *
- * **Visual decoration drawn alongside the projected geometry — a
- * translucent backing panel and a standard technical-drawing title
- * cartouche.**
- *
- * ---
- *
- * Two thin specs that round out the technical-drawing look of a
- * {@link buildDrawing} call. Both sit on top of the projection plane
+ * Both specs are optional inputs to {@link buildDrawing}. They sit on
+ * top of the projection plane
  * and are never clipped, hidden, or pickable — chrome is not part of
  * the source model.
  *
- * - {@link PanelSpec} — translucent backing quad behind the line
- *   work, optionally textured via a `procgen.paintMaterials`
- *   painter for a procedural paper / parchment surface.
+ * - {@link PanelSpec} — backing quad behind the line work, optionally
+ *   textured via a `procgen.paintMaterials` painter.
  * - {@link TitleBlockSpec} — heading row plus labelled `LABEL | value`
  *   rows, sized to a fraction of the frame width and pinned to its
  *   bottom-right corner.
@@ -63,7 +56,7 @@
  *
  * The `panel.paint` painter is a zero-arg callback that returns a
  * `MaterialMaps` triple from `procgen.paintMaterials`
- * (colour + normal + metallic-roughness). The projector creates the
+ * (colour, normal, and metallic-roughness). The projector creates the
  * three textures and a {@link model!scene.SceneMaterial | SceneMaterial}
  * inside the target SceneModel and binds the panel quad to it via
  * triplanar mapping (the quad carries no UVs).
@@ -82,9 +75,8 @@
  * });
  * ```
  *
- * The painter is invoked once per `buildDrawing` call. Cache the
- * returned maps yourself if you're projecting onto multiple faces and
- * want them to share one underlying texture set.
+ * The painter is invoked once per `buildDrawing` call. Cache the returned
+ * maps if multiple projections should share one texture set.
  *
  * @module chrome
  */

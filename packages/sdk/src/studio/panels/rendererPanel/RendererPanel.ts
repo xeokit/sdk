@@ -16,7 +16,6 @@
  * `studio.panels.open("rendererPanel")`.
  *
  */
-import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
 import type {
   DrawCallStats,
   RenderBinStats,
@@ -24,9 +23,12 @@ import type {
   RenderStats,
   ViewRenderStats,
 } from "../../../viewing/webGLRenderer/internal/inspectors";
+import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import type {Renderer} from "../../../viewing/renderer";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
+import {requireWebGLRenderer} from "../resolveWebGLRenderer";
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -40,7 +42,7 @@ export interface RendererPanelParams {
    * Doubles as the WeakMap key for {@link RendererPanel.openFor}
    * idempotence — one panel per renderer.
    */
-  renderer: WebGLRenderer;
+  renderer: Renderer;
 
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
@@ -85,7 +87,7 @@ function injectStylesOnce(): void {
 export class RendererPanel extends FloatingPanelBase {
 
   /** Per-renderer instance registry — one panel per renderer. */
-  private static readonly _instances = new WeakMap<WebGLRenderer, RendererPanel>();
+  private static readonly _instances = new WeakMap<Renderer, RendererPanel>();
 
   /** SVG glyph for the title bar — a scope trace over a grid. */
   static iconSvg(): string {
@@ -102,7 +104,7 @@ export class RendererPanel extends FloatingPanelBase {
     `</svg>`;
   }
 
-  static getFor(renderer: WebGLRenderer): RendererPanel | undefined {
+  static getFor(renderer: Renderer): RendererPanel | undefined {
     const inst = RendererPanel._instances.get(renderer);
     return inst && !inst._destroyed ? inst : undefined;
   }
@@ -117,7 +119,8 @@ export class RendererPanel extends FloatingPanelBase {
     return inst;
   }
 
-  readonly renderer: WebGLRenderer;
+  readonly renderer: Renderer;
+  private readonly _webGLRenderer: WebGLRenderer;
 
   // DOM refs.
   private _bodyEl!: HTMLElement;
@@ -143,6 +146,7 @@ export class RendererPanel extends FloatingPanelBase {
       classPrefix: "xkt-rp",
     });
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "RendererPanel");
 
     // Restore the last-selected view from sessionStorage so the panel
     // resumes on the same row across opens within a session.
@@ -211,7 +215,7 @@ export class RendererPanel extends FloatingPanelBase {
     this._listenersAttached = true;
 
     // Make sure the inspector is on, otherwise renderStats stays empty.
-    const inspectorRes = this.renderer.getRenderInspector();
+    const inspectorRes = this._webGLRenderer.getRenderInspector();
     if (inspectorRes.ok && inspectorRes.value) {
       inspectorRes.value.enabled = true;
     }
@@ -590,7 +594,7 @@ export class RendererPanel extends FloatingPanelBase {
   // ── Helpers ───────────────────────────────────────────────────
 
   private _currentInspector(): RenderInspector | null {
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     return res.ok ? res.value : null;
   }
 

@@ -5,12 +5,15 @@ import type {Vec3} from "../../../base/math/vector";
 import type {Mat4} from "../../../base/math/matrix";
 import type {SceneModel} from "../../../model/scene";
 import {TransformControls} from "../../../viewing/transformControls";
+import type {TransformControlsSpace} from "../../../viewing/transformControls";
 import type {SectionPlane, View, Viewer} from "../../../viewing/viewer";
 import {SectionPlaneAdapter, fillPlaneMatrix} from "./SectionPlaneAdapter";
 
 
 /** Mutually-exclusive gizmo mode for editing the active plane. */
 export type SectionPlanesEditMode = "translate" | "rotate";
+
+type TransformControlsShowState = {x: boolean; y: boolean; z: boolean};
 
 
 /**
@@ -84,6 +87,11 @@ export class SectionPlanesController {
 
   /** True while the tool is active — controls proxy visibility. */
   private _visible = false;
+
+  /** TransformControls space to restore after section-plane editing. */
+  private _previousTransformSpace: TransformControlsSpace | null = null;
+  /** TransformControls axis visibility to restore after section-plane editing. */
+  private _previousTransformShow: TransformControlsShowState | null = null;
 
   /** Subscription handles for the viewer-level events. */
   private readonly _unsubs: Array<() => void> = [];
@@ -218,7 +226,10 @@ export class SectionPlanesController {
       this._applyGizmo(plane, this._mode);
     } else {
       const tc = TransformControls.getFor(this.view);
-      if (tc) tc.detach();
+      if (tc) {
+        tc.detach();
+        this._restoreTransformControlsSpace(tc);
+      }
     }
     this.onSelectionChanged.dispatch(this, {plane, mode: this._mode});
   }
@@ -365,6 +376,7 @@ export class SectionPlanesController {
    */
   private _applyGizmo(plane: SectionPlane, mode: SectionPlanesEditMode): void {
     const tc = TransformControls.getFor(this.view) ?? new TransformControls({view: this.view});
+    this._captureTransformControlsState(tc);
     const baseAdapter = new SectionPlaneAdapter(plane);
     const adapter = {
       getMatrix: () => baseAdapter.getMatrix(),
@@ -382,6 +394,30 @@ export class SectionPlanesController {
       },
     };
     tc.attach(adapter as unknown as Parameters<TransformControls["attach"]>[0]);
+    tc.setSpace("local");
+    tc.setShowX(true);
+    tc.setShowY(true);
+    tc.setShowZ(true);
     tc.setMode(mode);
+  }
+
+  private _captureTransformControlsState(tc: TransformControls): void {
+    if (this._previousTransformSpace === null) this._previousTransformSpace = tc.space;
+    if (this._previousTransformShow === null) {
+      this._previousTransformShow = {x: tc.showX, y: tc.showY, z: tc.showZ};
+    }
+  }
+
+  private _restoreTransformControlsSpace(tc: TransformControls): void {
+    if (this._previousTransformShow !== null) {
+      tc.setShowX(this._previousTransformShow.x);
+      tc.setShowY(this._previousTransformShow.y);
+      tc.setShowZ(this._previousTransformShow.z);
+      this._previousTransformShow = null;
+    }
+    if (this._previousTransformSpace !== null) {
+      tc.setSpace(this._previousTransformSpace);
+      this._previousTransformSpace = null;
+    }
   }
 }

@@ -1,5 +1,5 @@
 import type {Scene} from "../../model/scene";
-import type {WebGLRenderer} from "../../viewing/webGLRenderer";
+import type {Renderer} from "../../viewing/renderer";
 import {type PickParams, PickResult, type View} from "../../viewing/viewer";
 import type {SDKResult} from "../../base/core";
 import {SceneCollisionIndex} from "../../spatial/collision";
@@ -26,7 +26,7 @@ export class PickingService {
 
   constructor(
     private readonly sceneRef: () => Scene,
-    private readonly rendererRef: () => WebGLRenderer,
+    private readonly rendererRef: () => Renderer,
   ) {}
 
   /**

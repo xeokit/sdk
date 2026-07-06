@@ -5,8 +5,8 @@
  * Inside {@link buildDrawing} the same function is called whenever
  * {@link DrawingProjectionParams.panel} is supplied; the result is
  * the inside-out 3D box (one wall on either side of the projection
- * plane, framed by `margin` in the basis u/v axes) that the
- * wireframe / fills / title-block read crisply against.
+ * plane, framed by `margin` in the basis u/v axes) used as the
+ * backing surface for wireframe, fills, and title block.
  *
  * @module drawings/buildDrawingPanel
  */
@@ -57,10 +57,9 @@ export interface BuildDrawingPanelParams {
 
   /**
    * Basis-d coord of the projection plane the panel sits on —
-   * the same plane the rest of the drawing's geometry is
-   * projected onto. The panel box is positioned a hair on either
-   * side of this depth so the projected geometry reads crisply
-   * against it.
+   * the same plane the rest of the drawing's geometry is projected
+   * onto. The panel box is positioned slightly on either side of
+   * this depth to avoid coincident geometry.
    */
   planeDepth: number;
 

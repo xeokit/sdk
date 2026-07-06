@@ -17,7 +17,7 @@
  *
  */
 import type {View, ViewLayer} from "../../../viewing/viewer";
-import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import type {Renderer} from "../../../viewing/renderer";
 import {saveBCFViewpoint} from "../../../interop/bcf";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import {el} from "../../utils/el";
@@ -42,7 +42,7 @@ export interface ExportBCFPanelParams {
    * itself never reads the canvas, so the snapshot field has to
    * be filled in by the panel from `renderer.getSnapshot(view)`.
    */
-  renderer?: WebGLRenderer;
+  renderer?: Renderer;
 
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
@@ -469,7 +469,7 @@ export class ExportBCFPanel extends FloatingPanelBase {
   readonly view: View;
 
   /** Renderer used to capture the snapshot image, when set. */
-  readonly renderer: WebGLRenderer | undefined;
+  readonly renderer: Renderer | undefined;
 
   // Panel-content DOM refs.
   private _bodyEl!: HTMLElement;

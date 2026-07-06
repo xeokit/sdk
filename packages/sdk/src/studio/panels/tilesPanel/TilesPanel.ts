@@ -46,8 +46,10 @@
  */
 import type {Scene} from "../../../model/scene";
 import type {View} from "../../../viewing/viewer";
-import type {RenderStats} from "../../../viewing/webGLRenderer/internal/inspectors/RenderStats";
-import type {TileStats} from "../../../viewing/webGLRenderer/internal/inspectors/TileStats";
+import type {
+  RenderStats,
+  TileStats,
+} from "../../../viewing/webGLRenderer/internal/inspectors";
 
 
 import {el} from "../../utils/el";

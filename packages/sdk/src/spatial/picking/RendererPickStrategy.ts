@@ -4,7 +4,7 @@ import {
   type Vec2,
   type Vec3,
 } from "../../base/math/vector";
-import type {WebGLRenderer} from "../../viewing/webGLRenderer";
+import type {Renderer} from "../../viewing/renderer";
 import type {PickParams as RendererPickParams} from "../../viewing/viewer/PickParams";
 import type {PickResult as RendererPickResult} from "../../viewing/viewer/PickResult";
 import type {PickParams} from "./PickParams";
@@ -12,7 +12,7 @@ import type {PickResult, PickSnap} from "./PickResult";
 import type {PickStrategy} from "./PickStrategy";
 
 /**
- * GPU-backed picking strategy — wraps {@link WebGLRenderer.pick}.
+ * GPU-backed picking strategy — wraps {@link Renderer.pick}.
  *
  * Handles:
  *
@@ -43,11 +43,11 @@ export class RendererPickStrategy implements PickStrategy {
 
   /**
    * @param _renderer The renderer to drive. The strategy assumes the
-   *   renderer is in {@link WebGLRenderer.rendering} state when
+   *   renderer is in rendering state when
    *   {@link pick} is called — the {@link RoutingPickStrategy} that
    *   composes this leaf is responsible for that gate.
    */
-  constructor(private readonly _renderer: WebGLRenderer) {}
+  constructor(private readonly _renderer: Renderer) {}
 
   pick(params: PickParams): PickResult {
     const wantSnap = !!(params.snapToVertex || params.snapToEdge);

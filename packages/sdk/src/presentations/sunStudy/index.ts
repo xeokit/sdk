@@ -1,15 +1,14 @@
 /**
  * # Sun Studies
  *
- * Daylight / shadow visualisation and analysis for AECO scenes.
+ * Sun-position, daylight, and shadow helpers for AECO scenes.
  *
  * - {@link SunPosition.computeSunPosition} — pure-math NOAA Solar
  *   Position Algorithm: `(date, lat, lon) → { altitude, azimuth }`.
- * - {@link SunStudy} — owns the geo-location + time cursor + a
- *   `DirLight` representing the sun; auto-aims, auto-tints, and
- *   auto-dims the light as the cursor moves.
- * - {@link AnnualSunPlayer} — scrubs the cursor through a single
- *   day or a whole year on a configurable wall-clock pace.
+ * - {@link SunStudy} — owns the geo-location, time cursor, and
+ *   `DirLight` representing the sun. Updates the light as the cursor moves.
+ * - {@link AnnualSunPlayer} — scrubs the cursor through one day or a
+ *   year at a configurable wall-clock pace.
  *
  * ## Usage
  *

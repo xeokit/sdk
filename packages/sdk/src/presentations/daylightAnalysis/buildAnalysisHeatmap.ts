@@ -33,23 +33,18 @@ export interface BuildAnalysisHeatmapOptions {
    * RGB triples evenly spaced across `range`. The builder
    * interpolates between adjacent entries for each cell's value.
    * Default is a 5-stop deep-blue → cyan → yellow → orange → white
-   * gradient — readable on both dark and light models.
+   * gradient.
    */
   gradient?: Array<[number, number, number]>;
 
   /**
-   * Opacity for the heatmap quad. Default `0.85` so the underlying
-   * floor / facade still reads through faintly.
+   * Opacity for the heatmap quad. Default `0.85`.
    */
   opacity?: number;
 }
 
 
-// Default gradient — cool → warm. Picked so cells with low sun
-// exposure read as deep blue (instantly recognisable as "shaded
-// area") and high-exposure cells read as bright yellow / white
-// (the "sunny spots"). Mid-range warm tones (orange) signal the
-// transition.
+// Default gradient, cool to warm.
 const DEFAULT_GRADIENT: Array<[number, number, number]> = [
   [0.05, 0.07, 0.30],  // deep blue (no sun)
   [0.10, 0.45, 0.75],  // medium blue
@@ -65,10 +60,10 @@ const DEFAULT_GRADIENT: Array<[number, number, number]> = [
  * on the work plane. The texture is an `nx × ny` RGBA image whose
  * texels carry the gradient-mapped sunlit-hour values; the quad
  * samples it with `NearestFilter` so each analysis cell renders
- * as a crisp coloured square instead of a smoothed gradient.
+ * as a separate square.
  *
  * One SceneModel, one geometry, one material, one texture, one
- * mesh, one object — total renderer cost is independent of grid
+ * mesh, one object. Total renderer cost is independent of grid
  * resolution. A 100×100 analysis costs the same to draw as a 10×10.
  *
  * For finer control (custom shading, baking into an existing

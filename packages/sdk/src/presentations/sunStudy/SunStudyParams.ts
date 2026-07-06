@@ -17,9 +17,7 @@ export interface SunStudyParams {
 
   /**
    * Site latitude in decimal degrees. North positive. Range `[-90, 90]`.
-   * The sun's altitude and azimuth derive directly from this — a model
-   * placed at +49° will produce shadows that fall the way an actual
-   * Vancouver / Frankfurt / Astana / Paris building's would.
+   * The sun's altitude and azimuth derive directly from this.
    */
   latitude: number;
 
@@ -30,8 +28,7 @@ export interface SunStudyParams {
 
   /**
    * Initial moment for the sun cursor. JS `Date` (interpreted in UTC).
-   * Defaults to summer-solstice noon UTC of the current year — a flatter
-   * sun angle than equinox noon, more shadow contrast for a first view.
+   * Defaults to summer-solstice noon UTC of the current year.
    */
   currentDate?: Date | string;
 
@@ -49,8 +46,7 @@ export interface SunStudyParams {
   northAngleDegrees?: number;
 
   /**
-   * Override the daylight RGB colour. Default `[1.0, 0.96, 0.86]` —
-   * a slightly warm white that reads as "noon sun in a clear sky".
+   * Override the daylight RGB colour. Default `[1.0, 0.96, 0.86]`.
    * The SunStudy automatically warms this toward orange at low sun
    * altitudes and dims it below the horizon (see {@link goldenHourBlend}).
    */
@@ -68,9 +64,8 @@ export interface SunStudyParams {
    * When `true` (the default), the directional light's colour and
    * intensity blend toward warm orange at low sun altitudes (the
    * golden-hour effect: longer atmospheric path → more Rayleigh
-   * scattering → warmer apparent colour). Set `false` for an
-   * analytical study where you want intensity-only modulation without
-   * colour warming biasing the readout.
+   * scattering → warmer apparent colour). Set `false` for intensity-only
+   * modulation.
    */
   goldenHourBlend?: boolean;
 
@@ -119,15 +114,10 @@ export interface SunStudyParams {
    * {@link nightGroundColor} as the sun drops through civil
    * twilight (`+5°` → `-6°` solar altitude). The user's
    * "day palette" is captured on construction so the lerp
-   * anchors to whatever colours the View was already configured
-   * with — replicates the {@link driveShadows | shadow-intensity}
-   * baseline trick.
+   * anchors to whatever colours the View was already configured with.
    *
-   * Driving the palette dark is the dominant lever for making the
-   * scene actually look dark at night: the IBL prefilter rebuilds
-   * the indirect-light cubemap from the sky each frame, so a
-   * darkened sky cascades into darkened diffuse + specular IBL on
-   * every PBR material.
+   * Driving the palette dark also affects IBL: the IBL prefilter rebuilds
+   * the indirect-light cubemap from the sky each frame.
    *
    * Set `false` if the app curates its own sky palette and only
    * wants the sun-direction / sun-colour parts of `driveSky`.
@@ -136,22 +126,19 @@ export interface SunStudyParams {
 
   /**
    * Zenith colour the sky lerps to at deep night
-   * (sun altitude ≤ -6°). Default `[0.02, 0.03, 0.08]` — deep
-   * astronomical navy.
+   * (sun altitude ≤ -6°). Default `[0.02, 0.03, 0.08]`.
    */
   nightSkyColor?: [number, number, number];
 
   /**
    * Horizon colour the sky lerps to at deep night. Default
-   * `[0.04, 0.05, 0.10]` — slightly brighter than the zenith to
-   * read as residual atmospheric scatter.
+   * `[0.04, 0.05, 0.10]`.
    */
   nightHorizonColor?: [number, number, number];
 
   /**
    * Ground colour the sky lerps to at deep night. Default
-   * `[0.01, 0.01, 0.02]` — near-black so anything below the
-   * horizon (terrain, model underside) reads as unlit.
+   * `[0.01, 0.01, 0.02]`.
    */
   nightGroundColor?: [number, number, number];
 
@@ -161,14 +148,10 @@ export interface SunStudyParams {
    * `baseExposure × nightExposureFactor` across the same
    * civil-twilight band ({@link driveSkyPalette}). The caller's
    * configured exposure is captured on construction and used as
-   * the day anchor — same pattern as `_baseShadowIntensity`.
+   * the day anchor.
    *
-   * Driving exposure is the global "darken everything" lever:
-   * the multiplier hits the HDR framebuffer before the tone
-   * curve, so PBR, flat-shaded, sky, infinite grid — every
-   * pixel attenuates uniformly. Catches surfaces the IBL cascade
-   * misses (Lambert materials, the procedural grid, etc.) that
-   * would otherwise stay bright when the sky goes dark.
+   * The multiplier is applied to the HDR framebuffer before tone mapping,
+   * so it affects PBR, flat-shaded, sky, and grid pixels.
    *
    * Set `false` if the app drives exposure itself (e.g. an
    * eye-adaptation effect, or a fixed studio exposure).
@@ -178,11 +161,10 @@ export interface SunStudyParams {
   /**
    * Multiplier applied to the captured day exposure at the
    * deep-night end of the twilight lerp (sun altitude ≤ -6°).
-   * Default `0.15` — dark but not pitch-black; objects remain
-   * discernible if the viewer is looking. Range `[0, 1]`:
+   * Default `0.15`. Range `[0, 1]`:
    *
    *   - `0` → exposure goes to zero, scene goes black.
-   *   - `0.15` → ~6× darker than noon. Recommended.
+   *   - `0.15` → ~6× darker than noon.
    *   - `0.5` → mildly darker night; useful for compliance work
    *     where the user still needs to read material values.
    *   - `1` → no exposure change (effectively disables the

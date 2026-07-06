@@ -1,5 +1,6 @@
 /**
- * Presentation utilities and tools for visualizing and analyzing 3D models.
+ * Presentation modules for drawings, overlays, animations, and analysis
+ * views built from SceneModels.
  *
  * @module presentations
  */

@@ -6,16 +6,15 @@
  *
  *   - **`"cie-overcast"`** — CIE Standard Overcast Sky (CIE 1955):
  *     `L(θ) = L_z · (1 + 2·cos θ) / 3`, where `θ` is the zenith
- *     angle. Brighter at zenith, dimmer at the horizon — the model
- *     UK BRE 209, EN 17037, and the global "daylight factor" metric
- *     are all built on. Azimuth-symmetric, sun-independent.
+ *     angle. Brighter at zenith, dimmer at the horizon. Used by
+ *     UK BRE 209, EN 17037, and the daylight-factor metric.
  *
  *   - **`"uniform"`** — Uniform luminance over the hemisphere
- *     (CIE 1 sky). Easier to reason about; useful as a baseline.
+ *     (CIE 1 sky).
  *
  * Sky-luminance modeling here is **screening-grade**: it gives a
- * useful first approximation of how the diffuse sky contribution
- * varies across a work plane, but does not replace a path-traced
+ * first approximation of how the diffuse sky contribution varies
+ * across a work plane, but does not replace a path-traced
  * Radiance run for compliance-grade output. In particular: no
  * inter-reflection (light bouncing off interior surfaces), no
  * circumsolar brightening (clear-sky behaviour around the sun),
@@ -31,9 +30,7 @@ export type SkyModel = "none" | "uniform" | "cie-overcast";
 /**
  * Generate `n` cosine-weighted unit direction vectors over the
  * upper hemisphere (Z >= 0). Uses the Hammersley low-discrepancy
- * sequence — better stratification than uniform random for small
- * `n`, so a 64-sample hemisphere produces a smoother sky-view
- * factor estimate than 64 random samples would.
+ * sequence for stratification at small `n`.
  *
  * Returned as a flat `Float32Array` of length `n * 3`.
  */
@@ -115,10 +112,9 @@ export function skyFactorEstimate(
  * dominant effect (sky is brighter when the sun is higher) and
  * give the year-integrated metric a physically-meaningful shape.
  *
- *   - **Uniform**: 10000 lux during daylight, 0 at night. A
- *     useful "compliance-style design sky" — corresponds to the
- *     classic 10,000 lux outside reference often used for
- *     daylight-factor work.
+ *   - **Uniform**: 10000 lux during daylight, 0 at night. Corresponds
+ *     to the 10,000 lux outside reference often used for daylight-factor
+ *     work.
  *   - **CIE Overcast**: scales with `sin(altitude)`. Roughly
  *     8000 + 12000·sin(α) lux — peaks near 20 klux at zenith
  *     altitude, drops to 8 klux at the horizon. Above-horizon only.

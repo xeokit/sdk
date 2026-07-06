@@ -14,7 +14,7 @@ import type {SceneCollisionIndex} from "../../spatial/collision";
 import type {SceneModel} from "../../model/scene";
 import type {DataModel} from "../../model/data";
 import type {CameraFlightAnimation} from "../../viewing/cameraFlight";
-import type {WebGLRenderer} from "../../viewing/webGLRenderer";
+import type {Renderer} from "../../viewing/renderer";
 import type {Studio} from "../Studio";
 
 
@@ -22,8 +22,8 @@ export interface BaseViewContext {
   /** Demo helper used for view and inspector actions. */
   studio: Studio;
 
-  /** WebGL renderer used for capturing screenshots and other renderer-related actions. */
-  renderer: WebGLRenderer;
+  /** Renderer used for capturing screenshots and other renderer-related actions. */
+  renderer: Renderer;
 
   /** Camera flight controller used for framing actions. */
   cameraFlight: CameraFlightAnimation;

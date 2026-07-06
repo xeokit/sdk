@@ -1,19 +1,11 @@
 /**
- * # xeokit Drawings
- *
- * ---
- *
- * **Builds 2D orthographic drawings from a 3D {@link model!scene.SceneModel | SceneModel} —
- * wireframes, filled silhouettes, sectioned cut-aways, and title-block chrome —
- * emitted as a new SceneModel the host can render alongside the source.**
- *
- * ---
+ * # Drawings
  *
  * The `drawings` module turns a {@link model!scene.Scene | Scene}'s 3D content into a
  * technical-drawing-style 2D view. Output is a new {@link model!scene.SceneModel | SceneModel}
  * whose hierarchy mirrors the source one-to-one (one {@link model!scene.SceneObject | SceneObject}
  * per source SceneObject, one {@link model!scene.SceneMesh | SceneMesh} per source mesh),
- * so picks on the drawing map cleanly back to the source.
+ * so picks on the drawing can be mapped back to the source model.
  *
  * ```mermaid
  * classDiagram
@@ -67,53 +59,42 @@
  *     emit --> tgt[Target SceneModel]
  * ```
  *
- * The orchestrating entry point is {@link buildDrawing}, which accepts a
- * {@link DrawingProjectionParams} bundle and returns the new SceneModel
- * inside an {@link base!core.SDKResult | SDKResult}. Internally the pipeline
- * composes three independent stages, each exposed as a submodule:
+ * {@link buildDrawing} accepts {@link DrawingProjectionParams} and writes
+ * into the caller's target SceneModel. Internally it uses three stages,
+ * each exposed as a submodule:
  *
  * - {@link hle | hle} — CPU-side orthographic depth-buffer
  *   rasterisation and edge-visibility testing.
  * - {@link fills | fills} — per-source-object filled silhouette
  *   extraction. Shares the HLE depth buffer for pixel-aligned boundaries.
- * - {@link chrome | chrome} — translucent backing panel and
- *   standard title-cartouche metadata.
+ * - {@link chrome | chrome} — backing panel and title-block metadata.
  *
  * <br>
  *
- * ## Features
+ * ## Behavior
  *
- * - **Wireframe projection** — projected crease and boundary edges as
+ * - **Wireframe projection** — projects crease and boundary edges as
  *   `LinesPrimitive` meshes, with optional hidden-line elimination.
- * - **Solid fills** — per-source-object filled silhouettes with
- *   hidden-surface removal built in.
- * - **Section cut-aways** — clip the source against an arbitrary plane to
- *   render plans, sections, and oblique slices.
+ * - **Solid fills** — emits per-source-object filled silhouettes with
+ *   hidden-surface removal.
+ * - **Section cut-aways** — clips the source against a plane for plans,
+ *   sections, and oblique slices.
  * - **Six face presets** plus arbitrary `{forward, up}` rays for diagonal
  *   and isometric views.
- * - **Title-block chrome** — translucent backing quad and a standard
- *   technical-drawing cartouche, sized to the projection frame.
- * - **Progressive emission** — yield between batches so very large
- *   drawings paint into the View as they build, without blocking the
- *   main thread.
+ * - **Title-block chrome** — adds a backing quad and title block sized
+ *   to the projection frame.
+ * - **Progressive emission** — yields between batches so large drawings
+ *   can appear incrementally.
  * - **One-to-one pickback** — output {@link model!scene.SceneObject | SceneObject}
- *   ids encode their source so picks resolve back to the original model.
+ *   ids encode their source.
  *
  * <br>
  *
- * ## Installation
+ * ## Usage
  *
- * ```bash
- * npm install @xeokit/sdk
- * ```
- *
- * <br>
- *
- * ## Quick Start
- *
- * The snippets below assume a {@link model!scene.Scene | Scene} with a source
+ * These snippets assume a {@link model!scene.Scene | Scene} with a source
  * {@link model!scene.SceneModel | SceneModel} already loaded (via any of the
- * SDK importers — for example, `DotBIMLoader` or `GLTFLoader`).
+ * SDK importers, for example `DotBIMLoader` or `GLTFLoader`).
  *
  * <br>
  *
@@ -132,7 +113,7 @@
  * ### 2) Project onto an AABB face
  *
  * The caller creates the target {@link model!scene.SceneModel | SceneModel}
- * and passes it in — `buildDrawing` populates it. Six face presets
+ * and passes it in; `buildDrawing` populates it. Six face presets
  * resolve to axis-aligned views of the source AABB: `"top"`,
  * `"bottom"`, `"front"`, `"back"`, `"left"`, `"right"`.
  *
@@ -155,11 +136,11 @@
  * }
  * ```
  *
- * The new SceneModel renders alongside the source in the same
+ * The target SceneModel renders alongside the source in the same
  * {@link viewing!viewer.View | View} and picks back to source SceneObjects
  * by stripping `"__" + targetModel.id` from the picked object's id.
  *
- * Source and target may also live in different Scenes — `buildDrawing`
+ * Source and target may also live in different Scenes. `buildDrawing`
  * reads world orientation and collision data from `sourceModel.scene`
  * and writes only to `targetModel`.
  *
@@ -189,7 +170,7 @@
  * ### 4) Hidden-line elimination
  *
  * Pass `hideHidden: true` to drop edges occluded by other source meshes
- * along the projection direction. Pass an {@link hle.HLEOptions | HLEOptions} object to
+ * along the projection direction. Pass an {@link hle.HLEOptions | HLEOptions} to
  * tune resolution, per-edge sample count, and depth bias.
  *
  * <img style="padding: 8px 0" src="https://xeokit.github.io/sdk/docs/assets/buildDrawing-hle.svg" alt="HLE pipeline — triangles rasterise into a depth buffer, then each edge's samples are tested against the buffer to split it into visible and occluded sub-segments"/>
@@ -264,9 +245,8 @@
  *
  * ### 7) Frame, panel, and title block
  *
- * Chrome rounds out the technical-drawing look. The frame is a rectangle
- * around the projected geometry; the panel is a translucent backing quad;
- * the title block is a standard cartouche in the bottom-right corner.
+ * The frame is a rectangle around the projected geometry; the panel is a
+ * backing quad; the title block is placed in the bottom-right corner.
  *
  * <img style="padding: 8px 0" src="https://xeokit.github.io/sdk/docs/assets/buildDrawing-sheet.svg" alt="Composed drawing sheet showing the layering of panel, fills, wireframe, frame, and title block emitted by one buildDrawing call"/>
  *
@@ -305,8 +285,8 @@
  *
  * For drawings of large source models, pass `progressive: true` so the
  * function yields between batches of `createObject` calls and the
- * projection paints into the View as it builds. Pass a
- * {@link ProgressiveSpec} for finer control.
+ * target model can update during a long build. Pass a
+ * {@link ProgressiveSpec} for batch size and yield control.
  *
  * ```javascript
  * const targetModel = scene.createModel({ id: "myModel__progressive" }).value;
@@ -331,7 +311,7 @@
  *
  * Pass `layerId` to assign every emitted SceneObject to a named
  * {@link viewing!viewer.ViewLayer | ViewLayer}. The host can then hide, show, or
- * style the drawing collectively without touching the source model.
+ * style the drawing without touching the source model.
  *
  * ```javascript
  * const targetModel = scene.createModel({ id: "myModel__top" }).value;
@@ -350,7 +330,7 @@
  *
  * Point clouds, line-only models, and surface meshes without
  * `edgeIndices` produce empty drawings. {@link canBuildDrawing} reports
- * whether the source has anything the projector can usefully emit, so
+ * whether the source has geometry the projector can emit, so
  * callers can skip the call instead of letting it fail with a
  * "no projectable edges or fills" error.
  *

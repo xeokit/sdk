@@ -1,18 +1,14 @@
 /**
  * # Filled-Polygon Extraction
  *
- * ---
- *
- * **Per-source-object filled silhouette extraction for the drawings
- * pipeline. Shares the `hle` depth buffer so fill
- * boundaries coincide exactly with the wireframe edges.**
- *
- * ---
+ * Per-source-object filled silhouette extraction for the drawings
+ * pipeline. Uses the `hle` depth buffer so fill boundaries align with
+ * the projected wireframe.
  *
  * Derives one {@link FillPolygons} record per source
  * {@link model!scene.SceneMesh | SceneMesh} that contributed at least one
  * frontmost pixel to the depth buffer's owner field. Each record carries
- * flat world-space `positions` and `indices` ready to feed straight into
+ * flat world-space `positions` and `indices` that can be passed to
  * {@link model!scene.SceneModel.createGeometry | SceneModel.createGeometry}.
  *
  * Internally the extractor:
@@ -24,24 +20,22 @@
  *  4. **Triangulates** the simplified polygon with earcut.
  *  5. **Lifts** the 2D vertices back to world space on the projection plane.
  *
- * Because both the wireframe edges and these fills derive from the same
- * depth buffer, their pixel-accurate boundaries coincide: the wireframe
- * sits exactly on the fill silhouette, with no halo at occlusion edges.
+ * Wireframe edges and fills derive from the same depth buffer, so their
+ * boundaries use the same visibility result.
  *
  * <br>
  *
  * ## Entry points
  *
- * Two extractors with the same output shape — pick the one that matches
- * the call site's memory budget:
+ * Two extractors return the same shape. Pick by memory budget:
  *
  * - {@link extractFills} — consumes an already-built
  *   `HLEDepthBuffer` (from the sibling `hle` submodule) and
- *   triangulates each owner's mask in-memory. Right for single-pass
- *   projections that already paid for the depth buffer.
+ *   triangulates each owner's mask in-memory. Use it when the projection
+ *   already has a depth buffer.
  * - {@link extractFillsTiled} — rasterises tile-at-a-time so peak memory
  *   stays bounded at `O(tileSize²)` rather than `O(resolution²)`. Used by
- *   the projector at very high resolutions on dense BIM scenes.
+ *   the projector at high resolutions on dense scenes.
  *
  * <br>
  *
@@ -73,8 +67,8 @@
  * ### Tile-at-a-time, bounded memory
  *
  * For high-resolution drawings on large source models, the tiled
- * extractor walks the projection plane in `tileSize × tileSize` chunks
- * — peak memory stays `O(tileSize²)` regardless of `resolution`.
+ * extractor walks the projection plane in `tileSize × tileSize` chunks.
+ * Peak memory stays `O(tileSize²)` regardless of `resolution`.
  *
  * ```javascript
  * import { extractFillsTiled } from "@xeokit/sdk/presentations/drawings/fills";
@@ -97,20 +91,17 @@
  * ```
  *
  * Passing a {@link spatial!collision.SceneCollisionIndex | SceneCollisionIndex}
- * narrows the per-tile candidate set from `O(N × T)` to `O(log N × T)` —
- * worth it once `N` (source SceneObjects) crosses ~1000.
+ * narrows the per-tile candidate set from `O(N × T)` to `O(log N × T)`.
+ * This is usually worth it once `N` (source SceneObjects) crosses ~1000.
  *
  * <br>
  *
  * ## Picking a tile size
  *
- * - **`tileSize = 1024`** (default) — bounds peak memory at ~16 MB. Right
- *   for desktop and most laptop GPUs.
- * - **`tileSize = 512`** — bounds peak memory at ~4 MB. Right for mobile
- *   or when several drawings build concurrently.
+ * - **`tileSize = 1024`** (default) — bounds peak memory at ~16 MB.
+ * - **`tileSize = 512`** — bounds peak memory at ~4 MB.
  * - **`tileSize = 0`** (or `>= resolution`) — disables tiling and uses a
- *   single buffer. Right for small models where per-tile overhead
- *   doesn't pay back.
+ *   single buffer. Use for small models where per-tile overhead is not useful.
  *
  * @module fills
  */

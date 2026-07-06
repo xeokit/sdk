@@ -5,17 +5,16 @@
  *
  * ---
  *
- * **The full enum vocabulary the SDK uses across modules — texture
- * wrapping, mip filters, primitive types, encoding spaces, media
- * types, projection modes, navigation modes, key codes, and more.**
+ * **Shared constants for the SDK — texture wrapping, filters,
+ * primitive types, encodings, media types, projection modes,
+ * navigation modes, key codes, and more.**
  *
  * ---
  *
- * Constants live in one place so loaders, exporters, the renderer,
- * and viewer wire-format all agree on the same integer codes. The
- * GL ↔ xeokit mapping is handled inside the WebGL renderer; the
- * external integer values exposed here are stable across SDK
- * versions and form part of the wire format for XGF / DataModel
+ * These values are shared by loaders, exporters, the renderer, and
+ * viewer wire formats. The GL ↔ xeokit mapping is handled inside the
+ * WebGL renderer; the exported integer values here are stable across
+ * SDK versions and form part of the wire format for XGF / DataModel
  * payloads.
  *
  * <br>
@@ -34,14 +33,13 @@
  *
  * ## Features
  *
- * - **Single source of truth** — every SDK module reads constants
- *   from here; loaders / exporters / the renderer never disagree
- *   on a numeric code.
- * - **Stable across versions** — values are pinned and form part
- *   of the wire format. Reordering or renumbering breaks
- *   compatibility with persisted XGF / DataModel payloads.
- * - **GL-mapped at the boundary** — host code never passes raw
- *   GLenums; pass these constants and the renderer converts.
+ * - **Single source of truth** — shared numeric codes for every SDK
+ *   module.
+ * - **Stable across versions** — values are pinned and form part of
+ *   the wire format. Reordering or renumbering breaks compatibility
+ *   with persisted XGF / DataModel payloads.
+ * - **GL-mapped at the boundary** — host code passes these constants;
+ *   the renderer converts them.
  * - **Layout-aware key codes** — `QWERTYLayout` / `AZERTYLayout`
  *   ship with the {@link viewing!viewController | viewController}
  *   defaults, plus the underlying `KEY_*` codes for custom maps.

@@ -1,56 +1,22 @@
 /**
  * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
- * # xeokit SDK Math Libraries
+ * # Math
  *
- * ---
+ * Functions and types for vectors, matrices, quaternions, curves,
+ * bounds, compression, and RTC coordinate conversion.
  *
- * ***Mathematical functions for 2D/3D matrices, quaternions, and vectors***
+ * Most operations work with `Float32Array` or `Float64Array` data.
+ * Many functions accept an optional destination array for callers
+ * that want to reuse scratch buffers.
  *
- * ---
- *
- * This library provides a set of utilities for working with
- * mathematical operations commonly used in 3D graphics, including
- * vector and matrix operations such as dot products, vector
- * negation, addition, and more.
- *
- * <br>
- *
- * ## Features
- *
- * - **Allocation-aware** — typed `Vec`/`Mat` constructors return
- *   raw `Float32Array` / `Float64Array` typed-array views so they
- *   round-trip cleanly through GPU upload paths.
- * - **In-place + out-of-place variants** — most ops accept an
- *   optional `dest` so hot-paths can reuse pre-allocated scratch.
- * - **Double-precision throughout** — every transform / boundary
- *   math op exists in both Float32 and Float64 flavours; the
- *   Float64 path is used by the scene-graph for accurate world-scale
- *   transforms.
- * - **Compression helpers** — quantise / dequantise positions
- *   against an AABB, oct-encode / decode normals, pack UVs against
- *   a `[uMin, uMax, vMin, vMax]` rect. Used by the
- *   {@link model!scene.SceneModel | SceneModel} builder and XGF
- *   format I/O.
- * - **RTC (Relative-To-Centre)** — tile-based world ↔ local
- *   conversions that keep GPU positions near the origin for
- *   real-world-scale models.
- * - **Curves** — Catmull-Rom / cubic / quadratic Bézier
- *   evaluation primitives for camera-path animation.
- *
- * <br>
- *
- * # Installation
- *
- * To install the xeokit SDK, use the following npm command:
+ * ## Installation
  *
  * ````bash
  * npm install @xeokit/sdk
  * ````
  *
- * # Usage
- *
- * You can import and use functions from the math module as follows:
+ * ## Usage
  *
  * ````javascript
  * import { dotVec3, createVec3Float64 } from "@xeokit/sdk/base/math";
@@ -58,7 +24,7 @@
  * const a = createVec3Float64([0.1, 1, 2.1]);
  * const b = createVec3Float64([0.5, 2.1, -1.3]);
  *
- * const c = dotVec3(a, b); // Computes the dot product of vectors a and b
+ * const c = dotVec3(a, b);
  * ````
  *
  * @module math
@@ -66,7 +32,7 @@
 
 
 /**
- * Represents an array of floating-point numbers.
+ * Array input accepted by floating-point math functions.
  */
 export type FloatArrayParam =
   Uint8Array<any>
@@ -79,7 +45,7 @@ export type FloatArrayParam =
   | number[];
 
 /**
- * Represents an array of integer numbers.
+ * Array input accepted by integer math functions.
  */
 export type IntArrayParam =
   Uint32Array<any>
@@ -126,11 +92,7 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * Clamps a value to the unit range `[0, 1]`. Equivalent to
- * `clamp(value, 0, 1)` but inlined so call sites read as
- * "clamp to unit range" without binding `0` and `1` arguments
- * explicitly — useful for colour channels, opacity, alpha
- * masks, and any other normalised-range scalar.
+ * Clamps a value to the unit range `[0, 1]`.
  */
 export function clamp01(value: number): number {
   return value < 0 ? 0 : value > 1 ? 1 : value;

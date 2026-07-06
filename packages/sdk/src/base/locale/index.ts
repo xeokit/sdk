@@ -5,36 +5,29 @@
  *
  * ---
  *
- * **Locale-aware message lookup and translation utilities.**
+ * **Message lookup and translation utilities.**
  *
  * ---
  *
- * This module provides a lightweight localization layer for xeokit components,
- * allowing UI text to be defined once and rendered in different languages at runtime.
- * Translations are keyed by stable identifiers (for example `"NavCube.front"`) and
- * resolved based on the currently active locale.
+ * This module provides a small localization layer for xeokit components.
+ * Translations are keyed by stable identifiers such as `"NavCube.front"` and
+ * resolved against the active locale.
  *
  * <br>
  *
  * ## Features
  *
- * - **Locale-keyed messages** — `loadMessages(locale, bundle)` builds
- *   up the message table; `setLocale(locale)` switches the active
- *   locale and re-renders subscribed UI.
- * - **Stable keys** — UI widgets reference keys like
- *   `"NavCube.front"`; translation bundles supply the per-locale
- *   strings without code changes to the widget.
+ * - **Locale-keyed messages** — `loadMessages(locale, bundle)` adds
+ *   messages; `setLocale(locale)` switches the active locale.
+ * - **Stable keys** — UI widgets reference keys like `"NavCube.front"`.
  * - **Argument interpolation** — `translate("WELCOME", { name })`
  *   resolves `{name}` placeholders in the matched message.
  * - **Pluralisation** — `translatePlurals(key, count, args)`
  *   selects the right plural form based on the active locale's
  *   plural rules.
- * - **Incremental load** — bundles can be lazy-loaded per locale;
- *   missing keys fall through to the bundled default-locale string
- *   so the app never renders an empty cell.
- * - **Event-driven re-render** — `onLocaleChanged` /
- *   `onMessagesLoaded` notify subscribed widgets when something
- *   they depend on has changed.
+ * - **Incremental load** — bundles can be loaded per locale.
+ * - **Event-driven update** — `onLocaleChanged` /
+ *   `onMessagesLoaded` notify subscribed widgets when locale data changes.
  *
  * <br>
  *

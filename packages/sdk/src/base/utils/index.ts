@@ -1,44 +1,18 @@
 /**
  * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
- * # xeokit Core Utilities
+ * # Utilities
  *
- * ---
+ * Shared helpers for collections, async yielding, IDs, JSON data,
+ * browser file I/O, object copying, and type checks.
  *
- * **Generic data structures, async helpers, GUID / hash helpers, and
- * cooperative-yield throttling used across the SDK.**
- *
- * ---
- *
- * A miscellaneous helper bag used by the rest of the SDK and safe
- * to use standalone.
- *
- * <br>
- *
- * ## Features
- *
- * - **{@link Map} / {@link Queue}** — small allocation-friendly
- *   collections used across SDK hot paths.
- * - **{@link yieldToHost}** — cooperative yield helper that loaders
- *   and exporters await every ~16 ms so the host's UI thread can
- *   paint between batches. Supports `AbortSignal` cancellation and
- *   a runtime-overridable yield interval.
- * - **GUID helpers** — `createUUID` plus the Base64-style compact
- *   GUID encoders the IFC pipeline uses to mint short stable ids.
- * - **JSON helpers** — `isJSONObject` and `clone` (deep-clone via
- *   JSON round-trip) for boundary checks on caller-supplied params.
- *
- * <br>
- *
- * # Installation
+ * ## Installation
  *
  * ```bash
  * npm install @xeokit/sdk
  * ```
  *
- * <br>
- *
- * # Usage
+ * ## Usage
  *
  * ```javascript
  * import { Map, Queue, yieldToHost } from "@xeokit/sdk/base/utils";
@@ -53,18 +27,12 @@ export * from "./Queue";
 export * from "./yieldToHost";
 
 
-/**
- *
- * @param arg
- */
+/** Returns true when `arg` is a non-array object. */
 export function isJSONObject(arg) {
   return typeof arg === 'object' && arg !== null && !Array.isArray(arg);
 }
 
-/**
- *
- * @param ob
- */
+/** Clones JSON-compatible data using JSON serialization. */
 export function clone(ob: any) {
   return JSON.parse(JSON.stringify(ob));
 }
@@ -80,11 +48,7 @@ const guidChars = [["0", 10], ["A", 26], ["a", 26], ["_", 1], ["$", 1]].map(func
   return String.fromCharCode.apply(null, li);
 }).join("");
 
-/**
- *
- * @param v
- * @param len
- */
+/** Encodes a number with the compact GUID alphabet. */
 export function b64(v: number, len: number) {
   const r = (!len || len === 4) ? [0, 6, 12, 18] : [0, 6];
   return r.map(function (i) {
@@ -93,10 +57,7 @@ export function b64(v: number, len: number) {
   ).reverse().join("");
 }
 
-/**
- *
- * @param g
- */
+/** Compresses a hexadecimal GUID string. */
 export function compressGuid(g: string) {
   const bs = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30].map(function (i) {
     return parseInt(g.substr(i, 2), 16);
@@ -106,11 +67,7 @@ export function compressGuid(g: string) {
   }).join("");
 }
 
-/**
- *
- * @param m
- * @param t
- */
+/** Finds nodes with the given `type` value. */
 export function findNodeOfType(m: any, t: any) {
   const li: any[] = [];
   const _ = function (n: { type: any; children: any; }) {
@@ -123,8 +80,7 @@ export function findNodeOfType(m: any, t: any) {
   return li;
 }
 
-/**
- */
+/** Resolves after `dt` milliseconds. */
 export function timeout(dt: number) {
   return new Promise(function (resolve, reject) {
     setTimeout(resolve, dt);
@@ -273,11 +229,7 @@ export function loadArraybuffer(url: string, ok: { (arg0: ArrayBuffer): void; (_
   }
 }
 
-/** Downloads an ArrayBuffer to a file.
- *
- * @param arrayBuffer
- * @param filename
- */
+/** Downloads an ArrayBuffer as a file. */
 export function saveArrayBuffer(arrayBuffer: ArrayBuffer, filename: string) {
   const blob = new Blob([arrayBuffer], {type: "application/octet-stream"});
   const link = document.createElement('a');
@@ -288,11 +240,7 @@ export function saveArrayBuffer(arrayBuffer: ArrayBuffer, filename: string) {
   document.body.removeChild(link);
 }
 
-/** Downloads JSON to a file.
- *
- * @param data
- * @param filename
- */
+/** Downloads JSON as a file. */
 export function saveJSON(data: any, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
   const link = document.createElement('a');
@@ -303,57 +251,43 @@ export function saveJSON(data: any, filename: string) {
   document.body.removeChild(link);
 }
 
-/**
- Tests if the given object is an array
- */
+/** Returns true when `value` is array-like. */
 export function isArray(value: any) {
   return value && !(value.propertyIsEnumerable('length')) && typeof value === 'object' && typeof value.length === 'number';
 }
 
-/**
- Tests if the given value is a string
- */
+/** Returns true when `value` is a string. */
 export function isString(value: any) {
   return (typeof value === 'string' || value instanceof String);
 }
 
-/**
- Tests if the given value is a number
- */
+/** Returns true when `value` is numeric. */
 export function isNumeric(value: any) {
   return !isNaN(parseFloat(value)) && isFinite(value);
 }
 
-/**
- Tests if the given value is an ID
- */
+/** Returns true when `value` can be used as an ID. */
 export function isID(value: any) {
   return isString(value) || isNumeric(value);
 }
 
-/**
- Tests if the given value is a function
- */
+/** Returns true when `value` is a function. */
 export function isFunction(value: any) {
   return (typeof value === "function");
 }
 
-/**
- Tests if the given value is a JavaScript JSON object, eg, ````{ foo: "bar" }````.
- */
+/** Returns true when `value` is a plain object. */
 export function isObject(value: { constructor: Function; }) {
   const objectConstructor = {}.constructor;
   return (!!value && value.constructor === objectConstructor);
 }
 
-/** Returns a shallow copy
- */
+/** Returns a shallow copy. */
 export function copy(o: any) {
   return apply(o, {});
 }
 
-/** Add properties of o to o2, overwriting them on o2 if already there
- */
+/** Copies properties from `o` to `o2`, overwriting existing values. */
 export function apply(o: any, o2: any) {
   for (const name in o) {
     if (o.hasOwnProperty(name)) {
@@ -363,9 +297,7 @@ export function apply(o: any, o2: any) {
   return o2;
 }
 
-/**
- Add non-null/defined properties of o to o2
- */
+/** Copies defined, non-null properties from `o` to `o2`. */
 export function apply2(o: any, o2: any) {
   for (const name in o) {
     if (o.hasOwnProperty(name)) {
@@ -377,9 +309,7 @@ export function apply2(o: any, o2: any) {
   return o2;
 }
 
-/**
- Add properties of o to o2 where undefined or null on o2
- */
+/** Copies properties from `o` to missing or null properties on `o2`. */
 export function applyIf(o: any, o2: any) {
   for (const name in o) {
     if (o.hasOwnProperty(name)) {
@@ -391,9 +321,7 @@ export function applyIf(o: any, o2: any) {
   return o2;
 }
 
-/**
- Returns true if the given map is empty.
- */
+/** Returns true when the object has no own enumerable properties. */
 export function isEmptyObject(obj: any) {
   for (const name in obj) {
     if (obj.hasOwnProperty(name)) {
@@ -403,17 +331,12 @@ export function isEmptyObject(obj: any) {
   return true;
 }
 
-/**
- Returns the given ID as a string, in quotes if the ID was a string to begin with.
- This is useful for logging IDs.
- */
+/** Formats an ID for log output. */
 export function inQuotes(id: any) {
   return isNumeric(id) ? (`${id}`) : (`'${id}'`);
 }
 
-/**
- Returns the concatenation of two typed arrays.
- */
+/** Concatenates two typed arrays. */
 export function concat(a: any, b: any) {
   const c = new a.constructor(a.length + b.length);
   c.set(a);
@@ -421,9 +344,7 @@ export function concat(a: any, b: any) {
   return c;
 }
 
-/**
- * Returns a new UUID.
- */
+/** Returns a new UUID. */
 export const createUUID = ((() => {
   const lut: any[] = [];
   for (let i = 0; i < 256; i++) {

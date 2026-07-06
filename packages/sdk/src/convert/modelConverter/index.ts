@@ -1,17 +1,10 @@
 /**
  * <img style="padding: 30px 0 10px 0; height: 130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
- * # xeokit Multi-Format Model Converter
+ * # Model Converter
  *
- * ---
- *
- * **An extensible tool for converting 3D models between various formats.**
- *
- * ---
- *
- * This module provides the {@link ModelConverter | ModelConverter} class for converting 3D model data between multiple file formats.
- *
- * <br>
+ * Converts model data using registered loaders, exporters, and named
+ * pipelines.
  *
  * ## Shape
  *
@@ -54,69 +47,42 @@
  *     ModelConverter "1" *-- "*" ModelExporter
  * ```
  *
- * <br>
+ * ## Components
  *
- * ## Features
+ * - {@link formats!ModelLoader | ModelLoaders} parse input formats
+ *   into scene and data models.
+ * - {@link formats!ModelExporter | ModelExporters} write output
+ *   formats from those models.
+ * - Pipelines map input ids to loader ids and output ids to exporter
+ *   ids.
+ * - Optional reports include inspection, manifest, stats,
+ *   optimization, and conversion details.
+ * - The {@link convert!xeoconvert | xeoconvert} CLI uses the same
+ *   converter.
  *
- * - **Multi-format ingest** — register any
- *   {@link formats!ModelLoader | ModelLoader} (DotBIM, IFC, glTF,
- *   LAZ, …) and the converter wires it into the pipeline.
- * - **Multi-format export** — same for
- *   {@link formats!ModelExporter | ModelExporter}s (XGF, DotBIM,
- *   DataModel JSON, …).
- * - **Declarative pipelines** — `pipelines.X = { inputs, outputs }`
- *   pre-binds a named conversion (e.g. `dotbim2xgf`); the runtime
- *   resolves which loader / exporter to use from the registered
- *   maps.
- * - **Reports** — per-conversion `inspection` (validation
- *   findings), `manifest` (file inventory), `stats` (timings,
- *   counts, sizes), `optimization` (what the fixer changed), and
- *   `conversion` (per-output fidelity — what each exporter dropped
- *   or flattened because the target format couldn't represent it,
- *   e.g. triplanar textures) reports are emitted alongside the
- *   outputs for downstream tooling.
- * - **Programmatic API + CLI** — same converter wraps inside the
- *   {@link convert!xeoconvert | xeoconvert} CLI binary; use either
- *   the class directly in a build pipeline or the binary from a
- *   shell script.
- *
- * <br>
- *
- * # Installation
- *
- * Install the xeokit SDK:
+ * ## Installation
  *
  * ````bash
  * npm install @xeokit/sdk
  * ````
  *
- * <br>
+ * ## Usage
  *
- * # Usage
- *
- * ## Using the ModelConverter class
- *
- * The {@link ModelConverter | ModelConverter} manages conversions using:
- *
- * - **{@link formats!ModelLoader | ModelLoaders}**: parse/ingest input formats into a {@link model!scene.Scene | Scene} / {@link model!data.Data | Data}
- * - **{@link formats!ModelExporter | ModelExporters}**: generate output formats from those models
- * - **Pipelines**: declarative workflows connecting inputs to outputs
- *
- * You configure the converter with {@link ModelConverterParams | ModelConverterParams}:
+ * Configure {@link ModelConverter | ModelConverter} with
+ * {@link ModelConverterParams | ModelConverterParams}:
  *
  * - `loaders`: a map of loader instances (keyed by id)
  * - `exporters`: a map of exporter instances (keyed by id)
  * - `pipelines`: a map of pipeline configs (keyed by pipeline id)
  *
- * > Note: `outputs` and `reports` in {@link ModelConverterRequest | ModelConverterRequest} are currently required by the type,
- * > but the converter does not automatically write files to disk. The converted file data is returned on
- * > {@link ModelConverterResult.outputs | ModelConverterResult.outputs}, and it’s up to you to persist it (e.g., using `fs.writeFile`).
+ * `outputs` and `reports` in {@link ModelConverterRequest | ModelConverterRequest}
+ * are currently required by the type, but the converter does not
+ * write files to disk. Converted data is returned on
+ * {@link ModelConverterResult.outputs | ModelConverterResult.outputs}.
  *
- * <br>
+ * ## DotBIM to XGF and DataModelParams JSON
  *
- * ## Converting a DotBIM file to XGF and DataModelParams JSON
- *
- * ### 1) Import dependencies
+ * ### Imports
  *
  * ````ts
  * import { readFile, writeFile } from "fs/promises";
@@ -127,13 +93,10 @@
  * import { DataModelExporter } from "@xeokit/sdk/model/data";
  * ````
  *
- * ### 2) Set up the converter
+ * ### Converter setup
  *
- * Create a {@link ModelConverter | ModelConverter} configured with loaders/exporters and a `dotbim2xgf` pipeline:
- *
- * - {@link DotBIMLoader} loads `.bim`
- * - {@link XGFExporter} exports `.xgf`
- * - {@link DataModelExporter} exports semantic JSON
+ * This pipeline reads a DotBIM input and returns XGF plus
+ * DataModelParams JSON outputs.
  *
  * ````ts
  * const modelConverter = new ModelConverter({
@@ -169,10 +132,10 @@
  * });
  * ````
  *
- * ### 3) Perform the conversion
+ * ### Conversion
  *
- * Provide the input via `fileData` (or use `filePath` to let the converter read it).
- * Outputs are returned in {@link ModelConverterResult.outputs | result.outputs}.
+ * Inputs can use `fileData` or `filePath`. Outputs are returned in
+ * {@link ModelConverterResult.outputs | result.outputs}.
  *
  * ````ts
  * const dotBIMFileData = JSON.parse(await readFile("model.bim", "utf-8"));
@@ -191,18 +154,14 @@
  * const xgfOutput = result.outputs.xgf;
  * const datamodelOutput = result.outputs.datamodel;
  *
- * // XGF is typically binary (ArrayBuffer)
  * await writeFile("model.xgf", xgfOutput.fileData);
  *
- * // DataModelParams is JSON
  * await writeFile("model.json", JSON.stringify(datamodelOutput.fileData, null, 2), "utf-8");
  * ````
  *
- * <br>
+ * ## XGF and DataModelParams JSON to DotBIM
  *
- * ## Converting XGF and DataModelParams JSON back to DotBIM
- *
- * ### 1) Import dependencies
+ * ### Imports
  *
  * ````ts
  * import { readFile, writeFile } from "fs/promises";
@@ -213,9 +172,10 @@
  * import { DataModelImporter } from "@xeokit/sdk/model/data";
  * ````
  *
- * ### 2) Set up the converter
+ * ### Converter setup
  *
- * Configure loaders for XGF + DataModelParams, and a DotBIM exporter:
+ * This pipeline reads XGF and DataModelParams inputs, then exports
+ * DotBIM.
  *
  * ````ts
  * const modelConverter = new ModelConverter({
@@ -254,7 +214,7 @@
  * });
  * ````
  *
- * ### 3) Perform the conversion
+ * ### Conversion
  *
  * ````ts
  * const xgfFileData = await readFile("model.xgf");
@@ -273,11 +233,7 @@
  * await writeFile("model.bim", result.outputs.dotbim.fileData, "utf-8");
  * ````
  *
- * <br>
- *
- * # Advanced usage
- *
- * ## Sharing models across multiple inputs and outputs
+ * ## Shared Models Across Inputs and Outputs
  *
  * Use `sceneModel` / `dataModel` ids to make multiple inputs populate the same models,
  * and multiple outputs export from those same models.
@@ -341,4 +297,3 @@ export * from "./ModelConverterResultOutput";
 
 export * as reporters from "./reporters"
 // export * as exporters from "./exporters";
-

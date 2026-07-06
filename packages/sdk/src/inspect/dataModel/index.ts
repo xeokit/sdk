@@ -1,30 +1,15 @@
 /**
  * <img style="padding:20px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_docmodel_greyscale_icon.png"/>
  *
- * # xeokit DataModel Inspector
+ * # DataModel Inspector
  *
- * ---
+ * Runs inspections on a {@link model!data.DataModel | DataModel}
+ * and returns a structured {@link InspectionReport}.
  *
- * **Schema-aware validator for {@link model!data.DataModel | DataModel}
- * — catches structural defects (dangling references, missing types,
- * cyclic containment) and schema-level violations (unknown types,
- * forbidden type pairings, missing required property sets) and
- * reports them as a structured {@link InspectionReport}.**
- *
- * ---
- *
- * Same shape as
- * {@link inspect!sceneModel | @xeokit/sdk/inspect/sceneModel} —
- * pluggable inspections + a default registry — minus the auto-fix
- * half. **No fixes ship for DataModel issues**: SDK policy is to
- * report defects in user data rather than silently rewrite it.
- * Triage is human work. Unlike geometry — where glitches
- * (degenerate triangles, duplicate vertices) are clearly mechanical
- * artefacts safe to clean up automatically — defects in the data
- * graph almost always reflect intentional or authoring-decision
- * content the application owner needs to see and decide on.
- *
- * <br>
+ * The inspector does not modify the model. It reports issues for
+ * callers to handle. Provide a {@link DataFormatSchema} to enable
+ * schema-specific checks; omit it to run only schema-agnostic
+ * checks.
  *
  * ## Shape
  *
@@ -75,8 +60,6 @@
  *     Inspection ..> DataFormatSchema : optional schemas[]
  * ```
  *
- * <br>
- *
  * ## Pipeline
  *
  * ```mermaid
@@ -84,37 +67,8 @@
  *     A[DataModel] --> B[inspectDataModel]
  *     C[DataFormatSchema] --> B
  *     B --> D[InspectionReport]
- *     D -. errors block downstream optimisation .-> E[caller triages]
+ *     D -. errors .-> E[caller handles report]
  * ```
- *
- * <br>
- *
- * ## Features
- *
- * - **Inspection-only** — no auto-fix half. Defects are reported as
- *   issues; the caller decides how (and whether) to remediate.
- * - **Schema-aware** — supply a {@link DataFormatSchema} and the
- *   schema-tagged inspections fire (unknown types, forbidden type
- *   pairings, required-property-set checks). Omit it and only the
- *   schema-agnostic structural inspections run.
- * - **Pluggable rules** — register custom inspections into the
- *   {@link DEFAULT_INSPECTION_REGISTRY} (or build a fresh
- *   {@link InspectionRegistry} per pipeline).
- * - **Schema segregation** — each {@link Inspection} can declare
- *   `schemas: [...]`; the orchestrator skips any inspection whose
- *   schema list doesn't match the model's schema id. IFC-tagged
- *   inspections only fire on IFC4 / IFC2x3 / IFC4x3 schemas.
- * - **Severity tiers** — `errors`, `warnings`, `info`. Same
- *   convention as {@link inspect!sceneModel | sceneModel}: errors block
- *   downstream optimisation; warnings inform.
- * - **Opt-in expensive walks** — cycle detection, schema-tagging
- *   audits, IFC-specific hierarchy / containment checks are off by
- *   default and enabled via `checkX` flags.
- * - **Async variant** — {@link inspectDataModelAsync} yields to
- *   the host periodically so very large data graphs don't block
- *   the main thread.
- *
- * <br>
  *
  * ## Installation
  *
@@ -122,21 +76,21 @@
  * npm install @xeokit/sdk
  * ```
  *
- *   - {@link Issue} — one finding (severity, code, message,
- *     resourceId, structured `context`).
- *   - {@link InspectionReport} — flat list plus per-severity and
- *     per-code groupings.
- *   - {@link Inspection} — `{codes[], description, run}`. Walks
- *     the DataModel and returns issues.
+ * ## Core Types
+ *
+ * - {@link Issue}: one finding with severity, code, message,
+ *   optional resource id, and optional `context`.
+ * - {@link InspectionReport}: issue list plus severity and code
+ *   groupings.
+ * - {@link Inspection}: `{codes[], description, run}`. Walks a
+ *   DataModel and returns issues.
  *
  * ## DataFormatSchema
  *
- * The validator's rule book is a {@link DataFormatSchema} —
- * declarative spec listing allowed object types, allowed
- * relationship types, super-type chains for inheritance, and
- * per-type required / forbidden property sets. Pass one via
- * {@link InspectDataModelParams.schema}; omit it and only the
- * structural always-on inspections fire.
+ * A {@link DataFormatSchema} lists allowed object types, allowed
+ * relationship types, inheritance chains, and required or
+ * forbidden property sets. Pass one via
+ * {@link InspectDataModelParams.schema}.
  *
  * ```ts
  * const schema: DataFormatSchema = {
@@ -158,11 +112,11 @@
  * if (report.errors.length > 0) { ... }
  * ```
  *
- * ## Plug-in framework
+ * ## Registries
  *
- * Inspections are pluggable via {@link InspectionRegistry}. The
- * SDK ships {@link DEFAULT_INSPECTION_REGISTRY} pre-loaded with
- * the built-ins; plug-ins extend it on import:
+ * Inspections are stored in an {@link InspectionRegistry}.
+ * {@link DEFAULT_INSPECTION_REGISTRY} contains the built-in
+ * inspections. Plugins can register more inspections:
  *
  * ```ts
  * import {DEFAULT_INSPECTION_REGISTRY} from "@xeokit/sdk/inspect/dataModel";
@@ -174,8 +128,8 @@
  * });
  * ```
  *
- * Tests / one-off pipelines build a fresh
- * {@link InspectionRegistry} and pass it via
+ * Tests and one-off pipelines can create a fresh
+ * {@link InspectionRegistry} and pass it with
  * {@link InspectDataModelParams.registry}.
  *
  * ## Built-in inspections
@@ -193,22 +147,21 @@
  * | {@link ifcSpatialHierarchy}      | `IFC_NO_PROJECT` / `IFC_MULTIPLE_PROJECTS` / `IFC_PROJECT_HAS_PARENT` / `IFC_SPATIAL_PARENT_TYPE_MISMATCH` (errors), `IFC_SPATIAL_ORPHAN` (warning); **opt-in** via `checkIfcSpatialHierarchy`; IFC-only |
  * | {@link ifcElementContainment}    | `IFC_ELEMENT_AGGREGATED_NOT_CONTAINED` (warning, **opt-in** via `checkIfcElementContainment`); IFC-only |
  *
- * ## Schema segregation
+ * ## Schema Selection
  *
  * Each {@link Inspection} can declare {@link Inspection.schemas |
- * a list of schema ids} it applies to. The orchestrator resolves
- * the model's schema id (`params.schema?.id ?? dataModel.schema`)
- * and skips any inspection whose `schemas` list doesn't include
- * it. The IFC-tagged inspections only fire when the model's
- * schema id is one of `IFC4 / IFC4x3 / IFC4X3 / IFC4x1 / IFC4X1 /
- * IFC4_ADD2_TC1 / IFC2x3 / IFC2X3`. Schema-agnostic inspections
- * leave `schemas` undefined and run regardless. A model with no
- * schema id at all (no `dataModel.schema`, no `params.schema`)
- * runs only the schema-agnostic inspections.
+ * a list of schema ids}. The inspector resolves the model's
+ * schema id from `params.schema?.id ?? dataModel.schema` and skips
+ * inspections whose `schemas` list does not include it.
+ *
+ * IFC inspections run only for `IFC4 / IFC4x3 / IFC4X3 / IFC4x1 /
+ * IFC4X1 / IFC4_ADD2_TC1 / IFC2x3 / IFC2X3`. Inspections without
+ * `schemas` run for any model. A model with no schema id runs only
+ * schema-agnostic inspections.
  *
  * Dangling-reference checks (`RELATIONSHIP_DANGLING_*`,
- * `OBJECT_DANGLING_PROPERTY_SET_REF`) aren't included — `DataModel`'s
- * builder methods reject unknown ids at construction time, so a
+ * `OBJECT_DANGLING_PROPERTY_SET_REF`) aren't included because
+ * `DataModel` builder methods reject unknown ids at construction time, so a
  * live DataModel can't carry dangling endpoints.
  *
  * @module dataModel
@@ -229,7 +182,7 @@ export * from "./labels/descriptionForCode";
 // ── Schema spec ─────────────────────────────────────────────────
 export * from "./DataFormatSchema";
 
-// ── Inspection plugin framework + built-in inspections ──────────
+// ── Inspection registries and built-in inspections ──────────────
 export * from "./Inspection";
 export * from "./InspectionRegistry";
 export * from "./DEFAULT_INSPECTION_REGISTRY";

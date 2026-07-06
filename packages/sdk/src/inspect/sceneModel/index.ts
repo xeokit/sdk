@@ -1,22 +1,14 @@
 /**
  * <img style="padding:20px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_docmodel_greyscale_icon.png"/>
  *
- * # xeokit Model Inspector
+ * # SceneModel Inspector
  *
- * ---
+ * Runs inspections on a {@link model!scene.SceneModel | SceneModel}
+ * and returns a structured {@link InspectionReport}.
  *
- * **IDE-style inspect / quick-fix toolkit for {@link model!scene.SceneModel | SceneModel}.**
- *
- * ---
- *
- * Catches data-integrity errors and performance / correctness
- * warnings, presents them as a structured report, and dispatches
- * each finding to a pluggable {@link Fix} that knows how to
- * remediate it. Design follows `eslint`'s rule registry +
- * IntelliJ's "fix all problems" — bring your own rules and your
- * own remediations; the framework links them together.
- *
- * <br>
+ * {@link applyFixes} applies registered fixes for supported issue
+ * codes. The module also exports registries, async variants, and
+ * {@link optimizeSceneModel}.
  *
  * ## Shape
  *
@@ -70,8 +62,6 @@
  *     FixRegistry "1" *-- "*" Fix
  * ```
  *
- * <br>
- *
  * ## Pipeline
  *
  * ```mermaid
@@ -83,105 +73,53 @@
  *     E -- re-inspect --> B
  * ```
  *
- * <br>
- *
- * ## Features
- *
- * - **Pluggable rules** — {@link Inspection}s registered into an
- *   {@link InspectionRegistry} produce typed {@link Issue}s; the
- *   shipped {@link DEFAULT_INSPECTION_REGISTRY} covers structural
- *   integrity, dangling references, geometry quality, transform
- *   cycles, texture sanity, and more.
- * - **Pluggable fixes** — {@link Fix}es registered into a
- *   {@link FixRegistry} claim issue codes and apply remediation in
- *   place. {@link DEFAULT_FIX_REGISTRY} ships ~20 built-ins;
- *   last-registration-wins lets plugins override built-ins by
- *   re-registering for the same code.
- * - **Structured `byCode` payloads** — `Issue.context` carries the
- *   strategy-readable payload (e.g. `{geometryId}`,
- *   `{duplicates: [ids]}`) so fix code never has to parse a
- *   human-readable message.
- * - **Severity tiers** — issues split into `errors`, `warnings`,
- *   and `info`. Errors block downstream optimisation
- *   ({@link optimizeSceneModel} refuses to run with any errors
- *   present) because auto-fixing them would mask data corruption.
- * - **Opt-in expensive walks** — geometry-quality / duplicate /
- *   similarity / dense / oversize checks are off by default and
- *   enabled via `checkX` flags so a default inspection stays
- *   cheap.
- * - **Re-inspection loop** — typical pipeline is
- *   inspect → fix → re-inspect to see the post-fix state.
- * - **Async variants** — {@link inspectSceneModelAsync} +
- *   {@link applyFixesAsync} yield to the host periodically so very
- *   large models don't block the main thread.
- * - **Orchestrator facade** — {@link optimizeSceneModel} wraps the
- *   "inspect → split oversized geometries → prune orphans" path
- *   when callers want a one-call convenience.
- *
- * <br>
- *
  * ## Installation
  *
  * ```bash
  * npm install @xeokit/sdk
  * ```
  *
- * Three core artefacts:
+ * ## Core Types
  *
- *   - {@link Issue} — one finding (severity, code, message,
- *     resourceId, structured `context`). The `context` field
- *     carries strategy-readable payload (`{geometryId}`,
- *     `{duplicates: [ids]}`, …) so fix code never has to parse
- *     the message.
+ * - {@link Issue}: one finding with severity, code, message,
+ *   optional resource id, and optional `context`.
+ * - {@link InspectionReport}: issue list plus severity and code
+ *   groupings.
+ * - {@link Inspection}: `{codes[], description, run}`. Walks a
+ *   SceneModel and returns issues.
+ * - {@link Fix}: `{codes[], description, apply}`. Handles one or
+ *   more issue codes.
  *
- *   - {@link InspectionReport} — `{issues, errors, warnings,
- *     info, byCode}`. The `byCode` `Map<code, Issue[]>` is the
- *     canonical "set of issue lists" view that fix dispatch
- *     iterates, and that the demo example (see
- *     `examples/ValidateSceneModel_Duplex`) groups by in its UI.
+ * ## Registries
  *
- *   - {@link Fix} — `{codes[], description, apply}`. The
- *     `apply` function is the fix itself; `codes` is the list of
- *     {@link Issue.code | issue codes} the strategy claims.
+ * Inspections and fixes are stored in separate registries:
  *
- * ## Plugin registries
+ * - {@link InspectionRegistry}: inspections run by
+ *   {@link inspectSceneModel}. {@link DEFAULT_INSPECTION_REGISTRY}
+ *   contains the built-in inspections.
+ * - {@link FixRegistry}: issue-code dispatch table used by
+ *   {@link applyFixes}. {@link DEFAULT_FIX_REGISTRY} contains the
+ *   built-in fixes. Registering a fix for an existing code replaces
+ *   the previous mapping.
  *
- * Both halves of the pipeline are pluggable through symmetric
- * registries:
- *
- *   - {@link InspectionRegistry} — list of {@link Inspection}s
- *     {@link inspectSceneModel} walks. Singleton at
- *     {@link DEFAULT_INSPECTION_REGISTRY}; plugins register
- *     additional rules into it on import. Inspection registration
- *     is append-only — adding a rule never removes an existing
- *     one.
- *   - {@link FixRegistry} — per-code dispatch table
- *     {@link applyFixes} reaches into. Singleton at
- *     {@link DEFAULT_FIX_REGISTRY}; plugins register
- *     replacements for built-in fixes by re-registering against
- *     the same code (last-registration-wins).
- *
- * Tests / one-off pipelines build fresh registries instead and
- * pass them via the matching `registry` field on the params
- * object.
+ * Tests and one-off pipelines can create fresh registries and pass
+ * them through the matching `registry` field on the params object.
  *
  * ```ts
- * // Plug a strategy into the singleton — every applyFixes() call
- * // sees it from now on.
+ * // Register a fix in the default registry.
  * import * as sceneModelInspector from "@xeokit/sdk/inspect/sceneModel";
  *
  * sceneModelInspector.DEFAULT_FIX_REGISTRY.register({
  *   codes: ["MyApp/STALE_PROPERTY_SET"],
  *   description: "Prune deprecated property sets",
  *   apply(issue, sceneModel) {
- *     // … remediation in place; return {fixed: true} on success
  *     return {ok: true, value: {fixed: true}};
  *   },
  * });
  * ```
  *
  * ```ts
- * // Or build a one-off registry — leaves the default untouched.
+ * // Build a one-off registry.
  * import {
  *   FixRegistry,
  *   mergeDuplicateGeometries,
@@ -189,23 +127,18 @@
  * } from "@xeokit/sdk/inspect/sceneModel";
  *
  * const registry = new FixRegistry([
- *   mergeDuplicateGeometries,   // pick the built-ins you want
+ *   mergeDuplicateGeometries,
  *   myFix,
  * ]);
  * applyFixes({sceneModel, report, registry});
  * ```
  *
- * Last registration wins for a given code, so plugins can
- * override built-ins by registering after them. Use
- * `unregister(code)` to opt out.
+ * Use `unregister(code)` to remove a fix mapping.
  *
  * ## Built-in inspections
  *
- * One file per inspection under
- * {@link studio/sceneModelInspector/inspections}, all pre-registered into
- * {@link DEFAULT_INSPECTION_REGISTRY}. Each inspection groups
- * codes by topical concern — one walk, multiple codes — so the
- * file count stays low and the registration order is meaningful.
+ * Built-in inspections are registered in
+ * {@link DEFAULT_INSPECTION_REGISTRY}.
  *
  * | Inspection                        | Codes                                                                                   |
  * | --------------------------------- | --------------------------------------------------------------------------------------- |
@@ -226,8 +159,7 @@
  *
  * ## Built-in fixes
  *
- * One file per fix under {@link studio/sceneModelInspector/fixes}, all
- * pre-registered into {@link DEFAULT_FIX_REGISTRY}.
+ * Built-in fixes are registered in {@link DEFAULT_FIX_REGISTRY}.
  *
  * | Fix                              | Codes handled                                                  |
  * | -------------------------------- | -------------------------------------------------------------- |
@@ -252,15 +184,13 @@
  * | {@link tightenAabb}           | `GEOMETRY_AABB_NOT_TIGHT` — re-quantises positions into a tight AABB to recover precision |
  * | {@link dropDuplicateTriangles} | `GEOMETRY_DUPLICATE_INDICES` — drops duplicate triangles (same vertex set, any rotation / winding) from indices |
  *
- * Codes deliberately without a built-in fix
- * (`MESH_DANGLING_*`, `MESH_NONFINITE_MATRIX`, every malformed
- * `GEOMETRY_*`, `TRANSFORM_CYCLE`) need user judgement —
- * auto-fixing them would mask data corruption or silently change
- * semantics.
+ * Codes without a built-in fix include `MESH_DANGLING_*`,
+ * `MESH_NONFINITE_MATRIX`, malformed `GEOMETRY_*` issues, and
+ * `TRANSFORM_CYCLE`.
  *
- * Typical pipeline: load → inspect → applyFixes → re-inspect → render.
+ * Typical pipeline: load -> inspect -> applyFixes -> re-inspect -> render.
  *
- * ## Putting it together
+ * ## Example
  *
  * ```ts
  * import * as sceneModelInspector from "@xeokit/sdk/inspect/sceneModel";
@@ -272,8 +202,6 @@
  * });
  *
  * if (report.errors.length > 0) {
- *   // Errors block downstream optimisation — auto-fixing them
- *   // would mask data corruption. Report to the user instead.
  *   for (const e of report.errors) {
  *     console.error(`[${e.code}] ${e.message}`);
  *   }
@@ -289,17 +217,14 @@
  *   `errors ${errors.length}`,
  * );
  *
- * // Re-inspect to see the post-fix state.
+ * // Re-inspect after applying fixes.
  * const after = sceneModelInspector.inspectSceneModel({sceneModel});
  * ```
  *
- * {@link optimizeSceneModel} is the broader orchestrator — runs
- * inspection up-front (refusing to run if any errors are
- * present), splits oversized geometries, and prunes orphan
- * resources. Use it when you want the convenience facade; reach
- * for `inspectSceneModel` / `applyFixes` directly when you want
- * IDE-style granularity (per-rule remediation, custom strategies,
- * partial application).
+ * {@link optimizeSceneModel} runs inspection first, stops on
+ * errors, splits oversized geometries, and prunes orphan resources.
+ * Use `inspectSceneModel` and `applyFixes` directly when you need
+ * per-rule control.
  *
  * @module sceneModel
  */
@@ -319,7 +244,7 @@ export * from "./labels/labelForCode";
 export * from "./labels/descriptionForCode";
 export * from "./labels/findResourceLabel";
 
-// ── Inspection plugin framework + built-in inspections ──────────
+// ── Inspection registries and built-in inspections ──────────────
 export * from "./Inspection";
 export * from "./Config";
 export * from "./InspectionRegistry";
@@ -329,7 +254,7 @@ export * from "./internal/createSceneModelInspectionIndex";
 export * from "./internal/getInspectionIndex";
 export * from "./inspections";
 
-// ── Fix-strategy framework + built-in strategies ────────────────
+// ── Fix registries and built-in fixes ───────────────────────────
 export * from "./Fix";
 export * from "./params/FixSkipReason";
 export * from "./FixRegistry";

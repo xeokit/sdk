@@ -1,27 +1,16 @@
 /**
  * <img style="padding:20px; padding-bottom:10px;" src="https://xeokit.github.io/sdk/docs/assets/bcf_logo.png"/>
  *
- * # xeokit BCF Viewpoint Importer and Exporter
+ * # BCF Viewpoints
  *
- * ---
+ * Imports and exports
+ * [BCF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#bcf)
+ * (Building Collaboration Format) viewpoints.
  *
- * ***Exchange BCF viewpoints with other BIM software to enhance collaboration and communication.***
- *
- * ---
- *
- * The xeokit SDK provides support for interoperability with other BIM software through the exchange of
- * [BCF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#bcf) (Building Collaboration Format) Viewpoints,
- * an open standard that allows exchanging bookmarks of 3D Viewer states.
- *
- * ## Understanding BCF Viewpoints
- * A *BCF viewpoint* captures a snapshot of an issue within a building project. It includes:
- * - **A problem description** to communicate issues to team members.
- * - **The exact location within the 3D model** where the issue occurs.
- *
- * This facilitates efficient collaboration among project stakeholders by allowing them to share and
- * review issues directly within the model.
- *
- * <br>
+ * A BCF viewpoint stores viewer state for an issue or bookmark,
+ * including camera, section planes, object visibility, selection,
+ * coloring, translucency, annotations, bitmaps, and an optional
+ * snapshot.
  *
  * ## Shape
  *
@@ -50,15 +39,20 @@
  *     class SaveBCFViewpointParams {
  *       +view              : View
  *       +renderer?         : BCFSnapshotSource
- *       +saveDefaultStates?
- *       +snapshotType?
+ *       +snapshot?         : boolean
+ *       +includeViewLayerIds? / excludeViewLayerIds?
  *     }
  *     class LoadBCFViewpointParams {
- *       +view       : View
- *       +viewpoint  : BCFViewpoint
+ *       +view         : View
+ *       +data         : Data
+ *       +bcfViewpoint : BCFViewpoint
+ *       +includeViewLayerIds? / excludeViewLayerIds?
  *     }
  *     class View {
  *       <<viewer>>
+ *     }
+ *     class Data {
+ *       <<data>>
  *     }
  *     saveBCFViewpoint ..> SaveBCFViewpointParams : reads
  *     saveBCFViewpoint ..> BCFViewpoint : returns
@@ -66,52 +60,28 @@
  *     loadBCFViewpoint ..> View : mutates
  *     SaveBCFViewpointParams o-- View
  *     LoadBCFViewpointParams o-- View
+ *     LoadBCFViewpointParams o-- Data
  *     LoadBCFViewpointParams o-- BCFViewpoint
  *     BCFViewpoint *-- BCFComponents
  * ```
  *
- * <br>
+ * ## API
  *
- * ## Features
- *
- * - **Capture full View state** — `saveBCFViewpoint` serialises
- *   camera (perspective + orthogonal), clipping planes, per-object
- *   visibility / selection / colour / translucency, plus optional
- *   annotation lines and bitmaps.
- * - **Restore View state** — `loadBCFViewpoint` applies a viewpoint
- *   onto a {@link viewing!viewer.View | View}, restoring camera,
- *   section planes, and per-object state in one call.
- * - **Snapshot support** — optionally embed a base-64 canvas
- *   snapshot in the viewpoint; supply a renderer via
- *   `params.renderer` to capture it, or omit for snapshot-free
- *   round-trip.
- * - **Spec-compliant JSON** — viewpoint matches the BCF JSON
- *   schema, ready to drop into a `.bcfzip` package alongside
- *   issue metadata.
- * - **Default-state filter** — `saveDefaultStates: false`
- *   (default) trims objects whose state matches the View default,
- *   keeping viewpoint payloads compact.
- * - **Cross-host interop** — viewpoints exchange cleanly with
- *   Solibri, BIMcollab, Revit BCF Manager, and any other
- *   BCF-aware client.
- *
- * <br>
+ * - {@link saveBCFViewpoint}: serializes a
+ *   {@link viewing!viewer.View | View} to a {@link BCFViewpoint}.
+ * - {@link loadBCFViewpoint}: applies a {@link BCFViewpoint} to a
+ *   {@link viewing!viewer.View | View}.
+ * - {@link SaveBCFViewpointParams.renderer | renderer}: optional
+ *   snapshot source used when saving a viewpoint.
  *
  * ## Installation
  * ```bash
  * npm install @xeokit/sdk
  * ```
  *
- * <br>
- *
  * ## Usage
  *
- * ### Saving and Loading a View as BCF
- *
- * This example demonstrates how to:
- * - Set up a xeokit {@link viewing!viewer.Viewer | Viewer}
- * - Load a BIM model from XKT format
- * - Save and load BCF viewpoints to bookmark Viewer states
+ * ### Save and Load a View
  *
  * ```javascript
  * import { Scene } from "@xeokit/sdk/model/scene";
@@ -150,7 +120,7 @@
  * }));
  * ```
  *
- * Once the model is loaded, we can capture a viewpoint:
+ * Save the current view state:
  *
  * ```javascript
  * view.camera.eye = [0, 0, -33];
@@ -165,7 +135,7 @@
  * const bcfViewpoint = bcfViewpointResult.value;
  * ```
  *
- * The saved {@link BCFViewpoint | BCFViewpoint} can be restored later:
+ * Load the viewpoint:
  *
  * ```javascript
  * loadBCFViewpoint({
@@ -173,13 +143,11 @@
  *     view
  * });
  * ```
- * <br>
  *
- * ### Saving and Loading a ViewLayer as BCF
+ * ### Save and Load ViewLayers
  *
- * {@link viewing!viewer.ViewLayer | ViewLayers} allow selective export of {@link viewing!viewer.ViewObject | ViewObjects}. In this example:
- * - **Two ViewLayers** (`foreground` and `background`) are created.
- * - **Only the foreground _layer** is exported.
+ * Use `includeViewLayerIds` to save or load only selected
+ * {@link viewing!viewer.ViewLayer | ViewLayers}.
  *
  * ```javascript
  * view.createLayer({ id: "foreground" });
@@ -200,7 +168,7 @@
  * const bcfViewpoint = bcfViewpointResult.value;
  * ```
  *
- * The viewpoint is restored only for the `foreground` _layer:
+ * Load the viewpoint for the same layer:
  *
  * ```javascript
  * loadBCFViewpoint({
@@ -231,4 +199,3 @@ export {loadBCFViewpoint} from "./loadBCFViewpoint";
 export {saveBCFViewpoint} from "./saveBCFViewpoint";
 export type {SaveBCFViewpointParams, BCFSnapshotSource} from "./SaveBCFViewpointParams";
 export type {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
-

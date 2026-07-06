@@ -5,19 +5,16 @@
  *
  * ---
  *
- * **Batch-loads multi-part models from a JSON manifest into a
- * {@link model!scene.SceneModel | SceneModel} and an optional
- * {@link model!data.DataModel | DataModel}, chunk by chunk.**
+ * **Loads chunked models from a manifest into a
+ * {@link model!scene.SceneModel | SceneModel} and optional
+ * {@link model!data.DataModel | DataModel}.**
  *
  * ---
  *
- * Large BIM and CAD models routinely exceed any sensible single-file
- * limit — splitting them into geometry chunks (typically XGF) plus
- * matching semantic chunks (DataModel JSON) is the standard
- * delivery shape. `ModelChunksLoader` walks a manifest of those
- * chunks and applies the configured per-chunk loaders, populating
- * one SceneModel + DataModel pair end-to-end with no caller-side
- * orchestration.
+ * Large BIM and CAD models are often delivered as chunked geometry
+ * plus matching semantic data. `ModelChunksLoader` reads a manifest
+ * for those chunks and loads each one with the configured per-chunk
+ * loader.
  *
  * <br>
  *
@@ -91,20 +88,16 @@
  *
  * ## Features
  *
- * - **One call loads the whole model** — pass the manifest, the
- *   `baseDir`, the target SceneModel + DataModel, and the loader
- *   walks every chunk in parallel.
- * - **Pluggable per-chunk loaders** — pass an
+ * - **One call loads the whole model** — pass the manifest, `baseDir`, and the target SceneModel + DataModel.
+ * - **Pluggable per-chunk loaders**; pass an
  *   {@link formats!XGFLoader | XGFLoader} for geometry,
  *   {@link formats!datamodel.DataModelImporter | DataModelImporter}
  *   for semantics, or any other loader that implements
  *   {@link formats!ModelLoader | ModelLoader}.
- * - **Geometry + semantics in lockstep** — chunks share an ordering
- *   so the loader emits {@link model!scene.SceneObject | SceneObjects}
- *   and {@link model!data.DataObject | DataObjects} with matching
- *   ids; picking and inspection see one coherent graph at the end.
- * - **Returns when everything's done** — single Promise resolution
- *   when every chunk has reached its target model.
+ * - **Geometry and semantics stay aligned** — chunks share an
+ *   ordering so the loader emits {@link model!scene.SceneObject | SceneObjects}
+ *   and {@link model!data.DataObject | DataObjects} with matching ids.
+ * - **Resolves when loading finishes** — the returned Promise settles once every chunk reaches its target model.
  *
  * <br>
  *

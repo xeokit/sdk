@@ -37,12 +37,12 @@ export interface TransformControlsParams {
   /**
    * {@link spatial!picking.PickStrategy | PickStrategy} used to
    * identify which handle is under the pointer. The controls call
-   * `picker.pick({ view, canvasPos, filter })` with a filter that
-   * restricts hits to the gizmo's own handle ids, so the picker
-   * skips the rest of the scene entirely.
+   * `picker.pick({ view, ray, filter })` with a filter that restricts
+   * hits to the gizmo's own handle ids, so host-scene objects are
+   * ignored.
    *
-   * **Required for drag interaction.** Without a picker the handles
-   * still render but cannot be grabbed.
+   * When omitted, TransformControls creates a BVH picker for the
+   * view's scene.
    */
   picker?: PickStrategy;
 

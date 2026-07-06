@@ -3,6 +3,8 @@ import {rayPlane, closestPointOnLineToRay, rayAABB, canvasPosToRay} from "../mat
 import {axisFromLabel} from "../math/axes";
 import {identityMat4, createMat4Float64, transformPoint3, type Mat4} from "../../../base/math/matrix";
 import type {Vec3} from "../../../base/math/vector";
+import {TransformControls} from "../TransformControls";
+import {S_X, T_X} from "../internal/handleIds";
 
 const approx = (v: ArrayLike<number>) => Array.from(v).map(n => +n.toFixed(6));
 
@@ -68,5 +70,34 @@ describe("axisFromLabel", () => {
     // Column-major 90°-about-Z rotation: local X -> (0,1,0).
     const r = [0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] as unknown as Mat4;
     expect(approx(axisFromLabel("X", "local", r))).toEqual([0, 1, 0]);
+  });
+});
+
+describe("TransformControls picking", () => {
+  it("uses the controls ray builder for handle picks", () => {
+    const ray = {origin: [1, 2, 3] as Vec3, dir: [0, 0, -1] as Vec3};
+    const pick = jest.fn((params: any) => ({
+      hit: true,
+      objectId: `${T_X}.picker`,
+    }));
+    const controls = Object.create(TransformControls.prototype) as any;
+    controls._picker = {pick};
+    controls._mode = "translate";
+    controls._showX = true;
+    controls._showY = true;
+    controls._showZ = true;
+    controls.view = {id: "view"};
+    controls._canvasPosToRay = jest.fn(() => ray);
+
+    expect(controls._pick([10, 20])).toBe(T_X);
+
+    expect(controls._canvasPosToRay).toHaveBeenCalledWith([10, 20]);
+    expect(pick).toHaveBeenCalledTimes(1);
+    const params = pick.mock.calls[0][0];
+    expect(params.ray).toBe(ray);
+    expect(params.canvasPos).toBeUndefined();
+    expect(params.filter(T_X)).toBe(true);
+    expect(params.filter(`${T_X}.picker`)).toBe(true);
+    expect(params.filter(S_X)).toBe(false);
   });
 });

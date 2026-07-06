@@ -20,7 +20,7 @@ import {
 } from "../../base/math/vector";
 import {angleAxisToQuaternion, type Quat, quatToMat4} from "../../base/math/quat";
 import type {SceneMesh, SceneModel, SceneObject} from "../../model/scene";
-import type {PickStrategy} from "../../spatial/picking";
+import {BVHPickStrategy, type PickStrategy} from "../../spatial/picking";
 import type {View} from "../viewer/View";
 import type {ViewController} from "../viewController";
 import type {ViewLayer} from "../viewer/ViewLayer";
@@ -148,10 +148,9 @@ interface NormalisedTarget {
  *
  * ## Picking
  *
- * Drag interaction requires a
- * {@link spatial!picking.PickStrategy | PickStrategy}, supplied via
- * {@link TransformControlsParams.picker | TransformControlsParams.picker}.
- * Without one the handles render but cannot be grabbed.
+ * Drag interaction uses the supplied
+ * {@link TransformControlsParams.picker | TransformControlsParams.picker},
+ * or a BVH picker created from the view's scene when omitted.
  */
 export class TransformControls {
 
@@ -360,7 +359,7 @@ export class TransformControls {
     if (prior && !prior._destroyed) prior.destroy();
     TransformControls._instances.set(params.view, this);
 
-    this._picker = params.picker ?? null;
+    this._picker = params.picker ?? new BVHPickStrategy(params.view.viewer.scene);
     this._viewController = params.viewController ?? null;
     // The picker filter accepts both the visible handle ids and the
     // companion-picker ids (each handle gets a fat invisible collider
@@ -1299,16 +1298,9 @@ export class TransformControls {
     const showT = showAll && this._mode === "translate";
     const showR = showAll && this._mode === "rotate";
     const showS = showAll && this._mode === "scale";
-    const inAxis = (handleId: string): boolean => {
-      const ax = axisOf(handleId);
-      if (!this._showX && ax.includes("X")) return false;
-      if (!this._showY && ax.includes("Y")) return false;
-      if (!this._showZ && ax.includes("Z")) return false;
-      return true;
-    };
     const set = (ids: string[], v: boolean) => {
       for (const id of ids) {
-        const on = v && inAxis(id);
+        const on = v && this._isHandleVisibleBySettings(id);
         const obj = this.viewLayer.objects[id];
         if (obj) obj.visible = on;
         // Companion picker is bin-segregated out of the colour pass, so
@@ -1324,6 +1316,14 @@ export class TransformControls {
     set(TRANSLATE_HANDLES, showT);
     set(ROTATE_HANDLES,    showR);
     set(SCALE_HANDLES,     showS);
+  }
+
+  private _isHandleVisibleBySettings(handleId: string): boolean {
+    const ax = axisOf(handleId);
+    if (!this._showX && ax.includes("X")) return false;
+    if (!this._showY && ax.includes("Y")) return false;
+    if (!this._showZ && ax.includes("Z")) return false;
+    return true;
   }
 
   // -------------------------------------------------------------
@@ -1779,12 +1779,13 @@ export class TransformControls {
   }
 
   /**
-   * Picks a gizmo handle under `canvasPos`. Delegates to the
-   * {@link spatial!picking.PickStrategy | PickStrategy} configured at
-   * construction, narrowing it to this gizmo's own handle ids via
-   * {@link spatial!picking.PickParams.filter | filter} so the picker
-   * never even considers the host scene. Returns the picked handle id,
-   * or null when nothing we own is under the cursor.
+   * Picks a gizmo handle under `canvasPos`. Builds the world ray with
+   * the same helper used by drag math, then delegates to the configured
+   * {@link spatial!picking.PickStrategy | PickStrategy}. The pick is
+   * narrowed to this gizmo's handle ids via
+   * {@link spatial!picking.PickParams.filter | filter} so host-scene
+   * objects are ignored. Returns the picked handle id, or null when
+   * nothing we own is under the cursor.
    */
   private _pick(canvasPos: [number, number]): string | null {
     const p = this._picker;
@@ -1812,9 +1813,12 @@ export class TransformControls {
     // safety belt. The filter narrows the pick to the current-mode
     // handle ids (+ their `.picker` siblings), so no other scene
     // content can sneak through whatever visibility state it's in.
+    const ray = this._canvasPosToRay(canvasPos);
+    if (!ray) return null;
+
     const result = p.pick({
       view: this.view,
-      canvasPos,
+      ray,
       pickInvisible: true,
       filter: (objectId: string) => allow.has(objectId),
     });
@@ -1845,4 +1849,3 @@ export class TransformControls {
     return [e.clientX - rect.left, e.clientY - rect.top];
   }
 }
-

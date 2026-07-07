@@ -170,8 +170,11 @@ export class MouseDistanceMeasurementsControl {
   // ── Helpers ─────────────────────────────────────────────────────
 
   /**
-   * Pick at the given mouse event's canvas coordinates with snap
-   * enabled. Returns:
+   * Pick at the given mouse event's canvas coordinates. We first
+   * ask for snap; when the renderer does not land a snap, we issue
+   * a plain surface pick so triangle-interior measurements use the
+   * actual cursor ray intersection instead of the snap pass' partial
+   * result. Returns:
    *
    *   - `worldPos`: the snapped point's world position when the
    *     renderer landed a vertex/edge, otherwise the surface hit;
@@ -191,29 +194,38 @@ export class MouseDistanceMeasurementsControl {
       e.clientY - rect.top,
     ];
 
-    const result = this.tool.picker.pick({
+    const snapResult = this.tool.picker.pick({
       view, canvasPos,
       snapToVertex: true,
       snapToEdge:   true,
       snapRadius:   30,
     });
-    if (!result.hit) return null;
 
-    const wp = result.snap?.worldPos ?? result.worldPos;
+    if (snapResult.snap) {
+      const wp = snapResult.snap.worldPos;
+      return {
+        worldPos: [wp[0], wp[1], wp[2]],
+        viewportX: rect.left + snapResult.snap.canvasPos[0],
+        viewportY: rect.top + snapResult.snap.canvasPos[1],
+      };
+    }
+
+    // GPU snap picks can report an object hit without preserving the
+    // plain triangle-intersection worldPos. For unsnapped measurement
+    // endpoints, explicitly ask the picker for a normal surface hit.
+    const surfaceResult = snapResult.strategyUsed === "bvh"
+      ? snapResult
+      : this.tool.picker.pick({view, canvasPos});
+    if (!surfaceResult.hit && !snapResult.hit) return null;
+
+    const wp = surfaceResult.worldPos ?? snapResult.worldPos;
     if (!wp) return null;
 
-    // Prefer the snap canvas position for the hover dot when snap
-    // landed — gives the user a sharp visual lock onto the vertex
-    // / edge. Fall back to the cursor's actual viewport position
-    // for plain surface hits.
-    const viewportX = result.snap
-      ? rect.left + result.snap.canvasPos[0]
-      : e.clientX;
-    const viewportY = result.snap
-      ? rect.top  + result.snap.canvasPos[1]
-      : e.clientY;
-
-    return { worldPos: [wp[0], wp[1], wp[2]], viewportX, viewportY };
+    return {
+      worldPos: [wp[0], wp[1], wp[2]],
+      viewportX: e.clientX,
+      viewportY: e.clientY,
+    };
   }
 
   private _cancelPending(): void {

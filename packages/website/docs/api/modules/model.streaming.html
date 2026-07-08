@@ -41,17 +41,14 @@ body.dark, :root[data-theme="dark"] {
 </style>
 </head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="model.html">model</a></li><li><a href="model.streaming.html">streaming</a></li></ul><h1>Namespace streaming</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><img style="padding:50px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_datamodel_icon.png"/>
 <a id="xeokit-streaming-loader" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit Streaming Loader<a href="#xeokit-streaming-loader" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><hr>
-<p><strong>Batch-loads multi-part models from a JSON manifest into a
-<a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModel</a> and an optional
-<a href="../classes/model.data.DataModel.html" class="tsd-kind-class">DataModel</a>, chunk by chunk.</strong></p>
+<p><strong>Loads chunked models from a manifest into a
+<a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModel</a> and optional
+<a href="../classes/model.data.DataModel.html" class="tsd-kind-class">DataModel</a>.</strong></p>
 <hr>
-<p>Large BIM and CAD models routinely exceed any sensible single-file
-limit — splitting them into geometry chunks (typically XGF) plus
-matching semantic chunks (DataModel JSON) is the standard
-delivery shape. <code>ModelChunksLoader</code> walks a manifest of those
-chunks and applies the configured per-chunk loaders, populating
-one SceneModel + DataModel pair end-to-end with no caller-side
-orchestration.</p>
+<p>Large BIM and CAD models are often delivered as chunked geometry
+plus matching semantic data. <code>ModelChunksLoader</code> reads a manifest
+for those chunks and loads each one with the configured per-chunk
+loader.</p>
 <br>
 <a id="shape" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Shape<a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
 classDiagram
@@ -166,20 +163,16 @@ the matching semantic chunks:</p>
 </ul>
 <br>
 <a id="features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
-<li><strong>One call loads the whole model</strong> — pass the manifest, the
-<code>baseDir</code>, the target SceneModel + DataModel, and the loader
-walks every chunk in parallel.</li>
-<li><strong>Pluggable per-chunk loaders</strong> — pass an
+<li><strong>One call loads the whole model</strong> — pass the manifest, <code>baseDir</code>, and the target SceneModel + DataModel.</li>
+<li><strong>Pluggable per-chunk loaders</strong>; pass an
 formats!XGFLoader | XGFLoader for geometry,
 <a href="../classes/formats.datamodel.DataModelImporter.html" class="tsd-kind-class">DataModelImporter</a>
 for semantics, or any other loader that implements
 <a href="../classes/formats.ModelLoader.html" class="tsd-kind-class">ModelLoader</a>.</li>
-<li><strong>Geometry + semantics in lockstep</strong> — chunks share an ordering
-so the loader emits <a href="../classes/model.scene.SceneObject.html" class="tsd-kind-class">SceneObjects</a>
-and <a href="../classes/model.data.DataObject.html" class="tsd-kind-class">DataObjects</a> with matching
-ids; picking and inspection see one coherent graph at the end.</li>
-<li><strong>Returns when everything's done</strong> — single Promise resolution
-when every chunk has reached its target model.</li>
+<li><strong>Geometry and semantics stay aligned</strong> — chunks share an
+ordering so the loader emits <a href="../classes/model.scene.SceneObject.html" class="tsd-kind-class">SceneObjects</a>
+and <a href="../classes/model.data.DataObject.html" class="tsd-kind-class">DataObjects</a> with matching ids.</li>
+<li><strong>Resolves when loading finishes</strong> — the returned Promise settles once every chunk reaches its target model.</li>
 </ul>
 <br>
 <a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>

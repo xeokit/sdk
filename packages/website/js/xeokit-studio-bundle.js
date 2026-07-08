@@ -781,7 +781,7 @@ var require_EventDispatcher = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.EventDispatcher = void 0;
     var ste_core_1 = require_dist();
-    var EventDispatcher32 = class extends ste_core_1.DispatcherBase {
+    var EventDispatcher33 = class extends ste_core_1.DispatcherBase {
       /**
        * Creates an instance of EventDispatcher.
        *
@@ -829,7 +829,7 @@ var require_EventDispatcher = __commonJS({
         return super.asEvent();
       }
     };
-    exports.EventDispatcher = EventDispatcher32;
+    exports.EventDispatcher = EventDispatcher33;
   }
 });
 
@@ -9731,7 +9731,7 @@ var Curve = class {
     return this._t;
   }
   /**
-   * Normalized tangent at the current {@link t}.
+   * Normalized tangent at the current `t`.
    */
   get tangent() {
     return this.getTangent(this._t);
@@ -9750,7 +9750,7 @@ var Curve = class {
    *
    * Uses a small finite difference around `t`.
    *
-   * @param t Curve parameter in the range `[0..1]`. Defaults to the current {@link t}.
+   * @param t Curve parameter in the range `[0..1]`. Defaults to the current `t`.
    * @returns Normalized tangent vector
    */
   getTangent(t) {
@@ -125578,7 +125578,7 @@ async function parseLAS2(params, options = {}) {
   if (!sceneModel && !dataModel) {
     return;
   }
-  const skip = options.skip || 1;
+  const skip = Math.max(1, Math.floor(options.skip || 1));
   const log2 = (msg) => {
     if (params.log) {
       params.log(msg);
@@ -125623,43 +125623,21 @@ async function parseLAS2(params, options = {}) {
         log2("No positions found in file (expected for all LAS point formats)");
         return;
       }
-      let readAttributes = {};
-      switch (pointsFormatId) {
-        case 0:
-          if (!attributes.intensity) {
-            log2("No intensities found in file (expected for LAS point format 0)");
-            return;
-          }
-          readAttributes = readIntensities(attributes.POSITION, attributes.intensity);
-          break;
-        case 1:
-          if (!attributes.intensity) {
-            log2("No intensities found in file (expected for LAS point format 1)");
-            return;
-          }
-          readAttributes = readIntensities(attributes.POSITION, attributes.intensity);
-          break;
-        case 2:
-          if (!attributes.intensity) {
-            log2("No intensities found in file (expected for LAS point format 2)");
-            return;
-          }
-          readAttributes = readColorsAndIntensities(attributes.POSITION, attributes.COLOR_0, attributes.intensity);
-          break;
-        case 3:
-          if (!attributes.intensity) {
-            log2("No intensities found in file (expected for LAS point format 3)");
-            return;
-          }
-          readAttributes = readColorsAndIntensities(attributes.POSITION, attributes.COLOR_0, attributes.intensity);
-          break;
+      if (!attributes.intensity) {
+        log2(`No intensities found in file (expected for LAS point format ${pointsFormatId})`);
       }
-      const pointsChunks = chunkArray(readPositions(readAttributes.positions), MAX_VERTICES * 3);
+      const readAttributes = readPointAttributes(attributes.POSITION, attributes.COLOR_0, attributes.intensity);
+      const positions = readPositions(readAttributes.positions);
+      if (!positions || positions.length === 0) {
+        log2("No points found in file after filtering");
+        return;
+      }
+      const pointsChunks = chunkArray(positions, MAX_VERTICES * 3);
       const colorsChunks = chunkArray(readAttributes.colors, MAX_VERTICES * 4);
       const totalChunks = pointsChunks.length;
       for (let j = 0; j < totalChunks; j++) {
         await step2("Building point chunks", j, totalChunks);
-        const geometryId = `geometry-${j}`;
+        const geometryId = `${entityId}-geometry-${j}`;
         const geometryResult = sceneModel.createGeometry({
           id: geometryId,
           primitive: PointsPrimitive,
@@ -125667,16 +125645,17 @@ async function parseLAS2(params, options = {}) {
           colorsCompressed: colorsChunks[j]
         });
         if (geometryResult.ok === false) {
-          log2(`[ERROR] Cannot load point cloud -> geometryResult.error}`);
+          log2(`[ERROR] Cannot load point cloud -> ${geometryResult.error}`);
         } else {
-          const meshId = `mesh-${j}`;
-          meshIds.push(meshId);
+          const meshId = `${entityId}-mesh-${j}`;
           const meshResult = sceneModel.createMesh({
             id: meshId,
             geometryId
           });
           if (meshResult.ok === false) {
-            log2(`[ERROR] Cannot load point cloud -> meshResult.error}`);
+            log2(`[ERROR] Cannot load point cloud -> ${meshResult.error}`);
+          } else {
+            meshIds.push(meshId);
           }
         }
       }
@@ -125710,7 +125689,10 @@ async function parseLAS2(params, options = {}) {
     if (positionsValue) {
       if (options.center) {
         const centerPos = createVec3Float64();
-        const numPoints = positionsValue.length;
+        const numPoints = positionsValue.length / 3;
+        if (numPoints === 0) {
+          return positionsValue;
+        }
         for (let i = 0, len = positionsValue.length; i < len; i += 3) {
           centerPos[0] += positionsValue[i + 0];
           centerPos[1] += positionsValue[i + 1];
@@ -125741,59 +125723,42 @@ async function parseLAS2(params, options = {}) {
     }
     return positionsValue;
   }
-  function readColorsAndIntensities(attributesPosition, attributesColor, attributesIntensity) {
+  function readPointAttributes(attributesPosition, attributesColor, attributesIntensity) {
     const positionsValue = attributesPosition.value;
-    const colors = attributesColor.value;
-    const colorSize = attributesColor.size;
-    const intensities = attributesIntensity.value;
-    const colorsCompressedSize = intensities.length * 4;
+    const colors = attributesColor?.value;
+    const colorSize = attributesColor?.size || 0;
+    const intensities = attributesIntensity?.value;
+    const pointCount2 = Math.floor(positionsValue.length / 3);
     const positions = [];
-    const colorsCompressed = new Uint8Array(colorsCompressedSize / skip);
-    let count = skip;
-    for (let i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, len = intensities.length; i < len; i++, k += colorSize, j += 4, l += 3) {
-      if (count <= 0) {
-        colorsCompressed[m++] = colors[k + 0];
-        colorsCompressed[m++] = colors[k + 1];
-        colorsCompressed[m++] = colors[k + 2];
-        colorsCompressed[m++] = Math.round(intensities[i] / 65536 * 255);
-        positions[n++] = positionsValue[l + 0];
-        positions[n++] = positionsValue[l + 1];
-        positions[n++] = positionsValue[l + 2];
-        count = skip;
-      } else {
-        count--;
+    const colorsCompressed = new Uint8Array(Math.ceil(pointCount2 / skip) * 4);
+    for (let i = 0, m = 0, n = 0; i < pointCount2; i++) {
+      if (i % skip !== 0) {
+        continue;
       }
+      const colorOffset = i * colorSize;
+      const positionOffset = i * 3;
+      const intensity = intensities ? intensityToByte(intensities[i]) : 255;
+      if (colors) {
+        colorsCompressed[m++] = colors[colorOffset + 0];
+        colorsCompressed[m++] = colors[colorOffset + 1];
+        colorsCompressed[m++] = colors[colorOffset + 2];
+      } else {
+        colorsCompressed[m++] = intensity;
+        colorsCompressed[m++] = intensity;
+        colorsCompressed[m++] = intensity;
+      }
+      colorsCompressed[m++] = intensity;
+      positions[n++] = positionsValue[positionOffset + 0];
+      positions[n++] = positionsValue[positionOffset + 1];
+      positions[n++] = positionsValue[positionOffset + 2];
     }
     return {
       positions,
       colors: colorsCompressed
     };
   }
-  function readIntensities(attributesPosition, attributesIntensity) {
-    const positionsValue = attributesPosition.value;
-    const intensities = attributesIntensity.intensity;
-    const colorsCompressedSize = intensities.length * 4;
-    const positions = [];
-    const colorsCompressed = new Uint8Array(colorsCompressedSize / skip);
-    let count = skip;
-    for (let i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, len = intensities.length; i < len; i++, k += 3, j += 4, l += 3) {
-      if (count <= 0) {
-        colorsCompressed[m++] = 0;
-        colorsCompressed[m++] = 0;
-        colorsCompressed[m++] = 0;
-        colorsCompressed[m++] = Math.round(intensities[i] / 65536 * 255);
-        positions[n++] = positionsValue[l + 0];
-        positions[n++] = positionsValue[l + 1];
-        positions[n++] = positionsValue[l + 2];
-        count = skip;
-      } else {
-        count--;
-      }
-    }
-    return {
-      positions,
-      colors: colorsCompressed
-    };
+  function intensityToByte(value) {
+    return Math.max(0, Math.min(255, Math.round((value || 0) / 65535 * 255)));
   }
   function chunkArray(array, chunkSize) {
     if (chunkSize >= array.length) {
@@ -149791,6 +149756,7 @@ function intersectSceneRayTriangle(collisionIndex, origin2, dir, options) {
   const tMin = options?.tMin ?? 0;
   const tMax = options?.tMax ?? Infinity;
   const filter = options?.filter;
+  const pickSurfaceNormal = options?.pickSurfaceNormal === true;
   const aabbHits = collisionIndex.intersectRay(origin2, dir, { tMin, tMax });
   if (aabbHits.length === 0)
     return null;
@@ -149801,6 +149767,12 @@ function intersectSceneRayTriangle(collisionIndex, origin2, dir, options) {
   const localDir = createVec3Float64();
   const localHit = createVec3Float64();
   const worldHit = createVec3Float64();
+  const worldV0 = createVec3Float64();
+  const worldV1 = createVec3Float64();
+  const worldV2 = createVec3Float64();
+  const worldEdge1 = createVec3Float64();
+  const worldEdge2 = createVec3Float64();
+  const worldNormal = createVec3Float64();
   for (let h2 = 0; h2 < aabbHits.length; h2++) {
     const aabbHit = aabbHits[h2];
     if (aabbHit.tEnter >= bestT)
@@ -149876,12 +149848,30 @@ function intersectSceneRayTriangle(collisionIndex, origin2, dir, options) {
         localHit[1] = loy + ldy * tHit;
         localHit[2] = loz + ldz * tHit;
         transformPoint3(mesh.worldMatrix, localHit, worldHit);
+        if (pickSurfaceNormal) {
+          localHit[0] = v0x;
+          localHit[1] = v0y;
+          localHit[2] = v0z;
+          transformPoint3(mesh.worldMatrix, localHit, worldV0);
+          localHit[0] = v1x;
+          localHit[1] = v1y;
+          localHit[2] = v1z;
+          transformPoint3(mesh.worldMatrix, localHit, worldV1);
+          localHit[0] = v2x;
+          localHit[1] = v2y;
+          localHit[2] = v2z;
+          transformPoint3(mesh.worldMatrix, localHit, worldV2);
+          subVec3(worldV1, worldV0, worldEdge1);
+          subVec3(worldV2, worldV0, worldEdge2);
+          normalizeVec3(cross3Vec3(worldEdge1, worldEdge2, worldNormal), worldNormal);
+        }
         bestT = tHit;
         if (best === null) {
           best = {
             objectId: aabbHit.objectId,
             meshId: mesh.id,
             worldPos: createVec3Float64(),
+            worldNormal: pickSurfaceNormal ? createVec3Float64() : null,
             tHit,
             triangleIndex: t
           };
@@ -149894,6 +149884,11 @@ function intersectSceneRayTriangle(collisionIndex, origin2, dir, options) {
         best.worldPos[0] = worldHit[0];
         best.worldPos[1] = worldHit[1];
         best.worldPos[2] = worldHit[2];
+        if (pickSurfaceNormal && best.worldNormal) {
+          best.worldNormal[0] = worldNormal[0];
+          best.worldNormal[1] = worldNormal[1];
+          best.worldNormal[2] = worldNormal[2];
+        }
       }
     }
   }
@@ -150010,7 +150005,8 @@ var SceneRaycaster = class {
     const triHit = intersectSceneRayTriangle(this.collisionIndex, origin2, dir, {
       tMin: params.tMin,
       tMax: params.tMax,
-      filter: combinedFilter
+      filter: combinedFilter,
+      pickSurfaceNormal: params.pickSurfaceNormal === true
     });
     const resultRayOrigin = createVec3Float64(origin2);
     const resultRayDir = createVec3Float64(dir);
@@ -150022,6 +150018,7 @@ var SceneRaycaster = class {
           objectId: null,
           meshId: null,
           worldPos: null,
+          worldNormal: null,
           tHit: null,
           triangleIndex: -1,
           rayOrigin: resultRayOrigin,
@@ -150036,6 +150033,7 @@ var SceneRaycaster = class {
         objectId: triHit.objectId,
         meshId: triHit.meshId,
         worldPos: triHit.worldPos,
+        worldNormal: triHit.worldNormal,
         tHit: triHit.tHit,
         triangleIndex: triHit.triangleIndex,
         rayOrigin: resultRayOrigin,
@@ -150079,6 +150077,7 @@ var BVHPickStrategy = class {
       matrix: params.matrix,
       tMin: params.tMin,
       tMax: params.tMax,
+      pickSurfaceNormal: params.pickSurfaceNormal === true,
       filter: params.filter,
       // Our `pickInvisible` is the inverse of SceneRaycaster's
       // `visiblePickableOnly`. SceneRaycaster also defaults to `true`
@@ -150097,7 +150096,7 @@ var BVHPickStrategy = class {
       objectId: v.objectId,
       meshId: v.meshId,
       worldPos: v.worldPos,
-      worldNormal: null,
+      worldNormal: params.pickSurfaceNormal === true ? v.worldNormal : null,
       localPos: null,
       uv: null,
       canvasPos: params.canvasPos ?? null,
@@ -150134,7 +150133,7 @@ function missingResult(params) {
 var RendererPickStrategy = class {
   /**
    * @param _renderer The renderer to drive. The strategy assumes the
-   *   renderer is in {@link WebGLRenderer.rendering} state when
+   *   renderer is in rendering state when
    *   {@link pick} is called — the {@link RoutingPickStrategy} that
    *   composes this leaf is responsible for that gate.
    */
@@ -150281,13 +150280,13 @@ var RoutingPickStrategy = class {
       return this._bvh.pick(params);
     }
     const wantSnap = !!(params.snapToVertex || params.snapToEdge);
+    const wantNormal = params.pickSurfaceNormal === true;
     const hasFilter = !!params.filter;
     const isRayPick = !!(params.ray || params.matrix);
-    const hasSplats = this._scene.containsPrimitive(GaussianSplatsPrimitive);
+    const hasGpuOnlyPrims = this._scene.containsPrimitive(PointsPrimitive) || this._scene.containsPrimitive(GaussianSplatsPrimitive);
     const useGpu = this._gpuReady && // GPU available
     this._gpu && // renderer was supplied
-    (wantSnap || hasSplats) && // snap request, or splats only the GPU can pick
-    !hasFilter && // GPU has no filter callback
+    (wantSnap || hasGpuOnlyPrims && !wantNormal) && !hasFilter && // GPU has no filter callback
     !isRayPick;
     const result = useGpu ? this._gpu.pick(params) : this._bvh.pick(params);
     result._stateEpoch = this._stateEpoch;
@@ -150322,8 +150321,12 @@ var RoutingPickStrategy = class {
     this._unsubs.push(events.onRendererStarted.subscribe(handle));
     this._unsubs.push(events.onRendererStopped.subscribe(handle));
     this._unsubs.push(events.onRendererDestroyed.subscribe(handle));
-    this._unsubs.push(events.webglContextLost.subscribe(handle));
-    this._unsubs.push(events.webglContextRestored.subscribe(handle));
+    const contextLost = events.onContextLost ?? events.webglContextLost;
+    const contextRestored = events.onContextRestored ?? events.webglContextRestored;
+    if (contextLost)
+      this._unsubs.push(contextLost.subscribe(handle));
+    if (contextRestored)
+      this._unsubs.push(contextRestored.subscribe(handle));
   }
   _refreshGpuReady() {
     if (this._disposed)
@@ -151027,10 +151030,12 @@ var viewing_exports = {};
 __export(viewing_exports, {
   adaptiveQuality: () => adaptiveQuality_exports,
   cameraFlight: () => cameraFlight_exports,
+  renderer: () => renderer_exports,
   transformControls: () => transformControls_exports,
   viewController: () => viewController_exports,
   viewer: () => viewer_exports,
-  webGLRenderer: () => webGLRenderer_exports
+  webGLRenderer: () => webGLRenderer_exports,
+  webGPURenderer: () => webGPURenderer_exports
 });
 
 // ../sdk/src/viewing/adaptiveQuality/index.ts
@@ -153555,10 +153560,10 @@ var PointsMaterial = class {
   constructor(view, options = {}) {
     this.view = view;
     this._pointSize = options.pointSize !== void 0 && options.pointSize !== null ? options.pointSize : 1;
-    this._roundPoints = options.roundPoints !== false;
-    this._perspectivePoints = options.perspectivePoints !== false;
+    this._roundPoints = options.roundPoints === true;
+    this._perspectivePoints = options.perspectivePoints === true;
     this._minPerspectivePointSize = options.minPerspectivePointSize !== void 0 && options.minPerspectivePointSize !== null ? options.minPerspectivePointSize : 1;
-    this._maxPerspectivePointSize = options.maxPerspectivePointSize !== void 0 && options.maxPerspectivePointSize !== null ? options.maxPerspectivePointSize : 6;
+    this._maxPerspectivePointSize = options.maxPerspectivePointSize !== void 0 && options.maxPerspectivePointSize !== null ? options.maxPerspectivePointSize : 2;
     this._filterIntensity = !!options.filterIntensity;
     this._minIntensity = options.minIntensity !== void 0 && options.minIntensity !== null ? options.minIntensity : 0;
     this._maxIntensity = options.maxIntensity !== void 0 && options.maxIntensity !== null ? options.maxIntensity : 1;
@@ -153566,7 +153571,7 @@ var PointsMaterial = class {
   /**
    * Sets point size.
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixel.
    */
   set pointSize(value) {
     this._pointSize = value;
@@ -153575,7 +153580,7 @@ var PointsMaterial = class {
   /**
    * Gets point size.
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixel.
    */
   get pointSize() {
     return this._pointSize;
@@ -153583,7 +153588,7 @@ var PointsMaterial = class {
   /**
    * Sets if points are round or square.
    *
-   * Default is ````true```` to set points round.
+   * Default is ````false````.
    */
   set roundPoints(value) {
     if (this._roundPoints === value) {
@@ -153594,7 +153599,7 @@ var PointsMaterial = class {
   /**
    * Gets if points are round or square.
    *
-   * Default is ````true```` to set points round.
+   * Default is ````false````.
    */
   get roundPoints() {
     return this._roundPoints;
@@ -153602,7 +153607,7 @@ var PointsMaterial = class {
   /**
    * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
    *
-   * Default is ````true````.
+   * Default is ````false````.
    */
   set perspectivePoints(value) {
     if (this._perspectivePoints === value) {
@@ -153642,7 +153647,7 @@ var PointsMaterial = class {
   /**
    * Sets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
    *
-   * Default value is ````6```` pixels.
+   * Default value is ````2```` pixels.
    */
   set maxPerspectivePointSize(value) {
     if (this._maxPerspectivePointSize === value) {
@@ -153653,7 +153658,7 @@ var PointsMaterial = class {
   /**
    * Gets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
    *
-   * Default value is ````6```` pixels.
+   * Default value is ````2```` pixels.
    */
   get maxPerspectivePointSize() {
     return this._maxPerspectivePointSize;
@@ -156600,7 +156605,7 @@ var SectionPlane = class {
     this.view = view;
     this._active = sectionPlaneParams.active !== false;
     this._pos = createVec3Float64(sectionPlaneParams.pos || [0, 0, 0]);
-    this._dir = createVec3Float32(sectionPlaneParams.dir || [0, 0, -1]);
+    this._dir = createVec3Float32(normalizeSectionPlaneDir(sectionPlaneParams.dir || [0, 0, -1], [0, 0, -1]));
     this._dist = -dotVec3(this._pos, this._dir);
     this._capColor = sectionPlaneParams.capColor ? createVec3Float32(sectionPlaneParams.capColor) : null;
   }
@@ -156670,7 +156675,7 @@ var SectionPlane = class {
    * @param value New direction.
    */
   set dir(value) {
-    this._dir.set(value);
+    this._dir.set(normalizeSectionPlaneDir(value, this._dir));
     this._dist = -dotVec3(this._pos, this._dir);
     this.view.needsRender();
     this.view.viewer.events.onSectionPlaneDirChanged.dispatch(this, this._dir);
@@ -156788,6 +156793,14 @@ var SectionPlane = class {
     this.view._removeSectionPlane(this);
   }
 };
+function normalizeSectionPlaneDir(value, fallback) {
+  const x = value[0], y = value[1], z = value[2];
+  const len = Math.hypot(x, y, z);
+  if (!Number.isFinite(len) || len < 1e-12) {
+    return [fallback[0], fallback[1], fallback[2]];
+  }
+  return [x / len, y / len, z / len];
+}
 
 // ../sdk/src/viewing/viewer/Texturing.ts
 var Texturing = class {
@@ -158788,10 +158801,10 @@ var View2 = class {
     });
     this.pointsMaterial = new PointsMaterial(this, viewParams.pointsMaterial || {
       pointSize: 1,
-      roundPoints: true,
-      perspectivePoints: true,
+      roundPoints: false,
+      perspectivePoints: false,
       minPerspectivePointSize: 1,
-      maxPerspectivePointSize: 6,
+      maxPerspectivePointSize: 2,
       filterIntensity: false,
       minIntensity: 0,
       maxIntensity: 1
@@ -163580,7 +163593,7 @@ var TransformControls = class _TransformControls {
     if (prior && !prior._destroyed)
       prior.destroy();
     _TransformControls._instances.set(params.view, this);
-    this._picker = params.picker ?? null;
+    this._picker = params.picker ?? new BVHPickStrategy(params.view.viewer.scene);
     this._viewController = params.viewController ?? null;
     this._handleSet = /* @__PURE__ */ new Set();
     for (const h2 of ALL_HANDLES) {
@@ -164403,19 +164416,9 @@ var TransformControls = class _TransformControls {
     const showT = showAll && this._mode === "translate";
     const showR = showAll && this._mode === "rotate";
     const showS = showAll && this._mode === "scale";
-    const inAxis = (handleId) => {
-      const ax = axisOf(handleId);
-      if (!this._showX && ax.includes("X"))
-        return false;
-      if (!this._showY && ax.includes("Y"))
-        return false;
-      if (!this._showZ && ax.includes("Z"))
-        return false;
-      return true;
-    };
     const set = (ids2, v) => {
       for (const id of ids2) {
-        const on = v && inAxis(id);
+        const on = v && this._isHandleVisibleBySettings(id);
         const obj = this.viewLayer.objects[id];
         if (obj)
           obj.visible = on;
@@ -164427,6 +164430,16 @@ var TransformControls = class _TransformControls {
     set(TRANSLATE_HANDLES, showT);
     set(ROTATE_HANDLES, showR);
     set(SCALE_HANDLES, showS);
+  }
+  _isHandleVisibleBySettings(handleId) {
+    const ax = axisOf(handleId);
+    if (!this._showX && ax.includes("X"))
+      return false;
+    if (!this._showY && ax.includes("Y"))
+      return false;
+    if (!this._showZ && ax.includes("Z"))
+      return false;
+    return true;
   }
   // -------------------------------------------------------------
   // Internal: pointer event handling (hover + drag)
@@ -164825,12 +164838,13 @@ var TransformControls = class _TransformControls {
     return [rect.width || 1, rect.height || 1];
   }
   /**
-   * Picks a gizmo handle under `canvasPos`. Delegates to the
-   * {@link spatial!picking.PickStrategy | PickStrategy} configured at
-   * construction, narrowing it to this gizmo's own handle ids via
-   * {@link spatial!picking.PickParams.filter | filter} so the picker
-   * never even considers the host scene. Returns the picked handle id,
-   * or null when nothing we own is under the cursor.
+   * Picks a gizmo handle under `canvasPos`. Builds the world ray with
+   * the same helper used by drag math, then delegates to the configured
+   * {@link spatial!picking.PickStrategy | PickStrategy}. The pick is
+   * narrowed to this gizmo's handle ids via
+   * {@link spatial!picking.PickParams.filter | filter} so host-scene
+   * objects are ignored. Returns the picked handle id, or null when
+   * nothing we own is under the cursor.
    */
   _pick(canvasPos2) {
     const p = this._picker;
@@ -164842,9 +164856,12 @@ var TransformControls = class _TransformControls {
       allow.add(h2);
       allow.add(`${h2}.picker`);
     }
+    const ray = this._canvasPosToRay(canvasPos2);
+    if (!ray)
+      return null;
     const result = p.pick({
       view: this.view,
-      canvasPos: canvasPos2,
+      ray,
       pickInvisible: true,
       filter: (objectId) => allow.has(objectId)
     });
@@ -168189,6 +168206,9 @@ var ViewController2 = class _ViewController {
     }
   }
 };
+
+// ../sdk/src/viewing/renderer/index.ts
+var renderer_exports = {};
 
 // ../sdk/src/viewing/webGLRenderer/index.ts
 var webGLRenderer_exports = {};
@@ -172801,7 +172821,8 @@ var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataT
    *                values. `0` for non-`LinesPrimitive` geometries (and
    *                for line geometries whose batch never allocated a
    *                polyline-cum-dist texture).
-   *   - `base + 6..7` reserved
+   *   - `base + 6` vertexColorsBase
+   *   - `base + 7` reserved
    *
    * @param itemIndex
    * @param item
@@ -172820,6 +172841,8 @@ var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataT
       this.buffer[base + 4] = this.toU32(item.uvsBase);
     if (item.polylineCumDistBase !== void 0)
       this.buffer[base + 5] = this.toU32(item.polylineCumDistBase);
+    if (item.vertexColorsBase !== void 0)
+      this.buffer[base + 6] = this.toU32(item.vertexColorsBase);
     this.setItemDirty(itemIndex);
   }
   getItem(_itemIndex) {
@@ -172958,8 +172981,8 @@ var VertexColorTexture = class _VertexColorTexture extends PortionDataTexture {
   /**
    * The size of each item in bytes.
    */
-  static itemSizeInBytes = 3;
-  // 3 × uint8 per item (RGB)
+  static itemSizeInBytes = 4;
+  // 4 × uint8 per item (RGBA)
   /**
    * @private
    * @param options
@@ -174985,7 +175008,7 @@ var GPUMemoryBatch = class {
     }
     const isPoints = geometry.primitive === PointsPrimitive;
     if (!geometryExists) {
-      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length / 4) === false) {
         return 5 /* NotEnoughColorSpace */;
       }
       if (this._vertexNormalTexture && geometry.normalsCompressed && this._vertexNormalTexture.canGetPortion(geometry.normalsCompressed.length / 2) === false) {
@@ -175109,7 +175132,15 @@ var GPUMemoryBatch = class {
         scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
       });
       if (sceneGeometry.colorsCompressed) {
-        vertexColorsPortion = this._vertexColorTexture.getPortion(sceneGeometry.colorsCompressed);
+        const vertexColorsBaseGeometryIndex = geometryIndex;
+        vertexColorsPortion = this._vertexColorTexture.getPortion(
+          sceneGeometry.colorsCompressed,
+          (newBase) => {
+            this._geometryAttributeTexture.setItem(vertexColorsBaseGeometryIndex, {
+              vertexColorsBase: newBase
+            });
+          }
+        );
         if (vertexColorsPortion === null) {
           cleanup();
           return {
@@ -175218,7 +175249,8 @@ var GPUMemoryBatch = class {
         edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0,
         normalsBase: vertexNormalsPortion ? vertexNormalsPortion.base : 0,
         uvsBase: vertexUVsPortion ? vertexUVsPortion.base : 0,
-        polylineCumDistBase: polylineCumDistHandle ? polylineCumDistHandle.base : 0
+        polylineCumDistBase: polylineCumDistHandle ? polylineCumDistHandle.base : 0,
+        vertexColorsBase: vertexColorsPortion ? vertexColorsPortion.base : 0
       });
       geometryHandle = {
         sceneGeometry,
@@ -179025,6 +179057,7 @@ struct GeometryAttributes {
   // per segment: the cumulative model-space distance from the
   // segment's polyline start.
   uint polylineCumDistBase;
+  uint vertexColorsBase;
 };
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -179125,6 +179158,7 @@ GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
   s.normalsBase          = t0.a;
   s.uvsBase              = t1.r;
   s.polylineCumDistBase  = t1.g;
+  s.vertexColorsBase     = t1.b;
   return s;
 }
 
@@ -180762,9 +180796,10 @@ flat out int  vHatchSpace;
    */
   vsDrawVertexColorLogic() {
     this._vertSrcBuf.push(`
-    // Output vertex color
-    uvec4 color = getVertexColor(vertexIndexWithinGeometry);
-    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);`);
+    // Vertex color bytes are authored/stored as sRGB; convert to linear for the scene pipeline.
+    uvec4 color = getVertexColor(geometryAttributes.vertexColorsBase + vertexIndexWithinGeometry);
+    vec3 srgbColor = vec3(float(color.r), float(color.g), float(color.b)) / 255.0;
+    vColor = vec4(pow(max(srgbColor, vec3(0.0)), vec3(2.2)), 1.0);`);
   }
   /**
    * Generates vertex shader logic for depth rendering.
@@ -180879,6 +180914,31 @@ flat out int  vHatchSpace;
    } else {
       gl_PointSize = pointSize;
    }`
+    );
+  }
+  /**
+   * Generates point size logic for point-cloud picking.
+   *
+   * Pick rendering targets a 1x1 framebuffer viewport centred on the
+   * pointer. Keeping point picks at exactly the visible point size makes
+   * 1px LAS points effectively unpickable, so the pick pass keeps the
+   * visible size as a lower bound but expands tiny points to a small
+   * screen-space picking footprint.
+   *
+   * @protected
+   */
+  vsPointsPickGeometryLogic() {
+    this._vertSrcBuf.push(
+      `  if (uPerspectivePoints == 1) {
+     gl_PointSize = (uNearPlaneHeight * pointSize) / clipPos.w;
+     gl_PointSize = max(gl_PointSize, uPerspectivePointsMinMax[0]);
+     gl_PointSize = min(gl_PointSize, uPerspectivePointsMinMax[1]);
+   } else {
+      gl_PointSize = pointSize;
+   }
+   float pickPointSize = max(gl_PointSize, 7.0);
+   gl_Position.xy /= pickPointSize;
+   gl_PointSize = pickPointSize;`
     );
   }
   /**
@@ -182675,6 +182735,106 @@ var PointsDrawColorTechnique = class extends DrawTechnique {
   }
 };
 
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/index.ts
+var points_exports = {};
+__export(points_exports, {
+  PointsDrawColorTechnique: () => PointsDrawColorTechnique,
+  PointsDrawSilhouetteTechnique: () => PointsDrawSilhouetteTechnique,
+  PointsPickDepth: () => PointsPickDepth,
+  PointsPickMeshTechnique: () => PointsPickMeshTechnique
+});
+
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
+var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
+  vertsPerPrim = 1;
+  useIndexBuffer = false;
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsSilhouetteDeclarations();
+    this.vsLogDepthDeclarations();
+    this.vsMainBegin();
+    this.vsSilhouetteLogic();
+    this.vsSlicingLogic();
+    this.vsLogDepthLogic();
+    this.vsMainEnd();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsSilhouetteDeclarations();
+    this.fsLogDepthDeclarations();
+    this.fsMainBegin();
+    this.fsSlicingLogic();
+    this.fsSilhouetteLogic();
+    this.fsOutputColor();
+    this.fsLogDepthLogic();
+    this.fsMainEnd();
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
+var PointsPickDepth = class extends DrawTechnique {
+  vertsPerPrim = 1;
+  useIndexBuffer = false;
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsDrawDepthDeclarations();
+    this.vsPickMainBegin();
+    this.vsDrawDepthLogic();
+    this.vsSlicingLogic();
+    this.vsMainEnd();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsDrawDepthDeclarations();
+    this.fsMainBegin();
+    this.fsSlicingLogic();
+    this.fsDrawDepthLogic();
+    this.fsOutputColor();
+    this.fsMainEnd();
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
+var PointsPickMeshTechnique = class extends DrawTechnique {
+  vertsPerPrim = 1;
+  useIndexBuffer = false;
+  constructor(renderContext, gpuMemoryReader) {
+    super(renderContext, gpuMemoryReader, { picking: true });
+  }
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsPickDeclarations();
+    this.vsPointsDeclarations();
+    this.vsPickMainBegin();
+    this.vsPickMeshLogic();
+    this.vsPointsPickGeometryLogic();
+    this.vsSlicingLogic();
+    this.vsMainEnd();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsPickMeshDeclarations();
+    this.fsMainBegin();
+    this.fsSlicingLogic();
+    this.fsPickMeshLogic();
+    this.fsMainEnd();
+  }
+};
+
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/lines/ThickLinesDrawColorTechnique.ts
 var ThickLinesDrawColorTechnique = class extends DrawTechnique {
   vertsPerPrim = 6;
@@ -183307,7 +183467,7 @@ var DrawOps = class {
     const trianglesDrawEdgeColorThick = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
     const linesPickMesh = saveForCleanup(new ThickLinesPickMeshTechnique(renderContext, gpuMemoryReader));
-    const pointsPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 1));
+    const pointsPickMesh = saveForCleanup(new PointsPickMeshTechnique(renderContext, gpuMemoryReader));
     const linesDrawColor = saveForCleanup(new ThickLinesDrawColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesSnapInit = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
@@ -190858,101 +191018,6 @@ var LinesDrawColorTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/index.ts
-var points_exports = {};
-__export(points_exports, {
-  PointsDrawColorTechnique: () => PointsDrawColorTechnique,
-  PointsDrawSilhouetteTechnique: () => PointsDrawSilhouetteTechnique,
-  PointsPickDepth: () => PointsPickDepth,
-  TrianglesPickMeshDrawTechnique: () => TrianglesPickMeshDrawTechnique
-});
-
-// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
-var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
-  vertsPerPrim = 1;
-  useIndexBuffer = false;
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDeclarations();
-    this.vsSlicingDeclarations();
-    this.vsSilhouetteDeclarations();
-    this.vsLogDepthDeclarations();
-    this.vsMainBegin();
-    this.vsSilhouetteLogic();
-    this.vsSlicingLogic();
-    this.vsLogDepthLogic();
-    this.vsMainEnd();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDeclarations();
-    this.fsColorDeclarations();
-    this.fsSlicingDeclarations();
-    this.fsSilhouetteDeclarations();
-    this.fsLogDepthDeclarations();
-    this.fsMainBegin();
-    this.fsSlicingLogic();
-    this.fsSilhouetteLogic();
-    this.fsOutputColor();
-    this.fsLogDepthLogic();
-    this.fsMainEnd();
-  }
-};
-
-// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
-var PointsPickDepth = class extends DrawTechnique {
-  vertsPerPrim = 1;
-  useIndexBuffer = false;
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDeclarations();
-    this.vsSlicingDeclarations();
-    this.vsDrawDepthDeclarations();
-    this.vsPickMainBegin();
-    this.vsDrawDepthLogic();
-    this.vsSlicingLogic();
-    this.vsMainEnd();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDeclarations();
-    this.fsColorDeclarations();
-    this.fsSlicingDeclarations();
-    this.fsDrawDepthDeclarations();
-    this.fsMainBegin();
-    this.fsSlicingLogic();
-    this.fsDrawDepthLogic();
-    this.fsOutputColor();
-    this.fsMainEnd();
-  }
-};
-
-// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
-var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
-  vertsPerPrim = 1;
-  useIndexBuffer = false;
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDeclarations();
-    this.vsSlicingDeclarations();
-    this.vsPickDeclarations();
-    this.vsPickMainBegin();
-    this.vsPickMeshLogic();
-    this.vsSlicingLogic();
-    this.vsMainEnd();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDeclarations();
-    this.fsSlicingDeclarations();
-    this.fsPickMeshDeclarations();
-    this.fsMainBegin();
-    this.fsSlicingLogic();
-    this.fsPickMeshLogic();
-    this.fsMainEnd();
-  }
-};
-
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/triangles/index.ts
 var triangles_exports = {};
 __export(triangles_exports, {
@@ -192442,12 +192507,20 @@ var WebGLRenderer3 = class {
      */
     webglContextLost: new EventEmitter(new import_strongly_typed_events18.EventDispatcher()),
     /**
+     * Backend-neutral alias for {@link webglContextLost}.
+     */
+    onContextLost: new EventEmitter(new import_strongly_typed_events18.EventDispatcher()),
+    /**
      * Emitted when the underlying WebGL context is restored.
      *
      * At this point, the renderer will have automatically reinitialized its internal state and
      * resumed rendering.
      */
     webglContextRestored: new EventEmitter(new import_strongly_typed_events18.EventDispatcher()),
+    /**
+     * Backend-neutral alias for {@link webglContextRestored}.
+     */
+    onContextRestored: new EventEmitter(new import_strongly_typed_events18.EventDispatcher()),
     /**
      * Emitted when an error occurs within the renderer.
      *
@@ -193043,6 +193116,7 @@ var WebGLRenderer3 = class {
         return;
       event.preventDefault();
       viewManager.webglContextLost();
+      this.events.onContextLost.dispatch(this, event);
       this.events.webglContextLost.dispatch(this, event);
     };
     const contextRestoredHandler = (_event) => {
@@ -193063,6 +193137,7 @@ var WebGLRenderer3 = class {
           views[i]?.needsRender();
         }
       }
+      this.events.onContextRestored.dispatch(this);
       this.events.webglContextRestored.dispatch(this);
     };
     this._webglContextCanvas = canvas3;
@@ -193359,6 +193434,3174 @@ __export(internal_exports, {
   renderManager: () => renderManager_exports,
   snapManager: () => snapManager_exports
 });
+
+// ../sdk/src/viewing/webGPURenderer/index.ts
+var webGPURenderer_exports = {};
+__export(webGPURenderer_exports, {
+  WebGPURenderer: () => WebGPURenderer
+});
+
+// ../sdk/src/viewing/webGPURenderer/core/WebGPURenderer.ts
+var import_strongly_typed_events19 = __toESM(require_dist8());
+
+// ../sdk/src/viewing/webGPURenderer/internal/RENDER_PASSES.ts
+var RENDER_PASSES2 = {
+  NOT_RENDERED: 0,
+  OPAQUE: 1,
+  TRANSPARENT: 2
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/WebGPUDrawOp.ts
+var WebGPUDrawOp = class {
+  technique;
+  renderPass;
+  constructor(technique, renderPass) {
+    this.technique = technique;
+    this.renderPass = renderPass;
+  }
+  drawBatches(params) {
+    const pipelineStateResult = this.technique.getPipelineState(this.renderPass);
+    if (pipelineStateResult.ok === false) {
+      return pipelineStateResult;
+    }
+    return this.technique.drawBatches({
+      ...params,
+      pipelineState: pipelineStateResult.value
+    });
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/WebGPUDrawTechnique.ts
+var WebGPUDrawTechnique = class {
+  _pipelineManager;
+  constructor(pipelineManager) {
+    this._pipelineManager = pipelineManager;
+  }
+  destroy() {
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/WebGPUTrianglesDrawColorTechnique.ts
+var WebGPUTrianglesDrawColorTechnique = class extends WebGPUDrawTechnique {
+  constructor(pipelineManager) {
+    super(pipelineManager);
+  }
+  getPipelineState(renderPass) {
+    return this._pipelineManager.getMeshPipelineState(renderPass);
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGPUTrianglesDrawColorTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
+      };
+    }
+    passEncoder.setPipeline(pipelineState.renderPipeline);
+    passEncoder.setBindGroup(0, frameBindGroup);
+    passEncoder.setBindGroup(1, instanceBindGroup);
+    for (const batch of batches) {
+      const packedBatch = batch.packedBatch;
+      passEncoder.setVertexBuffer(0, packedBatch.vertexBuffer);
+      passEncoder.setVertexBuffer(1, packedBatch.normalBuffer);
+      passEncoder.setVertexBuffer(2, packedBatch.meshIndexBuffer);
+      passEncoder.setIndexBuffer(packedBatch.indexBuffer, packedBatch.indexFormat);
+      passEncoder.drawIndexed(packedBatch.indexCount, 1, 0, 0, 0);
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/WebGPUDrawOps.ts
+var WebGPUDrawOps = class {
+  prims = {};
+  _pipelineManager;
+  _techniques = [];
+  constructor(pipelineManager) {
+    this._pipelineManager = pipelineManager;
+  }
+  init() {
+    this.destroy();
+    const trianglesDrawColor = this._saveForCleanup(
+      new WebGPUTrianglesDrawColorTechnique(this._pipelineManager)
+    );
+    this.prims[TrianglesPrimitive] = {
+      opaque: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES2.OPAQUE),
+      transparent: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES2.TRANSPARENT)
+    };
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  destroy() {
+    for (const technique of this._techniques) {
+      technique.destroy();
+    }
+    this._techniques = [];
+    this.prims = {};
+  }
+  _saveForCleanup(technique) {
+    this._techniques.push(technique);
+    return technique;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/pickManager/WebGPUPickManager.ts
+var WebGPUPickManager = class {
+  _snapManager;
+  constructor(params) {
+    this._snapManager = params.snapManager;
+  }
+  pick(view, pickParams) {
+    void this._snapManager;
+    return {
+      ok: false,
+      type: 6 /* NotSupported */,
+      error: "[WebGPUPickManager.pick] WebGPU picking is not implemented yet."
+    };
+  }
+  destroy() {
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/snapManager/WebGPUSnapManager.ts
+var WebGPUSnapManager = class {
+  snapPick(view, pickParams) {
+    return {
+      ok: false,
+      type: 6 /* NotSupported */,
+      error: "[WebGPUSnapManager.snapPick] WebGPU snap picking is not implemented yet."
+    };
+  }
+  destroy() {
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/constants.ts
+var GPU_BUFFER_USAGE = {
+  COPY_DST: 8,
+  INDEX: 16,
+  STORAGE: 128,
+  VERTEX: 32,
+  UNIFORM: 64
+};
+var GPU_TEXTURE_USAGE = {
+  RENDER_ATTACHMENT: 16
+};
+var GPU_SHADER_STAGE = {
+  VERTEX: 1,
+  FRAGMENT: 2
+};
+var DEPTH_FORMAT = "depth24plus";
+var FRAME_UNIFORM_FLOATS = 20;
+var FRAME_UNIFORM_BYTES = FRAME_UNIFORM_FLOATS * 4;
+var INSTANCE_FLOATS = 36;
+var INSTANCE_BYTES = INSTANCE_FLOATS * 4;
+var IDENTITY_MATRIX2 = identityMat4();
+var WEBGPU_CLIP_SPACE_MATRIX = [
+  1,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  0,
+  0,
+  0.5,
+  0,
+  0,
+  0,
+  0.5,
+  1
+];
+var TRIANGLE_SHADER = `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  lightDirectionAndAmbient: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  normalMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+struct VertexInput {
+  @location(0) position: vec3<f32>,
+  @location(1) normal: vec3<f32>,
+  @location(2) meshIndex: u32,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+  @location(1) normal: vec3<f32>,
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.meshIndex];
+  var output: VertexOutput;
+  output.position = frame.viewProjection * instance.modelMatrix * vec4<f32>(input.position, 1.0);
+  output.color = instance.color;
+  output.normal = normalize((instance.normalMatrix * vec4<f32>(input.normal, 0.0)).xyz);
+  return output;
+}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  let normal = normalize(input.normal);
+  let lightDirection = normalize(frame.lightDirectionAndAmbient.xyz);
+  let ambient = frame.lightDirectionAndAmbient.w;
+  let diffuse = max(dot(normal, lightDirection), 0.0);
+  let lighting = ambient + diffuse * (1.0 - ambient);
+  return vec4<f32>(input.color.rgb * lighting, input.color.a);
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPULightingManager.ts
+var WebGPULightingManager = class {
+  _lightDirection = new Float32Array([-0.35, 0.55, 0.76]);
+  _ambient = 0.35;
+  constructor() {
+    this._normalizeLightDirection();
+  }
+  writeLightingUniforms(target, offset) {
+    target[offset] = this._lightDirection[0];
+    target[offset + 1] = this._lightDirection[1];
+    target[offset + 2] = this._lightDirection[2];
+    target[offset + 3] = this._ambient;
+  }
+  _normalizeLightDirection() {
+    const x = this._lightDirection[0];
+    const y = this._lightDirection[1];
+    const z = this._lightDirection[2];
+    const length2 = Math.hypot(x, y, z) || 1;
+    this._lightDirection[0] = x / length2;
+    this._lightDirection[1] = y / length2;
+    this._lightDirection[2] = z / length2;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPURenderContext.ts
+var WebGPURenderContext = class {
+  device;
+  contextFormat;
+  constructor(params) {
+    this.device = params.device;
+    this.contextFormat = params.contextFormat;
+  }
+  createGPUBuffer(label, data2, usage) {
+    const uploadData = this._createAlignedUploadData(data2);
+    const buffer = this.device.createBuffer({
+      label,
+      size: uploadData.byteLength,
+      usage: usage | GPU_BUFFER_USAGE.COPY_DST
+    });
+    this.device.queue.writeBuffer(buffer, 0, uploadData);
+    return buffer;
+  }
+  createDepthTexture(label, width, height) {
+    return this.device.createTexture({
+      label,
+      size: {
+        width,
+        height,
+        depthOrArrayLayers: 1
+      },
+      format: DEPTH_FORMAT,
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+    });
+  }
+  _alignTo4(value) {
+    return value + 3 & ~3;
+  }
+  _createAlignedUploadData(data2) {
+    const alignedByteLength = Math.max(4, this._alignTo4(data2.byteLength));
+    if (alignedByteLength === data2.byteLength) {
+      return data2;
+    }
+    const uploadData = new Uint8Array(alignedByteLength);
+    uploadData.set(new Uint8Array(data2.buffer, data2.byteOffset, data2.byteLength));
+    return uploadData;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUPipelineManager.ts
+var WebGPUPipelineManager = class {
+  _renderContext;
+  _meshShaderModule = null;
+  _frameBindGroupLayout = null;
+  _instanceBindGroupLayout = null;
+  _meshPipelineLayout = null;
+  _meshPipelineStates = {};
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  getFrameBindGroupLayout() {
+    if (this._frameBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._frameBindGroupLayout
+      };
+    }
+    try {
+      this._frameBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-frame-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUPipelineManager.getFrameBindGroupLayout] Failed to create WebGPU frame bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._frameBindGroupLayout
+    };
+  }
+  getInstanceBindGroupLayout() {
+    if (this._instanceBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._instanceBindGroupLayout
+      };
+    }
+    try {
+      this._instanceBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-instance-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUPipelineManager.getInstanceBindGroupLayout] Failed to create WebGPU instance bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._instanceBindGroupLayout
+    };
+  }
+  getMeshPipelineState(renderPass = RENDER_PASSES2.OPAQUE) {
+    const existing = this._meshPipelineStates[renderPass];
+    if (existing) {
+      return {
+        ok: true,
+        value: existing
+      };
+    }
+    const device = this._renderContext.device;
+    const shaderModuleResult = this._getMeshShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const bindGroupLayoutResult = this.getFrameBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getMeshPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      const renderPipeline = device.createRenderPipeline({
+        label: renderPass === RENDER_PASSES2.TRANSPARENT ? "xeokit-webgpu-basic-triangle-transparent-pipeline" : "xeokit-webgpu-basic-triangle-opaque-pipeline",
+        layout: pipelineLayoutResult.value,
+        vertex: {
+          module: shaderModuleResult.value,
+          entryPoint: "vs_main",
+          buffers: [
+            {
+              arrayStride: 12,
+              attributes: [{
+                shaderLocation: 0,
+                offset: 0,
+                format: "float32x3"
+              }]
+            },
+            {
+              arrayStride: 12,
+              attributes: [{
+                shaderLocation: 1,
+                offset: 0,
+                format: "float32x3"
+              }]
+            },
+            {
+              arrayStride: 4,
+              attributes: [{
+                shaderLocation: 2,
+                offset: 0,
+                format: "uint32"
+              }]
+            }
+          ]
+        },
+        fragment: {
+          module: shaderModuleResult.value,
+          entryPoint: "fs_main",
+          targets: [{
+            format: this._renderContext.contextFormat,
+            blend: {
+              color: {
+                srcFactor: "src-alpha",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              },
+              alpha: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              }
+            }
+          }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: renderPass === RENDER_PASSES2.OPAQUE,
+          depthCompare: "less"
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._meshPipelineStates[renderPass] = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: bindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        renderPipeline
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUPipelineManager.getMeshPipelineState] Failed to create WebGPU render pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._meshPipelineStates[renderPass]
+    };
+  }
+  _getMeshShaderModule() {
+    if (this._meshShaderModule) {
+      return {
+        ok: true,
+        value: this._meshShaderModule
+      };
+    }
+    try {
+      this._meshShaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-basic-triangle-shader",
+        code: TRIANGLE_SHADER
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUPipelineManager._getMeshShaderModule] Failed to create WebGPU mesh shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._meshShaderModule
+    };
+  }
+  _getMeshPipelineLayout() {
+    if (this._meshPipelineLayout) {
+      return {
+        ok: true,
+        value: this._meshPipelineLayout
+      };
+    }
+    const bindGroupLayoutResult = this.getFrameBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    try {
+      this._meshPipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-basic-triangle-pipeline-layout",
+        bindGroupLayouts: [bindGroupLayoutResult.value, instanceBindGroupLayoutResult.value]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUPipelineManager._getMeshPipelineLayout] Failed to create WebGPU mesh pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._meshPipelineLayout
+    };
+  }
+  destroy() {
+    this._meshShaderModule = null;
+    this._frameBindGroupLayout = null;
+    this._instanceBindGroupLayout = null;
+    this._meshPipelineLayout = null;
+    this._meshPipelineStates = {};
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUFrameUniformManager.ts
+var WebGPUFrameUniformManager = class {
+  _renderContext;
+  _pipelineManager;
+  _lightingManager;
+  _viewProjectionMatrix = createMat4Float64();
+  _webGPUViewProjectionMatrix = createMat4Float64();
+  _frameUniformData = new Float32Array(FRAME_UNIFORM_FLOATS);
+  _uniformBuffer = null;
+  _bindGroup = null;
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._pipelineManager = params.pipelineManager;
+    this._lightingManager = params.lightingManager;
+  }
+  writeFrameUniforms(view) {
+    const bindGroupResult = this._getOrCreateBindGroup();
+    if (bindGroupResult.ok === false) {
+      return bindGroupResult;
+    }
+    const camera = view.camera;
+    const viewMatrix = camera?.viewMatrix ?? IDENTITY_MATRIX2;
+    const projMatrix = camera?.projMatrix ?? IDENTITY_MATRIX2;
+    mulMat4(projMatrix, viewMatrix, this._viewProjectionMatrix);
+    mulMat4(WEBGPU_CLIP_SPACE_MATRIX, this._viewProjectionMatrix, this._webGPUViewProjectionMatrix);
+    for (let i = 0; i < 16; i++) {
+      this._frameUniformData[i] = this._webGPUViewProjectionMatrix[i];
+    }
+    this._lightingManager.writeLightingUniforms(this._frameUniformData, 16);
+    this._renderContext.device.queue.writeBuffer(this._uniformBuffer, 0, this._frameUniformData);
+    return bindGroupResult;
+  }
+  destroy() {
+    try {
+      this._uniformBuffer?.destroy?.();
+    } catch {
+    }
+    this._uniformBuffer = null;
+    this._bindGroup = null;
+  }
+  _getOrCreateBindGroup() {
+    if (this._bindGroup) {
+      return {
+        ok: true,
+        value: this._bindGroup
+      };
+    }
+    const bindGroupLayoutResult = this._pipelineManager.getFrameBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    try {
+      this._uniformBuffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-frame-uniforms",
+        size: FRAME_UNIFORM_BYTES,
+        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._bindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-frame-bind-group",
+        layout: bindGroupLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: this._uniformBuffer
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUFrameUniformManager._getOrCreateBindGroup] Failed to create WebGPU frame uniforms: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._bindGroup
+    };
+  }
+};
+
+// ../sdk/src/model/scene/generateSmoothNormals.ts
+function generateSmoothNormals(positions, indices) {
+  const vertCount = positions.length / 3 | 0;
+  const triCount = indices.length / 3 | 0;
+  if (vertCount === 0 || triCount === 0 || indices.length % 3 !== 0) {
+    return null;
+  }
+  const acc = new Float32Array(vertCount * 3);
+  for (let t = 0; t < triCount; t++) {
+    const i0 = indices[t * 3];
+    const i1 = indices[t * 3 + 1];
+    const i2 = indices[t * 3 + 2];
+    const ax = positions[i0 * 3];
+    const ay = positions[i0 * 3 + 1];
+    const az = positions[i0 * 3 + 2];
+    const ex1 = positions[i1 * 3] - ax;
+    const ey1 = positions[i1 * 3 + 1] - ay;
+    const ez1 = positions[i1 * 3 + 2] - az;
+    const ex2 = positions[i2 * 3] - ax;
+    const ey2 = positions[i2 * 3 + 1] - ay;
+    const ez2 = positions[i2 * 3 + 2] - az;
+    const nx = ey1 * ez2 - ez1 * ey2;
+    const ny = ez1 * ex2 - ex1 * ez2;
+    const nz = ex1 * ey2 - ey1 * ex2;
+    acc[i0 * 3] += nx;
+    acc[i0 * 3 + 1] += ny;
+    acc[i0 * 3 + 2] += nz;
+    acc[i1 * 3] += nx;
+    acc[i1 * 3 + 1] += ny;
+    acc[i1 * 3 + 2] += nz;
+    acc[i2 * 3] += nx;
+    acc[i2 * 3 + 1] += ny;
+    acc[i2 * 3 + 2] += nz;
+  }
+  let anyNonZero = false;
+  for (let i = 0; i < vertCount; i++) {
+    const x = acc[i * 3], y = acc[i * 3 + 1], z = acc[i * 3 + 2];
+    const lenSq = x * x + y * y + z * z;
+    if (lenSq > 0) {
+      anyNonZero = true;
+      const inv = 1 / Math.sqrt(lenSq);
+      acc[i * 3] = x * inv;
+      acc[i * 3 + 1] = y * inv;
+      acc[i * 3 + 2] = z * inv;
+    } else {
+      acc[i * 3] = 0;
+      acc[i * 3 + 1] = 1;
+      acc[i * 3 + 2] = 0;
+    }
+  }
+  if (!anyNonZero) {
+    return null;
+  }
+  return octEncodeNormalsToU16(acc);
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUGeometryManager.ts
+var WebGPUGeometryManager = class {
+  _renderContext;
+  _geometryStates = {};
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  getOrCreateGeometryState(sceneGeometry) {
+    const existing = this._geometryStates[sceneGeometry.uniqueId];
+    if (existing) {
+      return {
+        ok: true,
+        value: existing
+      };
+    }
+    if (!sceneGeometry.aabb || !sceneGeometry.positionsCompressed || !sceneGeometry.indices) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[WebGPUGeometryManager.getOrCreateGeometryState] SceneGeometry '${sceneGeometry.uniqueId}' is missing positions, indices, or AABB.`
+      };
+    }
+    const positions = decompressPositions3WithAABB3(
+      sceneGeometry.positionsCompressed,
+      sceneGeometry.aabb,
+      new Float32Array(sceneGeometry.positionsCompressed.length)
+    );
+    const indexData = this._createIndexData(sceneGeometry.indices);
+    const normals = this._createNormalData(sceneGeometry, positions, sceneGeometry.indices);
+    const vertexBuffer = this._renderContext.createGPUBuffer(
+      `xeokit-webgpu-positions:${sceneGeometry.uniqueId}`,
+      positions,
+      GPU_BUFFER_USAGE.VERTEX
+    );
+    const normalBuffer = this._renderContext.createGPUBuffer(
+      `xeokit-webgpu-normals:${sceneGeometry.uniqueId}`,
+      normals,
+      GPU_BUFFER_USAGE.VERTEX
+    );
+    const indexBuffer = this._renderContext.createGPUBuffer(
+      `xeokit-webgpu-indices:${sceneGeometry.uniqueId}`,
+      indexData.data,
+      GPU_BUFFER_USAGE.INDEX
+    );
+    const geometryState = {
+      geometry: sceneGeometry,
+      positions,
+      normals,
+      indices: indexData.data,
+      vertexBuffer,
+      normalBuffer,
+      indexBuffer,
+      indexFormat: indexData.indexFormat,
+      indexCount: indexData.data.length,
+      numMeshes: 0
+    };
+    this._geometryStates[sceneGeometry.uniqueId] = geometryState;
+    return {
+      ok: true,
+      value: geometryState
+    };
+  }
+  destroyGeometryState(sceneGeometry) {
+    const geometryState = this._geometryStates[sceneGeometry.uniqueId];
+    if (!geometryState) {
+      return;
+    }
+    try {
+      geometryState.vertexBuffer.destroy?.();
+    } catch {
+    }
+    try {
+      geometryState.normalBuffer.destroy?.();
+    } catch {
+    }
+    try {
+      geometryState.indexBuffer.destroy?.();
+    } catch {
+    }
+    delete this._geometryStates[sceneGeometry.uniqueId];
+  }
+  destroyAll() {
+    for (const geometryUniqueId of Object.keys(this._geometryStates)) {
+      this.destroyGeometryState(this._geometryStates[geometryUniqueId].geometry);
+    }
+    this._geometryStates = {};
+  }
+  _createIndexData(indices) {
+    let maxIndex = 0;
+    for (let i = 0, len = indices.length; i < len; i++) {
+      if (indices[i] > maxIndex) {
+        maxIndex = indices[i];
+      }
+    }
+    if (maxIndex > 65535) {
+      return {
+        data: indices instanceof Uint32Array ? indices : new Uint32Array(indices),
+        indexFormat: "uint32"
+      };
+    }
+    return {
+      data: indices instanceof Uint16Array ? indices : new Uint16Array(indices),
+      indexFormat: "uint16"
+    };
+  }
+  _createNormalData(sceneGeometry, positions, indices) {
+    const expectedCompressedLength = positions.length / 3 * 2;
+    if (sceneGeometry.normalsCompressed && sceneGeometry.normalsCompressed.length === expectedCompressedLength) {
+      return octDecodeNormalsU16(
+        sceneGeometry.normalsCompressed,
+        new Float32Array(positions.length)
+      );
+    }
+    const generatedNormals = generateSmoothNormals(positions, indices);
+    if (generatedNormals) {
+      return octDecodeNormalsU16(
+        generatedNormals,
+        new Float32Array(positions.length)
+      );
+    }
+    const normals = new Float32Array(positions.length);
+    for (let i = 0, len = normals.length; i < len; i += 3) {
+      normals[i + 1] = 1;
+    }
+    return normals;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUMeshManager.ts
+var WebGPUMeshManager = class {
+  _geometryManager;
+  _meshStates = {};
+  _meshStateIndices = {};
+  _meshStateList = [];
+  _meshCenter = createVec3Float64();
+  _worldMeshCenter = createVec3Float64();
+  _viewMeshCenter = createVec3Float64();
+  _structureVersion = 0;
+  _instanceDataVersion = 0;
+  _allViewStateVersion = 0;
+  _viewStateVersions = {};
+  _cameraViewVersions = {};
+  constructor(params) {
+    this._geometryManager = params.geometryManager;
+  }
+  get meshStates() {
+    return this._meshStateList;
+  }
+  get structureVersion() {
+    return this._structureVersion;
+  }
+  get instanceDataVersion() {
+    return this._instanceDataVersion;
+  }
+  getViewStateVersion(view) {
+    return this._allViewStateVersion + (this._viewStateVersions[view.id] ?? 0);
+  }
+  getCameraViewVersion(view) {
+    return this._cameraViewVersions[view.id] ?? 0;
+  }
+  sceneModelCreated(sceneModel) {
+    const meshes = sceneModel.meshes;
+    for (const meshId in meshes) {
+      const result = this.registerSceneMesh(meshes[meshId]);
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    return this._ok();
+  }
+  sceneModelDestroyed(sceneModel) {
+    const meshes = this._meshStateList.filter((meshState) => meshState.mesh.model === sceneModel).map((meshState) => meshState.mesh);
+    for (const mesh of meshes) {
+      this.destroyMeshState(mesh);
+    }
+    return this._ok();
+  }
+  sceneGeometryCreated(sceneGeometry) {
+    return this._ok();
+  }
+  sceneGeometryDestroyed(sceneGeometry) {
+    this.destroyGeometryState(sceneGeometry);
+    return this._ok();
+  }
+  sceneGeometryUpdated(sceneGeometry) {
+    const meshes = this._meshStateList.filter((meshState) => meshState.geometryState.geometry === sceneGeometry || meshState.mesh.geometry === sceneGeometry).map((meshState) => meshState.mesh);
+    this.destroyGeometryState(sceneGeometry);
+    for (const mesh of meshes) {
+      if (mesh.destroyed) {
+        continue;
+      }
+      const result = this.registerSceneMesh(mesh);
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    return this._ok();
+  }
+  sceneMeshCreated(sceneMesh) {
+    return this.registerSceneMesh(sceneMesh);
+  }
+  sceneMeshDestroyed(sceneMesh) {
+    this.destroyMeshState(sceneMesh);
+    return this._ok();
+  }
+  sceneObjectCreated(sceneObject) {
+    const meshes = sceneObject.meshes;
+    for (let i = 0, len = meshes.length; i < len; i++) {
+      const result = this.registerSceneMesh(meshes[i]);
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    this._markAllViewStateDirty();
+    return this._ok();
+  }
+  sceneObjectDestroyed(sceneObject) {
+    this._markAllViewStateDirty();
+    return this._ok();
+  }
+  sceneObjectMeshAdded(sceneObject, sceneMesh) {
+    const result = this.registerSceneMesh(sceneMesh);
+    if (result.ok) {
+      this._markAllViewStateDirty();
+    }
+    return result;
+  }
+  sceneObjectMeshRemoved(sceneObject, sceneMesh) {
+    this._markAllViewStateDirty();
+    return this._ok();
+  }
+  sceneMeshMatrixChanged(sceneMesh) {
+    const meshState = this._meshStates[sceneMesh.uniqueId];
+    if (!meshState) {
+      return;
+    }
+    meshState.matrixDirty = true;
+    this._markInstanceDataDirty();
+  }
+  sceneMeshMoved(sceneMesh) {
+    this.sceneMeshMatrixChanged(sceneMesh);
+  }
+  sceneMeshColorChanged(sceneMesh) {
+    if (this._meshStates[sceneMesh.uniqueId]) {
+      this._markInstanceDataDirty();
+    }
+  }
+  sceneMeshOpacityChanged(sceneMesh) {
+    if (this._meshStates[sceneMesh.uniqueId]) {
+      this._markInstanceDataDirty();
+    }
+  }
+  sceneMaterialPatternChanged(sceneMaterial) {
+    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
+      this._markInstanceDataDirty();
+    }
+  }
+  sceneMaterialColorChanged(sceneMaterial) {
+    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
+      this._markInstanceDataDirty();
+    }
+  }
+  sceneMaterialEmissiveColorChanged(sceneMaterial) {
+    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
+      this._markInstanceDataDirty();
+    }
+  }
+  sceneMaterialOpacityChanged(sceneMaterial) {
+    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
+      this._markInstanceDataDirty();
+    }
+  }
+  sceneTransformMatrixChanged(sceneTransform) {
+    for (let i = 0, len = this._meshStateList.length; i < len; i++) {
+      this._meshStateList[i].matrixDirty = true;
+    }
+    this._markInstanceDataDirty();
+  }
+  viewObjectChanged(viewObject) {
+    const view = this._getViewObjectView(viewObject);
+    if (!view) {
+      return;
+    }
+    this._viewStateVersions[view.id] = (this._viewStateVersions[view.id] ?? 0) + 1;
+  }
+  cameraViewMatrixUpdated(camera) {
+    const view = camera.view;
+    if (!view) {
+      return;
+    }
+    this._cameraViewVersions[view.id] = (this._cameraViewVersions[view.id] ?? 0) + 1;
+  }
+  viewDestroyed(view) {
+    delete this._viewStateVersions[view.id];
+    delete this._cameraViewVersions[view.id];
+  }
+  registerSceneMesh(sceneMesh) {
+    if (this._meshStates[sceneMesh.uniqueId]) {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    if (!this.isRenderableMesh(sceneMesh)) {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    const geometryResult = this._geometryManager.getOrCreateGeometryState(sceneMesh.geometry);
+    if (geometryResult.ok === false) {
+      return geometryResult;
+    }
+    geometryResult.value.numMeshes++;
+    const meshState = {
+      mesh: sceneMesh,
+      geometryState: geometryResult.value,
+      worldMatrix: createMat4Float64(),
+      normalMatrix: createMat4Float64(),
+      matrixDirty: true
+    };
+    this._meshStates[sceneMesh.uniqueId] = meshState;
+    this._meshStateIndices[sceneMesh.uniqueId] = this._meshStateList.length;
+    this._meshStateList.push(meshState);
+    this._markStructureDirty();
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  destroyMeshState(sceneMesh) {
+    const meshState = this._meshStates[sceneMesh.uniqueId];
+    if (!meshState) {
+      return;
+    }
+    const index = this._meshStateIndices[sceneMesh.uniqueId];
+    const lastIndex = this._meshStateList.length - 1;
+    const last = this._meshStateList[lastIndex];
+    if (index !== lastIndex) {
+      this._meshStateList[index] = last;
+      this._meshStateIndices[last.mesh.uniqueId] = index;
+    }
+    this._meshStateList.pop();
+    delete this._meshStates[sceneMesh.uniqueId];
+    delete this._meshStateIndices[sceneMesh.uniqueId];
+    this._markStructureDirty();
+    const geometryState = meshState.geometryState;
+    geometryState.numMeshes = Math.max(0, geometryState.numMeshes - 1);
+    if (geometryState.numMeshes === 0) {
+      this._geometryManager.destroyGeometryState(geometryState.geometry);
+    }
+  }
+  destroyGeometryState(sceneGeometry) {
+    const meshes = this._meshStateList.filter((meshState) => meshState.geometryState.geometry === sceneGeometry || meshState.mesh.geometry === sceneGeometry).map((meshState) => meshState.mesh);
+    for (const mesh of meshes) {
+      this.destroyMeshState(mesh);
+    }
+    this._geometryManager.destroyGeometryState(sceneGeometry);
+  }
+  destroyAll() {
+    for (const meshUniqueId of Object.keys(this._meshStates)) {
+      this.destroyMeshState(this._meshStates[meshUniqueId].mesh);
+    }
+    this._meshStates = {};
+    this._meshStateIndices = {};
+    this._meshStateList.length = 0;
+    this._markStructureDirty();
+  }
+  isRenderableMesh(sceneMesh) {
+    if (!sceneMesh || sceneMesh.destroyed) {
+      return false;
+    }
+    const geometry = sceneMesh.geometry;
+    if (!geometry || geometry.destroyed || !geometry.indices) {
+      return false;
+    }
+    return geometry.primitive === TrianglesPrimitive || geometry.primitive === SolidPrimitive || geometry.primitive === SurfacePrimitive;
+  }
+  isMeshVisibleInView(meshState, view) {
+    if (!this.isRenderableMesh(meshState.mesh)) {
+      return false;
+    }
+    const viewObject = this._getViewObject(meshState.mesh, view);
+    return !viewObject || viewObject.visible && !viewObject.culled;
+  }
+  getMeshOpacityInView(meshState, view) {
+    const viewObject = this._getViewObject(meshState.mesh, view);
+    const opacity = viewObject?.opacityUpdated ? viewObject.opacity : meshState.mesh.effectiveOpacity ?? meshState.mesh.opacity ?? 1;
+    return Math.max(0, Math.min(1, opacity));
+  }
+  getMeshViewDepth(meshState, view) {
+    const aabb = meshState.geometryState.geometry.aabb;
+    if (!aabb) {
+      return 0;
+    }
+    this._meshCenter[0] = (aabb[0] + aabb[3]) * 0.5;
+    this._meshCenter[1] = (aabb[1] + aabb[4]) * 0.5;
+    this._meshCenter[2] = (aabb[2] + aabb[5]) * 0.5;
+    this._ensureMeshMatrices(meshState);
+    const worldMatrix = meshState.worldMatrix;
+    const viewMatrix = view.camera?.viewMatrix ?? IDENTITY_MATRIX2;
+    transformPoint3(worldMatrix, this._meshCenter, this._worldMeshCenter);
+    transformPoint3(viewMatrix, this._worldMeshCenter, this._viewMeshCenter);
+    return this._viewMeshCenter[2];
+  }
+  writeInstanceData(drawItem, view, target, targetOffset) {
+    const meshState = drawItem.meshState;
+    const viewObject = this._getViewObject(meshState.mesh, view);
+    const color2 = viewObject?.colorize ?? meshState.mesh.effectiveColor ?? meshState.mesh.color ?? [1, 1, 1];
+    this._ensureMeshMatrices(meshState);
+    for (let i = 0; i < 16; i++) {
+      target[targetOffset + i] = meshState.worldMatrix[i];
+      target[targetOffset + 16 + i] = meshState.normalMatrix[i];
+    }
+    target[targetOffset + 32] = color2[0];
+    target[targetOffset + 33] = color2[1];
+    target[targetOffset + 34] = color2[2];
+    target[targetOffset + 35] = drawItem.opacity;
+  }
+  _getViewObject(sceneMesh, view) {
+    const sceneObject = sceneMesh.object;
+    if (!sceneObject) {
+      return null;
+    }
+    return view.objects?.[sceneObject.id] ?? null;
+  }
+  _ensureMeshMatrices(meshState) {
+    if (!meshState.matrixDirty) {
+      return;
+    }
+    const source = meshState.mesh.worldMatrix ?? meshState.mesh.matrix ?? IDENTITY_MATRIX2;
+    for (let i = 0; i < 16; i++) {
+      meshState.worldMatrix[i] = source[i] ?? IDENTITY_MATRIX2[i];
+    }
+    inverseMat4(meshState.worldMatrix, meshState.normalMatrix);
+    transposeMat4(meshState.normalMatrix, meshState.normalMatrix);
+    for (let i = 0; i < 16; i++) {
+      if (!Number.isFinite(meshState.normalMatrix[i])) {
+        meshState.normalMatrix[i] = IDENTITY_MATRIX2[i];
+      }
+    }
+    meshState.matrixDirty = false;
+  }
+  _materialHasRegisteredMeshes(sceneMaterial) {
+    const meshes = sceneMaterial.model?.meshes;
+    if (!meshes) {
+      return false;
+    }
+    for (const id in meshes) {
+      const mesh = meshes[id];
+      if (mesh.material === sceneMaterial && this._meshStates[mesh.uniqueId]) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _getViewObjectView(viewObject) {
+    return viewObject.view ?? viewObject.layer?.view ?? null;
+  }
+  _markStructureDirty() {
+    this._structureVersion++;
+    this._markInstanceDataDirty();
+  }
+  _markInstanceDataDirty() {
+    this._instanceDataVersion++;
+  }
+  _markAllViewStateDirty() {
+    this._allViewStateVersion++;
+  }
+  _ok() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUInstanceBufferManager.ts
+var WebGPUInstanceBufferManager = class {
+  _renderContext;
+  _frames = {};
+  _activeFrame = null;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  get buffer() {
+    return this._activeFrame?.buffer ?? null;
+  }
+  beginFrame(instanceCount, frameId = "default") {
+    let frame = this._frames[frameId];
+    if (!frame) {
+      frame = {
+        buffer: null,
+        bindGroup: null,
+        bindGroupLayout: null,
+        data: new Float32Array(0),
+        capacity: 0,
+        instanceCount: 0
+      };
+      this._frames[frameId] = frame;
+    }
+    this._activeFrame = frame;
+    frame.instanceCount = 0;
+    if (instanceCount <= frame.capacity) {
+      return {
+        ok: true,
+        value: frame
+      };
+    }
+    let nextCapacity = Math.max(1, frame.capacity);
+    while (nextCapacity < instanceCount) {
+      nextCapacity *= 2;
+    }
+    try {
+      frame.buffer?.destroy?.();
+      frame.bindGroup = null;
+      frame.bindGroupLayout = null;
+      frame.buffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-instance-buffer",
+        size: nextCapacity * INSTANCE_BYTES,
+        usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST
+      });
+      frame.data = new Float32Array(nextCapacity * INSTANCE_FLOATS);
+      frame.capacity = nextCapacity;
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUInstanceBufferManager.beginFrame] Failed to create WebGPU instance buffer: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: frame
+    };
+  }
+  getBindGroup(frame, bindGroupLayout) {
+    if (frame.bindGroup && frame.bindGroupLayout === bindGroupLayout) {
+      return {
+        ok: true,
+        value: frame.bindGroup
+      };
+    }
+    if (!frame.buffer) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGPUInstanceBufferManager.getBindGroup] Instance buffer was not initialized."
+      };
+    }
+    try {
+      frame.bindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-instance-bind-group",
+        layout: bindGroupLayout,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: frame.buffer
+          }
+        }]
+      });
+      frame.bindGroupLayout = bindGroupLayout;
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUInstanceBufferManager.getBindGroup] Failed to create WebGPU instance bind group: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: frame.bindGroup
+    };
+  }
+  appendDrawItems(params) {
+    const frame = params.frame ?? this._activeFrame;
+    if (!frame) {
+      throw new Error("[WebGPUInstanceBufferManager.appendDrawItems] No active instance frame.");
+    }
+    const firstInstance = frame.instanceCount;
+    const target = frame.data;
+    let targetOffset = firstInstance * INSTANCE_FLOATS;
+    const end = params.start + params.count;
+    for (let i = params.start; i < end; i++) {
+      params.meshManager.writeInstanceData(params.drawItems[i], params.view, target, targetOffset);
+      targetOffset += INSTANCE_FLOATS;
+    }
+    frame.instanceCount += params.count;
+    return firstInstance;
+  }
+  upload(frame = this._activeFrame) {
+    if (!frame?.buffer || frame.instanceCount === 0) {
+      return;
+    }
+    this._renderContext.device.queue.writeBuffer(
+      frame.buffer,
+      0,
+      frame.data,
+      0,
+      frame.instanceCount * INSTANCE_FLOATS
+    );
+  }
+  destroyFrame(frameId) {
+    const frame = this._frames[frameId];
+    if (!frame) {
+      return;
+    }
+    try {
+      frame.buffer?.destroy?.();
+    } catch {
+    }
+    frame.bindGroup = null;
+    frame.bindGroupLayout = null;
+    delete this._frames[frameId];
+    if (this._activeFrame === frame) {
+      this._activeFrame = null;
+    }
+  }
+  destroy() {
+    for (const frameId of Object.keys(this._frames)) {
+      this.destroyFrame(frameId);
+    }
+    this._activeFrame = null;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUPackedMeshBatchBuilder.ts
+var WebGPUPackedMeshBatchBuilder = class {
+  _renderContext;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  build(params) {
+    const { drawItems } = params;
+    const meshCount = drawItems.length;
+    if (meshCount === 0) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    let totalVertices = 0;
+    let totalIndices = 0;
+    for (let i = 0; i < meshCount; i++) {
+      const geometryState = drawItems[i].meshState.geometryState;
+      totalVertices += geometryState.positions.length / 3;
+      totalIndices += geometryState.indices.length;
+    }
+    if (totalVertices > 4294967295) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[WebGPUPackedMeshBatchBuilder.build] Packed batch '${params.label}' exceeds the uint32 index range.`
+      };
+    }
+    let vertexBuffer = null;
+    let normalBuffer = null;
+    let meshIndexBuffer = null;
+    let indexBuffer = null;
+    try {
+      const firstInstance = params.instanceBufferManager.appendDrawItems({
+        frame: params.instanceFrame,
+        drawItems,
+        start: 0,
+        count: meshCount,
+        view: params.view,
+        meshManager: params.meshManager
+      });
+      const positions = new Float32Array(totalVertices * 3);
+      const normals = new Float32Array(totalVertices * 3);
+      const meshIndices = new Uint32Array(totalVertices);
+      const indexFormat = totalVertices > 65535 ? "uint32" : "uint16";
+      const indices = indexFormat === "uint32" ? new Uint32Array(totalIndices) : new Uint16Array(totalIndices);
+      let vertexOffset = 0;
+      let indexOffset = 0;
+      for (let meshIndex = 0; meshIndex < meshCount; meshIndex++) {
+        const geometryState = drawItems[meshIndex].meshState.geometryState;
+        const vertexCount2 = geometryState.positions.length / 3;
+        const meshInstanceIndex = firstInstance + meshIndex;
+        positions.set(geometryState.positions, vertexOffset * 3);
+        normals.set(geometryState.normals, vertexOffset * 3);
+        meshIndices.fill(meshInstanceIndex, vertexOffset, vertexOffset + vertexCount2);
+        for (let i = 0, len = geometryState.indices.length; i < len; i++) {
+          indices[indexOffset + i] = geometryState.indices[i] + vertexOffset;
+        }
+        vertexOffset += vertexCount2;
+        indexOffset += geometryState.indices.length;
+      }
+      vertexBuffer = this._renderContext.createGPUBuffer(
+        `xeokit-webgpu-packed-positions:${params.label}`,
+        positions,
+        GPU_BUFFER_USAGE.VERTEX
+      );
+      normalBuffer = this._renderContext.createGPUBuffer(
+        `xeokit-webgpu-packed-normals:${params.label}`,
+        normals,
+        GPU_BUFFER_USAGE.VERTEX
+      );
+      meshIndexBuffer = this._renderContext.createGPUBuffer(
+        `xeokit-webgpu-packed-mesh-indices:${params.label}`,
+        meshIndices,
+        GPU_BUFFER_USAGE.VERTEX
+      );
+      indexBuffer = this._renderContext.createGPUBuffer(
+        `xeokit-webgpu-packed-indices:${params.label}`,
+        indices,
+        GPU_BUFFER_USAGE.INDEX
+      );
+      return {
+        ok: true,
+        value: {
+          vertexBuffer,
+          normalBuffer,
+          meshIndexBuffer,
+          indexBuffer,
+          indexFormat,
+          indexCount: indices.length,
+          destroy: () => {
+            vertexBuffer.destroy?.();
+            normalBuffer.destroy?.();
+            meshIndexBuffer.destroy?.();
+            indexBuffer.destroy?.();
+          }
+        }
+      };
+    } catch (e) {
+      vertexBuffer?.destroy?.();
+      normalBuffer?.destroy?.();
+      meshIndexBuffer?.destroy?.();
+      indexBuffer?.destroy?.();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUPackedMeshBatchBuilder.build] Failed to build packed mesh batch '${params.label}': ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUInstanceBatcher.ts
+var WebGPUInstanceBatcher = class {
+  _packedBatchBuilder;
+  _batches = {
+    opaque: [],
+    transparent: []
+  };
+  constructor(renderContext) {
+    this._packedBatchBuilder = new WebGPUPackedMeshBatchBuilder(renderContext);
+  }
+  get batches() {
+    return this._batches;
+  }
+  build(params) {
+    const { bins, view, meshManager, instanceBufferManager, instanceFrame } = params;
+    this._clear();
+    const opaqueBatchResult = this._packedBatchBuilder.build({
+      drawItems: bins.normalDrawOpaque,
+      label: `${view.id}:opaque`,
+      view,
+      meshManager,
+      instanceBufferManager,
+      instanceFrame
+    });
+    if (opaqueBatchResult.ok === false) {
+      return opaqueBatchResult;
+    }
+    if (opaqueBatchResult.value) {
+      this._batches.opaque.push({
+        packedBatch: opaqueBatchResult.value
+      });
+    }
+    const transparentBatchResult = this._packedBatchBuilder.build({
+      drawItems: bins.normalFillTransparent,
+      label: `${view.id}:transparent`,
+      view,
+      meshManager,
+      instanceBufferManager,
+      instanceFrame
+    });
+    if (transparentBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return transparentBatchResult;
+    }
+    if (transparentBatchResult.value) {
+      this._batches.transparent.push({
+        packedBatch: transparentBatchResult.value
+      });
+    }
+    instanceBufferManager.upload(instanceFrame);
+    return {
+      ok: true,
+      value: this._batches
+    };
+  }
+  _clear() {
+    this._batches.opaque.length = 0;
+    this._batches.transparent.length = 0;
+  }
+  _destroyBatches(batches) {
+    for (let i = 0, len = batches.opaque.length; i < len; i++) {
+      batches.opaque[i].packedBatch.destroy();
+    }
+    for (let i = 0, len = batches.transparent.length; i < len; i++) {
+      batches.transparent[i].packedBatch.destroy();
+    }
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPURenderBinClassifier.ts
+var WebGPURenderBinClassifier = class {
+  _drawItemPool = [];
+  _drawItemPoolCount = 0;
+  clear(bins) {
+    bins.normalDrawOpaque.length = 0;
+    bins.normalFillTransparent.length = 0;
+    this._drawItemPoolCount = 0;
+  }
+  classify(params) {
+    const { meshStates, view, meshManager, bins } = params;
+    for (const meshState of meshStates) {
+      if (!meshManager.isMeshVisibleInView(meshState, view)) {
+        continue;
+      }
+      const opacity = meshManager.getMeshOpacityInView(meshState, view);
+      if (opacity <= 0) {
+        continue;
+      }
+      const drawItem = this._nextDrawItem();
+      drawItem.meshState = meshState;
+      drawItem.opacity = opacity;
+      if (opacity >= 1) {
+        drawItem.viewDepth = 0;
+        bins.normalDrawOpaque.push(drawItem);
+      } else {
+        drawItem.viewDepth = meshManager.getMeshViewDepth(meshState, view);
+        bins.normalFillTransparent.push(drawItem);
+      }
+    }
+    bins.normalFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+  }
+  _nextDrawItem() {
+    let drawItem = this._drawItemPool[this._drawItemPoolCount];
+    if (!drawItem) {
+      drawItem = {
+        meshState: null,
+        opacity: 1,
+        viewDepth: 0
+      };
+      this._drawItemPool.push(drawItem);
+    }
+    this._drawItemPoolCount++;
+    return drawItem;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUView.ts
+var WebGPUView = class _WebGPUView {
+  view;
+  canvas;
+  context;
+  alphaMode;
+  _width = 0;
+  _height = 0;
+  _configured = false;
+  _depthTexture = null;
+  _depthTextureView = null;
+  constructor(params) {
+    this.view = params.view;
+    this.canvas = params.canvas;
+    this.context = params.context;
+    this.alphaMode = params.alphaMode;
+  }
+  static create(view, alphaMode) {
+    const canvas3 = _WebGPUView._getCanvas(view);
+    if (!canvas3) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[WebGPUView.create] View '${view.id}' must use an HTMLCanvasElement for WebGPU rendering.`
+      };
+    }
+    const context = _WebGPUView._getWebGPUContext(canvas3);
+    if (!context) {
+      return {
+        ok: false,
+        type: 6 /* NotSupported */,
+        error: `[WebGPUView.create] View '${view.id}' canvas does not provide a WebGPU context.`
+      };
+    }
+    return {
+      ok: true,
+      value: new _WebGPUView({
+        view,
+        canvas: canvas3,
+        context,
+        alphaMode: alphaMode ?? (view.transparent ? "premultiplied" : "opaque")
+      })
+    };
+  }
+  get depthTextureView() {
+    return this._depthTextureView;
+  }
+  configure(renderContext) {
+    const metrics = this._getCanvasMetrics();
+    if (this._configured && this._width === metrics.width && this._height === metrics.height) {
+      return;
+    }
+    this.canvas.width = metrics.width;
+    this.canvas.height = metrics.height;
+    this.context.configure({
+      device: renderContext.device,
+      format: renderContext.contextFormat,
+      alphaMode: this.alphaMode
+    });
+    this._destroyDepthTexture();
+    this._depthTexture = renderContext.createDepthTexture(
+      `xeokit-webgpu-depth:${this.view.id}`,
+      metrics.width,
+      metrics.height
+    );
+    this._depthTextureView = this._depthTexture.createView();
+    this._width = metrics.width;
+    this._height = metrics.height;
+    this._configured = true;
+  }
+  destroy() {
+    try {
+      this.context.unconfigure?.();
+    } catch {
+    }
+    this._destroyDepthTexture();
+  }
+  _destroyDepthTexture() {
+    if (!this._depthTexture) {
+      this._depthTextureView = null;
+      return;
+    }
+    try {
+      this._depthTexture.destroy?.();
+    } catch {
+    }
+    this._depthTexture = null;
+    this._depthTextureView = null;
+  }
+  _getCanvasMetrics() {
+    const rect = typeof this.canvas.getBoundingClientRect === "function" ? this.canvas.getBoundingClientRect() : null;
+    const cssWidth = Math.max(1, Math.round(
+      rect?.width || this.canvas.clientWidth || this.view.boundary?.[2] || this.canvas.width || 1
+    ));
+    const cssHeight = Math.max(1, Math.round(
+      rect?.height || this.canvas.clientHeight || this.view.boundary?.[3] || this.canvas.height || 1
+    ));
+    const pixelRatio = Math.max(1, globalThis.devicePixelRatio || 1);
+    return {
+      width: Math.max(1, Math.round(cssWidth * pixelRatio)),
+      height: Math.max(1, Math.round(cssHeight * pixelRatio))
+    };
+  }
+  static _getCanvas(view) {
+    const element = view.htmlElement;
+    const canvasCtor = globalThis.HTMLCanvasElement;
+    if (canvasCtor && element instanceof canvasCtor) {
+      return element;
+    }
+    if (element && typeof element.getContext === "function" && typeof element.width === "number" && typeof element.height === "number") {
+      return element;
+    }
+    return null;
+  }
+  static _getWebGPUContext(canvas3) {
+    try {
+      const context = canvas3.getContext("webgpu");
+      if (context && typeof context.configure === "function" && typeof context.getCurrentTexture === "function") {
+        return context;
+      }
+    } catch {
+    }
+    return null;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPURenderManager.ts
+var WebGPURenderManager = class {
+  _renderContext;
+  _pipelineManager;
+  _meshManager;
+  _frameUniformManager;
+  _instanceBufferManager;
+  _drawOps;
+  _bins = {
+    normalDrawOpaque: [],
+    normalFillTransparent: []
+  };
+  _binClassifier = new WebGPURenderBinClassifier();
+  _instanceBatcher;
+  _viewRenderCaches = {};
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._pipelineManager = params.pipelineManager;
+    this._meshManager = params.meshManager;
+    this._frameUniformManager = params.frameUniformManager;
+    this._instanceBufferManager = params.instanceBufferManager;
+    this._drawOps = new WebGPUDrawOps(this._pipelineManager);
+    this._instanceBatcher = new WebGPUInstanceBatcher(this._renderContext);
+  }
+  init() {
+    return this._drawOps.init();
+  }
+  renderView(webgpuView) {
+    const view = webgpuView.view;
+    try {
+      webgpuView.configure(this._renderContext);
+      if (!webgpuView.depthTextureView) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: `[WebGPURenderManager.renderView] View '${view.id}' depth texture was not initialized.`
+        };
+      }
+      const backgroundColor = view.backgroundColor;
+      const renderCacheResult = this._getOrBuildViewRenderCache(webgpuView);
+      if (renderCacheResult.ok === false) {
+        return renderCacheResult;
+      }
+      const renderCache = renderCacheResult.value;
+      const totalInstances = renderCache.totalInstances;
+      const frameBindGroupResult = totalInstances > 0 ? this._frameUniformManager.writeFrameUniforms(view) : null;
+      if (frameBindGroupResult?.ok === false) {
+        return frameBindGroupResult;
+      }
+      const instanceFrame = renderCache.instanceFrame;
+      if (totalInstances > 0 && !instanceFrame?.buffer) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[WebGPURenderManager.renderView] Instance buffer was not initialized."
+        };
+      }
+      const instanceBindGroupLayoutResult = totalInstances > 0 ? this._pipelineManager.getInstanceBindGroupLayout() : null;
+      if (instanceBindGroupLayoutResult?.ok === false) {
+        return instanceBindGroupLayoutResult;
+      }
+      const instanceBindGroupResult = totalInstances > 0 ? this._instanceBufferManager.getBindGroup(instanceFrame, instanceBindGroupLayoutResult.value) : null;
+      if (instanceBindGroupResult?.ok === false) {
+        return instanceBindGroupResult;
+      }
+      const device = this._renderContext.device;
+      const commandEncoder = device.createCommandEncoder();
+      const textureView = webgpuView.context.getCurrentTexture().createView();
+      const passEncoder = commandEncoder.beginRenderPass({
+        colorAttachments: [{
+          view: textureView,
+          clearValue: {
+            r: backgroundColor[0],
+            g: backgroundColor[1],
+            b: backgroundColor[2],
+            a: view.transparent ? 0 : 1
+          },
+          loadOp: "clear",
+          storeOp: "store"
+        }],
+        depthStencilAttachment: {
+          view: webgpuView.depthTextureView,
+          depthClearValue: 1,
+          depthLoadOp: "clear",
+          depthStoreOp: "store"
+        }
+      });
+      const triangleDrawOps = this._drawOps.prims[TrianglesPrimitive];
+      if (!triangleDrawOps) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[WebGPURenderManager.renderView] Triangle draw operations were not initialized."
+        };
+      }
+      if (renderCache.batches.opaque.length > 0) {
+        const drawResult = triangleDrawOps.opaque?.drawBatches({
+          passEncoder,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: renderCache.batches.opaque
+        });
+        if (!drawResult) {
+          return {
+            ok: false,
+            type: 0 /* InitializationFailed */,
+            error: "[WebGPURenderManager.renderView] Opaque triangle draw operation was not initialized."
+          };
+        }
+        if (drawResult.ok === false) {
+          return drawResult;
+        }
+      }
+      if (renderCache.batches.transparent.length > 0) {
+        const drawResult = triangleDrawOps.transparent?.drawBatches({
+          passEncoder,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: renderCache.batches.transparent
+        });
+        if (!drawResult) {
+          return {
+            ok: false,
+            type: 0 /* InitializationFailed */,
+            error: "[WebGPURenderManager.renderView] Transparent triangle draw operation was not initialized."
+          };
+        }
+        if (drawResult.ok === false) {
+          return drawResult;
+        }
+      }
+      this._endRenderPass(passEncoder);
+      device.queue.submit([commandEncoder.finish()]);
+    } catch (e) {
+      return {
+        ok: false,
+        type: 5 /* Unknown */,
+        error: `[WebGPURenderManager.renderView] Failed to render WebGPU frame: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  destroy() {
+    for (const viewId of Object.keys(this._viewRenderCaches)) {
+      this.viewDestroyed(viewId);
+    }
+    this._drawOps.destroy();
+    this._instanceBufferManager.destroy();
+    this._frameUniformManager.destroy();
+  }
+  viewDestroyed(viewId) {
+    const cache2 = this._viewRenderCaches[viewId];
+    if (cache2) {
+      this._clearCachedBatches(cache2.batches);
+    }
+    delete this._viewRenderCaches[viewId];
+    this._instanceBufferManager.destroyFrame(viewId);
+  }
+  _endRenderPass(passEncoder) {
+    if (typeof passEncoder.end === "function") {
+      passEncoder.end();
+      return;
+    }
+    passEncoder.endPass?.();
+  }
+  _getOrBuildViewRenderCache(webgpuView) {
+    const view = webgpuView.view;
+    const cache2 = this._getViewRenderCache(view.id);
+    const structureVersion = this._meshManager.structureVersion;
+    const instanceDataVersion = this._meshManager.instanceDataVersion;
+    const viewStateVersion = this._meshManager.getViewStateVersion(view);
+    const cameraViewVersion = this._meshManager.getCameraViewVersion(view);
+    const needsRebuild = cache2.structureVersion !== structureVersion || cache2.instanceDataVersion !== instanceDataVersion || cache2.viewStateVersion !== viewStateVersion || cache2.hasTransparent && cache2.cameraViewVersion !== cameraViewVersion || cache2.totalInstances > 0 && !cache2.instanceFrame?.buffer;
+    if (!needsRebuild) {
+      return {
+        ok: true,
+        value: cache2
+      };
+    }
+    const meshStates = this._meshManager.meshStates;
+    this._binClassifier.clear(this._bins);
+    this._binClassifier.classify({
+      meshStates,
+      view,
+      meshManager: this._meshManager,
+      bins: this._bins
+    });
+    const totalInstances = this._bins.normalDrawOpaque.length + this._bins.normalFillTransparent.length;
+    if (totalInstances === 0) {
+      this._clearCachedBatches(cache2.batches);
+      cache2.instanceFrame = null;
+      cache2.totalInstances = 0;
+      cache2.hasTransparent = false;
+      cache2.structureVersion = structureVersion;
+      cache2.instanceDataVersion = instanceDataVersion;
+      cache2.viewStateVersion = viewStateVersion;
+      cache2.cameraViewVersion = cameraViewVersion;
+      this._instanceBufferManager.destroyFrame(view.id);
+      return {
+        ok: true,
+        value: cache2
+      };
+    }
+    const instanceFrameResult = this._instanceBufferManager.beginFrame(totalInstances, view.id);
+    if (instanceFrameResult.ok === false) {
+      return instanceFrameResult;
+    }
+    cache2.instanceFrame = instanceFrameResult.value;
+    const drawBatchesResult = this._instanceBatcher.build({
+      bins: this._bins,
+      view,
+      meshManager: this._meshManager,
+      instanceBufferManager: this._instanceBufferManager,
+      instanceFrame: cache2.instanceFrame
+    });
+    if (drawBatchesResult.ok === false) {
+      return drawBatchesResult;
+    }
+    this._copyBatches(drawBatchesResult.value, cache2.batches);
+    cache2.totalInstances = totalInstances;
+    cache2.hasTransparent = this._bins.normalFillTransparent.length > 0;
+    cache2.structureVersion = structureVersion;
+    cache2.instanceDataVersion = instanceDataVersion;
+    cache2.viewStateVersion = viewStateVersion;
+    cache2.cameraViewVersion = cameraViewVersion;
+    return {
+      ok: true,
+      value: cache2
+    };
+  }
+  _getViewRenderCache(viewId) {
+    let cache2 = this._viewRenderCaches[viewId];
+    if (!cache2) {
+      cache2 = {
+        structureVersion: -1,
+        instanceDataVersion: -1,
+        viewStateVersion: -1,
+        cameraViewVersion: -1,
+        hasTransparent: false,
+        totalInstances: 0,
+        instanceFrame: null,
+        batches: {
+          opaque: [],
+          transparent: []
+        }
+      };
+      this._viewRenderCaches[viewId] = cache2;
+    }
+    return cache2;
+  }
+  _copyBatches(source, target) {
+    this._clearCachedBatches(target);
+    for (let i = 0, len = source.opaque.length; i < len; i++) {
+      const batch = source.opaque[i];
+      target.opaque.push({
+        packedBatch: batch.packedBatch
+      });
+    }
+    for (let i = 0, len = source.transparent.length; i < len; i++) {
+      const batch = source.transparent[i];
+      target.transparent.push({
+        packedBatch: batch.packedBatch
+      });
+    }
+  }
+  _clearCachedBatches(batches) {
+    for (let i = 0, len = batches.opaque.length; i < len; i++) {
+      try {
+        batches.opaque[i].packedBatch.destroy();
+      } catch {
+      }
+    }
+    for (let i = 0, len = batches.transparent.length; i < len; i++) {
+      try {
+        batches.transparent[i].packedBatch.destroy();
+      } catch {
+      }
+    }
+    batches.opaque.length = 0;
+    batches.transparent.length = 0;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/WebGPUViewManager.ts
+var WebGPUViewManager = class {
+  _viewer = null;
+  _alphaMode;
+  _views = {};
+  _renderContext = null;
+  _geometryManager = null;
+  _lightingManager = null;
+  _pipelineManager = null;
+  _frameUniformManager = null;
+  _instanceBufferManager = null;
+  _meshManager = null;
+  _renderManager = null;
+  _pickManager = null;
+  _snapManager = null;
+  /**
+   * Initializes manager state and uploads existing supported scene meshes.
+   */
+  init(params) {
+    this._viewer = params.viewer;
+    this._alphaMode = params.alphaMode;
+    this._renderContext = new WebGPURenderContext({
+      device: params.device,
+      contextFormat: params.contextFormat
+    });
+    this._geometryManager = new WebGPUGeometryManager(this._renderContext);
+    this._lightingManager = new WebGPULightingManager();
+    this._pipelineManager = new WebGPUPipelineManager(this._renderContext);
+    this._frameUniformManager = new WebGPUFrameUniformManager({
+      renderContext: this._renderContext,
+      pipelineManager: this._pipelineManager,
+      lightingManager: this._lightingManager
+    });
+    this._instanceBufferManager = new WebGPUInstanceBufferManager(this._renderContext);
+    this._meshManager = new WebGPUMeshManager({
+      geometryManager: this._geometryManager
+    });
+    this._snapManager = new WebGPUSnapManager();
+    this._pickManager = new WebGPUPickManager({
+      snapManager: this._snapManager
+    });
+    this._renderManager = new WebGPURenderManager({
+      renderContext: this._renderContext,
+      pipelineManager: this._pipelineManager,
+      meshManager: this._meshManager,
+      frameUniformManager: this._frameUniformManager,
+      instanceBufferManager: this._instanceBufferManager
+    });
+    const renderManagerResult = this._renderManager.init();
+    if (renderManagerResult.ok === false) {
+      return this._failInit(renderManagerResult);
+    }
+    const views = this._viewer.viewList;
+    for (let i = 0, len = views.length; i < len; i++) {
+      const view = views[i];
+      if (!view) {
+        continue;
+      }
+      const result = this._createView(view);
+      if (result.ok === false) {
+        return this._failInit(result);
+      }
+    }
+    const sceneResult = this._registerExistingSceneMeshes();
+    if (sceneResult.ok === false) {
+      return this._failInit(sceneResult);
+    }
+    for (const viewId in this._views) {
+      const result = this._renderView(this._views[viewId].view);
+      if (result.ok === false) {
+        return this._failInit(result);
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Releases all WebGPU resources owned by this manager.
+   */
+  destroy() {
+    this._pickManager?.destroy();
+    this._snapManager?.destroy();
+    this._renderManager?.destroy();
+    this._meshManager?.destroyAll();
+    this._geometryManager?.destroyAll();
+    this._pipelineManager?.destroy();
+    for (const viewId of Object.keys(this._views)) {
+      this._views[viewId].destroy();
+    }
+    this._views = {};
+    this._renderManager = null;
+    this._meshManager = null;
+    this._instanceBufferManager = null;
+    this._frameUniformManager = null;
+    this._pickManager = null;
+    this._snapManager = null;
+    this._pipelineManager = null;
+    this._lightingManager = null;
+    this._geometryManager = null;
+    this._renderContext = null;
+    this._viewer = null;
+  }
+  /**
+   * Registers and immediately renders a newly created View.
+   */
+  viewCreated(view) {
+    const result = this._createView(view);
+    if (result.ok === false) {
+      return result;
+    }
+    return this._renderView(view);
+  }
+  /**
+   * Renders a View that the Viewer marked dirty.
+   */
+  viewUpdated(view) {
+    if (!this._views[view.id]) {
+      return this._ok();
+    }
+    return this._renderView(view);
+  }
+  /**
+   * Releases state for a removed View.
+   */
+  viewDestroyed(view) {
+    const webgpuView = this._views[view.id];
+    if (!webgpuView) {
+      return;
+    }
+    this._renderManager?.viewDestroyed(view.id);
+    this._meshManager?.viewDestroyed(view);
+    webgpuView.destroy();
+    delete this._views[view.id];
+  }
+  /**
+   * Registers a newly created SceneMesh if it is supported by the current path.
+   */
+  sceneMeshCreated(sceneMesh) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneMeshCreated");
+    }
+    const result = meshManager.sceneMeshCreated(sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Registers meshes from a newly created SceneModel.
+   */
+  sceneModelCreated(sceneModel) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneModelCreated");
+    }
+    const result = meshManager.sceneModelCreated(sceneModel);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Releases state for meshes from a destroyed SceneModel.
+   */
+  sceneModelDestroyed(sceneModel) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneModelDestroyed");
+    }
+    const result = meshManager.sceneModelDestroyed(sceneModel);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * A newly created SceneGeometry is uploaded when its first renderable mesh is
+   * registered.
+   */
+  sceneGeometryCreated(sceneGeometry) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneGeometryCreated");
+    }
+    return meshManager.sceneGeometryCreated(sceneGeometry);
+  }
+  /**
+   * Releases state for a removed SceneMesh and requests a redraw.
+   */
+  sceneMeshDestroyed(sceneMesh) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneMeshDestroyed");
+    }
+    const result = meshManager.sceneMeshDestroyed(sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Releases state for a removed SceneGeometry and requests a redraw.
+   */
+  sceneGeometryDestroyed(sceneGeometry) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneGeometryDestroyed");
+    }
+    const result = meshManager.sceneGeometryDestroyed(sceneGeometry);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Rebuilds WebGPU buffers for meshes that reference an updated geometry.
+   */
+  sceneGeometryUpdated(sceneGeometry) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneGeometryUpdated");
+    }
+    const result = meshManager.sceneGeometryUpdated(sceneGeometry);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Registers meshes from a newly created SceneObject.
+   */
+  sceneObjectCreated(sceneObject) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectCreated");
+    }
+    const result = meshManager.sceneObjectCreated(sceneObject);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Requests redraws after a SceneObject is destroyed.
+   */
+  sceneObjectDestroyed(sceneObject) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectDestroyed");
+    }
+    const result = meshManager.sceneObjectDestroyed(sceneObject);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Registers a mesh newly attached to an object and requests a redraw.
+   */
+  sceneObjectMeshAdded(sceneObject, sceneMesh) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectMeshAdded");
+    }
+    const result = meshManager.sceneObjectMeshAdded(sceneObject, sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Requests redraws after a mesh is removed from an object.
+   */
+  sceneObjectMeshRemoved(sceneObject, sceneMesh) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectMeshRemoved");
+    }
+    const result = meshManager.sceneObjectMeshRemoved(sceneObject, sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+  /**
+   * Requests redraws after scene mesh state changes.
+   */
+  sceneMeshChanged() {
+    this._requestRenderAllViews();
+  }
+  sceneMeshMatrixChanged(sceneMesh) {
+    this._meshManager?.sceneMeshMatrixChanged(sceneMesh);
+    this._requestRenderAllViews();
+  }
+  sceneMeshMoved(sceneMesh) {
+    this._meshManager?.sceneMeshMoved(sceneMesh);
+    this._requestRenderAllViews();
+  }
+  sceneMeshColorChanged(sceneMesh) {
+    this._meshManager?.sceneMeshColorChanged(sceneMesh);
+    this._requestRenderAllViews();
+  }
+  sceneMeshOpacityChanged(sceneMesh) {
+    this._meshManager?.sceneMeshOpacityChanged(sceneMesh);
+    this._requestRenderAllViews();
+  }
+  sceneMaterialPatternChanged(sceneMaterial) {
+    this._meshManager?.sceneMaterialPatternChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+  sceneMaterialColorChanged(sceneMaterial) {
+    this._meshManager?.sceneMaterialColorChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+  sceneMaterialEmissiveColorChanged(sceneMaterial) {
+    this._meshManager?.sceneMaterialEmissiveColorChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+  sceneMaterialOpacityChanged(sceneMaterial) {
+    this._meshManager?.sceneMaterialOpacityChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+  sceneTextureImageDataChanged(sceneTexture) {
+    this._requestRenderAllViews();
+  }
+  sceneTransformMatrixChanged(sceneTransform) {
+    this._meshManager?.sceneTransformMatrixChanged(sceneTransform);
+    this._requestRenderAllViews();
+  }
+  effectCreated(effect) {
+    return this._ok();
+  }
+  effectDestroyed(effect) {
+    return this._ok();
+  }
+  /**
+   * Requests a redraw after a ViewObject state change affects rendering.
+   */
+  viewObjectChanged(viewObject) {
+    if (viewObject.view.viewer !== this._viewer) {
+      return;
+    }
+    if (!this._views[viewObject.view.id]) {
+      return;
+    }
+    this._meshManager?.viewObjectChanged(viewObject);
+    viewObject.view.needsRender();
+  }
+  viewObjectVisibilityChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectClippableChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectCulledChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectXRayedChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectHighlightedChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectSelectedChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectColorizeChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectOpacityChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  viewObjectPickableChanged(viewObject) {
+    this.viewObjectChanged(viewObject);
+  }
+  cameraViewMatrixUpdated(camera) {
+    this._meshManager?.cameraViewMatrixUpdated(camera);
+    camera.view.needsRender();
+  }
+  /**
+   * Performs renderer-backed picking for a View.
+   */
+  pick(view, pickParams) {
+    if (view.viewer !== this._viewer) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGPUViewManager.pick] The specified View does not belong to the currently attached Viewer."
+      };
+    }
+    const pickManager = this._pickManager;
+    if (!pickManager) {
+      return this._notInitialized("pick");
+    }
+    return pickManager.pick(view, pickParams);
+  }
+  _failInit(result) {
+    this.destroy();
+    return result;
+  }
+  _createView(view) {
+    if (this._views[view.id]) {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    const result = WebGPUView.create(view, this._alphaMode);
+    if (result.ok === false) {
+      return result;
+    }
+    this._views[view.id] = result.value;
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _registerExistingSceneMeshes() {
+    const scene = this._viewer?.scene;
+    const models = scene?.models;
+    if (!models) {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("_registerExistingSceneMeshes");
+    }
+    for (const modelId in models) {
+      const meshes = models[modelId]?.meshes;
+      if (!meshes) {
+        continue;
+      }
+      for (const meshId in meshes) {
+        const result = meshManager.registerSceneMesh(meshes[meshId]);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _renderView(view) {
+    if (!this._viewer?.scene) {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    if (view.viewer !== this._viewer) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGPUViewManager._renderView] The specified View does not belong to the currently attached Viewer."
+      };
+    }
+    const webgpuView = this._views[view.id];
+    if (!webgpuView) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[WebGPUViewManager._renderView] View '${view.id}' is not registered with the renderer.`
+      };
+    }
+    const renderManager = this._renderManager;
+    if (!renderManager) {
+      return this._notInitialized("_renderView");
+    }
+    return renderManager.renderView(webgpuView);
+  }
+  _requestRenderAllViews() {
+    if (!this._viewer) {
+      return;
+    }
+    const views = this._viewer.viewList;
+    for (let i = 0, len = views.length; i < len; i++) {
+      views[i]?.needsRender?.();
+    }
+  }
+  _ok() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _notInitialized(method) {
+    return {
+      ok: false,
+      type: 1 /* InvalidOperation */,
+      error: `[WebGPUViewManager.${method}] WebGPU view manager is not initialized.`
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/core/WebGPURenderer.ts
+var WebGPURenderer = class _WebGPURenderer {
+  _viewer = null;
+  _viewerSubs = [];
+  _viewManagerSubs = [];
+  _viewManager = null;
+  _destroyed = false;
+  _deviceLost = false;
+  _deviceLostWatchToken = null;
+  _device;
+  _contextFormat;
+  _alphaMode;
+  _destroyDeviceOnDestroy;
+  _renderSuspendCount = 0;
+  _deferredSceneModelRegistrations = /* @__PURE__ */ new Map();
+  /**
+   * Enables or disables logging of renderer errors to the console.
+   */
+  logging = true;
+  /**
+   * Events emitted by this renderer.
+   */
+  events = {
+    onViewerAttached: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onViewerDetached: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onRendererStarted: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onViewRendered: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onRendererStopped: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onRendererDestroyed: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onContextLost: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onContextRestored: new EventEmitter(new import_strongly_typed_events19.EventDispatcher()),
+    onError: new EventEmitter(new import_strongly_typed_events19.EventDispatcher())
+  };
+  /**
+   * Creates a WebGPU renderer.
+   *
+   * @param params - Optional renderer configuration.
+   */
+  constructor(params = {}) {
+    this.logging = params.logging ?? true;
+    this._device = params.device ?? null;
+    this._contextFormat = params.contextFormat ?? _WebGPURenderer._getPreferredCanvasFormat();
+    this._alphaMode = params.alphaMode;
+    this._destroyDeviceOnDestroy = params.destroyDeviceOnDestroy ?? false;
+    this._watchDeviceLost();
+    if (params.viewer) {
+      this.attachViewer(params.viewer);
+    }
+  }
+  /**
+   * Creates a WebGPU renderer after asynchronously requesting a device.
+   *
+   * The shared {@link Renderer.attachViewer} contract is synchronous, while
+   * browser WebGPU device creation is asynchronous. This factory bridges that
+   * mismatch: call it first, then attach the returned renderer normally.
+   *
+   * @param params - Optional WebGPU adapter/device and renderer settings.
+   * @returns SDK result containing an initialized renderer.
+   */
+  static async create(params = {}) {
+    let device = params.device ?? null;
+    let contextFormat = params.contextFormat;
+    let ownsDevice = params.device ? false : true;
+    try {
+      if (!device) {
+        const gpu = _WebGPURenderer._getGPU();
+        const adapter = params.adapter ?? await gpu?.requestAdapter(params.requestAdapterOptions);
+        if (!adapter) {
+          return {
+            ok: false,
+            type: 6 /* NotSupported */,
+            error: "[WebGPURenderer.create] WebGPU is not available in this runtime."
+          };
+        }
+        device = await adapter.requestDevice(params.deviceDescriptor);
+        contextFormat = contextFormat ?? gpu?.getPreferredCanvasFormat?.();
+      } else {
+        ownsDevice = false;
+      }
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPURenderer.create] Failed to initialize WebGPU device: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    const { viewer, ...rendererParams } = params;
+    const renderer = new _WebGPURenderer({
+      ...rendererParams,
+      device,
+      contextFormat,
+      destroyDeviceOnDestroy: params.destroyDeviceOnDestroy ?? ownsDevice
+    });
+    if (viewer) {
+      const attachResult = renderer.attachViewer(viewer);
+      if (attachResult.ok === false) {
+        renderer.destroy();
+        return {
+          ok: false,
+          type: attachResult.type,
+          error: attachResult.error
+        };
+      }
+    }
+    return {
+      ok: true,
+      value: renderer
+    };
+  }
+  /**
+   * Whether the current runtime exposes the browser WebGPU entry point.
+   */
+  static isSupported() {
+    return !!_WebGPURenderer._getGPU();
+  }
+  /**
+   * Viewer currently attached to this renderer.
+   */
+  get viewer() {
+    return this._viewer;
+  }
+  /**
+   * Whether this renderer currently has active rendering state.
+   */
+  get rendering() {
+    return !!this._viewManager;
+  }
+  /**
+   * Whether this renderer has an injected/acquired WebGPU device or the current
+   * runtime exposes the browser WebGPU entry point.
+   */
+  get supported() {
+    return !!this._device || _WebGPURenderer.isSupported();
+  }
+  /**
+   * Attaches a Viewer to this renderer.
+   *
+   * Use {@link create} or pass a pre-created `device` before calling this
+   * method. Device creation is asynchronous and cannot happen inside the
+   * backend-neutral synchronous renderer contract.
+   *
+   * @param viewer - Viewer to attach.
+   * @returns SDK result indicating whether attachment succeeded.
+   */
+  attachViewer(viewer) {
+    if (this._destroyed) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.attachViewer] Renderer has been destroyed."
+      );
+    }
+    if (this._viewer) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.attachViewer] Failed to attach Viewer - a Viewer is already attached."
+      );
+    }
+    if (this._deviceLost) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.attachViewer] WebGPU device has been lost."
+      );
+    }
+    if (!this._device) {
+      return this._error(
+        6 /* NotSupported */,
+        "[WebGPURenderer.attachViewer] WebGPU device is not initialized. Use WebGPURenderer.create() or pass a pre-created device."
+      );
+    }
+    this._viewer = viewer;
+    const viewerEvents = viewer.events;
+    this._viewerSubs = [
+      viewerEvents.onSceneAttached.subscribe(() => {
+        const result = this._createViewManager();
+        if (this._logError(result).ok) {
+          this.events.onRendererStarted.dispatch(this);
+        }
+      }),
+      viewerEvents.onSceneDetached.subscribe(() => {
+        this._destroyViewManager();
+      }),
+      viewerEvents.onViewerDestroyed.subscribe(() => {
+        this.detachViewer();
+      })
+    ];
+    if (viewer.scene) {
+      const result = this._createViewManager();
+      if (result.ok === false) {
+        this._rollbackViewerAttach();
+        return this._logError({
+          ok: false,
+          type: result.type,
+          error: `[WebGPURenderer.attachViewer] Failed to attach Viewer - ${result.error}`
+        });
+      }
+      this.events.onViewerAttached.dispatch(this, viewer);
+      this.events.onRendererStarted.dispatch(this);
+    } else {
+      this.events.onViewerAttached.dispatch(this, viewer);
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Detaches the current Viewer, if any.
+   */
+  detachViewer() {
+    if (!this._viewer) {
+      return;
+    }
+    this._destroyViewManager();
+    for (const sub of this._viewerSubs) {
+      sub();
+    }
+    this._viewerSubs = [];
+    const viewer = this._viewer;
+    this._viewer = null;
+    this.events.onViewerDetached.dispatch(this, viewer);
+  }
+  /**
+   * Permanently releases renderer resources.
+   */
+  destroy() {
+    if (this._destroyed) {
+      return;
+    }
+    this.detachViewer();
+    this._deviceLostWatchToken = null;
+    if (this._destroyDeviceOnDestroy) {
+      try {
+        this._device?.destroy?.();
+      } catch {
+      }
+    }
+    this._device = null;
+    this._destroyed = true;
+    this.events.onRendererDestroyed.dispatch(this, true);
+  }
+  /**
+   * Performs a renderer-backed pick in a View.
+   *
+   * Picking is not implemented until the WebGPU rendering pipeline exists.
+   *
+   * @param view - View whose canvas coordinates are being picked.
+   * @param pickParams - Picking options and canvas coordinates.
+   * @returns An SDK error result.
+   */
+  pick(view, pickParams) {
+    if (!this._viewManager) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.pick] Viewer with Scene is not currently attached."
+      );
+    }
+    if (view.viewer !== this._viewer) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.pick] The specified View does not belong to the currently attached Viewer."
+      );
+    }
+    return this._viewManager.pick(view, pickParams);
+  }
+  /**
+   * Captures the current contents of a View as an image data URL.
+   *
+   * Snapshots are not implemented until the WebGPU rendering pipeline exists.
+   *
+   * @param view - View to snapshot.
+   * @returns An SDK error result.
+   */
+  getSnapshot(view) {
+    if (!this._viewer) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.getSnapshot] Viewer with Scene is not currently attached."
+      );
+    }
+    if (view.viewer !== this._viewer) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.getSnapshot] The specified View does not belong to the currently attached Viewer."
+      );
+    }
+    return this._error(
+      6 /* NotSupported */,
+      "[WebGPURenderer.getSnapshot] WebGPU snapshots are not implemented yet."
+    );
+  }
+  static _getGPU() {
+    return globalThis.navigator?.gpu ?? null;
+  }
+  static _getPreferredCanvasFormat() {
+    return _WebGPURenderer._getGPU()?.getPreferredCanvasFormat?.() ?? "bgra8unorm";
+  }
+  _rollbackViewerAttach() {
+    this._destroyViewManager(false);
+    for (const sub of this._viewerSubs) {
+      sub();
+    }
+    this._viewerSubs = [];
+    this._viewer = null;
+  }
+  _getDeferredSceneModelRegistrations(sceneModel) {
+    let registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      registrations = {
+        geometries: /* @__PURE__ */ new Set(),
+        meshes: /* @__PURE__ */ new Set(),
+        objects: /* @__PURE__ */ new Set()
+      };
+      this._deferredSceneModelRegistrations.set(sceneModel, registrations);
+    }
+    return registrations;
+  }
+  _deferSceneGeometryCreated(sceneGeometry) {
+    const sceneModel = sceneGeometry.model;
+    if (!sceneModel?.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
+    return true;
+  }
+  _deferSceneMeshCreated(sceneMesh) {
+    const sceneModel = sceneMesh.model;
+    if (!sceneModel?.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
+    return true;
+  }
+  _deferSceneObjectCreated(sceneObject) {
+    const sceneModel = sceneObject.model;
+    if (!sceneModel?.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
+    return true;
+  }
+  _discardDeferredSceneGeometry(sceneGeometry) {
+    return this._deferredSceneModelRegistrations.get(sceneGeometry.model)?.geometries.delete(sceneGeometry) === true;
+  }
+  _discardDeferredSceneMesh(sceneMesh) {
+    return this._deferredSceneModelRegistrations.get(sceneMesh.model)?.meshes.delete(sceneMesh) === true;
+  }
+  _discardDeferredSceneObject(sceneObject) {
+    return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
+  }
+  _flushDeferredSceneModelRegistrations(sceneModel, viewManager) {
+    const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      return;
+    }
+    this._deferredSceneModelRegistrations.delete(sceneModel);
+    for (const sceneGeometry of registrations.geometries) {
+      if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
+        this._logError(viewManager.sceneGeometryCreated(sceneGeometry));
+      }
+    }
+    for (const sceneMesh of registrations.meshes) {
+      if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
+        this._logError(viewManager.sceneMeshCreated(sceneMesh));
+      }
+    }
+    for (const sceneObject of registrations.objects) {
+      if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+        this._logError(viewManager.sceneObjectCreated(sceneObject));
+      }
+    }
+  }
+  _createViewManager() {
+    if (this._viewManager) {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    if (!this._viewer?.scene) {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    if (!this._device) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGPURenderer._createViewManager] WebGPU device is not initialized."
+      };
+    }
+    if (this._deviceLost) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGPURenderer._createViewManager] WebGPU device has been lost."
+      };
+    }
+    const viewManager = new WebGPUViewManager();
+    const result = viewManager.init({
+      viewer: this._viewer,
+      device: this._device,
+      contextFormat: this._contextFormat,
+      alphaMode: this._alphaMode
+    });
+    if (result.ok === false) {
+      viewManager.destroy();
+      return result;
+    }
+    this._viewManager = viewManager;
+    this._subscribeViewManager(viewManager);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _subscribeViewManager(viewManager) {
+    if (!this._viewer) {
+      return;
+    }
+    const viewerEvents = this._viewer.events;
+    this._viewManagerSubs = [
+      viewerEvents.onViewCreated.subscribe((_viewer, view) => {
+        if (this._viewManager !== viewManager) {
+          return;
+        }
+        const result = viewManager.viewCreated(view);
+        if (this._logError(result).ok) {
+          this.events.onViewRendered.dispatch(this, view);
+        }
+      }),
+      viewerEvents.onViewUpdated.subscribe((_view, view) => {
+        if (this._viewManager !== viewManager) {
+          return;
+        }
+        if (this._renderSuspendCount > 0) {
+          return;
+        }
+        const result = viewManager.viewUpdated(view);
+        if (this._logError(result).ok) {
+          this.events.onViewRendered.dispatch(this, view);
+        }
+      }),
+      viewerEvents.onViewDestroyed.subscribe((_viewer, view) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewDestroyed(view);
+        }
+      }),
+      viewerEvents.onViewObjectVisibleChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectVisibilityChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectXRayedChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectXRayedChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectClippableChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectClippableChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectCulledChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectCulledChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectHighlightedChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectHighlightedChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectSelectedChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectSelectedChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectColorizeChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectColorizeChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectOpacityChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectOpacityChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectPickableChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectPickableChanged(viewObject);
+        }
+      }),
+      viewerEvents.onEffectCreated.subscribe((_viewer, effect) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.effectCreated(effect));
+        }
+      }),
+      viewerEvents.onEffectDestroyed.subscribe((_viewer, effect) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.effectDestroyed(effect));
+        }
+      }),
+      viewerEvents.onCameraViewMatrixUpdated.subscribe((_view, camera) => {
+        if (this._viewManager === viewManager) {
+          viewManager.cameraViewMatrixUpdated(camera);
+        }
+      })
+    ];
+    const sceneEvents = this._viewer.scene?.events;
+    if (!sceneEvents) {
+      return;
+    }
+    this._viewManagerSubs.push(
+      sceneEvents.onSceneModelCreated.subscribe((_scene, sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneModelCreated(sceneModel));
+        }
+      }),
+      sceneEvents.onSceneModelDestroyed.subscribe((_scene, sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._deferredSceneModelRegistrations.delete(sceneModel);
+          this._logError(viewManager.sceneModelDestroyed(sceneModel));
+        }
+      }),
+      sceneEvents.onSceneModelBuildStarted.subscribe((_scene, sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._renderSuspendCount++;
+          this._getDeferredSceneModelRegistrations(sceneModel);
+        }
+      }),
+      sceneEvents.onSceneModelBuildFinished.subscribe((_scene, sceneModel) => {
+        if (this._viewManager !== viewManager) {
+          return;
+        }
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager);
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneGeometryCreated.subscribe((_scene, sceneGeometry) => {
+        if (this._viewManager === viewManager && !this._deferSceneGeometryCreated(sceneGeometry)) {
+          this._logError(viewManager.sceneGeometryCreated(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneGeometryDestroyed.subscribe((_scene, sceneGeometry) => {
+        if (this._viewManager === viewManager && !this._discardDeferredSceneGeometry(sceneGeometry)) {
+          this._logError(viewManager.sceneGeometryDestroyed(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneGeometryUpdated.subscribe((_scene, sceneGeometry) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneGeometryUpdated(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneMeshCreated.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager && !this._deferSceneMeshCreated(sceneMesh)) {
+          this._logError(viewManager.sceneMeshCreated(sceneMesh));
+        }
+      }),
+      sceneEvents.onSceneMeshDestroyed.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager && !this._discardDeferredSceneMesh(sceneMesh)) {
+          this._logError(viewManager.sceneMeshDestroyed(sceneMesh));
+        }
+      }),
+      sceneEvents.onSceneObjectCreated.subscribe((_scene, sceneObject) => {
+        if (this._viewManager === viewManager && !this._deferSceneObjectCreated(sceneObject)) {
+          this._logError(viewManager.sceneObjectCreated(sceneObject));
+        }
+      }),
+      sceneEvents.onSceneObjectDestroyed.subscribe((_scene, sceneObject) => {
+        if (this._viewManager === viewManager && !this._discardDeferredSceneObject(sceneObject)) {
+          this._logError(viewManager.sceneObjectDestroyed(sceneObject));
+        }
+      }),
+      sceneEvents.onSceneObjectMeshAdded.subscribe((sceneObject, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneObjectMeshAdded(sceneObject, sceneMesh));
+        }
+      }),
+      sceneEvents.onSceneObjectMeshRemoved.subscribe((sceneObject, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneObjectMeshRemoved(sceneObject, sceneMesh));
+        }
+      }),
+      sceneEvents.onSceneMeshMatrixChanged.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMeshMatrixChanged(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMeshMoved.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMeshMoved(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMeshColorChanged.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMeshColorChanged(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMeshOpacityChanged.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMeshOpacityChanged(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMaterialPatternChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialPatternChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneMaterialColorChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialColorChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneMaterialEmissiveColorChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialEmissiveColorChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneMaterialOpacityChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialOpacityChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneTextureImageDataChanged.subscribe((_scene, sceneTexture) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneTextureImageDataChanged(sceneTexture);
+        }
+      }),
+      sceneEvents.onSceneTransformMatrixChanged.subscribe((_scene, sceneTransform) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneTransformMatrixChanged(sceneTransform);
+        }
+      })
+    );
+  }
+  _destroyViewManager(emitEvent = true) {
+    const viewManager = this._viewManager;
+    if (!viewManager) {
+      return;
+    }
+    for (const sub of this._viewManagerSubs) {
+      sub();
+    }
+    this._viewManagerSubs = [];
+    viewManager.destroy();
+    this._viewManager = null;
+    this._renderSuspendCount = 0;
+    this._deferredSceneModelRegistrations.clear();
+    if (emitEvent) {
+      this.events.onRendererStopped.dispatch(this);
+    }
+  }
+  _watchDeviceLost() {
+    const lost = this._device?.lost;
+    if (!lost || typeof lost.then !== "function") {
+      return;
+    }
+    const token = {};
+    this._deviceLostWatchToken = token;
+    lost.then((info) => {
+      if (this._deviceLostWatchToken !== token || this._destroyed) {
+        return;
+      }
+      this._handleDeviceLost(info);
+    }).catch((e) => {
+      if (this._deviceLostWatchToken !== token || this._destroyed) {
+        return;
+      }
+      this._handleDeviceLost({
+        message: e instanceof Error ? e.message : String(e)
+      });
+    });
+  }
+  _handleDeviceLost(info) {
+    this._deviceLost = true;
+    this._destroyViewManager();
+    const event = typeof Event !== "undefined" ? new Event("webgpudevicelost") : { type: "webgpudevicelost" };
+    this.events.onContextLost.dispatch(this, event);
+    const detail = info?.message ? ` ${info.message}` : "";
+    this._error(
+      1 /* InvalidOperation */,
+      `[WebGPURenderer.deviceLost] WebGPU device was lost.${detail}`
+    );
+  }
+  _error(type, error) {
+    return this._logError({
+      ok: false,
+      type,
+      error
+    });
+  }
+  _logError(result) {
+    if (result.ok === false) {
+      const rendererError = {
+        ok: false,
+        type: result.type,
+        error: `[WebGPURenderer] ${result.error}`
+      };
+      if (this.logging) {
+        console.error(rendererError.error);
+      }
+      this.events.onError.dispatch(this, rendererError);
+    }
+    return result;
+  }
+};
 
 // ../sdk/src/presentations/index.ts
 var presentations_exports = {};
@@ -194703,8 +197946,7 @@ var DaylightAnalysis = class {
    *
    * @param onProgress  Optional progress callback. Receives a value
    *                    in `[0, 1]` after each row of cells completes
-   *                    (not every cell — that'd be unnecessarily
-   *                    noisy for typical UI binding).
+   *                    (not every cell).
    */
   async run(onProgress) {
     const p = this.params;
@@ -197522,62 +200764,6 @@ __export(heatmaps_exports, {
   paintHeatMapPoint: () => paintHeatMapPoint
 });
 
-// ../sdk/src/model/scene/generateSmoothNormals.ts
-function generateSmoothNormals(positions, indices) {
-  const vertCount = positions.length / 3 | 0;
-  const triCount = indices.length / 3 | 0;
-  if (vertCount === 0 || triCount === 0 || indices.length % 3 !== 0) {
-    return null;
-  }
-  const acc = new Float32Array(vertCount * 3);
-  for (let t = 0; t < triCount; t++) {
-    const i0 = indices[t * 3];
-    const i1 = indices[t * 3 + 1];
-    const i2 = indices[t * 3 + 2];
-    const ax = positions[i0 * 3];
-    const ay = positions[i0 * 3 + 1];
-    const az = positions[i0 * 3 + 2];
-    const ex1 = positions[i1 * 3] - ax;
-    const ey1 = positions[i1 * 3 + 1] - ay;
-    const ez1 = positions[i1 * 3 + 2] - az;
-    const ex2 = positions[i2 * 3] - ax;
-    const ey2 = positions[i2 * 3 + 1] - ay;
-    const ez2 = positions[i2 * 3 + 2] - az;
-    const nx = ey1 * ez2 - ez1 * ey2;
-    const ny = ez1 * ex2 - ex1 * ez2;
-    const nz = ex1 * ey2 - ey1 * ex2;
-    acc[i0 * 3] += nx;
-    acc[i0 * 3 + 1] += ny;
-    acc[i0 * 3 + 2] += nz;
-    acc[i1 * 3] += nx;
-    acc[i1 * 3 + 1] += ny;
-    acc[i1 * 3 + 2] += nz;
-    acc[i2 * 3] += nx;
-    acc[i2 * 3 + 1] += ny;
-    acc[i2 * 3 + 2] += nz;
-  }
-  let anyNonZero = false;
-  for (let i = 0; i < vertCount; i++) {
-    const x = acc[i * 3], y = acc[i * 3 + 1], z = acc[i * 3 + 2];
-    const lenSq = x * x + y * y + z * z;
-    if (lenSq > 0) {
-      anyNonZero = true;
-      const inv = 1 / Math.sqrt(lenSq);
-      acc[i * 3] = x * inv;
-      acc[i * 3 + 1] = y * inv;
-      acc[i * 3 + 2] = z * inv;
-    } else {
-      acc[i * 3] = 0;
-      acc[i * 3 + 1] = 1;
-      acc[i * 3 + 2] = 0;
-    }
-  }
-  if (!anyNonZero) {
-    return null;
-  }
-  return octEncodeNormalsToU16(acc);
-}
-
 // ../sdk/src/model/scene/ensureGeometryAttribs.ts
 function ensureGeometryAttribs(sceneModel, sourceId, options = {}) {
   const source = sceneModel.geometries[sourceId];
@@ -198079,8 +201265,8 @@ var MaterialsPalette = class {
    * Creates a MaterialsPalette.
    *
    * @param params.catalog Override the default catalog. When omitted,
-   *   the palette ships with every applicable {@link model!procgen.paintMaterials | paintMaterials}
-   *   painter pre-registered.
+   *   every applicable {@link model!procgen.paintMaterials | paintMaterials}
+   *   painter is pre-registered.
    * @param params.textureSize Painter texture size in pixels. Default
    *   `256`.
    * @param params.uvScale Metres of geometry per texture repeat,
@@ -198400,7 +201586,7 @@ var Schedule = class {
 };
 
 // ../sdk/src/presentations/schedule/SchedulePlayer.ts
-var import_strongly_typed_events19 = __toESM(require_dist8());
+var import_strongly_typed_events20 = __toESM(require_dist8());
 var DEFAULT_GHOST_COLOR = [0.6, 0.7, 0.85];
 var MS_PER_DAY = 24 * 60 * 60 * 1e3;
 var SchedulePlayer = class {
@@ -198454,10 +201640,10 @@ var SchedulePlayer = class {
     this._destroyed = false;
     this._lastTickMs = 0;
     this._crossedMilestoneIds = /* @__PURE__ */ new Set();
-    this.onDateChanged = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onPlay = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onPause = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onMilestone = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
+    this.onDateChanged = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onPlay = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onPause = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onMilestone = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
     this._animationTask = new SDKTask({
       name: "SchedulePlayer.tick",
       stage: SDKTask.AnimateStage,
@@ -198490,8 +201676,7 @@ var SchedulePlayer = class {
   get destroyed() {
     return this._destroyed;
   }
-  /** Cursor position as `[0, 1]` across the schedule's full range —
-   *  handy for binding to a `<input type="range" min="0" max="1">`. */
+  /** Cursor position as `[0, 1]` across the schedule's full range. */
   get progress() {
     const startMs = this.schedule.startDate.getTime();
     const endMs = this.schedule.endDate.getTime();
@@ -199260,7 +202445,7 @@ __export(sunStudy_exports, {
 });
 
 // ../sdk/src/presentations/sunStudy/SunStudy.ts
-var import_strongly_typed_events20 = __toESM(require_dist8());
+var import_strongly_typed_events21 = __toESM(require_dist8());
 var DEFAULT_SUN_COLOR = [1, 0.96, 0.86];
 var HORIZON_WARM_COLOR = [1, 0.55, 0.25];
 var NIGHT_COLOR = [0.04, 0.07, 0.14];
@@ -199268,7 +202453,7 @@ var SunStudy = class _SunStudy {
   /**
    * Most recently constructed (and not yet destroyed) SunStudy.
    * Used by the Toolbar's "Sun Study" button to open the panel
-   * even when the app hasn't pre-mounted it — the button picks
+   * even when the app hasn't pre-mounted it; the button picks
    * up whichever SunStudy the app most recently created.
    */
   static _latest = null;
@@ -199346,7 +202531,7 @@ var SunStudy = class _SunStudy {
       intensity: this._sunIntensity,
       space: "world"
     });
-    this.onChanged = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onChanged = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
     this._sunPosition = { altitude: 0, azimuth: 0, aboveHorizon: false };
     _SunStudy._latest = this;
     this._apply();
@@ -199565,7 +202750,7 @@ function clamp014(v) {
 }
 
 // ../sdk/src/presentations/sunStudy/AnnualSunPlayer.ts
-var import_strongly_typed_events21 = __toESM(require_dist8());
+var import_strongly_typed_events22 = __toESM(require_dist8());
 var MS_PER_DAY2 = 24 * 60 * 60 * 1e3;
 var MS_PER_YEAR = 365.2422 * MS_PER_DAY2;
 var AnnualSunPlayer = class {
@@ -199590,9 +202775,9 @@ var AnnualSunPlayer = class {
     this._playing = false;
     this._destroyed = false;
     this._lastTickMs = 0;
-    this.onPlay = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
-    this.onPause = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
-    this.onModeChanged = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
+    this.onPlay = new EventEmitter(new import_strongly_typed_events22.EventDispatcher());
+    this.onPause = new EventEmitter(new import_strongly_typed_events22.EventDispatcher());
+    this.onModeChanged = new EventEmitter(new import_strongly_typed_events22.EventDispatcher());
     this._animationTask = new SDKTask({
       name: "AnnualSunPlayer.tick",
       stage: SDKTask.AnimateStage,
@@ -201649,7 +204834,7 @@ var projectScratch = [
 ];
 
 // ../sdk/src/tools/measurements/distance/DistanceMeasurementTool.ts
-var import_strongly_typed_events22 = __toESM(require_dist8());
+var import_strongly_typed_events23 = __toESM(require_dist8());
 
 // ../sdk/src/tools/measurements/distance/MouseDistanceMeasurementsControl.ts
 var MouseDistanceMeasurementsControl = class {
@@ -201762,8 +204947,11 @@ var MouseDistanceMeasurementsControl = class {
   }
   // ── Helpers ─────────────────────────────────────────────────────
   /**
-   * Pick at the given mouse event's canvas coordinates with snap
-   * enabled. Returns:
+   * Pick at the given mouse event's canvas coordinates. We first
+   * ask for snap; when the renderer does not land a snap, we issue
+   * a plain surface pick so triangle-interior measurements use the
+   * actual cursor ray intersection instead of the snap pass' partial
+   * result. Returns:
    *
    *   - `worldPos`: the snapped point's world position when the
    *     renderer landed a vertex/edge, otherwise the surface hit;
@@ -201780,21 +204968,32 @@ var MouseDistanceMeasurementsControl = class {
       e.clientX - rect.left,
       e.clientY - rect.top
     ];
-    const result = this.tool.picker.pick({
+    const snapResult = this.tool.picker.pick({
       view,
       canvasPos: canvasPos2,
       snapToVertex: true,
       snapToEdge: true,
       snapRadius: 30
     });
-    if (!result.hit)
+    if (snapResult.snap) {
+      const wp2 = snapResult.snap.worldPos;
+      return {
+        worldPos: [wp2[0], wp2[1], wp2[2]],
+        viewportX: rect.left + snapResult.snap.canvasPos[0],
+        viewportY: rect.top + snapResult.snap.canvasPos[1]
+      };
+    }
+    const surfaceResult = snapResult.strategyUsed === "bvh" ? snapResult : this.tool.picker.pick({ view, canvasPos: canvasPos2 });
+    if (!surfaceResult.hit && !snapResult.hit)
       return null;
-    const wp = result.snap?.worldPos ?? result.worldPos;
+    const wp = surfaceResult.worldPos ?? snapResult.worldPos;
     if (!wp)
       return null;
-    const viewportX = result.snap ? rect.left + result.snap.canvasPos[0] : e.clientX;
-    const viewportY = result.snap ? rect.top + result.snap.canvasPos[1] : e.clientY;
-    return { worldPos: [wp[0], wp[1], wp[2]], viewportX, viewportY };
+    return {
+      worldPos: [wp[0], wp[1], wp[2]],
+      viewportX: e.clientX,
+      viewportY: e.clientY
+    };
   }
   _cancelPending() {
     if (this._pendingMeasurement) {
@@ -201860,7 +205059,7 @@ var DistanceMeasurementTool = class _DistanceMeasurementTool {
   static iconSvg() {
     return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9 L21 3 L21 9 L3 15 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 8 V11 M11 7 V11 M15 6 V10 M19 5 V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
   }
-  /** Returns the live tool bound to {@link view}, if any. */
+  /** Returns the live tool bound to `view`, if any. */
   static getFor(view) {
     const inst = _DistanceMeasurementTool._instances.get(view);
     return inst && !inst._destroyed ? inst : void 0;
@@ -201920,7 +205119,7 @@ var DistanceMeasurementTool = class _DistanceMeasurementTool {
     this.defaultColor = params.defaultColor ?? "#FFA500";
     this._visible = params.visible !== false;
     this.onMeasurementsChanged = new EventEmitter(
-      new import_strongly_typed_events22.EventDispatcher()
+      new import_strongly_typed_events23.EventDispatcher()
     );
     this._container = params.container ?? this.view.htmlElement.parentElement ?? document.body;
     this._root = document.createElement("div");
@@ -202467,7 +205666,7 @@ var projectScratch2 = [
 ];
 
 // ../sdk/src/tools/measurements/angle/AngleMeasurementsTool.ts
-var import_strongly_typed_events23 = __toESM(require_dist8());
+var import_strongly_typed_events24 = __toESM(require_dist8());
 
 // ../sdk/src/tools/measurements/angle/MouseAngleMeasurementsControl.ts
 var MouseAngleMeasurementsControl = class {
@@ -202687,7 +205886,7 @@ var AngleMeasurementsTool = class _AngleMeasurementsTool {
   static iconSvg() {
     return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L20 20 L4 6 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 20 A 5 5 0 0 0 4 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
   }
-  /** Returns the live tool bound to {@link view}, if any. */
+  /** Returns the live tool bound to `view`, if any. */
   static getFor(view) {
     const inst = _AngleMeasurementsTool._instances.get(view);
     return inst && !inst._destroyed ? inst : void 0;
@@ -202745,7 +205944,7 @@ var AngleMeasurementsTool = class _AngleMeasurementsTool {
     this.defaultColor = params.defaultColor ?? "#9C27B0";
     this._visible = params.visible !== false;
     this.onMeasurementsChanged = new EventEmitter(
-      new import_strongly_typed_events23.EventDispatcher()
+      new import_strongly_typed_events24.EventDispatcher()
     );
     this._container = params.container ?? this.view.htmlElement.parentElement ?? document.body;
     this._root = document.createElement("div");
@@ -205589,7 +208788,7 @@ __export(treeview_exports, {
 });
 
 // ../sdk/src/ui/treeview/TreeViewEvents.ts
-var import_strongly_typed_events24 = __toESM(require_dist8());
+var import_strongly_typed_events25 = __toESM(require_dist8());
 var TreeViewEvents = class {
   /**
    * Emits an event when an error occurs within the `TreeView` or its components. This non-fatal event
@@ -205623,13 +208822,13 @@ var TreeViewEvents = class {
      * @private
      */
   constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events24.EventDispatcher());
-    this.onTreeViewDestroyed = new EventEmitter(new import_strongly_typed_events24.EventDispatcher());
-    this.log = new EventEmitter(new import_strongly_typed_events24.EventDispatcher());
-    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events24.EventDispatcher());
-    this.onContextMenu = new EventEmitter(new import_strongly_typed_events24.EventDispatcher());
-    this.onNodeSelectClicked = new EventEmitter(new import_strongly_typed_events24.EventDispatcher());
-    this.onNodeFrameClicked = new EventEmitter(new import_strongly_typed_events24.EventDispatcher());
+    this.onError = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
+    this.onTreeViewDestroyed = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
+    this.log = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
+    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
+    this.onContextMenu = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
+    this.onNodeSelectClicked = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
+    this.onNodeFrameClicked = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
   }
   /**
    * @private
@@ -207677,7 +210876,7 @@ __export(studio_exports, {
 });
 
 // ../sdk/src/studio/StudioEvents.ts
-var import_strongly_typed_events25 = __toESM(require_dist8());
+var import_strongly_typed_events26 = __toESM(require_dist8());
 var StudioEvents = class {
   /**
    * Fires when an error occurs anywhere in the Studio — auto-mount
@@ -207702,8 +210901,8 @@ var StudioEvents = class {
    * @private
    */
   constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
-    this.onWarning = new EventEmitter(new import_strongly_typed_events25.EventDispatcher());
+    this.onError = new EventEmitter(new import_strongly_typed_events26.EventDispatcher());
+    this.onWarning = new EventEmitter(new import_strongly_typed_events26.EventDispatcher());
   }
   /**
    * @private
@@ -207745,7 +210944,7 @@ function el(tag, className, props) {
 }
 
 // ../sdk/src/studio/panels/floatingPanelBase.ts
-var import_strongly_typed_events26 = __toESM(require_dist8());
+var import_strongly_typed_events27 = __toESM(require_dist8());
 
 // ../sdk/src/studio/panels/modalBackdrop.ts
 var MODAL_BACKDROP_CLASS = "xkt-modal-backdrop";
@@ -207949,7 +211148,7 @@ var FloatingPanelBase = class {
   _closeBtn;
   /** Fires when `show()` / `hide()` toggles the panel's visibility. */
   onVisibilityChanged = new EventEmitter(
-    new import_strongly_typed_events26.EventDispatcher()
+    new import_strongly_typed_events27.EventDispatcher()
   );
   /**
    * Fires while the user drags the panel (one notification per
@@ -207964,7 +211163,7 @@ var FloatingPanelBase = class {
    * panel's bounding rect.
    */
   onLayoutChanged = new EventEmitter(
-    new import_strongly_typed_events26.EventDispatcher()
+    new import_strongly_typed_events27.EventDispatcher()
   );
   _container;
   _storageKey;
@@ -212928,6 +216127,11 @@ function createDebugSubmenu(debug) {
   };
 }
 function loseWebGLContext(renderer) {
+  if (!(renderer instanceof WebGLRenderer3)) {
+    console.warn("[Studio] Lose WebGL Context requires WebGLRenderer.");
+    return;
+  }
+  renderer.loseContext();
 }
 
 // ../sdk/src/studio/contextMenus/ViewObjectContextMenu.ts
@@ -225854,6 +229058,18 @@ function applyKeyColumnWidth(table, keys) {
   table.style.setProperty("--xkt-vcp-keyw", `${keyCh}ch`);
 }
 
+// ../sdk/src/studio/panels/resolveWebGLRenderer.ts
+function asWebGLRenderer(renderer) {
+  return renderer instanceof WebGLRenderer3 ? renderer : null;
+}
+function requireWebGLRenderer(renderer, owner) {
+  const webGLRenderer = asWebGLRenderer(renderer);
+  if (!webGLRenderer) {
+    throw new Error(`${owner}: requires a WebGLRenderer`);
+  }
+  return webGLRenderer;
+}
+
 // ../sdk/src/studio/panels/gpuMemoryUsage/GPUMemoryUsage.ts
 var STYLE_TAG_ID14 = "xkt-gpu-styles";
 var _stylesInjected15 = false;
@@ -226211,6 +229427,7 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
     return inst;
   }
   renderer;
+  _webGLRenderer;
   // DOM refs.
   _bodyEl;
   _allocatedEl;
@@ -226237,6 +229454,7 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
       classPrefix: "xkt-gpu"
     });
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "GPUMemoryPanel");
     const prior = _GPUMemoryPanel._instances.get(params.renderer);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -226434,7 +229652,7 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
   // ── Layout persistence ────────────────────────────────────────
   // ── Rendering ─────────────────────────────────────────────────
   _renderUsage() {
-    const usage = this.renderer.getMemoryUsage();
+    const usage = this._webGLRenderer.getMemoryUsage();
     const allocated = Number(usage?.allocatedMB) || 0;
     const used = Number(usage?.usedMB) || 0;
     const free = Math.max(0, allocated - used);
@@ -226458,7 +229676,7 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
   }
   _renderConfigs() {
     this._configsBody.innerHTML = "";
-    const configs = this.renderer.getMemoryConfigs();
+    const configs = this._webGLRenderer.getMemoryConfigs();
     if (!configs) {
       this._configsBody.appendChild(el("div", "xkt-gpu-empty", { textContent: "No memory configs available." }));
       return;
@@ -226640,7 +229858,7 @@ var NavCube = class _NavCube extends FloatingPanelBase {
     return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 L21 7.5 L21 16.5 L12 21 L3 16.5 L3 7.5 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 7.5 L12 12 L21 7.5 M12 12 L12 21" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
   }
   /**
-   * Returns the live NavCube bound to {@link view}, or `undefined`
+   * Returns the live NavCube bound to `view`, or `undefined`
    * if none has been created yet (or the previous one was destroyed).
    */
   static getFor(view) {
@@ -233271,6 +236489,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     return inst;
   }
   renderer;
+  _webGLRenderer;
   // DOM refs.
   _bodyEl;
   _headStatsEl;
@@ -233293,6 +236512,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
       classPrefix: "xkt-rp"
     });
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "RendererPanel");
     this._selectedViewIndex = readNumber(`${this._storageKey}::viewsel`, 0);
     const prior = _RendererPanel._instances.get(params.renderer);
     if (prior && !prior._destroyed)
@@ -233350,7 +236570,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     if (this._listenersAttached || this._destroyed)
       return;
     this._listenersAttached = true;
-    const inspectorRes = this.renderer.getRenderInspector();
+    const inspectorRes = this._webGLRenderer.getRenderInspector();
     if (inspectorRes.ok && inspectorRes.value) {
       inspectorRes.value.enabled = true;
     }
@@ -233662,7 +236882,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
   }
   // ── Helpers ───────────────────────────────────────────────────
   _currentInspector() {
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     return res.ok ? res.value : null;
   }
   /**
@@ -234382,6 +237602,7 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
   }
   viewer;
   renderer;
+  _webGLRenderer;
   // Config — global to the panel, applied to every ViewCuller.
   _solidAngleLimit = DEFAULT_CULL_PARAMS.solidAngleLimit;
   _cullEveryNUpdates = DEFAULT_CULL_PARAMS.cullEveryNUpdates;
@@ -234413,6 +237634,7 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "CullingPanel");
     const prior = _CullingPanel._instances.get(params.viewer);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -234711,7 +237933,7 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
   }
   // ── Live stats ────────────────────────────────────────────────
   _enableInspector() {
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     if (res.ok)
       res.value.enabled = true;
   }
@@ -234719,7 +237941,7 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
   _renderStats() {
     if (this._destroyed)
       return;
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     const inspector = res.ok ? res.value : null;
     for (const { view, fpsEl, frameEl, culledEl } of this._viewRows.values()) {
       const i = view.viewIndex;
@@ -235046,6 +238268,7 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
   }
   viewer;
   renderer;
+  _webGLRenderer;
   _restMs = DEFAULT_REST_MS2;
   // DOM refs.
   _bodyEl;
@@ -235072,6 +238295,7 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
+    this._webGLRenderer = requireWebGLRenderer(params.renderer, "AdaptiveQualityPanel");
     const prior = _AdaptiveQualityPanel._instances.get(params.viewer);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -235299,14 +238523,14 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
   }
   // ── Live stats ────────────────────────────────────────────────
   _enableInspector() {
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     if (res.ok)
       res.value.enabled = true;
   }
   _renderStats() {
     if (this._destroyed)
       return;
-    const res = this.renderer.getRenderInspector();
+    const res = this._webGLRenderer.getRenderInspector();
     const inspector = res.ok ? res.value : null;
     for (const { view, fpsEl, frameEl, modeChip, modeEl } of this._viewRows.values()) {
       const i = view.viewIndex;
@@ -238724,7 +241948,7 @@ var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
 };
 
 // ../sdk/src/studio/panels/daylightAnalysisPanel/DaylightAnalysisPanel.ts
-var import_strongly_typed_events27 = __toESM(require_dist8());
+var import_strongly_typed_events28 = __toESM(require_dist8());
 var STYLE_TAG_ID28 = "xkt-dla-styles";
 var _stylesInjected29 = false;
 var PANEL_CSS26 = `
@@ -239064,7 +242288,7 @@ var DaylightAnalysisPanel = class _DaylightAnalysisPanel extends FloatingPanelBa
       prior.destroy();
     _DaylightAnalysisPanel._instances.set(params.sunStudy, this);
     _DaylightAnalysisPanel._latest = this;
-    this.onResult = new EventEmitter(new import_strongly_typed_events27.EventDispatcher());
+    this.onResult = new EventEmitter(new import_strongly_typed_events28.EventDispatcher());
     injectStylesOnce30();
     this._buildDom();
     this._wireDomEvents();
@@ -240012,8 +243236,8 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
   // ── Behaviour ─────────────────────────────────────────────────
   /**
    * Swap the panel's data source. The first scalar array becomes
-   * the new {@link grid}; the first vector array (if any) becomes
-   * the new {@link vectorGrid}. The panel re-derives default
+   * the new `grid`; the first vector array (if any) becomes
+   * the new `vectorGrid`. The panel re-derives default
    * value-range, slice-position bounds, isovalue range, etc., from
    * the new field and re-bakes the active technique.
    *
@@ -240539,7 +243763,7 @@ var DistanceMeasurementsPanel = class _DistanceMeasurementsPanel extends Floatin
     return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="18" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9 V12 M12 9 V13 M16 9 V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
   }
   /**
-   * Returns the live panel bound to {@link view}, or `undefined`
+   * Returns the live panel bound to `view`, or `undefined`
    * if none has been constructed (or the prior instance was
    * destroyed). Lets callers check for an existing panel without
    * the show side-effect of {@link openFor}.
@@ -241028,7 +244252,7 @@ var AngleMeasurementsPanel = class _AngleMeasurementsPanel extends FloatingPanel
     return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L20 20 L4 6 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 20 A 5 5 0 0 0 4 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
   }
   /**
-   * Returns the live panel bound to {@link view}, or `undefined`
+   * Returns the live panel bound to `view`, or `undefined`
    * if none has been constructed (or the prior instance was
    * destroyed). Lets callers check for an existing panel without
    * the show side-effect of {@link openFor}.
@@ -241249,12 +244473,13 @@ function formatAngle2(deg) {
 }
 
 // ../sdk/src/studio/systems/sectionPlanesTool/SectionPlanesController.ts
-var import_strongly_typed_events28 = __toESM(require_dist8());
+var import_strongly_typed_events29 = __toESM(require_dist8());
 
 // ../sdk/src/studio/systems/sectionPlanesTool/SectionPlaneAdapter.ts
 var SectionPlaneAdapter = class {
-  constructor(plane) {
+  constructor(plane, matrixNormalSign = 1) {
     this.plane = plane;
+    this.matrixNormalSign = matrixNormalSign;
   }
   /**
    * Build the plane's world matrix from its current `pos`/`dir`.
@@ -241264,7 +244489,8 @@ var SectionPlaneAdapter = class {
    */
   getMatrix() {
     const out = new Array(16);
-    fillPlaneMatrix(this.plane.pos, this.plane.dir, out);
+    const dir = this.matrixNormalSign === 1 ? this.plane.dir : [-this.plane.dir[0], -this.plane.dir[1], -this.plane.dir[2]];
+    fillPlaneMatrix(this.plane.pos, dir, out);
     return Array.from(out);
   }
   /**
@@ -241273,18 +244499,33 @@ var SectionPlaneAdapter = class {
    * `dist` recomputes automatically inside the setters.
    */
   setMatrix(m) {
-    const pos = [m[12], m[13], m[14]];
+    const previousPos = [this.plane.pos[0], this.plane.pos[1], this.plane.pos[2]];
+    const previousDir = safeNormalizeVec3(this.plane.dir, [0, 0, -1]);
+    const previousMatrixDir = this.matrixNormalSign === 1 ? previousDir : [-previousDir[0], -previousDir[1], -previousDir[2]];
     const dirRaw = [m[8], m[9], m[10]];
-    const dir = normalizeVec3(dirRaw);
-    this.plane.pos = pos;
+    const matrixDir = safeNormalizeVec3(dirRaw, previousMatrixDir);
+    const dir = this.matrixNormalSign === 1 ? matrixDir : [-matrixDir[0], -matrixDir[1], -matrixDir[2]];
+    const rawPos = [m[12], m[13], m[14]];
+    const delta = [
+      rawPos[0] - previousPos[0],
+      rawPos[1] - previousPos[1],
+      rawPos[2] - previousPos[2]
+    ];
+    const slide = dotVec3(delta, dir);
+    const pos = [
+      previousPos[0] + dir[0] * slide,
+      previousPos[1] + dir[1] * slide,
+      previousPos[2] + dir[2] * slide
+    ];
     this.plane.dir = dir;
+    this.plane.pos = pos;
   }
 };
 function fillPlaneMatrix(pos, dir, out) {
-  const n = normalizeVec3([dir[0], dir[1], dir[2]]);
+  const n = safeNormalizeVec3(dir, [0, 0, -1]);
   const tentativeUp = Math.abs(n[1]) > 0.999 ? [1, 0, 0] : [0, 1, 0];
-  const x = normalizeVec3(cross3Vec3(tentativeUp, n));
-  const y = cross3Vec3(n, x);
+  const x = normalizeVec3(cross3Vec3(tentativeUp, n, [0, 0, 0]));
+  const y = cross3Vec3(n, x, [0, 0, 0]);
   out[0] = x[0];
   out[1] = x[1];
   out[2] = x[2];
@@ -241303,6 +244544,14 @@ function fillPlaneMatrix(pos, dir, out) {
   out[15] = 1;
   return out;
 }
+function safeNormalizeVec3(v, fallback) {
+  const x = v[0], y = v[1], z = v[2];
+  const len = Math.hypot(x, y, z);
+  if (!Number.isFinite(len) || len < 1e-12) {
+    return [fallback[0], fallback[1], fallback[2]];
+  }
+  return [x / len, y / len, z / len];
+}
 
 // ../sdk/src/studio/systems/sectionPlanesTool/SectionPlanesController.ts
 var SectionPlanesController = class _SectionPlanesController {
@@ -241311,11 +244560,15 @@ var SectionPlanesController = class _SectionPlanesController {
     const inst = _SectionPlanesController._instances.get(view);
     return inst && !inst._destroyed ? inst : void 0;
   }
-  static openFor(view) {
+  static openFor(view, options = {}) {
     const existing = _SectionPlanesController._instances.get(view);
-    if (existing && !existing._destroyed)
+    if (existing && !existing._destroyed) {
+      if (options.transformControlsFactory) {
+        existing._transformControlsFactory = options.transformControlsFactory;
+      }
       return existing;
-    return new _SectionPlanesController(view);
+    }
+    return new _SectionPlanesController(view, options);
   }
   view;
   sceneModel;
@@ -241325,13 +244578,13 @@ var SectionPlanesController = class _SectionPlanesController {
    * created / destroyed one). The panel listens to redraw.
    */
   onChanged = new EventEmitter(
-    new import_strongly_typed_events28.EventDispatcher()
+    new import_strongly_typed_events29.EventDispatcher()
   );
   /**
    * Fires whenever the controller's gizmo target or edit mode
    * changes — including detach (`{plane: null}`).
    */
-  onSelectionChanged = new EventEmitter(new import_strongly_typed_events28.EventDispatcher());
+  onSelectionChanged = new EventEmitter(new import_strongly_typed_events29.EventDispatcher());
   /** Half-size, in world units, of the per-plane translucent
    *  proxy quad. The visual is `2 * halfSize` across. */
   _proxyHalf = 2;
@@ -241343,6 +244596,12 @@ var SectionPlanesController = class _SectionPlanesController {
   _mode = "translate";
   /** True while the tool is active — controls proxy visibility. */
   _visible = false;
+  /** TransformControls space to restore after section-plane editing. */
+  _previousTransformSpace = null;
+  /** TransformControls axis visibility to restore after section-plane editing. */
+  _previousTransformShow = null;
+  /** Preferred way to obtain TransformControls for this View. */
+  _transformControlsFactory;
   /** Subscription handles for the viewer-level events. */
   _unsubs = [];
   _destroyed = false;
@@ -241351,8 +244610,9 @@ var SectionPlanesController = class _SectionPlanesController {
    *  the controller's listeners would re-issue setMatrix during a
    *  drag and stutter the gizmo. */
   _dragging = false;
-  constructor(view) {
+  constructor(view, options = {}) {
     this.view = view;
+    this._transformControlsFactory = options.transformControlsFactory;
     _SectionPlanesController._instances.set(view, this);
     const viewer = view.viewer;
     const sceneCoord = viewer.scene.coordinateSystem.toParams();
@@ -241474,13 +244734,27 @@ var SectionPlanesController = class _SectionPlanesController {
       this._applyGizmo(plane, this._mode);
     } else {
       const tc = TransformControls.getFor(this.view);
-      if (tc)
+      if (tc) {
         tc.detach();
+        this._restoreTransformControlsSpace(tc);
+      }
     }
     this.onSelectionChanged.dispatch(this, { plane, mode: this._mode });
   }
   clearSelection() {
     this.select(null);
+  }
+  /** Selects the section plane represented by one of this controller's
+   *  proxy ViewObjects. Returns `true` when a plane was found. */
+  selectByProxyObjectId(objectId) {
+    if (!objectId || !objectId.startsWith("__sp.obj."))
+      return false;
+    const planeId = objectId.slice("__sp.obj.".length);
+    const plane = this.list().find((p) => p.id === planeId);
+    if (!plane)
+      return false;
+    this.select(plane);
+    return true;
   }
   /** Toggle between translate and rotate gizmo handles. */
   setMode(mode) {
@@ -241613,8 +244887,9 @@ var SectionPlanesController = class _SectionPlanesController {
    * matrix that the gizmo just installed on its own target).
    */
   _applyGizmo(plane, mode) {
-    const tc = TransformControls.getFor(this.view) ?? new TransformControls({ view: this.view });
-    const baseAdapter = new SectionPlaneAdapter(plane);
+    const tc = this._openTransformControls();
+    this._captureTransformControlsState(tc);
+    const baseAdapter = new SectionPlaneAdapter(plane, -1);
     const adapter = {
       getMatrix: () => baseAdapter.getMatrix(),
       setMatrix: (m) => {
@@ -241628,12 +244903,54 @@ var SectionPlanesController = class _SectionPlanesController {
       }
     };
     tc.attach(adapter);
+    tc.setSpace("local");
+    tc.setShowX(true);
+    tc.setShowY(true);
+    tc.setShowZ(true);
     tc.setMode(mode);
+    this.view.needsRender();
+  }
+  _openTransformControls() {
+    return this._transformControlsFactory?.(this.view) ?? TransformControls.getFor(this.view) ?? TransformControls.openFor({ view: this.view });
+  }
+  _captureTransformControlsState(tc) {
+    if (this._previousTransformSpace === null)
+      this._previousTransformSpace = tc.space;
+    if (this._previousTransformShow === null) {
+      this._previousTransformShow = { x: tc.showX, y: tc.showY, z: tc.showZ };
+    }
+  }
+  _restoreTransformControlsSpace(tc) {
+    if (this._previousTransformShow !== null) {
+      tc.setShowX(this._previousTransformShow.x);
+      tc.setShowY(this._previousTransformShow.y);
+      tc.setShowZ(this._previousTransformShow.z);
+      this._previousTransformShow = null;
+    }
+    if (this._previousTransformSpace !== null) {
+      tc.setSpace(this._previousTransformSpace);
+      this._previousTransformSpace = null;
+    }
   }
 };
 
+// ../sdk/src/studio/systems/sectionPlanesTool/sectionPlanePick.ts
+function sectionPlaneDirFromPickedNormal(normal2, rayDir) {
+  if (!normal2) {
+    return [0, 0, 1];
+  }
+  if (!rayDir) {
+    return cleanDir(normal2);
+  }
+  const dot4 = normal2[0] * rayDir[0] + normal2[1] * rayDir[1] + normal2[2] * rayDir[2];
+  return dot4 > 0 ? cleanDir([-normal2[0], -normal2[1], -normal2[2]]) : cleanDir(normal2);
+}
+function cleanDir(dir) {
+  return [dir[0] || 0, dir[1] || 0, dir[2] || 0];
+}
+
 // ../sdk/src/studio/panels/sectionPlanesPanel/SectionPlanesPanel.ts
-var import_strongly_typed_events29 = __toESM(require_dist8());
+var import_strongly_typed_events30 = __toESM(require_dist8());
 
 // ../sdk/src/studio/systems/sectionPlanesTool/index.ts
 var sectionPlanesTool_exports = {};
@@ -241874,7 +245191,7 @@ var SectionPlanesPanel = class _SectionPlanesPanel extends FloatingPanelBase {
   controller;
   /** Fires after each render so hosts can sync any external UI. */
   onRendered = new EventEmitter(
-    new import_strongly_typed_events29.EventDispatcher()
+    new import_strongly_typed_events30.EventDispatcher()
   );
   _bodyEl;
   _modeTranslateBtn;
@@ -242172,7 +245489,12 @@ var loseContext = {
       console.warn("[Toolbar] loseContext \u2014 no Studio renderer available.");
       return;
     }
-    renderer.loseContext();
+    const webGLRenderer = asWebGLRenderer(renderer);
+    if (!webGLRenderer) {
+      console.warn("[Toolbar] loseContext requires WebGLRenderer.");
+      return;
+    }
+    webGLRenderer.loseContext();
   }
 };
 
@@ -243842,9 +247164,12 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     const view = this._activeView();
     if (!view || !this.studio)
       return;
-    const ctrl = SectionPlanesController.openFor(view);
+    const studio = this.studio;
+    const ctrl = SectionPlanesController.openFor(view, {
+      transformControlsFactory: (targetView) => studio.panels.open("transformControls", { view: targetView })
+    });
     ctrl.setVisible(true);
-    this.studio.panels.open("sectionPlanesPanel", { view });
+    studio.panels.open("sectionPlanesPanel", { view });
     const canvas3 = view.htmlElement;
     const picker = this.studio.picking.picker;
     const handler = (e) => {
@@ -243853,16 +247178,21 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       const rect = canvas3.getBoundingClientRect();
       const result = picker.pick({
         view,
-        canvasPos: [e.clientX - rect.left, e.clientY - rect.top]
+        canvasPos: [e.clientX - rect.left, e.clientY - rect.top],
+        pickSurfaceNormal: true
       });
       if (!result.hit || !result.worldPos)
         return;
-      if (result.objectId && (result.objectId.startsWith("__tc.") || result.objectId.startsWith("__sp.")))
+      if (result.objectId?.startsWith("__tc."))
         return;
-      const normal2 = result.worldNormal ?? [0, 0, 1];
+      if (result.objectId?.startsWith("__sp.")) {
+        ctrl.selectByProxyObjectId(result.objectId);
+        return;
+      }
+      const dir = sectionPlaneDirFromPickedNormal(result.worldNormal, result.rayDir);
       ctrl.createSectionPlane(
         [result.worldPos[0], result.worldPos[1], result.worldPos[2]],
-        [normal2[0], normal2[1], normal2[2]]
+        [dir[0], dir[1], dir[2]]
       );
     };
     canvas3.addEventListener("pointerdown", handler, true);
@@ -245132,7 +248462,7 @@ var PdfImportPanel = class _PdfImportPanel extends FloatingPanelBase {
 };
 
 // ../sdk/src/studio/panels/schedulePanel/SchedulePanel.ts
-var import_strongly_typed_events30 = __toESM(require_dist8());
+var import_strongly_typed_events31 = __toESM(require_dist8());
 var STYLE_TAG_ID36 = "xkt-sch-styles";
 var _stylesInjected37 = false;
 var PANEL_CSS33 = `
@@ -245384,7 +248714,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
       classPrefix: "xkt-sch"
     });
     this.player = params.player;
-    this.onTaskClicked = new EventEmitter(new import_strongly_typed_events30.EventDispatcher());
+    this.onTaskClicked = new EventEmitter(new import_strongly_typed_events31.EventDispatcher());
     const prior = _SchedulePanel._instances.get(params.player);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -245771,14 +249101,19 @@ function registerBuiltinPanels(registry) {
     }
   });
   registry.register("tilesPanel", {
-    find: (ctx2) => TilesPanel.getFor(ctx2.studio.scene),
+    find: (ctx2) => asWebGLRenderer(ctx2.studio.renderer) ? TilesPanel.getFor(ctx2.studio.scene) : void 0,
     create: (ctx2) => {
       const view = ctx2.studio.viewer?.viewList?.[0];
       if (!view) {
         ctx2.studio.reportWarning("[PanelRegistry/tilesPanel] No View available \u2014 needs a View for the camera-pose pointer.");
         return void 0;
       }
-      const inspectorRes = ctx2.studio.renderer.getRenderInspector();
+      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
+      if (!webGLRenderer) {
+        ctx2.studio.reportWarning("[PanelRegistry/tilesPanel] Requires WebGLRenderer.");
+        return void 0;
+      }
+      const inspectorRes = webGLRenderer.getRenderInspector();
       if (inspectorRes.ok === false) {
         ctx2.studio.reportWarning(`[PanelRegistry/tilesPanel] Renderer doesn't expose a RenderInspector:: ${inspectorRes.error}`);
         return void 0;
@@ -245805,11 +249140,19 @@ function registerBuiltinPanels(registry) {
   });
   registry.register("shadersPanel", {
     find: (ctx2) => {
-      const res = ctx2.studio.renderer.getShaderInspector();
+      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
+      if (!webGLRenderer)
+        return void 0;
+      const res = webGLRenderer.getShaderInspector();
       return res.ok ? ShadersPanel.getFor(res.value) : void 0;
     },
     create: (ctx2) => {
-      const res = ctx2.studio.renderer.getShaderInspector();
+      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
+      if (!webGLRenderer) {
+        ctx2.studio.reportWarning("[PanelRegistry/shadersPanel] Requires WebGLRenderer.");
+        return void 0;
+      }
+      const res = webGLRenderer.getShaderInspector();
       if (res.ok === false) {
         ctx2.studio.reportWarning(`[PanelRegistry/shadersPanel] Renderer doesn't expose a ShaderInspector:: ${res.error}`);
         return void 0;
@@ -245819,14 +249162,22 @@ function registerBuiltinPanels(registry) {
   });
   registry.register("dataTexturesPanel", {
     find: (ctx2) => {
-      const res = ctx2.studio.renderer.getMemoryInspector();
+      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
+      if (!webGLRenderer)
+        return void 0;
+      const res = webGLRenderer.getMemoryInspector();
       if (res.ok === false)
         return void 0;
       const dt = res.value.dataTextures;
       return dt ? DataTexturesPanel.getFor(dt) : void 0;
     },
     create: (ctx2) => {
-      const res = ctx2.studio.renderer.getMemoryInspector();
+      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
+      if (!webGLRenderer) {
+        ctx2.studio.reportWarning("[PanelRegistry/dataTexturesPanel] Requires WebGLRenderer.");
+        return void 0;
+      }
+      const res = webGLRenderer.getMemoryInspector();
       if (res.ok === false) {
         ctx2.studio.reportWarning(`[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:: ${res.error}`);
         return void 0;
@@ -245883,7 +249234,7 @@ function registerBuiltinPanels(registry) {
       const { viewer, scene, data: data2, renderer } = ctx2.studio;
       if (!viewer || !scene || !data2 || !renderer) {
         ctx2.studio.reportError(
-          "[PanelRegistry/issuesPanel] Studio not fully initialised yet \u2014 Viewer/Scene/Data/WebGLRenderer must exist."
+          "[PanelRegistry/issuesPanel] Studio not fully initialised yet \u2014 Viewer/Scene/Data/renderer must exist."
         );
         return void 0;
       }
@@ -245912,30 +249263,56 @@ function registerBuiltinPanels(registry) {
     create: (ctx2) => ViewerConfigPanel.openFor({ viewer: ctx2.studio.viewer, studio: ctx2.studio })
   });
   registry.register("gpuMemory", {
-    find: (ctx2) => GPUMemoryPanel.getFor(ctx2.studio.renderer),
-    create: (ctx2) => GPUMemoryPanel.openFor({ renderer: ctx2.studio.renderer })
+    find: (ctx2) => {
+      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
+      return webGLRenderer ? GPUMemoryPanel.getFor(ctx2.studio.renderer) : void 0;
+    },
+    create: (ctx2) => {
+      if (!asWebGLRenderer(ctx2.studio.renderer)) {
+        ctx2.studio.reportWarning("[PanelRegistry/gpuMemory] Requires WebGLRenderer.");
+        return void 0;
+      }
+      return GPUMemoryPanel.openFor({ renderer: ctx2.studio.renderer });
+    }
   });
   registry.register("rendererPanel", {
-    find: (ctx2) => RendererPanel.getFor(ctx2.studio.renderer),
-    create: (ctx2) => RendererPanel.openFor({ renderer: ctx2.studio.renderer })
+    find: (ctx2) => {
+      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
+      return webGLRenderer ? RendererPanel.getFor(ctx2.studio.renderer) : void 0;
+    },
+    create: (ctx2) => {
+      if (!asWebGLRenderer(ctx2.studio.renderer)) {
+        ctx2.studio.reportWarning("[PanelRegistry/rendererPanel] Requires WebGLRenderer.");
+        return void 0;
+      }
+      return RendererPanel.openFor({ renderer: ctx2.studio.renderer });
+    }
   });
   registry.register("cullingPanel", {
-    find: (ctx2) => ctx2.studio.viewer ? CullingPanel.getFor(ctx2.studio.viewer) : void 0,
+    find: (ctx2) => ctx2.studio.viewer && asWebGLRenderer(ctx2.studio.renderer) ? CullingPanel.getFor(ctx2.studio.viewer) : void 0,
     create: (ctx2) => {
       const { viewer, renderer } = ctx2.studio;
       if (!viewer || !renderer) {
         ctx2.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
         return void 0;
       }
+      if (!asWebGLRenderer(renderer)) {
+        ctx2.studio.reportWarning("[PanelRegistry/cullingPanel] Requires WebGLRenderer.");
+        return void 0;
+      }
       return CullingPanel.openFor({ viewer, renderer });
     }
   });
   registry.register("adaptiveQualityPanel", {
-    find: (ctx2) => ctx2.studio.viewer ? AdaptiveQualityPanel.getFor(ctx2.studio.viewer) : void 0,
+    find: (ctx2) => ctx2.studio.viewer && asWebGLRenderer(ctx2.studio.renderer) ? AdaptiveQualityPanel.getFor(ctx2.studio.viewer) : void 0,
     create: (ctx2) => {
       const { viewer, renderer } = ctx2.studio;
       if (!viewer || !renderer) {
         ctx2.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
+        return void 0;
+      }
+      if (!asWebGLRenderer(renderer)) {
+        ctx2.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Requires WebGLRenderer.");
         return void 0;
       }
       return AdaptiveQualityPanel.openFor({ viewer, renderer });
@@ -247204,6 +250581,7 @@ var ViewManager3 = class _ViewManager {
     this.ctx = ctx2;
     this.hooks = hooks;
     this.maxViews = options.maxViews ?? 4;
+    this._autoElementType = options.autoElementType ?? "image";
   }
   /**
    * Live View records keyed by view id. Replaces `studio.views`.
@@ -247220,6 +250598,7 @@ var ViewManager3 = class _ViewManager {
   _viewLayoutContainer = null;
   _autoCanvasByViewId = {};
   _floatingPanelByViewId = {};
+  _autoElementType;
   /**
    * Whether each auto-created View is currently pinned into the
    * flow-layout grid (`true`) or floating in its own panel (`false`).
@@ -247252,8 +250631,8 @@ var ViewManager3 = class _ViewManager {
    * Create a new View on the underlying Viewer.
    *
    * When `viewParams.elementId` and `viewParams.htmlElement` are
-   * omitted, the manager auto-creates a canvas element and either:
-   *  - lays it out snugly with other auto-created canvases inside the
+   * omitted, the manager auto-creates a renderer surface element and either:
+   *  - lays it out snugly with other auto-created surfaces inside the
    *    window (the default), or
    *  - wraps it in a floating {@link ViewPanel} when
    *    {@link StudioCreateViewParams.floating} is set.
@@ -247280,7 +250659,7 @@ var ViewManager3 = class _ViewManager {
     let floatingPanel = null;
     let viewId = resolvedViewParams.id;
     if (!hasExplicitElement) {
-      autoCreatedCanvas = document.createElement("img");
+      autoCreatedCanvas = this._autoElementType === "canvas" ? document.createElement("canvas") : document.createElement("img");
       autoCreatedCanvas.id = viewId ? `${viewId}-canvas` : `demohelper-canvas-${this.ctx.viewer.numViews}`;
       autoCreatedCanvas.style.display = "block";
       autoCreatedCanvas.style.width = "100%";
@@ -247384,7 +250763,7 @@ var ViewManager3 = class _ViewManager {
       return;
     this.destroyView(record.view);
   }
-  /** Destroy a View created via {@link createView}; removes its canvas if auto-created. */
+  /** Destroy a View created via {@link createView}; removes its renderer surface if auto-created. */
   destroyView(view) {
     const viewId = view.id;
     this.hooks.onViewDestroyed?.(viewId);
@@ -247892,6 +251271,7 @@ var PickingService = class {
       ray: pickParams.rayPick && pickParams.rayOrigin && pickParams.rayDirection ? { origin: pickParams.rayOrigin, dir: pickParams.rayDirection } : void 0,
       matrix: pickParams.rayMatrix,
       pickInvisible: pickParams.pickInvisible === true,
+      pickSurfaceNormal: pickParams.pickSurfaceNormal === true,
       snapToVertex: pickParams.snapToVertex === true,
       snapToEdge: pickParams.snapToEdge === true,
       snapRadius: pickParams.snapRadius
@@ -247910,6 +251290,7 @@ var PickingService = class {
       pickResult.canvasPos = pickParams.canvasPos;
     }
     pickResult.worldPos = result.worldPos;
+    pickResult.worldNormal = result.worldNormal;
     pickResult.origin = result.rayOrigin;
     pickResult.direction = result.rayDir;
     if (result.snap) {
@@ -247944,7 +251325,7 @@ var Studio = class _Studio {
    */
   viewer;
   /**
-   * The WebGLRenderer created by the Studio.
+   * The renderer created by the Studio.
    */
   renderer;
   /**
@@ -248055,6 +251436,49 @@ var Studio = class _Studio {
     this.debug = cfg.debug === true;
   }
   /**
+   * Create the configured renderer backend. WebGL is synchronous; WebGPU may
+   * need to request an adapter/device, so Studio keeps the factory async.
+   */
+  async _createRenderer(cfg) {
+    const backend = cfg.renderer ?? "webgl";
+    if (backend === "webgpu") {
+      const { viewer: _viewer, ...webGPUParams } = cfg.webGPU ?? {};
+      const result = await WebGPURenderer.create(webGPUParams);
+      if (result.ok === false) {
+        return result;
+      }
+      return {
+        ok: true,
+        value: result.value
+      };
+    }
+    if (backend === "webgl") {
+      return {
+        ok: true,
+        value: new WebGLRenderer3({
+          debugging: this.debug,
+          memoryConfigs: {
+            tileSize: 200,
+            maxTiles: 4096,
+            maxBatches: 1e3,
+            maxBatchVertices: 5e5,
+            maxBatchIndices: 8e5,
+            maxBatchGeometries: 6e4,
+            maxBatchMeshes: 2e4,
+            maxBatchPrims: 4e5,
+            ...cfg.memoryConfigs || {},
+            maxViews: this.viewManager.maxViews
+          }
+        })
+      };
+    }
+    return {
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: `[Studio.init] Unsupported renderer backend '${String(backend)}'. Expected 'webgl' or 'webgpu'.`
+    };
+  }
+  /**
    * Dispatch an error through this Studio's {@link StudioEvents.onError}
    * channel. The {@link panels!issuesPanel.IssuesPanel | IssuesPanel}
    * is the canonical subscriber — every dispatch lands as a row in
@@ -248083,124 +251507,120 @@ var Studio = class _Studio {
     this.events.onWarning.dispatch(this, payload);
   }
   /**
-   * Initializes the Studio by creating the Scene, Data, Viewer, WebGLRenderer, and optional initial View.
+   * Initializes the Studio by creating the Scene, Data, Viewer, configured
+   * renderer backend, and optional initial View.
    *
    * @param cfg Configuration options for initialization.
    * @returns A promise that resolves when initialization is complete.
    */
-  init(cfg = {}) {
+  async init(cfg = {}) {
     const merged = { ...this._config, ...cfg };
     this._applyConfig(merged);
-    return new Promise((resolve2, reject) => {
-      this.stats.startTime = performance.now();
-      if (this.makeComponents) {
-        this.scene = new Scene();
-        this.data = new Data2();
-        this.viewer = new Viewer();
-        this.viewManager = new ViewManager3(
-          {
-            viewer: this.viewer,
-            // PickingService is constructed in Studio's constructor;
-            // its lazy getters wait for scene/renderer to be set.
-            pickFn: (view, pickParams) => this.picking.pickForViewController(view, pickParams)
-          },
-          {
-            // Studio layers context-menu setup + IBL on top of the
-            // bare View record the manager produces.
-            onViewCreated: (view, record) => this._onViewCreated(view, record)
-          },
-          { maxViews: merged.maxViews ?? 4 }
-        );
-        this.renderer = new WebGLRenderer3({
-          debugging: this.debug,
-          memoryConfigs: {
-            tileSize: 200,
-            maxTiles: 4096,
-            maxBatches: 1e3,
-            maxBatchVertices: 5e5,
-            maxBatchIndices: 8e5,
-            maxBatchGeometries: 6e4,
-            maxBatchMeshes: 2e4,
-            maxBatchPrims: 4e5,
-            ...merged.memoryConfigs || {},
-            maxViews: this.viewManager.maxViews
-          }
-        });
-        const log2 = (eventName, sender, args) => {
-          console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
-        };
-        if (merged.logging) {
-          new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
-          new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
-          new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
-          new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]", log: log2 });
-        }
-        const onError = (_, result) => {
-          setInterval(() => {
-            window.postMessage({
-              type: "xeokit.Error",
-              payload: result
-            }, "*");
-          }, 1e3);
-          const div = document.createElement("div");
-          div.id = "Error";
-          document.body.appendChild(div);
-        };
-        this.scene.events.onError.subscribe(onError);
-        this.data.events.onError.subscribe(onError);
-        this.viewer.events.onError.subscribe(onError);
-        this.renderer.events.onError.subscribe(onError);
-        try {
-          IssuesPanel.openFor({
-            viewer: this.viewer,
-            scene: this.scene,
-            data: this.data,
-            renderer: this.renderer,
-            studioEvents: this.events,
-            visible: false
-          });
-        } catch (e) {
-          this.reportError(
-            `[Studio.init] Failed to mount IssuesPanel: ${e?.message ?? e}`,
-            0 /* InitializationFailed */
-          );
-        }
-        this.viewer.attachScene(this.scene);
-        this.renderer.attachViewer(this.viewer);
-        const renderInspectorResult = this.renderer.getRenderInspector();
-        if (renderInspectorResult.ok !== true) {
-          reject(renderInspectorResult.error);
-          return;
-        }
-        const renderInspector = renderInspectorResult.value;
-        renderInspector.enabled = true;
-        this._viewObjectContextMenu = new ViewObjectContextMenu({ debug: this.debug });
-        this._canvasContextMenu = new CanvasContextMenu({ debug: this.debug });
-        this._canvasContextMenu.on("hidden", () => {
-          taskRunner2.unsuspend();
-        });
-        this._viewObjectContextMenu.on("hidden", () => {
-          taskRunner2.unsuspend();
-        });
-        this._loadingSpinner = new LoadingSpinner({
-          autoHide: true,
-          autoHideDelayMs: 500
-        });
-        sdkProgress.addTask();
-        window.studio = this;
-        try {
-          this.panels.open("toolbar");
-        } catch (e) {
-          this.reportError(
-            `[Studio.init] Failed to auto-mount Toolbar: ${e?.message ?? e}`,
-            0 /* InitializationFailed */
-          );
-        }
-        resolve2({});
-      } else {
-        resolve2({});
+    this.stats.startTime = performance.now();
+    if (!this.makeComponents) {
+      return {};
+    }
+    this.scene = new Scene();
+    this.data = new Data2();
+    this.viewer = new Viewer();
+    const rendererBackend = merged.renderer ?? "webgl";
+    this.viewManager = new ViewManager3(
+      {
+        viewer: this.viewer,
+        // PickingService is constructed in Studio's constructor;
+        // its lazy getters wait for scene/renderer to be set.
+        pickFn: (view, pickParams) => this.picking.pickForViewController(view, pickParams)
+      },
+      {
+        // Studio layers context-menu setup + IBL on top of the
+        // bare View record the manager produces.
+        onViewCreated: (view, record) => this._onViewCreated(view, record)
+      },
+      {
+        maxViews: merged.maxViews ?? 4,
+        autoElementType: rendererBackend === "webgpu" ? "canvas" : "image"
       }
+    );
+    const rendererResult = await this._createRenderer(merged);
+    if (rendererResult.ok === false) {
+      throw rendererResult.error;
+    }
+    this.renderer = rendererResult.value;
+    const log2 = (eventName, sender, args) => {
+      console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
+    };
+    if (merged.logging) {
+      new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
+      new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
+      new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
+      new EventsLogger(this.renderer.events, { prefix: `[${this.renderer.constructor.name}]`, log: log2 });
+    }
+    const onError = (_, result) => {
+      setInterval(() => {
+        window.postMessage({
+          type: "xeokit.Error",
+          payload: result
+        }, "*");
+      }, 1e3);
+      const div = document.createElement("div");
+      div.id = "Error";
+      document.body.appendChild(div);
+    };
+    this.scene.events.onError.subscribe(onError);
+    this.data.events.onError.subscribe(onError);
+    this.viewer.events.onError.subscribe(onError);
+    this.renderer.events.onError.subscribe(onError);
+    try {
+      IssuesPanel.openFor({
+        viewer: this.viewer,
+        scene: this.scene,
+        data: this.data,
+        renderer: this.renderer,
+        studioEvents: this.events,
+        visible: false
+      });
+    } catch (e) {
+      this.reportError(
+        `[Studio.init] Failed to mount IssuesPanel: ${e?.message ?? e}`,
+        0 /* InitializationFailed */
+      );
+    }
+    this.viewer.attachScene(this.scene);
+    const attachResult = this.renderer.attachViewer(this.viewer);
+    if (attachResult.ok === false) {
+      throw attachResult.error;
+    }
+    if (this.renderer instanceof WebGLRenderer3) {
+      const renderInspectorResult = this.renderer.getRenderInspector();
+      if (renderInspectorResult.ok !== true) {
+        throw renderInspectorResult.error;
+      }
+      const renderInspector = renderInspectorResult.value;
+      renderInspector.enabled = true;
+    }
+    this._viewObjectContextMenu = new ViewObjectContextMenu({ debug: this.debug });
+    this._canvasContextMenu = new CanvasContextMenu({ debug: this.debug });
+    this._canvasContextMenu.on("hidden", () => {
+      taskRunner2.unsuspend();
     });
+    this._viewObjectContextMenu.on("hidden", () => {
+      taskRunner2.unsuspend();
+    });
+    this._loadingSpinner = new LoadingSpinner({
+      autoHide: true,
+      autoHideDelayMs: 500
+    });
+    sdkProgress.addTask();
+    window.studio = this;
+    try {
+      this.panels.open("toolbar");
+    } catch (e) {
+      this.reportError(
+        `[Studio.init] Failed to auto-mount Toolbar: ${e?.message ?? e}`,
+        0 /* InitializationFailed */
+      );
+    }
+    return {};
   }
   /**
    * Loads a model into the Scene and/or Data layers using a format-specific loader.
@@ -248606,7 +252026,7 @@ var Studio = class _Studio {
     return void 0;
   }
   /**
-   * Toggle the DistanceMeasurementTool's mouse control on {@link view},
+   * Toggle the DistanceMeasurementTool's mouse control on `view`,
    * ensuring the tool exists first. Returns the
    * `MouseDistanceMeasurementsControl` after the toggle.
    *
@@ -248625,7 +252045,7 @@ var Studio = class _Studio {
     return mc;
   }
   /**
-   * Toggle the AngleMeasurementsTool's mouse control on {@link view},
+   * Toggle the AngleMeasurementsTool's mouse control on `view`,
    * ensuring the tool exists first. Returns the
    * `MouseAngleMeasurementsControl` after the toggle.
    */
@@ -248641,9 +252061,9 @@ var Studio = class _Studio {
     return mc;
   }
   /**
-   * Mount the {@link TransformControls} on {@link view} (creating
-   * them on first call), attach them to {@link target}, and switch
-   * to {@link mode} when supplied.
+   * Mount the {@link TransformControls} on `view` (creating
+   * them on first call), attach them to `target`, and switch
+   * to `mode` when supplied.
    *
    * `pivotWorld` is the world-space anchor the handles render
    * around — typically the surface point the picker returned from
@@ -248659,7 +252079,7 @@ var Studio = class _Studio {
     return tc;
   }
   /**
-   * Detach the {@link TransformControls} on {@link view} if mounted.
+   * Detach the {@link TransformControls} on `view` if mounted.
    * Leaves the controls live so the next {@link attachTransformControls}
    * call reuses the same instance.
    */
@@ -248857,7 +252277,7 @@ var Studio = class _Studio {
     stats.aabb = sceneAABB ? Array.from(sceneAABB) : [];
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
-    if (this.renderer) {
+    if (this.renderer instanceof WebGLRenderer3) {
       stats.renderer = {
         tiles: {},
         views: []

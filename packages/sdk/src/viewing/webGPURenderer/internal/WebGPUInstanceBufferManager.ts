@@ -1,10 +1,19 @@
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import type {View} from "../../viewer";
-import type {WebGPUBufferLike} from "../core";
+import type {WebGPUBindGroupLayoutLike, WebGPUBindGroupLike, WebGPUBufferLike} from "../core";
 import {GPU_BUFFER_USAGE, INSTANCE_BYTES, INSTANCE_FLOATS} from "./constants";
 import type {WebGPUDrawItem} from "./types";
 import {WebGPUMeshManager} from "./WebGPUMeshManager";
 import {WebGPURenderContext} from "./WebGPURenderContext";
+
+export interface WebGPUInstanceBufferFrame {
+  buffer: WebGPUBufferLike | null;
+  bindGroup: WebGPUBindGroupLike | null;
+  bindGroupLayout: WebGPUBindGroupLayoutLike | null;
+  data: Float32Array;
+  capacity: number;
+  instanceCount: number;
+}
 
 /**
  * Owns the per-frame instance stream used by batched mesh draws.
@@ -14,42 +23,56 @@ import {WebGPURenderContext} from "./WebGPURenderContext";
 export class WebGPUInstanceBufferManager {
 
   private readonly _renderContext: WebGPURenderContext;
-  private _buffer: WebGPUBufferLike | null = null;
-  private _data: Float32Array = new Float32Array(0);
-  private _capacity = 0;
-  private _instanceCount = 0;
+  private readonly _frames: {[frameId: string]: WebGPUInstanceBufferFrame} = {};
+  private _activeFrame: WebGPUInstanceBufferFrame | null = null;
 
   constructor(renderContext: WebGPURenderContext) {
     this._renderContext = renderContext;
   }
 
   public get buffer(): WebGPUBufferLike | null {
-    return this._buffer;
+    return this._activeFrame?.buffer ?? null;
   }
 
-  public beginFrame(instanceCount: number): SDKResult<void> {
-    this._instanceCount = 0;
-    if (instanceCount <= this._capacity) {
+  public beginFrame(instanceCount: number, frameId = "default"): SDKResult<WebGPUInstanceBufferFrame> {
+    let frame = this._frames[frameId];
+    if (!frame) {
+      frame = {
+        buffer: null,
+        bindGroup: null,
+        bindGroupLayout: null,
+        data: new Float32Array(0),
+        capacity: 0,
+        instanceCount: 0
+      };
+      this._frames[frameId] = frame;
+    }
+    this._activeFrame = frame;
+    frame.instanceCount = 0;
+
+    if (instanceCount <= frame.capacity) {
       return {
         ok: true,
-        value: undefined
+        value: frame
       };
     }
 
-    let nextCapacity = Math.max(1, this._capacity);
+    let nextCapacity = Math.max(1, frame.capacity);
     while (nextCapacity < instanceCount) {
       nextCapacity *= 2;
     }
 
     try {
-      this._buffer?.destroy?.();
-      this._buffer = this._renderContext.device.createBuffer({
+      frame.buffer?.destroy?.();
+      frame.bindGroup = null;
+      frame.bindGroupLayout = null;
+      frame.buffer = this._renderContext.device.createBuffer({
         label: "xeokit-webgpu-instance-buffer",
         size: nextCapacity * INSTANCE_BYTES,
-        usage: GPU_BUFFER_USAGE.VERTEX | GPU_BUFFER_USAGE.COPY_DST
+        usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST
       });
-      this._data = new Float32Array(nextCapacity * INSTANCE_FLOATS);
-      this._capacity = nextCapacity;
+      frame.data = new Float32Array(nextCapacity * INSTANCE_FLOATS);
+      frame.capacity = nextCapacity;
     } catch (e) {
       return {
         ok: false,
@@ -60,19 +83,68 @@ export class WebGPUInstanceBufferManager {
 
     return {
       ok: true,
-      value: undefined
+      value: frame
+    };
+  }
+
+  public getBindGroup(
+    frame: WebGPUInstanceBufferFrame,
+    bindGroupLayout: WebGPUBindGroupLayoutLike
+  ): SDKResult<WebGPUBindGroupLike> {
+    if (frame.bindGroup && frame.bindGroupLayout === bindGroupLayout) {
+      return {
+        ok: true,
+        value: frame.bindGroup
+      };
+    }
+    if (!frame.buffer) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[WebGPUInstanceBufferManager.getBindGroup] Instance buffer was not initialized."
+      };
+    }
+
+    try {
+      frame.bindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-instance-bind-group",
+        layout: bindGroupLayout,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: frame.buffer
+          }
+        }]
+      });
+      frame.bindGroupLayout = bindGroupLayout;
+    } catch (e) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[WebGPUInstanceBufferManager.getBindGroup] Failed to create WebGPU instance bind group: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+
+    return {
+      ok: true,
+      value: frame.bindGroup
     };
   }
 
   public appendDrawItems(params: {
+    frame?: WebGPUInstanceBufferFrame;
     drawItems: WebGPUDrawItem[];
     start: number;
     count: number;
     view: View;
     meshManager: WebGPUMeshManager;
   }): number {
-    const firstInstance = this._instanceCount;
-    const target = this._data;
+    const frame = params.frame ?? this._activeFrame;
+    if (!frame) {
+      throw new Error("[WebGPUInstanceBufferManager.appendDrawItems] No active instance frame.");
+    }
+    const firstInstance = frame.instanceCount;
+    const target = frame.data;
     let targetOffset = firstInstance * INSTANCE_FLOATS;
     const end = params.start + params.count;
 
@@ -81,32 +153,45 @@ export class WebGPUInstanceBufferManager {
       targetOffset += INSTANCE_FLOATS;
     }
 
-    this._instanceCount += params.count;
+    frame.instanceCount += params.count;
     return firstInstance;
   }
 
-  public upload(): void {
-    if (!this._buffer || this._instanceCount === 0) {
+  public upload(frame: WebGPUInstanceBufferFrame | null = this._activeFrame): void {
+    if (!frame?.buffer || frame.instanceCount === 0) {
       return;
     }
     this._renderContext.device.queue.writeBuffer(
-      this._buffer,
+      frame.buffer,
       0,
-      this._data,
+      frame.data,
       0,
-      this._instanceCount * INSTANCE_FLOATS
+      frame.instanceCount * INSTANCE_FLOATS
     );
   }
 
-  public destroy(): void {
+  public destroyFrame(frameId: string): void {
+    const frame = this._frames[frameId];
+    if (!frame) {
+      return;
+    }
     try {
-      this._buffer?.destroy?.();
+      frame.buffer?.destroy?.();
     } catch {
       // Ignore buffer destruction failures during teardown.
     }
-    this._buffer = null;
-    this._data = new Float32Array(0);
-    this._capacity = 0;
-    this._instanceCount = 0;
+    frame.bindGroup = null;
+    frame.bindGroupLayout = null;
+    delete this._frames[frameId];
+    if (this._activeFrame === frame) {
+      this._activeFrame = null;
+    }
+  }
+
+  public destroy(): void {
+    for (const frameId of Object.keys(this._frames)) {
+      this.destroyFrame(frameId);
+    }
+    this._activeFrame = null;
   }
 }

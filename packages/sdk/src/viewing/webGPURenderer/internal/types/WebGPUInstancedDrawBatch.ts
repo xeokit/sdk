@@ -1,7 +1,5 @@
-import type {WebGPUGeometryState} from "./WebGPUGeometryState";
+import type {WebGPUPackedMeshBatch} from "./WebGPUPackedMeshBatch";
 
 export interface WebGPUInstancedDrawBatch {
-  geometryState: WebGPUGeometryState;
-  firstInstance: number;
-  instanceCount: number;
+  packedBatch: WebGPUPackedMeshBatch;
 }

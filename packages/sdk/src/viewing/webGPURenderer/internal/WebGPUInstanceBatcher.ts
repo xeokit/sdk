@@ -1,23 +1,27 @@
+import {type SDKResult} from "../../../base/core";
 import type {View} from "../../viewer";
-import type {WebGPUDrawItem, WebGPUInstancedDrawBatch, WebGPUInstancedDrawBatches, WebGPURenderBins} from "./types";
-import {WebGPUInstanceBufferManager} from "./WebGPUInstanceBufferManager";
+import type {WebGPUInstancedDrawBatches, WebGPURenderBins} from "./types";
+import {WebGPUInstanceBufferManager, type WebGPUInstanceBufferFrame} from "./WebGPUInstanceBufferManager";
 import {WebGPUMeshManager} from "./WebGPUMeshManager";
+import {WebGPUPackedMeshBatchBuilder} from "./WebGPUPackedMeshBatchBuilder";
+import {WebGPURenderContext} from "./WebGPURenderContext";
 
 /**
- * Builds instanced draw batches from classified WebGPU render bins.
+ * Builds minimum-draw-call mesh batches from classified WebGPU render bins.
  *
  * @internal
  */
 export class WebGPUInstanceBatcher {
 
+  private readonly _packedBatchBuilder: WebGPUPackedMeshBatchBuilder;
   private readonly _batches: WebGPUInstancedDrawBatches = {
     opaque: [],
     transparent: []
   };
-  private readonly _batchPool: WebGPUInstancedDrawBatch[] = [];
-  private readonly _opaqueGroups: {[geometryUniqueId: string]: WebGPUDrawItem[]} = {};
-  private readonly _opaqueGroupKeys: string[] = [];
-  private _batchPoolCount = 0;
+
+  constructor(renderContext: WebGPURenderContext) {
+    this._packedBatchBuilder = new WebGPUPackedMeshBatchBuilder(renderContext);
+  }
 
   public get batches(): WebGPUInstancedDrawBatches {
     return this._batches;
@@ -28,106 +32,67 @@ export class WebGPUInstanceBatcher {
     view: View;
     meshManager: WebGPUMeshManager;
     instanceBufferManager: WebGPUInstanceBufferManager;
-  }): WebGPUInstancedDrawBatches {
-    const {bins, view, meshManager, instanceBufferManager} = params;
+    instanceFrame: WebGPUInstanceBufferFrame;
+  }): SDKResult<WebGPUInstancedDrawBatches> {
+    const {bins, view, meshManager, instanceBufferManager, instanceFrame} = params;
 
     this._clear();
-    this._buildOpaqueBatches(bins.normalDrawOpaque, view, meshManager, instanceBufferManager);
-    this._buildTransparentBatches(bins.normalFillTransparent, view, meshManager, instanceBufferManager);
-    instanceBufferManager.upload();
 
-    return this._batches;
+    const opaqueBatchResult = this._packedBatchBuilder.build({
+      drawItems: bins.normalDrawOpaque,
+      label: `${view.id}:opaque`,
+      view,
+      meshManager,
+      instanceBufferManager,
+      instanceFrame
+    });
+    if (opaqueBatchResult.ok === false) {
+      return opaqueBatchResult;
+    }
+    if (opaqueBatchResult.value) {
+      this._batches.opaque.push({
+        packedBatch: opaqueBatchResult.value
+      });
+    }
+
+    const transparentBatchResult = this._packedBatchBuilder.build({
+      drawItems: bins.normalFillTransparent,
+      label: `${view.id}:transparent`,
+      view,
+      meshManager,
+      instanceBufferManager,
+      instanceFrame
+    });
+    if (transparentBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return transparentBatchResult;
+    }
+    if (transparentBatchResult.value) {
+      this._batches.transparent.push({
+        packedBatch: transparentBatchResult.value
+      });
+    }
+
+    instanceBufferManager.upload(instanceFrame);
+
+    return {
+      ok: true,
+      value: this._batches
+    };
   }
 
   private _clear(): void {
     this._batches.opaque.length = 0;
     this._batches.transparent.length = 0;
-    this._batchPoolCount = 0;
-    for (let i = 0, len = this._opaqueGroupKeys.length; i < len; i++) {
-      this._opaqueGroups[this._opaqueGroupKeys[i]].length = 0;
-    }
-    this._opaqueGroupKeys.length = 0;
   }
 
-  private _buildOpaqueBatches(
-    drawItems: WebGPUDrawItem[],
-    view: View,
-    meshManager: WebGPUMeshManager,
-    instanceBufferManager: WebGPUInstanceBufferManager
-  ): void {
-    for (let i = 0, len = drawItems.length; i < len; i++) {
-      const drawItem = drawItems[i];
-      const geometryUniqueId = drawItem.meshState.geometryState.geometry.uniqueId;
-      let group = this._opaqueGroups[geometryUniqueId];
-      if (!group) {
-        group = [];
-        this._opaqueGroups[geometryUniqueId] = group;
-      }
-      if (group.length === 0) {
-        this._opaqueGroupKeys.push(geometryUniqueId);
-      }
-      group.push(drawItem);
+  private _destroyBatches(batches: WebGPUInstancedDrawBatches): void {
+    for (let i = 0, len = batches.opaque.length; i < len; i++) {
+      batches.opaque[i].packedBatch.destroy();
     }
-
-    for (let i = 0, len = this._opaqueGroupKeys.length; i < len; i++) {
-      const group = this._opaqueGroups[this._opaqueGroupKeys[i]];
-      const firstInstance = instanceBufferManager.appendDrawItems({
-        drawItems: group,
-        start: 0,
-        count: group.length,
-        view,
-        meshManager
-      });
-      this._batches.opaque.push(this._nextBatch(group[0], firstInstance, group.length));
+    for (let i = 0, len = batches.transparent.length; i < len; i++) {
+      batches.transparent[i].packedBatch.destroy();
     }
-  }
-
-  private _buildTransparentBatches(
-    drawItems: WebGPUDrawItem[],
-    view: View,
-    meshManager: WebGPUMeshManager,
-    instanceBufferManager: WebGPUInstanceBufferManager
-  ): void {
-    let start = 0;
-    const len = drawItems.length;
-    while (start < len) {
-      const geometryState = drawItems[start].meshState.geometryState;
-      let end = start + 1;
-      while (
-        end < len &&
-        drawItems[end].meshState.geometryState === geometryState
-      ) {
-        end++;
-      }
-
-      const count = end - start;
-      const firstInstance = instanceBufferManager.appendDrawItems({
-        drawItems,
-        start,
-        count,
-        view,
-        meshManager
-      });
-      this._batches.transparent.push(this._nextBatch(drawItems[start], firstInstance, count));
-      start = end;
-    }
-  }
-
-  private _nextBatch(drawItem: WebGPUDrawItem, firstInstance: number, instanceCount: number): WebGPUInstancedDrawBatch {
-    let batch = this._batchPool[this._batchPoolCount];
-    if (!batch) {
-      batch = {
-        geometryState: drawItem.meshState.geometryState,
-        firstInstance,
-        instanceCount
-      };
-      this._batchPool.push(batch);
-    } else {
-      batch.geometryState = drawItem.meshState.geometryState;
-      batch.firstInstance = firstInstance;
-      batch.instanceCount = instanceCount;
-    }
-    this._batchPoolCount++;
-    return batch;
   }
 }

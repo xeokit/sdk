@@ -1,5 +1,6 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {EventEmitter, SDKErrorType, type SDKResult} from "../../../base/core";
+import type {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../../model/scene";
 import type {Renderer, RendererError} from "../../renderer";
 import type {PickParams, PickResult, View, Viewer} from "../../viewer";
 import {type GlobalWithOptionalWebGPU, WebGPUViewManager, type WebGPUNavigatorLike} from "../internal";
@@ -11,6 +12,12 @@ import type {
   WebGPUDeviceLostInfoLike,
   WebGPURendererParams
 } from "./WebGPURendererParams";
+
+interface DeferredSceneModelRegistrations {
+  geometries: Set<SceneGeometry>;
+  meshes: Set<SceneMesh>;
+  objects: Set<SceneObject>;
+}
 
 /**
  * WebGPU renderer backend.
@@ -33,6 +40,8 @@ export class WebGPURenderer implements Renderer {
   private readonly _contextFormat: string;
   private readonly _alphaMode?: WebGPUCanvasAlphaMode;
   private readonly _destroyDeviceOnDestroy: boolean;
+  private _renderSuspendCount = 0;
+  private _deferredSceneModelRegistrations: Map<SceneModel, DeferredSceneModelRegistrations> = new Map();
 
   /**
    * Enables or disables logging of renderer errors to the console.
@@ -295,9 +304,7 @@ export class WebGPURenderer implements Renderer {
    * @returns An SDK error result.
    */
   public pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
-    void pickParams;
-
-    if (!this._viewer) {
+    if (!this._viewManager) {
       return this._error(
         SDKErrorType.InvalidOperation,
         "[WebGPURenderer.pick] Viewer with Scene is not currently attached."
@@ -311,10 +318,7 @@ export class WebGPURenderer implements Renderer {
       );
     }
 
-    return this._error(
-      SDKErrorType.NotSupported,
-      "[WebGPURenderer.pick] WebGPU picking is not implemented yet."
-    );
+    return this._viewManager.pick(view, pickParams);
   }
 
   /**
@@ -361,6 +365,85 @@ export class WebGPURenderer implements Renderer {
     }
     this._viewerSubs = [];
     this._viewer = null;
+  }
+
+  private _getDeferredSceneModelRegistrations(sceneModel: SceneModel): DeferredSceneModelRegistrations {
+    let registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      registrations = {
+        geometries: new Set(),
+        meshes: new Set(),
+        objects: new Set()
+      };
+      this._deferredSceneModelRegistrations.set(sceneModel, registrations);
+    }
+    return registrations;
+  }
+
+  private _deferSceneGeometryCreated(sceneGeometry: SceneGeometry): boolean {
+    const sceneModel = sceneGeometry.model;
+    if (!sceneModel?.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
+    return true;
+  }
+
+  private _deferSceneMeshCreated(sceneMesh: SceneMesh): boolean {
+    const sceneModel = sceneMesh.model;
+    if (!sceneModel?.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
+    return true;
+  }
+
+  private _deferSceneObjectCreated(sceneObject: SceneObject): boolean {
+    const sceneModel = sceneObject.model;
+    if (!sceneModel?.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
+    return true;
+  }
+
+  private _discardDeferredSceneGeometry(sceneGeometry: SceneGeometry): boolean {
+    return this._deferredSceneModelRegistrations.get(sceneGeometry.model)?.geometries.delete(sceneGeometry) === true;
+  }
+
+  private _discardDeferredSceneMesh(sceneMesh: SceneMesh): boolean {
+    return this._deferredSceneModelRegistrations.get(sceneMesh.model)?.meshes.delete(sceneMesh) === true;
+  }
+
+  private _discardDeferredSceneObject(sceneObject: SceneObject): boolean {
+    return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
+  }
+
+  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: WebGPUViewManager): void {
+    const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      return;
+    }
+
+    this._deferredSceneModelRegistrations.delete(sceneModel);
+
+    for (const sceneGeometry of registrations.geometries) {
+      if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
+        this._logError(viewManager.sceneGeometryCreated(sceneGeometry));
+      }
+    }
+
+    for (const sceneMesh of registrations.meshes) {
+      if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
+        this._logError(viewManager.sceneMeshCreated(sceneMesh));
+      }
+    }
+
+    for (const sceneObject of registrations.objects) {
+      if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+        this._logError(viewManager.sceneObjectCreated(sceneObject));
+      }
+    }
   }
 
   private _createViewManager(): SDKResult<void> {
@@ -436,6 +519,9 @@ export class WebGPURenderer implements Renderer {
         if (this._viewManager !== viewManager) {
           return;
         }
+        if (this._renderSuspendCount > 0) {
+          return;
+        }
         const result = viewManager.viewUpdated(view);
         if (this._logError(result).ok) {
           this.events.onViewRendered.dispatch(this, view);
@@ -448,22 +534,62 @@ export class WebGPURenderer implements Renderer {
       }),
       viewerEvents.onViewObjectVisibleChanged.subscribe((_view, viewObject) => {
         if (this._viewManager === viewManager) {
-          viewManager.viewObjectChanged(viewObject);
+          viewManager.viewObjectVisibilityChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectXRayedChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectXRayedChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectClippableChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectClippableChanged(viewObject);
         }
       }),
       viewerEvents.onViewObjectCulledChanged.subscribe((_view, viewObject) => {
         if (this._viewManager === viewManager) {
-          viewManager.viewObjectChanged(viewObject);
+          viewManager.viewObjectCulledChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectHighlightedChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectHighlightedChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectSelectedChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectSelectedChanged(viewObject);
         }
       }),
       viewerEvents.onViewObjectColorizeChanged.subscribe((_view, viewObject) => {
         if (this._viewManager === viewManager) {
-          viewManager.viewObjectChanged(viewObject);
+          viewManager.viewObjectColorizeChanged(viewObject);
         }
       }),
       viewerEvents.onViewObjectOpacityChanged.subscribe((_view, viewObject) => {
         if (this._viewManager === viewManager) {
-          viewManager.viewObjectChanged(viewObject);
+          viewManager.viewObjectOpacityChanged(viewObject);
+        }
+      }),
+      viewerEvents.onViewObjectPickableChanged.subscribe((_view, viewObject) => {
+        if (this._viewManager === viewManager) {
+          viewManager.viewObjectPickableChanged(viewObject);
+        }
+      }),
+      viewerEvents.onEffectCreated.subscribe((_viewer, effect) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.effectCreated(effect));
+        }
+      }),
+      viewerEvents.onEffectDestroyed.subscribe((_viewer, effect) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.effectDestroyed(effect));
+        }
+      }),
+      viewerEvents.onCameraViewMatrixUpdated.subscribe((_view, camera) => {
+        if (this._viewManager === viewManager) {
+          viewManager.cameraViewMatrixUpdated(camera);
         }
       })
     ];
@@ -474,39 +600,131 @@ export class WebGPURenderer implements Renderer {
     }
 
     this._viewManagerSubs.push(
-      sceneEvents.onSceneMeshCreated.subscribe((_scene, sceneMesh) => {
+      sceneEvents.onSceneModelCreated.subscribe((_scene, sceneModel) => {
         if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneModelCreated(sceneModel));
+        }
+      }),
+      sceneEvents.onSceneModelDestroyed.subscribe((_scene, sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._deferredSceneModelRegistrations.delete(sceneModel);
+          this._logError(viewManager.sceneModelDestroyed(sceneModel));
+        }
+      }),
+      sceneEvents.onSceneModelBuildStarted.subscribe((_scene, sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._renderSuspendCount++;
+          this._getDeferredSceneModelRegistrations(sceneModel);
+        }
+      }),
+      sceneEvents.onSceneModelBuildFinished.subscribe((_scene, sceneModel) => {
+        if (this._viewManager !== viewManager) {
+          return;
+        }
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager);
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneGeometryCreated.subscribe((_scene, sceneGeometry) => {
+        if (this._viewManager === viewManager && !this._deferSceneGeometryCreated(sceneGeometry)) {
+          this._logError(viewManager.sceneGeometryCreated(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneGeometryDestroyed.subscribe((_scene, sceneGeometry) => {
+        if (this._viewManager === viewManager && !this._discardDeferredSceneGeometry(sceneGeometry)) {
+          this._logError(viewManager.sceneGeometryDestroyed(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneGeometryUpdated.subscribe((_scene, sceneGeometry) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneGeometryUpdated(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneMeshCreated.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager && !this._deferSceneMeshCreated(sceneMesh)) {
           this._logError(viewManager.sceneMeshCreated(sceneMesh));
         }
       }),
       sceneEvents.onSceneMeshDestroyed.subscribe((_scene, sceneMesh) => {
-        if (this._viewManager === viewManager) {
-          viewManager.sceneMeshDestroyed(sceneMesh);
+        if (this._viewManager === viewManager && !this._discardDeferredSceneMesh(sceneMesh)) {
+          this._logError(viewManager.sceneMeshDestroyed(sceneMesh));
         }
       }),
-      sceneEvents.onSceneGeometryDestroyed.subscribe((_scene, sceneGeometry) => {
-        if (this._viewManager === viewManager) {
-          viewManager.sceneGeometryDestroyed(sceneGeometry);
+      sceneEvents.onSceneObjectCreated.subscribe((_scene, sceneObject) => {
+        if (this._viewManager === viewManager && !this._deferSceneObjectCreated(sceneObject)) {
+          this._logError(viewManager.sceneObjectCreated(sceneObject));
         }
       }),
-      sceneEvents.onSceneMeshMatrixChanged.subscribe(() => {
-        if (this._viewManager === viewManager) {
-          viewManager.sceneMeshChanged();
+      sceneEvents.onSceneObjectDestroyed.subscribe((_scene, sceneObject) => {
+        if (this._viewManager === viewManager && !this._discardDeferredSceneObject(sceneObject)) {
+          this._logError(viewManager.sceneObjectDestroyed(sceneObject));
         }
       }),
-      sceneEvents.onSceneMeshMoved.subscribe(() => {
+      sceneEvents.onSceneObjectMeshAdded.subscribe((sceneObject, sceneMesh) => {
         if (this._viewManager === viewManager) {
-          viewManager.sceneMeshChanged();
+          this._logError(viewManager.sceneObjectMeshAdded(sceneObject, sceneMesh));
         }
       }),
-      sceneEvents.onSceneMeshColorChanged.subscribe(() => {
+      sceneEvents.onSceneObjectMeshRemoved.subscribe((sceneObject, sceneMesh) => {
         if (this._viewManager === viewManager) {
-          viewManager.sceneMeshChanged();
+          this._logError(viewManager.sceneObjectMeshRemoved(sceneObject, sceneMesh));
         }
       }),
-      sceneEvents.onSceneMeshOpacityChanged.subscribe(() => {
+      sceneEvents.onSceneMeshMatrixChanged.subscribe((_scene, sceneMesh) => {
         if (this._viewManager === viewManager) {
-          viewManager.sceneMeshChanged();
+          viewManager.sceneMeshMatrixChanged(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMeshMoved.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMeshMoved(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMeshColorChanged.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMeshColorChanged(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMeshOpacityChanged.subscribe((_scene, sceneMesh) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMeshOpacityChanged(sceneMesh);
+        }
+      }),
+      sceneEvents.onSceneMaterialPatternChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialPatternChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneMaterialColorChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialColorChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneMaterialEmissiveColorChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialEmissiveColorChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneMaterialOpacityChanged.subscribe((_scene, sceneMaterial) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneMaterialOpacityChanged(sceneMaterial);
+        }
+      }),
+      sceneEvents.onSceneTextureImageDataChanged.subscribe((_scene, sceneTexture) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneTextureImageDataChanged(sceneTexture);
+        }
+      }),
+      sceneEvents.onSceneTransformMatrixChanged.subscribe((_scene, sceneTransform) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sceneTransformMatrixChanged(sceneTransform);
         }
       })
     );
@@ -525,6 +743,8 @@ export class WebGPURenderer implements Renderer {
 
     viewManager.destroy();
     this._viewManager = null;
+    this._renderSuspendCount = 0;
+    this._deferredSceneModelRegistrations.clear();
 
     if (emitEvent) {
       this.events.onRendererStopped.dispatch(this);

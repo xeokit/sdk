@@ -1,7 +1,17 @@
 import {SDKErrorType, type SDKResult} from "../../../base/core";
-import type {SceneGeometry, SceneMesh} from "../../../model/scene";
-import type {View, Viewer, ViewObject} from "../../viewer";
+import type {
+  SceneGeometry,
+  SceneMaterial,
+  SceneMesh,
+  SceneModel,
+  SceneObject,
+  SceneTexture,
+  SceneTransform
+} from "../../../model/scene";
+import type {Camera, Effect, PickParams, PickResult, View, Viewer, ViewObject} from "../../viewer";
 import type {WebGPUCanvasAlphaMode, WebGPUDeviceLike} from "../core";
+import {WebGPUPickManager} from "./pickManager";
+import {WebGPUSnapManager} from "./snapManager";
 import {WebGPUFrameUniformManager} from "./WebGPUFrameUniformManager";
 import {WebGPUGeometryManager} from "./WebGPUGeometryManager";
 import {WebGPUInstanceBufferManager} from "./WebGPUInstanceBufferManager";
@@ -35,6 +45,8 @@ export class WebGPUViewManager {
   private _instanceBufferManager: WebGPUInstanceBufferManager | null = null;
   private _meshManager: WebGPUMeshManager | null = null;
   private _renderManager: WebGPURenderManager | null = null;
+  private _pickManager: WebGPUPickManager | null = null;
+  private _snapManager: WebGPUSnapManager | null = null;
 
   /**
    * Initializes manager state and uploads existing supported scene meshes.
@@ -63,6 +75,10 @@ export class WebGPUViewManager {
     this._meshManager = new WebGPUMeshManager({
       geometryManager: this._geometryManager
     });
+    this._snapManager = new WebGPUSnapManager();
+    this._pickManager = new WebGPUPickManager({
+      snapManager: this._snapManager
+    });
     this._renderManager = new WebGPURenderManager({
       renderContext: this._renderContext,
       pipelineManager: this._pipelineManager,
@@ -70,6 +86,10 @@ export class WebGPUViewManager {
       frameUniformManager: this._frameUniformManager,
       instanceBufferManager: this._instanceBufferManager
     });
+    const renderManagerResult = this._renderManager.init();
+    if (renderManagerResult.ok === false) {
+      return this._failInit(renderManagerResult);
+    }
 
     const views = this._viewer.viewList;
     for (let i = 0, len = views.length; i < len; i++) {
@@ -105,6 +125,8 @@ export class WebGPUViewManager {
    * Releases all WebGPU resources owned by this manager.
    */
   public destroy(): void {
+    this._pickManager?.destroy();
+    this._snapManager?.destroy();
     this._renderManager?.destroy();
     this._meshManager?.destroyAll();
     this._geometryManager?.destroyAll();
@@ -119,6 +141,8 @@ export class WebGPUViewManager {
     this._meshManager = null;
     this._instanceBufferManager = null;
     this._frameUniformManager = null;
+    this._pickManager = null;
+    this._snapManager = null;
     this._pipelineManager = null;
     this._lightingManager = null;
     this._geometryManager = null;
@@ -141,6 +165,9 @@ export class WebGPUViewManager {
    * Renders a View that the Viewer marked dirty.
    */
   public viewUpdated(view: View): SDKResult<void> {
+    if (!this._views[view.id]) {
+      return this._ok();
+    }
     return this._renderView(view);
   }
 
@@ -152,6 +179,8 @@ export class WebGPUViewManager {
     if (!webgpuView) {
       return;
     }
+    this._renderManager?.viewDestroyed(view.id);
+    this._meshManager?.viewDestroyed(view);
     webgpuView.destroy();
     delete this._views[view.id];
   }
@@ -164,7 +193,7 @@ export class WebGPUViewManager {
     if (!meshManager) {
       return this._notInitialized("sceneMeshCreated");
     }
-    const result = meshManager.registerSceneMesh(sceneMesh);
+    const result = meshManager.sceneMeshCreated(sceneMesh);
     if (result.ok) {
       this._requestRenderAllViews();
     }
@@ -172,19 +201,150 @@ export class WebGPUViewManager {
   }
 
   /**
+   * Registers meshes from a newly created SceneModel.
+   */
+  public sceneModelCreated(sceneModel: SceneModel): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneModelCreated");
+    }
+    const result = meshManager.sceneModelCreated(sceneModel);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  /**
+   * Releases state for meshes from a destroyed SceneModel.
+   */
+  public sceneModelDestroyed(sceneModel: SceneModel): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneModelDestroyed");
+    }
+    const result = meshManager.sceneModelDestroyed(sceneModel);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  /**
+   * A newly created SceneGeometry is uploaded when its first renderable mesh is
+   * registered.
+   */
+  public sceneGeometryCreated(sceneGeometry: SceneGeometry): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneGeometryCreated");
+    }
+    return meshManager.sceneGeometryCreated(sceneGeometry);
+  }
+
+  /**
    * Releases state for a removed SceneMesh and requests a redraw.
    */
-  public sceneMeshDestroyed(sceneMesh: SceneMesh): void {
-    this._meshManager?.destroyMeshState(sceneMesh);
-    this._requestRenderAllViews();
+  public sceneMeshDestroyed(sceneMesh: SceneMesh): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneMeshDestroyed");
+    }
+    const result = meshManager.sceneMeshDestroyed(sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
   }
 
   /**
    * Releases state for a removed SceneGeometry and requests a redraw.
    */
-  public sceneGeometryDestroyed(sceneGeometry: SceneGeometry): void {
-    this._meshManager?.destroyGeometryState(sceneGeometry);
-    this._requestRenderAllViews();
+  public sceneGeometryDestroyed(sceneGeometry: SceneGeometry): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneGeometryDestroyed");
+    }
+    const result = meshManager.sceneGeometryDestroyed(sceneGeometry);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  /**
+   * Rebuilds WebGPU buffers for meshes that reference an updated geometry.
+   */
+  public sceneGeometryUpdated(sceneGeometry: SceneGeometry): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneGeometryUpdated");
+    }
+    const result = meshManager.sceneGeometryUpdated(sceneGeometry);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  /**
+   * Registers meshes from a newly created SceneObject.
+   */
+  public sceneObjectCreated(sceneObject: SceneObject): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectCreated");
+    }
+    const result = meshManager.sceneObjectCreated(sceneObject);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  /**
+   * Requests redraws after a SceneObject is destroyed.
+   */
+  public sceneObjectDestroyed(sceneObject: SceneObject): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectDestroyed");
+    }
+    const result = meshManager.sceneObjectDestroyed(sceneObject);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  /**
+   * Registers a mesh newly attached to an object and requests a redraw.
+   */
+  public sceneObjectMeshAdded(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectMeshAdded");
+    }
+    const result = meshManager.sceneObjectMeshAdded(sceneObject, sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  /**
+   * Requests redraws after a mesh is removed from an object.
+   */
+  public sceneObjectMeshRemoved(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneObjectMeshRemoved");
+    }
+    const result = meshManager.sceneObjectMeshRemoved(sceneObject, sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
   }
 
   /**
@@ -192,6 +352,66 @@ export class WebGPUViewManager {
    */
   public sceneMeshChanged(): void {
     this._requestRenderAllViews();
+  }
+
+  public sceneMeshMatrixChanged(sceneMesh: SceneMesh): void {
+    this._meshManager?.sceneMeshMatrixChanged(sceneMesh);
+    this._requestRenderAllViews();
+  }
+
+  public sceneMeshMoved(sceneMesh: SceneMesh): void {
+    this._meshManager?.sceneMeshMoved(sceneMesh);
+    this._requestRenderAllViews();
+  }
+
+  public sceneMeshColorChanged(sceneMesh: SceneMesh): void {
+    this._meshManager?.sceneMeshColorChanged(sceneMesh);
+    this._requestRenderAllViews();
+  }
+
+  public sceneMeshOpacityChanged(sceneMesh: SceneMesh): void {
+    this._meshManager?.sceneMeshOpacityChanged(sceneMesh);
+    this._requestRenderAllViews();
+  }
+
+  public sceneMaterialPatternChanged(sceneMaterial: SceneMaterial): void {
+    this._meshManager?.sceneMaterialPatternChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+
+  public sceneMaterialColorChanged(sceneMaterial: SceneMaterial): void {
+    this._meshManager?.sceneMaterialColorChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+
+  public sceneMaterialEmissiveColorChanged(sceneMaterial: SceneMaterial): void {
+    this._meshManager?.sceneMaterialEmissiveColorChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+
+  public sceneMaterialOpacityChanged(sceneMaterial: SceneMaterial): void {
+    this._meshManager?.sceneMaterialOpacityChanged(sceneMaterial);
+    this._requestRenderAllViews();
+  }
+
+  public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
+    void sceneTexture;
+    this._requestRenderAllViews();
+  }
+
+  public sceneTransformMatrixChanged(sceneTransform: SceneTransform): void {
+    this._meshManager?.sceneTransformMatrixChanged(sceneTransform);
+    this._requestRenderAllViews();
+  }
+
+  public effectCreated(effect: Effect): SDKResult<void> {
+    void effect;
+    return this._ok();
+  }
+
+  public effectDestroyed(effect: Effect): SDKResult<void> {
+    void effect;
+    return this._ok();
   }
 
   /**
@@ -204,7 +424,69 @@ export class WebGPUViewManager {
     if (!this._views[viewObject.view.id]) {
       return;
     }
+    this._meshManager?.viewObjectChanged(viewObject);
     viewObject.view.needsRender();
+  }
+
+  public viewObjectVisibilityChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectClippableChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectCulledChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectXRayedChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectHighlightedChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectSelectedChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectColorizeChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectOpacityChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public viewObjectPickableChanged(viewObject: ViewObject): void {
+    this.viewObjectChanged(viewObject);
+  }
+
+  public cameraViewMatrixUpdated(camera: Camera): void {
+    this._meshManager?.cameraViewMatrixUpdated(camera);
+    camera.view.needsRender();
+  }
+
+  /**
+   * Performs renderer-backed picking for a View.
+   */
+  public pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
+    if (view.viewer !== this._viewer) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGPUViewManager.pick] The specified View does not belong to the currently attached Viewer."
+      };
+    }
+
+    const pickManager = this._pickManager;
+    if (!pickManager) {
+      return this._notInitialized("pick");
+    }
+
+    return pickManager.pick(view, pickParams);
   }
 
   private _failInit<T>(result: SDKResult<T>): SDKResult<T> {
@@ -304,6 +586,13 @@ export class WebGPUViewManager {
     for (let i = 0, len = views.length; i < len; i++) {
       views[i]?.needsRender?.();
     }
+  }
+
+  private _ok(): SDKResult<void> {
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   private _notInitialized<T>(method: string): SDKResult<T> {

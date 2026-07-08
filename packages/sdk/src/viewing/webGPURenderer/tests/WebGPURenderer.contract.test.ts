@@ -67,28 +67,95 @@ function createViewer(hasScene: boolean) {
   const onSceneAttached = createSubscribable();
   const onSceneDetached = createSubscribable();
   const onViewerDestroyed = createSubscribable();
+  const onEffectCreated = createSubscribable();
+  const onEffectDestroyed = createSubscribable();
   const onViewCreated = createSubscribable();
   const onViewUpdated = createSubscribable();
   const onViewDestroyed = createSubscribable();
   const onViewObjectVisibleChanged = createSubscribable();
+  const onViewObjectXRayedChanged = createSubscribable();
+  const onViewObjectClippableChanged = createSubscribable();
   const onViewObjectCulledChanged = createSubscribable();
+  const onViewObjectHighlightedChanged = createSubscribable();
+  const onViewObjectSelectedChanged = createSubscribable();
   const onViewObjectColorizeChanged = createSubscribable();
   const onViewObjectOpacityChanged = createSubscribable();
+  const onViewObjectPickableChanged = createSubscribable();
+  const onCameraViewMatrixUpdated = createSubscribable();
+  const onSceneModelCreated = createSubscribable();
+  const onSceneModelDestroyed = createSubscribable();
+  const onSceneModelBuildStarted = createSubscribable();
+  const onSceneModelBuildFinished = createSubscribable();
+  const onSceneGeometryCreated = createSubscribable();
+  const onSceneGeometryDestroyed = createSubscribable();
+  const onSceneGeometryUpdated = createSubscribable();
+  const onSceneMeshCreated = createSubscribable();
+  const onSceneMeshDestroyed = createSubscribable();
+  const onSceneObjectCreated = createSubscribable();
+  const onSceneObjectDestroyed = createSubscribable();
+  const onSceneObjectMeshAdded = createSubscribable();
+  const onSceneObjectMeshRemoved = createSubscribable();
+  const onSceneMeshMatrixChanged = createSubscribable();
+  const onSceneMeshMoved = createSubscribable();
+  const onSceneMeshColorChanged = createSubscribable();
+  const onSceneMeshOpacityChanged = createSubscribable();
+  const onSceneMaterialPatternChanged = createSubscribable();
+  const onSceneMaterialColorChanged = createSubscribable();
+  const onSceneMaterialEmissiveColorChanged = createSubscribable();
+  const onSceneMaterialOpacityChanged = createSubscribable();
+  const onSceneTextureImageDataChanged = createSubscribable();
+  const onSceneTransformMatrixChanged = createSubscribable();
+  const scene = hasScene ? {
+    models: {},
+    events: {
+      onSceneModelCreated: onSceneModelCreated.event,
+      onSceneModelDestroyed: onSceneModelDestroyed.event,
+      onSceneModelBuildStarted: onSceneModelBuildStarted.event,
+      onSceneModelBuildFinished: onSceneModelBuildFinished.event,
+      onSceneGeometryCreated: onSceneGeometryCreated.event,
+      onSceneGeometryDestroyed: onSceneGeometryDestroyed.event,
+      onSceneGeometryUpdated: onSceneGeometryUpdated.event,
+      onSceneMeshCreated: onSceneMeshCreated.event,
+      onSceneMeshDestroyed: onSceneMeshDestroyed.event,
+      onSceneObjectCreated: onSceneObjectCreated.event,
+      onSceneObjectDestroyed: onSceneObjectDestroyed.event,
+      onSceneObjectMeshAdded: onSceneObjectMeshAdded.event,
+      onSceneObjectMeshRemoved: onSceneObjectMeshRemoved.event,
+      onSceneMeshMatrixChanged: onSceneMeshMatrixChanged.event,
+      onSceneMeshMoved: onSceneMeshMoved.event,
+      onSceneMeshColorChanged: onSceneMeshColorChanged.event,
+      onSceneMeshOpacityChanged: onSceneMeshOpacityChanged.event,
+      onSceneMaterialPatternChanged: onSceneMaterialPatternChanged.event,
+      onSceneMaterialColorChanged: onSceneMaterialColorChanged.event,
+      onSceneMaterialEmissiveColorChanged: onSceneMaterialEmissiveColorChanged.event,
+      onSceneMaterialOpacityChanged: onSceneMaterialOpacityChanged.event,
+      onSceneTextureImageDataChanged: onSceneTextureImageDataChanged.event,
+      onSceneTransformMatrixChanged: onSceneTransformMatrixChanged.event
+    }
+  } : null;
 
   const viewer = {
-    scene: hasScene ? {} : null,
+    scene,
     viewList: [] as any[],
     events: {
       onSceneAttached: onSceneAttached.event,
       onSceneDetached: onSceneDetached.event,
       onViewerDestroyed: onViewerDestroyed.event,
+      onEffectCreated: onEffectCreated.event,
+      onEffectDestroyed: onEffectDestroyed.event,
       onViewCreated: onViewCreated.event,
       onViewUpdated: onViewUpdated.event,
       onViewDestroyed: onViewDestroyed.event,
       onViewObjectVisibleChanged: onViewObjectVisibleChanged.event,
+      onViewObjectXRayedChanged: onViewObjectXRayedChanged.event,
+      onViewObjectClippableChanged: onViewObjectClippableChanged.event,
       onViewObjectCulledChanged: onViewObjectCulledChanged.event,
+      onViewObjectHighlightedChanged: onViewObjectHighlightedChanged.event,
+      onViewObjectSelectedChanged: onViewObjectSelectedChanged.event,
       onViewObjectColorizeChanged: onViewObjectColorizeChanged.event,
-      onViewObjectOpacityChanged: onViewObjectOpacityChanged.event
+      onViewObjectOpacityChanged: onViewObjectOpacityChanged.event,
+      onViewObjectPickableChanged: onViewObjectPickableChanged.event,
+      onCameraViewMatrixUpdated: onCameraViewMatrixUpdated.event
     }
   };
 
@@ -97,13 +164,44 @@ function createViewer(hasScene: boolean) {
     onSceneAttached,
     onSceneDetached,
     onViewerDestroyed,
+    onEffectCreated,
+    onEffectDestroyed,
     onViewCreated,
     onViewUpdated,
     onViewDestroyed,
     onViewObjectVisibleChanged,
+    onViewObjectXRayedChanged,
+    onViewObjectClippableChanged,
     onViewObjectCulledChanged,
+    onViewObjectHighlightedChanged,
+    onViewObjectSelectedChanged,
     onViewObjectColorizeChanged,
-    onViewObjectOpacityChanged
+    onViewObjectOpacityChanged,
+    onViewObjectPickableChanged,
+    onCameraViewMatrixUpdated,
+    onSceneModelCreated,
+    onSceneModelDestroyed,
+    onSceneModelBuildStarted,
+    onSceneModelBuildFinished,
+    onSceneGeometryCreated,
+    onSceneGeometryDestroyed,
+    onSceneGeometryUpdated,
+    onSceneMeshCreated,
+    onSceneMeshDestroyed,
+    onSceneObjectCreated,
+    onSceneObjectDestroyed,
+    onSceneObjectMeshAdded,
+    onSceneObjectMeshRemoved,
+    onSceneMeshMatrixChanged,
+    onSceneMeshMoved,
+    onSceneMeshColorChanged,
+    onSceneMeshOpacityChanged,
+    onSceneMaterialPatternChanged,
+    onSceneMaterialColorChanged,
+    onSceneMaterialEmissiveColorChanged,
+    onSceneMaterialOpacityChanged,
+    onSceneTextureImageDataChanged,
+    onSceneTransformMatrixChanged
   };
 }
 
@@ -306,8 +404,26 @@ function getLastWriteBufferCall(gpu: ReturnType<typeof createWebGPUHarness>, buf
   throw new Error(`Expected writeBuffer call for ${bufferLabel}`);
 }
 
-function getLastWriteBufferData(gpu: ReturnType<typeof createWebGPUHarness>, bufferLabel: string): Float32Array {
-  return getLastWriteBufferCall(gpu, bufferLabel)[2] as Float32Array;
+function getLastWriteBufferData<T extends ArrayBufferView = Float32Array>(
+  gpu: ReturnType<typeof createWebGPUHarness>,
+  bufferLabel: string
+): T {
+  return getLastWriteBufferCall(gpu, bufferLabel)[2] as T;
+}
+
+function countWriteBufferCalls(gpu: ReturnType<typeof createWebGPUHarness>, bufferLabel: string): number {
+  return gpu.device.queue.writeBuffer.mock.calls.filter((call) => {
+    const buffer = call[0] as any;
+    return buffer.descriptor?.label === bufferLabel;
+  }).length;
+}
+
+function getBufferByLabel(gpu: ReturnType<typeof createWebGPUHarness>, bufferLabel: string): any {
+  const buffer = gpu.buffers.find((candidate) => candidate.descriptor?.label === bufferLabel);
+  if (!buffer) {
+    throw new Error(`Expected buffer ${bufferLabel}`);
+  }
+  return buffer;
 }
 
 function restoreNavigator(descriptor: PropertyDescriptor | undefined): void {
@@ -480,14 +596,15 @@ describe("WebGPURenderer contract", () => {
       depthWriteEnabled: true,
       depthCompare: "less"
     });
-    expect(gpu.device.createBuffer).toHaveBeenCalledTimes(5);
-    expect(gpu.device.queue.writeBuffer).toHaveBeenCalledTimes(5);
+    expect(gpu.device.createBuffer).toHaveBeenCalledTimes(9);
+    expect(gpu.device.queue.writeBuffer).toHaveBeenCalledTimes(9);
     expect(gpu.passEncoder.setPipeline).toHaveBeenCalledWith(gpu.renderPipeline);
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, gpu.buffers[0]);
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, gpu.buffers[1]);
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(2, gpu.buffers[3]);
-    expect(gpu.passEncoder.setIndexBuffer).toHaveBeenCalledWith(gpu.buffers[2], "uint16");
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:view:opaque"));
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, getBufferByLabel(gpu, "xeokit-webgpu-packed-normals:view:opaque"));
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(2, getBufferByLabel(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque"));
+    expect(gpu.passEncoder.setIndexBuffer).toHaveBeenCalledWith(getBufferByLabel(gpu, "xeokit-webgpu-packed-indices:view:opaque"), "uint16");
     expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(0, gpu.bindGroup);
+    expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(1, gpu.bindGroups[1]);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
 
     expect(pipelineDescriptor.vertex.buffers).toEqual([
@@ -508,55 +625,12 @@ describe("WebGPURenderer contract", () => {
         }]
       },
       {
-        arrayStride: 144,
-        stepMode: "instance",
-        attributes: [
-          {
-            shaderLocation: 2,
-            offset: 0,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 3,
-            offset: 16,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 4,
-            offset: 32,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 5,
-            offset: 48,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 6,
-            offset: 64,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 7,
-            offset: 80,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 8,
-            offset: 96,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 9,
-            offset: 112,
-            format: "float32x4"
-          },
-          {
-            shaderLocation: 10,
-            offset: 128,
-            format: "float32x4"
-          }
-        ]
+        arrayStride: 4,
+        attributes: [{
+          shaderLocation: 2,
+          offset: 0,
+          format: "uint32"
+        }]
       }
     ]);
 
@@ -575,6 +649,8 @@ describe("WebGPURenderer contract", () => {
     const indexUpload = gpu.device.queue.writeBuffer.mock.calls[2][2] as Uint8Array;
     expect(indexUpload.byteLength).toBe(8);
     expect(Array.from(new Uint16Array(indexUpload.buffer, indexUpload.byteOffset, geometry.indices.length))).toEqual(Array.from(geometry.indices));
+    const packedMeshIndexUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque");
+    expect(Array.from(packedMeshIndexUpload)).toEqual([0, 0, 0]);
     const instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
     expect(instanceWrite[4]).toBe(36);
     const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
@@ -595,14 +671,12 @@ describe("WebGPURenderer contract", () => {
 
     renderer.detachViewer();
 
-    expect(gpu.buffers[0].destroy).toHaveBeenCalledTimes(1);
-    expect(gpu.buffers[1].destroy).toHaveBeenCalledTimes(1);
-    expect(gpu.buffers[2].destroy).toHaveBeenCalledTimes(1);
-    expect(gpu.buffers[3].destroy).toHaveBeenCalledTimes(1);
-    expect(gpu.buffers[4].destroy).toHaveBeenCalledTimes(1);
+    for (const buffer of gpu.buffers) {
+      expect(buffer.destroy).toHaveBeenCalledTimes(1);
+    }
   });
 
-  test("batches opaque meshes with shared geometry into one instanced draw", () => {
+  test("packs opaque meshes with shared geometry into one draw", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
@@ -636,7 +710,9 @@ describe("WebGPURenderer contract", () => {
 
     expect(result.ok).toBe(true);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
-    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 2, 0, 0, 0);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
+    const packedMeshIndexUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque");
+    expect(Array.from(packedMeshIndexUpload)).toEqual([0, 0, 0, 1, 1, 1]);
     const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
     expect(instanceUpload[32]).toBeCloseTo(0.5);
     expect(instanceUpload[33]).toBeCloseTo(0.6);
@@ -645,6 +721,116 @@ describe("WebGPURenderer contract", () => {
     expect(instanceUpload[36 + 32]).toBeCloseTo(0.1);
     expect(instanceUpload[36 + 33]).toBeCloseTo(0.2);
     expect(instanceUpload[36 + 34]).toBeCloseTo(0.3);
+  });
+
+  test("packs opaque meshes with different geometries into one draw", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh: meshA} = createTriangleMesh("meshA");
+    const {geometry: geometryB, mesh: meshB} = createTriangleMesh("meshB");
+    geometryB.id = "geometryB";
+    geometryB.uniqueId = "model__geometryB";
+    meshB.geometry = geometryB;
+    meshB.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, 0, 0, 1];
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [meshA.id]: meshA,
+          [meshB.id]: meshB
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
+    expect(getBufferByLabel(gpu, "xeokit-webgpu-positions:model__geometry")).toBeDefined();
+    expect(getBufferByLabel(gpu, "xeokit-webgpu-positions:model__geometryB")).toBeDefined();
+    const packedMeshIndexUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque");
+    expect(Array.from(packedMeshIndexUpload)).toEqual([0, 0, 0, 1, 1, 1]);
+  });
+
+  test("reuses cached opaque instance data on camera-only redraws", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view.camera as any).view = view;
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+    const frameWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-frame-uniforms");
+    gpu.passEncoder.drawIndexed.mockClear();
+
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-frame-uniforms")).toBe(frameWrites + 1);
+  });
+
+  test("rebuilds transparent instance order on camera redraws", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view.camera as any).view = view;
+    const {mesh} = createTriangleMesh();
+    mesh.opacity = 0.5;
+    mesh.effectiveOpacity = 0.5;
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites + 1);
   });
 
   test("draws transparent meshes with transparent pipeline after depth sorting", () => {
@@ -689,8 +875,9 @@ describe("WebGPURenderer contract", () => {
     expect(transparentPipelineDescriptor.depthStencil.depthWriteEnabled).toBe(false);
     expect(gpu.passEncoder.setPipeline).toHaveBeenCalledWith(gpu.renderPipeline);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
-    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 2, 0, 0, 0);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
     expect(gpu.passEncoder.setBindGroup.mock.calls[0]).toEqual([0, gpu.bindGroup]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[1]).toEqual([1, gpu.bindGroups[1]]);
     const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
     expect(instanceUpload[14]).toBeCloseTo(-2);
     expect(instanceUpload[36 + 14]).toBeCloseTo(-1);
@@ -733,10 +920,12 @@ describe("WebGPURenderer contract", () => {
     expect((gpu.device.createRenderPipeline.mock.calls[1][0] as any).label).toBe("xeokit-webgpu-basic-triangle-transparent-pipeline");
     expect(gpu.passEncoder.setPipeline.mock.calls[0]).toEqual([gpu.renderPipelines[0]]);
     expect(gpu.passEncoder.setBindGroup.mock.calls[0]).toEqual([0, gpu.bindGroup]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[1]).toEqual([1, gpu.bindGroups[1]]);
     expect(gpu.passEncoder.drawIndexed.mock.calls[0]).toEqual([3, 1, 0, 0, 0]);
     expect(gpu.passEncoder.setPipeline.mock.calls[1]).toEqual([gpu.renderPipelines[1]]);
-    expect(gpu.passEncoder.setBindGroup.mock.calls[1]).toEqual([0, gpu.bindGroup]);
-    expect(gpu.passEncoder.drawIndexed.mock.calls[1]).toEqual([3, 1, 0, 0, 1]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[2]).toEqual([0, gpu.bindGroup]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[3]).toEqual([1, gpu.bindGroups[1]]);
+    expect(gpu.passEncoder.drawIndexed.mock.calls[1]).toEqual([3, 1, 0, 0, 0]);
   });
 
   test("respects basic per-view object render state", () => {
@@ -805,6 +994,192 @@ describe("WebGPURenderer contract", () => {
     testViewer.onViewUpdated.emit(view, view);
 
     expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+  });
+
+  test("handles dynamic scene mesh creation and destruction events", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+
+    view.needsRender.mockClear();
+    testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometry);
+    testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, mesh);
+
+    expect(view.needsRender).toHaveBeenCalledTimes(1);
+
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    view.needsRender.mockClear();
+    testViewer.onSceneMeshDestroyed.emit(testViewer.viewer.scene, mesh);
+
+    expect(view.needsRender).toHaveBeenCalledTimes(1);
+    expect(gpu.buffers[0].destroy).toHaveBeenCalledTimes(1);
+    expect(gpu.buffers[1].destroy).toHaveBeenCalledTimes(1);
+    expect(gpu.buffers[2].destroy).toHaveBeenCalledTimes(1);
+
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+  });
+
+  test("responds to dynamic object mesh attachment and removal", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+
+    const sceneObject = {
+      id: "object",
+      model,
+      meshes: [mesh],
+      destroyed: false
+    };
+    const viewObject = {
+      id: sceneObject.id,
+      view,
+      sceneObject,
+      visible: false,
+      culled: false,
+      colorize: null,
+      opacityUpdated: false,
+      opacity: 1
+    };
+
+    (model.objects as any)[sceneObject.id] = sceneObject;
+    (mesh as any).object = sceneObject;
+    (view.objects as any)[sceneObject.id] = viewObject;
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    view.needsRender.mockClear();
+    testViewer.onSceneObjectMeshAdded.emit(sceneObject, mesh);
+
+    expect(view.needsRender).toHaveBeenCalledTimes(1);
+
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+
+    (mesh as any).object = undefined;
+    sceneObject.meshes.length = 0;
+    gpu.passEncoder.drawIndexed.mockClear();
+    view.needsRender.mockClear();
+    testViewer.onSceneObjectMeshRemoved.emit(sceneObject, mesh);
+
+    expect(view.needsRender).toHaveBeenCalledTimes(1);
+
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+  });
+
+  test("defers building-model registrations until build finishes", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: true,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+
+    view.needsRender.mockClear();
+    testViewer.onSceneModelBuildStarted.emit(testViewer.viewer.scene, model);
+    testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometry);
+    testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, mesh);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.device.createBuffer).not.toHaveBeenCalled();
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+    expect(view.needsRender).not.toHaveBeenCalled();
+
+    model.building = false;
+    testViewer.onSceneModelBuildFinished.emit(testViewer.viewer.scene, model);
+
+    expect(view.needsRender).toHaveBeenCalled();
+
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
   });
 
   test("create requests a WebGPU device and owns it by default", async () => {

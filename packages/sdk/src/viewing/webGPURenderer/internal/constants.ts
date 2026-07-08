@@ -3,6 +3,7 @@ import {identityMat4} from "../../../base/math/matrix";
 export const GPU_BUFFER_USAGE = {
   COPY_DST: 8,
   INDEX: 16,
+  STORAGE: 128,
   VERTEX: 32,
   UNIFORM: 64
 } as const;
@@ -37,18 +38,18 @@ struct FrameUniforms {
 
 @group(0) @binding(0) var<uniform> frame: FrameUniforms;
 
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  normalMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
 struct VertexInput {
   @location(0) position: vec3<f32>,
   @location(1) normal: vec3<f32>,
-  @location(2) modelMatrix0: vec4<f32>,
-  @location(3) modelMatrix1: vec4<f32>,
-  @location(4) modelMatrix2: vec4<f32>,
-  @location(5) modelMatrix3: vec4<f32>,
-  @location(6) normalMatrix0: vec4<f32>,
-  @location(7) normalMatrix1: vec4<f32>,
-  @location(8) normalMatrix2: vec4<f32>,
-  @location(9) normalMatrix3: vec4<f32>,
-  @location(10) color: vec4<f32>,
+  @location(2) meshIndex: u32,
 };
 
 struct VertexOutput {
@@ -59,22 +60,11 @@ struct VertexOutput {
 
 @vertex
 fn vs_main(input: VertexInput) -> VertexOutput {
-  let modelMatrix = mat4x4<f32>(
-    input.modelMatrix0,
-    input.modelMatrix1,
-    input.modelMatrix2,
-    input.modelMatrix3
-  );
-  let normalMatrix = mat4x4<f32>(
-    input.normalMatrix0,
-    input.normalMatrix1,
-    input.normalMatrix2,
-    input.normalMatrix3
-  );
+  let instance = instances[input.meshIndex];
   var output: VertexOutput;
-  output.position = frame.viewProjection * modelMatrix * vec4<f32>(input.position, 1.0);
-  output.color = input.color;
-  output.normal = normalize((normalMatrix * vec4<f32>(input.normal, 0.0)).xyz);
+  output.position = frame.viewProjection * instance.modelMatrix * vec4<f32>(input.position, 1.0);
+  output.color = instance.color;
+  output.normal = normalize((instance.normalMatrix * vec4<f32>(input.normal, 0.0)).xyz);
   return output;
 }
 

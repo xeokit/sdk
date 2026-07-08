@@ -7,5 +7,6 @@ export * from "./WebGPUInstancedDrawBatch";
 export * from "./WebGPUInstancedDrawBatches";
 export * from "./WebGPUMeshState";
 export * from "./WebGPUNavigatorLike";
+export * from "./WebGPUPackedMeshBatch";
 export * from "./WebGPUPipelineState";
 export * from "./WebGPURenderBins";

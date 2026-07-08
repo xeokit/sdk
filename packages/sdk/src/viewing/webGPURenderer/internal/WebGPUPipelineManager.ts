@@ -1,6 +1,6 @@
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import type {WebGPUBindGroupLayoutLike, WebGPUPipelineLayoutLike, WebGPUShaderModuleLike} from "../core";
-import {DEPTH_FORMAT, GPU_SHADER_STAGE, INSTANCE_BYTES, TRIANGLE_SHADER} from "./constants";
+import {DEPTH_FORMAT, GPU_SHADER_STAGE, TRIANGLE_SHADER} from "./constants";
 import {RENDER_PASSES, type WebGPURenderPassValue} from "./RENDER_PASSES";
 import type {WebGPUPipelineState} from "./types";
 import {WebGPURenderContext} from "./WebGPURenderContext";
@@ -15,6 +15,7 @@ export class WebGPUPipelineManager {
   private readonly _renderContext: WebGPURenderContext;
   private _meshShaderModule: WebGPUShaderModuleLike | null = null;
   private _frameBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
+  private _instanceBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
   private _meshPipelineLayout: WebGPUPipelineLayoutLike | null = null;
   private _meshPipelineStates: {[renderPass: number]: WebGPUPipelineState | undefined} = {};
 
@@ -55,6 +56,39 @@ export class WebGPUPipelineManager {
     };
   }
 
+  public getInstanceBindGroupLayout(): SDKResult<WebGPUBindGroupLayoutLike> {
+    if (this._instanceBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._instanceBindGroupLayout
+      };
+    }
+
+    try {
+      this._instanceBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-instance-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[WebGPUPipelineManager.getInstanceBindGroupLayout] Failed to create WebGPU instance bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+
+    return {
+      ok: true,
+      value: this._instanceBindGroupLayout
+    };
+  }
+
   public getMeshPipelineState(renderPass: WebGPURenderPassValue = RENDER_PASSES.OPAQUE): SDKResult<WebGPUPipelineState> {
     const existing = this._meshPipelineStates[renderPass];
     if (existing) {
@@ -72,6 +106,10 @@ export class WebGPUPipelineManager {
     const bindGroupLayoutResult = this.getFrameBindGroupLayout();
     if (bindGroupLayoutResult.ok === false) {
       return bindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
     }
     const pipelineLayoutResult = this._getMeshPipelineLayout();
     if (pipelineLayoutResult.ok === false) {
@@ -105,55 +143,12 @@ export class WebGPUPipelineManager {
               }]
             },
             {
-              arrayStride: INSTANCE_BYTES,
-              stepMode: "instance",
-              attributes: [
-                {
-                  shaderLocation: 2,
-                  offset: 0,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 3,
-                  offset: 16,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 4,
-                  offset: 32,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 5,
-                  offset: 48,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 6,
-                  offset: 64,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 7,
-                  offset: 80,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 8,
-                  offset: 96,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 9,
-                  offset: 112,
-                  format: "float32x4"
-                },
-                {
-                  shaderLocation: 10,
-                  offset: 128,
-                  format: "float32x4"
-                }
-              ]
+              arrayStride: 4,
+              attributes: [{
+                shaderLocation: 2,
+                offset: 0,
+                format: "uint32"
+              }]
             }
           ]
         },
@@ -190,6 +185,7 @@ export class WebGPUPipelineManager {
       this._meshPipelineStates[renderPass] = {
         shaderModule: shaderModuleResult.value,
         frameBindGroupLayout: bindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
         pipelineLayout: pipelineLayoutResult.value,
         renderPipeline
       };
@@ -246,11 +242,15 @@ export class WebGPUPipelineManager {
     if (bindGroupLayoutResult.ok === false) {
       return bindGroupLayoutResult;
     }
+    const instanceBindGroupLayoutResult = this.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
 
     try {
       this._meshPipelineLayout = this._renderContext.device.createPipelineLayout({
         label: "xeokit-webgpu-basic-triangle-pipeline-layout",
-        bindGroupLayouts: [bindGroupLayoutResult.value]
+        bindGroupLayouts: [bindGroupLayoutResult.value, instanceBindGroupLayoutResult.value]
       });
     } catch (e) {
       return {
@@ -269,6 +269,7 @@ export class WebGPUPipelineManager {
   public destroy(): void {
     this._meshShaderModule = null;
     this._frameBindGroupLayout = null;
+    this._instanceBindGroupLayout = null;
     this._meshPipelineLayout = null;
     this._meshPipelineStates = {};
   }

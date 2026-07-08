@@ -39,11 +39,12 @@ export class WebGPURenderBinClassifier {
       const drawItem = this._nextDrawItem();
       drawItem.meshState = meshState;
       drawItem.opacity = opacity;
-      drawItem.viewDepth = meshManager.getMeshViewDepth(meshState, view);
 
       if (opacity >= 1) {
+        drawItem.viewDepth = 0;
         bins.normalDrawOpaque.push(drawItem);
       } else {
+        drawItem.viewDepth = meshManager.getMeshViewDepth(meshState, view);
         bins.normalFillTransparent.push(drawItem);
       }
     }

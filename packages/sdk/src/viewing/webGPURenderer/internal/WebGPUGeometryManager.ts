@@ -62,6 +62,9 @@ export class WebGPUGeometryManager {
     );
     const geometryState: WebGPUGeometryState = {
       geometry: sceneGeometry,
+      positions,
+      normals,
+      indices: indexData.data,
       vertexBuffer,
       normalBuffer,
       indexBuffer,

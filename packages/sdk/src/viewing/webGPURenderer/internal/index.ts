@@ -1,4 +1,7 @@
 export * from "./RENDER_PASSES";
+export * from "./drawOps";
+export * from "./pickManager";
+export * from "./snapManager";
 export * from "./types";
 export * from "./WebGPUFrameUniformManager";
 export * from "./WebGPUGeometryManager";

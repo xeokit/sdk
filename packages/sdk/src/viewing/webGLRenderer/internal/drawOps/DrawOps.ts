@@ -10,6 +10,7 @@ import {TrianglesDrawColorSAOShadowTechnique} from "./techniques/triangles/Trian
 import {TrianglesShadowDepthTechnique} from "./techniques/triangles/TrianglesShadowDepthTechnique";
 import {GenericDrawSilhouetteTechnique} from "./techniques/generic/GenericDrawSilhouetteTechnique";
 import {PointsDrawColorTechnique} from "./techniques/points/PointsDrawColorTechnique";
+import {PointsPickMeshTechnique} from "./techniques/points";
 import {ThickLinesDrawColorTechnique} from "./techniques/lines/ThickLinesDrawColorTechnique";
 import {ThickLinesPickMeshTechnique} from "./techniques/lines/ThickLinesPickMeshTechnique";
 import {LinesSnapTechnique} from "./techniques/lines/LinesSnapTechnique";
@@ -226,7 +227,7 @@ export class DrawOps {
     // line's body (not the 1-pixel `gl.LINES` core the legacy
     // GenericPickMeshTechnique would write).
     const linesPickMesh = saveForCleanup(new ThickLinesPickMeshTechnique(renderContext, gpuMemoryReader));
-    const pointsPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 1));
+    const pointsPickMesh = saveForCleanup(new PointsPickMeshTechnique(renderContext, gpuMemoryReader));
     const linesDrawColor = saveForCleanup(new ThickLinesDrawColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesSnapInit   = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
@@ -478,4 +479,3 @@ export function putDrawOps(drawOps: DrawOps) {
     drawOps._destroy();
   }
 }
-

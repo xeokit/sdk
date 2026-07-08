@@ -53,7 +53,7 @@ class SectionPlane {
         this.view = view;
         this._active = sectionPlaneParams.active !== false;
         this._pos = createVec3Float64(sectionPlaneParams.pos || [0, 0, 0]);
-        this._dir = createVec3Float32(sectionPlaneParams.dir || [0, 0, -1]);
+        this._dir = createVec3Float32(normalizeSectionPlaneDir(sectionPlaneParams.dir || [0, 0, -1], [0, 0, -1]));
         // Plane equation constant: dot(normal, point) + dist = 0,
         // so dist = -dot(pos, dir). Compute up front; the renderer
         // packs this as the `w` channel of each `uSectionPlanes[]`
@@ -145,7 +145,7 @@ class SectionPlane {
      */
     set dir(value: Vec3) {
       // @ts-ignore
-        this._dir.set(value);
+        this._dir.set(normalizeSectionPlaneDir(value, this._dir));
         this._dist = (-dotVec3(this._pos, this._dir));
         this.view.needsRender();
         this.view.viewer.events.onSectionPlaneDirChanged.dispatch(this, this._dir);
@@ -270,3 +270,12 @@ class SectionPlane {
 }
 
 export {SectionPlane};
+
+function normalizeSectionPlaneDir(value: Vec3, fallback: Vec3): Vec3 {
+    const x = value[0], y = value[1], z = value[2];
+    const len = Math.hypot(x, y, z);
+    if (!Number.isFinite(len) || len < 1e-12) {
+        return [fallback[0], fallback[1], fallback[2]];
+    }
+    return [x / len, y / len, z / len];
+}

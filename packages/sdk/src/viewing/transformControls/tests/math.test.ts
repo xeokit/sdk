@@ -5,6 +5,7 @@ import {identityMat4, createMat4Float64, transformPoint3, type Mat4} from "../..
 import type {Vec3} from "../../../base/math/vector";
 import {TransformControls} from "../TransformControls";
 import {S_X, T_X} from "../internal/handleIds";
+import {buildGeometry} from "../internal/buildGeometry";
 
 const approx = (v: ArrayLike<number>) => Array.from(v).map(n => +n.toFixed(6));
 
@@ -74,6 +75,29 @@ describe("axisFromLabel", () => {
 });
 
 describe("TransformControls picking", () => {
+  it("builds gizmo objects as non-clippable overlay UI", () => {
+    const meshes: any[] = [];
+    const objects: any[] = [];
+    const sceneModel = {
+      createGeometry: jest.fn(),
+      createMesh: jest.fn((params: any) => {
+        meshes.push(params);
+      }),
+      createObject: jest.fn((params: any) => {
+        objects.push(params);
+      }),
+    };
+
+    buildGeometry(sceneModel as any, "__tc.layer");
+
+    expect(objects.length).toBeGreaterThan(0);
+    for (const object of objects) {
+      expect(object.clippable).toBe(false);
+    }
+    expect(meshes.some((mesh) => mesh.bin === "overlay")).toBe(true);
+    expect(meshes.some((mesh) => mesh.bin === "overlayPicker")).toBe(true);
+  });
+
   it("uses the controls ray builder for handle picks", () => {
     const ray = {origin: [1, 2, 3] as Vec3, dir: [0, 0, -1] as Vec3};
     const pick = jest.fn((params: any) => ({

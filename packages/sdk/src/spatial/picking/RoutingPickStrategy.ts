@@ -1,5 +1,5 @@
 import type {Scene} from "../../model/scene";
-import {GaussianSplatsPrimitive} from "../../base/constants";
+import {GaussianSplatsPrimitive, PointsPrimitive} from "../../base/constants";
 import type {Renderer} from "../../viewing/renderer";
 import {BVHPickStrategy} from "./BVHPickStrategy";
 import type {PickParams} from "./PickParams";
@@ -17,8 +17,10 @@ import {RendererPickStrategy} from "./RendererPickStrategy";
  * | Request                                                  | Backend |
  * | -------------------------------------------------------- | ------- |
  * | snap-to-vertex / snap-to-edge requested AND GPU is ready | GPU     |
+ * | surface normal requested                                 | BVH     |
  * | filter callback supplied                                 | BVH     |
  * | ray / matrix input                                       | BVH     |
+ * | point/splat scene canvas pick AND GPU is ready            | GPU     |
  * | otherwise                                                | BVH     |
  *
  * GPU unavailable (no renderer attached, context lost, renderer not
@@ -101,19 +103,23 @@ export class RoutingPickStrategy implements PickStrategy {
     }
 
     const wantSnap   = !!(params.snapToVertex || params.snapToEdge);
+    const wantNormal = params.pickSurfaceNormal === true;
     const hasFilter  = !!params.filter;
     const isRayPick  = !!(params.ray || params.matrix);
-    // Splats have no BVH triangles, so they're only pickable via the GPU pass.
-    // When the scene holds splats, canvas picks must go to the GPU (which picks
-    // mesh geometry correctly too, so triangle picks are unaffected). Splat
-    // presence is scene state, so we ask the Scene — not the renderer.
-    const hasSplats  = this._scene.containsPrimitive(GaussianSplatsPrimitive);
+    // Points/splats have no BVH triangles, so plain canvas picks route to
+    // the GPU when a scene contains them. Surface-normal requests stay on
+    // BVH because they need triangle face normals; points/splats simply
+    // won't be hit by that path. Primitive presence is scene state, so we
+    // ask the Scene — not the renderer.
+    const hasGpuOnlyPrims =
+      this._scene.containsPrimitive(PointsPrimitive) ||
+      this._scene.containsPrimitive(GaussianSplatsPrimitive);
 
     // GPU branch eligibility — the routing rule, condensed.
     const useGpu =
       this._gpuReady &&            // GPU available
       this._gpu &&                 // renderer was supplied
-      (wantSnap || hasSplats) &&   // snap request, or splats only the GPU can pick
+      (wantSnap || (hasGpuOnlyPrims && !wantNormal)) &&
       !hasFilter &&                // GPU has no filter callback
       !isRayPick;                  // GPU pick is canvas-only
 

@@ -93,6 +93,7 @@ export class PickingService {
                        : undefined,
       matrix:        pickParams.rayMatrix,
       pickInvisible: pickParams.pickInvisible === true,
+      pickSurfaceNormal: pickParams.pickSurfaceNormal === true,
       snapToVertex:  pickParams.snapToVertex === true,
       snapToEdge:    pickParams.snapToEdge === true,
       snapRadius:    pickParams.snapRadius,
@@ -113,6 +114,7 @@ export class PickingService {
       pickResult.canvasPos = pickParams.canvasPos;
     }
     pickResult.worldPos  = result.worldPos as any;
+    pickResult.worldNormal = result.worldNormal as any;
     pickResult.origin    = result.rayOrigin as any;
     pickResult.direction = result.rayDir as any;
     if (result.snap) {

@@ -13,6 +13,8 @@ export interface SceneTriangleHit {
   meshId: string;
   /** World-space hit point. */
   worldPos: Vec3Float;
+  /** World-space face normal for the hit triangle, when requested. */
+  worldNormal: Vec3Float | null;
   /**
    * Parametric distance along the input ray, in `dir`-multiples. The hit
    * point equals `origin + dir * tHit` (modulo the same floating-point

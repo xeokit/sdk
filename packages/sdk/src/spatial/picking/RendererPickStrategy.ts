@@ -18,7 +18,8 @@ import type {PickStrategy} from "./PickStrategy";
  *
  *   - canvas-pos pick (with optional snap-to-vertex / snap-to-edge);
  *   - ray pick (no snap; the renderer's snap path is canvas-only);
- *   - `worldNormal` when {@link PickParams.pickSurfaceNormal} is set;
+ *   - `worldNormal` when {@link PickParams.pickSurfaceNormal} is set
+ *     and the renderer backend supplies it;
  *   - `localPos`, `uv`, `meshId` whenever the renderer surfaces them.
  *
  * Doesn't handle:

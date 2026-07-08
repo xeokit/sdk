@@ -12,4 +12,10 @@ export interface SceneRayTriangleOptions {
    * hidden, non-pickable, or marker-only objects from triangle scanning.
    */
   filter?: (objectId: string) => boolean;
+  /**
+   * When true, compute the world-space face normal of the hit triangle.
+   * Defaults to false because it needs three extra point transforms for
+   * every nearest-hit candidate.
+   */
+  pickSurfaceNormal?: boolean;
 }

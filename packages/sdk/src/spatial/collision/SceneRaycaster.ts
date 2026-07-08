@@ -152,7 +152,8 @@ export class SceneRaycaster {
     const triHit = intersectSceneRayTriangle(this.collisionIndex, origin, dir, {
       tMin: params.tMin,
       tMax: params.tMax,
-      filter: combinedFilter
+      filter: combinedFilter,
+      pickSurfaceNormal: params.pickSurfaceNormal === true
     });
 
     const resultRayOrigin = createVec3Float64(origin);
@@ -166,6 +167,7 @@ export class SceneRaycaster {
           objectId: null,
           meshId: null,
           worldPos: null,
+          worldNormal: null,
           tHit: null,
           triangleIndex: -1,
           rayOrigin: resultRayOrigin,
@@ -181,6 +183,7 @@ export class SceneRaycaster {
         objectId: triHit.objectId,
         meshId: triHit.meshId,
         worldPos: triHit.worldPos,
+        worldNormal: triHit.worldNormal,
         tHit: triHit.tHit,
         triangleIndex: triHit.triangleIndex,
         rayOrigin: resultRayOrigin,

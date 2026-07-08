@@ -78,7 +78,7 @@ export interface PickResult {
    */
   worldPos: Vec3 | null;
 
-  /** GPU-only. World-space normal at the surface hit. `null` from BVH. */
+  /** World-space normal at the surface hit, when requested and supported. */
   worldNormal: Vec3 | null;
 
   /** GPU-only. Local-space hit point on the picked mesh. `null` from BVH. */

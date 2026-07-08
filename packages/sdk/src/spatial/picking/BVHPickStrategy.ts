@@ -11,6 +11,7 @@ import type {PickStrategy} from "./PickStrategy";
  *
  *   - canvas-pos / ray / matrix inputs (all three);
  *   - `objectId`, `meshId`, `worldPos`, `triangleIndex`;
+ *   - `worldNormal` when {@link PickParams.pickSurfaceNormal} is set;
  *   - `filter`, `tMin`, `tMax`, `pickInvisible` (mapped onto
  *     `visiblePickableOnly`).
  *
@@ -18,8 +19,8 @@ import type {PickStrategy} from "./PickStrategy";
  *
  *   - snap-to-vertex / snap-to-edge — silently dropped. The result's
  *     {@link PickResult.snap} is `null`.
- *   - `worldNormal`, `localPos`, `uv` — not provided by the BVH path;
- *     left `null` on the result.
+ *   - `localPos`, `uv` — not provided by the BVH path; left `null`
+ *     on the result.
  *
  * Stateless after construction; {@link stateEpoch} stays `0`.
  */
@@ -51,6 +52,7 @@ export class BVHPickStrategy implements PickStrategy {
       matrix:    params.matrix,
       tMin:      params.tMin,
       tMax:      params.tMax,
+      pickSurfaceNormal: params.pickSurfaceNormal === true,
       filter:    params.filter,
       // Our `pickInvisible` is the inverse of SceneRaycaster's
       // `visiblePickableOnly`. SceneRaycaster also defaults to `true`
@@ -79,7 +81,7 @@ export class BVHPickStrategy implements PickStrategy {
       objectId:      v.objectId,
       meshId:        v.meshId,
       worldPos:      v.worldPos,
-      worldNormal:   null,
+      worldNormal:   params.pickSurfaceNormal === true ? v.worldNormal : null,
       localPos:      null,
       uv:            null,
       canvasPos:     params.canvasPos ?? null,

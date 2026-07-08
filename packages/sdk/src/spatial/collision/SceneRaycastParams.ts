@@ -55,6 +55,12 @@ export interface SceneRaycastParams {
   tMax?: number;
 
   /**
+   * When true, populate {@link SceneRaycastResult.worldNormal} with the
+   * world-space face normal of the hit triangle.
+   */
+  pickSurfaceNormal?: boolean;
+
+  /**
    * Optional pre-filter on candidate object IDs. Returning `false` drops
    * the object before any per-mesh / per-triangle work — composes with
    * the visible/pickable filter (both must accept).

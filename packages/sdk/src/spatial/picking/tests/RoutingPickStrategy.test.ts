@@ -4,6 +4,7 @@
 // picks still fall through to BVH. The BVH/GPU leaves are mocked so the test
 // exercises only the routing decision, not the real raycaster / renderer.
 
+import {GaussianSplatsPrimitive, PointsPrimitive} from "../../../base/constants";
 import {RoutingPickStrategy} from "../RoutingPickStrategy";
 
 jest.mock("../BVHPickStrategy", () => ({
@@ -33,9 +34,13 @@ function makeRenderer(opts: {rendering: boolean}) {
   } as any;
 }
 
-// Splat presence is scene state — the strategy asks scene.containsPrimitive().
-function makeScene(opts: {hasSplats: boolean}) {
-  return {containsPrimitive: () => opts.hasSplats} as any;
+// Primitive presence is scene state — the strategy asks scene.containsPrimitive().
+function makeScene(opts: {hasSplats?: boolean; hasPoints?: boolean}) {
+  return {
+    containsPrimitive: (primitive: number) =>
+      (primitive === GaussianSplatsPrimitive && !!opts.hasSplats) ||
+      (primitive === PointsPrimitive && !!opts.hasPoints)
+  } as any;
 }
 
 function leafOf(strategy: RoutingPickStrategy, params: any): string {
@@ -47,6 +52,21 @@ describe("RoutingPickStrategy splat routing", () => {
   it("sends plain canvas picks to the GPU when the scene has splats", () => {
     const strategy = new RoutingPickStrategy(makeScene({hasSplats: true}), makeRenderer({rendering: true}));
     expect(leafOf(strategy, {canvasPos: [10, 10]})).toBe("gpu");
+  });
+
+  it("sends plain canvas picks to the GPU when the scene has points", () => {
+    const strategy = new RoutingPickStrategy(makeScene({hasPoints: true}), makeRenderer({rendering: true}));
+    expect(leafOf(strategy, {canvasPos: [10, 10]})).toBe("gpu");
+  });
+
+  it("keeps surface-normal picks on BVH even when the scene has splats", () => {
+    const strategy = new RoutingPickStrategy(makeScene({hasSplats: true}), makeRenderer({rendering: true}));
+    expect(leafOf(strategy, {canvasPos: [10, 10], pickSurfaceNormal: true})).toBe("bvh");
+  });
+
+  it("keeps surface-normal picks on BVH even when the scene has points", () => {
+    const strategy = new RoutingPickStrategy(makeScene({hasPoints: true}), makeRenderer({rendering: true}));
+    expect(leafOf(strategy, {canvasPos: [10, 10], pickSurfaceNormal: true})).toBe("bvh");
   });
 
   it("sends plain canvas picks to BVH when the scene has no splats", () => {

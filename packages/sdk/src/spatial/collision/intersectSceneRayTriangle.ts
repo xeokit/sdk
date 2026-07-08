@@ -1,4 +1,11 @@
-import {createVec3Float64, type Vec3, type Vec3Float} from "../../base/math/vector";
+import {
+  createVec3Float64,
+  cross3Vec3,
+  normalizeVec3,
+  subVec3,
+  type Vec3,
+  type Vec3Float
+} from "../../base/math/vector";
 import {createMat4Float64, inverseMat4, transformPoint3, transformVec3} from "../../base/math/matrix";
 import type {Mat4} from "../../base/math/matrix";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../base/constants";
@@ -71,6 +78,7 @@ export function intersectSceneRayTriangle(
   const tMin = options?.tMin ?? 0;
   const tMax = options?.tMax ?? Infinity;
   const filter = options?.filter;
+  const pickSurfaceNormal = options?.pickSurfaceNormal === true;
 
   const aabbHits = collisionIndex.intersectRay(origin, dir, {tMin, tMax});
   if (aabbHits.length === 0) return null;
@@ -85,6 +93,12 @@ export function intersectSceneRayTriangle(
   const localDir:    Vec3Float = createVec3Float64();
   const localHit:    Vec3Float = createVec3Float64();
   const worldHit:    Vec3Float = createVec3Float64();
+  const worldV0:     Vec3Float = createVec3Float64();
+  const worldV1:     Vec3Float = createVec3Float64();
+  const worldV2:     Vec3Float = createVec3Float64();
+  const worldEdge1:  Vec3Float = createVec3Float64();
+  const worldEdge2:  Vec3Float = createVec3Float64();
+  const worldNormal: Vec3Float = createVec3Float64();
 
   for (let h = 0; h < aabbHits.length; h++) {
     const aabbHit = aabbHits[h];
@@ -195,6 +209,19 @@ export function intersectSceneRayTriangle(
         localHit[2] = loz + ldz * tHit;
         transformPoint3(mesh.worldMatrix as Mat4, localHit, worldHit);
 
+        if (pickSurfaceNormal) {
+          localHit[0] = v0x; localHit[1] = v0y; localHit[2] = v0z;
+          transformPoint3(mesh.worldMatrix as Mat4, localHit, worldV0);
+          localHit[0] = v1x; localHit[1] = v1y; localHit[2] = v1z;
+          transformPoint3(mesh.worldMatrix as Mat4, localHit, worldV1);
+          localHit[0] = v2x; localHit[1] = v2y; localHit[2] = v2z;
+          transformPoint3(mesh.worldMatrix as Mat4, localHit, worldV2);
+
+          subVec3(worldV1, worldV0, worldEdge1);
+          subVec3(worldV2, worldV0, worldEdge2);
+          normalizeVec3(cross3Vec3(worldEdge1, worldEdge2, worldNormal), worldNormal);
+        }
+
         bestT = tHit;
         // Lazy-allocate / reuse the result object only when we find a hit
         // that beats the previous best. Most rays produce at most one hit.
@@ -203,6 +230,7 @@ export function intersectSceneRayTriangle(
             objectId: aabbHit.objectId,
             meshId: mesh.id,
             worldPos: createVec3Float64(),
+            worldNormal: pickSurfaceNormal ? createVec3Float64() : null,
             tHit,
             triangleIndex: t
           };
@@ -215,6 +243,11 @@ export function intersectSceneRayTriangle(
         best.worldPos[0] = worldHit[0];
         best.worldPos[1] = worldHit[1];
         best.worldPos[2] = worldHit[2];
+        if (pickSurfaceNormal && best.worldNormal) {
+          best.worldNormal[0] = worldNormal[0];
+          best.worldNormal[1] = worldNormal[1];
+          best.worldNormal[2] = worldNormal[2];
+        }
       }
     }
   }

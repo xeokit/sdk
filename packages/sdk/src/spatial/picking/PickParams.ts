@@ -81,7 +81,7 @@ export interface PickParams {
 
   /**
    * If `true` and the underlying backend supports it, populate
-   * {@link PickResult.worldNormal}. GPU-only.
+   * {@link PickResult.worldNormal}.
    */
   pickSurfaceNormal?: boolean;
 

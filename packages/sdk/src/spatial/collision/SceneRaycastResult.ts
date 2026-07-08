@@ -20,6 +20,9 @@ export interface SceneRaycastResult {
   /** World-space hit position. `null` on a miss. */
   worldPos: Vec3Float | null;
 
+  /** World-space face normal at the hit triangle, when requested; `null` on a miss. */
+  worldNormal: Vec3Float | null;
+
   /** Parametric distance along the ray, in `dir`-multiples. `null` on a miss. */
   tHit: number | null;
 

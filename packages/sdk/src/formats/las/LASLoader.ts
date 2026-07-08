@@ -56,7 +56,7 @@ async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}
   if (!sceneModel && !dataModel) {
     return;
   }
-  const skip = options.skip || 1;
+  const skip = Math.max(1, Math.floor(options.skip || 1));
   const log = (msg: string) => {
     if (params.log) {
       params.log(msg);
@@ -103,38 +103,16 @@ async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}
           log("No positions found in file (expected for all LAS point formats)");
           return;
         }
-        let readAttributes: any = {};
-        switch (pointsFormatId) {
-          case 0:
-            if (!attributes.intensity) {
-              log("No intensities found in file (expected for LAS point format 0)");
-              return;
-            }
-            readAttributes = readIntensities(attributes.POSITION, attributes.intensity);
-            break;
-          case 1:
-            if (!attributes.intensity) {
-              log("No intensities found in file (expected for LAS point format 1)");
-              return;
-            }
-            readAttributes = readIntensities(attributes.POSITION, attributes.intensity);
-            break;
-          case 2:
-            if (!attributes.intensity) {
-              log("No intensities found in file (expected for LAS point format 2)");
-              return;
-            }
-            readAttributes = readColorsAndIntensities(attributes.POSITION, attributes.COLOR_0, attributes.intensity);
-            break;
-          case 3:
-            if (!attributes.intensity) {
-              log("No intensities found in file (expected for LAS point format 3)");
-              return;
-            }
-            readAttributes = readColorsAndIntensities(attributes.POSITION, attributes.COLOR_0, attributes.intensity);
-            break;
+        if (!attributes.intensity) {
+          log(`No intensities found in file (expected for LAS point format ${pointsFormatId})`);
         }
-        const pointsChunks = chunkArray(readPositions(readAttributes.positions), MAX_VERTICES * 3);
+        const readAttributes = readPointAttributes(attributes.POSITION, attributes.COLOR_0, attributes.intensity);
+        const positions = readPositions(readAttributes.positions);
+        if (!positions || positions.length === 0) {
+          log("No points found in file after filtering");
+          return;
+        }
+        const pointsChunks = chunkArray(positions, MAX_VERTICES * 3);
         const colorsChunks = chunkArray(readAttributes.colors, MAX_VERTICES * 4);
         const totalChunks = pointsChunks.length;
         for (let j = 0; j < totalChunks; j++) {
@@ -142,7 +120,7 @@ async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}
           // points + a SceneGeometry/Mesh creation, so this is
           // the natural granularity for the bar to track.
           await step("Building point chunks", j, totalChunks);
-          const geometryId = `geometry-${j}`;
+          const geometryId = `${entityId}-geometry-${j}`;
           const geometryResult = sceneModel.createGeometry({
             id: geometryId,
             primitive: PointsPrimitive,
@@ -150,16 +128,17 @@ async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}
             colorsCompressed: colorsChunks[j]
           });
           if (geometryResult.ok===false) {
-            log(`[ERROR] Cannot load point cloud -> geometryResult.error}`);
+            log(`[ERROR] Cannot load point cloud -> ${geometryResult.error}`);
           } else {
-            const meshId = `mesh-${j}`;
-            meshIds.push(meshId);
+            const meshId = `${entityId}-mesh-${j}`;
             const meshResult = sceneModel.createMesh({
               id: meshId,
               geometryId
             });
             if (meshResult.ok===false) {
-              log(`[ERROR] Cannot load point cloud -> meshResult.error}`);
+              log(`[ERROR] Cannot load point cloud -> ${meshResult.error}`);
+            } else {
+              meshIds.push(meshId);
             }
           }
         }
@@ -194,7 +173,10 @@ async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}
       if (positionsValue) {
         if (options.center) {
           const centerPos = createVec3Float64();
-          const numPoints = positionsValue.length;
+          const numPoints = positionsValue.length / 3;
+          if (numPoints === 0) {
+            return positionsValue;
+          }
           for (let i = 0, len = positionsValue.length; i < len; i += 3) {
             centerPos[0] += positionsValue[i + 0];
             centerPos[1] += positionsValue[i + 1];
@@ -226,28 +208,34 @@ async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}
       return positionsValue;
     }
 
-    function readColorsAndIntensities(attributesPosition, attributesColor, attributesIntensity) {
+    function readPointAttributes(attributesPosition, attributesColor, attributesIntensity) {
       const positionsValue = attributesPosition.value;
-      const colors = attributesColor.value;
-      const colorSize = attributesColor.size;
-      const intensities = attributesIntensity.value;
-      const colorsCompressedSize = intensities.length * 4;
+      const colors = attributesColor?.value;
+      const colorSize = attributesColor?.size || 0;
+      const intensities = attributesIntensity?.value;
+      const pointCount = Math.floor(positionsValue.length / 3);
       const positions = [];
-      const colorsCompressed = new Uint8Array(colorsCompressedSize / skip);
-      let count = skip;
-      for (let i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, len = intensities.length; i < len; i++, k += colorSize, j += 4, l += 3) {
-        if (count <= 0) {
-          colorsCompressed[m++] = colors[k + 0];
-          colorsCompressed[m++] = colors[k + 1];
-          colorsCompressed[m++] = colors[k + 2];
-          colorsCompressed[m++] = Math.round((intensities[i] / 65536) * 255);
-          positions[n++] = positionsValue[l + 0];
-          positions[n++] = positionsValue[l + 1];
-          positions[n++] = positionsValue[l + 2];
-          count = skip;
-        } else {
-          count--;
+      const colorsCompressed = new Uint8Array(Math.ceil(pointCount / skip) * 4);
+      for (let i = 0, m = 0, n = 0; i < pointCount; i++) {
+        if (i % skip !== 0) {
+          continue;
         }
+        const colorOffset = i * colorSize;
+        const positionOffset = i * 3;
+        const intensity = intensities ? intensityToByte(intensities[i]) : 255;
+        if (colors) {
+          colorsCompressed[m++] = colors[colorOffset + 0];
+          colorsCompressed[m++] = colors[colorOffset + 1];
+          colorsCompressed[m++] = colors[colorOffset + 2];
+        } else {
+          colorsCompressed[m++] = intensity;
+          colorsCompressed[m++] = intensity;
+          colorsCompressed[m++] = intensity;
+        }
+        colorsCompressed[m++] = intensity;
+        positions[n++] = positionsValue[positionOffset + 0];
+        positions[n++] = positionsValue[positionOffset + 1];
+        positions[n++] = positionsValue[positionOffset + 2];
       }
       return {
         positions,
@@ -255,31 +243,8 @@ async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}
       };
     }
 
-    function readIntensities(attributesPosition, attributesIntensity) {
-      const positionsValue = attributesPosition.value;
-      const intensities = attributesIntensity.intensity;
-      const colorsCompressedSize = intensities.length * 4;
-      const positions = [];
-      const colorsCompressed = new Uint8Array(colorsCompressedSize / skip);
-      let count = skip;
-      for (let i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, len = intensities.length; i < len; i++, k += 3, j += 4, l += 3) {
-        if (count <= 0) {
-          colorsCompressed[m++] = 0;
-          colorsCompressed[m++] = 0;
-          colorsCompressed[m++] = 0;
-          colorsCompressed[m++] = Math.round((intensities[i] / 65536) * 255);
-          positions[n++] = positionsValue[l + 0];
-          positions[n++] = positionsValue[l + 1];
-          positions[n++] = positionsValue[l + 2];
-          count = skip;
-        } else {
-          count--;
-        }
-      }
-      return {
-        positions,
-        colors: colorsCompressed
-      };
+    function intensityToByte(value: number): number {
+      return Math.max(0, Math.min(255, Math.round(((value || 0) / 65535) * 255)));
     }
 
     function chunkArray(array, chunkSize) {

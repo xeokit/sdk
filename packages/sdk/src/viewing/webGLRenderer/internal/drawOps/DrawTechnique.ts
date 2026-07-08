@@ -1155,6 +1155,7 @@ struct GeometryAttributes {
   // per segment: the cumulative model-space distance from the
   // segment's polyline start.
   uint polylineCumDistBase;
+  uint vertexColorsBase;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -1255,6 +1256,7 @@ GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
   s.normalsBase          = t0.a;
   s.uvsBase              = t1.r;
   s.polylineCumDistBase  = t1.g;
+  s.vertexColorsBase     = t1.b;
   return s;
 }
 
@@ -2951,9 +2953,10 @@ flat out int  vHatchSpace;
    */
   protected vsDrawVertexColorLogic() {
     this._vertSrcBuf.push(`
-    // Output vertex color
-    uvec4 color = getVertexColor(vertexIndexWithinGeometry);
-    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);`);
+    // Vertex color bytes are authored/stored as sRGB; convert to linear for the scene pipeline.
+    uvec4 color = getVertexColor(geometryAttributes.vertexColorsBase + vertexIndexWithinGeometry);
+    vec3 srgbColor = vec3(float(color.r), float(color.g), float(color.b)) / 255.0;
+    vColor = vec4(pow(max(srgbColor, vec3(0.0)), vec3(2.2)), 1.0);`);
   }
 
   /**
@@ -3093,6 +3096,31 @@ flat out int  vHatchSpace;
    } else {
       gl_PointSize = pointSize;
    }`);
+  }
+
+  /**
+   * Generates point size logic for point-cloud picking.
+   *
+   * Pick rendering targets a 1x1 framebuffer viewport centred on the
+   * pointer. Keeping point picks at exactly the visible point size makes
+   * 1px LAS points effectively unpickable, so the pick pass keeps the
+   * visible size as a lower bound but expands tiny points to a small
+   * screen-space picking footprint.
+   *
+   * @protected
+   */
+  protected vsPointsPickGeometryLogic() {
+    this._vertSrcBuf.push(
+      `  if (uPerspectivePoints == 1) {
+     gl_PointSize = (uNearPlaneHeight * pointSize) / clipPos.w;
+     gl_PointSize = max(gl_PointSize, uPerspectivePointsMinMax[0]);
+     gl_PointSize = min(gl_PointSize, uPerspectivePointsMinMax[1]);
+   } else {
+      gl_PointSize = pointSize;
+   }
+   float pickPointSize = max(gl_PointSize, 7.0);
+   gl_Position.xy /= pickPointSize;
+   gl_PointSize = pickPointSize;`);
   }
 
   /**

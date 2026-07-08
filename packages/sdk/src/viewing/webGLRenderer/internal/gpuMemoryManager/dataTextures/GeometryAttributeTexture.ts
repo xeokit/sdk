@@ -5,7 +5,7 @@ import { ItemDataTexture } from "./ItemDataTexture";
  *
  * Two texels per geometry, eight u32 slots total:
  *  - texel 0: `(verticesBase, indicesBase, edgeIndicesBase, normalsBase)`
- *  - texel 1: `(uvsBase,      polylineCumDistBase, reserved, reserved)`
+ *  - texel 1: `(uvsBase,      polylineCumDistBase, vertexColorsBase, reserved)`
  *
  * Each `*Base` is `0` when the corresponding attribute isn't allocated
  * for that geometry; the shader only reads a slot when its containing
@@ -57,7 +57,8 @@ export class GeometryAttributeTexture extends ItemDataTexture {
    *                values. `0` for non-`LinesPrimitive` geometries (and
    *                for line geometries whose batch never allocated a
    *                polyline-cum-dist texture).
-   *   - `base + 6..7` reserved
+   *   - `base + 6` vertexColorsBase
+   *   - `base + 7` reserved
    *
    * @param itemIndex
    * @param item
@@ -69,6 +70,7 @@ export class GeometryAttributeTexture extends ItemDataTexture {
     normalsBase?: number;
     uvsBase?: number;
     polylineCumDistBase?: number;
+    vertexColorsBase?: number;
   }): void {
     const base = itemIndex * this.elementsPerItem;
     if (item.verticesBase !== undefined) this.buffer[base] = this.toU32(item.verticesBase);
@@ -77,10 +79,11 @@ export class GeometryAttributeTexture extends ItemDataTexture {
     if (item.normalsBase !== undefined) this.buffer[base + 3] = this.toU32(item.normalsBase);
     if (item.uvsBase !== undefined) this.buffer[base + 4] = this.toU32(item.uvsBase);
     if (item.polylineCumDistBase !== undefined) this.buffer[base + 5] = this.toU32(item.polylineCumDistBase);
+    if (item.vertexColorsBase !== undefined) this.buffer[base + 6] = this.toU32(item.vertexColorsBase);
     this.setItemDirty(itemIndex);
   }
 
-  getItem(_itemIndex: number): { verticesBase: number; indicesBase: number; edgeIndicesBase: number; normalsBase: number; uvsBase: number } {
+  getItem(_itemIndex: number): { verticesBase: number; indicesBase: number; edgeIndicesBase: number; normalsBase: number; uvsBase: number; vertexColorsBase: number } {
     throw new Error("[GeometryAttributeTexture.getItem] Not supported without backing state");
   }
 

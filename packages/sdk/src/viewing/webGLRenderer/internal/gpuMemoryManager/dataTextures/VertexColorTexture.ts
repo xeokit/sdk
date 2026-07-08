@@ -9,7 +9,7 @@ export class VertexColorTexture extends PortionDataTexture {
   /**
    * The size of each item in bytes.
    */
-  public static readonly itemSizeInBytes = 3; // 3 × uint8 per item (RGB)
+  public static readonly itemSizeInBytes = 4; // 4 × uint8 per item (RGBA)
 
   /**
    * @private

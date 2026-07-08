@@ -10,14 +10,14 @@ export interface PointsMaterialParams {
   /**
    * The point size of the {@link PointsMaterial}.
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixel.
    */
   pointSize?: number,
 
   /**
    * Whether the {@link PointsMaterial} points are round or square.
    *
-   * Default is ````true```` to set points round.
+   * Default is ````false````.
    */
   roundPoints?: boolean,
 
@@ -25,21 +25,21 @@ export interface PointsMaterialParams {
    * Whether the {@link PointsMaterial} point size reduces with distance when {@link Camera.projection} is set
    * to {@link base!constants.PerspectiveProjectionType | PerspectiveProjectionType}.
    *
-   * Default is ````true````.
+   * Default is ````false````.
    */
   perspectivePoints?: boolean,
 
   /**
    * The minimum rendered size of {@link PointsMaterial} points when {@link PointsMaterial.perspectivePoints} is ````true````.
    *
-   * Default value is ```````` pixels.
+   * Default value is ````1```` pixel.
    */
   minPerspectivePointSize?: number,
 
   /**
    * The maximum rendered size of {@link PointsMaterial} points when {@link PointsMaterial.perspectivePoints} is ````true````.
    *
-   * Default value is ````6```` pixels.
+   * Default value is ````2```` pixels.
    */
   maxPerspectivePointSize?: number,
 

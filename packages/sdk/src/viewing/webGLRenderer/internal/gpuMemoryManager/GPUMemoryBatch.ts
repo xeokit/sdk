@@ -785,7 +785,7 @@ export class GPUMemoryBatch {
     }
     const isPoints = geometry.primitive === PointsPrimitive;
     if (!geometryExists) {
-      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length / 4) === false) {
         return GPUMemoryCheckResult.NotEnoughColorSpace;
       }
       // For batches with normals, the normals portion size matches the
@@ -946,7 +946,15 @@ export class GPUMemoryBatch {
       });
 
       if (sceneGeometry.colorsCompressed) {
-        vertexColorsPortion = this._vertexColorTexture.getPortion(sceneGeometry.colorsCompressed); // RGBA (0..255, 0..255, 0..255, 0..255)
+        const vertexColorsBaseGeometryIndex = geometryIndex;
+        vertexColorsPortion = this._vertexColorTexture.getPortion(
+          sceneGeometry.colorsCompressed,
+          (newBase: number) => {
+            this._geometryAttributeTexture.setItem(vertexColorsBaseGeometryIndex, {
+              vertexColorsBase: newBase
+            });
+          }
+        ); // RGBA (0..255, 0..255, 0..255, 0..255)
         if (vertexColorsPortion === null) {
           cleanup();
           return {
@@ -1089,6 +1097,7 @@ export class GPUMemoryBatch {
         normalsBase: vertexNormalsPortion ? vertexNormalsPortion.base : 0,
         uvsBase: vertexUVsPortion ? vertexUVsPortion.base : 0,
         polylineCumDistBase: polylineCumDistHandle ? polylineCumDistHandle.base : 0,
+        vertexColorsBase: vertexColorsPortion ? vertexColorsPortion.base : 0,
       });
 
       geometryHandle = {

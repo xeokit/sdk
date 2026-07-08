@@ -43,10 +43,10 @@ class PointsMaterial {
     this.view = view;
 
     this._pointSize = (options.pointSize !== undefined && options.pointSize !== null) ? options.pointSize : 1;
-    this._roundPoints = options.roundPoints !== false;
-    this._perspectivePoints = options.perspectivePoints !== false;
+    this._roundPoints = options.roundPoints === true;
+    this._perspectivePoints = options.perspectivePoints === true;
     this._minPerspectivePointSize = (options.minPerspectivePointSize !== undefined && options.minPerspectivePointSize !== null) ? options.minPerspectivePointSize : 1;
-    this._maxPerspectivePointSize = (options.maxPerspectivePointSize !== undefined && options.maxPerspectivePointSize !== null) ? options.maxPerspectivePointSize : 6;
+    this._maxPerspectivePointSize = (options.maxPerspectivePointSize !== undefined && options.maxPerspectivePointSize !== null) ? options.maxPerspectivePointSize : 2;
     this._filterIntensity = !!options.filterIntensity;
     this._minIntensity = (options.minIntensity !== undefined && options.minIntensity !== null) ? options.minIntensity : 0;
     this._maxIntensity = (options.maxIntensity !== undefined && options.maxIntensity !== null) ? options.maxIntensity : 1;
@@ -55,7 +55,7 @@ class PointsMaterial {
   /**
    * Sets point size.
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixel.
    */
   set pointSize(value: number) {
     this._pointSize = value;
@@ -65,7 +65,7 @@ class PointsMaterial {
   /**
    * Gets point size.
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixel.
    */
   get pointSize(): number {
     return this._pointSize;
@@ -74,7 +74,7 @@ class PointsMaterial {
   /**
    * Sets if points are round or square.
    *
-   * Default is ````true```` to set points round.
+   * Default is ````false````.
    */
   set roundPoints(value: boolean) {
     if (this._roundPoints === value) {
@@ -87,7 +87,7 @@ class PointsMaterial {
   /**
    * Gets if points are round or square.
    *
-   * Default is ````true```` to set points round.
+   * Default is ````false````.
    */
   get roundPoints(): boolean {
     return this._roundPoints;
@@ -96,7 +96,7 @@ class PointsMaterial {
   /**
    * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
    *
-   * Default is ````true````.
+   * Default is ````false````.
    */
   set perspectivePoints(value: boolean) {
     if (this._perspectivePoints === value) {
@@ -142,7 +142,7 @@ class PointsMaterial {
   /**
    * Sets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
    *
-   * Default value is ````6```` pixels.
+   * Default value is ````2```` pixels.
    */
   set maxPerspectivePointSize(value: number) {
     if (this._maxPerspectivePointSize === value) {
@@ -155,7 +155,7 @@ class PointsMaterial {
   /**
    * Gets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
    *
-   * Default value is ````6```` pixels.
+   * Default value is ````2```` pixels.
    */
   get maxPerspectivePointSize(): number {
     return this._maxPerspectivePointSize;

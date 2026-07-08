@@ -16,5 +16,16 @@
     "entryPoints": [
         "src/index.ts"
     ],
-  "useTsLinkResolution": true
+  "useTsLinkResolution": true,
+  "validation": {
+    "invalidLink": false,
+    "notExported": false
+  },
+  "ignoredHighlightLanguages": [
+    "mermaid",
+    "glsl",
+    "xml",
+    "md",
+    "javascript*"
+  ]
 }

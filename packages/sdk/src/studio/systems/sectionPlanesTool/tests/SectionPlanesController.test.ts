@@ -33,7 +33,7 @@ describe("SectionPlanesController gizmo integration", () => {
     return tc;
   }
 
-  function makeController(view: object = {}) {
+  function makeController(view: object = {needsRender: jest.fn()}) {
     const controller = Object.create(SectionPlanesController.prototype) as any;
     controller.view = view;
     controller._destroyed = false;
@@ -41,13 +41,15 @@ describe("SectionPlanesController gizmo integration", () => {
     controller._mode = "translate";
     controller._previousTransformSpace = null;
     controller._previousTransformShow = null;
+    controller._transformControlsFactory = undefined;
     controller.onSelectionChanged = {dispatch: jest.fn()};
     controller._syncProxyMatrix = jest.fn();
     return controller;
   }
 
-  function makePlane() {
+  function makePlane(id = "plane") {
     return {
+      id,
       destroyed: false,
       pos: [0, 0, 0],
       dir: [0, 0, 1],
@@ -81,6 +83,32 @@ describe("SectionPlanesController gizmo integration", () => {
     expect(tc.setShowX).toHaveBeenCalledWith(true);
     expect(tc.setShowY).toHaveBeenCalledWith(true);
     expect(tc.setShowZ).toHaveBeenCalledWith(true);
+  });
+
+  it("uses a configured TransformControls factory", () => {
+    const tc = makeTransformControls("world");
+    (TransformControls as any).getFor = jest.fn(() => undefined);
+    const view = {needsRender: jest.fn()};
+    const controller = makeController(view);
+    controller._transformControlsFactory = jest.fn(() => tc);
+
+    controller._applyGizmo(makePlane(), "translate");
+
+    expect(controller._transformControlsFactory).toHaveBeenCalledWith(view);
+    expect(tc.attach).toHaveBeenCalledTimes(1);
+  });
+
+  it("selects section planes from proxy object ids", () => {
+    const plane = makePlane("slice");
+    const controller = makeController({
+      sectionPlanesList: [plane],
+    });
+    controller.select = jest.fn();
+
+    expect(controller.selectByProxyObjectId("__sp.obj.slice")).toBe(true);
+    expect(controller.select).toHaveBeenCalledWith(plane);
+    expect(controller.selectByProxyObjectId("__sp.obj.missing")).toBe(false);
+    expect(controller.selectByProxyObjectId("__tc.t.x")).toBe(false);
   });
 
   it("restores the previous transform space when selection clears", () => {

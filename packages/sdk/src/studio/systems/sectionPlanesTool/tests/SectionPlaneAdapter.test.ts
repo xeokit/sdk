@@ -68,4 +68,31 @@ describe("SectionPlaneAdapter", () => {
     expect(round(plane.pos)).toEqual([1, 2, 3]);
     expect(round(plane.dir)).toEqual([0, 1, 0]);
   });
+
+  it("can expose the matrix normal on the kept side of the section plane", () => {
+    const plane = new FakeSectionPlane([1, 2, 3], [0, 0, 1]);
+    const adapter = new SectionPlaneAdapter(plane as any, -1);
+    const matrix = adapter.getMatrix();
+
+    expect(round([matrix[8], matrix[9], matrix[10]])).toEqual([0, 0, -1]);
+
+    matrix[8] = 0;
+    matrix[9] = 1;
+    matrix[10] = 0;
+    adapter.setMatrix(matrix);
+
+    expect(round(plane.dir)).toEqual([0, -1, 0]);
+  });
+
+  it("keeps translation aligned with the exposed matrix normal when inverted", () => {
+    const plane = new FakeSectionPlane([1, 2, 3], [0, 0, 1]);
+    const adapter = new SectionPlaneAdapter(plane as any, -1);
+    const matrix = adapter.getMatrix();
+
+    matrix[14] -= 2;
+    adapter.setMatrix(matrix);
+
+    expect(round(plane.pos)).toEqual([1, 2, 1]);
+    expect(round(plane.dir)).toEqual([0, 0, 1]);
+  });
 });

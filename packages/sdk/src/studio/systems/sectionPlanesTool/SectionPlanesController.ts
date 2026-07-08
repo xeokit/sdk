@@ -14,6 +14,16 @@ import {SectionPlaneAdapter, fillPlaneMatrix} from "./SectionPlaneAdapter";
 export type SectionPlanesEditMode = "translate" | "rotate";
 
 type TransformControlsShowState = {x: boolean; y: boolean; z: boolean};
+type TransformControlsFactory = (view: View) => TransformControls | undefined;
+
+export interface SectionPlanesControllerOptions {
+  /**
+   * Optional Studio-owned factory for the View's TransformControls.
+   * Studio uses this to route section-plane editing through the same
+   * picker and ViewController wiring as object transform editing.
+   */
+  transformControlsFactory?: TransformControlsFactory;
+}
 
 
 /**
@@ -46,10 +56,15 @@ export class SectionPlanesController {
     return inst && !inst._destroyed ? inst : undefined;
   }
 
-  static openFor(view: View): SectionPlanesController {
+  static openFor(view: View, options: SectionPlanesControllerOptions = {}): SectionPlanesController {
     const existing = SectionPlanesController._instances.get(view);
-    if (existing && !existing._destroyed) return existing;
-    return new SectionPlanesController(view);
+    if (existing && !existing._destroyed) {
+      if (options.transformControlsFactory) {
+        existing._transformControlsFactory = options.transformControlsFactory;
+      }
+      return existing;
+    }
+    return new SectionPlanesController(view, options);
   }
 
   readonly view: View;
@@ -92,6 +107,8 @@ export class SectionPlanesController {
   private _previousTransformSpace: TransformControlsSpace | null = null;
   /** TransformControls axis visibility to restore after section-plane editing. */
   private _previousTransformShow: TransformControlsShowState | null = null;
+  /** Preferred way to obtain TransformControls for this View. */
+  private _transformControlsFactory: TransformControlsFactory | undefined;
 
   /** Subscription handles for the viewer-level events. */
   private readonly _unsubs: Array<() => void> = [];
@@ -104,8 +121,9 @@ export class SectionPlanesController {
    *  drag and stutter the gizmo. */
   private _dragging = false;
 
-  private constructor(view: View) {
+  private constructor(view: View, options: SectionPlanesControllerOptions = {}) {
     this.view = view;
+    this._transformControlsFactory = options.transformControlsFactory;
     SectionPlanesController._instances.set(view, this);
 
     const viewer: Viewer = view.viewer;
@@ -235,6 +253,17 @@ export class SectionPlanesController {
   }
 
   clearSelection(): void { this.select(null); }
+
+  /** Selects the section plane represented by one of this controller's
+   *  proxy ViewObjects. Returns `true` when a plane was found. */
+  selectByProxyObjectId(objectId: string | null | undefined): boolean {
+    if (!objectId || !objectId.startsWith("__sp.obj.")) return false;
+    const planeId = objectId.slice("__sp.obj.".length);
+    const plane = this.list().find((p) => p.id === planeId);
+    if (!plane) return false;
+    this.select(plane);
+    return true;
+  }
 
   /** Toggle between translate and rotate gizmo handles. */
   setMode(mode: SectionPlanesEditMode): void {
@@ -375,9 +404,12 @@ export class SectionPlanesController {
    * matrix that the gizmo just installed on its own target).
    */
   private _applyGizmo(plane: SectionPlane, mode: SectionPlanesEditMode): void {
-    const tc = TransformControls.getFor(this.view) ?? new TransformControls({view: this.view});
+    const tc = this._openTransformControls();
     this._captureTransformControlsState(tc);
-    const baseAdapter = new SectionPlaneAdapter(plane);
+    // Present the gizmo's local +Z on the kept side of the plane.
+    // SectionPlane.dir still means "discarded side"; the adapter sign
+    // maps TransformControls' visual frame back to that core contract.
+    const baseAdapter = new SectionPlaneAdapter(plane, -1);
     const adapter = {
       getMatrix: () => baseAdapter.getMatrix(),
       setMatrix: (m: Float64Array | number[]) => {
@@ -399,6 +431,13 @@ export class SectionPlanesController {
     tc.setShowY(true);
     tc.setShowZ(true);
     tc.setMode(mode);
+    this.view.needsRender();
+  }
+
+  private _openTransformControls(): TransformControls {
+    return this._transformControlsFactory?.(this.view)
+      ?? TransformControls.getFor(this.view)
+      ?? TransformControls.openFor({view: this.view});
   }
 
   private _captureTransformControlsState(tc: TransformControls): void {

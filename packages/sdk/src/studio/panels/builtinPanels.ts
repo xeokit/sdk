@@ -332,7 +332,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
       if (!viewer || !scene || !data || !renderer) {
         ctx.studio.reportError(
           "[PanelRegistry/issuesPanel] Studio not fully initialised yet — " +
-          "Viewer/Scene/Data/WebGLRenderer must exist.",
+          "Viewer/Scene/Data/renderer must exist.",
         );
         return undefined;
       }

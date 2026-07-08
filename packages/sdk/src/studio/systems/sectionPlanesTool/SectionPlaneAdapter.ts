@@ -30,7 +30,10 @@ import type {SectionPlane} from "../../../viewing/viewer";
  */
 export class SectionPlaneAdapter {
 
-  constructor(public readonly plane: SectionPlane) {}
+  constructor(
+    public readonly plane: SectionPlane,
+    private readonly matrixNormalSign: 1 | -1 = 1,
+  ) {}
 
   /**
    * Build the plane's world matrix from its current `pos`/`dir`.
@@ -40,7 +43,10 @@ export class SectionPlaneAdapter {
    */
   getMatrix(): number[] {
     const out = new Array(16) as unknown as Mat4;
-    fillPlaneMatrix(this.plane.pos, this.plane.dir, out);
+    const dir = this.matrixNormalSign === 1
+      ? this.plane.dir
+      : ([-this.plane.dir[0], -this.plane.dir[1], -this.plane.dir[2]] as Vec3);
+    fillPlaneMatrix(this.plane.pos, dir, out);
     return Array.from(out);
   }
 
@@ -52,11 +58,17 @@ export class SectionPlaneAdapter {
   setMatrix(m: Float64Array | number[]): void {
     const previousPos: Vec3 = [this.plane.pos[0], this.plane.pos[1], this.plane.pos[2]];
     const previousDir = safeNormalizeVec3(this.plane.dir, [0, 0, -1]);
+    const previousMatrixDir: Vec3 = this.matrixNormalSign === 1
+      ? previousDir
+      : [-previousDir[0], -previousDir[1], -previousDir[2]];
     // Local +Z column (matrix elements [8, 9, 10]) — the plane's
     // new normal. Renormalise so accumulated drag drift doesn't
     // shrink/grow it.
     const dirRaw: Vec3 = [m[8], m[9], m[10]];
-    const dir = safeNormalizeVec3(dirRaw, previousDir);
+    const matrixDir = safeNormalizeVec3(dirRaw, previousMatrixDir);
+    const dir: Vec3 = this.matrixNormalSign === 1
+      ? matrixDir
+      : [-matrixDir[0], -matrixDir[1], -matrixDir[2]];
 
     // Translation column (matrix elements [12, 13, 14]). Only its
     // component along the plane normal changes the infinite clipping

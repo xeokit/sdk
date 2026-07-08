@@ -55,6 +55,7 @@ import {DistanceMeasurementsPanel} from "../distanceMeasurementsPanel/DistanceMe
 import {AngleMeasurementsPanel} from "../angleMeasurementsPanel/AngleMeasurementsPanel";
 import {TransformControls} from "../../../viewing/transformControls";
 import {SectionPlanesController} from "../../systems/sectionPlanesTool/SectionPlanesController";
+import {sectionPlaneDirFromPickedNormal} from "../../systems/sectionPlanesTool/sectionPlanePick";
 import {SectionPlanesPanel} from "../sectionPlanesPanel/SectionPlanesPanel";
 import {FirstPersonNavigationMode} from "../../../base/constants";
 import type {ViewController} from "../../../viewing/viewController";
@@ -1649,9 +1650,12 @@ export class Toolbar extends FloatingPanelBase {
     const view = this._activeView();
     if (!view || !this.studio) return;
 
-    const ctrl = SectionPlanesController.openFor(view);
+    const studio = this.studio;
+    const ctrl = SectionPlanesController.openFor(view, {
+      transformControlsFactory: (targetView) => studio.panels.open("transformControls", {view: targetView}),
+    });
     ctrl.setVisible(true);
-    this.studio.panels.open("sectionPlanesPanel", {view});
+    studio.panels.open("sectionPlanesPanel", {view});
 
     const canvas = view.htmlElement;
     const picker = this.studio.picking.picker;
@@ -1661,18 +1665,21 @@ export class Toolbar extends FloatingPanelBase {
       const result = picker.pick({
         view,
         canvasPos: [e.clientX - rect.left, e.clientY - rect.top],
+        pickSurfaceNormal: true,
       });
       if (!result.hit || !result.worldPos) return;
       // Skip clicks on TC / section-plane tool meshes so the user
       // can interact with existing UI without spawning a new
       // plane underneath it.
-      if (result.objectId && (result.objectId.startsWith("__tc.") || result.objectId.startsWith("__sp."))) return;
-      // Prefer the picked surface normal; fall back to camera-Z
-      // when the picker didn't return one.
-      const normal = result.worldNormal ?? [0, 0, 1];
+      if (result.objectId?.startsWith("__tc.")) return;
+      if (result.objectId?.startsWith("__sp.")) {
+        ctrl.selectByProxyObjectId(result.objectId);
+        return;
+      }
+      const dir = sectionPlaneDirFromPickedNormal(result.worldNormal, result.rayDir);
       ctrl.createSectionPlane(
         [result.worldPos[0], result.worldPos[1], result.worldPos[2]],
-        [normal[0], normal[1], normal[2]],
+        [dir[0], dir[1], dir[2]],
       );
     };
     canvas.addEventListener("pointerdown", handler, true);

@@ -3,7 +3,7 @@
  *
  * Mirrors the `*.events` shape of {@link model!scene.Scene | Scene},
  * {@link model!data.Data | Data}, {@link viewing!viewer.Viewer | Viewer},
- * and {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} —
+ * and the configured renderer backend —
  * a single class with one `EventEmitter` per channel, exposed as
  * `studio.events`. The Studio's `reportError` / `reportWarning`
  * helpers dispatch through `onError` / `onWarning` here; the

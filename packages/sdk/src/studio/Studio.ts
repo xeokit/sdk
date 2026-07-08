@@ -2,6 +2,7 @@ import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} fr
 import {Data, DataModel, type DataModelStats} from "../model/data";
 import {View, Viewer, ViewObject, type ViewParams} from "../viewing/viewer";
 import {type MemoryConfigs, type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
+import {WebGPURenderer, type WebGPURendererParams} from "../viewing/webGPURenderer";
 import type {RenderStats} from "../viewing/webGLRenderer/internal/inspectors";
 import type {Renderer} from "../viewing/renderer";
 import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../base/core";
@@ -62,12 +63,29 @@ function escapeHtmlForInfoPanel(s: string): string {
 /**
  * Configuration options for the Studio.
  */
+export type StudioRendererBackend = "webgl" | "webgpu";
+
 export interface StudioConfig {
 
   /**
    * Base directory for loading models, relative to the HTML page. Defaults to `"../../models"`.
    */
   modelsDir?: string;
+
+  /**
+   * Renderer backend to instantiate. Defaults to `"webgl"`.
+   *
+   * Use `"webgpu"` to create a {@link viewing!webGPURenderer.WebGPURenderer | WebGPURenderer}
+   * instead of the default {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}.
+   */
+  renderer?: StudioRendererBackend;
+
+  /**
+   * WebGPU renderer options used when {@link renderer} is `"webgpu"`.
+   *
+   * `viewer` is ignored because Studio owns Viewer creation and attachment.
+   */
+  webGPU?: Omit<WebGPURendererParams, "viewer">;
 
   /**
    * The maximum number of views to create. This is used to configure the WebGLRenderer's memory management,
@@ -87,7 +105,7 @@ export interface StudioConfig {
   makeComponents?: boolean;
 
   /**
-   * Whether to set up event loggers for the Scene, Data, Viewer, and WebGLRenderer. Defaults to `false`.
+   * Whether to set up event loggers for the Scene, Data, Viewer, and renderer. Defaults to `false`.
    * These loggers will log their output to the console, and do slow down the demo, so they should only
    * be enabled when needed for debugging.
    */
@@ -121,7 +139,8 @@ export interface StudioConfig {
 }
 
 /**
- * Helper class to set up a basic 3D demo with a Scene, Data, Viewer, WebGLRenderer, and View.
+ * Helper class to set up a basic 3D demo with a Scene, Data, Viewer,
+ * renderer, and View.
  *
  * See {@link studio | @xeokit/sdk/demo} for usage.
  */
@@ -285,6 +304,53 @@ export class Studio {
   }
 
   /**
+   * Create the configured renderer backend. WebGL is synchronous; WebGPU may
+   * need to request an adapter/device, so Studio keeps the factory async.
+   */
+  private async _createRenderer(cfg: StudioConfig): Promise<SDKResult<Renderer>> {
+    const backend = cfg.renderer ?? "webgl";
+
+    if (backend === "webgpu") {
+      const {viewer: _viewer, ...webGPUParams} = (cfg.webGPU ?? {}) as WebGPURendererParams;
+      const result = await WebGPURenderer.create(webGPUParams);
+      if (result.ok === false) {
+        return result;
+      }
+      return {
+        ok: true,
+        value: result.value
+      };
+    }
+
+    if (backend === "webgl") {
+      return {
+        ok: true,
+        value: new WebGLRenderer({
+          debugging: this.debug,
+          memoryConfigs: {
+            tileSize: 200,
+            maxTiles: 4096,
+            maxBatches: 1000,
+            maxBatchVertices: 500000,
+            maxBatchIndices: 800000,
+            maxBatchGeometries: 60000,
+            maxBatchMeshes: 20000,
+            maxBatchPrims: 400000,
+            ...(cfg.memoryConfigs || {}),
+            maxViews: this.viewManager.maxViews,
+          }
+        })
+      };
+    }
+
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: `[Studio.init] Unsupported renderer backend '${String(backend)}'. Expected 'webgl' or 'webgpu'.`
+    };
+  }
+
+  /**
    * Dispatch an error through this Studio's {@link StudioEvents.onError}
    * channel. The {@link panels!issuesPanel.IssuesPanel | IssuesPanel}
    * is the canonical subscriber — every dispatch lands as a row in
@@ -319,165 +385,157 @@ export class Studio {
   }
 
   /**
-   * Initializes the Studio by creating the Scene, Data, Viewer, WebGLRenderer, and optional initial View.
+   * Initializes the Studio by creating the Scene, Data, Viewer, configured
+   * renderer backend, and optional initial View.
    *
    * @param cfg Configuration options for initialization.
    * @returns A promise that resolves when initialization is complete.
    */
-  public init(cfg: StudioConfig = {}): Promise<any> {
+  public async init(cfg: StudioConfig = {}): Promise<any> {
 
     // Merge config from the constructor and from init() (init wins), so every
     // setting applies regardless of which entry point it was passed to.
     const merged: StudioConfig = {...this._config, ...cfg};
     this._applyConfig(merged);
 
-    return new Promise((resolve, reject) => {
+    this.stats.startTime = performance.now();
 
-      this.stats.startTime = performance.now();
+    if (!this.makeComponents) {
+      return {};
+    }
 
-      if (this.makeComponents) {
+    this.scene = new Scene();
+    this.data = new Data();
+    this.viewer = new Viewer();
 
-        this.scene = new Scene();
+    const rendererBackend = merged.renderer ?? "webgl";
 
-        this.data = new Data();
+    this.viewManager = new ViewManager({
+        viewer: this.viewer,
+        // PickingService is constructed in Studio's constructor;
+        // its lazy getters wait for scene/renderer to be set.
+        pickFn: (view, pickParams) => this.picking.pickForViewController(view, pickParams),
+      },
+      {
+        // Studio layers context-menu setup + IBL on top of the
+        // bare View record the manager produces.
+        onViewCreated: (view, record) => this._onViewCreated(view, record),
+      },
+      {
+        maxViews: merged.maxViews ?? 4,
+        autoElementType: rendererBackend === "webgpu" ? "canvas" : "image",
+      },
+    );
 
-        this.viewer = new Viewer();
+    const rendererResult = await this._createRenderer(merged);
+    if (rendererResult.ok === false) {
+      throw rendererResult.error;
+    }
+    this.renderer = rendererResult.value;
 
-        this.viewManager = new ViewManager({
-            viewer: this.viewer,
-            // PickingService is constructed in Studio's constructor;
-            // its lazy getters wait for scene/renderer to be set.
-            pickFn: (view, pickParams) => this.picking.pickForViewController(view, pickParams),
-          },
-          {
-            // Studio layers context-menu setup + IBL on top of the
-            // bare View record the manager produces.
-            onViewCreated: (view, record) => this._onViewCreated(view, record),
-          },
-          {maxViews: merged.maxViews ?? 4},
-        );
+    const log = (eventName: string, sender: any, args: any) => {
+      console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
+    };
 
-        const webGLRenderer = new WebGLRenderer({
-          debugging: this.debug,
-          memoryConfigs: {
-            tileSize: 200,
-            maxTiles: 4096,
-            maxBatches: 1000,
-            maxBatchVertices: 500000,
-            maxBatchIndices: 800000,
-            maxBatchGeometries: 60000,
-            maxBatchMeshes: 20000,
-            maxBatchPrims: 400000,
-            ...(merged.memoryConfigs || {}),
-            maxViews: this.viewManager.maxViews,
-          }
-        });
-        this.renderer = webGLRenderer;
+    if (merged.logging) {
+      new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
+      new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
+      new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
+      new EventsLogger(this.renderer.events, {prefix: `[${this.renderer.constructor.name}]`, log});
+    }
 
-        const log = (eventName: string, sender: any, args: any) => {
-          console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
-        };
+    const onError = (_, result: SDKResult<any>) => {
+      setInterval(() => {
+        window.postMessage({
+          type: "xeokit.Error",
+          payload: result
+        }, "*");
+      }, 1000);
+      const div = document.createElement("div");
+      div.id = "Error";
+      document.body.appendChild(div);
+    };
 
-        if (merged.logging) {
-          new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
-          new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
-          new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
-          new EventsLogger(webGLRenderer.events, {prefix: "[WebGLRenderer]", log});
-        }
+    this.scene.events.onError.subscribe(onError);
+    this.data.events.onError.subscribe(onError);
+    this.viewer.events.onError.subscribe(onError);
+    this.renderer.events.onError.subscribe(onError);
 
-        const onError = (_, result: SDKResult<any>) => {
-          setInterval(() => {
-            window.postMessage({
-              type: "xeokit.Error",
-              payload: result
-            }, "*");
-          }, 1000);
-          const div = document.createElement("div");
-          div.id = "Error";
-          document.body.appendChild(div);
-        };
+    // Pre-mount the IssuesPanel (hidden) so it begins
+    // capturing onError emissions before the user opens it
+    // via the context menu — and so the very first error
+    // can auto-show the panel even when nothing else has
+    // touched the helper. Idempotent: `getIssuesPanel`
+    // returns this same instance later.
+    try {
+      IssuesPanel.openFor({
+        viewer: this.viewer,
+        scene: this.scene,
+        data: this.data,
+        renderer: this.renderer,
+        studioEvents: this.events,
+        visible: false,
+      });
+    } catch (e: any) {
+      this.reportError(
+        `[Studio.init] Failed to mount IssuesPanel: ${e?.message ?? e}`,
+        SDKErrorType.InitializationFailed,
+      );
+    }
 
-        this.scene.events.onError.subscribe(onError);
-        this.data.events.onError.subscribe(onError);
-        this.viewer.events.onError.subscribe(onError);
-        this.renderer.events.onError.subscribe(onError);
+    this.viewer.attachScene(this.scene);
+    const attachResult = this.renderer.attachViewer(this.viewer);
+    if (attachResult.ok === false) {
+      throw attachResult.error;
+    }
 
-        // Pre-mount the IssuesPanel (hidden) so it begins
-        // capturing onError emissions before the user opens it
-        // via the context menu — and so the very first error
-        // can auto-show the panel even when nothing else has
-        // touched the helper. Idempotent: `getIssuesPanel`
-        // returns this same instance later.
-        try {
-          IssuesPanel.openFor({
-            viewer: this.viewer,
-            scene: this.scene,
-            data: this.data,
-            renderer: this.renderer,
-            studioEvents: this.events,
-            visible: false,
-          });
-        } catch (e: any) {
-          this.reportError(
-            `[Studio.init] Failed to mount IssuesPanel: ${e?.message ?? e}`,
-            SDKErrorType.InitializationFailed,
-          );
-        }
-
-        this.viewer.attachScene(this.scene);
-        this.renderer.attachViewer(this.viewer);
-
-        const renderInspectorResult = webGLRenderer.getRenderInspector();
-        if (renderInspectorResult.ok !== true) {
-          reject(renderInspectorResult.error);
-          return;
-        }
-        const renderInspector = renderInspectorResult.value;
-        renderInspector.enabled = true;
-
-        this._viewObjectContextMenu = new ViewObjectContextMenu({debug: this.debug});
-
-        this._canvasContextMenu = new CanvasContextMenu({debug: this.debug});
-
-        this._canvasContextMenu.on("hidden", () => {
-          taskRunner.unsuspend();
-        });
-
-        this._viewObjectContextMenu.on("hidden", () => {
-          taskRunner.unsuspend();
-        });
-
-        this._loadingSpinner = new LoadingSpinner({
-          autoHide: true,
-          autoHideDelayMs: 500
-        });
-
-        sdkProgress.addTask(); // Init
-
-        // @ts-ignore
-        window.studio = this;
-
-        // Auto-mount the Toolbar but start it HIDDEN — the only UI
-        // surface that's visible by default is the reopen pill in
-        // the bottom-right rail. This keeps the canvas unobstructed
-        // for embeds and screenshots while leaving the Measure
-        // cluster, NavCube, Views and other tool toggles one click
-        // away. Visibility default lives in `builtinPanels.ts` as
-        // `visible: false` on the toolbar provider's `create`.
-        try {
-          this.panels.open("toolbar");
-        } catch (e: any) {
-          this.reportError(
-            `[Studio.init] Failed to auto-mount Toolbar: ${e?.message ?? e}`,
-            SDKErrorType.InitializationFailed,
-          );
-        }
-
-        resolve({});
-      } else {
-        resolve({});
+    if (this.renderer instanceof WebGLRenderer) {
+      const renderInspectorResult = this.renderer.getRenderInspector();
+      if (renderInspectorResult.ok !== true) {
+        throw renderInspectorResult.error;
       }
+      const renderInspector = renderInspectorResult.value;
+      renderInspector.enabled = true;
+    }
+
+    this._viewObjectContextMenu = new ViewObjectContextMenu({debug: this.debug});
+    this._canvasContextMenu = new CanvasContextMenu({debug: this.debug});
+
+    this._canvasContextMenu.on("hidden", () => {
+      taskRunner.unsuspend();
     });
+
+    this._viewObjectContextMenu.on("hidden", () => {
+      taskRunner.unsuspend();
+    });
+
+    this._loadingSpinner = new LoadingSpinner({
+      autoHide: true,
+      autoHideDelayMs: 500
+    });
+
+    sdkProgress.addTask(); // Init
+
+    // @ts-ignore
+    window.studio = this;
+
+    // Auto-mount the Toolbar but start it HIDDEN — the only UI
+    // surface that's visible by default is the reopen pill in
+    // the bottom-right rail. This keeps the canvas unobstructed
+    // for embeds and screenshots while leaving the Measure
+    // cluster, NavCube, Views and other tool toggles one click
+    // away. Visibility default lives in `builtinPanels.ts` as
+    // `visible: false` on the toolbar provider's `create`.
+    try {
+      this.panels.open("toolbar");
+    } catch (e: any) {
+      this.reportError(
+        `[Studio.init] Failed to auto-mount Toolbar: ${e?.message ?? e}`,
+        SDKErrorType.InitializationFailed,
+      );
+    }
+
+    return {};
   }
 
   /**

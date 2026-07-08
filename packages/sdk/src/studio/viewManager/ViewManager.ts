@@ -63,11 +63,20 @@ export interface ViewManagerHooks {
   onViewDestroyed?(viewId: string): void;
 }
 
+export type AutoViewElementType = "image" | "canvas";
+
+type AutoViewElement = HTMLImageElement | HTMLCanvasElement;
+
+export interface ViewManagerOptions {
+  maxViews?: number;
+  autoElementType?: AutoViewElementType;
+}
+
 /**
  * Owns the lifecycle and DOM hosting of every View created through
  * Studio: the `views` registry, the auto-layout container for tiled
- * canvases, and the per-view {@link ViewPanel} hosting when callers
- * pass `floating: true`.
+ * renderer surfaces, and the per-view {@link ViewPanel} hosting when
+ * callers pass `floating: true`.
  *
  * The pre-extraction `createView` ran ~70 lines on Studio and pulled
  * in context-menu setup, HDR setup, CameraFlight construction,
@@ -92,8 +101,9 @@ export class ViewManager {
   public readonly maxViews: number;
 
   private _viewLayoutContainer: HTMLDivElement | null = null;
-  private _autoCanvasByViewId: { [viewId: string]: HTMLImageElement } = {};
+  private _autoCanvasByViewId: { [viewId: string]: AutoViewElement } = {};
   private _floatingPanelByViewId: { [viewId: string]: ViewPanel } = {};
+  private readonly _autoElementType: AutoViewElementType;
 
   /**
    * Whether each auto-created View is currently pinned into the
@@ -130,17 +140,18 @@ export class ViewManager {
   constructor(
     private readonly ctx: ViewManagerContext,
     private readonly hooks: ViewManagerHooks = {},
-    options: {maxViews?: number} = {},
+    options: ViewManagerOptions = {},
   ) {
     this.maxViews = options.maxViews ?? 4;
+    this._autoElementType = options.autoElementType ?? "image";
   }
 
   /**
    * Create a new View on the underlying Viewer.
    *
    * When `viewParams.elementId` and `viewParams.htmlElement` are
-   * omitted, the manager auto-creates a canvas element and either:
-   *  - lays it out snugly with other auto-created canvases inside the
+   * omitted, the manager auto-creates a renderer surface element and either:
+   *  - lays it out snugly with other auto-created surfaces inside the
    *    window (the default), or
    *  - wraps it in a floating {@link ViewPanel} when
    *    {@link StudioCreateViewParams.floating} is set.
@@ -170,12 +181,14 @@ export class ViewManager {
 
     const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);
 
-    let autoCreatedCanvas: HTMLImageElement | null = null;
+    let autoCreatedCanvas: AutoViewElement | null = null;
     let floatingPanel: ViewPanel | null = null;
     let viewId = resolvedViewParams.id;
 
     if (!hasExplicitElement) {
-      autoCreatedCanvas = document.createElement("img");
+      autoCreatedCanvas = this._autoElementType === "canvas"
+        ? document.createElement("canvas")
+        : document.createElement("img");
       autoCreatedCanvas.id = viewId ? `${viewId}-canvas` : `demohelper-canvas-${this.ctx.viewer.numViews}`;
       autoCreatedCanvas.style.display = "block";
       autoCreatedCanvas.style.width = "100%";
@@ -305,7 +318,7 @@ export class ViewManager {
     this.destroyView(record.view);
   }
 
-  /** Destroy a View created via {@link createView}; removes its canvas if auto-created. */
+  /** Destroy a View created via {@link createView}; removes its renderer surface if auto-created. */
   destroyView(view: View): void {
     const viewId = view.id;
 
@@ -465,7 +478,7 @@ export class ViewManager {
    * z-index, etc.) is then cancelled by the `.xkt-vp-panel.xkt-view-cell`
    * overrides in that same stylesheet.
    */
-  private _makePinnedCellWrapper(viewId: string, canvas: HTMLImageElement): HTMLDivElement {
+  private _makePinnedCellWrapper(viewId: string, canvas: AutoViewElement): HTMLDivElement {
     // The cell relies on the shared `.xkt-vp-panel` chrome rules.
     // When no floating ViewPanel has been constructed yet, the
     // ViewPanel constructor hasn't had a chance to inject those

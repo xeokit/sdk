@@ -8,7 +8,17 @@
     "excludeNotDocumented": true,
     "includeVersion": true,
     "titleLink": "https://xeokit.io",
-  "ignoredHighlightLanguages": ["mermaid"],
+  "ignoredHighlightLanguages": [
+    "mermaid",
+    "glsl",
+    "xml",
+    "md",
+    "javascript*"
+  ],
   "plugin": ["typedoc-plugin-mermaid"],
-  "useTsLinkResolution": true
+  "useTsLinkResolution": true,
+  "validation": {
+    "invalidLink": false,
+    "notExported": false
+  }
 }

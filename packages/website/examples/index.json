@@ -75,6 +75,23 @@
     ],
     "topic": "modeling.scene.object"
   },
+  "building_fromParams_table_webGPU": {
+    "id": "building_fromParams_table_webGPU",
+    "title": "WebGPU - Creating a 3D Model from JSON",
+    "description": "Builds the same table-shaped SceneModel as building_fromParams_table with SceneModel.fromParams(), then renders it through the experimental WebGPU renderer.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "tags": [
+      "WebGPU",
+      "Renderer"
+    ],
+    "categories": [
+      "Modeling",
+      "Scene",
+      "Renderer"
+    ],
+    "topic": "viewing.renderer.webgpu"
+  },
   "building_fromParams_triangle": {
     "id": "building_fromParams_triangle",
     "title": "Building and viewing a simple SceneModel, from JSON",
@@ -289,6 +306,24 @@
       "Objects"
     ],
     "topic": "modeling.scene.object"
+  },
+  "building_sceneModel_stressTest_webGPU": {
+    "id": "building_sceneModel_stressTest_webGPU",
+    "title": "WebGPU - Creating a 3D Model Stress Test",
+    "description": "Uses WebGPURenderer to stress dynamic SceneModel geometry, mesh, and object creation and deletion.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "tags": [
+      "WebGPU",
+      "Renderer",
+      "StressTest"
+    ],
+    "categories": [
+      "Modeling",
+      "Scene",
+      "Renderer"
+    ],
+    "topic": "viewing.renderer.webgpu"
   },
   "building_transforms_animatedPuzzle": {
     "id": "building_transforms_animatedPuzzle",
@@ -900,6 +935,28 @@
     ],
     "topic": "import.usdz"
   },
+  "formats_usdz_residentialBuilding_webGPU": {
+    "id": "formats_usdz_residentialBuilding_webGPU",
+    "title": "WebGPU - Loading a Pixar USDZ File",
+    "description": "Loads the ResidentialBuilding Pixar USDZ package with USDZLoader, then renders the resulting SceneModel through the experimental WebGPU renderer. This mirrors formats_usdz_residentialBuilding while using the WebGPU renderer composition instead of Studio/WebGL.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "snapshotTimeoutMs": 60000,
+    "tags": [
+      "USDZ",
+      "USD",
+      "Pixar",
+      "Importing",
+      "WebGPU",
+      "Renderer"
+    ],
+    "categories": [
+      "Importing",
+      "USDZ",
+      "Renderer"
+    ],
+    "topic": "viewing.renderer.webgpu"
+  },
   "formats_usdz_roundTrip": {
     "id": "formats_usdz_roundTrip",
     "title": "USDZ Round-Trip — Load, Export, Re-Import",
@@ -1428,6 +1485,22 @@
       "Renderer"
     ],
     "topic": "performance.gpuMemory"
+  },
+  "viewing_webGPU_triangle": {
+    "id": "viewing_webGPU_triangle",
+    "title": "WebGPU renderer triangle depth demo",
+    "description": "Runs the experimental WebGPU renderer directly with a minimal Scene, Viewer, one canvas View, and two indexed triangle meshes. The triangles overlap at different depths to exercise the current flat-color draw path and depth buffer.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "tags": [
+      "WebGPU",
+      "Renderer"
+    ],
+    "categories": [
+      "Viewing",
+      "Renderer"
+    ],
+    "topic": "viewing.renderer.webgpu"
   },
   "viewing_multiView_duplex": {
     "id": "viewing_multiView_duplex",

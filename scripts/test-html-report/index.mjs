@@ -1,9 +1,11 @@
 import { readFile, readdir, writeFile } from 'fs/promises';
+import { resolve } from 'path';
 import { parse } from 'node-html-parser';
 
 const source = './packages';
 const templateSource = './scripts/test-html-report/template.html';
-const destination = './test-report.html';
+const destination = './packages/website/test-report.html';
+const destinationPath = resolve(destination);
 
 const emptyCounts = () => ({
     suites: {total: 0, passed: 0, failed: 0, pending: 0},
@@ -286,7 +288,10 @@ const tocHtml = (packages, suites) => {
     const suiteSummaries = [];
 
     for (const folder of folders) {
-        const reportHtmlFile = await readFile(`${source}/${folder}/test-report.html`, 'utf8').catch(() => null);
+        const reportPath = `${source}/${folder}/test-report.html`;
+        const reportHtmlFile = resolve(reportPath) === destinationPath
+            ? null
+            : await readFile(reportPath, 'utf8').catch(() => null);
 
         if (!reportHtmlFile) {
             const counts = emptyCounts();

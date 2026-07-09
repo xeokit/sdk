@@ -14,13 +14,39 @@
         }
 
         body {
-            padding: 2rem 1rem;
+            background: #f7f8fa;
             font-size: 0.85rem;
+        }
+
+        .report-sidebar {
+            background: #fff;
+            border-right: 1px solid #ddd;
+            box-sizing: border-box;
+            bottom: 0;
+            left: 0;
+            overscroll-behavior: contain;
+            overflow: auto;
+            padding: 1rem;
+            position: fixed;
+            scroll-behavior: smooth;
+            top: 0;
+            width: 21rem;
+            z-index: 20;
+        }
+
+        .report-main {
+            box-sizing: border-box;
+            margin-left: 21rem;
+            min-width: 0;
+            padding: 1.25rem;
         }
 
         .jesthtml-content {
             margin: 0 auto;
             max-width: 70rem;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            padding: 1rem;
         }
 
         header {
@@ -40,6 +66,240 @@
         #timestamp {
             color: #777;
             margin-top: 0.5rem;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav a {
+            border-left: 0.25rem solid transparent;
+            color: #333;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+            line-height: 1.25;
+            padding: 0.35rem 0.45rem;
+            text-decoration: none;
+        }
+
+        nav a:hover {
+            background: #f2f4f7;
+        }
+
+        nav a.active {
+            background: #0f6c94;
+            box-shadow: inset 0 0 0 1px #0f6c94;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        nav a.active span {
+            color: #dff3ff;
+        }
+
+        nav a.active.slow span {
+            color: #ffe0e0;
+        }
+
+        nav a span {
+            color: #777;
+            flex: 0 0 auto;
+        }
+
+        nav a.passed {
+            border-left-color: #4f8a10;
+        }
+
+        nav a.failed {
+            border-left-color: #d8000c;
+        }
+
+        nav a.pending,
+        nav a.skipped {
+            border-left-color: #9f6000;
+        }
+
+        nav a.empty,
+        nav a.missing {
+            border-left-color: #999;
+        }
+
+        nav a.slow span {
+            color: #d8000c;
+        }
+
+        .toc-package {
+            margin-bottom: 0.8rem;
+        }
+
+        .toc-package>a {
+            font-weight: bold;
+        }
+
+        .toc-area {
+            margin: 0.4rem 0 0.4rem 0.4rem;
+        }
+
+        .toc-area>span {
+            color: #777;
+            display: block;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin: 0.35rem 0;
+            text-transform: uppercase;
+        }
+
+        .toc-area li {
+            margin-left: 0.5rem;
+        }
+
+        .toc-area a {
+            color: #555;
+            font-size: 0.78rem;
+            padding-left: 0.5rem;
+        }
+
+        .report-overview {
+            margin: 2rem 0;
+        }
+
+        .top-summary-bar {
+            align-items: stretch;
+            background: #fff;
+            border: 1px solid #ddd;
+            display: grid;
+            gap: 0.6rem;
+            grid-template-columns: repeat(3, minmax(7rem, 1fr)) minmax(14rem, 2fr);
+            margin: -1rem -1rem 1rem;
+            padding: 0.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .summary-chip {
+            background: #f2f4f7;
+            border-left: 0.35rem solid #999;
+            padding: 0.55rem 0.65rem;
+        }
+
+        .summary-chip strong {
+            display: block;
+            font-size: 1.25rem;
+        }
+
+        .summary-chip span {
+            color: #666;
+        }
+
+        .summary-chip.passed {
+            border-left-color: #4f8a10;
+        }
+
+        .summary-chip.failed {
+            border-left-color: #d8000c;
+        }
+
+        .summary-chip.skipped {
+            border-left-color: #9f6000;
+        }
+
+        .slow-suite-links {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .slow-suite-links strong {
+            margin-right: 0.25rem;
+        }
+
+        .slow-suite-links a {
+            background: #f7f8fa;
+            color: #333;
+            padding: 0.3rem 0.45rem;
+            text-decoration: none;
+        }
+
+        .slow-suite-links span {
+            color: #d8000c;
+        }
+
+        .report-generated {
+            color: #777;
+            margin: 1rem 0 0;
+        }
+
+        .report-controls {
+            align-items: center;
+            display: flex;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .filter-button {
+            background: #f2f4f7;
+            border: 1px solid #cfd6df;
+            color: #333;
+            cursor: pointer;
+            padding: 0.45rem 0.65rem;
+        }
+
+        .filter-button.active {
+            background: #0f6c94;
+            border-color: #0f6c94;
+            color: #fff;
+        }
+
+        #report-search {
+            border: 1px solid #cfd6df;
+            flex: 1 1 18rem;
+            min-width: 10rem;
+            padding: 0.48rem 0.6rem;
+        }
+
+        .package-summary {
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .package-summary th,
+        .package-summary td {
+            border-bottom: 1px solid #ddd;
+            padding: 0.65rem;
+            text-align: left;
+        }
+
+        .package-summary th {
+            background: #eee;
+        }
+
+        .package-summary tr.failed td {
+            background: #fff2f2;
+        }
+
+        .package-summary tr.pending td {
+            background: #fff8df;
+        }
+
+        .package-summary tr.missing td,
+        .package-summary tr.empty td {
+            color: #777;
+        }
+
+        .missing-report {
+            color: #777;
+            margin-bottom: 2rem;
         }
 
         /** SUMMARY */
@@ -107,8 +367,8 @@
         }
 
         .test-result {
-            padding: 1rem;
-            margin-bottom: 0.25rem;
+            padding: 0.45rem 0.65rem;
+            margin-bottom: 0.1rem;
         }
 
         .test-result:last-child {
@@ -131,7 +391,9 @@
         }
 
         .test-info {
+            align-items: center;
             display: flex;
+            gap: 0.75rem;
             justify-content: space-between;
         }
 
@@ -143,13 +405,13 @@
         }
 
         .test-title {
-            width: 40%;
+            width: 50%;
             text-align: left;
             font-style: italic;
         }
 
         .test-status {
-            width: 20%;
+            width: 12%;
             text-align: right;
         }
 
@@ -178,7 +440,8 @@
         }
 
         .suite-container {
-            margin-bottom: 2rem;
+            margin-bottom: 0.65rem;
+            scroll-margin-top: 6rem;
         }
 
         .suite-container>input[type="checkbox"] {
@@ -201,7 +464,7 @@
         }
 
         .suite-info {
-            padding: 1rem;
+            padding: 0.55rem 0.7rem;
             background-color: #eee;
             color: #777;
             display: flex;
@@ -218,7 +481,7 @@
             word-break: break-all;
             flex-grow: 1;
             font-family: monospace;
-            font-size: 1rem;
+            font-size: 0.82rem;
         }
 
         .suite-info .suite-time {
@@ -230,6 +493,54 @@
         .suite-info .suite-time.warn {
             background-color: #d8000c;
             color: #fff;
+        }
+
+        .suite-status-failed .suite-info {
+            border-left: 0.35rem solid #d8000c;
+        }
+
+        .suite-status-skipped .suite-info {
+            border-left: 0.35rem solid #9f6000;
+        }
+
+        .suite-slow .suite-info .suite-time {
+            background: #d8000c;
+            color: #fff;
+        }
+
+        .suite-container.selected-suite .suite-info {
+            background: #dff3ff;
+            box-shadow: inset 0 0 0 2px #0f6c94;
+            color: #123744;
+        }
+
+        .suite-container.selected-suite {
+            background: #f4fbff;
+            box-shadow: 0 0 0 2px #0f6c94;
+        }
+
+        .suite-container.selected-suite .suite-tests {
+            border-left: 0.35rem solid #0f6c94;
+            padding-left: 0.35rem;
+        }
+
+        .suite-container.selected-suite .test-result:not(.hidden) {
+            border-left: 0.25rem solid #8fc9e3;
+        }
+
+        .test-result.selected-test {
+            box-shadow: inset 0 0 0 2px #0f6c94;
+        }
+
+        .suite-container:target .suite-info {
+            background: #dff3ff;
+            box-shadow: inset 0 0 0 2px #0f6c94;
+            color: #123744;
+        }
+
+        .suite-container.hidden,
+        .test-result.hidden {
+            display: none;
         }
 
         .suite-info:before {
@@ -314,22 +625,248 @@
             background: none;
         }
 
-        ul li {
-            text-decoration: none;
-            color: blue;
+        h2[id] {
+            scroll-margin-top: 6rem;
+        }
+
+        @media only screen and (max-width: 900px) {
+            body {
+                display: block;
+            }
+
+            .report-sidebar {
+                border-bottom: 1px solid #ddd;
+                border-right: 0;
+                bottom: auto;
+                height: auto;
+                left: auto;
+                max-height: 18rem;
+                position: static;
+                width: auto;
+            }
+
+            .report-main {
+                margin-left: 0;
+                padding: 0.75rem;
+            }
+
+            .top-summary-bar {
+                grid-template-columns: 1fr;
+                position: static;
+            }
+
+            .report-controls {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .filter-buttons {
+                flex-wrap: wrap;
+            }
         }
     </style>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const buttons = Array.from(document.querySelectorAll('.filter-button'));
+            const search = document.querySelector('#report-search');
+            const sidebar = document.querySelector('.report-sidebar');
+            const main = document.querySelector('.report-main');
+            const tocLinks = Array.from(document.querySelectorAll('.report-sidebar a[href^="#"]'));
+            const suites = Array.from(document.querySelectorAll('.suite-container'));
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let activeFilter = 'all';
+            let activeSuite = null;
+            let activeTest = null;
+
+            const clearActiveLinks = () => {
+                for (const link of tocLinks) {
+                    link.classList.remove('active');
+                    link.removeAttribute('aria-current');
+                }
+            };
+
+            const revealSidebarLink = (link, behavior = 'smooth') => {
+                if (!sidebar || !link) {
+                    return;
+                }
+                const sidebarRect = sidebar.getBoundingClientRect();
+                const linkRect = link.getBoundingClientRect();
+                const topPadding = 48;
+                const bottomPadding = 48;
+
+                if (linkRect.top < sidebarRect.top + topPadding) {
+                    sidebar.scrollBy({
+                        top: linkRect.top - sidebarRect.top - topPadding,
+                        behavior: reducedMotion ? 'auto' : behavior,
+                    });
+                } else if (linkRect.bottom > sidebarRect.bottom - bottomPadding) {
+                    sidebar.scrollBy({
+                        top: linkRect.bottom - sidebarRect.bottom + bottomPadding,
+                        behavior: reducedMotion ? 'auto' : behavior,
+                    });
+                }
+            };
+
+            const setActiveTarget = (id, options = {}) => {
+                const target = id ? document.getElementById(id) : null;
+                if (!target) {
+                    return;
+                }
+
+                clearActiveLinks();
+                const link = document.querySelector(`.report-sidebar a[href="#${CSS.escape(id)}"]`);
+                if (link) {
+                    link.classList.add('active');
+                    link.setAttribute('aria-current', 'true');
+                    if (options.revealSidebar) {
+                        revealSidebarLink(link, options.behavior);
+                    }
+                }
+
+                if (activeSuite && activeSuite !== target) {
+                    activeSuite.classList.remove('selected-suite');
+                }
+                if (activeTest) {
+                    activeTest.classList.remove('selected-test');
+                    activeTest = null;
+                }
+                if (target.classList.contains('suite-container')) {
+                    activeSuite = target;
+                    activeSuite.classList.add('selected-suite');
+                    const toggle = options.expandSuite
+                        ? activeSuite.querySelector('input[type="checkbox"]')
+                        : null;
+                    if (toggle) {
+                        toggle.checked = true;
+                    }
+                }
+            };
+
+            const stopSidebarScrollChaining = (event) => {
+                if (!sidebar) {
+                    return;
+                }
+                const deltaY = event.deltaY || 0;
+                const scrollingUp = deltaY < 0;
+                const scrollingDown = deltaY > 0;
+                const atTop = sidebar.scrollTop <= 0;
+                const atBottom = Math.ceil(sidebar.scrollTop + sidebar.clientHeight) >= sidebar.scrollHeight;
+
+                event.stopPropagation();
+                if ((scrollingUp && atTop) || (scrollingDown && atBottom)) {
+                    event.preventDefault();
+                }
+            };
+
+            const suiteMatchesFilter = (suite) => {
+                if (activeFilter === 'all') {
+                    return true;
+                }
+                if (activeFilter === 'slow') {
+                    return suite.dataset.slow === 'true';
+                }
+                return suite.dataset.status === activeFilter;
+            };
+
+            const applyFilters = () => {
+                const query = (search?.value || '').trim().toLowerCase();
+
+                for (const suite of suites) {
+                    const tests = Array.from(suite.querySelectorAll('.test-result'));
+                    const suiteHeaderMatches = !query || (suite.dataset.suiteSearch || '').includes(query);
+                    let visibleTests = 0;
+
+                    for (const test of tests) {
+                        const testMatchesFilter = activeFilter === 'all'
+                            || (activeFilter === 'slow' ? suite.dataset.slow === 'true' : test.dataset.status === activeFilter);
+                        const testMatchesSearch = !query || suiteHeaderMatches || (test.dataset.search || '').includes(query);
+                        const visible = testMatchesFilter && testMatchesSearch;
+                        test.classList.toggle('hidden', !visible);
+                        if (visible) {
+                            visibleTests++;
+                        }
+                    }
+
+                    const suiteContainsQuery = !query || (suite.dataset.search || '').includes(query);
+                    const showSuite = suiteMatchesFilter(suite) && suiteContainsQuery && (visibleTests > 0 || tests.length === 0);
+                    suite.classList.toggle('hidden', !showSuite);
+                    if (!showSuite && suite === activeSuite) {
+                        suite.classList.remove('selected-suite');
+                        activeSuite = null;
+                    }
+
+                    if (query && showSuite) {
+                        const toggle = suite.querySelector('input[type="checkbox"]');
+                        if (toggle) {
+                            toggle.checked = true;
+                        }
+                    }
+                }
+            };
+
+            for (const button of buttons) {
+                button.addEventListener('click', () => {
+                    activeFilter = button.dataset.filter || 'all';
+                    for (const item of buttons) {
+                        item.classList.toggle('active', item === button);
+                    }
+                    applyFilters();
+                });
+            }
+
+            search?.addEventListener('input', applyFilters);
+
+            sidebar?.addEventListener('wheel', stopSidebarScrollChaining, {passive: false});
+
+            sidebar?.addEventListener('click', (event) => {
+                const link = event.target.closest('a[href^="#"]');
+                if (!link) {
+                    return;
+                }
+                const id = decodeURIComponent(link.getAttribute('href').slice(1));
+                setActiveTarget(id, {revealSidebar: false, expandSuite: true});
+            });
+
+            main?.addEventListener('click', (event) => {
+                const reportLink = event.target.closest('a[href^="#"]');
+                if (reportLink) {
+                    const id = decodeURIComponent(reportLink.getAttribute('href').slice(1));
+                    setActiveTarget(id, {revealSidebar: true, expandSuite: true});
+                    return;
+                }
+
+                const suite = event.target.closest('.suite-container');
+                if (!suite?.id) {
+                    return;
+                }
+                setActiveTarget(suite.id, {revealSidebar: true});
+                const test = event.target.closest('.test-result');
+                if (test) {
+                    activeTest = test;
+                    activeTest.classList.add('selected-test');
+                }
+            });
+
+            if (location.hash) {
+                setActiveTarget(decodeURIComponent(location.hash.slice(1)), {revealSidebar: true, behavior: 'auto', expandSuite: true});
+            }
+        });
+    </script>
 </head>
 
 <body>
-    <div class="jesthtml-content">
-        <header>
-            <h1>@xeokit/sdk Summary Test Report</h1>
-        </header>
+    <aside class="report-sidebar">
         <nav>
             <ul></ul>
         </nav>
-    </div>
+    </aside>
+    <main class="report-main">
+        <div class="jesthtml-content">
+            <header>
+                <h1>@xeokit/sdk Summary Test Report</h1>
+            </header>
+        </div>
+    </main>
 </body>
 
 </html>

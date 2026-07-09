@@ -16,6 +16,7 @@
         "lint:fix": "eslint --fix .",
         "sdk-dist": "pnpm --filter @xeokit/sdk sdk-dist",
         "__sdk-test": "pnpm --filter @xeokit/sdk sdk-test || node scripts/test-html-report/index.mjs",
+        "sdk-test:report": "pnpm --filter @xeokit/sdk sdk-test; status=$?; node scripts/test-html-report/index.mjs; exit $status",
         "sdk-publish": "pnpm --filter @xeokit/sdk sdk-publish",
         "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && pnpm --filter @xeokit/sdk website-sdk-docs && (cd packages/sdk && typedoc --entryPointStrategy merge \"../website/docs/json/*.json\" --tsconfig ../../tsconfig.typedoc.json --out ../website/docs/api)",
         "website-build-xeokit-lib": "pnpm --filter @xeokit/website website-build-xeokit-lib",

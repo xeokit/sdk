@@ -9,23 +9,52 @@
 
     <title>xeokit - 3D Web Programming Toolkit for BIM and Engineering Visualization</title>
 
-    <link href="@@base/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="@@base/css/business-frontpage.css" rel="stylesheet">
+    <link href="../libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/business-frontpage.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css?family=Rubik" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-    <script src="@@base/libs/jquery/jquery.min.js"></script>
-    <script src="@@base/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../libs/jquery/jquery.min.js"></script>
+    <script src="../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <title></title>
-    <link href='@@base/css/index.css' rel='stylesheet' type='text/css'>
+    <link href="../css/index.css" rel="stylesheet" type="text/css">
+    <style>
+        .models-index-toggle {
+            position: fixed;
+            top: 76px;
+            left: 16px;
+            z-index: 200000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            background: rgba(33, 37, 41, 0.95);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .models-index-toggle:hover {
+            background: rgba(52, 58, 64, 0.98);
+            color: #fff;
+        }
+
+        #index_toggle:checked + .models-index-toggle {
+            left: 450px;
+            z-index: 200000;
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
-    <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent" href="@@base">@xeokit/sdk</a>/<a class="navbar-brand" href="@@base/models/index.html">Models</a></span>
+    <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent" href="../index.html">@xeokit/sdk</a>/<a class="navbar-brand" href="./index.html">Models</a></span>
     @@include('./navbar-pulldown.html', {
-        root: "@@base"
+        root: ".."
     });
 </nav>
 <section id="intro" class="full-width-section" style="max-width:100%; height:100vh">
@@ -33,9 +62,9 @@
         <div class="row" style="max-width:100%; height:100vh; margin: 0;">
             <div class="col-lg-12 h-100" style="padding-left: 0; padding-right: 0;  height:100vh">
                 <input type="checkbox" id="index_toggle"/>
-                <label for="index_toggle" class="index-button"><i class="fas fa-2x fa-bars"></i></label>
+                <label for="index_toggle" class="index-button models-index-toggle" title="Models index"><i class="fa fa-bars fa-2x" aria-hidden="true"></i></label>
                 <div class="page-title" id="page-title"></div>
-                <div class="viewSourceButton" id="viewSourceButton"><i class="fas fa-2x fa-code"></i></div>
+                <div class="viewSourceButton" id="viewSourceButton"><i class="fa fa-code fa-2x" aria-hidden="true"></i></div>
                 <div class="content-overlay" id="viewer-overlay"></div>
                 <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:100vh">
                 <iframe class="embed-responsive-item " style=" height:100vh; background-color: lightgray;" id="viewer" src="./../examples/default.html"></iframe>
@@ -48,21 +77,16 @@
     </div>
 </section>
 @@include('./footer.html', {
-    root: "@@base"
+    root: ".."
 });
 
 <script type="module">
-    import {buildViewModelsMenu} from "@@base/js/buildViewModelsMenu.js";
+    import {buildModelsMenu} from "./buildModelsMenu.js";
 
-    fetch("./models.json").then(response => {
-        response.json().then(models => {
-            fetch("./pipelines.json").then(response => {
-                response.json().then(pipelines => {
-                    buildViewModelsMenu({
-                        models,
-                        pipelines
-                    });
-                });
+    fetch("./index.json").then(response => {
+        response.json().then(modelsIndex => {
+            buildModelsMenu({
+                modelsIndex
             });
         });
     }).catch(errMsg => {

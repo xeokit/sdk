@@ -186,10 +186,17 @@ function compileExamples() {
                 isVisualTest: !!exampleInfo.isVisualTest,
                 tags: exampleInfo.tags || [],
                 categories: exampleInfo.categories || [],
+                category: exampleInfo.category || (exampleInfo.categories && exampleInfo.categories[0]) || "General",
                 topic: exampleInfo.topic || "general"
               };
               if (exampleInfo.template) {
                 trimmedExampleInfo.template = exampleInfo.template;
+              }
+              if (exampleInfo.isFeatured) {
+                trimmedExampleInfo.isFeatured = true;
+              }
+              if (exampleInfo.isShowcased) {
+                trimmedExampleInfo.isShowcased = true;
               }
               fs.writeFileSync(indexJSONPath, JSON.stringify(trimmedExampleInfo, null, 2));
 
@@ -774,5 +781,3 @@ compileExamples();
 setTimeout(() => {
   compileArticles();
 }, 5000)
-
-

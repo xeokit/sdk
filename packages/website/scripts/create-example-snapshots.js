@@ -156,9 +156,26 @@ function raceWithTimeout(promise, ms, fallback) {
  */
 async function captureExample(page, dir, timeoutMs) {
   await page.waitForFunction(
-    () => !!document.querySelector("#ExampleLoaded"),
+    () => {
+      if (!document.querySelector("#ExampleLoaded")) return false;
+
+      const isVisible = (el) => {
+        const style = window.getComputedStyle(el);
+        if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) {
+          return false;
+        }
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      };
+
+      return ![
+        ...document.querySelectorAll(".xeokit-loading-overlay, .xkt-lpd-dialog"),
+      ].some(isVisible);
+    },
     { timeout: timeoutMs },
   );
+
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 
   await page.screenshot({
     path: path.join(dir, "index.png"),

@@ -1,0 +1,346 @@
+{
+  "generatedAt": "2026-07-04T08:08:25.779Z",
+  "tool": "../../sdk/dist/xeoconvert/xeoconvert.js",
+  "totals": {
+    "models": 25,
+    "converted": 25,
+    "skipped": 5,
+    "failed": 0,
+    "bytesAfter": 159495540
+  },
+  "converted": [
+    {
+      "model": "3DPreview",
+      "source": "3DPreview/threedxml/model.3dxml",
+      "output": "3DPreview/xgf/model.xgf",
+      "report": "3DPreview/xgf/model.report.json",
+      "conversionReport": "3DPreview/xgf/model.conversion.json",
+      "bytesAfter": 148676,
+      "geometries": 47,
+      "fixed": 44,
+      "skipped": 84,
+      "fixErrors": 0
+    },
+    {
+      "model": "BlenderHouse",
+      "source": "BlenderHouse/dotbim/model.bim",
+      "output": "BlenderHouse/xgf/model.xgf",
+      "report": "BlenderHouse/xgf/model.report.json",
+      "conversionReport": "BlenderHouse/xgf/model.conversion.json",
+      "bytesAfter": 312084,
+      "geometries": 73,
+      "fixed": 0,
+      "skipped": 0,
+      "fixErrors": 0
+    },
+    {
+      "model": "Box",
+      "source": "Box/scenemodel/model.json",
+      "output": "Box/xgf/model.xgf",
+      "report": "Box/xgf/model.report.json",
+      "conversionReport": "Box/xgf/model.conversion.json",
+      "bytesAfter": 844,
+      "geometries": 1,
+      "fixed": 1,
+      "skipped": 0,
+      "fixErrors": 0
+    },
+    {
+      "model": "DamagedHelmet",
+      "source": "DamagedHelmet/gltf/model.glb",
+      "output": "DamagedHelmet/xgf/model.xgf",
+      "report": "DamagedHelmet/xgf/model.report.json",
+      "conversionReport": "DamagedHelmet/xgf/model.conversion.json",
+      "bytesAfter": 9012468,
+      "geometries": 1,
+      "fixed": 1,
+      "skipped": 0,
+      "fixErrors": 0
+    },
+    {
+      "model": "Duplex",
+      "source": "Duplex/ifc/model.ifc",
+      "output": "Duplex/xgf/model.xgf",
+      "report": "Duplex/xgf/model.report.json",
+      "conversionReport": "Duplex/xgf/model.conversion.json",
+      "bytesAfter": 401048,
+      "geometries": 346,
+      "fixed": 488,
+      "skipped": 557,
+      "fixErrors": 0
+    },
+    {
+      "model": "E3D_Plant",
+      "source": "E3D_Plant/fbx/model.fbx",
+      "output": "E3D_Plant/xgf/model.xgf",
+      "report": "E3D_Plant/xgf/model.report.json",
+      "conversionReport": "E3D_Plant/xgf/model.conversion.json",
+      "bytesAfter": 18482008,
+      "geometries": 1609,
+      "fixed": 2357,
+      "skipped": 3408,
+      "fixErrors": 0
+    },
+    {
+      "model": "EmptyCarpark",
+      "source": "EmptyCarpark/e57/model.e57",
+      "output": "EmptyCarpark/xgf/model.xgf",
+      "report": "EmptyCarpark/xgf/model.report.json",
+      "conversionReport": "EmptyCarpark/xgf/model.conversion.json",
+      "bytesAfter": 1553124,
+      "geometries": 8,
+      "fixed": 0,
+      "skipped": 0,
+      "fixErrors": 0
+    },
+    {
+      "model": "FM_LFT",
+      "source": "FM_LFT/ifc/model.ifc",
+      "output": "FM_LFT/xgf/model.xgf",
+      "report": "FM_LFT/xgf/model.report.json",
+      "conversionReport": "FM_LFT/xgf/model.conversion.json",
+      "bytesAfter": 4717196,
+      "geometries": 2398,
+      "fixed": 1619,
+      "skipped": 7182,
+      "fixErrors": 0
+    },
+    {
+      "model": "Ferry",
+      "source": "Ferry/gltf/model.glb",
+      "output": "Ferry/xgf/model.xgf",
+      "report": "Ferry/xgf/model.report.json",
+      "conversionReport": "Ferry/xgf/model.conversion.json",
+      "bytesAfter": 5100384,
+      "geometries": 425,
+      "fixed": 291,
+      "skipped": 313,
+      "fixErrors": 0
+    },
+    {
+      "model": "Geometries",
+      "source": "Geometries/scenemodel/model.json",
+      "output": "Geometries/xgf/model.xgf",
+      "report": "Geometries/xgf/model.report.json",
+      "conversionReport": "Geometries/xgf/model.conversion.json",
+      "bytesAfter": 176828,
+      "geometries": 8,
+      "fixed": 6,
+      "skipped": 2,
+      "fixErrors": 0
+    },
+    {
+      "model": "HousePlan",
+      "source": "HousePlan/gltf/model.glb",
+      "output": "HousePlan/xgf/model.xgf",
+      "report": "HousePlan/xgf/model.report.json",
+      "conversionReport": "HousePlan/xgf/model.conversion.json",
+      "bytesAfter": 18502044,
+      "geometries": 390,
+      "fixed": 175,
+      "skipped": 87,
+      "fixErrors": 0
+    },
+    {
+      "model": "Ifc4_SampleHouse",
+      "source": "Ifc4_SampleHouse/ifc/model.ifc",
+      "output": "Ifc4_SampleHouse/xgf/model.xgf",
+      "report": "Ifc4_SampleHouse/xgf/model.report.json",
+      "conversionReport": "Ifc4_SampleHouse/xgf/model.conversion.json",
+      "bytesAfter": 624124,
+      "geometries": 243,
+      "fixed": 177,
+      "skipped": 318,
+      "fixErrors": 0
+    },
+    {
+      "model": "IfcOpenHouse2x3",
+      "source": "IfcOpenHouse2x3/ifc/model.ifc",
+      "output": "IfcOpenHouse2x3/xgf/model.xgf",
+      "report": "IfcOpenHouse2x3/xgf/model.report.json",
+      "conversionReport": "IfcOpenHouse2x3/xgf/model.conversion.json",
+      "bytesAfter": 23016,
+      "geometries": 14,
+      "fixed": 23,
+      "skipped": 24,
+      "fixErrors": 0
+    },
+    {
+      "model": "IfcOpenHouse4",
+      "source": "IfcOpenHouse4/ifc/model.ifc",
+      "output": "IfcOpenHouse4/xgf/model.xgf",
+      "report": "IfcOpenHouse4/xgf/model.report.json",
+      "conversionReport": "IfcOpenHouse4/xgf/model.conversion.json",
+      "bytesAfter": 43292,
+      "geometries": 28,
+      "fixed": 22,
+      "skipped": 66,
+      "fixErrors": 0
+    },
+    {
+      "model": "LoD3_Railway",
+      "source": "LoD3_Railway/cityjson/model.json",
+      "output": "LoD3_Railway/xgf/model.xgf",
+      "report": "LoD3_Railway/xgf/model.report.json",
+      "conversionReport": "LoD3_Railway/xgf/model.conversion.json",
+      "bytesAfter": 6418072,
+      "geometries": 30426,
+      "fixed": 9803,
+      "skipped": 19731,
+      "fixErrors": 0
+    },
+    {
+      "model": "MAP",
+      "source": "MAP/ifc/model.ifc",
+      "output": "MAP/xgf/model.xgf",
+      "report": "MAP/xgf/model.report.json",
+      "conversionReport": "MAP/xgf/model.conversion.json",
+      "bytesAfter": 3189108,
+      "geometries": 1712,
+      "fixed": 2591,
+      "skipped": 5804,
+      "fixErrors": 0
+    },
+    {
+      "model": "Nalls-Pumpkin-Hill",
+      "source": "Nalls-Pumpkin-Hill/laz/model.laz",
+      "output": "Nalls-Pumpkin-Hill/xgf/model.xgf",
+      "report": "Nalls-Pumpkin-Hill/xgf/model.report.json",
+      "conversionReport": "Nalls-Pumpkin-Hill/xgf/model.conversion.json",
+      "bytesAfter": 16961036,
+      "geometries": 85,
+      "fixed": 0,
+      "skipped": 0,
+      "fixErrors": 0
+    },
+    {
+      "model": "NikeShoe",
+      "source": "NikeShoe/splat/model.splat",
+      "output": "NikeShoe/xgf/model.xgf",
+      "report": "NikeShoe/xgf/model.report.json",
+      "conversionReport": "NikeShoe/xgf/model.conversion.json",
+      "bytesAfter": 7033324,
+      "geometries": 1,
+      "fixed": 0,
+      "skipped": 1,
+      "fixErrors": 0
+    },
+    {
+      "model": "OTCConferenceCenter",
+      "source": "OTCConferenceCenter/ifc/model.ifc",
+      "output": "OTCConferenceCenter/xgf/model.xgf",
+      "report": "OTCConferenceCenter/xgf/model.report.json",
+      "conversionReport": "OTCConferenceCenter/xgf/model.conversion.json",
+      "bytesAfter": 10210764,
+      "geometries": 2696,
+      "fixed": 3669,
+      "skipped": 14140,
+      "fixErrors": 0
+    },
+    {
+      "model": "ResidentialBuilding",
+      "source": "ResidentialBuilding/gltf/model.glb",
+      "output": "ResidentialBuilding/xgf/model.xgf",
+      "report": "ResidentialBuilding/xgf/model.report.json",
+      "conversionReport": "ResidentialBuilding/xgf/model.conversion.json",
+      "bytesAfter": 4976432,
+      "geometries": 211,
+      "fixed": 132,
+      "skipped": 145,
+      "fixErrors": 0
+    },
+    {
+      "model": "SampleApartment",
+      "source": "SampleApartment/gltf/model.glb",
+      "output": "SampleApartment/xgf/model.xgf",
+      "report": "SampleApartment/xgf/model.report.json",
+      "conversionReport": "SampleApartment/xgf/model.conversion.json",
+      "bytesAfter": 13531652,
+      "geometries": 2,
+      "fixed": 1,
+      "skipped": 4,
+      "fixErrors": 0
+    },
+    {
+      "model": "SportsCar",
+      "source": "SportsCar/ifc/model.ifc",
+      "output": "SportsCar/xgf/model.xgf",
+      "report": "SportsCar/xgf/model.report.json",
+      "conversionReport": "SportsCar/xgf/model.conversion.json",
+      "bytesAfter": 5962016,
+      "geometries": 868,
+      "fixed": 919,
+      "skipped": 297,
+      "fixErrors": 0
+    },
+    {
+      "model": "Table",
+      "source": "Table/scenemodel/model.json",
+      "output": "Table/xgf/model.xgf",
+      "report": "Table/xgf/model.report.json",
+      "conversionReport": "Table/xgf/model.conversion.json",
+      "bytesAfter": 1476,
+      "geometries": 1,
+      "fixed": 1,
+      "skipped": 0,
+      "fixErrors": 0,
+      "fellThrough": [
+        {
+          "source": "Table/obj/model.obj",
+          "reason": "Failed to load file data: Error: [OBJLoader] Failed to parse OBJ file: Failed to create mesh for object 'redLeg'"
+        },
+        {
+          "source": "Table/usdz/model.usdz",
+          "reason": "Failed to load file data: Error: [USDZLoader] requires a browser environment — the tinyusdz wasm is web-only and not available under Node (CLI / headless)."
+        }
+      ]
+    },
+    {
+      "model": "Train",
+      "source": "Train/splat/model.splat",
+      "output": "Train/xgf/model.xgf",
+      "report": "Train/xgf/model.report.json",
+      "conversionReport": "Train/xgf/model.conversion.json",
+      "bytesAfter": 26689764,
+      "geometries": 1,
+      "fixed": 0,
+      "skipped": 2,
+      "fixErrors": 0
+    },
+    {
+      "model": "XKTModel",
+      "source": "XKTModel/xkt/model.xkt",
+      "output": "XKTModel/xgf/model.xgf",
+      "report": "XKTModel/xgf/model.report.json",
+      "conversionReport": "XKTModel/xgf/model.conversion.json",
+      "bytesAfter": 5424760,
+      "geometries": 823,
+      "fixed": 365,
+      "skipped": 125,
+      "fixErrors": 0
+    }
+  ],
+  "skipped": [
+    {
+      "model": "ArchDrawing",
+      "reason": "no convertible source format"
+    },
+    {
+      "model": "BuildingSite",
+      "reason": "no convertible source format"
+    },
+    {
+      "model": "FloorPlan",
+      "reason": "no convertible source format"
+    },
+    {
+      "model": "SparseImplicitQuadtree",
+      "reason": "no convertible source format"
+    },
+    {
+      "model": "Tiles3D",
+      "reason": "no convertible source format"
+    }
+  ],
+  "failed": []
+}

@@ -1,7 +1,7 @@
 {
   "id": "formats_dotbim_blenderHouse",
-  "title": "Viewing DotBIM using DotBIMLoader",
-  "description": "How to load a dotbim (.bim) model directly into a xeokit web viewer.",
+  "title": "Viewing a DotBIM Model",
+  "description": "Loads a dotbim house model with DotBIMLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
@@ -12,5 +12,6 @@
     "Importing",
     "DotBIM"
   ],
+  "category": "Importing Models",
   "topic": "import.dotbim"
 }

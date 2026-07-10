@@ -28,6 +28,8 @@ studio.init().then(async () => {
     }
   });
 
+  await studio.openInfoPanelFromMeta();
+
   const status = document.getElementById("status");
   const setStatus = (text) => { if (status) status.textContent = text; };
 

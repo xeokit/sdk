@@ -19,6 +19,12 @@ studio.init().then(() => {
   // to frame the model after loading, and the perspective far plane is
   // extended to accommodate large point cloud extents.
   const view = studio.viewManager.createView({
+    backgroundColor: [1, 1, 1],
+    effects: {
+      sky: {
+        enabled: false
+      }
+    },
     camera: {
       eye: [-11.88, 39.43, 12.95],
       look: [2.34, 20.84, 1.71],
@@ -42,6 +48,9 @@ studio.init().then(() => {
       maxIntensity: 100
     }
   });
+
+  xeokit.viewing.adaptiveQuality.AdaptiveQuality.getFor(view)?.destroy();
+  view.renderMode = xeokit.base.constants.DetailedRender;
 
   // Create a SceneModel to hold renderable model content. Geometry and
   // appearance data loaded from the LAZ file will be stored in this model.

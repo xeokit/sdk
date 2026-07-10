@@ -9,5 +9,6 @@
     "Rendering",
     "Materials"
   ],
+  "category": "Rendering",
   "topic": "rendering.shaderVariants"
 }

@@ -1,9 +1,10 @@
 {
   "id": "building_doublePrecision_archipelago",
-  "title": "Procedural Archipelago — Double-Precision Coordinates",
-  "description": "An archipelago of 54 rocky islands spread across a 56 km expanse of ocean, geo-located at real-world UTM Zone 32N coordinates (~267 km easting, 6.55 million metres northing — off the Norwegian coast, ~50 km west of Stavanger). Three buildings inhabit the scene: a Duplex on the central island, an IfcOpenHouse4 on the far NW island, and a Ferry afloat ~12 km southeast. xeokit holds every world coordinate as a true double-precision value while keeping per-vertex geometry float32-safe, resolving the two at render time so the camera can orbit a window mullion at sub-millimetre precision inside a scene the size of a small archipelago.",
+  "title": "Huge Scene with Double-Precision Coordinates",
+  "description": "An archipelago of 54 rocky islands spread across a 56 km expanse of ocean, geo-located at real-world UTM Zone 32N coordinates (~267 km easting, 6.55 million metres northing — off the Norwegian coast, ~50 km west of Stavanger). Three buildings inhabit the scene: a Duplex on the central island, an IfcOpenHouse4 on the far NW island, and a Ferry afloat ~12 km southeast.",
   "isTutorial": false,
   "isVisualTest": false,
+  "isFeatured": true,
   "tags": [
     "Featured"
   ],
@@ -12,5 +13,6 @@
     "Scene",
     "Geometry"
   ],
+  "category": "Modeling",
   "topic": "modeling.scene.geometry"
 }

@@ -20,5 +20,6 @@
     "Effects",
     "Renderer"
   ],
+  "category": "Importing Models",
   "topic": "import.gltf"
 }

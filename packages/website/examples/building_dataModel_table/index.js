@@ -20,9 +20,11 @@ studio
         // frame. This provides a stable initial viewpoint for the sample.
         studio.viewManager.createView({
             camera: {
-                eye: [-0.00, -21.66, -5.75],
-                look: [-0.00, -0.00, -5.75],
-                up: [0, 0, 1]
+                projection: "perspective",
+                far: 1000000,
+                eye:  [14, -14, 10],
+                look: [0,  0,   3],
+                up:   [0,  0,   1]
             },
         });
 
@@ -178,8 +180,8 @@ studio
             coordinateSystem: {
                 basis: [
                     1, 0, 0,
-                    0, 1, 0,
-                    0, 0, 1
+                    0, 0, 1,
+                    0, 1, 0
                 ],
                 origin: [0, 0, 0],
                 units: "meters"
@@ -223,7 +225,7 @@ studio
                 geometryId: "demoBoxGeometry",
                 matrix: xeokit.model.scene.buildMat4({
                     position,
-                    scale: [1, 3, 1],
+                    scale: [1, 1, 3],
                 }),
                 color,
             });
@@ -236,25 +238,25 @@ studio
 
         createLeg({
             id: "redLeg",
-            position: [-4, -6, -4],
+            position: [-4, -4, 3],
             color: [1, 0.3, 0.3],
         });
 
         createLeg({
             id: "greenLeg",
-            position: [4, -6, -4],
+            position: [4, -4, 3],
             color: [0.3, 1.0, 0.3],
         });
 
         createLeg({
             id: "blueLeg",
-            position: [4, -6, 4],
+            position: [4, 4, 3],
             color: [0.3, 0.3, 1.0],
         });
 
         createLeg({
             id: "yellowLeg",
-            position: [-4, -6, 4],
+            position: [-4, 4, 3],
             color: [1.0, 1.0, 0.0],
         });
 
@@ -264,8 +266,8 @@ studio
             id: "purpleTableTopMesh",
             geometryId: "demoBoxGeometry",
             matrix: xeokit.model.scene.buildMat4({
-                position: [0, -3, 0],
-                scale: [6, 0.5, 6],
+                position: [0, 0, 6],
+                scale: [6, 6, 0.5],
             }),
             color: [1.0, 0.3, 1.0],
         });

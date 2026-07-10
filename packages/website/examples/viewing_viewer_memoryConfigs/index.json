@@ -10,5 +10,6 @@
     "Configuration",
     "Performance"
   ],
+  "category": "Viewer",
   "topic": "viewer.configuration"
 }

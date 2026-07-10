@@ -12,5 +12,6 @@
     "Importing",
     "DotBIM"
   ],
+  "category": "Importing Models",
   "topic": "import.dotbim"
 }

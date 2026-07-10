@@ -1,15 +1,19 @@
 {
   "id": "formats_xgf_sportsCar",
-  "title": "Viewing XGF using XGFLoader",
-  "description": "How to load an XGF model directly into a xeokit web viewer.",
+  "title": "Multiple Views of an XGF Sports Car Model",
+  "description": "Load an XGF sports car model with XGFLoader and display it in multiple independent views. The XGF was pre-converted from OBJ+MTL for faster loading.",
   "isTutorial": true,
   "isVisualTest": true,
+  "isFeatured": true,
   "tags": [
+    "Importing",
     "XGF"
   ],
   "categories": [
     "Importing",
     "XGF"
   ],
-  "topic": "import.xgf"
+  "category": "Importing Models",
+  "topic": "import.xgf",
+  "snapshotTimeoutMs": 90000
 }

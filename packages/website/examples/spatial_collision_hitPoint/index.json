@@ -16,5 +16,6 @@
     "Collision",
     "Picking"
   ],
+  "category": "Collision",
   "topic": "collision.bvh"
 }

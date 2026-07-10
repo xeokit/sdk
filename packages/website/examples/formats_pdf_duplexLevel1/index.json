@@ -15,6 +15,7 @@
     "Importing",
     "Drawings"
   ],
+  "category": "Importing Models",
   "topic": "import.pdf",
   "snapshotTimeoutMs": 90000
 }

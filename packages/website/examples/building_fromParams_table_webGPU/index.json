@@ -1,0 +1,18 @@
+{
+  "id": "building_fromParams_table_webGPU",
+  "title": "WebGPU - Creating a 3D Model from JSON",
+  "description": "Builds the same table-shaped SceneModel as building_fromParams_table with SceneModel.fromParams(), then renders it through the experimental WebGPU renderer.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "tags": [
+    "WebGPU",
+    "Renderer"
+  ],
+  "categories": [
+    "Modeling",
+    "Scene",
+    "Renderer"
+  ],
+  "category": "Modeling",
+  "topic": "viewing.renderer.webgpu"
+}

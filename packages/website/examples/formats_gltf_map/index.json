@@ -1,7 +1,7 @@
 {
   "id": "formats_gltf_map",
-  "title": "Viewing glTF using GLTFLoader",
-  "description": "How to load a glTF (.glb) model directly into a xeokit web viewer.",
+  "title": "Viewing a glTF Map Model",
+  "description": "Loads a glTF map model with GLTFLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
@@ -12,5 +12,6 @@
     "Importing",
     "glTF"
   ],
+  "category": "Importing Models",
   "topic": "import.gltf"
 }

@@ -1,9 +1,10 @@
 {
   "id": "formats_xgf_map",
-  "title": "Viewing XGF using XGFLoader",
-  "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+  "title": "Viewing an XGF Building Model with Double-Precision Coordinates",
+  "description": "Loads an XGF building model with XGFLoader and frames it in the viewer. XGF is the SDK's native model format, optimized for faster loading.",
   "isTutorial": true,
   "isVisualTest": true,
+  "isFeatured": true,
   "tags": [
     "XGF",
     "_Featured"
@@ -12,5 +13,6 @@
     "Importing",
     "XGF"
   ],
+  "category": "Importing Models",
   "topic": "import.xgf"
 }

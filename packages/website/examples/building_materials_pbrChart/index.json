@@ -17,5 +17,6 @@
     "Effects",
     "Renderer"
   ],
+  "category": "Effects",
   "topic": "modeling.scene.geometry"
 }

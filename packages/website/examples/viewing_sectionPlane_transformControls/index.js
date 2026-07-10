@@ -129,11 +129,25 @@ studio.init().then(async () => {
       ]);
     },
     setMatrix(m) {
-      plane.pos = [m[12], m[13], m[14]];
+      const previousPos = plane.pos.slice();
+      const previousDir = normalize(plane.dir.slice());
       // The +Z column is the gizmo's "up" after rotation — that's
       // our new plane normal. Renormalise to absorb any drift
       // from float math in the gizmo's snap path.
-      plane.dir = normalize([m[8], m[9], m[10]]);
+      const dir = normalize([m[8], m[9], m[10]], previousDir);
+      const rawPos = [m[12], m[13], m[14]];
+      const delta = [
+        rawPos[0] - previousPos[0],
+        rawPos[1] - previousPos[1],
+        rawPos[2] - previousPos[2],
+      ];
+      const slide = dot(delta, dir);
+      plane.dir = dir;
+      plane.pos = [
+        previousPos[0] + dir[0] * slide,
+        previousPos[1] + dir[1] * slide,
+        previousPos[2] + dir[2] * slide,
+      ];
     },
   };
 
@@ -143,16 +157,15 @@ studio.init().then(async () => {
     planeAdapter,
     "translate",   // start in translate; press R for rotate
   );
+  applyPlaneControlMode(controls, "translate");
 
   // Keyboard mode-switch — same conventions as the
   // viewing_transformControls_demo example.
   window.addEventListener("keydown", (e) => {
     const k = e.key.toLowerCase();
-    if      (k === "g") controls.setMode("translate");
-    else if (k === "r") controls.setMode("rotate");
+    if      (k === "g") applyPlaneControlMode(controls, "translate");
+    else if (k === "r") applyPlaneControlMode(controls, "rotate");
     else if (k === "n") controls.setMode("none");
-    else if (k === "q") controls.setSpace(
-      controls.space === "world" ? "local" : "world");
   });
 
   // ── Info panel ──────────────────────────────────────────────
@@ -163,8 +176,7 @@ studio.init().then(async () => {
       "<p>Drag the gizmo to slice the model. The gizmo's translation " +
       "becomes <code>plane.pos</code>; its rotated +Z axis becomes " +
       "<code>plane.dir</code>.</p>" +
-      "<p><b>G</b> translate &nbsp; <b>R</b> rotate &nbsp; " +
-      "<b>N</b> hide gizmo &nbsp; <b>Q</b> world/local space</p>",
+      "<p><b>G</b> translate &nbsp; <b>R</b> rotate &nbsp; <b>N</b> hide gizmo</p>",
   });
   info.addToggle({
     label:    "Section plane",
@@ -175,10 +187,22 @@ studio.init().then(async () => {
   studio.finished();
 });
 
+function applyPlaneControlMode(controls, mode) {
+  controls.setSpace("local");
+  controls.setShowX(true);
+  controls.setShowY(true);
+  controls.setShowZ(true);
+  controls.setMode(mode);
+}
+
 // ── tiny vec3 helpers ────────────────────────────────────────
-function normalize(v) {
-  const l = Math.hypot(v[0], v[1], v[2]) || 1;
+function normalize(v, fallback = [0, 0, -1]) {
+  const l = Math.hypot(v[0], v[1], v[2]);
+  if (!Number.isFinite(l) || l < 1e-12) return fallback.slice();
   return [v[0] / l, v[1] / l, v[2] / l];
+}
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 function cross(a, b) {
   return [

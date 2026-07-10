@@ -10,5 +10,6 @@
     "Scene",
     "Geometry"
   ],
+  "category": "Modeling",
   "topic": "modeling.scene.geometry"
 }

@@ -10,5 +10,6 @@
     "Views",
     "ViewLayers"
   ],
+  "category": "Viewer",
   "topic": "viewer.view.viewlayer"
 }

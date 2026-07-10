@@ -1,7 +1,7 @@
 {
   "id": "formats_obj_sportsCar",
-  "title": "Viewing OBJ using OBJLoader",
-  "description": "How to load an OBJ model directly into a xeokit web viewer.",
+  "title": "Multiple Views of an OBJ Sports Car Model",
+  "description": "Load an OBJ sports car model with OBJLoader and display it in multiple independent views.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
@@ -12,5 +12,7 @@
     "Importing",
     "OBJ"
   ],
-  "topic": "import.obj"
+  "category": "Importing Models",
+  "topic": "import.obj",
+  "snapshotTimeoutMs": 180000
 }

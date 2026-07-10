@@ -1,9 +1,10 @@
 {
   "id": "building_materials_aecChart",
-  "title": "AEC PBR Materials Chart",
-  "description": "Twelve common AEC materials displayed on a sphere grid — brick, concrete, limestone, granite, marble, oak, painted plaster, asphalt, polished and brushed steel, copper, and glass — each driven by procedurally-painted colour, normal and metallic-roughness maps. Effects panel exposes IBL, shadows, SAO, bloom, FXAA, tonemap and the new render-mode presets.",
+  "title": "Physically-Based AEC Materials Demo",
+  "description": "Common AEC materials — brick, concrete, limestone, granite, marble, oak, painted plaster, asphalt, polished and brushed steel, copper, and glass, viewed using the SDK's physically-based rendering techniques.",
   "isTutorial": true,
   "isVisualTest": false,
+  "isFeatured": true,
   "tags": [
     "PBR",
     "Materials",
@@ -17,5 +18,6 @@
     "Materials",
     "Renderer"
   ],
+  "category": "Materials",
   "topic": "materials.aec"
 }

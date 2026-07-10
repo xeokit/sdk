@@ -66,23 +66,6 @@ studio.init().then(async () => {
     }
   });
 
-  // Scene Boundaries panel, repositioned under the "<< Index" button. A
-  // per-example storageKey keeps its drag position separate from other demos.
-  const boundariesPanel = xeokit.studio.panels.BoundariesPanel.openFor({
-    scene,
-    view,
-    // cameraFlight lives on the per-View ViewRecord; thread it through for the
-    // panel's cinematic click-to-jump flights.
-    cameraFlight: studio.viewManager.views[view.id].cameraFlight,
-    storageKey: "xkt-bnd-archipelago",
-  });
-  const bndEl = document.querySelector(".xkt-bnd-panel");
-  if (bndEl) {
-    bndEl.style.left  = "20px";
-    bndEl.style.top   = "120px";
-    bndEl.style.right = "auto";
-  }
-
   // Info panel — overrides the JSON-fetched description so the
   // closing paragraph carries two clickable links: one flies the
   // camera to the Duplex, the other to the Ferry. The description
@@ -161,21 +144,6 @@ studio.init().then(async () => {
   document.querySelector('a[data-action="fly-ferry"]')
     ?.addEventListener("click", (e) => { e.preventDefault(); flyToModel("ferry"); });
 
-  // ── Effects toggle ──────────────────────────────────────────────
-  // SAO + 3-cascade shadows are large fixed-cost passes. Turning them
-  // off lets the lighter color pass dominate the frame. Defaults ON
-  // (the example's normal look).
-  const saoModes    = view.effects.sao.renderModes.slice();
-  const shadowModes = view.effects.shadows.renderModes.slice();
-  info.addToggle({
-    label:    "Effects (SAO + shadows)",
-    value:    true,
-    onChange: (on) => {
-      view.effects.sao.renderModes     = on ? saoModes    : [];
-      view.effects.shadows.renderModes = on ? shadowModes : [];
-    }
-  });
-
   // ── FPS + frame-time meter ──────────────────────────────────────
   // Measures per-frame timing with requestAnimationFrame +
   // performance.now() (the SDK's onTick event isn't dispatched, so
@@ -183,8 +151,7 @@ studio.init().then(async () => {
   // running (exponential moving) averages, so they're smooth instead
   // of flickering. Caveat: rAF is VSync-gated, so while the GPU keeps
   // up, FPS pins at ~60 and ms pins at ~16.7; the numbers only diverge
-  // once the scene is genuinely GPU-bound (below 60). Use the Effects
-  // toggle to drop the fixed-cost floor and push it there.
+  // once the scene is genuinely GPU-bound (below 60).
   info.addStat({ id: "fps", label: "FPS" });
   info.addStat({ id: "ms",  label: "Frame ms" });
   const SMOOTHING = 0.1;   // weight of each new frame in the average

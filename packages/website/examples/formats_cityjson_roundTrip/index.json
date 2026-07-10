@@ -15,5 +15,6 @@
     "Exporting",
     "CityJSON"
   ],
+  "category": "Importing Models",
   "topic": "import.cityjson"
 }

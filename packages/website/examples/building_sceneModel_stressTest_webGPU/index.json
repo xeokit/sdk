@@ -1,0 +1,19 @@
+{
+  "id": "building_sceneModel_stressTest_webGPU",
+  "title": "WebGPU - Creating a 3D Model Stress Test",
+  "description": "Uses WebGPURenderer to stress dynamic SceneModel geometry, mesh, and object creation and deletion.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "tags": [
+    "WebGPU",
+    "Renderer",
+    "StressTest"
+  ],
+  "categories": [
+    "Modeling",
+    "Scene",
+    "Renderer"
+  ],
+  "category": "Modeling",
+  "topic": "viewing.renderer.webgpu"
+}

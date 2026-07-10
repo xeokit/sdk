@@ -1,9 +1,10 @@
 {
   "id": "formats_las_pumpkin",
-  "title": "Viewing a LAZ-encoded LiDAR scan using LASLoader",
-  "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+  "title": "Viewing a LAZ LiDAR Scan",
+  "description": "Loads a LAZ-encoded LiDAR scan with LASLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
+  "isFeatured": true,
   "tags": [
     "LAS",
     "_Featured"
@@ -12,5 +13,7 @@
     "Importing",
     "LAS"
   ],
-  "topic": "import.las"
+  "category": "Importing Models",
+  "topic": "import.las",
+  "snapshotTimeoutMs": 90000
 }

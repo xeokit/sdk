@@ -1,10 +1,10 @@
 {
   "id": "formats_usdz_residentialBuilding",
-  "title": "Loading a Pixar USDZ File",
-  "description": "Loads a Pixar USDZ package and views it. USDZ is a ZIP wrapping a binary USD Crate (.usdc); the example fetches the .usdz bytes, creates a SceneModel, and drives USDZLoader directly (which unpacks the ZIP and decodes the crate with the tinyusdz wasm reader), then frames the camera. The sample is a Sketchfab residential-building export of ~140 meshes. Browser only.",
+  "title": "Viewing a Pixar USDZ Model",
+  "description": "Loads a Pixar USDZ residential building model with USDZLoader and frames it in the viewer. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets.",
   "isTutorial": true,
   "isVisualTest": false,
-  "snapshotTimeoutMs": 60000,
+  "isFeatured": true,
   "tags": [
     "USDZ",
     "USD",
@@ -15,5 +15,6 @@
     "Importing",
     "USDZ"
   ],
+  "category": "Importing Models",
   "topic": "import.usdz"
 }

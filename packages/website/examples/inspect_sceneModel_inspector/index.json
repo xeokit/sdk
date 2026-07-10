@@ -14,6 +14,7 @@
     "Optimization",
     "IFC"
   ],
+  "category": "Optimization",
   "topic": "sceneModelInspector.interactive",
   "snapshotTimeoutMs": 90000
 }

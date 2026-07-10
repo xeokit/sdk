@@ -1,7 +1,7 @@
 {
   "id": "formats_ifc_ifc4SampleHouse",
-  "title": "Viewing IFC using IFCLoader",
-  "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+  "title": "Viewing an IFC4 Sample House Model",
+  "description": "Loads an IFC4 sample house model with IFCLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
@@ -14,5 +14,6 @@
     "Importing",
     "IFC"
   ],
+  "category": "Importing Models",
   "topic": "import.ifc"
 }

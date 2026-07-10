@@ -1,7 +1,7 @@
 {
   "id": "formats_gltf_damagedHelmet",
-  "title": "Loading a glTF Model (Damaged Helmet)",
-  "description": "Loads the classic Khronos 'Damaged Helmet' glTF 2.0 PBR asset from a self-contained binary .glb (geometry, metallic-roughness materials, and textures all embedded), creates a SceneModel, drives GLTFLoader directly, and frames the camera. Rendered with RealisticRender + sRGB tonemap to show the PBR shading as authored.",
+  "title": "Viewing a glTF Damaged Helmet Model",
+  "description": "Loads the Khronos Damaged Helmet glTF model with GLTFLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [
@@ -14,5 +14,6 @@
     "Importing",
     "glTF"
   ],
+  "category": "Importing Models",
   "topic": "import.gltf"
 }

@@ -1,9 +1,10 @@
 {
   "id": "building_transforms_separateStoreys",
-  "title": "Separating Building Storeys with SceneTransform",
-  "description": "Use SceneTransform to separate a building model into storeys for exploded-view style analysis.",
+  "title": "Using Semantic Data to Separate Building Storeys",
+  "description": "Loading a building model, an then using the model's semantic data to isolate and separate the building storeys.",
   "isTutorial": true,
   "isVisualTest": true,
+  "isFeatured": true,
   "tags": [
     "Modeling",
     "Transforms"
@@ -12,5 +13,6 @@
     "Modeling",
     "Transforms"
   ],
+  "category": "Modeling",
   "topic": "modeling.transforms"
 }

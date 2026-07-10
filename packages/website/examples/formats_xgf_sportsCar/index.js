@@ -1,5 +1,6 @@
 // Import the xeokit SDK bundle used by these examples.
-// The bundle provides loader, scene, and helper APIs used below.
+// It includes the demo helper, renderer, scene/data APIs, and format loaders,
+// so this file can focus on the XGF loading flow.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
@@ -7,10 +8,25 @@ const studio = new xeokit.studio.Studio({});
 
 studio.init().then(() => {
 
-  const {scene, data} = studio;
+  const {scene} = studio;
 
-  const view = studio.viewManager.createView({
-    id: "demoView",
+  const xgfLoader = new xeokit.formats.xgf.XGFLoader();
+
+  // Configure the first camera in a +Z-up coordinate system.
+  // This gives a clear perspective framing and makes world orientation explicit,
+  // which is helpful when adapting to different asset up-axis conventions.
+
+  studio.viewManager.createView({
+      camera: {
+        // Keep perspective projection for the main view.
+        // It preserves depth cues and keeps setup simple.
+        eye: [3.27, 3.91, 2.39],
+        look: [0, 0, 0],
+        up: [-0.18, -0.28, 0.93]
+      }
+  });
+
+  const view2 = studio.viewManager.createView({
     camera: {
       eye: [3.27, 3.91, 2.39],
       look: [0, 0, 0],
@@ -18,10 +34,9 @@ studio.init().then(() => {
     }
   });
 
-  const xgfLoader = new xeokit.formats.xgf.XGFLoader();
-
-  // Create a SceneModel for renderable model content.
-  // Coordinate settings define basis, origin, and units for the loaded data.
+  // Create a SceneModel to hold renderable model content.
+  // It stores geometry and materials, and its coordinate system settings define
+  // basis, origin, and units for consistent model interpretation.
 
   const sceneModelRes = scene.createModel({
     id: "demoModel",
@@ -44,44 +59,43 @@ studio.init().then(() => {
 
   const sceneModel = sceneModelRes.value;
 
-  // Create a DataModel for semantic model data.
-  // This can be used for metadata-driven interactions.
+  // Fetch the XGF file, then load it into the SceneModel.
 
-  const dataModelRes = data.createModel({
-    id: "demoModel"
-  });
-
-  if (dataModelRes.ok === false) {
-    console.error(`Error creating DataModel: ${dataModelRes.error}`);
-    return;
-  }
-
-  fetch("../../models/SportsCar/xgf/model.xgf").then(response => {
-
-    response.arrayBuffer().then(fileData => {
-
-      // Load the XGF file into the SceneModel.
-      // When loading finishes, build helper visualization state.
-      xgfLoader.load({
+  fetch("../../models/SportsCar/xgf/model.xgf")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch XGF: ${response.status} ${response.statusText}`);
+      }
+      return response.arrayBuffer();
+    })
+    .then((fileData) => {
+      return xgfLoader.load({
         fileData,
         sceneModel
-      }).then(() => {
-
-        const exploder = new xeokit.presentations.exploder.SceneModelExploder({
-          scene,
-          sceneModel,
-          collisionIndex: studio.picking.collisionIndex
-        });
-
-        exploder.rebuild();
-
-        studio.openInfoPanelFromMeta();
-        studio.finished();
-
-      }).catch(message => {
-        console.error(`Error loading .XGF: ${message}`);
       });
-    });
-  });
+    })
+    .then(() => {
 
+      // Add a simple post-load inspection workflow.
+      // Rebuild exploder bounds and apply x-ray styling in the second view to
+      // highlight selected objects after loading.
+
+      const exploder = new xeokit.presentations.exploder.SceneModelExploder({
+        scene,
+        sceneModel,
+        collisionIndex: studio.picking.collisionIndex
+      });
+
+      exploder.rebuild();
+
+      view2.setObjectsXRayed(view2.objectIds, true);
+
+      view2.setObjectsXRayed(view2.objectIds.slice(30,40), false);
+
+      studio.openInfoPanelFromMeta();
+      studio.finished();
+    })
+    .catch((message) => {
+      console.error(`Error loading XGF: ${message}`);
+    });
 });

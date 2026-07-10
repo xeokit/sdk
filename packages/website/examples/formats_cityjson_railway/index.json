@@ -1,7 +1,7 @@
 {
   "id": "formats_cityjson_railway",
-  "title": "Viewing CityJSON using CityJSONLoader",
-  "description": "How to load a CityJSON model directly into a xeokit web viewer.",
+  "title": "Viewing a CityJSON Model",
+  "description": "Loads a CityJSON railway model with CityJSONLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
@@ -12,5 +12,6 @@
     "Importing",
     "CityJSON"
   ],
+  "category": "Importing Models",
   "topic": "import.cityjson"
 }

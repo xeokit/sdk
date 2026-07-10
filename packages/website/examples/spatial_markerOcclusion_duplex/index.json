@@ -16,5 +16,6 @@
     "Picking",
     "Renderer"
   ],
+  "category": "Picking",
   "topic": "picking.occlusion"
 }

@@ -1,10 +1,8 @@
-// Loads and views a binary Autodesk FBX file.
+// Loads and views a binary Autodesk FBX plant model.
 //
 // FBX is not one of the formats the loader registry recognises, so we drive
 // FBXLoader directly: fetch the .fbx bytes, create a SceneModel, and hand both
-// to the loader. The sample (models/FBX_Sample/model.fbx) is four cubes that
-// share one geometry, each with its own transform and material — exercising the
-// loader's geometry, instancing, transform, and material paths.
+// to the loader.
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 const FBX_URL = "../../models/E3D_Plant/fbx/model.fbx";
@@ -17,9 +15,21 @@ studio.init().then(async () => {
 
   const view = studio.viewManager.createView({
     camera: {
-      eye:  [5, 4, 5],
-      look: [0, 0.5, 0],
-      up:   [0, 1, 0]
+      "eye": [
+        -300.45928353964246,
+        258.25925259779626,
+        124.00350940239844
+      ],
+      "look": [
+        -302.12662024198926,
+        301.5614529151791,
+        106.08332812798437
+      ],
+      "up": [
+        -0.014703546021141807,
+        0.3818640120771069,
+        0.9241015539510684
+      ]
     }
   });
 
@@ -65,6 +75,7 @@ studio.init().then(async () => {
     }
 
     if (status) status.style.display = "none";
+    await studio.openInfoPanelFromMeta();
     studio.finished();
 
   } catch (err) {

@@ -1,52 +1,38 @@
 {
   "building_dataModel_table": {
     "id": "building_dataModel_table",
-    "title": "Creating a 3D Model with Semantic Data",
-    "description": "In this example, we'll use the xeokit SDK to create a 3D model with semantic data attached.",
+    "title": "Building a Simple 3D Model, with Semantic Data",
+    "description": "Programmatically building and viewing a minimal 3D model in the SDK, with a semantic data model attached.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
-    "categories": [
-      "Modeling",
-      "Data"
-    ],
+    "isFeatured": true,
+    "tags": ["_Featured"],
+    "categories": ["Modeling", "Data"],
+    "category": "Modeling",
     "topic": "modeling.data"
   },
   "building_doublePrecision_archipelago": {
     "id": "building_doublePrecision_archipelago",
-    "title": "Procedural Archipelago — Double-Precision Coordinates",
-    "description": "An archipelago of 54 rocky islands spread across a 56 km expanse of ocean, geo-located at real-world UTM Zone 32N coordinates (~267 km easting, 6.55 million metres northing — off the Norwegian coast, ~50 km west of Stavanger). Three buildings inhabit the scene: a Duplex on the central island, an IfcOpenHouse4 on the far NW island, and a Ferry afloat ~12 km southeast. xeokit holds every world coordinate as a true double-precision value while keeping per-vertex geometry float32-safe, resolving the two at render time so the camera can orbit a window mullion at sub-millimetre precision inside a scene the size of a small archipelago.",
+    "title": "Huge Scene with Double-Precision Coordinates",
+    "description": "An archipelago of 54 rocky islands spread across a 56 km expanse of ocean, geo-located at real-world UTM Zone 32N coordinates (~267 km easting, 6.55 million metres northing — off the Norwegian coast, ~50 km west of Stavanger). Three buildings inhabit the scene: a Duplex on the central island, an IfcOpenHouse4 on the far NW island, and a Ferry afloat ~12 km southeast.",
     "isTutorial": false,
     "isVisualTest": false,
-    "tags": [
-      "Featured"
-    ],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Geometry"
-    ],
+    "isFeatured": true,
+    "tags": ["Featured"],
+    "categories": ["Modeling", "Scene", "Geometry"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_doublePrecision_infiniteLandscape": {
     "id": "building_doublePrecision_infiniteLandscape",
-    "title": "Infinite Scrolling Landscape",
-    "description": "An infinite-feeling cityscape rendered from a finite pool of N pre-allocated SceneObjects (each carrying one mesh per shared primitive: box, slab, cylinder, dome). An external instruction-source module emits, per frame, an array of {slotId, geomType, transform, color, opacity} tuples — index.js writes them straight onto the matching slot's active SceneMesh. As the user drags the canvas, slots that scroll past one edge wrap to the opposite side and are re-randomised from a deterministic hash of (slotId, wrapCountX, wrapCountY), giving the illusion of an endless skyline while reusing the same handful of geometries.",
+    "title": "Infinite Streaming Landscape",
+    "description": "An endless cityscape that demonstrates how the SDK is optimized for efficiently streamed content.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Procgen",
-      "InstanceReuse",
-      "Streaming",
-      "SceneModel",
-      "Pooling"
-    ],
-    "categories": [
-      "Modeling",
-      "Streaming"
-    ],
+    "isFeatured": true,
+    "tags": ["Procgen", "InstanceReuse", "Streaming", "SceneModel", "Pooling"],
+    "categories": ["Modeling", "Streaming"],
+    "category": "Modeling",
     "topic": "modeling.scene.streaming"
   },
   "building_fromParams_compressedBox": {
@@ -56,10 +42,8 @@
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_fromParams_table": {
@@ -69,10 +53,8 @@
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.object"
   },
   "building_fromParams_table_webGPU": {
@@ -81,15 +63,9 @@
     "description": "Builds the same table-shaped SceneModel as building_fromParams_table with SceneModel.fromParams(), then renders it through the experimental WebGPU renderer.",
     "isTutorial": false,
     "isVisualTest": false,
-    "tags": [
-      "WebGPU",
-      "Renderer"
-    ],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Renderer"
-    ],
+    "tags": ["WebGPU", "Renderer"],
+    "categories": ["Modeling", "Scene", "Renderer"],
+    "category": "Modeling",
     "topic": "viewing.renderer.webgpu"
   },
   "building_fromParams_triangle": {
@@ -99,10 +75,8 @@
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_fromParams_triplanarTable": {
@@ -112,31 +86,20 @@
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.object"
   },
   "building_materials_aecChart": {
     "id": "building_materials_aecChart",
-    "title": "AEC PBR Materials Chart",
-    "description": "Twelve common AEC materials displayed on a sphere grid — brick, concrete, limestone, granite, marble, oak, painted plaster, asphalt, polished and brushed steel, copper, and glass — each driven by procedurally-painted colour, normal and metallic-roughness maps. Effects panel exposes IBL, shadows, SAO, bloom, FXAA, tonemap and the new render-mode presets.",
+    "title": "Physically-Based AEC Materials Demo",
+    "description": "Common AEC materials — brick, concrete, limestone, granite, marble, oak, painted plaster, asphalt, polished and brushed steel, copper, and glass, viewed using the SDK's physically-based rendering techniques.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "PBR",
-      "Materials",
-      "Textures",
-      "NormalMaps",
-      "AEC",
-      "IFC",
-      "Renderer"
-    ],
-    "categories": [
-      "Materials",
-      "Renderer"
-    ],
+    "isFeatured": true,
+    "tags": ["PBR", "Materials", "Textures", "NormalMaps", "AEC", "IFC", "Renderer"],
+    "categories": ["Materials", "Renderer"],
+    "category": "Materials",
     "topic": "materials.aec"
   },
   "building_materials_hatchedSurfaces": {
@@ -145,15 +108,9 @@
     "description": "Six boxes side-by-side, each carrying a `SceneMaterial` with a different hatch pattern. The picker in the intro toggles all five hatched materials between screen-space and world-space coordinate modes at runtime via `material.hatchPattern = …` and the `onSceneMaterialPatternChanged` re-encode path. Screen-space mode keeps spacing and line-width in pixels (camera-locked); world-space mode keeps them in world units (geometry-locked) — matching how a CAD package's material-fill hatches behave under zoom. Picking ignores the hatch in both modes.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Hatch",
-      "Engineering",
-      "SceneMaterial"
-    ],
-    "categories": [
-      "Materials"
-    ],
+    "tags": ["Materials", "Hatch", "Engineering", "SceneMaterial"],
+    "categories": ["Materials"],
+    "category": "Materials",
     "topic": "materials.hatch"
   },
   "building_materials_mutablePatterns": {
@@ -162,16 +119,9 @@
     "description": "Two materials drive a six-box scene — one triangle-surface material that demonstrates runtime `hatchPattern` mutation, one line-primitive material that demonstrates runtime `linePattern` mutation. Clicking a button reassigns the material's pattern; the renderer subscribes to `onSceneMaterialPatternChanged` and re-encodes the affected slot in the per-batch HatchPatternTexture / LinePatternTexture without rebuilding the model. Per-mesh attribute storage is left untouched — the slot index is keyed on `material.uniqueId`, which doesn't change.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Hatch",
-      "Lines",
-      "Mutable",
-      "SceneMaterial"
-    ],
-    "categories": [
-      "Materials"
-    ],
+    "tags": ["Materials", "Hatch", "Lines", "Mutable", "SceneMaterial"],
+    "categories": ["Materials"],
+    "category": "Materials",
     "topic": "materials.mutable"
   },
   "building_materials_pbrChart": {
@@ -180,19 +130,9 @@
     "description": "Canonical PBR test rig: a 7×7 grid of spheres sharing one base colour. Roughness varies left → right (mirror at 0 → diffuse at 1); metallic varies bottom → top (dielectric at 0 → metal at 1). Lit by the renderer's procedural sky cubemap + directional sun, so each cell shows how the Cook-Torrance BRDF + GGX prefiltered cubemap responds to the (metallic, roughness) pair.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "PBR",
-      "BRDF",
-      "GGX",
-      "Cook-Torrance",
-      "IBL",
-      "Procgen",
-      "Renderer"
-    ],
-    "categories": [
-      "Effects",
-      "Renderer"
-    ],
+    "tags": ["PBR", "BRDF", "GGX", "Cook-Torrance", "IBL", "Procgen", "Renderer"],
+    "categories": ["Effects", "Renderer"],
+    "category": "Effects",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_box": {
@@ -201,13 +141,9 @@
     "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "SDK"
-    ],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "tags": ["SDK"],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_cityscape": {
@@ -217,11 +153,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Geometry"
-    ],
+    "categories": ["Modeling", "Scene", "Geometry"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_compressedBox": {
@@ -231,10 +164,8 @@
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_createGeometry": {
@@ -243,13 +174,9 @@
     "description": "This example demonstrates how to use the xeokit SDK to create and display various geometries.",
     "isTutorial": false,
     "isVisualTest": true,
-    "tags": [
-      "SDK"
-    ],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "tags": ["SDK"],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_geometries": {
@@ -259,11 +186,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Geometry"
-    ],
+    "categories": ["Modeling", "Scene", "Geometry"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_points": {
@@ -273,10 +197,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
+    "categories": ["Modeling", "Scene"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_sandDunes": {
@@ -286,11 +208,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Geometry"
-    ],
+    "categories": ["Modeling", "Scene", "Geometry"],
+    "category": "Modeling",
     "topic": "modeling.scene.geometry"
   },
   "building_sceneModel_stressTest": {
@@ -300,11 +219,8 @@
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Objects"
-    ],
+    "categories": ["Modeling", "Scene", "Objects"],
+    "category": "Modeling",
     "topic": "modeling.scene.object"
   },
   "building_sceneModel_stressTest_webGPU": {
@@ -313,16 +229,9 @@
     "description": "Uses WebGPURenderer to stress dynamic SceneModel geometry, mesh, and object creation and deletion.",
     "isTutorial": false,
     "isVisualTest": false,
-    "tags": [
-      "WebGPU",
-      "Renderer",
-      "StressTest"
-    ],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Renderer"
-    ],
+    "tags": ["WebGPU", "Renderer", "StressTest"],
+    "categories": ["Modeling", "Scene", "Renderer"],
+    "category": "Modeling",
     "topic": "viewing.renderer.webgpu"
   },
   "building_transforms_animatedPuzzle": {
@@ -332,26 +241,20 @@
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Modeling",
-      "Data"
-    ],
+    "categories": ["Modeling", "Data"],
+    "category": "Modeling",
     "topic": "modeling.data"
   },
   "building_transforms_separateStoreys": {
     "id": "building_transforms_separateStoreys",
-    "title": "Separating Building Storeys with SceneTransform",
-    "description": "Use SceneTransform to separate a building model into storeys for exploded-view style analysis.",
+    "title": "Using Semantic Data to Separate Building Storeys",
+    "description": "Loading a building model, an then using the model's semantic data to isolate and separate the building storeys.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "Modeling",
-      "Transforms"
-    ],
-    "categories": [
-      "Modeling",
-      "Transforms"
-    ],
+    "isFeatured": true,
+    "tags": ["Modeling", "Transforms"],
+    "categories": ["Modeling", "Transforms"],
+    "category": "Modeling",
     "topic": "modeling.transforms"
   },
   "building_transforms_table": {
@@ -360,13 +263,9 @@
     "description": "In this example, we'll use the xeokit SDK to create a 3D model with a transform hierarchy.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
-    "categories": [
-      "Modeling",
-      "Data"
-    ],
+    "tags": ["_Featured"],
+    "categories": ["Modeling", "Data"],
+    "category": "Modeling",
     "topic": "modeling.data"
   },
   "convert_modelConverter_dotbim2json": {
@@ -375,14 +274,9 @@
     "description": "Use ModelConverter to convert a dotbim (.bim) model into SceneModelParams and DataModelParams JSON, then load and view the result in xeokit.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "Importing",
-      "DotBIM"
-    ],
-    "categories": [
-      "Importing",
-      "DotBIM"
-    ],
+    "tags": ["Importing", "DotBIM"],
+    "categories": ["Importing", "DotBIM"],
+    "category": "Importing Models",
     "topic": "import.dotbim"
   },
   "convert_modelConverter_filedrop": {
@@ -391,31 +285,20 @@
     "description": "Drop any supported file (.bim / .ifc / .gltf / .cityjson / .xgf / .las / .rvm / .obj / .step / .xkt), pick an output format, and convert it entirely in the browser via ModelConverter. The converted result is offered as a download link and reloaded into the viewer to verify the round trip.",
     "isTutorial": false,
     "isVisualTest": false,
-    "tags": [
-      "Conversion",
-      "ModelConverter",
-      "Interactive"
-    ],
-    "categories": [
-      "Importing",
-      "Exporting"
-    ],
+    "tags": ["Conversion", "ModelConverter", "Interactive"],
+    "categories": ["Importing", "Exporting"],
+    "category": "Importing Models",
     "topic": "conversion.interactive"
   },
   "formats_cityjson_railway": {
     "id": "formats_cityjson_railway",
-    "title": "Viewing CityJSON using CityJSONLoader",
-    "description": "How to load a CityJSON model directly into a xeokit web viewer.",
+    "title": "Viewing a CityJSON Model",
+    "description": "Loads a CityJSON railway model with CityJSONLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "CityJSON",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "CityJSON"
-    ],
+    "tags": ["CityJSON", "_Featured"],
+    "categories": ["Importing", "CityJSON"],
+    "category": "Importing Models",
     "topic": "import.cityjson"
   },
   "formats_cityjson_roundTrip": {
@@ -424,106 +307,68 @@
     "description": "End-to-end check of the CityJSON exporter. Loads the LoD3 Railway CityJSON into a temporary SceneModel + DataModel, writes it back out with CityJSONExporter (each SceneObject a CityObject with a MultiSurface geometry, shared quantised vertices, materials, and the DataModel-derived city-object hierarchy), then re-imports the exported document into the displayed models. If geometry, transforms, materials and semantics survive the cycle, the re-imported model renders identically to the original.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "CityJSON",
-      "Importing",
-      "Exporting"
-    ],
-    "categories": [
-      "Importing",
-      "Exporting",
-      "CityJSON"
-    ],
+    "snapshotTimeoutMs": 120000,
+    "tags": ["CityJSON", "Importing", "Exporting"],
+    "categories": ["Importing", "Exporting", "CityJSON"],
+    "category": "Importing Models",
     "topic": "import.cityjson"
   },
   "formats_dotbim_blenderHouse": {
     "id": "formats_dotbim_blenderHouse",
-    "title": "Viewing DotBIM using DotBIMLoader",
-    "description": "How to load a dotbim (.bim) model directly into a xeokit web viewer.",
+    "title": "Viewing a DotBIM Model",
+    "description": "Loads a dotbim house model with DotBIMLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "Importing",
-      "DotBIM"
-    ],
-    "categories": [
-      "Importing",
-      "DotBIM"
-    ],
+    "tags": ["Importing", "DotBIM"],
+    "categories": ["Importing", "DotBIM"],
+    "category": "Importing Models",
     "topic": "import.dotbim"
   },
   "formats_dwg_floorPlan": {
     "id": "formats_dwg_floorPlan",
-    "title": "Loading the FloorPlan DWG via libredwg-web + DWGLoader",
-    "description": "Loads `models/FloorPlan/dwg/model.dwg` end-to-end via `DWGLoader` — the SDK's adapter-injected DWG pipeline. DWG is AutoCAD's proprietary binary format and the SDK doesn't bundle a parser; this example wires `@mlightcad/libredwg-web` (Emscripten port of GNU libredwg, GPL-3.0) from a CDN. The DWGAdapter parses the bytes with libredwg, walks the resulting `DwgDatabase.entities`, maps each entity to the SDK's `DWGDocument` shape (LINE → LINE, LWPOLYLINE → LWPOLYLINE, CIRCLE → CIRCLE, ARC → ARC with degree→radian conversion, ELLIPSE / POINT / 3DFACE / INSERT / TEXT / MTEXT pass through with similar normalisation), and hands the resulting document to DWGLoader for SceneModel emission. Layer name becomes the SceneObject id; AutoCAD Color Index maps through DWGLoader's ACI palette. Camera auto-fits to the loaded scene's AABB.",
+    "title": "Viewing an AutoCAD DWG Drawing",
+    "description": "Loads an AutoCAD DWG floor plan with DWGLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "DWG",
-      "AutoCAD",
-      "Loader",
-      "WASM",
-      "FloorPlan"
-    ],
-    "categories": [
-      "Formats",
-      "Drawings"
-    ],
+    "tags": ["DWG", "AutoCAD", "Loader", "WASM", "FloorPlan"],
+    "categories": ["Formats", "Drawings"],
+    "category": "Formats",
     "topic": "formats.dwg",
     "snapshotTimeoutMs": 90000
   },
   "formats_dxf_floorPlan": {
     "id": "formats_dxf_floorPlan",
-    "title": "Importing a DXF drawing via the injectable adapter pattern",
-    "description": "Loads an AutoCAD DXF document via `DXFLoader` — same injection pattern as `PDFLoader` / `SVGLoader` / `DWGLoader`. DXF is the open ASCII sibling of DWG and is parseable in-browser without WASM; the SDK still doesn't bundle a parser since several mature npm packages exist (`dxf-parser`, `dxf`). This example ships a TINY hand-rolled DXF group-code reader (~150 lines, no dependencies) as the adapter — useful when bundle size matters more than feature coverage. The synthesised DXF text covers LINE / LWPOLYLINE / CIRCLE / ARC / 3DFACE / INSERT / TEXT entities plus a BLOCKS section so block expansion is exercised. `DXFLoader` reuses `DWGLoader`'s entity-walking pipeline internally, so DXF and DWG share their entire emission path; only the parsing layer differs.",
+    "title": "Viewing an AutoCAD DXF Drawing",
+    "description": "Loads an AutoCAD DXF floor plan with DXFLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "DXF",
-      "AutoCAD",
-      "Loader",
-      "Drawings"
-    ],
-    "categories": [
-      "Formats",
-      "Drawings"
-    ],
+    "tags": ["DXF", "AutoCAD", "Loader", "Drawings"],
+    "categories": ["Formats", "Drawings"],
+    "category": "Formats",
     "topic": "formats.dxf"
   },
   "formats_fbx_e3dPlant": {
     "id": "formats_fbx_e3dPlant",
-    "title": "Loading an Autodesk FBX File",
-    "description": "Loads a binary Autodesk FBX file and views it. FBX isn't one of the formats the loader registry recognises, so the example fetches the .fbx bytes, creates a SceneModel, and drives FBXLoader directly, then frames the camera. The sample is four cubes sharing one geometry, each with its own transform and material.",
+    "title": "Viewing an Autodesk FBX Model",
+    "description": "Loads a binary Autodesk FBX plant model with FBXLoader and frames it in the viewer. FBX is Autodesk's interchange format for 3D models, animation, materials, and scene data.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "FBX",
-      "Autodesk",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "FBX"
-    ],
+    "isFeatured": true,
+    "tags": ["FBX", "Autodesk", "Importing"],
+    "categories": ["Importing", "FBX"],
+    "category": "Importing Models",
     "topic": "import.fbx",
     "snapshotTimeoutMs": 90000
   },
   "formats_gltf_damagedHelmet": {
     "id": "formats_gltf_damagedHelmet",
-    "title": "Loading a glTF Model (Damaged Helmet)",
-    "description": "Loads the classic Khronos 'Damaged Helmet' glTF 2.0 PBR asset from a self-contained binary .glb (geometry, metallic-roughness materials, and textures all embedded), creates a SceneModel, drives GLTFLoader directly, and frames the camera. Rendered with RealisticRender + sRGB tonemap to show the PBR shading as authored.",
+    "title": "Viewing a glTF Damaged Helmet Model",
+    "description": "Loads the Khronos Damaged Helmet glTF model with GLTFLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "glTF",
-      "glb",
-      "PBR",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "glTF"
-    ],
+    "tags": ["glTF", "glb", "PBR", "Importing"],
+    "categories": ["Importing", "glTF"],
+    "category": "Importing Models",
     "topic": "import.gltf"
   },
   "formats_gltf_housePlanPbr": {
@@ -532,56 +377,32 @@
     "description": "Loads the bundled HousePlan .glb model into a SceneModel, then exposes every renderer effect (IBL, shadows, SAO, tonemap, exposure, bloom, AA, edges, sun direction) through a side panel so you can see exactly what each one contributes to a small architectural scene.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "glTF",
-      "PBR",
-      "IBL",
-      "Shadows",
-      "SAO",
-      "Tonemap",
-      "Renderer"
-    ],
-    "categories": [
-      "Importing",
-      "glTF",
-      "Effects",
-      "Renderer"
-    ],
+    "isFeatured": true,
+    "tags": ["glTF", "PBR", "IBL", "Shadows", "SAO", "Tonemap", "Renderer"],
+    "categories": ["Importing", "glTF", "Effects", "Renderer"],
+    "category": "Importing Models",
     "topic": "import.gltf"
   },
   "formats_gltf_map": {
     "id": "formats_gltf_map",
-    "title": "Viewing glTF using GLTFLoader",
-    "description": "How to load a glTF (.glb) model directly into a xeokit web viewer.",
+    "title": "Viewing a glTF Map Model",
+    "description": "Loads a glTF map model with GLTFLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "glTF",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "glTF"
-    ],
+    "tags": ["glTF", "_Featured"],
+    "categories": ["Importing", "glTF"],
+    "category": "Importing Models",
     "topic": "import.gltf"
   },
   "formats_gltf_residentialBuilding": {
     "id": "formats_gltf_residentialBuilding",
-    "title": "Loading a glTF Model (Residential Building)",
-    "description": "Loads a glTF 2.0 model of a residential building from a self-contained binary .glb (geometry, materials, and textures all embedded), creates a SceneModel, drives GLTFLoader directly, and frames the camera. Rendered with RealisticRender + sRGB tonemap for PBR shading, sun and shadows.",
+    "title": "Viewing a glTF Residential Building Model",
+    "description": "Loads a glTF residential building model with GLTFLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "glTF",
-      "glb",
-      "PBR",
-      "Building",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "glTF"
-    ],
+    "tags": ["glTF", "glb", "PBR", "Building", "Importing"],
+    "categories": ["Importing", "glTF"],
+    "category": "Importing Models",
     "topic": "import.gltf",
     "snapshotTimeoutMs": 90000
   },
@@ -591,124 +412,78 @@
     "description": "Loads the Khronos Sponza glTF 2.0 sample asset (full PBR — baseColor + metallicRoughness + normal maps) directly from the Khronos sample-asset CDN, and exposes every renderer effect (IBL, shadows, SAO, tonemap, bloom, AA, edges) through a side panel so you can see exactly what each one contributes.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "glTF",
-      "PBR",
-      "IBL",
-      "Shadows",
-      "SAO",
-      "Tonemap",
-      "Sponza",
-      "Renderer"
-    ],
-    "categories": [
-      "Importing",
-      "glTF",
-      "Effects",
-      "Renderer"
-    ],
+    "tags": ["glTF", "PBR", "IBL", "Shadows", "SAO", "Tonemap", "Sponza", "Renderer"],
+    "categories": ["Importing", "glTF", "Effects", "Renderer"],
+    "category": "Importing Models",
     "topic": "import.gltf"
   },
   "formats_ifc_duplex": {
     "id": "formats_ifc_duplex",
-    "title": "Viewing IFC using IFCLoader",
-    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "title": "Viewing an IFC Duplex Model",
+    "description": "Loads an IFC Duplex model with IFCLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "XGF",
-      "webifc2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "IFC"
-    ],
+    "tags": ["IFC", "XGF", "webifc2xgf", "_Featured"],
+    "categories": ["Importing", "IFC"],
+    "category": "Importing Models",
     "topic": "import.ifc"
   },
   "formats_ifc_ifc4SampleHouse": {
     "id": "formats_ifc_ifc4SampleHouse",
-    "title": "Viewing IFC using IFCLoader",
-    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "title": "Viewing an IFC4 Sample House Model",
+    "description": "Loads an IFC4 sample house model with IFCLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "XGF",
-      "webifc2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "IFC"
-    ],
+    "tags": ["IFC", "XGF", "webifc2xgf", "_Featured"],
+    "categories": ["Importing", "IFC"],
+    "category": "Importing Models",
     "topic": "import.ifc"
   },
   "formats_ifc_ifcOpenHouse4": {
     "id": "formats_ifc_ifcOpenHouse4",
-    "title": "Viewing IFC using IFCLoader",
-    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "title": "Viewing an IFC Open House Model",
+    "description": "Loads an IFC Open House model with IFCLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "XGF",
-      "webifc2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "IFC"
-    ],
+    "tags": ["IFC", "XGF", "webifc2xgf", "_Featured"],
+    "categories": ["Importing", "IFC"],
+    "category": "Importing Models",
     "topic": "import.ifc"
   },
   "formats_las_pumpkin": {
     "id": "formats_las_pumpkin",
-    "title": "Viewing a LAZ-encoded LiDAR scan using LASLoader",
-    "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+    "title": "Viewing a LAZ LiDAR Scan",
+    "description": "Loads a LAZ-encoded LiDAR scan with LASLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "LAS",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "LAS"
-    ],
-    "topic": "import.las"
+    "isFeatured": true,
+    "tags": ["LAS", "_Featured"],
+    "categories": ["Importing", "LAS"],
+    "category": "Importing Models",
+    "topic": "import.las",
+    "snapshotTimeoutMs": 90000
   },
   "formats_obj_sportsCar": {
     "id": "formats_obj_sportsCar",
-    "title": "Viewing OBJ using OBJLoader",
-    "description": "How to load an OBJ model directly into a xeokit web viewer.",
+    "title": "Multiple Views of an OBJ Sports Car Model",
+    "description": "Load an OBJ sports car model with OBJLoader and display it in multiple independent views.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "Importing",
-      "OBJ"
-    ],
-    "categories": [
-      "Importing",
-      "OBJ"
-    ],
-    "topic": "import.obj"
+    "tags": ["Importing", "OBJ"],
+    "categories": ["Importing", "OBJ"],
+    "category": "Importing Models",
+    "topic": "import.obj",
+    "snapshotTimeoutMs": 180000
   },
   "formats_obj_table": {
     "id": "formats_obj_table",
-    "title": "Viewing OBJ using OBJLoader",
-    "description": "How to load an OBJ model directly into a xeokit web viewer.",
+    "title": "Viewing an OBJ Table Model",
+    "description": "Loads an OBJ table model with OBJLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "Importing",
-      "OBJ"
-    ],
-    "categories": [
-      "Importing",
-      "OBJ"
-    ],
+    "tags": ["Importing", "OBJ"],
+    "categories": ["Importing", "OBJ"],
+    "category": "Importing Models",
     "topic": "import.obj"
   },
   "formats_pdf_duplexLevel1": {
@@ -717,17 +492,9 @@
     "description": "Generates a sophisticated Level 1 floor-plan PDF for the classic Duplex Apartment IFC. Plan is authored in millimetres and loaded with scale=0.001 so the SceneModel lands in metres at the same origin as the Duplex IFC — drop the IFC into the same scene with no extra transform and the two coincide.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "PDF",
-      "Drawings",
-      "IFC",
-      "AECO",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "Drawings"
-    ],
+    "tags": ["PDF", "Drawings", "IFC", "AECO", "_Featured"],
+    "categories": ["Importing", "Drawings"],
+    "category": "Importing Models",
     "topic": "import.pdf",
     "snapshotTimeoutMs": 90000
   },
@@ -737,52 +504,32 @@
     "description": "Opens the floating PdfImportPanel. Drag any PDF onto the drop zone or click 'Choose file…' to load it into the scene; the panel auto-frames the camera and reports per-page stats.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "PDF",
-      "Drawings",
-      "Panel",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "Drawings"
-    ],
+    "tags": ["PDF", "Drawings", "Panel", "_Featured"],
+    "categories": ["Importing", "Drawings"],
+    "category": "Importing Models",
     "topic": "import.pdf"
   },
   "formats_pdf_vectorPlan": {
     "id": "formats_pdf_vectorPlan",
-    "title": "Importing a vector PDF — strokes + fills",
-    "description": "Imports a generated vector floor plan PDF, exercising the loader's per-stroke colour + line-weight buckets, filled-region tessellation, and bezier path support.",
+    "title": "Viewing a Vector PDF Plan",
+    "description": "Loads a vector PDF floor plan with PDFLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "PDF",
-      "Drawings",
-      "Fills",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "Drawings"
-    ],
+    "tags": ["PDF", "Drawings", "Fills", "_Featured"],
+    "categories": ["Importing", "Drawings"],
+    "category": "Importing Models",
     "topic": "import.pdf",
     "snapshotTimeoutMs": 90000
   },
   "formats_splat_room": {
     "id": "formats_splat_room",
-    "title": "BIM / Archviz Reality Capture with 3D Gaussian Splatting (.splat)",
-    "description": "Loads a captured building interior as a 3D Gaussian Splatting scene (.splat, baked RGB, no spherical harmonics) using GaussianSplatLoader. Splats are a first-class SceneModel primitive, so this photoreal as-built capture loads, streams and renders like any other model — the reality-capture point-of-truth you can orbit alongside CAD geometry in a BIM / archviz workflow.",
+    "title": "Viewing a 3D Gaussian Splatting Scene",
+    "description": "Loads a captured building interior .splat scene with GaussianSplatLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Splat",
-      "GaussianSplatting",
-      "BIM"
-    ],
-    "categories": [
-      "Importing",
-      "Splat"
-    ],
+    "tags": ["Splat", "GaussianSplatting", "BIM"],
+    "categories": ["Importing", "Splat"],
+    "category": "Importing Models",
     "topic": "import.splat"
   },
   "formats_splat_roundTrip": {
@@ -791,19 +538,11 @@
     "description": "End-to-end check of the .splat exporter. Loads a captured interior (3D Gaussian Splatting, baked RGB, no spherical harmonics) into a temporary SceneModel, writes it back out with GaussianSplatExporter, then re-imports the exported bytes into the displayed SceneModel. Per-splat scales, colours and rotations survive exactly and centres survive to within 16-bit position quantisation, so the re-imported scene renders identically to the original. Browser only.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Splat",
-      "GaussianSplatting",
-      "Importing",
-      "Exporting"
-    ],
-    "categories": [
-      "Importing",
-      "Exporting",
-      "Splat"
-    ],
-    "topic": "import.splat",
-    "snapshotTimeoutMs": 180000
+    "snapshotTimeoutMs": 180000,
+    "tags": ["Splat", "GaussianSplatting", "Importing", "Exporting"],
+    "categories": ["Importing", "Exporting", "Splat"],
+    "category": "Importing Models",
+    "topic": "import.splat"
   },
   "formats_splat_streaming": {
     "id": "formats_splat_streaming",
@@ -811,15 +550,9 @@
     "description": "Demonstrates dynamic streaming of 3D Gaussian Splatting content: a grid of procedurally-generated, distinctly-coloured splat tiles is loaded and unloaded on demand as the camera walks through it. Each tile is its own SceneModel, so creating it streams its splats into the renderer's shared SplatBatch and destroying it frees the GPU texture portion for reuse — the same path GaussianSplatLoader drives. Verifies the on-demand / load-as-you-go behaviour a streamed walkthrough needs, keeping resident splats bounded regardless of grid size.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Splat",
-      "GaussianSplatting",
-      "Streaming"
-    ],
-    "categories": [
-      "Importing",
-      "Splat"
-    ],
+    "tags": ["Splat", "GaussianSplatting", "Streaming"],
+    "categories": ["Importing", "Splat"],
+    "category": "Importing Models",
     "topic": "import.splat"
   },
   "formats_splat_xgfRoundTrip": {
@@ -828,36 +561,21 @@
     "description": "End-to-end check that xeokit's native XGF format can round-trip a Gaussian-splat SceneModel. Loads a captured interior from .splat, exports it to binary XGF with XGFExporter (which auto-selects XGF v3 — the first version with per-splat scale + rotation buffers — because the model contains GaussianSplatsPrimitive geometry), then re-imports the XGF bytes with XGFLoader into the displayed SceneModel. Scales survive exactly and rotations to within 8-bit, so the re-imported scene renders like the original. Demonstrates persisting mixed CAD + reality-capture scenes as a single native asset. Browser only.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Splat",
-      "GaussianSplatting",
-      "XGF",
-      "Importing",
-      "Exporting"
-    ],
-    "categories": [
-      "Importing",
-      "Exporting",
-      "Splat"
-    ],
-    "topic": "import.splat",
-    "snapshotTimeoutMs": 240000
+    "snapshotTimeoutMs": 240000,
+    "tags": ["Splat", "GaussianSplatting", "XGF", "Importing", "Exporting"],
+    "categories": ["Importing", "Exporting", "Splat"],
+    "category": "Importing Models",
+    "topic": "import.splat"
   },
   "formats_threedtiles_helmets": {
     "id": "formats_threedtiles_helmets",
-    "title": "Loading a 3D Tiles Tileset (Helmets)",
-    "description": "Loads a 3D Tiles tileset.json with ThreeDTilesLoader: a 2x2 grid of four tiles, each referencing the same Y-up glTF model placed by the tile's transform. The loader fetches each tile's content relative to baseUri, applies the Y-up to Z-up rotation, and bakes each tile transform into the per-mesh matrices of one SceneModel.",
+    "title": "Viewing a 3D Tiles Tileset",
+    "description": "Loads a 3D Tiles helmets tileset with ThreeDTilesLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "3D Tiles",
-      "glTF",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "3D Tiles"
-    ],
+    "tags": ["3D Tiles", "glTF", "Importing"],
+    "categories": ["Importing", "3D Tiles"],
+    "category": "Importing Models",
     "topic": "import.threedtiles",
     "snapshotTimeoutMs": 90000
   },
@@ -867,16 +585,9 @@
     "description": "Streams an explicit 3D Tiles tileset by screen-space error with TilesetStreamer: a coarse single-building overview tile that refines, as the camera approaches, into a denser four-building site. Each selected tile loads into its own SceneModel and coarser tiles unload once the loaded-tile budget is exceeded.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "3D Tiles",
-      "Streaming",
-      "BIM",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "3D Tiles"
-    ],
+    "tags": ["3D Tiles", "Streaming", "BIM", "Importing"],
+    "categories": ["Importing", "3D Tiles"],
+    "category": "Importing Models",
     "topic": "import.threedtiles"
   },
   "formats_threedtiles_streamingImplicit": {
@@ -885,169 +596,118 @@
     "description": "Streams an implicit 3D Tiles tileset with TilesetStreamer. The tree is described by binary .subtree availability files and Morton-indexed coordinates; the streamer fetches subtrees on demand as the camera descends, derives each tile's bounding volume by box subdivision, frustum-culls tiles outside the view, and loads/unloads per-tile SceneModels.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "3D Tiles",
-      "Streaming",
-      "Implicit",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "3D Tiles"
-    ],
+    "tags": ["3D Tiles", "Streaming", "Implicit", "Importing"],
+    "categories": ["Importing", "3D Tiles"],
+    "category": "Importing Models",
     "topic": "import.threedtiles",
     "snapshotTimeoutMs": 90000
   },
   "formats_threedxml_assembly": {
     "id": "formats_threedxml_assembly",
-    "title": "Loading a 3DXML Assembly (Dassault Systèmes)",
-    "description": "Loads a Dassault Systèmes 3DXML file — a SolidWorks-exported tooling assembly (3DXML 4.2) — and views it. 3DXML is a ZIP of XML: a Manifest, a product-structure document (the assembly tree of Reference3D / Instance3D / ReferenceRep nodes), and tessellated representation files. The example drives ThreeDXMLLoader directly: it unzips the package, walks the product structure baking each instance's RelativeMatrix into its mesh transform, and emits one geometry per representation (reused across instances), one mesh per instance, and one object per instance, then frames the camera. Browser only.",
+    "title": "Viewing a 3DXML Assembly",
+    "description": "Loads a Dassault Systèmes 3DXML tooling assembly with ThreeDXMLLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "3DXML",
-      "Dassault",
-      "CATIA",
-      "SolidWorks",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "3DXML"
-    ],
+    "tags": ["3DXML", "Dassault", "CATIA", "SolidWorks", "Importing"],
+    "categories": ["Importing", "3DXML"],
+    "category": "Importing Models",
     "topic": "import.threedxml"
   },
   "formats_usdz_residentialBuilding": {
     "id": "formats_usdz_residentialBuilding",
-    "title": "Loading a Pixar USDZ File",
-    "description": "Loads a Pixar USDZ package and views it. USDZ is a ZIP wrapping a binary USD Crate (.usdc); the example fetches the .usdz bytes, creates a SceneModel, and drives USDZLoader directly (which unpacks the ZIP and decodes the crate with the tinyusdz wasm reader), then frames the camera. The sample is a Sketchfab residential-building export of ~140 meshes. Browser only.",
+    "title": "Viewing a Pixar USDZ Model",
+    "description": "Loads a Pixar USDZ residential building model with USDZLoader and frames it in the viewer. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "USDZ",
-      "USD",
-      "Pixar",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "USDZ"
-    ],
+    "isFeatured": true,
+    "tags": ["USDZ", "USD", "Pixar", "Importing"],
+    "categories": ["Importing", "USDZ"],
+    "category": "Importing Models",
     "topic": "import.usdz"
   },
   "formats_usdz_residentialBuilding_webGPU": {
     "id": "formats_usdz_residentialBuilding_webGPU",
-    "title": "WebGPU - Loading a Pixar USDZ File",
-    "description": "Loads the ResidentialBuilding Pixar USDZ package with USDZLoader, then renders the resulting SceneModel through the experimental WebGPU renderer. This mirrors formats_usdz_residentialBuilding while using the WebGPU renderer composition instead of Studio/WebGL.",
+    "title": "WebGPU - Viewing a Pixar USDZ Model",
+    "description": "Loads a Pixar USDZ residential building model with USDZLoader and renders it with WebGPU. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets.",
     "isTutorial": false,
     "isVisualTest": false,
     "snapshotTimeoutMs": 60000,
-    "tags": [
-      "USDZ",
-      "USD",
-      "Pixar",
-      "Importing",
-      "WebGPU",
-      "Renderer"
-    ],
-    "categories": [
-      "Importing",
-      "USDZ",
-      "Renderer"
-    ],
+    "tags": ["USDZ", "USD", "Pixar", "Importing", "WebGPU", "Renderer"],
+    "categories": ["Importing", "USDZ", "Renderer"],
+    "category": "Importing Models",
     "topic": "viewing.renderer.webgpu"
   },
   "formats_usdz_roundTrip": {
     "id": "formats_usdz_roundTrip",
     "title": "USDZ Round-Trip — Load, Export, Re-Import",
-    "description": "End-to-end check of the USDZ exporter. Loads the ResidentialBuilding USDZ into a temporary SceneModel, writes it back out with USDZExporter (ASCII .usda in a stored, aligned ZIP), then re-imports the exported bytes into the displayed SceneModel. If geometry, per-mesh transforms and UsdPreviewSurface materials survive the cycle, the re-imported model renders identically to the original. Browser only.",
+    "description": "End-to-end check of the USDZ exporter. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets. Loads the ResidentialBuilding USDZ into a temporary SceneModel, writes it back out with USDZExporter, then re-imports the exported bytes into the displayed SceneModel.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "USDZ",
-      "USD",
-      "Pixar",
-      "Importing",
-      "Exporting"
-    ],
-    "categories": [
-      "Importing",
-      "Exporting",
-      "USDZ"
-    ],
+    "snapshotTimeoutMs": 120000,
+    "tags": ["USDZ", "USD", "Pixar", "Importing", "Exporting"],
+    "categories": ["Importing", "Exporting", "USDZ"],
+    "category": "Importing Models",
     "topic": "import.usdz"
   },
   "formats_xgf_housePlanPbr": {
     "id": "formats_xgf_housePlanPbr",
-    "title": "House Plan XKT2 + interactive PBR effects panel",
-    "description": "Loads HousePlan as XKT2 (the XGF v1.1.0 form — PBR materials, textures, alpha mode/cutoff, normals, UVs). Tries the persistent .xkt2 file first; if missing, round-trips the bundled glTF through the runtime XGFExporter at version 1.1.0 and re-loads the result. The same effects panel as the Sponza/HousePlan-glTF demos exposes IBL, shadows, SAO, tonemap, bloom, AA, edges, and sun direction.",
+    "title": "Viewing an XGF Building Model with Physically-Based Materials",
+    "description": "Views a house plan model containing physically-based materials, loaded from the SDK's optimized XGF format. The XGF is pre-converted from the original glTF model, allowing the model to load faster.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "XKT2",
-      "XGF",
-      "PBR",
-      "IBL",
-      "Shadows",
-      "SAO",
-      "Tonemap",
-      "Renderer"
-    ],
-    "categories": [
-      "Importing",
-      "XGF",
-      "Effects",
-      "Renderer"
-    ],
+    "isFeatured": true,
+    "tags": ["XKT2", "XGF", "PBR", "IBL", "Shadows", "SAO", "Tonemap", "Renderer"],
+    "categories": ["Importing", "XGF", "Effects", "Renderer"],
+    "category": "Importing Models",
     "topic": "import.xgf"
   },
   "formats_xgf_map": {
     "id": "formats_xgf_map",
-    "title": "Viewing XGF using XGFLoader",
-    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+    "title": "Viewing an XGF Building Model with Double-Precision Coordinates",
+    "description": "Loads an XGF building model with XGFLoader and frames it in the viewer. XGF is the SDK's native model format, optimized for faster loading.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "XGF",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "XGF"
-    ],
+    "isFeatured": true,
+    "tags": ["XGF", "_Featured"],
+    "categories": ["Importing", "XGF"],
+    "category": "Importing Models",
     "topic": "import.xgf"
+  },
+  "formats_xgf_pumpkin": {
+    "id": "formats_xgf_pumpkin",
+    "title": "Viewing a LiDAR Scan from XGF Format",
+    "description": "Loads a LAZ-encoded LiDAR scan, pre-converted to the SDK's optimized XGF format, using XGFLoader. Loading from XGF makes the model load faster than from the original LAS format.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "isFeatured": true,
+    "tags": ["LAS", "_Featured"],
+    "categories": ["Importing", "LAS"],
+    "category": "Importing Models",
+    "topic": "import.las",
+    "snapshotTimeoutMs": 90000
   },
   "formats_xgf_sportsCar": {
     "id": "formats_xgf_sportsCar",
-    "title": "Viewing XGF using XGFLoader",
-    "description": "How to load an XGF model directly into a xeokit web viewer.",
+    "title": "Multiple Views of an XGF Sports Car Model",
+    "description": "Load an XGF sports car model with XGFLoader and display it in multiple independent views. The XGF was pre-converted from OBJ+MTL for faster loading.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "XGF"
-    ],
-    "categories": [
-      "Importing",
-      "XGF"
-    ],
-    "topic": "import.xgf"
+    "isFeatured": true,
+    "tags": ["Importing", "XGF"],
+    "categories": ["Importing", "XGF"],
+    "category": "Importing Models",
+    "topic": "import.xgf",
+    "snapshotTimeoutMs": 90000
   },
   "formats_xkt_model": {
     "id": "formats_xkt_model",
-    "title": "Loading a xeokit XKT v12 Model",
-    "description": "Loads a model from xeokit's native XKT v12 binary (uncompressed container) with XKTLoader, reconstructing the SceneModel geometry (pooled, quantised, instanced) and mapping the embedded BIM metadata into a DataModel that shares object ids with the scene. Frames the camera to the loaded model.",
+    "title": "Viewing a xeokit XKT Model",
+    "description": "Loads a xeokit XKT v12 model with XKTLoader and frames it in the viewer.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "XKT",
-      "BIM",
-      "Importing",
-      "DataModel"
-    ],
-    "categories": [
-      "Importing",
-      "XKT"
-    ],
+    "tags": ["XKT", "BIM", "Importing", "DataModel"],
+    "categories": ["Importing", "XKT"],
+    "category": "Importing Models",
     "topic": "import.xkt",
     "snapshotTimeoutMs": 90000
   },
@@ -1057,18 +717,9 @@
     "description": "Imports an XKT v12 model into an offscreen SceneModel + DataModel with XKTLoader, exports it straight back to XKT with XKTExporter, then re-imports the exported bytes into the rendered scene. The displayed model is the result of a full XKTLoader → XKTExporter → XKTLoader cycle, demonstrating import/export fidelity.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "XKT",
-      "BIM",
-      "Importing",
-      "Exporting",
-      "DataModel"
-    ],
-    "categories": [
-      "Importing",
-      "Exporting",
-      "XKT"
-    ],
+    "tags": ["XKT", "BIM", "Importing", "Exporting", "DataModel"],
+    "categories": ["Importing", "Exporting", "XKT"],
+    "category": "Importing Models",
     "topic": "export.xkt",
     "snapshotTimeoutMs": 90000
   },
@@ -1078,18 +729,9 @@
     "description": "Loads the Duplex IFC DataModel and runs `inspectDataModel` from `dataModelInspector` against a curated IFC4 `DataFormatSchema`. Every opt-in check is enabled — schema tagging, relationship type binding (with super-type-aware matching against `IfcObjectDefinition`), and `IfcRelAggregates` cycle detection. The InspectionReport renders into a three-tier panel: severity counts in the header, one collapsible group per issue code with its plain-English description, and per-issue rows inside.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "IFC",
-      "IFC4",
-      "DataModel",
-      "DataModelInspector",
-      "Validate",
-      "Schema"
-    ],
-    "categories": [
-      "Validation",
-      "IFC"
-    ],
+    "tags": ["IFC", "IFC4", "DataModel", "DataModelInspector", "Validate", "Schema"],
+    "categories": ["Validation", "IFC"],
+    "category": "Validation",
     "topic": "dataModelInspector.validate"
   },
   "inspect_sceneModel_inspector": {
@@ -1098,16 +740,9 @@
     "description": "Loads the Duplex IFC model and runs inspectSceneModel with both opt-in geometry checks. The InspectionReport renders into a three-tier collapsible panel (severity → issue type → individual issues); each Warnings section and per-code group carries a 'Fix all' button that dispatches through applyFixes against the registered Fix for that code. Each fix run logs into a sibling Fix Results panel — fixed / skipped / errors counts plus per-issue outcomes.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "SceneModelInspector",
-      "Validate",
-      "Fix"
-    ],
-    "categories": [
-      "Optimization",
-      "IFC"
-    ],
+    "tags": ["IFC", "SceneModelInspector", "Validate", "Fix"],
+    "categories": ["Optimization", "IFC"],
+    "category": "Optimization",
     "topic": "sceneModelInspector.interactive",
     "snapshotTimeoutMs": 90000
   },
@@ -1117,18 +752,10 @@
     "description": "In-browser loading-speed benchmark across the formats xeokit loads. Measures the CPU cost of turning each format into a live SceneModel — the time for loader.load() to resolve on a pre-fetched in-memory buffer, into a renderer-less Scene (zero GPU upload), so the number isolates parse + SceneModel build and is reproducible across machines and headless runs. IFC, glTF and XGF use the same Duplex model for a fair same-scene comparison (IFC is source BIM and also builds a semantic DataModel; glTF/XGF are pre-baked geometry, XGF being xeokit-native and quantised); .splat is reported as throughput on its own row since it is different content. Reliability controls: network excluded (fetch once, fresh buffer copy per run), warm-up runs discarded (incl. one-time web-ifc WASM init), repeated timed iterations, and robust median + MAD statistics. Also reports per-format GPU draw time of the loaded scene via the renderer's EXT_disjoint_timer_query_webgl2 instrumentation when a real GPU is present (shown as n/a under headless / SwiftShader). Results render to a table and post via the visual-test channel for headless capture.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Performance",
-      "Benchmark",
-      "IFC",
-      "glTF",
-      "XGF",
-      "Splat"
-    ],
-    "categories": [
-      "Importing",
-      "Performance"
-    ],
+    "snapshotTimeoutMs": 180000,
+    "tags": ["Performance", "Benchmark", "IFC", "glTF", "XGF", "Splat"],
+    "categories": ["Importing", "Performance"],
+    "category": "Importing Models",
     "topic": "performance"
   },
   "presentations_cameraTour_conferenceCenter": {
@@ -1137,16 +764,9 @@
     "description": "Loads the Conference Center IFC model, plans a room-by-room camera walkthrough via presentations.cameraTour.planCameraTour, and drives the View's Camera through the resulting waypoints with playCameraTour. The planner walks the IfcSpace + IfcDoor graph, samples 8 visibility-scored viewpoint candidates per room, orders the visit with 2-opt-refined greedy nearest-neighbour, and inserts portal-transit waypoints at door centroids; the player dwells 2.5s at each room and eases between them over 2s. Inspired by Liu, Xu & Sun (2012), 'Automatic camera path planning for IFC building models'.",
     "isTutorial": false,
     "isVisualTest": false,
-    "tags": [
-      "IFC",
-      "CameraTour",
-      "Walkthrough",
-      "Presentations"
-    ],
-    "categories": [
-      "Presentations",
-      "Camera"
-    ],
+    "tags": ["IFC", "CameraTour", "Walkthrough", "Presentations"],
+    "categories": ["Presentations", "Camera"],
+    "category": "Presentations",
     "topic": "presentations.cameraTour"
   },
   "presentations_drawings_duplex": {
@@ -1155,15 +775,9 @@
     "description": "Generates three drawing SceneModels (plan, front elevation, right elevation) from the Duplex IFC model via buildDrawing, with a live control panel for every major drawings API parameter — style (lines / fills), hidden-line elimination + resolution, frame margin, panel opacity, title block, plane offset, line width, and a per-plan section cut. When the section caps toggle is enabled, buildSectionCaps generates filled cap geometry at the cut depth, then buildDrawing is called a SECOND time onto the same plan-view target SceneModel — demonstrating multi-source composition (caller threads matching direction / aabb / offset, chrome only on the first call). Clicking any drawing selects the source ViewObject.",
     "isTutorial": false,
     "isVisualTest": true,
-    "tags": [
-      "Wireframe",
-      "Projection",
-      "IFC",
-      "Duplex"
-    ],
-    "categories": [
-      "Demos"
-    ],
+    "tags": ["Wireframe", "Projection", "IFC", "Duplex"],
+    "categories": ["Demos"],
+    "category": "Demos",
     "topic": "demos.wireframe"
   },
   "presentations_heatmaps_duplex": {
@@ -1172,16 +786,9 @@
     "description": "Loads the Duplex SceneModel + DataModel (~300 IFC objects) from its precomputed XGF + datamodel JSON, then uses applyHeatMapMaterials to bake a per-geometry heat-map texture (driven by vertex elevation along the worldUp axis) onto every triangle SceneObject. Click and drag to paint white onto whichever surface the cursor lands on — the change is fed into the renderer via texSubImage2D, no batch / mesh / material rebuild.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "HeatMap",
-      "IFC"
-    ],
-    "categories": [
-      "Materials",
-      "Demo Helpers"
-    ],
+    "tags": ["Materials", "Procedural", "HeatMap", "IFC"],
+    "categories": ["Materials", "Demo Helpers"],
+    "category": "Materials",
     "topic": "materials.procedural"
   },
   "presentations_heatmaps_ifcOpenHouse4": {
@@ -1190,16 +797,9 @@
     "description": "Loads the IfcOpenHouse4 SceneModel + DataModel, then uses applyHeatMapMaterials to paint a per-geometry heat-map texture (driven by vertex elevation along the worldUp axis) onto every triangle SceneObject — producing a smooth blue→red vertical gradient across the whole house.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "HeatMap",
-      "IFC"
-    ],
-    "categories": [
-      "Materials",
-      "Demo Helpers"
-    ],
+    "tags": ["Materials", "Procedural", "HeatMap", "IFC"],
+    "categories": ["Materials", "Demo Helpers"],
+    "category": "Materials",
     "topic": "materials.procedural"
   },
   "presentations_heatmaps_solarPipes": {
@@ -1208,17 +808,9 @@
     "description": "Suggests a thermal-imaging use case for the dynamic heat-map pipeline. Builds an industrial-pipework ensemble from procgen.geometry — a hemispherical-capped pressure vessel, a valve body, a concentric reducer, a flanged spool (all buildLathe), an arched conduit run and a heat-exchanger coil (buildExtrude). A glowing orange sphere weaves through the rack and the per-vertex heat (Lambert × inverse-square falloff) is repainted into each part's heat-map texture every tick. Surfaces close to the source AND facing it light up; surfaces in the shadow of the rack stay cold.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "HeatMap",
-      "Animation",
-      "Procgen"
-    ],
-    "categories": [
-      "Materials",
-      "Demo Helpers"
-    ],
+    "tags": ["Materials", "Procedural", "HeatMap", "Animation", "Procgen"],
+    "categories": ["Materials", "Demo Helpers"],
+    "category": "Materials",
     "topic": "materials.procedural"
   },
   "presentations_heatmaps_solarTable": {
@@ -1227,17 +819,9 @@
     "description": "Same live daylight study as the IfcOpenHouse4 sweep, on a tiny hand-built model — four legs and a tabletop, each its own SceneGeometry. A synthetic sun arcs from sunrise to sunset and the per-vertex Lambert irradiance is repainted into each part's heat-map texture every tick. Useful as a sanity check (a cube's faces have axis-aligned normals, so the lit side at zenith vs. horizon is unambiguous) and as the smallest possible test bed for the live-update pipeline.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "HeatMap",
-      "Animation",
-      "Daylight"
-    ],
-    "categories": [
-      "Materials",
-      "Demo Helpers"
-    ],
+    "tags": ["Materials", "Procedural", "HeatMap", "Animation", "Daylight"],
+    "categories": ["Materials", "Demo Helpers"],
+    "category": "Materials",
     "topic": "materials.procedural"
   },
   "presentations_materials_ifcAttach_duplex": {
@@ -1246,15 +830,9 @@
     "description": "Loads the Duplex SceneModel + DataModel, then uses attachSceneModelMaterials to copy the geometry into a second SceneModel and bind a procedurally-painted PBR material to every object based on its IFC type.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "IFC"
-    ],
-    "categories": [
-      "Materials",
-      "Demo Helpers"
-    ],
+    "tags": ["Materials", "Procedural", "IFC"],
+    "categories": ["Materials", "Demo Helpers"],
+    "category": "Materials",
     "topic": "materials.procedural"
   },
   "presentations_schedule_duplex": {
@@ -1263,17 +841,9 @@
     "description": "Drive the Duplex through a synthetic 24-week construction schedule using SchedulePlayer. Each task is bound to a slice of the model's SceneObjects (foundations, ground-floor slab, ground-floor walls, first-floor walls + slab, roof, interior fit-out), and the player transitions each slice through Pending → InProgress → Complete by writing per-object state to data textures — so a per-frame state apply across hundreds of objects costs no geometry rebuild. Scrub the timeline or hit Play to watch the building assemble itself; the camera flies to each milestone's AABB as the cursor crosses it.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "4D",
-      "Schedule",
-      "Construction",
-      "SchedulePlayer",
-      "Duplex"
-    ],
-    "categories": [
-      "Presentations",
-      "Schedule"
-    ],
+    "tags": ["4D", "Schedule", "Construction", "SchedulePlayer", "Duplex"],
+    "categories": ["Presentations", "Schedule"],
+    "category": "Presentations",
     "topic": "presentations.schedule"
   },
   "presentations_sunStudy_duplex": {
@@ -1282,17 +852,9 @@
     "description": "Place the Duplex at a notional Vancouver site (49.28°N, -123.12°W) and drive a SunStudy with an AnnualSunPlayer. Scrub the time-of-day slider to watch shadows sweep across the building; toggle Day vs Year to playback either a single day or a full Jan-to-Dec sun-angle envelope. The directional 'sun' light's azimuth, altitude, colour, and intensity all derive from the NOAA Solar Position Algorithm — same math that powers daylight-factor compliance reports (LEED EQ Credit 8.1, BREEAM Hea 01, EN 17037).",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "SunStudy",
-      "Daylight",
-      "Shadows",
-      "NOAA",
-      "Duplex"
-    ],
-    "categories": [
-      "Presentations",
-      "SunStudy"
-    ],
+    "tags": ["SunStudy", "Daylight", "Shadows", "NOAA", "Duplex"],
+    "categories": ["Presentations", "SunStudy"],
+    "category": "Presentations",
     "topic": "presentations.sunStudy"
   },
   "presentations_volumeOverlay_atrium": {
@@ -1301,17 +863,9 @@
     "description": "Dedicated showcase for VolumeOverlayPanel — three visualisation techniques (slice plane, iso-surface, streamlines) driven from the same VoxelGrid + VectorGrid pair. Scene is a simple double-height atrium (procedural geometry, no model load) so the volumetric data reads as the focus rather than the building. The thermal field shows vertical stratification + a Gaussian heat plume; the companion vector field gives natural-convection streamlines (buoyant updraft + radial inflow at the floor + ceiling outflow). Switch techniques live from the panel's Technique selector.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "VolumeOverlay",
-      "Streamlines",
-      "Isosurface",
-      "CFD",
-      "HVAC"
-    ],
-    "categories": [
-      "Presentations",
-      "VolumeOverlay"
-    ],
+    "tags": ["VolumeOverlay", "Streamlines", "Isosurface", "CFD", "HVAC"],
+    "categories": ["Presentations", "VolumeOverlay"],
+    "category": "Presentations",
     "topic": "presentations.volumeOverlay"
   },
   "profile_renderer_conferenceCenter": {
@@ -1320,18 +874,9 @@
     "description": "Loads the OTC Conference Center as XGF, slowly orbits the camera to keep the renderer busy, and captures 60 frames of per-bin GPU + CPU time via RenderInspector.captureFrames. Captures twice: once at the canvas's natural size, then with the canvas resized to 32x32 px. If GPU time barely changes between the two runs, the workload is not fragment-bound and LOD work will not pay off; a steep drop at 32x32 means it is fragment-bound and LOD is the right next bet. Results are printed to the devtools console as two console.table blocks plus the GL renderer string.",
     "isTutorial": false,
     "isVisualTest": false,
-    "tags": [
-      "Profiling",
-      "Performance",
-      "WebGLRenderer",
-      "RenderInspector",
-      "IFC",
-      "XGF"
-    ],
-    "categories": [
-      "Performance",
-      "Renderer"
-    ],
+    "tags": ["Profiling", "Performance", "WebGLRenderer", "RenderInspector", "IFC", "XGF"],
+    "categories": ["Performance", "Renderer"],
+    "category": "Performance",
     "topic": "viewing.webGLRenderer"
   },
   "simulation_physics_duplex": {
@@ -1340,17 +885,9 @@
     "description": "Every SceneObject in the Duplex IFC building (loaded as XGF) becomes a dynamic Rapier body, the world's gravity vector points up, and the house lifts off the slab and disassembles itself in mid-air. A separate slab stays fixed as a spatial reference. \"Toggle gravity\" flips the vector so the parts fall back into a chaotic heap. Physics runs through ScenePhysics with Rapier loaded from a CDN at runtime; the SDK itself never bundles Rapier.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Physics",
-      "Rapier",
-      "ScenePhysics",
-      "XGF",
-      "Cityscape"
-    ],
-    "categories": [
-      "Physics",
-      "Interaction"
-    ],
+    "tags": ["Physics", "Rapier", "ScenePhysics", "XGF", "Cityscape"],
+    "categories": ["Physics", "Interaction"],
+    "category": "Physics",
     "topic": "physics.cityscape"
   },
   "spatial_collision_hitPoint": {
@@ -1359,18 +896,9 @@
     "description": "Stress-tests the SceneCollisionIndex BVH and triangle-precise raycaster against a procedurally generated city of thousands of buildings. The cursor is a plain HTML element layered over the canvas — it tracks the mouse and changes colour when the BVH+triangle test reports a hit, with no 3D scene mutation per frame and no GL pipeline flush.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "BVH",
-      "Collision",
-      "Picking",
-      "Procgen",
-      "Cityscape",
-      "StressTest"
-    ],
-    "categories": [
-      "Collision",
-      "Picking"
-    ],
+    "tags": ["BVH", "Collision", "Picking", "Procgen", "Cityscape", "StressTest"],
+    "categories": ["Collision", "Picking"],
+    "category": "Collision",
     "topic": "collision.bvh"
   },
   "spatial_collision_hover": {
@@ -1379,17 +907,9 @@
     "description": "Hover the mouse over the Duplex IFC model. Each move event casts a ray through the SceneCollisionIndex BVH, finds the nearest object whose world AABB is hit, and highlights it. No GPU pick — every hit test runs on the CPU through the self-maintaining bounding-volume hierarchy.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "BVH",
-      "Collision",
-      "IFC",
-      "Picking",
-      "Hover"
-    ],
-    "categories": [
-      "Collision",
-      "Picking"
-    ],
+    "tags": ["BVH", "Collision", "IFC", "Picking", "Hover"],
+    "categories": ["Collision", "Picking"],
+    "category": "Collision",
     "topic": "collision.bvh"
   },
   "spatial_markerOcclusion_duplex": {
@@ -1398,18 +918,9 @@
     "description": "Shows WebGLRenderer marker occlusion on the Duplex XGF model. HTML annotation labels are pinned to world-space marker anchors around the building; each camera update projects the anchors to canvas space and uses the BVH-backed marker occlusion tester to hide labels behind model geometry.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "BVH",
-      "Annotations",
-      "Occlusion",
-      "WebGLRenderer",
-      "XGF",
-      "Duplex"
-    ],
-    "categories": [
-      "Picking",
-      "Renderer"
-    ],
+    "tags": ["BVH", "Annotations", "Occlusion", "WebGLRenderer", "XGF", "Duplex"],
+    "categories": ["Picking", "Renderer"],
+    "category": "Picking",
     "topic": "picking.occlusion"
   },
   "spatial_snapping_table": {
@@ -1418,16 +929,9 @@
     "description": "Shows the WebGLRenderer's snap-pick pipeline. As the cursor moves over a small table SceneModel, every `mousemove` is routed through `renderer.pick(view, {canvasPos, snapToVertex, snapToEdge, snapRadius})`. The renderer rasterises the surrounding pickable vertices and edges into a tiny RGBA32F framebuffer centred on the cursor, scans for the nearest non-empty texel, and reports the world-space snap target. A small marker re-tints itself red / amber / teal depending on whether the result is a vertex snap, an edge snap, or a plain surface pick.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Picking",
-      "Snap",
-      "Vertex",
-      "Edge",
-      "WebGLRenderer"
-    ],
-    "categories": [
-      "Picking"
-    ],
+    "tags": ["Picking", "Snap", "Vertex", "Edge", "WebGLRenderer"],
+    "categories": ["Picking"],
+    "category": "Picking",
     "topic": "picking.snap"
   },
   "spatial_snapping_thickLines": {
@@ -1436,18 +940,9 @@
     "description": "Exercises the WebGLRenderer's snap-pick pipeline on `LinesPrimitive` geometry rendered through the quad-expanded thick-line technique. A box wireframe (free-end caps), a closed pentagram polyline (miter joints throughout), and an open 'Z' polyline (mixed joints + free ends) all carry `lineWidth = 6`. Every `mousemove` is routed through `renderer.pick(view, {canvasPos, snapToVertex, snapToEdge, snapRadius})`; vertex snap rasterises each line's endpoints into the snap FBO as 1-pixel POINTS, edge snap rasterises each line as a 1-pixel `gl.LINES` segment along the mathematical centerline. A marker tints itself red on vertex hits and amber on edge hits.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "Picking",
-      "Snap",
-      "Vertex",
-      "Edge",
-      "Lines",
-      "ThickLines",
-      "WebGLRenderer"
-    ],
-    "categories": [
-      "Picking"
-    ],
+    "tags": ["Picking", "Snap", "Vertex", "Edge", "Lines", "ThickLines", "WebGLRenderer"],
+    "categories": ["Picking"],
+    "category": "Picking",
     "topic": "picking.snap"
   },
   "viewing_effects_duplex": {
@@ -1456,21 +951,9 @@
     "description": "Every post-process and shading knob exposed on one Duplex IFC scene — SAO, cascaded directional shadows, edges, tonemap + supersampling, bloom, and FXAA. Use the collapsible sections in the panel to tune each effect in isolation.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "SAO",
-      "Shadows",
-      "CSM",
-      "Edges",
-      "Tonemap",
-      "Bloom",
-      "FXAA",
-      "HDR",
-      "Renderer"
-    ],
-    "categories": [
-      "Effects",
-      "Renderer"
-    ],
+    "tags": ["SAO", "Shadows", "CSM", "Edges", "Tonemap", "Bloom", "FXAA", "HDR", "Renderer"],
+    "categories": ["Effects", "Renderer"],
+    "category": "Effects",
     "topic": "effects.full"
   },
   "viewing_memory_gpuMemoryConfigs": {
@@ -1480,70 +963,9 @@
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Performance",
-      "Renderer"
-    ],
+    "categories": ["Performance", "Renderer"],
+    "category": "Performance",
     "topic": "performance.gpuMemory"
-  },
-  "viewing_webGPU_triangle": {
-    "id": "viewing_webGPU_triangle",
-    "title": "WebGPU renderer triangle depth demo",
-    "description": "Runs the experimental WebGPU renderer directly with a minimal Scene, Viewer, one canvas View, and two indexed triangle meshes. The triangles overlap at different depths to exercise the current flat-color draw path and depth buffer.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "tags": [
-      "WebGPU",
-      "Renderer"
-    ],
-    "categories": [
-      "Viewing",
-      "Renderer"
-    ],
-    "topic": "viewing.renderer.webgpu"
-  },
-  "viewing_multiView_duplex": {
-    "id": "viewing_multiView_duplex",
-    "title": "Multi-View IFC Viewer (Duplex)",
-    "description": "Render a single IFC model across multiple canvases with independent camera and interaction states.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [],
-    "categories": [
-      "Viewer",
-      "Views"
-    ],
-    "topic": "viewer.multiview"
-  },
-  "viewing_multiView_focusAndPlan": {
-    "id": "viewing_multiView_focusAndPlan",
-    "title": "Multi-View Focus and Plan Workflow",
-    "description": "Use three coordinated views (perspective, orthographic plan, and detail) to inspect the same model with independent per-view states.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Viewer",
-      "MultiView"
-    ],
-    "categories": [
-      "Viewer",
-      "Views",
-      "MultiView"
-    ],
-    "topic": "viewer.multiview"
-  },
-  "viewing_multiView_ifcOpenHouse4": {
-    "id": "viewing_multiView_ifcOpenHouse4",
-    "title": "Multi-View IFC Viewer (IfcOpenHouse4)",
-    "description": "Render a single IFC model across multiple canvases with independent camera and interaction states.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [],
-    "categories": [
-      "Viewer",
-      "Views"
-    ],
-    "topic": "viewer.multiview"
   },
   "viewing_resolutionScale_interaction": {
     "id": "viewing_resolutionScale_interaction",
@@ -1551,14 +973,9 @@
     "description": "This sample demonstrates how to use ResolutionScale to downscale the resolution of the view while interacting with the model, and restore it when the interaction is complete. This technique can improve performance during interactions by reducing the rendering workload.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "XGF",
-      "_Featured"
-    ],
-    "categories": [
-      "Performance",
-      "XGF"
-    ],
+    "tags": ["XGF", "_Featured"],
+    "categories": ["Performance", "XGF"],
+    "category": "Performance",
     "topic": "performance.resolutionScale"
   },
   "viewing_sectionPlane_intro": {
@@ -1567,14 +984,9 @@
     "description": "A row of sphere-on-cube pairs sliced by two section planes (one horizontal, one diagonal). Sliders move each plane along its normal; the toggle buttons activate / deactivate. The renderer packs every active plane into a fixed-size uniform `vec4[8]` bank and the fragment shader walks `uSectionPlaneCount` of them per fragment — so creating, destroying, or toggling planes never recompiles the shader, and scenes with no active planes pay one int compare per fragment for the whole feature.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "View",
-      "SectionPlane",
-      "Clipping"
-    ],
-    "categories": [
-      "View"
-    ],
+    "tags": ["View", "SectionPlane", "Clipping"],
+    "categories": ["View"],
+    "category": "View",
     "topic": "view.sectionPlane"
   },
   "viewing_sectionPlane_transformControls": {
@@ -1583,17 +995,9 @@
     "description": "Slice the Duplex XGF model by binding a TransformControls gizmo to a SectionPlane via a getMatrix / setMatrix adapter. Drag to translate the plane, press R to rotate its normal.",
     "isTutorial": true,
     "isVisualTest": false,
-    "tags": [
-      "SectionPlane",
-      "TransformControls",
-      "Slicing",
-      "XGF",
-      "Adapter"
-    ],
-    "categories": [
-      "Viewing",
-      "Slicing"
-    ],
+    "tags": ["SectionPlane", "TransformControls", "Slicing", "XGF", "Adapter"],
+    "categories": ["Viewing", "Slicing"],
+    "category": "Viewing",
     "topic": "viewing.sectionPlane"
   },
   "viewing_textureMatrix_renderPaths": {
@@ -1603,10 +1007,8 @@
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Rendering",
-      "Materials"
-    ],
+    "categories": ["Rendering", "Materials"],
+    "category": "Rendering",
     "topic": "rendering.shaderVariants"
   },
   "viewing_viewLayers_manual": {
@@ -1616,11 +1018,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
-    "categories": [
-      "Viewer",
-      "Views",
-      "ViewLayers"
-    ],
+    "categories": ["Viewer", "Views", "ViewLayers"],
+    "category": "Viewer",
     "topic": "viewer.view.viewlayer"
   },
   "viewing_viewer_memoryConfigs": {
@@ -1630,11 +1029,19 @@
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
-    "categories": [
-      "Viewer",
-      "Configuration",
-      "Performance"
-    ],
+    "categories": ["Viewer", "Configuration", "Performance"],
+    "category": "Viewer",
     "topic": "viewer.configuration"
+  },
+  "viewing_webGPU_triangle": {
+    "id": "viewing_webGPU_triangle",
+    "title": "WebGPU renderer triangle depth demo",
+    "description": "Runs the experimental WebGPU renderer directly with a minimal Scene, Viewer, one canvas View, and two indexed triangle meshes. The triangles overlap at different depths to exercise the current flat-color draw path and depth buffer.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "tags": ["WebGPU", "Renderer"],
+    "categories": ["Viewing", "Renderer"],
+    "category": "Viewing",
+    "topic": "viewing.renderer.webgpu"
   }
 }

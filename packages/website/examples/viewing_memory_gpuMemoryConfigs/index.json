@@ -9,5 +9,6 @@
     "Performance",
     "Renderer"
   ],
+  "category": "Performance",
   "topic": "performance.gpuMemory"
 }

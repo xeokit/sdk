@@ -16,6 +16,7 @@
     "Exporting",
     "XKT"
   ],
+  "category": "Importing Models",
   "topic": "export.xkt",
   "snapshotTimeoutMs": 90000
 }

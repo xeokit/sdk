@@ -8,7 +8,7 @@ const studio = new xeokit.studio.Studio({});
 
 studio.init().then(() => {
 
-  const {scene, data} = studio;
+  const {scene} = studio;
 
   // Create separate loaders for materials and geometry.
   // OBJ files usually depend on a .mtl file, so loading materials first helps ensure
@@ -65,21 +65,6 @@ studio.init().then(() => {
 
   const sceneModel = sceneModelRes.value;
 
-  // Create a DataModel to hold semantic and logical data.
-  // This supports workflows like object inspection and metadata-based filtering
-  // without coupling that logic to render-only structures.
-
-  const dataModelRes = data.createModel({
-    id: "demoModel"
-  });
-
-  if (dataModelRes.ok === false) {
-    console.error(`Error creating DataModel: ${dataModelRes.error}`);
-    return;
-  }
-
-  const dataModel = dataModelRes.value;
-
   // Fetch both files, then load MTL before OBJ.
   // Files are fetched in parallel for speed, but materials are applied first so
   // OBJ meshes can bind the correct material definitions right away.
@@ -111,8 +96,7 @@ studio.init().then(() => {
     .then(({objFileData}) => {
       return objLoader.load({
         fileData: objFileData,
-        sceneModel,
-        dataModel
+        sceneModel
       });
     })
     .then(() => {

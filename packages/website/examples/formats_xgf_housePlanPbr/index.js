@@ -21,13 +21,7 @@ studio.init().then(async () => {
       "eye": [1396.192488512606,-228.91295922593062,7.605782942380627],
       "look": [1389.9821022363608,-234.97883380249922,1.9956860109231078],
       "up": [-0.3882818817391334,-0.3792467944611508,0.8398863311210985]
-    },
-    effects: {
-      tonemap: {
-        sRGBEncode: true
-      }
-    },
-    renderMode: xeokit.base.constants.RealisticRender
+    }
   });
 
   const status = document.getElementById("status");
@@ -41,7 +35,16 @@ studio.init().then(async () => {
     const xgfBytes = await xgfResp.arrayBuffer();
 
     const sceneModel = mustCreate(scene.createModel({
-      id: "housePlan"
+      id: "housePlan",
+      coordinateSystem: {
+        "basis": [
+          1, 0, 0,
+          0, 1, 0,
+          0, 0, 1
+        ],
+        "origin": [0, 0, 0],
+        "units": "meters"
+      }
     }));
 
     const xgfLoader = new xeokit.formats.xgf.XGFLoader();

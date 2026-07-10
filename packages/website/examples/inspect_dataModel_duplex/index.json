@@ -16,5 +16,6 @@
     "Validation",
     "IFC"
   ],
+  "category": "Validation",
   "topic": "dataModelInspector.validate"
 }

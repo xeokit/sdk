@@ -89,6 +89,19 @@ export class RenderBuffers {
   }
 
   /**
+   * Rebinds all managed render buffers to the restored WebGL context. Their
+   * framebuffer attachments are recreated lazily on the next bind.
+   */
+  webglContextRestored(gl: WebGL2RenderingContext): void {
+    for (const buffer of Object.values(this._renderBuffersBasic)) {
+      buffer.webglContextRestored(gl);
+    }
+    for (const buffer of Object.values(this._renderBuffersScaled)) {
+      buffer.webglContextRestored(gl);
+    }
+  }
+
+  /**
    * Destroys all managed render buffers, releasing their WebGL resources.
    */
   destroy(): void {

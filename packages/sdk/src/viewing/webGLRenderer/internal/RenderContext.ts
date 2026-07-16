@@ -55,7 +55,7 @@ export class RenderContext implements WebGLContextProvider {
    * window, so all rendering, GPU uploads and resource deletion must be skipped.
    */
   get contextLost(): boolean {
-    return !this.gl || this.gl.isContextLost();
+    return this._contextLost || !this.gl || this.gl.isContextLost();
   }
 
   /**
@@ -287,6 +287,7 @@ export class RenderContext implements WebGLContextProvider {
   public snapBufferSize: FloatArrayParam;
 
   private initialized: boolean = false;
+  private _contextLost: boolean = false;
 
 
   /**
@@ -305,6 +306,7 @@ export class RenderContext implements WebGLContextProvider {
   public init( viewer: Viewer ): SDKResult<undefined> {
     this.viewer = viewer;
     this.activeView = null;
+    this._contextLost = false;
     const result = this._createCanvasAndGL();
     if (result.ok===false) {
       return result;
@@ -316,7 +318,11 @@ export class RenderContext implements WebGLContextProvider {
     this.renderInspector.attachGL(gl);
     this.debugging = false;
     this.boundTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
-    this._allocatePlaceholderTextures();
+    const placeholderResult = this._allocatePlaceholderTextures();
+    if (placeholderResult.ok === false) {
+      this.destroy();
+      return placeholderResult;
+    }
     this.initialized = true;
     this.reset();
     return {
@@ -370,11 +376,18 @@ export class RenderContext implements WebGLContextProvider {
    * {@link init}; the textures live for the lifetime of the
    * `RenderContext`.
    */
-  private _allocatePlaceholderTextures(): void {
+  private _allocatePlaceholderTextures(): SDKResult<void> {
     const gl = this.gl;
     const black = new Uint8Array([0, 0, 0, 255]);
 
     const cube = gl.createTexture();
+    if (!cube) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[RenderContext._allocatePlaceholderTextures] Failed to create placeholder cubemap"
+      };
+    }
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, cube);
     const faces = [
       gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -392,6 +405,16 @@ export class RenderContext implements WebGLContextProvider {
     this._placeholderCubemap = cube;
 
     const tex = gl.createTexture();
+    if (!tex) {
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+      gl.deleteTexture(cube);
+      this._placeholderCubemap = null;
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[RenderContext._allocatePlaceholderTextures] Failed to create placeholder texture"
+      };
+    }
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, black);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -400,6 +423,65 @@ export class RenderContext implements WebGLContextProvider {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindTexture(gl.TEXTURE_2D, null);
     this._placeholderTexture2D = tex;
+    return {ok: true, value: undefined};
+  }
+
+  private _releasePlaceholderTextures(): void {
+    const gl = this.gl;
+    if (gl) {
+      if (this._placeholderCubemap) {
+        gl.deleteTexture(this._placeholderCubemap);
+      }
+      if (this._placeholderTexture2D) {
+        gl.deleteTexture(this._placeholderTexture2D);
+      }
+    }
+    this._placeholderCubemap = null;
+    this._placeholderTexture2D = null;
+    this.iblIrradianceCubemap = null;
+    this.iblPrefilteredCubemap = null;
+    this.iblBRDFLUT = null;
+  }
+
+  /**
+   * Drops GL handles owned directly by this context when WebGL reports context
+   * loss. The browser invalidates those handles, so restoration must recreate
+   * them before any draw technique binds the fallback IBL samplers again.
+   */
+  webglContextLost(): void {
+    this._contextLost = true;
+    this._releasePlaceholderTextures();
+    this.resetTextureBindings();
+  }
+
+  /**
+   * Recreates context-owned GL resources after WebGL restores the existing
+   * context object.
+   */
+  webglContextRestored(gl?: WebGL2RenderingContext): SDKResult<void> {
+    if (!this.initialized || !this.gl) {
+      throw new SDKInternalException("[RenderContext.webglContextRestored] RenderContext is not initialized");
+    }
+    if (gl && gl !== this.gl) {
+      this.gl = gl;
+      this.renderInspector?.attachGL(gl);
+    }
+    if (this.gl.isContextLost()) {
+      return {
+        ok: false,
+        type: SDKErrorType.WebGLContextLost,
+        error: "[RenderContext.webglContextRestored] WebGL context is still lost"
+      };
+    }
+
+    this._releasePlaceholderTextures();
+    const result = this._allocatePlaceholderTextures();
+    if (result.ok === false) {
+      return result;
+    }
+    this._contextLost = false;
+    this.reset();
+    return {ok: true, value: undefined};
   }
 
   /**
@@ -468,7 +550,8 @@ export class RenderContext implements WebGLContextProvider {
    * Destroys this RenderContext.
    */
   destroy() {
-    if (this.gl) {
+    this._releasePlaceholderTextures();
+    if (this.gl && !this.gl.isContextLost()) {
       this.gl.getExtension("WEBGL_lose_context")?.loseContext();
     }
     if (this.webglCanvasElement?.parentNode) {

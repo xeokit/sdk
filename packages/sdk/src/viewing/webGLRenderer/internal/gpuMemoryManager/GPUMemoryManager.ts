@@ -224,7 +224,9 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       ...this._viewTilePickMatrixTexture,
       ...this._batches,
     ];
+    const gl = this._renderContext.gl;
     for (const contextUser of contextUsers) {
+      (contextUser as any).setWebGLContext?.(gl);
       const result = contextUser.webglContextRestored();
       if (!result.ok) {
         return result;

@@ -332,6 +332,15 @@ export abstract class DataTexture {
   }
 
   /**
+   * Rebinds this wrapper to a restored WebGL context before reallocating its
+   * texture.
+   * @internal
+   */
+  public setWebGLContext(gl: WebGL2RenderingContext): void {
+    this.gl = gl;
+  }
+
+  /**
    * Uploads any changes in the CPU-side buffer to the GPU texture.
    * @return `true` if any data was uploaded; `false` if there were no changes to upload.
    * @internal

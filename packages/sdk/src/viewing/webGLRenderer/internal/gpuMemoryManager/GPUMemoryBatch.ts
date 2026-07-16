@@ -1725,7 +1725,11 @@ export class GPUMemoryBatch {
       ...(this._occlusionAtlasTexture ? [this._occlusionAtlasTexture] : [])
     ];
 
+    const gl = this._renderContext.gl;
     for (const dataTexture of dataTextures) {
+      if (dataTexture && "gl" in dataTexture) {
+        (dataTexture as any).gl = gl;
+      }
       const result = (dataTexture as any).webglContextRestored();
       if (!result.ok) {
         return result;

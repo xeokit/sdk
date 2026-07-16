@@ -98,6 +98,15 @@ export class SplatBatch {
     return {ok: true, value: undefined};
   }
 
+  /**
+   * Rebinds this wrapper to a restored WebGL context before reallocating its
+   * splat texture.
+   * @internal
+   */
+  setWebGLContext(gl: WebGL2RenderingContext): void {
+    this.texture.setWebGLContext(gl);
+  }
+
   /** Live portions, each carrying `{base, count}` for the sort/draw. */
   get portions(): Iterable<SplatPortion> {
     return this._portions.values();

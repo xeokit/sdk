@@ -625,18 +625,7 @@ export class RenderManager {
     this._postProcess = null;
     this._capPlaneRenderer?.destroy();
     this._capPlaneRenderer = null;
-    for (const pipeline of this._iblPrefilters.values()) {
-      pipeline.destroy();
-    }
-    this._iblPrefilters.clear();
-    this._iblParamSignatures.clear();
-    // Also reset the env-version cache: a recreated prefilter pipeline must
-    // re-receive the environment image, which `_prepareIBL` only re-uploads on
-    // a version mismatch — leaving this stale skips the upload and the helmet
-    // gets an empty/wrong IBL environment (over-bright, blown-out bloom).
-    this._iblEnvVersions.clear();
-    this._brdfLUT?.destroy();
-    this._brdfLUT = null;
+    this._releaseIBLResources();
     this._renderContext.renderInspector?.webglContextLost();
   }
 
@@ -650,6 +639,7 @@ export class RenderManager {
    */
   webglContextRestored(): SDKResult<void> {
     this._renderContext.renderInspector?.webglContextRestored();
+    this._releaseIBLResources();
 
     if (this.drawOps) {
       const result = this.drawOps.webglContextRestored();
@@ -657,6 +647,19 @@ export class RenderManager {
     }
 
     return this.init();
+  }
+
+  private _releaseIBLResources(): void {
+    for (const pipeline of this._iblPrefilters.values()) {
+      pipeline.destroy();
+    }
+    this._iblPrefilters.clear();
+    this._iblParamSignatures.clear();
+    // A recreated prefilter pipeline must re-receive the environment image,
+    // which `_prepareIBL` only re-uploads on a version mismatch.
+    this._iblEnvVersions.clear();
+    this._brdfLUT?.destroy();
+    this._brdfLUT = null;
   }
 
   private _activateExtensions() {
@@ -1284,15 +1287,7 @@ export class RenderManager {
       this.gaussianSplats.destroy();
       this.gaussianSplats = null;
     }
-    for (const pipeline of this._iblPrefilters.values()) {
-      pipeline.destroy();
-    }
-    this._iblPrefilters.clear();
-    this._iblParamSignatures.clear();
-    if (this._brdfLUT) {
-      this._brdfLUT.destroy();
-      this._brdfLUT = null;
-    }
+    this._releaseIBLResources();
     this._extensionHandles = null;
     this._renderContext = null;
     this._gpuMemoryReader = null;

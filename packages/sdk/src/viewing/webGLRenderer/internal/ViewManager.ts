@@ -311,9 +311,16 @@ export class ViewManager {
    *
    * @throws {@link base!core.SDKInternalException | SDKInternalException} If the manager has not been initialized.
    */
-  webglContextRestored(): SDKResult<void> {
+  webglContextRestored(gl?: WebGL2RenderingContext): SDKResult<void> {
     if (!this._gpuMemoryManager || !this._renderManager || !this._pickManager) {
       throw new SDKInternalException("[ViewManager.webglContextRestored] ViewManager is not initialized");
+    }
+    const resultContext = this._renderContext.webglContextRestored(gl);
+    if (resultContext.ok === false) {
+      return resultContext;
+    }
+    for (const rendererView of this._rendererViewsList) {
+      rendererView.renderBuffers?.webglContextRestored(this._renderContext.gl);
     }
     const resultGPU = this._gpuMemoryManager.webglContextRestored();
     if (resultGPU.ok === false) {
@@ -359,6 +366,7 @@ export class ViewManager {
    * rather than errors against the later-restored context.
    */
   webglContextLost(): void {
+    this._renderContext?.webglContextLost();
     this._renderManager?.webglContextLost();
     this._pickManager?.webglContextLost();
     for (const rendererView of this._rendererViewsList) {

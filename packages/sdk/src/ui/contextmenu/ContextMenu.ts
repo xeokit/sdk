@@ -1027,10 +1027,12 @@ class ContextMenu {
             if (!self._context || item.enabled === false) {
               return;
             }
-            item.doAction?.(self._context);
+            const context = self._context;
             if (this._hideOnAction) {
               self.hide();
+              item.doAction?.(context);
             } else {
+              item.doAction?.(context);
               self._updateMenuTitle();
               self._updateItemsTitles();
               self._updateItemsEnabledStatus();
@@ -1045,10 +1047,12 @@ class ContextMenu {
             if (!self._context || item.enabled === false) {
               return;
             }
-            item.doAction?.(self._context);
+            const context = self._context;
             if (this._hideOnAction) {
               self.hide();
+              item.doAction?.(context);
             } else {
+              item.doAction?.(context);
               self._updateMenuTitle();
               self._updateItemsTitles();
               self._updateItemsEnabledStatus();

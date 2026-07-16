@@ -1191,4 +1191,13 @@ void main() {
     this._shelves.push({ y: newY, height: blockH, usedWidth: blockW });
     return { x: p, y: newY + p };
   }
+
+  /**
+   * Rebinds this wrapper to a restored WebGL context before reallocating its
+   * atlas texture.
+   * @internal
+   */
+  public setWebGLContext(gl: WebGL2RenderingContext): void {
+    this.gl = gl;
+  }
 }

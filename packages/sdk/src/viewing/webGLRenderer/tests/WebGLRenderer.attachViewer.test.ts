@@ -49,6 +49,10 @@ describe("WebGLRenderer.attachViewer", () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   test("rolls back viewer state when ViewManager init fails during initial attach", () => {
     const destroy = jest.fn();
     (ViewManager as unknown as jest.Mock).mockImplementationOnce(() => ({
@@ -93,6 +97,7 @@ describe("WebGLRenderer.attachViewer", () => {
       getWebGLCanvasElement: jest.fn(() => canvas),
       webglContextLost: jest.fn(),
       webglContextRestored: jest.fn(() => ({ok: true, value: undefined})),
+      viewUpdated: jest.fn(() => ({ok: true, value: undefined})),
       destroy: jest.fn(),
     };
     const renderer = new WebGLRenderer() as any;
@@ -118,5 +123,46 @@ describe("WebGLRenderer.attachViewer", () => {
 
     expect(viewManager.webglContextLost).not.toHaveBeenCalled();
     expect(viewManager.webglContextRestored).not.toHaveBeenCalled();
+  });
+
+  test("polls for context restoration when the restored event is not delivered", () => {
+    jest.useFakeTimers();
+    let contextLost = true;
+    const gl = {
+      isContextLost: jest.fn(() => contextLost),
+      getExtension: jest.fn(() => ({restoreContext: jest.fn()})),
+    };
+    const canvas = {
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      getContext: jest.fn(() => gl),
+    };
+    const view = {needsRender: jest.fn()};
+    const viewManager = {
+      getWebGLCanvasElement: jest.fn(() => canvas),
+      webglContextLost: jest.fn(),
+      webglContextRestored: jest.fn(() => ({ok: true, value: undefined})),
+      viewUpdated: jest.fn(() => ({ok: true, value: undefined})),
+    };
+    const renderer = new WebGLRenderer() as any;
+    renderer._viewManager = viewManager;
+    renderer._viewer = {viewList: [view]};
+
+    renderer._installWebGLContextListeners(viewManager);
+    const lostHandler = canvas.addEventListener.mock.calls[0][1];
+
+    lostHandler({preventDefault: jest.fn()});
+    lostHandler({preventDefault: jest.fn()});
+
+    expect(viewManager.webglContextLost).toHaveBeenCalledTimes(1);
+    expect(viewManager.webglContextRestored).not.toHaveBeenCalled();
+
+    contextLost = false;
+    jest.advanceTimersByTime(125);
+
+    expect(viewManager.webglContextRestored).toHaveBeenCalledTimes(1);
+    expect(view.needsRender).toHaveBeenCalledTimes(1);
+    expect(viewManager.viewUpdated).toHaveBeenCalledWith(view);
+    expect(renderer._webglContextLost).toBe(false);
   });
 });

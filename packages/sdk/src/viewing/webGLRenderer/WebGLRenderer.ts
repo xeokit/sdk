@@ -61,6 +61,9 @@ export class WebGLRenderer implements Renderer {
   private _webglContextCanvas: HTMLCanvasElement | null = null;
   private _webglContextLostHandler: ((event: Event) => void) | null = null;
   private _webglContextRestoredHandler: ((event: Event) => void) | null = null;
+  private _webglContextRestorePoll: ReturnType<typeof setTimeout> | null = null;
+  private _webglContextRestoreAttempts = 0;
+  private _webglContextLost = false;
   private _destroyed = false; // Indicates if the renderer has been destroyed
 
   // Number of SceneModels currently building (loading). While > 0, per-view
@@ -825,36 +828,22 @@ export class WebGLRenderer implements Renderer {
       if (this._viewManager !== viewManager) return;
       // preventDefault is required for the browser to fire webglcontextrestored.
       event.preventDefault();
+      if (this._webglContextLost) {
+        this._startWebGLContextRestorePolling(viewManager);
+        return;
+      }
+      this._webglContextLost = true;
       // Release GL-backed resources now, while the context is still flagged
       // lost, so their gl.delete* calls are no-ops instead of errors against
       // the restored context.
       viewManager.webglContextLost();
       this.events.onContextLost.dispatch(this, event);
       this.events.webglContextLost.dispatch(this, event as WebGLContextEvent);
+      this._startWebGLContextRestorePolling(viewManager);
     };
 
     const contextRestoredHandler = (_event: Event) => {
-      if (this._viewManager !== viewManager) return;
-      const result = viewManager.webglContextRestored();
-      if (result.ok === false) {
-        this.logError({
-          ok: false,
-          type: result.type,
-          error: `[WebGLRenderer] WebGL context restoration failed - ${result.error}`
-        });
-        return;
-      }
-      // The lost context cleared the canvas; rebuilt GPU resources won't be
-      // shown until a frame is drawn. Mark every view dirty so the render path
-      // redraws them (a static scene wouldn't otherwise re-render).
-      if (this._viewer) {
-        const views = this._viewer.viewList;
-        for (let i = 0, len = views.length; i < len; i++) {
-          views[i]?.needsRender();
-        }
-      }
-      this.events.onContextRestored.dispatch(this);
-      this.events.webglContextRestored.dispatch(this);
+      this._restoreWebGLContext(viewManager);
     };
 
     this._webglContextCanvas = canvas;
@@ -865,6 +854,7 @@ export class WebGLRenderer implements Renderer {
   }
 
   private _removeWebGLContextListeners(): void {
+    this._stopWebGLContextRestorePolling();
     if (this._webglContextCanvas && this._webglContextLostHandler) {
       this._webglContextCanvas.removeEventListener("webglcontextlost", this._webglContextLostHandler);
     }
@@ -874,6 +864,81 @@ export class WebGLRenderer implements Renderer {
     this._webglContextCanvas = null;
     this._webglContextLostHandler = null;
     this._webglContextRestoredHandler = null;
+    this._webglContextLost = false;
+  }
+
+  private _restoreWebGLContext(viewManager: ViewManager): void {
+    if (this._viewManager !== viewManager) return;
+    if (!this._webglContextLost) return;
+    this._stopWebGLContextRestorePolling();
+
+    const gl = this._webglContextCanvas?.getContext("webgl2") as WebGL2RenderingContext | null;
+    const result = viewManager.webglContextRestored(gl || undefined);
+    if (result.ok === false) {
+      this._webglContextLost = true;
+      this.logError({
+        ok: false,
+        type: result.type,
+        error: `[WebGLRenderer] WebGL context restoration failed - ${result.error}`
+      });
+      this._startWebGLContextRestorePolling(viewManager);
+      return;
+    }
+
+    this._webglContextLost = false;
+    this._redrawViewsAfterContextRestore(viewManager);
+    this.events.onContextRestored.dispatch(this);
+    this.events.webglContextRestored.dispatch(this);
+  }
+
+  private _redrawViewsAfterContextRestore(viewManager: ViewManager): void {
+    if (!this._viewer) return;
+    const views = this._viewer.viewList;
+    for (let i = 0, len = views.length; i < len; i++) {
+      const view = views[i];
+      if (!view) continue;
+      view.needsRender();
+      this.logError(viewManager.viewUpdated(view));
+    }
+  }
+
+  private _startWebGLContextRestorePolling(viewManager: ViewManager): void {
+    if (this._webglContextRestorePoll || this._viewManager !== viewManager) {
+      return;
+    }
+    this._webglContextRestoreAttempts = 0;
+    this._pollWebGLContextRestore(viewManager);
+  }
+
+  private _stopWebGLContextRestorePolling(): void {
+    if (this._webglContextRestorePoll) {
+      clearTimeout(this._webglContextRestorePoll);
+      this._webglContextRestorePoll = null;
+    }
+    this._webglContextRestoreAttempts = 0;
+  }
+
+  private _pollWebGLContextRestore(viewManager: ViewManager): void {
+    if (this._viewManager !== viewManager || !this._webglContextLost || !this._webglContextCanvas) {
+      this._stopWebGLContextRestorePolling();
+      return;
+    }
+
+    const gl = this._webglContextCanvas.getContext("webgl2") as WebGL2RenderingContext | null;
+    if (gl && !gl.isContextLost()) {
+      this._restoreWebGLContext(viewManager);
+      return;
+    }
+
+    this._webglContextRestoreAttempts++;
+    if (gl && this._webglContextRestoreAttempts % 20 === 0) {
+      gl.getExtension("WEBGL_lose_context")?.restoreContext();
+    }
+
+    this._webglContextRestorePoll = setTimeout(
+      () => this._pollWebGLContextRestore(viewManager),
+      Math.min(1000, 100 + this._webglContextRestoreAttempts * 25)
+    );
   }
 
   /**

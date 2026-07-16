@@ -503,10 +503,12 @@ export class Studio {
 
     this._canvasContextMenu.on("hidden", () => {
       taskRunner.unsuspend();
+      this._requestViewsRender();
     });
 
     this._viewObjectContextMenu.on("hidden", () => {
       taskRunner.unsuspend();
+      this._requestViewsRender();
     });
 
     this._loadingSpinner = new LoadingSpinner({
@@ -1003,6 +1005,16 @@ export class Studio {
    */
   private _getInspectorView(): View | undefined {
     return this.viewer?.viewList?.[0];
+  }
+
+  private _requestViewsRender(): void {
+    const views = this.viewer?.viewList;
+    if (!views) {
+      return;
+    }
+    for (let i = 0, len = views.length; i < len; i++) {
+      views[i]?.needsRender();
+    }
   }
 
   /**

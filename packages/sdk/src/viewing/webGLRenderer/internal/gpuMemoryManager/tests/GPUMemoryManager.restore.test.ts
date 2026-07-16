@@ -16,6 +16,9 @@ import type {SDKResult} from "../../../../../base/core";
 interface FakeUser {
   restoreCalls: number;
   uploadCalls: number;
+  gl: unknown;
+  setContextCalls: unknown[];
+  setWebGLContext(gl: unknown): void;
   webglContextRestored(): SDKResult<void>;
   uploadChanges(): void;
 }
@@ -24,6 +27,12 @@ function fakeUser(result: SDKResult<void> = {ok: true, value: undefined}): FakeU
   return {
     restoreCalls: 0,
     uploadCalls: 0,
+    gl: null,
+    setContextCalls: [],
+    setWebGLContext(gl) {
+      this.gl = gl;
+      this.setContextCalls.push(gl);
+    },
     webglContextRestored() {
       this.restoreCalls++;
       return result;
@@ -40,8 +49,10 @@ function managerWith(
   batches: FakeUser[],
   contextLost = false,
 ): GPUMemoryManager {
+  const gl = {id: "restored-gl"};
   const renderContext = {
     contextLost,
+    gl,
     memoryConfigs: {maxViews: Math.max(cameraTextures.length, pickTextures.length)},
   };
   const mgr = new GPUMemoryManager(renderContext as never);
@@ -64,6 +75,7 @@ describe("GPUMemoryManager.webglContextRestored", () => {
     expect(result.ok).toBe(true);
     for (const user of [...camera, ...pick, ...batches]) {
       expect(user.restoreCalls).toBe(1);
+      expect(user.setContextCalls).toEqual([{id: "restored-gl"}]);
     }
   });
 

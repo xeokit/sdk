@@ -158801,10 +158801,10 @@ var View2 = class {
     });
     this.pointsMaterial = new PointsMaterial(this, viewParams.pointsMaterial || {
       pointSize: 1,
-      roundPoints: false,
-      perspectivePoints: false,
+      roundPoints: true,
+      perspectivePoints: true,
       minPerspectivePointSize: 1,
-      maxPerspectivePointSize: 2,
+      maxPerspectivePointSize: 6,
       filterIntensity: false,
       minIntensity: 0,
       maxIntensity: 1
@@ -170741,7 +170741,7 @@ var RenderContext = class {
    * window, so all rendering, GPU uploads and resource deletion must be skipped.
    */
   get contextLost() {
-    return !this.gl || this.gl.isContextLost();
+    return this._contextLost || !this.gl || this.gl.isContextLost();
   }
   /**
    * The HTML canvas element used for WebGL rendering.
@@ -170940,6 +170940,7 @@ var RenderContext = class {
    */
   snapBufferSize;
   initialized = false;
+  _contextLost = false;
   /**
    * Creates a new RenderContext.
    */
@@ -170955,6 +170956,7 @@ var RenderContext = class {
   init(viewer) {
     this.viewer = viewer;
     this.activeView = null;
+    this._contextLost = false;
     const result = this._createCanvasAndGL();
     if (result.ok === false) {
       return result;
@@ -170966,7 +170968,11 @@ var RenderContext = class {
     this.renderInspector.attachGL(gl);
     this.debugging = false;
     this.boundTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
-    this._allocatePlaceholderTextures();
+    const placeholderResult = this._allocatePlaceholderTextures();
+    if (placeholderResult.ok === false) {
+      this.destroy();
+      return placeholderResult;
+    }
     this.initialized = true;
     this.reset();
     return {
@@ -171021,6 +171027,13 @@ var RenderContext = class {
     const gl = this.gl;
     const black = new Uint8Array([0, 0, 0, 255]);
     const cube = gl.createTexture();
+    if (!cube) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[RenderContext._allocatePlaceholderTextures] Failed to create placeholder cubemap"
+      };
+    }
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, cube);
     const faces2 = [
       gl.TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -171040,6 +171053,16 @@ var RenderContext = class {
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
     this._placeholderCubemap = cube;
     const tex = gl.createTexture();
+    if (!tex) {
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+      gl.deleteTexture(cube);
+      this._placeholderCubemap = null;
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[RenderContext._allocatePlaceholderTextures] Failed to create placeholder texture"
+      };
+    }
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, black);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -171048,6 +171071,61 @@ var RenderContext = class {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindTexture(gl.TEXTURE_2D, null);
     this._placeholderTexture2D = tex;
+    return { ok: true, value: void 0 };
+  }
+  _releasePlaceholderTextures() {
+    const gl = this.gl;
+    if (gl) {
+      if (this._placeholderCubemap) {
+        gl.deleteTexture(this._placeholderCubemap);
+      }
+      if (this._placeholderTexture2D) {
+        gl.deleteTexture(this._placeholderTexture2D);
+      }
+    }
+    this._placeholderCubemap = null;
+    this._placeholderTexture2D = null;
+    this.iblIrradianceCubemap = null;
+    this.iblPrefilteredCubemap = null;
+    this.iblBRDFLUT = null;
+  }
+  /**
+   * Drops GL handles owned directly by this context when WebGL reports context
+   * loss. The browser invalidates those handles, so restoration must recreate
+   * them before any draw technique binds the fallback IBL samplers again.
+   */
+  webglContextLost() {
+    this._contextLost = true;
+    this._releasePlaceholderTextures();
+    this.resetTextureBindings();
+  }
+  /**
+   * Recreates context-owned GL resources after WebGL restores the existing
+   * context object.
+   */
+  webglContextRestored(gl) {
+    if (!this.initialized || !this.gl) {
+      throw new SDKInternalException("[RenderContext.webglContextRestored] RenderContext is not initialized");
+    }
+    if (gl && gl !== this.gl) {
+      this.gl = gl;
+      this.renderInspector?.attachGL(gl);
+    }
+    if (this.gl.isContextLost()) {
+      return {
+        ok: false,
+        type: 7 /* WebGLContextLost */,
+        error: "[RenderContext.webglContextRestored] WebGL context is still lost"
+      };
+    }
+    this._releasePlaceholderTextures();
+    const result = this._allocatePlaceholderTextures();
+    if (result.ok === false) {
+      return result;
+    }
+    this._contextLost = false;
+    this.reset();
+    return { ok: true, value: void 0 };
   }
   /**
    * Called before each frame.
@@ -171112,7 +171190,8 @@ var RenderContext = class {
    * Destroys this RenderContext.
    */
   destroy() {
-    if (this.gl) {
+    this._releasePlaceholderTextures();
+    if (this.gl && !this.gl.isContextLost()) {
       this.gl.getExtension("WEBGL_lose_context")?.loseContext();
     }
     if (this.webglCanvasElement?.parentNode) {
@@ -171188,6 +171267,18 @@ var RenderBuffers = class {
     }
     for (const buffer of Object.values(this._renderBuffersScaled)) {
       buffer.webglContextLost();
+    }
+  }
+  /**
+   * Rebinds all managed render buffers to the restored WebGL context. Their
+   * framebuffer attachments are recreated lazily on the next bind.
+   */
+  webglContextRestored(gl) {
+    for (const buffer of Object.values(this._renderBuffersBasic)) {
+      buffer.webglContextRestored(gl);
+    }
+    for (const buffer of Object.values(this._renderBuffersScaled)) {
+      buffer.webglContextRestored(gl);
     }
   }
   /**
@@ -171461,6 +171552,14 @@ var DataTexture = class {
    */
   webglContextRestored() {
     return this._allocateTexture(true);
+  }
+  /**
+   * Rebinds this wrapper to a restored WebGL context before reallocating its
+   * texture.
+   * @internal
+   */
+  setWebGLContext(gl) {
+    this.gl = gl;
   }
   /**
    * Notifies listeners that the data texture has been updated.
@@ -174004,6 +174103,14 @@ void main() {
     this._shelves.push({ y: newY, height: blockH, usedWidth: blockW });
     return { x: p, y: newY + p };
   }
+  /**
+   * Rebinds this wrapper to a restored WebGL context before reallocating its
+   * atlas texture.
+   * @internal
+   */
+  setWebGLContext(gl) {
+    this.gl = gl;
+  }
 };
 
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/dataTextures/MeshViewAttributeTexture.ts
@@ -175763,7 +175870,11 @@ var GPUMemoryBatch = class {
       ...this._emissiveAtlasTexture ? [this._emissiveAtlasTexture] : [],
       ...this._occlusionAtlasTexture ? [this._occlusionAtlasTexture] : []
     ];
+    const gl = this._renderContext.gl;
     for (const dataTexture of dataTextures) {
+      if (dataTexture && "gl" in dataTexture) {
+        dataTexture.gl = gl;
+      }
       const result = dataTexture.webglContextRestored();
       if (!result.ok) {
         return result;
@@ -176094,7 +176205,9 @@ var GPUMemoryManager = class {
       ...this._viewTilePickMatrixTexture,
       ...this._batches
     ];
+    const gl = this._renderContext.gl;
     for (const contextUser of contextUsers) {
+      contextUser.setWebGLContext?.(gl);
       const result = contextUser.webglContextRestored();
       if (!result.ok) {
         return result;
@@ -177398,6 +177511,14 @@ var SplatBatch = class {
     this._revision++;
     return { ok: true, value: void 0 };
   }
+  /**
+   * Rebinds this wrapper to a restored WebGL context before reallocating its
+   * splat texture.
+   * @internal
+   */
+  setWebGLContext(gl) {
+    this.texture.setWebGLContext(gl);
+  }
   /** Live portions, each carrying `{base, count}` for the sort/draw. */
   get portions() {
     return this._portions.values();
@@ -177624,6 +177745,7 @@ var MeshManager = class {
    */
   webglContextRestored() {
     if (this._splatBatch) {
+      this._splatBatch.setWebGLContext(this._renderContext.gl);
       return this._splatBatch.webglContextRestored();
     }
     return { ok: true, value: void 0 };
@@ -189430,14 +189552,7 @@ var RenderManager = class _RenderManager {
     this._postProcess = null;
     this._capPlaneRenderer?.destroy();
     this._capPlaneRenderer = null;
-    for (const pipeline of this._iblPrefilters.values()) {
-      pipeline.destroy();
-    }
-    this._iblPrefilters.clear();
-    this._iblParamSignatures.clear();
-    this._iblEnvVersions.clear();
-    this._brdfLUT?.destroy();
-    this._brdfLUT = null;
+    this._releaseIBLResources();
     this._renderContext.renderInspector?.webglContextLost();
   }
   /**
@@ -189450,12 +189565,23 @@ var RenderManager = class _RenderManager {
    */
   webglContextRestored() {
     this._renderContext.renderInspector?.webglContextRestored();
+    this._releaseIBLResources();
     if (this.drawOps) {
       const result = this.drawOps.webglContextRestored();
       if (result.ok === false)
         return result;
     }
     return this.init();
+  }
+  _releaseIBLResources() {
+    for (const pipeline of this._iblPrefilters.values()) {
+      pipeline.destroy();
+    }
+    this._iblPrefilters.clear();
+    this._iblParamSignatures.clear();
+    this._iblEnvVersions.clear();
+    this._brdfLUT?.destroy();
+    this._brdfLUT = null;
   }
   _activateExtensions() {
     const gl = this._renderContext.gl;
@@ -189918,15 +190044,7 @@ var RenderManager = class _RenderManager {
       this.gaussianSplats.destroy();
       this.gaussianSplats = null;
     }
-    for (const pipeline of this._iblPrefilters.values()) {
-      pipeline.destroy();
-    }
-    this._iblPrefilters.clear();
-    this._iblParamSignatures.clear();
-    if (this._brdfLUT) {
-      this._brdfLUT.destroy();
-      this._brdfLUT = null;
-    }
+    this._releaseIBLResources();
     this._extensionHandles = null;
     this._renderContext = null;
     this._gpuMemoryReader = null;
@@ -191299,9 +191417,16 @@ var ViewManager2 = class {
    *
    * @throws {@link base!core.SDKInternalException | SDKInternalException} If the manager has not been initialized.
    */
-  webglContextRestored() {
+  webglContextRestored(gl) {
     if (!this._gpuMemoryManager || !this._renderManager || !this._pickManager) {
       throw new SDKInternalException("[ViewManager.webglContextRestored] ViewManager is not initialized");
+    }
+    const resultContext = this._renderContext.webglContextRestored(gl);
+    if (resultContext.ok === false) {
+      return resultContext;
+    }
+    for (const rendererView of this._rendererViewsList) {
+      rendererView.renderBuffers?.webglContextRestored(this._renderContext.gl);
     }
     const resultGPU = this._gpuMemoryManager.webglContextRestored();
     if (resultGPU.ok === false) {
@@ -191344,6 +191469,7 @@ var ViewManager2 = class {
    * rather than errors against the later-restored context.
    */
   webglContextLost() {
+    this._renderContext?.webglContextLost();
     this._renderManager?.webglContextLost();
     this._pickManager?.webglContextLost();
     for (const rendererView of this._rendererViewsList) {
@@ -192445,6 +192571,9 @@ var WebGLRenderer3 = class {
   _webglContextCanvas = null;
   _webglContextLostHandler = null;
   _webglContextRestoredHandler = null;
+  _webglContextRestorePoll = null;
+  _webglContextRestoreAttempts = 0;
+  _webglContextLost = false;
   _destroyed = false;
   // Indicates if the renderer has been destroyed
   // Number of SceneModels currently building (loading). While > 0, per-view
@@ -193115,30 +193244,18 @@ var WebGLRenderer3 = class {
       if (this._viewManager !== viewManager)
         return;
       event.preventDefault();
+      if (this._webglContextLost) {
+        this._startWebGLContextRestorePolling(viewManager);
+        return;
+      }
+      this._webglContextLost = true;
       viewManager.webglContextLost();
       this.events.onContextLost.dispatch(this, event);
       this.events.webglContextLost.dispatch(this, event);
+      this._startWebGLContextRestorePolling(viewManager);
     };
     const contextRestoredHandler = (_event) => {
-      if (this._viewManager !== viewManager)
-        return;
-      const result = viewManager.webglContextRestored();
-      if (result.ok === false) {
-        this.logError({
-          ok: false,
-          type: result.type,
-          error: `[WebGLRenderer] WebGL context restoration failed - ${result.error}`
-        });
-        return;
-      }
-      if (this._viewer) {
-        const views = this._viewer.viewList;
-        for (let i = 0, len = views.length; i < len; i++) {
-          views[i]?.needsRender();
-        }
-      }
-      this.events.onContextRestored.dispatch(this);
-      this.events.webglContextRestored.dispatch(this);
+      this._restoreWebGLContext(viewManager);
     };
     this._webglContextCanvas = canvas3;
     this._webglContextLostHandler = contextLostHandler;
@@ -193147,6 +193264,7 @@ var WebGLRenderer3 = class {
     canvas3.addEventListener("webglcontextrestored", contextRestoredHandler);
   }
   _removeWebGLContextListeners() {
+    this._stopWebGLContextRestorePolling();
     if (this._webglContextCanvas && this._webglContextLostHandler) {
       this._webglContextCanvas.removeEventListener("webglcontextlost", this._webglContextLostHandler);
     }
@@ -193156,6 +193274,75 @@ var WebGLRenderer3 = class {
     this._webglContextCanvas = null;
     this._webglContextLostHandler = null;
     this._webglContextRestoredHandler = null;
+    this._webglContextLost = false;
+  }
+  _restoreWebGLContext(viewManager) {
+    if (this._viewManager !== viewManager)
+      return;
+    if (!this._webglContextLost)
+      return;
+    this._stopWebGLContextRestorePolling();
+    const gl = this._webglContextCanvas?.getContext("webgl2");
+    const result = viewManager.webglContextRestored(gl || void 0);
+    if (result.ok === false) {
+      this._webglContextLost = true;
+      this.logError({
+        ok: false,
+        type: result.type,
+        error: `[WebGLRenderer] WebGL context restoration failed - ${result.error}`
+      });
+      this._startWebGLContextRestorePolling(viewManager);
+      return;
+    }
+    this._webglContextLost = false;
+    this._redrawViewsAfterContextRestore(viewManager);
+    this.events.onContextRestored.dispatch(this);
+    this.events.webglContextRestored.dispatch(this);
+  }
+  _redrawViewsAfterContextRestore(viewManager) {
+    if (!this._viewer)
+      return;
+    const views = this._viewer.viewList;
+    for (let i = 0, len = views.length; i < len; i++) {
+      const view = views[i];
+      if (!view)
+        continue;
+      view.needsRender();
+      this.logError(viewManager.viewUpdated(view));
+    }
+  }
+  _startWebGLContextRestorePolling(viewManager) {
+    if (this._webglContextRestorePoll || this._viewManager !== viewManager) {
+      return;
+    }
+    this._webglContextRestoreAttempts = 0;
+    this._pollWebGLContextRestore(viewManager);
+  }
+  _stopWebGLContextRestorePolling() {
+    if (this._webglContextRestorePoll) {
+      clearTimeout(this._webglContextRestorePoll);
+      this._webglContextRestorePoll = null;
+    }
+    this._webglContextRestoreAttempts = 0;
+  }
+  _pollWebGLContextRestore(viewManager) {
+    if (this._viewManager !== viewManager || !this._webglContextLost || !this._webglContextCanvas) {
+      this._stopWebGLContextRestorePolling();
+      return;
+    }
+    const gl = this._webglContextCanvas.getContext("webgl2");
+    if (gl && !gl.isContextLost()) {
+      this._restoreWebGLContext(viewManager);
+      return;
+    }
+    this._webglContextRestoreAttempts++;
+    if (gl && this._webglContextRestoreAttempts % 20 === 0) {
+      gl.getExtension("WEBGL_lose_context")?.restoreContext();
+    }
+    this._webglContextRestorePoll = setTimeout(
+      () => this._pollWebGLContextRestore(viewManager),
+      Math.min(1e3, 100 + this._webglContextRestoreAttempts * 25)
+    );
   }
   /**
    * Retrieves the Viewer currently attached to this WebGLRenderer, if any.
@@ -208525,10 +208712,12 @@ var ContextMenu = class {
             if (!self2._context || item.enabled === false) {
               return;
             }
-            item.doAction?.(self2._context);
+            const context = self2._context;
             if (this._hideOnAction) {
               self2.hide();
+              item.doAction?.(context);
             } else {
+              item.doAction?.(context);
               self2._updateMenuTitle();
               self2._updateItemsTitles();
               self2._updateItemsEnabledStatus();
@@ -208542,10 +208731,12 @@ var ContextMenu = class {
             if (!self2._context || item.enabled === false) {
               return;
             }
-            item.doAction?.(self2._context);
+            const context = self2._context;
             if (this._hideOnAction) {
               self2.hide();
+              item.doAction?.(context);
             } else {
+              item.doAction?.(context);
               self2._updateMenuTitle();
               self2._updateItemsTitles();
               self2._updateItemsEnabledStatus();
@@ -251602,9 +251793,11 @@ var Studio = class _Studio {
     this._canvasContextMenu = new CanvasContextMenu({ debug: this.debug });
     this._canvasContextMenu.on("hidden", () => {
       taskRunner2.unsuspend();
+      this._requestViewsRender();
     });
     this._viewObjectContextMenu.on("hidden", () => {
       taskRunner2.unsuspend();
+      this._requestViewsRender();
     });
     this._loadingSpinner = new LoadingSpinner({
       autoHide: true,
@@ -252002,6 +252195,15 @@ var Studio = class _Studio {
    */
   _getInspectorView() {
     return this.viewer?.viewList?.[0];
+  }
+  _requestViewsRender() {
+    const views = this.viewer?.viewList;
+    if (!views) {
+      return;
+    }
+    for (let i = 0, len = views.length; i < len; i++) {
+      views[i]?.needsRender();
+    }
   }
   /**
    * Gets a default scene model for canvas-level actions.

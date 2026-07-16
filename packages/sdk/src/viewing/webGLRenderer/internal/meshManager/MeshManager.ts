@@ -247,6 +247,7 @@ export class MeshManager {
    */
   public webglContextRestored(): SDKResult<void> {
     if (this._splatBatch) {
+      this._splatBatch.setWebGLContext(this._renderContext.gl);
       return this._splatBatch.webglContextRestored();
     }
     return {ok: true, value: undefined};

@@ -15,7 +15,6 @@
     "Importing",
     "glTF"
   ],
-  "category": "Importing Models",
-  "topic": "import.gltf",
-  "snapshotTimeoutMs": 90000
+  "category": "Viewing Buildings",
+  "topic": "import.gltf"
 }

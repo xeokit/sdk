@@ -1,10 +1,9 @@
 {
   "id": "formats_xgf_map",
   "title": "Viewing an XGF Building Model with Double-Precision Coordinates",
-  "description": "Loads an XGF building model with XGFLoader and frames it in the viewer. XGF is the SDK's native model format, optimized for faster loading.",
+  "description": "Loads a georeferenced IFC building model that uses double-precision world coordinates, which xeokit preserves for BIM/GIS-scale scenes. The model is loaded from XGF, preconverted from IFC for fast loading.",
   "isTutorial": true,
   "isVisualTest": true,
-  "isFeatured": true,
   "tags": [
     "XGF",
     "_Featured"
@@ -13,6 +12,7 @@
     "Importing",
     "XGF"
   ],
-  "category": "Importing Models",
-  "topic": "import.xgf"
+  "category": "Viewing Buildings",
+  "topic": "import.xgf",
+  "isFeatured": true
 }

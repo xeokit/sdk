@@ -4,7 +4,6 @@
   "description": "Loads a Pixar USDZ residential building model with USDZLoader and frames it in the viewer. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets.",
   "isTutorial": true,
   "isVisualTest": false,
-  "isFeatured": true,
   "tags": [
     "USDZ",
     "USD",
@@ -15,6 +14,7 @@
     "Importing",
     "USDZ"
   ],
-  "category": "Importing Models",
-  "topic": "import.usdz"
+  "category": "Viewing Buildings",
+  "topic": "import.usdz",
+  "isFeatured": true
 }

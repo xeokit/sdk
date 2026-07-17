@@ -4,7 +4,6 @@
   "description": "End-to-end check of the USDZ exporter. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets. Loads the ResidentialBuilding USDZ into a temporary SceneModel, writes it back out with USDZExporter, then re-imports the exported bytes into the displayed SceneModel.",
   "isTutorial": true,
   "isVisualTest": false,
-  "snapshotTimeoutMs": 120000,
   "tags": [
     "USDZ",
     "USD",
@@ -17,6 +16,6 @@
     "Exporting",
     "USDZ"
   ],
-  "category": "Importing Models",
+  "category": "Viewing Buildings",
   "topic": "import.usdz"
 }

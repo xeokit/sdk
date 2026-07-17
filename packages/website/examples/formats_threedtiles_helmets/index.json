@@ -13,7 +13,6 @@
     "Importing",
     "3D Tiles"
   ],
-  "category": "Importing Models",
-  "topic": "import.threedtiles",
-  "snapshotTimeoutMs": 90000
+  "category": "Viewing Buildings",
+  "topic": "import.threedtiles"
 }

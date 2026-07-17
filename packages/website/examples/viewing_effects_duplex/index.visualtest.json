@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 368.5,
-    "endTime": 6767,
-    "elapsedTime": 6398.5,
+    "startTime": 417.09999990463257,
+    "endTime": 1937.7000000476837,
+    "elapsedTime": 1520.6000001430511,
     "aabb": [
       -0.24150002555848182,
       -4.3827339109344585,
@@ -30,8 +30,8 @@
       "numPropertySets": 398
     },
     "memory": {
-      "allocatedMB": 22.777557373046875,
-      "usedMB": 2.562030792236328
+      "allocatedMB": 44.91534423828125,
+      "usedMB": 2.586475372314453
     },
     "renderer": {
       "tiles": {
@@ -49,14 +49,14 @@
       },
       "views": [
         {
-          "viewId": "5cfdc4cf-ff8f-4113-9c0c-399262e9cc30",
+          "viewId": "9c5499e5-1c7a-4d57-865b-3311ddee4828",
           "canvasSize": [
             0,
             0
           ],
           "renderBins": [
             {
-              "name": "UnnamedPass",
+              "name": "saoPrep",
               "drawCalls": [
                 {
                   "batchIndex": 0,
@@ -64,149 +64,23 @@
                   "primitive": "TRIANGLES",
                   "primRange": {
                     "firstPrim": 0,
-                    "numPrims": 22962
+                    "numPrims": 25274
                   },
                   "timeMs": {
-                    "start": 6775.599999904633,
-                    "end": 6775.599999904633,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 2312
-                  },
-                  "timeMs": {
-                    "start": 6775.599999904633,
-                    "end": 6776.799999952316,
-                    "duration": 1.2000000476837158
-                  }
-                },
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 22962
-                  },
-                  "timeMs": {
-                    "start": 6776.799999952316,
-                    "end": 6776.799999952316,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 2312
-                  },
-                  "timeMs": {
-                    "start": 6776.799999952316,
-                    "end": 6776.799999952316,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 22962
-                  },
-                  "timeMs": {
-                    "start": 6776.799999952316,
-                    "end": 6776.799999952316,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 2312
-                  },
-                  "timeMs": {
-                    "start": 6776.799999952316,
-                    "end": 6776.899999856949,
-                    "duration": 0.09999990463256836
-                  }
-                },
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 22962
-                  },
-                  "timeMs": {
-                    "start": 6776.899999856949,
-                    "end": 6776.899999856949,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 2312
-                  },
-                  "timeMs": {
-                    "start": 6776.899999856949,
-                    "end": 6776.899999856949,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 22962
-                  },
-                  "timeMs": {
-                    "start": 6776.899999856949,
-                    "end": 6776.899999856949,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 2312
-                  },
-                  "timeMs": {
-                    "start": 6776.899999856949,
-                    "end": 6776.899999856949,
-                    "duration": 0
+                    "start": 2071.0999999046326,
+                    "end": 2133.9000000953674,
+                    "duration": 62.80000019073486
                   }
                 }
               ],
               "timeMs": {
-                "start": 6775.599999904633,
-                "end": 6776.899999856949,
-                "duration": 1.2999999523162842
+                "start": 2070.5,
+                "end": 2133.9000000953674,
+                "duration": 63.40000009536743
               }
             },
             {
-              "name": "opaque",
+              "name": "shadowPrep",
               "drawCalls": [
                 {
                   "batchIndex": 0,
@@ -214,33 +88,85 @@
                   "primitive": "TRIANGLES",
                   "primRange": {
                     "firstPrim": 0,
-                    "numPrims": 22962
+                    "numPrims": 25274
                   },
                   "timeMs": {
-                    "start": 6776.899999856949,
-                    "end": 6776.899999856949,
-                    "duration": 0
+                    "start": 2151.4000000953674,
+                    "end": 2169.0999999046326,
+                    "duration": 17.699999809265137
                   }
                 },
                 {
-                  "batchIndex": 1,
+                  "batchIndex": 0,
                   "renderPass": "OPAQUE",
                   "primitive": "TRIANGLES",
                   "primRange": {
                     "firstPrim": 0,
-                    "numPrims": 2312
+                    "numPrims": 25274
                   },
                   "timeMs": {
-                    "start": 6776.899999856949,
-                    "end": 6776.899999856949,
+                    "start": 2169.2000000476837,
+                    "end": 2169.5999999046326,
+                    "duration": 0.39999985694885254
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 25274
+                  },
+                  "timeMs": {
+                    "start": 2169.5999999046326,
+                    "end": 2170,
+                    "duration": 0.40000009536743164
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 25274
+                  },
+                  "timeMs": {
+                    "start": 2170,
+                    "end": 2170.0999999046326,
+                    "duration": 0.09999990463256836
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 2133.9000000953674,
+                "end": 2170.0999999046326,
+                "duration": 36.19999980926514
+              }
+            },
+            {
+              "name": "opaqueSAOShadow",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 25274
+                  },
+                  "timeMs": {
+                    "start": 2170.4000000953674,
+                    "end": 2170.4000000953674,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 6776.899999856949,
-                "end": 6776.899999856949,
-                "duration": 0
+                "start": 2170.2000000476837,
+                "end": 2170.4000000953674,
+                "duration": 0.20000004768371582
               }
             },
             {
@@ -251,43 +177,29 @@
                   "renderPass": "TRANSPARENT",
                   "primitive": "TRIANGLES",
                   "primRange": {
-                    "firstPrim": 22962,
-                    "numPrims": 360
+                    "firstPrim": 25274,
+                    "numPrims": 432
                   },
                   "timeMs": {
-                    "start": 6777,
-                    "end": 6777,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "TRANSPARENT",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 2312,
-                    "numPrims": 72
-                  },
-                  "timeMs": {
-                    "start": 6777,
-                    "end": 6777,
+                    "start": 2170.5999999046326,
+                    "end": 2170.5999999046326,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 6776.899999856949,
-                "end": 6777,
-                "duration": 0.10000014305114746
+                "start": 2170.5,
+                "end": 2170.5999999046326,
+                "duration": 0.09999990463256836
               }
             }
           ],
           "timeMs": {
-            "start": 6771.5,
-            "end": 6777.099999904633,
-            "duration": 5.599999904632568
+            "start": 2021.2000000476837,
+            "end": 2258.2999999523163,
+            "duration": 237.09999990463257
           },
-          "numDrawCalls": 14,
+          "numDrawCalls": 7,
           "numPrims": 152076
         }
       ]

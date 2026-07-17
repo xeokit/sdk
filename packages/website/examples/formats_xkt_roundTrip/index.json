@@ -16,7 +16,6 @@
     "Exporting",
     "XKT"
   ],
-  "category": "Importing Models",
-  "topic": "export.xkt",
-  "snapshotTimeoutMs": 90000
+  "category": "Viewing Buildings",
+  "topic": "export.xkt"
 }

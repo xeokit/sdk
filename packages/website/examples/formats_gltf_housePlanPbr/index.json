@@ -1,25 +1,22 @@
 {
   "id": "formats_gltf_housePlanPbr",
-  "title": "House Plan glTF + interactive PBR effects panel",
-  "description": "Loads the bundled HousePlan .glb model into a SceneModel, then exposes every renderer effect (IBL, shadows, SAO, tonemap, exposure, bloom, AA, edges, sun direction) through a side panel so you can see exactly what each one contributes to a small architectural scene.",
+  "title": "House Plan glTF with PBR materials",
+  "description": "Loads the bundled HousePlan .glb model into a SceneModel and renders it with the SDK's PBR path, including image-based lighting from a procedural sky environment.",
   "isTutorial": true,
   "isVisualTest": false,
-  "isFeatured": true,
   "tags": [
     "glTF",
     "PBR",
     "IBL",
     "Shadows",
-    "SAO",
-    "Tonemap",
     "Renderer"
   ],
   "categories": [
     "Importing",
     "glTF",
-    "Effects",
     "Renderer"
   ],
-  "category": "Importing Models",
-  "topic": "import.gltf"
+  "category": "Viewing Buildings",
+  "topic": "import.gltf",
+  "isFeatured": true
 }

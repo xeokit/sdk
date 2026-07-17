@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 2883.0999999046326,
-    "endTime": 3406.5999999046326,
-    "elapsedTime": 523.5,
+    "startTime": 473.59999990463257,
+    "endTime": 1013.0999999046326,
+    "elapsedTime": 539.5,
     "aabb": [
       -1.5,
       -0.010000228881835938,
@@ -30,7 +30,7 @@
       "numPropertySets": 0
     },
     "memory": {
-      "allocatedMB": 12.678256034851074,
+      "allocatedMB": 12.46483039855957,
       "usedMB": 0.4851570129394531
     },
     "renderer": {

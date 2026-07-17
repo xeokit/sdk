@@ -4,7 +4,6 @@
   "description": "Loads a LAZ-encoded LiDAR scan with LASLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "isFeatured": true,
   "tags": [
     "LAS",
     "_Featured"
@@ -13,7 +12,7 @@
     "Importing",
     "LAS"
   ],
-  "category": "Importing Models",
+  "category": "Viewing LiDAR Scans",
   "topic": "import.las",
-  "snapshotTimeoutMs": 90000
+  "isFeatured": true
 }

@@ -4,7 +4,6 @@
   "description": "In-browser loading-speed benchmark across the formats xeokit loads. Measures the CPU cost of turning each format into a live SceneModel — the time for loader.load() to resolve on a pre-fetched in-memory buffer, into a renderer-less Scene (zero GPU upload), so the number isolates parse + SceneModel build and is reproducible across machines and headless runs. IFC, glTF and XGF use the same Duplex model for a fair same-scene comparison (IFC is source BIM and also builds a semantic DataModel; glTF/XGF are pre-baked geometry, XGF being xeokit-native and quantised); .splat is reported as throughput on its own row since it is different content. Reliability controls: network excluded (fetch once, fresh buffer copy per run), warm-up runs discarded (incl. one-time web-ifc WASM init), repeated timed iterations, and robust median + MAD statistics. Also reports per-format GPU draw time of the loaded scene via the renderer's EXT_disjoint_timer_query_webgl2 instrumentation when a real GPU is present (shown as n/a under headless / SwiftShader). Results render to a table and post via the visual-test channel for headless capture.",
   "isTutorial": true,
   "isVisualTest": false,
-  "snapshotTimeoutMs": 180000,
   "tags": [
     "Performance",
     "Benchmark",
@@ -17,6 +16,6 @@
     "Importing",
     "Performance"
   ],
-  "category": "Importing Models",
+  "category": "Viewing Buildings",
   "topic": "performance"
 }

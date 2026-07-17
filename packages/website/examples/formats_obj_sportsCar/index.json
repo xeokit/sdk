@@ -12,7 +12,6 @@
     "Importing",
     "OBJ"
   ],
-  "category": "Importing Models",
-  "topic": "import.obj",
-  "snapshotTimeoutMs": 180000
+  "category": "Viewing Buildings",
+  "topic": "import.obj"
 }

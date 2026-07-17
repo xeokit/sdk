@@ -4,7 +4,6 @@
   "description": "Common AEC materials — brick, concrete, limestone, granite, marble, oak, painted plaster, asphalt, polished and brushed steel, copper, and glass, viewed using the SDK's physically-based rendering techniques.",
   "isTutorial": true,
   "isVisualTest": false,
-  "isFeatured": true,
   "tags": [
     "PBR",
     "Materials",
@@ -19,5 +18,6 @@
     "Renderer"
   ],
   "category": "Materials",
-  "topic": "materials.aec"
+  "topic": "materials.aec",
+  "isFeatured": true
 }

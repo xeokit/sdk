@@ -4,7 +4,6 @@
   "description": "Load an XGF sports car model with XGFLoader and display it in multiple independent views. The XGF was pre-converted from OBJ+MTL for faster loading.",
   "isTutorial": true,
   "isVisualTest": true,
-  "isFeatured": true,
   "tags": [
     "Importing",
     "XGF"
@@ -13,7 +12,7 @@
     "Importing",
     "XGF"
   ],
-  "category": "Importing Models",
+  "category": "Viewing CAD Models",
   "topic": "import.xgf",
-  "snapshotTimeoutMs": 90000
+  "isFeatured": true
 }

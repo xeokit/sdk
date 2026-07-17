@@ -4,7 +4,6 @@
   "description": "Programmatically building and viewing a minimal 3D model in the SDK, with a semantic data model attached.",
   "isTutorial": true,
   "isVisualTest": true,
-  "isFeatured": true,
   "tags": [
     "_Featured"
   ],
@@ -13,5 +12,6 @@
     "Data"
   ],
   "category": "Modeling",
-  "topic": "modeling.data"
+  "topic": "modeling.data",
+  "isFeatured": true
 }

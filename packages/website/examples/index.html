@@ -19,7 +19,7 @@
     <script src="https://xeokit.github.io/sdk//libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <title></title>
-    <link href='./index.css' rel='stylesheet' type='text/css'>
+    <link href='https://xeokit.github.io/sdk//css/index.css' rel='stylesheet' type='text/css'>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
@@ -48,10 +48,10 @@
             <a class="nav-link" href="https://github.com/xeokit/sdk">GitHub</a>
         </li>
 <!--        <li class="nav-item">-->
-<!--            <a class="nav-link" href="https://xeokit.base.io/index.html?foo=2#pricing">Pricing</a>-->
+<!--            <a class="nav-link" href="https://xeokit.io/index.html?foo=2#pricing">Pricing</a>-->
 <!--        </li>-->
 <!--        <li class="nav-item">-->
-<!--            <a class="nav-link" href="https://xeokit.base.io/download.html">Download</a>-->
+<!--            <a class="nav-link" href="https://xeokit.io/download.html">Download</a>-->
 <!--        </li>-->
     </ul>
 </div>
@@ -68,10 +68,10 @@
 <!--    </div>-->
 <!--</header>-->
 
-<section id="intro" class="full-width-section" style="max-width:100%; height:calc(100vh - 55px)">
-    <div class="container" style="max-width:100%; height:calc(100vh - 55px); padding: 0">
-        <div class="row" style="max-width:100%; height:calc(100vh - 55px); margin: 0;">
-            <div class="col-lg-12 h-100" style="padding-left: 0; padding-right: 0;  height:calc(100vh - 55px)">
+<section id="intro" class="full-width-section" style="max-width:100%; height:100vh">
+    <div class="container" style="max-width:100%; height:100vh; padding: 0">
+        <div class="row" style="max-width:100%; height:100vh; margin: 0;">
+            <div class="col-lg-12 h-100" style="padding-left: 0; padding-right: 0;  height:100vh">
               <input type="checkbox" id="index_toggle"/>
               <label for="index_toggle" class="index-button btn btn-light">
                &lt;&lt; Index
@@ -79,8 +79,8 @@
               <div class="page-title" id="page-title"></div>
               <div class="viewSourceButton" id="viewSourceButton"><label class=" btn btn-light">Code</label></div>
               <div class="content-overlay" id="viewer-overlay"></div>
-              <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:calc(100vh - 55px)">
-                <iframe class="embed-responsive-item " style=" height:calc(100vh - 55px)" id="viewer" src="default.html"></iframe>
+              <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:100vh">
+                <iframe class="embed-responsive-item " style=" height:100vh" id="viewer" src="https://xeokit.github.io/sdk//examples/default.html"></iframe>
               </div>
               <div class="slideout-sidebar">
                 <div id="index"><h1>Run a xeokit example</h1></div>
@@ -158,7 +158,7 @@
 
 <script type="module">
 
-    import {buildExamplesIndex} from "../js/buildExamplesIndex.js";
+    import {buildExamplesIndex} from "https://xeokit.github.io/sdk//js/buildExamplesIndex.js";
 
     fetch("./index.json").then(response => {
         response.json().then(index => {

@@ -80,6 +80,9 @@ studio.init().then(() => {
 
         studio.openInfoPanelFromMeta();
         studio.finished();
+        document.querySelectorAll(".xeokit-loading-overlay").forEach(el => {
+          el.style.display = "none";
+        });
 
       }).catch(message => {
         console.error(`Error loading .XGF: ${message}`);

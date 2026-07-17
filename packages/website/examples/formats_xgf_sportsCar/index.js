@@ -74,7 +74,7 @@ studio.init().then(() => {
         sceneModel
       });
     })
-    .then(() => {
+    .then(async () => {
 
       // Add a simple post-load inspection workflow.
       // Rebuild exploder bounds and apply x-ray styling in the second view to
@@ -88,11 +88,27 @@ studio.init().then(() => {
 
       exploder.rebuild();
 
+      // SceneModelExploder still creates its own legacy floating slider.
+      // This example keeps the control with the rest of the metadata UI.
+      exploder._sliderContainer?.remove();
+      exploder._sliderContainer = null;
+      exploder._sliderElement = null;
+
       view2.setObjectsXRayed(view2.objectIds, true);
 
       view2.setObjectsXRayed(view2.objectIds.slice(30,40), false);
 
-      studio.openInfoPanelFromMeta();
+      const info = await studio.openInfoPanelFromMeta();
+      info.addSlider({
+        label: "Explode",
+        min: 0,
+        max: 2,
+        step: 0.05,
+        value: exploder.factor,
+        digits: 2,
+        onChange: value => exploder.setFactor(value)
+      });
+
       studio.finished();
     })
     .catch((message) => {

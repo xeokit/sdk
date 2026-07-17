@@ -4,7 +4,6 @@
   "description": "End-to-end check that xeokit's native XGF format can round-trip a Gaussian-splat SceneModel. Loads a captured interior from .splat, exports it to binary XGF with XGFExporter (which auto-selects XGF v3 — the first version with per-splat scale + rotation buffers — because the model contains GaussianSplatsPrimitive geometry), then re-imports the XGF bytes with XGFLoader into the displayed SceneModel. Scales survive exactly and rotations to within 8-bit, so the re-imported scene renders like the original. Demonstrates persisting mixed CAD + reality-capture scenes as a single native asset. Browser only.",
   "isTutorial": true,
   "isVisualTest": false,
-  "snapshotTimeoutMs": 240000,
   "tags": [
     "Splat",
     "GaussianSplatting",
@@ -17,6 +16,6 @@
     "Exporting",
     "Splat"
   ],
-  "category": "Importing Models",
+  "category": "Viewing Buildings",
   "topic": "import.splat"
 }

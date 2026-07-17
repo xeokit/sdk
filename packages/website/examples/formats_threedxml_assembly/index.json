@@ -15,6 +15,7 @@
     "Importing",
     "3DXML"
   ],
-  "category": "Importing Models",
-  "topic": "import.threedxml"
+  "category": "Viewing CAD Models",
+  "topic": "import.threedxml",
+  "isFeatured": true
 }

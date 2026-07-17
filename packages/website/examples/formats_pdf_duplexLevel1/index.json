@@ -1,7 +1,7 @@
 {
   "id": "formats_pdf_duplexLevel1",
   "title": "Duplex Level 1 — vector PDF plan, IFC-aligned coordinates",
-  "description": "Generates a sophisticated Level 1 floor-plan PDF for the classic Duplex Apartment IFC. Plan is authored in millimetres and loaded with scale=0.001 so the SceneModel lands in metres at the same origin as the Duplex IFC — drop the IFC into the same scene with no extra transform and the two coincide.",
+  "description": "Loads a Level 1 Duplex Apartment floor plan from a vector PDF with PDFLoader. The example shows PDF linework, fills and text rendered as scene geometry in a top-down plan view.",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [
@@ -15,7 +15,7 @@
     "Importing",
     "Drawings"
   ],
-  "category": "Importing Models",
+  "category": "Importing Plan Views",
   "topic": "import.pdf",
-  "snapshotTimeoutMs": 90000
+  "isFeatured": true
 }

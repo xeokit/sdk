@@ -44,7 +44,7 @@ studio.init().then(async () => {
       coordinateSystem: {
         basis:  [1, 0, 0,  0, 0, 1,  0, 1, 0],
         origin: [0, 0, 0],
-        units:  "millimeters"
+        units:  "meters"
       }
     });
     if (!sceneModelResult.ok) {

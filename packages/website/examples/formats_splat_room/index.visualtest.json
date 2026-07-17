@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 17893,
-    "endTime": 18942.600000023842,
-    "elapsedTime": 1049.6000000238419,
+    "startTime": 355.10000014305115,
+    "endTime": 1376.2000000476837,
+    "elapsedTime": 1021.0999999046326,
     "aabb": [
       -61.02632141113281,
       -62.61216735839844,
@@ -37,16 +37,16 @@
       "tiles": {},
       "views": [
         {
-          "viewId": "9701dfb2-624b-4d57-8cfb-5523c80aee10",
+          "viewId": "218eaafd-31ce-430c-961f-867aedb21600",
           "canvasSize": [
             0,
             0
           ],
           "renderBins": [],
           "timeMs": {
-            "start": 62429.89999997616,
-            "end": 62440.799999952316,
-            "duration": 10.899999976158142
+            "start": 46030.200000047684,
+            "end": 46040.60000014305,
+            "duration": 10.400000095367432
           },
           "numDrawCalls": 0,
           "numPrims": 0

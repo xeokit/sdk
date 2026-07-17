@@ -4,7 +4,6 @@
   "description": "Loads a binary Autodesk FBX plant model with FBXLoader and frames it in the viewer. FBX is Autodesk's interchange format for 3D models, animation, materials, and scene data.",
   "isTutorial": true,
   "isVisualTest": false,
-  "isFeatured": true,
   "tags": [
     "FBX",
     "Autodesk",
@@ -14,7 +13,7 @@
     "Importing",
     "FBX"
   ],
-  "category": "Importing Models",
+  "category": "Viewing Buildings",
   "topic": "import.fbx",
-  "snapshotTimeoutMs": 90000
+  "isFeatured": true
 }

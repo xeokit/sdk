@@ -150,47 +150,37 @@ async function main() {
     });
   }
 
-  // Signal that loading and setup have completed before starting the
-  // animation.
-  studio.openInfoPanelFromMeta();
-  studio.finished();
-
   if (storeyTransforms.length === 0) {
-    console.error("No storey transforms were created; nothing to animate.");
+    console.error("No storey transforms were created; nothing to separate.");
     return;
   }
 
-  // Animate the storeys apart over time using a smoothstep easing
-  // function for a softer start and finish.
   const explodeDistancePerStorey = 3.5; // meters
-  const durationSeconds = 3.0;
 
-  const startTime = performance.now();
+  const applySeparation = (amount) => {
+    for (const s of storeyTransforms) {
+      const y = s.dirY * explodeDistancePerStorey * amount;
+      s.transform.position = [s.basePos[0] + y * 3, s.basePos[1], s.basePos[2]];
+    }
+  };
 
-  const task = new xeokit.base.core.SDKTask({
-    name: "Explode Storeys Vertically",
-    task: () => {
-      const t = (performance.now() - startTime) / 1000;
-      const u = Math.min(1, t / durationSeconds);
+  applySeparation(1);
 
-      // Apply smoothstep easing to the normalized animation progress.
-      const eased = u * u * (3 - 2 * u);
-
-      for (const s of storeyTransforms) {
-        const y = s.dirY * explodeDistancePerStorey * eased;
-        s.transform.position = [s.basePos[0] + y * 3, s.basePos[1], s.basePos[2]];
-      }
-
-      // Stop the task once the animation reaches its final state.
-      if (u >= 1) {
-        task.destroy();
-      }
-    },
-    stage: xeokit.base.core.SDKTask.AnimateStage,
-    repeat: true
+  const info = await studio.openInfoPanelFromMeta();
+  info.addSlider({
+    label: "Separation",
+    min: 0,
+    max: 100,
+    step: 1,
+    value: 100,
+    digits: 0,
+    onChange: value => applySeparation(value / 100)
   });
 
-  task.schedule();
+  studio.finished();
+  document.querySelectorAll(".xeokit-loading-overlay").forEach(el => {
+    el.style.display = "none";
+  });
 }
 
 main().catch((err) => {

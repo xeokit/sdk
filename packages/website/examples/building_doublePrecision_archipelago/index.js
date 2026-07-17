@@ -54,13 +54,15 @@ studio.init().then(async () => {
     UTM_EAST, UTM_NORTH, duplexAnchor, houseAnchor, SEA_LEVEL,
   });
 
-  // Camera — elevated SSW view framing the full ~56 km world. eye / look are in
-  // world coordinates, carrying the same UTM offset as the SceneModel origin.
+  // Camera — frame the Duplex island for the first view and thumbnail. The
+  // scene still spans ~56 km, but a full-extent camera makes the buildings
+  // unreadable in the featured-example card.
+  const [duplexX, duplexY, duplexZ] = duplexAnchor ?? [0, 0, 0];
   const view = studio.viewManager.createView({
     camera: {
       // World is Z-up: (X, Y, Z) = (east, north, height).
-      eye:  [UTM_EAST + 4000, UTM_NORTH - 28000, 13000],
-      look: [UTM_EAST +  400, UTM_NORTH +  3000,    60],
+      eye:  [UTM_EAST + duplexX + 160, UTM_NORTH + duplexY - 220, duplexZ + 130],
+      look: [UTM_EAST + duplexX,       UTM_NORTH + duplexY,       duplexZ + 10],
       up:   [0, 0, 1],
       perspectiveProjection: { near: 0.001, far: 200000 }
     }
@@ -119,8 +121,16 @@ studio.init().then(async () => {
       if (a[5] > maxZ) maxZ = a[5];
     }
     if (!isFinite(minX)) return;
+    const aabb = [minX, minY, minZ, maxX, maxY, maxZ];
+    if (duration === 0) {
+      studio.viewManager.views[view.id].cameraFlight.jumpTo({
+        aabb,
+        fitFOV: 45
+      });
+      return;
+    }
     studio.viewManager.views[view.id].cameraFlight.flyTo({
-      aabb: [minX, minY, minZ, maxX, maxY, maxZ],
+      aabb,
       fitFOV: 45,
       duration,
       // Pull the camera up into a parabolic arc at the flight's
@@ -183,6 +193,8 @@ studio.init().then(async () => {
     requestAnimationFrame(fpsTick);
   };
   requestAnimationFrame(fpsTick);
+
+  flyToModel("duplex", 0);
 
   studio.finished();
 });

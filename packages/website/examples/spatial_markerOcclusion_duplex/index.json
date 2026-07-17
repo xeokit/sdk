@@ -16,6 +16,7 @@
     "Picking",
     "Renderer"
   ],
-  "category": "Picking",
-  "topic": "picking.occlusion"
+  "category": "Annotations",
+  "topic": "picking.occlusion",
+  "isFeatured": true
 }

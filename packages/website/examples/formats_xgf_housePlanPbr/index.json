@@ -4,7 +4,6 @@
   "description": "Views a house plan model containing physically-based materials, loaded from the SDK's optimized XGF format. The XGF is pre-converted from the original glTF model, allowing the model to load faster.",
   "isTutorial": true,
   "isVisualTest": false,
-  "isFeatured": true,
   "tags": [
     "XKT2",
     "XGF",
@@ -21,6 +20,7 @@
     "Effects",
     "Renderer"
   ],
-  "category": "Importing Models",
-  "topic": "import.xgf"
+  "category": "Viewing Buildings",
+  "topic": "import.xgf",
+  "isFeatured": true
 }

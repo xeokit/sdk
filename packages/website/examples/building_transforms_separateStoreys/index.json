@@ -4,7 +4,6 @@
   "description": "Loading a building model, an then using the model's semantic data to isolate and separate the building storeys.",
   "isTutorial": true,
   "isVisualTest": true,
-  "isFeatured": true,
   "tags": [
     "Modeling",
     "Transforms"
@@ -14,5 +13,6 @@
     "Transforms"
   ],
   "category": "Modeling",
-  "topic": "modeling.transforms"
+  "topic": "modeling.transforms",
+  "isFeatured": true
 }

@@ -151059,6 +151059,7 @@ var AdaptiveQuality = class {
   #restMs;
   #unsubscribers = [];
   #restTimer = null;
+  #enabled = true;
   #destroyed = false;
   constructor(params) {
     const { view } = params;
@@ -151089,6 +151090,24 @@ var AdaptiveQuality = class {
     liveAdapters.set(view, this);
   }
   /**
+   * Whether this adapter responds to camera changes.
+   *
+   * Setting this to `false` leaves the adapter registered on its View, clears
+   * any pending rest timer and restores the View to `restMode`.
+   */
+  get enabled() {
+    return this.#enabled;
+  }
+  set enabled(value) {
+    const enabled = value !== false;
+    if (this.#destroyed || this.#enabled === enabled)
+      return;
+    this.#enabled = enabled;
+    if (!enabled) {
+      this.#restoreRestMode();
+    }
+  }
+  /**
    * Stops the adapter, restores `restMode`, and releases subscriptions.
    */
   destroy() {
@@ -151096,19 +151115,22 @@ var AdaptiveQuality = class {
       return;
     this.#destroyed = true;
     liveAdapters.delete(this.view);
+    this.#restoreRestMode();
+    for (const unsubscribe of this.#unsubscribers)
+      unsubscribe();
+    this.#unsubscribers.length = 0;
+  }
+  #restoreRestMode() {
     if (this.#restTimer !== null) {
       clearTimeout(this.#restTimer);
       this.#restTimer = null;
     }
-    for (const unsubscribe of this.#unsubscribers)
-      unsubscribe();
-    this.#unsubscribers.length = 0;
     if (this.view.renderMode !== this.#restMode) {
       this.view.renderMode = this.#restMode;
     }
   }
   #onCameraChanged() {
-    if (this.#destroyed)
+    if (this.#destroyed || !this.#enabled)
       return;
     if (this.view.renderMode !== this.#fastMode) {
       this.view.renderMode = this.#fastMode;
@@ -154284,12 +154306,12 @@ var Edges = class {
    */
   constructor(view, options = {}) {
     this.view = view;
-    this._renderModes = options.renderModes || [DetailedRender];
+    this._renderModes = options.renderModes || [DetailedRender, RealisticRender];
     this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
-    this._useMeshColor = options.useMeshColor === true;
+    this._useMeshColor = options.useMeshColor !== false;
     this._edgeDarken = options.edgeDarken !== void 0 && options.edgeDarken !== null ? options.edgeDarken : 0.5;
-    this._edgeAlpha = options.edgeAlpha !== void 0 && options.edgeAlpha !== null ? options.edgeAlpha : 0.5;
-    this._edgeWidth = options.edgeWidth !== void 0 && options.edgeWidth !== null ? options.edgeWidth : 1;
+    this._edgeAlpha = options.edgeAlpha !== void 0 && options.edgeAlpha !== null ? options.edgeAlpha : 0.8;
+    this._edgeWidth = options.edgeWidth !== void 0 && options.edgeWidth !== null ? options.edgeWidth : 2;
     this._edgeFadeStart = options.edgeFadeStart !== void 0 && options.edgeFadeStart !== null ? options.edgeFadeStart : 0.4;
     this._edgeFadeEnd = options.edgeFadeEnd !== void 0 && options.edgeFadeEnd !== null ? options.edgeFadeEnd : 1;
   }
@@ -154298,7 +154320,8 @@ var Edges = class {
    *
    * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
+   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
+   * {@link base!constants.RealisticRender | RealisticRender}].
    */
   set renderModes(value) {
     this._renderModes = value;
@@ -154309,7 +154332,8 @@ var Edges = class {
    *
    * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
+   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
+   * {@link base!constants.RealisticRender | RealisticRender}].
    */
   get renderModes() {
     return this._renderModes;
@@ -154353,7 +154377,7 @@ var Edges = class {
    * Only affects the base edges effect — x-ray / highlight / selected edges
    * always use their emphasis material's colour.
    *
-   * Default value is ````false````.
+   * Default value is ````true````.
    */
   set useMeshColor(value) {
     if (this._useMeshColor === value) {
@@ -154366,7 +154390,7 @@ var Edges = class {
    * Gets whether the base edges effect uses each mesh's darkened colour
    * instead of the fixed {@link Edges.edgeColor | edgeColor}.
    *
-   * Default value is ````false````.
+   * Default value is ````true````.
    */
   get useMeshColor() {
     return this._useMeshColor;
@@ -154400,7 +154424,7 @@ var Edges = class {
    *
    * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
    *
-   * Default value is ````1.0````.
+   * Default value is ````0.8````.
    */
   set edgeAlpha(value) {
     if (this._edgeAlpha === value) {
@@ -154414,7 +154438,7 @@ var Edges = class {
    *
    * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
    *
-   * Default value is ````1.0````.
+   * Default value is ````0.8````.
    */
   get edgeAlpha() {
     return this._edgeAlpha;
@@ -154422,7 +154446,7 @@ var Edges = class {
   /**
    * Sets edge width for {@link ViewObject | ViewObjects}.
    *
-   * Default value is ````1.0```` pixels.
+   * Default value is ````2.0```` pixels.
    */
   set edgeWidth(value) {
     if (this._edgeWidth === value) {
@@ -154436,7 +154460,7 @@ var Edges = class {
    *
    * This is not supported by WebGL implementations based on DirectX [2019].
    *
-   * Default value is ````1.0```` pixels.
+   * Default value is ````2.0```` pixels.
    */
   get edgeWidth() {
     return this._edgeWidth;
@@ -155842,12 +155866,7 @@ var Effects = class {
   constructor(view, params = {}) {
     this.view = view;
     this.sao = new SAO(view, params.sao || {});
-    this.edges = new Edges(view, params.edges || {
-      edgeColor: [0, 0, 0],
-      edgeAlpha: 1,
-      edgeWidth: 1,
-      renderModes: [DetailedRender]
-    });
+    this.edges = new Edges(view, params.edges || {});
     this.bloom = new Bloom(view, params.bloom || {});
     this.tonemap = new Tonemap(view, params.tonemap || {});
     this.antiAliasing = new AntiAliasing(view, params.antiAliasing || {});
@@ -193296,6 +193315,7 @@ var WebGLRenderer3 = class {
     }
     this._webglContextLost = false;
     this._redrawViewsAfterContextRestore(viewManager);
+    this._scheduleContextRestoreRedraws(viewManager);
     this.events.onContextRestored.dispatch(this);
     this.events.webglContextRestored.dispatch(this);
   }
@@ -193310,6 +193330,21 @@ var WebGLRenderer3 = class {
       view.needsRender();
       this.logError(viewManager.viewUpdated(view));
     }
+  }
+  _scheduleContextRestoreRedraws(viewManager) {
+    const redraw = () => {
+      if (this._viewManager !== viewManager || this._webglContextLost || !this._viewer || this._destroyed) {
+        return;
+      }
+      this._redrawViewsAfterContextRestore(viewManager);
+    };
+    requestAnimationFrame(() => {
+      redraw();
+      requestAnimationFrame(redraw);
+    });
+    setTimeout(redraw, 50);
+    setTimeout(redraw, 250);
+    setTimeout(redraw, 1e3);
   }
   _startWebGLContextRestorePolling(viewManager) {
     if (this._webglContextRestorePoll || this._viewManager !== viewManager) {
@@ -212935,7 +212970,6 @@ var PANEL_CSS2 = `
   overflow: hidden;
   box-sizing: border-box;
   min-width: 260px;
-  min-height: 140px;
 }
 .xkt-info-panel *, .xkt-info-panel *::before, .xkt-info-panel *::after {
   box-sizing: border-box;
@@ -212960,15 +212994,16 @@ var PANEL_CSS2 = `
   min-width: 0;
   margin: 0;
   font-size: 14px;
+  line-height: 1.35;
   font-weight: 650;
   color: #2d5e8c;
   letter-spacing: 0.2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .xkt-info-panel .xkt-info-close {
   flex-shrink: 0;
+  align-self: flex-start;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -213012,7 +213047,7 @@ var PANEL_CSS2 = `
 .xkt-info-pill[hidden] { display: none; }
 
 .xkt-info-panel .xkt-info-body {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   overflow-y: auto;
   padding: 10px 14px 14px;
 }
@@ -213189,7 +213224,8 @@ var InfoPanel = class extends FloatingPanelBase {
     super({
       container: params.container,
       storageKey: `xkt-info-${id}`,
-      classPrefix: "xkt-info"
+      classPrefix: "xkt-info",
+      minHeight: 0
     });
     injectStylesOnce4();
     this._buildDom(params);
@@ -219183,6 +219219,7 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     }
     this._buildDom();
     this._bindChrome();
+    this._applyInitialPosition(params);
     this._wireEvents();
     this._renderInspectionsPanel();
     document.addEventListener("xeokit:inspect-model", this._onInspectModelEvent);
@@ -219196,6 +219233,21 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
       this._renderStats();
     this._attachSceneListeners();
     this._kickBackgroundInspections();
+  }
+  _applyInitialPosition(params) {
+    if (params.initialTop === void 0 && params.initialRight === void 0) {
+      return;
+    }
+    const style = this._panel.style;
+    if (params.initialTop !== void 0) {
+      style.top = `${params.initialTop}px`;
+    }
+    if (params.initialRight !== void 0) {
+      style.right = `${params.initialRight}px`;
+      style.left = "auto";
+    }
+    style.bottom = "auto";
+    style.transform = "none";
   }
   // ── Public API ────────────────────────────────────────────────
   /**
@@ -221992,6 +222044,7 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
     injectStylesOnce9();
     this._buildDom();
     this._bindChrome();
+    this._applyInitialPosition(params);
     this._wireEvents();
     this._initInspectionToggles();
     this._renderInspectionsPanel();
@@ -222002,6 +222055,21 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
       this.hide();
     else
       this.show();
+  }
+  _applyInitialPosition(params) {
+    if (params.initialTop === void 0 && params.initialRight === void 0) {
+      return;
+    }
+    const style = this._panel.style;
+    if (params.initialTop !== void 0) {
+      style.top = `${params.initialTop}px`;
+    }
+    if (params.initialRight !== void 0) {
+      style.right = `${params.initialRight}px`;
+      style.left = "auto";
+    }
+    style.bottom = "auto";
+    style.transform = "none";
   }
   // ── Public API ────────────────────────────────────────────────
   get visible() {
@@ -238652,16 +238720,16 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
     this._bodyEl.appendChild(viewsSection);
   }
   /**
-   * Recreate every live AdaptiveQuality with the current config —
-   * the class takes its params at construction and exposes no setters,
-   * so a slider change destroys the existing adapter and builds a fresh
-   * one (mirrors how `CullingPanel` handles its sliders).
+   * Recreate every enabled AdaptiveQuality with the current config —
+   * the class takes its params at construction and exposes no config setters,
+   * so a slider change destroys the existing adapter and builds a fresh one.
    */
   _applyConfigToActiveAdapters() {
     for (const view of this.viewer.viewList) {
-      if (!AdaptiveQuality.getFor(view))
+      const existing = AdaptiveQuality.getFor(view);
+      if (!existing?.enabled)
         continue;
-      AdaptiveQuality.getFor(view).destroy();
+      existing.destroy();
       new AdaptiveQuality({ view, restMs: this._restMs });
     }
   }
@@ -238687,7 +238755,7 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
       title: "Enable adaptive quality for this View."
     });
     const toggle = el("input", void 0, { type: "checkbox" });
-    toggle.checked = !!AdaptiveQuality.getFor(view);
+    toggle.checked = AdaptiveQuality.getFor(view)?.enabled === true;
     toggle.addEventListener("change", () => this._setViewAdaptive(view, toggle.checked));
     toggleLabel.appendChild(toggle);
     const name12 = el("span", "xkt-aq-view-name", {
@@ -238705,10 +238773,14 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
   _setViewAdaptive(view, enabled) {
     const existing = AdaptiveQuality.getFor(view);
     if (enabled) {
-      if (!existing)
+      if (existing) {
+        existing.enabled = true;
+      } else {
         new AdaptiveQuality({ view, restMs: this._restMs });
+      }
     } else {
-      existing?.destroy();
+      if (existing)
+        existing.enabled = false;
     }
     this._renderStats();
   }
@@ -248843,6 +248915,9 @@ function injectStylesOnce38() {
   document.head.appendChild(style);
   _stylesInjected37 = true;
 }
+function escapeHtml10(value) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
 var SVG_NS5 = "http://www.w3.org/2000/svg";
 var LEFT_GUTTER_PX = 130;
 var ROW_HEIGHT_PX = 22;
@@ -248876,6 +248951,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
   }
   player;
   onTaskClicked;
+  _title;
   // DOM refs.
   _bodyEl;
   _ganttEl;
@@ -248905,6 +248981,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
       classPrefix: "xkt-sch"
     });
     this.player = params.player;
+    this._title = params.title || "Schedule";
     this.onTaskClicked = new EventEmitter(new import_strongly_typed_events31.EventDispatcher());
     const prior = _SchedulePanel._instances.get(params.player);
     if (prior && !prior._destroyed)
@@ -248912,6 +248989,15 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
     _SchedulePanel._instances.set(params.player, this);
     injectStylesOnce38();
     this._buildDom();
+    if (params.x !== void 0 || params.y !== void 0) {
+      this._panel.style.transform = "none";
+      this._panel.style.right = "auto";
+      this._panel.style.bottom = "auto";
+    }
+    if (params.x !== void 0)
+      this._panel.style.left = `${params.x}px`;
+    if (params.y !== void 0)
+      this._panel.style.top = `${params.y}px`;
     this._wireDomEvents();
     this._subscribePlayer();
     this._rebuildGantt();
@@ -248927,7 +249013,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
     this._panel = el("div", "xkt-sch-panel");
     this._header = el("div", "xkt-sch-header");
     const title = el("h2", "xkt-sch-title");
-    title.innerHTML = `<span>${_SchedulePanel.iconSvg()}</span><span>Schedule</span>`;
+    title.innerHTML = `<span>${_SchedulePanel.iconSvg()}</span><span>${escapeHtml10(this._title)}</span>`;
     this._closeBtn = el("button", "xkt-sch-close", {
       type: "button",
       "aria-label": "Close panel",
@@ -248938,7 +249024,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
     this._pill = el("button", "xkt-sch-pill", {
       type: "button",
       hidden: true,
-      textContent: "Schedule"
+      textContent: this._title
     });
     this._bodyEl = el("div", "xkt-sch-body");
     const controls = el("div", "xkt-sch-controls");
@@ -249259,6 +249345,8 @@ function registerBuiltinPanels(registry) {
     create: (ctx2, params) => SceneHealthPanel.openFor({
       scene: ctx2.studio.scene,
       focusSceneModel: params?.focusSceneModel,
+      initialTop: params?.initialTop,
+      initialRight: params?.initialRight,
       view: ctx2.studio.viewer?.viewList?.[0],
       studio: ctx2.studio
     }),
@@ -249272,7 +249360,9 @@ function registerBuiltinPanels(registry) {
     create: (ctx2, params) => DataHealthPanel.openFor({
       data: ctx2.studio.data,
       focusDataModel: params?.focusDataModel,
-      schema: params?.schema
+      schema: params?.schema,
+      initialTop: params?.initialTop,
+      initialRight: params?.initialRight
     }),
     onReveal: (panel, _ctx, params) => {
       if (params?.focusDataModel)
@@ -249537,7 +249627,13 @@ function registerBuiltinPanels(registry) {
         ctx2.studio.reportWarning("[PanelRegistry/schedulePanel] missing required params.player");
         return void 0;
       }
-      return SchedulePanel.openFor({ player: params.player });
+      return SchedulePanel.openFor({
+        player: params.player,
+        title: params.title,
+        x: params.x,
+        y: params.y,
+        storageKey: params.storageKey
+      });
     }
   });
   registry.register("sunStudyPanel", {

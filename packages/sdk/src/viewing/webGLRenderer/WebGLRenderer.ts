@@ -887,6 +887,7 @@ export class WebGLRenderer implements Renderer {
 
     this._webglContextLost = false;
     this._redrawViewsAfterContextRestore(viewManager);
+    this._scheduleContextRestoreRedraws(viewManager);
     this.events.onContextRestored.dispatch(this);
     this.events.webglContextRestored.dispatch(this);
   }
@@ -900,6 +901,23 @@ export class WebGLRenderer implements Renderer {
       view.needsRender();
       this.logError(viewManager.viewUpdated(view));
     }
+  }
+
+  private _scheduleContextRestoreRedraws(viewManager: ViewManager): void {
+    const redraw = () => {
+      if (this._viewManager !== viewManager || this._webglContextLost || !this._viewer || this._destroyed) {
+        return;
+      }
+      this._redrawViewsAfterContextRestore(viewManager);
+    };
+
+    requestAnimationFrame(() => {
+      redraw();
+      requestAnimationFrame(redraw);
+    });
+    setTimeout(redraw, 50);
+    setTimeout(redraw, 250);
+    setTimeout(redraw, 1000);
   }
 
   private _startWebGLContextRestorePolling(viewManager: ViewManager): void {

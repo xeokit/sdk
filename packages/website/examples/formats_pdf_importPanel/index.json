@@ -1,19 +1,11 @@
 {
   "id": "formats_pdf_importPanel",
-  "title": "PDF import panel — drag & drop",
+  "title": "PDF File Viewer — drag & drop",
   "description": "Opens the floating PdfImportPanel. Drag any PDF onto the drop zone or click 'Choose file…' to load it into the scene; the panel auto-frames the camera and reports per-page stats.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "PDF",
-    "Drawings",
-    "Panel",
-    "_Featured"
-  ],
   "categories": [
-    "Importing",
+    "PDF",
     "Drawings"
-  ],
-  "category": "Importing Plan Views",
-  "topic": "import.pdf"
+  ]
 }

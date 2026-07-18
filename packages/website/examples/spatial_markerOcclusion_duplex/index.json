@@ -1,22 +1,10 @@
 {
   "id": "spatial_markerOcclusion_duplex",
-  "title": "Marker Occlusion for HTML Annotations",
+  "title": "Duplex Model with Annotation Labels",
   "description": "Shows WebGLRenderer marker occlusion on the Duplex XGF model. HTML annotation labels are pinned to world-space marker anchors around the building; each camera update projects the anchors to canvas space and uses the BVH-backed marker occlusion tester to hide labels behind model geometry.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "BVH",
-    "Annotations",
-    "Occlusion",
-    "WebGLRenderer",
-    "XGF",
-    "Duplex"
-  ],
   "categories": [
-    "Picking",
-    "Renderer"
-  ],
-  "category": "Annotations",
-  "topic": "picking.occlusion",
-  "isFeatured": true
+    "Annotations"
+  ]
 }

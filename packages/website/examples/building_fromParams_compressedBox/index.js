@@ -18,7 +18,7 @@ studio.init().then(() => {
     camera: {
       eye: [3, 3, 3],
       look: [0, 0, 0],
-      up: [0, 1, 0]
+      up: [0, 0, 1]
     }
   });
 
@@ -62,7 +62,7 @@ studio.init().then(() => {
       {
         id: "boxMesh",
         geometryId: "boxGeometry",
-        color: [1, 1, 1],
+        color: [0.2, 0.2, 1],
         opacity: 1
       }
     ],

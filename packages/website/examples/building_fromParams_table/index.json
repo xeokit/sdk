@@ -1,14 +1,11 @@
 {
   "id": "building_fromParams_table",
-  "title": "Creating a 3D Model from JSON",
+  "title": "Creating a Model from JSON",
   "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [],
   "categories": [
     "Modeling",
-    "Scene"
-  ],
-  "category": "Modeling",
-  "topic": "modeling.scene.object"
+    "Geometry"
+  ]
 }

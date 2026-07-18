@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 402.5,
-    "endTime": 517.7999999523163,
-    "elapsedTime": 115.29999995231628,
+    "startTime": 391.2000000476837,
+    "endTime": 526,
+    "elapsedTime": 134.79999995231628,
     "aabb": [],
     "scene": {
       "numTransforms": 0,
@@ -37,9 +37,9 @@
           ],
           "renderBins": [],
           "timeMs": {
-            "start": 1029.2999999523163,
-            "end": 1102,
-            "duration": 72.70000004768372
+            "start": 1035,
+            "end": 1106.0999999046326,
+            "duration": 71.09999990463257
           },
           "numDrawCalls": 0,
           "numPrims": 0

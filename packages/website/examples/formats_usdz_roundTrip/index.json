@@ -1,21 +1,11 @@
 {
   "id": "formats_usdz_roundTrip",
-  "title": "USDZ Round-Trip — Load, Export, Re-Import",
+  "title": "USDZ Round-Trip — Import, Export, Re-Import",
   "description": "End-to-end check of the USDZ exporter. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets. Loads the ResidentialBuilding USDZ into a temporary SceneModel, writes it back out with USDZExporter, then re-imports the exported bytes into the displayed SceneModel.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "USDZ",
-    "USD",
-    "Pixar",
-    "Importing",
-    "Exporting"
-  ],
   "categories": [
-    "Importing",
-    "Exporting",
-    "USDZ"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.usdz"
+    "USDZ",
+    "Buildings"
+  ]
 }

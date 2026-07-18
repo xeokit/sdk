@@ -1,22 +1,11 @@
 {
   "id": "formats_gltf_housePlanPbr",
-  "title": "House Plan glTF with PBR materials",
+  "title": "glTF House Plan",
   "description": "Loads the bundled HousePlan .glb model into a SceneModel and renders it with the SDK's PBR path, including image-based lighting from a procedural sky environment.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "glTF",
-    "PBR",
-    "IBL",
-    "Shadows",
-    "Renderer"
-  ],
   "categories": [
-    "Importing",
     "glTF",
-    "Renderer"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.gltf",
-  "isFeatured": true
+    "Buildings"
+  ]
 }

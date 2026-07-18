@@ -1,18 +1,12 @@
 {
   "id": "formats_splat_room",
-  "title": "Viewing a 3D Gaussian Splatting Scene",
+  "title": "Gaussian Splatting Room Interior",
   "description": "Loads a captured building interior .splat scene with GaussianSplatLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "Splat",
-    "GaussianSplatting",
-    "BIM"
-  ],
   "categories": [
-    "Importing",
-    "Splat"
-  ],
-  "category": "Viewing LiDAR Scans",
-  "topic": "import.splat"
+    "Gaussian Splats",
+    "LiDAR Scans",
+    "Point Clouds"
+  ]
 }

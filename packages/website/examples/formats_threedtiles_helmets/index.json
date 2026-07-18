@@ -4,15 +4,8 @@
   "description": "Loads a 3D Tiles helmets tileset with ThreeDTilesLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "3D Tiles",
-    "glTF",
-    "Importing"
-  ],
   "categories": [
-    "Importing",
+    "glTF",
     "3D Tiles"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.threedtiles"
+  ]
 }

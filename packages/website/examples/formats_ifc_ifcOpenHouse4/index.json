@@ -1,19 +1,11 @@
 {
   "id": "formats_ifc_ifcOpenHouse4",
-  "title": "Viewing an IFC Open House Model",
+  "title": "IFC4 Open House",
   "description": "Loads an IFC Open House model with IFCLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "IFC",
-    "XGF",
-    "webifc2xgf",
-    "_Featured"
-  ],
   "categories": [
-    "Importing",
-    "IFC"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.ifc"
+    "IFC",
+    "Buildings"
+  ]
 }

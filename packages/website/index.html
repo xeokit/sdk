@@ -24,26 +24,26 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
     <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent"
-                                                                                                  href="https://xeokit.github.io/sdk/">@xeokit/sdk</a></span>
+                                                                                                  href="http://localhost:8080">@xeokit/sdk</a></span>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
 </button>
 <div class="collapse navbar-collapse" id="navbarResponsive">
     <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-            <a class="nav-link" href="https://xeokit.github.io/sdk//index.html?foo=0">Home</a>
+            <a class="nav-link" href="http://localhost:8080/index.html?foo=0">Home</a>
         </li>
         <li class="nav-item dropdown">
-            <a class="nav-link" href="https://xeokit.github.io/sdk//examples/index.html">Examples</a>
+            <a class="nav-link" href="http://localhost:8080/examples/index.html">Examples</a>
         </li>
         <li class="nav-item dropdown">
-            <a class="nav-link" href="https://xeokit.github.io/sdk//models/index.html">Models</a>
+            <a class="nav-link" href="http://localhost:8080/models/index.html">Models</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="https://xeokit.github.io/sdk//userguide/index.html">User Guide</a>
+            <a class="nav-link" href="http://localhost:8080/userguide/index.html">User Guide</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="https://xeokit.github.io/sdk//api-docs.html#/sdk/docs/api/modules.html">API Docs</a>
+            <a class="nav-link" href="http://localhost:8080/api-docs.html#/sdk/docs/api/modules.html">API Docs</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="https://github.com/xeokit/sdk">GitHub</a>
@@ -89,12 +89,14 @@
         </div>
         <div class="row testimonial-row text-left">
             <div class="col-12">
-                <h2 class="mb-5">Featured Examples</h2>
+                <h2 class="mb-3">SDK Examples</h2>
+                <nav id="featured-gallery-filter" class="featured-gallery-filter mb-5" aria-label="Filter examples by tag"></nav>
             </div>
         </div>
         <div class="row testimonial-row text-left" id="featured-gallery"></div>
         <script type="module">
             const gallery = document.getElementById("featured-gallery");
+            const filter = document.getElementById("featured-gallery-filter");
 
             const escapeHtml = (value) => String(value ?? "")
                 .replace(/&/g, "&amp;")
@@ -102,6 +104,19 @@
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#39;");
+
+            const getTags = (example) => Array.isArray(example.categories)
+                ? example.categories.filter(Boolean)
+                : [];
+
+            const renderCardTags = (example) => {
+                const tags = getTags(example);
+                return tags.length
+                    ? `<ul class="featured-gallery-card-tags">
+                        ${tags.map(tag => `<li>${escapeHtml(tag)}</li>`).join("")}
+                    </ul>`
+                    : "";
+            };
 
             const renderCard = (example) => `
                 <div class="col-sm-4 mb-5">
@@ -115,40 +130,119 @@
                             <a href="./examples/${example.id}/index.html" class="card-link">
                                 <h4 class="card-title">${escapeHtml(example.title)}</h4>
                             </a>
+                            ${renderCardTags(example)}
                             <p class="card-text">${escapeHtml(example.description)}</p>
                         </div>
                     </div>
                 </div>`;
 
-            const renderGroup = ([category, examples]) => `
-                <div class="col-12">
-                    <h3 class="mb-4 text-left">${escapeHtml(category)}</h3>
-                </div>
-                ${examples.map(renderCard).join("")}`;
+            const renderTagButton = (tag, count) => `
+                <li>
+                    <button type="button" data-tag="${escapeHtml(tag)}" aria-pressed="false">
+                        <span>${escapeHtml(tag)}</span>
+                        <strong>${count}</strong>
+                    </button>
+                </li>`;
+
+            const tagGroups = [
+                ["Data & Modeling", ["Modeling", "Scene JSON", "Data JSON", "Semantic Data", "Model Conversion", "Geometry", "Transforms", "Animation", "Materials", "Hatch Patterns", "Line Patterns", "PBR", "Buildings"]],
+                ["File Types", ["IFC", "glTF", "XGF", "XKT", "dotbim", "CityJSON", "3D Tiles", "LAS/LAZ", "Gaussian Splats", "OBJ/MTL", "FBX", "USDZ", "PDF", "DWG", "DXF", "3DXML"]],
+                ["Model Quality", ["Model Validation", "Model Optimization"]],
+                ["Visualization", ["Viewing", "Effects", "Geolocation", "Presentations", "Walkthrough", "4D BIM", "Heat Maps", "Solar Analysis", "Slicing", "ViewLayers", "Thermal Flow Visualization"]],
+                ["Interaction & Runtime", ["Benchmarks", "Streaming", "Physics", "Picking", "Annotations", "WebGPU"]],
+                ["Model Types", ["Buildings", "LiDAR Scans", "Point Clouds", "Terrains", "Drawings", "CAD", "City Models", "Infrastructure", "Ships", "Industrial Plants"]]
+            ];
+
+            const renderFilter = (tags, total) => {
+                const tagCounts = new Map(tags);
+                const renderedTags = new Set();
+                const groups = tagGroups.map(([group, groupTags]) => {
+                    const buttons = groupTags
+                        .filter(tag => tagCounts.has(tag))
+                        .map(tag => {
+                            renderedTags.add(tag);
+                            return renderTagButton(tag, tagCounts.get(tag));
+                        });
+                    return buttons.length
+                        ? `<section class="featured-gallery-tag-group">
+                            <h3>${escapeHtml(group)}</h3>
+                            <ul class="featured-gallery-tag-list">${buttons.join("")}</ul>
+                        </section>`
+                        : "";
+                });
+                const otherButtons = tags
+                    .filter(([tag]) => !renderedTags.has(tag))
+                    .map(([tag, count]) => renderTagButton(tag, count));
+                if (otherButtons.length) {
+                    groups.push(`<section class="featured-gallery-tag-group">
+                        <h3>Other</h3>
+                        <ul class="featured-gallery-tag-list">${otherButtons.join("")}</ul>
+                    </section>`);
+                }
+                return `
+                    <div class="featured-gallery-filter-all">
+                        <button type="button" class="active" data-tag="" aria-pressed="true">
+                            <span>All</span>
+                            <strong>${total}</strong>
+                        </button>
+                    </div>
+                    ${groups.join("")}`;
+            };
 
             fetch("./examples/index.json")
                 .then(response => response.json())
                 .then(index => {
                     const examples = Object.values(index)
-                        .filter(example => example && (example.isShowcased === true || example.isFeatured === true))
+                        .filter(example => example && example.id)
                         .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
-                    const groups = examples.reduce((groups, example) => {
-                        const category = example.category || (example.categories && example.categories[0]) || "General";
-                        if (!groups.has(category)) {
-                            groups.set(category, []);
-                        }
-                        groups.get(category).push(example);
-                        return groups;
+                    const tagCounts = examples.reduce((tagCounts, example) => {
+                        getTags(example).forEach(tag => tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1));
+                        return tagCounts;
                     }, new Map());
-                    gallery.innerHTML = examples.length
-                        ? Array.from(groups.entries())
-                            .sort(([a], [b]) => a.localeCompare(b))
-                            .map(renderGroup)
-                            .join("")
-                        : '<div class="col-12"><p class="text-muted">No featured examples available.</p></div>';
+                    const tags = Array.from(tagCounts.entries())
+                        .sort(([a], [b]) => a.localeCompare(b));
+                    const selectedTags = new Set();
+                    const renderGallery = () => {
+                        const visibleExamples = selectedTags.size
+                            ? examples.filter(example => getTags(example).some(tag => selectedTags.has(tag)))
+                            : examples;
+                        gallery.innerHTML = visibleExamples.length
+                            ? visibleExamples.map(renderCard).join("")
+                            : '<div class="col-12"><p class="text-muted">No examples available.</p></div>';
+                    };
+                    const updateFilterState = () => {
+                        filter.querySelectorAll("button[data-tag]").forEach(filterButton => {
+                            const tag = filterButton.dataset.tag || "";
+                            const isActive = tag ? selectedTags.has(tag) : selectedTags.size === 0;
+                            filterButton.classList.toggle("active", isActive);
+                            filterButton.setAttribute("aria-pressed", String(isActive));
+                        });
+                    };
+                    filter.innerHTML = tags.length ? renderFilter(tags, examples.length) : "";
+                    filter.addEventListener("click", event => {
+                        const button = event.target.closest("button[data-tag]");
+                        if (!button) {
+                            return;
+                        }
+                        const tag = button.dataset.tag || "";
+                        if (tag) {
+                            if (selectedTags.has(tag)) {
+                                selectedTags.delete(tag);
+                            } else {
+                                selectedTags.add(tag);
+                            }
+                        } else {
+                            selectedTags.clear();
+                        }
+                        updateFilterState();
+                        renderGallery();
+                    });
+                    updateFilterState();
+                    renderGallery();
                 })
                 .catch(() => {
-                    gallery.innerHTML = '<div class="col-12"><p class="text-muted">Failed to load featured examples.</p></div>';
+                    filter.innerHTML = "";
+                    gallery.innerHTML = '<div class="col-12"><p class="text-muted">Failed to load examples.</p></div>';
                 });
         </script>
     </div>
@@ -159,7 +253,7 @@
             <div class="col-md-4 col-sm-12 mb-3  text-left">
                 <h2>xeokit SDK</h2>
                 <p>Powering Engineering Graphics on the Web</p>
-                <img src="https://xeokit.github.io/sdk//images/xeokitLogoAlphaBG.png">
+                <img src="http://localhost:8080/images/xeokitLogoAlphaBG.png">
             </div>
             <div class="col-md-8 col-sm-12">
 
@@ -167,11 +261,11 @@
                     <h5 class="mb-4 font-weight-bold text-uppercase ">Learn</h5>
                     <ul class="list-group">
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
-                            href="https://xeokit.github.io/sdk//examples">Examples</a></li>
+                            href="http://localhost:8080/examples">Examples</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
-                            href="https://xeokit.github.io/sdk//userguide">User Guide</a></li>
+                            href="http://localhost:8080/userguide">User Guide</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
-                            href="https://xeokit.github.io/sdk//api-docs.html#/sdk/docs/api/modules.html">API Docs</a></li>
+                            href="http://localhost:8080/api-docs.html#/sdk/docs/api/modules.html">API Docs</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
                             href="">Pricing</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a

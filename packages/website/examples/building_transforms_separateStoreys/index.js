@@ -17,13 +17,19 @@ async function main() {
 
   // Create a View and position the camera to frame the model from an
   // elevated angle after loading.
-  studio.viewManager.createView({
+  const view = studio.viewManager.createView({
     camera: {
       eye: [31.38663988418555, 32.115413398051004, 14.796097980600416],
       look: [0.6121272273206806, 6.666971960818746, 2.5235511335317735],
       up: [-0.2263867800274616, -0.18720656464184895, 0.9558779880213767],
     }
   });
+
+  view.effects.edges.renderModes = [
+    xeokit.base.constants.RealisticRender
+  ];
+  view.effects.edges.useMeshColor = true;
+  view.effects.edges.edgeWidth = 2;
 
   // Create a SceneModel to hold renderable content. Duplex is authored
   // Y-up, while the Scene is Z-up by default; this basis lets the SceneModel

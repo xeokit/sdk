@@ -30,6 +30,13 @@ studio.init().then(() => {
     }
   });
 
+  view.effects.edges.renderModes = [
+    xeokit.base.constants.DetailedRender,
+    xeokit.base.constants.RealisticRender
+  ];
+  view.effects.edges.useMeshColor = true;
+  view.effects.edges.edgeWidth = 2;
+
   // Create a SceneModel to hold renderable geometry and material state.
   // The coordinate system is defined explicitly so that axis orientation
   // and units are interpreted consistently.
@@ -62,7 +69,7 @@ studio.init().then(() => {
       xgfLoader.load({
         fileData,
         sceneModel
-      }).then(() => {
+      }).then(async () => {
 
         // At this point, the SceneModel contains SceneObjects for the
         // loaded model, and the View contains corresponding ViewObjects
@@ -77,8 +84,25 @@ studio.init().then(() => {
         });
 
         exploder.rebuild();
+        exploder.setFactor(0);
 
-        studio.openInfoPanelFromMeta();
+        // SceneModelExploder still creates its own legacy floating slider.
+        // Keep the control with the rest of the example metadata UI.
+        exploder._sliderContainer?.remove();
+        exploder._sliderContainer = null;
+        exploder._sliderElement = null;
+
+        const info = await studio.openInfoPanelFromMeta();
+        info.addSlider({
+          label: "Explode",
+          min: 0,
+          max: 2,
+          step: 0.05,
+          value: 0,
+          digits: 2,
+          onChange: value => exploder.setFactor(value)
+        });
+
         studio.finished();
         document.querySelectorAll(".xeokit-loading-overlay").forEach(el => {
           el.style.display = "none";

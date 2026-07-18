@@ -1,20 +1,11 @@
 {
   "id": "formats_dwg_floorPlan",
-  "title": "Viewing an AutoCAD DWG Drawing",
+  "title": "DWG Floor Plan Drawing",
   "description": "Loads an AutoCAD DWG floor plan with DWGLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "DWG",
-    "AutoCAD",
-    "Loader",
-    "WASM",
-    "FloorPlan"
-  ],
   "categories": [
-    "Formats",
+    "DWG",
     "Drawings"
-  ],
-  "category": "Formats",
-  "topic": "formats.dwg"
+  ]
 }

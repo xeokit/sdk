@@ -1,22 +1,11 @@
 {
   "id": "building_materials_pbrChart",
-  "title": "Metallic vs Roughness Sphere Chart",
+  "title": "Metallic vs Roughness Chart",
   "description": "Canonical PBR test rig: a 7×7 grid of spheres sharing one base colour. Roughness varies left → right (mirror at 0 → diffuse at 1); metallic varies bottom → top (dielectric at 0 → metal at 1). Lit by the renderer's procedural sky cubemap + directional sun, so each cell shows how the Cook-Torrance BRDF + GGX prefiltered cubemap responds to the (metallic, roughness) pair.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "PBR",
-    "BRDF",
-    "GGX",
-    "Cook-Torrance",
-    "IBL",
-    "Procgen",
-    "Renderer"
-  ],
   "categories": [
-    "Effects",
-    "Renderer"
-  ],
-  "category": "Effects",
-  "topic": "modeling.scene.geometry"
+    "Modeling",
+    "Materials"
+  ]
 }

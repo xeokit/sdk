@@ -1,190 +1,49 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DataModel Inspection Report — Duplex × IFC4</title>
-    <link href="../../css/example-page.css" rel="stylesheet"/>
-    <style>
-        body {
-            background-color: #f6f7f9;
-            margin: 0;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            color: #111;
-            overflow: hidden;
-        }
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataModel Health - Duplex</title>
+  <link href="../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: white;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #111;
+    }
 
-        #report {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            background: #fff;
-        }
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      border: 0;
+    }
 
-        #report-header {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 16px 20px;
-            border-bottom: 1px solid #e6e6e6;
-            background: #fafbfc;
-            flex: 0 0 auto;
-        }
-
-        #report-header h1 {
-            font-size: 16px;
-            font-weight: 650;
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        #report-header .subtitle {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
-        }
-
-        #counts {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-        .count-pill {
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-        .count-error   { color: #fff; background: #b91c1c; }
-        .count-warning { color: #92400e; background: #fef3c7; border: 1px solid #fcd34d; }
-        .count-info    { color: #1e40af; background: #dbeafe; border: 1px solid #93c5fd; }
-        .count-clean   { color: #047857; background: #d1fae5; border: 1px solid #6ee7b7; }
-
-        #report-body {
-            flex: 1 1 auto;
-            overflow: auto;
-            padding: 8px 0;
-        }
-
-        .group {
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .group-summary {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            cursor: pointer;
-            user-select: none;
-            background: #fafbfc;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .group[open] .group-summary {
-            background: #fff;
-        }
-        .group-summary::-webkit-details-marker { display: none; }
-        .group-summary::before {
-            content: "›";
-            display: inline-block;
-            width: 12px;
-            color: #888;
-            transition: transform 100ms;
-        }
-        .group[open] .group-summary::before {
-            transform: rotate(90deg);
-        }
-        .group-label {
-            flex: 1;
-            color: #1f2937;
-        }
-        .group-label .code {
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            font-size: 11px;
-            color: #555;
-            background: #eef0f3;
-            border-radius: 3px;
-            padding: 1px 5px;
-            margin-left: 6px;
-        }
-        .group-count {
-            font-size: 12px;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            padding: 1px 8px;
-            border-radius: 999px;
-            min-width: 22px;
-            text-align: center;
-        }
-        .group-count.severity-error   { color: #fff;    background: #b91c1c; }
-        .group-count.severity-warning { color: #92400e; background: #fef3c7; }
-        .group-count.severity-info    { color: #1e40af; background: #dbeafe; }
-
-        .group-description {
-            padding: 6px 20px 10px 42px;
-            font-size: 12px;
-            color: #555;
-            line-height: 1.5;
-            background: #fff;
-            border-top: 1px solid #f6f6f6;
-        }
-
-        .issue-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            background: #fff;
-        }
-        .issue-row {
-            display: grid;
-            grid-template-columns: 26ch 1fr;
-            gap: 12px;
-            padding: 5px 20px 5px 42px;
-            border-top: 1px solid #f6f6f6;
-            font-size: 12px;
-        }
-        .issue-row:hover {
-            background: #f9fafb;
-        }
-        .issue-resource {
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            font-size: 11px;
-            color: #1d4ed8;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .issue-message {
-            color: #374151;
-        }
-
-        #status {
-            padding: 6px 20px;
-            font-size: 12px;
-            color: #555;
-            background: #f0f0f0;
-            border-top: 1px solid #e0e0e0;
-            flex: 0 0 auto;
-        }
-    </style>
+    #status {
+      position: absolute;
+      top: 120px;
+      left: 12px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.93);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      color: #444;
+      font-size: 12px;
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
-<div id="report">
-    <div id="report-header">
-        <div>
-            <h1>DataModel Inspection Report</h1>
-            <div class="subtitle">Duplex IFC validated against the IFC4 schema</div>
-        </div>
-        <div id="counts"></div>
-    </div>
-    <div id="report-body"></div>
-    <div id="status">Loading…</div>
-</div>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading...</div>
 <script type="module" src="./index.js"></script>
 </body>
 </html>

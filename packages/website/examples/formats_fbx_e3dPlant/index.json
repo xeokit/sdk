@@ -1,19 +1,11 @@
 {
   "id": "formats_fbx_e3dPlant",
-  "title": "Viewing an Autodesk FBX Model",
+  "title": "FBX Industrial Plant",
   "description": "Loads a binary Autodesk FBX plant model with FBXLoader and frames it in the viewer. FBX is Autodesk's interchange format for 3D models, animation, materials, and scene data.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "FBX",
-    "Autodesk",
-    "Importing"
-  ],
   "categories": [
-    "Importing",
-    "FBX"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.fbx",
-  "isFeatured": true
+    "FBX",
+    "Industrial Plants"
+  ]
 }

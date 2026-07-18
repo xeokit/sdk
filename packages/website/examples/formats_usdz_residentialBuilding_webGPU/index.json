@@ -1,22 +1,12 @@
 {
   "id": "formats_usdz_residentialBuilding_webGPU",
-  "title": "WebGPU - Viewing a Pixar USDZ Model",
+  "title": "USDZ Residential Building (WebGPU)",
   "description": "Loads a Pixar USDZ residential building model with USDZLoader and renders it with WebGPU. USDZ is Pixar's ZIP-packaged USD format for portable 3D scene assets.",
   "isTutorial": false,
   "isVisualTest": false,
-  "tags": [
-    "USDZ",
-    "USD",
-    "Pixar",
-    "Importing",
-    "WebGPU",
-    "Renderer"
-  ],
   "categories": [
-    "Importing",
     "USDZ",
-    "Renderer"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "viewing.renderer.webgpu"
+    "Buildings",
+    "WebGPU"
+  ]
 }

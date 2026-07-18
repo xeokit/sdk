@@ -1,19 +1,13 @@
 {
   "id": "building_materials_mutablePatterns",
-  "title": "Runtime mutation of SceneMaterial line + hatch patterns",
+  "title": "Hatch & Line Patterns - Interactive Demo",
   "description": "Two materials drive a six-box scene — one triangle-surface material that demonstrates runtime `hatchPattern` mutation, one line-primitive material that demonstrates runtime `linePattern` mutation. Clicking a button reassigns the material's pattern; the renderer subscribes to `onSceneMaterialPatternChanged` and re-encodes the affected slot in the per-batch HatchPatternTexture / LinePatternTexture without rebuilding the model. Per-mesh attribute storage is left untouched — the slot index is keyed on `material.uniqueId`, which doesn't change.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "Materials",
-    "Hatch",
-    "Lines",
-    "Mutable",
-    "SceneMaterial"
-  ],
   "categories": [
-    "Materials"
-  ],
-  "category": "Materials",
-  "topic": "materials.mutable"
+    "Modeling",
+    "Materials",
+    "Hatch Patterns",
+    "Line Patterns"
+  ]
 }

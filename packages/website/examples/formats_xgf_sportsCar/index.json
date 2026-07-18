@@ -1,18 +1,11 @@
 {
   "id": "formats_xgf_sportsCar",
-  "title": "Multiple Views of an XGF Sports Car Model",
+  "title": "XGF Sports Car - Multiple Views",
   "description": "Load an XGF sports car model with XGFLoader and display it in multiple independent views. The XGF was pre-converted from OBJ+MTL for faster loading.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "Importing",
-    "XGF"
-  ],
   "categories": [
-    "Importing",
-    "XGF"
-  ],
-  "category": "Viewing CAD Models",
-  "topic": "import.xgf",
-  "isFeatured": true
+    "XGF",
+    "CAD"
+  ]
 }

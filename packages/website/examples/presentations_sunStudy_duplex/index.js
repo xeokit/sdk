@@ -104,6 +104,12 @@ studio.init().then(async () => {
     currentDate:        "2026-06-21T20:00:00Z",   // ~13:00 PDT
   });
 
+  for (const light of [...view.lightsList]) {
+    //if (light !== sunStudy.sunLight && typeof light.destroy === "function") {
+      light.destroy();
+    //}
+  }
+
   const player = new Sun.AnnualSunPlayer({
     sunStudy,
     mode:            "day",

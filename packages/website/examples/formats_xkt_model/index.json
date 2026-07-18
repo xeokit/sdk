@@ -1,19 +1,10 @@
 {
   "id": "formats_xkt_model",
-  "title": "Viewing a xeokit XKT Model",
+  "title": "XKT Model Viewer",
   "description": "Loads a xeokit XKT v12 model with XKTLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "XKT",
-    "BIM",
-    "Importing",
-    "DataModel"
-  ],
   "categories": [
-    "Importing",
     "XKT"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.xkt"
+  ]
 }

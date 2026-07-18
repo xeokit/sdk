@@ -4,17 +4,7 @@
   "description": "Slice the Duplex XGF model by binding a TransformControls gizmo to a SectionPlane via a getMatrix / setMatrix adapter. Drag to translate the plane, press R to rotate its normal.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "SectionPlane",
-    "TransformControls",
-    "Slicing",
-    "XGF",
-    "Adapter"
-  ],
   "categories": [
-    "Viewing",
     "Slicing"
-  ],
-  "category": "Viewing",
-  "topic": "viewing.sectionPlane"
+  ]
 }

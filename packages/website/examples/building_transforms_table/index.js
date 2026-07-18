@@ -22,9 +22,9 @@ studio
         // from an elevated perspective.
         studio.viewManager.createView({
             camera: {
-                eye: [OFFSET + 10, -2, 25],
-                look: [OFFSET + 0, -6, 0],
-                up: [0, 1, 0]
+                eye: [OFFSET + 10, 25, 2],
+                look: [OFFSET + 0, 0, -6],
+                up: [0, 0, 1]
             }
         });
 
@@ -32,14 +32,14 @@ studio
         // used to render the table model.
         const sceneModelResult = scene.createModel({
             id: "demoModel",
-            // coordinateSystem: {
-            //   basis: [
-            //     1, 0, 0, // Right
-            //     0, 1, 0, // Up
-            //     0, 0, 1  // Forward
-            //   ],
-            //   origin: [0, 0, 0]
-            // }
+            coordinateSystem: {
+              basis: [
+                1, 0, 0, // Right
+                0, 1, 0, // Up
+                0, 0, 1  // Forward
+              ],
+              origin: [0, 0, 0]
+            }
         });
 
         if (!sceneModelResult.ok) {

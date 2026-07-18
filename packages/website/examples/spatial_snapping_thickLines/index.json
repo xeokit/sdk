@@ -1,21 +1,10 @@
 {
   "id": "spatial_snapping_thickLines",
-  "title": "Snap-to-vertex / snap-to-edge picking on thick lines",
+  "title": "Pointer Snapping on Line Segments",
   "description": "Exercises the WebGLRenderer's snap-pick pipeline on `LinesPrimitive` geometry rendered through the quad-expanded thick-line technique. A box wireframe (free-end caps), a closed pentagram polyline (miter joints throughout), and an open 'Z' polyline (mixed joints + free ends) all carry `lineWidth = 6`. Every `mousemove` is routed through `renderer.pick(view, {canvasPos, snapToVertex, snapToEdge, snapRadius})`; vertex snap rasterises each line's endpoints into the snap FBO as 1-pixel POINTS, edge snap rasterises each line as a 1-pixel `gl.LINES` segment along the mathematical centerline. A marker tints itself red on vertex hits and amber on edge hits.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "Picking",
-    "Snap",
-    "Vertex",
-    "Edge",
-    "Lines",
-    "ThickLines",
-    "WebGLRenderer"
-  ],
   "categories": [
     "Picking"
-  ],
-  "category": "Picking",
-  "topic": "picking.snap"
+  ]
 }

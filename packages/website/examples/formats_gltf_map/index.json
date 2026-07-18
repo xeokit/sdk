@@ -1,17 +1,12 @@
 {
   "id": "formats_gltf_map",
-  "title": "Viewing a glTF Map Model",
+  "title": "glTF Geolocated Apartment",
   "description": "Loads a glTF map model with GLTFLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "glTF",
-    "_Featured"
-  ],
   "categories": [
-    "Importing",
-    "glTF"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.gltf"
+    "glTF",
+    "Buildings",
+    "Geolocation"
+  ]
 }

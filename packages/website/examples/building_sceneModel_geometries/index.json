@@ -1,15 +1,11 @@
 {
   "id": "building_sceneModel_geometries",
-  "title": "Creating Various Geometries",
+  "title": "Creating Geometries - Various Primitives",
   "description": "In this example, we'll use the xeokit SDK to create and view a model containing objects with various shapes, using the SDK's geometry genorator functions.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [],
   "categories": [
     "Modeling",
-    "Scene",
     "Geometry"
-  ],
-  "category": "Modeling",
-  "topic": "modeling.scene.geometry"
+  ]
 }

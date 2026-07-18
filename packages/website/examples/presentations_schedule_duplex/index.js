@@ -68,6 +68,8 @@ studio.init().then(async () => {
       perspectiveProjection: { near: 0.01, far: 1000 },
     },
   });
+  const adaptiveQuality = xeokit.viewing.adaptiveQuality.AdaptiveQuality.getFor(view);
+  if (adaptiveQuality) adaptiveQuality.enabled = false;
 
   // ── Partition the SceneObjects into 6 construction stages ───────
   //
@@ -161,7 +163,7 @@ studio.init().then(async () => {
 
   // ── Gantt panel ────────────────────────────────────────────────
   //
-  // Floating Gantt view bottom-left of the viewport. Two-way bound
+  // Floating Gantt view top-left of the viewport. Two-way bound
   // to the player: click on the timeline (or drag the cursor) to
   // scrub, click a task bar to jump to its start, click a milestone
   // diamond to jump to it. Play / step buttons + speed slider live
@@ -172,7 +174,13 @@ studio.init().then(async () => {
   // aligned with the way the other built-in panels (explorer,
   // boundaries, models, etc.) are launched, and exercises the
   // type-checked `{player}` params shape declared in builtinPanels.
-  studio.panels.open("schedulePanel", { player });
+  studio.panels.open("schedulePanel", {
+    player,
+    title: "4D BIM Construction Schedule",
+    x: 17,
+    y: 72,
+    storageKey: "xkt-sch-panel-presentations-schedule-duplex",
+  });
 
   // ── Fly the camera to each milestone's currently-active scope ──
   //
@@ -199,45 +207,6 @@ studio.init().then(async () => {
       easing:   "inThenOut",
     });
   });
-
-  // ── Info-panel UI ───────────────────────────────────────────────
-  //
-  // A slider for scrubbing, a play/pause toggle, a speed slider, and
-  // a current-date readout. Two-way binding: the slider drives the
-  // player, the player's onDateChanged drives the readout.
-  const info = await studio.openInfoPanelFromMeta();
-  info.addSlider({
-    label:   "Schedule date",
-    min:     0,
-    max:     100,
-    value:   0,
-    onChange: (v) => { player.progress = v / 100; },
-  });
-  info.addToggle({
-    label:   "Playing",
-    value:   false,
-    onChange: (on) => { on ? player.play() : player.pause(); },
-  });
-  info.addSlider({
-    label:   "Speed (days/sec)",
-    min:     1,
-    max:     60,
-    value:   player.playbackSpeed,
-    onChange: (v) => { player.playbackSpeed = v; },
-  });
-  info.addStat({ id: "currentDate", label: "Date" });
-  info.addStat({ id: "weekNumber",  label: "Week" });
-
-  const refreshReadout = () => {
-    const d = player.currentDate;
-    info.setStat("currentDate", d.toLocaleDateString("en-GB",
-      { day: "numeric", month: "short", year: "numeric" }));
-    const wk = 1 + Math.floor(
-      (d.getTime() - schedule.startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
-    info.setStat("weekNumber", `${wk} of 24`);
-  };
-  refreshReadout();
-  player.onDateChanged.subscribe(refreshReadout);
 
   studio.finished();
 

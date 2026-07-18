@@ -1,17 +1,10 @@
 {
   "id": "formats_obj_table",
-  "title": "Viewing an OBJ Table Model",
+  "title": "OBJ Table",
   "description": "Loads an OBJ table model with OBJLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "Importing",
-    "OBJ"
-  ],
   "categories": [
-    "Importing",
-    "OBJ"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.obj"
+    "OBJ/MTL"
+  ]
 }

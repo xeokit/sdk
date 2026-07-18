@@ -1,19 +1,11 @@
 {
   "id": "formats_pdf_vectorPlan",
-  "title": "Viewing a Vector PDF Plan",
+  "title": "PDF Generated Floor Plan",
   "description": "Loads a vector PDF floor plan with PDFLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "PDF",
-    "Drawings",
-    "Fills",
-    "_Featured"
-  ],
   "categories": [
-    "Importing",
+    "PDF",
     "Drawings"
-  ],
-  "category": "Importing Plan Views",
-  "topic": "import.pdf"
+  ]
 }

@@ -1,20 +1,11 @@
 {
   "id": "formats_ifc_ifc4SampleHouse",
-  "title": "Viewing an IFC4 Sample House Model",
+  "title": "IFC4 Sample House",
   "description": "Loads an IFC4 sample house model with IFCLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "IFC",
-    "XGF",
-    "webifc2xgf",
-    "_Featured"
-  ],
   "categories": [
-    "Importing",
-    "IFC"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.ifc",
-  "isFeatured": true
+    "IFC",
+    "Buildings"
+  ]
 }

@@ -1,20 +1,11 @@
 {
   "id": "formats_gltf_residentialBuilding",
-  "title": "Viewing a glTF Residential Building Model",
+  "title": "glTF Residential Building",
   "description": "Loads a glTF residential building model with GLTFLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "glTF",
-    "glb",
-    "PBR",
-    "Building",
-    "Importing"
-  ],
   "categories": [
-    "Importing",
-    "glTF"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.gltf"
+    "glTF",
+    "Buildings"
+  ]
 }

@@ -1,19 +1,11 @@
 {
   "id": "formats_ifc_duplex",
-  "title": "Viewing an IFC Duplex Model",
+  "title": "IFC Duplex",
   "description": "Loads an IFC Duplex model with IFCLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "IFC",
-    "XGF",
-    "webifc2xgf",
-    "_Featured"
-  ],
   "categories": [
-    "Importing",
-    "IFC"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.ifc"
+    "IFC",
+    "Buildings"
+  ]
 }

@@ -1,18 +1,14 @@
 {
   "id": "building_doublePrecision_archipelago",
-  "title": "Huge Scene with Double-Precision Coordinates",
+  "title": "Huge Scene with Geolocated Models",
   "description": "An archipelago of 54 rocky islands spread across a 56 km expanse of ocean, geo-located at real-world UTM Zone 32N coordinates (~267 km easting, 6.55 million metres northing — off the Norwegian coast, ~50 km west of Stavanger). Three buildings inhabit the scene: a Duplex on the central island, an IfcOpenHouse4 on the far NW island, and a Ferry afloat ~12 km southeast.",
   "isTutorial": false,
   "isVisualTest": false,
-  "tags": [
-    "Featured"
-  ],
   "categories": [
-    "Modeling",
-    "Scene",
-    "Geometry"
-  ],
-  "category": "Modeling",
-  "topic": "modeling.scene.geometry",
-  "isFeatured": true
+    "Geolocation",
+    "Buildings",
+    "Ships",
+    "Terrains",
+    "Benchmarks"
+  ]
 }

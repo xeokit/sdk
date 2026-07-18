@@ -1,18 +1,12 @@
 {
   "id": "formats_xgf_map",
-  "title": "Viewing an XGF Building Model with Double-Precision Coordinates",
+  "title": "XGF Geolocated Apartment",
   "description": "Loads a georeferenced IFC building model that uses double-precision world coordinates, which xeokit preserves for BIM/GIS-scale scenes. The model is loaded from XGF, preconverted from IFC for fast loading.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "XGF",
-    "_Featured"
-  ],
   "categories": [
-    "Importing",
-    "XGF"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.xgf",
-  "isFeatured": true
+    "XGF",
+    "Buildings",
+    "Geolocation"
+  ]
 }

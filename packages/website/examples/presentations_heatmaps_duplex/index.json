@@ -1,19 +1,10 @@
 {
   "id": "presentations_heatmaps_duplex",
-  "title": "Paint Heat-Map Materials onto a Duplex Model",
+  "title": "Duplex Model Heat Map",
   "description": "Loads the Duplex SceneModel + DataModel (~300 IFC objects) from its precomputed XGF + datamodel JSON, then uses applyHeatMapMaterials to bake a per-geometry heat-map texture (driven by vertex elevation along the worldUp axis) onto every triangle SceneObject. Click and drag to paint white onto whichever surface the cursor lands on — the change is fed into the renderer via texSubImage2D, no batch / mesh / material rebuild.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "Materials",
-    "Procedural",
-    "HeatMap",
-    "IFC"
-  ],
   "categories": [
-    "Materials",
-    "Demo Helpers"
-  ],
-  "category": "Materials",
-  "topic": "materials.procedural"
+    "Heat Maps"
+  ]
 }

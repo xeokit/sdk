@@ -1,17 +1,11 @@
 {
   "id": "formats_dotbim_blenderHouse",
-  "title": "Viewing a DotBIM Model",
+  "title": "DotBIM Blender House",
   "description": "Loads a dotbim house model with DotBIMLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "Importing",
-    "DotBIM"
-  ],
   "categories": [
-    "Importing",
-    "DotBIM"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.dotbim"
+    "dotbim",
+    "Buildings"
+  ]
 }

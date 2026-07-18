@@ -1,21 +1,11 @@
 {
   "id": "formats_threedxml_assembly",
-  "title": "Viewing a 3DXML Assembly",
+  "title": "3DXML CAD Assembly",
   "description": "Loads a Dassault Systèmes 3DXML tooling assembly with ThreeDXMLLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "3DXML",
-    "Dassault",
-    "CATIA",
-    "SolidWorks",
-    "Importing"
-  ],
   "categories": [
-    "Importing",
-    "3DXML"
-  ],
-  "category": "Viewing CAD Models",
-  "topic": "import.threedxml",
-  "isFeatured": true
+    "3DXML",
+    "CAD"
+  ]
 }

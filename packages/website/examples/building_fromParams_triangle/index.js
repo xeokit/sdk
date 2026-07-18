@@ -21,7 +21,7 @@ studio
         camera: {
           eye: [3, 3, 3],
           look: [0, 0, 0],
-          up: [0, 1, 0]
+          up: [0, 0, 1]
         }
       });
 
@@ -35,9 +35,9 @@ studio
             id: "triangleGeometry",
             primitive: 20002, // TrianglesPrimitive
             positions: [
-              0.0, 1.5, 0.0,
-              -1.5, -1.5, 0.0,
-              1.5, -1.5, 0.0,
+              -1.5, 0.0, 0.0,
+              1.5, 0.0, 0.0,
+              0.0, 0.0, 2.598076211,
             ],
             indices: [
               0, 1, 2

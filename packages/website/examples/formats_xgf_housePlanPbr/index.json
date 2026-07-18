@@ -1,26 +1,11 @@
 {
   "id": "formats_xgf_housePlanPbr",
-  "title": "Viewing an XGF Building Model with Physically-Based Materials",
+  "title": "XGF House Plan",
   "description": "Views a house plan model containing physically-based materials, loaded from the SDK's optimized XGF format. The XGF is pre-converted from the original glTF model, allowing the model to load faster.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "XKT2",
-    "XGF",
-    "PBR",
-    "IBL",
-    "Shadows",
-    "SAO",
-    "Tonemap",
-    "Renderer"
-  ],
   "categories": [
-    "Importing",
     "XGF",
-    "Effects",
-    "Renderer"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.xgf",
-  "isFeatured": true
+    "Buildings"
+  ]
 }

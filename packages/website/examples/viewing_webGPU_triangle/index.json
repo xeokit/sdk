@@ -4,14 +4,9 @@
   "description": "Runs the experimental WebGPU renderer directly with a minimal Scene, Viewer, one canvas View, and two indexed triangle meshes. The triangles overlap at different depths to exercise the current flat-color draw path and depth buffer.",
   "isTutorial": false,
   "isVisualTest": false,
-  "tags": [
-    "WebGPU",
-    "Renderer"
-  ],
   "categories": [
-    "Viewing",
-    "Renderer"
-  ],
-  "category": "Viewing",
-  "topic": "viewing.renderer.webgpu"
+    "Modeling",
+    "Geometry",
+    "WebGPU"
+  ]
 }

@@ -4,12 +4,7 @@
   "description": "Create a viewer with explicitly managed ViewLayers for deterministic layer composition and control.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [],
   "categories": [
-    "Viewer",
-    "Views",
     "ViewLayers"
-  ],
-  "category": "Viewer",
-  "topic": "viewer.view.viewlayer"
+  ]
 }

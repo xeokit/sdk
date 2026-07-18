@@ -197,7 +197,7 @@ function updateStatus(stats) {
   status.dataset.state = "ok";
   status.innerHTML =
     "<strong>WebGPU Renderer</strong>" +
-    `<span>Dynamic SceneModel stress test - active ${stats.active}, created ${stats.created}, destroyed ${stats.destroyed}</span>`;
+    `<span>Dynamic SceneModel Benchmark - active ${stats.active}, created ${stats.created}, destroyed ${stats.destroyed}</span>`;
 }
 
 function mustOk(result) {

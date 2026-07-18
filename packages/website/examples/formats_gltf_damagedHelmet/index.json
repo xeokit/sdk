@@ -1,19 +1,10 @@
 {
   "id": "formats_gltf_damagedHelmet",
-  "title": "Viewing a glTF Damaged Helmet Model",
+  "title": "glTF Damaged Helmet",
   "description": "Loads the Khronos Damaged Helmet glTF model with GLTFLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "glTF",
-    "glb",
-    "PBR",
-    "Importing"
-  ],
   "categories": [
-    "Importing",
     "glTF"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.gltf"
+  ]
 }

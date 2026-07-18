@@ -4,18 +4,8 @@
   "description": "An endless cityscape that demonstrates how the SDK is optimized for efficiently streamed content.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "Procgen",
-    "InstanceReuse",
-    "Streaming",
-    "SceneModel",
-    "Pooling"
-  ],
   "categories": [
-    "Modeling",
-    "Streaming"
-  ],
-  "category": "Modeling",
-  "topic": "modeling.scene.streaming",
-  "isFeatured": true
+    "Streaming",
+    "Benchmarks"
+  ]
 }

@@ -1,19 +1,11 @@
 {
   "id": "formats_cityjson_roundTrip",
-  "title": "CityJSON Round-Trip — Load, Export, Re-Import",
+  "title": "CityJSON Round-Trip — Import, Export, Re-Import",
   "description": "End-to-end check of the CityJSON exporter. Loads the LoD3 Railway CityJSON into a temporary SceneModel + DataModel, writes it back out with CityJSONExporter (each SceneObject a CityObject with a MultiSurface geometry, shared quantised vertices, materials, and the DataModel-derived city-object hierarchy), then re-imports the exported document into the displayed models. If geometry, transforms, materials and semantics survive the cycle, the re-imported model renders identically to the original.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "CityJSON",
-    "Importing",
-    "Exporting"
-  ],
   "categories": [
-    "Importing",
-    "Exporting",
-    "CityJSON"
-  ],
-  "category": "Viewing Buildings",
-  "topic": "import.cityjson"
+    "CityJSON",
+    "City Models"
+  ]
 }

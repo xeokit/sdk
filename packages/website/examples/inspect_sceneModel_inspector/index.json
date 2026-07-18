@@ -1,19 +1,11 @@
 {
   "id": "inspect_sceneModel_inspector",
-  "title": "Interactive SceneModel Inspector",
-  "description": "Loads the Duplex IFC model and runs inspectSceneModel with both opt-in geometry checks. The InspectionReport renders into a three-tier collapsible panel (severity → issue type → individual issues); each Warnings section and per-code group carries a 'Fix all' button that dispatches through applyFixes against the registered Fix for that code. Each fix run logs into a sibling Fix Results panel — fixed / skipped / errors counts plus per-issue outcomes.",
+  "title": "Scene Model Health Inspection",
+  "description": "Loads the Duplex XGF model and opens Studio Scene Health, a demo of the SDK model validation and optimization tools.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "IFC",
-    "SceneModelInspector",
-    "Validate",
-    "Fix"
-  ],
   "categories": [
-    "Optimization",
-    "IFC"
-  ],
-  "category": "Optimization",
-  "topic": "sceneModelInspector.interactive"
+    "Model Validation",
+    "Model Optimization"
+  ]
 }

@@ -43,6 +43,10 @@ studio.init().then(async () => {
             perspectiveProjection: {fov: 60},
         },
     });
+    // Studio enables AdaptiveQuality by default for interactive examples.
+    // This profiler needs an explicit RealisticRender baseline first, then
+    // creates its own adapter for the measured adaptive pass below.
+    xeokit.viewing.adaptiveQuality.AdaptiveQuality.getFor(view)?.destroy();
     log("view created", view?.id);
 
     const MODEL_ID = "OTC";
@@ -182,11 +186,15 @@ studio.init().then(async () => {
         view,
         restMs: 1_000_000,  // never rest during the capture — the orbit is continuous
     });
-    // Let the first orbit tick flip view.renderMode → NavigationRender before
-    // we start measuring, so no captured frame straddles the transition.
-    await waitFrames(view, 5);
-    const adaptiveFrames = await inspector.captureFrames(FRAMES_PER_CAPTURE);
-    adaptiveQuality.destroy();  // restores RealisticRender for the next pass
+    let adaptiveFrames;
+    try {
+        // Let the first orbit tick flip view.renderMode → NavigationRender before
+        // we start measuring, so no captured frame straddles the transition.
+        await waitFrames(view, 5);
+        adaptiveFrames = await inspector.captureFrames(FRAMES_PER_CAPTURE);
+    } finally {
+        adaptiveQuality.destroy();  // restores RealisticRender for the next pass
+    }
     await waitFrames(view, 5);
     log("captureFrames(adaptive) done", adaptiveFrames.length);
 

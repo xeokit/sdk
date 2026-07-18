@@ -1,14 +1,11 @@
 {
   "id": "building_fromParams_compressedBox",
-  "title": "Create a 3D cube from JSON, using compressed geometry",
+  "title": "Creating a Box from JSON with Compressed Geometry",
   "description": "In this example, we'll use the xeokit SDK to create and view a box-shaped model, from JSON parameters containing compressed geometry",
   "isTutorial": false,
   "isVisualTest": true,
-  "tags": [],
   "categories": [
     "Modeling",
-    "Scene"
-  ],
-  "category": "Modeling",
-  "topic": "modeling.scene.geometry"
+    "Geometry"
+  ]
 }

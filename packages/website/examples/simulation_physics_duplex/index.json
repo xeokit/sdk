@@ -1,20 +1,10 @@
 {
   "id": "simulation_physics_duplex",
-  "title": "Inverse-gravity Duplex (Rapier)",
+  "title": "Duplex Model with Rapier Physics Engine",
   "description": "Every SceneObject in the Duplex IFC building (loaded as XGF) becomes a dynamic Rapier body, the world's gravity vector points up, and the house lifts off the slab and disassembles itself in mid-air. A separate slab stays fixed as a spatial reference. \"Toggle gravity\" flips the vector so the parts fall back into a chaotic heap. Physics runs through ScenePhysics with Rapier loaded from a CDN at runtime; the SDK itself never bundles Rapier.",
   "isTutorial": true,
   "isVisualTest": false,
-  "tags": [
-    "Physics",
-    "Rapier",
-    "ScenePhysics",
-    "XGF",
-    "Cityscape"
-  ],
   "categories": [
-    "Physics",
-    "Interaction"
-  ],
-  "category": "Physics",
-  "topic": "physics.cityscape"
+    "Physics"
+  ]
 }

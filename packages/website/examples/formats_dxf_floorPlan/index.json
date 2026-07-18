@@ -1,19 +1,11 @@
 {
   "id": "formats_dxf_floorPlan",
-  "title": "Viewing an AutoCAD DXF Drawing",
+  "title": "DXF Floor Plan Drawing",
   "description": "Loads an AutoCAD DXF floor plan with DXFLoader and frames it in the viewer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "DXF",
-    "AutoCAD",
-    "Loader",
-    "Drawings"
-  ],
   "categories": [
-    "Formats",
+    "DXF",
     "Drawings"
-  ],
-  "category": "Formats",
-  "topic": "formats.dxf"
+  ]
 }

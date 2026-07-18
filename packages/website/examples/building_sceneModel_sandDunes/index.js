@@ -33,7 +33,7 @@ studio.init().then(() => {
   // Height field — two components combined:
   //
   //  1. Wave undulation — a sum of large-wavelength asymmetric dune waves that
-  //     give the field its broad rolling character and fine surface ripples.
+  //     give the field its broad rolling character and fine surface detail.
   //
   //  2. Barchan stamps — 30 individual crescent dunes scattered across the
   //     field. Each barchan is a parabolic mound with a Gaussian notch carved
@@ -52,7 +52,7 @@ studio.init().then(() => {
     { angle: Math.PI * 0.08, wavelength: 120, amplitude: 1.2, wf: 0.62 },
     { angle: Math.PI * 0.22, wavelength: 70,  amplitude: 0.9, wf: 0.65 },
     { angle: Math.PI * 0.47, wavelength: 110, amplitude: 0.7, wf: 0.60 },
-    // Surface ripples
+    // Fine surface undulations
     { angle: Math.PI * 0.14, wavelength: 18,  amplitude: 0.25, wf: 0.60 },
     { angle: Math.PI * 0.56, wavelength: 24,  amplitude: 0.20, wf: 0.62 },
     { angle: Math.PI * 0.88, wavelength:  8,  amplitude: 0.08, wf: 0.60 },
@@ -170,18 +170,19 @@ studio.init().then(() => {
   const numVerts = V * V;
   const numTris  = TILE_CELLS * TILE_CELLS * 2;
 
-  // Brick texture — paint the PBR triple once, upload as three
-  // tileable textures, then bind into a single material that every
-  // tile mesh references. The tile geometries carry no UVs, so the
-  // material's triplanarScale drives world-space (triplanar) sampling:
-  // the brick pattern repeats once per BRICK_TILE_M world metres.
-  const TEX_SIZE      = 256;
-  const BRICK_TILE_M  = 6;
-  const brickMaps     = xeokit.model.procgen.paintMaterials.paintBrick(TEX_SIZE);
+  // Sand texture — paint a custom PBR texture set once, upload as three
+  // tileable textures, then bind into a single material that every tile mesh
+  // references. The color map contains layered desert grain noise. The normal
+  // map is derived from a matching seamless noise height field, giving the
+  // surface small bump-map relief without adding geometry. The tile geometries
+  // carry no UVs, so the material's triplanarScale drives world-space sampling.
+  const TEX_SIZE    = 512;
+  const SAND_TILE_M = 14;
+  const sandMaps    = paintSeamlessDesertSand(TEX_SIZE);
 
   sceneModel.createTexture({
-    id: "brickColorTex",
-    imageData: brickMaps.color,
+    id: "sandColorTex",
+    imageData: sandMaps.color,
     encoding:  xeokit.base.constants.sRGBEncoding,
     minFilter: xeokit.base.constants.LinearFilter,
     wrapS:     xeokit.base.constants.RepeatWrapping,
@@ -190,8 +191,8 @@ studio.init().then(() => {
     mipmap:    true
   });
   sceneModel.createTexture({
-    id: "brickNormalTex",
-    imageData: brickMaps.normal,
+    id: "sandNoiseNormalTex",
+    imageData: sandMaps.normal,
     encoding:  xeokit.base.constants.LinearEncoding,
     minFilter: xeokit.base.constants.LinearFilter,
     wrapS:     xeokit.base.constants.RepeatWrapping,
@@ -200,8 +201,8 @@ studio.init().then(() => {
     mipmap:    true
   });
   sceneModel.createTexture({
-    id: "brickMRTex",
-    imageData: brickMaps.mr,
+    id: "sandMRTex",
+    imageData: sandMaps.mr,
     encoding:  xeokit.base.constants.LinearEncoding,
     minFilter: xeokit.base.constants.LinearFilter,
     wrapS:     xeokit.base.constants.RepeatWrapping,
@@ -210,20 +211,12 @@ studio.init().then(() => {
     mipmap:    true
   });
   sceneModel.createMaterial({
-    id: "brickMat",
-    colorTextureId:             "brickColorTex",
-    normalsTextureId:           "brickNormalTex",
-    metallicRoughnessTextureId: "brickMRTex",
-    // Diffuse-dominant materials render dimmer than the painted texel
-    // values because Lambert divides by π. The aecChart demo applies a
-    // ~1.6× tint multiplier to compensate; use the same here so the
-    // bricks read at their intended brightness.
-    color: [1.6, 1.6, 1.6],
-    // World-space repeat distance. With no per-vertex UVs on the tile
-    // geometries, this engages the renderer's triplanar sampling, which
-    // uses textureGrad with the un-wrapped gradient — so the tiled texture
-    // doesn't seam at every repeat the way the UV (fract) path does.
-    triplanarScale: BRICK_TILE_M
+    id: "sandMat",
+    colorTextureId:             "sandColorTex",
+    normalsTextureId:           "sandNoiseNormalTex",
+    metallicRoughnessTextureId: "sandMRTex",
+    color: [1.45, 1.38, 1.18],
+    triplanarScale: SAND_TILE_M
   });
 
   for (let ty = 0; ty < TILES; ty++) {
@@ -277,7 +270,7 @@ studio.init().then(() => {
 
       const id = `tile_${ty}_${tx}`;
 
-      // No UVs: the brick material's triplanarScale makes the renderer sample
+      // No UVs: the sand material's triplanarScale makes the renderer sample
       // the textures by world-space position (triplanar) instead of vertex UVs.
       // Adjacent tiles sample continuously in world space, and the triplanar
       // path uses textureGrad so the tiled pattern doesn't seam at every repeat.
@@ -292,7 +285,7 @@ studio.init().then(() => {
       sceneModel.createMesh({
         id: `${id}_mesh`,
         geometryId: `${id}_geom`,
-        materialId: "brickMat"
+        materialId: "sandMat"
       });
 
       sceneModel.createObject({
@@ -317,3 +310,53 @@ studio.init().then(() => {
   studio.openInfoPanelFromMeta();
   studio.finished();
 });
+
+function paintSeamlessDesertSand(size) {
+  const {
+    newPixelBuffer,
+    heightToNormal,
+    flatMR,
+    periodicHash2,
+    periodicFbm,
+    clamp01
+  } = xeokit.model.procgen.paintMaterials;
+
+  const color = newPixelBuffer(size);
+  const heightMap = newPixelBuffer(size);
+  const cd = color.data;
+  const hd = heightMap.data;
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const broad = periodicFbm(x * 0.018 + 17.1, y * 0.018 + 29.4, size * 0.018, size * 0.018, 4);
+      const grain = periodicFbm(x * 0.085, y * 0.085, size * 0.085, size * 0.085, 5);
+      const fineNoise = periodicFbm(x * 0.34 + 51.8, y * 0.34 + 13.2, size * 0.34, size * 0.34, 3);
+      const stoneGrain = periodicFbm(x * 0.035 + 19.3, y * 0.035 + 41.7, size * 0.035, size * 0.035, 4);
+      const fine = periodicHash2(x, y, size, size);
+      const specks = (fine > 0.985 ? 0.12 : 0) - (fine < 0.025 ? 0.08 : 0);
+      const shade = (broad - 0.5) * 0.1 + (grain - 0.5) * 0.09 + (fineNoise - 0.5) * 0.05;
+
+      const r = clamp01(0.72 + shade + 0.055 * stoneGrain + specks);
+      const g = clamp01(0.58 + shade * 0.82 + 0.045 * stoneGrain + specks * 0.75);
+      const b = clamp01(0.35 + shade * 0.55 + 0.03 * stoneGrain + specks * 0.45);
+      const i = (y * size + x) * 4;
+      cd[i] = Math.round(r * 255);
+      cd[i + 1] = Math.round(g * 255);
+      cd[i + 2] = Math.round(b * 255);
+      cd[i + 3] = 255;
+
+      const h = clamp01(0.5 + (broad - 0.5) * 0.08 + (grain - 0.5) * 0.16 + (fineNoise - 0.5) * 0.1);
+      const hv = Math.round(h * 255);
+      hd[i] = hv;
+      hd[i + 1] = hv;
+      hd[i + 2] = hv;
+      hd[i + 3] = 255;
+    }
+  }
+
+  return {
+    color,
+    normal: heightToNormal(heightMap, 7),
+    mr: flatMR(size, 0.96, 0)
+  };
+}

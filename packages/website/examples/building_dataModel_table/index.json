@@ -1,17 +1,11 @@
 {
   "id": "building_dataModel_table",
-  "title": "Building a Simple 3D Model, with Semantic Data",
+  "title": "Creating a Model with Semantic Data",
   "description": "Programmatically building and viewing a minimal 3D model in the SDK, with a semantic data model attached.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "_Featured"
-  ],
   "categories": [
     "Modeling",
-    "Data"
-  ],
-  "category": "Modeling",
-  "topic": "modeling.data",
-  "isFeatured": true
+    "Semantic Data"
+  ]
 }

@@ -1,15 +1,10 @@
 {
   "id": "building_sceneModel_stressTest",
-  "title": "Creating a 3D Model",
-  "description": "Using xeokit to create a 3D model composed of multiple objects with triangle mesh geometry.",
+  "title": "Benchmark - Create & Destroy Meshes",
+  "description": "Contiouusly create and destroy meshes to test the performance of the scene model, viewer and renderer.",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [],
   "categories": [
-    "Modeling",
-    "Scene",
-    "Objects"
-  ],
-  "category": "Modeling",
-  "topic": "modeling.scene.object"
+    "Benchmarks"
+  ]
 }

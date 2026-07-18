@@ -19,7 +19,7 @@ studio.init().then(() => {
     camera: {
       eye: [OFFSET + 0, 18, 24],
       look: [OFFSET + 0, 0, 0],
-      up: [0, 1, 0]
+      up: [0, 0, 1]
     }
   });
 

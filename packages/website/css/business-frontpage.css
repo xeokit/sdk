@@ -139,6 +139,124 @@ code {
     padding-bottom: 45px;
 }
 
+.featured-gallery-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.featured-gallery-filter-all {
+    margin-bottom: 24px;
+}
+
+.featured-gallery-filter-all button,
+.featured-gallery-tag-list button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 0 9px;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.875rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.featured-gallery-filter-all button:hover,
+.featured-gallery-filter-all button:focus,
+.featured-gallery-tag-list button:hover,
+.featured-gallery-tag-list button:focus {
+    border-color: #aeb8c7;
+    background: #f8fafc;
+}
+
+.featured-gallery-filter-all button.active,
+.featured-gallery-tag-list button.active {
+    border-color: #2f6fab;
+    background: #eef6ff;
+    color: #1f4f7e;
+}
+
+.featured-gallery-filter-all strong,
+.featured-gallery-tag-list strong {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #f0f2f5;
+    color: #666;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.featured-gallery-filter-all button.active strong,
+.featured-gallery-tag-list button.active strong {
+    background: #d6eaff;
+    color: #1f4f7e;
+}
+
+.featured-gallery-tag-group {
+    display: grid;
+    grid-template-columns: minmax(130px, 190px) minmax(0, 1fr);
+    column-gap: 18px;
+    align-items: start;
+    margin-bottom: 14px;
+}
+
+.featured-gallery-tag-group h3 {
+    margin: 2px 0 0;
+    padding-left: 10px;
+    border-left: 3px solid #2f6fab;
+    color: #1f2933;
+    font-size: 0.9375rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1.25;
+    text-transform: uppercase;
+}
+
+@media (max-width: 767.98px) {
+    .featured-gallery-tag-group {
+        grid-template-columns: 1fr;
+        row-gap: 7px;
+    }
+
+    .featured-gallery-tag-group h3 {
+        margin-top: 0;
+    }
+}
+
+.featured-gallery-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+}
+
+.featured-gallery-card-tags li {
+    padding: 3px 6px;
+    border: 1px solid #e1e5ea;
+    border-radius: 3px;
+    background: #f8fafc;
+    color: #5b6470;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
 .testimonial-logo-container {
     position: relative;
     top: 50%;

@@ -1,5 +1,5 @@
 import type {EdgesParams} from "./EdgesParams";
-import {DetailedRender} from "../../base/constants";
+import {DetailedRender, RealisticRender} from "../../base/constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import {createVec3Float64, type Vec3} from "../../base/math/vector";
@@ -38,12 +38,12 @@ class Edges {
 
         this.view = view;
 
-        this._renderModes = options.renderModes || [DetailedRender];
+        this._renderModes = options.renderModes || [DetailedRender, RealisticRender];
         this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
-        this._useMeshColor = options.useMeshColor === true;
+        this._useMeshColor = options.useMeshColor !== false;
         this._edgeDarken = (options.edgeDarken !== undefined && options.edgeDarken !== null) ? options.edgeDarken : 0.5;
-        this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5;
-        this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
+        this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.8;
+        this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 2;
         this._edgeFadeStart = (options.edgeFadeStart !== undefined && options.edgeFadeStart !== null) ? options.edgeFadeStart : 0.4;
         this._edgeFadeEnd = (options.edgeFadeEnd !== undefined && options.edgeFadeEnd !== null) ? options.edgeFadeEnd : 1.0;
     }
@@ -53,7 +53,8 @@ class Edges {
      *
      * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
      *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
+     * Default value is [{@link base!constants.DetailedRender | DetailedRender},
+     * {@link base!constants.RealisticRender | RealisticRender}].
      */
     set renderModes(value: number[]) {
         this._renderModes = value;
@@ -65,7 +66,8 @@ class Edges {
      *
      * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
      *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
+     * Default value is [{@link base!constants.DetailedRender | DetailedRender},
+     * {@link base!constants.RealisticRender | RealisticRender}].
      */
     get renderModes(): number[] {
         return this._renderModes;
@@ -112,7 +114,7 @@ class Edges {
      * Only affects the base edges effect — x-ray / highlight / selected edges
      * always use their emphasis material's colour.
      *
-     * Default value is ````false````.
+     * Default value is ````true````.
      */
     set useMeshColor(value: boolean) {
         if (this._useMeshColor === value) {
@@ -126,7 +128,7 @@ class Edges {
      * Gets whether the base edges effect uses each mesh's darkened colour
      * instead of the fixed {@link Edges.edgeColor | edgeColor}.
      *
-     * Default value is ````false````.
+     * Default value is ````true````.
      */
     get useMeshColor(): boolean {
         return this._useMeshColor;
@@ -163,7 +165,7 @@ class Edges {
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
-     * Default value is ````1.0````.
+     * Default value is ````0.8````.
      */
     set edgeAlpha(value: number) {
         if (this._edgeAlpha === value) {
@@ -178,7 +180,7 @@ class Edges {
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
-     * Default value is ````1.0````.
+     * Default value is ````0.8````.
      */
     get edgeAlpha(): number {
         return this._edgeAlpha;
@@ -187,7 +189,7 @@ class Edges {
     /**
      * Sets edge width for {@link ViewObject | ViewObjects}.
      *
-     * Default value is ````1.0```` pixels.
+     * Default value is ````2.0```` pixels.
      */
     set edgeWidth(value: number) {
         if (this._edgeWidth === value) {
@@ -202,7 +204,7 @@ class Edges {
      *
      * This is not supported by WebGL implementations based on DirectX [2019].
      *
-     * Default value is ````1.0```` pixels.
+     * Default value is ````2.0```` pixels.
      */
     get edgeWidth(): number {
         return this._edgeWidth;

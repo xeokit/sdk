@@ -61,9 +61,11 @@ export interface AdaptiveQualityParams {
  * doesn't include the new mode.
  *
  * At most one adapter may be live per View — constructing a second against
- * the same View throws. Call {@link AdaptiveQuality.destroy} first to
- * re-configure. The adapter also self-destroys when its View is destroyed,
- * so it never outlives it. On destroy the View is restored to `restMode`.
+ * the same View throws. Set {@link AdaptiveQuality.enabled} to `false` to
+ * suspend adaptive switching without releasing the adapter, or call
+ * {@link AdaptiveQuality.destroy} to tear it down before re-configuring. The
+ * adapter also self-destroys when its View is destroyed, so it never outlives
+ * it. On disable or destroy the View is restored to `restMode`.
  *
  * @example
  * ```ts
@@ -90,6 +92,7 @@ export class AdaptiveQuality {
   readonly #unsubscribers: (() => void)[] = [];
 
   #restTimer: ReturnType<typeof setTimeout> | null = null;
+  #enabled = true;
   #destroyed = false;
 
   constructor(params: AdaptiveQualityParams) {
@@ -123,18 +126,41 @@ export class AdaptiveQuality {
   }
 
   /**
+   * Whether this adapter responds to camera changes.
+   *
+   * Setting this to `false` leaves the adapter registered on its View, clears
+   * any pending rest timer and restores the View to `restMode`.
+   */
+  get enabled(): boolean {
+    return this.#enabled;
+  }
+
+  set enabled(value: boolean) {
+    const enabled = value !== false;
+    if (this.#destroyed || this.#enabled === enabled) return;
+    this.#enabled = enabled;
+    if (!enabled) {
+      this.#restoreRestMode();
+    }
+  }
+
+  /**
    * Stops the adapter, restores `restMode`, and releases subscriptions.
    */
   destroy(): void {
     if (this.#destroyed) return;
     this.#destroyed = true;
     liveAdapters.delete(this.view);
+    this.#restoreRestMode();
+    for (const unsubscribe of this.#unsubscribers) unsubscribe();
+    this.#unsubscribers.length = 0;
+  }
+
+  #restoreRestMode(): void {
     if (this.#restTimer !== null) {
       clearTimeout(this.#restTimer);
       this.#restTimer = null;
     }
-    for (const unsubscribe of this.#unsubscribers) unsubscribe();
-    this.#unsubscribers.length = 0;
     // Restore quality on the way out so a deliberate disable doesn't strand
     // the View in fastMode.
     if (this.view.renderMode !== this.#restMode) {
@@ -143,7 +169,7 @@ export class AdaptiveQuality {
   }
 
   #onCameraChanged(): void {
-    if (this.#destroyed) return;
+    if (this.#destroyed || !this.#enabled) return;
     if (this.view.renderMode !== this.#fastMode) {
       this.view.renderMode = this.#fastMode;
     }

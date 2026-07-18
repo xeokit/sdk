@@ -27,7 +27,7 @@ export interface EdgesParams {
    * Only affects the base edges effect — x-ray / highlight / selected edges
    * always use their emphasis material's colour.
    *
-   * Default value is ````false````.
+   * Default value is ````true````.
    */
   useMeshColor?: boolean;
 
@@ -45,7 +45,7 @@ export interface EdgesParams {
   /**
    * Line width for {@link Edges | Edges}.
    *
-   * Default value is ````1.0```` pixels.
+   * Default value is ````2.0```` pixels.
    */
   edgeWidth?: number;
 
@@ -54,14 +54,15 @@ export interface EdgesParams {
    *
    * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
    *
-   * Default value is ````1.0````.
+   * Default value is ````0.8````.
    */
   edgeAlpha?: number;
 
   /**
    * Which rendering modes in which to render edges.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
+   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
+   * {@link base!constants.RealisticRender | RealisticRender}].
    */
   renderModes?: number[];
 

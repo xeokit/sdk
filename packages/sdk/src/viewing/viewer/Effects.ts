@@ -10,7 +10,7 @@ import {Sky} from "./Sky";
 import {SectionPlaneCaps} from "./SectionPlaneCaps";
 import {BodyHatch} from "./BodyHatch";
 import type {IBL} from "./IBL";
-import {DetailedRender, RealisticRender} from "../../base/constants";
+import {RealisticRender} from "../../base/constants";
 
 
 /**
@@ -121,15 +121,7 @@ class Effects {
   constructor(view: View, params: EffectsParams = {}) {
     this.view = view;
     this.sao          = new SAO         (view, params.sao          || {});
-    // Edges default — black, fully-opaque, single-pixel, only in
-    // DetailedRender. Preserved from the prior View-construction
-    // defaults so callers that don't pass `edges` see no change.
-    this.edges        = new Edges       (view, params.edges        || {
-      edgeColor:   [0.0, 0.0, 0.0],
-      edgeAlpha:   1.0,
-      edgeWidth:   1,
-      renderModes: [DetailedRender],
-    });
+    this.edges        = new Edges       (view, params.edges        || {});
     this.bloom        = new Bloom       (view, params.bloom        || {});
     this.tonemap      = new Tonemap     (view, params.tonemap      || {});
     this.antiAliasing = new AntiAliasing(view, params.antiAliasing || {});

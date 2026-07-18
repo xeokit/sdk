@@ -1,9 +1,9 @@
 // packages/website/scripts/create-example-snapshots.js
 //
-// Walks every eligible example (`isTutorial || isVisualTest` in its
-// `index.json`), opens it in headless Puppeteer, screenshots the
-// rendered page, and writes the optional visual-test JSON payload
-// the example may post via `xeokit.visualTestJson`.
+// Walks every example with an `index.json`, opens it in headless
+// Puppeteer, screenshots the rendered page, and writes the optional
+// visual-test JSON payload the example may post via
+// `xeokit.visualTestJson`.
 //
 // Usage:
 //   node create-example-snapshots.js [options] [filter]
@@ -31,7 +31,7 @@ const puppeteer = require("puppeteer");
 
 const PORT = 3000;
 const VIEWPORT = { width: 1110, height: 600 };
-const DEFAULT_TIMEOUT_MS = 30000;
+const DEFAULT_TIMEOUT_MS = 120000;
 // The visual-test JSON is optional — many examples never post one.
 // Bound the wait so screenshot-only examples don't burn 15 s each.
 const VISUAL_TEST_JSON_TIMEOUT_MS = 5000;
@@ -218,11 +218,10 @@ async function captureSnapshots(args) {
     return;
   }
 
-  // Pre-filter eligible examples so the summary numbers are honest.
+  // Pre-filter examples so the summary numbers are honest.
   const eligible = [];
   let filteredOut = 0;
   let skippedFresh = 0;
-  let skippedNotEligible = 0;
   let missingMeta = 0;
 
   for (const exampleId of Object.keys(examplesIndex)) {
@@ -230,7 +229,6 @@ async function captureSnapshots(args) {
     const dir = path.join(examplesDir, exampleId);
     const meta = readJson(path.join(dir, "index.json"));
     if (!meta) { missingMeta++; continue; }
-    if (!(meta.isTutorial || meta.isVisualTest)) { skippedNotEligible++; continue; }
     if (args.onlyStale && !isStale(dir)) { skippedFresh++; continue; }
     eligible.push({ id: exampleId, dir, meta });
   }
@@ -241,7 +239,6 @@ async function captureSnapshots(args) {
     (args.filter   ? ` [filter: ${args.filter}]`     : "") +
     (args.onlyStale ? " [stale-only]"                : ""),
   );
-  if (skippedNotEligible > 0) console.log(`  ${skippedNotEligible} skipped (not flagged isTutorial/isVisualTest)`);
   if (skippedFresh       > 0) console.log(`  ${skippedFresh} skipped (PNG up-to-date)`);
   if (filteredOut        > 0) console.log(`  ${filteredOut} filtered out`);
   if (missingMeta        > 0) console.log(`  ${missingMeta} skipped (missing or invalid index.json)`);

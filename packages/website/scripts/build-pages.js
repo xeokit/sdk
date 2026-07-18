@@ -184,16 +184,10 @@ function compileExamples() {
                 description: exampleInfo.description || "",
                 isTutorial: !!exampleInfo.isTutorial,
                 isVisualTest: !!exampleInfo.isVisualTest,
-                tags: exampleInfo.tags || [],
-                categories: exampleInfo.categories || [],
-                category: exampleInfo.category || (exampleInfo.categories && exampleInfo.categories[0]) || "General",
-                topic: exampleInfo.topic || "general"
+                categories: exampleInfo.categories || []
               };
               if (exampleInfo.template) {
                 trimmedExampleInfo.template = exampleInfo.template;
-              }
-              if (exampleInfo.isFeatured) {
-                trimmedExampleInfo.isFeatured = true;
               }
               if (exampleInfo.isShowcased) {
                 trimmedExampleInfo.isShowcased = true;
@@ -305,7 +299,7 @@ function capitalizeFirstLetter(str) {
  *
  *---------------------------------------------------------------------------------------*/
 
-function compileArticles() {
+async function compileArticles() {
 
   console.log("Compiling articles");
 
@@ -320,6 +314,7 @@ function compileArticles() {
   try {
 
     const files = fs.readdirSync(baseDir);
+    const thumbnailJobs = [];
 
     files.forEach(file => {
 
@@ -352,7 +347,7 @@ function compileArticles() {
                 }
               }
             }
-            (async function () {
+            thumbnailJobs.push((async function () {
               try {
                 let thumbnailPath = articleJSON.thumbnail;
                 if (!thumbnailPath) {
@@ -383,7 +378,7 @@ function compileArticles() {
               } catch (err) {
                 console.error(err);
               }
-            })();
+            })());
 
           } catch (err) {
             console.error(`Error reading or parsing JSON in file: ${indexPath}`, err);
@@ -475,6 +470,8 @@ function compileArticles() {
         }
       }
     });
+
+    await Promise.all(thumbnailJobs);
 
     gulp.src(["./templates/examples-index.html"])
       .pipe(
@@ -779,5 +776,8 @@ function capitalizeFirstLetter(str) {
 compileExamples();
 
 setTimeout(() => {
-  compileArticles();
+  compileArticles().catch(err => {
+    console.error(err);
+    process.exitCode = 1;
+  });
 }, 5000)

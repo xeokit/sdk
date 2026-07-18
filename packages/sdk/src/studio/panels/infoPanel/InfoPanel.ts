@@ -81,7 +81,6 @@ const PANEL_CSS = `
   overflow: hidden;
   box-sizing: border-box;
   min-width: 260px;
-  min-height: 140px;
 }
 .xkt-info-panel *, .xkt-info-panel *::before, .xkt-info-panel *::after {
   box-sizing: border-box;
@@ -106,15 +105,16 @@ const PANEL_CSS = `
   min-width: 0;
   margin: 0;
   font-size: 14px;
+  line-height: 1.35;
   font-weight: 650;
   color: #2d5e8c;
   letter-spacing: 0.2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .xkt-info-panel .xkt-info-close {
   flex-shrink: 0;
+  align-self: flex-start;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -158,7 +158,7 @@ const PANEL_CSS = `
 .xkt-info-pill[hidden] { display: none; }
 
 .xkt-info-panel .xkt-info-body {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   overflow-y: auto;
   padding: 10px 14px 14px;
 }
@@ -453,6 +453,7 @@ export class InfoPanel extends FloatingPanelBase {
       container:   params.container,
       storageKey:  `xkt-info-${id}`,
       classPrefix: "xkt-info",
+      minHeight:   0,
     });
     injectStylesOnce();
     this._buildDom(params);

@@ -145,6 +145,19 @@ export interface SceneHealthPanelParams {
    * SceneModel if you want per-model layout memory.
    */
   storageKey?: string;
+
+  /**
+   * Initial top offset, in CSS pixels. When supplied, this
+   * overrides any persisted panel position for the first open.
+   */
+  initialTop?: number;
+
+  /**
+   * Initial right offset, in CSS pixels. When supplied, this
+   * anchors the panel from the viewport's right edge and overrides
+   * any persisted left position for the first open.
+   */
+  initialRight?: number;
 }
 
 
@@ -1835,6 +1848,7 @@ export class SceneHealthPanel extends FloatingPanelBase {
     }
     this._buildDom();
     this._bindChrome();
+    this._applyInitialPosition(params);
     this._wireEvents();
     this._renderInspectionsPanel();
 
@@ -1861,6 +1875,23 @@ export class SceneHealthPanel extends FloatingPanelBase {
     // click each tab. Foreground-focused model is skipped — its
     // summary is recorded by the main `inspect()` run.
     this._kickBackgroundInspections();
+  }
+
+  private _applyInitialPosition(params: SceneHealthPanelParams): void {
+    if (params.initialTop === undefined && params.initialRight === undefined) {
+      return;
+    }
+
+    const style = this._panel.style;
+    if (params.initialTop !== undefined) {
+      style.top = `${params.initialTop}px`;
+    }
+    if (params.initialRight !== undefined) {
+      style.right = `${params.initialRight}px`;
+      style.left = "auto";
+    }
+    style.bottom = "auto";
+    style.transform = "none";
   }
 
 
@@ -3735,4 +3766,3 @@ function listAliveSceneModels(scene: Scene): SceneModel[] {
   out.sort((a, b) => String((a as any).id).localeCompare(String((b as any).id)));
   return out;
 }
-

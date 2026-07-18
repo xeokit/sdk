@@ -92,6 +92,12 @@ export interface DataHealthPanelParams {
    * Defaults to `"xkt-dh-panel"`.
    */
   storageKey?: string;
+
+  /** Initial top offset in CSS pixels. Overrides any persisted top. */
+  initialTop?: number;
+
+  /** Initial right offset in CSS pixels. Overrides any persisted horizontal position. */
+  initialRight?: number;
 }
 
 
@@ -1310,6 +1316,7 @@ export class DataHealthPanel extends FloatingPanelBase {
     injectStylesOnce();
     this._buildDom();
     this._bindChrome();
+    this._applyInitialPosition(params);
     this._wireEvents();
     this._initInspectionToggles();
     this._renderInspectionsPanel();
@@ -1319,6 +1326,23 @@ export class DataHealthPanel extends FloatingPanelBase {
 
 
     if (params.visible === false) this.hide(); else this.show();
+  }
+
+  private _applyInitialPosition(params: DataHealthPanelParams): void {
+    if (params.initialTop === undefined && params.initialRight === undefined) {
+      return;
+    }
+
+    const style = this._panel.style;
+    if (params.initialTop !== undefined) {
+      style.top = `${params.initialTop}px`;
+    }
+    if (params.initialRight !== undefined) {
+      style.right = `${params.initialRight}px`;
+      style.left = "auto";
+    }
+    style.bottom = "auto";
+    style.transform = "none";
   }
 
 

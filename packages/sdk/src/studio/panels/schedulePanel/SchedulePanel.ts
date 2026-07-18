@@ -22,6 +22,15 @@ export interface SchedulePanelParams {
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
 
+  /** Panel title. Defaults to `"Schedule"`. */
+  title?: string;
+
+  /** Initial left offset in CSS pixels, applied when supplied. */
+  x?: number;
+
+  /** Initial top offset in CSS pixels, applied when supplied. */
+  y?: number;
+
   /**
    * `localStorage` key for persisting drag position + closed state.
    * Defaults to `"xkt-sch-panel"`.
@@ -229,6 +238,15 @@ function injectStylesOnce(): void {
   _stylesInjected = true;
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 
 // ─────────────────────────────────────────────────────────────────────
 
@@ -298,6 +316,7 @@ export class SchedulePanel extends FloatingPanelBase {
 
   public readonly player: SchedulePlayer;
   public readonly onTaskClicked: EventEmitter<SchedulePanel, ScheduleTask>;
+  private readonly _title: string;
 
   // DOM refs.
   private _bodyEl!: HTMLElement;
@@ -332,6 +351,7 @@ export class SchedulePanel extends FloatingPanelBase {
     } as FloatingPanelBaseParams);
 
     this.player = params.player;
+    this._title = params.title || "Schedule";
     this.onTaskClicked = new EventEmitter(new EventDispatcher<SchedulePanel, ScheduleTask>());
 
     // Single-panel-per-player: replace any prior instance.
@@ -341,6 +361,13 @@ export class SchedulePanel extends FloatingPanelBase {
 
     injectStylesOnce();
     this._buildDom();
+    if (params.x !== undefined || params.y !== undefined) {
+      this._panel.style.transform = "none";
+      this._panel.style.right     = "auto";
+      this._panel.style.bottom    = "auto";
+    }
+    if (params.x !== undefined) this._panel.style.left = `${params.x}px`;
+    if (params.y !== undefined) this._panel.style.top  = `${params.y}px`;
     this._wireDomEvents();
     this._subscribePlayer();
     this._rebuildGantt();
@@ -363,7 +390,7 @@ export class SchedulePanel extends FloatingPanelBase {
     const title = el("h2", "xkt-sch-title");
     title.innerHTML =
       `<span>${SchedulePanel.iconSvg()}</span>` +
-      `<span>Schedule</span>`;
+      `<span>${escapeHtml(this._title)}</span>`;
     this._closeBtn = el("button", "xkt-sch-close", {
       type: "button",
       "aria-label": "Close panel",
@@ -376,7 +403,7 @@ export class SchedulePanel extends FloatingPanelBase {
     this._pill = el("button", "xkt-sch-pill", {
       type:       "button",
       hidden:     true,
-      textContent:"Schedule",
+      textContent:this._title,
     }) as HTMLButtonElement;
 
     // Body: controls row + Gantt SVG host.

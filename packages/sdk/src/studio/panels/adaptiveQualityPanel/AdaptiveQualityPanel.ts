@@ -602,15 +602,15 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
   }
 
   /**
-   * Recreate every live AdaptiveQuality with the current config —
-   * the class takes its params at construction and exposes no setters,
-   * so a slider change destroys the existing adapter and builds a fresh
-   * one (mirrors how `CullingPanel` handles its sliders).
+   * Recreate every enabled AdaptiveQuality with the current config —
+   * the class takes its params at construction and exposes no config setters,
+   * so a slider change destroys the existing adapter and builds a fresh one.
    */
   private _applyConfigToActiveAdapters(): void {
     for (const view of this.viewer.viewList) {
-      if (!AdaptiveQuality.getFor(view)) continue;
-      AdaptiveQuality.getFor(view)!.destroy();
+      const existing = AdaptiveQuality.getFor(view);
+      if (!existing?.enabled) continue;
+      existing.destroy();
       new AdaptiveQuality({view, restMs: this._restMs});
     }
   }
@@ -643,7 +643,7 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
       title: "Enable adaptive quality for this View.",
     });
     const toggle = el("input", undefined, {type: "checkbox"}) as HTMLInputElement;
-    toggle.checked = !!AdaptiveQuality.getFor(view);
+    toggle.checked = AdaptiveQuality.getFor(view)?.enabled === true;
     toggle.addEventListener("change", () => this._setViewAdaptive(view, toggle.checked));
     toggleLabel.appendChild(toggle);
 
@@ -665,9 +665,13 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
   private _setViewAdaptive(view: View, enabled: boolean): void {
     const existing = AdaptiveQuality.getFor(view);
     if (enabled) {
-      if (!existing) new AdaptiveQuality({view, restMs: this._restMs});
+      if (existing) {
+        existing.enabled = true;
+      } else {
+        new AdaptiveQuality({view, restMs: this._restMs});
+      }
     } else {
-      existing?.destroy();
+      if (existing) existing.enabled = false;
     }
     this._renderStats();
   }

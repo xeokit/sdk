@@ -58,8 +58,8 @@ import type {PanelRegistry, PanelContext} from "./PanelRegistry";
 declare module "./PanelRegistry" {
   interface PanelMap {
     modelsPanel:               {panel: ModelsPanel;                params: void};
-    sceneHealth:               {panel: SceneHealthPanel;           params: {focusSceneModel?: SceneModel}};
-    dataHealth:                {panel: DataHealthPanel;            params: {focusDataModel?: DataModel; schema?: DataFormatSchema}};
+    sceneHealth:               {panel: SceneHealthPanel;           params: {focusSceneModel?: SceneModel; initialTop?: number; initialRight?: number}};
+    dataHealth:                {panel: DataHealthPanel;            params: {focusDataModel?: DataModel; schema?: DataFormatSchema; initialTop?: number; initialRight?: number}};
     boundariesPanel:           {panel: BoundariesPanel;            params: void};
     tilesPanel:                {panel: TilesPanel;                 params: void};
     sceneStats:                {panel: SceneStatsPanel;            params: void};
@@ -86,7 +86,7 @@ declare module "./PanelRegistry" {
     // per-player entry — `params.player` mandatory, since the panel
     // is two-way-bound to a SchedulePlayer that the application
     // constructed earlier.
-    schedulePanel:             {panel: SchedulePanel;              params: {player: SchedulePlayer}};
+    schedulePanel:             {panel: SchedulePanel;              params: {player: SchedulePlayer; title?: string; x?: number; y?: number; storageKey?: string}};
 
     // per-sun-study entry — `params.sunStudy` mandatory; `player`
     // optional (without it the panel is scrub-only).
@@ -152,6 +152,8 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx, params) => SceneHealthPanel.openFor({
       scene:            ctx.studio.scene,
       focusSceneModel:  params?.focusSceneModel,
+      initialTop:       params?.initialTop,
+      initialRight:     params?.initialRight,
       view:             ctx.studio.viewer?.viewList?.[0],
       studio:           ctx.studio,
     }),
@@ -166,6 +168,8 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
       data:             ctx.studio.data,
       focusDataModel:   params?.focusDataModel,
       schema:           params?.schema,
+      initialTop:       params?.initialTop,
+      initialRight:     params?.initialRight,
     }),
     onReveal: (panel, _ctx, params) => {
       if (params?.focusDataModel) panel.focusModel(params.focusDataModel);
@@ -459,7 +463,13 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
         ctx.studio.reportWarning("[PanelRegistry/schedulePanel] missing required params.player");
         return undefined;
       }
-      return SchedulePanel.openFor({player: params.player});
+      return SchedulePanel.openFor({
+        player:     params.player,
+        title:      params.title,
+        x:          params.x,
+        y:          params.y,
+        storageKey: params.storageKey,
+      });
     },
   });
 

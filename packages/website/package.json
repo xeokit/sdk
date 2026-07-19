@@ -11,6 +11,7 @@
     "main": "src/index.ts",
     "scripts": {
         "website-build-xeokit-lib": "node scripts/build-xeokit-studio-bundle.js",
+        "website-build-featured-gallery": "node scripts/build-featured-gallery.js",
         "website-convert-models": "node scripts/build-convert-models.js; sh scripts/convert-models.sh",
         "website-example-snapshots": "node scripts/create-example-snapshots.js",
         "website-model-snapshots": "node scripts/create-model-snapshots.js",
@@ -28,8 +29,6 @@
     ],
     "keywords": [],
     "dependencies": {
-        "markdown-it": "14.1.0",
-        "highlight.js": "11.2.0",
         "ejs": "3.1.10",
         "commander": "^11.0.0"
     },
@@ -40,7 +39,6 @@
         "gulp4-run-sequence": "^1.0.1",
         "gulp-rename": "^2.0.0",
         "gulp-replace-task": "^2.0.1",
-        "image-thumbnail": "^1.0.17",
         "puppeteer": "^23.9.0",
         "prismjs": "^1.29.0",
         "express": "^4.21.1"

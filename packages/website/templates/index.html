@@ -49,13 +49,11 @@
                 <h5>Welcome to the next generation of the xeokit SDK!</h5>
                 <hr>
                 <p>
-                    This version of the SDK is a complete rewrite of the xeokit
-                    SDK in TypeScript. In this version, we've introduced several new key capabilities and redesigned the
-                    API
-                    following lessons learned from previous versions of the SDK. The result is a more modular, flexible
-                    and extensible toolkit that supports even more BIM programming use cases.</p>
-                <p>To learn more about this new SDK version, we recommend starting with our <a
-                    href="@base/userguide/techWhitePaper/">Technical White Paper</a>.</p>
+                    xeokit SDK V3 is a TypeScript toolkit for building web and Node.js applications that work
+                    directly with large AECO models. It brings together BIM and CAD viewing, federated model
+                    coordination, metadata-driven inspection, model conversion, point-cloud visualization,
+                    2D drawing workflows and interactive presentation of engineering data.
+                    <a href="https://github.com/xeokit/sdk/blob/develop/WHITEPAPER.md">Read more in the whitepaper.</a></p>
             </div>
         </div>
         <div class="row testimonial-row text-left">
@@ -64,10 +62,16 @@
                 <nav id="featured-gallery-filter" class="featured-gallery-filter mb-5" aria-label="Filter examples by tag"></nav>
             </div>
         </div>
+        <div class="row testimonial-row text-left">
+            <div class="col-12">
+                <h4 id="featured-gallery-count" class="mb-3">0 examples selected:</h4>
+            </div>
+        </div>
         <div class="row testimonial-row text-left" id="featured-gallery"></div>
         <script type="module">
             const gallery = document.getElementById("featured-gallery");
             const filter = document.getElementById("featured-gallery-filter");
+            const galleryCount = document.getElementById("featured-gallery-count");
 
             const escapeHtml = (value) => String(value ?? "")
                 .replace(/&/g, "&amp;")
@@ -89,16 +93,18 @@
                     : "";
             };
 
+            const getExampleUrl = (example) => `./examples/index.html#${encodeURIComponent(example.id)}`;
+
             const renderCard = (example) => `
                 <div class="col-sm-4 mb-5">
                     <div class="card">
-                        <a href="./examples/${example.id}/index.html" class="card-link">
+                        <a href="${getExampleUrl(example)}" class="card-link">
                             <img class="card-img-top thumbnail"
                                  src="./examples/${example.id}/index.png"
                                  alt="${escapeHtml(example.title)}">
                         </a>
                         <div class="card-body">
-                            <a href="./examples/${example.id}/index.html" class="card-link">
+                            <a href="${getExampleUrl(example)}" class="card-link">
                                 <h4 class="card-title">${escapeHtml(example.title)}</h4>
                             </a>
                             ${renderCardTags(example)}
@@ -126,10 +132,12 @@
 
             const renderFilter = (tags, total) => {
                 const tagCounts = new Map(tags);
+                const featuredCount = tagCounts.get("Featured") || 0;
+                const specialTags = new Set(["Featured"]);
                 const renderedTags = new Set();
                 const groups = tagGroups.map(([group, groupTags]) => {
                     const buttons = groupTags
-                        .filter(tag => tagCounts.has(tag))
+                        .filter(tag => tagCounts.has(tag) && !specialTags.has(tag))
                         .map(tag => {
                             renderedTags.add(tag);
                             return renderTagButton(tag, tagCounts.get(tag));
@@ -142,7 +150,7 @@
                         : "";
                 });
                 const otherButtons = tags
-                    .filter(([tag]) => !renderedTags.has(tag))
+                    .filter(([tag]) => !renderedTags.has(tag) && !specialTags.has(tag))
                     .map(([tag, count]) => renderTagButton(tag, count));
                 if (otherButtons.length) {
                     groups.push(`<section class="featured-gallery-tag-group">
@@ -152,7 +160,11 @@
                 }
                 return `
                     <div class="featured-gallery-filter-all">
-                        <button type="button" class="active" data-tag="" aria-pressed="true">
+                        <button type="button" class="active" data-tag="Featured" aria-pressed="true">
+                            <span>Featured</span>
+                            <strong>${featuredCount}</strong>
+                        </button>
+                        <button type="button" data-tag="" aria-pressed="false">
                             <span>All</span>
                             <strong>${total}</strong>
                         </button>
@@ -172,11 +184,13 @@
                     }, new Map());
                     const tags = Array.from(tagCounts.entries())
                         .sort(([a], [b]) => a.localeCompare(b));
-                    const selectedTags = new Set();
+                    const selectedTags = new Set(["Featured"]);
                     const renderGallery = () => {
                         const visibleExamples = selectedTags.size
                             ? examples.filter(example => getTags(example).some(tag => selectedTags.has(tag)))
                             : examples;
+                        const exampleLabel = visibleExamples.length === 1 ? "example" : "examples";
+                        galleryCount.textContent = `${visibleExamples.length} ${exampleLabel} selected:`;
                         gallery.innerHTML = visibleExamples.length
                             ? visibleExamples.map(renderCard).join("")
                             : '<div class="col-12"><p class="text-muted">No examples available.</p></div>';
@@ -197,9 +211,13 @@
                         }
                         const tag = button.dataset.tag || "";
                         if (tag) {
-                            if (selectedTags.has(tag)) {
+                            if (tag === "Featured") {
+                                selectedTags.clear();
+                                selectedTags.add(tag);
+                            } else if (selectedTags.has(tag)) {
                                 selectedTags.delete(tag);
                             } else {
+                                selectedTags.delete("Featured");
                                 selectedTags.add(tag);
                             }
                         } else {

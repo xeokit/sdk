@@ -21,7 +21,8 @@
       "Buildings",
       "Ships",
       "Terrains",
-      "Benchmarks"
+      "Benchmarks",
+      "Featured"
     ]
   },
   "building_doublePrecision_infiniteLandscape": {
@@ -32,7 +33,8 @@
     "isVisualTest": false,
     "categories": [
       "Streaming",
-      "Benchmarks"
+      "Benchmarks",
+      "Featured"
     ]
   },
   "building_fromParams_compressedBox": {
@@ -100,7 +102,8 @@
     "isVisualTest": false,
     "categories": [
       "Modeling",
-      "Materials"
+      "Materials",
+      "Featured"
     ]
   },
   "building_materials_hatchedSurfaces": {
@@ -258,7 +261,8 @@
     "categories": [
       "Transforms",
       "Animation",
-      "Semantic Data"
+      "Semantic Data",
+      "Featured"
     ]
   },
   "building_transforms_table": {
@@ -369,7 +373,8 @@
     "isVisualTest": false,
     "categories": [
       "glTF",
-      "Buildings"
+      "Buildings",
+      "Featured"
     ]
   },
   "formats_gltf_map": {
@@ -425,7 +430,8 @@
     "isVisualTest": true,
     "categories": [
       "IFC",
-      "Buildings"
+      "Buildings",
+      "Featured"
     ]
   },
   "formats_ifc_ifcOpenHouse4": {
@@ -480,7 +486,8 @@
     "isVisualTest": false,
     "categories": [
       "PDF",
-      "Drawings"
+      "Drawings",
+      "Featured"
     ]
   },
   "formats_pdf_importPanel": {
@@ -607,7 +614,8 @@
     "isVisualTest": false,
     "categories": [
       "USDZ",
-      "Buildings"
+      "Buildings",
+      "Featured"
     ]
   },
   "formats_usdz_residentialBuilding_webGPU": {
@@ -653,7 +661,8 @@
     "categories": [
       "XGF",
       "Buildings",
-      "Geolocation"
+      "Geolocation",
+      "Featured"
     ]
   },
   "formats_xgf_pumpkin": {
@@ -665,7 +674,8 @@
     "categories": [
       "XGF",
       "LiDAR Scans",
-      "Point Clouds"
+      "Point Clouds",
+      "Featured"
     ]
   },
   "formats_xgf_sportsCar": {
@@ -676,7 +686,8 @@
     "isVisualTest": true,
     "categories": [
       "XGF",
-      "CAD"
+      "CAD",
+      "Featured"
     ]
   },
   "formats_xkt_model": {
@@ -708,7 +719,8 @@
     "isVisualTest": false,
     "categories": [
       "Model Validation",
-      "Model Optimization"
+      "Model Optimization",
+      "Featured"
     ]
   },
   "inspect_sceneModel_inspector": {
@@ -719,7 +731,8 @@
     "isVisualTest": true,
     "categories": [
       "Model Validation",
-      "Model Optimization"
+      "Model Optimization",
+      "Featured"
     ]
   },
   "presentations_cameraTour_conferenceCenter": {
@@ -740,7 +753,8 @@
     "isVisualTest": true,
     "categories": [
       "Presentations",
-      "Drawings"
+      "Drawings",
+      "Featured"
     ]
   },
   "presentations_heatmaps_duplex": {
@@ -781,7 +795,8 @@
     "isVisualTest": false,
     "categories": [
       "Heat Maps",
-      "Solar Analysis"
+      "Solar Analysis",
+      "Featured"
     ]
   },
   "presentations_materials_ifcAttach_duplex": {
@@ -791,7 +806,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
-      "Presentations"
+      "Presentations",
+      "Featured"
     ]
   },
   "presentations_schedule_duplex": {
@@ -801,7 +817,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
-      "4D BIM"
+      "4D BIM",
+      "Featured"
     ]
   },
   "presentations_sunStudy_duplex": {
@@ -812,7 +829,8 @@
     "isVisualTest": false,
     "categories": [
       "Heat Maps",
-      "Solar Analysis"
+      "Solar Analysis",
+      "Featured"
     ]
   },
   "presentations_volumeOverlay_atrium": {
@@ -822,7 +840,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
-      "Thermal Flow Visualization"
+      "Thermal Flow Visualization",
+      "Featured"
     ]
   },
   "profile_renderer_conferenceCenter": {
@@ -842,7 +861,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
-      "Physics"
+      "Physics",
+      "Featured"
     ]
   },
   "spatial_collision_hitPoint": {
@@ -853,7 +873,8 @@
     "isVisualTest": false,
     "categories": [
       "Picking",
-      "Benchmarks"
+      "Benchmarks",
+      "Featured"
     ]
   },
   "spatial_collision_hover": {
@@ -873,7 +894,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
-      "Annotations"
+      "Annotations",
+      "Featured"
     ]
   },
   "spatial_snapping_table": {
@@ -883,7 +905,8 @@
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
-      "Picking"
+      "Picking",
+      "Featured"
     ]
   },
   "spatial_snapping_thickLines": {

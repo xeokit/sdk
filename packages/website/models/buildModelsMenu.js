@@ -182,6 +182,7 @@ export function buildModelsMenu(params) {
     pageTitleEl.textContent = `${modelId} [${normalizeDatasetLabel(dataset)}]`;
 
     if (viewSourceButtonEl) {
+      viewSourceButtonEl.style.display = "";
       viewSourceButtonEl.title = `View model source for ${modelId}`;
       viewSourceButtonEl.onclick = () => {
         window.open(`https://github.com/xeokit/sdk/tree/master/models/${encodeURIComponent(modelId)}`, "_blank");
@@ -194,6 +195,18 @@ export function buildModelsMenu(params) {
     if (!keepSidebarOpen) {
       setSidebarOpen(false);
     }
+  }
+
+  function clearSelection() {
+    currentSelection = null;
+    pageTitleEl.textContent = "Select a model";
+    if (viewSourceButtonEl) {
+      viewSourceButtonEl.style.display = "none";
+      viewSourceButtonEl.title = "";
+      viewSourceButtonEl.onclick = null;
+    }
+    highlightActiveSelection();
+    setSidebarOpen(true);
   }
 
   function highlightActiveSelection() {
@@ -305,15 +318,6 @@ export function buildModelsMenu(params) {
     });
   }
 
-  function getFirstSelection() {
-    const ids = Object.keys(modelsIndex).sort();
-    for (const id of ids) {
-      const ds = modelsIndex[id]?.dataset || [];
-      if (ds.length) return {modelId: id, dataset: ds[0]};
-    }
-    return null;
-  }
-
   function parseHash() {
     const hash = window.location.hash.slice(1);
     const i = hash.indexOf("|");
@@ -333,19 +337,22 @@ export function buildModelsMenu(params) {
 
     window.addEventListener("hashchange", () => {
       const sel = parseHash();
-      if (sel) updateViewer(sel.modelId, sel.dataset);
+      if (sel) {
+        updateViewer(sel.modelId, sel.dataset);
+      } else if (!window.location.hash) {
+        clearSelection();
+      }
     });
 
     renderMenu();
 
     const sel = parseHash()
-      || (defaultModelId && defaultDataset && {modelId: defaultModelId, dataset: defaultDataset})
-      || getFirstSelection();
+      || (defaultModelId && defaultDataset && {modelId: defaultModelId, dataset: defaultDataset});
 
     if (sel) {
       updateViewer(sel.modelId, sel.dataset, true);
     } else {
-      pageTitleEl.textContent = "No datasets available";
+      clearSelection();
     }
   }
 

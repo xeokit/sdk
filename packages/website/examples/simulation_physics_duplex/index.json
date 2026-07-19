@@ -5,6 +5,7 @@
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [
-    "Physics"
+    "Physics",
+    "Featured"
   ]
 }

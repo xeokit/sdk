@@ -179,11 +179,6 @@ studio.init().then(async () => {
         windowHeight: WINDOW_H,
         seed: 42
     });
-    const status = document.createElement("div");
-    status.style.cssText = "position:absolute;top:12px;left:12px;padding:8px 12px;background:rgba(0,0,0,0.55);color:#eee;font:13px/1.4 ui-sans-serif,system-ui,sans-serif;border-radius:4px;pointer-events:none;user-select:none;max-width:340px";
-    status.innerHTML = `<div><b>Infinite landscape</b></div><div style="margin-top:4px;opacity:0.85">Demonstrates how the SDK is optimized for efficiently streamed content.</div><div style="margin-top:2px;opacity:0.85">Space or toggle: fly forward.</div><div id="camStatus" style="margin-top:4px;opacity:0.7;font-size:11px;font-family:ui-monospace,monospace"></div>`;
-    document.body.appendChild(status);
-    const camStatus = status.querySelector("#camStatus");
     new xeokit.base.core.SDKTask({
         name: "Infinite landscape \u2014 apply instruction stream",
         repeat: true,
@@ -244,7 +239,6 @@ studio.init().then(async () => {
                 }
                 activeGeomBySlot[ins.slotId] = desired;
             }
-            camStatus.textContent = `camera eye = (${cx.toFixed(0)}, ${cy.toFixed(0)}, ${eye[2].toFixed(0)}) m`;
         }
     });
     const info = await studio.openInfoPanelFromMeta();

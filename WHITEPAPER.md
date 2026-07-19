@@ -4,129 +4,102 @@ title: xeokit SDK — Technical Whitepaper
 
 # xeokit SDK — Technical Whitepaper
 
-*A developer's guide to what's actually different about this SDK, and why those differences matter for building AECO applications.*
+*A developer-focused summary of the SDK architecture and the technical choices that matter for AECO applications.*
 
 ---
 
 ## TL;DR
 
-The xeokit SDK is a TypeScript SDK for building AECO (Architecture, Engineering, Construction & Operations) viewers and tools in the browser and in Node.js. Two design decisions sit at its foundation:
+xeokit SDK is a TypeScript SDK for building browser and Node.js AECO tools: BIM viewers, digital twins, coordination systems, model analytics, and operational dashboards.
 
-1. **Native 64-bit world coordinates.** Models retain their source-coordinate meaning in the scene graph — basis, origin, units, and world-space transforms are represented in Float64 — while the renderer automatically derives fine-grained Relative-To-Center (RTC) regions from the content it is drawing. The application does not choose RTC origins, create RTC tiles, or rebase geometry when objects move; the renderer handles that transparently so the GPU only sees stable Float32 offsets. A model sitting at UTM grid coordinates `(465120.8, 5429331.4, 0)` renders at sub-millimetre stability, with no per-app hacks.
-2. **Data-texture batching.** Per-mesh and per-object state — matrices, colors, visibility, selection, x-ray, opacity — lives in GPU textures, not in per-mesh uniforms or per-instance vertex attributes. The renderer iterates thousands of meshes in one draw call by sampling these textures from the vertex shader. Toggling a wall's visibility or recolouring 10,000 selected objects is a handful of texture writes, not a buffer rebuild.
+Two design choices define the SDK:
 
-Everything else in the SDK — the scene-graph / data-graph separation, the bucketed namespace, the result-monad error handling, the drawings pipeline, the section-plane primitives — is built on those two foundations.
+1. **Float64 scene placement with automatic renderer RTC.** Models keep their source-coordinate meaning in the scene graph: basis, origin, units, and world-space transforms are represented in double precision. The renderer derives fine-grained Relative-To-Center (RTC) regions from the content it draws, so applications do not choose RTC origins, create RTC tiles, or rebase geometry when objects move. The GPU sees stable Float32 offsets even when source coordinates are UTM-scale.
+2. **Data-texture batching.** Per-object and per-mesh render state lives in GPU textures. Visibility, selection, x-ray, opacity, color, and transform updates are texture writes, not geometry rebuilds.
+
+Around those two foundations, the SDK separates geometry from semantic data, exposes result-monad error handling, and keeps viewing state per `View` so multiple views can share one scene without duplicating model geometry.
 
 ---
 
-## Why these matter for BIM
+## Why It Matters For BIM
 
-### The world-coordinate problem
+### Large Coordinates
 
-A typical IFC building model is authored in real-world coordinates. A site survey ties the model to a national grid (UTM, OSGB36, NAD83) where individual vertex coordinates routinely run into the hundreds of thousands or millions of metres. Once the geometry reaches a Float32 vertex attribute on the GPU, that magnitude wipes out the bottom bits of precision — the same numerical limit that produces sub-pixel jitter on the surface of a wall and outright crawling artefacts on neighbouring polygons.
+IFC and infrastructure models often use surveyed real-world coordinates. Moving everything near the origin avoids GPU precision loss, but breaks federation, GIS alignment, round-tripping, and control-point workflows.
 
-Most browser-based BIM viewers solve this by **pre-translating geometry to the world origin** and discarding the original anchor. That works for a single model, but breaks down for:
-
-- Two or more models in the same scene with different authoring frames.
-- A clash-detection or coordination workflow where a federated model has to align to source-coordinate metadata.
-- Round-tripping coordinates back to engineering tools (BCF, dimensioning, point clouds, GIS overlays).
-- Surveyed control points referenced in source-coordinate space.
-
-xeokit's `coordinateSystem` parameter on `SceneModel` declares the model's source frame — basis, origin, units, and scale — in a single place:
+xeokit keeps model placement meaningful in the scene graph:
 
 ```ts
 scene.createModel({
   id: "siteA",
   coordinateSystem: {
-    basis:  [1, 0, 0,  0, 0, 1,  0, 1, 0],   // remap Y-up source onto Z-up world
-    origin: [465120.8, 5429331.4, 0],         // UTM eastings/northings + Z
+    basis:  [1, 0, 0,  0, 0, 1,  0, 1, 0],
+    origin: [465120.8, 5429331.4, 0],
     units:  "meters",
     scaleToMeters: 1,
   },
 });
 ```
 
-The scene graph keeps that placement in double precision. The renderer then builds its own RTC representation from the current world-space bounds of the content being submitted:
+Precision is handled by the renderer:
 
-- Per-vertex positions are Float32, **quantised relative to a per-geometry AABB** (24 bits of effective precision over each geometry's bounding box — sub-millimetre on a 10 m room).
-- Per-mesh world transforms are Float64 and may change at runtime.
-- Submitted content is automatically partitioned into fine-grained RTC regions, each with renderer-owned Float64 anchors and GPU-friendly Float32 offsets.
-- Moving content does not require application-managed rebasing; the renderer updates the RTC placement as part of its normal upload/update path.
+- geometry is quantized relative to per-geometry bounds
+- mesh/world transforms are Float64
+- render submissions are assigned to renderer-owned RTC regions
+- moving content keeps precision without app-managed rebasing
 
-The net effect: a model 10 km from world origin renders identically to the same model centred at the origin, with no per-app accommodation. Two models from different surveys land in the right place relative to each other on the first load, and remain precise if application code later repositions them.
+Result: a model 10 km from world origin renders like the same model centered at origin, while still retaining source-coordinate meaning.
 
-### The state-update problem
+### Large State Changes
 
-BIM models are large. A federated office tower is routinely 1–5 million triangles across 200,000+ objects. The classical WebGL approach — one draw call per mesh, per-instance uniforms — falls over at this scale on integrated GPUs, and even on discrete GPUs it leaves no headroom for the interactive operations the workflows actually need:
+BIM interaction is state-heavy: hide/show, isolate, select, recolor, x-ray, section, and animate thousands of objects. Traditional WebGL designs often turn those operations into buffer updates or draw-call churn.
 
-- **Per-object visibility / selection / x-ray toggles** triggered by tree-view clicks, BCF view bookmarks, filter rules.
-- **Live recolouring** for clash highlights, schedule overlays, sensor heat-maps.
-- **Per-frame transforms** for animated layouts, exploded views, story-by-story reveals.
+xeokit batches compatible meshes and stores per-mesh state in fixed-size GPU data textures:
 
-Naive instancing (`ANGLE_instanced_arrays`, per-instance VBOs) handles batched draws but penalises per-object state changes — a single object's flag flip requires rewriting a slice of the instance buffer.
+- matrices and RTC placement
+- material values
+- visibility, selection, x-ray, highlight, clippable, pickable flags
+- compressed geometry references
 
-xeokit's data-texture approach inverts the picture:
-
-- Each batch (groups of compatible meshes, typically tens of thousands per batch on a modern GPU) carries its mesh-attribute data in **fixed-size GPU textures** rather than per-instance attributes:
-  - Per-mesh matrices and renderer-managed RTC placement
-  - Per-mesh material values (color, opacity, F0, roughness/metallic, hatch params)
-  - Per-mesh flags (visible, selected, xrayed, highlighted, clippable, pickable)
-  - Per-geometry positions / normals / UVs (compressed)
-- The vertex shader for a batch is one program. Each vertex looks up its mesh's row in the attribute textures using a primitive-mesh-index texture, and reconstructs its world position from that row plus the geometry texture's compressed values.
-- A **single draw call** processes the entire batch.
-
-What this buys at the application level:
-
-- **Toggling visibility on 50,000 walls** is 50,000 single-pixel texture writes plus a frame re-render. No CPU-side mesh sort, no VBO upload, no rebatching.
-- **Highlighting a clash set of 200 objects** is the same operation against the selection texture.
-- **Recolouring by story** rewrites the material texture rows for the affected meshes; geometry buffers are untouched.
-- **First paint is faster** because there's no per-mesh program switch or uniform upload to amortise.
-
-The cost is fixed per-batch overhead (a handful of textures per batch, regardless of mesh count) and a discipline around what fits in the attribute textures' fixed-width rows. Both are paid once at batch-build time and reused for the model's entire lifetime in memory.
-
-There is a separate top-level `studio.dataTexturesPanel` in the demo runtime that exposes a live view of every active data texture — useful when developing custom rendering paths or debugging memory pressure on an integrated GPU.
+A single draw call can process thousands of meshes. Changing 50,000 object flags becomes a set of texture-row writes plus a render request.
 
 ---
 
-## Architecture at a glance
+## Architecture
 
-The SDK is organised into **topical buckets**. Every import path begins with one of these:
+### Module Buckets
 
-| Bucket | What lives there |
+| Bucket | Purpose |
 |---|---|
-| `base/` | Math (Float32 + Float64 vec/mat/quat/AABB, compression, curves), core infrastructure (`SDKResult`, `SDKErrorType`, `EventEmitter`, `SDKTask`), WebGL primitives, file I/O, locale, constants. |
-| `model/` | `scene/` (3D scene graph: `Scene`, `SceneModel`, `SceneObject`, `SceneMesh`, `SceneGeometry`, materials, hatch patterns). `data/` (semantic graph: `Data`, `DataModel`, `DataObject`, relationships, property sets). `procgen/` (procedural geometry + PBR material painters). `streaming/` (chunked model streaming + cache). |
-| `viewing/` | `viewer/` (`Viewer`, `View`, `Camera`, `SectionPlane`, lights, effects). `webGLRenderer/` (the WebGL backend, behind a pluggable `Renderer` interface — WebGPU work is anticipated). `viewController/` (pointer / touch camera controllers). `cameraFlight/` (camera flight animations and bookmarks). `transformControls/` (in-scene gizmo). |
-| `formats/` | Import / export for IFC, glTF, XGF, XKT, LAS, E57, CityJSON, 3D Tiles, OBJ + MTL, FBX, USDZ, DotBIM, 3DXML, FDS, 3D Gaussian Splatting (`.splat`), plus the 2D drawing formats (PDF, DWG, DXF, SVG) and native scene-model and data-model JSON. |
-| `spatial/` | `collision/` (KdTree / BVH indices over scene geometry). `picking/` (ray and canvas-position picking, snap-to-vertex, snap-to-edge). |
-| `inspect/` | Read-only inspectors that report on the integrity and statistics of scene and data models, with a fixes pipeline for resolving common issues. |
-| `tools/` | `measurements/` — interactive distance and angle measurement, picking-driven. |
-| `simulation/` | Animation / physics runtimes (rigid-body via Rapier). |
-| `interop/` | `bcf/` — BCF Viewpoint load / save. |
-| `convert/` | Format-conversion pipelines and the `xeoconvert` CLI. |
-| `ui/` | Plain-DOM UI primitives (context menus, floating panels, button bars, dialogs). |
-| `studio/` | Higher-level integration code used by the demo site: `DemoHelper`, the toolbar, panel registry, IFC-material auto-application, drawings panel, section-plane tooling. |
+| `base/` | Math, compression, core result/event/task types, WebGL helpers, IO, locale, constants. |
+| `model/` | Scene graph, semantic data graph, procedural geometry/material helpers, streaming. |
+| `viewing/` | Viewer, View, Camera, SectionPlane, lights, effects, WebGL renderer, controls. |
+| `formats/` | Import/export for BIM, CAD, point cloud, drawing, reality-capture, and native JSON formats. |
+| `spatial/` | Picking, snapping, collision/BVH, AABB and region queries. |
+| `inspect/` | Scene/data validation and issue reporting. |
+| `tools/` | Interactive measurements. |
+| `simulation/` | Optional physics hooks. |
+| `interop/` | BCF viewpoint import/export. |
+| `convert/` | Conversion pipelines and CLI tooling. |
+| `ui/` | Plain-DOM UI primitives. |
+| `studio/` | Optional demo/workbench integration layer. |
 
-The same buckets are also exposed at runtime as namespaces on the root `xeokit` object (e.g. `xeokit.model.scene`, `xeokit.viewing.viewer`).
+### Scene And Data
 
-### The scene / data split
+The SDK keeps two graphs side by side:
 
-Two graphs sit side by side, joined by ID:
+- `Scene` -> `SceneModel` -> `SceneObject` -> `SceneMesh` -> `SceneGeometry` / `SceneMaterial`
+- `Data` -> `DataModel` -> `DataObject` -> properties and relationships
 
-- **`Scene`** (one per session) → contains `SceneModel`s → which contain `SceneObject`s → which contain `SceneMesh`s → which reference `SceneGeometry` and `SceneMaterial`. This is the **what to draw** graph.
-- **`Data`** (one per session) → contains `DataModel`s → which contain `DataObject`s with `type`, `name`, `propertySets`, and `Relationship`s. This is the **what does it mean** graph.
+Objects are joined by shared IDs. A BIM query can run against the data graph, then apply visibility or selection changes to matching scene objects without the renderer knowing anything about IFC semantics.
 
-A loader that processes an IFC file populates both. A `SceneObject` with id `1xS3BCk291UvhgP2a6eflK` and a `DataObject` with the same id are the same entity from two angles. Apps doing semantic queries (e.g. "find every IfcWall on Storey 02 and isolate it in the viewer") query the data graph, then apply visibility flips on the matching `view.objects[id]` entries — those flips ride through the per-View attribute texture and update in one frame.
+### View And Scene
 
-This separation is intentional. It lets the renderer batch geometry without caring about semantics, and lets data tooling traverse type hierarchies without touching the GPU.
+`Scene` owns loaded content. `View` owns render state: camera, per-object visibility, selection, x-ray, section planes, effects, and canvas. Multiple views can share one scene with no geometry duplication.
 
-### `View` versus `Scene`
+### Error Handling
 
-The `Scene` holds geometry, world-coordinate state, and the shared collision index. A `View` is a per-camera render state: it has its own camera, its own per-object visibility / selection / x-ray state, its own section planes, its own effects (bloom, tonemap, FXAA, SAO, shadows, edges, caps), and its own canvas. Multiple `View`s on one `Scene` give multi-view editors, before/after comparisons, picture-in-picture overviews, and orthographic plan/elevation outputs alongside the 3D perspective view — all at zero geometry duplication. Each `View` writes its own attribute textures.
-
-### Error handling
-
-The SDK is uniformly result-monadic. Every operation that can fail returns:
+Fallible APIs return `SDKResult<T>`:
 
 ```ts
 type SDKResult<T> =
@@ -134,23 +107,21 @@ type SDKResult<T> =
   | { ok: false; type: SDKErrorType; error: string };
 ```
 
-There are no exceptions for expected failure modes — model id collisions, bad coordinate systems, malformed geometry, IO errors are all values. Async paths use the same shape inside `Promise<SDKResult<T>>`. This makes failure handling visible at the call site and lets the type system enforce branch-and-narrow on every fallible operation.
+Expected failures are values: duplicate IDs, bad parameters, malformed input, and IO errors are handled at call sites instead of being thrown across module boundaries.
 
 ---
 
-## A taste of the API
-
-The shape of an app built on this SDK looks like:
+## API Shape
 
 ```ts
-import { Scene }         from "@xeokit/sdk/model/scene";
+import { Scene } from "@xeokit/sdk/model/scene";
 import { Data, searchObjects } from "@xeokit/sdk/model/data";
-import { Viewer }        from "@xeokit/sdk/viewing/viewer";
+import { Viewer } from "@xeokit/sdk/viewing/viewer";
 import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
-import { IFCLoader }     from "@xeokit/sdk/formats/ifc";
+import { IFCLoader } from "@xeokit/sdk/formats/ifc";
 
-const scene  = new Scene();
-const data   = new Data();
+const scene = new Scene();
+const data = new Data();
 const viewer = new Viewer({ scene });
 new WebGLRenderer({ viewer });
 
@@ -158,21 +129,16 @@ const viewResult = viewer.createView({ id: "main", elementId: "canvas" });
 if (!viewResult.ok) throw new Error(viewResult.error);
 const view = viewResult.value;
 
-view.camera.eye  = [-6, 5, 9];
-view.camera.look = [4, -3, -12];
-view.camera.up   = [0.1, 0.95, -0.27];
-
 const sceneModel = scene.createModel({ id: "duplex" }).value!;
-const dataModel  = data .createModel({ id: "duplex" }).value!;
+const dataModel = data.createModel({ id: "duplex" }).value!;
 
 const ifcLoader = new IFCLoader();
-const r = await fetch("model.ifc").then(r => r.arrayBuffer());
-await ifcLoader.load({ fileData: r, sceneModel, dataModel });
+const bytes = await fetch("model.ifc").then(r => r.arrayBuffer());
+await ifcLoader.load({ fileData: bytes, sceneModel, dataModel });
 
-// Semantic query against the data graph
 const wallIds: string[] = [];
 const q = searchObjects(data, {
-  startObjectId: "38aOKO8_DDkBd1FHm_lVXz",   // IfcProject root
+  startObjectId: "38aOKO8_DDkBd1FHm_lVXz",
   includeObjects: ["IfcWall"],
   includeRelated: ["IfcRelAggregates"],
   resultObjectIds: wallIds,
@@ -180,253 +146,116 @@ const q = searchObjects(data, {
 if (q.ok) view.setObjectsSelected(wallIds, true);
 ```
 
-The pattern is consistent across the SDK: pick a `Scene` and a `Data`, create a `Viewer` with a `WebGLRenderer`, create one or more `View`s, populate `SceneModel` + `DataModel` via a loader, then operate on the loaded entities through the `View`. Every fallible step returns a result you branch on.
+The common flow is: create `Scene` and `Data`, attach a `Viewer` and renderer, create one or more `View`s, load scene/data models, then operate through view state.
 
 ---
 
-## Feature inventory
+## Core Capabilities
 
-Enumeration of the SDK's feature set, grouped by topic. Every entry corresponds to a module under `packages/sdk/src/` and is exposed through that module's index.
+### Coordinate Precision
 
-### Coordinate system & numerical precision
+- Float64 scene/model/object placement.
+- Per-model source frame: basis, origin, units, scale.
+- Renderer-owned RTC regions derived from current render-space bounds.
+- Quantized geometry and logarithmic depth for large-coordinate scenes.
 
-The mathematical foundation for placing real-world surveyed models in a scene without losing precision at any zoom.
+### Scene Graph
 
-- Native **Float64 world coordinates** on `Scene`, `SceneModel`, and per-mesh transforms.
-- Per-model **basis declaration** — supports Z-up / Y-up sources cohabiting in one Z-up world; arbitrary axis-permutation matrices are accepted.
-- Per-model **coordinate metadata** — origin, units, and `scaleToMeters` preserve source-coordinate meaning for surveyed models.
-- Renderer-side **Relative-To-Center (RTC) tiling** — content is automatically assigned to fine-grained RTC regions so the GPU only ever sees Float32 deltas, regardless of world position. Tile assignment is internal, transparent, and derived from current render-space bounds rather than from the model's declared coordinate-system origin. A single batch may host meshes from many RTC regions, and dynamically repositioned content is handled without application-managed rebasing.
-- **Logarithmic depth buffer** (fragment-stage) — per-pixel exact log-depth via `gl_FragDepth`, so the same scene supports walkthroughs at sub-millimetre precision and UTM-scale framing without near/far jockeying.
-- **Quantized geometry** — positions / normals / UVs stored as 16-bit fixed-point with per-geometry quant range, preserving sub-mm precision while halving vertex bandwidth.
+- Scene/model/object/mesh/geometry/material hierarchy.
+- Triangles, lines, thick lines, and points.
+- Runtime transforms and transform hierarchies.
+- Per-object visibility, selection, x-ray, highlight, opacity, color, clippable, pickable, and edge state.
+- Layers and bulk object operations.
 
-### Scene graph
+### Data Graph
 
-The renderable side of the model — the objects, meshes, geometries, materials, and textures the GPU consumes.
-
-- `Scene` / `SceneModel` / `SceneObject` / `SceneMesh` / `SceneGeometry` / `SceneTransform` / `SceneMaterial` / `SceneTexture` hierarchy.
-- **Geometry primitives**: triangles, lines, thick lines (screen-space-expanded), points / point clouds.
-- **Edge index buffers** — automatic crease-edge extraction (`buildEdgeIndices`) for line-art overlays on triangle meshes.
-- **Per-mesh transform matrices** (translate / rotate / scale, composable).
-- **Transform hierarchies** (`SceneTransform`) — parent-relative chains, mutated at runtime; the renderer walks the chain once per dirty branch.
-- **Per-mesh & per-object colour, opacity, visibility, x-ray, selected, highlighted, culled, clippable, pickable, edges** — all live in GPU data textures; toggles are texture writes, no buffer rebuild.
-- **Layers** (`SceneObject.layerId`) — group objects for bulk operations; the `default` layer is the catch-all.
-- **Smooth-normal generation** from indexed positions (`generateSmoothNormals`).
-- **Geometry compression** helpers (`compressGeometryParams`) and runtime decompression in the vertex shader.
-- **Hatch & line patterns** — per-material 4-bit pattern slots driving stipple / dash / cross-hatch on a per-mesh basis.
-
-### Data graph (semantic model)
-
-The non-renderable side: BIM entity types, properties, and the typed relationships that connect them. Paired with the Scene graph through shared `id`s so a tree-view click in semantic space resolves to a mesh in render space without a manual mapping.
-
-- `Data` / `DataModel` / `DataObject` / `Property` / `PropertySet` / `Relationship` hierarchy, paired by `id` with the Scene graph.
-- **Property sets and properties** — IFC-style key/value/unit triples.
-- **Typed relationships** (`IfcRelAggregates`, `IfcRelContainedInSpatialStructure`, etc.) — explicit, typed edges in the data graph.
-- **Traversal queries** via `searchObjects` — start from any object, walk by relationship type, filter by object type, collect ids back. Pairs with Scene-side bulk operations through shared `id`s.
-- **Schema-aware ingest** — IFC4, IFC2x3, IFC4x3 entity types preserved end-to-end through loaders.
-
-### Format support
-
-End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud and reality-capture (LAS, E57, 3D Gaussian Splatting) and city-scale options (CityJSON, 3D Tiles).
-
-| Format                                                | Import | Export | Module               |
-| ----------------------------------------------------- | :----: | :----: | -------------------- |
-| **IFC** (`.ifc` text + STEP), via `web-ifc`           |   ✓    |   ✓    | `formats/ifc`        |
-| **glTF / GLB** (PBR + textures + DataModel hooks)     |   ✓    |   ✓    | `formats/gltf`       |
-| **XGF** (native binary; geometry, PBR, splats)        |   ✓    |   ✓    | `formats/xgf`        |
-| **XKT** (xeokit v2 native binary; v12)                |   ✓    |   ✓    | `formats/xkt`        |
-| **dotbim** (`.bim` JSON-LD)                           |   ✓    |   ✓    | `formats/dotbim`     |
-| **CityJSON** (LOD 0–3)                                |   ✓    |   —    | `formats/cityjson`   |
-| **3D Tiles** (`tileset.json`; b3dm/pnts/i3dm/cmpt/glTF)|   ✓    |   —    | `formats/threedtiles`|
-| **LAS / LAZ** point clouds                            |   ✓    |   —    | `formats/las`        |
-| **E57** (ASTM E2807 laser-scan point clouds)          |   ✓    |   ✓    | `formats/e57`        |
-| **3D Gaussian Splatting** (`.splat`; baked RGB, no SH)|   ✓    |   ✓    | `formats/gaussiansplat` |
-| **OBJ**                                               |   ✓    |   ✓    | `formats/obj`        |
-| **MTL**                                               |   ✓    |   ✓    | `formats/mtl`        |
-| **FBX** (Autodesk; binary)                            |   ✓    |   ✓    | `formats/fbx`        |
-| **USDZ** (Pixar)                                      |   ✓    |   ✓    | `formats/usdz`       |
-| **FDS** (Fire Dynamics Simulator)                     |   ✓    |   ✓    | `formats/fds`        |
-| **PDF** drawing sheets (vector + raster, via pdf.js)  |   ✓    |   —    | `formats/pdf`        |
-| **DWG** AutoCAD drawings (via `libredwg-web` WASM)    |   ✓    |   —    | `formats/dwg`        |
-| **DXF** AutoCAD interchange (in-tree ASCII parser)    |   ✓    |   ✓    | `formats/dxf`        |
-| **3DXML** (Dassault Systèmes; tessellated + assembly) |   ✓    |   ✓    | `formats/threedxml`  |
-| **SVG** 2D vector drawings (browser-native `DOMParser`)|  ✓    |   ✓    | `formats/svg`        |
-| **MetaModel** (legacy JSON)                           |   ✓    |   —    | `formats/metamodel`  |
-| **SceneModelParams** (round-trippable JSON)           |   ✓    |   ✓    | `formats/scenemodel` |
-| **DataModelParams** (round-trippable JSON)            |   ✓    |   ✓    | `formats/datamodel`  |
-
-The four drawing formats share a common ingest pattern: each parser walks the source and emits geometry into a `SceneModel` — strokes as line meshes bucketed by `(colour, lineWidth, dash)`, fills as triangle meshes via earcut, text rasterised to textured quads. PDF additionally lays multi-page documents out per `PDFLoadOptions.layout` (`"row"`, `"column"`, `"grid"`, `"stack"`). They sit alongside the 3D BIM loaders so an AECO viewer can drop a 2D plan sheet into the same scene as the model it documents. DWG and DXF share their entire SceneModel-emit pipeline (DXF parses to the same `DWGDocument` shape and hands off to `dwg.emit`); libredwg-web is GPL-3.0, which apps shipping the DWG loader must honour.
-
-3D Tiles is import-only and comes in two modes. A **static one-shot import** loads the selected tiles in a single pass: `b3dm` / `pnts` / `i3dm` / `cmpt` and bare glTF / GLB content, external tilesets, implicit tiling (1.1 `.subtree`, QUADTREE and OCTREE), Draco-compressed geometry, and tileset-level plus per-feature `EXT_structural_metadata` mapped to the DataModel. A glTF mesh whose `EXT_mesh_features` feature ids are a per-vertex attribute bound to a property table is split into one SceneObject per feature, each sharing its id with the feature's DataObject so a picked feature resolves to its metadata. For datasets too large to load whole, `formats/threedtiles/streaming` (`TilesetStreamer`) streams tiles by camera: each camera change selects tiles by screen-space error, frustum-culls those outside the view, and loads / unloads per-tile SceneModels so the scene holds exactly the visible set — for explicit and implicit (lazy `.subtree` expansion) tile trees, a perspective camera, and `box` / `sphere` / `region` (geodetic → ECEF) bounding volumes. Out of scope: export, KTX2 / Basis textures (the renderer has no compressed-texture path), and feature-id textures.
-
-Conversion pipelines:
-
-- **IFC → glTF → XGF** end-to-end converter — `convert/ifc2gltf2xgf`.
-- **Generic format-to-format converters** — `convert/xeoconvert`, `convert/modelConverter`.
+- Data models with typed objects, property sets, properties, and relationships.
+- IFC-style relationship traversal via `searchObjects`.
+- Shared IDs between data objects and scene objects.
+- Schema-aware ingest for IFC entity data.
 
 ### Renderer
 
-The pipeline that turns scene state into pixels — batching, shading permutations, depth scheme, and the per-mesh state-write contracts that keep frame-rate steady as objects change.
+- WebGL 2 renderer behind a renderer interface.
+- Data-texture batching for mesh state.
+- Texture atlas support for PBR materials.
+- Section planes, section caps, edge overlays, silhouettes, x-ray, SAO, bloom, shadows, FXAA/MSAA, tonemapping.
+- Per-view state and render invalidation.
 
-- **WebGL 2** renderer (`viewing/webGLRenderer`) — pluggable behind a `Renderer` interface; WebGPU is the stated successor.
-- **Data-texture batching** — per-mesh state (matrix, colour, flags, atlas transforms) lives in GPU textures; thousands of meshes per draw call.
-- **Atlas-packed PBR textures** (`TextureAtlas`) — one albedo / one MR / one normal-map atlas per batch, shelf-packed with auto-downscale for oversize sources.
-- **Section planes** — up to 8 simultaneous, per-View, per-object `clippable` opt-out, per-plane colour for cap rendering.
-- **Section-plane caps** — stencil-pass solid cap renderering with hatch-aware materials.
-- **Edges** — line-art overlay, configurable width and colour, slope-aware crease detection.
-- **Silhouettes** — outline rendering for selected / highlighted / x-ray states.
-- **X-ray mode** — semi-transparent "ghosted" rendering with depth-test still active.
-- **Logarithmic depth buffer** (fragment-stage, exact per-pixel).
-### Lighting & shading
+### Spatial And Interaction
 
-The lighting model behind every rendered surface — from a single ambient term up to full PBR with HDR environment lighting.
+- Ray and canvas-position picking.
+- Surface picking and snap picking.
+- BVH-backed scene/object AABB queries.
+- Marquee selection.
+- Distance and angle measurements.
+- Camera controls, camera flights, NavCube, and transform controls.
 
-- **Ambient light**, **hemisphere ambient light**, **directional lights** (up to N), **point lights**, **image-based lighting (IBL)** from HDR cube maps via the bundled `hdrLoader`.
-- **Lambert + PBR shading** — albedo / metallic / roughness / normal map per material, atlas-sampled in the FS.
-- **Specular roughness** path (matte / glossy continuum) plus a per-material `MAT_MATTE`-style preset.
-- **Triplanar texturing** — world-axis projection for terrain or UV-less geometry.
-- **Vertex-colour technique** — separate path for point clouds and per-vertex coloured meshes.
-- **Tonemap** — ACES / Reinhard / linear, configurable render scale (supersampling) per `Tonemap`.
+### Inspection
 
-### Post-effects
-
-Screen-space passes that run after the main scene draw to add depth cues, atmosphere, and antialiasing without re-rendering geometry.
-
-- **Scalable Ambient Obscurance (SAO)** — full-screen contact AO, log-depth-aware decode, blur pass, per-View tunable scale / kernel / bias / minResolution / numSamples.
-- **Bloom** — physically-motivated bright-pass + multi-tap blur.
-- **Shadow mapping** — directional-light shadow pass with cascaded variants under `ShadowPipeline`.
-- **Anti-aliasing** — MSAA opt-in, FXAA fallback under `AntiAliasing`.
-- **Resolution scale** — independent render scale from canvas DPR for supersampling or fast-preview rendering.
-
-### Materials, hatching, patterns
-
-The surface-finish vocabulary — PBR materials for realistic rendering, plus the stipple, hatch, and line-pattern stamps that engineering drawings need for cap legibility and conventions like dashed-hidden / cross-hatched-section.
-
-- **`SceneMaterial`** with PBR fields (albedo / MR / normal / occlusion / emissive) and atlas-backed textures.
-- **`MaterialPresets`** — sensible defaults for common AEC materials.
-- **Line patterns** (per-material, per-batch slot allocator) — solid / dashed / dotted / dash-dot / custom 32-bit stipple.
-- **Hatch patterns** (per-material, per-batch slot allocator) — crosshatch / brick / grid / diagonal stipple stamps for cap rendering and body fill.
-- **Polyline continuous-pattern phase** across joints via the per-batch polyline-cum-distance table.
-
-### Camera & projections
-
-The camera state and the choreography that moves it — projections cover the standard 3D and engineering-drawing cases, while `CameraFlightAnimation` provides the cinematic transitions that orient a user as they navigate.
-
-- **Perspective**, **orthographic**, **frustum** (asymmetric), **custom-matrix** projections, all swappable on the fly.
-- **`CameraFlightAnimation`** with:
-  - AABB-fit flights (`flyTo({ aabb, fitFOV })`).
-  - Eye / look / up flights.
-  - **Arc flights** — parabolic apex along the camera's look→eye axis at the midpoint.
-  - **Easing options** — quadratic ease-out (default) or piecewise-quadratic in-then-out (slow-fast-slow triangular speed).
-  - Projection-transition flights (perspective ↔ ortho with matrix lerp).
-- **NavCube** — a draggable widget for orienting the camera to canonical axes.
-
-### Camera controls
-
-Input-device handlers that translate mouse, touch, and keyboard gestures into camera moves — with pick-aware pivoting so rotation feels natural on the object under the cursor.
-
-- Mouse pan / rotate / dolly.
-- Touch pan / rotate / dolly.
-- Keyboard axis-view shortcuts.
-- Keyboard pan / rotate / dolly.
-- Pivot-around-pick (`PivotController`).
-- Pick-on-mouse-up handler (`MousePickHandler`).
-- Pick-on-touch handler (`TouchPickHandler`).
-- **Transform controls** — interactive gizmos for translating / rotating / scaling a `SceneTransform` in-canvas (`viewing/transformControls`).
-
-### Spatial queries
-
-Geometric queries against the scene's spatial index — picking, snap-picking, AABB lookups, and marquee selection, all backed by a BVH that keeps results fast at BIM-model density.
-
-- **Picking** — ray-against-scene (`spatial/picking`), returns world hit point + view object + face index + uv.
-- **Surface picking** — sub-pixel-precise picking by re-rendering the picked mesh at a higher resolution into an offscreen buffer.
-- **Snap picking** — pick to nearest vertex / edge mid-point / face centre.
-- **`SceneCollisionIndex`** — BVH over per-object AABBs; `getSceneAABB`, `getObjectAABB`, `getCombinedObjectAABB`, region queries.
-- **Marquee selection** — drag-to-select via the collision index.
-
-### Measurements
-
-Interactive measurement primitives that read world coordinates from the scene and render labels that survive camera moves and projection changes.
-
-- **Distance measurements** (`tools/measurements/distance`) — pick-to-pick world-space distance with axis-decomposed labels (Δx, Δy, Δz, length).
-- **Angle measurements** (`tools/measurements/angle`) — three-point angle with arc visualisation.
-- Annotations persist across camera moves and project correctly onto orthographic / perspective output.
-
-### Procedural & authoring
-
-Geometry- and material-generation helpers for building content in code — useful for fixtures, terrain, test scenes, and demo content that doesn't need to come from a CAD source.
-
-- **`model/procgen/buildGeometry`** — boxes, spheres, cylinders, planes, cones, torus, lines.
-- **`model/procgen/paintMaterials`** — procedural texture painters: stone-block, granite, stone-cracks, etc.
-- **`model/procgen/paintEnvironments`** — procedural environment / skybox painters.
-
-### Multi-view
-
-Support for running several independent views of the same scene at once — useful for split-pane comparisons, picture-in-picture, and dashboards where each pane has its own camera, render mode, and visibility state.
-
-- **`ViewManager`** — multiple `View`s per `Scene`, each with its own camera, render mode, effects stack, render bin classifier, picking state.
-- **`ViewLayer`** — sub-views with independent visibility / x-ray / select state, useful for "show only X" overlays.
-- **`ViewObject`** per-(View × SceneObject) state — visibility, selected, highlighted, x-rayed, opacity overrides without mutating the underlying SceneObject.
-- **Per-view section planes**, per-view lighting, per-view tonemap.
-
-### Inspection & validation
-
-Static-analysis-style validators for both halves of a model — flag schema issues, broken relationships, malformed geometry, and other defects before they reach an end user.
-
-- **`inspect/dataModel`** — schema-driven validation of a `DataModel` against a `DataFormatSchema`: schema tagging, relationship type bindings, cycle detection, IFC spatial hierarchy, IFC element containment, with severity-coded report output.
-- **`inspect/sceneModel`** — geometry / mesh / object / material / texture validators with per-issue codes and human descriptions.
-- **`labelForCode` / `descriptionForCode`** — programmatic access to the human-readable issue catalogue.
-
-### Interoperability
-
-Hooks for exchanging viewpoint and issue state with other AECO tools through industry-standard interchange formats.
-
-- **BCF Viewpoint** read / write (`interop/bcf`) — components (visibility / coloring / selection / translucency), clipping planes, camera (perspective / ortho), snapshots, bitmaps, lines, view-setup hints. Full BCF 2.1 viewpoint round-trip.
-
-### Studio
-
-A workbench for exploring, demoing, and testing every feature catalogued above in an integrated environment. Studio assembles the SDK's toolbar, context menus, floating panels, tree-view, and inspector widgets into a runnable host that loads models, drives viewers, and exposes each subsystem's state through a uniform panel API — equally useful as a sandbox for SDK developers and as a starting point for application authors who want a ready-made shell. Lives under `packages/sdk/src/studio/` and is opt-in per app: an application can use the SDK's core without ever instantiating Studio.
-
-### Cooperative scheduling
-
-The frame-loop substrate every animated or invalidation-driven subsystem hangs off of, so per-frame work happens in a predictable stage order rather than racing on the event loop.
-
-- **`SDKTask` / `SDKTaskRunner`** — every per-frame and on-demand SDK task lives in a stage-segregated queue (CollectInput → Animate → Compute → Compute2 → Render → PostRender). Used by `CameraFlightAnimation`, `Camera._buildViewMatrix`, `PivotController`, `KeyboardPanRotateDolly`, every projection's matrix rebuild, every `SceneTransform` dirty propagation, `ViewTransform` tree rebuild, `MeshManager.sceneObjectCreated`.
-
-### Physics
-
-An optional rigid-body binding for prototypes that need basic collision or gravity response — not a full physics engine, but enough hooks to script simple physical interactions in a scene.
-
-- **Scene physics binding** (`simulation/physics`) — opt-in rigid-body simulation hook (`ScenePhysics`, `getScenePhysics(scene)`), per-SceneObject body params; intended for click-through / collision-response prototypes rather than a full physics-engine wrap.
-
-### Localisation
-
-A small string-catalog layer used by the bundled UI components, so applications can translate the SDK's built-in widgets without forking the source.
-
-- **`base/locale`** — string catalog + `LocaleService` for translating UI strings; the bundled Studio panels read through it.
-
-### Conventions woven through every module
-
-A handful of cross-cutting conventions show up across the entire SDK — they're not features in themselves but they shape how every feature above is wired together.
-
-- **Result-monad** error handling — every fallible call returns `SDKResult<T>` (`{ ok: true, value }` or `{ ok: false, type, error }`); no thrown exceptions across module boundaries.
-- **`destroyed` flag + `destroy()`** on every long-lived object; idempotent.
-- **Event emitters** with typed payloads on every observable (Camera / View / Scene / Data / SceneModel / Picking) — wired through `EventEmitter` + `EventDispatcher` from strongly-typed-events.
-- **TSDoc on every public API** — the generated API reference at `https://xeokit.github.io/sdk/docs/api/` reflects what's exported, not what's documented separately.
+- Scene-model and data-model validators.
+- Issue codes, labels, descriptions, severities, and fix hooks.
+- Useful for loader development, QA, and model-health tooling.
 
 ---
 
-## How this SDK was built
+## Format Support
 
-The core — Scene, Data, Viewer, WebGLRenderer, and the architecture connecting them — was designed and built by hand, from prior experience building WebGL-based SDKs and engines. The coordinate system, the scene / data split, the data-texture batching strategy, and the error-handling conventions described above were all established up front.
+Supported formats include:
 
-Once that core was proven with a couple of hand-written loaders, AI assistance (Claude) was used to accelerate implementation within it: additional format loaders and exporters written against the established Scene/Data API, plus some renderer effects. The existing xeokit V2 codebase served as the reference, so the work carried established approaches onto the new architecture rather than inventing them. Every AI contribution was read, tested, code-inspected, and revised before it was kept.
+| Format | Direction | Module |
+|---|---:|---|
+| IFC | Import/export | `formats/ifc` |
+| glTF / GLB | Import/export | `formats/gltf` |
+| XGF | Import/export | `formats/xgf` |
+| XKT | Import/export | `formats/xkt` |
+| dotbim | Import/export | `formats/dotbim` |
+| CityJSON | Import/export | `formats/cityjson` |
+| 3D Tiles | Import/streaming | `formats/threedtiles` |
+| 3DXML | Import/export | `formats/threedxml` |
+| LAS / LAZ | Import | `formats/las` |
+| E57 | Import/export | `formats/e57` |
+| 3D Gaussian Splatting | Import/export | `formats/gaussiansplat` |
+| OBJ / MTL | Import/export | `formats/obj`, `formats/mtl` |
+| FBX | Import/export | `formats/fbx` |
+| USDZ | Import/export | `formats/usdz` |
+| FDS | Import/export | `formats/fds` |
+| PDF | Import | `formats/pdf` |
+| DWG | Import | `formats/dwg` |
+| DXF | Import/export | `formats/dxf` |
+| SVG | Import/export | `formats/svg` |
+| MetaModel | Import | `formats/legacy/metamodel` |
+| Scene/Data JSON | Import/export | `formats/scenemodel`, `formats/datamodel` |
+
+Conversion tooling includes IFC -> glTF -> XGF and generic format-to-format conversion through `convert/xeoconvert` and `convert/modelConverter`.
 
 ---
 
-## Reading order
+## Studio And Tooling
 
-1. The root **README.md** — every module bucket with one-line descriptions and the canonical import path for each.
-2. The **Spinning 3D Box** example in the README — the smallest end-to-end `Scene → SceneModel → View → render` pipeline.
-3. The **IFC Model Viewer** example — loader + data-graph join.
-4. `packages/website/examples/` — ~200 focused vignettes, each in its own folder with an `index.html` + `index.js` + JSON manifest. Filter by prefix: `viewing_*`, `formats_*`, `building_*`.
-5. The API reference at `https://xeokit.github.io/sdk/docs/api/`, generated from TSDoc on the published source.
+`studio/` is optional. It provides the demo/workbench shell: toolbar, panel registry, model loading helpers, diagnostics, and runtime UI used by the website examples. Applications can use the SDK core without instantiating Studio.
+
+The SDK also uses:
+
+- `SDKTaskRunner` for staged per-frame work
+- typed events for observable state
+- `destroy()` / `destroyed` conventions for long-lived objects
+- TSDoc-generated API reference from the exported source
+
+---
+
+## How This SDK Was Built
+
+The core architecture — Scene, Data, Viewer, WebGLRenderer, coordinate handling, data-texture batching, and result-monad conventions — was designed from prior WebGL SDK experience.
+
+AI assistance was used later to accelerate implementation of additional loaders, exporters, and renderer features against that architecture, with xeokit V2 as a reference. Contributions were reviewed, tested, inspected, and revised before being kept.
+
+---
+
+## Reading Order
+
+1. Root `README.md` for module buckets and import paths.
+2. The minimal scene/view example in the README.
+3. The IFC model viewer example for loader + data graph flow.
+4. `packages/website/examples/` for focused examples by prefix: `viewing_*`, `formats_*`, `building_*`.
+5. The generated API reference at `https://xeokit.github.io/sdk/docs/api/`.

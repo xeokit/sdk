@@ -12,7 +12,7 @@ title: xeokit SDK — Technical Whitepaper
 
 The xeokit SDK is a TypeScript SDK for building AECO (Architecture, Engineering, Construction & Operations) viewers and tools in the browser and in Node.js. Two design decisions sit at its foundation:
 
-1. **Native 64-bit world coordinates.** Models declare their own coordinate system (basis, origin, units); the scene graph holds positions in Float64 and the renderer uses Relative-To-Center (RTC) tiling, with adaptive tile sizes chosen at upload time, so the GPU never sees jittered Float32 world coordinates. A model sitting at UTM grid coordinates `(465120.8, 5429331.4, 0)` renders at sub-millimetre stability, with no per-app hacks.
+1. **Native 64-bit world coordinates.** Models retain their source-coordinate meaning in the scene graph — basis, origin, units, and world-space transforms are represented in Float64 — while the renderer automatically derives fine-grained Relative-To-Center (RTC) regions from the content it is drawing. The application does not choose RTC origins, create RTC tiles, or rebase geometry when objects move; the renderer handles that transparently so the GPU only sees stable Float32 offsets. A model sitting at UTM grid coordinates `(465120.8, 5429331.4, 0)` renders at sub-millimetre stability, with no per-app hacks.
 2. **Data-texture batching.** Per-mesh and per-object state — matrices, colors, visibility, selection, x-ray, opacity — lives in GPU textures, not in per-mesh uniforms or per-instance vertex attributes. The renderer iterates thousands of meshes in one draw call by sampling these textures from the vertex shader. Toggling a wall's visibility or recolouring 10,000 selected objects is a handful of texture writes, not a buffer rebuild.
 
 Everything else in the SDK — the scene-graph / data-graph separation, the bucketed namespace, the result-monad error handling, the drawings pipeline, the section-plane primitives — is built on those two foundations.
@@ -32,7 +32,7 @@ Most browser-based BIM viewers solve this by **pre-translating geometry to the w
 - Round-tripping coordinates back to engineering tools (BCF, dimensioning, point clouds, GIS overlays).
 - Surveyed control points referenced in source-coordinate space.
 
-xeokit's `coordinateSystem` parameter on `SceneModel` declares the model's basis (a 3×3 orientation), origin (a Float64 world-space anchor), and units in a single place:
+xeokit's `coordinateSystem` parameter on `SceneModel` declares the model's source frame — basis, origin, units, and scale — in a single place:
 
 ```ts
 scene.createModel({
@@ -46,13 +46,14 @@ scene.createModel({
 });
 ```
 
-Internally:
+The scene graph keeps that placement in double precision. The renderer then builds its own RTC representation from the current world-space bounds of the content being submitted:
 
 - Per-vertex positions are Float32, **quantised relative to a per-geometry AABB** (24 bits of effective precision over each geometry's bounding box — sub-millimetre on a 10 m room).
-- Per-mesh world transforms are Float64.
-- The renderer's RTC pipeline computes a per-batch Float64 anchor and uploads `model_view * (Float64_anchor + Float32_offset)` such that the high-magnitude components subtract before they hit Float32 GPU registers.
+- Per-mesh world transforms are Float64 and may change at runtime.
+- Submitted content is automatically partitioned into fine-grained RTC regions, each with renderer-owned Float64 anchors and GPU-friendly Float32 offsets.
+- Moving content does not require application-managed rebasing; the renderer updates the RTC placement as part of its normal upload/update path.
 
-The net effect: a model 10 km from world origin renders identically to the same model centred at the origin, with no per-app accommodation. Two models from different surveys land in the right place relative to each other on the first load.
+The net effect: a model 10 km from world origin renders identically to the same model centred at the origin, with no per-app accommodation. Two models from different surveys land in the right place relative to each other on the first load, and remain precise if application code later repositions them.
 
 ### The state-update problem
 
@@ -67,7 +68,7 @@ Naive instancing (`ANGLE_instanced_arrays`, per-instance VBOs) handles batched d
 xeokit's data-texture approach inverts the picture:
 
 - Each batch (groups of compatible meshes, typically tens of thousands per batch on a modern GPU) carries its mesh-attribute data in **fixed-size GPU textures** rather than per-instance attributes:
-  - Per-mesh matrices (RTC anchor + local transform)
+  - Per-mesh matrices and renderer-managed RTC placement
   - Per-mesh material values (color, opacity, F0, roughness/metallic, hatch params)
   - Per-mesh flags (visible, selected, xrayed, highlighted, clippable, pickable)
   - Per-geometry positions / normals / UVs (compressed)
@@ -99,7 +100,6 @@ The SDK is organised into **topical buckets**. Every import path begins with one
 | `formats/` | Import / export for IFC, glTF, XGF, XKT, LAS, E57, CityJSON, 3D Tiles, OBJ + MTL, FBX, USDZ, DotBIM, 3DXML, FDS, 3D Gaussian Splatting (`.splat`), plus the 2D drawing formats (PDF, DWG, DXF, SVG) and native scene-model and data-model JSON. |
 | `spatial/` | `collision/` (KdTree / BVH indices over scene geometry). `picking/` (ray and canvas-position picking, snap-to-vertex, snap-to-edge). |
 | `inspect/` | Read-only inspectors that report on the integrity and statistics of scene and data models, with a fixes pipeline for resolving common issues. |
-| `presentations/` | Scene processors that consume a `SceneModel` and emit a new one or mutate presentation state: `drawings/` (orthographic 2D plans / elevations / sections, with HLE, fills, room labels, title-block chrome), `sectionCaps/`, `exploder/`, `heatmaps/`, `materials/`. |
 | `tools/` | `measurements/` — interactive distance and angle measurement, picking-driven. |
 | `simulation/` | Animation / physics runtimes (rigid-body via Rapier). |
 | `interop/` | `bcf/` — BCF Viewpoint load / save. |
@@ -122,7 +122,7 @@ This separation is intentional. It lets the renderer batch geometry without cari
 
 ### `View` versus `Scene`
 
-The `Scene` holds geometry, world-coordinate state, and the shared collision index. A `View` is a per-camera presentation: it has its own camera, its own per-object visibility / selection / x-ray state, its own section planes, its own effects (bloom, tonemap, FXAA, SAO, shadows, edges, caps), and its own canvas. Multiple `View`s on one `Scene` give multi-view editors, before/after comparisons, picture-in-picture overviews, and orthographic plan/elevation outputs alongside the 3D perspective view — all at zero geometry duplication. Each `View` writes its own attribute textures.
+The `Scene` holds geometry, world-coordinate state, and the shared collision index. A `View` is a per-camera render state: it has its own camera, its own per-object visibility / selection / x-ray state, its own section planes, its own effects (bloom, tonemap, FXAA, SAO, shadows, edges, caps), and its own canvas. Multiple `View`s on one `Scene` give multi-view editors, before/after comparisons, picture-in-picture overviews, and orthographic plan/elevation outputs alongside the 3D perspective view — all at zero geometry duplication. Each `View` writes its own attribute textures.
 
 ### Error handling
 
@@ -192,10 +192,10 @@ Enumeration of the SDK's feature set, grouped by topic. Every entry corresponds 
 
 The mathematical foundation for placing real-world surveyed models in a scene without losing precision at any zoom.
 
-- Native **Float64 world coordinates** on `Scene`, `SceneModel`, and every per-model `coordinateSystem` (basis, origin, units, scaleToMeters).
+- Native **Float64 world coordinates** on `Scene`, `SceneModel`, and per-mesh transforms.
 - Per-model **basis declaration** — supports Z-up / Y-up sources cohabiting in one Z-up world; arbitrary axis-permutation matrices are accepted.
-- Per-model **double-precision origin** — UTM-scale eastings/northings (`1e7+ m`) handled transparently.
-- Renderer-side **Relative-To-Center (RTC) tiling** — geometry rebased into tiles with adaptive sizes (chosen at upload time from the geometry's spatial extent) so the GPU only ever sees Float32 deltas, regardless of world position. Tile assignment is per-region, not per-batch — a single batch may host meshes from many RTC tiles, and a single tile may span batches.
+- Per-model **coordinate metadata** — origin, units, and `scaleToMeters` preserve source-coordinate meaning for surveyed models.
+- Renderer-side **Relative-To-Center (RTC) tiling** — content is automatically assigned to fine-grained RTC regions so the GPU only ever sees Float32 deltas, regardless of world position. Tile assignment is internal, transparent, and derived from current render-space bounds rather than from the model's declared coordinate-system origin. A single batch may host meshes from many RTC regions, and dynamically repositioned content is handled without application-managed rebasing.
 - **Logarithmic depth buffer** (fragment-stage) — per-pixel exact log-depth via `gl_FragDepth`, so the same scene supports walkthroughs at sub-millimetre precision and UTM-scale framing without near/far jockeying.
 - **Quantized geometry** — positions / normals / UVs stored as 16-bit fixed-point with per-geometry quant range, preserving sub-mm precision while halving vertex bandwidth.
 
@@ -271,14 +271,11 @@ The pipeline that turns scene state into pixels — batching, shading permutatio
 - **Data-texture batching** — per-mesh state (matrix, colour, flags, atlas transforms) lives in GPU textures; thousands of meshes per draw call.
 - **Atlas-packed PBR textures** (`TextureAtlas`) — one albedo / one MR / one normal-map atlas per batch, shelf-packed with auto-downscale for oversize sources.
 - **Section planes** — up to 8 simultaneous, per-View, per-object `clippable` opt-out, per-plane colour for cap rendering.
-- **Section-plane caps** — stencil-pass solid cap renderering with hatch-aware materials (`presentations/sectionCaps`).
+- **Section-plane caps** — stencil-pass solid cap renderering with hatch-aware materials.
 - **Edges** — line-art overlay, configurable width and colour, slope-aware crease detection.
 - **Silhouettes** — outline rendering for selected / highlighted / x-ray states.
 - **X-ray mode** — semi-transparent "ghosted" rendering with depth-test still active.
 - **Logarithmic depth buffer** (fragment-stage, exact per-pixel).
-- **Pluggable depth scheme** — vertex-side log-depth or fragment-side log-depth selectable per `DrawOps` config.
-- **Shader permutations** — Lambert variants for `{hasNormals, hasUVs, triplanar}`, plus colour / silhouette / edge-colour / edge-silhouette / thick-line / point variants. Compiled lazily on first use, cached for the lifetime of the renderer.
-
 ### Lighting & shading
 
 The lighting model behind every rendered surface — from a single ambient term up to full PBR with HDR environment lighting.
@@ -306,8 +303,6 @@ The surface-finish vocabulary — PBR materials for realistic rendering, plus th
 
 - **`SceneMaterial`** with PBR fields (albedo / MR / normal / occlusion / emissive) and atlas-backed textures.
 - **`MaterialPresets`** — sensible defaults for common AEC materials.
-- **`presentations/materials/applyIFCMaterials`** — convention-based material assignment from IFC entity types (concrete / brick / glass / steel / etc.).
-- **`presentations/materials/ifcHatchedCaps`** — hatch-stamped section caps following IFC schema conventions.
 - **Line patterns** (per-material, per-batch slot allocator) — solid / dashed / dotted / dash-dot / custom 32-bit stipple.
 - **Hatch patterns** (per-material, per-batch slot allocator) — crosshatch / brick / grid / diagonal stipple stamps for cap rendering and body fill.
 - **Polyline continuous-pattern phase** across joints via the per-batch polyline-cum-distance table.
@@ -355,15 +350,6 @@ Interactive measurement primitives that read world coordinates from the scene an
 - **Distance measurements** (`tools/measurements/distance`) — pick-to-pick world-space distance with axis-decomposed labels (Δx, Δy, Δz, length).
 - **Angle measurements** (`tools/measurements/angle`) — three-point angle with arc visualisation.
 - Annotations persist across camera moves and project correctly onto orthographic / perspective output.
-
-### Presentations
-
-Higher-level visualisation primitives layered on top of the renderer — 2D drawings derived from the 3D scene, data-driven heatmaps, exploded assembly views, and engineering-style section caps.
-
-- **Drawings** — 2D orthographic plan / section / elevation generation from a 3D scene, with hidden-line elimination, fills, labels, progressive rendering, and SVG-friendly output (`presentations/drawings`).
-- **Heatmaps** — paint per-mesh colour values from a sample set (typically thermal / pressure / occupancy) with a configurable gradient (`presentations/heatmaps`).
-- **Exploder** — animated assembly-explosion view (`presentations/exploder`).
-- **Section caps** — solid caps on clipped surfaces, hatch-stamped for engineering-drawing legibility.
 
 ### Procedural & authoring
 
@@ -442,5 +428,5 @@ Once that core was proven with a couple of hand-written loaders, AI assistance (
 1. The root **README.md** — every module bucket with one-line descriptions and the canonical import path for each.
 2. The **Spinning 3D Box** example in the README — the smallest end-to-end `Scene → SceneModel → View → render` pipeline.
 3. The **IFC Model Viewer** example — loader + data-graph join.
-4. `packages/website/examples/` — ~200 focused vignettes, each in its own folder with an `index.html` + `index.js` + JSON manifest. Filter by prefix: `viewing_*`, `formats_*`, `presentations_*`, `building_*`.
+4. `packages/website/examples/` — ~200 focused vignettes, each in its own folder with an `index.html` + `index.js` + JSON manifest. Filter by prefix: `viewing_*`, `formats_*`, `building_*`.
 5. The API reference at `https://xeokit.github.io/sdk/docs/api/`, generated from TSDoc on the published source.

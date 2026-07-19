@@ -2,6 +2,7 @@ import type {DirLightParams} from "./DirLightParams";
 import type {Vec3} from "../../base/math/vector";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
+import {createUUID} from "../../base/utils";
 
 /**
  * A directional light source within a {@link viewing!viewer.View | View}.
@@ -41,6 +42,7 @@ class DirLight {
    * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
    */
   constructor(view: View, options: DirLightParams = {}) {
+    this.id = options.id || createUUID();
     this.view = view;
     this._dir = new Float32Array(options.dir || [1.0, 1.0, 1.0]);
     this._color = new Float32Array(options.color || [0.7, 0.7, 0.8]);
@@ -181,7 +183,6 @@ class DirLight {
   destroy() {
     this._destroyed = true;
     this.view.deregisterLight(this);
-    this.view.needsRender();
   }
 }
 

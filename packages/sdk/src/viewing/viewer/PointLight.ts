@@ -254,7 +254,6 @@ class PointLight {
      */
     destroy() {
         this.view.deregisterLight(this);
-        this.view.needsRender();
     }
 }
 

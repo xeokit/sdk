@@ -1244,7 +1244,7 @@ class View {
     this.lightsList.push(light);
     this.lightSources[light.id] = light;
     this._lightsHash = null;
-    //  this.rebuild();
+    this.needsRender();
   }
 
   /**
@@ -1256,7 +1256,7 @@ class View {
         this.lightsList.splice(i, 1);
         this._lightsHash = null;
         delete this.lightSources[light.id];
-        //       this.rebuild();
+        this.needsRender();
         return;
       }
     }

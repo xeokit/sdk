@@ -8,6 +8,53 @@ import {SDKErrorType, type SDKResult} from "../../../../base/core";
 import {type WebGLContextProvider} from "../webGL/WebGLContextProvider";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
+const defaultAmbientLight = new Float32Array([0.5, 0.5, 0.5, 1.0]);
+const defaultPrimaryLightDir = [0.0, -1.0, -1.0];
+const ambientLightScratch = new Float32Array(4);
+
+function hasVec3(value: any): value is ArrayLike<number> {
+  return value && value.length >= 3;
+}
+
+function isAmbientLight(light: any): boolean {
+  return light && !hasVec3(light.dir) && !hasVec3(light.pos) && hasVec3(light.color);
+}
+
+function isDirectionalLight(light: any): boolean {
+  return light && hasVec3(light.dir) && hasVec3(light.color);
+}
+
+function getLightIntensity(light: any): number {
+  return (light && light.intensity !== undefined && light.intensity !== null) ? light.intensity : 1.0;
+}
+
+function getAmbientColorAndIntensity(view: any): Float32Array<any> | ArrayLike<number> {
+  const lights = <any[]>((view.lightsList) || []);
+  for (let i = 0, len = lights.length; i < len; i++) {
+    const light = lights[i];
+    if (isAmbientLight(light)) {
+      ambientLightScratch[0] = light.color[0];
+      ambientLightScratch[1] = light.color[1];
+      ambientLightScratch[2] = light.color[2];
+      ambientLightScratch[3] = getLightIntensity(light);
+      return ambientLightScratch;
+    }
+  }
+  return typeof view.getAmbientColorAndIntensity === "function"
+    ? view.getAmbientColorAndIntensity()
+    : defaultAmbientLight;
+}
+
+function getPrimaryDirectionalLight(view: any): any {
+  const lights = <any[]>((view.lightsList) || []);
+  for (let i = 0, len = lights.length; i < len; i++) {
+    const light = lights[i];
+    if (isDirectionalLight(light)) {
+      return light;
+    }
+  }
+  return null;
+}
 
 /**
  * Maximum number of section (clipping) planes that can be
@@ -3675,8 +3722,8 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3 diffuse = kd * albedo / 3.14159265;
 
     // Direct lighting contribution from the primary directional light.
-    // Light colour (uLightColor2.rgb * .a = colour * intensity) plus N·L.
-    vec3 directLight = uLightColor2.rgb * uLightColor2.a * NdotL;
+    // Light colour (uLightColor1.rgb * .a = colour * intensity) plus N·L.
+    vec3 directLight = uLightColor1.rgb * uLightColor1.a * NdotL;
     vec3 directContrib = (diffuse + specular) * directLight;
 
     // ── Indirect (IBL Layer 2 — split-sum) ────────────────────────────
@@ -3846,9 +3893,9 @@ ${this.triplanar ? `
     float lambertian = max(dot(normal, normalize(-uPrimaryLightDirView)), 0.0);
 
     // Accumulate reflected/diffuse light contribution.
-    // uLightColor2.rgb * uLightColor2.a acts like (color * intensity).
+    // uLightColor1.rgb * uLightColor1.a acts like (color * intensity).
     vec3 reflectedColor = vec3(0.0);
-    reflectedColor += lambertian * (uLightColor2.rgb * uLightColor2.a);
+    reflectedColor += lambertian * (uLightColor1.rgb * uLightColor1.a);
 
     // Analytical hemisphere ambient: pick a colour between the sky and
     // ground based on how much the surface normal faces world up.
@@ -4507,7 +4554,7 @@ ${this.triplanar ? `
     }
 
     if (uniforms.lightAmbient) {
-      gl.uniform4fv(uniforms.lightAmbient, <any>view.getAmbientColorAndIntensity());
+      gl.uniform4fv(uniforms.lightAmbient, <any>getAmbientColorAndIntensity(view));
     }
 
     // IBL Layer-2 scalars + matrix. The cubemap samplers themselves
@@ -4523,19 +4570,19 @@ ${this.triplanar ? `
     }
 
     // Primary directional light direction, in view space. Both the Lambert
-    // and Cook-Torrance shading branches read this; sourcing it from
-    // `view.effects.shadows.direction` keeps the shaded surface and the cast
-    // shadow agreeing on which way the sun points. If shadows are disabled
-    // we still upload a sane default — the historical hardcoded value lit
-    // surfaces from the upper-front-right.
+    // and Cook-Torrance shading branches read this. Prefer the View's legacy
+    // DirLight list; fall back to the shadow direction/default when no
+    // directional light is registered.
     if (uniforms.primaryLightDirView) {
-      const sd: any = (view.effects.shadows && view.effects.shadows.direction) ? view.effects.shadows.direction : [0.0, -1.0, -1.0];
+      const primaryLight = getPrimaryDirectionalLight(view);
+      const sd: any = primaryLight ? primaryLight.dir : ((view.effects.shadows && view.effects.shadows.direction) ? view.effects.shadows.direction : defaultPrimaryLightDir);
       const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1.0;
       const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
       const vm = view.camera.viewMatrix;
-      const lvx = vm[0] * sx + vm[4] * sy + vm[8]  * sz;
-      const lvy = vm[1] * sx + vm[5] * sy + vm[9]  * sz;
-      const lvz = vm[2] * sx + vm[6] * sy + vm[10] * sz;
+      const transformToView = !primaryLight || primaryLight.space === "world";
+      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8]  * sz : sx;
+      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9]  * sz : sy;
+      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
       const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1.0;
       gl.uniform3f(uniforms.primaryLightDirView, lvx / llen, lvy / llen, lvz / llen);
     }
@@ -4580,29 +4627,44 @@ ${this.triplanar ? `
       gl.uniform3f(uniforms.hemisphereUpView, ux / len, uy / len, uz / len);
     }
 
-    // Bind up to three directional lights for Lambert shading.
+    // Bind up to three directional lights for direct shading.
     // Keep the binding generic here so we do not need concrete light class imports.
     const lights = <any[]>(((view as any).lightsList) || []);
-    for (let i = 0; i < 3; i++) {
+    let lightIndex = 0;
+    for (let i = 0; i < lights.length && lightIndex < 3; i++) {
       const light = lights[i];
-      const dirLoc = uniforms.lightDir[i];
-      const colorLoc = uniforms.lightColor[i];
+      if (!isDirectionalLight(light)) {
+        continue;
+      }
+      const dirLoc = uniforms.lightDir[lightIndex];
+      const colorLoc = uniforms.lightColor[lightIndex];
+      const sd: any = light.dir;
+      const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1.0;
+      const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
+      const vm = view.camera.viewMatrix;
+      const transformToView = light.space === "world";
+      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8]  * sz : sx;
+      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9]  * sz : sy;
+      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
+      const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1.0;
+      if (dirLoc) {
+        gl.uniform3f(dirLoc, lvx / llen, lvy / llen, lvz / llen);
+      }
+      if (colorLoc) {
+        gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], getLightIntensity(light));
+      }
+      lightIndex++;
+    }
+    for (; lightIndex < 3; lightIndex++) {
+      const dirLoc = uniforms.lightDir[lightIndex];
+      const colorLoc = uniforms.lightColor[lightIndex];
 
       if (dirLoc) {
-        // if (light && light.dir) {
-        //   gl.uniform3f(dirLoc, light.dir[0], light.dir[1], light.dir[2]);
-        // } else {
-          gl.uniform3f(dirLoc, 0.0, 1.0, 1.0);
-        //}
+        gl.uniform3f(dirLoc, 0.0, 1.0, 1.0);
       }
 
       if (colorLoc) {
-        if (light && light.color) {
-          const intensity = (light.intensity !== undefined && light.intensity !== null) ? light.intensity : 1.0;
-          gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], intensity);
-        } else {
-          gl.uniform4f(colorLoc, 0.0, 0.0, 0.0, 0.0);
-        }
+        gl.uniform4f(colorLoc, 0.0, 0.0, 0.0, 0.0);
       }
     }
 

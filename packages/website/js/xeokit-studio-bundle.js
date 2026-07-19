@@ -6748,10 +6748,13 @@ var import_strongly_typed_events = __toESM(require_dist8());
 var SDKProgress = class {
   onTasksAdded;
   onTaskCompleted;
+  onPhaseUpdated;
   numTasks = 0;
+  phase = "Booting example";
   constructor() {
     this.onTasksAdded = new EventEmitter(new import_strongly_typed_events.EventDispatcher());
     this.onTaskCompleted = new EventEmitter(new import_strongly_typed_events.EventDispatcher());
+    this.onPhaseUpdated = new EventEmitter(new import_strongly_typed_events.EventDispatcher());
     this.numTasks = 0;
   }
   addTask() {
@@ -6769,6 +6772,10 @@ var SDKProgress = class {
       this.numTasks--;
       this.onTaskCompleted.dispatch(this, this.numTasks);
     }
+  }
+  setPhase(phase) {
+    this.phase = phase;
+    this.onPhaseUpdated.dispatch(this, phase);
   }
 };
 var sdkProgress = new SDKProgress();
@@ -152999,6 +153006,7 @@ var DirLight = class {
    * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
    */
   constructor(view, options = {}) {
+    this.id = options.id || createUUID();
     this.view = view;
     this._dir = new Float32Array(options.dir || [1, 1, 1]);
     this._color = new Float32Array(options.color || [0.7, 0.7, 0.8]);
@@ -153126,7 +153134,6 @@ var DirLight = class {
   destroy() {
     this._destroyed = true;
     this.view.deregisterLight(this);
-    this.view.needsRender();
   }
 };
 
@@ -159509,6 +159516,7 @@ var View2 = class {
     this.lightsList.push(light);
     this.lightSources[light.id] = light;
     this._lightsHash = null;
+    this.needsRender();
   }
   /**
    * @private
@@ -159519,6 +159527,7 @@ var View2 = class {
         this.lightsList.splice(i, 1);
         this._lightsHash = null;
         delete this.lightSources[light.id];
+        this.needsRender();
         return;
       }
     }
@@ -161428,7 +161437,6 @@ var PointLight = class {
    */
   destroy() {
     this.view.deregisterLight(this);
-    this.view.needsRender();
   }
 };
 
@@ -178482,6 +178490,45 @@ function _materialHasMippedTexture(sceneMesh) {
 
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/DrawTechnique.ts
 var defaultColor = new Float32Array([1, 1, 1, 1]);
+var defaultAmbientLight = new Float32Array([0.5, 0.5, 0.5, 1]);
+var defaultPrimaryLightDir = [0, -1, -1];
+var ambientLightScratch = new Float32Array(4);
+function hasVec3(value) {
+  return value && value.length >= 3;
+}
+function isAmbientLight(light) {
+  return light && !hasVec3(light.dir) && !hasVec3(light.pos) && hasVec3(light.color);
+}
+function isDirectionalLight(light) {
+  return light && hasVec3(light.dir) && hasVec3(light.color);
+}
+function getLightIntensity(light) {
+  return light && light.intensity !== void 0 && light.intensity !== null ? light.intensity : 1;
+}
+function getAmbientColorAndIntensity(view) {
+  const lights = view.lightsList || [];
+  for (let i = 0, len = lights.length; i < len; i++) {
+    const light = lights[i];
+    if (isAmbientLight(light)) {
+      ambientLightScratch[0] = light.color[0];
+      ambientLightScratch[1] = light.color[1];
+      ambientLightScratch[2] = light.color[2];
+      ambientLightScratch[3] = getLightIntensity(light);
+      return ambientLightScratch;
+    }
+  }
+  return typeof view.getAmbientColorAndIntensity === "function" ? view.getAmbientColorAndIntensity() : defaultAmbientLight;
+}
+function getPrimaryDirectionalLight(view) {
+  const lights = view.lightsList || [];
+  for (let i = 0, len = lights.length; i < len; i++) {
+    const light = lights[i];
+    if (isDirectionalLight(light)) {
+      return light;
+    }
+  }
+  return null;
+}
 var MAX_SECTION_PLANES = 8;
 function packSectionPlanes(planes, out) {
   let count = 0;
@@ -181584,8 +181631,8 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3 diffuse = kd * albedo / 3.14159265;
 
     // Direct lighting contribution from the primary directional light.
-    // Light colour (uLightColor2.rgb * .a = colour * intensity) plus N\xB7L.
-    vec3 directLight = uLightColor2.rgb * uLightColor2.a * NdotL;
+    // Light colour (uLightColor1.rgb * .a = colour * intensity) plus N\xB7L.
+    vec3 directLight = uLightColor1.rgb * uLightColor1.a * NdotL;
     vec3 directContrib = (diffuse + specular) * directLight;
 
     // \u2500\u2500 Indirect (IBL Layer 2 \u2014 split-sum) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -181747,9 +181794,9 @@ ${this.triplanar ? `
     float lambertian = max(dot(normal, normalize(-uPrimaryLightDirView)), 0.0);
 
     // Accumulate reflected/diffuse light contribution.
-    // uLightColor2.rgb * uLightColor2.a acts like (color * intensity).
+    // uLightColor1.rgb * uLightColor1.a acts like (color * intensity).
     vec3 reflectedColor = vec3(0.0);
-    reflectedColor += lambertian * (uLightColor2.rgb * uLightColor2.a);
+    reflectedColor += lambertian * (uLightColor1.rgb * uLightColor1.a);
 
     // Analytical hemisphere ambient: pick a colour between the sky and
     // ground based on how much the surface normal faces world up.
@@ -182329,7 +182376,7 @@ ${this.triplanar ? `
       gl.uniform2fv(uniforms.snapBufferSize, renderContext.snapBufferSize);
     }
     if (uniforms.lightAmbient) {
-      gl.uniform4fv(uniforms.lightAmbient, view.getAmbientColorAndIntensity());
+      gl.uniform4fv(uniforms.lightAmbient, getAmbientColorAndIntensity(view));
     }
     if (uniforms.iblMaxSpecularMipLevel) {
       gl.uniform1f(uniforms.iblMaxSpecularMipLevel, renderContext.iblMaxSpecularMipLevel);
@@ -182338,13 +182385,15 @@ ${this.triplanar ? `
       gl.uniformMatrix3fv(uniforms.iblViewToWorldRot, false, renderContext.iblViewToWorldRot);
     }
     if (uniforms.primaryLightDirView) {
-      const sd = view.effects.shadows && view.effects.shadows.direction ? view.effects.shadows.direction : [0, -1, -1];
+      const primaryLight = getPrimaryDirectionalLight(view);
+      const sd = primaryLight ? primaryLight.dir : view.effects.shadows && view.effects.shadows.direction ? view.effects.shadows.direction : defaultPrimaryLightDir;
       const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1;
       const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
       const vm = view.camera.viewMatrix;
-      const lvx = vm[0] * sx + vm[4] * sy + vm[8] * sz;
-      const lvy = vm[1] * sx + vm[5] * sy + vm[9] * sz;
-      const lvz = vm[2] * sx + vm[6] * sy + vm[10] * sz;
+      const transformToView = !primaryLight || primaryLight.space === "world";
+      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8] * sz : sx;
+      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9] * sz : sy;
+      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
       const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1;
       gl.uniform3f(uniforms.primaryLightDirView, lvx / llen, lvy / llen, lvz / llen);
     }
@@ -182374,20 +182423,39 @@ ${this.triplanar ? `
       gl.uniform3f(uniforms.hemisphereUpView, ux / len, uy / len, uz / len);
     }
     const lights = view.lightsList || [];
-    for (let i = 0; i < 3; i++) {
+    let lightIndex = 0;
+    for (let i = 0; i < lights.length && lightIndex < 3; i++) {
       const light = lights[i];
-      const dirLoc = uniforms.lightDir[i];
-      const colorLoc = uniforms.lightColor[i];
+      if (!isDirectionalLight(light)) {
+        continue;
+      }
+      const dirLoc = uniforms.lightDir[lightIndex];
+      const colorLoc = uniforms.lightColor[lightIndex];
+      const sd = light.dir;
+      const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1;
+      const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
+      const vm = view.camera.viewMatrix;
+      const transformToView = light.space === "world";
+      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8] * sz : sx;
+      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9] * sz : sy;
+      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
+      const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1;
+      if (dirLoc) {
+        gl.uniform3f(dirLoc, lvx / llen, lvy / llen, lvz / llen);
+      }
+      if (colorLoc) {
+        gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], getLightIntensity(light));
+      }
+      lightIndex++;
+    }
+    for (; lightIndex < 3; lightIndex++) {
+      const dirLoc = uniforms.lightDir[lightIndex];
+      const colorLoc = uniforms.lightColor[lightIndex];
       if (dirLoc) {
         gl.uniform3f(dirLoc, 0, 1, 1);
       }
       if (colorLoc) {
-        if (light && light.color) {
-          const intensity = light.intensity !== void 0 && light.intensity !== null ? light.intensity : 1;
-          gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], intensity);
-        } else {
-          gl.uniform4f(colorLoc, 0, 0, 0, 0);
-        }
+        gl.uniform4f(colorLoc, 0, 0, 0, 0);
       }
     }
     if (uniforms.edgeFadeRange) {
@@ -212957,14 +213025,15 @@ var PANEL_CSS2 = `
   position: fixed;
   /* These CSS defaults match what _restoreLayout writes inline on
      every open, so the baseline and the runtime state stay
-     consistent. The panel starts at top-right with 17px insets
+     consistent. The panel starts at top-right, below the view
+     panel chrome, with 17px horizontal inset
      and re-anchors there every time it's constructed \u2014 no
      localStorage persistence (see InfoPanel._restoreLayout). */
-  top: 17px;
+  top: 51px;
   right: 17px;
   width: 360px;
   height: auto;
-  max-height: calc(100vh - 32px);
+  max-height: calc(100vh - 66px);
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.97);
@@ -213291,8 +213360,8 @@ var InfoPanel = class extends FloatingPanelBase {
   // ── Layout persistence overrides ─────────────────────────────
   //
   // InfoPanel deliberately does NOT persist layout across page
-  // reloads — every example session opens fresh at the top-right
-  // 17px inset. Overriding both halves of FloatingPanelBase's
+  // reloads — every example session opens fresh at the top-right,
+  // below the View panel's top bar. Overriding both halves of FloatingPanelBase's
   // persistence pair achieves that without growing a new opt-out
   // flag on the base.
   /**
@@ -213300,7 +213369,7 @@ var InfoPanel = class extends FloatingPanelBase {
    * a saved layout. Called by the base's `_bindChrome`.
    */
   _restoreLayout() {
-    this._panel.style.top = "17px";
+    this._panel.style.top = "51px";
     this._panel.style.right = "17px";
     this._panel.style.left = "auto";
     this._panel.style.bottom = "auto";
@@ -250475,6 +250544,7 @@ var ViewPanel = class extends FloatingPanelBase {
 var LoadingSpinner = class _LoadingSpinner {
   total = 0;
   loaded = 0;
+  phase = sdkProgress.phase;
   overlay;
   container;
   spinnerWrap;
@@ -250499,8 +250569,10 @@ var LoadingSpinner = class _LoadingSpinner {
       ...options
     };
     this.injectStylesOnce();
-    this.overlay = document.createElement("div");
+    this.overlay = document.getElementById("xeokit-boot-loading-overlay") ?? document.createElement("div");
+    this.overlay.id = "xeokit-boot-loading-overlay";
     this.overlay.className = "xeokit-loading-overlay";
+    this.overlay.innerHTML = "";
     this.container = document.createElement("div");
     this.container.className = "xeokit-loading-card";
     this.container.setAttribute("role", "progressbar");
@@ -250527,7 +250599,7 @@ var LoadingSpinner = class _LoadingSpinner {
     this.spinnerWrap.appendChild(scene);
     this.text = document.createElement("div");
     this.text.className = "xeokit-loading-text";
-    this.text.textContent = "Loading model\u2026";
+    this.text.textContent = this.phase;
     this.subtext = document.createElement("div");
     this.subtext.className = "xeokit-loading-subtext";
     this.subtext.textContent = "";
@@ -250541,7 +250613,9 @@ var LoadingSpinner = class _LoadingSpinner {
     this.container.appendChild(this.subtext);
     this.container.appendChild(this.progressTrack);
     this.overlay.appendChild(this.container);
-    document.body.appendChild(this.overlay);
+    if (!this.overlay.parentElement) {
+      document.body.appendChild(this.overlay);
+    }
     if (typeof this.opts.initialLoaded === "number") {
       this.loaded = Math.max(0, this.opts.initialLoaded);
     }
@@ -250552,8 +250626,17 @@ var LoadingSpinner = class _LoadingSpinner {
       this.show();
       this.render();
     });
-    sdkProgress.onTaskCompleted.subscribe(() => {
+    sdkProgress.onTaskCompleted.subscribe((_sdkProgress, remainingTasks) => {
       this.itemLoaded();
+      if (remainingTasks === 0 && this.opts.autoHide) {
+        this.scheduleAutoHide();
+      }
+    });
+    sdkProgress.onPhaseUpdated.subscribe((_sdkProgress, phase) => {
+      this.phase = phase;
+      this.cancelAutoHide();
+      this.show();
+      this.render();
     });
   }
   /**
@@ -250643,7 +250726,8 @@ var LoadingSpinner = class _LoadingSpinner {
     this.container.setAttribute("aria-valuemax", String(this.total));
     this.container.setAttribute("aria-valuenow", String(this.loaded));
     this.progressFill.style.width = `${safePct}%`;
-    const labelText = this.opts.label?.(this.loaded, this.total, safePct) ?? (this.total > 0 ? `Loading model\u2026 ${this.loaded} / ${this.total} (${Math.round(safePct)}%)` : `Preparing scene\u2026`);
+    const labelText = this.opts.label?.(this.loaded, this.total, safePct) ?? (this.total > 0 ? `${this.loaded} / ${this.total} (${Math.round(safePct)}%)` : `Preparing scene\u2026`);
+    this.text.textContent = this.phase;
     this.subtext.textContent = labelText;
     const glowStrength = 0.35 + safePct / 180;
     this.spinnerWrap.style.setProperty("--xeokit-glow-alpha", String(glowStrength));
@@ -251812,16 +251896,19 @@ var Studio = class _Studio {
    * @returns A promise that resolves when initialization is complete.
    */
   async init(cfg = {}) {
+    sdkProgress.setPhase("Creating SDK components");
     const merged = { ...this._config, ...cfg };
     this._applyConfig(merged);
     this.stats.startTime = performance.now();
     if (!this.makeComponents) {
       return {};
     }
+    sdkProgress.setPhase("Creating scene and data models");
     this.scene = new Scene();
     this.data = new Data2();
     this.viewer = new Viewer();
     const rendererBackend = merged.renderer ?? "webgl";
+    sdkProgress.setPhase("Creating view manager");
     this.viewManager = new ViewManager3(
       {
         viewer: this.viewer,
@@ -251839,6 +251926,7 @@ var Studio = class _Studio {
         autoElementType: rendererBackend === "webgpu" ? "canvas" : "image"
       }
     );
+    sdkProgress.setPhase(`Creating ${rendererBackend.toUpperCase()} renderer`);
     const rendererResult = await this._createRenderer(merged);
     if (rendererResult.ok === false) {
       throw rendererResult.error;
@@ -251868,6 +251956,7 @@ var Studio = class _Studio {
     this.data.events.onError.subscribe(onError);
     this.viewer.events.onError.subscribe(onError);
     this.renderer.events.onError.subscribe(onError);
+    sdkProgress.setPhase("Mounting runtime panels");
     try {
       IssuesPanel.openFor({
         viewer: this.viewer,
@@ -251883,6 +251972,7 @@ var Studio = class _Studio {
         0 /* InitializationFailed */
       );
     }
+    sdkProgress.setPhase("Attaching viewer and renderer");
     this.viewer.attachScene(this.scene);
     const attachResult = this.renderer.attachViewer(this.viewer);
     if (attachResult.ok === false) {
@@ -251896,6 +251986,7 @@ var Studio = class _Studio {
       const renderInspector = renderInspectorResult.value;
       renderInspector.enabled = true;
     }
+    sdkProgress.setPhase("Preparing interaction controls");
     this._viewObjectContextMenu = new ViewObjectContextMenu({ debug: this.debug });
     this._canvasContextMenu = new CanvasContextMenu({ debug: this.debug });
     this._canvasContextMenu.on("hidden", () => {
@@ -251910,9 +252001,11 @@ var Studio = class _Studio {
       autoHide: true,
       autoHideDelayMs: 500
     });
+    sdkProgress.setPhase("Initializing example");
     sdkProgress.addTask();
     window.studio = this;
     try {
+      sdkProgress.setPhase("Opening toolbar");
       this.panels.open("toolbar");
     } catch (e) {
       this.reportError(
@@ -251920,6 +252013,7 @@ var Studio = class _Studio {
         0 /* InitializationFailed */
       );
     }
+    sdkProgress.setPhase("Studio ready");
     return {};
   }
   /**
@@ -252407,6 +252501,7 @@ var Studio = class _Studio {
   async loadDataset(params) {
     const { modelId, formats: formats2 } = params;
     const clear = params.clear !== false;
+    sdkProgress.setPhase(`Preparing ${modelId}`);
     if (!modelId || !formats2 || formats2.length === 0) {
       return {
         ok: false,
@@ -252415,6 +252510,7 @@ var Studio = class _Studio {
       };
     }
     if (clear) {
+      sdkProgress.setPhase("Clearing previous models");
       for (const id of Object.keys(this.scene.models)) {
         const m = this.scene.models[id];
         if (m && !m.destroyed)
@@ -252427,12 +252523,15 @@ var Studio = class _Studio {
       }
     }
     const instanceId = clear ? modelId : `${modelId}-${Date.now()}`;
+    sdkProgress.setPhase("Reading coordinate system");
     const coordinateSystem = await this._loadCoordSys(modelId);
+    sdkProgress.setPhase("Creating scene model");
     const sceneCreate = this.scene.createModel({ id: instanceId, coordinateSystem });
     if (sceneCreate.ok === false) {
       return { ok: false, type: 5 /* Unknown */, error: sceneCreate.error };
     }
     const sceneModel = sceneCreate.value;
+    sdkProgress.setPhase("Creating data model");
     const dataCreate = this.data.createModel({ id: instanceId });
     if (dataCreate.ok === false) {
       try {
@@ -252447,27 +252546,35 @@ var Studio = class _Studio {
     try {
       await LoaderProgressDialog.runWith({
         title: `Loading ${modelId} (${formats2.join(", ")})`,
+        delayMs: 80,
         run: async (onProgress, signal) => {
+          const reportProgress = (progress) => {
+            if (progress.phase) {
+              sdkProgress.setPhase(progress.phase);
+            }
+            onProgress(progress);
+          };
           for (let i = 0; i < formats2.length; i++) {
             const format = formats2[i];
-            onProgress({
+            reportProgress({
               phase: `Loading ${format}`,
               current: i,
               total: totalFormats
             });
             const r = await this.loadModel(
               { modelId, format, sceneModel, dataModel },
-              { onProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60 }
+              { onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60 }
             );
             if (r && r.ok === false) {
               innerFailure = r;
               return;
             }
           }
-          onProgress({ phase: "Finalising", current: totalFormats, total: totalFormats });
+          reportProgress({ phase: "Finalising", current: totalFormats, total: totalFormats });
           const view = this._getInspectorView();
           if (view) {
             try {
+              sdkProgress.setPhase("Framing camera");
               const aabb = this.picking.collisionIndex.getSceneAABB();
               if (aabb)
                 this.viewManager.fitToAabb(view, aabb);
@@ -252604,6 +252711,7 @@ var Studio = class _Studio {
    * Finalizes the demo setup, gathering statistics and signaling completion.
    */
   finished() {
+    sdkProgress.setPhase("Finalizing example");
     const stats = this.stats;
     stats.scene = this._getCombinedSceneModelStats();
     stats.data = this._getCombinedDataModelStats();
@@ -252632,6 +252740,7 @@ var Studio = class _Studio {
       }, "*");
     }, 1e3);
     this._openInfoPanelFromMetaIfMissing().finally(() => {
+      sdkProgress.setPhase("Ready");
       sdkProgress.completeTask();
       this.signalFinished();
     });

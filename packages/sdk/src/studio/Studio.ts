@@ -1291,8 +1291,8 @@ export class Studio {
    * ```
    *
    * Layout / chrome notes:
-   * - Default position is top-left so the panel doesn't compete
-   *   with the built-in panels that cluster top-right.
+   * - Default position is top-right so the example description is
+   *   consistently visible across the gallery.
    * - Non-modal: scene interaction passes through the body.
    * - Per-example `localStorage` slot via {@link InfoPanelParams.id}.
    */
@@ -1347,6 +1347,30 @@ export class Studio {
   }
 
   /**
+   * Opens the example metadata panel when the example did not open
+   * one explicitly. Unlike {@link openInfoPanelFromMeta}, this is a
+   * no-op when `./index.json` is unavailable, so non-example Studio
+   * consumers do not get a generic "Info" panel.
+   */
+  private async _openInfoPanelFromMetaIfMissing(): Promise<void> {
+    if (this._infoPanel) return;
+    try {
+      const url = new URL("./index.json", window.location.href).href;
+      const res = await fetch(url);
+      if (!res.ok || this._infoPanel) return;
+      const meta: { id?: string; title?: string; description?: string } = await res.json();
+      if (!meta.description || this._infoPanel) return;
+      this.openInfoPanel({
+        id:          meta.id,
+        title:       meta.title ?? "Info",
+        description: `<p>${escapeHtmlForInfoPanel(meta.description)}</p>`,
+      });
+    } catch {
+      /* no metadata panel outside generated examples */
+    }
+  }
+
+  /**
    * Finalizes the demo setup, gathering statistics and signaling completion.
    */
   public finished(): void {
@@ -1382,9 +1406,10 @@ export class Studio {
       }, "*");
     }, 1000);
 
-    sdkProgress.completeTask();
-
-    this.signalFinished();
+    this._openInfoPanelFromMetaIfMissing().finally(() => {
+      sdkProgress.completeTask();
+      this.signalFinished();
+    });
   }
 
   private signalFinished(): void {

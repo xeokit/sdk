@@ -50,6 +50,15 @@ export interface BuildVolumeIsosurfaceOptions {
 
   /** Surface opacity. Default `0.85`. */
   opacity?: number;
+
+  /**
+   * When true, emits a reversed copy of every triangle so the
+   * iso-surface remains visible from inside and outside, including
+   * transparent render passes that enable backface culling.
+   *
+   * Default `true`.
+   */
+  doubleSided?: boolean;
 }
 
 
@@ -75,6 +84,7 @@ export function buildVolumeIsosurface(
 
   const id        = opts.id      ?? "volumeIsosurface";
   const opacity   = opts.opacity ?? 0.85;
+  const doubleSided = opts.doubleSided ?? true;
   const colormap  = opts.colormap ?? COLORMAP_VIRIDIS;
   const [rangeMin, rangeMax] = opts.range
     ?? grid.valueRange
@@ -100,7 +110,7 @@ export function buildVolumeIsosurface(
     primitive: TrianglesPrimitive,
     positions: mesh.positions,
     normals:   mesh.normals,
-    indices:   mesh.indices,
+    indices:   doubleSided ? buildDoubleSidedIndices(mesh.indices) : mesh.indices,
   });
   if (geomResult.ok !== true) {
     model.destroy();
@@ -136,4 +146,15 @@ export function buildVolumeIsosurface(
   }
 
   return {ok: true, value: model};
+}
+
+function buildDoubleSidedIndices(indices: Uint32Array): Uint32Array {
+  const result = new Uint32Array(indices.length * 2);
+  result.set(indices, 0);
+  for (let i = 0, j = indices.length; i < indices.length; i += 3, j += 3) {
+    result[j]     = indices[i + 2];
+    result[j + 1] = indices[i + 1];
+    result[j + 2] = indices[i];
+  }
+  return result;
 }

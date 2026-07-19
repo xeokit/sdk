@@ -204181,6 +204181,7 @@ var TRI_TABLE = [
 function buildVolumeIsosurface(scene, grid, opts = {}) {
   const id = opts.id ?? "volumeIsosurface";
   const opacity = opts.opacity ?? 0.85;
+  const doubleSided = opts.doubleSided ?? true;
   const colormap = opts.colormap ?? COLORMAP_VIRIDIS;
   const [rangeMin, rangeMax] = opts.range ?? grid.valueRange ?? voxelGridDataRange(grid);
   const isovalue = opts.isovalue ?? (rangeMin + rangeMax) * 0.5;
@@ -204201,7 +204202,7 @@ function buildVolumeIsosurface(scene, grid, opts = {}) {
     primitive: TrianglesPrimitive,
     positions: mesh.positions,
     normals: mesh.normals,
-    indices: mesh.indices
+    indices: doubleSided ? buildDoubleSidedIndices(mesh.indices) : mesh.indices
   });
   if (geomResult.ok !== true) {
     model.destroy();
@@ -204233,6 +204234,16 @@ function buildVolumeIsosurface(scene, grid, opts = {}) {
     return { ok: false, error: `[buildVolumeIsosurface] createObject: ${objResult.error}`, type: objResult.type };
   }
   return { ok: true, value: model };
+}
+function buildDoubleSidedIndices(indices) {
+  const result = new Uint32Array(indices.length * 2);
+  result.set(indices, 0);
+  for (let i = 0, j = indices.length; i < indices.length; i += 3, j += 3) {
+    result[j] = indices[i + 2];
+    result[j + 1] = indices[i + 1];
+    result[j + 2] = indices[i];
+  }
+  return result;
 }
 
 // ../sdk/src/presentations/volumeOverlay/buildVolumeStreamlines.ts
@@ -212946,11 +212957,11 @@ var PANEL_CSS2 = `
   position: fixed;
   /* These CSS defaults match what _restoreLayout writes inline on
      every open, so the baseline and the runtime state stay
-     consistent. The panel starts at top-right with 50px insets
+     consistent. The panel starts at top-right with 17px insets
      and re-anchors there every time it's constructed \u2014 no
      localStorage persistence (see InfoPanel._restoreLayout). */
-  top: 50px;
-  right: 50px;
+  top: 17px;
+  right: 17px;
   width: 360px;
   height: auto;
   max-height: calc(100vh - 32px);
@@ -213281,7 +213292,7 @@ var InfoPanel = class extends FloatingPanelBase {
   //
   // InfoPanel deliberately does NOT persist layout across page
   // reloads — every example session opens fresh at the top-right
-  // 50px inset. Overriding both halves of FloatingPanelBase's
+  // 17px inset. Overriding both halves of FloatingPanelBase's
   // persistence pair achieves that without growing a new opt-out
   // flag on the base.
   /**
@@ -213289,8 +213300,8 @@ var InfoPanel = class extends FloatingPanelBase {
    * a saved layout. Called by the base's `_bindChrome`.
    */
   _restoreLayout() {
-    this._panel.style.top = "50px";
-    this._panel.style.right = "50px";
+    this._panel.style.top = "17px";
+    this._panel.style.right = "17px";
     this._panel.style.left = "auto";
     this._panel.style.bottom = "auto";
     this._panel.style.transform = "none";
@@ -252517,8 +252528,8 @@ var Studio = class _Studio {
    * ```
    *
    * Layout / chrome notes:
-   * - Default position is top-left so the panel doesn't compete
-   *   with the built-in panels that cluster top-right.
+   * - Default position is top-right so the example description is
+   *   consistently visible across the gallery.
    * - Non-modal: scene interaction passes through the body.
    * - Per-example `localStorage` slot via {@link InfoPanelParams.id}.
    */
@@ -252565,6 +252576,31 @@ var Studio = class _Studio {
     return this.openInfoPanel(params);
   }
   /**
+   * Opens the example metadata panel when the example did not open
+   * one explicitly. Unlike {@link openInfoPanelFromMeta}, this is a
+   * no-op when `./index.json` is unavailable, so non-example Studio
+   * consumers do not get a generic "Info" panel.
+   */
+  async _openInfoPanelFromMetaIfMissing() {
+    if (this._infoPanel)
+      return;
+    try {
+      const url = new URL("./index.json", window.location.href).href;
+      const res = await fetch(url);
+      if (!res.ok || this._infoPanel)
+        return;
+      const meta = await res.json();
+      if (!meta.description || this._infoPanel)
+        return;
+      this.openInfoPanel({
+        id: meta.id,
+        title: meta.title ?? "Info",
+        description: `<p>${escapeHtmlForInfoPanel(meta.description)}</p>`
+      });
+    } catch {
+    }
+  }
+  /**
    * Finalizes the demo setup, gathering statistics and signaling completion.
    */
   finished() {
@@ -252595,8 +252631,10 @@ var Studio = class _Studio {
         }
       }, "*");
     }, 1e3);
-    sdkProgress.completeTask();
-    this.signalFinished();
+    this._openInfoPanelFromMetaIfMissing().finally(() => {
+      sdkProgress.completeTask();
+      this.signalFinished();
+    });
   }
   signalFinished() {
     const div = document.createElement("div");

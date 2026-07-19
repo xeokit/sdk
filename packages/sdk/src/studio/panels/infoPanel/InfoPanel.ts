@@ -57,11 +57,11 @@ const PANEL_CSS = `
   position: fixed;
   /* These CSS defaults match what _restoreLayout writes inline on
      every open, so the baseline and the runtime state stay
-     consistent. The panel starts at top-right with 50px insets
+     consistent. The panel starts at top-right with 17px insets
      and re-anchors there every time it's constructed — no
      localStorage persistence (see InfoPanel._restoreLayout). */
-  top: 50px;
-  right: 50px;
+  top: 17px;
+  right: 17px;
   width: 360px;
   height: auto;
   max-height: calc(100vh - 32px);
@@ -528,7 +528,7 @@ export class InfoPanel extends FloatingPanelBase {
   //
   // InfoPanel deliberately does NOT persist layout across page
   // reloads — every example session opens fresh at the top-right
-  // 50px inset. Overriding both halves of FloatingPanelBase's
+  // 17px inset. Overriding both halves of FloatingPanelBase's
   // persistence pair achieves that without growing a new opt-out
   // flag on the base.
 
@@ -537,8 +537,8 @@ export class InfoPanel extends FloatingPanelBase {
    * a saved layout. Called by the base's `_bindChrome`.
    */
   protected override _restoreLayout(): void {
-    this._panel.style.top       = "50px";
-    this._panel.style.right     = "50px";
+    this._panel.style.top       = "17px";
+    this._panel.style.right     = "17px";
     this._panel.style.left      = "auto";
     this._panel.style.bottom    = "auto";
     this._panel.style.transform = "none";

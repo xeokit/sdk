@@ -1,332 +1,114 @@
-<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>xeokit SDK — Executive Whitepaper | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="xeokit_SDK_—_Executive_Whitepaper.html">xeokit SDK — Executive Whitepaper</a></li></ul></div><div class="tsd-panel tsd-typography"><a id="xeokit-sdk--executive-overview" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit SDK — Executive Overview<a href="#xeokit-sdk--executive-overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p><em>A non-technical guide for understanding what the SDK does, why it matters, and where it creates business value.</em></p>
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>xeokit SDK — Executive Whitepaper | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="xeokit_SDK_—_Executive_Whitepaper.html">xeokit SDK — Executive Whitepaper</a></li></ul></div><div class="tsd-panel tsd-typography"><a id="xeokit-sdk--executive-overview" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit SDK — Executive Overview<a href="#xeokit-sdk--executive-overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p><em>A non-technical summary of what the SDK does, why it matters, and where it creates business value.</em></p>
 <hr>
-<a id="executive-summary" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Executive Summary<a href="#executive-summary" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The xeokit SDK is a platform for building high-performance 3D applications for Architecture, Engineering, Construction,
-and Operations (AECO).</p>
-<p>In simple terms:</p>
+<a id="executive-summary" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Executive Summary<a href="#executive-summary" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>xeokit SDK is a web-native foundation for AECO applications: BIM viewers, digital twins, coordination tools, facilities dashboards, and model analytics products.</p>
+<p>Its value is concentrated in three areas:</p>
 <ul>
-<li>It allows extremely large building and infrastructure models to run smoothly in a browser.</li>
-<li>It preserves real-world engineering coordinates accurately.</li>
-<li>It enables rich interaction with BIM data at scale.</li>
-<li>It supports both 3D models and 2D drawings in the same environment.</li>
-<li>It is designed as an extensible foundation for products, not just a viewer.</li>
+<li><strong>Scale</strong> — large BIM and infrastructure models stay interactive in the browser.</li>
+<li><strong>Accuracy</strong> — surveyed engineering coordinates remain meaningful instead of being flattened into viewer-local space.</li>
+<li><strong>BIM semantics</strong> — model geometry and business data stay connected, so products can filter, select, inspect, and report on real building entities.</li>
 </ul>
-<p>The SDK is optimized for the types of workflows modern AECO software increasingly depends on:</p>
-<ul>
-<li>BIM coordination</li>
-<li>Digital twins</li>
-<li>Construction planning</li>
-<li>Facility operations</li>
-<li>Clash detection</li>
-<li>Model federation</li>
-<li>Interactive drawings</li>
-<li>Spatial analytics</li>
-<li>Multi-user visualization</li>
-<li>Cloud delivery</li>
-</ul>
-<p>The core strategic advantage of xeokit is that it solves several deep technical problems that many browser-based BIM
-platforms struggle with.</p>
+<p>This makes xeokit more than a viewer. It is reusable infrastructure for products that need high-performance 3D, BIM data, model loading, interaction, measurements, sectioning, spatial queries, and standards-based interoperability.</p>
 <hr>
-<a id="what-makes-xeokit-different" class="tsd-anchor"></a><h1 class="tsd-anchor-link">What Makes xeokit Different<a href="#what-makes-xeokit-different" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>Most 3D web viewers are originally designed for:</p>
+<a id="what-makes-it-different" class="tsd-anchor"></a><h2 class="tsd-anchor-link">What Makes It Different<a href="#what-makes-it-different" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Most browser 3D engines come from games, product visualization, or lightweight CAD. They can render simple scenes well, but AECO workloads are different:</p>
 <ul>
-<li>games</li>
-<li>product visualization</li>
-<li>simple CAD scenes</li>
+<li>models can contain hundreds of thousands of objects</li>
+<li>coordinates may sit on national survey grids</li>
+<li>users need fast selection, filtering, hiding, sectioning, and recoloring</li>
+<li>geometry must remain linked to IFC-style semantic data</li>
+<li>projects often combine BIM, drawings, point clouds, GIS-style data, and reality capture</li>
 </ul>
-<p>Those systems often break down when handling:</p>
-<ul>
-<li>million-object BIM models</li>
-<li>real-world survey coordinates</li>
-<li>interactive filtering and selection</li>
-<li>federated infrastructure scenes</li>
-<li>engineering-scale datasets</li>
-</ul>
-<p>xeokit was designed specifically around AECO problems from the beginning.</p>
-<p>Two architectural decisions are especially important.</p>
+<p>xeokit was designed around those constraints.</p>
 <hr>
-<a id="1-accurate-real-world-coordinates" class="tsd-anchor"></a><h1 class="tsd-anchor-link">1. Accurate Real-World Coordinates<a href="#1-accurate-real-world-coordinates" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><a id="the-industry-problem" class="tsd-anchor"></a><h2 class="tsd-anchor-link">The Industry Problem<a href="#the-industry-problem" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Most BIM viewers silently move models closer to the origin of the world to avoid graphics precision problems.</p>
-<p>That works for small isolated models.</p>
-<p>But it creates major issues for:</p>
-<ul>
-<li>GIS integration</li>
-<li>surveyed infrastructure</li>
-<li>multiple federated models</li>
-<li>infrastructure corridors</li>
-<li>rail</li>
-<li>utilities</li>
-<li>airports</li>
-<li>city-scale digital twins</li>
-</ul>
-<p>These workflows require preserving exact engineering coordinates.</p>
-<a id="xeokits-approach" class="tsd-anchor"></a><h2 class="tsd-anchor-link">xeokit’s Approach<a href="#xeokits-approach" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>xeokit keeps native engineering coordinates intact internally while still rendering smoothly in the browser.</p>
+<a id="core-advantages" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Core Advantages<a href="#core-advantages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="real-world-coordinate-accuracy" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Real-World Coordinate Accuracy<a href="#real-world-coordinate-accuracy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>AECO models often use large real-world coordinates from surveys, GIS systems, or infrastructure alignments. Many viewers avoid precision problems by moving geometry near the origin, which can break federation, round-tripping, and integration with other systems.</p>
+<p>xeokit keeps source-coordinate meaning in the scene graph and lets the renderer handle precision automatically with fine-grained RTC placement. Applications do not need to manually rebase geometry or manage renderer coordinate tiles.</p>
 <p>Business impact:</p>
 <ul>
-<li>models align correctly without manual adjustment</li>
-<li>easier integration with GIS and surveying systems</li>
-<li>more reliable coordination workflows</li>
-<li>scalable to infrastructure and city-scale projects</li>
+<li>fewer alignment problems in federated models</li>
+<li>better fit for GIS, infrastructure, and digital-twin workflows</li>
+<li>less custom coordinate handling in product code</li>
 </ul>
-<p>This is one of the platform’s strongest differentiators for enterprise and infrastructure use cases.</p>
-<hr>
-<a id="2-high-performance-interaction-at-massive-scale" class="tsd-anchor"></a><h1 class="tsd-anchor-link">2. High-Performance Interaction at Massive Scale<a href="#2-high-performance-interaction-at-massive-scale" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><a id="the-industry-problem-1" class="tsd-anchor"></a><h2 class="tsd-anchor-link">The Industry Problem<a href="#the-industry-problem-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Traditional browser renderers slow down dramatically when users:</p>
-<ul>
-<li>hide/show objects</li>
-<li>select thousands of elements</li>
-<li>isolate systems</li>
-<li>apply filters</li>
-<li>recolor models</li>
-<li>create section views</li>
-</ul>
-<p>Many systems require expensive geometry rebuilding whenever visual states change.</p>
-<p>This creates lag and poor user experience.</p>
-<a id="xeokits-approach-1" class="tsd-anchor"></a><h2 class="tsd-anchor-link">xeokit’s Approach<a href="#xeokits-approach-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>xeokit uses a highly optimized GPU-driven rendering architecture.</p>
-<p>Instead of rebuilding geometry constantly, the SDK updates lightweight GPU state tables.</p>
-<p>Result:</p>
-<ul>
-<li>instant visibility changes</li>
-<li>fast selection highlighting</li>
-<li>responsive filtering</li>
-<li>scalable interaction with very large BIM datasets</li>
-</ul>
+<a id="large-model-interaction" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Large-Model Interaction<a href="#large-model-interaction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Large AECO models are not just viewed; they are queried, filtered, sectioned, recolored, and inspected. Traditional browser renderers often stall when many object states change.</p>
+<p>xeokit stores per-object render state in GPU data textures. Visibility, selection, x-ray, opacity, and color changes are lightweight state updates rather than geometry rebuilds.</p>
 <p>Business impact:</p>
 <ul>
-<li>smoother user experience</li>
+<li>responsive interaction on large models</li>
 <li>lower hardware requirements</li>
-<li>better performance on integrated GPUs and laptops</li>
-<li>improved scalability for cloud delivery</li>
+<li>better user experience for cloud-delivered applications</li>
+</ul>
+<a id="bim-data-model" class="tsd-anchor"></a><h3 class="tsd-anchor-link">BIM Data Model<a href="#bim-data-model" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>xeokit separates the visual model from the semantic data model while keeping them joined by object ID. A product can ask BIM-level questions and immediately reflect the answer in the viewer.</p>
+<p>Examples:</p>
+<ul>
+<li>show all HVAC equipment on Level 3</li>
+<li>isolate fire-rated walls</li>
+<li>highlight objects linked to an issue</li>
+<li>inspect data relationships without touching renderer internals</li>
+</ul>
+<p>Business impact:</p>
+<ul>
+<li>faster development of BIM-aware tools</li>
+<li>cleaner integration with data panels, search, analytics, and reporting</li>
+<li>less glue code between geometry and metadata</li>
 </ul>
 <hr>
-<a id="what-this-means-for-products" class="tsd-anchor"></a><h1 class="tsd-anchor-link">What This Means for Products<a href="#what-this-means-for-products" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The SDK is not just a viewer.</p>
-<p>It is a platform for building:</p>
+<a id="product-capabilities" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Product Capabilities<a href="#product-capabilities" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>xeokit provides reusable building blocks for:</p>
 <ul>
-<li>BIM viewers</li>
-<li>digital twins</li>
-<li>coordination tools</li>
-<li>construction planning tools</li>
-<li>facilities dashboards</li>
-<li>engineering review systems</li>
-<li>model analytics platforms</li>
-<li>simulation environments</li>
+<li>model loading and conversion</li>
+<li>WebGL rendering</li>
+<li>camera navigation and multi-view layouts</li>
+<li>object selection, hiding, x-ray, highlighting, and sectioning</li>
+<li>measurements and snapping</li>
+<li>semantic BIM search and inspection</li>
+<li>spatial queries and picking</li>
+<li>BCF viewpoint interoperability</li>
+<li>import/export workflows</li>
 </ul>
-<p>It provides:</p>
-<ul>
-<li>rendering</li>
-<li>interaction</li>
-<li>model loading</li>
-<li>semantic BIM data</li>
-<li>measurements</li>
-<li>sectioning</li>
-<li>drawing generation</li>
-<li>camera systems</li>
-<li>spatial queries</li>
-<li>visual effects</li>
-<li>interoperability standards</li>
-</ul>
-<p>as reusable building blocks.</p>
+<p>It supports the formats commonly needed in AECO products, including IFC, glTF/GLB, XGF, XKT, DWG, DXF, PDF, SVG, LAS/LAZ, E57, CityJSON, 3D Tiles, OBJ, FBX, USDZ, DotBIM, 3DXML, and scene/data JSON.</p>
 <hr>
-<a id="core-product-capabilities" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Core Product Capabilities<a href="#core-product-capabilities" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><a id="bim--semantic-data" class="tsd-anchor"></a><h2 class="tsd-anchor-link">BIM + Semantic Data<a href="#bim--semantic-data" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>xeokit separates:</p>
-<ul>
-<li>what the model <em>looks like</em>
-from</li>
-<li>what the model <em>means</em></li>
-</ul>
-<p>This is important because AECO workflows depend heavily on semantic BIM information.</p>
-<p>Example:</p>
-<ul>
-<li>“Show all HVAC systems on Level 3”</li>
-<li>“Highlight all fire-rated walls”</li>
-<li>“Select all objects related to this issue”</li>
-</ul>
-<p>The SDK is built to support these workflows efficiently.</p>
-<hr>
-<a id="large-model-performance" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Large Model Performance<a href="#large-model-performance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The SDK is designed for:</p>
-<ul>
-<li>millions of triangles</li>
-<li>hundreds of thousands of objects</li>
-<li>federated BIM scenes</li>
-</ul>
-<p>while maintaining responsive interaction.</p>
-<p>This is critical for:</p>
-<ul>
-<li>enterprise BIM</li>
-<li>infrastructure projects</li>
-<li>digital twins</li>
-<li>operations platforms</li>
-</ul>
-<hr>
-<a id="multi-view-architecture" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Multi-View Architecture<a href="#multi-view-architecture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>Multiple synchronized views can exist simultaneously:</p>
-<ul>
-<li>perspective 3D</li>
-<li>plan views</li>
-<li>section views</li>
-<li>elevations</li>
-<li>mini-maps</li>
-<li>comparison views</li>
-</ul>
-<p>without duplicating geometry in memory.</p>
-<p>This enables professional workflows similar to desktop BIM tools.</p>
-<hr>
-<a id="drawings--3d-together" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Drawings + 3D Together<a href="#drawings--3d-together" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>xeokit supports:</p>
-<ul>
-<li>IFC</li>
-<li>glTF</li>
-<li>DWG</li>
-<li>DXF</li>
-<li>PDF</li>
-<li>SVG</li>
-<li>point clouds (LAS / LAZ, E57)</li>
-<li>3D Gaussian Splatting (reality capture)</li>
-<li>CityJSON</li>
-<li>3D Tiles</li>
-<li>OBJ</li>
-<li>FBX</li>
-<li>USDZ</li>
-</ul>
-<p>This allows combining:</p>
-<ul>
-<li>3D BIM</li>
-<li>engineering drawings</li>
-<li>documentation</li>
-<li>scanned data</li>
-<li>GIS-style content</li>
-</ul>
-<p>inside one platform.</p>
-<hr>
-<a id="interoperability" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Interoperability<a href="#interoperability" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The SDK supports industry workflows and standards such as:</p>
-<ul>
-<li>IFC</li>
-<li>BCF</li>
-<li>glTF</li>
-<li>CAD formats</li>
-<li>point cloud formats</li>
-</ul>
-<p>This reduces vendor lock-in and improves ecosystem compatibility.</p>
-<hr>
-<a id="presentation--visualization-features" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Presentation &amp; Visualization Features<a href="#presentation--visualization-features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The platform includes advanced visualization systems:</p>
-<ul>
-<li>section planes</li>
-<li>section caps</li>
-<li>exploded views</li>
-<li>heatmaps</li>
-<li>hidden-line rendering</li>
-<li>x-ray modes</li>
-<li>edge rendering</li>
-<li>lighting and materials</li>
-<li>ambient occlusion</li>
-<li>bloom and post-processing</li>
-</ul>
-<p>This allows products built on xeokit to look polished and modern without requiring a game engine.</p>
-<hr>
-<a id="strategic-positioning" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Strategic Positioning<a href="#strategic-positioning" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>xeokit occupies a valuable middle ground between:</p>
+<a id="strategic-positioning" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Strategic Positioning<a href="#strategic-positioning" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>xeokit sits between three less suitable options:</p>
 <table>
 <thead>
 <tr>
-<th>Category</th>
+<th>Option</th>
 <th>Limitation</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Traditional desktop BIM tools</td>
-<td>Heavy, difficult to deploy, not web-native</td>
+<td>Desktop BIM tools</td>
+<td>Powerful, but heavy and difficult to deploy broadly</td>
 </tr>
 <tr>
 <td>Generic WebGL/game engines</td>
-<td>Not optimized for AECO workflows</td>
+<td>Fast, but not built around BIM semantics or engineering coordinates</td>
 </tr>
 <tr>
-<td>Simple BIM viewers</td>
-<td>Limited scalability and extensibility</td>
+<td>Simple web BIM viewers</td>
+<td>Easy to embed, but limited as a product foundation</td>
 </tr>
 </tbody>
 </table>
-<p>xeokit is positioned as:</p>
-<ul>
-<li>web-native</li>
-<li>scalable</li>
-<li>AECO-specific</li>
-<li>extensible</li>
-<li>developer-focused</li>
-</ul>
-<p>This makes it suitable as foundational infrastructure for SaaS products.</p>
+<p>xeokit is positioned as a web-native, AECO-specific SDK for teams building their own products rather than embedding a fixed viewer.</p>
 <hr>
-<a id="how-the-sdk-was-built" class="tsd-anchor"></a><h1 class="tsd-anchor-link">How the SDK Was Built<a href="#how-the-sdk-was-built" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The SDK's core architecture was designed and built by an experienced engineer, drawing on years of prior work building
-browser-based 3D engines. AI tools were then used to accelerate delivery of additional capabilities — such as model
-format support and visual effects — within that established architecture, using the mature xeokit V2 codebase as a
-proven reference.</p>
-<p>Every AI-assisted contribution was reviewed, tested, and inspected by a human before being accepted. The result is a
-codebase produced deliberately and verified throughout.</p>
-<p>Business impact:</p>
+<a id="commercial-value" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Commercial Value<a href="#commercial-value" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>For product teams, xeokit can reduce the amount of infrastructure they need to build before they can deliver workflow-specific value.</p>
+<p>Potential advantages:</p>
 <ul>
-<li>a foundation built on proven engineering experience, rather than unchecked code generation</li>
-<li>lower long-term maintenance and reliability risk</li>
-<li>faster delivery of capabilities without sacrificing quality</li>
-<li>confidence for products that depend on the SDK over many years</li>
+<li>faster product development</li>
+<li>better support for large enterprise models</li>
+<li>less risk around coordinate precision and model federation</li>
+<li>reusable visualization infrastructure across multiple products</li>
+<li>stronger foundation for SaaS, digital twin, coordination, and operations workflows</li>
 </ul>
 <hr>
-<a id="why-this-matters-commercially" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Why This Matters Commercially<a href="#why-this-matters-commercially" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The market is moving toward:</p>
-<ul>
-<li>browser-based workflows</li>
-<li>cloud collaboration</li>
-<li>digital twins</li>
-<li>remote coordination</li>
-<li>operational analytics</li>
-<li>lightweight deployment</li>
-<li>integrated BIM ecosystems</li>
-</ul>
-<p>Performance and scalability increasingly determine product viability.</p>
-<p>xeokit’s architecture enables:</p>
-<ul>
-<li>lower friction deployment</li>
-<li>reduced client hardware requirements</li>
-<li>faster interaction</li>
-<li>support for larger datasets</li>
-<li>more sophisticated workflows</li>
-</ul>
-<p>These become meaningful competitive advantages over time.</p>
+<a id="engineering-model" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Engineering Model<a href="#engineering-model" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The SDK builds on years of prior xeokit engine work and the mature xeokit V2 codebase. Its core architecture was designed by experienced engineers; AI assistance was used to accelerate implementation of additional capabilities within that architecture.</p>
+<p>All AI-assisted work was reviewed, tested, and integrated deliberately. The result is not a generated prototype, but an engineered SDK with human-owned architecture and verification.</p>
 <hr>
-<a id="potential-business-advantages" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Potential Business Advantages<a href="#potential-business-advantages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><a id="faster-product-development" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Faster Product Development<a href="#faster-product-development" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Because the SDK already solves:</p>
-<ul>
-<li>rendering</li>
-<li>BIM loading</li>
-<li>navigation</li>
-<li>measurements</li>
-<li>selection</li>
-<li>sectioning</li>
-<li>spatial queries</li>
-<li>camera systems</li>
-</ul>
-<p>teams can focus on product-specific workflows rather than rebuilding infrastructure.</p>
-<hr>
-<a id="enterprise-readiness" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Enterprise Readiness<a href="#enterprise-readiness" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The architecture is well suited to:</p>
-<ul>
-<li>large models</li>
-<li>infrastructure projects</li>
-<li>federated BIM</li>
-<li>digital twins</li>
-<li>multi-user systems</li>
-<li>long-lived operational platforms</li>
-</ul>
-<hr>
-<a id="platform-potential" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Platform Potential<a href="#platform-potential" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The SDK is broad enough to become:</p>
-<ul>
-<li>a product platform</li>
-<li>an internal standard</li>
-<li>a reusable visualization layer across multiple applications</li>
-</ul>
-<p>rather than a single-purpose viewer.</p>
-<hr>
-<a id="in-plain-english" class="tsd-anchor"></a><h1 class="tsd-anchor-link">In Plain English<a href="#in-plain-english" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The easiest way to think about xeokit is:</p>
-<blockquote>
-<p>“A high-performance web engine specifically designed for BIM and AECO applications.”</p>
-</blockquote>
-<p>Its biggest strengths are:</p>
+<a id="plain-english-summary" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Plain English Summary<a href="#plain-english-summary" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>xeokit is a high-performance browser SDK for BIM and AECO applications.</p>
+<p>Its main strengths are:</p>
 <ol>
 <li>handling massive engineering models efficiently</li>
-<li>preserving real-world spatial accuracy</li>
-<li>enabling rich BIM interaction in the browser</li>
-<li>supporting both 2D and 3D workflows</li>
-<li>acting as a foundation for larger products</li>
+<li>preserving real-world coordinate accuracy</li>
+<li>keeping geometry connected to BIM data</li>
+<li>enabling rich interaction in the browser</li>
+<li>serving as a reusable foundation for larger products</li>
 </ol>
-<p>The technical architecture is unusually specialized for AECO needs, which is where much of its long-term value comes
-from.</p>
-</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-sdk--executive-overview"><span>xeokit SDK — <wbr/>Executive <wbr/>Overview</span></a><a href="#executive-summary"><span>Executive <wbr/>Summary</span></a><a href="#what-makes-xeokit-different"><span>What <wbr/>Makes xeokit <wbr/>Different</span></a><a href="#1-accurate-real-world-coordinates"><span>1. <wbr/>Accurate <wbr/>Real-<wbr/>World <wbr/>Coordinates</span></a><ul><li><a href="#the-industry-problem"><span>The <wbr/>Industry <wbr/>Problem</span></a></li><li><a href="#xeokits-approach"><span>xeokit’s <wbr/>Approach</span></a></li></ul><a href="#2-high-performance-interaction-at-massive-scale"><span>2. <wbr/>High-<wbr/>Performance <wbr/>Interaction at <wbr/>Massive <wbr/>Scale</span></a><ul><li><a href="#the-industry-problem-1"><span>The <wbr/>Industry <wbr/>Problem</span></a></li><li><a href="#xeokits-approach-1"><span>xeokit’s <wbr/>Approach</span></a></li></ul><a href="#what-this-means-for-products"><span>What <wbr/>This <wbr/>Means for <wbr/>Products</span></a><a href="#core-product-capabilities"><span>Core <wbr/>Product <wbr/>Capabilities</span></a><ul><li><a href="#bim--semantic-data"><span>BIM + <wbr/>Semantic <wbr/>Data</span></a></li></ul><a href="#large-model-performance"><span>Large <wbr/>Model <wbr/>Performance</span></a><a href="#multi-view-architecture"><span>Multi-<wbr/>View <wbr/>Architecture</span></a><a href="#drawings--3d-together"><span>Drawings + 3<wbr/>D <wbr/>Together</span></a><a href="#interoperability"><span>Interoperability</span></a><a href="#presentation--visualization-features"><span>Presentation &amp; <wbr/>Visualization <wbr/>Features</span></a><a href="#strategic-positioning"><span>Strategic <wbr/>Positioning</span></a><a href="#how-the-sdk-was-built"><span>How the SDK <wbr/>Was <wbr/>Built</span></a><a href="#why-this-matters-commercially"><span>Why <wbr/>This <wbr/>Matters <wbr/>Commercially</span></a><a href="#potential-business-advantages"><span>Potential <wbr/>Business <wbr/>Advantages</span></a><ul><li><a href="#faster-product-development"><span>Faster <wbr/>Product <wbr/>Development</span></a></li><li><a href="#enterprise-readiness"><span>Enterprise <wbr/>Readiness</span></a></li><li><a href="#platform-potential"><span>Platform <wbr/>Potential</span></a></li></ul><a href="#in-plain-english"><span>In <wbr/>Plain <wbr/>English</span></a></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-sdk--executive-overview"><span>xeokit SDK — <wbr/>Executive <wbr/>Overview</span></a><ul><li><a href="#executive-summary"><span>Executive <wbr/>Summary</span></a></li><li><a href="#what-makes-it-different"><span>What <wbr/>Makes <wbr/>It <wbr/>Different</span></a></li><li><a href="#core-advantages"><span>Core <wbr/>Advantages</span></a></li><li><ul><li><a href="#real-world-coordinate-accuracy"><span>Real-<wbr/>World <wbr/>Coordinate <wbr/>Accuracy</span></a></li><li><a href="#large-model-interaction"><span>Large-<wbr/>Model <wbr/>Interaction</span></a></li><li><a href="#bim-data-model"><span>BIM <wbr/>Data <wbr/>Model</span></a></li></ul></li><li><a href="#product-capabilities"><span>Product <wbr/>Capabilities</span></a></li><li><a href="#strategic-positioning"><span>Strategic <wbr/>Positioning</span></a></li><li><a href="#commercial-value"><span>Commercial <wbr/>Value</span></a></li><li><a href="#engineering-model"><span>Engineering <wbr/>Model</span></a></li><li><a href="#plain-english-summary"><span>Plain <wbr/>English <wbr/>Summary</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

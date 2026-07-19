@@ -31,7 +31,6 @@
 // and writes new world matrices back to every dynamic mesh.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
-import RAPIER from "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/+esm";
 
 const studio = new xeokit.studio.Studio({});
 
@@ -76,6 +75,11 @@ studio.init().then(() => {
       up:   [-0.0823455994081705, -0.2305616453606706, 0.9695671869172808]
     }
   });
+  const adaptiveQuality = xeokit.viewing.adaptiveQuality.AdaptiveQuality.getFor(view);
+  if (adaptiveQuality) {
+    adaptiveQuality.enabled = false;
+  }
+  view.renderMode = xeokit.base.constants.RealisticRender;
 
   const status      = document.getElementById("status");
   const hudBodies   = document.getElementById("hudBodies");
@@ -96,9 +100,13 @@ studio.init().then(() => {
     .then(response => response.arrayBuffer())
     .then(fileData => xgfLoader.load({ fileData, sceneModel: duplexModel }));
 
-  const rapierReady = RAPIER.init();
+  const rapierReady = import("https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/+esm")
+    .then(module => {
+      const RAPIER = module.default;
+      return RAPIER.init().then(() => RAPIER);
+    });
 
-  Promise.all([xgfLoaded, rapierReady]).then(() => {
+  Promise.all([xgfLoaded, rapierReady]).then(([, RAPIER]) => {
 
     status.textContent = "Initialising physics…";
 
@@ -155,7 +163,7 @@ studio.init().then(() => {
     // drift through space.
     // -----------------------------------------------------------------
     const sh = view.effects.shadows;
-    sh.renderModes        = [xeokit.base.constants.DetailedRender];
+    sh.renderModes        = [xeokit.base.constants.RealisticRender];
     sh.autoFit            = true;
     sh.intensity          = 0.6;
     sh.cascadeCount       = 3;

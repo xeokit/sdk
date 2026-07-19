@@ -8,11 +8,14 @@ export class SDKProgress {
 
   public onTasksAdded: EventEmitter<SDKProgress, number>;
   public onTaskCompleted: EventEmitter<SDKProgress, number>;
+  public onPhaseUpdated: EventEmitter<SDKProgress, string>;
   public numTasks = 0;
+  public phase = "Booting example";
 
   constructor() {
     this.onTasksAdded = new EventEmitter(new EventDispatcher<SDKProgress, number>());
     this.onTaskCompleted = new EventEmitter(new EventDispatcher<SDKProgress, number>());
+    this.onPhaseUpdated = new EventEmitter(new EventDispatcher<SDKProgress, string>());
     this.numTasks = 0;
   }
 
@@ -33,6 +36,11 @@ export class SDKProgress {
       this.numTasks--;
       this.onTaskCompleted.dispatch(this, this.numTasks);
     }
+  }
+
+  public setPhase(phase: string): void {
+    this.phase = phase;
+    this.onPhaseUpdated.dispatch(this, phase);
   }
 }
 

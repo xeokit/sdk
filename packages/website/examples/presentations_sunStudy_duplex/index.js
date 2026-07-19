@@ -67,6 +67,14 @@ studio.init().then(async () => {
     },
   });
 
+  // Use the SunStudy-owned DirLight as the only illumination source.
+  // View construction installs legacy ambient + directional defaults, and
+  // RealisticRender enables IBL/hemisphere fill by default; remove those
+  // before creating the sun so shaded faces can fall properly dark.
+  view.clearLights();
+  view.lights.ibl.intensity = 0;
+  view.lights.hemispheric.intensity = 0;
+
   // ── Shadows ──────────────────────────────────────────────────────
   //
   // Switch into RealisticRender (which Shadows.renderModes defaults
@@ -103,12 +111,6 @@ studio.init().then(async () => {
     northAngleDegrees:   0,
     currentDate:        "2026-06-21T20:00:00Z",   // ~13:00 PDT
   });
-
-  for (const light of [...view.lightsList]) {
-    //if (light !== sunStudy.sunLight && typeof light.destroy === "function") {
-      light.destroy();
-    //}
-  }
 
   const player = new Sun.AnnualSunPlayer({
     sunStudy,

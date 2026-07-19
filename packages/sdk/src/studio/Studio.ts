@@ -393,6 +393,8 @@ export class Studio {
    */
   public async init(cfg: StudioConfig = {}): Promise<any> {
 
+    sdkProgress.setPhase("Creating SDK components");
+
     // Merge config from the constructor and from init() (init wins), so every
     // setting applies regardless of which entry point it was passed to.
     const merged: StudioConfig = {...this._config, ...cfg};
@@ -404,12 +406,14 @@ export class Studio {
       return {};
     }
 
+    sdkProgress.setPhase("Creating scene and data models");
     this.scene = new Scene();
     this.data = new Data();
     this.viewer = new Viewer();
 
     const rendererBackend = merged.renderer ?? "webgl";
 
+    sdkProgress.setPhase("Creating view manager");
     this.viewManager = new ViewManager({
         viewer: this.viewer,
         // PickingService is constructed in Studio's constructor;
@@ -427,6 +431,7 @@ export class Studio {
       },
     );
 
+    sdkProgress.setPhase(`Creating ${rendererBackend.toUpperCase()} renderer`);
     const rendererResult = await this._createRenderer(merged);
     if (rendererResult.ok === false) {
       throw rendererResult.error;
@@ -461,6 +466,7 @@ export class Studio {
     this.viewer.events.onError.subscribe(onError);
     this.renderer.events.onError.subscribe(onError);
 
+    sdkProgress.setPhase("Mounting runtime panels");
     // Pre-mount the IssuesPanel (hidden) so it begins
     // capturing onError emissions before the user opens it
     // via the context menu — and so the very first error
@@ -483,6 +489,7 @@ export class Studio {
       );
     }
 
+    sdkProgress.setPhase("Attaching viewer and renderer");
     this.viewer.attachScene(this.scene);
     const attachResult = this.renderer.attachViewer(this.viewer);
     if (attachResult.ok === false) {
@@ -498,6 +505,7 @@ export class Studio {
       renderInspector.enabled = true;
     }
 
+    sdkProgress.setPhase("Preparing interaction controls");
     this._viewObjectContextMenu = new ViewObjectContextMenu({debug: this.debug});
     this._canvasContextMenu = new CanvasContextMenu({debug: this.debug});
 
@@ -516,6 +524,7 @@ export class Studio {
       autoHideDelayMs: 500
     });
 
+    sdkProgress.setPhase("Initializing example");
     sdkProgress.addTask(); // Init
 
     // @ts-ignore
@@ -529,6 +538,7 @@ export class Studio {
     // away. Visibility default lives in `builtinPanels.ts` as
     // `visible: false` on the toolbar provider's `create`.
     try {
+      sdkProgress.setPhase("Opening toolbar");
       this.panels.open("toolbar");
     } catch (e: any) {
       this.reportError(
@@ -537,6 +547,7 @@ export class Studio {
       );
     }
 
+    sdkProgress.setPhase("Studio ready");
     return {};
   }
 
@@ -1135,6 +1146,7 @@ export class Studio {
   }): Promise<SDKResult<{ sceneModel: SceneModel; dataModel: DataModel }>> {
     const {modelId, formats} = params;
     const clear = params.clear !== false;
+    sdkProgress.setPhase(`Preparing ${modelId}`);
     if (!modelId || !formats || formats.length === 0) {
       return {
         ok: false,
@@ -1144,6 +1156,7 @@ export class Studio {
     }
 
     if (clear) {
+      sdkProgress.setPhase("Clearing previous models");
       // Destroy in two passes — Scene first (so renderer drops
       // its references) then Data. SceneModel.destroy() is
       // idempotent and the destroy event handlers in our index
@@ -1166,14 +1179,17 @@ export class Studio {
     // to `scene.createModel` so the SceneModel knows its native
     // axes/units. Missing file → undefined → SceneModel falls
     // back to its built-in default.
+    sdkProgress.setPhase("Reading coordinate system");
     const coordinateSystem = await this._loadCoordSys(modelId);
 
+    sdkProgress.setPhase("Creating scene model");
     const sceneCreate = this.scene.createModel({id: instanceId, coordinateSystem});
     if (sceneCreate.ok === false) {
       return {ok: false, type: SDKErrorType.Unknown, error: sceneCreate.error};
     }
     const sceneModel = sceneCreate.value;
 
+    sdkProgress.setPhase("Creating data model");
     const dataCreate = this.data.createModel({id: instanceId});
     if (dataCreate.ok === false) {
       try {
@@ -1201,7 +1217,14 @@ export class Studio {
     try {
       await LoaderProgressDialog.runWith({
         title: `Loading ${modelId} (${formats.join(", ")})`,
+        delayMs: 80,
         run: async (onProgress, signal) => {
+          const reportProgress = (progress: Parameters<typeof onProgress>[0]) => {
+            if (progress.phase) {
+              sdkProgress.setPhase(progress.phase);
+            }
+            onProgress(progress);
+          };
           for (let i = 0; i < formats.length; i++) {
             const format = formats[i];
             // Bracket each format's parser with a top-level
@@ -1209,14 +1232,14 @@ export class Studio {
             // formats too — useful for multi-format datasets
             // where one format finishes fast and the next is
             // long.
-            onProgress({
+            reportProgress({
               phase: `Loading ${format}`,
               current: i,
               total: totalFormats,
             });
             const r = await this.loadModel(
               {modelId, format, sceneModel, dataModel},
-              {onProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60},
+              {onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60},
             );
             if (r && (r as any).ok === false) {
               // loadModel already dispatched reportError on the
@@ -1228,10 +1251,11 @@ export class Studio {
           }
           // Final phase before resolution so the bar reads as
           // "done" rather than truncating mid-format.
-          onProgress({phase: "Finalising", current: totalFormats, total: totalFormats});
+          reportProgress({phase: "Finalising", current: totalFormats, total: totalFormats});
           const view = this._getInspectorView();
           if (view) {
             try {
+              sdkProgress.setPhase("Framing camera");
               const aabb = this.picking.collisionIndex.getSceneAABB();
               if (aabb) this.viewManager.fitToAabb(view, aabb);
             } catch { /* ignore */
@@ -1375,6 +1399,8 @@ export class Studio {
    */
   public finished(): void {
 
+    sdkProgress.setPhase("Finalizing example");
+
     const stats = this.stats;
 
     stats.scene = this._getCombinedSceneModelStats();
@@ -1407,6 +1433,7 @@ export class Studio {
     }, 1000);
 
     this._openInfoPanelFromMetaIfMissing().finally(() => {
+      sdkProgress.setPhase("Ready");
       sdkProgress.completeTask();
       this.signalFinished();
     });

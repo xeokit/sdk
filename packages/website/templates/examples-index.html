@@ -39,19 +39,19 @@
 <!--    </div>-->
 <!--</header>-->
 
-<section id="intro" class="full-width-section" style="max-width:100%; height:100vh">
-    <div class="container" style="max-width:100%; height:100vh; padding: 0">
-        <div class="row" style="max-width:100%; height:100vh; margin: 0;">
-            <div class="col-lg-12 h-100" style="padding-left: 0; padding-right: 0;  height:100vh">
+<section id="intro" class="full-width-section" style="max-width:100%; height:calc(100vh - 56px)">
+    <div class="container" style="max-width:100%; height:calc(100vh - 56px); padding: 0">
+        <div class="row" style="max-width:100%; height:calc(100vh - 56px); margin: 0;">
+            <div class="col-lg-12 h-100" style="padding-left: 0; padding-right: 0;  height:calc(100vh - 56px)">
               <input type="checkbox" id="index_toggle"/>
-              <label for="index_toggle" class="index-button btn btn-light">
+              <label for="index_toggle" class="index-button">
                &lt;&lt; Index
               </label>
               <div class="page-title" id="page-title"></div>
-              <div class="viewSourceButton" id="viewSourceButton"><label class=" btn btn-light">Code</label></div>
+              <div class="viewSourceButton" id="viewSourceButton"><label>Code</label></div>
               <div class="content-overlay" id="viewer-overlay"></div>
-              <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:100vh">
-                <iframe class="embed-responsive-item " style=" height:100vh" id="viewer" src="https://xeokit.github.io/sdk//examples/default.html"></iframe>
+              <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:calc(100vh - 56px)">
+                <iframe class="embed-responsive-item " style=" height:calc(100vh - 56px)" id="viewer" src="https://xeokit.github.io/sdk//examples/default.html"></iframe>
               </div>
               <div class="slideout-sidebar">
                 <div id="index"><h1>Run a xeokit example</h1></div>

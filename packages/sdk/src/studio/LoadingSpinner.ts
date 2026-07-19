@@ -72,6 +72,7 @@ export type ProgressBarOptions = {
 export class LoadingSpinner {
   private total = 0;
   private loaded = 0;
+  private phase = sdkProgress.phase;
 
   private readonly overlay: HTMLDivElement;
   private readonly container: HTMLDivElement;
@@ -105,8 +106,12 @@ export class LoadingSpinner {
     this.injectStylesOnce();
 
     // Overlay
-    this.overlay = document.createElement("div");
+    this.overlay = (
+      document.getElementById("xeokit-boot-loading-overlay") as HTMLDivElement | null
+    ) ?? document.createElement("div");
+    this.overlay.id = "xeokit-boot-loading-overlay";
     this.overlay.className = "xeokit-loading-overlay";
+    this.overlay.innerHTML = "";
 
     // Container
     this.container = document.createElement("div");
@@ -145,7 +150,7 @@ export class LoadingSpinner {
     // Main text
     this.text = document.createElement("div");
     this.text.className = "xeokit-loading-text";
-    this.text.textContent = "Loading model…";
+    this.text.textContent = this.phase;
 
     // Secondary text
     this.subtext = document.createElement("div");
@@ -166,7 +171,9 @@ export class LoadingSpinner {
     this.container.appendChild(this.subtext);
     this.container.appendChild(this.progressTrack);
     this.overlay.appendChild(this.container);
-    document.body.appendChild(this.overlay);
+    if (!this.overlay.parentElement) {
+      document.body.appendChild(this.overlay);
+    }
 
     if (typeof this.opts.initialLoaded === "number") {
       this.loaded = Math.max(0, this.opts.initialLoaded);
@@ -181,8 +188,18 @@ export class LoadingSpinner {
       this.render();
     });
 
-    sdkProgress.onTaskCompleted.subscribe(() => {
+    sdkProgress.onTaskCompleted.subscribe((_sdkProgress, remainingTasks) => {
       this.itemLoaded();
+      if (remainingTasks === 0 && this.opts.autoHide) {
+        this.scheduleAutoHide();
+      }
+    });
+
+    sdkProgress.onPhaseUpdated.subscribe((_sdkProgress, phase) => {
+      this.phase = phase;
+      this.cancelAutoHide();
+      this.show();
+      this.render();
     });
   }
 
@@ -291,9 +308,10 @@ export class LoadingSpinner {
     const labelText =
       this.opts.label?.(this.loaded, this.total, safePct) ??
       (this.total > 0
-        ? `Loading model… ${this.loaded} / ${this.total} (${Math.round(safePct)}%)`
+        ? `${this.loaded} / ${this.total} (${Math.round(safePct)}%)`
         : `Preparing scene…`);
 
+    this.text.textContent = this.phase;
     this.subtext.textContent = labelText;
 
     // Slightly brighten as progress advances

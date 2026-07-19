@@ -1,7 +1,7 @@
 {
   "id": "spatial_collision_hitPoint",
   "title": "Ray Picking Benchmark (Cityscape)",
-  "description": "Stress-tests the SceneCollisionIndex BVH and triangle-precise raycaster against a procedurally generated city of thousands of buildings. The cursor is a plain HTML element layered over the canvas — it tracks the mouse and changes colour when the BVH+triangle test reports a hit, with no 3D scene mutation per frame and no GL pipeline flush.",
+  "description": "Benchmarks precise ray picking against a large procedural city scene.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

@@ -1,12 +1,5 @@
-// Volume Overlay — dedicated showcase.
-//
-// A simple procedurally-built atrium (no model load) so the
-// volumetric data is what reads on screen, not the building. Drops
-// in a synthetic thermal field + companion convection vector field
-// using the SDK's demo-field helpers; opens VolumeOverlayPanel with
-// streamlines selected by default — the most visually striking of
-// the three techniques and the one that explains "the air moves
-// like this" at a glance.
+// Shows thermal flow in an atrium with volume overlays for streamlines, slices
+// and iso-surfaces.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
@@ -191,7 +184,6 @@ studio.init().then(async () => {
     initialColormap:  "viridis",
   });
 
-  await studio.openInfoPanelFromMeta();
   studio.finished();
 
 }).catch((err) => {

@@ -1,7 +1,7 @@
 {
   "id": "spatial_collision_hover",
   "title": "Ray Picking Objects with SceneCollisionIndex",
-  "description": "Hover the mouse over the Duplex IFC model. Each move event casts a ray through the SceneCollisionIndex BVH, finds the nearest object whose world AABB is hit, and highlights it. No GPU pick — every hit test runs on the CPU through the self-maintaining bounding-volume hierarchy.",
+  "description": "Shows CPU-based object picking and hover highlighting on a duplex model.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

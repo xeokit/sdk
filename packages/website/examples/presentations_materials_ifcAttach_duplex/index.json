@@ -1,7 +1,7 @@
 {
   "id": "presentations_materials_ifcAttach_duplex",
   "title": "Duplex with Generated IFC Materials",
-  "description": "Loads the Duplex SceneModel + DataModel, then uses attachSceneModelMaterials to copy the geometry into a second SceneModel and bind a procedurally-painted PBR material to every object based on its IFC type.",
+  "description": "Shows generated IFC-based materials applied across a duplex building model.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

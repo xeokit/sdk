@@ -1,7 +1,7 @@
 {
   "id": "formats_threedtiles_streamingImplicit",
   "title": "Streaming an Implicit 3D Tiles Tileset",
-  "description": "Streams an implicit 3D Tiles tileset with TilesetStreamer. The tree is described by binary .subtree availability files and Morton-indexed coordinates; the streamer fetches subtrees on demand as the camera descends, derives each tile's bounding volume by box subdivision, frustum-culls tiles outside the view, and loads/unloads per-tile SceneModels.",
+  "description": "Streams an implicit 3D Tiles tileset, loading and unloading tiles as the camera moves.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

@@ -62,7 +62,6 @@ studio.init().then(async () => {
     status.style.display = "none";
     panel.style.display = "block";
     wireUpPanel(view);
-    studio.openInfoPanelFromMeta();
     studio.finished();
   } catch (err) {
     status.textContent = `Failed to load HousePlan XGF: ${err.message || err}`;

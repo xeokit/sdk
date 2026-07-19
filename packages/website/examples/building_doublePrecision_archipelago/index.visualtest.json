@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 372,
-    "endTime": 4785.600000143051,
-    "elapsedTime": 4413.600000143051,
+    "startTime": 375.5,
+    "endTime": 4913.900000095367,
+    "elapsedTime": 4538.400000095367,
     "aabb": [
       239000,
       6522000,
@@ -3811,7 +3811,7 @@
       },
       "views": [
         {
-          "viewId": "c577cc2b-f7cd-4068-b8d7-b79fc0d21797",
+          "viewId": "ad38a671-7059-4b9d-8f8e-a6e4fdef8586",
           "canvasSize": [
             0,
             0
@@ -3829,8 +3829,8 @@
                     "numPrims": 71883
                   },
                   "timeMs": {
-                    "start": 6245.600000143051,
-                    "end": 6245.700000047684,
+                    "start": 5492.400000095367,
+                    "end": 5492.5,
                     "duration": 0.09999990463256836
                   }
                 },
@@ -3843,9 +3843,9 @@
                     "numPrims": 95727
                   },
                   "timeMs": {
-                    "start": 6245.700000047684,
-                    "end": 6245.700000047684,
-                    "duration": 0
+                    "start": 5492.5,
+                    "end": 5492.600000143051,
+                    "duration": 0.10000014305114746
                   }
                 },
                 {
@@ -3857,16 +3857,16 @@
                     "numPrims": 26300
                   },
                   "timeMs": {
-                    "start": 6245.700000047684,
-                    "end": 6245.799999952316,
-                    "duration": 0.09999990463256836
+                    "start": 5492.600000143051,
+                    "end": 5514.700000047684,
+                    "duration": 22.09999990463257
                   }
                 }
               ],
               "timeMs": {
-                "start": 6245.400000095367,
-                "end": 6245.799999952316,
-                "duration": 0.39999985694885254
+                "start": 5491.900000095367,
+                "end": 5514.700000047684,
+                "duration": 22.799999952316284
               }
             },
             {
@@ -3881,8 +3881,8 @@
                     "numPrims": 71883
                   },
                   "timeMs": {
-                    "start": 6245.900000095367,
-                    "end": 6245.900000095367,
+                    "start": 5522.600000143051,
+                    "end": 5522.600000143051,
                     "duration": 0
                   }
                 },
@@ -3895,8 +3895,8 @@
                     "numPrims": 95727
                   },
                   "timeMs": {
-                    "start": 6245.900000095367,
-                    "end": 6245.900000095367,
+                    "start": 5522.600000143051,
+                    "end": 5522.600000143051,
                     "duration": 0
                   }
                 },
@@ -3909,9 +3909,9 @@
                     "numPrims": 26300
                   },
                   "timeMs": {
-                    "start": 6245.900000095367,
-                    "end": 6246,
-                    "duration": 0.09999990463256836
+                    "start": 5522.600000143051,
+                    "end": 5523.5,
+                    "duration": 0.8999998569488525
                   }
                 },
                 {
@@ -3923,8 +3923,8 @@
                     "numPrims": 71883
                   },
                   "timeMs": {
-                    "start": 6246,
-                    "end": 6246,
+                    "start": 5523.5,
+                    "end": 5523.5,
                     "duration": 0
                   }
                 },
@@ -3937,8 +3937,8 @@
                     "numPrims": 95727
                   },
                   "timeMs": {
-                    "start": 6246,
-                    "end": 6246,
+                    "start": 5523.5,
+                    "end": 5523.5,
                     "duration": 0
                   }
                 },
@@ -3951,26 +3951,68 @@
                     "numPrims": 26300
                   },
                   "timeMs": {
-                    "start": 6246,
-                    "end": 6246.100000143051,
+                    "start": 5523.5,
+                    "end": 5524.100000143051,
+                    "duration": 0.6000001430511475
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 71883
+                  },
+                  "timeMs": {
+                    "start": 5524.100000143051,
+                    "end": 5524.100000143051,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 1,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 95727
+                  },
+                  "timeMs": {
+                    "start": 5524.100000143051,
+                    "end": 5524.100000143051,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 2,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 26300
+                  },
+                  "timeMs": {
+                    "start": 5524.100000143051,
+                    "end": 5524.5,
+                    "duration": 0.39999985694885254
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 71883
+                  },
+                  "timeMs": {
+                    "start": 5524.5,
+                    "end": 5524.600000143051,
                     "duration": 0.10000014305114746
                   }
                 },
                 {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 71883
-                  },
-                  "timeMs": {
-                    "start": 6246.100000143051,
-                    "end": 6246.100000143051,
-                    "duration": 0
-                  }
-                },
-                {
                   "batchIndex": 1,
                   "renderPass": "OPAQUE",
                   "primitive": "TRIANGLES",
@@ -3979,8 +4021,8 @@
                     "numPrims": 95727
                   },
                   "timeMs": {
-                    "start": 6246.100000143051,
-                    "end": 6246.100000143051,
+                    "start": 5524.600000143051,
+                    "end": 5524.600000143051,
                     "duration": 0
                   }
                 },
@@ -3993,58 +4035,16 @@
                     "numPrims": 26300
                   },
                   "timeMs": {
-                    "start": 6246.100000143051,
-                    "end": 6246.200000047684,
+                    "start": 5524.600000143051,
+                    "end": 5524.700000047684,
                     "duration": 0.09999990463256836
-                  }
-                },
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 71883
-                  },
-                  "timeMs": {
-                    "start": 6246.200000047684,
-                    "end": 6246.200000047684,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 95727
-                  },
-                  "timeMs": {
-                    "start": 6246.200000047684,
-                    "end": 6246.200000047684,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 2,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 26300
-                  },
-                  "timeMs": {
-                    "start": 6246.200000047684,
-                    "end": 6246.200000047684,
-                    "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 6245.799999952316,
-                "end": 6246.200000047684,
-                "duration": 0.40000009536743164
+                "start": 5514.700000047684,
+                "end": 5524.700000047684,
+                "duration": 10
               }
             },
             {
@@ -4059,9 +4059,9 @@
                     "numPrims": 71883
                   },
                   "timeMs": {
-                    "start": 6246.299999952316,
-                    "end": 6246.299999952316,
-                    "duration": 0
+                    "start": 5525,
+                    "end": 5525.100000143051,
+                    "duration": 0.10000014305114746
                   }
                 },
                 {
@@ -4073,9 +4073,9 @@
                     "numPrims": 95727
                   },
                   "timeMs": {
-                    "start": 6246.299999952316,
-                    "end": 6246.299999952316,
-                    "duration": 0
+                    "start": 5525.100000143051,
+                    "end": 5525.300000190735,
+                    "duration": 0.20000004768371582
                   }
                 },
                 {
@@ -4087,15 +4087,119 @@
                     "numPrims": 26300
                   },
                   "timeMs": {
-                    "start": 6246.299999952316,
-                    "end": 6246.299999952316,
+                    "start": 5525.300000190735,
+                    "end": 5525.300000190735,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 6246.200000047684,
-                "end": 6246.299999952316,
+                "start": 5524.700000047684,
+                "end": 5525.300000190735,
+                "duration": 0.6000001430511475
+              }
+            },
+            {
+              "name": "edgesColorOpaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 58705
+                  },
+                  "timeMs": {
+                    "start": 5525.5,
+                    "end": 5525.600000143051,
+                    "duration": 0.10000014305114746
+                  }
+                },
+                {
+                  "batchIndex": 1,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 69737
+                  },
+                  "timeMs": {
+                    "start": 5525.600000143051,
+                    "end": 5525.600000143051,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 2,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 22696
+                  },
+                  "timeMs": {
+                    "start": 5525.600000143051,
+                    "end": 5525.600000143051,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 5525.300000190735,
+                "end": 5525.600000143051,
+                "duration": 0.2999999523162842
+              }
+            },
+            {
+              "name": "edgesColorTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 58705,
+                    "numPrims": 2042
+                  },
+                  "timeMs": {
+                    "start": 5525.700000047684,
+                    "end": 5525.700000047684,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 1,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 69737,
+                    "numPrims": 216
+                  },
+                  "timeMs": {
+                    "start": 5525.700000047684,
+                    "end": 5525.700000047684,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 2,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 22696,
+                    "numPrims": 492
+                  },
+                  "timeMs": {
+                    "start": 5525.700000047684,
+                    "end": 5525.700000047684,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 5525.600000143051,
+                "end": 5525.700000047684,
                 "duration": 0.09999990463256836
               }
             },
@@ -4111,9 +4215,9 @@
                     "numPrims": 30070
                   },
                   "timeMs": {
-                    "start": 6246.400000095367,
-                    "end": 6246.400000095367,
-                    "duration": 0
+                    "start": 5525.800000190735,
+                    "end": 5526.100000143051,
+                    "duration": 0.2999999523162842
                   }
                 },
                 {
@@ -4125,8 +4229,8 @@
                     "numPrims": 180
                   },
                   "timeMs": {
-                    "start": 6246.400000095367,
-                    "end": 6246.400000095367,
+                    "start": 5526.100000143051,
+                    "end": 5526.100000143051,
                     "duration": 0
                   }
                 },
@@ -4139,26 +4243,26 @@
                     "numPrims": 492
                   },
                   "timeMs": {
-                    "start": 6246.400000095367,
-                    "end": 6246.400000095367,
+                    "start": 5526.200000047684,
+                    "end": 5526.200000047684,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 6246.400000095367,
-                "end": 6246.5,
-                "duration": 0.09999990463256836
+                "start": 5525.700000047684,
+                "end": 5526.200000047684,
+                "duration": 0.5
               }
             }
           ],
           "timeMs": {
-            "start": 6207.600000143051,
-            "end": 6256.400000095367,
-            "duration": 48.799999952316284
+            "start": 5454.600000143051,
+            "end": 5531.5,
+            "duration": 76.89999985694885
           },
-          "numDrawCalls": 21,
-          "numPrims": 1194202
+          "numDrawCalls": 27,
+          "numPrims": 1348090
         }
       ]
     }

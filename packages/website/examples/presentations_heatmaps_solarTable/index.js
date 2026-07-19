@@ -1,26 +1,5 @@
-// Animated heat-map response on a hand-built demo table — driven by
-// a glowing orange sphere that orbits the table at table height.
-//
-// Same structure as SolarSweep_Pipes: a separate "heatSource"
-// SceneObject (created AFTER `applyHeatMapMaterials` so it isn't
-// itself painted) carries a small bright sphere that's animated by
-// updating its SceneTransform's position each tick. Per-vertex heat
-// is `Lambert(N, dirToSource) × inverse-square distance falloff` —
-// surfaces facing the source AND close to it light up; surfaces
-// facing away (or in the shadow of another part) stay cold.
-//
-// The table has 5 SceneObjects (4 legs + tabletop), each backed by
-// its OWN SceneGeometry — applyHeatMapMaterials writes a heat map
-// per geometry, so distinct geometries means distinct heat maps.
-// The alternative (one shared cube geometry, instanced 5 times)
-// would force every part to share a single texture and the demo
-// would lose most of its meaning.
-//
-// World-space per-vertex normals AND positions are computed once at
-// setup (mesh world matrix applied to local normals / positions,
-// then renormalised in the normals' case). The per-tick heat
-// computation is then a straight `dot(worldNormal, dirToSource) *
-// falloff(d)` with no per-mesh frame conversion.
+// Animates a solar-analysis heat map by updating surface irradiance as a
+// synthetic sun moves around a simple table model.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 

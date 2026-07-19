@@ -1,7 +1,7 @@
 {
   "id": "formats_xgf_pumpkin",
   "title": "XGF Pumpkin Hill LiDAR Scan",
-  "description": "Loads a LAZ-encoded LiDAR scan, pre-converted to the SDK's optimized XGF format, using XGFLoader. Loading from XGF makes the model load faster than from the original LAS format.",
+  "description": "Loads a LiDAR scan that has been preconverted to optimized XGF.",
   "isTutorial": true,
   "isVisualTest": true,
   "categories": [

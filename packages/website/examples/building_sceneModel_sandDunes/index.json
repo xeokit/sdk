@@ -1,7 +1,7 @@
 {
   "id": "building_sceneModel_sandDunes",
   "title": "Benchmark - Sand Dunes",
-  "description": "Procedurally generate a field of realistic sand dunes combining broad wave undulation with barchan crescent dunes. A custom sandy PBR material adds seamless desert-grain noise and a matching noise normal map for bump relief.",
+  "description": "Shows a procedurally generated sand dune scene with seamless sandy PBR materials.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

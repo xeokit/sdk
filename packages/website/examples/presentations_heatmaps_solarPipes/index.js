@@ -1,31 +1,5 @@
-// Live thermography on a procgen industrial-pipework rack.
-//
-// Suggests a thermal-imaging use case for the dynamic heat-map
-// pipeline: a glowing orange sphere weaves through a small ensemble
-// of pipes / vessels / valves; per-vertex heat is computed as a
-// Lambert term (cos angle between vertex normal and direction to
-// source) multiplied by inverse-square distance falloff, then
-// repainted into each part's heat-map texture every tick. Surfaces
-// close to the source AND facing it light up; surfaces in the
-// shadow of the rack stay cold.
-//
-// Ensemble (one SceneGeometry + heat map per part):
-//   • Hemispherical-capped pressure vessel    (buildLathe)
-//   • Bulged valve body                       (buildLathe)
-//   • Concentric pipe reducer                 (buildLathe)
-//   • Flanged spool                           (buildLathe)
-//   • Arched conduit run                      (buildExtrude)
-//   • Heat-exchanger coil                     (buildExtrude)
-//
-// The natural UVs from buildExtrude / buildLathe (arc-length ×
-// circumferential) are preserved through the painter
-// (`preserveExistingUvs: true`) — re-projecting onto a planar UV
-// plane would collapse half of every pipe's surface to a line.
-//
-// The heat source itself is a small sphere SceneObject created
-// AFTER `applyHeatMapMaterials` finishes, so it doesn't get its
-// own heat map — it stays a constant orange "glow" and just gets
-// its transform updated each tick to move around.
+// Animates a thermography heat map by updating surface temperature as a moving
+// heat source passes through a small process-equipment scene.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 

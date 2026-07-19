@@ -1,16 +1,8 @@
 // Splat → XGF → splat round-trip: load .splat → export to native XGF → re-import → view.
 //
-// Loads the captured "room" interior (3D Gaussian Splatting, baked RGB, no SH)
-// into a temporary SceneModel, writes it out as xeokit's native binary XGF with
-// XGFExporter, then re-imports the XGF bytes into the SceneModel that's actually
-// displayed. Because the model holds GaussianSplatsPrimitive geometry, the
-// exporter auto-selects XGF v3 (the first version with per-splat scale + rotation
-// buffers) — no explicit version needed. Splat centres survive to within XGF's
-// 16-bit position quantisation; scales survive exactly (float32) and rotations to
-// within 8-bit, so the re-imported scene renders like the original.
-//
-// This proves XGF can round-trip a splat SceneModel — i.e. mixed CAD + reality-
-// capture scenes can persist and stream as a single native xeokit asset.
+// Loads a .splat capture into a temporary SceneModel, exports it to xeokit's
+// native binary XGF with XGFExporter, then re-imports the XGF bytes into the
+// displayed SceneModel.
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 // antimatter15 .splat sample (Train scene). Source dataset is research /

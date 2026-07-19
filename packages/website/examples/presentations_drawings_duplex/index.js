@@ -1,22 +1,5 @@
-// Wireframe-projection demo — loads the Duplex IFC into a Y-up
-// SceneModel inside a Z-up Scene, then projects three drawing
-// SceneModels onto the AABB faces that yield a plan view (above)
-// and two elevations (front, right). Each projected SceneObject
-// is pickable; the click handler maps the picked id back to its
-// source object.
-//
-// The example exercises the caller-owned-target shape of the
-// drawings API: we create each target SceneModel up front via
-// `scene.createModel`, pass it into `buildDrawing` as
-// `targetModel`, and destroy it ourselves when rebuilding or
-// tearing down. `buildDrawing` no longer creates or destroys
-// SceneModels — it only populates the one we hand it.
-//
-// A floating control panel exposes the main `buildDrawing`
-// configuration knobs (style, HLE, chrome, projection, section
-// cut) so the effect of each parameter is visible live. Every
-// change rebuilds the three projections in place; in-flight
-// builds get cancelled cleanly via `target.destroyed`.
+// Generates plan and elevation drawings from a building model, with live
+// controls for drawing style, clipping and layout.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
@@ -138,7 +121,6 @@ studio.init().then(() => {
         if (!xeokit.presentations.drawings.canBuildDrawing(
               sourceSceneModel, "either")) {
           console.warn("source has no projectable edges or fills");
-          studio.openInfoPanelFromMeta();
           studio.finished();
           return;
         }

@@ -1,7 +1,7 @@
 {
   "id": "formats_xgf_map",
   "title": "XGF Geolocated Apartment",
-  "description": "Loads a georeferenced IFC building model that uses double-precision world coordinates, which xeokit preserves for BIM/GIS-scale scenes. The model is loaded from XGF, preconverted from IFC for fast loading.",
+  "description": "Loads a georeferenced building model from optimized XGF.",
   "isTutorial": true,
   "isVisualTest": true,
   "categories": [

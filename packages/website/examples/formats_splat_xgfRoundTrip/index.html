@@ -26,11 +26,9 @@
 <canvas id="demoCanvas"></canvas>
 <div id="status">Loading…</div>
 <div id="caption">
-    This scene was loaded from <code>.splat</code>, exported to xeokit's native
-    binary <code>XGF</code> (the exporter auto-selects v3 because the model holds
-    Gaussian-splat geometry), then re-imported with <code>XGFLoader</code> — a full
-    round-trip through XGF. Scales survive exactly and rotations to within 8-bit, so
-    it renders like the original. Drag to orbit, scroll to zoom, right-drag to pan.
+    Loads a <code>.splat</code> capture, exports it to <code>XGF</code>, then
+    re-imports it with <code>XGFLoader</code>. Drag to orbit, scroll to zoom,
+    right-drag to pan.
 </div>
 </body>
 <script type="module" src="./index.js"></script>

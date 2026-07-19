@@ -1,7 +1,7 @@
 {
   "id": "viewing_effects_duplex",
   "title": "Duplex Model with Configurable Rendering Effects",
-  "description": "Every post-process and shading knob exposed on one Duplex IFC scene — SAO, cascaded directional shadows, edges, tonemap + supersampling, bloom, and FXAA. Use the collapsible sections in the panel to tune each effect in isolation.",
+  "description": "Shows configurable rendering effects on a duplex building model.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

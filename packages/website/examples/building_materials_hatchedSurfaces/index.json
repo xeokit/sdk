@@ -1,7 +1,7 @@
 {
   "id": "building_materials_hatchedSurfaces",
   "title": "Hatch Patterns - Interactively Switch Coordinate Spaces",
-  "description": "Six boxes side-by-side, each carrying a `SceneMaterial` with a different hatch pattern. The picker in the intro toggles all five hatched materials between screen-space and world-space coordinate modes at runtime via `material.hatchPattern = …` and the `onSceneMaterialPatternChanged` re-encode path. Screen-space mode keeps spacing and line-width in pixels (camera-locked); world-space mode keeps them in world units (geometry-locked) — matching how a CAD package's material-fill hatches behave under zoom. Picking ignores the hatch in both modes.",
+  "description": "Shows hatch-pattern materials with controls for switching between screen-space and world-space placement.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

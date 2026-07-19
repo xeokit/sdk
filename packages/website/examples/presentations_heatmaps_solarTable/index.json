@@ -1,7 +1,7 @@
 {
   "id": "presentations_heatmaps_solarTable",
   "title": "Animated Solar Irradiance Heat Map",
-  "description": "Same live daylight study as the IfcOpenHouse4 sweep, on a tiny hand-built model — four legs and a tabletop, each its own SceneGeometry. A synthetic sun arcs from sunrise to sunset and the per-vertex Lambert irradiance is repainted into each part's heat-map texture every tick. Useful as a sanity check (a cube's faces have axis-aligned normals, so the lit side at zenith vs. horizon is unambiguous) and as the smallest possible test bed for the live-update pipeline.",
+  "description": "Shows an animated solar-analysis heat map that updates surface irradiance as a synthetic sun moves around the model.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

@@ -54,6 +54,13 @@ studio.init().then(() => {
       }
     }
   });
+  view.effects.edges.renderModes = [
+  ];
+  const adaptiveQuality = xeokit.viewing.adaptiveQuality.AdaptiveQuality.getFor(view);
+  if (adaptiveQuality) {
+    adaptiveQuality.enabled = false;
+  }
+  view.renderMode = xeokit.base.constants.RealisticRender;
 
   const status = document.getElementById("status");
   const panel  = document.getElementById("panel");
@@ -70,7 +77,6 @@ studio.init().then(() => {
       status.style.display = "none";
       panel.style.display = "block";
       wireUpPanel(view);
-      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch(err => {

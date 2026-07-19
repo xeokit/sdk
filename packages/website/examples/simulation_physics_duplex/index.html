@@ -24,9 +24,9 @@
 
         #physicsHud {
             position: absolute;
-            top: 100px;
-            right: 16px;
-            width: 200px;
+            top: 17px;
+            right: 17px;
+            width: 240px;
             padding: 12px 14px;
             background: rgba(255, 255, 255, 0.93);
             backdrop-filter: blur(6px);
@@ -115,7 +115,7 @@
 
 <div id="physicsHud">
     <h1>Inverse-gravity Duplex</h1>
-    <div class="hint">The Duplex building stands intact until you press "Initiate collapse" — every part then becomes a dynamic Rapier body and falls under gravity. Toggle gravity to lift the heap back up again.</div>
+    <div class="hint">Shows a building model driven by Rapier physics, with gravity controls that animate the model parts.</div>
     <div class="row"><span class="label">Bodies:</span>           <span id="hudBodies"  class="number">0</span></div>
     <div class="row"><span class="label">Dynamic parts:</span>    <span id="hudDynamic" class="number">0</span></div>
     <div class="row"><span class="label">Gravity:</span>          <span id="hudGravity" class="accent">↓ down (falling)</span></div>

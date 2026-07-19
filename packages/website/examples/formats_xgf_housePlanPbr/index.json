@@ -1,7 +1,7 @@
 {
   "id": "formats_xgf_housePlanPbr",
   "title": "XGF House Plan",
-  "description": "Views a house plan model containing physically-based materials, loaded from the SDK's optimized XGF format. The XGF is pre-converted from the original glTF model, allowing the model to load faster.",
+  "description": "Loads a PBR house plan model from optimized XGF.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

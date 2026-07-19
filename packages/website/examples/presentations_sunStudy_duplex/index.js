@@ -119,18 +119,7 @@ studio.init().then(async () => {
 
   // ── Panel ────────────────────────────────────────────────────────
   studio.panels.open("sunStudyPanel", { sunStudy, player });
-
-  // ── Info panel — describes the demo ─────────────────────────────
-  await studio.openInfoPanelFromMeta();
-
-  // ── Daylight-analysis panel ─────────────────────────────────────
-  //
-  // Opened through Studio's panel registry (same route SchedulePanel
-  // and SunStudyPanel use). The panel auto-fits its grid to the
-  // scene AABB on first mount, exposes editable bounds + resolution
-  // + time-resolution inputs, and owns the lifecycle of the heatmap
-  // SceneModel it builds — each "Run" replaces the previous one.
-  studio.panels.open("daylightAnalysisPanel", { sunStudy, scene });
+  positionPanelTopRight(".xkt-sun-panel");
 
   studio.finished();
 
@@ -142,4 +131,16 @@ studio.init().then(async () => {
 function mustCreate(result) {
   if (!result.ok) throw new Error(result.error);
   return result.value;
+}
+
+function positionPanelTopRight(selector) {
+  const panel = document.querySelector(selector);
+  if (!panel) return;
+  Object.assign(panel.style, {
+    top: "17px",
+    right: "17px",
+    bottom: "auto",
+    left: "auto",
+    transform: "none",
+  });
 }

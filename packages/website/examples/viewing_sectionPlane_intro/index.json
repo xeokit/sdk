@@ -1,7 +1,7 @@
 {
   "id": "viewing_sectionPlane_intro",
   "title": "View — section planes",
-  "description": "A row of sphere-on-cube pairs sliced by two section planes (one horizontal, one diagonal). Sliders move each plane along its normal; the toggle buttons activate / deactivate. The renderer packs every active plane into a fixed-size uniform `vec4[8]` bank and the fragment shader walks `uSectionPlaneCount` of them per fragment — so creating, destroying, or toggling planes never recompiles the shader, and scenes with no active planes pay one int compare per fragment for the whole feature.",
+  "description": "Shows movable section planes slicing simple geometry, with controls for position and visibility.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

@@ -1,23 +1,5 @@
-// Demo: automatic camera walkthrough of the Duplex BIM model.
-//
-// Runs the full `presentations.cameraTour` pipeline end-to-end:
-//   1. Loads the SceneModel from xeokit's native XGF binary and the
-//      DataModel from the paired JSON sidecar (semantics shipped
-//      separately from geometry — the canonical streamed-model
-//      payload). Both load through `studio.loadModel`, which picks
-//      the right loader (XGFLoader / DataModelParamsLoader) by
-//      the supplied `format` tag.
-//   2. `planCameraTour({sceneModel, dataModel})` walks the IfcSpace
-//      + IfcDoor graph from the DataModel, samples viewpoints
-//      inside each room, and orders a tour with 2-opt-refined
-//      greedy nearest-neighbour.
-//   3. `playCameraTour(view, tour)` drives the camera through the
-//      resulting waypoints, dwelling at each room and easing
-//      smoothly between them.
-//
-// The HUD shows the active room's IfcSpace label and progress
-// through the tour; on completion it reports the room count and
-// estimated duration.
+// Generates and plays an automatic room-by-room camera walkthrough of the OTC
+// Conference Center model.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
@@ -43,6 +25,7 @@ studio.init().then(() => {
     // scope of a real walkthrough rather than the keyhole feel
     // of a tighter lens.
     const view = studio.viewManager.createView({
+        id: "walkthroughView",
         camera: {
             eye:  [24.40, 23.70, 27.04],
             look: [4.39, 8.90, 2.54],
@@ -199,7 +182,6 @@ studio.init().then(() => {
             console.error(err);
         });
 });
-
 
 function escapeHtml(s) {
     return s.replace(/[&<>"']/g, c => ({

@@ -1,7 +1,7 @@
 {
   "id": "presentations_volumeOverlay_atrium",
   "title": "Atrium Thermal Flow Visualization",
-  "description": "Dedicated showcase for VolumeOverlayPanel — three visualisation techniques (slice plane, iso-surface, streamlines) driven from the same VoxelGrid + VectorGrid pair. Scene is a simple double-height atrium (procedural geometry, no model load) so the volumetric data reads as the focus rather than the building. The thermal field shows vertical stratification + a Gaussian heat plume; the companion vector field gives natural-convection streamlines (buoyant updraft + radial inflow at the floor + ceiling outflow). Switch techniques live from the panel's Technique selector.",
+  "description": "Shows thermal flow in an atrium with volume overlays for streamlines, slices and iso-surfaces.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

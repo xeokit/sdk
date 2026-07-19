@@ -1,7 +1,7 @@
 {
   "id": "formats_pdf_duplexLevel1",
   "title": "PDF Duplex Floor Plan Drawing",
-  "description": "Loads a Level 1 Duplex Apartment floor plan from a vector PDF with PDFLoader. The example shows PDF linework, fills and text rendered as scene geometry in a top-down plan view.",
+  "description": "Loads a duplex floor plan PDF as top-down scene geometry.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

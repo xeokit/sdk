@@ -1,7 +1,7 @@
 {
   "id": "building_sceneModel_cityscape",
   "title": "Benchmark - Procedural Cityscape",
-  "description": "Benchmark: procedurally generate ~40,000 buildings in a SceneModel using a single shared box geometry, scaled transforms, and a seeded PRNG for reproducible layout.",
+  "description": "Benchmarks a large procedural city built from repeated geometry.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

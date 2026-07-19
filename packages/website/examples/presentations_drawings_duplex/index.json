@@ -1,7 +1,7 @@
 {
   "id": "presentations_drawings_duplex",
   "title": "Auto-Generated Drawings",
-  "description": "Generates three drawing SceneModels (plan, front elevation, right elevation) from the Duplex IFC model via buildDrawing, with a live control panel for every major drawings API parameter — style (lines / fills), hidden-line elimination + resolution, frame margin, panel opacity, title block, plane offset, line width, and a per-plan section cut. When the section caps toggle is enabled, buildSectionCaps generates filled cap geometry at the cut depth, then buildDrawing is called a SECOND time onto the same plan-view target SceneModel — demonstrating multi-source composition (caller threads matching direction / aabb / offset, chrome only on the first call). Clicking any drawing selects the source ViewObject.",
+  "description": "Generates plan and elevation drawings from a building model, with live controls for drawing style, clipping and layout.",
   "isTutorial": false,
   "isVisualTest": true,
   "categories": [

@@ -1,17 +1,7 @@
 // 4D construction scheduling for the Duplex.
 //
-// Loads the Duplex as an XGF (cheaper to commit than re-parsing the
-// IFC) and then bins every SceneObject into one of six construction
-// stages by sweeping the model bottom-to-top by AABB centre Z. The
-// resulting synthetic 24-week schedule drives `SchedulePlayer`, which
-// transitions each bin through Pending → InProgress → Complete by
-// writing per-object visibility / colour / opacity to the data
-// textures. Scrubbing the timeline scrolls the cursor; pressing Play
-// advances at a configurable schedule-days-per-second cadence.
-//
-// The point of the example, beyond looking neat, is to demonstrate
-// that per-object state changes at BIM-scale aren't an authoring
-// pipeline — they're a runtime operation the SDK was built for.
+// Links schedule tasks to model state so the Duplex construction sequence can
+// be scrubbed or played as a 4D BIM timeline.
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
@@ -177,10 +167,9 @@ studio.init().then(async () => {
   studio.panels.open("schedulePanel", {
     player,
     title: "4D BIM Construction Schedule",
-    x: 17,
-    y: 72,
     storageKey: "xkt-sch-panel-presentations-schedule-duplex",
   });
+  positionPanelTopRight(".xkt-sch-panel");
 
   // ── Fly the camera to each milestone's currently-active scope ──
   //
@@ -218,4 +207,16 @@ studio.init().then(async () => {
 function mustCreate(result) {
   if (!result.ok) throw new Error(result.error);
   return result.value;
+}
+
+function positionPanelTopRight(selector) {
+  const panel = document.querySelector(selector);
+  if (!panel) return;
+  Object.assign(panel.style, {
+    top: "17px",
+    right: "17px",
+    bottom: "auto",
+    left: "auto",
+    transform: "none",
+  });
 }

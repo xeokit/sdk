@@ -1,7 +1,7 @@
 {
   "id": "building_materials_aecChart",
   "title": "Physically-Based Materials for AEC",
-  "description": "Common AEC materials — brick, concrete, limestone, granite, marble, oak, painted plaster, asphalt, polished and brushed steel, copper, and glass, viewed using the SDK's physically-based rendering techniques.",
+  "description": "Shows common AEC materials rendered with physically based shading.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

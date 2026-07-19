@@ -1,7 +1,7 @@
 {
   "id": "formats_xgf_sportsCar",
   "title": "XGF Sports Car - Multiple Views",
-  "description": "Load an XGF sports car model with XGFLoader and display it in multiple independent views. The XGF was pre-converted from OBJ+MTL for faster loading.",
+  "description": "Loads a sports car model from XGF and displays it in multiple views.",
   "isTutorial": true,
   "isVisualTest": true,
   "categories": [

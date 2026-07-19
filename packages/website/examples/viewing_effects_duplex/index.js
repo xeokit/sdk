@@ -42,7 +42,6 @@ studio.init().then(() => {
       if (status) status.style.display = "none";
       if (panel)  panel.style.display = "block";
       wireUpPanel(view);
-      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch(err => console.error(err));

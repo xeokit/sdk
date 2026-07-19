@@ -291,7 +291,6 @@ studio.init().then(() => {
     status.textContent = "Click \"Initiate collapse\" to drop the building under gravity.";
     requestAnimationFrame(tick);
 
-    studio.openInfoPanelFromMeta();
     studio.finished();
 
   }).catch(err => {

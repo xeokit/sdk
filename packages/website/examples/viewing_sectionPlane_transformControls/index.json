@@ -1,7 +1,7 @@
 {
   "id": "viewing_sectionPlane_transformControls",
   "title": "SectionPlane driven by TransformControls",
-  "description": "Slice the Duplex XGF model by binding a TransformControls gizmo to a SectionPlane via a getMatrix / setMatrix adapter. Drag to translate the plane, press R to rotate its normal.",
+  "description": "Shows a transform gizmo controlling a section plane on a duplex model.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

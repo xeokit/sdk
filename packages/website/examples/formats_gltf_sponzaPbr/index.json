@@ -1,7 +1,7 @@
 {
   "id": "formats_gltf_sponzaPbr",
   "title": "glTF Sponza",
-  "description": "Loads the Khronos Sponza glTF 2.0 sample asset (full PBR — baseColor + metallicRoughness + normal maps) directly from the Khronos sample-asset CDN, and exposes every renderer effect (IBL, shadows, SAO, tonemap, bloom, AA, edges) through a side panel so you can see exactly what each one contributes.",
+  "description": "Loads the Sponza glTF sample and exposes renderer effects for comparing PBR presentation.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

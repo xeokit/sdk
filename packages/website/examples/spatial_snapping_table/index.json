@@ -1,7 +1,7 @@
 {
   "id": "spatial_snapping_table",
   "title": "Pointer Snapping on Triangle Meshes",
-  "description": "Shows the WebGLRenderer's snap-pick pipeline. As the cursor moves over a small table SceneModel, every `mousemove` is routed through `renderer.pick(view, {canvasPos, snapToVertex, snapToEdge, snapRadius})`. The renderer rasterises the surrounding pickable vertices and edges into a tiny RGBA32F framebuffer centred on the cursor, scans for the nearest non-empty texel, and reports the world-space snap target. A small marker re-tints itself red / amber / teal depending on whether the result is a vertex snap, an edge snap, or a plain surface pick.",
+  "description": "Shows pointer snapping on triangle meshes, with markers for vertex, edge, and surface hits.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

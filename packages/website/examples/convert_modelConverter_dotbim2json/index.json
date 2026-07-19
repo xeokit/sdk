@@ -1,7 +1,7 @@
 {
   "id": "convert_modelConverter_dotbim2json",
   "title": "Convert DotBIM to JSON with ModelConverter",
-  "description": "Use ModelConverter to convert a dotbim (.bim) model into SceneModelParams and DataModelParams JSON, then load and view the result in xeokit.",
+  "description": "Converts a DotBIM model to SDK JSON params, then loads the result.",
   "isTutorial": true,
   "isVisualTest": true,
   "categories": [

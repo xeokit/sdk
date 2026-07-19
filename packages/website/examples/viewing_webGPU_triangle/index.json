@@ -1,7 +1,7 @@
 {
   "id": "viewing_webGPU_triangle",
   "title": "WebGPU renderer triangle depth demo",
-  "description": "Runs the experimental WebGPU renderer directly with a minimal Scene, Viewer, one canvas View, and two indexed triangle meshes. The triangles overlap at different depths to exercise the current flat-color draw path and depth buffer.",
+  "description": "Shows overlapping triangles rendered with the experimental WebGPU renderer.",
   "isTutorial": false,
   "isVisualTest": false,
   "categories": [

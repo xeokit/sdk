@@ -1,7 +1,7 @@
 {
   "id": "presentations_sunStudy_duplex",
   "title": "Sun Study — Duplex (Vancouver)",
-  "description": "Place the Duplex at a notional Vancouver site (49.28°N, -123.12°W) and drive a SunStudy with an AnnualSunPlayer. Scrub the time-of-day slider to watch shadows sweep across the building; toggle Day vs Year to playback either a single day or a full Jan-to-Dec sun-angle envelope. The directional 'sun' light's azimuth, altitude, colour, and intensity all derive from the NOAA Solar Position Algorithm — same math that powers daylight-factor compliance reports (LEED EQ Credit 8.1, BREEAM Hea 01, EN 17037).",
+  "description": "Shows an interactive sun study on a duplex model, with time controls that animate daylight and shadows.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

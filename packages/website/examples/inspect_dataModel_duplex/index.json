@@ -1,7 +1,7 @@
 {
   "id": "inspect_dataModel_duplex",
   "title": "Data Model Health Inspection",
-  "description": "Loads Duplex semantic data and XGF geometry, then opens Studio Data Health with an IFC4 schema subset. This demonstrates SDK DataModel validation for semantic structure, IFC relationships, and cleanup checks.",
+  "description": "Shows semantic model validation and cleanup checks on a duplex building model.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

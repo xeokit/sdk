@@ -640,7 +640,7 @@ span.clients-name {
     height: 100vh;
     min-height: 600px;
     max-height: 600px;
-    background: linear-gradient(to right,  rgba(0, 0, 0, 0.6), rgba(0,0, 0, 0.0) ), url('https://xeokit.io/img/RevitSamples.png') center center no-repeat scroll;
+    background: url('../images/bakuStadium.png') center center no-repeat scroll;
     /*background: linear-gradient(to right,  rgba(0, 0, 0.8, 0.99), rgba(0,0, 0, 0.2)  ), url('../img/kdtree.jpeg') center center no-repeat scroll;*/
     background-position:center center;
     -webkit-background-size: cover;

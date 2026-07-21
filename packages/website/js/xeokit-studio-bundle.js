@@ -10566,10 +10566,10 @@ async function yieldToHost(signal, intervalMs) {
     throw _abortError();
   }
   const interval = intervalMs ?? _intervalOverrideMs ?? DEFAULT_INTERVAL_MS;
-  const now = _now();
-  if (now - _lastYieldMs < interval)
+  const now3 = _now();
+  if (now3 - _lastYieldMs < interval)
     return;
-  _lastYieldMs = now;
+  _lastYieldMs = now3;
   await new Promise((resolve2) => setTimeout(resolve2, 0));
   if (signal && signal.aborted) {
     throw _abortError();
@@ -23015,7 +23015,7 @@ var ModelLoader = class {
       if (!filePath && !fileData) {
         return reject(`[${className}.load] Argument expected: filePath or fileData`);
       }
-      const loadFileData = (fileData2) => {
+      const loadFileData2 = (fileData2) => {
         if (this.fileDataType === "json" && !isJSONObject(fileData2)) {
           return reject(`[${className}.load] Argument type mismatch: params.fileData should be a JSON object`);
         }
@@ -23068,12 +23068,12 @@ var ModelLoader = class {
       };
       if (filePath) {
         getFileIO().load(filePath).then((fileData2) => {
-          loadFileData(fileData2);
+          loadFileData2(fileData2);
         }).catch((err6) => {
           reject(`[${className}.load] Cannot load glTF -> ${err6}`);
         });
       } else {
-        loadFileData(fileData);
+        loadFileData2(fileData);
       }
     });
   }
@@ -23257,6 +23257,7 @@ __export(formats_exports, {
   threedxml: () => threedxml_exports,
   usdz: () => usdz_exports,
   xgf: () => xgf_exports,
+  xgfstream: () => xgfstream_exports,
   xkt: () => xkt_exports
 });
 
@@ -32399,7 +32400,13 @@ function parseMesh(node, ctx2, matrix, meshIds) {
           geometryParams.uvs = primitive.attributes.TEXCOORD_0.value;
         }
         if (primitive.indices) {
-          geometryParams.indices = primitive.indices.value;
+          geometryParams.indices = indicesForPrimitiveMode(primitive.mode, primitive.indices.value);
+        } else {
+          const implicitIndices = implicitSequentialIndices(POSITION.value.length / 3);
+          const expanded = indicesForPrimitiveMode(primitive.mode, implicitIndices);
+          if (expanded !== implicitIndices || primitive.mode === 1) {
+            geometryParams.indices = expanded;
+          }
         }
         const result2 = ctx2.sceneModel.createGeometry(geometryParams);
         if (result2.ok === false) {
@@ -32430,6 +32437,54 @@ function parseMesh(node, ctx2, matrix, meshIds) {
     }
   }
   return true;
+}
+function implicitSequentialIndices(vertexCount2) {
+  const indices = new Uint32Array(vertexCount2);
+  for (let i = 0; i < vertexCount2; i++) {
+    indices[i] = i;
+  }
+  return indices;
+}
+function indicesForPrimitiveMode(mode, indices) {
+  switch (mode) {
+    case 2:
+      return expandLineLoopIndices(indices);
+    case 3:
+      return expandLineStripIndices(indices);
+    case 1:
+      return indices.length % 2 === 0 ? indices : copyIndices(indices, indices.length - 1);
+    default:
+      return indices;
+  }
+}
+function expandLineStripIndices(indices) {
+  if (indices.length < 2) {
+    return new Uint32Array(0);
+  }
+  const expanded = new Uint32Array((indices.length - 1) * 2);
+  for (let i = 0, cursor = 0; i < indices.length - 1; i++) {
+    expanded[cursor++] = indices[i];
+    expanded[cursor++] = indices[i + 1];
+  }
+  return expanded;
+}
+function expandLineLoopIndices(indices) {
+  if (indices.length < 2) {
+    return new Uint32Array(0);
+  }
+  const expanded = new Uint32Array(indices.length * 2);
+  for (let i = 0, cursor = 0; i < indices.length; i++) {
+    expanded[cursor++] = indices[i];
+    expanded[cursor++] = indices[(i + 1) % indices.length];
+  }
+  return expanded;
+}
+function copyIndices(indices, length2) {
+  const copied = new Uint32Array(Math.max(0, length2));
+  for (let i = 0; i < copied.length; i++) {
+    copied[i] = indices[i];
+  }
+  return copied;
 }
 function splitPrimitiveByFeature(ctx2, primitive, matrix) {
   if (primitive.mode != null && primitive.mode !== 4) {
@@ -106001,6 +106056,625 @@ async function parse8(params, options) {
   });
 }
 
+// ../sdk/src/formats/xgf/versions/v2/xgfToModel.ts
+var NUM_MATERIAL_ATTRIBUTES2 = 4;
+var NUM_MATERIAL_TEXTURE_REFS2 = 5;
+var NUM_MATERIAL_PBR_BYTES2 = 8;
+var NUM_TEXTURE_SAMPLER_BYTES2 = 5;
+var NO_INDEX2 = 4294967295;
+var SAMPLER_DECODE2 = {
+  1: RepeatWrapping,
+  2: ClampToEdgeWrapping,
+  3: MirroredRepeatWrapping,
+  4: NearestFilter,
+  5: LinearFilter,
+  6: NearestMipMapNearestFilter,
+  7: LinearMipMapNearestFilter,
+  8: NearestMipMapLinearFilter,
+  9: LinearMipMapLinearFilter
+};
+var MEDIA_TYPE_DECODE2 = {
+  0: PNGMediaType,
+  1: JPEGMediaType,
+  2: GIFMediaType
+};
+var ALPHA_MODE_NAMES2 = ["OPAQUE", "MASK", "BLEND"];
+async function xgfToModel2(params) {
+  const { xgfData, sceneModel, dataModel, options } = params;
+  const layerId = options?.layerId || "default";
+  const meshIdPrefix = options?.meshIdPrefix;
+  const createdIds = options?.createdIds;
+  const defaultId = sceneModel ? sceneModel.id : createUUID();
+  const fail = (message) => {
+    if (createdIds) {
+      createdIds.error = message;
+    }
+    sceneModel?.scene.logError({
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: message
+    });
+    return false;
+  };
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (options.onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      options.onProgress(progress);
+    }
+    await yieldToHost(options.signal);
+  };
+  if (dataModel) {
+    dataModel.createObject({
+      id: defaultId,
+      name: defaultId,
+      type: "BasicEntity"
+    });
+  }
+  const {
+    positions,
+    colors,
+    indices,
+    edgeIndices,
+    aabbs,
+    normals,
+    uvs,
+    scales,
+    rotations,
+    eachGeometryPositionsBase,
+    eachGeometryColorsBase,
+    eachGeometryIndicesBase,
+    eachGeometryEdgeIndicesBase,
+    eachGeometryNormalsBase,
+    eachGeometryUVsBase,
+    eachGeometryScalesBase,
+    eachGeometryRotationsBase,
+    eachGeometryAABBBase,
+    eachGeometryPrimitiveType,
+    matrices,
+    textureData,
+    eachTextureDataBase,
+    eachTextureMediaType,
+    eachTextureWidth,
+    eachTextureHeight,
+    eachTextureSampler,
+    eachTextureEncoding,
+    eachTextureId,
+    eachMaterialPBR,
+    eachMaterialColor,
+    eachMaterialTextures,
+    eachMaterialId,
+    eachMaterialTriplanarScale,
+    eachMeshGeometriesBase,
+    eachMeshMatricesBase,
+    eachMeshMaterialAttributes,
+    eachMeshMaterial,
+    eachObjectId,
+    eachObjectMeshesBase
+  } = xgfData;
+  const eachGeometryId = xgfData.eachGeometryId;
+  const eachMeshGeometryId = xgfData.eachMeshGeometryId;
+  const eachMeshMaterialId = xgfData.eachMeshMaterialId;
+  const eachTransformId = xgfData.eachTransformId;
+  const eachTransformParentId = xgfData.eachTransformParentId;
+  const eachTransformMatricesBase = xgfData.eachTransformMatricesBase;
+  const eachMeshParentTransformId = xgfData.eachMeshParentTransformId;
+  const numGeometries = eachGeometryPositionsBase.length;
+  const numMeshes = eachMeshGeometriesBase.length;
+  const numObjects = eachObjectMeshesBase.length;
+  const numTextures = eachTextureDataBase.length;
+  const numMaterials = eachMaterialId.length;
+  const createdTextureIds = [];
+  if (sceneModel) {
+    const DECODE_CHUNK = 4;
+    const canDecode = typeof createImageBitmap === "function" && typeof Blob !== "undefined";
+    const sliceFor = (i) => textureData.subarray(
+      eachTextureDataBase[i],
+      i === numTextures - 1 ? textureData.length : eachTextureDataBase[i + 1]
+    );
+    const samplerParamsFor = (i) => {
+      const sBase = i * NUM_TEXTURE_SAMPLER_BYTES2;
+      return {
+        minFilter: SAMPLER_DECODE2[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
+        magFilter: SAMPLER_DECODE2[eachTextureSampler[sBase + 1]] || LinearFilter,
+        wrapS: SAMPLER_DECODE2[eachTextureSampler[sBase + 2]] || RepeatWrapping,
+        wrapT: SAMPLER_DECODE2[eachTextureSampler[sBase + 3]] || RepeatWrapping,
+        wrapR: SAMPLER_DECODE2[eachTextureSampler[sBase + 4]] || RepeatWrapping,
+        width: eachTextureWidth[i],
+        height: eachTextureHeight[i]
+      };
+    };
+    for (let chunkStart = 0; chunkStart < numTextures; chunkStart += DECODE_CHUNK) {
+      await step2("Decoding textures", chunkStart, numTextures);
+      const chunkEnd = Math.min(chunkStart + DECODE_CHUNK, numTextures);
+      const decoding = [];
+      for (let i = chunkStart; i < chunkEnd; i++) {
+        const bytes = sliceFor(i);
+        const standardMedia = MEDIA_TYPE_DECODE2[eachTextureMediaType[i]];
+        if (bytes.length > 0 && standardMedia !== void 0) {
+          const blob = new Blob([bytes], {
+            type: standardMedia === PNGMediaType ? "image/png" : standardMedia === JPEGMediaType ? "image/jpeg" : "image/gif"
+          });
+          decoding.push(canDecode ? createImageBitmap(blob).catch(() => null) : null);
+        } else {
+          decoding.push(null);
+        }
+      }
+      const bitmaps = await Promise.all(decoding.map((p) => p ?? Promise.resolve(null)));
+      for (let i = chunkStart; i < chunkEnd; i++) {
+        const id = eachTextureId[i] || `texture-${i}`;
+        createdTextureIds.push(id);
+        if (sceneModel.textures[id]) {
+          continue;
+        }
+        const samplerParams = samplerParamsFor(i);
+        const bytes = sliceFor(i);
+        const bitmap = bitmaps[i - chunkStart];
+        const standardMedia = MEDIA_TYPE_DECODE2[eachTextureMediaType[i]];
+        let textureResult;
+        if (bytes.length === 0) {
+          const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
+          const imageData2 = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
+          textureResult = sceneModel.createTexture({
+            id,
+            imageData: imageData2,
+            mediaType: PNGMediaType,
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            width: 1,
+            height: 1,
+            flipY: false
+          });
+        } else if (bitmap) {
+          textureResult = sceneModel.createTexture({
+            id,
+            image: bitmap,
+            mediaType: MEDIA_TYPE_DECODE2[eachTextureMediaType[i]],
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            width: bitmap.width,
+            height: bitmap.height,
+            flipY: false
+          });
+        } else if (standardMedia !== void 0) {
+          textureResult = sceneModel.createTexture({
+            id,
+            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+            mediaType: standardMedia,
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            flipY: false
+          });
+        } else {
+          textureResult = sceneModel.createTexture({
+            id,
+            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            flipY: false,
+            compressed: true
+          });
+        }
+        if (textureResult && textureResult.ok === false) {
+          fail(textureResult.error);
+          return;
+        }
+        createdIds?.textures.push(id);
+      }
+    }
+  }
+  if (sceneModel) {
+    for (let i = 0; i < numMaterials; i++) {
+      if ((i & 63) === 0)
+        await step2("Building materials", i, numMaterials);
+      const id = eachMaterialId[i];
+      if (sceneModel.materials[id]) {
+        continue;
+      }
+      const base = i * NUM_MATERIAL_PBR_BYTES2;
+      const tBase = i * NUM_MATERIAL_TEXTURE_REFS2;
+      const params2 = {
+        id,
+        color: [
+          eachMaterialColor[i * 3],
+          eachMaterialColor[i * 3 + 1],
+          eachMaterialColor[i * 3 + 2]
+        ],
+        opacity: eachMaterialPBR[base + 3] / 255,
+        roughness: eachMaterialPBR[base + 4] / 255,
+        metallic: eachMaterialPBR[base + 5] / 255,
+        alphaMode: ALPHA_MODE_NAMES2[eachMaterialPBR[base + 6]] || "OPAQUE",
+        alphaCutoff: eachMaterialPBR[base + 7] / 255,
+        triplanarScale: eachMaterialTriplanarScale[i]
+      };
+      const colorIdx = eachMaterialTextures[tBase];
+      const mrIdx = eachMaterialTextures[tBase + 1];
+      const normalsIdx = eachMaterialTextures[tBase + 2];
+      const occlusionIdx = eachMaterialTextures[tBase + 3];
+      const emissiveIdx = eachMaterialTextures[tBase + 4];
+      if (colorIdx >= 0)
+        params2.colorTextureId = createdTextureIds[colorIdx];
+      if (mrIdx >= 0)
+        params2.metallicRoughnessTextureId = createdTextureIds[mrIdx];
+      if (normalsIdx >= 0)
+        params2.normalsTextureId = createdTextureIds[normalsIdx];
+      if (occlusionIdx >= 0)
+        params2.occlusionTextureId = createdTextureIds[occlusionIdx];
+      if (emissiveIdx >= 0)
+        params2.emissiveTextureId = createdTextureIds[emissiveIdx];
+      const materialResult = sceneModel.createMaterial(params2);
+      if (materialResult && materialResult.ok === false) {
+        fail(materialResult.error);
+        return;
+      }
+      createdIds?.materials.push(id);
+    }
+  }
+  if (sceneModel && eachTransformId && eachTransformMatricesBase && sceneModel.transforms && typeof sceneModel.createTransform === "function") {
+    for (let i = 0; i < eachTransformId.length; i++) {
+      const id = eachTransformId[i];
+      if (!id || sceneModel.transforms[id])
+        continue;
+      const matricesBase = eachTransformMatricesBase[i];
+      const transformResult = sceneModel.createTransform({
+        id,
+        matrix: matrices.subarray(matricesBase, matricesBase + 16)
+      });
+      if (transformResult && transformResult.ok === false) {
+        fail(transformResult.error);
+        return;
+      }
+      createdIds?.transforms.push(id);
+    }
+    if (eachTransformParentId) {
+      for (let i = 0; i < eachTransformId.length; i++) {
+        const id = eachTransformId[i];
+        const parentId = eachTransformParentId[i];
+        if (!id || !parentId)
+          continue;
+        const transform = sceneModel.transforms[id];
+        if (!transform) {
+          fail(`[xgf] Transform '${id}' not found while assigning parent '${parentId}'`);
+          return;
+        }
+        const parentResult = transform.setParentTransformId(parentId);
+        if (parentResult && parentResult.ok === false) {
+          fail(parentResult.error);
+          return;
+        }
+      }
+    }
+  }
+  let nextMeshId = sceneModel && !meshIdPrefix ? nextAvailableNumericMeshId(sceneModel) : 0;
+  const floatColor = createVec3Float32();
+  const createLocalGeometry = (geometryIdx, geometryId) => {
+    if (!sceneModel || sceneModel.geometries[geometryId])
+      return true;
+    const params2 = { id: geometryId };
+    switch (eachGeometryPrimitiveType[geometryIdx]) {
+      case 0:
+        params2.primitive = TrianglesPrimitive;
+        break;
+      case 1:
+        params2.primitive = SolidPrimitive;
+        break;
+      case 2:
+        params2.primitive = SurfacePrimitive;
+        break;
+      case 3:
+        params2.primitive = LinesPrimitive;
+        break;
+      case 4:
+        params2.primitive = PointsPrimitive;
+        break;
+      case 5:
+        params2.primitive = GaussianSplatsPrimitive;
+        break;
+    }
+    const aabbsBase = eachGeometryAABBBase[geometryIdx];
+    params2.aabb = aabbs.subarray(aabbsBase, aabbsBase + 6);
+    const atLastGeometry = geometryIdx === numGeometries - 1;
+    const posStart = eachGeometryPositionsBase[geometryIdx];
+    const posEnd = atLastGeometry ? positions.length : eachGeometryPositionsBase[geometryIdx + 1];
+    const indStart = eachGeometryIndicesBase[geometryIdx];
+    const indEnd = atLastGeometry ? indices.length : eachGeometryIndicesBase[geometryIdx + 1];
+    const edgeStart = eachGeometryEdgeIndicesBase[geometryIdx];
+    const edgeEnd = atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesBase[geometryIdx + 1];
+    params2.positionsCompressed = positions.subarray(posStart, posEnd);
+    if (params2.primitive !== PointsPrimitive && params2.primitive !== GaussianSplatsPrimitive) {
+      params2.indices = indices.subarray(indStart, indEnd);
+    }
+    const edgeSlice = edgeIndices.subarray(edgeStart, edgeEnd);
+    if (edgeSlice.length > 0)
+      params2.edgeIndices = edgeSlice;
+    const colStart = eachGeometryColorsBase[geometryIdx];
+    const colEnd = atLastGeometry ? colors.length : eachGeometryColorsBase[geometryIdx + 1];
+    const colSlice = colors.subarray(colStart, colEnd);
+    if (colSlice.length > 0)
+      params2.colorsCompressed = colSlice;
+    const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
+    if (normalsBaseI !== NO_INDEX2) {
+      const normalsEnd = nextNonSentinelBase2(eachGeometryNormalsBase, geometryIdx, normals.length);
+      params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
+    }
+    const uvsBaseI = eachGeometryUVsBase[geometryIdx];
+    if (uvsBaseI !== NO_INDEX2) {
+      const uvsEnd = nextNonSentinelBase2(eachGeometryUVsBase, geometryIdx, uvs.length);
+      params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
+    }
+    const scalesBaseI = eachGeometryScalesBase[geometryIdx];
+    if (scalesBaseI !== NO_INDEX2) {
+      const scalesEnd = nextNonSentinelBase2(eachGeometryScalesBase, geometryIdx, scales.length);
+      params2.scales = scales.subarray(scalesBaseI, scalesEnd);
+    }
+    const rotationsBaseI = eachGeometryRotationsBase[geometryIdx];
+    if (rotationsBaseI !== NO_INDEX2) {
+      const rotationsEnd = nextNonSentinelBase2(eachGeometryRotationsBase, geometryIdx, rotations.length);
+      const decoded = new Float32Array(rotationsEnd - rotationsBaseI);
+      for (let i = 0; i < decoded.length; i++) {
+        decoded[i] = (rotations[rotationsBaseI + i] - 128) / 128;
+      }
+      params2.rotations = decoded;
+    }
+    const geometryResult = sceneModel.createGeometryCompressed(params2);
+    if (geometryResult && geometryResult.ok === false) {
+      fail(geometryResult.error);
+      return false;
+    }
+    createdIds?.geometries.push(geometryId);
+    return true;
+  };
+  if (sceneModel && numObjects === 0) {
+    for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
+      if (!createLocalGeometry(geometryIdx, eachGeometryId?.[geometryIdx] || `${geometryIdx}`)) {
+        return;
+      }
+    }
+  }
+  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
+    if ((objectIdx & 31) === 0) {
+      await step2("Building meshes", objectIdx, numObjects);
+    }
+    const objectId = eachObjectId[objectIdx];
+    const atLastObject = objectIdx === numObjects - 1;
+    const firstMeshIdx = eachObjectMeshesBase[objectIdx];
+    const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
+    const meshIds = [];
+    for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
+      const meshId = meshIdPrefix ? `${meshIdPrefix}${meshIdx}` : `${nextMeshId++}`;
+      if (sceneModel) {
+        const geometryIdx = eachMeshGeometriesBase[meshIdx];
+        const hasLocalGeometry = geometryIdx !== NO_INDEX2 && geometryIdx < numGeometries;
+        const geometryId = eachMeshGeometryId?.[meshIdx] || (hasLocalGeometry ? eachGeometryId?.[geometryIdx] || `${geometryIdx}` : "");
+        if (!geometryId) {
+          fail(`[xgf] Mesh ${meshIdx} has no geometry reference`);
+          return;
+        }
+        if (hasLocalGeometry && !sceneModel.geometries[geometryId]) {
+          if (!createLocalGeometry(geometryIdx, geometryId)) {
+            return;
+          }
+        } else if (!sceneModel.geometries[geometryId]) {
+          fail(`[xgf] Mesh ${meshIdx} references missing geometry '${geometryId}'`);
+          return;
+        }
+        const matricesBase = eachMeshMatricesBase[meshIdx];
+        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
+        const meshParams = { id: meshId, geometryId, matrix };
+        const parentTransformId = eachMeshParentTransformId?.[meshIdx] || "";
+        if (parentTransformId) {
+          meshParams.parentTransformId = parentTransformId;
+        }
+        const materialId = eachMeshMaterialId?.[meshIdx] || "";
+        const materialIdx = eachMeshMaterial[meshIdx];
+        if (materialId) {
+          meshParams.materialId = materialId;
+        } else if (materialIdx >= 0 && materialIdx < numMaterials) {
+          meshParams.materialId = eachMaterialId[materialIdx];
+        } else {
+          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES2;
+          const hasInlineColor = colorBase + 3 < eachMeshMaterialAttributes.length;
+          floatColor[0] = hasInlineColor ? eachMeshMaterialAttributes[colorBase] / 255 : 1;
+          floatColor[1] = hasInlineColor ? eachMeshMaterialAttributes[colorBase + 1] / 255 : 1;
+          floatColor[2] = hasInlineColor ? eachMeshMaterialAttributes[colorBase + 2] / 255 : 1;
+          meshParams.color = floatColor.slice(0, 3);
+          meshParams.opacity = hasInlineColor ? eachMeshMaterialAttributes[colorBase + 3] / 255 : 1;
+        }
+        const meshResult = sceneModel.createMesh(meshParams);
+        if (meshResult && meshResult.ok === false) {
+          fail(meshResult.error);
+          return;
+        }
+        createdIds?.meshes.push(meshId);
+      }
+      meshIds.push(meshId);
+    }
+    if (meshIds.length > 0) {
+      if (sceneModel) {
+        const objectResult = sceneModel.createObject({ id: objectId, meshIds, layerId });
+        if (objectResult && objectResult.ok === false) {
+          fail(objectResult.error);
+          return;
+        }
+        createdIds?.objects.push(objectId);
+      }
+      if (dataModel) {
+        dataModel.createObject({ id: objectId, name: objectId, type: "BasicEntity" });
+        dataModel.createRelationship({
+          type: "BasicAggregation",
+          relatingObjectId: defaultId,
+          relatedObjectId: objectId
+        });
+      }
+    }
+  }
+  if (options.onProgress) {
+    progress.phase = "Building meshes";
+    progress.current = numObjects;
+    progress.total = numObjects;
+    options.onProgress(progress);
+  }
+}
+function nextNonSentinelBase2(bases, startIdx, arrayLength) {
+  for (let i = startIdx + 1; i < bases.length; i++) {
+    if (bases[i] !== NO_INDEX2)
+      return bases[i];
+  }
+  return arrayLength;
+}
+function nextAvailableNumericMeshId(sceneModel) {
+  let nextMeshId = 0;
+  while (sceneModel.meshes[`${nextMeshId}`]) {
+    nextMeshId++;
+  }
+  return nextMeshId;
+}
+
+// ../sdk/src/formats/xgf/versions/v2/unpackXGF.ts
+function unpackXGF2(arrayBuffer) {
+  const requiresSwapFromLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  const nextArray = function() {
+    let i = 0;
+    const dataView = new DataView(arrayBuffer);
+    return function(type) {
+      const idx = 1 + 2 * i++;
+      const byteOffset = dataView.getUint32(idx * 4, true);
+      const byteLength = dataView.getUint32((idx + 1) * 4, true);
+      const BPE = type.BYTES_PER_ELEMENT;
+      if (requiresSwapFromLittleEndian && BPE > 1) {
+        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+        const swaps = BPE / 2;
+        const cnt = subarray.length / BPE;
+        for (let b4 = 0; b4 < cnt; b4++) {
+          const offset = b4 * BPE;
+          for (let j = 0; j < swaps; j++) {
+            const i1 = offset + j;
+            const i2 = offset - j + BPE - 1;
+            const tmp = subarray[i1];
+            subarray[i1] = subarray[i2];
+            subarray[i2] = tmp;
+          }
+        }
+      }
+      return new type(arrayBuffer, byteOffset, byteLength / BPE);
+    };
+  }();
+  const nextStringRefs = function() {
+    const decoder = new TextDecoder();
+    return () => {
+      const bytes = nextArray(Uint8Array);
+      if (bytes.byteLength === 0) {
+        return [];
+      }
+      if (bytes[0] === 91 || bytes[0] === 123) {
+        try {
+          const values2 = JSON.parse(decoder.decode(bytes));
+          if (Array.isArray(values2)) {
+            return values2;
+          }
+        } catch (_error) {
+        }
+      }
+      const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      const numStrings = view.getUint32(0, true);
+      const numValues = view.getUint32(4, true);
+      const stringBytesLength = view.getUint32(8, true);
+      const offsetsByteOffset = 12;
+      const indicesByteOffset = offsetsByteOffset + (numStrings + 1) * 4;
+      const stringBytesOffset = indicesByteOffset + numValues * 4;
+      const strings2 = [];
+      for (let i = 0; i < numStrings; i++) {
+        const start = view.getUint32(offsetsByteOffset + i * 4, true);
+        const end = view.getUint32(offsetsByteOffset + (i + 1) * 4, true);
+        strings2.push(decoder.decode(bytes.subarray(stringBytesOffset + start, stringBytesOffset + end)));
+      }
+      const values = new Array(numValues);
+      for (let i = 0; i < numValues; i++) {
+        const index = view.getUint32(indicesByteOffset + i * 4, true);
+        values[i] = strings2[index] || "";
+      }
+      if (stringBytesLength === 0 && numStrings > 0) {
+        return values;
+      }
+      return values;
+    };
+  }();
+  const nextIndexArray = (indexSize2) => indexSize2[0] === 2 ? nextArray(Uint16Array) : nextArray(Uint32Array);
+  const positions = nextArray(Uint16Array);
+  const colors = nextArray(Uint8Array);
+  const indexSize = nextArray(Uint8Array);
+  const indices = nextIndexArray(indexSize);
+  const edgeIndexSize = nextArray(Uint8Array);
+  const edgeIndices = nextIndexArray(edgeIndexSize);
+  return {
+    positions,
+    colors,
+    indexSize,
+    indices,
+    edgeIndexSize,
+    edgeIndices,
+    aabbs: nextArray(Float32Array),
+    normals: nextArray(Uint16Array),
+    uvs: nextArray(Float32Array),
+    scales: nextArray(Float32Array),
+    rotations: nextArray(Uint8Array),
+    eachGeometryPositionsBase: nextArray(Uint32Array),
+    eachGeometryColorsBase: nextArray(Uint32Array),
+    eachGeometryIndicesBase: nextArray(Uint32Array),
+    eachGeometryEdgeIndicesBase: nextArray(Uint32Array),
+    eachGeometryNormalsBase: nextArray(Uint32Array),
+    eachGeometryUVsBase: nextArray(Uint32Array),
+    eachGeometryScalesBase: nextArray(Uint32Array),
+    eachGeometryRotationsBase: nextArray(Uint32Array),
+    eachGeometryPrimitiveType: nextArray(Uint8Array),
+    eachGeometryAABBBase: nextArray(Uint32Array),
+    matrices: nextArray(Float64Array),
+    textureData: nextArray(Uint8Array),
+    eachTextureDataBase: nextArray(Uint32Array),
+    eachTextureMediaType: nextArray(Uint8Array),
+    eachTextureWidth: nextArray(Uint16Array),
+    eachTextureHeight: nextArray(Uint16Array),
+    eachTextureSampler: nextArray(Uint8Array),
+    eachTextureEncoding: nextArray(Uint16Array),
+    eachTextureId: nextStringRefs(),
+    eachMaterialPBR: nextArray(Uint8Array),
+    eachMaterialColor: nextArray(Float32Array),
+    eachMaterialTextures: nextArray(Int32Array),
+    eachMaterialId: nextStringRefs(),
+    eachMaterialTriplanarScale: nextArray(Float32Array),
+    eachMeshGeometriesBase: nextArray(Uint32Array),
+    eachMeshMatricesBase: nextArray(Uint32Array),
+    eachMeshMaterialAttributes: nextArray(Uint8Array),
+    eachMeshMaterial: nextArray(Int32Array),
+    eachObjectId: nextStringRefs(),
+    eachObjectMeshesBase: nextArray(Uint32Array),
+    eachGeometryId: nextStringRefs(),
+    eachMeshGeometryId: nextStringRefs(),
+    eachMeshMaterialId: nextStringRefs(),
+    eachTransformId: nextStringRefs(),
+    eachTransformParentId: nextStringRefs(),
+    eachTransformMatricesBase: nextArray(Uint32Array),
+    eachMeshParentTransformId: nextStringRefs()
+  };
+}
+
+// ../sdk/src/formats/xgf/versions/v2/parse.ts
+async function parse9(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  await xgfToModel2({
+    xgfData: unpackXGF2(fileData),
+    sceneModel,
+    dataModel,
+    options
+  });
+}
+
 // ../sdk/src/formats/xgf/XGFLoader.ts
 var XGFLoader = class extends ModelLoader {
   constructor() {
@@ -106008,7 +106682,8 @@ var XGFLoader = class extends ModelLoader {
       format: "XGF",
       fileDataType: "arraybuffer",
       parsers: {
-        "1": parse8
+        "1": parse8,
+        "2": parse9
       },
       getVersion: (fileData) => "" + new DataView(fileData).getUint32(0, true)
     });
@@ -106016,11 +106691,11 @@ var XGFLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/xgf/versions/v1/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES2 = 4;
-var NUM_MATERIAL_TEXTURE_REFS2 = 5;
-var NUM_MATERIAL_PBR_BYTES2 = 8;
-var NUM_TEXTURE_SAMPLER_BYTES2 = 5;
-var NO_INDEX2 = 4294967295;
+var NUM_MATERIAL_ATTRIBUTES3 = 4;
+var NUM_MATERIAL_TEXTURE_REFS3 = 5;
+var NUM_MATERIAL_PBR_BYTES3 = 8;
+var NUM_TEXTURE_SAMPLER_BYTES3 = 5;
+var NO_INDEX3 = 4294967295;
 var clampByte = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
 var SAMPLER_CODE = {
   [RepeatWrapping]: 1,
@@ -106151,9 +106826,9 @@ async function modelToXGF(params) {
     }
   }
   const materialIndexById = {};
-  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES2);
+  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES3);
   const eachMaterialColor = new Float32Array(numMaterials * 3);
-  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS2);
+  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS3);
   const eachMaterialTriplanarScale = new Float32Array(numMaterials);
   const eachMaterialId = [];
   for (let i = 0; i < numMaterials; i++) {
@@ -106162,7 +106837,7 @@ async function modelToXGF(params) {
     const mat = materialsList[i];
     materialIndexById[mat.id] = i;
     eachMaterialId.push(mat.id);
-    const base = i * NUM_MATERIAL_PBR_BYTES2;
+    const base = i * NUM_MATERIAL_PBR_BYTES3;
     eachMaterialColor[i * 3] = mat.color[0];
     eachMaterialColor[i * 3 + 1] = mat.color[1];
     eachMaterialColor[i * 3 + 2] = mat.color[2];
@@ -106174,7 +106849,7 @@ async function modelToXGF(params) {
     eachMaterialPBR[base + 5] = clampU8(mat.metallic * 255);
     eachMaterialPBR[base + 6] = clampU8(mat.alphaMode);
     eachMaterialPBR[base + 7] = clampU8(mat.alphaCutoff * 255);
-    const tBase = i * NUM_MATERIAL_TEXTURE_REFS2;
+    const tBase = i * NUM_MATERIAL_TEXTURE_REFS3;
     eachMaterialTextures[tBase] = textureIndexOrNone(mat.colorTexture?.id, textureIndexById);
     eachMaterialTextures[tBase + 1] = textureIndexOrNone(mat.metallicRoughnessTexture?.id, textureIndexById);
     eachMaterialTextures[tBase + 2] = textureIndexOrNone(mat.normalsTexture?.id, textureIndexById);
@@ -106220,7 +106895,7 @@ async function modelToXGF(params) {
     eachMaterialTriplanarScale,
     eachMeshGeometriesBase: new Uint32Array(numMeshes),
     eachMeshMatricesBase: new Uint32Array(numMeshes),
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES2),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES3),
     eachMeshMaterial: new Int32Array(numMeshes),
     eachObjectId: [],
     eachObjectMeshesBase: new Uint32Array(numObjects)
@@ -106295,14 +106970,14 @@ async function modelToXGF(params) {
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX2;
+      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX3;
     }
     if (geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
     } else {
-      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX2;
+      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX3;
     }
     if (geometry.scales && geometry.rotations) {
       xgfData.eachGeometryScalesBase[geometryIdx] = scalesBase;
@@ -106315,8 +106990,8 @@ async function modelToXGF(params) {
       }
       rotationsBase += rotations.length;
     } else {
-      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX2;
-      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX2;
+      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX3;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX3;
     }
     geometryIndices[geometry.id] = geometryIdx;
   }
@@ -106538,6 +107213,694 @@ async function encode10(params, options) {
   return packXGF(xgfData);
 }
 
+// ../sdk/src/formats/xgf/versions/v2/modelToXGF.ts
+var NUM_MATERIAL_ATTRIBUTES4 = 4;
+var NUM_MATERIAL_TEXTURE_REFS4 = 5;
+var NUM_MATERIAL_PBR_BYTES4 = 8;
+var NUM_TEXTURE_SAMPLER_BYTES4 = 5;
+var NO_INDEX4 = 4294967295;
+var clampByte2 = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
+var SAMPLER_CODE2 = {
+  [RepeatWrapping]: 1,
+  [ClampToEdgeWrapping]: 2,
+  [MirroredRepeatWrapping]: 3,
+  [NearestFilter]: 4,
+  [LinearFilter]: 5,
+  [NearestMipMapNearestFilter]: 6,
+  [LinearMipMapNearestFilter]: 7,
+  [NearestMipMapLinearFilter]: 8,
+  [LinearMipMapLinearFilter]: 9
+};
+var MEDIA_TYPE_CODE2 = {
+  [PNGMediaType]: 0,
+  [JPEGMediaType]: 1,
+  [GIFMediaType]: 2
+};
+var samplerCode2 = (v) => v !== void 0 && SAMPLER_CODE2[v] !== void 0 ? SAMPLER_CODE2[v] : 0;
+async function modelToXGF2(params) {
+  const sceneModel = params.sceneModel;
+  const options = params.options || {};
+  const assetMode = options.assetMode === "assetLibrary" || options.assetMode === "referencesOnly" ? options.assetMode : "full";
+  const preserveTransforms = options.preserveTransforms !== false && !options.coordinateSystem;
+  const onProgress = options.onProgress;
+  const signal = options.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  if (options.coordinateSystem) {
+    createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64());
+  }
+  const geometriesList = Object.values(sceneModel.geometries);
+  const meshesList = Object.values(sceneModel.meshes);
+  const objectsList = Object.values(sceneModel.objects);
+  const texturesList = Object.values(sceneModel.textures);
+  const materialsList = Object.values(sceneModel.materials);
+  const transformsList = Object.values(sceneModel.transforms);
+  const numGeometries = geometriesList.length;
+  const numMeshes = meshesList.length;
+  const numObjects = objectsList.length;
+  const numTextures = texturesList.length;
+  const numMaterials = materialsList.length;
+  let sizePositions = 0;
+  let sizeColors = 0;
+  let sizeIndices = 0;
+  let sizeEdgeIndices = 0;
+  let maxIndex = 0;
+  let maxEdgeIndex = 0;
+  let sizeNormals = 0;
+  let sizeUVs = 0;
+  let sizeScales = 0;
+  let sizeRotations = 0;
+  for (const geometry of geometriesList) {
+    if (!geometry || !geometry.positionsCompressed)
+      continue;
+    sizePositions += geometry.positionsCompressed.length;
+    if (geometry.indices) {
+      sizeIndices += geometry.indices.length;
+      maxIndex = Math.max(maxIndex, maxArrayValue(geometry.indices));
+    }
+    if (geometry.edgeIndices) {
+      sizeEdgeIndices += geometry.edgeIndices.length;
+      maxEdgeIndex = Math.max(maxEdgeIndex, maxArrayValue(geometry.edgeIndices));
+    }
+    if (geometry.colorsCompressed)
+      sizeColors += geometry.colorsCompressed.length;
+    if (geometry.normalsCompressed)
+      sizeNormals += geometry.normalsCompressed.length;
+    if (geometry.uvsCompressed)
+      sizeUVs += geometry.uvsCompressed.length;
+    if (geometry.scales)
+      sizeScales += geometry.scales.length;
+    if (geometry.rotations)
+      sizeRotations += geometry.rotations.length;
+  }
+  const textureBytes2 = [];
+  const textureMediaTypes = [];
+  const textureWidths = [];
+  const textureHeights = [];
+  const textureSamplers = [];
+  const textureEncodings = [];
+  const textureIds = [];
+  const textureIndexById = {};
+  for (let i = 0; i < numTextures; i++) {
+    if ((i & 3) === 0)
+      await step2("Encoding textures", i, numTextures);
+    const tex = texturesList[i];
+    textureIds.push(tex.id);
+    textureIndexById[tex.id] = i;
+    let bytes = null;
+    let mediaCode = 255;
+    if (tex.buffers && tex.buffers.length > 0 && tex.buffers[0]) {
+      bytes = new Uint8Array(tex.buffers[0]);
+      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE2[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE2[tex.mediaType] : 255;
+    } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
+      bytes = await encodeImageToPNG2(tex.imageData);
+      mediaCode = MEDIA_TYPE_CODE2[PNGMediaType];
+    } else if (tex.image && tex.image.width && tex.image.height) {
+      bytes = await encodeImageToPNG2(tex.image);
+      mediaCode = MEDIA_TYPE_CODE2[PNGMediaType];
+    }
+    if (!bytes) {
+      console.warn(`[xgf] Texture '${tex.id}' has no buffers, imageData or image \u2014 encoded as empty`);
+      bytes = new Uint8Array(0);
+    }
+    textureBytes2.push(bytes);
+    textureMediaTypes.push(mediaCode);
+    textureWidths.push(tex.width || (tex.imageData?.width ?? tex.image?.width ?? 0));
+    textureHeights.push(tex.height || (tex.imageData?.height ?? tex.image?.height ?? 0));
+    textureSamplers.push(
+      samplerCode2(tex.minFilter),
+      samplerCode2(tex.magFilter),
+      samplerCode2(tex.wrapS),
+      samplerCode2(tex.wrapT),
+      samplerCode2(tex.wrapR)
+    );
+    textureEncodings.push(tex.encoding);
+  }
+  let textureDataSize = 0;
+  for (const b4 of textureBytes2)
+    textureDataSize += b4.length;
+  const textureData = new Uint8Array(textureDataSize);
+  const eachTextureDataBase = new Uint32Array(numTextures);
+  {
+    let cursor = 0;
+    for (let i = 0; i < numTextures; i++) {
+      eachTextureDataBase[i] = cursor;
+      textureData.set(textureBytes2[i], cursor);
+      cursor += textureBytes2[i].length;
+    }
+  }
+  const materialIndexById = {};
+  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES4);
+  const eachMaterialColor = new Float32Array(numMaterials * 3);
+  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS4);
+  const eachMaterialTriplanarScale = new Float32Array(numMaterials);
+  const eachMaterialId = [];
+  for (let i = 0; i < numMaterials; i++) {
+    if ((i & 63) === 0)
+      await step2("Encoding materials", i, numMaterials);
+    const mat = materialsList[i];
+    materialIndexById[mat.id] = i;
+    eachMaterialId.push(mat.id);
+    const base = i * NUM_MATERIAL_PBR_BYTES4;
+    eachMaterialColor[i * 3] = mat.color[0];
+    eachMaterialColor[i * 3 + 1] = mat.color[1];
+    eachMaterialColor[i * 3 + 2] = mat.color[2];
+    eachMaterialPBR[base] = clampU82(mat.color[0] * 255);
+    eachMaterialPBR[base + 1] = clampU82(mat.color[1] * 255);
+    eachMaterialPBR[base + 2] = clampU82(mat.color[2] * 255);
+    eachMaterialPBR[base + 3] = clampU82(mat.opacity * 255);
+    eachMaterialPBR[base + 4] = clampU82(mat.roughness * 255);
+    eachMaterialPBR[base + 5] = clampU82(mat.metallic * 255);
+    eachMaterialPBR[base + 6] = clampU82(mat.alphaMode);
+    eachMaterialPBR[base + 7] = clampU82(mat.alphaCutoff * 255);
+    const tBase = i * NUM_MATERIAL_TEXTURE_REFS4;
+    eachMaterialTextures[tBase] = textureIndexOrNone2(mat.colorTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 1] = textureIndexOrNone2(mat.metallicRoughnessTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 2] = textureIndexOrNone2(mat.normalsTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 3] = textureIndexOrNone2(mat.occlusionTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 4] = textureIndexOrNone2(mat.emissiveTexture?.id, textureIndexById);
+    eachMaterialTriplanarScale[i] = mat.triplanarScale;
+  }
+  const xgfData = {
+    positions: new Uint16Array(sizePositions),
+    colors: new Uint8Array(sizeColors),
+    indexSize: new Uint8Array([maxIndex <= 65535 ? 2 : 4]),
+    indices: maxIndex <= 65535 ? new Uint16Array(sizeIndices) : new Uint32Array(sizeIndices),
+    edgeIndexSize: new Uint8Array([maxEdgeIndex <= 65535 ? 2 : 4]),
+    edgeIndices: maxEdgeIndex <= 65535 ? new Uint16Array(sizeEdgeIndices) : new Uint32Array(sizeEdgeIndices),
+    aabbs: new Float32Array(0),
+    // populated below
+    normals: new Uint16Array(sizeNormals),
+    uvs: new Float32Array(sizeUVs),
+    scales: new Float32Array(sizeScales),
+    rotations: new Uint8Array(sizeRotations),
+    eachGeometryPositionsBase: new Uint32Array(numGeometries),
+    eachGeometryColorsBase: new Uint32Array(numGeometries),
+    eachGeometryIndicesBase: new Uint32Array(numGeometries),
+    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
+    eachGeometryNormalsBase: new Uint32Array(numGeometries),
+    eachGeometryUVsBase: new Uint32Array(numGeometries),
+    eachGeometryScalesBase: new Uint32Array(numGeometries),
+    eachGeometryRotationsBase: new Uint32Array(numGeometries),
+    eachGeometryPrimitiveType: new Uint8Array(numGeometries),
+    eachGeometryAABBBase: new Uint32Array(numGeometries),
+    matrices: new Float64Array(0),
+    // populated below
+    textureData,
+    eachTextureDataBase,
+    eachTextureMediaType: new Uint8Array(textureMediaTypes),
+    eachTextureWidth: new Uint16Array(textureWidths),
+    eachTextureHeight: new Uint16Array(textureHeights),
+    eachTextureSampler: new Uint8Array(textureSamplers),
+    eachTextureEncoding: new Uint16Array(textureEncodings),
+    eachTextureId: textureIds,
+    eachMaterialPBR,
+    eachMaterialColor,
+    eachMaterialTextures,
+    eachMaterialId,
+    eachMaterialTriplanarScale,
+    eachMeshGeometriesBase: new Uint32Array(numMeshes),
+    eachMeshMatricesBase: new Uint32Array(numMeshes),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES4),
+    eachMeshMaterial: new Int32Array(numMeshes),
+    eachObjectId: [],
+    eachObjectMeshesBase: new Uint32Array(numObjects),
+    eachGeometryId: geometriesList.map((geometry) => geometry.id),
+    eachMeshGeometryId: new Array(numMeshes),
+    eachMeshMaterialId: new Array(numMeshes),
+    eachTransformId: preserveTransforms ? transformsList.map((transform) => transform.id) : [],
+    eachTransformParentId: preserveTransforms ? transformsList.map((transform) => transform.parentTransform?.id || "") : [],
+    eachTransformMatricesBase: preserveTransforms ? new Uint32Array(transformsList.length) : new Uint32Array(0),
+    eachMeshParentTransformId: preserveTransforms ? new Array(numMeshes) : []
+  };
+  let positionsBase = 0;
+  let colorsBase = 0;
+  let indicesBase = 0;
+  let edgeIndicesBase = 0;
+  let normalsBase = 0;
+  let uvsBase = 0;
+  let scalesBase = 0;
+  let rotationsBase = 0;
+  let aabbsBase = 0;
+  const aabbIdxMap = {};
+  const aabbs = [];
+  const matrices = [];
+  const geometryIndices = {};
+  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
+    const geometry = geometriesList[geometryIdx];
+    let primitiveType = 0;
+    switch (geometry.primitive) {
+      case TrianglesPrimitive:
+        primitiveType = 0;
+        break;
+      case SolidPrimitive:
+        primitiveType = 1;
+        break;
+      case SurfacePrimitive:
+        primitiveType = 2;
+        break;
+      case LinesPrimitive:
+        primitiveType = 3;
+        break;
+      case PointsPrimitive:
+        primitiveType = 4;
+        break;
+      case GaussianSplatsPrimitive:
+        primitiveType = 5;
+        break;
+    }
+    xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
+    const aabb = geometry.aabb;
+    const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
+    let aabbIdx = aabbIdxMap[aabbHash];
+    if (aabbIdx === void 0) {
+      aabbIdx = aabbsBase;
+      aabbIdxMap[aabbHash] = aabbIdx;
+      aabbs.push(...aabb);
+      aabbsBase += 6;
+    }
+    xgfData.eachGeometryAABBBase[geometryIdx] = aabbIdx;
+    xgfData.eachGeometryPositionsBase[geometryIdx] = positionsBase;
+    xgfData.positions.set(geometry.positionsCompressed, positionsBase);
+    positionsBase += geometry.positionsCompressed.length;
+    xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
+    if (geometry.colorsCompressed) {
+      xgfData.colors.set(geometry.colorsCompressed, colorsBase);
+      colorsBase += geometry.colorsCompressed.length;
+    }
+    xgfData.eachGeometryIndicesBase[geometryIdx] = indicesBase;
+    if (geometry.indices) {
+      xgfData.indices.set(geometry.indices, indicesBase);
+      indicesBase += geometry.indices.length;
+    }
+    xgfData.eachGeometryEdgeIndicesBase[geometryIdx] = edgeIndicesBase;
+    if (geometry.edgeIndices) {
+      xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
+      edgeIndicesBase += geometry.edgeIndices.length;
+    }
+    if (geometry.normalsCompressed) {
+      xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
+      xgfData.normals.set(geometry.normalsCompressed, normalsBase);
+      normalsBase += geometry.normalsCompressed.length;
+    } else {
+      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX4;
+    }
+    if (geometry.uvsCompressed) {
+      xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
+      xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
+      uvsBase += geometry.uvsCompressed.length;
+    } else {
+      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX4;
+    }
+    if (geometry.scales && geometry.rotations) {
+      xgfData.eachGeometryScalesBase[geometryIdx] = scalesBase;
+      xgfData.scales.set(geometry.scales, scalesBase);
+      scalesBase += geometry.scales.length;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = rotationsBase;
+      const rotations = geometry.rotations;
+      for (let i = 0, len = rotations.length; i < len; i++) {
+        xgfData.rotations[rotationsBase + i] = clampByte2(Math.round(rotations[i] * 128 + 128));
+      }
+      rotationsBase += rotations.length;
+    } else {
+      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX4;
+    }
+    geometryIndices[geometry.id] = geometryIdx;
+  }
+  let identityMatrixAdded = false;
+  let identityMatrixBase = 0;
+  let matricesBase = 0;
+  let meshesBase = 0;
+  let hasInlineMaterialFallback = false;
+  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
+    if ((objectIdx & 31) === 0) {
+      await step2("Encoding objects", objectIdx, numObjects);
+    }
+    const object = objectsList[objectIdx];
+    xgfData.eachObjectId[objectIdx] = object.id;
+    xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
+    for (let i = 0; i < object.meshes.length; i++) {
+      const mesh = object.meshes[i];
+      xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
+      xgfData.eachMeshGeometryId[meshesBase] = mesh.geometry?.id || "";
+      xgfData.eachMeshMaterialId[meshesBase] = mesh.material?.id || "";
+      if (preserveTransforms) {
+        xgfData.eachMeshParentTransformId[meshesBase] = mesh.parentTransform?.id || "";
+      }
+      const matrix = preserveTransforms ? mesh.matrix : getMeshWorldMatrix(mesh, options.coordinateSystem);
+      if (isIdentityMat4(matrix)) {
+        if (!identityMatrixAdded) {
+          matrices.push(...matrix);
+          xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
+          identityMatrixBase = matricesBase;
+          matricesBase += 16;
+          identityMatrixAdded = true;
+        } else {
+          xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
+        }
+      } else {
+        matrices.push(...matrix);
+        xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
+        matricesBase += 16;
+      }
+      xgfData.eachMeshMaterial[meshesBase] = mesh.material ? materialIndexById[mesh.material.id] ?? -1 : -1;
+      if (!mesh.material) {
+        const colorBase = meshesBase * NUM_MATERIAL_ATTRIBUTES4;
+        xgfData.eachMeshMaterialAttributes[colorBase] = clampU82(mesh.effectiveColor[0] * 255);
+        xgfData.eachMeshMaterialAttributes[colorBase + 1] = clampU82(mesh.effectiveColor[1] * 255);
+        xgfData.eachMeshMaterialAttributes[colorBase + 2] = clampU82(mesh.effectiveColor[2] * 255);
+        xgfData.eachMeshMaterialAttributes[colorBase + 3] = clampU82(mesh.effectiveOpacity * 255);
+        hasInlineMaterialFallback = true;
+      }
+      meshesBase++;
+    }
+  }
+  if (!hasInlineMaterialFallback) {
+    xgfData.eachMeshMaterialAttributes = new Uint8Array(0);
+  }
+  if (preserveTransforms) {
+    for (let i = 0; i < transformsList.length; i++) {
+      const transform = transformsList[i];
+      xgfData.eachTransformMatricesBase[i] = matricesBase;
+      matrices.push(...transform.matrix);
+      matricesBase += 16;
+    }
+  }
+  xgfData.aabbs = new Float32Array(aabbs);
+  xgfData.matrices = new Float64Array(matrices);
+  if (assetMode === "assetLibrary") {
+    stripInstances(xgfData);
+  } else if (assetMode === "referencesOnly") {
+    stripAssets(xgfData);
+  } else {
+    stripExternalMeshRefs(xgfData);
+  }
+  if (onProgress) {
+    progress.phase = "Encoding objects";
+    progress.current = numObjects;
+    progress.total = numObjects;
+    onProgress(progress);
+  }
+  return xgfData;
+}
+function stripInstances(xgfData) {
+  xgfData.matrices = new Float64Array(0);
+  xgfData.eachMeshGeometriesBase = new Uint32Array(0);
+  xgfData.eachMeshMatricesBase = new Uint32Array(0);
+  xgfData.eachMeshMaterialAttributes = new Uint8Array(0);
+  xgfData.eachMeshMaterial = new Int32Array(0);
+  xgfData.eachMeshGeometryId = [];
+  xgfData.eachMeshMaterialId = [];
+  xgfData.eachMeshParentTransformId = [];
+  xgfData.eachTransformId = [];
+  xgfData.eachTransformParentId = [];
+  xgfData.eachTransformMatricesBase = new Uint32Array(0);
+  xgfData.eachObjectId = [];
+  xgfData.eachObjectMeshesBase = new Uint32Array(0);
+}
+function stripAssets(xgfData) {
+  xgfData.positions = new Uint16Array(0);
+  xgfData.colors = new Uint8Array(0);
+  xgfData.indexSize = new Uint8Array([2]);
+  xgfData.indices = new Uint32Array(0);
+  xgfData.edgeIndexSize = new Uint8Array([2]);
+  xgfData.edgeIndices = new Uint32Array(0);
+  xgfData.aabbs = new Float32Array(0);
+  xgfData.normals = new Uint16Array(0);
+  xgfData.uvs = new Float32Array(0);
+  xgfData.scales = new Float32Array(0);
+  xgfData.rotations = new Uint8Array(0);
+  xgfData.eachGeometryPositionsBase = new Uint32Array(0);
+  xgfData.eachGeometryColorsBase = new Uint32Array(0);
+  xgfData.eachGeometryIndicesBase = new Uint32Array(0);
+  xgfData.eachGeometryEdgeIndicesBase = new Uint32Array(0);
+  xgfData.eachGeometryNormalsBase = new Uint32Array(0);
+  xgfData.eachGeometryUVsBase = new Uint32Array(0);
+  xgfData.eachGeometryScalesBase = new Uint32Array(0);
+  xgfData.eachGeometryRotationsBase = new Uint32Array(0);
+  xgfData.eachGeometryPrimitiveType = new Uint8Array(0);
+  xgfData.eachGeometryAABBBase = new Uint32Array(0);
+  xgfData.eachGeometryId = [];
+  xgfData.textureData = new Uint8Array(0);
+  xgfData.eachTextureDataBase = new Uint32Array(0);
+  xgfData.eachTextureMediaType = new Uint8Array(0);
+  xgfData.eachTextureWidth = new Uint16Array(0);
+  xgfData.eachTextureHeight = new Uint16Array(0);
+  xgfData.eachTextureSampler = new Uint8Array(0);
+  xgfData.eachTextureEncoding = new Uint16Array(0);
+  xgfData.eachTextureId = [];
+  xgfData.eachMaterialPBR = new Uint8Array(0);
+  xgfData.eachMaterialColor = new Float32Array(0);
+  xgfData.eachMaterialTextures = new Int32Array(0);
+  xgfData.eachMaterialId = [];
+  xgfData.eachMaterialTriplanarScale = new Float32Array(0);
+  for (let i = 0; i < xgfData.eachMeshGeometriesBase.length; i++) {
+    xgfData.eachMeshGeometriesBase[i] = 4294967295;
+    xgfData.eachMeshMaterial[i] = -1;
+  }
+}
+function stripExternalMeshRefs(xgfData) {
+  xgfData.eachMeshGeometryId = [];
+  xgfData.eachMeshMaterialId = [];
+}
+function clampU82(v) {
+  v = Math.round(v);
+  return v < 0 ? 0 : v > 255 ? 255 : v;
+}
+function textureIndexOrNone2(id, indexById) {
+  if (!id)
+    return -1;
+  const idx = indexById[id];
+  return idx === void 0 ? -1 : idx;
+}
+function maxArrayValue(values) {
+  let max = 0;
+  for (let i = 0, len = values.length; i < len; i++) {
+    if (values[i] > max) {
+      max = values[i];
+    }
+  }
+  return max;
+}
+async function encodeImageToPNG2(imageData2) {
+  const w2 = imageData2.width, h2 = imageData2.height;
+  const isPixelBuffer2 = imageData2 && imageData2.data && imageData2.data.length === w2 * h2 * 4;
+  const paint = (ctx2) => {
+    if (isPixelBuffer2) {
+      const bytes = imageData2.data instanceof Uint8ClampedArray ? imageData2.data : new Uint8ClampedArray(imageData2.data);
+      const id = typeof ImageData !== "undefined" && imageData2 instanceof ImageData ? imageData2 : new ImageData(bytes, w2, h2);
+      ctx2.putImageData(id, 0, 0);
+    } else {
+      ctx2.drawImage(imageData2, 0, 0);
+    }
+  };
+  if (typeof OffscreenCanvas !== "undefined") {
+    const canvas3 = new OffscreenCanvas(w2, h2);
+    const ctx2 = canvas3.getContext("2d");
+    if (!ctx2)
+      return new Uint8Array(0);
+    paint(ctx2);
+    const blob = await canvas3.convertToBlob({ type: "image/png" });
+    return new Uint8Array(await blob.arrayBuffer());
+  }
+  if (typeof document !== "undefined") {
+    const canvas3 = document.createElement("canvas");
+    canvas3.width = w2;
+    canvas3.height = h2;
+    const ctx2 = canvas3.getContext("2d");
+    if (!ctx2)
+      return new Uint8Array(0);
+    paint(ctx2);
+    return await new Promise((resolve2) => {
+      canvas3.toBlob(async (blob) => {
+        if (!blob)
+          return resolve2(new Uint8Array(0));
+        resolve2(new Uint8Array(await blob.arrayBuffer()));
+      }, "image/png");
+    });
+  }
+  return encodeImageToPNGNode2(imageData2, w2, h2, isPixelBuffer2);
+}
+function encodeImageToPNGNode2(imageData, w, h, isPixelBuffer) {
+  const requireFn = eval("require");
+  const { createCanvas, ImageData: NodeImageData } = requireFn("@napi-rs/canvas");
+  const canvas = createCanvas(w, h);
+  const ctx = canvas.getContext("2d");
+  if (isPixelBuffer) {
+    const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
+    ctx.putImageData(new NodeImageData(bytes, w, h), 0, 0);
+  } else {
+    ctx.drawImage(imageData, 0, 0);
+  }
+  return new Uint8Array(canvas.toBuffer("image/png"));
+}
+
+// ../sdk/src/formats/xgf/versions/v2/XGF_INFO.ts
+var XGF_INFO2 = {
+  xgfVersion: 2
+};
+
+// ../sdk/src/formats/xgf/versions/v2/packXGF.ts
+var stringRefs2Array = function() {
+  const encoder = new TextEncoder();
+  return (values) => {
+    if (!values || values.length === 0) {
+      return new Uint8Array(0);
+    }
+    const json = encoder.encode(JSON.stringify(values));
+    const stringIndex = /* @__PURE__ */ new Map();
+    const strings2 = [];
+    const valueIndices = new Uint32Array(values.length);
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i] || "";
+      let index = stringIndex.get(value);
+      if (index === void 0) {
+        index = strings2.length;
+        stringIndex.set(value, index);
+        strings2.push(value);
+      }
+      valueIndices[i] = index;
+    }
+    const encodedStrings = strings2.map((value) => encoder.encode(value));
+    const stringOffsets = new Uint32Array(strings2.length + 1);
+    let stringBytesLength = 0;
+    for (let i = 0; i < encodedStrings.length; i++) {
+      stringOffsets[i] = stringBytesLength;
+      stringBytesLength += encodedStrings[i].byteLength;
+    }
+    stringOffsets[strings2.length] = stringBytesLength;
+    const headerBytes = 12;
+    const offsetsBytes = stringOffsets.byteLength;
+    const indicesBytes = valueIndices.byteLength;
+    const data2 = new Uint8Array(headerBytes + offsetsBytes + indicesBytes + stringBytesLength);
+    const view = new DataView(data2.buffer);
+    view.setUint32(0, strings2.length, true);
+    view.setUint32(4, values.length, true);
+    view.setUint32(8, stringBytesLength, true);
+    data2.set(new Uint8Array(stringOffsets.buffer), headerBytes);
+    data2.set(new Uint8Array(valueIndices.buffer), headerBytes + offsetsBytes);
+    let cursor = headerBytes + offsetsBytes + indicesBytes;
+    for (const encoded of encodedStrings) {
+      data2.set(encoded, cursor);
+      cursor += encoded.byteLength;
+    }
+    return data2.byteLength < json.byteLength ? data2 : json;
+  };
+}();
+function toArrayBuffer4(arrays) {
+  const arraysCnt = arrays.length;
+  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
+  dataView.setUint32(0, XGF_INFO2.xgfVersion, true);
+  let byteOffset = dataView.byteLength;
+  const offsets = [];
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const BPE = arr.BYTES_PER_ELEMENT;
+    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
+    const byteLength = arr.byteLength;
+    const idx = 1 + 2 * i;
+    dataView.setUint32(idx * 4, byteOffset, true);
+    dataView.setUint32((idx + 1) * 4, byteLength, true);
+    offsets.push(byteOffset);
+    byteOffset += byteLength;
+  }
+  const dataArray = new Uint8Array(byteOffset);
+  dataArray.set(new Uint8Array(dataView.buffer), 0);
+  const requiresSwapToLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
+    const BPE = arr.BYTES_PER_ELEMENT;
+    if (requiresSwapToLittleEndian && BPE > 1) {
+      const swaps = BPE / 2;
+      const cnt = subarray.length / BPE;
+      for (let b4 = 0; b4 < cnt; b4++) {
+        const offset = b4 * BPE;
+        for (let j = 0; j < swaps; j++) {
+          const i1 = offset + j;
+          const i2 = offset - j + BPE - 1;
+          const tmp = subarray[i1];
+          subarray[i1] = subarray[i2];
+          subarray[i2] = tmp;
+        }
+      }
+    }
+    dataArray.set(subarray, offsets[i]);
+  }
+  return dataArray.buffer;
+}
+function packXGF2(xgfData) {
+  return toArrayBuffer4([
+    xgfData.positions,
+    xgfData.colors,
+    xgfData.indexSize,
+    xgfData.indices,
+    xgfData.edgeIndexSize,
+    xgfData.edgeIndices,
+    xgfData.aabbs,
+    xgfData.normals,
+    xgfData.uvs,
+    xgfData.scales,
+    xgfData.rotations,
+    xgfData.eachGeometryPositionsBase,
+    xgfData.eachGeometryColorsBase,
+    xgfData.eachGeometryIndicesBase,
+    xgfData.eachGeometryEdgeIndicesBase,
+    xgfData.eachGeometryNormalsBase,
+    xgfData.eachGeometryUVsBase,
+    xgfData.eachGeometryScalesBase,
+    xgfData.eachGeometryRotationsBase,
+    xgfData.eachGeometryPrimitiveType,
+    xgfData.eachGeometryAABBBase,
+    xgfData.matrices,
+    xgfData.textureData,
+    xgfData.eachTextureDataBase,
+    xgfData.eachTextureMediaType,
+    xgfData.eachTextureWidth,
+    xgfData.eachTextureHeight,
+    xgfData.eachTextureSampler,
+    xgfData.eachTextureEncoding,
+    stringRefs2Array(xgfData.eachTextureId),
+    xgfData.eachMaterialPBR,
+    xgfData.eachMaterialColor,
+    xgfData.eachMaterialTextures,
+    stringRefs2Array(xgfData.eachMaterialId),
+    xgfData.eachMaterialTriplanarScale,
+    xgfData.eachMeshGeometriesBase,
+    xgfData.eachMeshMatricesBase,
+    xgfData.eachMeshMaterialAttributes,
+    xgfData.eachMeshMaterial,
+    stringRefs2Array(xgfData.eachObjectId),
+    xgfData.eachObjectMeshesBase,
+    stringRefs2Array(xgfData.eachGeometryId),
+    stringRefs2Array(xgfData.eachMeshGeometryId),
+    stringRefs2Array(xgfData.eachMeshMaterialId),
+    stringRefs2Array(xgfData.eachTransformId),
+    stringRefs2Array(xgfData.eachTransformParentId),
+    xgfData.eachTransformMatricesBase,
+    stringRefs2Array(xgfData.eachMeshParentTransformId)
+  ]);
+}
+
+// ../sdk/src/formats/xgf/versions/v2/encode.ts
+async function encode11(params, options) {
+  const xgfData = await modelToXGF2({ sceneModel: params.sceneModel, options });
+  return packXGF2(xgfData);
+}
+
 // ../sdk/src/formats/xgf/XGFExporter.ts
 var XGFExporter = class extends ModelExporter {
   constructor() {
@@ -106545,12 +107908,2410 @@ var XGFExporter = class extends ModelExporter {
       format: "XGF",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0.0": encode10
+        "1.0.0": encode10,
+        "2.0.0": encode11
+      },
+      defaultVersion: "2.0.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/xgfstream/index.ts
+var xgfstream_exports = {};
+__export(xgfstream_exports, {
+  XGFStreamExporter: () => XGFStreamExporter,
+  XGFStreamingIndexLookup: () => XGFStreamingIndexLookup,
+  XGFStreamingLoader: () => XGFStreamingLoader,
+  XGFViewStreamController: () => XGFViewStreamController,
+  createXGFManifest: () => createXGFManifest,
+  createXGFStreamingIndexLookup: () => createXGFStreamingIndexLookup,
+  readXGFChunkManifest: () => readXGFChunkManifest,
+  readXGFStreamingIndex: () => readXGFStreamingIndex,
+  readXGFStreamingRuntimeIndex: () => readXGFStreamingRuntimeIndex,
+  writeXGFChunkManifest: () => writeXGFChunkManifest,
+  writeXGFStreamingIndex: () => writeXGFStreamingIndex,
+  writeXGFStreamingRuntimeIndex: () => writeXGFStreamingRuntimeIndex
+});
+
+// ../sdk/src/formats/xgfstream/XGFManifest.ts
+function createXGFManifest(params, options = {}) {
+  const sceneModel = params.sceneModel;
+  const role = options.assetMode === "assetLibrary" || options.assetMode === "referencesOnly" ? options.assetMode : "full";
+  const allGeometryIds = sortedKeys(sceneModel.geometries);
+  const allMaterialIds = sortedKeys(sceneModel.materials);
+  const allTextureIds = sortedKeys(sceneModel.textures);
+  const usedGeometryIds = /* @__PURE__ */ new Set();
+  const usedMaterialIds = /* @__PURE__ */ new Set();
+  const usedTextureIds = /* @__PURE__ */ new Set();
+  forEachMesh(sceneModel, (mesh) => {
+    usedGeometryIds.add(mesh.geometry.id);
+    if (mesh.material) {
+      addMaterialDependencies(mesh.material, usedMaterialIds, usedTextureIds);
+    }
+  });
+  const createsAssets = role !== "referencesOnly";
+  const dependencies = role === "referencesOnly" ? {
+    chunks: (options.dependencies || []).slice(),
+    geometries: sortedSet(usedGeometryIds),
+    materials: sortedSet(usedMaterialIds),
+    textures: sortedSet(usedTextureIds)
+  } : {
+    chunks: (options.dependencies || []).slice(),
+    geometries: [],
+    materials: [],
+    textures: []
+  };
+  const manifest = {
+    format: "XGF",
+    manifestVersion: "1.0.0",
+    xgfVersion: "2.0.0",
+    id: options.id || sceneModel.id,
+    uri: options.uri,
+    role,
+    dependencies,
+    assets: {
+      geometries: createsAssets ? allGeometryIds : [],
+      materials: createsAssets ? allMaterialIds : [],
+      textures: createsAssets ? allTextureIds : []
+    },
+    counts: {
+      transforms: Object.keys(sceneModel.transforms || {}).length,
+      geometries: createsAssets ? allGeometryIds.length : 0,
+      materials: createsAssets ? allMaterialIds.length : 0,
+      textures: createsAssets ? allTextureIds.length : 0,
+      meshes: role === "assetLibrary" ? 0 : Object.keys(sceneModel.meshes).length,
+      objects: role === "assetLibrary" ? 0 : Object.keys(sceneModel.objects).length
+    },
+    priority: options.priority,
+    lod: options.lod
+  };
+  const aabb = computeSceneModelAABB(sceneModel);
+  if (aabb) {
+    manifest.aabb = aabb;
+  }
+  return manifest;
+}
+function sortedKeys(obj) {
+  return Object.keys(obj).sort();
+}
+function sortedSet(set) {
+  return Array.from(set).sort();
+}
+function forEachMesh(sceneModel, callback) {
+  for (const id in sceneModel.meshes) {
+    callback(sceneModel.meshes[id]);
+  }
+}
+function addMaterialDependencies(material, materialIds, textureIds) {
+  materialIds.add(material.id);
+  addTextureId(textureIds, material.colorTexture);
+  addTextureId(textureIds, material.metallicRoughnessTexture);
+  addTextureId(textureIds, material.normalsTexture);
+  addTextureId(textureIds, material.occlusionTexture);
+  addTextureId(textureIds, material.emissiveTexture);
+}
+function addTextureId(textureIds, texture) {
+  if (texture) {
+    textureIds.add(texture.id);
+  }
+}
+function computeSceneModelAABB(sceneModel) {
+  let xmin = Number.POSITIVE_INFINITY;
+  let ymin = Number.POSITIVE_INFINITY;
+  let zmin = Number.POSITIVE_INFINITY;
+  let xmax = Number.NEGATIVE_INFINITY;
+  let ymax = Number.NEGATIVE_INFINITY;
+  let zmax = Number.NEGATIVE_INFINITY;
+  let hasBounds = false;
+  forEachMesh(sceneModel, (mesh) => {
+    const aabb = mesh.geometry.aabb;
+    if (!aabb || aabb.length !== 6) {
+      return;
+    }
+    const matrix = mesh.worldMatrix;
+    for (let xBit = 0; xBit <= 1; xBit++) {
+      const x = aabb[xBit ? 3 : 0];
+      for (let yBit = 0; yBit <= 1; yBit++) {
+        const y = aabb[yBit ? 4 : 1];
+        for (let zBit = 0; zBit <= 1; zBit++) {
+          const z = aabb[zBit ? 5 : 2];
+          const tx = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+          const ty = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+          const tz = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+          xmin = Math.min(xmin, tx);
+          ymin = Math.min(ymin, ty);
+          zmin = Math.min(zmin, tz);
+          xmax = Math.max(xmax, tx);
+          ymax = Math.max(ymax, ty);
+          zmax = Math.max(zmax, tz);
+          hasBounds = true;
+        }
+      }
+    }
+  });
+  return hasBounds ? [xmin, ymin, zmin, xmax, ymax, zmax] : void 0;
+}
+
+// ../sdk/src/formats/xgfstream/index/writeXGFStreamingIndex.ts
+function writeXGFStreamingIndex(index) {
+  return JSON.parse(JSON.stringify(index));
+}
+
+// ../sdk/src/formats/xgfstream/index/writeXGFStreamingRuntimeIndex.ts
+var ROLE_CODES = {
+  full: 0,
+  assetLibrary: 1,
+  referencesOnly: 2
+};
+function writeXGFStreamingRuntimeIndex(index) {
+  return {
+    format: "XGFStreamingRuntimeIndex",
+    indexVersion: "1.0.0",
+    roles: ["full", "assetLibrary", "referencesOnly"],
+    counts: ["transforms", "geometries", "materials", "textures", "meshes", "objects"],
+    chunks: index.chunks.map(writeRuntimeChunk),
+    root: index.rootChunkIds?.slice(),
+    aabb: index.aabb?.slice(),
+    metadata: index.metadata ? JSON.parse(JSON.stringify(index.metadata)) : void 0
+  };
+}
+function writeRuntimeChunk(manifest) {
+  const chunk = [
+    manifest.id,
+    manifest.uri || null,
+    ROLE_CODES[manifest.role],
+    manifest.dependencies.chunks.map(
+      (dependency) => dependency.id && !dependency.uri ? dependency.id : [dependency.id || null, dependency.uri || null]
+    ),
+    manifest.aabb ? manifest.aabb.slice() : null,
+    [
+      manifest.counts.transforms,
+      manifest.counts.geometries,
+      manifest.counts.materials,
+      manifest.counts.textures,
+      manifest.counts.meshes,
+      manifest.counts.objects
+    ]
+  ];
+  if (manifest.priority !== void 0 || manifest.lod !== void 0) {
+    chunk[6] = manifest.priority ?? null;
+  }
+  if (manifest.lod !== void 0) {
+    chunk[7] = manifest.lod;
+  }
+  return chunk;
+}
+
+// ../sdk/src/formats/xgfstream/XGFStreamingExporter.ts
+var XGFStreamingExporter = class {
+  _xgfExporter;
+  constructor(params = {}) {
+    this._xgfExporter = params.xgfExporter || new XGFExporter();
+  }
+  async write(params) {
+    const validation = validateParams(params);
+    if (validation.ok === false) {
+      return validation;
+    }
+    const { sceneModel } = params;
+    const files = {};
+    const manifests = [];
+    const librarySpecsById = {};
+    try {
+      for (const spec of params.assetLibraries) {
+        librarySpecsById[spec.id] = spec;
+        const view = createAssetLibraryView(sceneModel, spec);
+        const fileData = await this._xgfExporter.write({ sceneModel: view }, { assetMode: "assetLibrary" });
+        const manifest = createXGFManifest(
+          { sceneModel: view },
+          {
+            id: spec.id,
+            uri: spec.uri,
+            assetMode: "assetLibrary",
+            priority: spec.priority,
+            lod: spec.lod
+          }
+        );
+        files[spec.uri] = fileData;
+        manifests.push(manifest);
+      }
+      for (const spec of params.chunks) {
+        const view = createChunkView(sceneModel, spec.objectIds);
+        const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
+        const fileData = await this._xgfExporter.write({ sceneModel: view }, { assetMode: "referencesOnly" });
+        const manifest = createXGFManifest(
+          { sceneModel: view },
+          {
+            id: spec.id,
+            uri: spec.uri,
+            assetMode: "referencesOnly",
+            dependencies,
+            priority: spec.priority,
+            lod: spec.lod
+          }
+        );
+        files[spec.uri] = fileData;
+        manifests.push(manifest);
+      }
+      const index = {
+        format: "XGFStreamingIndex",
+        indexVersion: "1.0.0",
+        chunks: manifests,
+        rootChunkIds: params.chunks.map((chunk) => chunk.id),
+        aabb: aggregateManifestAABB(manifests)
+      };
+      files[params.indexUri || "index.json"] = writeXGFStreamingIndex(index);
+      if (params.runtimeIndexUri) {
+        files[params.runtimeIndexUri] = writeXGFStreamingRuntimeIndex(index);
+      }
+      return {
+        ok: true,
+        value: {
+          index,
+          manifests,
+          files
+        }
+      };
+    } catch (error) {
+      return invalid(`[XGFStreamingExporter.write] ${error?.message || error}`);
+    }
+  }
+};
+function validateParams(params) {
+  if (!params || !params.sceneModel) {
+    return invalid("[XGFStreamingExporter.write] sceneModel is required");
+  }
+  if (!Array.isArray(params.assetLibraries)) {
+    return invalid("[XGFStreamingExporter.write] assetLibraries array is required");
+  }
+  if (!Array.isArray(params.chunks)) {
+    return invalid("[XGFStreamingExporter.write] chunks array is required");
+  }
+  const ids2 = /* @__PURE__ */ new Set();
+  const assetLibraryIds = /* @__PURE__ */ new Set();
+  for (const spec of params.assetLibraries) {
+    const result = validateSpecIdUri(spec, "assetLibraries");
+    if (result.ok === false)
+      return result;
+    if (ids2.has(spec.id))
+      return invalid(`[XGFStreamingExporter.write] Duplicate chunk id '${spec.id}'`);
+    ids2.add(spec.id);
+    assetLibraryIds.add(spec.id);
+  }
+  for (const spec of params.chunks) {
+    const result = validateSpecIdUri(spec, "chunks");
+    if (result.ok === false)
+      return result;
+    if (!Array.isArray(spec.objectIds) || spec.objectIds.length === 0) {
+      return invalid(`[XGFStreamingExporter.write] Chunk '${spec.id}' requires objectIds`);
+    }
+    if (ids2.has(spec.id))
+      return invalid(`[XGFStreamingExporter.write] Duplicate chunk id '${spec.id}'`);
+    if (spec.assetLibraryIds) {
+      for (const assetLibraryId of spec.assetLibraryIds) {
+        if (!assetLibraryIds.has(assetLibraryId)) {
+          return invalid(`[XGFStreamingExporter.write] Chunk '${spec.id}' references unknown asset library '${assetLibraryId}'`);
+        }
+      }
+    }
+    ids2.add(spec.id);
+  }
+  return { ok: true, value: void 0 };
+}
+function validateSpecIdUri(spec, path) {
+  if (!spec || typeof spec.id !== "string" || spec.id.length === 0) {
+    return invalid(`[XGFStreamingExporter.write] ${path} entry requires id`);
+  }
+  if (typeof spec.uri !== "string" || spec.uri.length === 0) {
+    return invalid(`[XGFStreamingExporter.write] ${path} '${spec.id}' requires uri`);
+  }
+  return { ok: true, value: void 0 };
+}
+function createAssetLibraryView(sceneModel, spec) {
+  const assetIds = collectAssetIds(sceneModel, spec.objectIds || []);
+  addIds(assetIds.geometries, spec.geometryIds);
+  addIds(assetIds.materials, spec.materialIds);
+  addIds(assetIds.textures, spec.textureIds);
+  includeMaterialTextures(sceneModel, assetIds);
+  return createView(sceneModel, {
+    objectIds: /* @__PURE__ */ new Set(),
+    meshIds: /* @__PURE__ */ new Set(),
+    transformIds: /* @__PURE__ */ new Set(),
+    geometryIds: assetIds.geometries,
+    materialIds: assetIds.materials,
+    textureIds: assetIds.textures
+  });
+}
+function createChunkView(sceneModel, objectIds) {
+  const objectSet = /* @__PURE__ */ new Set();
+  const meshSet = /* @__PURE__ */ new Set();
+  const transformSet = /* @__PURE__ */ new Set();
+  for (const objectId of objectIds) {
+    const object = sceneModel.objects[objectId];
+    if (!object) {
+      continue;
+    }
+    objectSet.add(objectId);
+    for (const mesh of object.meshes) {
+      meshSet.add(mesh.id);
+      addTransformAncestors(transformSet, mesh.parentTransform);
+    }
+  }
+  return createView(sceneModel, {
+    objectIds: objectSet,
+    meshIds: meshSet,
+    transformIds: transformSet,
+    geometryIds: /* @__PURE__ */ new Set(),
+    materialIds: /* @__PURE__ */ new Set(),
+    textureIds: /* @__PURE__ */ new Set()
+  });
+}
+function createView(sceneModel, ids2) {
+  return {
+    id: sceneModel.id,
+    scene: sceneModel.scene,
+    coordinateSystem: sceneModel.coordinateSystem,
+    coordinateSystemMatrix: sceneModel.coordinateSystemMatrix,
+    objects: pick(sceneModel.objects, ids2.objectIds),
+    meshes: pick(sceneModel.meshes, ids2.meshIds),
+    transforms: pick(sceneModel.transforms || {}, ids2.transformIds),
+    geometries: pick(sceneModel.geometries, ids2.geometryIds),
+    materials: pick(sceneModel.materials, ids2.materialIds),
+    textures: pick(sceneModel.textures, ids2.textureIds)
+  };
+}
+function collectAssetIds(sceneModel, objectIds) {
+  const geometries = /* @__PURE__ */ new Set();
+  const materials = /* @__PURE__ */ new Set();
+  const textures = /* @__PURE__ */ new Set();
+  for (const objectId of objectIds) {
+    const object = sceneModel.objects[objectId];
+    if (!object) {
+      continue;
+    }
+    for (const mesh of object.meshes) {
+      geometries.add(mesh.geometry.id);
+      if (mesh.material) {
+        materials.add(mesh.material.id);
+        addMaterialTextureIds(mesh.material, textures);
+      }
+    }
+  }
+  return { geometries, materials, textures };
+}
+function includeMaterialTextures(sceneModel, ids2) {
+  for (const materialId of ids2.materials) {
+    const material = sceneModel.materials[materialId];
+    if (material) {
+      addMaterialTextureIds(material, ids2.textures);
+    }
+  }
+}
+function addMaterialTextureIds(material, textures) {
+  addTextureId2(textures, material.colorTexture);
+  addTextureId2(textures, material.metallicRoughnessTexture);
+  addTextureId2(textures, material.normalsTexture);
+  addTextureId2(textures, material.occlusionTexture);
+  addTextureId2(textures, material.emissiveTexture);
+}
+function addTextureId2(textures, texture) {
+  if (texture) {
+    textures.add(texture.id);
+  }
+}
+function addTransformAncestors(transformIds, transform) {
+  for (let current = transform; current; current = current.parentTransform) {
+    transformIds.add(current.id);
+  }
+}
+function addIds(target, ids2) {
+  if (!ids2) {
+    return;
+  }
+  for (const id of ids2) {
+    target.add(id);
+  }
+}
+function pick(source, ids2) {
+  const result = {};
+  for (const id of ids2) {
+    if (source[id]) {
+      result[id] = source[id];
+    }
+  }
+  return result;
+}
+function dependenciesForChunk(spec, assetLibraries, librarySpecsById) {
+  if (spec.dependencies) {
+    return spec.dependencies.slice();
+  }
+  const librarySpecs = spec.assetLibraryIds ? spec.assetLibraryIds.map((id) => librarySpecsById[id]).filter(Boolean) : assetLibraries;
+  return librarySpecs.map((library) => ({ id: library.id, uri: library.uri }));
+}
+function aggregateManifestAABB(manifests) {
+  let aabb;
+  for (const manifest of manifests) {
+    if (!manifest.aabb) {
+      continue;
+    }
+    if (!aabb) {
+      aabb = manifest.aabb.slice();
+      continue;
+    }
+    aabb[0] = Math.min(aabb[0], manifest.aabb[0]);
+    aabb[1] = Math.min(aabb[1], manifest.aabb[1]);
+    aabb[2] = Math.min(aabb[2], manifest.aabb[2]);
+    aabb[3] = Math.max(aabb[3], manifest.aabb[3]);
+    aabb[4] = Math.max(aabb[4], manifest.aabb[4]);
+    aabb[5] = Math.max(aabb[5], manifest.aabb[5]);
+  }
+  return aabb;
+}
+function invalid(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
+
+// ../sdk/src/formats/xgfstream/XGFStreamExporter.ts
+var XGFStreamExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "XGFStream",
+      fileDataType: "filemap",
+      encoders: {
+        "1.0.0": encodeXGFStream
       },
       defaultVersion: "1.0.0"
     });
   }
 };
+async function encodeXGFStream(params, options = {}) {
+  const sceneModel = params.sceneModel;
+  if (!sceneModel) {
+    throw new Error("[XGFStreamExporter.write] params.sceneModel expected");
+  }
+  const chunkSize = positiveInteger(options.chunkSize, 500);
+  const partition = options.partition || "grid";
+  const chunkMetric = options.chunkMetric || "objects";
+  const chunkBudget = positiveNumber(options.chunkBudget, chunkSize);
+  const minChunkBudget = positiveNumber(options.minChunkBudget, Math.max(1, chunkBudget * 0.25));
+  const gridCellSize = options.gridCellSize !== void 0 ? positiveNumber(options.gridCellSize, 0) : void 0;
+  const baseUri = trimSlashes(options.baseUri || "");
+  const chunkDirName = trimSlashes(options.chunkDir || "chunks");
+  const assetId = options.assetId || "assets";
+  const indexName = options.index || "index.json";
+  const objectIds = Object.keys(sceneModel.objects).sort();
+  if (objectIds.length === 0) {
+    throw new Error("[XGFStreamExporter.write] SceneModel contains no objects");
+  }
+  const chunks = createChunkSpecs({
+    sceneModel,
+    objectIds,
+    partition,
+    chunkSize,
+    chunkMetric,
+    chunkBudget,
+    minChunkBudget,
+    gridCellSize,
+    baseUri,
+    chunkDirName,
+    assetId
+  });
+  const assetLibraries = createAssetLibrarySpecs({
+    sceneModel,
+    chunks,
+    objectIds,
+    assetId,
+    assetLibraryChunkSize: positiveInteger(options.assetLibraryChunkSize, 0),
+    sharedAssetMinLibraryUses: positiveInteger(options.sharedAssetMinLibraryUses, 2),
+    baseUri,
+    chunkDirName
+  });
+  const result = await new XGFStreamingExporter().write({
+    sceneModel,
+    assetLibraries,
+    chunks,
+    indexUri: joinUri(baseUri, indexName),
+    runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : void 0
+  });
+  if (result.ok === false) {
+    throw new Error(result.error);
+  }
+  return result.value;
+}
+function createChunkSpecs(params) {
+  if (params.partition === "object-order") {
+    return createObjectOrderChunkSpecs(params);
+  }
+  if (params.partition === "grid") {
+    return createGridChunkSpecs(params);
+  }
+  throw new Error(`[XGFStreamExporter.write] Unsupported partition '${params.partition}'`);
+}
+function createObjectOrderChunkSpecs(params) {
+  const chunks = [];
+  for (let offset = 0, chunkIndex = 0; offset < params.objectIds.length; offset += params.chunkSize, chunkIndex++) {
+    const id = numberedChunkId(chunkIndex);
+    chunks.push(createChunkSpec(id, params.objectIds.slice(offset, offset + params.chunkSize), chunkIndex, params.baseUri, params.chunkDirName, params.assetId));
+  }
+  return chunks;
+}
+function createGridChunkSpecs(params) {
+  const records = [];
+  const unboundedObjectIds = [];
+  const modelAABB = collapseAABB32();
+  for (const objectId of params.objectIds) {
+    const sceneObject = params.sceneModel.objects[objectId];
+    const aabb = computeObjectAABB(sceneObject);
+    if (!aabb) {
+      unboundedObjectIds.push(objectId);
+      continue;
+    }
+    expandAABB32(modelAABB, aabb);
+    records.push({
+      id: objectId,
+      aabb,
+      center: aabbCenter(aabb),
+      cost: estimateObjectCost(sceneObject, params.chunkMetric)
+    });
+  }
+  if (records.length === 0) {
+    return createObjectOrderChunkSpecs({
+      objectIds: params.objectIds,
+      chunkSize: Math.max(1, Math.floor(params.chunkBudget)),
+      baseUri: params.baseUri,
+      chunkDirName: params.chunkDirName,
+      assetId: params.assetId
+    });
+  }
+  const totalCost = sumRecordCost(records);
+  const cellSize = params.gridCellSize || autoGridCellSize(modelAABB, totalCost, params.chunkBudget);
+  const buckets = /* @__PURE__ */ new Map();
+  for (const record of records) {
+    const coord = gridCoord(record.center, modelAABB, cellSize);
+    const key = coord.join(",");
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      bucket = { coord, records: [] };
+      buckets.set(key, bucket);
+    }
+    bucket.records.push(record);
+  }
+  let spatialGroups = [];
+  for (const bucket of Array.from(buckets.values()).sort(compareBucket)) {
+    for (const group of splitOversizedGroup(bucket.records, params.chunkBudget)) {
+      spatialGroups.push(createSpatialGroup(bucket.coord, group));
+    }
+  }
+  spatialGroups = mergeUndersizedGroups(spatialGroups, params.minChunkBudget, params.chunkBudget);
+  const chunks = [];
+  let chunkIndex = 0;
+  for (const group of spatialGroups) {
+    const suffix = group.coord.map((value, axis) => `${"xyz"[axis]}${signedCoord(value)}`).join("-");
+    const part = countCoordOccurrence(chunks, suffix);
+    const id = `${numberedChunkId(chunkIndex)}-${suffix}${part > 0 ? `-${part}` : ""}`;
+    chunks.push(createChunkSpec(id, group.records.map((record) => record.id).sort(), chunkIndex, params.baseUri, params.chunkDirName, params.assetId));
+    chunkIndex++;
+  }
+  const unboundedChunkSize = Math.max(1, Math.floor(params.chunkBudget));
+  for (let offset = 0; offset < unboundedObjectIds.length; offset += unboundedChunkSize) {
+    const id = `${numberedChunkId(chunkIndex)}-unbounded`;
+    chunks.push(createChunkSpec(id, unboundedObjectIds.slice(offset, offset + unboundedChunkSize), chunkIndex, params.baseUri, params.chunkDirName, params.assetId));
+    chunkIndex++;
+  }
+  return chunks;
+}
+function createChunkSpec(id, objectIds, priority, baseUri, chunkDirName, assetId) {
+  return {
+    id,
+    uri: joinUri(baseUri, chunkDirName, `${id}.xgf`),
+    objectIds,
+    assetLibraryIds: [assetId],
+    priority
+  };
+}
+function createAssetLibrarySpecs(params) {
+  if (!params.assetLibraryChunkSize || params.assetLibraryChunkSize >= params.chunks.length) {
+    for (const chunk of params.chunks) {
+      chunk.assetLibraryIds = [params.assetId];
+    }
+    return [{
+      id: params.assetId,
+      uri: joinUri(params.baseUri, params.chunkDirName, `${params.assetId}.xgf`),
+      objectIds: params.objectIds
+    }];
+  }
+  const groups = [];
+  for (let offset = 0, libraryIndex = 0; offset < params.chunks.length; offset += params.assetLibraryChunkSize, libraryIndex++) {
+    const chunksInGroup = params.chunks.slice(offset, offset + params.assetLibraryChunkSize);
+    const libraryObjectIds = /* @__PURE__ */ new Set();
+    for (const chunk of chunksInGroup) {
+      for (const objectId of chunk.objectIds) {
+        libraryObjectIds.add(objectId);
+      }
+    }
+    groups.push({
+      id: `${params.assetId}-${String(libraryIndex).padStart(3, "0")}`,
+      uri: joinUri(params.baseUri, params.chunkDirName, `${params.assetId}-${String(libraryIndex).padStart(3, "0")}.xgf`),
+      priority: libraryIndex + 1,
+      chunks: chunksInGroup,
+      assets: collectAssetIds2(params.sceneModel, Array.from(libraryObjectIds))
+    });
+  }
+  const sharedAssets = collectSharedAssets(groups, params.sharedAssetMinLibraryUses);
+  const hasSharedAssets = hasAnyAsset(sharedAssets);
+  const sharedLibraryId = `${params.assetId}-shared`;
+  const libraries = [];
+  if (hasSharedAssets) {
+    libraries.push({
+      id: sharedLibraryId,
+      uri: joinUri(params.baseUri, params.chunkDirName, `${sharedLibraryId}.xgf`),
+      geometryIds: Array.from(sharedAssets.geometries).sort(),
+      materialIds: Array.from(sharedAssets.materials).sort(),
+      textureIds: Array.from(sharedAssets.textures).sort(),
+      priority: 0
+    });
+  }
+  for (const group of groups) {
+    const localAssets = subtractAssets(group.assets, sharedAssets);
+    const groupLibraryIds = hasSharedAssets ? [sharedLibraryId] : [];
+    if (hasAnyAsset(localAssets)) {
+      libraries.push({
+        id: group.id,
+        uri: group.uri,
+        geometryIds: Array.from(localAssets.geometries).sort(),
+        materialIds: Array.from(localAssets.materials).sort(),
+        textureIds: Array.from(localAssets.textures).sort(),
+        priority: group.priority
+      });
+      groupLibraryIds.push(group.id);
+    }
+    for (const chunk of group.chunks) {
+      chunk.assetLibraryIds = groupLibraryIds.slice();
+    }
+  }
+  return libraries;
+}
+function collectAssetIds2(sceneModel, objectIds) {
+  const assets = {
+    geometries: /* @__PURE__ */ new Set(),
+    materials: /* @__PURE__ */ new Set(),
+    textures: /* @__PURE__ */ new Set()
+  };
+  for (const objectId of objectIds) {
+    const object = sceneModel.objects[objectId];
+    if (!object) {
+      continue;
+    }
+    for (const mesh of object.meshes || []) {
+      if (mesh.geometry) {
+        assets.geometries.add(mesh.geometry.id);
+      }
+      if (mesh.material) {
+        assets.materials.add(mesh.material.id);
+        addMaterialTextureIds2(mesh.material, assets.textures);
+      }
+    }
+  }
+  return assets;
+}
+function addMaterialTextureIds2(material, textures) {
+  addTextureId3(textures, material.colorTexture);
+  addTextureId3(textures, material.metallicRoughnessTexture);
+  addTextureId3(textures, material.normalsTexture);
+  addTextureId3(textures, material.occlusionTexture);
+  addTextureId3(textures, material.emissiveTexture);
+}
+function addTextureId3(textures, texture) {
+  if (texture) {
+    textures.add(texture.id);
+  }
+}
+function collectSharedAssets(groups, minUses) {
+  return {
+    geometries: idsWithMinUses(countGroupUses(groups, "geometries"), minUses),
+    materials: idsWithMinUses(countGroupUses(groups, "materials"), minUses),
+    textures: idsWithMinUses(countGroupUses(groups, "textures"), minUses)
+  };
+}
+function countGroupUses(groups, kind) {
+  const uses = /* @__PURE__ */ new Map();
+  for (const group of groups) {
+    for (const id of group.assets[kind]) {
+      uses.set(id, (uses.get(id) || 0) + 1);
+    }
+  }
+  return uses;
+}
+function idsWithMinUses(uses, minUses) {
+  const ids2 = /* @__PURE__ */ new Set();
+  for (const [id, count] of uses) {
+    if (count >= minUses) {
+      ids2.add(id);
+    }
+  }
+  return ids2;
+}
+function subtractAssets(assets, excluded) {
+  return {
+    geometries: subtractSet(assets.geometries, excluded.geometries),
+    materials: subtractSet(assets.materials, excluded.materials),
+    textures: subtractSet(assets.textures, excluded.textures)
+  };
+}
+function subtractSet(source, excluded) {
+  const result = /* @__PURE__ */ new Set();
+  for (const id of source) {
+    if (!excluded.has(id)) {
+      result.add(id);
+    }
+  }
+  return result;
+}
+function hasAnyAsset(assets) {
+  return assets.geometries.size > 0 || assets.materials.size > 0 || assets.textures.size > 0;
+}
+function numberedChunkId(chunkIndex) {
+  return `chunk-${String(chunkIndex).padStart(5, "0")}`;
+}
+function computeObjectAABB(sceneObject) {
+  if (!sceneObject || !Array.isArray(sceneObject.meshes) || sceneObject.meshes.length === 0) {
+    return null;
+  }
+  const out = collapseAABB32();
+  let found = false;
+  for (const mesh of sceneObject.meshes) {
+    const geom = mesh.geometry;
+    if (!geom || !geom.aabb) {
+      continue;
+    }
+    expandAABB32(out, transformAABB3(geom.aabb, mesh.worldMatrix));
+    found = true;
+  }
+  return found ? out : null;
+}
+function estimateObjectCost(sceneObject, metric) {
+  if (metric === "objects") {
+    return 1;
+  }
+  const meshes = sceneObject?.meshes || [];
+  if (metric === "meshes") {
+    return Math.max(1, meshes.length);
+  }
+  const geometryIds = /* @__PURE__ */ new Set();
+  let bytes = 0;
+  for (const mesh of meshes) {
+    const geometry = mesh.geometry;
+    if (!geometry || geometryIds.has(geometry.id)) {
+      continue;
+    }
+    geometryIds.add(geometry.id);
+    bytes += arrayByteLength(geometry.positionsCompressed);
+    bytes += arrayByteLength(geometry.colorsCompressed);
+    bytes += arrayByteLength(geometry.normalsCompressed);
+    bytes += arrayByteLength(geometry.uvsCompressed);
+    bytes += arrayByteLength(geometry.indices);
+    bytes += arrayByteLength(geometry.edgeIndices);
+    bytes += arrayByteLength(geometry.scales);
+    bytes += arrayByteLength(geometry.rotations);
+    bytes += arrayByteLength(geometry.aabb);
+  }
+  return Math.max(1, bytes);
+}
+function arrayByteLength(value) {
+  return value && typeof value.byteLength === "number" ? value.byteLength : 0;
+}
+function transformAABB3(local, matrix) {
+  const minX = local[0], minY = local[1], minZ = local[2];
+  const maxX = local[3], maxY = local[4], maxZ = local[5];
+  const cx = (minX + maxX) * 0.5;
+  const cy = (minY + maxY) * 0.5;
+  const cz = (minZ + maxZ) * 0.5;
+  const ex = (maxX - minX) * 0.5;
+  const ey = (maxY - minY) * 0.5;
+  const ez = (maxZ - minZ) * 0.5;
+  const m00 = matrix[0], m01 = matrix[4], m02 = matrix[8], m03 = matrix[12];
+  const m10 = matrix[1], m11 = matrix[5], m12 = matrix[9], m13 = matrix[13];
+  const m20 = matrix[2], m21 = matrix[6], m22 = matrix[10], m23 = matrix[14];
+  const wcx = m00 * cx + m01 * cy + m02 * cz + m03;
+  const wcy = m10 * cx + m11 * cy + m12 * cz + m13;
+  const wcz = m20 * cx + m21 * cy + m22 * cz + m23;
+  const wex = Math.abs(m00) * ex + Math.abs(m01) * ey + Math.abs(m02) * ez;
+  const wey = Math.abs(m10) * ex + Math.abs(m11) * ey + Math.abs(m12) * ez;
+  const wez = Math.abs(m20) * ex + Math.abs(m21) * ey + Math.abs(m22) * ez;
+  return [wcx - wex, wcy - wey, wcz - wez, wcx + wex, wcy + wey, wcz + wez];
+}
+function collapseAABB32() {
+  return [
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY
+  ];
+}
+function expandAABB32(out, aabb) {
+  out[0] = Math.min(out[0], aabb[0]);
+  out[1] = Math.min(out[1], aabb[1]);
+  out[2] = Math.min(out[2], aabb[2]);
+  out[3] = Math.max(out[3], aabb[3]);
+  out[4] = Math.max(out[4], aabb[4]);
+  out[5] = Math.max(out[5], aabb[5]);
+  return out;
+}
+function aabbCenter(aabb) {
+  return [(aabb[0] + aabb[3]) * 0.5, (aabb[1] + aabb[4]) * 0.5, (aabb[2] + aabb[5]) * 0.5];
+}
+function autoGridCellSize(modelAABB, totalCost, chunkBudget) {
+  const x = Math.max(modelAABB[3] - modelAABB[0], 1);
+  const y = Math.max(modelAABB[4] - modelAABB[1], 1);
+  const z = Math.max(modelAABB[5] - modelAABB[2], 1);
+  const targetChunks = Math.max(1, Math.ceil(totalCost / chunkBudget));
+  return Math.max(Math.cbrt(x * y * z / targetChunks), 1);
+}
+function gridCoord(center, modelAABB, cellSize) {
+  return [
+    Math.floor((center[0] - modelAABB[0]) / cellSize),
+    Math.floor((center[1] - modelAABB[1]) / cellSize),
+    Math.floor((center[2] - modelAABB[2]) / cellSize)
+  ];
+}
+function splitOversizedGroup(records, chunkBudget) {
+  if (records.length <= 1 || sumRecordCost(records) <= chunkBudget) {
+    return [records];
+  }
+  const axis = longestCenterAxis(records);
+  const sorted = records.slice().sort((a2, b4) => a2.center[axis] - b4.center[axis] || a2.id.localeCompare(b4.id));
+  const mid2 = Math.ceil(sorted.length / 2);
+  return splitOversizedGroup(sorted.slice(0, mid2), chunkBudget).concat(splitOversizedGroup(sorted.slice(mid2), chunkBudget));
+}
+function createSpatialGroup(coord, records) {
+  const aabb = collapseAABB32();
+  for (const record of records) {
+    expandAABB32(aabb, record.aabb);
+  }
+  return { coord, records, cost: sumRecordCost(records), aabb, center: aabbCenter(aabb) };
+}
+function mergeUndersizedGroups(groups, minChunkBudget, chunkBudget) {
+  if (groups.length < 2 || minChunkBudget <= 1) {
+    return groups;
+  }
+  const merged = [];
+  const used = /* @__PURE__ */ new Set();
+  const bySmallest = groups.map((group, index) => ({ group, index })).sort((a2, b4) => a2.group.cost - b4.group.cost || compareBucket(a2.group, b4.group));
+  for (const item of bySmallest) {
+    if (used.has(item.index)) {
+      continue;
+    }
+    const group = item.group;
+    if (group.cost >= minChunkBudget) {
+      used.add(item.index);
+      merged.push(group);
+      continue;
+    }
+    let bestIndex = -1;
+    let bestScore = Number.POSITIVE_INFINITY;
+    for (let i = 0; i < groups.length; i++) {
+      if (i === item.index || used.has(i) || group.cost + groups[i].cost > chunkBudget) {
+        continue;
+      }
+      const score = centerDistanceSquared(group.center, groups[i].center);
+      if (score < bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+    used.add(item.index);
+    if (bestIndex !== -1) {
+      used.add(bestIndex);
+      merged.push(mergeSpatialGroups(group, groups[bestIndex]));
+    } else {
+      merged.push(group);
+    }
+  }
+  return merged.sort(compareBucket);
+}
+function mergeSpatialGroups(a2, b4) {
+  const aabb = collapseAABB32();
+  expandAABB32(aabb, a2.aabb);
+  expandAABB32(aabb, b4.aabb);
+  return { coord: a2.coord, records: a2.records.concat(b4.records), cost: a2.cost + b4.cost, aabb, center: aabbCenter(aabb) };
+}
+function centerDistanceSquared(a2, b4) {
+  const x = a2[0] - b4[0];
+  const y = a2[1] - b4[1];
+  const z = a2[2] - b4[2];
+  return x * x + y * y + z * z;
+}
+function sumRecordCost(records) {
+  return records.reduce((sum, record) => sum + record.cost, 0);
+}
+function longestCenterAxis(records) {
+  const min = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
+  const max = [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY];
+  for (const record of records) {
+    for (let i = 0; i < 3; i++) {
+      min[i] = Math.min(min[i], record.center[i]);
+      max[i] = Math.max(max[i], record.center[i]);
+    }
+  }
+  const extents = [max[0] - min[0], max[1] - min[1], max[2] - min[2]];
+  if (extents[1] > extents[0] && extents[1] >= extents[2])
+    return 1;
+  if (extents[2] > extents[0] && extents[2] > extents[1])
+    return 2;
+  return 0;
+}
+function compareBucket(a2, b4) {
+  return a2.coord[0] - b4.coord[0] || a2.coord[1] - b4.coord[1] || a2.coord[2] - b4.coord[2];
+}
+function signedCoord(value) {
+  return value < 0 ? `m${Math.abs(value)}` : String(value).padStart(3, "0");
+}
+function countCoordOccurrence(chunks, suffix) {
+  return chunks.reduce((count, chunk) => chunk.id.includes(suffix) ? count + 1 : count, 0);
+}
+function positiveInteger(value, defaultValue) {
+  if (value === void 0 || value === null) {
+    return defaultValue;
+  }
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n < 0) {
+    throw new Error("[XGFStreamExporter.write] Expected a non-negative integer option");
+  }
+  return n;
+}
+function positiveNumber(value, defaultValue) {
+  if (value === void 0 || value === null) {
+    return defaultValue;
+  }
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error("[XGFStreamExporter.write] Expected a positive number option");
+  }
+  return n;
+}
+function trimSlashes(value) {
+  return String(value || "").replace(/^\/+|\/+$/g, "");
+}
+function joinUri(...parts) {
+  return parts.filter((part) => part !== void 0 && String(part).length > 0).map((part) => trimSlashes(part)).filter((part) => part.length > 0).join("/");
+}
+
+// ../sdk/src/formats/xgfstream/index/XGFStreamingIndexLookup.ts
+var XGFStreamingIndexLookup = class {
+  /** Source stream index. */
+  index;
+  /** Chunk manifests keyed by chunk ID. */
+  byId;
+  /** Chunk manifests keyed by chunk URI. */
+  byUri;
+  /**
+   * Creates a lookup from a stream index.
+   */
+  constructor(index) {
+    this.index = index;
+    this.byId = {};
+    this.byUri = {};
+    for (const chunk of index.chunks) {
+      this.byId[chunk.id] = chunk;
+      if (chunk.uri) {
+        this.byUri[chunk.uri] = chunk;
+      }
+    }
+  }
+  /**
+   * Gets a chunk manifest by dependency ID or URI.
+   */
+  get(dependency) {
+    return dependency.id && this.byId[dependency.id] || dependency.uri && this.byUri[dependency.uri] || void 0;
+  }
+};
+
+// ../sdk/src/formats/xgfstream/XGFStreamingLoader.ts
+var XGFStreamingLoader = class {
+  _xgfLoader;
+  _stateBySceneModel = /* @__PURE__ */ new WeakMap();
+  constructor(params = {}) {
+    this._xgfLoader = params.xgfLoader || new XGFLoader();
+  }
+  /**
+   * Loads one manifest-backed XGF chunk into a SceneModel.
+   *
+   * Missing dependency chunks are resolved through `options.manifests` and
+   * loaded before the requested chunk. Handled validation and dependency
+   * failures are reported on the Scene's error channel instead of throwing.
+   */
+  async loadChunk(params, options = {}) {
+    const visiting = /* @__PURE__ */ new Set();
+    await this._loadChunk(params, options, visiting);
+  }
+  /**
+   * Loads multiple manifest-backed XGF chunks, prefetching their file data with
+   * bounded concurrency before applying them in dependency-safe order.
+   */
+  async loadChunks(params, options = {}) {
+    const { sceneModel, dataModel } = params;
+    const state = stateFor(sceneModel, this._stateBySceneModel);
+    const planResult = createChunkLoadPlan(params.manifests, options.manifests, state);
+    if (planResult.ok === false) {
+      sceneModel.scene.logError(planResult);
+      return;
+    }
+    const fileDataCache = await prefetchChunkFileData(
+      planResult.value,
+      options,
+      normalizedConcurrency(options.fetchConcurrency)
+    );
+    const loadOptions = withFileDataCache(options, fileDataCache);
+    for (const manifest of planResult.value) {
+      await this._loadChunk({
+        manifest,
+        sceneModel,
+        dataModel
+      }, loadOptions, /* @__PURE__ */ new Set());
+    }
+  }
+  /**
+   * Unloads one previously-loaded chunk from a SceneModel.
+   *
+   * References-only chunks release their objects/meshes/transforms while shared
+   * assets stay alive. Asset-library chunks are refused while loaded chunks
+   * still reference their assets.
+   */
+  unloadChunk(params) {
+    const { sceneModel, chunkId } = params;
+    const state = stateFor(sceneModel, this._stateBySceneModel);
+    const ownership = state.chunks.get(chunkId);
+    if (!ownership) {
+      return sceneModel.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[XGFStreamingLoader.unloadChunk] Chunk '${chunkId}' is not loaded`
+      });
+    }
+    const inUse = ownedAssetsInUse(ownership, state);
+    if (inUse.length > 0) {
+      return sceneModel.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[XGFStreamingLoader.unloadChunk] Cannot unload chunk '${chunkId}' while assets are referenced: ${inUse.join(", ")}`
+      });
+    }
+    const destroyResult = destroyOwnedContent(sceneModel, ownership);
+    if (destroyResult.ok === false) {
+      return destroyResult;
+    }
+    decrementRefs(state.geometryRefs, ownership.referencedGeometries);
+    decrementRefs(state.materialRefs, ownership.referencedMaterials);
+    decrementRefs(state.textureRefs, ownership.referencedTextures);
+    state.loadedChunkIds.delete(chunkId);
+    state.chunks.delete(chunkId);
+    return { ok: true, value: void 0 };
+  }
+  async _loadChunk(params, options, visiting) {
+    const { manifest, sceneModel, dataModel } = params;
+    const key = chunkKey(manifest);
+    const state = stateFor(sceneModel, this._stateBySceneModel);
+    if (key && visiting.has(key)) {
+      sceneModel.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[XGFStreamingLoader.loadChunk] Cyclic XGF chunk dependency at '${key}'`
+      });
+      return;
+    }
+    if (key && state.loadedChunkIds.has(key)) {
+      return;
+    }
+    if (!key) {
+      await this._loadChunkNow(params, options, visiting, state);
+      return;
+    }
+    const loadingChunk = state.loadingChunks.get(key);
+    if (loadingChunk) {
+      await loadingChunk;
+      return;
+    }
+    const loadingPromise = new Promise((resolve2, reject) => {
+      queueMicrotask(() => {
+        this._loadChunkNow(params, options, visiting, state).then(resolve2, reject);
+      });
+    });
+    state.loadingChunks.set(key, loadingPromise);
+    try {
+      await loadingPromise;
+    } finally {
+      state.loadingChunks.delete(key);
+    }
+  }
+  async _loadChunkNow(params, options, visiting, state) {
+    const { manifest, sceneModel, dataModel } = params;
+    const key = chunkKey(manifest);
+    const totalStart = now();
+    let dependencyMs = 0;
+    let fetchMs = 0;
+    let commitMs = 0;
+    let bytes = params.fileData?.byteLength || 0;
+    let createdIds = emptyCreatedIds();
+    let error;
+    if (key && state.loadedChunkIds.has(key)) {
+      return;
+    }
+    if (manifest.dependencies.chunks.length > 0) {
+      const dependencyStart = now();
+      if (key) {
+        visiting.add(key);
+      }
+      const loaded = /* @__PURE__ */ new Set();
+      for (const dependency of manifest.dependencies.chunks) {
+        const dependencyManifest = findDependencyManifest(dependency, options.manifests);
+        if (!dependencyManifest) {
+          error = `[XGFStreamingLoader.loadChunk] Dependency chunk manifest not found for '${dependency.id || dependency.uri || ""}'`;
+          sceneModel.scene.logError({
+            ok: false,
+            type: 2 /* InvalidInput */,
+            error
+          });
+          if (key) {
+            visiting.delete(key);
+          }
+          emitChunkLoadStats(options, manifest, false, bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error);
+          return;
+        }
+        const dependencyKey = chunkKey(dependencyManifest);
+        if (loaded.has(dependencyKey)) {
+          continue;
+        }
+        loaded.add(dependencyKey);
+        await this._loadChunk({
+          manifest: dependencyManifest,
+          sceneModel,
+          dataModel
+        }, options, visiting);
+      }
+      if (key) {
+        visiting.delete(key);
+      }
+      dependencyMs = now() - dependencyStart;
+    }
+    const fetchStart = now();
+    const fileData = params.fileData || await resolveChunkFileData(manifest, options);
+    fetchMs = params.fileData ? 0 : now() - fetchStart;
+    bytes = fileData?.byteLength || bytes;
+    if (!fileData) {
+      error = `[XGFStreamingLoader.loadChunk] XGF file data not found for chunk '${manifest.id}'`;
+      sceneModel.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error
+      });
+      emitChunkLoadStats(options, manifest, false, bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error);
+      return;
+    }
+    const commitStart = now();
+    await runSceneModelMutation(state, async () => {
+      if (key && state.loadedChunkIds.has(key)) {
+        return;
+      }
+      const missingAfter = missingAssetDependencies(sceneModel, manifest);
+      if (missingAfter.length > 0) {
+        error = `[XGFStreamingLoader.loadChunk] Missing XGF chunk dependencies: ${formatMissingDependencies(missingAfter)}`;
+        sceneModel.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error
+        });
+        return;
+      }
+      if (manifest.role === "assetLibrary" && hasManifestAssets(manifest) && allManifestAssetsExist(sceneModel, manifest)) {
+        state.loadedChunkIds.add(key);
+        state.chunks.set(key, ownershipFromExistingAssets(manifest));
+        return;
+      }
+      createdIds = emptyCreatedIds();
+      const parserOptions = {
+        ...options,
+        meshIdPrefix: key ? `${key}/mesh/` : void 0,
+        createdIds
+      };
+      try {
+        await this._xgfLoader.load({ fileData, sceneModel, dataModel }, parserOptions);
+      } catch (loadError) {
+        error = `[XGFStreamingLoader.loadChunk] Failed loading chunk '${manifest.id}': ${formatError(loadError)}`;
+        sceneModel.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error
+        });
+        return;
+      }
+      if (createdIds.error) {
+        error = createdIds.error;
+        return;
+      }
+      const ownership = ownershipFromCreatedIds(key, manifest, createdIds);
+      incrementRefs(state.geometryRefs, ownership.referencedGeometries);
+      incrementRefs(state.materialRefs, ownership.referencedMaterials);
+      incrementRefs(state.textureRefs, ownership.referencedTextures);
+      state.loadedChunkIds.add(key);
+      state.chunks.set(key, ownership);
+      if (options.onChunkLoaded) {
+        options.onChunkLoaded(manifest);
+      }
+    });
+    commitMs = now() - commitStart;
+    emitChunkLoadStats(options, manifest, !error && (!key || state.loadedChunkIds.has(key)), bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error);
+  }
+};
+function stateFor(sceneModel, stateBySceneModel) {
+  let state = stateBySceneModel.get(sceneModel);
+  if (!state) {
+    state = {
+      loadedChunkIds: /* @__PURE__ */ new Set(),
+      loadingChunks: /* @__PURE__ */ new Map(),
+      mutationTail: Promise.resolve(),
+      chunks: /* @__PURE__ */ new Map(),
+      geometryRefs: /* @__PURE__ */ new Map(),
+      materialRefs: /* @__PURE__ */ new Map(),
+      textureRefs: /* @__PURE__ */ new Map()
+    };
+    stateBySceneModel.set(sceneModel, state);
+  }
+  return state;
+}
+async function runSceneModelMutation(state, mutation) {
+  const previous = state.mutationTail;
+  let release = () => {
+  };
+  state.mutationTail = new Promise((resolve2) => {
+    release = resolve2;
+  });
+  await previous.catch(() => {
+  });
+  try {
+    return await mutation();
+  } finally {
+    release();
+  }
+}
+function chunkKey(manifest) {
+  return manifest.id || manifest.uri || "";
+}
+function createChunkLoadPlan(manifests, lookup, state) {
+  const plan = [];
+  const planned = /* @__PURE__ */ new Set();
+  const visiting = /* @__PURE__ */ new Set();
+  const available = lookup || manifests;
+  for (const manifest of manifests) {
+    const result = addChunkAndDependenciesToPlan(manifest, available, state, visiting, planned, plan);
+    if (result.ok === false) {
+      return result;
+    }
+  }
+  return { ok: true, value: plan };
+}
+function addChunkAndDependenciesToPlan(manifest, available, state, visiting, planned, plan) {
+  const key = chunkKey(manifest);
+  if (!key) {
+    return invalid2("[XGFStreamingLoader.loadChunks] Chunk manifest requires id or uri");
+  }
+  if (state.loadedChunkIds.has(key) || planned.has(key)) {
+    return { ok: true, value: void 0 };
+  }
+  if (visiting.has(key)) {
+    return invalid2(`[XGFStreamingLoader.loadChunks] Cyclic XGF chunk dependency at '${key}'`);
+  }
+  visiting.add(key);
+  for (const dependency of manifest.dependencies.chunks) {
+    const dependencyManifest = findDependencyManifest(dependency, available);
+    if (!dependencyManifest) {
+      return invalid2(`[XGFStreamingLoader.loadChunks] Dependency chunk manifest not found for '${dependency.id || dependency.uri || ""}'`);
+    }
+    const result = addChunkAndDependenciesToPlan(dependencyManifest, available, state, visiting, planned, plan);
+    if (result.ok === false) {
+      return result;
+    }
+  }
+  visiting.delete(key);
+  planned.add(key);
+  plan.push(manifest);
+  return { ok: true, value: void 0 };
+}
+async function prefetchChunkFileData(manifests, options, concurrency) {
+  const cache2 = {};
+  const queue = manifests.slice();
+  const workers = [];
+  for (let i = 0; i < concurrency; i++) {
+    workers.push((async () => {
+      for (; ; ) {
+        const manifest = queue.shift();
+        if (!manifest) {
+          return;
+        }
+        const key = chunkKey(manifest);
+        if (!key || cache2[key]) {
+          continue;
+        }
+        const fileData = await resolveChunkFileData(manifest, options);
+        if (fileData) {
+          cache2[key] = fileData;
+        }
+      }
+    })());
+  }
+  await Promise.all(workers);
+  return cache2;
+}
+function withFileDataCache(options, fileDataCache) {
+  return {
+    ...options,
+    fileDataByChunkId: {
+      ...options.fileDataByChunkId,
+      ...fileDataCache
+    },
+    fileDataByUri: {
+      ...options.fileDataByUri,
+      ...fileDataCache
+    }
+  };
+}
+function normalizedConcurrency(value) {
+  return Number.isFinite(value) && value > 0 ? Math.max(1, Math.floor(value)) : 8;
+}
+function emitChunkLoadStats(options, manifest, ok, bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error) {
+  if (!options.onChunkLoadStats) {
+    return;
+  }
+  const stats = {
+    manifest,
+    chunkId: chunkKey(manifest),
+    role: manifest.role,
+    ok,
+    bytes,
+    dependencyMs,
+    fetchMs,
+    commitMs,
+    totalMs: now() - totalStart,
+    created: {
+      objects: createdIds.objects.length,
+      meshes: createdIds.meshes.length,
+      transforms: createdIds.transforms.length,
+      geometries: createdIds.geometries.length,
+      materials: createdIds.materials.length,
+      textures: createdIds.textures.length
+    },
+    error
+  };
+  options.onChunkLoadStats(stats);
+}
+function now() {
+  return typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
+}
+function missingAssetDependencies(sceneModel, manifest) {
+  const missing = [];
+  for (const id of manifest.dependencies.geometries) {
+    if (!sceneModel.geometries[id])
+      missing.push({ kind: "geometry", id });
+  }
+  for (const id of manifest.dependencies.materials) {
+    if (!sceneModel.materials[id])
+      missing.push({ kind: "material", id });
+  }
+  for (const id of manifest.dependencies.textures) {
+    if (!sceneModel.textures[id])
+      missing.push({ kind: "texture", id });
+  }
+  return missing;
+}
+function allManifestAssetsExist(sceneModel, manifest) {
+  return manifest.assets.geometries.every((id) => !!sceneModel.geometries[id]) && manifest.assets.materials.every((id) => !!sceneModel.materials[id]) && manifest.assets.textures.every((id) => !!sceneModel.textures[id]);
+}
+function hasManifestAssets(manifest) {
+  return manifest.assets.geometries.length > 0 || manifest.assets.materials.length > 0 || manifest.assets.textures.length > 0;
+}
+function ownershipFromExistingAssets(manifest) {
+  return {
+    id: manifest.id,
+    role: manifest.role,
+    objects: [],
+    meshes: [],
+    transforms: [],
+    geometries: [],
+    materials: [],
+    textures: [],
+    referencedGeometries: manifest.dependencies.geometries.slice(),
+    referencedMaterials: manifest.dependencies.materials.slice(),
+    referencedTextures: manifest.dependencies.textures.slice()
+  };
+}
+function ownershipFromCreatedIds(id, manifest, createdIds) {
+  return {
+    id,
+    role: manifest.role,
+    objects: createdIds.objects.slice(),
+    meshes: createdIds.meshes.slice(),
+    transforms: createdIds.transforms.slice(),
+    geometries: createdIds.geometries.slice(),
+    materials: createdIds.materials.slice(),
+    textures: createdIds.textures.slice(),
+    referencedGeometries: manifest.dependencies.geometries.slice(),
+    referencedMaterials: manifest.dependencies.materials.slice(),
+    referencedTextures: manifest.dependencies.textures.slice()
+  };
+}
+function emptyCreatedIds() {
+  return {
+    objects: [],
+    meshes: [],
+    transforms: [],
+    geometries: [],
+    materials: [],
+    textures: []
+  };
+}
+function formatError(error) {
+  return error instanceof Error ? error.message : String(error);
+}
+function incrementRefs(refs, ids2) {
+  for (const id of ids2) {
+    refs.set(id, (refs.get(id) || 0) + 1);
+  }
+}
+function decrementRefs(refs, ids2) {
+  for (const id of ids2) {
+    const next = (refs.get(id) || 0) - 1;
+    if (next > 0) {
+      refs.set(id, next);
+    } else {
+      refs.delete(id);
+    }
+  }
+}
+function ownedAssetsInUse(ownership, state) {
+  const inUse = [];
+  for (const id of ownership.geometries) {
+    if ((state.geometryRefs.get(id) || 0) > 0)
+      inUse.push(`geometry:${id}`);
+  }
+  for (const id of ownership.materials) {
+    if ((state.materialRefs.get(id) || 0) > 0)
+      inUse.push(`material:${id}`);
+  }
+  for (const id of ownership.textures) {
+    if ((state.textureRefs.get(id) || 0) > 0)
+      inUse.push(`texture:${id}`);
+  }
+  return inUse;
+}
+function destroyOwnedContent(sceneModel, ownership) {
+  let result = destroyFromRegistry(sceneModel.objects, ownership.objects);
+  if (result.ok === false)
+    return result;
+  result = destroyFromRegistry(sceneModel.meshes, ownership.meshes);
+  if (result.ok === false)
+    return result;
+  result = destroyFromRegistry(sceneModel.transforms || {}, ownership.transforms);
+  if (result.ok === false)
+    return result;
+  result = destroyFromRegistry(sceneModel.materials, ownership.materials);
+  if (result.ok === false)
+    return result;
+  result = destroyFromRegistry(sceneModel.geometries, ownership.geometries);
+  if (result.ok === false)
+    return result;
+  result = destroyFromRegistry(sceneModel.textures, ownership.textures);
+  if (result.ok === false)
+    return result;
+  return { ok: true, value: void 0 };
+}
+function destroyFromRegistry(registry, ids2) {
+  for (const id of ids2) {
+    const component = registry[id];
+    if (!component || component.destroyed) {
+      continue;
+    }
+    const result = component.destroy();
+    if (result && result.ok === false) {
+      return result;
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+function formatMissingDependencies(missing) {
+  return missing.map((dep) => `${dep.kind}:${dep.id}`).join(", ");
+}
+function invalid2(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
+function findDependencyManifest(dependency, manifests) {
+  if (!manifests) {
+    return void 0;
+  }
+  if (manifests instanceof XGFStreamingIndexLookup) {
+    return manifests.get(dependency);
+  }
+  if (Array.isArray(manifests)) {
+    return manifests.find((manifest) => !!dependency.id && manifest.id === dependency.id || !!dependency.uri && manifest.uri === dependency.uri);
+  }
+  return dependency.id && manifests[dependency.id] || dependency.uri && manifests[dependency.uri] || void 0;
+}
+async function resolveChunkFileData(manifest, options) {
+  if (manifest.id && options.fileDataByChunkId?.[manifest.id]) {
+    return options.fileDataByChunkId[manifest.id];
+  }
+  if (manifest.uri && options.fileDataByUri?.[manifest.uri]) {
+    return options.fileDataByUri[manifest.uri];
+  }
+  if (options.getFileData) {
+    try {
+      return await options.getFileData(manifest);
+    } catch {
+      return void 0;
+    }
+  }
+  if (manifest.uri && typeof fetch === "function") {
+    try {
+      const response = await fetch(manifest.uri);
+      return response.ok ? await response.arrayBuffer() : void 0;
+    } catch {
+      return void 0;
+    }
+  }
+  return void 0;
+}
+
+// ../sdk/src/formats/xgfstream/index/createXGFStreamingIndexLookup.ts
+function createXGFStreamingIndexLookup(index) {
+  return new XGFStreamingIndexLookup(index);
+}
+
+// ../sdk/src/formats/xgfstream/view/XGFViewStreamController.ts
+var DEFAULT_BATCH_SIZE = 8;
+var DEFAULT_FETCH_CONCURRENCY = 8;
+var DEFAULT_COMMIT_FRAME_BUDGET_MS = 10;
+var DEFAULT_CAMERA_DEBOUNCE_MS = 140;
+var XGFViewStreamController = class {
+  /** References-only chunk manifests controlled by this instance. */
+  chunkManifests;
+  /** IDs of chunks currently being committed. */
+  loadingChunkIds = /* @__PURE__ */ new Set();
+  /** IDs of references-only chunks already loaded. */
+  loadedChunkIds = /* @__PURE__ */ new Set();
+  /** IDs of asset-library chunks already loaded. */
+  loadedAssetLibraryIds = /* @__PURE__ */ new Set();
+  /** Aggregate object/mesh counts loaded through this controller. */
+  loadedTotals = {
+    objects: 0,
+    meshes: 0
+  };
+  /** Queue progress for the latest scheduled generation. */
+  queueProgress = {
+    generation: 0,
+    queued: 0,
+    loaded: 0
+  };
+  _loader;
+  _sceneModel;
+  _view;
+  _loadOptions;
+  _fileDataCache;
+  _assetChunksById;
+  _batchSize;
+  _commitFrameBudgetMs;
+  _frustumOnly;
+  _cameraDebounceMs;
+  _onStatus;
+  _onProgress;
+  _onChunksLoading;
+  _onError;
+  _generation = 0;
+  _pendingGeneration = 0;
+  _running = false;
+  _timer;
+  _candidateQueue = {
+    generation: 0,
+    chunks: [],
+    cursor: 0,
+    initialCount: 0
+  };
+  /**
+   * Creates a controller for one view and target SceneModel.
+   */
+  constructor(params) {
+    this._loader = params.loader || new XGFStreamingLoader();
+    this._sceneModel = params.sceneModel;
+    this._view = params.view;
+    this._fileDataCache = createPrioritizedFileDataCache(
+      params.fetchConcurrency || DEFAULT_FETCH_CONCURRENCY,
+      params.loadOptions?.getFileData || fetchFileData
+    );
+    this._assetChunksById = new Map(
+      params.index.chunks.filter((manifest) => manifest.role === "assetLibrary").map((manifest) => [manifest.id, manifest])
+    );
+    this._batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
+    this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
+    this._frustumOnly = params.frustumOnly !== false;
+    this._cameraDebounceMs = params.cameraDebounceMs ?? DEFAULT_CAMERA_DEBOUNCE_MS;
+    this._onStatus = params.onStatus;
+    this._onProgress = params.onProgress;
+    this._onChunksLoading = params.onChunksLoading;
+    this._onError = params.onError;
+    this.chunkManifests = params.index.chunks.filter((manifest) => manifest.role === "referencesOnly").filter((manifest) => params.chunkFilter ? params.chunkFilter(manifest) : true);
+    const onChunkLoaded = params.loadOptions?.onChunkLoaded;
+    const onChunkLoadStats = params.loadOptions?.onChunkLoadStats;
+    this._loadOptions = {
+      ...params.loadOptions,
+      manifests: params.loadOptions?.manifests || createXGFStreamingIndexLookup(params.index),
+      getFileData: (manifest) => this._fileDataCache.get(manifest, this.chunkPriority(manifest)),
+      onChunkLoaded: (manifest) => {
+        this.markManifestLoaded(manifest);
+        this._fileDataCache.release(manifest);
+        onChunkLoaded?.(manifest);
+        params.onChunkLoaded?.(manifest);
+      },
+      onChunkLoadStats: (stats) => {
+        onChunkLoadStats?.(stats);
+        params.onChunkLoadStats?.(stats);
+      }
+    };
+  }
+  /**
+   * Current scheduling generation. Incremented each time {@link schedule} is
+   * called.
+   */
+  get generation() {
+    return this._generation;
+  }
+  /**
+   * Returns chunk manifests sorted by the current view-priority heuristic.
+   */
+  prioritizeChunks(chunkManifests = this.chunkManifests) {
+    return chunkManifests.sort((a2, b4) => this.chunkPriority(a2) - this.chunkPriority(b4));
+  }
+  /**
+   * Starts prefetching high-priority chunks and their dependencies without
+   * committing them to the SceneModel yet.
+   */
+  prefetchInitial(count) {
+    const chunks = this.prioritizeChunks().slice(0, Math.max(0, count));
+    this.prefetchDependencies(chunks, 0);
+    this.prefetchChunks(chunks, 0);
+  }
+  /**
+   * Schedules a debounced streaming pass for the current camera/frustum state.
+   */
+  schedule(label = "Streaming") {
+    this._generation++;
+    this.rebuildCandidateQueue(this._generation);
+    this.resetQueueProgress(this._generation, this.countPendingFrustumChunks());
+    if (this._timer !== void 0) {
+      clearTimeout(this._timer);
+    }
+    this._timer = setTimeout(() => {
+      this.runGeneration(this._generation, label);
+    }, this._cameraDebounceMs);
+  }
+  /**
+   * Prefetches asset-library dependencies for the supplied chunk manifests.
+   */
+  prefetchDependencies(chunkManifests, generation = this._generation) {
+    this._fileDataCache.prefetch(
+      this.dependencyAssetLibraries(chunkManifests).filter((manifest) => !this.loadedAssetLibraryIds.has(manifest.id)),
+      (manifest) => this.chunkPriority(manifest),
+      generation
+    );
+  }
+  /**
+   * Prefetches XGF bytes for the supplied references-only chunk manifests.
+   */
+  prefetchChunks(chunkManifests, generation = this._generation) {
+    this._fileDataCache.abortQueued((manifest, token) => token !== void 0 && token !== generation && !this.intersectsCameraFrustum(manifest));
+    this._fileDataCache.prefetch(
+      chunkManifests.filter((manifest) => !this.isLoadedManifest(manifest)),
+      (manifest) => this.chunkPriority(manifest) + 1e3,
+      generation
+    );
+  }
+  async runGeneration(generation, label) {
+    if (this._running) {
+      this._pendingGeneration = generation;
+      return;
+    }
+    this._running = true;
+    let activeGeneration = generation;
+    try {
+      while (activeGeneration || this.hasPendingQueuedChunks()) {
+        const batchGeneration = activeGeneration || this._generation;
+        this._pendingGeneration = 0;
+        this.ensureCandidateQueue(batchGeneration);
+        const candidates = this.nextAutoCandidates(this._batchSize);
+        if (candidates.length === 0) {
+          this.completeQueueProgress(batchGeneration);
+          this.emitStatus(`${label}: current frustum loaded`);
+          break;
+        }
+        await this.loadCandidates(candidates, label, {
+          generation: batchGeneration,
+          frustumOnly: this._frustumOnly
+        });
+        this.emitStatus(`${label}: ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
+        activeGeneration = this._pendingGeneration || batchGeneration;
+        if (activeGeneration === batchGeneration && !this.hasPendingQueuedChunks()) {
+          activeGeneration = 0;
+        }
+      }
+    } catch (error) {
+      this._onError?.(error);
+    } finally {
+      this._running = false;
+    }
+  }
+  async loadCandidates(candidates, label, options = {}) {
+    if (candidates.length === 0) {
+      this.emitStatus(`${label}: no pending chunks`);
+      return;
+    }
+    const start = now2();
+    const generation = options.generation;
+    const frustumOnly = options.frustumOnly === true;
+    const loadDependencies = options.loadDependencies !== false;
+    if (loadDependencies) {
+      this.prefetchDependencies(candidates, generation);
+    }
+    this.prefetchChunks(candidates, generation);
+    this.emitStatus(`${label}: loading ${candidates.length} chunk(s)...`);
+    try {
+      if (loadDependencies) {
+        await this.preloadDependencies(candidates, generation);
+      }
+      for (const manifest of candidates) {
+        if (generation !== void 0 && generation !== this._generation && frustumOnly && !this.intersectsCameraFrustum(manifest)) {
+          continue;
+        }
+        if (frustumOnly && !this.intersectsCameraFrustum(manifest)) {
+          continue;
+        }
+        if (this.isLoadedManifest(manifest) || this.loadingChunkIds.has(manifest.id)) {
+          continue;
+        }
+        this.loadingChunkIds.add(manifest.id);
+        this._onChunksLoading?.([manifest]);
+        let fileData;
+        try {
+          fileData = await this._fileDataCache.get(manifest, this.chunkPriority(manifest), generation);
+        } catch (error) {
+          if (isAbortError(error)) {
+            continue;
+          }
+          throw error;
+        }
+        const wasLoaded = this.isLoadedManifest(manifest);
+        await this._loader.loadChunk({ manifest, fileData, sceneModel: this._sceneModel }, this._loadOptions);
+        fileData = void 0;
+        if (!wasLoaded && manifest.role === "referencesOnly" && this.loadedChunkIds.has(manifest.id)) {
+          this.markQueueChunkLoaded(generation);
+        }
+        this.loadingChunkIds.delete(manifest.id);
+        this.emitProgress();
+        await waitForFrameBudget(this._commitFrameBudgetMs);
+      }
+      this.emitStatus(`${label}: ${candidates.length} chunk(s) in ${(now2() - start).toFixed(1)} ms`);
+    } finally {
+      for (const manifest of candidates) {
+        this.loadingChunkIds.delete(manifest.id);
+      }
+      this.emitProgress();
+    }
+  }
+  async preloadDependencies(chunkManifests, generation) {
+    const assetManifests = this.dependencyAssetLibraries(chunkManifests).filter((manifest) => !this.loadedAssetLibraryIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id)).sort((a2, b4) => this.chunkPriority(a2) - this.chunkPriority(b4));
+    if (assetManifests.length === 0) {
+      return;
+    }
+    await this.loadCandidates(assetManifests, "Asset libraries", {
+      generation,
+      frustumOnly: false,
+      loadDependencies: false
+    });
+  }
+  dependencyAssetLibraries(chunkManifests) {
+    const manifests = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const chunkManifest of chunkManifests) {
+      for (const dependency of chunkManifest.dependencies?.chunks || []) {
+        const assetManifest = dependency.id ? this._assetChunksById.get(dependency.id) : void 0;
+        if (!assetManifest || seen.has(assetManifest.id)) {
+          continue;
+        }
+        seen.add(assetManifest.id);
+        manifests.push(assetManifest);
+      }
+    }
+    return manifests;
+  }
+  nextAutoCandidates(count) {
+    const candidates = [];
+    while (this._candidateQueue.cursor < this._candidateQueue.chunks.length && candidates.length < count) {
+      const manifest = this._candidateQueue.chunks[this._candidateQueue.cursor++];
+      if (this.loadedChunkIds.has(manifest.id) || this.loadingChunkIds.has(manifest.id)) {
+        continue;
+      }
+      if (this._frustumOnly && !this.intersectsCameraFrustum(manifest)) {
+        continue;
+      }
+      candidates.push(manifest);
+    }
+    return candidates;
+  }
+  hasPendingQueuedChunks() {
+    for (let i = this._candidateQueue.cursor; i < this._candidateQueue.chunks.length; i++) {
+      const manifest = this._candidateQueue.chunks[i];
+      if (!this.loadedChunkIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id) && (!this._frustumOnly || this.intersectsCameraFrustum(manifest))) {
+        return true;
+      }
+    }
+    return false;
+  }
+  countPendingFrustumChunks() {
+    if (this._candidateQueue.generation === this._generation) {
+      return this._candidateQueue.initialCount;
+    }
+    return this.buildCandidateQueue().length;
+  }
+  ensureCandidateQueue(generation) {
+    if (this._candidateQueue.generation !== generation) {
+      this.rebuildCandidateQueue(generation);
+    }
+  }
+  rebuildCandidateQueue(generation) {
+    const chunks = this.buildCandidateQueue();
+    this._candidateQueue = {
+      generation,
+      chunks,
+      cursor: 0,
+      initialCount: chunks.length
+    };
+  }
+  buildCandidateQueue() {
+    return this.prioritizeChunks().filter((manifest) => !this.loadedChunkIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id)).filter((manifest) => !this._frustumOnly || this.intersectsCameraFrustum(manifest));
+  }
+  resetQueueProgress(generation, queued) {
+    this.queueProgress.generation = generation;
+    this.queueProgress.queued = queued;
+    this.queueProgress.loaded = 0;
+    this.emitProgress();
+  }
+  markQueueChunkLoaded(generation) {
+    if (generation !== this.queueProgress.generation) {
+      return;
+    }
+    this.queueProgress.loaded = Math.min(this.queueProgress.loaded + 1, this.queueProgress.queued);
+  }
+  completeQueueProgress(generation) {
+    if (generation !== this.queueProgress.generation) {
+      return;
+    }
+    this.queueProgress.loaded = this.queueProgress.queued;
+    this.emitProgress();
+  }
+  markManifestLoaded(manifest) {
+    if (manifest.role === "referencesOnly" && !this.loadedChunkIds.has(manifest.id)) {
+      this.loadedChunkIds.add(manifest.id);
+      this.loadedTotals.objects += manifest.counts?.objects || 0;
+      this.loadedTotals.meshes += manifest.counts?.meshes || 0;
+    } else if (manifest.role === "assetLibrary") {
+      this.loadedAssetLibraryIds.add(manifest.id);
+    }
+  }
+  isLoadedManifest(manifest) {
+    return manifest.role === "assetLibrary" ? this.loadedAssetLibraryIds.has(manifest.id) : this.loadedChunkIds.has(manifest.id);
+  }
+  chunkPriority(manifest) {
+    return (this.intersectsCameraFrustum(manifest) ? 0 : 1e6) + this.distanceToLookPoint(manifest);
+  }
+  intersectsCameraFrustum(manifest) {
+    const frustum = this._view.camera.frustum;
+    const aabb = manifest.aabb;
+    if (!frustum || !aabb) {
+      return true;
+    }
+    for (const plane of frustum.planes) {
+      const x = aabb[plane.testVertex[0] ? 3 : 0];
+      const y = aabb[plane.testVertex[1] ? 4 : 1];
+      const z = aabb[plane.testVertex[2] ? 5 : 2];
+      if (plane.normal[0] * x + plane.normal[1] * y + plane.normal[2] * z + plane.offset < 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+  distanceToLookPoint(manifest) {
+    const look = this._view.camera.look;
+    const aabb = manifest.aabb || [0, 0, 0, 0, 0, 0];
+    const dx = Math.max(aabb[0] - look[0], 0, look[0] - aabb[3]);
+    const dy = Math.max(aabb[1] - look[1], 0, look[1] - aabb[4]);
+    const dz = Math.max(aabb[2] - look[2], 0, look[2] - aabb[5]);
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  }
+  emitStatus(status) {
+    this._onStatus?.(status);
+  }
+  emitProgress() {
+    this._onProgress?.(this.queueProgress);
+  }
+};
+function createPrioritizedFileDataCache(concurrency, resolveFileData) {
+  const cache2 = /* @__PURE__ */ new Map();
+  const queue = [];
+  let activeCount = 0;
+  const getKey = (manifest) => manifest.id || manifest.uri;
+  const pump = () => {
+    while (activeCount < concurrency && queue.length > 0) {
+      queue.sort((a2, b4) => a2.priority - b4.priority);
+      const entry = queue.shift();
+      if (entry.aborted) {
+        continue;
+      }
+      entry.active = true;
+      activeCount++;
+      loadFileData(entry.manifest, resolveFileData, entry.controller.signal).then(entry.resolve, (error) => {
+        cache2.delete(entry.key);
+        entry.reject(error);
+      }).finally(() => {
+        entry.active = false;
+        activeCount--;
+        if (entry.releaseAfterActive) {
+          cache2.delete(entry.key);
+        }
+        pump();
+      });
+    }
+  };
+  const schedule = (manifest, priority = 0, token) => {
+    const key = getKey(manifest);
+    if (!key) {
+      return loadFileData(manifest, resolveFileData);
+    }
+    const existing = cache2.get(key);
+    if (existing) {
+      existing.priority = Math.min(existing.priority, priority);
+      existing.token = token;
+      pump();
+      return existing.promise;
+    }
+    const controller = new AbortController();
+    let resolveEntry2;
+    let rejectEntry;
+    const promise = new Promise((resolve2, reject) => {
+      resolveEntry2 = resolve2;
+      rejectEntry = reject;
+    });
+    const entry = {
+      key,
+      manifest,
+      priority,
+      token,
+      controller,
+      active: false,
+      aborted: false,
+      releaseAfterActive: false,
+      resolve: resolveEntry2,
+      reject: rejectEntry,
+      promise
+    };
+    cache2.set(key, entry);
+    queue.push(entry);
+    pump();
+    return promise;
+  };
+  return {
+    get: schedule,
+    prefetch: (manifests, priorityFn, token) => {
+      for (const manifest of manifests) {
+        schedule(manifest, priorityFn(manifest), token).catch((error) => {
+          if (!isAbortError(error)) {
+            console.warn(`XGF prefetch failed: ${formatError2(error)}`);
+          }
+        });
+      }
+    },
+    abortQueued: (predicate) => {
+      for (const entry of cache2.values()) {
+        if (entry.active || entry.aborted || !predicate(entry.manifest, entry.token)) {
+          continue;
+        }
+        entry.aborted = true;
+        entry.controller.abort();
+        cache2.delete(entry.key);
+        entry.reject(createAbortError());
+      }
+      for (let i = queue.length - 1; i >= 0; i--) {
+        if (queue[i].aborted) {
+          queue.splice(i, 1);
+        }
+      }
+    },
+    release: (manifest) => {
+      const key = getKey(manifest);
+      if (!key) {
+        return;
+      }
+      const entry = cache2.get(key);
+      if (!entry || entry.aborted) {
+        return;
+      }
+      if (entry.active) {
+        entry.releaseAfterActive = true;
+        return;
+      }
+      cache2.delete(key);
+    }
+  };
+}
+async function fetchFileData(manifest, signal) {
+  if (!manifest.uri) {
+    throw new Error(`[XGFViewStreamController] Chunk '${manifest.id}' has no URI`);
+  }
+  const response = await fetch(manifest.uri, { signal });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} fetching ${manifest.uri}`);
+  }
+  return response.arrayBuffer();
+}
+async function loadFileData(manifest, resolveFileData, signal) {
+  const fileData = await resolveFileData(manifest, signal);
+  if (!fileData) {
+    throw new Error(`[XGFViewStreamController] File data not found for chunk '${manifest.id}'`);
+  }
+  return fileData;
+}
+function waitForFrameBudget(ms) {
+  return new Promise((resolve2) => {
+    setTimeout(() => {
+      if (typeof requestAnimationFrame === "function") {
+        requestAnimationFrame(() => resolve2());
+      } else {
+        resolve2();
+      }
+    }, Math.max(0, ms));
+  });
+}
+function isAbortError(error) {
+  return typeof error === "object" && error !== null && error.name === "AbortError";
+}
+function createAbortError() {
+  if (typeof DOMException === "function") {
+    return new DOMException("Aborted", "AbortError");
+  }
+  const error = new Error("Aborted");
+  error.name = "AbortError";
+  return error;
+}
+function formatError2(error) {
+  return error instanceof Error ? error.message : String(error);
+}
+function now2() {
+  return typeof performance !== "undefined" ? performance.now() : Date.now();
+}
+
+// ../sdk/src/formats/xgfstream/manifest/writeXGFChunkManifest.ts
+function writeXGFChunkManifest(manifest) {
+  return JSON.parse(JSON.stringify(manifest));
+}
+
+// ../sdk/src/formats/xgfstream/manifest/validateXGFChunkManifest.ts
+function validateXGFChunkManifest(value) {
+  if (!isObject4(value)) {
+    return invalid3("[XGFChunkManifest] Expected JSON object");
+  }
+  if (value.format !== "XGF") {
+    return invalid3("[XGFChunkManifest] Expected format 'XGF'");
+  }
+  if (value.manifestVersion !== "1.0.0") {
+    return invalid3("[XGFChunkManifest] Expected manifestVersion '1.0.0'");
+  }
+  if (value.xgfVersion !== "2.0.0") {
+    return invalid3("[XGFChunkManifest] Expected xgfVersion '2.0.0'");
+  }
+  if (!isNonEmptyString(value.id)) {
+    return invalid3("[XGFChunkManifest] Expected non-empty string id");
+  }
+  if (value.uri !== void 0 && typeof value.uri !== "string") {
+    return invalid3("[XGFChunkManifest] Expected uri to be a string when provided");
+  }
+  if (value.role !== "full" && value.role !== "assetLibrary" && value.role !== "referencesOnly") {
+    return invalid3("[XGFChunkManifest] Expected role 'full', 'assetLibrary' or 'referencesOnly'");
+  }
+  const dependenciesResult = validateIdGroups(value.dependencies, "[XGFChunkManifest.dependencies]", true);
+  if (dependenciesResult.ok === false)
+    return invalid3(dependenciesResult.error);
+  const assetsResult = validateIdGroups(value.assets, "[XGFChunkManifest.assets]", false);
+  if (assetsResult.ok === false)
+    return invalid3(assetsResult.error);
+  const countsResult = validateCounts(value.counts);
+  if (countsResult.ok === false)
+    return invalid3(countsResult.error);
+  if (value.aabb !== void 0 && (!Array.isArray(value.aabb) || value.aabb.length !== 6 || !value.aabb.every(isFiniteNumber))) {
+    return invalid3("[XGFChunkManifest] Expected aabb to contain six finite numbers");
+  }
+  if (value.priority !== void 0 && !isFiniteNumber(value.priority)) {
+    return invalid3("[XGFChunkManifest] Expected priority to be a finite number when provided");
+  }
+  if (value.lod !== void 0 && typeof value.lod !== "number" && typeof value.lod !== "string") {
+    return invalid3("[XGFChunkManifest] Expected lod to be a number or string when provided");
+  }
+  if (typeof value.lod === "number" && !isFiniteNumber(value.lod)) {
+    return invalid3("[XGFChunkManifest] Expected lod number to be finite");
+  }
+  return { ok: true, value };
+}
+function validateIdGroups(value, path, includeChunks) {
+  if (!isObject4(value)) {
+    return invalid3(`${path} must be an object`);
+  }
+  if (includeChunks) {
+    if (!Array.isArray(value.chunks) || !value.chunks.every(isChunkDependency)) {
+      return invalid3(`${path}.chunks must contain dependency objects with id and/or uri`);
+    }
+  }
+  for (const key of ["geometries", "materials", "textures"]) {
+    if (!Array.isArray(value[key]) || !value[key].every(isNonEmptyString)) {
+      return invalid3(`${path}.${key} must contain string ids`);
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+function validateCounts(value) {
+  if (!isObject4(value)) {
+    return invalid3("[XGFChunkManifest.counts] must be an object");
+  }
+  for (const key of ["transforms", "geometries", "materials", "textures", "meshes", "objects"]) {
+    if (!Number.isInteger(value[key]) || value[key] < 0) {
+      return invalid3(`[XGFChunkManifest.counts] ${key} must be a non-negative integer`);
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+function isChunkDependency(value) {
+  return isObject4(value) && (value.id === void 0 || typeof value.id === "string") && (value.uri === void 0 || typeof value.uri === "string") && (!!value.id || !!value.uri);
+}
+function isObject4(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.length > 0;
+}
+function isFiniteNumber(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+function invalid3(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
+
+// ../sdk/src/formats/xgfstream/manifest/readXGFChunkManifest.ts
+function readXGFChunkManifest(json) {
+  return validateXGFChunkManifest(json);
+}
+
+// ../sdk/src/formats/xgfstream/index/readXGFStreamingIndex.ts
+function readXGFStreamingIndex(json) {
+  if (!isObject5(json)) {
+    return invalid4("[XGFStreamingIndex] Expected JSON object");
+  }
+  if (json.format !== "XGFStreamingIndex") {
+    return invalid4("[XGFStreamingIndex] Expected format 'XGFStreamingIndex'");
+  }
+  if (json.indexVersion !== "1.0.0") {
+    return invalid4("[XGFStreamingIndex] Expected indexVersion '1.0.0'");
+  }
+  if (!Array.isArray(json.chunks)) {
+    return invalid4("[XGFStreamingIndex] Expected chunks array");
+  }
+  const seenChunkIds = /* @__PURE__ */ new Set();
+  for (let i = 0; i < json.chunks.length; i++) {
+    const result = validateXGFChunkManifest(json.chunks[i]);
+    if (result.ok === false) {
+      return invalid4(`[XGFStreamingIndex.chunks.${i}] ${result.error}`);
+    }
+    const id = result.value.id;
+    if (seenChunkIds.has(id)) {
+      return invalid4(`[XGFStreamingIndex] Duplicate chunk id '${id}'`);
+    }
+    seenChunkIds.add(id);
+  }
+  if (json.rootChunkIds !== void 0) {
+    if (!Array.isArray(json.rootChunkIds) || !json.rootChunkIds.every(isNonEmptyString2)) {
+      return invalid4("[XGFStreamingIndex] rootChunkIds must contain string ids when provided");
+    }
+    for (const id of json.rootChunkIds) {
+      if (!seenChunkIds.has(id)) {
+        return invalid4(`[XGFStreamingIndex] rootChunkIds references missing chunk '${id}'`);
+      }
+    }
+  }
+  if (json.aabb !== void 0 && (!Array.isArray(json.aabb) || json.aabb.length !== 6 || !json.aabb.every(isFiniteNumber2))) {
+    return invalid4("[XGFStreamingIndex] Expected aabb to contain six finite numbers");
+  }
+  if (json.metadata !== void 0 && !isObject5(json.metadata)) {
+    return invalid4("[XGFStreamingIndex] metadata must be an object when provided");
+  }
+  return { ok: true, value: json };
+}
+function isObject5(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function isNonEmptyString2(value) {
+  return typeof value === "string" && value.length > 0;
+}
+function isFiniteNumber2(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+function invalid4(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
+
+// ../sdk/src/formats/xgfstream/index/readXGFStreamingRuntimeIndex.ts
+var ROLES = ["full", "assetLibrary", "referencesOnly"];
+function readXGFStreamingRuntimeIndex(json) {
+  if (!isObject6(json)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected JSON object");
+  }
+  if (json.format !== "XGFStreamingRuntimeIndex") {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected format 'XGFStreamingRuntimeIndex'");
+  }
+  if (json.indexVersion !== "1.0.0") {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected indexVersion '1.0.0'");
+  }
+  if (!Array.isArray(json.chunks)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected chunks array");
+  }
+  const chunks = [];
+  for (let i = 0; i < json.chunks.length; i++) {
+    const result = readRuntimeChunk(json.chunks[i]);
+    if (result.ok === false) {
+      return invalid5(`[XGFStreamingRuntimeIndex.chunks.${i}] ${result.error}`);
+    }
+    chunks.push(result.value);
+  }
+  return readXGFStreamingIndex({
+    format: "XGFStreamingIndex",
+    indexVersion: "1.0.0",
+    chunks,
+    rootChunkIds: json.root,
+    aabb: json.aabb,
+    metadata: json.metadata
+  });
+}
+function readRuntimeChunk(value) {
+  if (!Array.isArray(value) || value.length < 6) {
+    return invalid5("Expected compact chunk tuple");
+  }
+  const chunk = value;
+  const [id, uri, roleCode, dependencies, aabb, counts, priority, lod] = chunk;
+  if (!isNonEmptyString3(id)) {
+    return invalid5("Expected non-empty chunk id");
+  }
+  if (uri !== null && uri !== void 0 && typeof uri !== "string") {
+    return invalid5("Expected chunk uri to be string or null");
+  }
+  if (!Number.isInteger(roleCode) || !ROLES[roleCode]) {
+    return invalid5("Expected valid chunk role code");
+  }
+  if (!Array.isArray(dependencies)) {
+    return invalid5("Expected dependency array");
+  }
+  if (aabb !== null && aabb !== void 0 && (!Array.isArray(aabb) || aabb.length !== 6 || !aabb.every(isFiniteNumber3))) {
+    return invalid5("Expected aabb to contain six finite numbers or null");
+  }
+  if (!Array.isArray(counts) || counts.length !== 6 || !counts.every(isNonNegativeInteger)) {
+    return invalid5("Expected counts tuple of six non-negative integers");
+  }
+  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
+    return invalid5("Expected priority to be finite when provided");
+  }
+  if (lod !== void 0 && lod !== null && typeof lod !== "number" && typeof lod !== "string") {
+    return invalid5("Expected lod to be number, string or null");
+  }
+  if (typeof lod === "number" && !isFiniteNumber3(lod)) {
+    return invalid5("Expected numeric lod to be finite");
+  }
+  const manifest = {
+    format: "XGF",
+    manifestVersion: "1.0.0",
+    xgfVersion: "2.0.0",
+    id,
+    uri: uri || void 0,
+    role: ROLES[roleCode],
+    dependencies: {
+      chunks: dependencies.map(readDependency),
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    assets: {
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    counts: {
+      transforms: counts[0],
+      geometries: counts[1],
+      materials: counts[2],
+      textures: counts[3],
+      meshes: counts[4],
+      objects: counts[5]
+    },
+    aabb: aabb || void 0,
+    priority: priority ?? void 0,
+    lod: lod ?? void 0
+  };
+  return { ok: true, value: manifest };
+}
+function readDependency(value) {
+  if (typeof value === "string") {
+    return { id: value };
+  }
+  return {
+    id: value[0] || void 0,
+    uri: value[1] || void 0
+  };
+}
+function isObject6(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function isNonEmptyString3(value) {
+  return typeof value === "string" && value.length > 0;
+}
+function isFiniteNumber3(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+function isNonNegativeInteger(value) {
+  return Number.isInteger(value) && value >= 0;
+}
+function invalid5(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
 
 // ../sdk/src/formats/las/index.ts
 var las_exports = {};
@@ -126161,7 +129922,7 @@ async function buildScanObject(sceneModel, pc, columns, scanIndex, skip, options
     log2(`[E57Loader] scan ${scanIndex} has no cartesian coordinates (spherical not supported in v1) \u2014 skipped`);
     return null;
   }
-  const invalid = columns.get("cartesianInvalidState");
+  const invalid7 = columns.get("cartesianInvalidState");
   const red = columns.get("colorRed");
   const green = columns.get("colorGreen");
   const blue = columns.get("colorBlue");
@@ -126174,7 +129935,7 @@ async function buildScanObject(sceneModel, pc, columns, scanIndex, skip, options
     pose = composeMat4([t[0], t[1], t[2]], [r[1], r[2], r[3], r[0]], [1, 1, 1]);
   }
   const n = pc.recordCount;
-  const isValid = (i) => !invalid || invalid[i] === 0;
+  const isValid = (i) => !invalid7 || invalid7[i] === 0;
   let iMin = Infinity, iMax = -Infinity;
   if (useIntensity && intensity) {
     for (let i = 0; i < n; i++) {
@@ -126470,7 +130231,7 @@ __export(dotbim_exports, {
 
 // ../sdk/src/formats/dotbim/versions/1_0_0/parse.ts
 var SCHEMA3 = "IFC4";
-var parse9 = async (params, options) => {
+var parse10 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126561,7 +130322,7 @@ var parse9 = async (params, options) => {
 
 // ../sdk/src/formats/dotbim/versions/1_1_0/parse.ts
 var SCHEMA4 = "IFC4";
-var parse10 = async (params, options) => {
+var parse11 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126657,8 +130418,8 @@ var DotBIMLoader = class extends ModelLoader {
       format: "DotBIM",
       fileDataType: "json",
       parsers: {
-        "1.0.0": parse9,
-        "1.1.0": parse10
+        "1.0.0": parse10,
+        "1.1.0": parse11
       },
       getVersion: (sourceFileData) => {
         return sourceFileData.schema_version || "1.0.0";
@@ -126671,7 +130432,7 @@ var DotBIMLoader = class extends ModelLoader {
 var tempVec3a6 = createVec3Float64();
 var tempVec3b6 = createVec3Float64();
 var tempMat4a4 = createMat4Float64();
-async function encode11(params, options) {
+async function encode12(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126811,7 +130572,7 @@ async function encode11(params, options) {
 var tempVec3a7 = createVec3Float64();
 var tempVec3b7 = createVec3Float64();
 var tempMat4a5 = createMat4Float64();
-async function encode12(params, options) {
+async function encode13(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126955,8 +130716,8 @@ var DotBIMExporter = class extends ModelExporter {
       format: "DotBIM",
       fileDataType: "json",
       encoders: {
-        "1.0.0": encode11,
-        "1.1.0": encode12
+        "1.0.0": encode12,
+        "1.1.0": encode13
       },
       defaultVersion: "1.1.0"
     });
@@ -126971,7 +130732,7 @@ __export(scenemodel_exports, {
 });
 
 // ../sdk/src/formats/scenemodel/versions/1_0/parse.ts
-function parse11(params, options) {
+function parse12(params, options) {
   return new Promise(function(resolve2, reject) {
     if (params.sceneModel && params.fileData) {
       const result = params.sceneModel.fromParams(params.fileData);
@@ -126993,7 +130754,7 @@ var SceneModelImporter = class extends ModelLoader {
       format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse11
+        "1.0": parse12
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -127003,7 +130764,7 @@ var SceneModelImporter = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/scenemodel/versions/1_0/encode.ts
-async function encode13(params, options) {
+async function encode14(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -127035,7 +130796,7 @@ var SceneModelExporter = class extends ModelExporter {
       format: "SceneModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode13
+        "1.0": encode14
       },
       defaultVersion: "1.0"
     });
@@ -127050,7 +130811,7 @@ __export(datamodel_exports, {
 });
 
 // ../sdk/src/formats/datamodel/versions/1_0/encode.ts
-async function encode14(params, options) {
+async function encode15(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -127080,7 +130841,7 @@ var DataModelExporter = class extends ModelExporter {
       format: "DataModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode14
+        "1.0": encode15
       },
       defaultVersion: "1.0"
     });
@@ -127175,7 +130936,7 @@ async function parseSplatModel(params) {
 }
 
 // ../sdk/src/formats/gaussiansplat/versions/v1/encodeSplat.ts
-function clampByte2(v) {
+function clampByte3(v) {
   return v < 0 ? 0 : v > 255 ? 255 : v;
 }
 function encodeSplat(buffers) {
@@ -127192,17 +130953,17 @@ function encodeSplat(buffers) {
     view.setFloat32(base + 16, scales[i * 3 + 1], true);
     view.setFloat32(base + 20, scales[i * 3 + 2], true);
     if (colors) {
-      u8[base + 24] = clampByte2(colors[i * 4]);
-      u8[base + 25] = clampByte2(colors[i * 4 + 1]);
-      u8[base + 26] = clampByte2(colors[i * 4 + 2]);
-      u8[base + 27] = clampByte2(colors[i * 4 + 3]);
+      u8[base + 24] = clampByte3(colors[i * 4]);
+      u8[base + 25] = clampByte3(colors[i * 4 + 1]);
+      u8[base + 26] = clampByte3(colors[i * 4 + 2]);
+      u8[base + 27] = clampByte3(colors[i * 4 + 3]);
     } else {
       u8[base + 24] = u8[base + 25] = u8[base + 26] = u8[base + 27] = 255;
     }
-    u8[base + 28] = clampByte2(Math.round(rotations[i * 4] * 128 + 128));
-    u8[base + 29] = clampByte2(Math.round(rotations[i * 4 + 1] * 128 + 128));
-    u8[base + 30] = clampByte2(Math.round(rotations[i * 4 + 2] * 128 + 128));
-    u8[base + 31] = clampByte2(Math.round(rotations[i * 4 + 3] * 128 + 128));
+    u8[base + 28] = clampByte3(Math.round(rotations[i * 4] * 128 + 128));
+    u8[base + 29] = clampByte3(Math.round(rotations[i * 4 + 1] * 128 + 128));
+    u8[base + 30] = clampByte3(Math.round(rotations[i * 4 + 2] * 128 + 128));
+    u8[base + 31] = clampByte3(Math.round(rotations[i * 4 + 3] * 128 + 128));
   }
   return buffer;
 }
@@ -131918,7 +135679,7 @@ function buildDataModel(dataModel, metadata) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v7/parse.ts
-async function parse12(params, options) {
+async function parse13(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -131944,7 +135705,7 @@ async function parse12(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v8/parse.ts
-async function parse13(params, options) {
+async function parse14(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const types = JSON.parse(inflateString(e[0]));
@@ -131987,7 +135748,7 @@ async function parse13(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v9/parse.ts
-async function parse14(params, options) {
+async function parse15(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -132014,7 +135775,7 @@ async function parse14(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v10/parse.ts
-async function parse15(params, options) {
+async function parse16(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -132041,7 +135802,7 @@ async function parse15(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v11/parse.ts
-async function parse16(params, options) {
+async function parse17(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const requiresSwapFromLittleEndian = function() {
     const b4 = new ArrayBuffer(2);
@@ -132401,7 +136162,7 @@ function buildDataModel2(dataModel, metadata) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v12/parse.ts
-async function parse17(params, options) {
+async function parse18(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xktToModel({
     xktData: unpackXKT(fileData),
@@ -132412,7 +136173,7 @@ async function parse17(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v12/parseCompressed.ts
-async function parse18(params, options) {
+async function parse19(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -132445,13 +136206,13 @@ var XKTLoader = class extends ModelLoader {
       format: "XKT",
       fileDataType: "arraybuffer",
       parsers: {
-        "7": parse12,
-        "8": parse13,
-        "9": parse14,
-        "10": parse15,
-        "11": parse16,
-        "12": parse17,
-        "12z": parse18
+        "7": parse13,
+        "8": parse14,
+        "9": parse15,
+        "10": parse16,
+        "11": parse17,
+        "12": parse18,
+        "12z": parse19
       },
       getVersion: (fileData) => {
         const word = new DataView(fileData).getUint32(0, true);
@@ -132601,12 +136362,12 @@ async function modelToXKT(params) {
     }
     eachMeshGeometriesPortion[g] = g;
     const a2 = g * MESH_ATTRIBUTES3;
-    eachMeshMaterialAttributes[a2] = clampByte3(it.color[0] * 255);
-    eachMeshMaterialAttributes[a2 + 1] = clampByte3(it.color[1] * 255);
-    eachMeshMaterialAttributes[a2 + 2] = clampByte3(it.color[2] * 255);
-    eachMeshMaterialAttributes[a2 + 3] = clampByte3(it.opacity * 255);
-    eachMeshMaterialAttributes[a2 + 4] = clampByte3(it.metallic * 255);
-    eachMeshMaterialAttributes[a2 + 5] = clampByte3(it.roughness * 255);
+    eachMeshMaterialAttributes[a2] = clampByte4(it.color[0] * 255);
+    eachMeshMaterialAttributes[a2 + 1] = clampByte4(it.color[1] * 255);
+    eachMeshMaterialAttributes[a2 + 2] = clampByte4(it.color[2] * 255);
+    eachMeshMaterialAttributes[a2 + 3] = clampByte4(it.opacity * 255);
+    eachMeshMaterialAttributes[a2 + 4] = clampByte4(it.metallic * 255);
+    eachMeshMaterialAttributes[a2 + 5] = clampByte4(it.roughness * 255);
   }
   return {
     metadata: buildMetadata(sceneModel, dataModel),
@@ -132640,7 +136401,7 @@ async function modelToXKT(params) {
     eachTileEntitiesPortion: new Uint32Array([0])
   };
 }
-function clampByte3(v) {
+function clampByte4(v) {
   v = Math.round(v);
   return v < 0 ? 0 : v > 255 ? 255 : v;
 }
@@ -132684,7 +136445,7 @@ var object2Array2 = function() {
   const encoder = new TextEncoder();
   return (obj) => encoder.encode(JSON.stringify(obj));
 }();
-function toArrayBuffer4(arrays) {
+function toArrayBuffer5(arrays) {
   const arraysCnt = arrays.length;
   const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
   dataView.setUint32(0, XKT_INFO.xktVersion, true);
@@ -132730,7 +136491,7 @@ function toArrayBuffer4(arrays) {
   return dataArray.buffer;
 }
 function packXKT(xktData) {
-  return toArrayBuffer4([
+  return toArrayBuffer5([
     object2Array2(xktData.metadata),
     xktData.textureData,
     xktData.eachTextureDataPortion,
@@ -132764,7 +136525,7 @@ function packXKT(xktData) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v12/encode.ts
-async function encode15(params, options) {
+async function encode16(params, options) {
   if (params.sceneModel) {
     const triplanarSkip = findTriplanarTextureSkip(params.sceneModel);
     if (triplanarSkip.any) {
@@ -132787,7 +136548,7 @@ var XKTExporter = class extends ModelExporter {
       format: "XKT",
       fileDataType: "arraybuffer",
       encoders: {
-        "12": encode15
+        "12": encode16
       },
       defaultVersion: "12"
     });
@@ -132802,7 +136563,7 @@ __export(obj_exports, {
 });
 
 // ../sdk/src/formats/obj/versions/v1_0/parse.ts
-var parse19 = async (params, options) => {
+var parse20 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -133213,7 +136974,7 @@ var OBJLoader = class extends ModelLoader {
       format: "OBJ",
       fileDataType: "text",
       parsers: {
-        "1.0": parse19
+        "1.0": parse20
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -133226,7 +136987,7 @@ var OBJLoader = class extends ModelLoader {
 var tempVec3a8 = createVec3Float64();
 var tempVec3b8 = createVec3Float64();
 var tempVec3c4 = createVec3Float64();
-async function encode16(params, options) {
+async function encode17(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -133330,7 +137091,7 @@ var OBJExporter = class extends ModelExporter {
       format: "OBJ",
       fileDataType: "text",
       encoders: {
-        "1.0": encode16
+        "1.0": encode17
       },
       defaultVersion: "1.0"
     });
@@ -133345,7 +137106,7 @@ __export(mtl_exports, {
 });
 
 // ../sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse20 = async (params, options) => {
+var parse21 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -133455,7 +137216,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse20
+        "1.0": parse21
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -133465,7 +137226,7 @@ var MTLLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/mtl/versions/v1_0/encode.ts
-async function encode17(params, options) {
+async function encode18(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -133587,7 +137348,7 @@ var MTLExporter = class extends ModelExporter {
       format: "MTL",
       fileDataType: "text",
       encoders: {
-        "1.0": encode17
+        "1.0": encode18
       },
       defaultVersion: "1.0"
     });
@@ -133783,7 +137544,7 @@ function findChild(node, name12) {
 
 // ../sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse21(params, _options) {
+async function parse22(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -134158,7 +137919,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse21
+        binary: parse22
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -134308,7 +138069,7 @@ function concat4(parts) {
 // ../sdk/src/formats/fbx/versions/binary/encode.ts
 var RAD2DEG = 180 / Math.PI;
 var SEP = "\0";
-async function encode18(params, options) {
+async function encode19(params, options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
@@ -134563,7 +138324,7 @@ var FBXExporter = class extends ModelExporter {
       format: "fbx",
       fileDataType: "arraybuffer",
       encoders: {
-        binary: encode18
+        binary: encode19
       },
       defaultVersion: "binary"
     });
@@ -134840,7 +138601,7 @@ function mulMat44(a2, b4) {
 }
 
 // ../sdk/src/formats/usdz/versions/v1/parse.ts
-async function parse22(params, options) {
+async function parse23(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -134880,7 +138641,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse22
+        "1.0": parse23
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -135076,7 +138837,7 @@ function crc322(data2) {
 
 // ../sdk/src/formats/usdz/versions/v1/encode.ts
 var ROOT_LAYER = "model.usda";
-async function encode19(params, options) {
+async function encode20(params, options) {
   const onProgress = options?.onProgress;
   const signal = options?.signal;
   onProgress?.({ phase: "Encoding USDZ", current: 0, total: 1 });
@@ -135226,7 +138987,7 @@ var USDZExporter = class extends ModelExporter {
       format: "usdz",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0": encode19
+        "1.0": encode20
       },
       defaultVersion: "1.0"
     });
@@ -135293,7 +139054,7 @@ async function loadPdfJs(opts) {
   }
   return p;
 }
-async function parse23(input, options = {}) {
+async function parse24(input, options = {}) {
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
   }
@@ -136601,7 +140362,7 @@ var PDFLoader = class {
     this.#pdfjs = params.pdfjs;
   }
   load(input, options = {}) {
-    return parse23(input, {
+    return parse24(input, {
       ...options,
       pdfjsEsmUrl: this.#pdfjsEsmUrl,
       pdfjsWorkerSrc: this.#pdfjsWorkerSrc,
@@ -136638,7 +140399,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // ../sdk/src/formats/svg/versions/v1_0/parse.ts
-async function parse24(input, options = {}) {
+async function parse25(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
   }
@@ -137098,14 +140859,14 @@ function mergeStyle(parent, attrs, opts, classMap) {
     }
   }
   const inlineStyle = parseStyleString(attrs.style);
-  const pick = (prop2) => inlineStyle[prop2] ?? attrs[prop2] ?? classDecls[prop2];
-  const strokeStr = pick("stroke");
-  const fillStr = pick("fill");
-  const strokeWidthStr = pick("stroke-width");
-  const fillOpacityStr = pick("fill-opacity");
-  const strokeOpacityStr = pick("stroke-opacity");
-  const opacityStr = pick("opacity");
-  const dasharrayStr = pick("stroke-dasharray");
+  const pick2 = (prop2) => inlineStyle[prop2] ?? attrs[prop2] ?? classDecls[prop2];
+  const strokeStr = pick2("stroke");
+  const fillStr = pick2("fill");
+  const strokeWidthStr = pick2("stroke-width");
+  const fillOpacityStr = pick2("fill-opacity");
+  const strokeOpacityStr = pick2("stroke-opacity");
+  const opacityStr = pick2("opacity");
+  const dasharrayStr = pick2("stroke-dasharray");
   const rawStroke = strokeStr === void 0 ? parent.stroke : strokeStr === "none" ? null : parseColor(strokeStr) ?? parent.stroke;
   const rawFill = fillStr === void 0 ? parent.fill : fillStr === "none" ? null : parseColor(fillStr) ?? parent.fill;
   const fillOpacityOwn = clamp013(parseFloatOr(fillOpacityStr, 1));
@@ -137909,7 +141670,7 @@ function domToSVGNode(el2) {
 // ../sdk/src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse24(
+    return parse25(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -137932,7 +141693,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
-async function encode20(params, options) {
+async function encode21(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[SVGExporter] sceneModel is required");
@@ -138158,7 +141919,7 @@ var SVGExporter = class extends ModelExporter {
     super({
       format: "SVG",
       fileDataType: "text",
-      encoders: { "1.0": encode20 },
+      encoders: { "1.0": encode21 },
       defaultVersion: "1.0"
     });
   }
@@ -138214,7 +141975,7 @@ async function loadLibredwg(opts) {
   }
   return p;
 }
-async function parse25(input, options = {}) {
+async function parse26(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
   }
@@ -139050,7 +142811,7 @@ var DWGLoader = class {
     this.#libredwg = params.libredwg;
   }
   load(input, options = {}) {
-    return parse25(
+    return parse26(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -139070,7 +142831,7 @@ __export(dxf_exports, {
 });
 
 // ../sdk/src/formats/dxf/versions/v1_0/parse.ts
-async function parse26(input, options = {}) {
+async function parse27(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
   }
@@ -139392,7 +143153,7 @@ function err4(type, message) {
 // ../sdk/src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse26(
+    return parse27(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -139404,7 +143165,7 @@ var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var _scratch = createVec4Float64();
-async function encode21(params, options) {
+async function encode23(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[DXFExporter] sceneModel is required");
@@ -139596,7 +143357,7 @@ var DXFExporter = class extends ModelExporter {
     super({
       format: "DXF",
       fileDataType: "text",
-      encoders: { "1.0": encode21 },
+      encoders: { "1.0": encode23 },
       defaultVersion: "1.0"
     });
   }
@@ -140388,7 +144149,7 @@ function unitWireBox(id) {
 }
 
 // ../sdk/src/formats/fds/versions/v6/parse.ts
-var parse27 = async (params) => {
+var parse28 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -140603,7 +144364,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse27
+        "6": parse28
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -140614,7 +144375,7 @@ var FDSLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/fds/versions/v6/encode.ts
-async function encode23(params, _options) {
+async function encode24(params, _options) {
   const { dataModel } = params;
   if (!dataModel) {
     throw new Error("[FDS/v6/encode] expected dataModel in params");
@@ -140893,7 +144654,7 @@ var FDSExporter = class extends ModelExporter {
       format: "FDS",
       fileDataType: "text",
       encoders: {
-        "6": encode23
+        "6": encode24
       },
       defaultVersion: "6"
     });
@@ -141226,7 +144987,7 @@ function num4(el2, attr) {
 // ../sdk/src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
-async function parse28(params, _options) {
+async function parse29(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -141381,7 +145142,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      parsers: { "*": parse28 },
+      parsers: { "*": parse29 },
       getVersion: (fileData) => isZip(fileData) ? "*" : ""
     });
   }
@@ -141389,7 +145150,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
 
 // ../sdk/src/formats/threedxml/versions/v1/encode.ts
 var textEncoder2 = new TextEncoder();
-async function encode24(params, _options) {
+async function encode25(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw new Error("[3DXMLExporter] params.sceneModel is required");
@@ -141540,7 +145301,7 @@ var ThreeDXMLExporter = class extends ModelExporter {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      encoders: { "*": encode24 },
+      encoders: { "*": encode25 },
       defaultVersion: "*"
     });
   }
@@ -149188,7 +152949,7 @@ __export(collision_exports, {
 });
 
 // ../sdk/src/spatial/collision/SceneCollisionIndex.ts
-function transformAABB3(local, matrix, out) {
+function transformAABB32(local, matrix, out) {
   const minX = local[0], minY = local[1], minZ = local[2];
   const maxX = local[3], maxY = local[4], maxZ = local[5];
   const cx = (minX + maxX) * 0.5;
@@ -149504,7 +153265,7 @@ var SceneCollisionIndex = class {
       this.#meshDirty.add(key);
     }
     if (this.#meshDirty.has(key)) {
-      transformAABB3(mesh.geometry.aabb, mesh.worldMatrix, aabb);
+      transformAABB32(mesh.geometry.aabb, mesh.worldMatrix, aabb);
       this.#meshDirty.delete(key);
     }
     return aabb;
@@ -149651,7 +153412,7 @@ var SceneCollisionIndex = class {
       const geom = mesh.geometry;
       if (!geom)
         continue;
-      transformAABB3(geom.aabb, mesh.worldMatrix, scratchAABB);
+      transformAABB32(geom.aabb, mesh.worldMatrix, scratchAABB);
       expandAABB3(out, scratchAABB);
       found = true;
     }
@@ -162140,8 +165901,8 @@ var CameraFlightAnimation = class _CameraFlightAnimation {
         return;
       }
       aabb = createAABB3Float64(aabb);
-      const aabbCenter = getAABB3Center(aabb);
-      this._look2 = poi || aabbCenter;
+      const aabbCenter2 = getAABB3Center(aabb);
+      this._look2 = poi || aabbCenter2;
       const eyeLookVec2 = subVec3(this._eye1, this._look1, tempVec33);
       const eyeLookVecNorm2 = normalizeVec3(eyeLookVec2);
       const diag = poi ? getAABB3DiagPoint(aabb, poi) : getAABB3Diag(aabb);
@@ -164449,9 +168210,9 @@ var TransformControls = class _TransformControls {
         const obj = this.viewLayer.objects[id];
         if (obj)
           obj.visible = on;
-        const pick = this.viewLayer.objects[`${id}.picker`];
-        if (pick)
-          pick.pickable = on;
+        const pick2 = this.viewLayer.objects[`${id}.picker`];
+        if (pick2)
+          pick2.pickable = on;
       }
     };
     set(TRANSLATE_HANDLES, showT);
@@ -165517,9 +169278,9 @@ var KeyboardPanRotateDollyHandler = class {
         if (configs.keyboardEnabledOnlyIfMouseover && !states.mouseover) {
           return;
         }
-        const now = performance.now();
-        const elapsedSecs = Math.min((now - lastTime) / 1e3, 0.1);
-        lastTime = now;
+        const now3 = performance.now();
+        const elapsedSecs = Math.min((now3 - lastTime) / 1e3, 0.1);
+        lastTime = now3;
         const viewController = controllers.viewController;
         const VC = viewController.constructor;
         if (!configs.planView) {
@@ -165716,10 +169477,10 @@ var MousePanRotateDollyHandler = class {
       const keyCode = e.keyCode;
       keyDown[keyCode] = false;
     });
-    function setMousedownState(pick = true) {
+    function setMousedownState(pick2 = true) {
       htmlElement.style.cursor = "move";
       setMousedownPositions();
-      if (pick) {
+      if (pick2) {
         setMousedownPick();
       }
     }
@@ -172246,15 +176007,15 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
       this.buffer[base + 1] = this.toU32(item.geometryIndex);
     if (item.roughness !== void 0 || item.metallic !== void 0 || item.hatchPatternSlot !== void 0) {
       const existing = this.buffer[base + 2] >>> 0;
-      const r8 = item.roughness !== void 0 ? clampU82(item.roughness * 255) : existing & 255;
-      const m8 = item.metallic !== void 0 ? clampU82(item.metallic * 255) : existing >>> 8 & 255;
+      const r8 = item.roughness !== void 0 ? clampU83(item.roughness * 255) : existing & 255;
+      const m8 = item.metallic !== void 0 ? clampU83(item.metallic * 255) : existing >>> 8 & 255;
       const hatch16 = item.hatchPatternSlot !== void 0 ? clampU16(item.hatchPatternSlot) : existing >>> 16 & 65535;
       this.buffer[base + 2] = (r8 | m8 << 8 | hatch16 << 16) >>> 0;
     }
     if (item.alphaMode !== void 0 || item.alphaCutoff !== void 0 || item.linePatternSlot !== void 0) {
       const existing = this.buffer[base + 3] >>> 0;
-      const mode8 = item.alphaMode !== void 0 ? clampU82(item.alphaMode) : existing & 255;
-      const cutoff8 = item.alphaCutoff !== void 0 ? clampU82(item.alphaCutoff * 255) : existing >>> 8 & 255;
+      const mode8 = item.alphaMode !== void 0 ? clampU83(item.alphaMode) : existing & 255;
+      const cutoff8 = item.alphaCutoff !== void 0 ? clampU83(item.alphaCutoff * 255) : existing >>> 8 & 255;
       const slot16 = item.linePatternSlot !== void 0 ? clampU16(item.linePatternSlot) : existing >>> 16 & 65535;
       this.buffer[base + 3] = (mode8 | cutoff8 << 8 | slot16 << 16) >>> 0;
     }
@@ -172295,9 +176056,9 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
       this.buffer[base + 15] = packUV2(item.occlusionUVScale);
     }
     if (item.emissiveColor !== void 0) {
-      const r8 = clampU82(item.emissiveColor[0] * 255);
-      const g8 = clampU82(item.emissiveColor[1] * 255);
-      const b8 = clampU82(item.emissiveColor[2] * 255);
+      const r8 = clampU83(item.emissiveColor[0] * 255);
+      const g8 = clampU83(item.emissiveColor[1] * 255);
+      const b8 = clampU83(item.emissiveColor[2] * 255);
       this.buffer[base + 16] = (r8 | g8 << 8 | b8 << 16) >>> 0;
     }
     this.setItemDirty(itemIndex);
@@ -172322,7 +176083,7 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
     return typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : x >>> 0;
   }
 };
-function clampU82(v) {
+function clampU83(v) {
   v = Math.round(v);
   return v < 0 ? 0 : v > 255 ? 255 : v;
 }
@@ -197780,14 +201541,14 @@ function playCameraTour(view, tour, options = {}) {
       schedule();
       return;
     }
-    const now = performance.now();
+    const now3 = performance.now();
     if (lastTickMs < 0) {
-      lastTickMs = now;
+      lastTickMs = now3;
       schedule();
       return;
     }
-    const deltaMs = (now - lastTickMs) * rate;
-    lastTickMs = now;
+    const deltaMs = (now3 - lastTickMs) * rate;
+    lastTickMs = now3;
     phaseElapsedMs += deltaMs;
     while (phaseElapsedMs >= phaseDurationMs) {
       const overshoot = phaseElapsedMs - phaseDurationMs;
@@ -198366,10 +202127,10 @@ var DaylightAnalysis = class {
         sumV += cellValue;
       }
       onProgress?.((iy + 1) / ny);
-      const now = typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
-      if (now - lastYieldMs >= yieldIntMs) {
+      const now3 = typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
+      if (now3 - lastYieldMs >= yieldIntMs) {
         await yieldToHost(void 0, yieldIntMs);
-        lastYieldMs = now;
+        lastYieldMs = now3;
       }
     }
     if (!isFinite(minV))
@@ -202056,13 +205817,13 @@ var SchedulePlayer = class {
   _tick() {
     if (this._destroyed || !this._playing)
       return;
-    const now = typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
+    const now3 = typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
     if (this._lastTickMs === 0) {
-      this._lastTickMs = now;
+      this._lastTickMs = now3;
       return;
     }
-    const dtSec = (now - this._lastTickMs) / 1e3;
-    this._lastTickMs = now;
+    const dtSec = (now3 - this._lastTickMs) / 1e3;
+    this._lastTickMs = now3;
     if (dtSec <= 0)
       return;
     const advanceMs = this.playbackSpeed * MS_PER_DAY * dtSec;
@@ -203026,8 +206787,8 @@ var SunStudy = class _SunStudy {
   }
 };
 function defaultStartDate() {
-  const now = /* @__PURE__ */ new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), 5, 21, 12, 0, 0));
+  const now3 = /* @__PURE__ */ new Date();
+  return new Date(Date.UTC(now3.getUTCFullYear(), 5, 21, 12, 0, 0));
 }
 function clamp014(v) {
   if (!Number.isFinite(v))
@@ -203125,13 +206886,13 @@ var AnnualSunPlayer = class {
   _tick() {
     if (this._destroyed || !this._playing)
       return;
-    const now = typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
+    const now3 = typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
     if (this._lastTickMs === 0) {
-      this._lastTickMs = now;
+      this._lastTickMs = now3;
       return;
     }
-    const dtSec = (now - this._lastTickMs) / 1e3;
-    this._lastTickMs = now;
+    const dtSec = (now3 - this._lastTickMs) / 1e3;
+    this._lastTickMs = now3;
     if (dtSec <= 0 || this.durationSeconds <= 0)
       return;
     const spanMs = this._mode === "day" ? MS_PER_DAY2 : MS_PER_YEAR;
@@ -206830,14 +210591,14 @@ var ScenePhysics = class {
       const geom = mesh.geometry;
       if (!geom)
         continue;
-      transformAABB32(geom.aabb, mesh.worldMatrix, this.#scratchMeshAABB);
+      transformAABB33(geom.aabb, mesh.worldMatrix, this.#scratchMeshAABB);
       expandAABB3(out, this.#scratchMeshAABB);
       found = true;
     }
     return found ? out : null;
   }
 };
-function transformAABB32(local, matrix, out) {
+function transformAABB33(local, matrix, out) {
   const minX = local[0], minY = local[1], minZ = local[2];
   const maxX = local[3], maxY = local[4], maxZ = local[5];
   const cx = (minX + maxX) * 0.5;
@@ -207619,7 +211380,7 @@ var ModelConverter = class {
             }
             dataModel = dataModelResult.value;
           }
-          const loadFileData = async (fileData2) => {
+          const loadFileData2 = async (fileData2) => {
             switch (loader.fileDataType) {
               case "text":
                 fileDataSizeBytes = new TextEncoder().encode(fileData2).length;
@@ -207667,13 +211428,13 @@ var ModelConverter = class {
           if (filePath) {
             try {
               const loadedFileData = await getFileIO2().load(filePath);
-              await loadFileData(loadedFileData);
+              await loadFileData2(loadedFileData);
             } catch (err6) {
               reject(`[ModelConverter.convert] Failed to load source file: ${err6}`);
               return;
             }
           } else {
-            await loadFileData(fileData);
+            await loadFileData2(fileData);
           }
         }
       };
@@ -207721,6 +211482,9 @@ var ModelConverter = class {
                 break;
               case "json":
                 fileDataSizeBytes = new TextEncoder().encode(JSON.stringify(fileData)).length;
+                break;
+              case "filemap":
+                fileDataSizeBytes = fileMapByteLength(fileData?.files || fileData);
                 break;
               default:
                 fileDataSizeBytes = fileData.byteLength;
@@ -207936,6 +211700,21 @@ var ModelConverter = class {
     };
   }
 };
+function fileMapByteLength(files) {
+  let bytes = 0;
+  for (const fileData of Object.values(files || {})) {
+    if (typeof fileData === "string") {
+      bytes += new TextEncoder().encode(fileData).length;
+    } else if (fileData instanceof ArrayBuffer) {
+      bytes += fileData.byteLength;
+    } else if (ArrayBuffer.isView(fileData)) {
+      bytes += fileData.byteLength;
+    } else {
+      bytes += new TextEncoder().encode(JSON.stringify(fileData)).length;
+    }
+  }
+  return bytes;
+}
 
 // ../sdk/src/convert/modelConverter/reporters/index.ts
 var reporters_exports = {};
@@ -211477,6 +215256,7 @@ var FloatingPanelBase = class {
   _resizable;
   _minWidth;
   _minHeight;
+  _initialPlacement;
   _tier;
   _destroyed = false;
   _dragging = false;
@@ -211501,6 +215281,7 @@ var FloatingPanelBase = class {
     this._resizable = params.resizable !== false && !this._modal;
     this._minWidth = params.minWidth ?? 280;
     this._minHeight = params.minHeight ?? 200;
+    this._initialPlacement = params.initialPlacement ?? "center";
     this._tier = params.tier ?? "default";
   }
   // ── Chrome setup ─────────────────────────────────────────────
@@ -211882,7 +215663,7 @@ var FloatingPanelBase = class {
       this._panel.style.left = saved.left + "px";
       this._panel.style.top = saved.top + "px";
       this._panel.style.transform = "none";
-    } else {
+    } else if (this._initialPlacement === "center") {
       this._centerPanel();
     }
     if (hasSavedSize) {
@@ -213949,13 +217730,13 @@ var LoaderProgressDialog = class _LoaderProgressDialog {
    * don't want to lie about a stalled load.
    */
   _updateEta(fraction) {
-    const now = nowMs2();
-    const elapsed = now - this._startMs;
+    const now3 = nowMs2();
+    const elapsed = now3 - this._startMs;
     if (fraction !== this._lastFraction) {
       this._lastFraction = fraction;
-      this._lastFractionAtMs = now;
+      this._lastFractionAtMs = now3;
     }
-    const stalledMs = now - this._lastFractionAtMs;
+    const stalledMs = now3 - this._lastFractionAtMs;
     if (fraction <= 0 || elapsed < 250 || stalledMs > 2e3) {
       this._etaEl.textContent = `${formatSeconds(elapsed)} elapsed`;
       return;
@@ -216664,6 +220445,9 @@ var DefaultModelLocator = class {
   optimized;
   preloaded = false;
   resolve(modelId, format) {
+    if (format === "xgfstream") {
+      return `${this.modelsDir}/${modelId}/${format}/index.runtime.json`;
+    }
     const ext = this.extensions.get(format);
     if (!ext) {
       throw new Error(
@@ -216713,6 +220497,7 @@ function optimizedSetFromIndex(index) {
 }
 var DEFAULT_EXTENSIONS = {
   xgf: "xgf",
+  xgfstream: "json",
   ifc: "ifc",
   gltf: "glb",
   fbx: "fbx",
@@ -216746,6 +220531,12 @@ function createDefaultLoaderRegistry() {
     needsScene: true,
     needsData: false,
     load: (input, options) => new XGFLoader().load(input, options)
+  });
+  r.register("xgfstream", {
+    fetch: "json",
+    needsScene: true,
+    needsData: false,
+    load: async (input, options) => loadXGFStream(input, options)
   });
   r.register("ifc", {
     fetch: "arrayBuffer",
@@ -216858,6 +220649,65 @@ function createDefaultLoaderRegistry() {
     load: (input, options) => new SceneModelImporter().load(input, options)
   });
   return r;
+}
+async function loadXGFStream(input, options) {
+  if (!input.sceneModel) {
+    return invalid6("[xgfstream] SceneModel expected");
+  }
+  const indexResult = readXGFStreamIndex(input.fileData);
+  if (indexResult.ok === false) {
+    return indexResult;
+  }
+  const index = indexResult.value;
+  const lookup = createXGFStreamingIndexLookup(index);
+  const sceneChunkIds = index.rootChunkIds && index.rootChunkIds.length > 0 ? index.rootChunkIds : index.chunks.filter((chunk) => chunk.role !== "assetLibrary").map((chunk) => chunk.id);
+  const sceneChunks = [];
+  for (const chunkId of sceneChunkIds) {
+    const chunk = lookup.byId[chunkId];
+    if (!chunk) {
+      return invalid6(`[xgfstream] Stream index references missing root chunk '${chunkId}'`);
+    }
+    sceneChunks.push(chunk);
+  }
+  await new XGFStreamingLoader().loadChunks(
+    {
+      manifests: sceneChunks,
+      sceneModel: input.sceneModel,
+      dataModel: input.dataModel
+    },
+    {
+      ...options,
+      manifests: lookup,
+      getFileData: async (manifest) => {
+        if (!manifest.uri) {
+          return void 0;
+        }
+        const uri = resolveStreamUri(options?.baseUri, manifest.uri);
+        const response = await fetch(uri);
+        return response.ok ? response.arrayBuffer() : void 0;
+      }
+    }
+  );
+  return { ok: true, value: void 0 };
+}
+function readXGFStreamIndex(json) {
+  if (json?.format === "XGFStreamingRuntimeIndex") {
+    return readXGFStreamingRuntimeIndex(json);
+  }
+  return readXGFStreamingIndex(json);
+}
+function resolveStreamUri(baseUri, uri) {
+  if (!baseUri || /^(?:[a-z]+:)?\/\//i.test(uri) || uri.startsWith("blob:") || uri.startsWith("data:")) {
+    return uri;
+  }
+  return `${baseUri.replace(/\/?$/, "/")}${uri.replace(/^\/+/, "")}`;
+}
+function invalid6(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
 }
 
 // ../sdk/src/studio/panels/index.ts
@@ -220274,11 +224124,11 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     const items = this._collectStats();
     const showDelta = !!this._baselineStats && this._fixRunLog.length > 0;
     const fmt = (n) => n.toLocaleString();
-    const html = items.map(([label, now], i) => {
+    const html = items.map(([label, now3], i) => {
       let deltaHtml = "";
       if (showDelta && this._baselineStats) {
         const before = this._baselineStats[i][1];
-        const delta = now - before;
+        const delta = now3 - before;
         let cls = "xkt-sh-stat-delta", txt = "";
         if (delta < 0) {
           cls += " xkt-sh-saved";
@@ -220295,7 +224145,7 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
       return `
         <div class="xkt-sh-stat">
           <span class="xkt-sh-stat-label">${escapeHtml2(label)}</span>
-          <span class="xkt-sh-stat-value${now === 0 ? " xkt-sh-zero" : ""}">${escapeHtml2(fmt(now))}</span>
+          <span class="xkt-sh-stat-value${now3 === 0 ? " xkt-sh-zero" : ""}">${escapeHtml2(fmt(now3))}</span>
           ${deltaHtml}
         </div>
       `;
@@ -231541,6 +235391,14 @@ var FORMAT_REGISTRY = {
     build: () => new XGFExporter(),
     toBytes: (raw) => raw
   },
+  xgfstream: {
+    id: "xgfstream",
+    label: "XGF Stream",
+    ext: "xgfstream",
+    mime: "application/json",
+    build: () => new XGFStreamExporter(),
+    toDownloads: (raw, filename2) => xgfStreamDownloads(raw, filename2)
+  },
   gltf: {
     id: "gltf",
     label: "glTF",
@@ -231677,6 +235535,7 @@ var FORMAT_REGISTRY = {
 };
 var DEFAULT_DATASET_TYPES = [
   "xgf",
+  "xgfstream",
   "xkt",
   "scenemodel",
   "gltf",
@@ -231703,6 +235562,17 @@ var DATASET_PARAMS = {
       applyTo: [],
       filenameFor: "xgf",
       help: "Filename for the XGF download. `{id}` substitutes the SceneModel id."
+    }
+  ],
+  "xgfstream": [
+    {
+      id: "xgfStreamName",
+      label: "XGF Stream Name",
+      type: "string",
+      default: "{id}.xgfstream",
+      applyTo: [],
+      filenameFor: "xgfstream",
+      help: "Base name for the XGF Stream download set. `{id}` substitutes the SceneModel id."
     }
   ],
   "scenemodel": [
@@ -233134,9 +237004,11 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
           dataModel: t.dataModel,
           version: t.version
         }, t.options);
-        const bytes = t.entry.toBytes(raw);
-        downloadBlob(new Blob([bytes], { type: t.entry.mime }), filename2);
-        okCount++;
+        const downloads = resolveDownloads(t.entry, raw, filename2);
+        for (const download of downloads) {
+          downloadBlob(new Blob([download.bytes], { type: download.mime }), download.filename);
+        }
+        okCount += downloads.length;
       } catch (e) {
         errCount++;
         const msg = e?.message ?? String(e);
@@ -233179,6 +237051,47 @@ function humanReadableDatasetLabel(_descriptor, ids2) {
   if (ids2.length === 1)
     return first.label;
   return `${first.label} + ${ids2.slice(1).map((i) => FORMAT_REGISTRY[i]?.label ?? i).join(" + ")}`;
+}
+function resolveDownloads(entry, raw, filename2) {
+  if (entry.toDownloads) {
+    return entry.toDownloads(raw, filename2);
+  }
+  if (!entry.toBytes) {
+    throw new Error(`[ExportDialog] Format '${entry.id}' has no download encoder`);
+  }
+  return [{
+    filename: filename2,
+    mime: entry.mime,
+    bytes: entry.toBytes(raw)
+  }];
+}
+function xgfStreamDownloads(raw, filename2) {
+  const files = raw?.files;
+  if (!files || typeof files !== "object" || Array.isArray(files)) {
+    throw new Error("[ExportDialog] XGF Stream exporter returned no file map");
+  }
+  const baseName = filename2.replace(/\/+$/, "") || "model.xgfstream";
+  const downloads = [];
+  for (const uri of Object.keys(files).sort()) {
+    downloads.push({
+      filename: `${baseName}-${sanitizeDownloadPath(uri)}`,
+      mime: mimeForStreamFile(uri),
+      bytes: streamFileToBytes(files[uri])
+    });
+  }
+  return downloads;
+}
+function streamFileToBytes(data2) {
+  if (data2 instanceof ArrayBuffer || data2 instanceof Uint8Array || typeof data2 === "string") {
+    return data2;
+  }
+  return JSON.stringify(data2, null, 2);
+}
+function sanitizeDownloadPath(uri) {
+  return uri.replace(/^\/+/, "").replace(/[\\/:*?"<>|]+/g, "__").replace(/^$/, "index.json");
+}
+function mimeForStreamFile(uri) {
+  return /\.json$/i.test(uri) ? "application/json" : "application/octet-stream";
 }
 function downloadBlob(blob, filename2) {
   const url = URL.createObjectURL(blob);
@@ -233571,8 +237484,8 @@ var ExplorerPanel = class _ExplorerPanel extends FloatingPanelBase {
         this._rebuildScheduled = false;
         return;
       }
-      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
-      const elapsed = now - this._lastRebuildEventTs;
+      const now3 = typeof performance !== "undefined" ? performance.now() : Date.now();
+      const elapsed = now3 - this._lastRebuildEventTs;
       if (elapsed < _ExplorerPanel._REBUILD_QUIET_MS) {
         requestAnimationFrame(tick);
         return;
@@ -233828,14 +237741,14 @@ function pickAggregationLinkTypes(data2) {
       const k = String(t);
       counts[k] = (counts[k] || 0) + 1;
     }
-    let pick = null;
+    let pick2 = null;
     for (const p of PREFERRED) {
       if (counts[p]) {
-        pick = p;
+        pick2 = p;
         break;
       }
     }
-    if (!pick) {
+    if (!pick2) {
       let best = null;
       let bestCount = 0;
       for (const k of Object.keys(counts)) {
@@ -233844,10 +237757,10 @@ function pickAggregationLinkTypes(data2) {
           bestCount = counts[k];
         }
       }
-      pick = best;
+      pick2 = best;
     }
-    if (pick)
-      add(pick);
+    if (pick2)
+      add(pick2);
   }
   if (result.length === 0)
     return ["IfcRelAggregates"];
@@ -242961,7 +246874,7 @@ var PANEL_CSS27 = `
 
 .xkt-vol-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   padding: 12px 14px 12px 16px;
   border-bottom: 1px solid #ececec;
@@ -242976,17 +246889,19 @@ var PANEL_CSS27 = `
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 1.18;
   font-weight: 650;
   color: #111;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
 }
 .xkt-vol-title-icon {
   flex-shrink: 0;
   width: 24px;
   height: 24px;
+  margin-top: 1px;
   color: #6b8fb5;
   display: inline-flex;
   align-items: center;
@@ -243000,9 +246915,8 @@ var PANEL_CSS27 = `
 .xkt-vol-title-text {
   flex-shrink: 1;
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .xkt-vol-close {
   appearance: none;
@@ -243012,6 +246926,7 @@ var PANEL_CSS27 = `
   line-height: 1;
   cursor: pointer;
   padding: 2px 6px;
+  flex: 0 0 auto;
   border-radius: 4px;
   color: #666;
 }
@@ -243264,7 +247179,8 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
     super({
       container: params.container,
       storageKey: params.storageKey || `xkt-vol-panel-${params.grid.name ?? "field"}`,
-      classPrefix: "xkt-vol"
+      classPrefix: "xkt-vol",
+      initialPlacement: "css"
     });
     this.grid = params.grid;
     this.vectorGrid = params.vectorGrid ?? null;
@@ -250542,15 +254458,16 @@ var ViewPanel = class extends FloatingPanelBase {
 
 // ../sdk/src/studio/LoadingSpinner.ts
 var LoadingSpinner = class _LoadingSpinner {
+  static MAX_LOG_ENTRIES = 12;
   total = 0;
   loaded = 0;
   phase = sdkProgress.phase;
+  lastLoggedPhase = "";
   overlay;
   container;
-  spinnerWrap;
-  cube;
   text;
   subtext;
+  phaseLog;
   progressTrack;
   progressFill;
   hideTimer = null;
@@ -250577,40 +254494,23 @@ var LoadingSpinner = class _LoadingSpinner {
     this.container.className = "xeokit-loading-card";
     this.container.setAttribute("role", "progressbar");
     this.container.setAttribute("aria-valuemin", "0");
-    this.spinnerWrap = document.createElement("div");
-    this.spinnerWrap.className = "xeokit-spinner-wrap";
-    const scene = document.createElement("div");
-    scene.className = "xeokit-spinner-scene";
-    this.cube = document.createElement("div");
-    this.cube.className = "xeokit-cube";
-    const faces2 = ["front", "back", "right", "left", "top", "bottom"];
-    for (const face of faces2) {
-      const faceEl = document.createElement("div");
-      faceEl.className = `xeokit-cube-face xeokit-cube-face-${face}`;
-      this.cube.appendChild(faceEl);
-    }
-    const orbit = document.createElement("div");
-    orbit.className = "xeokit-orbit-ring";
-    const glow = document.createElement("div");
-    glow.className = "xeokit-spinner-glow";
-    scene.appendChild(glow);
-    scene.appendChild(orbit);
-    scene.appendChild(this.cube);
-    this.spinnerWrap.appendChild(scene);
     this.text = document.createElement("div");
     this.text.className = "xeokit-loading-text";
     this.text.textContent = this.phase;
     this.subtext = document.createElement("div");
     this.subtext.className = "xeokit-loading-subtext";
     this.subtext.textContent = "";
+    this.phaseLog = document.createElement("div");
+    this.phaseLog.className = "xeokit-loading-log";
+    this.phaseLog.setAttribute("aria-live", "polite");
     this.progressTrack = document.createElement("div");
     this.progressTrack.className = "xeokit-loading-progress-track";
     this.progressFill = document.createElement("div");
     this.progressFill.className = "xeokit-loading-progress-fill";
     this.progressTrack.appendChild(this.progressFill);
-    this.container.appendChild(this.spinnerWrap);
     this.container.appendChild(this.text);
     this.container.appendChild(this.subtext);
+    this.container.appendChild(this.phaseLog);
     this.container.appendChild(this.progressTrack);
     this.overlay.appendChild(this.container);
     if (!this.overlay.parentElement) {
@@ -250620,6 +254520,7 @@ var LoadingSpinner = class _LoadingSpinner {
       this.loaded = Math.max(0, this.opts.initialLoaded);
     }
     this.render();
+    this.appendPhaseLog(this.phase);
     sdkProgress.onTasksAdded.subscribe((_sdkProgress, numAdded) => {
       this.total += numAdded;
       this.cancelAutoHide();
@@ -250634,6 +254535,7 @@ var LoadingSpinner = class _LoadingSpinner {
     });
     sdkProgress.onPhaseUpdated.subscribe((_sdkProgress, phase) => {
       this.phase = phase;
+      this.appendPhaseLog(phase);
       this.cancelAutoHide();
       this.show();
       this.render();
@@ -250729,8 +254631,22 @@ var LoadingSpinner = class _LoadingSpinner {
     const labelText = this.opts.label?.(this.loaded, this.total, safePct) ?? (this.total > 0 ? `${this.loaded} / ${this.total} (${Math.round(safePct)}%)` : `Preparing scene\u2026`);
     this.text.textContent = this.phase;
     this.subtext.textContent = labelText;
-    const glowStrength = 0.35 + safePct / 180;
-    this.spinnerWrap.style.setProperty("--xeokit-glow-alpha", String(glowStrength));
+  }
+  appendPhaseLog(phase) {
+    const text = phase.trim();
+    if (!text || text === this.lastLoggedPhase) {
+      return;
+    }
+    this.lastLoggedPhase = text;
+    const entry = document.createElement("div");
+    entry.className = "xeokit-loading-log-entry";
+    entry.textContent = text;
+    entry.title = text;
+    this.phaseLog.appendChild(entry);
+    while (this.phaseLog.childElementCount > _LoadingSpinner.MAX_LOG_ENTRIES) {
+      this.phaseLog.firstElementChild?.remove();
+    }
+    this.phaseLog.scrollTop = this.phaseLog.scrollHeight;
   }
   /**
    * Schedules the spinner to hide after the configured auto-hide delay.
@@ -250772,6 +254688,7 @@ var LoadingSpinner = class _LoadingSpinner {
 
       .xeokit-loading-card {
         min-width: 280px;
+        width: min(420px, calc(100vw - 48px));
         max-width: 80%;
         padding: 20px 22px 18px;
         border-radius: 16px;
@@ -250784,102 +254701,6 @@ var LoadingSpinner = class _LoadingSpinner {
         color: #e8eefc;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
-
-      .xeokit-spinner-wrap {
-        --xeokit-glow-alpha: 0.5;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-
-      .xeokit-spinner-scene {
-        position: relative;
-        width: 80px;
-        height: 80px;
-        perspective: 700px;
-      }
-
-      .xeokit-spinner-glow {
-        position: absolute;
-        inset: 50% auto auto 50%;
-        width: 64px;
-        height: 64px;
-        transform: translate(-50%, -50%);
-        border-radius: 999px;
-        background: radial-gradient(circle, rgba(92, 153, 255, var(--xeokit-glow-alpha)) 0%, rgba(92, 153, 255, 0.06) 55%, rgba(92, 153, 255, 0) 72%);
-        filter: blur(6px);
-        animation: xeokit-pulse 1.8s ease-in-out infinite;
-        pointer-events: none;
-      }
-
-      .xeokit-orbit-ring {
-        position: absolute;
-        inset: 50% auto auto 50%;
-        width: 74px;
-        height: 74px;
-        transform: translate(-50%, -50%) rotateX(70deg);
-        border-radius: 999px;
-        border: 1px solid rgba(120, 170, 255, 0.4);
-        box-shadow: 0 0 14px rgba(90, 150, 255, 0.15);
-        animation: xeokit-ring-spin 2.8s linear infinite;
-      }
-
-      .xeokit-orbit-ring::before,
-      .xeokit-orbit-ring::after {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        border-radius: 999px;
-        border: 1px solid rgba(120, 170, 255, 0.18);
-      }
-
-      .xeokit-orbit-ring::before {
-        transform: rotate(60deg);
-      }
-
-      .xeokit-orbit-ring::after {
-        transform: rotate(120deg);
-      }
-
-      .xeokit-cube {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 34px;
-        height: 34px;
-        transform-style: preserve-3d;
-        transform: translate(-50%, -50%) rotateX(-24deg) rotateY(35deg);
-        animation: xeokit-cube-spin 2.2s cubic-bezier(.65,.05,.36,1) infinite;
-      }
-
-      .xeokit-cube-face {
-        position: absolute;
-        width: 34px;
-        height: 34px;
-        box-sizing: border-box;
-        border: 1px solid rgba(168, 206, 255, 0.55);
-        background:
-          linear-gradient(135deg, rgba(95, 155, 255, 0.22), rgba(95, 155, 255, 0.04));
-        box-shadow:
-          inset 0 0 12px rgba(110, 170, 255, 0.12),
-          0 0 10px rgba(80, 140, 255, 0.08);
-        backdrop-filter: blur(2px);
-      }
-
-      .xeokit-cube-face::after {
-        content: "";
-        position: absolute;
-        inset: 5px;
-        border: 1px solid rgba(180, 220, 255, 0.22);
-      }
-
-      .xeokit-cube-face-front  { transform: translateZ(17px); }
-      .xeokit-cube-face-back   { transform: rotateY(180deg) translateZ(17px); }
-      .xeokit-cube-face-right  { transform: rotateY(90deg) translateZ(17px); }
-      .xeokit-cube-face-left   { transform: rotateY(-90deg) translateZ(17px); }
-      .xeokit-cube-face-top    { transform: rotateX(90deg) translateZ(17px); }
-      .xeokit-cube-face-bottom { transform: rotateX(-90deg) translateZ(17px); }
 
       .xeokit-loading-text {
         font-size: 15px;
@@ -250895,6 +254716,68 @@ var LoadingSpinner = class _LoadingSpinner {
         color: rgba(225, 234, 255, 0.72);
         margin-bottom: 12px;
         min-height: 17px;
+      }
+
+      .xeokit-loading-log {
+        height: 116px;
+        margin: 0 0 12px;
+        padding: 9px 10px;
+        overflow: hidden auto;
+        border-radius: 8px;
+        background: rgba(4, 8, 18, 0.58);
+        border: 1px solid rgba(145, 176, 230, 0.18);
+        box-shadow: inset 0 1px 8px rgba(0, 0, 0, 0.22);
+        text-align: left;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(150, 180, 235, 0.48) transparent;
+      }
+
+      .xeokit-loading-log::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .xeokit-loading-log::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .xeokit-loading-log::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(150, 180, 235, 0.42);
+      }
+
+      .xeokit-loading-log-entry {
+        position: relative;
+        min-height: 17px;
+        padding: 2px 0 2px 16px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 1.35;
+        color: rgba(224, 234, 255, 0.74);
+      }
+
+      .xeokit-loading-log-entry::before {
+        content: "";
+        position: absolute;
+        top: 9px;
+        left: 3px;
+        width: 5px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(135, 178, 255, 0.44);
+      }
+
+      .xeokit-loading-log-entry:last-child {
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .xeokit-loading-log-entry:last-child::before {
+        background: #7db6ff;
+        box-shadow: 0 0 8px rgba(125, 182, 255, 0.55);
       }
 
       .xeokit-loading-progress-track {
@@ -250915,43 +254798,6 @@ var LoadingSpinner = class _LoadingSpinner {
         transition: width 160ms ease;
       }
 
-      @keyframes xeokit-cube-spin {
-        0% {
-          transform: translate(-50%, -50%) rotateX(-24deg) rotateY(0deg) rotateZ(0deg);
-        }
-        25% {
-          transform: translate(-50%, -50%) rotateX(56deg) rotateY(90deg) rotateZ(8deg);
-        }
-        50% {
-          transform: translate(-50%, -50%) rotateX(156deg) rotateY(180deg) rotateZ(0deg);
-        }
-        75% {
-          transform: translate(-50%, -50%) rotateX(236deg) rotateY(270deg) rotateZ(-8deg);
-        }
-        100% {
-          transform: translate(-50%, -50%) rotateX(336deg) rotateY(360deg) rotateZ(0deg);
-        }
-      }
-
-      @keyframes xeokit-ring-spin {
-        from {
-          transform: translate(-50%, -50%) rotateX(70deg) rotateZ(0deg);
-        }
-        to {
-          transform: translate(-50%, -50%) rotateX(70deg) rotateZ(360deg);
-        }
-      }
-
-      @keyframes xeokit-pulse {
-        0%, 100% {
-          transform: translate(-50%, -50%) scale(0.92);
-          opacity: 0.72;
-        }
-        50% {
-          transform: translate(-50%, -50%) scale(1.08);
-          opacity: 1;
-        }
-      }
     `;
     document.head.appendChild(style);
   }
@@ -251025,7 +254871,11 @@ var ViewManager3 = class _ViewManager {
   createView(viewParams = {}) {
     const floatingOpt = viewParams.floating;
     const wantsFloating = floatingOpt === true || typeof floatingOpt === "object" && floatingOpt !== null;
-    const { floating: _drop, ...sdkViewParams } = viewParams;
+    const {
+      adaptiveQuality: _dropAdaptiveQuality,
+      floating: _dropFloating,
+      ...sdkViewParams
+    } = viewParams;
     const resolvedViewParams = {
       id: sdkViewParams.id || createUUID(),
       backgroundColor: [0, 0, 0],
@@ -251114,7 +254964,7 @@ var ViewManager3 = class _ViewManager {
       })
     };
     this.views[view.id] = record;
-    this.hooks.onViewCreated?.(view, record);
+    this.hooks.onViewCreated?.(view, record, viewParams);
     return view;
   }
   /**
@@ -251919,7 +255769,7 @@ var Studio = class _Studio {
       {
         // Studio layers context-menu setup + IBL on top of the
         // bare View record the manager produces.
-        onViewCreated: (view, record) => this._onViewCreated(view, record)
+        onViewCreated: (view, record, params) => this._onViewCreated(view, record, params)
       },
       {
         maxViews: merged.maxViews ?? 4,
@@ -252027,6 +255877,7 @@ var Studio = class _Studio {
    *
    * Supported formats:
    * - `"xgf"` → {@link XGFLoader} (binary)
+   * - `"xgfstream"` → XGF Stream index JSON plus referenced XGF chunks
    * - `"ifc"` → {@link IFCLoader} (binary)
    * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
    * - `"fbx"` → {@link FBXLoader} (binary, `.fbx`)
@@ -252164,7 +256015,7 @@ var Studio = class _Studio {
    * its ViewController — layers on the right-click context menus
    * and the procedurally-generated HDR sky.
    */
-  _onViewCreated(view, record) {
+  _onViewCreated(view, record, params) {
     const { cameraFlight } = record;
     const tryPick = (e) => {
       const rect = view.htmlElement.getBoundingClientRect();
@@ -252217,7 +256068,15 @@ var Studio = class _Studio {
     if (hdrResult.ok === false) {
       this.reportWarning(`[Studio] HDR sky setup failed: ${hdrResult.error}`);
     }
-    new AdaptiveQuality({ view });
+    const adaptiveQuality = params.adaptiveQuality;
+    if (adaptiveQuality !== false) {
+      const adaptiveQualityParams = adaptiveQuality && typeof adaptiveQuality === "object" ? adaptiveQuality : {};
+      new AdaptiveQuality({
+        view,
+        restMode: view.renderMode,
+        ...adaptiveQualityParams
+      });
+    }
   }
   /**
    * Destroys both the {@link model!scene.SceneModel | SceneModel} and the {@link model!data.DataModel | DataModel}

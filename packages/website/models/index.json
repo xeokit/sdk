@@ -16,6 +16,15 @@
     },
     "formats": ["dwg", "pdf"]
   },
+  "BakuStadium": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgfstream"],
+    "dataset": ["xgfstream"]
+  },
   "BlenderHouse": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],

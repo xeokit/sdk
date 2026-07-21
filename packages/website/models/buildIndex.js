@@ -23,7 +23,8 @@ const DATASET_COMBINATIONS = {
   "ifc": ["ifc"],
   "laz": ["laz"],
   "dotbim": ["dotbim"],
-  "usdz": ["usdz"]
+  "usdz": ["usdz"],
+  "xgfstream": ["xgfstream"]
 };
 
 async function findModelFiles(dir) {
@@ -129,6 +130,9 @@ async function buildIndex() {
       const formatDir = path.join(modelDir, formatName);
 
       const modelFiles = await findModelFiles(formatDir);
+      if (formatName === "xgfstream" && await hasXGFStreamIndex(formatDir)) {
+        modelFiles.push(path.join(formatDir, "index.runtime.json"));
+      }
       if (modelFiles.length > 0) {
         formatNames.push(formatName);
       }
@@ -153,6 +157,18 @@ async function buildIndex() {
 
   await fs.writeFile(OUTPUT_FILE, stringifyWithInlineArrays(index));
   console.log(`Model index written to ${OUTPUT_FILE}`);
+}
+
+async function hasXGFStreamIndex(formatDir) {
+  for (const fileName of ["index.runtime.json", "index.json"]) {
+    try {
+      await fs.access(path.join(formatDir, fileName));
+      return true;
+    } catch (e) {
+      // Try the next conventional stream index name.
+    }
+  }
+  return false;
 }
 
 buildIndex().catch(err => {

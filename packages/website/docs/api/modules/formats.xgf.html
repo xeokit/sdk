@@ -63,7 +63,7 @@ classDiagram
     direction TB
     class XGFLoader {
       +format : &quot;XGF&quot;
-      +version : &quot;1.0.0&quot;
+      +versions : &quot;1&quot;, &quot;2&quot;
       +load(params, options?) Promise~void~
     }
     class XGFExporter {
@@ -82,7 +82,7 @@ classDiagram
     direction TB
     class XGFLoader {
       +format : &quot;XGF&quot;
-      +version : &quot;1.0.0&quot;
+      +versions : &quot;1&quot;, &quot;2&quot;
       +load(params, options?) Promise~void~
     }
     class XGFExporter {
@@ -100,7 +100,7 @@ classDiagram
     direction TB
     class XGFLoader {
       +format : &quot;XGF&quot;
-      +version : &quot;1.0.0&quot;
+      +versions : &quot;1&quot;, &quot;2&quot;
       +load(params, options?) Promise~void~
     }
     class XGFExporter {
@@ -123,16 +123,14 @@ smaller than equivalent glTF, ~10× faster to load.</li>
 per-vertex colours, PBR materials with textures (and colour-space
 encoding), per-material <code>triplanarScale</code> for world-projected
 texturing, and 3D Gaussian Splatting geometry.</li>
+<li><strong>Transform hierarchies</strong> — XGF v2 preserves SceneTransform trees and
+mesh parent-transform links.</li>
 <li><strong>Quantised positions</strong> — vertex positions stored as 16-bit
 integers against per-geometry AABBs; no precision loss for
 typical model scales.</li>
 <li><strong>Octahedron-encoded normals</strong> — 2-byte normals via oct
 encoding, decoded in the vertex shader.</li>
-<li><strong>Pairs naturally with DataModel JSON</strong> — geometry chunks in
-<code>.xgf</code> + semantic chunks in <code>.json</code> form the canonical
-xeokit streamed-model payload.</li>
 </ul>
-<hr>
 <a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>
 </code><button type="button">Copy</button></pre>
 

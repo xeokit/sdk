@@ -1,4 +1,5 @@
-import {encode} from "./versions/v1/encode";
+import {encode as encodeV1} from "./versions/v1/encode";
+import {encode as encodeV2} from "./versions/v2/encode";
 import {ModelExporter} from "../ModelExporter";
 
 /**
@@ -18,9 +19,10 @@ export class XGFExporter extends ModelExporter {
       format: "XGF",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0.0": encode
+        "1.0.0": encodeV1,
+        "2.0.0": encodeV2
       },
-      defaultVersion: "1.0.0"
+      defaultVersion: "2.0.0"
     });
   }
 }

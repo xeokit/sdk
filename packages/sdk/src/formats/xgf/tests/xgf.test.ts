@@ -2,8 +2,21 @@ import {encode} from "../versions/v1/encode";
 import {parse} from "../versions/v1/parse";
 
 import {GaussianSplatsPrimitive, TrianglesPrimitive} from "../../../base/constants";
+import {SDKErrorType} from "../../../base/core";
 import {Scene} from "../../../model/scene/Scene";
 import {XGFExporter} from "../XGFExporter";
+import {XGFLoader} from "../XGFLoader";
+import {XGFStreamExporter} from "../../xgfstream/XGFStreamExporter";
+import {XGFStreamingExporter} from "../../xgfstream/XGFStreamingExporter";
+import {XGFStreamingLoader} from "../../xgfstream/XGFStreamingLoader";
+import {createXGFManifest} from "../../xgfstream/XGFManifest";
+import {readXGFChunkManifest} from "../../xgfstream/manifest/readXGFChunkManifest";
+import {writeXGFChunkManifest} from "../../xgfstream/manifest/writeXGFChunkManifest";
+import {readXGFStreamingIndex} from "../../xgfstream/index/readXGFStreamingIndex";
+import {writeXGFStreamingIndex} from "../../xgfstream/index/writeXGFStreamingIndex";
+import {readXGFStreamingRuntimeIndex} from "../../xgfstream/index/readXGFStreamingRuntimeIndex";
+import {writeXGFStreamingRuntimeIndex} from "../../xgfstream/index/writeXGFStreamingRuntimeIndex";
+import {createXGFStreamingIndexLookup} from "../../xgfstream/index/createXGFStreamingIndexLookup";
 
 // A unit quad (2 triangles) in the XY plane, positions pre-quantised to the
 // uint16 range the SceneGeometry stores. The exact dequantised values don't
@@ -89,18 +102,27 @@ function buildSplatSource() {
 
 // Capturing stubs standing in for a destination SceneModel / DataModel.
 function makeCapturingScene() {
-  const calls: {geom: any[]; mesh: any[]; object: any[]} = {geom: [], mesh: [], object: []};
+  const calls: {geom: any[]; material: any[]; mesh: any[]; object: any[]} = {geom: [], material: [], mesh: [], object: []};
   const sceneModel: any = {
     id: "destModel",
     geometries: {} as Record<string, any>,
+    materials: {} as Record<string, any>,
     createGeometryCompressed: (p: any) => {
       calls.geom.push(p);
       sceneModel.geometries[p.id] = p;
+      return {ok: true, value: p};
     },
-    createMesh: (p: any) => calls.mesh.push(p),
+    createMesh: (p: any) => {
+      calls.mesh.push(p);
+      return {ok: true, value: p};
+    },
     createObject: (p: any) => calls.object.push(p),
     createTexture: () => {},
-    createMaterial: () => {},
+    createMaterial: (p: any) => {
+      calls.material.push(p);
+      sceneModel.materials[p.id] = p;
+      return {ok: true, value: p};
+    },
   };
   return {sceneModel, calls};
 }
@@ -217,8 +239,8 @@ describe("xgf", () => {
   describe("XGFExporter", () => {
 
     // Real Scene/SceneModel here (not the encoder stubs) so the test exercises
-    // the exporter end-to-end. Every model — triangles or splats — is
-    // written as version 1.
+    // the exporter end-to-end. The default exporter writes v2; v1 remains
+    // explicitly available for compatibility.
     const versionTag = (buffer: ArrayBuffer) => new DataView(buffer).getUint32(0, true);
 
     function realSplatModel() {
@@ -247,14 +269,1184 @@ describe("xgf", () => {
       return sceneModel;
     }
 
-    it("writes version 1 for a triangle model", async () => {
+    it("writes version 2 for a triangle model by default", async () => {
       const buffer = await new XGFExporter().write({sceneModel: realTriangleModel()});
+      expect(versionTag(buffer)).toBe(2);
+    });
+
+    it("still writes version 1 when requested", async () => {
+      const buffer = await new XGFExporter().write({sceneModel: realTriangleModel(), version: "1.0.0"});
       expect(versionTag(buffer)).toBe(1);
     });
 
-    it("writes version 1 for a splat model (splat geometry survives)", async () => {
+    it("writes version 2 for a splat model (splat geometry survives)", async () => {
       const buffer = await new XGFExporter().write({sceneModel: realSplatModel()});
-      expect(versionTag(buffer)).toBe(1);
+      expect(versionTag(buffer)).toBe(2);
+    });
+
+    it("falls back to full v2 output for unsupported assetMode values", async () => {
+      const src = realTriangleModel();
+
+      const buffer = await new XGFExporter().write(
+        {sceneModel: src},
+        {assetMode: "bad-mode"} as any
+      );
+
+      expect(versionTag(buffer)).toBe(2);
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      await new XGFLoader().load({fileData: buffer, sceneModel: dst});
+
+      expect(dst.geometries["t"]).toBeDefined();
+      expect(dst.meshes["0"].geometry.id).toBe("t");
+      expect(dst.objects["obj"]).toBeDefined();
+    });
+
+    it("loads v2 binary string refs when the table starts with a JSON-looking byte", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      for (let i = 0; i < 123; i++) {
+        const meshId = `mesh-${i}`;
+        const objectId = `object-${String(i).padStart(3, "0")}`;
+        src.createMesh({id: meshId, geometryId: "shared-geom"});
+        src.createObject({id: objectId, meshIds: [meshId]});
+      }
+
+      const buffer = await new XGFExporter().write({sceneModel: src});
+      const dst = new Scene().createModel({id: "dst"}).value!;
+
+      await expect(new XGFLoader().load({fileData: buffer, sceneModel: dst}))
+        .resolves.toBeUndefined();
+
+      expect(Object.keys(dst.objects)).toHaveLength(123);
+      expect(dst.objects["object-122"]).toBeDefined();
+    });
+
+    it("loads v2 asset-library and references-only chunks into one SceneModel", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const assetLibrary = await exporter.write(
+        {sceneModel: src},
+        {assetMode: "assetLibrary"}
+      );
+      const referencesOnly = await exporter.write(
+        {sceneModel: src},
+        {assetMode: "referencesOnly"}
+      );
+
+      expect(versionTag(assetLibrary)).toBe(2);
+      expect(versionTag(referencesOnly)).toBe(2);
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loader = new XGFLoader();
+
+      await loader.load({fileData: assetLibrary, sceneModel: dst});
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+      expect(dst.materials["shared-mat"]).toBeDefined();
+      expect(Object.keys(dst.meshes)).toHaveLength(0);
+
+      await loader.load({fileData: referencesOnly, sceneModel: dst});
+      expect(Object.keys(dst.geometries)).toEqual(["shared-geom"]);
+      expect(dst.meshes["0"].geometry.id).toBe("shared-geom");
+      expect(dst.meshes["0"].material?.id).toBe("shared-mat");
+      expect(dst.objects["obj"]).toBeDefined();
+    });
+
+    it("writes an XGF Stream file map through the ModelExporter contract", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const output = await new XGFStreamExporter().write(
+        {sceneModel: src},
+        {
+          chunkSize: 1,
+          runtimeIndex: "index.runtime.json"
+        }
+      );
+
+      expect(output.files["index.json"]).toBeDefined();
+      expect(output.files["index.runtime.json"]).toBeDefined();
+      expect(output.files["chunks/assets.xgf"]).toBeInstanceOf(ArrayBuffer);
+      const referencesOnlyChunk = output.index.chunks.find((manifest: any) => manifest.role === "referencesOnly");
+      expect(referencesOnlyChunk?.id).toMatch(/^chunk-00000-x[+-]?\d+-y[+-]?\d+-z[+-]?\d+$/);
+      expect(output.files[referencesOnlyChunk!.uri]).toBeInstanceOf(ArrayBuffer);
+      expect(output.index.chunks.map((manifest: any) => manifest.role).sort()).toEqual(["assetLibrary", "referencesOnly"]);
+    });
+
+    it("creates v2 asset-library chunk manifests", () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const manifest = createXGFManifest(
+        {sceneModel: src},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary", priority: 5}
+      );
+
+      expect(manifest).toMatchObject({
+        format: "XGF",
+        manifestVersion: "1.0.0",
+        xgfVersion: "2.0.0",
+        id: "lib-a",
+        uri: "lib-a.xgf",
+        role: "assetLibrary",
+        priority: 5,
+        assets: {
+          geometries: ["shared-geom"],
+          materials: ["shared-mat"],
+          textures: []
+        },
+        dependencies: {
+          chunks: [],
+          geometries: [],
+          materials: [],
+          textures: []
+        },
+        counts: {
+          transforms: 0,
+          geometries: 1,
+          materials: 1,
+          textures: 0,
+          meshes: 0,
+          objects: 0
+        }
+      });
+      expect(manifest.aabb).toEqual([0, 0, 0, 1, 1, 0]);
+    });
+
+    it("creates v2 references-only chunk manifests with asset dependencies and bounds", () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({
+        id: "mesh",
+        geometryId: "shared-geom",
+        materialId: "shared-mat",
+        matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 6, 7, 1] as any,
+      });
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const manifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a", uri: "lib-a.xgf"}],
+          lod: 2
+        }
+      );
+
+      expect(manifest).toMatchObject({
+        id: "tile-a",
+        uri: "tile-a.xgf",
+        role: "referencesOnly",
+        lod: 2,
+        assets: {
+          geometries: [],
+          materials: [],
+          textures: []
+        },
+        dependencies: {
+          chunks: [{id: "lib-a", uri: "lib-a.xgf"}],
+          geometries: ["shared-geom"],
+          materials: ["shared-mat"],
+          textures: []
+        },
+        counts: {
+          transforms: 0,
+          geometries: 0,
+          materials: 0,
+          textures: 0,
+          meshes: 1,
+          objects: 1
+        }
+      });
+      expect(manifest.aabb).toEqual([5, 6, 7, 6, 7, 7]);
+    });
+
+    it("writes and reads v2 chunk manifest JSON", () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMesh({id: "mesh", geometryId: "shared-geom"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const manifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a"}],
+          priority: 3,
+          lod: "medium"
+        }
+      );
+      const json = writeXGFChunkManifest(manifest);
+      manifest.dependencies.chunks.push({id: "later"});
+
+      const result = readXGFChunkManifest(json);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toMatchObject({
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          role: "referencesOnly",
+          priority: 3,
+          lod: "medium",
+          dependencies: {
+            chunks: [{id: "lib-a"}],
+            geometries: ["shared-geom"],
+            materials: [],
+            textures: []
+          }
+        });
+      }
+    });
+
+    it("rejects invalid v2 chunk manifest JSON", () => {
+      const result = readXGFChunkManifest({
+        format: "XGF",
+        manifestVersion: "1.0.0",
+        xgfVersion: "2.0.0",
+        id: "tile-a",
+        role: "referencesOnly",
+        dependencies: {
+          chunks: [{id: "lib-a"}],
+          geometries: ["shared-geom"],
+          materials: [],
+          textures: []
+        },
+        assets: {
+          geometries: [],
+          materials: [],
+          textures: []
+        },
+        counts: {
+          transforms: 0,
+          geometries: 0,
+          materials: 0,
+          textures: 0,
+          meshes: -1,
+          objects: 1
+        }
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.type).toBe(SDKErrorType.InvalidInput);
+        expect(result.error).toContain("meshes must be a non-negative integer");
+      }
+    });
+
+    it("writes and reads v2 streaming index JSON", () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMesh({id: "mesh", geometryId: "shared-geom"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const libraryManifest = createXGFManifest(
+        {sceneModel: src},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary"}
+      );
+      const chunkManifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a"}],
+          lod: 1
+        }
+      );
+      const index = {
+        format: "XGFStreamingIndex" as const,
+        indexVersion: "1.0.0" as const,
+        chunks: [libraryManifest, chunkManifest],
+        rootChunkIds: ["tile-a"],
+        aabb: [0, 0, 0, 1, 1, 0],
+        metadata: {name: "test-index"}
+      };
+      const json = writeXGFStreamingIndex(index);
+      index.chunks.length = 0;
+
+      const result = readXGFStreamingIndex(json);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.chunks.map(chunk => chunk.id)).toEqual(["lib-a", "tile-a"]);
+        expect(result.value.rootChunkIds).toEqual(["tile-a"]);
+        expect(result.value.metadata).toEqual({name: "test-index"});
+      }
+    });
+
+    it("writes and reads compact v2 runtime streaming indexes", () => {
+      const exporter = new XGFExporter();
+      const libraryManifest = createXGFManifest(
+        {sceneModel: realTriangleModel()},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary"}
+      );
+      const chunkManifest = createXGFManifest(
+        {sceneModel: realTriangleModel()},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a", uri: "lib-a.xgf"}],
+          priority: 7,
+          lod: "fine"
+        }
+      );
+      const runtime = writeXGFStreamingRuntimeIndex({
+        format: "XGFStreamingIndex",
+        indexVersion: "1.0.0",
+        chunks: [libraryManifest, chunkManifest],
+        rootChunkIds: ["tile-a"],
+        aabb: [0, 0, 0, 1, 1, 1]
+      });
+
+      expect(runtime.format).toBe("XGFStreamingRuntimeIndex");
+      expect(runtime.chunks[1][0]).toBe("tile-a");
+      expect(runtime.chunks[1][3]).toEqual([["lib-a", "lib-a.xgf"]]);
+
+      const result = readXGFStreamingRuntimeIndex(runtime);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.rootChunkIds).toEqual(["tile-a"]);
+        expect(result.value.chunks[1].id).toBe("tile-a");
+        expect(result.value.chunks[1].uri).toBe("tile-a.xgf");
+        expect(result.value.chunks[1].dependencies.chunks).toEqual([{id: "lib-a", uri: "lib-a.xgf"}]);
+        expect(result.value.chunks[1].priority).toBe(7);
+        expect(result.value.chunks[1].lod).toBe("fine");
+        expect(result.value.chunks[1].assets.geometries).toEqual([]);
+      }
+    });
+
+    it("rejects invalid v2 streaming index JSON", () => {
+      const manifest = createXGFManifest(
+        {sceneModel: realTriangleModel()},
+        {id: "tile-a", assetMode: "full"}
+      );
+
+      const result = readXGFStreamingIndex({
+        format: "XGFStreamingIndex",
+        indexVersion: "1.0.0",
+        chunks: [manifest],
+        rootChunkIds: ["missing-tile"]
+      });
+
+      expect(result.ok).toBe(false);
+      if (result.ok === false) {
+        expect(result.type).toBe(SDKErrorType.InvalidInput);
+        expect(result.error).toContain("rootChunkIds references missing chunk 'missing-tile'");
+      }
+    });
+
+    it("creates lookup maps for v2 streaming indexes", () => {
+      const exporter = new XGFExporter();
+      const libraryManifest = createXGFManifest(
+        {sceneModel: realTriangleModel()},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary"}
+      );
+      const chunkManifest = createXGFManifest(
+        {sceneModel: realTriangleModel()},
+        {id: "tile-a", uri: "tile-a.xgf", assetMode: "full"}
+      );
+
+      const lookup = createXGFStreamingIndexLookup({
+        format: "XGFStreamingIndex",
+        indexVersion: "1.0.0",
+        chunks: [libraryManifest, chunkManifest]
+      });
+
+      expect(lookup.byId["lib-a"]).toBe(libraryManifest);
+      expect(lookup.byUri["tile-a.xgf"]).toBe(chunkManifest);
+      expect(lookup.get({id: "lib-a"})).toBe(libraryManifest);
+      expect(lookup.get({uri: "tile-a.xgf"})).toBe(chunkManifest);
+    });
+
+    it("loads v2 streaming chunks after declared dependency chunks", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const assetLibrary = await exporter.write({sceneModel: src}, {assetMode: "assetLibrary"});
+      const referencesOnly = await exporter.write({sceneModel: src}, {assetMode: "referencesOnly"});
+      const libraryManifest = createXGFManifest(
+        {sceneModel: src},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary"}
+      );
+      const chunkManifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a", uri: "lib-a.xgf"}]
+        }
+      );
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loadedChunks: string[] = [];
+      await new XGFStreamingLoader().loadChunk(
+        {manifest: chunkManifest, fileData: referencesOnly, sceneModel: dst},
+        {
+          manifests: [libraryManifest],
+          fileDataByChunkId: {"lib-a": assetLibrary},
+          onChunkLoaded: manifest => loadedChunks.push(manifest.id)
+        }
+      );
+
+      expect(loadedChunks).toEqual(["lib-a", "tile-a"]);
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+      expect(dst.materials["shared-mat"]).toBeDefined();
+      expect(dst.objects["obj"]).toBeDefined();
+      expect(dst.objects["obj"].meshes[0].id).toBe("tile-a/mesh/0");
+      expect(dst.objects["obj"].meshes[0].geometry.id).toBe("shared-geom");
+    });
+
+    it("loads v2 streaming chunks through an indexed manifest lookup", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMesh({id: "mesh", geometryId: "shared-geom"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const assetLibrary = await exporter.write({sceneModel: src}, {assetMode: "assetLibrary"});
+      const referencesOnly = await exporter.write({sceneModel: src}, {assetMode: "referencesOnly"});
+      const libraryManifest = createXGFManifest(
+        {sceneModel: src},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary"}
+      );
+      const chunkManifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a"}]
+        }
+      );
+      const lookup = createXGFStreamingIndexLookup({
+        format: "XGFStreamingIndex",
+        indexVersion: "1.0.0",
+        chunks: [libraryManifest, chunkManifest]
+      });
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      await new XGFStreamingLoader().loadChunk(
+        {manifest: chunkManifest, fileData: referencesOnly, sceneModel: dst},
+        {
+          manifests: lookup,
+          fileDataByChunkId: {"lib-a": assetLibrary}
+        }
+      );
+
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+      expect(dst.objects["obj"]).toBeDefined();
+      expect(dst.objects["obj"].meshes[0].id).toBe("tile-a/mesh/0");
+      expect(dst.objects["obj"].meshes[0].geometry.id).toBe("shared-geom");
+    });
+
+    it("exports v2 streaming chunks with object-derived and explicit library asset IDs", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createGeometry({
+        id: "extra-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 2, 0, 0, 0, 2, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMaterial({id: "extra-mat", color: [0.8, 0.7, 0.1]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exportResult = await new XGFStreamingExporter().write({
+        sceneModel: src,
+        assetLibraries: [{
+          id: "lib-a",
+          uri: "lib-a.xgf",
+          objectIds: ["obj"],
+          geometryIds: ["extra-geom"],
+          materialIds: ["extra-mat"]
+        }],
+        chunks: [{
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          objectIds: ["obj"],
+          assetLibraryIds: ["lib-a"]
+        }],
+        indexUri: "scene.index.json",
+        runtimeIndexUri: "scene.runtime.json"
+      });
+
+      expect(exportResult.ok).toBe(true);
+      if (exportResult.ok === false) {
+        return;
+      }
+
+      const {files, index, manifests} = exportResult.value;
+      expect(Object.keys(files).sort()).toEqual([
+        "lib-a.xgf",
+        "scene.index.json",
+        "scene.runtime.json",
+        "tile-a.xgf"
+      ]);
+      expect(index.rootChunkIds).toEqual(["tile-a"]);
+
+      const libraryManifest = manifests.find(manifest => manifest.id === "lib-a")!;
+      const chunkManifest = manifests.find(manifest => manifest.id === "tile-a")!;
+      expect(libraryManifest.role).toBe("assetLibrary");
+      expect(libraryManifest.assets.geometries).toEqual(expect.arrayContaining(["shared-geom", "extra-geom"]));
+      expect(libraryManifest.assets.materials).toEqual(expect.arrayContaining(["shared-mat", "extra-mat"]));
+      expect(chunkManifest.role).toBe("referencesOnly");
+      expect(chunkManifest.dependencies.chunks).toEqual([{id: "lib-a", uri: "lib-a.xgf"}]);
+      expect(chunkManifest.dependencies.geometries).toEqual(["shared-geom"]);
+      expect(chunkManifest.dependencies.materials).toEqual(["shared-mat"]);
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      await new XGFStreamingLoader().loadChunk(
+        {
+          manifest: chunkManifest,
+          fileData: files["tile-a.xgf"] as ArrayBuffer,
+          sceneModel: dst
+        },
+        {
+          manifests: createXGFStreamingIndexLookup(index),
+          fileDataByChunkId: {"lib-a": files["lib-a.xgf"] as ArrayBuffer}
+        }
+      );
+
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+      expect(dst.geometries["extra-geom"]).toBeDefined();
+      expect(dst.materials["shared-mat"]).toBeDefined();
+      expect(dst.materials["extra-mat"]).toBeDefined();
+      expect(dst.objects["obj"]).toBeDefined();
+      expect(dst.objects["obj"].meshes[0].id).toBe("tile-a/mesh/0");
+      expect(dst.objects["obj"].meshes[0].geometry.id).toBe("shared-geom");
+      expect(dst.objects["obj"].meshes[0].material?.id).toBe("shared-mat");
+
+      const runtimeIndexResult = readXGFStreamingRuntimeIndex(files["scene.runtime.json"]);
+      expect(runtimeIndexResult.ok).toBe(true);
+      if (runtimeIndexResult.ok === false) {
+        return;
+      }
+      const runtimeChunkManifest = runtimeIndexResult.value.chunks.find(manifest => manifest.id === "tile-a")!;
+      expect(runtimeChunkManifest.dependencies.geometries).toEqual([]);
+      const runtimeDst = new Scene().createModel({id: "runtime-dst"}).value!;
+      await new XGFStreamingLoader().loadChunk(
+        {
+          manifest: runtimeChunkManifest,
+          fileData: files["tile-a.xgf"] as ArrayBuffer,
+          sceneModel: runtimeDst
+        },
+        {
+          manifests: createXGFStreamingIndexLookup(runtimeIndexResult.value),
+          fileDataByChunkId: {"lib-a": files["lib-a.xgf"] as ArrayBuffer}
+        }
+      );
+
+      expect(runtimeDst.geometries["shared-geom"]).toBeDefined();
+      expect(runtimeDst.geometries["extra-geom"]).toBeDefined();
+      expect(runtimeDst.objects["obj"]).toBeDefined();
+      expect(runtimeDst.objects["obj"].meshes[0].id).toBe("tile-a/mesh/0");
+    });
+
+    it("loads multiple v2 references-only chunks without mesh id collisions", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh-a", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj-a", meshIds: ["mesh-a"]});
+      src.createMesh({
+        id: "mesh-b",
+        geometryId: "shared-geom",
+        materialId: "shared-mat",
+        matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 0, 0, 1] as any
+      });
+      src.createObject({id: "obj-b", meshIds: ["mesh-b"]});
+
+      const exportResult = await new XGFStreamingExporter().write({
+        sceneModel: src,
+        assetLibraries: [{
+          id: "lib-a",
+          uri: "lib-a.xgf",
+          objectIds: ["obj-a"]
+        }],
+        chunks: [
+          {id: "tile-a", uri: "tile-a.xgf", objectIds: ["obj-a"], assetLibraryIds: ["lib-a"]},
+          {id: "tile-b", uri: "tile-b.xgf", objectIds: ["obj-b"], assetLibraryIds: ["lib-a"]}
+        ]
+      });
+
+      expect(exportResult.ok).toBe(true);
+      if (exportResult.ok === false) {
+        return;
+      }
+
+      const {files, index, manifests} = exportResult.value;
+      const tileA = manifests.find(manifest => manifest.id === "tile-a")!;
+      const tileB = manifests.find(manifest => manifest.id === "tile-b")!;
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loader = new XGFStreamingLoader();
+      const options = {
+        manifests: createXGFStreamingIndexLookup(index),
+        fileDataByChunkId: {"lib-a": files["lib-a.xgf"] as ArrayBuffer}
+      };
+
+      await loader.loadChunk({manifest: tileA, fileData: files["tile-a.xgf"] as ArrayBuffer, sceneModel: dst}, options);
+      await loader.loadChunk({manifest: tileB, fileData: files["tile-b.xgf"] as ArrayBuffer, sceneModel: dst}, options);
+
+      expect(Object.keys(dst.meshes).sort()).toEqual(["tile-a/mesh/0", "tile-b/mesh/0"]);
+      expect(dst.objects["obj-a"]).toBeDefined();
+      expect(dst.objects["obj-b"]).toBeDefined();
+      expect(dst.objects["obj-a"].meshes[0]).toBe(dst.meshes["tile-a/mesh/0"]);
+      expect(dst.objects["obj-b"].meshes[0]).toBe(dst.meshes["tile-b/mesh/0"]);
+    });
+
+    it("batch-loads v2 chunks with shared dependency fetches de-duplicated", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh-a", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj-a", meshIds: ["mesh-a"]});
+      src.createMesh({
+        id: "mesh-b",
+        geometryId: "shared-geom",
+        materialId: "shared-mat",
+        matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 0, 0, 1] as any
+      });
+      src.createObject({id: "obj-b", meshIds: ["mesh-b"]});
+
+      const exportResult = await new XGFStreamingExporter().write({
+        sceneModel: src,
+        assetLibraries: [{
+          id: "lib-a",
+          uri: "lib-a.xgf",
+          objectIds: ["obj-a"]
+        }],
+        chunks: [
+          {id: "tile-a", uri: "tile-a.xgf", objectIds: ["obj-a"], assetLibraryIds: ["lib-a"]},
+          {id: "tile-b", uri: "tile-b.xgf", objectIds: ["obj-b"], assetLibraryIds: ["lib-a"]}
+        ]
+      });
+
+      expect(exportResult.ok).toBe(true);
+      if (exportResult.ok === false) {
+        return;
+      }
+
+      const {files, index, manifests} = exportResult.value;
+      const fetched: string[] = [];
+      const loaded: string[] = [];
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loader = new XGFStreamingLoader();
+      await loader.loadChunks(
+        {
+          manifests: manifests.filter(manifest => manifest.role === "referencesOnly"),
+          sceneModel: dst
+        },
+        {
+          manifests: createXGFStreamingIndexLookup(index),
+          fetchConcurrency: 2,
+          getFileData: async (manifest) => {
+            fetched.push(manifest.id);
+            return files[manifest.uri!] as ArrayBuffer;
+          },
+          onChunkLoaded: (manifest) => {
+            loaded.push(manifest.id);
+          }
+        }
+      );
+
+      expect(fetched.sort()).toEqual(["lib-a", "tile-a", "tile-b"]);
+      expect(loaded).toEqual(["lib-a", "tile-a", "tile-b"]);
+      expect(Object.keys(dst.meshes).sort()).toEqual(["tile-a/mesh/0", "tile-b/mesh/0"]);
+      expect(dst.objects["obj-a"]).toBeDefined();
+      expect(dst.objects["obj-b"]).toBeDefined();
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+    });
+
+    it("does not fetch file data for already-loaded v2 dependencies", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exportResult = await new XGFStreamingExporter().write({
+        sceneModel: src,
+        assetLibraries: [{
+          id: "lib-a",
+          uri: "lib-a.xgf",
+          objectIds: ["obj"]
+        }],
+        chunks: [{
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          objectIds: ["obj"],
+          assetLibraryIds: ["lib-a"]
+        }]
+      });
+
+      expect(exportResult.ok).toBe(true);
+      if (exportResult.ok === false) {
+        return;
+      }
+
+      const {files, index, manifests} = exportResult.value;
+      const library = manifests.find(manifest => manifest.id === "lib-a")!;
+      const tile = manifests.find(manifest => manifest.id === "tile-a")!;
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loader = new XGFStreamingLoader();
+      const options = {
+        manifests: createXGFStreamingIndexLookup(index),
+        getFileData: async (manifest: any) => {
+          throw new Error(`unexpected dependency fetch for ${manifest.id}`);
+        }
+      };
+
+      await loader.loadChunk({manifest: library, fileData: files["lib-a.xgf"] as ArrayBuffer, sceneModel: dst}, options);
+      await loader.loadChunk({manifest: tile, fileData: files["tile-a.xgf"] as ArrayBuffer, sceneModel: dst}, options);
+
+      expect(dst.objects["obj"]).toBeDefined();
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+    });
+
+    it("coalesces concurrent loads of the same v2 streaming chunk", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exportResult = await new XGFStreamingExporter().write({
+        sceneModel: src,
+        assetLibraries: [{
+          id: "lib-a",
+          uri: "lib-a.xgf",
+          objectIds: ["obj"]
+        }],
+        chunks: [{
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          objectIds: ["obj"],
+          assetLibraryIds: ["lib-a"]
+        }]
+      });
+
+      expect(exportResult.ok).toBe(true);
+      if (exportResult.ok === false) {
+        return;
+      }
+
+      const {files, index, manifests} = exportResult.value;
+      const tile = manifests.find(manifest => manifest.id === "tile-a")!;
+      const scene = new Scene();
+      const errors: any[] = [];
+      scene.events.onError.subscribe((_scene, error) => errors.push(error));
+      const dst = scene.createModel({id: "dst"}).value!;
+      const fetched: string[] = [];
+      const loaded: string[] = [];
+      const loader = new XGFStreamingLoader();
+      const options = {
+        manifests: createXGFStreamingIndexLookup(index),
+        getFileData: async (manifest: any) => {
+          fetched.push(manifest.id);
+          await new Promise(resolve => setTimeout(resolve, 5));
+          return files[manifest.uri] as ArrayBuffer;
+        },
+        onChunkLoaded: (manifest: any) => loaded.push(manifest.id)
+      };
+
+      await Promise.all([
+        loader.loadChunk({manifest: tile, sceneModel: dst}, options),
+        loader.loadChunk({manifest: tile, sceneModel: dst}, options)
+      ]);
+
+      expect(fetched.sort()).toEqual(["lib-a", "tile-a"]);
+      expect(loaded).toEqual(["lib-a", "tile-a"]);
+      expect(errors).toHaveLength(0);
+      expect(Object.keys(dst.meshes)).toEqual(["tile-a/mesh/0"]);
+      expect(dst.objects["obj"]).toBeDefined();
+      expect(dst.objects["obj"].meshes[0]).toBe(dst.meshes["tile-a/mesh/0"]);
+    });
+
+    it("serializes concurrent v2 streaming chunk applies into one SceneModel", async () => {
+      const scene = new Scene();
+      const errors: any[] = [];
+      scene.events.onError.subscribe((_scene, error) => errors.push(error));
+      const dst = scene.createModel({id: "dst"}).value!;
+      dst.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+
+      const xgfLoader = {
+        load: async ({sceneModel}: any) => {
+          let nextMeshId = 0;
+          while (sceneModel.meshes[`${nextMeshId}`]) {
+            nextMeshId++;
+          }
+          await new Promise(resolve => setTimeout(resolve, 5));
+          const meshId = `${nextMeshId}`;
+          sceneModel.createMesh({id: meshId, geometryId: "shared-geom"});
+          sceneModel.createObject({id: `obj-${meshId}`, meshIds: [meshId]});
+        }
+      };
+      const loader = new XGFStreamingLoader({xgfLoader: xgfLoader as any});
+      const manifestA = createXGFManifest(
+        {sceneModel: dst},
+        {id: "tile-a", uri: "tile-a.xgf", assetMode: "full"}
+      );
+      const manifestB = createXGFManifest(
+        {sceneModel: dst},
+        {id: "tile-b", uri: "tile-b.xgf", assetMode: "full"}
+      );
+      const fileData = new ArrayBuffer(1);
+
+      await Promise.all([
+        loader.loadChunk({manifest: manifestA, fileData, sceneModel: dst}),
+        loader.loadChunk({manifest: manifestB, fileData, sceneModel: dst})
+      ]);
+
+      expect(errors).toHaveLength(0);
+      expect(Object.keys(dst.meshes).sort()).toEqual(["0", "1"]);
+      expect(dst.objects["obj-0"]).toBeDefined();
+      expect(dst.objects["obj-1"]).toBeDefined();
+    });
+
+    it("unloads v2 references-only chunks without destroying shared assets", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const assetLibrary = await exporter.write({sceneModel: src}, {assetMode: "assetLibrary"});
+      const referencesOnly = await exporter.write({sceneModel: src}, {assetMode: "referencesOnly"});
+      const libraryManifest = createXGFManifest(
+        {sceneModel: src},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary"}
+      );
+      const chunkManifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a", uri: "lib-a.xgf"}]
+        }
+      );
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loader = new XGFStreamingLoader();
+      await loader.loadChunk(
+        {manifest: chunkManifest, fileData: referencesOnly, sceneModel: dst},
+        {
+          manifests: [libraryManifest],
+          fileDataByChunkId: {"lib-a": assetLibrary}
+        }
+      );
+
+      const unloadResult = loader.unloadChunk({sceneModel: dst, chunkId: "tile-a"});
+
+      expect(unloadResult.ok).toBe(true);
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+      expect(dst.materials["shared-mat"]).toBeDefined();
+      expect(Object.keys(dst.meshes)).toHaveLength(0);
+      expect(Object.keys(dst.objects)).toHaveLength(0);
+    });
+
+    it("refuses to unload v2 asset libraries while loaded chunks reference them", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const assetLibrary = await exporter.write({sceneModel: src}, {assetMode: "assetLibrary"});
+      const referencesOnly = await exporter.write({sceneModel: src}, {assetMode: "referencesOnly"});
+      const libraryManifest = createXGFManifest(
+        {sceneModel: src},
+        {id: "lib-a", uri: "lib-a.xgf", assetMode: "assetLibrary"}
+      );
+      const chunkManifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          uri: "tile-a.xgf",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "lib-a", uri: "lib-a.xgf"}]
+        }
+      );
+
+      const scene = new Scene();
+      const errors: any[] = [];
+      scene.events.onError.subscribe((_scene, error) => errors.push(error));
+      const dst = scene.createModel({id: "dst"}).value!;
+      const loader = new XGFStreamingLoader();
+      await loader.loadChunk(
+        {manifest: chunkManifest, fileData: referencesOnly, sceneModel: dst},
+        {
+          manifests: [libraryManifest],
+          fileDataByChunkId: {"lib-a": assetLibrary}
+        }
+      );
+
+      const blocked = loader.unloadChunk({sceneModel: dst, chunkId: "lib-a"});
+      expect(blocked.ok).toBe(false);
+      if (blocked.ok === false) {
+        expect(blocked.type).toBe(SDKErrorType.InvalidOperation);
+        expect(blocked.error).toContain("geometry:shared-geom");
+      }
+      expect(dst.geometries["shared-geom"]).toBeDefined();
+
+      expect(loader.unloadChunk({sceneModel: dst, chunkId: "tile-a"}).ok).toBe(true);
+      expect(loader.unloadChunk({sceneModel: dst, chunkId: "lib-a"}).ok).toBe(true);
+      expect(dst.geometries["shared-geom"]).toBeUndefined();
+      expect(dst.materials["shared-mat"]).toBeUndefined();
+      expect(errors).toHaveLength(1);
+    });
+
+    it("logs invalid input when a streaming chunk dependency cannot be resolved", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMesh({id: "mesh", geometryId: "shared-geom"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const referencesOnly = await exporter.write({sceneModel: src}, {assetMode: "referencesOnly"});
+      const chunkManifest = createXGFManifest(
+        {sceneModel: src},
+        {
+          id: "tile-a",
+          assetMode: "referencesOnly",
+          dependencies: [{id: "missing-lib"}]
+        }
+      );
+
+      const scene = new Scene();
+      const errors: any[] = [];
+      scene.events.onError.subscribe((_scene, error) => errors.push(error));
+      const dst = scene.createModel({id: "dst"}).value!;
+
+      await expect(new XGFStreamingLoader().loadChunk(
+        {manifest: chunkManifest, fileData: referencesOnly, sceneModel: dst}
+      )).resolves.toBeUndefined();
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].type).toBe(SDKErrorType.InvalidInput);
+      expect(errors[0].error).toContain("Dependency chunk manifest not found");
+      expect(Object.keys(dst.meshes)).toHaveLength(0);
+    });
+
+    it("logs invalid input instead of throwing when a v2 mesh references a missing geometry", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMesh({id: "mesh", geometryId: "shared-geom"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const referencesOnly = await new XGFExporter().write(
+        {sceneModel: src},
+        {assetMode: "referencesOnly"}
+      );
+
+      const scene = new Scene();
+      const errors: any[] = [];
+      scene.events.onError.subscribe((_scene, error) => errors.push(error));
+      const dst = scene.createModel({id: "dst"}).value!;
+
+      await expect(new XGFLoader().load({fileData: referencesOnly, sceneModel: dst}))
+        .resolves.toBeUndefined();
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].type).toBe(SDKErrorType.InvalidInput);
+      expect(errors[0].error).toContain("references missing geometry 'shared-geom'");
+      expect(Object.keys(dst.meshes)).toHaveLength(0);
+      expect(dst.objects["obj"]).toBeUndefined();
+    });
+
+    it("round-trips v2 SceneTransform hierarchies and mesh parent links", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "g",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createTransform({
+        id: "root",
+        matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 0, 0, 1] as any,
+      });
+      src.createTransform({
+        id: "child",
+        parentTransformId: "root",
+        matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 20, 0, 1] as any,
+      });
+      src.createMesh({
+        id: "mesh",
+        geometryId: "g",
+        parentTransformId: "child",
+        matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 30, 1] as any,
+      });
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const buffer = await new XGFExporter().write({sceneModel: src});
+      expect(versionTag(buffer)).toBe(2);
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      await new XGFLoader().load({fileData: buffer, sceneModel: dst});
+
+      expect(dst.transforms["child"].parentTransform).toBe(dst.transforms["root"]);
+      const mesh = dst.meshes["0"];
+      expect(mesh.parentTransform).toBe(dst.transforms["child"]);
+      expect(Array.from(mesh.matrix)).toEqual([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 30, 1]);
+      expect(mesh.worldMatrix[12]).toBeCloseTo(10, 6);
+      expect(mesh.worldMatrix[13]).toBeCloseTo(20, 6);
+      expect(mesh.worldMatrix[14]).toBeCloseTo(30, 6);
+    });
+
+    it("keeps transforms in v2 references-only chunks", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createTransform({
+        id: "placement",
+        matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 7, 8, 9, 1] as any,
+      });
+      src.createMesh({id: "mesh", geometryId: "shared-geom", parentTransformId: "placement"});
+      src.createObject({id: "obj", meshIds: ["mesh"]});
+
+      const exporter = new XGFExporter();
+      const assetLibrary = await exporter.write({sceneModel: src}, {assetMode: "assetLibrary"});
+      const referencesOnly = await exporter.write({sceneModel: src}, {assetMode: "referencesOnly"});
+
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loader = new XGFLoader();
+      await loader.load({fileData: assetLibrary, sceneModel: dst});
+      await loader.load({fileData: referencesOnly, sceneModel: dst});
+
+      expect(dst.transforms["placement"]).toBeDefined();
+      expect(dst.meshes["0"].parentTransform).toBe(dst.transforms["placement"]);
+      expect(dst.meshes["0"].worldMatrix[12]).toBeCloseTo(7, 6);
+      expect(dst.meshes["0"].worldMatrix[13]).toBeCloseTo(8, 6);
+      expect(dst.meshes["0"].worldMatrix[14]).toBeCloseTo(9, 6);
     });
   });
 });

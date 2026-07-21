@@ -38,7 +38,7 @@
  *     direction TB
  *     class XGFLoader {
  *       +format : "XGF"
- *       +version : "1.0.0"
+ *       +versions : "1", "2"
  *       +load(params, options?) Promise~void~
  *     }
  *     class XGFExporter {
@@ -65,17 +65,13 @@
  *   per-vertex colours, PBR materials with textures (and colour-space
  *   encoding), per-material `triplanarScale` for world-projected
  *   texturing, and 3D Gaussian Splatting geometry.
+ * - **Transform hierarchies** — XGF v2 preserves SceneTransform trees and
+ *   mesh parent-transform links.
  * - **Quantised positions** — vertex positions stored as 16-bit
  *   integers against per-geometry AABBs; no precision loss for
  *   typical model scales.
  * - **Octahedron-encoded normals** — 2-byte normals via oct
  *   encoding, decoded in the vertex shader.
- * - **Pairs naturally with DataModel JSON** — geometry chunks in
- *   `.xgf` + semantic chunks in `.json` form the canonical
- *   xeokit streamed-model payload.
- *
- * ---
- *
  * ## Installation
  *
  * ```bash

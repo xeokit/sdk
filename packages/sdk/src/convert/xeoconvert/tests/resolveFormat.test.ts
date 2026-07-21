@@ -48,6 +48,7 @@ describe("resolveFormat (xeoconvert generic --in/--out)", () => {
     it("maps known output extensions to exporter ids", () => {
       expect(resolveExporterId("a.glb")).toBe("glb");
       expect(resolveExporterId("a.xgf")).toBe("xgf");
+      expect(resolveExporterId("a.xgfstream")).toBe("xgfstream");
       expect(resolveExporterId("a.ifc")).toBe("ifc");
       expect(resolveExporterId("a.bim")).toBe("dotbim");
       expect(resolveExporterId("a.fbx")).toBe("fbx");

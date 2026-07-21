@@ -35,8 +35,9 @@ Usage:
 
 Input/output — use ONE of:
   --in <inputFile>            Input file; loader chosen from its extension (.glb/.gltf/.xgf/.ifc/.bim/.las/.laz).
-  --out <outputFile>          Output file; exporter chosen from its extension. Same extension as --in optimizes/validates
-                              in place. Omit --out (with --inspect) for a validate-only run.
+  --out <outputFile>          Output file or directory; exporter chosen from its extension. Same extension as --in
+                              optimizes/validates in place. Use .xgfstream or --exporter xgfstream for XGF Stream
+                              directory output. Omit --out (with --inspect) for a validate-only run.
   --pipeline <name>           Named pipeline (use for multi-input/output, coordinate-system conversion, or .json formats).
                               Available pipelines: ${Object.keys(modelConverter.pipelines).join(", ")}
   --<inputId> <inputFile>     Input file(s) required by the chosen --pipeline
@@ -65,6 +66,7 @@ Rule configuration (select/tune which inspections and optimizations run):
 
 Example (generic, format by extension):
   node xeoconvert.js --in model.glb --out model.xgf --log
+  node xeoconvert.js --in model.glb --out model.xgfstream --log
   node xeoconvert.js --in model.xgf --inspect --inspection-report report.json   (validate only)
 
 Example:
@@ -272,6 +274,9 @@ Example (inspect + auto-fix + write report):
         const outputValue = modelConverterResult.outputs[outputId];
 
         switch (outputValue.fileDataType) {
+          case "filemap":
+            writeFileMapOutput(outputFilePath, outputValue.fileData.files || outputValue.fileData);
+            break;
           case "json":
             fs.writeFileSync(outputFilePath, JSON.stringify(outputValue.fileData));
             break;
@@ -318,4 +323,30 @@ Example (inspect + auto-fix + write report):
 } catch (err) {
   logError(err);
   process.exit(-1);
+}
+
+function writeFileMapOutput(outputDir, files) {
+  fs.mkdirSync(outputDir, {recursive: true});
+  for (const [relativePath, fileData] of Object.entries(files || {})) {
+    const safeRelativePath = safeFileMapPath(relativePath);
+    const filePath = path.join(outputDir, safeRelativePath);
+    fs.mkdirSync(path.dirname(filePath), {recursive: true});
+    if (fileData instanceof ArrayBuffer) {
+      fs.writeFileSync(filePath, Buffer.from(fileData));
+    } else if (ArrayBuffer.isView(fileData)) {
+      fs.writeFileSync(filePath, Buffer.from(fileData.buffer, fileData.byteOffset, fileData.byteLength));
+    } else if (typeof fileData === "string") {
+      fs.writeFileSync(filePath, fileData, "utf8");
+    } else {
+      fs.writeFileSync(filePath, `${JSON.stringify(fileData)}\n`, "utf8");
+    }
+  }
+}
+
+function safeFileMapPath(relativePath) {
+  const normalized = path.normalize(String(relativePath)).replace(/^([/\\])+/, "");
+  if (normalized === "." || normalized.startsWith("..") || path.isAbsolute(normalized)) {
+    throw new Error(`Unsafe filemap output path: ${relativePath}`);
+  }
+  return normalized;
 }

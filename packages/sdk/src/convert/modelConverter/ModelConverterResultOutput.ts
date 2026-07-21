@@ -16,10 +16,11 @@ export interface ModelConverterResultOutput {
   /**
    * The type of data returned in `fileData`.
    *
-   * Supported values:
-   * - `"json"` — a structured JavaScript object
-   * - `"arraybuffer"` — raw binary data
-   */
+ * Supported values:
+ * - `"json"` — a structured JavaScript object
+ * - `"arraybuffer"` — raw binary data
+ * - `"filemap"` — a map of relative file paths to JSON/text/binary data
+ */
   fileDataType: string;
 
   /**

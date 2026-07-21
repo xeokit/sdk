@@ -372,6 +372,9 @@ export class ModelConverter {
               case "json":
                 fileDataSizeBytes = (new TextEncoder()).encode(JSON.stringify(fileData)).length;
                 break;
+              case "filemap":
+                fileDataSizeBytes = fileMapByteLength(fileData?.files || fileData);
+                break;
               default:
                 fileDataSizeBytes = fileData.byteLength;
                 break;
@@ -630,4 +633,20 @@ export class ModelConverter {
       value: undefined
     };
   }
+}
+
+function fileMapByteLength(files: Record<string, any>): number {
+  let bytes = 0;
+  for (const fileData of Object.values(files || {})) {
+    if (typeof fileData === "string") {
+      bytes += new TextEncoder().encode(fileData).length;
+    } else if (fileData instanceof ArrayBuffer) {
+      bytes += fileData.byteLength;
+    } else if (ArrayBuffer.isView(fileData)) {
+      bytes += fileData.byteLength;
+    } else {
+      bytes += new TextEncoder().encode(JSON.stringify(fileData)).length;
+    }
+  }
+  return bytes;
 }

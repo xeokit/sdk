@@ -16,6 +16,7 @@ import {
   TrianglesPrimitive
 } from "../../base/constants";
 import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, translationMat4v} from "../../base/math/matrix";
+import type {IntArrayParam} from "../../base/math";
 import {createUUID, yieldToHost} from "../../base/utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../ModelLoadParams";
@@ -910,7 +911,13 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
           geometryParams.uvs = primitive.attributes.TEXCOORD_0.value;
         }
         if (primitive.indices) {
-          geometryParams.indices = primitive.indices.value;
+          geometryParams.indices = indicesForPrimitiveMode(primitive.mode, primitive.indices.value);
+        } else {
+          const implicitIndices = implicitSequentialIndices(POSITION.value.length / 3);
+          const expanded = indicesForPrimitiveMode(primitive.mode, implicitIndices);
+          if (expanded !== implicitIndices || primitive.mode === 1) {
+            geometryParams.indices = expanded;
+          }
         }
         // @ts-ignore
         const result = ctx.sceneModel.createGeometry(geometryParams);
@@ -945,6 +952,59 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
   }
 
   return true;
+}
+
+function implicitSequentialIndices(vertexCount: number): Uint32Array {
+  const indices = new Uint32Array(vertexCount);
+  for (let i = 0; i < vertexCount; i++) {
+    indices[i] = i;
+  }
+  return indices;
+}
+
+function indicesForPrimitiveMode(mode: number | undefined, indices: IntArrayParam): IntArrayParam {
+  switch (mode) {
+    case 2: // LINE_LOOP
+      return expandLineLoopIndices(indices);
+    case 3: // LINE_STRIP
+      return expandLineStripIndices(indices);
+    case 1: // LINES
+      return indices.length % 2 === 0 ? indices : copyIndices(indices, indices.length - 1);
+    default:
+      return indices;
+  }
+}
+
+function expandLineStripIndices(indices: ArrayLike<number>): Uint32Array {
+  if (indices.length < 2) {
+    return new Uint32Array(0);
+  }
+  const expanded = new Uint32Array((indices.length - 1) * 2);
+  for (let i = 0, cursor = 0; i < indices.length - 1; i++) {
+    expanded[cursor++] = indices[i];
+    expanded[cursor++] = indices[i + 1];
+  }
+  return expanded;
+}
+
+function expandLineLoopIndices(indices: ArrayLike<number>): Uint32Array {
+  if (indices.length < 2) {
+    return new Uint32Array(0);
+  }
+  const expanded = new Uint32Array(indices.length * 2);
+  for (let i = 0, cursor = 0; i < indices.length; i++) {
+    expanded[cursor++] = indices[i];
+    expanded[cursor++] = indices[(i + 1) % indices.length];
+  }
+  return expanded;
+}
+
+function copyIndices(indices: ArrayLike<number>, length: number): Uint32Array {
+  const copied = new Uint32Array(Math.max(0, length));
+  for (let i = 0; i < copied.length; i++) {
+    copied[i] = indices[i];
+  }
+  return copied;
 }
 
 /**

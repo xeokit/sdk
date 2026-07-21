@@ -1,6 +1,6 @@
 import {GLTFExporter} from "../GLTFExporter";
 import {GLTFLoader} from "../GLTFLoader";
-import {TrianglesPrimitive} from "../../../base/constants";
+import {LinesPrimitive, TrianglesPrimitive} from "../../../base/constants";
 
 // Quantise positions to uint16 the way SceneGeometry stores them — the inverse
 // of the exporter's decompressPoint3WithAABB3.
@@ -50,6 +50,68 @@ function buildSource(matrix: number[], color: number[], opacity: number) {
 // ModelLoader.load requires `fileData instanceof ArrayBuffer`.
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
   return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+}
+
+function align4(length: number): number {
+  return (length + 3) & ~3;
+}
+
+function buildLineStripGLB(): ArrayBuffer {
+  const positions = new Float32Array([
+    0, 0, 0,
+    1, 0, 0,
+    2, 0, 0,
+    3, 0, 0,
+    4, 0, 0
+  ]);
+  const indices = new Uint16Array([0, 1, 2, 3, 4]);
+  const positionsBytes = new Uint8Array(positions.buffer);
+  const indicesBytes = new Uint8Array(indices.buffer);
+  const indicesOffset = align4(positionsBytes.length);
+  const binLength = align4(indicesOffset + indicesBytes.length);
+  const bin = new Uint8Array(binLength);
+  bin.set(positionsBytes, 0);
+  bin.set(indicesBytes, indicesOffset);
+
+  const gltf = {
+    asset: {version: "2.0"},
+    scene: 0,
+    scenes: [{nodes: [0]}],
+    nodes: [{name: "line-strip", mesh: 0}],
+    meshes: [{
+      primitives: [{
+        mode: 3,
+        attributes: {POSITION: 0},
+        indices: 1
+      }]
+    }],
+    buffers: [{byteLength: binLength}],
+    bufferViews: [
+      {buffer: 0, byteOffset: 0, byteLength: positionsBytes.length},
+      {buffer: 0, byteOffset: indicesOffset, byteLength: indicesBytes.length}
+    ],
+    accessors: [
+      {bufferView: 0, componentType: 5126, count: 5, type: "VEC3", min: [0, 0, 0], max: [4, 0, 0]},
+      {bufferView: 1, componentType: 5123, count: 5, type: "SCALAR", min: [0], max: [4]}
+    ]
+  };
+  const jsonBytes = new TextEncoder().encode(JSON.stringify(gltf));
+  const jsonLength = align4(jsonBytes.length);
+  const totalLength = 12 + 8 + jsonLength + 8 + binLength;
+  const glb = new Uint8Array(totalLength);
+  const view = new DataView(glb.buffer);
+  view.setUint32(0, 0x46546C67, true);
+  view.setUint32(4, 2, true);
+  view.setUint32(8, totalLength, true);
+  view.setUint32(12, jsonLength, true);
+  view.setUint32(16, 0x4E4F534A, true);
+  glb.set(jsonBytes, 20);
+  glb.fill(0x20, 20 + jsonBytes.length, 20 + jsonLength);
+  const binHeader = 20 + jsonLength;
+  view.setUint32(binHeader, binLength, true);
+  view.setUint32(binHeader + 4, 0x004E4942, true);
+  glb.set(bin, binHeader + 8);
+  return glb.buffer;
 }
 
 describe("GLTFExporter / GLTFLoader", () => {
@@ -182,5 +244,30 @@ describe("GLTFExporter / GLTFLoader", () => {
     expect(uvs).toBeDefined();
     expect(uvs).toHaveLength(8);
     expect(Array.from(uvs as Float32Array).map(v => +v.toFixed(4))).toEqual([0, 0,  1, 0,  1, 1,  0, 1]);
+  });
+
+  it("expands glTF LINE_STRIP primitives to pairwise line indices", async () => {
+    const geomCalls: any[] = [];
+    const dstScene: any = {
+      objects: {},
+      geometries: {},
+      createGeometry: (p: any) => {
+        geomCalls.push(p);
+        dstScene.geometries[p.id] = p;
+        return {ok: true, value: {id: p.id}};
+      },
+      createMesh: (p: any) => ({ok: true, value: {id: p.id}}),
+      createObject: (p: any) => {
+        dstScene.objects[p.id] = p;
+        return {ok: true, value: {id: p.id}};
+      },
+      createMaterial: (p: any) => ({ok: true, value: {id: p.id}}),
+    };
+
+    await new GLTFLoader().load({fileData: buildLineStripGLB(), sceneModel: dstScene} as any);
+
+    expect(geomCalls).toHaveLength(1);
+    expect(geomCalls[0].primitive).toBe(LinesPrimitive);
+    expect(Array.from(geomCalls[0].indices)).toEqual([0, 1, 1, 2, 2, 3, 3, 4]);
   });
 });

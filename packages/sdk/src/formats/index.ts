@@ -100,6 +100,7 @@
  * - {@link formats!gaussiansplat | gaussiansplat} – 3D Gaussian Splatting (`.splat`)
  * - {@link formats!threedxml | threedxml} – 3DXML (Dassault Systèmes)
  * - {@link formats!xgf | xgf} – xeokit Geometry Format
+ * - {@link formats!xgfstream | xgfstream} – chunked XGF streaming format
  * - {@link formats!scenemodel | scenemodel} – xeokit SceneModel
  * - {@link formats!datamodel | datamodel} – xeokit DataModel
  * - {@link formats!metamodel | metamodel} – xeokit metadata / schema (legacy support)
@@ -143,6 +144,7 @@ export * as gltf from "./gltf";
 export * as cityjson from "./cityjson";
 export * as ifc from "./ifc";
 export * as xgf from "./xgf";
+export * as xgfstream from "./xgfstream";
 export * as las from "./las";
 export * as e57 from "./e57";
 export * as dotbim from "./dotbim";

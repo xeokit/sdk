@@ -13,10 +13,10 @@ pipelines a file follows from bytes to a live scene (and back).
 
 ## 1. What XGF is
 
-XGF is xeokit's compact binary format for **geometry, materials, and
-textures** — the visual half of a model. It's positional, length-
-prefixed, and designed to be loaded in one fetch + a handful of
-typed-array views.
+XGF is xeokit's compact binary format for **geometry, materials,
+textures, transforms, and objects** — the visual half of a model. It's
+positional, length-prefixed, and designed to be loaded from one binary
+chunk into a handful of typed-array views.
 
 Two roles:
 
@@ -85,9 +85,40 @@ out at those offsets:
 
 ---
 
-## 3. The format
+## 3. Versions and streaming contract
 
-One container (header tag `1`) carries the full visual model:
+The container header's first `uint32` is the schema tag:
+
+- `1` — XGF v1, a self-contained visual model.
+- `2` — XGF v2, v1-compatible visual data plus stable asset IDs,
+  references-only meshes, and `SceneTransform` hierarchies.
+
+XGF v2 is the streaming contract. A v2 file has exactly one of these
+chunk roles:
+
+- **`full`** — self-contained geometry, materials, textures, transforms,
+  meshes and objects. This is the default exporter output.
+- **`assetLibrary`** — reusable geometry, material and texture assets only.
+  It creates shared assets in the target `SceneModel` and does not create
+  meshes or objects.
+- **`referencesOnly`** — transforms, meshes and objects only. Meshes bind to
+  geometry/material IDs that must already exist in the target `SceneModel`,
+  normally because an `assetLibrary` chunk was loaded first.
+
+The low-level XGF loader does not fetch dependencies, maintain a manifest, or
+manage chunk lifetimes. It only applies the supplied payload to the supplied
+`SceneModel`. Missing asset references are reported through
+`Scene.events.onError` as `InvalidInput` and the load path returns without
+throwing. Streaming orchestration should sit above `XGFLoader`.
+
+Streaming code should pair each XGF v2 chunk with an
+`XGFChunkManifest` JSON record. The manifest is intentionally separate from
+the binary payload so schedulers can inspect bounds and dependencies before
+fetching the XGF bytes.
+
+## 4. The format
+
+A full/self-contained container carries:
 
 - **Geometry** — quantised positions, octahedral normals, UVs, per-vertex
   RGBA colours, indices, edge indices, per-geometry AABBs, modelling matrices.
@@ -102,12 +133,13 @@ One container (header tag `1`) carries the full visual model:
 
 ---
 
-## 4. Payload
+## 5. Payload
 
 Field order = pack order = read order. See
-[`versions/v1/XGFData_v1.ts`](versions/v1/XGFData_v1.ts) for the authoritative
-TypeScript shape — including the splat, material-colour-float, `triplanarScale`,
-and texture-encoding entries not enumerated in the core tables below.
+[`versions/v1/XGFData_v1.ts`](versions/v1/XGFData_v1.ts) and
+[`versions/v2/XGFData_v2.ts`](versions/v2/XGFData_v2.ts) for the authoritative
+TypeScript shapes. XGF v2 appends stable asset IDs, reference-only mesh fields,
+and transform hierarchy fields to the v1-compatible payload.
 
 ### Geometry (per-vertex blobs)
 
@@ -186,16 +218,16 @@ per-mesh colour the geometry-only path uses).
 
 ---
 
-## 5. Load pipeline
+## 6. Load pipeline
 
 ```
    .xgf bytes (ArrayBuffer)
         │
         ▼
-   XGFLoader.getVersion       ←  read uint32 [0]: "1"
+   XGFLoader.getVersion       ←  read uint32 [0]: "1" or "2"
         │
         ▼
-   versions/v1/parse.ts
+   versions/v1|v2/parse.ts
         │
         ├─ unpackXGF              ←  walk the (offset, length) table,
         │                            byte-swap on big-endian hosts,
@@ -203,7 +235,7 @@ per-mesh colour the geometry-only path uses).
         │                            (zero copies)
         │
         ▼
-   XGFData_v1  payload
+   XGFData_v1|v2  payload
         │
         ▼
    xgfToModel              ←  walks objects → meshes → geometries
@@ -249,14 +281,15 @@ Every async-loop site calls `yieldToHost(signal)` at a coarse cadence
 
 PNG/JPEG/GIF blobs are decoded through `createImageBitmap` so the GPU
 atlas can sample them directly. Outside a browser (Node test runs,
-worker contexts without `createImageBitmap`) the loader will throw —
-the path assumes a browser. For pre-decoded ("opaque transcoded")
-textures the bytes pass through unchanged as a SceneTexture buffer; the
-runtime / transcoder pipeline handles upload.
+worker contexts without `createImageBitmap`) the loader keeps the
+encoded bytes and registers them for later browser-side decode instead
+of throwing. For pre-decoded ("opaque transcoded") textures the bytes
+pass through unchanged as a SceneTexture buffer; the runtime /
+transcoder pipeline handles upload.
 
 ---
 
-## 6. Export pipeline
+## 7. Export pipeline
 
 ```
    SceneModel
@@ -275,7 +308,7 @@ runtime / transcoder pipeline handles upload.
         └─ build per-object id + mesh-base arrays
         │
         ▼
-   XGFData_v1  payload
+   XGFData_v1|v2  payload
         │
         ▼
    packXGF                  ←  positional pack; byte-swap on big-endian,
@@ -315,7 +348,7 @@ the opaque-transcoded case.
 
 ---
 
-## 7. Quantisation conventions
+## 8. Quantisation conventions
 
 ### Positions (Uint16 against per-geometry AABB)
 
@@ -347,7 +380,7 @@ which they wouldn't through a `0..1`-clamped quantisation.
 
 ---
 
-## 8. Usage
+## 9. Usage
 
 ### Loader
 
@@ -391,6 +424,13 @@ parameter is accepted by the base `ModelExporter` API but XGF is a
 geometry-only format — semantic data should be written separately
 through the `datamodel` JSON exporter.
 
+### Chunked Streaming
+
+For chunked, manifest-backed loading, use
+`@xeokit/sdk/formats/xgfstream`. That format owns stream indexes, chunk
+manifests, asset-library references, dependency loading, cache policy, and
+view-prioritized streaming. Base `xgf` remains the single-file reader/writer.
+
 ### Pairing with DataModel JSON
 
 The canonical streamed-model payload is **`.xgf` + `.json`** loaded
@@ -416,10 +456,10 @@ await Promise.all([
 
 ---
 
-## 9. What XGF does not carry
+## 10. What XGF does not carry
 
-- **Animation / skinning.** XGF is a static-geometry format. Time-
-  varying transforms aren't representable.
+- **Animation / skinning.** XGF stores the transform hierarchy's current
+  state, not time-varying animation tracks or skinning.
 - **Cameras, lights.** The format describes meshes + materials, not
   the surrounding scene.
 - **NURBS / B-rep / parametric primitives.** Geometry must be
@@ -431,6 +471,10 @@ await Promise.all([
 - **Coordinate system metadata.** The runtime caller specifies the
   coordinate system via `SceneModel.coordinateSystem`; the file
   itself is coordinate-system-agnostic.
+- **Streaming manifests or dependency fetching.** XGF v2 defines chunk
+  roles and stable references. Manifests, dependency resolution, request
+  scheduling, cache policy, and unload/garbage collection belong to the
+  streaming layer above `XGFLoader`.
 - **Pre-encoded compression layer.** No built-in zstd / draco /
   meshopt step. Use HTTP-layer compression (gzip / brotli) for wire
   efficiency.

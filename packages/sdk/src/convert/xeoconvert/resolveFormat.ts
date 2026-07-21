@@ -26,6 +26,7 @@ export const FORMAT_BY_EXTENSION: Record<string, FormatBinding> = {
   ".glb":   {loader: "glb",           exporter: "glb"},
   ".gltf":  {loader: "glb",           exporter: "glb"},
   ".xgf":   {loader: "xgf",           exporter: "xgf"},
+  ".xgfstream": {exporter: "xgfstream"},
   ".ifc":   {loader: "ifc",           exporter: "ifc"},
   ".bim":   {loader: "dotbim",        exporter: "dotbim"},
   ".las":   {loader: "las"},          // LAS/LAZ are import-only (no exporter registered)

@@ -61,16 +61,16 @@ describe("xgf v1 — triplanar", () => {
     expect(calls.material.find((m: any) => m.id === "mat").triplanarScale).toBeCloseTo(1.0, 4);
   });
 
-  it("XGFExporter writes version 1 for a textured model (approach B)", async () => {
+  it("XGFExporter writes version 1 for a textured model when requested", async () => {
     const src = new Scene().createModel({id: "m"}).value!;
     src.createGeometry({id: "g", primitive: TrianglesPrimitive, ...TRI});
-    // A textured model writes the single XGF version 1.
+    // v1 remains available for compatibility.
     src.createTexture({id: "tex", buffers: [new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer], mediaType: 10002});
     src.createMaterial({id: "mat", color: [1, 1, 1], colorTextureId: "tex", triplanarScale: 3});
     src.createMesh({id: "mesh", geometryId: "g", materialId: "mat"});
     src.createObject({id: "obj", meshIds: ["mesh"]});
 
-    const buffer = await new XGFExporter().write({sceneModel: src} as any);
+    const buffer = await new XGFExporter().write({sceneModel: src, version: "1.0.0"} as any);
     expect(versionWord(buffer)).toBe(1);
   });
 });

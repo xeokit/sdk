@@ -6,6 +6,7 @@ import {DataModelImporter, DataModelExporter} from "../../formats/datamodel";
 import {SceneModelImporter, SceneModelExporter} from "../../formats/scenemodel";
 import {CityJSONLoader, CityJSONExporter} from "../../formats/cityjson";
 import {XGFLoader, XGFExporter} from "../../formats/xgf";
+import {XGFStreamExporter} from "../../formats/xgfstream";
 import {LASLoader} from "../../formats/las";
 import {IFCExporter, IFCLoader} from "../../formats/ifc";
 import {FBXLoader, FBXExporter} from "../../formats/fbx";
@@ -115,6 +116,7 @@ export const modelConverter = new ModelConverter({
   exporters: {
     "ifc": new IFCExporter(),
     "xgf": new XGFExporter(),
+    "xgfstream": new XGFStreamExporter(),
     "dotbim": new DotBIMExporter(),
     "glb": new GLTFExporter(),
     "datamodel": new DataModelExporter(),
@@ -191,6 +193,38 @@ export const modelConverter = new ModelConverter({
           exporter: "xgf",
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          },
+          sceneModel: "geometry"
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "gltf2xgfstream": {
+      inputs: {
+        "gltf": {
+          loader: "glb",
+          options: {
+            coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters,
+            retainTextureBytes: true
+          },
+          sceneModel: "geometry"
+        }
+      },
+      outputs: {
+        "xgfstream": {
+          exporter: "xgfstream",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters,
+            partition: "grid",
+            chunkSize: 500,
+            chunkBudget: 500,
+            minChunkBudget: 125,
+            assetLibraryChunkSize: 16,
+            sharedAssetMinLibraryUses: 2,
+            runtimeIndex: "index.runtime.json"
           },
           sceneModel: "geometry"
         },
@@ -279,6 +313,30 @@ export const modelConverter = new ModelConverter({
       }
     },
 
+    "cityjson2xgfstream": {
+      inputs: {
+        "cityjson": {
+          loader: "cityjson",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgfstream": {
+          exporter: "xgfstream",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters,
+            partition: "grid",
+            runtimeIndex: "index.runtime.json"
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
     "cityjson2json": {
       inputs: {
         "cityjson": {
@@ -349,6 +407,30 @@ export const modelConverter = new ModelConverter({
           exporter: "xgf",
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "ifc2xgfstream": {
+      inputs: {
+        "ifc": {
+          loader: "ifc",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgfstream": {
+          exporter: "xgfstream",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters,
+            partition: "grid",
+            runtimeIndex: "index.runtime.json"
           }
         },
         "datamodel": {
@@ -442,6 +524,30 @@ export const modelConverter = new ModelConverter({
           exporter: "xgf",
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "dotbim2xgfstream": {
+      inputs: {
+        "dotbim": {
+          loader: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgfstream": {
+          exporter: "xgfstream",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters,
+            partition: "grid",
+            runtimeIndex: "index.runtime.json"
           }
         },
         "datamodel": {
@@ -554,6 +660,30 @@ export const modelConverter = new ModelConverter({
           exporter: "xgf",
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "xkt2xgfstream": {
+      inputs: {
+        "xkt": {
+          loader: "xkt",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgfstream": {
+          exporter: "xgfstream",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters,
+            partition: "grid",
+            runtimeIndex: "index.runtime.json"
           }
         },
         "datamodel": {

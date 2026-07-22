@@ -109500,6 +109500,8 @@ var DEFAULT_FETCH_CONCURRENCY = 8;
 var DEFAULT_COMMIT_FRAME_BUDGET_MS = 10;
 var DEFAULT_CAMERA_DEBOUNCE_MS = 140;
 var NON_FRUSTUM_PRIORITY_OFFSET = Number.MAX_SAFE_INTEGER / 2;
+var DISABLED_MAX_RESIDENT_CHUNKS = Number.POSITIVE_INFINITY;
+var DEFAULT_MAX_CACHED_FILE_BYTES = 256 * 1024 * 1024;
 var XGFViewStreamController = class {
   /** References-only chunk manifests controlled by this instance. */
   chunkManifests;
@@ -109509,7 +109511,7 @@ var XGFViewStreamController = class {
   loadedChunkIds = /* @__PURE__ */ new Set();
   /** IDs of asset-library chunks already loaded. */
   loadedAssetLibraryIds = /* @__PURE__ */ new Set();
-  /** Aggregate object/mesh counts loaded through this controller. */
+  /** Aggregate object/mesh counts currently resident through this controller. */
   loadedTotals = {
     objects: 0,
     meshes: 0
@@ -109530,6 +109532,8 @@ var XGFViewStreamController = class {
   _commitFrameBudgetMs;
   _frustumOnly;
   _cameraDebounceMs;
+  _enableLRUEviction;
+  _maxResidentChunks;
   _onStatus;
   _onProgress;
   _onChunksLoading;
@@ -109537,6 +109541,8 @@ var XGFViewStreamController = class {
   _generation = 0;
   _pendingGeneration = 0;
   _running = false;
+  _lruSequence = 0;
+  _chunkLastUsed = /* @__PURE__ */ new Map();
   _timer;
   _candidateQueue = {
     generation: 0,
@@ -109553,7 +109559,11 @@ var XGFViewStreamController = class {
     this._view = params.view;
     this._fileDataCache = createPrioritizedFileDataCache(
       params.fetchConcurrency || DEFAULT_FETCH_CONCURRENCY,
-      params.loadOptions?.getFileData || fetchFileData
+      params.loadOptions?.getFileData || fetchFileData,
+      {
+        cacheFileData: params.cacheFileData === true,
+        maxCachedFileBytes: params.maxCachedFileBytes
+      }
     );
     this._assetChunksById = new Map(
       params.index.chunks.filter((manifest) => manifest.role === "assetLibrary").map((manifest) => [manifest.id, manifest])
@@ -109562,6 +109572,8 @@ var XGFViewStreamController = class {
     this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
     this._frustumOnly = params.frustumOnly !== false;
     this._cameraDebounceMs = params.cameraDebounceMs ?? DEFAULT_CAMERA_DEBOUNCE_MS;
+    this._enableLRUEviction = params.enableLRUEviction === true;
+    this._maxResidentChunks = this._enableLRUEviction ? Math.max(0, Math.floor(params.maxResidentChunks ?? DISABLED_MAX_RESIDENT_CHUNKS)) : DISABLED_MAX_RESIDENT_CHUNKS;
     this._onStatus = params.onStatus;
     this._onProgress = params.onProgress;
     this._onChunksLoading = params.onChunksLoading;
@@ -109613,6 +109625,7 @@ var XGFViewStreamController = class {
   schedule(label = "Streaming") {
     this._generation++;
     this.rebuildCandidateQueue(this._generation);
+    this.touchManifests(this._candidateQueue.chunks);
     this.resetQueueProgress(this._generation, this.countPendingFrustumChunks());
     if (this._timer !== void 0) {
       clearTimeout(this._timer);
@@ -109664,6 +109677,7 @@ var XGFViewStreamController = class {
           generation: batchGeneration,
           frustumOnly: this._frustumOnly
         });
+        this.evictLRUChunks();
         this.emitStatus(`${label}: ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
         activeGeneration = this._pendingGeneration || batchGeneration;
         if (activeGeneration === batchGeneration && !this.hasPendingQueuedChunks()) {
@@ -109718,6 +109732,7 @@ var XGFViewStreamController = class {
         const wasLoaded = this.isLoadedManifest(manifest);
         await this._loader.loadChunk({ manifest, fileData, sceneModel: this._sceneModel }, this._loadOptions);
         fileData = void 0;
+        this.touchManifest(manifest);
         if (!wasLoaded && manifest.role === "referencesOnly" && this.loadedChunkIds.has(manifest.id)) {
           this.markQueueChunkLoaded(generation);
         }
@@ -109845,6 +109860,7 @@ var XGFViewStreamController = class {
   markManifestLoaded(manifest) {
     if (manifest.role === "referencesOnly" && !this.loadedChunkIds.has(manifest.id)) {
       this.loadedChunkIds.add(manifest.id);
+      this.touchManifest(manifest);
       this.loadedTotals.objects += manifest.counts?.objects || 0;
       this.loadedTotals.meshes += manifest.counts?.meshes || 0;
     } else if (manifest.role === "assetLibrary") {
@@ -109853,6 +109869,67 @@ var XGFViewStreamController = class {
   }
   isLoadedManifest(manifest) {
     return manifest.role === "assetLibrary" ? this.loadedAssetLibraryIds.has(manifest.id) : this.loadedChunkIds.has(manifest.id);
+  }
+  touchManifests(manifests) {
+    for (const manifest of manifests) {
+      this.touchManifest(manifest);
+    }
+  }
+  touchManifest(manifest) {
+    if (manifest.role !== "referencesOnly") {
+      return;
+    }
+    this._chunkLastUsed.set(manifest.id, ++this._lruSequence);
+  }
+  evictLRUChunks() {
+    if (!this._enableLRUEviction || this.loadedChunkIds.size <= this._maxResidentChunks) {
+      return;
+    }
+    const protectedChunkIds = this.protectedChunkIds();
+    const candidates = Array.from(this.loadedChunkIds).filter((chunkId) => !protectedChunkIds.has(chunkId)).sort((a2, b4) => (this._chunkLastUsed.get(a2) || 0) - (this._chunkLastUsed.get(b4) || 0));
+    let evicted = 0;
+    for (const chunkId of candidates) {
+      if (this.loadedChunkIds.size <= this._maxResidentChunks) {
+        break;
+      }
+      const manifest = this.manifestById(chunkId);
+      const result = this._loader.unloadChunk({
+        sceneModel: this._sceneModel,
+        chunkId
+      });
+      if (result.ok === false) {
+        this._onError?.(result.error);
+        continue;
+      }
+      this.loadedChunkIds.delete(chunkId);
+      this._chunkLastUsed.delete(chunkId);
+      if (manifest) {
+        this.loadedTotals.objects = Math.max(0, this.loadedTotals.objects - (manifest.counts?.objects || 0));
+        this.loadedTotals.meshes = Math.max(0, this.loadedTotals.meshes - (manifest.counts?.meshes || 0));
+      }
+      evicted++;
+    }
+    if (evicted > 0) {
+      this.emitStatus(`Evicted ${evicted} LRU chunk(s); ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
+      this.emitProgress();
+    }
+  }
+  protectedChunkIds() {
+    const protectedChunkIds = new Set(this.loadingChunkIds);
+    for (const manifest of this._candidateQueue.chunks) {
+      if (this.intersectsCameraFrustum(manifest)) {
+        protectedChunkIds.add(manifest.id);
+      }
+    }
+    for (const manifest of this.chunkManifests) {
+      if (this.intersectsCameraFrustum(manifest)) {
+        protectedChunkIds.add(manifest.id);
+      }
+    }
+    return protectedChunkIds;
+  }
+  manifestById(chunkId) {
+    return this.chunkManifests.find((manifest) => manifest.id === chunkId);
   }
   chunkPriority(manifest) {
     return this.chunkPriorityFromFrustumState(manifest, this.intersectsCameraFrustum(manifest));
@@ -109903,11 +109980,38 @@ var XGFViewStreamController = class {
     this._onProgress?.(this.queueProgress);
   }
 };
-function createPrioritizedFileDataCache(concurrency, resolveFileData) {
+function createPrioritizedFileDataCache(concurrency, resolveFileData, options = {}) {
   const cache2 = /* @__PURE__ */ new Map();
   const queue = [];
   let activeCount = 0;
+  let cachedBytes = 0;
+  let cacheSequence = 0;
+  const cacheFileData = options.cacheFileData === true;
+  const maxCachedFileBytes = cacheFileData ? Math.max(0, Math.floor(options.maxCachedFileBytes ?? DEFAULT_MAX_CACHED_FILE_BYTES)) : 0;
   const getKey = (manifest) => manifest.id || manifest.uri;
+  const touch = (entry) => {
+    entry.lastUsed = ++cacheSequence;
+  };
+  const deleteEntry = (entry) => {
+    if (entry.fileData) {
+      cachedBytes = Math.max(0, cachedBytes - entry.byteLength);
+      entry.fileData = void 0;
+      entry.byteLength = 0;
+    }
+    cache2.delete(entry.key);
+  };
+  const trimCachedBytes = () => {
+    if (!cacheFileData || cachedBytes <= maxCachedFileBytes) {
+      return;
+    }
+    const candidates = Array.from(cache2.values()).filter((entry) => !entry.active && !entry.aborted && entry.fileData).sort((a2, b4) => a2.lastUsed - b4.lastUsed);
+    for (const entry of candidates) {
+      if (cachedBytes <= maxCachedFileBytes) {
+        break;
+      }
+      deleteEntry(entry);
+    }
+  };
   const pump = () => {
     while (activeCount < concurrency && queue.length > 0) {
       const entry = queue.shift();
@@ -109916,15 +110020,25 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
       }
       entry.active = true;
       activeCount++;
-      loadFileData(entry.manifest, resolveFileData, entry.controller.signal).then(entry.resolve, (error) => {
-        cache2.delete(entry.key);
+      loadFileData(entry.manifest, resolveFileData, entry.controller.signal).then((fileData) => {
+        touch(entry);
+        if (cacheFileData && fileData.byteLength <= maxCachedFileBytes) {
+          entry.fileData = fileData;
+          entry.byteLength = fileData.byteLength;
+          cachedBytes += entry.byteLength;
+        }
+        entry.resolve(fileData);
+        trimCachedBytes();
+      }, (error) => {
+        deleteEntry(entry);
         entry.reject(error);
       }).finally(() => {
         entry.active = false;
         activeCount--;
-        if (entry.releaseAfterActive) {
-          cache2.delete(entry.key);
+        if (entry.releaseAfterActive && !entry.fileData) {
+          deleteEntry(entry);
         }
+        trimCachedBytes();
         pump();
       });
     }
@@ -109936,6 +110050,10 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
     }
     const existing = cache2.get(key);
     if (existing) {
+      touch(existing);
+      if (existing.fileData) {
+        return Promise.resolve(existing.fileData);
+      }
       existing.priority = Math.min(existing.priority, priority);
       existing.token = token;
       if (!existing.active) {
@@ -109962,7 +110080,9 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
       releaseAfterActive: false,
       resolve: resolveEntry2,
       reject: rejectEntry,
-      promise
+      promise,
+      byteLength: 0,
+      lastUsed: ++cacheSequence
     };
     cache2.set(key, entry);
     insertQueueEntry(queue, entry);
@@ -109982,12 +110102,12 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
     },
     abortQueued: (predicate) => {
       for (const entry of cache2.values()) {
-        if (entry.active || entry.aborted || !predicate(entry.manifest, entry.token)) {
+        if (entry.active || entry.aborted || entry.fileData || !predicate(entry.manifest, entry.token)) {
           continue;
         }
         entry.aborted = true;
         entry.controller.abort();
-        cache2.delete(entry.key);
+        deleteEntry(entry);
         entry.reject(createAbortError());
       }
       for (let i = queue.length - 1; i >= 0; i--) {
@@ -110005,11 +110125,16 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
       if (!entry || entry.aborted) {
         return;
       }
-      if (entry.active) {
-        entry.releaseAfterActive = true;
+      if (entry.fileData) {
+        touch(entry);
+        trimCachedBytes();
         return;
       }
-      cache2.delete(key);
+      if (entry.active) {
+        entry.releaseAfterActive = !cacheFileData;
+        return;
+      }
+      deleteEntry(entry);
     }
   };
 }
@@ -254541,6 +254666,7 @@ var LoadingSpinner = class _LoadingSpinner {
       autoHideDelayMs: options.autoHideDelayMs ?? 300,
       ...options
     };
+    document.body.classList.add("xeokit-loading-spinner-ready");
     this.injectStylesOnce();
     this.overlay = document.getElementById("xeokit-boot-loading-overlay") ?? document.createElement("div");
     this.overlay.id = "xeokit-boot-loading-overlay";

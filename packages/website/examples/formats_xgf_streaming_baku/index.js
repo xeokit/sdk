@@ -1,6 +1,7 @@
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 const {getAABB3Center} = xeokit.base.math.boundaries;
+const {sdkProgress} = xeokit.base.core;
 const INDEX_URL = "../../models/BakuStadium/xgfstream/index.runtime.json";
 const AUTO_BATCH_SIZE = 8;
 const FETCH_CONCURRENCY = 8;
@@ -121,9 +122,12 @@ const UNIT_BOX_LINE_INDICES = [
   3, 7
 ];
 
+sdkProgress.setPhase("Booting Baku stream");
+
 const studio = new xeokit.studio.Studio({});
 const issueCards = createIssueCards(document.getElementById("issueCards"), ISSUE_VIEWPOINTS);
 
+sdkProgress.setPhase("Preparing Studio");
 studio.init().then(async () => {
   const {scene} = studio;
 
@@ -157,15 +161,18 @@ studio.init().then(async () => {
     loadedChunks: document.getElementById("loadedChunks"),
     objectCount: document.getElementById("objectCount"),
     meshCount: document.getElementById("meshCount"),
+    frustumQueue: document.querySelector(".queue-progress"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
     frustumQueueProgress: document.getElementById("frustumQueueProgress"),
     signalFrustumLoaded: createInitialFrustumReadyHandler(studio)
   };
 
   try {
+    setStreamPreparing(ui, "Preparing stream index");
     // The compact runtime index contains scheduling and dependency metadata.
     // The full chunks/index.json remains available for debugging/tooling.
     const index = await fetchStreamingIndex(INDEX_URL);
+    setStreamPreparing(ui, "Scheduling first frustum");
     const sceneModel = must(scene.createModel({
       id: "BakuStadium",
       coordinateSystem: {
@@ -214,7 +221,10 @@ studio.init().then(async () => {
       onProgress: (progress) => {
         scheduleRender();
       },
-      onChunksLoading: hideChunkPlaceholders,
+      onChunksLoading: (chunkManifests) => {
+        hideStartupSpinner();
+        hideChunkPlaceholders(chunkManifests);
+      },
       onError: (error) => {
         console.error(error);
         scheduleRender();
@@ -225,10 +235,11 @@ studio.init().then(async () => {
       ? createChunkAABBPlaceholders(scene, streamController.chunkManifests)
       : new Map();
 
-    render(ui, streamController);
     streamController.prefetchInitial(AUTO_BATCH_SIZE * 2);
 
+    hideStartupSpinner();
     streamController.schedule("Current frustum");
+    render(ui, streamController);
     bindCameraStreaming(studio, view, streamController);
     bindIssueCards(studio, view, streamController, issueCards);
   } catch (error) {
@@ -283,7 +294,8 @@ function render(ui, streamController) {
   ui.objectCount.textContent = formatInt(streamController.loadedTotals.objects);
   ui.meshCount.textContent = formatInt(streamController.loadedTotals.meshes);
   if (ui.frustumQueueProgress && queueProgress) {
-    ui.frustumQueueProgress.max = String(queueProgress.queued);
+    ui.frustumQueue?.removeAttribute("data-mode");
+    ui.frustumQueueProgress.max = String(Math.max(queueProgress.queued, 1));
     ui.frustumQueueProgress.value = String(queueProgress.loaded);
     const progress = queueProgress.queued > 0 ? (queueProgress.loaded / queueProgress.queued) * 100 : 0;
     ui.frustumQueueProgress.style.setProperty("--progress", `${Math.max(0, Math.min(100, progress))}%`);
@@ -293,6 +305,25 @@ function render(ui, streamController) {
     } else {
       ui.frustumQueueLabel.textContent = `${formatInt(queueProgress.loaded)}/${formatInt(queueProgress.queued)} loaded`;
     }
+  }
+}
+
+function setStreamPreparing(ui, label) {
+  sdkProgress.setPhase(label);
+  ui.frustumQueue?.setAttribute("data-mode", "pending");
+  if (ui.frustumQueueLabel) {
+    ui.frustumQueueLabel.textContent = label;
+  }
+  if (ui.frustumQueueProgress) {
+    ui.frustumQueueProgress.max = "1";
+    ui.frustumQueueProgress.value = "0";
+  }
+}
+
+function hideStartupSpinner() {
+  const overlay = document.getElementById("xeokit-boot-loading-overlay");
+  if (overlay) {
+    overlay.style.display = "none";
   }
 }
 

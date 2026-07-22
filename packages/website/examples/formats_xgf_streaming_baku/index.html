@@ -179,6 +179,24 @@
       cursor: pointer;
     }
 
+    .issue-card.has-thumbnail {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr);
+      column-gap: 12px;
+      align-items: center;
+      min-height: 122px;
+      padding: 9px 10px 9px 9px;
+    }
+
+    .issue-thumbnail {
+      grid-row: 1 / span 3;
+      width: 160px;
+      height: 106px;
+      border: 1px solid rgba(35, 43, 52, 0.16);
+      border-radius: 5px;
+      background: #d9e2e8;
+    }
+
     .issue-card:hover,
     .issue-card:focus-visible {
       border-color: rgba(70, 94, 112, 0.44);
@@ -194,6 +212,7 @@
 
     .issue-card strong {
       display: block;
+      min-width: 0;
       font-size: 12px;
       line-height: 1.25;
       font-weight: 700;
@@ -201,6 +220,7 @@
 
     .issue-card span {
       display: block;
+      min-width: 0;
       margin-top: 3px;
       font-size: 11px;
       line-height: 1.3;
@@ -242,35 +262,43 @@
   </div>
   <div class="issue-list">
     <h2>Simulated BCF Issues</h2>
-    <button class="issue-card" type="button" data-issue-id="BCF-104" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-104" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf1.png" width="160" height="106" alt="">
       <strong>BCF-104 Roof fascia alignment</strong>
       <span>North-west upper bowl</span>
     </button>
-    <button class="issue-card" type="button" data-issue-id="BCF-117" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-117" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf2.png" width="160" height="106" alt="">
       <strong>BCF-117 Vomitory clearance</strong>
       <span>East concourse entry</span>
     </button>
-    <button class="issue-card" type="button" data-issue-id="BCF-132" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-132" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf3.png" width="160" height="106" alt="">
       <strong>BCF-132 Seating rail clash</strong>
       <span>South lower stands</span>
     </button>
-    <button class="issue-card" type="button" data-issue-id="BCF-148" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-148" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf4.png" width="160" height="106" alt="">
       <strong>BCF-148 Lighting gantry review</strong>
       <span>Pitch-side roof span</span>
     </button>
-    <button class="issue-card" type="button" data-issue-id="BCF-163" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-163" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf5.png" width="160" height="106" alt="">
       <strong>BCF-163 Stair nosing clearance</strong>
       <span>Upper vomitory landing</span>
     </button>
-    <button class="issue-card" type="button" data-issue-id="BCF-171" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-171" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf6.png" width="160" height="106" alt="">
       <strong>BCF-171 Roof truss node review</strong>
       <span>South-east canopy bay</span>
     </button>
-    <button class="issue-card" type="button" data-issue-id="BCF-184" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-184" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf7.png" width="160" height="106" alt="">
       <strong>BCF-184 Drain cover setout</strong>
       <span>Lower service trench</span>
     </button>
-    <button class="issue-card" type="button" data-issue-id="BCF-196" aria-pressed="false">
+    <button class="issue-card has-thumbnail" type="button" data-issue-id="BCF-196" aria-pressed="false">
+      <img class="issue-thumbnail" src="bcf_thumbnails/bcf8.png" width="160" height="106" alt="">
       <strong>BCF-196 Coordination context review</strong>
       <span>North-west roof cluster</span>
       <em>loads broad context</em>

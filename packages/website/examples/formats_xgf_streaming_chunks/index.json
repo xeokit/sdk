@@ -1,7 +1,7 @@
 {
   "id": "formats_xgf_streaming_chunks",
-  "title": "XGF Streaming Chunks",
-  "description": "Loads XGF v2 asset libraries and references-only chunks from a generated streaming index.",
+  "title": "Manual XGF Chunk Streaming",
+  "description": "Loads shared XGF asset libraries once, then streams references-only tiles on demand.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

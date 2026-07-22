@@ -109995,14 +109995,11 @@ async function loadFileData(manifest, resolveFileData, signal) {
   return fileData;
 }
 function waitForFrameBudget(ms) {
+  if (ms <= 0) {
+    return Promise.resolve();
+  }
   return new Promise((resolve2) => {
-    setTimeout(() => {
-      if (typeof requestAnimationFrame === "function") {
-        requestAnimationFrame(() => resolve2());
-      } else {
-        resolve2();
-      }
-    }, Math.max(0, ms));
+    setTimeout(resolve2, ms);
   });
 }
 function isAbortError(error) {

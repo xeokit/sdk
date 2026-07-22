@@ -1,6 +1,9 @@
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 const INDEX_URL = "./chunks/index.runtime.json";
+const INITIAL_CHUNK_COUNT = 2;
+const FETCH_CONCURRENCY = 8;
+const STREAM_YIELD_INTERVAL_MS = 100;
 const loadedChunkIds = new Set();
 
 const studio = new xeokit.studio.Studio({});
@@ -48,8 +51,8 @@ studio.init().then(async () => {
         if (manifest.role === "referencesOnly") {
           loadedChunkIds.add(manifest.id);
         }
-        renderChunks(referenceChunks, view, chunkList);
-      }
+      },
+      yieldIntervalMs: STREAM_YIELD_INTERVAL_MS
     };
 
     chunkList.addEventListener("click", async (event) => {
@@ -89,8 +92,7 @@ studio.init().then(async () => {
     });
 
     renderChunks(referenceChunks, view, chunkList);
-    await loadChunk(loader, referenceChunks[0], sceneModel, loadOptions, status);
-    await loadChunk(loader, referenceChunks[1], sceneModel, loadOptions, status);
+    await loadInitialChunks(loader, referenceChunks, sceneModel, loadOptions, view, status);
     renderChunks(referenceChunks, view, chunkList);
 
     status.textContent = "Loaded two nearest chunks. Use the panel to stream the remaining tile or unload loaded tiles.";
@@ -116,6 +118,15 @@ async function loadChunk(loader, manifest, sceneModel, options, status) {
   await loader.loadChunk({manifest, sceneModel}, options);
   loadedChunkIds.add(manifest.id);
   status.textContent = `Loaded ${manifest.id}`;
+}
+
+async function loadInitialChunks(loader, chunkManifests, sceneModel, options, view, status) {
+  const chunks = prioritizeChunks(chunkManifests, view).slice(0, INITIAL_CHUNK_COUNT);
+  status.textContent = `Loading ${chunks.length} nearest chunks...`;
+  await loader.loadChunks({manifests: chunks, sceneModel}, {
+    ...options,
+    fetchConcurrency: FETCH_CONCURRENCY
+  });
 }
 
 function unloadChunk(loader, chunkId, sceneModel, status) {

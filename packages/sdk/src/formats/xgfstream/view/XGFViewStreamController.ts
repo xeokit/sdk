@@ -607,14 +607,11 @@ async function loadFileData(
 }
 
 function waitForFrameBudget(ms: number): Promise<void> {
+  if (ms <= 0) {
+    return Promise.resolve();
+  }
   return new Promise((resolve) => {
-    setTimeout(() => {
-      if (typeof requestAnimationFrame === "function") {
-        requestAnimationFrame(() => resolve());
-      } else {
-        resolve();
-      }
-    }, Math.max(0, ms));
+    setTimeout(resolve, ms);
   });
 }
 

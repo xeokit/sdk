@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XGF Streaming Benchmark</title>
+  <link href="../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: #eef2f3;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #demoCanvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: #eef2f3;
+      border: 0;
+    }
+
+    .xeokit-loading-overlay {
+      display: none !important;
+    }
+
+    #benchmarkPanel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(430px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(35, 43, 52, 0.18);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(30, 38, 48, 0.18);
+      color: #1f2933;
+      z-index: 3000000;
+    }
+
+    .panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .panel-header p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #52606d;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
+    }
+
+    .metric {
+      min-height: 50px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+      padding: 8px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: #65717d;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
+    }
+
+    button {
+      min-height: 34px;
+      border: 1px solid rgba(35, 43, 52, 0.22);
+      border-radius: 6px;
+      background: #ffffff;
+      color: #1f2933;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #edf2f5;
+    }
+
+    button:disabled {
+      cursor: default;
+      color: #9aa5b1;
+      background: #f3f5f7;
+    }
+
+    #status {
+      padding: 12px 16px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #52606d;
+      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
+    }
+
+    #chunkList {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+    }
+
+    .chunk {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #ffffff;
+      font-size: 12px;
+    }
+
+    .chunk small {
+      display: block;
+      margin-top: 3px;
+      color: #65717d;
+      font-size: 11px;
+    }
+
+    .state {
+      display: inline-flex;
+      align-items: center;
+      min-width: 58px;
+      justify-content: center;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #43505c;
+      background: #edf1f5;
+    }
+
+    .state.loaded {
+      color: #0f5132;
+      background: #d8f3e5;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="benchmarkPanel">
+  <div class="panel-header">
+    <h1>XGF Streaming Benchmark</h1>
+    <p>Generated apartment district: shared asset libraries plus 100 references-only block chunks.</p>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="loadedChunks">0</strong><span>loaded chunks</span></div>
+    <div class="metric"><strong id="objectCount">0</strong><span>objects</span></div>
+    <div class="metric"><strong id="meshCount">0</strong><span>meshes</span></div>
+  </div>
+  <div class="toolbar">
+    <button id="load25">Load in-view 25</button>
+    <button id="loadAll">Load all</button>
+    <button id="unload25">Unload farthest 25</button>
+    <button id="unloadAll">Unload all</button>
+  </div>
+  <div id="status">Initializing...</div>
+  <div id="chunkList"></div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

@@ -699,8 +699,8 @@
     "categories": [
       "XGF",
       "Streaming",
-      "glTF",
-      "BIM"
+      "BIM",
+      "Featured"
     ]
   },
   "formats_xgf_streaming_benchmark": {
@@ -735,7 +735,8 @@
     "categories": [
       "XGF",
       "Streaming",
-      "BIM"
+      "BIM",
+      "Featured"
     ]
   },
   "formats_xkt_model": {

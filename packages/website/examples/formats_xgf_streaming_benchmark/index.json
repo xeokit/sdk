@@ -1,0 +1,12 @@
+{
+  "id": "formats_xgf_streaming_benchmark",
+  "title": "XGF Streaming Benchmark",
+  "description": "Streams a generated apartment district from shared XGF asset libraries and 100 references-only block chunks.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "Benchmark"
+  ]
+}

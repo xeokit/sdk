@@ -1,0 +1,11 @@
+{
+  "id": "formats_xgf_streaming_chunks",
+  "title": "XGF Streaming Chunks",
+  "description": "Loads XGF v2 asset libraries and references-only chunks from a generated streaming index.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming"
+  ]
+}

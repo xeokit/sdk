@@ -23,10 +23,8 @@ studio.init().then(() => {
       look: [5.0,  5.0,   3.0],
       up:   [0,    0,     1]
     },
-    // DetailedRender is the mode that actually rasterises the
-    // per-material `hatchPattern` set by `applyIFCMaterials` below.
-    // RealisticRender would render the same materials un-hatched.
-    renderMode: xeokit.base.constants.DetailedRender,
+    renderMode: xeokit.base.constants.RealisticRender,
+    adaptiveQuality: false
   });
 
   // Exercise the quad-expanded thick-line technique. Setting this

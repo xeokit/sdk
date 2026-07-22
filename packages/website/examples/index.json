@@ -693,7 +693,7 @@
   "formats_xgf_streaming_baku": {
     "id": "formats_xgf_streaming_baku",
     "title": "XGF Streamed Stadium",
-    "description": "Simulates opening a shared issue viewpoint, prioritizing visible Baku Stadium chunks first.",
+    "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the whole model loads.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -729,7 +729,7 @@
   "formats_xgf_streaming_otc": {
     "id": "formats_xgf_streaming_otc",
     "title": "XGF Streaming OTC Conference Center",
-    "description": "Streams the OTC Conference Center BIM model from XGF v2 asset libraries and references-only chunks.",
+    "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared OTC context before the whole model loads.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [

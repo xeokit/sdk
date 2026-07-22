@@ -172,7 +172,7 @@ studio.init().then(async () => {
   // Rename for the panel header — the demo helper labels the field
   // "Demo Temperature" which is fine but a bit generic for a
   // showcase. Override for this example.
-  grid.name       = "Atrium Air Temperature";
+  grid.name       = "Atrium Thermal Flow Vizualization";
   vectorGrid.name = "Atrium Air Velocity";
 
   // ── Open the panel ──────────────────────────────────────────────

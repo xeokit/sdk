@@ -15,19 +15,19 @@ const ISSUE_VIEWPOINTS = [
   {
     id: "BCF-OTC-021",
     "eye": [
-      26.014167690958175,
-      -65.94477576210008,
-      6.633652347617371
+      25.98144315599818,
+      -62.721354276284536,
+      6.596920890870261
     ],
     "look": [
-      25.985328425030502,
-      -62.43493217422469,
-      1.3343445244362173
+      25.98163677621521,
+      -62.6833928044587,
+      0.24073831564443093
     ],
     "up": [
-      -0.006850098243153633,
-      0.8336819183543089,
-      0.5522024403813683
+      0.005100283247012565,
+      0.9999691586543038,
+      0.005972340496297357
     ],
     fov: 60
   },
@@ -106,7 +106,7 @@ studio.init().then(async () => {
     adaptiveQuality: true,
     backgroundColor: [0.93, 0.95, 0.96],
     camera: {
-      perspectiveProjection: {fov: 60},
+      perspectiveProjection: {fov: INITIAL_VIEWPOINT.fov},
       eye: INITIAL_VIEWPOINT.eye,
       look: INITIAL_VIEWPOINT.look,
       up: INITIAL_VIEWPOINT.up
@@ -120,7 +120,8 @@ studio.init().then(async () => {
     objectCount: document.getElementById("objectCount"),
     meshCount: document.getElementById("meshCount"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
-    frustumQueueProgress: document.getElementById("frustumQueueProgress")
+    frustumQueueProgress: document.getElementById("frustumQueueProgress"),
+    signalFrustumLoaded: createInitialFrustumReadyHandler(studio)
   };
 
   try {
@@ -139,7 +140,6 @@ studio.init().then(async () => {
     let renderScheduled = false;
     let streamController;
     let chunkPlaceholderObjectIds = new Map();
-    const signalInitialFrustumReady = createInitialFrustumReadyHandler(studio);
     const scheduleRender = () => {
       if (renderScheduled || !streamController) {
         return;
@@ -178,7 +178,6 @@ studio.init().then(async () => {
       cameraDebounceMs: CAMERA_DEBOUNCE_MS,
       onProgress: (progress) => {
         scheduleRender();
-        signalInitialFrustumReady(progress);
       },
       onChunksLoading: hideChunkPlaceholders,
       onError: (error) => {
@@ -257,6 +256,7 @@ function render(ui, streamController) {
     ui.frustumQueueProgress.style.setProperty("--progress", `${Math.max(0, Math.min(100, progress))}%`);
     if (queueProgress.queued === 0 || queueProgress.loaded >= queueProgress.queued) {
       ui.frustumQueueLabel.textContent = "Frustum loaded";
+      ui.signalFrustumLoaded?.(queueProgress);
     } else {
       ui.frustumQueueLabel.textContent = `${formatInt(queueProgress.loaded)}/${formatInt(queueProgress.queued)} loaded`;
     }
@@ -313,16 +313,9 @@ function bindIssueCards(studio, view, streamController) {
 }
 
 function createInitialFrustumReadyHandler(studio) {
-  let initialGeneration;
   let signaled = false;
   return (progress) => {
     if (signaled || !progress || progress.queued <= 0) {
-      return;
-    }
-    if (initialGeneration === undefined) {
-      initialGeneration = progress.generation;
-    }
-    if (progress.generation !== initialGeneration || progress.loaded < progress.queued) {
       return;
     }
     signaled = true;

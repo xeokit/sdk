@@ -258,6 +258,7 @@ async function captureSnapshots(args) {
   try {
     browser = await puppeteer.launch({
       headless: true,
+      protocolTimeout: Math.max(DEFAULT_TIMEOUT_MS, ...eligible.map(({meta}) => meta.snapshotTimeoutMs || 0)) + 30000,
       // `--enable-unsafe-swiftshader` lets headless Chromium fall
       // back to software WebGL when no GPU is available — without
       // it current Chrome refuses to provide a WebGL context in

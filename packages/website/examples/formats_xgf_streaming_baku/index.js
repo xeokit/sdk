@@ -118,7 +118,7 @@ studio.init().then(async () => {
       }
     },
     camera: {
-      perspectiveProjection: {fov: 60},
+      perspectiveProjection: {fov: INITIAL_VIEWPOINT.fov},
       eye: INITIAL_VIEWPOINT.eye,
       look: INITIAL_VIEWPOINT.look,
       up: INITIAL_VIEWPOINT.up
@@ -132,7 +132,8 @@ studio.init().then(async () => {
     objectCount: document.getElementById("objectCount"),
     meshCount: document.getElementById("meshCount"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
-    frustumQueueProgress: document.getElementById("frustumQueueProgress")
+    frustumQueueProgress: document.getElementById("frustumQueueProgress"),
+    signalFrustumLoaded: createInitialFrustumReadyHandler(studio)
   };
 
   try {
@@ -152,7 +153,6 @@ studio.init().then(async () => {
     let renderScheduled = false;
     let streamController;
     let chunkPlaceholderObjectIds = new Map();
-    const signalInitialFrustumReady = createInitialFrustumReadyHandler(studio);
     const scheduleRender = () => {
       if (renderScheduled || !streamController) {
         return;
@@ -187,7 +187,6 @@ studio.init().then(async () => {
       cameraDebounceMs: CAMERA_DEBOUNCE_MS,
       onProgress: (progress) => {
         scheduleRender();
-        signalInitialFrustumReady(progress);
       },
       onChunksLoading: hideChunkPlaceholders,
       onError: (error) => {
@@ -264,6 +263,7 @@ function render(ui, streamController) {
     ui.frustumQueueProgress.style.setProperty("--progress", `${Math.max(0, Math.min(100, progress))}%`);
     if (queueProgress.queued === 0 || queueProgress.loaded >= queueProgress.queued) {
       ui.frustumQueueLabel.textContent = "Frustum loaded";
+      ui.signalFrustumLoaded?.(queueProgress);
     } else {
       ui.frustumQueueLabel.textContent = `${formatInt(queueProgress.loaded)}/${formatInt(queueProgress.queued)} loaded`;
     }
@@ -318,16 +318,9 @@ function bindIssueCards(studio, view, streamController) {
 }
 
 function createInitialFrustumReadyHandler(studio) {
-  let initialGeneration;
   let signaled = false;
   return (progress) => {
     if (signaled || !progress || progress.queued <= 0) {
-      return;
-    }
-    if (initialGeneration === undefined) {
-      initialGeneration = progress.generation;
-    }
-    if (progress.generation !== initialGeneration || progress.loaded < progress.queued) {
       return;
     }
     signaled = true;

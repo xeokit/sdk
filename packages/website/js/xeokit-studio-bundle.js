@@ -109499,6 +109499,7 @@ var DEFAULT_BATCH_SIZE = 8;
 var DEFAULT_FETCH_CONCURRENCY = 8;
 var DEFAULT_COMMIT_FRAME_BUDGET_MS = 10;
 var DEFAULT_CAMERA_DEBOUNCE_MS = 140;
+var NON_FRUSTUM_PRIORITY_OFFSET = Number.MAX_SAFE_INTEGER / 2;
 var XGFViewStreamController = class {
   /** References-only chunk manifests controlled by this instance. */
   chunkManifests;
@@ -109595,7 +109596,7 @@ var XGFViewStreamController = class {
    * Returns chunk manifests sorted by the current view-priority heuristic.
    */
   prioritizeChunks(chunkManifests = this.chunkManifests) {
-    return chunkManifests.sort((a2, b4) => this.chunkPriority(a2) - this.chunkPriority(b4));
+    return this.prioritizeManifestRecords(chunkManifests).map((record) => record.manifest);
   }
   /**
    * Starts prefetching high-priority chunks and their dependencies without
@@ -109733,7 +109734,9 @@ var XGFViewStreamController = class {
     }
   }
   async preloadDependencies(chunkManifests, generation) {
-    const assetManifests = this.dependencyAssetLibraries(chunkManifests).filter((manifest) => !this.loadedAssetLibraryIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id)).sort((a2, b4) => this.chunkPriority(a2) - this.chunkPriority(b4));
+    const assetManifests = this.prioritizeManifestRecords(
+      this.dependencyAssetLibraries(chunkManifests).filter((manifest) => !this.loadedAssetLibraryIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id))
+    ).map((record) => record.manifest);
     if (assetManifests.length === 0) {
       return;
     }
@@ -109802,7 +109805,23 @@ var XGFViewStreamController = class {
     };
   }
   buildCandidateQueue() {
-    return this.prioritizeChunks().filter((manifest) => !this.loadedChunkIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id)).filter((manifest) => !this._frustumOnly || this.intersectsCameraFrustum(manifest));
+    const records = [];
+    for (const manifest of this.chunkManifests) {
+      if (this.loadedChunkIds.has(manifest.id) || this.loadingChunkIds.has(manifest.id)) {
+        continue;
+      }
+      const intersectsFrustum = this.intersectsCameraFrustum(manifest);
+      if (this._frustumOnly && !intersectsFrustum) {
+        continue;
+      }
+      records.push({
+        manifest,
+        intersectsFrustum,
+        priority: this.chunkPriorityFromFrustumState(manifest, intersectsFrustum)
+      });
+    }
+    records.sort(comparePriorityRecords);
+    return records.map((record) => record.manifest);
   }
   resetQueueProgress(generation, queued) {
     this.queueProgress.generation = generation;
@@ -109836,7 +109855,22 @@ var XGFViewStreamController = class {
     return manifest.role === "assetLibrary" ? this.loadedAssetLibraryIds.has(manifest.id) : this.loadedChunkIds.has(manifest.id);
   }
   chunkPriority(manifest) {
-    return (this.intersectsCameraFrustum(manifest) ? 0 : 1e6) + this.distanceToLookPoint(manifest);
+    return this.chunkPriorityFromFrustumState(manifest, this.intersectsCameraFrustum(manifest));
+  }
+  prioritizeManifestRecords(chunkManifests) {
+    const records = chunkManifests.map((manifest) => {
+      const intersectsFrustum = this.intersectsCameraFrustum(manifest);
+      return {
+        manifest,
+        intersectsFrustum,
+        priority: this.chunkPriorityFromFrustumState(manifest, intersectsFrustum)
+      };
+    });
+    records.sort(comparePriorityRecords);
+    return records;
+  }
+  chunkPriorityFromFrustumState(manifest, intersectsFrustum) {
+    return (intersectsFrustum ? 0 : NON_FRUSTUM_PRIORITY_OFFSET) + this.squaredDistanceToLookPoint(manifest);
   }
   intersectsCameraFrustum(manifest) {
     const frustum = this._view.camera.frustum;
@@ -109854,13 +109888,13 @@ var XGFViewStreamController = class {
     }
     return true;
   }
-  distanceToLookPoint(manifest) {
+  squaredDistanceToLookPoint(manifest) {
     const look = this._view.camera.look;
     const aabb = manifest.aabb || [0, 0, 0, 0, 0, 0];
     const dx = Math.max(aabb[0] - look[0], 0, look[0] - aabb[3]);
     const dy = Math.max(aabb[1] - look[1], 0, look[1] - aabb[4]);
     const dz = Math.max(aabb[2] - look[2], 0, look[2] - aabb[5]);
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    return dx * dx + dy * dy + dz * dz;
   }
   emitStatus(status) {
     this._onStatus?.(status);
@@ -109876,7 +109910,6 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
   const getKey = (manifest) => manifest.id || manifest.uri;
   const pump = () => {
     while (activeCount < concurrency && queue.length > 0) {
-      queue.sort((a2, b4) => a2.priority - b4.priority);
       const entry = queue.shift();
       if (entry.aborted) {
         continue;
@@ -109905,6 +109938,9 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
     if (existing) {
       existing.priority = Math.min(existing.priority, priority);
       existing.token = token;
+      if (!existing.active) {
+        repositionQueueEntry(queue, existing);
+      }
       pump();
       return existing.promise;
     }
@@ -109929,7 +109965,7 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
       promise
     };
     cache2.set(key, entry);
-    queue.push(entry);
+    insertQueueEntry(queue, entry);
     pump();
     return promise;
   };
@@ -109976,6 +110012,29 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData) {
       cache2.delete(key);
     }
   };
+}
+function comparePriorityRecords(a2, b4) {
+  if (a2.intersectsFrustum !== b4.intersectsFrustum) {
+    return a2.intersectsFrustum ? -1 : 1;
+  }
+  return a2.priority - b4.priority;
+}
+function insertQueueEntry(queue, entry) {
+  const index = queue.findIndex((candidate) => entry.priority < candidate.priority);
+  if (index === -1) {
+    queue.push(entry);
+    return;
+  }
+  queue.splice(index, 0, entry);
+}
+function repositionQueueEntry(queue, entry) {
+  const index = queue.indexOf(entry);
+  if (index === -1) {
+    insertQueueEntry(queue, entry);
+    return;
+  }
+  queue.splice(index, 1);
+  insertQueueEntry(queue, entry);
 }
 async function fetchFileData(manifest, signal) {
   if (!manifest.uri) {

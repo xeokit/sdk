@@ -690,6 +690,21 @@
       "Featured"
     ]
   },
+  "formats_xgf_streaming_archipelago": {
+    "id": "formats_xgf_streaming_archipelago",
+    "title": "XGF Streamed Archipelago",
+    "description": "Streams the same geolocated archipelago scene as one merged XGF chunk set, including the procedural islands, Duplex, IfcOpenHouse4, and Ferry.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "Geolocation",
+      "Terrains",
+      "Buildings",
+      "Ships"
+    ]
+  },
   "formats_xgf_streaming_baku": {
     "id": "formats_xgf_streaming_baku",
     "title": "XGF Streamed Stadium",
@@ -726,6 +741,30 @@
       "Streaming"
     ]
   },
+  "formats_xgf_streaming_karhumakiBridge": {
+    "id": "formats_xgf_streaming_karhumakiBridge",
+    "title": "XGF Streamed Karhumaki Bridge",
+    "description": "Streams the Karhumaki Bridge XKT conversion as view-prioritized XGF chunks, loading visible bridge regions before the whole dataset is resident.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM"
+    ]
+  },
+  "formats_xgf_streaming_lyon": {
+    "id": "formats_xgf_streaming_lyon",
+    "title": "XGF Streamed LoD2 Lyon",
+    "description": "Streams nine merged Lyon XKT files as one view-prioritized XGF chunk set, loading visible city regions before the whole dataset is resident.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM"
+    ]
+  },
   "formats_xgf_streaming_otc": {
     "id": "formats_xgf_streaming_otc",
     "title": "XGF Streaming OTC Conference Center",
@@ -737,6 +776,31 @@
       "Streaming",
       "BIM",
       "Featured"
+    ]
+  },
+  "formats_xgf_streaming_recursive": {
+    "id": "formats_xgf_streaming_recursive",
+    "title": "XGF Recursive Stream",
+    "description": "Loads a root XGF stream that lazily references other XGF streams, activating each child stream only when its aggregate bounds enter the view.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Geolocation"
+    ]
+  },
+  "formats_xgf_streaming_westRiverSide": {
+    "id": "formats_xgf_streaming_westRiverSide",
+    "title": "XGF Streamed West River Side",
+    "description": "Streams the West River Side XKT conversion as view-prioritized XGF chunks, loading visible model regions before the whole dataset is resident.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM"
     ]
   },
   "formats_xkt_model": {

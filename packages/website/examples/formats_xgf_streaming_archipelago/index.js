@@ -1,0 +1,287 @@
+import * as xeokit from "../../js/xeokit-studio-bundle.js";
+
+const {sdkProgress} = xeokit.base.core;
+
+const INDEX_URL = "../../models/Archipelago/xgfstream/index.runtime.json";
+const AUTO_BATCH_SIZE = 2;
+const FETCH_CONCURRENCY = 4;
+const CAMERA_DEBOUNCE_MS = 140;
+const CACHE_XGF_FILE_BYTES = true;
+const MAX_CACHED_XGF_FILE_BYTES = 128 * 1024 * 1024;
+const FAR_CLIP = 200000;
+
+const UTM_EAST = 267000.0;
+const UTM_NORTH = 6550000.0;
+const ARCH_COORDINATE_SYSTEM = {
+  basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
+  origin: [UTM_EAST, 0.0, UTM_NORTH],
+  units: "meters",
+  scaleToMeters: 1
+};
+
+const VIEWPOINTS = [
+  {
+    id: "ARCH-01",
+    title: "Duplex island",
+    location: "Central island building",
+    eye: [267277.5, 6549630.4, 75.9],
+    look: [267207.5, 6549725.4, 15.9],
+    up: [0, 0, 1],
+    fov: 24
+  },
+  {
+    id: "ARCH-02",
+    title: "IfcOpenHouse4 island",
+    location: "North-west island building",
+    eye: [260722.4, 6559401.5, 95.3],
+    look: [260612.4, 6559536.5, 35.3],
+    up: [0, 0, 1],
+    fov: 24
+  },
+  {
+    id: "ARCH-03",
+    title: "Ferry",
+    location: "South-east waterline",
+    eye: [275660, 6541270, 85],
+    look: [275500, 6541500, 20],
+    up: [0, 0, 1],
+    fov: 22
+  },
+  {
+    id: "ARCH-04",
+    title: "Full archipelago",
+    location: "56 km overview",
+    eye: [267000, 6509000, 31000],
+    look: [267000, 6550000, 0],
+    up: [0, 0, 1],
+    fov: 48
+  }
+];
+
+const INITIAL_VIEWPOINT = VIEWPOINTS[0];
+let startupSpinnerDismissed = false;
+
+sdkProgress.setPhase("Loading...");
+
+const studio = new xeokit.studio.Studio({});
+const viewpointCards = createViewpointCards(document.getElementById("viewpointCards"), VIEWPOINTS);
+
+studio.init().then(async () => {
+  const {scene} = studio;
+  const ui = {
+    loadedChunks: document.getElementById("loadedChunks"),
+    objectCount: document.getElementById("objectCount"),
+    meshCount: document.getElementById("meshCount"),
+    frustumQueueLabel: document.getElementById("frustumQueueLabel"),
+    frustumQueueProgress: document.getElementById("frustumQueueProgress"),
+    streamStatus: document.getElementById("streamStatus")
+  };
+
+  const view = studio.viewManager.createView({
+    id: "demoView",
+    adaptiveQuality: true,
+    backgroundColor: [0.76, 0.85, 0.91],
+    effects: {
+      sky: {
+        enabled: true,
+        skyColor: [0.48, 0.68, 0.84],
+        horizonColor: [0.82, 0.91, 0.95],
+        groundColor: [0.82, 0.86, 0.82],
+        blend: 0.5,
+        intensity: 1.0
+      }
+    },
+    camera: {
+      perspectiveProjection: {fov: INITIAL_VIEWPOINT.fov, near: 0.001, far: FAR_CLIP},
+      eye: INITIAL_VIEWPOINT.eye,
+      look: INITIAL_VIEWPOINT.look,
+      up: INITIAL_VIEWPOINT.up
+    }
+  });
+
+  try {
+    setStatus(ui, "Preparing stream index");
+    const index = await fetchStreamingIndex(INDEX_URL);
+    setStatus(ui, "Scheduling first frustum");
+
+    const sceneModel = must(scene.createModel({
+      id: "Archipelago",
+      coordinateSystem: ARCH_COORDINATE_SYSTEM
+    }));
+
+    const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
+    let renderScheduled = false;
+    let streamController;
+    const scheduleRender = () => {
+      if (renderScheduled || !streamController) {
+        return;
+      }
+      renderScheduled = true;
+      window.requestAnimationFrame(() => {
+        renderScheduled = false;
+        render(ui, streamController);
+      });
+    };
+
+    streamController = new xeokit.formats.xgfstream.XGFViewStreamController({
+      index,
+      loader,
+      sceneModel,
+      view,
+      batchSize: AUTO_BATCH_SIZE,
+      fetchConcurrency: FETCH_CONCURRENCY,
+      cameraDebounceMs: CAMERA_DEBOUNCE_MS,
+      cacheFileData: CACHE_XGF_FILE_BYTES,
+      maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
+      frustumOnly: true,
+      onStatus: (status) => setStatus(ui, status),
+      onProgress: () => scheduleRender(),
+      onChunksLoading: () => hideStartupSpinner(),
+      onError: (error) => {
+        console.error(error);
+        setStatus(ui, String(error?.message || error));
+        scheduleRender();
+      }
+    });
+
+    hideStartupSpinner();
+    streamController.schedule("Current frustum");
+    render(ui, streamController);
+    bindCameraStreaming(studio, view, streamController);
+    bindViewpointCards(studio, view, streamController, viewpointCards);
+    setActiveViewpoint(viewpointCards, INITIAL_VIEWPOINT.id);
+  } catch (error) {
+    console.error(error);
+    setStatus(ui, String(error?.message || error));
+  }
+});
+
+async function fetchStreamingIndex(url) {
+  const runtimeIndex = await fetchJSON(url);
+  const result = xeokit.formats.xgfstream.readXGFStreamingRuntimeIndex(runtimeIndex);
+  if (!result.ok) {
+    throw new Error(result.error);
+  }
+  return resolveStreamingIndexUris(result.value, url);
+}
+
+function resolveStreamingIndexUris(index, indexUrl) {
+  const baseUrl = new URL(".", new URL(indexUrl, window.location.href));
+  for (const chunk of index.chunks || []) {
+    if (chunk.uri) {
+      chunk.uri = new URL(chunk.uri, baseUrl).href;
+    }
+    for (const dependency of chunk.dependencies?.chunks || []) {
+      if (dependency.uri) {
+        dependency.uri = new URL(dependency.uri, baseUrl).href;
+      }
+    }
+  }
+  return index;
+}
+
+async function fetchJSON(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${url}: ${response.status}`);
+  }
+  return response.json();
+}
+
+function render(ui, streamController) {
+  ui.loadedChunks.textContent = `${streamController.loadedChunkIds.size}/${streamController.chunkManifests.length}`;
+  ui.objectCount.textContent = streamController.loadedTotals.objects.toLocaleString();
+  ui.meshCount.textContent = streamController.loadedTotals.meshes.toLocaleString();
+  const progress = streamController.queueProgress;
+  const total = Math.max(progress.queued, 1);
+  ui.frustumQueueLabel.textContent = `${progress.loaded}/${progress.queued} loaded`;
+  ui.frustumQueueProgress.max = total;
+  ui.frustumQueueProgress.value = progress.loaded;
+}
+
+function setStatus(ui, status) {
+  if (!startupSpinnerDismissed) {
+    sdkProgress.setPhase(status);
+  }
+  if (ui.streamStatus) {
+    ui.streamStatus.textContent = status;
+  }
+}
+
+function bindCameraStreaming(studio, view, streamController) {
+  const onCamera = (camera) => {
+    if (camera !== view.camera) {
+      return;
+    }
+    streamController.schedule("Current frustum");
+  };
+  studio.viewer.events.onCameraViewMatrixUpdated.subscribe(onCamera);
+  studio.viewer.events.onCameraProjMatrixUpdated.subscribe(onCamera);
+}
+
+function bindViewpointCards(studio, view, streamController, cards) {
+  const viewpoints = new Map(VIEWPOINTS.map((viewpoint) => [viewpoint.id, viewpoint]));
+  const cameraFlight = studio.viewManager.views?.[view.id]?.cameraFlight;
+  for (const card of cards) {
+    card.addEventListener("click", () => {
+      const viewpoint = viewpoints.get(card.dataset.viewpointId);
+      if (!viewpoint) {
+        return;
+      }
+      setActiveViewpoint(cards, viewpoint.id);
+      view.camera.perspectiveProjection.fov = viewpoint.fov || 35;
+      view.camera.perspectiveProjection.far = FAR_CLIP;
+      if (cameraFlight && typeof cameraFlight.flyTo === "function") {
+        cameraFlight.flyTo({
+          eye: viewpoint.eye,
+          look: viewpoint.look,
+          up: viewpoint.up,
+          duration: 0.9
+        });
+      } else {
+        view.camera.eye = viewpoint.eye;
+        view.camera.look = viewpoint.look;
+        view.camera.up = viewpoint.up;
+      }
+      streamController.schedule(viewpoint.id);
+      window.setTimeout(() => streamController.schedule(`${viewpoint.id} settled`), 950);
+    });
+  }
+}
+
+function createViewpointCards(container, viewpoints) {
+  return viewpoints.map((viewpoint) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "viewpoint-card";
+    card.dataset.viewpointId = viewpoint.id;
+    card.innerHTML = `<strong>${viewpoint.title}</strong><span>${viewpoint.location}</span>`;
+    container.appendChild(card);
+    return card;
+  });
+}
+
+function setActiveViewpoint(cards, id) {
+  for (const card of cards) {
+    card.classList.toggle("active", card.dataset.viewpointId === id);
+  }
+}
+
+function hideStartupSpinner() {
+  if (startupSpinnerDismissed) {
+    return;
+  }
+  startupSpinnerDismissed = true;
+  document.body.classList.add("xeokit-loading-spinner-ready");
+  const overlay = document.getElementById("xeokit-boot-loading-overlay");
+  if (overlay) {
+    overlay.style.display = "none";
+  }
+}
+
+function must(result) {
+  if (!result || result.ok === false) {
+    throw new Error(result?.error || "Operation failed");
+  }
+  return result.value;
+}

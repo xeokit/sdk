@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>XGF Streamed Archipelago</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../css/example-page.css">
+  <link rel="stylesheet" href="../../css/example-loading.css">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      user-select: none;
+      font-family: Arial, sans-serif;
+      background: #d7e2e7;
+    }
+    #viewerCanvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: linear-gradient(#c1d8e7 0%, #edf4f6 58%, #d8dedb 100%);
+    }
+    .stream-panel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(390px, calc(100vw - 32px));
+      max-height: calc(100vh - 76px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      box-shadow: 0 20px 42px rgba(0, 0, 0, 0.18);
+      padding: 16px;
+      font: 13px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #1f2933;
+      z-index: 2147483647;
+    }
+    .stream-panel h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .stream-panel p {
+      margin: 0 0 14px;
+      color: #4b5563;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat {
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      padding: 8px;
+      background: #f8fafc;
+    }
+    .stat strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.1;
+    }
+    .stat span {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      color: #64748b;
+    }
+    .queue-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 8px;
+      color: #475569;
+    }
+    progress {
+      width: 100%;
+      height: 8px;
+      border: 0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .viewpoint-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .viewpoint-card {
+      text-align: left;
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      background: #fff;
+      padding: 9px 10px;
+      cursor: pointer;
+    }
+    .viewpoint-card.active {
+      border-color: #2684ff;
+      background: #f1f7ff;
+    }
+    .viewpoint-card strong {
+      display: block;
+      font-size: 13px;
+    }
+    .viewpoint-card span {
+      color: #64748b;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+<canvas id="viewerCanvas"></canvas>
+<section class="stream-panel">
+  <h1>XGF Streamed Archipelago</h1>
+  <p>Streams the procedural archipelago, Duplex, IfcOpenHouse4, and Ferry as one merged XGF chunk set.</p>
+  <div class="stats-grid">
+    <div class="stat"><strong id="loadedChunks">0/0</strong><span>chunks</span></div>
+    <div class="stat"><strong id="objectCount">0</strong><span>objects</span></div>
+    <div class="stat"><strong id="meshCount">0</strong><span>meshes</span></div>
+  </div>
+  <div class="queue-row">
+    <span>Current frustum</span>
+    <span id="frustumQueueLabel">0/0 loaded</span>
+  </div>
+  <progress id="frustumQueueProgress" value="0" max="1"></progress>
+  <div id="streamStatus">Preparing stream</div>
+  <div id="viewpointCards" class="viewpoint-list"></div>
+</section>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

@@ -708,7 +708,7 @@
   "formats_xgf_streaming_baku": {
     "id": "formats_xgf_streaming_baku",
     "title": "XGF Streamed Stadium",
-    "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the whole model loads.",
+    "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the full stadium is resident.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -739,18 +739,6 @@
     "categories": [
       "XGF",
       "Streaming"
-    ]
-  },
-  "formats_xgf_streaming_karhumakiBridge": {
-    "id": "formats_xgf_streaming_karhumakiBridge",
-    "title": "XGF Streamed Karhumaki Bridge",
-    "description": "Streams the Karhumaki Bridge XKT conversion as view-prioritized XGF chunks, loading visible bridge regions before the whole dataset is resident.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "BIM"
     ]
   },
   "formats_xgf_streaming_lyon": {
@@ -789,18 +777,6 @@
       "Streaming",
       "BIM",
       "Geolocation"
-    ]
-  },
-  "formats_xgf_streaming_westRiverSide": {
-    "id": "formats_xgf_streaming_westRiverSide",
-    "title": "XGF Streamed West River Side",
-    "description": "Streams the West River Side XKT conversion as view-prioritized XGF chunks, loading visible model regions before the whole dataset is resident.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "BIM"
     ]
   },
   "formats_xkt_model": {

@@ -56,6 +56,15 @@
       font-weight: 700;
     }
 
+    .lyon-preview {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin: 10px 0 0;
+      border-radius: 7px;
+      border: 1px solid rgba(35, 43, 52, 0.14);
+    }
+
     .panel-header p {
       margin: 6px 0 0;
       font-size: 12px;
@@ -174,6 +183,7 @@
 <aside id="streamPanel" aria-label="XGF streaming status">
   <div class="panel-header">
     <h1>XGF Streamed Lyon</h1>
+    <img class="lyon-preview" src="lyon.png" alt="Lyon city model">
     <p>Visible chunks are prioritized from the current camera frustum across the merged Lyon XKT source files.</p>
   </div>
   <div class="metrics">

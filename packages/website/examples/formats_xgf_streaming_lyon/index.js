@@ -13,39 +13,48 @@ const FAR_CLIP = 100000;
 const VIEWPOINTS = [
   {
     id: "LYON-01",
-    title: "Central blocks",
-    location: "Close city inspection",
-    eye: [472, 1432, 392],
-    look: [-128, -768, 2],
+    title: "Central cluster",
+    location: "Street-scale inspection",
+    eye: [420, -620, 320],
+    look: [-40, -980, -80],
     up: [0, 0, 1],
-    fov: 18
+    fov: 21
   },
   {
     id: "LYON-02",
-    title: "East district",
-    location: "Dense urban fabric",
-    eye: [3672, 3232, 922],
-    look: [172, -232, 32],
+    title: "East blocks",
+    location: "Local building group",
+    eye: [2360, 720, 340],
+    look: [1840, 260, -72],
     up: [0, 0, 1],
-    fov: 24
+    fov: 22
   },
   {
     id: "LYON-03",
-    title: "Western sector",
+    title: "West blocks",
     location: "Low oblique inspection",
-    eye: [-6428, 2432, 672],
-    look: [-2328, -868, 22],
+    eye: [-2680, 680, 335],
+    look: [-2140, 160, -76],
     up: [0, 0, 1],
     fov: 22
   },
   {
     id: "LYON-04",
-    title: "South approach",
-    location: "Long view through the city",
-    eye: [972, -7868, 572],
-    look: [-328, -1268, 32],
+    title: "South overview",
+    location: "Broad city approach",
+    eye: [820, -7800, 1180],
+    look: [-260, -1180, -90],
     up: [0, 0, 1],
-    fov: 22
+    fov: 28
+  },
+  {
+    id: "LYON-05",
+    title: "Northwest overview",
+    location: "Merged district extent",
+    eye: [-7200, 5200, 1480],
+    look: [260, -160, -110],
+    up: [0, 0, 1],
+    fov: 32
   }
 ];
 

@@ -4,6 +4,7 @@
   "description": "Streams nine merged Lyon XKT files as one view-prioritized XGF chunk set, loading visible city regions before the whole dataset is resident.",
   "isTutorial": true,
   "isVisualTest": false,
+  "snapshotTimeoutMs": 240000,
   "categories": [
     "XGF",
     "Streaming",

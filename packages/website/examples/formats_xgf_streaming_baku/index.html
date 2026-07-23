@@ -93,7 +93,13 @@
       line-height: 1.1;
     }
 
-    .metric span {
+    .metric strong small {
+      font-size: 11px;
+      font-weight: 600;
+      color: #65717d;
+    }
+
+    .metric > span {
       display: block;
       margin-top: 4px;
       font-size: 11px;
@@ -257,11 +263,11 @@
   <div class="panel-header">
     <h1>XGF Streamed Stadium</h1>
     <img class="stadium-preview" src="bcf_thumbnails/baku.png" alt="Baku Olympic Stadium">
-    <p>Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the whole model loads.</p>
+    <p>Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the full stadium is resident.</p>
   </div>
   <div class="metrics">
-    <div class="metric"><strong id="loadedChunks">0</strong><span>loaded chunks</span></div>
-    <div class="metric"><strong id="objectCount">0</strong><span>objects</span></div>
+    <div class="metric"><strong><span id="loadedChunks">0</span> <small id="chunkTarget">/ 0</small></strong><span>chunks</span></div>
+    <div class="metric"><strong><span id="objectCount">0</span> <small id="objectTarget">/ 0</small></strong><span>objects</span></div>
     <div class="metric"><strong id="meshCount">0</strong><span>meshes</span></div>
   </div>
   <div class="queue-progress" data-mode="pending">

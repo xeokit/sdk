@@ -163,7 +163,9 @@ studio.init().then(async () => {
 
   const ui = {
     loadedChunks: document.getElementById("loadedChunks"),
+    chunkTarget: document.getElementById("chunkTarget"),
     objectCount: document.getElementById("objectCount"),
+    objectTarget: document.getElementById("objectTarget"),
     meshCount: document.getElementById("meshCount"),
     frustumQueue: document.querySelector(".queue-progress"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
@@ -176,6 +178,7 @@ studio.init().then(async () => {
     // The compact runtime index contains scheduling and dependency metadata.
     // The full chunks/index.json remains available for debugging/tooling.
     const index = await fetchStreamingIndex(INDEX_URL);
+    ui.objectTarget.textContent = `/ ${formatInt(countReferenceObjects(index))}`;
     setStreamPreparing(ui, "Scheduling first frustum");
     const sceneModel = must(scene.createModel({
       id: "BakuStadium",
@@ -298,7 +301,8 @@ function isAbsoluteUrl(uri) {
 
 function render(ui, streamController) {
   const queueProgress = streamController.queueProgress;
-  ui.loadedChunks.textContent = `${streamController.loadedChunkIds.size}/${streamController.chunkManifests.length}`;
+  ui.loadedChunks.textContent = formatInt(streamController.loadedChunkIds.size);
+  ui.chunkTarget.textContent = `/ ${formatInt(streamController.chunkManifests.length)}`;
   ui.objectCount.textContent = formatInt(streamController.loadedTotals.objects);
   ui.meshCount.textContent = formatInt(streamController.loadedTotals.meshes);
   if (ui.frustumQueueProgress && queueProgress) {
@@ -314,6 +318,14 @@ function render(ui, streamController) {
       ui.frustumQueueLabel.textContent = `${formatInt(queueProgress.loaded)}/${formatInt(queueProgress.queued)} loaded`;
     }
   }
+}
+
+function countReferenceObjects(index) {
+  return (index.chunks || []).reduce((total, manifest) => {
+    return manifest.role === "referencesOnly"
+      ? total + (manifest.counts?.objects || 0)
+      : total;
+  }, 0);
 }
 
 function setStreamPreparing(ui, label) {

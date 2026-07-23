@@ -59,6 +59,11 @@ const VIEWPOINTS = [
 ];
 
 const INITIAL_VIEWPOINT = VIEWPOINTS[0];
+const ALL_RENDER_MODES = [
+  xeokit.base.constants.NavigationRender,
+  xeokit.base.constants.DetailedRender,
+  xeokit.base.constants.RealisticRender
+];
 let startupSpinnerDismissed = false;
 
 sdkProgress.setPhase("Loading...");
@@ -74,7 +79,8 @@ studio.init().then(async () => {
     meshCount: document.getElementById("meshCount"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
     frustumQueueProgress: document.getElementById("frustumQueueProgress"),
-    streamStatus: document.getElementById("streamStatus")
+    streamStatus: document.getElementById("streamStatus"),
+    signalFrustumLoaded: createInitialFrustumReadyHandler(studio)
   };
 
   const view = studio.viewManager.createView({
@@ -82,6 +88,9 @@ studio.init().then(async () => {
     adaptiveQuality: true,
     backgroundColor: [0.76, 0.85, 0.91],
     effects: {
+      edges: {
+        renderModes: ALL_RENDER_MODES
+      },
       sky: {
         enabled: true,
         skyColor: [0.48, 0.68, 0.84],
@@ -96,6 +105,10 @@ studio.init().then(async () => {
       eye: INITIAL_VIEWPOINT.eye,
       look: INITIAL_VIEWPOINT.look,
       up: INITIAL_VIEWPOINT.up
+    },
+    resolutionScale: {
+      renderModes: [xeokit.base.constants.NavigationRender],
+      resolutionScale: 1.0
     }
   });
 
@@ -135,7 +148,10 @@ studio.init().then(async () => {
       maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
       frustumOnly: true,
       onStatus: (status) => setStatus(ui, status),
-      onProgress: () => scheduleRender(),
+      onProgress: (progress) => {
+        scheduleRender();
+        ui.signalFrustumLoaded(progress);
+      },
       onChunksLoading: () => hideStartupSpinner(),
       onError: (error) => {
         console.error(error);
@@ -277,6 +293,33 @@ function hideStartupSpinner() {
   if (overlay) {
     overlay.style.display = "none";
   }
+}
+
+function createInitialFrustumReadyHandler(studio) {
+  let signaled = false;
+  return (progress) => {
+    if (signaled || !progress || progress.queued <= 0 || progress.loaded < progress.queued) {
+      return;
+    }
+    signaled = true;
+    signalReady();
+    studio.finished();
+  };
+}
+
+function signalReady() {
+  if (document.getElementById("ExampleLoaded")) {
+    return;
+  }
+  const exampleMarker = document.createElement("div");
+  exampleMarker.id = "ExampleLoaded";
+  exampleMarker.hidden = true;
+  document.body.appendChild(exampleMarker);
+
+  const marker = document.createElement("div");
+  marker.id = "XGFStreamingArchipelagoReady";
+  marker.hidden = true;
+  document.body.appendChild(marker);
 }
 
 function must(result) {

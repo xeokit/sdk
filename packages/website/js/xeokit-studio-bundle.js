@@ -110246,6 +110246,7 @@ var XGFViewStreamController = class {
   _batchSize;
   _commitFrameBudgetMs;
   _frustumOnly;
+  _chunkPriorityTarget;
   _cameraDebounceMs;
   _enableLRUEviction;
   _unloadInactiveStreams;
@@ -110259,7 +110260,9 @@ var XGFViewStreamController = class {
   _manifestLookup;
   _generation = 0;
   _pendingGeneration = 0;
+  _resetGeneration = 0;
   _running = false;
+  _paused = false;
   _lruSequence = 0;
   _chunkLastUsed = /* @__PURE__ */ new Map();
   _timer;
@@ -110294,6 +110297,7 @@ var XGFViewStreamController = class {
     this._batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
     this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
     this._frustumOnly = params.frustumOnly !== false;
+    this._chunkPriorityTarget = params.chunkPriorityTarget || "look";
     this._cameraDebounceMs = params.cameraDebounceMs ?? DEFAULT_CAMERA_DEBOUNCE_MS;
     this._enableLRUEviction = params.enableLRUEviction === true;
     this._unloadInactiveStreams = params.unloadInactiveStreams === true;
@@ -110339,6 +110343,13 @@ var XGFViewStreamController = class {
     return this._generation;
   }
   /**
+   * True while streaming is paused. A paused controller ignores new schedule
+   * requests and stops committing additional chunks between chunk loads.
+   */
+  get paused() {
+    return this._paused;
+  }
+  /**
    * Returns chunk manifests sorted by the current view-priority heuristic.
    */
   prioritizeChunks(chunkManifests = this.chunkManifests) {
@@ -110357,6 +110368,10 @@ var XGFViewStreamController = class {
    * Schedules a debounced streaming pass for the current camera/frustum state.
    */
   schedule(label = "Streaming") {
+    if (this._paused) {
+      this.emitStatus(`${label}: paused`);
+      return;
+    }
     this._generation++;
     this.rebuildCandidateQueue(this._generation);
     this.touchManifests(this._candidateQueue.chunks);
@@ -110367,6 +110382,121 @@ var XGFViewStreamController = class {
     this._timer = setTimeout(() => {
       this.runGeneration(this._generation, label);
     }, this._cameraDebounceMs);
+  }
+  /**
+   * Pauses view-driven streaming and aborts queued, not-yet-active chunk
+   * fetches. The currently committing chunk, if any, is allowed to finish.
+   */
+  pause() {
+    if (this._paused) {
+      return;
+    }
+    this._paused = true;
+    this._generation++;
+    this._pendingGeneration = 0;
+    if (this._timer !== void 0) {
+      clearTimeout(this._timer);
+      this._timer = void 0;
+    }
+    this._fileDataCache.abortQueued(() => true);
+    this.emitStatus("Streaming paused");
+  }
+  /**
+   * Resumes view-driven streaming and schedules a pass for the current view.
+   */
+  resume(label = "Streaming") {
+    if (!this._paused) {
+      return;
+    }
+    this._paused = false;
+    this.schedule(label);
+  }
+  /**
+   * Unloads all resident streamed chunks from the SceneModel and resets
+   * scheduling for the current view.
+   *
+   * This does not pause streaming. Chunks already in the middle of a commit are
+   * allowed to finish, queued prefetches are dropped, and a fresh scheduling
+   * pass is requested unless the controller was already paused.
+   */
+  unloadAllChunks() {
+    const wasPaused = this._paused;
+    this._generation++;
+    this._resetGeneration = this._generation;
+    this._pendingGeneration = this._generation;
+    if (this._timer !== void 0) {
+      clearTimeout(this._timer);
+      this._timer = void 0;
+    }
+    this._fileDataCache.abortQueued(() => true);
+    let unloaded = 0;
+    const protectedChunkIds = new Set(this.loadingChunkIds);
+    for (const chunkId of Array.from(this.loadedChunkIds)) {
+      if (protectedChunkIds.has(chunkId)) {
+        continue;
+      }
+      if (this.unloadResidentChunk(chunkId, true)) {
+        unloaded++;
+      }
+    }
+    for (const chunkId of Array.from(this.loadedAssetLibraryIds)) {
+      if (protectedChunkIds.has(chunkId)) {
+        continue;
+      }
+      if (this.unloadResidentChunk(chunkId, false)) {
+        unloaded++;
+      }
+    }
+    this.rebuildCandidateQueue(this._generation);
+    this.touchManifests(this._candidateQueue.chunks);
+    this.resetQueueProgress(this._generation, this.countPendingFrustumChunks());
+    this.emitStatus(`Removed ${unloaded} streamed chunk(s)`);
+    this.emitProgress();
+    if (!wasPaused && !this._running) {
+      this.schedule("Current frustum");
+    }
+    return unloaded;
+  }
+  /**
+   * Aborts queued loads for chunks outside the current camera frustum and
+   * unloads resident references-only chunks that are no longer visible.
+   *
+   * Asset-library chunks are retained because visible chunks may still share
+   * them. Chunks already in the middle of a commit are skipped and can be
+   * removed by calling this again after they finish.
+   */
+  unloadInvisibleChunks() {
+    const wasPaused = this._paused;
+    this._generation++;
+    this._pendingGeneration = wasPaused ? 0 : this._generation;
+    if (this._timer !== void 0) {
+      clearTimeout(this._timer);
+      this._timer = void 0;
+    }
+    this._fileDataCache.abortQueued((manifest) => !this.intersectsCameraFrustum(manifest));
+    let unloaded = 0;
+    const protectedChunkIds = new Set(this.loadingChunkIds);
+    for (const chunkId of Array.from(this.loadedChunkIds)) {
+      if (protectedChunkIds.has(chunkId)) {
+        continue;
+      }
+      const manifest = this.manifestById(chunkId);
+      if (manifest && this.intersectsCameraFrustum(manifest)) {
+        continue;
+      }
+      if (this.unloadResidentChunk(chunkId, true)) {
+        unloaded++;
+      }
+    }
+    this.rebuildCandidateQueue(this._generation);
+    this.touchManifests(this._candidateQueue.chunks);
+    this.resetQueueProgress(this._generation, this.countPendingFrustumChunks());
+    this.emitStatus(`Unloaded ${unloaded} invisible chunk(s)`);
+    this.emitProgress();
+    if (!wasPaused && !this._running) {
+      this.schedule("Current frustum");
+    }
+    return unloaded;
   }
   /**
    * Prefetches asset-library dependencies for the supplied chunk manifests.
@@ -110390,6 +110520,9 @@ var XGFViewStreamController = class {
     );
   }
   async runGeneration(generation, label) {
+    if (this._paused) {
+      return;
+    }
     if (this._running) {
       this._pendingGeneration = generation;
       return;
@@ -110398,6 +110531,9 @@ var XGFViewStreamController = class {
     let activeGeneration = generation;
     try {
       while (activeGeneration || this.hasPendingQueuedChunks()) {
+        if (this._paused) {
+          break;
+        }
         const batchGeneration = activeGeneration || this._generation;
         this._pendingGeneration = 0;
         if (this._unloadInactiveStreams) {
@@ -110447,6 +110583,12 @@ var XGFViewStreamController = class {
         await this.preloadDependencies(candidates, generation);
       }
       for (const manifest of candidates) {
+        if (this._paused) {
+          break;
+        }
+        if (generation !== void 0 && generation < this._resetGeneration) {
+          break;
+        }
         if (generation !== void 0 && generation !== this._generation && frustumOnly && !this.intersectsCameraFrustum(manifest)) {
           continue;
         }
@@ -110466,6 +110608,14 @@ var XGFViewStreamController = class {
             continue;
           }
           throw error;
+        }
+        if (generation !== void 0 && generation < this._resetGeneration) {
+          this._fileDataCache.release(manifest);
+          break;
+        }
+        if (this._paused) {
+          this._fileDataCache.release(manifest);
+          continue;
         }
         const wasLoaded = this.isLoadedManifest(manifest);
         await this._loader.loadChunk({ manifest, fileData, sceneModel: this._sceneModel }, this._loadOptions);
@@ -110630,22 +110780,9 @@ var XGFViewStreamController = class {
       if (this.loadedChunkIds.size <= this._maxResidentChunks) {
         break;
       }
-      const manifest = this.manifestById(chunkId);
-      const result = this._loader.unloadChunk({
-        sceneModel: this._sceneModel,
-        chunkId
-      });
-      if (result.ok === false) {
-        this._onError?.(result.error);
-        continue;
+      if (this.unloadResidentChunk(chunkId, true)) {
+        evicted++;
       }
-      this.loadedChunkIds.delete(chunkId);
-      this._chunkLastUsed.delete(chunkId);
-      if (manifest) {
-        this.loadedTotals.objects = Math.max(0, this.loadedTotals.objects - (manifest.counts?.objects || 0));
-        this.loadedTotals.meshes = Math.max(0, this.loadedTotals.meshes - (manifest.counts?.meshes || 0));
-      }
-      evicted++;
     }
     if (evicted > 0) {
       this.emitStatus(`Evicted ${evicted} LRU chunk(s); ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
@@ -110665,6 +110802,28 @@ var XGFViewStreamController = class {
       }
     }
     return protectedChunkIds;
+  }
+  unloadResidentChunk(chunkId, referencesOnly) {
+    const manifest = this.manifestById(chunkId);
+    const result = this._loader.unloadChunk({
+      sceneModel: this._sceneModel,
+      chunkId
+    });
+    if (result.ok === false) {
+      this._onError?.(result.error);
+      return false;
+    }
+    if (referencesOnly) {
+      this.loadedChunkIds.delete(chunkId);
+      this._chunkLastUsed.delete(chunkId);
+      if (manifest) {
+        this.loadedTotals.objects = Math.max(0, this.loadedTotals.objects - (manifest.counts?.objects || 0));
+        this.loadedTotals.meshes = Math.max(0, this.loadedTotals.meshes - (manifest.counts?.meshes || 0));
+      }
+    } else {
+      this.loadedAssetLibraryIds.delete(chunkId);
+    }
+    return true;
   }
   manifestById(chunkId) {
     return this.chunkManifests.find((manifest) => manifest.id === chunkId);
@@ -110816,7 +110975,7 @@ var XGFViewStreamController = class {
     return records;
   }
   chunkPriorityFromFrustumState(manifest, intersectsFrustum) {
-    return (intersectsFrustum ? 0 : NON_FRUSTUM_PRIORITY_OFFSET) + this.squaredDistanceToLookPoint(manifest);
+    return (intersectsFrustum ? 0 : NON_FRUSTUM_PRIORITY_OFFSET) + this.squaredDistanceToPriorityPoint(manifest);
   }
   intersectsCameraFrustum(manifest) {
     return this.intersectsAABB(manifest.aabb);
@@ -110836,12 +110995,13 @@ var XGFViewStreamController = class {
     }
     return true;
   }
-  squaredDistanceToLookPoint(manifest) {
-    const look = this._view.camera.look;
+  squaredDistanceToPriorityPoint(manifest) {
+    const camera = this._view.camera;
+    const point = this._chunkPriorityTarget === "look" ? camera.look : camera.eye || camera.look;
     const aabb = manifest.aabb || [0, 0, 0, 0, 0, 0];
-    const dx = Math.max(aabb[0] - look[0], 0, look[0] - aabb[3]);
-    const dy = Math.max(aabb[1] - look[1], 0, look[1] - aabb[4]);
-    const dz = Math.max(aabb[2] - look[2], 0, look[2] - aabb[5]);
+    const dx = Math.max(aabb[0] - point[0], 0, point[0] - aabb[3]);
+    const dy = Math.max(aabb[1] - point[1], 0, point[1] - aabb[4]);
+    const dz = Math.max(aabb[2] - point[2], 0, point[2] - aabb[5]);
     return dx * dx + dy * dy + dz * dz;
   }
   emitStatus(status) {

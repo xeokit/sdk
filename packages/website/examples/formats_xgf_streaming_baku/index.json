@@ -1,7 +1,7 @@
 {
   "id": "formats_xgf_streaming_baku",
   "title": "XGF Streamed Stadium",
-  "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the whole model loads.",
+  "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the full stadium is resident.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

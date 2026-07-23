@@ -10,6 +10,8 @@
  * sits inside /examples.
  */
 
+@import "./example-loading.css";
+
 body {
   background-color: #f6f7f9;
 }

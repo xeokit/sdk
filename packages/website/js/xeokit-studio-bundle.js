@@ -108063,27 +108063,42 @@ var ROLE_CODES = {
   assetLibrary: 1,
   referencesOnly: 2
 };
+var AABB_QUANTIZATION_BITS = 16;
+var AABB_QUANTIZATION_MAX = (1 << AABB_QUANTIZATION_BITS) - 1;
 function writeXGFStreamingRuntimeIndex(index) {
+  const strings2 = [];
+  const stringIndexes = /* @__PURE__ */ new Map();
+  const intern = (value) => {
+    const existing = stringIndexes.get(value);
+    if (existing !== void 0) {
+      return existing;
+    }
+    const next = strings2.length;
+    strings2.push(value);
+    stringIndexes.set(value, next);
+    return next;
+  };
+  const aabbQuantization = createAABBQuantization(index.aabb);
   return {
     format: "XGFStreamingRuntimeIndex",
-    indexVersion: "1.0.0",
-    roles: ["full", "assetLibrary", "referencesOnly"],
-    counts: ["transforms", "geometries", "materials", "textures", "meshes", "objects"],
-    chunks: index.chunks.map(writeRuntimeChunk),
-    root: index.rootChunkIds?.slice(),
+    indexVersion: "1.1.0",
+    strings: strings2,
+    aabbQuantization,
+    chunks: index.chunks.map((manifest) => writeRuntimeChunk(manifest, intern, aabbQuantization)),
+    root: index.rootChunkIds?.map(intern),
     aabb: index.aabb?.slice(),
     metadata: index.metadata ? JSON.parse(JSON.stringify(index.metadata)) : void 0
   };
 }
-function writeRuntimeChunk(manifest) {
+function writeRuntimeChunk(manifest, intern, aabbQuantization) {
   const chunk = [
-    manifest.id,
-    manifest.uri || null,
+    intern(manifest.id),
+    manifest.uri ? intern(manifest.uri) : null,
     ROLE_CODES[manifest.role],
     manifest.dependencies.chunks.map(
-      (dependency) => dependency.id && !dependency.uri ? dependency.id : [dependency.id || null, dependency.uri || null]
+      (dependency) => dependency.id && !dependency.uri ? intern(dependency.id) : [dependency.id ? intern(dependency.id) : null, dependency.uri ? intern(dependency.uri) : null]
     ),
-    manifest.aabb ? manifest.aabb.slice() : null,
+    encodeAABB(manifest.aabb, aabbQuantization),
     [
       manifest.counts.transforms,
       manifest.counts.geometries,
@@ -108100,6 +108115,42 @@ function writeRuntimeChunk(manifest) {
     chunk[7] = manifest.lod;
   }
   return chunk;
+}
+function createAABBQuantization(aabb) {
+  if (!aabb || aabb.length !== 6) {
+    return void 0;
+  }
+  const scale3 = [
+    createAABBScale(aabb[3] - aabb[0]),
+    createAABBScale(aabb[4] - aabb[1]),
+    createAABBScale(aabb[5] - aabb[2])
+  ];
+  return {
+    bits: AABB_QUANTIZATION_BITS,
+    origin: [aabb[0], aabb[1], aabb[2]],
+    scale: scale3
+  };
+}
+function createAABBScale(extent) {
+  return Number.isFinite(extent) && extent > 0 ? extent / AABB_QUANTIZATION_MAX : 1;
+}
+function encodeAABB(aabb, quantization) {
+  if (!aabb) {
+    return null;
+  }
+  if (!quantization) {
+    return aabb.slice();
+  }
+  const encoded = new Array(6);
+  for (let axis = 0; axis < 3; axis++) {
+    encoded[axis] = quantizeAABBValue(aabb[axis], quantization.origin[axis], quantization.scale[axis], Math.floor);
+    encoded[axis + 3] = quantizeAABBValue(aabb[axis + 3], quantization.origin[axis], quantization.scale[axis], Math.ceil);
+  }
+  return encoded;
+}
+function quantizeAABBValue(value, origin2, scale3, rounding) {
+  const quantized = rounding((value - origin2) / scale3);
+  return Math.max(0, Math.min(AABB_QUANTIZATION_MAX, quantized));
 }
 
 // ../sdk/src/formats/xgfstream/XGFStreamingExporter.ts
@@ -110377,25 +110428,41 @@ function readXGFStreamingRuntimeIndex(json) {
   if (json.format !== "XGFStreamingRuntimeIndex") {
     return invalid5("[XGFStreamingRuntimeIndex] Expected format 'XGFStreamingRuntimeIndex'");
   }
-  if (json.indexVersion !== "1.0.0") {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected indexVersion '1.0.0'");
+  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0") {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected indexVersion '1.0.0' or '1.1.0'");
   }
   if (!Array.isArray(json.chunks)) {
     return invalid5("[XGFStreamingRuntimeIndex] Expected chunks array");
   }
+  const runtimeIndex = json;
+  if (json.indexVersion === "1.1.0") {
+    if (!Array.isArray(json.strings) || !json.strings.every(isNonEmptyString3)) {
+      return invalid5("[XGFStreamingRuntimeIndex] Expected strings table with non-empty strings");
+    }
+    if (json.aabbQuantization !== void 0) {
+      const quantizationResult = validateAABBQuantization(runtimeIndex.aabbQuantization);
+      if (quantizationResult.ok === false) {
+        return quantizationResult;
+      }
+    }
+  }
   const chunks = [];
   for (let i = 0; i < json.chunks.length; i++) {
-    const result = readRuntimeChunk(json.chunks[i]);
+    const result = json.indexVersion === "1.1.0" ? readRuntimeChunkV11(json.chunks[i], runtimeIndex) : readRuntimeChunk(json.chunks[i]);
     if (result.ok === false) {
       return invalid5(`[XGFStreamingRuntimeIndex.chunks.${i}] ${result.error}`);
     }
     chunks.push(result.value);
   }
+  const rootResult = readRootChunkIds(runtimeIndex);
+  if (rootResult.ok === false) {
+    return rootResult;
+  }
   return readXGFStreamingIndex({
     format: "XGFStreamingIndex",
     indexVersion: "1.0.0",
     chunks,
-    rootChunkIds: json.root,
+    rootChunkIds: rootResult.value,
     aabb: json.aabb,
     metadata: json.metadata
   });
@@ -110465,6 +110532,82 @@ function readRuntimeChunk(value) {
   };
   return { ok: true, value: manifest };
 }
+function readRuntimeChunkV11(value, index) {
+  if (!Array.isArray(value) || value.length < 6) {
+    return invalid5("Expected compact chunk tuple");
+  }
+  const chunk = value;
+  const [idRef2, uriRef, roleCode, dependencies, encodedAABB, counts, priority, lod] = chunk;
+  const idResult = readStringRef(idRef2, index, "chunk id");
+  if (idResult.ok === false) {
+    return idResult;
+  }
+  const uriResult = uriRef === null || uriRef === void 0 ? { ok: true, value: void 0 } : readStringRef(uriRef, index, "chunk uri");
+  if (uriResult.ok === false) {
+    return uriResult;
+  }
+  if (!Number.isInteger(roleCode) || !ROLES[roleCode]) {
+    return invalid5("Expected valid chunk role code");
+  }
+  if (!Array.isArray(dependencies)) {
+    return invalid5("Expected dependency array");
+  }
+  const aabbResult = readRuntimeAABB(encodedAABB, index);
+  if (aabbResult.ok === false) {
+    return aabbResult;
+  }
+  if (!Array.isArray(counts) || counts.length !== 6 || !counts.every(isNonNegativeInteger)) {
+    return invalid5("Expected counts tuple of six non-negative integers");
+  }
+  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
+    return invalid5("Expected priority to be finite when provided");
+  }
+  if (lod !== void 0 && lod !== null && typeof lod !== "number" && typeof lod !== "string") {
+    return invalid5("Expected lod to be number, string or null");
+  }
+  if (typeof lod === "number" && !isFiniteNumber3(lod)) {
+    return invalid5("Expected numeric lod to be finite");
+  }
+  const dependencyResults = [];
+  for (const dependency of dependencies) {
+    const dependencyResult = readDependencyV11(dependency, index);
+    if (dependencyResult.ok === false) {
+      return dependencyResult;
+    }
+    dependencyResults.push(dependencyResult.value);
+  }
+  const manifest = {
+    format: "XGF",
+    manifestVersion: "1.0.0",
+    xgfVersion: "2.0.0",
+    id: idResult.value,
+    uri: uriResult.value,
+    role: ROLES[roleCode],
+    dependencies: {
+      chunks: dependencyResults,
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    assets: {
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    counts: {
+      transforms: counts[0],
+      geometries: counts[1],
+      materials: counts[2],
+      textures: counts[3],
+      meshes: counts[4],
+      objects: counts[5]
+    },
+    aabb: aabbResult.value,
+    priority: priority ?? void 0,
+    lod: lod ?? void 0
+  };
+  return { ok: true, value: manifest };
+}
 function readDependency(value) {
   if (typeof value === "string") {
     return { id: value };
@@ -110474,6 +110617,92 @@ function readDependency(value) {
     uri: value[1] || void 0
   };
 }
+function readDependencyV11(value, index) {
+  if (typeof value === "string" || typeof value === "number") {
+    const idResult2 = readStringRef(value, index, "dependency id");
+    return idResult2.ok === false ? idResult2 : { ok: true, value: { id: idResult2.value } };
+  }
+  if (!Array.isArray(value) || value.length !== 2) {
+    return invalid5("Expected dependency string reference or tuple");
+  }
+  const idResult = value[0] === null || value[0] === void 0 ? { ok: true, value: void 0 } : readStringRef(value[0], index, "dependency id");
+  if (idResult.ok === false) {
+    return idResult;
+  }
+  const uriResult = value[1] === null || value[1] === void 0 ? { ok: true, value: void 0 } : readStringRef(value[1], index, "dependency uri");
+  if (uriResult.ok === false) {
+    return uriResult;
+  }
+  return {
+    ok: true,
+    value: {
+      id: idResult.value,
+      uri: uriResult.value
+    }
+  };
+}
+function readRuntimeAABB(value, index) {
+  if (value === null || value === void 0) {
+    return { ok: true, value: void 0 };
+  }
+  const quantization = index.aabbQuantization;
+  if (!Array.isArray(value) || value.length !== 6 || !value.every(isFiniteNumber3)) {
+    return invalid5("Expected aabb to contain six finite numbers or null");
+  }
+  if (!quantization) {
+    return { ok: true, value: value.slice() };
+  }
+  const decoded = new Array(6);
+  for (let axis = 0; axis < 3; axis++) {
+    decoded[axis] = quantization.origin[axis] + value[axis] * quantization.scale[axis];
+    decoded[axis + 3] = quantization.origin[axis] + value[axis + 3] * quantization.scale[axis];
+  }
+  return { ok: true, value: decoded };
+}
+function readRootChunkIds(index) {
+  if (index.root === void 0) {
+    return { ok: true, value: void 0 };
+  }
+  if (!Array.isArray(index.root)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected root array");
+  }
+  if (index.indexVersion === "1.0.0") {
+    return index.root.every(isNonEmptyString3) ? { ok: true, value: index.root } : invalid5("[XGFStreamingRuntimeIndex] Expected root ids to be strings");
+  }
+  const rootChunkIds = [];
+  for (const root of index.root) {
+    const result = readStringRef(root, index, "root chunk id");
+    if (result.ok === false) {
+      return result;
+    }
+    rootChunkIds.push(result.value);
+  }
+  return { ok: true, value: rootChunkIds };
+}
+function readStringRef(value, index, name12) {
+  if (typeof value === "string") {
+    return isNonEmptyString3(value) ? { ok: true, value } : invalid5(`Expected non-empty ${name12}`);
+  }
+  if (!Number.isInteger(value) || value < 0 || !index.strings || value >= index.strings.length) {
+    return invalid5(`Expected valid ${name12} string reference`);
+  }
+  return { ok: true, value: index.strings[value] };
+}
+function validateAABBQuantization(value) {
+  if (!isObject6(value)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization object");
+  }
+  if (value.bits !== 16) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.bits to be 16");
+  }
+  if (!Array.isArray(value.origin) || value.origin.length !== 3 || !value.origin.every(isFiniteNumber3)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.origin with three finite numbers");
+  }
+  if (!Array.isArray(value.scale) || value.scale.length !== 3 || !value.scale.every(isPositiveFiniteNumber)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.scale with three positive finite numbers");
+  }
+  return { ok: true, value: void 0 };
+}
 function isObject6(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
@@ -110482,6 +110711,9 @@ function isNonEmptyString3(value) {
 }
 function isFiniteNumber3(value) {
   return typeof value === "number" && Number.isFinite(value);
+}
+function isPositiveFiniteNumber(value) {
+  return isFiniteNumber3(value) && value > 0;
 }
 function isNonNegativeInteger(value) {
   return Number.isInteger(value) && value >= 0;

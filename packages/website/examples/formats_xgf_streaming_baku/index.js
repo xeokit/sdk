@@ -9,6 +9,10 @@ const CHUNK_COMMIT_FRAME_BUDGET_MS = 0;
 const AUTO_LOAD_FRUSTUM_CHUNKS_ONLY = true;
 const CAMERA_DEBOUNCE_MS = 140;
 const SHOW_CHUNK_AABB_PLACEHOLDERS = false;
+const ENABLE_LRU_CHUNK_EVICTION = false;
+const MAX_RESIDENT_REFERENCE_CHUNKS = 600;
+const CACHE_XGF_FILE_BYTES = true;
+const MAX_CACHED_XGF_FILE_BYTES = 256 * 1024 * 1024;
 
 const ISSUE_VIEWPOINTS = [
   {
@@ -218,6 +222,10 @@ studio.init().then(async () => {
       commitFrameBudgetMs: CHUNK_COMMIT_FRAME_BUDGET_MS,
       frustumOnly: AUTO_LOAD_FRUSTUM_CHUNKS_ONLY,
       cameraDebounceMs: CAMERA_DEBOUNCE_MS,
+      enableLRUEviction: ENABLE_LRU_CHUNK_EVICTION,
+      maxResidentChunks: MAX_RESIDENT_REFERENCE_CHUNKS,
+      cacheFileData: CACHE_XGF_FILE_BYTES,
+      maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
       onProgress: (progress) => {
         scheduleRender();
       },

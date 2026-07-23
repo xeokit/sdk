@@ -19,6 +19,12 @@ Two design choices define the SDK:
 
 Around those two foundations, the SDK separates geometry from semantic data, exposes result-monad error handling, and keeps viewing state per `View` so multiple views can share one scene without duplicating model geometry.
 
+### Featured Example: XGF Streamed Stadium
+
+![Baku Stadium loaded with XGF streaming](packages/website/images/bakuStadium2.png)
+
+The [Baku Stadium XGF streaming example](https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_baku) demonstrates viewpoint-driven loading on a large BIM dataset. As reviewers select simulated BCF issues, xeokit streams the XGF chunks visible from each issue viewpoint first, allowing useful review context to appear before the whole model has loaded.
+
 ---
 
 ## Why It Matters For BIM

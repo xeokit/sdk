@@ -83,6 +83,12 @@
     "kind": "module",
     "namespace": "core"
   },
+  "@xeokit/sdk/culling": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/culling.html",
+    "kind": "module",
+    "namespace": "culling"
+  },
   "@xeokit/sdk/curves": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/curves.html",
@@ -107,143 +113,17 @@
     "kind": "module",
     "namespace": "dataModel"
   },
-  "@xeokit/sdk/dataTextures": {
+  "@xeokit/sdk/daylightAnalysis": {
     "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/dataTextures.html",
+    "path": "/api-docs#./docs/api/modules/daylightAnalysis.html",
     "kind": "module",
-    "namespace": "dataTextures"
+    "namespace": "daylightAnalysis"
   },
-  "@xeokit/sdk/dataTexturesPanel": {
+  "@xeokit/sdk/dialogs": {
     "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/dataTexturesPanel.html",
+    "path": "/api-docs#./docs/api/modules/dialogs.html",
     "kind": "module",
-    "namespace": "dataTexturesPanel"
-  },
-  "@xeokit/sdk/demo": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo.html",
-    "kind": "module",
-    "namespace": "demo"
-  },
-  "@xeokit/sdk/demo/angleMeasurementsPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/angleMeasurementsPanel.html",
-    "kind": "module",
-    "namespace": "demo/angleMeasurementsPanel"
-  },
-  "@xeokit/sdk/demo/applyIFCMaterials": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/applyIFCMaterials.html",
-    "kind": "module",
-    "namespace": "demo/applyIFCMaterials"
-  },
-  "@xeokit/sdk/demo/boundariesPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/boundariesPanel.html",
-    "kind": "module",
-    "namespace": "demo/boundariesPanel"
-  },
-  "@xeokit/sdk/demo/dataHealthPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/dataHealthPanel.html",
-    "kind": "module",
-    "namespace": "demo/dataHealthPanel"
-  },
-  "@xeokit/sdk/demo/dataStats": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/dataStats.html",
-    "kind": "module",
-    "namespace": "demo/dataStats"
-  },
-  "@xeokit/sdk/demo/dialogs": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/dialogs.html",
-    "kind": "module",
-    "namespace": "demo/dialogs"
-  },
-  "@xeokit/sdk/demo/distanceMeasurementsPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/distanceMeasurementsPanel.html",
-    "kind": "module",
-    "namespace": "demo/distanceMeasurementsPanel"
-  },
-  "@xeokit/sdk/demo/explorerPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/explorerPanel.html",
-    "kind": "module",
-    "namespace": "demo/explorerPanel"
-  },
-  "@xeokit/sdk/demo/exportBCF": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/exportBCF.html",
-    "kind": "module",
-    "namespace": "demo/exportBCF"
-  },
-  "@xeokit/sdk/demo/exportDialog": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/exportDialog.html",
-    "kind": "module",
-    "namespace": "demo/exportDialog"
-  },
-  "@xeokit/sdk/demo/gpuMemoryUsage": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/gpuMemoryUsage.html",
-    "kind": "module",
-    "namespace": "demo/gpuMemoryUsage"
-  },
-  "@xeokit/sdk/demo/panels/modelsPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/panels/modelsPanel.html",
-    "kind": "module",
-    "namespace": "demo/panels/modelsPanel"
-  },
-  "@xeokit/sdk/demo/panels/viewPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/panels/viewPanel.html",
-    "kind": "module",
-    "namespace": "demo/panels/viewPanel"
-  },
-  "@xeokit/sdk/demo/sampleModelsPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/sampleModelsPanel.html",
-    "kind": "module",
-    "namespace": "demo/sampleModelsPanel"
-  },
-  "@xeokit/sdk/demo/sceneHealthPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/sceneHealthPanel.html",
-    "kind": "module",
-    "namespace": "demo/sceneHealthPanel"
-  },
-  "@xeokit/sdk/demo/sceneStats": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/sceneStats.html",
-    "kind": "module",
-    "namespace": "demo/sceneStats"
-  },
-  "@xeokit/sdk/demo/schemaMaterialsPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/schemaMaterialsPanel.html",
-    "kind": "module",
-    "namespace": "demo/schemaMaterialsPanel"
-  },
-  "@xeokit/sdk/demo/tilesPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/tilesPanel.html",
-    "kind": "module",
-    "namespace": "demo/tilesPanel"
-  },
-  "@xeokit/sdk/demo/toolbar": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/toolbar.html",
-    "kind": "module",
-    "namespace": "demo/toolbar"
-  },
-  "@xeokit/sdk/demo/viewerPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/demo/viewerPanel.html",
-    "kind": "module",
-    "namespace": "demo/viewerPanel"
+    "namespace": "dialogs"
   },
   "@xeokit/sdk/distance": {
     "summary": "SDK Module",
@@ -269,18 +149,6 @@
     "kind": "module",
     "namespace": "drawings/labels"
   },
-  "@xeokit/sdk/drawingsPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/drawingsPanel.html",
-    "kind": "module",
-    "namespace": "drawingsPanel"
-  },
-  "@xeokit/sdk/drawOps": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/drawOps.html",
-    "kind": "module",
-    "namespace": "drawOps"
-  },
   "@xeokit/sdk/dwg": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/dwg.html",
@@ -292,6 +160,12 @@
     "path": "/api-docs#./docs/api/modules/dxf.html",
     "kind": "module",
     "namespace": "dxf"
+  },
+  "@xeokit/sdk/e57": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/e57.html",
+    "kind": "module",
+    "namespace": "e57"
   },
   "@xeokit/sdk/environments": {
     "summary": "SDK Module",
@@ -305,6 +179,18 @@
     "kind": "module",
     "namespace": "exploder"
   },
+  "@xeokit/sdk/fbx": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/fbx.html",
+    "kind": "module",
+    "namespace": "fbx"
+  },
+  "@xeokit/sdk/fds": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/fds.html",
+    "kind": "module",
+    "namespace": "fds"
+  },
   "@xeokit/sdk/fills": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/fills.html",
@@ -317,11 +203,11 @@
     "kind": "module",
     "namespace": "formats"
   },
-  "@xeokit/sdk/generic": {
+  "@xeokit/sdk/gaussiansplat": {
     "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/generic.html",
+    "path": "/api-docs#./docs/api/modules/gaussiansplat.html",
     "kind": "module",
-    "namespace": "generic"
+    "namespace": "gaussiansplat"
   },
   "@xeokit/sdk/geometry": {
     "summary": "SDK Module",
@@ -334,12 +220,6 @@
     "path": "/api-docs#./docs/api/modules/gltf.html",
     "kind": "module",
     "namespace": "gltf"
-  },
-  "@xeokit/sdk/gpuMemoryManager": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/gpuMemoryManager.html",
-    "kind": "module",
-    "namespace": "gpuMemoryManager"
   },
   "@xeokit/sdk/heatmaps": {
     "summary": "SDK Module",
@@ -377,18 +257,6 @@
     "kind": "module",
     "namespace": "inspection"
   },
-  "@xeokit/sdk/inspectors": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/inspectors.html",
-    "kind": "module",
-    "namespace": "inspectors"
-  },
-  "@xeokit/sdk/internal": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/internal.html",
-    "kind": "module",
-    "namespace": "internal"
-  },
   "@xeokit/sdk/interop": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/interop.html",
@@ -401,23 +269,11 @@
     "kind": "module",
     "namespace": "io"
   },
-  "@xeokit/sdk/issuesPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/issuesPanel.html",
-    "kind": "module",
-    "namespace": "issuesPanel"
-  },
   "@xeokit/sdk/las": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/las.html",
     "kind": "module",
     "namespace": "las"
-  },
-  "@xeokit/sdk/lines": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/lines.html",
-    "kind": "module",
-    "namespace": "lines"
   },
   "@xeokit/sdk/locale": {
     "summary": "SDK Module",
@@ -455,11 +311,11 @@
     "kind": "module",
     "namespace": "measurements"
   },
-  "@xeokit/sdk/meshManager": {
+  "@xeokit/sdk/menus": {
     "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/meshManager.html",
+    "path": "/api-docs#./docs/api/modules/menus.html",
     "kind": "module",
-    "namespace": "meshManager"
+    "namespace": "menus"
   },
   "@xeokit/sdk/metamodel": {
     "summary": "SDK Module",
@@ -485,29 +341,23 @@
     "kind": "module",
     "namespace": "mtl"
   },
-  "@xeokit/sdk/navCube": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/navCube.html",
-    "kind": "module",
-    "namespace": "navCube"
-  },
   "@xeokit/sdk/obj": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/obj.html",
     "kind": "module",
     "namespace": "obj"
   },
+  "@xeokit/sdk/panels": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/panels.html",
+    "kind": "module",
+    "namespace": "panels"
+  },
   "@xeokit/sdk/pdf": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/pdf.html",
     "kind": "module",
     "namespace": "pdf"
-  },
-  "@xeokit/sdk/pdfImport": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/pdfImport.html",
-    "kind": "module",
-    "namespace": "pdfImport"
   },
   "@xeokit/sdk/physics": {
     "summary": "SDK Module",
@@ -520,18 +370,6 @@
     "path": "/api-docs#./docs/api/modules/picking.html",
     "kind": "module",
     "namespace": "picking"
-  },
-  "@xeokit/sdk/pickManager": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/pickManager.html",
-    "kind": "module",
-    "namespace": "pickManager"
-  },
-  "@xeokit/sdk/points": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/points.html",
-    "kind": "module",
-    "namespace": "points"
   },
   "@xeokit/sdk/polygon2D": {
     "summary": "SDK Module",
@@ -557,18 +395,6 @@
     "kind": "module",
     "namespace": "quat"
   },
-  "@xeokit/sdk/rendererPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/rendererPanel.html",
-    "kind": "module",
-    "namespace": "rendererPanel"
-  },
-  "@xeokit/sdk/renderManager": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/renderManager.html",
-    "kind": "module",
-    "namespace": "renderManager"
-  },
   "@xeokit/sdk/reporters": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/reporters.html",
@@ -580,12 +406,6 @@
     "path": "/api-docs#./docs/api/modules/rtc.html",
     "kind": "module",
     "namespace": "rtc"
-  },
-  "@xeokit/sdk/rvm": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/rvm.html",
-    "kind": "module",
-    "namespace": "rvm"
   },
   "@xeokit/sdk/scene": {
     "summary": "SDK Module",
@@ -605,17 +425,17 @@
     "kind": "module",
     "namespace": "sceneModel"
   },
+  "@xeokit/sdk/schedule": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/schedule.html",
+    "kind": "module",
+    "namespace": "schedule"
+  },
   "@xeokit/sdk/sectionCaps": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/sectionCaps.html",
     "kind": "module",
     "namespace": "sectionCaps"
-  },
-  "@xeokit/sdk/sectionPlanesPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/sectionPlanesPanel.html",
-    "kind": "module",
-    "namespace": "sectionPlanesPanel"
   },
   "@xeokit/sdk/sectionPlanesTool": {
     "summary": "SDK Module",
@@ -623,23 +443,11 @@
     "kind": "module",
     "namespace": "sectionPlanesTool"
   },
-  "@xeokit/sdk/shadersPanel": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/shadersPanel.html",
-    "kind": "module",
-    "namespace": "shadersPanel"
-  },
   "@xeokit/sdk/simulation": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/simulation.html",
     "kind": "module",
     "namespace": "simulation"
-  },
-  "@xeokit/sdk/snapManager": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/snapManager.html",
-    "kind": "module",
-    "namespace": "snapManager"
   },
   "@xeokit/sdk/spatial": {
     "summary": "SDK Module",
@@ -653,17 +461,23 @@
     "kind": "module",
     "namespace": "stats"
   },
-  "@xeokit/sdk/step": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/step.html",
-    "kind": "module",
-    "namespace": "step"
-  },
   "@xeokit/sdk/streaming": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/streaming.html",
     "kind": "module",
     "namespace": "streaming"
+  },
+  "@xeokit/sdk/studio": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/studio.html",
+    "kind": "module",
+    "namespace": "studio"
+  },
+  "@xeokit/sdk/sunStudy": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/sunStudy.html",
+    "kind": "module",
+    "namespace": "sunStudy"
   },
   "@xeokit/sdk/svg": {
     "summary": "SDK Module",
@@ -671,17 +485,23 @@
     "kind": "module",
     "namespace": "svg"
   },
-  "@xeokit/sdk/tasksPanel": {
+  "@xeokit/sdk/systems": {
     "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/tasksPanel.html",
+    "path": "/api-docs#./docs/api/modules/systems.html",
     "kind": "module",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
-  "@xeokit/sdk/techniques": {
+  "@xeokit/sdk/threedtiles": {
     "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/techniques.html",
+    "path": "/api-docs#./docs/api/modules/threedtiles.html",
     "kind": "module",
-    "namespace": "techniques"
+    "namespace": "threedtiles"
+  },
+  "@xeokit/sdk/threedxml": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/threedxml.html",
+    "kind": "module",
+    "namespace": "threedxml"
   },
   "@xeokit/sdk/tools": {
     "summary": "SDK Module",
@@ -701,17 +521,17 @@
     "kind": "module",
     "namespace": "treeview"
   },
-  "@xeokit/sdk/triangles": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/triangles.html",
-    "kind": "module",
-    "namespace": "triangles"
-  },
   "@xeokit/sdk/ui": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/ui.html",
     "kind": "module",
     "namespace": "ui"
+  },
+  "@xeokit/sdk/usdz": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/usdz.html",
+    "kind": "module",
+    "namespace": "usdz"
   },
   "@xeokit/sdk/utils": {
     "summary": "SDK Module",
@@ -743,11 +563,29 @@
     "kind": "module",
     "namespace": "viewing"
   },
-  "@xeokit/sdk/webGL": {
+  "@xeokit/sdk/viewing/adaptiveQuality": {
     "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/webGL.html",
+    "path": "/api-docs#./docs/api/modules/viewing/adaptiveQuality.html",
     "kind": "module",
-    "namespace": "webGL"
+    "namespace": "viewing/adaptiveQuality"
+  },
+  "@xeokit/sdk/viewing/renderer": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/viewing/renderer.html",
+    "kind": "module",
+    "namespace": "viewing/renderer"
+  },
+  "@xeokit/sdk/viewing/webGPURenderer": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/viewing/webGPURenderer.html",
+    "kind": "module",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "@xeokit/sdk/volumeOverlay": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/volumeOverlay.html",
+    "kind": "module",
+    "namespace": "volumeOverlay"
   },
   "@xeokit/sdk/webGLRenderer": {
     "summary": "SDK Module",
@@ -766,6 +604,12 @@
     "path": "/api-docs#./docs/api/modules/xgf.html",
     "kind": "module",
     "namespace": "xgf"
+  },
+  "@xeokit/sdk/xgfstream": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/xgfstream.html",
+    "kind": "module",
+    "namespace": "xgfstream"
   },
   "@xeokit/sdk/xkt": {
     "summary": "SDK Module",
@@ -839,6 +683,30 @@
     "kind": "function",
     "namespace": "boundaries"
   },
+  "AdaptiveQuality": {
+    "summary": "Drives adaptive-quality switching for one View.",
+    "path": "/api-docs#./docs/api/classes/viewing/adaptiveQuality.AdaptiveQuality.html",
+    "kind": "class",
+    "namespace": "viewing/adaptiveQuality"
+  },
+  "AdaptiveQualityPanel": {
+    "summary": "Abstract base for every floating demo panel.",
+    "path": "/api-docs#./docs/api/classes/panels.AdaptiveQualityPanel.html",
+    "kind": "class",
+    "namespace": "panels"
+  },
+  "AdaptiveQualityPanelParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/panels.AdaptiveQualityPanelParams.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "AdaptiveQualityParams": {
+    "summary": "Parameters for AdaptiveQuality.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/adaptiveQuality.AdaptiveQualityParams.html",
+    "kind": "interface",
+    "namespace": "viewing/adaptiveQuality"
+  },
   "addVec3": {
     "summary": "Adds one three-element vector to another.",
     "path": "/api-docs#./docs/api/functions/vector.addVec3.html",
@@ -881,6 +749,12 @@
     "kind": "interface",
     "namespace": "viewer"
   },
+  "AnalysisGrid": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/daylightAnalysis.AnalysisGrid.html",
+    "kind": "interface",
+    "namespace": "daylightAnalysis"
+  },
   "angleAxisToQuaternion": {
     "summary": "Converts an angle-axis rotation representation into a quaternion.",
     "path": "/api-docs#./docs/api/functions/quat.angleAxisToQuaternion.html",
@@ -901,15 +775,15 @@
   },
   "AngleMeasurementsPanel": {
     "summary": "Floating panel that lists every AngleMeasurement\ncurrently mounted on an AngleMeasurementsTool, with a\ndestroy button on each row and a \"Clear all\" footer button.",
-    "path": "/api-docs#./docs/api/classes/demo/angleMeasurementsPanel.AngleMeasurementsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.AngleMeasurementsPanel.html",
     "kind": "class",
-    "namespace": "demo/angleMeasurementsPanel"
+    "namespace": "panels"
   },
   "AngleMeasurementsPanelParams": {
     "summary": "Construction parameters for AngleMeasurementsPanel.",
-    "path": "/api-docs#./docs/api/interfaces/demo/angleMeasurementsPanel.AngleMeasurementsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.AngleMeasurementsPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/angleMeasurementsPanel"
+    "namespace": "panels"
   },
   "AngleMeasurementsTool": {
     "summary": "AngleMeasurementsTool — overlay widget that renders one or more\nAngleMeasurements on a View's\ncanvas.",
@@ -928,6 +802,18 @@
     "path": "/api-docs#./docs/api/functions/vector.angleVec3.html",
     "kind": "function",
     "namespace": "vector"
+  },
+  "AnnualSunPlayer": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/classes/sunStudy.AnnualSunPlayer.html",
+    "kind": "class",
+    "namespace": "sunStudy"
+  },
+  "AnnualSunPlayerParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/sunStudy.AnnualSunPlayerParams.html",
+    "kind": "interface",
+    "namespace": "sunStudy"
   },
   "AntiAliasing": {
     "summary": "Configures the final antialiasing post-process pass for a View.",
@@ -948,13 +834,13 @@
     "namespace": "viewer"
   },
   "apply": {
-    "summary": "Add properties of o to o2, overwriting them on o2 if already there.",
+    "summary": "Copies properties from `o` to `o2`, overwriting existing values.",
     "path": "/api-docs#./docs/api/functions/utils.apply.html",
     "kind": "function",
     "namespace": "utils"
   },
   "apply2": {
-    "summary": "Add non-null/defined properties of o to o2.",
+    "summary": "Copies defined, non-null properties from `o` to `o2`.",
     "path": "/api-docs#./docs/api/functions/utils.apply2.html",
     "kind": "function",
     "namespace": "utils"
@@ -1026,22 +912,22 @@
     "namespace": "heatmaps"
   },
   "applyIf": {
-    "summary": "Add properties of o to o2 where undefined or null on o2.",
+    "summary": "Copies properties from `o` to missing or null properties on `o2`.",
     "path": "/api-docs#./docs/api/functions/utils.applyIf.html",
     "kind": "function",
     "namespace": "utils"
   },
   "applyIFCMaterials": {
     "summary": "Walks the `SceneObject`s of an already-populated `SceneModel`,\nlooks up each one's IFC type in the matching `DataModel`, and\nattaches a procedurally-painted `SceneMaterial` to every\n`SceneMesh` of that object via the mesh's `materialId` setter.",
-    "path": "/api-docs#./docs/api/functions/demo/applyIFCMaterials.applyIFCMaterials.html",
+    "path": "/api-docs#./docs/api/functions/systems.applyIFCMaterials.html",
     "kind": "function",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
-  "AtlasTransform": {
-    "summary": "UV transform that maps a mesh's `[0, 1]` UVs into its sub-rect of the\natlas.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.AtlasTransform.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
+  "AutoViewElementType": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/systems.AutoViewElementType.html",
+    "kind": "type",
+    "namespace": "systems"
   },
   "AZERTYLayout": {
     "summary": "AZERTY keyboard layout.",
@@ -1104,16 +990,16 @@
     "namespace": "curves"
   },
   "b64": {
-    "summary": "",
+    "summary": "Encodes a number with the compact GUID alphabet.",
     "path": "/api-docs#./docs/api/functions/utils.b64.html",
     "kind": "function",
     "namespace": "utils"
   },
   "BaseViewContext": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.BaseViewContext.html",
+    "path": "/api-docs#./docs/api/interfaces/menus.BaseViewContext.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "menus"
   },
   "basisAABBExtents": {
     "summary": "Project the 8 corners of a world-space AABB into basis\ncoordinates and return the rotated rectangle's u/v extents.",
@@ -1126,12 +1012,6 @@
     "path": "/api-docs#./docs/api/functions/hle.basisDepth.html",
     "kind": "function",
     "namespace": "hle"
-  },
-  "BatchDataTextures": {
-    "summary": "GPU data textures for a single sorted render batch.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.BatchDataTextures.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
   },
   "BCFBitmap": {
     "summary": "BCF bitmap.",
@@ -1249,21 +1129,33 @@
   },
   "BoundariesPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/boundariesPanel.BoundariesPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.BoundariesPanel.html",
     "kind": "class",
-    "namespace": "demo/boundariesPanel"
+    "namespace": "panels"
   },
   "BoundariesPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/boundariesPanel.BoundariesPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.BoundariesPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/boundariesPanel"
+    "namespace": "panels"
   },
   "BrowserFileIO": {
     "summary": "A browser-specific implementation of the FileIO interface.",
     "path": "/api-docs#./docs/api/classes/io.BrowserFileIO.html",
     "kind": "class",
     "namespace": "io"
+  },
+  "buildAnalysisHeatmap": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/functions/daylightAnalysis.buildAnalysisHeatmap.html",
+    "kind": "function",
+    "namespace": "daylightAnalysis"
+  },
+  "BuildAnalysisHeatmapOptions": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/daylightAnalysis.BuildAnalysisHeatmapOptions.html",
+    "kind": "interface",
+    "namespace": "daylightAnalysis"
   },
   "buildBox": {
     "summary": "Creates box-shaped geometry.",
@@ -1367,35 +1259,59 @@
     "kind": "function",
     "namespace": "geometry"
   },
+  "buildTileTree": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/functions/threedtiles.buildTileTree.html",
+    "kind": "function",
+    "namespace": "threedtiles"
+  },
   "buildTorus": {
     "summary": "Creates a torus-shaped SceneGeometry.",
     "path": "/api-docs#./docs/api/functions/geometry.buildTorus.html",
     "kind": "function",
     "namespace": "geometry"
   },
-  "buildTourWaypoints": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/functions/cameraTour.buildTourWaypoints.html",
-    "kind": "function",
-    "namespace": "cameraTour"
-  },
-  "BuildTourWaypointsInput": {
-    "summary": "Inputs to buildTourWaypoints.",
-    "path": "/api-docs#./docs/api/interfaces/cameraTour.BuildTourWaypointsInput.html",
-    "kind": "interface",
-    "namespace": "cameraTour"
-  },
-  "BuildTourWaypointsResult": {
-    "summary": "Output of buildTourWaypoints.",
-    "path": "/api-docs#./docs/api/interfaces/cameraTour.BuildTourWaypointsResult.html",
-    "kind": "interface",
-    "namespace": "cameraTour"
-  },
   "buildVectorText": {
     "summary": "Creates wireframe vector text as a SceneGeometry.",
     "path": "/api-docs#./docs/api/functions/geometry.buildVectorText.html",
     "kind": "function",
     "namespace": "geometry"
+  },
+  "buildVolumeIsosurface": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.buildVolumeIsosurface.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
+  "BuildVolumeIsosurfaceOptions": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/volumeOverlay.BuildVolumeIsosurfaceOptions.html",
+    "kind": "interface",
+    "namespace": "volumeOverlay"
+  },
+  "buildVolumeSlicePlane": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.buildVolumeSlicePlane.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
+  "BuildVolumeSlicePlaneOptions": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/volumeOverlay.BuildVolumeSlicePlaneOptions.html",
+    "kind": "interface",
+    "namespace": "volumeOverlay"
+  },
+  "buildVolumeStreamlines": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.buildVolumeStreamlines.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
+  "BuildVolumeStreamlinesOptions": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/volumeOverlay.BuildVolumeStreamlinesOptions.html",
+    "kind": "interface",
+    "namespace": "volumeOverlay"
   },
   "BVHPickStrategy": {
     "summary": "BVH-backed picking strategy — wraps SceneRaycaster.",
@@ -1408,12 +1324,6 @@
     "path": "/api-docs#./docs/api/variables/constants.ByteType.html",
     "kind": "variable",
     "namespace": "constants"
-  },
-  "Cache": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/variables/io.Cache.html",
-    "kind": "variable",
-    "namespace": "io"
   },
   "Camera": {
     "summary": "Controls the viewpoint and projection for a View.",
@@ -1469,14 +1379,32 @@
     "kind": "type",
     "namespace": "cameraFlight"
   },
+  "CameraState": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/threedtiles.CameraState.html",
+    "kind": "interface",
+    "namespace": "threedtiles"
+  },
   "CameraTour": {
     "summary": "Resolved walkthrough plan returned by planCameraTour.",
     "path": "/api-docs#./docs/api/interfaces/cameraTour.CameraTour.html",
     "kind": "interface",
     "namespace": "cameraTour"
   },
+  "CameraTourPanel": {
+    "summary": "Abstract base for every floating demo panel.",
+    "path": "/api-docs#./docs/api/classes/panels.CameraTourPanel.html",
+    "kind": "class",
+    "namespace": "panels"
+  },
+  "CameraTourPanelParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/panels.CameraTourPanelParams.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
   "CameraTourPlanOptions": {
-    "summary": "Tuning knobs for planCameraTour.",
+    "summary": "Tuning parameters for planCameraTour.",
     "path": "/api-docs#./docs/api/interfaces/cameraTour.CameraTourPlanOptions.html",
     "kind": "interface",
     "namespace": "cameraTour"
@@ -1511,23 +1439,17 @@
     "kind": "function",
     "namespace": "sectionCaps"
   },
-  "Canvas2Image": {
-    "summary": "Canvas2Image v0.",
-    "path": "/api-docs#./docs/api/variables/webGL.Canvas2Image.html",
-    "kind": "variable",
-    "namespace": "webGL"
-  },
   "CanvasContextMenu": {
     "summary": "UI context menu with support for grouped items, nested submenus,\ncontext-sensitive titles, and context-sensitive enabled/visible state.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.CanvasContextMenu.html",
+    "path": "/api-docs#./docs/api/classes/menus.CanvasContextMenu.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "menus"
   },
   "CanvasContextMenuContext": {
     "summary": "Context object consumed by CanvasContextMenu.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.CanvasContextMenuContext.html",
+    "path": "/api-docs#./docs/api/interfaces/menus.CanvasContextMenuContext.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "menus"
   },
   "canvasPosToWorldRay": {
     "summary": "",
@@ -1537,9 +1459,9 @@
   },
   "Capabilities": {
     "summary": "WebGLRenderer capabilities.",
-    "path": "/api-docs#./docs/api/interfaces/internal.Capabilities.html",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.Capabilities.html",
     "kind": "interface",
-    "namespace": "internal"
+    "namespace": "webGLRenderer"
   },
   "CapPlane": {
     "summary": "World-space plane that buildSectionCaps treats as a cut\nthrough the source SceneModel.",
@@ -1559,17 +1481,11 @@
     "kind": "variable",
     "namespace": "constants"
   },
-  "ChunkReader": {
-    "summary": "RVM v2 chunk reader.",
-    "path": "/api-docs#./docs/api/classes/rvm.ChunkReader.html",
+  "CityJSONExporter": {
+    "summary": "Exports a SceneModel (and optional\nDataModel) to CityJSON — the inverse of\nCityJSONLoader.",
+    "path": "/api-docs#./docs/api/classes/cityjson.CityJSONExporter.html",
     "kind": "class",
-    "namespace": "rvm"
-  },
-  "ChunkWriter": {
-    "summary": "RVM v2 chunk writer — the inverse of `chunkReader`.",
-    "path": "/api-docs#./docs/api/classes/rvm.ChunkWriter.html",
-    "kind": "class",
-    "namespace": "rvm"
+    "namespace": "cityjson"
   },
   "CityJSONLoader": {
     "summary": "Loads a CityJSON file into a SceneModel and/or a DataModel.",
@@ -1608,16 +1524,16 @@
     "namespace": "sectionCaps"
   },
   "clone": {
-    "summary": "",
+    "summary": "Clones JSON-compatible data using JSON serialization.",
     "path": "/api-docs#./docs/api/functions/utils.clone.html",
     "kind": "function",
     "namespace": "utils"
   },
   "CLOSE_ICON_SVG": {
     "summary": "",
-    "path": "/api-docs#./docs/api/variables/demo/panels/viewPanel.CLOSE_ICON_SVG.html",
+    "path": "/api-docs#./docs/api/variables/panels.CLOSE_ICON_SVG.html",
     "kind": "variable",
-    "namespace": "demo/panels/viewPanel"
+    "namespace": "panels"
   },
   "CodeAggregateJson": {
     "summary": "Per-code aggregation in InspectionReportJson.",
@@ -1631,8 +1547,56 @@
     "kind": "function",
     "namespace": "boundaries"
   },
+  "COLORMAP_COOLWARM": {
+    "summary": "Diverging blue → white → red.",
+    "path": "/api-docs#./docs/api/variables/volumeOverlay.COLORMAP_COOLWARM.html",
+    "kind": "variable",
+    "namespace": "volumeOverlay"
+  },
+  "COLORMAP_JET": {
+    "summary": "CFD rainbow colormap.",
+    "path": "/api-docs#./docs/api/variables/volumeOverlay.COLORMAP_JET.html",
+    "kind": "variable",
+    "namespace": "volumeOverlay"
+  },
+  "COLORMAP_PLASMA": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/variables/volumeOverlay.COLORMAP_PLASMA.html",
+    "kind": "variable",
+    "namespace": "volumeOverlay"
+  },
+  "COLORMAP_THERMAL": {
+    "summary": "Black-body sequence.",
+    "path": "/api-docs#./docs/api/variables/volumeOverlay.COLORMAP_THERMAL.html",
+    "kind": "variable",
+    "namespace": "volumeOverlay"
+  },
+  "COLORMAP_VIRIDIS": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/variables/volumeOverlay.COLORMAP_VIRIDIS.html",
+    "kind": "variable",
+    "namespace": "volumeOverlay"
+  },
+  "COLORMAPS": {
+    "summary": "Named colormap registry.",
+    "path": "/api-docs#./docs/api/variables/volumeOverlay.COLORMAPS.html",
+    "kind": "variable",
+    "namespace": "volumeOverlay"
+  },
+  "ColormapStops": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/volumeOverlay.ColormapStops.html",
+    "kind": "type",
+    "namespace": "volumeOverlay"
+  },
+  "colormapToCssGradient": {
+    "summary": "Build a CSS `linear-gradient(.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.colormapToCssGradient.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
   "compactUnusedVertices": {
-    "summary": "Auto-fix for `GEOMETRY_UNUSED_VERTICES` — compacts\n`positionsCompressed` / `normalsCompressed` / `uvsCompressed` to\nkeep only vertex slots referenced by `indices` or `edgeIndices`,\nand remaps both index arrays through the old-to-new slot map.",
+    "summary": "Auto-fix for `GEOMETRY_UNUSED_VERTICES` — compacts\n`positionsCompressed` / `normalsCompressed` / `uvsCompressed` /\n`colorsCompressed` to keep only vertex slots referenced by\n`indices` or `edgeIndices`, and remaps both index arrays through\nthe old-to-new slot map.",
     "path": "/api-docs#./docs/api/variables/sceneModel.compactUnusedVertices.html",
     "kind": "variable",
     "namespace": "sceneModel"
@@ -1668,7 +1632,7 @@
     "namespace": "scene"
   },
   "compressGuid": {
-    "summary": "",
+    "summary": "Compresses a hexadecimal GUID string.",
     "path": "/api-docs#./docs/api/functions/utils.compressGuid.html",
     "kind": "function",
     "namespace": "utils"
@@ -1703,14 +1667,20 @@
     "kind": "function",
     "namespace": "drawings/labels"
   },
+  "computeSunPosition": {
+    "summary": "Compute the sun's position at `date` (treated as the absolute moment\nin UTC) as seen from `latitude` / `longitude`.",
+    "path": "/api-docs#./docs/api/functions/sunStudy.computeSunPosition.html",
+    "kind": "function",
+    "namespace": "sunStudy"
+  },
   "concat": {
-    "summary": "Returns the concatenation of two typed arrays.",
+    "summary": "Concatenates two typed arrays.",
     "path": "/api-docs#./docs/api/functions/utils.concat.html",
     "kind": "function",
     "namespace": "utils"
   },
   "ConfigField": {
-    "summary": "One tunable knob in an Inspection's ConfigSchema.",
+    "summary": "One tunable option in an Inspection's ConfigSchema.",
     "path": "/api-docs#./docs/api/types/sceneModel.ConfigField.html",
     "kind": "type",
     "namespace": "sceneModel"
@@ -1723,15 +1693,15 @@
   },
   "confirmDialog": {
     "summary": "Show a modal confirm dialog and resolve with the user's choice.",
-    "path": "/api-docs#./docs/api/functions/demo/dialogs.confirmDialog.html",
+    "path": "/api-docs#./docs/api/functions/dialogs.confirmDialog.html",
     "kind": "function",
-    "namespace": "demo/dialogs"
+    "namespace": "dialogs"
   },
   "ConfirmDialogParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/dialogs.ConfirmDialogParams.html",
+    "path": "/api-docs#./docs/api/interfaces/dialogs.ConfirmDialogParams.html",
     "kind": "interface",
-    "namespace": "demo/dialogs"
+    "namespace": "dialogs"
   },
   "conjugateQuat": {
     "summary": "Computes the conjugate of a quaternion.",
@@ -1781,6 +1751,12 @@
     "kind": "interface",
     "namespace": "contextmenu"
   },
+  "convertDataModel": {
+    "summary": "Converts a DataModelParams to a legacy\nMetaModelParams.",
+    "path": "/api-docs#./docs/api/functions/metamodel.convertDataModel.html",
+    "kind": "function",
+    "namespace": "metamodel"
+  },
   "convertIfc2gltfManifest": {
     "summary": "Converts a file manifest from Ifc2gltfManifestParams to\nModelChunksManifestParams.",
     "path": "/api-docs#./docs/api/functions/ifc2gltf2xgf.convertIfc2gltfManifest.html",
@@ -1792,12 +1768,6 @@
     "path": "/api-docs#./docs/api/functions/metamodel.convertMetaModel.html",
     "kind": "function",
     "namespace": "metamodel"
-  },
-  "convertWebGLConstant": {
-    "summary": "Converts a xeokit SDK constant to its eauivalent WebGL2 constant/enumeration value.",
-    "path": "/api-docs#./docs/api/functions/webGL.convertWebGLConstant.html",
-    "kind": "function",
-    "namespace": "webGL"
   },
   "CoordinateSystem": {
     "summary": "Represents a 3D coordinate system.",
@@ -1853,12 +1823,6 @@
     "kind": "function",
     "namespace": "scene"
   },
-  "createDefaultLoaderRegistry": {
-    "summary": "Returns a LoaderRegistry pre-populated with the built-in\nformats Studio supports out of the box.",
-    "path": "/api-docs#./docs/api/functions/tasksPanel.createDefaultLoaderRegistry.html",
-    "kind": "function",
-    "namespace": "tasksPanel"
-  },
   "createInspectionReport": {
     "summary": "",
     "path": "/api-docs#./docs/api/functions/inspection.createInspectionReport.html",
@@ -1891,9 +1855,9 @@
   },
   "createMemoryConfigs": {
     "summary": "Generates a set of GPU memory configuration values for 3D rendering,\n based on the provided parameters and device capabilities.",
-    "path": "/api-docs#./docs/api/functions/internal.createMemoryConfigs.html",
+    "path": "/api-docs#./docs/api/functions/webGLRenderer.createMemoryConfigs.html",
     "kind": "function",
-    "namespace": "internal"
+    "namespace": "webGLRenderer"
   },
   "createOBB2": {
     "summary": "Creates a new 2D oriented bounding box (OBB2).",
@@ -2051,6 +2015,18 @@
     "kind": "function",
     "namespace": "vector"
   },
+  "createXGFManifest": {
+    "summary": "Creates manifest metadata for an XGF v2 stream chunk.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.createXGFManifest.html",
+    "kind": "function",
+    "namespace": "xgfstream"
+  },
+  "createXGFStreamingIndexLookup": {
+    "summary": "Creates an ID/URI lookup helper for an XGF stream index.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.createXGFStreamingIndexLookup.html",
+    "kind": "function",
+    "namespace": "xgfstream"
+  },
   "cross3Vec3": {
     "summary": "Returns the cross product of two three-element vectors.",
     "path": "/api-docs#./docs/api/functions/vector.cross3Vec3.html",
@@ -2074,6 +2050,30 @@
     "path": "/api-docs#./docs/api/classes/curves.CubicBezierCurve.html",
     "kind": "class",
     "namespace": "curves"
+  },
+  "CullingPanel": {
+    "summary": "Abstract base for every floating demo panel.",
+    "path": "/api-docs#./docs/api/classes/panels.CullingPanel.html",
+    "kind": "class",
+    "namespace": "panels"
+  },
+  "CullingPanelParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/panels.CullingPanelParams.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "CullingResultListener": {
+    "summary": "Receives a worker message addressed to a view — either a `CullResults` delta\n(dense mirror indices; resolve with SceneCuller.",
+    "path": "/api-docs#./docs/api/types/culling.CullingResultListener.html",
+    "kind": "type",
+    "namespace": "culling"
+  },
+  "CullParams": {
+    "summary": "Configuration for a ViewCuller.",
+    "path": "/api-docs#./docs/api/interfaces/culling.CullParams.html",
+    "kind": "interface",
+    "namespace": "culling"
   },
   "Curve": {
     "summary": "Base class for parametric 3D curves.",
@@ -2119,15 +2119,15 @@
   },
   "DataHealthPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/dataHealthPanel.DataHealthPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.DataHealthPanel.html",
     "kind": "class",
-    "namespace": "demo/dataHealthPanel"
+    "namespace": "panels"
   },
   "DataHealthPanelParams": {
     "summary": "Constructor parameters for DataHealthPanel.",
-    "path": "/api-docs#./docs/api/interfaces/demo/dataHealthPanel.DataHealthPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.DataHealthPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/dataHealthPanel"
+    "namespace": "panels"
   },
   "DataModel": {
     "summary": "Contains a model's semantic data, as an entity-relationship graph.",
@@ -2141,23 +2141,23 @@
     "kind": "interface",
     "namespace": "data"
   },
+  "DataModelExporter": {
+    "summary": "Writes a DataModel to DataModelParams as JSON.",
+    "path": "/api-docs#./docs/api/classes/datamodel.DataModelExporter.html",
+    "kind": "class",
+    "namespace": "datamodel"
+  },
+  "DataModelImporter": {
+    "summary": "Reads DataModelParams into a DataModel.",
+    "path": "/api-docs#./docs/api/classes/datamodel.DataModelImporter.html",
+    "kind": "class",
+    "namespace": "datamodel"
+  },
   "DataModelParams": {
     "summary": "Parameters used to define a DataModel.",
     "path": "/api-docs#./docs/api/interfaces/data.DataModelParams.html",
     "kind": "interface",
     "namespace": "data"
-  },
-  "DataModelParamsExporter": {
-    "summary": "Writes a DataModel to DataModelParams as JSON.",
-    "path": "/api-docs#./docs/api/classes/datamodel.DataModelParamsExporter.html",
-    "kind": "class",
-    "namespace": "datamodel"
-  },
-  "DataModelParamsLoader": {
-    "summary": "Reads DataModelParams into a DataModel.",
-    "path": "/api-docs#./docs/api/classes/datamodel.DataModelParamsLoader.html",
-    "kind": "class",
-    "namespace": "datamodel"
   },
   "DataModelStats": {
     "summary": "Statistics for a DataModel.",
@@ -2179,39 +2179,57 @@
   },
   "DataStatsPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/dataStats.DataStatsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.DataStatsPanel.html",
     "kind": "class",
-    "namespace": "demo/dataStats"
+    "namespace": "panels"
   },
   "DataStatsPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/dataStats.DataStatsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.DataStatsPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/dataStats"
-  },
-  "DataTexture": {
-    "summary": "Base class for GPU-backed “data textures” owned by the WebGL renderer.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.DataTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "DataTextures": {
-    "summary": "Collection of GPU data textures used by a WebGLRenderer.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.DataTextures.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
+    "namespace": "panels"
   },
   "DataTexturesPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/dataTexturesPanel.DataTexturesPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.DataTexturesPanel.html",
     "kind": "class",
-    "namespace": "dataTexturesPanel"
+    "namespace": "panels"
   },
   "DataTexturesPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/dataTexturesPanel.DataTexturesPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.DataTexturesPanelParams.html",
     "kind": "interface",
-    "namespace": "dataTexturesPanel"
+    "namespace": "panels"
+  },
+  "DaylightAnalysis": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/classes/daylightAnalysis.DaylightAnalysis.html",
+    "kind": "class",
+    "namespace": "daylightAnalysis"
+  },
+  "DaylightAnalysisPanel": {
+    "summary": "Floating Studio panel for configuring and triggering\nDaylightAnalysis\nruns, with a live progress bar, last-result stats, and a colour-\ngradient legend that matches the heatmap painted on the scene.",
+    "path": "/api-docs#./docs/api/classes/panels.DaylightAnalysisPanel.html",
+    "kind": "class",
+    "namespace": "panels"
+  },
+  "DaylightAnalysisPanelParams": {
+    "summary": "Constructor parameters for DaylightAnalysisPanel.",
+    "path": "/api-docs#./docs/api/interfaces/panels.DaylightAnalysisPanelParams.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "DaylightAnalysisParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/daylightAnalysis.DaylightAnalysisParams.html",
+    "kind": "interface",
+    "namespace": "daylightAnalysis"
+  },
+  "DaylightAnalysisResult": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/daylightAnalysis.DaylightAnalysisResult.html",
+    "kind": "interface",
+    "namespace": "daylightAnalysis"
   },
   "decomposeMat4": {
     "summary": "",
@@ -2279,11 +2297,17 @@
     "kind": "function",
     "namespace": "compression"
   },
+  "DEFAULT_CULL_PARAMS": {
+    "summary": "Default CullParams, applied field-by-field for any value the caller\nomits.",
+    "path": "/api-docs#./docs/api/variables/culling.DEFAULT_CULL_PARAMS.html",
+    "kind": "variable",
+    "namespace": "culling"
+  },
   "DEFAULT_EXTENSIONS": {
     "summary": "Built-in format → extension table.",
-    "path": "/api-docs#./docs/api/variables/tasksPanel.DEFAULT_EXTENSIONS.html",
+    "path": "/api-docs#./docs/api/variables/systems.DEFAULT_EXTENSIONS.html",
     "kind": "variable",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "DEFAULT_FIX_REGISTRY": {
     "summary": "The FixRegistry applyFixes reaches for\nwhen no `registry` is supplied in its params.",
@@ -2299,15 +2323,15 @@
   },
   "DEFAULT_IFC_NAME_RULES": {
     "summary": "Built-in IfcNameRule list catching authoring-tool-specific\nnames that carry semantic meaning the IFC type alone doesn't —\nprimarily Revit-style proxy elements exported as\n`IfcBuildingElementProxy`.",
-    "path": "/api-docs#./docs/api/variables/demo/applyIFCMaterials.DEFAULT_IFC_NAME_RULES.html",
+    "path": "/api-docs#./docs/api/variables/systems.DEFAULT_IFC_NAME_RULES.html",
     "kind": "variable",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
   "DEFAULT_IFC_PAINTERS": {
     "summary": "Default IFC type → painter mapping.",
-    "path": "/api-docs#./docs/api/variables/demo/applyIFCMaterials.DEFAULT_IFC_PAINTERS.html",
+    "path": "/api-docs#./docs/api/variables/systems.DEFAULT_IFC_PAINTERS.html",
     "kind": "variable",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
   "DEFAULT_INSPECTION_REGISTRY": {
     "summary": "The InspectionRegistry inspectSceneModel reaches\nfor when no `registry` is supplied in its params.",
@@ -2315,17 +2339,11 @@
     "kind": "variable",
     "namespace": "sceneModel"
   },
-  "DefaultLoadingManager": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/variables/io.DefaultLoadingManager.html",
-    "kind": "variable",
-    "namespace": "io"
-  },
   "DefaultModelLocator": {
     "summary": "Built-in locator for the demo convention\n`{modelsDir}/{modelId}/{format}/model.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.DefaultModelLocator.html",
+    "path": "/api-docs#./docs/api/classes/systems.DefaultModelLocator.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "DEGTORAD": {
     "summary": "Converts degrees to radians.",
@@ -2395,15 +2413,15 @@
   },
   "DistanceMeasurementsPanel": {
     "summary": "Floating panel that lists every DistanceMeasurement\ncurrently mounted on a DistanceMeasurementTool, with a\ndestroy button on each row and a \"Clear all\" footer button.",
-    "path": "/api-docs#./docs/api/classes/demo/distanceMeasurementsPanel.DistanceMeasurementsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.DistanceMeasurementsPanel.html",
     "kind": "class",
-    "namespace": "demo/distanceMeasurementsPanel"
+    "namespace": "panels"
   },
   "DistanceMeasurementsPanelParams": {
     "summary": "Construction parameters for DistanceMeasurementsPanel.",
-    "path": "/api-docs#./docs/api/interfaces/demo/distanceMeasurementsPanel.DistanceMeasurementsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.DistanceMeasurementsPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/distanceMeasurementsPanel"
+    "namespace": "panels"
   },
   "DistanceMeasurementTool": {
     "summary": "DistanceMeasurementTool — overlay widget that renders one or\nmore DistanceMeasurements on a\nView's canvas.",
@@ -2416,6 +2434,12 @@
     "path": "/api-docs#./docs/api/interfaces/distance.DistanceMeasurementToolParams.html",
     "kind": "interface",
     "namespace": "distance"
+  },
+  "distanceToTile": {
+    "summary": "Nearest distance from `eye` to a bounding sphere (0 inside).",
+    "path": "/api-docs#./docs/api/functions/threedtiles.distanceToTile.html",
+    "kind": "function",
+    "namespace": "threedtiles"
   },
   "distVec2": {
     "summary": "",
@@ -2513,12 +2537,6 @@
     "kind": "variable",
     "namespace": "sceneModel"
   },
-  "DrawCallStats": {
-    "summary": "Log entry for a single draw call.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.DrawCallStats.html",
-    "kind": "interface",
-    "namespace": "inspectors"
-  },
   "DrawingClipSpec": {
     "summary": "Cut-away clip plane spec.",
     "path": "/api-docs#./docs/api/types/hle.DrawingClipSpec.html",
@@ -2551,57 +2569,15 @@
   },
   "DrawingsPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/drawingsPanel.DrawingsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.DrawingsPanel.html",
     "kind": "class",
-    "namespace": "drawingsPanel"
+    "namespace": "panels"
   },
   "DrawingsPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/drawingsPanel.DrawingsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.DrawingsPanelParams.html",
     "kind": "interface",
-    "namespace": "drawingsPanel"
-  },
-  "DrawOp": {
-    "summary": "A draw operation (DrawOp) binds one or more DrawTechniques to a\nspecific render pass.",
-    "path": "/api-docs#./docs/api/classes/techniques.DrawOp.html",
-    "kind": "class",
-    "namespace": "techniques"
-  },
-  "DrawOps": {
-    "summary": "Owns and manages all DrawTechnique instances\nrequired to render every supported primitive type across all render passes.",
-    "path": "/api-docs#./docs/api/classes/techniques.DrawOps.html",
-    "kind": "class",
-    "namespace": "techniques"
-  },
-  "DrawOpVariants": {
-    "summary": "Variant configuration for a Lambert-style DrawOp that has up to\nsix pre-compiled DrawTechniques — one per `(hasNormals, hasUVs,\ntriplanar)` combination (with `hasUVs && triplanar` excluded by\nconstruction).",
-    "path": "/api-docs#./docs/api/interfaces/techniques.DrawOpVariants.html",
-    "kind": "interface",
-    "namespace": "techniques"
-  },
-  "DrawTechnique": {
-    "summary": "Base class for GPU draw techniques.",
-    "path": "/api-docs#./docs/api/classes/techniques.DrawTechnique.html",
-    "kind": "class",
-    "namespace": "techniques"
-  },
-  "DrawTechniqueConfig": {
-    "summary": "Compile-time configuration captured from a\nDrawTechnique — surfaced alongside the shader source\nso introspection tools (the shaders panel, batch dumps) can\ntell at a glance which slots use, e.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.DrawTechniqueConfig.html",
-    "kind": "interface",
-    "namespace": "inspectors"
-  },
-  "DrawTechniqueRecord": {
-    "summary": "One render-pass slot's compiled shader program — the base\n(flat-shaded, no-UVs) variant, plus the optional set of\nLambert variants compiled into the same slot.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.DrawTechniqueRecord.html",
-    "kind": "interface",
-    "namespace": "inspectors"
-  },
-  "DrawTechniqueRecordMap": {
-    "summary": "Map from render-pass slot name (as defined on\nRenderPassDrawOps, e.",
-    "path": "/api-docs#./docs/api/types/inspectors.DrawTechniqueRecordMap.html",
-    "kind": "type",
-    "namespace": "inspectors"
+    "namespace": "panels"
   },
   "dropDegenerateTriangles": {
     "summary": "Auto-fix for `GEOMETRY_DEGENERATE_TRIANGLES` — rewrites\n`geom.",
@@ -2693,6 +2669,24 @@
     "kind": "variable",
     "namespace": "constants"
   },
+  "E57Exporter": {
+    "summary": "Exports a SceneModel's point geometry to an\nE57 (ASTM E2807) file.",
+    "path": "/api-docs#./docs/api/classes/e57.E57Exporter.html",
+    "kind": "class",
+    "namespace": "e57"
+  },
+  "E57Loader": {
+    "summary": "Loads an E57 point cloud into a SceneModel\nand/or a DataModel.",
+    "path": "/api-docs#./docs/api/classes/e57.E57Loader.html",
+    "kind": "class",
+    "namespace": "e57"
+  },
+  "E57LoaderOptions": {
+    "summary": "Options for E57Loader.",
+    "path": "/api-docs#./docs/api/interfaces/e57.E57LoaderOptions.html",
+    "kind": "interface",
+    "namespace": "e57"
+  },
   "Edges": {
     "summary": "Configures edge enhancement effect for a View.",
     "path": "/api-docs#./docs/api/classes/viewer.Edges.html",
@@ -2749,9 +2743,9 @@
   },
   "ensureViewPanelStylesInjected": {
     "summary": "Inject the shared ViewPanel stylesheet into `document.",
-    "path": "/api-docs#./docs/api/functions/demo/panels/viewPanel.ensureViewPanelStylesInjected.html",
+    "path": "/api-docs#./docs/api/functions/panels.ensureViewPanelStylesInjected.html",
     "kind": "function",
-    "namespace": "demo/panels/viewPanel"
+    "namespace": "panels"
   },
   "eulerToQuat": {
     "summary": "Initializes a quaternion from Euler angles.",
@@ -2809,39 +2803,39 @@
   },
   "ExplorerPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/explorerPanel.ExplorerPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.ExplorerPanel.html",
     "kind": "class",
-    "namespace": "demo/explorerPanel"
+    "namespace": "panels"
   },
   "ExplorerPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/explorerPanel.ExplorerPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ExplorerPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/explorerPanel"
+    "namespace": "panels"
   },
   "ExportBCFPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/exportBCF.ExportBCFPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.ExportBCFPanel.html",
     "kind": "class",
-    "namespace": "demo/exportBCF"
+    "namespace": "panels"
   },
   "ExportBCFPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/exportBCF.ExportBCFPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ExportBCFPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/exportBCF"
+    "namespace": "panels"
   },
   "ExportDialog": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/exportDialog.ExportDialog.html",
+    "path": "/api-docs#./docs/api/classes/panels.ExportDialog.html",
     "kind": "class",
-    "namespace": "demo/exportDialog"
+    "namespace": "panels"
   },
   "ExportDialogParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/exportDialog.ExportDialogParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ExportDialogParams.html",
     "kind": "interface",
-    "namespace": "demo/exportDialog"
+    "namespace": "panels"
   },
   "extractFills": {
     "summary": "Extract filled-polygon geometry, one per source SceneMesh\nthat contributed at least one frontmost pixel to `buffer`.",
@@ -2867,6 +2861,12 @@
     "kind": "interface",
     "namespace": "fills"
   },
+  "extractSpacesFromGeometry": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/variables/cameraTour.extractSpacesFromGeometry.html",
+    "kind": "variable",
+    "namespace": "cameraTour"
+  },
   "extractSpacesFromIfc": {
     "summary": "",
     "path": "/api-docs#./docs/api/variables/cameraTour.extractSpacesFromIfc.html",
@@ -2875,15 +2875,39 @@
   },
   "FALLBACK_IFC_PAINTER": {
     "summary": "Painter used by applyIFCMaterials when an object's IFC type\nisn't in the lookup table.",
-    "path": "/api-docs#./docs/api/variables/demo/applyIFCMaterials.FALLBACK_IFC_PAINTER.html",
+    "path": "/api-docs#./docs/api/variables/systems.FALLBACK_IFC_PAINTER.html",
     "kind": "variable",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
   "farFromOriginGeometries": {
     "summary": "**Opt-in** (InspectSceneModelParams.",
     "path": "/api-docs#./docs/api/variables/sceneModel.farFromOriginGeometries.html",
     "kind": "variable",
     "namespace": "sceneModel"
+  },
+  "FBXExporter": {
+    "summary": "Exports a SceneModel and/or a DataModel to a file.",
+    "path": "/api-docs#./docs/api/classes/fbx.FBXExporter.html",
+    "kind": "class",
+    "namespace": "fbx"
+  },
+  "FBXLoader": {
+    "summary": "Loads a model file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#./docs/api/classes/fbx.FBXLoader.html",
+    "kind": "class",
+    "namespace": "fbx"
+  },
+  "FDSExporter": {
+    "summary": "Writes an FDS-shaped DataModel\nback to a v6 namelist text file.",
+    "path": "/api-docs#./docs/api/classes/fds.FDSExporter.html",
+    "kind": "class",
+    "namespace": "fds"
+  },
+  "FDSLoader": {
+    "summary": "Loads a NIST Fire Dynamics Simulator (FDS) v6 input file into a\nSceneModel and/or a\nDataModel.",
+    "path": "/api-docs#./docs/api/classes/fds.FDSLoader.html",
+    "kind": "class",
+    "namespace": "fds"
   },
   "FeetUnit": {
     "summary": "Feet unit of measurement.",
@@ -2897,12 +2921,6 @@
     "kind": "interface",
     "namespace": "io"
   },
-  "FileLoader": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/classes/io.FileLoader.html",
-    "kind": "class",
-    "namespace": "io"
-  },
   "FileRef": {
     "summary": "Reference to a file, either by path or by data.",
     "path": "/api-docs#./docs/api/interfaces/reporters.FileRef.html",
@@ -2911,9 +2929,9 @@
   },
   "fillPlaneMatrix": {
     "summary": "Compose a 4×4 column-major matrix whose translation is `pos`\nand whose local +Z axis is `dir`.",
-    "path": "/api-docs#./docs/api/functions/sectionPlanesTool.fillPlaneMatrix.html",
+    "path": "/api-docs#./docs/api/functions/systems.fillPlaneMatrix.html",
     "kind": "function",
-    "namespace": "sectionPlanesTool"
+    "namespace": "systems"
   },
   "FillPolygons": {
     "summary": "One source SceneMesh's projected fill, ready to feed into a\nSceneModel as a TrianglesPrimitive geometry.",
@@ -2928,7 +2946,7 @@
     "namespace": "fills"
   },
   "findNodeOfType": {
-    "summary": "",
+    "summary": "Finds nodes with the given `type` value.",
     "path": "/api-docs#./docs/api/functions/utils.findNodeOfType.html",
     "kind": "function",
     "namespace": "utils"
@@ -2940,7 +2958,7 @@
     "namespace": "sceneModel"
   },
   "findSceneObjectsForGeometry": {
-    "summary": "Walk a SceneModel's meshes, collect the ids of every\nnon-destroyed SceneObject that owns at least one mesh referencing\n`geometryId`, and return them de-duplicated.",
+    "summary": "Return the ids of every non-destroyed SceneObject that owns at least\none mesh referencing `geometryId`, de-duplicated.",
     "path": "/api-docs#./docs/api/functions/sceneModel.findSceneObjectsForGeometry.html",
     "kind": "function",
     "namespace": "sceneModel"
@@ -2988,22 +3006,22 @@
     "namespace": "materials"
   },
   "FloatArrayParam": {
-    "summary": "Represents an array of floating-point numbers.",
+    "summary": "Array input accepted by floating-point math functions.",
     "path": "/api-docs#./docs/api/types/vector.FloatArrayParam.html",
     "kind": "type",
     "namespace": "vector"
   },
   "FloatingPanelBase": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.FloatingPanelBase.html",
+    "path": "/api-docs#./docs/api/classes/panels.FloatingPanelBase.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "FloatingPanelBaseParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.FloatingPanelBaseParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.FloatingPanelBaseParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "FloatType": {
     "summary": "Signed 32-bit floating-point type.",
@@ -3025,15 +3043,15 @@
   },
   "FormatDescriptor": {
     "summary": "Pure-format intrinsics held in the registry.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.FormatDescriptor.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.FormatDescriptor.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "FormatFetchKind": {
     "summary": "How a format's file data should be fetched off the network.",
-    "path": "/api-docs#./docs/api/types/tasksPanel.FormatFetchKind.html",
+    "path": "/api-docs#./docs/api/types/systems.FormatFetchKind.html",
     "kind": "type",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "Frustum3": {
     "summary": "A 3D frustum defined by six planes.",
@@ -3077,17 +3095,23 @@
     "kind": "variable",
     "namespace": "constants"
   },
-  "GenericDrawSilhouetteTechnique": {
-    "summary": "Draw technique for rendering silhouettes — generic across all primitive types.",
-    "path": "/api-docs#./docs/api/classes/generic.GenericDrawSilhouetteTechnique.html",
+  "GaussianSplatExporter": {
+    "summary": "Exports the GaussianSplatsPrimitive\ngeometries of a SceneModel to the compact `.",
+    "path": "/api-docs#./docs/api/classes/gaussiansplat.GaussianSplatExporter.html",
     "kind": "class",
-    "namespace": "generic"
+    "namespace": "gaussiansplat"
   },
-  "GenericPickMeshTechnique": {
-    "summary": "Draw technique for rendering meshes into the pick framebuffer — generic across all primitive types.",
-    "path": "/api-docs#./docs/api/classes/generic.GenericPickMeshTechnique.html",
+  "GaussianSplatLoader": {
+    "summary": "Loads compact `.",
+    "path": "/api-docs#./docs/api/classes/gaussiansplat.GaussianSplatLoader.html",
     "kind": "class",
-    "namespace": "generic"
+    "namespace": "gaussiansplat"
+  },
+  "GaussianSplatsPrimitive": {
+    "summary": "Indicates that a scene!.",
+    "path": "/api-docs#./docs/api/variables/constants.GaussianSplatsPrimitive.html",
+    "kind": "variable",
+    "namespace": "constants"
   },
   "geometricMeanVec2": {
     "summary": "Get the geometric mean of the vectors.",
@@ -3107,12 +3131,6 @@
     "kind": "type",
     "namespace": "geometry"
   },
-  "GeometryAttributeTexture": {
-    "summary": "Stores per-geometry attributes such as base addresses for vertex, index, and edge index data.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.GeometryAttributeTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
   "geometryDataIntegrity": {
     "summary": "Walks every SceneGeometry in the SceneModel and emits\ndata-shape errors that the renderer or downstream optimisations\ncan't safely tolerate.",
     "path": "/api-docs#./docs/api/variables/sceneModel.geometryDataIntegrity.html",
@@ -3124,12 +3142,6 @@
     "path": "/api-docs#./docs/api/variables/sceneModel.geometryQuality.html",
     "kind": "variable",
     "namespace": "sceneModel"
-  },
-  "GeometryQuantRangeTexture": {
-    "summary": "Stores per-geometry quantization range data (offset and scale).",
-    "path": "/api-docs#./docs/api/classes/dataTextures.GeometryQuantRangeTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
   },
   "getAABB3Area": {
     "summary": "Gets the area of an AABB.",
@@ -3157,15 +3169,9 @@
   },
   "getDataProperty": {
     "summary": "Reads a single named property out of a `DataObject`'s PropertySets.",
-    "path": "/api-docs#./docs/api/functions/demo/applyIFCMaterials.getDataProperty.html",
+    "path": "/api-docs#./docs/api/functions/systems.getDataProperty.html",
     "kind": "function",
-    "namespace": "demo/applyIFCMaterials"
-  },
-  "getDrawOps": {
-    "summary": "Gets or creates a set of draw operations for the given RenderContext.",
-    "path": "/api-docs#./docs/api/functions/techniques.getDrawOps.html",
-    "kind": "function",
-    "namespace": "techniques"
+    "namespace": "systems"
   },
   "getGlobalTaskRunner": {
     "summary": "Returns the global, shared SDKTaskRunner instance used\nby default for all SDKTask objects.",
@@ -3215,6 +3221,12 @@
     "kind": "function",
     "namespace": "collision"
   },
+  "getSceneCuller": {
+    "summary": "Gets or lazily creates the SceneCuller for a Scene, mirroring the\nlifecycle of getSceneCollisionIndex.",
+    "path": "/api-docs#./docs/api/functions/culling.getSceneCuller.html",
+    "kind": "function",
+    "namespace": "culling"
+  },
   "getScenePhysics": {
     "summary": "Lazily creates the ScenePhysics for a Scene, or returns the\nexisting one.",
     "path": "/api-docs#./docs/api/functions/physics.getScenePhysics.html",
@@ -3226,12 +3238,6 @@
     "path": "/api-docs#./docs/api/functions/compression.getUVBounds.html",
     "kind": "function",
     "namespace": "compression"
-  },
-  "getWebGLExtension": {
-    "summary": "Gets a WebGL2 extension.",
-    "path": "/api-docs#./docs/api/functions/webGL.getWebGLExtension.html",
-    "kind": "function",
-    "namespace": "webGL"
   },
   "GIFMediaType": {
     "summary": "Media type for GIF images.",
@@ -3251,65 +3257,23 @@
     "kind": "class",
     "namespace": "gltf"
   },
-  "GPUMemoryBatch": {
-    "summary": "Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.GPUMemoryBatch.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "GPUMemoryCheckResult": {
-    "summary": "Enumeration representing the result of a free memory check for storing a mesh in GPU memory.",
-    "path": null,
-    "kind": null,
-    "namespace": "dataTextures"
-  },
-  "GPUMemoryEditor": {
-    "summary": "Interface for creating and updating GPU memory resources.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUMemoryEditor.html",
+  "GLTFLoadOptions": {
+    "summary": "Options for GLTFLoader.",
+    "path": "/api-docs#./docs/api/interfaces/gltf.GLTFLoadOptions.html",
     "kind": "interface",
-    "namespace": "dataTextures"
-  },
-  "GPUMemoryManager": {
-    "summary": "Owns GPU-resident, dynamically editable storage for tiles, geometry, and mesh attributes.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.GPUMemoryManager.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "GPUMemoryMeshHandle": {
-    "summary": "A handle to a mesh stored in GPU memory.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUMemoryMeshHandle.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
+    "namespace": "gltf"
   },
   "GPUMemoryPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/gpuMemoryUsage.GPUMemoryPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.GPUMemoryPanel.html",
     "kind": "class",
-    "namespace": "demo/gpuMemoryUsage"
+    "namespace": "panels"
   },
   "GPUMemoryPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/gpuMemoryUsage.GPUMemoryPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.GPUMemoryPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/gpuMemoryUsage"
-  },
-  "GPUMemoryReader": {
-    "summary": "Interface that provides the data textures that implement the GPU-side memory.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUMemoryReader.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
-  },
-  "GPUTile": {
-    "summary": "Represents a single tile in a tiled coordinate system.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUTile.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
-  },
-  "GPUTileManager": {
-    "summary": "Manages a tiled coordinate system for efficient WebGL rendering.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.GPUTileManager.html",
-    "kind": "class",
-    "namespace": "dataTextures"
+    "namespace": "panels"
   },
   "HalfFloatType": {
     "summary": "Signed 16-bit half-precision floating-point type.",
@@ -3346,12 +3310,6 @@
     "path": "/api-docs#./docs/api/interfaces/scene.HatchParams.html",
     "kind": "interface",
     "namespace": "scene"
-  },
-  "HatchPatternTexture": {
-    "summary": "Stores per-slot hatch patterns for hatching on triangle-\nsurface meshes.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.HatchPatternTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
   },
   "HatchSpace": {
     "summary": "Coordinate space in which a hatch pattern's `spacing` and\n`lineWidth` are measured.",
@@ -3408,7 +3366,7 @@
     "namespace": "hle"
   },
   "HLEOptions": {
-    "summary": "Tuning knobs for hidden-line elimination.",
+    "summary": "Tuning parameters for hidden-line elimination.",
     "path": "/api-docs#./docs/api/interfaces/hle.HLEOptions.html",
     "kind": "interface",
     "namespace": "hle"
@@ -3493,21 +3451,21 @@
   },
   "IfcNameRule": {
     "summary": "Name-based rule that routes a `SceneObject` to a painter-table key\nby matching the object's `DataObject.",
-    "path": "/api-docs#./docs/api/interfaces/demo/applyIFCMaterials.IfcNameRule.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.IfcNameRule.html",
     "kind": "interface",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
   "IfcPainterEntry": {
     "summary": "Painter + optional material-parameter override for a single IFC type.",
-    "path": "/api-docs#./docs/api/interfaces/demo/applyIFCMaterials.IfcPainterEntry.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.IfcPainterEntry.html",
     "kind": "interface",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
   "IfcPropertyRule": {
     "summary": "Property-based rule that routes a `SceneObject` to a painter-table\nkey by inspecting the object's `DataObject` — typically its\n`propertySets` (e.",
-    "path": "/api-docs#./docs/api/interfaces/demo/applyIFCMaterials.IfcPropertyRule.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.IfcPropertyRule.html",
     "kind": "interface",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
   "ifcSpatialHierarchy": {
     "summary": "Opt-in via InspectDataModelParams.",
@@ -3515,17 +3473,59 @@
     "kind": "variable",
     "namespace": "dataModel"
   },
-  "ImageSource": {
+  "ImplicitSpec": {
+    "summary": "Implicit-tiling spec carried by an implicit TileNode, enough to expand\nits subtree lazily by Morton index during selection (box subdivision for\nper-tile bounding volumes, templated subtree / content URIs).",
+    "path": "/api-docs#./docs/api/interfaces/threedtiles.ImplicitSpec.html",
+    "kind": "interface",
+    "namespace": "threedtiles"
+  },
+  "IMPORT_BASES": {
     "summary": "",
-    "path": "/api-docs#./docs/api/types/dataTextures.ImageSource.html",
-    "kind": "type",
-    "namespace": "dataTextures"
+    "path": "/api-docs#./docs/api/variables/panels.IMPORT_BASES.html",
+    "kind": "variable",
+    "namespace": "panels"
+  },
+  "IMPORT_DATA_SETS": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/variables/panels.IMPORT_DATA_SETS.html",
+    "kind": "variable",
+    "namespace": "panels"
+  },
+  "ImportCoordSysBasis": {
+    "summary": "One named coordinate-system basis the user can pick from the\nImport dialog's Basis dropdown.",
+    "path": "/api-docs#./docs/api/interfaces/panels.ImportCoordSysBasis.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "ImportDataSet": {
+    "summary": "One importable data set — a coherent combination of one or more\nfiles the user can load together (e.",
+    "path": "/api-docs#./docs/api/interfaces/panels.ImportDataSet.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "ImportDataSetFile": {
+    "summary": "One file expected by an ImportDataSet.",
+    "path": "/api-docs#./docs/api/interfaces/panels.ImportDataSetFile.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "ImportDialog": {
+    "summary": "Abstract base for every floating demo panel.",
+    "path": "/api-docs#./docs/api/classes/panels.ImportDialog.html",
+    "kind": "class",
+    "namespace": "panels"
+  },
+  "ImportDialogParams": {
+    "summary": "Construction params for ImportDialog.",
+    "path": "/api-docs#./docs/api/interfaces/panels.ImportDialogParams.html",
+    "kind": "interface",
+    "namespace": "panels"
   },
   "ImportProvenance": {
     "summary": "Where a loaded model came from.",
-    "path": "/api-docs#./docs/api/interfaces/demo/panels/modelsPanel.ImportProvenance.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ImportProvenance.html",
     "kind": "interface",
-    "namespace": "demo/panels/modelsPanel"
+    "namespace": "panels"
   },
   "InchesUnit": {
     "summary": "Inches unit of measurement.",
@@ -3533,86 +3533,68 @@
     "kind": "variable",
     "namespace": "constants"
   },
-  "IndexTexture": {
-    "summary": "DataTexture subclass that manages allocation and efficient updates of variable-sized portions.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.IndexTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "InfiniteGridRenderer": {
-    "summary": "Infinite ground grid renderer for xeokit V3.",
-    "path": "/api-docs#./docs/api/classes/renderManager.InfiniteGridRenderer.html",
-    "kind": "class",
-    "namespace": "renderManager"
-  },
-  "InfiniteGridRendererOptions": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/renderManager.InfiniteGridRendererOptions.html",
-    "kind": "interface",
-    "namespace": "renderManager"
-  },
   "InfoPanel": {
     "summary": "Floating info card — see the module overview for usage.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.InfoPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.InfoPanel.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelButtonParams": {
     "summary": "Common params for every builder.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelButtonParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelButtonParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelRadioGroupParams": {
     "summary": "Common params for every builder.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelRadioGroupParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelRadioGroupParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelSelectOption": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelSelectOption.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelSelectOption.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelSelectParams": {
     "summary": "Common params for every builder.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelSelectParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelSelectParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelSliderParams": {
     "summary": "Common params for every builder.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelSliderParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelSliderParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelStatParams": {
     "summary": "Common params for every builder.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelStatParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelStatParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelToggleParams": {
     "summary": "Common params for every builder.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelToggleParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelToggleParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "InfoPanelWidgetParamsBase": {
     "summary": "Common params for every builder.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.InfoPanelWidgetParamsBase.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.InfoPanelWidgetParamsBase.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "inQuotes": {
-    "summary": "Returns the given ID as a string, in quotes if the ID was a string to begin with.",
+    "summary": "Formats an ID for log output.",
     "path": "/api-docs#./docs/api/functions/utils.inQuotes.html",
     "kind": "function",
     "namespace": "utils"
@@ -3678,7 +3660,7 @@
     "namespace": "sceneModel"
   },
   "InspectionReportToJsonParams": {
-    "summary": "Optional knobs for inspectionReportToJson.",
+    "summary": "Optional settings for inspectionReportToJson.",
     "path": "/api-docs#./docs/api/interfaces/sceneModel.InspectionReportToJsonParams.html",
     "kind": "interface",
     "namespace": "sceneModel"
@@ -3714,7 +3696,7 @@
     "namespace": "sceneModel"
   },
   "IntArrayParam": {
-    "summary": "Represents an array of integer numbers.",
+    "summary": "Array input accepted by integer math functions.",
     "path": "/api-docs#./docs/api/types/vector.IntArrayParam.html",
     "kind": "type",
     "namespace": "vector"
@@ -3816,7 +3798,7 @@
     "namespace": "quat"
   },
   "isArray": {
-    "summary": "Tests if the given object is an array.",
+    "summary": "Returns true when `value` is array-like.",
     "path": "/api-docs#./docs/api/functions/utils.isArray.html",
     "kind": "function",
     "namespace": "utils"
@@ -3840,19 +3822,19 @@
     "namespace": "scene"
   },
   "isEmptyObject": {
-    "summary": "Returns true if the given map is empty.",
+    "summary": "Returns true when the object has no own enumerable properties.",
     "path": "/api-docs#./docs/api/functions/utils.isEmptyObject.html",
     "kind": "function",
     "namespace": "utils"
   },
   "isFunction": {
-    "summary": "Tests if the given value is a function.",
+    "summary": "Returns true when `value` is a function.",
     "path": "/api-docs#./docs/api/functions/utils.isFunction.html",
     "kind": "function",
     "namespace": "utils"
   },
   "isID": {
-    "summary": "Tests if the given value is an ID.",
+    "summary": "Returns true when `value` can be used as an ID.",
     "path": "/api-docs#./docs/api/functions/utils.isID.html",
     "kind": "function",
     "namespace": "utils"
@@ -3864,22 +3846,28 @@
     "namespace": "matrix"
   },
   "isJSONObject": {
-    "summary": "",
+    "summary": "Returns true when `arg` is a non-array object.",
     "path": "/api-docs#./docs/api/functions/utils.isJSONObject.html",
     "kind": "function",
     "namespace": "utils"
   },
   "isNumeric": {
-    "summary": "Tests if the given value is a number.",
+    "summary": "Returns true when `value` is numeric.",
     "path": "/api-docs#./docs/api/functions/utils.isNumeric.html",
     "kind": "function",
     "namespace": "utils"
   },
   "isObject": {
-    "summary": "Tests if the given value is a JavaScript JSON object, eg, ````{ foo: \"bar\" }````.",
+    "summary": "Returns true when `value` is a plain object.",
     "path": "/api-docs#./docs/api/functions/utils.isObject.html",
     "kind": "function",
     "namespace": "utils"
+  },
+  "IsosurfaceMesh": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/volumeOverlay.IsosurfaceMesh.html",
+    "kind": "interface",
+    "namespace": "volumeOverlay"
   },
   "isPointVisible": {
     "summary": "Test whether a single world-space point would be visible\nfrom the projection-direction camera.",
@@ -3888,7 +3876,7 @@
     "namespace": "hle"
   },
   "isString": {
-    "summary": "Tests if the given value is a string.",
+    "summary": "Returns true when `value` is a string.",
     "path": "/api-docs#./docs/api/functions/utils.isString.html",
     "kind": "function",
     "namespace": "utils"
@@ -3919,39 +3907,39 @@
   },
   "IssuesPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/issuesPanel.IssuesPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.IssuesPanel.html",
     "kind": "class",
-    "namespace": "issuesPanel"
+    "namespace": "panels"
   },
   "IssuesPanelLevel": {
     "summary": "Severity of an event record.",
-    "path": "/api-docs#./docs/api/types/issuesPanel.IssuesPanelLevel.html",
+    "path": "/api-docs#./docs/api/types/panels.IssuesPanelLevel.html",
     "kind": "type",
-    "namespace": "issuesPanel"
+    "namespace": "panels"
   },
   "IssuesPanelLogPayload": {
     "summary": "Top-level shape of the JSON written to the clipboard by\nthe Copy log button.",
-    "path": "/api-docs#./docs/api/interfaces/issuesPanel.IssuesPanelLogPayload.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.IssuesPanelLogPayload.html",
     "kind": "interface",
-    "namespace": "issuesPanel"
+    "namespace": "panels"
   },
   "IssuesPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/issuesPanel.IssuesPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.IssuesPanelParams.html",
     "kind": "interface",
-    "namespace": "issuesPanel"
+    "namespace": "panels"
   },
   "IssuesPanelRecord": {
     "summary": "One row in the panel's log.",
-    "path": "/api-docs#./docs/api/interfaces/issuesPanel.IssuesPanelRecord.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.IssuesPanelRecord.html",
     "kind": "interface",
-    "namespace": "issuesPanel"
+    "namespace": "panels"
   },
   "IssuesPanelSource": {
     "summary": "Originating emitter of an event record.",
-    "path": "/api-docs#./docs/api/types/issuesPanel.IssuesPanelSource.html",
+    "path": "/api-docs#./docs/api/types/panels.IssuesPanelSource.html",
     "kind": "type",
-    "namespace": "issuesPanel"
+    "namespace": "panels"
   },
   "issueToJson": {
     "summary": "Convert one Issue to a JSON-ready object.",
@@ -3964,12 +3952,6 @@
     "path": "/api-docs#./docs/api/types/contextmenu.ItemAction.html",
     "kind": "type",
     "namespace": "contextmenu"
-  },
-  "ItemDataTexture": {
-    "summary": "DataTexture subclass that tracks dirty items for efficient GPU updates.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.ItemDataTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
   },
   "ItemIconGetter": {
     "summary": "Resolves an item icon from the current menu context.",
@@ -4709,18 +4691,6 @@
     "kind": "type",
     "namespace": "viewer"
   },
-  "LinePatternTexture": {
-    "summary": "Stores per-slot dash / gap patterns for the thick-line draw\ntechnique.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.LinePatternTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "LinesDrawColorTechnique": {
-    "summary": "Draw technique for rendering lines with a flat (per-mesh) color.",
-    "path": "/api-docs#./docs/api/classes/lines.LinesDrawColorTechnique.html",
-    "kind": "class",
-    "namespace": "lines"
-  },
   "LinesMaterial": {
     "summary": "Configures the appearance of \"lines\" geometry primitives.",
     "path": "/api-docs#./docs/api/classes/viewer.LinesMaterial.html",
@@ -4732,12 +4702,6 @@
     "path": "/api-docs#./docs/api/variables/constants.LinesPrimitive.html",
     "kind": "variable",
     "namespace": "constants"
-  },
-  "LinesSnapTechnique": {
-    "summary": "Snap pass for LinesPrimitive batches — rasterises each\nline's endpoints as 1-pixel `gl.",
-    "path": "/api-docs#./docs/api/classes/lines.LinesSnapTechnique.html",
-    "kind": "class",
-    "namespace": "lines"
   },
   "LineStyle": {
     "summary": "",
@@ -4763,17 +4727,11 @@
     "kind": "interface",
     "namespace": "bcf"
   },
-  "Loader": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/classes/io.Loader.html",
-    "kind": "class",
-    "namespace": "io"
-  },
   "LoaderInput": {
     "summary": "Inputs handed to a FormatDescriptor.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.LoaderInput.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.LoaderInput.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "LoaderProgress": {
     "summary": "Progress payload emitted by model loaders to their `onProgress`\ncallback.",
@@ -4783,39 +4741,33 @@
   },
   "LoaderProgressDialog": {
     "summary": "",
-    "path": "/api-docs#./docs/api/classes/demo/dialogs.LoaderProgressDialog.html",
+    "path": "/api-docs#./docs/api/classes/dialogs.LoaderProgressDialog.html",
     "kind": "class",
-    "namespace": "demo/dialogs"
+    "namespace": "dialogs"
   },
   "LoaderProgressDialogRun": {
     "summary": "Function the consumer hands to LoaderProgressDialog.",
-    "path": "/api-docs#./docs/api/types/demo/dialogs.LoaderProgressDialogRun.html",
+    "path": "/api-docs#./docs/api/types/dialogs.LoaderProgressDialogRun.html",
     "kind": "type",
-    "namespace": "demo/dialogs"
+    "namespace": "dialogs"
   },
   "LoaderProgressDialogRunWithParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/dialogs.LoaderProgressDialogRunWithParams.html",
+    "path": "/api-docs#./docs/api/interfaces/dialogs.LoaderProgressDialogRunWithParams.html",
     "kind": "interface",
-    "namespace": "demo/dialogs"
+    "namespace": "dialogs"
   },
   "LoaderRegistry": {
     "summary": "Map of format key → descriptor.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.LoaderRegistry.html",
+    "path": "/api-docs#./docs/api/classes/systems.LoaderRegistry.html",
     "kind": "class",
-    "namespace": "tasksPanel"
-  },
-  "LoadingManager": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/classes/io.LoadingManager.html",
-    "kind": "class",
-    "namespace": "io"
+    "namespace": "systems"
   },
   "LoadingSpinner": {
     "summary": "Full-screen loading spinner with an animated 3D cube and progress bar.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.LoadingSpinner.html",
+    "path": "/api-docs#./docs/api/classes/systems.LoadingSpinner.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "loadJSON": {
     "summary": "",
@@ -4823,11 +4775,11 @@
     "kind": "function",
     "namespace": "utils"
   },
-  "loadXKTManifest": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/functions/xkt.loadXKTManifest.html",
+  "loadVTI": {
+    "summary": "Parse a VTK XML ImageData (`.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.loadVTI.html",
     "kind": "function",
-    "namespace": "xkt"
+    "namespace": "volumeOverlay"
   },
   "LocaleService": {
     "summary": "The localization service for a Viewer.",
@@ -4837,9 +4789,9 @@
   },
   "LogEntry": {
     "summary": "One entry in the comprehensive event log.",
-    "path": "/api-docs#./docs/api/interfaces/issuesPanel.LogEntry.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.LogEntry.html",
     "kind": "interface",
-    "namespace": "issuesPanel"
+    "namespace": "panels"
   },
   "lookAtMat4v": {
     "summary": "Creates a 4x4 'lookAt' viewing transformation matrix.",
@@ -4859,17 +4811,83 @@
     "kind": "variable",
     "namespace": "constants"
   },
+  "makeDemoScalarField": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.makeDemoScalarField.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
+  "makeDemoVectorField": {
+    "summary": "Demo vector field generator paired with makeDemoScalarField.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.makeDemoVectorField.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
+  "makeHemisphereSamples": {
+    "summary": "Generate `n` cosine-weighted unit direction vectors over the\nupper hemisphere (Z >= 0).",
+    "path": "/api-docs#./docs/api/functions/daylightAnalysis.makeHemisphereSamples.html",
+    "kind": "function",
+    "namespace": "daylightAnalysis"
+  },
   "manifest": {
     "summary": "",
     "path": null,
     "kind": null,
     "namespace": "xeoconvert"
   },
+  "marchingCubes": {
+    "summary": "Run marching cubes on `grid` at the given iso-value.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.marchingCubes.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
   "marchingSquares2D": {
     "summary": "Marching-squares contour extraction from a binary raster mask.",
     "path": "/api-docs#./docs/api/functions/polygon2D.marchingSquares2D.html",
     "kind": "function",
     "namespace": "polygon2D"
+  },
+  "MarkerOcclusionMarker": {
+    "summary": "Marker whose projected screen-space visibility should be tested.",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.MarkerOcclusionMarker.html",
+    "kind": "interface",
+    "namespace": "webGLRenderer"
+  },
+  "MarkerOcclusionMode": {
+    "summary": "CPU/GPU backend selection for marker occlusion testing.",
+    "path": "/api-docs#./docs/api/types/webGLRenderer.MarkerOcclusionMode.html",
+    "kind": "type",
+    "namespace": "webGLRenderer"
+  },
+  "MarkerOcclusionRaycaster": {
+    "summary": "Minimal raycaster contract used by MarkerOcclusionTester.",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.MarkerOcclusionRaycaster.html",
+    "kind": "interface",
+    "namespace": "webGLRenderer"
+  },
+  "MarkerOcclusionResult": {
+    "summary": "Visibility result for a marker after one occlusion update.",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.MarkerOcclusionResult.html",
+    "kind": "interface",
+    "namespace": "webGLRenderer"
+  },
+  "MarkerOcclusionTester": {
+    "summary": "Tests whether world-space marker anchors are hidden by rendered scene\ngeometry in a View.",
+    "path": "/api-docs#./docs/api/classes/webGLRenderer.MarkerOcclusionTester.html",
+    "kind": "class",
+    "namespace": "webGLRenderer"
+  },
+  "MarkerOcclusionTesterConfig": {
+    "summary": "Constructor configuration for MarkerOcclusionTester.",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.MarkerOcclusionTesterConfig.html",
+    "kind": "interface",
+    "namespace": "webGLRenderer"
+  },
+  "MarkerOcclusionTesterParams": {
+    "summary": "Options for MarkerOcclusionTester.",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.MarkerOcclusionTesterParams.html",
+    "kind": "interface",
+    "namespace": "webGLRenderer"
   },
   "Mat3": {
     "summary": "3×3 floating-point matrix.",
@@ -4949,12 +4967,6 @@
     "kind": "class",
     "namespace": "materials"
   },
-  "MatrixTexture": {
-    "summary": "Stores per-item 4x4 matrices.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.MatrixTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
   "MAX_DOUBLE": {
     "summary": "Maximum safe double-precision value.",
     "path": "/api-docs#./docs/api/variables/vector.MAX_DOUBLE.html",
@@ -4967,12 +4979,6 @@
     "kind": "variable",
     "namespace": "scene"
   },
-  "MAX_HATCH_PATTERN_SLOTS": {
-    "summary": "Maximum number of distinct hatch-pattern slots a single\nGPUMemoryBatch can carry.",
-    "path": "/api-docs#./docs/api/variables/dataTextures.MAX_HATCH_PATTERN_SLOTS.html",
-    "kind": "variable",
-    "namespace": "dataTextures"
-  },
   "MAX_INT": {
     "summary": "Maximum safe integer value.",
     "path": "/api-docs#./docs/api/variables/vector.MAX_INT.html",
@@ -4984,24 +4990,6 @@
     "path": "/api-docs#./docs/api/variables/scene.MAX_LINE_PATTERN_ENTRIES.html",
     "kind": "variable",
     "namespace": "scene"
-  },
-  "MAX_LINE_PATTERN_SLOTS": {
-    "summary": "Maximum number of distinct line-pattern slots a single\nGPUMemoryBatch can carry.",
-    "path": "/api-docs#./docs/api/variables/dataTextures.MAX_LINE_PATTERN_SLOTS.html",
-    "kind": "variable",
-    "namespace": "dataTextures"
-  },
-  "MAX_SECTION_PLANES": {
-    "summary": "Maximum number of section (clipping) planes that can be\nactive in a single View.",
-    "path": "/api-docs#./docs/api/variables/techniques.MAX_SECTION_PLANES.html",
-    "kind": "variable",
-    "namespace": "techniques"
-  },
-  "MAX_SHADOW_CASCADES": {
-    "summary": "Maximum number of shadow cascades the renderer supports.",
-    "path": "/api-docs#./docs/api/variables/snapManager.MAX_SHADOW_CASCADES.html",
-    "kind": "variable",
-    "namespace": "snapManager"
   },
   "MemoisingPickStrategy": {
     "summary": "Decorator strategy that memoises the most recent PickResult\nfrom an inner PickStrategy.",
@@ -5017,27 +5005,15 @@
   },
   "MemoryConfigs": {
     "summary": "Configuration options for GPU memory allocation in WebGLRenderer.",
-    "path": "/api-docs#./docs/api/interfaces/internal.MemoryConfigs.html",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.MemoryConfigs.html",
     "kind": "interface",
-    "namespace": "internal"
-  },
-  "MemoryDebugger": {
-    "summary": "Displays:\n 1) GPU memory usage (allocated/used)\n 2) Batch-level renderPassPrimitiveRanges for each DataTextures batch\n 3) First N items for each DataTexture using getItem(index)\n 4) DataTexture.",
-    "path": "/api-docs#./docs/api/classes/inspectors.MemoryDebugger.html",
-    "kind": "class",
-    "namespace": "inspectors"
-  },
-  "MemoryInspector": {
-    "summary": "Read-only view of GPU-related memory owned by a WebGLRenderer.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.MemoryInspector.html",
-    "kind": "interface",
-    "namespace": "inspectors"
+    "namespace": "webGLRenderer"
   },
   "MemoryUsage": {
     "summary": "Represents GPU memory usage statistics for a WebGLRenderer.",
-    "path": "/api-docs#./docs/api/interfaces/internal.MemoryUsage.html",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.MemoryUsage.html",
     "kind": "interface",
-    "namespace": "internal"
+    "namespace": "webGLRenderer"
   },
   "mergeDuplicateGeometries": {
     "summary": "Auto-fix for `GEOMETRY_DUPLICATE`.",
@@ -5046,7 +5022,7 @@
     "namespace": "sceneModel"
   },
   "mergeDuplicateVertices": {
-    "summary": "Auto-fix for `GEOMETRY_DUPLICATE_VERTICES` — coalesces vertex\nslots that are byte-identical across every populated attribute\n(positions, normals, UVs) and remaps `indices` / `edgeIndices`\nto point at the canonical slot.",
+    "summary": "Auto-fix for `GEOMETRY_DUPLICATE_VERTICES` — coalesces vertex\nslots that are byte-identical across every populated attribute\n(positions, normals, UVs, colors) and remaps `indices` /\n`edgeIndices` to point at the canonical slot.",
     "path": "/api-docs#./docs/api/variables/sceneModel.mergeDuplicateVertices.html",
     "kind": "variable",
     "namespace": "sceneModel"
@@ -5057,47 +5033,17 @@
     "kind": "variable",
     "namespace": "sceneModel"
   },
-  "MeshAttributeTexture": {
-    "summary": "Stores per-mesh attributes shared across views — tile + geometry indices,\nCook-Torrance material parameters, and one UV transform per PBR-map type.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.MeshAttributeTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "MeshBatch": {
-    "summary": "A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together\nin a single draw call using a DrawTechnique.",
-    "path": "/api-docs#./docs/api/interfaces/meshManager.MeshBatch.html",
-    "kind": "interface",
-    "namespace": "meshManager"
-  },
-  "MeshBatchImpl": {
-    "summary": "A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.",
-    "path": "/api-docs#./docs/api/classes/meshManager.MeshBatchImpl.html",
-    "kind": "class",
-    "namespace": "meshManager"
-  },
-  "MeshBatchMeshHandle": {
-    "summary": "A handle to a mesh in a `MeshBatch`.",
-    "path": "/api-docs#./docs/api/types/meshManager.MeshBatchMeshHandle.html",
-    "kind": "type",
-    "namespace": "meshManager"
-  },
-  "MeshManager": {
-    "summary": "Bridges scene/view state changes into GPU-ready render state for the renderer.",
-    "path": "/api-docs#./docs/api/classes/meshManager.MeshManager.html",
-    "kind": "class",
-    "namespace": "meshManager"
-  },
   "meshReferences": {
-    "summary": "Per-mesh integrity walk — every SceneMesh's reference into\n`geometries`, `materials`, and `transforms` resolves, and every\nmesh.",
+    "summary": "Per-mesh integrity walk — every SceneMesh's reference into\n`geometries`, `materials`, and `transforms` resolves to the live\nregistry instance, and every mesh.",
     "path": "/api-docs#./docs/api/variables/sceneModel.meshReferences.html",
     "kind": "variable",
     "namespace": "sceneModel"
   },
-  "MeshViewAttributeTexture": {
-    "summary": "Stores per-view-mesh attributes: color, opacity, pickability, clippability.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.MeshViewAttributeTexture.html",
+  "MetaModelExporter": {
+    "summary": "Writes a DataModel to legacy\nMetaModelParams as JSON.",
+    "path": "/api-docs#./docs/api/classes/metamodel.MetaModelExporter.html",
     "kind": "class",
-    "namespace": "dataTextures"
+    "namespace": "metamodel"
   },
   "MetaModelLoader": {
     "summary": "Loads MetaModelParams into a DataModel.",
@@ -5149,9 +5095,9 @@
   },
   "MINIMIZE_ICON_SVG": {
     "summary": "",
-    "path": "/api-docs#./docs/api/variables/demo/panels/viewPanel.MINIMIZE_ICON_SVG.html",
+    "path": "/api-docs#./docs/api/variables/panels.MINIMIZE_ICON_SVG.html",
     "kind": "variable",
-    "namespace": "demo/panels/viewPanel"
+    "namespace": "panels"
   },
   "MirroredRepeatWrapping": {
     "summary": "Texture wrapping mode in which the texture repeats to infinity, mirroring on each repeat.",
@@ -5182,6 +5128,12 @@
     "path": "/api-docs#./docs/api/interfaces/reporters.ModelConverterConfig.html",
     "kind": "interface",
     "namespace": "reporters"
+  },
+  "ModelConverterDataInspectionReportEntry": {
+    "summary": "Per-DataModel entry in ModelConverterInspectionReport.",
+    "path": "/api-docs#./docs/api/interfaces/inspection.ModelConverterDataInspectionReportEntry.html",
+    "kind": "interface",
+    "namespace": "inspection"
   },
   "ModelConverterInputConfig": {
     "summary": "Defines the configuration for a single input in a conversion pipeline.",
@@ -5237,6 +5189,12 @@
     "kind": "interface",
     "namespace": "reporters"
   },
+  "ModelConverterReportFile": {
+    "summary": "Size record for one input or output file, surfaced from the converter\nresult.",
+    "path": "/api-docs#./docs/api/interfaces/inspection.ModelConverterReportFile.html",
+    "kind": "interface",
+    "namespace": "inspection"
+  },
   "ModelConverterRequest": {
     "summary": "Parameters required to perform a conversion using ModelConverter.",
     "path": "/api-docs#./docs/api/interfaces/reporters.ModelConverterRequest.html",
@@ -5256,7 +5214,7 @@
     "namespace": "reporters"
   },
   "ModelConverterResultInspection": {
-    "summary": "Per-SceneModel inspection record stored on\n ModelConverterResult.",
+    "summary": "Per-SceneModel inspection record stored on `ModelConverterResult.",
     "path": "/api-docs#./docs/api/interfaces/reporters.ModelConverterResultInspection.html",
     "kind": "interface",
     "namespace": "reporters"
@@ -5284,18 +5242,6 @@
     "path": "/api-docs#./docs/api/interfaces/stats.ModelConverterStatsReportOutput.html",
     "kind": "interface",
     "namespace": "stats"
-  },
-  "ModelEncodeParams": {
-    "summary": "Parameters for ModelEncoder.",
-    "path": "/api-docs#./docs/api/interfaces/xkt.ModelEncodeParams.html",
-    "kind": "interface",
-    "namespace": "xkt"
-  },
-  "ModelEncoder": {
-    "summary": "Encodes geometry and semantic data within a SceneModel\nand/or a DataModel into model file data.",
-    "path": "/api-docs#./docs/api/types/xkt.ModelEncoder.html",
-    "kind": "type",
-    "namespace": "xkt"
   },
   "ModelExporter": {
     "summary": "Exports a SceneModel and/or a DataModel to a file.",
@@ -5334,7 +5280,7 @@
     "namespace": "xkt"
   },
   "ModelLoadOptions": {
-    "summary": "Options for ModelLoader.",
+    "summary": "Options shared by all ModelLoader.",
     "path": "/api-docs#./docs/api/interfaces/xkt.ModelLoadOptions.html",
     "kind": "interface",
     "namespace": "xkt"
@@ -5347,33 +5293,21 @@
   },
   "ModelLocator": {
     "summary": "Resolves URLs for model files and the per-model sidecar files that\nsit beside them (e.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.ModelLocator.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.ModelLocator.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
-  },
-  "ModelParseParams": {
-    "summary": "Parameters for ModelParser.",
-    "path": "/api-docs#./docs/api/interfaces/xkt.ModelParseParams.html",
-    "kind": "interface",
-    "namespace": "xkt"
-  },
-  "ModelParser": {
-    "summary": "Parses geometry and semantic data from a model file into a SceneModel\nand/or a DataModel.",
-    "path": "/api-docs#./docs/api/types/xkt.ModelParser.html",
-    "kind": "type",
-    "namespace": "xkt"
+    "namespace": "systems"
   },
   "ModelsPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/panels/modelsPanel.ModelsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.ModelsPanel.html",
     "kind": "class",
-    "namespace": "demo/panels/modelsPanel"
+    "namespace": "panels"
   },
   "ModelsPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/panels/modelsPanel.ModelsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ModelsPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/panels/modelsPanel"
+    "namespace": "panels"
   },
   "MouseAngleMeasurementsControl": {
     "summary": "Mouse-driven creation of AngleMeasurements on a\nAngleMeasurementsTool.",
@@ -5449,15 +5383,15 @@
   },
   "NavCube": {
     "summary": "NavCube — a small 3D cube widget that reflects the View | View's camera orientation and lets the user fly the camera to\nany canonical axis-aligned, corner, or edge view by clicking the\ncorresponding region of the cube.",
-    "path": "/api-docs#./docs/api/classes/navCube.NavCube.html",
+    "path": "/api-docs#./docs/api/classes/panels.NavCube.html",
     "kind": "class",
-    "namespace": "navCube"
+    "namespace": "panels"
   },
   "NavCubeParams": {
     "summary": "Construction parameters for NavCube.",
-    "path": "/api-docs#./docs/api/types/navCube.NavCubeParams.html",
+    "path": "/api-docs#./docs/api/types/panels.NavCubeParams.html",
     "kind": "type",
-    "namespace": "navCube"
+    "namespace": "panels"
   },
   "NavigationRender": {
     "summary": "Navigation rendering preset — prioritises frame rate during user\ninteraction (orbiting, panning, zooming).",
@@ -5518,12 +5452,6 @@
     "path": "/api-docs#./docs/api/functions/materials.newPixelBuffer.html",
     "kind": "function",
     "namespace": "materials"
-  },
-  "NodeFileIO": {
-    "summary": "A Node.",
-    "path": "/api-docs#./docs/api/classes/io.NodeFileIO.html",
-    "kind": "class",
-    "namespace": "io"
   },
   "NormalisedHatchPattern": {
     "summary": "Canonical representation of a hatch pattern, suitable for\nforwarding to a downstream consumer (or for inspection by\ntools).",
@@ -5627,6 +5555,12 @@
     "kind": "class",
     "namespace": "obj"
   },
+  "octDecodeNormalsU16": {
+    "summary": "Decodes 16-bit octahedral normals produced by\noctEncodeNormalsToU16 back to unit 3D vectors — the exact inverse of\nthat encoder (range `[0, 65535]` mapped to oct coordinates `[-1, 1]`).",
+    "path": "/api-docs#./docs/api/functions/compression.octDecodeNormalsU16.html",
+    "kind": "function",
+    "namespace": "compression"
+  },
   "octEncodeNormal": {
     "summary": "Oct-encodes a single normal vector (x, y) into a 2-byte representation.",
     "path": "/api-docs#./docs/api/functions/compression.octEncodeNormal.html",
@@ -5644,6 +5578,12 @@
     "path": "/api-docs#./docs/api/functions/compression.octEncodeVec3.html",
     "kind": "function",
     "namespace": "compression"
+  },
+  "optimizedSetFromIndex": {
+    "summary": "Builds the set of `${modelId}/${format}` pairs that have an optimized variant,\nfrom a parsed models `index.",
+    "path": "/api-docs#./docs/api/functions/systems.optimizedSetFromIndex.html",
+    "kind": "function",
+    "namespace": "systems"
   },
   "optimizeSceneModel": {
     "summary": "Apply demo-grade optimisations to a SceneModel in place.",
@@ -6145,33 +6085,33 @@
   },
   "PanelContext": {
     "summary": "Context handed to every PanelProvider.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.PanelContext.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.PanelContext.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "PanelLike": {
     "summary": "The minimal contract a registered panel/tool *can* satisfy.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.PanelLike.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.PanelLike.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "PanelMap": {
     "summary": "Marker interface intentionally left empty.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.PanelMap.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.PanelMap.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "PanelProvider": {
     "summary": "Adapter that teaches the registry how to find / construct one\nparticular panel or tool.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.PanelProvider.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.PanelProvider.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "PanelRegistry": {
-    "summary": "Single dispatch point for opening, hiding, and toggling every panel\nand tool surfaced by Studio.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.PanelRegistry.html",
+    "summary": "Single dispatch point for opening, hiding, and toggling every panel\nand tool Studio exposes, keyed by panel id rather than a dedicated\n`openX`/`hideX`/`toggleX` method per panel.",
+    "path": "/api-docs#./docs/api/classes/panels.PanelRegistry.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "PanelSpec": {
     "summary": "Translucent backing quad behind the wireframe projection.",
@@ -6187,26 +6127,20 @@
   },
   "PdfImportPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/pdfImport.PdfImportPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.PdfImportPanel.html",
     "kind": "class",
-    "namespace": "pdfImport"
+    "namespace": "panels"
   },
   "PdfImportPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/pdfImport.PdfImportPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.PdfImportPanelParams.html",
     "kind": "interface",
-    "namespace": "pdfImport"
+    "namespace": "panels"
   },
   "PDFLoader": {
     "summary": "",
     "path": "/api-docs#./docs/api/classes/pdf.PDFLoader.html",
     "kind": "class",
-    "namespace": "pdf"
-  },
-  "PDFLoadInput": {
-    "summary": "Inputs handed to PDFLoader.",
-    "path": "/api-docs#./docs/api/interfaces/pdf.PDFLoadInput.html",
-    "kind": "interface",
     "namespace": "pdf"
   },
   "PDFLoadOptions": {
@@ -6276,16 +6210,10 @@
     "namespace": "physics"
   },
   "PickingService": {
-    "summary": "Owns the picking infrastructure Studio used to carry inline: the\nBVH-backed SceneCollisionIndex and the unified\nPickStrategy (a memoising router over BVH + GPU paths).",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.PickingService.html",
+    "summary": "Owns Studio's picking infrastructure: the BVH-backed\nSceneCollisionIndex and the unified PickStrategy\n(a memoising router over BVH + GPU paths).",
+    "path": "/api-docs#./docs/api/classes/picking.PickingService.html",
     "kind": "class",
-    "namespace": "tasksPanel"
-  },
-  "PickManager": {
-    "summary": "Manages picking of objects within a WebGLRenderer.",
-    "path": "/api-docs#./docs/api/classes/pickManager.PickManager.html",
-    "kind": "class",
-    "namespace": "pickManager"
+    "namespace": "picking"
   },
   "PickParams": {
     "summary": "Parameters for picking.",
@@ -6319,9 +6247,9 @@
   },
   "PIN_ICON_SVG": {
     "summary": "",
-    "path": "/api-docs#./docs/api/variables/demo/panels/viewPanel.PIN_ICON_SVG.html",
+    "path": "/api-docs#./docs/api/variables/panels.PIN_ICON_SVG.html",
     "kind": "variable",
-    "namespace": "demo/panels/viewPanel"
+    "namespace": "panels"
   },
   "planCameraTour": {
     "summary": "Compose the four-stage camera-tour planning pipeline:\n\n 1.",
@@ -6332,6 +6260,12 @@
   "planTourGreedy": {
     "summary": "",
     "path": "/api-docs#./docs/api/variables/cameraTour.planTourGreedy.html",
+    "kind": "variable",
+    "namespace": "cameraTour"
+  },
+  "planTourTwoOpt": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/variables/cameraTour.planTourTwoOpt.html",
     "kind": "variable",
     "namespace": "cameraTour"
   },
@@ -6348,7 +6282,7 @@
     "namespace": "cameraTour"
   },
   "PlayCameraTourOptions": {
-    "summary": "Optional playback knobs for playCameraTour.",
+    "summary": "Optional playback settings for playCameraTour.",
     "path": "/api-docs#./docs/api/interfaces/cameraTour.PlayCameraTourOptions.html",
     "kind": "interface",
     "namespace": "cameraTour"
@@ -6395,18 +6329,6 @@
     "kind": "function",
     "namespace": "boundaries"
   },
-  "PointsDrawColorTechnique": {
-    "summary": "Draw technique for rendering colored point clouds.",
-    "path": "/api-docs#./docs/api/classes/points.PointsDrawColorTechnique.html",
-    "kind": "class",
-    "namespace": "points"
-  },
-  "PointsDrawSilhouetteTechnique": {
-    "summary": "Draw technique for rendering point cloud silhouettes.",
-    "path": "/api-docs#./docs/api/classes/points.PointsDrawSilhouetteTechnique.html",
-    "kind": "class",
-    "namespace": "points"
-  },
   "PointsMaterial": {
     "summary": "Configures the size and shape of ViewObjects that represent clouds of points.",
     "path": "/api-docs#./docs/api/classes/viewer.PointsMaterial.html",
@@ -6418,12 +6340,6 @@
     "path": "/api-docs#./docs/api/interfaces/viewer.PointsMaterialParams.html",
     "kind": "interface",
     "namespace": "viewer"
-  },
-  "PointsPickDepth": {
-    "summary": "Draw technique for rendering point cloud depth into the pick framebuffer.",
-    "path": "/api-docs#./docs/api/classes/points.PointsPickDepth.html",
-    "kind": "class",
-    "namespace": "points"
   },
   "PointsPrimitive": {
     "summary": "Points primitive type.",
@@ -6443,62 +6359,20 @@
     "kind": "function",
     "namespace": "polygon2D"
   },
-  "PolylineCumDistTexture": {
-    "summary": "Per-batch, per-line-segment cumulative model-space distance\nalong the parent polyline.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.PolylineCumDistTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "PortionDataTexture": {
-    "summary": "DataTexture subclass that manages allocation and efficient updates of variable-sized portions.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.PortionDataTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "PortionHandle": {
-    "summary": "Handle representing an allocated portion in the PortionDataTexture.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.PortionHandle.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
-  },
   "positions3ToAABB3": {
     "summary": "",
     "path": "/api-docs#./docs/api/functions/boundaries.positions3ToAABB3.html",
     "kind": "function",
     "namespace": "boundaries"
   },
-  "PrimitiveMeshIndexTexture": {
-    "summary": "GPU data texture mapping each primitive to its owning mesh for a given render pass.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.PrimitiveMeshIndexTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "PrimitiveMeshIndexTexturePortionHandle": {
-    "summary": "Handle to an allocated portion in PrimitiveMeshIndexTexture.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.PrimitiveMeshIndexTexturePortionHandle.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
-  },
-  "PrimitiveRenderPassId": {
-    "summary": "Runtime identifier for a render pass.",
-    "path": "/api-docs#./docs/api/types/dataTextures.PrimitiveRenderPassId.html",
-    "kind": "type",
-    "namespace": "dataTextures"
-  },
-  "PrimRange": {
-    "summary": "Describes a range of primitives in a `PrimitiveMeshIndexTexture`.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.PrimRange.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
-  },
   "ProgressBarOptions": {
     "summary": "Configuration for LoadingSpinner.",
-    "path": "/api-docs#./docs/api/types/tasksPanel.ProgressBarOptions.html",
+    "path": "/api-docs#./docs/api/types/systems.ProgressBarOptions.html",
     "kind": "type",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "ProgressiveSpec": {
-    "summary": "Progressive-emission tuning knobs for\nBuildSectionCapsParams.",
+    "summary": "Progressive-emission tuning parameters for\nBuildSectionCapsParams.",
     "path": "/api-docs#./docs/api/interfaces/sectionCaps.ProgressiveSpec.html",
     "kind": "interface",
     "namespace": "sectionCaps"
@@ -6550,12 +6424,6 @@
     "path": "/api-docs#./docs/api/variables/sceneModel.pruneDanglingMeshRefs.html",
     "kind": "variable",
     "namespace": "sceneModel"
-  },
-  "putDrawOps": {
-    "summary": "Releases a DrawOps, destroying it if no longer in use.",
-    "path": "/api-docs#./docs/api/functions/techniques.putDrawOps.html",
-    "kind": "function",
-    "namespace": "techniques"
   },
   "QuadraticBezierCurve": {
     "summary": "A QuadraticBezierCurve is a Curve along which a 3D position can be animated.",
@@ -6653,6 +6521,24 @@
     "kind": "function",
     "namespace": "vector"
   },
+  "readXGFChunkManifest": {
+    "summary": "Validates and reads one XGF chunk manifest JSON object.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.readXGFChunkManifest.html",
+    "kind": "function",
+    "namespace": "xgfstream"
+  },
+  "readXGFStreamingIndex": {
+    "summary": "Validates and reads a human-readable XGF stream index JSON object.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.readXGFStreamingIndex.html",
+    "kind": "function",
+    "namespace": "xgfstream"
+  },
+  "readXGFStreamingRuntimeIndex": {
+    "summary": "Validates and expands a compact runtime XGF stream index into the\nhuman-readable XGFStreamingIndex shape.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.readXGFStreamingRuntimeIndex.html",
+    "kind": "function",
+    "namespace": "xgfstream"
+  },
   "RealisticRender": {
     "summary": "Realistic rendering preset — full PBR-grade pipeline for\nmarketing-quality stills and walkthroughs.",
     "path": "/api-docs#./docs/api/variables/constants.RealisticRender.html",
@@ -6679,15 +6565,9 @@
   },
   "registerBuiltinPanels": {
     "summary": "Registers every built-in panel and tool with the supplied registry.",
-    "path": "/api-docs#./docs/api/functions/tasksPanel.registerBuiltinPanels.html",
+    "path": "/api-docs#./docs/api/functions/panels.registerBuiltinPanels.html",
     "kind": "function",
-    "namespace": "tasksPanel"
-  },
-  "RegisterRenderPassOptions": {
-    "summary": "Options when registering a render pass.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.RegisterRenderPassOptions.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
+    "namespace": "panels"
   },
   "Relationship": {
     "summary": "Represents a relationship between two DataObjects.",
@@ -6739,117 +6619,45 @@
   },
   "removeAttachedMaterials": {
     "summary": "Inverse of applyIFCMaterials: detaches every SceneMesh\nfrom the SceneModel's `_attached_*` materials, destroys those\nmaterials and the textures they own, and rebuilds the meshes\nwith their original per-mesh `color` restored.",
-    "path": "/api-docs#./docs/api/functions/demo/applyIFCMaterials.removeAttachedMaterials.html",
+    "path": "/api-docs#./docs/api/functions/systems.removeAttachedMaterials.html",
     "kind": "function",
-    "namespace": "demo/applyIFCMaterials"
+    "namespace": "systems"
   },
-  "RENDER_BINS": {
-    "summary": "IDs of the render bins used internally the `WebGLRenderer`.",
-    "path": "/api-docs#./docs/api/variables/snapManager.RENDER_BINS.html",
-    "kind": "variable",
-    "namespace": "snapManager"
-  },
-  "RENDER_PASSES": {
-    "summary": "Defines the rendering passes used by the `WebGLRenderer`.",
-    "path": "/api-docs#./docs/api/variables/snapManager.RENDER_PASSES.html",
-    "kind": "variable",
-    "namespace": "snapManager"
-  },
-  "RenderBinStats": {
-    "summary": "Log entry for a single render bin, made up of multiple draw calls.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.RenderBinStats.html",
+  "Renderer": {
+    "summary": "Backend-neutral renderer contract.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/renderer.Renderer.html",
     "kind": "interface",
-    "namespace": "inspectors"
+    "namespace": "viewing/renderer"
   },
-  "RenderBuffers": {
-    "summary": "Manages WebGL render buffers for a view.",
-    "path": "/api-docs#./docs/api/classes/snapManager.RenderBuffers.html",
-    "kind": "class",
-    "namespace": "snapManager"
+  "RendererError": {
+    "summary": "Error payload emitted by renderer backends.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/renderer.RendererError.html",
+    "kind": "interface",
+    "namespace": "viewing/renderer"
   },
-  "RenderContext": {
-    "summary": "Represents the rendering context`.",
-    "path": "/api-docs#./docs/api/classes/snapManager.RenderContext.html",
-    "kind": "class",
-    "namespace": "snapManager"
-  },
-  "RendererGeometry": {
-    "summary": "Represents a geometry in the WebGL renderer.",
-    "path": "/api-docs#./docs/api/classes/meshManager.RendererGeometry.html",
-    "kind": "class",
-    "namespace": "meshManager"
-  },
-  "RendererMaterial": {
-    "summary": "Represents a set of renderer textures for a mesh.",
-    "path": "/api-docs#./docs/api/classes/meshManager.RendererMaterial.html",
-    "kind": "class",
-    "namespace": "meshManager"
-  },
-  "RendererMesh": {
-    "summary": "Represents a single mesh within the WebGL renderer, managing its GPU tile assignment,\ntransformation matrix, color, opacity, and various rendering states across multiple views.",
-    "path": "/api-docs#./docs/api/classes/meshManager.RendererMesh.html",
-    "kind": "class",
-    "namespace": "meshManager"
-  },
-  "RendererObject": {
-    "summary": "Represents a logical renderable object within the WebGL renderer, grouping one or more RendererMesh instances.",
-    "path": "/api-docs#./docs/api/classes/meshManager.RendererObject.html",
-    "kind": "class",
-    "namespace": "meshManager"
+  "RendererEvents": {
+    "summary": "Renderer lifecycle and diagnostic events shared by renderer backends.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/renderer.RendererEvents.html",
+    "kind": "interface",
+    "namespace": "viewing/renderer"
   },
   "RendererPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/rendererPanel.RendererPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.RendererPanel.html",
     "kind": "class",
-    "namespace": "rendererPanel"
+    "namespace": "panels"
   },
   "RendererPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/rendererPanel.RendererPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.RendererPanelParams.html",
     "kind": "interface",
-    "namespace": "rendererPanel"
+    "namespace": "panels"
   },
   "RendererPickStrategy": {
-    "summary": "GPU-backed picking strategy — wraps WebGLRenderer.",
+    "summary": "GPU-backed picking strategy — wraps Renderer.",
     "path": "/api-docs#./docs/api/classes/picking.RendererPickStrategy.html",
     "kind": "class",
     "namespace": "picking"
-  },
-  "RendererTexture": {
-    "summary": "Represents a texture used in the WebGL renderer.",
-    "path": "/api-docs#./docs/api/classes/meshManager.RendererTexture.html",
-    "kind": "class",
-    "namespace": "meshManager"
-  },
-  "RenderInspector": {
-    "summary": "Logs draw calls and their timings for performance analysis.",
-    "path": "/api-docs#./docs/api/classes/inspectors.RenderInspector.html",
-    "kind": "class",
-    "namespace": "inspectors"
-  },
-  "RenderManager": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/classes/renderManager.RenderManager.html",
-    "kind": "class",
-    "namespace": "renderManager"
-  },
-  "RenderPassDrawOps": {
-    "summary": "Collection of draw operations for all render passes, for a specific primitive type.",
-    "path": "/api-docs#./docs/api/interfaces/techniques.RenderPassDrawOps.html",
-    "kind": "interface",
-    "namespace": "techniques"
-  },
-  "RenderPassValue": {
-    "summary": "Type representing the possible values of rendering passes.",
-    "path": "/api-docs#./docs/api/types/snapManager.RenderPassValue.html",
-    "kind": "type",
-    "namespace": "snapManager"
-  },
-  "RenderStats": {
-    "summary": "A log of rendering statistics for a single frame.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.RenderStats.html",
-    "kind": "interface",
-    "namespace": "inspectors"
   },
   "repaintHeatMapColor": {
     "summary": "Re-rasterise a heat-map colour texture from a new scalar field,\nmutating the supplied ImageData in place.",
@@ -7127,53 +6935,53 @@
     "kind": "function",
     "namespace": "rtc"
   },
-  "RVMExporter": {
-    "summary": "Exports a SceneModel to a minimal AVEVA\nRVM v2 file.",
-    "path": "/api-docs#./docs/api/classes/rvm.RVMExporter.html",
-    "kind": "class",
-    "namespace": "rvm"
-  },
-  "RVMLoader": {
-    "summary": "Loads an AVEVA RVM file into a SceneModel.",
-    "path": "/api-docs#./docs/api/classes/rvm.RVMLoader.html",
-    "kind": "class",
-    "namespace": "rvm"
-  },
-  "RVMPrimitive": {
-    "summary": "AVEVA RVM primitive type codes (RVM v2 file format).",
-    "path": null,
-    "kind": null,
-    "namespace": "rvm"
-  },
   "safeInv": {
     "summary": "Computes a safe inverse of a number.",
     "path": "/api-docs#./docs/api/functions/vector.safeInv.html",
     "kind": "function",
     "namespace": "vector"
   },
+  "sampleColormap": {
+    "summary": "Sample a colormap at `t ∈ [0, 1]`.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.sampleColormap.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
   "SampleModelEntry": {
     "summary": "One catalog entry as parsed from `models/index.",
-    "path": "/api-docs#./docs/api/interfaces/demo/sampleModelsPanel.SampleModelEntry.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.SampleModelEntry.html",
     "kind": "interface",
-    "namespace": "demo/sampleModelsPanel"
+    "namespace": "panels"
   },
   "SampleModelsPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/sampleModelsPanel.SampleModelsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.SampleModelsPanel.html",
     "kind": "class",
-    "namespace": "demo/sampleModelsPanel"
+    "namespace": "panels"
   },
   "SampleModelsPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/sampleModelsPanel.SampleModelsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.SampleModelsPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/sampleModelsPanel"
+    "namespace": "panels"
+  },
+  "sampleVectorGrid": {
+    "summary": "Sample a VectorGrid at an arbitrary world-space point.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.sampleVectorGrid.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
   },
   "sampleVisibilityGrid": {
     "summary": "",
     "path": "/api-docs#./docs/api/variables/cameraTour.sampleVisibilityGrid.html",
     "kind": "variable",
     "namespace": "cameraTour"
+  },
+  "sampleVoxelGrid": {
+    "summary": "Sample a VoxelGrid at an arbitrary world-space point.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.sampleVoxelGrid.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
   },
   "SAO": {
     "summary": "Configures Scalable Ambient Obscurance (SAO) for a View.",
@@ -7188,7 +6996,7 @@
     "namespace": "viewer"
   },
   "saveArrayBuffer": {
-    "summary": "Downloads an ArrayBuffer to a file.",
+    "summary": "Downloads an ArrayBuffer as a file.",
     "path": "/api-docs#./docs/api/functions/utils.saveArrayBuffer.html",
     "kind": "function",
     "namespace": "utils"
@@ -7206,7 +7014,7 @@
     "namespace": "bcf"
   },
   "saveJSON": {
-    "summary": "Downloads JSON to a file.",
+    "summary": "Downloads JSON as a file.",
     "path": "/api-docs#./docs/api/functions/utils.saveJSON.html",
     "kind": "function",
     "namespace": "utils"
@@ -7266,7 +7074,7 @@
     "namespace": "collision"
   },
   "SceneCollisionRayOptions": {
-    "summary": "Optional knobs on SceneCollisionIndex.",
+    "summary": "Optional settings on SceneCollisionIndex.",
     "path": "/api-docs#./docs/api/interfaces/collision.SceneCollisionRayOptions.html",
     "kind": "interface",
     "namespace": "collision"
@@ -7276,6 +7084,12 @@
     "path": "/api-docs#./docs/api/types/collision.SceneCollisionVisitor.html",
     "kind": "type",
     "namespace": "collision"
+  },
+  "SceneCuller": {
+    "summary": "Owns the culling worker and the bounds mirror for one Scene.",
+    "path": "/api-docs#./docs/api/classes/culling.SceneCuller.html",
+    "kind": "class",
+    "namespace": "culling"
   },
   "SceneEvents": {
     "summary": "Represents the events emitted by a Scene.",
@@ -7303,15 +7117,15 @@
   },
   "SceneHealthPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/sceneHealthPanel.SceneHealthPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.SceneHealthPanel.html",
     "kind": "class",
-    "namespace": "demo/sceneHealthPanel"
+    "namespace": "panels"
   },
   "SceneHealthPanelParams": {
     "summary": "Constructor parameters for SceneHealthPanel.",
-    "path": "/api-docs#./docs/api/interfaces/demo/sceneHealthPanel.SceneHealthPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.SceneHealthPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/sceneHealthPanel"
+    "namespace": "panels"
   },
   "SceneLike": {
     "summary": "",
@@ -7361,6 +7175,18 @@
     "kind": "type",
     "namespace": "exploder"
   },
+  "SceneModelExporter": {
+    "summary": "Writes a SceneModel to SceneModelParams as JSON.",
+    "path": "/api-docs#./docs/api/classes/scenemodel.SceneModelExporter.html",
+    "kind": "class",
+    "namespace": "scenemodel"
+  },
+  "SceneModelImporter": {
+    "summary": "Reads SceneModelParams into a SceneModel.",
+    "path": "/api-docs#./docs/api/classes/scenemodel.SceneModelImporter.html",
+    "kind": "class",
+    "namespace": "scenemodel"
+  },
   "SceneModelInspectionIndex": {
     "summary": "Lazy per-column cache of derived data the inspect / fix\npipeline reads from a SceneModel.",
     "path": "/api-docs#./docs/api/interfaces/sceneModel.SceneModelInspectionIndex.html",
@@ -7372,18 +7198,6 @@
     "path": "/api-docs#./docs/api/interfaces/scene.SceneModelParams.html",
     "kind": "interface",
     "namespace": "scene"
-  },
-  "SceneModelParamsExporter": {
-    "summary": "Writes a SceneModel to SceneModelParams as JSON.",
-    "path": "/api-docs#./docs/api/classes/scenemodel.SceneModelParamsExporter.html",
-    "kind": "class",
-    "namespace": "scenemodel"
-  },
-  "SceneModelParamsLoader": {
-    "summary": "Reads SceneModelParams into a SceneModel.",
-    "path": "/api-docs#./docs/api/classes/scenemodel.SceneModelParamsLoader.html",
-    "kind": "class",
-    "namespace": "scenemodel"
   },
   "SceneModelStats": {
     "summary": "Statistics for a SceneModel.",
@@ -7440,22 +7254,22 @@
     "namespace": "collision"
   },
   "SceneRayTriangleOptions": {
-    "summary": "Optional knobs on intersectSceneRayTriangle.",
+    "summary": "Optional settings on intersectSceneRayTriangle.",
     "path": "/api-docs#./docs/api/interfaces/collision.SceneRayTriangleOptions.html",
     "kind": "interface",
     "namespace": "collision"
   },
   "SceneStatsPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/sceneStats.SceneStatsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.SceneStatsPanel.html",
     "kind": "class",
-    "namespace": "demo/sceneStats"
+    "namespace": "panels"
   },
   "SceneStatsPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/sceneStats.SceneStatsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.SceneStatsPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/sceneStats"
+    "namespace": "panels"
   },
   "SceneTechnique": {
     "summary": "A rendering-style declaration on a !.",
@@ -7529,23 +7343,77 @@
     "kind": "type",
     "namespace": "cameraFlight"
   },
+  "Schedule": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/classes/schedule.Schedule.html",
+    "kind": "class",
+    "namespace": "schedule"
+  },
+  "SchedulePanel": {
+    "summary": "Draggable Gantt-style schedule visualisation, two-way bound to a\nSchedulePlayer.",
+    "path": "/api-docs#./docs/api/classes/panels.SchedulePanel.html",
+    "kind": "class",
+    "namespace": "panels"
+  },
+  "SchedulePanelParams": {
+    "summary": "Constructor parameters for SchedulePanel.",
+    "path": "/api-docs#./docs/api/interfaces/panels.SchedulePanelParams.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "ScheduleParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/schedule.ScheduleParams.html",
+    "kind": "interface",
+    "namespace": "schedule"
+  },
+  "SchedulePlayer": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/classes/schedule.SchedulePlayer.html",
+    "kind": "class",
+    "namespace": "schedule"
+  },
+  "SchedulePlayerParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/schedule.SchedulePlayerParams.html",
+    "kind": "interface",
+    "namespace": "schedule"
+  },
+  "ScheduleTask": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/classes/schedule.ScheduleTask.html",
+    "kind": "class",
+    "namespace": "schedule"
+  },
+  "ScheduleTaskParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/schedule.ScheduleTaskParams.html",
+    "kind": "interface",
+    "namespace": "schedule"
+  },
   "SchemaMaterialsPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/schemaMaterialsPanel.SchemaMaterialsPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.SchemaMaterialsPanel.html",
     "kind": "class",
-    "namespace": "demo/schemaMaterialsPanel"
+    "namespace": "panels"
   },
   "SchemaMaterialsPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/schemaMaterialsPanel.SchemaMaterialsPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.SchemaMaterialsPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/schemaMaterialsPanel"
+    "namespace": "panels"
   },
   "schemaTagging": {
     "summary": "Opt-in via InspectDataModelParams.",
     "path": "/api-docs#./docs/api/variables/dataModel.schemaTagging.html",
     "kind": "variable",
     "namespace": "dataModel"
+  },
+  "screenSpaceError": {
+    "summary": "Screen-space error in pixels: the tile's geometric error projected to screen\nsize at `distance`.",
+    "path": "/api-docs#./docs/api/functions/threedtiles.screenSpaceError.html",
+    "kind": "function",
+    "namespace": "threedtiles"
   },
   "SDKErrorType": {
     "summary": "Enumeration of SDK error types.",
@@ -7615,9 +7483,9 @@
   },
   "SectionPlaneAdapter": {
     "summary": "Bridges a SectionPlane to the\nTransformControls\nadapter contract — `{getMatrix, setMatrix}`.",
-    "path": "/api-docs#./docs/api/classes/sectionPlanesTool.SectionPlaneAdapter.html",
+    "path": "/api-docs#./docs/api/classes/systems.SectionPlaneAdapter.html",
     "kind": "class",
-    "namespace": "sectionPlanesTool"
+    "namespace": "systems"
   },
   "SectionPlaneCaps": {
     "summary": "Configures stencil-based section-plane caps for a View.",
@@ -7633,27 +7501,51 @@
   },
   "SectionPlanesController": {
     "summary": "Per-View bridge between section, a translucent visual proxy quad for each, and the\nTransformControls gizmo used to drag / orient them.",
-    "path": "/api-docs#./docs/api/classes/sectionPlanesTool.SectionPlanesController.html",
+    "path": "/api-docs#./docs/api/classes/systems.SectionPlanesController.html",
     "kind": "class",
-    "namespace": "sectionPlanesTool"
+    "namespace": "systems"
+  },
+  "SectionPlanesControllerOptions": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/systems.SectionPlanesControllerOptions.html",
+    "kind": "interface",
+    "namespace": "systems"
   },
   "SectionPlanesEditMode": {
     "summary": "Mutually-exclusive gizmo mode for editing the active plane.",
-    "path": "/api-docs#./docs/api/types/sectionPlanesTool.SectionPlanesEditMode.html",
+    "path": "/api-docs#./docs/api/types/systems.SectionPlanesEditMode.html",
     "kind": "type",
-    "namespace": "sectionPlanesTool"
+    "namespace": "systems"
   },
   "SectionPlanesPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/sectionPlanesPanel.SectionPlanesPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.SectionPlanesPanel.html",
     "kind": "class",
-    "namespace": "sectionPlanesPanel"
+    "namespace": "panels"
   },
   "SectionPlanesPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/sectionPlanesPanel.SectionPlanesPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.SectionPlanesPanelParams.html",
     "kind": "interface",
-    "namespace": "sectionPlanesPanel"
+    "namespace": "panels"
+  },
+  "selectStreaming": {
+    "summary": "Selects the content tiles to render for `camera`, descending while SSE\nexceeds `maxScreenSpaceError`, frustum-culling tiles outside the view, and\nexpanding implicit subtrees on demand.",
+    "path": "/api-docs#./docs/api/functions/threedtiles.selectStreaming.html",
+    "kind": "function",
+    "namespace": "threedtiles"
+  },
+  "SelectStreamingOptions": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/threedtiles.SelectStreamingOptions.html",
+    "kind": "interface",
+    "namespace": "threedtiles"
+  },
+  "selectTiles": {
+    "summary": "Selects the tiles to render for `camera`, descending while a tile's SSE\nexceeds `maxScreenSpaceError` and it has children.",
+    "path": "/api-docs#./docs/api/functions/threedtiles.selectTiles.html",
+    "kind": "function",
+    "namespace": "threedtiles"
   },
   "setFrustum3": {
     "summary": "Sets the extents of a frustum to the world-space volume defined by view and projection matrices.",
@@ -7673,41 +7565,17 @@
     "kind": "function",
     "namespace": "utils"
   },
-  "ShaderInspector": {
-    "summary": "Read-only view of every shader program compiled into the\nrenderer's draw pipeline.",
-    "path": "/api-docs#./docs/api/classes/inspectors.ShaderInspector.html",
-    "kind": "class",
-    "namespace": "inspectors"
-  },
-  "ShaderSource": {
-    "summary": "A vertex / fragment shader source pair, in both stripped\n(comment-free, compilable) and commented (annotated, possibly\nnot compilable) form.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.ShaderSource.html",
-    "kind": "interface",
-    "namespace": "inspectors"
-  },
   "ShadersPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/shadersPanel.ShadersPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.ShadersPanel.html",
     "kind": "class",
-    "namespace": "shadersPanel"
+    "namespace": "panels"
   },
   "ShadersPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/shadersPanel.ShadersPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ShadersPanelParams.html",
     "kind": "interface",
-    "namespace": "shadersPanel"
-  },
-  "ShaderVariantName": {
-    "summary": "Names of the Lambert-style draw-technique variants that a\nsingle DrawTechniqueRecord may carry.",
-    "path": "/api-docs#./docs/api/types/inspectors.ShaderVariantName.html",
-    "kind": "type",
-    "namespace": "inspectors"
-  },
-  "ShaderVariantRecord": {
-    "summary": "One Lambert variant of a DrawTechniqueRecord.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.ShaderVariantRecord.html",
-    "kind": "interface",
-    "namespace": "inspectors"
+    "namespace": "panels"
   },
   "Shadows": {
     "summary": "Configures single-cascade directional shadow mapping for a View.",
@@ -7733,23 +7601,41 @@
     "kind": "variable",
     "namespace": "sceneModel"
   },
-  "SkyRenderer": {
-    "summary": "Procedural sky renderer for xeokit V3.",
-    "path": "/api-docs#./docs/api/classes/renderManager.SkyRenderer.html",
-    "kind": "class",
-    "namespace": "renderManager"
-  },
-  "SkyRendererOptions": {
+  "Sky": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/renderManager.SkyRendererOptions.html",
-    "kind": "interface",
-    "namespace": "renderManager"
-  },
-  "SnapManager": {
-    "summary": "Manages snap-to-vertex / snap-to-edge picking inside a\nWebGLRenderer.",
-    "path": "/api-docs#./docs/api/classes/snapManager.SnapManager.html",
+    "path": "/api-docs#./docs/api/classes/viewer.Sky.html",
     "kind": "class",
-    "namespace": "snapManager"
+    "namespace": "viewer"
+  },
+  "skyFactorEstimate": {
+    "summary": "Compute the normalised sky factor for a cell, given how many of\nits `n` cosine-weighted hemisphere samples were visible (escaped\nthe scene without hitting an occluder) and the cosine of the\nzenith angle of each visible sample.",
+    "path": "/api-docs#./docs/api/functions/daylightAnalysis.skyFactorEstimate.html",
+    "kind": "function",
+    "namespace": "daylightAnalysis"
+  },
+  "skyHorizontalIlluminance": {
+    "summary": "Approximate horizontal diffuse illuminance from the sky on a\nfully unobstructed surface (lux), as a function of solar\naltitude in radians, for the given sky model.",
+    "path": "/api-docs#./docs/api/functions/daylightAnalysis.skyHorizontalIlluminance.html",
+    "kind": "function",
+    "namespace": "daylightAnalysis"
+  },
+  "SkyModel": {
+    "summary": "Supported sky-luminance models.",
+    "path": "/api-docs#./docs/api/types/daylightAnalysis.SkyModel.html",
+    "kind": "type",
+    "namespace": "daylightAnalysis"
+  },
+  "SkyParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/viewer.SkyParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
+  },
+  "SliceAxis": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/volumeOverlay.SliceAxis.html",
+    "kind": "type",
+    "namespace": "volumeOverlay"
   },
   "SnapshotFinishedEvent": {
     "summary": "",
@@ -7842,7 +7728,7 @@
     "namespace": "sceneModel"
   },
   "splitOversizedGeometry": {
-    "summary": "Auto-fix for `GEOMETRY_ARRAY_OVERSIZED` — geometries whose raw\n`positionsCompressed`, `indices`, `normalsCompressed`, or\n`uvsCompressed` array lengths exceed the configured\nper-geometry batch-portion thresholds.",
+    "summary": "Auto-fix for `GEOMETRY_ARRAY_OVERSIZED` — geometries whose raw\n`positionsCompressed`, `indices`, `edgeIndices`,\n`normalsCompressed`, `uvsCompressed`, or `colorsCompressed`\narray lengths exceed the configured\nper-geometry batch-portion thresholds.",
     "path": "/api-docs#./docs/api/variables/sceneModel.splitOversizedGeometry.html",
     "kind": "variable",
     "namespace": "sceneModel"
@@ -7883,29 +7769,35 @@
     "kind": null,
     "namespace": "xeoconvert"
   },
-  "STEPLoader": {
-    "summary": "Loads an ISO 10303-21 STEP file (`.",
-    "path": "/api-docs#./docs/api/classes/step.STEPLoader.html",
-    "kind": "class",
-    "namespace": "step"
+  "streamTilesetInView": {
+    "summary": "Drives a TilesetStreamer from a View's camera: re-streams on every\ncamera change for that View and tears down when the View is destroyed.",
+    "path": "/api-docs#./docs/api/functions/threedtiles.streamTilesetInView.html",
+    "kind": "function",
+    "namespace": "threedtiles"
   },
   "Studio": {
-    "summary": "Helper class to set up a basic 3D demo with a Scene, Data, Viewer, WebGLRenderer, and View.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.Studio.html",
+    "summary": "Helper class to set up a basic 3D demo with a Scene, Data, Viewer,\nrenderer, and View.",
+    "path": "/api-docs#./docs/api/classes/systems.Studio.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "StudioConfig": {
-    "summary": "Configuration options for the Studio.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.StudioConfig.html",
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/systems.StudioConfig.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "StudioCreateViewParams": {
     "summary": "Parameters for studio.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.StudioCreateViewParams.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.StudioCreateViewParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
+  },
+  "StudioRendererBackend": {
+    "summary": "Configuration options for the Studio.",
+    "path": "/api-docs#./docs/api/types/systems.StudioRendererBackend.html",
+    "kind": "type",
+    "namespace": "systems"
   },
   "subScalarVec4": {
     "summary": "Sets each element of a 4-element vector to a scalar value minus the value of that element.",
@@ -7936,6 +7828,42 @@
     "path": "/api-docs#./docs/api/functions/vector.subVec4Scalar.html",
     "kind": "function",
     "namespace": "vector"
+  },
+  "sunDirection": {
+    "summary": "Convert a SunPosition to a Cartesian direction-of-light\nvector suitable for `view.",
+    "path": "/api-docs#./docs/api/functions/sunStudy.sunDirection.html",
+    "kind": "function",
+    "namespace": "sunStudy"
+  },
+  "SunPosition": {
+    "summary": "Computed sun state at a moment in time at a particular site.",
+    "path": "/api-docs#./docs/api/interfaces/sunStudy.SunPosition.html",
+    "kind": "interface",
+    "namespace": "sunStudy"
+  },
+  "SunStudy": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/classes/sunStudy.SunStudy.html",
+    "kind": "class",
+    "namespace": "sunStudy"
+  },
+  "SunStudyPanel": {
+    "summary": "Floating panel for editing a SunStudy's\ngeo-location + date / time cursor, with optional play / pause /\nday-vs-year mode controls when an AnnualSunPlayer\nis supplied.",
+    "path": "/api-docs#./docs/api/classes/panels.SunStudyPanel.html",
+    "kind": "class",
+    "namespace": "panels"
+  },
+  "SunStudyPanelParams": {
+    "summary": "Constructor parameters for SunStudyPanel.",
+    "path": "/api-docs#./docs/api/interfaces/panels.SunStudyPanelParams.html",
+    "kind": "interface",
+    "namespace": "panels"
+  },
+  "SunStudyParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/sunStudy.SunStudyParams.html",
+    "kind": "interface",
+    "namespace": "sunStudy"
   },
   "SurfacePrimitive": {
     "summary": "Non-closed triangle mesh primitive type.",
@@ -8011,27 +7939,27 @@
   },
   "TasksPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.TasksPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.TasksPanel.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
   },
   "TasksPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.TasksPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.TasksPanelParams.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "panels"
+  },
+  "TaskStatus": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "schedule"
   },
   "testOrthogonalAxis": {
     "summary": "Validates that three 3D axes are mutually orthogonal.",
     "path": "/api-docs#./docs/api/functions/vector.testOrthogonalAxis.html",
     "kind": "function",
     "namespace": "vector"
-  },
-  "TextureAtlas": {
-    "summary": "GPU 2D shelf-packed texture atlas — one per PBR map type per\nGPUMemoryBatch (albedo, metallic-roughness, future normals /\nocclusion / emissive).",
-    "path": "/api-docs#./docs/api/classes/dataTextures.TextureAtlas.html",
-    "kind": "class",
-    "namespace": "dataTextures"
   },
   "TextureCompressedParams": {
     "summary": "Compressed texture data.",
@@ -8057,18 +7985,6 @@
     "kind": "class",
     "namespace": "viewer"
   },
-  "ThickLinesDrawColorTechnique": {
-    "summary": "Draw technique for rendering lines with a flat (per-mesh) color\nat user-controlled pixel thickness — works on every WebGL2\nimplementation, including ones that clamp `gl.",
-    "path": "/api-docs#./docs/api/classes/lines.ThickLinesDrawColorTechnique.html",
-    "kind": "class",
-    "namespace": "lines"
-  },
-  "ThickLinesPickMeshTechnique": {
-    "summary": "Pick technique for thick lines — rasterises the same\nquad-expanded geometry as ThickLinesDrawColorTechnique\n(six vertices per line, screen-space perpendicular offset,\nround caps, miter joints) but writes the pick-MRT triple\n(`batchIndex`, `meshIndex`, packed depth) rather than a\nshaded colour.",
-    "path": "/api-docs#./docs/api/classes/lines.ThickLinesPickMeshTechnique.html",
-    "kind": "class",
-    "namespace": "lines"
-  },
   "ThickLinesTechnique": {
     "summary": "Thick-line draw path — quad-expands every line in the vertex\nshader to user-controlled pixel thickness, with smoothstep\nantialiasing across the line's cross-axis.",
     "path": "/api-docs#./docs/api/classes/scene.ThickLinesTechnique.html",
@@ -8086,6 +8002,30 @@
     "path": "/api-docs#./docs/api/types/scene.ThickLinesWidthMode.html",
     "kind": "type",
     "namespace": "scene"
+  },
+  "ThreeDTilesLoader": {
+    "summary": "Loads a 3D Tiles `tileset.",
+    "path": "/api-docs#./docs/api/classes/threedtiles.ThreeDTilesLoader.html",
+    "kind": "class",
+    "namespace": "threedtiles"
+  },
+  "ThreeDTilesLoadOptions": {
+    "summary": "Options for ThreeDTilesLoader.",
+    "path": "/api-docs#./docs/api/interfaces/threedtiles.ThreeDTilesLoadOptions.html",
+    "kind": "interface",
+    "namespace": "threedtiles"
+  },
+  "ThreeDXMLExporter": {
+    "summary": "Exports a SceneModel's triangle geometry to a\nDassault Systèmes **3DXML** (`.",
+    "path": "/api-docs#./docs/api/classes/threedxml.ThreeDXMLExporter.html",
+    "kind": "class",
+    "namespace": "threedxml"
+  },
+  "ThreeDXMLLoader": {
+    "summary": "Loads Dassault Systèmes **3DXML** (`.",
+    "path": "/api-docs#./docs/api/classes/threedxml.ThreeDXMLLoader.html",
+    "kind": "class",
+    "namespace": "threedxml"
   },
   "TickEvent": {
     "summary": "",
@@ -8111,32 +8051,38 @@
     "kind": "variable",
     "namespace": "sceneModel"
   },
+  "TileNode": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/threedtiles.TileNode.html",
+    "kind": "interface",
+    "namespace": "threedtiles"
+  },
+  "TilesetStreamer": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/classes/threedtiles.TilesetStreamer.html",
+    "kind": "class",
+    "namespace": "threedtiles"
+  },
+  "TilesetStreamerParams": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/threedtiles.TilesetStreamerParams.html",
+    "kind": "interface",
+    "namespace": "threedtiles"
+  },
   "TilesPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/tilesPanel.TilesPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.TilesPanel.html",
     "kind": "class",
-    "namespace": "demo/tilesPanel"
+    "namespace": "panels"
   },
   "TilesPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/tilesPanel.TilesPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.TilesPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/tilesPanel"
-  },
-  "TileStats": {
-    "summary": "Represents statistics for an RTC tile.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.TileStats.html",
-    "kind": "interface",
-    "namespace": "inspectors"
-  },
-  "TimeMs": {
-    "summary": "Time measurement in milliseconds.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.TimeMs.html",
-    "kind": "interface",
-    "namespace": "inspectors"
+    "namespace": "panels"
   },
   "timeout": {
-    "summary": "",
+    "summary": "Resolves after `dt` milliseconds.",
     "path": "/api-docs#./docs/api/functions/utils.timeout.html",
     "kind": "function",
     "namespace": "utils"
@@ -8167,27 +8113,27 @@
   },
   "Toolbar": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/toolbar.Toolbar.html",
+    "path": "/api-docs#./docs/api/classes/panels.Toolbar.html",
     "kind": "class",
-    "namespace": "demo/toolbar"
+    "namespace": "panels"
   },
   "ToolbarAction": {
     "summary": "Stable ids for the toolbar's actions, fired through the\nToolbarParams.",
-    "path": "/api-docs#./docs/api/types/demo/toolbar.ToolbarAction.html",
+    "path": "/api-docs#./docs/api/types/panels.ToolbarAction.html",
     "kind": "type",
-    "namespace": "demo/toolbar"
+    "namespace": "panels"
   },
   "ToolbarParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/toolbar.ToolbarParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ToolbarParams.html",
     "kind": "interface",
-    "namespace": "demo/toolbar"
+    "namespace": "panels"
   },
   "ToolbarToolMode": {
     "summary": "Mutually-exclusive object tool modes.",
-    "path": "/api-docs#./docs/api/types/demo/toolbar.ToolbarToolMode.html",
+    "path": "/api-docs#./docs/api/types/panels.ToolbarToolMode.html",
     "kind": "type",
-    "namespace": "demo/toolbar"
+    "namespace": "panels"
   },
   "TourPlanner": {
     "summary": "Stage 3 of the planCameraTour pipeline — pick the\norder of spaces to visit and the chosen viewpoint per stop.",
@@ -8212,6 +8158,12 @@
     "path": "/api-docs#./docs/api/interfaces/cameraTour.TourStop.html",
     "kind": "interface",
     "namespace": "cameraTour"
+  },
+  "traceStreamline": {
+    "summary": "Trace a single streamline through `grid` starting at the seed\npoint, using 4th-order Runge-Kutta with **unit-speed**\nintegration (velocity normalised at each sub-step).",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.traceStreamline.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
   },
   "transformAndOctEncodeNormals": {
     "summary": "Transforms normals by applying a world normal matrix and then oct-encodes them to minimize rounding errors.",
@@ -8411,47 +8363,11 @@
     "kind": "function",
     "namespace": "vector"
   },
-  "TrianglesDrawColorFlatTechnique": {
-    "summary": "Draw technique for rendering triangles with a flat (per-mesh) color and\n**no Lambert / PBR lighting** — the fragment colour is exactly the mesh's\nown colour, modulated only by the standard premultiplied-alpha output.",
-    "path": "/api-docs#./docs/api/classes/triangles.TrianglesDrawColorFlatTechnique.html",
-    "kind": "class",
-    "namespace": "triangles"
-  },
-  "TrianglesDrawColorTechnique": {
-    "summary": "Draw technique for rendering colored triangles with Lambert shading.",
-    "path": "/api-docs#./docs/api/classes/triangles.TrianglesDrawColorTechnique.html",
-    "kind": "class",
-    "namespace": "triangles"
-  },
-  "TrianglesDrawEdgeColorTechnique": {
-    "summary": "Draw technique for rendering triangle mesh edges with a silhouette color.",
-    "path": "/api-docs#./docs/api/classes/triangles.TrianglesDrawEdgeColorTechnique.html",
-    "kind": "class",
-    "namespace": "triangles"
-  },
-  "TrianglesDrawEdgeSilhouetteTechnique": {
-    "summary": "Draw technique for rendering triangle mesh edges as silhouettes.",
-    "path": "/api-docs#./docs/api/classes/triangles.TrianglesDrawEdgeSilhouetteTechnique.html",
-    "kind": "class",
-    "namespace": "triangles"
-  },
-  "TrianglesPickMeshDrawTechnique": {
-    "summary": "Draw technique for rendering point cloud meshes into the pick framebuffer.",
-    "path": "/api-docs#./docs/api/classes/points.TrianglesPickMeshDrawTechnique.html",
-    "kind": "class",
-    "namespace": "points"
-  },
   "TrianglesPrimitive": {
     "summary": "Non-closed triangle mesh primitive type.",
     "path": "/api-docs#./docs/api/variables/constants.TrianglesPrimitive.html",
     "kind": "variable",
     "namespace": "constants"
-  },
-  "TypedArrayConstructor": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/types/webGL.TypedArrayConstructor.html",
-    "kind": "type",
-    "namespace": "webGL"
   },
   "typeMatchesOrInherits": {
     "summary": "Walk `typeId`'s super-type chain, return `true` when any link\nappears in `allowedTypes`.",
@@ -8467,15 +8383,9 @@
   },
   "UNPIN_ICON_SVG": {
     "summary": "",
-    "path": "/api-docs#./docs/api/variables/demo/panels/viewPanel.UNPIN_ICON_SVG.html",
+    "path": "/api-docs#./docs/api/variables/panels.UNPIN_ICON_SVG.html",
     "kind": "variable",
-    "namespace": "demo/panels/viewPanel"
-  },
-  "UnregisterRenderPassOptions": {
-    "summary": "Options when unregistering a render pass.",
-    "path": "/api-docs#./docs/api/interfaces/dataTextures.UnregisterRenderPassOptions.html",
-    "kind": "interface",
-    "namespace": "dataTextures"
+    "namespace": "panels"
   },
   "UnsignedByteType": {
     "summary": "Unsigned 8-bit integer type.",
@@ -8518,6 +8428,18 @@
     "path": "/api-docs#./docs/api/variables/sceneModel.unusedResources.html",
     "kind": "variable",
     "namespace": "sceneModel"
+  },
+  "USDZExporter": {
+    "summary": "Writes a SceneModel to a Pixar USDZ\n(`.",
+    "path": "/api-docs#./docs/api/classes/usdz.USDZExporter.html",
+    "kind": "class",
+    "namespace": "usdz"
+  },
+  "USDZLoader": {
+    "summary": "Loads Pixar USDZ (`.",
+    "path": "/api-docs#./docs/api/classes/usdz.USDZLoader.html",
+    "kind": "class",
+    "namespace": "usdz"
   },
   "Vec2": {
     "summary": "2-element numeric vector.",
@@ -8657,35 +8579,23 @@
     "kind": "function",
     "namespace": "vector"
   },
+  "VectorGrid": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/volumeOverlay.VectorGrid.html",
+    "kind": "interface",
+    "namespace": "volumeOverlay"
+  },
+  "vectorGridMagnitudeRange": {
+    "summary": "Compute the data-driven magnitude range of a vector field.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.vectorGridMagnitudeRange.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
   "VertexCanonicalSlots": {
     "summary": "Per-vertex canonical-slot map for a SceneGeometry —\nreturned by the index's `canonicalSlots` accessor.",
     "path": "/api-docs#./docs/api/interfaces/sceneModel.VertexCanonicalSlots.html",
     "kind": "interface",
     "namespace": "sceneModel"
-  },
-  "VertexColorTexture": {
-    "summary": "Data texture that stores vertex colors as RGBA uint8 values.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.VertexColorTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "VertexNormalTexture": {
-    "summary": "Data texture that stores octahedral-encoded vertex normals as RG uint16\npairs.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.VertexNormalTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "VertexPositionTexture": {
-    "summary": "Data texture that stores vertex positions as RGB uint16 values.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.VertexPositionTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
-  },
-  "VertexUVTexture": {
-    "summary": "Data texture that stores per-vertex UV coordinates as RG float32 pairs.",
-    "path": "/api-docs#./docs/api/classes/dataTextures.VertexUVTexture.html",
-    "kind": "class",
-    "namespace": "dataTextures"
   },
   "View": {
     "summary": "An independent view within a Viewer, with its own canvas, Camera and object visual states.",
@@ -8711,6 +8621,12 @@
     "kind": "interface",
     "namespace": "viewController"
   },
+  "ViewCuller": {
+    "summary": "Drives frustum and solid-angle culling for one View, off the main\nthread.",
+    "path": "/api-docs#./docs/api/classes/culling.ViewCuller.html",
+    "kind": "class",
+    "namespace": "culling"
+  },
   "Viewer": {
     "summary": "3D model viewer.",
     "path": "/api-docs#./docs/api/classes/viewer.Viewer.html",
@@ -8719,15 +8635,15 @@
   },
   "ViewerConfigPanel": {
     "summary": "Abstract base for every floating demo panel.",
-    "path": "/api-docs#./docs/api/classes/demo/viewerPanel.ViewerConfigPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.ViewerConfigPanel.html",
     "kind": "class",
-    "namespace": "demo/viewerPanel"
+    "namespace": "panels"
   },
   "ViewerConfigPanelParams": {
     "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/demo/viewerPanel.ViewerConfigPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ViewerConfigPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/viewerPanel"
+    "namespace": "panels"
   },
   "ViewerEvents": {
     "summary": "Events emitted by a Viewer.",
@@ -8754,22 +8670,28 @@
     "namespace": "viewer"
   },
   "ViewManager": {
-    "summary": "Top-level, internal rendering and pipeline manager within a WebGLRenderer.",
-    "path": "/api-docs#./docs/api/classes/snapManager.ViewManager.html",
+    "summary": "Owns the lifecycle and DOM hosting of every View created through\nStudio: the `views` registry, the auto-layout container for tiled\nrenderer surfaces, and the per-view ViewPanel hosting when\ncallers pass `floating: true`.",
+    "path": "/api-docs#./docs/api/classes/systems.ViewManager.html",
     "kind": "class",
-    "namespace": "snapManager"
+    "namespace": "systems"
   },
   "ViewManagerContext": {
     "summary": "Inputs the ViewManager needs to construct Views and wire\ntheir ViewControllers.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.ViewManagerContext.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.ViewManagerContext.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
   },
   "ViewManagerHooks": {
     "summary": "Per-event hooks the manager fires while it owns view lifecycle.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.ViewManagerHooks.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.ViewManagerHooks.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "systems"
+  },
+  "ViewManagerOptions": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/systems.ViewManagerOptions.html",
+    "kind": "interface",
+    "namespace": "systems"
   },
   "ViewObject": {
     "summary": "An object within a View.",
@@ -8779,27 +8701,27 @@
   },
   "ViewObjectContextMenu": {
     "summary": "UI context menu with support for grouped items, nested submenus,\ncontext-sensitive titles, and context-sensitive enabled/visible state.",
-    "path": "/api-docs#./docs/api/classes/tasksPanel.ViewObjectContextMenu.html",
+    "path": "/api-docs#./docs/api/classes/menus.ViewObjectContextMenu.html",
     "kind": "class",
-    "namespace": "tasksPanel"
+    "namespace": "menus"
   },
   "ViewObjectContextMenuContext": {
     "summary": "Context object consumed by ViewObjectContextMenu.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.ViewObjectContextMenuContext.html",
+    "path": "/api-docs#./docs/api/interfaces/menus.ViewObjectContextMenuContext.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
+    "namespace": "menus"
   },
   "ViewPanel": {
     "summary": "A floating, draggable panel hosting a single View's\ncanvas.",
-    "path": "/api-docs#./docs/api/classes/demo/panels/viewPanel.ViewPanel.html",
+    "path": "/api-docs#./docs/api/classes/panels.ViewPanel.html",
     "kind": "class",
-    "namespace": "demo/panels/viewPanel"
+    "namespace": "panels"
   },
   "ViewPanelParams": {
     "summary": "Parameters for ViewPanel.",
-    "path": "/api-docs#./docs/api/interfaces/demo/panels/viewPanel.ViewPanelParams.html",
+    "path": "/api-docs#./docs/api/interfaces/panels.ViewPanelParams.html",
     "kind": "interface",
-    "namespace": "demo/panels/viewPanel"
+    "namespace": "panels"
   },
   "ViewParams": {
     "summary": "Parameters for a View.",
@@ -8833,21 +8755,9 @@
   },
   "ViewRecord": {
     "summary": "One record per live View.",
-    "path": "/api-docs#./docs/api/interfaces/tasksPanel.ViewRecord.html",
+    "path": "/api-docs#./docs/api/interfaces/systems.ViewRecord.html",
     "kind": "interface",
-    "namespace": "tasksPanel"
-  },
-  "ViewRenderState": {
-    "summary": "Renderer-side wrapper for a View.",
-    "path": "/api-docs#./docs/api/classes/snapManager.ViewRenderState.html",
-    "kind": "class",
-    "namespace": "snapManager"
-  },
-  "ViewRenderStats": {
-    "summary": "Log entry for a single render frame, made up of multiple render passes.",
-    "path": "/api-docs#./docs/api/interfaces/inspectors.ViewRenderStats.html",
-    "kind": "interface",
-    "namespace": "inspectors"
+    "namespace": "systems"
   },
   "ViewTransform": {
     "summary": "Represents a per-View transform that can be applied at render time without modifying the Scene.",
@@ -8867,95 +8777,167 @@
     "kind": "function",
     "namespace": "hle"
   },
-  "WEBGL_INFO": {
-    "summary": "Information about WebGL2 support on the client machine.",
-    "path": "/api-docs#./docs/api/variables/webGL.WEBGL_INFO.html",
-    "kind": "variable",
-    "namespace": "webGL"
-  },
-  "WebGLAbstractTexture": {
-    "summary": "Abstract WebGL texture that can be bound and unbound.",
-    "path": "/api-docs#./docs/api/types/webGL.WebGLAbstractTexture.html",
-    "kind": "type",
-    "namespace": "webGL"
-  },
-  "WebGLArrayBuf": {
-    "summary": "Represents a WebGL ArrayBuffer.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLArrayBuf.html",
+  "VolumeOverlayPanel": {
+    "summary": "Floating Studio panel for slicing a VoxelGrid —\naxis-selector, in-axis position slider, colormap picker, value-\nrange + opacity controls, slice stats, and a live colourbar\nlegend.",
+    "path": "/api-docs#./docs/api/classes/panels.VolumeOverlayPanel.html",
     "kind": "class",
-    "namespace": "webGL"
+    "namespace": "panels"
   },
-  "WebGLAttribute": {
-    "summary": "Represents a WebGL vertex attribute.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLAttribute.html",
-    "kind": "class",
-    "namespace": "webGL"
-  },
-  "WebGLContextProvider": {
-    "summary": "Provides a WebGL2 rendering context.",
-    "path": "/api-docs#./docs/api/interfaces/webGL.WebGLContextProvider.html",
+  "VolumeOverlayPanelParams": {
+    "summary": "Constructor parameters for VolumeOverlayPanel.",
+    "path": "/api-docs#./docs/api/interfaces/panels.VolumeOverlayPanelParams.html",
     "kind": "interface",
-    "namespace": "webGL"
+    "namespace": "panels"
   },
-  "WebGLPickBuffer": {
-    "summary": "A utility class for managing a WebGL framebuffer used for picking.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLPickBuffer.html",
-    "kind": "class",
-    "namespace": "webGL"
+  "VolumeTechnique": {
+    "summary": "Visualisation technique the panel exposes.",
+    "path": "/api-docs#./docs/api/types/panels.VolumeTechnique.html",
+    "kind": "type",
+    "namespace": "panels"
   },
-  "WebGLProgram": {
-    "summary": "Represents a WebGL2 program.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLProgram.html",
-    "kind": "class",
-    "namespace": "webGL"
+  "VoxelGrid": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/volumeOverlay.VoxelGrid.html",
+    "kind": "interface",
+    "namespace": "volumeOverlay"
   },
-  "WebGLRenderBuffer": {
-    "summary": "Represents a WebGL render buffer with optional depth texture and MRT support.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLRenderBuffer.html",
-    "kind": "class",
-    "namespace": "webGL"
+  "voxelGridDataRange": {
+    "summary": "Compute the data-driven min / max of a VoxelGrid.",
+    "path": "/api-docs#./docs/api/functions/volumeOverlay.voxelGridDataRange.html",
+    "kind": "function",
+    "namespace": "volumeOverlay"
+  },
+  "VTIFile": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/volumeOverlay.VTIFile.html",
+    "kind": "interface",
+    "namespace": "volumeOverlay"
   },
   "WebGLRenderer": {
     "summary": "WebGL renderer backing a Viewer.",
-    "path": "/api-docs#./docs/api/classes/internal.WebGLRenderer.html",
+    "path": "/api-docs#./docs/api/classes/webGLRenderer.WebGLRenderer.html",
     "kind": "class",
-    "namespace": "internal"
+    "namespace": "webGLRenderer"
   },
   "WebGLRendererEvents": {
     "summary": "Events for WebGLRenderer.",
-    "path": "/api-docs#./docs/api/interfaces/internal.WebGLRendererEvents.html",
+    "path": "/api-docs#./docs/api/interfaces/webGLRenderer.WebGLRendererEvents.html",
     "kind": "interface",
-    "namespace": "internal"
+    "namespace": "webGLRenderer"
   },
-  "WebGLSampler": {
-    "summary": "Represents a WebGL2 sampler.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLSampler.html",
-    "kind": "class",
-    "namespace": "webGL"
+  "WebGPUAdapterLike": {
+    "summary": "Minimal WebGPU adapter shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPUAdapterLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
   },
-  "WebGLShader": {
-    "summary": "Represents a WebGL2 shader.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLShader.html",
-    "kind": "class",
-    "namespace": "webGL"
+  "WebGPUBindGroupLayoutLike": {
+    "summary": "Minimal WebGPU bind group layout shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPUBindGroupLayoutLike.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
   },
-  "WebGLSnapBuffer": {
-    "summary": "A WebGL framebuffer used for snap-to-vertex / snap-to-edge picking.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLSnapBuffer.html",
-    "kind": "class",
-    "namespace": "webGL"
+  "WebGPUBindGroupLike": {
+    "summary": "Minimal WebGPU bind group shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPUBindGroupLike.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
   },
-  "WebGLSnapBufferCache": {
-    "summary": "Per-radius cache of WebGLSnapBuffers — V2 keeps one buffer\nper snap radius so repeat snap-picks at the same radius reuse the\nalready-allocated framebuffer.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLSnapBufferCache.html",
-    "kind": "class",
-    "namespace": "webGL"
+  "WebGPUBufferLike": {
+    "summary": "Minimal WebGPU buffer shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPUBufferLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
   },
-  "WebGLTexture": {
-    "summary": "Represents a WebGL2 texture.",
-    "path": "/api-docs#./docs/api/classes/webGL.WebGLTexture.html",
+  "WebGPUCanvasAlphaMode": {
+    "summary": "WebGPU canvas alpha mode.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPUCanvasAlphaMode.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUCommandEncoderLike": {
+    "summary": "Minimal WebGPU command encoder shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPUCommandEncoderLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUDeviceDescriptor": {
+    "summary": "Descriptor passed to `GPUAdapter.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPUDeviceDescriptor.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUDeviceLike": {
+    "summary": "Minimal WebGPU device shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPUDeviceLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUDeviceLostInfoLike": {
+    "summary": "Minimal WebGPU device-lost payload shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPUDeviceLostInfoLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUPipelineLayoutLike": {
+    "summary": "Minimal WebGPU pipeline layout shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPUPipelineLayoutLike.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUQueueLike": {
+    "summary": "Minimal WebGPU queue shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPUQueueLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPURenderer": {
+    "summary": "WebGPU renderer backend.",
+    "path": "/api-docs#./docs/api/classes/viewing/webGPURenderer.WebGPURenderer.html",
     "kind": "class",
-    "namespace": "webGL"
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPURendererEvents": {
+    "summary": "Lifecycle, device, render, and error events emitted by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPURendererEvents.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPURendererParams": {
+    "summary": "Configuration for WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPURendererParams.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPURenderPassEncoderLike": {
+    "summary": "Minimal WebGPU render pass encoder shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPURenderPassEncoderLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPURenderPipelineLike": {
+    "summary": "Minimal WebGPU render pipeline shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPURenderPipelineLike.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPURequestAdapterOptions": {
+    "summary": "Options passed to `navigator.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPURequestAdapterOptions.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUShaderModuleLike": {
+    "summary": "Minimal WebGPU shader module shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/types/viewing/webGPURenderer.WebGPUShaderModuleLike.html",
+    "kind": "type",
+    "namespace": "viewing/webGPURenderer"
+  },
+  "WebGPUTextureLike": {
+    "summary": "Minimal WebGPU texture shape used by WebGPURenderer.",
+    "path": "/api-docs#./docs/api/interfaces/viewing/webGPURenderer.WebGPUTextureLike.html",
+    "kind": "interface",
+    "namespace": "viewing/webGPURenderer"
   },
   "worldToRTCCenter": {
     "summary": "Converts a World-space 3D position to its RTC center.",
@@ -8975,17 +8957,83 @@
     "kind": "function",
     "namespace": "rtc"
   },
-  "XGFData_v1": {
-    "summary": "The elements of a [XGF](https://xeokit.",
-    "path": "/api-docs#./docs/api/interfaces/xgf.XGFData_v1.html",
-    "kind": "interface",
-    "namespace": "xgf"
+  "writeXGFChunkManifest": {
+    "summary": "Creates a JSON-safe copy of an XGF chunk manifest.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.writeXGFChunkManifest.html",
+    "kind": "function",
+    "namespace": "xgfstream"
   },
-  "XGFData_v2": {
-    "summary": "XGF v2 file-format payload — extends v1 with PBR materials,\n textures, per-geometry normals and per-geometry UVs.",
-    "path": "/api-docs#./docs/api/interfaces/xgf.XGFData_v2.html",
+  "writeXGFStreamingIndex": {
+    "summary": "Creates a JSON-safe copy of a human-readable XGF stream index.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.writeXGFStreamingIndex.html",
+    "kind": "function",
+    "namespace": "xgfstream"
+  },
+  "writeXGFStreamingRuntimeIndex": {
+    "summary": "Writes a compact runtime representation of an XGF stream index.",
+    "path": "/api-docs#./docs/api/functions/xgfstream.writeXGFStreamingRuntimeIndex.html",
+    "kind": "function",
+    "namespace": "xgfstream"
+  },
+  "XGFAssetMode": {
+    "summary": "XGF v2 chunk role.",
+    "path": "/api-docs#./docs/api/types/xgfstream.XGFAssetMode.html",
+    "kind": "type",
+    "namespace": "xgfstream"
+  },
+  "XGFChunkDependency": {
+    "summary": "Reference to another chunk required before a stream chunk can be loaded.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunkDependency.html",
     "kind": "interface",
-    "namespace": "xgf"
+    "namespace": "xgfstream"
+  },
+  "XGFChunkLoadOptions": {
+    "summary": "Options used when loading one XGF stream chunk.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunkLoadOptions.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFChunkLoadParams": {
+    "summary": "Parameters for loading one XGF stream chunk.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunkLoadParams.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFChunkLoadStats": {
+    "summary": "Per-chunk timing and creation statistics emitted by XGF stream loading.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunkLoadStats.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFChunkManifest": {
+    "summary": "Human-readable manifest metadata for one XGF stream chunk.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunkManifest.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFChunkRole": {
+    "summary": "Role of an XGF stream chunk.",
+    "path": "/api-docs#./docs/api/types/xgfstream.XGFChunkRole.html",
+    "kind": "type",
+    "namespace": "xgfstream"
+  },
+  "XGFChunksLoadOptions": {
+    "summary": "Options used when loading multiple XGF stream chunks.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunksLoadOptions.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFChunksLoadParams": {
+    "summary": "Parameters for loading multiple XGF stream chunks.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunksLoadParams.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFChunkUnloadParams": {
+    "summary": "Parameters for unloading one previously-loaded XGF stream chunk.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFChunkUnloadParams.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
   },
   "XGFExporter": {
     "summary": "Exports a SceneModel to an XGF file.",
@@ -8999,16 +9047,94 @@
     "kind": "class",
     "namespace": "xgf"
   },
-  "XKTLoader": {
-    "summary": "Loads an XKT file into a SceneModel and/or a DataModel.",
-    "path": "/api-docs#./docs/api/classes/xkt.XKTLoader.html",
+  "XGFManifestOptions": {
+    "summary": "Options used when creating an XGF chunk manifest from a SceneModel view.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFManifestOptions.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamChunkMetric": {
+    "summary": "Cost metric used when partitioning a SceneModel into stream chunks.",
+    "path": "/api-docs#./docs/api/types/xgfstream.XGFStreamChunkMetric.html",
+    "kind": "type",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamExporter": {
+    "summary": "Exports a SceneModel as an XGF Stream dataset: an index plus multiple XGF v2\nasset-library and references-only chunk files.",
+    "path": "/api-docs#./docs/api/classes/xgfstream.XGFStreamExporter.html",
+    "kind": "class",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamExportOptions": {
+    "summary": "Export options for XGFStreamExporter.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFStreamExportOptions.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamFileMap": {
+    "summary": "File map returned by XGFStreamExporter.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFStreamFileMap.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamingIndex": {
+    "summary": "Human-readable index for an XGF stream dataset.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFStreamingIndex.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamingIndexLookup": {
+    "summary": "O(1) lookup helper for chunks in an XGFStreamingIndex.",
+    "path": "/api-docs#./docs/api/classes/xgfstream.XGFStreamingIndexLookup.html",
+    "kind": "class",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamingLoader": {
+    "summary": "Manifest-aware loader for XGF v2 streaming chunks.",
+    "path": "/api-docs#./docs/api/classes/xgfstream.XGFStreamingLoader.html",
+    "kind": "class",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamingRuntimeIndex": {
+    "summary": "Compact runtime index for an XGF stream dataset.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFStreamingRuntimeIndex.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFStreamPartitionMode": {
+    "summary": "Strategy used by XGFStreamExporter to partition SceneObjects into\nreferences-only stream chunks.",
+    "path": "/api-docs#./docs/api/types/xgfstream.XGFStreamPartitionMode.html",
+    "kind": "type",
+    "namespace": "xgfstream"
+  },
+  "XGFViewStreamController": {
+    "summary": "View-driven controller that prioritizes XGF stream chunk loading.",
+    "path": "/api-docs#./docs/api/classes/xgfstream.XGFViewStreamController.html",
+    "kind": "class",
+    "namespace": "xgfstream"
+  },
+  "XGFViewStreamControllerParams": {
+    "summary": "Parameters for XGFViewStreamController.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFViewStreamControllerParams.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XGFViewStreamProgress": {
+    "summary": "Progress for the active view-stream scheduling generation.",
+    "path": "/api-docs#./docs/api/interfaces/xgfstream.XGFViewStreamProgress.html",
+    "kind": "interface",
+    "namespace": "xgfstream"
+  },
+  "XKTExporter": {
+    "summary": "Exports a SceneModel (and optional\nDataModel) to a xeokit v2 XKT file.",
+    "path": "/api-docs#./docs/api/classes/xkt.XKTExporter.html",
     "kind": "class",
     "namespace": "xkt"
   },
-  "XKTManifest": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/interfaces/xkt.XKTManifest.html",
-    "kind": "interface",
+  "XKTLoader": {
+    "summary": "Loads a xeokit v2 XKT file into a SceneModel\nand/or a DataModel.",
+    "path": "/api-docs#./docs/api/classes/xkt.XKTLoader.html",
+    "kind": "class",
     "namespace": "xkt"
   },
   "YardsUnit": {

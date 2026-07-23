@@ -1,3 +1,9 @@
+// Generates the Baku Stadium XGF Stream dataset used by the website example.
+//
+// Demonstrates the xeoconvert CLI path: convert a source GLB directly to an
+// XGF Stream directory with grid chunking, runtime index generation, and a
+// model coordinate system.
+
 const path = require("path");
 const fs = require("fs");
 const {spawnSync} = require("child_process");

@@ -106082,9 +106082,22 @@ var ALPHA_MODE_NAMES2 = ["OPAQUE", "MASK", "BLEND"];
 async function xgfToModel2(params) {
   const { xgfData, sceneModel, dataModel, options } = params;
   const layerId = options?.layerId || "default";
+  const idPrefix = options?.idPrefix || "";
+  const origin2 = options?.origin;
   const meshIdPrefix = options?.meshIdPrefix;
   const createdIds = options?.createdIds;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
+  const prefixId = (id) => id && idPrefix ? `${idPrefix}${id}` : id;
+  const translateMatrix = (matrix, apply3) => {
+    if (!apply3 || !origin2 || origin2[0] === 0 && origin2[1] === 0 && origin2[2] === 0) {
+      return matrix;
+    }
+    const translated = matrix.slice ? matrix.slice() : Array.from(matrix);
+    translated[12] += origin2[0];
+    translated[13] += origin2[1];
+    translated[14] += origin2[2];
+    return translated;
+  };
   const fail = (message) => {
     if (createdIds) {
       createdIds.error = message;
@@ -106204,7 +106217,7 @@ async function xgfToModel2(params) {
       }
       const bitmaps = await Promise.all(decoding.map((p) => p ?? Promise.resolve(null)));
       for (let i = chunkStart; i < chunkEnd; i++) {
-        const id = eachTextureId[i] || `texture-${i}`;
+        const id = prefixId(eachTextureId[i] || `texture-${i}`);
         createdTextureIds.push(id);
         if (sceneModel.textures[id]) {
           continue;
@@ -106269,7 +106282,7 @@ async function xgfToModel2(params) {
     for (let i = 0; i < numMaterials; i++) {
       if ((i & 63) === 0)
         await step2("Building materials", i, numMaterials);
-      const id = eachMaterialId[i];
+      const id = prefixId(eachMaterialId[i]);
       if (sceneModel.materials[id]) {
         continue;
       }
@@ -106314,13 +106327,14 @@ async function xgfToModel2(params) {
   }
   if (sceneModel && eachTransformId && eachTransformMatricesBase && sceneModel.transforms && typeof sceneModel.createTransform === "function") {
     for (let i = 0; i < eachTransformId.length; i++) {
-      const id = eachTransformId[i];
+      const id = prefixId(eachTransformId[i]);
       if (!id || sceneModel.transforms[id])
         continue;
       const matricesBase = eachTransformMatricesBase[i];
+      const parentId = eachTransformParentId?.[i] || "";
       const transformResult = sceneModel.createTransform({
         id,
-        matrix: matrices.subarray(matricesBase, matricesBase + 16)
+        matrix: translateMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentId)
       });
       if (transformResult && transformResult.ok === false) {
         fail(transformResult.error);
@@ -106330,8 +106344,8 @@ async function xgfToModel2(params) {
     }
     if (eachTransformParentId) {
       for (let i = 0; i < eachTransformId.length; i++) {
-        const id = eachTransformId[i];
-        const parentId = eachTransformParentId[i];
+        const id = prefixId(eachTransformId[i]);
+        const parentId = prefixId(eachTransformParentId[i]);
         if (!id || !parentId)
           continue;
         const transform = sceneModel.transforms[id];
@@ -106428,7 +106442,7 @@ async function xgfToModel2(params) {
   };
   if (sceneModel && numObjects === 0) {
     for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-      if (!createLocalGeometry(geometryIdx, eachGeometryId?.[geometryIdx] || `${geometryIdx}`)) {
+      if (!createLocalGeometry(geometryIdx, prefixId(eachGeometryId?.[geometryIdx] || `${geometryIdx}`))) {
         return;
       }
     }
@@ -106437,7 +106451,7 @@ async function xgfToModel2(params) {
     if ((objectIdx & 31) === 0) {
       await step2("Building meshes", objectIdx, numObjects);
     }
-    const objectId = eachObjectId[objectIdx];
+    const objectId = prefixId(eachObjectId[objectIdx]);
     const atLastObject = objectIdx === numObjects - 1;
     const firstMeshIdx = eachObjectMeshesBase[objectIdx];
     const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
@@ -106447,7 +106461,7 @@ async function xgfToModel2(params) {
       if (sceneModel) {
         const geometryIdx = eachMeshGeometriesBase[meshIdx];
         const hasLocalGeometry = geometryIdx !== NO_INDEX2 && geometryIdx < numGeometries;
-        const geometryId = eachMeshGeometryId?.[meshIdx] || (hasLocalGeometry ? eachGeometryId?.[geometryIdx] || `${geometryIdx}` : "");
+        const geometryId = prefixId(eachMeshGeometryId?.[meshIdx] || (hasLocalGeometry ? eachGeometryId?.[geometryIdx] || `${geometryIdx}` : ""));
         if (!geometryId) {
           fail(`[xgf] Mesh ${meshIdx} has no geometry reference`);
           return;
@@ -106461,18 +106475,18 @@ async function xgfToModel2(params) {
           return;
         }
         const matricesBase = eachMeshMatricesBase[meshIdx];
-        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
-        const meshParams = { id: meshId, geometryId, matrix };
         const parentTransformId = eachMeshParentTransformId?.[meshIdx] || "";
+        const matrix = translateMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentTransformId);
+        const meshParams = { id: meshId, geometryId, matrix };
         if (parentTransformId) {
-          meshParams.parentTransformId = parentTransformId;
+          meshParams.parentTransformId = prefixId(parentTransformId);
         }
         const materialId = eachMeshMaterialId?.[meshIdx] || "";
         const materialIdx = eachMeshMaterial[meshIdx];
         if (materialId) {
-          meshParams.materialId = materialId;
+          meshParams.materialId = prefixId(materialId);
         } else if (materialIdx >= 0 && materialIdx < numMaterials) {
-          meshParams.materialId = eachMaterialId[materialIdx];
+          meshParams.materialId = prefixId(eachMaterialId[materialIdx]);
         } else {
           const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES2;
           const hasInlineColor = colorBase + 3 < eachMeshMaterialAttributes.length;
@@ -108078,17 +108092,33 @@ function writeXGFStreamingRuntimeIndex(index) {
     stringIndexes.set(value, next);
     return next;
   };
-  const aabbQuantization = createAABBQuantization(index.aabb);
+  const aabbQuantization = createAABBQuantization(createRuntimeQuantizationAABB(index));
   return {
     format: "XGFStreamingRuntimeIndex",
-    indexVersion: "1.1.0",
+    indexVersion: index.streams && index.streams.length > 0 ? "1.2.0" : "1.1.0",
     strings: strings2,
     aabbQuantization,
     chunks: index.chunks.map((manifest) => writeRuntimeChunk(manifest, intern, aabbQuantization)),
+    streams: index.streams?.map((stream) => writeRuntimeSubstream(stream, intern, aabbQuantization)),
     root: index.rootChunkIds?.map(intern),
     aabb: index.aabb?.slice(),
     metadata: index.metadata ? JSON.parse(JSON.stringify(index.metadata)) : void 0
   };
+}
+function writeRuntimeSubstream(stream, intern, aabbQuantization) {
+  const tuple = [
+    intern(stream.id),
+    intern(stream.uri),
+    encodeAABB(stream.aabb, aabbQuantization),
+    stream.origin ? stream.origin.slice() : null
+  ];
+  if (stream.priority !== void 0 || stream.metadata !== void 0) {
+    tuple[4] = stream.priority ?? null;
+  }
+  if (stream.metadata !== void 0) {
+    tuple[5] = JSON.parse(JSON.stringify(stream.metadata));
+  }
+  return tuple;
 }
 function writeRuntimeChunk(manifest, intern, aabbQuantization) {
   const chunk = [
@@ -108130,6 +108160,25 @@ function createAABBQuantization(aabb) {
     origin: [aabb[0], aabb[1], aabb[2]],
     scale: scale3
   };
+}
+function createRuntimeQuantizationAABB(index) {
+  const aabbs = [
+    index.aabb,
+    ...(index.streams || []).map((stream) => stream.aabb)
+  ].filter((aabb) => !!aabb && aabb.length === 6);
+  if (aabbs.length === 0) {
+    return void 0;
+  }
+  const result = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  for (const aabb of aabbs) {
+    result[0] = Math.min(result[0], aabb[0]);
+    result[1] = Math.min(result[1], aabb[1]);
+    result[2] = Math.min(result[2], aabb[2]);
+    result[3] = Math.max(result[3], aabb[3]);
+    result[4] = Math.max(result[4], aabb[4]);
+    result[5] = Math.max(result[5], aabb[5]);
+  }
+  return result;
 }
 function createAABBScale(extent) {
   return Number.isFinite(extent) && extent > 0 ? extent / AABB_QUANTIZATION_MAX : 1;
@@ -108187,7 +108236,7 @@ var XGFStreamingExporter = class {
         manifests.push(manifest);
       }
       for (const spec of params.chunks) {
-        const view = createChunkView(sceneModel, spec.objectIds);
+        const view = createChunkView(sceneModel, spec, params.collapseChunkObjects === true);
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
         const fileData = await this._xgfExporter.write({ sceneModel: view }, { assetMode: "referencesOnly" });
         const manifest = createXGFManifest(
@@ -108293,22 +108342,26 @@ function createAssetLibraryView(sceneModel, spec) {
     textureIds: assetIds.textures
   });
 }
-function createChunkView(sceneModel, objectIds) {
+function createChunkView(sceneModel, spec, collapseObjects) {
   const objectSet = /* @__PURE__ */ new Set();
   const meshSet = /* @__PURE__ */ new Set();
   const transformSet = /* @__PURE__ */ new Set();
-  for (const objectId of objectIds) {
+  const chunkMeshes = [];
+  for (const objectId of spec.objectIds) {
     const object = sceneModel.objects[objectId];
     if (!object) {
       continue;
     }
-    objectSet.add(objectId);
+    if (!collapseObjects) {
+      objectSet.add(objectId);
+    }
     for (const mesh of object.meshes) {
       meshSet.add(mesh.id);
+      chunkMeshes.push(mesh);
       addTransformAncestors(transformSet, mesh.parentTransform);
     }
   }
-  return createView(sceneModel, {
+  const view = createView(sceneModel, {
     objectIds: objectSet,
     meshIds: meshSet,
     transformIds: transformSet,
@@ -108316,6 +108369,17 @@ function createChunkView(sceneModel, objectIds) {
     materialIds: /* @__PURE__ */ new Set(),
     textureIds: /* @__PURE__ */ new Set()
   });
+  if (collapseObjects && chunkMeshes.length > 0) {
+    view.objects = {
+      [`${spec.id}/object`]: {
+        id: `${spec.id}/object`,
+        originalSystemId: `${spec.id}/object`,
+        layerId: spec.id,
+        meshes: chunkMeshes
+      }
+    };
+  }
+  return view;
 }
 function createView(sceneModel, ids2) {
   return {
@@ -108486,7 +108550,8 @@ async function encodeXGFStream(params, options = {}) {
     assetLibraries,
     chunks,
     indexUri: joinUri(baseUri, indexName),
-    runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : void 0
+    runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : void 0,
+    collapseChunkObjects: options.collapseChunkObjects === true
   });
   if (result.ok === false) {
     throw new Error(result.error);
@@ -108968,7 +109033,7 @@ var XGFStreamingIndexLookup = class {
     this.index = index;
     this.byId = {};
     this.byUri = {};
-    for (const chunk of index.chunks) {
+    for (const chunk of index.chunks || []) {
       this.byId[chunk.id] = chunk;
       if (chunk.uri) {
         this.byUri[chunk.uri] = chunk;
@@ -109187,6 +109252,8 @@ var XGFStreamingLoader = class {
       createdIds = emptyCreatedIds();
       const parserOptions = {
         ...options,
+        idPrefix: manifest.idPrefix,
+        origin: manifest.origin,
         meshIdPrefix: key ? `${key}/mesh/` : void 0,
         createdIds
       };
@@ -109545,6 +109612,603 @@ function createXGFStreamingIndexLookup(index) {
   return new XGFStreamingIndexLookup(index);
 }
 
+// ../sdk/src/formats/xgfstream/manifest/validateXGFChunkManifest.ts
+function validateXGFChunkManifest(value) {
+  if (!isObject4(value)) {
+    return invalid3("[XGFChunkManifest] Expected JSON object");
+  }
+  if (value.format !== "XGF") {
+    return invalid3("[XGFChunkManifest] Expected format 'XGF'");
+  }
+  if (value.manifestVersion !== "1.0.0") {
+    return invalid3("[XGFChunkManifest] Expected manifestVersion '1.0.0'");
+  }
+  if (value.xgfVersion !== "2.0.0") {
+    return invalid3("[XGFChunkManifest] Expected xgfVersion '2.0.0'");
+  }
+  if (!isNonEmptyString(value.id)) {
+    return invalid3("[XGFChunkManifest] Expected non-empty string id");
+  }
+  if (value.uri !== void 0 && typeof value.uri !== "string") {
+    return invalid3("[XGFChunkManifest] Expected uri to be a string when provided");
+  }
+  if (value.role !== "full" && value.role !== "assetLibrary" && value.role !== "referencesOnly") {
+    return invalid3("[XGFChunkManifest] Expected role 'full', 'assetLibrary' or 'referencesOnly'");
+  }
+  const dependenciesResult = validateIdGroups(value.dependencies, "[XGFChunkManifest.dependencies]", true);
+  if (dependenciesResult.ok === false)
+    return invalid3(dependenciesResult.error);
+  const assetsResult = validateIdGroups(value.assets, "[XGFChunkManifest.assets]", false);
+  if (assetsResult.ok === false)
+    return invalid3(assetsResult.error);
+  const countsResult = validateCounts(value.counts);
+  if (countsResult.ok === false)
+    return invalid3(countsResult.error);
+  if (value.aabb !== void 0 && (!Array.isArray(value.aabb) || value.aabb.length !== 6 || !value.aabb.every(isFiniteNumber))) {
+    return invalid3("[XGFChunkManifest] Expected aabb to contain six finite numbers");
+  }
+  if (value.priority !== void 0 && !isFiniteNumber(value.priority)) {
+    return invalid3("[XGFChunkManifest] Expected priority to be a finite number when provided");
+  }
+  if (value.lod !== void 0 && typeof value.lod !== "number" && typeof value.lod !== "string") {
+    return invalid3("[XGFChunkManifest] Expected lod to be a number or string when provided");
+  }
+  if (typeof value.lod === "number" && !isFiniteNumber(value.lod)) {
+    return invalid3("[XGFChunkManifest] Expected lod number to be finite");
+  }
+  return { ok: true, value };
+}
+function validateIdGroups(value, path, includeChunks) {
+  if (!isObject4(value)) {
+    return invalid3(`${path} must be an object`);
+  }
+  if (includeChunks) {
+    if (!Array.isArray(value.chunks) || !value.chunks.every(isChunkDependency)) {
+      return invalid3(`${path}.chunks must contain dependency objects with id and/or uri`);
+    }
+  }
+  for (const key of ["geometries", "materials", "textures"]) {
+    if (!Array.isArray(value[key]) || !value[key].every(isNonEmptyString)) {
+      return invalid3(`${path}.${key} must contain string ids`);
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+function validateCounts(value) {
+  if (!isObject4(value)) {
+    return invalid3("[XGFChunkManifest.counts] must be an object");
+  }
+  for (const key of ["transforms", "geometries", "materials", "textures", "meshes", "objects"]) {
+    if (!Number.isInteger(value[key]) || value[key] < 0) {
+      return invalid3(`[XGFChunkManifest.counts] ${key} must be a non-negative integer`);
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+function isChunkDependency(value) {
+  return isObject4(value) && (value.id === void 0 || typeof value.id === "string") && (value.uri === void 0 || typeof value.uri === "string") && (!!value.id || !!value.uri);
+}
+function isObject4(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.length > 0;
+}
+function isFiniteNumber(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+function invalid3(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
+
+// ../sdk/src/formats/xgfstream/index/readXGFStreamingIndex.ts
+function readXGFStreamingIndex(json) {
+  if (!isObject5(json)) {
+    return invalid4("[XGFStreamingIndex] Expected JSON object");
+  }
+  if (json.format !== "XGFStreamingIndex") {
+    return invalid4("[XGFStreamingIndex] Expected format 'XGFStreamingIndex'");
+  }
+  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0") {
+    return invalid4("[XGFStreamingIndex] Expected indexVersion '1.0.0' or '1.1.0'");
+  }
+  if (json.chunks !== void 0 && !Array.isArray(json.chunks)) {
+    return invalid4("[XGFStreamingIndex] Expected chunks array");
+  }
+  const chunks = json.chunks || [];
+  const seenChunkIds = /* @__PURE__ */ new Set();
+  for (let i = 0; i < chunks.length; i++) {
+    const result = validateXGFChunkManifest(chunks[i]);
+    if (result.ok === false) {
+      return invalid4(`[XGFStreamingIndex.chunks.${i}] ${result.error}`);
+    }
+    const id = result.value.id;
+    if (seenChunkIds.has(id)) {
+      return invalid4(`[XGFStreamingIndex] Duplicate chunk id '${id}'`);
+    }
+    seenChunkIds.add(id);
+  }
+  if (json.rootChunkIds !== void 0) {
+    if (!Array.isArray(json.rootChunkIds) || !json.rootChunkIds.every(isNonEmptyString2)) {
+      return invalid4("[XGFStreamingIndex] rootChunkIds must contain string ids when provided");
+    }
+    for (const id of json.rootChunkIds) {
+      if (!seenChunkIds.has(id)) {
+        return invalid4(`[XGFStreamingIndex] rootChunkIds references missing chunk '${id}'`);
+      }
+    }
+  }
+  if (json.streams !== void 0) {
+    if (!Array.isArray(json.streams)) {
+      return invalid4("[XGFStreamingIndex] Expected streams array");
+    }
+    const seenStreamIds = /* @__PURE__ */ new Set();
+    for (let i = 0; i < json.streams.length; i++) {
+      const result = validateSubstreamManifest(json.streams[i]);
+      if (result.ok === false) {
+        return invalid4(`[XGFStreamingIndex.streams.${i}] ${result.error}`);
+      }
+      const id = result.value.id;
+      if (seenStreamIds.has(id)) {
+        return invalid4(`[XGFStreamingIndex] Duplicate stream id '${id}'`);
+      }
+      seenStreamIds.add(id);
+    }
+  }
+  if (json.aabb !== void 0 && (!Array.isArray(json.aabb) || json.aabb.length !== 6 || !json.aabb.every(isFiniteNumber2))) {
+    return invalid4("[XGFStreamingIndex] Expected aabb to contain six finite numbers");
+  }
+  if (json.metadata !== void 0 && !isObject5(json.metadata)) {
+    return invalid4("[XGFStreamingIndex] metadata must be an object when provided");
+  }
+  return {
+    ok: true,
+    value: {
+      ...json,
+      chunks
+    }
+  };
+}
+function validateSubstreamManifest(value) {
+  if (!isObject5(value)) {
+    return invalid4("Expected stream manifest object");
+  }
+  if (!isNonEmptyString2(value.id)) {
+    return invalid4("Expected non-empty stream id");
+  }
+  if (!isNonEmptyString2(value.uri)) {
+    return invalid4("Expected non-empty stream uri");
+  }
+  if (!Array.isArray(value.aabb) || value.aabb.length !== 6 || !value.aabb.every(isFiniteNumber2)) {
+    return invalid4("Expected stream aabb to contain six finite numbers");
+  }
+  if (value.origin !== void 0 && (!Array.isArray(value.origin) || value.origin.length !== 3 || !value.origin.every(isFiniteNumber2))) {
+    return invalid4("Expected stream origin to contain three finite numbers when provided");
+  }
+  if (value.priority !== void 0 && !isFiniteNumber2(value.priority)) {
+    return invalid4("Expected stream priority to be finite when provided");
+  }
+  if (value.metadata !== void 0 && !isObject5(value.metadata)) {
+    return invalid4("Expected stream metadata to be an object when provided");
+  }
+  return { ok: true, value };
+}
+function isObject5(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function isNonEmptyString2(value) {
+  return typeof value === "string" && value.length > 0;
+}
+function isFiniteNumber2(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+function invalid4(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
+
+// ../sdk/src/formats/xgfstream/index/readXGFStreamingRuntimeIndex.ts
+var ROLES = ["full", "assetLibrary", "referencesOnly"];
+function readXGFStreamingRuntimeIndex(json) {
+  if (!isObject6(json)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected JSON object");
+  }
+  if (json.format !== "XGFStreamingRuntimeIndex") {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected format 'XGFStreamingRuntimeIndex'");
+  }
+  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0" && json.indexVersion !== "1.2.0") {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected indexVersion '1.0.0', '1.1.0' or '1.2.0'");
+  }
+  if (json.chunks !== void 0 && !Array.isArray(json.chunks)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected chunks array");
+  }
+  if (json.streams !== void 0 && !Array.isArray(json.streams)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected streams array");
+  }
+  const runtimeIndex = json;
+  if (json.indexVersion === "1.1.0" || json.indexVersion === "1.2.0") {
+    if (!Array.isArray(json.strings) || !json.strings.every(isNonEmptyString3)) {
+      return invalid5("[XGFStreamingRuntimeIndex] Expected strings table with non-empty strings");
+    }
+    if (json.aabbQuantization !== void 0) {
+      const quantizationResult = validateAABBQuantization(runtimeIndex.aabbQuantization);
+      if (quantizationResult.ok === false) {
+        return quantizationResult;
+      }
+    }
+  }
+  const chunks = [];
+  for (let i = 0; i < (json.chunks || []).length; i++) {
+    const result = json.indexVersion === "1.1.0" || json.indexVersion === "1.2.0" ? readRuntimeChunkV11(json.chunks[i], runtimeIndex) : readRuntimeChunk(json.chunks[i]);
+    if (result.ok === false) {
+      return invalid5(`[XGFStreamingRuntimeIndex.chunks.${i}] ${result.error}`);
+    }
+    chunks.push(result.value);
+  }
+  const streams = [];
+  for (let i = 0; i < (json.streams || []).length; i++) {
+    const result = json.indexVersion === "1.2.0" ? readRuntimeSubstreamV12(json.streams[i], runtimeIndex) : readRuntimeSubstream(json.streams[i]);
+    if (result.ok === false) {
+      return invalid5(`[XGFStreamingRuntimeIndex.streams.${i}] ${result.error}`);
+    }
+    streams.push(result.value);
+  }
+  const rootResult = readRootChunkIds(runtimeIndex);
+  if (rootResult.ok === false) {
+    return rootResult;
+  }
+  return readXGFStreamingIndex({
+    format: "XGFStreamingIndex",
+    indexVersion: streams.length > 0 ? "1.1.0" : "1.0.0",
+    chunks,
+    streams: streams.length > 0 ? streams : void 0,
+    rootChunkIds: rootResult.value,
+    aabb: json.aabb,
+    metadata: json.metadata
+  });
+}
+function readRuntimeSubstream(value) {
+  if (!Array.isArray(value) || value.length < 3) {
+    return invalid5("Expected compact stream tuple");
+  }
+  const [id, uri, aabb, origin2, priority, metadata] = value;
+  if (!isNonEmptyString3(id)) {
+    return invalid5("Expected non-empty stream id");
+  }
+  if (!isNonEmptyString3(uri)) {
+    return invalid5("Expected non-empty stream uri");
+  }
+  if (!Array.isArray(aabb) || aabb.length !== 6 || !aabb.every(isFiniteNumber3)) {
+    return invalid5("Expected stream aabb to contain six finite numbers");
+  }
+  if (origin2 !== void 0 && origin2 !== null && (!Array.isArray(origin2) || origin2.length !== 3 || !origin2.every(isFiniteNumber3))) {
+    return invalid5("Expected stream origin to contain three finite numbers when provided");
+  }
+  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
+    return invalid5("Expected stream priority to be finite when provided");
+  }
+  if (metadata !== void 0 && metadata !== null && !isObject6(metadata)) {
+    return invalid5("Expected stream metadata to be an object when provided");
+  }
+  return {
+    ok: true,
+    value: {
+      id,
+      uri,
+      aabb: aabb.slice(),
+      origin: origin2 ? [origin2[0], origin2[1], origin2[2]] : void 0,
+      priority: priority ?? void 0,
+      metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : void 0
+    }
+  };
+}
+function readRuntimeSubstreamV12(value, index) {
+  if (!Array.isArray(value) || value.length < 3) {
+    return invalid5("Expected compact stream tuple");
+  }
+  const [idRef2, uriRef, encodedAABB, origin2, priority, metadata] = value;
+  const idResult = readStringRef(idRef2, index, "stream id");
+  if (idResult.ok === false) {
+    return idResult;
+  }
+  const uriResult = readStringRef(uriRef, index, "stream uri");
+  if (uriResult.ok === false) {
+    return uriResult;
+  }
+  const aabbResult = readRuntimeAABB(encodedAABB, index);
+  if (aabbResult.ok === false) {
+    return aabbResult;
+  }
+  if (!aabbResult.value) {
+    return invalid5("Expected stream aabb to contain six finite numbers");
+  }
+  if (origin2 !== void 0 && origin2 !== null && (!Array.isArray(origin2) || origin2.length !== 3 || !origin2.every(isFiniteNumber3))) {
+    return invalid5("Expected stream origin to contain three finite numbers when provided");
+  }
+  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
+    return invalid5("Expected stream priority to be finite when provided");
+  }
+  if (metadata !== void 0 && metadata !== null && !isObject6(metadata)) {
+    return invalid5("Expected stream metadata to be an object when provided");
+  }
+  return {
+    ok: true,
+    value: {
+      id: idResult.value,
+      uri: uriResult.value,
+      aabb: aabbResult.value,
+      origin: origin2 ? [origin2[0], origin2[1], origin2[2]] : void 0,
+      priority: priority ?? void 0,
+      metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : void 0
+    }
+  };
+}
+function readRuntimeChunk(value) {
+  if (!Array.isArray(value) || value.length < 6) {
+    return invalid5("Expected compact chunk tuple");
+  }
+  const chunk = value;
+  const [id, uri, roleCode, dependencies, aabb, counts, priority, lod] = chunk;
+  if (!isNonEmptyString3(id)) {
+    return invalid5("Expected non-empty chunk id");
+  }
+  if (uri !== null && uri !== void 0 && typeof uri !== "string") {
+    return invalid5("Expected chunk uri to be string or null");
+  }
+  if (!Number.isInteger(roleCode) || !ROLES[roleCode]) {
+    return invalid5("Expected valid chunk role code");
+  }
+  if (!Array.isArray(dependencies)) {
+    return invalid5("Expected dependency array");
+  }
+  if (aabb !== null && aabb !== void 0 && (!Array.isArray(aabb) || aabb.length !== 6 || !aabb.every(isFiniteNumber3))) {
+    return invalid5("Expected aabb to contain six finite numbers or null");
+  }
+  if (!Array.isArray(counts) || counts.length !== 6 || !counts.every(isNonNegativeInteger)) {
+    return invalid5("Expected counts tuple of six non-negative integers");
+  }
+  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
+    return invalid5("Expected priority to be finite when provided");
+  }
+  if (lod !== void 0 && lod !== null && typeof lod !== "number" && typeof lod !== "string") {
+    return invalid5("Expected lod to be number, string or null");
+  }
+  if (typeof lod === "number" && !isFiniteNumber3(lod)) {
+    return invalid5("Expected numeric lod to be finite");
+  }
+  const manifest = {
+    format: "XGF",
+    manifestVersion: "1.0.0",
+    xgfVersion: "2.0.0",
+    id,
+    uri: uri || void 0,
+    role: ROLES[roleCode],
+    dependencies: {
+      chunks: dependencies.map(readDependency),
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    assets: {
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    counts: {
+      transforms: counts[0],
+      geometries: counts[1],
+      materials: counts[2],
+      textures: counts[3],
+      meshes: counts[4],
+      objects: counts[5]
+    },
+    aabb: aabb || void 0,
+    priority: priority ?? void 0,
+    lod: lod ?? void 0
+  };
+  return { ok: true, value: manifest };
+}
+function readRuntimeChunkV11(value, index) {
+  if (!Array.isArray(value) || value.length < 6) {
+    return invalid5("Expected compact chunk tuple");
+  }
+  const chunk = value;
+  const [idRef2, uriRef, roleCode, dependencies, encodedAABB, counts, priority, lod] = chunk;
+  const idResult = readStringRef(idRef2, index, "chunk id");
+  if (idResult.ok === false) {
+    return idResult;
+  }
+  const uriResult = uriRef === null || uriRef === void 0 ? { ok: true, value: void 0 } : readStringRef(uriRef, index, "chunk uri");
+  if (uriResult.ok === false) {
+    return uriResult;
+  }
+  if (!Number.isInteger(roleCode) || !ROLES[roleCode]) {
+    return invalid5("Expected valid chunk role code");
+  }
+  if (!Array.isArray(dependencies)) {
+    return invalid5("Expected dependency array");
+  }
+  const aabbResult = readRuntimeAABB(encodedAABB, index);
+  if (aabbResult.ok === false) {
+    return aabbResult;
+  }
+  if (!Array.isArray(counts) || counts.length !== 6 || !counts.every(isNonNegativeInteger)) {
+    return invalid5("Expected counts tuple of six non-negative integers");
+  }
+  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
+    return invalid5("Expected priority to be finite when provided");
+  }
+  if (lod !== void 0 && lod !== null && typeof lod !== "number" && typeof lod !== "string") {
+    return invalid5("Expected lod to be number, string or null");
+  }
+  if (typeof lod === "number" && !isFiniteNumber3(lod)) {
+    return invalid5("Expected numeric lod to be finite");
+  }
+  const dependencyResults = [];
+  for (const dependency of dependencies) {
+    const dependencyResult = readDependencyV11(dependency, index);
+    if (dependencyResult.ok === false) {
+      return dependencyResult;
+    }
+    dependencyResults.push(dependencyResult.value);
+  }
+  const manifest = {
+    format: "XGF",
+    manifestVersion: "1.0.0",
+    xgfVersion: "2.0.0",
+    id: idResult.value,
+    uri: uriResult.value,
+    role: ROLES[roleCode],
+    dependencies: {
+      chunks: dependencyResults,
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    assets: {
+      geometries: [],
+      materials: [],
+      textures: []
+    },
+    counts: {
+      transforms: counts[0],
+      geometries: counts[1],
+      materials: counts[2],
+      textures: counts[3],
+      meshes: counts[4],
+      objects: counts[5]
+    },
+    aabb: aabbResult.value,
+    priority: priority ?? void 0,
+    lod: lod ?? void 0
+  };
+  return { ok: true, value: manifest };
+}
+function readDependency(value) {
+  if (typeof value === "string") {
+    return { id: value };
+  }
+  return {
+    id: value[0] || void 0,
+    uri: value[1] || void 0
+  };
+}
+function readDependencyV11(value, index) {
+  if (typeof value === "string" || typeof value === "number") {
+    const idResult2 = readStringRef(value, index, "dependency id");
+    return idResult2.ok === false ? idResult2 : { ok: true, value: { id: idResult2.value } };
+  }
+  if (!Array.isArray(value) || value.length !== 2) {
+    return invalid5("Expected dependency string reference or tuple");
+  }
+  const idResult = value[0] === null || value[0] === void 0 ? { ok: true, value: void 0 } : readStringRef(value[0], index, "dependency id");
+  if (idResult.ok === false) {
+    return idResult;
+  }
+  const uriResult = value[1] === null || value[1] === void 0 ? { ok: true, value: void 0 } : readStringRef(value[1], index, "dependency uri");
+  if (uriResult.ok === false) {
+    return uriResult;
+  }
+  return {
+    ok: true,
+    value: {
+      id: idResult.value,
+      uri: uriResult.value
+    }
+  };
+}
+function readRuntimeAABB(value, index) {
+  if (value === null || value === void 0) {
+    return { ok: true, value: void 0 };
+  }
+  const quantization = index.aabbQuantization;
+  if (!Array.isArray(value) || value.length !== 6 || !value.every(isFiniteNumber3)) {
+    return invalid5("Expected aabb to contain six finite numbers or null");
+  }
+  if (!quantization) {
+    return { ok: true, value: value.slice() };
+  }
+  const decoded = new Array(6);
+  for (let axis = 0; axis < 3; axis++) {
+    decoded[axis] = quantization.origin[axis] + value[axis] * quantization.scale[axis];
+    decoded[axis + 3] = quantization.origin[axis] + value[axis + 3] * quantization.scale[axis];
+  }
+  return { ok: true, value: decoded };
+}
+function readRootChunkIds(index) {
+  if (index.root === void 0) {
+    return { ok: true, value: void 0 };
+  }
+  if (!Array.isArray(index.root)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected root array");
+  }
+  if (index.indexVersion === "1.0.0") {
+    return index.root.every(isNonEmptyString3) ? { ok: true, value: index.root } : invalid5("[XGFStreamingRuntimeIndex] Expected root ids to be strings");
+  }
+  const rootChunkIds = [];
+  for (const root of index.root) {
+    const result = readStringRef(root, index, "root chunk id");
+    if (result.ok === false) {
+      return result;
+    }
+    rootChunkIds.push(result.value);
+  }
+  return { ok: true, value: rootChunkIds };
+}
+function readStringRef(value, index, name12) {
+  if (typeof value === "string") {
+    return isNonEmptyString3(value) ? { ok: true, value } : invalid5(`Expected non-empty ${name12}`);
+  }
+  if (!Number.isInteger(value) || value < 0 || !index.strings || value >= index.strings.length) {
+    return invalid5(`Expected valid ${name12} string reference`);
+  }
+  return { ok: true, value: index.strings[value] };
+}
+function validateAABBQuantization(value) {
+  if (!isObject6(value)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization object");
+  }
+  if (value.bits !== 16) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.bits to be 16");
+  }
+  if (!Array.isArray(value.origin) || value.origin.length !== 3 || !value.origin.every(isFiniteNumber3)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.origin with three finite numbers");
+  }
+  if (!Array.isArray(value.scale) || value.scale.length !== 3 || !value.scale.every(isPositiveFiniteNumber)) {
+    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.scale with three positive finite numbers");
+  }
+  return { ok: true, value: void 0 };
+}
+function isObject6(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function isNonEmptyString3(value) {
+  return typeof value === "string" && value.length > 0;
+}
+function isFiniteNumber3(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+function isPositiveFiniteNumber(value) {
+  return isFiniteNumber3(value) && value > 0;
+}
+function isNonNegativeInteger(value) {
+  return Number.isInteger(value) && value >= 0;
+}
+function invalid5(error) {
+  return {
+    ok: false,
+    type: 2 /* InvalidInput */,
+    error
+  };
+}
+
 // ../sdk/src/formats/xgfstream/view/XGFViewStreamController.ts
 var DEFAULT_BATCH_SIZE = 8;
 var DEFAULT_FETCH_CONCURRENCY = 8;
@@ -109584,11 +110248,15 @@ var XGFViewStreamController = class {
   _frustumOnly;
   _cameraDebounceMs;
   _enableLRUEviction;
+  _unloadInactiveStreams;
   _maxResidentChunks;
   _onStatus;
   _onProgress;
   _onChunksLoading;
   _onError;
+  _getStreamIndex;
+  _streamNodes;
+  _manifestLookup;
   _generation = 0;
   _pendingGeneration = 0;
   _running = false;
@@ -109616,25 +110284,40 @@ var XGFViewStreamController = class {
         maxCachedFileBytes: params.maxCachedFileBytes
       }
     );
+    const index = {
+      ...params.index,
+      chunks: params.index.chunks || []
+    };
     this._assetChunksById = new Map(
-      params.index.chunks.filter((manifest) => manifest.role === "assetLibrary").map((manifest) => [manifest.id, manifest])
+      index.chunks.filter((manifest) => manifest.role === "assetLibrary").map((manifest) => [manifest.id, manifest])
     );
     this._batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
     this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
     this._frustumOnly = params.frustumOnly !== false;
     this._cameraDebounceMs = params.cameraDebounceMs ?? DEFAULT_CAMERA_DEBOUNCE_MS;
     this._enableLRUEviction = params.enableLRUEviction === true;
+    this._unloadInactiveStreams = params.unloadInactiveStreams === true;
     this._maxResidentChunks = this._enableLRUEviction ? Math.max(0, Math.floor(params.maxResidentChunks ?? DISABLED_MAX_RESIDENT_CHUNKS)) : DISABLED_MAX_RESIDENT_CHUNKS;
     this._onStatus = params.onStatus;
     this._onProgress = params.onProgress;
     this._onChunksLoading = params.onChunksLoading;
     this._onError = params.onError;
-    this.chunkManifests = params.index.chunks.filter((manifest) => manifest.role === "referencesOnly").filter((manifest) => params.chunkFilter ? params.chunkFilter(manifest) : true);
+    this._getStreamIndex = params.getStreamIndex || fetchStreamIndexJSON;
+    this._streamNodes = (index.streams || []).map((stream) => ({
+      manifest: resolveSubstreamManifest(stream, params.streamIndexBaseURI),
+      namespace: `${stream.id}::`,
+      origin: stream.origin || [0, 0, 0],
+      loaded: false,
+      chunkIds: [],
+      assetChunkIds: []
+    }));
+    this.chunkManifests = index.chunks.filter((manifest) => manifest.role === "referencesOnly").filter((manifest) => params.chunkFilter ? params.chunkFilter(manifest) : true);
+    this._manifestLookup = createXGFStreamingIndexLookup(index);
     const onChunkLoaded = params.loadOptions?.onChunkLoaded;
     const onChunkLoadStats = params.loadOptions?.onChunkLoadStats;
     this._loadOptions = {
       ...params.loadOptions,
-      manifests: params.loadOptions?.manifests || createXGFStreamingIndexLookup(params.index),
+      manifests: params.loadOptions?.manifests || this._manifestLookup,
       getFileData: (manifest) => this._fileDataCache.get(manifest, this.chunkPriority(manifest)),
       onChunkLoaded: (manifest) => {
         this.markManifestLoaded(manifest);
@@ -109717,6 +110400,10 @@ var XGFViewStreamController = class {
       while (activeGeneration || this.hasPendingQueuedChunks()) {
         const batchGeneration = activeGeneration || this._generation;
         this._pendingGeneration = 0;
+        if (this._unloadInactiveStreams) {
+          this.deactivateInvisibleStreams();
+        }
+        await this.activateVisibleStreams();
         this.ensureCandidateQueue(batchGeneration);
         const candidates = this.nextAutoCandidates(this._batchSize);
         if (candidates.length === 0) {
@@ -109982,6 +110669,137 @@ var XGFViewStreamController = class {
   manifestById(chunkId) {
     return this.chunkManifests.find((manifest) => manifest.id === chunkId);
   }
+  async activateVisibleStreams() {
+    const loads = [];
+    for (const streamNode of this._streamNodes) {
+      if (streamNode.loaded || streamNode.error || !this.intersectsAABB(streamNode.manifest.aabb)) {
+        continue;
+      }
+      loads.push(this.activateStream(streamNode));
+    }
+    if (loads.length > 0) {
+      await Promise.all(loads);
+      this.rebuildCandidateQueue(this._generation);
+      this.resetQueueProgress(this._generation, this.countPendingFrustumChunks());
+    }
+  }
+  async activateStream(streamNode) {
+    if (streamNode.loaded) {
+      return;
+    }
+    if (streamNode.loading) {
+      await streamNode.loading;
+      return;
+    }
+    streamNode.loading = this.loadStreamNode(streamNode);
+    try {
+      await streamNode.loading;
+    } finally {
+      streamNode.loading = void 0;
+    }
+  }
+  async loadStreamNode(streamNode) {
+    const json = await this._getStreamIndex(streamNode.manifest);
+    const result = readStreamIndexJSON(json);
+    if (result.ok === false) {
+      throw new Error(result.error);
+    }
+    const childBaseURI = streamNode.manifest.uri;
+    const childIndex = namespaceStreamIndex(result.value, streamNode.namespace, childBaseURI, streamNode.origin);
+    for (const assetManifest of childIndex.chunks.filter((manifest) => manifest.role === "assetLibrary")) {
+      this._assetChunksById.set(assetManifest.id, assetManifest);
+      this._manifestLookup.byId[assetManifest.id] = assetManifest;
+      if (assetManifest.uri) {
+        this._manifestLookup.byUri[assetManifest.uri] = assetManifest;
+      }
+    }
+    for (const manifest of childIndex.chunks.filter((manifest2) => manifest2.role === "referencesOnly")) {
+      this.chunkManifests.push(manifest);
+      this._manifestLookup.byId[manifest.id] = manifest;
+      if (manifest.uri) {
+        this._manifestLookup.byUri[manifest.uri] = manifest;
+      }
+    }
+    for (const childStream of childIndex.streams || []) {
+      this._streamNodes.push({
+        manifest: childStream,
+        namespace: `${childStream.id}::`,
+        origin: addOrigins(streamNode.origin, childStream.origin),
+        loaded: false,
+        chunkIds: [],
+        assetChunkIds: []
+      });
+    }
+    streamNode.chunkIds = childIndex.chunks.filter((manifest) => manifest.role === "referencesOnly").map((manifest) => manifest.id);
+    streamNode.assetChunkIds = childIndex.chunks.filter((manifest) => manifest.role === "assetLibrary").map((manifest) => manifest.id);
+    streamNode.loaded = true;
+  }
+  deactivateInvisibleStreams() {
+    for (const streamNode of [...this._streamNodes]) {
+      if (!streamNode.loaded || streamNode.loading || this.intersectsAABB(streamNode.manifest.aabb)) {
+        continue;
+      }
+      this.deactivateStream(streamNode);
+    }
+  }
+  deactivateStream(streamNode) {
+    const protectedIds = new Set(this.loadingChunkIds);
+    if (streamNode.chunkIds.some((chunkId) => protectedIds.has(chunkId))) {
+      return;
+    }
+    const chunkManifests = streamNode.chunkIds.map((chunkId) => this.manifestById(chunkId)).filter((manifest) => !!manifest);
+    for (const manifest of chunkManifests) {
+      if (this.loadedChunkIds.has(manifest.id)) {
+        const result = this._loader.unloadChunk({
+          sceneModel: this._sceneModel,
+          chunkId: manifest.id
+        });
+        if (result.ok === false) {
+          this._onError?.(result.error);
+          continue;
+        }
+        this.loadedChunkIds.delete(manifest.id);
+        this._chunkLastUsed.delete(manifest.id);
+        this.loadedTotals.objects = Math.max(0, this.loadedTotals.objects - (manifest.counts?.objects || 0));
+        this.loadedTotals.meshes = Math.max(0, this.loadedTotals.meshes - (manifest.counts?.meshes || 0));
+      }
+    }
+    for (const chunkId of streamNode.assetChunkIds) {
+      if (!this.loadedAssetLibraryIds.has(chunkId)) {
+        continue;
+      }
+      const result = this._loader.unloadChunk({
+        sceneModel: this._sceneModel,
+        chunkId
+      });
+      if (result.ok === false) {
+        this._onError?.(result.error);
+        continue;
+      }
+      this.loadedAssetLibraryIds.delete(chunkId);
+    }
+    this.chunkManifests.splice(0, this.chunkManifests.length, ...this.chunkManifests.filter((manifest) => !streamNode.chunkIds.includes(manifest.id)));
+    for (const chunkId of [...streamNode.chunkIds, ...streamNode.assetChunkIds]) {
+      delete this._manifestLookup.byId[chunkId];
+      this._assetChunksById.delete(chunkId);
+    }
+    for (const uri of Object.keys(this._manifestLookup.byUri)) {
+      if ([...streamNode.chunkIds, ...streamNode.assetChunkIds].includes(this._manifestLookup.byUri[uri].id)) {
+        delete this._manifestLookup.byUri[uri];
+      }
+    }
+    for (let i = this._streamNodes.length - 1; i >= 0; i--) {
+      const child = this._streamNodes[i];
+      if (child !== streamNode && child.namespace.startsWith(streamNode.namespace)) {
+        this._streamNodes.splice(i, 1);
+      }
+    }
+    streamNode.loaded = false;
+    streamNode.chunkIds = [];
+    streamNode.assetChunkIds = [];
+    this.rebuildCandidateQueue(this._generation);
+    this.emitProgress();
+  }
   chunkPriority(manifest) {
     return this.chunkPriorityFromFrustumState(manifest, this.intersectsCameraFrustum(manifest));
   }
@@ -110001,8 +110819,10 @@ var XGFViewStreamController = class {
     return (intersectsFrustum ? 0 : NON_FRUSTUM_PRIORITY_OFFSET) + this.squaredDistanceToLookPoint(manifest);
   }
   intersectsCameraFrustum(manifest) {
+    return this.intersectsAABB(manifest.aabb);
+  }
+  intersectsAABB(aabb) {
     const frustum = this._view.camera.frustum;
-    const aabb = manifest.aabb;
     if (!frustum || !aabb) {
       return true;
     }
@@ -110222,6 +111042,100 @@ async function fetchFileData(manifest, signal) {
   }
   return response.arrayBuffer();
 }
+async function fetchStreamIndexJSON(stream, signal) {
+  const response = await fetch(stream.uri, { signal });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} fetching ${stream.uri}`);
+  }
+  return response.json();
+}
+function readStreamIndexJSON(json) {
+  if (json?.format === "XGFStreamingRuntimeIndex") {
+    return readXGFStreamingRuntimeIndex(json);
+  }
+  return readXGFStreamingIndex(json);
+}
+function resolveSubstreamManifest(stream, baseURI) {
+  const origin2 = stream.origin || [0, 0, 0];
+  return {
+    ...stream,
+    uri: resolveURI(stream.uri, baseURI),
+    aabb: translateAABB(stream.aabb, origin2),
+    origin: stream.origin ? [stream.origin[0], stream.origin[1], stream.origin[2]] : void 0,
+    metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : void 0
+  };
+}
+function namespaceStreamIndex(index, namespace, indexURI, origin2) {
+  const assetPrefix = namespace;
+  const chunks = (index.chunks || []).map((manifest) => namespaceChunkManifest(manifest, namespace, assetPrefix, indexURI, origin2));
+  const streams = (index.streams || []).map((stream) => ({
+    ...stream,
+    id: `${namespace}${stream.id}`,
+    uri: resolveURI(stream.uri, indexURI),
+    aabb: translateAABB(stream.aabb, addOrigins(origin2, stream.origin)),
+    origin: stream.origin ? [stream.origin[0], stream.origin[1], stream.origin[2]] : void 0,
+    metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : void 0
+  }));
+  return {
+    ...index,
+    chunks,
+    streams,
+    rootChunkIds: index.rootChunkIds?.map((id) => `${namespace}${id}`)
+  };
+}
+function namespaceChunkManifest(manifest, namespace, assetPrefix, indexURI, origin2) {
+  const copy2 = {
+    ...manifest,
+    id: `${namespace}${manifest.id}`,
+    uri: manifest.uri ? resolveURI(manifest.uri, indexURI) : void 0,
+    dependencies: {
+      chunks: (manifest.dependencies?.chunks || []).map((dependency) => ({
+        id: dependency.id ? `${namespace}${dependency.id}` : void 0,
+        uri: dependency.uri ? resolveURI(dependency.uri, indexURI) : void 0
+      })),
+      geometries: (manifest.dependencies?.geometries || []).map((id) => `${assetPrefix}${id}`),
+      materials: (manifest.dependencies?.materials || []).map((id) => `${assetPrefix}${id}`),
+      textures: (manifest.dependencies?.textures || []).map((id) => `${assetPrefix}${id}`)
+    },
+    assets: {
+      geometries: (manifest.assets?.geometries || []).map((id) => `${assetPrefix}${id}`),
+      materials: (manifest.assets?.materials || []).map((id) => `${assetPrefix}${id}`),
+      textures: (manifest.assets?.textures || []).map((id) => `${assetPrefix}${id}`)
+    },
+    counts: { ...manifest.counts },
+    aabb: translateAABB(manifest.aabb, origin2)
+  };
+  copy2.idPrefix = assetPrefix;
+  copy2.origin = origin2;
+  return copy2;
+}
+function translateAABB(aabb, origin2) {
+  if (!aabb) {
+    return void 0;
+  }
+  const offset = origin2 || [0, 0, 0];
+  return [
+    aabb[0] + offset[0],
+    aabb[1] + offset[1],
+    aabb[2] + offset[2],
+    aabb[3] + offset[0],
+    aabb[4] + offset[1],
+    aabb[5] + offset[2]
+  ];
+}
+function addOrigins(a2, b4) {
+  return [
+    (a2?.[0] || 0) + (b4?.[0] || 0),
+    (a2?.[1] || 0) + (b4?.[1] || 0),
+    (a2?.[2] || 0) + (b4?.[2] || 0)
+  ];
+}
+function resolveURI(uri, baseURI) {
+  if (!baseURI || typeof URL === "undefined") {
+    return uri;
+  }
+  return new URL(uri, baseURI).href;
+}
 async function loadFileData(manifest, resolveFileData, signal) {
   const fileData = await resolveFileData(manifest, signal);
   if (!fileData) {
@@ -110260,470 +111174,9 @@ function writeXGFChunkManifest(manifest) {
   return JSON.parse(JSON.stringify(manifest));
 }
 
-// ../sdk/src/formats/xgfstream/manifest/validateXGFChunkManifest.ts
-function validateXGFChunkManifest(value) {
-  if (!isObject4(value)) {
-    return invalid3("[XGFChunkManifest] Expected JSON object");
-  }
-  if (value.format !== "XGF") {
-    return invalid3("[XGFChunkManifest] Expected format 'XGF'");
-  }
-  if (value.manifestVersion !== "1.0.0") {
-    return invalid3("[XGFChunkManifest] Expected manifestVersion '1.0.0'");
-  }
-  if (value.xgfVersion !== "2.0.0") {
-    return invalid3("[XGFChunkManifest] Expected xgfVersion '2.0.0'");
-  }
-  if (!isNonEmptyString(value.id)) {
-    return invalid3("[XGFChunkManifest] Expected non-empty string id");
-  }
-  if (value.uri !== void 0 && typeof value.uri !== "string") {
-    return invalid3("[XGFChunkManifest] Expected uri to be a string when provided");
-  }
-  if (value.role !== "full" && value.role !== "assetLibrary" && value.role !== "referencesOnly") {
-    return invalid3("[XGFChunkManifest] Expected role 'full', 'assetLibrary' or 'referencesOnly'");
-  }
-  const dependenciesResult = validateIdGroups(value.dependencies, "[XGFChunkManifest.dependencies]", true);
-  if (dependenciesResult.ok === false)
-    return invalid3(dependenciesResult.error);
-  const assetsResult = validateIdGroups(value.assets, "[XGFChunkManifest.assets]", false);
-  if (assetsResult.ok === false)
-    return invalid3(assetsResult.error);
-  const countsResult = validateCounts(value.counts);
-  if (countsResult.ok === false)
-    return invalid3(countsResult.error);
-  if (value.aabb !== void 0 && (!Array.isArray(value.aabb) || value.aabb.length !== 6 || !value.aabb.every(isFiniteNumber))) {
-    return invalid3("[XGFChunkManifest] Expected aabb to contain six finite numbers");
-  }
-  if (value.priority !== void 0 && !isFiniteNumber(value.priority)) {
-    return invalid3("[XGFChunkManifest] Expected priority to be a finite number when provided");
-  }
-  if (value.lod !== void 0 && typeof value.lod !== "number" && typeof value.lod !== "string") {
-    return invalid3("[XGFChunkManifest] Expected lod to be a number or string when provided");
-  }
-  if (typeof value.lod === "number" && !isFiniteNumber(value.lod)) {
-    return invalid3("[XGFChunkManifest] Expected lod number to be finite");
-  }
-  return { ok: true, value };
-}
-function validateIdGroups(value, path, includeChunks) {
-  if (!isObject4(value)) {
-    return invalid3(`${path} must be an object`);
-  }
-  if (includeChunks) {
-    if (!Array.isArray(value.chunks) || !value.chunks.every(isChunkDependency)) {
-      return invalid3(`${path}.chunks must contain dependency objects with id and/or uri`);
-    }
-  }
-  for (const key of ["geometries", "materials", "textures"]) {
-    if (!Array.isArray(value[key]) || !value[key].every(isNonEmptyString)) {
-      return invalid3(`${path}.${key} must contain string ids`);
-    }
-  }
-  return { ok: true, value: void 0 };
-}
-function validateCounts(value) {
-  if (!isObject4(value)) {
-    return invalid3("[XGFChunkManifest.counts] must be an object");
-  }
-  for (const key of ["transforms", "geometries", "materials", "textures", "meshes", "objects"]) {
-    if (!Number.isInteger(value[key]) || value[key] < 0) {
-      return invalid3(`[XGFChunkManifest.counts] ${key} must be a non-negative integer`);
-    }
-  }
-  return { ok: true, value: void 0 };
-}
-function isChunkDependency(value) {
-  return isObject4(value) && (value.id === void 0 || typeof value.id === "string") && (value.uri === void 0 || typeof value.uri === "string") && (!!value.id || !!value.uri);
-}
-function isObject4(value) {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-function isNonEmptyString(value) {
-  return typeof value === "string" && value.length > 0;
-}
-function isFiniteNumber(value) {
-  return typeof value === "number" && Number.isFinite(value);
-}
-function invalid3(error) {
-  return {
-    ok: false,
-    type: 2 /* InvalidInput */,
-    error
-  };
-}
-
 // ../sdk/src/formats/xgfstream/manifest/readXGFChunkManifest.ts
 function readXGFChunkManifest(json) {
   return validateXGFChunkManifest(json);
-}
-
-// ../sdk/src/formats/xgfstream/index/readXGFStreamingIndex.ts
-function readXGFStreamingIndex(json) {
-  if (!isObject5(json)) {
-    return invalid4("[XGFStreamingIndex] Expected JSON object");
-  }
-  if (json.format !== "XGFStreamingIndex") {
-    return invalid4("[XGFStreamingIndex] Expected format 'XGFStreamingIndex'");
-  }
-  if (json.indexVersion !== "1.0.0") {
-    return invalid4("[XGFStreamingIndex] Expected indexVersion '1.0.0'");
-  }
-  if (!Array.isArray(json.chunks)) {
-    return invalid4("[XGFStreamingIndex] Expected chunks array");
-  }
-  const seenChunkIds = /* @__PURE__ */ new Set();
-  for (let i = 0; i < json.chunks.length; i++) {
-    const result = validateXGFChunkManifest(json.chunks[i]);
-    if (result.ok === false) {
-      return invalid4(`[XGFStreamingIndex.chunks.${i}] ${result.error}`);
-    }
-    const id = result.value.id;
-    if (seenChunkIds.has(id)) {
-      return invalid4(`[XGFStreamingIndex] Duplicate chunk id '${id}'`);
-    }
-    seenChunkIds.add(id);
-  }
-  if (json.rootChunkIds !== void 0) {
-    if (!Array.isArray(json.rootChunkIds) || !json.rootChunkIds.every(isNonEmptyString2)) {
-      return invalid4("[XGFStreamingIndex] rootChunkIds must contain string ids when provided");
-    }
-    for (const id of json.rootChunkIds) {
-      if (!seenChunkIds.has(id)) {
-        return invalid4(`[XGFStreamingIndex] rootChunkIds references missing chunk '${id}'`);
-      }
-    }
-  }
-  if (json.aabb !== void 0 && (!Array.isArray(json.aabb) || json.aabb.length !== 6 || !json.aabb.every(isFiniteNumber2))) {
-    return invalid4("[XGFStreamingIndex] Expected aabb to contain six finite numbers");
-  }
-  if (json.metadata !== void 0 && !isObject5(json.metadata)) {
-    return invalid4("[XGFStreamingIndex] metadata must be an object when provided");
-  }
-  return { ok: true, value: json };
-}
-function isObject5(value) {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-function isNonEmptyString2(value) {
-  return typeof value === "string" && value.length > 0;
-}
-function isFiniteNumber2(value) {
-  return typeof value === "number" && Number.isFinite(value);
-}
-function invalid4(error) {
-  return {
-    ok: false,
-    type: 2 /* InvalidInput */,
-    error
-  };
-}
-
-// ../sdk/src/formats/xgfstream/index/readXGFStreamingRuntimeIndex.ts
-var ROLES = ["full", "assetLibrary", "referencesOnly"];
-function readXGFStreamingRuntimeIndex(json) {
-  if (!isObject6(json)) {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected JSON object");
-  }
-  if (json.format !== "XGFStreamingRuntimeIndex") {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected format 'XGFStreamingRuntimeIndex'");
-  }
-  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0") {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected indexVersion '1.0.0' or '1.1.0'");
-  }
-  if (!Array.isArray(json.chunks)) {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected chunks array");
-  }
-  const runtimeIndex = json;
-  if (json.indexVersion === "1.1.0") {
-    if (!Array.isArray(json.strings) || !json.strings.every(isNonEmptyString3)) {
-      return invalid5("[XGFStreamingRuntimeIndex] Expected strings table with non-empty strings");
-    }
-    if (json.aabbQuantization !== void 0) {
-      const quantizationResult = validateAABBQuantization(runtimeIndex.aabbQuantization);
-      if (quantizationResult.ok === false) {
-        return quantizationResult;
-      }
-    }
-  }
-  const chunks = [];
-  for (let i = 0; i < json.chunks.length; i++) {
-    const result = json.indexVersion === "1.1.0" ? readRuntimeChunkV11(json.chunks[i], runtimeIndex) : readRuntimeChunk(json.chunks[i]);
-    if (result.ok === false) {
-      return invalid5(`[XGFStreamingRuntimeIndex.chunks.${i}] ${result.error}`);
-    }
-    chunks.push(result.value);
-  }
-  const rootResult = readRootChunkIds(runtimeIndex);
-  if (rootResult.ok === false) {
-    return rootResult;
-  }
-  return readXGFStreamingIndex({
-    format: "XGFStreamingIndex",
-    indexVersion: "1.0.0",
-    chunks,
-    rootChunkIds: rootResult.value,
-    aabb: json.aabb,
-    metadata: json.metadata
-  });
-}
-function readRuntimeChunk(value) {
-  if (!Array.isArray(value) || value.length < 6) {
-    return invalid5("Expected compact chunk tuple");
-  }
-  const chunk = value;
-  const [id, uri, roleCode, dependencies, aabb, counts, priority, lod] = chunk;
-  if (!isNonEmptyString3(id)) {
-    return invalid5("Expected non-empty chunk id");
-  }
-  if (uri !== null && uri !== void 0 && typeof uri !== "string") {
-    return invalid5("Expected chunk uri to be string or null");
-  }
-  if (!Number.isInteger(roleCode) || !ROLES[roleCode]) {
-    return invalid5("Expected valid chunk role code");
-  }
-  if (!Array.isArray(dependencies)) {
-    return invalid5("Expected dependency array");
-  }
-  if (aabb !== null && aabb !== void 0 && (!Array.isArray(aabb) || aabb.length !== 6 || !aabb.every(isFiniteNumber3))) {
-    return invalid5("Expected aabb to contain six finite numbers or null");
-  }
-  if (!Array.isArray(counts) || counts.length !== 6 || !counts.every(isNonNegativeInteger)) {
-    return invalid5("Expected counts tuple of six non-negative integers");
-  }
-  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
-    return invalid5("Expected priority to be finite when provided");
-  }
-  if (lod !== void 0 && lod !== null && typeof lod !== "number" && typeof lod !== "string") {
-    return invalid5("Expected lod to be number, string or null");
-  }
-  if (typeof lod === "number" && !isFiniteNumber3(lod)) {
-    return invalid5("Expected numeric lod to be finite");
-  }
-  const manifest = {
-    format: "XGF",
-    manifestVersion: "1.0.0",
-    xgfVersion: "2.0.0",
-    id,
-    uri: uri || void 0,
-    role: ROLES[roleCode],
-    dependencies: {
-      chunks: dependencies.map(readDependency),
-      geometries: [],
-      materials: [],
-      textures: []
-    },
-    assets: {
-      geometries: [],
-      materials: [],
-      textures: []
-    },
-    counts: {
-      transforms: counts[0],
-      geometries: counts[1],
-      materials: counts[2],
-      textures: counts[3],
-      meshes: counts[4],
-      objects: counts[5]
-    },
-    aabb: aabb || void 0,
-    priority: priority ?? void 0,
-    lod: lod ?? void 0
-  };
-  return { ok: true, value: manifest };
-}
-function readRuntimeChunkV11(value, index) {
-  if (!Array.isArray(value) || value.length < 6) {
-    return invalid5("Expected compact chunk tuple");
-  }
-  const chunk = value;
-  const [idRef2, uriRef, roleCode, dependencies, encodedAABB, counts, priority, lod] = chunk;
-  const idResult = readStringRef(idRef2, index, "chunk id");
-  if (idResult.ok === false) {
-    return idResult;
-  }
-  const uriResult = uriRef === null || uriRef === void 0 ? { ok: true, value: void 0 } : readStringRef(uriRef, index, "chunk uri");
-  if (uriResult.ok === false) {
-    return uriResult;
-  }
-  if (!Number.isInteger(roleCode) || !ROLES[roleCode]) {
-    return invalid5("Expected valid chunk role code");
-  }
-  if (!Array.isArray(dependencies)) {
-    return invalid5("Expected dependency array");
-  }
-  const aabbResult = readRuntimeAABB(encodedAABB, index);
-  if (aabbResult.ok === false) {
-    return aabbResult;
-  }
-  if (!Array.isArray(counts) || counts.length !== 6 || !counts.every(isNonNegativeInteger)) {
-    return invalid5("Expected counts tuple of six non-negative integers");
-  }
-  if (priority !== void 0 && priority !== null && !isFiniteNumber3(priority)) {
-    return invalid5("Expected priority to be finite when provided");
-  }
-  if (lod !== void 0 && lod !== null && typeof lod !== "number" && typeof lod !== "string") {
-    return invalid5("Expected lod to be number, string or null");
-  }
-  if (typeof lod === "number" && !isFiniteNumber3(lod)) {
-    return invalid5("Expected numeric lod to be finite");
-  }
-  const dependencyResults = [];
-  for (const dependency of dependencies) {
-    const dependencyResult = readDependencyV11(dependency, index);
-    if (dependencyResult.ok === false) {
-      return dependencyResult;
-    }
-    dependencyResults.push(dependencyResult.value);
-  }
-  const manifest = {
-    format: "XGF",
-    manifestVersion: "1.0.0",
-    xgfVersion: "2.0.0",
-    id: idResult.value,
-    uri: uriResult.value,
-    role: ROLES[roleCode],
-    dependencies: {
-      chunks: dependencyResults,
-      geometries: [],
-      materials: [],
-      textures: []
-    },
-    assets: {
-      geometries: [],
-      materials: [],
-      textures: []
-    },
-    counts: {
-      transforms: counts[0],
-      geometries: counts[1],
-      materials: counts[2],
-      textures: counts[3],
-      meshes: counts[4],
-      objects: counts[5]
-    },
-    aabb: aabbResult.value,
-    priority: priority ?? void 0,
-    lod: lod ?? void 0
-  };
-  return { ok: true, value: manifest };
-}
-function readDependency(value) {
-  if (typeof value === "string") {
-    return { id: value };
-  }
-  return {
-    id: value[0] || void 0,
-    uri: value[1] || void 0
-  };
-}
-function readDependencyV11(value, index) {
-  if (typeof value === "string" || typeof value === "number") {
-    const idResult2 = readStringRef(value, index, "dependency id");
-    return idResult2.ok === false ? idResult2 : { ok: true, value: { id: idResult2.value } };
-  }
-  if (!Array.isArray(value) || value.length !== 2) {
-    return invalid5("Expected dependency string reference or tuple");
-  }
-  const idResult = value[0] === null || value[0] === void 0 ? { ok: true, value: void 0 } : readStringRef(value[0], index, "dependency id");
-  if (idResult.ok === false) {
-    return idResult;
-  }
-  const uriResult = value[1] === null || value[1] === void 0 ? { ok: true, value: void 0 } : readStringRef(value[1], index, "dependency uri");
-  if (uriResult.ok === false) {
-    return uriResult;
-  }
-  return {
-    ok: true,
-    value: {
-      id: idResult.value,
-      uri: uriResult.value
-    }
-  };
-}
-function readRuntimeAABB(value, index) {
-  if (value === null || value === void 0) {
-    return { ok: true, value: void 0 };
-  }
-  const quantization = index.aabbQuantization;
-  if (!Array.isArray(value) || value.length !== 6 || !value.every(isFiniteNumber3)) {
-    return invalid5("Expected aabb to contain six finite numbers or null");
-  }
-  if (!quantization) {
-    return { ok: true, value: value.slice() };
-  }
-  const decoded = new Array(6);
-  for (let axis = 0; axis < 3; axis++) {
-    decoded[axis] = quantization.origin[axis] + value[axis] * quantization.scale[axis];
-    decoded[axis + 3] = quantization.origin[axis] + value[axis + 3] * quantization.scale[axis];
-  }
-  return { ok: true, value: decoded };
-}
-function readRootChunkIds(index) {
-  if (index.root === void 0) {
-    return { ok: true, value: void 0 };
-  }
-  if (!Array.isArray(index.root)) {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected root array");
-  }
-  if (index.indexVersion === "1.0.0") {
-    return index.root.every(isNonEmptyString3) ? { ok: true, value: index.root } : invalid5("[XGFStreamingRuntimeIndex] Expected root ids to be strings");
-  }
-  const rootChunkIds = [];
-  for (const root of index.root) {
-    const result = readStringRef(root, index, "root chunk id");
-    if (result.ok === false) {
-      return result;
-    }
-    rootChunkIds.push(result.value);
-  }
-  return { ok: true, value: rootChunkIds };
-}
-function readStringRef(value, index, name12) {
-  if (typeof value === "string") {
-    return isNonEmptyString3(value) ? { ok: true, value } : invalid5(`Expected non-empty ${name12}`);
-  }
-  if (!Number.isInteger(value) || value < 0 || !index.strings || value >= index.strings.length) {
-    return invalid5(`Expected valid ${name12} string reference`);
-  }
-  return { ok: true, value: index.strings[value] };
-}
-function validateAABBQuantization(value) {
-  if (!isObject6(value)) {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization object");
-  }
-  if (value.bits !== 16) {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.bits to be 16");
-  }
-  if (!Array.isArray(value.origin) || value.origin.length !== 3 || !value.origin.every(isFiniteNumber3)) {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.origin with three finite numbers");
-  }
-  if (!Array.isArray(value.scale) || value.scale.length !== 3 || !value.scale.every(isPositiveFiniteNumber)) {
-    return invalid5("[XGFStreamingRuntimeIndex] Expected aabbQuantization.scale with three positive finite numbers");
-  }
-  return { ok: true, value: void 0 };
-}
-function isObject6(value) {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-function isNonEmptyString3(value) {
-  return typeof value === "string" && value.length > 0;
-}
-function isFiniteNumber3(value) {
-  return typeof value === "number" && Number.isFinite(value);
-}
-function isPositiveFiniteNumber(value) {
-  return isFiniteNumber3(value) && value > 0;
-}
-function isNonNegativeInteger(value) {
-  return Number.isInteger(value) && value >= 0;
-}
-function invalid5(error) {
-  return {
-    ok: false,
-    type: 2 /* InvalidInput */,
-    error
-  };
 }
 
 // ../sdk/src/formats/las/index.ts
@@ -135874,6 +136327,239 @@ function inflateString(array) {
   return array.length === 0 ? "" : inflate_1(array, { to: "string" });
 }
 
+// ../sdk/src/formats/legacy/xkt/versions/v6/parse.ts
+var MAX_GEOMETRY_POSITION_COMPONENTS = 135e4;
+var MAX_GEOMETRY_VERTICES = Math.floor(MAX_GEOMETRY_POSITION_COMPONENTS / 3);
+async function parse13(params, options = {}) {
+  const { fileData, sceneModel, dataModel } = params;
+  const e = splitElements(fileData);
+  const xktData = {
+    positions: new Uint16Array(inflateBuffer(e[0])),
+    indices: new Uint32Array(inflateBuffer(e[2])),
+    edgeIndices: new Uint32Array(inflateBuffer(e[3])),
+    matrices: new Float32Array(inflateBuffer(e[4])),
+    reusedPrimitivesDecodeMatrix: new Float32Array(inflateBuffer(e[5])),
+    eachPrimitivePositionsPortion: new Uint32Array(inflateBuffer(e[6])),
+    eachPrimitiveIndicesPortion: new Uint32Array(inflateBuffer(e[7])),
+    eachPrimitiveEdgeIndicesPortion: new Uint32Array(inflateBuffer(e[8])),
+    eachPrimitiveColorAndOpacity: new Uint8Array(inflateBuffer(e[9])),
+    primitiveInstances: new Uint32Array(inflateBuffer(e[10])),
+    eachEntityId: JSON.parse(inflateString(e[11])),
+    eachEntityPrimitiveInstancesPortion: new Uint32Array(inflateBuffer(e[12])),
+    eachEntityMatricesPortion: new Uint32Array(inflateBuffer(e[13])),
+    eachTileAABB: new Float64Array(inflateBuffer(e[14])),
+    eachTileEntitiesPortion: new Uint32Array(inflateBuffer(e[15]))
+  };
+  await buildV6SceneModel({ xktData, sceneModel, dataModel, options });
+}
+async function buildV6SceneModel(params) {
+  const { xktData, sceneModel, dataModel, options } = params;
+  const layerId = options?.layerId || "default";
+  const idPrefix = options?.idPrefix ? `${options.idPrefix}-` : "";
+  if (!sceneModel) {
+    return;
+  }
+  const {
+    positions,
+    indices,
+    edgeIndices,
+    matrices,
+    reusedPrimitivesDecodeMatrix,
+    eachPrimitivePositionsPortion,
+    eachPrimitiveIndicesPortion,
+    eachPrimitiveEdgeIndicesPortion,
+    eachPrimitiveColorAndOpacity,
+    primitiveInstances,
+    eachEntityId,
+    eachEntityPrimitiveInstancesPortion,
+    eachEntityMatricesPortion,
+    eachTileAABB,
+    eachTileEntitiesPortion
+  } = xktData;
+  const numPrimitives = eachPrimitivePositionsPortion.length;
+  const numPrimitiveInstances = primitiveInstances.length;
+  const numEntities = eachEntityId.length;
+  const numTiles = eachTileEntitiesPortion.length;
+  const primitiveReuseCounts = new Uint32Array(numPrimitives);
+  for (let i = 0; i < numPrimitiveInstances; i++) {
+    primitiveReuseCounts[primitiveInstances[i]]++;
+  }
+  const geometryParts = /* @__PURE__ */ new Map();
+  let nextMeshId = 0;
+  for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+    if ((tileIndex & 7) === 0)
+      await yieldToHost(options.signal);
+    const aabbBase = tileIndex * 6;
+    const tileCenter = [
+      (eachTileAABB[aabbBase] + eachTileAABB[aabbBase + 3]) / 2,
+      (eachTileAABB[aabbBase + 1] + eachTileAABB[aabbBase + 4]) / 2,
+      (eachTileAABB[aabbBase + 2] + eachTileAABB[aabbBase + 5]) / 2
+    ];
+    const rtcAABB = [
+      eachTileAABB[aabbBase] - tileCenter[0],
+      eachTileAABB[aabbBase + 1] - tileCenter[1],
+      eachTileAABB[aabbBase + 2] - tileCenter[2],
+      eachTileAABB[aabbBase + 3] - tileCenter[0],
+      eachTileAABB[aabbBase + 4] - tileCenter[1],
+      eachTileAABB[aabbBase + 5] - tileCenter[2]
+    ];
+    const tileDecodeMatrix = decodeMatrixFromAABB(rtcAABB);
+    const tileMatrix = translationMat4v(tileCenter);
+    const firstEntity = eachTileEntitiesPortion[tileIndex];
+    const lastEntity = tileIndex === numTiles - 1 ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
+    for (let entityIndex = firstEntity; entityIndex <= lastEntity; entityIndex++) {
+      const matrixBase = eachEntityMatricesPortion[entityIndex];
+      const entityMatrix = matrixBase + 16 <= matrices.length ? createMat4Float64(Array.from(matrices.subarray(matrixBase, matrixBase + 16))) : void 0;
+      const placementMatrix = entityMatrix ? mulMat4(tileMatrix, entityMatrix, createMat4Float64()) : tileMatrix;
+      const firstPrimitiveInstance = eachEntityPrimitiveInstancesPortion[entityIndex];
+      const lastPrimitiveInstance = entityIndex === numEntities - 1 ? primitiveInstances.length - 1 : eachEntityPrimitiveInstancesPortion[entityIndex + 1] - 1;
+      const meshIds = [];
+      for (let primitiveInstanceIndex = firstPrimitiveInstance; primitiveInstanceIndex <= lastPrimitiveInstance; primitiveInstanceIndex++) {
+        const primitiveIndex = primitiveInstances[primitiveInstanceIndex];
+        const reused = primitiveReuseCounts[primitiveIndex] > 1;
+        const geometryId = reused ? `${idPrefix}geometry-${tileIndex}-${primitiveIndex}` : `${idPrefix}geometry-${tileIndex}-${primitiveIndex}-${primitiveInstanceIndex}`;
+        let partGeometryIds = geometryParts.get(geometryId);
+        if (partGeometryIds === void 0) {
+          const lastPrimitive = primitiveIndex === numPrimitives - 1;
+          const posSlice = positions.subarray(
+            eachPrimitivePositionsPortion[primitiveIndex],
+            lastPrimitive ? positions.length : eachPrimitivePositionsPortion[primitiveIndex + 1]
+          );
+          const indexSlice = indices.subarray(
+            eachPrimitiveIndicesPortion[primitiveIndex],
+            lastPrimitive ? indices.length : eachPrimitiveIndicesPortion[primitiveIndex + 1]
+          );
+          const edgeIndexSlice = edgeIndices.subarray(
+            eachPrimitiveEdgeIndicesPortion[primitiveIndex],
+            lastPrimitive ? edgeIndices.length : eachPrimitiveEdgeIndicesPortion[primitiveIndex + 1]
+          );
+          const decodeMatrix = reused ? reusedPrimitivesDecodeMatrix : tileDecodeMatrix;
+          partGeometryIds = createGeometryParts({
+            sceneModel,
+            baseGeometryId: geometryId,
+            positions: decompressPositions(posSlice, decodeMatrix),
+            indices: indexSlice,
+            edgeIndices: edgeIndexSlice
+          });
+          geometryParts.set(geometryId, partGeometryIds);
+        }
+        if (partGeometryIds.length === 0)
+          continue;
+        const colorBase = primitiveIndex * 4;
+        for (const partGeometryId of partGeometryIds) {
+          const meshId = `${idPrefix}mesh-${nextMeshId++}`;
+          const meshParams = {
+            id: meshId,
+            geometryId: partGeometryId,
+            matrix: placementMatrix,
+            color: [
+              eachPrimitiveColorAndOpacity[colorBase] / 255,
+              eachPrimitiveColorAndOpacity[colorBase + 1] / 255,
+              eachPrimitiveColorAndOpacity[colorBase + 2] / 255
+            ],
+            opacity: eachPrimitiveColorAndOpacity[colorBase + 3] / 255
+          };
+          if (sceneModel.createMesh(meshParams).ok !== false) {
+            meshIds.push(meshId);
+          }
+        }
+      }
+      if (meshIds.length > 0) {
+        const objectId = `${idPrefix}${eachEntityId[entityIndex]}`;
+        sceneModel.createObject({ id: objectId, meshIds, layerId });
+        dataModel?.createObject({ id: objectId, name: objectId, type: "Default" });
+      }
+    }
+  }
+}
+function createGeometryParts(params) {
+  const { sceneModel, baseGeometryId, positions, indices, edgeIndices } = params;
+  if (positions.length === 0 || indices.length === 0) {
+    return [];
+  }
+  if (positions.length <= MAX_GEOMETRY_POSITION_COMPONENTS) {
+    const geometryParams = {
+      id: baseGeometryId,
+      primitive: TrianglesPrimitive,
+      positions,
+      indices
+    };
+    if (edgeIndices.length > 0) {
+      geometryParams.edgeIndices = edgeIndices;
+    }
+    return sceneModel.createGeometry(geometryParams).ok === false ? [] : [baseGeometryId];
+  }
+  const geometryIds = [];
+  let remap = /* @__PURE__ */ new Map();
+  let partPositions = [];
+  let partIndices = [];
+  let partIndex = 0;
+  const flush = () => {
+    if (partPositions.length === 0 || partIndices.length === 0) {
+      return;
+    }
+    const id = `${baseGeometryId}-part-${partIndex++}`;
+    const result = sceneModel.createGeometry({
+      id,
+      primitive: TrianglesPrimitive,
+      positions: new Float32Array(partPositions),
+      indices: new Uint32Array(partIndices)
+    });
+    if (result.ok !== false) {
+      geometryIds.push(id);
+    }
+    remap = /* @__PURE__ */ new Map();
+    partPositions = [];
+    partIndices = [];
+  };
+  for (let i = 0, len = indices.length - indices.length % 3; i < len; i += 3) {
+    const a2 = indices[i];
+    const b4 = indices[i + 1];
+    const c2 = indices[i + 2];
+    const needed = (remap.has(a2) ? 0 : 1) + (remap.has(b4) ? 0 : 1) + (remap.has(c2) ? 0 : 1);
+    if (partPositions.length > 0 && partPositions.length / 3 + needed > MAX_GEOMETRY_VERTICES) {
+      flush();
+    }
+    addIndex(a2);
+    addIndex(b4);
+    addIndex(c2);
+  }
+  flush();
+  return geometryIds;
+  function addIndex(sourceIndex) {
+    let localIndex = remap.get(sourceIndex);
+    if (localIndex === void 0) {
+      const posBase = sourceIndex * 3;
+      if (posBase + 2 >= positions.length) {
+        return;
+      }
+      localIndex = partPositions.length / 3;
+      remap.set(sourceIndex, localIndex);
+      partPositions.push(positions[posBase], positions[posBase + 1], positions[posBase + 2]);
+    }
+    partIndices.push(localIndex);
+  }
+}
+function decodeMatrixFromAABB(aabb) {
+  const m = createMat4Float64();
+  m[0] = (aabb[3] - aabb[0]) / 65535;
+  m[5] = (aabb[4] - aabb[1]) / 65535;
+  m[10] = (aabb[5] - aabb[2]) / 65535;
+  m[12] = aabb[0];
+  m[13] = aabb[1];
+  m[14] = aabb[2];
+  return m;
+}
+function decompressPositions(compressed, m) {
+  const out = new Float32Array(compressed.length);
+  for (let i = 0, len = compressed.length; i < len; i += 3) {
+    out[i] = compressed[i] * m[0] + m[12];
+    out[i + 1] = compressed[i + 1] * m[5] + m[13];
+    out[i + 2] = compressed[i + 2] * m[10] + m[14];
+  }
+  return out;
+}
+
 // ../sdk/src/formats/legacy/xkt/versions/shared/buildTiledSceneModel.ts
 var MESH_ATTRIBUTES = 6;
 async function buildTiledSceneModel(params) {
@@ -135930,7 +136616,7 @@ async function buildTiledSceneModel(params) {
       eachTileAABB[aabbBase + 4] - tileCenter[1],
       eachTileAABB[aabbBase + 5] - tileCenter[2]
     ];
-    const tileDecodeMatrix = decodeMatrixFromAABB(rtcAABB);
+    const tileDecodeMatrix = decodeMatrixFromAABB2(rtcAABB);
     const lastEntityInTile = tileIndex === numTiles - 1 ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
     for (let entityIndex = eachTileEntitiesPortion[tileIndex]; entityIndex <= lastEntityInTile; entityIndex++) {
       const lastMeshInEntity = entityIndex === numEntities - 1 ? numMeshes - 1 : eachEntityMeshesPortion[entityIndex + 1] - 1;
@@ -135953,7 +136639,7 @@ async function buildTiledSceneModel(params) {
           const geometryParams = {
             id: geometryId,
             primitive,
-            positions: decompressPositions(posSlice, decodeMatrix)
+            positions: decompressPositions2(posSlice, decodeMatrix)
           };
           if (primitive === PointsPrimitive) {
             const colSlice = colors.subarray(
@@ -136021,7 +136707,7 @@ function scenePrimitive(code) {
       return void 0;
   }
 }
-function decodeMatrixFromAABB(aabb) {
+function decodeMatrixFromAABB2(aabb) {
   const m = createMat4Float64();
   m[0] = (aabb[3] - aabb[0]) / 65535;
   m[5] = (aabb[4] - aabb[1]) / 65535;
@@ -136031,7 +136717,7 @@ function decodeMatrixFromAABB(aabb) {
   m[14] = aabb[2];
   return m;
 }
-function decompressPositions(compressed, m) {
+function decompressPositions2(compressed, m) {
   const out = new Float32Array(compressed.length);
   for (let i = 0, len = compressed.length; i < len; i += 3) {
     out[i] = compressed[i] * m[0] + m[12];
@@ -136092,7 +136778,7 @@ function buildDataModel(dataModel, metadata) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v7/parse.ts
-async function parse13(params, options) {
+async function parse14(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -136118,7 +136804,7 @@ async function parse13(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v8/parse.ts
-async function parse14(params, options) {
+async function parse15(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const types = JSON.parse(inflateString(e[0]));
@@ -136161,7 +136847,7 @@ async function parse14(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v9/parse.ts
-async function parse15(params, options) {
+async function parse16(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -136188,7 +136874,7 @@ async function parse15(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v10/parse.ts
-async function parse16(params, options) {
+async function parse17(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -136215,7 +136901,7 @@ async function parse16(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v11/parse.ts
-async function parse17(params, options) {
+async function parse18(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const requiresSwapFromLittleEndian = function() {
     const b4 = new ArrayBuffer(2);
@@ -136424,7 +137110,7 @@ async function xktToModel(params) {
       eachTileAABB[aabbBase + 4] - tileCenter[1],
       eachTileAABB[aabbBase + 5] - tileCenter[2]
     ];
-    const tileDecodeMatrix = decodeMatrixFromAABB2(rtcAABB);
+    const tileDecodeMatrix = decodeMatrixFromAABB3(rtcAABB);
     const lastEntityInTile = tileIndex === numTiles - 1 ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
     for (let entityIndex = eachTileEntitiesPortion[tileIndex]; entityIndex <= lastEntityInTile; entityIndex++) {
       const lastMeshInEntity = entityIndex === numEntities - 1 ? numMeshes - 1 : eachEntityMeshesPortion[entityIndex + 1] - 1;
@@ -136447,7 +137133,7 @@ async function xktToModel(params) {
           const geometryParams = {
             id: geometryId,
             primitive,
-            positions: decompressPositions2(posSlice, decodeMatrix)
+            positions: decompressPositions3(posSlice, decodeMatrix)
           };
           if (primitive === PointsPrimitive) {
             const colSlice = colors.subarray(
@@ -136514,7 +137200,7 @@ function scenePrimitive2(code) {
       return void 0;
   }
 }
-function decodeMatrixFromAABB2(aabb) {
+function decodeMatrixFromAABB3(aabb) {
   const m = createMat4Float64();
   m[0] = (aabb[3] - aabb[0]) / 65535;
   m[5] = (aabb[4] - aabb[1]) / 65535;
@@ -136524,7 +137210,7 @@ function decodeMatrixFromAABB2(aabb) {
   m[14] = aabb[2];
   return m;
 }
-function decompressPositions2(compressed, m) {
+function decompressPositions3(compressed, m) {
   const out = new Float32Array(compressed.length);
   for (let i = 0, len = compressed.length; i < len; i += 3) {
     out[i] = compressed[i] * m[0] + m[12];
@@ -136575,7 +137261,7 @@ function buildDataModel2(dataModel, metadata) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v12/parse.ts
-async function parse18(params, options) {
+async function parse19(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xktToModel({
     xktData: unpackXKT(fileData),
@@ -136586,7 +137272,7 @@ async function parse18(params, options) {
 }
 
 // ../sdk/src/formats/legacy/xkt/versions/v12/parseCompressed.ts
-async function parse19(params, options) {
+async function parse20(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e = splitElements(fileData);
   const xktData = {
@@ -136619,13 +137305,14 @@ var XKTLoader = class extends ModelLoader {
       format: "XKT",
       fileDataType: "arraybuffer",
       parsers: {
-        "7": parse13,
-        "8": parse14,
-        "9": parse15,
-        "10": parse16,
-        "11": parse17,
-        "12": parse18,
-        "12z": parse19
+        "6": parse13,
+        "7": parse14,
+        "8": parse15,
+        "9": parse16,
+        "10": parse17,
+        "11": parse18,
+        "12": parse19,
+        "12z": parse20
       },
       getVersion: (fileData) => {
         const word = new DataView(fileData).getUint32(0, true);
@@ -136976,7 +137663,7 @@ __export(obj_exports, {
 });
 
 // ../sdk/src/formats/obj/versions/v1_0/parse.ts
-var parse20 = async (params, options) => {
+var parse21 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -137387,7 +138074,7 @@ var OBJLoader = class extends ModelLoader {
       format: "OBJ",
       fileDataType: "text",
       parsers: {
-        "1.0": parse20
+        "1.0": parse21
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -137519,7 +138206,7 @@ __export(mtl_exports, {
 });
 
 // ../sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse21 = async (params, options) => {
+var parse22 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -137629,7 +138316,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse21
+        "1.0": parse22
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -137957,7 +138644,7 @@ function findChild(node, name12) {
 
 // ../sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse22(params, _options) {
+async function parse23(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -138332,7 +139019,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse22
+        binary: parse23
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -139014,7 +139701,7 @@ function mulMat44(a2, b4) {
 }
 
 // ../sdk/src/formats/usdz/versions/v1/parse.ts
-async function parse23(params, options) {
+async function parse24(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -139054,7 +139741,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse23
+        "1.0": parse24
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -139467,7 +140154,7 @@ async function loadPdfJs(opts) {
   }
   return p;
 }
-async function parse24(input, options = {}) {
+async function parse25(input, options = {}) {
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
   }
@@ -140775,7 +141462,7 @@ var PDFLoader = class {
     this.#pdfjs = params.pdfjs;
   }
   load(input, options = {}) {
-    return parse24(input, {
+    return parse25(input, {
       ...options,
       pdfjsEsmUrl: this.#pdfjsEsmUrl,
       pdfjsWorkerSrc: this.#pdfjsWorkerSrc,
@@ -140812,7 +141499,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // ../sdk/src/formats/svg/versions/v1_0/parse.ts
-async function parse25(input, options = {}) {
+async function parse26(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
   }
@@ -142083,7 +142770,7 @@ function domToSVGNode(el2) {
 // ../sdk/src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse25(
+    return parse26(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -142388,7 +143075,7 @@ async function loadLibredwg(opts) {
   }
   return p;
 }
-async function parse26(input, options = {}) {
+async function parse27(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
   }
@@ -143224,7 +143911,7 @@ var DWGLoader = class {
     this.#libredwg = params.libredwg;
   }
   load(input, options = {}) {
-    return parse26(
+    return parse27(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -143244,7 +143931,7 @@ __export(dxf_exports, {
 });
 
 // ../sdk/src/formats/dxf/versions/v1_0/parse.ts
-async function parse27(input, options = {}) {
+async function parse28(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
   }
@@ -143566,7 +144253,7 @@ function err4(type, message) {
 // ../sdk/src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse27(
+    return parse28(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -144562,7 +145249,7 @@ function unitWireBox(id) {
 }
 
 // ../sdk/src/formats/fds/versions/v6/parse.ts
-var parse28 = async (params) => {
+var parse29 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -144777,7 +145464,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse28
+        "6": parse29
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -145400,7 +146087,7 @@ function num4(el2, attr) {
 // ../sdk/src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
-async function parse29(params, _options) {
+async function parse30(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -145555,7 +146242,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      parsers: { "*": parse29 },
+      parsers: { "*": parse30 },
       getVersion: (fileData) => isZip(fileData) ? "*" : ""
     });
   }
@@ -151667,7 +152354,7 @@ function splitSceneGeometry(params) {
       `[splitSceneGeometry] Predicate routed every triangle to one side (A=${trisA.length}, B=${trisB.length}); both outputs must end up with at least one triangle`
     );
   }
-  const positions = decompressPositions3(positionsCompressed, aabb);
+  const positions = decompressPositions4(positionsCompressed, aabb);
   const normals = src.normalsCompressed ? octDecodeU16(src.normalsCompressed) : null;
   const uvs = src.uvsCompressed ?? null;
   const colors = src.colorsCompressed ?? null;
@@ -151745,7 +152432,7 @@ function buildSide(sceneModel, primitive, newId, tris, indices, positions, norma
     indices: newIndices
   });
 }
-function decompressPositions3(positionsCompressed, aabb) {
+function decompressPositions4(positionsCompressed, aabb) {
   const minX = aabb[0], minY = aabb[1], minZ = aabb[2];
   const rngX = aabb[3] - minX, rngY = aabb[4] - minY, rngZ = aabb[5] - minZ;
   const v = positionsCompressed.length / 3 | 0;

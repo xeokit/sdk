@@ -264,6 +264,24 @@
     "formats": ["splat", "xgf"],
     "dataset": ["xgf"]
   },
+  "WestRiverSide": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "xgfstream"],
+    "dataset": ["xgfstream"]
+  },
+  "KarhumakiBridge": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgfstream"],
+    "dataset": ["xgfstream"]
+  },
   "XKTModel": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],

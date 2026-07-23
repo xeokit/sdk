@@ -106084,19 +106084,26 @@ async function xgfToModel2(params) {
   const layerId = options?.layerId || "default";
   const idPrefix = options?.idPrefix || "";
   const origin2 = options?.origin;
+  const coordinateSystemMatrix = sceneModel && options?.coordinateSystem ? createCoordinateSystemTransform(options.coordinateSystem, sceneModel.coordinateSystem, createMat4Float64()) : void 0;
   const meshIdPrefix = options?.meshIdPrefix;
   const createdIds = options?.createdIds;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
   const prefixId = (id) => id && idPrefix ? `${idPrefix}${id}` : id;
-  const translateMatrix = (matrix, apply3) => {
-    if (!apply3 || !origin2 || origin2[0] === 0 && origin2[1] === 0 && origin2[2] === 0) {
+  const transformMatrix = (matrix, apply3) => {
+    if (!apply3) {
       return matrix;
     }
-    const translated = matrix.slice ? matrix.slice() : Array.from(matrix);
-    translated[12] += origin2[0];
-    translated[13] += origin2[1];
-    translated[14] += origin2[2];
-    return translated;
+    const hasOrigin = !!origin2 && (origin2[0] !== 0 || origin2[1] !== 0 || origin2[2] !== 0);
+    if (!coordinateSystemMatrix && !hasOrigin) {
+      return matrix;
+    }
+    const transformed = coordinateSystemMatrix ? mulMat4(coordinateSystemMatrix, matrix, createMat4Float64()) : matrix.slice ? matrix.slice() : Array.from(matrix);
+    if (hasOrigin) {
+      transformed[12] += origin2[0];
+      transformed[13] += origin2[1];
+      transformed[14] += origin2[2];
+    }
+    return transformed;
   };
   const fail = (message) => {
     if (createdIds) {
@@ -106334,7 +106341,7 @@ async function xgfToModel2(params) {
       const parentId = eachTransformParentId?.[i] || "";
       const transformResult = sceneModel.createTransform({
         id,
-        matrix: translateMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentId)
+        matrix: transformMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentId)
       });
       if (transformResult && transformResult.ok === false) {
         fail(transformResult.error);
@@ -106476,7 +106483,7 @@ async function xgfToModel2(params) {
         }
         const matricesBase = eachMeshMatricesBase[meshIdx];
         const parentTransformId = eachMeshParentTransformId?.[meshIdx] || "";
-        const matrix = translateMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentTransformId);
+        const matrix = transformMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentTransformId);
         const meshParams = { id: meshId, geometryId, matrix };
         if (parentTransformId) {
           meshParams.parentTransformId = prefixId(parentTransformId);
@@ -108093,15 +108100,17 @@ function writeXGFStreamingRuntimeIndex(index) {
     return next;
   };
   const aabbQuantization = createAABBQuantization(createRuntimeQuantizationAABB(index));
+  const indexVersion = index.streams && index.streams.length > 0 || index.coordinateSystem ? "1.2.0" : "1.1.0";
   return {
     format: "XGFStreamingRuntimeIndex",
-    indexVersion: index.streams && index.streams.length > 0 ? "1.2.0" : "1.1.0",
+    indexVersion,
     strings: strings2,
     aabbQuantization,
     chunks: index.chunks.map((manifest) => writeRuntimeChunk(manifest, intern, aabbQuantization)),
     streams: index.streams?.map((stream) => writeRuntimeSubstream(stream, intern, aabbQuantization)),
     root: index.rootChunkIds?.map(intern),
     aabb: index.aabb?.slice(),
+    coordinateSystem: index.coordinateSystem ? JSON.parse(JSON.stringify(index.coordinateSystem)) : void 0,
     metadata: index.metadata ? JSON.parse(JSON.stringify(index.metadata)) : void 0
   };
 }
@@ -108109,7 +108118,7 @@ function writeRuntimeSubstream(stream, intern, aabbQuantization) {
   const tuple = [
     intern(stream.id),
     intern(stream.uri),
-    encodeAABB(stream.aabb, aabbQuantization),
+    stream.aabb ? stream.aabb.slice() : null,
     stream.origin ? stream.origin.slice() : null
   ];
   if (stream.priority !== void 0 || stream.metadata !== void 0) {
@@ -108255,10 +108264,11 @@ var XGFStreamingExporter = class {
       }
       const index = {
         format: "XGFStreamingIndex",
-        indexVersion: "1.0.0",
+        indexVersion: "1.2.0",
         chunks: manifests,
         rootChunkIds: params.chunks.map((chunk) => chunk.id),
-        aabb: aggregateManifestAABB(manifests)
+        aabb: aggregateManifestAABB(manifests),
+        coordinateSystem: cloneCoordinateSystem(sceneModel.coordinateSystem)
       };
       files[params.indexUri || "index.json"] = writeXGFStreamingIndex(index);
       if (params.runtimeIndexUri) {
@@ -108277,6 +108287,17 @@ var XGFStreamingExporter = class {
     }
   }
 };
+function cloneCoordinateSystem(coordinateSystem) {
+  if (!coordinateSystem) {
+    return void 0;
+  }
+  return {
+    basis: Array.from(coordinateSystem.basis || []),
+    origin: Array.from(coordinateSystem.origin || [0, 0, 0]),
+    units: coordinateSystem.units,
+    scaleToMeters: coordinateSystem.scaleToMeters
+  };
+}
 function validateParams(params) {
   if (!params || !params.sceneModel) {
     return invalid("[XGFStreamingExporter.write] sceneModel is required");
@@ -109254,6 +109275,7 @@ var XGFStreamingLoader = class {
         ...options,
         idPrefix: manifest.idPrefix,
         origin: manifest.origin,
+        coordinateSystem: manifest.coordinateSystem,
         meshIdPrefix: key ? `${key}/mesh/` : void 0,
         createdIds
       };
@@ -109713,8 +109735,8 @@ function readXGFStreamingIndex(json) {
   if (json.format !== "XGFStreamingIndex") {
     return invalid4("[XGFStreamingIndex] Expected format 'XGFStreamingIndex'");
   }
-  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0") {
-    return invalid4("[XGFStreamingIndex] Expected indexVersion '1.0.0' or '1.1.0'");
+  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0" && json.indexVersion !== "1.2.0") {
+    return invalid4("[XGFStreamingIndex] Expected indexVersion '1.0.0', '1.1.0' or '1.2.0'");
   }
   if (json.chunks !== void 0 && !Array.isArray(json.chunks)) {
     return invalid4("[XGFStreamingIndex] Expected chunks array");
@@ -109762,6 +109784,12 @@ function readXGFStreamingIndex(json) {
   if (json.aabb !== void 0 && (!Array.isArray(json.aabb) || json.aabb.length !== 6 || !json.aabb.every(isFiniteNumber2))) {
     return invalid4("[XGFStreamingIndex] Expected aabb to contain six finite numbers");
   }
+  if (json.coordinateSystem !== void 0) {
+    const result = validateCoordinateSystem(json.coordinateSystem);
+    if (result.ok === false) {
+      return invalid4(`[XGFStreamingIndex.coordinateSystem] ${result.error}`);
+    }
+  }
   if (json.metadata !== void 0 && !isObject5(json.metadata)) {
     return invalid4("[XGFStreamingIndex] metadata must be an object when provided");
   }
@@ -109796,6 +109824,24 @@ function validateSubstreamManifest(value) {
     return invalid4("Expected stream metadata to be an object when provided");
   }
   return { ok: true, value };
+}
+function validateCoordinateSystem(value) {
+  if (!isObject5(value)) {
+    return invalid4("Expected coordinateSystem object");
+  }
+  if (value.basis !== void 0 && (!Array.isArray(value.basis) || value.basis.length !== 9 || !value.basis.every(isFiniteNumber2))) {
+    return invalid4("Expected basis to contain nine finite numbers when provided");
+  }
+  if (value.origin !== void 0 && (!Array.isArray(value.origin) || value.origin.length !== 3 || !value.origin.every(isFiniteNumber2))) {
+    return invalid4("Expected origin to contain three finite numbers when provided");
+  }
+  if (value.units !== void 0 && typeof value.units !== "string") {
+    return invalid4("Expected units to be a string when provided");
+  }
+  if (value.scaleToMeters !== void 0 && !isFiniteNumber2(value.scaleToMeters)) {
+    return invalid4("Expected scaleToMeters to be finite when provided");
+  }
+  return { ok: true, value: void 0 };
 }
 function isObject5(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -109866,11 +109912,12 @@ function readXGFStreamingRuntimeIndex(json) {
   }
   return readXGFStreamingIndex({
     format: "XGFStreamingIndex",
-    indexVersion: streams.length > 0 ? "1.1.0" : "1.0.0",
+    indexVersion: streams.length > 0 || json.coordinateSystem ? "1.2.0" : "1.0.0",
     chunks,
     streams: streams.length > 0 ? streams : void 0,
     rootChunkIds: rootResult.value,
     aabb: json.aabb,
+    coordinateSystem: json.coordinateSystem,
     metadata: json.metadata
   });
 }
@@ -109922,7 +109969,7 @@ function readRuntimeSubstreamV12(value, index) {
   if (uriResult.ok === false) {
     return uriResult;
   }
-  const aabbResult = readRuntimeAABB(encodedAABB, index);
+  const aabbResult = readRuntimeSubstreamAABB(encodedAABB);
   if (aabbResult.ok === false) {
     return aabbResult;
   }
@@ -110142,6 +110189,15 @@ function readRuntimeAABB(value, index) {
   }
   return { ok: true, value: decoded };
 }
+function readRuntimeSubstreamAABB(value) {
+  if (value === null || value === void 0) {
+    return { ok: true, value: void 0 };
+  }
+  if (!Array.isArray(value) || value.length !== 6 || !value.every(isFiniteNumber3)) {
+    return invalid5("Expected stream aabb to contain six finite numbers or null");
+  }
+  return { ok: true, value: value.slice() };
+}
 function readRootChunkIds(index) {
   if (index.root === void 0) {
     return { ok: true, value: void 0 };
@@ -110246,11 +110302,14 @@ var XGFViewStreamController = class {
   _batchSize;
   _commitFrameBudgetMs;
   _frustumOnly;
+  _frustumDepthMultiplier;
+  _frustumMinDepth;
   _chunkPriorityTarget;
   _cameraDebounceMs;
   _enableLRUEviction;
   _unloadInactiveStreams;
   _maxResidentChunks;
+  _targetCoordinateSystem;
   _onStatus;
   _onProgress;
   _onChunksLoading;
@@ -110297,11 +110356,14 @@ var XGFViewStreamController = class {
     this._batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
     this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
     this._frustumOnly = params.frustumOnly !== false;
+    this._frustumDepthMultiplier = params.frustumDepthMultiplier !== void 0 && Number.isFinite(params.frustumDepthMultiplier) && params.frustumDepthMultiplier > 0 ? params.frustumDepthMultiplier : void 0;
+    this._frustumMinDepth = params.frustumMinDepth !== void 0 && Number.isFinite(params.frustumMinDepth) && params.frustumMinDepth > 0 ? params.frustumMinDepth : 0;
     this._chunkPriorityTarget = params.chunkPriorityTarget || "look";
     this._cameraDebounceMs = params.cameraDebounceMs ?? DEFAULT_CAMERA_DEBOUNCE_MS;
     this._enableLRUEviction = params.enableLRUEviction === true;
     this._unloadInactiveStreams = params.unloadInactiveStreams === true;
     this._maxResidentChunks = this._enableLRUEviction ? Math.max(0, Math.floor(params.maxResidentChunks ?? DISABLED_MAX_RESIDENT_CHUNKS)) : DISABLED_MAX_RESIDENT_CHUNKS;
+    this._targetCoordinateSystem = index.coordinateSystem ? this._sceneModel.coordinateSystem : void 0;
     this._onStatus = params.onStatus;
     this._onProgress = params.onProgress;
     this._onChunksLoading = params.onChunksLoading;
@@ -110543,6 +110605,10 @@ var XGFViewStreamController = class {
         this.ensureCandidateQueue(batchGeneration);
         const candidates = this.nextAutoCandidates(this._batchSize);
         if (candidates.length === 0) {
+          if (this._pendingGeneration) {
+            activeGeneration = this._pendingGeneration;
+            continue;
+          }
           this.completeQueueProgress(batchGeneration);
           this.emitStatus(`${label}: current frustum loaded`);
           break;
@@ -110694,7 +110760,7 @@ var XGFViewStreamController = class {
     return this.buildCandidateQueue().length;
   }
   ensureCandidateQueue(generation) {
-    if (this._candidateQueue.generation !== generation) {
+    if (this._candidateQueue.generation < generation) {
       this.rebuildCandidateQueue(generation);
     }
   }
@@ -110864,7 +110930,7 @@ var XGFViewStreamController = class {
       throw new Error(result.error);
     }
     const childBaseURI = streamNode.manifest.uri;
-    const childIndex = namespaceStreamIndex(result.value, streamNode.namespace, childBaseURI, streamNode.origin);
+    const childIndex = namespaceStreamIndex(result.value, streamNode.namespace, childBaseURI, streamNode.origin, this._targetCoordinateSystem);
     for (const assetManifest of childIndex.chunks.filter((manifest) => manifest.role === "assetLibrary")) {
       this._assetChunksById.set(assetManifest.id, assetManifest);
       this._manifestLookup.byId[assetManifest.id] = assetManifest;
@@ -110883,7 +110949,7 @@ var XGFViewStreamController = class {
       this._streamNodes.push({
         manifest: childStream,
         namespace: `${childStream.id}::`,
-        origin: addOrigins(streamNode.origin, childStream.origin),
+        origin: childStream.origin || [0, 0, 0],
         loaded: false,
         chunkIds: [],
         assetChunkIds: []
@@ -110985,6 +111051,9 @@ var XGFViewStreamController = class {
     if (!frustum || !aabb) {
       return true;
     }
+    if (!this.intersectsStreamingDepth(aabb)) {
+      return false;
+    }
     for (const plane of frustum.planes) {
       const x = aabb[plane.testVertex[0] ? 3 : 0];
       const y = aabb[plane.testVertex[1] ? 4 : 1];
@@ -110994,6 +111063,37 @@ var XGFViewStreamController = class {
       }
     }
     return true;
+  }
+  intersectsStreamingDepth(aabb) {
+    if (!this._frustumDepthMultiplier) {
+      return true;
+    }
+    const eye = this._view.camera.eye;
+    const look = this._view.camera.look;
+    if (!eye || !look) {
+      return true;
+    }
+    const dx = look[0] - eye[0];
+    const dy = look[1] - eye[1];
+    const dz = look[2] - eye[2];
+    const lookDistance = Math.hypot(dx, dy, dz);
+    if (!Number.isFinite(lookDistance) || lookDistance <= 0) {
+      return true;
+    }
+    const invDistance = 1 / lookDistance;
+    const dirX = dx * invDistance;
+    const dirY = dy * invDistance;
+    const dirZ = dz * invDistance;
+    const centerX = (aabb[0] + aabb[3]) * 0.5;
+    const centerY = (aabb[1] + aabb[4]) * 0.5;
+    const centerZ = (aabb[2] + aabb[5]) * 0.5;
+    const halfX = (aabb[3] - aabb[0]) * 0.5;
+    const halfY = (aabb[4] - aabb[1]) * 0.5;
+    const halfZ = (aabb[5] - aabb[2]) * 0.5;
+    const centerDepth = (centerX - eye[0]) * dirX + (centerY - eye[1]) * dirY + (centerZ - eye[2]) * dirZ;
+    const radius = Math.abs(dirX) * halfX + Math.abs(dirY) * halfY + Math.abs(dirZ) * halfZ;
+    const nearestDepth = centerDepth - radius;
+    return nearestDepth <= Math.max(lookDistance * this._frustumDepthMultiplier, this._frustumMinDepth);
   }
   squaredDistanceToPriorityPoint(manifest) {
     const camera = this._view.camera;
@@ -111225,15 +111325,17 @@ function resolveSubstreamManifest(stream, baseURI) {
     metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : void 0
   };
 }
-function namespaceStreamIndex(index, namespace, indexURI, origin2) {
+function namespaceStreamIndex(index, namespace, indexURI, origin2, targetCoordinateSystem) {
   const assetPrefix = namespace;
-  const chunks = (index.chunks || []).map((manifest) => namespaceChunkManifest(manifest, namespace, assetPrefix, indexURI, origin2));
+  const coordinateSystemMatrix = createIndexCoordinateSystemMatrix(index.coordinateSystem, targetCoordinateSystem);
+  const chunkCoordinateSystem = targetCoordinateSystem ? index.coordinateSystem : void 0;
+  const chunks = (index.chunks || []).map((manifest) => namespaceChunkManifest(manifest, namespace, assetPrefix, indexURI, origin2, chunkCoordinateSystem, coordinateSystemMatrix));
   const streams = (index.streams || []).map((stream) => ({
     ...stream,
     id: `${namespace}${stream.id}`,
     uri: resolveURI(stream.uri, indexURI),
-    aabb: translateAABB(stream.aabb, addOrigins(origin2, stream.origin)),
-    origin: stream.origin ? [stream.origin[0], stream.origin[1], stream.origin[2]] : void 0,
+    aabb: transformAndTranslateAABB(stream.aabb, coordinateSystemMatrix, addOrigins(origin2, stream.origin)),
+    origin: addOrigins(origin2, stream.origin),
     metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : void 0
   }));
   return {
@@ -111243,7 +111345,7 @@ function namespaceStreamIndex(index, namespace, indexURI, origin2) {
     rootChunkIds: index.rootChunkIds?.map((id) => `${namespace}${id}`)
   };
 }
-function namespaceChunkManifest(manifest, namespace, assetPrefix, indexURI, origin2) {
+function namespaceChunkManifest(manifest, namespace, assetPrefix, indexURI, origin2, coordinateSystem, coordinateSystemMatrix) {
   const copy2 = {
     ...manifest,
     id: `${namespace}${manifest.id}`,
@@ -111263,11 +111365,42 @@ function namespaceChunkManifest(manifest, namespace, assetPrefix, indexURI, orig
       textures: (manifest.assets?.textures || []).map((id) => `${assetPrefix}${id}`)
     },
     counts: { ...manifest.counts },
-    aabb: translateAABB(manifest.aabb, origin2)
+    aabb: transformAndTranslateAABB(manifest.aabb, coordinateSystemMatrix, origin2)
   };
   copy2.idPrefix = assetPrefix;
   copy2.origin = origin2;
+  copy2.coordinateSystem = coordinateSystem;
   return copy2;
+}
+function createIndexCoordinateSystemMatrix(coordinateSystem, targetCoordinateSystem) {
+  if (!coordinateSystem || !targetCoordinateSystem) {
+    return void 0;
+  }
+  return createCoordinateSystemTransform(coordinateSystem, targetCoordinateSystem, createMat4Float64());
+}
+function transformAndTranslateAABB(aabb, matrix, origin2) {
+  const transformed = matrix ? transformAABB(aabb, matrix) : aabb?.slice();
+  return translateAABB(transformed, origin2);
+}
+function transformAABB(aabb, matrix) {
+  if (!aabb) {
+    return void 0;
+  }
+  const result = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  for (const x of [aabb[0], aabb[3]]) {
+    for (const y of [aabb[1], aabb[4]]) {
+      for (const z of [aabb[2], aabb[5]]) {
+        const point = transformPoint3(matrix, [x, y, z]);
+        result[0] = Math.min(result[0], point[0]);
+        result[1] = Math.min(result[1], point[1]);
+        result[2] = Math.min(result[2], point[2]);
+        result[3] = Math.max(result[3], point[0]);
+        result[4] = Math.max(result[4], point[1]);
+        result[5] = Math.max(result[5], point[2]);
+      }
+    }
+  }
+  return result;
 }
 function translateAABB(aabb, origin2) {
   if (!aabb) {

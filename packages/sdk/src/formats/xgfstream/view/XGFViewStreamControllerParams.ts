@@ -44,6 +44,14 @@ export interface XGFViewStreamControllerParams {
   frustumOnly?: boolean;
   /** Debounce delay after `schedule()` before a streaming pass begins. */
   cameraDebounceMs?: number;
+  /** When true, unloads least-recently-used references-only chunks after loads exceed `maxResidentChunks`. */
+  enableLRUEviction?: boolean;
+  /** Maximum resident references-only chunks to keep when LRU eviction is enabled. */
+  maxResidentChunks?: number;
+  /** When true, keeps resolved XGF file bytes in memory for reuse after chunk unload/reload. */
+  cacheFileData?: boolean;
+  /** Maximum bytes of resolved XGF file data to retain when `cacheFileData` is enabled. */
+  maxCachedFileBytes?: number;
   /** Called with coarse controller status messages. */
   onStatus?: (status: string) => void;
   /** Called when queue progress changes. */

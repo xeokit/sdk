@@ -172,6 +172,7 @@
  * are generic, but this format's file contract is intentionally XGF-specific.
  *
  * @module xgfstream
+ * @document ./README.md
  */
 export * from "./XGFStreamExporter";
 export * from "./XGFStreamingLoader";

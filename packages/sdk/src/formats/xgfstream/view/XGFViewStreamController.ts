@@ -20,6 +20,9 @@ interface FileDataCacheEntry {
   resolve: (value: ArrayBuffer | PromiseLike<ArrayBuffer>) => void;
   reject: (reason?: unknown) => void;
   promise: Promise<ArrayBuffer>;
+  fileData?: ArrayBuffer;
+  byteLength: number;
+  lastUsed: number;
 }
 
 interface CandidateQueue {
@@ -29,10 +32,19 @@ interface CandidateQueue {
   initialCount: number;
 }
 
+interface PrioritizedManifest {
+  manifest: StreamManifest;
+  priority: number;
+  intersectsFrustum: boolean;
+}
+
 const DEFAULT_BATCH_SIZE = 8;
 const DEFAULT_FETCH_CONCURRENCY = 8;
 const DEFAULT_COMMIT_FRAME_BUDGET_MS = 10;
 const DEFAULT_CAMERA_DEBOUNCE_MS = 140;
+const NON_FRUSTUM_PRIORITY_OFFSET = Number.MAX_SAFE_INTEGER / 2;
+const DISABLED_MAX_RESIDENT_CHUNKS = Number.POSITIVE_INFINITY;
+const DEFAULT_MAX_CACHED_FILE_BYTES = 256 * 1024 * 1024;
 
 /**
  * View-driven controller that prioritizes XGF stream chunk loading.
@@ -51,7 +63,7 @@ export class XGFViewStreamController {
   readonly loadedChunkIds = new Set<string>();
   /** IDs of asset-library chunks already loaded. */
   readonly loadedAssetLibraryIds = new Set<string>();
-  /** Aggregate object/mesh counts loaded through this controller. */
+  /** Aggregate object/mesh counts currently resident through this controller. */
   readonly loadedTotals = {
     objects: 0,
     meshes: 0
@@ -73,6 +85,8 @@ export class XGFViewStreamController {
   private readonly _commitFrameBudgetMs: number;
   private readonly _frustumOnly: boolean;
   private readonly _cameraDebounceMs: number;
+  private readonly _enableLRUEviction: boolean;
+  private readonly _maxResidentChunks: number;
   private readonly _onStatus?: (status: string) => void;
   private readonly _onProgress?: (progress: XGFViewStreamProgress) => void;
   private readonly _onChunksLoading?: (manifests: XGFChunkManifest[]) => void;
@@ -81,6 +95,8 @@ export class XGFViewStreamController {
   private _generation = 0;
   private _pendingGeneration = 0;
   private _running = false;
+  private _lruSequence = 0;
+  private readonly _chunkLastUsed = new Map<string, number>();
   private _timer: ReturnType<typeof setTimeout> | undefined;
   private _candidateQueue: CandidateQueue = {
     generation: 0,
@@ -98,7 +114,11 @@ export class XGFViewStreamController {
     this._view = params.view;
     this._fileDataCache = createPrioritizedFileDataCache(
       params.fetchConcurrency || DEFAULT_FETCH_CONCURRENCY,
-      params.loadOptions?.getFileData || fetchFileData
+      params.loadOptions?.getFileData || fetchFileData,
+      {
+        cacheFileData: params.cacheFileData === true,
+        maxCachedFileBytes: params.maxCachedFileBytes
+      }
     );
     this._assetChunksById = new Map(
       params.index.chunks
@@ -109,6 +129,10 @@ export class XGFViewStreamController {
     this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
     this._frustumOnly = params.frustumOnly !== false;
     this._cameraDebounceMs = params.cameraDebounceMs ?? DEFAULT_CAMERA_DEBOUNCE_MS;
+    this._enableLRUEviction = params.enableLRUEviction === true;
+    this._maxResidentChunks = this._enableLRUEviction
+      ? Math.max(0, Math.floor(params.maxResidentChunks ?? DISABLED_MAX_RESIDENT_CHUNKS))
+      : DISABLED_MAX_RESIDENT_CHUNKS;
     this._onStatus = params.onStatus;
     this._onProgress = params.onProgress;
     this._onChunksLoading = params.onChunksLoading;
@@ -147,8 +171,7 @@ export class XGFViewStreamController {
    * Returns chunk manifests sorted by the current view-priority heuristic.
    */
   prioritizeChunks(chunkManifests: XGFChunkManifest[] = this.chunkManifests): StreamManifest[] {
-    return chunkManifests
-      .sort((a, b) => this.chunkPriority(a) - this.chunkPriority(b));
+    return this.prioritizeManifestRecords(chunkManifests).map((record) => record.manifest);
   }
 
   /**
@@ -167,6 +190,7 @@ export class XGFViewStreamController {
   schedule(label = "Streaming"): void {
     this._generation++;
     this.rebuildCandidateQueue(this._generation);
+    this.touchManifests(this._candidateQueue.chunks);
     this.resetQueueProgress(this._generation, this.countPendingFrustumChunks());
     if (this._timer !== undefined) {
       clearTimeout(this._timer);
@@ -225,6 +249,7 @@ export class XGFViewStreamController {
           generation: batchGeneration,
           frustumOnly: this._frustumOnly
         });
+        this.evictLRUChunks();
         this.emitStatus(`${label}: ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
         activeGeneration = this._pendingGeneration || batchGeneration;
         if (activeGeneration === batchGeneration && !this.hasPendingQueuedChunks()) {
@@ -284,6 +309,7 @@ export class XGFViewStreamController {
         const wasLoaded = this.isLoadedManifest(manifest);
         await this._loader.loadChunk({manifest, fileData, sceneModel: this._sceneModel}, this._loadOptions);
         fileData = undefined;
+        this.touchManifest(manifest);
         if (!wasLoaded && manifest.role === "referencesOnly" && this.loadedChunkIds.has(manifest.id)) {
           this.markQueueChunkLoaded(generation);
         }
@@ -301,9 +327,10 @@ export class XGFViewStreamController {
   }
 
   private async preloadDependencies(chunkManifests: XGFChunkManifest[], generation?: number): Promise<void> {
-    const assetManifests = this.dependencyAssetLibraries(chunkManifests)
-      .filter((manifest) => !this.loadedAssetLibraryIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id))
-      .sort((a, b) => this.chunkPriority(a) - this.chunkPriority(b));
+    const assetManifests = this.prioritizeManifestRecords(
+      this.dependencyAssetLibraries(chunkManifests)
+        .filter((manifest) => !this.loadedAssetLibraryIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id))
+    ).map((record) => record.manifest);
     if (assetManifests.length === 0) {
       return;
     }
@@ -383,9 +410,23 @@ export class XGFViewStreamController {
   }
 
   private buildCandidateQueue(): StreamManifest[] {
-    return this.prioritizeChunks()
-      .filter((manifest) => !this.loadedChunkIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id))
-      .filter((manifest) => !this._frustumOnly || this.intersectsCameraFrustum(manifest));
+    const records: PrioritizedManifest[] = [];
+    for (const manifest of this.chunkManifests) {
+      if (this.loadedChunkIds.has(manifest.id) || this.loadingChunkIds.has(manifest.id)) {
+        continue;
+      }
+      const intersectsFrustum = this.intersectsCameraFrustum(manifest);
+      if (this._frustumOnly && !intersectsFrustum) {
+        continue;
+      }
+      records.push({
+        manifest,
+        intersectsFrustum,
+        priority: this.chunkPriorityFromFrustumState(manifest, intersectsFrustum)
+      });
+    }
+    records.sort(comparePriorityRecords);
+    return records.map((record) => record.manifest);
   }
 
   private resetQueueProgress(generation: number, queued: number): void {
@@ -413,6 +454,7 @@ export class XGFViewStreamController {
   private markManifestLoaded(manifest: XGFChunkManifest): void {
     if (manifest.role === "referencesOnly" && !this.loadedChunkIds.has(manifest.id)) {
       this.loadedChunkIds.add(manifest.id);
+      this.touchManifest(manifest);
       this.loadedTotals.objects += manifest.counts?.objects || 0;
       this.loadedTotals.meshes += manifest.counts?.meshes || 0;
     } else if (manifest.role === "assetLibrary") {
@@ -426,8 +468,93 @@ export class XGFViewStreamController {
       : this.loadedChunkIds.has(manifest.id);
   }
 
+  private touchManifests(manifests: XGFChunkManifest[]): void {
+    for (const manifest of manifests) {
+      this.touchManifest(manifest);
+    }
+  }
+
+  private touchManifest(manifest: XGFChunkManifest): void {
+    if (manifest.role !== "referencesOnly") {
+      return;
+    }
+    this._chunkLastUsed.set(manifest.id, ++this._lruSequence);
+  }
+
+  private evictLRUChunks(): void {
+    if (!this._enableLRUEviction || this.loadedChunkIds.size <= this._maxResidentChunks) {
+      return;
+    }
+    const protectedChunkIds = this.protectedChunkIds();
+    const candidates = Array.from(this.loadedChunkIds)
+      .filter((chunkId) => !protectedChunkIds.has(chunkId))
+      .sort((a, b) => (this._chunkLastUsed.get(a) || 0) - (this._chunkLastUsed.get(b) || 0));
+    let evicted = 0;
+    for (const chunkId of candidates) {
+      if (this.loadedChunkIds.size <= this._maxResidentChunks) {
+        break;
+      }
+      const manifest = this.manifestById(chunkId);
+      const result = this._loader.unloadChunk({
+        sceneModel: this._sceneModel,
+        chunkId
+      });
+      if (result.ok === false) {
+        this._onError?.(result.error);
+        continue;
+      }
+      this.loadedChunkIds.delete(chunkId);
+      this._chunkLastUsed.delete(chunkId);
+      if (manifest) {
+        this.loadedTotals.objects = Math.max(0, this.loadedTotals.objects - (manifest.counts?.objects || 0));
+        this.loadedTotals.meshes = Math.max(0, this.loadedTotals.meshes - (manifest.counts?.meshes || 0));
+      }
+      evicted++;
+    }
+    if (evicted > 0) {
+      this.emitStatus(`Evicted ${evicted} LRU chunk(s); ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
+      this.emitProgress();
+    }
+  }
+
+  private protectedChunkIds(): Set<string> {
+    const protectedChunkIds = new Set<string>(this.loadingChunkIds);
+    for (const manifest of this._candidateQueue.chunks) {
+      if (this.intersectsCameraFrustum(manifest)) {
+        protectedChunkIds.add(manifest.id);
+      }
+    }
+    for (const manifest of this.chunkManifests) {
+      if (this.intersectsCameraFrustum(manifest)) {
+        protectedChunkIds.add(manifest.id);
+      }
+    }
+    return protectedChunkIds;
+  }
+
+  private manifestById(chunkId: string): XGFChunkManifest | undefined {
+    return this.chunkManifests.find((manifest) => manifest.id === chunkId);
+  }
+
   private chunkPriority(manifest: XGFChunkManifest): number {
-    return (this.intersectsCameraFrustum(manifest) ? 0 : 1000000) + this.distanceToLookPoint(manifest);
+    return this.chunkPriorityFromFrustumState(manifest, this.intersectsCameraFrustum(manifest));
+  }
+
+  private prioritizeManifestRecords(chunkManifests: XGFChunkManifest[]): PrioritizedManifest[] {
+    const records = chunkManifests.map((manifest) => {
+      const intersectsFrustum = this.intersectsCameraFrustum(manifest);
+      return {
+        manifest,
+        intersectsFrustum,
+        priority: this.chunkPriorityFromFrustumState(manifest, intersectsFrustum)
+      };
+    });
+    records.sort(comparePriorityRecords);
+    return records;
+  }
+
+  private chunkPriorityFromFrustumState(manifest: XGFChunkManifest, intersectsFrustum: boolean): number {
+    return (intersectsFrustum ? 0 : NON_FRUSTUM_PRIORITY_OFFSET) + this.squaredDistanceToLookPoint(manifest);
   }
 
   private intersectsCameraFrustum(manifest: XGFChunkManifest): boolean {
@@ -447,13 +574,13 @@ export class XGFViewStreamController {
     return true;
   }
 
-  private distanceToLookPoint(manifest: XGFChunkManifest): number {
+  private squaredDistanceToLookPoint(manifest: XGFChunkManifest): number {
     const look = this._view.camera.look;
     const aabb = manifest.aabb || [0, 0, 0, 0, 0, 0];
     const dx = Math.max(aabb[0] - look[0], 0, look[0] - aabb[3]);
     const dy = Math.max(aabb[1] - look[1], 0, look[1] - aabb[4]);
     const dz = Math.max(aabb[2] - look[2], 0, look[2] - aabb[5]);
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    return dx * dx + dy * dy + dz * dz;
   }
 
   private emitStatus(status: string): void {
@@ -467,17 +594,54 @@ export class XGFViewStreamController {
 
 function createPrioritizedFileDataCache(
   concurrency: number,
-  resolveFileData: (manifest: XGFChunkManifest, signal?: AbortSignal) => Promise<ArrayBuffer> | ArrayBuffer | undefined
+  resolveFileData: (manifest: XGFChunkManifest, signal?: AbortSignal) => Promise<ArrayBuffer> | ArrayBuffer | undefined,
+  options: {
+    cacheFileData?: boolean;
+    maxCachedFileBytes?: number;
+  } = {}
 ) {
   const cache = new Map<string, FileDataCacheEntry>();
   const queue: FileDataCacheEntry[] = [];
   let activeCount = 0;
+  let cachedBytes = 0;
+  let cacheSequence = 0;
+  const cacheFileData = options.cacheFileData === true;
+  const maxCachedFileBytes = cacheFileData
+    ? Math.max(0, Math.floor(options.maxCachedFileBytes ?? DEFAULT_MAX_CACHED_FILE_BYTES))
+    : 0;
 
   const getKey = (manifest: XGFChunkManifest) => manifest.id || manifest.uri;
 
+  const touch = (entry: FileDataCacheEntry) => {
+    entry.lastUsed = ++cacheSequence;
+  };
+
+  const deleteEntry = (entry: FileDataCacheEntry) => {
+    if (entry.fileData) {
+      cachedBytes = Math.max(0, cachedBytes - entry.byteLength);
+      entry.fileData = undefined;
+      entry.byteLength = 0;
+    }
+    cache.delete(entry.key);
+  };
+
+  const trimCachedBytes = () => {
+    if (!cacheFileData || cachedBytes <= maxCachedFileBytes) {
+      return;
+    }
+    const candidates = Array.from(cache.values())
+      .filter((entry) => !entry.active && !entry.aborted && entry.fileData)
+      .sort((a, b) => a.lastUsed - b.lastUsed);
+    for (const entry of candidates) {
+      if (cachedBytes <= maxCachedFileBytes) {
+        break;
+      }
+      deleteEntry(entry);
+    }
+  };
+
   const pump = () => {
     while (activeCount < concurrency && queue.length > 0) {
-      queue.sort((a, b) => a.priority - b.priority);
       const entry = queue.shift()!;
       if (entry.aborted) {
         continue;
@@ -485,16 +649,26 @@ function createPrioritizedFileDataCache(
       entry.active = true;
       activeCount++;
       loadFileData(entry.manifest, resolveFileData, entry.controller.signal)
-        .then(entry.resolve, (error) => {
-          cache.delete(entry.key);
+        .then((fileData) => {
+          touch(entry);
+          if (cacheFileData && fileData.byteLength <= maxCachedFileBytes) {
+            entry.fileData = fileData;
+            entry.byteLength = fileData.byteLength;
+            cachedBytes += entry.byteLength;
+          }
+          entry.resolve(fileData);
+          trimCachedBytes();
+        }, (error) => {
+          deleteEntry(entry);
           entry.reject(error);
         })
         .finally(() => {
           entry.active = false;
           activeCount--;
-          if (entry.releaseAfterActive) {
-            cache.delete(entry.key);
+          if (entry.releaseAfterActive && !entry.fileData) {
+            deleteEntry(entry);
           }
+          trimCachedBytes();
           pump();
         });
     }
@@ -507,8 +681,15 @@ function createPrioritizedFileDataCache(
     }
     const existing = cache.get(key);
     if (existing) {
+      touch(existing);
+      if (existing.fileData) {
+        return Promise.resolve(existing.fileData);
+      }
       existing.priority = Math.min(existing.priority, priority);
       existing.token = token;
+      if (!existing.active) {
+        repositionQueueEntry(queue, existing);
+      }
       pump();
       return existing.promise;
     }
@@ -530,10 +711,12 @@ function createPrioritizedFileDataCache(
       releaseAfterActive: false,
       resolve: resolveEntry,
       reject: rejectEntry,
-      promise
+      promise,
+      byteLength: 0,
+      lastUsed: ++cacheSequence
     };
     cache.set(key, entry);
-    queue.push(entry);
+    insertQueueEntry(queue, entry);
     pump();
     return promise;
   };
@@ -551,12 +734,12 @@ function createPrioritizedFileDataCache(
     },
     abortQueued: (predicate: (manifest: XGFChunkManifest, token: number | undefined) => boolean): void => {
       for (const entry of cache.values()) {
-        if (entry.active || entry.aborted || !predicate(entry.manifest, entry.token)) {
+        if (entry.active || entry.aborted || entry.fileData || !predicate(entry.manifest, entry.token)) {
           continue;
         }
         entry.aborted = true;
         entry.controller.abort();
-        cache.delete(entry.key);
+        deleteEntry(entry);
         entry.reject(createAbortError());
       }
       for (let i = queue.length - 1; i >= 0; i--) {
@@ -574,13 +757,44 @@ function createPrioritizedFileDataCache(
       if (!entry || entry.aborted) {
         return;
       }
-      if (entry.active) {
-        entry.releaseAfterActive = true;
+      if (entry.fileData) {
+        touch(entry);
+        trimCachedBytes();
         return;
       }
-      cache.delete(key);
+      if (entry.active) {
+        entry.releaseAfterActive = !cacheFileData;
+        return;
+      }
+      deleteEntry(entry);
     }
   };
+}
+
+function comparePriorityRecords(a: PrioritizedManifest, b: PrioritizedManifest): number {
+  if (a.intersectsFrustum !== b.intersectsFrustum) {
+    return a.intersectsFrustum ? -1 : 1;
+  }
+  return a.priority - b.priority;
+}
+
+function insertQueueEntry(queue: FileDataCacheEntry[], entry: FileDataCacheEntry): void {
+  const index = queue.findIndex((candidate) => entry.priority < candidate.priority);
+  if (index === -1) {
+    queue.push(entry);
+    return;
+  }
+  queue.splice(index, 0, entry);
+}
+
+function repositionQueueEntry(queue: FileDataCacheEntry[], entry: FileDataCacheEntry): void {
+  const index = queue.indexOf(entry);
+  if (index === -1) {
+    insertQueueEntry(queue, entry);
+    return;
+  }
+  queue.splice(index, 1);
+  insertQueueEntry(queue, entry);
 }
 
 async function fetchFileData(manifest: XGFChunkManifest, signal?: AbortSignal): Promise<ArrayBuffer> {

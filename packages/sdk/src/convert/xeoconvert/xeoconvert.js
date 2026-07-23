@@ -10,7 +10,7 @@ const npmPackage = require('./../../package.json');
 const fs = require('fs');
 const path = require("path");
 
-const argv = yargs(hideBin(process.argv)).argv;
+const argv = yargs(hideBin(process.argv)).help(false).version(false).argv;
 
 const logEnabled = argv.log;
 
@@ -46,7 +46,24 @@ Input/output — use ONE of:
 Options:
   --log                       Enable verbose logging
   --<reporterId> <reportFile> Generate a conversion report. Available reporters are: ${Object.keys(reporters).join(", ")}
+  --model-id <id>             SceneModel/DataModel id used by generic --in/--out mode.
+  --coordinate-system <file>  JSON coordinate system applied to generic --in/--out SceneModels.
   --help                      Show this help message
+
+XGF Stream output options (used when an output exporter is xgfstream):
+  --xgfstream-partition <mode>                 Chunk partitioning mode: grid or object-order.
+  --xgfstream-chunk-size <n>                   Target object count for object-order partitioning.
+  --xgfstream-chunk-metric <metric>            Grid budget metric: objects, meshes, or geometry-bytes.
+  --xgfstream-chunk-budget <n>                 Target per-chunk budget for the selected metric.
+  --xgfstream-min-chunk-budget <n>             Merge adjacent grid groups below this budget.
+  --xgfstream-grid-cell-size <n>               World-space grid cell size for grid partitioning.
+  --xgfstream-chunk-dir <dir>                  Directory under the stream root for chunk XGFs.
+  --xgfstream-base-uri <uri>                   URI prefix written into generated manifests.
+  --xgfstream-asset-id <id>                    Base ID for generated asset-library chunks.
+  --xgfstream-asset-library-chunk-size <n>     References-only chunks per generated local asset library.
+  --xgfstream-shared-asset-min-library-uses <n> Minimum reuse count for shared library promotion.
+  --xgfstream-index <name>                     Human-readable stream index filename.
+  --xgfstream-runtime-index <name>             Compact runtime index filename.
 
 Inspection (run sceneModelInspector on each loaded SceneModel before export):
   --inspect                   Enable inspection. Implied by any other --inspect-* flag.
@@ -117,9 +134,33 @@ Example (inspect + auto-fix + write report):
     // retainTextureBytes keeps source PNG/JPEG bytes on each SceneTexture so a
     // glTF re-export emits them losslessly (the canvas re-encode path is
     // Node-unavailable). Harmless to loaders that don't read it.
-    const adhoc = {inputs: {in: {loader: argv.loader || resolveLoaderId(argv.in), options: {retainTextureBytes: true}}}};
+    const sceneModelId = argv["model-id"] || argv.modelId || "default";
+    const coordinateSystem = argv["coordinate-system"] || argv.coordinateSystem
+      ? readCoordinateSystem(argv["coordinate-system"] || argv.coordinateSystem)
+      : undefined;
+    const options = {
+      retainTextureBytes: true,
+      ...(coordinateSystem ? {coordinateSystem} : {})
+    };
+    const adhoc = {
+      inputs: {
+        in: {
+          loader: argv.loader || resolveLoaderId(argv.in),
+          options,
+          sceneModel: sceneModelId,
+          dataModel: sceneModelId
+        }
+      }
+    };
     if (argv.out) {
-      adhoc.outputs = {out: {exporter: argv.exporter || resolveExporterId(argv.out)}};
+      adhoc.outputs = {
+        out: {
+          exporter: argv.exporter || resolveExporterId(argv.out),
+          options: coordinateSystem ? {coordinateSystem} : undefined,
+          sceneModel: sceneModelId,
+          dataModel: sceneModelId
+        }
+      };
     }
     modelConverter.pipelines[ADHOC_PIPELINE] = adhoc;
     argv.pipeline = ADHOC_PIPELINE;
@@ -136,6 +177,22 @@ Example (inspect + auto-fix + write report):
     logError(`Error: Unknown pipeline '${argv.pipeline}'. Available options: ${Object.keys(modelConverter.pipelines).join(", ")}`);
     process.exit(-1);
     return;
+  }
+
+  const xgfStreamOptions = collectXGFStreamOptions(argv);
+  if (Object.keys(xgfStreamOptions).length > 0) {
+    const outputIds = Object.keys(pipeline.outputs || {}).filter((outputId) => pipeline.outputs[outputId].exporter === "xgfstream");
+    if (outputIds.length === 0) {
+      logError("Error: --xgfstream-* options were supplied, but the selected pipeline has no xgfstream output");
+      process.exit(-1);
+    }
+    for (const outputId of outputIds) {
+      pipeline.outputs[outputId].options = {
+        ...(pipeline.outputs[outputId].options || {}),
+        ...xgfStreamOptions
+      };
+    }
+    logInfo(`Applied XGF Stream options to output(s): ${outputIds.join(", ")}`);
   }
 
   for (let inputId in pipeline.inputs) {
@@ -341,6 +398,98 @@ function writeFileMapOutput(outputDir, files) {
       fs.writeFileSync(filePath, `${JSON.stringify(fileData)}\n`, "utf8");
     }
   }
+}
+
+function collectXGFStreamOptions(argv) {
+  const options = {};
+  addStringOption(argv, options, "xgfstream-partition", "partition", (value) => {
+    if (value !== "grid" && value !== "object-order") {
+      throw new Error("Error: --xgfstream-partition must be 'grid' or 'object-order'");
+    }
+    return value;
+  });
+  addNumberOption(argv, options, "xgfstream-chunk-size", "chunkSize", positiveInteger);
+  addStringOption(argv, options, "xgfstream-chunk-metric", "chunkMetric", (value) => {
+    if (value !== "objects" && value !== "meshes" && value !== "geometry-bytes") {
+      throw new Error("Error: --xgfstream-chunk-metric must be 'objects', 'meshes' or 'geometry-bytes'");
+    }
+    return value;
+  });
+  addNumberOption(argv, options, "xgfstream-chunk-budget", "chunkBudget", positiveNumber);
+  addNumberOption(argv, options, "xgfstream-min-chunk-budget", "minChunkBudget", positiveNumber);
+  addNumberOption(argv, options, "xgfstream-grid-cell-size", "gridCellSize", positiveNumber);
+  addStringOption(argv, options, "xgfstream-chunk-dir", "chunkDir");
+  addStringOption(argv, options, "xgfstream-base-uri", "baseUri");
+  addStringOption(argv, options, "xgfstream-asset-id", "assetId");
+  addNumberOption(argv, options, "xgfstream-asset-library-chunk-size", "assetLibraryChunkSize", positiveInteger);
+  addNumberOption(argv, options, "xgfstream-shared-asset-min-library-uses", "sharedAssetMinLibraryUses", positiveInteger);
+  addStringOption(argv, options, "xgfstream-index", "index");
+  addStringOption(argv, options, "xgfstream-runtime-index", "runtimeIndex");
+  return options;
+}
+
+function readCoordinateSystem(filePath) {
+  const coordinateSystem = JSON.parse(fs.readFileSync(path.resolve(filePath), "utf8"));
+  if (!Array.isArray(coordinateSystem.basis) || coordinateSystem.basis.length !== 9) {
+    throw new Error(`Error: --coordinate-system ${filePath} must contain a basis array with 9 numbers`);
+  }
+  if (!Array.isArray(coordinateSystem.origin) || coordinateSystem.origin.length !== 3) {
+    throw new Error(`Error: --coordinate-system ${filePath} must contain an origin array with 3 numbers`);
+  }
+  if (!coordinateSystem.units) {
+    throw new Error(`Error: --coordinate-system ${filePath} must contain units`);
+  }
+  return coordinateSystem;
+}
+
+function addStringOption(argv, options, flagName, optionName, normalize = (value) => value) {
+  if (!hasArg(argv, flagName)) {
+    return;
+  }
+  const value = argValue(argv, flagName);
+  if (value === true || value === "") {
+    throw new Error(`Error: --${flagName} requires a value`);
+  }
+  options[optionName] = normalize(String(value));
+}
+
+function addNumberOption(argv, options, flagName, optionName, normalize) {
+  if (!hasArg(argv, flagName)) {
+    return;
+  }
+  const value = argValue(argv, flagName);
+  if (value === true || value === "") {
+    throw new Error(`Error: --${flagName} requires a value`);
+  }
+  options[optionName] = normalize(value, flagName);
+}
+
+function hasArg(argv, flagName) {
+  return Object.prototype.hasOwnProperty.call(argv, flagName) || Object.prototype.hasOwnProperty.call(argv, camelCase(flagName));
+}
+
+function argValue(argv, flagName) {
+  return Object.prototype.hasOwnProperty.call(argv, flagName) ? argv[flagName] : argv[camelCase(flagName)];
+}
+
+function camelCase(flagName) {
+  return flagName.replace(/-([a-z])/g, (_m, c) => c.toUpperCase());
+}
+
+function positiveInteger(value, flagName) {
+  const number = Number(value);
+  if (!Number.isInteger(number) || number <= 0) {
+    throw new Error(`Error: --${flagName} must be a positive integer`);
+  }
+  return number;
+}
+
+function positiveNumber(value, flagName) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) {
+    throw new Error(`Error: --${flagName} must be a positive number`);
+  }
+  return number;
 }
 
 function safeFileMapPath(relativePath) {

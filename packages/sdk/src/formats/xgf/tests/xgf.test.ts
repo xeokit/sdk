@@ -653,8 +653,14 @@ describe("xgf", () => {
       });
 
       expect(runtime.format).toBe("XGFStreamingRuntimeIndex");
-      expect(runtime.chunks[1][0]).toBe("tile-a");
-      expect(runtime.chunks[1][3]).toEqual([["lib-a", "lib-a.xgf"]]);
+      expect(runtime.indexVersion).toBe("1.1.0");
+      expect(runtime.roles).toBeUndefined();
+      expect(runtime.counts).toBeUndefined();
+      expect(runtime.strings).toEqual(expect.arrayContaining(["lib-a", "lib-a.xgf", "tile-a", "tile-a.xgf"]));
+      expect(typeof runtime.chunks[1][0]).toBe("number");
+      expect(runtime.chunks[1][3]).toEqual([[0, 1]]);
+      expect(runtime.root).toEqual([2]);
+      expect(runtime.aabbQuantization).toBeDefined();
 
       const result = readXGFStreamingRuntimeIndex(runtime);
 
@@ -667,6 +673,29 @@ describe("xgf", () => {
         expect(result.value.chunks[1].priority).toBe(7);
         expect(result.value.chunks[1].lod).toBe("fine");
         expect(result.value.chunks[1].assets.geometries).toEqual([]);
+      }
+    });
+
+    it("reads legacy compact runtime streaming indexes", () => {
+      const result = readXGFStreamingRuntimeIndex({
+        format: "XGFStreamingRuntimeIndex",
+        indexVersion: "1.0.0",
+        roles: ["full", "assetLibrary", "referencesOnly"],
+        counts: ["transforms", "geometries", "materials", "textures", "meshes", "objects"],
+        root: ["tile-a"],
+        aabb: [0, 0, 0, 1, 1, 1],
+        chunks: [
+          ["lib-a", "lib-a.xgf", 1, [], null, [0, 1, 0, 0, 0, 0]],
+          ["tile-a", "tile-a.xgf", 2, [["lib-a", "lib-a.xgf"]], [0, 0, 0, 1, 1, 1], [0, 0, 0, 0, 0, 1], 7, "fine"]
+        ]
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.rootChunkIds).toEqual(["tile-a"]);
+        expect(result.value.chunks[1].dependencies.chunks).toEqual([{id: "lib-a", uri: "lib-a.xgf"}]);
+        expect(result.value.chunks[1].priority).toBe(7);
+        expect(result.value.chunks[1].lod).toBe("fine");
       }
     });
 

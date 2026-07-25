@@ -75,6 +75,10 @@ export class SnapManager {
   /** Reused snap result — pick-style transient. */
   private readonly _snapResult = new PickResult();
 
+  private readonly _snapClipPos = createVec2Float64();
+  private readonly _snapBufferSize = createVec2Float64();
+  private readonly _snappedCanvasPos = createVec2Float64();
+
   constructor(cfg: {
     renderContext: RenderContext;
     gpuMemoryManager: GPUMemoryManager;
@@ -173,11 +177,12 @@ export class SnapManager {
     // formula PickManager uses for its 1×1 case; the snap viewport
     // gives the cursor a (2r+1)² window of pixels around it.
     const effectiveResolutionScale = getEffectiveResolutionScale(view);
-    renderContext.snapClipPos = createVec2Float64([
-      this._clipPosX(params.canvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth),
-      this._clipPosY(params.canvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight),
-    ]);
-    renderContext.snapBufferSize = createVec2Float64([dim, dim]);
+    this._snapClipPos[0] = this._clipPosX(params.canvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth);
+    this._snapClipPos[1] = this._clipPosY(params.canvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight);
+    this._snapBufferSize[0] = dim;
+    this._snapBufferSize[1] = dim;
+    renderContext.snapClipPos = this._snapClipPos;
+    renderContext.snapBufferSize = this._snapBufferSize;
 
     // ── Bind + clear the snap FBO ──────────────────────────────
     snapBuffer.bind();
@@ -276,7 +281,7 @@ export class SnapManager {
     // Result is in CSS pixels (drawing buffer divided by the view's
     // resolution scale), top-left origin — matches the canvasPos
     // coordinates the caller passed in.
-    const snappedCanvasPos: Vec2 = createVec2Float64();
+    const snappedCanvasPos: Vec2 = this._snappedCanvasPos;
     tempVec4a[0] = tempVec3a[0];
     tempVec4a[1] = tempVec3a[1];
     tempVec4a[2] = tempVec3a[2];
@@ -295,7 +300,7 @@ export class SnapManager {
     result.reset();
     result.view = view;
     result.canvasPos = params.canvasPos;
-    result.worldPos = createVec3Float64([tempVec3a[0], tempVec3a[1], tempVec3a[2]]);
+    result.worldPos = tempVec3a;
     result.snappedToVertex = vertexHit !== null;
     result.snappedToEdge   = edgeHit   !== null;
     result.snappedCanvasPos = snappedCanvasPos;

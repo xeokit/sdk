@@ -74,9 +74,8 @@ interface ExtensionHandles {
  * the source is `undefined` or too short. Used by the IBL prep block to
  * ferry colour values from `view.lights.ibl` into the prefilter pipeline.
  */
-function arrTriple(src: any, fallback: [number, number, number]): [number, number, number] {
-  if (src && src.length >= 3) return [src[0], src[1], src[2]];
-  return [fallback[0], fallback[1], fallback[2]];
+function tripleValue(src: any, fallback: [number, number, number], index: 0 | 1 | 2): number {
+  return src && src.length >= 3 ? src[index] : fallback[index];
 }
 
 export class RenderManager {
@@ -169,8 +168,11 @@ export class RenderManager {
    */
   private _iblPrefilters: Map<number, IBLPrefilter> = new Map();
 
-  /** Cached signature of last-applied sky params per view, for dirty detection. */
-  private _iblParamSignatures: Map<number, string> = new Map();
+  /** Cached scalar signature of last-applied sky params per view, for dirty detection. */
+  private _iblParamSignatures: Map<number, Float64Array> = new Map();
+
+  /** Reused scalar signature scratch for IBL dirty detection. */
+  private readonly _iblSignatureScratch = new Float64Array(22);
 
   /** Last-seen `view.lights.ibl.environmentVersion` per view, so the prefilter
    *  only re-uploads its equirect texture when the image actually changes. */
@@ -406,41 +408,59 @@ export class RenderManager {
     // makes specular reflections on curved metals look interesting.
     // Without a richer horizon band, smooth metals just reflect a flat
     // disk of zenith colour.
-    const skyZenith = arrTriple(hemi?.skyColor, [0.62, 0.72, 0.86]);
-    const groundC   = arrTriple(hemi?.groundColor, [0.42, 0.36, 0.30]);
-    const horizon: [number, number, number] = [
-      Math.min(1, skyZenith[0] * 0.55 + 0.40),
-      Math.min(1, skyZenith[1] * 0.55 + 0.40),
-      Math.min(1, skyZenith[2] * 0.55 + 0.40)
-    ];
+    const hemiSky = hemi?.skyColor;
+    const hemiGround = hemi?.groundColor;
+    const hemiWorldUp = hemi?.worldUp;
+    const sky0 = tripleValue(hemiSky, [0.62, 0.72, 0.86], 0);
+    const sky1 = tripleValue(hemiSky, [0.62, 0.72, 0.86], 1);
+    const sky2 = tripleValue(hemiSky, [0.62, 0.72, 0.86], 2);
+    const ground0 = tripleValue(hemiGround, [0.42, 0.36, 0.30], 0);
+    const ground1 = tripleValue(hemiGround, [0.42, 0.36, 0.30], 1);
+    const ground2 = tripleValue(hemiGround, [0.42, 0.36, 0.30], 2);
+    const horizon0 = Math.min(1, sky0 * 0.55 + 0.40);
+    const horizon1 = Math.min(1, sky1 * 0.55 + 0.40);
+    const horizon2 = Math.min(1, sky2 * 0.55 + 0.40);
     // Sun brightness scales with the cubemap's HDR capability. With
     // RGBA16F we can stamp a genuinely-bright sun (~12× sky luminance,
     // visually bright enough to drive the ACES tonemap into highlight
     // bloom on smooth metal reflections). RGBA8 clamps everything to 1
     // — keep sun close to 1 to avoid wholesale clipping at the disk.
     const hdrPipeline = pipeline.hdr;
-    const sunColor: [number, number, number] = hdrPipeline
-      ? [12.0, 11.0, 8.5]   // HDR: punchy yellow-white sun
-      : [1.5, 1.45, 1.20];  // LDR: just brighter than sky
-    const sky: SkyParams = {
-      skyColor: skyZenith,
-      horizonColor: horizon,
-      groundColor: groundC,
-      horizonBlend: 0.25,
-      sunEnabled: true,
-      sunDirection: sunToward,
-      sunColor,
-      sunAngularSizeDegrees: 4.0,
-      sunGlowSize: 8.0,
-      sunGlowIntensity: hdrPipeline ? 4.5 : 1.4,
-      worldUp: arrTriple(hemi?.worldUp, [0, 0, 1])
-    };
-    // Dirty-detect via a cheap string signature so we don't repeatedly
-    // re-render an unchanged sky.
-    const signature = JSON.stringify(sky);
-    if (this._iblParamSignatures.get(viewIndex) !== signature) {
+    const sun0 = hdrPipeline ? 12.0 : 1.5;
+    const sun1 = hdrPipeline ? 11.0 : 1.45;
+    const sun2 = hdrPipeline ? 8.5 : 1.20;
+    const glowIntensity = hdrPipeline ? 4.5 : 1.4;
+    const up0 = tripleValue(hemiWorldUp, [0, 0, 1], 0);
+    const up1 = tripleValue(hemiWorldUp, [0, 0, 1], 1);
+    const up2 = tripleValue(hemiWorldUp, [0, 0, 1], 2);
+
+    const signature = this._iblSignatureScratch;
+    signature[0] = sky0; signature[1] = sky1; signature[2] = sky2;
+    signature[3] = horizon0; signature[4] = horizon1; signature[5] = horizon2;
+    signature[6] = ground0; signature[7] = ground1; signature[8] = ground2;
+    signature[9] = sunToward[0]; signature[10] = sunToward[1]; signature[11] = sunToward[2];
+    signature[12] = sun0; signature[13] = sun1; signature[14] = sun2;
+    signature[15] = 0.25;
+    signature[16] = 4.0;
+    signature[17] = 8.0;
+    signature[18] = glowIntensity;
+    signature[19] = up0; signature[20] = up1; signature[21] = up2;
+
+    if (this._iblSignatureChanged(viewIndex, signature)) {
+      const sky: SkyParams = {
+        skyColor: [sky0, sky1, sky2],
+        horizonColor: [horizon0, horizon1, horizon2],
+        groundColor: [ground0, ground1, ground2],
+        horizonBlend: 0.25,
+        sunEnabled: true,
+        sunDirection: [sunToward[0], sunToward[1], sunToward[2]],
+        sunColor: [sun0, sun1, sun2],
+        sunAngularSizeDegrees: 4.0,
+        sunGlowSize: 8.0,
+        sunGlowIntensity: glowIntensity,
+        worldUp: [up0, up1, up2]
+      };
       pipeline.setParams(sky);
-      this._iblParamSignatures.set(viewIndex, signature);
     }
 
     const refreshResult = pipeline.refresh();
@@ -462,6 +482,23 @@ export class RenderManager {
     m[0] = vm[0]; m[1] = vm[4]; m[2] = vm[8];
     m[3] = vm[1]; m[4] = vm[5]; m[5] = vm[9];
     m[6] = vm[2]; m[7] = vm[6]; m[8] = vm[10];
+  }
+
+  private _iblSignatureChanged(viewIndex: number, next: Float64Array): boolean {
+    let prev = this._iblParamSignatures.get(viewIndex);
+    if (!prev) {
+      prev = new Float64Array(next.length);
+      prev.set(next);
+      this._iblParamSignatures.set(viewIndex, prev);
+      return true;
+    }
+    for (let i = 0; i < next.length; i++) {
+      if (prev[i] !== next[i]) {
+        prev.set(next);
+        return true;
+      }
+    }
+    return false;
   }
 
   /** Binds the main colour target for the scene phase (HDR FBO or canvas). */

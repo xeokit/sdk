@@ -6,7 +6,7 @@ import {
 } from "../../../../base/math/matrix";
 import {
   addVec3, createVec2Float64, createVec3Float64, createVec4Float64,
-  cross3Vec3, dotVec4, mulVec3Scalar, mulVec4Scalar, normalizeVec3, subVec3, type Vec2, type Vec3
+  cross3Vec3, mulVec3Scalar, mulVec4Scalar, normalizeVec3, subVec3, type Vec2, type Vec3
 } from "../../../../base/math/vector";
 import {ViewRenderState} from "../ViewRenderState";
 import {RenderContext} from "../RenderContext";
@@ -31,7 +31,6 @@ const tempVec4a = createVec4Float64();
 const tempVec4b = createVec4Float64();
 const tempVec4c = createVec4Float64();
 const tempVec4d = createVec4Float64();
-const tempVec4e = createVec4Float64();
 
 const tempMat4a = createMat4Float64();
 const tempMat4b = createMat4Float64();
@@ -501,9 +500,12 @@ export class PickManager {
   }
 
   private _unpackDepth(depthZ) {
-    const vec = createVec4Float64([depthZ[0] / 256.0, depthZ[1] / 256.0, depthZ[2] / 256.0, depthZ[3] / 256.0]);
-    const bitShift = createVec4Float64([1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0]);
-    return dotVec4(vec, bitShift);
+    return (
+      depthZ[0] / 4294967296.0 +
+      depthZ[1] / 16777216.0 +
+      depthZ[2] / 65536.0 +
+      depthZ[3] / 256.0
+    );
   }
 
   private _getClipPosX(pos: number, size: number) {

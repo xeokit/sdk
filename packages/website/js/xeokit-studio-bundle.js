@@ -12428,7 +12428,8 @@ var procgen_exports = {};
 __export(procgen_exports, {
   buildGeometry: () => buildGeometry_exports,
   paintEnvironments: () => paintEnvironments_exports,
-  paintMaterials: () => paintMaterials_exports
+  paintMaterials: () => paintMaterials_exports,
+  treeGenerator: () => treeGenerator_exports
 });
 
 // ../sdk/src/model/procgen/buildGeometry/index.ts
@@ -17389,37 +17390,10 @@ FORMAT=32-bit_rle_rgbe
   return out.buffer;
 }
 
-// ../sdk/src/model/scene/index.ts
-var scene_exports = {};
-__export(scene_exports, {
-  CoordinateSystem: () => CoordinateSystem,
-  HATCH_FAMILY_FLOAT_STRIDE: () => HATCH_FAMILY_FLOAT_STRIDE,
-  HATCH_STYLE_PRESETS: () => HATCH_STYLE_PRESETS,
-  LINE_STYLE_PRESETS: () => LINE_STYLE_PRESETS,
-  MAX_HATCH_FAMILIES: () => MAX_HATCH_FAMILIES,
-  MAX_LINE_PATTERN_ENTRIES: () => MAX_LINE_PATTERN_ENTRIES,
-  Scene: () => Scene,
-  SceneEvents: () => SceneEvents,
-  SceneGeometry: () => SceneGeometry,
-  SceneMaterial: () => SceneMaterial,
-  SceneMesh: () => SceneMesh,
-  SceneModel: () => SceneModel2,
-  SceneObject: () => SceneObject,
-  SceneTechnique: () => SceneTechnique,
-  SceneTexture: () => SceneTexture,
-  SceneTransform: () => SceneTransform,
-  ThickLinesTechnique: () => ThickLinesTechnique,
-  buildMat4: () => buildMat4,
-  compressGeometryParams: () => compressGeometryParams,
-  createCoordinateSystemTransform: () => createCoordinateSystemTransform,
-  emptyHatchPattern: () => emptyHatchPattern,
-  emptyLinePattern: () => emptyLinePattern,
-  getMeshWorldMatrix: () => getMeshWorldMatrix,
-  isDefaultLayer: () => isDefaultLayer,
-  isDefaultLayerModel: () => isDefaultLayerModel,
-  isDefaultLayerObject: () => isDefaultLayerObject,
-  normaliseHatchPattern: () => normaliseHatchPattern,
-  normaliseLinePattern: () => normaliseLinePattern
+// ../sdk/src/model/procgen/treeGenerator/index.ts
+var treeGenerator_exports = {};
+__export(treeGenerator_exports, {
+  TreeGenerator: () => TreeGenerator
 });
 
 // ../sdk/src/model/scene/buildEdgeIndices.ts
@@ -17833,1477 +17807,6 @@ var SceneGeometry = class {
   }
 };
 
-// ../sdk/src/model/scene/CoordinateSystem.ts
-var CoordinateSystem = class {
-  _notifyUpdatedScheduled;
-  _updated;
-  _scene;
-  _model;
-  _basis = createVec9Float64([
-    1,
-    0,
-    0,
-    // Right
-    0,
-    0,
-    1,
-    // Up
-    0,
-    1,
-    0
-    // Forward
-  ]);
-  _origin;
-  _units;
-  _scaleToMeters;
-  _worldUp;
-  _worldRight;
-  _worldForward;
-  /**
-   * True if this CoordinateSystem has been destroyed.
-   */
-  destroyed = false;
-  /**
-   * @private
-   */
-  constructor(parent, updated, params) {
-    if (parent instanceof Scene) {
-      this._scene = parent;
-    } else {
-      this._model = parent;
-    }
-    this._updated = updated;
-    this._origin = createVec3Float64(params?.origin || [0, 0, 0]);
-    this._units = params?.units || "meters";
-    this._scaleToMeters = params?.scaleToMeters || 1;
-    this._worldUp = createVec3Float32();
-    this._worldRight = createVec3Float32();
-    this._worldForward = createVec3Float32();
-    this.basis = params?.basis;
-  }
-  /** @private */
-  _notifyUpdated() {
-    if (!this._notifyUpdatedScheduled) {
-      this._notifyUpdatedScheduled = true;
-      setTimeout(() => {
-        this._notifyUpdatedScheduled = false;
-        if (this._updated) {
-          this._updated();
-        }
-        this._model ? this._model.scene.events.onSceneModelCoordSystemUpdated.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
-      }, 100);
-    }
-  }
-  /** Gets the flat 9-element coordinate system basis (column-major). */
-  get basis() {
-    return this._basis;
-  }
-  /**
-   * Sets the flat 9-element coordinate system basis (column-major).
-   *
-   * By default, this is a right-handed Z-up basis: ````[1,0,0, 0,0,1, 0,1,0]````.
-   *
-   * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
-   */
-  set basis(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.basis] CoordinateSystem already destroyed - cannot set basis"
-      });
-      return;
-    }
-    if (value) {
-      if (value.length !== 9) {
-        (this._scene || this._model.scene).logError({
-          ok: false,
-          type: 2 /* InvalidInput */,
-          error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
-        });
-        return;
-      }
-      if (!testOrthogonalAxis(value)) {
-        (this._scene || this._model.scene).logError({
-          ok: false,
-          type: 2 /* InvalidInput */,
-          error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
-        });
-        return;
-      }
-    }
-    this._basis = createVec9Float64(value || [
-      1,
-      0,
-      0,
-      // Right
-      0,
-      0,
-      1,
-      // Up
-      0,
-      1,
-      0
-      // Forward
-    ]);
-    this._updateWorldAxesFromBasis();
-    this._model ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  _updateWorldAxesFromBasis() {
-    this._worldRight[0] = this._basis[0];
-    this._worldRight[1] = this._basis[1];
-    this._worldRight[2] = this._basis[2];
-    this._worldUp[0] = this._basis[3];
-    this._worldUp[1] = this._basis[4];
-    this._worldUp[2] = this._basis[5];
-    this._worldForward[0] = this._basis[6];
-    this._worldForward[1] = this._basis[7];
-    this._worldForward[2] = this._basis[8];
-  }
-  /** Gets the origin of the coordinate system in global space. */
-  get origin() {
-    return this._origin;
-  }
-  /**
-   * Sets the origin of the coordinate system in global space.
-   * Emits event on change, via `Scene.events.coordSystemOrigin` or `SceneModel.events.modelCoordSystemOrigin`.
-   */
-  set origin(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.origin] CoordinateSystem already destroyed - cannot set origin"
-      });
-      return;
-    }
-    this._origin = createVec3Float32(value);
-    this._model ? this._model.scene.events.onSceneModelCoordSystemOriginChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemOriginChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  /** Gets the unit system used. */
-  get units() {
-    return this._units;
-  }
-  /**
-   * Sets the unit system used.
-   * Emits event on change, via `Scene.events.coordSystemUnits` or `SceneModel.events.modelCoordSystemUnits`.
-   */
-  set units(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.units] CoordinateSystem already destroyed - cannot set units"
-      });
-      return;
-    }
-    if (value !== "meters" && value !== "millimeters" && value !== "inches" && value !== "feet") {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: "[CoordinateSystem.units] Invalid units - must be 'meters', 'millimeters', 'inches', or 'feet'"
-      });
-      return;
-    }
-    this._units = value;
-    this._model ? this._model.scene.events.onSceneModelCoordSystemUnitsChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUnitsChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  /** Gets the optional scale-to-meters multiplier. */
-  get scaleToMeters() {
-    return this._scaleToMeters;
-  }
-  /**
-   * Sets the optional scale-to-meters multiplier.
-   * Emits event on change, via `Scene.events.coordSystemMeters` or `SceneModel.events.modelCoordSystemMeters`.
-   */
-  set scaleToMeters(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.scaleToMeters] CoordinateSystem already destroyed - cannot set scaleToMeters"
-      });
-      return;
-    }
-    if (value !== void 0 && (typeof value !== "number" || isNaN(value) || value <= 0)) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: "[CoordinateSystem.scaleToMeters] Invalid scaleToMeters - must be a positive number"
-      });
-      return;
-    }
-    this._scaleToMeters = value;
-    this._model ? this._model.scene.events.onSceneModelCoordSystemScaleToMetersChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemScaleToMetersChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  /**
-   * Gets the direction of World-space "up".
-   *
-   * This is set by {@link CoordinateSystem.basis}.
-   *
-   * Default value is ````[0,0,1]````.
-   *
-   * @returns {Number[]} The "up" vector.
-   */
-  get worldUp() {
-    return this._worldUp;
-  }
-  /**
-   * Gets the direction of World-space "right".
-   *
-   * This is set by {@link CoordinateSystem.basis}.
-   *
-   * Default value is ````[1,0,0]````.
-   *
-   * @returns {Number[]} The "right" vector.
-   */
-  get worldRight() {
-    return this._worldRight;
-  }
-  /**
-   * Gets the direction of World-space "forwards".
-   *
-   * This is set by {@link CoordinateSystem.basis}.
-   *
-   * Default value is ````[0,0,-1]````.
-   *
-   * @returns {Number[]} The "forwards" vector.
-   */
-  get worldForward() {
-    return this._worldForward;
-  }
-  /**
-   * Gets if the World-space X-axis is "up".
-   * @returns {boolean}
-   */
-  get xUp() {
-    return this._worldUp[0] > this._worldUp[1] && this._worldUp[0] > this._worldUp[2];
-  }
-  /**
-   * Gets if the World-space Y-axis is "up".
-   * @returns {boolean}
-   */
-  get yUp() {
-    return this._worldUp[1] > this._worldUp[0] && this._worldUp[1] > this._worldUp[2];
-  }
-  /**
-   * Gets if the World-space Z-axis is "up".
-   * @returns {boolean}
-   */
-  get zUp() {
-    return this._worldUp[2] > this._worldUp[0] && this._worldUp[2] > this._worldUp[1];
-  }
-  /**
-   * Returns a copy of the current state as a CoordinateSystemParams object.
-   */
-  toParams() {
-    return {
-      basis: Array.from(this._basis),
-      origin: Array.from(this._origin),
-      units: this._units,
-      scaleToMeters: this._scaleToMeters
-    };
-  }
-  /**
-   * Updates this instance's state from a CoordinateSystemParams object.
-   */
-  fromParams(params) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.fromParams] CoordinateSystem already destroyed - cannot call fromParams"
-      });
-      return;
-    }
-    this.basis = params.basis;
-    this.origin = params.origin;
-    this.units = params.units;
-    this.scaleToMeters = params.scaleToMeters;
-  }
-  /**
-   * Destroys this CoordinateSystem.
-   * @private
-   */
-  destroy() {
-    if (this.destroyed) {
-      return;
-    }
-    this.destroyed = true;
-  }
-};
-
-// ../sdk/src/model/scene/createCoordinateSystemTransform.ts
-var tempMat3a = createMat4Float64();
-var tempMat3b = createMat4Float64();
-var tempVec3a3 = createVec3Float64();
-var tempVec3b3 = createVec3Float64();
-function createCoordinateSystemTransform(coordSys1, coordSys2, outMat4) {
-  const modelBasis = coordSys1.basis;
-  const viewerBasis = coordSys2.basis;
-  transpose3(viewerBasis, tempMat3a);
-  multiply3x3(tempMat3a, modelBasis, tempMat3b);
-  const scale3 = (coordSys1.scaleToMeters ?? unitScale(coordSys1.units)) / (coordSys2.scaleToMeters ?? unitScale(coordSys2.units));
-  tempVec3a3[0] = (coordSys1.origin[0] - coordSys2.origin[0]) * scale3;
-  tempVec3a3[1] = (coordSys1.origin[1] - coordSys2.origin[1]) * scale3;
-  tempVec3a3[2] = (coordSys1.origin[2] - coordSys2.origin[2]) * scale3;
-  apply3x3(tempMat3a, tempVec3a3, tempVec3b3);
-  outMat4[0] = tempMat3b[0] * scale3;
-  outMat4[1] = tempMat3b[1] * scale3;
-  outMat4[2] = tempMat3b[2] * scale3;
-  outMat4[3] = 0;
-  outMat4[4] = tempMat3b[3] * scale3;
-  outMat4[5] = tempMat3b[4] * scale3;
-  outMat4[6] = tempMat3b[5] * scale3;
-  outMat4[7] = 0;
-  outMat4[8] = tempMat3b[6] * scale3;
-  outMat4[9] = tempMat3b[7] * scale3;
-  outMat4[10] = tempMat3b[8] * scale3;
-  outMat4[11] = 0;
-  outMat4[12] = tempVec3b3[0];
-  outMat4[13] = tempVec3b3[1];
-  outMat4[14] = tempVec3b3[2];
-  outMat4[15] = 1;
-  return outMat4;
-}
-function transpose3(m, out) {
-  out[0] = m[0];
-  out[1] = m[3];
-  out[2] = m[6];
-  out[3] = m[1];
-  out[4] = m[4];
-  out[5] = m[7];
-  out[6] = m[2];
-  out[7] = m[5];
-  out[8] = m[8];
-}
-function multiply3x3(a2, b4, out) {
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      out[col * 3 + row] = a2[0 * 3 + row] * b4[col * 3 + 0] + a2[1 * 3 + row] * b4[col * 3 + 1] + a2[2 * 3 + row] * b4[col * 3 + 2];
-    }
-  }
-}
-function apply3x3(m, v, out) {
-  out[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
-  out[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];
-  out[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
-}
-function unitScale(unit) {
-  switch (unit) {
-    case "meters":
-      return 1;
-    case "millimeters":
-      return 1e-3;
-    case "inches":
-      return 0.0254;
-    case "feet":
-      return 0.3048;
-  }
-}
-
-// ../sdk/src/model/scene/SceneTransform.ts
-var SceneTransform = class {
-  /** Unique identifier for this transform within the {@link model!scene.SceneModel | SceneModel}. */
-  id;
-  /** The global ID of this SceneTransform, unique among all SceneTransforms within the Scene, **/
-  uniqueId;
-  /** The {@link model!scene.SceneModel | SceneModel} this transform belongs to. */
-  model;
-  /** Local scale vector (XYZ). Defaults to `[1, 1, 1]`. */
-  _scale = createVec3Float64([1, 1, 1]);
-  /** Local Euler rotation in degrees (XYZ order). Kept in sync with {@link _quaternion}. */
-  _rotation = createVec3Float64([0, 0, 0]);
-  /** Local position (XYZ). Defaults to `[0, 0, 0]`. */
-  _position = createVec3Float64([0, 0, 0]);
-  /** Local orientation quaternion. Kept in sync with {@link _rotation}. */
-  _quaternion = createQuatFloat64();
-  /**
-   * Local transformation matrix (TRS) relative to {@link parentTransform}.
-   *
-   * - If {@link _localMatrixDirty} is `true`, this matrix is rebuilt from TRS.
-   * - You can also set this directly via {@link matrix}, which decomposes into TRS.
-   */
-  _localMatrix = identityMat4();
-  /**
-   * Global transformation matrix in model/world space.
-   *
-   * Computed as:
-   * - `parent.worldMatrix * localMatrix` when a parent exists
-   * - `localMatrix` when no parent exists
-   *
-   * @private
-   */
-  _worldMatrix;
-  /** True when {@link _localMatrix} needs rebuilding from TRS. */
-  _localMatrixDirty = false;
-  /** True when {@link _worldMatrix} needs rebuilding. */
-  _worldMatrixDirty = true;
-  /**
-   * Child meshes directly parented to this transform.
-   * @private
-   */
-  _childMeshes = [];
-  /** Child transforms directly parented to this transform. */
-  _childTransforms = [];
-  /** Parent transform, or `null` when this transform is a root. */
-  _parentTransform = null;
-  /**
-   * True once {@link destroy} has been called.
-   */
-  destroyed = false;
-  /**
-   * Batched task that propagates dirtiness through the transform tree after local changes.
-   * Scheduled in {@link SDKTask.ComputeStage} so local updates happen before global updates.
-   */
-  _markTreeDirtyTask;
-  /**
-   * Creates a new {@link SceneTransform}.
-   *
-   * If `transformParams.matrix` is provided, it is used as the local matrix and decomposed
-   * into TRS (keeping Euler/quaternion consistent). Otherwise, TRS components are applied.
-   * @private
-   */
-  constructor(model, transformParams) {
-    this.id = transformParams.id;
-    this.uniqueId = `${model.id}__${this.id}`;
-    this.model = model;
-    this._localMatrix = transformParams.matrix ? createMat4Float64(transformParams.matrix) : identityMat4();
-    this._worldMatrix = createMat4Float64();
-    this._markTreeDirtyTask = new SDKTask({
-      name: "SceneTransform._markTreeDirtyTask",
-      stage: SDKTask.ComputeStage,
-      task: () => this.setWorldMatrixDirty()
-    });
-    if (transformParams.matrix) {
-      this.matrix = transformParams.matrix;
-      return;
-    }
-    this.scale = transformParams.scale;
-    this.position = transformParams.position;
-    if (transformParams.quaternion) {
-      this.quaternion = transformParams.quaternion;
-    } else {
-      this.rotation = transformParams.rotation;
-    }
-  }
-  // ------------------------------------------------------------------------------------------------
-  // Local TRS
-  // ------------------------------------------------------------------------------------------------
-  /** Sets the local scale (XYZ). */
-  set scale(scale3) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.scale] Cannot set scale on destroyed SceneTransform ${this.id}`
-      });
-      return;
-    }
-    this._scale.set(scale3 ?? [1, 1, 1]);
-    this._setLocalDirty();
-  }
-  /** Gets the local scale (XYZ). */
-  get scale() {
-    return this._scale;
-  }
-  /** Sets the local rotation as Euler angles in degrees (XYZ order). */
-  set rotation(rotation) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.rotation] Cannot set rotation on destroyed SceneTransform ${this.id}`
-      });
-      return;
-    }
-    this._rotation.set(rotation ?? [0, 0, 0]);
-    eulerToQuat(this._rotation, "XYZ", this._quaternion);
-    this._setLocalDirty();
-  }
-  /** Gets the local rotation as Euler angles in degrees (XYZ order). */
-  get rotation() {
-    return this._rotation;
-  }
-  /** Sets the local rotation as a quaternion. */
-  set quaternion(quaternion) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.quaternion] Cannot set quaternion on destroyed SceneTransform ${this.id}`
-      });
-      return;
-    }
-    this._quaternion.set(quaternion);
-    quatToEuler(this._quaternion, "XYZ", this._rotation);
-    this._setLocalDirty();
-  }
-  /** Gets the local rotation quaternion. */
-  get quaternion() {
-    return this._quaternion;
-  }
-  /** Sets the local position (XYZ). */
-  set position(position) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.position] Cannot set position on destroyed SceneTransform ${this.id}`
-      });
-      return;
-    }
-    this._position.set(position ?? [0, 0, 0]);
-    this._setLocalDirty();
-  }
-  /** Gets the local position (XYZ). */
-  get position() {
-    return this._position;
-  }
-  /**
-   * Sets the local transformation matrix.
-   *
-   * Updates the local matrix directly and decomposes it into TRS (keeping Euler/quaternion consistent).
-   */
-  set matrix(matrix) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.matrix] Cannot set matrix on destroyed SceneTransform ${this.id}`
-      });
-      return;
-    }
-    if (matrix) {
-      this._localMatrix.set(matrix);
-    } else {
-      identityMat4(this._localMatrix);
-    }
-    decomposeMat4(this._localMatrix, this._position, this._quaternion, this._scale);
-    quatToEuler(this._quaternion, "XYZ", this._rotation);
-    this._localMatrixDirty = false;
-    this._markTreeDirtyTask.schedule();
-  }
-  /** Gets the local transformation matrix. */
-  get matrix() {
-    if (this._localMatrixDirty) {
-      composeMat4(
-        this._position,
-        eulerToQuat(this._rotation, "XYZ", identityQuat()),
-        this._scale,
-        this._localMatrix
-      );
-      this._localMatrixDirty = false;
-    }
-    return this._localMatrix;
-  }
-  /** Gets the global transformation matrix. */
-  get worldMatrix() {
-    if (this._worldMatrixDirty) {
-      if (this._parentTransform) {
-        mulMat4(this._parentTransform.worldMatrix, this.matrix, this._worldMatrix);
-      } else {
-        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._worldMatrix);
-      }
-      this._worldMatrixDirty = false;
-    }
-    return this._worldMatrix;
-  }
-  // ------------------------------------------------------------------------------------------------
-  // Hierarchy
-  // ------------------------------------------------------------------------------------------------
-  /** Gets the parent transform, or `null` when this transform is a root. */
-  get parentTransform() {
-    return this._parentTransform;
-  }
-  /** Gets direct child transforms of this transform. */
-  get childTransforms() {
-    return this._childTransforms;
-  }
-  /** Gets direct child meshes of this transform. */
-  get childMeshes() {
-    return this._childMeshes;
-  }
-  /**
-   * Marks this transform globally dirty and propagates that state to all descendants.
-   * @internal
-   */
-  setWorldMatrixDirty() {
-    this._worldMatrixDirty = true;
-    for (const child of this._childTransforms) {
-      child.setWorldMatrixDirty();
-    }
-    for (const childMesh of this._childMeshes) {
-      childMesh.setWorldMatrixDirty();
-    }
-  }
-  /**
-   * Attaches/detaches this transform to/from a new parent.
-   */
-  _attachParentTransform(parent) {
-    if (this._parentTransform === parent) {
-      return;
-    }
-    if (this._parentTransform) {
-      const idx = this._parentTransform._childTransforms.indexOf(this);
-      if (idx !== -1) {
-        this._parentTransform._childTransforms.splice(idx, 1);
-      }
-    }
-    this._parentTransform = parent;
-    if (parent) {
-      parent._childTransforms.push(this);
-    }
-    this._markTreeDirtyTask.schedule();
-  }
-  /**
-   * Sets the parent transform for this transform.
-   *
-   * @param parentTransformId - ID of the new parent transform, or `null`/`undefined` to unparent.
-   * @param opts - Options.
-   * @param opts.preserveWorld - When `true`, keeps the world transform unchanged.
-   */
-  setParentTransformId(parentTransformId, opts) {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.setParentTransformId] Cannot set parent transform on destroyed SceneTransform ${this.id}`
-      });
-    }
-    let parentTransform = null;
-    if (parentTransformId) {
-      if (parentTransformId === this.id) {
-        return this.model.scene.logError({
-          ok: false,
-          type: 1 /* InvalidOperation */,
-          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to self on SceneTransform ${this.id}`
-        });
-      }
-      parentTransform = this.model.transforms[parentTransformId];
-      if (!parentTransform) {
-        return this.model.scene.logError({
-          ok: false,
-          type: 1 /* InvalidOperation */,
-          error: `[SceneTransform.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
-        });
-      }
-      if (parentTransform.model.id !== this.model.id) {
-        return this.model.scene.logError({
-          ok: false,
-          type: 1 /* InvalidOperation */,
-          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
-        });
-      }
-      for (let ancestor = parentTransform; ancestor; ancestor = ancestor._parentTransform) {
-        if (ancestor === this) {
-          return this.model.scene.logError({
-            ok: false,
-            type: 1 /* InvalidOperation */,
-            error: `[SceneTransform.setParentTransformId] Cannot create a transform hierarchy cycle on SceneTransform ${this.id}`
-          });
-        }
-      }
-    }
-    const preserve = !!opts?.preserveWorld;
-    if (preserve) {
-      const currentWorld = createMat4Float64(this.worldMatrix);
-      this._attachParentTransform(parentTransform);
-      if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform.worldMatrix, createMat4Float64());
-        mulMat4(invParent, currentWorld, this._localMatrix);
-      } else {
-        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
-        mulMat4(invCoordSystem, currentWorld, this._localMatrix);
-      }
-      this._localMatrixDirty = false;
-      this._markTreeDirtyTask.schedule();
-    } else {
-      this._attachParentTransform(parentTransform);
-    }
-    return { ok: true, value: void 0 };
-  }
-  /**
-   * Adds a child transform to this transform by ID.
-   *
-   * This resolves the transform from the owning {@link model!scene.SceneModel | SceneModel} and then parents it under this
-   * transform (equivalent to `child.setParentTransformId(this, opts)`).
-   *
-   * @param childTransformId - ID of the child transform to add.
-   * @param opts - Options forwarded to {@link setParentTransformId}.
-   */
-  addChildTransform(childTransformId, opts) {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.addChildTransform] Cannot add child transform to destroyed SceneTransform ${this.id}`
-      });
-    }
-    const child = this.model.transforms[childTransformId];
-    if (!child) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.addChildTransform] Transform "${childTransformId}" not found in SceneModel`
-      });
-    }
-    return child.setParentTransformId(this.id, opts);
-  }
-  /**
-   * Removes a child transform from this transform by ID (if it is currently parented here).
-   *
-   * When destroyed, logs an error and returns a failed result.
-   *
-   * @param childTransformId - ID of the child transform to remove.
-   */
-  removeChildTransform(childTransformId) {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.removeChildTransform] Cannot remove child transform from destroyed SceneTransform ${this.id}`
-      });
-    }
-    const child = this.model.transforms[childTransformId];
-    if (!child) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.removeChildTransform] Transform "${childTransformId}" not found in SceneModel`
-      });
-    }
-    if (child._parentTransform === this) {
-      child.setParentTransformId(null, { preserveWorld: false });
-    }
-    return { ok: true, value: void 0 };
-  }
-  /**
-   * Adds a child mesh to this transform by ID.
-   *
-   * This resolves the mesh from the owning {@link model!scene.SceneModel | SceneModel} and then parents it under this transform.
-   *
-   * When destroyed, logs an error and returns a failed result.
-   *
-   * @param childMeshId - ID of the mesh to add.
-   */
-  addChildMesh(childMeshId) {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.addChildMesh] Cannot add child mesh to destroyed SceneTransform ${this.id}`
-      });
-    }
-    const child = this.model.meshes[childMeshId];
-    if (!child) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.addChildMesh] Mesh "${childMeshId}" not found in SceneModel`
-      });
-    }
-    child.setParentTransformId(this.id);
-    return { ok: true, value: void 0 };
-  }
-  /**
-   * Removes a child mesh from this transform by ID.
-   *
-   * @param childMeshId - ID of the mesh to remove.
-   */
-  removeChildMesh(childMeshId) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.removeChildMesh] Cannot remove child mesh from destroyed SceneTransform ${this.id}`
-      });
-      return;
-    }
-    const child = this.model.meshes[childMeshId];
-    if (!child) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.removeChildMesh] Mesh "${childMeshId}" not found in SceneModel`
-      });
-      return;
-    }
-    if (child.parentTransform && child.parentTransform.id === this.id) {
-      child.setParentTransformId(null);
-    }
-  }
-  /**
-   * Updates the cached global matrices for this transform (and recursively for descendants).
-   *
-   * @private
-   */
-  _updateGlobal(force = false) {
-    if (this._parentTransform) {
-      this._parentTransform._updateGlobal(force);
-      mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);
-    } else {
-      mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
-    }
-    this._worldMatrixDirty = false;
-    for (const child of this._childTransforms) {
-      child._updateGlobal(force);
-    }
-  }
-  /**
-   * Serializes this transform to {@link SceneTransformParams}.
-   *
-   * Only writes non-default fields (scale/rotation/position/quaternion/parentTransformId).
-   */
-  toParams() {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.toParams] Cannot serialize destroyed SceneTransform ${this.id}`
-      });
-    }
-    const transformParams = { id: this.id };
-    transformParams.matrix = Array.from(this.matrix);
-    if (this._parentTransform) {
-      transformParams.parentTransformId = this._parentTransform.id;
-    }
-    return { ok: true, value: transformParams };
-  }
-  /**
-   * Destroys this transform.
-   *
-   * - Detaches from parent
-   * - Detaches all child transforms
-   * - Removes itself from the owning {@link model!scene.SceneModel | SceneModel}
-   */
-  destroy() {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.destroy] SceneTransform ${this.id} already destroyed`
-      });
-    }
-    if (this._parentTransform) {
-      this._parentTransform.removeChildTransform(this.id);
-    }
-    this._parentTransform = null;
-    for (const child of [...this._childTransforms]) {
-      child.setParentTransformId(null, { preserveWorld: false });
-    }
-    for (const childMesh of [...this._childMeshes]) {
-      childMesh.setParentTransformId(null, { preserveWorld: false });
-    }
-    this._markTreeDirtyTask.destroy();
-    this._childTransforms = [];
-    this._childMeshes = [];
-    this.model._destroyTransform(this);
-    this.destroyed = true;
-    return { ok: true, value: void 0 };
-  }
-  /**
-   * Marks the local matrix dirty and schedules dirtiness propagation through the transform tree.
-   */
-  _setLocalDirty() {
-    this._localMatrixDirty = true;
-    this._markTreeDirtyTask.schedule();
-  }
-};
-
-// ../sdk/src/model/scene/SceneMesh.ts
-var DEFAULT_ROUGHNESS = 0.6;
-var DEFAULT_METALLIC = 0;
-var DEFAULT_TRIPLANAR_SCALE = 1;
-var DEFAULT_LINE_WIDTH = 0;
-var SHARED_IDENTITY_MATRIX = identityMat4();
-var SceneMesh = class {
-  /**
-   * Unique ID of this SceneMesh.
-   *
-   * SceneMesh is stored by this ID in {@link SceneModel.meshes}.
-   */
-  id;
-  /**
-   * The global ID of this SceneMesh, unique among all SceneMeshes within the Scene,
-   * which is the concatenation of the SceneModel's ID and this SceneMesh's ID, separated by "__".
-   */
-  uniqueId;
-  /**
-   * The SceneModel that contains this SceneMesh.
-   */
-  model;
-  /**
-   * The {@link model!scene.SceneObject | SceneObject} that uses this SceneMesh.
-   */
-  object;
-  /**
-   * {@link model!scene.SceneGeometry | SceneGeometry} used by this SceneMesh.
-   */
-  geometry;
-  /**
-   * {@link model!scene.SceneMaterial | SceneMaterial} used by this SceneMesh.
-   *
-   * The material is the canonical home for PBR parameters — roughness,
-   * metallic, and the colour/normal/etc. textures all live there. A mesh
-   * without a material falls back to renderer defaults (moderately rough
-   * dielectric, no textures).
-   */
-  material;
-  /**
-   * Free-form bin identifier this SceneMesh belongs to. Frozen at
-   * construction; the scene assigns no semantics to the value on its own.
-   *
-   * The bin is a tag the caller stamps on the SceneMesh for downstream
-   * consumers to group by. A **renderer** — were it rendering this scene
-   * — is expected to honour the tag as follows:
-   *
-   * - Partition the visible SceneMeshes by `bin` value (a missing or
-   *   empty `bin` is treated as the implicit "default" group).
-   * - Process the groups in an order the renderer documents (e.g.
-   *   default first, then any meshes tagged `"overlay"` after, with the
-   *   depth buffer cleared between groups so the overlay group reads as
-   *   floating on top of the rest of the scene).
-   * - Honour any per-bin policy the renderer documents (depth clearing,
-   *   depth-test enabled / disabled, picking priority, …).
-   *
-   * Bin membership lives on SceneMesh rather than
-   * {@link model!scene.SceneObject | SceneObject} because renderable
-   * batching happens at mesh granularity — a SceneMesh can be processed
-   * by a renderer without ever being assigned to a SceneObject, so this
-   * is the layer at which bin membership is meaningful. Tools that
-   * consume the scene but do not render it — model builders, exporters,
-   * format converters, structural inspectors — may use `bin` as a
-   * free-form classification, or ignore it. Loaders and exporters
-   * round-trip the value verbatim.
-   */
-  bin;
-  _color;
-  _opacity;
-  _localMatrix;
-  // Lazily allocated: only when world != local (a parent transform exists or
-  // the model's coordinate system is non-identity). When world == local the
-  // getter returns `_localMatrix` directly, so most meshes never allocate this.
-  _worldMatrix;
-  _parentTransform = null;
-  _worldMatrixDirty = true;
-  destroyed = false;
-  /**
-   * @private
-   */
-  constructor(meshParams) {
-    this.id = meshParams.id;
-    this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
-    this.model = meshParams.model;
-    this._localMatrix = meshParams.matrix ?? SHARED_IDENTITY_MATRIX;
-    this._worldMatrix = null;
-    this._worldMatrixDirty = true;
-    this.geometry = meshParams.geometry;
-    this.material = meshParams.material;
-    this.bin = meshParams.bin;
-    this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
-    this._opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
-    this.object = null;
-  }
-  /**
-   * Gets the {@link model!scene.SceneGeometry | SceneGeometry} used by this SceneMesh.
-   */
-  get geometryId() {
-    return this.geometry.id;
-  }
-  /**
-   * Gets the ID of the {@link model!scene.SceneMaterial | SceneMaterial} used by this SceneMesh.
-   */
-  get materialId() {
-    return this.material?.id;
-  }
-  /**
-   * Gets the RGB color for this SceneMesh.
-   *
-   * Each element of the color is in range ````[0..1]````.
-   */
-  get color() {
-    return this._color;
-  }
-  /**
-   * Sets the RGB color for this SceneMesh.
-   *
-   * - Fires an {@link SceneEvents.onSceneMeshColorChanged | SceneEvents.onSceneMeshColorChanged} event on the Scene.
-   * - Each element of the color is in range ````[0..1]````.
-   * -- Overriden by the color of the material if this SceneMesh has a material.
-   */
-  set color(value) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneMesh.color] Cannot set color on destroyed SceneMesh ${this.id}`
-      });
-      return;
-    }
-    if (!value || value.length !== 3) {
-      this.model.scene.logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[SceneMesh.color] Invalid color for SceneMesh ${this.id}`
-      });
-      return;
-    }
-    let color2 = this._color;
-    if (value) {
-      color2[0] = value[0];
-      color2[1] = value[1];
-      color2[2] = value[2];
-    } else {
-      color2[0] = 1;
-      color2[1] = 1;
-      color2[2] = 1;
-    }
-    this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
-  }
-  /**
-   * Gets the effective RGB color for this SceneMesh, which is the color of the SceneMaterial if it has one,
-   * or the SceneMesh's own color otherwise.
-   */
-  get effectiveColor() {
-    if (this.material) {
-      return this.material.color;
-    }
-    return this._color;
-  }
-  /**
-   * Updates this SceneMesh's local modeling transform matrix.
-   *
-   * - Fires an {@link SceneEvents.onSceneMeshMatrixChanged | SceneEvents.onSceneMeshMatrixChanged} event on the Scene.
-   * - Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-   *
-   * @type {FloatArrayParam}
-   */
-  set matrix(matrix) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneMesh.matrix] Cannot set matrix on destroyed SceneMesh ${this.id}`
-      });
-      return;
-    }
-    if (!matrix || matrix.length !== 16) {
-      this.model.scene.logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[SceneMesh.matrix] Invalid matrix for SceneMesh ${this.id}`
-      });
-      return;
-    }
-    this._ownLocalMatrix().set(matrix);
-    this.setWorldMatrixDirty();
-  }
-  /**
-   * Returns a private, writable `_localMatrix`, replacing the shared identity
-   * sentinel with a fresh copy on first write so in-place mutation never
-   * corrupts the matrix shared by every untransformed mesh.
-   */
-  _ownLocalMatrix() {
-    if (this._localMatrix === SHARED_IDENTITY_MATRIX) {
-      this._localMatrix = createMat4Float64(SHARED_IDENTITY_MATRIX);
-    }
-    return this._localMatrix;
-  }
-  /**
-   * Gets this SceneMesh's local modeling transform matrix.
-   *
-   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-   */
-  get matrix() {
-    return this._localMatrix;
-  }
-  /**
-   * Gets the global transform matrix for this SceneMesh.
-   */
-  get worldMatrix() {
-    if (!this._parentTransform && isIdentityMat4(this.model.coordinateSystemMatrix)) {
-      return this._localMatrix;
-    }
-    if (this._worldMatrixDirty || !this._worldMatrix) {
-      if (!this._worldMatrix) {
-        this._worldMatrix = createMat4Float64();
-      }
-      if (this._parentTransform) {
-        mulMat4(this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
-      } else {
-        mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
-      }
-      this._worldMatrixDirty = false;
-    }
-    return this._worldMatrix;
-  }
-  /**
-   * Gets the opacity factor for this SceneMesh.
-   *
-   * This is a factor in range ````[0..1]````.
-   */
-  get opacity() {
-    return this._opacity;
-  }
-  /**
-   * Sets the opacity factor for this SceneMesh.
-   *
-   * - This is a factor in range ````[0..1]````.
-   * - Fires an {@link SceneEvents.onSceneMeshOpacityChanged | SceneEvents.onSceneMeshOpacityChanged} event on the Scene.
-   */
-  set opacity(opacity) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneMesh.opacity] Cannot set opacity on destroyed SceneMesh ${this.id}`
-      });
-      return;
-    }
-    opacity = opacity !== void 0 && opacity !== null ? opacity : 1;
-    if (this._opacity === opacity) {
-      return;
-    }
-    this._opacity = opacity;
-    this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
-  }
-  /**
-   * Gets the effective opacity factor for this SceneMesh, which is the opacity of the material if it has one,
-   * or the local opacity otherwise. This is a factor in range ````[0..1]````.
-   */
-  get effectiveOpacity() {
-    return this.material ? this.material.opacity : this._opacity;
-  }
-  /**
-   * Effective microfacet roughness — the material's roughness if a
-   * material is attached, otherwise the renderer default (0.6).
-   *
-   * The renderer's Cook-Torrance BRDF reads this; meshes without a
-   * material render as a moderately-rough dielectric.
-   */
-  get effectiveRoughness() {
-    return this.material ? this.material.roughness : DEFAULT_ROUGHNESS;
-  }
-  /**
-   * Effective metallic factor — the material's metallic value if a
-   * material is attached, otherwise the renderer default (0.0).
-   */
-  get effectiveMetallic() {
-    return this.material ? this.material.metallic : DEFAULT_METALLIC;
-  }
-  /**
-   * Effective albedo (colour) texture — the material's `colorTexture`
-   * if a material is attached, otherwise `undefined`. Untextured meshes
-   * sample the per-batch atlas's white sentinel.
-   */
-  get effectiveColorTexture() {
-    return this.material ? this.material.colorTexture : void 0;
-  }
-  /**
-   * Effective metallic-roughness texture — the material's
-   * `metallicRoughnessTexture` if a material is attached, otherwise
-   * `undefined`. Channel layout follows glTF 2.0: `G` = roughness,
-   * `B` = metallic. Untextured meshes sample the per-batch MR atlas's
-   * white sentinel — a multiplicative passthrough.
-   */
-  get effectiveMetallicRoughnessTexture() {
-    return this.material ? this.material.metallicRoughnessTexture : void 0;
-  }
-  /**
-   * Effective tangent-space normal map — the material's `normalsTexture`
-   * if a material is attached, otherwise `undefined`. Encoded RGB with
-   * `(x, y, z) = sample.rgb * 2 - 1`. Untextured meshes sample the
-   * per-batch normal-map atlas's neutral sentinel `(128, 128, 255, 255)`,
-   * which decodes to `(0, 0, 1)` — no perturbation.
-   */
-  get effectiveNormalsTexture() {
-    return this.material ? this.material.normalsTexture : void 0;
-  }
-  /**
-   * Effective emissive texture — the material's `emissiveTexture` if a
-   * material is attached, otherwise `undefined`. sRGB; the shader multiplies
-   * it by {@link SceneMesh.effectiveEmissiveColor} and adds the result to the
-   * lit colour. Untextured meshes sample the emissive atlas's white sentinel,
-   * which the `[0,0,0]` factor suppresses.
-   */
-  get effectiveEmissiveTexture() {
-    return this.material ? this.material.emissiveTexture : void 0;
-  }
-  /**
-   * Effective ambient-occlusion texture — the material's `occlusionTexture`
-   * if a material is attached, otherwise `undefined`. AO in the `R` channel,
-   * multiplied into the indirect lighting term. Untextured meshes sample the
-   * occlusion atlas's white sentinel (`R = 1` → no occlusion).
-   */
-  get effectiveOcclusionTexture() {
-    return this.material ? this.material.occlusionTexture : void 0;
-  }
-  /**
-   * Effective emissive colour factor — the material's `emissiveColor` if a
-   * material is attached, otherwise `[0,0,0]` (no emission).
-   */
-  get effectiveEmissiveColor() {
-    return this.material ? Array.from(this.material.emissiveColor) : [0, 0, 0];
-  }
-  /**
-   * Effective alpha-handling mode: `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`.
-   * Defaults to `OPAQUE` when no material is attached.
-   */
-  get effectiveAlphaMode() {
-    return this.material ? this.material.alphaMode : 0;
-  }
-  /**
-   * Effective `alphaCutoff` threshold for `MASK` mode. Defaults to `0.5`
-   * when no material is attached (matches glTF default).
-   */
-  get effectiveAlphaCutoff() {
-    return this.material ? this.material.alphaCutoff : 0.5;
-  }
-  /**
-   * Effective triplanar repeat distance — the material's
-   * `triplanarScale` if a material is attached, otherwise the
-   * renderer default (1.0). Read by the triplanar shader variant
-   * to convert world-space position into texture-sample
-   * coordinates; ignored on UV-bearing batches.
-   */
-  get effectiveTriplanarScale() {
-    return this.material ? this.material.triplanarScale : DEFAULT_TRIPLANAR_SCALE;
-  }
-  /**
-   * Effective per-mesh line thickness in pixels for the
-   * thick-line draw technique. Returns the attached material's
-   * `lineWidth` when one is bound; otherwise `0` to signal
-   * "fall back to the View's `linesMaterial.lineWidth`". The
-   * thick-line vertex shader implements that fallback.
-   */
-  get effectiveLineWidth() {
-    return this.material ? this.material.lineWidth : DEFAULT_LINE_WIDTH;
-  }
-  /**
-   * Effective dash / gap pattern entries (line-width units) for
-   * this mesh. Returns the attached material's pattern array
-   * when bound; otherwise `null` to signal "no per-mesh
-   * pattern — inherit the View-level fallback".
-   *
-   * Eight entries wide, zero-padded after the pattern length.
-   * Callers should consult {@link effectiveLinePatternLen} to
-   * find the in-use count.
-   */
-  get effectiveLinePatternEntries() {
-    return this.material ? this.material._linePatternEntries : null;
-  }
-  /**
-   * Effective dash / gap pattern length for this mesh. `0`
-   * means "no per-mesh pattern — inherit the View-level
-   * fallback"; any positive value overrides it.
-   */
-  get effectiveLinePatternLen() {
-    return this.material ? this.material._linePatternLen : 0;
-  }
-  /**
-   * Effective dash / gap pattern period (sum of in-use entries,
-   * in line-width units) — the natural modulus base when walking
-   * the pattern along a segment. `0` when no per-mesh pattern is
-   * set.
-   */
-  get effectiveLinePatternPeriod() {
-    return this.material ? this.material._linePatternPeriod : 0;
-  }
-  /**
-   * Effective hatch line families for this mesh. Returns the
-   * attached material's pattern array when bound; otherwise
-   * `null` to signal "no per-mesh hatch — render the surface
-   * normally".
-   *
-   * Four families × four floats wide, zero-padded after the
-   * family count. Each family occupies four consecutive slots:
-   * `[cos(angle), sin(angle), spacing, lineWidth]`. Callers
-   * should consult {@link effectiveHatchPatternCount} for the
-   * in-use family count.
-   */
-  get effectiveHatchPatternFamilies() {
-    return this.material ? this.material._hatchPatternFamilies : null;
-  }
-  /**
-   * Effective number of hatch line families for this mesh
-   * (`0..4`). `0` means "no hatch — surface renders without
-   * overlay".
-   */
-  get effectiveHatchPatternCount() {
-    return this.material ? this.material._hatchPatternCount : 0;
-  }
-  /**
-   * Effective hatch ink colour for this mesh as a four-float
-   * `(r, g, b, opacity)` array. All channels are in `[0, 1]`.
-   * Returns `null` when the mesh has no material attached.
-   */
-  get effectiveHatchPatternColor() {
-    return this.material ? this.material._hatchPatternColor : null;
-  }
-  /**
-   * Effective hatch coordinate-space flag — `0` for screen
-   * space, `1` for world space. Returns `0` when the mesh has
-   * no material attached.
-   */
-  get effectiveHatchPatternSpace() {
-    return this.material ? this.material._hatchPatternSpace : 0;
-  }
-  /**
-   * Gets the parent {@link SceneTransform} of this SceneMesh, or ````null```` if this SceneMesh is not parented.
-   */
-  get parentTransform() {
-    return this._parentTransform;
-  }
-  /**
-   * Updates the global transform matrix.
-   * @internal
-   */
-  setWorldMatrixDirty() {
-    this._worldMatrixDirty = true;
-    this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
-  }
-  /**
-   * Attaches a parent transform to this transform.
-   * @param parent - The new parent transform or null to detach.
-   */
-  _attachParentTransform(parent) {
-    if (this._parentTransform === parent) {
-      return;
-    }
-    if (this._parentTransform) {
-      const idx = this._parentTransform._childMeshes.indexOf(this);
-      if (idx !== -1) {
-        this._parentTransform._childMeshes.splice(idx, 1);
-      }
-    }
-    this._parentTransform = parent;
-    if (parent) {
-      parent._childMeshes.push(this);
-    }
-    this.setWorldMatrixDirty();
-  }
-  /**
-   * Sets the parent transform for this mesh.
-   * @param parentTransformId - The ID of the new parent transform, or null to detach.
-   * @param opts - Options to preserve world transformation.
-   */
-  setParentTransformId(parentTransformId, opts) {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneMesh.setParentTransformId] Cannot set parent transform on destroyed SceneMesh ${this.id}`
-      });
-    }
-    let parentTransform = null;
-    if (parentTransformId) {
-      parentTransform = this.model.transforms[parentTransformId];
-      if (!parentTransform) {
-        return this.model.scene.logError({
-          ok: false,
-          type: 1 /* InvalidOperation */,
-          error: `[SceneMesh.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
-        });
-      }
-      if (parentTransform.model.id !== this.model.id) {
-        return this.model.scene.logError({
-          ok: false,
-          type: 1 /* InvalidOperation */,
-          error: `[SceneMesh.setParentTransformId] Cannot set parent transform to a SceneMesh in a different SceneModel: ${this.id}`
-        });
-      }
-    }
-    const preserve = !!opts?.preserveWorld;
-    if (preserve) {
-      this.setWorldMatrixDirty();
-      const currentWorld = createMat4Float64(this.worldMatrix);
-      this._attachParentTransform(parentTransform);
-      if (parentTransform) {
-        const invParent = inverseMat4(parentTransform.worldMatrix, createMat4Float64());
-        mulMat4(invParent, currentWorld, this._ownLocalMatrix());
-      } else {
-        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
-        mulMat4(invCoordSystem, currentWorld, this._ownLocalMatrix());
-      }
-      this.setWorldMatrixDirty();
-    } else {
-      this._attachParentTransform(parentTransform);
-    }
-    return { ok: true, value: void 0 };
-  }
-  /**
-   * Gets this SceneMesh as SceneMeshParams.
-   */
-  toParams() {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[SceneMesh.toParams] Cannot get params of destroyed SceneMesh ${this.id}`
-      });
-    }
-    const meshParams = {
-      id: this.id,
-      geometryId: this.geometry.id,
-      color: Array.from(this._color),
-      opacity: this._opacity
-    };
-    if (!isIdentityMat4(this._localMatrix)) {
-      meshParams.matrix = Array.from(this._localMatrix);
-    }
-    if (this.material !== null && this.material !== void 0) {
-      meshParams.materialId = this.material.id;
-    }
-    if (this._parentTransform !== null && this._parentTransform !== void 0) {
-      meshParams.parentTransformId = this.parentTransform.id;
-    }
-    if (this.bin !== void 0) {
-      meshParams.bin = this.bin;
-    }
-    return {
-      ok: true,
-      value: meshParams
-    };
-  }
-  /**
-   * Destroys this SceneMesh.
-   *
-   * - Fires an {@link SceneEvents.onSceneMeshDestroyed | SceneEvents.onSceneMeshDestroyed} event on the Scene.
-   * - You cannot destroy a SceneMesh that is currently used by a SceneObject; you must destroy the SceneObject first.
-   */
-  destroy() {
-    if (this.destroyed) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneMesh.destroy] SceneMesh already destroyed"
-      });
-    }
-    if (this.object) {
-      return this.model.scene.logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[SceneMesh.destroy] Cannot destroy SceneMesh ${this.id} - SceneMesh is currently used by SceneObject ${this.object.id}, which you need to destroy first`
-      });
-    }
-    if (this._parentTransform) {
-      this._parentTransform.removeChildMesh(this.id);
-    }
-    this._parentTransform = null;
-    this.model._destroyMesh(this);
-    this.destroyed = true;
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-};
-
 // ../sdk/src/model/scene/SceneObject.ts
 var SceneObject = class {
   /**
@@ -19519,6 +18022,9 @@ var SceneObject = class {
     };
   }
 };
+
+// ../sdk/src/model/scene/SceneEvents.ts
+var import_strongly_typed_events4 = __toESM(require_dist8());
 
 // ../sdk/src/model/scene/SceneTexture.ts
 var SceneTexture = class {
@@ -20651,6 +19157,1979 @@ var SceneTechnique = class {
   }
 };
 
+// ../sdk/src/model/scene/SceneEvents.ts
+var SceneEvents = class {
+  /**
+   * Emits an event when an error occurs within the {@link model!scene.Scene | Scene} or any of its child components.
+   * This non-fatal event is fired with an `SDKResult` containing error details whenever an operation fails.
+   */
+  onError;
+  /**
+   * Emits an event when the {@link model!scene.Scene | Scene} is destroyed.
+   */
+  onSceneDestroyed;
+  /**
+   * Emits an event when the {@link CoordinateSystem.basis} of the {@link model!scene.Scene | Scene} is updated.
+   */
+  onSceneCoordSystemBasisChanged;
+  /**
+   * Emits an event when the {@link CoordinateSystem.origin} of the {@link model!scene.Scene | Scene} is updated.
+   */
+  onSceneCoordSystemOriginChanged;
+  /**
+   * Emits an event when the {@link CoordinateSystem.units} of the {@link model!scene.Scene | Scene} is updated.
+   */
+  onSceneCoordSystemUnitsChanged;
+  /**
+   * Emits an event when the {@link CoordinateSystem.scaleToMeters} of the {@link model!scene.Scene | Scene} is updated.
+   */
+  onSceneCoordSystemScaleToMetersChanged;
+  /**
+   * Emits an event after one or more coordinate system properties of the {@link model!scene.Scene | Scene} have been updated,
+   * indicating that the {@link CoordinateSystem} is ready for use.
+   */
+  onSceneCoordSystemUpdated;
+  /**
+   * Emits an event each time a {@link model!scene.SceneModel | SceneModel} is created within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneModelCreated;
+  /**
+   * Emits an event each time a {@link model!scene.SceneModel | SceneModel} is destroyed within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneModelDestroyed;
+  /**
+   * Emits an event when a {@link model!scene.SceneModel | SceneModel} enters its "building" state — i.e. a
+   * loader has begun populating it. Consumers (e.g. the renderer) can use this to
+   * suspend per-frame work until the model is fully assembled. Paired with
+   * {@link onSceneModelBuildFinished}.
+   */
+  onSceneModelBuildStarted;
+  /**
+   * Emits an event when a {@link model!scene.SceneModel | SceneModel} leaves its "building" state — the
+   * loader has finished (or failed). Always fires to match a preceding
+   * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
+   */
+  onSceneModelBuildFinished;
+  /**
+   * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
+   */
+  onSceneModelCoordSystemBasisChanged;
+  /**
+   * Emits an event when the {@link CoordinateSystem.origin} of a {@link model!scene.SceneModel | SceneModel} is updated.
+   */
+  onSceneModelCoordSystemOriginChanged;
+  /**
+   * Emits an event when the {@link CoordinateSystem.units} of a {@link model!scene.SceneModel | SceneModel} is updated.
+   */
+  onSceneModelCoordSystemUnitsChanged;
+  /**
+   * Emits an event when the {@link CoordinateSystem.scaleToMeters} of a {@link model!scene.SceneModel | SceneModel} is updated.
+   */
+  onSceneModelCoordSystemScaleToMetersChanged;
+  /**
+   * Emits an event after one or more coordinate system properties of a {@link model!scene.SceneModel | SceneModel} have been updated,
+   * indicating that the {@link CoordinateSystem} is ready for use.
+   */
+  onSceneModelCoordSystemUpdated;
+  /**
+   * Emits an event each time a {@link model!scene.SceneObject | SceneObject} is created within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneObjectCreated;
+  /**
+   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is added to a {@link model!scene.SceneObject | SceneObject}.
+   */
+  onSceneObjectMeshAdded;
+  /**
+   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is removed from a {@link model!scene.SceneObject | SceneObject}.
+   */
+  onSceneObjectMeshRemoved;
+  /**
+   * Emits an event each time a {@link model!scene.SceneObject | SceneObject} is destroyed within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneObjectDestroyed;
+  /**
+   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is created within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMeshCreated;
+  /**
+   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is destroyed within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMeshDestroyed;
+  /**
+   * Emits an event each time the transformation matrix of a {@link model!scene.SceneMesh | SceneMesh} is updated within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMeshMatrixChanged;
+  /**
+   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is moved within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMeshMoved;
+  /**
+   * Emits an event each time the color of a {@link model!scene.SceneMesh | SceneMesh} is updated within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMeshColorChanged;
+  /**
+   * Emits an event each time the opacity of a {@link model!scene.SceneMesh | SceneMesh} is updated within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMeshOpacityChanged;
+  /**
+   * Emits an event each time a {@link model!scene.SceneGeometry | SceneGeometry} is created within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneGeometryCreated;
+  /**
+   * Emits an event each time a {@link model!scene.SceneGeometry | SceneGeometry} is destroyed within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneGeometryDestroyed;
+  /**
+   * Emits an event each time a {@link model!scene.SceneGeometry | SceneGeometry} is updated within the {@link model!scene.Scene | Scene},
+   * such as changes to positions, indices, or primitive types.
+   */
+  onSceneGeometryUpdated;
+  /**
+   * Emits an event each time a {@link SceneTransform} is created within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneTransformCreated;
+  /**
+   * Emits an event each time a {@link SceneTransform} is destroyed within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneTransformDestroyed;
+  /**
+   * Emits an event each time the transformation matrix of a {@link SceneTransform} is updated
+   * within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneTransformMatrixChanged;
+  /**
+   * Emits an event each time a {@link SceneTexture} is created within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneTextureCreated;
+  /**
+   * Emits an event each time a {@link SceneTexture} is destroyed within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneTextureDestroyed;
+  /**
+   * Emits an event each time a {@link SceneTexture}'s `imageData` is
+   * mutated post-creation. Subscribers (e.g. the renderer's texture
+   * atlas) re-upload the texture's pixels to the GPU.
+   */
+  onSceneTextureImageDataChanged;
+  /**
+   * Emits an event each time a {@link model!scene.SceneMaterial | SceneMaterial} is created within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMaterialCreated;
+  /**
+   * Emits an event each time the color of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMaterialColorChanged;
+  /**
+   * Emits an event each time the emissive color of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMaterialEmissiveColorChanged;
+  /**
+   * Emits an event each time the opacity of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMaterialOpacityChanged;
+  /**
+   * Emits an event each time the {@link SceneMaterial.linePattern}
+   * or {@link SceneMaterial.hatchPattern} of a {@link model!scene.SceneMaterial | SceneMaterial}
+   * is updated within the {@link model!scene.Scene | Scene}. Downstream consumers
+   * re-encode the affected pattern slot in their per-batch
+   * pattern tables.
+   */
+  onSceneMaterialPatternChanged;
+  /**
+   * Emits an event each time a {@link model!scene.SceneMaterial | SceneMaterial} is destroyed within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneMaterialDestroyed;
+  /**
+   * Emits an event each time a {@link SceneTechnique} is created
+   * within the {@link model!scene.Scene | Scene}. Subscribers (renderer variant
+   * registries, inspector panels) can pick the new technique up
+   * without polling.
+   */
+  onSceneTechniqueCreated;
+  /**
+   * Emits an event each time a {@link SceneTechnique} is destroyed
+   * within the {@link model!scene.Scene | Scene}.
+   */
+  onSceneTechniqueDestroyed;
+  /**
+   * @private
+   */
+  constructor() {
+    this.onError = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelBuildStarted = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelBuildFinished = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectMeshAdded = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectMeshRemoved = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshMatrixChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshMoved = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshOpacityChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTextureCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTextureDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTextureImageDataChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialEmissiveColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialOpacityChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialPatternChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTechniqueCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTechniqueDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneGeometryCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneGeometryDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneGeometryUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTransformCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTransformDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTransformMatrixChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+  }
+  /**
+   * @private
+   */
+  destroy() {
+    this.onError.clear();
+    this.onSceneDestroyed.clear();
+    this.onSceneCoordSystemBasisChanged.clear();
+    this.onSceneCoordSystemOriginChanged.clear();
+    this.onSceneCoordSystemUnitsChanged.clear();
+    this.onSceneCoordSystemScaleToMetersChanged.clear();
+    this.onSceneCoordSystemUpdated.clear();
+    this.onSceneModelCreated.clear();
+    this.onSceneModelDestroyed.clear();
+    this.onSceneModelBuildStarted.clear();
+    this.onSceneModelBuildFinished.clear();
+    this.onSceneModelCoordSystemBasisChanged.clear();
+    this.onSceneModelCoordSystemOriginChanged.clear();
+    this.onSceneModelCoordSystemUnitsChanged.clear();
+    this.onSceneModelCoordSystemScaleToMetersChanged.clear();
+    this.onSceneModelCoordSystemUpdated.clear();
+    this.onSceneObjectCreated.clear();
+    this.onSceneObjectMeshAdded.clear();
+    this.onSceneObjectMeshRemoved.clear();
+    this.onSceneMeshMoved.clear();
+    this.onSceneMeshColorChanged.clear();
+    this.onSceneMeshMatrixChanged.clear();
+    this.onSceneMeshOpacityChanged.clear();
+    this.onSceneTextureCreated.clear();
+    this.onSceneTextureDestroyed.clear();
+    this.onSceneTextureImageDataChanged.clear();
+    this.onSceneMaterialCreated.clear();
+    this.onSceneMaterialColorChanged.clear();
+    this.onSceneMaterialEmissiveColorChanged.clear();
+    this.onSceneMaterialOpacityChanged.clear();
+    this.onSceneMaterialPatternChanged.clear();
+    this.onSceneMaterialDestroyed.clear();
+    this.onSceneTechniqueCreated.clear();
+    this.onSceneTechniqueDestroyed.clear();
+    this.onSceneGeometryUpdated.clear();
+    this.onSceneObjectDestroyed.clear();
+    this.onSceneGeometryCreated.clear();
+    this.onSceneGeometryDestroyed.clear();
+    this.onSceneMeshCreated.clear();
+    this.onSceneMeshDestroyed.clear();
+    this.onSceneTransformCreated.clear();
+    this.onSceneTransformMatrixChanged.clear();
+    this.onSceneTransformDestroyed.clear();
+  }
+};
+
+// ../sdk/src/model/scene/Scene.ts
+var Scene2 = class {
+  /**
+   * Unique ID of this Scene.
+   * This is generated automatically.
+   */
+  id;
+  /**
+   * The coordinate system used throughout this Scene.
+   *
+   * This determines how all positions, orientations, and transformations
+   * within the Scene are interpreted.
+   */
+  coordinateSystem;
+  /**
+   * All {@link model!scene.SceneModel | SceneModel} instances belonging to this Scene, keyed by
+   * their {@link SceneModel.id | unique model ID}.
+   */
+  models;
+  /**
+   * All {@link model!scene.SceneObject | SceneObject} instances currently registered in this Scene.
+   *
+   * Objects are stored at the Scene level so tools and utilities can
+   * access them without needing to know which model they belong to.
+   */
+  objects;
+  /**
+   * Event dispatcher for Scene‑level lifecycle events.
+   */
+  events;
+  /**
+   * Indicates whether this Scene has been destroyed.
+   *
+   * When `true`, new models cannot be created and most operations will
+   * return an error result.
+   */
+  destroyed = false;
+  /**
+   * Enables or disables console logging of SDK errors.
+   *
+   * Defaults to `false`. When enabled, any dispatched error will also be
+   * logged via `console.error`.
+   */
+  logging = true;
+  /**
+   * Creates a new Scene.
+   *
+   * @param params Optional configuration including coordinate system settings
+   * and logging preferences.
+   */
+  constructor(params) {
+    this.id = params?.id || createUUID();
+    this.events = new SceneEvents();
+    this.coordinateSystem = new CoordinateSystem2(
+      this,
+      () => {
+        for (const modelId in this.models) {
+          const model = this.models[modelId];
+          model.setWorldMatrixDirty();
+        }
+      },
+      params?.coordinateSystem
+    );
+    this.models = {};
+    this.objects = {};
+    this.logging = params?.logging ?? false;
+  }
+  /**
+   * Creates and registers a new {@link model!scene.SceneModel | SceneModel} in this Scene.
+   *
+   * - Fires a {@link SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated} event.
+   * - Validates that the Scene is not destroyed and the model ID is unique.
+   * - Instantiates the SceneModel and populates it from the given parameters.
+   * - Registers the model and dispatches a creation event.
+   * - If population fails, destroys the model and all its components (objects, meshes, geometries),
+   *   dispatching destruction events for each component and the model itself.
+   *
+   * @param sceneModelParams Parameters for the new SceneModel.
+   * @returns SDKResult containing the created SceneModel or an error.
+   */
+  createModel(sceneModelParams) {
+    if (this.destroyed) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[Scene.createModel] Scene already destroyed"
+      });
+    }
+    const id = sceneModelParams.id ?? createUUID();
+    if (this.models[id]) {
+      return this.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[Scene.createModel] SceneModel already exists in this Scene: ${id}`
+      });
+    }
+    const paramsWithId = { ...sceneModelParams, id };
+    const sceneModel = new SceneModel3(this, paramsWithId);
+    this.models[id] = sceneModel;
+    this.events.onSceneModelCreated.dispatch(this, sceneModel);
+    const populated = sceneModel.fromParams(paramsWithId);
+    if (populated.ok === false) {
+      sceneModel.destroy();
+      return this.logError(populated);
+    }
+    return { ok: true, value: sceneModel };
+  }
+  /**
+   * Returns `true` if any {@link model!scene.SceneModel | SceneModel} in this
+   * Scene currently holds at least one {@link model!scene.SceneGeometry | SceneGeometry}
+   * of the given primitive type — e.g. `scene.containsPrimitive(GaussianSplatsPrimitive)`.
+   *
+   * Backed by per-model live counts, so this is cheap to call (no geometry scan).
+   */
+  containsPrimitive(primitive) {
+    for (const id in this.models) {
+      if (this.models[id].containsPrimitive(primitive)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * Called internally when a {@link model!scene.SceneModel | SceneModel} is destroyed.
+   *
+   * Removes the model from the registry and dispatches its destruction event.
+   * @private
+   */
+  _destroyModel(sceneModel) {
+    delete this.models[sceneModel.id];
+    this._deregisterObjects(sceneModel);
+    this.events.onSceneModelDestroyed.dispatch(this, sceneModel);
+  }
+  /** @private */
+  _deregisterObjects(model) {
+    for (const id in model.objects) {
+      this._deregisterObject(model.objects[id]);
+    }
+  }
+  /** @private */
+  _deregisterObject(sceneObject) {
+    delete this.objects[sceneObject.id];
+    this.events.onSceneObjectDestroyed.dispatch(this, sceneObject);
+  }
+  /** @private */
+  _registerObject(sceneObject) {
+    this.objects[sceneObject.id] = sceneObject;
+    this.events.onSceneObjectCreated.dispatch(this, sceneObject);
+  }
+  /**
+   * Destroys all {@link model!scene.SceneModel | SceneModel} instances in this Scene.
+   *
+   * For each model:
+   * - Calls {@link SceneModel.destroy}
+   * - Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed} events.
+   *
+   * @returns A {@link base!core.SDKResult | SDKResult} indicating success or failure.
+   */
+  clear() {
+    if (this.destroyed) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[Scene.clear] Scene already destroyed"
+      });
+    }
+    for (const id in this.models) {
+      this.models[id].destroy();
+    }
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Fully destroys this Scene and all of its models and objects.
+   *
+   * This performs:
+   * - A {@link clear} of all models
+   * - Cleanup of all Scene‑level event subscriptions
+   * - Fires {@link SceneEvents.onSceneDestroyed | SceneEvents.onSceneDestroyed} event
+   *
+   * After destruction, most Scene operations become invalid.
+   */
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this.clear();
+    this.events.onSceneDestroyed.dispatch(this, this);
+    this.events.destroy();
+    this.destroyed = true;
+  }
+  /**
+   * Emits an error event and optionally logs the error to the console.
+   *
+   * Called internally whenever an SDK operation fails.
+   *
+   * @param result The failed {@link base!core.SDKResult | SDKResult}.
+   * @returns The same {@link base!core.SDKResult | SDKResult} for convenience.
+   * @private
+   */
+  logError(result) {
+    if (result.ok === false) {
+      if (this.logging) {
+        console.error(result.error);
+      }
+      this.events.onError.dispatch(this, result);
+    }
+    return result;
+  }
+};
+
+// ../sdk/src/model/scene/CoordinateSystem.ts
+var CoordinateSystem2 = class {
+  _notifyUpdatedScheduled;
+  _updated;
+  _scene;
+  _model;
+  _basis = createVec9Float64([
+    1,
+    0,
+    0,
+    // Right
+    0,
+    0,
+    1,
+    // Up
+    0,
+    1,
+    0
+    // Forward
+  ]);
+  _origin;
+  _units;
+  _scaleToMeters;
+  _worldUp;
+  _worldRight;
+  _worldForward;
+  /**
+   * True if this CoordinateSystem has been destroyed.
+   */
+  destroyed = false;
+  /**
+   * @private
+   */
+  constructor(parent, updated, params) {
+    if (parent instanceof Scene2) {
+      this._scene = parent;
+    } else {
+      this._model = parent;
+    }
+    this._updated = updated;
+    this._origin = createVec3Float64(params?.origin || [0, 0, 0]);
+    this._units = params?.units || "meters";
+    this._scaleToMeters = params?.scaleToMeters || 1;
+    this._worldUp = createVec3Float32();
+    this._worldRight = createVec3Float32();
+    this._worldForward = createVec3Float32();
+    this.basis = params?.basis;
+  }
+  /** @private */
+  _notifyUpdated() {
+    if (!this._notifyUpdatedScheduled) {
+      this._notifyUpdatedScheduled = true;
+      setTimeout(() => {
+        this._notifyUpdatedScheduled = false;
+        if (this._updated) {
+          this._updated();
+        }
+        this._model ? this._model.scene.events.onSceneModelCoordSystemUpdated.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
+      }, 100);
+    }
+  }
+  /** Gets the flat 9-element coordinate system basis (column-major). */
+  get basis() {
+    return this._basis;
+  }
+  /**
+   * Sets the flat 9-element coordinate system basis (column-major).
+   *
+   * By default, this is a right-handed Z-up basis: ````[1,0,0, 0,0,1, 0,1,0]````.
+   *
+   * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
+   */
+  set basis(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.basis] CoordinateSystem already destroyed - cannot set basis"
+      });
+      return;
+    }
+    if (value) {
+      if (value.length !== 9) {
+        (this._scene || this._model.scene).logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
+        });
+        return;
+      }
+      if (!testOrthogonalAxis(value)) {
+        (this._scene || this._model.scene).logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
+        });
+        return;
+      }
+    }
+    this._basis = createVec9Float64(value || [
+      1,
+      0,
+      0,
+      // Right
+      0,
+      0,
+      1,
+      // Up
+      0,
+      1,
+      0
+      // Forward
+    ]);
+    this._updateWorldAxesFromBasis();
+    this._model ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  _updateWorldAxesFromBasis() {
+    this._worldRight[0] = this._basis[0];
+    this._worldRight[1] = this._basis[1];
+    this._worldRight[2] = this._basis[2];
+    this._worldUp[0] = this._basis[3];
+    this._worldUp[1] = this._basis[4];
+    this._worldUp[2] = this._basis[5];
+    this._worldForward[0] = this._basis[6];
+    this._worldForward[1] = this._basis[7];
+    this._worldForward[2] = this._basis[8];
+  }
+  /** Gets the origin of the coordinate system in global space. */
+  get origin() {
+    return this._origin;
+  }
+  /**
+   * Sets the origin of the coordinate system in global space.
+   * Emits event on change, via `Scene.events.coordSystemOrigin` or `SceneModel.events.modelCoordSystemOrigin`.
+   */
+  set origin(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.origin] CoordinateSystem already destroyed - cannot set origin"
+      });
+      return;
+    }
+    this._origin = createVec3Float32(value);
+    this._model ? this._model.scene.events.onSceneModelCoordSystemOriginChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemOriginChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  /** Gets the unit system used. */
+  get units() {
+    return this._units;
+  }
+  /**
+   * Sets the unit system used.
+   * Emits event on change, via `Scene.events.coordSystemUnits` or `SceneModel.events.modelCoordSystemUnits`.
+   */
+  set units(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.units] CoordinateSystem already destroyed - cannot set units"
+      });
+      return;
+    }
+    if (value !== "meters" && value !== "millimeters" && value !== "inches" && value !== "feet") {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[CoordinateSystem.units] Invalid units - must be 'meters', 'millimeters', 'inches', or 'feet'"
+      });
+      return;
+    }
+    this._units = value;
+    this._model ? this._model.scene.events.onSceneModelCoordSystemUnitsChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUnitsChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  /** Gets the optional scale-to-meters multiplier. */
+  get scaleToMeters() {
+    return this._scaleToMeters;
+  }
+  /**
+   * Sets the optional scale-to-meters multiplier.
+   * Emits event on change, via `Scene.events.coordSystemMeters` or `SceneModel.events.modelCoordSystemMeters`.
+   */
+  set scaleToMeters(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.scaleToMeters] CoordinateSystem already destroyed - cannot set scaleToMeters"
+      });
+      return;
+    }
+    if (value !== void 0 && (typeof value !== "number" || isNaN(value) || value <= 0)) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[CoordinateSystem.scaleToMeters] Invalid scaleToMeters - must be a positive number"
+      });
+      return;
+    }
+    this._scaleToMeters = value;
+    this._model ? this._model.scene.events.onSceneModelCoordSystemScaleToMetersChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemScaleToMetersChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  /**
+   * Gets the direction of World-space "up".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[0,0,1]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
+  get worldUp() {
+    return this._worldUp;
+  }
+  /**
+   * Gets the direction of World-space "right".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[1,0,0]````.
+   *
+   * @returns {Number[]} The "right" vector.
+   */
+  get worldRight() {
+    return this._worldRight;
+  }
+  /**
+   * Gets the direction of World-space "forwards".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[0,0,-1]````.
+   *
+   * @returns {Number[]} The "forwards" vector.
+   */
+  get worldForward() {
+    return this._worldForward;
+  }
+  /**
+   * Gets if the World-space X-axis is "up".
+   * @returns {boolean}
+   */
+  get xUp() {
+    return this._worldUp[0] > this._worldUp[1] && this._worldUp[0] > this._worldUp[2];
+  }
+  /**
+   * Gets if the World-space Y-axis is "up".
+   * @returns {boolean}
+   */
+  get yUp() {
+    return this._worldUp[1] > this._worldUp[0] && this._worldUp[1] > this._worldUp[2];
+  }
+  /**
+   * Gets if the World-space Z-axis is "up".
+   * @returns {boolean}
+   */
+  get zUp() {
+    return this._worldUp[2] > this._worldUp[0] && this._worldUp[2] > this._worldUp[1];
+  }
+  /**
+   * Returns a copy of the current state as a CoordinateSystemParams object.
+   */
+  toParams() {
+    return {
+      basis: Array.from(this._basis),
+      origin: Array.from(this._origin),
+      units: this._units,
+      scaleToMeters: this._scaleToMeters
+    };
+  }
+  /**
+   * Updates this instance's state from a CoordinateSystemParams object.
+   */
+  fromParams(params) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.fromParams] CoordinateSystem already destroyed - cannot call fromParams"
+      });
+      return;
+    }
+    this.basis = params.basis;
+    this.origin = params.origin;
+    this.units = params.units;
+    this.scaleToMeters = params.scaleToMeters;
+  }
+  /**
+   * Destroys this CoordinateSystem.
+   * @private
+   */
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this.destroyed = true;
+  }
+};
+
+// ../sdk/src/model/scene/createCoordinateSystemTransform.ts
+var tempMat3a = createMat4Float64();
+var tempMat3b = createMat4Float64();
+var tempVec3a3 = createVec3Float64();
+var tempVec3b3 = createVec3Float64();
+function createCoordinateSystemTransform(coordSys1, coordSys2, outMat4) {
+  const modelBasis = coordSys1.basis;
+  const viewerBasis = coordSys2.basis;
+  transpose3(viewerBasis, tempMat3a);
+  multiply3x3(tempMat3a, modelBasis, tempMat3b);
+  const scale3 = (coordSys1.scaleToMeters ?? unitScale(coordSys1.units)) / (coordSys2.scaleToMeters ?? unitScale(coordSys2.units));
+  tempVec3a3[0] = (coordSys1.origin[0] - coordSys2.origin[0]) * scale3;
+  tempVec3a3[1] = (coordSys1.origin[1] - coordSys2.origin[1]) * scale3;
+  tempVec3a3[2] = (coordSys1.origin[2] - coordSys2.origin[2]) * scale3;
+  apply3x3(tempMat3a, tempVec3a3, tempVec3b3);
+  outMat4[0] = tempMat3b[0] * scale3;
+  outMat4[1] = tempMat3b[1] * scale3;
+  outMat4[2] = tempMat3b[2] * scale3;
+  outMat4[3] = 0;
+  outMat4[4] = tempMat3b[3] * scale3;
+  outMat4[5] = tempMat3b[4] * scale3;
+  outMat4[6] = tempMat3b[5] * scale3;
+  outMat4[7] = 0;
+  outMat4[8] = tempMat3b[6] * scale3;
+  outMat4[9] = tempMat3b[7] * scale3;
+  outMat4[10] = tempMat3b[8] * scale3;
+  outMat4[11] = 0;
+  outMat4[12] = tempVec3b3[0];
+  outMat4[13] = tempVec3b3[1];
+  outMat4[14] = tempVec3b3[2];
+  outMat4[15] = 1;
+  return outMat4;
+}
+function transpose3(m, out) {
+  out[0] = m[0];
+  out[1] = m[3];
+  out[2] = m[6];
+  out[3] = m[1];
+  out[4] = m[4];
+  out[5] = m[7];
+  out[6] = m[2];
+  out[7] = m[5];
+  out[8] = m[8];
+}
+function multiply3x3(a2, b4, out) {
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      out[col * 3 + row] = a2[0 * 3 + row] * b4[col * 3 + 0] + a2[1 * 3 + row] * b4[col * 3 + 1] + a2[2 * 3 + row] * b4[col * 3 + 2];
+    }
+  }
+}
+function apply3x3(m, v, out) {
+  out[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
+  out[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];
+  out[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
+}
+function unitScale(unit) {
+  switch (unit) {
+    case "meters":
+      return 1;
+    case "millimeters":
+      return 1e-3;
+    case "inches":
+      return 0.0254;
+    case "feet":
+      return 0.3048;
+  }
+}
+
+// ../sdk/src/model/scene/SceneTransform.ts
+var SceneTransform2 = class {
+  /** Unique identifier for this transform within the {@link model!scene.SceneModel | SceneModel}. */
+  id;
+  /** The global ID of this SceneTransform, unique among all SceneTransforms within the Scene, **/
+  uniqueId;
+  /** The {@link model!scene.SceneModel | SceneModel} this transform belongs to. */
+  model;
+  /** Local scale vector (XYZ). Defaults to `[1, 1, 1]`. */
+  _scale = createVec3Float64([1, 1, 1]);
+  /** Local Euler rotation in degrees (XYZ order). Kept in sync with {@link _quaternion}. */
+  _rotation = createVec3Float64([0, 0, 0]);
+  /** Local position (XYZ). Defaults to `[0, 0, 0]`. */
+  _position = createVec3Float64([0, 0, 0]);
+  /** Local orientation quaternion. Kept in sync with {@link _rotation}. */
+  _quaternion = createQuatFloat64();
+  /**
+   * Local transformation matrix (TRS) relative to {@link parentTransform}.
+   *
+   * - If {@link _localMatrixDirty} is `true`, this matrix is rebuilt from TRS.
+   * - You can also set this directly via {@link matrix}, which decomposes into TRS.
+   */
+  _localMatrix = identityMat4();
+  /**
+   * Global transformation matrix in model/world space.
+   *
+   * Computed as:
+   * - `parent.worldMatrix * localMatrix` when a parent exists
+   * - `localMatrix` when no parent exists
+   *
+   * @private
+   */
+  _worldMatrix;
+  /** True when {@link _localMatrix} needs rebuilding from TRS. */
+  _localMatrixDirty = false;
+  /** True when {@link _worldMatrix} needs rebuilding. */
+  _worldMatrixDirty = true;
+  /**
+   * Child meshes directly parented to this transform.
+   * @private
+   */
+  _childMeshes = [];
+  /** Child transforms directly parented to this transform. */
+  _childTransforms = [];
+  /** Parent transform, or `null` when this transform is a root. */
+  _parentTransform = null;
+  /**
+   * True once {@link destroy} has been called.
+   */
+  destroyed = false;
+  /**
+   * Batched task that propagates dirtiness through the transform tree after local changes.
+   * Scheduled in {@link SDKTask.ComputeStage} so local updates happen before global updates.
+   */
+  _markTreeDirtyTask;
+  /**
+   * Creates a new {@link SceneTransform}.
+   *
+   * If `transformParams.matrix` is provided, it is used as the local matrix and decomposed
+   * into TRS (keeping Euler/quaternion consistent). Otherwise, TRS components are applied.
+   * @private
+   */
+  constructor(model, transformParams) {
+    this.id = transformParams.id;
+    this.uniqueId = `${model.id}__${this.id}`;
+    this.model = model;
+    this._localMatrix = transformParams.matrix ? createMat4Float64(transformParams.matrix) : identityMat4();
+    this._worldMatrix = createMat4Float64();
+    this._markTreeDirtyTask = new SDKTask({
+      name: "SceneTransform._markTreeDirtyTask",
+      stage: SDKTask.ComputeStage,
+      task: () => this.setWorldMatrixDirty()
+    });
+    if (transformParams.matrix) {
+      this.matrix = transformParams.matrix;
+      return;
+    }
+    this.scale = transformParams.scale;
+    this.position = transformParams.position;
+    if (transformParams.quaternion) {
+      this.quaternion = transformParams.quaternion;
+    } else {
+      this.rotation = transformParams.rotation;
+    }
+  }
+  // ------------------------------------------------------------------------------------------------
+  // Local TRS
+  // ------------------------------------------------------------------------------------------------
+  /** Sets the local scale (XYZ). */
+  set scale(scale3) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.scale] Cannot set scale on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._scale.set(scale3 ?? [1, 1, 1]);
+    this._setLocalDirty();
+  }
+  /** Gets the local scale (XYZ). */
+  get scale() {
+    return this._scale;
+  }
+  /** Sets the local rotation as Euler angles in degrees (XYZ order). */
+  set rotation(rotation) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.rotation] Cannot set rotation on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._rotation.set(rotation ?? [0, 0, 0]);
+    eulerToQuat(this._rotation, "XYZ", this._quaternion);
+    this._setLocalDirty();
+  }
+  /** Gets the local rotation as Euler angles in degrees (XYZ order). */
+  get rotation() {
+    return this._rotation;
+  }
+  /** Sets the local rotation as a quaternion. */
+  set quaternion(quaternion) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.quaternion] Cannot set quaternion on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._quaternion.set(quaternion);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+    this._setLocalDirty();
+  }
+  /** Gets the local rotation quaternion. */
+  get quaternion() {
+    return this._quaternion;
+  }
+  /** Sets the local position (XYZ). */
+  set position(position) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.position] Cannot set position on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._position.set(position ?? [0, 0, 0]);
+    this._setLocalDirty();
+  }
+  /** Gets the local position (XYZ). */
+  get position() {
+    return this._position;
+  }
+  /**
+   * Sets the local transformation matrix.
+   *
+   * Updates the local matrix directly and decomposes it into TRS (keeping Euler/quaternion consistent).
+   */
+  set matrix(matrix) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.matrix] Cannot set matrix on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    if (matrix) {
+      this._localMatrix.set(matrix);
+    } else {
+      identityMat4(this._localMatrix);
+    }
+    decomposeMat4(this._localMatrix, this._position, this._quaternion, this._scale);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+    this._localMatrixDirty = false;
+    this._markTreeDirtyTask.schedule();
+  }
+  /** Gets the local transformation matrix. */
+  get matrix() {
+    if (this._localMatrixDirty) {
+      composeMat4(
+        this._position,
+        eulerToQuat(this._rotation, "XYZ", identityQuat()),
+        this._scale,
+        this._localMatrix
+      );
+      this._localMatrixDirty = false;
+    }
+    return this._localMatrix;
+  }
+  /** Gets the global transformation matrix. */
+  get worldMatrix() {
+    if (this._worldMatrixDirty) {
+      if (this._parentTransform) {
+        mulMat4(this._parentTransform.worldMatrix, this.matrix, this._worldMatrix);
+      } else {
+        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._worldMatrix);
+      }
+      this._worldMatrixDirty = false;
+    }
+    return this._worldMatrix;
+  }
+  // ------------------------------------------------------------------------------------------------
+  // Hierarchy
+  // ------------------------------------------------------------------------------------------------
+  /** Gets the parent transform, or `null` when this transform is a root. */
+  get parentTransform() {
+    return this._parentTransform;
+  }
+  /** Gets direct child transforms of this transform. */
+  get childTransforms() {
+    return this._childTransforms;
+  }
+  /** Gets direct child meshes of this transform. */
+  get childMeshes() {
+    return this._childMeshes;
+  }
+  /**
+   * Marks this transform globally dirty and propagates that state to all descendants.
+   * @internal
+   */
+  setWorldMatrixDirty() {
+    this._worldMatrixDirty = true;
+    for (const child of this._childTransforms) {
+      child.setWorldMatrixDirty();
+    }
+    for (const childMesh of this._childMeshes) {
+      childMesh.setWorldMatrixDirty();
+    }
+  }
+  /**
+   * Attaches/detaches this transform to/from a new parent.
+   */
+  _attachParentTransform(parent) {
+    if (this._parentTransform === parent) {
+      return;
+    }
+    if (this._parentTransform) {
+      const idx = this._parentTransform._childTransforms.indexOf(this);
+      if (idx !== -1) {
+        this._parentTransform._childTransforms.splice(idx, 1);
+      }
+    }
+    this._parentTransform = parent;
+    if (parent) {
+      parent._childTransforms.push(this);
+    }
+    this._markTreeDirtyTask.schedule();
+  }
+  /**
+   * Sets the parent transform for this transform.
+   *
+   * @param parentTransformId - ID of the new parent transform, or `null`/`undefined` to unparent.
+   * @param opts - Options.
+   * @param opts.preserveWorld - When `true`, keeps the world transform unchanged.
+   */
+  setParentTransformId(parentTransformId, opts) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.setParentTransformId] Cannot set parent transform on destroyed SceneTransform ${this.id}`
+      });
+    }
+    let parentTransform = null;
+    if (parentTransformId) {
+      if (parentTransformId === this.id) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to self on SceneTransform ${this.id}`
+        });
+      }
+      parentTransform = this.model.transforms[parentTransformId];
+      if (!parentTransform) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneTransform.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
+        });
+      }
+      if (parentTransform.model.id !== this.model.id) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
+        });
+      }
+      for (let ancestor = parentTransform; ancestor; ancestor = ancestor._parentTransform) {
+        if (ancestor === this) {
+          return this.model.scene.logError({
+            ok: false,
+            type: 1 /* InvalidOperation */,
+            error: `[SceneTransform.setParentTransformId] Cannot create a transform hierarchy cycle on SceneTransform ${this.id}`
+          });
+        }
+      }
+    }
+    const preserve = !!opts?.preserveWorld;
+    if (preserve) {
+      const currentWorld = createMat4Float64(this.worldMatrix);
+      this._attachParentTransform(parentTransform);
+      if (this._parentTransform) {
+        const invParent = inverseMat4(this._parentTransform.worldMatrix, createMat4Float64());
+        mulMat4(invParent, currentWorld, this._localMatrix);
+      } else {
+        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
+        mulMat4(invCoordSystem, currentWorld, this._localMatrix);
+      }
+      this._localMatrixDirty = false;
+      this._markTreeDirtyTask.schedule();
+    } else {
+      this._attachParentTransform(parentTransform);
+    }
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Adds a child transform to this transform by ID.
+   *
+   * This resolves the transform from the owning {@link model!scene.SceneModel | SceneModel} and then parents it under this
+   * transform (equivalent to `child.setParentTransformId(this, opts)`).
+   *
+   * @param childTransformId - ID of the child transform to add.
+   * @param opts - Options forwarded to {@link setParentTransformId}.
+   */
+  addChildTransform(childTransformId, opts) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildTransform] Cannot add child transform to destroyed SceneTransform ${this.id}`
+      });
+    }
+    const child = this.model.transforms[childTransformId];
+    if (!child) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildTransform] Transform "${childTransformId}" not found in SceneModel`
+      });
+    }
+    return child.setParentTransformId(this.id, opts);
+  }
+  /**
+   * Removes a child transform from this transform by ID (if it is currently parented here).
+   *
+   * When destroyed, logs an error and returns a failed result.
+   *
+   * @param childTransformId - ID of the child transform to remove.
+   */
+  removeChildTransform(childTransformId) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildTransform] Cannot remove child transform from destroyed SceneTransform ${this.id}`
+      });
+    }
+    const child = this.model.transforms[childTransformId];
+    if (!child) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildTransform] Transform "${childTransformId}" not found in SceneModel`
+      });
+    }
+    if (child._parentTransform === this) {
+      child.setParentTransformId(null, { preserveWorld: false });
+    }
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Adds a child mesh to this transform by ID.
+   *
+   * This resolves the mesh from the owning {@link model!scene.SceneModel | SceneModel} and then parents it under this transform.
+   *
+   * When destroyed, logs an error and returns a failed result.
+   *
+   * @param childMeshId - ID of the mesh to add.
+   */
+  addChildMesh(childMeshId) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildMesh] Cannot add child mesh to destroyed SceneTransform ${this.id}`
+      });
+    }
+    const child = this.model.meshes[childMeshId];
+    if (!child) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildMesh] Mesh "${childMeshId}" not found in SceneModel`
+      });
+    }
+    child.setParentTransformId(this.id);
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Removes a child mesh from this transform by ID.
+   *
+   * @param childMeshId - ID of the mesh to remove.
+   */
+  removeChildMesh(childMeshId) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildMesh] Cannot remove child mesh from destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    const child = this.model.meshes[childMeshId];
+    if (!child) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildMesh] Mesh "${childMeshId}" not found in SceneModel`
+      });
+      return;
+    }
+    if (child.parentTransform && child.parentTransform.id === this.id) {
+      child.setParentTransformId(null);
+    }
+  }
+  /**
+   * Updates the cached global matrices for this transform (and recursively for descendants).
+   *
+   * @private
+   */
+  _updateGlobal(force = false) {
+    if (this._parentTransform) {
+      this._parentTransform._updateGlobal(force);
+      mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);
+    } else {
+      mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
+    }
+    this._worldMatrixDirty = false;
+    for (const child of this._childTransforms) {
+      child._updateGlobal(force);
+    }
+  }
+  /**
+   * Serializes this transform to {@link SceneTransformParams}.
+   *
+   * Only writes non-default fields (scale/rotation/position/quaternion/parentTransformId).
+   */
+  toParams() {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.toParams] Cannot serialize destroyed SceneTransform ${this.id}`
+      });
+    }
+    const transformParams = { id: this.id };
+    transformParams.matrix = Array.from(this.matrix);
+    if (this._parentTransform) {
+      transformParams.parentTransformId = this._parentTransform.id;
+    }
+    return { ok: true, value: transformParams };
+  }
+  /**
+   * Destroys this transform.
+   *
+   * - Detaches from parent
+   * - Detaches all child transforms
+   * - Removes itself from the owning {@link model!scene.SceneModel | SceneModel}
+   */
+  destroy() {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.destroy] SceneTransform ${this.id} already destroyed`
+      });
+    }
+    if (this._parentTransform) {
+      this._parentTransform.removeChildTransform(this.id);
+    }
+    this._parentTransform = null;
+    for (const child of [...this._childTransforms]) {
+      child.setParentTransformId(null, { preserveWorld: false });
+    }
+    for (const childMesh of [...this._childMeshes]) {
+      childMesh.setParentTransformId(null, { preserveWorld: false });
+    }
+    this._markTreeDirtyTask.destroy();
+    this._childTransforms = [];
+    this._childMeshes = [];
+    this.model._destroyTransform(this);
+    this.destroyed = true;
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Marks the local matrix dirty and schedules dirtiness propagation through the transform tree.
+   */
+  _setLocalDirty() {
+    this._localMatrixDirty = true;
+    this._markTreeDirtyTask.schedule();
+  }
+};
+
+// ../sdk/src/model/scene/SceneMesh.ts
+var DEFAULT_ROUGHNESS = 0.6;
+var DEFAULT_METALLIC = 0;
+var DEFAULT_TRIPLANAR_SCALE = 1;
+var DEFAULT_LINE_WIDTH = 0;
+var SHARED_IDENTITY_MATRIX = identityMat4();
+var SceneMesh3 = class {
+  /**
+   * Unique ID of this SceneMesh.
+   *
+   * SceneMesh is stored by this ID in {@link SceneModel.meshes}.
+   */
+  id;
+  /**
+   * The global ID of this SceneMesh, unique among all SceneMeshes within the Scene,
+   * which is the concatenation of the SceneModel's ID and this SceneMesh's ID, separated by "__".
+   */
+  uniqueId;
+  /**
+   * The SceneModel that contains this SceneMesh.
+   */
+  model;
+  /**
+   * The {@link model!scene.SceneObject | SceneObject} that uses this SceneMesh.
+   */
+  object;
+  /**
+   * {@link model!scene.SceneGeometry | SceneGeometry} used by this SceneMesh.
+   */
+  geometry;
+  /**
+   * {@link model!scene.SceneMaterial | SceneMaterial} used by this SceneMesh.
+   *
+   * The material is the canonical home for PBR parameters — roughness,
+   * metallic, and the colour/normal/etc. textures all live there. A mesh
+   * without a material falls back to renderer defaults (moderately rough
+   * dielectric, no textures).
+   */
+  material;
+  /**
+   * Free-form bin identifier this SceneMesh belongs to. Frozen at
+   * construction; the scene assigns no semantics to the value on its own.
+   *
+   * The bin is a tag the caller stamps on the SceneMesh for downstream
+   * consumers to group by. A **renderer** — were it rendering this scene
+   * — is expected to honour the tag as follows:
+   *
+   * - Partition the visible SceneMeshes by `bin` value (a missing or
+   *   empty `bin` is treated as the implicit "default" group).
+   * - Process the groups in an order the renderer documents (e.g.
+   *   default first, then any meshes tagged `"overlay"` after, with the
+   *   depth buffer cleared between groups so the overlay group reads as
+   *   floating on top of the rest of the scene).
+   * - Honour any per-bin policy the renderer documents (depth clearing,
+   *   depth-test enabled / disabled, picking priority, …).
+   *
+   * Bin membership lives on SceneMesh rather than
+   * {@link model!scene.SceneObject | SceneObject} because renderable
+   * batching happens at mesh granularity — a SceneMesh can be processed
+   * by a renderer without ever being assigned to a SceneObject, so this
+   * is the layer at which bin membership is meaningful. Tools that
+   * consume the scene but do not render it — model builders, exporters,
+   * format converters, structural inspectors — may use `bin` as a
+   * free-form classification, or ignore it. Loaders and exporters
+   * round-trip the value verbatim.
+   */
+  bin;
+  _color;
+  _opacity;
+  _localMatrix;
+  // Lazily allocated: only when world != local (a parent transform exists or
+  // the model's coordinate system is non-identity). When world == local the
+  // getter returns `_localMatrix` directly, so most meshes never allocate this.
+  _worldMatrix;
+  _parentTransform = null;
+  _worldMatrixDirty = true;
+  destroyed = false;
+  /**
+   * @private
+   */
+  constructor(meshParams) {
+    this.id = meshParams.id;
+    this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
+    this.model = meshParams.model;
+    this._localMatrix = meshParams.matrix ?? SHARED_IDENTITY_MATRIX;
+    this._worldMatrix = null;
+    this._worldMatrixDirty = true;
+    this.geometry = meshParams.geometry;
+    this.material = meshParams.material;
+    this.bin = meshParams.bin;
+    this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
+    this._opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
+    this.object = null;
+  }
+  /**
+   * Gets the {@link model!scene.SceneGeometry | SceneGeometry} used by this SceneMesh.
+   */
+  get geometryId() {
+    return this.geometry.id;
+  }
+  /**
+   * Gets the ID of the {@link model!scene.SceneMaterial | SceneMaterial} used by this SceneMesh.
+   */
+  get materialId() {
+    return this.material?.id;
+  }
+  /**
+   * Gets the RGB color for this SceneMesh.
+   *
+   * Each element of the color is in range ````[0..1]````.
+   */
+  get color() {
+    return this._color;
+  }
+  /**
+   * Sets the RGB color for this SceneMesh.
+   *
+   * - Fires an {@link SceneEvents.onSceneMeshColorChanged | SceneEvents.onSceneMeshColorChanged} event on the Scene.
+   * - Each element of the color is in range ````[0..1]````.
+   * -- Overriden by the color of the material if this SceneMesh has a material.
+   */
+  set color(value) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMesh.color] Cannot set color on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
+    if (!value || value.length !== 3) {
+      this.model.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneMesh.color] Invalid color for SceneMesh ${this.id}`
+      });
+      return;
+    }
+    let color2 = this._color;
+    if (value) {
+      color2[0] = value[0];
+      color2[1] = value[1];
+      color2[2] = value[2];
+    } else {
+      color2[0] = 1;
+      color2[1] = 1;
+      color2[2] = 1;
+    }
+    this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Gets the effective RGB color for this SceneMesh, which is the color of the SceneMaterial if it has one,
+   * or the SceneMesh's own color otherwise.
+   */
+  get effectiveColor() {
+    if (this.material) {
+      return this.material.color;
+    }
+    return this._color;
+  }
+  /**
+   * Updates this SceneMesh's local modeling transform matrix.
+   *
+   * - Fires an {@link SceneEvents.onSceneMeshMatrixChanged | SceneEvents.onSceneMeshMatrixChanged} event on the Scene.
+   * - Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @type {FloatArrayParam}
+   */
+  set matrix(matrix) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMesh.matrix] Cannot set matrix on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
+    if (!matrix || matrix.length !== 16) {
+      this.model.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneMesh.matrix] Invalid matrix for SceneMesh ${this.id}`
+      });
+      return;
+    }
+    this._ownLocalMatrix().set(matrix);
+    this.setWorldMatrixDirty();
+  }
+  /**
+   * Returns a private, writable `_localMatrix`, replacing the shared identity
+   * sentinel with a fresh copy on first write so in-place mutation never
+   * corrupts the matrix shared by every untransformed mesh.
+   */
+  _ownLocalMatrix() {
+    if (this._localMatrix === SHARED_IDENTITY_MATRIX) {
+      this._localMatrix = createMat4Float64(SHARED_IDENTITY_MATRIX);
+    }
+    return this._localMatrix;
+  }
+  /**
+   * Gets this SceneMesh's local modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   */
+  get matrix() {
+    return this._localMatrix;
+  }
+  /**
+   * Gets the global transform matrix for this SceneMesh.
+   */
+  get worldMatrix() {
+    if (!this._parentTransform && isIdentityMat4(this.model.coordinateSystemMatrix)) {
+      return this._localMatrix;
+    }
+    if (this._worldMatrixDirty || !this._worldMatrix) {
+      if (!this._worldMatrix) {
+        this._worldMatrix = createMat4Float64();
+      }
+      if (this._parentTransform) {
+        mulMat4(this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
+      } else {
+        mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
+      }
+      this._worldMatrixDirty = false;
+    }
+    return this._worldMatrix;
+  }
+  /**
+   * Gets the opacity factor for this SceneMesh.
+   *
+   * This is a factor in range ````[0..1]````.
+   */
+  get opacity() {
+    return this._opacity;
+  }
+  /**
+   * Sets the opacity factor for this SceneMesh.
+   *
+   * - This is a factor in range ````[0..1]````.
+   * - Fires an {@link SceneEvents.onSceneMeshOpacityChanged | SceneEvents.onSceneMeshOpacityChanged} event on the Scene.
+   */
+  set opacity(opacity) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMesh.opacity] Cannot set opacity on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
+    opacity = opacity !== void 0 && opacity !== null ? opacity : 1;
+    if (this._opacity === opacity) {
+      return;
+    }
+    this._opacity = opacity;
+    this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Gets the effective opacity factor for this SceneMesh, which is the opacity of the material if it has one,
+   * or the local opacity otherwise. This is a factor in range ````[0..1]````.
+   */
+  get effectiveOpacity() {
+    return this.material ? this.material.opacity : this._opacity;
+  }
+  /**
+   * Effective microfacet roughness — the material's roughness if a
+   * material is attached, otherwise the renderer default (0.6).
+   *
+   * The renderer's Cook-Torrance BRDF reads this; meshes without a
+   * material render as a moderately-rough dielectric.
+   */
+  get effectiveRoughness() {
+    return this.material ? this.material.roughness : DEFAULT_ROUGHNESS;
+  }
+  /**
+   * Effective metallic factor — the material's metallic value if a
+   * material is attached, otherwise the renderer default (0.0).
+   */
+  get effectiveMetallic() {
+    return this.material ? this.material.metallic : DEFAULT_METALLIC;
+  }
+  /**
+   * Effective albedo (colour) texture — the material's `colorTexture`
+   * if a material is attached, otherwise `undefined`. Untextured meshes
+   * sample the per-batch atlas's white sentinel.
+   */
+  get effectiveColorTexture() {
+    return this.material ? this.material.colorTexture : void 0;
+  }
+  /**
+   * Effective metallic-roughness texture — the material's
+   * `metallicRoughnessTexture` if a material is attached, otherwise
+   * `undefined`. Channel layout follows glTF 2.0: `G` = roughness,
+   * `B` = metallic. Untextured meshes sample the per-batch MR atlas's
+   * white sentinel — a multiplicative passthrough.
+   */
+  get effectiveMetallicRoughnessTexture() {
+    return this.material ? this.material.metallicRoughnessTexture : void 0;
+  }
+  /**
+   * Effective tangent-space normal map — the material's `normalsTexture`
+   * if a material is attached, otherwise `undefined`. Encoded RGB with
+   * `(x, y, z) = sample.rgb * 2 - 1`. Untextured meshes sample the
+   * per-batch normal-map atlas's neutral sentinel `(128, 128, 255, 255)`,
+   * which decodes to `(0, 0, 1)` — no perturbation.
+   */
+  get effectiveNormalsTexture() {
+    return this.material ? this.material.normalsTexture : void 0;
+  }
+  /**
+   * Effective emissive texture — the material's `emissiveTexture` if a
+   * material is attached, otherwise `undefined`. sRGB; the shader multiplies
+   * it by {@link SceneMesh.effectiveEmissiveColor} and adds the result to the
+   * lit colour. Untextured meshes sample the emissive atlas's white sentinel,
+   * which the `[0,0,0]` factor suppresses.
+   */
+  get effectiveEmissiveTexture() {
+    return this.material ? this.material.emissiveTexture : void 0;
+  }
+  /**
+   * Effective ambient-occlusion texture — the material's `occlusionTexture`
+   * if a material is attached, otherwise `undefined`. AO in the `R` channel,
+   * multiplied into the indirect lighting term. Untextured meshes sample the
+   * occlusion atlas's white sentinel (`R = 1` → no occlusion).
+   */
+  get effectiveOcclusionTexture() {
+    return this.material ? this.material.occlusionTexture : void 0;
+  }
+  /**
+   * Effective emissive colour factor — the material's `emissiveColor` if a
+   * material is attached, otherwise `[0,0,0]` (no emission).
+   */
+  get effectiveEmissiveColor() {
+    return this.material ? Array.from(this.material.emissiveColor) : [0, 0, 0];
+  }
+  /**
+   * Effective alpha-handling mode: `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`.
+   * Defaults to `OPAQUE` when no material is attached.
+   */
+  get effectiveAlphaMode() {
+    return this.material ? this.material.alphaMode : 0;
+  }
+  /**
+   * Effective `alphaCutoff` threshold for `MASK` mode. Defaults to `0.5`
+   * when no material is attached (matches glTF default).
+   */
+  get effectiveAlphaCutoff() {
+    return this.material ? this.material.alphaCutoff : 0.5;
+  }
+  /**
+   * Effective triplanar repeat distance — the material's
+   * `triplanarScale` if a material is attached, otherwise the
+   * renderer default (1.0). Read by the triplanar shader variant
+   * to convert world-space position into texture-sample
+   * coordinates; ignored on UV-bearing batches.
+   */
+  get effectiveTriplanarScale() {
+    return this.material ? this.material.triplanarScale : DEFAULT_TRIPLANAR_SCALE;
+  }
+  /**
+   * Effective per-mesh line thickness in pixels for the
+   * thick-line draw technique. Returns the attached material's
+   * `lineWidth` when one is bound; otherwise `0` to signal
+   * "fall back to the View's `linesMaterial.lineWidth`". The
+   * thick-line vertex shader implements that fallback.
+   */
+  get effectiveLineWidth() {
+    return this.material ? this.material.lineWidth : DEFAULT_LINE_WIDTH;
+  }
+  /**
+   * Effective dash / gap pattern entries (line-width units) for
+   * this mesh. Returns the attached material's pattern array
+   * when bound; otherwise `null` to signal "no per-mesh
+   * pattern — inherit the View-level fallback".
+   *
+   * Eight entries wide, zero-padded after the pattern length.
+   * Callers should consult {@link effectiveLinePatternLen} to
+   * find the in-use count.
+   */
+  get effectiveLinePatternEntries() {
+    return this.material ? this.material._linePatternEntries : null;
+  }
+  /**
+   * Effective dash / gap pattern length for this mesh. `0`
+   * means "no per-mesh pattern — inherit the View-level
+   * fallback"; any positive value overrides it.
+   */
+  get effectiveLinePatternLen() {
+    return this.material ? this.material._linePatternLen : 0;
+  }
+  /**
+   * Effective dash / gap pattern period (sum of in-use entries,
+   * in line-width units) — the natural modulus base when walking
+   * the pattern along a segment. `0` when no per-mesh pattern is
+   * set.
+   */
+  get effectiveLinePatternPeriod() {
+    return this.material ? this.material._linePatternPeriod : 0;
+  }
+  /**
+   * Effective hatch line families for this mesh. Returns the
+   * attached material's pattern array when bound; otherwise
+   * `null` to signal "no per-mesh hatch — render the surface
+   * normally".
+   *
+   * Four families × four floats wide, zero-padded after the
+   * family count. Each family occupies four consecutive slots:
+   * `[cos(angle), sin(angle), spacing, lineWidth]`. Callers
+   * should consult {@link effectiveHatchPatternCount} for the
+   * in-use family count.
+   */
+  get effectiveHatchPatternFamilies() {
+    return this.material ? this.material._hatchPatternFamilies : null;
+  }
+  /**
+   * Effective number of hatch line families for this mesh
+   * (`0..4`). `0` means "no hatch — surface renders without
+   * overlay".
+   */
+  get effectiveHatchPatternCount() {
+    return this.material ? this.material._hatchPatternCount : 0;
+  }
+  /**
+   * Effective hatch ink colour for this mesh as a four-float
+   * `(r, g, b, opacity)` array. All channels are in `[0, 1]`.
+   * Returns `null` when the mesh has no material attached.
+   */
+  get effectiveHatchPatternColor() {
+    return this.material ? this.material._hatchPatternColor : null;
+  }
+  /**
+   * Effective hatch coordinate-space flag — `0` for screen
+   * space, `1` for world space. Returns `0` when the mesh has
+   * no material attached.
+   */
+  get effectiveHatchPatternSpace() {
+    return this.material ? this.material._hatchPatternSpace : 0;
+  }
+  /**
+   * Gets the parent {@link SceneTransform} of this SceneMesh, or ````null```` if this SceneMesh is not parented.
+   */
+  get parentTransform() {
+    return this._parentTransform;
+  }
+  /**
+   * Updates the global transform matrix.
+   * @internal
+   */
+  setWorldMatrixDirty() {
+    this._worldMatrixDirty = true;
+    this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Attaches a parent transform to this transform.
+   * @param parent - The new parent transform or null to detach.
+   */
+  _attachParentTransform(parent) {
+    if (this._parentTransform === parent) {
+      return;
+    }
+    if (this._parentTransform) {
+      const idx = this._parentTransform._childMeshes.indexOf(this);
+      if (idx !== -1) {
+        this._parentTransform._childMeshes.splice(idx, 1);
+      }
+    }
+    this._parentTransform = parent;
+    if (parent) {
+      parent._childMeshes.push(this);
+    }
+    this.setWorldMatrixDirty();
+  }
+  /**
+   * Sets the parent transform for this mesh.
+   * @param parentTransformId - The ID of the new parent transform, or null to detach.
+   * @param opts - Options to preserve world transformation.
+   */
+  setParentTransformId(parentTransformId, opts) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMesh.setParentTransformId] Cannot set parent transform on destroyed SceneMesh ${this.id}`
+      });
+    }
+    let parentTransform = null;
+    if (parentTransformId) {
+      parentTransform = this.model.transforms[parentTransformId];
+      if (!parentTransform) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneMesh.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
+        });
+      }
+      if (parentTransform.model.id !== this.model.id) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneMesh.setParentTransformId] Cannot set parent transform to a SceneMesh in a different SceneModel: ${this.id}`
+        });
+      }
+    }
+    const preserve = !!opts?.preserveWorld;
+    if (preserve) {
+      this.setWorldMatrixDirty();
+      const currentWorld = createMat4Float64(this.worldMatrix);
+      this._attachParentTransform(parentTransform);
+      if (parentTransform) {
+        const invParent = inverseMat4(parentTransform.worldMatrix, createMat4Float64());
+        mulMat4(invParent, currentWorld, this._ownLocalMatrix());
+      } else {
+        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
+        mulMat4(invCoordSystem, currentWorld, this._ownLocalMatrix());
+      }
+      this.setWorldMatrixDirty();
+    } else {
+      this._attachParentTransform(parentTransform);
+    }
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Gets this SceneMesh as SceneMeshParams.
+   */
+  toParams() {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMesh.toParams] Cannot get params of destroyed SceneMesh ${this.id}`
+      });
+    }
+    const meshParams = {
+      id: this.id,
+      geometryId: this.geometry.id,
+      color: Array.from(this._color),
+      opacity: this._opacity
+    };
+    if (!isIdentityMat4(this._localMatrix)) {
+      meshParams.matrix = Array.from(this._localMatrix);
+    }
+    if (this.material !== null && this.material !== void 0) {
+      meshParams.materialId = this.material.id;
+    }
+    if (this._parentTransform !== null && this._parentTransform !== void 0) {
+      meshParams.parentTransformId = this.parentTransform.id;
+    }
+    if (this.bin !== void 0) {
+      meshParams.bin = this.bin;
+    }
+    return {
+      ok: true,
+      value: meshParams
+    };
+  }
+  /**
+   * Destroys this SceneMesh.
+   *
+   * - Fires an {@link SceneEvents.onSceneMeshDestroyed | SceneEvents.onSceneMeshDestroyed} event on the Scene.
+   * - You cannot destroy a SceneMesh that is currently used by a SceneObject; you must destroy the SceneObject first.
+   */
+  destroy() {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneMesh.destroy] SceneMesh already destroyed"
+      });
+    }
+    if (this.object) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneMesh.destroy] Cannot destroy SceneMesh ${this.id} - SceneMesh is currently used by SceneObject ${this.object.id}, which you need to destroy first`
+      });
+    }
+    if (this._parentTransform) {
+      this._parentTransform.removeChildMesh(this.id);
+    }
+    this._parentTransform = null;
+    this.model._destroyMesh(this);
+    this.destroyed = true;
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+
 // ../sdk/src/model/scene/ThickLinesTechnique.ts
 var ThickLinesTechnique = class extends SceneTechnique {
   type = "thickLines";
@@ -20728,7 +21207,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
   qualityLevel: 10,
   mipmaps: false
 };
-var SceneModel2 = class {
+var SceneModel3 = class {
   /**
    * The {@link Scene | Scene} that contains this SceneModel.
    */
@@ -20875,7 +21354,7 @@ var SceneModel2 = class {
   constructor(scene, sceneModelParams) {
     this.id = sceneModelParams.id;
     this.scene = scene;
-    this.coordinateSystem = new CoordinateSystem(
+    this.coordinateSystem = new CoordinateSystem2(
       this,
       () => {
         this._coordinateSystemMatrixDirty = true;
@@ -20995,7 +21474,7 @@ var SceneModel2 = class {
         });
       }
     }
-    const sceneTransform = new SceneTransform(this, transformParams);
+    const sceneTransform = new SceneTransform2(this, transformParams);
     if (parentTransform) {
       sceneTransform.setParentTransformId(parentTransform.id);
     }
@@ -21965,7 +22444,7 @@ var SceneModel2 = class {
         error: `[SceneModel.createMesh] Parameter 'color' is not a vec3 array`
       });
     }
-    const sceneMesh = new SceneMesh({
+    const sceneMesh = new SceneMesh3({
       id,
       model: this,
       geometry,
@@ -22358,508 +22837,462 @@ var SceneModel2 = class {
   }
 };
 
-// ../sdk/src/model/scene/SceneEvents.ts
-var import_strongly_typed_events4 = __toESM(require_dist8());
-var SceneEvents = class {
-  /**
-   * Emits an event when an error occurs within the {@link model!scene.Scene | Scene} or any of its child components.
-   * This non-fatal event is fired with an `SDKResult` containing error details whenever an operation fails.
-   */
-  onError;
-  /**
-   * Emits an event when the {@link model!scene.Scene | Scene} is destroyed.
-   */
-  onSceneDestroyed;
-  /**
-   * Emits an event when the {@link CoordinateSystem.basis} of the {@link model!scene.Scene | Scene} is updated.
-   */
-  onSceneCoordSystemBasisChanged;
-  /**
-   * Emits an event when the {@link CoordinateSystem.origin} of the {@link model!scene.Scene | Scene} is updated.
-   */
-  onSceneCoordSystemOriginChanged;
-  /**
-   * Emits an event when the {@link CoordinateSystem.units} of the {@link model!scene.Scene | Scene} is updated.
-   */
-  onSceneCoordSystemUnitsChanged;
-  /**
-   * Emits an event when the {@link CoordinateSystem.scaleToMeters} of the {@link model!scene.Scene | Scene} is updated.
-   */
-  onSceneCoordSystemScaleToMetersChanged;
-  /**
-   * Emits an event after one or more coordinate system properties of the {@link model!scene.Scene | Scene} have been updated,
-   * indicating that the {@link CoordinateSystem} is ready for use.
-   */
-  onSceneCoordSystemUpdated;
-  /**
-   * Emits an event each time a {@link model!scene.SceneModel | SceneModel} is created within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneModelCreated;
-  /**
-   * Emits an event each time a {@link model!scene.SceneModel | SceneModel} is destroyed within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneModelDestroyed;
-  /**
-   * Emits an event when a {@link model!scene.SceneModel | SceneModel} enters its "building" state — i.e. a
-   * loader has begun populating it. Consumers (e.g. the renderer) can use this to
-   * suspend per-frame work until the model is fully assembled. Paired with
-   * {@link onSceneModelBuildFinished}.
-   */
-  onSceneModelBuildStarted;
-  /**
-   * Emits an event when a {@link model!scene.SceneModel | SceneModel} leaves its "building" state — the
-   * loader has finished (or failed). Always fires to match a preceding
-   * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
-   */
-  onSceneModelBuildFinished;
-  /**
-   * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
-   */
-  onSceneModelCoordSystemBasisChanged;
-  /**
-   * Emits an event when the {@link CoordinateSystem.origin} of a {@link model!scene.SceneModel | SceneModel} is updated.
-   */
-  onSceneModelCoordSystemOriginChanged;
-  /**
-   * Emits an event when the {@link CoordinateSystem.units} of a {@link model!scene.SceneModel | SceneModel} is updated.
-   */
-  onSceneModelCoordSystemUnitsChanged;
-  /**
-   * Emits an event when the {@link CoordinateSystem.scaleToMeters} of a {@link model!scene.SceneModel | SceneModel} is updated.
-   */
-  onSceneModelCoordSystemScaleToMetersChanged;
-  /**
-   * Emits an event after one or more coordinate system properties of a {@link model!scene.SceneModel | SceneModel} have been updated,
-   * indicating that the {@link CoordinateSystem} is ready for use.
-   */
-  onSceneModelCoordSystemUpdated;
-  /**
-   * Emits an event each time a {@link model!scene.SceneObject | SceneObject} is created within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneObjectCreated;
-  /**
-   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is added to a {@link model!scene.SceneObject | SceneObject}.
-   */
-  onSceneObjectMeshAdded;
-  /**
-   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is removed from a {@link model!scene.SceneObject | SceneObject}.
-   */
-  onSceneObjectMeshRemoved;
-  /**
-   * Emits an event each time a {@link model!scene.SceneObject | SceneObject} is destroyed within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneObjectDestroyed;
-  /**
-   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is created within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMeshCreated;
-  /**
-   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is destroyed within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMeshDestroyed;
-  /**
-   * Emits an event each time the transformation matrix of a {@link model!scene.SceneMesh | SceneMesh} is updated within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMeshMatrixChanged;
-  /**
-   * Emits an event each time a {@link model!scene.SceneMesh | SceneMesh} is moved within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMeshMoved;
-  /**
-   * Emits an event each time the color of a {@link model!scene.SceneMesh | SceneMesh} is updated within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMeshColorChanged;
-  /**
-   * Emits an event each time the opacity of a {@link model!scene.SceneMesh | SceneMesh} is updated within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMeshOpacityChanged;
-  /**
-   * Emits an event each time a {@link model!scene.SceneGeometry | SceneGeometry} is created within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneGeometryCreated;
-  /**
-   * Emits an event each time a {@link model!scene.SceneGeometry | SceneGeometry} is destroyed within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneGeometryDestroyed;
-  /**
-   * Emits an event each time a {@link model!scene.SceneGeometry | SceneGeometry} is updated within the {@link model!scene.Scene | Scene},
-   * such as changes to positions, indices, or primitive types.
-   */
-  onSceneGeometryUpdated;
-  /**
-   * Emits an event each time a {@link SceneTransform} is created within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneTransformCreated;
-  /**
-   * Emits an event each time a {@link SceneTransform} is destroyed within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneTransformDestroyed;
-  /**
-   * Emits an event each time the transformation matrix of a {@link SceneTransform} is updated
-   * within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneTransformMatrixChanged;
-  /**
-   * Emits an event each time a {@link SceneTexture} is created within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneTextureCreated;
-  /**
-   * Emits an event each time a {@link SceneTexture} is destroyed within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneTextureDestroyed;
-  /**
-   * Emits an event each time a {@link SceneTexture}'s `imageData` is
-   * mutated post-creation. Subscribers (e.g. the renderer's texture
-   * atlas) re-upload the texture's pixels to the GPU.
-   */
-  onSceneTextureImageDataChanged;
-  /**
-   * Emits an event each time a {@link model!scene.SceneMaterial | SceneMaterial} is created within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMaterialCreated;
-  /**
-   * Emits an event each time the color of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMaterialColorChanged;
-  /**
-   * Emits an event each time the emissive color of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMaterialEmissiveColorChanged;
-  /**
-   * Emits an event each time the opacity of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMaterialOpacityChanged;
-  /**
-   * Emits an event each time the {@link SceneMaterial.linePattern}
-   * or {@link SceneMaterial.hatchPattern} of a {@link model!scene.SceneMaterial | SceneMaterial}
-   * is updated within the {@link model!scene.Scene | Scene}. Downstream consumers
-   * re-encode the affected pattern slot in their per-batch
-   * pattern tables.
-   */
-  onSceneMaterialPatternChanged;
-  /**
-   * Emits an event each time a {@link model!scene.SceneMaterial | SceneMaterial} is destroyed within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneMaterialDestroyed;
-  /**
-   * Emits an event each time a {@link SceneTechnique} is created
-   * within the {@link model!scene.Scene | Scene}. Subscribers (renderer variant
-   * registries, inspector panels) can pick the new technique up
-   * without polling.
-   */
-  onSceneTechniqueCreated;
-  /**
-   * Emits an event each time a {@link SceneTechnique} is destroyed
-   * within the {@link model!scene.Scene | Scene}.
-   */
-  onSceneTechniqueDestroyed;
-  /**
-   * @private
-   */
-  constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelBuildStarted = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelBuildFinished = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneModelCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneObjectCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneObjectMeshAdded = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneObjectMeshRemoved = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneObjectDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMeshCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMeshDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMeshMatrixChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMeshMoved = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMeshColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMeshOpacityChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTextureCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTextureDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTextureImageDataChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMaterialCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMaterialColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMaterialEmissiveColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMaterialOpacityChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMaterialPatternChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneMaterialDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTechniqueCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTechniqueDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneGeometryCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneGeometryDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneGeometryUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTransformCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTransformDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTransformMatrixChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-  }
-  /**
-   * @private
-   */
-  destroy() {
-    this.onError.clear();
-    this.onSceneDestroyed.clear();
-    this.onSceneCoordSystemBasisChanged.clear();
-    this.onSceneCoordSystemOriginChanged.clear();
-    this.onSceneCoordSystemUnitsChanged.clear();
-    this.onSceneCoordSystemScaleToMetersChanged.clear();
-    this.onSceneCoordSystemUpdated.clear();
-    this.onSceneModelCreated.clear();
-    this.onSceneModelDestroyed.clear();
-    this.onSceneModelBuildStarted.clear();
-    this.onSceneModelBuildFinished.clear();
-    this.onSceneModelCoordSystemBasisChanged.clear();
-    this.onSceneModelCoordSystemOriginChanged.clear();
-    this.onSceneModelCoordSystemUnitsChanged.clear();
-    this.onSceneModelCoordSystemScaleToMetersChanged.clear();
-    this.onSceneModelCoordSystemUpdated.clear();
-    this.onSceneObjectCreated.clear();
-    this.onSceneObjectMeshAdded.clear();
-    this.onSceneObjectMeshRemoved.clear();
-    this.onSceneMeshMoved.clear();
-    this.onSceneMeshColorChanged.clear();
-    this.onSceneMeshMatrixChanged.clear();
-    this.onSceneMeshOpacityChanged.clear();
-    this.onSceneTextureCreated.clear();
-    this.onSceneTextureDestroyed.clear();
-    this.onSceneTextureImageDataChanged.clear();
-    this.onSceneMaterialCreated.clear();
-    this.onSceneMaterialColorChanged.clear();
-    this.onSceneMaterialEmissiveColorChanged.clear();
-    this.onSceneMaterialOpacityChanged.clear();
-    this.onSceneMaterialPatternChanged.clear();
-    this.onSceneMaterialDestroyed.clear();
-    this.onSceneTechniqueCreated.clear();
-    this.onSceneTechniqueDestroyed.clear();
-    this.onSceneGeometryUpdated.clear();
-    this.onSceneObjectDestroyed.clear();
-    this.onSceneGeometryCreated.clear();
-    this.onSceneGeometryDestroyed.clear();
-    this.onSceneMeshCreated.clear();
-    this.onSceneMeshDestroyed.clear();
-    this.onSceneTransformCreated.clear();
-    this.onSceneTransformMatrixChanged.clear();
-    this.onSceneTransformDestroyed.clear();
+// ../sdk/src/model/procgen/treeGenerator/TreeGenerator.ts
+var TREE_GENERATOR_PRESETS = {
+  oak: {
+    height: 13,
+    levels: 4,
+    spread: 0.78,
+    density: 0.72,
+    leafSize: 1.15,
+    trunkRadius: 0.42,
+    branchRings: 5,
+    ringBranches: 4,
+    upwardBias: 0.32,
+    taper: 0.63,
+    lengthFalloff: 0.64,
+    crownLift: 0.22,
+    wind: 0,
+    leafColor: [0.12, 0.31, 0.13],
+    leafColorAlt: [0.17, 0.36, 0.15],
+    barkColor: [0.38, 0.24, 0.13]
+  },
+  pine: {
+    height: 16,
+    levels: 5,
+    spread: 0.46,
+    density: 0.86,
+    leafSize: 0.82,
+    trunkRadius: 0.34,
+    branchRings: 7,
+    ringBranches: 6,
+    upwardBias: 0.18,
+    taper: 0.58,
+    lengthFalloff: 0.68,
+    crownLift: 0.12,
+    wind: 0,
+    leafColor: [0.05, 0.22, 0.13],
+    leafColorAlt: [0.08, 0.27, 0.15],
+    barkColor: [0.36, 0.25, 0.17]
+  },
+  columnar: {
+    height: 17,
+    levels: 4,
+    spread: 0.34,
+    density: 0.7,
+    leafSize: 0.95,
+    trunkRadius: 0.32,
+    branchRings: 6,
+    ringBranches: 5,
+    upwardBias: 0.62,
+    taper: 0.6,
+    lengthFalloff: 0.58,
+    crownLift: 0.3,
+    wind: 0,
+    leafColor: [0.1, 0.3, 0.16],
+    leafColorAlt: [0.14, 0.35, 0.17],
+    barkColor: [0.42, 0.3, 0.19]
+  },
+  windswept: {
+    height: 11,
+    levels: 4,
+    spread: 0.96,
+    density: 0.58,
+    leafSize: 1.05,
+    trunkRadius: 0.38,
+    branchRings: 5,
+    ringBranches: 4,
+    upwardBias: 0.22,
+    taper: 0.64,
+    lengthFalloff: 0.66,
+    crownLift: 0.18,
+    wind: 0.58,
+    leafColor: [0.13, 0.29, 0.12],
+    leafColorAlt: [0.18, 0.34, 0.13],
+    barkColor: [0.35, 0.25, 0.16]
   }
 };
-
-// ../sdk/src/model/scene/Scene.ts
-var Scene = class {
-  /**
-   * Unique ID of this Scene.
-   * This is generated automatically.
-   */
-  id;
-  /**
-   * The coordinate system used throughout this Scene.
-   *
-   * This determines how all positions, orientations, and transformations
-   * within the Scene are interpreted.
-   */
-  coordinateSystem;
-  /**
-   * All {@link model!scene.SceneModel | SceneModel} instances belonging to this Scene, keyed by
-   * their {@link SceneModel.id | unique model ID}.
-   */
-  models;
-  /**
-   * All {@link model!scene.SceneObject | SceneObject} instances currently registered in this Scene.
-   *
-   * Objects are stored at the Scene level so tools and utilities can
-   * access them without needing to know which model they belong to.
-   */
-  objects;
-  /**
-   * Event dispatcher for Scene‑level lifecycle events.
-   */
-  events;
-  /**
-   * Indicates whether this Scene has been destroyed.
-   *
-   * When `true`, new models cannot be created and most operations will
-   * return an error result.
-   */
-  destroyed = false;
-  /**
-   * Enables or disables console logging of SDK errors.
-   *
-   * Defaults to `false`. When enabled, any dispatched error will also be
-   * logged via `console.error`.
-   */
-  logging = true;
-  /**
-   * Creates a new Scene.
-   *
-   * @param params Optional configuration including coordinate system settings
-   * and logging preferences.
-   */
-  constructor(params) {
-    this.id = params?.id || createUUID();
-    this.events = new SceneEvents();
-    this.coordinateSystem = new CoordinateSystem(
-      this,
-      () => {
-        for (const modelId in this.models) {
-          const model = this.models[modelId];
-          model.setWorldMatrixDirty();
-        }
-      },
-      params?.coordinateSystem
-    );
-    this.models = {};
-    this.objects = {};
-    this.logging = params?.logging ?? false;
+var TreeGenerator = class _TreeGenerator {
+  static PRESETS = TREE_GENERATOR_PRESETS;
+  generate(sceneModel, params = {}) {
+    const settings = this.resolveSettings(params);
+    this.createSharedGeometry(sceneModel, settings.geometryIdPrefix, settings.includeGround);
+    return this.createTree(sceneModel, settings);
   }
-  /**
-   * Creates and registers a new {@link model!scene.SceneModel | SceneModel} in this Scene.
-   *
-   * - Fires a {@link SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated} event.
-   * - Validates that the Scene is not destroyed and the model ID is unique.
-   * - Instantiates the SceneModel and populates it from the given parameters.
-   * - Registers the model and dispatches a creation event.
-   * - If population fails, destroys the model and all its components (objects, meshes, geometries),
-   *   dispatching destruction events for each component and the model itself.
-   *
-   * @param sceneModelParams Parameters for the new SceneModel.
-   * @returns SDKResult containing the created SceneModel or an error.
-   */
-  createModel(sceneModelParams) {
-    if (this.destroyed) {
-      return this.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[Scene.createModel] Scene already destroyed"
-      });
-    }
-    const id = sceneModelParams.id ?? createUUID();
-    if (this.models[id]) {
-      return this.logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[Scene.createModel] SceneModel already exists in this Scene: ${id}`
-      });
-    }
-    const paramsWithId = { ...sceneModelParams, id };
-    const sceneModel = new SceneModel2(this, paramsWithId);
-    this.models[id] = sceneModel;
-    this.events.onSceneModelCreated.dispatch(this, sceneModel);
-    const populated = sceneModel.fromParams(paramsWithId);
-    if (populated.ok === false) {
-      sceneModel.destroy();
-      return this.logError(populated);
-    }
-    return { ok: true, value: sceneModel };
+  getPreset(name12) {
+    return _TreeGenerator.PRESETS[name12] || _TreeGenerator.PRESETS.oak;
   }
-  /**
-   * Returns `true` if any {@link model!scene.SceneModel | SceneModel} in this
-   * Scene currently holds at least one {@link model!scene.SceneGeometry | SceneGeometry}
-   * of the given primitive type — e.g. `scene.containsPrimitive(GaussianSplatsPrimitive)`.
-   *
-   * Backed by per-model live counts, so this is cheap to call (no geometry scan).
-   */
-  containsPrimitive(primitive) {
-    for (const id in this.models) {
-      if (this.models[id].containsPrimitive(primitive)) {
-        return true;
-      }
+  resolveSettings(params) {
+    const species = params.species || "oak";
+    const preset = this.getPreset(species);
+    return {
+      species,
+      seed: Math.max(1, Math.floor(params.seed ?? 1)),
+      height: params.height ?? preset.height,
+      levels: params.levels ?? preset.levels,
+      spread: params.spread ?? preset.spread,
+      density: params.density ?? preset.density,
+      leafSize: params.leafSize ?? preset.leafSize,
+      trunkRadius: params.trunkRadius ?? preset.trunkRadius,
+      branchRings: params.branchRings ?? preset.branchRings,
+      ringBranches: params.ringBranches ?? preset.ringBranches,
+      upwardBias: params.upwardBias ?? preset.upwardBias,
+      taper: params.taper ?? preset.taper,
+      lengthFalloff: params.lengthFalloff ?? preset.lengthFalloff,
+      crownLift: params.crownLift ?? preset.crownLift,
+      wind: params.wind ?? preset.wind,
+      leafColor: params.leafColor ?? preset.leafColor,
+      leafColorAlt: params.leafColorAlt ?? preset.leafColorAlt,
+      barkColor: params.barkColor ?? preset.barkColor,
+      includeGround: params.includeGround !== false,
+      position: params.position ?? [0, 0, 0],
+      rotation: params.rotation ?? 0,
+      scale: Math.max(1e-3, params.scale ?? 1),
+      groundSize: params.groundSize ?? 15,
+      groundColor: params.groundColor ?? [0.36, 0.43, 0.31],
+      idPrefix: params.idPrefix ?? "",
+      geometryIdPrefix: params.geometryIdPrefix ?? params.idPrefix ?? ""
+    };
+  }
+  createSharedGeometry(sceneModel, idPrefix, includeGround) {
+    const branchId = `${idPrefix}branch`;
+    const leafClusterId = `${idPrefix}leafCluster`;
+    const groundId = `${idPrefix}ground`;
+    if (!sceneModel.geometries[branchId]) {
+      this.addGeometry(sceneModel, branchId, buildCylinder({
+        radiusTop: 1,
+        radiusBottom: 1,
+        height: 1,
+        radialSegments: 12,
+        heightSegments: 1
+      }));
     }
-    return false;
-  }
-  /**
-   * Called internally when a {@link model!scene.SceneModel | SceneModel} is destroyed.
-   *
-   * Removes the model from the registry and dispatches its destruction event.
-   * @private
-   */
-  _destroyModel(sceneModel) {
-    delete this.models[sceneModel.id];
-    this._deregisterObjects(sceneModel);
-    this.events.onSceneModelDestroyed.dispatch(this, sceneModel);
-  }
-  /** @private */
-  _deregisterObjects(model) {
-    for (const id in model.objects) {
-      this._deregisterObject(model.objects[id]);
+    if (!sceneModel.geometries[leafClusterId]) {
+      this.addGeometry(sceneModel, leafClusterId, buildSphere({
+        radius: 1,
+        heightSegments: 12,
+        widthSegments: 14
+      }));
+    }
+    if (includeGround && !sceneModel.geometries[groundId]) {
+      this.addGeometry(sceneModel, groundId, buildBox({
+        xSize: 1,
+        ySize: 1,
+        zSize: 1
+      }));
     }
   }
-  /** @private */
-  _deregisterObject(sceneObject) {
-    delete this.objects[sceneObject.id];
-    this.events.onSceneObjectDestroyed.dispatch(this, sceneObject);
-  }
-  /** @private */
-  _registerObject(sceneObject) {
-    this.objects[sceneObject.id] = sceneObject;
-    this.events.onSceneObjectCreated.dispatch(this, sceneObject);
-  }
-  /**
-   * Destroys all {@link model!scene.SceneModel | SceneModel} instances in this Scene.
-   *
-   * For each model:
-   * - Calls {@link SceneModel.destroy}
-   * - Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed} events.
-   *
-   * @returns A {@link base!core.SDKResult | SDKResult} indicating success or failure.
-   */
-  clear() {
-    if (this.destroyed) {
-      return this.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[Scene.clear] Scene already destroyed"
-      });
-    }
-    for (const id in this.models) {
-      this.models[id].destroy();
-    }
-    return { ok: true, value: void 0 };
-  }
-  /**
-   * Fully destroys this Scene and all of its models and objects.
-   *
-   * This performs:
-   * - A {@link clear} of all models
-   * - Cleanup of all Scene‑level event subscriptions
-   * - Fires {@link SceneEvents.onSceneDestroyed | SceneEvents.onSceneDestroyed} event
-   *
-   * After destruction, most Scene operations become invalid.
-   */
-  destroy() {
-    if (this.destroyed) {
+  addGeometry(sceneModel, id, result) {
+    if (sceneModel.geometries[id]) {
       return;
     }
-    this.clear();
-    this.events.onSceneDestroyed.dispatch(this, this);
-    this.events.destroy();
-    this.destroyed = true;
+    const geometry = must(result);
+    must(sceneModel.createGeometry({
+      id,
+      primitive: TrianglesPrimitive,
+      positions: geometry.positions,
+      normals: geometry.normals,
+      indices: geometry.indices
+    }));
   }
-  /**
-   * Emits an error event and optionally logs the error to the console.
-   *
-   * Called internally whenever an SDK operation fails.
-   *
-   * @param result The failed {@link base!core.SDKResult | SDKResult}.
-   * @returns The same {@link base!core.SDKResult | SDKResult} for convenience.
-   * @private
-   */
-  logError(result) {
-    if (result.ok === false) {
-      if (this.logging) {
-        console.error(result.error);
-      }
-      this.events.onError.dispatch(this, result);
+  createTree(sceneModel, settings) {
+    const random = mulberry32(settings.seed);
+    const stats = { branches: 0, leaves: 0, meshes: 0 };
+    let nextId = 0;
+    const geometryId = (id) => `${settings.geometryIdPrefix}${id}`;
+    const createMesh = (baseGeometryId, matrix, color2) => {
+      const meshId = `${settings.idPrefix}mesh_${nextId}`;
+      const objectId = `${settings.idPrefix}object_${nextId}`;
+      nextId++;
+      must(sceneModel.createMesh({
+        id: meshId,
+        geometryId: geometryId(baseGeometryId),
+        matrix,
+        color: color2
+      }));
+      must(sceneModel.createObject({ id: objectId, meshIds: [meshId] }));
+      stats.meshes++;
+      return meshId;
+    };
+    const createBranch = (start, end, radius, colorScale = 1) => {
+      const bark = settings.barkColor.map((v) => clamp012(v * colorScale));
+      createMesh("branch", branchMatrix(
+        transformPoint(start, settings),
+        transformPoint(end, settings),
+        radius * settings.scale
+      ), bark);
+      stats.branches++;
+    };
+    const createLeaf = (position, radius, tint) => {
+      this.createLeafCluster(createMesh, settings, position, radius, tint);
+      stats.leaves++;
+    };
+    if (settings.includeGround) {
+      createMesh("ground", orientedScaleMatrix(
+        transformPoint([0, 0, -0.08], settings),
+        [settings.groundSize * settings.scale, settings.groundSize * settings.scale, 0.04 * settings.scale],
+        settings.rotation
+      ), settings.groundColor);
     }
-    return result;
+    const trunkHeight = settings.height * (settings.species === "pine" ? 0.92 : 0.62);
+    const trunkTop = [settings.wind * settings.height * 0.1, 0, trunkHeight];
+    createBranch([0, 0, 0], trunkTop, settings.trunkRadius, 0.92);
+    this.addRoots(createBranch, settings, random);
+    const ringCount = settings.branchRings;
+    for (let ring = 0; ring < ringCount; ring++) {
+      const t = ringCount === 1 ? 0.5 : ring / (ringCount - 1);
+      const heightT = settings.crownLift + t * (0.93 - settings.crownLift);
+      const ringZ = trunkHeight * heightT;
+      const trunkX = trunkTop[0] * heightT;
+      const start = [trunkX, 0, ringZ];
+      const branchCount = settings.ringBranches - ring % 2;
+      const ringRadius = settings.trunkRadius * (1.02 - heightT * 0.66);
+      const baseLength = settings.height * settings.spread * (0.28 + (1 - t) * 0.2);
+      const phase = random() * Math.PI * 2 + ring * 0.72;
+      for (let i = 0; i < branchCount; i++) {
+        const azimuth = phase + i / branchCount * Math.PI * 2 + jitter(random, 0.22);
+        const horizontal = Math.max(0.12, settings.spread) * (settings.species === "pine" ? 0.75 : 1);
+        const dir = normalize([
+          Math.cos(azimuth) * horizontal + settings.wind * (0.34 + t * 0.35),
+          Math.sin(azimuth) * horizontal,
+          settings.upwardBias + 0.18 + t * 0.48 + random() * 0.18
+        ]);
+        this.growBranch({
+          createBranch,
+          createLeaf,
+          random,
+          settings,
+          start,
+          dir,
+          length: baseLength * (0.78 + random() * 0.34),
+          radius: ringRadius * (0.52 + random() * 0.18),
+          level: 1,
+          maxLevel: settings.levels
+        });
+      }
+    }
+    if (settings.species === "pine" || settings.species === "columnar") {
+      const leaderTop = [trunkTop[0] + settings.wind * settings.height * 0.16, 0, settings.height];
+      createBranch(trunkTop, leaderTop, settings.trunkRadius * 0.3, 1.08);
+      createLeaf(leaderTop, settings.leafSize * 1.1, random());
+    }
+    return stats;
+  }
+  growBranch({ createBranch, createLeaf, random, settings, start, dir, length: length2, radius, level, maxLevel }) {
+    const bend = settings.wind * level * 0.12;
+    const end = [
+      start[0] + dir[0] * length2 + bend,
+      start[1] + dir[1] * length2,
+      start[2] + dir[2] * length2
+    ];
+    createBranch(start, end, radius, 0.95 + random() * 0.16);
+    if (level >= maxLevel || radius < 0.045) {
+      const clusters = Math.max(1, Math.round(settings.density * (settings.species === "pine" ? 4 : 3)));
+      for (let i = 0; i < clusters; i++) {
+        const offset = randomUnitVector(random);
+        const position = [
+          end[0] + offset[0] * settings.leafSize * 0.45,
+          end[1] + offset[1] * settings.leafSize * 0.45,
+          end[2] + Math.abs(offset[2]) * settings.leafSize * 0.24
+        ];
+        createLeaf(position, settings.leafSize * (0.7 + random() * 0.55), random());
+      }
+      return;
+    }
+    const childCount = settings.species === "pine" ? 2 + (random() > 0.48 ? 1 : 0) : 2 + (random() > 0.7 ? 1 : 0);
+    for (let i = 0; i < childCount; i++) {
+      const azimuth = Math.atan2(dir[1], dir[0]) + (i - (childCount - 1) / 2) * (0.95 + settings.spread * 0.55) + jitter(random, 0.42);
+      const lateral = settings.spread * (0.5 + random() * 0.34) / (level + 0.65);
+      const childDir = normalize([
+        dir[0] * 0.56 + Math.cos(azimuth) * lateral + settings.wind * 0.12,
+        dir[1] * 0.56 + Math.sin(azimuth) * lateral,
+        dir[2] * 0.62 + settings.upwardBias * 0.34 + random() * 0.28
+      ]);
+      this.growBranch({
+        createBranch,
+        createLeaf,
+        random,
+        settings,
+        start: end,
+        dir: childDir,
+        length: length2 * settings.lengthFalloff * (0.78 + random() * 0.28),
+        radius: radius * settings.taper,
+        level: level + 1,
+        maxLevel
+      });
+    }
+  }
+  createLeafCluster(createMesh, settings, position, radius, tint) {
+    const color2 = mixColor(settings.leafColor, settings.leafColorAlt, 0.25 + tint * 0.15);
+    const flatten = settings.species === "pine" ? 1.35 : 0.72;
+    createMesh("leafCluster", orientedScaleMatrix(transformPoint(position, settings), [
+      radius * settings.scale * (0.85 + tint * 0.28),
+      radius * settings.scale * (settings.species === "columnar" ? 0.68 : 1.05),
+      radius * settings.scale * flatten
+    ], settings.rotation), color2);
+  }
+  addRoots(createBranch, settings, random) {
+    const roots = 6;
+    for (let i = 0; i < roots; i++) {
+      const angle2 = i / roots * Math.PI * 2 + jitter(random, 0.22);
+      const len = settings.trunkRadius * (2.3 + random() * 1.8);
+      const end = [
+        Math.cos(angle2) * len,
+        Math.sin(angle2) * len,
+        0.08
+      ];
+      createBranch([0, 0, 0.18], end, settings.trunkRadius * (0.18 + random() * 0.08), 0.82);
+    }
   }
 };
+function must(result) {
+  if (result.ok) {
+    return result.value;
+  }
+  throw new Error(result.error);
+}
+function transformPoint(point, settings) {
+  const cos = Math.cos(settings.rotation);
+  const sin = Math.sin(settings.rotation);
+  const x = point[0] * settings.scale;
+  const y = point[1] * settings.scale;
+  return [
+    settings.position[0] + x * cos - y * sin,
+    settings.position[1] + x * sin + y * cos,
+    settings.position[2] + point[2] * settings.scale
+  ];
+}
+function orientedScaleMatrix(position, scale3, rotation) {
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  return [
+    cos * scale3[0],
+    sin * scale3[0],
+    0,
+    0,
+    -sin * scale3[1],
+    cos * scale3[1],
+    0,
+    0,
+    0,
+    0,
+    scale3[2],
+    0,
+    position[0],
+    position[1],
+    position[2],
+    1
+  ];
+}
+function branchMatrix(start, end, radius) {
+  const axisY = subtract(end, start);
+  const length2 = Math.hypot(axisY[0], axisY[1], axisY[2]) || 1;
+  const y = [axisY[0] / length2, axisY[1] / length2, axisY[2] / length2];
+  const helper = Math.abs(dot2(y, [0, 0, 1])) > 0.92 ? [1, 0, 0] : [0, 0, 1];
+  const x = normalize(cross2(helper, y));
+  const z = cross2(y, x);
+  const center = [
+    (start[0] + end[0]) / 2,
+    (start[1] + end[1]) / 2,
+    (start[2] + end[2]) / 2
+  ];
+  return [
+    x[0] * radius,
+    x[1] * radius,
+    x[2] * radius,
+    0,
+    y[0] * length2,
+    y[1] * length2,
+    y[2] * length2,
+    0,
+    z[0] * radius,
+    z[1] * radius,
+    z[2] * radius,
+    0,
+    center[0],
+    center[1],
+    center[2],
+    1
+  ];
+}
+function mulberry32(seed) {
+  return function next() {
+    seed |= 0;
+    seed = seed + 1831565813 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function randomUnitVector(random) {
+  const angle2 = random() * Math.PI * 2;
+  const z = random() * 2 - 1;
+  const r = Math.sqrt(Math.max(0, 1 - z * z));
+  return [Math.cos(angle2) * r, Math.sin(angle2) * r, z];
+}
+function mixColor(a2, b4, t) {
+  return [
+    a2[0] + (b4[0] - a2[0]) * t,
+    a2[1] + (b4[1] - a2[1]) * t,
+    a2[2] + (b4[2] - a2[2]) * t
+  ];
+}
+function jitter(random, amount) {
+  return (random() - 0.5) * amount;
+}
+function subtract(a2, b4) {
+  return [a2[0] - b4[0], a2[1] - b4[1], a2[2] - b4[2]];
+}
+function dot2(a2, b4) {
+  return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
+}
+function cross2(a2, b4) {
+  return [
+    a2[1] * b4[2] - a2[2] * b4[1],
+    a2[2] * b4[0] - a2[0] * b4[2],
+    a2[0] * b4[1] - a2[1] * b4[0]
+  ];
+}
+function normalize(v) {
+  const len = Math.hypot(v[0], v[1], v[2]) || 1;
+  return [v[0] / len, v[1] / len, v[2] / len];
+}
+function clamp012(v) {
+  return Math.max(0, Math.min(1, v));
+}
+
+// ../sdk/src/model/scene/index.ts
+var scene_exports = {};
+__export(scene_exports, {
+  CoordinateSystem: () => CoordinateSystem2,
+  HATCH_FAMILY_FLOAT_STRIDE: () => HATCH_FAMILY_FLOAT_STRIDE,
+  HATCH_STYLE_PRESETS: () => HATCH_STYLE_PRESETS,
+  LINE_STYLE_PRESETS: () => LINE_STYLE_PRESETS,
+  MAX_HATCH_FAMILIES: () => MAX_HATCH_FAMILIES,
+  MAX_LINE_PATTERN_ENTRIES: () => MAX_LINE_PATTERN_ENTRIES,
+  Scene: () => Scene2,
+  SceneEvents: () => SceneEvents,
+  SceneGeometry: () => SceneGeometry,
+  SceneMaterial: () => SceneMaterial,
+  SceneMesh: () => SceneMesh3,
+  SceneModel: () => SceneModel3,
+  SceneObject: () => SceneObject,
+  SceneTechnique: () => SceneTechnique,
+  SceneTexture: () => SceneTexture,
+  SceneTransform: () => SceneTransform2,
+  ThickLinesTechnique: () => ThickLinesTechnique,
+  buildMat4: () => buildMat4,
+  compressGeometryParams: () => compressGeometryParams,
+  createCoordinateSystemTransform: () => createCoordinateSystemTransform,
+  emptyHatchPattern: () => emptyHatchPattern,
+  emptyLinePattern: () => emptyLinePattern,
+  getMeshWorldMatrix: () => getMeshWorldMatrix,
+  isDefaultLayer: () => isDefaultLayer,
+  isDefaultLayerModel: () => isDefaultLayerModel,
+  isDefaultLayerObject: () => isDefaultLayerObject,
+  normaliseHatchPattern: () => normaliseHatchPattern,
+  normaliseLinePattern: () => normaliseLinePattern
+});
 
 // ../sdk/src/model/scene/isDefaultLayer.ts
 function isDefaultLayer(layerId) {
@@ -29023,10 +29456,10 @@ function create2() {
   }
   return out;
 }
-function dot2(a2, b4) {
+function dot3(a2, b4) {
   return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
 }
-function cross2(out, a2, b4) {
+function cross3(out, a2, b4) {
   const ax = a2[0];
   const ay = a2[1];
   const az = a2[2];
@@ -29134,7 +29567,7 @@ function angle(a2, b4) {
   const by = b4[1];
   const bz = b4[2];
   const mag = Math.sqrt((ax * ax + ay * ay + az * az) * (bx * bx + by * by + bz * bz));
-  const cosine = mag && dot2(a2, b4) / mag;
+  const cosine = mag && dot3(a2, b4) / mag;
   return Math.acos(Math.min(Math.max(cosine, -1), 1));
 }
 var forEach3 = function() {
@@ -29243,7 +29676,7 @@ var Vector3 = class _Vector3 extends Vector {
   }
   // MODIFIERS
   cross(vector) {
-    cross2(this, this, vector);
+    cross3(this, this, vector);
     return this.check();
   }
   rotateX({ radians, origin: origin2 = ORIGIN }) {
@@ -110304,6 +110737,7 @@ var XGFViewStreamController = class {
   _frustumOnly;
   _frustumDepthMultiplier;
   _frustumMinDepth;
+  _minProjectedChunkSizePixels;
   _chunkPriorityTarget;
   _cameraDebounceMs;
   _enableLRUEviction;
@@ -110324,6 +110758,9 @@ var XGFViewStreamController = class {
   _paused = false;
   _lruSequence = 0;
   _chunkLastUsed = /* @__PURE__ */ new Map();
+  _projectedVisibilityViewProjectionMatrix = createMat4Float64();
+  _projectedVisibilityClip = [0, 0, 0, 1];
+  _projectedVisibilityPoint = [0, 0, 0, 1];
   _timer;
   _candidateQueue = {
     generation: 0,
@@ -110358,6 +110795,7 @@ var XGFViewStreamController = class {
     this._frustumOnly = params.frustumOnly !== false;
     this._frustumDepthMultiplier = params.frustumDepthMultiplier !== void 0 && Number.isFinite(params.frustumDepthMultiplier) && params.frustumDepthMultiplier > 0 ? params.frustumDepthMultiplier : void 0;
     this._frustumMinDepth = params.frustumMinDepth !== void 0 && Number.isFinite(params.frustumMinDepth) && params.frustumMinDepth > 0 ? params.frustumMinDepth : 0;
+    this._minProjectedChunkSizePixels = params.minProjectedChunkSizePixels !== void 0 && Number.isFinite(params.minProjectedChunkSizePixels) && params.minProjectedChunkSizePixels > 0 ? params.minProjectedChunkSizePixels : 0;
     this._chunkPriorityTarget = params.chunkPriorityTarget || "look";
     this._cameraDebounceMs = params.cameraDebounceMs ?? DEFAULT_CAMERA_DEBOUNCE_MS;
     this._enableLRUEviction = params.enableLRUEviction === true;
@@ -110535,7 +110973,7 @@ var XGFViewStreamController = class {
       clearTimeout(this._timer);
       this._timer = void 0;
     }
-    this._fileDataCache.abortQueued((manifest) => !this.intersectsCameraFrustum(manifest));
+    this._fileDataCache.abortQueued((manifest) => !this.isVisibleForStreaming(manifest));
     let unloaded = 0;
     const protectedChunkIds = new Set(this.loadingChunkIds);
     for (const chunkId of Array.from(this.loadedChunkIds)) {
@@ -110543,7 +110981,7 @@ var XGFViewStreamController = class {
         continue;
       }
       const manifest = this.manifestById(chunkId);
-      if (manifest && this.intersectsCameraFrustum(manifest)) {
+      if (manifest && this.isVisibleForStreaming(manifest)) {
         continue;
       }
       if (this.unloadResidentChunk(chunkId, true)) {
@@ -110574,7 +111012,7 @@ var XGFViewStreamController = class {
    * Prefetches XGF bytes for the supplied references-only chunk manifests.
    */
   prefetchChunks(chunkManifests, generation = this._generation) {
-    this._fileDataCache.abortQueued((manifest, token) => token !== void 0 && token !== generation && !this.intersectsCameraFrustum(manifest));
+    this._fileDataCache.abortQueued((manifest, token) => token !== void 0 && token !== generation && !this.isVisibleForStreaming(manifest));
     this._fileDataCache.prefetch(
       chunkManifests.filter((manifest) => !this.isLoadedManifest(manifest)),
       (manifest) => this.chunkPriority(manifest) + 1e3,
@@ -110655,10 +111093,10 @@ var XGFViewStreamController = class {
         if (generation !== void 0 && generation < this._resetGeneration) {
           break;
         }
-        if (generation !== void 0 && generation !== this._generation && frustumOnly && !this.intersectsCameraFrustum(manifest)) {
+        if (generation !== void 0 && generation !== this._generation && frustumOnly && !this.isVisibleForStreaming(manifest)) {
           continue;
         }
-        if (frustumOnly && !this.intersectsCameraFrustum(manifest)) {
+        if (frustumOnly && !this.isVisibleForStreaming(manifest)) {
           continue;
         }
         if (this.isLoadedManifest(manifest) || this.loadingChunkIds.has(manifest.id)) {
@@ -110737,7 +111175,7 @@ var XGFViewStreamController = class {
       if (this.loadedChunkIds.has(manifest.id) || this.loadingChunkIds.has(manifest.id)) {
         continue;
       }
-      if (this._frustumOnly && !this.intersectsCameraFrustum(manifest)) {
+      if (this._frustumOnly && !this.isVisibleForStreaming(manifest)) {
         continue;
       }
       candidates.push(manifest);
@@ -110747,7 +111185,7 @@ var XGFViewStreamController = class {
   hasPendingQueuedChunks() {
     for (let i = this._candidateQueue.cursor; i < this._candidateQueue.chunks.length; i++) {
       const manifest = this._candidateQueue.chunks[i];
-      if (!this.loadedChunkIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id) && (!this._frustumOnly || this.intersectsCameraFrustum(manifest))) {
+      if (!this.loadedChunkIds.has(manifest.id) && !this.loadingChunkIds.has(manifest.id) && (!this._frustumOnly || this.isVisibleForStreaming(manifest))) {
         return true;
       }
     }
@@ -110779,14 +111217,14 @@ var XGFViewStreamController = class {
       if (this.loadedChunkIds.has(manifest.id) || this.loadingChunkIds.has(manifest.id)) {
         continue;
       }
-      const intersectsFrustum = this.intersectsCameraFrustum(manifest);
-      if (this._frustumOnly && !intersectsFrustum) {
+      const visibleForStreaming = this.isVisibleForStreaming(manifest);
+      if (this._frustumOnly && !visibleForStreaming) {
         continue;
       }
       records.push({
         manifest,
-        intersectsFrustum,
-        priority: this.chunkPriorityFromFrustumState(manifest, intersectsFrustum)
+        visibleForStreaming,
+        priority: this.chunkPriorityFromVisibility(manifest, visibleForStreaming)
       });
     }
     records.sort(comparePriorityRecords);
@@ -110858,12 +111296,12 @@ var XGFViewStreamController = class {
   protectedChunkIds() {
     const protectedChunkIds = new Set(this.loadingChunkIds);
     for (const manifest of this._candidateQueue.chunks) {
-      if (this.intersectsCameraFrustum(manifest)) {
+      if (this.isVisibleForStreaming(manifest)) {
         protectedChunkIds.add(manifest.id);
       }
     }
     for (const manifest of this.chunkManifests) {
-      if (this.intersectsCameraFrustum(manifest)) {
+      if (this.isVisibleForStreaming(manifest)) {
         protectedChunkIds.add(manifest.id);
       }
     }
@@ -110897,7 +111335,7 @@ var XGFViewStreamController = class {
   async activateVisibleStreams() {
     const loads = [];
     for (const streamNode of this._streamNodes) {
-      if (streamNode.loaded || streamNode.error || !this.intersectsAABB(streamNode.manifest.aabb)) {
+      if (streamNode.loaded || streamNode.error || !this.isAABBVisibleForStreaming(streamNode.manifest.aabb)) {
         continue;
       }
       loads.push(this.activateStream(streamNode));
@@ -110961,7 +111399,7 @@ var XGFViewStreamController = class {
   }
   deactivateInvisibleStreams() {
     for (const streamNode of [...this._streamNodes]) {
-      if (!streamNode.loaded || streamNode.loading || this.intersectsAABB(streamNode.manifest.aabb)) {
+      if (!streamNode.loaded || streamNode.loading || this.isAABBVisibleForStreaming(streamNode.manifest.aabb)) {
         continue;
       }
       this.deactivateStream(streamNode);
@@ -111026,25 +111464,41 @@ var XGFViewStreamController = class {
     this.emitProgress();
   }
   chunkPriority(manifest) {
-    return this.chunkPriorityFromFrustumState(manifest, this.intersectsCameraFrustum(manifest));
+    return this.chunkPriorityFromVisibility(manifest, this.isVisibleForStreaming(manifest));
   }
   prioritizeManifestRecords(chunkManifests) {
     const records = chunkManifests.map((manifest) => {
-      const intersectsFrustum = this.intersectsCameraFrustum(manifest);
+      const visibleForStreaming = this.isVisibleForStreaming(manifest);
       return {
         manifest,
-        intersectsFrustum,
-        priority: this.chunkPriorityFromFrustumState(manifest, intersectsFrustum)
+        visibleForStreaming,
+        priority: this.chunkPriorityFromVisibility(manifest, visibleForStreaming)
       };
     });
     records.sort(comparePriorityRecords);
     return records;
   }
-  chunkPriorityFromFrustumState(manifest, intersectsFrustum) {
-    return (intersectsFrustum ? 0 : NON_FRUSTUM_PRIORITY_OFFSET) + this.squaredDistanceToPriorityPoint(manifest);
+  chunkPriorityFromVisibility(manifest, visibleForStreaming) {
+    return (visibleForStreaming ? 0 : NON_FRUSTUM_PRIORITY_OFFSET) + this.squaredDistanceToPriorityPoint(manifest);
   }
-  intersectsCameraFrustum(manifest) {
-    return this.intersectsAABB(manifest.aabb);
+  isVisibleForStreaming(manifest) {
+    return this.isAABBVisibleForStreaming(manifest.aabb);
+  }
+  isAABBVisibleForStreaming(aabb) {
+    if (!this.intersectsAABB(aabb)) {
+      return false;
+    }
+    if (!aabb || this._minProjectedChunkSizePixels <= 0) {
+      return true;
+    }
+    const projectedSize = projectedAABBMaxCanvasSizePixels(
+      aabb,
+      this._view,
+      this._projectedVisibilityViewProjectionMatrix,
+      this._projectedVisibilityClip,
+      this._projectedVisibilityPoint
+    );
+    return projectedSize === void 0 || projectedSize >= this._minProjectedChunkSizePixels;
   }
   intersectsAABB(aabb) {
     const frustum = this._view.camera.frustum;
@@ -111270,10 +111724,79 @@ function createPrioritizedFileDataCache(concurrency, resolveFileData, options = 
   };
 }
 function comparePriorityRecords(a2, b4) {
-  if (a2.intersectsFrustum !== b4.intersectsFrustum) {
-    return a2.intersectsFrustum ? -1 : 1;
+  if (a2.visibleForStreaming !== b4.visibleForStreaming) {
+    return a2.visibleForStreaming ? -1 : 1;
   }
   return a2.priority - b4.priority;
+}
+function projectedAABBMaxCanvasSizePixels(aabb, view, viewProjectionMatrix, clip, projected) {
+  const camera = view.camera;
+  const canvasSize = viewCanvasCssSize(view);
+  const viewMatrix = camera?.viewMatrix;
+  const projMatrix = camera?.projMatrix;
+  if (!canvasSize || !viewMatrix || !projMatrix) {
+    return void 0;
+  }
+  mulMat4(projMatrix, viewMatrix, viewProjectionMatrix);
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const x of [aabb[0], aabb[3]]) {
+    for (const y of [aabb[1], aabb[4]]) {
+      for (const z of [aabb[2], aabb[5]]) {
+        clip[0] = x;
+        clip[1] = y;
+        clip[2] = z;
+        clip[3] = 1;
+        transformPoint4(viewProjectionMatrix, clip, projected);
+        if (!isFiniteClipCoordinate(projected) || projected[3] <= 1e-8) {
+          return void 0;
+        }
+        const ndcX = projected[0] / projected[3];
+        const ndcY = projected[1] / projected[3];
+        minX = Math.min(minX, ndcX);
+        minY = Math.min(minY, ndcY);
+        maxX = Math.max(maxX, ndcX);
+        maxY = Math.max(maxY, ndcY);
+      }
+    }
+  }
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+    return void 0;
+  }
+  const widthPixels = Math.max(0, maxX - minX) * canvasSize.width * 0.5;
+  const heightPixels = Math.max(0, maxY - minY) * canvasSize.height * 0.5;
+  if (!Number.isFinite(widthPixels) || !Number.isFinite(heightPixels)) {
+    return void 0;
+  }
+  return Math.max(widthPixels, heightPixels);
+}
+function viewCanvasCssSize(view) {
+  const element = view.htmlElement;
+  let width = 0;
+  let height = 0;
+  if (element && typeof element.getBoundingClientRect === "function") {
+    const rect = element.getBoundingClientRect();
+    width = rect?.width || 0;
+    height = rect?.height || 0;
+  }
+  if ((!Number.isFinite(width) || width <= 0) && element) {
+    width = element.clientWidth || element.offsetWidth || 0;
+  }
+  if ((!Number.isFinite(height) || height <= 0) && element) {
+    height = element.clientHeight || element.offsetHeight || 0;
+  }
+  if ((!Number.isFinite(width) || width <= 0) && Array.isArray(view.boundary)) {
+    width = view.boundary[2] || 0;
+  }
+  if ((!Number.isFinite(height) || height <= 0) && Array.isArray(view.boundary)) {
+    height = view.boundary[3] || 0;
+  }
+  return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0 ? { width, height } : void 0;
+}
+function isFiniteClipCoordinate(v) {
+  return Number.isFinite(v[0]) && Number.isFinite(v[1]) && Number.isFinite(v[2]) && Number.isFinite(v[3]);
 }
 function insertQueueEntry(queue, entry) {
   const index = queue.findIndex((candidate) => entry.priority < candidate.priority);
@@ -138665,7 +139188,7 @@ async function encode18(params, options) {
     }
     const color2 = mesh.color || [1, 1, 1];
     const opacity = mesh.opacity ?? 1;
-    const dissolve = clamp012(opacity);
+    const dissolve = clamp013(opacity);
     lines.push(`newmtl ${sanitizeMTLName2(fallbackMaterialId)}`);
     lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
     lines.push(`Ka 0.000000 0.000000 0.000000`);
@@ -138683,7 +139206,7 @@ async function encode18(params, options) {
 function writeSceneMaterial(lines, materialName, material) {
   const color2 = material.color || [1, 1, 1];
   const opacity = material.opacity ?? 1;
-  const dissolve = clamp012(opacity);
+  const dissolve = clamp013(opacity);
   lines.push(`newmtl ${sanitizeMTLName2(materialName)}`);
   lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
   lines.push(`Ka 0.000000 0.000000 0.000000`);
@@ -138715,7 +139238,7 @@ function sanitizeMTLName2(name12) {
 function sanitizeTexturePath(path) {
   return String(path || "").trim();
 }
-function clamp012(value) {
+function clamp013(value) {
   if (!isFinite(value)) {
     return 1;
   }
@@ -142262,9 +142785,9 @@ function mergeStyle(parent, attrs, opts, classMap) {
   const dasharrayStr = pick2("stroke-dasharray");
   const rawStroke = strokeStr === void 0 ? parent.stroke : strokeStr === "none" ? null : parseColor(strokeStr) ?? parent.stroke;
   const rawFill = fillStr === void 0 ? parent.fill : fillStr === "none" ? null : parseColor(fillStr) ?? parent.fill;
-  const fillOpacityOwn = clamp013(parseFloatOr(fillOpacityStr, 1));
-  const strokeOpacityOwn = clamp013(parseFloatOr(strokeOpacityStr, 1));
-  const opacityOwn = clamp013(parseFloatOr(opacityStr, 1));
+  const fillOpacityOwn = clamp014(parseFloatOr(fillOpacityStr, 1));
+  const strokeOpacityOwn = clamp014(parseFloatOr(strokeOpacityStr, 1));
+  const opacityOwn = clamp014(parseFloatOr(opacityStr, 1));
   const fillOpacity = parent.fillOpacity * fillOpacityOwn * opacityOwn;
   const strokeOpacity = parent.strokeOpacity * strokeOpacityOwn * opacityOwn;
   const dasharray = dasharrayStr === void 0 ? parent.dasharray : dasharrayStr === "none" ? null : parseDashArray(dasharrayStr) ?? parent.dasharray;
@@ -142277,7 +142800,7 @@ function mergeStyle(parent, attrs, opts, classMap) {
     dasharray
   };
 }
-function clamp013(n) {
+function clamp014(n) {
   return n < 0 ? 0 : n > 1 ? 1 : n;
 }
 function parseFloatOr(s, fallback) {
@@ -144978,7 +145501,7 @@ function applyHoles(obsts, holes) {
       const h2 = normalise(hole.xb);
       const next = [];
       for (const r of remainders) {
-        for (const piece of subtract(r, h2))
+        for (const piece of subtract2(r, h2))
           next.push(piece);
       }
       remainders = next;
@@ -144991,7 +145514,7 @@ function applyHoles(obsts, holes) {
   }
   return out;
 }
-function subtract(r, h2) {
+function subtract2(r, h2) {
   if (!overlaps(r, h2))
     return [r];
   const cx1 = Math.max(r[0], h2[0]);
@@ -147040,7 +147563,7 @@ function scaleMatrix(x, y, z) {
 function rotationFromAxes(right, up) {
   const r = normalize3(right);
   const u = normalize3(up);
-  const f = cross3(r, u);
+  const f = cross32(r, u);
   return createMat4Float64([
     r[0],
     r[1],
@@ -147064,7 +147587,7 @@ function normalize3(v) {
   const len = Math.hypot(v[0], v[1], v[2]) || 1;
   return [v[0] / len, v[1] / len, v[2] / len];
 }
-function cross3(a2, b4) {
+function cross32(a2, b4) {
   return [
     a2[1] * b4[2] - a2[2] * b4[1],
     a2[2] * b4[0] - a2[0] * b4[2],
@@ -147461,19 +147984,19 @@ function buildTileTree(tileset, baseUri) {
 function boundingSphere(volume, world) {
   if (volume?.box) {
     const b4 = volume.box;
-    const center = transformPoint(world, [b4[0], b4[1], b4[2]]);
+    const center = transformPoint2(world, [b4[0], b4[1], b4[2]]);
     const radius = vecLength(transformDir(world, [b4[3], b4[4], b4[5]])) + vecLength(transformDir(world, [b4[6], b4[7], b4[8]])) + vecLength(transformDir(world, [b4[9], b4[10], b4[11]]));
     return { center, radius };
   }
   if (volume?.sphere) {
     const s = volume.sphere;
-    const center = transformPoint(world, [s[0], s[1], s[2]]);
+    const center = transformPoint2(world, [s[0], s[1], s[2]]);
     return { center, radius: s[3] * maxAxisScale(world) };
   }
   if (volume?.region) {
     return regionSphere(volume.region);
   }
-  return { center: transformPoint(world, [0, 0, 0]), radius: 0 };
+  return { center: transformPoint2(world, [0, 0, 0]), radius: 0 };
 }
 var WGS84_A = 6378137;
 var WGS84_E2 = 0.00669437999014;
@@ -147501,7 +148024,7 @@ function regionSphere(region) {
   }
   return { center, radius };
 }
-function transformPoint(m, p) {
+function transformPoint2(m, p) {
   return [
     m[0] * p[0] + m[4] * p[1] + m[8] * p[2] + m[12],
     m[1] * p[0] + m[5] * p[1] + m[9] * p[2] + m[13],
@@ -147588,7 +148111,7 @@ function subdividedSphere(rootBox, dims, level, coords, world) {
     localCenter[2] += axes[axis][2] * t;
     halfAxes[axis] = [axes[axis][0] / n, axes[axis][1] / n, axes[axis][2] / n];
   }
-  const center = transformPoint(world, localCenter);
+  const center = transformPoint2(world, localCenter);
   const radius = vecLength(transformDir(world, halfAxes[0])) + vecLength(transformDir(world, halfAxes[1])) + vecLength(transformDir(world, halfAxes[2]));
   return { center, radius };
 }
@@ -156323,10 +156846,12 @@ var viewer_exports = {};
 __export(viewer_exports, {
   AmbientLight: () => AmbientLight,
   AntiAliasing: () => AntiAliasing,
+  Atmosphere: () => Atmosphere,
   Bloom: () => Bloom,
   BodyHatch: () => BodyHatch,
   Camera: () => Camera2,
   CustomProjection: () => CustomProjection,
+  DepthOfField: () => DepthOfField,
   DirLight: () => DirLight,
   Edges: () => Edges,
   Effect: () => Effect,
@@ -159891,6 +160416,398 @@ var Bloom = class {
   }
 };
 
+// ../sdk/src/viewing/viewer/Atmosphere.ts
+var Atmosphere = class {
+  /** The View this Atmosphere belongs to. */
+  view;
+  _renderModes;
+  _color;
+  _startDistance;
+  _endDistance;
+  _intensity;
+  _maxOpacity;
+  _affectSky;
+  _destroyed = false;
+  /** @private */
+  constructor(view, params) {
+    this.view = view;
+    this._renderModes = params.renderModes ?? [RealisticRender];
+    this._color = copyColor(params.color, [0.72, 0.82, 0.92]);
+    this._startDistance = clampNonNegative(params.startDistance, 80);
+    this._endDistance = clampMin(params.endDistance, this._startDistance + 1, 500);
+    this._intensity = clampRange(params.intensity, 0, 1, 0.35);
+    this._maxOpacity = clampRange(params.maxOpacity, 0, 1, 0.55);
+    this._affectSky = params.affectSky === true;
+  }
+  /**
+   * Sets which rendering modes in which to apply atmospheric attenuation.
+   *
+   * Default value is [{@link base!constants.RealisticRender | RealisticRender}]
+   * when this effect is explicitly configured.
+   */
+  set renderModes(value) {
+    this._renderModes = value || [];
+    this.view.needsRender();
+  }
+  /** Gets which rendering modes in which to apply atmospheric attenuation. */
+  get renderModes() {
+    return this._renderModes;
+  }
+  /**
+   * Returns true if atmospheric attenuation is currently possible given the
+   * View's state. The renderer is the authority on whether the GPU can run it.
+   * @private
+   */
+  get possible() {
+    return true;
+  }
+  /**
+   * Gets if atmospheric attenuation is currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link Atmosphere.renderModes | Atmosphere.renderModes}.
+   */
+  get applied() {
+    for (let i = 0, len = this._renderModes.length; i < len; i++) {
+      if (this.view.renderMode === this._renderModes[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /** RGB haze color mixed into distant scene geometry. */
+  get color() {
+    return this._color;
+  }
+  set color(value) {
+    writeColor(this._color, value);
+    this.view.needsRender();
+  }
+  /** View-space distance, in world units, at which attenuation begins. */
+  get startDistance() {
+    return this._startDistance;
+  }
+  set startDistance(value) {
+    value = clampNonNegative(value, 80);
+    if (this._startDistance === value)
+      return;
+    this._startDistance = value;
+    if (this._endDistance <= this._startDistance) {
+      this._endDistance = this._startDistance + 1;
+    }
+    this.view.needsRender();
+  }
+  /** View-space distance, in world units, at which attenuation reaches full strength. */
+  get endDistance() {
+    return this._endDistance;
+  }
+  set endDistance(value) {
+    value = clampMin(value, this._startDistance + 1, 500);
+    if (this._endDistance === value)
+      return;
+    this._endDistance = value;
+    this.view.needsRender();
+  }
+  /** Overall atmospheric attenuation strength. Default `0.35`. */
+  get intensity() {
+    return this._intensity;
+  }
+  set intensity(value) {
+    value = clampRange(value, 0, 1, 0.35);
+    if (this._intensity === value)
+      return;
+    this._intensity = value;
+    this.view.needsRender();
+  }
+  /** Maximum haze opacity after distance and intensity are applied. Default `0.55`. */
+  get maxOpacity() {
+    return this._maxOpacity;
+  }
+  set maxOpacity(value) {
+    value = clampRange(value, 0, 1, 0.55);
+    if (this._maxOpacity === value)
+      return;
+    this._maxOpacity = value;
+    this.view.needsRender();
+  }
+  /** Whether to haze sky/background pixels. Default `false`. */
+  get affectSky() {
+    return this._affectSky;
+  }
+  set affectSky(value) {
+    value = value === true;
+    if (this._affectSky === value)
+      return;
+    this._affectSky = value;
+    this.view.needsRender();
+  }
+  /** Gets this Atmosphere as JSON. */
+  toParams() {
+    return {
+      ok: true,
+      value: {
+        renderModes: this._renderModes,
+        color: [this._color[0], this._color[1], this._color[2]],
+        startDistance: this._startDistance,
+        endDistance: this._endDistance,
+        intensity: this._intensity,
+        maxOpacity: this._maxOpacity,
+        affectSky: this._affectSky
+      }
+    };
+  }
+  /** Configures this Atmosphere. */
+  fromParams(params) {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[Atmosphere.fromParams] Atmosphere has been destroyed."
+      });
+    }
+    if (params.renderModes !== void 0)
+      this.renderModes = params.renderModes;
+    if (params.color !== void 0)
+      this.color = params.color;
+    if (params.startDistance !== void 0)
+      this.startDistance = params.startDistance;
+    if (params.endDistance !== void 0)
+      this.endDistance = params.endDistance;
+    if (params.intensity !== void 0)
+      this.intensity = params.intensity;
+    if (params.maxOpacity !== void 0)
+      this.maxOpacity = params.maxOpacity;
+    if (params.affectSky !== void 0)
+      this.affectSky = params.affectSky;
+    return { ok: true, value: void 0 };
+  }
+  /** @private */
+  destroy() {
+    this._destroyed = true;
+  }
+};
+function copyColor(src, fallback) {
+  return src ? [clampRange(src[0], 0, 1, fallback[0]), clampRange(src[1], 0, 1, fallback[1]), clampRange(src[2], 0, 1, fallback[2])] : [fallback[0], fallback[1], fallback[2]];
+}
+function writeColor(dst, src) {
+  if (!src)
+    return;
+  dst[0] = clampRange(src[0], 0, 1, dst[0]);
+  dst[1] = clampRange(src[1], 0, 1, dst[1]);
+  dst[2] = clampRange(src[2], 0, 1, dst[2]);
+}
+function clampNonNegative(value, fallback) {
+  if (value === void 0 || value === null || !Number.isFinite(value) || value < 0) {
+    return fallback;
+  }
+  return value;
+}
+function clampMin(value, min, fallback) {
+  if (value === void 0 || value === null || !Number.isFinite(value) || value < min) {
+    return Math.max(fallback, min);
+  }
+  return value;
+}
+function clampRange(value, min, max, fallback) {
+  if (value === void 0 || value === null || !Number.isFinite(value)) {
+    return fallback;
+  }
+  if (value < min)
+    return min;
+  if (value > max)
+    return max;
+  return value;
+}
+
+// ../sdk/src/viewing/viewer/DepthOfField.ts
+var DepthOfField = class {
+  /** The View this DepthOfField belongs to. */
+  view;
+  _renderModes;
+  _focusDistance;
+  _focalRange;
+  _radius;
+  _intensity;
+  _nearBlur;
+  _farBlur;
+  _destroyed = false;
+  /** @private */
+  constructor(view, params) {
+    this.view = view;
+    this._renderModes = params.renderModes ?? [RealisticRender];
+    this._focusDistance = clampPositive(params.focusDistance, 50);
+    this._focalRange = clampPositive(params.focalRange, 20);
+    this._radius = clampRange2(params.radius, 0, 12, 4);
+    this._intensity = clampRange2(params.intensity, 0, 1, 0.75);
+    this._nearBlur = clampRange2(params.nearBlur, 0, 1, 0.25);
+    this._farBlur = clampRange2(params.farBlur, 0, 1, 1);
+  }
+  /**
+   * Sets which rendering modes in which to apply depth of field.
+   *
+   * Default value is [{@link base!constants.RealisticRender | RealisticRender}]
+   * when this effect is explicitly configured.
+   */
+  set renderModes(value) {
+    this._renderModes = value || [];
+    this.view.needsRender();
+  }
+  /**
+   * Gets which rendering modes in which to apply depth of field.
+   */
+  get renderModes() {
+    return this._renderModes;
+  }
+  /**
+   * Returns true if depth of field is currently possible given the View's
+   * state. The renderer is the authority on whether the GPU can actually run it.
+   * @private
+   */
+  get possible() {
+    return true;
+  }
+  /**
+   * Gets if depth of field is currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link DepthOfField.renderModes | DepthOfField.renderModes}.
+   */
+  get applied() {
+    for (let i = 0, len = this._renderModes.length; i < len; i++) {
+      if (this.view.renderMode === this._renderModes[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /** View-space distance, in world units, that remains sharp. Default `50`. */
+  get focusDistance() {
+    return this._focusDistance;
+  }
+  set focusDistance(value) {
+    value = clampPositive(value, 50);
+    if (this._focusDistance === value)
+      return;
+    this._focusDistance = value;
+    this.view.needsRender();
+  }
+  /** Distance band around {@link focusDistance} that remains mostly sharp. Default `20`. */
+  get focalRange() {
+    return this._focalRange;
+  }
+  set focalRange(value) {
+    value = clampPositive(value, 20);
+    if (this._focalRange === value)
+      return;
+    this._focalRange = value;
+    this.view.needsRender();
+  }
+  /** Maximum blur radius in scene pixels. Default `4`. */
+  get radius() {
+    return this._radius;
+  }
+  set radius(value) {
+    value = clampRange2(value, 0, 12, 4);
+    if (this._radius === value)
+      return;
+    this._radius = value;
+    this.view.needsRender();
+  }
+  /** Overall blend strength for the blurred result. Default `0.75`. */
+  get intensity() {
+    return this._intensity;
+  }
+  set intensity(value) {
+    value = clampRange2(value, 0, 1, 0.75);
+    if (this._intensity === value)
+      return;
+    this._intensity = value;
+    this.view.needsRender();
+  }
+  /** Blur multiplier for geometry nearer than {@link focusDistance}. Default `0.25`. */
+  get nearBlur() {
+    return this._nearBlur;
+  }
+  set nearBlur(value) {
+    value = clampRange2(value, 0, 1, 0.25);
+    if (this._nearBlur === value)
+      return;
+    this._nearBlur = value;
+    this.view.needsRender();
+  }
+  /** Blur multiplier for geometry farther than {@link focusDistance}. Default `1.0`. */
+  get farBlur() {
+    return this._farBlur;
+  }
+  set farBlur(value) {
+    value = clampRange2(value, 0, 1, 1);
+    if (this._farBlur === value)
+      return;
+    this._farBlur = value;
+    this.view.needsRender();
+  }
+  /** Gets this DepthOfField as JSON. */
+  toParams() {
+    return {
+      ok: true,
+      value: {
+        renderModes: this._renderModes,
+        focusDistance: this._focusDistance,
+        focalRange: this._focalRange,
+        radius: this._radius,
+        intensity: this._intensity,
+        nearBlur: this._nearBlur,
+        farBlur: this._farBlur
+      }
+    };
+  }
+  /** Configures this DepthOfField. */
+  fromParams(params) {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[DepthOfField.fromParams] DepthOfField has been destroyed."
+      });
+    }
+    if (params.renderModes !== void 0)
+      this.renderModes = params.renderModes;
+    if (params.focusDistance !== void 0)
+      this.focusDistance = params.focusDistance;
+    if (params.focalRange !== void 0)
+      this.focalRange = params.focalRange;
+    if (params.radius !== void 0)
+      this.radius = params.radius;
+    if (params.intensity !== void 0)
+      this.intensity = params.intensity;
+    if (params.nearBlur !== void 0)
+      this.nearBlur = params.nearBlur;
+    if (params.farBlur !== void 0)
+      this.farBlur = params.farBlur;
+    return { ok: true, value: void 0 };
+  }
+  /** @private */
+  destroy() {
+    this._destroyed = true;
+  }
+};
+function clampPositive(value, fallback) {
+  if (value === void 0 || value === null || !Number.isFinite(value) || value <= 0) {
+    return fallback;
+  }
+  return value;
+}
+function clampRange2(value, min, max, fallback) {
+  if (value === void 0 || value === null || !Number.isFinite(value)) {
+    return fallback;
+  }
+  if (value < min)
+    return min;
+  if (value > max)
+    return max;
+  return value;
+}
+
 // ../sdk/src/viewing/viewer/Tonemap.ts
 var Tonemap = class {
   /** The View this Tonemap belongs to. */
@@ -160067,7 +160984,7 @@ var AntiAliasing = class {
   constructor(view, params) {
     this.view = view;
     this._renderModes = [DetailedRender, RealisticRender];
-    this._mode = params.mode !== void 0 ? params.mode : "fxaa";
+    this._mode = params.mode !== void 0 ? params.mode : "smaa";
   }
   /**
    * Sets which rendering modes in which to apply AntiAliasing.
@@ -160115,12 +161032,12 @@ var AntiAliasing = class {
     }
     return false;
   }
-  /** AA mode. Default `"fxaa"`. */
+  /** AA mode. Default `"smaa"`. */
   get mode() {
     return this._mode;
   }
   set mode(value) {
-    if (value !== "none" && value !== "fxaa")
+    if (value !== "none" && value !== "fxaa" && value !== "smaa")
       return;
     if (this._mode === value)
       return;
@@ -160648,21 +161565,21 @@ var Sky = class {
     return this._skyColor;
   }
   set skyColor(v) {
-    writeColor(this._skyColor, v);
+    writeColor2(this._skyColor, v);
     this.view.needsRender();
   }
   get horizonColor() {
     return this._horizonColor;
   }
   set horizonColor(v) {
-    writeColor(this._horizonColor, v);
+    writeColor2(this._horizonColor, v);
     this.view.needsRender();
   }
   get groundColor() {
     return this._groundColor;
   }
   set groundColor(v) {
-    writeColor(this._groundColor, v);
+    writeColor2(this._groundColor, v);
     this.view.needsRender();
   }
   get horizonBlend() {
@@ -160695,14 +161612,14 @@ var Sky = class {
     return this._sunDirection;
   }
   set sunDirection(v) {
-    writeColor(this._sunDirection, v);
+    writeColor2(this._sunDirection, v);
     this.view.needsRender();
   }
   get sunColor() {
     return this._sunColor;
   }
   set sunColor(v) {
-    writeColor(this._sunColor, v);
+    writeColor2(this._sunColor, v);
     this.view.needsRender();
   }
   get sunAngularSize() {
@@ -160736,7 +161653,7 @@ var Sky = class {
     return this._worldUp;
   }
   set worldUp(v) {
-    writeColor(this._worldUp, v);
+    writeColor2(this._worldUp, v);
     this.view.needsRender();
   }
   /** Gets this Sky as JSON. */
@@ -160805,7 +161722,7 @@ var Sky = class {
 function copy3(src, fallback) {
   return src ? [src[0], src[1], src[2]] : [fallback[0], fallback[1], fallback[2]];
 }
-function writeColor(dst, src) {
+function writeColor2(dst, src) {
   if (!src)
     return;
   dst[0] = src[0];
@@ -160973,6 +161890,14 @@ var Effects = class {
    */
   bloom;
   /**
+   * HDR atmospheric attenuation post-process for this View.
+   */
+  atmosphere;
+  /**
+   * HDR depth-of-field post-process for this View.
+   */
+  depthOfField;
+  /**
    * HDR tonemap pass for this View.
    */
   tonemap;
@@ -161029,6 +161954,8 @@ var Effects = class {
     this.sao = new SAO(view, params.sao || {});
     this.edges = new Edges(view, params.edges || {});
     this.bloom = new Bloom(view, params.bloom || {});
+    this.atmosphere = new Atmosphere(view, params.atmosphere !== void 0 ? params.atmosphere : { renderModes: [] });
+    this.depthOfField = new DepthOfField(view, params.depthOfField !== void 0 ? params.depthOfField : { renderModes: [] });
     this.tonemap = new Tonemap(view, params.tonemap || {});
     this.antiAliasing = new AntiAliasing(view, params.antiAliasing || {});
     this.shadows = new Shadows(view, params.shadows || { renderModes: [RealisticRender] });
@@ -163696,9 +164623,11 @@ var View2 = class {
   boundary;
   /**
    * Aggregates the renderer-effect components for this View — SAO,
-   * Edges, Bloom, Tonemap, AntiAliasing, and Shadows. Reach the
+   * Edges, Bloom, Atmosphere, DepthOfField, Tonemap, AntiAliasing, and Shadows. Reach the
    * individual effects through {@link Effects.sao},
    * {@link Effects.edges}, {@link Effects.bloom},
+   * {@link Effects.atmosphere},
+   * {@link Effects.depthOfField},
    * {@link Effects.tonemap}, {@link Effects.antiAliasing}, and
    * {@link Effects.shadows}.
    */
@@ -165329,6 +166258,18 @@ var View2 = class {
           return result;
         }
       }
+      if (e.atmosphere) {
+        const result = this.effects.atmosphere.fromParams(e.atmosphere);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.depthOfField) {
+        const result = this.effects.depthOfField.fromParams(e.depthOfField);
+        if (result.ok === false) {
+          return result;
+        }
+      }
       if (e.edges) {
         const result = this.effects.edges.fromParams(e.edges);
         if (result.ok === false) {
@@ -165417,6 +166358,8 @@ var View2 = class {
           tonemap: this.effects.tonemap.toParams().value,
           antiAliasing: this.effects.antiAliasing.toParams().value,
           bloom: this.effects.bloom.toParams().value,
+          atmosphere: this.effects.atmosphere.toParams().value,
+          depthOfField: this.effects.depthOfField.toParams().value,
           edges: this.effects.edges.toParams().value,
           sky: this.effects.sky.toParams().value,
           sectionPlaneCaps: this.effects.sectionPlaneCaps.toParams().value,
@@ -175956,10 +176899,10 @@ var RenderContext = class {
    */
   textureUnit;
   /**
-   * Which texture is currently bound to each texture unit, indexed by unit.
+   * Which 2D texture is currently bound to each texture unit, indexed by unit.
    *
    * Lets the draw path skip a redundant `gl.bindTexture` when the unit already
-   * holds the texture about to be bound — saving the repeated binds of
+   * holds the texture about to be bound - saving the repeated binds of
    * frame-wide textures (camera matrix, IBL maps) across a bin's batches.
    *
    * Only valid within one uninterrupted batch-draw sequence. Cleared by
@@ -175967,7 +176910,15 @@ var RenderContext = class {
    * bin, pick, snap, and the SAO/shadow/cap prep passes), because sub-pipelines
    * and atlas mipmap refreshes bind textures outside this tracking.
    */
-  boundTextureUnits;
+  boundTexture2DUnits;
+  /**
+   * Which cubemap texture is currently bound to each texture unit.
+   */
+  boundCubemapTextureUnits;
+  /**
+   * Texture unit last selected through this render context.
+   */
+  activeTextureUnit;
   /**
    * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
    */
@@ -176011,9 +176962,15 @@ var RenderContext = class {
    */
   lastRenderPass;
   /**
+   * Increments on every render-context reset. Draw techniques use this to
+   * upload view-stable uniforms once per scene/pick/snap pass instead of on
+   * every program rebind.
+   */
+  uniformFrameId = 0;
+  /**
    * Width of the FBO the scene is currently being rendered into. Equal to
    * `drawingBufferWidth` when {@link Tonemap.renderScale} is 1; larger when
-   * supersampling is on. Post-process passes (tonemap, FXAA) use
+   * supersampling is on. Post-process passes (tonemap, final AA) use
    * `drawingBufferWidth` — they sample this bigger scene texture down to
    * canvas size on the way out.
    */
@@ -176024,6 +176981,12 @@ var RenderContext = class {
    * The occlusion rendering texture.
    */
   saoOcclusionTexture;
+  /**
+   * Scene-depth texture used by depth-aware post-processes. Populated only
+   * when the active View applies a post-process that needs scene depth;
+   * otherwise null.
+   */
+  sceneDepthTexture;
   /**
    * One shadow-map depth texture per cascade (indices `0..shadowCascadeCount-1`
    * are populated). Unused slots alias to cascade 0's texture so every sampler
@@ -176148,7 +177111,9 @@ var RenderContext = class {
     this.renderInspector = new RenderInspector();
     this.renderInspector.attachGL(gl);
     this.debugging = false;
-    this.boundTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
+    this.boundTexture2DUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
+    this.boundCubemapTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
+    this.activeTextureUnit = -1;
     const placeholderResult = this._allocatePlaceholderTextures();
     if (placeholderResult.ok === false) {
       this.destroy();
@@ -176317,10 +177282,12 @@ var RenderContext = class {
     }
     this.lastProgramId = -1;
     this.lastRenderPass = -1;
+    this.uniformFrameId++;
     this.pbrEnabled = false;
     this.backfaces = false;
     this.frontface = true;
     this.textureUnit = 0;
+    this.bindTexture = 0;
     this.pickViewMatrix = null;
     this.pickProjMatrix = null;
     this.pickZNear = 0.01;
@@ -176328,6 +177295,7 @@ var RenderContext = class {
     this.pickInvisible = false;
     this.lineWidth = 1;
     this.saoOcclusionTexture = null;
+    this.sceneDepthTexture = null;
     this.sceneRenderWidth = 0;
     this.sceneRenderHeight = 0;
     this.shadowMapTextures = new Array(MAX_SHADOW_CASCADES).fill(null);
@@ -176344,17 +177312,45 @@ var RenderContext = class {
     this.resetTextureBindings();
   }
   /**
-   * Clears the per-unit bound-texture tracking ({@link boundTextureUnits}).
+   * Clears the per-unit bound-texture tracking.
    *
    * Call at the start of every uninterrupted batch-draw sequence so the draw
    * path's redundant-bind skip can't act on stale state left by a sub-pipeline,
    * a splat pass, or a previous frame.
    */
   resetTextureBindings() {
-    const bound = this.boundTextureUnits;
-    for (let i = 0, len = bound.length; i < len; i++) {
-      bound[i] = null;
+    const bound2D = this.boundTexture2DUnits;
+    const boundCubemap = this.boundCubemapTextureUnits;
+    for (let i = 0, len = bound2D.length; i < len; i++) {
+      bound2D[i] = null;
+      boundCubemap[i] = null;
     }
+    this.activeTextureUnit = -1;
+  }
+  bindTexture2D(unit, texture) {
+    return this._bindTexture(this.gl.TEXTURE_2D, unit, texture, this.boundTexture2DUnits);
+  }
+  bindCubemapTexture(unit, texture) {
+    return this._bindTexture(this.gl.TEXTURE_CUBE_MAP, unit, texture, this.boundCubemapTextureUnits);
+  }
+  invalidateTextureBinding(unit) {
+    this.boundTexture2DUnits[unit] = null;
+    this.boundCubemapTextureUnits[unit] = null;
+    this.activeTextureUnit = -1;
+  }
+  _bindTexture(target, unit, texture, boundTextures) {
+    if (boundTextures[unit] === texture) {
+      return false;
+    }
+    const gl = this.gl;
+    if (this.activeTextureUnit !== unit) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      this.activeTextureUnit = unit;
+    }
+    gl.bindTexture(target, texture);
+    this.bindTexture++;
+    boundTextures[unit] = texture;
+    return true;
   }
   /**
    * Gets the next available texture unit for the current draw pass.
@@ -177288,18 +178284,29 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/dataTextures/ItemDataTexture.ts
 var ItemDataTexture = class extends DataTexture {
   dirtyItemIndices = /* @__PURE__ */ new Set();
+  _dirtyItemScratch = [];
+  _dirtyMinItem = Number.POSITIVE_INFINITY;
+  _dirtyMaxItem = -1;
   /**
    * Marks an item as dirty, so it will be uploaded on the next update.
    * @param itemIndex Index of the item to mark as dirty.
    */
   setItemDirty(itemIndex) {
     this.dirtyItemIndices.add(itemIndex);
+    if (itemIndex < this._dirtyMinItem) {
+      this._dirtyMinItem = itemIndex;
+    }
+    if (itemIndex > this._dirtyMaxItem) {
+      this._dirtyMaxItem = itemIndex;
+    }
   }
   /**
    * Cancels all pending uploads by clearing the dirty set.
    */
   cancelUploads() {
     this.dirtyItemIndices.clear();
+    this._dirtyMinItem = Number.POSITIVE_INFINITY;
+    this._dirtyMaxItem = -1;
   }
   /**
    * Uploads all dirty items to the GPU as efficiently as possible.
@@ -177325,31 +178332,25 @@ var ItemDataTexture = class extends DataTexture {
     const texelsPerRow = this.width;
     const elementsPerTexel = this.elementsPerTexel;
     const buffer = this.buffer;
-    const uploadRun = (startItem, count) => {
-      let texelBase = startItem * texelsPerItem;
-      let remainingTexels = count * texelsPerItem;
-      while (remainingTexels > 0) {
-        const xOffset = texelBase % texelsPerRow;
-        const yOffset = Math.floor(texelBase / texelsPerRow);
-        const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
-        const bufferStart = texelBase * elementsPerTexel;
-        const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
-        gl.texSubImage2D(
-          gl.TEXTURE_2D,
-          0,
-          xOffset,
-          yOffset,
-          chunkTexels,
-          1,
-          this.format,
-          this.type,
-          buffer.subarray(bufferStart, bufferEnd)
-        );
-        texelBase += chunkTexels;
-        remainingTexels -= chunkTexels;
+    const uploadRun = (startItem, count) => this._uploadItemRange(startItem, count, texelsPerItem, texelsPerRow, elementsPerTexel);
+    const dirtyCount = this.dirtyItemIndices.size;
+    const dirtySpan = this._dirtyMaxItem - this._dirtyMinItem + 1;
+    if (dirtyCount >= 32 && dirtySpan > 0 && dirtyCount * 2 >= dirtySpan) {
+      uploadRun(this._dirtyMinItem, dirtySpan);
+      this._clearDirty();
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      if (this.debugging) {
+        this.lastUploadTimeMS = performance.now() - startTimeMs;
       }
-    };
-    const sorted = Array.from(this.dirtyItemIndices).sort((a2, b4) => a2 - b4);
+      this.notifyUpdated();
+      return true;
+    }
+    const sorted = this._dirtyItemScratch;
+    sorted.length = 0;
+    for (const index of this.dirtyItemIndices) {
+      sorted.push(index);
+    }
+    sorted.sort((a2, b4) => a2 - b4);
     let runStart = sorted[0];
     let runCount = 1;
     for (let i = 1; i < sorted.length; i++) {
@@ -177362,13 +178363,44 @@ var ItemDataTexture = class extends DataTexture {
       }
     }
     uploadRun(runStart, runCount);
-    this.dirtyItemIndices.clear();
+    this._clearDirty();
     gl.bindTexture(gl.TEXTURE_2D, null);
     if (this.debugging) {
       this.lastUploadTimeMS = performance.now() - startTimeMs;
     }
     this.notifyUpdated();
     return true;
+  }
+  _uploadItemRange(startItem, count, texelsPerItem, texelsPerRow, elementsPerTexel) {
+    const gl = this.gl;
+    const buffer = this.buffer;
+    let texelBase = startItem * texelsPerItem;
+    let remainingTexels = count * texelsPerItem;
+    while (remainingTexels > 0) {
+      const xOffset = texelBase % texelsPerRow;
+      const yOffset = Math.floor(texelBase / texelsPerRow);
+      const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+      const bufferStart = texelBase * elementsPerTexel;
+      const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        xOffset,
+        yOffset,
+        chunkTexels,
+        1,
+        this.format,
+        this.type,
+        buffer.subarray(bufferStart, bufferEnd)
+      );
+      texelBase += chunkTexels;
+      remainingTexels -= chunkTexels;
+    }
+  }
+  _clearDirty() {
+    this.dirtyItemIndices.clear();
+    this._dirtyMinItem = Number.POSITIVE_INFINITY;
+    this._dirtyMaxItem = -1;
   }
 };
 
@@ -177639,6 +178671,7 @@ var PortionDataTexture = class extends DataTexture {
    */
   portionsById = /* @__PURE__ */ new Map();
   dirtyPortionIds = /* @__PURE__ */ new Set();
+  _dirtySegmentsScratch = [];
   nextPortionId = 1;
   uploadAllOnFlush = false;
   isPacked = false;
@@ -177898,36 +178931,40 @@ var PortionDataTexture = class extends DataTexture {
       const texelsPerItem = this.texelsPerItem;
       const texelsPerRow = this.width;
       const elementsPerTexel = this.elementsPerTexel;
-      const segments = [];
+      const segments = this._dirtySegmentsScratch;
+      segments.length = 0;
       for (const id of this.dirtyPortionIds) {
         const handle = this.portionsById.get(id);
         if (handle) {
-          segments.push({ base: handle.base, size: handle.size });
+          segments.push(handle);
         }
       }
       segments.sort((a2, b4) => a2.base - b4.base);
-      const coalesced = [];
-      for (const seg of segments) {
-        const last = coalesced[coalesced.length - 1];
-        if (last && last.base + last.size === seg.base) {
-          last.size += seg.size;
-        } else {
-          coalesced.push({ base: seg.base, size: seg.size });
+      if (segments.length > 0) {
+        const firstBase = segments[0].base;
+        let lastEnd = firstBase;
+        let dirtyItems = 0;
+        for (const segment of segments) {
+          dirtyItems += segment.size;
+          lastEnd = Math.max(lastEnd, segment.base + segment.size);
         }
-      }
-      for (const portion of coalesced) {
-        let texelBase = portion.base * texelsPerItem;
-        let remainingTexels = portion.size * texelsPerItem;
-        while (remainingTexels > 0) {
-          const xOffset = texelBase % texelsPerRow;
-          const yOffset = Math.floor(texelBase / texelsPerRow);
-          const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
-          const bufferStart = texelBase * elementsPerTexel;
-          const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
-          const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
-          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1, this.format, this.type, pixelData);
-          texelBase += chunkTexels;
-          remainingTexels -= chunkTexels;
+        const spanItems = lastEnd - firstBase;
+        if (segments.length >= 16 && dirtyItems * 2 >= spanItems) {
+          this._uploadItemRange(firstBase, spanItems, texelsPerItem, texelsPerRow, elementsPerTexel);
+        } else {
+          let runBase = segments[0].base;
+          let runEnd = runBase + segments[0].size;
+          for (let i = 1; i < segments.length; i++) {
+            const segment = segments[i];
+            if (segment.base <= runEnd) {
+              runEnd = Math.max(runEnd, segment.base + segment.size);
+            } else {
+              this._uploadItemRange(runBase, runEnd - runBase, texelsPerItem, texelsPerRow, elementsPerTexel);
+              runBase = segment.base;
+              runEnd = segment.base + segment.size;
+            }
+          }
+          this._uploadItemRange(runBase, runEnd - runBase, texelsPerItem, texelsPerRow, elementsPerTexel);
         }
       }
     }
@@ -177939,6 +178976,22 @@ var PortionDataTexture = class extends DataTexture {
     }
     this.notifyUpdated();
     return true;
+  }
+  _uploadItemRange(startItem, count, texelsPerItem, texelsPerRow, elementsPerTexel) {
+    const gl = this.gl;
+    let texelBase = startItem * texelsPerItem;
+    let remainingTexels = count * texelsPerItem;
+    while (remainingTexels > 0) {
+      const xOffset = texelBase % texelsPerRow;
+      const yOffset = Math.floor(texelBase / texelsPerRow);
+      const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+      const bufferStart = texelBase * elementsPerTexel;
+      const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
+      const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1, this.format, this.type, pixelData);
+      texelBase += chunkTexels;
+      remainingTexels -= chunkTexels;
+    }
   }
 };
 
@@ -183713,6 +184766,7 @@ var DrawTechnique = class {
   _renderContext;
   _gpuMemoryReader;
   _program;
+  _viewUniformFrameId = -1;
   /**
    * Compilation errors encountered during program initialization.
    * Available after `init()` is called.
@@ -183962,6 +185016,7 @@ var DrawTechnique = class {
       return result;
     }
     this._extractTechniqueLocations();
+    this._viewUniformFrameId = -1;
     return { ok: true, value: null };
   }
   /**
@@ -183984,6 +185039,7 @@ var DrawTechnique = class {
       return result;
     }
     this._extractTechniqueLocations();
+    this._viewUniformFrameId = -1;
     return { ok: true, value: void 0 };
   }
   /**
@@ -187402,11 +188458,7 @@ ${this.triplanar ? `
     const gl = rc.gl;
     const unit = rc.textureUnit;
     const texture = dataTexture.texture;
-    if (rc.boundTextureUnits[unit] !== texture) {
-      gl.activeTexture(gl.TEXTURE0 + unit);
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      rc.boundTextureUnits[unit] = texture;
-    }
+    rc.bindTexture2D(unit, texture);
     gl.uniform1i(sampler, unit);
     rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
@@ -187422,11 +188474,7 @@ ${this.triplanar ? `
     const rc = this._renderContext;
     const gl = rc.gl;
     const unit = rc.textureUnit;
-    if (rc.boundTextureUnits[unit] !== texture) {
-      gl.activeTexture(gl.TEXTURE0 + unit);
-      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-      rc.boundTextureUnits[unit] = texture;
-    }
+    rc.bindCubemapTexture(unit, texture);
     gl.uniform1i(sampler, unit);
     rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
@@ -187457,67 +188505,12 @@ ${this.triplanar ? `
     if (uniforms.renderPass) {
       gl.uniform1i(uniforms.renderPass, renderPass);
     }
-    if (uniforms.projMatrix) {
-      gl.uniformMatrix4fv(uniforms.projMatrix, false, renderPass === RENDER_PASSES.PICK ? renderContext.pickProjMatrix : view.camera.projMatrix);
-    }
-    if (uniforms.perspectivePoints) {
-      gl.uniform1i(uniforms.perspectivePoints, view.pointsMaterial.perspectivePoints ? 1 : 0);
-    }
-    if (uniforms.perspectivePointsMinMax) {
-      gl.uniform2f(uniforms.perspectivePointsMinMax, view.pointsMaterial.minPerspectivePointSize, view.pointsMaterial.maxPerspectivePointSize);
-    }
-    if (uniforms.pointSize) {
-      gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
-    }
-    if (uniforms.roundPoints) {
-      gl.uniform1i(uniforms.roundPoints, view.pointsMaterial.roundPoints ? 1 : 0);
-    }
-    if (uniforms.nearPlaneHeight) {
-      gl.uniform1f(
-        uniforms.nearPlaneHeight,
-        view.camera.projectionType === OrthoProjectionType ? 1 : gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180))
-      );
-    }
-    if (uniforms.pickZNear) {
-      gl.uniform1f(uniforms.pickZNear, renderContext.pickZNear);
-      gl.uniform1f(uniforms.pickZFar, renderContext.pickZFar);
-    }
-    if (uniforms.logDepthCoef) {
-      const far = view.camera.perspectiveProjection.far;
-      gl.uniform1f(uniforms.logDepthCoef, 2 / Math.log2(far + 1));
-    }
-    if (uniforms.drawingBufferSize) {
-      gl.uniform2f(uniforms.drawingBufferSize, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    }
-    if (uniforms.lineWidth) {
-      const width = this.edges ? view.effects.edges?.edgeWidth ?? 1 : view.linesMaterial?.lineWidth ?? 1;
-      gl.uniform1f(uniforms.lineWidth, width);
-    }
-    if (uniforms.lineJoinRound) {
-      gl.uniform1i(
-        uniforms.lineJoinRound,
-        view.linesMaterial?.joinStyle === "round" ? 1 : 0
-      );
-    }
-    if (uniforms.linePatternLen) {
-      const lm = view.linesMaterial;
-      const len = lm ? lm._linePatternUniformLen : 0;
-      gl.uniform1i(uniforms.linePatternLen, len);
-      if (len > 0) {
-        if (uniforms.linePattern) {
-          gl.uniform1fv(uniforms.linePattern, lm._linePatternUniformEntries);
-        }
-        if (uniforms.linePatternPeriod) {
-          gl.uniform1f(uniforms.linePatternPeriod, lm._linePatternUniformPeriod);
-        }
-      }
-    }
-    if (uniforms.sectionPlaneCount) {
-      const buf = SECTION_PLANE_SCRATCH;
-      const count = packSectionPlanes(view.sectionPlanesList, buf);
-      gl.uniform1i(uniforms.sectionPlaneCount, count);
-      if (count > 0 && uniforms.sectionPlanes) {
-        gl.uniform4fv(uniforms.sectionPlanes, buf);
+    const canCacheViewUniforms = !this.hasUVs && !this.triplanar;
+    const uploadViewUniforms = !canCacheViewUniforms || this._viewUniformFrameId !== renderContext.uniformFrameId;
+    if (uploadViewUniforms) {
+      this._uploadViewStableUniforms(renderPass);
+      if (canCacheViewUniforms) {
+        this._viewUniformFrameId = renderContext.uniformFrameId;
       }
     }
     if (uniforms.pickClipPos) {
@@ -187528,95 +188521,6 @@ ${this.triplanar ? `
     }
     if (uniforms.snapBufferSize) {
       gl.uniform2fv(uniforms.snapBufferSize, renderContext.snapBufferSize);
-    }
-    if (uniforms.lightAmbient) {
-      gl.uniform4fv(uniforms.lightAmbient, getAmbientColorAndIntensity(view));
-    }
-    if (uniforms.iblMaxSpecularMipLevel) {
-      gl.uniform1f(uniforms.iblMaxSpecularMipLevel, renderContext.iblMaxSpecularMipLevel);
-    }
-    if (uniforms.iblViewToWorldRot) {
-      gl.uniformMatrix3fv(uniforms.iblViewToWorldRot, false, renderContext.iblViewToWorldRot);
-    }
-    if (uniforms.primaryLightDirView) {
-      const primaryLight = getPrimaryDirectionalLight(view);
-      const sd = primaryLight ? primaryLight.dir : view.effects.shadows && view.effects.shadows.direction ? view.effects.shadows.direction : defaultPrimaryLightDir;
-      const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1;
-      const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
-      const vm = view.camera.viewMatrix;
-      const transformToView = !primaryLight || primaryLight.space === "world";
-      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8] * sz : sx;
-      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9] * sz : sy;
-      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
-      const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1;
-      gl.uniform3f(uniforms.primaryLightDirView, lvx / llen, lvy / llen, lvz / llen);
-    }
-    if (uniforms.iblIntensity) {
-      const ibl = view.lights?.ibl;
-      const iblActive = !!(ibl && ibl.applied && ibl.possible);
-      const intensity = iblActive ? ibl.intensity : 0;
-      gl.uniform1f(uniforms.iblIntensity, intensity);
-    }
-    const hemi = view.lights?.hemispheric;
-    const hemiActive = !!(hemi && hemi.applied && hemi.possible);
-    if (uniforms.hemisphereIntensity) {
-      const intensity = hemiActive ? hemi.intensity : 0;
-      gl.uniform1f(uniforms.hemisphereIntensity, intensity);
-    }
-    if (uniforms.hemisphereSky)
-      gl.uniform3fv(uniforms.hemisphereSky, hemi ? hemi.skyColor : [0, 0, 0]);
-    if (uniforms.hemisphereGround)
-      gl.uniform3fv(uniforms.hemisphereGround, hemi ? hemi.groundColor : [0, 0, 0]);
-    if (uniforms.hemisphereUpView) {
-      const wu = hemi ? hemi.worldUp : [0, 0, 1];
-      const vm = view.camera.viewMatrix;
-      const ux = vm[0] * wu[0] + vm[4] * wu[1] + vm[8] * wu[2];
-      const uy = vm[1] * wu[0] + vm[5] * wu[1] + vm[9] * wu[2];
-      const uz = vm[2] * wu[0] + vm[6] * wu[1] + vm[10] * wu[2];
-      const len = Math.sqrt(ux * ux + uy * uy + uz * uz) || 1;
-      gl.uniform3f(uniforms.hemisphereUpView, ux / len, uy / len, uz / len);
-    }
-    const lights = view.lightsList || [];
-    let lightIndex = 0;
-    for (let i = 0; i < lights.length && lightIndex < 3; i++) {
-      const light = lights[i];
-      if (!isDirectionalLight(light)) {
-        continue;
-      }
-      const dirLoc = uniforms.lightDir[lightIndex];
-      const colorLoc = uniforms.lightColor[lightIndex];
-      const sd = light.dir;
-      const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1;
-      const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
-      const vm = view.camera.viewMatrix;
-      const transformToView = light.space === "world";
-      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8] * sz : sx;
-      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9] * sz : sy;
-      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
-      const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1;
-      if (dirLoc) {
-        gl.uniform3f(dirLoc, lvx / llen, lvy / llen, lvz / llen);
-      }
-      if (colorLoc) {
-        gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], getLightIntensity(light));
-      }
-      lightIndex++;
-    }
-    for (; lightIndex < 3; lightIndex++) {
-      const dirLoc = uniforms.lightDir[lightIndex];
-      const colorLoc = uniforms.lightColor[lightIndex];
-      if (dirLoc) {
-        gl.uniform3f(dirLoc, 0, 1, 1);
-      }
-      if (colorLoc) {
-        gl.uniform4f(colorLoc, 0, 0, 0, 0);
-      }
-    }
-    if (uniforms.edgeFadeRange) {
-      const projection = view.camera.projection;
-      const far = projection.far ?? 1e9;
-      const edges = view.effects.edges;
-      gl.uniform2f(uniforms.edgeFadeRange, far * edges.edgeFadeStart, far * edges.edgeFadeEnd);
     }
     if (uniforms.silhouetteColor) {
       if (this.edges) {
@@ -187708,6 +188612,164 @@ ${this.triplanar ? `
     }
     return true;
   }
+  _uploadViewStableUniforms(renderPass) {
+    const view = this._renderContext.activeView;
+    const gl = this._renderContext.gl;
+    const uniforms = this._uniforms;
+    const renderContext = this._renderContext;
+    if (uniforms.projMatrix) {
+      gl.uniformMatrix4fv(uniforms.projMatrix, false, renderPass === RENDER_PASSES.PICK ? renderContext.pickProjMatrix : view.camera.projMatrix);
+    }
+    if (uniforms.perspectivePoints) {
+      gl.uniform1i(uniforms.perspectivePoints, view.pointsMaterial.perspectivePoints ? 1 : 0);
+    }
+    if (uniforms.perspectivePointsMinMax) {
+      gl.uniform2f(uniforms.perspectivePointsMinMax, view.pointsMaterial.minPerspectivePointSize, view.pointsMaterial.maxPerspectivePointSize);
+    }
+    if (uniforms.pointSize) {
+      gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
+    }
+    if (uniforms.roundPoints) {
+      gl.uniform1i(uniforms.roundPoints, view.pointsMaterial.roundPoints ? 1 : 0);
+    }
+    if (uniforms.nearPlaneHeight) {
+      gl.uniform1f(
+        uniforms.nearPlaneHeight,
+        view.camera.projectionType === OrthoProjectionType ? 1 : gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180))
+      );
+    }
+    if (uniforms.pickZNear) {
+      gl.uniform1f(uniforms.pickZNear, renderContext.pickZNear);
+      gl.uniform1f(uniforms.pickZFar, renderContext.pickZFar);
+    }
+    if (uniforms.logDepthCoef) {
+      const far = view.camera.perspectiveProjection.far;
+      gl.uniform1f(uniforms.logDepthCoef, 2 / Math.log2(far + 1));
+    }
+    if (uniforms.drawingBufferSize) {
+      gl.uniform2f(uniforms.drawingBufferSize, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    }
+    if (uniforms.lineWidth) {
+      const width = this.edges ? view.effects.edges?.edgeWidth ?? 1 : view.linesMaterial?.lineWidth ?? 1;
+      gl.uniform1f(uniforms.lineWidth, width);
+    }
+    if (uniforms.lineJoinRound) {
+      gl.uniform1i(
+        uniforms.lineJoinRound,
+        view.linesMaterial?.joinStyle === "round" ? 1 : 0
+      );
+    }
+    if (uniforms.linePatternLen) {
+      const lm = view.linesMaterial;
+      const len = lm ? lm._linePatternUniformLen : 0;
+      gl.uniform1i(uniforms.linePatternLen, len);
+      if (len > 0) {
+        if (uniforms.linePattern) {
+          gl.uniform1fv(uniforms.linePattern, lm._linePatternUniformEntries);
+        }
+        if (uniforms.linePatternPeriod) {
+          gl.uniform1f(uniforms.linePatternPeriod, lm._linePatternUniformPeriod);
+        }
+      }
+    }
+    if (uniforms.sectionPlaneCount) {
+      const buf = SECTION_PLANE_SCRATCH;
+      const count = packSectionPlanes(view.sectionPlanesList, buf);
+      gl.uniform1i(uniforms.sectionPlaneCount, count);
+      if (count > 0 && uniforms.sectionPlanes) {
+        gl.uniform4fv(uniforms.sectionPlanes, buf);
+      }
+    }
+    if (uniforms.lightAmbient) {
+      gl.uniform4fv(uniforms.lightAmbient, getAmbientColorAndIntensity(view));
+    }
+    if (uniforms.iblMaxSpecularMipLevel) {
+      gl.uniform1f(uniforms.iblMaxSpecularMipLevel, renderContext.iblMaxSpecularMipLevel);
+    }
+    if (uniforms.iblViewToWorldRot) {
+      gl.uniformMatrix3fv(uniforms.iblViewToWorldRot, false, renderContext.iblViewToWorldRot);
+    }
+    if (uniforms.primaryLightDirView) {
+      const primaryLight = getPrimaryDirectionalLight(view);
+      const sd = primaryLight ? primaryLight.dir : view.effects.shadows && view.effects.shadows.direction ? view.effects.shadows.direction : defaultPrimaryLightDir;
+      const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1;
+      const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
+      const vm = view.camera.viewMatrix;
+      const transformToView = !primaryLight || primaryLight.space === "world";
+      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8] * sz : sx;
+      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9] * sz : sy;
+      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
+      const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1;
+      gl.uniform3f(uniforms.primaryLightDirView, lvx / llen, lvy / llen, lvz / llen);
+    }
+    if (uniforms.iblIntensity) {
+      const ibl = view.lights?.ibl;
+      const iblActive = !!(ibl && ibl.applied && ibl.possible);
+      const intensity = iblActive ? ibl.intensity : 0;
+      gl.uniform1f(uniforms.iblIntensity, intensity);
+    }
+    const hemi = view.lights?.hemispheric;
+    const hemiActive = !!(hemi && hemi.applied && hemi.possible);
+    if (uniforms.hemisphereIntensity) {
+      const intensity = hemiActive ? hemi.intensity : 0;
+      gl.uniform1f(uniforms.hemisphereIntensity, intensity);
+    }
+    if (uniforms.hemisphereSky)
+      gl.uniform3fv(uniforms.hemisphereSky, hemi ? hemi.skyColor : [0, 0, 0]);
+    if (uniforms.hemisphereGround)
+      gl.uniform3fv(uniforms.hemisphereGround, hemi ? hemi.groundColor : [0, 0, 0]);
+    if (uniforms.hemisphereUpView) {
+      const wu = hemi ? hemi.worldUp : [0, 0, 1];
+      const vm = view.camera.viewMatrix;
+      const ux = vm[0] * wu[0] + vm[4] * wu[1] + vm[8] * wu[2];
+      const uy = vm[1] * wu[0] + vm[5] * wu[1] + vm[9] * wu[2];
+      const uz = vm[2] * wu[0] + vm[6] * wu[1] + vm[10] * wu[2];
+      const len = Math.sqrt(ux * ux + uy * uy + uz * uz) || 1;
+      gl.uniform3f(uniforms.hemisphereUpView, ux / len, uy / len, uz / len);
+    }
+    const lights = view.lightsList || [];
+    let lightIndex = 0;
+    for (let i = 0; i < lights.length && lightIndex < 3; i++) {
+      const light = lights[i];
+      if (!isDirectionalLight(light)) {
+        continue;
+      }
+      const dirLoc = uniforms.lightDir[lightIndex];
+      const colorLoc = uniforms.lightColor[lightIndex];
+      const sd = light.dir;
+      const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1;
+      const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
+      const vm = view.camera.viewMatrix;
+      const transformToView = light.space === "world";
+      const lvx = transformToView ? vm[0] * sx + vm[4] * sy + vm[8] * sz : sx;
+      const lvy = transformToView ? vm[1] * sx + vm[5] * sy + vm[9] * sz : sy;
+      const lvz = transformToView ? vm[2] * sx + vm[6] * sy + vm[10] * sz : sz;
+      const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1;
+      if (dirLoc) {
+        gl.uniform3f(dirLoc, lvx / llen, lvy / llen, lvz / llen);
+      }
+      if (colorLoc) {
+        gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], getLightIntensity(light));
+      }
+      lightIndex++;
+    }
+    for (; lightIndex < 3; lightIndex++) {
+      const dirLoc = uniforms.lightDir[lightIndex];
+      const colorLoc = uniforms.lightColor[lightIndex];
+      if (dirLoc) {
+        gl.uniform3f(dirLoc, 0, 1, 1);
+      }
+      if (colorLoc) {
+        gl.uniform4f(colorLoc, 0, 0, 0, 0);
+      }
+    }
+    if (uniforms.edgeFadeRange) {
+      const projection = view.camera.projection;
+      const far = projection.far ?? 1e9;
+      const edges = view.effects.edges;
+      gl.uniform2f(uniforms.edgeFadeRange, far * edges.edgeFadeStart, far * edges.edgeFadeEnd);
+    }
+  }
   /**
    * Binds the SAO occlusion texture and sets its sampler. Called from _draw after
    * the per-batch data textures are bound, so that this binding is not clobbered.
@@ -187720,7 +188782,7 @@ ${this.triplanar ? `
     const unit = renderContext.textureUnit;
     renderContext.saoOcclusionTexture.bind(unit);
     renderContext.gl.uniform1i(this._samplers.saoOcclusionTexture, unit);
-    renderContext.boundTextureUnits[unit] = null;
+    renderContext.invalidateTextureBinding(unit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
   /**
@@ -187754,7 +188816,7 @@ ${this.triplanar ? `
       const unit = renderContext.textureUnit;
       tex.bind(unit);
       gl.uniform1i(sampler, unit);
-      renderContext.boundTextureUnits[unit] = null;
+      renderContext.invalidateTextureBinding(unit);
       renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
     }
   }
@@ -189384,7 +190446,6 @@ var tempVec4a8 = createVec4Float64();
 var tempVec4b7 = createVec4Float64();
 var tempVec4c5 = createVec4Float64();
 var tempVec4d = createVec4Float64();
-var tempVec4e = createVec4Float64();
 var tempMat4a6 = createMat4Float64();
 var tempMat4b2 = createMat4Float64();
 var tempMat4c = createMat4Float64();
@@ -189702,9 +190763,7 @@ var PickManager = class {
     return { sceneMesh, batchIndex, meshIndex, worldPos };
   }
   _unpackDepth(depthZ) {
-    const vec = createVec4Float64([depthZ[0] / 256, depthZ[1] / 256, depthZ[2] / 256, depthZ[3] / 256]);
-    const bitShift = createVec4Float64([1 / (256 * 256 * 256), 1 / (256 * 256), 1 / 256, 1]);
-    return dotVec4(vec, bitShift);
+    return depthZ[0] / 4294967296 + depthZ[1] / 16777216 + depthZ[2] / 65536 + depthZ[3] / 256;
   }
   _getClipPosX(pos, size) {
     return 2 * (pos / size) - 1;
@@ -192425,6 +193484,549 @@ void main(void) {
     outColor = vec4(rgb, 1.0);
 }`;
 
+// ../sdk/src/viewing/webGLRenderer/internal/renderManager/smaa/SMAALookupTextures.ts
+var SMAA_AREA_TEXTURE_URL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAAIwCAIAAACOVPcQAACBeklEQVR42u39W4xlWXrnh/3WWvuciIzMrKxrV8/0rWbY0+SQFKcb4owIkSIFCjY9AC1BT/LYBozRi+EX+cV+8IMsYAaCwRcBwjzMiw2jAWtgwC8WR5Q8mDFHZLNHTarZGrLJJllt1W2qKrsumZWZcTvn7L3W54e1vrXX3vuciLPPORFR1XE2EomorB0nVuz//r71re/y/1eMvb4Cb3N11xV/PP/2v4UBAwJG/7H8urx6/25/Gf8O5hypMQ0EEEQwAqLfoN/Z+97f/SW+/NvcgQk4sGBJK6H7N4PFVL+K+e0N11yNfkKvwUdwdlUAXPHHL38oa15f/i/46Ih6SuMSPmLAYAwyRKn7dfMGH97jaMFBYCJUgotIC2YAdu+LyW9vvubxAP8kAL8H/koAuOKP3+q6+xGnd5kdYCeECnGIJViwGJMAkQKfDvB3WZxjLKGh8VSCCzhwEWBpMc5/kBbjawT4HnwJfhr+pPBIu7uu+OOTo9vsmtQcniMBGkKFd4jDWMSCRUpLjJYNJkM+IRzQ+PQvIeAMTrBS2LEiaiR9b/5PuT6Ap/AcfAFO4Y3dA3DFH7/VS+M8k4baEAQfMI4QfbVDDGIRg7GKaIY52qAjTAgTvGBAPGIIghOCYAUrGFNgzA7Q3QhgCwfwAnwe5vDejgG44o/fbm1C5ZlYQvQDARPAIQGxCWBM+wWl37ZQESb4gImexGMDouhGLx1Cst0Saa4b4AqO4Hk4gxo+3DHAV/nx27p3JziPM2pVgoiia5MdEzCGULprIN7gEEeQ5IQxEBBBQnxhsDb5auGmAAYcHMA9eAAz8PBol8/xij9+C4Djlim4gJjWcwZBhCBgMIIYxGAVIkH3ZtcBuLdtRFMWsPGoY9rN+HoBji9VBYdwD2ZQg4cnO7OSq/z4rU5KKdwVbFAjNojCQzTlCLPFSxtamwh2jMUcEgg2Wm/6XgErIBhBckQtGN3CzbVacERgCnfgLswhnvqf7QyAq/z4rRZm1YglYE3affGITaZsdIe2FmMIpnOCap25I6jt2kCwCW0D1uAD9sZctNGXcQIHCkINDQgc78aCr+zjtw3BU/ijdpw3zhCwcaONwBvdeS2YZKkJNJsMPf2JKEvC28RXxxI0ASJyzQCjCEQrO4Q7sFArEzjZhaFc4cdv+/JFdKULM4px0DfUBI2hIsy06BqLhGTQEVdbfAIZXYMPesq6VoCHICzUyjwInO4Y411//LYLs6TDa9wvg2CC2rElgAnpTBziThxaL22MYhzfkghz6GAs2VHbbdM91VZu1MEEpupMMwKyVTb5ij9+u4VJG/5EgEMMmFF01cFai3isRbKbzb+YaU/MQbAm2XSMoUPAmvZzbuKYRIFApbtlrfFuUGd6vq2hXNnH78ZLh/iFhsQG3T4D1ib7k5CC6vY0DCbtrohgLEIClXiGtl10zc0CnEGIhhatLBva7NP58Tvw0qE8yWhARLQ8h4+AhQSP+I4F5xoU+VilGRJs6wnS7ruti/4KvAY/CfdgqjsMy4pf8fodQO8/gnuX3f/3xi3om1/h7THr+co3x93PP9+FBUfbNUjcjEmhcrkT+8K7ml7V10Jo05mpIEFy1NmCJWx9SIKKt+EjAL4Ez8EBVOB6havuT/rByPvHXK+9zUcfcbb254+9fydJknYnRr1oGfdaiAgpxu1Rx/Rek8KISftx3L+DfsLWAANn8Hvw0/AFeAGO9DFV3c6D+CcWbL8Dj9e7f+T1k8AZv/d7+PXWM/Z+VvdCrIvuAKO09RpEEQJM0Ci6+B4xhTWr4cZNOvhktabw0ta0rSJmqz3Yw5/AKXwenod7cAhTmBSPKf6JBdvH8IP17h95pXqw50/+BFnj88fev4NchyaK47OPhhtI8RFSvAfDSNh0Ck0p2gLxGkib5NJj/JWCr90EWQJvwBzO4AHcgztwAFN1evHPUVGwfXON+0debT1YeGON9Yy9/63X+OguiwmhIhQhD7l4sMqlG3D86Suc3qWZ4rWjI1X7u0Ytw6x3rIMeIOPDprfe2XzNgyj6PahhBjO4C3e6puDgXrdg+/5l948vF3bqwZetZ+z9Rx9zdIY5pInPK4Nk0t+l52xdK2B45Qd87nM8fsD5EfUhIcJcERw4RdqqH7Yde5V7m1vhNmtedkz6EDzUMF/2jJYWbC+4fzzA/Y+/8PPH3j9dcBAPIRP8JLXd5BpAu03aziOL3VVHZzz3CXWDPWd+SH2AnxIqQoTZpo9Ckc6HIrFbAbzNmlcg8Ag8NFDDAhbJvTBZXbC94P7t68EXfv6o+21gUtPETU7bbkLxvNKRFG2+KXzvtObonPP4rBvsgmaKj404DlshFole1Glfh02fE7bYR7dZ82oTewIBGn1Md6CG6YUF26X376oevOLzx95vhUmgblI6LBZwTCDY7vMq0op5WVXgsObOXJ+1x3qaBl9j1FeLxbhU9w1F+Wiba6s1X/TBz1LnUfuYDi4r2C69f1f14BWfP+p+W2GFKuC9phcELMYRRLur9DEZTUdEH+iEqWdaM7X4WOoPGI+ZYD2+wcQ+y+ioHUZ9dTDbArzxmi/bJI9BND0Ynd6lBdve/butBw8+f/T9D3ABa3AG8W3VPX4hBin+bj8dMMmSpp5pg7fJ6xrBFE2WQQEWnV8Qg3FbAWzYfM1rREEnmvkN2o1+acG2d/9u68GDzx91v3mAjb1zkpqT21OipPKO0b9TO5W0nTdOmAQm0TObts3aBKgwARtoPDiCT0gHgwnbArzxmtcLc08HgF1asN0C4Ms/fvD5I+7PhfqyXE/b7RbbrGyRQRT9ARZcwAUmgdoz0ehJ9Fn7QAhUjhDAQSw0bV3T3WbNa59jzmiP6GsWbGXDX2ytjy8+f9T97fiBPq9YeLdBmyuizZHaqXITnXiMUEEVcJ7K4j3BFPurtB4bixW8wTpweL8DC95szWMOqucFYGsWbGU7p3TxxxefP+r+oTVktxY0v5hbq3KiOKYnY8ddJVSBxuMMVffNbxwIOERShst73HZ78DZrHpmJmH3K6sGz0fe3UUj0eyRrSCGTTc+rjVNoGzNSv05srAxUBh8IhqChiQgVNIIBH3AVPnrsnXQZbLTm8ammv8eVXn/vWpaTem5IXRlt+U/LA21zhSb9cye6jcOfCnOwhIAYXAMVTUNV0QhVha9xjgA27ODJbLbmitt3tRN80lqG6N/khgot4ZVlOyO4WNg3OIMzhIZQpUEHieg2im6F91hB3I2tubql6BYNN9Hj5S7G0G2tahslBWKDnOiIvuAEDzakDQKDNFQT6gbn8E2y4BBubM230YIpBnDbMa+y3dx0n1S0BtuG62lCCXwcY0F72T1VRR3t2ONcsmDjbmzNt9RFs2LO2hQNyb022JisaI8rAWuw4HI3FuAIhZdOGIcdjLJvvObqlpqvWTJnnQbyi/1M9O8UxWhBs//H42I0q1Yb/XPGONzcmm+ri172mHKvZBpHkJaNJz6v9jxqiklDj3U4CA2ugpAaYMWqNXsdXbmJNd9egCnJEsphXNM+MnK3m0FCJ5S1kmJpa3DgPVbnQnPGWIDspW9ozbcO4K/9LkfaQO2KHuqlfFXSbdNzcEcwoqNEFE9zcIXu9/6n/ym/BC/C3aJLzEKPuYVlbFnfhZ8kcWxV3dbv4bKl28566wD+8C53aw49lTABp9PWbsB+knfc/Li3eVizf5vv/xmvnPKg5ihwKEwlrcHqucuVcVOxEv8aH37E3ZqpZypUulrHEtIWKUr+txHg+ojZDGlwnqmkGlzcVi1dLiNSJiHjfbRNOPwKpx9TVdTn3K05DBx4psIk4Ei8aCkJahRgffk4YnEXe07T4H2RR1u27E6wfQsBDofUgjFUFnwC2AiVtA+05J2zpiDK2Oa0c5fmAecN1iJzmpqFZxqYBCYhFTCsUNEmUnIcZ6aEA5rQVhEywG6w7HSW02XfOoBlQmjwulOFQAg66SvJblrTEX1YtJ3uG15T/BH1OfOQeuR8g/c0gdpT5fx2SKbs9EfHTKdM8A1GaJRHLVIwhcGyydZsbifAFVKl5EMKNU2Hryo+06BeTgqnxzYjThVySDikbtJPieco75lYfKAJOMEZBTjoITuWHXXZVhcUDIS2hpiXHV9Ku4u44bN5OYLDOkJo8w+xJSMbhBRHEdEs9JZUCkQrPMAvaHyLkxgkEHxiNkx/x2YB0mGsQ8EUWj/stW5YLhtS5SMu+/YBbNPDCkGTUybN8krRLBGPlZkVOA0j+a1+rkyQKWGaPHPLZOkJhioQYnVZ2hS3zVxMtgC46KuRwbJNd9nV2PHgb36F194ecf/Yeu2vAFe5nm/bRBFrnY4BauE8ERmZRFUn0k8hbftiVYSKMEme2dJCJSCGYAlNqh87bXOPdUkGy24P6d1ll21MBqqx48Fvv8ZHH8HZFY7j/uAq1xMJUFqCSUlJPmNbIiNsmwuMs/q9CMtsZsFO6SprzCS1Z7QL8xCQClEelpjTduDMsmWD8S1PT152BtvmIGvUeDA/yRn83u/x0/4qxoPHjx+PXY9pqX9bgMvh/Nz9kpP4pOe1/fYf3axUiMdHLlPpZCNjgtNFAhcHEDxTumNONhHrBduW+vOyY++70WWnPXj98eA4kOt/mj/5E05l9+O4o8ePx67HFqyC+qSSnyselqjZGaVK2TadbFLPWAQ4NBhHqDCCV7OTpo34AlSSylPtIdd2AJZlyzYQrDJ5lcWGNceD80CunPLGGzsfD+7wRb95NevJI5docQ3tgCyr5bGnyaPRlmwNsFELViOOx9loebGNq2moDOKpHLVP5al2cymWHbkfzGXL7kfRl44H9wZy33tvt+PB/Xnf93e+nh5ZlU18wCiRUa9m7kib9LYuOk+hudQNbxwm0AQqbfloimaB2lM5fChex+ylMwuTbfmXQtmWlenZljbdXTLuOxjI/fDDHY4Hjx8/Hrse0zXfPFxbUN1kKqSCCSk50m0Ajtx3ub9XHBKHXESb8iO6E+qGytF4nO0OG3SXzbJlhxBnKtKyl0NwybjvYCD30aMdjgePHz8eu56SVTBbgxJMliQ3Oauwg0QHxXE2Ez/EIReLdQj42Gzb4CLS0YJD9xUx7bsi0vJi5mUbW1QzL0h0PFk17rtiIPfJk52MB48fPx67npJJwyrBa2RCCQRTbGZSPCxTPOiND4G2pYyOQ4h4jINIJh5wFU1NFZt+IsZ59LSnDqBjZ2awbOku+yInunLcd8VA7rNnOxkPHj9+PGY9B0MWJJNozOJmlglvDMXDEozdhQWbgs/U6oBanGzLrdSNNnZFjOkmbi5bNt1lX7JLLhn3vXAg9/h4y/Hg8ePHI9dzQMEkWCgdRfYykYKnkP7D4rIujsujaKPBsB54vE2TS00ccvFY/Tth7JXeq1hz+qgVy04sAJawTsvOknHfCwdyT062HA8eP348Zj0vdoXF4pilKa2BROed+9fyw9rWRXeTFXESMOanvDZfJuJaSXouQdMdDJZtekZcLLvEeK04d8m474UDuaenW44Hjx8/Xns9YYqZpszGWB3AN/4VHw+k7WSFtJ3Qicuqb/NlVmgXWsxh570xg2UwxUw3WfO6B5nOuO8aA7lnZxuPB48fPx6znm1i4bsfcbaptF3zNT78eFPtwi1OaCNOqp1x3zUGcs/PN++AGD1+fMXrSVm2baTtPhPahbPhA71wIHd2bXzRa69nG+3CraTtPivahV/55tXWg8fyRY/9AdsY8VbSdp8V7cKrrgdfM//z6ILQFtJ2nxHtwmuoB4/kf74+gLeRtvvMaBdeSz34+vifx0YG20jbfTa0C6+tHrwe//NmOG0L8EbSdp8R7cLrrQe/996O+ai3ujQOskpTNULa7jOjXXj99eCd8lHvoFiwsbTdZ0a78PrrwTvlo966pLuRtB2fFe3Cm6oHP9kNH/W2FryxtN1nTLvwRurBO+Kj3pWXHidtx2dFu/Bm68Fb81HvykuPlrb7LGkX3mw9eGs+6h1Y8MbSdjegXcguQLjmevDpTQLMxtJ2N6NdyBZu9AbrwVvwUW+LbteULUpCdqm0HTelXbhNPe8G68Gb8lFvVfYfSNuxvrTdTWoXbozAzdaDZzfkorOj1oxVxlIMlpSIlpLrt8D4hrQL17z+c3h6hU/wv4Q/utps4+bm+6P/hIcf0JwQ5oQGPBL0eKPTYEXTW+eL/2DKn73J9BTXYANG57hz1cEMviVf/4tf5b/6C5pTQkMIWoAq7hTpOJjtAM4pxKu5vg5vXeUrtI09/Mo/5H+4z+Mp5xULh7cEm2QbRP2tFIKR7WM3fPf/jZ3SWCqLM2l4NxID5zB72HQXv3jj/8mLR5xXNA5v8EbFQEz7PpRfl1+MB/hlAN65qgDn3wTgH13hK7T59bmP+NIx1SHHU84nLOITt3iVz8mNO+lPrjGAnBFqmioNn1mTyk1ta47R6d4MrX7tjrnjYUpdUbv2rVr6YpVfsGG58AG8Ah9eyUN8CX4WfgV+G8LVWPDGb+Zd4cU584CtqSbMKxauxTg+dyn/LkVgA+IR8KHtejeFKRtTmLLpxN6mYVLjYxwXf5x2VofiZcp/lwKk4wGOpYDnoIZPdg/AAbwMfx0+ge9dgZvYjuqKe4HnGnykYo5TvJbG0Vj12JagRhwKa44H95ShkZa5RyLGGdfYvG7aw1TsF6iapPAS29mNS3NmsTQZCmgTzFwgL3upCTgtBTRwvGMAKrgLn4evwin8+afJRcff+8izUGUM63GOOuAs3tJkw7J4kyoNreqrpO6cYLQeFUd7TTpr5YOTLc9RUUogUOVJQ1GYJaFLAW0oTmKyYS46ZooP4S4EON3xQ5zC8/CX4CnM4c1PE8ApexpoYuzqlP3d4S3OJP8ZDK7cKWNaTlqmgDiiHwl1YsE41w1zT4iRTm3DBqxvOUsbMKKDa/EHxagtnta072ejc3DOIh5ojvh8l3tk1JF/AV6FU6jh3U8HwEazLgdCLYSQ+MYiAI2ltomkzttUb0gGHdSUUgsIYjTzLG3mObX4FBRaYtpDVNZrih9TgTeYOBxsEnN1gOCTM8Bsw/ieMc75w9kuAT6A+/AiHGvN/+Gn4KRkiuzpNNDYhDGFndWRpE6SVfm8U5bxnSgVV2jrg6JCKmneqey8VMFgq2+AM/i4L4RUbfSi27lNXZ7R7W9RTcq/q9fk4Xw3AMQd4I5ifAZz8FcVtm9SAom/dyN4lczJQW/kC42ZrHgcCoIf1oVMKkVItmMBi9cOeNHGLqOZk+QqQmrbc5YmYgxELUUN35z2iohstgfLIFmcMV7s4CFmI74L9+EFmGsi+tGnAOD4Yk9gIpo01Y4cA43BWGygMdr4YZekG3OBIUXXNukvJS8tqa06e+lSDCtnqqMFu6hWHXCF+WaYt64m9QBmNxi7Ioy7D+fa1yHw+FMAcPt7SysFLtoG4PXAk7JOA3aAxBRqUiAdU9Yp5lK3HLSRFtOim0sa8euEt08xvKjYjzeJ2GU7YawexrnKI9tmobInjFXCewpwriY9+RR4aaezFhMhGCppKwom0ChrgFlKzyPKkGlTW1YQrE9HJqu8hKGgMc6hVi5QRq0PZxNfrYNgE64utmRv6KKHRpxf6VDUaOvNP5jCEx5q185My/7RKz69UQu2im5k4/eownpxZxNLwiZ1AZTO2ZjWjkU9uaB2HFn6Q3u0JcsSx/qV9hTEApRzeBLDJQXxYmTnq7bdLa3+uqFrxLJ5w1TehnNHx5ECvCh2g2c3hHH5YsfdaSKddztfjQ6imKFGSyFwlLzxEGPp6r5IevVjk1AMx3wMqi1NxDVjLBiPs9tbsCkIY5we5/ML22zrCScFxnNtzsr9Wcc3CnD+pYO+4VXXiDE0oc/vQQ/fDK3oPESJMYXNmJa/DuloJZkcTpcYE8lIH8Dz8DJMiynNC86Mb2lNaaqP/+L7f2fcE/yP7/Lde8xfgSOdMxvOixZf/9p3+M4hT1+F+zApxg9XfUvYjc8qX2lfOOpK2gNRtB4flpFu9FTKCp2XJRgXnX6olp1zyYjTKJSkGmLE2NjUr1bxFM4AeAAHBUFIeSLqXR+NvH/M9fOnfHzOD2vCSyQJKzfgsCh+yi/Mmc35F2fUrw7miW33W9hBD1vpuUojFphIyvg7aTeoymDkIkeW3XLHmguMzbIAJejN6B5MDrhipE2y6SoFRO/AK/AcHHZHNIfiWrEe/C6cr3f/yOvrQKB+zMM55/GQdLDsR+ifr5Fiuu+/y+M78LzOE5dsNuXC3PYvYWd8NXvphLSkJIasrlD2/HOqQ+RjcRdjKTGWYhhVUm4yxlyiGPuMsZR7sMCHUBeTuNWA7if+ifXgc/hovftHXs/DV+Fvwe+f8shzMiMcweFgBly3//vwJfg5AN4450fn1Hd1Rm1aBLu22Dy3y3H2+OqMemkbGZ4jozcDjJf6596xOLpC0eMTHbKnxLxH27uZ/bMTGs2jOaMOY4m87CfQwF0dw53oa1k80JRuz/XgS+8fX3N9Af4qPIMfzKgCp4H5TDGe9GGeFPzSsZz80SlPTxXjgwJmC45njzgt2vbQ4b4OAdUK4/vWhO8d8v6EE8fMUsfakXbPpFJeLs2ubM/qdm/la3WP91uWhxXHjoWhyRUq2iJ/+5mA73zwIIo+LoZ/SgvIRjAd1IMvvn98PfgOvAJfhhm8scAKVWDuaRaK8aQ9f7vuPDH6Bj47ZXau7rqYJ66mTDwEDU6lLbCjCK0qTXyl5mnDoeNRxanj3FJbaksTk0faXxHxLrssgPkWB9LnA/MFleXcJozzjwsUvUG0X/QCve51qkMDXp9mtcyOy3rwBfdvVJK7D6/ACSzg3RoruIq5UDeESfEmVclDxnniU82vxMLtceD0hGZWzBNPMM/jSPne2OVatiTKUpY5vY7gc0LdUAWeWM5tH+O2I66AOWw9xT2BuyRVLGdoDHUsVRXOo/c+ZdRXvFfnxWyIV4upFLCl9eAL7h8Zv0QH8Ry8pA2cHzQpGesctVA37ZtklBTgHjyvdSeKY/RZw/kJMk0Y25cSNRWSigQtlULPTw+kzuJPeYEkXjQRpoGZobYsLF79pyd1dMRHInbgFTZqNLhDqiIsTNpoex2WLcy0/X6rHcdMMQvFSd5dWA++4P7xv89deACnmr36uGlL69bRCL6BSZsS6c0TU2TKK5gtWCzgAOOwQcurqk9j8whvziZSMLcq5hbuwBEsYjopUBkqw1yYBGpLA97SRElEmx5MCInBY5vgLk94iKqSWmhIGmkJ4Bi9m4L645J68LyY4wsFYBfUg5feP/6gWWm58IEmKQM89hq7KsZNaKtP5TxxrUZZVkNmMJtjbKrGxLNEbHPJxhqy7lAmbC32ZqeF6lTaknRWcYaFpfLUBh/rwaQycCCJmW15Kstv6jRHyJFry2C1ahkkIW0LO75s61+owxK1y3XqweX9m5YLM2DPFeOjn/iiqCKJ+yKXF8t5Yl/kNsqaSCryxPq5xWTFIaP8KSW0RYxqupaUf0RcTNSSdJZGcKYdYA6kdtrtmyBckfKXwqk0pHpUHlwWaffjNRBYFPUDWa8e3Lt/o0R0CdisKDM89cX0pvRHEfM8ca4t0s2Xx4kgo91MPQJ/0c9MQYq0co8MBh7bz1fio0UUHLR4aAIOvOmoYO6kwlEVODSSTliWtOtH6sPkrtctF9ZtJ9GIerBskvhdVS5cFNv9s1BU0AbdUgdK4FG+dRnjFmDTzniRMdZO1QhzMK355vigbdkpz9P6qjUGE5J2qAcXmwJ20cZUiAD0z+pGMx6xkzJkmEf40Hr4qZfVg2XzF9YOyoV5BjzVkUJngKf8lgNYwKECEHrCNDrWZzMlflS3yBhr/InyoUgBc/lKT4pxVrrC6g1YwcceK3BmNxZcAtz3j5EIpqguh9H6wc011YN75cKDLpFDxuwkrPQmUwW4KTbj9mZTwBwLq4aQMUZbHm1rylJ46dzR0dua2n3RYCWZsiHROeywyJGR7mXKlpryyCiouY56sFkBWEnkEB/raeh/Sw4162KeuAxMQpEkzy5alMY5wamMsWKKrtW2WpEWNnReZWONKWjrdsKZarpFjqCslq773PLmEhM448Pc3+FKr1+94vv/rfw4tEcu+lKTBe4kZSdijBrykwv9vbCMPcLQTygBjzVckSLPRVGslqdunwJ4oegtFOYb4SwxNgWLCmD7T9kVjTv5YDgpo0XBmN34Z/rEHp0sgyz7lngsrm4lvMm2Mr1zNOJYJ5cuxuQxwMGJq/TP5emlb8fsQBZviK4t8hFL+zbhtlpwaRSxQRWfeETjuauPsdGxsBVdO7nmP4xvzSoT29pRl7kGqz+k26B3Oy0YNV+SXbbQas1ctC/GarskRdFpKczVAF1ZXnLcpaMuzVe6lZ2g/1ndcvOVgRG3sdUAY1bKD6achijMPdMxV4muKVorSpiDHituH7rSTs7n/4y5DhRXo4FVBN4vO/zbAcxhENzGbHCzU/98Mcx5e7a31kWjw9FCe/zNeYyQjZsWb1uc7U33pN4Mji6hCLhivqfa9Ss6xLg031AgfesA/l99m9fgvnaF9JoE6bYKmkGNK3aPbHB96w3+DnxFm4hs0drLsk7U8kf/N/CvwQNtllna0rjq61sH8L80HAuvwH1tvBy2ChqWSCaYTaGN19sTvlfzFD6n+iKTbvtayfrfe9ueWh6GJFoxLdr7V72a5ZpvHcCPDzma0wTO4EgbLyedxstO81n57LYBOBzyfsOhUKsW1J1BB5vr/tz8RyqOFylQP9Tvst2JALsC5lsH8PyQ40DV4ANzYa4dedNiKNR1s+x2wwbR7q4/4cTxqEk4LWDebfisuo36JXLiWFjOtLrlNWh3K1rRS4xvHcDNlFnNmWBBAl5SWaL3oPOfnvbr5pdjVnEaeBJSYjuLEkyLLsWhKccadmOphZkOPgVdalj2QpSmfOsADhMWE2ZBu4+EEJI4wKTAuCoC4xwQbWXBltpxbjkXJtKxxabo9e7tyhlgb6gNlSbUpMh+l/FaqzVwewGu8BW1Zx7pTpQDJUjb8tsUTW6+GDXbMn3mLbXlXJiGdggxFAoUrtPS3wE4Nk02UZG2OOzlk7fRs7i95QCLo3E0jtrjnM7SR3uS1p4qtS2nJ5OwtQVHgOvArLBFijZUV9QtSl8dAY5d0E0hM0w3HS2DpIeB6m/A1+HfhJcGUq4sOxH+x3f5+VO+Ds9rYNI7zPXOYWPrtf8bYMx6fuOAX5jzNR0PdsuON+X1f7EERxMJJoU6GkTEWBvVolVlb5lh3tKCg6Wx1IbaMDdJ+9sUCc5KC46hKGCk3IVOS4TCqdBNfUs7Kd4iXf2RjnT/LLysJy3XDcHLh/vde3x8DoGvwgsa67vBk91G5Pe/HbOe7xwym0NXbtiuuDkGO2IJDh9oQvJ4cY4vdoqLDuoH9Zl2F/ofsekn8lkuhIlhQcffUtSjytFyp++p6NiE7Rqx/lodgKVoceEp/CP4FfjrquZaTtj2AvH5K/ywpn7M34K/SsoYDAdIN448I1/0/wveW289T1/lX5xBzc8N5IaHr0XMOQdHsIkDuJFifj20pBm5jzwUv9e2FhwRsvhAbalCIuIw3bhJihY3p6nTFFIZgiSYjfTf3aXuOjmeGn4bPoGvwl+CFzTRczBIuHBEeImHc37/lGfwZR0cXzVDOvaKfNHvwe+suZ771K/y/XcBlsoN996JpBhoE2toYxOznNEOS5TJc6Id5GEXLjrWo+LEWGNpPDU4WAwsIRROu+1vM+0oW37z/MBN9kqHnSArwPfgFJ7Cq/Ai3Ie7g7ncmI09v8sjzw9mzOAEXoIHxURueaAce5V80f/DOuuZwHM8vsMb5wBzOFWM7wymTXPAEvm4vcFpZ2ut0VZRjkiP2MlmLd6DIpbGSiHOjdnUHN90hRYmhTnmvhzp1iKDNj+b7t5hi79lWGwQ+HN9RsfFMy0FXbEwhfuczKgCbyxYwBmcFhhvo/7a44v+i3XWcwDP86PzpGQYdWh7csP5dBvZ1jNzdxC8pBGuxqSW5vw40nBpj5JhMwvOzN0RWqERHMr4Lv1kWX84xLR830G3j6yqZ1a8UstTlW+qJPOZ+sZ7xZPKTJLhiNOAFd6tk+jrTH31ncLOxid8+nzRb128HhUcru/y0Wn6iT254YPC6FtVSIMoW2sk727AhvTtrWKZTvgsmckfXYZWeNRXx/3YQ2OUxLDrbHtN11IwrgXT6c8dATDwLniYwxzO4RzuQqTKSC5gAofMZ1QBK3zQ4JWobFbcvJm87FK+6JXrKahLn54m3p+McXzzYtP8VF/QpJuh1OwieElEoI1pRxPS09FBrkq2tWCU59+HdhNtTIqKm8EBrw2RTOEDpG3IKo2Y7mFdLm3ZeVjYwVw11o/oznceMve4CgMfNym/utA/d/ILMR7gpXzRy9eDsgLcgbs8O2Va1L0zzIdwGGemTBuwROHeoMShkUc7P+ISY3KH5ZZeWqO8mFTxQYeXTNuzvvK5FGPdQfuu00DwYFY9dyhctEt+OJDdnucfpmyhzUJzfsJjr29l8S0bXBfwRS9ZT26tmMIdZucch5ZboMz3Nio3nIOsYHCGoDT4kUA9MiXEp9Xsui1S8th/kbWIrMBxDGLodWUQIWcvnXy+9M23xPiSMOiRPqM+YMXkUN3gXFrZJwXGzUaMpJfyRS9ZT0lPe8TpScuRlbMHeUmlaKDoNuy62iWNTWNFYjoxFzuJs8oR+RhRx7O4SVNSXpa0ZJQ0K1LAHDQ+D9IepkMXpcsq5EVCvClBUIzDhDoyKwDw1Lc59GbTeORivugw1IcuaEOaGWdNm+Ps5fQ7/tm0DjMegq3yM3vb5j12qUId5UZD2oxDSEWOZMSqFl/W+5oynWDa/aI04tJRQ2eTXusg86SQVu/nwSYwpW6wLjlqIzwLuxGIvoAvul0PS+ZNz0/akp/pniO/8JDnGyaCkzbhl6YcqmK/69prxPqtpx2+Km9al9sjL+rwMgHw4jE/C8/HQ3m1vBuL1fldbzd8mOueVJ92syqdEY4KJjSCde3mcRw2TA6szxedn+zwhZMps0XrqEsiUjnC1hw0TELC2Ek7uAAdzcheXv1BYLagspxpzSAoZZUsIzIq35MnFQ9DOrlNB30jq3L4pkhccKUAA8/ocvN1Rzx9QyOtERs4CVsJRK/DF71kPYrxYsGsm6RMh4cps5g1DOmM54Ly1ii0Hd3Y/BMk8VWFgBVmhqrkJCPBHAolwZaWzLR9Vb7bcWdX9NyUYE+uB2BKfuaeBUcjDljbYVY4DdtsVWvzRZdWnyUzDpjNl1Du3aloAjVJTNDpcIOVVhrHFF66lLfJL1zJr9PQ2nFJSBaKoDe+sAvLufZVHVzYh7W0h/c6AAZ+7Tvj6q9j68G/cTCS/3n1vLKHZwNi+P+pS0WkZNMBMUl+LDLuiE4omZy71r3UFMwNJV+VJ/GC5ixVUkBStsT4gGKh0Gm4Oy3qvq7Lbmq24nPdDuDR9deR11XzP4vFu3TYzfnIyiSVmgizUYGqkIXNdKTY9pgb9D2Ix5t0+NHkVzCdU03suWkkVZAoCONCn0T35gAeW38de43mf97sMOpSvj4aa1KYUm58USI7Wxxes03bAZdRzk6UtbzMaCQ6IxO0dy7X+XsjoD16hpsBeGz9dfzHj+R/Hp8nCxZRqkEDTaCKCSywjiaoMJ1TITE9eg7Jqnq8HL6gDwiZb0u0V0Rr/rmvqjxKuaLCX7ZWXTvAY+uvm3z8CP7nzVpngqrJpZKwWnCUjIviYVlirlGOzPLI3SMVyp/elvBUjjDkNhrtufFFErQ8pmdSlbK16toBHlt/HV8uHMX/vEGALkV3RJREiSlopxwdMXOZPLZ+ix+kAHpMKIk8UtE1ygtquttwxNhphrIZ1IBzjGF3IIGxGcBj6q8bHJBG8T9vdsoWrTFEuebEZuVxhhClH6P5Zo89OG9fwHNjtNQTpD0TG9PJLEYqvEY6Rlxy+ZZGfL0Aj62/bnQCXp//eeM4KzfQVJbgMQbUjlMFIm6TpcfWlZje7NBSV6IsEVmumWIbjiloUzQX9OzYdo8L1wjw2PrrpimONfmfNyzKklrgnEkSzT5QWYQW40YShyzqsRmMXbvVxKtGuYyMKaU1ugenLDm5Ily4iT14fP11Mx+xJv+zZ3MvnfdFqxU3a1W/FTB4m3Qfsyc1XUcdVhDeUDZXSFHHLQj/Y5jtC7ZqM0CXGwB4bP11i3LhOvzPGygYtiUBiwQV/4wFO0majijGsafHyRLu0yG6q35cL1rOpVxr2s5cM2jJYMCdc10Aj6q/blRpWJ//+dmm5psMl0KA2+AFRx9jMe2WbC4jQxnikd4DU8TwUjRVacgdlhmr3bpddzuJ9zXqr2xnxJfzP29RexdtjDVZqzkqa6PyvcojGrfkXiJ8SEtml/nYskicv0ivlxbqjemwUjMw5evdg8fUX9nOiC/lf94Q2i7MURk9nW1MSj5j8eAyV6y5CN2S6qbnw3vdA1Iwq+XOSCl663udN3IzLnrt+us25cI1+Z83SXQUldqQq0b5XOT17bGpLd6ssN1VMPf8c+jG8L3NeCnMdF+Ra3fRa9dft39/LuZ/3vwHoHrqGmQFafmiQw6eyzMxS05K4bL9uA+SKUQzCnSDkqOGokXyJvbgJ/BHI+qvY69//4rl20NsmK2ou2dTsyIALv/91/8n3P2Aao71WFGi8KKv1fRC5+J67Q/507/E/SOshqN5TsmYIjVt+kcjAx98iz/4SaojbIV1rexE7/C29HcYD/DX4a0rBOF5VTu7omsb11L/AWcVlcVZHSsqGuXLLp9ha8I//w3Mv+T4Ew7nTBsmgapoCrNFObIcN4pf/Ob/mrvHTGqqgAupL8qWjWPS9m/31jAe4DjA+4+uCoQoT/zOzlrNd3qd4SdphFxsUvYwGWbTWtISc3wNOWH+kHBMfc6kpmpwPgHWwqaSUG2ZWWheYOGQGaHB+eQ/kn6b3pOgLV+ODSn94wDvr8Bvb70/LLuiPPEr8OGVWfDmr45PZyccEmsVXZGe1pRNX9SU5+AVQkNTIVPCHF/jGmyDC9j4R9LfWcQvfiETmgMMUCMN1uNCakkweZsowdYobiMSlnKA93u7NzTXlSfe+SVbfnPQXmg9LpYAQxpwEtONyEyaueWM4FPjjyjG3uOaFmBTWDNgBXGEiQpsaWhnAqIijB07Dlsy3fUGeP989xbWkyf+FF2SNEtT1E0f4DYYVlxFlbaSMPIRMk/3iMU5pME2SIWJvjckciebkQuIRRyhUvkHg/iUljG5kzVog5hV7vIlCuBrmlhvgPfNHQM8lCf+FEGsYbMIBC0qC9a0uuy2wLXVbLBaP5kjHokCRxapkQyzI4QEcwgYHRZBp+XEFTqXFuNVzMtjXLJgX4gAid24Hjwc4N3dtVSe+NNiwTrzH4WVUOlDobUqr1FuAgYllc8pmzoVrELRHSIW8ViPxNy4xwjBpyR55I6J220qQTZYR4guvUICJiSpr9gFFle4RcF/OMB7BRiX8sSfhpNSO3lvEZCQfLUVTKT78Ek1LRLhWN+yLyTnp8qWUZ46b6vxdRGXfHVqx3eI75YaLa4iNNiK4NOW7wPW6lhbSOF9/M9qw8e/aoB3d156qTzxp8pXx5BKAsYSTOIIiPkp68GmTq7sZtvyzBQaRLNxIZ+paozHWoLFeExIhRBrWitHCAHrCF7/thhD8JhYz84wg93QRV88wLuLY8zF8sQ36qF1J455bOlgnELfshKVxYOXKVuKx0jaj22sczTQqPqtV/XDgpswmGTWWMSDw3ssyUunLLrVPGjYRsH5ggHeHSWiV8kT33ycFSfMgkoOK8apCye0J6VW6GOYvffgU9RWsukEi2kUV2nl4dOYUzRik9p7bcA4ggdJ53LxKcEe17B1R8eqAd7dOepV8sTXf5lhejoL85hUdhDdknPtKHFhljOT+bdq0hxbm35p2nc8+Ja1Iw+tJykgp0EWuAAZYwMVwac5KzYMslhvgHdHRrxKnvhTYcfKsxTxtTETkjHO7rr3zjoV25lAQHrqpV7bTiy2aXMmUhTBnKS91jhtR3GEoF0oLnWhWNnYgtcc4N0FxlcgT7yz3TgNIKkscx9jtV1ZKpWW+Ub1tc1eOv5ucdgpx+FJy9pgbLE7xDyXb/f+hLHVGeitHOi6A7ybo3sF8sS7w7cgdk0nJaOn3hLj3uyD0Zp5pazFIUXUpuTTU18d1EPkDoX8SkmWTnVIozEdbTcZjoqxhNHf1JrSS/AcvHjZ/SMHhL/7i5z+POsTUh/8BvNfYMTA8n+yU/MlTZxSJDRStqvEuLQKWwDctMTQogUDyQRoTQG5Kc6oQRE1yV1jCA7ri7jdZyK0sYTRjCR0Hnnd+y7nHxNgTULqw+8wj0mQKxpYvhjm9uSUxg+TTy7s2GtLUGcywhXSKZN275GsqlclX90J6bRI1aouxmgL7Q0Nen5ziM80SqMIo8cSOo+8XplT/5DHNWsSUr/6lLN/QQ3rDyzLruEW5enpf7KqZoShEduuSFOV7DLX7Ye+GmXb6/hnNNqKsVXuMDFpb9Y9eH3C6NGEzuOuI3gpMH/I6e+zDiH1fXi15t3vA1czsLws0TGEtmPEJdiiFPwlwKbgLHAFk4P6ZyPdymYYHGE0dutsChQBl2JcBFlrEkY/N5bQeXQ18gjunuMfMfsBlxJSx3niO485fwO4fGD5T/+3fPQqkneWVdwnw/3bMPkW9Wbqg+iC765Zk+xcT98ibKZc2EdgHcLoF8cSOo/Oc8fS+OyEULF4g4sJqXVcmfMfsc7A8v1/yfGXmL9I6Fn5pRwZhsPv0TxFNlAfZCvG+Oohi82UC5f/2IsJo0cTOm9YrDoKhFPEUr/LBYTUNht9zelHXDqwfPCIw4owp3mOcIQcLttWXFe3VZ/j5H3cIc0G6oPbCR+6Y2xF2EC5cGUm6wKC5tGEzhsWqw5hNidUiKX5gFWE1GXh4/Qplw4sVzOmx9QxU78g3EF6wnZlEN4FzJ1QPSLEZz1KfXC7vd8ssGdIbNUYpVx4UapyFUHzJoTOo1McSkeNn1M5MDQfs4qQuhhX5vQZFw8suwWTcyYTgioISk2YdmkhehG4PkE7w51inyAGGaU+uCXADabGzJR1fn3lwkty0asIo8cROm9Vy1g0yDxxtPvHDAmpu+PKnM8Ix1wwsGw91YJqhteaWgjYBmmQiebmSpwKKzE19hx7jkzSWOm66oPbzZ8Yj6kxVSpYjVAuvLzYMCRo3oTQecOOjjgi3NQ4l9K5/hOGhNTdcWVOTrlgYNkEXINbpCkBRyqhp+LdRB3g0OU6rMfW2HPCFFMV9nSp+uB2woepdbLBuJQyaw/ZFysXrlXwHxI0b0LovEkiOpXGA1Ijagf+KUNC6rKNa9bQnLFqYNkEnMc1uJrg2u64ELPBHpkgWbmwKpJoDhMwNbbGzAp7Yg31wS2T5rGtzit59PrKhesWG550CZpHEzpv2NGRaxlNjbMqpmEIzygJqQfjypycs2pg2cS2RY9r8HUqkqdEgKTWtWTKoRvOBPDYBltja2SO0RGjy9UHtxwRjA11ujbKF+ti5cIR9eCnxUg6owidtyoU5tK4NLji5Q3HCtiyF2IqLGYsHViOXTXOYxucDqG0HyttqYAKqYo3KTY1ekyDXRAm2AWh9JmsVh/ccg9WJ2E8YjG201sPq5ULxxX8n3XLXuMInbft2mk80rRGjCGctJ8/GFdmEQ9Ug4FlE1ll1Y7jtiraqm5Fe04VV8lvSVBL8hiPrfFVd8+7QH3Qbu2ipTVi8cvSGivc9cj8yvH11YMHdNSERtuOslM97feYFOPKzGcsI4zW0YGAbTAOaxCnxdfiYUmVWslxiIblCeAYr9VYR1gM7GmoPrilunSxxeT3DN/2eBQ9H11+nk1adn6VK71+5+Jfct4/el10/7KBZfNryUunWSCPxPECk1rdOv1WVSrQmpC+Tl46YD3ikQYcpunSQgzVB2VHFhxHVGKDgMEY5GLlQnP7FMDzw7IacAWnO6sBr12u+XanW2AO0wQ8pknnFhsL7KYIqhkEPmEXFkwaN5KQphbkUmG72wgw7WSm9RiL9QT925hkjiVIIhphFS9HKI6/8QAjlpXqg9W2C0apyaVDwKQwrwLY3j6ADR13ZyUNByQXHQu6RY09Hu6zMqXRaNZGS/KEJs0cJEe9VH1QdvBSJv9h09eiRmy0V2uJcqHcShcdvbSNg5fxkenkVprXM9rDVnX24/y9MVtncvbKY706anNl3ASll9a43UiacVquXGhvq4s2FP62NGKfQLIQYu9q1WmdMfmUrDGt8eDS0cXozH/fjmUH6Jruvm50hBDSaEU/2Ru2LEN/dl006TSc/g7tfJERxGMsgDUEr104pfWH9lQaN+M4KWQjwZbVc2rZVNHsyHal23wZtIs2JJqtIc/WLXXRFCpJkfE9jvWlfFbsNQ9pP5ZBS0zKh4R0aMFj1IjTcTnvi0Zz2rt7NdvQb2mgbju1plsH8MmbnEk7KbK0b+wC2iy3aX3szW8xeZvDwET6hWZYwqTXSSG+wMETKum0Dq/q+x62gt2ua2ppAo309TRk9TPazfV3qL9H8z7uhGqGqxNVg/FKx0HBl9OVUORn8Q8Jx9gFttGQUDr3tzcXX9xGgN0EpzN9mdZ3GATtPhL+CjxFDmkeEU6x56kqZRusLzALXVqkCN7zMEcqwjmywDQ6OhyUe0Xao1Qpyncrg6wKp9XfWDsaZplElvQ/b3sdweeghorwBDlHzgk1JmMc/wiERICVy2VJFdMjFuLQSp3S0W3+sngt2njwNgLssFGVQdJ0tu0KH4ky1LW4yrbkuaA6Iy9oz/qEMMXMMDWyIHhsAyFZc2peV9hc7kiKvfULxCl9iddfRK1f8kk9qvbdOoBtOg7ZkOZ5MsGrSHsokgLXUp9y88smniwWyuFSIRVmjplga3yD8Uij5QS1ZiM4U3Qw5QlSm2bXjFe6jzzBFtpg+/YBbLAWG7OPynNjlCw65fukGNdkJRf7yM1fOxVzbxOJVocFoYIaGwH22mIQkrvu1E2nGuebxIgW9U9TSiukPGU+Lt++c3DJPKhyhEEbXCQLUpae2exiKy6tMPe9mDRBFCEMTWrtwxN8qvuGnt6MoihKWS5NSyBhbH8StXoAz8PLOrRgLtOT/+4vcu+7vDLnqNvztOq7fmd8sMmY9Xzn1zj8Dq8+XVdu2Nv0IIySgEdQo3xVHps3Q5i3fLFsV4aiqzAiBhbgMDEd1uh8qZZ+lwhjkgokkOIv4xNJmyncdfUUzgB4oFMBtiu71Xumpz/P+cfUP+SlwFExwWW62r7b+LSPxqxn/gvMZ5z9C16t15UbNlq+jbGJtco7p8wbYlL4alSyfWdeuu0j7JA3JFNuVAwtst7F7FhWBbPFNKIUORndWtLraFLmMu7KFVDDOzqkeaiN33YAW/r76wR4XDN/yN1z7hejPau06EddkS/6XThfcz1fI/4K736fO48vlxt2PXJYFaeUkFS8U15XE3428xdtn2kc8GQlf1vkIaNRRnOMvLTWrZbElEHeLWi1o0dlKPAh1MVgbbVquPJ5+Cr8LU5/H/+I2QlHIU2ClXM9G8v7Rr7oc/hozfUUgsPnb3D+I+7WF8kNO92GY0SNvuxiE+2Bt8prVJTkzE64sfOstxuwfxUUoyk8VjcTlsqe2qITSFoSj6Epd4KsT6BZOWmtgE3hBfir8IzZDwgV4ZTZvD8VvPHERo8v+vL1DASHTz/i9OlKueHDjK5Rnx/JB1Vb1ioXdBra16dmt7dgik10yA/FwJSVY6XjA3oy4SqM2frqDPPSRMex9qs3XQtoWxMj7/Er8GWYsXgjaVz4OYumP2+9kbxvny/6kvWsEBw+fcb5bInc8APdhpOSs01tEqIkoiZjbAqKMruLbJYddHuHFRIyJcbdEdbl2sVLaySygunutBg96Y2/JjKRCdyHV+AEFtTvIpbKIXOamknYSiB6KV/0JetZITgcjjk5ZdaskBtWO86UF0ap6ozGXJk2WNiRUlCPFir66lzdm/SLSuK7EUdPz8f1z29Skq6F1fXg8+5UVR6bszncP4Tn4KUkkdJ8UFCY1zR1i8RmL/qQL3rlei4THG7OODlnKko4oI01kd3CaM08Ia18kC3GNoVaO9iDh+hWxSyTXFABXoau7Q6q9OxYg/OVEMw6jdbtSrJ9cBcewGmaZmg+bvkUnUUaGr+ZfnMH45Ivevl61hMcXsxYLFTu1hTm2zViCp7u0o5l+2PSUh9bDj6FgYypufBDhqK2+oXkiuHFHR3zfj+9PtA8oR0xnqX8qn+sx3bFODSbbF0X8EUvWQ8jBIcjo5bRmLOljDNtcqNtOe756h3l0VhKa9hDd2l1eqmsnh0MNMT/Cqnx6BInumhLT8luljzQ53RiJeA/0dxe5NK0o2fA1+GLXr6eNQWHNUOJssQaTRlGpLHKL9fD+IrQzTOMZS9fNQD4AnRNVxvTdjC+fJdcDDWQcyB00B0t9BDwTxXgaAfzDZ/DBXzRnfWMFRwuNqocOmX6OKNkY63h5n/fFcB28McVHqnXZVI27K0i4rDLNE9lDKV/rT+udVbD8dFFu2GGZ8mOt0kAXcoX3ZkIWVtw+MNf5NjR2FbivROHmhV1/pj2egv/fMGIOWTIWrV3Av8N9imV9IWml36H6cUjqEWNv9aNc+veb2sH46PRaHSuMBxvtW+twxctq0z+QsHhux8Q7rCY4Ct8lqsx7c6Sy0dl5T89rIeEuZKoVctIk1hNpfavER6yyH1Vvm3MbsUHy4ab4hWr/OZPcsRBphnaV65/ZcdYPNNwsjN/djlf9NqCw9U5ExCPcdhKxUgLSmfROpLp4WSUr8ojdwbncbvCf+a/YzRaEc6QOvXcGO256TXc5Lab9POvB+AWY7PigWYjzhifbovuunzRawsO24ZqQQAqguBtmpmPB7ysXJfyDDaV/aPGillgz1MdQg4u5MYaEtBNNHFjkRlSpd65lp4hd2AVPTfbV7FGpyIOfmNc/XVsPfg7vzaS/3nkvLL593ANLvMuRMGpQIhiF7kUEW9QDpAUbTWYBcbp4WpacHHY1aacqQyjGZS9HI3yCBT9kUZJhVOD+zUDvEH9ddR11fzPcTDQ5TlgB0KwqdXSavk9BC0pKp0WmcuowSw07VXmXC5guzSa4p0UvRw2lbDiYUx0ExJJRzWzi6Gm8cnEkfXXsdcG/M/jAJa0+bmCgdmQ9CYlNlSYZOKixmRsgiFxkrmW4l3KdFKv1DM8tk6WxPYJZhUUzcd8Kdtgrw/gkfXXDT7+avmfVak32qhtkg6NVdUS5wgkru1YzIkSduTW1FDwVWV3JQVJVuieTc0y4iDpFwc7/BvSalvKdQM8sv662cevz/+8sQVnjVAT0W2wLllw1JiMhJRxgDjCjLQsOzSFSgZqx7lAW1JW0e03yAD3asC+GD3NbQhbe+mN5GXH1F83KDOM4n/e5JIuH4NpdQARrFPBVptUNcjj4cVMcFSRTE2NpR1LEYbYMmfWpXgP9KejaPsLUhuvLCsVXznAG9dfx9SR1ud/3hZdCLHb1GMdPqRJgqDmm76mHbvOXDtiO2QPUcKo/TWkQ0i2JFXpBoo7vij1i1Lp3ADAo+qvG3V0rM//vFnnTE4hxd5Ka/Cor5YEdsLVJyKtDgVoHgtW11pWSjolPNMnrlrVj9Fv2Qn60twMwKPqr+N/wvr8z5tZcDsDrv06tkqyzESM85Ycv6XBWA2birlNCXrI6VbD2lx2L0vQO0QVTVVLH4SE67fgsfVXv8n7sz7/85Z7cMtbE6f088wSaR4kCkCm10s6pKbJhfqiUNGLq+0gLWC6eUAZFPnLjwqtKd8EwGvWX59t7iPW4X/eAN1svgRVSY990YZg06BD1ohLMtyFTI4pKTJsS9xREq9EOaPWiO2gpms7397x6nQJkbh+Fz2q/rqRROX6/M8bJrqlVW4l6JEptKeUFuMYUbtCQ7CIttpGc6MY93x1r1vgAnRXvY5cvwWPqb9uWQm+lP95QxdNMeWhOq1x0Db55C7GcUv2ZUuN6n8iKzsvOxibC//Yfs9Na8r2Rlz02vXXDT57FP/zJi66/EJSmsJKa8QxnoqW3VLQ+jZVUtJwJ8PNX1NQCwfNgdhhHD9on7PdRdrdGPF28rJr1F+3LBdeyv+8yYfLoMYet1vX4upNAjVvwOUWnlNXJXlkzk5Il6kqeoiL0C07qno+/CYBXq/+utlnsz7/Mzvy0tmI4zm4ag23PRN3t/CWryoUVJGm+5+K8RJ0V8Hc88/XHUX/HfiAq7t+BH+x6v8t438enWmdJwFA6ZINriLGKv/95f8lT9/FnyA1NMVEvQyaXuu+gz36f/DD73E4pwqpLcvm/o0Vle78n//+L/NPvoefp1pTJye6e4A/D082FERa5/opeH9zpvh13cNm19/4v/LDe5xMWTi8I0Ta0qKlK27AS/v3/r+/x/2GO9K2c7kVMonDpq7//jc5PKCxeNPpFVzaRr01wF8C4Pu76hXuX18H4LduTr79guuFD3n5BHfI+ZRFhY8w29TYhbbLi/bvBdqKE4fUgg1pBKnV3FEaCWOWyA+m3WpORZr/j+9TKJtW8yBTF2/ZEODI9/QavHkVdGFp/Pjn4Q+u5hXapsP5sOH+OXXA1LiKuqJxiMNbhTkbdJTCy4llEt6NnqRT4dhg1V3nbdrm6dYMecA1yTOL4PWTE9L5VzPFlLBCvlG58AhehnN4uHsAYinyJ+AZ/NkVvELbfOBUuOO5syBIEtiqHU1k9XeISX5bsimrkUUhnGDxourN8SgUsCZVtKyGbyGzHXdjOhsAvOAswSRyIBddRdEZWP6GZhNK/yjwew9ehBo+3jEADu7Ay2n8mDc+TS7awUHg0OMzR0LABhqLD4hJEh/BEGyBdGlSJoXYXtr+3HS4ijzVpgi0paWXtdruGTknXBz+11qT1Q2inxaTzQCO46P3lfLpyS4fou2PH/PupwZgCxNhGlj4IvUuWEsTkqMWm6i4xCSMc9N1RDQoCVcuGItJ/MRWefais+3synowi/dESgJjkilnWnBTGvRWmaw8oR15257t7CHmCf8HOn7cwI8+NQBXMBEmAa8PMRemrNCEhLGEhDQKcGZWS319BX9PFBEwGTbRBhLbDcaV3drFcDqk5kCTd2JF1Wp0HraqBx8U0wwBTnbpCadwBA/gTH/CDrcCs93LV8E0YlmmcyQRQnjBa8JESmGUfIjK/7fkaDJpmD2QptFNVJU1bbtIAjjWQizepOKptRjbzR9Kag6xZmMLLjHOtcLT3Tx9o/0EcTT1XN3E45u24AiwEypDJXihKjQxjLprEwcmRKclaDNZCVqr/V8mYWyFADbusiY5hvgFoU2vio49RgJLn5OsReRFN6tabeetiiy0V7KFHT3HyZLx491u95sn4K1QQSPKM9hNT0wMVvAWbzDSVdrKw4zRjZMyJIHkfq1VAVCDl/bUhNKlGq0zGr05+YAceXVPCttVk0oqjVwMPt+BBefx4yPtGVkUsqY3CHDPiCM5ngupUwCdbkpd8kbPrCWHhkmtIKLEetF2499eS1jZlIPGYnlcPXeM2KD9vLS0bW3ktYNqUllpKLn5ZrsxlIzxvDu5eHxzGLctkZLEY4PgSOg2IUVVcUONzUDBEpRaMoXNmUc0tFZrTZquiLyKxrSm3DvIW9Fil+AkhXu5PhEPx9mUNwqypDvZWdKlhIJQY7vn2OsnmBeOWnYZ0m1iwbbw1U60by5om47iHRV6fOgzjMf/DAZrlP40Z7syxpLK0lJ0gqaAK1c2KQKu7tabTXkLFz0sCftuwX++MyNeNn68k5Buq23YQhUh0SNTJa1ioQ0p4nUG2y0XilF1JqODqdImloPS4Bp111DEWT0jJjVv95uX9BBV7eB3bUWcu0acSVM23YZdd8R8UbQUxJ9wdu3oMuhdt929ME+mh6JXJ8di2RxbTi6TbrDquqV4aUKR2iwT6aZbyOwEXN3DUsWr8Hn4EhwNyHuXHh7/pdaUjtR7vnDh/d8c9xD/s5f501eQ1+CuDiCvGhk1AN/4Tf74RfxPwD3toLarR0zNtsnPzmS64KIRk861dMWCU8ArasG9T9H0ZBpsDGnjtAOM2+/LuIb2iIUGXNgl5ZmKD/Tw8TlaAuihaFP5yrw18v4x1898zIdP+DDAX1bM3GAMvPgRP/cJn3zCW013nrhHkrITyvYuwOUkcHuKlRSW5C6rzIdY4ppnF7J8aAJbQepgbJYBjCY9usGXDKQxq7RZfh9eg5d1UHMVATRaD/4BHK93/1iAgYZ/+jqPn8Dn4UExmWrpa3+ZOK6MvM3bjwfzxNWA2dhs8+51XHSPJiaAhGSpWevEs5xHLXcEGFXYiCONySH3fPWq93JIsBiSWvWyc3CAN+EcXoT7rCSANloPPoa31rt/5PUA/gp8Q/jDD3hyrjzlR8VkanfOvB1XPubt17vzxAfdSVbD1pzAnfgyF3ycadOTOTXhpEUoLC1HZyNGW3dtmjeXgr2r56JNmRwdNNWaQVBddd6rh4MhviEB9EFRD/7RGvePvCbwAL4Mx/D6M541hHO4D3e7g6PafdcZVw689z7NGTwo5om7A8sPhccT6qKcl9NJl9aM/9kX+e59Hh1yPqGuCCZxuITcsmNaJ5F7d0q6J3H48TO1/+M57085q2icdu2U+W36Ldllz9Agiv4YGljoEN908EzvDOrBF98/vtJwCC/BF2AG75xxEmjmMIcjxbjoaxqOK3/4hPOZzhMPBpYPG44CM0dTVm1LjLtUWWVz1Bcf8tEx0zs8O2A2YVHRxKYOiy/aOVoAaMu0i7ubu43njjmd4ibMHU1sIDHaQNKrZND/FZYdk54oCXetjq7E7IVl9eAL7t+oHnwXXtLx44czzoRFHBztYVwtH1d+NOMkupZ5MTM+gUmq90X+Bh9zjRlmaQ+m7YMqUL/veemcecAtOJ0yq1JnVlN27di2E0+Klp1tAJ4KRw1eMI7aJjsO3R8kPSI3fUFXnIOfdQe86sIIVtWDL7h//Ok6vj8vwDk08NEcI8zz7OhBy+WwalzZeZ4+0XniRfst9pAJqQHDGLzVQ2pheZnnv1OWhwO43/AgcvAEXEVVpa4db9sGvNK8wjaENHkfFQ4Ci5i7dqnQlPoLQrHXZDvO3BIXZbJOBrOaEbML6sFL798I4FhKihjHMsPjBUZYCMFr6nvaArxqXPn4lCa+cHfSa2cP27g3Z3ziYTRrcbQNGLQmGF3F3cBdzzzX7AILx0IB9rbwn9kx2G1FW3Inic+ZLIsVvKR8Zwfj0l1fkqo8LWY1M3IX14OX3r9RKTIO+d9XzAI8qRPGPn/4NC2n6o4rN8XJ82TOIvuVA8zLKUHRFgBCetlDZlqR1gLKjS39xoE7Bt8UvA6BxuEDjU3tFsEijgA+615tmZkXKqiEENrh41iLDDZNq4pKTWR3LZfnos81LOuNa15cD956vLMsJd1rqYp51gDUQqMYm2XsxnUhD2jg1DM7SeuJxxgrmpfISSXVIJIS5qJJSvJPEQ49DQTVIbYWJ9QWa/E2+c/oPK1drmC7WSfJRNKBO5Yjvcp7Gc3dmmI/Xh1kDTEuiSnWqQf37h+fTMhGnDf6dsS8SQfQWlqqwXXGlc/PEZ/SC5mtzIV0nAshlQdM/LvUtYutrEZ/Y+EAFtq1k28zQhOwLr1AIeANzhF8t9qzTdZf2qRKO6MWE9ohBYwibbOmrFtNmg3mcS+tB28xv2uKd/agYCvOP+GkSc+0lr7RXzyufL7QbkUpjLjEWFLqOIkAGu2B0tNlO9Eau2W1qcOUvVRgKzypKIQZ5KI3q0MLzqTNRYqiZOqmtqloIRlmkBHVpHmRYV6/HixbO6UC47KOFJnoMrVyr7wYz+SlW6GUaghYbY1I6kkxA2W1fSJokUdSh2LQ1GAimRGm0MT+uu57H5l7QgOWxERpO9moLRPgTtquWCfFlGlIjQaRly9odmzMOWY+IBO5tB4sW/0+VWGUh32qYk79EidWKrjWuiLpiVNGFWFRJVktyeXWmbgBBzVl8anPuXyNJlBJOlKLTgAbi/EYHVHxWiDaVR06GnHQNpJcWcK2jJtiCfG2sEHLzuI66sGrMK47nPIInPnu799935aOK2cvmvubrE38ZzZjrELCmXM2hM7UcpXD2oC3+ECVp7xtIuxptJ0jUr3sBmBS47TVxlvJ1Sqb/E0uLdvLj0lLr29ypdd/eMX3f6lrxGlKwKQxEGvw0qHbkbwrF3uHKwVENbIV2wZ13kNEF6zD+x24aLNMfDTCbDPnEikZFyTNttxWBXDaBuM8KtI2rmaMdUY7cXcUPstqTGvBGSrFWIpNMfbdea990bvAOC1YX0qbc6smDS1mPxSJoW4fwEXvjMmhlijDRq6qale6aJEuFGoppYDoBELQzLBuh/mZNx7jkinv0EtnUp50lO9hbNK57lZaMAWuWR5Yo9/kYwcYI0t4gWM47Umnl3YmpeBPqSyNp3K7s2DSAS/39KRuEN2bS4xvowV3dFRMx/VFcp2Yp8w2nTO9hCXtHG1kF1L4KlrJr2wKfyq77R7MKpFKzWlY9UkhYxyHWW6nBWPaudvEAl3CGcNpSXPZ6R9BbBtIl6cHL3gIBi+42CYXqCx1gfGWe7Ap0h3luyXdt1MKy4YUT9xSF01G16YEdWsouW9mgDHd3veyA97H+Ya47ZmEbqMY72oPztCGvK0onL44AvgC49saZKkWRz4veWljE1FHjbRJaWv6ZKKtl875h4CziFCZhG5rx7tefsl0aRT1bMHZjm8dwL/6u7wCRysaQblQoG5yAQN5zpatMNY/+yf8z+GLcH/Qn0iX2W2oEfXP4GvwQHuIL9AYGnaO3zqAX6946nkgqZNnUhx43DIdQtMFeOPrgy/y3Yd85HlJWwjLFkU3kFwq28xPnuPhMWeS+tDLV9Otllq7pQCf3uXJDN9wFDiUTgefHaiYbdfi3b3u8+iY6TnzhgehI1LTe8lcd7s1wJSzKbahCRxKKztTLXstGAiu3a6rPuQs5pk9TWAan5f0BZmGf7Ylxzzk/A7PAs4QPPPAHeFQ2hbFHszlgZuKZsJcUmbDC40sEU403cEjczstOEypa+YxevL4QBC8oRYqWdK6b7sK25tfE+oDZgtOQ2Jg8T41HGcBE6fTWHn4JtHcu9S7uYgU5KSCkl/mcnq+5/YBXOEr6lCUCwOTOM1taOI8mSxx1NsCXBEmLKbMAg5MkwbLmpBaFOPrNSlO2HnLiEqW3tHEwd8AeiQLmn+2gxjC3k6AxREqvKcJbTEzlpLiw4rNZK6oJdidbMMGX9FULKr0AkW+2qDEPBNNm5QAt2Ik2nftNWHetubosHLo2nG4vQA7GkcVCgVCgaDixHqo9UUn1A6OshapaNR/LPRYFV8siT1cCtJE0k/3WtaNSuUZYKPnsVIW0xXWnMUxq5+En4Kvw/MqQmVXnAXj9Z+9zM98zM/Agy7F/qqj2Nh67b8HjFnPP3iBn/tkpdzwEJX/whIcQUXOaikeliCRGUk7tiwF0rItwMEhjkZ309hikFoRAmLTpEXWuHS6y+am/KB/fM50aLEhGnSMwkpxzOov4H0AvgovwJ1iGzDLtJn/9BU+fAINfwUe6FHSLhu83viV/+/HrOePX+STT2B9uWGbrMHHLldRBlhS/CJQmcRxJFqZica01XixAZsYiH1uolZxLrR/SgxVIJjkpQP4PE9sE59LKLr7kltSBogS5tyszzH8Fvw8/AS8rNOg0xUS9fIaHwb+6et8Q/gyvKRjf5OusOzGx8evA/BP4IP11uN/grca5O0lcsPLJ5YjwI4QkJBOHa0WdMZYGxPbh2W2nR9v3WxEWqgp/G3+6VZbRLSAAZ3BhdhAaUL33VUSw9yjEsvbaQ9u4A/gGXwZXoEHOuU1GSj2chf+Mo+f8IcfcAxfIKVmyunRbYQVnoevwgfw3TXXcw++xNuP4fhyueEUNttEduRVaDttddoP0eSxLe2LENk6itYxlrxBNBYrNNKSQmeaLcm9c8UsaB5WyO6675yyQIAWSDpBVoA/gxmcwEvwoDv0m58UE7gHn+fJOa8/Ywan8EKRfjsopF83eCglX/Sfr7OeaRoQfvt1CGvIDccH5BCvw1sWIzRGC/66t0VTcLZQZtm6PlAasbOJ9iwWtUo7biktTSIPxnR24jxP1ZKaqq+2RcXM9OrBAm/AAs7hDJ5bNmGb+KIfwCs8a3jnjBrOFeMjHSCdbKr+2uOLfnOd9eiA8Hvvwwq54VbP2OqwkB48Ytc4YEOiH2vTXqodabfWEOzso4qxdbqD5L6tbtNPECqbhnA708DZH4QOJUXqScmUlks7Ot6FBuZw3n2mEbaUX7kDzxHOOQk8nKWMzAzu6ZZ8sOFw4RK+6PcuXo9tB4SbMz58ApfKDXf3szjNIIbGpD5TKTRxGkEMLjLl+K3wlWXBsCUxIDU+jbOiysESqAy1MGUJpXgwbTWzNOVEziIXZrJ+VIztl1PUBxTSo0dwn2bOmfDRPD3TRTGlfbCJvO9KvuhL1hMHhB9wPuPRLGHcdOWG2xc0U+5bQtAJT0nRTewXL1pgk2+rZAdeWmz3jxAqfNQQdzTlbF8uJ5ecEIWvTkevAHpwz7w78QujlD/Lr491bD8/1vhM2yrUQRrWXNQY4fGilfctMWYjL72UL/qS9eiA8EmN88nbNdour+PBbbAjOjIa4iBhfFg6rxeKdEGcL6p3EWR1Qq2Qkhs2DrnkRnmN9tG2EAqmgPw6hoL7Oza7B+3SCrR9tRftko+Lsf2F/mkTndN2LmzuMcKTuj/mX2+4Va3ki16+nnJY+S7MefpkidxwnV+4wkXH8TKnX0tsYzYp29DOOoSW1nf7nTh2akYiWmcJOuTidSaqESrTYpwjJJNVGQr+rLI7WsqerHW6Kp/oM2pKuV7T1QY9gjqlZp41/WfKpl56FV/0kvXQFRyeQ83xaTu5E8p5dNP3dUF34ihyI3GSpeCsywSh22ZJdWto9winhqifb7VRvgktxp13vyjrS0EjvrRfZ62uyqddSWaWYlwTPAtJZ2oZ3j/Sgi/mi+6vpzesfAcWNA0n8xVyw90GVFGuZjTXEQy+6GfLGLMLL523f5E0OmxVjDoOuRiH91RKU+vtoCtH7TgmvBLvtFXWLW15H9GTdVw8ow4IlRLeHECN9ym1e9K0I+Cbnhgv4Yu+aD2HaQJ80XDqOzSGAV4+4yCqBxrsJAX6ZTIoX36QnvzhhzzMfFW2dZVLOJfo0zbce5OvwXMFaZ81mOnlTVXpDZsQNuoYWveketKb5+6JOOsgX+NTm7H49fUTlx+WLuWL7qxnOFh4BxpmJx0p2gDzA/BUARuS6phR+pUsY7MMboAHx5xNsSVfVZcYSwqCKrqon7zM+8ecCkeS4nm3rINuaWvVNnMRI1IRpxTqx8PZUZ0Br/UEduo3B3hNvmgZfs9gQPj8vIOxd2kndir3awvJ6BLvoUuOfFWNYB0LR1OQJoUySKb9IlOBx74q1+ADC2G6rOdmFdJcD8BkfualA+BdjOOzP9uUhGUEX/TwhZsUduwRr8wNuXKurCixLBgpQI0mDbJr9dIqUuV+92ngkJZ7xduCk2yZKbfWrH1VBiTg9VdzsgRjW3CVXCvAwDd+c1z9dWw9+B+8MJL/eY15ZQ/HqvTwVdsZn5WQsgRRnMaWaecu3jFvMBEmgg+FJFZsnSl0zjB9OqPYaBD7qmoVyImFvzi41usesV0julaAR9dfR15Xzv9sEruRDyk1nb+QaLU67T885GTls6YgcY+UiMa25M/pwGrbCfzkvR3e0jjtuaFtnwuagHTSb5y7boBH119HXhvwP487jJLsLJ4XnUkHX5sLbS61dpiAXRoZSCrFJ+EjpeU3puVfitngYNo6PJrAigKktmwjyQdZpfq30mmtulaAx9Zfx15Xzv+cyeuiBFUs9zq8Kq+XB9a4PVvph3GV4E3y8HENJrN55H1X2p8VyqSKwVusJDKzXOZzplWdzBUFK9e+B4+uv468xvI/b5xtSAkBHQaPvtqWzllVvEOxPbuiE6+j2pvjcKsbvI7txnRErgfH7LdXqjq0IokKzga14GzQ23SSbCQvO6r+Or7SMIr/efOkkqSdMnj9mBx2DRsiY29Uj6+qK9ZrssCKaptR6HKURdwUYeUWA2kPzVKQO8ku2nU3Anhs/XWkBx3F/7wJtCTTTIKftthue1ty9xvNYLY/zo5KSbIuKbXpbEdSyeRyYdAIwKY2neyoc3+k1XUaufYga3T9daMUx/r8z1s10ITknIO0kuoMt+TB8jK0lpayqqjsJ2qtXAYwBU932zinimgmd6mTRDnQfr88q36NAI+tv24E8Pr8zxtasBqx0+xHH9HhlrwsxxNUfKOHQaZBITNf0uccj8GXiVmXAuPEAKSdN/4GLHhs/XWj92dN/uetNuBMnVR+XWDc25JLjo5Mg5IZIq226tmCsip2zZliL213YrTlL2hcFjpCduyim3M7/eB16q/blQsv5X/esDRbtJeabLIosWy3ycavwLhtxdWzbMmHiBTiVjJo6lCLjXZsi7p9PEPnsq6X6wd4bP11i0rD5fzPm/0A6brrIsllenZs0lCJlU4abakR59enZKrKe3BZihbTxlyZ2zl1+g0wvgmA166/bhwDrcn/7Ddz0eWZuJvfSESug6NzZsox3Z04FIxz0mUjMwVOOVTq1CQ0AhdbBGVdjG/CgsfUX7esJl3K/7ytWHRv683praW/8iDOCqWLLhpljDY1ZpzK75QiaZoOTpLKl60auHS/97oBXrv+umU9+FL+5+NtLFgjqVLCdbmj7pY5zPCPLOHNCwXGOcLquOhi8CmCWvbcuO73XmMUPab+ug3A6/A/78Bwe0bcS2+tgHn4J5pyS2WbOck0F51Vq3LcjhLvZ67p1ABbaL2H67bg78BfjKi/jr3+T/ABV3ilLmNXTI2SpvxWBtt6/Z//D0z/FXaGbSBgylzlsEGp+5//xrd4/ae4d8DUUjlslfIYS3t06HZpvfQtvv0N7AHWqtjP2pW08QD/FLy//da38vo8PNlKHf5y37Dxdfe/oj4kVIgFq3koLReSR76W/bx//n9k8jonZxzWTANVwEniDsg87sOSd/z7//PvMp3jQiptGVWFX2caezzAXwfgtzYUvbr0iozs32c3Uge7varH+CNE6cvEYmzbPZ9hMaYDdjK4V2iecf6EcEbdUDVUARda2KzO/JtCuDbNQB/iTeL0EG1JSO1jbXS+nLxtPMDPw1fh5+EPrgSEKE/8Gry5A73ui87AmxwdatyMEBCPNOCSKUeRZ2P6Myb5MRvgCHmA9ywsMifU+AYXcB6Xa5GibUC5TSyerxyh0j6QgLVpdyhfArRTTLqQjwe4HOD9s92D4Ap54odXAPBWLAwB02igG5Kkc+piN4lvODIFGAZgT+EO4Si1s7fjSR7vcQETUkRm9O+MXyo9OYhfe4xt9STQ2pcZRLayCV90b4D3jR0DYAfyxJ+eywg2IL7NTMXna7S/RpQ63JhWEM8U41ZyQGjwsVS0QBrEKLu8xwZsbi4wLcCT+OGidPIOCe1PiSc9Qt+go+vYqB7cG+B9d8cAD+WJPz0Am2gxXgU9IneOqDpAAXOsOltVuMzpdakJXrdPCzXiNVUpCeOos5cxnpQT39G+XVLhs1osQVvJKPZyNq8HDwd4d7pNDuWJPxVX7MSzqUDU6gfadKiNlUFTzLeFHHDlzO4kpa7aiKhBPGKwOqxsBAmYkOIpipyXcQSPlRTf+Tii0U3EJGaZsDER2qoB3h2hu0qe+NNwUooYU8y5mILbJe6OuX+2FTKy7bieTDAemaQyQ0CPthljSWO+xmFDIYiESjM5xKd6Ik5lvLq5GrQ3aCMLvmCA9wowLuWJb9xF59hVVP6O0CrBi3ZjZSNOvRy+I6klNVRJYRBaEzdN+imiUXQ8iVF8fsp+W4JXw7WISW7fDh7lptWkCwZ4d7QTXyBPfJMYK7SijjFppGnlIVJBJBYj7eUwtiP1IBXGI1XCsjNpbjENVpSAJ2hq2LTywEly3hUYazt31J8w2+aiLx3g3fohXixPfOMYm6zCGs9LVo9MoW3MCJE7R5u/WsOIjrqBoHUO0bJE9vxBpbhsd3+Nb4/vtPCZ4oZYCitNeYuC/8UDvDvy0qvkiW/cgqNqRyzqSZa/s0mqNGjtKOoTm14zZpUauiQgVfqtQiZjq7Q27JNaSK5ExRcrGCXO1FJYh6jR6CFqK7bZdQZ4t8g0rSlPfP1RdBtqaa9diqtzJkQ9duSryi2brQXbxDwbRUpFMBHjRj8+Nt7GDKgvph9okW7LX47gu0SpGnnFQ1S1lYldOsC7hYteR574ZuKs7Ei1lBsfdz7IZoxzzCVmmVqaSySzQbBVAWDek+N4jh9E/4VqZrJjPwiv9BC1XcvOWgO8275CVyBPvAtTVlDJfZkaZGU7NpqBogAj/xEHkeAuJihWYCxGN6e8+9JtSegFXF1TrhhLGP1fak3pebgPz192/8gB4d/6WT7+GdYnpH7hH/DJzzFiYPn/vjW0SgNpTNuPIZoAEZv8tlGw4+RLxy+ZjnKa5NdFoC7UaW0aduoYse6+bXg1DLg6UfRYwmhGEjqPvF75U558SANrElK/+MdpXvmqBpaXOa/MTZaa1DOcSiLaw9j0NNNst3c+63c7EKTpkvKHzu6bPbP0RkuHAVcbRY8ijP46MIbQeeT1mhA+5PV/inyDdQipf8LTvMXbwvoDy7IruDNVZKTfV4CTSRUYdybUCnGU7KUTDxLgCknqUm5aAW6/1p6eMsOYsphLzsHrE0Y/P5bQedx1F/4yPHnMB3/IOoTU9+BL8PhtjuFKBpZXnYNJxTuv+2XqolKR2UQgHhS5novuxVySJhBNRF3SoKK1XZbbXjVwWNyOjlqWJjrWJIy+P5bQedyldNScP+HZ61xKSK3jyrz+NiHG1hcOLL/+P+PDF2gOkekKGiNWKgJ+8Z/x8Iv4DdQHzcpZyF4v19I27w9/yPGDFQvmEpKtqv/TLiWMfn4sofMm9eAH8Ao0zzh7h4sJqYtxZd5/D7hkYPneDzl5idlzNHcIB0jVlQ+8ULzw/nc5/ojzl2juE0apD7LRnJxe04dMz2iOCFNtGFpTuXA5AhcTRo8mdN4kz30nVjEC4YTZQy4gpC7GlTlrePKhGsKKgeXpCYeO0MAd/GH7yKQUlXPLOasOH3FnSphjHuDvEu4gB8g66oNbtr6eMbFIA4fIBJkgayoXriw2XEDQPJrQeROAlY6aeYOcMf+IVYTU3XFlZufMHinGywaW3YLpObVBAsbjF4QJMsVUSayjk4voPsHJOQfPWDhCgDnmDl6XIRerD24HsGtw86RMHOLvVSHrKBdeVE26gKB5NKHzaIwLOmrqBWJYZDLhASG16c0Tn+CdRhWDgWXnqRZUTnPIHuMJTfLVpkoYy5CzylHVTGZMTwkGAo2HBlkQplrJX6U+uF1wZz2uwS1SQ12IqWaPuO4baZaEFBdukksJmkcTOm+YJSvoqPFzxFA/YUhIvWxcmSdPWTWwbAKVp6rxTtPFUZfKIwpzm4IoMfaYQLWgmlG5FME2gdBgm+J7J+rtS/XBbaVLsR7bpPQnpMFlo2doWaVceHk9+MkyguZNCJ1He+kuHTWyQAzNM5YSUg/GlTk9ZunAsg1qELVOhUSAK0LABIJHLKbqaEbHZLL1VA3VgqoiOKXYiS+HRyaEKgsfIqX64HYWbLRXy/qWoylIV9gudL1OWBNgBgTNmxA6b4txDT4gi3Ri7xFSLxtXpmmYnzAcWDZgY8d503LFogz5sbonDgkKcxGsWsE1OI+rcQtlgBBCSOKD1mtqYpIU8cTvBmAT0yZe+zUzeY92fYjTtGipXLhuR0ePoHk0ofNWBX+lo8Z7pAZDk8mEw5L7dVyZZoE/pTewbI6SNbiAL5xeygW4xPRuLCGbhcO4RIeTMFYHEJkYyEO9HmJfXMDEj/LaH781wHHZEtqSQ/69UnGpzH7LKIAZEDSPJnTesJTUa+rwTepI9dLJEawYV+ZkRn9g+QirD8vF8Mq0jFQ29js6kCS3E1+jZIhgPNanHdHFqFvPJLHqFwQqbIA4jhDxcNsOCCQLDomaL/dr5lyJaJU6FxPFjO3JOh3kVMcROo8u+C+jo05GjMF3P3/FuDLn5x2M04xXULPwaS6hBYki+MrMdZJSgPHlcB7nCR5bJ9Kr5ACUn9jk5kivdd8tk95SOGrtqu9lr2IhK65ZtEl7ZKrp7DrqwZfRUSN1el7+7NJxZbywOC8neNKTch5vsTEMNsoCCqHBCqIPRjIPkm0BjvFODGtto99rCl+d3wmHkW0FPdpZtC7MMcVtGFQjJLX5bdQ2+x9ypdc313uj8xlsrfuLgWXz1cRhZvJYX0iNVBRcVcmCXZs6aEf3RQF2WI/TcCbKmGU3IOoDJGDdDub0+hYckt6PlGu2BcxmhbTdj/klhccLGJMcqRjMJP1jW2ETqLSWJ/29MAoORluJ+6LPffBZbi5gqi5h6catQpmOT7/OFf5UorRpLzCqcMltBLhwd1are3kztrSzXO0LUbXRQcdLh/RdSZ+swRm819REDrtqzC4es6Gw4JCKlSnjYVpo0xeq33PrADbFLL3RuCmObVmPN+24kfa+AojDuM4umKe2QwCf6EN906HwjujaitDs5o0s1y+k3lgbT2W2i7FJdnwbLXhJUBq/9liTctSmFC/0OqUinb0QddTWamtjbHRFuWJJ6NpqZ8vO3fZJ37Db+2GkaPYLGHs7XTTdiFQJ68SkVJFVmY6McR5UycflNCsccHFaV9FNbR4NttLxw4pQ7wJd066Z0ohVbzihaxHVExd/ay04oxUKWt+AsdiQ9OUyZ2krzN19IZIwafSTFgIBnMV73ADj7V/K8u1MaY2sJp2HWm0f41tqwajEvdHWOJs510MaAqN4aoSiPCXtN2KSi46dUxHdaMquar82O1x5jqhDGvqmoE9LfxcY3zqA7/x3HA67r9ZG4O6Cuxu12/+TP+eLP+I+HErqDDCDVmBDO4larujNe7x8om2rMug0MX0rL1+IWwdwfR+p1TNTyNmVJ85ljWzbWuGv8/C7HD/izjkHNZNYlhZcUOKVzKFUxsxxN/kax+8zPWPSFKw80rJr9Tizyj3o1gEsdwgWGoxPezDdZ1TSENE1dLdNvuKL+I84nxKesZgxXVA1VA1OcL49dFlpFV5yJMhzyCmNQ+a4BqusPJ2bB+xo8V9u3x48VVIEPS/mc3DvAbXyoYr6VgDfh5do5hhHOCXMqBZUPhWYbWZECwVJljLgMUWOCB4MUuMaxGNUQDVI50TQ+S3kFgIcu2qKkNSHVoM0SHsgoZxP2d5HH8B9woOk4x5bPkKtAHucZsdykjxuIpbUrSILgrT8G7G5oCW+K0990o7E3T6AdW4TilH5kDjds+H64kS0mz24grtwlzDHBJqI8YJQExotPvoC4JBq0lEjjQkyBZ8oH2LnRsQ4Hu1QsgDTJbO8fQDnllitkxuVskoiKbRF9VwzMDvxHAdwB7mD9yCplhHFEyUWHx3WtwCbSMMTCUCcEmSGlg4gTXkHpZXWQ7kpznK3EmCHiXInqndkQjunG5kxTKEeGye7jWz9cyMR2mGiFQ15ENRBTbCp+Gh86vAyASdgmJq2MC6hoADQ3GosP0QHbnMHjyBQvQqfhy/BUbeHd5WY/G/9LK/8Ka8Jd7UFeNWEZvzPb458Dn8DGLOe3/wGL/4xP+HXlRt+M1PE2iLhR8t+lfgxsuh7AfO2AOf+owWhSZRYQbd622hbpKWKuU+XuvNzP0OseRDa+mObgDHJUSc/pKx31QdKffQ5OIJpt8GWjlgTwMc/w5MPCR/yl1XC2a2Yut54SvOtMev55Of45BOat9aWG27p2ZVORRvnEk1hqWMVUmqa7S2YtvlIpspuF1pt0syuZS2NV14mUidCSfzQzg+KqvIYCMljIx2YK2AO34fX4GWdu5xcIAb8MzTw+j/lyWM+Dw/gjs4GD6ehNgA48kX/AI7XXM/XAN4WHr+9ntywqoCakCqmKP0rmQrJJEErG2Upg1JObr01lKQy4jskWalKYfJ/EDLMpjNSHFEUAde2fltaDgmrNaWQ9+AAb8I5vKjz3L1n1LriB/BXkG/wwR9y/oRX4LlioHA4LzP2inzRx/DWmutRweFjeP3tNeSGlaE1Fde0OS11yOpmbIp2u/jF1n2RRZviJM0yBT3IZl2HWImKjQOxIyeU325b/qWyU9Moj1o07tS0G7qJDoGHg5m8yeCxMoEH8GU45tnrNM84D2l297DQ9t1YP7jki/7RmutRweEA77/HWXOh3HCxkRgldDQkAjNTMl2Iloc1qN5JfJeeTlyTRzxURTdn1Ixv2uKjs12AbdEWlBtmVdk2k7FFwj07PCZ9XAwW3dG+8xKzNFr4EnwBZpy9Qzhh3jDXebBpYcpuo4fQ44u+fD1dweEnHzI7v0xuuOALRUV8rXpFyfSTQYkhd7IHm07jpyhlkCmI0ALYqPTpUxXS+z4jgDj1Pflvmz5ecuItpIBxyTHpSTGWd9g1ApfD/bvwUhL4nT1EzqgX7cxfCcNmb3mPL/qi9SwTHJ49oj5ZLjccbTG3pRmlYi6JCG0mQrAt1+i2UXTZ2dv9IlQpN5naMYtviaXlTrFpoMsl3bOAFEa8sqPj2WCMrx3Yjx99qFwO59Aw/wgx+HlqNz8oZvA3exRDvuhL1jMQHPaOJ0+XyA3fp1OfM3qObEVdhxjvynxNMXQV4+GJyvOEFqeQBaIbbO7i63rpxCltdZShPFxkjM2FPVkn3TG+Rp9pO3l2RzFegGfxGDHIAh8SteR0C4HopXzRF61nheDw6TFN05Ebvq8M3VKKpGjjO6r7nhudTEGMtYM92HTDaR1FDMXJ1eThsbKfywyoWwrzRSXkc51flG3vIid62h29bIcFbTGhfV+faaB+ohj7dPN0C2e2lC96+XouFByen9AsunLDJZ9z7NExiUc0OuoYW6UZkIyx2YUR2z6/TiRjyKMx5GbbjLHvHuf7YmtKghf34LJfx63Yg8vrvN2zC7lY0x0tvKezo4HmGYDU+Gab6dFL+KI761lDcNifcjLrrr9LWZJctG1FfU1uwhoQE22ObjdfkSzY63CbU5hzs21WeTddH2BaL11Gi7lVdlxP1nkxqhnKhVY6knS3EPgVGg1JpN5cP/hivujOelhXcPj8HC/LyI6MkteVjlolBdMmF3a3DbsuAYhL44dxzthWSN065xxUd55Lmf0wRbOYOqH09/o9WbO2VtFdaMb4qBgtFJoT1SqoN8wPXMoXLb3p1PUEhxfnnLzGzBI0Ku7FxrKsNJj/8bn/H8fPIVOd3rfrklUB/DOeO+nkghgSPzrlPxluCMtOnDL4Yml6dK1r3vsgMxgtPOrMFUZbEUbTdIzii5beq72G4PD0DKnwjmBULUVFmy8t+k7fZ3pKc0Q4UC6jpVRqS9Umv8bxw35flZVOU1X7qkjnhZlsMbk24qQ6Hz7QcuL6sDC0iHHki96Uh2UdvmgZnjIvExy2TeJdMDZNSbdZyAHe/Yd1xsQhHiKzjh7GxQ4yqMPaywPkjMamvqrYpmO7Knad+ZQC5msCuAPWUoxrxVhrGv7a+KLXFhyONdTMrZ7ke23qiO40ZJUyzgYyX5XyL0mV7NiUzEs9mjtbMN0dERqwyAJpigad0B3/zRV7s4PIfXSu6YV/MK7+OrYe/JvfGMn/PHJe2fyUdtnFrKRNpXV0Y2559aWPt/G4BlvjTMtXlVIWCnNyA3YQBDmYIodFz41PvXPSa6rq9lWZawZ4dP115HXV/M/tnFkkrBOdzg6aP4pID+MZnTJ1SuuB6iZlyiox4HT2y3YBtkUKWooacBQUDTpjwaDt5poBHl1/HXltwP887lKKXxNUEyPqpGTyA699UqY/lt9yGdlUKra0fFWS+36iylVWrAyd7Uw0CZM0z7xKTOduznLIjG2Hx8cDPLb+OvK6Bv7n1DYci4CxUuRxrjBc0bb4vD3rN5Zz36ntLb83eVJIB8LiIzCmn6SMPjlX+yNlTjvIGjs+QzHPf60Aj62/jrzG8j9vYMFtm1VoRWCJdmw7z9N0t+c8cxZpPeK4aTRicS25QhrVtUp7U578chk4q04Wx4YoQSjFryUlpcQ1AbxZ/XVMknIU//OGl7Q6z9Zpxi0+3yFhSkjUDpnCIUhLWVX23KQ+L9vKvFKI0ZWFQgkDLvBoylrHNVmaw10zwCPrr5tlodfnf94EWnQ0lFRWy8pW9LbkLsyUVDc2NSTHGDtnD1uMtchjbCeb1mpxFP0YbcClhzdLu6lfO8Bj6q+bdT2sz/+8SZCV7VIxtt0DUn9L7r4cLYWDSXnseEpOGFuty0qbOVlS7NNzs5FOGJUqQpl2Q64/yBpZf90sxbE+//PGdZ02HSipCbmD6NItmQ4Lk5XUrGpDMkhbMm2ZVheNYV+VbUWTcv99+2NyX1VoafSuC+AN6q9bFIMv5X/eagNWXZxEa9JjlMwNWb00akGUkSoepp1/yRuuqHGbUn3UdBSTxBU6SEVklzWRUkPndVvw2PrrpjvxOvzPmwHc0hpmq82npi7GRro8dXp0KXnUQmhZbRL7NEVp1uuZmO45vuzKsHrktS3GLWXODVjw+vXXLYx4Hf7njRPd0i3aoAGX6W29GnaV5YdyDj9TFkakje7GHYzDoObfddHtOSpoi2SmzJHrB3hM/XUDDEbxP2/oosszcRlehWXUvzHv4TpBVktHqwenFo8uLVmy4DKLa5d3RtLrmrM3aMFr1183E4sewf+85VWeg1c5ag276NZrM9IJVNcmLEvDNaV62aq+14IAOGFsBt973Ra8Xv11YzXwNfmft7Jg2oS+XOyoC8/cwzi66Dhmgk38kUmP1CUiYWOX1bpD2zWXt2FCp7uq8703APAa9dfNdscR/M/bZLIyouVxqJfeWvG9Je+JVckHQ9+CI9NWxz+blX/KYYvO5n2tAP/vrlZ7+8/h9y+9qeB/Hnt967e5mevX10rALDWK//FaAT5MXdBXdP0C/BAes792c40H+AiAp1e1oH8HgH94g/Lttx1gp63op1eyoM/Bvw5/G/7xFbqJPcCXnmBiwDPb/YKO4FX4OjyCb289db2/Noqicw4i7N6TVtoz8tNwDH+8x/i6Ae7lmaQVENzJFb3Di/BFeAwz+Is9SjeQySpPqbLFlNmyz47z5a/AF+AYFvDmHqibSXTEzoT4Gc3OALaqAP4KPFUJ6n+1x+rGAM6Zd78bgJ0a8QN4GU614vxwD9e1Amy6CcskNrczLx1JIp6HE5UZD/DBHrFr2oNlgG4Odv226BodoryjGJ9q2T/AR3vQrsOCS0ctXZi3ruLlhpFDJYl4HmYtjQCP9rhdn4suySLKDt6wLcC52h8xPlcjju1fn+yhuw4LZsAGUuo2b4Fx2UwQu77uqRHXGtg92aN3tQCbFexc0uk93vhTXbct6y7MulLycoUljx8ngDMBg1tvJjAazpEmOtxlzclvj1vQf1Tx7QlPDpGpqgtdSKz/d9/hdy1vTfFHSmC9dGDZbLiezz7Ac801HirGZsWjydfZyPvHXL/Y8Mjzg8BxTZiuwKz4Eb8sBE9zznszmjvFwHKPIWUnwhqfVRcd4Ck0K6ate48m1oOfrX3/yOtvAsJ8zsPAM89sjnddmuLuDPjX9Bu/L7x7xpMzFk6nWtyQfPg278Gn4Aekz2ZgOmU9eJ37R14vwE/BL8G3aibCiWMWWDQ0ZtkPMnlcGeAu/Ag+8ZyecU5BPuy2ILD+sQqyZhAKmn7XZd+jIMTN9eBL7x95xVLSX4On8EcNlXDqmBlqS13jG4LpmGbkF/0CnOi3H8ETOIXzmnmtb0a16Tzxj1sUvQCBiXZGDtmB3KAefPH94xcUa/6vwRn80GOFyjEXFpba4A1e8KQfFF+259tx5XS4egYn8fQsLGrqGrHbztr+uByTahWuL1NUGbDpsnrwBfePPwHHIf9X4RnM4Z2ABWdxUBlqQ2PwhuDxoS0vvqB1JzS0P4h2nA/QgTrsJFn+Y3AOjs9JFC07CGWX1oNX3T/yHOzgDjwPn1PM3g9Jk9lZrMEpxnlPmBbjyo2+KFXRU52TJM/2ALcY57RUzjObbjqxVw++4P6RAOf58pcVsw9Daje3htriYrpDOonre3CudSe6bfkTEgHBHuDiyu5MCsc7BHhYDx7ePxLjqigXZsw+ijMHFhuwBmtoTPtOxOrTvYJDnC75dnUbhfwu/ZW9AgYd+peL68HD+0emKquiXHhWjJg/UrkJYzuiaL3E9aI/ytrCvAd4GcYZMCkSQxfUg3v3j8c4e90j5ZTPdvmJJGHnOCI2nHS8081X013pHuBlV1gB2MX1YNmWLHqqGN/TWmG0y6clJWthxNUl48q38Bi8vtMKyzzpFdSDhxZ5WBA5ZLt8Jv3895DduBlgbPYAj8C4B8hO68FDkoh5lydC4FiWvBOVqjYdqjiLv92t8yPDjrDaiHdUD15qkSURSGmXJwOMSxWAXYwr3zaAufJ66l+94vv3AO+vPcD7aw/w/toDvL/2AO+vPcD7aw/wHuD9tQd4f+0B3l97gPfXHuD9tQd4f+0B3l97gG8LwP8G/AL8O/A5OCq0Ys2KIdv/qOIXG/4mvFAMF16gZD+2Xvu/B8as5+8bfllWyg0zaNO5bfXj6vfhhwD86/Aq3NfRS9t9WPnhfnvCIw/CT8GLcFTMnpntdF/z9V+PWc/vWoIH+FL3Znv57PitcdGP4R/C34avw5fgRVUInCwbsn1yyA8C8zm/BH8NXoXnVE6wVPjdeCI38kX/3+Ct9dbz1pTmHFRu+Hm4O9Ch3clr99negxfwj+ER/DR8EV6B5+DuQOnTgUw5rnkY+FbNU3gNXh0o/JYTuWOvyBf9FvzX663HH/HejO8LwAl8Hl5YLTd8q7sqA3wbjuExfAFegQdwfyDoSkWY8swzEf6o4Qyewefg+cHNbqMQruSL/u/WWc+E5g7vnnEXgDmcDeSGb/F4cBcCgT+GGRzDU3hZYburAt9TEtHgbM6JoxJ+6NMzzTcf6c2bycv2+KK/f+l6LBzw5IwfqZJhA3M472pWT/ajKxnjv4AFnMEpnBTPND6s2J7qHbPAqcMK74T2mZ4VGB9uJA465It+/eL1WKhYOD7xHOkr1ajK7d0C4+ke4Hy9qXZwpgLr+Znm/uNFw8xQOSy8H9IzjUrd9+BIfenYaylf9FsXr8fBAadnPIEDna8IBcwlxnuA0/Wv6GAWPd7dDIKjMdSWueAsBj4M7TOd06qBbwDwKr7oleuxMOEcTuEZTHWvDYUO7aHqAe0Bbq+HEFRzOz7WVoTDQkVds7A4sIIxfCQdCefFRoIOF/NFL1mPab/nvOakSL/Q1aFtNpUb/nFOVX6gzyg/1nISyDfUhsokIzaBR9Kxm80s5mK+6P56il1jXic7nhQxsxSm3OwBHl4fFdLqi64nDQZvqE2at7cWAp/IVvrN6/BFL1mPhYrGMBfOi4PyjuSGf6wBBh7p/FZTghCNWGgMzlBbrNJoPJX2mW5mwZfyRffXo7OFi5pZcS4qZUrlViptrXtw+GQoyhDPS+ANjcGBNRiLCQDPZPMHuiZfdFpPSTcQwwKYdRNqpkjm7AFeeT0pJzALgo7g8YYGrMHS0iocy+YTm2vyRUvvpXCIpQ5pe666TJrcygnScUf/p0NDs/iAI/nqDHC8TmQT8x3NF91l76oDdQGwu61Z6E0ABv7uO1dbf/37Zlv+Zw/Pbh8f1s4Avur6657/+YYBvur6657/+YYBvur6657/+YYBvur6657/+aYBvuL6657/+VMA8FXWX/f8zzcN8BXXX/f8zzcNMFdbf93zP38KLPiK6697/uebtuArrr/u+Z9vGmCusP6653/+1FjwVdZf9/zPN7oHX339dc//fNMu+irrr3v+50+Bi+Zq6697/uebA/jz8Pudf9ht/fWv517J/XUzAP8C/BAeX9WCDrUpZ3/dEMBxgPcfbtTVvsYV5Yn32u03B3Ac4P3b8I+vxNBKeeL9dRMAlwO83959qGO78sT769oB7g3w/vGVYFzKE++v6wV4OMD7F7tckFkmT7y/rhHgpQO8b+4Y46XyxPvrugBeNcB7BRiX8sT767oAvmCA9woAHsoT76+rBJjLBnh3txOvkifeX1dswZcO8G6N7sXyxPvr6i340gHe3TnqVfLE++uKAb50gHcXLnrX8sR7gNdPRqwzwLu7Y/FO5Yn3AK9jXCMGeHdgxDuVJ75VAI8ljP7PAb3/RfjcZfePHBB+79dpfpH1CanN30d+mT1h9GqAxxJGM5LQeeQ1+Tb+EQJrElLb38VHQ94TRq900aMIo8cSOo+8Dp8QfsB8zpqE1NO3OI9Zrj1h9EV78PqE0WMJnUdeU6E+Jjyk/hbrEFIfeWbvId8H9oTRFwdZaxJGvziW0Hn0gqYB/wyZ0PwRlxJST+BOw9m77Amj14ii1yGM/txYQudN0qDzGe4EqfA/5GJCagsHcPaEPWH0esekSwmjRxM6b5JEcZ4ww50ilvAOFxBSx4yLW+A/YU8YvfY5+ALC6NGEzhtmyZoFZoarwBLeZxUhtY4rc3bKnjB6TKJjFUHzJoTOozF2YBpsjcyxDgzhQ1YRUse8+J4wenwmaylB82hC5w0zoRXUNXaRBmSMQUqiWSWkLsaVqc/ZE0aPTFUuJWgeTei8SfLZQeMxNaZSIzbII4aE1Nmr13P2hNHjc9E9guYNCZ032YlNwESMLcZiLQHkE4aE1BFg0yAR4z1h9AiAGRA0jyZ03tyIxWMajMPWBIsxYJCnlITU5ShiHYdZ94TR4wCmSxg9jtB5KyPGYzymAYexWEMwAPIsAdYdV6aObmNPGD0aYLoEzaMJnTc0Ygs+YDw0GAtqxBjkuP38bMRWCHn73xNGjz75P73WenCEJnhwyVe3AEe8TtKdJcYhBl97wuhNAObK66lvD/9J9NS75v17wuitAN5fe4D31x7g/bUHeH/tAd5fe4D3AO+vPcD7aw/w/toDvL/2AO+vPcD7aw/w/toDvAd4f/24ABzZ8o+KLsSLS+Pv/TqTb3P4hKlQrTGh+fbIBT0Axqznnb+L/V2mb3HkN5Mb/nEHeK7d4IcDld6lmDW/iH9E+AH1MdOw/Jlu2T1xNmY98sv4wHnD7D3uNHu54WUuOsBTbQuvBsPT/UfzNxGYzwkP8c+Yz3C+r/i6DcyRL/rZ+utRwWH5PmfvcvYEt9jLDS/bg0/B64DWKrQM8AL8FPwS9beQCe6EMKNZYJol37jBMy35otdaz0Bw2H/C2Smc7+WGB0HWDELBmOByA3r5QONo4V+DpzR/hFS4U8wMW1PXNB4TOqYz9urxRV++ntWCw/U59Ty9ebdWbrgfRS9AYKKN63ZokZVygr8GZ/gfIhZXIXPsAlNjPOLBby5c1eOLvmQ9lwkOy5x6QV1j5TYqpS05JtUgUHUp5toHGsVfn4NX4RnMCe+AxTpwmApTYxqMxwfCeJGjpXzRF61nbcHhUBPqWze9svwcHJ+S6NPscKrEjug78Dx8Lj3T8D4YxGIdxmJcwhi34fzZUr7olevZCw5vkOhoClq5zBPZAnygD/Tl9EzDh6kl3VhsHYcDEb+hCtJSvuiV69kLDm+WycrOTArHmB5/VYyP6jOVjwgGawk2zQOaTcc1L+aLXrKeveDwZqlKrw8U9Y1p66uK8dEzdYwBeUQAY7DbyYNezBfdWQ97weEtAKYQg2xJIkuveAT3dYeLGH+ShrWNwZgN0b2YL7qznr3g8JYAo5bQBziPjx7BPZ0d9RCQp4UZbnFdzBddor4XHN4KYMrB2qHFRIzzcLAHQZ5the5ovui94PCWAPefaYnxIdzRwdHCbuR4B+tbiy96Lzi8E4D7z7S0mEPd+eqO3cT53Z0Y8SV80XvB4Z0ADJi/f7X113f+7p7/+UYBvur6657/+YYBvur6657/+aYBvuL6657/+aYBvuL6657/+aYBvuL6657/+aYBvuL6657/+VMA8FXWX/f8z58OgK+y/rrnf75RgLna+uue//lTA/CV1V/3/M837aKvvv6653++UQvmauuve/7nTwfAV1N/3fM/fzr24Cuuv+75nz8FFnxl9dc9//MOr/8/glixwRuUfM4AAAAASUVORK5CYII=";
+var SMAA_SEARCH_TEXTURE_URL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAhCAAAAABIXyLAAAAAOElEQVRIx2NgGAWjYBSMglEwEICREYRgFBZBqDCSLA2MGPUIVQETE9iNUAqLR5gIeoQKRgwXjwAAGn4AtaFeYLEAAAAASUVORK5CYII=";
+
+// ../sdk/src/viewing/webGLRenderer/internal/renderManager/smaa/SMAAPipeline.ts
+var SMAAPipeline = class {
+  _renderContext;
+  _edgesProgram = null;
+  _weightsProgram = null;
+  _blendProgram = null;
+  _edgesTarget = null;
+  _weightsTarget = null;
+  _areaTexture = null;
+  _searchTexture = null;
+  _destroyed = false;
+  _uEdgesInput = null;
+  _uEdgesResolution = null;
+  _uWeightsEdges = null;
+  _uWeightsArea = null;
+  _uWeightsSearch = null;
+  _uWeightsResolution = null;
+  _uBlendWeights = null;
+  _uBlendColor = null;
+  _uBlendResolution = null;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  /** True once shader programs and the two SMAA lookup textures are ready. */
+  get ready() {
+    return !!(this._edgesProgram && this._weightsProgram && this._blendProgram && this._edgesTarget && this._weightsTarget && this._areaTexture?.loaded && this._searchTexture?.loaded);
+  }
+  init() {
+    const edgesProgram = new WebGLProgram(this._renderContext, {
+      vertex: EDGES_VS_SRC,
+      fragment: EDGES_FS_SRC
+    });
+    const edgesResult = edgesProgram.init();
+    if (edgesResult.ok === false) {
+      edgesProgram.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SMAAPipeline.init] Edge shader compile/link failed: ${edgesResult.error}`
+      };
+    }
+    const weightsProgram = new WebGLProgram(this._renderContext, {
+      vertex: WEIGHTS_VS_SRC,
+      fragment: WEIGHTS_FS_SRC
+    });
+    const weightsResult = weightsProgram.init();
+    if (weightsResult.ok === false) {
+      edgesProgram.destroy();
+      weightsProgram.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SMAAPipeline.init] Weight shader compile/link failed: ${weightsResult.error}`
+      };
+    }
+    const blendProgram = new WebGLProgram(this._renderContext, {
+      vertex: BLEND_VS_SRC,
+      fragment: BLEND_FS_SRC
+    });
+    const blendResult = blendProgram.init();
+    if (blendResult.ok === false) {
+      edgesProgram.destroy();
+      weightsProgram.destroy();
+      blendProgram.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SMAAPipeline.init] Blend shader compile/link failed: ${blendResult.error}`
+      };
+    }
+    this._edgesProgram = edgesProgram;
+    this._weightsProgram = weightsProgram;
+    this._blendProgram = blendProgram;
+    this._uEdgesInput = edgesProgram.getSampler("uInput");
+    this._uEdgesResolution = edgesProgram.getLocation("uResolution");
+    this._uWeightsEdges = weightsProgram.getSampler("uEdges");
+    this._uWeightsArea = weightsProgram.getSampler("uArea");
+    this._uWeightsSearch = weightsProgram.getSampler("uSearch");
+    this._uWeightsResolution = weightsProgram.getLocation("uResolution");
+    this._uBlendWeights = blendProgram.getSampler("uWeights");
+    this._uBlendColor = blendProgram.getSampler("uColor");
+    this._uBlendResolution = blendProgram.getLocation("uResolution");
+    this._edgesTarget = new WebGLRenderBuffer(
+      this._renderContext.webglCanvasElement,
+      this._renderContext.gl,
+      { depthTexture: false, colorFilter: "linear" }
+    );
+    this._weightsTarget = new WebGLRenderBuffer(
+      this._renderContext.webglCanvasElement,
+      this._renderContext.gl,
+      { depthTexture: false, colorFilter: "linear" }
+    );
+    this._areaTexture = this._createLookupTexture(SMAA_AREA_TEXTURE_URL, "linear");
+    this._searchTexture = this._createLookupTexture(SMAA_SEARCH_TEXTURE_URL, "nearest");
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Runs SMAA into the currently-bound framebuffer. Caller sets the final
+   * viewport beforehand.
+   */
+  render(params) {
+    if (!this.ready)
+      return;
+    const gl = this._renderContext.gl;
+    const width = params.viewportWidth;
+    const height = params.viewportHeight;
+    if (width <= 0 || height <= 0)
+      return;
+    const invW = 1 / width;
+    const invH = 1 / height;
+    gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.CULL_FACE);
+    this._edgesTarget.setSize([width, height]);
+    this._weightsTarget.setSize([width, height]);
+    this._edgesTarget.bind(gl.RGBA8);
+    gl.viewport(0, 0, width, height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    this._edgesProgram.bind();
+    this._renderContext.lastProgramId = -1;
+    params.inputTexture.bind(0);
+    if (this._uEdgesInput)
+      gl.uniform1i(this._uEdgesInput, 0);
+    if (this._uEdgesResolution)
+      gl.uniform2f(this._uEdgesResolution, invW, invH);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    const edgesTexture = this._edgesTarget.getTexture();
+    this._edgesTarget.unbind();
+    this._weightsTarget.bind(gl.RGBA8);
+    gl.viewport(0, 0, width, height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    this._weightsProgram.bind();
+    this._renderContext.lastProgramId = -1;
+    edgesTexture.bind(0);
+    this._bindRawTexture(this._areaTexture.texture, 1);
+    this._bindRawTexture(this._searchTexture.texture, 2);
+    if (this._uWeightsEdges)
+      gl.uniform1i(this._uWeightsEdges, 0);
+    if (this._uWeightsArea)
+      gl.uniform1i(this._uWeightsArea, 1);
+    if (this._uWeightsSearch)
+      gl.uniform1i(this._uWeightsSearch, 2);
+    if (this._uWeightsResolution)
+      gl.uniform2f(this._uWeightsResolution, invW, invH);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    const weightsTexture = this._weightsTarget.getTexture();
+    this._weightsTarget.unbind();
+    gl.viewport(0, 0, width, height);
+    this._blendProgram.bind();
+    this._renderContext.lastProgramId = -1;
+    weightsTexture.bind(0);
+    params.inputTexture.bind(1);
+    if (this._uBlendWeights)
+      gl.uniform1i(this._uBlendWeights, 0);
+    if (this._uBlendColor)
+      gl.uniform1i(this._uBlendColor, 1);
+    if (this._uBlendResolution)
+      gl.uniform2f(this._uBlendResolution, invW, invH);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.depthMask(true);
+    gl.enable(gl.DEPTH_TEST);
+  }
+  destroy() {
+    this._destroyed = true;
+    this._edgesProgram?.destroy();
+    this._weightsProgram?.destroy();
+    this._blendProgram?.destroy();
+    this._edgesTarget?.destroy();
+    this._weightsTarget?.destroy();
+    const gl = this._renderContext.gl;
+    if (this._areaTexture?.texture)
+      gl.deleteTexture(this._areaTexture.texture);
+    if (this._searchTexture?.texture)
+      gl.deleteTexture(this._searchTexture.texture);
+    this._edgesProgram = null;
+    this._weightsProgram = null;
+    this._blendProgram = null;
+    this._edgesTarget = null;
+    this._weightsTarget = null;
+    this._areaTexture = null;
+    this._searchTexture = null;
+  }
+  _createLookupTexture(url, filter) {
+    const gl = this._renderContext.gl;
+    const texture = gl.createTexture();
+    const state = { texture, loaded: false };
+    if (!texture)
+      return state;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    const glFilter = filter === "linear" ? gl.LINEAR : gl.NEAREST;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, glFilter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, glFilter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      1,
+      1,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array([0, 0, 0, 0])
+    );
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    const image = new Image();
+    image.onload = () => {
+      if (this._destroyed || this._renderContext.contextLost)
+        return;
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      state.loaded = true;
+      this._renderContext.activeView?.needsRender?.();
+    };
+    image.onerror = () => {
+      state.loaded = false;
+    };
+    image.src = url;
+    return state;
+  }
+  _bindRawTexture(texture, unit) {
+    const gl = this._renderContext.gl;
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+  }
+};
+var FULLSCREEN_TRIANGLE = `
+void emitFullscreenTriangle(out vec2 uv) {
+    vec2 pos = vec2(
+        float((gl_VertexID & 1) << 2) - 1.0,
+        float((gl_VertexID & 2) << 1) - 1.0
+    );
+    uv = pos * 0.5 + 0.5;
+    gl_Position = vec4(pos, 0.0, 1.0);
+}`;
+var EDGES_VS_SRC = `#version 300 es
+precision highp float;
+
+uniform vec2 uResolution;
+
+out vec2 vUV;
+out vec4 vOffset0;
+out vec4 vOffset1;
+out vec4 vOffset2;
+
+${FULLSCREEN_TRIANGLE}
+
+void main(void) {
+    emitFullscreenTriangle(vUV);
+    vOffset0 = vUV.xyxy + uResolution.xyxy * vec4(-1.0, 0.0, 0.0,  1.0);
+    vOffset1 = vUV.xyxy + uResolution.xyxy * vec4( 1.0, 0.0, 0.0, -1.0);
+    vOffset2 = vUV.xyxy + uResolution.xyxy * vec4(-2.0, 0.0, 0.0,  2.0);
+}`;
+var EDGES_FS_SRC = `#version 300 es
+precision highp float;
+
+in vec2 vUV;
+in vec4 vOffset0;
+in vec4 vOffset1;
+in vec4 vOffset2;
+
+out vec4 outColor;
+
+uniform sampler2D uInput;
+
+const float SMAA_THRESHOLD = 0.05;
+
+void main(void) {
+    vec2 threshold = vec2(SMAA_THRESHOLD, SMAA_THRESHOLD);
+    vec4 delta;
+    vec3 C = texture(uInput, vUV).rgb;
+
+    vec3 Cleft = texture(uInput, vOffset0.xy).rgb;
+    vec3 t = abs(C - Cleft);
+    delta.x = max(max(t.r, t.g), t.b);
+
+    vec3 Ctop = texture(uInput, vOffset0.zw).rgb;
+    t = abs(C - Ctop);
+    delta.y = max(max(t.r, t.g), t.b);
+
+    vec2 edges = step(threshold, delta.xy);
+    if (dot(edges, vec2(1.0)) == 0.0) discard;
+
+    vec3 Cright = texture(uInput, vOffset1.xy).rgb;
+    t = abs(C - Cright);
+    delta.z = max(max(t.r, t.g), t.b);
+
+    vec3 Cbottom = texture(uInput, vOffset1.zw).rgb;
+    t = abs(C - Cbottom);
+    delta.w = max(max(t.r, t.g), t.b);
+
+    float maxDelta = max(max(max(delta.x, delta.y), delta.z), delta.w);
+
+    vec3 Cleftleft = texture(uInput, vOffset2.xy).rgb;
+    t = abs(C - Cleftleft);
+    delta.z = max(max(t.r, t.g), t.b);
+
+    vec3 Ctoptop = texture(uInput, vOffset2.zw).rgb;
+    t = abs(C - Ctoptop);
+    delta.w = max(max(t.r, t.g), t.b);
+
+    maxDelta = max(maxDelta, max(delta.z, delta.w));
+    edges.xy *= step(0.5 * maxDelta, delta.xy);
+
+    outColor = vec4(edges, 0.0, 0.0);
+}`;
+var WEIGHTS_VS_SRC = `#version 300 es
+precision highp float;
+
+uniform vec2 uResolution;
+
+out vec2 vUV;
+out vec2 vPixcoord;
+out vec4 vOffset0;
+out vec4 vOffset1;
+out vec4 vOffset2;
+
+#define SMAA_MAX_SEARCH_STEPS 8
+
+${FULLSCREEN_TRIANGLE}
+
+void main(void) {
+    emitFullscreenTriangle(vUV);
+    vPixcoord = vUV / uResolution;
+    vOffset0 = vUV.xyxy + uResolution.xyxy * vec4(-0.25, 0.125, 1.25, 0.125);
+    vOffset1 = vUV.xyxy + uResolution.xyxy * vec4(-0.125, 0.25, -0.125, -1.25);
+    vOffset2 = vec4(vOffset0.xz, vOffset1.yw) + vec4(-2.0, 2.0, -2.0, 2.0) * uResolution.xxyy * float(SMAA_MAX_SEARCH_STEPS);
+}`;
+var WEIGHTS_FS_SRC = `#version 300 es
+precision highp float;
+
+in vec2 vUV;
+in vec2 vPixcoord;
+in vec4 vOffset0;
+in vec4 vOffset1;
+in vec4 vOffset2;
+
+out vec4 outColor;
+
+uniform sampler2D uEdges;
+uniform sampler2D uArea;
+uniform sampler2D uSearch;
+uniform vec2 uResolution;
+
+#define SMAA_MAX_SEARCH_STEPS 8
+#define SMAA_AREATEX_MAX_DISTANCE 16
+#define SMAA_AREATEX_PIXEL_SIZE (1.0 / vec2(160.0, 560.0))
+#define SMAA_AREATEX_SUBTEX_SIZE (1.0 / 7.0)
+#define SMAASampleLevelZeroOffset(tex, coord, offset) texture(tex, coord + vec2(offset) * uResolution)
+
+float SMAASearchLength(sampler2D searchTex, vec2 e, float bias, float scale) {
+    e.r = bias + e.r * scale;
+    return 255.0 * texture(searchTex, e).r;
+}
+
+float SMAASearchXLeft(sampler2D edgesTex, sampler2D searchTex, vec2 texcoord, float end) {
+    vec2 e = vec2(0.0, 1.0);
+    for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; i++) {
+        e = texture(edgesTex, texcoord).rg;
+        texcoord -= vec2(2.0, 0.0) * uResolution;
+        if (!(texcoord.x > end && e.g > 0.8281 && e.r == 0.0)) break;
+    }
+    texcoord.x += 0.25 * uResolution.x;
+    texcoord.x += uResolution.x;
+    texcoord.x += 2.0 * uResolution.x;
+    texcoord.x -= uResolution.x * SMAASearchLength(searchTex, e, 0.0, 0.5);
+    return texcoord.x;
+}
+
+float SMAASearchXRight(sampler2D edgesTex, sampler2D searchTex, vec2 texcoord, float end) {
+    vec2 e = vec2(0.0, 1.0);
+    for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; i++) {
+        e = texture(edgesTex, texcoord).rg;
+        texcoord += vec2(2.0, 0.0) * uResolution;
+        if (!(texcoord.x < end && e.g > 0.8281 && e.r == 0.0)) break;
+    }
+    texcoord.x -= 0.25 * uResolution.x;
+    texcoord.x -= uResolution.x;
+    texcoord.x -= 2.0 * uResolution.x;
+    texcoord.x += uResolution.x * SMAASearchLength(searchTex, e, 0.5, 0.5);
+    return texcoord.x;
+}
+
+float SMAASearchYUp(sampler2D edgesTex, sampler2D searchTex, vec2 texcoord, float end) {
+    vec2 e = vec2(1.0, 0.0);
+    for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; i++) {
+        e = texture(edgesTex, texcoord).rg;
+        texcoord += vec2(0.0, 2.0) * uResolution;
+        if (!(texcoord.y > end && e.r > 0.8281 && e.g == 0.0)) break;
+    }
+    texcoord.y -= 0.25 * uResolution.y;
+    texcoord.y -= uResolution.y;
+    texcoord.y -= 2.0 * uResolution.y;
+    texcoord.y += uResolution.y * SMAASearchLength(searchTex, e.gr, 0.0, 0.5);
+    return texcoord.y;
+}
+
+float SMAASearchYDown(sampler2D edgesTex, sampler2D searchTex, vec2 texcoord, float end) {
+    vec2 e = vec2(1.0, 0.0);
+    for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; i++) {
+        e = texture(edgesTex, texcoord).rg;
+        texcoord -= vec2(0.0, 2.0) * uResolution;
+        if (!(texcoord.y < end && e.r > 0.8281 && e.g == 0.0)) break;
+    }
+    texcoord.y += 0.25 * uResolution.y;
+    texcoord.y += uResolution.y;
+    texcoord.y += 2.0 * uResolution.y;
+    texcoord.y -= uResolution.y * SMAASearchLength(searchTex, e.gr, 0.5, 0.5);
+    return texcoord.y;
+}
+
+vec2 SMAAArea(sampler2D areaTex, vec2 dist, float e1, float e2, float offset) {
+    vec2 texcoord = float(SMAA_AREATEX_MAX_DISTANCE) * round(4.0 * vec2(e1, e2)) + dist;
+    texcoord = SMAA_AREATEX_PIXEL_SIZE * texcoord + (0.5 * SMAA_AREATEX_PIXEL_SIZE);
+    texcoord.y += SMAA_AREATEX_SUBTEX_SIZE * offset;
+    return texture(areaTex, texcoord).rg;
+}
+
+vec4 SMAABlendingWeightCalculationPS(vec2 texcoord, vec2 pixcoord, sampler2D edgesTex, sampler2D areaTex, sampler2D searchTex, ivec4 subsampleIndices) {
+    vec4 weights = vec4(0.0);
+    vec2 e = texture(edgesTex, texcoord).rg;
+
+    if (e.g > 0.0) {
+        vec2 d;
+        vec2 coords;
+        coords.x = SMAASearchXLeft(edgesTex, searchTex, vOffset0.xy, vOffset2.x);
+        coords.y = vOffset1.y;
+        d.x = coords.x;
+
+        float e1 = texture(edgesTex, coords).r;
+
+        coords.x = SMAASearchXRight(edgesTex, searchTex, vOffset0.zw, vOffset2.y);
+        d.y = coords.x;
+        d = d / uResolution.x - pixcoord.x;
+
+        vec2 sqrt_d = sqrt(abs(d));
+        coords.y -= 1.0 * uResolution.y;
+        float e2 = SMAASampleLevelZeroOffset(edgesTex, coords, ivec2(1, 0)).r;
+
+        weights.rg = SMAAArea(areaTex, sqrt_d, e1, e2, float(subsampleIndices.y));
+    }
+
+    if (e.r > 0.0) {
+        vec2 d;
+        vec2 coords;
+        coords.y = SMAASearchYUp(edgesTex, searchTex, vOffset1.xy, vOffset2.z);
+        coords.x = vOffset0.x;
+        d.x = coords.y;
+
+        float e1 = texture(edgesTex, coords).g;
+
+        coords.y = SMAASearchYDown(edgesTex, searchTex, vOffset1.zw, vOffset2.w);
+        d.y = coords.y;
+        d = d / uResolution.y - pixcoord.y;
+
+        vec2 sqrt_d = sqrt(abs(d));
+        coords.y -= 1.0 * uResolution.y;
+        float e2 = SMAASampleLevelZeroOffset(edgesTex, coords, ivec2(0, 1)).g;
+
+        weights.ba = SMAAArea(areaTex, sqrt_d, e1, e2, float(subsampleIndices.x));
+    }
+
+    return weights;
+}
+
+void main(void) {
+    outColor = SMAABlendingWeightCalculationPS(vUV, vPixcoord, uEdges, uArea, uSearch, ivec4(0));
+}`;
+var BLEND_VS_SRC = `#version 300 es
+precision highp float;
+
+uniform vec2 uResolution;
+
+out vec2 vUV;
+out vec4 vOffset0;
+out vec4 vOffset1;
+
+${FULLSCREEN_TRIANGLE}
+
+void main(void) {
+    emitFullscreenTriangle(vUV);
+    vOffset0 = vUV.xyxy + uResolution.xyxy * vec4(-1.0, 0.0, 0.0,  1.0);
+    vOffset1 = vUV.xyxy + uResolution.xyxy * vec4( 1.0, 0.0, 0.0, -1.0);
+}`;
+var BLEND_FS_SRC = `#version 300 es
+precision highp float;
+
+in vec2 vUV;
+in vec4 vOffset0;
+in vec4 vOffset1;
+
+out vec4 outColor;
+
+uniform sampler2D uWeights;
+uniform sampler2D uColor;
+uniform vec2 uResolution;
+
+void main(void) {
+    vec4 a;
+    a.xz = texture(uWeights, vUV).xz;
+    a.y = texture(uWeights, vOffset1.zw).g;
+    a.w = texture(uWeights, vOffset1.xy).a;
+
+    if (dot(a, vec4(1.0)) < 1e-5) {
+        outColor = texture(uColor, vUV);
+        return;
+    }
+
+    vec2 offset;
+    offset.x = a.a > a.b ? a.a : -a.b;
+    offset.y = a.g > a.r ? -a.g : a.r;
+
+    if (abs(offset.x) > abs(offset.y)) {
+        offset.y = 0.0;
+    } else {
+        offset.x = 0.0;
+    }
+
+    vec4 C = texture(uColor, vUV);
+    vec2 neighborUV = vUV + sign(offset) * uResolution;
+    vec4 Cop = texture(uColor, neighborUV);
+    float s = max(abs(offset.x), abs(offset.y));
+
+    C.rgb = pow(max(C.rgb, vec3(0.0)), vec3(2.2));
+    Cop.rgb = pow(max(Cop.rgb, vec3(0.0)), vec3(2.2));
+    vec4 mixedColor = mix(C, Cop, s);
+    mixedColor.rgb = pow(max(mixedColor.rgb, vec3(0.0)), vec3(1.0 / 2.2));
+
+    outColor = mixedColor;
+}`;
+
 // ../sdk/src/viewing/webGLRenderer/internal/renderManager/bloom/BloomPipeline.ts
 var BloomPipeline = class {
   _renderContext;
@@ -192732,13 +194334,488 @@ void main(void) {
     outColor = vec4(sum.rgb / 12.0 * uIntensity, 1.0);
 }`;
 
+// ../sdk/src/viewing/webGLRenderer/internal/renderManager/atmosphere/AtmospherePipeline.ts
+var PROJECTION_PERSPECTIVE = 0;
+var PROJECTION_ORTHO = 1;
+var AtmospherePipeline = class {
+  _renderContext;
+  _program = null;
+  _target = null;
+  _uColor = null;
+  _uDepth = null;
+  _uNear = null;
+  _uFar = null;
+  _uLogDepth = null;
+  _uProjectionType = null;
+  _uFogColor = null;
+  _uStartDistance = null;
+  _uEndDistance = null;
+  _uIntensity = null;
+  _uMaxOpacity = null;
+  _uAffectSky = null;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  init() {
+    const program = new WebGLProgram(this._renderContext, {
+      vertex: VS_SRC3,
+      fragment: FS_SRC3
+    });
+    const result = program.init();
+    if (result.ok === false) {
+      program.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[AtmospherePipeline.init] Shader compile/link failed: ${result.error}`
+      };
+    }
+    this._program = program;
+    this._uColor = program.getSampler("uColor");
+    this._uDepth = program.getSampler("uDepth");
+    this._uNear = program.getLocation("uNear");
+    this._uFar = program.getLocation("uFar");
+    this._uLogDepth = program.getLocation("uLogDepth");
+    this._uProjectionType = program.getLocation("uProjectionType");
+    this._uFogColor = program.getLocation("uFogColor");
+    this._uStartDistance = program.getLocation("uStartDistance");
+    this._uEndDistance = program.getLocation("uEndDistance");
+    this._uIntensity = program.getLocation("uIntensity");
+    this._uMaxOpacity = program.getLocation("uMaxOpacity");
+    this._uAffectSky = program.getLocation("uAffectSky");
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Runs atmosphere into an internal HDR target and returns that target's
+   * colour texture. Returns null when the pass is not ready or the frame size
+   * is invalid.
+   */
+  render(params) {
+    if (!this._program)
+      return null;
+    const rc = this._renderContext;
+    const gl = rc.gl;
+    const sceneW = rc.sceneRenderWidth || gl.drawingBufferWidth;
+    const sceneH = rc.sceneRenderHeight || gl.drawingBufferHeight;
+    if (sceneW <= 0 || sceneH <= 0)
+      return null;
+    if (!this._target) {
+      this._target = new WebGLRenderBuffer(
+        rc.webglCanvasElement,
+        gl,
+        {
+          depthTexture: false,
+          colorFilter: "linear"
+        }
+      );
+    }
+    this._target.setSize([sceneW, sceneH]);
+    this._target.bind(gl.RGBA16F);
+    gl.viewport(0, 0, sceneW, sceneH);
+    gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.CULL_FACE);
+    this._program.bind();
+    rc.resetTextureBindings();
+    rc.lastProgramId = -1;
+    params.colorTexture.bind(0);
+    params.depthTexture.bind(1);
+    const camera = params.view.camera;
+    const projectionInfo = getProjectionInfo(camera);
+    const atmosphere = params.view.effects.atmosphere;
+    const color2 = atmosphere.color;
+    if (this._uColor)
+      gl.uniform1i(this._uColor, 0);
+    if (this._uDepth)
+      gl.uniform1i(this._uDepth, 1);
+    if (this._uNear)
+      gl.uniform1f(this._uNear, projectionInfo.near);
+    if (this._uFar)
+      gl.uniform1f(this._uFar, projectionInfo.far);
+    if (this._uLogDepth)
+      gl.uniform1i(this._uLogDepth, 1);
+    if (this._uProjectionType)
+      gl.uniform1i(this._uProjectionType, projectionInfo.projectionType);
+    if (this._uFogColor)
+      gl.uniform3f(this._uFogColor, color2[0], color2[1], color2[2]);
+    if (this._uStartDistance)
+      gl.uniform1f(this._uStartDistance, atmosphere.startDistance);
+    if (this._uEndDistance)
+      gl.uniform1f(this._uEndDistance, atmosphere.endDistance);
+    if (this._uIntensity)
+      gl.uniform1f(this._uIntensity, atmosphere.intensity);
+    if (this._uMaxOpacity)
+      gl.uniform1f(this._uMaxOpacity, atmosphere.maxOpacity);
+    if (this._uAffectSky)
+      gl.uniform1i(this._uAffectSky, atmosphere.affectSky ? 1 : 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    this._target.unbind();
+    gl.depthMask(true);
+    gl.enable(gl.DEPTH_TEST);
+    return this._target.getTexture();
+  }
+  destroy() {
+    this._program?.destroy();
+    this._program = null;
+    this._target?.destroy();
+    this._target = null;
+  }
+};
+function getProjectionInfo(camera) {
+  if (camera.projectionType === OrthoProjectionType) {
+    return {
+      near: camera.orthoProjection.near,
+      far: camera.orthoProjection.far,
+      projectionType: PROJECTION_ORTHO
+    };
+  }
+  if (camera.projectionType === PerspectiveProjectionType) {
+    return {
+      near: camera.perspectiveProjection.near,
+      far: camera.perspectiveProjection.far,
+      projectionType: PROJECTION_PERSPECTIVE
+    };
+  }
+  const projection = camera.perspectiveProjection;
+  return {
+    near: projection.near,
+    far: projection.far,
+    projectionType: PROJECTION_PERSPECTIVE
+  };
+}
+var VS_SRC3 = `#version 300 es
+precision highp float;
+
+out vec2 vUV;
+
+void main(void) {
+    vec2 pos = vec2(
+        float((gl_VertexID & 1) << 2) - 1.0,
+        float((gl_VertexID & 2) << 1) - 1.0
+    );
+    vUV = pos * 0.5 + 0.5;
+    gl_Position = vec4(pos, 0.0, 1.0);
+}`;
+var FS_SRC3 = `#version 300 es
+precision highp float;
+precision highp sampler2D;
+
+in  vec2 vUV;
+out vec4 outColor;
+
+uniform sampler2D uColor;
+uniform sampler2D uDepth;
+uniform float     uNear;
+uniform float     uFar;
+uniform int       uLogDepth;
+uniform int       uProjectionType; // 0 = perspective, 1 = orthographic
+uniform vec3      uFogColor;
+uniform float     uStartDistance;
+uniform float     uEndDistance;
+uniform float     uIntensity;
+uniform float     uMaxOpacity;
+uniform int       uAffectSky;
+
+const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
+
+float linearizeDepth(float depth) {
+    depth = clamp(depth, 0.0, 1.0);
+    if (uLogDepth == 1) {
+        return exp2(depth * log2(uFar + 1.0)) - 1.0;
+    }
+    if (uProjectionType == 1) {
+        return mix(uNear, uFar, depth);
+    }
+    float z = depth * 2.0 - 1.0;
+    return (2.0 * uNear * uFar) / max(uFar + uNear - z * (uFar - uNear), 1e-5);
+}
+
+void main(void) {
+    vec4 color = texture(uColor, vUV);
+    float rawDepth = texture(uDepth, vUV).r;
+    if (uAffectSky == 0 && rawDepth >= 0.999999) {
+        outColor = color;
+        return;
+    }
+
+    float viewDepth = linearizeDepth(rawDepth);
+    float range = max(uEndDistance - uStartDistance, 1e-4);
+    float distanceAmount = smoothstep(0.0, 1.0, clamp((viewDepth - uStartDistance) / range, 0.0, 1.0));
+    float haze = min(uMaxOpacity, distanceAmount * uIntensity);
+    vec3 airlight = max(uFogColor, vec3(0.92, 0.96, 1.0));
+    vec3 fogged = mix(color.rgb, airlight, haze);
+
+    float sourceLuma = dot(color.rgb, LUMA);
+    float foggedLuma = dot(fogged, LUMA);
+    float minLuma = sourceLuma * (1.0 - haze * 0.08);
+    if (foggedLuma < minLuma) {
+        fogged *= minLuma / max(foggedLuma, 1e-5);
+    }
+    outColor = vec4(fogged, color.a);
+}`;
+
+// ../sdk/src/viewing/webGLRenderer/internal/renderManager/dof/DepthOfFieldPipeline.ts
+var PROJECTION_PERSPECTIVE2 = 0;
+var PROJECTION_ORTHO2 = 1;
+var DepthOfFieldPipeline = class {
+  _renderContext;
+  _program = null;
+  _target = null;
+  _uColor = null;
+  _uDepth = null;
+  _uInverseViewport = null;
+  _uNear = null;
+  _uFar = null;
+  _uLogDepth = null;
+  _uProjectionType = null;
+  _uFocusDistance = null;
+  _uFocalRange = null;
+  _uRadius = null;
+  _uIntensity = null;
+  _uNearBlur = null;
+  _uFarBlur = null;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  init() {
+    const program = new WebGLProgram(this._renderContext, {
+      vertex: VS_SRC4,
+      fragment: FS_SRC4
+    });
+    const result = program.init();
+    if (result.ok === false) {
+      program.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[DepthOfFieldPipeline.init] Shader compile/link failed: ${result.error}`
+      };
+    }
+    this._program = program;
+    this._uColor = program.getSampler("uColor");
+    this._uDepth = program.getSampler("uDepth");
+    this._uInverseViewport = program.getLocation("uInverseViewport");
+    this._uNear = program.getLocation("uNear");
+    this._uFar = program.getLocation("uFar");
+    this._uLogDepth = program.getLocation("uLogDepth");
+    this._uProjectionType = program.getLocation("uProjectionType");
+    this._uFocusDistance = program.getLocation("uFocusDistance");
+    this._uFocalRange = program.getLocation("uFocalRange");
+    this._uRadius = program.getLocation("uRadius");
+    this._uIntensity = program.getLocation("uIntensity");
+    this._uNearBlur = program.getLocation("uNearBlur");
+    this._uFarBlur = program.getLocation("uFarBlur");
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Runs DOF into an internal HDR target and returns that target's colour
+   * texture. Returns null when the pass is not ready or the frame size is
+   * invalid.
+   */
+  render(params) {
+    if (!this._program)
+      return null;
+    const rc = this._renderContext;
+    const gl = rc.gl;
+    const sceneW = rc.sceneRenderWidth || gl.drawingBufferWidth;
+    const sceneH = rc.sceneRenderHeight || gl.drawingBufferHeight;
+    if (sceneW <= 0 || sceneH <= 0)
+      return null;
+    if (!this._target) {
+      this._target = new WebGLRenderBuffer(
+        rc.webglCanvasElement,
+        gl,
+        {
+          depthTexture: false,
+          colorFilter: "linear"
+        }
+      );
+    }
+    this._target.setSize([sceneW, sceneH]);
+    this._target.bind(gl.RGBA16F);
+    gl.viewport(0, 0, sceneW, sceneH);
+    gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.CULL_FACE);
+    this._program.bind();
+    rc.resetTextureBindings();
+    rc.lastProgramId = -1;
+    params.colorTexture.bind(0);
+    params.depthTexture.bind(1);
+    const camera = params.view.camera;
+    const projectionInfo = getProjectionInfo2(camera);
+    const dof = params.view.effects.depthOfField;
+    if (this._uColor)
+      gl.uniform1i(this._uColor, 0);
+    if (this._uDepth)
+      gl.uniform1i(this._uDepth, 1);
+    if (this._uInverseViewport)
+      gl.uniform2f(this._uInverseViewport, 1 / sceneW, 1 / sceneH);
+    if (this._uNear)
+      gl.uniform1f(this._uNear, projectionInfo.near);
+    if (this._uFar)
+      gl.uniform1f(this._uFar, projectionInfo.far);
+    if (this._uLogDepth)
+      gl.uniform1i(this._uLogDepth, 1);
+    if (this._uProjectionType)
+      gl.uniform1i(this._uProjectionType, projectionInfo.projectionType);
+    if (this._uFocusDistance)
+      gl.uniform1f(this._uFocusDistance, dof.focusDistance);
+    if (this._uFocalRange)
+      gl.uniform1f(this._uFocalRange, dof.focalRange);
+    if (this._uRadius)
+      gl.uniform1f(this._uRadius, dof.radius);
+    if (this._uIntensity)
+      gl.uniform1f(this._uIntensity, dof.intensity);
+    if (this._uNearBlur)
+      gl.uniform1f(this._uNearBlur, dof.nearBlur);
+    if (this._uFarBlur)
+      gl.uniform1f(this._uFarBlur, dof.farBlur);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    this._target.unbind();
+    gl.depthMask(true);
+    gl.enable(gl.DEPTH_TEST);
+    return this._target.getTexture();
+  }
+  destroy() {
+    this._program?.destroy();
+    this._program = null;
+    this._target?.destroy();
+    this._target = null;
+  }
+};
+function getProjectionInfo2(camera) {
+  if (camera.projectionType === OrthoProjectionType) {
+    return {
+      near: camera.orthoProjection.near,
+      far: camera.orthoProjection.far,
+      projectionType: PROJECTION_ORTHO2
+    };
+  }
+  if (camera.projectionType === PerspectiveProjectionType) {
+    return {
+      near: camera.perspectiveProjection.near,
+      far: camera.perspectiveProjection.far,
+      projectionType: PROJECTION_PERSPECTIVE2
+    };
+  }
+  const projection = camera.perspectiveProjection;
+  return {
+    near: projection.near,
+    far: projection.far,
+    projectionType: PROJECTION_PERSPECTIVE2
+  };
+}
+var VS_SRC4 = `#version 300 es
+precision highp float;
+
+out vec2 vUV;
+
+void main(void) {
+    vec2 pos = vec2(
+        float((gl_VertexID & 1) << 2) - 1.0,
+        float((gl_VertexID & 2) << 1) - 1.0
+    );
+    vUV = pos * 0.5 + 0.5;
+    gl_Position = vec4(pos, 0.0, 1.0);
+}`;
+var FS_SRC4 = `#version 300 es
+precision highp float;
+precision highp sampler2D;
+
+in  vec2 vUV;
+out vec4 outColor;
+
+uniform sampler2D uColor;
+uniform sampler2D uDepth;
+uniform vec2      uInverseViewport;
+uniform float     uNear;
+uniform float     uFar;
+uniform int       uLogDepth;
+uniform int       uProjectionType; // 0 = perspective, 1 = orthographic
+uniform float     uFocusDistance;
+uniform float     uFocalRange;
+uniform float     uRadius;
+uniform float     uIntensity;
+uniform float     uNearBlur;
+uniform float     uFarBlur;
+
+float linearizeDepth(float depth) {
+    depth = clamp(depth, 0.0, 1.0);
+    if (uLogDepth == 1) {
+        return exp2(depth * log2(uFar + 1.0)) - 1.0;
+    }
+    if (uProjectionType == 1) {
+        return mix(uNear, uFar, depth);
+    }
+    float z = depth * 2.0 - 1.0;
+    return (2.0 * uNear * uFar) / max(uFar + uNear - z * (uFar - uNear), 1e-5);
+}
+
+float circleOfConfusion(float viewDepth) {
+    float range = max(uFocalRange, 1e-4);
+    float nearAmount = clamp((uFocusDistance - viewDepth) / range, 0.0, 1.0) * uNearBlur;
+    float farAmount = clamp((viewDepth - uFocusDistance) / range, 0.0, 1.0) * uFarBlur;
+    return max(nearAmount, farAmount);
+}
+
+void addTap(inout vec3 sum, inout float weight, vec2 uv, vec2 dir, float radiusPixels) {
+    vec2 tapUV = clamp(uv + dir * uInverseViewport * radiusPixels, vec2(0.0), vec2(1.0));
+    float tapDepth = linearizeDepth(texture(uDepth, tapUV).r);
+    float tapCoC = circleOfConfusion(tapDepth);
+    float tapWeight = 0.35 + tapCoC;
+    sum += texture(uColor, tapUV).rgb * tapWeight;
+    weight += tapWeight;
+}
+
+vec3 sampleBlurred(vec2 uv, float radiusPixels) {
+    vec3 sum = texture(uColor, uv).rgb;
+    float weight = 1.0;
+
+    addTap(sum, weight, uv, vec2( 0.000,  1.000), radiusPixels);
+    addTap(sum, weight, uv, vec2( 0.866,  0.500), radiusPixels);
+    addTap(sum, weight, uv, vec2( 0.866, -0.500), radiusPixels);
+    addTap(sum, weight, uv, vec2( 0.000, -1.000), radiusPixels);
+    addTap(sum, weight, uv, vec2(-0.866, -0.500), radiusPixels);
+    addTap(sum, weight, uv, vec2(-0.866,  0.500), radiusPixels);
+    addTap(sum, weight, uv, vec2( 0.500,  0.866), radiusPixels);
+    addTap(sum, weight, uv, vec2( 1.000,  0.000), radiusPixels);
+    addTap(sum, weight, uv, vec2( 0.500, -0.866), radiusPixels);
+    addTap(sum, weight, uv, vec2(-0.500, -0.866), radiusPixels);
+    addTap(sum, weight, uv, vec2(-1.000,  0.000), radiusPixels);
+    addTap(sum, weight, uv, vec2(-0.500,  0.866), radiusPixels);
+
+    return sum / weight;
+}
+
+void main(void) {
+    vec3 sharp = texture(uColor, vUV).rgb;
+    float depth = linearizeDepth(texture(uDepth, vUV).r);
+    float coc = circleOfConfusion(depth);
+    float radiusPixels = coc * uRadius;
+
+    if (radiusPixels <= 0.01 || uIntensity <= 0.0) {
+        outColor = vec4(sharp, 1.0);
+        return;
+    }
+
+    vec3 blurred = sampleBlurred(vUV, radiusPixels);
+    float mixAmount = clamp((radiusPixels / max(uRadius, 1e-4)) * uIntensity, 0.0, 1.0);
+    outColor = vec4(mix(sharp, blurred, mixAmount), 1.0);
+}`;
+
 // ../sdk/src/viewing/webGLRenderer/internal/renderManager/postprocess/PostProcessChain.ts
 var PostProcessChain = class {
   _renderContext;
   _hdrTarget = null;
   _tonemapPipeline = null;
   _fxaaPipeline = null;
+  _smaaPipeline = null;
   _bloomPipeline = null;
+  _atmospherePipeline = null;
+  _depthOfFieldPipeline = null;
   _ldrIntermediate = null;
   constructor(renderContext) {
     this._renderContext = renderContext;
@@ -192758,6 +194835,20 @@ var PostProcessChain = class {
   hasHDR() {
     return !!(this._hdrTarget && this._tonemapPipeline);
   }
+  /** True when the current View needs the atmosphere post-process. */
+  needsAtmosphere(view) {
+    const atmosphere = view.effects.atmosphere;
+    return !!(this.hasHDR() && this._atmospherePipeline && atmosphere.applied && atmosphere.possible && atmosphere.intensity > 0 && atmosphere.maxOpacity > 0 && atmosphere.endDistance > atmosphere.startDistance);
+  }
+  /** True when the current View needs the depth-of-field post-process. */
+  needsDepthOfField(view) {
+    const dof = view.effects.depthOfField;
+    return !!(this.hasHDR() && this._depthOfFieldPipeline && dof.applied && dof.possible && dof.radius > 0 && dof.intensity > 0);
+  }
+  /** True when the current View needs the renderer to prepare scene depth. */
+  needsSceneDepth(view) {
+    return this.needsAtmosphere(view) || this.needsDepthOfField(view);
+  }
   /**
    * Binds the scene-phase target — the HDR FBO at the requested size when
    * HDR is active, the default canvas framebuffer otherwise. Callers do
@@ -192774,9 +194865,11 @@ var PostProcessChain = class {
   /**
    * Runs the post-process chain to the canvas.
    *
-   * Order: optional bloom (HDR → adds back into HDR), tonemap (HDR → LDR),
-   * optional FXAA (LDR intermediate → canvas). When HDR is off, this is a
-   * no-op — the scene has already drawn straight to the canvas.
+   * Order: optional bloom (HDR → adds back into HDR), optional atmosphere
+   * (HDR + depth → HDR intermediate), optional DOF (HDR + depth → HDR
+   * intermediate), tonemap (HDR -> LDR), optional final AA (LDR intermediate
+   * -> canvas). When HDR is off, this is a no-op — the scene has already drawn
+   * straight to the canvas.
    */
   composite(view) {
     if (!this.hasHDR())
@@ -192797,26 +194890,57 @@ var PostProcessChain = class {
     this._hdrTarget.unbind();
     if (!hdrTexture)
       return;
-    const wantFXAA = !!(this._fxaaPipeline && this._ldrIntermediate && view.effects.antiAliasing.mode === "fxaa" && view.effects.antiAliasing.applied && view.effects.antiAliasing.possible);
+    let tonemapSource = hdrTexture;
+    if (this.needsAtmosphere(view) && rc.sceneDepthTexture) {
+      const atmosphereTexture = this._atmospherePipeline.render({
+        colorTexture: tonemapSource,
+        depthTexture: rc.sceneDepthTexture,
+        view
+      });
+      if (atmosphereTexture) {
+        tonemapSource = atmosphereTexture;
+      }
+    }
+    if (this.needsDepthOfField(view) && rc.sceneDepthTexture) {
+      const dofTexture = this._depthOfFieldPipeline.render({
+        colorTexture: tonemapSource,
+        depthTexture: rc.sceneDepthTexture,
+        view
+      });
+      if (dofTexture) {
+        tonemapSource = dofTexture;
+      }
+    }
+    const antiAliasing = view.effects.antiAliasing;
+    const wantFXAA = !!(this._fxaaPipeline && this._ldrIntermediate && antiAliasing.mode === "fxaa" && antiAliasing.applied && antiAliasing.possible);
+    const wantSMAA = !!(this._smaaPipeline && this._smaaPipeline.ready && this._ldrIntermediate && antiAliasing.mode === "smaa" && antiAliasing.applied && antiAliasing.possible);
     const vpW = gl.drawingBufferWidth;
     const vpH = gl.drawingBufferHeight;
-    if (wantFXAA) {
+    if (wantFXAA || wantSMAA) {
       this._ldrIntermediate.bind();
       gl.viewport(0, 0, vpW, vpH);
-      this._tonemapPipeline.render({ hdrTexture, view });
+      this._tonemapPipeline.render({ hdrTexture: tonemapSource, view });
       const ldrTexture = this._ldrIntermediate.getTexture();
       this._ldrIntermediate.unbind();
       gl.viewport(0, 0, vpW, vpH);
       if (ldrTexture) {
-        this._fxaaPipeline.render({
-          inputTexture: ldrTexture,
-          viewportWidth: vpW,
-          viewportHeight: vpH
-        });
+        if (wantSMAA) {
+          this._smaaPipeline.render({
+            inputTexture: ldrTexture,
+            viewportWidth: vpW,
+            viewportHeight: vpH
+          });
+        } else {
+          this._fxaaPipeline.render({
+            inputTexture: ldrTexture,
+            viewportWidth: vpW,
+            viewportHeight: vpH
+          });
+        }
       }
     } else {
       gl.viewport(0, 0, vpW, vpH);
-      this._tonemapPipeline.render({ hdrTexture, view });
+      this._tonemapPipeline.render({ hdrTexture: tonemapSource, view });
     }
   }
   destroy() {
@@ -192826,8 +194950,14 @@ var PostProcessChain = class {
     this._tonemapPipeline = null;
     this._fxaaPipeline?.destroy();
     this._fxaaPipeline = null;
+    this._smaaPipeline?.destroy();
+    this._smaaPipeline = null;
     this._bloomPipeline?.destroy();
     this._bloomPipeline = null;
+    this._atmospherePipeline?.destroy();
+    this._atmospherePipeline = null;
+    this._depthOfFieldPipeline?.destroy();
+    this._depthOfFieldPipeline = null;
     this._ldrIntermediate?.destroy();
     this._ldrIntermediate = null;
   }
@@ -192851,8 +194981,12 @@ var PostProcessChain = class {
       this._hdrTarget = null;
       return;
     }
+    this._initFinalAAIntermediate();
     this._initFXAA();
+    this._initSMAA();
     this._initBloom();
+    this._initAtmosphere();
+    this._initDepthOfField();
   }
   _initFXAA() {
     this._fxaaPipeline = new FXAAPipeline(this._renderContext);
@@ -192860,16 +194994,23 @@ var PostProcessChain = class {
     if (result.ok === false) {
       this._fxaaPipeline.destroy();
       this._fxaaPipeline = null;
-      return;
     }
+  }
+  _initSMAA() {
+    this._smaaPipeline = new SMAAPipeline(this._renderContext);
+    const result = this._smaaPipeline.init();
+    if (result.ok === false) {
+      this._smaaPipeline.destroy();
+      this._smaaPipeline = null;
+    }
+  }
+  _initFinalAAIntermediate() {
     this._ldrIntermediate = new WebGLRenderBuffer(
       this._renderContext.webglCanvasElement,
       this._renderContext.gl,
       {
         depthTexture: false,
-        // FXAA's directional resolve taps sample at sub-texel offsets along
-        // the detected edge — LINEAR filtering is required, NEAREST collapses
-        // the algorithm into a plain box blur.
+        // Final AA passes sample at sub-texel offsets along detected edges.
         colorFilter: "linear"
       }
     );
@@ -192880,6 +195021,22 @@ var PostProcessChain = class {
     if (result.ok === false) {
       this._bloomPipeline.destroy();
       this._bloomPipeline = null;
+    }
+  }
+  _initAtmosphere() {
+    this._atmospherePipeline = new AtmospherePipeline(this._renderContext);
+    const result = this._atmospherePipeline.init();
+    if (result.ok === false) {
+      this._atmospherePipeline.destroy();
+      this._atmospherePipeline = null;
+    }
+  }
+  _initDepthOfField() {
+    this._depthOfFieldPipeline = new DepthOfFieldPipeline(this._renderContext);
+    const result = this._depthOfFieldPipeline.init();
+    if (result.ok === false) {
+      this._depthOfFieldPipeline.destroy();
+      this._depthOfFieldPipeline = null;
     }
   }
 };
@@ -194153,8 +196310,8 @@ var CapPlaneRenderer = class {
    */
   init() {
     const program = new WebGLProgram(this._renderContext, {
-      vertex: VS_SRC3,
-      fragment: FS_SRC3
+      vertex: VS_SRC5,
+      fragment: FS_SRC5
     });
     const result = program.init();
     if (result.ok === false) {
@@ -194243,7 +196400,7 @@ var CapPlaneRenderer = class {
     this._program = null;
   }
 };
-var VS_SRC3 = `#version 300 es
+var VS_SRC5 = `#version 300 es
 precision highp float;
 
 void main(void) {
@@ -194254,7 +196411,7 @@ void main(void) {
     );
     gl_Position = vec4(pos, 0.0, 1.0);
 }`;
-var FS_SRC3 = `#version 300 es
+var FS_SRC5 = `#version 300 es
 precision highp float;
 precision highp int;
 
@@ -194359,10 +196516,8 @@ function invertMat4(m, out) {
 }
 
 // ../sdk/src/viewing/webGLRenderer/internal/renderManager/RenderManager.ts
-function arrTriple(src, fallback) {
-  if (src && src.length >= 3)
-    return [src[0], src[1], src[2]];
-  return [fallback[0], fallback[1], fallback[2]];
+function tripleValue(src, fallback, index) {
+  return src && src.length >= 3 ? src[index] : fallback[index];
 }
 var RenderManager = class _RenderManager {
   /** Number of texture units bound per draw call by {@link DrawTechnique._bindTexture}. */
@@ -194418,7 +196573,7 @@ var RenderManager = class _RenderManager {
   _shadowPipeline;
   /**
    * Owns the HDR substrate and the entire post-process chain (bloom →
-   * tonemap → FXAA → canvas). Inert when HDR isn't available; the scene
+   * tonemap -> final AA -> canvas). Inert when HDR isn't available; the scene
    * draws straight to the canvas in that case.
    */
   _postProcess;
@@ -194439,8 +196594,10 @@ var RenderManager = class _RenderManager {
    * direction). Indexed by viewIndex.
    */
   _iblPrefilters = /* @__PURE__ */ new Map();
-  /** Cached signature of last-applied sky params per view, for dirty detection. */
+  /** Cached scalar signature of last-applied sky params per view, for dirty detection. */
   _iblParamSignatures = /* @__PURE__ */ new Map();
+  /** Reused scalar signature scratch for IBL dirty detection. */
+  _iblSignatureScratch = new Float64Array(22);
   /** Last-seen `view.lights.ibl.environmentVersion` per view, so the prefilter
    *  only re-uploads its equirect texture when the image actually changes. */
   _iblEnvVersions = /* @__PURE__ */ new Map();
@@ -194611,32 +196768,64 @@ var RenderManager = class _RenderManager {
     const hemi = view.lights?.hemispheric;
     const shadowDir = view.effects.shadows && view.effects.shadows.direction ? view.effects.shadows.direction : [-0.45, -0.35, -0.8];
     const sunToward = [-shadowDir[0], -shadowDir[1], -shadowDir[2]];
-    const skyZenith = arrTriple(hemi?.skyColor, [0.62, 0.72, 0.86]);
-    const groundC = arrTriple(hemi?.groundColor, [0.42, 0.36, 0.3]);
-    const horizon = [
-      Math.min(1, skyZenith[0] * 0.55 + 0.4),
-      Math.min(1, skyZenith[1] * 0.55 + 0.4),
-      Math.min(1, skyZenith[2] * 0.55 + 0.4)
-    ];
+    const hemiSky = hemi?.skyColor;
+    const hemiGround = hemi?.groundColor;
+    const hemiWorldUp = hemi?.worldUp;
+    const sky0 = tripleValue(hemiSky, [0.62, 0.72, 0.86], 0);
+    const sky1 = tripleValue(hemiSky, [0.62, 0.72, 0.86], 1);
+    const sky2 = tripleValue(hemiSky, [0.62, 0.72, 0.86], 2);
+    const ground0 = tripleValue(hemiGround, [0.42, 0.36, 0.3], 0);
+    const ground1 = tripleValue(hemiGround, [0.42, 0.36, 0.3], 1);
+    const ground2 = tripleValue(hemiGround, [0.42, 0.36, 0.3], 2);
+    const horizon0 = Math.min(1, sky0 * 0.55 + 0.4);
+    const horizon1 = Math.min(1, sky1 * 0.55 + 0.4);
+    const horizon2 = Math.min(1, sky2 * 0.55 + 0.4);
     const hdrPipeline = pipeline.hdr;
-    const sunColor = hdrPipeline ? [12, 11, 8.5] : [1.5, 1.45, 1.2];
-    const sky = {
-      skyColor: skyZenith,
-      horizonColor: horizon,
-      groundColor: groundC,
-      horizonBlend: 0.25,
-      sunEnabled: true,
-      sunDirection: sunToward,
-      sunColor,
-      sunAngularSizeDegrees: 4,
-      sunGlowSize: 8,
-      sunGlowIntensity: hdrPipeline ? 4.5 : 1.4,
-      worldUp: arrTriple(hemi?.worldUp, [0, 0, 1])
-    };
-    const signature = JSON.stringify(sky);
-    if (this._iblParamSignatures.get(viewIndex) !== signature) {
+    const sun0 = hdrPipeline ? 12 : 1.5;
+    const sun1 = hdrPipeline ? 11 : 1.45;
+    const sun2 = hdrPipeline ? 8.5 : 1.2;
+    const glowIntensity = hdrPipeline ? 4.5 : 1.4;
+    const up0 = tripleValue(hemiWorldUp, [0, 0, 1], 0);
+    const up1 = tripleValue(hemiWorldUp, [0, 0, 1], 1);
+    const up2 = tripleValue(hemiWorldUp, [0, 0, 1], 2);
+    const signature = this._iblSignatureScratch;
+    signature[0] = sky0;
+    signature[1] = sky1;
+    signature[2] = sky2;
+    signature[3] = horizon0;
+    signature[4] = horizon1;
+    signature[5] = horizon2;
+    signature[6] = ground0;
+    signature[7] = ground1;
+    signature[8] = ground2;
+    signature[9] = sunToward[0];
+    signature[10] = sunToward[1];
+    signature[11] = sunToward[2];
+    signature[12] = sun0;
+    signature[13] = sun1;
+    signature[14] = sun2;
+    signature[15] = 0.25;
+    signature[16] = 4;
+    signature[17] = 8;
+    signature[18] = glowIntensity;
+    signature[19] = up0;
+    signature[20] = up1;
+    signature[21] = up2;
+    if (this._iblSignatureChanged(viewIndex, signature)) {
+      const sky = {
+        skyColor: [sky0, sky1, sky2],
+        horizonColor: [horizon0, horizon1, horizon2],
+        groundColor: [ground0, ground1, ground2],
+        horizonBlend: 0.25,
+        sunEnabled: true,
+        sunDirection: [sunToward[0], sunToward[1], sunToward[2]],
+        sunColor: [sun0, sun1, sun2],
+        sunAngularSizeDegrees: 4,
+        sunGlowSize: 8,
+        sunGlowIntensity: glowIntensity,
+        worldUp: [up0, up1, up2]
+      };
       pipeline.setParams(sky);
-      this._iblParamSignatures.set(viewIndex, signature);
     }
     const refreshResult = pipeline.refresh();
     if (refreshResult.ok === false) {
@@ -194658,6 +196847,22 @@ var RenderManager = class _RenderManager {
     m[6] = vm[2];
     m[7] = vm[6];
     m[8] = vm[10];
+  }
+  _iblSignatureChanged(viewIndex, next) {
+    let prev = this._iblParamSignatures.get(viewIndex);
+    if (!prev) {
+      prev = new Float64Array(next.length);
+      prev.set(next);
+      this._iblParamSignatures.set(viewIndex, prev);
+      return true;
+    }
+    for (let i = 0; i < next.length; i++) {
+      if (prev[i] !== next[i]) {
+        prev.set(next);
+        return true;
+      }
+    }
+    return false;
   }
   /** Binds the main colour target for the scene phase (HDR FBO or canvas). */
   _bindSceneTarget() {
@@ -194880,9 +197085,9 @@ var RenderManager = class _RenderManager {
   // Each phase is intentionally narrow:
   //   - _beginFrame: scene-render size, GL state, scene target.
   //   - _classifyBatches: bin sort (delegated to RenderBinClassifier).
-  //   - _renderScene: SAO/shadow prep, opaque, edges, silhouettes, transparents.
+  //   - _renderScene: SAO/shadow/scene-depth prep, opaque, edges, silhouettes, transparents.
   //   - _endFrame: tear down scene-phase GL state.
-  //   - _postProcess.composite: bloom + tonemap + FXAA → canvas.
+  //   - _postProcess.composite: bloom + depth-aware effects + tonemap + final AA -> canvas.
   // ------------------------------------------------------------------
   /** Sets up scene-phase GL state and binds the target the scene draws into. */
   _beginFrame(rendererView) {
@@ -194911,6 +197116,7 @@ var RenderManager = class _RenderManager {
     gl.polygonOffset(1, 1);
     const drawWithSAO = view.effects.sao.applied && view.effects.sao.possible;
     renderContext.saoOcclusionTexture = drawWithSAO ? rendererView.renderBuffers.getRenderBuffer("saoOcclusion", { size: [sceneW, sceneH] })?.getTexture() ?? null : null;
+    renderContext.sceneDepthTexture = null;
     for (let i = 0; i < renderContext.shadowMapTextures.length; i++) {
       renderContext.shadowMapTextures[i] = null;
     }
@@ -194954,6 +197160,7 @@ var RenderManager = class _RenderManager {
     this._prepareIBL(view);
     const needSAO = bins.normalDrawSAO.length > 0 || bins.normalDrawSAOShadow.length > 0;
     const needShadow = bins.normalDrawShadow.length > 0 || bins.normalDrawSAOShadow.length > 0;
+    const needSceneDepth = this._postProcess.needsSceneDepth(view);
     if (needSAO) {
       ri?.renderBinStarted("saoPrep");
       this._saoPipeline.render({
@@ -194972,7 +197179,11 @@ var RenderManager = class _RenderManager {
         comboBatches: bins.normalDrawSAOShadow
       });
     }
-    if (needSAO || needShadow) {
+    if (needSceneDepth) {
+      ri?.renderBinStarted("sceneDepthPrep");
+      this._renderSceneDepth(rendererView);
+    }
+    if (needSAO || needShadow || needSceneDepth) {
       this._bindSceneTarget();
       gl.viewport(0, 0, renderContext.sceneRenderWidth, renderContext.sceneRenderHeight);
       gl.enable(gl.DEPTH_TEST);
@@ -195017,6 +197228,55 @@ var RenderManager = class _RenderManager {
       gl.clear(gl.DEPTH_BUFFER_BIT);
     this._drawBin(bins.selectedEdgesTransparent, "selectedEdges");
     gl.disable(gl.BLEND);
+  }
+  /**
+   * Renders a depth-only scene prepass for depth-aware post-processing.
+   *
+   * We do this only when a depth-aware post-process is active. The main scene
+   * depth attachment cannot be used directly because later always-on-top
+   * highlight/selection rendering clears it before post-processing runs.
+   */
+  _renderSceneDepth(rendererView) {
+    const renderContext = this._renderContext;
+    const gl = renderContext.gl;
+    const sceneW = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
+    const sceneH = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
+    const depthBuffer = rendererView.renderBuffers.getRenderBuffer("sceneDepth", {
+      depthTexture: true,
+      size: [sceneW, sceneH]
+    });
+    const bins = this._bins;
+    const opaqueBins = [
+      bins.normalDrawOpaque,
+      bins.normalDrawSAO,
+      bins.normalDrawShadow,
+      bins.normalDrawSAOShadow
+    ];
+    renderContext.resetTextureBindings();
+    depthBuffer.bind();
+    gl.viewport(0, 0, sceneW, sceneH);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearDepth(1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+    gl.colorMask(false, false, false, false);
+    renderContext.lastProgramId = -1;
+    const drawOps = this.drawOps.prims;
+    for (let binIndex = 0; binIndex < opaqueBins.length; binIndex++) {
+      const batches = opaqueBins[binIndex];
+      for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        if (batch.bin !== void 0)
+          continue;
+        drawOps[batch.primitive]?.opaque?.drawBatch(batch);
+      }
+    }
+    gl.colorMask(true, true, true, true);
+    depthBuffer.unbind();
+    renderContext.sceneDepthTexture = depthBuffer.getDepthTexture();
+    renderContext.lastProgramId = -1;
   }
   /**
    * True if any batch carries a non-default {@link MeshBatch.bin | bin}.
@@ -195412,6 +197672,9 @@ var SnapManager = class {
   };
   /** Reused snap result — pick-style transient. */
   _snapResult = new PickResult();
+  _snapClipPos = createVec2Float64();
+  _snapBufferSize = createVec2Float64();
+  _snappedCanvasPos = createVec2Float64();
   constructor(cfg) {
     this._renderContext = cfg.renderContext;
     this._gpuMemoryManager = cfg.gpuMemoryManager;
@@ -195490,11 +197753,12 @@ var SnapManager = class {
     renderContext.pickZNear = view.camera.perspectiveProjection.near;
     renderContext.pickZFar = view.camera.perspectiveProjection.far;
     const effectiveResolutionScale = getEffectiveResolutionScale(view);
-    renderContext.snapClipPos = createVec2Float64([
-      this._clipPosX(params.canvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth),
-      this._clipPosY(params.canvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight)
-    ]);
-    renderContext.snapBufferSize = createVec2Float64([dim, dim]);
+    this._snapClipPos[0] = this._clipPosX(params.canvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth);
+    this._snapClipPos[1] = this._clipPosY(params.canvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight);
+    this._snapBufferSize[0] = dim;
+    this._snapBufferSize[1] = dim;
+    renderContext.snapClipPos = this._snapClipPos;
+    renderContext.snapBufferSize = this._snapBufferSize;
     snapBuffer.bind();
     gl.viewport(0, 0, dim, dim);
     gl.enable(gl.DEPTH_TEST);
@@ -195555,7 +197819,7 @@ var SnapManager = class {
     tempVec3a18[0] = worldHomog[0] / w2;
     tempVec3a18[1] = worldHomog[1] / w2;
     tempVec3a18[2] = worldHomog[2] / w2;
-    const snappedCanvasPos = createVec2Float64();
+    const snappedCanvasPos = this._snappedCanvasPos;
     tempVec4a9[0] = tempVec3a18[0];
     tempVec4a9[1] = tempVec3a18[1];
     tempVec4a9[2] = tempVec3a18[2];
@@ -195573,7 +197837,7 @@ var SnapManager = class {
     result.reset();
     result.view = view;
     result.canvasPos = params.canvasPos;
-    result.worldPos = createVec3Float64([tempVec3a18[0], tempVec3a18[1], tempVec3a18[2]]);
+    result.worldPos = tempVec3a18;
     result.snappedToVertex = vertexHit !== null;
     result.snappedToEdge = edgeHit !== null;
     result.snappedCanvasPos = snappedCanvasPos;
@@ -196935,11 +199199,7 @@ var ViewManager2 = class {
   _activateView(rendererView) {
     const activeRendererView = this._activeView;
     if (activeRendererView && activeRendererView !== rendererView) {
-      this._renderManager.render(activeRendererView, { clear: true });
-      const image = this._renderContext.webglCanvasElement.toDataURL("image/png");
-      const htmlElement = activeRendererView.view.htmlElement;
-      htmlElement.src = image;
-      htmlElement.style.opacity = "";
+      this._snapshotInactiveView(activeRendererView);
     }
     this._activeView = rendererView;
     rendererView.view.htmlElement.style.opacity = "0";
@@ -196956,6 +199216,28 @@ var ViewManager2 = class {
     this._observeActiveViewElement(rendererView);
     this._lastCanvasLayout = null;
     this._scheduleActiveViewCanvasAlignment();
+  }
+  _snapshotInactiveView(rendererView) {
+    const htmlElement = rendererView.view.htmlElement;
+    if (this._canDisplayInactiveSnapshot(htmlElement)) {
+      this._renderManager.render(rendererView, { clear: true });
+      htmlElement.src = this._renderContext.webglCanvasElement.toDataURL("image/png");
+    }
+    htmlElement.style.opacity = "";
+  }
+  _canDisplayInactiveSnapshot(htmlElement) {
+    if (typeof HTMLImageElement === "undefined" || !(htmlElement instanceof HTMLImageElement)) {
+      return false;
+    }
+    if (!htmlElement.isConnected) {
+      return false;
+    }
+    const style = window.getComputedStyle(htmlElement);
+    if (style.display === "none" || style.visibility === "hidden") {
+      return false;
+    }
+    const rect = htmlElement.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
   }
   _installCanvasAlignmentListeners() {
     window.addEventListener("resize", this._boundScheduleCanvasAlignment, { passive: true });
@@ -207961,7 +210243,7 @@ var SunStudy = class _SunStudy {
     this._driveSky = params.driveSky !== false;
     this._driveSkyPalette = params.driveSkyPalette !== false;
     this._driveExposure = params.driveExposure !== false;
-    this._nightExposureFactor = clamp014(params.nightExposureFactor ?? 0.15);
+    this._nightExposureFactor = clamp015(params.nightExposureFactor ?? 0.15);
     this._nightSkyColor = params.nightSkyColor ?? [0.02, 0.03, 0.08];
     this._nightHorizonColor = params.nightHorizonColor ?? [0.04, 0.05, 0.1];
     this._nightGroundColor = params.nightGroundColor ?? [0.01, 0.01, 0.02];
@@ -208062,7 +210344,7 @@ var SunStudy = class _SunStudy {
   set nightExposureFactor(v) {
     if (this._destroyed)
       return;
-    v = clamp014(v);
+    v = clamp015(v);
     if (v === this._nightExposureFactor)
       return;
     this._nightExposureFactor = v;
@@ -208183,7 +210465,7 @@ function defaultStartDate() {
   const now3 = /* @__PURE__ */ new Date();
   return new Date(Date.UTC(now3.getUTCFullYear(), 5, 21, 12, 0, 0));
 }
-function clamp014(v) {
+function clamp015(v) {
   if (!Number.isFinite(v))
     return 0;
   if (v < 0)
@@ -212720,7 +215002,7 @@ var ModelConverter = class {
           return reject(`[ModelConverter.convert] Can't resolve exporter "${exporterId}", referenced by output "${outputId}" of pipeline "${pipelineId}"`);
         }
       }
-      const scene = new Scene();
+      const scene = new Scene2();
       const data2 = new Data2();
       const modelConverterResult = {
         modelConverter: this,
@@ -234219,6 +236501,13 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       return this._mkBoolInput(parent, key, val, apply3);
     if (typeof val === "number")
       return this._mkNumberInput(parent, key, val, apply3);
+    if (typeof val === "string" && key === "mode" && looksLikeAntiAliasingParams(parent)) {
+      return this._mkStringEnumSelect(parent, key, val, apply3, [
+        ["none", "None"],
+        ["fxaa", "FXAA"],
+        ["smaa", "SMAA"]
+      ]);
+    }
     if (typeof val === "string")
       return this._mkTextInput(parent, key, val, apply3);
     if (isNumberArray(val)) {
@@ -234394,6 +236683,31 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     });
     return inp;
   }
+  _mkStringEnumSelect(parent, key, val, apply3, options) {
+    const sel = el("select", "xkt-vcp-input xkt-vcp-input--enum");
+    let known = false;
+    for (const [value, label] of options) {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = label;
+      if (value === val)
+        known = true;
+      sel.appendChild(opt);
+    }
+    if (!known) {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      opt.disabled = true;
+      sel.appendChild(opt);
+    }
+    sel.value = val;
+    sel.addEventListener("change", () => {
+      parent[key] = sel.value;
+      apply3(key, sel.value);
+    });
+    return sel;
+  }
   _mkNumberArrayInput(parent, key, arr, apply3) {
     const wrap = el("span", "xkt-vcp-arr");
     for (let i = 0; i < arr.length; i++) {
@@ -234522,6 +236836,8 @@ var EFFECT_ORDER = [
   "shadows",
   "sao",
   "bloom",
+  "atmosphere",
+  "depthOfField",
   "tonemap",
   "antiAliasing",
   "edges",
@@ -234541,6 +236857,12 @@ var SLIDER_RANGES = /* @__PURE__ */ new Map([
   // Effect thresholds / exposure-like — small handful with HDR headroom.
   ["threshold", [0, 10, 0.05]],
   ["exposure", [0, 3, 0.01]],
+  ["focusDistance", [0, 500, 1]],
+  ["focalRange", [0.1, 250, 0.5]],
+  ["radius", [0, 12, 0.25]],
+  ["startDistance", [0, 1e3, 1]],
+  ["endDistance", [1, 5e3, 1]],
+  ["maxOpacity", [0, 1, 0.01]],
   // Edge / sun sizes — small integer-ish dials.
   ["edgeWidth", [1, 5, 1]],
   ["sunAngularSize", [0, 30, 0.1]],
@@ -234565,6 +236887,8 @@ var EFFECT_LABELS = /* @__PURE__ */ new Map([
   ["sao", "SAO"],
   ["shadows", "Shadows"],
   ["bloom", "Bloom"],
+  ["atmosphere", "Atmosphere"],
+  ["depthOfField", "Depth of Field"],
   ["tonemap", "Tonemap"],
   ["antiAliasing", "Anti-Aliasing"],
   ["edges", "Edges"],
@@ -234577,6 +236901,12 @@ function isPlainObject2(v) {
 }
 function isNumberArray(v) {
   return Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === "number" && Number.isFinite(x));
+}
+function looksLikeAntiAliasingParams(v) {
+  if (!v || typeof v !== "object" || Array.isArray(v))
+    return false;
+  const keys = Object.keys(v);
+  return keys.length > 0 && keys.every((key) => key === "mode" || key === "renderModes");
 }
 function looksLikeColor(key, arr) {
   if (arr.length !== 3 && arr.length !== 4)
@@ -235796,8 +238126,8 @@ var NavCube = class _NavCube extends FloatingPanelBase {
     const look = cam.look;
     const up = cam.up;
     const fwd = norm3([look[0] - eye[0], look[1] - eye[1], look[2] - eye[2]]);
-    const r = norm3(cross32(fwd, up));
-    const u = cross32(r, fwd);
+    const r = norm3(cross33(fwd, up));
+    const u = cross33(r, fwd);
     const m = this._zUp ? [
       r[0],
       -u[0],
@@ -235842,7 +238172,7 @@ var NavCube = class _NavCube extends FloatingPanelBase {
     ];
     const worldUp = this._zUp ? [0, 0, 1] : [0, 1, 0];
     let up;
-    const dotFU = Math.abs(dot3(worldDir, worldUp));
+    const dotFU = Math.abs(dot32(worldDir, worldUp));
     if (dotFU > 0.999) {
       up = this._zUp ? [0, 1, 0] : [0, 0, -1];
     } else {
@@ -235869,14 +238199,14 @@ function norm3(v) {
   const n = Math.hypot(v[0], v[1], v[2]) || 1;
   return [v[0] / n, v[1] / n, v[2] / n];
 }
-function cross32(a2, b4) {
+function cross33(a2, b4) {
   return [
     a2[1] * b4[2] - a2[2] * b4[1],
     a2[2] * b4[0] - a2[0] * b4[2],
     a2[0] * b4[1] - a2[1] * b4[0]
   ];
 }
-function dot3(a2, b4) {
+function dot32(a2, b4) {
   return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
 }
 function aabb3Diag(aabb) {
@@ -257148,7 +259478,7 @@ var Studio = class _Studio {
       return {};
     }
     sdkProgress.setPhase("Creating scene and data models");
-    this.scene = new Scene();
+    this.scene = new Scene2();
     this.data = new Data2();
     this.viewer = new Viewer();
     const rendererBackend = merged.renderer ?? "webgl";

@@ -111,4 +111,24 @@ describe("ItemDataTexture partial upload (texelsPerItem > 1)", () => {
     expect(tex.uploadChanges()).toBe(false);
     expect(uploads).toHaveLength(0);
   });
+
+  it("uploads one bounded span when dirty items are dense", () => {
+    const uploads: RecordedUpload[] = [];
+    const gl = fakeGL(uploads);
+    const tex = new FourTexelItemTexture(gl, 8, 40);
+    expect(tex.allocate().ok).toBe(true);
+
+    const item = (n: number) => Array.from({length: 16}, (_, i) => n * 100 + i);
+    for (let i = 0; i < 32; i++) {
+      tex.setItem(i, item(i));
+    }
+
+    uploads.length = 0;
+    expect(tex.uploadChanges()).toBe(true);
+
+    expect(uploads).toHaveLength(16);
+    expect(uploads[0]).toEqual({x: 0, y: 0, width: 8, height: 1, data: [...item(0), ...item(1)]});
+    expect(uploads[15]).toEqual({x: 0, y: 15, width: 8, height: 1, data: [...item(30), ...item(31)]});
+    expect(uploads.reduce((n, u) => n + u.width * u.height, 0)).toBe(128);
+  });
 });

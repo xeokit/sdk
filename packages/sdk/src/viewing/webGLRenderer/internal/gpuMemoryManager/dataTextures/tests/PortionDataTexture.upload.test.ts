@@ -107,4 +107,24 @@ describe("PortionDataTexture partial upload (texelsPerItem > 1)", () => {
       expect(u.x + u.width).toBeLessThanOrEqual(8);
     }
   });
+
+  it("uploads one bounded span when dirty portions are dense", () => {
+    const uploads: RecordedUpload[] = [];
+    const gl = fakeGL(uploads);
+    const tex = new FourTexelTexture(gl, 8, 40);
+    expect(tex.allocate().ok).toBe(true);
+
+    const data = (n: number) => Float32Array.from({length: 16}, (_, i) => n * 100 + i);
+    for (let i = 0; i < 16; i++) {
+      expect(tex.getPortion(data(i))).not.toBeNull();
+    }
+
+    uploads.length = 0;
+    expect(tex.uploadChanges()).toBe(true);
+
+    expect(uploads).toHaveLength(8);
+    expect(uploads[0]).toEqual({x: 0, y: 0, width: 8, height: 1, data: [...data(0), ...data(1)]});
+    expect(uploads[7]).toEqual({x: 0, y: 7, width: 8, height: 1, data: [...data(14), ...data(15)]});
+    expect(uploads.reduce((n, u) => n + u.width * u.height, 0)).toBe(64);
+  });
 });

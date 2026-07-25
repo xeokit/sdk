@@ -42,6 +42,7 @@ export abstract class PortionDataTexture extends DataTexture {
    */
   private portionsById: Map<number, PortionHandle> = new Map();
   private readonly dirtyPortionIds: Set<number> = new Set<number>();
+  private readonly _dirtySegmentsScratch: PortionHandle[] = [];
   private nextPortionId: number = 1;
   private uploadAllOnFlush: boolean = false;
   private isPacked: boolean = false;
@@ -349,36 +350,42 @@ export abstract class PortionDataTexture extends DataTexture {
       const texelsPerItem = this.texelsPerItem;
       const texelsPerRow = this.width;
       const elementsPerTexel = this.elementsPerTexel;
-      const segments: Portion[] = [];
+      const segments = this._dirtySegmentsScratch;
+      segments.length = 0;
       for (const id of this.dirtyPortionIds) {
         const handle = this.portionsById.get(id);
         if (handle) {
-          segments.push({base: handle.base, size: handle.size});
+          segments.push(handle);
         }
       }
       segments.sort((a, b) => a.base - b.base);
-      const coalesced: Portion[] = [];
-      for (const seg of segments) {
-        const last = coalesced[coalesced.length - 1];
-        if (last && (last.base + last.size) === seg.base) {
-          last.size += seg.size;
-        } else {
-          coalesced.push({base: seg.base, size: seg.size});
+
+      if (segments.length > 0) {
+        const firstBase = segments[0].base;
+        let lastEnd = firstBase;
+        let dirtyItems = 0;
+        for (const segment of segments) {
+          dirtyItems += segment.size;
+          lastEnd = Math.max(lastEnd, segment.base + segment.size);
         }
-      }
-      for (const portion of coalesced) {
-        let texelBase = portion.base * texelsPerItem;
-        let remainingTexels = portion.size * texelsPerItem;
-        while (remainingTexels > 0) {
-          const xOffset = texelBase % texelsPerRow;
-          const yOffset = Math.floor(texelBase / texelsPerRow);
-          const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
-          const bufferStart = texelBase * elementsPerTexel;
-          const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
-          const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
-          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1, this.format, this.type, pixelData);
-          texelBase += chunkTexels;
-          remainingTexels -= chunkTexels;
+
+        const spanItems = lastEnd - firstBase;
+        if (segments.length >= 16 && dirtyItems * 2 >= spanItems) {
+          this._uploadItemRange(firstBase, spanItems, texelsPerItem, texelsPerRow, elementsPerTexel);
+        } else {
+          let runBase = segments[0].base;
+          let runEnd = runBase + segments[0].size;
+          for (let i = 1; i < segments.length; i++) {
+            const segment = segments[i];
+            if (segment.base <= runEnd) {
+              runEnd = Math.max(runEnd, segment.base + segment.size);
+            } else {
+              this._uploadItemRange(runBase, runEnd - runBase, texelsPerItem, texelsPerRow, elementsPerTexel);
+              runBase = segment.base;
+              runEnd = segment.base + segment.size;
+            }
+          }
+          this._uploadItemRange(runBase, runEnd - runBase, texelsPerItem, texelsPerRow, elementsPerTexel);
         }
       }
     }
@@ -397,5 +404,28 @@ export abstract class PortionDataTexture extends DataTexture {
     this.notifyUpdated();
 
     return true;
+  }
+
+  private _uploadItemRange(
+    startItem: number,
+    count: number,
+    texelsPerItem: number,
+    texelsPerRow: number,
+    elementsPerTexel: number
+  ): void {
+    const gl = this.gl;
+    let texelBase = startItem * texelsPerItem;
+    let remainingTexels = count * texelsPerItem;
+    while (remainingTexels > 0) {
+      const xOffset = texelBase % texelsPerRow;
+      const yOffset = Math.floor(texelBase / texelsPerRow);
+      const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+      const bufferStart = texelBase * elementsPerTexel;
+      const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
+      const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1, this.format, this.type, pixelData);
+      texelBase += chunkTexels;
+      remainingTexels -= chunkTexels;
+    }
   }
 }

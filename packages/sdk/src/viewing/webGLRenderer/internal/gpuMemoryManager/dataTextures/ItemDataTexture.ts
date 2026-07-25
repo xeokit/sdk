@@ -6,6 +6,9 @@ import { DataTexture } from "./DataTexture";
 export abstract class ItemDataTexture extends DataTexture {
 
   private readonly dirtyItemIndices: Set<number> = new Set<number>();
+  private readonly _dirtyItemScratch: number[] = [];
+  private _dirtyMinItem: number = Number.POSITIVE_INFINITY;
+  private _dirtyMaxItem: number = -1;
 
   /**
    * Marks an item as dirty, so it will be uploaded on the next update.
@@ -13,6 +16,12 @@ export abstract class ItemDataTexture extends DataTexture {
    */
   protected setItemDirty(itemIndex: number): void {
     this.dirtyItemIndices.add(itemIndex);
+    if (itemIndex < this._dirtyMinItem) {
+      this._dirtyMinItem = itemIndex;
+    }
+    if (itemIndex > this._dirtyMaxItem) {
+      this._dirtyMaxItem = itemIndex;
+    }
   }
 
   /**
@@ -26,6 +35,8 @@ export abstract class ItemDataTexture extends DataTexture {
    */
   public cancelUploads(): void {
     this.dirtyItemIndices.clear();
+    this._dirtyMinItem = Number.POSITIVE_INFINITY;
+    this._dirtyMaxItem = -1;
   }
 
   /**
@@ -62,23 +73,30 @@ export abstract class ItemDataTexture extends DataTexture {
     const elementsPerTexel = this.elementsPerTexel;
     const buffer = this.buffer;
 
-    const uploadRun = (startItem: number, count: number): void => {
-      let texelBase = startItem * texelsPerItem;
-      let remainingTexels = count * texelsPerItem;
-      while (remainingTexels > 0) {
-        const xOffset = texelBase % texelsPerRow;
-        const yOffset = Math.floor(texelBase / texelsPerRow);
-        const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
-        const bufferStart = texelBase * elementsPerTexel;
-        const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1,
-          this.format, this.type, buffer.subarray(bufferStart, bufferEnd));
-        texelBase += chunkTexels;
-        remainingTexels -= chunkTexels;
-      }
-    };
+    const uploadRun = (startItem: number, count: number): void =>
+      this._uploadItemRange(startItem, count, texelsPerItem, texelsPerRow, elementsPerTexel);
 
-    const sorted = Array.from(this.dirtyItemIndices).sort((a, b) => a - b);
+    const dirtyCount = this.dirtyItemIndices.size;
+    const dirtySpan = this._dirtyMaxItem - this._dirtyMinItem + 1;
+    if (dirtyCount >= 32 && dirtySpan > 0 && dirtyCount * 2 >= dirtySpan) {
+      uploadRun(this._dirtyMinItem, dirtySpan);
+      this._clearDirty();
+      gl.bindTexture(gl.TEXTURE_2D, null);
+
+      if (this.debugging) {
+        this.lastUploadTimeMS = performance.now() - startTimeMs;
+      }
+
+      this.notifyUpdated();
+      return true;
+    }
+
+    const sorted = this._dirtyItemScratch;
+    sorted.length = 0;
+    for (const index of this.dirtyItemIndices) {
+      sorted.push(index);
+    }
+    sorted.sort((a, b) => a - b);
     let runStart = sorted[0];
     let runCount = 1;
     for (let i = 1; i < sorted.length; i++) {
@@ -92,7 +110,7 @@ export abstract class ItemDataTexture extends DataTexture {
     }
     uploadRun(runStart, runCount);
 
-    this.dirtyItemIndices.clear();
+    this._clearDirty();
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     if (this.debugging) {
@@ -102,5 +120,35 @@ export abstract class ItemDataTexture extends DataTexture {
     this.notifyUpdated();
 
     return true;
+  }
+
+  private _uploadItemRange(
+    startItem: number,
+    count: number,
+    texelsPerItem: number,
+    texelsPerRow: number,
+    elementsPerTexel: number
+  ): void {
+    const gl = this.gl;
+    const buffer = this.buffer;
+    let texelBase = startItem * texelsPerItem;
+    let remainingTexels = count * texelsPerItem;
+    while (remainingTexels > 0) {
+      const xOffset = texelBase % texelsPerRow;
+      const yOffset = Math.floor(texelBase / texelsPerRow);
+      const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+      const bufferStart = texelBase * elementsPerTexel;
+      const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1,
+        this.format, this.type, buffer.subarray(bufferStart, bufferEnd));
+      texelBase += chunkTexels;
+      remainingTexels -= chunkTexels;
+    }
+  }
+
+  private _clearDirty(): void {
+    this.dirtyItemIndices.clear();
+    this._dirtyMinItem = Number.POSITIVE_INFINITY;
+    this._dirtyMaxItem = -1;
   }
 }

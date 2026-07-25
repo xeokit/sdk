@@ -91,6 +91,7 @@
  * - {@link formats!fbx | fbx} – Autodesk FBX (binary)
  * - {@link formats!usdz | usdz} – Pixar USDZ
  * - {@link formats!obj | obj} – Wavefront OBJ
+ * - {@link formats!ply | ply} – Polygon File Format
  * - {@link formats!mtl | mtl} – Wavefront MTL
  * - {@link formats!dwg | dwg} – AutoCAD DWG
  * - {@link formats!dxf | dxf} – AutoCAD DXF
@@ -154,6 +155,7 @@ export * as gaussiansplat from "./gaussiansplat";
 export * as metamodel from "./legacy/metamodel";
 export * as xkt from "./legacy/xkt";
 export * as obj from "./obj";
+export * as ply from "./ply";
 export * as mtl from "./mtl";
 export * as fbx from "./fbx";
 export * as usdz from "./usdz";

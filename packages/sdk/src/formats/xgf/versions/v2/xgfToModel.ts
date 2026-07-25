@@ -19,6 +19,8 @@ import {
   TrianglesPrimitive
 } from "../../../../base/constants";
 import type {SceneGeometryCompressedParams, SceneModel} from "../../../../model/scene";
+import {createCoordinateSystemTransform} from "../../../../model/scene";
+import {createMat4Float64, mulMat4} from "../../../../base/math/matrix";
 import {createUUID, yieldToHost} from "../../../../base/utils";
 import type {DataModel} from "../../../../model/data";
 import type {Vec3} from "../../../../base/math/vector";
@@ -80,6 +82,12 @@ export async function xgfToModel(params: {
   dataModel?: DataModel,
   options: {
     layerId?: string;
+    /** @private Used by manifest streaming to avoid asset ID collisions across stream namespaces. */
+    idPrefix?: string;
+    /** @private Used by recursive stream loading to translate substream content. */
+    origin?: number[];
+    /** @private Used by recursive stream loading to orient substream content. */
+    coordinateSystem?: any;
     /** @private Used by manifest streaming to avoid mesh ID collisions across chunks. */
     meshIdPrefix?: string;
     /** @private Used by manifest streaming to track chunk ownership without whole-model diffs. */
@@ -91,9 +99,33 @@ export async function xgfToModel(params: {
 
   const {xgfData, sceneModel, dataModel, options} = params;
   const layerId = options?.layerId || "default";
+  const idPrefix = options?.idPrefix || "";
+  const origin = options?.origin;
+  const coordinateSystemMatrix = sceneModel && options?.coordinateSystem
+    ? createCoordinateSystemTransform(options.coordinateSystem, sceneModel.coordinateSystem, createMat4Float64())
+    : undefined;
   const meshIdPrefix = options?.meshIdPrefix;
   const createdIds = options?.createdIds;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
+  const prefixId = (id: string): string => id && idPrefix ? `${idPrefix}${id}` : id;
+  const transformMatrix = (matrix: any, apply: boolean): any => {
+    if (!apply) {
+      return matrix;
+    }
+    const hasOrigin = !!origin && (origin[0] !== 0 || origin[1] !== 0 || origin[2] !== 0);
+    if (!coordinateSystemMatrix && !hasOrigin) {
+      return matrix;
+    }
+    const transformed = coordinateSystemMatrix
+      ? mulMat4(coordinateSystemMatrix, matrix, createMat4Float64())
+      : (matrix.slice ? matrix.slice() : Array.from(matrix));
+    if (hasOrigin) {
+      transformed[12] += origin![0];
+      transformed[13] += origin![1];
+      transformed[14] += origin![2];
+    }
+    return transformed;
+  };
   const fail = (message: string): false => {
     if (createdIds) {
       createdIds.error = message;
@@ -237,7 +269,7 @@ export async function xgfToModel(params: {
 
       // Register the chunk's textures in index order (materials reference by id).
       for (let i = chunkStart; i < chunkEnd; i++) {
-        const id = eachTextureId[i] || `texture-${i}`;
+        const id = prefixId(eachTextureId[i] || `texture-${i}`);
         createdTextureIds.push(id);
         if (sceneModel.textures[id]) {
           continue;
@@ -299,7 +331,7 @@ export async function xgfToModel(params: {
   if (sceneModel) {
     for (let i = 0; i < numMaterials; i++) {
       if ((i & 0x3F) === 0) await step("Building materials", i, numMaterials);
-      const id = eachMaterialId[i];
+      const id = prefixId(eachMaterialId[i]);
       if (sceneModel.materials[id]) {
         continue;
       }
@@ -341,12 +373,13 @@ export async function xgfToModel(params: {
   // ── Transforms -----------───────────────────────────────────────────
   if (sceneModel && eachTransformId && eachTransformMatricesBase && (sceneModel as any).transforms && typeof (sceneModel as any).createTransform === "function") {
     for (let i = 0; i < eachTransformId.length; i++) {
-      const id = eachTransformId[i];
+      const id = prefixId(eachTransformId[i]);
       if (!id || (sceneModel as any).transforms[id]) continue;
       const matricesBase = eachTransformMatricesBase[i];
+      const parentId = eachTransformParentId?.[i] || "";
       const transformResult = sceneModel.createTransform({
         id,
-        matrix: matrices.subarray(matricesBase, matricesBase + 16) as any
+        matrix: transformMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentId) as any
       });
       if (transformResult && transformResult.ok === false) {
         fail(transformResult.error);
@@ -356,8 +389,8 @@ export async function xgfToModel(params: {
     }
     if (eachTransformParentId) {
       for (let i = 0; i < eachTransformId.length; i++) {
-        const id = eachTransformId[i];
-        const parentId = eachTransformParentId[i];
+        const id = prefixId(eachTransformId[i]);
+        const parentId = prefixId(eachTransformParentId[i]);
         if (!id || !parentId) continue;
         const transform = (sceneModel as any).transforms[id];
         if (!transform) {
@@ -448,7 +481,7 @@ export async function xgfToModel(params: {
 
   if (sceneModel && numObjects === 0) {
     for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-      if (!createLocalGeometry(geometryIdx, eachGeometryId?.[geometryIdx] || `${geometryIdx}`)) {
+      if (!createLocalGeometry(geometryIdx, prefixId(eachGeometryId?.[geometryIdx] || `${geometryIdx}`))) {
         return;
       }
     }
@@ -462,7 +495,7 @@ export async function xgfToModel(params: {
       // dense enough for smooth bar updates on big models.
       await step("Building meshes", objectIdx, numObjects);
     }
-    const objectId = eachObjectId[objectIdx];
+    const objectId = prefixId(eachObjectId[objectIdx]);
     const atLastObject = (objectIdx === numObjects - 1);
     const firstMeshIdx = eachObjectMeshesBase[objectIdx];
     const lastMeshIdx  = atLastObject ? (numMeshes - 1) : (eachObjectMeshesBase[objectIdx + 1] - 1);
@@ -473,8 +506,8 @@ export async function xgfToModel(params: {
       if (sceneModel) {
         const geometryIdx = eachMeshGeometriesBase[meshIdx];
         const hasLocalGeometry = geometryIdx !== NO_INDEX && geometryIdx < numGeometries;
-        const geometryId = eachMeshGeometryId?.[meshIdx]
-          || (hasLocalGeometry ? (eachGeometryId?.[geometryIdx] || `${geometryIdx}`) : "");
+        const geometryId = prefixId(eachMeshGeometryId?.[meshIdx]
+          || (hasLocalGeometry ? (eachGeometryId?.[geometryIdx] || `${geometryIdx}`) : ""));
 
         if (!geometryId) {
           fail(`[xgf] Mesh ${meshIdx} has no geometry reference`);
@@ -491,19 +524,19 @@ export async function xgfToModel(params: {
         }
 
         const matricesBase = eachMeshMatricesBase[meshIdx];
-        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
-        const meshParams: any = { id: meshId, geometryId, matrix };
         const parentTransformId = eachMeshParentTransformId?.[meshIdx] || "";
+        const matrix = transformMatrix(matrices.subarray(matricesBase, matricesBase + 16), !parentTransformId);
+        const meshParams: any = { id: meshId, geometryId, matrix };
         if (parentTransformId) {
-          meshParams.parentTransformId = parentTransformId;
+          meshParams.parentTransformId = prefixId(parentTransformId);
         }
 
         const materialId = eachMeshMaterialId?.[meshIdx] || "";
         const materialIdx = eachMeshMaterial[meshIdx];
         if (materialId) {
-          meshParams.materialId = materialId;
+          meshParams.materialId = prefixId(materialId);
         } else if (materialIdx >= 0 && materialIdx < numMaterials) {
-          meshParams.materialId = eachMaterialId[materialIdx];
+          meshParams.materialId = prefixId(eachMaterialId[materialIdx]);
         } else {
           // Inline RGBA fallback — same form as v1.
           const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES;

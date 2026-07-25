@@ -9,4 +9,5 @@ export interface XGFStreamingExportParams {
   chunks: XGFStreamingChunkExportSpec[];
   indexUri?: string;
   runtimeIndexUri?: string;
+  collapseChunkObjects?: boolean;
 }

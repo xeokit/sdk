@@ -3,7 +3,8 @@ import type {XGFStreamingIndex} from "./XGFStreamingIndex";
 import type {
   XGFStreamingRuntimeAABBQuantization,
   XGFStreamingRuntimeChunk,
-  XGFStreamingRuntimeIndex
+  XGFStreamingRuntimeIndex,
+  XGFStreamingRuntimeSubstream
 } from "./XGFStreamingRuntimeIndex";
 
 const ROLE_CODES: Record<XGFChunkManifest["role"], number> = {
@@ -31,17 +32,40 @@ export function writeXGFStreamingRuntimeIndex(index: XGFStreamingIndex): XGFStre
     stringIndexes.set(value, next);
     return next;
   };
-  const aabbQuantization = createAABBQuantization(index.aabb);
+  const aabbQuantization = createAABBQuantization(createRuntimeQuantizationAABB(index));
+  const indexVersion = (index.streams && index.streams.length > 0) || index.coordinateSystem ? "1.2.0" : "1.1.0";
   return {
     format: "XGFStreamingRuntimeIndex",
-    indexVersion: "1.1.0",
+    indexVersion,
     strings,
     aabbQuantization,
     chunks: index.chunks.map(manifest => writeRuntimeChunk(manifest, intern, aabbQuantization)),
+    streams: index.streams?.map(stream => writeRuntimeSubstream(stream, intern, aabbQuantization)),
     root: index.rootChunkIds?.map(intern),
     aabb: index.aabb?.slice(),
+    coordinateSystem: index.coordinateSystem ? JSON.parse(JSON.stringify(index.coordinateSystem)) : undefined,
     metadata: index.metadata ? JSON.parse(JSON.stringify(index.metadata)) : undefined
   };
+}
+
+function writeRuntimeSubstream(
+  stream: NonNullable<XGFStreamingIndex["streams"]>[number],
+  intern: (value: string) => number,
+  aabbQuantization: XGFStreamingRuntimeAABBQuantization | undefined
+): XGFStreamingRuntimeSubstream {
+  const tuple: XGFStreamingRuntimeSubstream = [
+    intern(stream.id),
+    intern(stream.uri),
+    stream.aabb ? stream.aabb.slice() : null,
+    stream.origin ? stream.origin.slice() : null
+  ];
+  if (stream.priority !== undefined || stream.metadata !== undefined) {
+    tuple[4] = stream.priority ?? null;
+  }
+  if (stream.metadata !== undefined) {
+    tuple[5] = JSON.parse(JSON.stringify(stream.metadata));
+  }
+  return tuple;
 }
 
 function writeRuntimeChunk(
@@ -91,6 +115,26 @@ function createAABBQuantization(aabb: number[] | undefined): XGFStreamingRuntime
     origin: [aabb[0], aabb[1], aabb[2]],
     scale
   };
+}
+
+function createRuntimeQuantizationAABB(index: XGFStreamingIndex): number[] | undefined {
+  const aabbs = [
+    index.aabb,
+    ...(index.streams || []).map((stream) => stream.aabb)
+  ].filter((aabb): aabb is number[] => !!aabb && aabb.length === 6);
+  if (aabbs.length === 0) {
+    return undefined;
+  }
+  const result = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  for (const aabb of aabbs) {
+    result[0] = Math.min(result[0], aabb[0]);
+    result[1] = Math.min(result[1], aabb[1]);
+    result[2] = Math.min(result[2], aabb[2]);
+    result[3] = Math.max(result[3], aabb[3]);
+    result[4] = Math.max(result[4], aabb[4]);
+    result[5] = Math.max(result[5], aabb[5]);
+  }
+  return result;
 }
 
 function createAABBScale(extent: number): number {

@@ -50,6 +50,8 @@ export interface XGFStreamExportOptions extends ModelExportOptions {
   index?: string;
   /** Optional compact runtime index filename. */
   runtimeIndex?: string;
+  /** Experimental: write each references-only chunk as one SceneObject containing all chunk meshes. */
+  collapseChunkObjects?: boolean;
 }
 
 /**
@@ -132,7 +134,8 @@ async function encodeXGFStream(params: ModelEncodeParams, options: XGFStreamExpo
     assetLibraries,
     chunks,
     indexUri: joinUri(baseUri, indexName),
-    runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : undefined
+    runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : undefined,
+    collapseChunkObjects: options.collapseChunkObjects === true
   });
   if (result.ok === false) {
     throw new Error(result.error);

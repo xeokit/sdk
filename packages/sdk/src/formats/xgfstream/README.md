@@ -89,6 +89,13 @@ chunk:
 - **asset/object summaries** — metadata used by tools and loaders to
   track ownership.
 
+Indexes may also include an optional **`coordinateSystem`** object with
+`basis`, `origin`, `units`, and `scaleToMeters`. This records the spatial
+reference frame used by the stream package and is preserved in compact
+runtime indexes. Recursive root indexes can inspect this metadata when
+placing child streams, while `streams[].origin` remains the explicit
+translation used by the current recursive loader.
+
 Runtime indexes are decoded with `readXGFStreamingRuntimeIndex`. The
 function returns an `SDKResult`, so validation failures are reported
 without throwing.
@@ -162,6 +169,30 @@ const {files, index, manifests} = result;
 bytes or JSON objects for the generated indexes/manifests; persist them
 with the same relative paths written in the manifests.
 
+### Node generator scripts
+
+The website stream generators are useful reference scripts for content
+pipelines that run outside the browser:
+
+- [`generate-xgf-streaming-baku-example.js`](../../../../website/scripts/generate-xgf-streaming-baku-example.js)
+  converts a large source GLB through `xeoconvert` into grid-partitioned
+  stream data.
+- [`generate-xgf-streaming-lyon-example.js`](../../../../website/scripts/generate-xgf-streaming-lyon-example.js)
+  loads several XKT files into one `SceneModel`, applies a model
+  coordinate system, and exports one merged stream.
+- [`generate-xgf-streaming-archipelago-example.js`](../../../../website/scripts/generate-xgf-streaming-archipelago-example.js)
+  builds procedural scene content, places existing XGF models, and
+  exports the combined result.
+- [`generate-xgf-streaming-example.js`](../../../../website/scripts/generate-xgf-streaming-example.js)
+  shows explicit asset-library and references-only chunk manifests for a
+  small hand-authored stream.
+- [`generate-xgf-streaming-recursive-example.js`](../../../../website/scripts/generate-xgf-streaming-recursive-example.js)
+  writes a root index that references other stream indexes instead of
+  copying their chunks.
+
+See [`packages/website/scripts/README.md`](../../../../website/scripts/README.md)
+for the current script list and the common generation pipeline.
+
 ---
 
 ## 5. Manual chunk loading
@@ -215,7 +246,10 @@ Handled validation and dependency failures are reported on the owning
 Use `XGFViewStreamController` when chunk loading should follow a `View`.
 It filters references-only chunks by the current camera frustum, loads
 visible chunks first, and orders candidates by distance to the camera look
-point. Already-loaded chunks stay resident.
+point. Set `minProjectedChunkSizePixels` to skip chunks that are visible but
+too small on the canvas, and set `chunkPriorityTarget: "eye"` to prioritize
+from the camera position instead.
+Already-loaded chunks stay resident.
 
 ```ts
 import {XGFViewStreamController} from "@xeokit/sdk/formats/xgfstream";
@@ -225,6 +259,7 @@ const controller = new XGFViewStreamController({
   sceneModel,
   view,
   frustumOnly: true,
+  minProjectedChunkSizePixels: 4,
   batchSize: 8,
   fetchConcurrency: 8,
   commitFrameBudgetMs: 0,

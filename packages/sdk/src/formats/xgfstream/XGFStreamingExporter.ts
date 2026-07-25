@@ -55,7 +55,7 @@ export class XGFStreamingExporter {
       }
 
       for (const spec of params.chunks) {
-        const view = createChunkView(sceneModel, spec.objectIds);
+        const view = createChunkView(sceneModel, spec, params.collapseChunkObjects === true);
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
         const fileData = await this._xgfExporter.write({sceneModel: view as SceneModel}, {assetMode: "referencesOnly"});
         const manifest = createXGFManifest(
@@ -75,10 +75,11 @@ export class XGFStreamingExporter {
 
       const index = {
         format: "XGFStreamingIndex" as const,
-        indexVersion: "1.0.0" as const,
+        indexVersion: "1.2.0" as const,
         chunks: manifests,
         rootChunkIds: params.chunks.map(chunk => chunk.id),
-        aabb: aggregateManifestAABB(manifests)
+        aabb: aggregateManifestAABB(manifests),
+        coordinateSystem: cloneCoordinateSystem(sceneModel.coordinateSystem)
       };
       files[params.indexUri || "index.json"] = writeXGFStreamingIndex(index);
       if (params.runtimeIndexUri) {
@@ -97,6 +98,18 @@ export class XGFStreamingExporter {
       return invalid(`[XGFStreamingExporter.write] ${error?.message || error}`);
     }
   }
+}
+
+function cloneCoordinateSystem(coordinateSystem: any): any | undefined {
+  if (!coordinateSystem) {
+    return undefined;
+  }
+  return {
+    basis: Array.from(coordinateSystem.basis || []),
+    origin: Array.from(coordinateSystem.origin || [0, 0, 0]),
+    units: coordinateSystem.units,
+    scaleToMeters: coordinateSystem.scaleToMeters
+  };
 }
 
 function validateParams(params: XGFStreamingExportParams): SDKResult<void> {
@@ -163,22 +176,26 @@ function createAssetLibraryView(sceneModel: SceneModel, spec: XGFAssetLibraryExp
   });
 }
 
-function createChunkView(sceneModel: SceneModel, objectIds: string[]): any {
+function createChunkView(sceneModel: SceneModel, spec: XGFStreamingChunkExportSpec, collapseObjects: boolean): any {
   const objectSet = new Set<string>();
   const meshSet = new Set<string>();
   const transformSet = new Set<string>();
-  for (const objectId of objectIds) {
+  const chunkMeshes: any[] = [];
+  for (const objectId of spec.objectIds) {
     const object = sceneModel.objects[objectId];
     if (!object) {
       continue;
     }
-    objectSet.add(objectId);
+    if (!collapseObjects) {
+      objectSet.add(objectId);
+    }
     for (const mesh of object.meshes) {
       meshSet.add(mesh.id);
+      chunkMeshes.push(mesh);
       addTransformAncestors(transformSet, mesh.parentTransform);
     }
   }
-  return createView(sceneModel, {
+  const view = createView(sceneModel, {
     objectIds: objectSet,
     meshIds: meshSet,
     transformIds: transformSet,
@@ -186,6 +203,17 @@ function createChunkView(sceneModel: SceneModel, objectIds: string[]): any {
     materialIds: new Set<string>(),
     textureIds: new Set<string>()
   });
+  if (collapseObjects && chunkMeshes.length > 0) {
+    view.objects = {
+      [`${spec.id}/object`]: {
+        id: `${spec.id}/object`,
+        originalSystemId: `${spec.id}/object`,
+        layerId: spec.id,
+        meshes: chunkMeshes
+      }
+    };
+  }
+  return view;
 }
 
 function createView(sceneModel: SceneModel, ids: {

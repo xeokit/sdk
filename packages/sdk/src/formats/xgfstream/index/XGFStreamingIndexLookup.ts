@@ -20,7 +20,7 @@ export class XGFStreamingIndexLookup {
     this.index = index;
     this.byId = {};
     this.byUri = {};
-    for (const chunk of index.chunks) {
+    for (const chunk of index.chunks || []) {
       this.byId[chunk.id] = chunk;
       if (chunk.uri) {
         this.byUri[chunk.uri] = chunk;

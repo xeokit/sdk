@@ -130,9 +130,11 @@
  * ## View-Prioritized Streaming
  *
  * Use {@link XGFViewStreamController} when chunk loading should follow the
- * current view. It tests chunk AABBs against the camera frustum, loads visible
- * chunks first, then orders remaining candidates by distance to the camera look
- * point. Already-loaded chunks are retained.
+ * current view. It tests chunk AABBs against the camera frustum, optionally
+ * drops chunks below `minProjectedChunkSizePixels`, loads visible chunks first,
+ * then orders remaining candidates by distance to the camera look point. Set
+ * `chunkPriorityTarget: "eye"` to prioritize from the camera position instead.
+ * Already-loaded chunks are retained.
  *
  * ```ts
  * import {XGFViewStreamController} from "@xeokit/sdk/formats/xgfstream";
@@ -142,6 +144,7 @@
  *   sceneModel,
  *   view,
  *   frustumOnly: true,
+ *   minProjectedChunkSizePixels: 4,
  *   batchSize: 8,
  *   fetchConcurrency: 8,
  *   loadOptions: {

@@ -288,6 +288,9 @@ export class XGFStreamingLoader {
       createdIds = emptyCreatedIds();
       const parserOptions: any = {
         ...options,
+        idPrefix: (manifest as any).idPrefix,
+        origin: (manifest as any).origin,
+        coordinateSystem: (manifest as any).coordinateSystem,
         meshIdPrefix: key ? `${key}/mesh/` : undefined,
         createdIds
       };

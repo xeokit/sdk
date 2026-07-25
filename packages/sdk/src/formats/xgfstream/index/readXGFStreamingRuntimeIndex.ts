@@ -1,8 +1,12 @@
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import type {XGFChunkDependency} from "../chunk/XGFChunkDependency";
 import type {XGFChunkManifest} from "../chunk/XGFChunkManifest";
-import type {XGFStreamingIndex} from "./XGFStreamingIndex";
-import type {XGFStreamingRuntimeChunk, XGFStreamingRuntimeIndex} from "./XGFStreamingRuntimeIndex";
+import type {XGFStreamingIndex, XGFSubstreamManifest} from "./XGFStreamingIndex";
+import type {
+  XGFStreamingRuntimeChunk,
+  XGFStreamingRuntimeIndex,
+  XGFStreamingRuntimeSubstream
+} from "./XGFStreamingRuntimeIndex";
 import {readXGFStreamingIndex} from "./readXGFStreamingIndex";
 
 const ROLES: XGFChunkManifest["role"][] = ["full", "assetLibrary", "referencesOnly"];
@@ -18,14 +22,17 @@ export function readXGFStreamingRuntimeIndex(json: any): SDKResult<XGFStreamingI
   if (json.format !== "XGFStreamingRuntimeIndex") {
     return invalid("[XGFStreamingRuntimeIndex] Expected format 'XGFStreamingRuntimeIndex'");
   }
-  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0") {
-    return invalid("[XGFStreamingRuntimeIndex] Expected indexVersion '1.0.0' or '1.1.0'");
+  if (json.indexVersion !== "1.0.0" && json.indexVersion !== "1.1.0" && json.indexVersion !== "1.2.0") {
+    return invalid("[XGFStreamingRuntimeIndex] Expected indexVersion '1.0.0', '1.1.0' or '1.2.0'");
   }
-  if (!Array.isArray(json.chunks)) {
+  if (json.chunks !== undefined && !Array.isArray(json.chunks)) {
     return invalid("[XGFStreamingRuntimeIndex] Expected chunks array");
   }
+  if (json.streams !== undefined && !Array.isArray(json.streams)) {
+    return invalid("[XGFStreamingRuntimeIndex] Expected streams array");
+  }
   const runtimeIndex = json as XGFStreamingRuntimeIndex;
-  if (json.indexVersion === "1.1.0") {
+  if (json.indexVersion === "1.1.0" || json.indexVersion === "1.2.0") {
     if (!Array.isArray(json.strings) || !json.strings.every(isNonEmptyString)) {
       return invalid("[XGFStreamingRuntimeIndex] Expected strings table with non-empty strings");
     }
@@ -38,14 +45,24 @@ export function readXGFStreamingRuntimeIndex(json: any): SDKResult<XGFStreamingI
   }
 
   const chunks: XGFChunkManifest[] = [];
-  for (let i = 0; i < json.chunks.length; i++) {
-    const result = json.indexVersion === "1.1.0"
-      ? readRuntimeChunkV11(json.chunks[i], runtimeIndex)
-      : readRuntimeChunk(json.chunks[i]);
+  for (let i = 0; i < (json.chunks || []).length; i++) {
+    const result = json.indexVersion === "1.1.0" || json.indexVersion === "1.2.0"
+      ? readRuntimeChunkV11(json.chunks![i], runtimeIndex)
+      : readRuntimeChunk(json.chunks![i]);
     if (result.ok === false) {
       return invalid(`[XGFStreamingRuntimeIndex.chunks.${i}] ${result.error}`);
     }
     chunks.push(result.value);
+  }
+  const streams: XGFSubstreamManifest[] = [];
+  for (let i = 0; i < (json.streams || []).length; i++) {
+    const result = json.indexVersion === "1.2.0"
+      ? readRuntimeSubstreamV12(json.streams![i], runtimeIndex)
+      : readRuntimeSubstream(json.streams![i]);
+    if (result.ok === false) {
+      return invalid(`[XGFStreamingRuntimeIndex.streams.${i}] ${result.error}`);
+    }
+    streams.push(result.value);
   }
   const rootResult = readRootChunkIds(runtimeIndex);
   if (rootResult.ok === false) {
@@ -54,12 +71,99 @@ export function readXGFStreamingRuntimeIndex(json: any): SDKResult<XGFStreamingI
 
   return readXGFStreamingIndex({
     format: "XGFStreamingIndex",
-    indexVersion: "1.0.0",
+    indexVersion: streams.length > 0 || json.coordinateSystem ? "1.2.0" : "1.0.0",
     chunks,
+    streams: streams.length > 0 ? streams : undefined,
     rootChunkIds: rootResult.value,
     aabb: json.aabb,
+    coordinateSystem: json.coordinateSystem,
     metadata: json.metadata
   });
+}
+
+function readRuntimeSubstream(value: any): SDKResult<XGFSubstreamManifest> {
+  if (!Array.isArray(value) || value.length < 3) {
+    return invalid("Expected compact stream tuple");
+  }
+  const [id, uri, aabb, origin, priority, metadata] = value as [
+    string,
+    string,
+    number[],
+    number[] | null | undefined,
+    number | null | undefined,
+    Record<string, any> | null | undefined
+  ];
+  if (!isNonEmptyString(id)) {
+    return invalid("Expected non-empty stream id");
+  }
+  if (!isNonEmptyString(uri)) {
+    return invalid("Expected non-empty stream uri");
+  }
+  if (!Array.isArray(aabb) || aabb.length !== 6 || !aabb.every(isFiniteNumber)) {
+    return invalid("Expected stream aabb to contain six finite numbers");
+  }
+  if (origin !== undefined && origin !== null && (!Array.isArray(origin) || origin.length !== 3 || !origin.every(isFiniteNumber))) {
+    return invalid("Expected stream origin to contain three finite numbers when provided");
+  }
+  if (priority !== undefined && priority !== null && !isFiniteNumber(priority)) {
+    return invalid("Expected stream priority to be finite when provided");
+  }
+  if (metadata !== undefined && metadata !== null && !isObject(metadata)) {
+    return invalid("Expected stream metadata to be an object when provided");
+  }
+  return {
+    ok: true,
+    value: {
+      id,
+      uri,
+      aabb: aabb.slice(),
+      origin: origin ? [origin[0], origin[1], origin[2]] : undefined,
+      priority: priority ?? undefined,
+      metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : undefined
+    }
+  };
+}
+
+function readRuntimeSubstreamV12(value: any, index: XGFStreamingRuntimeIndex): SDKResult<XGFSubstreamManifest> {
+  if (!Array.isArray(value) || value.length < 3) {
+    return invalid("Expected compact stream tuple");
+  }
+  const [idRef, uriRef, encodedAABB, origin, priority, metadata] = value as XGFStreamingRuntimeSubstream;
+  const idResult = readStringRef(idRef, index, "stream id");
+  if (idResult.ok === false) {
+    return idResult;
+  }
+  const uriResult = readStringRef(uriRef, index, "stream uri");
+  if (uriResult.ok === false) {
+    return uriResult;
+  }
+  const aabbResult = readRuntimeSubstreamAABB(encodedAABB);
+  if (aabbResult.ok === false) {
+    return aabbResult as SDKResult<XGFSubstreamManifest>;
+  }
+  if (!aabbResult.value) {
+    return invalid("Expected stream aabb to contain six finite numbers");
+  }
+  if (origin !== undefined && origin !== null && (!Array.isArray(origin) || origin.length !== 3 || !origin.every(isFiniteNumber))) {
+    return invalid("Expected stream origin to contain three finite numbers when provided");
+  }
+  if (priority !== undefined && priority !== null && !isFiniteNumber(priority)) {
+    return invalid("Expected stream priority to be finite when provided");
+  }
+  if (metadata !== undefined && metadata !== null && !isObject(metadata)) {
+    return invalid("Expected stream metadata to be an object when provided");
+  }
+  return {
+    ok: true,
+    value: {
+      id: idResult.value,
+      uri: uriResult.value,
+      aabb: aabbResult.value,
+      origin: origin ? [origin[0], origin[1], origin[2]] : undefined,
+      priority: priority ?? undefined,
+      metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : undefined
+    }
+  };
 }
 
 function readRuntimeChunk(value: any): SDKResult<XGFChunkManifest> {
@@ -275,6 +379,16 @@ function readRuntimeAABB(value: any, index: XGFStreamingRuntimeIndex): SDKResult
     decoded[axis + 3] = quantization.origin[axis] + value[axis + 3] * quantization.scale[axis];
   }
   return {ok: true, value: decoded};
+}
+
+function readRuntimeSubstreamAABB(value: any): SDKResult<number[] | undefined> {
+  if (value === null || value === undefined) {
+    return {ok: true, value: undefined};
+  }
+  if (!Array.isArray(value) || value.length !== 6 || !value.every(isFiniteNumber)) {
+    return invalid("Expected stream aabb to contain six finite numbers or null");
+  }
+  return {ok: true, value: value.slice()};
 }
 
 function readRootChunkIds(index: XGFStreamingRuntimeIndex): SDKResult<string[] | undefined> {

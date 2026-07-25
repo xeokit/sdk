@@ -214,6 +214,7 @@ export abstract class DrawTechnique {
   protected _renderContext: RenderContext;
   private _gpuMemoryReader: GPUMemoryReader;
   protected _program: WebGLProgram | null;
+  private _viewUniformFrameId: number = -1;
 
   /**
    * Compilation errors encountered during program initialization.
@@ -621,6 +622,7 @@ export abstract class DrawTechnique {
       return result;
     }
     this._extractTechniqueLocations();
+    this._viewUniformFrameId = -1;
     return {ok: true, value: null};
   }
 
@@ -646,6 +648,7 @@ export abstract class DrawTechnique {
       return result;
     }
     this._extractTechniqueLocations();
+    this._viewUniformFrameId = -1;
     return {ok: true, value: undefined};
   }
 
@@ -4435,6 +4438,148 @@ ${this.triplanar ? `
       gl.uniform1i(uniforms.renderPass, renderPass);
     }
 
+    const canCacheViewUniforms = !this.hasUVs && !this.triplanar;
+    const uploadViewUniforms = !canCacheViewUniforms || this._viewUniformFrameId !== renderContext.uniformFrameId;
+    if (uploadViewUniforms) {
+      this._uploadViewStableUniforms(renderPass);
+      if (canCacheViewUniforms) {
+        this._viewUniformFrameId = renderContext.uniformFrameId;
+      }
+    }
+
+    if (uniforms.pickClipPos) {
+      gl.uniform2fv(uniforms.pickClipPos, <any>renderContext.pickClipPos);
+    }
+
+    if (uniforms.snapClipPos) {
+      gl.uniform2fv(uniforms.snapClipPos, <any>renderContext.snapClipPos);
+    }
+
+    if (uniforms.snapBufferSize) {
+      gl.uniform2fv(uniforms.snapBufferSize, <any>renderContext.snapBufferSize);
+    }
+
+    if (uniforms.silhouetteColor) {
+      if (this.edges) {
+        if (renderPass === RENDER_PASSES.XRAYED) {
+          const material = view.xrayMaterial;
+          const color = material.edgeColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
+        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
+          const material = view.highlightMaterial;
+          const color = material.edgeColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
+        } else if (renderPass === RENDER_PASSES.SELECTED) {
+          const material = view.selectedMaterial;
+          const color = material.edgeColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
+        } else {
+          const material = view.effects.edges;
+          const color = material.edgeColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
+        }
+      } else {
+        if (renderPass === RENDER_PASSES.XRAYED) {
+          const material = view.xrayMaterial;
+          const color = material.fillColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
+        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
+          const material = view.highlightMaterial;
+          const color = material.fillColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
+        } else if (renderPass === RENDER_PASSES.SELECTED) {
+          const material = view.selectedMaterial;
+          const color = material.fillColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
+        } else {
+          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
+        }
+      }
+    }
+
+    // Base-edges "use mesh colour" mode. Only the base edges pass honours it —
+    // x-ray / highlight / selected edges keep their emphasis colour, and every
+    // fill pass keeps mode off — so the shader's mesh-colour branch is gated to
+    // exactly that one case.
+    if (uniforms.edgeColorMode) {
+      const e = view.effects.edges;
+      const baseEdgesPass = this.edges
+        && renderPass !== RENDER_PASSES.XRAYED
+        && renderPass !== RENDER_PASSES.HIGHLIGHTED
+        && renderPass !== RENDER_PASSES.SELECTED;
+      gl.uniform1f(uniforms.edgeColorMode, (baseEdgesPass && e.useMeshColor) ? 1 : 0);
+      if (uniforms.edgeDarken) {
+        gl.uniform1f(uniforms.edgeDarken, e.edgeDarken);
+      }
+    }
+
+    // Note: the SAO occlusion texture is intentionally bound inside _draw,
+    // AFTER the per-batch data textures — _draw resets textureUnit to 0 after _bind
+    // returns, and the data-texture bindings would clobber the unit this binding used.
+    if (uniforms.saoParams) {
+      const sao = view.effects.sao;
+      // Use the scene render size (accounts for Tonemap.renderScale supersampling)
+      // so the fragment shader's UV math matches the SAO texture's resolution.
+      const saoVW = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
+      const saoVH = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
+      gl.uniform4f(uniforms.saoParams, saoVW, saoVH, sao.blendCutoff, sao.blendFactor);
+    }
+
+    // Shadow uniforms: the light VP matrix is always uploaded when the shader
+    // declares it — the shadow-DEPTH pass needs it even though the shadow-map
+    // texture isn't populated yet at that point. The shadowMap sampler itself is
+    // bound in _draw (like the SAO sampler), for the same clobber-avoidance reason.
+    if (uniforms.shadowLightVP) {
+      // Used only by the shadow-depth technique — always the matrix of the
+      // cascade being rendered right now (ShadowPipeline writes it per-slice).
+      gl.uniformMatrix4fv(uniforms.shadowLightVP, false, renderContext.shadowLightViewProjMatrix);
+    }
+    if (uniforms.shadowLightVPs) {
+      // Used by shadow-aware color techniques — all MAX_SHADOW_CASCADES matrices
+      // as one mat4 array. The fragment shader picks the right one per pixel.
+      gl.uniformMatrix4fv(uniforms.shadowLightVPs, false, renderContext.shadowLightViewProjMatrices);
+    }
+    if (uniforms.shadowCascadeSplits) {
+      // `shadowCascadeSplits` is a `float[MAX_SHADOW_CASCADES]`. Only entries
+      // `0 .. cascadeCount - 2` are meaningful boundaries; everything beyond
+      // is set to MAX_VALUE by ShadowPipeline so the cascade-select comparison
+      // never upgrades past the last active cascade.
+      gl.uniform1fv(uniforms.shadowCascadeSplits, renderContext.shadowCascadeSplits);
+    }
+    if (uniforms.shadowCascadeCount) {
+      gl.uniform1i(uniforms.shadowCascadeCount, renderContext.shadowCascadeCount);
+    }
+    if (uniforms.shadowParams) {
+      const shadows = view.effects.shadows;
+      const texelSize = shadows ? 1.0 / Math.max(1, shadows.resolution) : 0.0;
+      // shadowParams = (intensity, depthBias, texelSize, normalOffsetBias)
+      gl.uniform4f(uniforms.shadowParams,
+        shadows ? shadows.intensity : 0.0,
+        shadows ? shadows.bias : 0.003,
+        texelSize,
+        shadows ? shadows.normalOffsetBias : 0.0);
+    }
+    if (uniforms.shadowPcfRadius) {
+      // Kernel size is an odd number in [1, 7]; radius = (size - 1) / 2, so 0..3.
+      const size = view.effects.shadows ? view.effects.shadows.pcfKernelSize : 1;
+      gl.uniform1i(uniforms.shadowPcfRadius, (size - 1) >> 1);
+    }
+    if (uniforms.shadowSlope) {
+      // (dirViewX, dirViewY, dirViewZ, slopeBias)
+      const d = renderContext.shadowLightDirView;
+      gl.uniform4f(uniforms.shadowSlope,
+        d[0], d[1], d[2],
+        view.effects.shadows ? view.effects.shadows.slopeBias : 0.0);
+    }
+    return true;
+  }
+
+  private _uploadViewStableUniforms(renderPass: RenderPassValue): void {
+    const view = this._renderContext.activeView;
+    const gl = this._renderContext.gl;
+    const uniforms = this._uniforms;
+    const renderContext = this._renderContext;
+
     if (uniforms.projMatrix) {
       gl.uniformMatrix4fv(uniforms.projMatrix, false, <any>(renderPass === RENDER_PASSES.PICK
         ? renderContext.pickProjMatrix
@@ -4539,18 +4684,6 @@ ${this.triplanar ? `
       if (count > 0 && uniforms.sectionPlanes) {
         gl.uniform4fv(uniforms.sectionPlanes, buf);
       }
-    }
-
-    if (uniforms.pickClipPos) {
-      gl.uniform2fv(uniforms.pickClipPos, <any>renderContext.pickClipPos);
-    }
-
-    if (uniforms.snapClipPos) {
-      gl.uniform2fv(uniforms.snapClipPos, <any>renderContext.snapClipPos);
-    }
-
-    if (uniforms.snapBufferSize) {
-      gl.uniform2fv(uniforms.snapBufferSize, <any>renderContext.snapBufferSize);
     }
 
     if (uniforms.lightAmbient) {
@@ -4679,120 +4812,6 @@ ${this.triplanar ? `
       const edges = view.effects.edges;
       gl.uniform2f(uniforms.edgeFadeRange, far * edges.edgeFadeStart, far * edges.edgeFadeEnd);
     }
-
-    if (uniforms.silhouetteColor) {
-      if (this.edges) {
-        if (renderPass === RENDER_PASSES.XRAYED) {
-          const material = view.xrayMaterial;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
-          const material = view.highlightMaterial;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        } else if (renderPass === RENDER_PASSES.SELECTED) {
-          const material = view.selectedMaterial;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        } else {
-          const material = view.effects.edges;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        }
-      } else {
-        if (renderPass === RENDER_PASSES.XRAYED) {
-          const material = view.xrayMaterial;
-          const color = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
-        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
-          const material = view.highlightMaterial;
-          const color = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
-        } else if (renderPass === RENDER_PASSES.SELECTED) {
-          const material = view.selectedMaterial;
-          const color = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
-        } else {
-          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
-        }
-      }
-    }
-
-    // Base-edges "use mesh colour" mode. Only the base edges pass honours it —
-    // x-ray / highlight / selected edges keep their emphasis colour, and every
-    // fill pass keeps mode off — so the shader's mesh-colour branch is gated to
-    // exactly that one case.
-    if (uniforms.edgeColorMode) {
-      const e = view.effects.edges;
-      const baseEdgesPass = this.edges
-        && renderPass !== RENDER_PASSES.XRAYED
-        && renderPass !== RENDER_PASSES.HIGHLIGHTED
-        && renderPass !== RENDER_PASSES.SELECTED;
-      gl.uniform1f(uniforms.edgeColorMode, (baseEdgesPass && e.useMeshColor) ? 1 : 0);
-      if (uniforms.edgeDarken) {
-        gl.uniform1f(uniforms.edgeDarken, e.edgeDarken);
-      }
-    }
-
-    // Note: the SAO occlusion texture is intentionally bound inside _draw,
-    // AFTER the per-batch data textures — _draw resets textureUnit to 0 after _bind
-    // returns, and the data-texture bindings would clobber the unit this binding used.
-    if (uniforms.saoParams) {
-      const sao = view.effects.sao;
-      // Use the scene render size (accounts for Tonemap.renderScale supersampling)
-      // so the fragment shader's UV math matches the SAO texture's resolution.
-      const saoVW = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
-      const saoVH = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
-      gl.uniform4f(uniforms.saoParams, saoVW, saoVH, sao.blendCutoff, sao.blendFactor);
-    }
-
-    // Shadow uniforms: the light VP matrix is always uploaded when the shader
-    // declares it — the shadow-DEPTH pass needs it even though the shadow-map
-    // texture isn't populated yet at that point. The shadowMap sampler itself is
-    // bound in _draw (like the SAO sampler), for the same clobber-avoidance reason.
-    if (uniforms.shadowLightVP) {
-      // Used only by the shadow-depth technique — always the matrix of the
-      // cascade being rendered right now (ShadowPipeline writes it per-slice).
-      gl.uniformMatrix4fv(uniforms.shadowLightVP, false, renderContext.shadowLightViewProjMatrix);
-    }
-    if (uniforms.shadowLightVPs) {
-      // Used by shadow-aware color techniques — all MAX_SHADOW_CASCADES matrices
-      // as one mat4 array. The fragment shader picks the right one per pixel.
-      gl.uniformMatrix4fv(uniforms.shadowLightVPs, false, renderContext.shadowLightViewProjMatrices);
-    }
-    if (uniforms.shadowCascadeSplits) {
-      // `shadowCascadeSplits` is a `float[MAX_SHADOW_CASCADES]`. Only entries
-      // `0 .. cascadeCount - 2` are meaningful boundaries; everything beyond
-      // is set to MAX_VALUE by ShadowPipeline so the cascade-select comparison
-      // never upgrades past the last active cascade.
-      gl.uniform1fv(uniforms.shadowCascadeSplits, renderContext.shadowCascadeSplits);
-    }
-    if (uniforms.shadowCascadeCount) {
-      gl.uniform1i(uniforms.shadowCascadeCount, renderContext.shadowCascadeCount);
-    }
-    if (uniforms.shadowParams) {
-      const shadows = view.effects.shadows;
-      const texelSize = shadows ? 1.0 / Math.max(1, shadows.resolution) : 0.0;
-      // shadowParams = (intensity, depthBias, texelSize, normalOffsetBias)
-      gl.uniform4f(uniforms.shadowParams,
-        shadows ? shadows.intensity : 0.0,
-        shadows ? shadows.bias : 0.003,
-        texelSize,
-        shadows ? shadows.normalOffsetBias : 0.0);
-    }
-    if (uniforms.shadowPcfRadius) {
-      // Kernel size is an odd number in [1, 7]; radius = (size - 1) / 2, so 0..3.
-      const size = view.effects.shadows ? view.effects.shadows.pcfKernelSize : 1;
-      gl.uniform1i(uniforms.shadowPcfRadius, (size - 1) >> 1);
-    }
-    if (uniforms.shadowSlope) {
-      // (dirViewX, dirViewY, dirViewZ, slopeBias)
-      const d = renderContext.shadowLightDirView;
-      gl.uniform4f(uniforms.shadowSlope,
-        d[0], d[1], d[2],
-        view.effects.shadows ? view.effects.shadows.slopeBias : 0.0);
-    }
-    return true;
   }
 
   /**

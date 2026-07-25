@@ -162,6 +162,13 @@ export class RenderContext implements WebGLContextProvider {
   public lastRenderPass: number;
 
   /**
+   * Increments on every render-context reset. Draw techniques use this to
+   * upload view-stable uniforms once per scene/pick/snap pass instead of on
+   * every program rebind.
+   */
+  public uniformFrameId: number = 0;
+
+  /**
    * Width of the FBO the scene is currently being rendered into. Equal to
    * `drawingBufferWidth` when {@link Tonemap.renderScale} is 1; larger when
    * supersampling is on. Post-process passes (tonemap, final AA) use
@@ -500,6 +507,7 @@ export class RenderContext implements WebGLContextProvider {
     }
     this.lastProgramId = -1;
     this.lastRenderPass = -1;
+    this.uniformFrameId++;
     this.pbrEnabled = false;
     this.backfaces = false;
     this.frontface = true;

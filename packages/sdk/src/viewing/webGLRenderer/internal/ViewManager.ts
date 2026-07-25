@@ -622,21 +622,8 @@ export class ViewManager {
     const activeRendererView = this._activeView;
 
     if (activeRendererView && activeRendererView !== rendererView) {
-        // RenderManager rebinds its own scene target on _beginFrame, so a
-        // pre-bound snapshot FBO would be overwritten. The shared WebGL
-        // context is created with preserveDrawingBuffer:true — reading the
-        // canvas straight after the synchronous render returns the pixels
-        // we just drew.
-        this._renderManager.render(activeRendererView, {clear: true});
-        const image = this._renderContext.webglCanvasElement.toDataURL("image/png");
-
-        const htmlElement = activeRendererView.view.htmlElement;
-        (<HTMLImageElement>htmlElement).src = image;
-        // Becoming inactive: restore visibility so the snapshot we
-        // just wrote into .src is what the user sees. Pairs with
-        // the opacity:0 set on the new active view below.
-        htmlElement.style.opacity = "";
-      }
+      this._snapshotInactiveView(activeRendererView);
+    }
 
     this._activeView = rendererView;
     // Hide the new active view's img so the live shared canvas
@@ -673,6 +660,39 @@ export class ViewManager {
     this._observeActiveViewElement(rendererView);
     this._lastCanvasLayout = null;
     this._scheduleActiveViewCanvasAlignment();
+  }
+
+  private _snapshotInactiveView(rendererView: ViewRenderState): void {
+    const htmlElement = rendererView.view.htmlElement;
+
+    if (this._canDisplayInactiveSnapshot(htmlElement)) {
+      // RenderManager rebinds its own scene target on _beginFrame, so a
+      // pre-bound snapshot FBO would be overwritten. The shared WebGL
+      // context is created with preserveDrawingBuffer:true — reading the
+      // canvas straight after the synchronous render returns the pixels
+      // we just drew.
+      this._renderManager.render(rendererView, {clear: true});
+      htmlElement.src = this._renderContext.webglCanvasElement.toDataURL("image/png");
+    }
+
+    // Becoming inactive: restore visibility so either the snapshot (for image
+    // hosts) or the host element itself can receive pointer events again.
+    htmlElement.style.opacity = "";
+  }
+
+  private _canDisplayInactiveSnapshot(htmlElement: HTMLElement): htmlElement is HTMLImageElement {
+    if (typeof HTMLImageElement === "undefined" || !(htmlElement instanceof HTMLImageElement)) {
+      return false;
+    }
+    if (!htmlElement.isConnected) {
+      return false;
+    }
+    const style = window.getComputedStyle(htmlElement);
+    if (style.display === "none" || style.visibility === "hidden") {
+      return false;
+    }
+    const rect = htmlElement.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
   }
 
   private _installCanvasAlignmentListeners(): void {

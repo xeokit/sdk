@@ -34,6 +34,7 @@ export const FORMAT_BY_EXTENSION: Record<string, FormatBinding> = {
   ".e57":   {loader: "e57",           exporter: "e57"},
   ".fbx":   {loader: "fbx",           exporter: "fbx"},
   ".obj":   {loader: "obj",           exporter: "obj"},
+  ".ply":   {loader: "ply",           exporter: "ply"},
   ".mtl":   {loader: "mtl",           exporter: "mtl"},
   ".usdz":  {loader: "usdz",          exporter: "usdz"},
   ".3dxml": {loader: "threedxml",     exporter: "threedxml"},

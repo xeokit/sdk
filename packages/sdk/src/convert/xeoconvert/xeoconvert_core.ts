@@ -11,6 +11,7 @@ import {LASLoader} from "../../formats/las";
 import {IFCExporter, IFCLoader} from "../../formats/ifc";
 import {FBXLoader, FBXExporter} from "../../formats/fbx";
 import {OBJLoader, OBJExporter} from "../../formats/obj";
+import {PLYLoader, PLYExporter} from "../../formats/ply";
 import {MTLLoader, MTLExporter} from "../../formats/mtl";
 import {DXFExporter} from "../../formats/dxf";
 import {SVGExporter} from "../../formats/svg";
@@ -102,6 +103,7 @@ export const modelConverter = new ModelConverter({
     "scenemodel": new SceneModelImporter(),
     "fbx": new FBXLoader(),
     "obj": new OBJLoader(),
+    "ply": new PLYLoader(),
     "mtl": new MTLLoader(),
     "usdz": new USDZLoader(),
     "e57": new E57Loader(),
@@ -124,6 +126,7 @@ export const modelConverter = new ModelConverter({
     "cityjson": new CityJSONExporter(),
     "fbx": new FBXExporter(),
     "obj": new OBJExporter(),
+    "ply": new PLYExporter(),
     "mtl": new MTLExporter(),
     "dxf": new DXFExporter(),
     "svg": new SVGExporter(),

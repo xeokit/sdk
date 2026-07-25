@@ -27,6 +27,7 @@ describe("resolveFormat (xeoconvert generic --in/--out)", () => {
       expect(resolveLoaderId("a.e57")).toBe("e57");
       expect(resolveLoaderId("a.fbx")).toBe("fbx");
       expect(resolveLoaderId("a.obj")).toBe("obj");
+      expect(resolveLoaderId("a.ply")).toBe("ply");
       expect(resolveLoaderId("a.mtl")).toBe("mtl");
       expect(resolveLoaderId("a.usdz")).toBe("usdz");
       expect(resolveLoaderId("a.3dxml")).toBe("threedxml");
@@ -53,6 +54,7 @@ describe("resolveFormat (xeoconvert generic --in/--out)", () => {
       expect(resolveExporterId("a.bim")).toBe("dotbim");
       expect(resolveExporterId("a.fbx")).toBe("fbx");
       expect(resolveExporterId("a.obj")).toBe("obj");
+      expect(resolveExporterId("a.ply")).toBe("ply");
       expect(resolveExporterId("a.mtl")).toBe("mtl");
       expect(resolveExporterId("a.usdz")).toBe("usdz");
       expect(resolveExporterId("a.3dxml")).toBe("threedxml");

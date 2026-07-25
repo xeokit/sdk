@@ -3,6 +3,16 @@ import * as xeokit from "../../js/xeokit-studio-bundle.js";
 const {getAABB3Center} = xeokit.base.math.boundaries;
 const {sdkProgress} = xeokit.base.core;
 const INDEX_URL = "../../models/BakuStadium/xgfstream/index.runtime.json";
+const {
+  DetailedRender,
+  NavigationRender,
+  RealisticRender
+} = xeokit.base.constants;
+const ALL_RENDER_MODES = [
+  NavigationRender,
+  DetailedRender,
+  RealisticRender
+];
 const AUTO_BATCH_SIZE = 8;
 const FETCH_CONCURRENCY = 8;
 const CHUNK_COMMIT_FRAME_BUDGET_MS = 0;
@@ -140,8 +150,16 @@ studio.init().then(async () => {
   const view = studio.viewManager.createView({
     id: "demoView",
     adaptiveQuality: true,
-    backgroundColor: [0.62, 0.79, 0.94],
+    backgroundColor: [0.32, 0.49, 0.94],
+    renderMode: RealisticRender,
     effects: {
+      edges: {
+        renderModes: [RealisticRender],
+        useMeshColor: true,
+        edgeDarken: 0.92,
+        edgeAlpha: 0.75,
+        edgeWidth: 2
+      },
       sky: {
         enabled: true,
         skyColor: [0.38, 0.64, 0.91],
@@ -348,8 +366,9 @@ function hideStartupSpinner() {
 }
 
 function bindCameraStreaming(studio, view, streamController) {
-  const onCamera = (changedView) => {
-    if (changedView === view) {
+  const onCamera = (target) => {
+    if (target === view || target === view.camera) {
+      updateDepthOfFieldFocus(view);
       streamController.schedule("Camera stream");
     }
   };
@@ -391,6 +410,21 @@ function bindIssueCards(studio, view, streamController, cards) {
       window.setTimeout(() => streamController.schedule(`${issue.id} settled`), 950);
     });
   }
+}
+
+function updateDepthOfFieldFocus(view) {
+  view.effects.depthOfField.focusDistance = getPointDistance(view.camera.eye, view.camera.look);
+}
+
+function getViewpointFocusDistance(viewpoint) {
+  return getPointDistance(viewpoint.eye, viewpoint.look);
+}
+
+function getPointDistance(a, b) {
+  const dx = a[0] - b[0];
+  const dy = a[1] - b[1];
+  const dz = a[2] - b[2];
+  return Math.max(1, Math.hypot(dx, dy, dz));
 }
 
 function createIssueCards(container, issues) {

@@ -89,8 +89,17 @@ studio.init().then(async () => {
     adaptiveQuality: true,
     backgroundColor: [0.76, 0.85, 0.91],
     effects: {
+      sao: {
+        renderModes: [xeokit.base.constants.RealisticRender]
+      },
       edges: {
         renderModes: ALL_RENDER_MODES
+      },
+      shadows: {
+        renderModes: [xeokit.base.constants.RealisticRender]
+      },
+      tonemap: {
+        renderModes: []
       },
       sky: {
         enabled: true,

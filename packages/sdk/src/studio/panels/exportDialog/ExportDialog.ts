@@ -25,11 +25,13 @@ import {GaussianSplatsPrimitive} from "../../../base/constants";
 import type {DataModel} from "../../../model/data";
 import type {Studio} from "../../Studio";
 import {XGFExporter}              from "../../../formats/xgf/XGFExporter";
+import {XGFStreamExporter}        from "../../../formats/xgfstream/XGFStreamExporter";
 import {GLTFExporter}             from "../../../formats/gltf/GLTFExporter";
 import {FBXExporter}              from "../../../formats/fbx/FBXExporter";
 import {USDZExporter}             from "../../../formats/usdz/USDZExporter";
 import {GaussianSplatExporter}    from "../../../formats/gaussiansplat/GaussianSplatExporter";
 import {OBJExporter}              from "../../../formats/obj/OBJExporter";
+import {PLYExporter}              from "../../../formats/ply/PLYExporter";
 import {MTLExporter}              from "../../../formats/mtl/MTLExporter";
 import {IFCExporter}              from "../../../formats/ifc/IFCExporter";
 import {DotBIMExporter}           from "../../../formats/dotbim/DotBIMExporter";
@@ -108,7 +110,12 @@ interface FormatEntry {
    * exporters return strings, binary exporters return
    * `ArrayBuffer` / `Uint8Array`.
    */
-  toBytes:  (raw: any) => BlobPart;
+  toBytes?: (raw: any) => BlobPart;
+  /**
+   * Optional multi-file output path for exporters that return a
+   * file map rather than one serial payload.
+   */
+  toDownloads?: (raw: any, filename: string) => ExportDownload[];
   /**
    * Whether this format needs a `DataModel` to be useful. When
    * `true` and the helper has no DataModel for a SceneModel,
@@ -143,11 +150,22 @@ interface FormatEntry {
   sceneModelCompatible?: (sceneModel: SceneModel) => boolean;
 }
 
+interface ExportDownload {
+  filename: string;
+  mime: string;
+  bytes: BlobPart;
+}
+
 const FORMAT_REGISTRY: Record<string, FormatEntry> = {
   xgf: {
     id: "xgf", label: "XGF", ext: "xgf", mime: "application/octet-stream",
     build:   () => new XGFExporter(),
     toBytes: (raw) => raw as ArrayBuffer,
+  },
+  xgfstream: {
+    id: "xgfstream", label: "XGF Stream", ext: "xgfstream", mime: "application/json",
+    build:       () => new XGFStreamExporter(),
+    toDownloads: (raw, filename) => xgfStreamDownloads(raw, filename),
   },
   gltf: {
     id: "gltf", label: "glTF", ext: "glb", mime: "model/gltf-binary",
@@ -173,6 +191,11 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
   obj: {
     id: "obj", label: "OBJ", ext: "obj", mime: "model/obj",
     build:   () => new OBJExporter(),
+    toBytes: (raw) => String(raw),
+  },
+  ply: {
+    id: "ply", label: "PLY", ext: "ply", mime: "model/ply",
+    build:   () => new PLYExporter(),
     toBytes: (raw) => String(raw),
   },
   mtl: {
@@ -248,6 +271,7 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
  */
 const DEFAULT_DATASET_TYPES: string[] = [
   "xgf",
+  "xgfstream",
   "xkt",
   "scenemodel",
   "gltf",
@@ -255,6 +279,7 @@ const DEFAULT_DATASET_TYPES: string[] = [
   "usdz",
   "splat",
   "obj,mtl",
+  "ply",
   "ifc",
   "dotbim",
   "cityjson",
@@ -338,6 +363,13 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       help: "Filename for the XGF download. `{id}` substitutes the SceneModel id.",
     },
   ],
+  "xgfstream": [
+    {
+      id: "xgfStreamName", label: "XGF Stream Name", type: "string",
+      default: "{id}.xgfstream", applyTo: [], filenameFor: "xgfstream",
+      help: "Base name for the XGF Stream download set. `{id}` substitutes the SceneModel id.",
+    },
+  ],
   "scenemodel": [
     {
       id: "sceneModelFileName", label: "JSON Filename", type: "string",
@@ -383,6 +415,13 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       id: "mtlFileName", label: "MTL Filename", type: "string",
       default: "{id}.mtl", applyTo: ["obj"], filenameFor: "mtl",
       help: "Filename for the MTL download — also written into the OBJ's `mtllib` directive so the two link up.",
+    },
+  ],
+  "ply": [
+    {
+      id: "plyFileName", label: "PLY Filename", type: "string",
+      default: "{id}.ply", applyTo: [], filenameFor: "ply",
+      help: "Filename for the ASCII PLY download. Exports triangle and point geometry with vertex colors, normals and UVs when present.",
     },
   ],
   "ifc": [
@@ -1862,9 +1901,11 @@ export class ExportDialog extends FloatingPanelBase {
           dataModel:  t.dataModel,
           version:    t.version,
         }, t.options);
-        const bytes = t.entry.toBytes(raw);
-        downloadBlob(new Blob([bytes], {type: t.entry.mime}), filename);
-        okCount++;
+        const downloads = resolveDownloads(t.entry, raw, filename);
+        for (const download of downloads) {
+          downloadBlob(new Blob([download.bytes], {type: download.mime}), download.filename);
+        }
+        okCount += downloads.length;
       } catch (e: any) {
         errCount++;
         const msg = e?.message ?? String(e);
@@ -1927,6 +1968,55 @@ function humanReadableDatasetLabel(_descriptor: string, ids: string[]): string {
   if (!first) return ids.join(" + ");
   if (ids.length === 1) return first.label;
   return `${first.label} + ${ids.slice(1).map(i => FORMAT_REGISTRY[i]?.label ?? i).join(" + ")}`;
+}
+
+function resolveDownloads(entry: FormatEntry, raw: any, filename: string): ExportDownload[] {
+  if (entry.toDownloads) {
+    return entry.toDownloads(raw, filename);
+  }
+  if (!entry.toBytes) {
+    throw new Error(`[ExportDialog] Format '${entry.id}' has no download encoder`);
+  }
+  return [{
+    filename,
+    mime: entry.mime,
+    bytes: entry.toBytes(raw)
+  }];
+}
+
+function xgfStreamDownloads(raw: any, filename: string): ExportDownload[] {
+  const files = raw?.files;
+  if (!files || typeof files !== "object" || Array.isArray(files)) {
+    throw new Error("[ExportDialog] XGF Stream exporter returned no file map");
+  }
+  const baseName = filename.replace(/\/+$/, "") || "model.xgfstream";
+  const downloads: ExportDownload[] = [];
+  for (const uri of Object.keys(files).sort()) {
+    downloads.push({
+      filename: `${baseName}-${sanitizeDownloadPath(uri)}`,
+      mime: mimeForStreamFile(uri),
+      bytes: streamFileToBytes(files[uri])
+    });
+  }
+  return downloads;
+}
+
+function streamFileToBytes(data: any): BlobPart {
+  if (data instanceof ArrayBuffer || data instanceof Uint8Array || typeof data === "string") {
+    return data;
+  }
+  return JSON.stringify(data, null, 2);
+}
+
+function sanitizeDownloadPath(uri: string): string {
+  return uri
+    .replace(/^\/+/, "")
+    .replace(/[\\/:*?"<>|]+/g, "__")
+    .replace(/^$/, "index.json");
+}
+
+function mimeForStreamFile(uri: string): string {
+  return /\.json$/i.test(uri) ? "application/json" : "application/octet-stream";
 }
 
 function downloadBlob(blob: Blob, filename: string): void {

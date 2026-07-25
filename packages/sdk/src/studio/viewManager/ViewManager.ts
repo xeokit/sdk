@@ -54,7 +54,7 @@ export interface ViewManagerHooks {
    * ViewController have all been constructed and recorded.
    * Studio attaches the context-menu listener and IBL here.
    */
-  onViewCreated?(view: View, record: ViewRecord): void;
+  onViewCreated?(view: View, record: ViewRecord, params: StudioCreateViewParams): void;
 
   /**
    * Fired just before a View is destroyed and removed from the
@@ -164,9 +164,14 @@ export class ViewManager {
     const floatingOpt = viewParams.floating;
     const wantsFloating = floatingOpt === true || (typeof floatingOpt === "object" && floatingOpt !== null);
 
-    // `floating` is the demo's own option — strip it off before forwarding
-    // to viewer.createView so the SDK doesn't see an unknown field.
-    const {floating: _drop, ...sdkViewParams} = viewParams;
+    // `floating` and `adaptiveQuality` are Studio options — strip them off
+    // before forwarding to viewer.createView so the SDK doesn't see unknown
+    // fields.
+    const {
+      adaptiveQuality: _dropAdaptiveQuality,
+      floating: _dropFloating,
+      ...sdkViewParams
+    } = viewParams;
 
     const resolvedViewParams: ViewParams = {
       id: sdkViewParams.id || createUUID(),
@@ -284,7 +289,7 @@ export class ViewManager {
     };
     this.views[view.id] = record;
 
-    this.hooks.onViewCreated?.(view, record);
+    this.hooks.onViewCreated?.(view, record, viewParams);
 
     return view;
   }

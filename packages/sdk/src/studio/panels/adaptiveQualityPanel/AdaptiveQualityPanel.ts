@@ -9,7 +9,7 @@
  * {@link base!constants.NavigationRender | NavigationRender} (during
  * motion) and {@link base!constants.RealisticRender | RealisticRender}
  * (at rest). The renderer side is fully driven by the View's
- * `renderMode` — every effect (SAO, shadows, bloom, FXAA, ACES tonemap,
+ * `renderMode` — every effect (SAO, shadows, bloom, final AA, ACES tonemap,
  * edges, IBL, section caps) gates its own activation on it via the
  * `renderModes` list, so no per-effect setup lives in the panel.
  *

@@ -98,6 +98,13 @@ export interface FloatingPanelBaseParams {
   minHeight?: number;
 
   /**
+   * Initial placement when there is no saved localStorage position.
+   * `"center"` preserves the historical default; `"css"` leaves
+   * the subclass stylesheet's position in effect.
+   */
+  initialPlacement?: "center" | "css";
+
+  /**
    * Z-index tier the panel lives in. `"view"` panels (hosted
    * Views) always sit beneath `"default"` panels (regular demo
    * panels and dialogs); within each tier panels still reorder
@@ -156,6 +163,7 @@ export abstract class FloatingPanelBase {
   protected readonly _resizable: boolean;
   protected readonly _minWidth: number;
   protected readonly _minHeight: number;
+  protected readonly _initialPlacement: "center" | "css";
   protected readonly _tier: "view" | "default";
   protected _destroyed = false;
 
@@ -188,6 +196,7 @@ export abstract class FloatingPanelBase {
     this._resizable = params.resizable !== false && !this._modal;
     this._minWidth  = params.minWidth  ?? 280;
     this._minHeight = params.minHeight ?? 200;
+    this._initialPlacement = params.initialPlacement ?? "center";
     this._tier = params.tier ?? "default";
   }
 
@@ -582,7 +591,7 @@ export abstract class FloatingPanelBase {
       // coordinates are absolute, so any centering translate from
       // the panel's CSS would push it off-screen on restore.
       this._panel.style.transform = "none";
-    } else {
+    } else if (this._initialPlacement === "center") {
       // First time this panel opens for the user — start centred.
       // Drag persists a new position; subsequent opens restore it.
       this._centerPanel();

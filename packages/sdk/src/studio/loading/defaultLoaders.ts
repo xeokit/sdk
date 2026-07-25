@@ -1,4 +1,9 @@
 import {XGFLoader} from "../../formats/xgf";
+import {XGFStreamingLoader} from "../../formats/xgfstream/XGFStreamingLoader";
+import {readXGFStreamingIndex} from "../../formats/xgfstream/index/readXGFStreamingIndex";
+import {readXGFStreamingRuntimeIndex} from "../../formats/xgfstream/index/readXGFStreamingRuntimeIndex";
+import {createXGFStreamingIndexLookup} from "../../formats/xgfstream/index/createXGFStreamingIndexLookup";
+import type {XGFStreamingIndex} from "../../formats/xgfstream/index/XGFStreamingIndex";
 import {IFCLoader} from "../../formats/ifc";
 import {GLTFLoader} from "../../formats/gltf";
 import {FBXLoader} from "../../formats/fbx";
@@ -8,6 +13,7 @@ import {LASLoader} from "../../formats/las";
 import {GaussianSplatLoader} from "../../formats/gaussiansplat";
 import {MTLLoader} from "../../formats/mtl";
 import {OBJLoader} from "../../formats/obj";
+import {PLYLoader} from "../../formats/ply";
 import {DotBIMLoader} from "../../formats/dotbim";
 import {CityJSONLoader} from "../../formats/cityjson";
 import {FDSLoader} from "../../formats/fds";
@@ -17,6 +23,7 @@ import {XKTLoader} from "../../formats/legacy/xkt";
 import {MetaModelLoader} from "../../formats/legacy/metamodel";
 import {DataModelImporter} from "../../formats/datamodel";
 import {SceneModelImporter} from "../../formats/scenemodel";
+import {SDKErrorType, type SDKResult} from "../../base/core";
 
 import {LoaderRegistry} from "./LoaderRegistry";
 
@@ -38,6 +45,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsScene: true,
     needsData: false,
     load: (input, options) => new XGFLoader().load(input, options),
+  });
+
+  r.register("xgfstream", {
+    fetch: "json",
+    needsScene: true,
+    needsData: false,
+    load: async (input, options) => loadXGFStream(input, options),
   });
 
   r.register("ifc", {
@@ -104,6 +118,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsScene: true,
     needsData: false,
     load: (input, options) => new OBJLoader().load(input, options),
+  });
+
+  r.register("ply", {
+    fetch: "text",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new PLYLoader().load(input, options),
   });
 
   // Matches pre-registry behaviour: Studio fetched dotbim as
@@ -174,4 +195,73 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
   });
 
   return r;
+}
+
+async function loadXGFStream(input: any, options: any): Promise<SDKResult<void>> {
+  if (!input.sceneModel) {
+    return invalid("[xgfstream] SceneModel expected");
+  }
+
+  const indexResult = readXGFStreamIndex(input.fileData);
+  if (indexResult.ok === false) {
+    return indexResult;
+  }
+
+  const index = indexResult.value;
+  const lookup = createXGFStreamingIndexLookup(index);
+  const sceneChunkIds = index.rootChunkIds && index.rootChunkIds.length > 0
+    ? index.rootChunkIds
+    : index.chunks.filter(chunk => chunk.role !== "assetLibrary").map(chunk => chunk.id);
+  const sceneChunks = [];
+  for (const chunkId of sceneChunkIds) {
+    const chunk = lookup.byId[chunkId];
+    if (!chunk) {
+      return invalid(`[xgfstream] Stream index references missing root chunk '${chunkId}'`);
+    }
+    sceneChunks.push(chunk);
+  }
+
+  await new XGFStreamingLoader().loadChunks(
+    {
+      manifests: sceneChunks,
+      sceneModel: input.sceneModel,
+      dataModel: input.dataModel
+    },
+    {
+      ...options,
+      manifests: lookup,
+      getFileData: async (manifest) => {
+        if (!manifest.uri) {
+          return undefined;
+        }
+        const uri = resolveStreamUri(options?.baseUri, manifest.uri);
+        const response = await fetch(uri);
+        return response.ok ? response.arrayBuffer() : undefined;
+      }
+    }
+  );
+
+  return {ok: true, value: undefined};
+}
+
+function readXGFStreamIndex(json: any): SDKResult<XGFStreamingIndex> {
+  if (json?.format === "XGFStreamingRuntimeIndex") {
+    return readXGFStreamingRuntimeIndex(json);
+  }
+  return readXGFStreamingIndex(json);
+}
+
+function resolveStreamUri(baseUri: string | undefined, uri: string): string {
+  if (!baseUri || /^(?:[a-z]+:)?\/\//i.test(uri) || uri.startsWith("blob:") || uri.startsWith("data:")) {
+    return uri;
+  }
+  return `${baseUri.replace(/\/?$/, "/")}${uri.replace(/^\/+/, "")}`;
+}
+
+function invalid<T>(error: string): SDKResult<T> {
+  return {
+    ok: false,
+    type: SDKErrorType.InvalidInput,
+    error
+  };
 }

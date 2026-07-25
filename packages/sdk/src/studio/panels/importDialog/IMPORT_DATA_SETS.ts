@@ -130,6 +130,15 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "ply",
+    label: "PLY",
+    defaultBasisId: "y-up",
+    loadsDataSemantics: false,
+    files: [
+      {key: "ply", label: "PLY file", accept: ".ply", loadFormat: "ply", required: true},
+    ],
+  },
+  {
     id: "dotbim",
     label: ".bim",
     defaultBasisId: "z-up",

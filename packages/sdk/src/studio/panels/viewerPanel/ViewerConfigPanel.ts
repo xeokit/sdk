@@ -1451,6 +1451,13 @@ export class ViewerConfigPanel extends FloatingPanelBase {
 
     if (typeof val === "boolean") return this._mkBoolInput(parent, key, val, apply);
     if (typeof val === "number")  return this._mkNumberInput(parent, key, val, apply);
+    if (typeof val === "string" && key === "mode" && looksLikeAntiAliasingParams(parent)) {
+      return this._mkStringEnumSelect(parent, key, val, apply, [
+        ["none", "None"],
+        ["fxaa", "FXAA"],
+        ["smaa", "SMAA"],
+      ]);
+    }
     if (typeof val === "string")  return this._mkTextInput(parent, key, val, apply);
     if (isNumberArray(val)) {
       if (looksLikeColor(key, val)) return this._mkColorArrayInput(parent, key, val, apply);
@@ -1658,6 +1665,37 @@ export class ViewerConfigPanel extends FloatingPanelBase {
     return inp;
   }
 
+  private _mkStringEnumSelect(
+    parent: any,
+    key: string | number,
+    val: string,
+    apply: ApplyFn,
+    options: Array<[value: string, label: string]>,
+  ): HTMLSelectElement {
+    const sel = el("select", "xkt-vcp-input xkt-vcp-input--enum") as HTMLSelectElement;
+    let known = false;
+    for (const [value, label] of options) {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = label;
+      if (value === val) known = true;
+      sel.appendChild(opt);
+    }
+    if (!known) {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      opt.disabled = true;
+      sel.appendChild(opt);
+    }
+    sel.value = val;
+    sel.addEventListener("change", () => {
+      parent[key] = sel.value;
+      apply(key, sel.value);
+    });
+    return sel;
+  }
+
   private _mkNumberArrayInput(parent: any, key: string | number, arr: number[], apply: ApplyFn): HTMLElement {
     const wrap = el("span", "xkt-vcp-arr");
     for (let i = 0; i < arr.length; i++) {
@@ -1825,6 +1863,8 @@ const EFFECT_ORDER: string[] = [
   "shadows",
   "sao",
   "bloom",
+  "atmosphere",
+  "depthOfField",
   "tonemap",
   "antiAliasing",
   "edges",
@@ -1860,6 +1900,12 @@ const SLIDER_RANGES = new Map<string, [number, number, number]>([
   // Effect thresholds / exposure-like — small handful with HDR headroom.
   ["threshold",          [0,  10, 0.05]],
   ["exposure",           [0,  3,  0.01]],
+  ["focusDistance",      [0, 500, 1]],
+  ["focalRange",         [0.1, 250, 0.5]],
+  ["radius",             [0, 12, 0.25]],
+  ["startDistance",      [0, 1000, 1]],
+  ["endDistance",        [1, 5000, 1]],
+  ["maxOpacity",         [0, 1, 0.01]],
   // Edge / sun sizes — small integer-ish dials.
   ["edgeWidth",          [1, 5,    1]],
   ["sunAngularSize",     [0, 30,   0.1]],
@@ -1889,6 +1935,8 @@ const EFFECT_LABELS = new Map<string, string>([
   ["sao",              "SAO"],
   ["shadows",          "Shadows"],
   ["bloom",            "Bloom"],
+  ["atmosphere",       "Atmosphere"],
+  ["depthOfField",     "Depth of Field"],
   ["tonemap",          "Tonemap"],
   ["antiAliasing",     "Anti-Aliasing"],
   ["edges",            "Edges"],
@@ -1904,6 +1952,12 @@ function isPlainObject(v: any): boolean {
 
 function isNumberArray(v: any): v is number[] {
   return Array.isArray(v) && v.length > 0 && v.every(x => typeof x === "number" && Number.isFinite(x));
+}
+
+function looksLikeAntiAliasingParams(v: any): boolean {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const keys = Object.keys(v);
+  return keys.length > 0 && keys.every((key) => key === "mode" || key === "renderModes");
 }
 
 /**

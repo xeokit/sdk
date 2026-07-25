@@ -66,6 +66,9 @@ export class DefaultModelLocator implements ModelLocator {
   }
 
   resolve(modelId: string, format: string): string {
+    if (format === "xgfstream") {
+      return `${this.modelsDir}/${modelId}/${format}/index.runtime.json`;
+    }
     const ext = this.extensions.get(format);
     if (!ext) {
       throw new Error(
@@ -136,6 +139,7 @@ export function optimizedSetFromIndex(
  */
 export const DEFAULT_EXTENSIONS: Record<string, string> = {
   xgf: "xgf",
+  xgfstream: "json",
   ifc: "ifc",
   gltf: "glb",
   fbx: "fbx",

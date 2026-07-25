@@ -109,7 +109,7 @@ const PANEL_CSS = `
 
 .xkt-vol-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   padding: 12px 14px 12px 16px;
   border-bottom: 1px solid #ececec;
@@ -124,17 +124,19 @@ const PANEL_CSS = `
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 1.18;
   font-weight: 650;
   color: #111;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
 }
 .xkt-vol-title-icon {
   flex-shrink: 0;
   width: 24px;
   height: 24px;
+  margin-top: 1px;
   color: #6b8fb5;
   display: inline-flex;
   align-items: center;
@@ -148,9 +150,8 @@ const PANEL_CSS = `
 .xkt-vol-title-text {
   flex-shrink: 1;
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .xkt-vol-close {
   appearance: none;
@@ -160,6 +161,7 @@ const PANEL_CSS = `
   line-height: 1;
   cursor: pointer;
   padding: 2px 6px;
+  flex: 0 0 auto;
   border-radius: 4px;
   color: #666;
 }
@@ -451,6 +453,7 @@ export class VolumeOverlayPanel extends FloatingPanelBase {
       container:   params.container,
       storageKey:  params.storageKey || `xkt-vol-panel-${params.grid.name ?? "field"}`,
       classPrefix: "xkt-vol",
+      initialPlacement: "css",
     } as FloatingPanelBaseParams);
 
     this.grid       = params.grid;

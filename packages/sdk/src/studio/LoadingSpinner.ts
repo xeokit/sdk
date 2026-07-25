@@ -70,16 +70,18 @@ export type ProgressBarOptions = {
  * When configured with ``autoHide: true``, the spinner hides itself shortly after progress reaches 100%.
  */
 export class LoadingSpinner {
+  private static readonly MAX_LOG_ENTRIES = 12;
+
   private total = 0;
   private loaded = 0;
   private phase = sdkProgress.phase;
+  private lastLoggedPhase = "";
 
   private readonly overlay: HTMLDivElement;
   private readonly container: HTMLDivElement;
-  private readonly spinnerWrap: HTMLDivElement;
-  private readonly cube: HTMLDivElement;
   private readonly text: HTMLDivElement;
   private readonly subtext: HTMLDivElement;
+  private readonly phaseLog: HTMLDivElement;
   private readonly progressTrack: HTMLDivElement;
   private readonly progressFill: HTMLDivElement;
 
@@ -103,6 +105,7 @@ export class LoadingSpinner {
       ...options,
     };
 
+    document.body.classList.add("xeokit-loading-spinner-ready");
     this.injectStylesOnce();
 
     // Overlay
@@ -119,34 +122,6 @@ export class LoadingSpinner {
     this.container.setAttribute("role", "progressbar");
     this.container.setAttribute("aria-valuemin", "0");
 
-    // Spinner wrapper
-    this.spinnerWrap = document.createElement("div");
-    this.spinnerWrap.className = "xeokit-spinner-wrap";
-
-    const scene = document.createElement("div");
-    scene.className = "xeokit-spinner-scene";
-
-    this.cube = document.createElement("div");
-    this.cube.className = "xeokit-cube";
-
-    const faces = ["front", "back", "right", "left", "top", "bottom"];
-    for (const face of faces) {
-      const faceEl = document.createElement("div");
-      faceEl.className = `xeokit-cube-face xeokit-cube-face-${face}`;
-      this.cube.appendChild(faceEl);
-    }
-
-    const orbit = document.createElement("div");
-    orbit.className = "xeokit-orbit-ring";
-
-    const glow = document.createElement("div");
-    glow.className = "xeokit-spinner-glow";
-
-    scene.appendChild(glow);
-    scene.appendChild(orbit);
-    scene.appendChild(this.cube);
-    this.spinnerWrap.appendChild(scene);
-
     // Main text
     this.text = document.createElement("div");
     this.text.className = "xeokit-loading-text";
@@ -157,6 +132,10 @@ export class LoadingSpinner {
     this.subtext.className = "xeokit-loading-subtext";
     this.subtext.textContent = "";
 
+    this.phaseLog = document.createElement("div");
+    this.phaseLog.className = "xeokit-loading-log";
+    this.phaseLog.setAttribute("aria-live", "polite");
+
     // Progress bar
     this.progressTrack = document.createElement("div");
     this.progressTrack.className = "xeokit-loading-progress-track";
@@ -166,9 +145,9 @@ export class LoadingSpinner {
 
     this.progressTrack.appendChild(this.progressFill);
 
-    this.container.appendChild(this.spinnerWrap);
     this.container.appendChild(this.text);
     this.container.appendChild(this.subtext);
+    this.container.appendChild(this.phaseLog);
     this.container.appendChild(this.progressTrack);
     this.overlay.appendChild(this.container);
     if (!this.overlay.parentElement) {
@@ -180,6 +159,7 @@ export class LoadingSpinner {
     }
 
     this.render();
+    this.appendPhaseLog(this.phase);
 
     sdkProgress.onTasksAdded.subscribe((_sdkProgress, numAdded) => {
       this.total += numAdded;
@@ -197,6 +177,7 @@ export class LoadingSpinner {
 
     sdkProgress.onPhaseUpdated.subscribe((_sdkProgress, phase) => {
       this.phase = phase;
+      this.appendPhaseLog(phase);
       this.cancelAutoHide();
       this.show();
       this.render();
@@ -313,10 +294,25 @@ export class LoadingSpinner {
 
     this.text.textContent = this.phase;
     this.subtext.textContent = labelText;
+  }
 
-    // Slightly brighten as progress advances
-    const glowStrength = 0.35 + safePct / 180;
-    this.spinnerWrap.style.setProperty("--xeokit-glow-alpha", String(glowStrength));
+  private appendPhaseLog(phase: string): void {
+    const text = phase.trim();
+    if (!text || text === this.lastLoggedPhase) {
+      return;
+    }
+    this.lastLoggedPhase = text;
+
+    const entry = document.createElement("div");
+    entry.className = "xeokit-loading-log-entry";
+    entry.textContent = text;
+    entry.title = text;
+    this.phaseLog.appendChild(entry);
+
+    while (this.phaseLog.childElementCount > LoadingSpinner.MAX_LOG_ENTRIES) {
+      this.phaseLog.firstElementChild?.remove();
+    }
+    this.phaseLog.scrollTop = this.phaseLog.scrollHeight;
   }
 
   /**
@@ -361,6 +357,7 @@ export class LoadingSpinner {
 
       .xeokit-loading-card {
         min-width: 280px;
+        width: min(420px, calc(100vw - 48px));
         max-width: 80%;
         padding: 20px 22px 18px;
         border-radius: 16px;
@@ -373,102 +370,6 @@ export class LoadingSpinner {
         color: #e8eefc;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
-
-      .xeokit-spinner-wrap {
-        --xeokit-glow-alpha: 0.5;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-
-      .xeokit-spinner-scene {
-        position: relative;
-        width: 80px;
-        height: 80px;
-        perspective: 700px;
-      }
-
-      .xeokit-spinner-glow {
-        position: absolute;
-        inset: 50% auto auto 50%;
-        width: 64px;
-        height: 64px;
-        transform: translate(-50%, -50%);
-        border-radius: 999px;
-        background: radial-gradient(circle, rgba(92, 153, 255, var(--xeokit-glow-alpha)) 0%, rgba(92, 153, 255, 0.06) 55%, rgba(92, 153, 255, 0) 72%);
-        filter: blur(6px);
-        animation: xeokit-pulse 1.8s ease-in-out infinite;
-        pointer-events: none;
-      }
-
-      .xeokit-orbit-ring {
-        position: absolute;
-        inset: 50% auto auto 50%;
-        width: 74px;
-        height: 74px;
-        transform: translate(-50%, -50%) rotateX(70deg);
-        border-radius: 999px;
-        border: 1px solid rgba(120, 170, 255, 0.4);
-        box-shadow: 0 0 14px rgba(90, 150, 255, 0.15);
-        animation: xeokit-ring-spin 2.8s linear infinite;
-      }
-
-      .xeokit-orbit-ring::before,
-      .xeokit-orbit-ring::after {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        border-radius: 999px;
-        border: 1px solid rgba(120, 170, 255, 0.18);
-      }
-
-      .xeokit-orbit-ring::before {
-        transform: rotate(60deg);
-      }
-
-      .xeokit-orbit-ring::after {
-        transform: rotate(120deg);
-      }
-
-      .xeokit-cube {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 34px;
-        height: 34px;
-        transform-style: preserve-3d;
-        transform: translate(-50%, -50%) rotateX(-24deg) rotateY(35deg);
-        animation: xeokit-cube-spin 2.2s cubic-bezier(.65,.05,.36,1) infinite;
-      }
-
-      .xeokit-cube-face {
-        position: absolute;
-        width: 34px;
-        height: 34px;
-        box-sizing: border-box;
-        border: 1px solid rgba(168, 206, 255, 0.55);
-        background:
-          linear-gradient(135deg, rgba(95, 155, 255, 0.22), rgba(95, 155, 255, 0.04));
-        box-shadow:
-          inset 0 0 12px rgba(110, 170, 255, 0.12),
-          0 0 10px rgba(80, 140, 255, 0.08);
-        backdrop-filter: blur(2px);
-      }
-
-      .xeokit-cube-face::after {
-        content: "";
-        position: absolute;
-        inset: 5px;
-        border: 1px solid rgba(180, 220, 255, 0.22);
-      }
-
-      .xeokit-cube-face-front  { transform: translateZ(17px); }
-      .xeokit-cube-face-back   { transform: rotateY(180deg) translateZ(17px); }
-      .xeokit-cube-face-right  { transform: rotateY(90deg) translateZ(17px); }
-      .xeokit-cube-face-left   { transform: rotateY(-90deg) translateZ(17px); }
-      .xeokit-cube-face-top    { transform: rotateX(90deg) translateZ(17px); }
-      .xeokit-cube-face-bottom { transform: rotateX(-90deg) translateZ(17px); }
 
       .xeokit-loading-text {
         font-size: 15px;
@@ -484,6 +385,68 @@ export class LoadingSpinner {
         color: rgba(225, 234, 255, 0.72);
         margin-bottom: 12px;
         min-height: 17px;
+      }
+
+      .xeokit-loading-log {
+        height: 116px;
+        margin: 0 0 12px;
+        padding: 9px 10px;
+        overflow: hidden auto;
+        border-radius: 8px;
+        background: rgba(4, 8, 18, 0.58);
+        border: 1px solid rgba(145, 176, 230, 0.18);
+        box-shadow: inset 0 1px 8px rgba(0, 0, 0, 0.22);
+        text-align: left;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(150, 180, 235, 0.48) transparent;
+      }
+
+      .xeokit-loading-log::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .xeokit-loading-log::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .xeokit-loading-log::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(150, 180, 235, 0.42);
+      }
+
+      .xeokit-loading-log-entry {
+        position: relative;
+        min-height: 17px;
+        padding: 2px 0 2px 16px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 1.35;
+        color: rgba(224, 234, 255, 0.74);
+      }
+
+      .xeokit-loading-log-entry::before {
+        content: "";
+        position: absolute;
+        top: 9px;
+        left: 3px;
+        width: 5px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(135, 178, 255, 0.44);
+      }
+
+      .xeokit-loading-log-entry:last-child {
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .xeokit-loading-log-entry:last-child::before {
+        background: #7db6ff;
+        box-shadow: 0 0 8px rgba(125, 182, 255, 0.55);
       }
 
       .xeokit-loading-progress-track {
@@ -504,43 +467,6 @@ export class LoadingSpinner {
         transition: width 160ms ease;
       }
 
-      @keyframes xeokit-cube-spin {
-        0% {
-          transform: translate(-50%, -50%) rotateX(-24deg) rotateY(0deg) rotateZ(0deg);
-        }
-        25% {
-          transform: translate(-50%, -50%) rotateX(56deg) rotateY(90deg) rotateZ(8deg);
-        }
-        50% {
-          transform: translate(-50%, -50%) rotateX(156deg) rotateY(180deg) rotateZ(0deg);
-        }
-        75% {
-          transform: translate(-50%, -50%) rotateX(236deg) rotateY(270deg) rotateZ(-8deg);
-        }
-        100% {
-          transform: translate(-50%, -50%) rotateX(336deg) rotateY(360deg) rotateZ(0deg);
-        }
-      }
-
-      @keyframes xeokit-ring-spin {
-        from {
-          transform: translate(-50%, -50%) rotateX(70deg) rotateZ(0deg);
-        }
-        to {
-          transform: translate(-50%, -50%) rotateX(70deg) rotateZ(360deg);
-        }
-      }
-
-      @keyframes xeokit-pulse {
-        0%, 100% {
-          transform: translate(-50%, -50%) scale(0.92);
-          opacity: 0.72;
-        }
-        50% {
-          transform: translate(-50%, -50%) scale(1.08);
-          opacity: 1;
-        }
-      }
     `;
     document.head.appendChild(style);
   }

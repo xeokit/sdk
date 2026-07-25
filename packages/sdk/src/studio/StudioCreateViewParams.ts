@@ -1,4 +1,5 @@
 import type {ViewParams} from "../viewing/viewer";
+import type {AdaptiveQualityParams} from "../viewing/adaptiveQuality";
 import type {ViewPanelParams} from "./panels/viewPanel";
 
 
@@ -7,6 +8,18 @@ import type {ViewPanelParams} from "./panels/viewPanel";
  * {@link viewing!viewer.ViewParams | ViewParams} with demo-specific options.
  */
 export interface StudioCreateViewParams extends ViewParams {
+
+  /**
+   * Configure Studio's per-View adaptive quality controller.
+   *
+   * - `undefined` / `true` — create an AdaptiveQuality adapter for this View
+   *   using Studio defaults. The View's initial `renderMode` is used as the
+   *   rest mode, so custom modes such as `DetailedRender` survive interaction.
+   * - `false` — do not create an AdaptiveQuality adapter.
+   * - {@link viewing!adaptiveQuality.AdaptiveQualityParams} without `view` —
+   *   create an adapter with the supplied timing / render-mode overrides.
+   */
+  adaptiveQuality?: boolean | Omit<AdaptiveQualityParams, "view">;
 
   /**
    * Open the new View inside a {@link ViewPanel} — a floating,

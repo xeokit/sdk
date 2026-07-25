@@ -39,6 +39,7 @@ import {ViewManager, type ViewRecord} from "./viewManager";
 import {PickingService} from "./picking";
 import type {TransformControlsMode, TransformControlsTarget} from "../viewing/transformControls";
 import {AdaptiveQuality} from "../viewing/adaptiveQuality";
+import type {StudioCreateViewParams} from "./StudioCreateViewParams";
 import type {Vec3} from "../base/math/vector";
 import {encodeRadianceHDR, paintSunSkyHDR} from "../model/procgen/paintEnvironments";
 import {getScenePhysics, type ScenePhysics} from "../simulation/physics";
@@ -423,7 +424,7 @@ export class Studio {
       {
         // Studio layers context-menu setup + IBL on top of the
         // bare View record the manager produces.
-        onViewCreated: (view, record) => this._onViewCreated(view, record),
+        onViewCreated: (view, record, params) => this._onViewCreated(view, record, params),
       },
       {
         maxViews: merged.maxViews ?? 4,
@@ -562,9 +563,11 @@ export class Studio {
    *
    * Supported formats:
    * - `"xgf"` → {@link XGFLoader} (binary)
+   * - `"xgfstream"` → XGF Stream index JSON plus referenced XGF chunks
    * - `"ifc"` → {@link IFCLoader} (binary)
    * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
    * - `"fbx"` → {@link FBXLoader} (binary, `.fbx`)
+   * - `"ply"` → {@link PLYLoader} (text, `.ply`)
    * - `"metamodel"` → {@link MetaModelLoader} (JSON, data-only)
    * - `"datamodel"` → {@link DataModelImporter} (JSON, data-only)
    * - `"scenemodel"` → {@link SceneModelImporter} (JSON, scene-only)
@@ -733,7 +736,7 @@ export class Studio {
    * its ViewController — layers on the right-click context menus
    * and the procedurally-generated HDR sky.
    */
-  private _onViewCreated(view: View, record: ViewRecord): void {
+  private _onViewCreated(view: View, record: ViewRecord, params: StudioCreateViewParams): void {
 
     const {cameraFlight} = record;
 
@@ -809,11 +812,21 @@ export class Studio {
       this.reportWarning(`[Studio] HDR sky setup failed: ${hdrResult.error}`);
     }
 
-    // Adaptive quality on by default for every Studio View: drops to
-    // NavigationRender while the camera moves, back to RealisticRender at
-    // rest. Self-destructs when the View is destroyed. The Adaptive Quality
-    // panel toggles this same per-View adapter.
-    new AdaptiveQuality({view});
+    // Adaptive quality is on by default for every Studio View. It drops to
+    // NavigationRender while the camera moves, then returns to the View's
+    // initial renderMode at rest. Callers can disable or override it via
+    // `studio.viewManager.createView({adaptiveQuality: ...})`.
+    const adaptiveQuality = params.adaptiveQuality;
+    if (adaptiveQuality !== false) {
+      const adaptiveQualityParams = (adaptiveQuality && typeof adaptiveQuality === "object")
+        ? adaptiveQuality
+        : {};
+      new AdaptiveQuality({
+        view,
+        restMode: view.renderMode,
+        ...adaptiveQualityParams,
+      });
+    }
   }
 
   /**

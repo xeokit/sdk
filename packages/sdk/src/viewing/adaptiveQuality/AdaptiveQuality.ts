@@ -24,7 +24,7 @@ export interface AdaptiveQualityParams {
    * Render mode used while the camera is moving. Default
    * {@link base!constants.NavigationRender | NavigationRender}.
    *
-   * Each effect (SAO, shadows, bloom, FXAA, ACES tonemap, edges, …) declares
+   * Each effect (SAO, shadows, bloom, final AA, ACES tonemap, edges, …) declares
    * its own `renderModes` list; an effect activates iff `view.renderMode` is
    * in that list. The Studio defaults exclude `NavigationRender` from every
    * expensive effect, so flipping the View into this mode automatically
@@ -55,7 +55,7 @@ export interface AdaptiveQualityParams {
  * {@link base!constants.RealisticRender | RealisticRender}).
  *
  * The mode switch is the *only* mechanism — this component never touches
- * SAO, shadows, bloom, FXAA, tonemap, edges, IBL or section caps directly.
+ * SAO, shadows, bloom, final AA, tonemap, edges, IBL or section caps directly.
  * Each of those gates its own activation on `view.renderMode`, so flipping
  * the View's mode atomically toggles every effect whose `renderModes` list
  * doesn't include the new mode.

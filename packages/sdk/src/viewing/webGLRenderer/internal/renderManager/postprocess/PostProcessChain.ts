@@ -7,6 +7,7 @@ import {type SDKResult} from "../../../../../base/core";
 import {HDRRenderTarget} from "../hdr/HDRRenderTarget";
 import {TonemapPipeline} from "../hdr/TonemapPipeline";
 import {FXAAPipeline} from "../fxaa/FXAAPipeline";
+import {SMAAPipeline} from "../smaa/SMAAPipeline";
 import {BloomPipeline} from "../bloom/BloomPipeline";
 import {AtmospherePipeline} from "../atmosphere/AtmospherePipeline";
 import {DepthOfFieldPipeline} from "../dof/DepthOfFieldPipeline";
@@ -15,8 +16,8 @@ import {DepthOfFieldPipeline} from "../dof/DepthOfFieldPipeline";
 /**
  * Owns every piece of the HDR substrate and final post-process chain:
  *   - HDR scene render target (RGBA16F).
- *   - LDR intermediate FBO used between tonemap and FXAA.
- *   - Bloom, atmosphere, depth of field, tonemap, and FXAA pipelines.
+ *   - LDR intermediate FBO used between tonemap and final AA.
+ *   - Bloom, atmosphere, depth of field, tonemap, FXAA, and SMAA pipelines.
  *
  * Separates two RenderManager concerns from each other:
  *   1. Where the scene draws (canvas vs. HDR target).
@@ -30,7 +31,7 @@ import {DepthOfFieldPipeline} from "../dof/DepthOfFieldPipeline";
  * Falls back gracefully:
  *   - HDR not supported (extension missing): the whole chain is inert,
  *     scene-binding routes to the default canvas, composite() is a no-op.
- *   - HDR up but FXAA shader fails: renderer still has HDR + tonemap, AA
+ *   - HDR up but a final AA shader fails: renderer still has HDR + tonemap, AA
  *     is silently skipped.
  *   - HDR up but bloom/atmosphere/DOF shader fails: same idea, that effect
  *     is skipped.
@@ -47,6 +48,7 @@ export class PostProcessChain {
   private _hdrTarget: HDRRenderTarget | null = null;
   private _tonemapPipeline: TonemapPipeline | null = null;
   private _fxaaPipeline: FXAAPipeline | null = null;
+  private _smaaPipeline: SMAAPipeline | null = null;
   private _bloomPipeline: BloomPipeline | null = null;
   private _atmospherePipeline: AtmospherePipeline | null = null;
   private _depthOfFieldPipeline: DepthOfFieldPipeline | null = null;
@@ -125,8 +127,8 @@ export class PostProcessChain {
    *
    * Order: optional bloom (HDR → adds back into HDR), optional atmosphere
    * (HDR + depth → HDR intermediate), optional DOF (HDR + depth → HDR
-   * intermediate), tonemap (HDR → LDR), optional FXAA (LDR intermediate →
-   * canvas). When HDR is off, this is a no-op — the scene has already drawn
+   * intermediate), tonemap (HDR -> LDR), optional final AA (LDR intermediate
+   * -> canvas). When HDR is off, this is a no-op — the scene has already drawn
    * straight to the canvas.
    */
   composite(view: View): void {
@@ -176,18 +178,27 @@ export class PostProcessChain {
       }
     }
 
+    const antiAliasing = view.effects.antiAliasing;
     const wantFXAA = !!(
       this._fxaaPipeline &&
       this._ldrIntermediate &&
-      view.effects.antiAliasing.mode === "fxaa" &&
-      view.effects.antiAliasing.applied &&
-      view.effects.antiAliasing.possible
+      antiAliasing.mode === "fxaa" &&
+      antiAliasing.applied &&
+      antiAliasing.possible
+    );
+    const wantSMAA = !!(
+      this._smaaPipeline &&
+      this._smaaPipeline.ready &&
+      this._ldrIntermediate &&
+      antiAliasing.mode === "smaa" &&
+      antiAliasing.applied &&
+      antiAliasing.possible
     );
     const vpW = gl.drawingBufferWidth;
     const vpH = gl.drawingBufferHeight;
 
-    if (wantFXAA) {
-      // 2a. Tonemap → LDR intermediate, then FXAA → canvas.
+    if (wantFXAA || wantSMAA) {
+      // 2a. Tonemap -> LDR intermediate, then final AA -> canvas.
       this._ldrIntermediate!.bind();
       gl.viewport(0, 0, vpW, vpH);
       this._tonemapPipeline!.render({hdrTexture: tonemapSource, view});
@@ -196,11 +207,19 @@ export class PostProcessChain {
       this._ldrIntermediate!.unbind();
       gl.viewport(0, 0, vpW, vpH);
       if (ldrTexture) {
-        this._fxaaPipeline!.render({
-          inputTexture: ldrTexture,
-          viewportWidth: vpW,
-          viewportHeight: vpH
-        });
+        if (wantSMAA) {
+          this._smaaPipeline!.render({
+            inputTexture: ldrTexture,
+            viewportWidth: vpW,
+            viewportHeight: vpH
+          });
+        } else {
+          this._fxaaPipeline!.render({
+            inputTexture: ldrTexture,
+            viewportWidth: vpW,
+            viewportHeight: vpH
+          });
+        }
       }
     } else {
       // 2b. Tonemap straight to the canvas.
@@ -216,6 +235,8 @@ export class PostProcessChain {
     this._tonemapPipeline = null;
     this._fxaaPipeline?.destroy();
     this._fxaaPipeline = null;
+    this._smaaPipeline?.destroy();
+    this._smaaPipeline = null;
     this._bloomPipeline?.destroy();
     this._bloomPipeline = null;
     this._atmospherePipeline?.destroy();
@@ -249,7 +270,9 @@ export class PostProcessChain {
       return;
     }
 
+    this._initFinalAAIntermediate();
     this._initFXAA();
+    this._initSMAA();
     this._initBloom();
     this._initAtmosphere();
     this._initDepthOfField();
@@ -261,17 +284,25 @@ export class PostProcessChain {
     if (result.ok === false) {
       this._fxaaPipeline.destroy();
       this._fxaaPipeline = null;
-      return;
     }
+  }
 
+  private _initSMAA(): void {
+    this._smaaPipeline = new SMAAPipeline(this._renderContext);
+    const result = this._smaaPipeline.init();
+    if (result.ok === false) {
+      this._smaaPipeline.destroy();
+      this._smaaPipeline = null;
+    }
+  }
+
+  private _initFinalAAIntermediate(): void {
     this._ldrIntermediate = new WebGLRenderBuffer(
       this._renderContext.webglCanvasElement,
       this._renderContext.gl,
       {
         depthTexture: false,
-        // FXAA's directional resolve taps sample at sub-texel offsets along
-        // the detected edge — LINEAR filtering is required, NEAREST collapses
-        // the algorithm into a plain box blur.
+        // Final AA passes sample at sub-texel offsets along detected edges.
         colorFilter: "linear"
       }
     );

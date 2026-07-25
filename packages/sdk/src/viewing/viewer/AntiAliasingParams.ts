@@ -5,8 +5,10 @@
  * - `"none"`: no AA pass; the tonemap result goes straight to the canvas.
  * - `"fxaa"`: single-pass fast approximate AA. Smooths geometric edges at
  *   the cost of a slight overall softening.
+ * - `"smaa"`: multi-pass subpixel morphological AA. Preserves more detail
+ *   than FXAA, at higher fullscreen-pass cost.
  */
-export type AntiAliasingMode = "none" | "fxaa";
+export type AntiAliasingMode = "none" | "fxaa" | "smaa";
 
 /**
  * Parameters for an {@link AntiAliasing}.
@@ -26,7 +28,7 @@ export interface AntiAliasingParams {
   renderModes?: number[];
 
   /**
-   * AA mode. Default is `"fxaa"` so AA is on by default when the renderer
+   * AA mode. Default is `"smaa"` so high-quality AA is on by default when the renderer
    * supports it.
    */
   mode?: AntiAliasingMode;

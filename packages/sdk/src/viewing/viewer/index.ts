@@ -101,7 +101,7 @@
  *   palette.
  * - **Lighting + IBL + tonemap** — directional / point / ambient
  *   lights plus image-based lighting; HDR pipeline with bloom +
- *   FXAA + tonemap (Reinhard / ACES / linear).
+ *   FXAA/SMAA + tonemap (Reinhard / ACES / linear).
  * - **Rendering modes** — `RealisticRender` (full PBR + IBL +
  *   shadows), `DetailedRender` (engineering-style with hatched
  *   bodies + section caps), `EdgeRender`, etc.

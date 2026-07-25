@@ -10,7 +10,7 @@
  * ---
  *
  * The mechanism is one line of state: `view.renderMode`. Each renderer
- * effect (SAO, shadows, bloom, FXAA, ACES tonemap, edges, IBL, section
+ * effect (SAO, shadows, bloom, final AA, ACES tonemap, edges, IBL, section
  * caps) declares its own `renderModes` list and gates its activation on
  * `view.renderMode` being in that list. Flipping the View's mode
  * therefore toggles every effect whose list doesn't include the new mode

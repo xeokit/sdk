@@ -7,7 +7,7 @@ import {DetailedRender, RealisticRender} from "../../base/constants";
  * Configures the final antialiasing post-process pass for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.antiAliasing}, which lives at {@link View.effects}.
- * * FXAA runs after {@link Tonemap} so it sees final LDR colours.
+ * * FXAA/SMAA run after {@link Tonemap} so they see final LDR colours.
  * * Has no effect when the renderer has fallen back to LDR mode (no HDR
  *   target), since there's no intermediate texture to filter from.
  */
@@ -24,7 +24,7 @@ export class AntiAliasing {
   constructor(view: View, params: AntiAliasingParams) {
     this.view = view;
     this._renderModes = [DetailedRender, RealisticRender];
-    this._mode = params.mode !== undefined ? params.mode : "fxaa";
+    this._mode = params.mode !== undefined ? params.mode : "smaa";
   }
 
   /**
@@ -77,13 +77,13 @@ export class AntiAliasing {
     return false;
   }
 
-  /** AA mode. Default `"fxaa"`. */
+  /** AA mode. Default `"smaa"`. */
   get mode(): AntiAliasingMode {
     return this._mode;
   }
 
   set mode(value: AntiAliasingMode) {
-    if (value !== "none" && value !== "fxaa") return;
+    if (value !== "none" && value !== "fxaa" && value !== "smaa") return;
     if (this._mode === value) return;
     this._mode = value;
     this.view.needsRender();

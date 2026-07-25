@@ -143,7 +143,7 @@ export class RenderManager {
 
   /**
    * Owns the HDR substrate and the entire post-process chain (bloom →
-   * tonemap → FXAA → canvas). Inert when HDR isn't available; the scene
+   * tonemap -> final AA -> canvas). Inert when HDR isn't available; the scene
    * draws straight to the canvas in that case.
    */
   private _postProcess: PostProcessChain;
@@ -287,7 +287,7 @@ export class RenderManager {
     }
 
     // Post-process chain owns the HDR substrate (RGBA16F target) and every
-    // pass between scene-rendering and the canvas: bloom, tonemap, FXAA. It
+    // pass between scene-rendering and the canvas: bloom, tonemap, final AA. It
     // self-degrades if HDR isn't supported, so init never fails the renderer.
     if (!this._postProcess) {
       this._postProcess = new PostProcessChain(this._renderContext);
@@ -740,7 +740,7 @@ export class RenderManager {
   //   - _classifyBatches: bin sort (delegated to RenderBinClassifier).
   //   - _renderScene: SAO/shadow/scene-depth prep, opaque, edges, silhouettes, transparents.
   //   - _endFrame: tear down scene-phase GL state.
-  //   - _postProcess.composite: bloom + depth-aware effects + tonemap + FXAA → canvas.
+  //   - _postProcess.composite: bloom + depth-aware effects + tonemap + final AA -> canvas.
   // ------------------------------------------------------------------
 
   /** Sets up scene-phase GL state and binds the target the scene draws into. */

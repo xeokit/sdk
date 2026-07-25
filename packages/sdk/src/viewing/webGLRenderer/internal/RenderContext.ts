@@ -164,7 +164,7 @@ export class RenderContext implements WebGLContextProvider {
   /**
    * Width of the FBO the scene is currently being rendered into. Equal to
    * `drawingBufferWidth` when {@link Tonemap.renderScale} is 1; larger when
-   * supersampling is on. Post-process passes (tonemap, FXAA) use
+   * supersampling is on. Post-process passes (tonemap, final AA) use
    * `drawingBufferWidth` — they sample this bigger scene texture down to
    * canvas size on the way out.
    */

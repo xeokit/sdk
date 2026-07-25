@@ -1,0 +1,11 @@
+{
+  "id": "building_sceneModel_forestGenerator",
+  "title": "Procedural Forest Generator",
+  "description": "Creates a SceneModel forest from many procedural trees that share reusable branch and foliage geometry.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "Interaction"
+  ]
+}

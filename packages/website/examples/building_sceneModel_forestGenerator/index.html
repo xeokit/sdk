@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Procedural Forest Generator</title>
+  <link href="../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      user-select: none;
+      background: #dce5d4;
+      color: #1f261d;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #dce5d4;
+      z-index: 100001;
+    }
+
+    #panel {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: min(352px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      box-sizing: border-box;
+      padding: 16px;
+      border: 1px solid rgba(22, 32, 20, 0.14);
+      border-radius: 8px;
+      background: rgba(250, 252, 247, 0.94);
+      box-shadow: 0 18px 44px rgba(22, 32, 20, 0.20);
+      backdrop-filter: blur(8px);
+      z-index: 200000050;
+    }
+
+    #panel h1 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: #1f261d;
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr) 42px;
+      gap: 10px;
+      align-items: center;
+      margin: 9px 0;
+      font-size: 12px;
+    }
+
+    .control label {
+      color: #394236;
+    }
+
+    .control input[type="range"] {
+      width: 100%;
+      min-width: 0;
+      accent-color: #2f6a3e;
+    }
+
+    .control input[type="number"],
+    .control select {
+      min-width: 0;
+      height: 28px;
+      border: 1px solid #d7decf;
+      border-radius: 4px;
+      background: #fff;
+      color: #20231f;
+      font-size: 12px;
+    }
+
+    .control .value {
+      text-align: right;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #2f6a3e;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    button {
+      height: 31px;
+      border: 1px solid #cbd8c2;
+      border-radius: 5px;
+      background: #f5f8f1;
+      color: #1f261d;
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #edf3e8;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid #dbe3d4;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: #255b33;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 4px;
+      color: #5b6757;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 720px) {
+      #panel {
+        top: auto;
+        right: 10px;
+        bottom: 10px;
+        left: 10px;
+        width: auto;
+        max-height: 48vh;
+      }
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<section id="panel">
+  <h1>Procedural Forest Generator</h1>
+  <div class="control">
+    <label for="forestType">Forest</label>
+    <select id="forestType">
+      <option value="mixed">Mixed</option>
+      <option value="broadleaf">Broadleaf</option>
+      <option value="conifer">Conifer</option>
+      <option value="coastal">Coastal</option>
+    </select>
+    <span></span>
+  </div>
+  <div class="control">
+    <label for="treeCount">Trees</label>
+    <input id="treeCount" type="range" min="12" max="240" step="1" value="72">
+    <span id="treeCountValue" class="value"></span>
+  </div>
+  <div class="control">
+    <label for="areaSize">Area</label>
+    <input id="areaSize" type="range" min="35" max="120" step="1" value="78">
+    <span id="areaSizeValue" class="value"></span>
+  </div>
+  <div class="control">
+    <label for="variation">Variation</label>
+    <input id="variation" type="range" min="0.1" max="1" step="0.02" value="0.62">
+    <span id="variationValue" class="value"></span>
+  </div>
+  <div class="control">
+    <label for="canopy">Canopy</label>
+    <input id="canopy" type="range" min="0.2" max="0.9" step="0.02" value="0.56">
+    <span id="canopyValue" class="value"></span>
+  </div>
+  <div class="control">
+    <label for="seed">Seed</label>
+    <input id="seed" type="number" min="1" max="999999" step="1" value="81241">
+    <span></span>
+  </div>
+  <div class="buttons">
+    <button id="randomize" type="button">Randomize</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><strong id="treeStat">0</strong><span>trees</span></div>
+    <div class="stat"><strong id="branchStat">0</strong><span>branches</span></div>
+    <div class="stat"><strong id="leafStat">0</strong><span>leaves</span></div>
+    <div class="stat"><strong id="meshStat">0</strong><span>meshes</span></div>
+  </div>
+</section>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

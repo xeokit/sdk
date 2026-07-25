@@ -314,6 +314,9 @@ function buildScene() {
     },
     renderMode: xeokit.base.constants.RealisticRender,
     effects: {
+      edges: {
+        renderModes: []
+      },
       tonemap: {
         sRGBEncode: true
       }

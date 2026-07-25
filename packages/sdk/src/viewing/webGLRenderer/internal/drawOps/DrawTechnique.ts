@@ -4368,15 +4368,7 @@ ${this.triplanar ? `
     const gl = rc.gl;
     const unit = rc.textureUnit;
     const texture = dataTexture.texture;
-    // Skip the physical bind when this unit already holds this texture (a
-    // frame-wide texture re-requested by every batch in the bin). The sampler
-    // uniform is still pointed at the unit — cheap, and keeps a program whose
-    // sampler hasn't been set this run correct.
-    if (rc.boundTextureUnits[unit] !== texture) {
-      gl.activeTexture(gl.TEXTURE0 + unit);
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      rc.boundTextureUnits[unit] = texture;
-    }
+    rc.bindTexture2D(unit, texture);
     gl.uniform1i(sampler, unit);
     rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
@@ -4392,14 +4384,7 @@ ${this.triplanar ? `
     const rc = this._renderContext;
     const gl = rc.gl;
     const unit = rc.textureUnit;
-    // Same redundant-bind skip as _bindTexture. A cubemap and a 2D texture are
-    // distinct objects, so the per-unit comparison stays correct even though
-    // they occupy separate binding points on the unit.
-    if (rc.boundTextureUnits[unit] !== texture) {
-      gl.activeTexture(gl.TEXTURE0 + unit);
-      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-      rc.boundTextureUnits[unit] = texture;
-    }
+    rc.bindCubemapTexture(unit, texture);
     gl.uniform1i(sampler, unit);
     rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
@@ -4826,10 +4811,9 @@ ${this.triplanar ? `
     const unit = renderContext.textureUnit;
     renderContext.saoOcclusionTexture.bind(unit);
     renderContext.gl.uniform1i(this._samplers.saoOcclusionTexture, unit);
-    // Bound through a wrapper without going via _bindTexture, so the per-unit
-    // tracking can't know the handle — mark the slot unknown to force any later
-    // bind to this unit to re-issue.
-    renderContext.boundTextureUnits[unit] = null;
+    // Bound through a wrapper without exposing the handle, so force any later
+    // tracked bind on this unit to re-issue.
+    renderContext.invalidateTextureBinding(unit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
 
@@ -4859,8 +4843,8 @@ ${this.triplanar ? `
       const unit = renderContext.textureUnit;
       tex.bind(unit);
       gl.uniform1i(sampler, unit);
-      // Wrapper bind, handle unknown to the per-unit tracking — mark unknown.
-      renderContext.boundTextureUnits[unit] = null;
+      // Wrapper bind, handle unknown to the per-unit tracking.
+      renderContext.invalidateTextureBinding(unit);
       renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
     }
   }

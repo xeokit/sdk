@@ -96,10 +96,10 @@ export class RenderContext implements WebGLContextProvider {
   public textureUnit: number;
 
   /**
-   * Which texture is currently bound to each texture unit, indexed by unit.
+   * Which 2D texture is currently bound to each texture unit, indexed by unit.
    *
    * Lets the draw path skip a redundant `gl.bindTexture` when the unit already
-   * holds the texture about to be bound — saving the repeated binds of
+   * holds the texture about to be bound - saving the repeated binds of
    * frame-wide textures (camera matrix, IBL maps) across a bin's batches.
    *
    * Only valid within one uninterrupted batch-draw sequence. Cleared by
@@ -107,7 +107,17 @@ export class RenderContext implements WebGLContextProvider {
    * bin, pick, snap, and the SAO/shadow/cap prep passes), because sub-pipelines
    * and atlas mipmap refreshes bind textures outside this tracking.
    */
-  public boundTextureUnits: (WebGLTexture | null)[];
+  public boundTexture2DUnits: (WebGLTexture | null)[];
+
+  /**
+   * Which cubemap texture is currently bound to each texture unit.
+   */
+  public boundCubemapTextureUnits: (WebGLTexture | null)[];
+
+  /**
+   * Texture unit last selected through this render context.
+   */
+  public activeTextureUnit: number;
 
   /**
    * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
@@ -331,7 +341,9 @@ export class RenderContext implements WebGLContextProvider {
     this.renderInspector = new RenderInspector();
     this.renderInspector.attachGL(gl);
     this.debugging = false;
-    this.boundTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
+    this.boundTexture2DUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
+    this.boundCubemapTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
+    this.activeTextureUnit = -1;
     const placeholderResult = this._allocatePlaceholderTextures();
     if (placeholderResult.ok === false) {
       this.destroy();
@@ -512,6 +524,7 @@ export class RenderContext implements WebGLContextProvider {
     this.backfaces = false;
     this.frontface = true;
     this.textureUnit = 0;
+    this.bindTexture = 0;
     this.pickViewMatrix = null;
     this.pickProjMatrix = null;
     this.pickZNear = 0.01;
@@ -537,17 +550,49 @@ export class RenderContext implements WebGLContextProvider {
   }
 
   /**
-   * Clears the per-unit bound-texture tracking ({@link boundTextureUnits}).
+   * Clears the per-unit bound-texture tracking.
    *
    * Call at the start of every uninterrupted batch-draw sequence so the draw
    * path's redundant-bind skip can't act on stale state left by a sub-pipeline,
    * a splat pass, or a previous frame.
    */
   resetTextureBindings(): void {
-    const bound = this.boundTextureUnits;
-    for (let i = 0, len = bound.length; i < len; i++) {
-      bound[i] = null;
+    const bound2D = this.boundTexture2DUnits;
+    const boundCubemap = this.boundCubemapTextureUnits;
+    for (let i = 0, len = bound2D.length; i < len; i++) {
+      bound2D[i] = null;
+      boundCubemap[i] = null;
     }
+    this.activeTextureUnit = -1;
+  }
+
+  bindTexture2D(unit: number, texture: WebGLTexture | null): boolean {
+    return this._bindTexture(this.gl.TEXTURE_2D, unit, texture, this.boundTexture2DUnits);
+  }
+
+  bindCubemapTexture(unit: number, texture: WebGLTexture | null): boolean {
+    return this._bindTexture(this.gl.TEXTURE_CUBE_MAP, unit, texture, this.boundCubemapTextureUnits);
+  }
+
+  invalidateTextureBinding(unit: number): void {
+    this.boundTexture2DUnits[unit] = null;
+    this.boundCubemapTextureUnits[unit] = null;
+    this.activeTextureUnit = -1;
+  }
+
+  private _bindTexture(target: number, unit: number, texture: WebGLTexture | null, boundTextures: (WebGLTexture | null)[]): boolean {
+    if (boundTextures[unit] === texture) {
+      return false;
+    }
+    const gl = this.gl;
+    if (this.activeTextureUnit !== unit) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      this.activeTextureUnit = unit;
+    }
+    gl.bindTexture(target, texture);
+    this.bindTexture++;
+    boundTextures[unit] = texture;
+    return true;
   }
 
   /**

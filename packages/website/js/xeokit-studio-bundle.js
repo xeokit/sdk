@@ -23684,6 +23684,7 @@ __export(formats_exports, {
   mtl: () => mtl_exports,
   obj: () => obj_exports,
   pdf: () => pdf_exports,
+  ply: () => ply_exports,
   scenemodel: () => scenemodel_exports,
   svg: () => svg_exports,
   threedtiles: () => threedtiles_exports,
@@ -139014,6 +139015,445 @@ var OBJExporter = class extends ModelExporter {
   }
 };
 
+// ../sdk/src/formats/ply/index.ts
+var ply_exports = {};
+__export(ply_exports, {
+  PLYExporter: () => PLYExporter,
+  PLYLoader: () => PLYLoader
+});
+
+// ../sdk/src/formats/ply/versions/v1_0/parse.ts
+var parse22 = async (params, options = {}) => {
+  const { fileData, sceneModel } = params;
+  if (!sceneModel) {
+    throw new Error("[PLYLoader] params.sceneModel is required");
+  }
+  if (typeof fileData !== "string") {
+    throw new Error("[PLYLoader] params.fileData must be a string");
+  }
+  const onProgress = options.onProgress;
+  const signal = options.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  const lines = normalizeNewlines(fileData).split("\n");
+  const header = readHeader(lines);
+  if (header.format !== "ascii") {
+    throw new Error(`[PLYLoader] Unsupported PLY format '${header.format}'. Only ascii 1.0 is supported.`);
+  }
+  const vertexElement = header.elements.find((e) => e.name === "vertex");
+  if (!vertexElement) {
+    throw new Error("[PLYLoader] Missing vertex element");
+  }
+  const positions = [];
+  const normals = [];
+  const uvs = [];
+  const colors = [];
+  const indices = [];
+  let cursor = header.dataStartLine;
+  for (const element of header.elements) {
+    if (cursor + element.count > lines.length + 1) {
+      throw new Error(`[PLYLoader] Element '${element.name}' is truncated`);
+    }
+    if (element.name === "vertex") {
+      parseVertices(lines, cursor, element, positions, normals, uvs, colors);
+    } else if (element.name === "face") {
+      parseFaces(lines, cursor, element, indices);
+    }
+    cursor += element.count;
+    await step2(`Parsing PLY ${element.name}`, element.count, element.count);
+  }
+  if (positions.length === 0) {
+    throw new Error("[PLYLoader] No vertices found");
+  }
+  const vertexCount2 = positions.length / 3;
+  const hasFaces = indices.length > 0;
+  const geometryCfg = {
+    id: createUUID(),
+    primitive: hasFaces ? TrianglesPrimitive : PointsPrimitive,
+    positions
+  };
+  if (hasFaces) {
+    geometryCfg.indices = indices;
+  }
+  if (normals.length === vertexCount2 * 3) {
+    geometryCfg.normals = normals;
+  }
+  if (uvs.length === vertexCount2 * 2) {
+    geometryCfg.uvs = uvs;
+  }
+  if (colors.length === vertexCount2 * 4) {
+    geometryCfg.colors = colors;
+  }
+  const geom = sceneModel.createGeometry(geometryCfg);
+  if (geom.ok === false) {
+    throw new Error(`[PLYLoader] ${geom.error}`);
+  }
+  const meshId = createUUID();
+  const mesh = sceneModel.createMesh({
+    id: meshId,
+    geometryId: geometryCfg.id
+  });
+  if (mesh.ok === false) {
+    throw new Error(`[PLYLoader] ${mesh.error}`);
+  }
+  const object = sceneModel.createObject({
+    id: createUUID(),
+    meshIds: [meshId],
+    layerId: options.layerId
+  });
+  if (object.ok === false) {
+    throw new Error(`[PLYLoader] ${object.error}`);
+  }
+};
+function normalizeNewlines(text) {
+  return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+function readHeader(lines) {
+  if ((lines[0] || "").trim() !== "ply") {
+    throw new Error("[PLYLoader] Missing PLY magic header");
+  }
+  let format = "";
+  const elements = [];
+  let currentElement = null;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line === "" || line.startsWith("comment ")) {
+      continue;
+    }
+    if (line === "end_header") {
+      return { format, elements, dataStartLine: i + 1 };
+    }
+    const parts = line.split(/\s+/);
+    if (parts[0] === "format") {
+      if (parts[2] !== "1.0") {
+        throw new Error(`[PLYLoader] Unsupported PLY version '${parts[2] || ""}'`);
+      }
+      format = parts[1];
+      continue;
+    }
+    if (parts[0] === "element") {
+      currentElement = {
+        name: parts[1],
+        count: parseInt(parts[2], 10),
+        properties: [],
+        lineStart: i
+      };
+      if (!Number.isFinite(currentElement.count) || currentElement.count < 0) {
+        throw new Error(`[PLYLoader] Invalid element count at header line ${i + 1}`);
+      }
+      elements.push(currentElement);
+      continue;
+    }
+    if (parts[0] === "property") {
+      if (!currentElement) {
+        throw new Error(`[PLYLoader] Property without element at header line ${i + 1}`);
+      }
+      if (parts[1] === "list") {
+        currentElement.properties.push({
+          kind: "list",
+          countType: parts[2],
+          itemType: parts[3],
+          name: parts[4]
+        });
+      } else {
+        currentElement.properties.push({
+          kind: "scalar",
+          type: parts[1],
+          name: parts[2]
+        });
+      }
+      continue;
+    }
+  }
+  throw new Error("[PLYLoader] Missing end_header");
+}
+function parseVertices(lines, start, element, positions, normals, uvs, colors) {
+  const xIndex = findScalar(element, "x");
+  const yIndex = findScalar(element, "y");
+  const zIndex = findScalar(element, "z");
+  if (xIndex < 0 || yIndex < 0 || zIndex < 0) {
+    throw new Error("[PLYLoader] Vertex element must contain x, y and z properties");
+  }
+  const nxIndex = findScalar(element, "nx");
+  const nyIndex = findScalar(element, "ny");
+  const nzIndex = findScalar(element, "nz");
+  const uIndex = findFirstScalar(element, ["s", "u", "texture_u", "texture_s"]);
+  const vIndex = findFirstScalar(element, ["t", "v", "texture_v", "texture_t"]);
+  const rIndex = findScalar(element, "red");
+  const gIndex = findScalar(element, "green");
+  const bIndex = findScalar(element, "blue");
+  const aIndex = findScalar(element, "alpha");
+  for (let i = 0; i < element.count; i++) {
+    const values = splitValues(lines[start + i], element, start + i);
+    positions.push(readNumber(values, xIndex), readNumber(values, yIndex), readNumber(values, zIndex));
+    if (nxIndex >= 0 && nyIndex >= 0 && nzIndex >= 0) {
+      normals.push(readNumber(values, nxIndex), readNumber(values, nyIndex), readNumber(values, nzIndex));
+    }
+    if (uIndex >= 0 && vIndex >= 0) {
+      uvs.push(readNumber(values, uIndex), readNumber(values, vIndex));
+    }
+    if (rIndex >= 0 && gIndex >= 0 && bIndex >= 0) {
+      colors.push(
+        colorToFloat(readNumber(values, rIndex)),
+        colorToFloat(readNumber(values, gIndex)),
+        colorToFloat(readNumber(values, bIndex)),
+        aIndex >= 0 ? colorToFloat(readNumber(values, aIndex)) : 1
+      );
+    }
+  }
+}
+function parseFaces(lines, start, element, indices) {
+  const faceProperty = element.properties.find((p) => p.kind === "list" && (p.name === "vertex_indices" || p.name === "vertex_index"));
+  if (!faceProperty) {
+    return;
+  }
+  const propIndex = element.properties.indexOf(faceProperty);
+  for (let i = 0; i < element.count; i++) {
+    const tokens = splitValues(lines[start + i], element, start + i);
+    let cursor = 0;
+    for (let j = 0; j < propIndex; j++) {
+      const prop2 = element.properties[j];
+      cursor += prop2.kind === "list" ? 1 + parseInt(tokens[cursor], 10) : 1;
+    }
+    const count = parseInt(tokens[cursor], 10);
+    if (!Number.isFinite(count) || count < 0 || cursor + count >= tokens.length + 1) {
+      throw new Error(`[PLYLoader] Invalid face list at line ${start + i + 1}`);
+    }
+    const verts = [];
+    for (let j = 0; j < count; j++) {
+      verts.push(parseInt(tokens[cursor + 1 + j], 10));
+    }
+    for (let j = 1; j < verts.length - 1; j++) {
+      indices.push(verts[0], verts[j], verts[j + 1]);
+    }
+  }
+}
+function findScalar(element, name12) {
+  return element.properties.findIndex((p) => p.kind === "scalar" && p.name === name12);
+}
+function findFirstScalar(element, names) {
+  for (const name12 of names) {
+    const index = findScalar(element, name12);
+    if (index >= 0) {
+      return index;
+    }
+  }
+  return -1;
+}
+function splitValues(line, element, lineIndex) {
+  const values = (line || "").trim().split(/\s+/);
+  if (values.length < element.properties.length) {
+    throw new Error(`[PLYLoader] Not enough values at line ${lineIndex + 1}`);
+  }
+  return values;
+}
+function readNumber(values, index) {
+  const value = Number(values[index]);
+  return Number.isFinite(value) ? value : 0;
+}
+function colorToFloat(value) {
+  return value > 1 ? Math.max(0, Math.min(255, value)) / 255 : Math.max(0, Math.min(1, value));
+}
+
+// ../sdk/src/formats/ply/PLYLoader.ts
+var PLYLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "PLY",
+      fileDataType: "text",
+      parsers: {
+        "1.0": parse22
+      },
+      getVersion: () => "1.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/ply/versions/v1_0/encode.ts
+var tempCompressed = createVec3Float64();
+var tempPosition = createVec3Float64();
+var tempWorld = createVec3Float64();
+async function encode18(params, options) {
+  const { sceneModel } = params;
+  if (!sceneModel) {
+    throw new Error("[PLYExporter] params.sceneModel is required");
+  }
+  const opts = options || {};
+  const onProgress = opts.onProgress;
+  const signal = opts.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  const vertices = [];
+  const faces2 = [];
+  const sceneObjects = Object.values(sceneModel.objects || {});
+  for (let i = 0, len = sceneObjects.length; i < len; i++) {
+    if ((i & 31) === 0)
+      await step2("Encoding PLY", i, len);
+    const sceneObject = sceneObjects[i];
+    const meshes = sceneObject.meshes || [];
+    for (const mesh of meshes) {
+      appendMesh(mesh, vertices, faces2);
+    }
+  }
+  await step2("Encoding PLY", sceneObjects.length, sceneObjects.length);
+  if (vertices.length === 0) {
+    throw new Error("[PLYExporter] no triangle or point geometry found to export");
+  }
+  const hasFaces = faces2.length > 0;
+  const hasNormals = vertices.some((v) => v.nx !== void 0 && v.ny !== void 0 && v.nz !== void 0);
+  const hasUVs = vertices.some((v) => v.s !== void 0 && v.t !== void 0);
+  const lines = [
+    "ply",
+    "format ascii 1.0",
+    "comment Created by xeokit PLYExporter",
+    `element vertex ${vertices.length}`,
+    "property float x",
+    "property float y",
+    "property float z"
+  ];
+  if (hasNormals) {
+    lines.push("property float nx", "property float ny", "property float nz");
+  }
+  if (hasUVs) {
+    lines.push("property float s", "property float t");
+  }
+  lines.push(
+    "property uchar red",
+    "property uchar green",
+    "property uchar blue",
+    "property uchar alpha"
+  );
+  if (hasFaces) {
+    lines.push(`element face ${faces2.length}`);
+    lines.push("property list uchar int vertex_indices");
+  }
+  lines.push("end_header");
+  for (const vertex of vertices) {
+    const values = [
+      formatNum2(vertex.x),
+      formatNum2(vertex.y),
+      formatNum2(vertex.z)
+    ];
+    if (hasNormals) {
+      values.push(formatNum2(vertex.nx ?? 0), formatNum2(vertex.ny ?? 0), formatNum2(vertex.nz ?? 1));
+    }
+    if (hasUVs) {
+      values.push(formatNum2(vertex.s ?? 0), formatNum2(vertex.t ?? 0));
+    }
+    values.push(
+      String(vertex.red),
+      String(vertex.green),
+      String(vertex.blue),
+      String(vertex.alpha)
+    );
+    lines.push(values.join(" "));
+  }
+  for (const face of faces2) {
+    lines.push(`${face.length} ${face.join(" ")}`);
+  }
+  return lines.join("\n");
+}
+function appendMesh(mesh, vertices, faces2) {
+  const geometry = mesh.geometry;
+  if (!geometry || geometry.primitive !== TrianglesPrimitive && geometry.primitive !== PointsPrimitive) {
+    return;
+  }
+  const positionsCompressed = geometry.positionsCompressed;
+  if (!positionsCompressed || positionsCompressed.length === 0 || !geometry.aabb) {
+    return;
+  }
+  const vertexOffset = vertices.length;
+  const vertexCount2 = positionsCompressed.length / 3;
+  const matrix = getMeshWorldMatrix(mesh);
+  const decodedNormals = geometry.normalsCompressed ? octDecodeNormalsU16(geometry.normalsCompressed, new Float32Array(geometry.normalsCompressed.length / 2 * 3)) : null;
+  const uvs = geometry.uvsCompressed;
+  const colors = geometry.colorsCompressed;
+  const meshColor = mesh.color || [1, 1, 1];
+  const meshOpacity = mesh.opacity !== void 0 ? mesh.opacity : 1;
+  for (let i = 0; i < vertexCount2; i++) {
+    const src = i * 3;
+    tempCompressed[0] = positionsCompressed[src];
+    tempCompressed[1] = positionsCompressed[src + 1];
+    tempCompressed[2] = positionsCompressed[src + 2];
+    decompressPoint3WithAABB3(tempCompressed, geometry.aabb, tempPosition);
+    transformPoint3(matrix, tempPosition, tempWorld);
+    const vertex = {
+      x: tempWorld[0],
+      y: tempWorld[1],
+      z: tempWorld[2],
+      red: colors ? colors[i * 4] : toByte(meshColor[0]),
+      green: colors ? colors[i * 4 + 1] : toByte(meshColor[1]),
+      blue: colors ? colors[i * 4 + 2] : toByte(meshColor[2]),
+      alpha: colors ? colors[i * 4 + 3] : toByte(meshOpacity)
+    };
+    if (decodedNormals && decodedNormals.length >= (i + 1) * 3) {
+      vertex.nx = decodedNormals[src];
+      vertex.ny = decodedNormals[src + 1];
+      vertex.nz = decodedNormals[src + 2];
+    }
+    if (uvs && uvs.length >= (i + 1) * 2) {
+      vertex.s = uvs[i * 2];
+      vertex.t = uvs[i * 2 + 1];
+    }
+    vertices.push(vertex);
+  }
+  if (geometry.primitive === TrianglesPrimitive) {
+    const indices = geometry.indices;
+    if (indices && indices.length > 0) {
+      for (let i = 0; i < indices.length; i += 3) {
+        faces2.push([
+          vertexOffset + indices[i],
+          vertexOffset + indices[i + 1],
+          vertexOffset + indices[i + 2]
+        ]);
+      }
+    } else {
+      for (let i = 0; i < vertexCount2; i += 3) {
+        faces2.push([vertexOffset + i, vertexOffset + i + 1, vertexOffset + i + 2]);
+      }
+    }
+  }
+}
+function toByte(value) {
+  return Math.max(0, Math.min(255, Math.round((value ?? 1) * 255)));
+}
+function formatNum2(value) {
+  if (!Number.isFinite(value)) {
+    return "0";
+  }
+  return Number(value.toFixed(9)).toString();
+}
+
+// ../sdk/src/formats/ply/PLYExporter.ts
+var PLYExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "PLY",
+      fileDataType: "text",
+      encoders: {
+        "1.0": encode18
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+
 // ../sdk/src/formats/mtl/index.ts
 var mtl_exports = {};
 __export(mtl_exports, {
@@ -139022,7 +139462,7 @@ __export(mtl_exports, {
 });
 
 // ../sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse22 = async (params, options) => {
+var parse23 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -139132,7 +139572,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse22
+        "1.0": parse23
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -139142,7 +139582,7 @@ var MTLLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/mtl/versions/v1_0/encode.ts
-async function encode18(params, options) {
+async function encode19(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -139190,12 +139630,12 @@ async function encode18(params, options) {
     const opacity = mesh.opacity ?? 1;
     const dissolve = clamp013(opacity);
     lines.push(`newmtl ${sanitizeMTLName2(fallbackMaterialId)}`);
-    lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
+    lines.push(`Kd ${formatNum3(color2[0])} ${formatNum3(color2[1])} ${formatNum3(color2[2])}`);
     lines.push(`Ka 0.000000 0.000000 0.000000`);
     lines.push(`Ks 0.000000 0.000000 0.000000`);
     lines.push(`Ns 0.000000`);
-    lines.push(`d ${formatNum2(dissolve)}`);
-    lines.push(`Tr ${formatNum2(1 - dissolve)}`);
+    lines.push(`d ${formatNum3(dissolve)}`);
+    lines.push(`Tr ${formatNum3(1 - dissolve)}`);
     lines.push(`illum 2`);
     lines.push("");
     writtenMaterialIds.add(fallbackMaterialId);
@@ -139208,12 +139648,12 @@ function writeSceneMaterial(lines, materialName, material) {
   const opacity = material.opacity ?? 1;
   const dissolve = clamp013(opacity);
   lines.push(`newmtl ${sanitizeMTLName2(materialName)}`);
-  lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
+  lines.push(`Kd ${formatNum3(color2[0])} ${formatNum3(color2[1])} ${formatNum3(color2[2])}`);
   lines.push(`Ka 0.000000 0.000000 0.000000`);
   lines.push(`Ks 0.000000 0.000000 0.000000`);
   lines.push(`Ns 0.000000`);
-  lines.push(`d ${formatNum2(dissolve)}`);
-  lines.push(`Tr ${formatNum2(1 - dissolve)}`);
+  lines.push(`d ${formatNum3(dissolve)}`);
+  lines.push(`Tr ${formatNum3(1 - dissolve)}`);
   lines.push(`illum 2`);
   if (material.colorTexture?.src) {
     lines.push(`map_Kd ${sanitizeTexturePath(material.colorTexture.src)}`);
@@ -139250,7 +139690,7 @@ function clamp013(value) {
   }
   return value;
 }
-function formatNum2(value) {
+function formatNum3(value) {
   if (!isFinite(value)) {
     return "0";
   }
@@ -139264,7 +139704,7 @@ var MTLExporter = class extends ModelExporter {
       format: "MTL",
       fileDataType: "text",
       encoders: {
-        "1.0": encode18
+        "1.0": encode19
       },
       defaultVersion: "1.0"
     });
@@ -139460,7 +139900,7 @@ function findChild(node, name12) {
 
 // ../sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse23(params, _options) {
+async function parse24(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -139835,7 +140275,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse23
+        binary: parse24
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -139985,7 +140425,7 @@ function concat4(parts) {
 // ../sdk/src/formats/fbx/versions/binary/encode.ts
 var RAD2DEG = 180 / Math.PI;
 var SEP = "\0";
-async function encode19(params, options) {
+async function encode20(params, options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
@@ -140240,7 +140680,7 @@ var FBXExporter = class extends ModelExporter {
       format: "fbx",
       fileDataType: "arraybuffer",
       encoders: {
-        binary: encode19
+        binary: encode20
       },
       defaultVersion: "binary"
     });
@@ -140517,7 +140957,7 @@ function mulMat44(a2, b4) {
 }
 
 // ../sdk/src/formats/usdz/versions/v1/parse.ts
-async function parse24(params, options) {
+async function parse25(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -140557,7 +140997,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse24
+        "1.0": parse25
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -140753,7 +141193,7 @@ function crc322(data2) {
 
 // ../sdk/src/formats/usdz/versions/v1/encode.ts
 var ROOT_LAYER = "model.usda";
-async function encode20(params, options) {
+async function encode21(params, options) {
   const onProgress = options?.onProgress;
   const signal = options?.signal;
   onProgress?.({ phase: "Encoding USDZ", current: 0, total: 1 });
@@ -140903,7 +141343,7 @@ var USDZExporter = class extends ModelExporter {
       format: "usdz",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0": encode20
+        "1.0": encode21
       },
       defaultVersion: "1.0"
     });
@@ -140970,7 +141410,7 @@ async function loadPdfJs(opts) {
   }
   return p;
 }
-async function parse25(input, options = {}) {
+async function parse26(input, options = {}) {
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
   }
@@ -142278,7 +142718,7 @@ var PDFLoader = class {
     this.#pdfjs = params.pdfjs;
   }
   load(input, options = {}) {
-    return parse25(input, {
+    return parse26(input, {
       ...options,
       pdfjsEsmUrl: this.#pdfjsEsmUrl,
       pdfjsWorkerSrc: this.#pdfjsWorkerSrc,
@@ -142315,7 +142755,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // ../sdk/src/formats/svg/versions/v1_0/parse.ts
-async function parse26(input, options = {}) {
+async function parse27(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
   }
@@ -143586,7 +144026,7 @@ function domToSVGNode(el2) {
 // ../sdk/src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse26(
+    return parse27(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -143609,7 +144049,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
-async function encode21(params, options) {
+async function encode23(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[SVGExporter] sceneModel is required");
@@ -143835,7 +144275,7 @@ var SVGExporter = class extends ModelExporter {
     super({
       format: "SVG",
       fileDataType: "text",
-      encoders: { "1.0": encode21 },
+      encoders: { "1.0": encode23 },
       defaultVersion: "1.0"
     });
   }
@@ -143891,7 +144331,7 @@ async function loadLibredwg(opts) {
   }
   return p;
 }
-async function parse27(input, options = {}) {
+async function parse28(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
   }
@@ -144727,7 +145167,7 @@ var DWGLoader = class {
     this.#libredwg = params.libredwg;
   }
   load(input, options = {}) {
-    return parse27(
+    return parse28(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -144747,7 +145187,7 @@ __export(dxf_exports, {
 });
 
 // ../sdk/src/formats/dxf/versions/v1_0/parse.ts
-async function parse28(input, options = {}) {
+async function parse29(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
   }
@@ -145069,7 +145509,7 @@ function err4(type, message) {
 // ../sdk/src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse28(
+    return parse29(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -145081,7 +145521,7 @@ var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var _scratch = createVec4Float64();
-async function encode23(params, options) {
+async function encode24(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[DXFExporter] sceneModel is required");
@@ -145273,7 +145713,7 @@ var DXFExporter = class extends ModelExporter {
     super({
       format: "DXF",
       fileDataType: "text",
-      encoders: { "1.0": encode23 },
+      encoders: { "1.0": encode24 },
       defaultVersion: "1.0"
     });
   }
@@ -146065,7 +146505,7 @@ function unitWireBox(id) {
 }
 
 // ../sdk/src/formats/fds/versions/v6/parse.ts
-var parse29 = async (params) => {
+var parse30 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -146280,7 +146720,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse29
+        "6": parse30
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -146291,7 +146731,7 @@ var FDSLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/fds/versions/v6/encode.ts
-async function encode24(params, _options) {
+async function encode25(params, _options) {
   const { dataModel } = params;
   if (!dataModel) {
     throw new Error("[FDS/v6/encode] expected dataModel in params");
@@ -146570,7 +147010,7 @@ var FDSExporter = class extends ModelExporter {
       format: "FDS",
       fileDataType: "text",
       encoders: {
-        "6": encode24
+        "6": encode25
       },
       defaultVersion: "6"
     });
@@ -146903,7 +147343,7 @@ function num4(el2, attr) {
 // ../sdk/src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
-async function parse30(params, _options) {
+async function parse31(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -147058,7 +147498,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      parsers: { "*": parse30 },
+      parsers: { "*": parse31 },
       getVersion: (fileData) => isZip(fileData) ? "*" : ""
     });
   }
@@ -147066,7 +147506,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
 
 // ../sdk/src/formats/threedxml/versions/v1/encode.ts
 var textEncoder2 = new TextEncoder();
-async function encode25(params, _options) {
+async function encode26(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw new Error("[3DXMLExporter] params.sceneModel is required");
@@ -147217,7 +147657,7 @@ var ThreeDXMLExporter = class extends ModelExporter {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      encoders: { "*": encode25 },
+      encoders: { "*": encode26 },
       defaultVersion: "*"
     });
   }
@@ -199755,7 +200195,7 @@ var DEFAULT_HIDE_DELAY_FRAMES = 2;
 var DEFAULT_SHOW_DELAY_FRAMES = 1;
 var DEFAULT_MAX_RAYCAST_STEPS = 32;
 var RAYCAST_STEP_EPSILON = 1e-5;
-var tempWorld = createVec4Float64();
+var tempWorld2 = createVec4Float64();
 var tempView = createVec4Float64();
 var tempClip = createVec4Float64();
 var tempScreen = createVec3Float64();
@@ -199864,11 +200304,11 @@ var MarkerOcclusionTester = class {
     return this._makeResult(marker, projected, ray, occluded, hit);
   }
   _project(worldPos) {
-    tempWorld[0] = worldPos[0];
-    tempWorld[1] = worldPos[1];
-    tempWorld[2] = worldPos[2];
-    tempWorld[3] = 1;
-    transformVec4(this.view.camera.viewMatrix, tempWorld, tempView);
+    tempWorld2[0] = worldPos[0];
+    tempWorld2[1] = worldPos[1];
+    tempWorld2[2] = worldPos[2];
+    tempWorld2[3] = 1;
+    transformVec4(this.view.camera.viewMatrix, tempWorld2, tempView);
     transformVec4(this.view.camera.projMatrix, tempView, tempClip);
     const w2 = tempClip[3];
     if (!Number.isFinite(w2) || Math.abs(w2) < 1e-12) {
@@ -224269,6 +224709,12 @@ function createDefaultLoaderRegistry() {
     needsData: false,
     load: (input, options) => new OBJLoader().load(input, options)
   });
+  r.register("ply", {
+    fetch: "text",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new PLYLoader().load(input, options)
+  });
   r.register("dotbim", {
     fetch: "arrayBuffer",
     needsScene: true,
@@ -238343,6 +238789,15 @@ var IMPORT_DATA_SETS = [
     ]
   },
   {
+    id: "ply",
+    label: "PLY",
+    defaultBasisId: "y-up",
+    loadsDataSemantics: false,
+    files: [
+      { key: "ply", label: "PLY file", accept: ".ply", loadFormat: "ply", required: true }
+    ]
+  },
+  {
     id: "dotbim",
     label: ".bim",
     defaultBasisId: "z-up",
@@ -239163,6 +239618,14 @@ var FORMAT_REGISTRY = {
     build: () => new OBJExporter(),
     toBytes: (raw) => String(raw)
   },
+  ply: {
+    id: "ply",
+    label: "PLY",
+    ext: "ply",
+    mime: "model/ply",
+    build: () => new PLYExporter(),
+    toBytes: (raw) => String(raw)
+  },
   mtl: {
     id: "mtl",
     label: "MTL",
@@ -239266,6 +239729,7 @@ var DEFAULT_DATASET_TYPES = [
   "usdz",
   "splat",
   "obj,mtl",
+  "ply",
   "ifc",
   "dotbim",
   "cityjson",
@@ -239371,6 +239835,17 @@ var DATASET_PARAMS = {
       applyTo: ["obj"],
       filenameFor: "mtl",
       help: "Filename for the MTL download \u2014 also written into the OBJ's `mtllib` directive so the two link up."
+    }
+  ],
+  "ply": [
+    {
+      id: "plyFileName",
+      label: "PLY Filename",
+      type: "string",
+      default: "{id}.ply",
+      applyTo: [],
+      filenameFor: "ply",
+      help: "Filename for the ASCII PLY download. Exports triangle and point geometry with vertex colors, normals and UVs when present."
     }
   ],
   "ifc": [
@@ -244488,7 +244963,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     });
     this.renderer = params.renderer;
     this._webGLRenderer = requireWebGLRenderer(params.renderer, "RendererPanel");
-    this._selectedViewIndex = readNumber(`${this._storageKey}::viewsel`, 0);
+    this._selectedViewIndex = readNumber2(`${this._storageKey}::viewsel`, 0);
     const prior = _RendererPanel._instances.get(params.renderer);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -244925,7 +245400,7 @@ function formatTimeMs(timeMs) {
 function clampInt(v, lo, hi) {
   return Math.max(lo, Math.min(hi, Math.trunc(v)));
 }
-function readNumber(key, fallback) {
+function readNumber2(key, fallback) {
   try {
     const raw = sessionStorage.getItem(key);
     if (raw == null)
@@ -259605,6 +260080,7 @@ var Studio = class _Studio {
    * - `"ifc"` → {@link IFCLoader} (binary)
    * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
    * - `"fbx"` → {@link FBXLoader} (binary, `.fbx`)
+   * - `"ply"` → {@link PLYLoader} (text, `.ply`)
    * - `"metamodel"` → {@link MetaModelLoader} (JSON, data-only)
    * - `"datamodel"` → {@link DataModelImporter} (JSON, data-only)
    * - `"scenemodel"` → {@link SceneModelImporter} (JSON, scene-only)

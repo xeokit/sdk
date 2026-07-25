@@ -30,6 +30,8 @@ import type {ShadowsParams} from "./ShadowsParams";
 import type {TonemapParams} from "./TonemapParams";
 import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {BloomParams} from "./BloomParams";
+import type {AtmosphereParams} from "./AtmosphereParams";
+import type {DepthOfFieldParams} from "./DepthOfFieldParams";
 import type {EdgesParams} from "./EdgesParams";
 import type {IBLParams} from "./IBLParams";
 import type {SkyParams} from "./SkyParams";
@@ -105,9 +107,11 @@ class View {
 
   /**
    * Aggregates the renderer-effect components for this View — SAO,
-   * Edges, Bloom, Tonemap, AntiAliasing, and Shadows. Reach the
+   * Edges, Bloom, Atmosphere, DepthOfField, Tonemap, AntiAliasing, and Shadows. Reach the
    * individual effects through {@link Effects.sao},
    * {@link Effects.edges}, {@link Effects.bloom},
+   * {@link Effects.atmosphere},
+   * {@link Effects.depthOfField},
    * {@link Effects.tonemap}, {@link Effects.antiAliasing}, and
    * {@link Effects.shadows}.
    */
@@ -1990,6 +1994,18 @@ class View {
           return result;
         }
       }
+      if (e.atmosphere) {
+        const result = this.effects.atmosphere.fromParams(e.atmosphere);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.depthOfField) {
+        const result = this.effects.depthOfField.fromParams(e.depthOfField);
+        if (result.ok === false) {
+          return result;
+        }
+      }
       if (e.edges) {
         const result = this.effects.edges.fromParams(e.edges);
         if (result.ok === false) {
@@ -2083,6 +2099,8 @@ class View {
           tonemap:          (<{ value: TonemapParams      }>this.effects.tonemap.toParams()).value,
           antiAliasing:     (<{ value: AntiAliasingParams }>this.effects.antiAliasing.toParams()).value,
           bloom:            (<{ value: BloomParams        }>this.effects.bloom.toParams()).value,
+          atmosphere:       (<{ value: AtmosphereParams   }>this.effects.atmosphere.toParams()).value,
+          depthOfField:     (<{ value: DepthOfFieldParams }>this.effects.depthOfField.toParams()).value,
           edges:            (<{ value: EdgesParams        }>this.effects.edges.toParams()).value,
           sky:              (<{ value: SkyParams          }>this.effects.sky.toParams()).value,
           sectionPlaneCaps: (<{ value: { renderModes: number[] } }>this.effects.sectionPlaneCaps.toParams()).value,

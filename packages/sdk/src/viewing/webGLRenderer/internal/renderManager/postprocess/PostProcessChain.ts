@@ -8,20 +8,22 @@ import {HDRRenderTarget} from "../hdr/HDRRenderTarget";
 import {TonemapPipeline} from "../hdr/TonemapPipeline";
 import {FXAAPipeline} from "../fxaa/FXAAPipeline";
 import {BloomPipeline} from "../bloom/BloomPipeline";
+import {AtmospherePipeline} from "../atmosphere/AtmospherePipeline";
+import {DepthOfFieldPipeline} from "../dof/DepthOfFieldPipeline";
 
 
 /**
  * Owns every piece of the HDR substrate and final post-process chain:
  *   - HDR scene render target (RGBA16F).
  *   - LDR intermediate FBO used between tonemap and FXAA.
- *   - Bloom, tonemap, and FXAA pipelines.
+ *   - Bloom, atmosphere, depth of field, tonemap, and FXAA pipelines.
  *
  * Separates two RenderManager concerns from each other:
  *   1. Where the scene draws (canvas vs. HDR target).
  *   2. How the scene texture is composited to the canvas at the end.
  *
  * RenderManager's role shrinks to "set up scene state, render the scene,
- * call composite()". Adding a new post-process step (DoF, SSR, color
+ * call composite()". Adding a new post-process step (SSR, color
  * grading, ...) becomes another optional pipeline plugged into this class
  * instead of a diff to RenderManager.
  *
@@ -30,7 +32,8 @@ import {BloomPipeline} from "../bloom/BloomPipeline";
  *     scene-binding routes to the default canvas, composite() is a no-op.
  *   - HDR up but FXAA shader fails: renderer still has HDR + tonemap, AA
  *     is silently skipped.
- *   - HDR up but bloom shader fails: same idea, bloom is skipped.
+ *   - HDR up but bloom/atmosphere/DOF shader fails: same idea, that effect
+ *     is skipped.
  *
  * Each sub-init returns {@link base!core.SDKResult | SDKResult}; failures are localised so the
  * surrounding renderer never aborts a frame because of one shader.
@@ -45,6 +48,8 @@ export class PostProcessChain {
   private _tonemapPipeline: TonemapPipeline | null = null;
   private _fxaaPipeline: FXAAPipeline | null = null;
   private _bloomPipeline: BloomPipeline | null = null;
+  private _atmospherePipeline: AtmospherePipeline | null = null;
+  private _depthOfFieldPipeline: DepthOfFieldPipeline | null = null;
   private _ldrIntermediate: WebGLRenderBuffer | null = null;
 
   constructor(renderContext: RenderContext) {
@@ -68,6 +73,38 @@ export class PostProcessChain {
     return !!(this._hdrTarget && this._tonemapPipeline);
   }
 
+  /** True when the current View needs the atmosphere post-process. */
+  needsAtmosphere(view: View): boolean {
+    const atmosphere = view.effects.atmosphere;
+    return !!(
+      this.hasHDR() &&
+      this._atmospherePipeline &&
+      atmosphere.applied &&
+      atmosphere.possible &&
+      atmosphere.intensity > 0 &&
+      atmosphere.maxOpacity > 0 &&
+      atmosphere.endDistance > atmosphere.startDistance
+    );
+  }
+
+  /** True when the current View needs the depth-of-field post-process. */
+  needsDepthOfField(view: View): boolean {
+    const dof = view.effects.depthOfField;
+    return !!(
+      this.hasHDR() &&
+      this._depthOfFieldPipeline &&
+      dof.applied &&
+      dof.possible &&
+      dof.radius > 0 &&
+      dof.intensity > 0
+    );
+  }
+
+  /** True when the current View needs the renderer to prepare scene depth. */
+  needsSceneDepth(view: View): boolean {
+    return this.needsAtmosphere(view) || this.needsDepthOfField(view);
+  }
+
 
   /**
    * Binds the scene-phase target — the HDR FBO at the requested size when
@@ -86,9 +123,11 @@ export class PostProcessChain {
   /**
    * Runs the post-process chain to the canvas.
    *
-   * Order: optional bloom (HDR → adds back into HDR), tonemap (HDR → LDR),
-   * optional FXAA (LDR intermediate → canvas). When HDR is off, this is a
-   * no-op — the scene has already drawn straight to the canvas.
+   * Order: optional bloom (HDR → adds back into HDR), optional atmosphere
+   * (HDR + depth → HDR intermediate), optional DOF (HDR + depth → HDR
+   * intermediate), tonemap (HDR → LDR), optional FXAA (LDR intermediate →
+   * canvas). When HDR is off, this is a no-op — the scene has already drawn
+   * straight to the canvas.
    */
   composite(view: View): void {
     if (!this.hasHDR()) return;
@@ -113,6 +152,30 @@ export class PostProcessChain {
     this._hdrTarget!.unbind();
     if (!hdrTexture) return;
 
+    let tonemapSource = hdrTexture;
+
+    if (this.needsAtmosphere(view) && rc.sceneDepthTexture) {
+      const atmosphereTexture = this._atmospherePipeline!.render({
+        colorTexture: tonemapSource,
+        depthTexture: rc.sceneDepthTexture,
+        view
+      });
+      if (atmosphereTexture) {
+        tonemapSource = atmosphereTexture;
+      }
+    }
+
+    if (this.needsDepthOfField(view) && rc.sceneDepthTexture) {
+      const dofTexture = this._depthOfFieldPipeline!.render({
+        colorTexture: tonemapSource,
+        depthTexture: rc.sceneDepthTexture,
+        view
+      });
+      if (dofTexture) {
+        tonemapSource = dofTexture;
+      }
+    }
+
     const wantFXAA = !!(
       this._fxaaPipeline &&
       this._ldrIntermediate &&
@@ -127,7 +190,7 @@ export class PostProcessChain {
       // 2a. Tonemap → LDR intermediate, then FXAA → canvas.
       this._ldrIntermediate!.bind();
       gl.viewport(0, 0, vpW, vpH);
-      this._tonemapPipeline!.render({hdrTexture, view});
+      this._tonemapPipeline!.render({hdrTexture: tonemapSource, view});
 
       const ldrTexture = this._ldrIntermediate!.getTexture();
       this._ldrIntermediate!.unbind();
@@ -142,7 +205,7 @@ export class PostProcessChain {
     } else {
       // 2b. Tonemap straight to the canvas.
       gl.viewport(0, 0, vpW, vpH);
-      this._tonemapPipeline!.render({hdrTexture, view});
+      this._tonemapPipeline!.render({hdrTexture: tonemapSource, view});
     }
   }
 
@@ -155,6 +218,10 @@ export class PostProcessChain {
     this._fxaaPipeline = null;
     this._bloomPipeline?.destroy();
     this._bloomPipeline = null;
+    this._atmospherePipeline?.destroy();
+    this._atmospherePipeline = null;
+    this._depthOfFieldPipeline?.destroy();
+    this._depthOfFieldPipeline = null;
     this._ldrIntermediate?.destroy();
     this._ldrIntermediate = null;
   }
@@ -184,6 +251,8 @@ export class PostProcessChain {
 
     this._initFXAA();
     this._initBloom();
+    this._initAtmosphere();
+    this._initDepthOfField();
   }
 
   private _initFXAA(): void {
@@ -214,6 +283,24 @@ export class PostProcessChain {
     if (result.ok === false) {
       this._bloomPipeline.destroy();
       this._bloomPipeline = null;
+    }
+  }
+
+  private _initAtmosphere(): void {
+    this._atmospherePipeline = new AtmospherePipeline(this._renderContext);
+    const result = this._atmospherePipeline.init();
+    if (result.ok === false) {
+      this._atmospherePipeline.destroy();
+      this._atmospherePipeline = null;
+    }
+  }
+
+  private _initDepthOfField(): void {
+    this._depthOfFieldPipeline = new DepthOfFieldPipeline(this._renderContext);
+    const result = this._depthOfFieldPipeline.init();
+    if (result.ok === false) {
+      this._depthOfFieldPipeline.destroy();
+      this._depthOfFieldPipeline = null;
     }
   }
 }

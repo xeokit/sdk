@@ -3,6 +3,8 @@ import type {View} from "./View";
 import {SAO} from "./SAO";
 import {Edges} from "./Edges";
 import {Bloom} from "./Bloom";
+import {Atmosphere} from "./Atmosphere";
+import {DepthOfField} from "./DepthOfField";
 import {Tonemap} from "./Tonemap";
 import {AntiAliasing} from "./AntiAliasing";
 import {Shadows} from "./Shadows";
@@ -27,6 +29,10 @@ import {RealisticRender} from "../../base/constants";
  *     drawn on top of object silhouettes.
  *   - {@link Effects.bloom} — HDR bloom post-process picking up
  *     bright pixels and bleeding them into the surroundings.
+ *   - {@link Effects.atmosphere} — HDR atmospheric attenuation post-process
+ *     that fades distant geometry toward a haze colour.
+ *   - {@link Effects.depthOfField} — HDR depth-of-field post-process
+ *     that keeps the focus distance sharp and blurs nearer/farther pixels.
  *   - {@link Effects.tonemap} — the HDR tonemap pass that flattens
  *     the linear-HDR framebuffer into displayable sRGB.
  *   - {@link Effects.antiAliasing} — final antialiasing pass.
@@ -58,6 +64,16 @@ class Effects {
    * HDR bloom post-process for this View.
    */
   public readonly bloom: Bloom;
+
+  /**
+   * HDR atmospheric attenuation post-process for this View.
+   */
+  public readonly atmosphere: Atmosphere;
+
+  /**
+   * HDR depth-of-field post-process for this View.
+   */
+  public readonly depthOfField: DepthOfField;
 
   /**
    * HDR tonemap pass for this View.
@@ -123,6 +139,13 @@ class Effects {
     this.sao          = new SAO         (view, params.sao          || {});
     this.edges        = new Edges       (view, params.edges        || {});
     this.bloom        = new Bloom       (view, params.bloom        || {});
+    // Keep existing Views pixel-stable: omitted params leave atmosphere
+    // inactive. Passing `atmosphere: {}` opts into RealisticRender defaults.
+    this.atmosphere   = new Atmosphere  (view, params.atmosphere !== undefined ? params.atmosphere : {renderModes: []});
+    // Keep existing Views pixel-stable: the component exists on every View,
+    // but omitted params leave it inactive. Passing `depthOfField: {}` opts
+    // into the component's RealisticRender defaults.
+    this.depthOfField = new DepthOfField(view, params.depthOfField !== undefined ? params.depthOfField : {renderModes: []});
     this.tonemap      = new Tonemap     (view, params.tonemap      || {});
     this.antiAliasing = new AntiAliasing(view, params.antiAliasing || {});
     // Shadows defaulted to RealisticRender to match the prior

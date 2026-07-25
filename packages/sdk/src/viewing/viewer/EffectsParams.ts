@@ -1,6 +1,8 @@
 import type {SAOParams} from "./SAOParams";
 import type {EdgesParams} from "./EdgesParams";
 import type {BloomParams} from "./BloomParams";
+import type {AtmosphereParams} from "./AtmosphereParams";
+import type {DepthOfFieldParams} from "./DepthOfFieldParams";
 import type {TonemapParams} from "./TonemapParams";
 import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {ShadowsParams} from "./ShadowsParams";
@@ -14,10 +16,10 @@ import type {IBLParams} from "./IBLParams";
  * * Located at {@link ViewParams.effects}.
  *
  * Aggregates the View's renderer effects — Scalable Ambient
- * Obscurance, edge enhancement, HDR bloom, the HDR tonemap pass,
- * antialiasing, and directional shadow mapping. Each entry is
- * optional; when omitted the component falls back to its own
- * constructor defaults.
+ * Obscurance, edge enhancement, HDR bloom, atmospheric attenuation,
+ * depth of field, the HDR tonemap pass, antialiasing, and directional
+ * shadow mapping. Each entry is optional; when omitted the component falls
+ * back to its own constructor defaults.
  */
 export interface EffectsParams {
 
@@ -38,6 +40,25 @@ export interface EffectsParams {
    * {@link Bloom} — accessible at {@link Effects.bloom}.
    */
   bloom?: BloomParams;
+
+  /**
+   * Parameters for the View's HDR atmospheric attenuation post-process,
+   * {@link Atmosphere} — accessible at {@link Effects.atmosphere}.
+   *
+   * Omit to leave the component inactive. Pass `{}` to use its
+   * RealisticRender defaults.
+   */
+  atmosphere?: AtmosphereParams;
+
+  /**
+   * Parameters for the View's HDR depth-of-field post-process,
+   * {@link DepthOfField} — accessible at
+   * {@link Effects.depthOfField}.
+   *
+   * Omit to leave the component inactive. Pass `{}` to use its
+   * RealisticRender defaults.
+   */
+  depthOfField?: DepthOfFieldParams;
 
   /**
    * Parameters for the View's HDR tonemap pass,

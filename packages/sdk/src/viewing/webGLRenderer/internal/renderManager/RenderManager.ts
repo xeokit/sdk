@@ -738,9 +738,9 @@ export class RenderManager {
   // Each phase is intentionally narrow:
   //   - _beginFrame: scene-render size, GL state, scene target.
   //   - _classifyBatches: bin sort (delegated to RenderBinClassifier).
-  //   - _renderScene: SAO/shadow prep, opaque, edges, silhouettes, transparents.
+  //   - _renderScene: SAO/shadow/scene-depth prep, opaque, edges, silhouettes, transparents.
   //   - _endFrame: tear down scene-phase GL state.
-  //   - _postProcess.composite: bloom + tonemap + FXAA → canvas.
+  //   - _postProcess.composite: bloom + depth-aware effects + tonemap + FXAA → canvas.
   // ------------------------------------------------------------------
 
   /** Sets up scene-phase GL state and binds the target the scene draws into. */
@@ -788,6 +788,7 @@ export class RenderManager {
     renderContext.saoOcclusionTexture = drawWithSAO
       ? rendererView.renderBuffers.getRenderBuffer("saoOcclusion", {size: [sceneW, sceneH]})?.getTexture() ?? null
       : null;
+    renderContext.sceneDepthTexture = null;
     for (let i = 0; i < renderContext.shadowMapTextures.length; i++) {
       renderContext.shadowMapTextures[i] = null;
     }
@@ -842,10 +843,12 @@ export class RenderManager {
     // BRDF passes so the smooth-shaded technique can sample them.
     this._prepareIBL(view);
 
-    // SAO + shadow prep passes (each runs once per frame, drawing into its
-    // own FBO). Both pull their batches from the relevant bin sets.
+    // SAO + shadow + scene-depth prep passes (each runs once per frame,
+    // drawing into its own FBO). All pull their batches from the relevant
+    // bin sets.
     const needSAO = bins.normalDrawSAO.length > 0 || bins.normalDrawSAOShadow.length > 0;
     const needShadow = bins.normalDrawShadow.length > 0 || bins.normalDrawSAOShadow.length > 0;
+    const needSceneDepth = this._postProcess.needsSceneDepth(view);
     if (needSAO) {
       ri?.renderBinStarted("saoPrep");
       this._saoPipeline.render({
@@ -864,11 +867,15 @@ export class RenderManager {
         comboBatches: bins.normalDrawSAOShadow
       });
     }
+    if (needSceneDepth) {
+      ri?.renderBinStarted("sceneDepthPrep");
+      this._renderSceneDepth(rendererView);
+    }
 
     // Sub-pipelines each bound their own FBOs and unbound to null. Re-bind
     // the scene target and reset the program-id cache before resuming the
     // main scene draw.
-    if (needSAO || needShadow) {
+    if (needSAO || needShadow || needSceneDepth) {
       this._bindSceneTarget();
       gl.viewport(0, 0, renderContext.sceneRenderWidth, renderContext.sceneRenderHeight);
       gl.enable(gl.DEPTH_TEST);
@@ -939,6 +946,58 @@ export class RenderManager {
     // straight on the canvas with its authored colours instead of
     // being tonemapped along with the rest of the scene. See
     // {@link _renderOverlay}.
+  }
+
+  /**
+   * Renders a depth-only scene prepass for depth-aware post-processing.
+   *
+   * We do this only when a depth-aware post-process is active. The main scene
+   * depth attachment cannot be used directly because later always-on-top
+   * highlight/selection rendering clears it before post-processing runs.
+   */
+  private _renderSceneDepth(rendererView: ViewRenderState): void {
+    const renderContext = this._renderContext;
+    const gl = renderContext.gl;
+    const sceneW = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
+    const sceneH = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
+    const depthBuffer = rendererView.renderBuffers.getRenderBuffer("sceneDepth", {
+      depthTexture: true,
+      size: [sceneW, sceneH]
+    });
+    const bins = this._bins;
+    const opaqueBins = [
+      bins.normalDrawOpaque,
+      bins.normalDrawSAO,
+      bins.normalDrawShadow,
+      bins.normalDrawSAOShadow,
+    ];
+
+    renderContext.resetTextureBindings();
+    depthBuffer.bind();
+    gl.viewport(0, 0, sceneW, sceneH);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearDepth(1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+    gl.colorMask(false, false, false, false);
+    renderContext.lastProgramId = -1;
+
+    const drawOps = this.drawOps.prims;
+    for (let binIndex = 0; binIndex < opaqueBins.length; binIndex++) {
+      const batches = opaqueBins[binIndex];
+      for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        if (batch.bin !== undefined) continue;
+        drawOps[batch.primitive]?.opaque?.drawBatch(batch);
+      }
+    }
+
+    gl.colorMask(true, true, true, true);
+    depthBuffer.unbind();
+    renderContext.sceneDepthTexture = depthBuffer.getDepthTexture();
+    renderContext.lastProgramId = -1;
   }
 
   /**

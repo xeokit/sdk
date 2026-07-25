@@ -179,6 +179,13 @@ export class RenderContext implements WebGLContextProvider {
   public saoOcclusionTexture: WebGLAbstractTexture|null;
 
   /**
+   * Scene-depth texture used by depth-aware post-processes. Populated only
+   * when the active View applies a post-process that needs scene depth;
+   * otherwise null.
+   */
+  public sceneDepthTexture: WebGLAbstractTexture|null;
+
+  /**
    * One shadow-map depth texture per cascade (indices `0..shadowCascadeCount-1`
    * are populated). Unused slots alias to cascade 0's texture so every sampler
    * in shadow-aware shaders has a valid binding. Null array entries indicate
@@ -504,6 +511,7 @@ export class RenderContext implements WebGLContextProvider {
     this.pickInvisible = false;
     this.lineWidth = 1;
     this.saoOcclusionTexture = null;
+    this.sceneDepthTexture = null;
     this.sceneRenderWidth = 0;
     this.sceneRenderHeight = 0;
     this.shadowMapTextures = new Array(MAX_SHADOW_CASCADES).fill(null);

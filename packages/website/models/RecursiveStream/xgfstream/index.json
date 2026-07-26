@@ -1,0 +1,154 @@
+{
+  "format": "XGFStreamingIndex",
+  "indexVersion": "1.2.0",
+  "chunks": [],
+  "streams": [
+    {
+      "id": "map",
+      "uri": "../../MAP/xgfstream/index.runtime.json",
+      "aabb": [
+        1842005.2793066548,
+        -5173321.102187219,
+        -3.6,
+        1842038.6794567143,
+        -5173283.013905088,
+        24.589556814745077
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "priority": 0,
+      "metadata": {
+        "title": "MAP",
+        "model": "MAP",
+        "chunkCount": 32
+      }
+    },
+    {
+      "id": "bakuStadium",
+      "uri": "../../BakuStadium/xgfstream/index.runtime.json",
+      "aabb": [
+        -167.7880401971658,
+        -175.80615983212357,
+        -2.509135000601532,
+        167.7880401971658,
+        167.7880401971658,
+        66.4715761303831
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "priority": 1,
+      "metadata": {
+        "title": "Baku Stadium",
+        "model": "BakuStadium",
+        "chunkCount": 2083
+      }
+    },
+    {
+      "id": "lyon",
+      "uri": "../../Lyon/xgfstream/index.runtime.json",
+      "aabb": [
+        1852841.625,
+        -5180339.5,
+        149.51950073242188,
+        1862682.25,
+        -5169127.5,
+        377.2467041015625
+      ],
+      "origin": [
+        15000,
+        0,
+        0
+      ],
+      "priority": 2,
+      "metadata": {
+        "title": "Lyon",
+        "model": "Lyon",
+        "chunkCount": 456
+      }
+    },
+    {
+      "id": "otcConferenceCenter",
+      "uri": "../../OTCConferenceCenter/xgfstream/index.runtime.json",
+      "aabb": [
+        -2.8144000000000187,
+        -1266.9418259860452,
+        -8.996266172450085,
+        101.0161460205078,
+        -1192.0223571261818,
+        27.465925363826752
+      ],
+      "origin": [
+        0,
+        -1200,
+        0
+      ],
+      "priority": 3,
+      "metadata": {
+        "title": "OTC Conference Center",
+        "model": "OTCConferenceCenter",
+        "chunkCount": 78
+      }
+    },
+    {
+      "id": "housePlan",
+      "uri": "../../HousePlan/xgfstream/index.runtime.json",
+      "aabb": [
+        1374.8310852050781,
+        952.1500854492188,
+        -1.3999999761580908,
+        1394.7012023925781,
+        968.7500762939453,
+        2.5499999523897117
+      ],
+      "origin": [
+        0,
+        1200,
+        0
+      ],
+      "priority": 4,
+      "metadata": {
+        "title": "HousePlan",
+        "model": "HousePlan",
+        "chunkCount": 8
+      }
+    }
+  ],
+  "coordinateSystem": {
+    "basis": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "origin": [
+      0,
+      0,
+      0
+    ],
+    "units": "meters",
+    "scaleToMeters": 1
+  },
+  "aabb": [
+    -167.7880401971658,
+    -5180339.5,
+    -8.996266172450085,
+    1862682.25,
+    968.7500762939453,
+    377.2467041015625
+  ],
+  "metadata": {
+    "title": "Recursive XGF Stream",
+    "description": "Root XGF stream index that lazily references MAP, Baku Stadium, Lyon, OTC Conference Center, and HousePlan child streams."
+  }
+}

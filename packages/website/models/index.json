@@ -49,8 +49,8 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["gltf", "xgf"],
-    "dataset": ["xgf", "gltf"]
+    "formats": ["gltf", "xgf", "xgfstream"],
+    "dataset": ["xgf", "xgfstream", "gltf"]
   },
   "Duplex": {
     "coordSys": {
@@ -160,8 +160,8 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["gltf", "ifc", "xgf"],
-    "dataset": ["xgf", "gltf", "ifc"]
+    "formats": ["gltf", "ifc", "xgf", "xgfstream"],
+    "dataset": ["xgf", "xgfstream", "gltf", "ifc"]
   },
   "Nalls-Pumpkin-Hill": {
     "coordSys": {
@@ -191,8 +191,8 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["datamodel", "ifc", "xgf"],
-    "dataset": ["datamodel, xgf", "xgf", "ifc"]
+    "formats": ["datamodel", "ifc", "xgf", "xgfstream"],
+    "dataset": ["datamodel, xgf", "xgf", "xgfstream", "ifc"]
   },
   "ResidentialBuilding": {
     "coordSys": {
@@ -241,6 +241,15 @@
     },
     "formats": ["ifc", "mtl", "obj", "scenemodel", "xgf"],
     "dataset": ["mtl, obj", "scenemodel", "xgf", "ifc"]
+  },
+  "StreamingBenchmarkCity": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
   },
   "Table": {
     "coordSys": {

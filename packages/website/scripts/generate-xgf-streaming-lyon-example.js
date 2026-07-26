@@ -22,7 +22,14 @@ const {XGFStreamExporter} = require("../../sdk/src/formats/xgfstream/XGFStreamEx
 
 const rootDir = path.resolve(__dirname, "../../..");
 const inputDir = path.join(rootDir, "Lyon");
+const coordSysPath = path.join(rootDir, "packages/website/models/Lyon/coordSys.json");
 const outDir = path.join(rootDir, "packages/website/models/Lyon/xgfstream");
+const SDK_DEFAULT_COORDINATE_SYSTEM = {
+  basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
+  origin: [0, 0, 0],
+  units: "meters",
+  scaleToMeters: 1
+};
 
 main().catch((error) => {
   console.error(error);
@@ -41,16 +48,12 @@ async function main() {
   fs.rmSync(outDir, {recursive: true, force: true});
   fs.mkdirSync(outDir, {recursive: true});
 
+  const coordinateSystem = JSON.parse(fs.readFileSync(coordSysPath, "utf8"));
   const scene = new Scene();
   const data = new Data();
   const sceneModel = must(scene.createModel({
     id: "Lyon",
-    coordinateSystem: {
-      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      origin: [-1842828.125, -227.6079330444336, 5174732.125],
-      units: "meters",
-      scaleToMeters: 1
-    }
+    coordinateSystem
   }));
   const dataModel = must(data.createModel({id: "Lyon"}));
   const loader = new XKTLoader();
@@ -72,13 +75,13 @@ async function main() {
   }
 
   console.log(`Loaded ${sceneModel.stats.numObjects.toLocaleString()} objects from ${inputFiles.length} XKT files`);
+  applyLyonBuildingColors(sceneModel);
   console.log("Exporting XGF stream");
 
   const stream = await new XGFStreamExporter().write({
     sceneModel,
     dataModel
   }, {
-    coordinateSystem: scene.coordinateSystem,
     partition: "grid",
     chunkMetric: "meshes",
     chunkBudget: 2160,
@@ -90,6 +93,7 @@ async function main() {
     assetId: "lyon-assets",
     assetLibraryChunkSize: 1,
     sharedAssetMinLibraryUses: 1000000,
+    coordinateSystem: SDK_DEFAULT_COORDINATE_SYSTEM,
     yieldIntervalMs: 80
   });
 
@@ -111,4 +115,140 @@ function must(result) {
     throw new Error(result?.error || "Operation failed");
   }
   return result.value;
+}
+
+const LYON_FACADE_COLORS = [
+  [0.70, 0.59, 0.45],
+  [0.76, 0.67, 0.53],
+  [0.64, 0.55, 0.46],
+  [0.78, 0.61, 0.45],
+  [0.58, 0.48, 0.40],
+  [0.68, 0.51, 0.39]
+];
+
+const LYON_ROOF_COLORS = [
+  [0.46, 0.18, 0.12],
+  [0.55, 0.25, 0.16],
+  [0.36, 0.21, 0.17],
+  [0.42, 0.29, 0.22],
+  [0.31, 0.30, 0.29],
+  [0.24, 0.27, 0.28]
+];
+
+const LYON_MASONRY_COLORS = [
+  [0.43, 0.42, 0.38],
+  [0.50, 0.47, 0.41],
+  [0.38, 0.38, 0.35],
+  [0.46, 0.43, 0.36],
+  [0.35, 0.36, 0.34]
+];
+
+const LYON_GROUND_COLORS = [
+  [0.34, 0.34, 0.31],
+  [0.42, 0.40, 0.34],
+  [0.49, 0.45, 0.37],
+  [0.27, 0.29, 0.29],
+  [0.55, 0.51, 0.43]
+];
+
+const LYON_PARK_COLORS = [
+  [0.27, 0.41, 0.24],
+  [0.34, 0.48, 0.29],
+  [0.22, 0.35, 0.22],
+  [0.42, 0.50, 0.30]
+];
+
+const LYON_WATER_COLORS = [
+  [0.18, 0.37, 0.47],
+  [0.22, 0.43, 0.55],
+  [0.16, 0.31, 0.41]
+];
+
+function applyLyonBuildingColors(sceneModel) {
+  const counts = {
+    facade: 0,
+    roof: 0,
+    masonry: 0,
+    ground: 0,
+    park: 0,
+    water: 0,
+    enhanced: 0
+  };
+
+  for (const mesh of Object.values(sceneModel.meshes)) {
+    const sourceColor = Array.from(mesh.color);
+    const seed = hashString(mesh.object?.id || mesh.id);
+    const targetColor = classifyLyonColor(sourceColor, seed, counts);
+    if (targetColor) {
+      mesh.color = targetColor;
+    }
+  }
+
+  console.log(
+    `Applied Lyon color palette: ` +
+    `${counts.facade.toLocaleString()} facade, ` +
+    `${counts.roof.toLocaleString()} roof, ` +
+    `${counts.masonry.toLocaleString()} masonry, ` +
+    `${counts.ground.toLocaleString()} ground, ` +
+    `${counts.park.toLocaleString()} park, ` +
+    `${counts.water.toLocaleString()} water, ` +
+    `${counts.enhanced.toLocaleString()} enhanced`
+  );
+}
+
+function classifyLyonColor(color, seed, counts) {
+  const [r, g, b] = color;
+  if (r > 0.64 && r < 0.76 && Math.abs(r - g) < 0.04 && Math.abs(g - b) < 0.04) {
+    counts.ground++;
+    return varyColor(pickPaletteColor(LYON_GROUND_COLORS, seed), seed);
+  }
+  if (g > r && g > b && r > 0.6 && b > 0.5) {
+    counts.park++;
+    return varyColor(pickPaletteColor(LYON_PARK_COLORS, seed), seed);
+  }
+  if (b > r && b > g && r > 0.55 && g > 0.55) {
+    counts.water++;
+    return varyColor(pickPaletteColor(LYON_WATER_COLORS, seed), seed);
+  }
+  if (r > 0.9 && g > 0.85 && b > 0.9) {
+    counts.facade++;
+    return varyColor(pickPaletteColor(LYON_FACADE_COLORS, seed), seed);
+  }
+  if (r > 0.55 && g < 0.5 && b < 0.5) {
+    counts.roof++;
+    return varyColor(pickPaletteColor(LYON_ROOF_COLORS, seed), seed);
+  }
+  if (Math.abs(r - g) < 0.08 && Math.abs(g - b) < 0.08 && r < 0.75) {
+    counts.masonry++;
+    return varyColor(pickPaletteColor(LYON_MASONRY_COLORS, seed), seed);
+  }
+  counts.enhanced++;
+  return enhanceColor(color);
+}
+
+function pickPaletteColor(palette, seed) {
+  return palette[seed % palette.length];
+}
+
+function varyColor(color, seed) {
+  const factor = 0.92 + ((seed >>> 8) % 17) / 100;
+  return color.map((component) => clamp(component * factor, 0.06, 0.92));
+}
+
+function enhanceColor(color) {
+  const average = (color[0] + color[1] + color[2]) / 3;
+  return color.map((component) => clamp(average + (component - average) * 1.25 - 0.04, 0.06, 0.88));
+}
+
+function hashString(value) {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }

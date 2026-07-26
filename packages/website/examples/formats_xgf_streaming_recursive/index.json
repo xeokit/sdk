@@ -1,0 +1,13 @@
+{
+  "id": "formats_xgf_streaming_recursive",
+  "title": "XGF Recursive Stream",
+  "description": "Loads a root XGF stream that lazily references other XGF streams, activating each child stream only when its aggregate bounds enter the view.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM",
+    "Geolocation"
+  ]
+}

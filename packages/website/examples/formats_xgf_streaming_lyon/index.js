@@ -130,8 +130,8 @@ studio.init().then(async () => {
     const sceneModel = must(scene.createModel({
       id: "Lyon",
       coordinateSystem: {
-        basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-        origin: [-1842828.125, -227.6079330444336, 5174732.125],
+       // basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+        origin: [-1842828.125,  5174732.125, -227.6079330444336],
         units: "meters",
         scaleToMeters: 1
       }

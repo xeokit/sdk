@@ -198,14 +198,8 @@ studio.init().then(async () => {
     const index = await fetchStreamingIndex(INDEX_URL);
     ui.objectTarget.textContent = `/ ${formatInt(countReferenceObjects(index))}`;
     setStreamPreparing(ui, "Scheduling first frustum");
-    const sceneModel = must(scene.createModel({
-      id: "BakuStadium",
-      coordinateSystem: {
-        basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-        origin: [0, 0, 0],
-        units: "meters",
-        scaleToMeters: 1
-      }
+    const sceneModel = must(scene.createModel({  // Baku model stream is in Z-up coord sys
+      id: "BakuStadium"
     }));
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
     let renderScheduled = false;

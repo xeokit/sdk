@@ -108440,7 +108440,7 @@ function createXGFManifest(params, options = {}) {
     priority: options.priority,
     lod: options.lod
   };
-  const aabb = computeSceneModelAABB(sceneModel);
+  const aabb = computeSceneModelAABB(sceneModel, options.coordinateSystem);
   if (aabb) {
     manifest.aabb = aabb;
   }
@@ -108470,7 +108470,7 @@ function addTextureId(textureIds, texture) {
     textureIds.add(texture.id);
   }
 }
-function computeSceneModelAABB(sceneModel) {
+function computeSceneModelAABB(sceneModel, coordinateSystem) {
   let xmin = Number.POSITIVE_INFINITY;
   let ymin = Number.POSITIVE_INFINITY;
   let zmin = Number.POSITIVE_INFINITY;
@@ -108483,7 +108483,7 @@ function computeSceneModelAABB(sceneModel) {
     if (!aabb || aabb.length !== 6) {
       return;
     }
-    const matrix = mesh.worldMatrix;
+    const matrix = coordinateSystem ? getMeshWorldMatrix(mesh, coordinateSystem) : mesh.worldMatrix;
     for (let xBit = 0; xBit <= 1; xBit++) {
       const x = aabb[xBit ? 3 : 0];
       for (let yBit = 0; yBit <= 1; yBit++) {
@@ -108657,6 +108657,7 @@ var XGFStreamingExporter = class {
       return validation;
     }
     const { sceneModel } = params;
+    const outputCoordinateSystem = params.coordinateSystem || sceneModel.coordinateSystem;
     const files = {};
     const manifests = [];
     const librarySpecsById = {};
@@ -108664,7 +108665,10 @@ var XGFStreamingExporter = class {
       for (const spec of params.assetLibraries) {
         librarySpecsById[spec.id] = spec;
         const view = createAssetLibraryView(sceneModel, spec);
-        const fileData = await this._xgfExporter.write({ sceneModel: view }, { assetMode: "assetLibrary" });
+        const fileData = await this._xgfExporter.write({ sceneModel: view }, {
+          assetMode: "assetLibrary",
+          coordinateSystem: outputCoordinateSystem
+        });
         const manifest = createXGFManifest(
           { sceneModel: view },
           {
@@ -108672,7 +108676,8 @@ var XGFStreamingExporter = class {
             uri: spec.uri,
             assetMode: "assetLibrary",
             priority: spec.priority,
-            lod: spec.lod
+            lod: spec.lod,
+            coordinateSystem: outputCoordinateSystem
           }
         );
         files[spec.uri] = fileData;
@@ -108681,7 +108686,10 @@ var XGFStreamingExporter = class {
       for (const spec of params.chunks) {
         const view = createChunkView(sceneModel, spec, params.collapseChunkObjects === true);
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
-        const fileData = await this._xgfExporter.write({ sceneModel: view }, { assetMode: "referencesOnly" });
+        const fileData = await this._xgfExporter.write({ sceneModel: view }, {
+          assetMode: "referencesOnly",
+          coordinateSystem: outputCoordinateSystem
+        });
         const manifest = createXGFManifest(
           { sceneModel: view },
           {
@@ -108690,7 +108698,8 @@ var XGFStreamingExporter = class {
             assetMode: "referencesOnly",
             dependencies,
             priority: spec.priority,
-            lod: spec.lod
+            lod: spec.lod,
+            coordinateSystem: outputCoordinateSystem
           }
         );
         files[spec.uri] = fileData;
@@ -108702,7 +108711,7 @@ var XGFStreamingExporter = class {
         chunks: manifests,
         rootChunkIds: params.chunks.map((chunk) => chunk.id),
         aabb: aggregateManifestAABB(manifests),
-        coordinateSystem: cloneCoordinateSystem(sceneModel.coordinateSystem)
+        coordinateSystem: cloneCoordinateSystem(outputCoordinateSystem)
       };
       files[params.indexUri || "index.json"] = writeXGFStreamingIndex(index);
       if (params.runtimeIndexUri) {
@@ -109006,7 +109015,8 @@ async function encodeXGFStream(params, options = {}) {
     chunks,
     indexUri: joinUri(baseUri, indexName),
     runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : void 0,
-    collapseChunkObjects: options.collapseChunkObjects === true
+    collapseChunkObjects: options.collapseChunkObjects === true,
+    coordinateSystem: options.coordinateSystem
   });
   if (result.ok === false) {
     throw new Error(result.error);
@@ -111840,11 +111850,10 @@ function readStreamIndexJSON(json) {
   return readXGFStreamingIndex(json);
 }
 function resolveSubstreamManifest(stream, baseURI) {
-  const origin2 = stream.origin || [0, 0, 0];
   return {
     ...stream,
     uri: resolveURI(stream.uri, baseURI),
-    aabb: translateAABB(stream.aabb, origin2),
+    aabb: stream.aabb?.slice(),
     origin: stream.origin ? [stream.origin[0], stream.origin[1], stream.origin[2]] : void 0,
     metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : void 0
   };
@@ -111858,7 +111867,7 @@ function namespaceStreamIndex(index, namespace, indexURI, origin2, targetCoordin
     ...stream,
     id: `${namespace}${stream.id}`,
     uri: resolveURI(stream.uri, indexURI),
-    aabb: transformAndTranslateAABB(stream.aabb, coordinateSystemMatrix, addOrigins(origin2, stream.origin)),
+    aabb: transformAndTranslateAABB(stream.aabb, coordinateSystemMatrix, origin2),
     origin: addOrigins(origin2, stream.origin),
     metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : void 0
   }));

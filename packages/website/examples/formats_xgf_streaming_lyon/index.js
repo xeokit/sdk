@@ -15,46 +15,46 @@ const VIEWPOINTS = [
     id: "LYON-01",
     title: "Central cluster",
     location: "Street-scale inspection",
-    eye: [420, -620, 320],
-    look: [-40, -980, -80],
+    eye: [1843210.4175, -5175854.7, 661.9057083129883],
+    look: [1842761.9375, -5174733.5, 263.3831024169922],
     up: [0, 0, 1],
-    fov: 21
+    fov: 24
   },
   {
     id: "LYON-02",
     title: "East blocks",
     location: "Local building group",
-    eye: [2360, 720, 340],
-    look: [1840, 260, -72],
+    eye: [1846060, -5175820, 650],
+    look: [1844660, -5174480, 265],
     up: [0, 0, 1],
-    fov: 22
+    fov: 26
   },
   {
     id: "LYON-03",
     title: "West blocks",
     location: "Low oblique inspection",
-    eye: [-2680, 680, 335],
-    look: [-2140, 160, -76],
+    eye: [1839700, -5175840, 650],
+    look: [1840660, -5174480, 265],
     up: [0, 0, 1],
-    fov: 22
+    fov: 26
   },
   {
     id: "LYON-04",
     title: "South overview",
     location: "Broad city approach",
-    eye: [820, -7800, 1180],
-    look: [-260, -1180, -90],
+    eye: [1843160, -5181640, 1650],
+    look: [1842760, -5175120, 265],
     up: [0, 0, 1],
-    fov: 28
+    fov: 32
   },
   {
     id: "LYON-05",
     title: "Northwest overview",
     location: "Merged district extent",
-    eye: [-7200, 5200, 1480],
-    look: [260, -160, -110],
+    eye: [1836560, -5170030, 1700],
+    look: [1842760, -5174730, 265],
     up: [0, 0, 1],
-    fov: 32
+    fov: 35
   }
 ];
 
@@ -128,13 +128,7 @@ studio.init().then(async () => {
     setStatus(ui, "Scheduling first frustum");
 
     const sceneModel = must(scene.createModel({
-      id: "Lyon",
-      coordinateSystem: {
-       // basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-        origin: [-1842828.125,  5174732.125, -227.6079330444336],
-        units: "meters",
-        scaleToMeters: 1
-      }
+      id: "Lyon"
     }));
 
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();

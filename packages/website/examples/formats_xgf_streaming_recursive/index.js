@@ -25,7 +25,7 @@ const VIEWPOINTS = [
     title: "MAP",
     location: "Apartment model",
     streamId: "map",
-    frame: "oblique",
+    frame: "map-close",
     eye: [1841983.9793816847, 5173218.058046154, 31.505221592627464],
     look: [1842021.9793816847, 5173302.058046154, -10.494778407372538],
     up: [0, 0, 1],
@@ -109,7 +109,6 @@ studio.init().then(async () => {
     htmlElement: document.getElementById("viewerCanvas"),
     adaptiveQuality: false,
     backgroundColor: [0.76, 0.85, 0.91],
-    transparent: true,
     effects: {
       sao: {
         renderModes: [xeokit.base.constants.RealisticRender]
@@ -264,6 +263,11 @@ function updateViewpointsFromStreams(index) {
       viewpoint.eye = [center[0], center[1] + Math.max(span * 3.2, 80), center[2]];
       viewpoint.up = [0, 0, 1];
       viewpoint.fov = 28;
+    } else if (viewpoint.frame === "map-close") {
+      viewpoint.eye = [center[0], worldAABB[1] - span * 0.72, center[2] + Math.max(extents[2] * 0.62, 18)];
+      viewpoint.look = [center[0], center[1], center[2] + extents[2] * 0.1];
+      viewpoint.up = [0, 0, 1];
+      viewpoint.fov = 28;
     } else if (viewpoint.frame === "baku-truss") {
       viewpoint.eye = [center[0] - span * 0.16, center[1] + span * 0.13, center[2] + extents[2] * 0.25];
       viewpoint.look = [center[0] + span * 0.02, center[1] - span * 0.04, center[2] + extents[2] * 0.24];
@@ -348,7 +352,6 @@ function bindCameraStreaming(studio, view, streamController) {
 
 function bindViewpointCards(studio, view, streamController, cards, onSelect) {
   const viewpointsById = new Map(VIEWPOINTS.map((viewpoint) => [viewpoint.id, viewpoint]));
-  const cameraFlight = studio.viewManager.views?.[view.id]?.cameraFlight;
   for (const card of cards) {
     card.addEventListener("click", () => {
       const viewpoint = viewpointsById.get(card.dataset.viewpointId);
@@ -357,19 +360,8 @@ function bindViewpointCards(studio, view, streamController, cards, onSelect) {
       }
       setActiveViewpoint(cards, viewpoint.id);
       onSelect?.(viewpoint.id);
-      applyViewpointProjection(view, viewpoint);
-      if (cameraFlight && typeof cameraFlight.flyTo === "function") {
-        cameraFlight.flyTo({
-          eye: viewpoint.eye,
-          look: viewpoint.look,
-          up: viewpoint.up,
-          duration: 0.9
-        });
-      } else {
-        applyViewpointToCamera(view, viewpoint);
-      }
+      applyViewpointToCamera(view, viewpoint);
       streamController.schedule(viewpoint.id);
-      window.setTimeout(() => streamController.schedule(`${viewpoint.id} settled`), 950);
     });
   }
 }

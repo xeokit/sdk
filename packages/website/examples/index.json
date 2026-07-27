@@ -185,6 +185,17 @@
       "Geometry"
     ]
   },
+  "building_sceneModel_forestGenerator": {
+    "id": "building_sceneModel_forestGenerator",
+    "title": "Procedural Forest Generator",
+    "description": "Creates a SceneModel forest from many procedural trees that share reusable branch and foliage geometry.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "Interaction"
+    ]
+  },
   "building_sceneModel_geometries": {
     "id": "building_sceneModel_geometries",
     "title": "Creating Geometries - Various Primitives",
@@ -238,6 +249,17 @@
       "Modeling",
       "WebGPU",
       "Benchmarks"
+    ]
+  },
+  "building_sceneModel_treeGenerator": {
+    "id": "building_sceneModel_treeGenerator",
+    "title": "Procedural Tree Generator",
+    "description": "Interactive SceneModel example that grows procedural tree geometry from reusable primitives.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "Interaction"
     ]
   },
   "building_transforms_animatedPuzzle": {
@@ -353,6 +375,17 @@
     "categories": [
       "FBX",
       "Industrial Plants"
+    ]
+  },
+  "formats_gltf_bigSquareCommercialBuilding": {
+    "id": "formats_gltf_bigSquareCommercialBuilding",
+    "title": "glTF Big Square Commercial Building",
+    "description": "Loads a big square commercial building model from a self-contained glTF binary. Model by VertaScan on Sketchfab, licensed under CC BY 4.0: https://sketchfab.com/3d-models/big-square-commercial-building-55ef437c8518489c8a35c5de2380e6b6.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "Buildings"
     ]
   },
   "formats_gltf_damagedHelmet": {
@@ -630,6 +663,17 @@
       "WebGPU"
     ]
   },
+  "formats_usdz_residentialCommercialRetailDevelopment": {
+    "id": "formats_usdz_residentialCommercialRetailDevelopment",
+    "title": "USDZ Residential Commercial Retail Development",
+    "description": "Loads a mixed-use residential, commercial and retail development model from USDZ. Model by VertaScan on Sketchfab: https://sketchfab.com/VertaScan.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "USDZ",
+      "Buildings"
+    ]
+  },
   "formats_usdz_roundTrip": {
     "id": "formats_usdz_roundTrip",
     "title": "USDZ Round-Trip — Import, Export, Re-Import",
@@ -690,6 +734,17 @@
       "Featured"
     ]
   },
+  "formats_xgf_streamingBenchmarkCity": {
+    "id": "formats_xgf_streamingBenchmarkCity",
+    "title": "XGF Streaming Benchmark City",
+    "description": "Loads the generated streaming benchmark city as a single Z-up XGF model.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "XGF",
+      "Benchmark"
+    ]
+  },
   "formats_xgf_streaming_archipelago": {
     "id": "formats_xgf_streaming_archipelago",
     "title": "XGF Streamed Archipelago",
@@ -721,7 +776,7 @@
   "formats_xgf_streaming_benchmark": {
     "id": "formats_xgf_streaming_benchmark",
     "title": "XGF Streaming Benchmark",
-    "description": "Streams a generated apartment district from shared XGF asset libraries and 100 references-only block chunks.",
+    "description": "Streams all 961 generated city chunks from shared XGF asset libraries, prioritizing chunks near the current view first.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -739,6 +794,18 @@
     "categories": [
       "XGF",
       "Streaming"
+    ]
+  },
+  "formats_xgf_streaming_housePlan": {
+    "id": "formats_xgf_streaming_housePlan",
+    "title": "XGF Stream House Plan",
+    "description": "Loads the HousePlan model from an XGF stream dataset.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "Buildings"
     ]
   },
   "formats_xgf_streaming_lyon": {
@@ -776,7 +843,8 @@
       "XGF",
       "Streaming",
       "BIM",
-      "Geolocation"
+      "Geolocation",
+      "Featured"
     ]
   },
   "formats_xkt_model": {

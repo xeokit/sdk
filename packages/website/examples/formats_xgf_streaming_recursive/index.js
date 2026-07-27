@@ -78,6 +78,11 @@ const VIEWPOINTS = [
 ];
 
 const INITIAL_VIEWPOINT = VIEWPOINTS[0];
+const ALL_RENDER_MODES = [
+  xeokit.base.constants.NavigationRender,
+  xeokit.base.constants.DetailedRender,
+  xeokit.base.constants.RealisticRender
+];
 let startupSpinnerDismissed = false;
 
 sdkProgress.setPhase("Loading...");
@@ -95,13 +100,38 @@ studio.init().then(async () => {
     meshCount: document.getElementById("meshCount"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
     frustumQueueProgress: document.getElementById("frustumQueueProgress"),
-    streamStatus: document.getElementById("streamStatus")
+    streamStatus: document.getElementById("streamStatus"),
+    signalFrustumLoaded: createInitialFrustumReadyHandler()
   };
 
   const view = studio.viewManager.createView({
     id: "demoView",
+    htmlElement: document.getElementById("viewerCanvas"),
     adaptiveQuality: false,
     backgroundColor: [0.76, 0.85, 0.91],
+    transparent: true,
+    effects: {
+      sao: {
+        renderModes: [xeokit.base.constants.RealisticRender]
+      },
+      edges: {
+        renderModes: ALL_RENDER_MODES
+      },
+      shadows: {
+        renderModes: [xeokit.base.constants.RealisticRender]
+      },
+      tonemap: {
+        renderModes: []
+      },
+      sky: {
+        enabled: true,
+        skyColor: [0.48, 0.68, 0.84],
+        horizonColor: [0.82, 0.91, 0.95],
+        groundColor: [0.82, 0.86, 0.82],
+        blend: 0.5,
+        intensity: 1.0
+      }
+    },
     camera: {
       perspectiveProjection: {fov: INITIAL_VIEWPOINT.fov, near: 0.001, far: FAR_CLIP},
       eye: INITIAL_VIEWPOINT.eye,
@@ -160,6 +190,7 @@ studio.init().then(async () => {
       onProgress: () => {
         updateViewpointProgress(viewpointProgress, activeViewpointId, streamController.queueProgress);
         scheduleRender();
+        ui.signalFrustumLoaded(streamController.queueProgress);
       },
       onChunksLoading: () => hideStartupSpinner(),
       onError: (error) => {
@@ -438,4 +469,32 @@ function must(result) {
     throw new Error(result?.error || "Operation failed");
   }
   return result.value;
+}
+
+function createInitialFrustumReadyHandler() {
+  let signaled = false;
+  return (progress) => {
+    const readyChunkCount = Math.min(progress?.queued || 0, 16);
+    if (signaled || !progress || readyChunkCount <= 0 || progress.loaded < readyChunkCount) {
+      return;
+    }
+    signaled = true;
+    signalReady();
+    hideStartupSpinner();
+  };
+}
+
+function signalReady() {
+  if (document.getElementById("ExampleLoaded")) {
+    return;
+  }
+  const exampleMarker = document.createElement("div");
+  exampleMarker.id = "ExampleLoaded";
+  exampleMarker.hidden = true;
+  document.body.appendChild(exampleMarker);
+
+  const marker = document.createElement("div");
+  marker.id = "XGFStreamingRecursiveReady";
+  marker.hidden = true;
+  document.body.appendChild(marker);
 }

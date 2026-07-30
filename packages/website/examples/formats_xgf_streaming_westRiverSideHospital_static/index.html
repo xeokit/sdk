@@ -1,0 +1,363 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XGF Stream West Riverside Hospital Static</title>
+  <link rel="icon" href="data:,">
+  <link href="../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: #e7edf0;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #demoCanvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: linear-gradient(#dbe6eb 0%, #eef3f5 58%, #f4f5f1 100%);
+      border: 0;
+    }
+
+    .xkt-info-panel,
+    .xkt-info-pill {
+      display: none !important;
+    }
+
+    #streamPanel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(430px, calc(100vw - 32px));
+      max-height: calc(100vh - 68px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(35, 43, 52, 0.18);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(30, 38, 48, 0.18);
+      color: #1f2933;
+      z-index: 2147483647;
+    }
+
+    .panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .panel-header p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #52606d;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 16px;
+    }
+
+    .metric {
+      min-height: 50px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+      padding: 8px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.1;
+    }
+
+    .metric strong small {
+      font-size: 11px;
+      font-weight: 600;
+      color: #65717d;
+    }
+
+    .metric > span {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: #65717d;
+    }
+
+    .object-progress {
+      margin: 0 16px 14px;
+      padding: 12px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+    }
+
+    .object-progress label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11px;
+      color: #65717d;
+    }
+
+    .object-progress strong {
+      font-size: 12px;
+      color: #26313b;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .object-progress input {
+      display: block;
+      width: 100%;
+      height: 8px;
+      margin: 12px 0 0;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4a9262 var(--progress, 0%), #dce3e8 var(--progress, 0%));
+      appearance: none;
+      -webkit-appearance: none;
+      pointer-events: none;
+    }
+
+    .object-progress input::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 4px;
+      height: 14px;
+      border: 0;
+      border-radius: 999px;
+      background: #2f6b44;
+    }
+
+    .object-progress input::-moz-range-thumb {
+      width: 4px;
+      height: 14px;
+      border: 0;
+      border-radius: 999px;
+      background: #2f6b44;
+    }
+
+    .object-progress input::-moz-range-track {
+      height: 8px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .stream-options {
+      display: grid;
+      gap: 8px;
+      padding: 0 16px 14px;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 34px;
+      padding: 8px 10px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+      font-size: 12px;
+      font-weight: 650;
+      color: #26313b;
+      cursor: pointer;
+    }
+
+    .switch-row input {
+      position: relative;
+      width: 38px;
+      height: 21px;
+      flex: 0 0 auto;
+      margin: 0;
+      border: 0;
+      border-radius: 999px;
+      background: #b6c3cc;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    .switch-row input::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(30, 38, 48, 0.28);
+      transition: transform 120ms ease;
+    }
+
+    .switch-row input:checked {
+      background: #647c79;
+    }
+
+    .switch-row input:checked::before {
+      transform: translateX(17px);
+    }
+
+    .switch-row input:focus-visible {
+      outline: 2px solid rgba(100, 124, 121, 0.45);
+      outline-offset: 2px;
+    }
+
+    .issue-list {
+      padding: 0 16px 16px;
+    }
+
+    .issue-list h2 {
+      margin: 4px 0 8px;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: #26313b;
+    }
+
+    .issue-card {
+      display: block;
+      position: relative;
+      width: 100%;
+      min-height: 58px;
+      margin: 0 0 8px;
+      padding: 9px 10px;
+      text-align: left;
+      background: #f8fafb;
+      border: 1px solid rgba(35, 43, 52, 0.14);
+      border-radius: 7px;
+      color: #1f2933;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .issue-card:hover,
+    .issue-card:focus-visible {
+      border-color: rgba(75, 96, 91, 0.44);
+      background: #eff5f3;
+      outline: none;
+    }
+
+    .issue-card::before,
+    .issue-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    .issue-card::before {
+      left: 0;
+      width: var(--view-load-progress, 0%);
+      background: rgba(74, 146, 98, 0.24);
+      transition: width 150ms ease;
+      z-index: 0;
+    }
+
+    .issue-card::after {
+      left: var(--view-load-progress, 0%);
+      width: 2px;
+      background: rgba(47, 107, 68, 0.72);
+      transform: translateX(-1px);
+      transition: left 150ms ease;
+      z-index: 1;
+    }
+
+    .issue-card[aria-pressed="true"] {
+      border-color: #647c79;
+      box-shadow: inset 3px 0 0 #647c79;
+      background: #eff5f3;
+    }
+
+    .issue-card > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .issue-card strong {
+      display: block;
+      min-width: 0;
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .issue-card span {
+      display: block;
+      min-width: 0;
+      margin-top: 3px;
+      font-size: 11px;
+      line-height: 1.3;
+      color: #5f6f7c;
+    }
+
+    .issue-card em {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e2eee9;
+      color: #3d5f53;
+      font-style: normal;
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="streamPanel">
+  <div class="panel-header">
+    <h1>XGF Stream West Riverside Hospital Static</h1>
+    <p>Streams frustum-selected hospital chunks into a static SceneModel while stepping through simulated review viewpoints.</p>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong><span id="loadedChunks">0</span> <small id="chunkTarget">/ 0</small></strong><span>chunks</span></div>
+    <div class="metric"><strong><span id="objectCount">0</span> <small id="objectTarget">/ 0</small></strong><span>objects</span></div>
+    <div class="metric"><strong id="meshCount">0</strong><span>meshes</span></div>
+  </div>
+  <div class="object-progress">
+    <label for="objectProgressGauge">
+      <span>Objects loaded</span>
+      <strong id="objectProgressPercent">0%</strong>
+    </label>
+    <input id="objectProgressGauge" type="range" min="0" max="1" value="0" disabled>
+  </div>
+  <div class="stream-options">
+    <label class="switch-row" for="stallStreamingToggle">
+      <span>Stall streaming while moving</span>
+      <input id="stallStreamingToggle" type="checkbox">
+    </label>
+    <label class="switch-row" for="viewpointMotionToggle">
+      <span>Fly to viewpoints</span>
+      <input id="viewpointMotionToggle" type="checkbox">
+    </label>
+  </div>
+  <div class="issue-list">
+    <h2>Simulated Review Viewpoints</h2>
+    <div id="issueCards"></div>
+  </div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

@@ -2,6 +2,8 @@
 // with the scene, procedural geometry, and rendering APIs used by this example.
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
+const { NavigationRender } = xeokit.base.constants;
+
 const studio = new xeokit.studio.Studio({});
 
 studio.init().then(() => {
@@ -21,7 +23,8 @@ studio.init().then(() => {
       origin: [0, 0, 0],
       units: "meters",
       scaleToMeters: 1
-    }
+    },
+    updateHint: "static"
   });
   if (!sceneModelResult.ok) {
     throw new Error(sceneModelResult.error);
@@ -129,14 +132,42 @@ studio.init().then(() => {
 
   // Position camera to take in the full city extent.
   // In Z-up space the camera eye is offset in X, Y and Z; up is [0, 0, 1].
-  studio.viewManager.createView({
+  const view = studio.viewManager.createView({
+  //  renderMode: NavigationRender,
     camera: {
       eye:  [halfCity * 1.4, halfCity * 1.4, halfCity * 1.0],
       look: [0, 0, 8],
       up:   [0, 0, 1]
     }
   });
+  // view.effects.sao.renderModes = [];
+  // view.effects.shadows.renderModes = [];
+  // view.effects.edges.renderModes = [];
 
   studio.openInfoPanelFromMeta();
+  window.cityscapeVBOProbe = createVBOProbe(studio, view);
+  window.cityscapeVBOProbe.sample();
   studio.finished();
 });
+
+function createVBOProbe(studio, view) {
+  const inspectorResult = studio.renderer.getRenderInspector();
+  if (inspectorResult.ok === false) {
+    console.warn(inspectorResult.error);
+    return {
+      lastFrameStats: null,
+      sample: async () => null
+    };
+  }
+  const inspector = inspectorResult.value;
+  return {
+    lastFrameStats: null,
+    async sample() {
+      view.needsRender();
+      const [frame] = await inspector.captureFrames(1);
+      this.lastFrameStats = frame?.vboGeometryTriangles || null;
+      window.__lastCityscapeVBOStats = this.lastFrameStats;
+      return this.lastFrameStats;
+    }
+  };
+}

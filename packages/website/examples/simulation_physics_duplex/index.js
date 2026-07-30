@@ -119,7 +119,8 @@ studio.init().then(() => {
     const buildingAABB = studio.picking.collisionIndex.getSceneAABB();
     const slabModel = mustOK(scene.createModel({
       id: "slabModel",
-      coordinateSystem: SCENE_Z_UP_BASIS
+      coordinateSystem: SCENE_Z_UP_BASIS,
+      updateHint: "dynamic"
     }));
 
     const slabBoxGeom = mustOK(xeokit.model.procgen.buildGeometry.buildBox({

@@ -159,7 +159,7 @@ function rebuildForest() {
     must(currentModel.destroy());
   }
 
-  const sceneModel = must(scene.createModel({id: `forestGenerator_${generation++}`}));
+  const sceneModel = must(scene.createModel({id: `forestGenerator_${generation++}`, updateHint: "dynamic"}));
   currentModel = sceneModel;
 
   createTerrain(sceneModel, settings);

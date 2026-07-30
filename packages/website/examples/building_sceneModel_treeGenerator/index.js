@@ -154,7 +154,8 @@ function rebuildTree() {
     must(currentModel.destroy());
   }
 
-  const sceneModel = must(scene.createModel({id: `treeGenerator_${generation++}`}));
+  const sceneModel = must(scene.createModel({id: `treeGenerator_${generation++}`,
+  updateHint: "dynamic"}));
   currentModel = sceneModel;
 
   const stats = treeGenerator.generate(sceneModel, settings);

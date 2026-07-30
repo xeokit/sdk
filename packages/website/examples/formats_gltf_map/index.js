@@ -4,7 +4,9 @@ import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 // Create the demo helper, which initializes the shared rendering context
 // and provides utilities for configuring and running the demo.
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({
+    maxViews: 2
+});
 
 studio.init().then(() => {
 

@@ -75,7 +75,8 @@ studio.init().then(() => {
       origin: [0, 0, 0],
       units: "meters",
       scaleToMeters: 1
-    }
+    },
+    updateHint: "static"
   });
   if (!sceneModelResult.ok) {
     throw new Error("Failed to create city SceneModel: " + sceneModelResult.error);

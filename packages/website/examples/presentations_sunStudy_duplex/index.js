@@ -77,11 +77,9 @@ studio.init().then(async () => {
 
   // ── Shadows ──────────────────────────────────────────────────────
   //
-  // Switch into RealisticRender (which Shadows.renderModes defaults
-  // to) and widen the effect's modes to cover DetailedRender too,
-  // so the cast-shadow pass is active in either mode. Bump the
-  // projection size + light distance so the shadow-map frustum
-  // covers the Duplex's full extent without aliasing.
+  // Switch into RealisticRender and use a fixed one-cascade shadow
+  // map. The sun-study view is small and static, so this avoids a
+  // camera-fit shadow update during the first layout frame.
   //
   // SunStudy below will rewrite `shadows.direction` on every cursor
   // change to match the sun position, and scale `shadows.intensity`
@@ -90,10 +88,13 @@ studio.init().then(async () => {
   // and the static map geometry — only the direction + per-frame
   // intensity float around them.
   const C = xeokit.base.constants;
+  const shadowRenderModes = [C.RealisticRender, C.DetailedRender];
   view.renderMode = C.RealisticRender;
-  view.effects.shadows.renderModes   = [C.RealisticRender, C.DetailedRender];
+  view.effects.shadows.renderModes   = [];
   view.effects.shadows.intensity     = 0.55;
   view.effects.shadows.resolution    = 2048;
+  view.effects.shadows.autoFit       = false;
+  view.effects.shadows.cascadeCount  = 1;
   view.effects.shadows.projectionSize = 35;
   view.effects.shadows.lightDistance = 60;
 
@@ -123,6 +124,7 @@ studio.init().then(async () => {
   studio.panels.open("sunStudyPanel", { sunStudy, player });
   positionPanelTopRight(".xkt-sun-panel");
 
+  await warmStartupShadows(view, shadowRenderModes);
   studio.finished();
 
 }).catch((err) => {
@@ -145,4 +147,16 @@ function positionPanelTopRight(selector) {
     left: "auto",
     transform: "none",
   });
+}
+
+async function warmStartupShadows(view, renderModes) {
+  await nextFrame();
+  view.effects.shadows.renderModes = renderModes;
+  view.needsRender();
+  await nextFrame();
+  await nextFrame();
+}
+
+function nextFrame() {
+  return new Promise((resolve) => requestAnimationFrame(resolve));
 }

@@ -9,6 +9,7 @@ studio.init().then(async () => {
     const { scene } = studio;
     const sceneModel = mustCreate(scene.createModel({
         id: "infiniteLandscape",
+        updateHint: "dynamic",
         coordinateSystem: {
             basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
             origin: [0, 0, 0],

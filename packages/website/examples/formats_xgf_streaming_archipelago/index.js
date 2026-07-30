@@ -105,10 +105,6 @@ studio.init().then(async () => {
       eye: INITIAL_VIEWPOINT.eye,
       look: INITIAL_VIEWPOINT.look,
       up: INITIAL_VIEWPOINT.up
-    },
-    resolutionScale: {
-      renderModes: [xeokit.base.constants.NavigationRender],
-      resolutionScale: 1.0
     }
   });
 
@@ -119,6 +115,7 @@ studio.init().then(async () => {
 
     const sceneModel = must(scene.createModel({
       id: "Archipelago",
+      updateHint: "dynamic",
       coordinateSystem: ARCH_COORDINATE_SYSTEM
     }));
 

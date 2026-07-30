@@ -4,7 +4,9 @@
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({
+  maxViews: 2
+});
 
 studio.init().then(() => {
 
@@ -50,7 +52,8 @@ studio.init().then(() => {
       origin: [0, 0, 0],
       units: "meters",
       scaleToMeters: 1
-    }
+    },
+    updateHint: "dynamic"
   });
 
   if (sceneModelRes.ok === false) {

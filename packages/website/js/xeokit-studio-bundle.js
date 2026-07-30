@@ -21176,6 +21176,12 @@ var NORMALS_TEXTURE = 2;
 var EMISSIVE_TEXTURE = 3;
 var OCCLUSION_TEXTURE = 4;
 var TEXTURE_ENCODING_OPTIONS = {};
+function normalizeUpdateHint(updateHint) {
+  if (updateHint === "stream") {
+    return "dynamic";
+  }
+  return updateHint === "static" || updateHint === "dynamic" ? updateHint : "auto";
+}
 TEXTURE_ENCODING_OPTIONS[COLOR_TEXTURE] = {
   useSRGB: true,
   qualityLevel: 50,
@@ -21230,6 +21236,32 @@ var SceneModel3 = class {
    * This is ````false```` by default.
    */
   globalizedIds;
+  /**
+   * Hint describing how often this SceneModel's geometry is expected to change.
+   *
+   * Renderers can use this to choose an internal storage path. The WebGL
+   * renderer uses it only when its triangle geometry storage mode is `"auto"`;
+   * explicit renderer memory config still wins.
+   */
+  _updateHint;
+  /**
+   * Hint describing how often this SceneModel's geometry is expected to change.
+   */
+  get updateHint() {
+    return this._updateHint;
+  }
+  set updateHint(updateHint) {
+    this._updateHint = normalizeUpdateHint(updateHint);
+  }
+  /**
+   * @deprecated Use `updateHint`.
+   */
+  get updateUsage() {
+    return this._updateHint;
+  }
+  set updateUsage(updateUsage) {
+    this.updateHint = updateUsage;
+  }
   /**
    * Unique ID of this SceneModel.
    *
@@ -21365,6 +21397,7 @@ var SceneModel3 = class {
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = !!sceneModelParams.globalizedIds;
+    this._updateHint = normalizeUpdateHint(sceneModelParams.updateHint ?? sceneModelParams.updateUsage);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
     this.geometries = {};
@@ -22663,6 +22696,10 @@ var SceneModel3 = class {
     if (sceneModelParams.coordinateSystem) {
       this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
     }
+    const updateHint = sceneModelParams.updateHint ?? sceneModelParams.updateUsage;
+    if (updateHint !== void 0) {
+      this.updateHint = updateHint;
+    }
     if (sceneModelParams.transforms) {
       for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
         const transformParams = { ...sceneModelParams.transforms[i] };
@@ -22747,6 +22784,8 @@ var SceneModel3 = class {
     const sceneModelParams = {
       id: this.id,
       coordinateSystem: this.coordinateSystem.toParams(),
+      updateHint: this.updateHint,
+      updateUsage: this.updateHint,
       geometriesCompressed: [],
       textures: [],
       materials: [],
@@ -110745,6 +110784,7 @@ var XGFViewStreamController = class {
   _assetChunksById;
   _batchSize;
   _commitFrameBudgetMs;
+  _progressCadenceMs;
   _frustumOnly;
   _frustumDepthMultiplier;
   _frustumMinDepth;
@@ -110773,6 +110813,9 @@ var XGFViewStreamController = class {
   _projectedVisibilityClip = [0, 0, 0, 1];
   _projectedVisibilityPoint = [0, 0, 0, 1];
   _timer;
+  _progressTimer;
+  _progressPending = false;
+  _lastProgressEmitTime = Number.NEGATIVE_INFINITY;
   _candidateQueue = {
     generation: 0,
     chunks: [],
@@ -110803,6 +110846,7 @@ var XGFViewStreamController = class {
     );
     this._batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
     this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
+    this._progressCadenceMs = params.progressCadenceMs !== void 0 && Number.isFinite(params.progressCadenceMs) && params.progressCadenceMs > 0 ? params.progressCadenceMs : 0;
     this._frustumOnly = params.frustumOnly !== false;
     this._frustumDepthMultiplier = params.frustumDepthMultiplier !== void 0 && Number.isFinite(params.frustumDepthMultiplier) && params.frustumDepthMultiplier > 0 ? params.frustumDepthMultiplier : void 0;
     this._frustumMinDepth = params.frustumMinDepth !== void 0 && Number.isFinite(params.frustumMinDepth) && params.frustumMinDepth > 0 ? params.frustumMinDepth : 0;
@@ -111140,7 +111184,7 @@ var XGFViewStreamController = class {
           this.markQueueChunkLoaded(generation);
         }
         this.loadingChunkIds.delete(manifest.id);
-        this.emitProgress();
+        this.emitProgressBatched();
         await waitForFrameBudget(this._commitFrameBudgetMs);
       }
       this.emitStatus(`${label}: ${candidates.length} chunk(s) in ${(now2() - start).toFixed(1)} ms`);
@@ -111573,7 +111617,37 @@ var XGFViewStreamController = class {
     this._onStatus?.(status);
   }
   emitProgress() {
+    if (this._progressTimer !== void 0) {
+      clearTimeout(this._progressTimer);
+      this._progressTimer = void 0;
+    }
+    this._progressPending = false;
+    this._lastProgressEmitTime = now2();
     this._onProgress?.(this.queueProgress);
+  }
+  emitProgressBatched() {
+    if (!this._onProgress) {
+      return;
+    }
+    if (this._progressCadenceMs <= 0) {
+      this.emitProgress();
+      return;
+    }
+    const elapsed = now2() - this._lastProgressEmitTime;
+    if (elapsed >= this._progressCadenceMs) {
+      this.emitProgress();
+      return;
+    }
+    this._progressPending = true;
+    if (this._progressTimer !== void 0) {
+      return;
+    }
+    this._progressTimer = setTimeout(() => {
+      this._progressTimer = void 0;
+      if (this._progressPending) {
+        this.emitProgress();
+      }
+    }, Math.max(0, this._progressCadenceMs - elapsed));
   }
 };
 function createPrioritizedFileDataCache(concurrency, resolveFileData, options = {}) {
@@ -157072,6 +157146,16 @@ var ViewCuller = class {
       this.view.needsRender();
     }
   }
+  /**
+   * Runs a cull pass for the View's current camera immediately.
+   *
+   * The culler already runs on camera changes. Call this after a burst of
+   * SceneObject creation, such as streaming in new chunks, when newly resident
+   * objects should be classified before the camera moves again.
+   */
+  cullNow() {
+    this.#cullNow();
+  }
   #onCameraChanged() {
     if (this.#destroyed) {
       return;
@@ -159973,13 +160057,13 @@ var ResolutionScale = class {
    */
   constructor(view, options = {}) {
     this.view = view;
-    this._renderModes = options.renderModes || [NavigationRender];
+    this._renderModes = options.renderModes || [];
     this._resolutionScale = options.resolutionScale || 0.5;
   }
   /**
    * Sets which rendering modes in which to apply ResolutionScale.
    *
-   * Default value is [{@link base!constants.NavigationRender | NavigationRender}].
+   * Default value is `[]`.
    */
   set renderModes(value) {
     this._renderModes = value;
@@ -159988,7 +160072,7 @@ var ResolutionScale = class {
   /**
    * Gets which rendering modes in which to apply ResolutionScale.
    *
-   * Default value is [{@link base!constants.NavigationRender | NavigationRender}].
+   * Default value is `[]`.
    */
   get renderModes() {
     return this._renderModes;
@@ -165354,7 +165438,7 @@ var View2 = class {
       edgeWidth: 1
     });
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
-      renderModes: [NavigationRender],
+      renderModes: [],
       resolutionScale: 0.5
     });
     this.pointsMaterial = new PointsMaterial(this, viewParams.pointsMaterial || {
@@ -177111,6 +177195,32 @@ var RenderInspector = class _RenderInspector {
     s.currentFrame.numPrims += primRange.numPrims;
   }
   /**
+   * Records coverage for triangle surface DrawTechniques using the VBO geometry
+   * source instead of DTX primitive/index/position fetches.
+   *
+   * @internal
+   */
+  vboGeometryTriangles(stats) {
+    const s = this.getActiveState();
+    if (!this.enabled || !s || !s.currentFrame) {
+      return;
+    }
+    const frameStats = s.currentFrame.vboGeometryTriangles ??= {
+      handledBatches: 0,
+      fallbackBatches: 0,
+      blockedBatches: 0,
+      handledPrims: 0,
+      fallbackPrims: 0,
+      blockedPrims: 0
+    };
+    frameStats.handledBatches += stats.handledBatches ?? 0;
+    frameStats.fallbackBatches += stats.fallbackBatches ?? 0;
+    frameStats.blockedBatches += stats.blockedBatches ?? 0;
+    frameStats.handledPrims += stats.handledPrims ?? 0;
+    frameStats.fallbackPrims += stats.fallbackPrims ?? 0;
+    frameStats.blockedPrims += stats.blockedPrims ?? 0;
+  }
+  /**
    * Marks the end of the current frame for the currently active view.
    * Replaces `frameLogs[viewIndex]` each time.
    */
@@ -177923,9 +178033,6 @@ var RenderBuffers = class {
   }
 };
 
-// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/DataTextures.ts
-var DataTextures_exports = {};
-
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/dataTextures/DataTexture.ts
 var import_strongly_typed_events15 = __toESM(require_dist8());
 var DataTexture = class {
@@ -178041,9 +178148,16 @@ var DataTexture = class {
    */
   lastUploadTimeMS = 0;
   /**
+   * Monotonic counter incremented whenever this texture uploads new data.
+   *
+   * Internal renderer-side caches can use this to detect stale derived GPU
+   * resources without subscribing to debugging-only events.
+   */
+  version = 0;
+  /**
    * Enables internal event emission for this data texture.
    */
-  debugging = true;
+  debugging = false;
   /**
    * Emitted when the CPU-side buffer for this texture has changed and been uploaded to the GPU.
    *
@@ -178192,6 +178306,7 @@ var DataTexture = class {
    * @internal
    */
   notifyUpdated() {
+    this.version++;
     if (this.debugging) {
       this.onUpdated.dispatch(this, void 0);
     }
@@ -179627,8 +179742,20 @@ var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataT
       this.buffer[base + 6] = this.toU32(item.vertexColorsBase);
     this.setItemDirty(itemIndex);
   }
-  getItem(_itemIndex) {
-    throw new Error("[GeometryAttributeTexture.getItem] Not supported without backing state");
+  getItem(itemIndex) {
+    if (!this.buffer) {
+      throw new Error("[GeometryAttributeTexture.getItem] Not supported without a backing buffer");
+    }
+    const base = itemIndex * this.elementsPerItem;
+    return {
+      verticesBase: this.buffer[base],
+      indicesBase: this.buffer[base + 1],
+      edgeIndicesBase: this.buffer[base + 2],
+      normalsBase: this.buffer[base + 3],
+      uvsBase: this.buffer[base + 4],
+      polylineCumDistBase: this.buffer[base + 5],
+      vertexColorsBase: this.buffer[base + 6]
+    };
   }
   toU32(x) {
     return typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : x >>> 0;
@@ -181124,7 +181251,10 @@ var GPUTileManager = class {
    * Destroys this tile manager.
    */
   destroy() {
-    console.log(`GPUTileManager.destroy: Destroying GPUTileManager with ${this._numTiles} tiles`);
+    this._tiles.clear();
+    this._tileIndexesUsed = [];
+    this._lastFreeTileIndex = 0;
+    this._numTiles = 0;
   }
   /**
    * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
@@ -181213,15 +181343,2092 @@ var GPUMemoryCheckResult = /* @__PURE__ */ ((GPUMemoryCheckResult4) => {
   return GPUMemoryCheckResult4;
 })(GPUMemoryCheckResult || {});
 
-// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/GPUMemoryBatch.ts
-var MAX_LINE_PATTERN_SLOTS = 256;
-var MAX_HATCH_PATTERN_SLOTS = 256;
-var EMPTY_LINE_PATTERN_ENTRIES = new Float32Array(8);
-var EMPTY_HATCH_FAMILIES = new Float32Array(4 * 4);
-var EMPTY_HATCH_COLOR = new Float32Array(4);
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/geometry/index.ts
+var geometry_exports = {};
+__export(geometry_exports, {
+  DTXGeometryStorage: () => DTXGeometryStorage,
+  VBOGeometryStorage: () => VBOGeometryStorage,
+  createBatchGeometryStorage: () => createBatchGeometryStorage
+});
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/resources/GPUResourceLifecycle.ts
+function allocateGPUResources(resources) {
+  for (let i = 0, len = resources.length; i < len; i++) {
+    const result = resources[i].allocate();
+    if (result.ok === false) {
+      for (let j = i - 1; j >= 0; j--) {
+        resources[j].destroy();
+      }
+      return result;
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+function destroyGPUResources(resources) {
+  for (let i = 0, len = resources.length; i < len; i++) {
+    resources[i].destroy();
+  }
+}
+function getGPUResourcesAllocatedBytes(resources) {
+  let total = 0;
+  for (let i = 0, len = resources.length; i < len; i++) {
+    total += resources[i].getAllocatedBytes();
+  }
+  return total;
+}
+function getGPUResourcesUsedBytes(resources) {
+  let total = 0;
+  for (let i = 0, len = resources.length; i < len; i++) {
+    total += resources[i].getUsedBytes();
+  }
+  return total;
+}
+function restoreGPUResources(resources, gl) {
+  for (const resource of resources) {
+    resource.setWebGLContext?.(gl);
+    const result = resource.webglContextRestored();
+    if (result.ok === false) {
+      return result;
+    }
+  }
+  return { ok: true, value: void 0 };
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/geometry/GeometryResourceUtils.ts
+var allocateGeometryResources = allocateGPUResources;
+var destroyGeometryResources = destroyGPUResources;
+var getGeometryResourcesAllocatedBytes = getGPUResourcesAllocatedBytes;
+var getGeometryResourcesUsedBytes = getGPUResourcesUsedBytes;
+var restoreGeometryResources = restoreGPUResources;
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/geometry/DTXGeometryStorage.ts
+var DTXGeometryStorage = class {
+  kind = "dtx";
+  _primitiveMeshIndexTextures = [];
+  _edgeMeshIndexTextures = [];
+  _geometryQuantRangeTexture;
+  _indexTexture;
+  _edgeIndexTexture;
+  _vertexPositionTexture;
+  _vertexColorTexture;
+  _resources;
+  _memoryConfigs;
+  constructor(params) {
+    const { gl, batchIndex, memoryConfigs, bins, getNumGeometries } = params;
+    this._memoryConfigs = memoryConfigs;
+    for (let viewIndex = 0; viewIndex < memoryConfigs.maxViews; viewIndex++) {
+      this._primitiveMeshIndexTextures.push(
+        new PrimitiveMeshIndexTexture({
+          gl,
+          maxItems: memoryConfigs.maxBatchPrims,
+          bins,
+          description: `[Batch ${batchIndex}, View ${viewIndex}] - primIndex -> meshIndex`
+        })
+      );
+      this._edgeMeshIndexTextures.push(
+        new PrimitiveMeshIndexTexture({
+          gl,
+          maxItems: memoryConfigs.maxBatchPrims,
+          bins,
+          description: `[Batch ${batchIndex}, View ${viewIndex}] - edgeIndex -> meshIndex`
+        })
+      );
+    }
+    this._geometryQuantRangeTexture = new GeometryQuantRangeTexture({
+      gl,
+      maxItems: memoryConfigs.maxBatchGeometries,
+      getNumItems: getNumGeometries,
+      description: `[Batch ${batchIndex}] - geometryIndex -> quantization ranges (offset, scale)`
+    });
+    this._indexTexture = new IndexTexture({
+      gl,
+      maxItems: memoryConfigs.maxBatchIndices,
+      description: `[Batch ${batchIndex}] - primitive indices`
+    });
+    this._edgeIndexTexture = new IndexTexture({
+      gl,
+      maxItems: memoryConfigs.maxBatchIndices,
+      description: `[Batch ${batchIndex}] - edge indices`
+    });
+    this._vertexPositionTexture = new VertexPositionTexture({
+      gl,
+      maxItems: memoryConfigs.maxBatchVertices,
+      description: `[Batch ${batchIndex}] - vertex XYZ positions`
+    });
+    this._vertexColorTexture = new VertexColorTexture({
+      gl,
+      maxItems: memoryConfigs.maxBatchVertices,
+      description: `[Batch ${batchIndex}] - vertex RGB colors`
+    });
+    this._resources = [
+      ...this._primitiveMeshIndexTextures,
+      ...this._edgeMeshIndexTextures,
+      this._geometryQuantRangeTexture,
+      this._indexTexture,
+      this._edgeIndexTexture,
+      this._vertexPositionTexture,
+      this._vertexColorTexture
+    ];
+  }
+  allocate() {
+    return allocateGeometryResources(this._resources);
+  }
+  destroy() {
+    destroyGeometryResources(this._resources);
+  }
+  webglContextRestored(gl) {
+    return restoreGeometryResources(this._resources, gl);
+  }
+  beginBulkMeshAdd(_stats) {
+  }
+  endBulkMeshAdd(_stats) {
+  }
+  uploadChanges(batchResources) {
+    let didFlush = false;
+    didFlush = this._indexTexture.uploadChanges() || didFlush;
+    didFlush = this._geometryQuantRangeTexture.uploadChanges() || didFlush;
+    didFlush = this._edgeIndexTexture.uploadChanges() || didFlush;
+    didFlush = this._vertexPositionTexture.uploadChanges() || didFlush;
+    didFlush = this._vertexColorTexture.uploadChanges() || didFlush;
+    for (let i = 0, len = this._primitiveMeshIndexTextures.length; i < len; i++) {
+      const primitiveMeshIndexTexture = this._primitiveMeshIndexTextures[i];
+      const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges();
+      didFlush = primitiveMeshIndexTextureFlushed || didFlush;
+      if (primitiveMeshIndexTextureFlushed) {
+        batchResources.views[i].numDrawablePrims = primitiveMeshIndexTexture.numPrimitives;
+      }
+      didFlush = this._edgeMeshIndexTextures[i].uploadChanges() || didFlush;
+    }
+    return didFlush;
+  }
+  getAllocatedBytes() {
+    return getGeometryResourcesAllocatedBytes(this._resources);
+  }
+  getUsedBytes() {
+    return getGeometryResourcesUsedBytes(this._resources);
+  }
+  getResources() {
+    return {
+      kind: this.kind,
+      geometryQuantRangeTexture: this._geometryQuantRangeTexture,
+      indexTexture: this._indexTexture,
+      edgeIndexTexture: this._edgeIndexTexture,
+      primitiveMeshIndexTextures: this._primitiveMeshIndexTextures,
+      edgeMeshIndexTextures: this._edgeMeshIndexTextures,
+      vertexPositionTexture: this._vertexPositionTexture,
+      vertexColorTexture: this._vertexColorTexture
+    };
+  }
+  getViewResources(viewIndex) {
+    const primitiveMeshIndexTexture = this._primitiveMeshIndexTextures[viewIndex];
+    const edgeMeshIndexTexture = this._edgeMeshIndexTextures[viewIndex];
+    return {
+      primitiveMeshIndexTexture,
+      edgeMeshIndexTexture,
+      renderPassPrimitiveRanges: primitiveMeshIndexTexture.passRanges,
+      renderPassEdgePrimitiveRanges: edgeMeshIndexTexture.passRanges,
+      pickPrimitiveRange: primitiveMeshIndexTexture.primRange,
+      pickEdgePrimitiveRange: edgeMeshIndexTexture.primRange
+    };
+  }
+  canAddMesh(sceneMesh, geometryExists) {
+    const geometry = sceneMesh.geometry;
+    const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
+    if (!geometryExists) {
+      if (this._vertexPositionTexture.canGetPortion(vertCount) === false) {
+        return 4 /* NotEnoughVertexSpace */;
+      }
+      if (geometry.indices && this._indexTexture.canGetPortion(geometry.indices.length) === false) {
+        return 6 /* NotEnoughIndexSpace */;
+      }
+      if (geometry.edgeIndices && this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
+        return 7 /* NotEnoughEdgeIndexSpace */;
+      }
+      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length / 4) === false) {
+        return 5 /* NotEnoughColorSpace */;
+      }
+    }
+    const primitiveCount = getPrimitiveCount(geometry);
+    if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
+      const edgePrimCount = geometry.edgeIndices.length / 2 | 0;
+      if (edgePrimCount > 0 && !canGetPortionInEveryView(this._edgeMeshIndexTextures, edgePrimCount)) {
+        return 7 /* NotEnoughEdgeIndexSpace */;
+      }
+    }
+    if (!canGetPortionInEveryView(this._primitiveMeshIndexTextures, primitiveCount)) {
+      return 8 /* NotEnoughPrimSpace */;
+    }
+    return 0 /* OK */;
+  }
+  allocateGeometry(params) {
+    const { sceneGeometry, geometryIndex, geometryAttributeTexture } = params;
+    const allocation = { kind: this.kind };
+    allocation.positionsPortion = this._vertexPositionTexture.getPortion(
+      sceneGeometry.positionsCompressed,
+      (newBase) => {
+        geometryAttributeTexture.setItem(geometryIndex, {
+          verticesBase: newBase
+        });
+      }
+    );
+    if (allocation.positionsPortion === null) {
+      this.freeGeometryAllocation(allocation);
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion (of length ${sceneGeometry.positionsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._memoryConfigs.maxBatchVertices * 3} position components`
+      };
+    }
+    const [xmin, ymin, zmin, xmax, ymax, zmax] = sceneGeometry.aabb;
+    this._geometryQuantRangeTexture.setItem(geometryIndex, {
+      offset: [xmin, ymin, zmin],
+      scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
+    });
+    if (sceneGeometry.colorsCompressed) {
+      allocation.vertexColorsPortion = this._vertexColorTexture.getPortion(
+        sceneGeometry.colorsCompressed,
+        (newBase) => {
+          geometryAttributeTexture.setItem(geometryIndex, {
+            vertexColorsBase: newBase
+          });
+        }
+      );
+      if (allocation.vertexColorsPortion === null) {
+        this.freeGeometryAllocation(allocation);
+        return {
+          ok: false,
+          type: 8 /* MemoryAllocationFailed */,
+          error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion (of length ${sceneGeometry.colorsCompressed.length}) geometry ${sceneGeometry.id} - limit is ${this._memoryConfigs.maxBatchVertices * 4} color components`
+        };
+      }
+    }
+    if (sceneGeometry.primitive !== PointsPrimitive && sceneGeometry.indices) {
+      allocation.indicesHandle = this._indexTexture.getPortion(
+        sceneGeometry.indices,
+        (newBase) => {
+          geometryAttributeTexture.setItem(geometryIndex, {
+            indicesBase: newBase
+          });
+        }
+      );
+      if (allocation.indicesHandle === null) {
+        this.freeGeometryAllocation(allocation);
+        return {
+          ok: false,
+          type: 8 /* MemoryAllocationFailed */,
+          error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion (of length ${sceneGeometry.indices.length}) for geometry ${sceneGeometry.id} - limit is ${this._memoryConfigs.maxBatchIndices} indices`
+        };
+      }
+      if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices && sceneGeometry.edgeIndices.length > 0) {
+        allocation.edgeIndicesHandle = this._edgeIndexTexture.getPortion(
+          sceneGeometry.edgeIndices,
+          (newBase) => {
+            geometryAttributeTexture.setItem(geometryIndex, {
+              edgeIndicesBase: newBase
+            });
+          }
+        );
+        if (allocation.edgeIndicesHandle === null) {
+          this.freeGeometryAllocation(allocation);
+          return {
+            ok: false,
+            type: 8 /* MemoryAllocationFailed */,
+            error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion (of length ${sceneGeometry.edgeIndices.length}) for geometry ${sceneGeometry.id} - limit is ${this._memoryConfigs.maxBatchIndices} indices`
+          };
+        }
+      }
+    }
+    return { ok: true, value: allocation };
+  }
+  freeGeometryAllocation(allocation) {
+    if (allocation.positionsPortion) {
+      this._vertexPositionTexture.putPortion(allocation.positionsPortion);
+      allocation.positionsPortion = void 0;
+    }
+    if (allocation.vertexColorsPortion) {
+      this._vertexColorTexture.putPortion(allocation.vertexColorsPortion);
+      allocation.vertexColorsPortion = void 0;
+    }
+    if (allocation.indicesHandle) {
+      this._indexTexture.putPortion(allocation.indicesHandle);
+      allocation.indicesHandle = void 0;
+    }
+    if (allocation.edgeIndicesHandle) {
+      this._edgeIndexTexture.putPortion(allocation.edgeIndicesHandle);
+      allocation.edgeIndicesHandle = void 0;
+    }
+  }
+  createMeshHandle(params) {
+    const { sceneMesh, meshIndex, primitiveCount, numViews } = params;
+    const primitiveMeshIndexTextureHandles = numViews === 1 ? this._primitiveMeshIndexTextures[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE) : (() => {
+      const handles = [];
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        handles.push(this._primitiveMeshIndexTextures[viewIndex].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE));
+      }
+      return handles;
+    })();
+    let edgeMeshIndexTextureHandles;
+    if (sceneMesh.geometry.primitive === TrianglesPrimitive) {
+      const edgeCount = sceneMesh.geometry.edgeIndices ? sceneMesh.geometry.edgeIndices.length / 2 | 0 : 0;
+      if (edgeCount > 0) {
+        edgeMeshIndexTextureHandles = numViews === 1 ? this._edgeMeshIndexTextures[0].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE) : (() => {
+          const handles = [];
+          for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+            handles.push(this._edgeMeshIndexTextures[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE));
+          }
+          return handles;
+        })();
+      }
+    }
+    return {
+      ok: true,
+      value: {
+        kind: this.kind,
+        primitiveMeshIndexTextureHandles,
+        edgeMeshIndexTextureHandles
+      }
+    };
+  }
+  deleteMeshHandle(handle, _meshIndex, numViews) {
+    forEachPerViewHandle(handle.primitiveMeshIndexTextureHandles, numViews, (viewIndex, portionHandle) => {
+      this._primitiveMeshIndexTextures[viewIndex]?.deletePortion(portionHandle);
+    });
+    forEachPerViewHandle(handle.edgeMeshIndexTextureHandles, numViews, (viewIndex, portionHandle) => {
+      this._edgeMeshIndexTextures[viewIndex]?.deletePortion(portionHandle);
+    });
+  }
+  setMeshMatrix(_meshIndex, _matrix) {
+  }
+  setMeshTile(_meshIndex, _tileIndex) {
+  }
+  setMeshPlacement(_meshIndex, _tileIndex, _matrix) {
+  }
+  setMeshViewAttribs(_meshIndex, _viewIndex, _params) {
+  }
+  setMeshRenderPass(handle, meshIndex, viewIndex, renderPass) {
+    const primitiveMeshIndexTextureHandle = getPerViewHandle(handle.primitiveMeshIndexTextureHandles, viewIndex);
+    if (!primitiveMeshIndexTextureHandle) {
+      throw new SDKInternalException(`DTXGeometryStorage.setMeshRenderPass: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
+    }
+    this._primitiveMeshIndexTextures[viewIndex].setRenderPass(primitiveMeshIndexTextureHandle, renderPass);
+    if (handle.edgeMeshIndexTextureHandles) {
+      const edgeMeshIndexTextureHandle = getPerViewHandle(handle.edgeMeshIndexTextureHandles, viewIndex);
+      if (!edgeMeshIndexTextureHandle) {
+        throw new SDKInternalException(`DTXGeometryStorage.setMeshRenderPass: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+      }
+      this._edgeMeshIndexTextures[viewIndex].setRenderPass(edgeMeshIndexTextureHandle, renderPass);
+    }
+  }
+  setMeshVisible(handle, meshIndex, viewIndex, visible) {
+    const primitiveMeshIndexTextureHandle = getPerViewHandle(handle.primitiveMeshIndexTextureHandles, viewIndex);
+    if (!primitiveMeshIndexTextureHandle) {
+      throw new SDKInternalException(`DTXGeometryStorage.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
+    }
+    this._primitiveMeshIndexTextures[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, visible);
+    if (handle.edgeMeshIndexTextureHandles) {
+      const edgeMeshIndexTextureHandle = getPerViewHandle(handle.edgeMeshIndexTextureHandles, viewIndex);
+      if (!edgeMeshIndexTextureHandle) {
+        throw new SDKInternalException(`DTXGeometryStorage.setMeshVisible: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+      }
+      this._edgeMeshIndexTextures[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, visible);
+    }
+  }
+  getDrawArraysParamsForMesh(handle, sceneGeometry, viewIndex) {
+    const primitiveMeshIndexTextureHandle = getPerViewHandle(handle.primitiveMeshIndexTextureHandles, viewIndex);
+    if (!primitiveMeshIndexTextureHandle) {
+      return null;
+    }
+    const primsBase = primitiveMeshIndexTextureHandle.base ?? primitiveMeshIndexTextureHandle.start ?? 0;
+    if (sceneGeometry.primitive === PointsPrimitive) {
+      return {
+        count: sceneGeometry.positionsCompressed.length / 3,
+        first: primsBase
+      };
+    } else if (sceneGeometry.primitive === LinesPrimitive || sceneGeometry.primitive === TrianglesPrimitive) {
+      return {
+        count: sceneGeometry.indices?.length ?? 0,
+        first: primsBase
+      };
+    }
+    return null;
+  }
+};
+function getPrimitiveCount(sceneGeometry) {
+  const vertCount = (sceneGeometry.positionsCompressed?.length ?? 0) / 3;
+  if (sceneGeometry.primitive === PointsPrimitive) {
+    return vertCount;
+  }
+  if (sceneGeometry.primitive === LinesPrimitive) {
+    return sceneGeometry.indices.length / 2 | 0;
+  }
+  return sceneGeometry.indices.length / 3 | 0;
+}
+function canGetPortionInEveryView(textures, size) {
+  for (let viewIndex = 0, len = textures.length; viewIndex < len; viewIndex++) {
+    if (textures[viewIndex].canGetPortion(size) === false) {
+      return false;
+    }
+  }
+  return true;
+}
+function getPerViewHandle(handles, viewIndex) {
+  if (!handles) {
+    return void 0;
+  }
+  return Array.isArray(handles) ? handles[viewIndex] : viewIndex === 0 ? handles : void 0;
+}
+function forEachPerViewHandle(handles, numViews, callback) {
+  if (!handles) {
+    return;
+  }
+  if (Array.isArray(handles)) {
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      callback(viewIndex, handles[viewIndex]);
+    }
+  } else {
+    callback(0, handles);
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOState.ts
+var TRIANGLE_GEOMETRY_VBO_PASS_ORDER = [
+  RENDER_PASSES.OPAQUE,
+  RENDER_PASSES.TRANSPARENT,
+  RENDER_PASSES.HIGHLIGHTED,
+  RENDER_PASSES.SELECTED,
+  RENDER_PASSES.XRAYED
+];
+var TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length;
+var TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length + 1;
+function createTriangleGeometryVBOViewState() {
+  const passRanges = /* @__PURE__ */ new Map();
+  const indexRanges = /* @__PURE__ */ new Map();
+  const edgePassRanges = /* @__PURE__ */ new Map();
+  const edgeIndexRanges = /* @__PURE__ */ new Map();
+  const passPrimCounts = new Array(TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length).fill(0);
+  const edgePassPrimCounts = new Array(TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length).fill(0);
+  for (const pass of TRIANGLE_GEOMETRY_VBO_PASS_ORDER) {
+    passRanges.set(pass, { firstPrim: 0, numPrims: 0 });
+    indexRanges.set(pass, { firstIndex: 0, indexCount: 0 });
+    edgePassRanges.set(pass, { firstPrim: 0, numPrims: 0 });
+    edgeIndexRanges.set(pass, { firstIndex: 0, indexCount: 0 });
+  }
+  return {
+    indexBuffer: null,
+    edgeIndexBuffer: null,
+    colorBuffer: null,
+    indices: null,
+    edgeIndices: null,
+    colors: null,
+    passRanges,
+    indexRanges,
+    edgePassRanges,
+    edgeIndexRanges,
+    passPrimCounts,
+    edgePassPrimCounts,
+    pickPrimCount: 0,
+    pickEdgePrimCount: 0,
+    pickRange: { firstPrim: 0, numPrims: 0 },
+    pickIndexRange: { firstIndex: 0, indexCount: 0 },
+    pickEdgeRange: { firstPrim: 0, numPrims: 0 },
+    pickEdgeIndexRange: { firstIndex: 0, indexCount: 0 },
+    indexCount: 0,
+    edgeIndexCount: 0,
+    indicesDirty: false,
+    indexDirtySpans: [],
+    edgeIndexDirtySpans: [],
+    colorDirtyMinVertex: Number.POSITIVE_INFINITY,
+    colorDirtyMaxVertex: -1,
+    bakedVAO: null,
+    hybridVAO: null,
+    bakedEdgeVAO: null,
+    hybridEdgeVAO: null
+  };
+}
+function clearTriangleGeometryVBOViewState(view) {
+  view.indices = null;
+  view.edgeIndices = null;
+  view.colors = null;
+  view.passRanges.clear();
+  view.indexRanges.clear();
+  view.edgePassRanges.clear();
+  view.edgeIndexRanges.clear();
+  view.passPrimCounts.fill(0);
+  view.edgePassPrimCounts.fill(0);
+  view.pickPrimCount = 0;
+  view.pickEdgePrimCount = 0;
+  view.pickRange = { firstPrim: 0, numPrims: 0 };
+  view.pickIndexRange = { firstIndex: 0, indexCount: 0 };
+  view.pickEdgeRange = { firstPrim: 0, numPrims: 0 };
+  view.pickEdgeIndexRange = { firstIndex: 0, indexCount: 0 };
+  view.indexCount = 0;
+  view.edgeIndexCount = 0;
+  view.indicesDirty = false;
+  view.indexDirtySpans.length = 0;
+  view.edgeIndexDirtySpans.length = 0;
+  view.colorDirtyMinVertex = Number.POSITIVE_INFINITY;
+  view.colorDirtyMaxVertex = -1;
+}
+function copyTriangleGeometryVBOMatrix(matrix) {
+  const copy2 = new Float64Array(16);
+  copy2.set(matrix);
+  return copy2;
+}
+function clampTriangleGeometryVBOByte(value, fallback) {
+  if (value === void 0 || value === null || !Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.max(0, Math.min(255, value | 0));
+}
+function getTriangleGeometryPrimitiveCount(sceneMesh) {
+  const geometry = sceneMesh.geometry;
+  if (geometry.primitive !== TrianglesPrimitive || !geometry.indices) {
+    return 0;
+  }
+  return geometry.indices.length / 3 | 0;
+}
+function getTriangleGeometryEdgeIndexCount(sceneMesh) {
+  const geometry = sceneMesh.geometry;
+  if (geometry.primitive !== TrianglesPrimitive || !geometry.edgeIndices) {
+    return 0;
+  }
+  return geometry.edgeIndices.length;
+}
+function getTriangleGeometryEdgeSlotCapacity(sceneMesh) {
+  return getTriangleGeometryPrimitiveCount(sceneMesh) * 6;
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOSpanAllocator.ts
+var TriangleGeometryVBOSpanAllocator = class _TriangleGeometryVBOSpanAllocator {
+  _capacity;
+  _freeVertexSpans = [];
+  _nextVertex = 0;
+  constructor(capacity) {
+    this._capacity = Math.max(0, capacity | 0);
+  }
+  get nextVertex() {
+    return this._nextVertex;
+  }
+  get freeVertexSpans() {
+    return this._freeVertexSpans;
+  }
+  clear() {
+    this._freeVertexSpans.length = 0;
+    this._nextVertex = 0;
+  }
+  hasAvailable(vertexCount2) {
+    if (vertexCount2 <= 0) {
+      return false;
+    }
+    if (this._nextVertex + vertexCount2 <= this._capacity) {
+      return true;
+    }
+    for (const span of this._freeVertexSpans) {
+      if (span.count >= vertexCount2) {
+        return true;
+      }
+    }
+    return false;
+  }
+  allocate(vertexCount2) {
+    for (let i = 0, len = this._freeVertexSpans.length; i < len; i++) {
+      const span = this._freeVertexSpans[i];
+      if (span.count < vertexCount2) {
+        continue;
+      }
+      const base2 = span.base;
+      if (span.count === vertexCount2) {
+        this._freeVertexSpans.splice(i, 1);
+      } else {
+        span.base += vertexCount2;
+        span.count -= vertexCount2;
+      }
+      return base2;
+    }
+    if (this._nextVertex + vertexCount2 > this._capacity) {
+      return -1;
+    }
+    const base = this._nextVertex;
+    this._nextVertex += vertexCount2;
+    return base;
+  }
+  release(vertexBase, vertexCount2) {
+    if (vertexCount2 <= 0) {
+      return;
+    }
+    this._freeVertexSpans.push({ base: vertexBase, count: vertexCount2 });
+    _TriangleGeometryVBOSpanAllocator.coalesceSpans(this._freeVertexSpans);
+    this._trimTrailingFreeVertexSpans();
+  }
+  static coalesceSpans(spans) {
+    if (spans.length <= 1) {
+      return;
+    }
+    spans.sort((a2, b4) => a2.base - b4.base);
+    let writeIndex = 0;
+    for (let readIndex = 1; readIndex < spans.length; readIndex++) {
+      const current = spans[readIndex];
+      const previous = spans[writeIndex];
+      const previousEnd = previous.base + previous.count;
+      if (current.base <= previousEnd) {
+        previous.count = Math.max(previousEnd, current.base + current.count) - previous.base;
+      } else {
+        writeIndex++;
+        spans[writeIndex] = current;
+      }
+    }
+    spans.length = writeIndex + 1;
+  }
+  _trimTrailingFreeVertexSpans() {
+    while (this._freeVertexSpans.length > 0) {
+      const last = this._freeVertexSpans[this._freeVertexSpans.length - 1];
+      if (last.base + last.count !== this._nextVertex) {
+        return;
+      }
+      this._nextVertex = last.base;
+      this._freeVertexSpans.pop();
+    }
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOBuffers.ts
+var TriangleGeometryVBOBuffers = class {
+  _positions = null;
+  _meshIndices = null;
+  _geometryVertexIndices = null;
+  _positionBuffer = null;
+  _meshIndexBuffer = null;
+  _geometryVertexIndexBuffer = null;
+  _positionDirtyMinVertex = Number.POSITIVE_INFINITY;
+  _positionDirtyMaxVertex = -1;
+  _meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
+  _meshIndexDirtyMaxVertex = -1;
+  _geometryVertexIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
+  _geometryVertexIndexDirtyMaxVertex = -1;
+  get positions() {
+    return this._positions;
+  }
+  get meshIndices() {
+    return this._meshIndices;
+  }
+  get geometryVertexIndices() {
+    return this._geometryVertexIndices;
+  }
+  get positionBuffer() {
+    return this._positionBuffer;
+  }
+  get meshIndexBuffer() {
+    return this._meshIndexBuffer;
+  }
+  get geometryVertexIndexBuffer() {
+    return this._geometryVertexIndexBuffer;
+  }
+  allocateCPU(params) {
+    try {
+      this._positions = new Float32Array(params.vertexCapacity * 4);
+      this._meshIndices = new Uint32Array(params.vertexCapacity);
+      this._geometryVertexIndices = new Uint32Array(params.vertexCapacity);
+      for (const view of params.views) {
+        view.indices = new Uint32Array(params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT);
+        view.edgeIndices = new Uint32Array(params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT);
+        view.colors = new Uint8Array(params.vertexCapacity * 4);
+      }
+    } catch (e) {
+      return {
+        ok: false,
+        type: 4 /* MemoryExceeded */,
+        error: `[TriangleGeometryVBOBatch.allocate] CPU buffer allocation failed: ${e}`
+      };
+    }
+    return { ok: true, value: void 0 };
+  }
+  allocateGPU(params) {
+    const gl = params.gl;
+    const created = [];
+    const makeBuffer = (target, byteLength) => {
+      const buffer = gl.createBuffer();
+      if (!buffer) {
+        return null;
+      }
+      created.push(buffer);
+      gl.bindBuffer(target, buffer);
+      gl.bufferData(target, byteLength, gl.DYNAMIC_DRAW);
+      gl.bindBuffer(target, null);
+      return buffer;
+    };
+    try {
+      this._positionBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4 * 4);
+      this._meshIndexBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
+      this._geometryVertexIndexBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
+      if (!this._positionBuffer || !this._meshIndexBuffer || !this._geometryVertexIndexBuffer) {
+        throw new Error("Failed to allocate static VBO buffers");
+      }
+      for (const view of params.views) {
+        view.indexBuffer = makeBuffer(gl.ELEMENT_ARRAY_BUFFER, params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
+        view.edgeIndexBuffer = makeBuffer(gl.ELEMENT_ARRAY_BUFFER, params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
+        view.colorBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
+        if (!view.indexBuffer || !view.edgeIndexBuffer || !view.colorBuffer) {
+          throw new Error("Failed to allocate per-view VBO buffers");
+        }
+      }
+      return { ok: true, value: void 0 };
+    } catch (e) {
+      for (const buffer of created) {
+        gl.deleteBuffer(buffer);
+      }
+      this._positionBuffer = null;
+      this._meshIndexBuffer = null;
+      this._geometryVertexIndexBuffer = null;
+      for (const view of params.views) {
+        view.indexBuffer = null;
+        view.edgeIndexBuffer = null;
+        view.colorBuffer = null;
+      }
+      return {
+        ok: false,
+        type: 4 /* MemoryExceeded */,
+        error: `[TriangleGeometryVBOBatch.allocate] GPU buffer allocation failed: ${e}`
+      };
+    }
+  }
+  deleteGPUResources(gl, views) {
+    if (this._positionBuffer) {
+      gl.deleteBuffer(this._positionBuffer);
+      this._positionBuffer = null;
+    }
+    if (this._meshIndexBuffer) {
+      gl.deleteBuffer(this._meshIndexBuffer);
+      this._meshIndexBuffer = null;
+    }
+    if (this._geometryVertexIndexBuffer) {
+      gl.deleteBuffer(this._geometryVertexIndexBuffer);
+      this._geometryVertexIndexBuffer = null;
+    }
+    for (const view of views) {
+      if (view.indexBuffer) {
+        gl.deleteBuffer(view.indexBuffer);
+        view.indexBuffer = null;
+      }
+      if (view.edgeIndexBuffer) {
+        gl.deleteBuffer(view.edgeIndexBuffer);
+        view.edgeIndexBuffer = null;
+      }
+      if (view.colorBuffer) {
+        gl.deleteBuffer(view.colorBuffer);
+        view.colorBuffer = null;
+      }
+    }
+  }
+  destroyCPU(views) {
+    this._positions = null;
+    this._meshIndices = null;
+    this._geometryVertexIndices = null;
+    this._positionDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._positionDirtyMaxVertex = -1;
+    this._meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._meshIndexDirtyMaxVertex = -1;
+    this._geometryVertexIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._geometryVertexIndexDirtyMaxVertex = -1;
+    for (const view of views) {
+      clearTriangleGeometryVBOViewState(view);
+    }
+  }
+  markAllDirty(nextVertex, views) {
+    if (nextVertex <= 0) {
+      return;
+    }
+    this.markPositionDirty(0, nextVertex);
+    this.markMeshIndexDirty(0, nextVertex);
+    this.markGeometryVertexIndexDirty(0, nextVertex);
+    for (const view of views) {
+      view.indicesDirty = true;
+      this.markColorDirty(view, 0, nextVertex);
+    }
+  }
+  markPositionDirty(vertexBase, vertexCount2) {
+    this._positionDirtyMinVertex = Math.min(this._positionDirtyMinVertex, vertexBase);
+    this._positionDirtyMaxVertex = Math.max(this._positionDirtyMaxVertex, vertexBase + vertexCount2 - 1);
+  }
+  markMeshIndexDirty(vertexBase, vertexCount2) {
+    this._meshIndexDirtyMinVertex = Math.min(this._meshIndexDirtyMinVertex, vertexBase);
+    this._meshIndexDirtyMaxVertex = Math.max(this._meshIndexDirtyMaxVertex, vertexBase + vertexCount2 - 1);
+  }
+  markGeometryVertexIndexDirty(vertexBase, vertexCount2) {
+    this._geometryVertexIndexDirtyMinVertex = Math.min(this._geometryVertexIndexDirtyMinVertex, vertexBase);
+    this._geometryVertexIndexDirtyMaxVertex = Math.max(this._geometryVertexIndexDirtyMaxVertex, vertexBase + vertexCount2 - 1);
+  }
+  markColorDirty(view, vertexBase, vertexCount2) {
+    view.colorDirtyMinVertex = Math.min(view.colorDirtyMinVertex, vertexBase);
+    view.colorDirtyMaxVertex = Math.max(view.colorDirtyMaxVertex, vertexBase + vertexCount2 - 1);
+  }
+  markIndexRangeDirty(view, base, count) {
+    if (count > 0) {
+      view.indexDirtySpans.push({ base, count });
+    }
+  }
+  markEdgeIndexRangeDirty(view, base, count) {
+    if (count > 0) {
+      view.edgeIndexDirtySpans.push({ base, count });
+    }
+  }
+  uploadChanges(params) {
+    let uploaded = false;
+    for (let viewIndex = 0; viewIndex < params.views.length; viewIndex++) {
+      const view = params.views[viewIndex];
+      if (view.indicesDirty) {
+        params.rebuildViewIndices(view, viewIndex);
+      }
+    }
+    uploaded = this._uploadPositionRange(params.gl) || uploaded;
+    uploaded = this._uploadMeshIndexRange(params.gl) || uploaded;
+    uploaded = this._uploadGeometryVertexIndexRange(params.gl) || uploaded;
+    for (const view of params.views) {
+      uploaded = this._uploadViewColorRange(params.gl, view) || uploaded;
+      uploaded = this._uploadViewIndexBuffer(params.gl, view) || uploaded;
+      uploaded = this._uploadViewEdgeIndexBuffer(params.gl, view) || uploaded;
+    }
+    return uploaded;
+  }
+  getAllocatedBytes(params) {
+    return params.vertexCapacity * 4 * 4 + params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.maxViews * (params.vertexCapacity * 4 + params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4 + params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
+  }
+  getUsedBytes(params) {
+    let activeIndices = 0;
+    let activeEdgeIndices = 0;
+    for (const view of params.views) {
+      activeIndices += view.indexCount;
+      activeEdgeIndices += view.edgeIndexCount;
+    }
+    return params.activeVertices * 4 * 4 + params.activeVertices * 4 + params.activeVertices * 4 + params.maxViews * (params.activeVertices * 4) + activeIndices * 4 + activeEdgeIndices * 4;
+  }
+  _uploadPositionRange(gl) {
+    if (!this._positionBuffer || !this._positions || this._positionDirtyMaxVertex < this._positionDirtyMinVertex) {
+      return false;
+    }
+    const start = this._positionDirtyMinVertex * 4;
+    const end = (this._positionDirtyMaxVertex + 1) * 4;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._positionBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start * 4, this._positions.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this._positionDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._positionDirtyMaxVertex = -1;
+    return true;
+  }
+  _uploadMeshIndexRange(gl) {
+    if (!this._meshIndexBuffer || !this._meshIndices || this._meshIndexDirtyMaxVertex < this._meshIndexDirtyMinVertex) {
+      return false;
+    }
+    const start = this._meshIndexDirtyMinVertex;
+    const end = this._meshIndexDirtyMaxVertex + 1;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._meshIndexBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start * 4, this._meshIndices.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this._meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._meshIndexDirtyMaxVertex = -1;
+    return true;
+  }
+  _uploadGeometryVertexIndexRange(gl) {
+    if (!this._geometryVertexIndexBuffer || !this._geometryVertexIndices || this._geometryVertexIndexDirtyMaxVertex < this._geometryVertexIndexDirtyMinVertex) {
+      return false;
+    }
+    const start = this._geometryVertexIndexDirtyMinVertex;
+    const end = this._geometryVertexIndexDirtyMaxVertex + 1;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._geometryVertexIndexBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start * 4, this._geometryVertexIndices.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this._geometryVertexIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._geometryVertexIndexDirtyMaxVertex = -1;
+    return true;
+  }
+  _uploadViewColorRange(gl, view) {
+    if (!view.colorBuffer || !view.colors || view.colorDirtyMaxVertex < view.colorDirtyMinVertex) {
+      return false;
+    }
+    const start = view.colorDirtyMinVertex * 4;
+    const end = (view.colorDirtyMaxVertex + 1) * 4;
+    gl.bindBuffer(gl.ARRAY_BUFFER, view.colorBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start, view.colors.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    view.colorDirtyMinVertex = Number.POSITIVE_INFINITY;
+    view.colorDirtyMaxVertex = -1;
+    return true;
+  }
+  _uploadViewIndexBuffer(gl, view) {
+    if (!view.indexBuffer || !view.indices || view.indexDirtySpans.length === 0) {
+      return false;
+    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, view.indexBuffer);
+    TriangleGeometryVBOSpanAllocator.coalesceSpans(view.indexDirtySpans);
+    for (const span of view.indexDirtySpans) {
+      const end = span.base + span.count;
+      gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, span.base * 4, view.indices.subarray(span.base, end));
+    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    view.indexDirtySpans.length = 0;
+    return true;
+  }
+  _uploadViewEdgeIndexBuffer(gl, view) {
+    if (!view.edgeIndexBuffer || !view.edgeIndices || view.edgeIndexDirtySpans.length === 0) {
+      return false;
+    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, view.edgeIndexBuffer);
+    TriangleGeometryVBOSpanAllocator.coalesceSpans(view.edgeIndexDirtySpans);
+    for (const span of view.edgeIndexDirtySpans) {
+      const end = span.base + span.count;
+      gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, span.base * 4, view.edgeIndices.subarray(span.base, end));
+    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    view.edgeIndexDirtySpans.length = 0;
+    return true;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBODrawList.ts
+var TriangleGeometryVBODrawList = class {
+  _indexCapacity;
+  _edgeIndexCapacity;
+  _buffers;
+  _getNextVertex;
+  _bulkDepth = 0;
+  _pendingBulkInitialRecords = [];
+  _bulkDirtyRanges = /* @__PURE__ */ new Map();
+  constructor(params) {
+    this._indexCapacity = params.indexCapacity;
+    this._edgeIndexCapacity = params.edgeIndexCapacity;
+    this._buffers = params.buffers;
+    this._getNextVertex = params.getNextVertex;
+  }
+  beginBulkAdd() {
+    this._bulkDepth++;
+  }
+  endBulkAdd() {
+    if (this._bulkDepth <= 0) {
+      return;
+    }
+    this._bulkDepth--;
+    if (this._bulkDepth > 0) {
+      return;
+    }
+    this._flushPendingBulkInitialRecords();
+    this._flushBulkDirtyRanges();
+  }
+  rebuildViewIndices(view, viewIndex, records) {
+    this._clearPendingBulkInitialRecords();
+    const indices = view.indices;
+    const edgeIndices = view.edgeIndices;
+    if (!indices || !edgeIndices) {
+      return;
+    }
+    indices.fill(0);
+    edgeIndices.fill(0);
+    this._resetViewCounts(view);
+    for (const record of records.values()) {
+      this.writeRecordViewIndices(view, viewIndex, record);
+      this._addRecordCounts(view, record, record.meshViewStates[viewIndex]);
+    }
+    this.refreshViewRanges(view);
+    view.indicesDirty = false;
+    this._buffers.markIndexRangeDirty(view, 0, indices.length);
+    this._buffers.markEdgeIndexRangeDirty(view, 0, edgeIndices.length);
+  }
+  addRecordViewIndices(view, viewIndex, record, refreshRanges = true) {
+    const meshViewState = record.meshViewStates[viewIndex];
+    if (this._bulkDepth > 0 && isInitialOpaqueVisible(meshViewState)) {
+      this._writeBulkInitialOpaqueRecordViewIndices(view, record);
+    } else {
+      this._flushPendingBulkInitialRecords();
+      this.writeRecordViewIndices(view, viewIndex, record);
+    }
+    this._addRecordCounts(view, record, record.meshViewStates[viewIndex]);
+    if (refreshRanges) {
+      this.refreshViewRanges(view);
+    }
+  }
+  removeRecordViewIndices(view, viewIndex, record) {
+    this._flushPendingBulkInitialRecords();
+    this._subtractRecordCounts(view, record, record.meshViewStates[viewIndex]);
+    this.tombstoneRecordViewIndices(view, record);
+  }
+  setRecordRenderPass(view, viewIndex, record, renderPass) {
+    this._flushPendingBulkInitialRecords();
+    const meshViewState = record.meshViewStates[viewIndex];
+    if (!meshViewState || meshViewState.renderPass === renderPass) {
+      return;
+    }
+    this._subtractRecordCounts(view, record, meshViewState);
+    meshViewState.renderPass = renderPass;
+    this._addRecordCounts(view, record, meshViewState);
+    this.writeRecordViewIndices(view, viewIndex, record);
+    this.refreshViewRanges(view);
+  }
+  setRecordVisible(view, viewIndex, record, visible) {
+    this._flushPendingBulkInitialRecords();
+    const meshViewState = record.meshViewStates[viewIndex];
+    if (!meshViewState || meshViewState.visible === visible) {
+      return;
+    }
+    this._subtractRecordCounts(view, record, meshViewState);
+    meshViewState.visible = visible;
+    this._addRecordCounts(view, record, meshViewState);
+    this.writeRecordViewIndices(view, viewIndex, record);
+    this.refreshViewRanges(view);
+  }
+  writeRecordViewIndices(view, viewIndex, record) {
+    const indices = view.indices;
+    const edgeIndices = view.edgeIndices;
+    const meshViewState = record.meshViewStates[viewIndex];
+    if (!indices || !edgeIndices || !meshViewState) {
+      return;
+    }
+    for (let passRegionIndex = 0; passRegionIndex < TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length; passRegionIndex++) {
+      const pass = TRIANGLE_GEOMETRY_VBO_PASS_ORDER[passRegionIndex];
+      const active = meshViewState.visible && meshViewState.renderPass === pass;
+      this._writeRecordTriangleSlot(view, indices, passRegionIndex, record, active);
+      this._writeRecordEdgeSlot(view, edgeIndices, passRegionIndex, record, active);
+    }
+    this._writeRecordTriangleSlot(view, indices, TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX, record, meshViewState.visible);
+    this._writeRecordEdgeSlot(view, edgeIndices, TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX, record, meshViewState.visible);
+  }
+  _writeBulkInitialOpaqueRecordViewIndices(view, record) {
+    const indices = view.indices;
+    if (!indices) {
+      return;
+    }
+    const opaqueRegionIndex = getPassRegionIndex(RENDER_PASSES.OPAQUE);
+    if (opaqueRegionIndex < 0) {
+      return;
+    }
+    this._writeRecordTriangleSlot(view, indices, opaqueRegionIndex, record, true);
+    this._writeRecordTriangleSlot(view, indices, TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX, record, true);
+    this._pendingBulkInitialRecords.push({ view, record });
+  }
+  tombstoneRecordViewIndices(view, record) {
+    const indices = view.indices;
+    const edgeIndices = view.edgeIndices;
+    if (!indices || !edgeIndices) {
+      return;
+    }
+    for (let regionIndex = 0; regionIndex < TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT; regionIndex++) {
+      this._writeRecordTriangleSlot(view, indices, regionIndex, record, false);
+      this._writeRecordEdgeSlot(view, edgeIndices, regionIndex, record, false);
+    }
+  }
+  refreshViewRanges(view) {
+    for (let passRegionIndex = 0; passRegionIndex < TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length; passRegionIndex++) {
+      const pass = TRIANGLE_GEOMETRY_VBO_PASS_ORDER[passRegionIndex];
+      const numPrims = view.passPrimCounts[passRegionIndex] || 0;
+      const numEdgePrims = view.edgePassPrimCounts[passRegionIndex] || 0;
+      setPrimRange(view.passRanges, pass, 0, numPrims);
+      setIndexRange(view.indexRanges, pass, passRegionIndex * this._indexCapacity, numPrims > 0 ? this._getNextVertex() : 0);
+      setPrimRange(view.edgePassRanges, pass, 0, numEdgePrims);
+      setIndexRange(view.edgeIndexRanges, pass, passRegionIndex * this._edgeIndexCapacity, numEdgePrims > 0 ? this._getNextVertex() * 2 : 0);
+    }
+    view.pickRange.firstPrim = 0;
+    view.pickRange.numPrims = view.pickPrimCount;
+    view.pickIndexRange.firstIndex = TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX * this._indexCapacity;
+    view.pickIndexRange.indexCount = view.pickPrimCount > 0 ? this._getNextVertex() : 0;
+    view.pickEdgeRange.firstPrim = 0;
+    view.pickEdgeRange.numPrims = view.pickEdgePrimCount;
+    view.pickEdgeIndexRange.firstIndex = TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX * this._edgeIndexCapacity;
+    view.pickEdgeIndexRange.indexCount = view.pickEdgePrimCount > 0 ? this._getNextVertex() * 2 : 0;
+    view.indexCount = view.pickPrimCount * 3;
+    view.edgeIndexCount = view.pickEdgePrimCount * 2;
+  }
+  _writeRecordTriangleSlot(view, indices, regionIndex, record, active) {
+    const slotBase = regionIndex * this._indexCapacity + record.vertexBase;
+    const tombstone = record.vertexBase;
+    if (active) {
+      for (let offset = 0; offset < record.vertexCount; offset++) {
+        indices[slotBase + offset] = record.vertexBase + offset;
+      }
+    } else {
+      indices.fill(tombstone, slotBase, slotBase + record.vertexCount);
+    }
+    this._markIndexRangeDirty(view, regionIndex, slotBase, record.vertexCount);
+  }
+  _writeRecordEdgeSlot(view, edgeIndices, regionIndex, record, active) {
+    const slotLength = record.vertexCount * 2;
+    const slotBase = regionIndex * this._edgeIndexCapacity + record.vertexBase * 2;
+    const tombstone = record.vertexBase;
+    edgeIndices.fill(tombstone, slotBase, slotBase + slotLength);
+    if (active && record.edgeVertexIndices.length > 0) {
+      edgeIndices.set(record.edgeVertexIndices, slotBase);
+    }
+    this._markEdgeIndexRangeDirty(view, regionIndex, slotBase, slotLength);
+  }
+  _flushPendingBulkInitialRecords() {
+    if (this._pendingBulkInitialRecords.length === 0) {
+      return;
+    }
+    const recordsByView = /* @__PURE__ */ new Map();
+    for (const pending of this._pendingBulkInitialRecords) {
+      const records = recordsByView.get(pending.view);
+      if (records) {
+        records.push(pending.record);
+      } else {
+        recordsByView.set(pending.view, [pending.record]);
+      }
+    }
+    this._pendingBulkInitialRecords.length = 0;
+    for (const [view, records] of recordsByView) {
+      records.sort((a2, b4) => a2.vertexBase - b4.vertexBase);
+      let groupStart = 0;
+      for (let i = 1; i <= records.length; i++) {
+        const previous = records[i - 1];
+        const current = records[i];
+        if (current && previous.vertexBase + previous.vertexCount === current.vertexBase) {
+          continue;
+        }
+        this._initializeBulkInitialRecordGroup(view, records, groupStart, i);
+        groupStart = i;
+      }
+    }
+  }
+  _clearPendingBulkInitialRecords() {
+    this._pendingBulkInitialRecords.length = 0;
+    this._bulkDirtyRanges.clear();
+  }
+  _initializeBulkInitialRecordGroup(view, records, start, end) {
+    const indices = view.indices;
+    const edgeIndices = view.edgeIndices;
+    if (!indices || !edgeIndices || start >= end) {
+      return;
+    }
+    const firstRecord = records[start];
+    const lastRecord = records[end - 1];
+    const vertexBase = firstRecord.vertexBase;
+    const vertexCount2 = lastRecord.vertexBase + lastRecord.vertexCount - vertexBase;
+    const opaqueRegionIndex = getPassRegionIndex(RENDER_PASSES.OPAQUE);
+    for (let regionIndex = 0; regionIndex < TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT; regionIndex++) {
+      if (regionIndex === opaqueRegionIndex || regionIndex === TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX) {
+        continue;
+      }
+      const slotBase = regionIndex * this._indexCapacity + vertexBase;
+      indices.fill(0, slotBase, slotBase + vertexCount2);
+      this._markIndexRangeDirty(view, regionIndex, slotBase, vertexCount2);
+    }
+    for (let regionIndex = 0; regionIndex < TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT; regionIndex++) {
+      const slotBase = regionIndex * this._edgeIndexCapacity + vertexBase * 2;
+      const slotLength = vertexCount2 * 2;
+      edgeIndices.fill(0, slotBase, slotBase + slotLength);
+      this._markEdgeIndexRangeDirty(view, regionIndex, slotBase, slotLength);
+    }
+    if (opaqueRegionIndex < 0) {
+      return;
+    }
+    for (let i = start; i < end; i++) {
+      const record = records[i];
+      if (record.edgeVertexIndices.length === 0) {
+        continue;
+      }
+      edgeIndices.set(record.edgeVertexIndices, opaqueRegionIndex * this._edgeIndexCapacity + record.vertexBase * 2);
+      edgeIndices.set(record.edgeVertexIndices, TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX * this._edgeIndexCapacity + record.vertexBase * 2);
+    }
+  }
+  _markIndexRangeDirty(view, regionIndex, base, count) {
+    if (count <= 0) {
+      return;
+    }
+    if (this._bulkDepth <= 0) {
+      this._buffers.markIndexRangeDirty(view, base, count);
+      return;
+    }
+    this._expandBulkDirtyRange(this._getBulkViewDirtyRanges(view).indexRanges, regionIndex, base, count);
+  }
+  _markEdgeIndexRangeDirty(view, regionIndex, base, count) {
+    if (count <= 0) {
+      return;
+    }
+    if (this._bulkDepth <= 0) {
+      this._buffers.markEdgeIndexRangeDirty(view, base, count);
+      return;
+    }
+    this._expandBulkDirtyRange(this._getBulkViewDirtyRanges(view).edgeIndexRanges, regionIndex, base, count);
+  }
+  _getBulkViewDirtyRanges(view) {
+    let ranges = this._bulkDirtyRanges.get(view);
+    if (!ranges) {
+      ranges = {
+        indexRanges: new Array(TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT).fill(null),
+        edgeIndexRanges: new Array(TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT).fill(null)
+      };
+      this._bulkDirtyRanges.set(view, ranges);
+    }
+    return ranges;
+  }
+  _expandBulkDirtyRange(ranges, regionIndex, base, count) {
+    const end = base + count;
+    const range = ranges[regionIndex];
+    if (range) {
+      range.min = Math.min(range.min, base);
+      range.max = Math.max(range.max, end);
+    } else {
+      ranges[regionIndex] = { min: base, max: end };
+    }
+  }
+  _flushBulkDirtyRanges() {
+    for (const [view, ranges] of this._bulkDirtyRanges) {
+      for (const range of ranges.indexRanges) {
+        if (range) {
+          this._buffers.markIndexRangeDirty(view, range.min, range.max - range.min);
+        }
+      }
+      for (const range of ranges.edgeIndexRanges) {
+        if (range) {
+          this._buffers.markEdgeIndexRangeDirty(view, range.min, range.max - range.min);
+        }
+      }
+    }
+    this._bulkDirtyRanges.clear();
+  }
+  _resetViewCounts(view) {
+    view.passPrimCounts.fill(0);
+    view.edgePassPrimCounts.fill(0);
+    view.pickPrimCount = 0;
+    view.pickEdgePrimCount = 0;
+  }
+  _addRecordCounts(view, record, meshViewState) {
+    this._addRecordCountsWithSign(view, record, meshViewState, 1);
+  }
+  _subtractRecordCounts(view, record, meshViewState) {
+    this._addRecordCountsWithSign(view, record, meshViewState, -1);
+  }
+  _addRecordCountsWithSign(view, record, meshViewState, sign) {
+    if (!meshViewState || !meshViewState.visible) {
+      return;
+    }
+    const edgePrimCount = record.edgeVertexIndices.length / 2 | 0;
+    view.pickPrimCount = Math.max(0, view.pickPrimCount + sign * record.primitiveCount);
+    view.pickEdgePrimCount = Math.max(0, view.pickEdgePrimCount + sign * edgePrimCount);
+    const passRegionIndex = getPassRegionIndex(meshViewState.renderPass);
+    if (passRegionIndex < 0) {
+      return;
+    }
+    view.passPrimCounts[passRegionIndex] = Math.max(0, view.passPrimCounts[passRegionIndex] + sign * record.primitiveCount);
+    view.edgePassPrimCounts[passRegionIndex] = Math.max(0, view.edgePassPrimCounts[passRegionIndex] + sign * edgePrimCount);
+  }
+};
+function getPassRegionIndex(renderPass) {
+  for (let i = 0; i < TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length; i++) {
+    if (TRIANGLE_GEOMETRY_VBO_PASS_ORDER[i] === renderPass) {
+      return i;
+    }
+  }
+  return -1;
+}
+function isInitialOpaqueVisible(meshViewState) {
+  return !!meshViewState && meshViewState.visible && meshViewState.renderPass === RENDER_PASSES.OPAQUE;
+}
+function setPrimRange(map, key, firstPrim, numPrims) {
+  const range = map.get(key);
+  if (range) {
+    range.firstPrim = firstPrim;
+    range.numPrims = numPrims;
+  } else {
+    map.set(key, { firstPrim, numPrims });
+  }
+}
+function setIndexRange(map, key, firstIndex, indexCount) {
+  const range = map.get(key);
+  if (range) {
+    range.firstIndex = firstIndex;
+    range.indexCount = indexCount;
+  } else {
+    map.set(key, { firstIndex, indexCount });
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOVAOCache.ts
+function getTriangleGeometryVBOVAO(params) {
+  const existing = params.topology === "edges" ? params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO : params.layout === "vbo-only" ? params.view.bakedVAO : params.view.hybridVAO;
+  if (existing) {
+    return existing;
+  }
+  const indexBuffer = params.topology === "edges" ? params.view.edgeIndexBuffer : params.view.indexBuffer;
+  if (!params.positionBuffer || !params.meshIndexBuffer || !params.geometryVertexIndexBuffer || !indexBuffer || !params.view.colorBuffer) {
+    return null;
+  }
+  const gl = params.gl;
+  const vao = gl.createVertexArray();
+  if (!vao) {
+    return null;
+  }
+  gl.bindVertexArray(vao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, params.positionBuffer);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+  if (params.layout === "vbo-only") {
+    gl.bindBuffer(gl.ARRAY_BUFFER, params.view.colorBuffer);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 0, 0);
+    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao);
+  } else {
+    gl.bindBuffer(gl.ARRAY_BUFFER, params.meshIndexBuffer);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_INT, 0, 0);
+    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao);
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER, params.geometryVertexIndexBuffer);
+  gl.enableVertexAttribArray(2);
+  gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_INT, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+  gl.bindVertexArray(null);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  return vao;
+}
+function deleteTriangleGeometryVBOVAOs(gl, view) {
+  if (view.bakedVAO) {
+    gl.deleteVertexArray(view.bakedVAO);
+  }
+  if (view.hybridVAO) {
+    gl.deleteVertexArray(view.hybridVAO);
+  }
+  if (view.bakedEdgeVAO) {
+    gl.deleteVertexArray(view.bakedEdgeVAO);
+  }
+  if (view.hybridEdgeVAO) {
+    gl.deleteVertexArray(view.hybridEdgeVAO);
+  }
+  view.bakedVAO = null;
+  view.hybridVAO = null;
+  view.bakedEdgeVAO = null;
+  view.hybridEdgeVAO = null;
+}
+function setTriangleGeometryVBOVAO(view, layout, topology, vao) {
+  if (topology === "edges") {
+    if (layout === "vbo-only") {
+      view.bakedEdgeVAO = vao;
+    } else {
+      view.hybridEdgeVAO = vao;
+    }
+  } else if (layout === "vbo-only") {
+    view.bakedVAO = vao;
+  } else {
+    view.hybridVAO = vao;
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/TriangleGeometryVBOBatch.ts
+var TriangleGeometryVBOBatch = class {
+  gl;
+  _batchIndex;
+  _maxPrims;
+  _maxViews;
+  _vertexCapacity;
+  _indexCapacity;
+  _edgeIndexCapacity;
+  _views = [];
+  _meshRecords = /* @__PURE__ */ new Map();
+  _buffers = new TriangleGeometryVBOBuffers();
+  _vertexSpans;
+  _drawList;
+  _bulkMeshAddDepth = 0;
+  _bulkMeshAddRangesDirty = false;
+  _geometryVertexToVBO = new Uint32Array(0);
+  _geometryVertexLookupStamps = new Uint32Array(0);
+  _geometryVertexLookupStamp = 1;
+  constructor(params) {
+    this.gl = params.gl;
+    this._batchIndex = params.batchIndex;
+    this._maxPrims = Math.max(1, params.maxPrims | 0);
+    this._maxViews = Math.max(1, params.maxViews | 0);
+    this._vertexCapacity = this._maxPrims * 3;
+    this._indexCapacity = this._maxPrims * 3;
+    this._edgeIndexCapacity = this._maxPrims * 6;
+    this._vertexSpans = new TriangleGeometryVBOSpanAllocator(this._vertexCapacity);
+    this._drawList = new TriangleGeometryVBODrawList({
+      indexCapacity: this._indexCapacity,
+      edgeIndexCapacity: this._edgeIndexCapacity,
+      buffers: this._buffers,
+      getNextVertex: () => this._vertexSpans.nextVertex
+    });
+    for (let i = 0; i < this._maxViews; i++) {
+      this._views.push(createTriangleGeometryVBOViewState());
+    }
+  }
+  allocate() {
+    const cpuResult = this._buffers.allocateCPU({
+      vertexCapacity: this._vertexCapacity,
+      indexCapacity: this._indexCapacity,
+      edgeIndexCapacity: this._edgeIndexCapacity,
+      views: this._views
+    });
+    if (cpuResult.ok === false) {
+      return cpuResult;
+    }
+    return this._allocateGPUResources();
+  }
+  setWebGLContext(gl) {
+    this.gl = gl;
+  }
+  webglContextRestored() {
+    this._deleteGPUResources();
+    const result = this._allocateGPUResources();
+    if (result.ok === false) {
+      return result;
+    }
+    this._buffers.markAllDirty(this._vertexSpans.nextVertex, this._views);
+    this.uploadChanges();
+    return { ok: true, value: void 0 };
+  }
+  canAddMesh(sceneMesh) {
+    const primitiveCount = getTriangleGeometryPrimitiveCount(sceneMesh);
+    const vertexCount2 = primitiveCount * 3;
+    return primitiveCount > 0 && this._vertexSpans.hasAvailable(vertexCount2) && getTriangleGeometryEdgeIndexCount(sceneMesh) <= getTriangleGeometryEdgeSlotCapacity(sceneMesh);
+  }
+  beginBulkMeshAdd(stats) {
+    this._bulkMeshAddDepth++;
+    this._drawList.beginBulkAdd();
+    if (stats) {
+      stats.vboBulkScopes++;
+    }
+  }
+  endBulkMeshAdd(stats) {
+    if (this._bulkMeshAddDepth <= 0) {
+      return;
+    }
+    this._bulkMeshAddDepth--;
+    const indexStart = stats ? performance.now() : 0;
+    this._drawList.endBulkAdd();
+    if (stats) {
+      stats.vboWriteIndexSlotsMs += performance.now() - indexStart;
+    }
+    if (this._bulkMeshAddDepth === 0 && this._bulkMeshAddRangesDirty) {
+      this._refreshAllViewRanges(stats);
+      this._bulkMeshAddRangesDirty = false;
+    }
+  }
+  addMesh(params) {
+    const stats = params.stats;
+    const addStart = stats ? performance.now() : 0;
+    if (stats) {
+      stats.vboAddMeshCalls++;
+      if (this._bulkMeshAddDepth > 0) {
+        stats.vboBulkAddMeshCalls++;
+      }
+    }
+    const primitiveCount = getTriangleGeometryPrimitiveCount(params.sceneMesh);
+    if (primitiveCount <= 0) {
+      if (stats) {
+        stats.vboAddMeshMs += performance.now() - addStart;
+      }
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[TriangleGeometryVBOBatch.addMesh] Expected a triangle mesh with indices"
+      };
+    }
+    const vertexCount2 = primitiveCount * 3;
+    if (this._meshRecords.has(params.meshIndex)) {
+      if (stats) {
+        stats.vboAddMeshMs += performance.now() - addStart;
+      }
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[TriangleGeometryVBOBatch.addMesh] Mesh ${params.meshIndex} already exists in batch ${this._batchIndex}`
+      };
+    }
+    if (getTriangleGeometryEdgeIndexCount(params.sceneMesh) > getTriangleGeometryEdgeSlotCapacity(params.sceneMesh)) {
+      if (stats) {
+        stats.vboAddMeshMs += performance.now() - addStart;
+      }
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: `[TriangleGeometryVBOBatch.addMesh] Batch ${this._batchIndex} has no VBO edge-index slot space for ${primitiveCount} triangle(s)`
+      };
+    }
+    const vertexBase = this._vertexSpans.allocate(vertexCount2);
+    if (vertexBase < 0) {
+      if (stats) {
+        stats.vboAddMeshMs += performance.now() - addStart;
+      }
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: `[TriangleGeometryVBOBatch.addMesh] Batch ${this._batchIndex} has no VBO space for ${primitiveCount} triangle(s)`
+      };
+    }
+    const colors = [];
+    const opacities = new Uint8Array(this._maxViews);
+    for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
+      colors.push(new Uint8Array([
+        clampTriangleGeometryVBOByte(params.color[0], 255),
+        clampTriangleGeometryVBOByte(params.color[1], 255),
+        clampTriangleGeometryVBOByte(params.color[2], 255)
+      ]));
+      opacities[viewIndex] = clampTriangleGeometryVBOByte(params.opacity, 255);
+    }
+    const record = {
+      meshIndex: params.meshIndex,
+      sceneMesh: params.sceneMesh,
+      vertexBase,
+      vertexCount: vertexCount2,
+      primitiveCount,
+      edgeVertexIndices: new Uint32Array(0),
+      tileIndex: params.tileIndex | 0,
+      matrix: copyTriangleGeometryVBOMatrix(params.matrix),
+      colors,
+      opacities,
+      meshViewStates: this._views.map(() => ({
+        renderPass: RENDER_PASSES.OPAQUE,
+        visible: true
+      }))
+    };
+    this._meshRecords.set(params.meshIndex, record);
+    this._writeMeshGeometry(record, stats);
+    for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
+      const view = this._views[viewIndex];
+      const colorStart = stats ? performance.now() : 0;
+      this._writeMeshColors(record, viewIndex);
+      if (stats) {
+        stats.vboWriteColorsMs += performance.now() - colorStart;
+      }
+      const indexStart = stats ? performance.now() : 0;
+      this._drawList.addRecordViewIndices(view, viewIndex, record, false);
+      if (stats) {
+        stats.vboWriteIndexSlotsMs += performance.now() - indexStart;
+      }
+      if (this._bulkMeshAddDepth === 0) {
+        this._refreshViewRanges(view, stats);
+      }
+    }
+    if (this._bulkMeshAddDepth > 0) {
+      this._bulkMeshAddRangesDirty = true;
+    }
+    if (stats) {
+      stats.vboAddMeshMs += performance.now() - addStart;
+    }
+    return { ok: true, value: { meshIndex: params.meshIndex } };
+  }
+  removeMesh(meshIndex) {
+    const record = this._meshRecords.get(meshIndex);
+    if (!record) {
+      return;
+    }
+    for (let viewIndex = 0; viewIndex < this._views.length; viewIndex++) {
+      this._drawList.removeRecordViewIndices(this._views[viewIndex], viewIndex, record);
+    }
+    this._meshRecords.delete(meshIndex);
+    this._vertexSpans.release(record.vertexBase, record.vertexCount);
+    for (let viewIndex = 0; viewIndex < this._views.length; viewIndex++) {
+      this._drawList.refreshViewRanges(this._views[viewIndex]);
+    }
+  }
+  setMeshMatrix(meshIndex, matrix) {
+    const record = this._meshRecords.get(meshIndex);
+    if (!record) {
+      return;
+    }
+    record.matrix.set(matrix);
+    this._writeMeshGeometry(record);
+  }
+  setMeshTile(meshIndex, tileIndex) {
+    const record = this._meshRecords.get(meshIndex);
+    if (!record || record.tileIndex === (tileIndex | 0)) {
+      return;
+    }
+    record.tileIndex = tileIndex | 0;
+    this._writeMeshGeometry(record);
+  }
+  setMeshPlacement(meshIndex, tileIndex, matrix) {
+    const record = this._meshRecords.get(meshIndex);
+    if (!record) {
+      return;
+    }
+    const nextTileIndex = tileIndex | 0;
+    let dirty = record.tileIndex !== nextTileIndex;
+    record.tileIndex = nextTileIndex;
+    for (let i = 0; i < 16; i++) {
+      if (record.matrix[i] !== matrix[i]) {
+        dirty = true;
+        break;
+      }
+    }
+    if (!dirty) {
+      return;
+    }
+    record.matrix.set(matrix);
+    this._writeMeshGeometry(record);
+  }
+  setMeshViewAttribs(meshIndex, viewIndex, params) {
+    const record = this._meshRecords.get(meshIndex);
+    const view = this._views[viewIndex];
+    if (!record || !view) {
+      return;
+    }
+    let dirty = false;
+    if (params.color) {
+      const color2 = record.colors[viewIndex];
+      const r = clampTriangleGeometryVBOByte(params.color[0], color2[0]);
+      const g = clampTriangleGeometryVBOByte(params.color[1], color2[1]);
+      const b4 = clampTriangleGeometryVBOByte(params.color[2], color2[2]);
+      dirty = dirty || color2[0] !== r || color2[1] !== g || color2[2] !== b4;
+      color2[0] = r;
+      color2[1] = g;
+      color2[2] = b4;
+    }
+    if (params.opacity !== void 0) {
+      const opacity = clampTriangleGeometryVBOByte(params.opacity, record.opacities[viewIndex]);
+      dirty = dirty || record.opacities[viewIndex] !== opacity;
+      record.opacities[viewIndex] = opacity;
+    }
+    if (dirty) {
+      this._writeMeshColors(record, viewIndex);
+    }
+  }
+  setMeshRenderPass(meshIndex, viewIndex, renderPass) {
+    const record = this._meshRecords.get(meshIndex);
+    const meshViewState = record?.meshViewStates[viewIndex];
+    const view = this._views[viewIndex];
+    if (!record || !meshViewState || !view || meshViewState.renderPass === renderPass) {
+      return;
+    }
+    this._drawList.setRecordRenderPass(view, viewIndex, record, renderPass);
+  }
+  setMeshVisible(meshIndex, viewIndex, visible) {
+    const record = this._meshRecords.get(meshIndex);
+    const meshViewState = record?.meshViewStates[viewIndex];
+    const view = this._views[viewIndex];
+    if (!record || !meshViewState || !view || meshViewState.visible === visible) {
+      return;
+    }
+    this._drawList.setRecordVisible(view, viewIndex, record, visible);
+  }
+  getDrawState(viewIndex, renderPass, layout) {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    const primRange = view.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
+    const indexRange = view.indexRanges.get(renderPass) ?? { firstIndex: 0, indexCount: 0 };
+    if (primRange.numPrims <= 0 || indexRange.indexCount <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, "triangles");
+    if (!vao) {
+      return null;
+    }
+    return {
+      vao,
+      firstIndex: indexRange.firstIndex,
+      indexCount: indexRange.indexCount,
+      primRange
+    };
+  }
+  getPickDrawState(viewIndex, layout) {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    if (view.pickRange.numPrims <= 0 || view.pickIndexRange.indexCount <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, "triangles");
+    if (!vao) {
+      return null;
+    }
+    return {
+      vao,
+      firstIndex: view.pickIndexRange.firstIndex,
+      indexCount: view.pickIndexRange.indexCount,
+      primRange: view.pickRange
+    };
+  }
+  getPickEdgeDrawState(viewIndex, layout) {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    if (view.pickEdgeRange.numPrims <= 0 || view.pickEdgeIndexRange.indexCount <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, "edges");
+    if (!vao) {
+      return null;
+    }
+    return {
+      vao,
+      firstIndex: view.pickEdgeIndexRange.firstIndex,
+      indexCount: view.pickEdgeIndexRange.indexCount,
+      primRange: view.pickEdgeRange
+    };
+  }
+  getEdgeDrawState(viewIndex, renderPass, layout) {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    const primRange = view.edgePassRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
+    const indexRange = view.edgeIndexRanges.get(renderPass) ?? { firstIndex: 0, indexCount: 0 };
+    if (primRange.numPrims <= 0 || indexRange.indexCount <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, "edges");
+    if (!vao) {
+      return null;
+    }
+    return {
+      vao,
+      firstIndex: indexRange.firstIndex,
+      indexCount: indexRange.indexCount,
+      primRange
+    };
+  }
+  getRenderPassPrimitiveRange(viewIndex, renderPass) {
+    return this._views[viewIndex]?.passRanges.get(renderPass) ?? null;
+  }
+  getRenderPassPrimitiveRanges(viewIndex) {
+    return this._views[viewIndex]?.passRanges ?? null;
+  }
+  getRenderPassEdgePrimitiveRanges(viewIndex) {
+    return this._views[viewIndex]?.edgePassRanges ?? null;
+  }
+  getPickPrimitiveRange(viewIndex) {
+    return this._views[viewIndex]?.pickRange ?? null;
+  }
+  getPickEdgePrimitiveRange(viewIndex) {
+    return this._views[viewIndex]?.pickEdgeRange ?? null;
+  }
+  getNumDrawablePrims(viewIndex) {
+    return this._views[viewIndex]?.pickRange.numPrims ?? 0;
+  }
+  uploadChanges() {
+    return this._buffers.uploadChanges({
+      gl: this.gl,
+      views: this._views,
+      rebuildViewIndices: (view, viewIndex) => {
+        this._drawList.rebuildViewIndices(view, viewIndex, this._meshRecords);
+      }
+    });
+  }
+  getAllocatedBytes() {
+    return this._buffers.getAllocatedBytes({
+      vertexCapacity: this._vertexCapacity,
+      indexCapacity: this._indexCapacity,
+      edgeIndexCapacity: this._edgeIndexCapacity,
+      maxViews: this._maxViews
+    });
+  }
+  getUsedBytes() {
+    return this._buffers.getUsedBytes({
+      activeVertices: this._getUsedVertexCapacity(),
+      maxViews: this._maxViews,
+      views: this._views
+    });
+  }
+  destroy() {
+    this._deleteGPUResources();
+    this._buffers.destroyCPU(this._views);
+    this._meshRecords.clear();
+    this._vertexSpans.clear();
+    this._geometryVertexToVBO = new Uint32Array(0);
+    this._geometryVertexLookupStamps = new Uint32Array(0);
+    this._geometryVertexLookupStamp = 1;
+  }
+  _allocateGPUResources() {
+    return this._buffers.allocateGPU({
+      gl: this.gl,
+      vertexCapacity: this._vertexCapacity,
+      indexCapacity: this._indexCapacity,
+      edgeIndexCapacity: this._edgeIndexCapacity,
+      views: this._views
+    });
+  }
+  _deleteGPUResources() {
+    for (const view of this._views) {
+      deleteTriangleGeometryVBOVAOs(this.gl, view);
+    }
+    this._buffers.deleteGPUResources(this.gl, this._views);
+  }
+  _refreshViewRanges(view, stats) {
+    const start = stats ? performance.now() : 0;
+    this._drawList.refreshViewRanges(view);
+    if (stats) {
+      stats.vboRefreshRangesMs += performance.now() - start;
+      stats.vboRefreshRangesCalls++;
+    }
+  }
+  _refreshAllViewRanges(stats) {
+    for (const view of this._views) {
+      this._refreshViewRanges(view, stats);
+    }
+  }
+  _writeMeshGeometry(record, stats) {
+    const start = stats ? performance.now() : 0;
+    const positions = this._buffers.positions;
+    const meshIndices = this._buffers.meshIndices;
+    const geometryVertexIndices = this._buffers.geometryVertexIndices;
+    if (!positions || !meshIndices || !geometryVertexIndices) {
+      return;
+    }
+    const geometry = record.sceneMesh.geometry;
+    const compressed = geometry.positionsCompressed;
+    const indices = geometry.indices;
+    const aabb = geometry.aabb;
+    if (!compressed || !indices || !aabb) {
+      return;
+    }
+    const offsetX = aabb[0];
+    const offsetY = aabb[1];
+    const offsetZ = aabb[2];
+    const scaleX = (aabb[3] - aabb[0]) / 65536;
+    const scaleY = (aabb[4] - aabb[1]) / 65536;
+    const scaleZ = (aabb[5] - aabb[2]) / 65536;
+    const matrix = record.matrix;
+    const lookupStamp = this._beginGeometryVertexLookup(compressed.length / 3 | 0);
+    const geometryVertexToVBO = this._geometryVertexToVBO;
+    const geometryVertexLookupStamps = this._geometryVertexLookupStamps;
+    let writeVertex = record.vertexBase;
+    const vertexStart = stats ? performance.now() : 0;
+    for (let prim = 0; prim < record.primitiveCount; prim++) {
+      const indexBase = prim * 3;
+      for (let local = 0; local < 3; local++) {
+        const geometryVertexIndex = indices[indexBase + local];
+        const compressedOffset = geometryVertexIndex * 3;
+        const x = offsetX + scaleX * compressed[compressedOffset];
+        const y = offsetY + scaleY * compressed[compressedOffset + 1];
+        const z = offsetZ + scaleZ * compressed[compressedOffset + 2];
+        const positionOffset = writeVertex * 4;
+        positions[positionOffset] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+        positions[positionOffset + 1] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+        positions[positionOffset + 2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+        positions[positionOffset + 3] = record.tileIndex;
+        meshIndices[writeVertex] = record.meshIndex;
+        geometryVertexIndices[writeVertex] = geometryVertexIndex;
+        if (geometryVertexLookupStamps[geometryVertexIndex] !== lookupStamp) {
+          geometryVertexLookupStamps[geometryVertexIndex] = lookupStamp;
+          geometryVertexToVBO[geometryVertexIndex] = writeVertex;
+        }
+        writeVertex++;
+      }
+    }
+    if (stats) {
+      stats.vboPackVerticesMs += performance.now() - vertexStart;
+    }
+    const edgeIndices = geometry.edgeIndices;
+    const edgeStart = stats ? performance.now() : 0;
+    if (edgeIndices && edgeIndices.length > 0) {
+      const edgeVertexIndices = new Uint32Array(edgeIndices.length);
+      let edgeOffset = 0;
+      for (let edge = 0; edge + 1 < edgeIndices.length; edge += 2) {
+        const aIndex = edgeIndices[edge];
+        const bIndex = edgeIndices[edge + 1];
+        if (geometryVertexLookupStamps[aIndex] !== lookupStamp || geometryVertexLookupStamps[bIndex] !== lookupStamp) {
+          continue;
+        }
+        edgeVertexIndices[edgeOffset++] = geometryVertexToVBO[aIndex];
+        edgeVertexIndices[edgeOffset++] = geometryVertexToVBO[bIndex];
+      }
+      record.edgeVertexIndices = edgeOffset === edgeVertexIndices.length ? edgeVertexIndices : edgeVertexIndices.slice(0, edgeOffset);
+    } else {
+      record.edgeVertexIndices = new Uint32Array(0);
+    }
+    if (stats) {
+      stats.vboPackEdgesMs += performance.now() - edgeStart;
+    }
+    this._buffers.markPositionDirty(record.vertexBase, record.vertexCount);
+    this._buffers.markMeshIndexDirty(record.vertexBase, record.vertexCount);
+    this._buffers.markGeometryVertexIndexDirty(record.vertexBase, record.vertexCount);
+    if (stats) {
+      stats.vboWriteGeometryMs += performance.now() - start;
+      stats.vboWriteGeometryCalls++;
+    }
+  }
+  _beginGeometryVertexLookup(vertexCount2) {
+    if (vertexCount2 > this._geometryVertexToVBO.length) {
+      const capacity = Math.max(vertexCount2, this._geometryVertexToVBO.length * 2, 16);
+      this._geometryVertexToVBO = new Uint32Array(capacity);
+      this._geometryVertexLookupStamps = new Uint32Array(capacity);
+      this._geometryVertexLookupStamp = 1;
+    }
+    if (this._geometryVertexLookupStamp > 4294967295) {
+      this._geometryVertexLookupStamps.fill(0);
+      this._geometryVertexLookupStamp = 1;
+    }
+    return this._geometryVertexLookupStamp++;
+  }
+  _writeMeshColors(record, viewIndex) {
+    const view = this._views[viewIndex];
+    const colors = view?.colors;
+    if (!view || !colors) {
+      return;
+    }
+    const color2 = record.colors[viewIndex];
+    const opacity = record.opacities[viewIndex];
+    const start = record.vertexBase * 4;
+    const end = start + record.vertexCount * 4;
+    for (let offset = start; offset < end; offset += 4) {
+      colors[offset] = color2[0];
+      colors[offset + 1] = color2[1];
+      colors[offset + 2] = color2[2];
+      colors[offset + 3] = opacity;
+    }
+    this._buffers.markColorDirty(view, record.vertexBase, record.vertexCount);
+  }
+  _getVAO(view, layout, topology) {
+    return getTriangleGeometryVBOVAO({
+      gl: this.gl,
+      view,
+      layout,
+      topology,
+      positionBuffer: this._buffers.positionBuffer,
+      meshIndexBuffer: this._buffers.meshIndexBuffer,
+      geometryVertexIndexBuffer: this._buffers.geometryVertexIndexBuffer
+    });
+  }
+  _getUsedVertexCapacity() {
+    let count = 0;
+    for (const record of this._meshRecords.values()) {
+      count += record.vertexCount;
+    }
+    return count;
+  }
+  get _positions() {
+    return this._buffers.positions;
+  }
+  get _meshIndices() {
+    return this._buffers.meshIndices;
+  }
+  get _geometryVertexIndices() {
+    return this._buffers.geometryVertexIndices;
+  }
+  get _freeVertexSpans() {
+    return this._vertexSpans.freeVertexSpans;
+  }
+  get _nextVertex() {
+    return this._vertexSpans.nextVertex;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/geometry/VBOGeometryStorage.ts
+var EMPTY_PRIM_RANGE = { firstPrim: 0, numPrims: 0 };
+var VBOGeometryStorage = class {
+  kind = "vbo";
+  _triangleGeometryVBO;
+  _resources;
+  constructor(params) {
+    const { gl, batchIndex, memoryConfigs } = params;
+    this._triangleGeometryVBO = new TriangleGeometryVBOBatch({
+      gl,
+      batchIndex,
+      maxPrims: memoryConfigs.vboGeometry?.maxBatchPrims ?? memoryConfigs.maxBatchPrims,
+      maxViews: memoryConfigs.maxViews
+    });
+    this._resources = [this._triangleGeometryVBO];
+  }
+  allocate() {
+    return allocateGeometryResources(this._resources);
+  }
+  destroy() {
+    destroyGeometryResources(this._resources);
+  }
+  webglContextRestored(gl) {
+    return restoreGeometryResources(this._resources, gl);
+  }
+  beginBulkMeshAdd(stats) {
+    this._triangleGeometryVBO.beginBulkMeshAdd(stats);
+  }
+  endBulkMeshAdd(stats) {
+    this._triangleGeometryVBO.endBulkMeshAdd(stats);
+  }
+  uploadChanges(batchResources) {
+    const didFlush = this._triangleGeometryVBO.uploadChanges();
+    for (let i = 0, len = batchResources.views.length; i < len; i++) {
+      batchResources.views[i].numDrawablePrims = this._triangleGeometryVBO.getNumDrawablePrims(i);
+    }
+    return didFlush;
+  }
+  getAllocatedBytes() {
+    return getGeometryResourcesAllocatedBytes(this._resources);
+  }
+  getUsedBytes() {
+    return getGeometryResourcesUsedBytes(this._resources);
+  }
+  getResources() {
+    return {
+      kind: this.kind,
+      triangleGeometryVBO: this._triangleGeometryVBO
+    };
+  }
+  getViewResources(viewIndex) {
+    return {
+      renderPassPrimitiveRanges: this._triangleGeometryVBO.getRenderPassPrimitiveRanges(viewIndex),
+      renderPassEdgePrimitiveRanges: this._triangleGeometryVBO.getRenderPassEdgePrimitiveRanges(viewIndex),
+      pickPrimitiveRange: this._triangleGeometryVBO.getPickPrimitiveRange(viewIndex) ?? EMPTY_PRIM_RANGE,
+      pickEdgePrimitiveRange: this._triangleGeometryVBO.getPickEdgePrimitiveRange(viewIndex) ?? EMPTY_PRIM_RANGE
+    };
+  }
+  canAddMesh(sceneMesh, _geometryExists) {
+    return this._triangleGeometryVBO.canAddMesh(sceneMesh) ? 0 /* OK */ : 8 /* NotEnoughPrimSpace */;
+  }
+  allocateGeometry(_params) {
+    return { ok: true, value: { kind: this.kind } };
+  }
+  freeGeometryAllocation(_allocation) {
+  }
+  createMeshHandle(params) {
+    if (params.sceneMesh.geometry.primitive !== TrianglesPrimitive) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "VBOGeometryStorage.createMeshHandle: VBO geometry is only supported for triangle meshes"
+      };
+    }
+    const result = this._triangleGeometryVBO.addMesh({
+      meshIndex: params.meshIndex,
+      sceneMesh: params.sceneMesh,
+      tileIndex: params.tileIndex,
+      matrix: params.matrix,
+      color: params.color,
+      opacity: params.opacity,
+      stats: params.stats
+    });
+    if (result.ok === false) {
+      return result;
+    }
+    return {
+      ok: true,
+      value: {
+        kind: this.kind,
+        triangleGeometryVBOHandle: result.value
+      }
+    };
+  }
+  deleteMeshHandle(_handle, meshIndex, _numViews) {
+    this._triangleGeometryVBO.removeMesh(meshIndex);
+  }
+  setMeshMatrix(meshIndex, matrix) {
+    this._triangleGeometryVBO.setMeshMatrix(meshIndex, matrix);
+  }
+  setMeshTile(meshIndex, tileIndex) {
+    this._triangleGeometryVBO.setMeshTile(meshIndex, tileIndex);
+  }
+  setMeshPlacement(meshIndex, tileIndex, matrix) {
+    this._triangleGeometryVBO.setMeshPlacement(meshIndex, tileIndex, matrix);
+  }
+  setMeshViewAttribs(meshIndex, viewIndex, params) {
+    this._triangleGeometryVBO.setMeshViewAttribs(meshIndex, viewIndex, params);
+  }
+  setMeshRenderPass(_handle, meshIndex, viewIndex, renderPass) {
+    this._triangleGeometryVBO.setMeshRenderPass(meshIndex, viewIndex, renderPass);
+  }
+  setMeshVisible(_handle, meshIndex, viewIndex, visible) {
+    this._triangleGeometryVBO.setMeshVisible(meshIndex, viewIndex, visible);
+  }
+  getDrawArraysParamsForMesh(_handle, _sceneGeometry, _viewIndex) {
+    return null;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/geometry/index.ts
+function createBatchGeometryStorage(params) {
+  return params.kind === "vbo" ? new VBOGeometryStorage(params) : new DTXGeometryStorage(params);
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/materials/BatchMaterialResources.ts
 var ZERO_ATLAS_TRANSFORM = { uOffset: 0, vOffset: 0, uScale: 0, vScale: 0 };
-var DEFAULT_EMISSIVE_COLOR = [0, 0, 0];
-var tempQuantizedColor = [0, 0, 0];
 function atlasOverflow(atlas, sceneTexture) {
   if (!atlas || !sceneTexture)
     return false;
@@ -181242,10 +183449,466 @@ function resolveAtlasTransform(atlas, sceneTexture, label) {
       const t = atlas.addTexture(sceneTexture.id, source);
       if (t)
         return t;
-      console.warn(`GPUMemoryBatch.addMesh: ${label} atlas full or upload failed for SceneTexture '${sceneTexture.id}' \u2014 falling back to sentinel`);
+      console.warn(`GPUMemoryBatch.addMesh: ${label} atlas full or upload failed for SceneTexture '${sceneTexture.id}' - falling back to sentinel`);
     }
   }
   return atlas.sentinelTransform;
+}
+var BatchMaterialResources = class {
+  _albedoAtlasTexture;
+  _metallicRoughnessAtlasTexture;
+  _normalMapAtlasTexture;
+  _emissiveAtlasTexture;
+  _occlusionAtlasTexture;
+  constructor(options) {
+    this._albedoAtlasTexture = null;
+    this._metallicRoughnessAtlasTexture = null;
+    this._normalMapAtlasTexture = null;
+    this._emissiveAtlasTexture = null;
+    this._occlusionAtlasTexture = null;
+    if (!options.hasUVs && !options.triplanar) {
+      return;
+    }
+    const { gl, batchIndex, mipmap } = options;
+    const mipmapLabel = mipmap ? ", mipmapped" : "";
+    this._albedoAtlasTexture = new TextureAtlas({
+      gl,
+      description: `[Batch ${batchIndex}] - albedo atlas (sRGB 2D, shelf-packed${mipmapLabel})`,
+      mipmap
+    });
+    this._metallicRoughnessAtlasTexture = new TextureAtlas({
+      gl,
+      description: `[Batch ${batchIndex}] - metallic-roughness atlas (linear 2D, shelf-packed${mipmapLabel})`,
+      internalFormat: gl.RGBA8,
+      mipmap
+    });
+    this._normalMapAtlasTexture = new TextureAtlas({
+      gl,
+      description: `[Batch ${batchIndex}] - normal-map atlas (linear 2D, shelf-packed${mipmapLabel})`,
+      internalFormat: gl.RGBA8,
+      sentinelColor: [128, 128, 255, 255],
+      mipmap
+    });
+    this._emissiveAtlasTexture = new TextureAtlas({
+      gl,
+      description: `[Batch ${batchIndex}] - emissive atlas (sRGB 2D, shelf-packed${mipmapLabel})`,
+      mipmap
+    });
+    this._occlusionAtlasTexture = new TextureAtlas({
+      gl,
+      description: `[Batch ${batchIndex}] - occlusion atlas (linear 2D, shelf-packed${mipmapLabel})`,
+      internalFormat: gl.RGBA8,
+      mipmap
+    });
+  }
+  /**
+   * Returns all atlas textures that need normal allocate/destroy handling.
+   */
+  getAllocatableResources() {
+    return this._getAtlases();
+  }
+  /**
+   * Returns the atlas fields to flatten into BatchGPUResources.
+   */
+  getDataTextureResources() {
+    return {
+      albedoAtlasTexture: this._albedoAtlasTexture ?? void 0,
+      metallicRoughnessAtlasTexture: this._metallicRoughnessAtlasTexture ?? void 0,
+      normalMapAtlasTexture: this._normalMapAtlasTexture ?? void 0,
+      emissiveAtlasTexture: this._emissiveAtlasTexture ?? void 0,
+      occlusionAtlasTexture: this._occlusionAtlasTexture ?? void 0
+    };
+  }
+  /**
+   * Re-upload an edited SceneTexture into every atlas that already stores it.
+   */
+  updateSceneTexture(sceneTexture) {
+    const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
+    if (!source)
+      return false;
+    let updated = false;
+    for (const atlas of this._getAtlases()) {
+      updated = atlas.updateTexture(sceneTexture.id, source) || updated;
+    }
+    return updated;
+  }
+  /**
+   * Tests whether any atlas would force this mesh into another batch.
+   */
+  hasAtlasOverflow(sceneMesh) {
+    return atlasOverflow(this._albedoAtlasTexture, sceneMesh.effectiveColorTexture) || atlasOverflow(this._metallicRoughnessAtlasTexture, sceneMesh.effectiveMetallicRoughnessTexture) || atlasOverflow(this._normalMapAtlasTexture, sceneMesh.effectiveNormalsTexture) || atlasOverflow(this._emissiveAtlasTexture, sceneMesh.effectiveEmissiveTexture) || atlasOverflow(this._occlusionAtlasTexture, sceneMesh.effectiveOcclusionTexture);
+  }
+  /**
+   * Adds the mesh's textures to the atlases and returns their UV transforms.
+   */
+  resolveTextureTransforms(sceneMesh) {
+    return {
+      albedo: resolveAtlasTransform(
+        this._albedoAtlasTexture,
+        sceneMesh.effectiveColorTexture,
+        "albedo"
+      ),
+      metallicRoughness: resolveAtlasTransform(
+        this._metallicRoughnessAtlasTexture,
+        sceneMesh.effectiveMetallicRoughnessTexture,
+        "metallic-roughness"
+      ),
+      normalMap: resolveAtlasTransform(
+        this._normalMapAtlasTexture,
+        sceneMesh.effectiveNormalsTexture,
+        "normal-map"
+      ),
+      emissive: resolveAtlasTransform(
+        this._emissiveAtlasTexture,
+        sceneMesh.effectiveEmissiveTexture,
+        "emissive"
+      ),
+      occlusion: resolveAtlasTransform(
+        this._occlusionAtlasTexture,
+        sceneMesh.effectiveOcclusionTexture,
+        "occlusion"
+      )
+    };
+  }
+  /**
+   * Rebinds and restores all owned atlases after WebGL context restoration.
+   */
+  webglContextRestored(gl) {
+    for (const atlas of this._getAtlases()) {
+      atlas.setWebGLContext(gl);
+      const result = atlas.webglContextRestored();
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    return { ok: true, value: void 0 };
+  }
+  getAllocatedBytes() {
+    let total = 0;
+    for (const atlas of this._getAtlases()) {
+      total += atlas.getAllocatedBytes();
+    }
+    return total;
+  }
+  getUsedBytes() {
+    let total = 0;
+    for (const atlas of this._getAtlases()) {
+      total += atlas.getUsedBytes();
+    }
+    return total;
+  }
+  destroy() {
+    this._albedoAtlasTexture = this._clearAtlas(this._albedoAtlasTexture);
+    this._metallicRoughnessAtlasTexture = this._clearAtlas(this._metallicRoughnessAtlasTexture);
+    this._normalMapAtlasTexture = this._clearAtlas(this._normalMapAtlasTexture);
+    this._emissiveAtlasTexture = this._clearAtlas(this._emissiveAtlasTexture);
+    this._occlusionAtlasTexture = this._clearAtlas(this._occlusionAtlasTexture);
+  }
+  _getAtlases() {
+    return [
+      ...this._albedoAtlasTexture ? [this._albedoAtlasTexture] : [],
+      ...this._metallicRoughnessAtlasTexture ? [this._metallicRoughnessAtlasTexture] : [],
+      ...this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : [],
+      ...this._emissiveAtlasTexture ? [this._emissiveAtlasTexture] : [],
+      ...this._occlusionAtlasTexture ? [this._occlusionAtlasTexture] : []
+    ];
+  }
+  _clearAtlas(atlas) {
+    if (atlas) {
+      atlas.destroy();
+    }
+    return null;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/patterns/BatchPatternResources.ts
+var MAX_LINE_PATTERN_SLOTS = 256;
+var MAX_HATCH_PATTERN_SLOTS = 256;
+var EMPTY_LINE_PATTERN_ENTRIES = new Float32Array(8);
+var EMPTY_HATCH_FAMILIES = new Float32Array(4 * 4);
+var EMPTY_HATCH_COLOR = new Float32Array(4);
+var BatchPatternResources = class {
+  _linePatternTexture;
+  _hatchPatternTexture;
+  _polylineCumDistTexture;
+  _linePatternSlotsByMaterial;
+  _hatchPatternSlotsByMaterial;
+  _nextLinePatternSlot;
+  _nextHatchPatternSlot;
+  constructor(options) {
+    const { gl, batchIndex, maxBatchIndices } = options;
+    this._linePatternSlotsByMaterial = /* @__PURE__ */ new Map();
+    this._hatchPatternSlotsByMaterial = /* @__PURE__ */ new Map();
+    this._nextLinePatternSlot = 1;
+    this._nextHatchPatternSlot = 1;
+    this._linePatternTexture = new LinePatternTexture({
+      gl,
+      maxItems: MAX_LINE_PATTERN_SLOTS,
+      description: `[Batch ${batchIndex}] - lineMaterialSlot -> 8 pattern entries`,
+      getNumItems: () => this._nextLinePatternSlot
+    });
+    this._hatchPatternTexture = new HatchPatternTexture({
+      gl,
+      maxItems: MAX_HATCH_PATTERN_SLOTS,
+      description: `[Batch ${batchIndex}] - hatchMaterialSlot -> 4 line families + RGBA colour + flags`,
+      getNumItems: () => this._nextHatchPatternSlot
+    });
+    this._polylineCumDistTexture = new PolylineCumDistTexture({
+      gl,
+      maxItems: Math.max(1, Math.floor(maxBatchIndices / 2)),
+      description: `[Batch ${batchIndex}] - per-segment cumulative model distance from polyline start`
+    });
+  }
+  /**
+   * Returns resources that participate in normal batch allocation rollback.
+   */
+  getAllocatableResources() {
+    return this._getPatternTextures();
+  }
+  /**
+   * Returns the pattern fields to flatten into BatchGPUResources.
+   */
+  getDataTextureResources() {
+    return {
+      linePatternTexture: this._linePatternTexture,
+      hatchPatternTexture: this._hatchPatternTexture,
+      polylineCumDistTexture: this._polylineCumDistTexture
+    };
+  }
+  /**
+   * Allocates cumulative line-distance data for one LinesPrimitive geometry.
+   *
+   * Allocation failure is a quiet downgrade: the geometry's
+   * `polylineCumDistBase` remains 0 and dash phase restarts at each segment,
+   * matching the older non-polyline-aware behavior.
+   */
+  allocatePolylineCumDist(sceneGeometry, geometryIndex, geometryAttributeTexture) {
+    if (!this._polylineCumDistTexture || sceneGeometry.primitive !== LinesPrimitive || !sceneGeometry.indices || !sceneGeometry.aabb) {
+      return null;
+    }
+    const cumDistData = computePolylineCumDist(
+      sceneGeometry.indices,
+      sceneGeometry.positionsCompressed,
+      sceneGeometry.aabb
+    );
+    if (cumDistData.length === 0) {
+      return null;
+    }
+    return this._polylineCumDistTexture.getPortion(
+      cumDistData,
+      (newBase) => {
+        geometryAttributeTexture.setItem(geometryIndex, {
+          polylineCumDistBase: newBase
+        });
+      }
+    );
+  }
+  /**
+   * Returns a previously allocated polyline-distance portion to the texture.
+   */
+  freePolylineCumDistHandle(handle) {
+    if (handle && this._polylineCumDistTexture) {
+      this._polylineCumDistTexture.putPortion(handle);
+    }
+  }
+  /**
+   * Resolves the line and hatch slots for a mesh's effective material state.
+   */
+  resolveMeshPatternSlots(sceneMesh) {
+    return {
+      linePatternSlot: this._allocateLinePatternSlot(sceneMesh),
+      hatchPatternSlot: this._allocateHatchPatternSlot(sceneMesh)
+    };
+  }
+  /**
+   * Re-encodes any pattern slots held for the supplied material.
+   */
+  updateMaterialPattern(material) {
+    const key = material.uniqueId;
+    let updated = false;
+    const lineSlot = this._linePatternSlotsByMaterial.get(key);
+    if (lineSlot !== void 0 && this._linePatternTexture) {
+      const entries = material._linePatternEntries;
+      const len = material._linePatternLen;
+      if (len > 0) {
+        this._linePatternTexture.setSlot(lineSlot, entries);
+      } else {
+        this._linePatternTexture.setSlot(lineSlot, EMPTY_LINE_PATTERN_ENTRIES);
+      }
+      updated = true;
+    }
+    const hatchSlot = this._hatchPatternSlotsByMaterial.get(key);
+    if (hatchSlot !== void 0 && this._hatchPatternTexture) {
+      const families = material._hatchPatternFamilies;
+      const color2 = material._hatchPatternColor;
+      const count = material._hatchPatternCount;
+      const space = material._hatchPatternSpace;
+      if (count > 0) {
+        this._hatchPatternTexture.setSlot(hatchSlot, families, color2, space);
+      } else {
+        this._hatchPatternTexture.setSlot(hatchSlot, EMPTY_HATCH_FAMILIES, EMPTY_HATCH_COLOR, 0);
+      }
+      updated = true;
+    }
+    return updated;
+  }
+  uploadChanges() {
+    let didFlush = false;
+    if (this._linePatternTexture) {
+      didFlush = this._linePatternTexture.uploadChanges() || didFlush;
+    }
+    if (this._hatchPatternTexture) {
+      didFlush = this._hatchPatternTexture.uploadChanges() || didFlush;
+    }
+    if (this._polylineCumDistTexture) {
+      didFlush = this._polylineCumDistTexture.uploadChanges() || didFlush;
+    }
+    return didFlush;
+  }
+  webglContextRestored(gl) {
+    for (const texture of this._getPatternTextures()) {
+      texture.setWebGLContext(gl);
+      const result = texture.webglContextRestored();
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    return { ok: true, value: void 0 };
+  }
+  getAllocatedBytes() {
+    let total = 0;
+    for (const texture of this._getPatternTextures()) {
+      total += texture.getAllocatedBytes();
+    }
+    return total;
+  }
+  getUsedBytes() {
+    let total = 0;
+    for (const texture of this._getPatternTextures()) {
+      total += texture.getUsedBytes();
+    }
+    return total;
+  }
+  destroy() {
+    this._linePatternTexture = this._clearTexture(this._linePatternTexture);
+    this._hatchPatternTexture = this._clearTexture(this._hatchPatternTexture);
+    this._polylineCumDistTexture = this._clearTexture(this._polylineCumDistTexture);
+    this._linePatternSlotsByMaterial.clear();
+    this._hatchPatternSlotsByMaterial.clear();
+    this._nextLinePatternSlot = 1;
+    this._nextHatchPatternSlot = 1;
+  }
+  _allocateLinePatternSlot(sceneMesh) {
+    const len = sceneMesh.effectiveLinePatternLen;
+    if (len === 0) {
+      return 0;
+    }
+    const entries = sceneMesh.effectiveLinePatternEntries;
+    const material = sceneMesh.material;
+    if (!entries || !material) {
+      return 0;
+    }
+    const key = material.uniqueId;
+    const existing = this._linePatternSlotsByMaterial.get(key);
+    if (existing !== void 0) {
+      return existing;
+    }
+    if (this._nextLinePatternSlot >= MAX_LINE_PATTERN_SLOTS) {
+      return 0;
+    }
+    const slot = this._nextLinePatternSlot++;
+    this._linePatternTexture.setSlot(slot, entries);
+    this._linePatternSlotsByMaterial.set(key, slot);
+    return slot;
+  }
+  _allocateHatchPatternSlot(sceneMesh) {
+    const count = sceneMesh.effectiveHatchPatternCount;
+    if (count === 0) {
+      return 0;
+    }
+    const families = sceneMesh.effectiveHatchPatternFamilies;
+    const color2 = sceneMesh.effectiveHatchPatternColor;
+    const material = sceneMesh.material;
+    if (!families || !color2 || !material) {
+      return 0;
+    }
+    const key = material.uniqueId;
+    const existing = this._hatchPatternSlotsByMaterial.get(key);
+    if (existing !== void 0) {
+      return existing;
+    }
+    if (this._nextHatchPatternSlot >= MAX_HATCH_PATTERN_SLOTS) {
+      return 0;
+    }
+    const slot = this._nextHatchPatternSlot++;
+    this._hatchPatternTexture.setSlot(slot, families, color2, sceneMesh.effectiveHatchPatternSpace);
+    this._hatchPatternSlotsByMaterial.set(key, slot);
+    return slot;
+  }
+  _getPatternTextures() {
+    return [
+      ...this._linePatternTexture ? [this._linePatternTexture] : [],
+      ...this._hatchPatternTexture ? [this._hatchPatternTexture] : [],
+      ...this._polylineCumDistTexture ? [this._polylineCumDistTexture] : []
+    ];
+  }
+  _clearTexture(texture) {
+    if (texture) {
+      texture.destroy();
+    }
+    return null;
+  }
+};
+function computePolylineCumDist(indices, positionsCompressed, aabb) {
+  const numSegments = indices.length / 2 | 0;
+  if (numSegments <= 0) {
+    return new Float32Array(0);
+  }
+  const xMin = aabb[0], yMin = aabb[1], zMin = aabb[2];
+  const xMax = aabb[3], yMax = aabb[4], zMax = aabb[5];
+  const sx = (xMax - xMin) / 65535;
+  const sy = (yMax - yMin) / 65535;
+  const sz = (zMax - zMin) / 65535;
+  const pos = (vertexIdx, out2) => {
+    const o = vertexIdx * 3;
+    out2[0] = xMin + positionsCompressed[o] * sx;
+    out2[1] = yMin + positionsCompressed[o + 1] * sy;
+    out2[2] = zMin + positionsCompressed[o + 2] * sz;
+  };
+  const out = new Float32Array(numSegments);
+  const pA = [0, 0, 0];
+  const pB = [0, 0, 0];
+  let prevEndIdx = -1;
+  let cumDist = 0;
+  let prevLen = 0;
+  for (let i = 0; i < numSegments; i++) {
+    const aIdx = indices[i * 2];
+    const bIdx = indices[i * 2 + 1];
+    if (aIdx === prevEndIdx) {
+      cumDist += prevLen;
+    } else {
+      cumDist = 0;
+    }
+    out[i] = cumDist;
+    pos(aIdx, pA);
+    pos(bIdx, pB);
+    const dx = pB[0] - pA[0];
+    const dy = pB[1] - pA[1];
+    const dz = pB[2] - pA[2];
+    prevLen = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    prevEndIdx = bIdx;
+  }
+  return out;
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/GPUMemoryBatch.ts
+var DEFAULT_EMISSIVE_COLOR = [0, 0, 0];
+var tempQuantizedColor = [0, 0, 0];
+function copyMatrix4(matrix) {
+  return new Float64Array(matrix);
+}
+function copyVec32(vec) {
+  return [vec[0], vec[1], vec[2]];
 }
 function getViewMaskBit(mask, viewIndex) {
   return (mask & 1 << viewIndex) !== 0;
@@ -181257,98 +183920,30 @@ function setViewMaskBit(mask, viewIndex, enabled) {
 function createVisibleMask(numViews) {
   return (1 << numViews) - 1;
 }
-function getPerViewHandle(handles, viewIndex) {
-  if (!handles) {
-    return void 0;
-  }
-  return Array.isArray(handles) ? handles[viewIndex] : viewIndex === 0 ? handles : void 0;
-}
-function forEachPerViewHandle(handles, numViews, callback) {
-  if (!handles) {
-    return;
-  }
-  if (Array.isArray(handles)) {
-    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-      callback(viewIndex, handles[viewIndex]);
-    }
-  } else {
-    callback(0, handles);
-  }
-}
-var GPUMemoryBatch = class {
+var GPUMemoryBatch = class _GPUMemoryBatch {
   /**
-   * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
+   * GPU resources that implement this batch's renderer-side storage.
+   */
+  batchResources;
+  /**
+   * Backwards-compatible alias for {@link batchResources}.
+   *
+   * Some existing renderer call sites still use the old name even though a
+   * batch may now carry VBO-backed geometry as well as data textures.
    */
   dataTextures;
   /**
-   * Index of this GPUMemoryBatch within the GPUMemoryManager.sortedBatches array.
+   * Index of this GPUMemoryBatch within the GPUMemoryManager batch array.
    */
   index;
-  _indexTexture;
   _meshAttributeTexture;
-  /**
-   * Eager-allocated per-batch line-pattern table. Sized to
-   * {@link MAX_LINE_PATTERN_SLOTS}; slots are written lazily
-   * by {@link _allocateLinePatternSlot} as materials with
-   * non-default patterns appear.
-   */
-  _linePatternTexture;
-  /**
-   * Eager-allocated per-batch hatch-pattern table. Sized to
-   * {@link MAX_HATCH_PATTERN_SLOTS}; slots written lazily by
-   * {@link _allocateHatchPatternSlot}.
-   */
-  _hatchPatternTexture;
-  /**
-   * Eager-allocated per-batch table of per-segment cumulative
-   * model-space distance from the segment's parent polyline
-   * start. Indexed parallel to the line index buffer via
-   * `geometryAttributes.polylineCumDistBase + primOffset`.
-   * Drives the thick-line shader's continuous-pattern phase
-   * across polyline joints. Portions are reserved lazily by
-   * {@link addGeometry} for each `LinesPrimitive` geometry.
-   */
-  _polylineCumDistTexture;
-  /**
-   * Per-batch line-pattern slot allocator. Maps a SceneMaterial's
-   * uniqueId to its slot index in {@link _linePatternTexture}. Slot
-   * 0 is reserved as the "no per-mesh pattern" sentinel — meshes
-   * whose materials carry the default empty pattern leave their
-   * `linePatternSlot` at 0 and fall back to the View-level
-   * `linesMaterial.linePattern` uniform.
-   *
-   * Slots are allocated lazily on the first {@link addMesh} that
-   * references a material with a non-default pattern, and never
-   * freed within a batch's lifetime — a slot vacated by mesh
-   * destruction stays around (32 bytes) until the batch itself
-   * is destroyed. Simpler than refcounting + reclamation, and
-   * the worst-case waste is bounded by {@link MAX_LINE_PATTERN_SLOTS}.
-   */
-  _linePatternSlotsByMaterial;
-  _nextLinePatternSlot;
-  /**
-   * Parallel slot allocator for the per-batch hatch-pattern
-   * table — same shape as {@link _linePatternSlotsByMaterial},
-   * but indexes into {@link _hatchPatternTexture}. Slot 0 is
-   * reserved as the "no hatch" sentinel.
-   */
-  _hatchPatternSlotsByMaterial;
-  _nextHatchPatternSlot;
+  _patternResources;
   _meshViewAttributeTexture;
-  _geometryQuantRangeTexture;
   _geometryAttributeTexture;
-  _edgeIndexTexture;
-  _primitiveMeshIndexTexture;
-  _edgeMeshIndexTexture;
-  _vertexPositionTexture;
-  _vertexColorTexture;
   _vertexNormalTexture;
   _vertexUVTexture;
-  _albedoAtlasTexture;
-  _metallicRoughnessAtlasTexture;
-  _normalMapAtlasTexture;
-  _emissiveAtlasTexture;
-  _occlusionAtlasTexture;
+  _geometryStorage;
+  _materialResources;
   _meshMatrixTexture;
   _meshIndicesUsed;
   _numMeshes;
@@ -181399,15 +183994,29 @@ var GPUMemoryBatch = class {
    */
   mipmap;
   /**
+   * Geometry storage selected when this batch was constructed.
+   *
+   * Triangle batches can be backed by data-texture geometry (`"dtx"`) or
+   * batch-owned VBO geometry (`"vbo"`). Non-triangle batches are normalized
+   * to `"dtx"` because their VBO path is not implemented yet.
+   */
+  geometryStorage;
+  /**
+   * Primitive type shared by meshes in this batch.
+   */
+  primitive;
+  /**
    * Creates a new GPUMemoryBatch.
    */
   constructor(index, renderContext, options = {}) {
     this.index = index;
     this._renderContext = renderContext;
+    this.primitive = options.primitive;
     this.hasNormals = options.hasNormals === true;
     this.hasUVs = options.hasUVs === true;
     this.triplanar = options.triplanar === true;
     this.mipmap = options.mipmap === true;
+    this.geometryStorage = this.primitive === TrianglesPrimitive && options.geometryStorage === "vbo" ? "vbo" : "dtx";
     this._geometryHandles = {};
     this._meshHandles = {};
     this._meshIndicesByUniqueId = {};
@@ -181417,19 +184026,36 @@ var GPUMemoryBatch = class {
     this._geometryIndicesUsed = new Uint8Array(memoryConfigs.maxBatchGeometries);
     this._lastFreeGeometryIndex = 0;
     this._sceneGeometries = {};
-    this._vertexNormalTexture = null;
-    this._vertexUVTexture = null;
-    this._albedoAtlasTexture = null;
-    this._metallicRoughnessAtlasTexture = null;
-    this._normalMapAtlasTexture = null;
-    this._emissiveAtlasTexture = null;
-    this._occlusionAtlasTexture = null;
     this._numGeometries = 0;
     this._numMeshes = 0;
-    this._linePatternSlotsByMaterial = /* @__PURE__ */ new Map();
-    this._nextLinePatternSlot = 1;
-    this._hatchPatternSlotsByMaterial = /* @__PURE__ */ new Map();
-    this._nextHatchPatternSlot = 1;
+    this._geometryStorage = createBatchGeometryStorage({
+      kind: this.geometryStorage,
+      gl: renderContext.gl,
+      batchIndex: this.index,
+      memoryConfigs,
+      bins: [
+        RENDER_PASSES.OPAQUE,
+        RENDER_PASSES.TRANSPARENT,
+        RENDER_PASSES.HIGHLIGHTED,
+        RENDER_PASSES.SELECTED,
+        RENDER_PASSES.XRAYED
+      ],
+      getNumGeometries: () => this._numGeometries
+    });
+    this._vertexNormalTexture = null;
+    this._vertexUVTexture = null;
+    this._materialResources = new BatchMaterialResources({
+      gl: renderContext.gl,
+      batchIndex: this.index,
+      hasUVs: this.hasUVs,
+      triplanar: this.triplanar,
+      mipmap: this.mipmap
+    });
+    this._patternResources = new BatchPatternResources({
+      gl: renderContext.gl,
+      batchIndex: this.index,
+      maxBatchIndices: memoryConfigs.maxBatchIndices
+    });
   }
   /**
    * Allocates all data textures for this GPUMemoryBatch.
@@ -181437,34 +184063,9 @@ var GPUMemoryBatch = class {
   allocate() {
     const gl = this._renderContext.gl;
     const memoryConfigs = this._renderContext.memoryConfigs;
-    const bins = [
-      RENDER_PASSES.OPAQUE,
-      RENDER_PASSES.TRANSPARENT,
-      RENDER_PASSES.HIGHLIGHTED,
-      RENDER_PASSES.SELECTED,
-      RENDER_PASSES.XRAYED
-    ];
     const numViews = memoryConfigs.maxViews;
-    this._primitiveMeshIndexTexture = [];
-    this._edgeMeshIndexTexture = [];
     this._meshViewAttributeTexture = [];
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-      this._primitiveMeshIndexTexture.push(
-        new PrimitiveMeshIndexTexture({
-          gl,
-          maxItems: memoryConfigs.maxBatchPrims,
-          bins,
-          description: `[Batch ${this.index}, View ${viewIndex}] - primIndex -> meshIndex`
-        })
-      );
-      this._edgeMeshIndexTexture.push(
-        new PrimitiveMeshIndexTexture({
-          gl,
-          maxItems: memoryConfigs.maxBatchPrims,
-          bins,
-          description: `[Batch ${this.index}, View ${viewIndex}] - edgeIndex -> meshIndex`
-        })
-      );
       this._meshViewAttributeTexture.push(
         new MeshViewAttributeTexture({
           gl,
@@ -181480,23 +184081,6 @@ var GPUMemoryBatch = class {
       description: `[Batch ${this.index}] - meshIndex -> geometryIndex, tileIndex`,
       getNumItems: () => this._numMeshes
     });
-    this._linePatternTexture = new LinePatternTexture({
-      gl,
-      maxItems: MAX_LINE_PATTERN_SLOTS,
-      description: `[Batch ${this.index}] - lineMaterialSlot -> 8 pattern entries`,
-      getNumItems: () => this._nextLinePatternSlot
-    });
-    this._hatchPatternTexture = new HatchPatternTexture({
-      gl,
-      maxItems: MAX_HATCH_PATTERN_SLOTS,
-      description: `[Batch ${this.index}] - hatchMaterialSlot -> 4 line families + RGBA colour + flags`,
-      getNumItems: () => this._nextHatchPatternSlot
-    });
-    this._polylineCumDistTexture = new PolylineCumDistTexture({
-      gl,
-      maxItems: Math.max(1, Math.floor(memoryConfigs.maxBatchIndices / 2)),
-      description: `[Batch ${this.index}] - per-segment cumulative model distance from polyline start`
-    });
     this._meshMatrixTexture = new MatrixTexture({
       gl,
       maxItems: memoryConfigs.maxBatchMeshes,
@@ -181508,32 +184092,6 @@ var GPUMemoryBatch = class {
       maxItems: memoryConfigs.maxBatchGeometries,
       getNumItems: () => this._numGeometries,
       description: `[Batch ${this.index}] - geometryIndex -> verticesBase, indicesBase, edgeIndicesBase`
-    });
-    this._geometryQuantRangeTexture = new GeometryQuantRangeTexture({
-      gl,
-      maxItems: memoryConfigs.maxBatchGeometries,
-      getNumItems: () => this._numGeometries,
-      description: `[Batch ${this.index}] - geometryIndex -> quantization ranges (offset, scale)`
-    });
-    this._indexTexture = new IndexTexture({
-      gl,
-      maxItems: memoryConfigs.maxBatchIndices,
-      description: `[Batch ${this.index}] - primitive indices`
-    });
-    this._edgeIndexTexture = new IndexTexture({
-      gl,
-      maxItems: memoryConfigs.maxBatchIndices,
-      description: `[Batch ${this.index}] - edge indices`
-    });
-    this._vertexPositionTexture = new VertexPositionTexture({
-      gl,
-      maxItems: memoryConfigs.maxBatchVertices,
-      description: `[Batch ${this.index}] - vertex XYZ positions`
-    });
-    this._vertexColorTexture = new VertexColorTexture({
-      gl,
-      maxItems: memoryConfigs.maxBatchVertices,
-      description: `[Batch ${this.index}] - vertex RGB colors`
     });
     if (this.hasNormals) {
       this._vertexNormalTexture = new VertexNormalTexture({
@@ -181549,115 +184107,64 @@ var GPUMemoryBatch = class {
         description: `[Batch ${this.index}] - vertex UVs (RG16UI, [0, 1] mapped to [0, 65535])`
       });
     }
-    if (this.hasUVs || this.triplanar) {
-      const atlasMipmap = this.mipmap;
-      this._albedoAtlasTexture = new TextureAtlas({
-        gl,
-        description: `[Batch ${this.index}] - albedo atlas (sRGB 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
-        // internalFormat defaults to SRGB8_ALPHA8.
-        mipmap: atlasMipmap
-      });
-      this._metallicRoughnessAtlasTexture = new TextureAtlas({
-        gl,
-        description: `[Batch ${this.index}] - metallic-roughness atlas (linear 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
-        internalFormat: gl.RGBA8,
-        mipmap: atlasMipmap
-      });
-      this._normalMapAtlasTexture = new TextureAtlas({
-        gl,
-        description: `[Batch ${this.index}] - normal-map atlas (linear 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
-        internalFormat: gl.RGBA8,
-        sentinelColor: [128, 128, 255, 255],
-        mipmap: atlasMipmap
-      });
-      this._emissiveAtlasTexture = new TextureAtlas({
-        gl,
-        description: `[Batch ${this.index}] - emissive atlas (sRGB 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
-        // internalFormat defaults to SRGB8_ALPHA8.
-        mipmap: atlasMipmap
-      });
-      this._occlusionAtlasTexture = new TextureAtlas({
-        gl,
-        description: `[Batch ${this.index}] - occlusion atlas (linear 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
-        internalFormat: gl.RGBA8,
-        mipmap: atlasMipmap
-      });
-    }
-    const textures = [
-      ...this._primitiveMeshIndexTexture,
-      ...this._edgeMeshIndexTexture,
+    const resources = [
+      this._geometryStorage,
       this._meshAttributeTexture,
-      this._linePatternTexture,
-      this._hatchPatternTexture,
-      this._polylineCumDistTexture,
+      ...this._patternResources.getAllocatableResources(),
       ...this._meshViewAttributeTexture,
       this._meshMatrixTexture,
       this._geometryAttributeTexture,
-      this._geometryQuantRangeTexture,
-      this._indexTexture,
-      this._edgeIndexTexture,
-      this._vertexPositionTexture,
-      this._vertexColorTexture,
       ...this._vertexNormalTexture ? [this._vertexNormalTexture] : [],
       ...this._vertexUVTexture ? [this._vertexUVTexture] : [],
-      ...this._albedoAtlasTexture ? [this._albedoAtlasTexture] : [],
-      ...this._metallicRoughnessAtlasTexture ? [this._metallicRoughnessAtlasTexture] : [],
-      ...this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : [],
-      ...this._emissiveAtlasTexture ? [this._emissiveAtlasTexture] : [],
-      ...this._occlusionAtlasTexture ? [this._occlusionAtlasTexture] : []
+      ...this._materialResources.getAllocatableResources()
     ];
-    for (let i = 0, leni = textures.length; i < leni; i++) {
-      const result = textures[i].allocate();
-      if (result.ok === false) {
-        for (let j = i - 1; j >= 0; j--) {
-          textures[j].destroy();
-        }
-        return result;
-      }
+    const allocateResult = allocateGPUResources(resources);
+    if (allocateResult.ok === false) {
+      return allocateResult;
     }
     const views = [];
     for (let i = 0; i < numViews; i++) {
+      const geometryViewResources = this._geometryStorage.getViewResources(i);
       views.push({
         numDrawablePrims: 0,
-        primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[i],
-        edgeMeshIndexTexture: this._edgeMeshIndexTexture[i],
+        primitiveMeshIndexTexture: geometryViewResources.primitiveMeshIndexTexture,
+        edgeMeshIndexTexture: geometryViewResources.edgeMeshIndexTexture,
         meshViewAttributeTexture: this._meshViewAttributeTexture[i],
-        renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[i].passRanges,
-        renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[i].passRanges,
-        pickPrimitiveRange: this._primitiveMeshIndexTexture[i].primRange,
-        pickEdgePrimitiveRange: this._edgeMeshIndexTexture[i].primRange
+        renderPassPrimitiveRanges: geometryViewResources.renderPassPrimitiveRanges,
+        renderPassEdgePrimitiveRanges: geometryViewResources.renderPassEdgePrimitiveRanges,
+        pickPrimitiveRange: geometryViewResources.pickPrimitiveRange,
+        pickEdgePrimitiveRange: geometryViewResources.pickEdgePrimitiveRange
       });
     }
-    this.dataTextures = {
+    const geometryResources = this._geometryStorage.getResources();
+    const dtxGeometryResources = geometryResources.kind === "dtx" ? geometryResources : null;
+    const vboGeometryResources = geometryResources.kind === "vbo" ? geometryResources : null;
+    this.batchResources = {
+      geometryStorage: this.geometryStorage,
       views,
-      indexTexture: this._indexTexture,
-      edgeIndexTexture: this._edgeIndexTexture,
+      indexTexture: dtxGeometryResources?.indexTexture,
+      edgeIndexTexture: dtxGeometryResources?.edgeIndexTexture,
       meshMatrixTexture: this._meshMatrixTexture,
       meshAttributeTexture: this._meshAttributeTexture,
-      // Lazy fields — `null` until first slot is allocated.
-      linePatternTexture: this._linePatternTexture,
-      hatchPatternTexture: this._hatchPatternTexture,
-      polylineCumDistTexture: this._polylineCumDistTexture,
+      ...this._patternResources.getDataTextureResources(),
       geometryAttributeTexture: this._geometryAttributeTexture,
-      geometryQuantRangeTexture: this._geometryQuantRangeTexture,
-      vertexPositionTexture: this._vertexPositionTexture,
-      vertexColorTexture: this._vertexColorTexture,
+      geometryQuantRangeTexture: dtxGeometryResources?.geometryQuantRangeTexture,
+      vertexPositionTexture: dtxGeometryResources?.vertexPositionTexture,
+      vertexColorTexture: dtxGeometryResources?.vertexColorTexture,
       vertexNormalTexture: this._vertexNormalTexture ?? void 0,
       vertexUVTexture: this._vertexUVTexture ?? void 0,
-      albedoAtlasTexture: this._albedoAtlasTexture ?? void 0,
-      metallicRoughnessAtlasTexture: this._metallicRoughnessAtlasTexture ?? void 0,
-      normalMapAtlasTexture: this._normalMapAtlasTexture ?? void 0,
-      emissiveAtlasTexture: this._emissiveAtlasTexture ?? void 0,
-      occlusionAtlasTexture: this._occlusionAtlasTexture ?? void 0
+      triangleGeometryVBO: vboGeometryResources?.triangleGeometryVBO,
+      ...this._materialResources.getDataTextureResources()
     };
+    this.dataTextures = this.batchResources;
     return {
       ok: true,
       value: void 0
     };
   }
-  static get itemSizesInBytes() {
+  static getItemSizesInBytes(numViews = 1) {
     return {
-      mesh: MeshAttributeTexture.itemSizeInBytes + MeshViewAttributeTexture.itemSizeInBytes * 4 + MatrixTexture.itemSizeInBytes,
+      mesh: MeshAttributeTexture.itemSizeInBytes + MeshViewAttributeTexture.itemSizeInBytes * numViews + MatrixTexture.itemSizeInBytes,
       geometry: GeometryAttributeTexture.itemSizeInBytes + GeometryQuantRangeTexture.itemSizeInBytes,
       vertex: VertexPositionTexture.itemSizeInBytes + VertexColorTexture.itemSizeInBytes,
       index: IndexTexture.itemSizeInBytes,
@@ -181665,10 +184172,12 @@ var GPUMemoryBatch = class {
       edge: PrimitiveMeshIndexTexture.itemSizeInBytes
     };
   }
+  static get itemSizesInBytes() {
+    return _GPUMemoryBatch.getItemSizesInBytes();
+  }
   /**
    * Re-upload the pixels of an already-cached SceneTexture from this
-   * batch's atlases. Walks all three atlases (albedo,
-   * metallic-roughness, normal-map) and re-uploads wherever the id
+   * batch's material atlases. Walks all PBR atlases and re-uploads wherever the id
    * matches; returns `true` if any of them held the texture.
    *
    * Used by the post-finalize `onSceneTextureImageDataChanged` flow.
@@ -181676,52 +184185,19 @@ var GPUMemoryBatch = class {
    * painting mutates pixels in place but never resizes.
    */
   updateSceneTexture(sceneTexture) {
-    const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
-    if (!source)
-      return false;
-    let updated = false;
-    if (this._albedoAtlasTexture)
-      updated = this._albedoAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
-    if (this._metallicRoughnessAtlasTexture)
-      updated = this._metallicRoughnessAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
-    if (this._normalMapAtlasTexture)
-      updated = this._normalMapAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
-    if (this._emissiveAtlasTexture)
-      updated = this._emissiveAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
-    if (this._occlusionAtlasTexture)
-      updated = this._occlusionAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
-    return updated;
+    return this._materialResources.updateSceneTexture(sceneTexture);
   }
   getAllocatedBytes() {
-    let total = 0;
-    total += this._vertexPositionTexture.getAllocatedBytes();
-    total += this._vertexColorTexture.getAllocatedBytes();
+    let total = this._geometryStorage.getAllocatedBytes();
     if (this._vertexNormalTexture)
       total += this._vertexNormalTexture.getAllocatedBytes();
     if (this._vertexUVTexture)
       total += this._vertexUVTexture.getAllocatedBytes();
-    if (this._albedoAtlasTexture)
-      total += this._albedoAtlasTexture.getAllocatedBytes();
-    if (this._metallicRoughnessAtlasTexture)
-      total += this._metallicRoughnessAtlasTexture.getAllocatedBytes();
-    if (this._normalMapAtlasTexture)
-      total += this._normalMapAtlasTexture.getAllocatedBytes();
-    if (this._emissiveAtlasTexture)
-      total += this._emissiveAtlasTexture.getAllocatedBytes();
-    if (this._occlusionAtlasTexture)
-      total += this._occlusionAtlasTexture.getAllocatedBytes();
-    total += this._indexTexture.getAllocatedBytes();
-    total += this._edgeIndexTexture.getAllocatedBytes();
+    total += this._materialResources.getAllocatedBytes();
+    total += this._patternResources.getAllocatedBytes();
     total += this._meshAttributeTexture.getAllocatedBytes();
     total += this._geometryAttributeTexture.getAllocatedBytes();
-    total += this._geometryQuantRangeTexture.getAllocatedBytes();
     total += this._meshMatrixTexture.getAllocatedBytes();
-    for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
-      total += this._primitiveMeshIndexTexture[i].getAllocatedBytes();
-    }
-    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
-      total += this._edgeMeshIndexTexture[i].getAllocatedBytes();
-    }
     const numViews = this._meshViewAttributeTexture.length;
     for (let i = 0; i < numViews; i++) {
       total += this._meshViewAttributeTexture[i].getAllocatedBytes();
@@ -181732,40 +184208,27 @@ var GPUMemoryBatch = class {
    * Returns the total number of bytes currently used by all managed arrays in this batch.
    */
   getUsedBytes() {
-    let total = 0;
-    total += this._vertexPositionTexture.getUsedBytes();
-    total += this._vertexColorTexture.getUsedBytes();
+    let total = this._geometryStorage.getUsedBytes();
     if (this._vertexNormalTexture)
       total += this._vertexNormalTexture.getUsedBytes();
     if (this._vertexUVTexture)
       total += this._vertexUVTexture.getUsedBytes();
-    if (this._albedoAtlasTexture)
-      total += this._albedoAtlasTexture.getUsedBytes();
-    if (this._metallicRoughnessAtlasTexture)
-      total += this._metallicRoughnessAtlasTexture.getUsedBytes();
-    if (this._normalMapAtlasTexture)
-      total += this._normalMapAtlasTexture.getUsedBytes();
-    if (this._emissiveAtlasTexture)
-      total += this._emissiveAtlasTexture.getUsedBytes();
-    if (this._occlusionAtlasTexture)
-      total += this._occlusionAtlasTexture.getUsedBytes();
-    total += this._indexTexture.getUsedBytes();
-    total += this._edgeIndexTexture.getUsedBytes();
+    total += this._materialResources.getUsedBytes();
+    total += this._patternResources.getUsedBytes();
     total += this._meshAttributeTexture.getUsedBytes();
     total += this._geometryAttributeTexture.getUsedBytes();
-    total += this._geometryQuantRangeTexture.getUsedBytes();
     total += this._meshMatrixTexture.getUsedBytes();
-    for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
-      total += this._primitiveMeshIndexTexture[i].getUsedBytes();
-    }
-    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
-      total += this._edgeMeshIndexTexture[i].getUsedBytes();
-    }
     const numViews = this._meshViewAttributeTexture.length;
     for (let i = 0; i < numViews; i++) {
       total += this._meshViewAttributeTexture[i].getUsedBytes();
     }
     return total;
+  }
+  beginBulkMeshAdd(stats) {
+    this._geometryStorage.beginBulkMeshAdd(stats);
+  }
+  endBulkMeshAdd(stats) {
+    this._geometryStorage.endBulkMeshAdd(stats);
   }
   /**
    * Check if there is enough memory for a SceneMesh.
@@ -181786,21 +184249,11 @@ var GPUMemoryBatch = class {
       if (this._numGeometries >= this._renderContext.memoryConfigs.maxBatchGeometries) {
         return 3 /* TooManyGeometries */;
       }
-      if (vertCount <= 0 || this._vertexPositionTexture.canGetPortion(vertCount) === false) {
+      if (vertCount <= 0) {
         return 4 /* NotEnoughVertexSpace */;
       }
-      if (geometry.indices && this._indexTexture.canGetPortion(geometry.indices.length) === false) {
-        return 6 /* NotEnoughIndexSpace */;
-      }
-      if (geometry.edgeIndices && this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
-        return 7 /* NotEnoughEdgeIndexSpace */;
-      }
     }
-    const isPoints = geometry.primitive === PointsPrimitive;
     if (!geometryExists) {
-      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length / 4) === false) {
-        return 5 /* NotEnoughColorSpace */;
-      }
       if (this._vertexNormalTexture && geometry.normalsCompressed && this._vertexNormalTexture.canGetPortion(geometry.normalsCompressed.length / 2) === false) {
         return 4 /* NotEnoughVertexSpace */;
       }
@@ -181808,17 +184261,11 @@ var GPUMemoryBatch = class {
         return 4 /* NotEnoughVertexSpace */;
       }
     }
-    const primCount = isPoints ? vertCount : geometry.primitive === LinesPrimitive ? geometry.indices.length / 2 | 0 : geometry.indices.length / 3 | 0;
-    if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
-      const edgePrimCount = geometry.edgeIndices.length / 2 | 0;
-      if (edgePrimCount > 0 && this._edgeMeshIndexTexture[0].canGetPortion(edgePrimCount) === false) {
-        return 7 /* NotEnoughEdgeIndexSpace */;
-      }
+    const storageCheck = this._geometryStorage.canAddMesh(sceneMesh, geometryExists);
+    if (storageCheck !== 0 /* OK */) {
+      return storageCheck;
     }
-    if (this._primitiveMeshIndexTexture[0].canGetPortion(primCount) === false) {
-      return 8 /* NotEnoughPrimSpace */;
-    }
-    if (atlasOverflow(this._albedoAtlasTexture, sceneMesh.effectiveColorTexture) || atlasOverflow(this._metallicRoughnessAtlasTexture, sceneMesh.effectiveMetallicRoughnessTexture) || atlasOverflow(this._normalMapAtlasTexture, sceneMesh.effectiveNormalsTexture) || atlasOverflow(this._emissiveAtlasTexture, sceneMesh.effectiveEmissiveTexture) || atlasOverflow(this._occlusionAtlasTexture, sceneMesh.effectiveOcclusionTexture)) {
+    if (this._materialResources.hasAtlasOverflow(sceneMesh)) {
       return 9 /* NotEnoughAtlasSpace */;
     }
     return 0 /* OK */;
@@ -181830,13 +184277,23 @@ var GPUMemoryBatch = class {
    *
    * @param sceneMesh
    */
-  addMesh(sceneMesh) {
+  addMesh(sceneMesh, placement, stats) {
+    const addStart = stats ? performance.now() : 0;
+    if (stats) {
+      stats.gpuAddMeshCalls++;
+    }
     const existingMeshIndex = this._meshIndicesByUniqueId[sceneMesh.uniqueId];
     if (existingMeshIndex !== void 0) {
+      if (stats) {
+        stats.gpuAddMeshMs += performance.now() - addStart;
+      }
       return { ok: true, value: existingMeshIndex };
     }
     const maxBatchMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
     if (this._numMeshes >= maxBatchMeshes) {
+      if (stats) {
+        stats.gpuAddMeshMs += performance.now() - addStart;
+      }
       return {
         ok: false,
         type: 8 /* MemoryAllocationFailed */,
@@ -181845,297 +184302,251 @@ var GPUMemoryBatch = class {
     }
     const sceneGeometry = sceneMesh.geometry;
     let geometryHandle = this._geometryHandles[sceneGeometry.uniqueId];
-    if (!geometryHandle) {
-      const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
-      if (this._numGeometries >= maxGeometries) {
-        return {
-          ok: false,
-          type: 8 /* MemoryAllocationFailed */,
-          error: `GPUMemoryBatch.addMesh: Exceeded maximum number of geometries (${maxGeometries})`
-        };
-      }
-    }
-    let positionsPortion = null;
-    let vertexColorsPortion = null;
-    let vertexNormalsPortion = null;
-    let vertexUVsPortion = null;
-    let indicesHandle = null;
-    let edgeIndicesHandle = null;
-    let geometryIndex = -1;
-    let meshIndex = -1;
-    const cleanup = () => {
-      if (positionsPortion) {
-        this._vertexPositionTexture.putPortion(positionsPortion);
-      }
-      if (vertexColorsPortion) {
-        this._vertexColorTexture.putPortion(vertexColorsPortion);
-      }
-      if (vertexNormalsPortion && this._vertexNormalTexture) {
-        this._vertexNormalTexture.putPortion(vertexNormalsPortion);
-      }
-      if (vertexUVsPortion && this._vertexUVTexture) {
-        this._vertexUVTexture.putPortion(vertexUVsPortion);
-      }
-      if (indicesHandle) {
-        this._indexTexture.putPortion(indicesHandle);
-      }
-      if (edgeIndicesHandle) {
-        this._edgeIndexTexture.putPortion(edgeIndicesHandle);
-      }
-      if (geometryIndex !== -1) {
-        this._putFreeGeometryIndex(geometryIndex);
-      }
-      if (meshIndex !== -1) {
-        this._putFreeMeshIndex(meshIndex);
-      }
+    const pending = {
+      vertexNormalsPortion: null,
+      vertexUVsPortion: null,
+      geometryAllocation: null,
+      geometryIndex: -1,
+      meshIndex: this._getFreeMeshIndex(),
+      geometryMeshHandle: null,
+      claimedGeometryHandle: null,
+      polylineCumDistHandle: null
     };
-    meshIndex = this._getFreeMeshIndex();
-    if (this._meshHandles[meshIndex]) {
-      cleanup();
+    if (this._meshHandles[pending.meshIndex]) {
+      this._rollbackMeshAddition(sceneGeometry, pending);
+      if (stats) {
+        stats.gpuAddMeshMs += performance.now() - addStart;
+      }
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: `GPUMemoryBatch.addMesh: Mesh handle already exists at meshIndex ${meshIndex}`
+        error: `GPUMemoryBatch.addMesh: Mesh handle already exists at meshIndex ${pending.meshIndex}`
       };
     }
     if (!geometryHandle) {
-      geometryIndex = this._getFreeGeometryIndex();
-      positionsPortion = this._vertexPositionTexture.getPortion(
-        sceneGeometry.positionsCompressed,
-        (newBase) => {
-          this._geometryAttributeTexture.setItem(geometryIndex, {
-            verticesBase: newBase
-          });
-        }
-      );
-      if (positionsPortion === null) {
-        cleanup();
-        return {
-          ok: false,
-          type: 8 /* MemoryAllocationFailed */,
-          error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion (of length ${sceneGeometry.positionsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 3} position components`
-        };
+      const geometryHandleStart = stats ? performance.now() : 0;
+      const geometryHandleResult = this._createGeometryHandle(sceneGeometry, pending);
+      if (stats) {
+        stats.gpuCreateGeometryHandleMs += performance.now() - geometryHandleStart;
+        stats.gpuCreateGeometryHandleCalls++;
       }
-      const [xmin, ymin, zmin, xmax, ymax, zmax] = sceneGeometry.aabb;
-      this._geometryQuantRangeTexture.setItem(geometryIndex, {
-        offset: [xmin, ymin, zmin],
-        scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
-      });
-      if (sceneGeometry.colorsCompressed) {
-        const vertexColorsBaseGeometryIndex = geometryIndex;
-        vertexColorsPortion = this._vertexColorTexture.getPortion(
-          sceneGeometry.colorsCompressed,
-          (newBase) => {
-            this._geometryAttributeTexture.setItem(vertexColorsBaseGeometryIndex, {
-              vertexColorsBase: newBase
-            });
-          }
-        );
-        if (vertexColorsPortion === null) {
-          cleanup();
-          return {
-            ok: false,
-            type: 8 /* MemoryAllocationFailed */,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion (of length ${sceneGeometry.colorsCompressed.length}) geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 4} color components`
-          };
+      if (geometryHandleResult.ok === false) {
+        this._rollbackMeshAddition(sceneGeometry, pending);
+        if (stats) {
+          stats.gpuAddMeshMs += performance.now() - addStart;
         }
+        return geometryHandleResult;
       }
-      if (this._vertexNormalTexture && sceneGeometry.normalsCompressed) {
-        const normalsBaseGeometryIndex = geometryIndex;
-        vertexNormalsPortion = this._vertexNormalTexture.getPortion(
-          sceneGeometry.normalsCompressed,
-          (newBase) => {
-            this._geometryAttributeTexture.setItem(normalsBaseGeometryIndex, {
-              normalsBase: newBase
-            });
-          }
-        );
-        if (vertexNormalsPortion === null) {
-          cleanup();
-          return {
-            ok: false,
-            type: 8 /* MemoryAllocationFailed */,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex normals portion (of length ${sceneGeometry.normalsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 2} normal components`
-          };
-        }
-      }
-      if (this._vertexUVTexture && sceneGeometry.uvsCompressed) {
-        const uvsBaseGeometryIndex = geometryIndex;
-        vertexUVsPortion = this._vertexUVTexture.getPortion(
-          sceneGeometry.uvsCompressed,
-          (newBase) => {
-            this._geometryAttributeTexture.setItem(uvsBaseGeometryIndex, {
-              uvsBase: newBase
-            });
-          }
-        );
-        if (vertexUVsPortion === null) {
-          cleanup();
-          return {
-            ok: false,
-            type: 8 /* MemoryAllocationFailed */,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex UVs portion (of length ${sceneGeometry.uvsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 2} UV components`
-          };
-        }
-      }
-      if (sceneGeometry.primitive !== PointsPrimitive && sceneGeometry.indices) {
-        indicesHandle = this._indexTexture.getPortion(
-          sceneGeometry.indices,
-          (newBase) => {
-            this._geometryAttributeTexture.setItem(geometryIndex, {
-              indicesBase: newBase
-            });
-          }
-        );
-        if (indicesHandle === null) {
-          cleanup();
-          return {
-            ok: false,
-            type: 8 /* MemoryAllocationFailed */,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion (of length ${sceneGeometry.indices.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchIndices} indices`
-          };
-        }
-        if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices && sceneGeometry.edgeIndices.length > 0) {
-          edgeIndicesHandle = this._edgeIndexTexture.getPortion(
-            sceneGeometry.edgeIndices,
-            (newBase) => {
-              this._geometryAttributeTexture.setItem(geometryIndex, {
-                edgeIndicesBase: newBase
-              });
-            }
-          );
-          if (edgeIndicesHandle === null) {
-            cleanup();
-            return {
-              ok: false,
-              type: 8 /* MemoryAllocationFailed */,
-              error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion (of length ${sceneGeometry.edgeIndices.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchIndices} indices`
-            };
-          }
-        }
-      }
-      let polylineCumDistHandle = null;
-      if (sceneGeometry.primitive === LinesPrimitive && sceneGeometry.indices && sceneGeometry.aabb) {
-        const cumDistData = computePolylineCumDist(
-          sceneGeometry.indices,
-          sceneGeometry.positionsCompressed,
-          sceneGeometry.aabb
-        );
-        if (cumDistData.length > 0) {
-          polylineCumDistHandle = this._polylineCumDistTexture.getPortion(
-            cumDistData,
-            (newBase) => {
-              this._geometryAttributeTexture.setItem(geometryIndex, {
-                polylineCumDistBase: newBase
-              });
-            }
-          );
-        }
-      }
-      this._geometryAttributeTexture.setItem(geometryIndex, {
-        verticesBase: positionsPortion.base,
-        // XYZ
-        indicesBase: indicesHandle ? indicesHandle.base : 0,
-        edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0,
-        normalsBase: vertexNormalsPortion ? vertexNormalsPortion.base : 0,
-        uvsBase: vertexUVsPortion ? vertexUVsPortion.base : 0,
-        polylineCumDistBase: polylineCumDistHandle ? polylineCumDistHandle.base : 0,
-        vertexColorsBase: vertexColorsPortion ? vertexColorsPortion.base : 0
-      });
-      geometryHandle = {
-        sceneGeometry,
-        positionsPortion,
-        vertexColorsPortion,
-        vertexNormalsPortion,
-        vertexUVsPortion,
-        geometryIndex,
-        indicesHandle,
-        edgeIndicesHandle,
-        useCount: 0
-      };
-      this._geometryHandles[sceneGeometry.uniqueId] = geometryHandle;
-      this._numGeometries++;
+      geometryHandle = geometryHandleResult.value;
     }
     geometryHandle.useCount++;
-    const albedoXform = resolveAtlasTransform(
-      this._albedoAtlasTexture,
-      sceneMesh.effectiveColorTexture,
-      "albedo"
-    );
-    const mrXform = resolveAtlasTransform(
-      this._metallicRoughnessAtlasTexture,
-      sceneMesh.effectiveMetallicRoughnessTexture,
-      "metallic-roughness"
-    );
-    const nmXform = resolveAtlasTransform(
-      this._normalMapAtlasTexture,
-      sceneMesh.effectiveNormalsTexture,
-      "normal-map"
-    );
-    const emXform = resolveAtlasTransform(
-      this._emissiveAtlasTexture,
-      sceneMesh.effectiveEmissiveTexture,
-      "emissive"
-    );
-    const aoXform = resolveAtlasTransform(
-      this._occlusionAtlasTexture,
-      sceneMesh.effectiveOcclusionTexture,
-      "occlusion"
-    );
-    this._meshAttributeTexture.setItem(meshIndex, {
-      tileIndex: 0,
-      // Set by setMeshAttribs()
-      geometryIndex: geometryHandle.geometryIndex,
-      // Cook-Torrance material params written once at attach time. The
-      // smooth-shaded technique unpacks them per-fragment; flat-shaded
-      // batches' shaders never read this slot. Sourced from the mesh's
-      // material (or renderer defaults when no material is attached).
-      roughness: sceneMesh.effectiveRoughness,
-      metallic: sceneMesh.effectiveMetallic,
-      // Alpha mode + cutoff. The shader uses these to discard fragments
-      // for `MASK` materials (cutout foliage / fences / Sponza drapes)
-      // and to pass the sampled alpha through to the framebuffer for
-      // `BLEND` materials.
-      alphaMode: sceneMesh.effectiveAlphaMode,
-      alphaCutoff: sceneMesh.effectiveAlphaCutoff,
-      albedoUVOffset: [albedoXform.uOffset, albedoXform.vOffset],
-      albedoUVScale: [albedoXform.uScale, albedoXform.vScale],
-      metallicRoughnessUVOffset: [mrXform.uOffset, mrXform.vOffset],
-      metallicRoughnessUVScale: [mrXform.uScale, mrXform.vScale],
-      normalMapUVOffset: [nmXform.uOffset, nmXform.vOffset],
-      normalMapUVScale: [nmXform.uScale, nmXform.vScale],
-      emissiveUVOffset: [emXform.uOffset, emXform.vOffset],
-      emissiveUVScale: [emXform.uScale, emXform.vScale],
-      occlusionUVOffset: [aoXform.uOffset, aoXform.vOffset],
-      occlusionUVScale: [aoXform.uScale, aoXform.vScale],
-      // Emissive colour factor — `[0,0,0]` for materials with no emissive
-      // texture suppresses the white sentinel; auto-`[1,1,1]` (set in
-      // createMaterial) when textured so emissive = factor × texture.
-      emissiveColor: sceneMesh.material ? sceneMesh.material.emissiveColor : DEFAULT_EMISSIVE_COLOR,
-      // Sampled by the triplanar shader variant; UV-bearing batches
-      // ignore the slot. Stored at full Float32 precision so users
-      // can pick an arbitrary world-units-per-repeat without
-      // quantisation surprises.
-      triplanarScale: sceneMesh.effectiveTriplanarScale,
-      // Per-mesh thick-line width (pixels). `0` flags fallback to
-      // the View's `linesMaterial.lineWidth`; the thick-line
-      // shader implements that fallback so unwired meshes keep
-      // the global thickness.
-      lineWidth: sceneMesh.effectiveLineWidth,
-      // Per-mesh dash / gap pattern slot. `0` means "no override
-      // — inherit the View's `linesMaterial.linePattern`"; any
-      // positive value indexes into the per-batch
-      // {@link LinePatternTexture}. Slot allocation is keyed on
-      // the material so meshes that share a material share a slot
-      // (and pay the per-mesh attribute storage cost only).
-      linePatternSlot: this._allocateLinePatternSlot(sceneMesh),
-      // Per-mesh screen-space hatch slot. Same shape as
-      // linePatternSlot — material-keyed, lazy-allocated.
-      hatchPatternSlot: this._allocateHatchPatternSlot(sceneMesh)
-    });
+    pending.claimedGeometryHandle = geometryHandle;
+    const tileIndex = placement?.tileIndex ?? 0;
+    const matrix = placement?.rtcMatrix ?? sceneMesh.worldMatrix;
+    const meshAttributesStart = stats ? performance.now() : 0;
+    this._writeMeshAttributes(pending.meshIndex, sceneMesh, geometryHandle, tileIndex);
+    if (stats) {
+      stats.gpuWriteMeshAttributesMs += performance.now() - meshAttributesStart;
+    }
     const numViews = this._renderContext.memoryConfigs.maxViews;
     const color2 = quantizeColor3(sceneMesh.effectiveColor, tempQuantizedColor);
     const opacity = Math.floor(sceneMesh.effectiveOpacity * 255);
+    const meshViewAttributesStart = stats ? performance.now() : 0;
+    this._initializeMeshViewAttributes(pending.meshIndex, numViews, color2, opacity);
+    if (stats) {
+      stats.gpuInitMeshViewAttributesMs += performance.now() - meshViewAttributesStart;
+    }
+    const meshMatrixStart = stats ? performance.now() : 0;
+    this._meshMatrixTexture.setItem(pending.meshIndex, matrix);
+    if (stats) {
+      stats.gpuWriteMeshMatrixMs += performance.now() - meshMatrixStart;
+    }
+    const primitiveCount = getSceneGeometryPrimitiveCount(sceneGeometry);
+    const geometryMeshHandleStart = stats ? performance.now() : 0;
+    const geometryMeshHandleResult = this._geometryStorage.createMeshHandle({
+      sceneMesh,
+      meshIndex: pending.meshIndex,
+      primitiveCount,
+      numViews,
+      color: color2,
+      opacity,
+      matrix,
+      tileIndex,
+      stats
+    });
+    if (stats) {
+      stats.gpuCreateGeometryMeshHandleMs += performance.now() - geometryMeshHandleStart;
+    }
+    if (geometryMeshHandleResult.ok === false) {
+      this._rollbackMeshAddition(sceneGeometry, pending);
+      if (stats) {
+        stats.gpuAddMeshMs += performance.now() - addStart;
+      }
+      return geometryMeshHandleResult;
+    }
+    pending.geometryMeshHandle = geometryMeshHandleResult.value;
+    const meshRecordStart = stats ? performance.now() : 0;
+    this._meshHandles[pending.meshIndex] = this._createMeshHandleRecord({
+      sceneMesh,
+      meshIndex: pending.meshIndex,
+      geometryMeshHandle: pending.geometryMeshHandle,
+      matrix,
+      color: color2,
+      opacity,
+      numViews
+    });
+    if (stats) {
+      stats.gpuCreateMeshRecordMs += performance.now() - meshRecordStart;
+    }
+    pending.claimedGeometryHandle = null;
+    this._meshIndicesByUniqueId[sceneMesh.uniqueId] = pending.meshIndex;
+    this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
+    this._numMeshes++;
+    if (stats) {
+      stats.gpuAddMeshMs += performance.now() - addStart;
+    }
+    return {
+      ok: true,
+      value: pending.meshIndex
+    };
+  }
+  _createGeometryHandle(sceneGeometry, pending) {
+    const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
+    if (this._numGeometries >= maxGeometries) {
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: `GPUMemoryBatch.addMesh: Exceeded maximum number of geometries (${maxGeometries})`
+      };
+    }
+    pending.geometryIndex = this._getFreeGeometryIndex();
+    const geometryAllocationResult = this._geometryStorage.allocateGeometry({
+      sceneGeometry,
+      geometryIndex: pending.geometryIndex,
+      geometryAttributeTexture: this._geometryAttributeTexture
+    });
+    if (geometryAllocationResult.ok === false) {
+      return geometryAllocationResult;
+    }
+    pending.geometryAllocation = geometryAllocationResult.value;
+    const vertexNormalsPortionResult = this._allocateVertexNormals(sceneGeometry, pending.geometryIndex);
+    if (vertexNormalsPortionResult.ok === false) {
+      return vertexNormalsPortionResult;
+    }
+    pending.vertexNormalsPortion = vertexNormalsPortionResult.value;
+    const vertexUVsPortionResult = this._allocateVertexUVs(sceneGeometry, pending.geometryIndex);
+    if (vertexUVsPortionResult.ok === false) {
+      return vertexUVsPortionResult;
+    }
+    pending.vertexUVsPortion = vertexUVsPortionResult.value;
+    pending.polylineCumDistHandle = this._patternResources.allocatePolylineCumDist(
+      sceneGeometry,
+      pending.geometryIndex,
+      this._geometryAttributeTexture
+    );
+    this._writeGeometryAttributes(
+      sceneGeometry,
+      pending.geometryIndex,
+      pending.geometryAllocation,
+      pending.vertexNormalsPortion,
+      pending.vertexUVsPortion,
+      pending.polylineCumDistHandle
+    );
+    const geometryHandle = {
+      sceneGeometry,
+      geometryAllocation: pending.geometryAllocation,
+      vertexNormalsPortion: pending.vertexNormalsPortion,
+      vertexUVsPortion: pending.vertexUVsPortion,
+      polylineCumDistHandle: pending.polylineCumDistHandle,
+      geometryIndex: pending.geometryIndex,
+      useCount: 0
+    };
+    this._geometryHandles[sceneGeometry.uniqueId] = geometryHandle;
+    this._numGeometries++;
+    return { ok: true, value: geometryHandle };
+  }
+  _allocateVertexNormals(sceneGeometry, geometryIndex) {
+    if (!this._vertexNormalTexture || !sceneGeometry.normalsCompressed) {
+      return { ok: true, value: null };
+    }
+    const vertexNormalsPortion = this._vertexNormalTexture.getPortion(
+      sceneGeometry.normalsCompressed,
+      (newBase) => {
+        this._geometryAttributeTexture.setItem(geometryIndex, {
+          normalsBase: newBase
+        });
+      }
+    );
+    if (vertexNormalsPortion === null) {
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: `GPUMemoryBatch.addMesh: Unable to allocate vertex normals portion (of length ${sceneGeometry.normalsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 2} normal components`
+      };
+    }
+    return { ok: true, value: vertexNormalsPortion };
+  }
+  _allocateVertexUVs(sceneGeometry, geometryIndex) {
+    if (!this._vertexUVTexture || !sceneGeometry.uvsCompressed) {
+      return { ok: true, value: null };
+    }
+    const vertexUVsPortion = this._vertexUVTexture.getPortion(
+      sceneGeometry.uvsCompressed,
+      (newBase) => {
+        this._geometryAttributeTexture.setItem(geometryIndex, {
+          uvsBase: newBase
+        });
+      }
+    );
+    if (vertexUVsPortion === null) {
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: `GPUMemoryBatch.addMesh: Unable to allocate vertex UVs portion (of length ${sceneGeometry.uvsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 2} UV components`
+      };
+    }
+    return { ok: true, value: vertexUVsPortion };
+  }
+  _writeGeometryAttributes(_sceneGeometry, geometryIndex, geometryAllocation, vertexNormalsPortion, vertexUVsPortion, polylineCumDistHandle) {
+    const dtxGeometryAllocation = geometryAllocation.kind === "dtx" ? geometryAllocation : null;
+    this._geometryAttributeTexture.setItem(geometryIndex, {
+      verticesBase: dtxGeometryAllocation?.positionsPortion?.base ?? 0,
+      indicesBase: dtxGeometryAllocation?.indicesHandle?.base ?? 0,
+      edgeIndicesBase: dtxGeometryAllocation?.edgeIndicesHandle?.base ?? 0,
+      normalsBase: vertexNormalsPortion ? vertexNormalsPortion.base : 0,
+      uvsBase: vertexUVsPortion ? vertexUVsPortion.base : 0,
+      polylineCumDistBase: polylineCumDistHandle ? polylineCumDistHandle.base : 0,
+      vertexColorsBase: dtxGeometryAllocation?.vertexColorsPortion?.base ?? 0
+    });
+  }
+  _writeMeshAttributes(meshIndex, sceneMesh, geometryHandle, tileIndex) {
+    const textureTransforms = this._materialResources.resolveTextureTransforms(sceneMesh);
+    const patternSlots = this._patternResources.resolveMeshPatternSlots(sceneMesh);
+    this._meshAttributeTexture.setItem(meshIndex, {
+      tileIndex,
+      geometryIndex: geometryHandle.geometryIndex,
+      roughness: sceneMesh.effectiveRoughness,
+      metallic: sceneMesh.effectiveMetallic,
+      alphaMode: sceneMesh.effectiveAlphaMode,
+      alphaCutoff: sceneMesh.effectiveAlphaCutoff,
+      albedoUVOffset: [textureTransforms.albedo.uOffset, textureTransforms.albedo.vOffset],
+      albedoUVScale: [textureTransforms.albedo.uScale, textureTransforms.albedo.vScale],
+      metallicRoughnessUVOffset: [textureTransforms.metallicRoughness.uOffset, textureTransforms.metallicRoughness.vOffset],
+      metallicRoughnessUVScale: [textureTransforms.metallicRoughness.uScale, textureTransforms.metallicRoughness.vScale],
+      normalMapUVOffset: [textureTransforms.normalMap.uOffset, textureTransforms.normalMap.vOffset],
+      normalMapUVScale: [textureTransforms.normalMap.uScale, textureTransforms.normalMap.vScale],
+      emissiveUVOffset: [textureTransforms.emissive.uOffset, textureTransforms.emissive.vOffset],
+      emissiveUVScale: [textureTransforms.emissive.uScale, textureTransforms.emissive.vScale],
+      occlusionUVOffset: [textureTransforms.occlusion.uOffset, textureTransforms.occlusion.vOffset],
+      occlusionUVScale: [textureTransforms.occlusion.uScale, textureTransforms.occlusion.vScale],
+      emissiveColor: sceneMesh.material ? sceneMesh.material.emissiveColor : DEFAULT_EMISSIVE_COLOR,
+      triplanarScale: sceneMesh.effectiveTriplanarScale,
+      lineWidth: sceneMesh.effectiveLineWidth,
+      linePatternSlot: patternSlots.linePatternSlot,
+      hatchPatternSlot: patternSlots.hatchPatternSlot
+    });
+  }
+  _initializeMeshViewAttributes(meshIndex, numViews, color2, opacity) {
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {
         color: color2,
@@ -182144,46 +184555,85 @@ var GPUMemoryBatch = class {
         clippable: true
       });
     }
-    this._meshMatrixTexture.setItem(meshIndex, sceneMesh.worldMatrix);
-    const primitiveCount = sceneGeometry.primitive === PointsPrimitive ? sceneGeometry.positionsCompressed.length / 3 | 0 : sceneGeometry.primitive === LinesPrimitive ? sceneGeometry.indices.length / 2 | 0 : sceneGeometry.indices.length / 3 | 0;
-    const primitiveMeshIndexTextureHandles = numViews === 1 ? this._primitiveMeshIndexTexture[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE) : (() => {
-      const handles = [];
-      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-        handles.push(this._primitiveMeshIndexTexture[viewIndex].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE));
-      }
-      return handles;
-    })();
-    let edgeMeshIndexTextureHandles;
-    if (sceneGeometry.primitive === TrianglesPrimitive) {
-      const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 | 0 : 0;
-      if (edgeCount > 0) {
-        edgeMeshIndexTextureHandles = numViews === 1 ? this._edgeMeshIndexTexture[0].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE) : (() => {
-          const handles = [];
-          for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-            handles.push(this._edgeMeshIndexTexture[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE));
-          }
-          return handles;
-        })();
-      }
+  }
+  _createMeshHandleRecord(params) {
+    const colorByView = [];
+    const opacityByView = [];
+    const renderPassByView = [];
+    for (let viewIndex = 0; viewIndex < params.numViews; viewIndex++) {
+      colorByView.push(copyVec32(params.color));
+      opacityByView.push(params.opacity);
+      renderPassByView.push(RENDER_PASSES.OPAQUE);
     }
-    this._meshHandles[meshIndex] = {
-      sceneMesh,
-      meshIndex,
-      primitiveMeshIndexTextureHandles,
-      edgeMeshIndexTextureHandles,
-      // Meshes start visible and un-culled in every view; the index
-      // texture portions created above are already included in the
-      // draw list, so this matches the initial GPU state.
-      visibleMask: createVisibleMask(numViews),
+    return {
+      sceneMesh: params.sceneMesh,
+      meshIndex: params.meshIndex,
+      geometryMeshHandle: params.geometryMeshHandle,
+      tileIndex: 0,
+      matrix: copyMatrix4(params.matrix),
+      colorByView,
+      opacityByView,
+      renderPassByView,
+      visibleMask: createVisibleMask(params.numViews),
       culledMask: 0
     };
-    this._meshIndicesByUniqueId[sceneMesh.uniqueId] = meshIndex;
-    this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
-    this._numMeshes++;
-    return {
-      ok: true,
-      value: meshIndex
-    };
+  }
+  _rollbackMeshAddition(sceneGeometry, pending) {
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    if (pending.geometryMeshHandle) {
+      this._geometryStorage.deleteMeshHandle(pending.geometryMeshHandle, pending.meshIndex, numViews);
+      pending.geometryMeshHandle = null;
+    }
+    if (pending.claimedGeometryHandle) {
+      const geometryHandle = pending.claimedGeometryHandle;
+      pending.claimedGeometryHandle = null;
+      if (--geometryHandle.useCount <= 0) {
+        this._geometryStorage.freeGeometryAllocation(geometryHandle.geometryAllocation);
+        if (geometryHandle.vertexNormalsPortion && this._vertexNormalTexture) {
+          this._vertexNormalTexture.putPortion(geometryHandle.vertexNormalsPortion);
+        }
+        if (geometryHandle.vertexUVsPortion && this._vertexUVTexture) {
+          this._vertexUVTexture.putPortion(geometryHandle.vertexUVsPortion);
+        }
+        this._patternResources.freePolylineCumDistHandle(geometryHandle.polylineCumDistHandle);
+        delete this._geometryHandles[sceneGeometry.uniqueId];
+        delete this._sceneGeometries[geometryHandle.geometryIndex];
+        this._putFreeGeometryIndex(geometryHandle.geometryIndex);
+        this._numGeometries--;
+      }
+      pending.geometryAllocation = null;
+      pending.vertexNormalsPortion = null;
+      pending.vertexUVsPortion = null;
+      pending.polylineCumDistHandle = null;
+      pending.geometryIndex = -1;
+    }
+    if (pending.geometryAllocation) {
+      this._geometryStorage.freeGeometryAllocation(pending.geometryAllocation);
+      pending.geometryAllocation = null;
+    }
+    if (pending.vertexNormalsPortion && this._vertexNormalTexture) {
+      this._vertexNormalTexture.putPortion(pending.vertexNormalsPortion);
+      pending.vertexNormalsPortion = null;
+    }
+    if (pending.vertexUVsPortion && this._vertexUVTexture) {
+      this._vertexUVTexture.putPortion(pending.vertexUVsPortion);
+      pending.vertexUVsPortion = null;
+    }
+    if (pending.polylineCumDistHandle) {
+      this._patternResources.freePolylineCumDistHandle(pending.polylineCumDistHandle);
+      pending.polylineCumDistHandle = null;
+    }
+    if (pending.geometryIndex !== -1) {
+      delete this._sceneGeometries[pending.geometryIndex];
+      this._putFreeGeometryIndex(pending.geometryIndex);
+      pending.geometryIndex = -1;
+    }
+    if (pending.meshIndex !== -1) {
+      delete this._meshHandles[pending.meshIndex];
+      delete this._meshIndicesByUniqueId[sceneGeometry.uniqueId];
+      this._putFreeMeshIndex(pending.meshIndex);
+      pending.meshIndex = -1;
+    }
   }
   /**
    * Sets the modeling transform matrix for a mesh.
@@ -182196,6 +184646,11 @@ var GPUMemoryBatch = class {
    */
   setMeshMatrix(meshIndex, matrix) {
     this._meshMatrixTexture.setItem(meshIndex, matrix);
+    this._geometryStorage.setMeshMatrix(meshIndex, matrix);
+    const meshHandle = this._meshHandles[meshIndex];
+    if (meshHandle) {
+      meshHandle.matrix = copyMatrix4(matrix);
+    }
   }
   /**
    * Sets attributes for e mesh to apply across all Views.
@@ -182208,6 +184663,25 @@ var GPUMemoryBatch = class {
    */
   setMeshAttribs(meshIndex, params) {
     this._meshAttributeTexture.setItem(meshIndex, params);
+    if (params.tileIndex !== void 0) {
+      this._geometryStorage.setMeshTile(meshIndex, params.tileIndex);
+      const meshHandle = this._meshHandles[meshIndex];
+      if (meshHandle) {
+        meshHandle.tileIndex = params.tileIndex;
+      }
+    }
+  }
+  setMeshPlacement(meshIndex, placement) {
+    this._meshAttributeTexture.setItem(meshIndex, {
+      tileIndex: placement.tileIndex
+    });
+    this._meshMatrixTexture.setItem(meshIndex, placement.rtcMatrix);
+    this._geometryStorage.setMeshPlacement(meshIndex, placement.tileIndex, placement.rtcMatrix);
+    const meshHandle = this._meshHandles[meshIndex];
+    if (meshHandle) {
+      meshHandle.tileIndex = placement.tileIndex;
+      meshHandle.matrix = copyMatrix4(placement.rtcMatrix);
+    }
   }
   /**
    * Sets attributes for a mesh within a specific View.
@@ -182223,6 +184697,16 @@ var GPUMemoryBatch = class {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
     }
     this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, params);
+    this._geometryStorage.setMeshViewAttribs(meshIndex, viewIndex, params);
+    const meshHandle = this._meshHandles[meshIndex];
+    if (meshHandle) {
+      if (params.color) {
+        meshHandle.colorByView[viewIndex] = copyVec32(params.color);
+      }
+      if (params.opacity !== void 0) {
+        meshHandle.opacityByView[viewIndex] = params.opacity;
+      }
+    }
   }
   /**
    * Sets the renderPass for a SceneMesh within a specific View.
@@ -182236,21 +184720,11 @@ var GPUMemoryBatch = class {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
     }
-    const primitiveMeshIndexTextureHandle = getPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, viewIndex);
-    if (!primitiveMeshIndexTextureHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
-    }
-    this._primitiveMeshIndexTexture[viewIndex].setRenderPass(primitiveMeshIndexTextureHandle, renderPass);
-    if (meshHandle.edgeMeshIndexTextureHandles) {
-      const edgeMeshIndexTextureHandle = getPerViewHandle(meshHandle.edgeMeshIndexTextureHandles, viewIndex);
-      if (!edgeMeshIndexTextureHandle) {
-        throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
-      }
-      this._edgeMeshIndexTexture[viewIndex].setRenderPass(edgeMeshIndexTextureHandle, renderPass);
-    }
+    meshHandle.renderPassByView[viewIndex] = renderPass;
+    this._geometryStorage.setMeshRenderPass(meshHandle.geometryMeshHandle, meshIndex, viewIndex, renderPass);
   }
   /**
-   * TODO
+   * Sets whether a mesh is included in rendering for one view.
    *
    * @param meshIndex
    * @param viewIndex
@@ -182288,18 +184762,7 @@ var GPUMemoryBatch = class {
   // view's compacted draw list.
   _applyMeshDrawInclusion(meshHandle, viewIndex) {
     const include = getViewMaskBit(meshHandle.visibleMask, viewIndex) && !getViewMaskBit(meshHandle.culledMask, viewIndex);
-    const primitiveMeshIndexTextureHandle = getPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, viewIndex);
-    if (!primitiveMeshIndexTextureHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no primitiveMeshIndexTextureHandle`);
-    }
-    this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, include);
-    if (meshHandle.edgeMeshIndexTextureHandles) {
-      const edgeMeshIndexTextureHandle = getPerViewHandle(meshHandle.edgeMeshIndexTextureHandles, viewIndex);
-      if (!edgeMeshIndexTextureHandle) {
-        throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no edgeMeshIndexTextureHandle`);
-      }
-      this._edgeMeshIndexTexture[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, include);
-    }
+    this._geometryStorage.setMeshVisible(meshHandle.geometryMeshHandle, meshHandle.meshIndex, viewIndex, include);
   }
   /**
    * Updates the per-view clippable bit for a mesh on the
@@ -182314,47 +184777,8 @@ var GPUMemoryBatch = class {
     }
     tex.setItem(meshIndex, { clippable });
   }
-  // setGeometryPositions(geometryIndex: number, positionsCompressed: FloatArrayParam): SDKResult<void> {
-  //   const geometryHandle = this._geometryHandles[geometryIndex];
-  //   if (!geometryHandle) {
-  //     return {
-  //       ok: false,
-  //       type: SDKErrorType.ResourceNotFound,
-  //       error: `GPUMemoryBatch.setGeometryPositions: No geometryHandle for geometryIndex ${geometryIndex}`
-  //     }
-  //   }
-  //   const newPositionsPortion = this._vertexPositionTexture.getPortion(
-  //     positionsCompressed,
-  //     (newBase: number) => {
-  //       const verticesBase = newBase / 3 // 3xcomponents per position
-  //       this._geometryAttributeTexture.setItem(geometryIndex, {
-  //         verticesBase
-  //       });
-  //     });
-  //
-  //   if (newPositionsPortion === null) {
-  //     return {
-  //       ok: false,
-  //       type: SDKErrorType.MemoryAllocationFailed,
-  //       error: `GPUMemoryBatch.setGeometryPositions: Unable to allocate new positions portion for geometryIndex ${geometryIndex}`
-  //     }
-  //   }
-  //
-  //   // Free old portion
-  //   if (geometryHandle.positionsPortion) {
-  //     this._vertexPositionTexture.putPortion(geometryHandle.positionsPortion);
-  //   }
-  //
-  //   // Update handle
-  //   geometryHandle.positionsPortion = newPositionsPortion;
-  //
-  //   return {
-  //     ok: true,
-  //     value: undefined
-  //   };
-  // }
   /**
-   * Removes a SceneMesh from data texture manager.
+   * Removes a SceneMesh from this GPU memory batch.
    *
    * @param meshIndex
    */
@@ -182367,36 +184791,21 @@ var GPUMemoryBatch = class {
     const sceneGeometry = sceneMesh.geometry;
     const geometryHandle = this._geometryHandles[sceneGeometry.uniqueId];
     if (geometryHandle && --geometryHandle.useCount <= 0) {
-      if (geometryHandle.positionsPortion) {
-        this._vertexPositionTexture.putPortion(geometryHandle.positionsPortion);
-      }
-      if (geometryHandle.vertexColorsPortion) {
-        this._vertexColorTexture.putPortion(geometryHandle.vertexColorsPortion);
-      }
+      this._geometryStorage.freeGeometryAllocation(geometryHandle.geometryAllocation);
       if (geometryHandle.vertexNormalsPortion && this._vertexNormalTexture) {
         this._vertexNormalTexture.putPortion(geometryHandle.vertexNormalsPortion);
       }
       if (geometryHandle.vertexUVsPortion && this._vertexUVTexture) {
         this._vertexUVTexture.putPortion(geometryHandle.vertexUVsPortion);
       }
-      if (geometryHandle.indicesHandle) {
-        this._indexTexture.putPortion(geometryHandle.indicesHandle);
-      }
-      if (geometryHandle.edgeIndicesHandle) {
-        this._edgeIndexTexture.putPortion(geometryHandle.edgeIndicesHandle);
-      }
+      this._patternResources.freePolylineCumDistHandle(geometryHandle.polylineCumDistHandle);
       delete this._geometryHandles[sceneGeometry.uniqueId];
       delete this._sceneGeometries[geometryHandle.geometryIndex];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
     const numViews = this._renderContext.memoryConfigs.maxViews;
-    forEachPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, numViews, (viewIndex, handle) => {
-      this._primitiveMeshIndexTexture[viewIndex].deletePortion(handle);
-    });
-    forEachPerViewHandle(meshHandle.edgeMeshIndexTextureHandles, numViews, (viewIndex, handle) => {
-      this._edgeMeshIndexTexture[viewIndex].deletePortion(handle);
-    });
+    this._geometryStorage.deleteMeshHandle(meshHandle.geometryMeshHandle, meshIndex, numViews);
     delete this._meshHandles[meshIndex];
     delete this._meshIndicesByUniqueId[sceneMesh.uniqueId];
     this._putFreeMeshIndex(meshIndex);
@@ -182429,31 +184838,7 @@ var GPUMemoryBatch = class {
     if (!sceneGeometry) {
       return null;
     }
-    const primitiveMeshIndexTextureHandle = getPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, 0);
-    if (!primitiveMeshIndexTextureHandle) {
-      return null;
-    }
-    const primsBase = primitiveMeshIndexTextureHandle.base ?? primitiveMeshIndexTextureHandle.start ?? 0;
-    if (sceneGeometry.primitive === PointsPrimitive) {
-      const count = sceneGeometry.positionsCompressed.length / 3;
-      return {
-        count,
-        first: primsBase
-      };
-    } else if (sceneGeometry.primitive === LinesPrimitive) {
-      const count = sceneGeometry.indices?.length ?? 0;
-      return {
-        count,
-        first: primsBase
-      };
-    } else if (sceneGeometry.primitive === TrianglesPrimitive) {
-      const count = sceneGeometry.indices?.length ?? 0;
-      return {
-        count,
-        first: primsBase
-      };
-    }
-    return null;
+    return this._geometryStorage.getDrawArraysParamsForMesh(meshHandle.geometryMeshHandle, sceneGeometry, 0);
   }
   _getFreeMeshIndex() {
     const maxMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
@@ -182492,19 +184877,12 @@ var GPUMemoryBatch = class {
    */
   uploadChanges() {
     let didFlush = false;
-    didFlush = this._indexTexture.uploadChanges() || didFlush;
     didFlush = this._meshAttributeTexture.uploadChanges() || didFlush;
-    didFlush = this._linePatternTexture.uploadChanges() || didFlush;
-    didFlush = this._hatchPatternTexture.uploadChanges() || didFlush;
-    didFlush = this._polylineCumDistTexture.uploadChanges() || didFlush;
+    didFlush = this._patternResources.uploadChanges() || didFlush;
     for (let i = 0, len = this._meshViewAttributeTexture.length; i < len; i++) {
       didFlush = this._meshViewAttributeTexture[i].uploadChanges() || didFlush;
     }
-    didFlush = this._geometryQuantRangeTexture.uploadChanges() || didFlush;
     didFlush = this._geometryAttributeTexture.uploadChanges() || didFlush;
-    didFlush = this._edgeIndexTexture.uploadChanges() || didFlush;
-    didFlush = this._vertexPositionTexture.uploadChanges() || didFlush;
-    didFlush = this._vertexColorTexture.uploadChanges() || didFlush;
     if (this._vertexNormalTexture) {
       didFlush = this._vertexNormalTexture.uploadChanges() || didFlush;
     }
@@ -182512,58 +184890,32 @@ var GPUMemoryBatch = class {
       didFlush = this._vertexUVTexture.uploadChanges() || didFlush;
     }
     didFlush = this._meshMatrixTexture.uploadChanges() || didFlush;
-    const numViews = this._renderContext.memoryConfigs.maxViews;
-    for (let i = 0; i < numViews; i++) {
-      const primitiveMeshIndexTexture = this._primitiveMeshIndexTexture[i];
-      if (primitiveMeshIndexTexture) {
-        const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges();
-        didFlush = primitiveMeshIndexTextureFlushed || didFlush;
-        if (primitiveMeshIndexTextureFlushed) {
-          this.dataTextures.views[i].numDrawablePrims = primitiveMeshIndexTexture.numPrimitives;
-        }
-      }
-      const edgeMeshIndexTexture = this._edgeMeshIndexTexture[i];
-      if (edgeMeshIndexTexture) {
-        didFlush = edgeMeshIndexTexture.uploadChanges() || didFlush;
-      }
-    }
+    didFlush = this._geometryStorage.uploadChanges(this.batchResources) || didFlush;
     return didFlush;
   }
   webglContextRestored() {
-    const dataTextures = [
-      ...this._primitiveMeshIndexTexture,
-      ...this._edgeMeshIndexTexture,
+    const gl = this._renderContext.gl;
+    const geometryResult = this._geometryStorage.webglContextRestored(gl);
+    if (geometryResult.ok === false) {
+      return geometryResult;
+    }
+    const resources = [
       this._meshAttributeTexture,
-      this._linePatternTexture,
-      this._hatchPatternTexture,
-      this._polylineCumDistTexture,
       ...this._meshViewAttributeTexture,
       this._meshMatrixTexture,
       this._geometryAttributeTexture,
-      this._geometryQuantRangeTexture,
-      this._indexTexture,
-      this._edgeIndexTexture,
-      this._vertexPositionTexture,
-      this._vertexColorTexture,
       ...this._vertexNormalTexture ? [this._vertexNormalTexture] : [],
-      ...this._vertexUVTexture ? [this._vertexUVTexture] : [],
-      ...this._albedoAtlasTexture ? [this._albedoAtlasTexture] : [],
-      ...this._metallicRoughnessAtlasTexture ? [this._metallicRoughnessAtlasTexture] : [],
-      ...this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : [],
-      ...this._emissiveAtlasTexture ? [this._emissiveAtlasTexture] : [],
-      ...this._occlusionAtlasTexture ? [this._occlusionAtlasTexture] : []
+      ...this._vertexUVTexture ? [this._vertexUVTexture] : []
     ];
-    const gl = this._renderContext.gl;
-    for (const dataTexture of dataTextures) {
-      if (dataTexture && "gl" in dataTexture) {
-        dataTexture.gl = gl;
-      }
-      const result = dataTexture.webglContextRestored();
-      if (!result.ok) {
-        return result;
-      }
+    const resourceResult = restoreGPUResources(resources, gl);
+    if (resourceResult.ok === false) {
+      return resourceResult;
     }
-    return { ok: true, value: void 0 };
+    const patternResult = this._patternResources.webglContextRestored(gl);
+    if (patternResult.ok === false) {
+      return patternResult;
+    }
+    return this._materialResources.webglContextRestored(gl);
   }
   destroy() {
     const clear = (ref) => {
@@ -182574,120 +184926,19 @@ var GPUMemoryBatch = class {
       return ref;
     };
     this._onTick = clear(this._onTick);
-    for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
-      this._primitiveMeshIndexTexture[i].destroy();
-    }
-    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
-      this._edgeMeshIndexTexture[i].destroy();
-    }
-    this._primitiveMeshIndexTexture = [];
-    this._edgeMeshIndexTexture = [];
+    this._geometryStorage.destroy();
     this._meshAttributeTexture = clear(this._meshAttributeTexture);
-    this._linePatternTexture = clear(this._linePatternTexture);
-    this._hatchPatternTexture = clear(this._hatchPatternTexture);
-    this._polylineCumDistTexture = clear(this._polylineCumDistTexture);
+    this._patternResources.destroy();
     this._meshViewAttributeTexture = this._meshViewAttributeTexture.map(clear);
     this._geometryAttributeTexture = clear(this._geometryAttributeTexture);
-    this._geometryQuantRangeTexture = clear(this._geometryQuantRangeTexture);
-    this._indexTexture = clear(this._indexTexture);
-    this._edgeIndexTexture = clear(this._edgeIndexTexture);
-    this._vertexPositionTexture = clear(this._vertexPositionTexture);
-    this._vertexColorTexture = clear(this._vertexColorTexture);
     this._vertexNormalTexture = clear(this._vertexNormalTexture);
     this._vertexUVTexture = clear(this._vertexUVTexture);
-    this._albedoAtlasTexture = clear(this._albedoAtlasTexture);
-    this._metallicRoughnessAtlasTexture = clear(this._metallicRoughnessAtlasTexture);
-    this._normalMapAtlasTexture = clear(this._normalMapAtlasTexture);
+    this._materialResources.destroy();
     this._meshMatrixTexture = clear(this._meshMatrixTexture);
     this._meshHandles = {};
     this._meshIndicesByUniqueId = {};
     this._geometryHandles = {};
     this._sceneGeometries = {};
-    this._linePatternSlotsByMaterial.clear();
-    this._nextLinePatternSlot = 1;
-    this._hatchPatternSlotsByMaterial.clear();
-    this._nextHatchPatternSlot = 1;
-  }
-  /**
-   * Allocate or look up a {@link LinePatternTexture} slot for
-   * the supplied mesh's material. Returns `0` when:
-   *   - the mesh has no material attached, or
-   *   - the material's `linePattern` is the default (empty / solid),
-   *   - or the per-batch slot budget is exhausted (caps at
-   *     {@link MAX_LINE_PATTERN_SLOTS}).
-   *
-   * `0` is the "no per-mesh pattern" sentinel — the shader
-   * skips the lookup and falls back to the View-level
-   * `linesMaterial.linePattern` uniform.
-   *
-   * Slots are keyed on `material.uniqueId` so meshes that
-   * share a material share a slot. Slots are never freed
-   * during the batch's lifetime — the per-mesh cost of doing
-   * so (refcount bookkeeping, write-back on free) is more
-   * expensive than the 32 bytes of GPU storage a stale slot
-   * occupies.
-   */
-  _allocateLinePatternSlot(sceneMesh) {
-    const len = sceneMesh.effectiveLinePatternLen;
-    if (len === 0) {
-      return 0;
-    }
-    const entries = sceneMesh.effectiveLinePatternEntries;
-    const material = sceneMesh.material;
-    if (!entries || !material) {
-      return 0;
-    }
-    const key = material.uniqueId;
-    const existing = this._linePatternSlotsByMaterial.get(key);
-    if (existing !== void 0) {
-      return existing;
-    }
-    if (this._nextLinePatternSlot >= MAX_LINE_PATTERN_SLOTS) {
-      return 0;
-    }
-    const slot = this._nextLinePatternSlot++;
-    this._linePatternTexture.setSlot(slot, entries);
-    this._linePatternSlotsByMaterial.set(key, slot);
-    return slot;
-  }
-  /**
-   * Allocate or look up a {@link HatchPatternTexture} slot for
-   * the supplied mesh's material. Returns `0` when:
-   *   - the mesh has no material, or
-   *   - the material's `hatchPattern` is the default (no
-   *     families / count = 0), or
-   *   - the per-batch slot budget is exhausted (capped at
-   *     {@link MAX_HATCH_PATTERN_SLOTS}).
-   *
-   * Slot 0 is the "no hatch" sentinel — downstream consumers
-   * skip the lookup and render the surface without overlay.
-   * Slots are keyed on `material.uniqueId` so meshes that
-   * share a material share a slot, and never freed during the
-   * batch's lifetime.
-   */
-  _allocateHatchPatternSlot(sceneMesh) {
-    const count = sceneMesh.effectiveHatchPatternCount;
-    if (count === 0) {
-      return 0;
-    }
-    const families = sceneMesh.effectiveHatchPatternFamilies;
-    const color2 = sceneMesh.effectiveHatchPatternColor;
-    const material = sceneMesh.material;
-    if (!families || !color2 || !material) {
-      return 0;
-    }
-    const key = material.uniqueId;
-    const existing = this._hatchPatternSlotsByMaterial.get(key);
-    if (existing !== void 0) {
-      return existing;
-    }
-    if (this._nextHatchPatternSlot >= MAX_HATCH_PATTERN_SLOTS) {
-      return 0;
-    }
-    const slot = this._nextHatchPatternSlot++;
-    this._hatchPatternTexture.setSlot(slot, families, color2, sceneMesh.effectiveHatchPatternSpace);
-    this._hatchPatternSlotsByMaterial.set(key, slot);
-    return slot;
   }
   /**
    * Re-encode the pattern slots held for the supplied material.
@@ -182707,86 +184958,34 @@ var GPUMemoryBatch = class {
    * doesn't change.
    */
   updateMaterialPattern(material) {
-    const key = material.uniqueId;
-    let updated = false;
-    const lineSlot = this._linePatternSlotsByMaterial.get(key);
-    if (lineSlot !== void 0 && this._linePatternTexture) {
-      const entries = material._linePatternEntries;
-      const len = material._linePatternLen;
-      if (len > 0) {
-        this._linePatternTexture.setSlot(lineSlot, entries);
-      } else {
-        this._linePatternTexture.setSlot(lineSlot, EMPTY_LINE_PATTERN_ENTRIES);
-      }
-      updated = true;
-    }
-    const hatchSlot = this._hatchPatternSlotsByMaterial.get(key);
-    if (hatchSlot !== void 0 && this._hatchPatternTexture) {
-      const families = material._hatchPatternFamilies;
-      const color2 = material._hatchPatternColor;
-      const count = material._hatchPatternCount;
-      const space = material._hatchPatternSpace;
-      if (count > 0) {
-        this._hatchPatternTexture.setSlot(hatchSlot, families, color2, space);
-      } else {
-        this._hatchPatternTexture.setSlot(hatchSlot, EMPTY_HATCH_FAMILIES, EMPTY_HATCH_COLOR, 0);
-      }
-      updated = true;
-    }
-    return updated;
+    return this._patternResources.updateMaterialPattern(material);
   }
 };
-function computePolylineCumDist(indices, positionsCompressed, aabb) {
-  const numSegments = indices.length / 2 | 0;
-  if (numSegments <= 0) {
-    return new Float32Array(0);
+function getSceneGeometryPrimitiveCount(sceneGeometry) {
+  if (sceneGeometry.primitive === PointsPrimitive) {
+    return sceneGeometry.positionsCompressed.length / 3 | 0;
   }
-  const xMin = aabb[0], yMin = aabb[1], zMin = aabb[2];
-  const xMax = aabb[3], yMax = aabb[4], zMax = aabb[5];
-  const sx = (xMax - xMin) / 65535;
-  const sy = (yMax - yMin) / 65535;
-  const sz = (zMax - zMin) / 65535;
-  const pos = (vertexIdx, out2) => {
-    const o = vertexIdx * 3;
-    out2[0] = xMin + positionsCompressed[o] * sx;
-    out2[1] = yMin + positionsCompressed[o + 1] * sy;
-    out2[2] = zMin + positionsCompressed[o + 2] * sz;
-  };
-  const out = new Float32Array(numSegments);
-  const pA = [0, 0, 0];
-  const pB = [0, 0, 0];
-  let prevEndIdx = -1;
-  let cumDist = 0;
-  let prevLen = 0;
-  for (let i = 0; i < numSegments; i++) {
-    const aIdx = indices[i * 2];
-    const bIdx = indices[i * 2 + 1];
-    if (aIdx === prevEndIdx) {
-      cumDist += prevLen;
-    } else {
-      cumDist = 0;
-    }
-    out[i] = cumDist;
-    pos(aIdx, pA);
-    pos(bIdx, pB);
-    const dx = pB[0] - pA[0];
-    const dy = pB[1] - pA[1];
-    const dz = pB[2] - pA[2];
-    prevLen = Math.sqrt(dx * dx + dy * dy + dz * dz);
-    prevEndIdx = bIdx;
+  if (sceneGeometry.primitive === LinesPrimitive) {
+    return (sceneGeometry.indices?.length ?? 0) / 2 | 0;
   }
-  return out;
+  return (sceneGeometry.indices?.length ?? 0) / 3 | 0;
 }
 
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/GPUMemoryManager.ts
 var import_strongly_typed_events17 = __toESM(require_dist8());
-var GPUMemoryManager = class {
+var GPUMemoryManager = class _GPUMemoryManager {
   /**
-   * Data texture bundle exposed for internal consumers (eg. render passes/shaders).
+   * GPU resource bundle exposed for internal consumers (eg. render passes/shaders).
    *
    * Populated after {@link init} succeeds. Set back to `null` after {@link destroy}.
    */
   dataTextures = null;
+  /**
+   * Preferred name for the renderer's GPU resource bundle.
+   */
+  get gpuResources() {
+    return this.dataTextures;
+  }
   /** GPU memory batches, appended in creation order. */
   _batches = [];
   /** Shared renderer context (gl, viewer, configs, etc.). */
@@ -182815,7 +185014,7 @@ var GPUMemoryManager = class {
    * - `viewTileCameraMatrixTexture[0..3]` mapping tileIndex -> camera view matrix per view
    * - `viewTilePickMatrixTexture[0..3]` mapping tileIndex -> pick matrix per view
    * - A {@link GPUTileManager} for tile allocation and matrix updates
-   * - The {@link dataTextures} bundle used by render code
+   * - The {@link gpuResources} bundle used by render code
    *
    * @returns {@link base!core.SDKResult | SDKResult} that is `ok:true` when initialization succeeds, or `ok:false`
    * when texture allocation fails (typically due to GPU memory limits).
@@ -182889,14 +185088,7 @@ var GPUMemoryManager = class {
       ...this._batches
     ];
     const gl = this._renderContext.gl;
-    for (const contextUser of contextUsers) {
-      contextUser.setWebGLContext?.(gl);
-      const result = contextUser.webglContextRestored();
-      if (!result.ok) {
-        return result;
-      }
-    }
-    return { ok: true, value: void 0 };
+    return restoreGPUResources(contextUsers, gl);
   }
   /**
    * Returns GPU memory usage in megabytes, derived from allocated/used byte totals.
@@ -182952,16 +185144,16 @@ var GPUMemoryManager = class {
    *
    * Useful for debugging/telemetry and rough capacity planning.
    */
-  static get itemSizesInBytes() {
-    const numViews = 4;
+  static getItemSizesInBytes(numViews = 1) {
     return Object.assign(
       {
-        tile: MatrixTexture.itemSizeInBytes * numViews + // view matrices for 4 views
-        MatrixTexture.itemSizeInBytes * numViews
-        // pick matrices for 4 views
+        tile: MatrixTexture.itemSizeInBytes * numViews + MatrixTexture.itemSizeInBytes * numViews
       },
-      GPUMemoryBatch.itemSizesInBytes
+      GPUMemoryBatch.getItemSizesInBytes(numViews)
     );
+  }
+  static get itemSizesInBytes() {
+    return _GPUMemoryManager.getItemSizesInBytes();
   }
   /**
    * Uploads all pending CPU-side changes to GPU textures/buffers.
@@ -183041,8 +185233,8 @@ var GPUMemoryManager = class {
   /**
    * Creates and allocates a new GPU memory batch.
    *
-   * The created {@link GPUMemoryBatch} is appended to {@link dataTextures.batches} and
-   * {@link DataTextures.onBatchCreated} is dispatched.
+   * The created {@link GPUMemoryBatch} is appended to {@link gpuResources.batches} and
+   * {@link RendererGPUResources.onBatchCreated} is dispatched.
    *
    * @returns {@link base!core.SDKResult | SDKResult} containing the new batch index, or `ok:false` if allocation fails.
    */
@@ -183066,8 +185258,9 @@ var GPUMemoryManager = class {
       };
     }
     this._batches.push(gpuMemoryBatch);
-    this.dataTextures.batches.push(gpuMemoryBatch.dataTextures);
-    this.dataTextures.onBatchCreated.dispatch(this.dataTextures, void 0);
+    const gpuResources = this.gpuResources;
+    gpuResources.batches.push(gpuMemoryBatch.batchResources);
+    gpuResources.onBatchCreated.dispatch(gpuResources, void 0);
     return { ok: true, value: index };
   }
   /**
@@ -183080,6 +185273,20 @@ var GPUMemoryManager = class {
     const gpuMemoryBatch = this._batches[batchIndex];
     return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : 2 /* NoGeometry */;
   }
+  beginBulkMeshAdd(batchIndex, stats) {
+    const gpuMemoryBatch = this._batches[batchIndex];
+    if (!gpuMemoryBatch) {
+      throw new SDKInternalException("[GPUMemoryManager.beginBulkMeshAdd] Invalid batch index.");
+    }
+    gpuMemoryBatch.beginBulkMeshAdd(stats);
+  }
+  endBulkMeshAdd(batchIndex, stats) {
+    const gpuMemoryBatch = this._batches[batchIndex];
+    if (!gpuMemoryBatch) {
+      throw new SDKInternalException("[GPUMemoryManager.endBulkMeshAdd] Invalid batch index.");
+    }
+    gpuMemoryBatch.endBulkMeshAdd(stats);
+  }
   /**
    * Adds a {@link model!scene.SceneMesh | SceneMesh} to a batch and returns a {@link GPUMemoryMeshHandle} used for updates.
    *
@@ -183090,12 +185297,12 @@ var GPUMemoryManager = class {
    *
    * @throws {@link base!core.SDKInternalException | SDKInternalException} If the batch index is invalid.
    */
-  addMesh(batchIndex, sceneMesh) {
+  addMesh(batchIndex, sceneMesh, placement, stats) {
     const gpuMemoryBatch = this._batches[batchIndex];
     if (!gpuMemoryBatch) {
       throw new SDKInternalException("[GPUMemoryManager.addMesh] Invalid batch index.");
     }
-    const meshIdxResult = gpuMemoryBatch.addMesh(sceneMesh);
+    const meshIdxResult = gpuMemoryBatch.addMesh(sceneMesh, placement, stats);
     if (meshIdxResult.ok === false) {
       return meshIdxResult;
     }
@@ -183189,6 +185396,13 @@ var GPUMemoryManager = class {
       throw new SDKInternalException("[GPUMemoryManager.setMeshAttribs] Invalid batch index in mesh handle.");
     }
     batch.setMeshAttribs(meshHandle.meshIndex, params);
+  }
+  setMeshPlacement(meshHandle, placement) {
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
+    if (!batch) {
+      throw new SDKInternalException("[GPUMemoryManager.setMeshPlacement] Invalid batch index in mesh handle.");
+    }
+    batch.setMeshPlacement(meshHandle.meshIndex, placement);
   }
   /**
    * Sets per-view attributes for a mesh.
@@ -183336,6 +185550,8 @@ var GPUMemoryManager = class {
     this._numMeshes = 0;
     this._batches.length = 0;
     this.dataTextures = null;
+    this._tileManager?.destroy();
+    this._tileManager = void 0;
     const clear = (ref) => {
       if (ref) {
         ref.destroy();
@@ -183371,19 +185587,22 @@ var RendererMesh = class {
     meshBatch,
     renderContext,
     gpuMemoryManager,
-    meshHandle
+    meshHandle,
+    gpuTile
   }) {
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
-    this.gpuTile = null;
+    this.gpuTile = gpuTile ?? null;
     const initialFlags = 8 /* ObjectVisible */ | 16 /* MeshVisible */;
     this._numViews = renderContext.memoryConfigs.maxViews;
     this._viewFlags0 = initialFlags;
     this._viewFlags = this._numViews > 1 ? new Uint8Array(this._numViews) : null;
     this._viewFlags?.fill(initialFlags);
-    this.setMatrix(sceneMesh.worldMatrix);
+    if (!this.gpuTile) {
+      this.setMatrix(sceneMesh.worldMatrix);
+    }
     this.setOpacity(sceneMesh.effectiveOpacity);
   }
   _hasFlag(viewIndex, flag) {
@@ -183425,12 +185644,9 @@ var RendererMesh = class {
     const center = transformPoint4(matrix, identityVec4, tempVec4a7);
     const oldTile = this.gpuTile;
     this.gpuTile = oldTile ? this._gpuMemoryManager.moveTile(oldTile, center) : this._gpuMemoryManager.getTile(center);
-    if (!oldTile || oldTile.id !== this.gpuTile.id) {
-      this._meshBatch.setMeshTile(this._meshHandle, this.gpuTile.tileIndex);
-    }
     const relativeMatrix3 = createMat4Float64(matrix);
     relativeMatrix3.set(subVec3(center, this.gpuTile.center), 12);
-    this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix3);
+    this._meshBatch.setMeshPlacement(this._meshHandle, this.gpuTile.tileIndex, relativeMatrix3);
   }
   /**
    * Sets the color of the mesh, updating the color in all views that are not currently overridden by view-specific colorization.
@@ -183622,7 +185838,31 @@ __export(gpuMemoryManager_exports, {
   GPUTileManager: () => GPUTileManager,
   MAX_HATCH_PATTERN_SLOTS: () => MAX_HATCH_PATTERN_SLOTS,
   MAX_LINE_PATTERN_SLOTS: () => MAX_LINE_PATTERN_SLOTS,
-  dataTextures: () => DataTextures_exports
+  dataTextures: () => dataTextures_exports,
+  geometry: () => geometry_exports
+});
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/dataTextures/index.ts
+var dataTextures_exports = {};
+__export(dataTextures_exports, {
+  DataTexture: () => DataTexture,
+  GeometryAttributeTexture: () => GeometryAttributeTexture,
+  GeometryQuantRangeTexture: () => GeometryQuantRangeTexture,
+  HatchPatternTexture: () => HatchPatternTexture,
+  IndexTexture: () => IndexTexture,
+  ItemDataTexture: () => ItemDataTexture,
+  LinePatternTexture: () => LinePatternTexture,
+  MatrixTexture: () => MatrixTexture,
+  MeshAttributeTexture: () => MeshAttributeTexture,
+  MeshViewAttributeTexture: () => MeshViewAttributeTexture,
+  PolylineCumDistTexture: () => PolylineCumDistTexture,
+  PortionDataTexture: () => PortionDataTexture,
+  PrimitiveMeshIndexTexture: () => PrimitiveMeshIndexTexture,
+  TextureAtlas: () => TextureAtlas,
+  VertexColorTexture: () => VertexColorTexture,
+  VertexNormalTexture: () => VertexNormalTexture,
+  VertexPositionTexture: () => VertexPositionTexture,
+  VertexUVTexture: () => VertexUVTexture
 });
 
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/MeshBatchImpl.ts
@@ -183645,6 +185885,10 @@ var MeshBatchImpl = class {
    * Primitive type of the meshes in this batch.
    */
   primitive;
+  /**
+   * Geometry storage used by this batch.
+   */
+  geometryStorage;
   /**
    * Whether the geometries in this batch carry per-vertex normals.
    *
@@ -183726,7 +185970,7 @@ var MeshBatchImpl = class {
    * @param batchParams
    */
   constructor(batchParams) {
-    const { renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar, mipmap, bin } = batchParams;
+    const { renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin } = batchParams;
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
@@ -183735,9 +185979,10 @@ var MeshBatchImpl = class {
     this.hasUVs = hasUVs === true;
     this.triplanar = triplanar === true;
     this.mipmap = mipmap === true;
+    this.geometryStorage = geometryStorage;
     this.bin = bin;
     this.primBaseIndex = 0;
-    this.sortId = `batch-${primitive}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}-${this.mipmap ? "m" : "0"}-${this.bin ?? ""}`;
+    this.sortId = `batch-${primitive}-${this.geometryStorage}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}-${this.mipmap ? "m" : "0"}-${this.bin ?? ""}`;
     this.numIndices = 0;
     this.numVertices = 0;
     this.saoSupported = primitive === TrianglesPrimitive;
@@ -183747,7 +185992,7 @@ var MeshBatchImpl = class {
    * A hash string representing this batch, used for quick comparisons.
    */
   get hash() {
-    return `${this.primitive}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}-${this.mipmap ? 1 : 0}`;
+    return `${this.primitive}-${this.geometryStorage}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}-${this.mipmap ? 1 : 0}`;
   }
   /**
    * Checks if there are any meshes in this batch that should be rendered in the specified render pass for the given view.
@@ -183757,21 +186002,21 @@ var MeshBatchImpl = class {
    * @returns True if there are meshes to render in the specified pass, false otherwise.
    */
   hasMeshesInRenderPass(viewIndex, renderPass) {
-    const batchDataTextures = this._gpuMemoryManager.dataTextures.batches[this.gpuMemoryBatchIndex];
-    if (!batchDataTextures) {
+    const batchResources = this._gpuMemoryManager.gpuResources?.batches[this.gpuMemoryBatchIndex];
+    if (!batchResources) {
       return false;
     }
-    const batchViewDataTextures = batchDataTextures.views[viewIndex];
-    if (!batchViewDataTextures) {
+    const batchViewResources = batchResources.views[viewIndex];
+    if (!batchViewResources) {
       return false;
     }
     if (renderPass === RENDER_PASSES.PICK || renderPass === RENDER_PASSES.SNAP_INIT) {
-      return batchViewDataTextures.pickPrimitiveRange.numPrims > 0;
+      return batchViewResources.pickPrimitiveRange.numPrims > 0;
     }
     if (renderPass === RENDER_PASSES.SNAP) {
-      return this.primitive === LinesPrimitive ? batchViewDataTextures.pickPrimitiveRange.numPrims > 0 : batchViewDataTextures.pickEdgePrimitiveRange.numPrims > 0;
+      return this.primitive === LinesPrimitive ? batchViewResources.pickPrimitiveRange.numPrims > 0 : batchViewResources.pickEdgePrimitiveRange.numPrims > 0;
     }
-    return batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass)?.numPrims > 0;
+    return batchViewResources.renderPassPrimitiveRanges.get(renderPass)?.numPrims > 0;
   }
   /**
    * Checks if there are any meshes in this batch that should be rendered in the edge render pass for the given view.
@@ -183781,7 +186026,7 @@ var MeshBatchImpl = class {
    * @return True if there are meshes to render in the edge render pass, false otherwise.
    */
   hasMeshesInEdgeRenderPass(viewIndex, renderPass) {
-    return this._gpuMemoryManager.dataTextures.batches[this.gpuMemoryBatchIndex]?.views[viewIndex]?.renderPassEdgePrimitiveRanges.get(renderPass)?.numPrims > 0;
+    return this._gpuMemoryManager.gpuResources?.batches[this.gpuMemoryBatchIndex]?.views[viewIndex]?.renderPassEdgePrimitiveRanges.get(renderPass)?.numPrims > 0;
   }
   /**
    * Determines if a mesh can be added to this batch based on available GPU memory.
@@ -183792,14 +186037,20 @@ var MeshBatchImpl = class {
   canAddMesh(sceneMesh) {
     return this._gpuMemoryManager.hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
   }
+  beginBulkMeshAdd(stats) {
+    this._gpuMemoryManager.beginBulkMeshAdd(this.gpuMemoryBatchIndex, stats);
+  }
+  endBulkMeshAdd(stats) {
+    this._gpuMemoryManager.endBulkMeshAdd(this.gpuMemoryBatchIndex, stats);
+  }
   /**
    * Adds a mesh to the batch, updates the mesh counts, and allocates GPU memory for it.
    *
    * @param sceneMesh - The SceneMesh to add.
    * @returns A handle to the added mesh in the batch's GPU memory.
    */
-  addMesh(sceneMesh) {
-    const gpuMeshHandleResult = this._gpuMemoryManager.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
+  addMesh(sceneMesh, placement, stats) {
+    const gpuMeshHandleResult = this._gpuMemoryManager.addMesh(this.gpuMemoryBatchIndex, sceneMesh, placement, stats);
     if (gpuMeshHandleResult.ok) {
       this.numIndices += getMeshIndexCount(sceneMesh);
       this.numVertices += getMeshVertexCount(sceneMesh);
@@ -183963,6 +186214,15 @@ var MeshBatchImpl = class {
    */
   setMeshMatrix(meshHandle, rtcMatrix) {
     this._gpuMemoryManager.setMeshMatrix(meshHandle, rtcMatrix);
+  }
+  /**
+   * Sets the tile and tile-relative matrix for a mesh together.
+   */
+  setMeshPlacement(meshHandle, tileIndex, rtcMatrix) {
+    this._gpuMemoryManager.setMeshPlacement(meshHandle, {
+      tileIndex,
+      rtcMatrix
+    });
   }
   /**
    * Sets the tile tileIndex for a mesh.
@@ -184249,8 +186509,170 @@ var RendererSplatMesh = class {
   }
 };
 
+// ../sdk/src/viewing/webGLRenderer/internal/TriangleGeometryRenderPathConfig.ts
+var TRIANGLE_VBO_GEOMETRY_DRAWTECHNIQUES_FLAG = "XEOKIT_WEBGL_DRAWTECHNIQUE_VBO_GEOMETRY";
+function shouldUseTriangleVBOGeometry(view) {
+  const configured = readOptionalBooleanFlag(TRIANGLE_VBO_GEOMETRY_DRAWTECHNIQUES_FLAG);
+  if (configured !== null) {
+    return configured;
+  }
+  return getConfiguredOpaqueTriangleRenderPath(view) !== "dtx-only";
+}
+function shouldUseTriangleVBOGeometryDrawTechnique(view) {
+  return shouldUseTriangleVBOGeometry(view);
+}
+function getConfiguredTriangleGeometryStorage(view) {
+  return shouldUseTriangleVBOGeometry(view) ? "vbo" : "dtx";
+}
+function getConfiguredOpaqueTriangleRenderPath(view) {
+  const forcedPath = readOpaqueTriangleRenderPath("XEOKIT_WEBGL_OPAQUE_TRIANGLES_RENDER_PATH");
+  if (forcedPath) {
+    return forcedPath;
+  }
+  if (view?.renderMode === NavigationRender) {
+    const navigationPath = readOpaqueTriangleRenderPath("XEOKIT_WEBGL_OPAQUE_TRIANGLES_NAVIGATION_RENDER_PATH");
+    if (navigationPath) {
+      return navigationPath;
+    }
+  }
+  if (readBooleanFlag("XEOKIT_WEBGL_VBO_OPAQUE_TRIANGLES")) {
+    const path = readOpaqueTriangleRenderPath("XEOKIT_WEBGL_VBO_OPAQUE_TRIANGLES_MODE");
+    return path === "vbo-only" ? "vbo-only" : "hybrid";
+  }
+  return "hybrid";
+}
+function readOpaqueTriangleRenderPath(key) {
+  const root = globalThis;
+  const globalValue = normalizeOpaqueTriangleRenderPath(root[key]);
+  if (globalValue) {
+    return globalValue;
+  }
+  try {
+    return normalizeOpaqueTriangleRenderPath(root.localStorage?.getItem(key));
+  } catch (_e) {
+    return null;
+  }
+}
+function normalizeOpaqueTriangleRenderPath(value) {
+  if (value === "dtx-only" || value === "hybrid" || value === "vbo-only" || value === "vbo-first") {
+    return value;
+  }
+  if (value === "vboFirst") {
+    return "vbo-first";
+  }
+  if (value === "baked") {
+    return "vbo-only";
+  }
+  if (value === "dtx") {
+    return "dtx-only";
+  }
+  return null;
+}
+function readBooleanFlag(key) {
+  const root = globalThis;
+  const globalValue = root[key];
+  if (globalValue === true || globalValue === "true" || globalValue === "1") {
+    return true;
+  }
+  try {
+    const localValue = root.localStorage?.getItem(key);
+    return localValue === "true" || localValue === "1";
+  } catch (_e) {
+    return false;
+  }
+}
+function readOptionalBooleanFlag(key) {
+  const root = globalThis;
+  const globalValue = root[key];
+  if (globalValue === true || globalValue === "true" || globalValue === "1" || globalValue === 1) {
+    return true;
+  }
+  if (globalValue === false || globalValue === "false" || globalValue === "0" || globalValue === 0) {
+    return false;
+  }
+  try {
+    const localValue = root.localStorage?.getItem(key);
+    if (localValue === "true" || localValue === "1") {
+      return true;
+    }
+    if (localValue === "false" || localValue === "0") {
+      return false;
+    }
+    return null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/meshManager/TriangleGeometryStoragePolicy.ts
+function selectTriangleGeometryStorage(renderContext, sceneMesh) {
+  if (sceneMesh.geometry.primitive !== TrianglesPrimitive) {
+    return "dtx";
+  }
+  const configured = renderContext.memoryConfigs?.triangleGeometryStorage ?? "auto";
+  if (configured === "dtx" || configured === "vbo") {
+    return configured;
+  }
+  const hinted = getTriangleGeometryStorageForUpdateHint(sceneMesh.model?.updateHint);
+  if (hinted) {
+    return hinted;
+  }
+  return getConfiguredTriangleGeometryStorage(renderContext.activeView);
+}
+function getTriangleGeometryStorageForUpdateHint(updateHint) {
+  switch (updateHint) {
+    case "static":
+      return "vbo";
+    case "dynamic":
+      return "dtx";
+    default:
+      return null;
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/meshManager/MeshManagerStepStats.ts
+function createMeshManagerStepStats() {
+  return {
+    getMeshBatchMs: 0,
+    getMeshBatchCalls: 0,
+    batchScanIters: 0,
+    newBatches: 0,
+    meshPlacementMs: 0,
+    meshPlacementCalls: 0,
+    bulkMeshFlushes: 0,
+    bulkMeshFlushMeshes: 0,
+    batchAddMeshMs: 0,
+    batchAddMeshCalls: 0,
+    rendererMeshCtorMs: 0,
+    rendererMeshCtorCalls: 0,
+    gpuAddMeshMs: 0,
+    gpuAddMeshCalls: 0,
+    gpuCreateGeometryHandleMs: 0,
+    gpuCreateGeometryHandleCalls: 0,
+    gpuWriteMeshAttributesMs: 0,
+    gpuInitMeshViewAttributesMs: 0,
+    gpuWriteMeshMatrixMs: 0,
+    gpuCreateGeometryMeshHandleMs: 0,
+    gpuCreateMeshRecordMs: 0,
+    vboAddMeshMs: 0,
+    vboAddMeshCalls: 0,
+    vboBulkAddMeshCalls: 0,
+    vboBulkScopes: 0,
+    vboWriteGeometryMs: 0,
+    vboWriteGeometryCalls: 0,
+    vboPackVerticesMs: 0,
+    vboPackEdgesMs: 0,
+    vboWriteColorsMs: 0,
+    vboWriteIndexSlotsMs: 0,
+    vboRefreshRangesMs: 0,
+    vboRefreshRangesCalls: 0
+  };
+}
+
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/MeshManager.ts
 var MAX_SPLATS_PER_BATCH = 15e5;
+var identityVec42 = createVec4Float64([0, 0, 0, 1]);
+var tempPlacementCenter = createVec4Float64();
 var MeshManager = class {
   /**
    * Renderer objects keyed by {@link SceneObject.id}.
@@ -184301,16 +186723,7 @@ var MeshManager = class {
    *
    * @internal
    */
-  _stepStats = {
-    getMeshBatchMs: 0,
-    getMeshBatchCalls: 0,
-    batchScanIters: 0,
-    newBatches: 0,
-    batchAddMeshMs: 0,
-    batchAddMeshCalls: 0,
-    rendererMeshCtorMs: 0,
-    rendererMeshCtorCalls: 0
-  };
+  _stepStats = createMeshManagerStepStats();
   /**
    * Creates a {@link MeshManager}.
    *
@@ -184403,6 +186816,28 @@ var MeshManager = class {
       return this._addSplatMesh(sceneMesh);
     }
     return this._addMesh(sceneMesh);
+  }
+  sceneMeshesCreated(sceneMeshes) {
+    const stats = this._stepStatsEnabled ? this._stepStats : null;
+    if (stats) {
+      stats.bulkMeshFlushes++;
+      stats.bulkMeshFlushMeshes += sceneMeshes.length;
+    }
+    const bulkBatches = /* @__PURE__ */ new Set();
+    let firstError = null;
+    try {
+      for (const sceneMesh of sceneMeshes) {
+        const result = sceneMesh.geometry.primitive === GaussianSplatsPrimitive ? this._addSplatMesh(sceneMesh) : this._addMesh(sceneMesh, bulkBatches);
+        if (result.ok === false && firstError === null) {
+          firstError = result;
+        }
+      }
+    } finally {
+      for (const meshBatch of bulkBatches) {
+        meshBatch.endBulkMeshAdd(stats);
+      }
+    }
+    return firstError ?? { ok: true, value: void 0 };
   }
   /**
    * Unregisters a {@link model!scene.SceneMesh | SceneMesh}.
@@ -184516,7 +186951,7 @@ var MeshManager = class {
    *
    * @param sceneMesh - The mesh to register.
    */
-  _addMesh(sceneMesh) {
+  _addMesh(sceneMesh, bulkBatches) {
     const meshGlobalId = sceneMesh.uniqueId;
     if (this._rendererMeshes[meshGlobalId]) {
       return {
@@ -184536,13 +186971,24 @@ var MeshManager = class {
       return meshBatchResult;
     }
     const meshBatch = meshBatchResult.value;
+    if (bulkBatches && !bulkBatches.has(meshBatch)) {
+      meshBatch.beginBulkMeshAdd(stats);
+      bulkBatches.add(meshBatch);
+    }
+    const tPlacement = stats ? performance.now() : 0;
+    const placement = this._createMeshTilePlacement(sceneMesh);
+    if (stats) {
+      stats.meshPlacementMs += performance.now() - tPlacement;
+      stats.meshPlacementCalls++;
+    }
     const t1 = stats ? performance.now() : 0;
-    const meshResult = meshBatch.addMesh(sceneMesh);
+    const meshResult = meshBatch.addMesh(sceneMesh, placement, stats);
     if (stats) {
       stats.batchAddMeshMs += performance.now() - t1;
       stats.batchAddMeshCalls++;
     }
     if (meshResult.ok === false) {
+      this._gpuMemoryManager.putTile(placement.gpuTile);
       return meshResult;
     }
     const meshHandle = meshResult.value;
@@ -184552,7 +186998,8 @@ var MeshManager = class {
       sceneMesh,
       meshBatch,
       gpuMemoryManager: this._gpuMemoryManager,
-      meshHandle
+      meshHandle,
+      gpuTile: placement.gpuTile
     });
     this._rendererMeshes[meshGlobalId] = rendererMesh;
     if (stats) {
@@ -184560,6 +187007,17 @@ var MeshManager = class {
       stats.rendererMeshCtorCalls++;
     }
     return { ok: true, value: rendererMesh };
+  }
+  _createMeshTilePlacement(sceneMesh) {
+    const center = transformPoint4(sceneMesh.worldMatrix, identityVec42, tempPlacementCenter);
+    const gpuTile = this._gpuMemoryManager.getTile(center);
+    const rtcMatrix = createMat4Float64(sceneMesh.worldMatrix);
+    rtcMatrix.set(subVec3(center, gpuTile.center), 12);
+    return {
+      gpuTile,
+      tileIndex: gpuTile.tileIndex,
+      rtcMatrix
+    };
   }
   /**
    * Registers a gaussian-splat {@link SceneMesh} into the dedicated
@@ -184655,9 +187113,10 @@ var MeshManager = class {
     const hasUVs = !!sceneMesh.geometry.uvsCompressed;
     const triplanar = !hasUVs && _materialHasAnyTexture(sceneMesh);
     const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
+    const geometryStorage = selectTriangleGeometryStorage(this._renderContext, sceneMesh);
     const bin = sceneMesh.bin;
     const stats = this._stepStatsEnabled ? this._stepStats : null;
-    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, bin);
+    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin);
     const compatibleBatches = this._batchesByKey.get(key);
     const len = compatibleBatches?.length ?? 0;
     let iters = 0;
@@ -184676,7 +187135,7 @@ var MeshManager = class {
       stats.batchScanIters += iters;
       stats.newBatches++;
     }
-    const result = this._gpuMemoryManager.createBatch({ hasNormals, hasUVs, triplanar, mipmap });
+    const result = this._gpuMemoryManager.createBatch({ primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage });
     if (result.ok === false) {
       return result;
     }
@@ -184687,6 +187146,7 @@ var MeshManager = class {
       hasUVs,
       triplanar,
       mipmap,
+      geometryStorage,
       bin,
       renderContext: this._renderContext,
       gpuMemoryManager: this._gpuMemoryManager,
@@ -184701,9 +187161,9 @@ var MeshManager = class {
     this._batchesDirty = true;
     return { ok: true, value: newMeshBatch };
   }
-  _getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, bin) {
+  _getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin) {
     const binKey = bin === void 0 ? "u" : `s${bin}`;
-    return `${primitive}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
+    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
   }
   /**
    * Unregisters a {@link model!scene.SceneObject | SceneObject}.
@@ -185109,16 +187569,7 @@ var MeshManager = class {
    * @internal
    */
   resetStepStats() {
-    this._stepStats = {
-      getMeshBatchMs: 0,
-      getMeshBatchCalls: 0,
-      batchScanIters: 0,
-      newBatches: 0,
-      batchAddMeshMs: 0,
-      batchAddMeshCalls: 0,
-      rendererMeshCtorMs: 0,
-      rendererMeshCtorCalls: 0
-    };
+    this._stepStats = createMeshManagerStepStats();
   }
   /**
    * Returns a snapshot of the current step-stats counters. Safe to
@@ -185142,6 +187593,124 @@ function _materialHasMippedTexture(sceneMesh) {
   if (!m)
     return false;
   return !!(m.colorTexture && m.colorTexture.mipmap === true || m.metallicRoughnessTexture && m.metallicRoughnessTexture.mipmap === true || m.normalsTexture && m.normalsTexture.mipmap === true || m.occlusionTexture && m.occlusionTexture.mipmap === true || m.emissiveTexture && m.emissiveTexture.mipmap === true);
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/DrawTechniqueGeometryBinding.ts
+var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
+  kind;
+  drawRange;
+  _params;
+  _primitiveMeshIndexTexture;
+  _vboDrawState;
+  constructor(params) {
+    this.kind = params.kind;
+    this.drawRange = params.drawRange;
+    this._params = params.bindingParams;
+    this._primitiveMeshIndexTexture = params.primitiveMeshIndexTexture;
+    this._vboDrawState = params.vboDrawState ?? null;
+  }
+  get inspectorRange() {
+    return this._vboDrawState?.primRange ?? this.drawRange;
+  }
+  static resolve(params) {
+    const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
+    const batchViewResources = batchResources.views[viewIndex];
+    const primitiveMeshIndexTexture = edges ? batchViewResources.edgeMeshIndexTexture : batchViewResources.primitiveMeshIndexTexture;
+    const drawRange = snap ? edges ? batchViewResources.pickEdgePrimitiveRange : batchViewResources.pickPrimitiveRange : edges ? batchViewResources.renderPassEdgePrimitiveRanges.get(renderPass) : picking ? batchViewResources.pickPrimitiveRange : batchViewResources.renderPassPrimitiveRanges.get(renderPass);
+    if (!drawRange || drawRange.numPrims === 0) {
+      return null;
+    }
+    const useVBOGeometry = params.vboGeometry && params.primitive === TrianglesPrimitive && !params.thickLines;
+    if (useVBOGeometry) {
+      const vboDrawState = getVBODrawState(params);
+      return vboDrawState ? new _DrawTechniqueGeometryBinding({
+        kind: "vbo",
+        drawRange,
+        bindingParams: params,
+        vboDrawState
+      }) : null;
+    }
+    if (!hasDTXGeometryResources(params, primitiveMeshIndexTexture)) {
+      return null;
+    }
+    return new _DrawTechniqueGeometryBinding({
+      kind: "dtx",
+      drawRange,
+      bindingParams: params,
+      primitiveMeshIndexTexture
+    });
+  }
+  bindGeometryTextures(samplers, bindTexture2) {
+    if (this.kind !== "dtx") {
+      return;
+    }
+    const batchResources = this._params.batchResources;
+    bindTexture2(samplers.primitiveMeshIndex, this._primitiveMeshIndexTexture);
+    bindTexture2(samplers.vertexPositionTexture, batchResources.vertexPositionTexture);
+    bindTexture2(samplers.vertexColorTexture, batchResources.vertexColorTexture);
+    bindTexture2(samplers.meshMatrixTexture, batchResources.meshMatrixTexture);
+    bindTexture2(samplers.geometryQuantRangeTexture, batchResources.geometryQuantRangeTexture);
+    bindTexture2(
+      samplers.indexTexture,
+      this._params.edges ? batchResources.edgeIndexTexture : batchResources.indexTexture
+    );
+  }
+  draw(gl, drawInspector) {
+    const { primitive, snap, edges, thickLines } = this._params;
+    const drawRange = this.drawRange;
+    switch (primitive) {
+      case TrianglesPrimitive:
+        if (this.kind === "vbo") {
+          const vboDrawState = this._vboDrawState;
+          const drawMode = snap === 1 ? gl.POINTS : snap === 2 || edges ? gl.LINES : gl.TRIANGLES;
+          gl.bindVertexArray(vboDrawState.vao);
+          gl.drawElements(drawMode, vboDrawState.indexCount, gl.UNSIGNED_INT, vboDrawState.firstIndex * 4);
+          gl.bindVertexArray(null);
+          drawInspector?.vboGeometryTriangles({
+            handledBatches: 1,
+            handledPrims: vboDrawState.primRange.numPrims
+          });
+        } else if (snap === 1) {
+          gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else if (edges && thickLines) {
+          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
+        } else if (snap === 2 || edges) {
+          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else {
+          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
+        }
+        break;
+      case LinesPrimitive:
+        if (snap === 1) {
+          gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else if (snap === 2) {
+          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else if (thickLines) {
+          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
+        } else {
+          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        }
+        break;
+      case PointsPrimitive:
+        gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
+        break;
+      default:
+        return {
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: `[DrawTechniqueGeometryBinding.draw] Unsupported Batch primitive type: ${primitive}`
+        };
+    }
+    return { ok: true, value: void 0 };
+  }
+};
+function getVBODrawState(params) {
+  const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
+  return (picking ? batchResources.triangleGeometryVBO?.getPickDrawState(viewIndex, "hybrid") : snap ? edges ? batchResources.triangleGeometryVBO?.getPickEdgeDrawState(viewIndex, "hybrid") : batchResources.triangleGeometryVBO?.getPickDrawState(viewIndex, "hybrid") : edges ? batchResources.triangleGeometryVBO?.getEdgeDrawState(viewIndex, renderPass, "hybrid") : batchResources.triangleGeometryVBO?.getDrawState(viewIndex, renderPass, "hybrid")) ?? null;
+}
+function hasDTXGeometryResources(params, primitiveMeshIndexTexture) {
+  const batchResources = params.batchResources;
+  return !!primitiveMeshIndexTexture && !!batchResources.vertexPositionTexture && !!batchResources.vertexColorTexture && !!batchResources.geometryQuantRangeTexture && !!(params.edges ? batchResources.edgeIndexTexture : batchResources.indexTexture);
 }
 
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/DrawTechnique.ts
@@ -185256,7 +187825,7 @@ var DrawTechnique = class {
   /**
    * When true, the technique compiles a vertex normal sampler into its shaders
    * and reads smooth view-space normals from the batch's
-   * {@link BatchDataTextures.vertexNormalTexture}. When false, the fragment
+   * {@link BatchGPUResources.vertexNormalTexture}. When false, the fragment
    * shader derives a flat face normal from `dFdx/dFdy(vViewPos)`.
    *
    * This is the per-batch axis the renderer dispatches on — only the Lambert
@@ -185313,6 +187882,17 @@ var DrawTechnique = class {
    * permutation contract and which techniques opt in.
    */
   logDepth;
+  /**
+   * When true, triangle techniques bind their expanded draw
+   * vertices from {@link TriangleGeometryVBOBatch}: position+tile,
+   * mesh index and geometry vertex index are vertex attributes instead of
+   * primitive/index/position/matrix data-texture fetches.
+   *
+   * The mesh/material/view state still comes from DTX so visibility,
+   * selection/highlight/xray routing, colors, UVs, normals and material
+   * atlas attributes stay in the existing update path.
+   */
+  vboGeometry;
   /**
    * Vertex shader source code. Available after `init()` is called.
    */
@@ -185375,6 +187955,7 @@ var DrawTechnique = class {
     hasUVs: false,
     triplanar: false,
     thickLines: false,
+    vboGeometry: false,
     logDepth: false
   }) {
     if (cfg.picking && cfg.edges) {
@@ -185386,6 +187967,15 @@ var DrawTechnique = class {
     if (cfg.triplanar && cfg.hasUVs) {
       throw new Error("Invalid DrawTechnique configuration: cannot have both triplanar and hasUVs enabled.");
     }
+    if (cfg.vboGeometry && cfg.thickLines) {
+      throw new Error("Invalid DrawTechnique configuration: vboGeometry is supported by triangle surface, pick, edge and snap techniques only.");
+    }
+    if (cfg.vboGeometry && cfg.snap === 3 && cfg.edges) {
+      throw new Error("Invalid DrawTechnique configuration: VBO snap-init must use triangle geometry, not edge geometry.");
+    }
+    if (cfg.vboGeometry && (cfg.snap === 1 || cfg.snap === 2) && !cfg.edges) {
+      throw new Error("Invalid DrawTechnique configuration: VBO vertex/edge snap requires edge geometry.");
+    }
     this._renderContext = renderContext;
     this._gpuMemoryReader = gpuMemoryReader;
     this.edges = cfg.edges === true;
@@ -185395,6 +187985,7 @@ var DrawTechnique = class {
     this.hasUVs = cfg.hasUVs === true;
     this.triplanar = cfg.triplanar === true;
     this.thickLines = cfg.thickLines === true;
+    this.vboGeometry = cfg.vboGeometry === true;
     this.logDepth = cfg.logDepth === true;
     this._program = null;
   }
@@ -185600,7 +188191,6 @@ var DrawTechnique = class {
       iblBRDFLUT: this.hasNormals ? program.getSampler("uIBLBRDFLUT") : null,
       indexTexture: program.getSampler("uIndexTexture"),
       edgeIndexTexture: program.getSampler("uEdgeIndexTexture"),
-      // TODO: Maybe redundant
       saoOcclusionTexture: program.getSampler("saoOcclusionTexture"),
       shadowMapTexture: program.getSampler("uShadowMapTexture"),
       shadowMap0: program.getSampler("uShadowMap0"),
@@ -185640,16 +188230,26 @@ var DrawTechnique = class {
     const view = renderContext.activeView;
     const gl = this._renderContext.gl;
     const samplers = this._samplers;
-    const dataTextures = this._gpuMemoryReader.dataTextures;
-    const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
+    const gpuResources = this._gpuMemoryReader.gpuResources;
+    const batchResources = gpuResources.batches[meshBatch.gpuMemoryBatchIndex];
     const viewIndex = view.viewIndex;
-    const batchViewDataTextures = batchDataTextures.views[viewIndex];
-    const drawRange = this.snap ? this.edges ? batchViewDataTextures.pickEdgePrimitiveRange : batchViewDataTextures.pickPrimitiveRange : this.edges ? batchViewDataTextures.renderPassEdgePrimitiveRanges.get(renderPass) : this.picking ? batchViewDataTextures.pickPrimitiveRange : batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
-    if (!drawRange || drawRange.numPrims === 0) {
+    const batchViewResources = batchResources.views[viewIndex];
+    const geometryBinding = DrawTechniqueGeometryBinding.resolve({
+      batchResources,
+      primitive: meshBatch.primitive,
+      viewIndex,
+      renderPass,
+      edges: this.edges,
+      picking: this.picking,
+      snap: this.snap,
+      thickLines: this.thickLines,
+      vboGeometry: this.vboGeometry
+    });
+    if (!geometryBinding) {
       return {
         ok: true,
         value: null
-        // Nothing to draw for this pass
+        // Nothing to draw for this pass, or no compatible geometry binding.
       };
     }
     const drawInspector = renderContext.renderInspector && renderContext.renderInspector.enabled ? renderContext.renderInspector : null;
@@ -185660,46 +188260,46 @@ var DrawTechnique = class {
         error: "[DrawTechnique._draw] Failed to bind the shader program."
       };
     }
-    const primitiveMeshIndexTexture = this.edges ? batchViewDataTextures.edgeMeshIndexTexture : batchViewDataTextures.primitiveMeshIndexTexture;
     renderContext.textureUnit = 0;
     this._bindTexture(
       samplers.viewTileCameraMatrixTexture,
-      (this._renderContext.rayPicking ? dataTextures.viewTilePickMatrixTexture : dataTextures.viewTileCameraMatrixTexture)[view.viewIndex]
+      (this._renderContext.rayPicking ? gpuResources.viewTilePickMatrixTexture : gpuResources.viewTileCameraMatrixTexture)[view.viewIndex]
     );
-    this._bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
-    this._bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
-    this._bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
-    if (this.hasNormals && batchDataTextures.vertexNormalTexture) {
-      this._bindTexture(samplers.vertexNormalTexture, batchDataTextures.vertexNormalTexture);
+    geometryBinding.bindGeometryTextures(
+      samplers,
+      (sampler, dataTexture) => this._bindTexture(sampler, dataTexture ?? null)
+    );
+    if (this.hasNormals && batchResources.vertexNormalTexture) {
+      this._bindTexture(samplers.vertexNormalTexture, batchResources.vertexNormalTexture);
     }
-    if (this.hasUVs && batchDataTextures.vertexUVTexture) {
-      this._bindTexture(samplers.vertexUVTexture, batchDataTextures.vertexUVTexture);
+    if (this.hasUVs && batchResources.vertexUVTexture) {
+      this._bindTexture(samplers.vertexUVTexture, batchResources.vertexUVTexture);
     }
     const _bindAtlases = this.hasUVs || this.triplanar;
-    if (_bindAtlases && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
-      if (batchDataTextures.albedoAtlasTexture.flushMipmaps())
+    if (_bindAtlases && batchResources.albedoAtlasTexture && batchResources.albedoAtlasTexture.texture) {
+      if (batchResources.albedoAtlasTexture.flushMipmaps())
         renderContext.resetTextureBindings();
-      this._bindTexture(samplers.albedoAtlas, batchDataTextures.albedoAtlasTexture);
+      this._bindTexture(samplers.albedoAtlas, batchResources.albedoAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
-      if (batchDataTextures.metallicRoughnessAtlasTexture.flushMipmaps())
+    if (_bindAtlases && batchResources.metallicRoughnessAtlasTexture && batchResources.metallicRoughnessAtlasTexture.texture) {
+      if (batchResources.metallicRoughnessAtlasTexture.flushMipmaps())
         renderContext.resetTextureBindings();
-      this._bindTexture(samplers.metallicRoughnessAtlas, batchDataTextures.metallicRoughnessAtlasTexture);
+      this._bindTexture(samplers.metallicRoughnessAtlas, batchResources.metallicRoughnessAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
-      if (batchDataTextures.normalMapAtlasTexture.flushMipmaps())
+    if (_bindAtlases && batchResources.normalMapAtlasTexture && batchResources.normalMapAtlasTexture.texture) {
+      if (batchResources.normalMapAtlasTexture.flushMipmaps())
         renderContext.resetTextureBindings();
-      this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
+      this._bindTexture(samplers.normalMapAtlas, batchResources.normalMapAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.emissiveAtlasTexture && batchDataTextures.emissiveAtlasTexture.texture) {
-      if (batchDataTextures.emissiveAtlasTexture.flushMipmaps())
+    if (_bindAtlases && batchResources.emissiveAtlasTexture && batchResources.emissiveAtlasTexture.texture) {
+      if (batchResources.emissiveAtlasTexture.flushMipmaps())
         renderContext.resetTextureBindings();
-      this._bindTexture(samplers.emissiveAtlas, batchDataTextures.emissiveAtlasTexture);
+      this._bindTexture(samplers.emissiveAtlas, batchResources.emissiveAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.occlusionAtlasTexture && batchDataTextures.occlusionAtlasTexture.texture) {
-      if (batchDataTextures.occlusionAtlasTexture.flushMipmaps())
+    if (_bindAtlases && batchResources.occlusionAtlasTexture && batchResources.occlusionAtlasTexture.texture) {
+      if (batchResources.occlusionAtlasTexture.flushMipmaps())
         renderContext.resetTextureBindings();
-      this._bindTexture(samplers.occlusionAtlas, batchDataTextures.occlusionAtlasTexture);
+      this._bindTexture(samplers.occlusionAtlas, batchResources.occlusionAtlasTexture);
     }
     if (this.hasNormals) {
       this._bindCubemap(samplers.iblIrradianceCubemap, renderContext.iblIrradianceCubemap);
@@ -185708,60 +188308,26 @@ var DrawTechnique = class {
         this._bindTexture(samplers.iblBRDFLUT, { texture: renderContext.iblBRDFLUT });
       }
     }
-    this._bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
-    this._bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
-    this._bindTexture(samplers.linePatternTexture, batchDataTextures.linePatternTexture);
-    this._bindTexture(samplers.polylineCumDistTexture, batchDataTextures.polylineCumDistTexture);
-    this._bindTexture(samplers.hatchPatternTexture, batchDataTextures.hatchPatternTexture);
-    this._bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
-    this._bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
-    this._bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-    this._bindTexture(
-      samplers.indexTexture,
-      this.edges ? batchDataTextures.edgeIndexTexture : batchDataTextures.indexTexture
-    );
+    this._bindTexture(samplers.meshAttributeTexture, batchResources.meshAttributeTexture);
+    this._bindTexture(samplers.linePatternTexture, batchResources.linePatternTexture);
+    this._bindTexture(samplers.polylineCumDistTexture, batchResources.polylineCumDistTexture);
+    this._bindTexture(samplers.hatchPatternTexture, batchResources.hatchPatternTexture);
+    this._bindTexture(samplers.meshViewAttributeTexture, batchViewResources.meshViewAttributeTexture);
+    this._bindTexture(samplers.geometryAttributes, batchResources.geometryAttributeTexture);
     this._bindSAOTexture();
     this._bindShadowMapTexture();
     if (this._uniforms.batchIndex) {
       gl.uniform1ui(this._uniforms.batchIndex, meshBatch.gpuMemoryBatchIndex);
     }
     gl.uniform1i(this._uniforms.primBaseIndex, 0);
-    switch (meshBatch.primitive) {
-      case TrianglesPrimitive:
-        if (this.snap === 1) {
-          gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        } else if (this.edges && this.thickLines) {
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
-        } else if (this.snap === 2 || this.edges) {
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        } else {
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
-        }
-        break;
-      case LinesPrimitive:
-        if (this.snap === 1) {
-          gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        } else if (this.snap === 2) {
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        } else if (this.thickLines) {
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
-        } else {
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        }
-        break;
-      case PointsPrimitive:
-        gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
-        break;
-      default:
-        return {
-          ok: false,
-          type: 2 /* InvalidInput */,
-          error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
-        };
+    const drawResult = geometryBinding.draw(gl, drawInspector);
+    if (drawResult.ok === false) {
+      return drawResult;
     }
+    const inspectorRange = geometryBinding.inspectorRange;
     drawInspector?.drawMeshBatch(meshBatch, renderPass, {
-      firstPrim: drawRange.firstPrim,
-      numPrims: drawRange.numPrims
+      firstPrim: inspectorRange.firstPrim,
+      numPrims: inspectorRange.numPrims
     });
     return {
       ok: true,
@@ -185788,10 +188354,13 @@ var DrawTechnique = class {
 
 // ${this.constructor.name} vertex shader
 
-// This shader renders primitives by fetching all geometry,
+${this.vboGeometry ? `// This shader renders triangle geometry from batch-owned VBOs,
+// while still fetching mesh/material/view state from GPU data textures.
+// The pipeline is:
+//   VBO vertex \u2192 mesh \u2192 geometry metadata \u2192 world/RTC tile \u2192 view \u2192 clip` : `// This shader renders primitives by fetching all geometry,
 // transform, and attribute data from GPU data textures.
 // The pipeline is:
-//   gl_VertexID \u2192 primitive \u2192 mesh \u2192 geometry \u2192 vertex \u2192 model \u2192 world \u2192 view \u2192 clip`);
+//   gl_VertexID \u2192 primitive \u2192 mesh \u2192 geometry \u2192 vertex \u2192 model \u2192 world \u2192 view \u2192 clip`}`);
   }
   /**
    * Emits uniforms, samplers, structs, and GPU data-texture helper functions shared by all
@@ -185808,6 +188377,14 @@ uniform int uRenderPass;
 uniform int uPrimBaseIndex;
 
 uniform mat4 uProjMatrix;
+${this.vboGeometry ? `
+// VBO geometry attributes. Layout matches TriangleGeometryVBOBatch's
+// hybrid VAO: position is already mesh-matrix-baked in RTC tile space;
+// mesh/geometry-vertex indices keep DTX state, normals and UVs addressable.
+layout(location = 0) in vec4 aPositionAndTile;
+layout(location = 1) in uint aMeshIndex;
+layout(location = 2) in uint aGeometryVertexIndex;
+` : ``}
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // GPU data textures (structured storage via texelFetch)
@@ -186562,9 +189139,28 @@ void main(void) {`);
    * @private
    */
   _vsMeshLogic() {
+    if (this.vboGeometry) {
+      this._vertSrcBuf.push(`
+    // VBO geometry path: the expanded vertex stream already carries
+    // the mesh and geometry vertex indices. DTX is still used below for
+    // per-mesh view/material attributes.
+    uint meshIndex = aMeshIndex;
+    uint vertexIndexWithinGeometry = aGeometryVertexIndex;
+
+    // Fetch mesh view properties (color + flags)
+    MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );
+
+    // Cull fully-transparent meshes
+    if (meshViewAttributes.color.a == 3u) {
+      // gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Cull vertex
+     //  return;
+    }
+    `);
+      return;
+    }
     this._vertSrcBuf.push(`
-     // Identify which "draw vertex" we are processing
-    uint drawVertexIndex  = uint(gl_VertexID);
+	     // Identify which "draw vertex" we are processing
+	    uint drawVertexIndex  = uint(gl_VertexID);
 
     // Compile-time topology constant: 3 = triangles, 2 = lines, 1 = points.
     const uint numVertsPerPrim = ${this.vertsPerPrim}u;
@@ -186597,9 +189193,35 @@ void main(void) {`);
    * @private
    */
   _vsMeshLogic2() {
+    if (this.vboGeometry) {
+      this._vertSrcBuf.push(
+        `
+    // Mesh \u2192 tile + geometry resolution. Position/tile come directly from
+    // the VBO, while mesh/geometry metadata remains in DTX for material,
+    // normal and UV lookup compatibility.
+    MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );
+    uint tileIndex = uint(aPositionAndTile.w + 0.5);
+    uint geometryIndex = meshAttributeTexture.geometryIndex;
+    GeometryAttributes geometryAttributes = getGeometryAttributeTexture( geometryIndex );
+
+    // Positions are already dequantized and mesh-matrix-baked by
+    // TriangleGeometryVBOBatch. Keep modelMatrix as identity for the
+    // default baked-transform variant; a matrix-backed variant can re-enable
+    // dynamic transform reads later without disturbing this path.
+    mat4 modelMatrix = mat4(1.0);
+    mat4 viewMatrix  = getTileViewMatrix(tileIndex);
+    vec4 worldPos = vec4(aPositionAndTile.xyz, 1.0);
+    vec4 viewPos  = viewMatrix  * worldPos;
+    vec4 clipPos  = uProjMatrix * viewPos;
+
+    // Write final clip-space position for rasterization
+    gl_Position = clipPos;`
+      );
+      return;
+    }
     this._vertSrcBuf.push(
       `
-    // Mesh \u2192 tile + geometry resolution
+	    // Mesh \u2192 tile + geometry resolution
     // tileIndex selects the view matrix; geometryIndex selects vertex/index ranges.
     MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );
     uint tileIndex = meshAttributeTexture.tileIndex;
@@ -189514,6 +192136,11 @@ var TrianglesDrawColorSAOShadowTechnique = class extends DrawTechnique {
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/triangles/TrianglesShadowDepthTechnique.ts
 var TrianglesShadowDepthTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
+  constructor(renderContext, gpuMemoryReader, opts = {}) {
+    super(renderContext, gpuMemoryReader, {
+      vboGeometry: opts.vboGeometry === true
+    });
+  }
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDeclarations();
@@ -189919,6 +192546,7 @@ var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader, opts = {}) {
     super(renderContext, gpuMemoryReader, {
       edges: true,
+      vboGeometry: opts.vboGeometry === true,
       logDepth: opts.logDepth === true
     });
   }
@@ -189961,6 +192589,7 @@ var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader, opts = {}) {
     super(renderContext, gpuMemoryReader, {
       edges: true,
+      vboGeometry: opts.vboGeometry === true,
       logDepth: opts.logDepth === true
     });
   }
@@ -190045,6 +192674,12 @@ var TrianglesDrawEdgeColorThickTechnique = class extends DrawTechnique {
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/triangles/TrianglesDrawSilhouetteTechnique.ts
 var TrianglesDrawSilhouetteTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
+  constructor(renderContext, gpuMemoryReader, opts = {}) {
+    super(renderContext, gpuMemoryReader, {
+      vboGeometry: opts.vboGeometry === true,
+      logDepth: opts.logDepth === true
+    });
+  }
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDeclarations();
@@ -190083,8 +192718,11 @@ __export(generic_exports, {
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/generic/GenericPickMeshTechnique.ts
 var GenericPickMeshTechnique = class extends DrawTechnique {
   vertsPerPrim;
-  constructor(renderContext, gpuMemoryReader, vertsPerPrim) {
-    super(renderContext, gpuMemoryReader, { picking: true });
+  constructor(renderContext, gpuMemoryReader, vertsPerPrim, opts = {}) {
+    super(renderContext, gpuMemoryReader, {
+      picking: true,
+      vboGeometry: opts.vboGeometry === true
+    });
     this.vertsPerPrim = vertsPerPrim;
   }
   buildVertexShader() {
@@ -190112,8 +192750,11 @@ var GenericPickMeshTechnique = class extends DrawTechnique {
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/triangles/TrianglesSnapInitTechnique.ts
 var TrianglesSnapInitTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
-  constructor(renderContext, gpuMemoryReader) {
-    super(renderContext, gpuMemoryReader, { snap: 3 });
+  constructor(renderContext, gpuMemoryReader, opts = {}) {
+    super(renderContext, gpuMemoryReader, {
+      snap: 3,
+      vboGeometry: opts.vboGeometry === true
+    });
   }
   buildVertexShader() {
     this.vsHeader();
@@ -190140,8 +192781,12 @@ var TrianglesSnapInitTechnique = class extends DrawTechnique {
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/triangles/TrianglesSnapTechnique.ts
 var TrianglesSnapTechnique = class extends DrawTechnique {
   vertsPerPrim = 2;
-  constructor(renderContext, gpuMemoryReader, snap) {
-    super(renderContext, gpuMemoryReader, { snap, edges: true });
+  constructor(renderContext, gpuMemoryReader, snap, opts = {}) {
+    super(renderContext, gpuMemoryReader, {
+      snap,
+      edges: true,
+      vboGeometry: opts.vboGeometry === true
+    });
   }
   buildVertexShader() {
     this.vsHeader();
@@ -190234,6 +192879,74 @@ var TrianglesStencilMaskTechnique = class extends DrawTechnique {
   }
 };
 
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/TriangleSurfaceDrawOp.ts
+var TriangleSurfaceDrawOp = class extends DrawOp {
+  _renderContext;
+  _gpuMemoryReader;
+  _dtxDrawOp;
+  _vboGeometryDrawOp;
+  constructor(params) {
+    super(params.dtxDrawOp.technique, params.renderPass);
+    this._renderContext = params.renderContext;
+    this._gpuMemoryReader = params.gpuMemoryReader;
+    this._dtxDrawOp = params.dtxDrawOp;
+    this._vboGeometryDrawOp = params.vboGeometryDrawOp;
+  }
+  drawBatch(meshBatch) {
+    this._selectDrawOp(meshBatch).drawBatch(meshBatch);
+  }
+  drawMesh(meshBatch, meshIndex) {
+    this._selectDrawOp(meshBatch).drawMesh(meshBatch, meshIndex);
+  }
+  _selectDrawOp(meshBatch) {
+    const view = this._renderContext.activeView;
+    const batchResources = this._gpuMemoryReader.gpuResources.batches[meshBatch.gpuMemoryBatchIndex];
+    if (batchResources?.geometryStorage === "dtx" && !shouldUseTriangleVBOGeometry(view)) {
+      return this._dtxDrawOp;
+    }
+    const triangleGeometryVBO = batchResources?.triangleGeometryVBO;
+    if (!triangleGeometryVBO?.getDrawState(view.viewIndex, this.renderPass, "hybrid")) {
+      if (batchResources?.geometryStorage === "vbo") {
+        this._renderContext.renderInspector?.vboGeometryTriangles({
+          blockedBatches: 1,
+          blockedPrims: 0
+        });
+        return this._vboGeometryDrawOp;
+      }
+      const primRange = batchResources?.views[view.viewIndex]?.renderPassPrimitiveRanges.get(this.renderPass);
+      this._renderContext.renderInspector?.vboGeometryTriangles({
+        fallbackBatches: 1,
+        fallbackPrims: primRange?.numPrims ?? 0
+      });
+      return this._dtxDrawOp;
+    }
+    return this._vboGeometryDrawOp;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/TriangleGeometryStorageDrawOp.ts
+var TriangleGeometryStorageDrawOp = class extends DrawOp {
+  _gpuMemoryReader;
+  _dtxDrawOp;
+  _vboGeometryDrawOp;
+  constructor(params) {
+    super(params.dtxDrawOp.technique, params.renderPass);
+    this._gpuMemoryReader = params.gpuMemoryReader;
+    this._dtxDrawOp = params.dtxDrawOp;
+    this._vboGeometryDrawOp = params.vboGeometryDrawOp;
+  }
+  drawBatch(meshBatch) {
+    this._selectDrawOp(meshBatch).drawBatch(meshBatch);
+  }
+  drawMesh(meshBatch, meshIndex) {
+    this._selectDrawOp(meshBatch).drawMesh(meshBatch, meshIndex);
+  }
+  _selectDrawOp(meshBatch) {
+    const batchResources = this._gpuMemoryReader.gpuResources.batches[meshBatch.gpuMemoryBatchIndex];
+    return batchResources?.geometryStorage === "vbo" ? this._vboGeometryDrawOp : this._dtxDrawOp;
+  }
+};
+
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/DrawOps.ts
 var DrawOps = class {
   /**
@@ -190321,32 +193034,46 @@ var DrawOps = class {
     };
     const LOG_DEPTH = true;
     const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2, { logDepth: LOG_DEPTH }));
-    const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const lambertVariants = (Cls) => ({
-      technique: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH })),
-      withNormals: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { hasNormals: true, logDepth: LOG_DEPTH })),
-      withUVs: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { hasUVs: true, logDepth: LOG_DEPTH })),
-      withNormalsAndUVs: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { hasNormals: true, hasUVs: true, logDepth: LOG_DEPTH })),
-      withTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { triplanar: true, logDepth: LOG_DEPTH })),
-      withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { hasNormals: true, triplanar: true, logDepth: LOG_DEPTH }))
+    const trianglesSilhouetteDTX = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
+    const lambertVariants = (Cls, baseCfg = {}) => ({
+      technique: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, logDepth: LOG_DEPTH })),
+      withNormals: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, logDepth: LOG_DEPTH })),
+      withUVs: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasUVs: true, logDepth: LOG_DEPTH })),
+      withNormalsAndUVs: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, hasUVs: true, logDepth: LOG_DEPTH })),
+      withTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, triplanar: true, logDepth: LOG_DEPTH })),
+      withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, triplanar: true, logDepth: LOG_DEPTH }))
     });
-    const trianglesDrawColor = lambertVariants(TrianglesDrawColorTechnique);
-    const trianglesDrawColorSAO = lambertVariants(TrianglesDrawColorSAOTechnique);
-    const trianglesDrawColorShadow = lambertVariants(TrianglesDrawColorShadowTechnique);
-    const trianglesDrawColorSAOShadow = lambertVariants(TrianglesDrawColorSAOShadowTechnique);
-    const trianglesDrawColorFlat = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesShadowDepth = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
-    const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesDrawEdgeColorThick = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
+    const triangleVBOGeometryCfg = { vboGeometry: true };
+    const trianglesDrawColorDTX = lambertVariants(TrianglesDrawColorTechnique);
+    const trianglesDrawColorSAODTX = lambertVariants(TrianglesDrawColorSAOTechnique);
+    const trianglesDrawColorShadowDTX = lambertVariants(TrianglesDrawColorShadowTechnique);
+    const trianglesDrawColorSAOShadowDTX = lambertVariants(TrianglesDrawColorSAOShadowTechnique);
+    const trianglesDrawColorVBO = lambertVariants(TrianglesDrawColorTechnique, triangleVBOGeometryCfg);
+    const trianglesDrawColorSAOVBO = lambertVariants(TrianglesDrawColorSAOTechnique, triangleVBOGeometryCfg);
+    const trianglesDrawColorShadowVBO = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOGeometryCfg);
+    const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOGeometryCfg);
+    const trianglesSilhouetteVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawColorFlatDTX = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
+    const trianglesDrawColorFlatVBO = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesShadowDepthDTX = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
+    const trianglesShadowDepthVBO = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, triangleVBOGeometryCfg));
+    const trianglesDrawEdgeSilhouetteDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeColorDTX = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeColorVBO = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeColorThickDTX = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
+    const trianglesPickMeshDTX = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
+    const trianglesPickMeshVBO = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3, triangleVBOGeometryCfg));
     const linesPickMesh = saveForCleanup(new ThickLinesPickMeshTechnique(renderContext, gpuMemoryReader));
     const pointsPickMesh = saveForCleanup(new PointsPickMeshTechnique(renderContext, gpuMemoryReader));
     const linesDrawColor = saveForCleanup(new ThickLinesDrawColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesSnapInit = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
-    const trianglesSnapVertex = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1));
-    const trianglesSnapEdge = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2));
+    const trianglesSnapInitDTX = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
+    const trianglesSnapVertexDTX = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1));
+    const trianglesSnapEdgeDTX = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2));
+    const trianglesSnapInitVBO = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader, triangleVBOGeometryCfg));
+    const trianglesSnapVertexVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1, triangleVBOGeometryCfg));
+    const trianglesSnapEdgeVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2, triangleVBOGeometryCfg));
     const linesSnapVertex = saveForCleanup(new LinesSnapTechnique(renderContext, gpuMemoryReader, 1));
     const linesSnapEdge = saveForCleanup(new LinesSnapTechnique(renderContext, gpuMemoryReader, 2));
     const trianglesStencilMask = saveForCleanup(new TrianglesStencilMaskTechnique(renderContext, gpuMemoryReader));
@@ -190368,37 +193095,83 @@ var DrawOps = class {
     this._linkMs = performance.now() - tStart;
     this._finalizePending = true;
     const { OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK, SNAP_INIT, SNAP } = RENDER_PASSES;
+    const triangleSurfaceOp = (dtxVariants, vboVariants, renderPass) => new TriangleSurfaceDrawOp({
+      renderContext,
+      gpuMemoryReader,
+      dtxDrawOp: new DrawOp(dtxVariants, renderPass),
+      vboGeometryDrawOp: new DrawOp(vboVariants, renderPass),
+      renderPass
+    });
+    const triangleSurfaceSingleOp = (dtxTechnique, vboTechnique, renderPass) => new TriangleSurfaceDrawOp({
+      renderContext,
+      gpuMemoryReader,
+      dtxDrawOp: new DrawOp(dtxTechnique, renderPass),
+      vboGeometryDrawOp: new DrawOp(vboTechnique, renderPass),
+      renderPass
+    });
+    const triangleGeometryStorageSingleOp = (dtxTechnique, vboTechnique, renderPass) => new TriangleGeometryStorageDrawOp({
+      gpuMemoryReader,
+      dtxDrawOp: new DrawOp(dtxTechnique, renderPass),
+      vboGeometryDrawOp: new DrawOp(vboTechnique, renderPass),
+      renderPass
+    });
+    const trianglesOpaqueSurface = triangleSurfaceOp(trianglesDrawColorDTX, trianglesDrawColorVBO, OPAQUE);
+    const trianglesPickDTX = new DrawOp(trianglesPickMeshDTX, PICK);
+    const trianglesPickVBO = new DrawOp(trianglesPickMeshVBO, PICK);
     this.prims = {
       [TrianglesPrimitive]: {
-        opaque: new DrawOp(trianglesDrawColor, OPAQUE),
-        opaqueSAO: new DrawOp(trianglesDrawColorSAO, OPAQUE),
-        opaqueShadow: new DrawOp(trianglesDrawColorShadow, OPAQUE),
-        opaqueSAOShadow: new DrawOp(trianglesDrawColorSAOShadow, OPAQUE),
+        opaque: trianglesOpaqueSurface,
+        opaqueSAO: triangleSurfaceOp(trianglesDrawColorSAODTX, trianglesDrawColorSAOVBO, OPAQUE),
+        opaqueShadow: triangleSurfaceOp(trianglesDrawColorShadowDTX, trianglesDrawColorShadowVBO, OPAQUE),
+        opaqueSAOShadow: triangleSurfaceOp(trianglesDrawColorSAOShadowDTX, trianglesDrawColorSAOShadowVBO, OPAQUE),
         // Unlit pure-colour ops — used by the overlay-bin pass for gizmos.
-        flatColor: new DrawOp(trianglesDrawColorFlat, OPAQUE),
-        flatColorTransparent: new DrawOp(trianglesDrawColorFlat, TRANSPARENT),
-        shadowDepth: new DrawOp(trianglesShadowDepth, OPAQUE),
-        opaqueEdges: new DrawOp(trianglesDrawEdgeColor, OPAQUE),
-        opaqueEdgesThick: new DrawOp(trianglesDrawEdgeColorThick, OPAQUE),
-        transparent: new DrawOp(trianglesDrawColor, TRANSPARENT),
-        transparentEdges: new DrawOp(trianglesDrawEdgeColor, TRANSPARENT),
-        transparentEdgesThick: new DrawOp(trianglesDrawEdgeColorThick, TRANSPARENT),
-        highlighted: new DrawOp(trianglesSilhouette, HIGHLIGHTED),
-        highlightedEdges: new DrawOp(trianglesDrawEdgeSilhouette, HIGHLIGHTED),
-        selected: new DrawOp(trianglesSilhouette, SELECTED),
-        selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
-        xrayed: new DrawOp(trianglesSilhouette, XRAYED),
-        xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
-        pick: new DrawOp(trianglesPickMesh, PICK),
+        flatColor: triangleSurfaceSingleOp(trianglesDrawColorFlatDTX, trianglesDrawColorFlatVBO, OPAQUE),
+        flatColorTransparent: triangleSurfaceSingleOp(trianglesDrawColorFlatDTX, trianglesDrawColorFlatVBO, TRANSPARENT),
+        shadowDepth: triangleSurfaceSingleOp(trianglesShadowDepthDTX, trianglesShadowDepthVBO, OPAQUE),
+        opaqueEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorDTX, trianglesDrawEdgeColorVBO, OPAQUE),
+        // VBO triangle batches currently render wide edge requests with the
+        // thin VBO edge path. DTX batches keep the existing quad-expanded
+        // thick-edge shader.
+        opaqueEdgesThick: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorThickDTX, trianglesDrawEdgeColorVBO, OPAQUE),
+        transparent: triangleSurfaceOp(trianglesDrawColorDTX, trianglesDrawColorVBO, TRANSPARENT),
+        transparentEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorDTX, trianglesDrawEdgeColorVBO, TRANSPARENT),
+        transparentEdgesThick: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorThickDTX, trianglesDrawEdgeColorVBO, TRANSPARENT),
+        highlighted: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, HIGHLIGHTED),
+        highlightedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, HIGHLIGHTED),
+        selected: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, SELECTED),
+        selectedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, SELECTED),
+        xrayed: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, XRAYED),
+        xrayedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, XRAYED),
+        pick: new TriangleGeometryStorageDrawOp({
+          dtxDrawOp: trianglesPickDTX,
+          vboGeometryDrawOp: trianglesPickVBO,
+          gpuMemoryReader,
+          renderPass: PICK
+        }),
         // Stencil-mask uses the OPAQUE render pass to walk every
         // visible triangle batch; FS does no colour / depth
         // writes, so it doesn't matter which pass selects the
         // bin so long as we iterate the same batches the colour
         // pass did.
         stencilMask: new DrawOp(trianglesStencilMask, OPAQUE),
-        snapInit: new DrawOp(trianglesSnapInit, SNAP_INIT),
-        snapVertex: new DrawOp(trianglesSnapVertex, SNAP),
-        snapEdge: new DrawOp(trianglesSnapEdge, SNAP)
+        snapInit: new TriangleGeometryStorageDrawOp({
+          gpuMemoryReader,
+          dtxDrawOp: new DrawOp(trianglesSnapInitDTX, SNAP_INIT),
+          vboGeometryDrawOp: new DrawOp(trianglesSnapInitVBO, SNAP_INIT),
+          renderPass: SNAP_INIT
+        }),
+        snapVertex: new TriangleGeometryStorageDrawOp({
+          gpuMemoryReader,
+          dtxDrawOp: new DrawOp(trianglesSnapVertexDTX, SNAP),
+          vboGeometryDrawOp: new DrawOp(trianglesSnapVertexVBO, SNAP),
+          renderPass: SNAP
+        }),
+        snapEdge: new TriangleGeometryStorageDrawOp({
+          gpuMemoryReader,
+          dtxDrawOp: new DrawOp(trianglesSnapEdgeDTX, SNAP),
+          vboGeometryDrawOp: new DrawOp(trianglesSnapEdgeVBO, SNAP),
+          renderPass: SNAP
+        })
       },
       [LinesPrimitive]: {
         opaque: new DrawOp(linesDrawColor, OPAQUE),
@@ -196676,6 +199449,7 @@ var RenderBinClassifier = class {
       const xray = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.XRAYED);
       const highlight = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.HIGHLIGHTED);
       const select = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SELECTED);
+      const supportsEdgePasses = meshBatch.primitive === TrianglesPrimitive && (meshBatch.geometryStorage === "dtx" || meshBatch.geometryStorage === "vbo");
       if (opaque) {
         if (meshBatch.bin !== void 0) {
           bins.normalDrawOpaque.push(meshBatch);
@@ -196705,19 +199479,19 @@ var RenderBinClassifier = class {
       if (select && selectedMaterial.fill) {
         (selectedMaterial.fillAlpha < 1 ? bins.selectedSilhouetteTransparent : bins.selectedSilhouetteOpaque).push(meshBatch);
       }
-      if (edgeMaterial.applied) {
+      if (supportsEdgePasses && edgeMaterial.applied) {
         if (opaque)
           bins.normalEdgesOpaque.push(meshBatch);
         if (transparent)
           bins.normalEdgesTransparent.push(meshBatch);
       }
-      if (xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
+      if (supportsEdgePasses && xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
         (xrayMaterial.edgeAlpha < 1 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
       }
-      if (highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
+      if (supportsEdgePasses && highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
         (highlightMaterial.edgeAlpha < 1 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
       }
-      if (select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
+      if (supportsEdgePasses && select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
         (selectedMaterial.edgeAlpha < 1 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
       }
     }
@@ -198354,7 +201128,8 @@ __export(meshManager_exports, {
   RendererMaterial: () => RendererMaterial,
   RendererMesh: () => RendererMesh,
   RendererObject: () => RendererObject,
-  RendererTexture: () => RendererTexture
+  RendererTexture: () => RendererTexture,
+  createMeshManagerStepStats: () => createMeshManagerStepStats
 });
 
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/RendererGeometry.ts
@@ -198626,13 +201401,13 @@ var MemoryDebugger = class {
     if (memoryInspectorRes.ok === false) {
       throw new Error(`MemoryDebugger: renderer.getMemoryInspector() error: ${memoryInspectorRes.error}`);
     }
-    const dataTextures = memoryInspectorRes.value.dataTextures;
-    if (!dataTextures)
-      throw new Error("MemoryDebugger: renderer is rendering and should have dataTextures");
-    dataTextures.viewTileCameraMatrixTexture?.forEach((t, i) => push(t, `viewTileCameraMatrixTexture[${i}]`));
-    dataTextures.viewTilePickMatrixTexture?.forEach((t, i) => push(t, `viewTilePickMatrixTexture[${i}]`));
+    const gpuResources = memoryInspectorRes.value.gpuResources ?? memoryInspectorRes.value.dataTextures;
+    if (!gpuResources)
+      throw new Error("MemoryDebugger: renderer is rendering and should have gpuResources");
+    gpuResources.viewTileCameraMatrixTexture?.forEach((t, i) => push(t, `viewTileCameraMatrixTexture[${i}]`));
+    gpuResources.viewTilePickMatrixTexture?.forEach((t, i) => push(t, `viewTilePickMatrixTexture[${i}]`));
     this.batchInfos.length = 0;
-    dataTextures.batches?.forEach((batch, bi) => {
+    gpuResources.batches?.forEach((batch, bi) => {
       push(batch.indices, `batches[${bi}].indices`);
       push(batch.edgeIndices, `batches[${bi}].edgeIndices`);
       push(batch.meshAttributeTexture, `batches[${bi}].meshAttribTable`);
@@ -198758,10 +201533,10 @@ var MemoryDebugger = class {
     const memoryInspectorRes = this.renderer.getMemoryInspector();
     if (memoryInspectorRes.ok === false)
       return;
-    const dataTextures = memoryInspectorRes.value.dataTextures;
-    if (!dataTextures)
+    const gpuResources = memoryInspectorRes.value.gpuResources ?? memoryInspectorRes.value.dataTextures;
+    if (!gpuResources)
       return;
-    dataTextures.batches?.forEach((batch, bi) => {
+    gpuResources.batches?.forEach((batch, bi) => {
       batch.views?.forEach((view, vi) => {
         const primitiveMeshIndexTexture = view.primitiveMeshIndexTexture;
         if (primitiveMeshIndexTexture && typeof primitiveMeshIndexTexture.onUpdated?.subscribe === "function") {
@@ -199096,7 +201871,11 @@ __export(triangles_exports, {
   TrianglesDrawColorFlatTechnique: () => TrianglesDrawColorFlatTechnique,
   TrianglesDrawColorTechnique: () => TrianglesDrawColorTechnique,
   TrianglesDrawEdgeColorTechnique: () => TrianglesDrawEdgeColorTechnique,
-  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique
+  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique,
+  getConfiguredOpaqueTriangleRenderPath: () => getConfiguredOpaqueTriangleRenderPath,
+  getConfiguredTriangleGeometryStorage: () => getConfiguredTriangleGeometryStorage,
+  shouldUseTriangleVBOGeometry: () => shouldUseTriangleVBOGeometry,
+  shouldUseTriangleVBOGeometryDrawTechnique: () => shouldUseTriangleVBOGeometryDrawTechnique
 });
 
 // ../sdk/src/viewing/webGLRenderer/internal/inspectors/ShaderInspector.ts
@@ -199171,11 +201950,19 @@ function readShaderSource(tech) {
 // ../sdk/src/viewing/webGLRenderer/internal/ViewManager.ts
 var ViewManager2 = class {
   /**
-   * GPU-backed textures created/owned by {@link GPUMemoryManager}.
+   * GPU-backed resources created/owned by {@link GPUMemoryManager}.
    * Exposed for diagnostics.
    * Available after {@link init} succeeds; `undefined` after {@link destroy}.
    */
   dataTextures = void 0;
+  /**
+   * Preferred name for GPU-backed resources created/owned by {@link GPUMemoryManager}.
+   * Exposed for diagnostics.
+   * Available after {@link init} succeeds; `undefined` after {@link destroy}.
+   */
+  get gpuResources() {
+    return this.dataTextures;
+  }
   /**
    * Exposes shader source code for all techniques used by the renderer.
    * Exposed for diagnostics.
@@ -199295,7 +202082,7 @@ var ViewManager2 = class {
     if (resultGPU.ok === false) {
       return this._failInit(resultGPU);
     }
-    this.dataTextures = this._gpuMemoryManager.dataTextures;
+    this.dataTextures = this._gpuMemoryManager.gpuResources;
     this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager);
     const resultMesh = this._meshManager.init();
     if (resultMesh.ok === false) {
@@ -199878,6 +202665,9 @@ var ViewManager2 = class {
   sceneMeshCreated(sceneMesh) {
     return this._meshManager.sceneMeshCreated(sceneMesh);
   }
+  sceneMeshesCreated(sceneMeshes) {
+    return this._meshManager.sceneMeshesCreated(sceneMeshes);
+  }
   /**
    * Notifies the renderer that a {@link model!scene.SceneMesh | SceneMesh} was destroyed.
    *
@@ -200180,7 +202970,13 @@ var ViewManager2 = class {
 var import_strongly_typed_events18 = __toESM(require_dist8());
 
 // ../sdk/src/viewing/webGLRenderer/defaultMemoryConfigs.ts
+var DEFAULT_VBO_GEOMETRY_CONFIGS = {
+  maxBatchPrims: 2e5,
+  allocationPolicy: "fixedCapacity"
+};
 var DEFAULT_MEMORY_CONFIGS = {
+  triangleGeometryStorage: "auto",
+  vboGeometry: DEFAULT_VBO_GEOMETRY_CONFIGS,
   maxViews: 1,
   tileSize: 200,
   maxTiles: 4096,
@@ -200192,9 +202988,14 @@ var DEFAULT_MEMORY_CONFIGS = {
   maxBatchPrims: 4e5
 };
 function createDefaultMemoryConfigs(overrides = {}) {
+  const { vboGeometry, ...rest } = overrides;
   return {
     ...DEFAULT_MEMORY_CONFIGS,
-    ...overrides
+    ...rest,
+    vboGeometry: {
+      ...DEFAULT_VBO_GEOMETRY_CONFIGS,
+      ...vboGeometry || {}
+    }
   };
 }
 
@@ -200646,8 +203447,10 @@ var WebGLRenderer3 = class {
    */
   constructor(params = {}) {
     this._memoryInspector = {
-      dataTextures: null,
+      gpuResources: null,
       // Populated when rendering starts
+      dataTextures: null,
+      // Backwards-compatible alias for gpuResources
       getViewAtIndex: (viewIndex) => {
         return this._viewManager ? this._viewManager.getViewAtIndex(viewIndex) : null;
       },
@@ -200770,7 +203573,7 @@ var WebGLRenderer3 = class {
    * Returns a read-only view of GPU-resident data used by the renderer.
    *
    * This API is intended for diagnostics, debugging tools, and monitoring UIs.
-   * The returned object exposes structured access to {@link DataTextures} while
+   * The returned object exposes structured access to {@link RendererGPUResources} while
    * rendering is active.
    *
    * @internal
@@ -201007,10 +203810,14 @@ var WebGLRenderer3 = class {
         this.logError(viewManager.sceneGeometryCreated(sceneGeometry));
       }
     }
+    const sceneMeshes = [];
     for (const sceneMesh of registrations.meshes) {
       if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
-        this.logError(viewManager.sceneMeshCreated(sceneMesh));
+        sceneMeshes.push(sceneMesh);
       }
+    }
+    if (sceneMeshes.length > 0) {
+      this.logError(viewManager.sceneMeshesCreated(sceneMeshes));
     }
     for (const sceneObject of registrations.objects) {
       if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
@@ -201100,6 +203907,7 @@ var WebGLRenderer3 = class {
     if (result.ok === false) {
       this._viewManager.destroy();
       this._viewManager = void 0;
+      this._memoryInspector.gpuResources = null;
       this._memoryInspector.dataTextures = null;
       return result;
     }
@@ -201201,7 +204009,8 @@ var WebGLRenderer3 = class {
       // Camera updates
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
     ];
-    this._memoryInspector.dataTextures = this._viewManager.dataTextures;
+    this._memoryInspector.gpuResources = this._viewManager.gpuResources;
+    this._memoryInspector.dataTextures = this._viewManager.gpuResources;
     this._shaderInspector = this._viewManager.shaderInspector;
     this._installWebGLContextListeners(viewManager);
     return {
@@ -201465,6 +204274,8 @@ var WebGLRenderer3 = class {
     this._removeWebGLContextListeners();
     this._viewManager.destroy();
     this._viewManager = void 0;
+    this._memoryInspector.gpuResources = null;
+    this._memoryInspector.dataTextures = null;
     this._renderSuspendCount = 0;
     this._deferredSceneModelRegistrations.clear();
     this.events.onRendererStopped.dispatch(this);
@@ -201490,9 +204301,9 @@ var WebGLRenderer3 = class {
 
 // ../sdk/src/viewing/webGLRenderer/createMemoryConfigs.ts
 function createMemoryConfigs(params) {
-  const elementSizes = GPUMemoryManager.itemSizesInBytes;
   const user = params.user || {};
   const maxViews = user.maxViews ?? 1;
+  const elementSizes = GPUMemoryManager.getItemSizesInBytes(maxViews);
   const perf = {
     low: { meshBatches: 64, tiles: 256 },
     medium: { meshBatches: 128, tiles: 512 },
@@ -201577,8 +204388,13 @@ function createMemoryConfigs(params) {
     100,
     16384
   );
-  const tileSize = user.tileSize ?? 1e3;
+  const tileSize = user.tileSize ?? 200;
   return {
+    triangleGeometryStorage: user.triangleGeometryStorage ?? "auto",
+    vboGeometry: {
+      maxBatchPrims: user.vboGeometry?.maxBatchPrims ?? Math.min(maxBatchPrims, 2e5),
+      allocationPolicy: user.vboGeometry?.allocationPolicy ?? "fixedCapacity"
+    },
     maxViews,
     tileSize,
     maxTiles,
@@ -201620,7 +204436,7 @@ __export(webGPURenderer_exports, {
 var import_strongly_typed_events19 = __toESM(require_dist8());
 
 // ../sdk/src/viewing/webGPURenderer/internal/RENDER_PASSES.ts
-var RENDER_PASSES2 = {
+var RENDER_PASSES3 = {
   NOT_RENDERED: 0,
   OPAQUE: 1,
   TRANSPARENT: 2
@@ -201705,8 +204521,8 @@ var WebGPUDrawOps = class {
       new WebGPUTrianglesDrawColorTechnique(this._pipelineManager)
     );
     this.prims[TrianglesPrimitive] = {
-      opaque: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES2.OPAQUE),
-      transparent: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES2.TRANSPARENT)
+      opaque: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES3.OPAQUE),
+      transparent: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES3.TRANSPARENT)
     };
     return {
       ok: true,
@@ -201984,7 +204800,7 @@ var WebGPUPipelineManager = class {
       value: this._instanceBindGroupLayout
     };
   }
-  getMeshPipelineState(renderPass = RENDER_PASSES2.OPAQUE) {
+  getMeshPipelineState(renderPass = RENDER_PASSES3.OPAQUE) {
     const existing = this._meshPipelineStates[renderPass];
     if (existing) {
       return {
@@ -202011,7 +204827,7 @@ var WebGPUPipelineManager = class {
     }
     try {
       const renderPipeline = device.createRenderPipeline({
-        label: renderPass === RENDER_PASSES2.TRANSPARENT ? "xeokit-webgpu-basic-triangle-transparent-pipeline" : "xeokit-webgpu-basic-triangle-opaque-pipeline",
+        label: renderPass === RENDER_PASSES3.TRANSPARENT ? "xeokit-webgpu-basic-triangle-transparent-pipeline" : "xeokit-webgpu-basic-triangle-opaque-pipeline",
         layout: pipelineLayoutResult.value,
         vertex: {
           module: shaderModuleResult.value,
@@ -202064,7 +204880,7 @@ var WebGPUPipelineManager = class {
         },
         depthStencil: {
           format: DEPTH_FORMAT,
-          depthWriteEnabled: renderPass === RENDER_PASSES2.OPAQUE,
+          depthWriteEnabled: renderPass === RENDER_PASSES3.OPAQUE,
           depthCompare: "less"
         },
         primitive: {
@@ -257652,7 +260468,7 @@ function registerBuiltinPanels(registry) {
       const res = webGLRenderer.getMemoryInspector();
       if (res.ok === false)
         return void 0;
-      const dt = res.value.dataTextures;
+      const dt = res.value.gpuResources ?? res.value.dataTextures;
       return dt ? DataTexturesPanel.getFor(dt) : void 0;
     },
     create: (ctx2) => {
@@ -257666,9 +260482,9 @@ function registerBuiltinPanels(registry) {
         ctx2.studio.reportWarning(`[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:: ${res.error}`);
         return void 0;
       }
-      const dt = res.value.dataTextures;
+      const dt = res.value.gpuResources ?? res.value.dataTextures;
       if (!dt) {
-        ctx2.studio.reportWarning("[PanelRegistry/dataTexturesPanel] MemoryInspector has no DataTextures bundle.");
+        ctx2.studio.reportWarning("[PanelRegistry/dataTexturesPanel] MemoryInspector has no GPU resources bundle.");
         return void 0;
       }
       return DataTexturesPanel.openFor({ dataTextures: dt });
@@ -259980,7 +262796,7 @@ var Studio = class _Studio {
         onViewCreated: (view, record, params) => this._onViewCreated(view, record, params)
       },
       {
-        maxViews: merged.maxViews ?? 4,
+        maxViews: merged.maxViews ?? 1,
         autoElementType: rendererBackend === "webgpu" ? "canvas" : "image"
       }
     );
@@ -260109,6 +262925,7 @@ var Studio = class _Studio {
    * @param params.format - Model format determining which loader to use
    * @param params.dataModel - Optional existing {@link model!data.DataModel | DataModel} to populate
    * @param params.sceneModel - Optional existing {@link model!scene.SceneModel | SceneModel} to populate
+   * @param params.updateHint - Optional hint describing how dynamically the SceneModel will be updated
    *
    * @param options - Loader-specific options passed through to the underlying loader
    *
@@ -260120,6 +262937,7 @@ var Studio = class _Studio {
    * - If fetching or parsing the model data fails
    */
   async loadModel(params, options) {
+    const updateHint = params.updateHint ?? params.updateUsage;
     let coordinateSystem;
     if (!params.sceneModel && params.modelId) {
       coordinateSystem = await this._loadCoordSys(params.modelId);
@@ -260136,8 +262954,11 @@ var Studio = class _Studio {
     if (descriptor.needsScene) {
       if (params.sceneModel) {
         sceneModel = params.sceneModel;
+        if (updateHint !== void 0) {
+          sceneModel.updateHint = updateHint;
+        }
       } else {
-        const sRes = this.scene.createModel({ id: params.modelId, coordinateSystem });
+        const sRes = this.scene.createModel({ id: params.modelId, coordinateSystem, updateHint });
         if (sRes.ok === false) {
           this.reportError(sRes);
           return sRes;
@@ -260568,6 +263389,7 @@ var Studio = class _Studio {
    */
   async loadDataset(params) {
     const { modelId, formats: formats2 } = params;
+    const updateHint = params.updateHint ?? params.updateUsage;
     const clear = params.clear !== false;
     sdkProgress.setPhase(`Preparing ${modelId}`);
     if (!modelId || !formats2 || formats2.length === 0) {
@@ -260594,7 +263416,7 @@ var Studio = class _Studio {
     sdkProgress.setPhase("Reading coordinate system");
     const coordinateSystem = await this._loadCoordSys(modelId);
     sdkProgress.setPhase("Creating scene model");
-    const sceneCreate = this.scene.createModel({ id: instanceId, coordinateSystem });
+    const sceneCreate = this.scene.createModel({ id: instanceId, coordinateSystem, updateHint });
     if (sceneCreate.ok === false) {
       return { ok: false, type: 5 /* Unknown */, error: sceneCreate.error };
     }
@@ -260630,7 +263452,7 @@ var Studio = class _Studio {
               total: totalFormats
             });
             const r = await this.loadModel(
-              { modelId, format, sceneModel, dataModel },
+              { modelId, format, sceneModel, dataModel, updateHint },
               { onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60 }
             );
             if (r && r.ok === false) {

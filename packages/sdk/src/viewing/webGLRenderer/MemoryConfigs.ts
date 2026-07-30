@@ -8,6 +8,38 @@
 export interface MemoryConfigs {
 
   /**
+   * Geometry storage backend used for triangle render batches.
+   *
+   * - `"auto"`: choose from the active internal triangle render-path flags.
+   *   This preserves the renderer's current experimental VBO/DTX switching
+   *   behavior, unless a SceneModel provides an `updateHint`.
+   * - `"dtx"`: construct triangle batches with data-texture geometry only.
+   * - `"vbo"`: construct triangle batches with VBO geometry only. Mesh,
+   *   material and per-view state still live in data textures.
+   *
+   * Explicit `"dtx"` and `"vbo"` values override SceneModel `updateHint`
+   * hints.
+   *
+   * Lines and points always use the data-texture geometry path.
+   *
+   * @internal
+   */
+  triangleGeometryStorage?: "auto" | "dtx" | "vbo";
+
+  /**
+   * VBO geometry allocation settings for triangle batches.
+   *
+   * These settings are separate from {@link maxBatchPrims} because VBO geometry
+   * has a much higher fixed per-batch allocation cost than data-texture
+   * geometry. Large static models can raise `maxBatchPrims` here to reduce draw
+   * calls; smaller/default scenes keep it lower to avoid allocating oversized
+   * VBOs.
+   *
+   * @internal
+   */
+  vboGeometry?: TriangleGeometryVBOConfigs;
+
+  /**
    * Size of each RTC (Relative To Center) tile in world units.
    *
    * @remarks
@@ -95,4 +127,32 @@ export interface MemoryConfigs {
    * Maximum number of primitives (triangles, lines, or points) per render batch.
    */
   maxBatchPrims: number;
+}
+
+/**
+ * Allocation policy for triangle geometry VBO batches.
+ *
+ * `"fixedCapacity"` allocates CPU arrays and WebGL buffers once at batch
+ * creation using {@link TriangleGeometryVBOConfigs.maxBatchPrims}. This is the
+ * only implemented policy today.
+ *
+ * @internal
+ */
+export type TriangleGeometryVBOAllocationPolicy = "fixedCapacity";
+
+/**
+ * Triangle VBO batch-specific memory configuration.
+ *
+ * @internal
+ */
+export interface TriangleGeometryVBOConfigs {
+  /**
+   * Maximum number of triangles per VBO geometry batch.
+   */
+  maxBatchPrims?: number;
+
+  /**
+   * How triangle VBO buffers are allocated for a batch.
+   */
+  allocationPolicy?: TriangleGeometryVBOAllocationPolicy;
 }

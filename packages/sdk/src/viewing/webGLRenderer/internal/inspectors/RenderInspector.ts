@@ -1,10 +1,10 @@
 import type { MeshBatch } from "../meshManager";
 import type { RenderPassValue } from "../RENDER_PASSES";
 import { RENDER_PASSES } from "../RENDER_PASSES";
-import type { PrimRange } from "../gpuMemoryManager/dataTextures/PrimRange";
+import type { PrimRange } from "../gpuMemoryManager/geometry/PrimRange";
 import type { View } from "../../../viewer";
 import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../../../../base/constants";
-import { type ViewRenderStats } from "./ViewRenderStats";
+import { type TriangleVBOGeometryFrameStats, type ViewRenderStats } from "./ViewRenderStats";
 import { type RenderBinStats } from "./RenderBinStats";
 import { type DrawCallStats } from "./DrawCallStats";
 import {RENDER_BINS} from "../RENDER_BINS";
@@ -352,6 +352,33 @@ export class RenderInspector {
     s.currentDraw = draw;
     s.currentFrame.numDrawCalls++;
     s.currentFrame.numPrims += primRange.numPrims;
+  }
+
+  /**
+   * Records coverage for triangle surface DrawTechniques using the VBO geometry
+   * source instead of DTX primitive/index/position fetches.
+   *
+   * @internal
+   */
+  public vboGeometryTriangles(stats: Partial<TriangleVBOGeometryFrameStats>): void {
+    const s = this.getActiveState();
+    if (!this.enabled || !s || !s.currentFrame) {
+      return;
+    }
+    const frameStats = s.currentFrame.vboGeometryTriangles ??= {
+      handledBatches: 0,
+      fallbackBatches: 0,
+      blockedBatches: 0,
+      handledPrims: 0,
+      fallbackPrims: 0,
+      blockedPrims: 0
+    };
+    frameStats.handledBatches += stats.handledBatches ?? 0;
+    frameStats.fallbackBatches += stats.fallbackBatches ?? 0;
+    frameStats.blockedBatches += stats.blockedBatches ?? 0;
+    frameStats.handledPrims += stats.handledPrims ?? 0;
+    frameStats.fallbackPrims += stats.fallbackPrims ?? 0;
+    frameStats.blockedPrims += stats.blockedPrims ?? 0;
   }
 
   /**

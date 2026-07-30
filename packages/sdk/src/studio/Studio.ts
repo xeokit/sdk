@@ -1,4 +1,4 @@
-import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} from "../model/scene";
+import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams, type SceneModelUpdateHint} from "../model/scene";
 import {Data, DataModel, type DataModelStats} from "../model/data";
 import {View, Viewer, ViewObject, type ViewParams} from "../viewing/viewer";
 import {type MemoryConfigs, type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
@@ -90,7 +90,7 @@ export interface StudioConfig {
 
   /**
    * The maximum number of views to create. This is used to configure the WebGLRenderer's memory management,
-   * and also limits the number of views that can be created via `createView()`. Defaults to `4`.
+   * and also limits the number of views that can be created via `createView()`. Defaults to `1`.
    */
   maxViews?: number;
 
@@ -427,7 +427,7 @@ export class Studio {
         onViewCreated: (view, record, params) => this._onViewCreated(view, record, params),
       },
       {
-        maxViews: merged.maxViews ?? 4,
+        maxViews: merged.maxViews ?? 1,
         autoElementType: rendererBackend === "webgpu" ? "canvas" : "image",
       },
     );
@@ -587,6 +587,7 @@ export class Studio {
    * @param params.format - Model format determining which loader to use
    * @param params.dataModel - Optional existing {@link model!data.DataModel | DataModel} to populate
    * @param params.sceneModel - Optional existing {@link model!scene.SceneModel | SceneModel} to populate
+   * @param params.updateHint - Optional hint describing how dynamically the SceneModel will be updated
    *
    * @param options - Loader-specific options passed through to the underlying loader
    *
@@ -604,9 +605,13 @@ export class Studio {
       format: string;
       dataModel?: DataModel;
       sceneModel?: SceneModel;
+      updateHint?: SceneModelUpdateHint;
+      /** @deprecated Use updateHint. */
+      updateUsage?: SceneModelUpdateHint;
     },
     options: any
   ): Promise<SDKResult<any>> {
+    const updateHint = params.updateHint ?? params.updateUsage;
 
     let coordinateSystem: CoordinateSystemParams | undefined;
     if (!params.sceneModel && params.modelId) {
@@ -637,8 +642,11 @@ export class Studio {
     if (descriptor.needsScene) {
       if (params.sceneModel) {
         sceneModel = params.sceneModel;
+        if (updateHint !== undefined) {
+          sceneModel.updateHint = updateHint;
+        }
       } else {
-        const sRes = this.scene.createModel({id: params.modelId, coordinateSystem});
+        const sRes = this.scene.createModel({id: params.modelId, coordinateSystem, updateHint});
         if (sRes.ok === false) {
           this.reportError(sRes);
           return sRes;
@@ -1156,8 +1164,17 @@ export class Studio {
      * loads at the cost of less-frequent progress updates.
      */
     yieldIntervalMs?: number;
+    /**
+     * Hint describing how dynamically the loaded SceneModel will be updated.
+     * Forwarded to {@link model!scene.SceneModel.updateHint}, allowing the
+     * renderer to choose an appropriate internal geometry representation.
+     */
+    updateHint?: SceneModelUpdateHint;
+    /** @deprecated Use updateHint. */
+    updateUsage?: SceneModelUpdateHint;
   }): Promise<SDKResult<{ sceneModel: SceneModel; dataModel: DataModel }>> {
     const {modelId, formats} = params;
+    const updateHint = params.updateHint ?? params.updateUsage;
     const clear = params.clear !== false;
     sdkProgress.setPhase(`Preparing ${modelId}`);
     if (!modelId || !formats || formats.length === 0) {
@@ -1196,7 +1213,7 @@ export class Studio {
     const coordinateSystem = await this._loadCoordSys(modelId);
 
     sdkProgress.setPhase("Creating scene model");
-    const sceneCreate = this.scene.createModel({id: instanceId, coordinateSystem});
+    const sceneCreate = this.scene.createModel({id: instanceId, coordinateSystem, updateHint});
     if (sceneCreate.ok === false) {
       return {ok: false, type: SDKErrorType.Unknown, error: sceneCreate.error};
     }
@@ -1251,7 +1268,7 @@ export class Studio {
               total: totalFormats,
             });
             const r = await this.loadModel(
-              {modelId, format, sceneModel, dataModel},
+              {modelId, format, sceneModel, dataModel, updateHint},
               {onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60},
             );
             if (r && (r as any).ok === false) {

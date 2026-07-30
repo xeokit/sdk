@@ -1,9 +1,9 @@
 // MemoryDebugger.ts (extended with GPU memory usage panel)
 import { DataTexture } from "../gpuMemoryManager/dataTextures/DataTexture";
-import type { DataTextures } from "../gpuMemoryManager/DataTextures";
+import type { RendererGPUResources } from "../gpuMemoryManager/RendererGPUResources";
 import type { MemoryUsage } from "../../MemoryUsage";
 import { WebGLRenderer } from "../../WebGLRenderer";
-import type { PrimRange } from "../gpuMemoryManager/dataTextures/PrimRange";
+import type { PrimRange } from "../gpuMemoryManager/geometry/PrimRange";
 import { RENDER_PASSES } from "../RENDER_PASSES";
 
 
@@ -15,7 +15,7 @@ const DEBUG_VIEW_ITEMS = 128; // N
 /**
  * Displays:
  *  1) GPU memory usage (allocated/used)
- *  2) Batch-level renderPassPrimitiveRanges for each DataTextures batch
+ *  2) Batch-level renderPassPrimitiveRanges for each renderer resource batch
  *  3) First N items for each DataTexture using getItem(index)
  *  4) DataTexture.description shown above each texture output box
  */
@@ -294,15 +294,15 @@ export class MemoryDebugger {
     if (memoryInspectorRes.ok === false) {
       throw new Error(`MemoryDebugger: renderer.getMemoryInspector() error: ${memoryInspectorRes.error}`);
     }
-    const dataTextures = memoryInspectorRes.value.dataTextures as DataTextures;
-    if (!dataTextures) throw new Error("MemoryDebugger: renderer is rendering and should have dataTextures");
+    const gpuResources = (memoryInspectorRes.value.gpuResources ?? memoryInspectorRes.value.dataTextures) as RendererGPUResources;
+    if (!gpuResources) throw new Error("MemoryDebugger: renderer is rendering and should have gpuResources");
 
-    dataTextures.viewTileCameraMatrixTexture?.forEach((t, i) => push(t, `viewTileCameraMatrixTexture[${i}]`));
-    dataTextures.viewTilePickMatrixTexture?.forEach((t, i) => push(t, `viewTilePickMatrixTexture[${i}]`));
+    gpuResources.viewTileCameraMatrixTexture?.forEach((t, i) => push(t, `viewTileCameraMatrixTexture[${i}]`));
+    gpuResources.viewTilePickMatrixTexture?.forEach((t, i) => push(t, `viewTilePickMatrixTexture[${i}]`));
 
     this.batchInfos.length = 0;
 
-    dataTextures.batches?.forEach((batch: any, bi: number) => {
+    gpuResources.batches?.forEach((batch: any, bi: number) => {
       push(batch.indices, `batches[${bi}].indices`);
       push(batch.edgeIndices, `batches[${bi}].edgeIndices`);
       push(batch.meshAttributeTexture, `batches[${bi}].meshAttribTable`);
@@ -468,10 +468,10 @@ export class MemoryDebugger {
     // NEW: subscribe to primitiveMeshIndexTexture updates for each batch view
     const memoryInspectorRes = this.renderer.getMemoryInspector();
     if (memoryInspectorRes.ok === false) return;
-    const dataTextures = memoryInspectorRes.value.dataTextures as DataTextures;
-    if (!dataTextures) return;
+    const gpuResources = (memoryInspectorRes.value.gpuResources ?? memoryInspectorRes.value.dataTextures) as RendererGPUResources;
+    if (!gpuResources) return;
 
-    dataTextures.batches?.forEach((batch: any, bi: number) => {
+    gpuResources.batches?.forEach((batch: any, bi: number) => {
       batch.views?.forEach((view: any, vi: number) => {
         const primitiveMeshIndexTexture = view.primitiveMeshIndexTexture;
         if (primitiveMeshIndexTexture && typeof primitiveMeshIndexTexture.onUpdated?.subscribe === "function") {

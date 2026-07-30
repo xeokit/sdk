@@ -155,9 +155,17 @@ export abstract class DataTexture {
   public lastUploadTimeMS: number = 0;
 
   /**
+   * Monotonic counter incremented whenever this texture uploads new data.
+   *
+   * Internal renderer-side caches can use this to detect stale derived GPU
+   * resources without subscribing to debugging-only events.
+   */
+  public version: number = 0;
+
+  /**
    * Enables internal event emission for this data texture.
    */
-  public debugging: boolean = true;
+  public debugging: boolean = false;
 
   /**
    * Emitted when the CPU-side buffer for this texture has changed and been uploaded to the GPU.
@@ -352,6 +360,7 @@ export abstract class DataTexture {
    * @internal
    */
   protected notifyUpdated(): void {
+    this.version++;
     if (this.debugging) {
       this.onUpdated.dispatch(this, undefined);
     }

@@ -67,19 +67,21 @@ export class RendererMesh {
                 meshBatch,
                 renderContext,
                 gpuMemoryManager,
-                meshHandle
+                meshHandle,
+                gpuTile
               }: {
     sceneMesh: SceneMesh;
     meshBatch: MeshBatchImpl;
     renderContext: RenderContext;
     gpuMemoryManager: GPUMemoryManager;
     meshHandle: MeshBatchMeshHandle;
+    gpuTile?: GPUTile;
   }) {
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
-    this.gpuTile = null;
+    this.gpuTile = gpuTile ?? null;
     // GPU portions are created with objectVisible=true and meshVisible=true.
     // CPU flags must match so that the first setObjectVisible(false) is not treated as a no-op.
     const initialFlags = ViewStateBits.ObjectVisible | ViewStateBits.MeshVisible;
@@ -87,7 +89,9 @@ export class RendererMesh {
     this._viewFlags0 = initialFlags;
     this._viewFlags = this._numViews > 1 ? new Uint8Array(this._numViews) : null;
     this._viewFlags?.fill(initialFlags);
-    this.setMatrix(sceneMesh.worldMatrix);
+    if (!this.gpuTile) {
+      this.setMatrix(sceneMesh.worldMatrix);
+    }
     this.setOpacity(sceneMesh.effectiveOpacity);
   }
 
@@ -137,13 +141,9 @@ export class RendererMesh {
       ? this._gpuMemoryManager.moveTile(oldTile, center)
       : this._gpuMemoryManager.getTile(center);
 
-    if (!oldTile || oldTile.id !== this.gpuTile.id) {
-      this._meshBatch.setMeshTile(this._meshHandle, this.gpuTile.tileIndex);
-    }
-
     const relativeMatrix = createMat4Float64(matrix) as any;
     relativeMatrix.set(subVec3(center, this.gpuTile.center), 12);
-    this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
+    this._meshBatch.setMeshPlacement(this._meshHandle, this.gpuTile.tileIndex, relativeMatrix);
   }
 
   /**

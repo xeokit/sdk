@@ -1,6 +1,6 @@
 import { SDKInternalException } from "../../../../../base/core";
 import { DataTexture } from "./DataTexture";
-import { type PrimRange } from "./PrimRange";
+import { type PrimRange } from "../geometry/PrimRange";
 
 /**
  * Runtime identifier for a render pass.

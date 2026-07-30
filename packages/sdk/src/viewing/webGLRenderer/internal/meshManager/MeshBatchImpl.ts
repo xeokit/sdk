@@ -3,13 +3,15 @@ import type {RenderContext} from "../RenderContext";
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import type {MeshBatch} from "./MeshBatch";
 import type {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
-import type {GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
+import type {GPUMemoryMeshHandle, GPUMemoryMeshPlacement} from "../gpuMemoryManager/GPUMemoryMeshHandle";
 import type {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import type {SDKResult} from "../../../../base/core";
 import type {Mat4} from "../../../../base/math/matrix";
 import type {Vec3} from "../../../../base/math/vector";
 import {GPUMemoryCheckResult} from "../gpuMemoryManager";
 import {LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import type {TriangleGeometryStorageKind} from "../gpuMemoryManager/BatchGPUResources";
+import type {MeshManagerStepStats} from "./MeshManagerStepStats";
 
 function getMeshIndexCount(sceneMesh: SceneMesh): number {
   return sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0;
@@ -40,6 +42,11 @@ export class MeshBatchImpl implements MeshBatch {
    * Primitive type of the meshes in this batch.
    */
   primitive: number;
+
+  /**
+   * Geometry storage used by this batch.
+   */
+  readonly geometryStorage: TriangleGeometryStorageKind;
 
   /**
    * Whether the geometries in this batch carry per-vertex normals.
@@ -142,9 +149,10 @@ export class MeshBatchImpl implements MeshBatch {
     hasUVs: boolean;
     triplanar: boolean;
     mipmap: boolean;
+    geometryStorage: TriangleGeometryStorageKind;
     bin?: string;
   }) {
-    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar, mipmap, bin} = batchParams;
+    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin} = batchParams;
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
@@ -153,9 +161,10 @@ export class MeshBatchImpl implements MeshBatch {
     this.hasUVs = hasUVs === true;
     this.triplanar = triplanar === true;
     this.mipmap = mipmap === true;
+    this.geometryStorage = geometryStorage;
     this.bin = bin;
     this.primBaseIndex = 0; // TODO
-    this.sortId = `batch-${primitive}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}-${this.mipmap ? "m" : "0"}-${this.bin ?? ""}`;
+    this.sortId = `batch-${primitive}-${this.geometryStorage}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}-${this.mipmap ? "m" : "0"}-${this.bin ?? ""}`;
     this.numIndices = 0;
     this.numVertices = 0;
     // SAO and Shadows are triangle-only effects: the line / point draw-op
@@ -170,7 +179,7 @@ export class MeshBatchImpl implements MeshBatch {
    * A hash string representing this batch, used for quick comparisons.
    */
   public get hash(): string {
-    return `${this.primitive}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}-${this.mipmap ? 1 : 0}`;
+    return `${this.primitive}-${this.geometryStorage}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}-${this.mipmap ? 1 : 0}`;
   }
 
   /**
@@ -181,12 +190,12 @@ export class MeshBatchImpl implements MeshBatch {
    * @returns True if there are meshes to render in the specified pass, false otherwise.
    */
   public hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue): boolean {
-    const batchDataTextures = (<GPUMemoryManager>this._gpuMemoryManager).dataTextures.batches[this.gpuMemoryBatchIndex];
-    if (!batchDataTextures) {
+    const batchResources = (<GPUMemoryManager>this._gpuMemoryManager).gpuResources?.batches[this.gpuMemoryBatchIndex];
+    if (!batchResources) {
       return false;
     }
-    const batchViewDataTextures = batchDataTextures.views[viewIndex];
-    if (!batchViewDataTextures) {
+    const batchViewResources = batchResources.views[viewIndex];
+    if (!batchViewResources) {
       return false;
     }
     // PICK and SNAP_INIT draw the pickable-triangle set
@@ -201,14 +210,14 @@ export class MeshBatchImpl implements MeshBatch {
     // 1-pixel `gl.LINES` (edge snap) into the snap FBO.
     if (renderPass === RENDER_PASSES.PICK ||
         renderPass === RENDER_PASSES.SNAP_INIT) {
-      return batchViewDataTextures.pickPrimitiveRange.numPrims > 0;
+      return batchViewResources.pickPrimitiveRange.numPrims > 0;
     }
     if (renderPass === RENDER_PASSES.SNAP) {
       return this.primitive === LinesPrimitive
-        ? batchViewDataTextures.pickPrimitiveRange.numPrims > 0
-        : batchViewDataTextures.pickEdgePrimitiveRange.numPrims > 0;
+        ? batchViewResources.pickPrimitiveRange.numPrims > 0
+        : batchViewResources.pickEdgePrimitiveRange.numPrims > 0;
     }
-    return batchViewDataTextures.renderPassPrimitiveRanges.get(<number>renderPass)?.numPrims! > 0;
+    return batchViewResources.renderPassPrimitiveRanges.get(<number>renderPass)?.numPrims! > 0;
   }
 
   /**
@@ -219,7 +228,7 @@ export class MeshBatchImpl implements MeshBatch {
    * @return True if there are meshes to render in the edge render pass, false otherwise.
    */
   public hasMeshesInEdgeRenderPass(viewIndex: number, renderPass: RenderPassValue): boolean {
-    return (<GPUMemoryManager>this._gpuMemoryManager).dataTextures.batches[this.gpuMemoryBatchIndex]
+    return (<GPUMemoryManager>this._gpuMemoryManager).gpuResources?.batches[this.gpuMemoryBatchIndex]
       ?.views[viewIndex]
       ?.renderPassEdgePrimitiveRanges.get(<number>renderPass)
       ?.numPrims! > 0; // Single point-of-truth for mesh counts
@@ -235,14 +244,22 @@ export class MeshBatchImpl implements MeshBatch {
     return this._gpuMemoryManager.hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
   }
 
+  public beginBulkMeshAdd(stats?: MeshManagerStepStats | null): void {
+    this._gpuMemoryManager.beginBulkMeshAdd(this.gpuMemoryBatchIndex, stats);
+  }
+
+  public endBulkMeshAdd(stats?: MeshManagerStepStats | null): void {
+    this._gpuMemoryManager.endBulkMeshAdd(this.gpuMemoryBatchIndex, stats);
+  }
+
   /**
    * Adds a mesh to the batch, updates the mesh counts, and allocates GPU memory for it.
    *
    * @param sceneMesh - The SceneMesh to add.
    * @returns A handle to the added mesh in the batch's GPU memory.
    */
-  public addMesh(sceneMesh: SceneMesh): SDKResult<MeshBatchMeshHandle> {
-    const gpuMeshHandleResult = this._gpuMemoryManager.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
+  public addMesh(sceneMesh: SceneMesh, placement?: GPUMemoryMeshPlacement, stats?: MeshManagerStepStats | null): SDKResult<MeshBatchMeshHandle> {
+    const gpuMeshHandleResult = this._gpuMemoryManager.addMesh(this.gpuMemoryBatchIndex, sceneMesh, placement, stats);
     if (gpuMeshHandleResult.ok) {
       this.numIndices += getMeshIndexCount(sceneMesh);
       this.numVertices += getMeshVertexCount(sceneMesh);
@@ -423,6 +440,16 @@ export class MeshBatchImpl implements MeshBatch {
   }
 
   /**
+   * Sets the tile and tile-relative matrix for a mesh together.
+   */
+  public setMeshPlacement(meshHandle: MeshBatchMeshHandle, tileIndex: number, rtcMatrix: Mat4): void {
+    this._gpuMemoryManager.setMeshPlacement(meshHandle as GPUMemoryMeshHandle, {
+      tileIndex,
+      rtcMatrix
+    });
+  }
+
+  /**
    * Sets the tile tileIndex for a mesh.
    */
   public setMeshTile(meshHandle: MeshBatchMeshHandle, tileIndex: number): void {
@@ -449,4 +476,3 @@ export class MeshBatchImpl implements MeshBatch {
     this._gpuMemoryManager = null;
   }
 }
-

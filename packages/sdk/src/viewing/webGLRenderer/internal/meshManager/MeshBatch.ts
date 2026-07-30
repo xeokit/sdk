@@ -2,6 +2,7 @@
 import {type SceneMesh} from "../../../../model/scene";
 import {type RenderPassValue} from "../RENDER_PASSES";
 import type {DrawTechnique} from "../drawOps/DrawTechnique";
+import type {TriangleGeometryStorageKind} from "../gpuMemoryManager/BatchGPUResources";
 
 /**
  * A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together
@@ -15,6 +16,11 @@ export interface MeshBatch {
    * Primitive type of the meshes in this batch.
    */
   primitive: number;
+
+  /**
+   * Geometry storage used by this batch.
+   */
+  geometryStorage: TriangleGeometryStorageKind;
 
   /**
    * Whether the batch's geometries carry per-vertex normals.
@@ -105,9 +111,9 @@ export interface MeshBatch {
 
   /**
    * The index of this batch's memory in the GPUMemoryManager system.
-   * This indexes the `GPUMemoryEditor.dataTextures.batches` array. Before drawing this batch,
-   * the renderer will bind the corresponding data textures from that array, which contain the
-   * mesh data needed for rendering.
+   * This indexes the `GPUMemoryManager.gpuResources.batches` array. Before drawing this batch,
+   * the renderer will bind the corresponding batch resources from that array, which contain the
+   * mesh state and either DTX or VBO geometry needed for rendering.
    */
   gpuMemoryBatchIndex: number;
 
@@ -130,4 +136,3 @@ export interface MeshBatch {
    */
   hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue ): boolean;
 }
-

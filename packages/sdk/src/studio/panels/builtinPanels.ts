@@ -263,7 +263,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
       if (!webGLRenderer) return undefined;
       const res = webGLRenderer.getMemoryInspector();
       if (res.ok === false) return undefined;
-      const dt = res.value.dataTextures;
+      const dt = res.value.gpuResources ?? res.value.dataTextures;
       return dt ? DataTexturesPanel.getFor(dt) : undefined;
     },
     create: (ctx) => {
@@ -277,9 +277,9 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
         ctx.studio.reportWarning(`[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:: ${res.error}`);
         return undefined;
       }
-      const dt = res.value.dataTextures;
+      const dt = res.value.gpuResources ?? res.value.dataTextures;
       if (!dt) {
-        ctx.studio.reportWarning("[PanelRegistry/dataTexturesPanel] MemoryInspector has no DataTextures bundle.");
+        ctx.studio.reportWarning("[PanelRegistry/dataTexturesPanel] MemoryInspector has no GPU resources bundle.");
         return undefined;
       }
       return DataTexturesPanel.openFor({dataTextures: dt});

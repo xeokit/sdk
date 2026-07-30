@@ -17,6 +17,16 @@ export class TrianglesShadowDepthTechnique extends DrawTechnique {
 
   public readonly vertsPerPrim = 3;
 
+  constructor(
+    renderContext,
+    gpuMemoryReader,
+    opts: { vboGeometry?: boolean } = {},
+  ) {
+    super(renderContext, gpuMemoryReader, {
+      vboGeometry: opts.vboGeometry === true,
+    });
+  }
+
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDeclarations();

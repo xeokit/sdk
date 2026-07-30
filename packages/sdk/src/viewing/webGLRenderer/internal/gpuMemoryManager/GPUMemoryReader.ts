@@ -1,18 +1,26 @@
-import {type DataTextures} from "./DataTextures";
+import {type RendererGPUResources} from "./RendererGPUResources";
 import {SceneMesh} from "../../../../model/scene";
 
 /**
- * Interface that provides the data textures that implement the GPU-side memory.
- * This interface is used within `DrawTechnique` instances to access the GPU memory resources.
+ * Interface that provides the GPU-side memory resources used by draw techniques.
+ *
+ * The preferred property is `gpuResources`; `dataTextures` remains as a
+ * compatibility alias for the original DTX renderer path. Batch entries may
+ * now also include VBO-backed geometry resources.
  *
  * @internal
  */
 export interface GPUMemoryReader {
 
   /**
-   * The data textures.
+   * GPU-side memory resource bundle exposed to renderer internals.
    */
-  dataTextures: DataTextures;
+  gpuResources: RendererGPUResources;
+
+  /**
+   * Backwards-compatible name for {@link gpuResources}.
+   */
+  dataTextures: RendererGPUResources;
 
   /**
    * Retrieves a SceneMesh from a specific batch at the given index.

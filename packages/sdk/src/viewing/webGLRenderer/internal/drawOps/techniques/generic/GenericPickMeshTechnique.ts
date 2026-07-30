@@ -10,8 +10,16 @@ export class GenericPickMeshTechnique extends DrawTechnique {
 
   public readonly vertsPerPrim: number;
 
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, vertsPerPrim: number) {
-    super(renderContext, gpuMemoryReader, { picking: true });
+  constructor(
+    renderContext: RenderContext,
+    gpuMemoryReader: GPUMemoryReader,
+    vertsPerPrim: number,
+    opts: { vboGeometry?: boolean } = {}
+  ) {
+    super(renderContext, gpuMemoryReader, {
+      picking: true,
+      vboGeometry: opts.vboGeometry === true
+    });
     this.vertsPerPrim = vertsPerPrim;
   }
 

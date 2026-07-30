@@ -5,8 +5,8 @@
  * @internal
  */
 export * from "./GPUMemoryManager";
-export * from "./DataTextures";
-export * from "./BatchDataTextures";
+export * from "./RendererGPUResources";
+export * from "./BatchGPUResources";
 export * from "./GPUMemoryBatch";
 export * from "./GPUMemoryMeshHandle";
 export * from "./GPUMemoryReader";
@@ -17,3 +17,4 @@ export * from "./GPUMemoryCheckResult";
 
 
 export * as dataTextures from "./dataTextures";
+export * as geometry from "./geometry";

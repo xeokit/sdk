@@ -18,7 +18,7 @@
  * bring-to-front on pointer-down, scoped `xkt-dtx-` CSS prefix.
  *
  */
-import type {DataTextures} from "../../../viewing/webGLRenderer/internal/gpuMemoryManager/DataTextures";
+import type {DataTextures} from "../../../viewing/webGLRenderer/internal/gpuMemoryManager/RendererGPUResources";
 import {clamp01} from "../../../base/math";
 
 import {el} from "../../utils/el";

@@ -7,6 +7,7 @@
   "module": "dist/index.js",
   "scripts": {
     "sdk-test": "jest --passWithNoTests",
+    "sdk-test:browser": "jest --config jest.browser.config.js --runInBand --passWithNoTests",
     "sdk-test:formats": "jest src/formats",
     "sdk-perf": "RUN_PERF=1 jest src/perf",
     "sdk-perf:update": "RUN_PERF=1 UPDATE_PERF_BASELINE=1 jest src/perf",

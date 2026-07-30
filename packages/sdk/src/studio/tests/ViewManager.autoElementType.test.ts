@@ -72,6 +72,17 @@ describe("Studio ViewManager auto-created view elements", () => {
       expect.objectContaining({adaptiveQuality}),
     );
   });
+
+  it("does not add resolution scale render modes to Studio-created views", () => {
+    const viewer = createViewer();
+    const manager = createManager(viewer);
+
+    manager.createView({id: "resolution-scale-view"});
+
+    expect(viewer.createView).toHaveBeenCalledWith(expect.not.objectContaining({
+      resolutionScale: expect.anything(),
+    }));
+  });
 });
 
 function createManager(

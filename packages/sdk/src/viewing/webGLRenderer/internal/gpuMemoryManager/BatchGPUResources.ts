@@ -1,5 +1,5 @@
 import { DataTexture } from "./dataTextures/DataTexture";
-import { type PrimRange } from "./dataTextures/PrimRange";
+import { type PrimRange } from "./geometry/PrimRange";
 import {PrimitiveMeshIndexTexture} from "./dataTextures/PrimitiveMeshIndexTexture";
 import {MeshAttributeTexture} from "./dataTextures/MeshAttributeTexture";
 import {LinePatternTexture} from "./dataTextures/LinePatternTexture";
@@ -15,25 +15,48 @@ import {VertexUVTexture} from "./dataTextures/VertexUVTexture";
 import {TextureAtlas} from "./dataTextures/TextureAtlas";
 import {MeshViewAttributeTexture} from "./dataTextures/MeshViewAttributeTexture";
 import {IndexTexture} from "./dataTextures/IndexTexture";
+import type {TriangleGeometryVBOBatch} from "./vbos/TriangleGeometryVBOBatch";
 
+export type TriangleGeometryStorageKind = "dtx" | "vbo";
 
 /**
- * GPU data textures for a single sorted render batch.
+ * GPU resources for a single sorted render batch.
  *
  * A {@link WebGLRenderer} groups renderable meshes into batches that share
  * compatible rendering state in order to minimize draw calls. Each batch owns
- * a set of GPU-resident {@link DataTexture}s containing all data required to
- * render the meshes in that batch.
+ * the GPU-resident textures and optional VBOs required to render the meshes in
+ * that batch.
  *
  * A batch contains:
  * - **Per-view textures**, whose contents may differ by View (camera, picking view, etc.)
  * - **View-invariant textures**, shared across all Views
+ * - **Optional VBO geometry**, used by triangle VBO-backed draw paths
  *
- * Instances are stored in {@link DataTextures.batches}.
+ * Instances are stored in {@link RendererGPUResources.batches}.
  *
  * @internal
  */
-export interface BatchDataTextures {
+export interface BatchGPUResources {
+
+  /**
+   * Geometry storage kind used by this batch.
+   *
+   * `"dtx"` batches store primitive lists, indices, quantization ranges and
+   * positions in data textures. `"vbo"` triangle batches store the primitive
+   * draw list and baked positions in {@link triangleGeometryVBO}, while still
+   * using data textures for mesh/material/view state.
+   */
+  geometryStorage: TriangleGeometryStorageKind;
+
+  /**
+   * Optional VBO storage for triangle geometry.
+   *
+   * Present only on batches constructed with `geometryStorage === "vbo"`.
+   * DTX batches leave this absent. VBO-backed draw techniques use this for
+   * primitive/index/position geometry while continuing to use data textures for
+   * per-mesh and material state.
+  */
+  triangleGeometryVBO?: TriangleGeometryVBOBatch;
 
   /**
    * Per-view data textures for this batch.
@@ -63,7 +86,7 @@ export interface BatchDataTextures {
      *
      * The per-pass partitions of this draw list are defined by `renderPassPrimitiveRanges`.
      */
-    primitiveMeshIndexTexture: PrimitiveMeshIndexTexture;
+    primitiveMeshIndexTexture?: PrimitiveMeshIndexTexture;
 
     /**
      * Edge primitive-to-mesh index table for this View.
@@ -72,7 +95,7 @@ export interface BatchDataTextures {
      *
      * Only exists if the batch is for meshes with triangle primitives.
      */
-    edgeMeshIndexTexture: PrimitiveMeshIndexTexture;
+    edgeMeshIndexTexture?: PrimitiveMeshIndexTexture;
 
     /**
      * Per-view mesh attribute table.
@@ -223,14 +246,14 @@ export interface BatchDataTextures {
    *
    * Indexed by geometry index.
    */
-  geometryQuantRangeTexture: GeometryQuantRangeTexture;
+  geometryQuantRangeTexture?: GeometryQuantRangeTexture;
 
   /**
    * Primitive index buffer for this batch.
    *
    * Contains the indices of all geometry primitives referenced by the batch.
    */
-  indexTexture: IndexTexture;
+  indexTexture?: IndexTexture;
 
   /**
    * Edge primitive index buffer.
@@ -239,21 +262,21 @@ export interface BatchDataTextures {
    *
    * Only exists if the batch is for meshes with triangle primitives.
    */
-  edgeIndexTexture: IndexTexture;
+  edgeIndexTexture?: IndexTexture;
 
   /**
    * Vertex position buffer.
    *
    * Stores packed 3D vertex positions for all geometries in this batch.
    */
-  vertexPositionTexture: VertexPositionTexture;
+  vertexPositionTexture?: VertexPositionTexture;
 
   /**
    * Vertex color buffer.
    *
    * Stores per-vertex RGB color data for geometries in this batch.
    */
-  vertexColorTexture: VertexColorTexture;
+  vertexColorTexture?: VertexColorTexture;
 
   /**
    * Vertex normal buffer (optional).

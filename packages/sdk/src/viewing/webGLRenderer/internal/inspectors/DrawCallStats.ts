@@ -1,5 +1,5 @@
 
-import {type PrimRange} from "../gpuMemoryManager/dataTextures/PrimRange";
+import {type PrimRange} from "../gpuMemoryManager/geometry/PrimRange";
 import {type TimeMs} from "./TimeMs";
 
 /**

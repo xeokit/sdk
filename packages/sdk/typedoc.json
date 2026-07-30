@@ -5,6 +5,7 @@
     ],
     "includeVersion": true,
     "excludePrivate": true,
+    "excludeInternal": true,
     "visibilityFilters": {
         "protected": false,
         "private": false,

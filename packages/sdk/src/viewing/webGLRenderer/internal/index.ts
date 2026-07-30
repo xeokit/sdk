@@ -84,7 +84,7 @@
  *     MeshBatchImpl *--> "*" RendererGeometry
  *     RendererGeometry --> GPUMemoryManager : write
  *     RendererObject --> GPUMemoryManager : write
- *     GPUMemoryManager *--> DataTextures
+ *     GPUMemoryManager *--> RendererGPUResources
  *     RenderManager --> DrawOps : draw
  *     PickManager --> DrawOps : pick
  *     DrawOps *--> "*" RenderPassDrawOps
@@ -93,7 +93,7 @@
  *     DrawOp --> MeshBatchImpl : draw
  *     DrawOp:drawBatch()
  *     RendererMesh --> GPUMemoryManager : write
- *     DrawTechnique --> DataTextures : bind/read
+ *     DrawTechnique --> RendererGPUResources : bind/read
  *     WebGLRendererEvents <--* WebGLRenderer : emits
  *     WebGLRendererEvents:onError()
  *     WebGLRendererEvents:onWebGLContextLost()
@@ -117,7 +117,7 @@
  * - Observes {@link model!scene.Scene | Scene} and {@link viewing!viewer.Viewer | Viewer} lifecycle events.
  * - Exposes diagnostics and memory inspection APIs:
  *   - {@link MemoryUsage} -- high-level GPU memory statistics
- *   - {@link MemoryInspector} -- inspects contents of {@link DataTextures}
+ *   - {@link MemoryInspector} -- inspects contents of {@link RendererGPUResources}
  *   - {@link ShaderInspector} -- inspects shaders, source code etc.
  * - Emits lifecycle events via {@link WebGLRendererEvents}.
  * - Owns exactly one internal {@link ViewManager}.
@@ -156,7 +156,7 @@
  *
  * - {@link GPUMemoryManager}
  * - Allocates, updates, and releases all GPU-resident memory.
- * - Manages geometry buffers, attributes, and {@link DataTextures}.
+ * - Manages geometry buffers, attributes, and {@link RendererGPUResources}.
  * - Implements the tiled RTC (Relative To Center) coordinate system
  *   for high-precision rendering.
  * - Provides diagnostics and inspection APIs.
@@ -229,14 +229,14 @@
  *     ```
  *
  * - {@link MemoryInspector} via {@link WebGLRenderer.getMemoryInspector}
- *   - Provides a structured, read-only view of all GPU-resident data textures and their contents.
+ *   - Provides a structured, read-only view of all GPU-resident renderer resources and their contents.
  *   - Allows mapping between GPU indices and scene objects/geometries.
  *   - Example:
  *     ```ts
  *     const inspector = webglRenderer.getMemoryInspector();
  *     const mesh = inspector.getMeshAtIndex(batchIndex, meshIndex);
  *     const geometry = inspector.getGeometryAtIndex(batchIndex, geometryIndex);
- *     const dataTextures = inspector.dataTextures;
+ *     const gpuResources = inspector.gpuResources;
  *     ```
  *   - See {@link inspectors/MemoryInspector} for a detailed usage example.
  *

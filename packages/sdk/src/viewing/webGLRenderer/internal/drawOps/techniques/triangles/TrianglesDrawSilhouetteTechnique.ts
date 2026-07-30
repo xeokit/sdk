@@ -9,6 +9,17 @@ export class TrianglesDrawSilhouetteTechnique extends DrawTechnique {
 
   public readonly vertsPerPrim = 3;
 
+  constructor(
+    renderContext,
+    gpuMemoryReader,
+    opts: { vboGeometry?: boolean; logDepth?: boolean } = {},
+  ) {
+    super(renderContext, gpuMemoryReader, {
+      vboGeometry: opts.vboGeometry === true,
+      logDepth: opts.logDepth === true,
+    });
+  }
+
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDeclarations();

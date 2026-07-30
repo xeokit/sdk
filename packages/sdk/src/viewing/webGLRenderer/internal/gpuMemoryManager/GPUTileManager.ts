@@ -126,7 +126,10 @@ export class GPUTileManager {
    * Destroys this tile manager.
    */
   destroy() {
-    console.log(`GPUTileManager.destroy: Destroying GPUTileManager with ${this._numTiles} tiles`);
+    this._tiles.clear();
+    this._tileIndexesUsed = [];
+    this._lastFreeTileIndex = 0;
+    this._numTiles = 0;
   }
 
   /**

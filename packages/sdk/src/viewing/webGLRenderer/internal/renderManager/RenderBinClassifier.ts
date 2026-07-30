@@ -2,6 +2,7 @@ import type {MeshBatch} from "../meshManager/MeshBatch";
 import type {View} from "../../../viewer";
 
 import {RENDER_PASSES} from "../RENDER_PASSES";
+import {TrianglesPrimitive} from "../../../../base/constants";
 
 
 /**
@@ -114,6 +115,8 @@ export class RenderBinClassifier {
       const xray = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.XRAYED);
       const highlight = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.HIGHLIGHTED);
       const select = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SELECTED);
+      const supportsEdgePasses = meshBatch.primitive === TrianglesPrimitive &&
+        (meshBatch.geometryStorage === "dtx" || meshBatch.geometryStorage === "vbo");
 
       if (opaque) {
         // Overlay-bin batches skip SAO + shadow routing entirely. They
@@ -161,7 +164,7 @@ export class RenderBinClassifier {
       // Normal edges (the global "wireframe overlay" effect) are gated on
       // `view.effects.edges.applied`, which respects `Edges.renderModes`
       // (DetailedRender by default).
-      if (edgeMaterial.applied) {
+      if (supportsEdgePasses && edgeMaterial.applied) {
         if (opaque) bins.normalEdgesOpaque.push(meshBatch);
         if (transparent) bins.normalEdgesTransparent.push(meshBatch);
       }
@@ -172,13 +175,13 @@ export class RenderBinClassifier {
       // Gate them on each effect material's own `edges` flag (and require
       // a usable alpha) so e.g. flipping `View.renderMode` to
       // RealisticRender doesn't silently swallow the silhouettes.
-      if (xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
+      if (supportsEdgePasses && xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
         (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
       }
-      if (highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
+      if (supportsEdgePasses && highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
         (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
       }
-      if (select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
+      if (supportsEdgePasses && select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
         (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
       }
     }

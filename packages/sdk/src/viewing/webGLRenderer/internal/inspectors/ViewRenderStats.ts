@@ -1,6 +1,15 @@
 import {type RenderBinStats} from "./RenderBinStats";
 import {type TimeMs} from "./TimeMs";
 
+export interface TriangleVBOGeometryFrameStats {
+  handledBatches: number;
+  fallbackBatches: number;
+  blockedBatches: number;
+  handledPrims: number;
+  fallbackPrims: number;
+  blockedPrims: number;
+}
+
 /**
  * Log entry for a single render frame, made up of multiple render passes.
  */
@@ -42,4 +51,13 @@ export interface ViewRenderStats {
    * still pending.
    */
   gpuTimeMs?: number;
+
+  /**
+   * Internal stats for DrawTechnique triangle surface draws that source
+   * primitive/index/position geometry from VBOs while keeping mesh/material
+   * attributes in data textures.
+   *
+   * @internal
+   */
+  vboGeometryTriangles?: TriangleVBOGeometryFrameStats;
 }

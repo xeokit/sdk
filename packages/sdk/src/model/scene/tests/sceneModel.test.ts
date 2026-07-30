@@ -60,6 +60,57 @@ function buildModel(scene: Scene, modelId: string) {
 
 describe("SceneModel serialization", () => {
 
+  it("round-trips the model update hint", () => {
+    const src = new Scene().createModel({
+      id: "hintModel",
+      updateHint: "static"
+    }).value!;
+
+    expect(src.updateHint).toBe("static");
+    expect(src.updateUsage).toBe("static");
+
+    const params = src.toParams().value!;
+    expect(params.updateHint).toBe("static");
+    expect(params.updateUsage).toBe("static");
+
+    const dst = new Scene().createModel({id: "hintDst"}).value!;
+    const fromRes = dst.fromParams(params);
+
+    expect(fromRes.ok).toBe(true);
+    expect(dst.updateHint).toBe("static");
+  });
+
+  it("keeps updateUsage as a deprecated alias", () => {
+    const model = new Scene().createModel({
+      id: "legacyUsage",
+      updateUsage: "static"
+    }).value!;
+
+    expect(model.updateHint).toBe("static");
+
+    model.updateUsage = "dynamic";
+    expect(model.updateHint).toBe("dynamic");
+  });
+
+  it("prefers updateHint when both updateHint and updateUsage are provided", () => {
+    const model = new Scene().createModel({
+      id: "hintWins",
+      updateHint: "static",
+      updateUsage: "dynamic"
+    }).value!;
+
+    expect(model.updateHint).toBe("static");
+  });
+
+  it("normalizes legacy stream update hint to dynamic", () => {
+    const model = new Scene().createModel({
+      id: "legacyStreamHint",
+      updateUsage: "stream" as any
+    }).value!;
+
+    expect(model.updateHint).toBe("dynamic");
+  });
+
   it("serializes a built model to SceneModelParams via toParams()", () => {
     const model = buildModel(new Scene(), "model1");
 

@@ -12,6 +12,14 @@ import {SceneGeometry} from "../../../../model/scene";
 import {GaussianSplatsPrimitive} from "../../../../base/constants";
 import {SplatBatch} from "../gpuMemoryManager/SplatBatch";
 import {RendererSplatMesh} from "./RendererSplatMesh";
+import type {TriangleGeometryStorageKind} from "../gpuMemoryManager/BatchGPUResources";
+import {selectTriangleGeometryStorage} from "./TriangleGeometryStoragePolicy";
+import {createMat4Float64, transformPoint4, type Mat4} from "../../../../base/math/matrix";
+import {createVec4Float64, subVec3, type Vec3} from "../../../../base/math/vector";
+import {
+  createMeshManagerStepStats,
+  type MeshManagerStepStats
+} from "./MeshManagerStepStats";
 
 /**
  * Per-batch splat capacity for the (single) {@link SplatBatch}. Sizes the splat
@@ -21,6 +29,15 @@ import {RendererSplatMesh} from "./RendererSplatMesh";
 const MAX_SPLATS_PER_BATCH = 1_500_000;
 
 type MeshBatchKey = string;
+
+type MeshTilePlacement = {
+  gpuTile: GPUTile;
+  tileIndex: number;
+  rtcMatrix: Mat4;
+};
+
+const identityVec4 = createVec4Float64([0, 0, 0, 1]);
+const tempPlacementCenter = createVec4Float64();
 
 /**
  * Bridges scene/view state changes into GPU-ready render state for the renderer.
@@ -107,16 +124,7 @@ export class MeshManager {
    *
    * @internal
    */
-  private _stepStats: MeshManagerStepStats = {
-    getMeshBatchMs: 0,
-    getMeshBatchCalls: 0,
-    batchScanIters: 0,
-    newBatches: 0,
-    batchAddMeshMs: 0,
-    batchAddMeshCalls: 0,
-    rendererMeshCtorMs: 0,
-    rendererMeshCtorCalls: 0,
-  };
+  private _stepStats: MeshManagerStepStats = createMeshManagerStepStats();
 
   /**
    * Creates a {@link MeshManager}.
@@ -219,6 +227,31 @@ export class MeshManager {
       return this._addSplatMesh(sceneMesh);
     }
     return this._addMesh(sceneMesh);
+  }
+
+  sceneMeshesCreated(sceneMeshes: SceneMesh[]): SDKResult<any> {
+    const stats = this._stepStatsEnabled ? this._stepStats : null;
+    if (stats) {
+      stats.bulkMeshFlushes++;
+      stats.bulkMeshFlushMeshes += sceneMeshes.length;
+    }
+    const bulkBatches = new Set<MeshBatchImpl>();
+    let firstError: SDKResult<any> | null = null;
+    try {
+      for (const sceneMesh of sceneMeshes) {
+        const result = sceneMesh.geometry.primitive === GaussianSplatsPrimitive
+          ? this._addSplatMesh(sceneMesh)
+          : this._addMesh(sceneMesh, bulkBatches);
+        if (result.ok === false && firstError === null) {
+          firstError = result;
+        }
+      }
+    } finally {
+      for (const meshBatch of bulkBatches) {
+        meshBatch.endBulkMeshAdd(stats);
+      }
+    }
+    return firstError ?? {ok: true, value: undefined};
   }
 
   /**
@@ -358,7 +391,7 @@ export class MeshManager {
    *
    * @param sceneMesh - The mesh to register.
    */
-  private _addMesh(sceneMesh: SceneMesh): SDKResult<RendererMesh> {
+  private _addMesh(sceneMesh: SceneMesh, bulkBatches?: Set<MeshBatchImpl>): SDKResult<RendererMesh> {
     const meshGlobalId = sceneMesh.uniqueId;
 
     if (this._rendererMeshes[meshGlobalId]) {
@@ -382,14 +415,25 @@ export class MeshManager {
     }
 
     const meshBatch = meshBatchResult.value;
+    if (bulkBatches && !bulkBatches.has(meshBatch)) {
+      meshBatch.beginBulkMeshAdd(stats);
+      bulkBatches.add(meshBatch);
+    }
+    const tPlacement = stats ? performance.now() : 0;
+    const placement = this._createMeshTilePlacement(sceneMesh);
+    if (stats) {
+      stats.meshPlacementMs += performance.now() - tPlacement;
+      stats.meshPlacementCalls++;
+    }
 
     const t1 = stats ? performance.now() : 0;
-    const meshResult = meshBatch.addMesh(sceneMesh);
+    const meshResult = meshBatch.addMesh(sceneMesh, placement, stats);
     if (stats) {
       stats.batchAddMeshMs += performance.now() - t1;
       stats.batchAddMeshCalls++;
     }
     if (meshResult.ok === false) {
+      this._gpuMemoryManager.putTile(placement.gpuTile);
       return meshResult;
     }
 
@@ -401,7 +445,8 @@ export class MeshManager {
       sceneMesh,
       meshBatch,
       gpuMemoryManager: this._gpuMemoryManager,
-      meshHandle
+      meshHandle,
+      gpuTile: placement.gpuTile
     });
     this._rendererMeshes[meshGlobalId] = rendererMesh;
     if (stats) {
@@ -410,6 +455,18 @@ export class MeshManager {
     }
 
     return {ok: true, value: rendererMesh};
+  }
+
+  private _createMeshTilePlacement(sceneMesh: SceneMesh): MeshTilePlacement {
+    const center = transformPoint4(sceneMesh.worldMatrix, identityVec4, tempPlacementCenter) as unknown as Vec3;
+    const gpuTile = this._gpuMemoryManager.getTile(center);
+    const rtcMatrix = createMat4Float64(sceneMesh.worldMatrix) as Mat4;
+    (rtcMatrix as any).set(subVec3(center, gpuTile.center), 12);
+    return {
+      gpuTile,
+      tileIndex: gpuTile.tileIndex,
+      rtcMatrix
+    };
   }
 
   /**
@@ -520,13 +577,14 @@ export class MeshManager {
     // in a mipped batch, so the non-mipped textures end up in a
     // mipped atlas too — predictable, documented on the param.
     const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
+    const geometryStorage = selectTriangleGeometryStorage(this._renderContext, sceneMesh);
     // Bin is part of the batch identity so each batch is bin-homogeneous —
     // the renderer's overlay pass needs to be able to skip / include whole
     // batches by bin without subdividing draw calls per-mesh.
     const bin = sceneMesh.bin;
 
     const stats = this._stepStatsEnabled ? this._stepStats : null;
-    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, bin);
+    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin);
     const compatibleBatches = this._batchesByKey.get(key);
     const len = compatibleBatches?.length ?? 0;
     let iters = 0;
@@ -545,7 +603,7 @@ export class MeshManager {
       stats.newBatches++;
     }
 
-    const result = this._gpuMemoryManager.createBatch({hasNormals, hasUVs, triplanar, mipmap});
+    const result = this._gpuMemoryManager.createBatch({primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage});
     if (result.ok === false) {
       return result;
     }
@@ -558,6 +616,7 @@ export class MeshManager {
       hasUVs,
       triplanar,
       mipmap,
+      geometryStorage,
       bin,
       renderContext: this._renderContext,
       gpuMemoryManager: this._gpuMemoryManager,
@@ -581,10 +640,11 @@ export class MeshManager {
     hasUVs: boolean,
     triplanar: boolean,
     mipmap: boolean,
+    geometryStorage: TriangleGeometryStorageKind,
     bin?: string
   ): MeshBatchKey {
     const binKey = bin === undefined ? "u" : `s${bin}`;
-    return `${primitive}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
+    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
   }
 
   /**
@@ -1039,16 +1099,7 @@ export class MeshManager {
    * @internal
    */
   public resetStepStats(): void {
-    this._stepStats = {
-      getMeshBatchMs: 0,
-      getMeshBatchCalls: 0,
-      batchScanIters: 0,
-      newBatches: 0,
-      batchAddMeshMs: 0,
-      batchAddMeshCalls: 0,
-      rendererMeshCtorMs: 0,
-      rendererMeshCtorCalls: 0,
-    };
+    this._stepStats = createMeshManagerStepStats();
   }
 
   /**
@@ -1061,32 +1112,6 @@ export class MeshManager {
   public getStepStats(): MeshManagerStepStats {
     return {...this._stepStats};
   }
-}
-
-/**
- * Step-level timings + counters populated inside
- * {@link MeshManager._addMesh} when {@link MeshManager.enableStepStats}
- * is on. Read via {@link MeshManager.getStepStats}.
- *
- * @internal
- */
-export interface MeshManagerStepStats {
-  /** Cumulative wall time spent inside `_getMeshBatch`. */
-  getMeshBatchMs: number;
-  /** Number of `_getMeshBatch` invocations. */
-  getMeshBatchCalls: number;
-  /** Cumulative scan iterations over compatible batch buckets. */
-  batchScanIters: number;
-  /** Number of times `_getMeshBatch` had to allocate a new batch. */
-  newBatches: number;
-  /** Cumulative wall time inside `meshBatch.addMesh` (GPU writes). */
-  batchAddMeshMs: number;
-  /** Number of `meshBatch.addMesh` invocations. */
-  batchAddMeshCalls: number;
-  /** Cumulative wall time constructing the `RendererMesh`. */
-  rendererMeshCtorMs: number;
-  /** Number of `RendererMesh` constructions. */
-  rendererMeshCtorCalls: number;
 }
 
 /**

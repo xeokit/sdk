@@ -1,4 +1,4 @@
-import type { DataTextures } from "../gpuMemoryManager/DataTextures";
+import type { RendererGPUResources } from "../gpuMemoryManager/RendererGPUResources";
 import type { SceneGeometry, SceneMesh } from "../../../../model/scene";
 import type { View } from "../../../viewer";
 
@@ -10,7 +10,7 @@ import type { View } from "../../../viewer";
  *
  * The renderer’s data is organized roughly as:
  *
- * - **DataTextures** → a top-level container for GPU tables.
+ * - **RendererGPUResources** → a top-level container for GPU resources.
  * - **Batches** → groups of meshes by compatible draw state / primitive type.
  * - **Views** → per-view/per-pass state (eg. camera view, picking, etc.).
  * - **Render passes** → opaque/translucent/selected/highlighted/xrayed, etc., each with its own draw range.
@@ -20,7 +20,7 @@ import type { View } from "../../../viewer";
  * The example below demonstrates how to:
  *
  * - query a GPU memory usage summary,
- * - access GPU-resident data textures through {@link MemoryInspector},
+ * - access GPU-resident renderer resources through {@link MemoryInspector},
  * - walk batches → views → render passes → primitive ranges,
  * - map GPU indices back to {@link model!scene.SceneMesh | SceneMesh} and geometry instances for correlation,
  * - sanity-check vertex data and simulate parts of the vertex transform path.
@@ -40,26 +40,26 @@ import type { View } from "../../../viewer";
  * // Example: select a render pass (e.g. OPAQUE)
  * const renderPass: number = 0;
  *
- * // Access the top-level data textures collection from the renderer
- * const dataTextures = memoryInspector.dataTextures;
+ * // Access the top-level renderer GPU resource collection
+ * const gpuResources = memoryInspector.gpuResources;
  *
  * // Iterate over all views (e.g. camera, picking, etc.)
  * for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
  *
- *   const tileCameraMatrixTexture = dataTextures.viewTileCameraMatrixTexture[viewIndex];
+ *   const tileCameraMatrixTexture = gpuResources.viewTileCameraMatrixTexture[viewIndex];
  *
  *   // Iterate over all render batches (each batch groups meshes by primitive type)
- *   for (let batchIndex = 0; batchIndex < dataTextures.batches.length; batchIndex++) {
+ *   for (let batchIndex = 0; batchIndex < gpuResources.batches.length; batchIndex++) {
  *
- *     // Get the batch's data textures (per-batch, per-view)
- *     const batchDataTextures = dataTextures.batches[batchIndex];
+ *     // Get the batch's GPU resources (per-batch, per-view)
+ *     const batchResources = gpuResources.batches[batchIndex];
  *
- *     // Get the view-dependent textures for this batch and view
- *     const batchViewDataTextures = batchDataTextures.views[viewIndex];
+ *     // Get the view-dependent resources for this batch and view
+ *     const batchViewResources = batchResources.views[viewIndex];
  *
  *     // Get the primitive range for the current render pass
  *     // This defines which primitives to draw for this pass
- *     const primRange = batchViewDataTextures.renderPassPrimitiveRanges[renderPass];
+ *     const primRange = batchViewResources.renderPassPrimitiveRanges[renderPass];
  *
  *     // Iterate over all primitives in the current pass's range
  *     // i.e. gl.drawArrays(gl.TRIANGLES, primRange.start * 3, primRange.numPrims * 3);
@@ -70,7 +70,7 @@ import type { View } from "../../../viewer";
  *
  *         // Lookup the mesh index for this primitive using the primitiveMeshIndexTexture
  *         // This table maps each primitive to its owning mesh
- *         const { meshIndex, offset } = batchViewDataTextures.primitiveMeshIndexTexture.getItem(primIndex);
+ *         const { meshIndex, offset } = batchViewResources.primitiveMeshIndexTexture.getItem(primIndex);
  *
  *         // Lookup the SceneMesh using batchIndex and meshIndex
  *         const sceneMesh = memoryInspector.getMeshAtIndex(batchIndex, meshIndex);
@@ -82,7 +82,7 @@ import type { View } from "../../../viewer";
  *
  *         // Lookup mesh attributes (view-invariant) using meshAttributeTexture
  *         // This includes geometry index, material info, etc.
- *         const meshAttribs = batchDataTextures.meshAttributeTexture.getItem(meshIndex);
+ *         const meshAttribs = batchResources.meshAttributeTexture.getItem(meshIndex);
  *
  *         // Lookup geometry index for the mesh
  *         const geometryIndex = meshAttribs.geometryIndex;
@@ -90,16 +90,16 @@ import type { View } from "../../../viewer";
  *
  *         // Lookup geometry attributes using geometryAttributeTexture
  *         // This includes base offsets for vertices and indices
- *         const geometryAttributeTexture = batchDataTextures.geometryAttributeTexture.getItem(geometryIndex);
+ *         const geometryAttributeTexture = batchResources.geometryAttributeTexture.getItem(geometryIndex);
  *
  *         const verticesBase = geometryAttributeTexture.verticesBase;
  *         const indicesBase = geometryAttributeTexture.indicesBase;
  *
  *         // Lookup index value using indices texture
- *         const index = batchDataTextures.indexTexture.getItem(indicesBase + offset);
+ *         const index = batchResources.indexTexture.getItem(indicesBase + offset);
  *
  *         // Lookup vertex position using vertexPositions texture
- *         const vertexPosition = batchDataTextures.vertexPositionTexture.getItem(verticesBase + index);
+ *         const vertexPosition = batchResources.vertexPositionTexture.getItem(verticesBase + index);
  *
  *         const sceneGeometry = memoryInspector.getGeometryAtIndex(batchIndex, geometryIndex);
  *
@@ -123,7 +123,7 @@ import type { View } from "../../../viewer";
  *         }
  *
  *         // Lookup view-dependent mesh attributes (e.g. visibility, selection)
- *         const meshViewAttribs = batchViewDataTextures.meshViewAttributeTexture.getItem(meshIndex);
+ *         const meshViewAttribs = batchViewResources.meshViewAttributeTexture.getItem(meshIndex);
  *
  *         const colorize = meshViewAttribs.color;
  *         const colorizeOpacity = meshViewAttribs.opacity;
@@ -146,11 +146,11 @@ import type { View } from "../../../viewer";
  *         }
  *
  *         // Simulate vertex transformation using model and view matrices
- *         const { matrix: modelMatrix } = batchDataTextures.meshMatrixTexture.getItem(meshIndex);
+ *         const { matrix: modelMatrix } = batchResources.meshMatrixTexture.getItem(meshIndex);
  *         const { matrix: viewMatrix } = tileCameraMatrixTexture.getItem(tileIndex);
  *
  *         // Dequantize vertex position
- *         const quantRange = batchDataTextures.geometryQuantRangeTexture.getItem(geometryIndex);
+ *         const quantRange = batchResources.geometryQuantRangeTexture.getItem(geometryIndex);
  *
  *         const modelVertexPos = createVec4Float32();
  *         modelVertexPos[0] = vertexPosition[0] * quantRange.scale[0] + quantRange.offset[0];
@@ -171,9 +171,15 @@ import type { View } from "../../../viewer";
  */
 export interface MemoryInspector {
 
-  /** GPU data textures used by the renderer (read-only).
+  /**
+   * GPU resources used by the renderer (read-only).
    */
-  dataTextures: DataTextures;
+  gpuResources: RendererGPUResources;
+
+  /**
+   * Backwards-compatible alias for {@link gpuResources}.
+   */
+  dataTextures: RendererGPUResources;
 
   /**
    * Gets the {@link viewing!viewer.View | View} registered at the specified index.

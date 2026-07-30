@@ -13,7 +13,6 @@ export * from "./MeshAttributeTexture";
 export * from "./MeshViewAttributeTexture";
 export * from "./PortionDataTexture";
 export * from "./PrimitiveMeshIndexTexture";
-export * from "./PrimRange";
 export * from "./VertexColorTexture";
 export * from "./VertexNormalTexture";
 export * from "./VertexPositionTexture";

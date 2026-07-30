@@ -11,6 +11,25 @@ import type {Quat} from "../../base/math/quat";
 import type {SceneTransformParams} from "./SceneTransformParams";
 
 /**
+ * Hint describing how a {@link model!scene.SceneModel | SceneModel}'s geometry
+ * is expected to be updated after creation.
+ *
+ * Renderers can use this to choose an internal storage path. For example,
+ * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} may choose VBO
+ * geometry for `"static"` triangle models and data-texture geometry for
+ * `"dynamic"` models when its memory config is set to `"auto"`.
+ *
+ * This is a hint, not a rendering contract. Explicit renderer configuration can
+ * override it.
+ */
+export type SceneModelUpdateHint = "auto" | "static" | "dynamic";
+
+/**
+ * @deprecated Use `SceneModelUpdateHint`.
+ */
+export type SceneModelUpdateUsage = SceneModelUpdateHint;
+
+/**
  * Parameters for a {@link model!scene.SceneModel | SceneModel}.
  *
  * * Returned by {@link SceneModel.toParams | SceneModel.toParams}
@@ -42,6 +61,24 @@ export interface SceneModelParams {
    * Default is ````false````.
    */
   globalizedIds?: boolean
+
+  /**
+   * Hint describing how often this SceneModel's geometry is expected to change.
+   *
+   * - `"auto"`: let the renderer choose from its active configuration.
+   * - `"static"`: low modification rate, drawn many times; renderers may favor
+   *   faster draw-time geometry storage such as VBOs.
+   * - `"dynamic"`: smaller, frequently modified, or progressively loaded model;
+   *   renderers may favor update-friendly storage.
+   *
+   * Default is `"auto"`.
+   */
+  updateHint?: SceneModelUpdateHint;
+
+  /**
+   * @deprecated Use `updateHint`.
+   */
+  updateUsage?: SceneModelUpdateHint;
 
   /**
    * 4x4 transform matrix.

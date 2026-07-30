@@ -17,11 +17,10 @@ export function createMemoryConfigs(params:{
     utilization: number
 }): MemoryConfigs {
 
-    const elementSizes = GPUMemoryManager.itemSizesInBytes;
-
     const user = params.user || {};
 
     const maxViews = user.maxViews ?? 1;
+    const elementSizes = GPUMemoryManager.getItemSizesInBytes(maxViews);
 
     // Device presets (shape)
     const perf = {
@@ -147,9 +146,14 @@ export function createMemoryConfigs(params:{
         16_384
     );
 
-    const tileSize = user.tileSize ?? 1000;
+    const tileSize = user.tileSize ?? 200;
 
     return {
+        triangleGeometryStorage: user.triangleGeometryStorage ?? "auto",
+        vboGeometry: {
+            maxBatchPrims: user.vboGeometry?.maxBatchPrims ?? Math.min(maxBatchPrims, 200_000),
+            allocationPolicy: user.vboGeometry?.allocationPolicy ?? "fixedCapacity"
+        },
         maxViews,
         tileSize,
         maxTiles,

@@ -9,7 +9,7 @@ import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParam
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 import {SceneMesh} from "./SceneMesh";
 import type {SceneMeshParams} from "./SceneMeshParams";
-import type {SceneModelParams} from "./SceneModelParams";
+import type {SceneModelParams, SceneModelUpdateHint} from "./SceneModelParams";
 import type {SceneModelStats} from "./SceneModelStats";
 import {SceneObject} from "./SceneObject";
 import type {SceneObjectParams} from "./SceneObjectParams";
@@ -71,6 +71,15 @@ const OCCLUSION_TEXTURE = 4;
 const TEXTURE_ENCODING_OPTIONS: {
   [key: string]: any
 } = {}
+
+function normalizeUpdateHint(updateHint: SceneModelUpdateHint | "stream" | undefined): SceneModelUpdateHint {
+  if (updateHint === "stream") {
+    return "dynamic";
+  }
+  return updateHint === "static" || updateHint === "dynamic"
+    ? updateHint
+    : "auto";
+}
 
 TEXTURE_ENCODING_OPTIONS[COLOR_TEXTURE] = {
   useSRGB: true,
@@ -147,6 +156,37 @@ export class SceneModel {
    * This is ````false```` by default.
    */
   public readonly globalizedIds: boolean;
+
+  /**
+   * Hint describing how often this SceneModel's geometry is expected to change.
+   *
+   * Renderers can use this to choose an internal storage path. The WebGL
+   * renderer uses it only when its triangle geometry storage mode is `"auto"`;
+   * explicit renderer memory config still wins.
+   */
+  private _updateHint: SceneModelUpdateHint;
+
+  /**
+   * Hint describing how often this SceneModel's geometry is expected to change.
+   */
+  public get updateHint(): SceneModelUpdateHint {
+    return this._updateHint;
+  }
+
+  public set updateHint(updateHint: SceneModelUpdateHint | "stream") {
+    this._updateHint = normalizeUpdateHint(updateHint);
+  }
+
+  /**
+   * @deprecated Use `updateHint`.
+   */
+  public get updateUsage(): SceneModelUpdateHint {
+    return this._updateHint;
+  }
+
+  public set updateUsage(updateUsage: SceneModelUpdateHint | "stream") {
+    this.updateHint = updateUsage;
+  }
 
   /**
    * Unique ID of this SceneModel.
@@ -297,6 +337,7 @@ export class SceneModel {
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = (!!sceneModelParams.globalizedIds);
+    this._updateHint = normalizeUpdateHint(sceneModelParams.updateHint ?? sceneModelParams.updateUsage);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
     this.geometries = {};
@@ -1752,6 +1793,11 @@ export class SceneModel {
       this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
     }
 
+    const updateHint = sceneModelParams.updateHint ?? sceneModelParams.updateUsage;
+    if (updateHint !== undefined) {
+      this.updateHint = updateHint;
+    }
+
     if (sceneModelParams.transforms) {
       for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
         const transformParams = {...sceneModelParams.transforms[i]};
@@ -1836,6 +1882,8 @@ export class SceneModel {
     const sceneModelParams: SceneModelParams = {
       id: this.id,
       coordinateSystem: this.coordinateSystem.toParams(),
+      updateHint: this.updateHint,
+      updateUsage: this.updateHint,
       geometriesCompressed: [],
       textures: [],
       materials: [],

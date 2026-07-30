@@ -7,6 +7,7 @@ import type {RenderPassValue} from "../RENDER_PASSES";
 import type {Camera} from "../../../viewer";
 import type {SDKResult} from "../../../../base/core";
 import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
+import type {GPUMemoryBatchOptions} from "./GPUMemoryBatch";
 
 /**
  * Interface for creating and updating GPU memory resources.
@@ -38,11 +39,11 @@ export interface GPUMemoryEditor {
   putTile( tile: GPUTile ): void;
 
   /**
-   * Creates a new GPU memory batch, up to the maximum number of sortedBatches allowed.
-   * The new batch is added to the  `GPUMemoryEditor.dataTextures.sortedBatches` array.
+   * Creates a new GPU memory batch, up to the configured maximum number of batches.
+   * The new batch is added to the `GPUMemoryManager.gpuResources.batches` resource array.
    * @returns The index of the newly created batch, or an error if the maximum number of batches has been reached.
    */
-  createBatch(): SDKResult<number>;
+  createBatch(options?: GPUMemoryBatchOptions): SDKResult<number>;
 
   /**
    * Checks if there is enough memory in a specific GPU memory batch for a SceneMesh.
@@ -80,7 +81,7 @@ export interface GPUMemoryEditor {
   /**
    * Sets the modeling transform matrix for a mesh.
    * The transform is relative to the center of the mesh's tile.
-   * The matrix is stored in BatchDataTextures.meshMatrices.
+   * The matrix is stored in BatchGPUResources.meshMatrixTexture.
    * @param meshHandle - The handle of the mesh.
    * @param matrix - The modeling transform matrix.
    */
@@ -88,7 +89,7 @@ export interface GPUMemoryEditor {
 
   /**
    * Sets attributes for a mesh to apply across all views.
-   * The attributes are stored in DataTexturesLayer.meshAttribs.
+   * The attributes are stored in BatchGPUResources.meshAttributeTexture.
    * @param meshHandle
    * @param params - The attributes to set, including optional tile index.
    */
@@ -101,7 +102,7 @@ export interface GPUMemoryEditor {
 
   /**
    * Sets attributes for a mesh within a specific view.
-   * The attributes are stored in DataTexturesLayer.meshViewAttribs.
+   * The attributes are stored in BatchGPUResources.views[].meshViewAttributeTexture.
    * @param meshHandle
    * @param viewIndex - The index of the view.
    * @param params - The attributes to set, including flags and color.

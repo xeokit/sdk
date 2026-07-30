@@ -19,8 +19,15 @@ export class TrianglesSnapInitTechnique extends DrawTechnique {
 
   public readonly vertsPerPrim = 3;
 
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
-    super(renderContext, gpuMemoryReader, { snap: 3 });
+  constructor(
+    renderContext: RenderContext,
+    gpuMemoryReader: GPUMemoryReader,
+    opts: { vboGeometry?: boolean } = {},
+  ) {
+    super(renderContext, gpuMemoryReader, {
+      snap: 3,
+      vboGeometry: opts.vboGeometry === true
+    });
   }
 
   protected buildVertexShader(): void {

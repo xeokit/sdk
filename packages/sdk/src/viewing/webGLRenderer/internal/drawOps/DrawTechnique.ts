@@ -1,11 +1,12 @@
 import {WEBGL_INFO, WebGLProgram} from "../webGL";
-import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import {OrthoProjectionType} from "../../../../base/constants";
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {type MeshBatch} from "../meshManager/MeshBatch";
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
 import {type WebGLContextProvider} from "../webGL/WebGLContextProvider";
+import {DrawTechniqueGeometryBinding} from "./DrawTechniqueGeometryBinding";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 const defaultAmbientLight = new Float32Array([0.5, 0.5, 0.5, 1.0]);
@@ -260,7 +261,7 @@ export abstract class DrawTechnique {
   /**
    * When true, the technique compiles a vertex normal sampler into its shaders
    * and reads smooth view-space normals from the batch's
-   * {@link BatchDataTextures.vertexNormalTexture}. When false, the fragment
+   * {@link BatchGPUResources.vertexNormalTexture}. When false, the fragment
    * shader derives a flat face normal from `dFdx/dFdy(vViewPos)`.
    *
    * This is the per-batch axis the renderer dispatches on — only the Lambert
@@ -321,6 +322,18 @@ export abstract class DrawTechnique {
    * permutation contract and which techniques opt in.
    */
   public logDepth: boolean;
+
+  /**
+   * When true, triangle techniques bind their expanded draw
+   * vertices from {@link TriangleGeometryVBOBatch}: position+tile,
+   * mesh index and geometry vertex index are vertex attributes instead of
+   * primitive/index/position/matrix data-texture fetches.
+   *
+   * The mesh/material/view state still comes from DTX so visibility,
+   * selection/highlight/xray routing, colors, UVs, normals and material
+   * atlas attributes stay in the existing update path.
+   */
+  public vboGeometry: boolean;
 
   /**
    * Vertex shader source code. Available after `init()` is called.
@@ -494,6 +507,7 @@ export abstract class DrawTechnique {
     hasUVs?: boolean,
     triplanar?: boolean,
     thickLines?: boolean,
+    vboGeometry?: boolean,
     /**
      * Permutation flag. When `true`, the technique's vertex
      * shader rewrites `gl_Position.z` so the depth-buffer mapping
@@ -517,6 +531,7 @@ export abstract class DrawTechnique {
     hasUVs: false,
     triplanar: false,
     thickLines: false,
+    vboGeometry: false,
     logDepth: false,
   }) {
     if (cfg.picking && cfg.edges) { // Edges are an un-pickable visual effect
@@ -528,6 +543,15 @@ export abstract class DrawTechnique {
     if (cfg.triplanar && cfg.hasUVs) { // Triplanar replaces vertex UVs by definition
       throw new Error("Invalid DrawTechnique configuration: cannot have both triplanar and hasUVs enabled.");
     }
+    if (cfg.vboGeometry && cfg.thickLines) {
+      throw new Error("Invalid DrawTechnique configuration: vboGeometry is supported by triangle surface, pick, edge and snap techniques only.");
+    }
+    if (cfg.vboGeometry && cfg.snap === 3 && cfg.edges) {
+      throw new Error("Invalid DrawTechnique configuration: VBO snap-init must use triangle geometry, not edge geometry.");
+    }
+    if (cfg.vboGeometry && (cfg.snap === 1 || cfg.snap === 2) && !cfg.edges) {
+      throw new Error("Invalid DrawTechnique configuration: VBO vertex/edge snap requires edge geometry.");
+    }
     this._renderContext = renderContext;
     this._gpuMemoryReader = gpuMemoryReader;
     this.edges = cfg.edges === true;
@@ -537,6 +561,7 @@ export abstract class DrawTechnique {
     this.hasUVs = cfg.hasUVs === true;
     this.triplanar = cfg.triplanar === true;
     this.thickLines = cfg.thickLines === true;
+    this.vboGeometry = cfg.vboGeometry === true;
     this.logDepth = cfg.logDepth === true;
     this._program = null;
   }
@@ -790,7 +815,7 @@ export abstract class DrawTechnique {
       iblPrefilteredCubemap: this.hasNormals ? program.getSampler("uIBLPrefilteredCubemap") : null,
       iblBRDFLUT: this.hasNormals ? program.getSampler("uIBLBRDFLUT") : null,
       indexTexture: program.getSampler("uIndexTexture"),
-      edgeIndexTexture: program.getSampler("uEdgeIndexTexture"), // TODO: Maybe redundant
+      edgeIndexTexture: program.getSampler("uEdgeIndexTexture"),
       saoOcclusionTexture: program.getSampler("saoOcclusionTexture"),
       shadowMapTexture: program.getSampler("uShadowMapTexture"),
       shadowMap0: program.getSampler("uShadowMap0"),
@@ -836,30 +861,26 @@ export abstract class DrawTechnique {
     const view = renderContext.activeView;
     const gl = this._renderContext.gl;
     const samplers = this._samplers;
-    const dataTextures = this._gpuMemoryReader.dataTextures;
-    const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
+    const gpuResources = this._gpuMemoryReader.gpuResources;
+    const batchResources = gpuResources.batches[meshBatch.gpuMemoryBatchIndex];
     const viewIndex = view.viewIndex;
-    const batchViewDataTextures = batchDataTextures.views[viewIndex];
+    const batchViewResources = batchResources.views[viewIndex];
+    const geometryBinding = DrawTechniqueGeometryBinding.resolve({
+      batchResources,
+      primitive: meshBatch.primitive,
+      viewIndex,
+      renderPass,
+      edges: this.edges,
+      picking: this.picking,
+      snap: this.snap,
+      thickLines: this.thickLines,
+      vboGeometry: this.vboGeometry
+    });
 
-    const drawRange =
-      this.snap
-        // Snap-init draws triangle surfaces (pickPrimitiveRange);
-        // snap-vertex and snap-edge both ride the edge index buffer
-        // (pickEdgePrimitiveRange) so neither lands on interior
-        // diagonals or coplanar triangulation seams.
-        ? (this.edges
-            ? batchViewDataTextures.pickEdgePrimitiveRange
-            : batchViewDataTextures.pickPrimitiveRange)
-        : (this.edges
-            ? batchViewDataTextures.renderPassEdgePrimitiveRanges.get(renderPass)
-            : (this.picking
-                ? batchViewDataTextures.pickPrimitiveRange
-                : batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass)));
-
-    if (!drawRange || drawRange.numPrims === 0) {
+    if (!geometryBinding) {
       return {
         ok: true,
-        value: null // Nothing to draw for this pass
+        value: null // Nothing to draw for this pass, or no compatible geometry binding.
       };
     }
 
@@ -876,29 +897,25 @@ export abstract class DrawTechnique {
       };
     }
 
-    const primitiveMeshIndexTexture
-      = this.edges
-      ? batchViewDataTextures.edgeMeshIndexTexture
-      : batchViewDataTextures.primitiveMeshIndexTexture;
-
     renderContext.textureUnit = 0;
 
-    // TODO: Avoid re-binding this set of textures if already bound for this batch.
+    // Texture binds are repeated here; batch-level bind caching is a separate optimization.
 
     this._bindTexture(samplers.viewTileCameraMatrixTexture,
       (this._renderContext.rayPicking
-        ? dataTextures.viewTilePickMatrixTexture
-        : dataTextures.viewTileCameraMatrixTexture)
+        ? gpuResources.viewTilePickMatrixTexture
+        : gpuResources.viewTileCameraMatrixTexture)
         [view.viewIndex]);
 
-    this._bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
-    this._bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
-    this._bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
-    if (this.hasNormals && batchDataTextures.vertexNormalTexture) {
-      this._bindTexture(samplers.vertexNormalTexture, batchDataTextures.vertexNormalTexture);
+    geometryBinding.bindGeometryTextures(
+      samplers,
+      (sampler, dataTexture) => this._bindTexture(sampler, dataTexture ?? null)
+    );
+    if (this.hasNormals && batchResources.vertexNormalTexture) {
+      this._bindTexture(samplers.vertexNormalTexture, batchResources.vertexNormalTexture);
     }
-    if (this.hasUVs && batchDataTextures.vertexUVTexture) {
-      this._bindTexture(samplers.vertexUVTexture, batchDataTextures.vertexUVTexture);
+    if (this.hasUVs && batchResources.vertexUVTexture) {
+      this._bindTexture(samplers.vertexUVTexture, batchResources.vertexUVTexture);
     }
     // Atlas binds — required by both the UV-attribute path and the
     // triplanar fallback. Triplanar batches are routed to a dedicated
@@ -916,28 +933,28 @@ export abstract class DrawTechnique {
     // active unit outside the per-unit tracking, so clear the tracking whenever
     // flushMipmaps reports it ran.
     const _bindAtlases = (this.hasUVs || this.triplanar);
-    if (_bindAtlases && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
-      if (batchDataTextures.albedoAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
+    if (_bindAtlases && batchResources.albedoAtlasTexture && batchResources.albedoAtlasTexture.texture) {
+      if (batchResources.albedoAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
       // The atlas isn't a DataTexture (no CPU buffer, no texelFetch — it's
       // a real sampler2D), but its `.texture` field is shape-compatible
       // with `_bindTexture`'s expectations.
-      this._bindTexture(samplers.albedoAtlas, batchDataTextures.albedoAtlasTexture);
+      this._bindTexture(samplers.albedoAtlas, batchResources.albedoAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
-      if (batchDataTextures.metallicRoughnessAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
-      this._bindTexture(samplers.metallicRoughnessAtlas, batchDataTextures.metallicRoughnessAtlasTexture);
+    if (_bindAtlases && batchResources.metallicRoughnessAtlasTexture && batchResources.metallicRoughnessAtlasTexture.texture) {
+      if (batchResources.metallicRoughnessAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
+      this._bindTexture(samplers.metallicRoughnessAtlas, batchResources.metallicRoughnessAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
-      if (batchDataTextures.normalMapAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
-      this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
+    if (_bindAtlases && batchResources.normalMapAtlasTexture && batchResources.normalMapAtlasTexture.texture) {
+      if (batchResources.normalMapAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
+      this._bindTexture(samplers.normalMapAtlas, batchResources.normalMapAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.emissiveAtlasTexture && batchDataTextures.emissiveAtlasTexture.texture) {
-      if (batchDataTextures.emissiveAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
-      this._bindTexture(samplers.emissiveAtlas, batchDataTextures.emissiveAtlasTexture);
+    if (_bindAtlases && batchResources.emissiveAtlasTexture && batchResources.emissiveAtlasTexture.texture) {
+      if (batchResources.emissiveAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
+      this._bindTexture(samplers.emissiveAtlas, batchResources.emissiveAtlasTexture);
     }
-    if (_bindAtlases && batchDataTextures.occlusionAtlasTexture && batchDataTextures.occlusionAtlasTexture.texture) {
-      if (batchDataTextures.occlusionAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
-      this._bindTexture(samplers.occlusionAtlas, batchDataTextures.occlusionAtlasTexture);
+    if (_bindAtlases && batchResources.occlusionAtlasTexture && batchResources.occlusionAtlasTexture.texture) {
+      if (batchResources.occlusionAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
+      this._bindTexture(samplers.occlusionAtlas, batchResources.occlusionAtlasTexture);
     }
     // IBL Layer-2 cubemaps + BRDF LUT — populated on RenderContext by
     // RenderManager._prepareIBL once per view. Only the smooth-shaded
@@ -950,27 +967,20 @@ export abstract class DrawTechnique {
         this._bindTexture(samplers.iblBRDFLUT, { texture: renderContext.iblBRDFLUT });
       }
     }
-    this._bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
-    this._bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
+    this._bindTexture(samplers.meshAttributeTexture, batchResources.meshAttributeTexture);
     // Bind the per-batch line-pattern table only for techniques
     // that declared `uLinePatternTexture` — the bind code
     // short-circuits a null sampler, so the cost on non-line
     // techniques (which never declared the uniform) is zero.
-    this._bindTexture(samplers.linePatternTexture, batchDataTextures.linePatternTexture);
+    this._bindTexture(samplers.linePatternTexture, batchResources.linePatternTexture);
     // Same shape for the polyline cum-dist texture.
-    this._bindTexture(samplers.polylineCumDistTexture, batchDataTextures.polylineCumDistTexture);
+    this._bindTexture(samplers.polylineCumDistTexture, batchResources.polylineCumDistTexture);
     // Same shape for the per-batch hatch table — only the
     // triangle-surface colour techniques declare the sampler,
     // everyone else short-circuits on the null location.
-    this._bindTexture(samplers.hatchPatternTexture, batchDataTextures.hatchPatternTexture);
-    this._bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
-    this._bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
-    this._bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-    //   this._bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture); // TODO: Redundant?
-    this._bindTexture(samplers.indexTexture,
-      this.edges
-        ? batchDataTextures.edgeIndexTexture
-        : batchDataTextures.indexTexture);
+    this._bindTexture(samplers.hatchPatternTexture, batchResources.hatchPatternTexture);
+    this._bindTexture(samplers.meshViewAttributeTexture, batchViewResources.meshViewAttributeTexture);
+    this._bindTexture(samplers.geometryAttributes, batchResources.geometryAttributeTexture);
 
     // Bind SAO occlusion texture after all per-batch data textures so its texture
     // unit isn't clobbered by the data-texture bindings above.
@@ -983,64 +993,15 @@ export abstract class DrawTechnique {
 
     gl.uniform1i(this._uniforms.primBaseIndex, 0);
 
-    switch (meshBatch.primitive) {
-      case TrianglesPrimitive:
-        if (this.snap === 1) {
-          // Vertex-snap rides the edge index buffer (2 indices per
-          // edge, each index being a vertex) — every drawArrays
-          // POINT lands on a real geometric corner. Drawing
-          // `numEdges * 2` POINTS produces duplicate hits on shared
-          // endpoints, but each duplicate lands on the same FBO
-          // texel, so it's harmless.
-          gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        } else if (this.edges && this.thickLines) {
-          // Thick edges: each edge segment expands to a 2-triangle quad
-          // (6 verts) in vsThickLineMain, reading the edge index buffer.
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
-        } else if (this.snap === 2 || this.edges) {
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2); // Edges / edge-snap draw range
-        } else {
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3); // Triangles draw range
-        }
-        break;
-      case LinesPrimitive:
-        if (this.snap === 1) {
-          // Vertex snap: rasterise each line's two endpoint
-          // indices as 1-pixel POINTS. Both endpoints of a
-          // joined polyline land on the same FBO texel —
-          // harmless duplication, just like the triangle path's
-          // POINT-on-shared-edge case.
-          gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        } else if (this.snap === 2) {
-          // Edge snap: each line draws as a 1-pixel-wide LINES
-          // segment regardless of `uLineWidth` — snap targets
-          // the mathematical centerline, not the visible body.
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        } else if (this.thickLines) {
-          // Each line draws as two triangles (six vertices). The
-          // vertex shader's quad-expansion logic uses gl_VertexID
-          // to derive both endpoint, side (-1 / +1), and which
-          // endpoint of the line index pair the current vertex
-          // belongs to.
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
-        } else {
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-        }
-        break;
-      case PointsPrimitive:
-        gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
-        break;
-      default:
-        return {
-          ok: false,
-          type: SDKErrorType.InvalidInput,
-          error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
-        };
+    const drawResult = geometryBinding.draw(gl, drawInspector);
+    if (drawResult.ok === false) {
+      return drawResult;
     }
 
+    const inspectorRange = geometryBinding.inspectorRange;
     drawInspector?.drawMeshBatch(meshBatch, renderPass, {
-      firstPrim: drawRange.firstPrim,
-      numPrims: drawRange.numPrims
+      firstPrim: inspectorRange.firstPrim,
+      numPrims: inspectorRange.numPrims
     });
 
     return {
@@ -1088,10 +1049,15 @@ export abstract class DrawTechnique {
 
 // ${this.constructor.name} vertex shader
 
-// This shader renders primitives by fetching all geometry,
+${this.vboGeometry
+        ? `// This shader renders triangle geometry from batch-owned VBOs,
+// while still fetching mesh/material/view state from GPU data textures.
+// The pipeline is:
+//   VBO vertex → mesh → geometry metadata → world/RTC tile → view → clip`
+        : `// This shader renders primitives by fetching all geometry,
 // transform, and attribute data from GPU data textures.
 // The pipeline is:
-//   gl_VertexID → primitive → mesh → geometry → vertex → model → world → view → clip`);
+//   gl_VertexID → primitive → mesh → geometry → vertex → model → world → view → clip`}`);
   }
 
   /**
@@ -1109,6 +1075,14 @@ uniform int uRenderPass;
 uniform int uPrimBaseIndex;
 
 uniform mat4 uProjMatrix;
+${this.vboGeometry ? `
+// VBO geometry attributes. Layout matches TriangleGeometryVBOBatch's
+// hybrid VAO: position is already mesh-matrix-baked in RTC tile space;
+// mesh/geometry-vertex indices keep DTX state, normals and UVs addressable.
+layout(location = 0) in vec4 aPositionAndTile;
+layout(location = 1) in uint aMeshIndex;
+layout(location = 2) in uint aGeometryVertexIndex;
+` : ``}
 
 // ─────────────────────────────────────────────────────────────
 // GPU data textures (structured storage via texelFetch)
@@ -1905,9 +1879,28 @@ void main(void) {`);
    * @private
    */
   private _vsMeshLogic() { // before renderPass check
+    if (this.vboGeometry) {
+      this._vertSrcBuf.push(`
+    // VBO geometry path: the expanded vertex stream already carries
+    // the mesh and geometry vertex indices. DTX is still used below for
+    // per-mesh view/material attributes.
+    uint meshIndex = aMeshIndex;
+    uint vertexIndexWithinGeometry = aGeometryVertexIndex;
+
+    // Fetch mesh view properties (color + flags)
+    MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );
+
+    // Cull fully-transparent meshes
+    if (meshViewAttributes.color.a == 3u) {
+      // gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Cull vertex
+     //  return;
+    }
+    `);
+      return;
+    }
     this._vertSrcBuf.push(`
-     // Identify which "draw vertex" we are processing
-    uint drawVertexIndex  = uint(gl_VertexID);
+	     // Identify which "draw vertex" we are processing
+	    uint drawVertexIndex  = uint(gl_VertexID);
 
     // Compile-time topology constant: 3 = triangles, 2 = lines, 1 = points.
     const uint numVertsPerPrim = ${this.vertsPerPrim}u;
@@ -1941,8 +1934,33 @@ void main(void) {`);
    * @private
    */
   private _vsMeshLogic2() { // after renderPass check
+    if (this.vboGeometry) {
+      this._vertSrcBuf.push(`
+    // Mesh → tile + geometry resolution. Position/tile come directly from
+    // the VBO, while mesh/geometry metadata remains in DTX for material,
+    // normal and UV lookup compatibility.
+    MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );
+    uint tileIndex = uint(aPositionAndTile.w + 0.5);
+    uint geometryIndex = meshAttributeTexture.geometryIndex;
+    GeometryAttributes geometryAttributes = getGeometryAttributeTexture( geometryIndex );
+
+    // Positions are already dequantized and mesh-matrix-baked by
+    // TriangleGeometryVBOBatch. Keep modelMatrix as identity for the
+    // default baked-transform variant; a matrix-backed variant can re-enable
+    // dynamic transform reads later without disturbing this path.
+    mat4 modelMatrix = mat4(1.0);
+    mat4 viewMatrix  = getTileViewMatrix(tileIndex);
+    vec4 worldPos = vec4(aPositionAndTile.xyz, 1.0);
+    vec4 viewPos  = viewMatrix  * worldPos;
+    vec4 clipPos  = uProjMatrix * viewPos;
+
+    // Write final clip-space position for rasterization
+    gl_Position = clipPos;`
+      );
+      return;
+    }
     this._vertSrcBuf.push(`
-    // Mesh → tile + geometry resolution
+	    // Mesh → tile + geometry resolution
     // tileIndex selects the view matrix; geometryIndex selects vertex/index ranges.
     MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );
     uint tileIndex = meshAttributeTexture.tileIndex;

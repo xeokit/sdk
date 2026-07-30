@@ -83,8 +83,28 @@ export class GeometryAttributeTexture extends ItemDataTexture {
     this.setItemDirty(itemIndex);
   }
 
-  getItem(_itemIndex: number): { verticesBase: number; indicesBase: number; edgeIndicesBase: number; normalsBase: number; uvsBase: number; vertexColorsBase: number } {
-    throw new Error("[GeometryAttributeTexture.getItem] Not supported without backing state");
+  getItem(itemIndex: number): {
+    verticesBase: number;
+    indicesBase: number;
+    edgeIndicesBase: number;
+    normalsBase: number;
+    uvsBase: number;
+    polylineCumDistBase: number;
+    vertexColorsBase: number;
+  } {
+    if (!this.buffer) {
+      throw new Error("[GeometryAttributeTexture.getItem] Not supported without a backing buffer");
+    }
+    const base = itemIndex * this.elementsPerItem;
+    return {
+      verticesBase: this.buffer[base],
+      indicesBase: this.buffer[base + 1],
+      edgeIndicesBase: this.buffer[base + 2],
+      normalsBase: this.buffer[base + 3],
+      uvsBase: this.buffer[base + 4],
+      polylineCumDistBase: this.buffer[base + 5],
+      vertexColorsBase: this.buffer[base + 6],
+    };
   }
 
   private toU32(x: number): number {

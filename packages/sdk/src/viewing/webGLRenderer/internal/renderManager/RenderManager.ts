@@ -8,6 +8,7 @@ import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {type MeshBatch} from "../meshManager/MeshBatch";
 import {SDKInternalException, type SDKResult} from "../../../../base/core";
 import {RENDER_BINS} from "../RENDER_BINS";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 import {type RenderPassDrawOps} from "../drawOps/RenderPassDrawOps";
 import {InfiniteGridRenderer} from "./environment/InfiniteGridRenderer";
 import {GaussianSplatTechnique} from "../drawOps/techniques/splats/GaussianSplatTechnique";
@@ -189,7 +190,6 @@ export class RenderManager {
 
   /** Read-only interface into GPU memory (geometry, attributes, indices). */
   private _gpuMemoryReader: GPUMemoryReader;
-
 
   /**
    * Creates a {@link RenderManager}.

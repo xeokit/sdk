@@ -8,10 +8,9 @@ import {type Capabilities} from "./Capabilities";
 import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
-import {type DataTextures} from "./internal/gpuMemoryManager";
+import {type RendererGPUResources} from "./internal/gpuMemoryManager";
 import {SceneGeometry, SceneMesh, type SceneModel, type SceneObject} from "../../model/scene";
 import {ShaderInspector, RenderInspector, type MemoryInspector} from "./internal/inspectors";
-import {type MeshManagerStepStats} from "./internal/meshManager";
 import {type PickParams, type PickResult} from "../viewer";
 import {createDefaultMemoryConfigs} from "./defaultMemoryConfigs";
 import {MarkerOcclusionTester} from "./MarkerOcclusionTester";
@@ -189,7 +188,8 @@ export class WebGLRenderer implements Renderer {
     debugging?: boolean
   } = {}) {
     this._memoryInspector = {
-      dataTextures: null, // Populated when rendering starts
+      gpuResources: null, // Populated when rendering starts
+      dataTextures: null, // Backwards-compatible alias for gpuResources
       getViewAtIndex: (viewIndex: number): View | null => {
         return this._viewManager ? this._viewManager.getViewAtIndex(viewIndex) : null;
       },
@@ -324,7 +324,7 @@ export class WebGLRenderer implements Renderer {
    * Returns a read-only view of GPU-resident data used by the renderer.
    *
    * This API is intended for diagnostics, debugging tools, and monitoring UIs.
-   * The returned object exposes structured access to {@link DataTextures} while
+   * The returned object exposes structured access to {@link RendererGPUResources} while
    * rendering is active.
    *
    * @internal
@@ -415,47 +415,6 @@ export class WebGLRenderer implements Renderer {
       return null;
     }
     return {numDrawCalls: frame.numDrawCalls, numPrimitives: frame.numPrims};
-  }
-
-  /**
-   * Enables (or disables) opt-in step-level timing inside the
-   * renderer's MeshManager, which fires synchronously on every
-   * `SceneModel.createMesh` call. Use to attribute time across the
-   * substeps (`getMeshBatch`, `batchAddMesh`, `rendererMeshCtor`)
-   * during a workload like a model load. Off by default so the hot
-   * path takes no `performance.now()` hit in normal use.
-   *
-   * Read the recorded numbers with {@link getMeshManagerStepStats}.
-   *
-   * @internal
-   */
-  public enableMeshManagerStepStats(enabled: boolean): void {
-    if (!this._viewManager) return;
-    this._viewManager.enableMeshManagerStepStats(enabled);
-  }
-
-  /**
-   * Zeroes the MeshManager step-stats counters. Call before the
-   * workload you want to attribute.
-   *
-   * @internal
-   */
-  public resetMeshManagerStepStats(): void {
-    if (!this._viewManager) return;
-    this._viewManager.resetMeshManagerStepStats();
-  }
-
-  /**
-   * Returns a snapshot of the MeshManager step-stats. Safe to call
-   * whether or not {@link enableMeshManagerStepStats} is on; values
-   * stay at the last-recorded numbers when disabled. Returns `null`
-   * before a viewer is attached.
-   *
-   * @internal
-   */
-  public getMeshManagerStepStats(): MeshManagerStepStats | null {
-    if (!this._viewManager) return null;
-    return this._viewManager.getMeshManagerStepStats();
   }
 
   /**
@@ -573,10 +532,14 @@ export class WebGLRenderer implements Renderer {
       }
     }
 
+    const sceneMeshes: SceneMesh[] = [];
     for (const sceneMesh of registrations.meshes) {
       if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
-        this.logError(viewManager.sceneMeshCreated(sceneMesh));
+        sceneMeshes.push(sceneMesh);
       }
+    }
+    if (sceneMeshes.length > 0) {
+      this.logError(viewManager.sceneMeshesCreated(sceneMeshes));
     }
 
     for (const sceneObject of registrations.objects) {
@@ -681,6 +644,7 @@ export class WebGLRenderer implements Renderer {
     if (result.ok === false) {
       this._viewManager.destroy();
       this._viewManager = undefined as unknown as ViewManager;
+      this._memoryInspector.gpuResources = null;
       this._memoryInspector.dataTextures = null;
       return result;
     }
@@ -808,7 +772,8 @@ export class WebGLRenderer implements Renderer {
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
     ];
 
-    this._memoryInspector.dataTextures = this._viewManager.dataTextures;
+    this._memoryInspector.gpuResources = this._viewManager.gpuResources;
+    this._memoryInspector.dataTextures = this._viewManager.gpuResources;
 
     this._shaderInspector = this._viewManager.shaderInspector;
 
@@ -1101,6 +1066,8 @@ export class WebGLRenderer implements Renderer {
     this._removeWebGLContextListeners();
     this._viewManager.destroy();
     this._viewManager = undefined as unknown as ViewManager;
+    this._memoryInspector.gpuResources = null;
+    this._memoryInspector.dataTextures = null;
     this._renderSuspendCount = 0;
     this._deferredSceneModelRegistrations.clear();
     this.events.onRendererStopped.dispatch(this);

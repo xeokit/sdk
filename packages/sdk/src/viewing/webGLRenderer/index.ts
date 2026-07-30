@@ -211,7 +211,11 @@
  *   maxBatchIndices: 800000,
  *   maxBatchGeometries: 60000,
  *   maxBatchMeshes: 20000,
- *   maxBatchPrims: 400000
+ *   maxBatchPrims: 400000,
+ *   vboGeometry: {
+ *     maxBatchPrims: 200000,
+ *     allocationPolicy: "fixedCapacity"
+ *   }
  * };
  *
  * const webglRenderer = new WebGLRenderer({ memoryConfigs });

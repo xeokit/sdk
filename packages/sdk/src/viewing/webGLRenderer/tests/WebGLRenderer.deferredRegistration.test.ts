@@ -61,6 +61,12 @@ function createViewManager(calls: string[]) {
       calls.push(`mesh:${mesh.id}`);
       return ok();
     }),
+    sceneMeshesCreated: jest.fn((meshes: SceneMesh[]) => {
+      for (const mesh of meshes) {
+        calls.push(`mesh:${mesh.id}`);
+      }
+      return ok();
+    }),
     sceneObjectCreated: jest.fn((object: SceneObject) => {
       calls.push(`object:${object.id}`);
       return ok();
@@ -91,7 +97,8 @@ describe("WebGLRenderer deferred scene registration", () => {
     renderer._flushDeferredSceneModelRegistrations(model, viewManager);
 
     expect(viewManager.sceneGeometryCreated).toHaveBeenCalledTimes(1);
-    expect(viewManager.sceneMeshCreated).toHaveBeenCalledTimes(1);
+    expect(viewManager.sceneMeshesCreated).toHaveBeenCalledTimes(1);
+    expect(viewManager.sceneMeshCreated).not.toHaveBeenCalled();
     expect(viewManager.sceneObjectCreated).toHaveBeenCalledTimes(1);
   });
 
@@ -112,7 +119,7 @@ describe("WebGLRenderer deferred scene registration", () => {
     const {geometry, mesh, object} = createModelEntries(model);
     const calls: string[] = [];
     const viewManager = createViewManager(calls);
-    viewManager.sceneMeshCreated.mockReturnValueOnce({
+    viewManager.sceneMeshesCreated.mockReturnValueOnce({
       ok: false,
       type: SDKErrorType.InvalidInput,
       error: "should not be logged because stale meshes are skipped",
@@ -128,6 +135,7 @@ describe("WebGLRenderer deferred scene registration", () => {
     renderer._flushDeferredSceneModelRegistrations(model, viewManager);
 
     expect(calls).toEqual(["geometry:geometry"]);
+    expect(viewManager.sceneMeshesCreated).not.toHaveBeenCalled();
     expect(viewManager.sceneMeshCreated).not.toHaveBeenCalled();
     expect(viewManager.sceneObjectCreated).not.toHaveBeenCalled();
   });

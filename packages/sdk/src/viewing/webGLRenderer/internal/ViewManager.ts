@@ -12,7 +12,7 @@ import {type GPUMemoryReader} from "./gpuMemoryManager";
 import {SceneGeometry, SceneMaterial, SceneMesh, SceneModel, SceneObject, SceneTexture} from "../../../model/scene";
 import {SceneTransform} from "../../../model/scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
-import type {DataTextures} from "./gpuMemoryManager/DataTextures";
+import type {RendererGPUResources} from "./gpuMemoryManager/RendererGPUResources";
 import {RenderInspector, ShaderInspector} from "./inspectors";
 import {getEffectiveResolutionScale} from "./resolutionScale";
 
@@ -31,7 +31,7 @@ import {getEffectiveResolutionScale} from "./resolutionScale";
  *   - {@link PickManager}: Handles GPU-backed picking resources and queries for all views.
  * - Tracks and manages {@link ViewRenderState} instances for each {@link viewing!viewer.View | View}, synchronizing per-view state and resources.
  * - Handles view activation, moving/resizing the shared WebGL canvas to match the active view element, and snapshotting the previous view as needed.
- * - Exposes the set of GPU-backed data textures (via {@link dataTextures}) for diagnostics.
+ * - Exposes the set of GPU-backed renderer resources (via {@link gpuResources}) for diagnostics.
  *
  * ## Architectural Role
  * - The {@link WebGLRenderer} owns a single `ViewManager`.
@@ -51,11 +51,20 @@ import {getEffectiveResolutionScale} from "./resolutionScale";
 export class ViewManager {
 
   /**
-   * GPU-backed textures created/owned by {@link GPUMemoryManager}.
+   * GPU-backed resources created/owned by {@link GPUMemoryManager}.
    * Exposed for diagnostics.
    * Available after {@link init} succeeds; `undefined` after {@link destroy}.
    */
-  public dataTextures: DataTextures | undefined = undefined;
+  public dataTextures: RendererGPUResources | undefined = undefined;
+
+  /**
+   * Preferred name for GPU-backed resources created/owned by {@link GPUMemoryManager}.
+   * Exposed for diagnostics.
+   * Available after {@link init} succeeds; `undefined` after {@link destroy}.
+   */
+  public get gpuResources(): RendererGPUResources | undefined {
+    return this.dataTextures;
+  }
 
   /**
    * Exposes shader source code for all techniques used by the renderer.
@@ -217,7 +226,7 @@ export class ViewManager {
       return this._failInit(resultGPU);
     }
 
-    this.dataTextures = this._gpuMemoryManager.dataTextures;
+    this.dataTextures = this._gpuMemoryManager.gpuResources;
 
     this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager);
 
@@ -394,35 +403,6 @@ export class ViewManager {
       throw new SDKInternalException("[ViewManager.getRenderInspector] ViewManager is not initialized");
     }
     return this._renderContext.renderInspector;
-  }
-
-  /**
-   * Passthrough to {@link MeshManager.enableStepStats} — toggles
-   * opt-in step-level timing inside `MeshManager._addMesh`. See
-   * {@link MeshManager.enableStepStats}.
-   *
-   * @internal
-   */
-  public enableMeshManagerStepStats(enabled: boolean): void {
-    this._meshManager.enableStepStats(enabled);
-  }
-
-  /**
-   * Passthrough to {@link MeshManager.resetStepStats}.
-   *
-   * @internal
-   */
-  public resetMeshManagerStepStats(): void {
-    this._meshManager.resetStepStats();
-  }
-
-  /**
-   * Passthrough to {@link MeshManager.getStepStats}.
-   *
-   * @internal
-   */
-  public getMeshManagerStepStats(): import("./meshManager").MeshManagerStepStats {
-    return this._meshManager.getStepStats();
   }
 
   /**
@@ -956,6 +936,10 @@ export class ViewManager {
     return this._meshManager.sceneMeshCreated(sceneMesh);
   }
 
+  sceneMeshesCreated(sceneMeshes: SceneMesh[]): SDKResult<any> {
+    return this._meshManager.sceneMeshesCreated(sceneMeshes);
+  }
+
   /**
    * Notifies the renderer that a {@link model!scene.SceneMesh | SceneMesh} was destroyed.
    *
@@ -1302,7 +1286,7 @@ export class ViewManager {
     this._renderContext?.destroy();
     this._renderContext = undefined as unknown as RenderContext;
     this._viewer = undefined as unknown as Viewer;
-    this.dataTextures = undefined as unknown as DataTextures;
+    this.dataTextures = undefined as unknown as RendererGPUResources;
     this.shaderInspector = undefined as unknown as ShaderInspector;
   }
 

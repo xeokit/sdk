@@ -38,12 +38,12 @@ import type {Mat4} from "../../../../base/math/matrix";
  *   - Stores RTC matrices for all tiles and views in a GPU-friendly format.
  *   - Updated by the {@link GPUTileManager} whenever camera/view state changes.
  *
- * - {@link DataTextures.viewTileCameraMatrixTexture}:
+ * - {@link RendererGPUResources.viewTileCameraMatrixTexture}:
  *   - An array of {@link MatrixTexture} objects, one per view.
  *   - Each texture contains the RTC view matrices for all tiles in that view.
  *   - Automatically updated when a camera moves, ensuring the GPU always has the latest RTC transforms.
  *
- * - {@link DataTextures.viewTilePickMatrixTexture}:
+ * - {@link RendererGPUResources.viewTilePickMatrixTexture}:
  *   - An array of {@link MatrixTexture} objects, one per view.
  *   - Each texture contains the RTC pick matrices for all tiles in that view, used for accurate object picking.
  *   - Updated as needed before picking operations.
@@ -96,13 +96,13 @@ export interface GPUTile {
   size: number;
 
   /**
-   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.viewTileCameraMatrixTexture
+   * A relative-to-center (RTC) view matrix for each existing View. This is stored in RendererGPUResources.viewTileCameraMatrixTexture
    * and automatically updates on all Tiles whenever the View's Camera moves.
    */
   rtcViewMatrix: Mat4[];
 
   /**
-   * A relative-to-center (RTC) pick matrix for each existing View. This is stored in DataTexturesLayer.viewTilePickMatrixTexture
+   * A relative-to-center (RTC) pick matrix for each existing View. This is stored in RendererGPUResources.viewTilePickMatrixTexture
    * and is manually updated on all Tiles for a target View before picking in that View.
    */
   rtcRayPickMatrix: Mat4[];

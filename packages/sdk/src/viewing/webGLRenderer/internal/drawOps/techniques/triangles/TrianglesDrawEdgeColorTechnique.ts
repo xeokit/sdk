@@ -14,10 +14,11 @@ export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
   constructor(
     renderContext: RenderContext,
     gpuMemoryReader: GPUMemoryReader,
-    opts: { logDepth?: boolean } = {},
+    opts: { vboGeometry?: boolean; logDepth?: boolean } = {},
   ) {
     super(renderContext, gpuMemoryReader, {
       edges: true,
+      vboGeometry: opts.vboGeometry === true,
       logDepth: opts.logDepth === true,
     });
   }

@@ -4,10 +4,10 @@ import {GPUTileManager} from "./GPUTileManager";
 import {type GPUTile} from "./GPUTile";
 import {type GPUMemoryReader} from "./GPUMemoryReader";
 import {type GPUMemoryEditor} from "./GPUMemoryEditor";
-import {type DataTextures} from "./DataTextures";
+import {type RendererGPUResources} from "./RendererGPUResources";
 import {MatrixTexture} from "./dataTextures/MatrixTexture";
-import {GPUMemoryBatch} from "./GPUMemoryBatch";
-import {type GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
+import {GPUMemoryBatch, type GPUMemoryBatchOptions} from "./GPUMemoryBatch";
+import {type GPUMemoryMeshHandle, type GPUMemoryMeshPlacement} from "./GPUMemoryMeshHandle";
 import {Camera, View} from "../../../viewer";
 import {type RenderPassValue} from "../RENDER_PASSES";
 import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult} from "../../../../base/core";
@@ -16,7 +16,11 @@ import type {Mat4} from "../../../../base/math/matrix";
 import {EventDispatcher} from "strongly-typed-events";
 import type {MemoryUsage} from "../../MemoryUsage";
 import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
-
+import {
+  restoreGPUResources,
+  type RestorableGPUResource
+} from "./resources/GPUResourceLifecycle";
+import type {MeshManagerStepStats} from "../meshManager/MeshManagerStepStats";
 
 /**
  * Owns GPU-resident, dynamically editable storage for tiles, geometry, and mesh attributes.
@@ -24,8 +28,9 @@ import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
  * Owned by a {@link ViewManager}, used by {@link MeshManager}, {@link RenderManager}, and
  * {@link PickManager}.
  *
- * `GPUMemoryManager` implements a data-texture + batch based memory system to support rendering and
- * picking for large scenes with frequent updates.
+ * `GPUMemoryManager` implements a batch-based GPU resource system to support rendering and
+ * picking for large scenes with frequent updates. Batches can store geometry in DTX resources or
+ * VBO resources depending on renderer policy.
  *
  * It is responsible for:
  * - Allocating and managing the data textures that encode per-tile camera/pick matrices (per view).
@@ -59,12 +64,12 @@ import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
  *   - Stores RTC matrices for all tiles and views in a GPU-friendly format.
  *   - Updated by the {@link GPUTileManager} whenever camera/view state changes.
  *
- * - {@link DataTextures.viewTileCameraMatrixTexture}:
+ * - {@link RendererGPUResources.viewTileCameraMatrixTexture}:
  *   - An array of {@link MatrixTexture} objects, one per view.
  *   - Each texture contains the RTC view matrices for all tiles in that view.
  *   - Automatically updated when a camera moves, ensuring the GPU always has the latest RTC transforms.
  *
- * - {@link DataTextures.viewTilePickMatrixTexture}:
+ * - {@link RendererGPUResources.viewTilePickMatrixTexture}:
  *   - An array of {@link MatrixTexture} objects, one per view.
  *   - Each texture contains the RTC pick matrices for all tiles in that view, used for accurate object picking.
  *   - Updated as needed before picking operations.
@@ -97,11 +102,18 @@ import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
 export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
 
   /**
-   * Data texture bundle exposed for internal consumers (eg. render passes/shaders).
+   * GPU resource bundle exposed for internal consumers (eg. render passes/shaders).
    *
    * Populated after {@link init} succeeds. Set back to `null` after {@link destroy}.
    */
-  public dataTextures: DataTextures | null = null;
+  public dataTextures: RendererGPUResources | null = null;
+
+  /**
+   * Preferred name for the renderer's GPU resource bundle.
+   */
+  public get gpuResources(): RendererGPUResources | null {
+    return this.dataTextures;
+  }
 
   /** GPU memory batches, appended in creation order. */
   private _batches: GPUMemoryBatch[] = [];
@@ -138,7 +150,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * - `viewTileCameraMatrixTexture[0..3]` mapping tileIndex -> camera view matrix per view
    * - `viewTilePickMatrixTexture[0..3]` mapping tileIndex -> pick matrix per view
    * - A {@link GPUTileManager} for tile allocation and matrix updates
-   * - The {@link dataTextures} bundle used by render code
+   * - The {@link gpuResources} bundle used by render code
    *
    * @returns {@link base!core.SDKResult | SDKResult} that is `ok:true` when initialization succeeds, or `ok:false`
    * when texture allocation fails (typically due to GPU memory limits).
@@ -199,7 +211,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       viewTileCameraMatrixTexture: this._viewTileCameraMatrixTexture.map((t) => t),
       viewTilePickMatrixTexture: this._viewTilePickMatrixTexture.map((t) => t),
       batches: [],
-      onBatchCreated: new EventEmitter(new EventDispatcher<DataTextures, undefined>())
+      onBatchCreated: new EventEmitter(new EventDispatcher<RendererGPUResources, undefined>())
     };
 
     return {ok: true, value: undefined};
@@ -219,21 +231,13 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       throw new SDKInternalException("[GPUMemoryManager.webglContextRestored] GPUMemoryManager is not initialized.");
     }
 
-    const contextUsers = [
+    const contextUsers: RestorableGPUResource[] = [
       ...this._viewTileCameraMatrixTexture,
       ...this._viewTilePickMatrixTexture,
       ...this._batches,
     ];
     const gl = this._renderContext.gl;
-    for (const contextUser of contextUsers) {
-      (contextUser as any).setWebGLContext?.(gl);
-      const result = contextUser.webglContextRestored();
-      if (!result.ok) {
-        return result;
-      }
-    }
-
-    return {ok: true, value: undefined};
+    return restoreGPUResources(contextUsers, gl);
   }
 
   /**
@@ -297,17 +301,19 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    *
    * Useful for debugging/telemetry and rough capacity planning.
    */
-  static get itemSizesInBytes(): { [key: string]: number } {
-    //const numViews = this._renderContext.memoryConfigs.maxViews;
-    const numViews = 4; // TODO - remove hardcoded 4 views assumption; currently built into shader logic and tile manager behavior, but should be decoupled for flexibility.
+  static getItemSizesInBytes(numViews = 1): { [key: string]: number } {
     return Object.assign(
       {
         tile:
-          (MatrixTexture.itemSizeInBytes * numViews) + // view matrices for 4 views
-          (MatrixTexture.itemSizeInBytes * numViews),  // pick matrices for 4 views
+          (MatrixTexture.itemSizeInBytes * numViews) +
+          (MatrixTexture.itemSizeInBytes * numViews),
       },
-      GPUMemoryBatch.itemSizesInBytes
+      GPUMemoryBatch.getItemSizesInBytes(numViews)
     );
+  }
+
+  static get itemSizesInBytes(): { [key: string]: number } {
+    return GPUMemoryManager.getItemSizesInBytes();
   }
 
   /**
@@ -395,12 +401,12 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   /**
    * Creates and allocates a new GPU memory batch.
    *
-   * The created {@link GPUMemoryBatch} is appended to {@link dataTextures.batches} and
-   * {@link DataTextures.onBatchCreated} is dispatched.
+   * The created {@link GPUMemoryBatch} is appended to {@link gpuResources.batches} and
+   * {@link RendererGPUResources.onBatchCreated} is dispatched.
    *
    * @returns {@link base!core.SDKResult | SDKResult} containing the new batch index, or `ok:false` if allocation fails.
    */
-  public createBatch(options: { hasNormals?: boolean, hasUVs?: boolean, triplanar?: boolean, mipmap?: boolean } = {}): SDKResult<number> {
+  public createBatch(options: GPUMemoryBatchOptions = {}): SDKResult<number> {
     if (this._batches.length >= this._renderContext.memoryConfigs.maxBatches) {
       return {
         ok: false,
@@ -424,9 +430,10 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
 
     this._batches.push(gpuMemoryBatch);
 
-    // dataTextures is created in init(); keep runtime behavior but assume init was called.
-    this.dataTextures!.batches.push(gpuMemoryBatch.dataTextures);
-    this.dataTextures!.onBatchCreated.dispatch(this.dataTextures!, undefined);
+    // gpuResources is created in init(); keep runtime behavior but assume init was called.
+    const gpuResources = this.gpuResources!;
+    gpuResources.batches.push(gpuMemoryBatch.batchResources);
+    gpuResources.onBatchCreated.dispatch(gpuResources, undefined);
 
     return {ok: true, value: index};
   }
@@ -442,6 +449,22 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : GPUMemoryCheckResult.NoGeometry;
   }
 
+  public beginBulkMeshAdd(batchIndex: number, stats?: MeshManagerStepStats | null): void {
+    const gpuMemoryBatch = this._batches[batchIndex];
+    if (!gpuMemoryBatch) {
+      throw new SDKInternalException("[GPUMemoryManager.beginBulkMeshAdd] Invalid batch index.");
+    }
+    gpuMemoryBatch.beginBulkMeshAdd(stats);
+  }
+
+  public endBulkMeshAdd(batchIndex: number, stats?: MeshManagerStepStats | null): void {
+    const gpuMemoryBatch = this._batches[batchIndex];
+    if (!gpuMemoryBatch) {
+      throw new SDKInternalException("[GPUMemoryManager.endBulkMeshAdd] Invalid batch index.");
+    }
+    gpuMemoryBatch.endBulkMeshAdd(stats);
+  }
+
   /**
    * Adds a {@link model!scene.SceneMesh | SceneMesh} to a batch and returns a {@link GPUMemoryMeshHandle} used for updates.
    *
@@ -452,13 +475,18 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    *
    * @throws {@link base!core.SDKInternalException | SDKInternalException} If the batch index is invalid.
    */
-  public addMesh(batchIndex: number, sceneMesh: SceneMesh): SDKResult<GPUMemoryMeshHandle> {
+  public addMesh(
+    batchIndex: number,
+    sceneMesh: SceneMesh,
+    placement?: GPUMemoryMeshPlacement,
+    stats?: MeshManagerStepStats | null
+  ): SDKResult<GPUMemoryMeshHandle> {
     const gpuMemoryBatch = this._batches[batchIndex];
     if (!gpuMemoryBatch) {
       throw new SDKInternalException("[GPUMemoryManager.addMesh] Invalid batch index.");
     }
 
-    const meshIdxResult = gpuMemoryBatch.addMesh(sceneMesh);
+    const meshIdxResult = gpuMemoryBatch.addMesh(sceneMesh, placement, stats);
     if (meshIdxResult.ok === false) {
       return meshIdxResult;
     }
@@ -559,6 +587,14 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       throw new SDKInternalException("[GPUMemoryManager.setMeshAttribs] Invalid batch index in mesh handle.");
     }
     batch.setMeshAttribs(meshHandle.meshIndex, params);
+  }
+
+  public setMeshPlacement(meshHandle: GPUMemoryMeshHandle, placement: GPUMemoryMeshPlacement): void {
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
+    if (!batch) {
+      throw new SDKInternalException("[GPUMemoryManager.setMeshPlacement] Invalid batch index in mesh handle.");
+    }
+    batch.setMeshPlacement(meshHandle.meshIndex, placement);
   }
 
   /**
@@ -723,6 +759,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     this._numMeshes = 0;
     this._batches.length = 0;
     this.dataTextures = null as any;
+    this._tileManager?.destroy();
+    this._tileManager = undefined as unknown as GPUTileManager;
 
     const clear = (ref: any) => {
       if (ref) {

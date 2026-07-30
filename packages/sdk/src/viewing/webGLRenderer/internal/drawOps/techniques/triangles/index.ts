@@ -8,4 +8,3 @@ export * from "./TrianglesDrawColorTechnique";
 export * from "./TrianglesDrawColorFlatTechnique";
 export * from "./TrianglesDrawEdgeColorTechnique";
 export * from "./TrianglesDrawEdgeSilhouetteTechnique";
-export * from "./OpaqueTriangleRenderPathConfig";

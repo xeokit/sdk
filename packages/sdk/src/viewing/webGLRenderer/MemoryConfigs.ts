@@ -8,25 +8,6 @@
 export interface MemoryConfigs {
 
   /**
-   * Geometry storage backend used for triangle render batches.
-   *
-   * - `"auto"`: choose from the active internal triangle render-path flags.
-   *   This preserves the renderer's current experimental VBO/DTX switching
-   *   behavior, unless a SceneModel provides an `updateHint`.
-   * - `"dtx"`: construct triangle batches with data-texture geometry only.
-   * - `"vbo"`: construct triangle batches with VBO geometry only. Mesh,
-   *   material and per-view state still live in data textures.
-   *
-   * Explicit `"dtx"` and `"vbo"` values override SceneModel `updateHint`
-   * hints.
-   *
-   * Lines and points always use the data-texture geometry path.
-   *
-   * @internal
-   */
-  triangleGeometryStorage?: "auto" | "dtx" | "vbo";
-
-  /**
    * VBO geometry allocation settings for triangle batches.
    *
    * These settings are separate from {@link maxBatchPrims} because VBO geometry

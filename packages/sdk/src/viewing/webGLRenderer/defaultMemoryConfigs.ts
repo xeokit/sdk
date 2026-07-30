@@ -6,7 +6,6 @@ const DEFAULT_VBO_GEOMETRY_CONFIGS: TriangleGeometryVBOConfigs = {
 };
 
 const DEFAULT_MEMORY_CONFIGS: MemoryConfigs = {
-  triangleGeometryStorage: "auto",
   vboGeometry: DEFAULT_VBO_GEOMETRY_CONFIGS,
   maxViews: 1,
   tileSize: 200,

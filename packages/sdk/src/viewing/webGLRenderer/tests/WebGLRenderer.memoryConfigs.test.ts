@@ -6,7 +6,6 @@ describe("WebGLRenderer memory configs", () => {
     const configs = createDefaultMemoryConfigs();
 
     expect(configs).toMatchObject({
-      triangleGeometryStorage: "auto",
       maxViews: 1,
       tileSize: 200,
       maxTiles: 4096,
@@ -32,7 +31,6 @@ describe("WebGLRenderer memory configs", () => {
     expect(configs.maxBatchIndices).toBe(800000);
     expect(configs.maxBatchMeshes).toBe(20000);
     expect(configs.maxViews).toBe(1);
-    expect(configs.triangleGeometryStorage).toBe("auto");
     expect(configs.vboGeometry).toMatchObject({
       maxBatchPrims: 200000,
       allocationPolicy: "fixedCapacity"

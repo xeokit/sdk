@@ -577,7 +577,7 @@ export class MeshManager {
     // in a mipped batch, so the non-mipped textures end up in a
     // mipped atlas too — predictable, documented on the param.
     const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
-    const geometryStorage = selectTriangleGeometryStorage(this._renderContext, sceneMesh);
+    const geometryStorage = selectTriangleGeometryStorage(sceneMesh);
     // Bin is part of the batch identity so each batch is bin-homogeneous —
     // the renderer's overlay pass needs to be able to skip / include whole
     // batches by bin without subdividing draw calls per-mesh.

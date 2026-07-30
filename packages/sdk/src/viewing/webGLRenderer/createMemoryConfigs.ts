@@ -149,7 +149,6 @@ export function createMemoryConfigs(params:{
     const tileSize = user.tileSize ?? 200;
 
     return {
-        triangleGeometryStorage: user.triangleGeometryStorage ?? "auto",
         vboGeometry: {
             maxBatchPrims: user.vboGeometry?.maxBatchPrims ?? Math.min(maxBatchPrims, 200_000),
             allocationPolicy: user.vboGeometry?.allocationPolicy ?? "fixedCapacity"

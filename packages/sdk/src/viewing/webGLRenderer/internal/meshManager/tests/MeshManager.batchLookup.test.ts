@@ -3,7 +3,7 @@ import type {SceneMesh, SceneModelUpdateHint} from "../../../../../model/scene";
 import {GPUMemoryCheckResult} from "../../gpuMemoryManager";
 import {MeshManager} from "../MeshManager";
 
-function createManager(memoryConfigs: any = {triangleGeometryStorage: "auto"}) {
+function createManager(memoryConfigs: any = {}) {
   let nextBatchIndex = 0;
   const gpuMemoryManager = {
     createBatch: jest.fn(() => ({ok: true, value: nextBatchIndex++})),
@@ -20,7 +20,7 @@ function createMesh({
   normals = false,
   uvs = false,
   bin,
-  updateHint = "auto",
+  updateHint,
 }: {
   primitive: number;
   normals?: boolean;
@@ -67,11 +67,11 @@ describe("MeshManager batch lookup", () => {
     });
   });
 
-  test("passes explicit triangle geometry storage into new batches", () => {
-    const {manager, gpuMemoryManager} = createManager({triangleGeometryStorage: "vbo"});
+  test("uses static SceneModel updateHint for VBO triangle geometry storage", () => {
+    const {manager, gpuMemoryManager} = createManager();
     const getMeshBatch = (manager as any)._getMeshBatch.bind(manager);
 
-    expect(getMeshBatch(createMesh({primitive: TrianglesPrimitive})).ok).toBe(true);
+    expect(getMeshBatch(createMesh({primitive: TrianglesPrimitive, updateHint: "static"})).ok).toBe(true);
     expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
       primitive: TrianglesPrimitive,
       geometryStorage: "vbo"
@@ -84,52 +84,31 @@ describe("MeshManager batch lookup", () => {
     }));
   });
 
-  test("uses dtx geometry storage when configured", () => {
-    const {manager, gpuMemoryManager} = createManager({triangleGeometryStorage: "dtx"});
+  test("uses dynamic SceneModel updateHint for DTX triangle geometry storage", () => {
+    const {manager, gpuMemoryManager} = createManager();
     const getMeshBatch = (manager as any)._getMeshBatch.bind(manager);
-
-    expect(getMeshBatch(createMesh({primitive: TrianglesPrimitive})).ok).toBe(true);
-    expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
-      primitive: TrianglesPrimitive,
-      geometryStorage: "dtx"
-    }));
-  });
-
-  test("uses SceneModel updateHint as a triangle geometry storage hint in auto mode", () => {
-    const {manager, gpuMemoryManager} = createManager({triangleGeometryStorage: "auto"});
-    const getMeshBatch = (manager as any)._getMeshBatch.bind(manager);
-
-    expect(getMeshBatch(createMesh({primitive: TrianglesPrimitive, updateHint: "static"})).ok).toBe(true);
-    expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
-      primitive: TrianglesPrimitive,
-      geometryStorage: "vbo"
-    }));
 
     expect(getMeshBatch(createMesh({primitive: TrianglesPrimitive, updateHint: "dynamic"})).ok).toBe(true);
     expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
       primitive: TrianglesPrimitive,
       geometryStorage: "dtx"
     }));
-
   });
 
-  test("lets explicit renderer triangle geometry storage override SceneModel updateHint", () => {
-    const explicitDTX = createManager({triangleGeometryStorage: "dtx"});
-    const getDTXMeshBatch = (explicitDTX.manager as any)._getMeshBatch.bind(explicitDTX.manager);
+  test("uses DTX triangle geometry storage for auto or missing SceneModel updateHint", () => {
+    const {manager, gpuMemoryManager} = createManager();
+    const getMeshBatch = (manager as any)._getMeshBatch.bind(manager);
 
-    expect(getDTXMeshBatch(createMesh({primitive: TrianglesPrimitive, updateHint: "static"})).ok).toBe(true);
-    expect(explicitDTX.gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
+    expect(getMeshBatch(createMesh({primitive: TrianglesPrimitive, updateHint: "auto"})).ok).toBe(true);
+    expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
       primitive: TrianglesPrimitive,
       geometryStorage: "dtx"
     }));
 
-    const explicitVBO = createManager({triangleGeometryStorage: "vbo"});
-    const getVBOMeshBatch = (explicitVBO.manager as any)._getMeshBatch.bind(explicitVBO.manager);
-
-    expect(getVBOMeshBatch(createMesh({primitive: TrianglesPrimitive, updateHint: "dynamic"})).ok).toBe(true);
-    expect(explicitVBO.gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
+    expect(getMeshBatch(createMesh({primitive: TrianglesPrimitive, updateHint: undefined})).ok).toBe(true);
+    expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
       primitive: TrianglesPrimitive,
-      geometryStorage: "vbo"
+      geometryStorage: "dtx"
     }));
   });
 });

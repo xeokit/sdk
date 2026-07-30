@@ -396,6 +396,136 @@ describe("xgf", () => {
       expect(output.index.chunks.map((manifest: any) => manifest.role).sort()).toEqual(["assetLibrary", "referencesOnly"]);
     });
 
+    it("can localize reused XGF Stream assets instead of creating one shared library", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh-a", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createMesh({id: "mesh-b", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj-a", meshIds: ["mesh-a"]});
+      src.createObject({id: "obj-b", meshIds: ["mesh-b"]});
+
+      const output = await new XGFStreamExporter().write(
+        {sceneModel: src},
+        {
+          partition: "object-order",
+          chunkSize: 1,
+          assetLibraryChunkSize: 1,
+          sharedAssetMode: "local"
+        }
+      );
+
+      const assetLibraries = output.index.chunks
+        .filter((manifest: any) => manifest.role === "assetLibrary")
+        .map((manifest: any) => manifest.id)
+        .sort();
+      const referenceChunks = output.index.chunks
+        .filter((manifest: any) => manifest.role === "referencesOnly")
+        .sort((a: any, b: any) => a.id.localeCompare(b.id));
+
+      expect(assetLibraries).toEqual(["assets-000", "assets-001"]);
+      expect(output.files["chunks/assets-shared.xgf"]).toBeUndefined();
+      expect(referenceChunks.map((manifest: any) => manifest.dependencies.chunks.map((dependency: any) => dependency.id))).toEqual([
+        ["assets-000"],
+        ["assets-001"]
+      ]);
+    });
+
+    it("can shard reused XGF Stream assets into reusable dependency chunks", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      src.createGeometry({
+        id: "shared-geom",
+        primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      src.createMaterial({id: "shared-mat", color: [0.2, 0.4, 0.6]});
+      src.createMesh({id: "mesh-a", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createMesh({id: "mesh-b", geometryId: "shared-geom", materialId: "shared-mat"});
+      src.createObject({id: "obj-a", meshIds: ["mesh-a"]});
+      src.createObject({id: "obj-b", meshIds: ["mesh-b"]});
+
+      const output = await new XGFStreamExporter().write(
+        {sceneModel: src},
+        {
+          partition: "object-order",
+          chunkSize: 1,
+          assetLibraryChunkSize: 1,
+          sharedAssetMode: "sharded",
+          sharedAssetShardSize: 1
+        }
+      );
+
+      const assetLibraries = output.index.chunks
+        .filter((manifest: any) => manifest.role === "assetLibrary")
+        .map((manifest: any) => manifest.id)
+        .sort();
+      const referenceChunks = output.index.chunks
+        .filter((manifest: any) => manifest.role === "referencesOnly")
+        .sort((a: any, b: any) => a.id.localeCompare(b.id));
+
+      expect(assetLibraries).toEqual(["assets-shared-000", "assets-shared-001"]);
+      expect(output.files["chunks/assets-shared.xgf"]).toBeUndefined();
+      expect(referenceChunks.map((manifest: any) => manifest.dependencies.chunks.map((dependency: any) => dependency.id))).toEqual([
+        ["assets-shared-000", "assets-shared-001"],
+        ["assets-shared-000", "assets-shared-001"]
+      ]);
+    });
+
+    it("packs co-used XGF Stream assets into the same shared shard", async () => {
+      const src = new Scene().createModel({id: "src"}).value!;
+      for (const id of ["g-a", "g-b", "g-c", "g-d", "local"]) {
+        src.createGeometry({
+          id,
+          primitive: TrianglesPrimitive,
+          positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+          indices: [0, 1, 2],
+        });
+      }
+      for (const [meshId, geometryId] of [
+        ["m0a", "g-a"], ["m0b", "g-b"], ["m0c", "g-c"], ["m0d", "g-d"],
+        ["m1", "local"],
+        ["m2a", "g-a"], ["m2c", "g-c"],
+        ["m3b", "g-b"], ["m3d", "g-d"]
+      ]) {
+        src.createMesh({id: meshId, geometryId});
+      }
+      src.createObject({id: "obj-0", meshIds: ["m0a", "m0b", "m0c", "m0d"]});
+      src.createObject({id: "obj-1", meshIds: ["m1"]});
+      src.createObject({id: "obj-2", meshIds: ["m2a", "m2c"]});
+      src.createObject({id: "obj-3", meshIds: ["m3b", "m3d"]});
+
+      const output = await new XGFStreamExporter().write(
+        {sceneModel: src},
+        {
+          partition: "object-order",
+          chunkSize: 1,
+          assetLibraryChunkSize: 1,
+          sharedAssetMode: "sharded",
+          sharedAssetShardSize: 2
+        }
+      );
+
+      const chunkById = new Map(output.index.chunks.map((manifest: any) => [manifest.id, manifest]));
+      expect(chunkById.get("assets-shared-000")?.assets.geometries).toEqual(["g-a", "g-c"]);
+      expect(chunkById.get("assets-shared-001")?.assets.geometries).toEqual(["g-b", "g-d"]);
+
+      const referenceChunks = output.index.chunks
+        .filter((manifest: any) => manifest.role === "referencesOnly")
+        .sort((a: any, b: any) => a.id.localeCompare(b.id));
+      expect(referenceChunks.map((manifest: any) => manifest.dependencies.chunks.map((dependency: any) => dependency.id))).toEqual([
+        ["assets-shared-000", "assets-shared-001"],
+        ["assets-001"],
+        ["assets-shared-000"],
+        ["assets-shared-001"]
+      ]);
+    });
+
     it("creates v2 asset-library chunk manifests", () => {
       const src = new Scene().createModel({id: "src"}).value!;
       src.createGeometry({

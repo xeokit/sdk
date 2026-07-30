@@ -1,11 +1,37 @@
-/**
- * @jest-environment jsdom
- */
-// Round-trip uses parse, which needs a DOMParser — hence the jsdom environment
-// pragma above (it must be the file's first docblock for Jest to honour it).
 import {encode} from "../versions/v1_0/encode";
 import {parse} from "../versions/v1_0/parse";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../base/constants";
+
+let restoreDOMParser: (() => void) | null = null;
+
+beforeAll(async () => {
+  if (typeof DOMParser !== "undefined") {
+    return;
+  }
+  const {JSDOM} = await import("jsdom");
+  const dom = new JSDOM("<!doctype html><html><body></body></html>");
+  const previousDocument = (globalThis as any).document;
+  const previousDOMParser = (globalThis as any).DOMParser;
+  (globalThis as any).document = dom.window.document;
+  (globalThis as any).DOMParser = dom.window.DOMParser;
+  restoreDOMParser = () => {
+    if (previousDocument === undefined) {
+      delete (globalThis as any).document;
+    } else {
+      (globalThis as any).document = previousDocument;
+    }
+    if (previousDOMParser === undefined) {
+      delete (globalThis as any).DOMParser;
+    } else {
+      (globalThis as any).DOMParser = previousDOMParser;
+    }
+    dom.window.close();
+  };
+});
+
+afterAll(() => {
+  restoreDOMParser?.();
+});
 
 // Quantise positions to uint16 the way SceneGeometry stores them — the inverse
 // of the exporter's decompressPoint3WithAABB3.

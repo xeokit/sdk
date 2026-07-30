@@ -1,14 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-// The exporter uses TextEncoder; round-trip reload uses readE57 (DOMParser +
-// TextDecoder). jsdom provides DOMParser but not the text codecs — polyfill
-// both from node's util (native at real runtime).
-import {TextEncoder as NodeTextEncoder, TextDecoder as NodeTextDecoder} from "util";
-const g = globalThis as { TextEncoder?: unknown; TextDecoder?: unknown };
-if (typeof g.TextEncoder === "undefined") g.TextEncoder = NodeTextEncoder;
-if (typeof g.TextDecoder === "undefined") g.TextDecoder = NodeTextDecoder;
-
 import * as fs from "fs";
 import * as path from "path";
 import {Scene} from "../../../model/scene";
@@ -16,6 +5,17 @@ import {PointsPrimitive} from "../../../base/constants";
 import {E57Exporter} from "../E57Exporter";
 import {E57Loader} from "../E57Loader";
 import {readE57, decodeCompressedVector, crc32c, parseE57Header} from "../parser";
+import {installE57TestGlobals} from "./installE57TestGlobals";
+
+let restoreGlobals: (() => void) | null = null;
+
+beforeAll(async () => {
+  restoreGlobals = await installE57TestGlobals();
+});
+
+afterAll(() => {
+  restoreGlobals?.();
+});
 
 function inRealmArrayBuffer(u8: Uint8Array): ArrayBuffer {
   const ab = new ArrayBuffer(u8.byteLength);

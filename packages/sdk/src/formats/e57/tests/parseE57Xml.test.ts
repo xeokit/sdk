@@ -1,8 +1,15 @@
-/**
- * @jest-environment jsdom
- */
-// parseE57Xml uses DOMParser, so this runs under jsdom (mirrors the 3DXML test).
 import {parseE57Xml} from "../parser/parseE57Xml";
+import {installE57TestGlobals} from "./installE57TestGlobals";
+
+let restoreGlobals: (() => void) | null = null;
+
+beforeAll(async () => {
+  restoreGlobals = await installE57TestGlobals();
+});
+
+afterAll(() => {
+  restoreGlobals?.();
+});
 
 const XML = `<?xml version="1.0" encoding="UTF-8"?>
 <e57Root type="Structure" xmlns="http://www.astm.org/COMMIT/E57/2010-e57-v1.0">

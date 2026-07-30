@@ -1,17 +1,17 @@
-/**
- * @jest-environment jsdom
- */
-// readE57 → parseE57Xml needs DOMParser (jsdom); the page reader needs
-// TextDecoder, which the jsdom test env doesn't expose, so polyfill it from
-// node's util (the browser and Node runtimes both provide it natively).
-import {TextDecoder as NodeTextDecoder} from "util";
-if (typeof (globalThis as { TextDecoder?: unknown }).TextDecoder === "undefined") {
-  (globalThis as { TextDecoder?: unknown }).TextDecoder = NodeTextDecoder;
-}
-
 import * as fs from "fs";
 import * as path from "path";
 import {readE57, decodeCompressedVector} from "../parser";
+import {installE57TestGlobals} from "./installE57TestGlobals";
+
+let restoreGlobals: (() => void) | null = null;
+
+beforeAll(async () => {
+  restoreGlobals = await installE57TestGlobals();
+});
+
+afterAll(() => {
+  restoreGlobals?.();
+});
 
 function loadFixture(name: string): ArrayBuffer {
   const b = fs.readFileSync(path.join(__dirname, "fixtures", name));

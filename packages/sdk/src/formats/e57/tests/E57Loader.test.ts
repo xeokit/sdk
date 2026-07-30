@@ -1,18 +1,19 @@
-/**
- * @jest-environment jsdom
- */
-// E57Loader → readE57 → parseE57Xml needs DOMParser (jsdom) and the page reader
-// needs TextDecoder (absent from the jsdom test env; native at runtime).
-import {TextDecoder as NodeTextDecoder} from "util";
-if (typeof (globalThis as { TextDecoder?: unknown }).TextDecoder === "undefined") {
-  (globalThis as { TextDecoder?: unknown }).TextDecoder = NodeTextDecoder;
-}
-
 import * as fs from "fs";
 import * as path from "path";
 import {Scene} from "../../../model/scene";
 import {PointsPrimitive} from "../../../base/constants";
 import {E57Loader} from "../E57Loader";
+import {installE57TestGlobals} from "./installE57TestGlobals";
+
+let restoreGlobals: (() => void) | null = null;
+
+beforeAll(async () => {
+  restoreGlobals = await installE57TestGlobals();
+});
+
+afterAll(() => {
+  restoreGlobals?.();
+});
 
 function fixture(name: string): ArrayBuffer {
   const b = fs.readFileSync(path.join(__dirname, "fixtures", name));

@@ -1,6 +1,7 @@
 import {TrianglesPrimitive} from "../../../base/constants";
 import {Scene} from "../../../model/scene";
 import {Viewer} from "../Viewer";
+import {installViewerTestGlobals} from "./installViewerTestGlobals";
 
 const QUAD_POSITIONS = [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0];
 const QUAD_INDICES = [0, 1, 2, 0, 2, 3];
@@ -17,23 +18,14 @@ class FakeResizeObserver {
   disconnect() {}
 }
 
-const originalHTMLElement = globalThis.HTMLElement;
-const originalResizeObserver = globalThis.ResizeObserver;
-const originalWindow = globalThis.window;
+let restoreGlobals: (() => void) | null = null;
 
 beforeAll(() => {
-  (globalThis as any).HTMLElement = FakeHTMLElement;
-  (globalThis as any).ResizeObserver = FakeResizeObserver;
-  (globalThis as any).window = {
-    addEventListener() {},
-    removeEventListener() {}
-  };
+  restoreGlobals = installViewerTestGlobals(FakeHTMLElement, FakeResizeObserver);
 });
 
 afterAll(() => {
-  (globalThis as any).HTMLElement = originalHTMLElement;
-  (globalThis as any).ResizeObserver = originalResizeObserver;
-  (globalThis as any).window = originalWindow;
+  restoreGlobals?.();
 });
 
 function createHostElement(): HTMLElement {

@@ -1,5 +1,5 @@
 import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult, SDKTask,} from "../../base/core";
-import {DetailedRender, NavigationRender, RealisticRender} from "../../base/constants";
+import {DetailedRender, RealisticRender} from "../../base/constants";
 import type {FloatArrayParam} from "../../base/math";
 import type { Vec3} from "../../base/math/vector";
 import type {SceneObject} from "../../model/scene";
@@ -450,7 +450,7 @@ class View {
     });
 
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
-      renderModes: [NavigationRender],
+      renderModes: [],
       resolutionScale: 0.5
     });
 

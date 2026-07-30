@@ -1,4 +1,3 @@
-import {NavigationRender} from "../../base/constants";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 import type {View} from "./View";
 import {type SDKResult} from "../../base/core";
@@ -31,14 +30,14 @@ export class ResolutionScale {
 
         this.view = view;
 
-        this._renderModes = options.renderModes || [NavigationRender];
+        this._renderModes = options.renderModes || [];
         this._resolutionScale = options.resolutionScale || 0.5;
     }
 
     /**
      * Sets which rendering modes in which to apply ResolutionScale.
      *
-     * Default value is [{@link base!constants.NavigationRender | NavigationRender}].
+     * Default value is `[]`.
      */
     set renderModes(value: number[]) {
         this._renderModes = value;
@@ -48,7 +47,7 @@ export class ResolutionScale {
     /**
      * Gets which rendering modes in which to apply ResolutionScale.
      *
-     * Default value is [{@link base!constants.NavigationRender | NavigationRender}].
+     * Default value is `[]`.
      */
     get renderModes(): number[] {
         return this._renderModes;

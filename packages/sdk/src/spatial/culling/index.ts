@@ -43,6 +43,7 @@
  *     }
  *     class ViewCuller {
  *       +view : View
+ *       +cullNow()
  *       +destroy()
  *     }
  *     class getSceneCuller {
@@ -118,6 +119,10 @@
  *
  * const culler = new ViewCuller(view);
  * ```
+ *
+ * Call `culler.cullNow()` after adding many SceneObjects without moving the
+ * camera, such as after a streaming chunk finishes, to classify newly resident
+ * objects immediately.
  *
  * <br>
  *

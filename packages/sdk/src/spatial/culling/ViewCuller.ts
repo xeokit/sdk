@@ -116,6 +116,17 @@ export class ViewCuller {
     }
   }
 
+  /**
+   * Runs a cull pass for the View's current camera immediately.
+   *
+   * The culler already runs on camera changes. Call this after a burst of
+   * SceneObject creation, such as streaming in new chunks, when newly resident
+   * objects should be classified before the camera moves again.
+   */
+  cullNow(): void {
+    this.#cullNow();
+  }
+
   #onCameraChanged(): void {
     if (this.#destroyed) {
       return;

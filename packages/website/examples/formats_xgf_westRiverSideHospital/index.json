@@ -1,0 +1,11 @@
+{
+  "id": "formats_xgf_westRiverSideHospital",
+  "title": "XGF West Riverside Hospital Static",
+  "description": "Loads the West Riverside Hospital XGF into a static SceneModel.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Buildings"
+  ]
+}

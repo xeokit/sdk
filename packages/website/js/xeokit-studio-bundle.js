@@ -21239,9 +21239,7 @@ var SceneModel3 = class {
   /**
    * Hint describing how often this SceneModel's geometry is expected to change.
    *
-   * Renderers can use this to choose an internal storage path. The WebGL
-   * renderer uses it only when its triangle geometry storage mode is `"auto"`;
-   * explicit renderer memory config still wins.
+   * Renderers can use this to choose an internal storage path.
    */
   _updateHint;
   /**
@@ -108994,6 +108992,7 @@ function invalid(error) {
 }
 
 // ../sdk/src/formats/xgfstream/XGFStreamExporter.ts
+var ASSET_KINDS = ["geometries", "materials", "textures"];
 var XGFStreamExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -109045,6 +109044,8 @@ async function encodeXGFStream(params, options = {}) {
     assetId,
     assetLibraryChunkSize: positiveInteger(options.assetLibraryChunkSize, 0),
     sharedAssetMinLibraryUses: positiveInteger(options.sharedAssetMinLibraryUses, 2),
+    sharedAssetMode: normalizeSharedAssetMode(options.sharedAssetMode || "global"),
+    sharedAssetShardSize: positiveInteger(options.sharedAssetShardSize, 512),
     baseUri,
     chunkDirName
   });
@@ -109181,11 +109182,19 @@ function createAssetLibrarySpecs(params) {
       assets: collectAssetIds2(params.sceneModel, Array.from(libraryObjectIds))
     });
   }
-  const sharedAssets = collectSharedAssets(groups, params.sharedAssetMinLibraryUses);
+  const sharedAssets = params.sharedAssetMode === "local" ? emptyAssets() : collectSharedAssets(groups, params.sharedAssetMinLibraryUses);
   const hasSharedAssets = hasAnyAsset(sharedAssets);
   const sharedLibraryId = `${params.assetId}-shared`;
   const libraries = [];
-  if (hasSharedAssets) {
+  const shardedSharedAssets = params.sharedAssetMode === "sharded" && hasSharedAssets ? createSharedAssetShards({
+    groups,
+    sharedAssets,
+    assetId: params.assetId,
+    sharedAssetShardSize: params.sharedAssetShardSize,
+    baseUri: params.baseUri,
+    chunkDirName: params.chunkDirName
+  }) : null;
+  if (params.sharedAssetMode === "global" && hasSharedAssets) {
     libraries.push({
       id: sharedLibraryId,
       uri: joinUri(params.baseUri, params.chunkDirName, `${sharedLibraryId}.xgf`),
@@ -109195,9 +109204,18 @@ function createAssetLibrarySpecs(params) {
       priority: 0
     });
   }
+  if (shardedSharedAssets) {
+    libraries.push(...shardedSharedAssets.libraries);
+  }
   for (const group of groups) {
     const localAssets = subtractAssets(group.assets, sharedAssets);
-    const groupLibraryIds = hasSharedAssets ? [sharedLibraryId] : [];
+    const groupLibraryIds = [];
+    if (params.sharedAssetMode === "global" && hasSharedAssets) {
+      groupLibraryIds.push(sharedLibraryId);
+    }
+    if (shardedSharedAssets) {
+      groupLibraryIds.push(...sharedShardIdsForAssets(group.assets, shardedSharedAssets.assetToShardIds));
+    }
     if (hasAnyAsset(localAssets)) {
       libraries.push({
         id: group.id,
@@ -109237,6 +109255,108 @@ function collectAssetIds2(sceneModel, objectIds) {
     }
   }
   return assets;
+}
+function emptyAssets() {
+  return {
+    geometries: /* @__PURE__ */ new Set(),
+    materials: /* @__PURE__ */ new Set(),
+    textures: /* @__PURE__ */ new Set()
+  };
+}
+function createSharedAssetShards(params) {
+  const libraries = [];
+  const assetToShardIds = {
+    geometries: /* @__PURE__ */ new Map(),
+    materials: /* @__PURE__ */ new Map(),
+    textures: /* @__PURE__ */ new Map()
+  };
+  const records = sharedAssetRecords(params.groups, params.sharedAssets);
+  let shardIndex = 0;
+  let shardId = "";
+  let shardAssets = emptyAssets();
+  let shardAssetCount = 0;
+  const startShard = () => {
+    shardId = `${params.assetId}-shared-${String(shardIndex).padStart(3, "0")}`;
+    shardAssets = emptyAssets();
+    shardAssetCount = 0;
+    shardIndex++;
+  };
+  const flushShard = () => {
+    if (shardAssetCount === 0) {
+      return;
+    }
+    libraries.push({
+      id: shardId,
+      uri: joinUri(params.baseUri, params.chunkDirName, `${shardId}.xgf`),
+      geometryIds: Array.from(shardAssets.geometries).sort(),
+      materialIds: Array.from(shardAssets.materials).sort(),
+      textureIds: Array.from(shardAssets.textures).sort(),
+      priority: 0
+    });
+  };
+  startShard();
+  for (const record of records) {
+    if (shardAssetCount >= params.sharedAssetShardSize) {
+      flushShard();
+      startShard();
+    }
+    shardAssets[record.kind].add(record.id);
+    assetToShardIds[record.kind].set(record.id, shardId);
+    shardAssetCount++;
+  }
+  flushShard();
+  return { libraries, assetToShardIds };
+}
+function sharedAssetRecords(groups, sharedAssets) {
+  const records = [];
+  for (const kind of ASSET_KINDS) {
+    for (const id of sharedAssets[kind]) {
+      const usage = groupAssetUsage(groups, kind, id);
+      records.push({
+        kind,
+        id,
+        firstGroup: usage.firstGroup,
+        uses: usage.uses,
+        groupIds: usage.groupIds
+      });
+    }
+  }
+  return records.sort(
+    (a2, b4) => a2.firstGroup - b4.firstGroup || compareGroupIds(a2.groupIds, b4.groupIds) || b4.uses - a2.uses || ASSET_KINDS.indexOf(a2.kind) - ASSET_KINDS.indexOf(b4.kind) || a2.id.localeCompare(b4.id)
+  );
+}
+function compareGroupIds(a2, b4) {
+  const len = Math.min(a2.length, b4.length);
+  for (let i = 0; i < len; i++) {
+    const diff = a2[i] - b4[i];
+    if (diff !== 0) {
+      return diff;
+    }
+  }
+  return a2.length - b4.length;
+}
+function groupAssetUsage(groups, kind, id) {
+  let firstGroup = Number.POSITIVE_INFINITY;
+  const groupIds = [];
+  for (let i = 0; i < groups.length; i++) {
+    if (groups[i].assets[kind].has(id)) {
+      firstGroup = Math.min(firstGroup, i);
+      groupIds.push(i);
+    }
+  }
+  return { firstGroup, uses: groupIds.length, groupIds };
+}
+function sharedShardIdsForAssets(assets, assetToShardIds) {
+  const shardIds = /* @__PURE__ */ new Set();
+  for (const kind of ASSET_KINDS) {
+    for (const id of assets[kind]) {
+      const shardId = assetToShardIds[kind].get(id);
+      if (shardId) {
+        shardIds.add(shardId);
+      }
+    }
+  }
+  return Array.from(shardIds).sort();
 }
 function addMaterialTextureIds2(material, textures) {
   addTextureId3(textures, material.colorTexture);
@@ -109514,6 +109634,12 @@ function positiveNumber(value, defaultValue) {
     throw new Error("[XGFStreamExporter.write] Expected a positive number option");
   }
   return n;
+}
+function normalizeSharedAssetMode(value) {
+  if (value === "global" || value === "local" || value === "sharded") {
+    return value;
+  }
+  throw new Error("[XGFStreamExporter.write] Expected sharedAssetMode to be 'global', 'local' or 'sharded'");
 }
 function trimSlashes(value) {
   return String(value || "").replace(/^\/+|\/+$/g, "");
@@ -186509,115 +186635,12 @@ var RendererSplatMesh = class {
   }
 };
 
-// ../sdk/src/viewing/webGLRenderer/internal/TriangleGeometryRenderPathConfig.ts
-var TRIANGLE_VBO_GEOMETRY_DRAWTECHNIQUES_FLAG = "XEOKIT_WEBGL_DRAWTECHNIQUE_VBO_GEOMETRY";
-function shouldUseTriangleVBOGeometry(view) {
-  const configured = readOptionalBooleanFlag(TRIANGLE_VBO_GEOMETRY_DRAWTECHNIQUES_FLAG);
-  if (configured !== null) {
-    return configured;
-  }
-  return getConfiguredOpaqueTriangleRenderPath(view) !== "dtx-only";
-}
-function shouldUseTriangleVBOGeometryDrawTechnique(view) {
-  return shouldUseTriangleVBOGeometry(view);
-}
-function getConfiguredTriangleGeometryStorage(view) {
-  return shouldUseTriangleVBOGeometry(view) ? "vbo" : "dtx";
-}
-function getConfiguredOpaqueTriangleRenderPath(view) {
-  const forcedPath = readOpaqueTriangleRenderPath("XEOKIT_WEBGL_OPAQUE_TRIANGLES_RENDER_PATH");
-  if (forcedPath) {
-    return forcedPath;
-  }
-  if (view?.renderMode === NavigationRender) {
-    const navigationPath = readOpaqueTriangleRenderPath("XEOKIT_WEBGL_OPAQUE_TRIANGLES_NAVIGATION_RENDER_PATH");
-    if (navigationPath) {
-      return navigationPath;
-    }
-  }
-  if (readBooleanFlag("XEOKIT_WEBGL_VBO_OPAQUE_TRIANGLES")) {
-    const path = readOpaqueTriangleRenderPath("XEOKIT_WEBGL_VBO_OPAQUE_TRIANGLES_MODE");
-    return path === "vbo-only" ? "vbo-only" : "hybrid";
-  }
-  return "hybrid";
-}
-function readOpaqueTriangleRenderPath(key) {
-  const root = globalThis;
-  const globalValue = normalizeOpaqueTriangleRenderPath(root[key]);
-  if (globalValue) {
-    return globalValue;
-  }
-  try {
-    return normalizeOpaqueTriangleRenderPath(root.localStorage?.getItem(key));
-  } catch (_e) {
-    return null;
-  }
-}
-function normalizeOpaqueTriangleRenderPath(value) {
-  if (value === "dtx-only" || value === "hybrid" || value === "vbo-only" || value === "vbo-first") {
-    return value;
-  }
-  if (value === "vboFirst") {
-    return "vbo-first";
-  }
-  if (value === "baked") {
-    return "vbo-only";
-  }
-  if (value === "dtx") {
-    return "dtx-only";
-  }
-  return null;
-}
-function readBooleanFlag(key) {
-  const root = globalThis;
-  const globalValue = root[key];
-  if (globalValue === true || globalValue === "true" || globalValue === "1") {
-    return true;
-  }
-  try {
-    const localValue = root.localStorage?.getItem(key);
-    return localValue === "true" || localValue === "1";
-  } catch (_e) {
-    return false;
-  }
-}
-function readOptionalBooleanFlag(key) {
-  const root = globalThis;
-  const globalValue = root[key];
-  if (globalValue === true || globalValue === "true" || globalValue === "1" || globalValue === 1) {
-    return true;
-  }
-  if (globalValue === false || globalValue === "false" || globalValue === "0" || globalValue === 0) {
-    return false;
-  }
-  try {
-    const localValue = root.localStorage?.getItem(key);
-    if (localValue === "true" || localValue === "1") {
-      return true;
-    }
-    if (localValue === "false" || localValue === "0") {
-      return false;
-    }
-    return null;
-  } catch (_e) {
-    return null;
-  }
-}
-
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/TriangleGeometryStoragePolicy.ts
-function selectTriangleGeometryStorage(renderContext, sceneMesh) {
+function selectTriangleGeometryStorage(sceneMesh) {
   if (sceneMesh.geometry.primitive !== TrianglesPrimitive) {
     return "dtx";
   }
-  const configured = renderContext.memoryConfigs?.triangleGeometryStorage ?? "auto";
-  if (configured === "dtx" || configured === "vbo") {
-    return configured;
-  }
-  const hinted = getTriangleGeometryStorageForUpdateHint(sceneMesh.model?.updateHint);
-  if (hinted) {
-    return hinted;
-  }
-  return getConfiguredTriangleGeometryStorage(renderContext.activeView);
+  return getTriangleGeometryStorageForUpdateHint(sceneMesh.model?.updateHint);
 }
 function getTriangleGeometryStorageForUpdateHint(updateHint) {
   switch (updateHint) {
@@ -186625,8 +186648,9 @@ function getTriangleGeometryStorageForUpdateHint(updateHint) {
       return "vbo";
     case "dynamic":
       return "dtx";
+    case "auto":
     default:
-      return null;
+      return "dtx";
   }
 }
 
@@ -187113,7 +187137,7 @@ var MeshManager = class {
     const hasUVs = !!sceneMesh.geometry.uvsCompressed;
     const triplanar = !hasUVs && _materialHasAnyTexture(sceneMesh);
     const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
-    const geometryStorage = selectTriangleGeometryStorage(this._renderContext, sceneMesh);
+    const geometryStorage = selectTriangleGeometryStorage(sceneMesh);
     const bin = sceneMesh.bin;
     const stats = this._stepStatsEnabled ? this._stepStats : null;
     const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin);
@@ -192901,24 +192925,16 @@ var TriangleSurfaceDrawOp = class extends DrawOp {
   _selectDrawOp(meshBatch) {
     const view = this._renderContext.activeView;
     const batchResources = this._gpuMemoryReader.gpuResources.batches[meshBatch.gpuMemoryBatchIndex];
-    if (batchResources?.geometryStorage === "dtx" && !shouldUseTriangleVBOGeometry(view)) {
+    if (batchResources?.geometryStorage !== "vbo") {
       return this._dtxDrawOp;
     }
     const triangleGeometryVBO = batchResources?.triangleGeometryVBO;
     if (!triangleGeometryVBO?.getDrawState(view.viewIndex, this.renderPass, "hybrid")) {
-      if (batchResources?.geometryStorage === "vbo") {
-        this._renderContext.renderInspector?.vboGeometryTriangles({
-          blockedBatches: 1,
-          blockedPrims: 0
-        });
-        return this._vboGeometryDrawOp;
-      }
-      const primRange = batchResources?.views[view.viewIndex]?.renderPassPrimitiveRanges.get(this.renderPass);
       this._renderContext.renderInspector?.vboGeometryTriangles({
-        fallbackBatches: 1,
-        fallbackPrims: primRange?.numPrims ?? 0
+        blockedBatches: 1,
+        blockedPrims: 0
       });
-      return this._dtxDrawOp;
+      return this._vboGeometryDrawOp;
     }
     return this._vboGeometryDrawOp;
   }
@@ -201128,8 +201144,7 @@ __export(meshManager_exports, {
   RendererMaterial: () => RendererMaterial,
   RendererMesh: () => RendererMesh,
   RendererObject: () => RendererObject,
-  RendererTexture: () => RendererTexture,
-  createMeshManagerStepStats: () => createMeshManagerStepStats
+  RendererTexture: () => RendererTexture
 });
 
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/RendererGeometry.ts
@@ -201871,11 +201886,7 @@ __export(triangles_exports, {
   TrianglesDrawColorFlatTechnique: () => TrianglesDrawColorFlatTechnique,
   TrianglesDrawColorTechnique: () => TrianglesDrawColorTechnique,
   TrianglesDrawEdgeColorTechnique: () => TrianglesDrawEdgeColorTechnique,
-  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique,
-  getConfiguredOpaqueTriangleRenderPath: () => getConfiguredOpaqueTriangleRenderPath,
-  getConfiguredTriangleGeometryStorage: () => getConfiguredTriangleGeometryStorage,
-  shouldUseTriangleVBOGeometry: () => shouldUseTriangleVBOGeometry,
-  shouldUseTriangleVBOGeometryDrawTechnique: () => shouldUseTriangleVBOGeometryDrawTechnique
+  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique
 });
 
 // ../sdk/src/viewing/webGLRenderer/internal/inspectors/ShaderInspector.ts
@@ -202236,32 +202247,6 @@ var ViewManager2 = class {
       throw new SDKInternalException("[ViewManager.getRenderInspector] ViewManager is not initialized");
     }
     return this._renderContext.renderInspector;
-  }
-  /**
-   * Passthrough to {@link MeshManager.enableStepStats} — toggles
-   * opt-in step-level timing inside `MeshManager._addMesh`. See
-   * {@link MeshManager.enableStepStats}.
-   *
-   * @internal
-   */
-  enableMeshManagerStepStats(enabled) {
-    this._meshManager.enableStepStats(enabled);
-  }
-  /**
-   * Passthrough to {@link MeshManager.resetStepStats}.
-   *
-   * @internal
-   */
-  resetMeshManagerStepStats() {
-    this._meshManager.resetStepStats();
-  }
-  /**
-   * Passthrough to {@link MeshManager.getStepStats}.
-   *
-   * @internal
-   */
-  getMeshManagerStepStats() {
-    return this._meshManager.getStepStats();
   }
   /**
    * Returns the {@link viewing!viewer.View | View} at a given index in the internal view list.
@@ -202975,7 +202960,6 @@ var DEFAULT_VBO_GEOMETRY_CONFIGS = {
   allocationPolicy: "fixedCapacity"
 };
 var DEFAULT_MEMORY_CONFIGS = {
-  triangleGeometryStorage: "auto",
   vboGeometry: DEFAULT_VBO_GEOMETRY_CONFIGS,
   maxViews: 1,
   tileSize: 200,
@@ -203661,47 +203645,6 @@ var WebGLRenderer3 = class {
       return null;
     }
     return { numDrawCalls: frame.numDrawCalls, numPrimitives: frame.numPrims };
-  }
-  /**
-   * Enables (or disables) opt-in step-level timing inside the
-   * renderer's MeshManager, which fires synchronously on every
-   * `SceneModel.createMesh` call. Use to attribute time across the
-   * substeps (`getMeshBatch`, `batchAddMesh`, `rendererMeshCtor`)
-   * during a workload like a model load. Off by default so the hot
-   * path takes no `performance.now()` hit in normal use.
-   *
-   * Read the recorded numbers with {@link getMeshManagerStepStats}.
-   *
-   * @internal
-   */
-  enableMeshManagerStepStats(enabled) {
-    if (!this._viewManager)
-      return;
-    this._viewManager.enableMeshManagerStepStats(enabled);
-  }
-  /**
-   * Zeroes the MeshManager step-stats counters. Call before the
-   * workload you want to attribute.
-   *
-   * @internal
-   */
-  resetMeshManagerStepStats() {
-    if (!this._viewManager)
-      return;
-    this._viewManager.resetMeshManagerStepStats();
-  }
-  /**
-   * Returns a snapshot of the MeshManager step-stats. Safe to call
-   * whether or not {@link enableMeshManagerStepStats} is on; values
-   * stay at the last-recorded numbers when disabled. Returns `null`
-   * before a viewer is attached.
-   *
-   * @internal
-   */
-  getMeshManagerStepStats() {
-    if (!this._viewManager)
-      return null;
-    return this._viewManager.getMeshManagerStepStats();
   }
   /**
    * Diagnostic: read back every mip × face of the GGX-prefiltered IBL
@@ -204390,7 +204333,6 @@ function createMemoryConfigs(params) {
   );
   const tileSize = user.tileSize ?? 200;
   return {
-    triangleGeometryStorage: user.triangleGeometryStorage ?? "auto",
     vboGeometry: {
       maxBatchPrims: user.vboGeometry?.maxBatchPrims ?? Math.min(maxBatchPrims, 2e5),
       allocationPolicy: user.vboGeometry?.allocationPolicy ?? "fixedCapacity"

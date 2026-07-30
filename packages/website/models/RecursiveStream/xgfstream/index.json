@@ -28,7 +28,7 @@
     },
     {
       "id": "bakuStadium",
-      "uri": "../../BakuStadium/xgfstream/index.runtime.json",
+      "uri": "../../BakuStadium_2000/xgfstream/index.runtime.json",
       "aabb": [
         -167.7880401971658,
         -175.80615983212357,
@@ -45,7 +45,7 @@
       "priority": 1,
       "metadata": {
         "title": "Baku Stadium",
-        "model": "BakuStadium",
+        "model": "BakuStadium_2000",
         "chunkCount": 2083
       }
     },

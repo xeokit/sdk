@@ -16,7 +16,7 @@
     },
     "formats": ["dwg", "pdf"]
   },
-  "BakuStadium": {
+  "BakuStadium_2000": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
@@ -25,7 +25,7 @@
     "formats": ["xgfstream"],
     "dataset": ["xgfstream"]
   },
-  "BakuStadium4K": {
+  "BakuStadium_xgfstream_4000": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
@@ -34,7 +34,7 @@
     "formats": ["xgfstream"],
     "dataset": ["xgfstream"]
   },
-  "BakuStadiumV2": {
+  "BakuStadium_xgfstream_200": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],

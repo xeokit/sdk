@@ -4,7 +4,7 @@ render mode while the camera is moving, restoring quality once it
 settles.</strong></p>
 <hr>
 <p>The mechanism is one line of state: <code>view.renderMode</code>. Each renderer
-effect (SAO, shadows, bloom, FXAA, ACES tonemap, edges, IBL, section
+effect (SAO, shadows, bloom, final AA, ACES tonemap, edges, IBL, section
 caps) declares its own <code>renderModes</code> list and gates its activation on
 <code>view.renderMode</code> being in that list. Flipping the View's mode
 therefore toggles every effect whose list doesn't include the new mode

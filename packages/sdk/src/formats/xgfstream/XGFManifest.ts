@@ -1,4 +1,5 @@
 import type {SceneMaterial, SceneMesh, SceneModel, SceneTexture} from "../../model/scene";
+import {getMeshWorldMatrix} from "../../model/scene";
 import type {XGFChunkManifest} from "./chunk/XGFChunkManifest";
 import type {XGFManifestOptions} from "./manifest/XGFManifestOptions";
 
@@ -72,7 +73,7 @@ export function createXGFManifest(params: {
     lod: options.lod
   };
 
-  const aabb = computeSceneModelAABB(sceneModel);
+  const aabb = computeSceneModelAABB(sceneModel, options.coordinateSystem);
   if (aabb) {
     manifest.aabb = aabb;
   }
@@ -113,7 +114,7 @@ function addTextureId(textureIds: Set<string>, texture?: SceneTexture): void {
   }
 }
 
-function computeSceneModelAABB(sceneModel: SceneModel): number[] | undefined {
+function computeSceneModelAABB(sceneModel: SceneModel, coordinateSystem?: any): number[] | undefined {
   let xmin = Number.POSITIVE_INFINITY;
   let ymin = Number.POSITIVE_INFINITY;
   let zmin = Number.POSITIVE_INFINITY;
@@ -127,7 +128,7 @@ function computeSceneModelAABB(sceneModel: SceneModel): number[] | undefined {
     if (!aabb || aabb.length !== 6) {
       return;
     }
-    const matrix = mesh.worldMatrix;
+    const matrix = coordinateSystem ? getMeshWorldMatrix(mesh, coordinateSystem) : mesh.worldMatrix;
     for (let xBit = 0; xBit <= 1; xBit++) {
       const x = aabb[xBit ? 3 : 0];
       for (let yBit = 0; yBit <= 1; yBit++) {

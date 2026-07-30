@@ -47,6 +47,14 @@ export interface XGFViewStreamControllerParams {
   fetchConcurrency?: number;
   /** Approximate per-frame commit budget, in milliseconds. */
   commitFrameBudgetMs?: number;
+  /**
+   * Minimum time between non-final progress callbacks, in milliseconds.
+   *
+   * This lets streaming UIs batch redraws while chunks are being committed.
+   * Omit or set to zero to emit progress after every chunk, matching the
+   * default behavior.
+   */
+  progressCadenceMs?: number;
   /** When true, only chunks intersecting the current frustum are committed. */
   frustumOnly?: boolean;
   /**

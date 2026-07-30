@@ -21,6 +21,24 @@ export type XGFStreamPartitionMode = "object-order" | "grid";
 export type XGFStreamChunkMetric = "objects" | "meshes" | "geometry-bytes";
 
 /**
+ * Strategy used when assets are reused by more than one generated asset library.
+ */
+export type XGFStreamSharedAssetMode = "global" | "local" | "sharded";
+
+const ASSET_KINDS = ["geometries", "materials", "textures"] as const;
+type XGFStreamAssetKind = typeof ASSET_KINDS[number];
+type XGFStreamAssetSets = Record<XGFStreamAssetKind, Set<string>>;
+type XGFStreamAssetShardIds = Record<XGFStreamAssetKind, Map<string, string>>;
+
+interface XGFStreamSharedAssetRecord {
+  kind: XGFStreamAssetKind;
+  id: string;
+  firstGroup: number;
+  uses: number;
+  groupIds: number[];
+}
+
+/**
  * Export options for {@link XGFStreamExporter}.
  */
 export interface XGFStreamExportOptions extends ModelExportOptions {
@@ -46,12 +64,26 @@ export interface XGFStreamExportOptions extends ModelExportOptions {
   assetLibraryChunkSize?: number;
   /** Minimum reuse count before an asset is moved into a shared library. */
   sharedAssetMinLibraryUses?: number;
+  /**
+   * Reused asset placement when asset libraries are chunked.
+   *
+   * `"global"` promotes reused assets into one shared dependency. `"local"`
+   * duplicates reused assets into each local library, allowing an initial
+   * frustum load to fetch only the local libraries for visible chunks.
+   * `"sharded"` splits reused assets into multiple shared dependencies,
+   * allowing already-loaded shards to be skipped before fetch.
+   */
+  sharedAssetMode?: XGFStreamSharedAssetMode;
+  /** Maximum number of reused assets per shared asset-library shard. Defaults to `512`. */
+  sharedAssetShardSize?: number;
   /** Human-readable stream index filename. Defaults to `"index.json"`. */
   index?: string;
   /** Optional compact runtime index filename. */
   runtimeIndex?: string;
   /** Experimental: write each references-only chunk as one SceneObject containing all chunk meshes. */
   collapseChunkObjects?: boolean;
+  /** Target coordinate system for chunk payloads and stream index bounds. Defaults to the SceneModel coordinate system. */
+  coordinateSystem?: any;
 }
 
 /**
@@ -125,6 +157,8 @@ async function encodeXGFStream(params: ModelEncodeParams, options: XGFStreamExpo
     assetId,
     assetLibraryChunkSize: positiveInteger(options.assetLibraryChunkSize, 0),
     sharedAssetMinLibraryUses: positiveInteger(options.sharedAssetMinLibraryUses, 2),
+    sharedAssetMode: normalizeSharedAssetMode(options.sharedAssetMode || "global"),
+    sharedAssetShardSize: positiveInteger(options.sharedAssetShardSize, 512),
     baseUri,
     chunkDirName
   });
@@ -135,7 +169,8 @@ async function encodeXGFStream(params: ModelEncodeParams, options: XGFStreamExpo
     chunks,
     indexUri: joinUri(baseUri, indexName),
     runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : undefined,
-    collapseChunkObjects: options.collapseChunkObjects === true
+    collapseChunkObjects: options.collapseChunkObjects === true,
+    coordinateSystem: options.coordinateSystem
   });
   if (result.ok === false) {
     throw new Error(result.error);
@@ -276,6 +311,8 @@ function createAssetLibrarySpecs(params: {
   assetId: string;
   assetLibraryChunkSize: number;
   sharedAssetMinLibraryUses: number;
+  sharedAssetMode: XGFStreamSharedAssetMode;
+  sharedAssetShardSize: number;
   baseUri: string;
   chunkDirName: string;
 }): XGFAssetLibraryExportSpec[] {
@@ -308,11 +345,23 @@ function createAssetLibrarySpecs(params: {
     });
   }
 
-  const sharedAssets = collectSharedAssets(groups, params.sharedAssetMinLibraryUses);
+  const sharedAssets = params.sharedAssetMode === "local"
+    ? emptyAssets()
+    : collectSharedAssets(groups, params.sharedAssetMinLibraryUses);
   const hasSharedAssets = hasAnyAsset(sharedAssets);
   const sharedLibraryId = `${params.assetId}-shared`;
   const libraries: XGFAssetLibraryExportSpec[] = [];
-  if (hasSharedAssets) {
+  const shardedSharedAssets = params.sharedAssetMode === "sharded" && hasSharedAssets
+    ? createSharedAssetShards({
+      groups,
+      sharedAssets,
+      assetId: params.assetId,
+      sharedAssetShardSize: params.sharedAssetShardSize,
+      baseUri: params.baseUri,
+      chunkDirName: params.chunkDirName
+    })
+    : null;
+  if (params.sharedAssetMode === "global" && hasSharedAssets) {
     libraries.push({
       id: sharedLibraryId,
       uri: joinUri(params.baseUri, params.chunkDirName, `${sharedLibraryId}.xgf`),
@@ -322,10 +371,19 @@ function createAssetLibrarySpecs(params: {
       priority: 0
     });
   }
+  if (shardedSharedAssets) {
+    libraries.push(...shardedSharedAssets.libraries);
+  }
 
   for (const group of groups) {
     const localAssets = subtractAssets(group.assets, sharedAssets);
-    const groupLibraryIds = hasSharedAssets ? [sharedLibraryId] : [];
+    const groupLibraryIds: string[] = [];
+    if (params.sharedAssetMode === "global" && hasSharedAssets) {
+      groupLibraryIds.push(sharedLibraryId);
+    }
+    if (shardedSharedAssets) {
+      groupLibraryIds.push(...sharedShardIdsForAssets(group.assets, shardedSharedAssets.assetToShardIds));
+    }
     if (hasAnyAsset(localAssets)) {
       libraries.push({
         id: group.id,
@@ -366,6 +424,133 @@ function collectAssetIds(sceneModel: SceneModel, objectIds: string[]) {
     }
   }
   return assets;
+}
+
+function emptyAssets(): XGFStreamAssetSets {
+  return {
+    geometries: new Set<string>(),
+    materials: new Set<string>(),
+    textures: new Set<string>()
+  };
+}
+
+function createSharedAssetShards(params: {
+  groups: any[];
+  sharedAssets: XGFStreamAssetSets;
+  assetId: string;
+  sharedAssetShardSize: number;
+  baseUri: string;
+  chunkDirName: string;
+}): {
+  libraries: XGFAssetLibraryExportSpec[];
+  assetToShardIds: XGFStreamAssetShardIds;
+} {
+  const libraries: XGFAssetLibraryExportSpec[] = [];
+  const assetToShardIds: XGFStreamAssetShardIds = {
+    geometries: new Map<string, string>(),
+    materials: new Map<string, string>(),
+    textures: new Map<string, string>()
+  };
+  const records = sharedAssetRecords(params.groups, params.sharedAssets);
+  let shardIndex = 0;
+  let shardId = "";
+  let shardAssets = emptyAssets();
+  let shardAssetCount = 0;
+
+  const startShard = () => {
+    shardId = `${params.assetId}-shared-${String(shardIndex).padStart(3, "0")}`;
+    shardAssets = emptyAssets();
+    shardAssetCount = 0;
+    shardIndex++;
+  };
+  const flushShard = () => {
+    if (shardAssetCount === 0) {
+      return;
+    }
+    libraries.push({
+      id: shardId,
+      uri: joinUri(params.baseUri, params.chunkDirName, `${shardId}.xgf`),
+      geometryIds: Array.from(shardAssets.geometries).sort(),
+      materialIds: Array.from(shardAssets.materials).sort(),
+      textureIds: Array.from(shardAssets.textures).sort(),
+      priority: 0
+    });
+  };
+
+  startShard();
+  for (const record of records) {
+    if (shardAssetCount >= params.sharedAssetShardSize) {
+      flushShard();
+      startShard();
+    }
+    shardAssets[record.kind].add(record.id);
+    assetToShardIds[record.kind].set(record.id, shardId);
+    shardAssetCount++;
+  }
+  flushShard();
+
+  return {libraries, assetToShardIds};
+}
+
+function sharedAssetRecords(groups: any[], sharedAssets: XGFStreamAssetSets): XGFStreamSharedAssetRecord[] {
+  const records: XGFStreamSharedAssetRecord[] = [];
+  for (const kind of ASSET_KINDS) {
+    for (const id of sharedAssets[kind]) {
+      const usage = groupAssetUsage(groups, kind, id);
+      records.push({
+        kind,
+        id,
+        firstGroup: usage.firstGroup,
+        uses: usage.uses,
+        groupIds: usage.groupIds
+      });
+    }
+  }
+  // Keep assets used by the same asset-library groups adjacent before
+  // fixed-size shard packing, reducing dependency fan-out per visible group.
+  return records.sort((a, b) =>
+    a.firstGroup - b.firstGroup
+      || compareGroupIds(a.groupIds, b.groupIds)
+      || b.uses - a.uses
+      || ASSET_KINDS.indexOf(a.kind) - ASSET_KINDS.indexOf(b.kind)
+      || a.id.localeCompare(b.id)
+  );
+}
+
+function compareGroupIds(a: number[], b: number[]): number {
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const diff = a[i] - b[i];
+    if (diff !== 0) {
+      return diff;
+    }
+  }
+  return a.length - b.length;
+}
+
+function groupAssetUsage(groups: any[], kind: XGFStreamAssetKind, id: string): { firstGroup: number; uses: number; groupIds: number[] } {
+  let firstGroup = Number.POSITIVE_INFINITY;
+  const groupIds: number[] = [];
+  for (let i = 0; i < groups.length; i++) {
+    if (groups[i].assets[kind].has(id)) {
+      firstGroup = Math.min(firstGroup, i);
+      groupIds.push(i);
+    }
+  }
+  return {firstGroup, uses: groupIds.length, groupIds};
+}
+
+function sharedShardIdsForAssets(assets: XGFStreamAssetSets, assetToShardIds: XGFStreamAssetShardIds): string[] {
+  const shardIds = new Set<string>();
+  for (const kind of ASSET_KINDS) {
+    for (const id of assets[kind]) {
+      const shardId = assetToShardIds[kind].get(id);
+      if (shardId) {
+        shardIds.add(shardId);
+      }
+    }
+  }
+  return Array.from(shardIds).sort();
 }
 
 function addMaterialTextureIds(material: any, textures: Set<string>): void {
@@ -667,6 +852,13 @@ function positiveNumber(value: number | undefined, defaultValue: number): number
     throw new Error("[XGFStreamExporter.write] Expected a positive number option");
   }
   return n;
+}
+
+function normalizeSharedAssetMode(value: string): XGFStreamSharedAssetMode {
+  if (value === "global" || value === "local" || value === "sharded") {
+    return value;
+  }
+  throw new Error("[XGFStreamExporter.write] Expected sharedAssetMode to be 'global', 'local' or 'sharded'");
 }
 
 function trimSlashes(value: string): string {

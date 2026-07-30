@@ -99,6 +99,7 @@ export class XGFViewStreamController {
   private readonly _assetChunksById: Map<string, XGFChunkManifest>;
   private readonly _batchSize: number;
   private readonly _commitFrameBudgetMs: number;
+  private readonly _progressCadenceMs: number;
   private readonly _frustumOnly: boolean;
   private readonly _frustumDepthMultiplier: number | undefined;
   private readonly _frustumMinDepth: number;
@@ -128,6 +129,9 @@ export class XGFViewStreamController {
   private readonly _projectedVisibilityClip = [0, 0, 0, 1] as [number, number, number, number];
   private readonly _projectedVisibilityPoint = [0, 0, 0, 1] as [number, number, number, number];
   private _timer: ReturnType<typeof setTimeout> | undefined;
+  private _progressTimer: ReturnType<typeof setTimeout> | undefined;
+  private _progressPending = false;
+  private _lastProgressEmitTime = Number.NEGATIVE_INFINITY;
   private _candidateQueue: CandidateQueue = {
     generation: 0,
     chunks: [],
@@ -161,6 +165,9 @@ export class XGFViewStreamController {
     );
     this._batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
     this._commitFrameBudgetMs = params.commitFrameBudgetMs ?? DEFAULT_COMMIT_FRAME_BUDGET_MS;
+    this._progressCadenceMs = params.progressCadenceMs !== undefined && Number.isFinite(params.progressCadenceMs) && params.progressCadenceMs > 0
+      ? params.progressCadenceMs
+      : 0;
     this._frustumOnly = params.frustumOnly !== false;
     this._frustumDepthMultiplier = params.frustumDepthMultiplier !== undefined && Number.isFinite(params.frustumDepthMultiplier) && params.frustumDepthMultiplier > 0
       ? params.frustumDepthMultiplier
@@ -529,7 +536,7 @@ export class XGFViewStreamController {
           this.markQueueChunkLoaded(generation);
         }
         this.loadingChunkIds.delete(manifest.id);
-        this.emitProgress();
+        this.emitProgressBatched();
         await waitForFrameBudget(this._commitFrameBudgetMs);
       }
       this.emitStatus(`${label}: ${candidates.length} chunk(s) in ${(now() - start).toFixed(1)} ms`);
@@ -1017,7 +1024,38 @@ export class XGFViewStreamController {
   }
 
   private emitProgress(): void {
+    if (this._progressTimer !== undefined) {
+      clearTimeout(this._progressTimer);
+      this._progressTimer = undefined;
+    }
+    this._progressPending = false;
+    this._lastProgressEmitTime = now();
     this._onProgress?.(this.queueProgress);
+  }
+
+  private emitProgressBatched(): void {
+    if (!this._onProgress) {
+      return;
+    }
+    if (this._progressCadenceMs <= 0) {
+      this.emitProgress();
+      return;
+    }
+    const elapsed = now() - this._lastProgressEmitTime;
+    if (elapsed >= this._progressCadenceMs) {
+      this.emitProgress();
+      return;
+    }
+    this._progressPending = true;
+    if (this._progressTimer !== undefined) {
+      return;
+    }
+    this._progressTimer = setTimeout(() => {
+      this._progressTimer = undefined;
+      if (this._progressPending) {
+        this.emitProgress();
+      }
+    }, Math.max(0, this._progressCadenceMs - elapsed));
   }
 }
 
@@ -1335,11 +1373,10 @@ function readStreamIndexJSON(json: any): ReturnType<typeof readXGFStreamingIndex
 }
 
 function resolveSubstreamManifest(stream: XGFSubstreamManifest, baseURI: string | undefined): XGFSubstreamManifest {
-  const origin = stream.origin || [0, 0, 0];
   return {
     ...stream,
     uri: resolveURI(stream.uri, baseURI),
-    aabb: translateAABB(stream.aabb, origin),
+    aabb: stream.aabb?.slice(),
     origin: stream.origin ? [stream.origin[0], stream.origin[1], stream.origin[2]] : undefined,
     metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : undefined
   };
@@ -1360,7 +1397,7 @@ function namespaceStreamIndex(
     ...stream,
     id: `${namespace}${stream.id}`,
     uri: resolveURI(stream.uri, indexURI),
-    aabb: transformAndTranslateAABB(stream.aabb, coordinateSystemMatrix, addOrigins(origin, stream.origin)),
+    aabb: transformAndTranslateAABB(stream.aabb, coordinateSystemMatrix, origin),
     origin: addOrigins(origin, stream.origin),
     metadata: stream.metadata ? JSON.parse(JSON.stringify(stream.metadata)) : undefined
   }));

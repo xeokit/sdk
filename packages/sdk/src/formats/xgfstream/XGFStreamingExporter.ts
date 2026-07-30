@@ -31,6 +31,7 @@ export class XGFStreamingExporter {
     }
 
     const {sceneModel} = params;
+    const outputCoordinateSystem = params.coordinateSystem || sceneModel.coordinateSystem;
     const files: Record<string, ArrayBuffer | XGFChunkManifest | XGFStreamingIndex | XGFStreamingRuntimeIndex> = {};
     const manifests: XGFChunkManifest[] = [];
     const librarySpecsById: Record<string, XGFAssetLibraryExportSpec> = {};
@@ -39,7 +40,10 @@ export class XGFStreamingExporter {
       for (const spec of params.assetLibraries) {
         librarySpecsById[spec.id] = spec;
         const view = createAssetLibraryView(sceneModel, spec);
-        const fileData = await this._xgfExporter.write({sceneModel: view as SceneModel}, {assetMode: "assetLibrary"});
+        const fileData = await this._xgfExporter.write({sceneModel: view as SceneModel}, {
+          assetMode: "assetLibrary",
+          coordinateSystem: outputCoordinateSystem
+        });
         const manifest = createXGFManifest(
           {sceneModel: view as SceneModel},
           {
@@ -47,7 +51,8 @@ export class XGFStreamingExporter {
             uri: spec.uri,
             assetMode: "assetLibrary",
             priority: spec.priority,
-            lod: spec.lod
+            lod: spec.lod,
+            coordinateSystem: outputCoordinateSystem
           }
         );
         files[spec.uri] = fileData;
@@ -57,7 +62,10 @@ export class XGFStreamingExporter {
       for (const spec of params.chunks) {
         const view = createChunkView(sceneModel, spec, params.collapseChunkObjects === true);
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
-        const fileData = await this._xgfExporter.write({sceneModel: view as SceneModel}, {assetMode: "referencesOnly"});
+        const fileData = await this._xgfExporter.write({sceneModel: view as SceneModel}, {
+          assetMode: "referencesOnly",
+          coordinateSystem: outputCoordinateSystem
+        });
         const manifest = createXGFManifest(
           {sceneModel: view as SceneModel},
           {
@@ -66,7 +74,8 @@ export class XGFStreamingExporter {
             assetMode: "referencesOnly",
             dependencies,
             priority: spec.priority,
-            lod: spec.lod
+            lod: spec.lod,
+            coordinateSystem: outputCoordinateSystem
           }
         );
         files[spec.uri] = fileData;
@@ -79,7 +88,7 @@ export class XGFStreamingExporter {
         chunks: manifests,
         rootChunkIds: params.chunks.map(chunk => chunk.id),
         aabb: aggregateManifestAABB(manifests),
-        coordinateSystem: cloneCoordinateSystem(sceneModel.coordinateSystem)
+        coordinateSystem: cloneCoordinateSystem(outputCoordinateSystem)
       };
       files[params.indexUri || "index.json"] = writeXGFStreamingIndex(index);
       if (params.runtimeIndexUri) {

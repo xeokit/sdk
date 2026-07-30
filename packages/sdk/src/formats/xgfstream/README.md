@@ -123,8 +123,8 @@ loader, or provide a `baseUri` through loader options.
 ## 4. Export pipeline
 
 `XGFStreamExporter` is the high-level exporter. It partitions a
-`SceneModel`, creates shared asset libraries, writes references-only
-chunks, and returns a file map.
+`SceneModel`, creates asset libraries, writes references-only chunks, and
+returns a file map.
 
 ```
    SceneModel
@@ -133,7 +133,7 @@ chunks, and returns a file map.
    XGFStreamExporter.write
         │
         ├─ partition objects
-        ├─ extract shared asset libraries
+        ├─ extract asset libraries
         ├─ encode XGF v2 assetLibrary chunks
         ├─ encode XGF v2 referencesOnly chunks
         ├─ write index.json
@@ -158,6 +158,8 @@ const result = await new XGFStreamExporter().write(
     chunkSize: 500,
     assetLibraryChunkSize: 16,
     sharedAssetMinLibraryUses: 2,
+    sharedAssetMode: "global",
+    sharedAssetShardSize: 512,
     runtimeIndex: "index.runtime.json"
   }
 );
@@ -168,6 +170,16 @@ const {files, index, manifests} = result;
 `files` is keyed by stream-relative URI. Values are `ArrayBuffer` chunk
 bytes or JSON objects for the generated indexes/manifests; persist them
 with the same relative paths written in the manifests.
+
+When `assetLibraryChunkSize` is used, `sharedAssetMode: "global"` keeps
+reused geometry/material/texture assets in one shared dependency.
+`sharedAssetMode: "local"` duplicates reused assets into each local
+asset library instead. Local mode can reduce first-frustum fetch size for
+fine-grained streams, at the cost of a larger complete stream package.
+`sharedAssetMode: "sharded"` splits reused assets into multiple shared
+asset-library chunks, ordered by asset-library co-usage before packing.
+Reference chunks list only the shards they need, so already-loaded shared
+shards can be skipped before fetch.
 
 ### Node generator scripts
 

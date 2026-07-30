@@ -17,4 +17,6 @@ export interface XGFManifestOptions {
   priority?: number;
   /** Optional level-of-detail label or number. */
   lod?: number | string;
+  /** Target coordinate system for manifest bounds. */
+  coordinateSystem?: any;
 }

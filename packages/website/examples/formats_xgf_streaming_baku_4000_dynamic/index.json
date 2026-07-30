@@ -1,0 +1,14 @@
+{
+  "id": "formats_xgf_streaming_baku_4000_dynamic",
+  "title": "XGF Streamed Stadium 4K Dynamic",
+  "description": "Streams the roughly 4000-chunk Baku Stadium model with dynamic geometry storage, giving a high-chunk-count DTX baseline for finding the sweet spot between first-frustum load speed, request fan-out, and memory pressure.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "snapshotTimeoutMs": 90000,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM",
+    "Benchmarks"
+  ]
+}

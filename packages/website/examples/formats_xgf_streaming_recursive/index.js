@@ -7,11 +7,21 @@ const AUTO_BATCH_SIZE = 8;
 const FETCH_CONCURRENCY = 8;
 const CHUNK_COMMIT_FRAME_BUDGET_MS = 0;
 const CAMERA_DEBOUNCE_MS = 140;
+const STREAM_RESUME_AFTER_CAMERA_IDLE_MS = 500;
+const STREAM_STALL_STORAGE_KEY = "xeokit.formats_xgf_streaming_recursive.stallStreamingWhileMoving";
+const DEFAULT_STALL_STREAMING_WHILE_MOVING = true;
+const VIEWPOINT_MOTION_STORAGE_KEY = "xeokit.formats_xgf_streaming_recursive.viewpointMotion";
+const DEFAULT_VIEWPOINT_MOTION = "jump";
 const ENABLE_LRU_CHUNK_EVICTION = false;
 const MAX_RESIDENT_REFERENCE_CHUNKS = 900;
 const CACHE_XGF_FILE_BYTES = true;
 const MAX_CACHED_XGF_FILE_BYTES = 256 * 1024 * 1024;
 const FAR_CLIP = 10000000;
+const ENABLE_VIEW_CULLING = true;
+const VIEW_CULLING_PARAMS = {
+  solidAngleLimit: 0,
+  cullEveryNUpdates: 2
+};
 const ROOT_COORDINATE_SYSTEM = {
   basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
   origin: [0, 0, 0],
@@ -87,7 +97,9 @@ let startupSpinnerDismissed = false;
 
 sdkProgress.setPhase("Loading...");
 
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({
+  maxViews: 1
+});
 const viewpointCards = createViewpointCards(document.getElementById("viewpointCards"), VIEWPOINTS);
 const viewpointProgress = createViewpointProgress(viewpointCards);
 let activeViewpointId = INITIAL_VIEWPOINT.id;
@@ -100,7 +112,15 @@ studio.init().then(async () => {
     meshCount: document.getElementById("meshCount"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
     frustumQueueProgress: document.getElementById("frustumQueueProgress"),
+    stallStreamingToggle: document.getElementById("stallStreamingToggle"),
+    viewpointMotionToggle: document.getElementById("viewpointMotionToggle"),
     streamStatus: document.getElementById("streamStatus"),
+    geometryStorageStatus: document.getElementById("geometryStorageStatus"),
+    renderPathStatus: document.getElementById("renderPathStatus"),
+    renderPathComment: document.getElementById("renderPathComment"),
+    viewCullingToggle: document.getElementById("viewCullingToggle"),
+    viewCullingStatus: document.getElementById("viewCullingStatus"),
+    viewCullingCount: document.getElementById("viewCullingCount"),
     signalFrustumLoaded: createInitialFrustumReadyHandler()
   };
 
@@ -138,6 +158,7 @@ studio.init().then(async () => {
       up: INITIAL_VIEWPOINT.up
     }
   });
+  const viewCulling = createViewCullingController(view, ui);
 
   try {
     setStatus(ui, "Preparing recursive stream index");
@@ -150,6 +171,7 @@ studio.init().then(async () => {
 
     const sceneModel = must(scene.createModel({
       id: "RecursiveStream",
+      updateHint: "static",
       coordinateSystem: ROOT_COORDINATE_SYSTEM
     }));
 
@@ -164,6 +186,8 @@ studio.init().then(async () => {
       window.requestAnimationFrame(() => {
         renderScheduled = false;
         render(ui, streamController, totalObjectCount);
+        updateRenderDiagnostics(ui, studio);
+        viewCulling.updateStats();
       });
     };
 
@@ -188,6 +212,7 @@ studio.init().then(async () => {
       onStatus: (status) => setStatus(ui, status),
       onProgress: () => {
         updateViewpointProgress(viewpointProgress, activeViewpointId, streamController.queueProgress);
+        viewCulling.requestCull();
         scheduleRender();
         ui.signalFrustumLoaded(streamController.queueProgress);
       },
@@ -203,8 +228,24 @@ studio.init().then(async () => {
     streamController.prefetchInitial(AUTO_BATCH_SIZE * 2);
     streamController.schedule("Current frustum");
     render(ui, streamController, totalObjectCount);
-    bindCameraStreaming(studio, view, streamController);
-    bindViewpointCards(studio, view, streamController, viewpointCards, (viewpointId) => {
+    window.recursiveStreamingExample = {
+      studio,
+      view,
+      streamController,
+      viewCulling,
+      sampleRenderPath: () => updateRenderDiagnostics(ui, studio)
+    };
+    updateRenderDiagnostics(ui, studio);
+    viewCulling.requestCull();
+    studio.renderer.events.onViewRendered.subscribe((_, renderedView) => {
+      if (renderedView === view) {
+        viewCulling.updateStats();
+      }
+    });
+    const cameraStreaming = bindCameraStreaming(studio, view, streamController, ui.stallStreamingToggle);
+    const getViewpointMotion = bindViewpointMotionToggle(ui.viewpointMotionToggle);
+    const cameraFlight = studio.viewManager.views?.[view.id]?.cameraFlight;
+    bindViewpointCards(view, viewpointCards, cameraStreaming, cameraFlight, getViewpointMotion, (viewpointId) => {
       activeViewpointId = viewpointId;
       markViewpointProgressPending(viewpointProgress, viewpointId);
     });
@@ -232,6 +273,133 @@ async function fetchJSON(url) {
   return response.json();
 }
 
+function createViewCullingController(view, ui) {
+  const ViewCuller = xeokit.spatial?.culling?.ViewCuller;
+  let culler = null;
+  let enabled = false;
+  let cullScheduled = false;
+  let statsTimer = null;
+
+  const setStatus = (status) => {
+    if (ui.viewCullingStatus) {
+      ui.viewCullingStatus.textContent = status;
+    }
+  };
+
+  const updateStats = () => {
+    const snapshot = getViewCullingSnapshot(view);
+    if (ui.viewCullingStatus) {
+      ui.viewCullingStatus.textContent = enabled ? "on" : "off";
+    }
+    if (ui.viewCullingCount) {
+      ui.viewCullingCount.textContent = enabled
+        ? `${formatInt(snapshot.culled)}/${formatInt(snapshot.total)}`
+        : `0/${formatInt(snapshot.total)}`;
+    }
+  };
+
+  const scheduleStats = () => {
+    if (statsTimer !== null) {
+      return;
+    }
+    statsTimer = window.setTimeout(() => {
+      statsTimer = null;
+      updateStats();
+    }, 120);
+  };
+
+  const requestCull = () => {
+    if (!enabled || !culler) {
+      scheduleStats();
+      return;
+    }
+    if (cullScheduled) {
+      return;
+    }
+    cullScheduled = true;
+    window.requestAnimationFrame(() => {
+      cullScheduled = false;
+      culler?.cullNow();
+      scheduleStats();
+    });
+  };
+
+  const setEnabled = (nextEnabled) => {
+    if (!ViewCuller) {
+      enabled = false;
+      setStatus("unavailable");
+      if (ui.viewCullingToggle) {
+        ui.viewCullingToggle.checked = false;
+        ui.viewCullingToggle.disabled = true;
+      }
+      updateStats();
+      return;
+    }
+
+    if (nextEnabled === enabled) {
+      return;
+    }
+
+    if (nextEnabled) {
+      try {
+        culler = new ViewCuller(view, VIEW_CULLING_PARAMS);
+        enabled = true;
+      } catch (error) {
+        console.warn(error);
+        culler = null;
+        enabled = false;
+        setStatus("unavailable");
+      }
+    } else {
+      culler?.destroy();
+      culler = null;
+      enabled = false;
+    }
+
+    if (ui.viewCullingToggle) {
+      ui.viewCullingToggle.checked = enabled;
+    }
+    view.needsRender();
+    requestCull();
+    scheduleStats();
+  };
+
+  ui.viewCullingToggle?.addEventListener("change", () => {
+    setEnabled(ui.viewCullingToggle.checked);
+  });
+
+  setEnabled(ENABLE_VIEW_CULLING);
+
+  return {
+    requestCull,
+    updateStats,
+    setEnabled,
+    destroy: () => {
+      if (statsTimer !== null) {
+        clearTimeout(statsTimer);
+        statsTimer = null;
+      }
+      culler?.destroy();
+      culler = null;
+      enabled = false;
+      updateStats();
+    }
+  };
+}
+
+function getViewCullingSnapshot(view) {
+  let total = 0;
+  let culled = 0;
+  const objects = view.objects || {};
+  for (const id in objects) {
+    total++;
+    if (objects[id]?.culled) {
+      culled++;
+    }
+  }
+  return {total, culled};
+}
+
 function render(ui, streamController, totalObjectCount) {
   ui.loadedChunks.textContent = `${streamController.loadedChunkIds.size}/${streamController.chunkManifests.length}`;
   ui.objectCount.textContent = streamController.loadedTotals.objects.toLocaleString();
@@ -241,6 +409,94 @@ function render(ui, streamController, totalObjectCount) {
   ui.frustumQueueLabel.textContent = `${formatInt(loadedObjects)}/${formatInt(totalObjects)} objects`;
   ui.frustumQueueProgress.max = totalObjects;
   ui.frustumQueueProgress.value = loadedObjects;
+}
+
+function updateRenderDiagnostics(ui, studio) {
+  const memory = getGeometryStorageSnapshot(studio);
+  if (ui.geometryStorageStatus) {
+    ui.geometryStorageStatus.textContent = `DTX ${memory.dtxBatches}, VBO ${memory.vboBatches}`;
+  }
+
+  const frameStats = getLastFrameVBOStats(studio);
+  const comment = describeRenderPath(frameStats, memory);
+  if (ui.renderPathStatus) {
+    ui.renderPathStatus.textContent = comment.label;
+  }
+  if (ui.renderPathComment) {
+    ui.renderPathComment.textContent = comment.text;
+  }
+  return {
+    memory,
+    frame: frameStats,
+    comment
+  };
+}
+
+function getGeometryStorageSnapshot(studio) {
+  const result = studio.renderer.getMemoryInspector();
+  const batches = result.ok ? (result.value.dataTextures?.batches || []) : [];
+  return batches.reduce((snapshot, batch) => {
+    if (batch.geometryStorage === "vbo") {
+      snapshot.vboBatches++;
+    } else {
+      snapshot.dtxBatches++;
+    }
+    return snapshot;
+  }, {
+    dtxBatches: 0,
+    vboBatches: 0
+  });
+}
+
+function getLastFrameVBOStats(studio) {
+  const result = studio.renderer.getRenderInspector();
+  if (!result.ok) {
+    return null;
+  }
+  return result.value.renderStats.views?.[0]?.vboGeometryTriangles || null;
+}
+
+function describeRenderPath(frameStats, memory) {
+  if (!frameStats) {
+    return {
+      label: "waiting",
+      text: memory.vboBatches > 0
+        ? "Direct VBO batches are resident; waiting for the next inspected frame."
+        : "Waiting for the first geometry batches."
+    };
+  }
+
+  const handledPrims = frameStats.handledPrims || 0;
+  const fallbackPrims = frameStats.fallbackPrims || 0;
+  const blockedPrims = frameStats.blockedPrims || 0;
+  if (handledPrims > 0 && fallbackPrims > 0) {
+    return {
+      label: "hybrid: VBO + DTX",
+      text: `Last frame drew ${formatInt(handledPrims)} primitives from VBO geometry and ${formatInt(fallbackPrims)} primitives from DTX fallback.`
+    };
+  }
+  if (handledPrims > 0) {
+    return {
+      label: "VBO",
+      text: `Last frame drew ${formatInt(handledPrims)} primitives from VBO geometry.`
+    };
+  }
+  if (fallbackPrims > 0) {
+    return {
+      label: "DTX fallback",
+      text: `Last frame drew ${formatInt(fallbackPrims)} primitives from DTX geometry.`
+    };
+  }
+  if (blockedPrims > 0) {
+    return {
+      label: "VBO blocked",
+      text: `The renderer wanted VBO geometry, but ${formatInt(blockedPrims)} primitives were blocked by missing VBO draw state.`
+    };
+  }
+  return {
+    label: "no triangle draw",
+    text: "No opaque triangle geometry was reported in the last inspected frame."
+  };
 }
 
 function updateViewpointsFromStreams(index) {
@@ -340,17 +596,140 @@ function setStatus(ui, status) {
   }
 }
 
-function bindCameraStreaming(studio, view, streamController) {
-  const onCamera = (changedView) => {
-    if (changedView === view) {
-      streamController.schedule("Camera stream");
+function bindCameraStreaming(studio, view, streamController, stallStreamingToggle) {
+  let resumeTimer;
+  let settledStreamLabel;
+  let stallStreamingWhileMoving = readPersistentBoolean(
+    STREAM_STALL_STORAGE_KEY,
+    DEFAULT_STALL_STREAMING_WHILE_MOVING
+  );
+
+  const clearResumeTimer = () => {
+    if (resumeTimer !== undefined) {
+      window.clearTimeout(resumeTimer);
+      resumeTimer = undefined;
+    }
+  };
+
+  if (stallStreamingToggle) {
+    stallStreamingToggle.checked = stallStreamingWhileMoving;
+    stallStreamingToggle.addEventListener("change", () => {
+      stallStreamingWhileMoving = stallStreamingToggle.checked;
+      writePersistentBoolean(STREAM_STALL_STORAGE_KEY, stallStreamingWhileMoving);
+      if (!stallStreamingWhileMoving) {
+        clearResumeTimer();
+        settledStreamLabel = undefined;
+        if (streamController.paused) {
+          streamController.resume("Camera stream");
+        } else {
+          streamController.schedule("Camera stream");
+        }
+      }
+    });
+  }
+
+  const scheduleCameraStream = (label = "Camera stream") => {
+    if (!stallStreamingWhileMoving) {
+      settledStreamLabel = undefined;
+      streamController.schedule(label);
+      return;
+    }
+    const resumeLabel = settledStreamLabel || label;
+    streamController.pause();
+    clearResumeTimer();
+    resumeTimer = window.setTimeout(() => {
+      resumeTimer = undefined;
+      settledStreamLabel = undefined;
+      streamController.resume(resumeLabel);
+    }, STREAM_RESUME_AFTER_CAMERA_IDLE_MS);
+  };
+
+  const onCamera = (target) => {
+    if (target === view || target === view.camera) {
+      scheduleCameraStream(settledStreamLabel || "Camera settled");
     }
   };
   studio.viewer.events.onCameraViewMatrixUpdated.subscribe(onCamera);
   studio.viewer.events.onCameraProjMatrixUpdated.subscribe(onCamera);
+
+  return {
+    schedule: scheduleCameraStream,
+    preferSettledLabel: (label) => {
+      settledStreamLabel = label;
+    }
+  };
 }
 
-function bindViewpointCards(studio, view, streamController, cards, onSelect) {
+function bindViewpointMotionToggle(viewpointMotionToggle) {
+  let viewpointMotion = readPersistentChoice(
+    VIEWPOINT_MOTION_STORAGE_KEY,
+    DEFAULT_VIEWPOINT_MOTION,
+    ["jump", "fly"]
+  );
+
+  const updateToggle = () => {
+    if (!viewpointMotionToggle) {
+      return;
+    }
+    viewpointMotionToggle.checked = viewpointMotion === "fly";
+  };
+
+  if (viewpointMotionToggle) {
+    updateToggle();
+    viewpointMotionToggle.addEventListener("change", () => {
+      viewpointMotion = viewpointMotionToggle.checked ? "fly" : "jump";
+      writePersistentChoice(VIEWPOINT_MOTION_STORAGE_KEY, viewpointMotion);
+      updateToggle();
+    });
+  }
+
+  return () => viewpointMotion;
+}
+
+function readPersistentBoolean(key, fallback) {
+  try {
+    const value = window.localStorage.getItem(key);
+    if (value === "true") {
+      return true;
+    }
+    if (value === "false") {
+      return false;
+    }
+  } catch (error) {
+    // Ignore blocked storage and keep the example usable.
+  }
+  return fallback;
+}
+
+function writePersistentBoolean(key, value) {
+  try {
+    window.localStorage.setItem(key, value ? "true" : "false");
+  } catch (error) {
+    // Ignore blocked storage and keep the in-memory toggle usable.
+  }
+}
+
+function readPersistentChoice(key, fallback, choices) {
+  try {
+    const value = window.localStorage.getItem(key);
+    if (choices.includes(value)) {
+      return value;
+    }
+  } catch (error) {
+    // Ignore blocked storage and keep the example usable.
+  }
+  return fallback;
+}
+
+function writePersistentChoice(key, value) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch (error) {
+    // Ignore blocked storage and keep the in-memory toggle usable.
+  }
+}
+
+function bindViewpointCards(view, cards, cameraStreaming, cameraFlight, getViewpointMotion, onSelect) {
   const viewpointsById = new Map(VIEWPOINTS.map((viewpoint) => [viewpoint.id, viewpoint]));
   for (const card of cards) {
     card.addEventListener("click", () => {
@@ -360,8 +739,19 @@ function bindViewpointCards(studio, view, streamController, cards, onSelect) {
       }
       setActiveViewpoint(cards, viewpoint.id);
       onSelect?.(viewpoint.id);
-      applyViewpointToCamera(view, viewpoint);
-      streamController.schedule(viewpoint.id);
+      cameraStreaming.preferSettledLabel(viewpoint.id);
+      if (getViewpointMotion() === "fly" && cameraFlight && typeof cameraFlight.flyTo === "function") {
+        applyViewpointProjection(view, viewpoint);
+        cameraFlight.flyTo({
+          eye: viewpoint.eye,
+          look: viewpoint.look,
+          up: viewpoint.up,
+          duration: 0.9
+        });
+      } else {
+        applyViewpointToCamera(view, viewpoint);
+      }
+      cameraStreaming.schedule(viewpoint.id);
     });
   }
 }

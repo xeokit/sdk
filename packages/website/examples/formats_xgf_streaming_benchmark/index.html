@@ -65,6 +65,24 @@
       border-bottom: 1px solid rgba(35, 43, 52, 0.12);
     }
 
+    .policy {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
+      font-size: 12px;
+      color: #52606d;
+    }
+
+    .policy span {
+      min-height: 28px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+      padding: 7px 8px;
+    }
+
     .metric {
       min-height: 50px;
       border: 1px solid rgba(35, 43, 52, 0.12);
@@ -86,36 +104,7 @@
       color: #65717d;
     }
 
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
-    }
-
-    button {
-      min-height: 34px;
-      border: 1px solid rgba(35, 43, 52, 0.22);
-      border-radius: 6px;
-      background: #ffffff;
-      color: #1f2933;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #edf2f5;
-    }
-
-    button:disabled {
-      cursor: default;
-      color: #9aa5b1;
-      background: #f3f5f7;
-    }
-
-    #status {
+    #benchmarkStatus {
       padding: 12px 16px;
       font-size: 12px;
       line-height: 1.45;
@@ -172,20 +161,18 @@
 <div id="benchmarkPanel">
   <div class="panel-header">
     <h1>XGF Streaming Benchmark</h1>
-    <p>Generated apartment district: shared asset libraries plus 100 references-only block chunks.</p>
+    <p>Generated hilly inner-city district with 961 block chunks, loading the full chunk set while prioritizing chunks near the current view first.</p>
   </div>
   <div class="metrics">
     <div class="metric"><strong id="loadedChunks">0</strong><span>loaded chunks</span></div>
     <div class="metric"><strong id="objectCount">0</strong><span>objects</span></div>
     <div class="metric"><strong id="meshCount">0</strong><span>meshes</span></div>
   </div>
-  <div class="toolbar">
-    <button id="load25">Load in-view 25</button>
-    <button id="loadAll">Load all</button>
-    <button id="unload25">Unload farthest 25</button>
-    <button id="unloadAll">Unload all</button>
+  <div class="policy">
+    <span id="queueStatus">0/0 queued chunk(s) loaded</span>
+    <span id="budget">0 total chunks</span>
   </div>
-  <div id="status">Initializing...</div>
+  <div id="benchmarkStatus">Initializing...</div>
   <div id="chunkList"></div>
 </div>
 </body>

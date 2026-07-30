@@ -32,7 +32,7 @@ studio.init().then(async () => {
     // The full chunks/index.json remains available for debugging/tooling.
     const index = await fetchStreamingIndex(INDEX_URL);
     const lookup = xeokit.formats.xgfstream.createXGFStreamingIndexLookup(index);
-    const sceneModel = must(scene.createModel({id: "streamed-city"}));
+    const sceneModel = must(scene.createModel({id: "streamed-city", updateHint: "dynamic"}));
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
     const referenceChunks = index.chunks.filter((manifest) => manifest.role === "referencesOnly");
 

@@ -6,6 +6,9 @@ const INDEX_URL = "../../models/Lyon/xgfstream/index.runtime.json";
 const AUTO_BATCH_SIZE = 2;
 const FETCH_CONCURRENCY = 4;
 const CAMERA_DEBOUNCE_MS = 140;
+const STREAM_RESUME_AFTER_CAMERA_IDLE_MS = 500;
+const STREAM_STALL_STORAGE_KEY = "xeokit.formats_xgf_streaming_lyon.stallStreamingWhileMoving";
+const DEFAULT_STALL_STREAMING_WHILE_MOVING = true;
 const CACHE_XGF_FILE_BYTES = true;
 const MAX_CACHED_XGF_FILE_BYTES = 128 * 1024 * 1024;
 const FAR_CLIP = 100000;
@@ -80,6 +83,7 @@ studio.init().then(async () => {
     meshCount: document.getElementById("meshCount"),
     frustumQueueLabel: document.getElementById("frustumQueueLabel"),
     frustumQueueProgress: document.getElementById("frustumQueueProgress"),
+    stallStreamingToggle: document.getElementById("stallStreamingToggle"),
     streamStatus: document.getElementById("streamStatus"),
     signalFrustumLoaded: createInitialFrustumReadyHandler()
   };
@@ -115,10 +119,6 @@ studio.init().then(async () => {
       eye: INITIAL_VIEWPOINT.eye,
       look: INITIAL_VIEWPOINT.look,
       up: INITIAL_VIEWPOINT.up
-    },
-    resolutionScale: {
-      renderModes: [xeokit.base.constants.NavigationRender],
-      resolutionScale: 1.0
     }
   });
 
@@ -128,7 +128,8 @@ studio.init().then(async () => {
     setStatus(ui, "Scheduling first frustum");
 
     const sceneModel = must(scene.createModel({
-      id: "Lyon"
+      id: "Lyon",
+      updateHint: "static"
     }));
 
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
@@ -172,7 +173,7 @@ studio.init().then(async () => {
     hideStartupSpinner();
     streamController.schedule("Current frustum");
     render(ui, streamController);
-    bindCameraStreaming(studio, view, streamController);
+    bindCameraStreaming(studio, view, streamController, ui.stallStreamingToggle);
     bindViewpointCards(studio, view, streamController, viewpointCards);
     setActiveViewpoint(viewpointCards, INITIAL_VIEWPOINT.id);
   } catch (error) {
@@ -257,14 +258,75 @@ function hideStartupSpinner() {
   }
 }
 
-function bindCameraStreaming(studio, view, streamController) {
-  const onCamera = (changedView) => {
-    if (changedView === view) {
-      streamController.schedule("Camera stream");
+function bindCameraStreaming(studio, view, streamController, stallStreamingToggle) {
+  let resumeTimer;
+  let stallStreamingWhileMoving = readPersistentBoolean(
+    STREAM_STALL_STORAGE_KEY,
+    DEFAULT_STALL_STREAMING_WHILE_MOVING
+  );
+
+  const clearResumeTimer = () => {
+    if (resumeTimer !== undefined) {
+      window.clearTimeout(resumeTimer);
+      resumeTimer = undefined;
+    }
+  };
+
+  if (stallStreamingToggle) {
+    stallStreamingToggle.checked = stallStreamingWhileMoving;
+    stallStreamingToggle.addEventListener("change", () => {
+      stallStreamingWhileMoving = stallStreamingToggle.checked;
+      writePersistentBoolean(STREAM_STALL_STORAGE_KEY, stallStreamingWhileMoving);
+      if (!stallStreamingWhileMoving) {
+        clearResumeTimer();
+        if (streamController.paused) {
+          streamController.resume("Camera stream");
+        } else {
+          streamController.schedule("Camera stream");
+        }
+      }
+    });
+  }
+
+  const onCamera = (target) => {
+    if (target === view || target === view.camera) {
+      if (!stallStreamingWhileMoving) {
+        streamController.schedule("Camera stream");
+        return;
+      }
+      streamController.pause();
+      clearResumeTimer();
+      resumeTimer = window.setTimeout(() => {
+        resumeTimer = undefined;
+        streamController.resume("Camera settled");
+      }, STREAM_RESUME_AFTER_CAMERA_IDLE_MS);
     }
   };
   studio.viewer.events.onCameraViewMatrixUpdated.subscribe(onCamera);
   studio.viewer.events.onCameraProjMatrixUpdated.subscribe(onCamera);
+}
+
+function readPersistentBoolean(key, fallback) {
+  try {
+    const value = window.localStorage.getItem(key);
+    if (value === "true") {
+      return true;
+    }
+    if (value === "false") {
+      return false;
+    }
+  } catch (error) {
+    // Ignore blocked storage and keep the example usable.
+  }
+  return fallback;
+}
+
+function writePersistentBoolean(key, value) {
+  try {
+    window.localStorage.setItem(key, value ? "true" : "false");
+  } catch (error) {
+    // Ignore blocked storage and keep the in-memory toggle usable.
+  }
 }
 
 function bindViewpointCards(studio, view, streamController, cards) {
@@ -292,8 +354,6 @@ function bindViewpointCards(studio, view, streamController, cards) {
         view.camera.look = viewpoint.look;
         view.camera.up = viewpoint.up;
       }
-      streamController.schedule(viewpoint.id);
-      window.setTimeout(() => streamController.schedule(`${viewpoint.id} settled`), 950);
     });
   }
 }

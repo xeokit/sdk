@@ -43,6 +43,7 @@ studio.init().then(async () => {
     const index = await fetchStreamingIndex(INDEX_URL);
     const sceneModel = must(scene.createModel({
       id: MODEL_ID,
+      updateHint: "dynamic",
       coordinateSystem: index.coordinateSystem
     }));
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();

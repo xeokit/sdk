@@ -128,6 +128,7 @@ studio.init().then(async () => {
     const index = await fetchStreamingIndex(INDEX_URL);
     const sceneModel = must(scene.createModel({
       id: "OTCConferenceCenter",
+      updateHint: "dynamic",
       coordinateSystem: {
         basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
         origin: [0, 0, 0],

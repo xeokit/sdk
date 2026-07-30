@@ -136,6 +136,103 @@
     .viewpoint-card.loaded .viewpoint-progress-fill {
       background: #16a34a;
     }
+    .stream-options {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 34px;
+      padding: 8px 10px;
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      background: #f8fafc;
+      color: #1f2933;
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .switch-row input {
+      position: relative;
+      width: 38px;
+      height: 21px;
+      flex: 0 0 auto;
+      margin: 0;
+      border: 0;
+      border-radius: 999px;
+      background: #b6c3cc;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .switch-row input::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(30, 38, 48, 0.28);
+      transition: transform 120ms ease;
+    }
+    .switch-row input:checked {
+      background: #2684ff;
+    }
+    .switch-row input:checked::before {
+      transform: translateX(17px);
+    }
+    .switch-row input:focus-visible {
+      outline: 2px solid rgba(38, 132, 255, 0.45);
+      outline-offset: 2px;
+    }
+    .render-diagnostics {
+      display: grid;
+      gap: 7px;
+      margin: 12px 0;
+      padding: 10px;
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      background: #f8fafc;
+    }
+    .diagnostic-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: #475569;
+      font-size: 12px;
+    }
+    .diagnostic-row strong {
+      color: #172033;
+      text-align: right;
+    }
+    .toggle-row {
+      align-items: center;
+    }
+    .toggle-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #475569;
+      cursor: pointer;
+    }
+    .toggle-row input {
+      width: 15px;
+      height: 15px;
+      margin: 0;
+    }
+    .render-comment {
+      min-height: 34px;
+      padding-top: 6px;
+      border-top: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -153,6 +250,23 @@
     <span id="frustumQueueLabel">0/0 loaded</span>
   </div>
   <progress id="frustumQueueProgress" value="0" max="1"></progress>
+  <div class="stream-options">
+    <label class="switch-row" for="stallStreamingToggle">
+      <span>Stall streaming while moving</span>
+      <input id="stallStreamingToggle" type="checkbox">
+    </label>
+    <label class="switch-row" for="viewpointMotionToggle">
+      <span>Fly to viewpoints</span>
+      <input id="viewpointMotionToggle" type="checkbox">
+    </label>
+  </div>
+  <div class="render-diagnostics">
+    <div class="diagnostic-row"><span>Geometry storage</span><strong id="geometryStorageStatus">DTX stream</strong></div>
+    <div class="diagnostic-row"><span>Last frame</span><strong id="renderPathStatus">waiting</strong></div>
+    <div class="diagnostic-row toggle-row"><label><input id="viewCullingToggle" type="checkbox" checked> Draw culling</label><strong id="viewCullingStatus">starting</strong></div>
+    <div class="diagnostic-row"><span>Culled objects</span><strong id="viewCullingCount">0/0</strong></div>
+    <div id="renderPathComment" class="render-comment">This stream is configured for DTX geometry storage.</div>
+  </div>
   <div id="streamStatus">Preparing stream</div>
   <div id="viewpointCards" class="viewpoint-list"></div>
 </section>

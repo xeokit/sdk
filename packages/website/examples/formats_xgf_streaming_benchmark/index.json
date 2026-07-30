@@ -1,7 +1,7 @@
 {
   "id": "formats_xgf_streaming_benchmark",
   "title": "XGF Streaming Benchmark",
-  "description": "Streams a generated apartment district from shared XGF asset libraries and 100 references-only block chunks.",
+  "description": "Streams all 961 generated city chunks from shared XGF asset libraries, prioritizing chunks near the current view first.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

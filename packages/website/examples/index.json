@@ -751,7 +751,7 @@
   },
   "formats_xgf_streaming_baku_2000_dynamic": {
     "id": "formats_xgf_streaming_baku_2000_dynamic",
-    "title": "XGF Streamed Stadium Dynamic",
+    "title": "Streamed XGF Stadium, 2K Chunks, Dynamic",
     "description": "Streams the 2000-chunk Baku Stadium model with dynamic geometry storage, providing the fast-load baseline we use to tune streaming budgets, cache limits, camera-stall behavior, and model partitioning sweet spots.",
     "isTutorial": true,
     "isVisualTest": false,
@@ -765,7 +765,7 @@
   },
   "formats_xgf_streaming_baku_200_static": {
     "id": "formats_xgf_streaming_baku_200_static",
-    "title": "XGF Streamed Stadium Static",
+    "title": "Streamed XGF Stadium, 200 Chunks, Static",
     "description": "Streams the 200-chunk Baku Stadium model with static VBO geometry, helping compare coarse model partitioning against VBO upload cost when searching for practical static-rendering sweet spots.",
     "isTutorial": true,
     "isVisualTest": false,
@@ -778,7 +778,7 @@
   },
   "formats_xgf_streaming_baku_4000_dynamic": {
     "id": "formats_xgf_streaming_baku_4000_dynamic",
-    "title": "XGF Streamed Stadium 4K Dynamic",
+    "title": "Streamed XGF Stadium, 4K Chunks, Dynamic",
     "description": "Streams the roughly 4000-chunk Baku Stadium model with dynamic geometry storage, giving a high-chunk-count DTX baseline for finding the sweet spot between first-frustum load speed, request fan-out, and memory pressure.",
     "isTutorial": true,
     "isVisualTest": false,
@@ -787,12 +787,11 @@
       "Streaming",
       "BIM",
       "Benchmarks"
-    ],
-    "snapshotTimeoutMs": 90000
+    ]
   },
   "formats_xgf_streaming_baku_4000_static": {
     "id": "formats_xgf_streaming_baku_4000_static",
-    "title": "XGF Streamed Stadium 4K VBO",
+    "title": "Streamed XGF Stadium, 4K Chunks, Static",
     "description": "Streams the roughly 4000-chunk Baku Stadium model with static VBO geometry, stressing small-chunk scheduling and VBO upload cadence to find the sweet spot between initial visibility, fetch fan-out, and settled navigation.",
     "isTutorial": true,
     "isVisualTest": false,
@@ -801,8 +800,7 @@
       "Streaming",
       "BIM",
       "Benchmarks"
-    ],
-    "snapshotTimeoutMs": 90000
+    ]
   },
   "formats_xgf_streaming_baku_renderPaths": {
     "id": "formats_xgf_streaming_baku_renderPaths",

@@ -11,6 +11,7 @@
  * - {@link materials} - PBR material painters for `SceneModel.createTexture`
  *   and `SceneModel.createMaterial`.
  * - {@link environments} - environment images for IBL.
+ * - {@link treeGenerator} - procedural tree `SceneModel` generator.
  *
  * ## Example
  *
@@ -66,3 +67,4 @@
 export * as buildGeometry from "./buildGeometry";
 export * as paintMaterials from "./paintMaterials";
 export * as paintEnvironments from "./paintEnvironments";
+export * as treeGenerator from "./treeGenerator";

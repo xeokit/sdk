@@ -734,17 +734,6 @@
       "Featured"
     ]
   },
-  "formats_xgf_streamingBenchmarkCity": {
-    "id": "formats_xgf_streamingBenchmarkCity",
-    "title": "XGF Streaming Benchmark City",
-    "description": "Loads the generated streaming benchmark city as a single Z-up XGF model.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "XGF",
-      "Benchmark"
-    ]
-  },
   "formats_xgf_streaming_archipelago": {
     "id": "formats_xgf_streaming_archipelago",
     "title": "XGF Streamed Archipelago",
@@ -760,17 +749,72 @@
       "Ships"
     ]
   },
-  "formats_xgf_streaming_baku": {
-    "id": "formats_xgf_streaming_baku",
-    "title": "XGF Streamed Stadium",
-    "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared context before the full stadium is resident.",
+  "formats_xgf_streaming_baku_2000_dynamic": {
+    "id": "formats_xgf_streaming_baku_2000_dynamic",
+    "title": "XGF Streamed Stadium Dynamic",
+    "description": "Streams the 2000-chunk Baku Stadium model with dynamic geometry storage, providing the fast-load baseline we use to tune streaming budgets, cache limits, camera-stall behavior, and model partitioning sweet spots.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
       "XGF",
       "Streaming",
       "BIM",
+      "Benchmarks",
       "Featured"
+    ]
+  },
+  "formats_xgf_streaming_baku_200_static": {
+    "id": "formats_xgf_streaming_baku_200_static",
+    "title": "XGF Streamed Stadium Static",
+    "description": "Streams the 200-chunk Baku Stadium model with static VBO geometry, helping compare coarse model partitioning against VBO upload cost when searching for practical static-rendering sweet spots.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Benchmarks"
+    ]
+  },
+  "formats_xgf_streaming_baku_4000_dynamic": {
+    "id": "formats_xgf_streaming_baku_4000_dynamic",
+    "title": "XGF Streamed Stadium 4K Dynamic",
+    "description": "Streams the roughly 4000-chunk Baku Stadium model with dynamic geometry storage, giving a high-chunk-count DTX baseline for finding the sweet spot between first-frustum load speed, request fan-out, and memory pressure.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Benchmarks"
+    ],
+    "snapshotTimeoutMs": 90000
+  },
+  "formats_xgf_streaming_baku_4000_static": {
+    "id": "formats_xgf_streaming_baku_4000_static",
+    "title": "XGF Streamed Stadium 4K VBO",
+    "description": "Streams the roughly 4000-chunk Baku Stadium model with static VBO geometry, stressing small-chunk scheduling and VBO upload cadence to find the sweet spot between initial visibility, fetch fan-out, and settled navigation.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Benchmarks"
+    ],
+    "snapshotTimeoutMs": 90000
+  },
+  "formats_xgf_streaming_baku_renderPaths": {
+    "id": "formats_xgf_streaming_baku_renderPaths",
+    "title": "XGF Baku Stadium Render Paths",
+    "description": "Loads the Baku Stadium stream with renderer-path controls, isolating DTX and VBO tradeoffs so we can tune memory configuration and upload cadence apart from model partitioning.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Benchmarks"
     ]
   },
   "formats_xgf_streaming_benchmark": {
@@ -835,8 +879,8 @@
   },
   "formats_xgf_streaming_recursive": {
     "id": "formats_xgf_streaming_recursive",
-    "title": "XGF Recursive Stream",
-    "description": "Loads a root XGF stream that lazily references other XGF streams, activating each child stream only when its aggregate bounds enter the view.",
+    "title": "XGF Recursive Streaming - Nested Model Set",
+    "description": "Streams a root XGF index that references MAP, Baku Stadium, Lyon, OTC Conference Center, and HousePlan as independent child streams, loading each model from its own stream only when its bounds enter the current view.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -1015,6 +1059,16 @@
     "id": "profile_renderer_conferenceCenter",
     "title": "Profile the WebGL renderer on the OTC Conference Center model",
     "description": "Profiles renderer cost on the OTC Conference Center model and reports whether the workload is fragment-bound.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Benchmarks"
+    ]
+  },
+  "sdk_browser_tests": {
+    "id": "sdk_browser_tests",
+    "title": "SDK Browser Tests",
+    "description": "Runs the SDK Jest suite in the browser-backed Electron test environment and streams the result into a browser page.",
     "isTutorial": false,
     "isVisualTest": false,
     "categories": [

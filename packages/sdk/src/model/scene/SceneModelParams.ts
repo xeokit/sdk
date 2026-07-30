@@ -17,10 +17,7 @@ import type {SceneTransformParams} from "./SceneTransformParams";
  * Renderers can use this to choose an internal storage path. For example,
  * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} may choose VBO
  * geometry for `"static"` triangle models and data-texture geometry for
- * `"dynamic"` models when its memory config is set to `"auto"`.
- *
- * This is a hint, not a rendering contract. Explicit renderer configuration can
- * override it.
+ * `"dynamic"` models.
  */
 export type SceneModelUpdateHint = "auto" | "static" | "dynamic";
 
@@ -65,7 +62,7 @@ export interface SceneModelParams {
   /**
    * Hint describing how often this SceneModel's geometry is expected to change.
    *
-   * - `"auto"`: let the renderer choose from its active configuration.
+   * - `"auto"`: let the renderer choose its safe default.
    * - `"static"`: low modification rate, drawn many times; renderers may favor
    *   faster draw-time geometry storage such as VBOs.
    * - `"dynamic"`: smaller, frequently modified, or progressively loaded model;

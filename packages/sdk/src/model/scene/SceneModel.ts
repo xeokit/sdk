@@ -160,9 +160,7 @@ export class SceneModel {
   /**
    * Hint describing how often this SceneModel's geometry is expected to change.
    *
-   * Renderers can use this to choose an internal storage path. The WebGL
-   * renderer uses it only when its triangle geometry storage mode is `"auto"`;
-   * explicit renderer memory config still wins.
+   * Renderers can use this to choose an internal storage path.
    */
   private _updateHint: SceneModelUpdateHint;
 

@@ -313,7 +313,7 @@ var require_DispatcherBase = __commonJS({
       has(fn) {
         if (!fn)
           return false;
-        return this._subscriptions.some((sub) => sub.handler == fn);
+        return this._subscriptions.some((sub2) => sub2.handler == fn);
       }
       /**
        * Unsubscribes the handler from the dispatcher.
@@ -359,13 +359,13 @@ var require_DispatcherBase = __commonJS({
        * @memberOf DispatcherBase
        */
       _dispatch(executeAsync, scope, args) {
-        for (let sub of [...this._subscriptions]) {
-          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub.handler));
+        for (let sub2 of [...this._subscriptions]) {
+          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub2.handler));
           let nargs = Array.prototype.slice.call(args);
           nargs.push(ev);
-          let s = sub;
+          let s = sub2;
           s.execute(executeAsync, scope, nargs);
-          this.cleanup(sub);
+          this.cleanup(sub2);
           if (!executeAsync && ev.propagationStopped) {
             return { propagationStopped: true };
           }
@@ -396,10 +396,10 @@ var require_DispatcherBase = __commonJS({
        *
        * @memberOf DispatcherBase
        */
-      cleanup(sub) {
+      cleanup(sub2) {
         let changes = false;
-        if (sub.isOnce && sub.isExecuted) {
-          let i = this._subscriptions.indexOf(sub);
+        if (sub2.isOnce && sub2.isExecuted) {
+          let i = this._subscriptions.indexOf(sub2);
           if (i > -1) {
             this._subscriptions.splice(i, 1);
             changes = true;
@@ -705,13 +705,13 @@ var require_PromiseDispatcherBase = __commonJS({
        * @memberOf DispatcherBase
        */
       async _dispatchAsPromise(executeAsync, scope, args) {
-        for (let sub of [...this._subscriptions]) {
-          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub.handler));
+        for (let sub2 of [...this._subscriptions]) {
+          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub2.handler));
           let nargs = Array.prototype.slice.call(args);
           nargs.push(ev);
-          let ps = sub;
+          let ps = sub2;
           await ps.execute(executeAsync, scope, nargs);
-          this.cleanup(sub);
+          this.cleanup(sub2);
           if (!executeAsync && ev.propagationStopped) {
             return { propagationStopped: true };
           }
@@ -2345,9 +2345,9 @@ var init_tinyusdz = __esm({
           }
           var fromParts = trim(from.split("/"));
           var toParts = trim(to.split("/"));
-          var length2 = Math.min(fromParts.length, toParts.length);
-          var samePartsLength = length2;
-          for (var i = 0; i < length2; i++) {
+          var length3 = Math.min(fromParts.length, toParts.length);
+          var samePartsLength = length3;
+          for (var i = 0; i < length3; i++) {
             if (fromParts[i] !== toParts[i]) {
               samePartsLength = i;
               break;
@@ -2427,8 +2427,8 @@ var init_tinyusdz = __esm({
           heap[outIdx] = 0;
           return outIdx - startIdx;
         };
-        var intArrayFromString = (stringy, dontAddNull, length2) => {
-          var len = length2 > 0 ? length2 : lengthBytesUTF8(stringy) + 1;
+        var intArrayFromString = (stringy, dontAddNull, length3) => {
+          var len = length3 > 0 ? length3 : lengthBytesUTF8(stringy) + 1;
           var u8array = new Array(len);
           var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
           if (dontAddNull)
@@ -2468,12 +2468,12 @@ var init_tinyusdz = __esm({
           stream.tty.ops.fsync(stream.tty);
         }, fsync(stream) {
           stream.tty.ops.fsync(stream.tty);
-        }, read(stream, buffer, offset, length2, pos) {
+        }, read(stream, buffer, offset, length3, pos) {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(60);
           }
           var bytesRead = 0;
-          for (var i = 0; i < length2; i++) {
+          for (var i = 0; i < length3; i++) {
             var result;
             try {
               result = stream.tty.ops.get_char(stream.tty);
@@ -2492,18 +2492,18 @@ var init_tinyusdz = __esm({
             stream.node.atime = Date.now();
           }
           return bytesRead;
-        }, write(stream, buffer, offset, length2, pos) {
+        }, write(stream, buffer, offset, length3, pos) {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(60);
           }
           try {
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               stream.tty.ops.put_char(stream.tty, buffer[offset + i]);
             }
           } catch (e) {
             throw new FS.ErrnoError(29);
           }
-          if (length2) {
+          if (length3) {
             stream.node.mtime = stream.node.ctime = Date.now();
           }
           return i;
@@ -2692,11 +2692,11 @@ var init_tinyusdz = __esm({
             throw new FS.ErrnoError(28);
           }
           return node.link;
-        } }, stream_ops: { read(stream, buffer, offset, length2, position) {
+        } }, stream_ops: { read(stream, buffer, offset, length3, position) {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes)
             return 0;
-          var size = Math.min(stream.node.usedBytes - position, length2);
+          var size = Math.min(stream.node.usedBytes - position, length3);
           assert6(size >= 0);
           if (size > 8 && contents.subarray) {
             buffer.set(contents.subarray(position, position + size), offset);
@@ -2705,40 +2705,40 @@ var init_tinyusdz = __esm({
               buffer[offset + i] = contents[position + i];
           }
           return size;
-        }, write(stream, buffer, offset, length2, position, canOwn) {
+        }, write(stream, buffer, offset, length3, position, canOwn) {
           assert6(!(buffer instanceof ArrayBuffer));
           if (buffer.buffer === HEAP8.buffer) {
             canOwn = false;
           }
-          if (!length2)
+          if (!length3)
             return 0;
           var node = stream.node;
           node.mtime = node.ctime = Date.now();
           if (buffer.subarray && (!node.contents || node.contents.subarray)) {
             if (canOwn) {
               assert6(position === 0, "canOwn must imply no weird position inside the file");
-              node.contents = buffer.subarray(offset, offset + length2);
-              node.usedBytes = length2;
-              return length2;
+              node.contents = buffer.subarray(offset, offset + length3);
+              node.usedBytes = length3;
+              return length3;
             } else if (node.usedBytes === 0 && position === 0) {
-              node.contents = buffer.slice(offset, offset + length2);
-              node.usedBytes = length2;
-              return length2;
-            } else if (position + length2 <= node.usedBytes) {
-              node.contents.set(buffer.subarray(offset, offset + length2), position);
-              return length2;
+              node.contents = buffer.slice(offset, offset + length3);
+              node.usedBytes = length3;
+              return length3;
+            } else if (position + length3 <= node.usedBytes) {
+              node.contents.set(buffer.subarray(offset, offset + length3), position);
+              return length3;
             }
           }
-          MEMFS.expandFileStorage(node, position + length2);
+          MEMFS.expandFileStorage(node, position + length3);
           if (node.contents.subarray && buffer.subarray) {
-            node.contents.set(buffer.subarray(offset, offset + length2), position);
+            node.contents.set(buffer.subarray(offset, offset + length3), position);
           } else {
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               node.contents[position + i] = buffer[offset + i];
             }
           }
-          node.usedBytes = Math.max(node.usedBytes, position + length2);
-          return length2;
+          node.usedBytes = Math.max(node.usedBytes, position + length3);
+          return length3;
         }, llseek(stream, offset, whence) {
           var position = offset;
           if (whence === 1) {
@@ -2752,7 +2752,7 @@ var init_tinyusdz = __esm({
             throw new FS.ErrnoError(28);
           }
           return position;
-        }, mmap(stream, length2, position, prot, flags) {
+        }, mmap(stream, length3, position, prot, flags) {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
@@ -2764,24 +2764,24 @@ var init_tinyusdz = __esm({
             ptr = contents.byteOffset;
           } else {
             allocated = true;
-            ptr = mmapAlloc(length2);
+            ptr = mmapAlloc(length3);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
             if (contents) {
-              if (position > 0 || position + length2 < contents.length) {
+              if (position > 0 || position + length3 < contents.length) {
                 if (contents.subarray) {
-                  contents = contents.subarray(position, position + length2);
+                  contents = contents.subarray(position, position + length3);
                 } else {
-                  contents = Array.prototype.slice.call(contents, position, position + length2);
+                  contents = Array.prototype.slice.call(contents, position, position + length3);
                 }
               }
               HEAP8.set(contents, ptr);
             }
           }
           return { ptr, allocated };
-        }, msync(stream, buffer, offset, length2, mmapFlags) {
-          MEMFS.stream_ops.write(stream, buffer, 0, length2, offset, false);
+        }, msync(stream, buffer, offset, length3, mmapFlags) {
+          MEMFS.stream_ops.write(stream, buffer, 0, length3, offset, false);
           return 0;
         } } };
         var asyncLoad = async (url) => {
@@ -3657,9 +3657,9 @@ var init_tinyusdz = __esm({
           stream.position = stream.stream_ops.llseek(stream, offset, whence);
           stream.ungotten = [];
           return stream.position;
-        }, read(stream, buffer, offset, length2, position) {
+        }, read(stream, buffer, offset, length3, position) {
           assert6(offset >= 0);
-          if (length2 < 0 || position < 0) {
+          if (length3 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -3680,13 +3680,13 @@ var init_tinyusdz = __esm({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length2, position);
+          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length3, position);
           if (!seeking)
             stream.position += bytesRead;
           return bytesRead;
-        }, write(stream, buffer, offset, length2, position, canOwn) {
+        }, write(stream, buffer, offset, length3, position, canOwn) {
           assert6(offset >= 0);
-          if (length2 < 0 || position < 0) {
+          if (length3 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -3710,11 +3710,11 @@ var init_tinyusdz = __esm({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length2, position, canOwn);
+          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length3, position, canOwn);
           if (!seeking)
             stream.position += bytesWritten;
           return bytesWritten;
-        }, mmap(stream, length2, position, prot, flags) {
+        }, mmap(stream, length3, position, prot, flags) {
           if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
             throw new FS.ErrnoError(2);
           }
@@ -3724,16 +3724,16 @@ var init_tinyusdz = __esm({
           if (!stream.stream_ops.mmap) {
             throw new FS.ErrnoError(43);
           }
-          if (!length2) {
+          if (!length3) {
             throw new FS.ErrnoError(28);
           }
-          return stream.stream_ops.mmap(stream, length2, position, prot, flags);
-        }, msync(stream, buffer, offset, length2, mmapFlags) {
+          return stream.stream_ops.mmap(stream, length3, position, prot, flags);
+        }, msync(stream, buffer, offset, length3, mmapFlags) {
           assert6(offset >= 0);
           if (!stream.stream_ops.msync) {
             return 0;
           }
-          return stream.stream_ops.msync(stream, buffer, offset, length2, mmapFlags);
+          return stream.stream_ops.msync(stream, buffer, offset, length3, mmapFlags);
         }, ioctl(stream, cmd, arg) {
           if (!stream.stream_ops.ioctl) {
             throw new FS.ErrnoError(59);
@@ -3748,9 +3748,9 @@ var init_tinyusdz = __esm({
           var ret;
           var stream = FS.open(path, opts.flags);
           var stat = FS.stat(path);
-          var length2 = stat.size;
-          var buf = new Uint8Array(length2);
-          FS.read(stream, buf, 0, length2, 0);
+          var length3 = stat.size;
+          var buf = new Uint8Array(length3);
+          FS.read(stream, buf, 0, length3, 0);
           if (opts.encoding === "utf8") {
             ret = UTF8ArrayToString(buf);
           } else if (opts.encoding === "binary") {
@@ -3790,7 +3790,7 @@ var init_tinyusdz = __esm({
           FS.mkdir("/home/web_user");
         }, createDefaultDevices() {
           FS.mkdir("/dev");
-          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length2, pos) => length2, llseek: () => 0 });
+          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length3, pos) => length3, llseek: () => 0 });
           FS.mkdev("/dev/null", FS.makedev(1, 3));
           TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
           TTY.register(FS.makedev(6, 0), TTY.default_tty1_ops);
@@ -3952,9 +3952,9 @@ var init_tinyusdz = __esm({
             if (output?.buffer?.length) {
               output(10);
             }
-          }, read(stream, buffer, offset, length2, pos) {
+          }, read(stream, buffer, offset, length3, pos) {
             var bytesRead = 0;
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               var result;
               try {
                 result = input();
@@ -3973,15 +3973,15 @@ var init_tinyusdz = __esm({
               stream.node.atime = Date.now();
             }
             return bytesRead;
-          }, write(stream, buffer, offset, length2, pos) {
-            for (var i = 0; i < length2; i++) {
+          }, write(stream, buffer, offset, length3, pos) {
+            for (var i = 0; i < length3; i++) {
               try {
                 output(buffer[offset + i]);
               } catch (e) {
                 throw new FS.ErrnoError(29);
               }
             }
-            if (length2) {
+            if (length3) {
               stream.node.mtime = stream.node.ctime = Date.now();
             }
             return i;
@@ -4111,11 +4111,11 @@ var init_tinyusdz = __esm({
               return fn(...args);
             };
           });
-          function writeChunks(stream, buffer, offset, length2, position) {
+          function writeChunks(stream, buffer, offset, length3, position) {
             var contents = stream.node.contents;
             if (position >= contents.length)
               return 0;
-            var size = Math.min(contents.length - position, length2);
+            var size = Math.min(contents.length - position, length3);
             assert6(size >= 0);
             if (contents.slice) {
               for (var i = 0; i < size; i++) {
@@ -4128,17 +4128,17 @@ var init_tinyusdz = __esm({
             }
             return size;
           }
-          stream_ops.read = (stream, buffer, offset, length2, position) => {
+          stream_ops.read = (stream, buffer, offset, length3, position) => {
             FS.forceLoadFile(node);
-            return writeChunks(stream, buffer, offset, length2, position);
+            return writeChunks(stream, buffer, offset, length3, position);
           };
-          stream_ops.mmap = (stream, length2, position, prot, flags) => {
+          stream_ops.mmap = (stream, length3, position, prot, flags) => {
             FS.forceLoadFile(node);
-            var ptr = mmapAlloc(length2);
+            var ptr = mmapAlloc(length3);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
-            writeChunks(stream, HEAP8, ptr, length2, position);
+            writeChunks(stream, HEAP8, ptr, length3, position);
             return { ptr, allocated: true };
           };
           node.stream_ops = stream_ops;
@@ -5391,14 +5391,14 @@ ${invokerFnBody}`;
           name12 = readLatin1String(name12);
           var stdStringIsUTF8 = true;
           registerType(rawType, { name: name12, fromWireType(value) {
-            var length2 = HEAPU32[value >> 2];
+            var length3 = HEAPU32[value >> 2];
             var payload = value + 4;
             var str;
             if (stdStringIsUTF8) {
               var decodeStartPtr = payload;
-              for (var i = 0; i <= length2; ++i) {
+              for (var i = 0; i <= length3; ++i) {
                 var currentBytePtr = payload + i;
-                if (i == length2 || HEAPU8[currentBytePtr] == 0) {
+                if (i == length3 || HEAPU8[currentBytePtr] == 0) {
                   var maxRead = currentBytePtr - decodeStartPtr;
                   var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
                   if (str === void 0) {
@@ -5411,8 +5411,8 @@ ${invokerFnBody}`;
                 }
               }
             } else {
-              var a2 = new Array(length2);
-              for (var i = 0; i < length2; ++i) {
+              var a2 = new Array(length3);
+              for (var i = 0; i < length3; ++i) {
                 a2[i] = String.fromCharCode(HEAPU8[payload + i]);
               }
               str = a2.join("");
@@ -5423,24 +5423,24 @@ ${invokerFnBody}`;
             if (value instanceof ArrayBuffer) {
               value = new Uint8Array(value);
             }
-            var length2;
+            var length3;
             var valueIsOfTypeString = typeof value == "string";
             if (!(valueIsOfTypeString || ArrayBuffer.isView(value) && value.BYTES_PER_ELEMENT == 1)) {
               throwBindingError("Cannot pass non-string to std::string");
             }
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              length2 = lengthBytesUTF8(value);
+              length3 = lengthBytesUTF8(value);
             } else {
-              length2 = value.length;
+              length3 = value.length;
             }
-            var base = _malloc(4 + length2 + 1);
+            var base = _malloc(4 + length3 + 1);
             var ptr = base + 4;
-            HEAPU32[base >> 2] = length2;
+            HEAPU32[base >> 2] = length3;
             if (valueIsOfTypeString) {
               if (stdStringIsUTF8) {
-                stringToUTF8(value, ptr, length2 + 1);
+                stringToUTF8(value, ptr, length3 + 1);
               } else {
-                for (var i = 0; i < length2; ++i) {
+                for (var i = 0; i < length3; ++i) {
                   var charCode = value.charCodeAt(i);
                   if (charCode > 255) {
                     _free(base);
@@ -5553,12 +5553,12 @@ ${invokerFnBody}`;
             readCharAt = (pointer) => HEAPU32[pointer >> 2];
           }
           registerType(rawType, { name: name12, fromWireType: (value) => {
-            var length2 = HEAPU32[value >> 2];
+            var length3 = HEAPU32[value >> 2];
             var str;
             var decodeStartPtr = value + 4;
-            for (var i = 0; i <= length2; ++i) {
+            for (var i = 0; i <= length3; ++i) {
               var currentBytePtr = value + 4 + i * charSize;
-              if (i == length2 || readCharAt(currentBytePtr) == 0) {
+              if (i == length3 || readCharAt(currentBytePtr) == 0) {
                 var maxReadBytes = currentBytePtr - decodeStartPtr;
                 var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
                 if (str === void 0) {
@@ -5576,10 +5576,10 @@ ${invokerFnBody}`;
             if (!(typeof value == "string")) {
               throwBindingError(`Cannot pass non-string to C++ string type ${name12}`);
             }
-            var length2 = lengthBytesUTF(value);
-            var ptr = _malloc(4 + length2 + charSize);
-            HEAPU32[ptr >> 2] = length2 / charSize;
-            encodeString(value, ptr + 4, length2 + charSize);
+            var length3 = lengthBytesUTF(value);
+            var ptr = _malloc(4 + length3 + charSize);
+            HEAPU32[ptr >> 2] = length3 / charSize;
+            encodeString(value, ptr + 4, length3 + charSize);
             if (destructors !== null) {
               destructors.push(_free, ptr);
             }
@@ -8978,10 +8978,10 @@ function decompressNormal(oct, result) {
     x = tempx;
     y = tempy;
   }
-  const length2 = Math.sqrt(x * x + y * y + z * z);
-  result[0] = x / length2;
-  result[1] = y / length2;
-  result[2] = z / length2;
+  const length3 = Math.sqrt(x * x + y * y + z * z);
+  result[0] = x / length3;
+  result[1] = y / length3;
+  result[2] = z / length3;
   return result;
 }
 function decompressNormals(octs, result) {
@@ -9001,10 +9001,10 @@ function decompressNormals(octs, result) {
       x = tempx;
       y = tempy;
     }
-    const length2 = Math.sqrt(x * x + y * y + z * z);
-    result[j] = x / length2;
-    result[j + 1] = y / length2;
-    result[j + 2] = z / length2;
+    const length3 = Math.sqrt(x * x + y * y + z * z);
+    result[j] = x / length3;
+    result[j + 1] = y / length3;
+    result[j + 2] = z / length3;
   }
   return result;
 }
@@ -9018,10 +9018,10 @@ function octDecodeVec2(oct, result = createVec3Float64()) {
     x = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
     y = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
   }
-  const length2 = Math.sqrt(x * x + y * y + z * z);
-  result[0] = x / length2;
-  result[1] = y / length2;
-  result[2] = z / length2;
+  const length3 = Math.sqrt(x * x + y * y + z * z);
+  result[0] = x / length3;
+  result[1] = y / length3;
+  result[2] = z / length3;
   return result;
 }
 function quantizePositions3AndCreateMat4(positions, aabb, positionsDecompressMatrix) {
@@ -9070,7 +9070,7 @@ function quantizePositions3(positions, aabb) {
   return positionsCompressed;
 }
 function transformAndOctEncodeNormals(worldNormalMatrix, normals, lenNormals, compressedNormals, lenCompressedNormals) {
-  const dot4 = (p, v) => {
+  const dot5 = (p, v) => {
     return p[0] * v[0] + p[1] * v[1] + p[2] * v[2];
   };
   const localNormal = createVec3Float64();
@@ -9087,7 +9087,7 @@ function transformAndOctEncodeNormals(worldNormalMatrix, normals, lenNormals, co
       for (const yfunc of ["floor", "ceil"]) {
         const oct = octEncodeVec3(worldNormal, xfunc, yfunc);
         dec = octDecodeVec2(oct);
-        currentCos = dot4(worldNormal, dec);
+        currentCos = dot5(worldNormal, dec);
         if (currentCos > bestCos) {
           best = oct;
           bestCos = currentCos;
@@ -9199,10 +9199,10 @@ function octDecodeNormalsU16(octs, result = new Float32Array(octs.length / 2 * 3
       x = tempx;
       y = tempy;
     }
-    const length2 = Math.sqrt(x * x + y * y + z * z) || 1;
-    result[j] = x / length2;
-    result[j + 1] = y / length2;
-    result[j + 2] = z / length2;
+    const length3 = Math.sqrt(x * x + y * y + z * z) || 1;
+    result[j] = x / length3;
+    result[j + 1] = y / length3;
+    result[j + 2] = z / length3;
   }
   return result;
 }
@@ -9852,14 +9852,14 @@ var Curve = class {
    * @param distance Absolute distance along the curve. When provided, overrides `u`.
    * @returns Curve parameter in the range `[0..1]`
    */
-  getUToTMapping(u, distance) {
+  getUToTMapping(u, distance2) {
     const arcLengths = this._getLengths();
     let i = 0;
     const il = arcLengths.length;
     let t;
     let targetArcLength;
-    if (distance) {
-      targetArcLength = distance;
+    if (distance2) {
+      targetArcLength = distance2;
     } else {
       targetArcLength = u * arcLengths[il - 1];
     }
@@ -10254,8 +10254,8 @@ function perpDistance2D(p, a2, b4) {
     const ey = p[1] - a2[1];
     return Math.sqrt(ex * ex + ey * ey);
   }
-  const cross4 = dx * (a2[1] - p[1]) - (a2[0] - p[0]) * dy;
-  return Math.abs(cross4) / Math.sqrt(len2);
+  const cross5 = dx * (a2[1] - p[1]) - (a2[0] - p[0]) * dy;
+  return Math.abs(cross5) / Math.sqrt(len2);
 }
 function douglasPeuckerOpen2D(points, epsilon) {
   if (points.length < 3)
@@ -17498,7 +17498,7 @@ function buildEdgeIndices(positions, indices, aabb, edgeThreshold) {
   let edge;
   let normal1;
   let normal2;
-  let dot4;
+  let dot5;
   let ia;
   let ib;
   for (let i = 0, len = indices.length; i < len; i += 3) {
@@ -17526,8 +17526,8 @@ function buildEdgeIndices(positions, indices, aabb, edgeThreshold) {
     if (edge.face2 !== void 0) {
       normal1 = faces[edge.face1].normal;
       normal2 = faces[edge.face2].normal;
-      dot4 = dotVec3(normal1, normal2);
-      if (dot4 > thresholdDot) {
+      dot5 = dotVec3(normal1, normal2);
+      if (dot5 > thresholdDot) {
         continue;
       }
     }
@@ -23115,12 +23115,12 @@ var TreeGenerator = class _TreeGenerator {
     }
     return stats;
   }
-  growBranch({ createBranch, createLeaf, random, settings, start, dir, length: length2, radius, level, maxLevel }) {
+  growBranch({ createBranch, createLeaf, random, settings, start, dir, length: length3, radius, level, maxLevel }) {
     const bend = settings.wind * level * 0.12;
     const end = [
-      start[0] + dir[0] * length2 + bend,
-      start[1] + dir[1] * length2,
-      start[2] + dir[2] * length2
+      start[0] + dir[0] * length3 + bend,
+      start[1] + dir[1] * length3,
+      start[2] + dir[2] * length3
     ];
     createBranch(start, end, radius, 0.95 + random() * 0.16);
     if (level >= maxLevel || radius < 0.045) {
@@ -23152,7 +23152,7 @@ var TreeGenerator = class _TreeGenerator {
         settings,
         start: end,
         dir: childDir,
-        length: length2 * settings.lengthFalloff * (0.78 + random() * 0.28),
+        length: length3 * settings.lengthFalloff * (0.78 + random() * 0.28),
         radius: radius * settings.taper,
         level: level + 1,
         maxLevel
@@ -23223,8 +23223,8 @@ function orientedScaleMatrix(position, scale3, rotation) {
 }
 function branchMatrix(start, end, radius) {
   const axisY = subtract(end, start);
-  const length2 = Math.hypot(axisY[0], axisY[1], axisY[2]) || 1;
-  const y = [axisY[0] / length2, axisY[1] / length2, axisY[2] / length2];
+  const length3 = Math.hypot(axisY[0], axisY[1], axisY[2]) || 1;
+  const y = [axisY[0] / length3, axisY[1] / length3, axisY[2] / length3];
   const helper = Math.abs(dot2(y, [0, 0, 1])) > 0.92 ? [1, 0, 0] : [0, 0, 1];
   const x = normalize(cross2(helper, y));
   const z = cross2(y, x);
@@ -23238,9 +23238,9 @@ function branchMatrix(start, end, radius) {
     x[1] * radius,
     x[2] * radius,
     0,
-    y[0] * length2,
-    y[1] * length2,
-    y[2] * length2,
+    y[0] * length3,
+    y[1] * length3,
+    y[2] * length3,
     0,
     z[0] * radius,
     z[1] * radius,
@@ -23869,8 +23869,8 @@ function formatTime(ms) {
   }
   return formatted;
 }
-function leftPad(string, length2 = 8) {
-  const padLength = Math.max(length2 - string.length, 0);
+function leftPad(string, length3 = 8) {
+  const padLength = Math.max(length3 - string.length, 0);
   return `${" ".repeat(padLength)}${string}`;
 }
 
@@ -24943,24 +24943,24 @@ async function onMessage(parseOnMainThread, job, type, payload) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/get-first-characters.js
-function getFirstCharacters(data2, length2 = 5) {
+function getFirstCharacters(data2, length3 = 5) {
   if (typeof data2 === "string") {
-    return data2.slice(0, length2);
+    return data2.slice(0, length3);
   } else if (ArrayBuffer.isView(data2)) {
-    return getMagicString(data2.buffer, data2.byteOffset, length2);
+    return getMagicString(data2.buffer, data2.byteOffset, length3);
   } else if (data2 instanceof ArrayBuffer) {
     const byteOffset = 0;
-    return getMagicString(data2, byteOffset, length2);
+    return getMagicString(data2, byteOffset, length3);
   }
   return "";
 }
-function getMagicString(arrayBuffer, byteOffset, length2) {
-  if (arrayBuffer.byteLength <= byteOffset + length2) {
+function getMagicString(arrayBuffer, byteOffset, length3) {
+  if (arrayBuffer.byteLength <= byteOffset + length3) {
     return "";
   }
   const dataView = new DataView(arrayBuffer);
   let magic = "";
-  for (let i = 0; i < length2; i++) {
+  for (let i = 0; i < length3; i++) {
     magic += String.fromCharCode(dataView.getUint8(byteOffset + i));
   }
   return magic;
@@ -24995,7 +24995,7 @@ function concatenateArrayBuffers(...sources) {
 }
 function concatenateArrayBuffersFromArray(sources) {
   const sourceArrays = sources.map((source2) => source2 instanceof ArrayBuffer ? new Uint8Array(source2) : source2);
-  const byteLength = sourceArrays.reduce((length2, typedArray) => length2 + typedArray.byteLength, 0);
+  const byteLength = sourceArrays.reduce((length3, typedArray) => length3 + typedArray.byteLength, 0);
   const result = new Uint8Array(byteLength);
   let offset = 0;
   for (const sourceArray of sourceArrays) {
@@ -25753,12 +25753,12 @@ function getAccessorArrayTypeAndLength(accessor, bufferView) {
   const ArrayType = ATTRIBUTE_COMPONENT_TYPE_TO_ARRAY[accessor.componentType];
   const components = ATTRIBUTE_TYPE_TO_COMPONENTS[accessor.type];
   const bytesPerComponent = ATTRIBUTE_COMPONENT_TYPE_TO_BYTE_SIZE[accessor.componentType];
-  const length2 = accessor.count * components;
+  const length3 = accessor.count * components;
   const byteLength = accessor.count * components * bytesPerComponent;
   assert4(byteLength >= 0 && byteLength <= bufferView.byteLength);
   const componentByteSize = BYTES[accessor.componentType];
   const numberOfComponentsInElement = COMPONENTS[accessor.type];
-  return { ArrayType, length: length2, byteLength, componentByteSize, numberOfComponentsInElement };
+  return { ArrayType, length: length3, byteLength, componentByteSize, numberOfComponentsInElement };
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/get-typed-array.js
@@ -25782,14 +25782,14 @@ function getTypedArrayForAccessor(json, buffers, accessor) {
   }
   const { arrayBuffer, byteOffset: bufferByteOffset } = buffers[bufferView.buffer];
   const byteOffset = (bufferByteOffset || 0) + (gltfAccessor.byteOffset || 0) + (bufferView.byteOffset || 0);
-  const { ArrayType, length: length2, componentByteSize, numberOfComponentsInElement } = getAccessorArrayTypeAndLength(gltfAccessor, bufferView);
+  const { ArrayType, length: length3, componentByteSize, numberOfComponentsInElement } = getAccessorArrayTypeAndLength(gltfAccessor, bufferView);
   const elementByteSize = componentByteSize * numberOfComponentsInElement;
   const elementAddressScale = bufferView.byteStride || elementByteSize;
   if (typeof bufferView.byteStride === "undefined" || bufferView.byteStride === elementByteSize) {
-    const result2 = new ArrayType(arrayBuffer, byteOffset, length2);
+    const result2 = new ArrayType(arrayBuffer, byteOffset, length3);
     return result2;
   }
-  const result = new ArrayType(length2);
+  const result = new ArrayType(length3);
   for (let i = 0; i < gltfAccessor.count; i++) {
     const values = new ArrayType(arrayBuffer, byteOffset + i * elementAddressScale, numberOfComponentsInElement);
     result.set(values, i * numberOfComponentsInElement);
@@ -26387,8 +26387,8 @@ function convertRawBufferToMetadataArray(data2, attributeType, componentType, el
   const numberOfComponents = ATTRIBUTE_TYPE_TO_COMPONENTS2[attributeType];
   const ArrayType = ATTRIBUTE_COMPONENT_TYPE_TO_ARRAY2[componentType];
   const size = ATTRIBUTE_COMPONENT_TYPE_TO_BYTE_SIZE2[componentType];
-  const length2 = elementCount * numberOfComponents;
-  const byteLength = length2 * size;
+  const length3 = elementCount * numberOfComponents;
+  const byteLength = length3 * size;
   let buffer = data2.buffer;
   let offset = data2.byteOffset;
   if (offset % size !== 0) {
@@ -26396,7 +26396,7 @@ function convertRawBufferToMetadataArray(data2, attributeType, componentType, el
     buffer = bufferArray.slice(offset, offset + byteLength).buffer;
     offset = 0;
   }
-  return new ArrayType(buffer, offset, length2);
+  return new ArrayType(buffer, offset, length3);
 }
 function getPrimitiveTextureData(scenegraph, textureInfo, primitive) {
   const texCoordAccessorKey = `TEXCOORD_${textureInfo.texCoord || 0}`;
@@ -29253,8 +29253,8 @@ var MathArray = class extends Array {
 };
 
 // ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/validators.js
-function validateVector(v, length2) {
-  if (v.length !== length2) {
+function validateVector(v, length3) {
+  if (v.length !== length3) {
     return false;
   }
   for (let i = 0; i < v.length; ++i) {
@@ -29270,8 +29270,8 @@ function checkNumber(value) {
   }
   return value;
 }
-function checkVector(v, length2, callerName = "") {
-  if (config.debug && !validateVector(v, length2)) {
+function checkVector(v, length3, callerName = "") {
+  if (config.debug && !validateVector(v, length3)) {
     throw new Error(`math.gl: ${callerName} some fields set to invalid numbers'`);
   }
   return v;
@@ -29318,11 +29318,11 @@ var Vector = class extends MathArray {
    * Returns the squared length of the vector from the origin to the point described by this vector
    */
   lengthSquared() {
-    let length2 = 0;
+    let length3 = 0;
     for (let i = 0; i < this.ELEMENTS; ++i) {
-      length2 += this[i] * this[i];
+      length3 += this[i] * this[i];
     }
-    return length2;
+    return length3;
   }
   /**
    * Returns the squared length of the vector from the origin to the point described by this vector
@@ -29334,12 +29334,12 @@ var Vector = class extends MathArray {
     return Math.sqrt(this.distanceSquared(mathArray));
   }
   distanceSquared(mathArray) {
-    let length2 = 0;
+    let length3 = 0;
     for (let i = 0; i < this.ELEMENTS; ++i) {
       const dist = this[i] - mathArray[i];
-      length2 += dist * dist;
+      length3 += dist * dist;
     }
-    return checkNumber(length2);
+    return checkNumber(length3);
   }
   dot(mathArray) {
     let product = 0;
@@ -29350,10 +29350,10 @@ var Vector = class extends MathArray {
   }
   // MODIFIERS
   normalize() {
-    const length2 = this.magnitude();
-    if (length2 !== 0) {
+    const length3 = this.magnitude();
+    if (length3 !== 0) {
       for (let i = 0; i < this.ELEMENTS; ++i) {
-        this[i] /= length2;
+        this[i] /= length3;
       }
     }
     return this.check();
@@ -30266,11 +30266,11 @@ function transformPrimitive(gltfData, primitive, transformParameters) {
       if (bufferView) {
         const { arrayBuffer, byteOffset: bufferByteOffset } = gltfData.buffers[bufferView.buffer];
         const byteOffset = (bufferByteOffset || 0) + (accessor.byteOffset || 0) + (bufferView.byteOffset || 0);
-        const { ArrayType, length: length2 } = getAccessorArrayTypeAndLength(accessor, bufferView);
+        const { ArrayType, length: length3 } = getAccessorArrayTypeAndLength(accessor, bufferView);
         const bytes = BYTES[accessor.componentType];
         const components = COMPONENTS[accessor.type];
         const elementAddressScale = bufferView.byteStride || bytes * components;
-        const result = new Float32Array(length2);
+        const result = new Float32Array(length3);
         for (let i = 0; i < accessor.count; i++) {
           const uv = new ArrayType(arrayBuffer, byteOffset + i * elementAddressScale, 2);
           scratchVector.set(uv[0], uv[1], 1);
@@ -31922,24 +31922,24 @@ function testBinary(data2, byteOffset, loader, test) {
       return false;
   }
 }
-function getFirstCharacters2(data2, length2 = 5) {
+function getFirstCharacters2(data2, length3 = 5) {
   if (typeof data2 === "string") {
-    return data2.slice(0, length2);
+    return data2.slice(0, length3);
   } else if (ArrayBuffer.isView(data2)) {
-    return getMagicString3(data2.buffer, data2.byteOffset, length2);
+    return getMagicString3(data2.buffer, data2.byteOffset, length3);
   } else if (data2 instanceof ArrayBuffer) {
     const byteOffset = 0;
-    return getMagicString3(data2, byteOffset, length2);
+    return getMagicString3(data2, byteOffset, length3);
   }
   return "";
 }
-function getMagicString3(arrayBuffer, byteOffset, length2) {
-  if (arrayBuffer.byteLength < byteOffset + length2) {
+function getMagicString3(arrayBuffer, byteOffset, length3) {
+  if (arrayBuffer.byteLength < byteOffset + length3) {
     return "";
   }
   const dataView = new DataView(arrayBuffer);
   let magic = "";
-  for (let i = 0; i < length2; i++) {
+  for (let i = 0; i < length3; i++) {
     magic += String.fromCharCode(dataView.getUint8(byteOffset + i));
   }
   return magic;
@@ -32950,8 +32950,8 @@ function expandLineLoopIndices(indices) {
   }
   return expanded;
 }
-function copyIndices(indices, length2) {
-  const copied = new Uint32Array(Math.max(0, length2));
+function copyIndices(indices, length3) {
+  const copied = new Uint32Array(Math.max(0, length3));
   for (let i = 0; i < copied.length; i++) {
     copied[i] = indices[i];
   }
@@ -39953,8 +39953,8 @@ function to2D(_p, _n, re) {
     x3[1] += 2;
     x3[2] += 3;
   }
-  const dot4 = dotVec3(x3, n);
-  const tmp2 = mulVec3Scalar(n, dot4, createVec3Float64());
+  const dot5 = dotVec3(x3, n);
+  const tmp2 = mulVec3Scalar(n, dot5, createVec3Float64());
   x3[0] -= tmp2[0];
   x3[1] -= tmp2[1];
   x3[2] -= tmp2[2];
@@ -40716,9 +40716,9 @@ var require_web_ifc_mt = __commonJS2({
           }
           var fromParts = trim(from.split("/"));
           var toParts = trim(to.split("/"));
-          var length2 = Math.min(fromParts.length, toParts.length);
-          var samePartsLength = length2;
-          for (var i = 0; i < length2; i++) {
+          var length3 = Math.min(fromParts.length, toParts.length);
+          var samePartsLength = length3;
+          for (var i = 0; i < length3; i++) {
             if (fromParts[i] !== toParts[i]) {
               samePartsLength = i;
               break;
@@ -40825,8 +40825,8 @@ var require_web_ifc_mt = __commonJS2({
           heap[outIdx >>> 0] = 0;
           return outIdx - startIdx;
         };
-        function intArrayFromString(stringy, dontAddNull, length2) {
-          var len = length2 > 0 ? length2 : lengthBytesUTF8(stringy) + 1;
+        function intArrayFromString(stringy, dontAddNull, length3) {
+          var len = length3 > 0 ? length3 : lengthBytesUTF8(stringy) + 1;
           var u8array = new Array(len);
           var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
           if (dontAddNull)
@@ -40870,12 +40870,12 @@ var require_web_ifc_mt = __commonJS2({
           stream.tty.ops.fsync(stream.tty);
         }, fsync: function(stream) {
           stream.tty.ops.fsync(stream.tty);
-        }, read: function(stream, buffer, offset, length2, pos) {
+        }, read: function(stream, buffer, offset, length3, pos) {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(60);
           }
           var bytesRead = 0;
-          for (var i = 0; i < length2; i++) {
+          for (var i = 0; i < length3; i++) {
             var result;
             try {
               result = stream.tty.ops.get_char(stream.tty);
@@ -40894,18 +40894,18 @@ var require_web_ifc_mt = __commonJS2({
             stream.node.timestamp = Date.now();
           }
           return bytesRead;
-        }, write: function(stream, buffer, offset, length2, pos) {
+        }, write: function(stream, buffer, offset, length3, pos) {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(60);
           }
           try {
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               stream.tty.ops.put_char(stream.tty, buffer[offset + i]);
             }
           } catch (e) {
             throw new FS.ErrnoError(29);
           }
-          if (length2) {
+          if (length3) {
             stream.node.timestamp = Date.now();
           }
           return i;
@@ -41096,11 +41096,11 @@ var require_web_ifc_mt = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return node.link;
-        } }, stream_ops: { read(stream, buffer, offset, length2, position) {
+        } }, stream_ops: { read(stream, buffer, offset, length3, position) {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes)
             return 0;
-          var size = Math.min(stream.node.usedBytes - position, length2);
+          var size = Math.min(stream.node.usedBytes - position, length3);
           if (size > 8 && contents.subarray) {
             buffer.set(contents.subarray(position, position + size), offset);
           } else {
@@ -41108,38 +41108,38 @@ var require_web_ifc_mt = __commonJS2({
               buffer[offset + i] = contents[position + i];
           }
           return size;
-        }, write(stream, buffer, offset, length2, position, canOwn) {
+        }, write(stream, buffer, offset, length3, position, canOwn) {
           if (buffer.buffer === GROWABLE_HEAP_I8().buffer) {
             canOwn = false;
           }
-          if (!length2)
+          if (!length3)
             return 0;
           var node = stream.node;
           node.timestamp = Date.now();
           if (buffer.subarray && (!node.contents || node.contents.subarray)) {
             if (canOwn) {
-              node.contents = buffer.subarray(offset, offset + length2);
-              node.usedBytes = length2;
-              return length2;
+              node.contents = buffer.subarray(offset, offset + length3);
+              node.usedBytes = length3;
+              return length3;
             } else if (node.usedBytes === 0 && position === 0) {
-              node.contents = buffer.slice(offset, offset + length2);
-              node.usedBytes = length2;
-              return length2;
-            } else if (position + length2 <= node.usedBytes) {
-              node.contents.set(buffer.subarray(offset, offset + length2), position);
-              return length2;
+              node.contents = buffer.slice(offset, offset + length3);
+              node.usedBytes = length3;
+              return length3;
+            } else if (position + length3 <= node.usedBytes) {
+              node.contents.set(buffer.subarray(offset, offset + length3), position);
+              return length3;
             }
           }
-          MEMFS.expandFileStorage(node, position + length2);
+          MEMFS.expandFileStorage(node, position + length3);
           if (node.contents.subarray && buffer.subarray) {
-            node.contents.set(buffer.subarray(offset, offset + length2), position);
+            node.contents.set(buffer.subarray(offset, offset + length3), position);
           } else {
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               node.contents[position + i] = buffer[offset + i];
             }
           }
-          node.usedBytes = Math.max(node.usedBytes, position + length2);
-          return length2;
+          node.usedBytes = Math.max(node.usedBytes, position + length3);
+          return length3;
         }, llseek(stream, offset, whence) {
           var position = offset;
           if (whence === 1) {
@@ -41153,10 +41153,10 @@ var require_web_ifc_mt = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return position;
-        }, allocate(stream, offset, length2) {
-          MEMFS.expandFileStorage(stream.node, offset + length2);
-          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length2);
-        }, mmap(stream, length2, position, prot, flags) {
+        }, allocate(stream, offset, length3) {
+          MEMFS.expandFileStorage(stream.node, offset + length3);
+          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length3);
+        }, mmap(stream, length3, position, prot, flags) {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
@@ -41167,23 +41167,23 @@ var require_web_ifc_mt = __commonJS2({
             allocated = false;
             ptr = contents.byteOffset;
           } else {
-            if (position > 0 || position + length2 < contents.length) {
+            if (position > 0 || position + length3 < contents.length) {
               if (contents.subarray) {
-                contents = contents.subarray(position, position + length2);
+                contents = contents.subarray(position, position + length3);
               } else {
-                contents = Array.prototype.slice.call(contents, position, position + length2);
+                contents = Array.prototype.slice.call(contents, position, position + length3);
               }
             }
             allocated = true;
-            ptr = mmapAlloc(length2);
+            ptr = mmapAlloc(length3);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
             GROWABLE_HEAP_I8().set(contents, ptr >>> 0);
           }
           return { ptr, allocated };
-        }, msync(stream, buffer, offset, length2, mmapFlags) {
-          MEMFS.stream_ops.write(stream, buffer, 0, length2, offset, false);
+        }, msync(stream, buffer, offset, length3, mmapFlags) {
+          MEMFS.stream_ops.write(stream, buffer, 0, length3, offset, false);
           return 0;
         } } };
         var asyncLoad = (url, onload, onerror, noRunDep) => {
@@ -41927,8 +41927,8 @@ var require_web_ifc_mt = __commonJS2({
           stream.position = stream.stream_ops.llseek(stream, offset, whence);
           stream.ungotten = [];
           return stream.position;
-        }, read: (stream, buffer, offset, length2, position) => {
-          if (length2 < 0 || position < 0) {
+        }, read: (stream, buffer, offset, length3, position) => {
+          if (length3 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -41949,12 +41949,12 @@ var require_web_ifc_mt = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length2, position);
+          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length3, position);
           if (!seeking)
             stream.position += bytesRead;
           return bytesRead;
-        }, write: (stream, buffer, offset, length2, position, canOwn) => {
-          if (length2 < 0 || position < 0) {
+        }, write: (stream, buffer, offset, length3, position, canOwn) => {
+          if (length3 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -41978,15 +41978,15 @@ var require_web_ifc_mt = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length2, position, canOwn);
+          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length3, position, canOwn);
           if (!seeking)
             stream.position += bytesWritten;
           return bytesWritten;
-        }, allocate: (stream, offset, length2) => {
+        }, allocate: (stream, offset, length3) => {
           if (FS.isClosed(stream)) {
             throw new FS.ErrnoError(8);
           }
-          if (offset < 0 || length2 <= 0) {
+          if (offset < 0 || length3 <= 0) {
             throw new FS.ErrnoError(28);
           }
           if ((stream.flags & 2097155) === 0) {
@@ -41998,8 +41998,8 @@ var require_web_ifc_mt = __commonJS2({
           if (!stream.stream_ops.allocate) {
             throw new FS.ErrnoError(138);
           }
-          stream.stream_ops.allocate(stream, offset, length2);
-        }, mmap: (stream, length2, position, prot, flags) => {
+          stream.stream_ops.allocate(stream, offset, length3);
+        }, mmap: (stream, length3, position, prot, flags) => {
           if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
             throw new FS.ErrnoError(2);
           }
@@ -42009,12 +42009,12 @@ var require_web_ifc_mt = __commonJS2({
           if (!stream.stream_ops.mmap) {
             throw new FS.ErrnoError(43);
           }
-          return stream.stream_ops.mmap(stream, length2, position, prot, flags);
-        }, msync: (stream, buffer, offset, length2, mmapFlags) => {
+          return stream.stream_ops.mmap(stream, length3, position, prot, flags);
+        }, msync: (stream, buffer, offset, length3, mmapFlags) => {
           if (!stream.stream_ops.msync) {
             return 0;
           }
-          return stream.stream_ops.msync(stream, buffer, offset, length2, mmapFlags);
+          return stream.stream_ops.msync(stream, buffer, offset, length3, mmapFlags);
         }, munmap: (stream) => 0, ioctl: (stream, cmd, arg) => {
           if (!stream.stream_ops.ioctl) {
             throw new FS.ErrnoError(59);
@@ -42029,9 +42029,9 @@ var require_web_ifc_mt = __commonJS2({
           var ret;
           var stream = FS.open(path, opts.flags);
           var stat = FS.stat(path);
-          var length2 = stat.size;
-          var buf = new Uint8Array(length2);
-          FS.read(stream, buf, 0, length2, 0);
+          var length3 = stat.size;
+          var buf = new Uint8Array(length3);
+          FS.read(stream, buf, 0, length3, 0);
           if (opts.encoding === "utf8") {
             ret = UTF8ArrayToString(buf, 0);
           } else if (opts.encoding === "binary") {
@@ -42071,7 +42071,7 @@ var require_web_ifc_mt = __commonJS2({
           FS.mkdir("/home/web_user");
         }, createDefaultDevices: () => {
           FS.mkdir("/dev");
-          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length2, pos) => length2 });
+          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length3, pos) => length3 });
           FS.mkdev("/dev/null", FS.makedev(1, 3));
           TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
           TTY.register(FS.makedev(6, 0), TTY.default_tty1_ops);
@@ -42246,9 +42246,9 @@ var require_web_ifc_mt = __commonJS2({
             if (output && output.buffer && output.buffer.length) {
               output(10);
             }
-          }, read: (stream, buffer, offset, length2, pos) => {
+          }, read: (stream, buffer, offset, length3, pos) => {
             var bytesRead = 0;
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               var result;
               try {
                 result = input();
@@ -42267,15 +42267,15 @@ var require_web_ifc_mt = __commonJS2({
               stream.node.timestamp = Date.now();
             }
             return bytesRead;
-          }, write: (stream, buffer, offset, length2, pos) => {
-            for (var i = 0; i < length2; i++) {
+          }, write: (stream, buffer, offset, length3, pos) => {
+            for (var i = 0; i < length3; i++) {
               try {
                 output(buffer[offset + i]);
               } catch (e) {
                 throw new FS.ErrnoError(29);
               }
             }
-            if (length2) {
+            if (length3) {
               stream.node.timestamp = Date.now();
             }
             return i;
@@ -42406,11 +42406,11 @@ var require_web_ifc_mt = __commonJS2({
               return fn.apply(null, arguments);
             };
           });
-          function writeChunks(stream, buffer, offset, length2, position) {
+          function writeChunks(stream, buffer, offset, length3, position) {
             var contents = stream.node.contents;
             if (position >= contents.length)
               return 0;
-            var size = Math.min(contents.length - position, length2);
+            var size = Math.min(contents.length - position, length3);
             if (contents.slice) {
               for (var i = 0; i < size; i++) {
                 buffer[offset + i] = contents[position + i];
@@ -42422,17 +42422,17 @@ var require_web_ifc_mt = __commonJS2({
             }
             return size;
           }
-          stream_ops.read = (stream, buffer, offset, length2, position) => {
+          stream_ops.read = (stream, buffer, offset, length3, position) => {
             FS.forceLoadFile(node);
-            return writeChunks(stream, buffer, offset, length2, position);
+            return writeChunks(stream, buffer, offset, length3, position);
           };
-          stream_ops.mmap = (stream, length2, position, prot, flags) => {
+          stream_ops.mmap = (stream, length3, position, prot, flags) => {
             FS.forceLoadFile(node);
-            var ptr = mmapAlloc(length2);
+            var ptr = mmapAlloc(length3);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
-            writeChunks(stream, GROWABLE_HEAP_I8(), ptr, length2, position);
+            writeChunks(stream, GROWABLE_HEAP_I8(), ptr, length3, position);
             return { ptr, allocated: true };
           };
           node.stream_ops = stream_ops;
@@ -43980,14 +43980,14 @@ var require_web_ifc_mt = __commonJS2({
           name12 = readLatin1String(name12);
           var stdStringIsUTF8 = name12 === "std::string";
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length2 = GROWABLE_HEAP_U32()[value >>> 2];
+            var length3 = GROWABLE_HEAP_U32()[value >>> 2];
             var payload = value + 4;
             var str;
             if (stdStringIsUTF8) {
               var decodeStartPtr = payload;
-              for (var i = 0; i <= length2; ++i) {
+              for (var i = 0; i <= length3; ++i) {
                 var currentBytePtr = payload + i;
-                if (i == length2 || GROWABLE_HEAP_U8()[currentBytePtr >>> 0] == 0) {
+                if (i == length3 || GROWABLE_HEAP_U8()[currentBytePtr >>> 0] == 0) {
                   var maxRead = currentBytePtr - decodeStartPtr;
                   var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
                   if (str === void 0) {
@@ -44000,8 +44000,8 @@ var require_web_ifc_mt = __commonJS2({
                 }
               }
             } else {
-              var a2 = new Array(length2);
-              for (var i = 0; i < length2; ++i) {
+              var a2 = new Array(length3);
+              for (var i = 0; i < length3; ++i) {
                 a2[i] = String.fromCharCode(GROWABLE_HEAP_U8()[payload + i >>> 0]);
               }
               str = a2.join("");
@@ -44012,24 +44012,24 @@ var require_web_ifc_mt = __commonJS2({
             if (value instanceof ArrayBuffer) {
               value = new Uint8Array(value);
             }
-            var length2;
+            var length3;
             var valueIsOfTypeString = typeof value == "string";
             if (!(valueIsOfTypeString || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Int8Array)) {
               throwBindingError("Cannot pass non-string to std::string");
             }
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              length2 = lengthBytesUTF8(value);
+              length3 = lengthBytesUTF8(value);
             } else {
-              length2 = value.length;
+              length3 = value.length;
             }
-            var base = _malloc(4 + length2 + 1);
+            var base = _malloc(4 + length3 + 1);
             var ptr = base + 4;
-            GROWABLE_HEAP_U32()[base >>> 2] = length2;
+            GROWABLE_HEAP_U32()[base >>> 2] = length3;
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              stringToUTF8(value, ptr, length2 + 1);
+              stringToUTF8(value, ptr, length3 + 1);
             } else {
               if (valueIsOfTypeString) {
-                for (var i = 0; i < length2; ++i) {
+                for (var i = 0; i < length3; ++i) {
                   var charCode = value.charCodeAt(i);
                   if (charCode > 255) {
                     _free(ptr);
@@ -44038,7 +44038,7 @@ var require_web_ifc_mt = __commonJS2({
                   GROWABLE_HEAP_U8()[ptr + i >>> 0] = charCode;
                 }
               } else {
-                for (var i = 0; i < length2; ++i) {
+                for (var i = 0; i < length3; ++i) {
                   GROWABLE_HEAP_U8()[ptr + i >>> 0] = value[i];
                 }
               }
@@ -44158,13 +44158,13 @@ var require_web_ifc_mt = __commonJS2({
             shift = 2;
           }
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length2 = GROWABLE_HEAP_U32()[value >>> 2];
+            var length3 = GROWABLE_HEAP_U32()[value >>> 2];
             var HEAP = getHeap();
             var str;
             var decodeStartPtr = value + 4;
-            for (var i = 0; i <= length2; ++i) {
+            for (var i = 0; i <= length3; ++i) {
               var currentBytePtr = value + 4 + i * charSize;
-              if (i == length2 || HEAP[currentBytePtr >>> shift] == 0) {
+              if (i == length3 || HEAP[currentBytePtr >>> shift] == 0) {
                 var maxReadBytes = currentBytePtr - decodeStartPtr;
                 var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
                 if (str === void 0) {
@@ -44182,10 +44182,10 @@ var require_web_ifc_mt = __commonJS2({
             if (!(typeof value == "string")) {
               throwBindingError(`Cannot pass non-string to C++ string type ${name12}`);
             }
-            var length2 = lengthBytesUTF(value);
-            var ptr = _malloc(4 + length2 + charSize);
-            GROWABLE_HEAP_U32()[ptr >>> 2] = length2 >> shift;
-            encodeString(value, ptr + 4, length2 + charSize);
+            var length3 = lengthBytesUTF(value);
+            var ptr = _malloc(4 + length3 + charSize);
+            GROWABLE_HEAP_U32()[ptr >>> 2] = length3 >> shift;
+            encodeString(value, ptr + 4, length3 + charSize);
             if (destructors !== null) {
               destructors.push(_free, ptr);
             }
@@ -46788,14 +46788,14 @@ var require_web_ifc = __commonJS2({
           name12 = readLatin1String(name12);
           var stdStringIsUTF8 = name12 === "std::string";
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length2 = HEAPU32[value >>> 2];
+            var length3 = HEAPU32[value >>> 2];
             var payload = value + 4;
             var str;
             if (stdStringIsUTF8) {
               var decodeStartPtr = payload;
-              for (var i = 0; i <= length2; ++i) {
+              for (var i = 0; i <= length3; ++i) {
                 var currentBytePtr = payload + i;
-                if (i == length2 || HEAPU8[currentBytePtr >>> 0] == 0) {
+                if (i == length3 || HEAPU8[currentBytePtr >>> 0] == 0) {
                   var maxRead = currentBytePtr - decodeStartPtr;
                   var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
                   if (str === void 0) {
@@ -46808,8 +46808,8 @@ var require_web_ifc = __commonJS2({
                 }
               }
             } else {
-              var a2 = new Array(length2);
-              for (var i = 0; i < length2; ++i) {
+              var a2 = new Array(length3);
+              for (var i = 0; i < length3; ++i) {
                 a2[i] = String.fromCharCode(HEAPU8[payload + i >>> 0]);
               }
               str = a2.join("");
@@ -46820,24 +46820,24 @@ var require_web_ifc = __commonJS2({
             if (value instanceof ArrayBuffer) {
               value = new Uint8Array(value);
             }
-            var length2;
+            var length3;
             var valueIsOfTypeString = typeof value == "string";
             if (!(valueIsOfTypeString || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Int8Array)) {
               throwBindingError("Cannot pass non-string to std::string");
             }
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              length2 = lengthBytesUTF8(value);
+              length3 = lengthBytesUTF8(value);
             } else {
-              length2 = value.length;
+              length3 = value.length;
             }
-            var base = _malloc(4 + length2 + 1);
+            var base = _malloc(4 + length3 + 1);
             var ptr = base + 4;
-            HEAPU32[base >>> 2] = length2;
+            HEAPU32[base >>> 2] = length3;
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              stringToUTF8(value, ptr, length2 + 1);
+              stringToUTF8(value, ptr, length3 + 1);
             } else {
               if (valueIsOfTypeString) {
-                for (var i = 0; i < length2; ++i) {
+                for (var i = 0; i < length3; ++i) {
                   var charCode = value.charCodeAt(i);
                   if (charCode > 255) {
                     _free(ptr);
@@ -46846,7 +46846,7 @@ var require_web_ifc = __commonJS2({
                   HEAPU8[ptr + i >>> 0] = charCode;
                 }
               } else {
-                for (var i = 0; i < length2; ++i) {
+                for (var i = 0; i < length3; ++i) {
                   HEAPU8[ptr + i >>> 0] = value[i];
                 }
               }
@@ -46966,13 +46966,13 @@ var require_web_ifc = __commonJS2({
             shift = 2;
           }
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length2 = HEAPU32[value >>> 2];
+            var length3 = HEAPU32[value >>> 2];
             var HEAP = getHeap();
             var str;
             var decodeStartPtr = value + 4;
-            for (var i = 0; i <= length2; ++i) {
+            for (var i = 0; i <= length3; ++i) {
               var currentBytePtr = value + 4 + i * charSize;
-              if (i == length2 || HEAP[currentBytePtr >>> shift] == 0) {
+              if (i == length3 || HEAP[currentBytePtr >>> shift] == 0) {
                 var maxReadBytes = currentBytePtr - decodeStartPtr;
                 var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
                 if (str === void 0) {
@@ -46990,10 +46990,10 @@ var require_web_ifc = __commonJS2({
             if (!(typeof value == "string")) {
               throwBindingError(`Cannot pass non-string to C++ string type ${name12}`);
             }
-            var length2 = lengthBytesUTF(value);
-            var ptr = _malloc(4 + length2 + charSize);
-            HEAPU32[ptr >>> 2] = length2 >> shift;
-            encodeString(value, ptr + 4, length2 + charSize);
+            var length3 = lengthBytesUTF(value);
+            var ptr = _malloc(4 + length3 + charSize);
+            HEAPU32[ptr >>> 2] = length3 >> shift;
+            encodeString(value, ptr + 4, length3 + charSize);
             if (destructors !== null) {
               destructors.push(_free, ptr);
             }
@@ -47429,9 +47429,9 @@ var require_web_ifc = __commonJS2({
           }
           var fromParts = trim(from.split("/"));
           var toParts = trim(to.split("/"));
-          var length2 = Math.min(fromParts.length, toParts.length);
-          var samePartsLength = length2;
-          for (var i = 0; i < length2; i++) {
+          var length3 = Math.min(fromParts.length, toParts.length);
+          var samePartsLength = length3;
+          for (var i = 0; i < length3; i++) {
             if (fromParts[i] !== toParts[i]) {
               samePartsLength = i;
               break;
@@ -47445,8 +47445,8 @@ var require_web_ifc = __commonJS2({
           return outputParts.join("/");
         } };
         var FS_stdin_getChar_buffer = [];
-        function intArrayFromString(stringy, dontAddNull, length2) {
-          var len = length2 > 0 ? length2 : lengthBytesUTF8(stringy) + 1;
+        function intArrayFromString(stringy, dontAddNull, length3) {
+          var len = length3 > 0 ? length3 : lengthBytesUTF8(stringy) + 1;
           var u8array = new Array(len);
           var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
           if (dontAddNull)
@@ -47490,12 +47490,12 @@ var require_web_ifc = __commonJS2({
           stream.tty.ops.fsync(stream.tty);
         }, fsync: function(stream) {
           stream.tty.ops.fsync(stream.tty);
-        }, read: function(stream, buffer, offset, length2, pos) {
+        }, read: function(stream, buffer, offset, length3, pos) {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(60);
           }
           var bytesRead = 0;
-          for (var i = 0; i < length2; i++) {
+          for (var i = 0; i < length3; i++) {
             var result;
             try {
               result = stream.tty.ops.get_char(stream.tty);
@@ -47514,18 +47514,18 @@ var require_web_ifc = __commonJS2({
             stream.node.timestamp = Date.now();
           }
           return bytesRead;
-        }, write: function(stream, buffer, offset, length2, pos) {
+        }, write: function(stream, buffer, offset, length3, pos) {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(60);
           }
           try {
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               stream.tty.ops.put_char(stream.tty, buffer[offset + i]);
             }
           } catch (e) {
             throw new FS.ErrnoError(29);
           }
-          if (length2) {
+          if (length3) {
             stream.node.timestamp = Date.now();
           }
           return i;
@@ -47716,11 +47716,11 @@ var require_web_ifc = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return node.link;
-        } }, stream_ops: { read(stream, buffer, offset, length2, position) {
+        } }, stream_ops: { read(stream, buffer, offset, length3, position) {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes)
             return 0;
-          var size = Math.min(stream.node.usedBytes - position, length2);
+          var size = Math.min(stream.node.usedBytes - position, length3);
           if (size > 8 && contents.subarray) {
             buffer.set(contents.subarray(position, position + size), offset);
           } else {
@@ -47728,38 +47728,38 @@ var require_web_ifc = __commonJS2({
               buffer[offset + i] = contents[position + i];
           }
           return size;
-        }, write(stream, buffer, offset, length2, position, canOwn) {
+        }, write(stream, buffer, offset, length3, position, canOwn) {
           if (buffer.buffer === HEAP8.buffer) {
             canOwn = false;
           }
-          if (!length2)
+          if (!length3)
             return 0;
           var node = stream.node;
           node.timestamp = Date.now();
           if (buffer.subarray && (!node.contents || node.contents.subarray)) {
             if (canOwn) {
-              node.contents = buffer.subarray(offset, offset + length2);
-              node.usedBytes = length2;
-              return length2;
+              node.contents = buffer.subarray(offset, offset + length3);
+              node.usedBytes = length3;
+              return length3;
             } else if (node.usedBytes === 0 && position === 0) {
-              node.contents = buffer.slice(offset, offset + length2);
-              node.usedBytes = length2;
-              return length2;
-            } else if (position + length2 <= node.usedBytes) {
-              node.contents.set(buffer.subarray(offset, offset + length2), position);
-              return length2;
+              node.contents = buffer.slice(offset, offset + length3);
+              node.usedBytes = length3;
+              return length3;
+            } else if (position + length3 <= node.usedBytes) {
+              node.contents.set(buffer.subarray(offset, offset + length3), position);
+              return length3;
             }
           }
-          MEMFS.expandFileStorage(node, position + length2);
+          MEMFS.expandFileStorage(node, position + length3);
           if (node.contents.subarray && buffer.subarray) {
-            node.contents.set(buffer.subarray(offset, offset + length2), position);
+            node.contents.set(buffer.subarray(offset, offset + length3), position);
           } else {
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               node.contents[position + i] = buffer[offset + i];
             }
           }
-          node.usedBytes = Math.max(node.usedBytes, position + length2);
-          return length2;
+          node.usedBytes = Math.max(node.usedBytes, position + length3);
+          return length3;
         }, llseek(stream, offset, whence) {
           var position = offset;
           if (whence === 1) {
@@ -47773,10 +47773,10 @@ var require_web_ifc = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return position;
-        }, allocate(stream, offset, length2) {
-          MEMFS.expandFileStorage(stream.node, offset + length2);
-          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length2);
-        }, mmap(stream, length2, position, prot, flags) {
+        }, allocate(stream, offset, length3) {
+          MEMFS.expandFileStorage(stream.node, offset + length3);
+          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length3);
+        }, mmap(stream, length3, position, prot, flags) {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
@@ -47787,23 +47787,23 @@ var require_web_ifc = __commonJS2({
             allocated = false;
             ptr = contents.byteOffset;
           } else {
-            if (position > 0 || position + length2 < contents.length) {
+            if (position > 0 || position + length3 < contents.length) {
               if (contents.subarray) {
-                contents = contents.subarray(position, position + length2);
+                contents = contents.subarray(position, position + length3);
               } else {
-                contents = Array.prototype.slice.call(contents, position, position + length2);
+                contents = Array.prototype.slice.call(contents, position, position + length3);
               }
             }
             allocated = true;
-            ptr = mmapAlloc(length2);
+            ptr = mmapAlloc(length3);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
             HEAP8.set(contents, ptr >>> 0);
           }
           return { ptr, allocated };
-        }, msync(stream, buffer, offset, length2, mmapFlags) {
-          MEMFS.stream_ops.write(stream, buffer, 0, length2, offset, false);
+        }, msync(stream, buffer, offset, length3, mmapFlags) {
+          MEMFS.stream_ops.write(stream, buffer, 0, length3, offset, false);
           return 0;
         } } };
         var asyncLoad = (url, onload, onerror, noRunDep) => {
@@ -48547,8 +48547,8 @@ var require_web_ifc = __commonJS2({
           stream.position = stream.stream_ops.llseek(stream, offset, whence);
           stream.ungotten = [];
           return stream.position;
-        }, read: (stream, buffer, offset, length2, position) => {
-          if (length2 < 0 || position < 0) {
+        }, read: (stream, buffer, offset, length3, position) => {
+          if (length3 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -48569,12 +48569,12 @@ var require_web_ifc = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length2, position);
+          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length3, position);
           if (!seeking)
             stream.position += bytesRead;
           return bytesRead;
-        }, write: (stream, buffer, offset, length2, position, canOwn) => {
-          if (length2 < 0 || position < 0) {
+        }, write: (stream, buffer, offset, length3, position, canOwn) => {
+          if (length3 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -48598,15 +48598,15 @@ var require_web_ifc = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length2, position, canOwn);
+          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length3, position, canOwn);
           if (!seeking)
             stream.position += bytesWritten;
           return bytesWritten;
-        }, allocate: (stream, offset, length2) => {
+        }, allocate: (stream, offset, length3) => {
           if (FS.isClosed(stream)) {
             throw new FS.ErrnoError(8);
           }
-          if (offset < 0 || length2 <= 0) {
+          if (offset < 0 || length3 <= 0) {
             throw new FS.ErrnoError(28);
           }
           if ((stream.flags & 2097155) === 0) {
@@ -48618,8 +48618,8 @@ var require_web_ifc = __commonJS2({
           if (!stream.stream_ops.allocate) {
             throw new FS.ErrnoError(138);
           }
-          stream.stream_ops.allocate(stream, offset, length2);
-        }, mmap: (stream, length2, position, prot, flags) => {
+          stream.stream_ops.allocate(stream, offset, length3);
+        }, mmap: (stream, length3, position, prot, flags) => {
           if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
             throw new FS.ErrnoError(2);
           }
@@ -48629,12 +48629,12 @@ var require_web_ifc = __commonJS2({
           if (!stream.stream_ops.mmap) {
             throw new FS.ErrnoError(43);
           }
-          return stream.stream_ops.mmap(stream, length2, position, prot, flags);
-        }, msync: (stream, buffer, offset, length2, mmapFlags) => {
+          return stream.stream_ops.mmap(stream, length3, position, prot, flags);
+        }, msync: (stream, buffer, offset, length3, mmapFlags) => {
           if (!stream.stream_ops.msync) {
             return 0;
           }
-          return stream.stream_ops.msync(stream, buffer, offset, length2, mmapFlags);
+          return stream.stream_ops.msync(stream, buffer, offset, length3, mmapFlags);
         }, munmap: (stream) => 0, ioctl: (stream, cmd, arg) => {
           if (!stream.stream_ops.ioctl) {
             throw new FS.ErrnoError(59);
@@ -48649,9 +48649,9 @@ var require_web_ifc = __commonJS2({
           var ret;
           var stream = FS.open(path, opts.flags);
           var stat = FS.stat(path);
-          var length2 = stat.size;
-          var buf = new Uint8Array(length2);
-          FS.read(stream, buf, 0, length2, 0);
+          var length3 = stat.size;
+          var buf = new Uint8Array(length3);
+          FS.read(stream, buf, 0, length3, 0);
           if (opts.encoding === "utf8") {
             ret = UTF8ArrayToString(buf, 0);
           } else if (opts.encoding === "binary") {
@@ -48691,7 +48691,7 @@ var require_web_ifc = __commonJS2({
           FS.mkdir("/home/web_user");
         }, createDefaultDevices: () => {
           FS.mkdir("/dev");
-          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length2, pos) => length2 });
+          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length3, pos) => length3 });
           FS.mkdev("/dev/null", FS.makedev(1, 3));
           TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
           TTY.register(FS.makedev(6, 0), TTY.default_tty1_ops);
@@ -48866,9 +48866,9 @@ var require_web_ifc = __commonJS2({
             if (output && output.buffer && output.buffer.length) {
               output(10);
             }
-          }, read: (stream, buffer, offset, length2, pos) => {
+          }, read: (stream, buffer, offset, length3, pos) => {
             var bytesRead = 0;
-            for (var i = 0; i < length2; i++) {
+            for (var i = 0; i < length3; i++) {
               var result;
               try {
                 result = input();
@@ -48887,15 +48887,15 @@ var require_web_ifc = __commonJS2({
               stream.node.timestamp = Date.now();
             }
             return bytesRead;
-          }, write: (stream, buffer, offset, length2, pos) => {
-            for (var i = 0; i < length2; i++) {
+          }, write: (stream, buffer, offset, length3, pos) => {
+            for (var i = 0; i < length3; i++) {
               try {
                 output(buffer[offset + i]);
               } catch (e) {
                 throw new FS.ErrnoError(29);
               }
             }
-            if (length2) {
+            if (length3) {
               stream.node.timestamp = Date.now();
             }
             return i;
@@ -49026,11 +49026,11 @@ var require_web_ifc = __commonJS2({
               return fn.apply(null, arguments);
             };
           });
-          function writeChunks(stream, buffer, offset, length2, position) {
+          function writeChunks(stream, buffer, offset, length3, position) {
             var contents = stream.node.contents;
             if (position >= contents.length)
               return 0;
-            var size = Math.min(contents.length - position, length2);
+            var size = Math.min(contents.length - position, length3);
             if (contents.slice) {
               for (var i = 0; i < size; i++) {
                 buffer[offset + i] = contents[position + i];
@@ -49042,17 +49042,17 @@ var require_web_ifc = __commonJS2({
             }
             return size;
           }
-          stream_ops.read = (stream, buffer, offset, length2, position) => {
+          stream_ops.read = (stream, buffer, offset, length3, position) => {
             FS.forceLoadFile(node);
-            return writeChunks(stream, buffer, offset, length2, position);
+            return writeChunks(stream, buffer, offset, length3, position);
           };
-          stream_ops.mmap = (stream, length2, position, prot, flags) => {
+          stream_ops.mmap = (stream, length3, position, prot, flags) => {
             FS.forceLoadFile(node);
-            var ptr = mmapAlloc(length2);
+            var ptr = mmapAlloc(length3);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
-            writeChunks(stream, HEAP8, ptr, length2, position);
+            writeChunks(stream, HEAP8, ptr, length3, position);
             return { ptr, allocated: true };
           };
           node.stream_ops = stream_ops;
@@ -105087,7 +105087,7 @@ var IfcAPI2 = class {
         const startV = { x: 0, y: 0, z: 0 };
         let lastx = 0;
         let lasty = 0;
-        let length2 = 0;
+        let length3 = 0;
         for (let j = 0; j < alignment.Horizontal.curves.size(); j++) {
           const curve = alignment.Horizontal.curves.get(j);
           const points = [];
@@ -105102,7 +105102,7 @@ var IfcAPI2 = class {
             const valueY = pt2.y - lasty;
             lastx = pt2.x;
             lasty = pt2.y;
-            length2 += Math.sqrt(valueX * valueX + valueY * valueY);
+            length3 += Math.sqrt(valueX * valueX + valueY * valueY);
             let first = true;
             let lastAlt = 0;
             let lastX = 0;
@@ -105115,13 +105115,13 @@ var IfcAPI2 = class {
                   first = false;
                   alt = pt22.y;
                   lastAlt = pt22.y;
-                  if (pt22.x >= length2) {
+                  if (pt22.x >= length3) {
                     break;
                   }
                 }
-                if (pt22.x >= length2) {
+                if (pt22.x >= length3) {
                   const value1 = pt22.x - lastX;
-                  const value2 = length2 - lastX;
+                  const value2 = length3 - lastX;
                   const value3 = value2 / value1;
                   alt = lastAlt * (1 - value3) + pt22.y * value3;
                   done = true;
@@ -114177,13 +114177,13 @@ function getModule() {
     registerType(rawType, {
       name: name12,
       fromWireType: function(value) {
-        var length2 = HEAPU32[value >> 2];
+        var length3 = HEAPU32[value >> 2];
         var str;
         if (stdStringIsUTF8) {
           var decodeStartPtr = value + 4;
-          for (var i = 0; i <= length2; ++i) {
+          for (var i = 0; i <= length3; ++i) {
             var currentBytePtr = value + 4 + i;
-            if (HEAPU8[currentBytePtr] == 0 || i == length2) {
+            if (HEAPU8[currentBytePtr] == 0 || i == length3) {
               var maxRead = currentBytePtr - decodeStartPtr;
               var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
               if (str === void 0) {
@@ -114196,8 +114196,8 @@ function getModule() {
             }
           }
         } else {
-          var a2 = new Array(length2);
-          for (var i = 0; i < length2; ++i) {
+          var a2 = new Array(length3);
+          for (var i = 0; i < length3; ++i) {
             a2[i] = String.fromCharCode(HEAPU8[value + 4 + i]);
           }
           str = a2.join("");
@@ -114223,14 +114223,14 @@ function getModule() {
             return value.length;
           };
         }
-        var length2 = getLength();
-        var ptr = _malloc(4 + length2 + 1);
-        HEAPU32[ptr >> 2] = length2;
+        var length3 = getLength();
+        var ptr = _malloc(4 + length3 + 1);
+        HEAPU32[ptr >> 2] = length3;
         if (stdStringIsUTF8 && valueIsOfTypeString) {
-          stringToUTF8(value, ptr + 4, length2 + 1);
+          stringToUTF8(value, ptr + 4, length3 + 1);
         } else {
           if (valueIsOfTypeString) {
-            for (var i = 0; i < length2; ++i) {
+            for (var i = 0; i < length3; ++i) {
               var charCode = value.charCodeAt(i);
               if (charCode > 255) {
                 _free(ptr);
@@ -114239,7 +114239,7 @@ function getModule() {
               HEAPU8[ptr + 4 + i] = charCode;
             }
           } else {
-            for (var i = 0; i < length2; ++i) {
+            for (var i = 0; i < length3; ++i) {
               HEAPU8[ptr + 4 + i] = value[i];
             }
           }
@@ -114279,13 +114279,13 @@ function getModule() {
     registerType(rawType, {
       name: name12,
       fromWireType: function(value) {
-        var length2 = HEAPU32[value >> 2];
+        var length3 = HEAPU32[value >> 2];
         var HEAP = getHeap();
         var str;
         var decodeStartPtr = value + 4;
-        for (var i = 0; i <= length2; ++i) {
+        for (var i = 0; i <= length3; ++i) {
           var currentBytePtr = value + 4 + i * charSize;
-          if (HEAP[currentBytePtr >> shift] == 0 || i == length2) {
+          if (HEAP[currentBytePtr >> shift] == 0 || i == length3) {
             var maxReadBytes = currentBytePtr - decodeStartPtr;
             var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
             if (str === void 0) {
@@ -114304,10 +114304,10 @@ function getModule() {
         if (!(typeof value === "string")) {
           throwBindingError("Cannot pass non-string to C++ string type " + name12);
         }
-        var length2 = lengthBytesUTF(value);
-        var ptr = _malloc(4 + length2 + charSize);
-        HEAPU32[ptr >> 2] = length2 >> shift;
-        encodeString(value, ptr + 4, length2 + charSize);
+        var length3 = lengthBytesUTF(value);
+        var ptr = _malloc(4 + length3 + charSize);
+        HEAPU32[ptr >> 2] = length3 >> shift;
+        encodeString(value, ptr + 4, length3 + charSize);
         if (destructors !== null) {
           destructors.push(_free, ptr);
         }
@@ -130689,8 +130689,8 @@ var POINT_FORMAT_READERS = {
 };
 function readAs(buf, Type = {}, offset, count) {
   count = count === void 0 || count === 0 ? 1 : count;
-  const sub = buf.slice(offset, offset + Type.BYTES_PER_ELEMENT * count);
-  const r = new Type(sub);
+  const sub2 = buf.slice(offset, offset + Type.BYTES_PER_ELEMENT * count);
+  const r = new Type(sub2);
   if (count === 1) {
     return r[0];
   }
@@ -133260,15 +133260,15 @@ var put_short = (s, w2) => {
   s.pending_buf[s.pending++] = w2 & 255;
   s.pending_buf[s.pending++] = w2 >>> 8 & 255;
 };
-var send_bits = (s, value, length2) => {
-  if (s.bi_valid > Buf_size - length2) {
+var send_bits = (s, value, length3) => {
+  if (s.bi_valid > Buf_size - length3) {
     s.bi_buf |= value << s.bi_valid & 65535;
     put_short(s, s.bi_buf);
     s.bi_buf = value >> Buf_size - s.bi_valid;
-    s.bi_valid += length2 - Buf_size;
+    s.bi_valid += length3 - Buf_size;
   } else {
     s.bi_buf |= value << s.bi_valid & 65535;
-    s.bi_valid += length2;
+    s.bi_valid += length3;
   }
 };
 var send_code = (s, c2, tree) => {
@@ -133387,18 +133387,18 @@ var gen_codes = (tree, max_code, bl_count) => {
 var tr_static_init = () => {
   let n;
   let bits;
-  let length2;
+  let length3;
   let code;
   let dist;
   const bl_count = new Array(MAX_BITS$1 + 1);
-  length2 = 0;
+  length3 = 0;
   for (code = 0; code < LENGTH_CODES$1 - 1; code++) {
-    base_length[code] = length2;
+    base_length[code] = length3;
     for (n = 0; n < 1 << extra_lbits[code]; n++) {
-      _length_code[length2++] = code;
+      _length_code[length3++] = code;
     }
   }
-  _length_code[length2 - 1] = code;
+  _length_code[length3 - 1] = code;
   dist = 0;
   for (code = 0; code < 16; code++) {
     base_dist[code] = dist;
@@ -142619,31 +142619,31 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
       const coords = ca[1];
       let ci = 0;
       for (let so = 0; so < subOps.length; so++) {
-        const sub = subOps[so];
-        if (sub === OPS.moveTo) {
+        const sub2 = subOps[so];
+        if (sub2 === OPS.moveTo) {
           const x = coords[ci++], y = coords[ci++];
           startSubPath(x, y);
-        } else if (sub === OPS.lineTo) {
+        } else if (sub2 === OPS.lineTo) {
           const x = coords[ci++], y = coords[ci++];
           appendToSubPath(x, y);
-        } else if (sub === OPS.curveTo) {
+        } else if (sub2 === OPS.curveTo) {
           const c1x = coords[ci++], c1y = coords[ci++];
           const c2x = coords[ci++], c2y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, c1x, c1y, c2x, c2y, x, y);
-        } else if (sub === OPS.curveTo2) {
+        } else if (sub2 === OPS.curveTo2) {
           const c2x = coords[ci++], c2y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, subX, subY, c2x, c2y, x, y);
-        } else if (sub === OPS.curveTo3) {
+        } else if (sub2 === OPS.curveTo3) {
           const c1x = coords[ci++], c1y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, c1x, c1y, x, y, x, y);
-        } else if (sub === OPS.closePath) {
+        } else if (sub2 === OPS.closePath) {
           const ci_last = currentPath.length - 1;
           if (ci_last >= 0)
             closed[ci_last] = true;
-        } else if (sub === OPS.rectangle) {
+        } else if (sub2 === OPS.rectangle) {
           const x = coords[ci++], y = coords[ci++];
           const w2 = coords[ci++], h2 = coords[ci++];
           currentPath.push([x, y, x + w2, y, x + w2, y + h2, x, y + h2]);
@@ -144142,9 +144142,9 @@ function arcToCubics(x1, y1, x2, y2, rx, ry, xRot, largeArc, sweep) {
   const cx = cosR * cxp - sinR * cyp + (x1 + x2) / 2;
   const cy = sinR * cxp + cosR * cyp + (y1 + y2) / 2;
   const vec = (ux, uy, vx, vy) => {
-    const dot4 = ux * vx + uy * vy;
+    const dot5 = ux * vx + uy * vy;
     const len = Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
-    let ang = Math.acos(Math.min(1, Math.max(-1, dot4 / len)));
+    let ang = Math.acos(Math.min(1, Math.max(-1, dot5 / len)));
     if (ux * vy - uy * vx < 0)
       ang = -ang;
     return ang;
@@ -148337,15 +148337,15 @@ async function parseSubtree(buffer, branch, fetchBuffer) {
 
 // ../sdk/src/formats/threedtiles/implicit/traverseImplicit.ts
 async function traverseImplicit(p) {
-  const sub = subdivisionOf(p.implicitTiling.subdivisionScheme);
+  const sub2 = subdivisionOf(p.implicitTiling.subdivisionScheme);
   const subtreeLevels = p.implicitTiling.subtreeLevels;
   const availableLevels = p.implicitTiling.availableLevels ?? (p.implicitTiling.maximumLevel ?? Infinity) + 1;
   const subtreeTemplate = p.implicitTiling.subtrees.uri;
-  const dims = sub.dims;
+  const dims = sub2.dims;
   const fetchSubtree = async (level, coords) => {
     const url = p.resolveUrl(templateUri(subtreeTemplate, level, coords), p.baseUri);
     const buffer = await p.fetchArrayBuffer(url);
-    return parseSubtree(buffer, sub.branch, (bufUri) => p.fetchArrayBuffer(p.resolveUrl(bufUri, dirOf(url))));
+    return parseSubtree(buffer, sub2.branch, (bufUri) => p.fetchArrayBuffer(p.resolveUrl(bufUri, dirOf(url))));
   };
   const walk = async (avail, localLevel, morton, globalLevel, coords) => {
     if (p.signal?.aborted)
@@ -148356,7 +148356,7 @@ async function traverseImplicit(p) {
     const childLocalLevel = localLevel + 1;
     const children = [];
     if (!atDepthCap) {
-      for (let c2 = 0; c2 < sub.branch; c2++) {
+      for (let c2 = 0; c2 < sub2.branch; c2++) {
         const childMorton = morton << dims | c2;
         const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
         if (childLocalLevel < subtreeLevels) {
@@ -148498,9 +148498,9 @@ async function parseTileset(params, options = {}) {
     const url = resolveUrl2(uri, baseUri);
     const buffer = await fetchArrayBuffer(url);
     if (uri.split("?")[0].toLowerCase().endsWith(".json")) {
-      const sub = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
-      if (sub && sub.root) {
-        await traverse(sub.root, worldMatrix, 0, "REPLACE", dirOf2(url));
+      const sub2 = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
+      if (sub2 && sub2.root) {
+        await traverse(sub2.root, worldMatrix, 0, "REPLACE", dirOf2(url));
       }
       return;
     }
@@ -148703,11 +148703,11 @@ function distanceToTile(eye, sphere2) {
   const d = Math.hypot(eye[0] - sphere2.center[0], eye[1] - sphere2.center[1], eye[2] - sphere2.center[2]);
   return Math.max(0, d - sphere2.radius);
 }
-function screenSpaceError(geometricError, distance, viewportHeight, fovDegrees) {
-  if (distance <= 0)
+function screenSpaceError(geometricError, distance2, viewportHeight, fovDegrees) {
+  if (distance2 <= 0)
     return Infinity;
   const fovRad = fovDegrees * Math.PI / 180;
-  return geometricError * viewportHeight / (distance * 2 * Math.tan(fovRad / 2));
+  return geometricError * viewportHeight / (distance2 * 2 * Math.tan(fovRad / 2));
 }
 function selectTiles(root, camera, maxScreenSpaceError) {
   const out = [];
@@ -148722,8 +148722,8 @@ function selectTiles(root, camera, maxScreenSpaceError) {
   const visit = (node) => {
     if (culled(node))
       return;
-    const distance = distanceToTile(camera.eye, node);
-    const sse = screenSpaceError(node.geometricError, distance, camera.viewportHeight, camera.fov);
+    const distance2 = distanceToTile(camera.eye, node);
+    const sse = screenSpaceError(node.geometricError, distance2, camera.viewportHeight, camera.fov);
     const refine = node.children.length > 0 && sse > maxScreenSpaceError;
     if (node.refine === "ADD") {
       if (node.contentUri)
@@ -148788,8 +148788,8 @@ async function selectStreaming(root, camera, opts) {
     ) === OUTSIDE;
   };
   const sseAt = (geometricError, center, radius) => {
-    const distance = distanceToTile(camera.eye, { center, radius });
-    return screenSpaceError(geometricError, distance, camera.viewportHeight, camera.fov);
+    const distance2 = distanceToTile(camera.eye, { center, radius });
+    return screenSpaceError(geometricError, distance2, camera.viewportHeight, camera.fov);
   };
   const visit = async (node) => {
     if (culled(node.center, node.radius))
@@ -148813,15 +148813,15 @@ async function selectStreaming(root, camera, opts) {
     }
   };
   const visitImplicit = async (node, spec) => {
-    const sub = subdivisionOf(spec.subdivisionScheme);
-    const dims = sub.dims;
+    const sub2 = subdivisionOf(spec.subdivisionScheme);
+    const dims = sub2.dims;
     const subtreeFor = async (level, coords) => {
       const key = `${level}/${coords.join("/")}`;
       let avail = opts.subtreeCache.get(key);
       if (!avail) {
         const url = opts.resolveUrl(templateUri(spec.subtreeTemplate, level, coords), node.baseUri);
         const buffer = await opts.fetchArrayBuffer(url);
-        avail = await parseSubtree(buffer, sub.branch, (bufUri) => opts.fetchArrayBuffer(opts.resolveUrl(bufUri, dirOf(url))));
+        avail = await parseSubtree(buffer, sub2.branch, (bufUri) => opts.fetchArrayBuffer(opts.resolveUrl(bufUri, dirOf(url))));
         opts.subtreeCache.set(key, avail);
       }
       return avail;
@@ -148852,7 +148852,7 @@ async function selectStreaming(root, camera, opts) {
       const childLocalLevel = localLevel + 1;
       const children = [];
       if (refine) {
-        for (let c2 = 0; c2 < sub.branch; c2++) {
+        for (let c2 = 0; c2 < sub2.branch; c2++) {
           const childMorton = morton << dims | c2;
           const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
           if (childLocalLevel < spec.subtreeLevels) {
@@ -154350,7 +154350,7 @@ var compactUnusedVertices = {
     const oldNormals = geom.normalsCompressed;
     const oldUVs = geom.uvsCompressed;
     const oldColors = geom.colorsCompressed;
-    const sameType = (src, length2) => new src.constructor(length2);
+    const sameType = (src, length3) => new src.constructor(length3);
     const newPositions = sameType(oldPositions, kept * 3);
     const newNormals = oldNormals ? sameType(oldNormals, kept * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, kept * 2) : void 0;
@@ -154452,7 +154452,7 @@ var mergeDuplicateVertices = {
     if (unique === vertCount)
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     const newSlot = new Int32Array(vertCount).fill(-1);
-    const sameType = (src, length2) => new src.constructor(length2);
+    const sameType = (src, length3) => new src.constructor(length3);
     const newPositions = sameType(oldPositions, unique * 3);
     const newNormals = oldNormals ? sameType(oldNormals, unique * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, unique * 2) : void 0;
@@ -157377,6 +157377,7 @@ __export(viewing_exports, {
   transformControls: () => transformControls_exports,
   viewController: () => viewController_exports,
   viewer: () => viewer_exports,
+  walkNavigation: () => walkNavigation_exports,
   webGLRenderer: () => webGLRenderer_exports,
   webGPURenderer: () => webGPURenderer_exports
 });
@@ -167549,24 +167550,24 @@ var Viewer = class {
         }
       }
     };
-    const sub = (emitter, h2) => emitter.subscribe(h2);
+    const sub2 = (emitter, h2) => emitter.subscribe(h2);
     const events = this.scene.events;
-    this._onSceneObjectMeshAdded = sub(events.onSceneObjectMeshAdded, nudgeAllViews);
-    this._onSceneObjectMeshRemoved = sub(events.onSceneObjectMeshRemoved, nudgeAllViews);
-    this._onSceneMeshCreated = sub(events.onSceneMeshCreated, nudgeAllViews);
-    this._onSceneMeshDestroyed = sub(events.onSceneMeshDestroyed, nudgeAllViews);
-    this._onSceneMeshMatrixChanged = sub(events.onSceneMeshMatrixChanged, nudgeAllViews);
-    this._onSceneMeshMoved = sub(events.onSceneMeshMoved, nudgeAllViews);
-    this._onSceneMeshColorChanged = sub(events.onSceneMeshColorChanged, nudgeAllViews);
-    this._onSceneMeshOpacityChanged = sub(events.onSceneMeshOpacityChanged, nudgeAllViews);
-    this._onSceneTransformMatrixChanged = sub(events.onSceneTransformMatrixChanged, nudgeAllViews);
-    this._onSceneGeometryCreated = sub(events.onSceneGeometryCreated, nudgeAllViews);
-    this._onSceneGeometryDestroyed = sub(events.onSceneGeometryDestroyed, nudgeAllViews);
-    this._onSceneGeometryUpdated = sub(events.onSceneGeometryUpdated, nudgeAllViews);
-    this._onSceneMaterialColorChanged = sub(events.onSceneMaterialColorChanged, nudgeAllViews);
-    this._onSceneMaterialEmissiveColorChanged = sub(events.onSceneMaterialEmissiveColorChanged, nudgeAllViews);
-    this._onSceneMaterialOpacityChanged = sub(events.onSceneMaterialOpacityChanged, nudgeAllViews);
-    this._onSceneMaterialPatternChanged = sub(events.onSceneMaterialPatternChanged, nudgeAllViews);
+    this._onSceneObjectMeshAdded = sub2(events.onSceneObjectMeshAdded, nudgeAllViews);
+    this._onSceneObjectMeshRemoved = sub2(events.onSceneObjectMeshRemoved, nudgeAllViews);
+    this._onSceneMeshCreated = sub2(events.onSceneMeshCreated, nudgeAllViews);
+    this._onSceneMeshDestroyed = sub2(events.onSceneMeshDestroyed, nudgeAllViews);
+    this._onSceneMeshMatrixChanged = sub2(events.onSceneMeshMatrixChanged, nudgeAllViews);
+    this._onSceneMeshMoved = sub2(events.onSceneMeshMoved, nudgeAllViews);
+    this._onSceneMeshColorChanged = sub2(events.onSceneMeshColorChanged, nudgeAllViews);
+    this._onSceneMeshOpacityChanged = sub2(events.onSceneMeshOpacityChanged, nudgeAllViews);
+    this._onSceneTransformMatrixChanged = sub2(events.onSceneTransformMatrixChanged, nudgeAllViews);
+    this._onSceneGeometryCreated = sub2(events.onSceneGeometryCreated, nudgeAllViews);
+    this._onSceneGeometryDestroyed = sub2(events.onSceneGeometryDestroyed, nudgeAllViews);
+    this._onSceneGeometryUpdated = sub2(events.onSceneGeometryUpdated, nudgeAllViews);
+    this._onSceneMaterialColorChanged = sub2(events.onSceneMaterialColorChanged, nudgeAllViews);
+    this._onSceneMaterialEmissiveColorChanged = sub2(events.onSceneMaterialEmissiveColorChanged, nudgeAllViews);
+    this._onSceneMaterialOpacityChanged = sub2(events.onSceneMaterialOpacityChanged, nudgeAllViews);
+    this._onSceneMaterialPatternChanged = sub2(events.onSceneMaterialPatternChanged, nudgeAllViews);
     this.events.onSceneAttached.dispatch(this, scene);
     return {
       ok: true,
@@ -170442,12 +170443,12 @@ var TransformControls = class _TransformControls {
     const viewerEvents = this.view.viewer.events;
     const subs = [];
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      const sub = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
-      subs.push(() => viewerEvents.onCameraViewMatrixUpdated.unsubscribe?.(sub));
+      const sub2 = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
+      subs.push(() => viewerEvents.onCameraViewMatrixUpdated.unsubscribe?.(sub2));
     }
     if (viewerEvents?.onCameraProjMatrixUpdated?.subscribe) {
-      const sub = viewerEvents.onCameraProjMatrixUpdated.subscribe(() => this._syncTransform());
-      subs.push(() => viewerEvents.onCameraProjMatrixUpdated.unsubscribe?.(sub));
+      const sub2 = viewerEvents.onCameraProjMatrixUpdated.subscribe(() => this._syncTransform());
+      subs.push(() => viewerEvents.onCameraProjMatrixUpdated.unsubscribe?.(sub2));
     }
     this._camSub = subs.length === 0 ? null : () => {
       for (const u of subs)
@@ -170455,10 +170456,10 @@ var TransformControls = class _TransformControls {
     };
     const sceneEvents = this.view.viewer.scene.events;
     if (sceneEvents?.onSceneMeshDestroyed?.subscribe) {
-      const sub = sceneEvents.onSceneMeshDestroyed.subscribe(
+      const sub2 = sceneEvents.onSceneMeshDestroyed.subscribe(
         (_scene, mesh) => this._onSceneMeshDestroyed(mesh)
       );
-      this._meshDestroyedSub = () => sceneEvents.onSceneMeshDestroyed.unsubscribe?.(sub);
+      this._meshDestroyedSub = () => sceneEvents.onSceneMeshDestroyed.unsubscribe?.(sub2);
     }
     if (params.target !== void 0 && params.target !== null) {
       this.attach(params.target);
@@ -172462,15 +172463,15 @@ var MousePanRotateDollyHandler = class {
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
-      const keyCode = e.keyCode;
-      keyDown[keyCode] = true;
+      const keyCode2 = e.keyCode;
+      keyDown[keyCode2] = true;
     });
     document.addEventListener("keyup", this.#documentKeyUpHandler = (e) => {
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
-      const keyCode = e.keyCode;
-      keyDown[keyCode] = false;
+      const keyCode2 = e.keyCode;
+      keyDown[keyCode2] = false;
     });
     function setMousedownState(pick2 = true) {
       htmlElement.style.cursor = "move";
@@ -203828,8 +203829,8 @@ var WebGLRenderer3 = class {
     };
   }
   _rollbackViewerAttach() {
-    for (const sub of this._viewerSubs) {
-      sub();
+    for (const sub2 of this._viewerSubs) {
+      sub2();
     }
     this._viewerSubs = [];
     this._viewer = null;
@@ -204198,8 +204199,8 @@ var WebGLRenderer3 = class {
     if (this._viewManager) {
       this._destroyViewManager();
     }
-    for (const sub of this._viewerSubs) {
-      sub();
+    for (const sub2 of this._viewerSubs) {
+      sub2();
     }
     this._viewerSubs = [];
     const viewer = this._viewer;
@@ -204210,8 +204211,8 @@ var WebGLRenderer3 = class {
     if (!this._viewManager) {
       return;
     }
-    for (const sub of this._viewManagerSubs) {
-      sub();
+    for (const sub2 of this._viewManagerSubs) {
+      sub2();
     }
     this._viewManagerSubs = [];
     this._removeWebGLContextListeners();
@@ -204262,7 +204263,7 @@ function createMemoryConfigs(params) {
   const AVG_VERTICES_PER_GEOMETRY = 200;
   const AVG_INDICES_PER_GEOMETRY = 400;
   const AVG_PRIMS_PER_GEOMETRY = 200;
-  const clamp3 = (v, min, max) => Math.max(min, Math.min(v, max));
+  const clamp4 = (v, min, max) => Math.max(min, Math.min(v, max));
   const MB_TO_BYTES = 1024 * 1024;
   const grossBytes = params.grossMemoryMB * MB_TO_BYTES;
   const usableBytes = grossBytes * params.utilization;
@@ -204271,20 +204272,20 @@ function createMemoryConfigs(params) {
   const tileBudgetBytes = usableBytes * 0.1;
   const maxBatchesBase = user.maxBatches ?? perf.meshBatches;
   const maxTilesBase = user.maxTiles ?? perf.tiles;
-  const derivedMaxTiles = clamp3(
+  const derivedMaxTiles = clamp4(
     Math.floor(tileBudgetBytes / BYTES_PER_TILE),
     64,
     4096
   );
-  const maxTiles = clamp3(
+  const maxTiles = clamp4(
     Math.min(maxTilesBase, derivedMaxTiles),
     64,
     4096
   );
-  const maxBatches = clamp3(maxBatchesBase, 8, 1024);
+  const maxBatches = clamp4(maxBatchesBase, 8, 1024);
   const totalMeshCapacity = Math.floor(meshBudgetBytes / BYTES_PER_MESH);
   const meshesPerBatchFromBudget = Math.floor(totalMeshCapacity / Math.max(1, maxBatches));
-  const maxBatchMeshes = clamp3(
+  const maxBatchMeshes = clamp4(
     user.maxBatchMeshes ?? meshesPerBatchFromBudget,
     100,
     16384
@@ -204293,17 +204294,17 @@ function createMemoryConfigs(params) {
   const bytesPerBatch = maxBatches > 0 ? geometryBudgetBytes / maxBatches : geometryBudgetBytes;
   const costPerVertex = BYTES_PER_VERTEX + INDICES_PER_VERTEX * BYTES_PER_INDEX + PRIMS_PER_VERTEX * BYTES_PER_PRIM;
   const maxBatchVerticesRaw = Math.floor(bytesPerBatch / costPerVertex);
-  const maxBatchVertices = user.maxBatchVertices ?? clamp3(
+  const maxBatchVertices = user.maxBatchVertices ?? clamp4(
     maxBatchVerticesRaw,
     1e5,
     16e6
   );
-  const maxBatchIndices = user.maxBatchIndices ?? clamp3(
+  const maxBatchIndices = user.maxBatchIndices ?? clamp4(
     Math.floor(maxBatchVertices * INDICES_PER_VERTEX),
     1e5,
     16e6
   );
-  const maxBatchPrims = user.maxBatchPrims ?? clamp3(
+  const maxBatchPrims = user.maxBatchPrims ?? clamp4(
     Math.floor(maxBatchVertices * PRIMS_PER_VERTEX),
     1e5,
     16e6
@@ -204321,12 +204322,12 @@ function createMemoryConfigs(params) {
     1,
     Math.min(maxGeometriesByVerts, maxGeometriesByIdx, maxGeometriesByPrims)
   );
-  maxBatchGeometries = clamp3(
+  maxBatchGeometries = clamp4(
     Math.min(maxBatchGeometries, geomCap),
     1,
     maxBatchGeometries
   );
-  const finalMaxBatchMeshes = clamp3(
+  const finalMaxBatchMeshes = clamp4(
     Math.min(maxBatchMeshes, maxBatchGeometries),
     100,
     16384
@@ -204620,10 +204621,10 @@ var WebGPULightingManager = class {
     const x = this._lightDirection[0];
     const y = this._lightDirection[1];
     const z = this._lightDirection[2];
-    const length2 = Math.hypot(x, y, z) || 1;
-    this._lightDirection[0] = x / length2;
-    this._lightDirection[1] = y / length2;
-    this._lightDirection[2] = z / length2;
+    const length3 = Math.hypot(x, y, z) || 1;
+    this._lightDirection[0] = x / length3;
+    this._lightDirection[1] = y / length3;
+    this._lightDirection[2] = z / length3;
   }
 };
 
@@ -207034,8 +207035,8 @@ var WebGPURenderer = class _WebGPURenderer {
       return;
     }
     this._destroyViewManager();
-    for (const sub of this._viewerSubs) {
-      sub();
+    for (const sub2 of this._viewerSubs) {
+      sub2();
     }
     this._viewerSubs = [];
     const viewer = this._viewer;
@@ -207119,8 +207120,8 @@ var WebGPURenderer = class _WebGPURenderer {
   }
   _rollbackViewerAttach() {
     this._destroyViewManager(false);
-    for (const sub of this._viewerSubs) {
-      sub();
+    for (const sub2 of this._viewerSubs) {
+      sub2();
     }
     this._viewerSubs = [];
     this._viewer = null;
@@ -207469,8 +207470,8 @@ var WebGPURenderer = class _WebGPURenderer {
     if (!viewManager) {
       return;
     }
-    for (const sub of this._viewManagerSubs) {
-      sub();
+    for (const sub2 of this._viewManagerSubs) {
+      sub2();
     }
     this._viewManagerSubs = [];
     viewManager.destroy();
@@ -207535,6 +207536,504 @@ var WebGPURenderer = class _WebGPURenderer {
     return result;
   }
 };
+
+// ../sdk/src/viewing/walkNavigation/index.ts
+var walkNavigation_exports = {};
+__export(walkNavigation_exports, {
+  WalkNavigationController: () => WalkNavigationController
+});
+
+// ../sdk/src/viewing/walkNavigation/WalkNavigationController.ts
+var DEFAULT_EYE_HEIGHT = 1.7;
+var DEFAULT_BODY_RADIUS = 0.28;
+var DEFAULT_WALK_SPEED = 2.5;
+var DEFAULT_RUN_SPEED = 5;
+var DEFAULT_STEP_HEIGHT = 0.35;
+var DEFAULT_MAX_FALL = 1.5;
+var DEFAULT_MAX_SLOPE_DEGREES = 50;
+var DEFAULT_MOUSE_LOOK_DEGREES_PER_PIXEL = 0.12;
+var DEFAULT_KEYBOARD_LOOK_DEGREES_PER_SECOND = 90;
+var DEFAULT_MAX_PITCH_DEGREES = 85;
+var MIN_LOOK_DISTANCE = 0.01;
+var MAX_FRAME_SECONDS = 0.1;
+var DOWN_RAY_CLEARANCE = 0.05;
+var FORWARD_KEYS = /* @__PURE__ */ new Set(["KeyW", "w", "W"]);
+var BACKWARD_KEYS = /* @__PURE__ */ new Set(["KeyS", "s", "S"]);
+var LEFT_KEYS = /* @__PURE__ */ new Set(["KeyA", "a", "A"]);
+var RIGHT_KEYS = /* @__PURE__ */ new Set(["KeyD", "d", "D"]);
+var LOOK_UP_KEYS = /* @__PURE__ */ new Set(["ArrowUp"]);
+var LOOK_DOWN_KEYS = /* @__PURE__ */ new Set(["ArrowDown"]);
+var LOOK_LEFT_KEYS = /* @__PURE__ */ new Set(["ArrowLeft"]);
+var LOOK_RIGHT_KEYS = /* @__PURE__ */ new Set(["ArrowRight"]);
+var RUN_KEYS = /* @__PURE__ */ new Set(["ShiftLeft", "ShiftRight", "Shift"]);
+var HANDLED_KEYS = /* @__PURE__ */ new Set([
+  ...FORWARD_KEYS,
+  ...BACKWARD_KEYS,
+  ...LEFT_KEYS,
+  ...RIGHT_KEYS,
+  ...LOOK_UP_KEYS,
+  ...LOOK_DOWN_KEYS,
+  ...LOOK_LEFT_KEYS,
+  ...LOOK_RIGHT_KEYS,
+  ...RUN_KEYS
+]);
+var WalkNavigationController = class {
+  /**
+   * The View navigated by this controller.
+   */
+  view;
+  /**
+   * Raycaster used for floor following and obstacle checks.
+   */
+  raycaster;
+  #active = false;
+  #destroyed = false;
+  #keysDown = /* @__PURE__ */ new Set();
+  #mouseOver = false;
+  #looking = false;
+  #pointerId = null;
+  #lastPointerX = 0;
+  #lastPointerY = 0;
+  #lastTime = performance.now();
+  #task;
+  #viewElement;
+  #suspendViewController;
+  #suspendedViewControllerActive = null;
+  #unsubscribeViewDestroyed;
+  #eyeHeight;
+  #bodyRadius;
+  #walkSpeed;
+  #runSpeed;
+  #stepHeight;
+  #maxFall;
+  #walkableDot;
+  #mouseLookRadiansPerPixel;
+  #keyboardLookRadiansPerSecond;
+  #maxPitchRadians;
+  #keyboardEnabledOnlyOnMouseover;
+  #collision;
+  #gravity;
+  #obstacleFilter;
+  #walkSurfaceFilter;
+  constructor(view, params = {}) {
+    this.view = view;
+    this.raycaster = params.raycaster || new SceneRaycaster(view.viewer.scene);
+    this.#viewElement = view.htmlElement;
+    this.#suspendViewController = params.suspendViewController;
+    this.#eyeHeight = params.eyeHeight ?? DEFAULT_EYE_HEIGHT;
+    this.#bodyRadius = params.bodyRadius ?? DEFAULT_BODY_RADIUS;
+    this.#walkSpeed = params.walkSpeed ?? DEFAULT_WALK_SPEED;
+    this.#runSpeed = params.runSpeed ?? DEFAULT_RUN_SPEED;
+    this.#stepHeight = params.stepHeight ?? DEFAULT_STEP_HEIGHT;
+    this.#maxFall = params.maxFall ?? DEFAULT_MAX_FALL;
+    this.#walkableDot = Math.cos(degreesToRadians(params.maxSlopeDegrees ?? DEFAULT_MAX_SLOPE_DEGREES));
+    this.#mouseLookRadiansPerPixel = degreesToRadians(params.mouseLookDegreesPerPixel ?? DEFAULT_MOUSE_LOOK_DEGREES_PER_PIXEL);
+    this.#keyboardLookRadiansPerSecond = degreesToRadians(params.keyboardLookDegreesPerSecond ?? DEFAULT_KEYBOARD_LOOK_DEGREES_PER_SECOND);
+    this.#maxPitchRadians = degreesToRadians(params.maxPitchDegrees ?? DEFAULT_MAX_PITCH_DEGREES);
+    this.#keyboardEnabledOnlyOnMouseover = params.keyboardEnabledOnlyOnMouseover ?? true;
+    this.#collision = params.collision ?? true;
+    this.#gravity = params.gravity ?? true;
+    this.#obstacleFilter = params.obstacleFilter;
+    this.#walkSurfaceFilter = params.walkSurfaceFilter;
+    this.#bindEvents();
+    this.#task = new SDKTask({
+      name: "WalkNavigationController",
+      stage: SDKTask.CollectInputStage,
+      repeat: true,
+      task: () => this.#update()
+    });
+    this.#unsubscribeViewDestroyed = view.viewer.events.onViewDestroyed.subscribe((_, destroyedView) => {
+      if (destroyedView === view) {
+        this.destroy();
+      }
+    });
+    this.active = params.active ?? true;
+  }
+  /**
+   * Whether walk navigation is active.
+   */
+  set active(active) {
+    if (this.#destroyed || active === this.#active) {
+      return;
+    }
+    this.#active = active;
+    this.#lastTime = performance.now();
+    this.#keysDown.clear();
+    this.#looking = false;
+    this.#pointerId = null;
+    if (active) {
+      this.#suspendDefaultController();
+    } else {
+      this.#restoreDefaultController();
+    }
+  }
+  get active() {
+    return this.#active;
+  }
+  /**
+   * Camera height above the walked surface, in world-space units.
+   */
+  set eyeHeight(eyeHeight) {
+    this.#eyeHeight = Math.max(0.01, eyeHeight);
+  }
+  get eyeHeight() {
+    return this.#eyeHeight;
+  }
+  /**
+   * Approximate body radius used for horizontal obstacle checks.
+   */
+  set bodyRadius(bodyRadius) {
+    this.#bodyRadius = Math.max(0, bodyRadius);
+  }
+  get bodyRadius() {
+    return this.#bodyRadius;
+  }
+  /**
+   * Normal walking speed, in world-space units per second.
+   */
+  set walkSpeed(walkSpeed) {
+    this.#walkSpeed = Math.max(0, walkSpeed);
+  }
+  get walkSpeed() {
+    return this.#walkSpeed;
+  }
+  /**
+   * Running speed while Shift is held, in world-space units per second.
+   */
+  set runSpeed(runSpeed) {
+    this.#runSpeed = Math.max(0, runSpeed);
+  }
+  get runSpeed() {
+    return this.#runSpeed;
+  }
+  /**
+   * Destroys this controller and restores any suspended ViewController.
+   */
+  destroy() {
+    if (this.#destroyed) {
+      return;
+    }
+    this.active = false;
+    this.#destroyed = true;
+    this.#task.destroy();
+    this.#unbindEvents();
+    if (this.#unsubscribeViewDestroyed) {
+      this.#unsubscribeViewDestroyed();
+      this.#unsubscribeViewDestroyed = void 0;
+    }
+  }
+  #suspendDefaultController() {
+    if (!this.#suspendViewController || this.#suspendedViewControllerActive !== null) {
+      return;
+    }
+    this.#suspendedViewControllerActive = this.#suspendViewController.active;
+    this.#suspendViewController.active = false;
+  }
+  #restoreDefaultController() {
+    if (!this.#suspendViewController || this.#suspendedViewControllerActive === null) {
+      return;
+    }
+    this.#suspendViewController.active = this.#suspendedViewControllerActive;
+    this.#suspendedViewControllerActive = null;
+  }
+  #bindEvents() {
+    this.#viewElement.addEventListener("mouseenter", this.#onMouseEnter);
+    this.#viewElement.addEventListener("mouseleave", this.#onMouseLeave);
+    this.#viewElement.addEventListener("pointerdown", this.#onPointerDown);
+    this.#viewElement.addEventListener("pointermove", this.#onPointerMove);
+    this.#viewElement.addEventListener("pointerup", this.#onPointerUp);
+    this.#viewElement.addEventListener("pointercancel", this.#onPointerUp);
+    document.addEventListener("keydown", this.#onKeyDown);
+    document.addEventListener("keyup", this.#onKeyUp);
+    window.addEventListener("blur", this.#onWindowBlur);
+  }
+  #unbindEvents() {
+    this.#viewElement.removeEventListener("mouseenter", this.#onMouseEnter);
+    this.#viewElement.removeEventListener("mouseleave", this.#onMouseLeave);
+    this.#viewElement.removeEventListener("pointerdown", this.#onPointerDown);
+    this.#viewElement.removeEventListener("pointermove", this.#onPointerMove);
+    this.#viewElement.removeEventListener("pointerup", this.#onPointerUp);
+    this.#viewElement.removeEventListener("pointercancel", this.#onPointerUp);
+    document.removeEventListener("keydown", this.#onKeyDown);
+    document.removeEventListener("keyup", this.#onKeyUp);
+    window.removeEventListener("blur", this.#onWindowBlur);
+  }
+  #onMouseEnter = () => {
+    this.#mouseOver = true;
+  };
+  #onMouseLeave = () => {
+    this.#mouseOver = false;
+  };
+  #onPointerDown = (event) => {
+    if (!this.#active || event.button !== 0) {
+      return;
+    }
+    this.#looking = true;
+    this.#pointerId = event.pointerId;
+    this.#lastPointerX = event.clientX;
+    this.#lastPointerY = event.clientY;
+    this.#viewElement.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  };
+  #onPointerMove = (event) => {
+    if (!this.#active || !this.#looking || event.pointerId !== this.#pointerId) {
+      return;
+    }
+    const dx = event.movementX || event.clientX - this.#lastPointerX;
+    const dy = event.movementY || event.clientY - this.#lastPointerY;
+    this.#lastPointerX = event.clientX;
+    this.#lastPointerY = event.clientY;
+    this.#look(dx, dy);
+    event.preventDefault();
+  };
+  #onPointerUp = (event) => {
+    if (event.pointerId !== this.#pointerId) {
+      return;
+    }
+    this.#looking = false;
+    this.#pointerId = null;
+    this.#viewElement.releasePointerCapture?.(event.pointerId);
+  };
+  #onKeyDown = (event) => {
+    if (!this.#shouldHandleKeyEvent(event)) {
+      return;
+    }
+    const code = keyCode(event);
+    if (!HANDLED_KEYS.has(code)) {
+      return;
+    }
+    this.#keysDown.add(code);
+    event.preventDefault();
+  };
+  #onKeyUp = (event) => {
+    const code = keyCode(event);
+    if (!HANDLED_KEYS.has(code)) {
+      return;
+    }
+    this.#keysDown.delete(code);
+    if (this.#active) {
+      event.preventDefault();
+    }
+  };
+  #onWindowBlur = () => {
+    this.#keysDown.clear();
+    this.#looking = false;
+    this.#pointerId = null;
+  };
+  #shouldHandleKeyEvent(event) {
+    if (!this.#active) {
+      return false;
+    }
+    if (this.#keyboardEnabledOnlyOnMouseover && !this.#mouseOver) {
+      return false;
+    }
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return true;
+    }
+    const tagName = target.tagName.toLowerCase();
+    return tagName !== "input" && tagName !== "textarea" && tagName !== "select" && !target.isContentEditable;
+  }
+  #update() {
+    if (!this.#active || this.#destroyed) {
+      return;
+    }
+    const now3 = performance.now();
+    const elapsedSeconds = Math.min((now3 - this.#lastTime) / 1e3, MAX_FRAME_SECONDS);
+    this.#lastTime = now3;
+    if (elapsedSeconds <= 0) {
+      return;
+    }
+    const up = this.#worldUp();
+    const lookYawAmount = pressed(this.#keysDown, LOOK_LEFT_KEYS) - pressed(this.#keysDown, LOOK_RIGHT_KEYS);
+    const lookPitchAmount = pressed(this.#keysDown, LOOK_UP_KEYS) - pressed(this.#keysDown, LOOK_DOWN_KEYS);
+    if (lookYawAmount !== 0 || lookPitchAmount !== 0) {
+      this.#lookBy(
+        lookYawAmount * this.#keyboardLookRadiansPerSecond * elapsedSeconds,
+        lookPitchAmount * this.#keyboardLookRadiansPerSecond * elapsedSeconds,
+        up
+      );
+    }
+    const forwardAmount = pressed(this.#keysDown, FORWARD_KEYS) - pressed(this.#keysDown, BACKWARD_KEYS);
+    const rightAmount = pressed(this.#keysDown, RIGHT_KEYS) - pressed(this.#keysDown, LEFT_KEYS);
+    if (forwardAmount === 0 && rightAmount === 0) {
+      return;
+    }
+    const camera = this.view.camera;
+    const basis = cameraBasis(camera.eye, camera.look, up);
+    const inputLength = Math.hypot(forwardAmount, rightAmount);
+    const inputScale = inputLength > 1 ? 1 / inputLength : 1;
+    const speed = pressed(this.#keysDown, RUN_KEYS) ? this.#runSpeed : this.#walkSpeed;
+    const distance2 = speed * elapsedSeconds * inputScale;
+    const move = add(
+      mul(basis.flatForward, forwardAmount * distance2),
+      mul(basis.right, rightAmount * distance2)
+    );
+    this.#move(move, basis.direction, up);
+  }
+  #look(dx, dy) {
+    if (dx === 0 && dy === 0) {
+      return;
+    }
+    const up = this.#worldUp();
+    this.#lookBy(-dx * this.#mouseLookRadiansPerPixel, -dy * this.#mouseLookRadiansPerPixel, up);
+  }
+  #lookBy(yaw, pitchDelta, up) {
+    if (yaw === 0 && pitchDelta === 0) {
+      return;
+    }
+    const camera = this.view.camera;
+    const basis = cameraBasis(camera.eye, camera.look, up);
+    const pitch = clamp2(basis.pitch + pitchDelta, -this.#maxPitchRadians, this.#maxPitchRadians);
+    const flatForward = normalize2(rotateAroundAxis(basis.flatForward, up, yaw));
+    const direction = normalize2(add(mul(flatForward, Math.cos(pitch)), mul(up, Math.sin(pitch))));
+    const lookDistance = Math.max(distance(camera.eye, camera.look), MIN_LOOK_DISTANCE);
+    camera.look = add(camera.eye, mul(direction, lookDistance));
+    camera.up = up;
+  }
+  #move(move, viewDirection, up) {
+    const moveDistance = length2(move);
+    if (moveDistance === 0) {
+      return;
+    }
+    const camera = this.view.camera;
+    const oldEye = [...camera.eye];
+    const oldFoot = sub(oldEye, mul(up, this.#eyeHeight));
+    if (this.#collision && this.#isBlocked(oldFoot, move, moveDistance, up)) {
+      return;
+    }
+    let foot = add(oldFoot, move);
+    if (this.#gravity) {
+      foot = this.#groundedFoot(foot, oldFoot, up);
+    }
+    const newEye2 = add(foot, mul(up, this.#eyeHeight));
+    const lookDistance = Math.max(distance(camera.eye, camera.look), MIN_LOOK_DISTANCE);
+    camera.eye = newEye2;
+    camera.look = add(newEye2, mul(viewDirection, lookDistance));
+    camera.up = up;
+  }
+  #isBlocked(foot, move, moveDistance, up) {
+    const direction = normalize2(move);
+    const heights = [Math.max(this.#bodyRadius, 0.05), Math.max(this.#eyeHeight * 0.62, this.#bodyRadius)];
+    const tMax = moveDistance + this.#bodyRadius;
+    for (const height of heights) {
+      const origin2 = add(foot, mul(up, height));
+      const result = this.raycaster.pick({
+        view: this.view,
+        ray: { origin: origin2, dir: direction },
+        tMin: 0,
+        tMax,
+        pickSurfaceNormal: true,
+        filter: this.#obstacleFilter
+      });
+      if (result.ok && result.value.hit && !this.#isWalkableNormal(result.value.worldNormal, up)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  #groundedFoot(candidateFoot, oldFoot, up) {
+    const rayOrigin = add(candidateFoot, mul(up, this.#stepHeight + DOWN_RAY_CLEARANCE));
+    const rayDirection = mul(up, -1);
+    const result = this.raycaster.pick({
+      view: this.view,
+      ray: { origin: rayOrigin, dir: rayDirection },
+      tMin: 0,
+      tMax: this.#stepHeight + this.#maxFall + DOWN_RAY_CLEARANCE,
+      pickSurfaceNormal: true,
+      filter: this.#walkSurfaceFilter
+    });
+    if (result.ok && result.value.hit && result.value.worldPos && this.#isWalkableNormal(result.value.worldNormal, up)) {
+      return [...result.value.worldPos];
+    }
+    const oldHeight = dot4(oldFoot, up);
+    const candidateHeight = dot4(candidateFoot, up);
+    return add(candidateFoot, mul(up, oldHeight - candidateHeight));
+  }
+  #isWalkableNormal(normal2, up) {
+    if (!normal2) {
+      return false;
+    }
+    return Math.abs(dot4(normalize2(normal2), up)) >= this.#walkableDot;
+  }
+  #worldUp() {
+    return normalize2(this.view.viewer.scene.coordinateSystem.worldUp);
+  }
+};
+function cameraBasis(eye, look, up) {
+  const direction = normalize2(sub(look, eye));
+  let flatForward = sub(direction, mul(up, dot4(direction, up)));
+  if (length2(flatForward) < 1e-5) {
+    flatForward = perpendicular(up);
+  } else {
+    flatForward = normalize2(flatForward);
+  }
+  const right = normalize2(cross4(flatForward, up));
+  const pitch = Math.asin(clamp2(dot4(direction, up), -1, 1));
+  return { direction, flatForward, right, pitch };
+}
+function pressed(keysDown, keys) {
+  for (const key of keys) {
+    if (keysDown.has(key)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+function keyCode(event) {
+  return event.code || event.key;
+}
+function degreesToRadians(degrees) {
+  return degrees * Math.PI / 180;
+}
+function clamp2(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+function add(a2, b4) {
+  return [a2[0] + b4[0], a2[1] + b4[1], a2[2] + b4[2]];
+}
+function sub(a2, b4) {
+  return [a2[0] - b4[0], a2[1] - b4[1], a2[2] - b4[2]];
+}
+function mul(v, scalar) {
+  return [v[0] * scalar, v[1] * scalar, v[2] * scalar];
+}
+function dot4(a2, b4) {
+  return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
+}
+function cross4(a2, b4) {
+  return [
+    a2[1] * b4[2] - a2[2] * b4[1],
+    a2[2] * b4[0] - a2[0] * b4[2],
+    a2[0] * b4[1] - a2[1] * b4[0]
+  ];
+}
+function length2(v) {
+  return Math.hypot(v[0], v[1], v[2]);
+}
+function distance(a2, b4) {
+  return length2(sub(a2, b4));
+}
+function normalize2(v) {
+  const len = length2(v);
+  if (len === 0) {
+    return [0, 0, 0];
+  }
+  return [v[0] / len, v[1] / len, v[2] / len];
+}
+function perpendicular(up) {
+  const axis = Math.abs(up[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+  return normalize2(cross4(up, axis));
+}
+function rotateAroundAxis(v, axis, radians) {
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const axisDot = dot4(axis, v);
+  return add(
+    add(mul(v, cos), mul(cross4(axis, v), sin)),
+    mul(axis, axisDot * (1 - cos))
+  );
+}
 
 // ../sdk/src/presentations/index.ts
 var presentations_exports = {};
@@ -208624,10 +209123,10 @@ var extractSpacesFromGeometry = {
       const height = aabb[upAxis + 3] - aabb[upAxis];
       if (height < WALL_HEIGHT_MIN)
         continue;
-      const ix0 = clamp2(Math.floor((aabb[widthAxis] - sceneAabb[widthAxis]) / cellSize), 0, gw);
-      const ix1 = clamp2(Math.ceil((aabb[widthAxis + 3] - sceneAabb[widthAxis]) / cellSize), 0, gw);
-      const iz0 = clamp2(Math.floor((aabb[depthAxis] - sceneAabb[depthAxis]) / cellSize), 0, gd);
-      const iz1 = clamp2(Math.ceil((aabb[depthAxis + 3] - sceneAabb[depthAxis]) / cellSize), 0, gd);
+      const ix0 = clamp3(Math.floor((aabb[widthAxis] - sceneAabb[widthAxis]) / cellSize), 0, gw);
+      const ix1 = clamp3(Math.ceil((aabb[widthAxis + 3] - sceneAabb[widthAxis]) / cellSize), 0, gw);
+      const iz0 = clamp3(Math.floor((aabb[depthAxis] - sceneAabb[depthAxis]) / cellSize), 0, gd);
+      const iz1 = clamp3(Math.ceil((aabb[depthAxis + 3] - sceneAabb[depthAxis]) / cellSize), 0, gd);
       for (let z = iz0; z < iz1; z++) {
         const row = z * gw;
         for (let x = ix0; x < ix1; x++) {
@@ -208747,7 +209246,7 @@ var extractSpacesFromGeometry = {
 function emptyGraph() {
   return { nodes: [], edges: [], nodesById: /* @__PURE__ */ new Map() };
 }
-function clamp2(v, lo, hi) {
+function clamp3(v, lo, hi) {
   if (v < lo)
     return lo;
   if (v > hi)
@@ -215950,8 +216449,8 @@ var MouseDistanceMeasurementsControl = class {
   _ensureHoverDot() {
     if (this._hoverDot)
       return;
-    const dot4 = document.createElement("div");
-    Object.assign(dot4.style, {
+    const dot5 = document.createElement("div");
+    Object.assign(dot5.style, {
       position: "fixed",
       width: "12px",
       height: "12px",
@@ -215969,8 +216468,8 @@ var MouseDistanceMeasurementsControl = class {
       zIndex: "999999999",
       display: "none"
     });
-    document.body.appendChild(dot4);
-    this._hoverDot = dot4;
+    document.body.appendChild(dot5);
+    this._hoverDot = dot5;
   }
   _moveHoverDot(viewportX, viewportY) {
     if (!this._hoverDot)
@@ -216471,8 +216970,8 @@ var AngleMeasurement = class {
     const arcStartY = pC[1] + uy1 * r;
     const arcEndX = pC[0] + ux2 * r;
     const arcEndY = pC[1] + uy2 * r;
-    const cross4 = ux1 * uy2 - uy1 * ux2;
-    const sweep = cross4 < 0 ? 1 : 0;
+    const cross5 = ux1 * uy2 - uy1 * ux2;
+    const sweep = cross5 < 0 ? 1 : 0;
     this._arc.setAttribute(
       "d",
       `M ${arcStartX} ${arcStartY} A ${r} ${r} 0 0 ${sweep} ${arcEndX} ${arcEndY}`
@@ -216776,8 +217275,8 @@ var MouseAngleMeasurementsControl = class {
   _ensureHoverDot() {
     if (this._hoverDot)
       return;
-    const dot4 = document.createElement("div");
-    Object.assign(dot4.style, {
+    const dot5 = document.createElement("div");
+    Object.assign(dot5.style, {
       position: "fixed",
       width: "12px",
       height: "12px",
@@ -216795,8 +217294,8 @@ var MouseAngleMeasurementsControl = class {
       zIndex: "999999999",
       display: "none"
     });
-    document.body.appendChild(dot4);
-    this._hoverDot = dot4;
+    document.body.appendChild(dot5);
+    this._hoverDot = dot5;
   }
   _moveHoverDot(viewportX, viewportY) {
     if (!this._hoverDot)
@@ -226343,20 +226842,20 @@ var SchemaMaterialsPanel = class _SchemaMaterialsPanel extends FloatingPanelBase
   _attachLiveSync() {
     const sceneEv = this.scene.events;
     const dataEv = this.data ? this.data.events : null;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv?.onSceneModelCreated?.subscribe) {
-      sub(sceneEv.onSceneModelCreated.subscribe(() => this._scheduleRefresh()));
+      sub2(sceneEv.onSceneModelCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (sceneEv?.onSceneModelDestroyed?.subscribe) {
-      sub(sceneEv.onSceneModelDestroyed.subscribe((_s, sm) => {
+      sub2(sceneEv.onSceneModelDestroyed.subscribe((_s, sm) => {
         this._scheduleRefresh(sm);
       }));
     }
     if (dataEv?.onDataModelCreated?.subscribe) {
-      sub(dataEv.onDataModelCreated.subscribe(() => this._scheduleRefresh()));
+      sub2(dataEv.onDataModelCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (dataEv?.onDataModelDestroyed?.subscribe) {
-      sub(dataEv.onDataModelDestroyed.subscribe(() => this._scheduleRefresh()));
+      sub2(dataEv.onDataModelDestroyed.subscribe(() => this._scheduleRefresh()));
     }
   }
   _detachLiveSync() {
@@ -226434,9 +226933,9 @@ var SchemaMaterialsPanel = class _SchemaMaterialsPanel extends FloatingPanelBase
       tab.setAttribute("data-status", state.status);
       if (sm === this.sceneModel)
         tab.classList.add("xkt-smp-tab-active");
-      const dot4 = el("span", "xkt-smp-tab-dot");
-      dot4.setAttribute("data-status", state.status);
-      tab.appendChild(dot4);
+      const dot5 = el("span", "xkt-smp-tab-dot");
+      dot5.setAttribute("data-status", state.status);
+      tab.appendChild(dot5);
       tab.appendChild(el("span", "xkt-smp-tab-id", { textContent: label }));
       const stats = sm.stats;
       const objs = stats && Number.isFinite(stats.numObjects) ? stats.numObjects : null;
@@ -228201,15 +228700,15 @@ var ModelsPanel = class _ModelsPanel extends FloatingPanelBase {
     if (!ev)
       return;
     const refresh = () => this._renderBody();
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     if (ev.onSceneModelCreated?.subscribe)
-      sub(ev.onSceneModelCreated.subscribe(refresh));
+      sub2(ev.onSceneModelCreated.subscribe(refresh));
     if (ev.onSceneModelDestroyed?.subscribe)
-      sub(ev.onSceneModelDestroyed.subscribe(refresh));
+      sub2(ev.onSceneModelDestroyed.subscribe(refresh));
     if (ev.onSceneObjectCreated?.subscribe)
-      sub(ev.onSceneObjectCreated.subscribe(refresh));
+      sub2(ev.onSceneObjectCreated.subscribe(refresh));
     if (ev.onSceneObjectDestroyed?.subscribe)
-      sub(ev.onSceneObjectDestroyed.subscribe(refresh));
+      sub2(ev.onSceneObjectDestroyed.subscribe(refresh));
   }
   // ── Rendering ─────────────────────────────────────────────────
   _renderBody() {
@@ -230187,12 +230686,12 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     const ev = this.scene.events;
     if (!ev)
       return;
-    const sub = (unsub) => this._sceneUnsubs.push(unsub);
+    const sub2 = (unsub) => this._sceneUnsubs.push(unsub);
     if (ev.onSceneModelCreated?.subscribe) {
-      sub(ev.onSceneModelCreated.subscribe(() => this._scheduleModelsRefresh()));
+      sub2(ev.onSceneModelCreated.subscribe(() => this._scheduleModelsRefresh()));
     }
     if (ev.onSceneModelDestroyed?.subscribe) {
-      sub(ev.onSceneModelDestroyed.subscribe((_s, sm) => {
+      sub2(ev.onSceneModelDestroyed.subscribe((_s, sm) => {
         this._scheduleModelsRefresh(sm);
       }));
     }
@@ -230334,9 +230833,9 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
       tab.setAttribute("data-status", state);
       if (sm === this.sceneModel)
         tab.classList.add("xkt-sh-tab-active");
-      const dot4 = el("span", "xkt-sh-tab-dot");
-      dot4.setAttribute("data-status", state);
-      tab.appendChild(dot4);
+      const dot5 = el("span", "xkt-sh-tab-dot");
+      dot5.setAttribute("data-status", state);
+      tab.appendChild(dot5);
       tab.appendChild(el("span", "xkt-sh-tab-id", { textContent: label }));
       const stats = sm.stats;
       const objs = stats && Number.isFinite(stats.numObjects) ? stats.numObjects : null;
@@ -233006,15 +233505,15 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
     const events = this.data.events;
     if (!events)
       return;
-    const sub = (handle) => {
+    const sub2 = (handle) => {
       if (handle && typeof handle.subscribe === "function") {
         const unsub = handle.subscribe(() => this._scheduleModelsRefresh());
         if (typeof unsub === "function")
           this._dataUnsubs.push(unsub);
       }
     };
-    sub(events.onDataModelCreated);
-    sub(events.onDataModelDestroyed);
+    sub2(events.onDataModelCreated);
+    sub2(events.onDataModelDestroyed);
   }
   _detachDataListeners() {
     for (const u of this._dataUnsubs) {
@@ -233219,9 +233718,9 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
       tab.setAttribute("data-status", state);
       if (dm === this.dataModel)
         tab.classList.add("xkt-dh-tab-active");
-      const dot4 = el("span", "xkt-dh-tab-dot");
-      dot4.setAttribute("data-status", state);
-      tab.appendChild(dot4);
+      const dot5 = el("span", "xkt-dh-tab-dot");
+      dot5.setAttribute("data-status", state);
+      tab.appendChild(dot5);
       tab.appendChild(el("span", "xkt-dh-tab-id", { textContent: fullId }));
       const stats = dm.stats;
       if (stats && Number.isFinite(stats.numObjects)) {
@@ -234246,21 +234745,21 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub(ev.onSceneModelCreated.subscribe(onChange));
-    sub(ev.onSceneModelDestroyed.subscribe(onChange));
-    sub(ev.onSceneObjectCreated.subscribe(onChange));
-    sub(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub(ev.onSceneObjectMeshAdded.subscribe(onChange));
-    sub(ev.onSceneObjectMeshRemoved.subscribe(onChange));
-    sub(ev.onSceneMeshCreated.subscribe(onChange));
-    sub(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub(ev.onSceneMeshMatrixChanged.subscribe(onChange));
-    sub(ev.onSceneMeshMoved.subscribe(onChange));
+    sub2(ev.onSceneModelCreated.subscribe(onChange));
+    sub2(ev.onSceneModelDestroyed.subscribe(onChange));
+    sub2(ev.onSceneObjectCreated.subscribe(onChange));
+    sub2(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub2(ev.onSceneObjectMeshAdded.subscribe(onChange));
+    sub2(ev.onSceneObjectMeshRemoved.subscribe(onChange));
+    sub2(ev.onSceneMeshCreated.subscribe(onChange));
+    sub2(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub2(ev.onSceneMeshMatrixChanged.subscribe(onChange));
+    sub2(ev.onSceneMeshMoved.subscribe(onChange));
     const viewerEvents = this.view.viewer?.events;
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      sub(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
+      sub2(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -234524,9 +235023,9 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
       });
       pip.dataset.on = enabled ? "1" : "0";
       pip.dataset.layer = layer;
-      const dot4 = el("span", "xkt-bnd-layer-dot");
+      const dot5 = el("span", "xkt-bnd-layer-dot");
       const name12 = el("span", void 0, { textContent: layer });
-      pip.append(dot4, name12);
+      pip.append(dot5, name12);
       pip.addEventListener("click", (ev) => {
         ev.stopPropagation();
         if (this._disabledLayers.has(layer)) {
@@ -235315,21 +235814,21 @@ var TilesPanel = class _TilesPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub(ev.onSceneModelCreated.subscribe(onChange));
-    sub(ev.onSceneModelDestroyed.subscribe(onChange));
-    sub(ev.onSceneObjectCreated.subscribe(onChange));
-    sub(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub(ev.onSceneObjectMeshAdded.subscribe(onChange));
-    sub(ev.onSceneObjectMeshRemoved.subscribe(onChange));
-    sub(ev.onSceneMeshCreated.subscribe(onChange));
-    sub(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub(ev.onSceneMeshMatrixChanged.subscribe(onChange));
-    sub(ev.onSceneMeshMoved.subscribe(onChange));
+    sub2(ev.onSceneModelCreated.subscribe(onChange));
+    sub2(ev.onSceneModelDestroyed.subscribe(onChange));
+    sub2(ev.onSceneObjectCreated.subscribe(onChange));
+    sub2(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub2(ev.onSceneObjectMeshAdded.subscribe(onChange));
+    sub2(ev.onSceneObjectMeshRemoved.subscribe(onChange));
+    sub2(ev.onSceneMeshCreated.subscribe(onChange));
+    sub2(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub2(ev.onSceneMeshMatrixChanged.subscribe(onChange));
+    sub2(ev.onSceneMeshMoved.subscribe(onChange));
     const viewerEvents = this.view.viewer?.events;
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      sub(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
+      sub2(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -236188,33 +236687,33 @@ var SceneStatsPanel = class _SceneStatsPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub(ev.onSceneModelCreated.subscribe((_s, model) => {
+    sub2(ev.onSceneModelCreated.subscribe((_s, model) => {
       this._addModelSection(model);
       this._scheduleRefresh();
     }));
-    sub(ev.onSceneModelDestroyed.subscribe((_s, model) => {
+    sub2(ev.onSceneModelDestroyed.subscribe((_s, model) => {
       this._removeModelSection(model);
       this._scheduleRefresh();
     }));
-    sub(ev.onSceneCoordSystemUpdated.subscribe(() => this._renderSceneCoordSys()));
-    sub(ev.onSceneModelCoordSystemUpdated.subscribe((model) => {
+    sub2(ev.onSceneCoordSystemUpdated.subscribe(() => this._renderSceneCoordSys()));
+    sub2(ev.onSceneModelCoordSystemUpdated.subscribe((model) => {
       this._renderModelCoordSys(model);
     }));
-    sub(ev.onSceneObjectCreated.subscribe(onChange));
-    sub(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub(ev.onSceneMeshCreated.subscribe(onChange));
-    sub(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub(ev.onSceneGeometryCreated.subscribe(onChange));
-    sub(ev.onSceneGeometryDestroyed.subscribe(onChange));
-    sub(ev.onSceneGeometryUpdated.subscribe(onChange));
-    sub(ev.onSceneTransformCreated.subscribe(onChange));
-    sub(ev.onSceneTransformDestroyed.subscribe(onChange));
-    sub(ev.onSceneTextureCreated.subscribe(onChange));
-    sub(ev.onSceneTextureDestroyed.subscribe(onChange));
-    sub(ev.onSceneMaterialCreated.subscribe(onChange));
-    sub(ev.onSceneMaterialDestroyed.subscribe(onChange));
+    sub2(ev.onSceneObjectCreated.subscribe(onChange));
+    sub2(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub2(ev.onSceneMeshCreated.subscribe(onChange));
+    sub2(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub2(ev.onSceneGeometryCreated.subscribe(onChange));
+    sub2(ev.onSceneGeometryDestroyed.subscribe(onChange));
+    sub2(ev.onSceneGeometryUpdated.subscribe(onChange));
+    sub2(ev.onSceneTransformCreated.subscribe(onChange));
+    sub2(ev.onSceneTransformDestroyed.subscribe(onChange));
+    sub2(ev.onSceneTextureCreated.subscribe(onChange));
+    sub2(ev.onSceneTextureDestroyed.subscribe(onChange));
+    sub2(ev.onSceneMaterialCreated.subscribe(onChange));
+    sub2(ev.onSceneMaterialDestroyed.subscribe(onChange));
   }
   _detachListeners() {
     if (!this._listenersAttached)
@@ -237066,22 +237565,22 @@ var DataStatsPanel = class _DataStatsPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.data.events;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub(ev.onDataModelCreated.subscribe((_d, model) => {
+    sub2(ev.onDataModelCreated.subscribe((_d, model) => {
       this._addModelSection(model);
       this._scheduleRefresh();
     }));
-    sub(ev.onDataModelDestroyed.subscribe((_d, model) => {
+    sub2(ev.onDataModelDestroyed.subscribe((_d, model) => {
       this._removeModelSection(model);
       this._scheduleRefresh();
     }));
-    sub(ev.onDataObjectCreated.subscribe(onChange));
-    sub(ev.onDataObjectDestroyed.subscribe(onChange));
-    sub(ev.onRelationshipCreated.subscribe(onChange));
-    sub(ev.onRelationshipDestroyed.subscribe(onChange));
-    sub(ev.onPropertySetCreated.subscribe(onChange));
-    sub(ev.onPropertySetDestroyed.subscribe(onChange));
+    sub2(ev.onDataObjectCreated.subscribe(onChange));
+    sub2(ev.onDataObjectDestroyed.subscribe(onChange));
+    sub2(ev.onRelationshipCreated.subscribe(onChange));
+    sub2(ev.onRelationshipDestroyed.subscribe(onChange));
+    sub2(ev.onPropertySetCreated.subscribe(onChange));
+    sub2(ev.onPropertySetDestroyed.subscribe(onChange));
   }
   _detachListeners() {
     if (!this._listenersAttached)
@@ -239575,17 +240074,17 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     }
     const viewApply = liveView ? this._makeTargetApply(liveView) : () => this._setStatus("Apply skipped: no live View for this section", "error");
     if (general.length > 0) {
-      const sub = this._buildSection({
+      const sub2 = this._buildSection({
         kind: "group",
         label: "General",
         sectionKey: `${viewKey}:general`,
         defaultOpen: true
       });
-      sub.body.appendChild(this._renderKVTable(view, general, viewApply, liveView));
-      section.body.appendChild(sub.section);
+      sub2.body.appendChild(this._renderKVTable(view, general, viewApply, liveView));
+      section.body.appendChild(sub2.section);
     }
     for (const g of groups) {
-      const sub = this._buildSection({
+      const sub2 = this._buildSection({
         kind: "group",
         label: g.label,
         sectionKey: `${viewKey}:${g.key}`,
@@ -239599,23 +240098,23 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
           groupApply,
           liveGroup,
           `${viewKey}:${g.key}`,
-          sub.body
+          sub2.body
         );
       } else {
-        sub.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
+        sub2.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
       }
-      section.body.appendChild(sub.section);
+      section.body.appendChild(sub2.section);
     }
     if (layers) {
-      const sub = this._buildSection({
+      const sub2 = this._buildSection({
         kind: "layers",
         label: "Layers",
         countText: `${layers.length} layer${layers.length === 1 ? "" : "s"}`,
         sectionKey: `${viewKey}:layers`,
         defaultOpen: false
       });
-      sub.body.appendChild(this._renderLayersTable(layers, liveView));
-      section.body.appendChild(sub.section);
+      sub2.body.appendChild(this._renderLayersTable(layers, liveView));
+      section.body.appendChild(sub2.section);
     }
     return section.section;
   }
@@ -239704,7 +240203,7 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       const val = effects[key];
       if (val == null || typeof val !== "object")
         continue;
-      const sub = this._buildSection({
+      const sub2 = this._buildSection({
         kind: "group",
         label: EFFECT_LABELS.get(key) ?? key,
         sectionKey: `${parentKey}:${key}`,
@@ -239712,8 +240211,8 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       });
       const liveChild = liveEffects ? liveEffects[key] : void 0;
       const childApply = liveChild && typeof liveChild.fromParams === "function" ? this._makeTargetApply(liveChild) : this._nestedApply(groupApply, key);
-      sub.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
-      body.appendChild(sub.section);
+      sub2.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
+      body.appendChild(sub2.section);
     }
   }
   /**
@@ -243516,21 +244015,21 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
     if (this._listenersAttached || this._destroyed)
       return;
     this._listenersAttached = true;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
     const sceneEv = this.studio.scene.events;
     if (sceneEv) {
       if (sceneEv.onSceneModelCreated?.subscribe)
-        sub(sceneEv.onSceneModelCreated.subscribe(onChange));
+        sub2(sceneEv.onSceneModelCreated.subscribe(onChange));
       if (sceneEv.onSceneModelDestroyed?.subscribe)
-        sub(sceneEv.onSceneModelDestroyed.subscribe(onChange));
+        sub2(sceneEv.onSceneModelDestroyed.subscribe(onChange));
     }
     const dataEv = this.studio.data.events;
     if (dataEv) {
       if (dataEv.onDataModelCreated?.subscribe)
-        sub(dataEv.onDataModelCreated.subscribe(onChange));
+        sub2(dataEv.onDataModelCreated.subscribe(onChange));
       if (dataEv.onDataModelDestroyed?.subscribe)
-        sub(dataEv.onDataModelDestroyed.subscribe(onChange));
+        sub2(dataEv.onDataModelDestroyed.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -244493,17 +244992,17 @@ var ExplorerPanel = class _ExplorerPanel extends FloatingPanelBase {
     const ev = this.data.events;
     if (!ev)
       return;
-    const sub = (emitter) => {
+    const sub2 = (emitter) => {
       if (emitter?.subscribe) {
         this._dataUnsubs.push(emitter.subscribe(() => this._scheduleRebuild()));
       }
     };
-    sub(ev.onDataModelCreated);
-    sub(ev.onDataModelDestroyed);
-    sub(ev.onDataObjectCreated);
-    sub(ev.onDataObjectDestroyed);
-    sub(ev.onRelationshipCreated);
-    sub(ev.onRelationshipDestroyed);
+    sub2(ev.onDataModelCreated);
+    sub2(ev.onDataModelDestroyed);
+    sub2(ev.onDataObjectCreated);
+    sub2(ev.onDataObjectDestroyed);
+    sub2(ev.onRelationshipCreated);
+    sub2(ev.onRelationshipDestroyed);
   }
   _detachDataListeners() {
     for (const u of this._dataUnsubs) {
@@ -244776,7 +245275,7 @@ function pickAggregationLinkTypes(data2) {
   const PREFERRED = ["IfcRelAggregates", "BasicAggregation"];
   const seen = /* @__PURE__ */ new Set();
   const result = [];
-  const add = (t) => {
+  const add2 = (t) => {
     if (!t || seen.has(t))
       return;
     seen.add(t);
@@ -244815,7 +245314,7 @@ function pickAggregationLinkTypes(data2) {
       pick2 = best;
     }
     if (pick2)
-      add(pick2);
+      add2(pick2);
   }
   if (result.length === 0)
     return ["IfcRelAggregates"];
@@ -250341,16 +250840,16 @@ var CameraTourPanel = class _CameraTourPanel extends FloatingPanelBase {
     const sceneEv = this.studio.scene.events;
     if (!sceneEv)
       return;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv.onSceneModelCreated?.subscribe) {
-      sub(sceneEv.onSceneModelCreated.subscribe((_, model) => {
+      sub2(sceneEv.onSceneModelCreated.subscribe((_, model) => {
         if (isDrawingId(model.id))
           return;
         this._renderBody();
       }));
     }
     if (sceneEv.onSceneModelDestroyed?.subscribe) {
-      sub(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
+      sub2(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
         const rec = this._rows.get(model.id);
         if (rec) {
           rec.playback?.destroy();
@@ -251282,9 +251781,9 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     const sceneEv = this.studio.scene.events;
     if (!sceneEv)
       return;
-    const sub = (unsub) => this._unsubs.push(unsub);
+    const sub2 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv.onSceneModelCreated?.subscribe) {
-      sub(sceneEv.onSceneModelCreated.subscribe((_, model) => {
+      sub2(sceneEv.onSceneModelCreated.subscribe((_, model) => {
         if (this._ownedProjectionIds.has(model.id))
           return;
         if (_DrawingsPanel.isDrawingModelId(model.id))
@@ -251293,7 +251792,7 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
       }));
     }
     if (sceneEv.onSceneModelDestroyed?.subscribe) {
-      sub(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
+      sub2(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
         if (this._ownedProjectionIds.has(model.id)) {
           this._ownedProjectionIds.delete(model.id);
           return;
@@ -251310,15 +251809,15 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     if (viewerEv) {
       const refresh = () => this._scheduleSectionPlaneRefresh();
       if (viewerEv.onSectionPlaneCreated?.subscribe)
-        sub(viewerEv.onSectionPlaneCreated.subscribe(refresh));
+        sub2(viewerEv.onSectionPlaneCreated.subscribe(refresh));
       if (viewerEv.onSectionPlaneDestroyed?.subscribe)
-        sub(viewerEv.onSectionPlaneDestroyed.subscribe(refresh));
+        sub2(viewerEv.onSectionPlaneDestroyed.subscribe(refresh));
       if (viewerEv.onSectionPlanePosChanged?.subscribe)
-        sub(viewerEv.onSectionPlanePosChanged.subscribe(refresh));
+        sub2(viewerEv.onSectionPlanePosChanged.subscribe(refresh));
       if (viewerEv.onSectionPlaneDirChanged?.subscribe)
-        sub(viewerEv.onSectionPlaneDirChanged.subscribe(refresh));
+        sub2(viewerEv.onSectionPlaneDirChanged.subscribe(refresh));
       if (viewerEv.onSectionPlaneActive?.subscribe)
-        sub(viewerEv.onSectionPlaneActive.subscribe(refresh));
+        sub2(viewerEv.onSectionPlaneActive.subscribe(refresh));
     }
   }
   /**
@@ -256256,8 +256755,8 @@ function sectionPlaneDirFromPickedNormal(normal2, rayDir) {
   if (!rayDir) {
     return cleanDir(normal2);
   }
-  const dot4 = normal2[0] * rayDir[0] + normal2[1] * rayDir[1] + normal2[2] * rayDir[2];
-  return dot4 > 0 ? cleanDir([-normal2[0], -normal2[1], -normal2[2]]) : cleanDir(normal2);
+  const dot5 = normal2[0] * rayDir[0] + normal2[1] * rayDir[1] + normal2[2] * rayDir[2];
+  return dot5 > 0 ? cleanDir([-normal2[0], -normal2[1], -normal2[2]]) : cleanDir(normal2);
 }
 function cleanDir(dir) {
   return [dir[0] || 0, dir[1] || 0, dir[2] || 0];
@@ -257037,20 +257536,19 @@ var toggleFirstPerson = {
   id: "toggleFirstPerson",
   do(ctx2) {
     if (ctx2.fireAction("toggleFirstPerson")) {
-      const vcAfter = ctx2.viewController();
-      if (vcAfter) {
-        ctx2.setPressed("toggleFirstPerson", vcAfter.navMode === FirstPersonNavigationMode);
+      const walkAfter = ctx2.walkNavigationController();
+      if (walkAfter) {
+        ctx2.setPressed("toggleFirstPerson", walkAfter.active);
       }
       return;
     }
-    const vc = ctx2.viewController();
-    if (!vc) {
-      console.warn("[Toolbar] toggleFirstPerson \u2014 no ViewController registered for the active View.");
+    const walk = ctx2.walkNavigationController();
+    if (!walk) {
+      console.warn("[Toolbar] toggleFirstPerson \u2014 no walk navigation controller registered for the active View.");
       return;
     }
-    const wasFirstPerson = vc.navMode === FirstPersonNavigationMode;
-    vc.navMode = wasFirstPerson ? OrbitNavigationMode : FirstPersonNavigationMode;
-    ctx2.setPressed("toggleFirstPerson", !wasFirstPerson);
+    walk.active = !walk.active;
+    ctx2.setPressed("toggleFirstPerson", walk.active);
   }
 };
 
@@ -257546,10 +258044,8 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     this._bindChrome();
     this._wireDomEvents();
     this._pill.hidden = false;
-    const vc = this._viewController();
-    if (vc) {
-      this._setPressed("toggleFirstPerson", vc.navMode === FirstPersonNavigationMode);
-    }
+    const walkController = this._walkNavigationController(false);
+    this._setPressed("toggleFirstPerson", walkController?.active ?? false);
     if (params.visible === false) {
       this.hide();
     } else {
@@ -257706,7 +258202,7 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     }));
     gCamera.btns.appendChild(this._mkBtn({
       action: "toggleFirstPerson",
-      title: "Toggle First-Person Navigation",
+      title: "Toggle Walk Navigation",
       svg: ICONS.person,
       toggle: true
     }));
@@ -257865,10 +258361,11 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       studio: this.studio,
       activeView: () => this._activeView(),
       viewController: () => this._viewController(),
+      walkNavigationController: () => this._walkNavigationController(),
       cameraFlight: () => this._cameraFlight(),
       sceneAabb: () => this._sceneAabb(),
       fireAction: (action) => this._fireAction(action),
-      setPressed: (action, pressed) => this._setPressed(action, pressed),
+      setPressed: (action, pressed2) => this._setPressed(action, pressed2),
       bindPanelSync: (panel, action) => this._bindPanelSync(panel, action)
     };
   }
@@ -258550,6 +259047,21 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     const record = this.studio.viewManager.views?.[view.id];
     return record?.viewController ?? null;
   }
+  _walkNavigationController(create4 = true) {
+    const view = this._activeView();
+    if (!view || !this.studio)
+      return null;
+    const record = this.studio.viewManager.views?.[view.id];
+    if (!record)
+      return null;
+    if (!record.walkNavigationController && create4) {
+      record.walkNavigationController = new WalkNavigationController(view, {
+        active: false,
+        suspendViewController: record.viewController
+      });
+    }
+    return record.walkNavigationController ?? null;
+  }
   _wireDomEvents() {
   }
   // ── Layout persistence ────────────────────────────────────────
@@ -258561,11 +259073,11 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     const result = this._onAction(action, { toolbar: this, viewer: this.viewer, mode });
     return result === true;
   }
-  _setPressed(action, pressed) {
+  _setPressed(action, pressed2) {
     const btn = this._btns[action];
     if (!btn)
       return;
-    btn.setAttribute("aria-pressed", String(pressed));
+    btn.setAttribute("aria-pressed", String(pressed2));
   }
   /**
    * Subscribe a panel-toggle Toolbar button to its panel's
@@ -259155,15 +259667,15 @@ var ExportBCFPanel = class _ExportBCFPanel extends FloatingPanelBase {
   // ── Live sync ─────────────────────────────────────────────────
   _attachLiveSync() {
     const ev = this.view.viewer?.events;
-    const sub = (unsub) => {
+    const sub2 = (unsub) => {
       if (typeof unsub === "function")
         this._unsubs.push(unsub);
     };
     if (ev?.onViewLayerCreated?.subscribe) {
-      sub(ev.onViewLayerCreated.subscribe(() => this._scheduleRefresh()));
+      sub2(ev.onViewLayerCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (ev?.onViewLayerDestroyed?.subscribe) {
-      sub(ev.onViewLayerDestroyed.subscribe(() => this._scheduleRefresh()));
+      sub2(ev.onViewLayerDestroyed.subscribe(() => this._scheduleRefresh()));
     }
   }
   _scheduleRefresh() {
@@ -261592,8 +262104,10 @@ var LoadingSpinner = class _LoadingSpinner {
     sdkProgress.onPhaseUpdated.subscribe((_sdkProgress, phase) => {
       this.phase = phase;
       this.appendPhaseLog(phase);
-      this.cancelAutoHide();
-      this.show();
+      if (_sdkProgress.numTasks > 0) {
+        this.cancelAutoHide();
+        this.show();
+      }
       this.render();
     });
   }
@@ -263423,89 +263937,103 @@ var Studio = class _Studio {
     const { modelId, formats: formats2 } = params;
     const updateHint = params.updateHint ?? params.updateUsage;
     const clear = params.clear !== false;
-    sdkProgress.setPhase(`Preparing ${modelId}`);
-    if (!modelId || !formats2 || formats2.length === 0) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: "[Studio.loadDataset] modelId and formats are required"
-      };
-    }
-    if (clear) {
-      sdkProgress.setPhase("Clearing previous models");
-      for (const id of Object.keys(this.scene.models)) {
-        const m = this.scene.models[id];
-        if (m && !m.destroyed)
-          m.destroy();
-      }
-      for (const id of Object.keys(this.data.models)) {
-        const m = this.data.models[id];
-        if (m && !m.destroyed)
-          m.destroy();
-      }
-    }
-    const instanceId = clear ? modelId : `${modelId}-${Date.now()}`;
-    sdkProgress.setPhase("Reading coordinate system");
-    const coordinateSystem = await this._loadCoordSys(modelId);
-    sdkProgress.setPhase("Creating scene model");
-    const sceneCreate = this.scene.createModel({ id: instanceId, coordinateSystem, updateHint });
-    if (sceneCreate.ok === false) {
-      return { ok: false, type: 5 /* Unknown */, error: sceneCreate.error };
-    }
-    const sceneModel = sceneCreate.value;
-    sdkProgress.setPhase("Creating data model");
-    const dataCreate = this.data.createModel({ id: instanceId });
-    if (dataCreate.ok === false) {
-      try {
-        sceneModel.destroy();
-      } catch {
-      }
-      return { ok: false, type: 5 /* Unknown */, error: dataCreate.error };
-    }
-    const dataModel = dataCreate.value;
-    const totalFormats = formats2.length;
-    let innerFailure = null;
+    sdkProgress.addTask();
     try {
-      await LoaderProgressDialog.runWith({
-        title: `Loading ${modelId} (${formats2.join(", ")})`,
-        delayMs: 80,
-        run: async (onProgress, signal) => {
-          const reportProgress = (progress) => {
-            if (progress.phase) {
-              sdkProgress.setPhase(progress.phase);
-            }
-            onProgress(progress);
-          };
-          for (let i = 0; i < formats2.length; i++) {
-            const format = formats2[i];
-            reportProgress({
-              phase: `Loading ${format}`,
-              current: i,
-              total: totalFormats
-            });
-            const r = await this.loadModel(
-              { modelId, format, sceneModel, dataModel, updateHint },
-              { onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60 }
-            );
-            if (r && r.ok === false) {
-              innerFailure = r;
-              return;
-            }
-          }
-          reportProgress({ phase: "Finalising", current: totalFormats, total: totalFormats });
-          const view = this._getInspectorView();
-          if (view) {
-            try {
-              sdkProgress.setPhase("Framing camera");
-              const aabb = this.picking.collisionIndex.getSceneAABB();
-              if (aabb)
-                this.viewManager.fitToAabb(view, aabb);
-            } catch {
-            }
-          }
+      sdkProgress.setPhase(`Preparing ${modelId}`);
+      if (!modelId || !formats2 || formats2.length === 0) {
+        return {
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[Studio.loadDataset] modelId and formats are required"
+        };
+      }
+      if (clear) {
+        sdkProgress.setPhase("Clearing previous models");
+        for (const id of Object.keys(this.scene.models)) {
+          const m = this.scene.models[id];
+          if (m && !m.destroyed)
+            m.destroy();
         }
-      });
-      if (innerFailure) {
+        for (const id of Object.keys(this.data.models)) {
+          const m = this.data.models[id];
+          if (m && !m.destroyed)
+            m.destroy();
+        }
+      }
+      const instanceId = clear ? modelId : `${modelId}-${Date.now()}`;
+      sdkProgress.setPhase("Reading coordinate system");
+      const coordinateSystem = await this._loadCoordSys(modelId);
+      sdkProgress.setPhase("Creating scene model");
+      const sceneCreate = this.scene.createModel({ id: instanceId, coordinateSystem, updateHint });
+      if (sceneCreate.ok === false) {
+        return { ok: false, type: 5 /* Unknown */, error: sceneCreate.error };
+      }
+      const sceneModel = sceneCreate.value;
+      sdkProgress.setPhase("Creating data model");
+      const dataCreate = this.data.createModel({ id: instanceId });
+      if (dataCreate.ok === false) {
+        try {
+          sceneModel.destroy();
+        } catch {
+        }
+        return { ok: false, type: 5 /* Unknown */, error: dataCreate.error };
+      }
+      const dataModel = dataCreate.value;
+      const totalFormats = formats2.length;
+      let innerFailure = null;
+      try {
+        await LoaderProgressDialog.runWith({
+          title: `Loading ${modelId} (${formats2.join(", ")})`,
+          delayMs: 80,
+          run: async (onProgress, signal) => {
+            const reportProgress = (progress) => {
+              if (progress.phase) {
+                sdkProgress.setPhase(progress.phase);
+              }
+              onProgress(progress);
+            };
+            for (let i = 0; i < formats2.length; i++) {
+              const format = formats2[i];
+              reportProgress({
+                phase: `Loading ${format}`,
+                current: i,
+                total: totalFormats
+              });
+              const r = await this.loadModel(
+                { modelId, format, sceneModel, dataModel, updateHint },
+                { onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60 }
+              );
+              if (r && r.ok === false) {
+                innerFailure = r;
+                return;
+              }
+            }
+            reportProgress({ phase: "Finalising", current: totalFormats, total: totalFormats });
+            const view = this._getInspectorView();
+            if (view) {
+              try {
+                sdkProgress.setPhase("Framing camera");
+                const aabb = this.picking.collisionIndex.getSceneAABB();
+                if (aabb)
+                  this.viewManager.fitToAabb(view, aabb);
+              } catch {
+              }
+            }
+          }
+        });
+        if (innerFailure) {
+          try {
+            sceneModel.destroy();
+          } catch {
+          }
+          try {
+            dataModel.destroy();
+          } catch {
+          }
+          return innerFailure;
+        }
+        return { ok: true, value: { sceneModel, dataModel } };
+      } catch (err6) {
         try {
           sceneModel.destroy();
         } catch {
@@ -263514,24 +264042,15 @@ var Studio = class _Studio {
           dataModel.destroy();
         } catch {
         }
-        return innerFailure;
+        const isAbort = err6 && err6.name === "AbortError";
+        return {
+          ok: false,
+          type: 5 /* Unknown */,
+          error: isAbort ? "[Studio.loadDataset] cancelled by user" : `[Studio.loadDataset] ${err6 && err6.message || err6}`
+        };
       }
-      return { ok: true, value: { sceneModel, dataModel } };
-    } catch (err6) {
-      try {
-        sceneModel.destroy();
-      } catch {
-      }
-      try {
-        dataModel.destroy();
-      } catch {
-      }
-      const isAbort = err6 && err6.name === "AbortError";
-      return {
-        ok: false,
-        type: 5 /* Unknown */,
-        error: isAbort ? "[Studio.loadDataset] cancelled by user" : `[Studio.loadDataset] ${err6 && err6.message || err6}`
-      };
+    } finally {
+      sdkProgress.completeTask();
     }
   }
   /**

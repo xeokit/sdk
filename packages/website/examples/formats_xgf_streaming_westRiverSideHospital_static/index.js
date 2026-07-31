@@ -28,10 +28,10 @@ const REVIEW_VIEWPOINTS = [
     id: "HSP-101",
     title: "HSP-101 Roof helicopter review",
     location: "Roof helipad",
-    eye: [30.0, -129.0, 218.0],
-    look: [58.0, -92.0, 203.0],
+    eye: [27.0, -139.0, 221.0],
+    look: [42.0, -107.0, 202.0],
     up: [0, 0, 1],
-    fov: 16
+    fov: 14
   },
   {
     id: "HSP-118",

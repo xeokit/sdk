@@ -237379,6 +237379,10 @@ function openJsonInNewTab5(obj, title = "JSON") {
 }
 
 // ../sdk/src/studio/panels/sampleModelsPanel/SampleModelsPanel.ts
+var MODEL_UPDATE_HINTS = [
+  { id: "dynamic", label: "Dynamic" },
+  { id: "static", label: "Static" }
+];
 var STYLE_TAG_ID12 = "xkt-sam-styles";
 var _stylesInjected13 = false;
 function injectStylesOnce14() {
@@ -237744,10 +237748,8 @@ var PANEL_CSS11 = `
   height: 8px;
 }
 
-/* Controls strip \u2014 currently the "Add to scene" toggle that
-   flips loadDataset between replace and additive modes. Sits
-   between the progress strip and the catalog body so the
-   choice is visible above every Load button. */
+/* Controls strip \u2014 options that apply to every Load button in
+   the catalog. */
 .xkt-sam-panel .xkt-sam-controls {
   flex: 0 0 auto;
   display: flex;
@@ -237757,29 +237759,31 @@ var PANEL_CSS11 = `
   border-bottom: 1px solid #ececec;
   background: #fcfcfc;
 }
-.xkt-sam-panel .xkt-sam-add-toggle {
+.xkt-sam-panel .xkt-sam-model-update-hint {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 11px;
   color: #333;
-  cursor: pointer;
   user-select: none;
 }
-.xkt-sam-panel .xkt-sam-add-toggle input[type="checkbox"] {
-  appearance: auto;
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  cursor: pointer;
-}
-.xkt-sam-panel .xkt-sam-add-toggle-text {
+.xkt-sam-panel .xkt-sam-model-update-hint-text {
   font-weight: 600;
   color: #2d5e8c;
 }
-.xkt-sam-panel .xkt-sam-add-toggle-hint {
-  color: #888;
-  font-size: 10.5px;
+.xkt-sam-panel .xkt-sam-model-update-hint select {
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 11px;
+  color: #111;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.xkt-sam-panel .xkt-sam-model-update-hint select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* Per-model section \u2014 collapsible. */
@@ -237939,6 +237943,7 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
   _filter = "";
   _progressEl;
   _progressLabelEl;
+  _modelUpdateHintSelect;
   /**
    * Banner that surfaces load failures without clobbering the
    * catalog list (the previous behaviour, where an exception
@@ -237950,6 +237955,7 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
   _sampleModels = null;
   _fetchInFlight = false;
   _loadInFlight = false;
+  _modelUpdateHint = "dynamic";
   /**
    * When `true`, "Load" buttons add the dataset alongside any
    * already-loaded models (calls `loadDataset` with `clear:
@@ -238295,11 +238301,13 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
     this._setAllButtonsDisabled(true);
     button.textContent = "Loading\u2026";
     this._clearLoadError();
+    this._modelUpdateHintSelect.disabled = true;
     try {
       const result = await this.studio.loadDataset({
         modelId,
         formats: formats2,
-        clear: !additive
+        clear: !additive,
+        updateHint: this._modelUpdateHint
       });
       if (result && result.ok === false) {
         this._showLoadError(modelId, formats2, String(result.error));
@@ -238316,6 +238324,7 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
       this._loadInFlight = false;
       this._panel.classList.remove("xkt-sam-loading");
       this._progressLabelEl.textContent = "";
+      this._modelUpdateHintSelect.disabled = false;
       this._refreshButtonStates();
     }
   }
@@ -238503,6 +238512,9 @@ ${message}`;
     const progressBar = el("progress", "xkt-sam-progress-bar");
     this._progressEl.append(this._progressLabelEl, progressBar);
     this._panel.appendChild(this._progressEl);
+    const controls = el("div", "xkt-sam-controls");
+    controls.appendChild(this._buildModelUpdateHintControl());
+    this._panel.appendChild(controls);
     this._loadErrorEl = el("div", "xkt-sam-load-error");
     this._loadErrorEl.hidden = true;
     this._panel.appendChild(this._loadErrorEl);
@@ -238510,6 +238522,29 @@ ${message}`;
     this._panel.appendChild(this._bodyEl);
     this._container.appendChild(this._pill);
     this._container.appendChild(this._panel);
+  }
+  _buildModelUpdateHintControl() {
+    const wrap = el("label", "xkt-sam-model-update-hint");
+    wrap.appendChild(el("span", "xkt-sam-model-update-hint-text", {
+      textContent: "SceneModel update"
+    }));
+    const select = el("select", void 0, {
+      "aria-label": "SceneModel update hint",
+      title: "SceneModel updateHint"
+    });
+    for (const item of MODEL_UPDATE_HINTS) {
+      const opt = document.createElement("option");
+      opt.value = item.id;
+      opt.textContent = item.label;
+      select.appendChild(opt);
+    }
+    select.value = this._modelUpdateHint;
+    select.addEventListener("change", () => {
+      this._modelUpdateHint = select.value;
+    });
+    this._modelUpdateHintSelect = select;
+    wrap.appendChild(select);
+    return wrap;
   }
   _wireDomEvents() {
   }
@@ -241660,6 +241695,10 @@ var IMPORT_BASES = [
 
 // ../sdk/src/studio/panels/importDialog/ImportDialog.ts
 var UNITS = ["meters", "millimeters", "inches", "feet"];
+var MODEL_UPDATE_HINTS2 = [
+  { id: "dynamic", label: "Dynamic" },
+  { id: "static", label: "Static" }
+];
 var STYLE_TAG_ID16 = "xkt-imp-styles";
 var _stylesInjected17 = false;
 function injectStylesOnce18() {
@@ -241967,6 +242006,8 @@ var ImportDialog = class _ImportDialog extends FloatingPanelBase {
   studio;
   _filesHost;
   _dataSetSelect;
+  _modelUpdateHintSelect;
+  _modelUpdateHintSection;
   _basisSelect;
   _coordSysSection;
   _loadBtn;
@@ -241975,6 +242016,7 @@ var ImportDialog = class _ImportDialog extends FloatingPanelBase {
   _basis;
   _units = "meters";
   _origin = [0, 0, 0];
+  _modelUpdateHint = "dynamic";
   constructor(params) {
     if (!params || !params.studio) {
       throw new Error("ImportDialog: studio is required");
@@ -242037,6 +242079,9 @@ var ImportDialog = class _ImportDialog extends FloatingPanelBase {
     this._filesHost = el("div", "xkt-imp-row");
     this._filesHost.append(el("label", "xkt-imp-row-label", { textContent: "Files" }));
     body.appendChild(this._filesHost);
+    this._modelUpdateHintSection = this._buildModelUpdateHintSection();
+    body.appendChild(this._modelUpdateHintSection);
+    this._applyModelUpdateHintEnabled();
     this._coordSysSection = this._buildCoordSysSection();
     body.appendChild(this._coordSysSection);
     this._applyCoordSysEnabled();
@@ -242078,6 +242123,7 @@ var ImportDialog = class _ImportDialog extends FloatingPanelBase {
       this._chosenFiles.clear();
       this._renderFileRows();
       this._applyDefaultBasis();
+      this._applyModelUpdateHintEnabled();
       this._applyCoordSysEnabled();
       this._refreshLoadEnabled();
     });
@@ -242090,6 +242136,42 @@ var ImportDialog = class _ImportDialog extends FloatingPanelBase {
     this._coordSysSection.querySelectorAll("select, input").forEach((field) => {
       field.disabled = !enabled;
     });
+  }
+  _buildModelUpdateHintSection() {
+    const row = el("div", "xkt-imp-row");
+    row.append(
+      el("label", "xkt-imp-row-label", {
+        textContent: "SceneModel update",
+        htmlFor: "xkt-imp-model-update-hint"
+      }),
+      this._buildModelUpdateHintSelect()
+    );
+    return row;
+  }
+  _buildModelUpdateHintSelect() {
+    const select = el("select", "xkt-imp-select", {
+      id: "xkt-imp-model-update-hint",
+      name: "model-update-hint",
+      "aria-label": "SceneModel update hint",
+      title: "SceneModel updateHint"
+    });
+    for (const item of MODEL_UPDATE_HINTS2) {
+      const opt = document.createElement("option");
+      opt.value = item.id;
+      opt.textContent = item.label;
+      select.appendChild(opt);
+    }
+    select.value = this._modelUpdateHint;
+    select.addEventListener("change", () => {
+      this._modelUpdateHint = select.value;
+    });
+    this._modelUpdateHintSelect = select;
+    return select;
+  }
+  _applyModelUpdateHintEnabled() {
+    const enabled = this._activeDataSet.loadsSceneGeometry !== false;
+    this._modelUpdateHintSection.classList.toggle("xkt-imp-disabled", !enabled);
+    this._modelUpdateHintSelect.disabled = !enabled;
   }
   /** Re-pick the basis from the active data set's hint + update the select. */
   _applyDefaultBasis() {
@@ -242271,7 +242353,8 @@ var ImportDialog = class _ImportDialog extends FloatingPanelBase {
     if (wantsScene) {
       const res = this.studio.scene.createModel({
         id: modelId,
-        coordinateSystem: this._resolveCoordSys()
+        coordinateSystem: this._resolveCoordSys(),
+        updateHint: this._modelUpdateHint
       });
       if (res.ok === false) {
         this.studio.reportError(`[ImportDialog] createModel failed: ${res.error}`);
@@ -242297,7 +242380,14 @@ var ImportDialog = class _ImportDialog extends FloatingPanelBase {
         const url = URL.createObjectURL(file);
         urls.push(url);
         const result = await this.studio.loadModel(
-          { src: url, modelId, format: spec.loadFormat, sceneModel, dataModel },
+          {
+            src: url,
+            modelId,
+            format: spec.loadFormat,
+            sceneModel,
+            dataModel,
+            updateHint: wantsScene ? this._modelUpdateHint : void 0
+          },
           {}
         );
         if (result && result.ok === false) {

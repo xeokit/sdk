@@ -17,8 +17,6 @@ const CAMERA_DEBOUNCE_MS = 140;
 const STREAM_RESUME_AFTER_CAMERA_IDLE_MS = 500;
 const FRUSTUM_DEPTH_MULTIPLIER = 2.8;
 const FRUSTUM_MIN_DEPTH = 650;
-const STREAM_STALL_STORAGE_KEY = "xeokit.formats_xgf_streaming_zurich_buildings.stallStreamingWhileMoving";
-const DEFAULT_STALL_STREAMING_WHILE_MOVING = true;
 const VIEWPOINT_MOTION_STORAGE_KEY = "xeokit.formats_xgf_streaming_zurich_buildings.viewpointMotion";
 const DEFAULT_VIEWPOINT_MOTION = "jump";
 const CACHE_XGF_FILE_BYTES = true;
@@ -340,10 +338,6 @@ function createStreamControllerGroup(controllers) {
 function bindCameraStreaming(studio, view, streamController, stallStreamingToggle) {
   let resumeTimer;
   let settledStreamLabel;
-  let stallStreamingWhileMoving = readPersistentBoolean(
-    STREAM_STALL_STORAGE_KEY,
-    DEFAULT_STALL_STREAMING_WHILE_MOVING
-  );
 
   const clearResumeTimer = () => {
     if (resumeTimer !== undefined) {
@@ -353,29 +347,11 @@ function bindCameraStreaming(studio, view, streamController, stallStreamingToggl
   };
 
   if (stallStreamingToggle) {
-    stallStreamingToggle.checked = stallStreamingWhileMoving;
-    stallStreamingToggle.addEventListener("change", () => {
-      stallStreamingWhileMoving = stallStreamingToggle.checked;
-      writePersistentBoolean(STREAM_STALL_STORAGE_KEY, stallStreamingWhileMoving);
-      if (!stallStreamingWhileMoving) {
-        clearResumeTimer();
-        settledStreamLabel = undefined;
-        if (streamController.paused) {
-          streamController.resume("Camera stream");
-        } else {
-          streamController.schedule("Camera stream");
-        }
-      }
-    });
+    stallStreamingToggle.checked = true;
+    stallStreamingToggle.disabled = true;
   }
 
   const scheduleCameraStream = (label = "Camera stream") => {
-    if (!stallStreamingWhileMoving) {
-      settledStreamLabel = undefined;
-      streamController.schedule(label);
-      return;
-    }
-
     const resumeLabel = settledStreamLabel || label;
     clearResumeTimer();
     if (!streamController.paused) {
@@ -420,26 +396,6 @@ function countReferenceObjects(index) {
       ? total + (manifest.counts?.objects || 0)
       : total;
   }, 0);
-}
-
-function readPersistentBoolean(key, defaultValue) {
-  try {
-    const value = window.localStorage.getItem(key);
-    if (value === null) {
-      return defaultValue;
-    }
-    return value === "true";
-  } catch (error) {
-    return defaultValue;
-  }
-}
-
-function writePersistentBoolean(key, value) {
-  try {
-    window.localStorage.setItem(key, value ? "true" : "false");
-  } catch (error) {
-    // Persistence is optional for browser modes that block storage.
-  }
 }
 
 function bindViewpointMotionToggle(viewpointMotionToggle) {

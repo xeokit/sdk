@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XGF Stream Zurich Buildings</title>
+  <link href="../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #e7ecef;
+      user-select: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #e7ecef;
+    }
+
+    .xkt-info-panel,
+    .xkt-info-pill {
+      display: none !important;
+    }
+
+    #streamPanel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(430px, calc(100vw - 32px));
+      max-height: calc(100vh - 68px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(27, 34, 42, 0.16);
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(29, 37, 46, 0.18);
+      color: #202a33;
+      z-index: 3000000;
+    }
+
+    .panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(27, 34, 42, 0.12);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .panel-body {
+      display: grid;
+      gap: 11px;
+      padding: 12px 16px 14px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #52606d;
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .metric strong {
+      color: #202a33;
+      font-size: 13px;
+    }
+
+    .stream-options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 30px;
+    }
+
+    .toggle-label {
+      color: #34404a;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-flex;
+      width: 42px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .switch span {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #a8b3bd;
+      transition: background 0.16s ease;
+    }
+
+    .switch span::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
+      transition: transform 0.16s ease;
+    }
+
+    .switch input:checked + span {
+      background: #2f7d7e;
+    }
+
+    .switch input:checked + span::after {
+      transform: translateX(18px);
+    }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      accent-color: #2f7d7e;
+    }
+
+    #status {
+      color: #43505c;
+    }
+
+    .viewpoint-list {
+      display: grid;
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .viewpoint-list h2 {
+      margin: 0;
+      color: #202a33;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    #viewpointCards {
+      display: grid;
+      gap: 8px;
+    }
+
+    .viewpoint-card {
+      display: block;
+      position: relative;
+      width: 100%;
+      min-height: 58px;
+      padding: 9px 10px;
+      text-align: left;
+      background: #f8fafb;
+      border: 1px solid rgba(27, 34, 42, 0.14);
+      border-radius: 7px;
+      color: #202a33;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .viewpoint-card:hover,
+    .viewpoint-card:focus-visible {
+      border-color: rgba(47, 125, 126, 0.44);
+      background: #eef6f5;
+      outline: none;
+    }
+
+    .viewpoint-card::before,
+    .viewpoint-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    .viewpoint-card::before {
+      left: 0;
+      width: var(--view-load-progress, 0%);
+      background: rgba(70, 150, 96, 0.24);
+      transition: width 150ms ease;
+      z-index: 0;
+    }
+
+    .viewpoint-card::after {
+      left: var(--view-load-progress, 0%);
+      width: 2px;
+      background: rgba(44, 107, 67, 0.72);
+      transform: translateX(-1px);
+      transition: left 150ms ease;
+      z-index: 1;
+    }
+
+    .viewpoint-card[aria-pressed="true"] {
+      border-color: #2f7d7e;
+      box-shadow: inset 3px 0 0 #2f7d7e;
+      background: #eef6f5;
+    }
+
+    .viewpoint-card > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .viewpoint-card strong {
+      display: block;
+      min-width: 0;
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .viewpoint-card span {
+      display: block;
+      min-width: 0;
+      margin-top: 3px;
+      color: #5f6f7c;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .viewpoint-card em {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #dfeee9;
+      color: #3d6655;
+      font-style: normal;
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="streamPanel">
+  <div class="panel-header">
+    <h1>XGF Stream Zurich Buildings</h1>
+  </div>
+  <div class="panel-body">
+    <div class="metric"><span>Chunks</span><strong><span id="loadedChunks">0</span> <span id="chunkTarget">/ 0</span></strong></div>
+    <div class="metric"><span>Objects</span><strong><span id="objectCount">0</span> <span id="objectTarget">/ 0</span></strong></div>
+    <div class="metric"><span>Meshes</span><strong id="meshCount">0</strong></div>
+    <progress id="chunkProgress" max="1" value="0"></progress>
+    <div class="stream-options">
+      <div class="toggle-row">
+        <span class="toggle-label">Stall while moving</span>
+        <label class="switch">
+          <input id="stallStreamingToggle" type="checkbox">
+          <span></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Fly to viewpoints</span>
+        <label class="switch">
+          <input id="viewpointMotionToggle" type="checkbox">
+          <span></span>
+        </label>
+      </div>
+    </div>
+    <div class="viewpoint-list">
+      <h2>Review Viewpoints</h2>
+      <div id="viewpointCards"></div>
+    </div>
+    <div id="status">Initializing...</div>
+  </div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

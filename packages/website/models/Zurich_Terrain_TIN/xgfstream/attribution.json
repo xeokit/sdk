@@ -26,7 +26,7 @@
   },
   "buildingStreamIndexPath": "packages/website/models/Zurich_Building_LoD2_V10/xgfstream/index.json",
   "tileWorldSize": 1500,
-  "tileTextureSize": 2048,
+  "tileTextureSize": 1024,
   "tileDivisions": 10,
   "tileCount": 81,
   "columns": 9,
@@ -39,5 +39,5 @@
     2272.0140380859375,
     132.1954962522085
   ],
-  "generatedAt": "2026-07-31T23:12:24.132Z"
+  "generatedAt": "2026-08-01T14:14:17.938Z"
 }

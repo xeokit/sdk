@@ -1,0 +1,43 @@
+{
+  "source": "Kanton Zürich Orthofoto Sommer RGB/Infrarot 2024/25 (OGD)",
+  "sourceUrl": "https://geolion.zh.ch/geodatensatz/5011",
+  "serviceUrl": "https://wms.zh.ch/OGDOrthoZH",
+  "layer": "ortho_s_2024",
+  "sourceCoordinateSystem": {
+    "crs": "EPSG:2056",
+    "basis": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "origin": [
+      2678701.758,
+      1252228.936,
+      509.796
+    ],
+    "units": "meters",
+    "scaleToMeters": 1
+  },
+  "buildingStreamIndexPath": "packages/website/models/Zurich_Building_LoD2_V10/xgfstream/index.json",
+  "tileWorldSize": 1500,
+  "tileTextureSize": 2048,
+  "tileDivisions": 10,
+  "tileCount": 81,
+  "columns": 9,
+  "rows": 9,
+  "aabb": [
+    -1935.383056640625,
+    -10739.9111328125,
+    -113.22100067138675,
+    11030.2265625,
+    2272.0140380859375,
+    132.1954962522085
+  ],
+  "generatedAt": "2026-07-31T23:12:24.132Z"
+}

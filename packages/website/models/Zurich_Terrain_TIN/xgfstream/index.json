@@ -1,0 +1,6678 @@
+{
+  "format": "XGFStreamingIndex",
+  "indexVersion": "1.2.0",
+  "chunks": [
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-000",
+      "uri": "chunks/terrain-assets-000.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 1
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-001",
+      "uri": "chunks/terrain-assets-001.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 2
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-002",
+      "uri": "chunks/terrain-assets-002.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 3
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-003",
+      "uri": "chunks/terrain-assets-003.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 4
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-004",
+      "uri": "chunks/terrain-assets-004.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 5
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-005",
+      "uri": "chunks/terrain-assets-005.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 6
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-006",
+      "uri": "chunks/terrain-assets-006.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 7
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-007",
+      "uri": "chunks/terrain-assets-007.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 8
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-008",
+      "uri": "chunks/terrain-assets-008.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 9
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-009",
+      "uri": "chunks/terrain-assets-009.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 10
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-010",
+      "uri": "chunks/terrain-assets-010.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 11
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-011",
+      "uri": "chunks/terrain-assets-011.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 12
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-012",
+      "uri": "chunks/terrain-assets-012.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 13
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-013",
+      "uri": "chunks/terrain-assets-013.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 14
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-014",
+      "uri": "chunks/terrain-assets-014.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 15
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-015",
+      "uri": "chunks/terrain-assets-015.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 16
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-016",
+      "uri": "chunks/terrain-assets-016.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 17
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-017",
+      "uri": "chunks/terrain-assets-017.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 18
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-018",
+      "uri": "chunks/terrain-assets-018.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 19
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-019",
+      "uri": "chunks/terrain-assets-019.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 20
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-020",
+      "uri": "chunks/terrain-assets-020.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 21
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-021",
+      "uri": "chunks/terrain-assets-021.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 22
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-022",
+      "uri": "chunks/terrain-assets-022.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 23
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-023",
+      "uri": "chunks/terrain-assets-023.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 24
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-024",
+      "uri": "chunks/terrain-assets-024.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 25
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-025",
+      "uri": "chunks/terrain-assets-025.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 26
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-026",
+      "uri": "chunks/terrain-assets-026.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 27
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-027",
+      "uri": "chunks/terrain-assets-027.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 28
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-028",
+      "uri": "chunks/terrain-assets-028.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 29
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-029",
+      "uri": "chunks/terrain-assets-029.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 30
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-030",
+      "uri": "chunks/terrain-assets-030.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 31
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-031",
+      "uri": "chunks/terrain-assets-031.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 32
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-032",
+      "uri": "chunks/terrain-assets-032.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 33
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-033",
+      "uri": "chunks/terrain-assets-033.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 34
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-034",
+      "uri": "chunks/terrain-assets-034.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 35
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-035",
+      "uri": "chunks/terrain-assets-035.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 36
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-036",
+      "uri": "chunks/terrain-assets-036.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 37
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-037",
+      "uri": "chunks/terrain-assets-037.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 38
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-038",
+      "uri": "chunks/terrain-assets-038.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 39
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-039",
+      "uri": "chunks/terrain-assets-039.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 40
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-040",
+      "uri": "chunks/terrain-assets-040.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 41
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-041",
+      "uri": "chunks/terrain-assets-041.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 42
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-042",
+      "uri": "chunks/terrain-assets-042.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 43
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-043",
+      "uri": "chunks/terrain-assets-043.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 44
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-044",
+      "uri": "chunks/terrain-assets-044.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 45
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-045",
+      "uri": "chunks/terrain-assets-045.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 46
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-046",
+      "uri": "chunks/terrain-assets-046.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 47
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-047",
+      "uri": "chunks/terrain-assets-047.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 48
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-048",
+      "uri": "chunks/terrain-assets-048.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 49
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-049",
+      "uri": "chunks/terrain-assets-049.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 50
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-050",
+      "uri": "chunks/terrain-assets-050.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 51
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-051",
+      "uri": "chunks/terrain-assets-051.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 52
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-052",
+      "uri": "chunks/terrain-assets-052.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 53
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-053",
+      "uri": "chunks/terrain-assets-053.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 54
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-054",
+      "uri": "chunks/terrain-assets-054.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 55
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-055",
+      "uri": "chunks/terrain-assets-055.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 56
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-056",
+      "uri": "chunks/terrain-assets-056.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 57
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-057",
+      "uri": "chunks/terrain-assets-057.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 58
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-058",
+      "uri": "chunks/terrain-assets-058.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 59
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-059",
+      "uri": "chunks/terrain-assets-059.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 60
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-060",
+      "uri": "chunks/terrain-assets-060.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 61
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-061",
+      "uri": "chunks/terrain-assets-061.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 62
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-062",
+      "uri": "chunks/terrain-assets-062.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 63
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-063",
+      "uri": "chunks/terrain-assets-063.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 64
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-064",
+      "uri": "chunks/terrain-assets-064.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 65
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-065",
+      "uri": "chunks/terrain-assets-065.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 66
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-066",
+      "uri": "chunks/terrain-assets-066.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 67
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-067",
+      "uri": "chunks/terrain-assets-067.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 68
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-068",
+      "uri": "chunks/terrain-assets-068.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 69
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-069",
+      "uri": "chunks/terrain-assets-069.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 70
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-070",
+      "uri": "chunks/terrain-assets-070.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 71
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-071",
+      "uri": "chunks/terrain-assets-071.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 72
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-072",
+      "uri": "chunks/terrain-assets-072.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c00_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 73
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-073",
+      "uri": "chunks/terrain-assets-073.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c01_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 74
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-074",
+      "uri": "chunks/terrain-assets-074.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c02_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 75
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-075",
+      "uri": "chunks/terrain-assets-075.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c03_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 76
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-076",
+      "uri": "chunks/terrain-assets-076.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c04_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 77
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-077",
+      "uri": "chunks/terrain-assets-077.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c05_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 78
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-078",
+      "uri": "chunks/terrain-assets-078.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c06_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 79
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-079",
+      "uri": "chunks/terrain-assets-079.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c07_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 80
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "terrain-assets-080",
+      "uri": "chunks/terrain-assets-080.xgf",
+      "role": "assetLibrary",
+      "dependencies": {
+        "chunks": [],
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "assets": {
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c08_orthophoto"
+        ]
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 1,
+        "materials": 1,
+        "textures": 1,
+        "meshes": 0,
+        "objects": 0
+      },
+      "priority": 81
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00000",
+      "uri": "chunks/chunk-00000.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-000",
+            "uri": "chunks/terrain-assets-000.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 0,
+      "aabb": [
+        -1935.383056640625,
+        -10739.9111328125,
+        69.41610717773438,
+        -494.759765625,
+        -9294.1416015625,
+        99.29402923583984
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00001",
+      "uri": "chunks/chunk-00001.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-001",
+            "uri": "chunks/terrain-assets-001.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 1,
+      "aabb": [
+        -494.759765625,
+        -10739.9111328125,
+        -27.346240997314453,
+        945.863525390625,
+        -9294.1416015625,
+        122.19798278808594
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00002",
+      "uri": "chunks/chunk-00002.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-002",
+            "uri": "chunks/terrain-assets-002.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 2,
+      "aabb": [
+        945.863525390625,
+        -10739.9111328125,
+        -69.22821807861328,
+        2386.48681640625,
+        -9294.1416015625,
+        122.19798278808594
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00003",
+      "uri": "chunks/chunk-00003.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-003",
+            "uri": "chunks/terrain-assets-003.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 3,
+      "aabb": [
+        2386.48681640625,
+        -10739.9111328125,
+        -70.41989135742188,
+        3827.110107421875,
+        -9294.1416015625,
+        -24.954843521118164
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00004",
+      "uri": "chunks/chunk-00004.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-004",
+            "uri": "chunks/terrain-assets-004.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 4,
+      "aabb": [
+        3827.110107421875,
+        -10739.9111328125,
+        -66.0938491821289,
+        5267.7333984375,
+        -9294.1416015625,
+        -51.91970443725586
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00005",
+      "uri": "chunks/chunk-00005.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-005",
+            "uri": "chunks/terrain-assets-005.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 5,
+      "aabb": [
+        5267.7333984375,
+        -10739.9111328125,
+        -66.36090850830078,
+        6708.3564453125,
+        -9294.1416015625,
+        -57.54970169067383
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00006",
+      "uri": "chunks/chunk-00006.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-006",
+            "uri": "chunks/terrain-assets-006.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 6,
+      "aabb": [
+        6708.3564453125,
+        -10739.9111328125,
+        -59.30862045288086,
+        8148.97998046875,
+        -9294.1416015625,
+        59.877010345458984
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00007",
+      "uri": "chunks/chunk-00007.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-007",
+            "uri": "chunks/terrain-assets-007.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 7,
+      "aabb": [
+        8148.97998046875,
+        -10739.9111328125,
+        10.898263931274414,
+        9589.603515625,
+        -9294.1416015625,
+        85.85726165771484
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00008",
+      "uri": "chunks/chunk-00008.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-008",
+            "uri": "chunks/terrain-assets-008.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r00_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r00_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r00_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 8,
+      "aabb": [
+        9589.603515625,
+        -10739.9111328125,
+        78.28755187988281,
+        11030.2265625,
+        -9294.1416015625,
+        89.9205093383789
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00009",
+      "uri": "chunks/chunk-00009.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-009",
+            "uri": "chunks/terrain-assets-009.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 9,
+      "aabb": [
+        -1935.383056640625,
+        -9294.1416015625,
+        84.14382934570312,
+        -494.759765625,
+        -7848.3720703125,
+        125.625244140625
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00010",
+      "uri": "chunks/chunk-00010.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-010",
+            "uri": "chunks/terrain-assets-010.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 10,
+      "aabb": [
+        -494.759765625,
+        -9294.1416015625,
+        55.624534606933594,
+        945.863525390625,
+        -7848.3720703125,
+        131.75277709960938
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00011",
+      "uri": "chunks/chunk-00011.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-011",
+            "uri": "chunks/terrain-assets-011.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 11,
+      "aabb": [
+        945.863525390625,
+        -9294.1416015625,
+        -74.88775634765625,
+        2386.48681640625,
+        -7848.3720703125,
+        132.03746032714844
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00012",
+      "uri": "chunks/chunk-00012.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-012",
+            "uri": "chunks/terrain-assets-012.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 12,
+      "aabb": [
+        2386.48681640625,
+        -9294.1416015625,
+        -87.1812973022461,
+        3827.110107421875,
+        -7848.3720703125,
+        -16.799461364746094
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00013",
+      "uri": "chunks/chunk-00013.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-013",
+            "uri": "chunks/terrain-assets-013.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 13,
+      "aabb": [
+        3827.110107421875,
+        -9294.1416015625,
+        -104.45021057128906,
+        5267.7333984375,
+        -7848.3720703125,
+        -55.43794631958008
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00014",
+      "uri": "chunks/chunk-00014.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-014",
+            "uri": "chunks/terrain-assets-014.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 14,
+      "aabb": [
+        5267.7333984375,
+        -9294.1416015625,
+        -84.69375610351562,
+        6708.3564453125,
+        -7848.3720703125,
+        -49.86609649658203
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00015",
+      "uri": "chunks/chunk-00015.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-015",
+            "uri": "chunks/terrain-assets-015.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 15,
+      "aabb": [
+        6708.3564453125,
+        -9294.1416015625,
+        -62.77805709838867,
+        8148.97998046875,
+        -7848.3720703125,
+        63.71025085449219
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00016",
+      "uri": "chunks/chunk-00016.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-016",
+            "uri": "chunks/terrain-assets-016.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 16,
+      "aabb": [
+        8148.97998046875,
+        -9294.1416015625,
+        59.50030517578125,
+        9589.603515625,
+        -7848.3720703125,
+        91.21013641357422
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00017",
+      "uri": "chunks/chunk-00017.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-017",
+            "uri": "chunks/terrain-assets-017.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r01_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r01_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r01_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 17,
+      "aabb": [
+        9589.603515625,
+        -9294.1416015625,
+        85.85726165771484,
+        11030.2265625,
+        -7848.3720703125,
+        100.83796691894531
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00018",
+      "uri": "chunks/chunk-00018.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-018",
+            "uri": "chunks/terrain-assets-018.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 18,
+      "aabb": [
+        -1935.383056640625,
+        -7848.3720703125,
+        23.076169967651367,
+        -494.759765625,
+        -6402.6025390625,
+        129.81092834472656
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00019",
+      "uri": "chunks/chunk-00019.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-019",
+            "uri": "chunks/terrain-assets-019.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 19,
+      "aabb": [
+        -494.759765625,
+        -7848.3720703125,
+        26.308876037597656,
+        945.863525390625,
+        -6402.6025390625,
+        132.19549560546875
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00020",
+      "uri": "chunks/chunk-00020.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-020",
+            "uri": "chunks/terrain-assets-020.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 20,
+      "aabb": [
+        945.863525390625,
+        -7848.3720703125,
+        -57.61998748779297,
+        2386.48681640625,
+        -6402.6025390625,
+        132.19549560546875
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00021",
+      "uri": "chunks/chunk-00021.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-021",
+            "uri": "chunks/terrain-assets-021.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 21,
+      "aabb": [
+        2386.48681640625,
+        -7848.3720703125,
+        -95.82079315185547,
+        3827.110107421875,
+        -6402.6025390625,
+        -33.826011657714844
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00022",
+      "uri": "chunks/chunk-00022.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-022",
+            "uri": "chunks/terrain-assets-022.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 22,
+      "aabb": [
+        3827.110107421875,
+        -7848.3720703125,
+        -106.4718017578125,
+        5267.7333984375,
+        -6402.6025390625,
+        -77.8875732421875
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00023",
+      "uri": "chunks/chunk-00023.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-023",
+            "uri": "chunks/terrain-assets-023.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 23,
+      "aabb": [
+        5267.7333984375,
+        -7848.3720703125,
+        -106.4718017578125,
+        6708.3564453125,
+        -6402.6025390625,
+        -57.75798034667969
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00024",
+      "uri": "chunks/chunk-00024.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-024",
+            "uri": "chunks/terrain-assets-024.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 24,
+      "aabb": [
+        6708.3564453125,
+        -7848.3720703125,
+        -68.56940460205078,
+        8148.97998046875,
+        -6402.6025390625,
+        76.1544418334961
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00025",
+      "uri": "chunks/chunk-00025.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-025",
+            "uri": "chunks/terrain-assets-025.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 25,
+      "aabb": [
+        8148.97998046875,
+        -7848.3720703125,
+        48.41008758544922,
+        9589.603515625,
+        -6402.6025390625,
+        107.41304016113281
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00026",
+      "uri": "chunks/chunk-00026.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-026",
+            "uri": "chunks/terrain-assets-026.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r02_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r02_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r02_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 26,
+      "aabb": [
+        9589.603515625,
+        -7848.3720703125,
+        91.21013641357422,
+        11030.2265625,
+        -6402.6025390625,
+        131.48443603515625
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00027",
+      "uri": "chunks/chunk-00027.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-027",
+            "uri": "chunks/terrain-assets-027.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 27,
+      "aabb": [
+        -1935.383056640625,
+        -6402.6025390625,
+        -22.669681549072266,
+        -494.759765625,
+        -4956.83349609375,
+        60.648780822753906
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00028",
+      "uri": "chunks/chunk-00028.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-028",
+            "uri": "chunks/terrain-assets-028.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 28,
+      "aabb": [
+        -494.759765625,
+        -6402.6025390625,
+        -77.92008209228516,
+        945.863525390625,
+        -4956.83349609375,
+        129.00721740722656
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00029",
+      "uri": "chunks/chunk-00029.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-029",
+            "uri": "chunks/terrain-assets-029.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 29,
+      "aabb": [
+        945.863525390625,
+        -6402.6025390625,
+        -94.84566497802734,
+        2386.48681640625,
+        -4956.83349609375,
+        26.308876037597656
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00030",
+      "uri": "chunks/chunk-00030.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-030",
+            "uri": "chunks/terrain-assets-030.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 30,
+      "aabb": [
+        2386.48681640625,
+        -6402.6025390625,
+        -106.89522552490234,
+        3827.110107421875,
+        -4956.83349609375,
+        -57.61998748779297
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00031",
+      "uri": "chunks/chunk-00031.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-031",
+            "uri": "chunks/terrain-assets-031.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 31,
+      "aabb": [
+        3827.110107421875,
+        -6402.6025390625,
+        -106.82719421386719,
+        5267.7333984375,
+        -4956.83349609375,
+        -76.34066772460938
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00032",
+      "uri": "chunks/chunk-00032.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-032",
+            "uri": "chunks/terrain-assets-032.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 32,
+      "aabb": [
+        5267.7333984375,
+        -6402.6025390625,
+        -105.22624206542969,
+        6708.3564453125,
+        -4956.83349609375,
+        7.86772346496582
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00033",
+      "uri": "chunks/chunk-00033.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-033",
+            "uri": "chunks/terrain-assets-033.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 33,
+      "aabb": [
+        6708.3564453125,
+        -6402.6025390625,
+        -68.56940460205078,
+        8148.97998046875,
+        -4956.83349609375,
+        125.41182708740234
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00034",
+      "uri": "chunks/chunk-00034.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-034",
+            "uri": "chunks/terrain-assets-034.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 34,
+      "aabb": [
+        8148.97998046875,
+        -6402.6025390625,
+        76.1544418334961,
+        9589.603515625,
+        -4956.83349609375,
+        130.92808532714844
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00035",
+      "uri": "chunks/chunk-00035.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-035",
+            "uri": "chunks/terrain-assets-035.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r03_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r03_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r03_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 35,
+      "aabb": [
+        9589.603515625,
+        -6402.6025390625,
+        92.15889739990234,
+        11030.2265625,
+        -4956.83349609375,
+        125.0982437133789
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00036",
+      "uri": "chunks/chunk-00036.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-036",
+            "uri": "chunks/terrain-assets-036.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 36,
+      "aabb": [
+        -1935.383056640625,
+        -4956.83349609375,
+        -70.26802062988281,
+        -494.759765625,
+        -3511.063720703125,
+        32.14738082885742
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00037",
+      "uri": "chunks/chunk-00037.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-037",
+            "uri": "chunks/terrain-assets-037.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 37,
+      "aabb": [
+        -494.759765625,
+        -4956.83349609375,
+        -109.18556213378906,
+        945.863525390625,
+        -3511.063720703125,
+        7.3224897384643555
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00038",
+      "uri": "chunks/chunk-00038.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-038",
+            "uri": "chunks/terrain-assets-038.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 38,
+      "aabb": [
+        945.863525390625,
+        -4956.83349609375,
+        -110.5301513671875,
+        2386.48681640625,
+        -3511.063720703125,
+        -75.32047271728516
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00039",
+      "uri": "chunks/chunk-00039.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-039",
+            "uri": "chunks/terrain-assets-039.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 39,
+      "aabb": [
+        2386.48681640625,
+        -4956.83349609375,
+        -109.93462371826172,
+        3827.110107421875,
+        -3511.063720703125,
+        -88.72611236572266
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00040",
+      "uri": "chunks/chunk-00040.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-040",
+            "uri": "chunks/terrain-assets-040.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 40,
+      "aabb": [
+        3827.110107421875,
+        -4956.83349609375,
+        -107.6065902709961,
+        5267.7333984375,
+        -3511.063720703125,
+        -19.60465431213379
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00041",
+      "uri": "chunks/chunk-00041.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-041",
+            "uri": "chunks/terrain-assets-041.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 41,
+      "aabb": [
+        5267.7333984375,
+        -4956.83349609375,
+        -76.34066772460938,
+        6708.3564453125,
+        -3511.063720703125,
+        61.313167572021484
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00042",
+      "uri": "chunks/chunk-00042.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-042",
+            "uri": "chunks/terrain-assets-042.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 42,
+      "aabb": [
+        6708.3564453125,
+        -4956.83349609375,
+        7.86772346496582,
+        8148.97998046875,
+        -3511.063720703125,
+        123.54374694824219
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00043",
+      "uri": "chunks/chunk-00043.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-043",
+            "uri": "chunks/terrain-assets-043.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 43,
+      "aabb": [
+        8148.97998046875,
+        -4956.83349609375,
+        91.2889404296875,
+        9589.603515625,
+        -3511.063720703125,
+        124.29890441894531
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00044",
+      "uri": "chunks/chunk-00044.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-044",
+            "uri": "chunks/terrain-assets-044.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r04_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r04_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r04_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 44,
+      "aabb": [
+        9589.603515625,
+        -4956.83349609375,
+        106.75909423828125,
+        11030.2265625,
+        -3511.063720703125,
+        123.33628845214844
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00045",
+      "uri": "chunks/chunk-00045.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-045",
+            "uri": "chunks/terrain-assets-045.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 45,
+      "aabb": [
+        -1935.383056640625,
+        -3511.063720703125,
+        -113.22100067138672,
+        -494.759765625,
+        -2065.29443359375,
+        -59.45026397705078
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00046",
+      "uri": "chunks/chunk-00046.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-046",
+            "uri": "chunks/terrain-assets-046.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 46,
+      "aabb": [
+        -494.759765625,
+        -3511.063720703125,
+        -113.22100067138672,
+        945.863525390625,
+        -2065.29443359375,
+        -69.5152587890625
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00047",
+      "uri": "chunks/chunk-00047.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-047",
+            "uri": "chunks/terrain-assets-047.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 47,
+      "aabb": [
+        945.863525390625,
+        -3511.063720703125,
+        -113.21598815917969,
+        2386.48681640625,
+        -2065.29443359375,
+        -71.55252075195312
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00048",
+      "uri": "chunks/chunk-00048.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-048",
+            "uri": "chunks/terrain-assets-048.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 48,
+      "aabb": [
+        2386.48681640625,
+        -3511.063720703125,
+        -113.08692932128906,
+        3827.110107421875,
+        -2065.29443359375,
+        -62.62653350830078
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00049",
+      "uri": "chunks/chunk-00049.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-049",
+            "uri": "chunks/terrain-assets-049.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 49,
+      "aabb": [
+        3827.110107421875,
+        -3511.063720703125,
+        -88.72611236572266,
+        5267.7333984375,
+        -2065.29443359375,
+        -4.108911037445068
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00050",
+      "uri": "chunks/chunk-00050.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-050",
+            "uri": "chunks/terrain-assets-050.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 50,
+      "aabb": [
+        5267.7333984375,
+        -3511.063720703125,
+        -45.12391662597656,
+        6708.3564453125,
+        -2065.29443359375,
+        117.02716064453125
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00051",
+      "uri": "chunks/chunk-00051.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-051",
+            "uri": "chunks/terrain-assets-051.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 51,
+      "aabb": [
+        6708.3564453125,
+        -3511.063720703125,
+        -75.14867401123047,
+        8148.97998046875,
+        -2065.29443359375,
+        99.70455169677734
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00052",
+      "uri": "chunks/chunk-00052.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-052",
+            "uri": "chunks/terrain-assets-052.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 52,
+      "aabb": [
+        8148.97998046875,
+        -3511.063720703125,
+        -78.62840270996094,
+        9589.603515625,
+        -2065.29443359375,
+        116.14836883544922
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00053",
+      "uri": "chunks/chunk-00053.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-053",
+            "uri": "chunks/terrain-assets-053.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r05_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r05_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r05_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 53,
+      "aabb": [
+        9589.603515625,
+        -3511.063720703125,
+        -68.83499908447266,
+        11030.2265625,
+        -2065.29443359375,
+        116.49969482421875
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00054",
+      "uri": "chunks/chunk-00054.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-054",
+            "uri": "chunks/terrain-assets-054.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 54,
+      "aabb": [
+        -1935.383056640625,
+        -2065.29443359375,
+        -113.22100067138672,
+        -494.759765625,
+        -619.52490234375,
+        -31.435054779052734
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00055",
+      "uri": "chunks/chunk-00055.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-055",
+            "uri": "chunks/terrain-assets-055.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 55,
+      "aabb": [
+        -494.759765625,
+        -2065.29443359375,
+        -113.22100067138672,
+        945.863525390625,
+        -619.52490234375,
+        -20.890722274780273
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00056",
+      "uri": "chunks/chunk-00056.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-056",
+            "uri": "chunks/terrain-assets-056.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 56,
+      "aabb": [
+        945.863525390625,
+        -2065.29443359375,
+        -97.68092346191406,
+        2386.48681640625,
+        -619.52490234375,
+        1.42988121509552
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00057",
+      "uri": "chunks/chunk-00057.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-057",
+            "uri": "chunks/terrain-assets-057.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 57,
+      "aabb": [
+        2386.48681640625,
+        -2065.29443359375,
+        -81.07199096679688,
+        3827.110107421875,
+        -619.52490234375,
+        -21.381711959838867
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00058",
+      "uri": "chunks/chunk-00058.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-058",
+            "uri": "chunks/terrain-assets-058.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 58,
+      "aabb": [
+        3827.110107421875,
+        -2065.29443359375,
+        -75.4988784790039,
+        5267.7333984375,
+        -619.52490234375,
+        -30.89733123779297
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00059",
+      "uri": "chunks/chunk-00059.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-059",
+            "uri": "chunks/terrain-assets-059.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 59,
+      "aabb": [
+        5267.7333984375,
+        -2065.29443359375,
+        -86.2545166015625,
+        6708.3564453125,
+        -619.52490234375,
+        -8.092817306518555
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00060",
+      "uri": "chunks/chunk-00060.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-060",
+            "uri": "chunks/terrain-assets-060.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 60,
+      "aabb": [
+        6708.3564453125,
+        -2065.29443359375,
+        -87.5339584350586,
+        8148.97998046875,
+        -619.52490234375,
+        -45.12391662597656
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00061",
+      "uri": "chunks/chunk-00061.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-061",
+            "uri": "chunks/terrain-assets-061.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 61,
+      "aabb": [
+        8148.97998046875,
+        -2065.29443359375,
+        -85.92897033691406,
+        9589.603515625,
+        -619.52490234375,
+        -68.83499908447266
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00062",
+      "uri": "chunks/chunk-00062.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-062",
+            "uri": "chunks/terrain-assets-062.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r06_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r06_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r06_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 62,
+      "aabb": [
+        9589.603515625,
+        -2065.29443359375,
+        -81.0824966430664,
+        11030.2265625,
+        -619.52490234375,
+        76.25746154785156
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00063",
+      "uri": "chunks/chunk-00063.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-063",
+            "uri": "chunks/terrain-assets-063.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 63,
+      "aabb": [
+        -1935.383056640625,
+        -619.52490234375,
+        -53.63172149658203,
+        -494.759765625,
+        826.2445678710938,
+        -21.98545265197754
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00064",
+      "uri": "chunks/chunk-00064.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-064",
+            "uri": "chunks/terrain-assets-064.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 64,
+      "aabb": [
+        -494.759765625,
+        -619.52490234375,
+        -67.17574310302734,
+        945.863525390625,
+        826.2445678710938,
+        -13.309772491455078
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00065",
+      "uri": "chunks/chunk-00065.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-065",
+            "uri": "chunks/terrain-assets-065.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 65,
+      "aabb": [
+        945.863525390625,
+        -619.52490234375,
+        -67.17574310302734,
+        2386.48681640625,
+        826.2445678710938,
+        -0.4389311373233795
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00066",
+      "uri": "chunks/chunk-00066.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-066",
+            "uri": "chunks/terrain-assets-066.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 66,
+      "aabb": [
+        2386.48681640625,
+        -619.52490234375,
+        -72.83785247802734,
+        3827.110107421875,
+        826.2445678710938,
+        -27.925617218017578
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00067",
+      "uri": "chunks/chunk-00067.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-067",
+            "uri": "chunks/terrain-assets-067.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 67,
+      "aabb": [
+        3827.110107421875,
+        -619.52490234375,
+        -83.71654510498047,
+        5267.7333984375,
+        826.2445678710938,
+        -62.65687561035156
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00068",
+      "uri": "chunks/chunk-00068.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-068",
+            "uri": "chunks/terrain-assets-068.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 68,
+      "aabb": [
+        5267.7333984375,
+        -619.52490234375,
+        -89.62915802001953,
+        6708.3564453125,
+        826.2445678710938,
+        -75.4988784790039
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00069",
+      "uri": "chunks/chunk-00069.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-069",
+            "uri": "chunks/terrain-assets-069.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 69,
+      "aabb": [
+        6708.3564453125,
+        -619.52490234375,
+        -88.21509552001953,
+        8148.97998046875,
+        826.2445678710938,
+        -84.71446228027344
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00070",
+      "uri": "chunks/chunk-00070.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-070",
+            "uri": "chunks/terrain-assets-070.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 70,
+      "aabb": [
+        8148.97998046875,
+        -619.52490234375,
+        -86.1124038696289,
+        9589.603515625,
+        826.2445678710938,
+        -79.95352935791016
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00071",
+      "uri": "chunks/chunk-00071.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-071",
+            "uri": "chunks/terrain-assets-071.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r07_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r07_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r07_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 71,
+      "aabb": [
+        9589.603515625,
+        -619.52490234375,
+        -82.2776870727539,
+        11030.2265625,
+        826.2445678710938,
+        -73.56157684326172
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00072",
+      "uri": "chunks/chunk-00072.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-072",
+            "uri": "chunks/terrain-assets-072.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c00_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c00_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c00_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 72,
+      "aabb": [
+        -1935.383056640625,
+        826.2445678710938,
+        -48.108394622802734,
+        -494.759765625,
+        2272.01416015625,
+        -27.605825424194336
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00073",
+      "uri": "chunks/chunk-00073.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-073",
+            "uri": "chunks/terrain-assets-073.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c01_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c01_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c01_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 73,
+      "aabb": [
+        -494.759765625,
+        826.2445678710938,
+        -70.8360366821289,
+        945.863525390625,
+        2272.01416015625,
+        -29.322172164916992
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00074",
+      "uri": "chunks/chunk-00074.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-074",
+            "uri": "chunks/terrain-assets-074.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c02_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c02_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c02_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 74,
+      "aabb": [
+        945.863525390625,
+        826.2445678710938,
+        -72.91473388671875,
+        2386.48681640625,
+        2272.01416015625,
+        -63.95138168334961
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00075",
+      "uri": "chunks/chunk-00075.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-075",
+            "uri": "chunks/terrain-assets-075.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c03_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c03_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c03_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 75,
+      "aabb": [
+        2386.48681640625,
+        826.2445678710938,
+        -71.74221801757812,
+        3827.110107421875,
+        2272.01416015625,
+        -58.67993927001953
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00076",
+      "uri": "chunks/chunk-00076.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-076",
+            "uri": "chunks/terrain-assets-076.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c04_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c04_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c04_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 76,
+      "aabb": [
+        3827.110107421875,
+        826.2445678710938,
+        -79.44241333007812,
+        5267.7333984375,
+        2272.01416015625,
+        -53.54084777832031
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00077",
+      "uri": "chunks/chunk-00077.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-077",
+            "uri": "chunks/terrain-assets-077.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c05_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c05_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c05_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 77,
+      "aabb": [
+        5267.7333984375,
+        826.2445678710938,
+        -87.19640350341797,
+        6708.3564453125,
+        2272.01416015625,
+        -65.76972198486328
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00078",
+      "uri": "chunks/chunk-00078.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-078",
+            "uri": "chunks/terrain-assets-078.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c06_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c06_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c06_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 78,
+      "aabb": [
+        6708.3564453125,
+        826.2445678710938,
+        -87.88105773925781,
+        8148.97998046875,
+        2272.01416015625,
+        -75.02288818359375
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00079",
+      "uri": "chunks/chunk-00079.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-079",
+            "uri": "chunks/terrain-assets-079.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c07_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c07_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c07_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 79,
+      "aabb": [
+        8148.97998046875,
+        826.2445678710938,
+        -86.2645034790039,
+        9589.603515625,
+        2272.01416015625,
+        -82.1692886352539
+      ]
+    },
+    {
+      "format": "XGF",
+      "manifestVersion": "1.0.0",
+      "xgfVersion": "2.0.0",
+      "id": "chunk-00080",
+      "uri": "chunks/chunk-00080.xgf",
+      "role": "referencesOnly",
+      "dependencies": {
+        "chunks": [
+          {
+            "id": "terrain-assets-080",
+            "uri": "chunks/terrain-assets-080.xgf"
+          }
+        ],
+        "geometries": [
+          "Zurich_Terrain_TIN_tile_r08_c08_geometry"
+        ],
+        "materials": [
+          "Zurich_Terrain_TIN_tile_r08_c08_material"
+        ],
+        "textures": [
+          "Zurich_Terrain_TIN_tile_r08_c08_orthophoto"
+        ]
+      },
+      "assets": {
+        "geometries": [],
+        "materials": [],
+        "textures": []
+      },
+      "counts": {
+        "transforms": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "meshes": 1,
+        "objects": 1
+      },
+      "priority": 80,
+      "aabb": [
+        9589.603515625,
+        826.2445678710938,
+        -85.25577545166016,
+        11030.2265625,
+        2272.01416015625,
+        -81.89156341552734
+      ]
+    }
+  ],
+  "rootChunkIds": [
+    "chunk-00000",
+    "chunk-00001",
+    "chunk-00002",
+    "chunk-00003",
+    "chunk-00004",
+    "chunk-00005",
+    "chunk-00006",
+    "chunk-00007",
+    "chunk-00008",
+    "chunk-00009",
+    "chunk-00010",
+    "chunk-00011",
+    "chunk-00012",
+    "chunk-00013",
+    "chunk-00014",
+    "chunk-00015",
+    "chunk-00016",
+    "chunk-00017",
+    "chunk-00018",
+    "chunk-00019",
+    "chunk-00020",
+    "chunk-00021",
+    "chunk-00022",
+    "chunk-00023",
+    "chunk-00024",
+    "chunk-00025",
+    "chunk-00026",
+    "chunk-00027",
+    "chunk-00028",
+    "chunk-00029",
+    "chunk-00030",
+    "chunk-00031",
+    "chunk-00032",
+    "chunk-00033",
+    "chunk-00034",
+    "chunk-00035",
+    "chunk-00036",
+    "chunk-00037",
+    "chunk-00038",
+    "chunk-00039",
+    "chunk-00040",
+    "chunk-00041",
+    "chunk-00042",
+    "chunk-00043",
+    "chunk-00044",
+    "chunk-00045",
+    "chunk-00046",
+    "chunk-00047",
+    "chunk-00048",
+    "chunk-00049",
+    "chunk-00050",
+    "chunk-00051",
+    "chunk-00052",
+    "chunk-00053",
+    "chunk-00054",
+    "chunk-00055",
+    "chunk-00056",
+    "chunk-00057",
+    "chunk-00058",
+    "chunk-00059",
+    "chunk-00060",
+    "chunk-00061",
+    "chunk-00062",
+    "chunk-00063",
+    "chunk-00064",
+    "chunk-00065",
+    "chunk-00066",
+    "chunk-00067",
+    "chunk-00068",
+    "chunk-00069",
+    "chunk-00070",
+    "chunk-00071",
+    "chunk-00072",
+    "chunk-00073",
+    "chunk-00074",
+    "chunk-00075",
+    "chunk-00076",
+    "chunk-00077",
+    "chunk-00078",
+    "chunk-00079",
+    "chunk-00080"
+  ],
+  "aabb": [
+    -1935.383056640625,
+    -10739.9111328125,
+    -113.22100067138672,
+    11030.2265625,
+    2272.01416015625,
+    132.19549560546875
+  ],
+  "coordinateSystem": {
+    "basis": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "origin": [
+      0,
+      0,
+      0
+    ],
+    "units": "meters",
+    "scaleToMeters": 1
+  }
+}

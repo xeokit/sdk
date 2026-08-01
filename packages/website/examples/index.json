@@ -311,6 +311,17 @@
       "Data JSON"
     ]
   },
+  "formats_citygml_building": {
+    "id": "formats_citygml_building",
+    "title": "CityGML LOD4 City Block",
+    "description": "Loads a synthetic city block generated from the OGC CityGML LOD4 building sample with CityGMLLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "CityGML",
+      "City Models"
+    ]
+  },
   "formats_cityjson_railway": {
     "id": "formats_cityjson_railway",
     "title": "CityJSON Train Track",
@@ -838,6 +849,20 @@
       "Streaming"
     ]
   },
+  "formats_xgf_streaming_da13_buildings": {
+    "id": "formats_xgf_streaming_da13_buildings",
+    "title": "XGF Stream DA13 Buildings",
+    "description": "Streams the DA13 CityGML buildings dataset from XGF Stream into a static SceneModel. Use this example to inspect city-scale chunking and loading behavior after converting source CityGML to localized XGF stream assets.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "CityGML",
+      "Buildings"
+    ],
+    "snapshotTimeoutMs": 300000
+  },
   "formats_xgf_streaming_housePlan": {
     "id": "formats_xgf_streaming_housePlan",
     "title": "XGF Stream House Plan",
@@ -898,6 +923,20 @@
     "categories": [
       "XGF",
       "Streaming",
+      "Buildings"
+    ],
+    "snapshotTimeoutMs": 300000
+  },
+  "formats_xgf_streaming_zurich_buildings": {
+    "id": "formats_xgf_streaming_zurich_buildings",
+    "title": "XGF Stream Zurich Buildings",
+    "description": "Streams the Zurich LoD2 CityGML buildings dataset into a static SceneModel with a second XGF Stream for chunked, orthophoto-textured terrain. Use this example to inspect large city-scale chunking, frustum-only loading, and loading behavior after converting source CityGML and map imagery to localized XGF stream assets.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "CityGML",
       "Buildings"
     ],
     "snapshotTimeoutMs": 300000
@@ -1210,6 +1249,18 @@
     "isVisualTest": false,
     "categories": [
       "ViewLayers"
+    ]
+  },
+  "viewing_walkNavigation_interior": {
+    "id": "viewing_walkNavigation_interior",
+    "title": "Walk Navigation Interior",
+    "description": "Loads the OTC Conference Center XGF model, starts inside the building, and enables WalkNavigationController for first-person movement.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Navigation",
+      "Buildings"
     ]
   },
   "viewing_webGPU_triangle": {

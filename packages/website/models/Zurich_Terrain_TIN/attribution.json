@@ -1,0 +1,65 @@
+{
+  "source": "Stadt Zürich Digitales Terrainmodell (TIN) (3D)",
+  "sourceUrl": "https://www.ogd.stadt-zuerich.ch/wfs/geoportal/Digitales_Terrainmodell__TIN_",
+  "typeName": "lod0_gelaende",
+  "sourceCoordinateSystem": {
+    "crs": "EPSG:2056",
+    "basis": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "origin": [
+      2678701.758,
+      1252228.936,
+      509.796
+    ],
+    "units": "meters",
+    "scaleToMeters": 1
+  },
+  "bbox": [
+    2682249.18,
+    1246994.987,
+    2684249.18,
+    1248994.987
+  ],
+  "triangleCount": 248506,
+  "detailedTriangleCount": 235058,
+  "underlayTriangleCount": 13448,
+  "underlaySource": "Interpolated from Zurich building stream chunk ground-height samples",
+  "underlayAABB": [
+    -1935.383056640625,
+    -10739.9111328125,
+    -118.21973686642751,
+    11030.2265625,
+    2272.0140380859375,
+    69.5233290830688
+  ],
+  "buildingStreamIndexPath": "packages/website/models/Zurich_Building_LoD2_V10/xgfstream/index.json",
+  "orthophoto": {
+    "source": "Kanton Zürich Orthofoto Sommer RGB/Infrarot 2024/25 (OGD)",
+    "sourceUrl": "https://geolion.zh.ch/geodatensatz/5011",
+    "serviceUrl": "https://wms.zh.ch/OGDOrthoZH",
+    "layer": "ortho_s_2024",
+    "crs": "EPSG:2056",
+    "bbox": [
+      2676766.375,
+      1241489.025,
+      2689731.985,
+      1254500.95
+    ],
+    "width": 4096,
+    "height": 4096,
+    "cachePath": "/tmp/Zurich_Terrain_TIN_orthophoto_4096.jpg"
+  },
+  "geometryCount": 17,
+  "maxVerticesPerGeometry": 65535,
+  "maxTrianglesPerGeometry": 32768,
+  "generatedAt": "2026-07-31T22:30:55.074Z"
+}

@@ -153,6 +153,7 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   splat: "splat",
   dotbim: "bim",
   cityjson: "json",
+  citygml: "gml",
   metamodel: "json",
   datamodel: "json",
   scenemodel: "json",

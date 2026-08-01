@@ -54,10 +54,10 @@ import {AngleMeasurementsTool} from "../../../tools/measurements/angle/AngleMeas
 import {DistanceMeasurementsPanel} from "../distanceMeasurementsPanel/DistanceMeasurementsPanel";
 import {AngleMeasurementsPanel} from "../angleMeasurementsPanel/AngleMeasurementsPanel";
 import {TransformControls} from "../../../viewing/transformControls";
+import {WalkNavigationController} from "../../../viewing/walkNavigation";
 import {SectionPlanesController} from "../../systems/sectionPlanesTool/SectionPlanesController";
 import {sectionPlaneDirFromPickedNormal} from "../../systems/sectionPlanesTool/sectionPlanePick";
 import {SectionPlanesPanel} from "../sectionPlanesPanel/SectionPlanesPanel";
-import {FirstPersonNavigationMode} from "../../../base/constants";
 import type {ViewController} from "../../../viewing/viewController";
 
 
@@ -603,13 +603,8 @@ export class Toolbar extends FloatingPanelBase {
     // override below for the same handling on every reopen.
     this._pill.hidden = false;
 
-    // Mirror the active ViewController's current navMode into the
-    // First-Person button so the toolbar reflects pre-existing
-    // state if the host configured the controller before mounting.
-    const vc = this._viewController();
-    if (vc) {
-      this._setPressed("toggleFirstPerson", vc.navMode === FirstPersonNavigationMode);
-    }
+    const walkController = this._walkNavigationController(false);
+    this._setPressed("toggleFirstPerson", walkController?.active ?? false);
 
     if (params.visible === false) {
       this.hide();
@@ -808,7 +803,7 @@ export class Toolbar extends FloatingPanelBase {
     }));
     gCamera.btns.appendChild(this._mkBtn({
       action: "toggleFirstPerson",
-      title:  "Toggle First-Person Navigation",
+      title:  "Toggle Walk Navigation",
       svg:    ICONS.person,
       toggle: true,
     }));
@@ -993,6 +988,7 @@ export class Toolbar extends FloatingPanelBase {
       studio:    this.studio,
       activeView:    () => this._activeView(),
       viewController:() => this._viewController(),
+      walkNavigationController: () => this._walkNavigationController(),
       cameraFlight:  () => this._cameraFlight(),
       sceneAabb:     () => this._sceneAabb(),
       fireAction:    (action) => this._fireAction(action),
@@ -1723,6 +1719,20 @@ export class Toolbar extends FloatingPanelBase {
     if (!view || !this.studio) return null;
     const record = (this.studio.viewManager.views as any)?.[view.id];
     return record?.viewController ?? null;
+  }
+
+  private _walkNavigationController(create = true): WalkNavigationController | null {
+    const view = this._activeView();
+    if (!view || !this.studio) return null;
+    const record = this.studio.viewManager.views?.[view.id];
+    if (!record) return null;
+    if (!record.walkNavigationController && create) {
+      record.walkNavigationController = new WalkNavigationController(view, {
+        active: false,
+        suspendViewController: record.viewController
+      });
+    }
+    return record.walkNavigationController ?? null;
   }
 
   private _wireDomEvents(): void {

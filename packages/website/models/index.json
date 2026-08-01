@@ -8,6 +8,10 @@
     "formats": ["threedxml", "xgf"],
     "dataset": ["xgf"]
   },
+  "ApartmentBuildings": {
+    "formats": ["gltf"],
+    "dataset": ["gltf"]
+  },
   "ArchDrawing": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -16,7 +20,20 @@
     },
     "formats": ["dwg", "pdf"]
   },
-  "BakuStadium_2000": {
+  "Archipelago": {
+    "formats": ["xgfstream"],
+    "dataset": ["xgfstream"]
+  },
+  "BakuStadium_xgfstream_200": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgfstream"],
+    "dataset": ["xgfstream"]
+  },
+  "BakuStadium_xgfstream_2000": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
@@ -34,14 +51,39 @@
     "formats": ["xgfstream"],
     "dataset": ["xgfstream"]
   },
-  "BakuStadium_xgfstream_200": {
+  "DA13_3D_Buildings_Merged": {
     "coordSys": {
-      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
       "origin": [0, 0, 0],
-      "units": "meters"
+      "units": "meters",
+      "scaleToMeters": 1
     },
     "formats": ["xgfstream"],
     "dataset": ["xgfstream"]
+  },
+  "Zurich_Building_LoD2_V10": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters",
+      "scaleToMeters": 1
+    },
+    "formats": ["xgfstream"],
+    "dataset": ["xgfstream"]
+  },
+  "Zurich_Terrain_TIN": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters",
+      "scaleToMeters": 1
+    },
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
+  },
+  "BigSquareCommercialBuilding": {
+    "formats": ["gltf"],
+    "dataset": ["gltf"]
   },
   "BlenderHouse": {
     "coordSys": {
@@ -67,8 +109,8 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["gltf", "xgf", "xgfstream"],
-    "dataset": ["xgf", "xgfstream", "gltf"]
+    "formats": ["gltf", "xgf"],
+    "dataset": ["xgf", "gltf"]
   },
   "Duplex": {
     "coordSys": {
@@ -133,8 +175,8 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["gltf", "xgf"],
-    "dataset": ["xgf", "gltf"]
+    "formats": ["gltf", "xgf", "xgfstream"],
+    "dataset": ["xgf", "gltf", "xgfstream"]
   },
   "Ifc4_SampleHouse": {
     "coordSys": {
@@ -172,6 +214,16 @@
     "formats": ["cityjson", "xgf"],
     "dataset": ["xgf"]
   },
+  "Lyon": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters",
+      "scaleToMeters": 1
+    },
+    "formats": ["xgfstream"],
+    "dataset": ["xgfstream"]
+  },
   "MAP": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -179,7 +231,7 @@
       "units": "meters"
     },
     "formats": ["gltf", "ifc", "xgf", "xgfstream"],
-    "dataset": ["xgf", "xgfstream", "gltf", "ifc"]
+    "dataset": ["xgf", "gltf", "ifc", "xgfstream"]
   },
   "Nalls-Pumpkin-Hill": {
     "coordSys": {
@@ -203,6 +255,32 @@
     "formats": ["splat", "xgf"],
     "dataset": ["xgf"]
   },
+  "OGC_Building_LOD4": {
+    "attribution": {
+      "source": "Open Geospatial Consortium CityGML 2.0 LOD4 building example",
+      "url": "https://schemas.opengis.net/citygml/examples/2.0/building/Building_LOD4-EPSG25832.gml"
+    },
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [458868, 5438343, 112],
+      "units": "meters"
+    },
+    "formats": ["citygml"],
+    "dataset": ["citygml"]
+  },
+  "OGC_CityBlock_LOD4": {
+    "attribution": {
+      "source": "Synthetic LoD4 city block generated from the Open Geospatial Consortium CityGML 2.0 LoD4 building example",
+      "url": "https://schemas.opengis.net/citygml/examples/2.0/building/Building_LOD4-EPSG25832.gml"
+    },
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [458868, 5438343, 112],
+      "units": "meters"
+    },
+    "formats": ["citygml"],
+    "dataset": ["citygml"]
+  },
   "OTCConferenceCenter": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -210,7 +288,11 @@
       "units": "meters"
     },
     "formats": ["datamodel", "ifc", "xgf", "xgfstream"],
-    "dataset": ["datamodel, xgf", "xgf", "xgfstream", "ifc"]
+    "dataset": ["datamodel, xgf", "xgf", "ifc", "xgfstream"]
+  },
+  "RecursiveStream": {
+    "formats": ["xgfstream"],
+    "dataset": ["xgfstream"]
   },
   "ResidentialBuilding": {
     "coordSys": {
@@ -260,15 +342,6 @@
     "formats": ["ifc", "mtl", "obj", "scenemodel", "xgf"],
     "dataset": ["mtl, obj", "scenemodel", "xgf", "ifc"]
   },
-  "StreamingBenchmarkCity": {
-    "coordSys": {
-      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      "origin": [0, 0, 0],
-      "units": "meters"
-    },
-    "formats": ["xgf"],
-    "dataset": ["xgf"]
-  },
   "Table": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -291,23 +364,14 @@
     "formats": ["splat", "xgf"],
     "dataset": ["xgf"]
   },
-  "WestRiverSide": {
-    "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
-      "origin": [0, 0, 0],
-      "units": "meters"
-    },
-    "formats": ["datamodel", "xgfstream"],
-    "dataset": ["xgfstream"]
-  },
-  "KarhumakiBridge": {
+  "WestRiverSideHospital": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["xgfstream"],
-    "dataset": ["xgfstream"]
+    "formats": ["xgf", "xgfstream"],
+    "dataset": ["xgf", "xgfstream"]
   },
   "XKTModel": {
     "coordSys": {

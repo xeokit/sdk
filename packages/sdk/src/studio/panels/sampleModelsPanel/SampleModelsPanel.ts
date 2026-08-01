@@ -47,10 +47,19 @@
  *
  */
 import type {Studio} from "../../Studio";
+import type {SceneModelUpdateHint} from "../../../model/scene";
 
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
+
+type ModelUpdateHintChoice = Extract<SceneModelUpdateHint, "dynamic" | "static">;
+
+const MODEL_UPDATE_HINTS: ReadonlyArray<{id: ModelUpdateHintChoice; label: string}> = [
+  {id: "dynamic", label: "Dynamic"},
+  {id: "static", label: "Static"},
+];
+
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -471,10 +480,8 @@ const PANEL_CSS = `
   height: 8px;
 }
 
-/* Controls strip — currently the "Add to scene" toggle that
-   flips loadDataset between replace and additive modes. Sits
-   between the progress strip and the catalog body so the
-   choice is visible above every Load button. */
+/* Controls strip — options that apply to every Load button in
+   the catalog. */
 .xkt-sam-panel .xkt-sam-controls {
   flex: 0 0 auto;
   display: flex;
@@ -484,29 +491,31 @@ const PANEL_CSS = `
   border-bottom: 1px solid #ececec;
   background: #fcfcfc;
 }
-.xkt-sam-panel .xkt-sam-add-toggle {
+.xkt-sam-panel .xkt-sam-model-update-hint {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 11px;
   color: #333;
-  cursor: pointer;
   user-select: none;
 }
-.xkt-sam-panel .xkt-sam-add-toggle input[type="checkbox"] {
-  appearance: auto;
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  cursor: pointer;
-}
-.xkt-sam-panel .xkt-sam-add-toggle-text {
+.xkt-sam-panel .xkt-sam-model-update-hint-text {
   font-weight: 600;
   color: #2d5e8c;
 }
-.xkt-sam-panel .xkt-sam-add-toggle-hint {
-  color: #888;
-  font-size: 10.5px;
+.xkt-sam-panel .xkt-sam-model-update-hint select {
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 11px;
+  color: #111;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.xkt-sam-panel .xkt-sam-model-update-hint select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* Per-model section — collapsible. */
@@ -687,6 +696,7 @@ export class SampleModelsPanel extends FloatingPanelBase {
   private _filter: string = "";
   private _progressEl!: HTMLElement;
   private _progressLabelEl!: HTMLElement;
+  private _modelUpdateHintSelect!: HTMLSelectElement;
   /**
    * Banner that surfaces load failures without clobbering the
    * catalog list (the previous behaviour, where an exception
@@ -699,6 +709,7 @@ export class SampleModelsPanel extends FloatingPanelBase {
   private _sampleModels: Record<string, SampleModelEntry> | null = null;
   private _fetchInFlight = false;
   private _loadInFlight = false;
+  private _modelUpdateHint: ModelUpdateHintChoice = "dynamic";
   /**
    * When `true`, "Load" buttons add the dataset alongside any
    * already-loaded models (calls `loadDataset` with `clear:
@@ -1101,11 +1112,13 @@ export class SampleModelsPanel extends FloatingPanelBase {
     // Clear any banner from a previous failed run — starting a
     // new load is the user's "I've moved on" signal.
     this._clearLoadError();
+    this._modelUpdateHintSelect.disabled = true;
     try {
       const result = await (this.studio as any).loadDataset({
         modelId,
         formats,
         clear: !additive,
+        updateHint: this._modelUpdateHint,
       });
       if (result && result.ok === false) {
         this._showLoadError(modelId, formats, String(result.error));
@@ -1129,6 +1142,7 @@ export class SampleModelsPanel extends FloatingPanelBase {
       this._loadInFlight = false;
       this._panel.classList.remove("xkt-sam-loading");
       this._progressLabelEl.textContent = "";
+      this._modelUpdateHintSelect.disabled = false;
       this._refreshButtonStates();
     }
   }
@@ -1338,6 +1352,9 @@ export class SampleModelsPanel extends FloatingPanelBase {
     this._progressEl.append(this._progressLabelEl, progressBar);
     this._panel.appendChild(this._progressEl);
 
+    const controls = el("div", "xkt-sam-controls");
+    controls.appendChild(this._buildModelUpdateHintControl());
+    this._panel.appendChild(controls);
 
     // Load-error banner — sits above the body so the catalog
     // list stays visible and the user can pick another dataset
@@ -1351,6 +1368,30 @@ export class SampleModelsPanel extends FloatingPanelBase {
 
     this._container.appendChild(this._pill);
     this._container.appendChild(this._panel);
+  }
+
+  private _buildModelUpdateHintControl(): HTMLElement {
+    const wrap = el("label", "xkt-sam-model-update-hint");
+    wrap.appendChild(el("span", "xkt-sam-model-update-hint-text", {
+      textContent: "SceneModel update",
+    }));
+    const select = el("select", undefined, {
+      "aria-label": "SceneModel update hint",
+      title: "SceneModel updateHint",
+    }) as HTMLSelectElement;
+    for (const item of MODEL_UPDATE_HINTS) {
+      const opt = document.createElement("option");
+      opt.value = item.id;
+      opt.textContent = item.label;
+      select.appendChild(opt);
+    }
+    select.value = this._modelUpdateHint;
+    select.addEventListener("change", () => {
+      this._modelUpdateHint = select.value as ModelUpdateHintChoice;
+    });
+    this._modelUpdateHintSelect = select;
+    wrap.appendChild(select);
+    return wrap;
   }
 
   private _wireDomEvents(): void {

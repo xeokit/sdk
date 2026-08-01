@@ -25,6 +25,8 @@ export interface FormatBinding {
 export const FORMAT_BY_EXTENSION: Record<string, FormatBinding> = {
   ".glb":   {loader: "glb",           exporter: "glb"},
   ".gltf":  {loader: "glb",           exporter: "glb"},
+  ".gml":     {loader: "citygml"},
+  ".citygml": {loader: "citygml"},
   ".xgf":   {loader: "xgf",           exporter: "xgf"},
   ".xgfstream": {exporter: "xgfstream"},
   ".ifc":   {loader: "ifc",           exporter: "ifc"},

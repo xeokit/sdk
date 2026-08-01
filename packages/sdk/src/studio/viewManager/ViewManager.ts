@@ -3,6 +3,7 @@ import type {SDKResult} from "../../base/core";
 import type {AABB3Float} from "../../base/math/boundaries";
 import {CameraFlightAnimation} from "../../viewing/cameraFlight";
 import {ViewController} from "../../viewing/viewController";
+import type {WalkNavigationController} from "../../viewing/walkNavigation";
 import {RealisticRender} from "../../base/constants";
 import {createUUID} from "../../base/utils";
 
@@ -25,6 +26,7 @@ export interface ViewRecord {
   view: View;
   cameraFlight: CameraFlightAnimation;
   viewController: ViewController;
+  walkNavigationController?: WalkNavigationController;
 }
 
 /**

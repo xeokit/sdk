@@ -40,7 +40,7 @@
  *     }
  *     class GeometryFormats {
  *       gltf / ifc / dotbim / las / xgf
- *       cityjson / obj / mtl
+ *       cityjson / citygml / obj / mtl
  *       fbx / usdz / dwg / dxf / pdf / svg / fds
  *     }
  *     class XeokitNativeFormats {
@@ -84,6 +84,7 @@
  * - {@link formats!gltf | gltf} – glTF and GLB
  * - {@link formats!ifc | ifc} – Industry Foundation Classes (IFC)
  * - {@link formats!cityjson | cityjson} – CityJSON
+ * - {@link formats!citygml | citygml} – CityGML
  * - {@link formats!threedtiles | threedtiles} – 3D Tiles
  * - {@link formats!dotbim | dotbim} – dotbim
  * - {@link formats!las | las} – LAS / LAZ point cloud formats
@@ -143,6 +144,7 @@
  */
 export * as gltf from "./gltf";
 export * as cityjson from "./cityjson";
+export * as citygml from "./citygml";
 export * as ifc from "./ifc";
 export * as xgf from "./xgf";
 export * as xgfstream from "./xgfstream";

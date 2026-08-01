@@ -19,6 +19,8 @@ describe("resolveFormat (xeoconvert generic --in/--out)", () => {
     it("maps known input extensions to loader ids", () => {
       expect(resolveLoaderId("a.glb")).toBe("glb");
       expect(resolveLoaderId("a.gltf")).toBe("glb");
+      expect(resolveLoaderId("a.gml")).toBe("citygml");
+      expect(resolveLoaderId("a.citygml")).toBe("citygml");
       expect(resolveLoaderId("a.xgf")).toBe("xgf");
       expect(resolveLoaderId("a.ifc")).toBe("ifc");
       expect(resolveLoaderId("a.bim")).toBe("dotbim");
@@ -67,6 +69,8 @@ describe("resolveFormat (xeoconvert generic --in/--out)", () => {
     });
     it("throws for import-only formats (no exporter) and unknown extensions", () => {
       expect(() => resolveExporterId("a.las")).toThrow(/output exporter/);
+      expect(() => resolveExporterId("a.gml")).toThrow(/output exporter/);
+      expect(() => resolveExporterId("a.citygml")).toThrow(/output exporter/);
       expect(() => resolveExporterId("a.json")).toThrow(/--pipeline/);
     });
   });

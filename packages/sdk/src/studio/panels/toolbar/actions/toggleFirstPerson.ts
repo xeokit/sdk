@@ -1,17 +1,13 @@
 /**
- * Toolbar action — toggle the active View's
- * {@link ViewController.navMode} between
- * {@link FirstPersonNavigationMode} and
- * {@link OrbitNavigationMode}.
+ * Toolbar action — toggle walk navigation on the active View.
  *
- * The button's pressed state mirrors the live navMode read straight
- * after the flip, so a host that overrides the action via
- * `onAction` (and applies a different navMode itself) still ends
- * up with a correct toggle indicator.
+ * The action id is kept as `toggleFirstPerson` for compatibility with
+ * existing host overrides, but the built-in implementation now uses
+ * {@link WalkNavigationController} instead of the older
+ * {@link ViewController.navMode} first-person mode.
  *
  */
 
-import {FirstPersonNavigationMode, OrbitNavigationMode} from "../../../../base/constants";
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";
 
 
@@ -19,19 +15,18 @@ export const toggleFirstPerson: ToolbarActionDescriptor = {
   id: "toggleFirstPerson",
   do(ctx) {
     if (ctx.fireAction("toggleFirstPerson")) {
-      const vcAfter = ctx.viewController();
-      if (vcAfter) {
-        ctx.setPressed("toggleFirstPerson", vcAfter.navMode === FirstPersonNavigationMode);
+      const walkAfter = ctx.walkNavigationController();
+      if (walkAfter) {
+        ctx.setPressed("toggleFirstPerson", walkAfter.active);
       }
       return;
     }
-    const vc = ctx.viewController();
-    if (!vc) {
-      console.warn("[Toolbar] toggleFirstPerson — no ViewController registered for the active View.");
+    const walk = ctx.walkNavigationController();
+    if (!walk) {
+      console.warn("[Toolbar] toggleFirstPerson — no walk navigation controller registered for the active View.");
       return;
     }
-    const wasFirstPerson = vc.navMode === FirstPersonNavigationMode;
-    vc.navMode = wasFirstPerson ? OrbitNavigationMode : FirstPersonNavigationMode;
-    ctx.setPressed("toggleFirstPerson", !wasFirstPerson);
+    walk.active = !walk.active;
+    ctx.setPressed("toggleFirstPerson", walk.active);
   }
 };

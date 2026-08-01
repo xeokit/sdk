@@ -178,8 +178,10 @@ export class LoadingSpinner {
     sdkProgress.onPhaseUpdated.subscribe((_sdkProgress, phase) => {
       this.phase = phase;
       this.appendPhaseLog(phase);
-      this.cancelAutoHide();
-      this.show();
+      if (_sdkProgress.numTasks > 0) {
+        this.cancelAutoHide();
+        this.show();
+      }
       this.render();
     });
   }

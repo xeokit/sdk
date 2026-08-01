@@ -682,9 +682,17 @@ export class Studio {
     const slash = src.lastIndexOf("/");
     const baseUri = options?.baseUri ?? (slash >= 0 ? src.slice(0, slash + 1) : undefined);
 
+    const loadOptions = {...options, baseUri};
+    if (params.format === "citygml" && loadOptions.localOrigin === undefined) {
+      const modelCoordinateSystem = coordinateSystem ?? sceneModel?.coordinateSystem?.toParams?.();
+      if (modelCoordinateSystem?.origin) {
+        loadOptions.localOrigin = modelCoordinateSystem.origin;
+      }
+    }
+
     const loadRes = await descriptor.load(
       {fileData, sceneModel, dataModel},
-      {...options, baseUri},
+      loadOptions,
     );
     // Report loader-side failures through the same channel so the
     // IssuesPanel sees them alongside Studio-side ones. The result
@@ -1176,149 +1184,154 @@ export class Studio {
     const {modelId, formats} = params;
     const updateHint = params.updateHint ?? params.updateUsage;
     const clear = params.clear !== false;
-    sdkProgress.setPhase(`Preparing ${modelId}`);
-    if (!modelId || !formats || formats.length === 0) {
-      return {
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: "[Studio.loadDataset] modelId and formats are required",
-      };
-    }
-
-    if (clear) {
-      sdkProgress.setPhase("Clearing previous models");
-      // Destroy in two passes — Scene first (so renderer drops
-      // its references) then Data. SceneModel.destroy() is
-      // idempotent and the destroy event handlers in our index
-      // tables will clear themselves.
-      for (const id of Object.keys(this.scene.models)) {
-        const m = this.scene.models[id];
-        if (m && !m.destroyed) m.destroy();
-      }
-      for (const id of Object.keys(this.data.models)) {
-        const m = this.data.models[id];
-        if (m && !m.destroyed) m.destroy();
-      }
-    }
-
-    // Use a unique id per load so the same dataset can be loaded
-    // again without colliding when `clear` is false.
-    const instanceId = clear ? modelId : `${modelId}-${Date.now()}`;
-
-    // If the model directory ships a `coordSys.json`, feed it
-    // to `scene.createModel` so the SceneModel knows its native
-    // axes/units. Missing file → undefined → SceneModel falls
-    // back to its built-in default.
-    sdkProgress.setPhase("Reading coordinate system");
-    const coordinateSystem = await this._loadCoordSys(modelId);
-
-    sdkProgress.setPhase("Creating scene model");
-    const sceneCreate = this.scene.createModel({id: instanceId, coordinateSystem, updateHint});
-    if (sceneCreate.ok === false) {
-      return {ok: false, type: SDKErrorType.Unknown, error: sceneCreate.error};
-    }
-    const sceneModel = sceneCreate.value;
-
-    sdkProgress.setPhase("Creating data model");
-    const dataCreate = this.data.createModel({id: instanceId});
-    if (dataCreate.ok === false) {
-      try {
-        sceneModel.destroy();
-      } catch { /* ignore */
-      }
-      return {ok: false, type: SDKErrorType.Unknown, error: dataCreate.error};
-    }
-    const dataModel = dataCreate.value;
-
-    // Wrap the per-format load loop in a LoaderProgressDialog so
-    // long loads paint a bar / phase label, and the user can
-    // hit Cancel. The dialog's delayed-paint policy means short
-    // loads finish without a dialog ever appearing. Loaders
-    // that respect the cooperative-yield contract (every parser
-    // swept under formats/) honour the signal + onProgress;
-    // loaders that don't run to completion as before.
-    const totalFormats = formats.length;
-    // Captured-error pattern: the per-format `loadModel` outcomes
-    // are SDKResults. A failure inside the runWith callback used
-    // to throw to exit the loop — now we stash the failure here
-    // and `return` from the callback, then propagate after
-    // `runWith` resolves. Keeps the routing throw-free.
-    let innerFailure: SDKResult<any> | null = null;
+    sdkProgress.addTask();
     try {
-      await LoaderProgressDialog.runWith({
-        title: `Loading ${modelId} (${formats.join(", ")})`,
-        delayMs: 80,
-        run: async (onProgress, signal) => {
-          const reportProgress = (progress: Parameters<typeof onProgress>[0]) => {
-            if (progress.phase) {
-              sdkProgress.setPhase(progress.phase);
-            }
-            onProgress(progress);
-          };
-          for (let i = 0; i < formats.length; i++) {
-            const format = formats[i];
-            // Bracket each format's parser with a top-level
-            // emit so the user sees coarse progress between
-            // formats too — useful for multi-format datasets
-            // where one format finishes fast and the next is
-            // long.
-            reportProgress({
-              phase: `Loading ${format}`,
-              current: i,
-              total: totalFormats,
-            });
-            const r = await this.loadModel(
-              {modelId, format, sceneModel, dataModel, updateHint},
-              {onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60},
-            );
-            if (r && (r as any).ok === false) {
-              // loadModel already dispatched reportError on the
-              // failure, so it's in the IssuesPanel; just capture
-              // for the outer return.
-              innerFailure = r as SDKResult<any>;
-              return;
-            }
-          }
-          // Final phase before resolution so the bar reads as
-          // "done" rather than truncating mid-format.
-          reportProgress({phase: "Finalising", current: totalFormats, total: totalFormats});
-          const view = this._getInspectorView();
-          if (view) {
-            try {
-              sdkProgress.setPhase("Framing camera");
-              const aabb = this.picking.collisionIndex.getSceneAABB();
-              if (aabb) this.viewManager.fitToAabb(view, aabb);
-            } catch { /* ignore */
-            }
-          }
-        },
-      });
-      if (innerFailure) {
-        try { sceneModel.destroy(); } catch { /* ignore */ }
-        try { dataModel.destroy(); } catch { /* ignore */ }
-        return innerFailure;
+      sdkProgress.setPhase(`Preparing ${modelId}`);
+      if (!modelId || !formats || formats.length === 0) {
+        return {
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[Studio.loadDataset] modelId and formats are required",
+        };
       }
-      return {ok: true, value: {sceneModel, dataModel}};
-    } catch (err: any) {
-      // Best-effort cleanup so a half-loaded dataset doesn't
-      // leave the Scene in a stuck state. AbortError + parser
-      // failures both land here.
+
+      if (clear) {
+        sdkProgress.setPhase("Clearing previous models");
+        // Destroy in two passes — Scene first (so renderer drops
+        // its references) then Data. SceneModel.destroy() is
+        // idempotent and the destroy event handlers in our index
+        // tables will clear themselves.
+        for (const id of Object.keys(this.scene.models)) {
+          const m = this.scene.models[id];
+          if (m && !m.destroyed) m.destroy();
+        }
+        for (const id of Object.keys(this.data.models)) {
+          const m = this.data.models[id];
+          if (m && !m.destroyed) m.destroy();
+        }
+      }
+
+      // Use a unique id per load so the same dataset can be loaded
+      // again without colliding when `clear` is false.
+      const instanceId = clear ? modelId : `${modelId}-${Date.now()}`;
+
+      // If the model directory ships a `coordSys.json`, feed it
+      // to `scene.createModel` so the SceneModel knows its native
+      // axes/units. Missing file → undefined → SceneModel falls
+      // back to its built-in default.
+      sdkProgress.setPhase("Reading coordinate system");
+      const coordinateSystem = await this._loadCoordSys(modelId);
+
+      sdkProgress.setPhase("Creating scene model");
+      const sceneCreate = this.scene.createModel({id: instanceId, coordinateSystem, updateHint});
+      if (sceneCreate.ok === false) {
+        return {ok: false, type: SDKErrorType.Unknown, error: sceneCreate.error};
+      }
+      const sceneModel = sceneCreate.value;
+
+      sdkProgress.setPhase("Creating data model");
+      const dataCreate = this.data.createModel({id: instanceId});
+      if (dataCreate.ok === false) {
+        try {
+          sceneModel.destroy();
+        } catch { /* ignore */
+        }
+        return {ok: false, type: SDKErrorType.Unknown, error: dataCreate.error};
+      }
+      const dataModel = dataCreate.value;
+
+      // Wrap the per-format load loop in a LoaderProgressDialog so
+      // long loads paint a bar / phase label, and the user can
+      // hit Cancel. The dialog's delayed-paint policy means short
+      // loads finish without a dialog ever appearing. Loaders
+      // that respect the cooperative-yield contract (every parser
+      // swept under formats/) honour the signal + onProgress;
+      // loaders that don't run to completion as before.
+      const totalFormats = formats.length;
+      // Captured-error pattern: the per-format `loadModel` outcomes
+      // are SDKResults. A failure inside the runWith callback used
+      // to throw to exit the loop — now we stash the failure here
+      // and `return` from the callback, then propagate after
+      // `runWith` resolves. Keeps the routing throw-free.
+      let innerFailure: SDKResult<any> | null = null;
       try {
-        sceneModel.destroy();
-      } catch { /* ignore */
+        await LoaderProgressDialog.runWith({
+          title: `Loading ${modelId} (${formats.join(", ")})`,
+          delayMs: 80,
+          run: async (onProgress, signal) => {
+            const reportProgress = (progress: Parameters<typeof onProgress>[0]) => {
+              if (progress.phase) {
+                sdkProgress.setPhase(progress.phase);
+              }
+              onProgress(progress);
+            };
+            for (let i = 0; i < formats.length; i++) {
+              const format = formats[i];
+              // Bracket each format's parser with a top-level
+              // emit so the user sees coarse progress between
+              // formats too — useful for multi-format datasets
+              // where one format finishes fast and the next is
+              // long.
+              reportProgress({
+                phase: `Loading ${format}`,
+                current: i,
+                total: totalFormats,
+              });
+              const r = await this.loadModel(
+                {modelId, format, sceneModel, dataModel, updateHint},
+                {onProgress: reportProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60},
+              );
+              if (r && (r as any).ok === false) {
+                // loadModel already dispatched reportError on the
+                // failure, so it's in the IssuesPanel; just capture
+                // for the outer return.
+                innerFailure = r as SDKResult<any>;
+                return;
+              }
+            }
+            // Final phase before resolution so the bar reads as
+            // "done" rather than truncating mid-format.
+            reportProgress({phase: "Finalising", current: totalFormats, total: totalFormats});
+            const view = this._getInspectorView();
+            if (view) {
+              try {
+                sdkProgress.setPhase("Framing camera");
+                const aabb = this.picking.collisionIndex.getSceneAABB();
+                if (aabb) this.viewManager.fitToAabb(view, aabb);
+              } catch { /* ignore */
+              }
+            }
+          },
+        });
+        if (innerFailure) {
+          try { sceneModel.destroy(); } catch { /* ignore */ }
+          try { dataModel.destroy(); } catch { /* ignore */ }
+          return innerFailure;
+        }
+        return {ok: true, value: {sceneModel, dataModel}};
+      } catch (err: any) {
+        // Best-effort cleanup so a half-loaded dataset doesn't
+        // leave the Scene in a stuck state. AbortError + parser
+        // failures both land here.
+        try {
+          sceneModel.destroy();
+        } catch { /* ignore */
+        }
+        try {
+          dataModel.destroy();
+        } catch { /* ignore */
+        }
+        const isAbort = err && err.name === "AbortError";
+        return {
+          ok: false,
+          type: SDKErrorType.Unknown,
+          error: isAbort
+            ? "[Studio.loadDataset] cancelled by user"
+            : `[Studio.loadDataset] ${err && err.message || err}`,
+        };
       }
-      try {
-        dataModel.destroy();
-      } catch { /* ignore */
-      }
-      const isAbort = err && err.name === "AbortError";
-      return {
-        ok: false,
-        type: SDKErrorType.Unknown,
-        error: isAbort
-          ? "[Studio.loadDataset] cancelled by user"
-          : `[Studio.loadDataset] ${err && err.message || err}`,
-      };
+    } finally {
+      sdkProgress.completeTask();
     }
   }
 

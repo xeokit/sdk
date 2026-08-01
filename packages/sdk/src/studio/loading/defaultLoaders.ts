@@ -16,6 +16,7 @@ import {OBJLoader} from "../../formats/obj";
 import {PLYLoader} from "../../formats/ply";
 import {DotBIMLoader} from "../../formats/dotbim";
 import {CityJSONLoader} from "../../formats/cityjson";
+import {CityGMLLoader} from "../../formats/citygml";
 import {FDSLoader} from "../../formats/fds";
 import {ThreeDXMLLoader} from "../../formats/threedxml";
 import {ThreeDTilesLoader} from "../../formats/threedtiles";
@@ -143,6 +144,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsScene: true,
     needsData: true,
     load: (input, options) => new CityJSONLoader().load(input, options),
+  });
+
+  r.register("citygml", {
+    fetch: "text",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new CityGMLLoader().load(input, options),
   });
 
   r.register("fds", {

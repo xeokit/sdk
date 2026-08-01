@@ -5,6 +5,7 @@ import {DotBIMLoader, DotBIMExporter} from "../../formats/dotbim";
 import {DataModelImporter, DataModelExporter} from "../../formats/datamodel";
 import {SceneModelImporter, SceneModelExporter} from "../../formats/scenemodel";
 import {CityJSONLoader, CityJSONExporter} from "../../formats/cityjson";
+import {CityGMLLoader} from "../../formats/citygml";
 import {XGFLoader, XGFExporter} from "../../formats/xgf";
 import {XGFStreamExporter} from "../../formats/xgfstream";
 import {LASLoader} from "../../formats/las";
@@ -97,6 +98,7 @@ export const modelConverter = new ModelConverter({
     "dotbim": new DotBIMLoader(),
     "glb": new GLTFLoader(),
     "cityjson": new CityJSONLoader(),
+    "citygml": new CityGMLLoader(),
     "xgf": new XGFLoader(),
     "las": new LASLoader(),
     "datamodel": new DataModelImporter(),
@@ -290,6 +292,85 @@ export const modelConverter = new ModelConverter({
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }
+        }
+      }
+    },
+
+    "citygml": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+
+    "citygml2xgf": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgf": {
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "citygml2xgfstream": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgfstream": {
+          exporter: "xgfstream",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters,
+            partition: "grid",
+            runtimeIndex: "index.runtime.json"
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "citygml2json": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "scenemodel": {
+          exporter: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
         }
       }
     },

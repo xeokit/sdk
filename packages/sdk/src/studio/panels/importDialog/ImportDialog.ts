@@ -7,7 +7,7 @@
  */
 
 import type {Studio} from "../../Studio";
-import type {CoordinateSystemParams} from "../../../model/scene";
+import type {CoordinateSystemParams, SceneModelUpdateHint} from "../../../model/scene";
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import {IMPORT_DATA_SETS} from "./IMPORT_DATA_SETS";
@@ -18,7 +18,13 @@ import type {ImportCoordSysBasis} from "./ImportCoordSysBasis";
 
 
 type Units = CoordinateSystemParams["units"];
+type ModelUpdateHintChoice = Extract<SceneModelUpdateHint, "dynamic" | "static">;
+
 const UNITS: ReadonlyArray<Units> = ["meters", "millimeters", "inches", "feet"];
+const MODEL_UPDATE_HINTS: ReadonlyArray<{id: ModelUpdateHintChoice; label: string}> = [
+  {id: "dynamic", label: "Dynamic"},
+  {id: "static", label: "Static"},
+];
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -356,6 +362,8 @@ export class ImportDialog extends FloatingPanelBase {
 
   private _filesHost!: HTMLElement;
   private _dataSetSelect!: HTMLSelectElement;
+  private _modelUpdateHintSelect!: HTMLSelectElement;
+  private _modelUpdateHintSection!: HTMLElement;
   private _basisSelect!: HTMLSelectElement;
   private _coordSysSection!: HTMLElement;
   private _loadBtn!: HTMLButtonElement;
@@ -366,6 +374,7 @@ export class ImportDialog extends FloatingPanelBase {
   private _basis!: ImportCoordSysBasis;
   private _units: Units = "meters";
   private _origin: [number, number, number] = [0, 0, 0];
+  private _modelUpdateHint: ModelUpdateHintChoice = "dynamic";
 
   constructor(params: ImportDialogParams) {
     if (!params || !params.studio) {
@@ -449,6 +458,10 @@ export class ImportDialog extends FloatingPanelBase {
     this._filesHost.append(el("label", "xkt-imp-row-label", {textContent: "Files"}));
     body.appendChild(this._filesHost);
 
+    this._modelUpdateHintSection = this._buildModelUpdateHintSection();
+    body.appendChild(this._modelUpdateHintSection);
+    this._applyModelUpdateHintEnabled();
+
     this._coordSysSection = this._buildCoordSysSection();
     body.appendChild(this._coordSysSection);
     this._applyCoordSysEnabled();
@@ -493,6 +506,7 @@ export class ImportDialog extends FloatingPanelBase {
       this._chosenFiles.clear();
       this._renderFileRows();
       this._applyDefaultBasis();
+      this._applyModelUpdateHintEnabled();
       this._applyCoordSysEnabled();
       this._refreshLoadEnabled();
     });
@@ -506,6 +520,45 @@ export class ImportDialog extends FloatingPanelBase {
     this._coordSysSection.querySelectorAll("select, input").forEach((field) => {
       (field as HTMLSelectElement | HTMLInputElement).disabled = !enabled;
     });
+  }
+
+  private _buildModelUpdateHintSection(): HTMLElement {
+    const row = el("div", "xkt-imp-row");
+    row.append(
+      el("label", "xkt-imp-row-label", {
+        textContent: "SceneModel update",
+        htmlFor: "xkt-imp-model-update-hint",
+      }),
+      this._buildModelUpdateHintSelect(),
+    );
+    return row;
+  }
+
+  private _buildModelUpdateHintSelect(): HTMLSelectElement {
+    const select = el("select", "xkt-imp-select", {
+      id: "xkt-imp-model-update-hint",
+      name: "model-update-hint",
+      "aria-label": "SceneModel update hint",
+      title: "SceneModel updateHint",
+    }) as HTMLSelectElement;
+    for (const item of MODEL_UPDATE_HINTS) {
+      const opt = document.createElement("option");
+      opt.value = item.id;
+      opt.textContent = item.label;
+      select.appendChild(opt);
+    }
+    select.value = this._modelUpdateHint;
+    select.addEventListener("change", () => {
+      this._modelUpdateHint = select.value as ModelUpdateHintChoice;
+    });
+    this._modelUpdateHintSelect = select;
+    return select;
+  }
+
+  private _applyModelUpdateHintEnabled(): void {
+    const enabled = this._activeDataSet.loadsSceneGeometry !== false;
+    this._modelUpdateHintSection.classList.toggle("xkt-imp-disabled", !enabled);
+    this._modelUpdateHintSelect.disabled = !enabled;
   }
 
   /** Re-pick the basis from the active data set's hint + update the select. */
@@ -713,6 +766,7 @@ export class ImportDialog extends FloatingPanelBase {
       const res = this.studio.scene.createModel({
         id: modelId,
         coordinateSystem: this._resolveCoordSys(),
+        updateHint: this._modelUpdateHint,
       });
       if (res.ok === false) {
         this.studio.reportError(`[ImportDialog] createModel failed: ${res.error}`);
@@ -740,7 +794,14 @@ export class ImportDialog extends FloatingPanelBase {
         const url  = URL.createObjectURL(file);
         urls.push(url);
         const result = await this.studio.loadModel(
-          {src: url, modelId, format: spec.loadFormat, sceneModel, dataModel},
+          {
+            src: url,
+            modelId,
+            format: spec.loadFormat,
+            sceneModel,
+            dataModel,
+            updateHint: wantsScene ? this._modelUpdateHint : undefined,
+          },
           {},
         );
         if (result && (result as any).ok === false) {

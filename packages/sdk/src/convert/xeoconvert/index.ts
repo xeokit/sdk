@@ -160,6 +160,10 @@
  * | `cityjson` | `--cityjson` | validate-only |
  * | `cityjson2xgf` | `--cityjson` | `--xgf`, `--datamodel` |
  * | `cityjson2json` | `--cityjson` | `--scenemodel`, `--datamodel` |
+ * | `citygml` | `--citygml` | validate-only |
+ * | `citygml2xgf` | `--citygml` | `--xgf`, `--datamodel` |
+ * | `citygml2xgfstream` | `--citygml` | `--xgfstream`, `--datamodel` |
+ * | `citygml2json` | `--citygml` | `--scenemodel`, `--datamodel` |
  * | `ifc` | `--ifc` | validate-only |
  * | `ifc2json` | `--ifc` | `--datamodel`, `--scenemodel` |
  * | `ifc2xgf` | `--ifc` | `--xgf`, `--datamodel` |
@@ -180,6 +184,7 @@
  * | Ext | Loader | Exporter |
  * | --- | --- | --- |
  * | `.glb` / `.gltf` | glb | glb |
+ * | `.gml` / `.citygml` | citygml | — (input only) |
  * | `.xgf` | xgf | xgf |
  * | `.ifc` | ifc | ifc |
  * | `.bim` | dotbim | dotbim |
@@ -270,4 +275,3 @@
  * @module xeoconvert
  */
 export * from "../modelConverter/reporters";
-

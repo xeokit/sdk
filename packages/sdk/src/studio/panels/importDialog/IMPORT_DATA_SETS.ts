@@ -189,6 +189,14 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "citygml",
+    label: "CityGML",
+    defaultBasisId: "z-up",
+    files: [
+      {key: "citygml", label: "CityGML file", accept: ".gml,.citygml", loadFormat: "citygml", required: true},
+    ],
+  },
+  {
     id: "fds",
     label: "FDS (Fire Dynamics Simulator)",
     defaultBasisId: "z-up",

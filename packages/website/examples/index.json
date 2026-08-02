@@ -696,6 +696,19 @@
       "Buildings"
     ]
   },
+  "formats_xgf_ac20Institute": {
+    "id": "formats_xgf_ac20Institute",
+    "title": "XGF AC20 Institute",
+    "description": "Loads an IFC-derived AC20 Institute XGF with its DataModel JSON into a static SceneModel.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "IFC",
+      "Buildings",
+      "Data"
+    ]
+  },
   "formats_xgf_housePlanPbr": {
     "id": "formats_xgf_housePlanPbr",
     "title": "XGF House Plan",
@@ -719,6 +732,92 @@
       "Geolocation",
       "Featured"
     ]
+  },
+  "formats_xgf_proceduralCity": {
+    "id": "formats_xgf_proceduralCity",
+    "title": "Procedural City XGF Stream",
+    "description": "Streams a deterministic XGF-only procedural city with coherent districts, varied street hierarchy, perimeter and courtyard blocks, parks, landmarks, and inspectable building metadata.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "XGF Stream",
+      "Procedural generation",
+      "SceneModel",
+      "City Models"
+    ],
+    "snapshotTimeoutMs": 240000
+  },
+  "formats_xgf_proceduralCity_amsterdam": {
+    "id": "formats_xgf_proceduralCity_amsterdam",
+    "title": "Amsterdam Preset Procedural City XGF Stream",
+    "description": "Streams a deterministic XGF-only procedural city generated from the Amsterdam preset, with compact irregular blocks, canal-core style density, parks, landmarks, and inspectable building metadata.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "XGF Stream",
+      "Procedural generation",
+      "SceneModel"
+    ],
+    "snapshotTimeoutMs": 240000
+  },
+  "formats_xgf_proceduralCity_berlin": {
+    "id": "formats_xgf_proceduralCity_berlin",
+    "title": "Berlin Preset Procedural City XGF Stream",
+    "description": "Streams a deterministic XGF-only procedural city generated from the Berlin preset, with mid-rise mixed-use blocks, courtyards, parks, landmarks, and inspectable building metadata.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "XGF Stream",
+      "Procedural generation",
+      "SceneModel"
+    ],
+    "snapshotTimeoutMs": 240000
+  },
+  "formats_xgf_proceduralCity_chicagoRiver": {
+    "id": "formats_xgf_proceduralCity_chicagoRiver",
+    "title": "Chicago River Procedural City XGF Stream",
+    "description": "Streams a deterministic XGF-only procedural downtown generated from the Chicago river profile, with a wide main river, north branch, riverwalks, bridges, waterfront clearance, parks, landmarks, and inspectable building metadata.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "XGF Stream",
+      "Procedural generation",
+      "SceneModel",
+      "City Models"
+    ],
+    "snapshotTimeoutMs": 240000
+  },
+  "formats_xgf_proceduralCity_london": {
+    "id": "formats_xgf_proceduralCity_london",
+    "title": "London Thames Procedural City XGF Stream",
+    "description": "Streams a deterministic XGF-only procedural city generated from the London preset, with a Thames-style river, embankments, bridges, irregular inner-city blocks, parks, landmarks, and inspectable building metadata.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "XGF Stream",
+      "Procedural generation",
+      "SceneModel"
+    ],
+    "snapshotTimeoutMs": 240000
+  },
+  "formats_xgf_proceduralCity_paris": {
+    "id": "formats_xgf_proceduralCity_paris",
+    "title": "Paris Preset Procedural City XGF Stream",
+    "description": "Streams a deterministic XGF-only procedural city generated from the Paris preset, with dense perimeter blocks, courtyard buildings, civic open space, landmarks, and inspectable building metadata.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "XGF Stream",
+      "Procedural generation",
+      "SceneModel"
+    ],
+    "snapshotTimeoutMs": 240000
   },
   "formats_xgf_pumpkin": {
     "id": "formats_xgf_pumpkin",
@@ -887,6 +986,20 @@
       "BIM"
     ]
   },
+  "formats_xgf_streaming_officeBuildingEinsteinufer": {
+    "id": "formats_xgf_streaming_officeBuildingEinsteinufer",
+    "title": "XGF Stream Office Building - Einsteinufer",
+    "description": "Streams an IFC-derived Berlin office building XGF dataset into a static SceneModel using the Creoox IFC-to-glTF conversion path.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "IFC",
+      "Buildings"
+    ],
+    "snapshotTimeoutMs": 300000
+  },
   "formats_xgf_streaming_otc": {
     "id": "formats_xgf_streaming_otc",
     "title": "XGF Streaming OTC Conference Center",
@@ -899,6 +1012,20 @@
       "BIM",
       "Featured"
     ]
+  },
+  "formats_xgf_streaming_otmhL9Optimized": {
+    "id": "formats_xgf_streaming_otmhL9Optimized",
+    "title": "XGF Stream OTMH L9 Optimized",
+    "description": "Streams the IFC-derived OTMH L9 optimized model into a static SceneModel after Creoox IFC-to-glTF conversion.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "IFC",
+      "Buildings"
+    ],
+    "snapshotTimeoutMs": 300000
   },
   "formats_xgf_streaming_recursive": {
     "id": "formats_xgf_streaming_recursive",

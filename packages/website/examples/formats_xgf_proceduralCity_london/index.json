@@ -1,0 +1,14 @@
+{
+  "id": "formats_xgf_proceduralCity_london",
+  "title": "London Thames Procedural City XGF Stream",
+  "description": "Streams a deterministic XGF-only procedural city generated from the London preset, with a Thames-style river, embankments, bridges, irregular inner-city blocks, parks, landmarks, and inspectable building metadata.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "XGF Stream",
+    "Procedural generation",
+    "SceneModel"
+  ],
+  "snapshotTimeoutMs": 240000
+}

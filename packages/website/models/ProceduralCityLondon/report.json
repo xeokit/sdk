@@ -1,0 +1,191 @@
+{
+  "schema": "xeokit-procedural-city-comparison/1.0",
+  "profileName": "london",
+  "seed": "42",
+  "generatedAt": "deterministic",
+  "source": {
+    "type": "preset",
+    "note": "Representative OSM-style preset; regenerate from a London extract for project-specific tuning."
+  },
+  "generatedStats": {
+    "buildings": 3600,
+    "blocks": 1090,
+    "roads": 165,
+    "parks": 99,
+    "landmarks": 3,
+    "trees": 7963,
+    "streetFurniture": 5189,
+    "waterways": 1,
+    "bridges": 6,
+    "triangles": 1065302
+  },
+  "metrics": [
+    {
+      "key": "medianRoadSegmentLength",
+      "label": "Median road segment length",
+      "unit": "m",
+      "source": 78,
+      "generated": 54.36547810260313,
+      "differencePercent": -30.300669099226763,
+      "tolerancePercent": 35,
+      "ok": true
+    },
+    {
+      "key": "medianBlockArea",
+      "label": "Median block area",
+      "unit": "m2",
+      "source": 6600,
+      "generated": 3891.1135300126625,
+      "differencePercent": -41.04373439374754,
+      "tolerancePercent": 45,
+      "ok": true
+    },
+    {
+      "key": "medianBuildingCoverage",
+      "label": "Median building coverage",
+      "source": 0.58,
+      "generated": 0.44122334699237753,
+      "differencePercent": -23.927009139245246,
+      "tolerancePercent": 35,
+      "ok": true
+    },
+    {
+      "key": "courtyardBlockRatio",
+      "label": "Courtyard block ratio",
+      "source": 0.25,
+      "generated": 0.2611336032388664,
+      "differencePercent": 4.453441295546567,
+      "tolerancePercent": 35,
+      "ok": true
+    },
+    {
+      "key": "medianBuildingLevels",
+      "label": "Median building levels",
+      "source": 7,
+      "generated": 7,
+      "differencePercent": 0,
+      "tolerancePercent": 50,
+      "ok": true
+    },
+    {
+      "key": "openSpaceRatio",
+      "label": "Open-space ratio",
+      "source": 0.09,
+      "generated": 0.0971623489078723,
+      "differencePercent": 7.958165453191449,
+      "tolerancePercent": 40,
+      "ok": true
+    }
+  ],
+  "warnings": [],
+  "patternSummary": {
+    "block.civic-campus": 0.9,
+    "block.market-square": 0.905,
+    "block.perimeter-block": 0.614,
+    "block.podium-and-tower": 0.721,
+    "building.active-frontage": 0.876,
+    "building.continuous-street-wall": 0.906,
+    "building.courtyard-entrance": 0.79,
+    "building.landmark-entrance": 0.869,
+    "city.distributed-parks": 0.8,
+    "city.green-corridors": 0.583,
+    "city.landmark-hierarchy": 0.9,
+    "city.riverfront-development": 0.887,
+    "city.strong-centre": 0.725,
+    "district.civic-district": 0.829,
+    "district.commercial-high-street": 0.854,
+    "district.historic-core": 0.87,
+    "district.mixed-use-neighbourhood": 0.8,
+    "street.boulevard": 0.992,
+    "street.market-street": 0.496,
+    "street.shopping-street": 0.897,
+    "street.waterfront-promenade": 0.887
+  },
+  "evaluationSummary": {
+    "count": 4123,
+    "averageScore": 0.73,
+    "minimumScore": 0.604,
+    "byStage": {
+      "road-layout": {
+        "count": 1,
+        "averageScore": 0.743,
+        "minimumScore": 0.743
+      },
+      "district-boundary": {
+        "count": 1090,
+        "averageScore": 0.769,
+        "minimumScore": 0.768
+      },
+      "block-subdivision": {
+        "count": 1090,
+        "averageScore": 0.714,
+        "minimumScore": 0.604
+      },
+      "park-placement": {
+        "count": 6,
+        "averageScore": 0.769,
+        "minimumScore": 0.655
+      },
+      "landmark-placement": {
+        "count": 3,
+        "averageScore": 0.74,
+        "minimumScore": 0.729
+      },
+      "parcel-subdivision": {
+        "count": 988,
+        "averageScore": 0.758,
+        "minimumScore": 0.684
+      },
+      "building-massing": {
+        "count": 945,
+        "averageScore": 0.673,
+        "minimumScore": 0.605
+      }
+    }
+  },
+  "validation": {
+    "schema": "xeokit-procedural-city-validation/1.0",
+    "ok": true,
+    "checks": [
+      {
+        "key": "nonEmptyScene",
+        "label": "No empty XGF scene",
+        "ok": true,
+        "value": 1065302
+      },
+      {
+        "key": "connectedRoadNetwork",
+        "label": "Connected road network",
+        "ok": true,
+        "value": 1,
+        "tolerance": 0.72
+      },
+      {
+        "key": "noSelfIntersectingBlocks",
+        "label": "No self-intersecting blocks",
+        "ok": true,
+        "value": 0
+      },
+      {
+        "key": "buildingsInsideBlocks",
+        "label": "No buildings outside blocks",
+        "ok": true,
+        "value": 0
+      },
+      {
+        "key": "buildingsOverRoads",
+        "label": "No buildings overlapping roads",
+        "ok": true,
+        "value": 0.010833333333333334,
+        "tolerance": 0.04
+      },
+      {
+        "key": "severeBuildingOverlap",
+        "label": "No severe building overlap",
+        "ok": true,
+        "value": 0
+      }
+    ],
+    "warnings": []
+  }
+}

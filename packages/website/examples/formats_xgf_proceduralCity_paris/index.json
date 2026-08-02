@@ -1,0 +1,14 @@
+{
+  "id": "formats_xgf_proceduralCity_paris",
+  "title": "Paris Preset Procedural City XGF Stream",
+  "description": "Streams a deterministic XGF-only procedural city generated from the Paris preset, with dense perimeter blocks, courtyard buildings, civic open space, landmarks, and inspectable building metadata.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "XGF Stream",
+    "Procedural generation",
+    "SceneModel"
+  ],
+  "snapshotTimeoutMs": 240000
+}

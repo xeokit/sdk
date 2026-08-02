@@ -1,0 +1,27 @@
+{
+  "meshes": 8,
+  "geometries": 8,
+  "materials": 8,
+  "objects": 8,
+  "triangles": 3396,
+  "aabb": [
+    -794.6900367736816,
+    -302.6789149596307,
+    -561.5529547461337,
+    794.6903228759766,
+    884.3395347633611,
+    70.26702328495912
+  ],
+  "center": [
+    0.0001430511474609375,
+    290.83030990186523,
+    -245.64296573058726
+  ],
+  "size": [
+    1589.3803596496582,
+    1187.0184497229918,
+    631.8199780310928
+  ],
+  "source": "/home/lindsay/Downloads/space_ship.glb",
+  "output": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/SpaceShip/xgf/model.xgf"
+}

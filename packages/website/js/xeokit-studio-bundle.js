@@ -313,7 +313,7 @@ var require_DispatcherBase = __commonJS({
       has(fn) {
         if (!fn)
           return false;
-        return this._subscriptions.some((sub2) => sub2.handler == fn);
+        return this._subscriptions.some((sub3) => sub3.handler == fn);
       }
       /**
        * Unsubscribes the handler from the dispatcher.
@@ -359,13 +359,13 @@ var require_DispatcherBase = __commonJS({
        * @memberOf DispatcherBase
        */
       _dispatch(executeAsync, scope, args) {
-        for (let sub2 of [...this._subscriptions]) {
-          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub2.handler));
+        for (let sub3 of [...this._subscriptions]) {
+          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub3.handler));
           let nargs = Array.prototype.slice.call(args);
           nargs.push(ev);
-          let s = sub2;
+          let s = sub3;
           s.execute(executeAsync, scope, nargs);
-          this.cleanup(sub2);
+          this.cleanup(sub3);
           if (!executeAsync && ev.propagationStopped) {
             return { propagationStopped: true };
           }
@@ -396,10 +396,10 @@ var require_DispatcherBase = __commonJS({
        *
        * @memberOf DispatcherBase
        */
-      cleanup(sub2) {
+      cleanup(sub3) {
         let changes = false;
-        if (sub2.isOnce && sub2.isExecuted) {
-          let i = this._subscriptions.indexOf(sub2);
+        if (sub3.isOnce && sub3.isExecuted) {
+          let i = this._subscriptions.indexOf(sub3);
           if (i > -1) {
             this._subscriptions.splice(i, 1);
             changes = true;
@@ -705,13 +705,13 @@ var require_PromiseDispatcherBase = __commonJS({
        * @memberOf DispatcherBase
        */
       async _dispatchAsPromise(executeAsync, scope, args) {
-        for (let sub2 of [...this._subscriptions]) {
-          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub2.handler));
+        for (let sub3 of [...this._subscriptions]) {
+          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub3.handler));
           let nargs = Array.prototype.slice.call(args);
           nargs.push(ev);
-          let ps = sub2;
+          let ps = sub3;
           await ps.execute(executeAsync, scope, nargs);
-          this.cleanup(sub2);
+          this.cleanup(sub3);
           if (!executeAsync && ev.propagationStopped) {
             return { propagationStopped: true };
           }
@@ -2345,9 +2345,9 @@ var init_tinyusdz = __esm({
           }
           var fromParts = trim(from.split("/"));
           var toParts = trim(to.split("/"));
-          var length3 = Math.min(fromParts.length, toParts.length);
-          var samePartsLength = length3;
-          for (var i = 0; i < length3; i++) {
+          var length4 = Math.min(fromParts.length, toParts.length);
+          var samePartsLength = length4;
+          for (var i = 0; i < length4; i++) {
             if (fromParts[i] !== toParts[i]) {
               samePartsLength = i;
               break;
@@ -2427,8 +2427,8 @@ var init_tinyusdz = __esm({
           heap[outIdx] = 0;
           return outIdx - startIdx;
         };
-        var intArrayFromString = (stringy, dontAddNull, length3) => {
-          var len = length3 > 0 ? length3 : lengthBytesUTF8(stringy) + 1;
+        var intArrayFromString = (stringy, dontAddNull, length4) => {
+          var len = length4 > 0 ? length4 : lengthBytesUTF8(stringy) + 1;
           var u8array = new Array(len);
           var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
           if (dontAddNull)
@@ -2468,12 +2468,12 @@ var init_tinyusdz = __esm({
           stream.tty.ops.fsync(stream.tty);
         }, fsync(stream) {
           stream.tty.ops.fsync(stream.tty);
-        }, read(stream, buffer, offset, length3, pos) {
+        }, read(stream, buffer, offset, length4, pos) {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(60);
           }
           var bytesRead = 0;
-          for (var i = 0; i < length3; i++) {
+          for (var i = 0; i < length4; i++) {
             var result;
             try {
               result = stream.tty.ops.get_char(stream.tty);
@@ -2492,18 +2492,18 @@ var init_tinyusdz = __esm({
             stream.node.atime = Date.now();
           }
           return bytesRead;
-        }, write(stream, buffer, offset, length3, pos) {
+        }, write(stream, buffer, offset, length4, pos) {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(60);
           }
           try {
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               stream.tty.ops.put_char(stream.tty, buffer[offset + i]);
             }
           } catch (e) {
             throw new FS.ErrnoError(29);
           }
-          if (length3) {
+          if (length4) {
             stream.node.mtime = stream.node.ctime = Date.now();
           }
           return i;
@@ -2692,11 +2692,11 @@ var init_tinyusdz = __esm({
             throw new FS.ErrnoError(28);
           }
           return node.link;
-        } }, stream_ops: { read(stream, buffer, offset, length3, position) {
+        } }, stream_ops: { read(stream, buffer, offset, length4, position) {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes)
             return 0;
-          var size = Math.min(stream.node.usedBytes - position, length3);
+          var size = Math.min(stream.node.usedBytes - position, length4);
           assert6(size >= 0);
           if (size > 8 && contents.subarray) {
             buffer.set(contents.subarray(position, position + size), offset);
@@ -2705,40 +2705,40 @@ var init_tinyusdz = __esm({
               buffer[offset + i] = contents[position + i];
           }
           return size;
-        }, write(stream, buffer, offset, length3, position, canOwn) {
+        }, write(stream, buffer, offset, length4, position, canOwn) {
           assert6(!(buffer instanceof ArrayBuffer));
           if (buffer.buffer === HEAP8.buffer) {
             canOwn = false;
           }
-          if (!length3)
+          if (!length4)
             return 0;
           var node = stream.node;
           node.mtime = node.ctime = Date.now();
           if (buffer.subarray && (!node.contents || node.contents.subarray)) {
             if (canOwn) {
               assert6(position === 0, "canOwn must imply no weird position inside the file");
-              node.contents = buffer.subarray(offset, offset + length3);
-              node.usedBytes = length3;
-              return length3;
+              node.contents = buffer.subarray(offset, offset + length4);
+              node.usedBytes = length4;
+              return length4;
             } else if (node.usedBytes === 0 && position === 0) {
-              node.contents = buffer.slice(offset, offset + length3);
-              node.usedBytes = length3;
-              return length3;
-            } else if (position + length3 <= node.usedBytes) {
-              node.contents.set(buffer.subarray(offset, offset + length3), position);
-              return length3;
+              node.contents = buffer.slice(offset, offset + length4);
+              node.usedBytes = length4;
+              return length4;
+            } else if (position + length4 <= node.usedBytes) {
+              node.contents.set(buffer.subarray(offset, offset + length4), position);
+              return length4;
             }
           }
-          MEMFS.expandFileStorage(node, position + length3);
+          MEMFS.expandFileStorage(node, position + length4);
           if (node.contents.subarray && buffer.subarray) {
-            node.contents.set(buffer.subarray(offset, offset + length3), position);
+            node.contents.set(buffer.subarray(offset, offset + length4), position);
           } else {
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               node.contents[position + i] = buffer[offset + i];
             }
           }
-          node.usedBytes = Math.max(node.usedBytes, position + length3);
-          return length3;
+          node.usedBytes = Math.max(node.usedBytes, position + length4);
+          return length4;
         }, llseek(stream, offset, whence) {
           var position = offset;
           if (whence === 1) {
@@ -2752,7 +2752,7 @@ var init_tinyusdz = __esm({
             throw new FS.ErrnoError(28);
           }
           return position;
-        }, mmap(stream, length3, position, prot, flags) {
+        }, mmap(stream, length4, position, prot, flags) {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
@@ -2764,24 +2764,24 @@ var init_tinyusdz = __esm({
             ptr = contents.byteOffset;
           } else {
             allocated = true;
-            ptr = mmapAlloc(length3);
+            ptr = mmapAlloc(length4);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
             if (contents) {
-              if (position > 0 || position + length3 < contents.length) {
+              if (position > 0 || position + length4 < contents.length) {
                 if (contents.subarray) {
-                  contents = contents.subarray(position, position + length3);
+                  contents = contents.subarray(position, position + length4);
                 } else {
-                  contents = Array.prototype.slice.call(contents, position, position + length3);
+                  contents = Array.prototype.slice.call(contents, position, position + length4);
                 }
               }
               HEAP8.set(contents, ptr);
             }
           }
           return { ptr, allocated };
-        }, msync(stream, buffer, offset, length3, mmapFlags) {
-          MEMFS.stream_ops.write(stream, buffer, 0, length3, offset, false);
+        }, msync(stream, buffer, offset, length4, mmapFlags) {
+          MEMFS.stream_ops.write(stream, buffer, 0, length4, offset, false);
           return 0;
         } } };
         var asyncLoad = async (url) => {
@@ -3657,9 +3657,9 @@ var init_tinyusdz = __esm({
           stream.position = stream.stream_ops.llseek(stream, offset, whence);
           stream.ungotten = [];
           return stream.position;
-        }, read(stream, buffer, offset, length3, position) {
+        }, read(stream, buffer, offset, length4, position) {
           assert6(offset >= 0);
-          if (length3 < 0 || position < 0) {
+          if (length4 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -3680,13 +3680,13 @@ var init_tinyusdz = __esm({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length3, position);
+          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length4, position);
           if (!seeking)
             stream.position += bytesRead;
           return bytesRead;
-        }, write(stream, buffer, offset, length3, position, canOwn) {
+        }, write(stream, buffer, offset, length4, position, canOwn) {
           assert6(offset >= 0);
-          if (length3 < 0 || position < 0) {
+          if (length4 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -3710,11 +3710,11 @@ var init_tinyusdz = __esm({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length3, position, canOwn);
+          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length4, position, canOwn);
           if (!seeking)
             stream.position += bytesWritten;
           return bytesWritten;
-        }, mmap(stream, length3, position, prot, flags) {
+        }, mmap(stream, length4, position, prot, flags) {
           if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
             throw new FS.ErrnoError(2);
           }
@@ -3724,16 +3724,16 @@ var init_tinyusdz = __esm({
           if (!stream.stream_ops.mmap) {
             throw new FS.ErrnoError(43);
           }
-          if (!length3) {
+          if (!length4) {
             throw new FS.ErrnoError(28);
           }
-          return stream.stream_ops.mmap(stream, length3, position, prot, flags);
-        }, msync(stream, buffer, offset, length3, mmapFlags) {
+          return stream.stream_ops.mmap(stream, length4, position, prot, flags);
+        }, msync(stream, buffer, offset, length4, mmapFlags) {
           assert6(offset >= 0);
           if (!stream.stream_ops.msync) {
             return 0;
           }
-          return stream.stream_ops.msync(stream, buffer, offset, length3, mmapFlags);
+          return stream.stream_ops.msync(stream, buffer, offset, length4, mmapFlags);
         }, ioctl(stream, cmd, arg) {
           if (!stream.stream_ops.ioctl) {
             throw new FS.ErrnoError(59);
@@ -3748,9 +3748,9 @@ var init_tinyusdz = __esm({
           var ret;
           var stream = FS.open(path, opts.flags);
           var stat = FS.stat(path);
-          var length3 = stat.size;
-          var buf = new Uint8Array(length3);
-          FS.read(stream, buf, 0, length3, 0);
+          var length4 = stat.size;
+          var buf = new Uint8Array(length4);
+          FS.read(stream, buf, 0, length4, 0);
           if (opts.encoding === "utf8") {
             ret = UTF8ArrayToString(buf);
           } else if (opts.encoding === "binary") {
@@ -3790,7 +3790,7 @@ var init_tinyusdz = __esm({
           FS.mkdir("/home/web_user");
         }, createDefaultDevices() {
           FS.mkdir("/dev");
-          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length3, pos) => length3, llseek: () => 0 });
+          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length4, pos) => length4, llseek: () => 0 });
           FS.mkdev("/dev/null", FS.makedev(1, 3));
           TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
           TTY.register(FS.makedev(6, 0), TTY.default_tty1_ops);
@@ -3952,9 +3952,9 @@ var init_tinyusdz = __esm({
             if (output?.buffer?.length) {
               output(10);
             }
-          }, read(stream, buffer, offset, length3, pos) {
+          }, read(stream, buffer, offset, length4, pos) {
             var bytesRead = 0;
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               var result;
               try {
                 result = input();
@@ -3973,15 +3973,15 @@ var init_tinyusdz = __esm({
               stream.node.atime = Date.now();
             }
             return bytesRead;
-          }, write(stream, buffer, offset, length3, pos) {
-            for (var i = 0; i < length3; i++) {
+          }, write(stream, buffer, offset, length4, pos) {
+            for (var i = 0; i < length4; i++) {
               try {
                 output(buffer[offset + i]);
               } catch (e) {
                 throw new FS.ErrnoError(29);
               }
             }
-            if (length3) {
+            if (length4) {
               stream.node.mtime = stream.node.ctime = Date.now();
             }
             return i;
@@ -4111,11 +4111,11 @@ var init_tinyusdz = __esm({
               return fn(...args);
             };
           });
-          function writeChunks(stream, buffer, offset, length3, position) {
+          function writeChunks(stream, buffer, offset, length4, position) {
             var contents = stream.node.contents;
             if (position >= contents.length)
               return 0;
-            var size = Math.min(contents.length - position, length3);
+            var size = Math.min(contents.length - position, length4);
             assert6(size >= 0);
             if (contents.slice) {
               for (var i = 0; i < size; i++) {
@@ -4128,17 +4128,17 @@ var init_tinyusdz = __esm({
             }
             return size;
           }
-          stream_ops.read = (stream, buffer, offset, length3, position) => {
+          stream_ops.read = (stream, buffer, offset, length4, position) => {
             FS.forceLoadFile(node);
-            return writeChunks(stream, buffer, offset, length3, position);
+            return writeChunks(stream, buffer, offset, length4, position);
           };
-          stream_ops.mmap = (stream, length3, position, prot, flags) => {
+          stream_ops.mmap = (stream, length4, position, prot, flags) => {
             FS.forceLoadFile(node);
-            var ptr = mmapAlloc(length3);
+            var ptr = mmapAlloc(length4);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
-            writeChunks(stream, HEAP8, ptr, length3, position);
+            writeChunks(stream, HEAP8, ptr, length4, position);
             return { ptr, allocated: true };
           };
           node.stream_ops = stream_ops;
@@ -5391,14 +5391,14 @@ ${invokerFnBody}`;
           name12 = readLatin1String(name12);
           var stdStringIsUTF8 = true;
           registerType(rawType, { name: name12, fromWireType(value) {
-            var length3 = HEAPU32[value >> 2];
+            var length4 = HEAPU32[value >> 2];
             var payload = value + 4;
             var str;
             if (stdStringIsUTF8) {
               var decodeStartPtr = payload;
-              for (var i = 0; i <= length3; ++i) {
+              for (var i = 0; i <= length4; ++i) {
                 var currentBytePtr = payload + i;
-                if (i == length3 || HEAPU8[currentBytePtr] == 0) {
+                if (i == length4 || HEAPU8[currentBytePtr] == 0) {
                   var maxRead = currentBytePtr - decodeStartPtr;
                   var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
                   if (str === void 0) {
@@ -5411,8 +5411,8 @@ ${invokerFnBody}`;
                 }
               }
             } else {
-              var a2 = new Array(length3);
-              for (var i = 0; i < length3; ++i) {
+              var a2 = new Array(length4);
+              for (var i = 0; i < length4; ++i) {
                 a2[i] = String.fromCharCode(HEAPU8[payload + i]);
               }
               str = a2.join("");
@@ -5423,24 +5423,24 @@ ${invokerFnBody}`;
             if (value instanceof ArrayBuffer) {
               value = new Uint8Array(value);
             }
-            var length3;
+            var length4;
             var valueIsOfTypeString = typeof value == "string";
             if (!(valueIsOfTypeString || ArrayBuffer.isView(value) && value.BYTES_PER_ELEMENT == 1)) {
               throwBindingError("Cannot pass non-string to std::string");
             }
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              length3 = lengthBytesUTF8(value);
+              length4 = lengthBytesUTF8(value);
             } else {
-              length3 = value.length;
+              length4 = value.length;
             }
-            var base = _malloc(4 + length3 + 1);
+            var base = _malloc(4 + length4 + 1);
             var ptr = base + 4;
-            HEAPU32[base >> 2] = length3;
+            HEAPU32[base >> 2] = length4;
             if (valueIsOfTypeString) {
               if (stdStringIsUTF8) {
-                stringToUTF8(value, ptr, length3 + 1);
+                stringToUTF8(value, ptr, length4 + 1);
               } else {
-                for (var i = 0; i < length3; ++i) {
+                for (var i = 0; i < length4; ++i) {
                   var charCode = value.charCodeAt(i);
                   if (charCode > 255) {
                     _free(base);
@@ -5553,12 +5553,12 @@ ${invokerFnBody}`;
             readCharAt = (pointer) => HEAPU32[pointer >> 2];
           }
           registerType(rawType, { name: name12, fromWireType: (value) => {
-            var length3 = HEAPU32[value >> 2];
+            var length4 = HEAPU32[value >> 2];
             var str;
             var decodeStartPtr = value + 4;
-            for (var i = 0; i <= length3; ++i) {
+            for (var i = 0; i <= length4; ++i) {
               var currentBytePtr = value + 4 + i * charSize;
-              if (i == length3 || readCharAt(currentBytePtr) == 0) {
+              if (i == length4 || readCharAt(currentBytePtr) == 0) {
                 var maxReadBytes = currentBytePtr - decodeStartPtr;
                 var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
                 if (str === void 0) {
@@ -5576,10 +5576,10 @@ ${invokerFnBody}`;
             if (!(typeof value == "string")) {
               throwBindingError(`Cannot pass non-string to C++ string type ${name12}`);
             }
-            var length3 = lengthBytesUTF(value);
-            var ptr = _malloc(4 + length3 + charSize);
-            HEAPU32[ptr >> 2] = length3 / charSize;
-            encodeString(value, ptr + 4, length3 + charSize);
+            var length4 = lengthBytesUTF(value);
+            var ptr = _malloc(4 + length4 + charSize);
+            HEAPU32[ptr >> 2] = length4 / charSize;
+            encodeString(value, ptr + 4, length4 + charSize);
             if (destructors !== null) {
               destructors.push(_free, ptr);
             }
@@ -8978,10 +8978,10 @@ function decompressNormal(oct, result) {
     x = tempx;
     y = tempy;
   }
-  const length3 = Math.sqrt(x * x + y * y + z * z);
-  result[0] = x / length3;
-  result[1] = y / length3;
-  result[2] = z / length3;
+  const length4 = Math.sqrt(x * x + y * y + z * z);
+  result[0] = x / length4;
+  result[1] = y / length4;
+  result[2] = z / length4;
   return result;
 }
 function decompressNormals(octs, result) {
@@ -9001,10 +9001,10 @@ function decompressNormals(octs, result) {
       x = tempx;
       y = tempy;
     }
-    const length3 = Math.sqrt(x * x + y * y + z * z);
-    result[j] = x / length3;
-    result[j + 1] = y / length3;
-    result[j + 2] = z / length3;
+    const length4 = Math.sqrt(x * x + y * y + z * z);
+    result[j] = x / length4;
+    result[j + 1] = y / length4;
+    result[j + 2] = z / length4;
   }
   return result;
 }
@@ -9018,10 +9018,10 @@ function octDecodeVec2(oct, result = createVec3Float64()) {
     x = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
     y = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
   }
-  const length3 = Math.sqrt(x * x + y * y + z * z);
-  result[0] = x / length3;
-  result[1] = y / length3;
-  result[2] = z / length3;
+  const length4 = Math.sqrt(x * x + y * y + z * z);
+  result[0] = x / length4;
+  result[1] = y / length4;
+  result[2] = z / length4;
   return result;
 }
 function quantizePositions3AndCreateMat4(positions, aabb, positionsDecompressMatrix) {
@@ -9070,7 +9070,7 @@ function quantizePositions3(positions, aabb) {
   return positionsCompressed;
 }
 function transformAndOctEncodeNormals(worldNormalMatrix, normals, lenNormals, compressedNormals, lenCompressedNormals) {
-  const dot5 = (p, v) => {
+  const dot6 = (p, v) => {
     return p[0] * v[0] + p[1] * v[1] + p[2] * v[2];
   };
   const localNormal = createVec3Float64();
@@ -9087,7 +9087,7 @@ function transformAndOctEncodeNormals(worldNormalMatrix, normals, lenNormals, co
       for (const yfunc of ["floor", "ceil"]) {
         const oct = octEncodeVec3(worldNormal, xfunc, yfunc);
         dec = octDecodeVec2(oct);
-        currentCos = dot5(worldNormal, dec);
+        currentCos = dot6(worldNormal, dec);
         if (currentCos > bestCos) {
           best = oct;
           bestCos = currentCos;
@@ -9199,10 +9199,10 @@ function octDecodeNormalsU16(octs, result = new Float32Array(octs.length / 2 * 3
       x = tempx;
       y = tempy;
     }
-    const length3 = Math.sqrt(x * x + y * y + z * z) || 1;
-    result[j] = x / length3;
-    result[j + 1] = y / length3;
-    result[j + 2] = z / length3;
+    const length4 = Math.sqrt(x * x + y * y + z * z) || 1;
+    result[j] = x / length4;
+    result[j + 1] = y / length4;
+    result[j + 2] = z / length4;
   }
   return result;
 }
@@ -9852,14 +9852,14 @@ var Curve = class {
    * @param distance Absolute distance along the curve. When provided, overrides `u`.
    * @returns Curve parameter in the range `[0..1]`
    */
-  getUToTMapping(u, distance2) {
+  getUToTMapping(u, distance3) {
     const arcLengths = this._getLengths();
     let i = 0;
     const il = arcLengths.length;
     let t;
     let targetArcLength;
-    if (distance2) {
-      targetArcLength = distance2;
+    if (distance3) {
+      targetArcLength = distance3;
     } else {
       targetArcLength = u * arcLengths[il - 1];
     }
@@ -10254,8 +10254,8 @@ function perpDistance2D(p, a2, b4) {
     const ey = p[1] - a2[1];
     return Math.sqrt(ex * ex + ey * ey);
   }
-  const cross5 = dx * (a2[1] - p[1]) - (a2[0] - p[0]) * dy;
-  return Math.abs(cross5) / Math.sqrt(len2);
+  const cross6 = dx * (a2[1] - p[1]) - (a2[0] - p[0]) * dy;
+  return Math.abs(cross6) / Math.sqrt(len2);
 }
 function douglasPeuckerOpen2D(points, epsilon) {
   if (points.length < 3)
@@ -17498,7 +17498,7 @@ function buildEdgeIndices(positions, indices, aabb, edgeThreshold) {
   let edge;
   let normal1;
   let normal2;
-  let dot5;
+  let dot6;
   let ia;
   let ib;
   for (let i = 0, len = indices.length; i < len; i += 3) {
@@ -17526,8 +17526,8 @@ function buildEdgeIndices(positions, indices, aabb, edgeThreshold) {
     if (edge.face2 !== void 0) {
       normal1 = faces[edge.face1].normal;
       normal2 = faces[edge.face2].normal;
-      dot5 = dotVec3(normal1, normal2);
-      if (dot5 > thresholdDot) {
+      dot6 = dotVec3(normal1, normal2);
+      if (dot6 > thresholdDot) {
         continue;
       }
     }
@@ -23115,12 +23115,12 @@ var TreeGenerator = class _TreeGenerator {
     }
     return stats;
   }
-  growBranch({ createBranch, createLeaf, random, settings, start, dir, length: length3, radius, level, maxLevel }) {
+  growBranch({ createBranch, createLeaf, random, settings, start, dir, length: length4, radius, level, maxLevel }) {
     const bend = settings.wind * level * 0.12;
     const end = [
-      start[0] + dir[0] * length3 + bend,
-      start[1] + dir[1] * length3,
-      start[2] + dir[2] * length3
+      start[0] + dir[0] * length4 + bend,
+      start[1] + dir[1] * length4,
+      start[2] + dir[2] * length4
     ];
     createBranch(start, end, radius, 0.95 + random() * 0.16);
     if (level >= maxLevel || radius < 0.045) {
@@ -23152,7 +23152,7 @@ var TreeGenerator = class _TreeGenerator {
         settings,
         start: end,
         dir: childDir,
-        length: length3 * settings.lengthFalloff * (0.78 + random() * 0.28),
+        length: length4 * settings.lengthFalloff * (0.78 + random() * 0.28),
         radius: radius * settings.taper,
         level: level + 1,
         maxLevel
@@ -23223,8 +23223,8 @@ function orientedScaleMatrix(position, scale3, rotation) {
 }
 function branchMatrix(start, end, radius) {
   const axisY = subtract(end, start);
-  const length3 = Math.hypot(axisY[0], axisY[1], axisY[2]) || 1;
-  const y = [axisY[0] / length3, axisY[1] / length3, axisY[2] / length3];
+  const length4 = Math.hypot(axisY[0], axisY[1], axisY[2]) || 1;
+  const y = [axisY[0] / length4, axisY[1] / length4, axisY[2] / length4];
   const helper = Math.abs(dot2(y, [0, 0, 1])) > 0.92 ? [1, 0, 0] : [0, 0, 1];
   const x = normalize(cross2(helper, y));
   const z = cross2(y, x);
@@ -23238,9 +23238,9 @@ function branchMatrix(start, end, radius) {
     x[1] * radius,
     x[2] * radius,
     0,
-    y[0] * length3,
-    y[1] * length3,
-    y[2] * length3,
+    y[0] * length4,
+    y[1] * length4,
+    y[2] * length4,
     0,
     z[0] * radius,
     z[1] * radius,
@@ -23870,8 +23870,8 @@ function formatTime(ms) {
   }
   return formatted;
 }
-function leftPad(string, length3 = 8) {
-  const padLength = Math.max(length3 - string.length, 0);
+function leftPad(string, length4 = 8) {
+  const padLength = Math.max(length4 - string.length, 0);
   return `${" ".repeat(padLength)}${string}`;
 }
 
@@ -24944,24 +24944,24 @@ async function onMessage(parseOnMainThread, job, type, payload) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/get-first-characters.js
-function getFirstCharacters(data2, length3 = 5) {
+function getFirstCharacters(data2, length4 = 5) {
   if (typeof data2 === "string") {
-    return data2.slice(0, length3);
+    return data2.slice(0, length4);
   } else if (ArrayBuffer.isView(data2)) {
-    return getMagicString(data2.buffer, data2.byteOffset, length3);
+    return getMagicString(data2.buffer, data2.byteOffset, length4);
   } else if (data2 instanceof ArrayBuffer) {
     const byteOffset = 0;
-    return getMagicString(data2, byteOffset, length3);
+    return getMagicString(data2, byteOffset, length4);
   }
   return "";
 }
-function getMagicString(arrayBuffer, byteOffset, length3) {
-  if (arrayBuffer.byteLength <= byteOffset + length3) {
+function getMagicString(arrayBuffer, byteOffset, length4) {
+  if (arrayBuffer.byteLength <= byteOffset + length4) {
     return "";
   }
   const dataView = new DataView(arrayBuffer);
   let magic = "";
-  for (let i = 0; i < length3; i++) {
+  for (let i = 0; i < length4; i++) {
     magic += String.fromCharCode(dataView.getUint8(byteOffset + i));
   }
   return magic;
@@ -24996,7 +24996,7 @@ function concatenateArrayBuffers(...sources) {
 }
 function concatenateArrayBuffersFromArray(sources) {
   const sourceArrays = sources.map((source2) => source2 instanceof ArrayBuffer ? new Uint8Array(source2) : source2);
-  const byteLength = sourceArrays.reduce((length3, typedArray) => length3 + typedArray.byteLength, 0);
+  const byteLength = sourceArrays.reduce((length4, typedArray) => length4 + typedArray.byteLength, 0);
   const result = new Uint8Array(byteLength);
   let offset = 0;
   for (const sourceArray of sourceArrays) {
@@ -25754,12 +25754,12 @@ function getAccessorArrayTypeAndLength(accessor, bufferView) {
   const ArrayType = ATTRIBUTE_COMPONENT_TYPE_TO_ARRAY[accessor.componentType];
   const components = ATTRIBUTE_TYPE_TO_COMPONENTS[accessor.type];
   const bytesPerComponent = ATTRIBUTE_COMPONENT_TYPE_TO_BYTE_SIZE[accessor.componentType];
-  const length3 = accessor.count * components;
+  const length4 = accessor.count * components;
   const byteLength = accessor.count * components * bytesPerComponent;
   assert4(byteLength >= 0 && byteLength <= bufferView.byteLength);
   const componentByteSize = BYTES[accessor.componentType];
   const numberOfComponentsInElement = COMPONENTS[accessor.type];
-  return { ArrayType, length: length3, byteLength, componentByteSize, numberOfComponentsInElement };
+  return { ArrayType, length: length4, byteLength, componentByteSize, numberOfComponentsInElement };
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/get-typed-array.js
@@ -25783,14 +25783,14 @@ function getTypedArrayForAccessor(json, buffers, accessor) {
   }
   const { arrayBuffer, byteOffset: bufferByteOffset } = buffers[bufferView.buffer];
   const byteOffset = (bufferByteOffset || 0) + (gltfAccessor.byteOffset || 0) + (bufferView.byteOffset || 0);
-  const { ArrayType, length: length3, componentByteSize, numberOfComponentsInElement } = getAccessorArrayTypeAndLength(gltfAccessor, bufferView);
+  const { ArrayType, length: length4, componentByteSize, numberOfComponentsInElement } = getAccessorArrayTypeAndLength(gltfAccessor, bufferView);
   const elementByteSize = componentByteSize * numberOfComponentsInElement;
   const elementAddressScale = bufferView.byteStride || elementByteSize;
   if (typeof bufferView.byteStride === "undefined" || bufferView.byteStride === elementByteSize) {
-    const result2 = new ArrayType(arrayBuffer, byteOffset, length3);
+    const result2 = new ArrayType(arrayBuffer, byteOffset, length4);
     return result2;
   }
-  const result = new ArrayType(length3);
+  const result = new ArrayType(length4);
   for (let i = 0; i < gltfAccessor.count; i++) {
     const values = new ArrayType(arrayBuffer, byteOffset + i * elementAddressScale, numberOfComponentsInElement);
     result.set(values, i * numberOfComponentsInElement);
@@ -26388,8 +26388,8 @@ function convertRawBufferToMetadataArray(data2, attributeType, componentType, el
   const numberOfComponents = ATTRIBUTE_TYPE_TO_COMPONENTS2[attributeType];
   const ArrayType = ATTRIBUTE_COMPONENT_TYPE_TO_ARRAY2[componentType];
   const size = ATTRIBUTE_COMPONENT_TYPE_TO_BYTE_SIZE2[componentType];
-  const length3 = elementCount * numberOfComponents;
-  const byteLength = length3 * size;
+  const length4 = elementCount * numberOfComponents;
+  const byteLength = length4 * size;
   let buffer = data2.buffer;
   let offset = data2.byteOffset;
   if (offset % size !== 0) {
@@ -26397,7 +26397,7 @@ function convertRawBufferToMetadataArray(data2, attributeType, componentType, el
     buffer = bufferArray.slice(offset, offset + byteLength).buffer;
     offset = 0;
   }
-  return new ArrayType(buffer, offset, length3);
+  return new ArrayType(buffer, offset, length4);
 }
 function getPrimitiveTextureData(scenegraph, textureInfo, primitive) {
   const texCoordAccessorKey = `TEXCOORD_${textureInfo.texCoord || 0}`;
@@ -29254,8 +29254,8 @@ var MathArray = class extends Array {
 };
 
 // ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/validators.js
-function validateVector(v, length3) {
-  if (v.length !== length3) {
+function validateVector(v, length4) {
+  if (v.length !== length4) {
     return false;
   }
   for (let i = 0; i < v.length; ++i) {
@@ -29271,8 +29271,8 @@ function checkNumber(value) {
   }
   return value;
 }
-function checkVector(v, length3, callerName = "") {
-  if (config.debug && !validateVector(v, length3)) {
+function checkVector(v, length4, callerName = "") {
+  if (config.debug && !validateVector(v, length4)) {
     throw new Error(`math.gl: ${callerName} some fields set to invalid numbers'`);
   }
   return v;
@@ -29319,11 +29319,11 @@ var Vector = class extends MathArray {
    * Returns the squared length of the vector from the origin to the point described by this vector
    */
   lengthSquared() {
-    let length3 = 0;
+    let length4 = 0;
     for (let i = 0; i < this.ELEMENTS; ++i) {
-      length3 += this[i] * this[i];
+      length4 += this[i] * this[i];
     }
-    return length3;
+    return length4;
   }
   /**
    * Returns the squared length of the vector from the origin to the point described by this vector
@@ -29335,12 +29335,12 @@ var Vector = class extends MathArray {
     return Math.sqrt(this.distanceSquared(mathArray));
   }
   distanceSquared(mathArray) {
-    let length3 = 0;
+    let length4 = 0;
     for (let i = 0; i < this.ELEMENTS; ++i) {
       const dist = this[i] - mathArray[i];
-      length3 += dist * dist;
+      length4 += dist * dist;
     }
-    return checkNumber(length3);
+    return checkNumber(length4);
   }
   dot(mathArray) {
     let product = 0;
@@ -29351,10 +29351,10 @@ var Vector = class extends MathArray {
   }
   // MODIFIERS
   normalize() {
-    const length3 = this.magnitude();
-    if (length3 !== 0) {
+    const length4 = this.magnitude();
+    if (length4 !== 0) {
       for (let i = 0; i < this.ELEMENTS; ++i) {
-        this[i] /= length3;
+        this[i] /= length4;
       }
     }
     return this.check();
@@ -30267,11 +30267,11 @@ function transformPrimitive(gltfData, primitive, transformParameters) {
       if (bufferView) {
         const { arrayBuffer, byteOffset: bufferByteOffset } = gltfData.buffers[bufferView.buffer];
         const byteOffset = (bufferByteOffset || 0) + (accessor.byteOffset || 0) + (bufferView.byteOffset || 0);
-        const { ArrayType, length: length3 } = getAccessorArrayTypeAndLength(accessor, bufferView);
+        const { ArrayType, length: length4 } = getAccessorArrayTypeAndLength(accessor, bufferView);
         const bytes = BYTES[accessor.componentType];
         const components = COMPONENTS[accessor.type];
         const elementAddressScale = bufferView.byteStride || bytes * components;
-        const result = new Float32Array(length3);
+        const result = new Float32Array(length4);
         for (let i = 0; i < accessor.count; i++) {
           const uv = new ArrayType(arrayBuffer, byteOffset + i * elementAddressScale, 2);
           scratchVector.set(uv[0], uv[1], 1);
@@ -31923,24 +31923,24 @@ function testBinary(data2, byteOffset, loader, test) {
       return false;
   }
 }
-function getFirstCharacters2(data2, length3 = 5) {
+function getFirstCharacters2(data2, length4 = 5) {
   if (typeof data2 === "string") {
-    return data2.slice(0, length3);
+    return data2.slice(0, length4);
   } else if (ArrayBuffer.isView(data2)) {
-    return getMagicString3(data2.buffer, data2.byteOffset, length3);
+    return getMagicString3(data2.buffer, data2.byteOffset, length4);
   } else if (data2 instanceof ArrayBuffer) {
     const byteOffset = 0;
-    return getMagicString3(data2, byteOffset, length3);
+    return getMagicString3(data2, byteOffset, length4);
   }
   return "";
 }
-function getMagicString3(arrayBuffer, byteOffset, length3) {
-  if (arrayBuffer.byteLength < byteOffset + length3) {
+function getMagicString3(arrayBuffer, byteOffset, length4) {
+  if (arrayBuffer.byteLength < byteOffset + length4) {
     return "";
   }
   const dataView = new DataView(arrayBuffer);
   let magic = "";
-  for (let i = 0; i < length3; i++) {
+  for (let i = 0; i < length4; i++) {
     magic += String.fromCharCode(dataView.getUint8(byteOffset + i));
   }
   return magic;
@@ -32951,8 +32951,8 @@ function expandLineLoopIndices(indices) {
   }
   return expanded;
 }
-function copyIndices(indices, length3) {
-  const copied = new Uint32Array(Math.max(0, length3));
+function copyIndices(indices, length4) {
+  const copied = new Uint32Array(Math.max(0, length4));
   for (let i = 0; i < copied.length; i++) {
     copied[i] = indices[i];
   }
@@ -39954,8 +39954,8 @@ function to2D(_p, _n, re) {
     x3[1] += 2;
     x3[2] += 3;
   }
-  const dot5 = dotVec3(x3, n);
-  const tmp2 = mulVec3Scalar(n, dot5, createVec3Float64());
+  const dot6 = dotVec3(x3, n);
+  const tmp2 = mulVec3Scalar(n, dot6, createVec3Float64());
   x3[0] -= tmp2[0];
   x3[1] -= tmp2[1];
   x3[2] -= tmp2[2];
@@ -41360,9 +41360,9 @@ var require_web_ifc_mt = __commonJS2({
           }
           var fromParts = trim(from.split("/"));
           var toParts = trim(to.split("/"));
-          var length3 = Math.min(fromParts.length, toParts.length);
-          var samePartsLength = length3;
-          for (var i = 0; i < length3; i++) {
+          var length4 = Math.min(fromParts.length, toParts.length);
+          var samePartsLength = length4;
+          for (var i = 0; i < length4; i++) {
             if (fromParts[i] !== toParts[i]) {
               samePartsLength = i;
               break;
@@ -41469,8 +41469,8 @@ var require_web_ifc_mt = __commonJS2({
           heap[outIdx >>> 0] = 0;
           return outIdx - startIdx;
         };
-        function intArrayFromString(stringy, dontAddNull, length3) {
-          var len = length3 > 0 ? length3 : lengthBytesUTF8(stringy) + 1;
+        function intArrayFromString(stringy, dontAddNull, length4) {
+          var len = length4 > 0 ? length4 : lengthBytesUTF8(stringy) + 1;
           var u8array = new Array(len);
           var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
           if (dontAddNull)
@@ -41514,12 +41514,12 @@ var require_web_ifc_mt = __commonJS2({
           stream.tty.ops.fsync(stream.tty);
         }, fsync: function(stream) {
           stream.tty.ops.fsync(stream.tty);
-        }, read: function(stream, buffer, offset, length3, pos) {
+        }, read: function(stream, buffer, offset, length4, pos) {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(60);
           }
           var bytesRead = 0;
-          for (var i = 0; i < length3; i++) {
+          for (var i = 0; i < length4; i++) {
             var result;
             try {
               result = stream.tty.ops.get_char(stream.tty);
@@ -41538,18 +41538,18 @@ var require_web_ifc_mt = __commonJS2({
             stream.node.timestamp = Date.now();
           }
           return bytesRead;
-        }, write: function(stream, buffer, offset, length3, pos) {
+        }, write: function(stream, buffer, offset, length4, pos) {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(60);
           }
           try {
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               stream.tty.ops.put_char(stream.tty, buffer[offset + i]);
             }
           } catch (e) {
             throw new FS.ErrnoError(29);
           }
-          if (length3) {
+          if (length4) {
             stream.node.timestamp = Date.now();
           }
           return i;
@@ -41740,11 +41740,11 @@ var require_web_ifc_mt = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return node.link;
-        } }, stream_ops: { read(stream, buffer, offset, length3, position) {
+        } }, stream_ops: { read(stream, buffer, offset, length4, position) {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes)
             return 0;
-          var size = Math.min(stream.node.usedBytes - position, length3);
+          var size = Math.min(stream.node.usedBytes - position, length4);
           if (size > 8 && contents.subarray) {
             buffer.set(contents.subarray(position, position + size), offset);
           } else {
@@ -41752,38 +41752,38 @@ var require_web_ifc_mt = __commonJS2({
               buffer[offset + i] = contents[position + i];
           }
           return size;
-        }, write(stream, buffer, offset, length3, position, canOwn) {
+        }, write(stream, buffer, offset, length4, position, canOwn) {
           if (buffer.buffer === GROWABLE_HEAP_I8().buffer) {
             canOwn = false;
           }
-          if (!length3)
+          if (!length4)
             return 0;
           var node = stream.node;
           node.timestamp = Date.now();
           if (buffer.subarray && (!node.contents || node.contents.subarray)) {
             if (canOwn) {
-              node.contents = buffer.subarray(offset, offset + length3);
-              node.usedBytes = length3;
-              return length3;
+              node.contents = buffer.subarray(offset, offset + length4);
+              node.usedBytes = length4;
+              return length4;
             } else if (node.usedBytes === 0 && position === 0) {
-              node.contents = buffer.slice(offset, offset + length3);
-              node.usedBytes = length3;
-              return length3;
-            } else if (position + length3 <= node.usedBytes) {
-              node.contents.set(buffer.subarray(offset, offset + length3), position);
-              return length3;
+              node.contents = buffer.slice(offset, offset + length4);
+              node.usedBytes = length4;
+              return length4;
+            } else if (position + length4 <= node.usedBytes) {
+              node.contents.set(buffer.subarray(offset, offset + length4), position);
+              return length4;
             }
           }
-          MEMFS.expandFileStorage(node, position + length3);
+          MEMFS.expandFileStorage(node, position + length4);
           if (node.contents.subarray && buffer.subarray) {
-            node.contents.set(buffer.subarray(offset, offset + length3), position);
+            node.contents.set(buffer.subarray(offset, offset + length4), position);
           } else {
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               node.contents[position + i] = buffer[offset + i];
             }
           }
-          node.usedBytes = Math.max(node.usedBytes, position + length3);
-          return length3;
+          node.usedBytes = Math.max(node.usedBytes, position + length4);
+          return length4;
         }, llseek(stream, offset, whence) {
           var position = offset;
           if (whence === 1) {
@@ -41797,10 +41797,10 @@ var require_web_ifc_mt = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return position;
-        }, allocate(stream, offset, length3) {
-          MEMFS.expandFileStorage(stream.node, offset + length3);
-          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length3);
-        }, mmap(stream, length3, position, prot, flags) {
+        }, allocate(stream, offset, length4) {
+          MEMFS.expandFileStorage(stream.node, offset + length4);
+          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length4);
+        }, mmap(stream, length4, position, prot, flags) {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
@@ -41811,23 +41811,23 @@ var require_web_ifc_mt = __commonJS2({
             allocated = false;
             ptr = contents.byteOffset;
           } else {
-            if (position > 0 || position + length3 < contents.length) {
+            if (position > 0 || position + length4 < contents.length) {
               if (contents.subarray) {
-                contents = contents.subarray(position, position + length3);
+                contents = contents.subarray(position, position + length4);
               } else {
-                contents = Array.prototype.slice.call(contents, position, position + length3);
+                contents = Array.prototype.slice.call(contents, position, position + length4);
               }
             }
             allocated = true;
-            ptr = mmapAlloc(length3);
+            ptr = mmapAlloc(length4);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
             GROWABLE_HEAP_I8().set(contents, ptr >>> 0);
           }
           return { ptr, allocated };
-        }, msync(stream, buffer, offset, length3, mmapFlags) {
-          MEMFS.stream_ops.write(stream, buffer, 0, length3, offset, false);
+        }, msync(stream, buffer, offset, length4, mmapFlags) {
+          MEMFS.stream_ops.write(stream, buffer, 0, length4, offset, false);
           return 0;
         } } };
         var asyncLoad = (url, onload, onerror, noRunDep) => {
@@ -42571,8 +42571,8 @@ var require_web_ifc_mt = __commonJS2({
           stream.position = stream.stream_ops.llseek(stream, offset, whence);
           stream.ungotten = [];
           return stream.position;
-        }, read: (stream, buffer, offset, length3, position) => {
-          if (length3 < 0 || position < 0) {
+        }, read: (stream, buffer, offset, length4, position) => {
+          if (length4 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -42593,12 +42593,12 @@ var require_web_ifc_mt = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length3, position);
+          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length4, position);
           if (!seeking)
             stream.position += bytesRead;
           return bytesRead;
-        }, write: (stream, buffer, offset, length3, position, canOwn) => {
-          if (length3 < 0 || position < 0) {
+        }, write: (stream, buffer, offset, length4, position, canOwn) => {
+          if (length4 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -42622,15 +42622,15 @@ var require_web_ifc_mt = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length3, position, canOwn);
+          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length4, position, canOwn);
           if (!seeking)
             stream.position += bytesWritten;
           return bytesWritten;
-        }, allocate: (stream, offset, length3) => {
+        }, allocate: (stream, offset, length4) => {
           if (FS.isClosed(stream)) {
             throw new FS.ErrnoError(8);
           }
-          if (offset < 0 || length3 <= 0) {
+          if (offset < 0 || length4 <= 0) {
             throw new FS.ErrnoError(28);
           }
           if ((stream.flags & 2097155) === 0) {
@@ -42642,8 +42642,8 @@ var require_web_ifc_mt = __commonJS2({
           if (!stream.stream_ops.allocate) {
             throw new FS.ErrnoError(138);
           }
-          stream.stream_ops.allocate(stream, offset, length3);
-        }, mmap: (stream, length3, position, prot, flags) => {
+          stream.stream_ops.allocate(stream, offset, length4);
+        }, mmap: (stream, length4, position, prot, flags) => {
           if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
             throw new FS.ErrnoError(2);
           }
@@ -42653,12 +42653,12 @@ var require_web_ifc_mt = __commonJS2({
           if (!stream.stream_ops.mmap) {
             throw new FS.ErrnoError(43);
           }
-          return stream.stream_ops.mmap(stream, length3, position, prot, flags);
-        }, msync: (stream, buffer, offset, length3, mmapFlags) => {
+          return stream.stream_ops.mmap(stream, length4, position, prot, flags);
+        }, msync: (stream, buffer, offset, length4, mmapFlags) => {
           if (!stream.stream_ops.msync) {
             return 0;
           }
-          return stream.stream_ops.msync(stream, buffer, offset, length3, mmapFlags);
+          return stream.stream_ops.msync(stream, buffer, offset, length4, mmapFlags);
         }, munmap: (stream) => 0, ioctl: (stream, cmd, arg) => {
           if (!stream.stream_ops.ioctl) {
             throw new FS.ErrnoError(59);
@@ -42673,9 +42673,9 @@ var require_web_ifc_mt = __commonJS2({
           var ret;
           var stream = FS.open(path, opts.flags);
           var stat = FS.stat(path);
-          var length3 = stat.size;
-          var buf = new Uint8Array(length3);
-          FS.read(stream, buf, 0, length3, 0);
+          var length4 = stat.size;
+          var buf = new Uint8Array(length4);
+          FS.read(stream, buf, 0, length4, 0);
           if (opts.encoding === "utf8") {
             ret = UTF8ArrayToString(buf, 0);
           } else if (opts.encoding === "binary") {
@@ -42715,7 +42715,7 @@ var require_web_ifc_mt = __commonJS2({
           FS.mkdir("/home/web_user");
         }, createDefaultDevices: () => {
           FS.mkdir("/dev");
-          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length3, pos) => length3 });
+          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length4, pos) => length4 });
           FS.mkdev("/dev/null", FS.makedev(1, 3));
           TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
           TTY.register(FS.makedev(6, 0), TTY.default_tty1_ops);
@@ -42890,9 +42890,9 @@ var require_web_ifc_mt = __commonJS2({
             if (output && output.buffer && output.buffer.length) {
               output(10);
             }
-          }, read: (stream, buffer, offset, length3, pos) => {
+          }, read: (stream, buffer, offset, length4, pos) => {
             var bytesRead = 0;
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               var result;
               try {
                 result = input();
@@ -42911,15 +42911,15 @@ var require_web_ifc_mt = __commonJS2({
               stream.node.timestamp = Date.now();
             }
             return bytesRead;
-          }, write: (stream, buffer, offset, length3, pos) => {
-            for (var i = 0; i < length3; i++) {
+          }, write: (stream, buffer, offset, length4, pos) => {
+            for (var i = 0; i < length4; i++) {
               try {
                 output(buffer[offset + i]);
               } catch (e) {
                 throw new FS.ErrnoError(29);
               }
             }
-            if (length3) {
+            if (length4) {
               stream.node.timestamp = Date.now();
             }
             return i;
@@ -43050,11 +43050,11 @@ var require_web_ifc_mt = __commonJS2({
               return fn.apply(null, arguments);
             };
           });
-          function writeChunks(stream, buffer, offset, length3, position) {
+          function writeChunks(stream, buffer, offset, length4, position) {
             var contents = stream.node.contents;
             if (position >= contents.length)
               return 0;
-            var size = Math.min(contents.length - position, length3);
+            var size = Math.min(contents.length - position, length4);
             if (contents.slice) {
               for (var i = 0; i < size; i++) {
                 buffer[offset + i] = contents[position + i];
@@ -43066,17 +43066,17 @@ var require_web_ifc_mt = __commonJS2({
             }
             return size;
           }
-          stream_ops.read = (stream, buffer, offset, length3, position) => {
+          stream_ops.read = (stream, buffer, offset, length4, position) => {
             FS.forceLoadFile(node);
-            return writeChunks(stream, buffer, offset, length3, position);
+            return writeChunks(stream, buffer, offset, length4, position);
           };
-          stream_ops.mmap = (stream, length3, position, prot, flags) => {
+          stream_ops.mmap = (stream, length4, position, prot, flags) => {
             FS.forceLoadFile(node);
-            var ptr = mmapAlloc(length3);
+            var ptr = mmapAlloc(length4);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
-            writeChunks(stream, GROWABLE_HEAP_I8(), ptr, length3, position);
+            writeChunks(stream, GROWABLE_HEAP_I8(), ptr, length4, position);
             return { ptr, allocated: true };
           };
           node.stream_ops = stream_ops;
@@ -44624,14 +44624,14 @@ var require_web_ifc_mt = __commonJS2({
           name12 = readLatin1String(name12);
           var stdStringIsUTF8 = name12 === "std::string";
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length3 = GROWABLE_HEAP_U32()[value >>> 2];
+            var length4 = GROWABLE_HEAP_U32()[value >>> 2];
             var payload = value + 4;
             var str;
             if (stdStringIsUTF8) {
               var decodeStartPtr = payload;
-              for (var i = 0; i <= length3; ++i) {
+              for (var i = 0; i <= length4; ++i) {
                 var currentBytePtr = payload + i;
-                if (i == length3 || GROWABLE_HEAP_U8()[currentBytePtr >>> 0] == 0) {
+                if (i == length4 || GROWABLE_HEAP_U8()[currentBytePtr >>> 0] == 0) {
                   var maxRead = currentBytePtr - decodeStartPtr;
                   var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
                   if (str === void 0) {
@@ -44644,8 +44644,8 @@ var require_web_ifc_mt = __commonJS2({
                 }
               }
             } else {
-              var a2 = new Array(length3);
-              for (var i = 0; i < length3; ++i) {
+              var a2 = new Array(length4);
+              for (var i = 0; i < length4; ++i) {
                 a2[i] = String.fromCharCode(GROWABLE_HEAP_U8()[payload + i >>> 0]);
               }
               str = a2.join("");
@@ -44656,24 +44656,24 @@ var require_web_ifc_mt = __commonJS2({
             if (value instanceof ArrayBuffer) {
               value = new Uint8Array(value);
             }
-            var length3;
+            var length4;
             var valueIsOfTypeString = typeof value == "string";
             if (!(valueIsOfTypeString || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Int8Array)) {
               throwBindingError("Cannot pass non-string to std::string");
             }
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              length3 = lengthBytesUTF8(value);
+              length4 = lengthBytesUTF8(value);
             } else {
-              length3 = value.length;
+              length4 = value.length;
             }
-            var base = _malloc(4 + length3 + 1);
+            var base = _malloc(4 + length4 + 1);
             var ptr = base + 4;
-            GROWABLE_HEAP_U32()[base >>> 2] = length3;
+            GROWABLE_HEAP_U32()[base >>> 2] = length4;
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              stringToUTF8(value, ptr, length3 + 1);
+              stringToUTF8(value, ptr, length4 + 1);
             } else {
               if (valueIsOfTypeString) {
-                for (var i = 0; i < length3; ++i) {
+                for (var i = 0; i < length4; ++i) {
                   var charCode = value.charCodeAt(i);
                   if (charCode > 255) {
                     _free(ptr);
@@ -44682,7 +44682,7 @@ var require_web_ifc_mt = __commonJS2({
                   GROWABLE_HEAP_U8()[ptr + i >>> 0] = charCode;
                 }
               } else {
-                for (var i = 0; i < length3; ++i) {
+                for (var i = 0; i < length4; ++i) {
                   GROWABLE_HEAP_U8()[ptr + i >>> 0] = value[i];
                 }
               }
@@ -44802,13 +44802,13 @@ var require_web_ifc_mt = __commonJS2({
             shift = 2;
           }
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length3 = GROWABLE_HEAP_U32()[value >>> 2];
+            var length4 = GROWABLE_HEAP_U32()[value >>> 2];
             var HEAP = getHeap();
             var str;
             var decodeStartPtr = value + 4;
-            for (var i = 0; i <= length3; ++i) {
+            for (var i = 0; i <= length4; ++i) {
               var currentBytePtr = value + 4 + i * charSize;
-              if (i == length3 || HEAP[currentBytePtr >>> shift] == 0) {
+              if (i == length4 || HEAP[currentBytePtr >>> shift] == 0) {
                 var maxReadBytes = currentBytePtr - decodeStartPtr;
                 var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
                 if (str === void 0) {
@@ -44826,10 +44826,10 @@ var require_web_ifc_mt = __commonJS2({
             if (!(typeof value == "string")) {
               throwBindingError(`Cannot pass non-string to C++ string type ${name12}`);
             }
-            var length3 = lengthBytesUTF(value);
-            var ptr = _malloc(4 + length3 + charSize);
-            GROWABLE_HEAP_U32()[ptr >>> 2] = length3 >> shift;
-            encodeString(value, ptr + 4, length3 + charSize);
+            var length4 = lengthBytesUTF(value);
+            var ptr = _malloc(4 + length4 + charSize);
+            GROWABLE_HEAP_U32()[ptr >>> 2] = length4 >> shift;
+            encodeString(value, ptr + 4, length4 + charSize);
             if (destructors !== null) {
               destructors.push(_free, ptr);
             }
@@ -47432,14 +47432,14 @@ var require_web_ifc = __commonJS2({
           name12 = readLatin1String(name12);
           var stdStringIsUTF8 = name12 === "std::string";
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length3 = HEAPU32[value >>> 2];
+            var length4 = HEAPU32[value >>> 2];
             var payload = value + 4;
             var str;
             if (stdStringIsUTF8) {
               var decodeStartPtr = payload;
-              for (var i = 0; i <= length3; ++i) {
+              for (var i = 0; i <= length4; ++i) {
                 var currentBytePtr = payload + i;
-                if (i == length3 || HEAPU8[currentBytePtr >>> 0] == 0) {
+                if (i == length4 || HEAPU8[currentBytePtr >>> 0] == 0) {
                   var maxRead = currentBytePtr - decodeStartPtr;
                   var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
                   if (str === void 0) {
@@ -47452,8 +47452,8 @@ var require_web_ifc = __commonJS2({
                 }
               }
             } else {
-              var a2 = new Array(length3);
-              for (var i = 0; i < length3; ++i) {
+              var a2 = new Array(length4);
+              for (var i = 0; i < length4; ++i) {
                 a2[i] = String.fromCharCode(HEAPU8[payload + i >>> 0]);
               }
               str = a2.join("");
@@ -47464,24 +47464,24 @@ var require_web_ifc = __commonJS2({
             if (value instanceof ArrayBuffer) {
               value = new Uint8Array(value);
             }
-            var length3;
+            var length4;
             var valueIsOfTypeString = typeof value == "string";
             if (!(valueIsOfTypeString || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Int8Array)) {
               throwBindingError("Cannot pass non-string to std::string");
             }
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              length3 = lengthBytesUTF8(value);
+              length4 = lengthBytesUTF8(value);
             } else {
-              length3 = value.length;
+              length4 = value.length;
             }
-            var base = _malloc(4 + length3 + 1);
+            var base = _malloc(4 + length4 + 1);
             var ptr = base + 4;
-            HEAPU32[base >>> 2] = length3;
+            HEAPU32[base >>> 2] = length4;
             if (stdStringIsUTF8 && valueIsOfTypeString) {
-              stringToUTF8(value, ptr, length3 + 1);
+              stringToUTF8(value, ptr, length4 + 1);
             } else {
               if (valueIsOfTypeString) {
-                for (var i = 0; i < length3; ++i) {
+                for (var i = 0; i < length4; ++i) {
                   var charCode = value.charCodeAt(i);
                   if (charCode > 255) {
                     _free(ptr);
@@ -47490,7 +47490,7 @@ var require_web_ifc = __commonJS2({
                   HEAPU8[ptr + i >>> 0] = charCode;
                 }
               } else {
-                for (var i = 0; i < length3; ++i) {
+                for (var i = 0; i < length4; ++i) {
                   HEAPU8[ptr + i >>> 0] = value[i];
                 }
               }
@@ -47610,13 +47610,13 @@ var require_web_ifc = __commonJS2({
             shift = 2;
           }
           registerType(rawType, { name: name12, "fromWireType": function(value) {
-            var length3 = HEAPU32[value >>> 2];
+            var length4 = HEAPU32[value >>> 2];
             var HEAP = getHeap();
             var str;
             var decodeStartPtr = value + 4;
-            for (var i = 0; i <= length3; ++i) {
+            for (var i = 0; i <= length4; ++i) {
               var currentBytePtr = value + 4 + i * charSize;
-              if (i == length3 || HEAP[currentBytePtr >>> shift] == 0) {
+              if (i == length4 || HEAP[currentBytePtr >>> shift] == 0) {
                 var maxReadBytes = currentBytePtr - decodeStartPtr;
                 var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
                 if (str === void 0) {
@@ -47634,10 +47634,10 @@ var require_web_ifc = __commonJS2({
             if (!(typeof value == "string")) {
               throwBindingError(`Cannot pass non-string to C++ string type ${name12}`);
             }
-            var length3 = lengthBytesUTF(value);
-            var ptr = _malloc(4 + length3 + charSize);
-            HEAPU32[ptr >>> 2] = length3 >> shift;
-            encodeString(value, ptr + 4, length3 + charSize);
+            var length4 = lengthBytesUTF(value);
+            var ptr = _malloc(4 + length4 + charSize);
+            HEAPU32[ptr >>> 2] = length4 >> shift;
+            encodeString(value, ptr + 4, length4 + charSize);
             if (destructors !== null) {
               destructors.push(_free, ptr);
             }
@@ -48073,9 +48073,9 @@ var require_web_ifc = __commonJS2({
           }
           var fromParts = trim(from.split("/"));
           var toParts = trim(to.split("/"));
-          var length3 = Math.min(fromParts.length, toParts.length);
-          var samePartsLength = length3;
-          for (var i = 0; i < length3; i++) {
+          var length4 = Math.min(fromParts.length, toParts.length);
+          var samePartsLength = length4;
+          for (var i = 0; i < length4; i++) {
             if (fromParts[i] !== toParts[i]) {
               samePartsLength = i;
               break;
@@ -48089,8 +48089,8 @@ var require_web_ifc = __commonJS2({
           return outputParts.join("/");
         } };
         var FS_stdin_getChar_buffer = [];
-        function intArrayFromString(stringy, dontAddNull, length3) {
-          var len = length3 > 0 ? length3 : lengthBytesUTF8(stringy) + 1;
+        function intArrayFromString(stringy, dontAddNull, length4) {
+          var len = length4 > 0 ? length4 : lengthBytesUTF8(stringy) + 1;
           var u8array = new Array(len);
           var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
           if (dontAddNull)
@@ -48134,12 +48134,12 @@ var require_web_ifc = __commonJS2({
           stream.tty.ops.fsync(stream.tty);
         }, fsync: function(stream) {
           stream.tty.ops.fsync(stream.tty);
-        }, read: function(stream, buffer, offset, length3, pos) {
+        }, read: function(stream, buffer, offset, length4, pos) {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(60);
           }
           var bytesRead = 0;
-          for (var i = 0; i < length3; i++) {
+          for (var i = 0; i < length4; i++) {
             var result;
             try {
               result = stream.tty.ops.get_char(stream.tty);
@@ -48158,18 +48158,18 @@ var require_web_ifc = __commonJS2({
             stream.node.timestamp = Date.now();
           }
           return bytesRead;
-        }, write: function(stream, buffer, offset, length3, pos) {
+        }, write: function(stream, buffer, offset, length4, pos) {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(60);
           }
           try {
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               stream.tty.ops.put_char(stream.tty, buffer[offset + i]);
             }
           } catch (e) {
             throw new FS.ErrnoError(29);
           }
-          if (length3) {
+          if (length4) {
             stream.node.timestamp = Date.now();
           }
           return i;
@@ -48360,11 +48360,11 @@ var require_web_ifc = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return node.link;
-        } }, stream_ops: { read(stream, buffer, offset, length3, position) {
+        } }, stream_ops: { read(stream, buffer, offset, length4, position) {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes)
             return 0;
-          var size = Math.min(stream.node.usedBytes - position, length3);
+          var size = Math.min(stream.node.usedBytes - position, length4);
           if (size > 8 && contents.subarray) {
             buffer.set(contents.subarray(position, position + size), offset);
           } else {
@@ -48372,38 +48372,38 @@ var require_web_ifc = __commonJS2({
               buffer[offset + i] = contents[position + i];
           }
           return size;
-        }, write(stream, buffer, offset, length3, position, canOwn) {
+        }, write(stream, buffer, offset, length4, position, canOwn) {
           if (buffer.buffer === HEAP8.buffer) {
             canOwn = false;
           }
-          if (!length3)
+          if (!length4)
             return 0;
           var node = stream.node;
           node.timestamp = Date.now();
           if (buffer.subarray && (!node.contents || node.contents.subarray)) {
             if (canOwn) {
-              node.contents = buffer.subarray(offset, offset + length3);
-              node.usedBytes = length3;
-              return length3;
+              node.contents = buffer.subarray(offset, offset + length4);
+              node.usedBytes = length4;
+              return length4;
             } else if (node.usedBytes === 0 && position === 0) {
-              node.contents = buffer.slice(offset, offset + length3);
-              node.usedBytes = length3;
-              return length3;
-            } else if (position + length3 <= node.usedBytes) {
-              node.contents.set(buffer.subarray(offset, offset + length3), position);
-              return length3;
+              node.contents = buffer.slice(offset, offset + length4);
+              node.usedBytes = length4;
+              return length4;
+            } else if (position + length4 <= node.usedBytes) {
+              node.contents.set(buffer.subarray(offset, offset + length4), position);
+              return length4;
             }
           }
-          MEMFS.expandFileStorage(node, position + length3);
+          MEMFS.expandFileStorage(node, position + length4);
           if (node.contents.subarray && buffer.subarray) {
-            node.contents.set(buffer.subarray(offset, offset + length3), position);
+            node.contents.set(buffer.subarray(offset, offset + length4), position);
           } else {
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               node.contents[position + i] = buffer[offset + i];
             }
           }
-          node.usedBytes = Math.max(node.usedBytes, position + length3);
-          return length3;
+          node.usedBytes = Math.max(node.usedBytes, position + length4);
+          return length4;
         }, llseek(stream, offset, whence) {
           var position = offset;
           if (whence === 1) {
@@ -48417,10 +48417,10 @@ var require_web_ifc = __commonJS2({
             throw new FS.ErrnoError(28);
           }
           return position;
-        }, allocate(stream, offset, length3) {
-          MEMFS.expandFileStorage(stream.node, offset + length3);
-          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length3);
-        }, mmap(stream, length3, position, prot, flags) {
+        }, allocate(stream, offset, length4) {
+          MEMFS.expandFileStorage(stream.node, offset + length4);
+          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length4);
+        }, mmap(stream, length4, position, prot, flags) {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
@@ -48431,23 +48431,23 @@ var require_web_ifc = __commonJS2({
             allocated = false;
             ptr = contents.byteOffset;
           } else {
-            if (position > 0 || position + length3 < contents.length) {
+            if (position > 0 || position + length4 < contents.length) {
               if (contents.subarray) {
-                contents = contents.subarray(position, position + length3);
+                contents = contents.subarray(position, position + length4);
               } else {
-                contents = Array.prototype.slice.call(contents, position, position + length3);
+                contents = Array.prototype.slice.call(contents, position, position + length4);
               }
             }
             allocated = true;
-            ptr = mmapAlloc(length3);
+            ptr = mmapAlloc(length4);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
             HEAP8.set(contents, ptr >>> 0);
           }
           return { ptr, allocated };
-        }, msync(stream, buffer, offset, length3, mmapFlags) {
-          MEMFS.stream_ops.write(stream, buffer, 0, length3, offset, false);
+        }, msync(stream, buffer, offset, length4, mmapFlags) {
+          MEMFS.stream_ops.write(stream, buffer, 0, length4, offset, false);
           return 0;
         } } };
         var asyncLoad = (url, onload, onerror, noRunDep) => {
@@ -49191,8 +49191,8 @@ var require_web_ifc = __commonJS2({
           stream.position = stream.stream_ops.llseek(stream, offset, whence);
           stream.ungotten = [];
           return stream.position;
-        }, read: (stream, buffer, offset, length3, position) => {
-          if (length3 < 0 || position < 0) {
+        }, read: (stream, buffer, offset, length4, position) => {
+          if (length4 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -49213,12 +49213,12 @@ var require_web_ifc = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length3, position);
+          var bytesRead = stream.stream_ops.read(stream, buffer, offset, length4, position);
           if (!seeking)
             stream.position += bytesRead;
           return bytesRead;
-        }, write: (stream, buffer, offset, length3, position, canOwn) => {
-          if (length3 < 0 || position < 0) {
+        }, write: (stream, buffer, offset, length4, position, canOwn) => {
+          if (length4 < 0 || position < 0) {
             throw new FS.ErrnoError(28);
           }
           if (FS.isClosed(stream)) {
@@ -49242,15 +49242,15 @@ var require_web_ifc = __commonJS2({
           } else if (!stream.seekable) {
             throw new FS.ErrnoError(70);
           }
-          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length3, position, canOwn);
+          var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length4, position, canOwn);
           if (!seeking)
             stream.position += bytesWritten;
           return bytesWritten;
-        }, allocate: (stream, offset, length3) => {
+        }, allocate: (stream, offset, length4) => {
           if (FS.isClosed(stream)) {
             throw new FS.ErrnoError(8);
           }
-          if (offset < 0 || length3 <= 0) {
+          if (offset < 0 || length4 <= 0) {
             throw new FS.ErrnoError(28);
           }
           if ((stream.flags & 2097155) === 0) {
@@ -49262,8 +49262,8 @@ var require_web_ifc = __commonJS2({
           if (!stream.stream_ops.allocate) {
             throw new FS.ErrnoError(138);
           }
-          stream.stream_ops.allocate(stream, offset, length3);
-        }, mmap: (stream, length3, position, prot, flags) => {
+          stream.stream_ops.allocate(stream, offset, length4);
+        }, mmap: (stream, length4, position, prot, flags) => {
           if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
             throw new FS.ErrnoError(2);
           }
@@ -49273,12 +49273,12 @@ var require_web_ifc = __commonJS2({
           if (!stream.stream_ops.mmap) {
             throw new FS.ErrnoError(43);
           }
-          return stream.stream_ops.mmap(stream, length3, position, prot, flags);
-        }, msync: (stream, buffer, offset, length3, mmapFlags) => {
+          return stream.stream_ops.mmap(stream, length4, position, prot, flags);
+        }, msync: (stream, buffer, offset, length4, mmapFlags) => {
           if (!stream.stream_ops.msync) {
             return 0;
           }
-          return stream.stream_ops.msync(stream, buffer, offset, length3, mmapFlags);
+          return stream.stream_ops.msync(stream, buffer, offset, length4, mmapFlags);
         }, munmap: (stream) => 0, ioctl: (stream, cmd, arg) => {
           if (!stream.stream_ops.ioctl) {
             throw new FS.ErrnoError(59);
@@ -49293,9 +49293,9 @@ var require_web_ifc = __commonJS2({
           var ret;
           var stream = FS.open(path, opts.flags);
           var stat = FS.stat(path);
-          var length3 = stat.size;
-          var buf = new Uint8Array(length3);
-          FS.read(stream, buf, 0, length3, 0);
+          var length4 = stat.size;
+          var buf = new Uint8Array(length4);
+          FS.read(stream, buf, 0, length4, 0);
           if (opts.encoding === "utf8") {
             ret = UTF8ArrayToString(buf, 0);
           } else if (opts.encoding === "binary") {
@@ -49335,7 +49335,7 @@ var require_web_ifc = __commonJS2({
           FS.mkdir("/home/web_user");
         }, createDefaultDevices: () => {
           FS.mkdir("/dev");
-          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length3, pos) => length3 });
+          FS.registerDevice(FS.makedev(1, 3), { read: () => 0, write: (stream, buffer, offset, length4, pos) => length4 });
           FS.mkdev("/dev/null", FS.makedev(1, 3));
           TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
           TTY.register(FS.makedev(6, 0), TTY.default_tty1_ops);
@@ -49510,9 +49510,9 @@ var require_web_ifc = __commonJS2({
             if (output && output.buffer && output.buffer.length) {
               output(10);
             }
-          }, read: (stream, buffer, offset, length3, pos) => {
+          }, read: (stream, buffer, offset, length4, pos) => {
             var bytesRead = 0;
-            for (var i = 0; i < length3; i++) {
+            for (var i = 0; i < length4; i++) {
               var result;
               try {
                 result = input();
@@ -49531,15 +49531,15 @@ var require_web_ifc = __commonJS2({
               stream.node.timestamp = Date.now();
             }
             return bytesRead;
-          }, write: (stream, buffer, offset, length3, pos) => {
-            for (var i = 0; i < length3; i++) {
+          }, write: (stream, buffer, offset, length4, pos) => {
+            for (var i = 0; i < length4; i++) {
               try {
                 output(buffer[offset + i]);
               } catch (e) {
                 throw new FS.ErrnoError(29);
               }
             }
-            if (length3) {
+            if (length4) {
               stream.node.timestamp = Date.now();
             }
             return i;
@@ -49670,11 +49670,11 @@ var require_web_ifc = __commonJS2({
               return fn.apply(null, arguments);
             };
           });
-          function writeChunks(stream, buffer, offset, length3, position) {
+          function writeChunks(stream, buffer, offset, length4, position) {
             var contents = stream.node.contents;
             if (position >= contents.length)
               return 0;
-            var size = Math.min(contents.length - position, length3);
+            var size = Math.min(contents.length - position, length4);
             if (contents.slice) {
               for (var i = 0; i < size; i++) {
                 buffer[offset + i] = contents[position + i];
@@ -49686,17 +49686,17 @@ var require_web_ifc = __commonJS2({
             }
             return size;
           }
-          stream_ops.read = (stream, buffer, offset, length3, position) => {
+          stream_ops.read = (stream, buffer, offset, length4, position) => {
             FS.forceLoadFile(node);
-            return writeChunks(stream, buffer, offset, length3, position);
+            return writeChunks(stream, buffer, offset, length4, position);
           };
-          stream_ops.mmap = (stream, length3, position, prot, flags) => {
+          stream_ops.mmap = (stream, length4, position, prot, flags) => {
             FS.forceLoadFile(node);
-            var ptr = mmapAlloc(length3);
+            var ptr = mmapAlloc(length4);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
-            writeChunks(stream, HEAP8, ptr, length3, position);
+            writeChunks(stream, HEAP8, ptr, length4, position);
             return { ptr, allocated: true };
           };
           node.stream_ops = stream_ops;
@@ -105731,7 +105731,7 @@ var IfcAPI2 = class {
         const startV = { x: 0, y: 0, z: 0 };
         let lastx = 0;
         let lasty = 0;
-        let length3 = 0;
+        let length4 = 0;
         for (let j = 0; j < alignment.Horizontal.curves.size(); j++) {
           const curve = alignment.Horizontal.curves.get(j);
           const points = [];
@@ -105746,7 +105746,7 @@ var IfcAPI2 = class {
             const valueY = pt2.y - lasty;
             lastx = pt2.x;
             lasty = pt2.y;
-            length3 += Math.sqrt(valueX * valueX + valueY * valueY);
+            length4 += Math.sqrt(valueX * valueX + valueY * valueY);
             let first = true;
             let lastAlt = 0;
             let lastX = 0;
@@ -105759,13 +105759,13 @@ var IfcAPI2 = class {
                   first = false;
                   alt = pt22.y;
                   lastAlt = pt22.y;
-                  if (pt22.x >= length3) {
+                  if (pt22.x >= length4) {
                     break;
                   }
                 }
-                if (pt22.x >= length3) {
+                if (pt22.x >= length4) {
                   const value1 = pt22.x - lastX;
-                  const value2 = length3 - lastX;
+                  const value2 = length4 - lastX;
                   const value3 = value2 / value1;
                   alt = lastAlt * (1 - value3) + pt22.y * value3;
                   done = true;
@@ -114821,13 +114821,13 @@ function getModule() {
     registerType(rawType, {
       name: name12,
       fromWireType: function(value) {
-        var length3 = HEAPU32[value >> 2];
+        var length4 = HEAPU32[value >> 2];
         var str;
         if (stdStringIsUTF8) {
           var decodeStartPtr = value + 4;
-          for (var i = 0; i <= length3; ++i) {
+          for (var i = 0; i <= length4; ++i) {
             var currentBytePtr = value + 4 + i;
-            if (HEAPU8[currentBytePtr] == 0 || i == length3) {
+            if (HEAPU8[currentBytePtr] == 0 || i == length4) {
               var maxRead = currentBytePtr - decodeStartPtr;
               var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
               if (str === void 0) {
@@ -114840,8 +114840,8 @@ function getModule() {
             }
           }
         } else {
-          var a2 = new Array(length3);
-          for (var i = 0; i < length3; ++i) {
+          var a2 = new Array(length4);
+          for (var i = 0; i < length4; ++i) {
             a2[i] = String.fromCharCode(HEAPU8[value + 4 + i]);
           }
           str = a2.join("");
@@ -114867,14 +114867,14 @@ function getModule() {
             return value.length;
           };
         }
-        var length3 = getLength();
-        var ptr = _malloc(4 + length3 + 1);
-        HEAPU32[ptr >> 2] = length3;
+        var length4 = getLength();
+        var ptr = _malloc(4 + length4 + 1);
+        HEAPU32[ptr >> 2] = length4;
         if (stdStringIsUTF8 && valueIsOfTypeString) {
-          stringToUTF8(value, ptr + 4, length3 + 1);
+          stringToUTF8(value, ptr + 4, length4 + 1);
         } else {
           if (valueIsOfTypeString) {
-            for (var i = 0; i < length3; ++i) {
+            for (var i = 0; i < length4; ++i) {
               var charCode = value.charCodeAt(i);
               if (charCode > 255) {
                 _free(ptr);
@@ -114883,7 +114883,7 @@ function getModule() {
               HEAPU8[ptr + 4 + i] = charCode;
             }
           } else {
-            for (var i = 0; i < length3; ++i) {
+            for (var i = 0; i < length4; ++i) {
               HEAPU8[ptr + 4 + i] = value[i];
             }
           }
@@ -114923,13 +114923,13 @@ function getModule() {
     registerType(rawType, {
       name: name12,
       fromWireType: function(value) {
-        var length3 = HEAPU32[value >> 2];
+        var length4 = HEAPU32[value >> 2];
         var HEAP = getHeap();
         var str;
         var decodeStartPtr = value + 4;
-        for (var i = 0; i <= length3; ++i) {
+        for (var i = 0; i <= length4; ++i) {
           var currentBytePtr = value + 4 + i * charSize;
-          if (HEAP[currentBytePtr >> shift] == 0 || i == length3) {
+          if (HEAP[currentBytePtr >> shift] == 0 || i == length4) {
             var maxReadBytes = currentBytePtr - decodeStartPtr;
             var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
             if (str === void 0) {
@@ -114948,10 +114948,10 @@ function getModule() {
         if (!(typeof value === "string")) {
           throwBindingError("Cannot pass non-string to C++ string type " + name12);
         }
-        var length3 = lengthBytesUTF(value);
-        var ptr = _malloc(4 + length3 + charSize);
-        HEAPU32[ptr >> 2] = length3 >> shift;
-        encodeString(value, ptr + 4, length3 + charSize);
+        var length4 = lengthBytesUTF(value);
+        var ptr = _malloc(4 + length4 + charSize);
+        HEAPU32[ptr >> 2] = length4 >> shift;
+        encodeString(value, ptr + 4, length4 + charSize);
         if (destructors !== null) {
           destructors.push(_free, ptr);
         }
@@ -131333,8 +131333,8 @@ var POINT_FORMAT_READERS = {
 };
 function readAs(buf, Type = {}, offset, count) {
   count = count === void 0 || count === 0 ? 1 : count;
-  const sub2 = buf.slice(offset, offset + Type.BYTES_PER_ELEMENT * count);
-  const r = new Type(sub2);
+  const sub3 = buf.slice(offset, offset + Type.BYTES_PER_ELEMENT * count);
+  const r = new Type(sub3);
   if (count === 1) {
     return r[0];
   }
@@ -133904,15 +133904,15 @@ var put_short = (s, w2) => {
   s.pending_buf[s.pending++] = w2 & 255;
   s.pending_buf[s.pending++] = w2 >>> 8 & 255;
 };
-var send_bits = (s, value, length3) => {
-  if (s.bi_valid > Buf_size - length3) {
+var send_bits = (s, value, length4) => {
+  if (s.bi_valid > Buf_size - length4) {
     s.bi_buf |= value << s.bi_valid & 65535;
     put_short(s, s.bi_buf);
     s.bi_buf = value >> Buf_size - s.bi_valid;
-    s.bi_valid += length3 - Buf_size;
+    s.bi_valid += length4 - Buf_size;
   } else {
     s.bi_buf |= value << s.bi_valid & 65535;
-    s.bi_valid += length3;
+    s.bi_valid += length4;
   }
 };
 var send_code = (s, c2, tree) => {
@@ -134031,18 +134031,18 @@ var gen_codes = (tree, max_code, bl_count) => {
 var tr_static_init = () => {
   let n;
   let bits;
-  let length3;
+  let length4;
   let code;
   let dist;
   const bl_count = new Array(MAX_BITS$1 + 1);
-  length3 = 0;
+  length4 = 0;
   for (code = 0; code < LENGTH_CODES$1 - 1; code++) {
-    base_length[code] = length3;
+    base_length[code] = length4;
     for (n = 0; n < 1 << extra_lbits[code]; n++) {
-      _length_code[length3++] = code;
+      _length_code[length4++] = code;
     }
   }
-  _length_code[length3 - 1] = code;
+  _length_code[length4 - 1] = code;
   dist = 0;
   for (code = 0; code < 16; code++) {
     base_dist[code] = dist;
@@ -143263,31 +143263,31 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
       const coords = ca[1];
       let ci = 0;
       for (let so = 0; so < subOps.length; so++) {
-        const sub2 = subOps[so];
-        if (sub2 === OPS.moveTo) {
+        const sub3 = subOps[so];
+        if (sub3 === OPS.moveTo) {
           const x = coords[ci++], y = coords[ci++];
           startSubPath(x, y);
-        } else if (sub2 === OPS.lineTo) {
+        } else if (sub3 === OPS.lineTo) {
           const x = coords[ci++], y = coords[ci++];
           appendToSubPath(x, y);
-        } else if (sub2 === OPS.curveTo) {
+        } else if (sub3 === OPS.curveTo) {
           const c1x = coords[ci++], c1y = coords[ci++];
           const c2x = coords[ci++], c2y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, c1x, c1y, c2x, c2y, x, y);
-        } else if (sub2 === OPS.curveTo2) {
+        } else if (sub3 === OPS.curveTo2) {
           const c2x = coords[ci++], c2y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, subX, subY, c2x, c2y, x, y);
-        } else if (sub2 === OPS.curveTo3) {
+        } else if (sub3 === OPS.curveTo3) {
           const c1x = coords[ci++], c1y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, c1x, c1y, x, y, x, y);
-        } else if (sub2 === OPS.closePath) {
+        } else if (sub3 === OPS.closePath) {
           const ci_last = currentPath.length - 1;
           if (ci_last >= 0)
             closed[ci_last] = true;
-        } else if (sub2 === OPS.rectangle) {
+        } else if (sub3 === OPS.rectangle) {
           const x = coords[ci++], y = coords[ci++];
           const w2 = coords[ci++], h2 = coords[ci++];
           currentPath.push([x, y, x + w2, y, x + w2, y + h2, x, y + h2]);
@@ -144786,9 +144786,9 @@ function arcToCubics(x1, y1, x2, y2, rx, ry, xRot, largeArc, sweep) {
   const cx = cosR * cxp - sinR * cyp + (x1 + x2) / 2;
   const cy = sinR * cxp + cosR * cyp + (y1 + y2) / 2;
   const vec = (ux, uy, vx, vy) => {
-    const dot5 = ux * vx + uy * vy;
+    const dot6 = ux * vx + uy * vy;
     const len = Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
-    let ang = Math.acos(Math.min(1, Math.max(-1, dot5 / len)));
+    let ang = Math.acos(Math.min(1, Math.max(-1, dot6 / len)));
     if (ux * vy - uy * vx < 0)
       ang = -ang;
     return ang;
@@ -148981,15 +148981,15 @@ async function parseSubtree(buffer, branch, fetchBuffer) {
 
 // ../sdk/src/formats/threedtiles/implicit/traverseImplicit.ts
 async function traverseImplicit(p) {
-  const sub2 = subdivisionOf(p.implicitTiling.subdivisionScheme);
+  const sub3 = subdivisionOf(p.implicitTiling.subdivisionScheme);
   const subtreeLevels = p.implicitTiling.subtreeLevels;
   const availableLevels = p.implicitTiling.availableLevels ?? (p.implicitTiling.maximumLevel ?? Infinity) + 1;
   const subtreeTemplate = p.implicitTiling.subtrees.uri;
-  const dims = sub2.dims;
+  const dims = sub3.dims;
   const fetchSubtree = async (level, coords) => {
     const url = p.resolveUrl(templateUri(subtreeTemplate, level, coords), p.baseUri);
     const buffer = await p.fetchArrayBuffer(url);
-    return parseSubtree(buffer, sub2.branch, (bufUri) => p.fetchArrayBuffer(p.resolveUrl(bufUri, dirOf(url))));
+    return parseSubtree(buffer, sub3.branch, (bufUri) => p.fetchArrayBuffer(p.resolveUrl(bufUri, dirOf(url))));
   };
   const walk = async (avail, localLevel, morton, globalLevel, coords) => {
     if (p.signal?.aborted)
@@ -149000,7 +149000,7 @@ async function traverseImplicit(p) {
     const childLocalLevel = localLevel + 1;
     const children = [];
     if (!atDepthCap) {
-      for (let c2 = 0; c2 < sub2.branch; c2++) {
+      for (let c2 = 0; c2 < sub3.branch; c2++) {
         const childMorton = morton << dims | c2;
         const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
         if (childLocalLevel < subtreeLevels) {
@@ -149142,9 +149142,9 @@ async function parseTileset(params, options = {}) {
     const url = resolveUrl2(uri, baseUri);
     const buffer = await fetchArrayBuffer(url);
     if (uri.split("?")[0].toLowerCase().endsWith(".json")) {
-      const sub2 = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
-      if (sub2 && sub2.root) {
-        await traverse(sub2.root, worldMatrix, 0, "REPLACE", dirOf2(url));
+      const sub3 = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
+      if (sub3 && sub3.root) {
+        await traverse(sub3.root, worldMatrix, 0, "REPLACE", dirOf2(url));
       }
       return;
     }
@@ -149347,11 +149347,11 @@ function distanceToTile(eye, sphere2) {
   const d = Math.hypot(eye[0] - sphere2.center[0], eye[1] - sphere2.center[1], eye[2] - sphere2.center[2]);
   return Math.max(0, d - sphere2.radius);
 }
-function screenSpaceError(geometricError, distance2, viewportHeight, fovDegrees) {
-  if (distance2 <= 0)
+function screenSpaceError(geometricError, distance3, viewportHeight, fovDegrees) {
+  if (distance3 <= 0)
     return Infinity;
   const fovRad = fovDegrees * Math.PI / 180;
-  return geometricError * viewportHeight / (distance2 * 2 * Math.tan(fovRad / 2));
+  return geometricError * viewportHeight / (distance3 * 2 * Math.tan(fovRad / 2));
 }
 function selectTiles(root, camera, maxScreenSpaceError) {
   const out = [];
@@ -149366,8 +149366,8 @@ function selectTiles(root, camera, maxScreenSpaceError) {
   const visit = (node) => {
     if (culled(node))
       return;
-    const distance2 = distanceToTile(camera.eye, node);
-    const sse = screenSpaceError(node.geometricError, distance2, camera.viewportHeight, camera.fov);
+    const distance3 = distanceToTile(camera.eye, node);
+    const sse = screenSpaceError(node.geometricError, distance3, camera.viewportHeight, camera.fov);
     const refine = node.children.length > 0 && sse > maxScreenSpaceError;
     if (node.refine === "ADD") {
       if (node.contentUri)
@@ -149432,8 +149432,8 @@ async function selectStreaming(root, camera, opts) {
     ) === OUTSIDE;
   };
   const sseAt = (geometricError, center, radius) => {
-    const distance2 = distanceToTile(camera.eye, { center, radius });
-    return screenSpaceError(geometricError, distance2, camera.viewportHeight, camera.fov);
+    const distance3 = distanceToTile(camera.eye, { center, radius });
+    return screenSpaceError(geometricError, distance3, camera.viewportHeight, camera.fov);
   };
   const visit = async (node) => {
     if (culled(node.center, node.radius))
@@ -149457,15 +149457,15 @@ async function selectStreaming(root, camera, opts) {
     }
   };
   const visitImplicit = async (node, spec) => {
-    const sub2 = subdivisionOf(spec.subdivisionScheme);
-    const dims = sub2.dims;
+    const sub3 = subdivisionOf(spec.subdivisionScheme);
+    const dims = sub3.dims;
     const subtreeFor = async (level, coords) => {
       const key = `${level}/${coords.join("/")}`;
       let avail = opts.subtreeCache.get(key);
       if (!avail) {
         const url = opts.resolveUrl(templateUri(spec.subtreeTemplate, level, coords), node.baseUri);
         const buffer = await opts.fetchArrayBuffer(url);
-        avail = await parseSubtree(buffer, sub2.branch, (bufUri) => opts.fetchArrayBuffer(opts.resolveUrl(bufUri, dirOf(url))));
+        avail = await parseSubtree(buffer, sub3.branch, (bufUri) => opts.fetchArrayBuffer(opts.resolveUrl(bufUri, dirOf(url))));
         opts.subtreeCache.set(key, avail);
       }
       return avail;
@@ -149496,7 +149496,7 @@ async function selectStreaming(root, camera, opts) {
       const childLocalLevel = localLevel + 1;
       const children = [];
       if (refine) {
-        for (let c2 = 0; c2 < sub2.branch; c2++) {
+        for (let c2 = 0; c2 < sub3.branch; c2++) {
           const childMorton = morton << dims | c2;
           const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
           if (childLocalLevel < spec.subtreeLevels) {
@@ -154994,7 +154994,7 @@ var compactUnusedVertices = {
     const oldNormals = geom.normalsCompressed;
     const oldUVs = geom.uvsCompressed;
     const oldColors = geom.colorsCompressed;
-    const sameType = (src, length3) => new src.constructor(length3);
+    const sameType = (src, length4) => new src.constructor(length4);
     const newPositions = sameType(oldPositions, kept * 3);
     const newNormals = oldNormals ? sameType(oldNormals, kept * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, kept * 2) : void 0;
@@ -155096,7 +155096,7 @@ var mergeDuplicateVertices = {
     if (unique === vertCount)
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     const newSlot = new Int32Array(vertCount).fill(-1);
-    const sameType = (src, length3) => new src.constructor(length3);
+    const sameType = (src, length4) => new src.constructor(length4);
     const newPositions = sameType(oldPositions, unique * 3);
     const newNormals = oldNormals ? sameType(oldNormals, unique * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, unique * 2) : void 0;
@@ -158019,6 +158019,7 @@ __export(viewing_exports, {
   cameraFlight: () => cameraFlight_exports,
   renderer: () => renderer_exports,
   transformControls: () => transformControls_exports,
+  vehicleNavigation: () => vehicleNavigation_exports,
   viewController: () => viewController_exports,
   viewer: () => viewer_exports,
   walkNavigation: () => walkNavigation_exports,
@@ -162812,7 +162813,7 @@ var Sky = class {
     this.view = view;
     this._renderModes = params.renderModes !== void 0 ? params.renderModes.slice() : [NavigationRender, DetailedRender, RealisticRender];
     this._enabled = params.enabled ?? true;
-    this._skyColor = copy3(params.skyColor, [0.74, 0.8, 0.88]);
+    this._skyColor = copy3(params.skyColor, [0.08, 0.22, 0.62]);
     this._horizonColor = copy3(params.horizonColor, [0.66, 0.72, 0.74]);
     this._groundColor = copy3(params.groundColor, [0.58, 0.64, 0.6]);
     this._horizonBlend = params.horizonBlend ?? 0.5;
@@ -168194,24 +168195,24 @@ var Viewer = class {
         }
       }
     };
-    const sub2 = (emitter, h2) => emitter.subscribe(h2);
+    const sub3 = (emitter, h2) => emitter.subscribe(h2);
     const events = this.scene.events;
-    this._onSceneObjectMeshAdded = sub2(events.onSceneObjectMeshAdded, nudgeAllViews);
-    this._onSceneObjectMeshRemoved = sub2(events.onSceneObjectMeshRemoved, nudgeAllViews);
-    this._onSceneMeshCreated = sub2(events.onSceneMeshCreated, nudgeAllViews);
-    this._onSceneMeshDestroyed = sub2(events.onSceneMeshDestroyed, nudgeAllViews);
-    this._onSceneMeshMatrixChanged = sub2(events.onSceneMeshMatrixChanged, nudgeAllViews);
-    this._onSceneMeshMoved = sub2(events.onSceneMeshMoved, nudgeAllViews);
-    this._onSceneMeshColorChanged = sub2(events.onSceneMeshColorChanged, nudgeAllViews);
-    this._onSceneMeshOpacityChanged = sub2(events.onSceneMeshOpacityChanged, nudgeAllViews);
-    this._onSceneTransformMatrixChanged = sub2(events.onSceneTransformMatrixChanged, nudgeAllViews);
-    this._onSceneGeometryCreated = sub2(events.onSceneGeometryCreated, nudgeAllViews);
-    this._onSceneGeometryDestroyed = sub2(events.onSceneGeometryDestroyed, nudgeAllViews);
-    this._onSceneGeometryUpdated = sub2(events.onSceneGeometryUpdated, nudgeAllViews);
-    this._onSceneMaterialColorChanged = sub2(events.onSceneMaterialColorChanged, nudgeAllViews);
-    this._onSceneMaterialEmissiveColorChanged = sub2(events.onSceneMaterialEmissiveColorChanged, nudgeAllViews);
-    this._onSceneMaterialOpacityChanged = sub2(events.onSceneMaterialOpacityChanged, nudgeAllViews);
-    this._onSceneMaterialPatternChanged = sub2(events.onSceneMaterialPatternChanged, nudgeAllViews);
+    this._onSceneObjectMeshAdded = sub3(events.onSceneObjectMeshAdded, nudgeAllViews);
+    this._onSceneObjectMeshRemoved = sub3(events.onSceneObjectMeshRemoved, nudgeAllViews);
+    this._onSceneMeshCreated = sub3(events.onSceneMeshCreated, nudgeAllViews);
+    this._onSceneMeshDestroyed = sub3(events.onSceneMeshDestroyed, nudgeAllViews);
+    this._onSceneMeshMatrixChanged = sub3(events.onSceneMeshMatrixChanged, nudgeAllViews);
+    this._onSceneMeshMoved = sub3(events.onSceneMeshMoved, nudgeAllViews);
+    this._onSceneMeshColorChanged = sub3(events.onSceneMeshColorChanged, nudgeAllViews);
+    this._onSceneMeshOpacityChanged = sub3(events.onSceneMeshOpacityChanged, nudgeAllViews);
+    this._onSceneTransformMatrixChanged = sub3(events.onSceneTransformMatrixChanged, nudgeAllViews);
+    this._onSceneGeometryCreated = sub3(events.onSceneGeometryCreated, nudgeAllViews);
+    this._onSceneGeometryDestroyed = sub3(events.onSceneGeometryDestroyed, nudgeAllViews);
+    this._onSceneGeometryUpdated = sub3(events.onSceneGeometryUpdated, nudgeAllViews);
+    this._onSceneMaterialColorChanged = sub3(events.onSceneMaterialColorChanged, nudgeAllViews);
+    this._onSceneMaterialEmissiveColorChanged = sub3(events.onSceneMaterialEmissiveColorChanged, nudgeAllViews);
+    this._onSceneMaterialOpacityChanged = sub3(events.onSceneMaterialOpacityChanged, nudgeAllViews);
+    this._onSceneMaterialPatternChanged = sub3(events.onSceneMaterialPatternChanged, nudgeAllViews);
     this.events.onSceneAttached.dispatch(this, scene);
     return {
       ok: true,
@@ -171087,12 +171088,12 @@ var TransformControls = class _TransformControls {
     const viewerEvents = this.view.viewer.events;
     const subs = [];
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      const sub2 = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
-      subs.push(() => viewerEvents.onCameraViewMatrixUpdated.unsubscribe?.(sub2));
+      const sub3 = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
+      subs.push(() => viewerEvents.onCameraViewMatrixUpdated.unsubscribe?.(sub3));
     }
     if (viewerEvents?.onCameraProjMatrixUpdated?.subscribe) {
-      const sub2 = viewerEvents.onCameraProjMatrixUpdated.subscribe(() => this._syncTransform());
-      subs.push(() => viewerEvents.onCameraProjMatrixUpdated.unsubscribe?.(sub2));
+      const sub3 = viewerEvents.onCameraProjMatrixUpdated.subscribe(() => this._syncTransform());
+      subs.push(() => viewerEvents.onCameraProjMatrixUpdated.unsubscribe?.(sub3));
     }
     this._camSub = subs.length === 0 ? null : () => {
       for (const u of subs)
@@ -171100,10 +171101,10 @@ var TransformControls = class _TransformControls {
     };
     const sceneEvents = this.view.viewer.scene.events;
     if (sceneEvents?.onSceneMeshDestroyed?.subscribe) {
-      const sub2 = sceneEvents.onSceneMeshDestroyed.subscribe(
+      const sub3 = sceneEvents.onSceneMeshDestroyed.subscribe(
         (_scene, mesh) => this._onSceneMeshDestroyed(mesh)
       );
-      this._meshDestroyedSub = () => sceneEvents.onSceneMeshDestroyed.unsubscribe?.(sub2);
+      this._meshDestroyedSub = () => sceneEvents.onSceneMeshDestroyed.unsubscribe?.(sub3);
     }
     if (params.target !== void 0 && params.target !== null) {
       this.attach(params.target);
@@ -173107,15 +173108,15 @@ var MousePanRotateDollyHandler = class {
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
-      const keyCode2 = e.keyCode;
-      keyDown[keyCode2] = true;
+      const keyCode3 = e.keyCode;
+      keyDown[keyCode3] = true;
     });
     document.addEventListener("keyup", this.#documentKeyUpHandler = (e) => {
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
-      const keyCode2 = e.keyCode;
-      keyDown[keyCode2] = false;
+      const keyCode3 = e.keyCode;
+      keyDown[keyCode3] = false;
     });
     function setMousedownState(pick2 = true) {
       htmlElement.style.cursor = "move";
@@ -204473,8 +204474,8 @@ var WebGLRenderer3 = class {
     };
   }
   _rollbackViewerAttach() {
-    for (const sub2 of this._viewerSubs) {
-      sub2();
+    for (const sub3 of this._viewerSubs) {
+      sub3();
     }
     this._viewerSubs = [];
     this._viewer = null;
@@ -204843,8 +204844,8 @@ var WebGLRenderer3 = class {
     if (this._viewManager) {
       this._destroyViewManager();
     }
-    for (const sub2 of this._viewerSubs) {
-      sub2();
+    for (const sub3 of this._viewerSubs) {
+      sub3();
     }
     this._viewerSubs = [];
     const viewer = this._viewer;
@@ -204855,8 +204856,8 @@ var WebGLRenderer3 = class {
     if (!this._viewManager) {
       return;
     }
-    for (const sub2 of this._viewManagerSubs) {
-      sub2();
+    for (const sub3 of this._viewManagerSubs) {
+      sub3();
     }
     this._viewManagerSubs = [];
     this._removeWebGLContextListeners();
@@ -204907,7 +204908,7 @@ function createMemoryConfigs(params) {
   const AVG_VERTICES_PER_GEOMETRY = 200;
   const AVG_INDICES_PER_GEOMETRY = 400;
   const AVG_PRIMS_PER_GEOMETRY = 200;
-  const clamp4 = (v, min, max) => Math.max(min, Math.min(v, max));
+  const clamp5 = (v, min, max) => Math.max(min, Math.min(v, max));
   const MB_TO_BYTES = 1024 * 1024;
   const grossBytes = params.grossMemoryMB * MB_TO_BYTES;
   const usableBytes = grossBytes * params.utilization;
@@ -204916,20 +204917,20 @@ function createMemoryConfigs(params) {
   const tileBudgetBytes = usableBytes * 0.1;
   const maxBatchesBase = user.maxBatches ?? perf.meshBatches;
   const maxTilesBase = user.maxTiles ?? perf.tiles;
-  const derivedMaxTiles = clamp4(
+  const derivedMaxTiles = clamp5(
     Math.floor(tileBudgetBytes / BYTES_PER_TILE),
     64,
     4096
   );
-  const maxTiles = clamp4(
+  const maxTiles = clamp5(
     Math.min(maxTilesBase, derivedMaxTiles),
     64,
     4096
   );
-  const maxBatches = clamp4(maxBatchesBase, 8, 1024);
+  const maxBatches = clamp5(maxBatchesBase, 8, 1024);
   const totalMeshCapacity = Math.floor(meshBudgetBytes / BYTES_PER_MESH);
   const meshesPerBatchFromBudget = Math.floor(totalMeshCapacity / Math.max(1, maxBatches));
-  const maxBatchMeshes = clamp4(
+  const maxBatchMeshes = clamp5(
     user.maxBatchMeshes ?? meshesPerBatchFromBudget,
     100,
     16384
@@ -204938,17 +204939,17 @@ function createMemoryConfigs(params) {
   const bytesPerBatch = maxBatches > 0 ? geometryBudgetBytes / maxBatches : geometryBudgetBytes;
   const costPerVertex = BYTES_PER_VERTEX + INDICES_PER_VERTEX * BYTES_PER_INDEX + PRIMS_PER_VERTEX * BYTES_PER_PRIM;
   const maxBatchVerticesRaw = Math.floor(bytesPerBatch / costPerVertex);
-  const maxBatchVertices = user.maxBatchVertices ?? clamp4(
+  const maxBatchVertices = user.maxBatchVertices ?? clamp5(
     maxBatchVerticesRaw,
     1e5,
     16e6
   );
-  const maxBatchIndices = user.maxBatchIndices ?? clamp4(
+  const maxBatchIndices = user.maxBatchIndices ?? clamp5(
     Math.floor(maxBatchVertices * INDICES_PER_VERTEX),
     1e5,
     16e6
   );
-  const maxBatchPrims = user.maxBatchPrims ?? clamp4(
+  const maxBatchPrims = user.maxBatchPrims ?? clamp5(
     Math.floor(maxBatchVertices * PRIMS_PER_VERTEX),
     1e5,
     16e6
@@ -204966,12 +204967,12 @@ function createMemoryConfigs(params) {
     1,
     Math.min(maxGeometriesByVerts, maxGeometriesByIdx, maxGeometriesByPrims)
   );
-  maxBatchGeometries = clamp4(
+  maxBatchGeometries = clamp5(
     Math.min(maxBatchGeometries, geomCap),
     1,
     maxBatchGeometries
   );
-  const finalMaxBatchMeshes = clamp4(
+  const finalMaxBatchMeshes = clamp5(
     Math.min(maxBatchMeshes, maxBatchGeometries),
     100,
     16384
@@ -205265,10 +205266,10 @@ var WebGPULightingManager = class {
     const x = this._lightDirection[0];
     const y = this._lightDirection[1];
     const z = this._lightDirection[2];
-    const length3 = Math.hypot(x, y, z) || 1;
-    this._lightDirection[0] = x / length3;
-    this._lightDirection[1] = y / length3;
-    this._lightDirection[2] = z / length3;
+    const length4 = Math.hypot(x, y, z) || 1;
+    this._lightDirection[0] = x / length4;
+    this._lightDirection[1] = y / length4;
+    this._lightDirection[2] = z / length4;
   }
 };
 
@@ -207679,8 +207680,8 @@ var WebGPURenderer = class _WebGPURenderer {
       return;
     }
     this._destroyViewManager();
-    for (const sub2 of this._viewerSubs) {
-      sub2();
+    for (const sub3 of this._viewerSubs) {
+      sub3();
     }
     this._viewerSubs = [];
     const viewer = this._viewer;
@@ -207764,8 +207765,8 @@ var WebGPURenderer = class _WebGPURenderer {
   }
   _rollbackViewerAttach() {
     this._destroyViewManager(false);
-    for (const sub2 of this._viewerSubs) {
-      sub2();
+    for (const sub3 of this._viewerSubs) {
+      sub3();
     }
     this._viewerSubs = [];
     this._viewer = null;
@@ -208114,8 +208115,8 @@ var WebGPURenderer = class _WebGPURenderer {
     if (!viewManager) {
       return;
     }
-    for (const sub2 of this._viewManagerSubs) {
-      sub2();
+    for (const sub3 of this._viewManagerSubs) {
+      sub3();
     }
     this._viewManagerSubs = [];
     viewManager.destroy();
@@ -208190,8 +208191,8 @@ __export(walkNavigation_exports, {
 // ../sdk/src/viewing/walkNavigation/WalkNavigationController.ts
 var DEFAULT_EYE_HEIGHT = 1.7;
 var DEFAULT_BODY_RADIUS = 0.28;
-var DEFAULT_WALK_SPEED = 2.5;
-var DEFAULT_RUN_SPEED = 5;
+var DEFAULT_WALK_SPEED = 4;
+var DEFAULT_RUN_SPEED = 8.5;
 var DEFAULT_STEP_HEIGHT = 0.35;
 var DEFAULT_MAX_FALL = 1.5;
 var DEFAULT_FALL_ACCELERATION = 9.8;
@@ -208514,10 +208515,10 @@ var WalkNavigationController = class {
     const inputLength = Math.hypot(forwardAmount, rightAmount);
     const inputScale = inputLength > 1 ? 1 / inputLength : 1;
     const speed = pressed(this.#keysDown, RUN_KEYS) ? this.#runSpeed : this.#walkSpeed;
-    const distance2 = speed * elapsedSeconds * inputScale;
+    const distance3 = speed * elapsedSeconds * inputScale;
     const move = inputLength === 0 ? [0, 0, 0] : add(
-      mul(basis.flatForward, forwardAmount * distance2),
-      mul(basis.right, rightAmount * distance2)
+      mul(basis.flatForward, forwardAmount * distance3),
+      mul(basis.right, rightAmount * distance3)
     );
     this.#move(move, basis.direction, up, elapsedSeconds);
   }
@@ -208720,6 +208721,791 @@ function rotateAroundAxis(v, axis, radians) {
   return add(
     add(mul(v, cos), mul(cross4(axis, v), sin)),
     mul(axis, axisDot * (1 - cos))
+  );
+}
+
+// ../sdk/src/viewing/vehicleNavigation/index.ts
+var vehicleNavigation_exports = {};
+__export(vehicleNavigation_exports, {
+  VehicleNavigationController: () => VehicleNavigationController
+});
+
+// ../sdk/src/viewing/vehicleNavigation/VehicleNavigationController.ts
+var DEFAULT_CAMERA_HEIGHT = 1.45;
+var DEFAULT_BODY_RADIUS2 = 0.45;
+var DEFAULT_MAX_FORWARD_SPEED = 22;
+var DEFAULT_MAX_REVERSE_SPEED = 5;
+var DEFAULT_ACCELERATION = 9;
+var DEFAULT_BRAKE_DECELERATION = 18;
+var DEFAULT_COAST_DECELERATION = 5;
+var DEFAULT_TURN_RATE_DEGREES_PER_SECOND = 95;
+var DEFAULT_CURSOR_TURN_DEAD_ZONE = 0.05;
+var DEFAULT_CURSOR_TURN_RESPONSE = 1.15;
+var DEFAULT_LEAN_DEGREES = 18;
+var DEFAULT_LEAN_SMOOTHING = 8;
+var DEFAULT_MAX_PITCH_DEGREES2 = 18;
+var DEFAULT_MAX_FLIGHT_PITCH_DEGREES = 65;
+var DEFAULT_FLIGHT_TAKEOFF_HEIGHT = 4;
+var DEFAULT_FLIGHT_TAKEOFF_SPEED = 7;
+var DEFAULT_FLIGHT_LANDING_FALL_SPEED = 16;
+var DEFAULT_FLIGHT_ACCELERATION = 13;
+var DEFAULT_FLIGHT_BRAKE_DECELERATION = 12;
+var DEFAULT_FLIGHT_MIN_GLIDE_SPEED = 5;
+var DEFAULT_FLIGHT_AIR_DRAG = 0.45;
+var DEFAULT_FLIGHT_GRAVITY = 3.2;
+var DEFAULT_FLIGHT_SOFT_LANDING_RANGE = 0.75;
+var DEFAULT_STEP_HEIGHT2 = 0.45;
+var DEFAULT_MAX_FALL2 = 1.2;
+var DEFAULT_FALL_ACCELERATION2 = 9.8;
+var DEFAULT_MAX_FALL_SPEED2 = 35;
+var DEFAULT_MAX_SLOPE_DEGREES2 = 55;
+var MIN_LOOK_DISTANCE2 = 0.01;
+var MAX_FRAME_SECONDS2 = 0.1;
+var DOWN_RAY_CLEARANCE2 = 0.05;
+var THROTTLE_KEYS = /* @__PURE__ */ new Set(["KeyW", "w", "W", "ArrowUp"]);
+var BRAKE_KEYS = /* @__PURE__ */ new Set(["KeyS", "s", "S", "ArrowDown"]);
+var LEFT_KEYS2 = /* @__PURE__ */ new Set(["KeyA", "a", "A", "ArrowLeft"]);
+var RIGHT_KEYS2 = /* @__PURE__ */ new Set(["KeyD", "d", "D", "ArrowRight"]);
+var FLIGHT_TOGGLE_KEYS = /* @__PURE__ */ new Set(["Space", " "]);
+var HANDLED_KEYS2 = /* @__PURE__ */ new Set([
+  ...THROTTLE_KEYS,
+  ...BRAKE_KEYS,
+  ...LEFT_KEYS2,
+  ...RIGHT_KEYS2,
+  ...FLIGHT_TOGGLE_KEYS
+]);
+var VehicleNavigationController = class {
+  /**
+   * The View navigated by this controller.
+   */
+  view;
+  /**
+   * Raycaster used for drive-surface following and obstacle checks.
+   */
+  raycaster;
+  #active = false;
+  #destroyed = false;
+  #keysDown = /* @__PURE__ */ new Set();
+  #mouseOver = false;
+  #cursorActive = false;
+  #cursorX = 0;
+  #cursorY = 0;
+  #pointerId = null;
+  #lastTime = performance.now();
+  #task;
+  #viewElement;
+  #suspendViewController;
+  #suspendedViewControllerActive = null;
+  #unsubscribeViewDestroyed;
+  #cameraHeight;
+  #bodyRadius;
+  #maxForwardSpeed;
+  #maxReverseSpeed;
+  #acceleration;
+  #brakeDeceleration;
+  #coastDeceleration;
+  #turnRateRadiansPerSecond;
+  #cursorTurnDeadZone;
+  #cursorTurnResponse;
+  #leanRadians;
+  #leanSmoothing;
+  #currentLean = 0;
+  #maxPitchRadians;
+  #maxFlightPitchRadians;
+  #flightTakeoffHeight;
+  #flightTakeoffSpeed;
+  #flightLandingFallSpeed;
+  #flightAcceleration;
+  #flightBrakeDeceleration;
+  #flightMinGlideSpeed;
+  #flightAirDrag;
+  #flightGravity;
+  #flightSoftLandingRange;
+  #flightVelocity = [0, 0, 0];
+  #flying = false;
+  #landingAfterFlight = false;
+  #flightLiftRemaining = 0;
+  #stepHeight;
+  #maxFall;
+  #fallAcceleration;
+  #maxFallSpeed;
+  #fallSpeed = 0;
+  #driveableDot;
+  #keyboardEnabledOnlyOnMouseover;
+  #collision;
+  #gravity;
+  #speed = 0;
+  #obstacleFilter;
+  #driveSurfaceFilter;
+  constructor(view, params = {}) {
+    this.view = view;
+    this.raycaster = params.raycaster || new SceneRaycaster(view.viewer.scene);
+    this.#viewElement = view.htmlElement;
+    this.#suspendViewController = params.suspendViewController;
+    this.#cameraHeight = params.cameraHeight ?? DEFAULT_CAMERA_HEIGHT;
+    this.#bodyRadius = params.bodyRadius ?? DEFAULT_BODY_RADIUS2;
+    this.#maxForwardSpeed = Math.max(0, params.maxForwardSpeed ?? DEFAULT_MAX_FORWARD_SPEED);
+    this.#maxReverseSpeed = Math.max(0, params.maxReverseSpeed ?? DEFAULT_MAX_REVERSE_SPEED);
+    this.#acceleration = Math.max(0, params.acceleration ?? DEFAULT_ACCELERATION);
+    this.#brakeDeceleration = Math.max(0, params.brakeDeceleration ?? DEFAULT_BRAKE_DECELERATION);
+    this.#coastDeceleration = Math.max(0, params.coastDeceleration ?? DEFAULT_COAST_DECELERATION);
+    this.#turnRateRadiansPerSecond = degreesToRadians2(params.turnRateDegreesPerSecond ?? DEFAULT_TURN_RATE_DEGREES_PER_SECOND);
+    this.#cursorTurnDeadZone = clamp3(params.cursorTurnDeadZone ?? DEFAULT_CURSOR_TURN_DEAD_ZONE, 0, 0.95);
+    this.#cursorTurnResponse = Math.max(0.01, params.cursorTurnResponse ?? DEFAULT_CURSOR_TURN_RESPONSE);
+    this.#leanRadians = degreesToRadians2(params.leanDegrees ?? DEFAULT_LEAN_DEGREES);
+    this.#leanSmoothing = Math.max(0, params.leanSmoothing ?? DEFAULT_LEAN_SMOOTHING);
+    this.#maxPitchRadians = degreesToRadians2(params.maxPitchDegrees ?? DEFAULT_MAX_PITCH_DEGREES2);
+    this.#maxFlightPitchRadians = degreesToRadians2(params.maxFlightPitchDegrees ?? DEFAULT_MAX_FLIGHT_PITCH_DEGREES);
+    this.#flightTakeoffHeight = Math.max(0, params.flightTakeoffHeight ?? DEFAULT_FLIGHT_TAKEOFF_HEIGHT);
+    this.#flightTakeoffSpeed = Math.max(0, params.flightTakeoffSpeed ?? DEFAULT_FLIGHT_TAKEOFF_SPEED);
+    this.#flightLandingFallSpeed = Math.max(0, params.flightLandingFallSpeed ?? DEFAULT_FLIGHT_LANDING_FALL_SPEED);
+    this.#flightAcceleration = Math.max(0, params.flightAcceleration ?? DEFAULT_FLIGHT_ACCELERATION);
+    this.#flightBrakeDeceleration = Math.max(0, params.flightBrakeDeceleration ?? DEFAULT_FLIGHT_BRAKE_DECELERATION);
+    this.#flightMinGlideSpeed = Math.max(0, params.flightMinGlideSpeed ?? DEFAULT_FLIGHT_MIN_GLIDE_SPEED);
+    this.#flightAirDrag = Math.max(0, params.flightAirDrag ?? DEFAULT_FLIGHT_AIR_DRAG);
+    this.#flightGravity = Math.max(0, params.flightGravity ?? DEFAULT_FLIGHT_GRAVITY);
+    this.#flightSoftLandingRange = Math.max(0, params.flightSoftLandingRange ?? DEFAULT_FLIGHT_SOFT_LANDING_RANGE);
+    this.#stepHeight = Math.max(0, params.stepHeight ?? DEFAULT_STEP_HEIGHT2);
+    this.#maxFall = Math.max(0, params.maxFall ?? DEFAULT_MAX_FALL2);
+    this.#fallAcceleration = Math.max(0, params.fallAcceleration ?? DEFAULT_FALL_ACCELERATION2);
+    this.#maxFallSpeed = Math.max(0, params.maxFallSpeed ?? DEFAULT_MAX_FALL_SPEED2);
+    this.#driveableDot = Math.cos(degreesToRadians2(params.maxSlopeDegrees ?? DEFAULT_MAX_SLOPE_DEGREES2));
+    this.#keyboardEnabledOnlyOnMouseover = params.keyboardEnabledOnlyOnMouseover ?? true;
+    this.#collision = params.collision ?? true;
+    this.#gravity = params.gravity ?? true;
+    this.#obstacleFilter = params.obstacleFilter;
+    this.#driveSurfaceFilter = params.driveSurfaceFilter;
+    this.#bindEvents();
+    this.#task = new SDKTask({
+      name: "VehicleNavigationController",
+      stage: SDKTask.CollectInputStage,
+      repeat: true,
+      task: () => this.#update()
+    });
+    this.#unsubscribeViewDestroyed = view.viewer.events.onViewDestroyed.subscribe((_, destroyedView) => {
+      if (destroyedView === view) {
+        this.destroy();
+      }
+    });
+    this.active = params.active ?? true;
+  }
+  /**
+   * Whether vehicle navigation is active.
+   */
+  set active(active) {
+    if (this.#destroyed || active === this.#active) {
+      return;
+    }
+    this.#active = active;
+    this.#lastTime = performance.now();
+    this.#keysDown.clear();
+    this.#fallSpeed = 0;
+    this.#flying = false;
+    this.#landingAfterFlight = false;
+    this.#flightLiftRemaining = 0;
+    this.#flightVelocity = [0, 0, 0];
+    if (active) {
+      this.#suspendDefaultController();
+    } else {
+      this.#restoreDefaultController();
+    }
+  }
+  get active() {
+    return this.#active;
+  }
+  /**
+   * Whether vehicle navigation is currently flying.
+   *
+   * Set to ``true`` to detach from the drive surface and lift off. Set to
+   * ``false`` to drop back to the nearest driveable ground or rooftop.
+   */
+  set flying(flying) {
+    if (this.#destroyed || flying === this.#flying) {
+      return;
+    }
+    this.#flying = flying;
+    if (flying) {
+      const up = this.#worldUp();
+      const basis = cameraBasis2(this.view.camera.eye, this.view.camera.look, up);
+      this.#flightVelocity = mul2(basis.flatForward, Math.max(this.#speed, this.#effectiveMinGlideSpeed()));
+      this.#fallSpeed = 0;
+      this.#landingAfterFlight = false;
+      this.#flightLiftRemaining = this.#flightTakeoffHeight;
+    } else {
+      this.#flightVelocity = [0, 0, 0];
+      this.#flightLiftRemaining = 0;
+      this.#landingAfterFlight = true;
+      this.#fallSpeed = Math.max(this.#fallSpeed, this.#flightLandingFallSpeed);
+    }
+  }
+  get flying() {
+    return this.#flying;
+  }
+  /**
+   * Current signed speed in world-space units per second.
+   */
+  set speed(speed) {
+    this.#speed = clamp3(speed, -this.#maxReverseSpeed, this.#maxForwardSpeed);
+  }
+  get speed() {
+    return this.#speed;
+  }
+  /**
+   * Camera height above the driven surface.
+   */
+  set cameraHeight(cameraHeight) {
+    this.#cameraHeight = Math.max(0.01, cameraHeight);
+  }
+  get cameraHeight() {
+    return this.#cameraHeight;
+  }
+  /**
+   * Maximum forward speed in world-space units per second.
+   */
+  set maxForwardSpeed(maxForwardSpeed) {
+    this.#maxForwardSpeed = Math.max(0, maxForwardSpeed);
+    this.speed = this.#speed;
+  }
+  get maxForwardSpeed() {
+    return this.#maxForwardSpeed;
+  }
+  /**
+   * Maximum reverse speed in world-space units per second.
+   */
+  set maxReverseSpeed(maxReverseSpeed) {
+    this.#maxReverseSpeed = Math.max(0, maxReverseSpeed);
+    this.speed = this.#speed;
+  }
+  get maxReverseSpeed() {
+    return this.#maxReverseSpeed;
+  }
+  /**
+   * Forward acceleration in world-space units per second squared.
+   */
+  set acceleration(acceleration) {
+    this.#acceleration = Math.max(0, acceleration);
+  }
+  get acceleration() {
+    return this.#acceleration;
+  }
+  /**
+   * Forward thrust acceleration while flying.
+   */
+  set flightAcceleration(flightAcceleration) {
+    this.#flightAcceleration = Math.max(0, flightAcceleration);
+  }
+  get flightAcceleration() {
+    return this.#flightAcceleration;
+  }
+  /**
+   * Braking deceleration when pressing reverse while moving forward.
+   */
+  set brakeDeceleration(brakeDeceleration) {
+    this.#brakeDeceleration = Math.max(0, brakeDeceleration);
+  }
+  get brakeDeceleration() {
+    return this.#brakeDeceleration;
+  }
+  /**
+   * Deceleration while holding reverse/brake in flight.
+   */
+  set flightBrakeDeceleration(flightBrakeDeceleration) {
+    this.#flightBrakeDeceleration = Math.max(0, flightBrakeDeceleration);
+  }
+  get flightBrakeDeceleration() {
+    return this.#flightBrakeDeceleration;
+  }
+  /**
+   * Minimum forward airspeed preserved while gliding.
+   */
+  set flightMinGlideSpeed(flightMinGlideSpeed) {
+    this.#flightMinGlideSpeed = Math.max(0, flightMinGlideSpeed);
+  }
+  get flightMinGlideSpeed() {
+    return this.#flightMinGlideSpeed;
+  }
+  /**
+   * Passive deceleration when no throttle or brake key is pressed.
+   */
+  set coastDeceleration(coastDeceleration) {
+    this.#coastDeceleration = Math.max(0, coastDeceleration);
+  }
+  get coastDeceleration() {
+    return this.#coastDeceleration;
+  }
+  /**
+   * Maximum camera roll into turns, in degrees.
+   */
+  set leanDegrees(leanDegrees) {
+    this.#leanRadians = degreesToRadians2(leanDegrees);
+  }
+  get leanDegrees() {
+    return radiansToDegrees(this.#leanRadians);
+  }
+  /**
+   * Destroys this controller and restores any suspended ViewController.
+   */
+  destroy() {
+    if (this.#destroyed) {
+      return;
+    }
+    this.active = false;
+    this.#destroyed = true;
+    this.#task.destroy();
+    this.#unbindEvents();
+    if (this.#unsubscribeViewDestroyed) {
+      this.#unsubscribeViewDestroyed();
+      this.#unsubscribeViewDestroyed = void 0;
+    }
+  }
+  #suspendDefaultController() {
+    if (!this.#suspendViewController || this.#suspendedViewControllerActive !== null) {
+      return;
+    }
+    this.#suspendedViewControllerActive = this.#suspendViewController.active;
+    this.#suspendViewController.active = false;
+  }
+  #restoreDefaultController() {
+    if (!this.#suspendViewController || this.#suspendedViewControllerActive === null) {
+      return;
+    }
+    this.#suspendViewController.active = this.#suspendedViewControllerActive;
+    this.#suspendedViewControllerActive = null;
+  }
+  #bindEvents() {
+    this.#viewElement.addEventListener("mouseenter", this.#onMouseEnter);
+    this.#viewElement.addEventListener("mouseleave", this.#onMouseLeave);
+    this.#viewElement.addEventListener("pointerdown", this.#onPointerDown);
+    this.#viewElement.addEventListener("pointermove", this.#onPointerMove);
+    this.#viewElement.addEventListener("pointerup", this.#onPointerUp);
+    this.#viewElement.addEventListener("pointercancel", this.#onPointerUp);
+    document.addEventListener("keydown", this.#onKeyDown);
+    document.addEventListener("keyup", this.#onKeyUp);
+    window.addEventListener("blur", this.#onWindowBlur);
+  }
+  #unbindEvents() {
+    this.#viewElement.removeEventListener("mouseenter", this.#onMouseEnter);
+    this.#viewElement.removeEventListener("mouseleave", this.#onMouseLeave);
+    this.#viewElement.removeEventListener("pointerdown", this.#onPointerDown);
+    this.#viewElement.removeEventListener("pointermove", this.#onPointerMove);
+    this.#viewElement.removeEventListener("pointerup", this.#onPointerUp);
+    this.#viewElement.removeEventListener("pointercancel", this.#onPointerUp);
+    document.removeEventListener("keydown", this.#onKeyDown);
+    document.removeEventListener("keyup", this.#onKeyUp);
+    window.removeEventListener("blur", this.#onWindowBlur);
+  }
+  #onMouseEnter = (event) => {
+    this.#mouseOver = true;
+    this.#updateCursorFromEvent(event);
+  };
+  #onMouseLeave = () => {
+    this.#mouseOver = false;
+    if (this.#pointerId === null) {
+      this.#cursorActive = false;
+    }
+  };
+  #onPointerDown = (event) => {
+    if (!this.#active || event.button !== 0) {
+      return;
+    }
+    this.#pointerId = event.pointerId;
+    this.#viewElement.setPointerCapture?.(event.pointerId);
+    this.#updateCursorFromEvent(event);
+    event.preventDefault();
+  };
+  #onPointerMove = (event) => {
+    if (!this.#active) {
+      return;
+    }
+    if (this.#pointerId !== null && event.pointerId !== this.#pointerId) {
+      return;
+    }
+    this.#updateCursorFromEvent(event);
+    event.preventDefault();
+  };
+  #onPointerUp = (event) => {
+    if (event.pointerId !== this.#pointerId) {
+      return;
+    }
+    this.#pointerId = null;
+    this.#viewElement.releasePointerCapture?.(event.pointerId);
+    if (!this.#mouseOver) {
+      this.#cursorActive = false;
+    }
+  };
+  #onKeyDown = (event) => {
+    if (!this.#shouldHandleKeyEvent(event)) {
+      return;
+    }
+    const code = keyCode2(event);
+    if (FLIGHT_TOGGLE_KEYS.has(code)) {
+      if (!event.repeat) {
+        this.flying = !this.#flying;
+      }
+      event.preventDefault();
+      return;
+    }
+    if (!HANDLED_KEYS2.has(code)) {
+      return;
+    }
+    this.#keysDown.add(code);
+    event.preventDefault();
+  };
+  #onKeyUp = (event) => {
+    const code = keyCode2(event);
+    if (!HANDLED_KEYS2.has(code)) {
+      return;
+    }
+    this.#keysDown.delete(code);
+    if (this.#active) {
+      event.preventDefault();
+    }
+  };
+  #onWindowBlur = () => {
+    this.#keysDown.clear();
+    this.#pointerId = null;
+    this.#cursorActive = false;
+    this.flying = false;
+  };
+  #shouldHandleKeyEvent(event) {
+    if (!this.#active) {
+      return false;
+    }
+    if (this.#keyboardEnabledOnlyOnMouseover && !this.#mouseOver) {
+      return false;
+    }
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return true;
+    }
+    const tagName = target.tagName.toLowerCase();
+    return tagName !== "input" && tagName !== "textarea" && tagName !== "select" && !target.isContentEditable;
+  }
+  #updateCursorFromEvent(event) {
+    const rect = this.#viewElement.getBoundingClientRect();
+    const width = Math.max(rect.width || 1, 1);
+    const height = Math.max(rect.height || 1, 1);
+    this.#cursorX = clamp3((event.clientX - rect.left) / width * 2 - 1, -1, 1);
+    this.#cursorY = clamp3((event.clientY - rect.top) / height * 2 - 1, -1, 1);
+    this.#cursorActive = true;
+  }
+  #update() {
+    if (!this.#active || this.#destroyed) {
+      return;
+    }
+    const now3 = performance.now();
+    const elapsedSeconds = Math.min((now3 - this.#lastTime) / 1e3, MAX_FRAME_SECONDS2);
+    this.#lastTime = now3;
+    if (elapsedSeconds <= 0) {
+      return;
+    }
+    const up = this.#worldUp();
+    const camera = this.view.camera;
+    const basis = cameraBasis2(camera.eye, camera.look, up);
+    const throttle = pressed2(this.#keysDown, THROTTLE_KEYS) - pressed2(this.#keysDown, BRAKE_KEYS);
+    if (!this.#flying) {
+      this.#updateSpeed(throttle, elapsedSeconds);
+    }
+    const steering = this.#steeringInput();
+    const currentTravelSpeed = this.#flying ? length3(this.#flightVelocity) : Math.abs(this.#speed);
+    const speedRatio = this.#maxForwardSpeed > 0 ? Math.min(currentTravelSpeed / this.#maxForwardSpeed, 1) : 0;
+    const turnSpeedScale = clamp3(speedRatio * 1.4, 0, 1);
+    const directionSign = this.#flying ? dot5(this.#flightVelocity, basis.flatForward) < 0 ? -1 : 1 : this.#speed < 0 ? -1 : 1;
+    const yaw = -steering * this.#turnRateRadiansPerSecond * elapsedSeconds * turnSpeedScale * directionSign;
+    const flatForward = normalize4(rotateAroundAxis2(basis.flatForward, up, yaw));
+    const pitchLimit = this.#flying ? this.#maxFlightPitchRadians : this.#maxPitchRadians;
+    const pitch = this.#cursorActive ? -this.#cursorY * pitchLimit : clamp3(basis.pitch, -pitchLimit, pitchLimit);
+    const direction = normalize4(add2(mul2(flatForward, Math.cos(pitch)), mul2(up, Math.sin(pitch))));
+    let move;
+    if (this.#flying) {
+      this.#updateFlightVelocity(throttle, direction, flatForward, up, elapsedSeconds);
+      move = mul2(this.#flightVelocity, elapsedSeconds);
+      if (this.#flightLiftRemaining > 0) {
+        const lift = Math.min(this.#flightLiftRemaining, this.#flightTakeoffSpeed * elapsedSeconds);
+        this.#flightLiftRemaining -= lift;
+        move = add2(move, mul2(up, lift));
+      }
+    } else {
+      move = mul2(flatForward, this.#speed * elapsedSeconds);
+    }
+    this.#move(move, direction, up, steering, turnSpeedScale, elapsedSeconds);
+  }
+  #updateFlightVelocity(throttle, direction, flatForward, up, elapsedSeconds) {
+    if (throttle > 0) {
+      this.#flightVelocity = add2(this.#flightVelocity, mul2(direction, this.#flightAcceleration * elapsedSeconds));
+    } else if (throttle < 0) {
+      this.#flightVelocity = moveVectorTowardsZero(this.#flightVelocity, this.#flightBrakeDeceleration * elapsedSeconds);
+    }
+    this.#flightVelocity = add2(this.#flightVelocity, mul2(up, -this.#flightGravity * elapsedSeconds));
+    if (this.#flightAirDrag > 0) {
+      this.#flightVelocity = mul2(this.#flightVelocity, Math.exp(-this.#flightAirDrag * elapsedSeconds));
+    }
+    this.#flightVelocity = this.#withMinimumForwardGlide(this.#flightVelocity, flatForward);
+    const flightSpeed = length3(this.#flightVelocity);
+    if (this.#maxForwardSpeed > 0 && flightSpeed > this.#maxForwardSpeed) {
+      this.#flightVelocity = mul2(this.#flightVelocity, this.#maxForwardSpeed / flightSpeed);
+    }
+    this.#speed = this.#flightVelocitySpeed(flatForward);
+  }
+  #updateSpeed(throttle, elapsedSeconds) {
+    if (throttle > 0) {
+      this.#speed = moveTowards(this.#speed, this.#maxForwardSpeed, this.#acceleration * elapsedSeconds);
+    } else if (throttle < 0) {
+      if (this.#speed > 0) {
+        this.#speed = moveTowards(this.#speed, 0, this.#brakeDeceleration * elapsedSeconds);
+      } else {
+        this.#speed = moveTowards(this.#speed, -this.#maxReverseSpeed, this.#acceleration * 0.65 * elapsedSeconds);
+      }
+    } else {
+      this.#speed = moveTowards(this.#speed, 0, this.#coastDeceleration * elapsedSeconds);
+    }
+    this.#speed = clamp3(this.#speed, -this.#maxReverseSpeed, this.#maxForwardSpeed);
+  }
+  #steeringInput() {
+    const cursorSteer = this.#cursorActive ? applyDeadZone(this.#cursorX, this.#cursorTurnDeadZone, this.#cursorTurnResponse) : 0;
+    const keySteer = pressed2(this.#keysDown, RIGHT_KEYS2) - pressed2(this.#keysDown, LEFT_KEYS2);
+    return clamp3(cursorSteer + keySteer, -1, 1);
+  }
+  #move(move, viewDirection, up, steering, turnSpeedScale, elapsedSeconds) {
+    const camera = this.view.camera;
+    const oldEye = [...camera.eye];
+    const oldGround = sub2(oldEye, mul2(up, this.#cameraHeight));
+    const moveDistance = length3(move);
+    let ground = moveDistance === 0 ? oldGround : add2(oldGround, move);
+    if (!this.#flying && moveDistance > 0 && this.#collision && this.#isBlocked(oldGround, move, moveDistance, up)) {
+      ground = oldGround;
+      this.#speed = 0;
+    }
+    if (this.#flying && dot5(move, up) <= 0) {
+      const landedGround = this.#flightLandingSurface(oldGround, move, up);
+      if (landedGround) {
+        ground = landedGround;
+        this.#landFromFlight(viewDirection, up);
+      }
+    }
+    if (!this.#flying && (this.#gravity || this.#landingAfterFlight)) {
+      ground = this.#groundedPoint(ground, up, elapsedSeconds);
+      if (this.#fallSpeed === 0) {
+        this.#landingAfterFlight = false;
+      }
+    }
+    const newEye2 = add2(ground, mul2(up, this.#cameraHeight));
+    const lookDistance = Math.max(distance2(camera.eye, camera.look), MIN_LOOK_DISTANCE2);
+    const desiredLean = steering * this.#leanRadians * turnSpeedScale;
+    const leanT = clamp3(this.#leanSmoothing * elapsedSeconds, 0, 1);
+    this.#currentLean += (desiredLean - this.#currentLean) * leanT;
+    const rollAxis = flatDirection(viewDirection, up);
+    camera.eye = newEye2;
+    camera.look = add2(newEye2, mul2(viewDirection, lookDistance));
+    camera.up = normalize4(rotateAroundAxis2(up, rollAxis, this.#currentLean));
+  }
+  #flightLandingSurface(oldGround, move, up) {
+    const downwardDistance = Math.max(0, -dot5(move, up));
+    const rayOrigin = add2(oldGround, mul2(up, DOWN_RAY_CLEARANCE2));
+    const result = this.raycaster.pick({
+      view: this.view,
+      ray: { origin: rayOrigin, dir: mul2(up, -1) },
+      tMin: 0,
+      tMax: downwardDistance + this.#flightSoftLandingRange + DOWN_RAY_CLEARANCE2,
+      pickSurfaceNormal: true,
+      filter: this.#driveSurfaceFilter
+    });
+    if (result.ok && result.value.hit && result.value.worldPos && this.#isDriveableNormal(result.value.worldNormal, up)) {
+      return [...result.value.worldPos];
+    }
+    return null;
+  }
+  #landFromFlight(viewDirection, up) {
+    const groundForward = flatDirection(viewDirection, up);
+    this.#speed = clamp3(dot5(this.#flightVelocity, groundForward), -this.#maxReverseSpeed, this.#maxForwardSpeed);
+    this.#flightVelocity = [0, 0, 0];
+    this.#flying = false;
+    this.#landingAfterFlight = false;
+    this.#flightLiftRemaining = 0;
+    this.#fallSpeed = 0;
+  }
+  #flightVelocitySpeed(direction) {
+    const signedSpeed = dot5(this.#flightVelocity, direction);
+    const flightSpeed = length3(this.#flightVelocity);
+    if (Math.abs(signedSpeed) < 1e-4) {
+      return flightSpeed;
+    }
+    return Math.sign(signedSpeed) * flightSpeed;
+  }
+  #withMinimumForwardGlide(velocity, flatForward) {
+    const minForwardSpeed = this.#effectiveMinGlideSpeed();
+    if (minForwardSpeed === 0) {
+      return velocity;
+    }
+    const forwardSpeed = dot5(velocity, flatForward);
+    if (forwardSpeed >= minForwardSpeed) {
+      return velocity;
+    }
+    return add2(velocity, mul2(flatForward, minForwardSpeed - forwardSpeed));
+  }
+  #effectiveMinGlideSpeed() {
+    if (this.#maxForwardSpeed === 0) {
+      return 0;
+    }
+    return Math.min(this.#flightMinGlideSpeed, this.#maxForwardSpeed);
+  }
+  #isBlocked(originGround, move, moveDistance, up) {
+    const direction = normalize4(move);
+    const heights = [Math.max(this.#bodyRadius, 0.05), Math.max(this.#cameraHeight * 0.62, this.#bodyRadius)];
+    const tMax = moveDistance + this.#bodyRadius;
+    for (const height of heights) {
+      const origin2 = add2(originGround, mul2(up, height));
+      const result = this.raycaster.pick({
+        view: this.view,
+        ray: { origin: origin2, dir: direction },
+        tMin: 0,
+        tMax,
+        pickSurfaceNormal: true,
+        filter: this.#obstacleFilter
+      });
+      if (result.ok && result.value.hit && !this.#isDriveableNormal(result.value.worldNormal, up)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  #groundedPoint(candidateGround, up, elapsedSeconds) {
+    const nextFallSpeed = Math.min(this.#maxFallSpeed, this.#fallSpeed + this.#fallAcceleration * elapsedSeconds);
+    const fallDistance = (this.#fallSpeed + nextFallSpeed) * 0.5 * elapsedSeconds;
+    const surface = this.#driveSurfaceAt(candidateGround, this.#stepHeight + Math.max(this.#maxFall, fallDistance), up);
+    if (surface) {
+      this.#fallSpeed = 0;
+      return surface;
+    }
+    this.#fallSpeed = nextFallSpeed;
+    return add2(candidateGround, mul2(up, -fallDistance));
+  }
+  #driveSurfaceAt(candidateGround, verticalRange, up) {
+    const rayOrigin = add2(candidateGround, mul2(up, this.#stepHeight + DOWN_RAY_CLEARANCE2));
+    const rayDirection = mul2(up, -1);
+    const result = this.raycaster.pick({
+      view: this.view,
+      ray: { origin: rayOrigin, dir: rayDirection },
+      tMin: 0,
+      tMax: verticalRange + DOWN_RAY_CLEARANCE2,
+      pickSurfaceNormal: true,
+      filter: this.#driveSurfaceFilter
+    });
+    if (result.ok && result.value.hit && result.value.worldPos && this.#isDriveableNormal(result.value.worldNormal, up)) {
+      return [...result.value.worldPos];
+    }
+    return null;
+  }
+  #isDriveableNormal(normal2, up) {
+    if (!normal2) {
+      return false;
+    }
+    return Math.abs(dot5(normalize4(normal2), up)) >= this.#driveableDot;
+  }
+  #worldUp() {
+    return normalize4(this.view.viewer.scene.coordinateSystem.worldUp);
+  }
+};
+function cameraBasis2(eye, look, up) {
+  const direction = normalize4(sub2(look, eye));
+  const flatForward = flatDirection(direction, up);
+  const right = normalize4(cross5(flatForward, up));
+  const pitch = Math.asin(clamp3(dot5(direction, up), -1, 1));
+  return { direction, flatForward, right, pitch };
+}
+function flatDirection(direction, up) {
+  let flatForward = sub2(direction, mul2(up, dot5(direction, up)));
+  if (length3(flatForward) < 1e-5) {
+    flatForward = perpendicular2(up);
+  } else {
+    flatForward = normalize4(flatForward);
+  }
+  return flatForward;
+}
+function pressed2(keysDown, keys) {
+  for (const key of keys) {
+    if (keysDown.has(key)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+function keyCode2(event) {
+  return event.code || event.key;
+}
+function applyDeadZone(value, deadZone, response) {
+  const abs = Math.abs(value);
+  if (abs <= deadZone) {
+    return 0;
+  }
+  return Math.sign(value) * Math.pow((abs - deadZone) / (1 - deadZone), response);
+}
+function moveTowards(value, target, maxDelta) {
+  if (Math.abs(target - value) <= maxDelta) {
+    return target;
+  }
+  return value + Math.sign(target - value) * maxDelta;
+}
+function moveVectorTowardsZero(value, maxDelta) {
+  const len = length3(value);
+  if (len <= maxDelta) {
+    return [0, 0, 0];
+  }
+  return mul2(value, (len - maxDelta) / len);
+}
+function degreesToRadians2(degrees) {
+  return degrees * Math.PI / 180;
+}
+function radiansToDegrees(radians) {
+  return radians * 180 / Math.PI;
+}
+function clamp3(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+function add2(a2, b4) {
+  return [a2[0] + b4[0], a2[1] + b4[1], a2[2] + b4[2]];
+}
+function sub2(a2, b4) {
+  return [a2[0] - b4[0], a2[1] - b4[1], a2[2] - b4[2]];
+}
+function mul2(v, scalar) {
+  return [v[0] * scalar, v[1] * scalar, v[2] * scalar];
+}
+function dot5(a2, b4) {
+  return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
+}
+function cross5(a2, b4) {
+  return [
+    a2[1] * b4[2] - a2[2] * b4[1],
+    a2[2] * b4[0] - a2[0] * b4[2],
+    a2[0] * b4[1] - a2[1] * b4[0]
+  ];
+}
+function length3(v) {
+  return Math.hypot(v[0], v[1], v[2]);
+}
+function distance2(a2, b4) {
+  return length3(sub2(a2, b4));
+}
+function normalize4(v) {
+  const len = length3(v);
+  if (len === 0) {
+    return [0, 0, 0];
+  }
+  return [v[0] / len, v[1] / len, v[2] / len];
+}
+function perpendicular2(up) {
+  const axis = Math.abs(up[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+  return normalize4(cross5(up, axis));
+}
+function rotateAroundAxis2(v, axis, radians) {
+  const normalizedAxis = normalize4(axis);
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const axisDot = dot5(normalizedAxis, v);
+  return add2(
+    add2(mul2(v, cos), mul2(cross5(normalizedAxis, v), sin)),
+    mul2(normalizedAxis, axisDot * (1 - cos))
   );
 }
 
@@ -209811,10 +210597,10 @@ var extractSpacesFromGeometry = {
       const height = aabb[upAxis + 3] - aabb[upAxis];
       if (height < WALL_HEIGHT_MIN)
         continue;
-      const ix0 = clamp3(Math.floor((aabb[widthAxis] - sceneAabb[widthAxis]) / cellSize), 0, gw);
-      const ix1 = clamp3(Math.ceil((aabb[widthAxis + 3] - sceneAabb[widthAxis]) / cellSize), 0, gw);
-      const iz0 = clamp3(Math.floor((aabb[depthAxis] - sceneAabb[depthAxis]) / cellSize), 0, gd);
-      const iz1 = clamp3(Math.ceil((aabb[depthAxis + 3] - sceneAabb[depthAxis]) / cellSize), 0, gd);
+      const ix0 = clamp4(Math.floor((aabb[widthAxis] - sceneAabb[widthAxis]) / cellSize), 0, gw);
+      const ix1 = clamp4(Math.ceil((aabb[widthAxis + 3] - sceneAabb[widthAxis]) / cellSize), 0, gw);
+      const iz0 = clamp4(Math.floor((aabb[depthAxis] - sceneAabb[depthAxis]) / cellSize), 0, gd);
+      const iz1 = clamp4(Math.ceil((aabb[depthAxis + 3] - sceneAabb[depthAxis]) / cellSize), 0, gd);
       for (let z = iz0; z < iz1; z++) {
         const row = z * gw;
         for (let x = ix0; x < ix1; x++) {
@@ -209934,7 +210720,7 @@ var extractSpacesFromGeometry = {
 function emptyGraph() {
   return { nodes: [], edges: [], nodesById: /* @__PURE__ */ new Map() };
 }
-function clamp3(v, lo, hi) {
+function clamp4(v, lo, hi) {
   if (v < lo)
     return lo;
   if (v > hi)
@@ -217137,8 +217923,8 @@ var MouseDistanceMeasurementsControl = class {
   _ensureHoverDot() {
     if (this._hoverDot)
       return;
-    const dot5 = document.createElement("div");
-    Object.assign(dot5.style, {
+    const dot6 = document.createElement("div");
+    Object.assign(dot6.style, {
       position: "fixed",
       width: "12px",
       height: "12px",
@@ -217156,8 +217942,8 @@ var MouseDistanceMeasurementsControl = class {
       zIndex: "999999999",
       display: "none"
     });
-    document.body.appendChild(dot5);
-    this._hoverDot = dot5;
+    document.body.appendChild(dot6);
+    this._hoverDot = dot6;
   }
   _moveHoverDot(viewportX, viewportY) {
     if (!this._hoverDot)
@@ -217658,8 +218444,8 @@ var AngleMeasurement = class {
     const arcStartY = pC[1] + uy1 * r;
     const arcEndX = pC[0] + ux2 * r;
     const arcEndY = pC[1] + uy2 * r;
-    const cross5 = ux1 * uy2 - uy1 * ux2;
-    const sweep = cross5 < 0 ? 1 : 0;
+    const cross6 = ux1 * uy2 - uy1 * ux2;
+    const sweep = cross6 < 0 ? 1 : 0;
     this._arc.setAttribute(
       "d",
       `M ${arcStartX} ${arcStartY} A ${r} ${r} 0 0 ${sweep} ${arcEndX} ${arcEndY}`
@@ -217963,8 +218749,8 @@ var MouseAngleMeasurementsControl = class {
   _ensureHoverDot() {
     if (this._hoverDot)
       return;
-    const dot5 = document.createElement("div");
-    Object.assign(dot5.style, {
+    const dot6 = document.createElement("div");
+    Object.assign(dot6.style, {
       position: "fixed",
       width: "12px",
       height: "12px",
@@ -217982,8 +218768,8 @@ var MouseAngleMeasurementsControl = class {
       zIndex: "999999999",
       display: "none"
     });
-    document.body.appendChild(dot5);
-    this._hoverDot = dot5;
+    document.body.appendChild(dot6);
+    this._hoverDot = dot6;
   }
   _moveHoverDot(viewportX, viewportY) {
     if (!this._hoverDot)
@@ -227530,20 +228316,20 @@ var SchemaMaterialsPanel = class _SchemaMaterialsPanel extends FloatingPanelBase
   _attachLiveSync() {
     const sceneEv = this.scene.events;
     const dataEv = this.data ? this.data.events : null;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv?.onSceneModelCreated?.subscribe) {
-      sub2(sceneEv.onSceneModelCreated.subscribe(() => this._scheduleRefresh()));
+      sub3(sceneEv.onSceneModelCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (sceneEv?.onSceneModelDestroyed?.subscribe) {
-      sub2(sceneEv.onSceneModelDestroyed.subscribe((_s, sm) => {
+      sub3(sceneEv.onSceneModelDestroyed.subscribe((_s, sm) => {
         this._scheduleRefresh(sm);
       }));
     }
     if (dataEv?.onDataModelCreated?.subscribe) {
-      sub2(dataEv.onDataModelCreated.subscribe(() => this._scheduleRefresh()));
+      sub3(dataEv.onDataModelCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (dataEv?.onDataModelDestroyed?.subscribe) {
-      sub2(dataEv.onDataModelDestroyed.subscribe(() => this._scheduleRefresh()));
+      sub3(dataEv.onDataModelDestroyed.subscribe(() => this._scheduleRefresh()));
     }
   }
   _detachLiveSync() {
@@ -227621,9 +228407,9 @@ var SchemaMaterialsPanel = class _SchemaMaterialsPanel extends FloatingPanelBase
       tab.setAttribute("data-status", state.status);
       if (sm === this.sceneModel)
         tab.classList.add("xkt-smp-tab-active");
-      const dot5 = el("span", "xkt-smp-tab-dot");
-      dot5.setAttribute("data-status", state.status);
-      tab.appendChild(dot5);
+      const dot6 = el("span", "xkt-smp-tab-dot");
+      dot6.setAttribute("data-status", state.status);
+      tab.appendChild(dot6);
       tab.appendChild(el("span", "xkt-smp-tab-id", { textContent: label }));
       const stats = sm.stats;
       const objs = stats && Number.isFinite(stats.numObjects) ? stats.numObjects : null;
@@ -229395,15 +230181,15 @@ var ModelsPanel = class _ModelsPanel extends FloatingPanelBase {
     if (!ev)
       return;
     const refresh = () => this._renderBody();
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     if (ev.onSceneModelCreated?.subscribe)
-      sub2(ev.onSceneModelCreated.subscribe(refresh));
+      sub3(ev.onSceneModelCreated.subscribe(refresh));
     if (ev.onSceneModelDestroyed?.subscribe)
-      sub2(ev.onSceneModelDestroyed.subscribe(refresh));
+      sub3(ev.onSceneModelDestroyed.subscribe(refresh));
     if (ev.onSceneObjectCreated?.subscribe)
-      sub2(ev.onSceneObjectCreated.subscribe(refresh));
+      sub3(ev.onSceneObjectCreated.subscribe(refresh));
     if (ev.onSceneObjectDestroyed?.subscribe)
-      sub2(ev.onSceneObjectDestroyed.subscribe(refresh));
+      sub3(ev.onSceneObjectDestroyed.subscribe(refresh));
   }
   // ── Rendering ─────────────────────────────────────────────────
   _renderBody() {
@@ -231381,12 +232167,12 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     const ev = this.scene.events;
     if (!ev)
       return;
-    const sub2 = (unsub) => this._sceneUnsubs.push(unsub);
+    const sub3 = (unsub) => this._sceneUnsubs.push(unsub);
     if (ev.onSceneModelCreated?.subscribe) {
-      sub2(ev.onSceneModelCreated.subscribe(() => this._scheduleModelsRefresh()));
+      sub3(ev.onSceneModelCreated.subscribe(() => this._scheduleModelsRefresh()));
     }
     if (ev.onSceneModelDestroyed?.subscribe) {
-      sub2(ev.onSceneModelDestroyed.subscribe((_s, sm) => {
+      sub3(ev.onSceneModelDestroyed.subscribe((_s, sm) => {
         this._scheduleModelsRefresh(sm);
       }));
     }
@@ -231528,9 +232314,9 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
       tab.setAttribute("data-status", state);
       if (sm === this.sceneModel)
         tab.classList.add("xkt-sh-tab-active");
-      const dot5 = el("span", "xkt-sh-tab-dot");
-      dot5.setAttribute("data-status", state);
-      tab.appendChild(dot5);
+      const dot6 = el("span", "xkt-sh-tab-dot");
+      dot6.setAttribute("data-status", state);
+      tab.appendChild(dot6);
       tab.appendChild(el("span", "xkt-sh-tab-id", { textContent: label }));
       const stats = sm.stats;
       const objs = stats && Number.isFinite(stats.numObjects) ? stats.numObjects : null;
@@ -234200,15 +234986,15 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
     const events = this.data.events;
     if (!events)
       return;
-    const sub2 = (handle) => {
+    const sub3 = (handle) => {
       if (handle && typeof handle.subscribe === "function") {
         const unsub = handle.subscribe(() => this._scheduleModelsRefresh());
         if (typeof unsub === "function")
           this._dataUnsubs.push(unsub);
       }
     };
-    sub2(events.onDataModelCreated);
-    sub2(events.onDataModelDestroyed);
+    sub3(events.onDataModelCreated);
+    sub3(events.onDataModelDestroyed);
   }
   _detachDataListeners() {
     for (const u of this._dataUnsubs) {
@@ -234413,9 +235199,9 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
       tab.setAttribute("data-status", state);
       if (dm === this.dataModel)
         tab.classList.add("xkt-dh-tab-active");
-      const dot5 = el("span", "xkt-dh-tab-dot");
-      dot5.setAttribute("data-status", state);
-      tab.appendChild(dot5);
+      const dot6 = el("span", "xkt-dh-tab-dot");
+      dot6.setAttribute("data-status", state);
+      tab.appendChild(dot6);
       tab.appendChild(el("span", "xkt-dh-tab-id", { textContent: fullId }));
       const stats = dm.stats;
       if (stats && Number.isFinite(stats.numObjects)) {
@@ -235440,21 +236226,21 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub2(ev.onSceneModelCreated.subscribe(onChange));
-    sub2(ev.onSceneModelDestroyed.subscribe(onChange));
-    sub2(ev.onSceneObjectCreated.subscribe(onChange));
-    sub2(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub2(ev.onSceneObjectMeshAdded.subscribe(onChange));
-    sub2(ev.onSceneObjectMeshRemoved.subscribe(onChange));
-    sub2(ev.onSceneMeshCreated.subscribe(onChange));
-    sub2(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub2(ev.onSceneMeshMatrixChanged.subscribe(onChange));
-    sub2(ev.onSceneMeshMoved.subscribe(onChange));
+    sub3(ev.onSceneModelCreated.subscribe(onChange));
+    sub3(ev.onSceneModelDestroyed.subscribe(onChange));
+    sub3(ev.onSceneObjectCreated.subscribe(onChange));
+    sub3(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub3(ev.onSceneObjectMeshAdded.subscribe(onChange));
+    sub3(ev.onSceneObjectMeshRemoved.subscribe(onChange));
+    sub3(ev.onSceneMeshCreated.subscribe(onChange));
+    sub3(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub3(ev.onSceneMeshMatrixChanged.subscribe(onChange));
+    sub3(ev.onSceneMeshMoved.subscribe(onChange));
     const viewerEvents = this.view.viewer?.events;
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      sub2(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
+      sub3(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -235718,9 +236504,9 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
       });
       pip.dataset.on = enabled ? "1" : "0";
       pip.dataset.layer = layer;
-      const dot5 = el("span", "xkt-bnd-layer-dot");
+      const dot6 = el("span", "xkt-bnd-layer-dot");
       const name12 = el("span", void 0, { textContent: layer });
-      pip.append(dot5, name12);
+      pip.append(dot6, name12);
       pip.addEventListener("click", (ev) => {
         ev.stopPropagation();
         if (this._disabledLayers.has(layer)) {
@@ -236509,21 +237295,21 @@ var TilesPanel = class _TilesPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub2(ev.onSceneModelCreated.subscribe(onChange));
-    sub2(ev.onSceneModelDestroyed.subscribe(onChange));
-    sub2(ev.onSceneObjectCreated.subscribe(onChange));
-    sub2(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub2(ev.onSceneObjectMeshAdded.subscribe(onChange));
-    sub2(ev.onSceneObjectMeshRemoved.subscribe(onChange));
-    sub2(ev.onSceneMeshCreated.subscribe(onChange));
-    sub2(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub2(ev.onSceneMeshMatrixChanged.subscribe(onChange));
-    sub2(ev.onSceneMeshMoved.subscribe(onChange));
+    sub3(ev.onSceneModelCreated.subscribe(onChange));
+    sub3(ev.onSceneModelDestroyed.subscribe(onChange));
+    sub3(ev.onSceneObjectCreated.subscribe(onChange));
+    sub3(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub3(ev.onSceneObjectMeshAdded.subscribe(onChange));
+    sub3(ev.onSceneObjectMeshRemoved.subscribe(onChange));
+    sub3(ev.onSceneMeshCreated.subscribe(onChange));
+    sub3(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub3(ev.onSceneMeshMatrixChanged.subscribe(onChange));
+    sub3(ev.onSceneMeshMoved.subscribe(onChange));
     const viewerEvents = this.view.viewer?.events;
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      sub2(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
+      sub3(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -237382,33 +238168,33 @@ var SceneStatsPanel = class _SceneStatsPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub2(ev.onSceneModelCreated.subscribe((_s, model) => {
+    sub3(ev.onSceneModelCreated.subscribe((_s, model) => {
       this._addModelSection(model);
       this._scheduleRefresh();
     }));
-    sub2(ev.onSceneModelDestroyed.subscribe((_s, model) => {
+    sub3(ev.onSceneModelDestroyed.subscribe((_s, model) => {
       this._removeModelSection(model);
       this._scheduleRefresh();
     }));
-    sub2(ev.onSceneCoordSystemUpdated.subscribe(() => this._renderSceneCoordSys()));
-    sub2(ev.onSceneModelCoordSystemUpdated.subscribe((model) => {
+    sub3(ev.onSceneCoordSystemUpdated.subscribe(() => this._renderSceneCoordSys()));
+    sub3(ev.onSceneModelCoordSystemUpdated.subscribe((model) => {
       this._renderModelCoordSys(model);
     }));
-    sub2(ev.onSceneObjectCreated.subscribe(onChange));
-    sub2(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub2(ev.onSceneMeshCreated.subscribe(onChange));
-    sub2(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub2(ev.onSceneGeometryCreated.subscribe(onChange));
-    sub2(ev.onSceneGeometryDestroyed.subscribe(onChange));
-    sub2(ev.onSceneGeometryUpdated.subscribe(onChange));
-    sub2(ev.onSceneTransformCreated.subscribe(onChange));
-    sub2(ev.onSceneTransformDestroyed.subscribe(onChange));
-    sub2(ev.onSceneTextureCreated.subscribe(onChange));
-    sub2(ev.onSceneTextureDestroyed.subscribe(onChange));
-    sub2(ev.onSceneMaterialCreated.subscribe(onChange));
-    sub2(ev.onSceneMaterialDestroyed.subscribe(onChange));
+    sub3(ev.onSceneObjectCreated.subscribe(onChange));
+    sub3(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub3(ev.onSceneMeshCreated.subscribe(onChange));
+    sub3(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub3(ev.onSceneGeometryCreated.subscribe(onChange));
+    sub3(ev.onSceneGeometryDestroyed.subscribe(onChange));
+    sub3(ev.onSceneGeometryUpdated.subscribe(onChange));
+    sub3(ev.onSceneTransformCreated.subscribe(onChange));
+    sub3(ev.onSceneTransformDestroyed.subscribe(onChange));
+    sub3(ev.onSceneTextureCreated.subscribe(onChange));
+    sub3(ev.onSceneTextureDestroyed.subscribe(onChange));
+    sub3(ev.onSceneMaterialCreated.subscribe(onChange));
+    sub3(ev.onSceneMaterialDestroyed.subscribe(onChange));
   }
   _detachListeners() {
     if (!this._listenersAttached)
@@ -238260,22 +239046,22 @@ var DataStatsPanel = class _DataStatsPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.data.events;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub2(ev.onDataModelCreated.subscribe((_d, model) => {
+    sub3(ev.onDataModelCreated.subscribe((_d, model) => {
       this._addModelSection(model);
       this._scheduleRefresh();
     }));
-    sub2(ev.onDataModelDestroyed.subscribe((_d, model) => {
+    sub3(ev.onDataModelDestroyed.subscribe((_d, model) => {
       this._removeModelSection(model);
       this._scheduleRefresh();
     }));
-    sub2(ev.onDataObjectCreated.subscribe(onChange));
-    sub2(ev.onDataObjectDestroyed.subscribe(onChange));
-    sub2(ev.onRelationshipCreated.subscribe(onChange));
-    sub2(ev.onRelationshipDestroyed.subscribe(onChange));
-    sub2(ev.onPropertySetCreated.subscribe(onChange));
-    sub2(ev.onPropertySetDestroyed.subscribe(onChange));
+    sub3(ev.onDataObjectCreated.subscribe(onChange));
+    sub3(ev.onDataObjectDestroyed.subscribe(onChange));
+    sub3(ev.onRelationshipCreated.subscribe(onChange));
+    sub3(ev.onRelationshipDestroyed.subscribe(onChange));
+    sub3(ev.onPropertySetCreated.subscribe(onChange));
+    sub3(ev.onPropertySetDestroyed.subscribe(onChange));
   }
   _detachListeners() {
     if (!this._listenersAttached)
@@ -240769,17 +241555,17 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     }
     const viewApply = liveView ? this._makeTargetApply(liveView) : () => this._setStatus("Apply skipped: no live View for this section", "error");
     if (general.length > 0) {
-      const sub2 = this._buildSection({
+      const sub3 = this._buildSection({
         kind: "group",
         label: "General",
         sectionKey: `${viewKey}:general`,
         defaultOpen: true
       });
-      sub2.body.appendChild(this._renderKVTable(view, general, viewApply, liveView));
-      section.body.appendChild(sub2.section);
+      sub3.body.appendChild(this._renderKVTable(view, general, viewApply, liveView));
+      section.body.appendChild(sub3.section);
     }
     for (const g of groups) {
-      const sub2 = this._buildSection({
+      const sub3 = this._buildSection({
         kind: "group",
         label: g.label,
         sectionKey: `${viewKey}:${g.key}`,
@@ -240793,23 +241579,23 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
           groupApply,
           liveGroup,
           `${viewKey}:${g.key}`,
-          sub2.body
+          sub3.body
         );
       } else {
-        sub2.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
+        sub3.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
       }
-      section.body.appendChild(sub2.section);
+      section.body.appendChild(sub3.section);
     }
     if (layers) {
-      const sub2 = this._buildSection({
+      const sub3 = this._buildSection({
         kind: "layers",
         label: "Layers",
         countText: `${layers.length} layer${layers.length === 1 ? "" : "s"}`,
         sectionKey: `${viewKey}:layers`,
         defaultOpen: false
       });
-      sub2.body.appendChild(this._renderLayersTable(layers, liveView));
-      section.body.appendChild(sub2.section);
+      sub3.body.appendChild(this._renderLayersTable(layers, liveView));
+      section.body.appendChild(sub3.section);
     }
     return section.section;
   }
@@ -240898,7 +241684,7 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       const val = effects[key];
       if (val == null || typeof val !== "object")
         continue;
-      const sub2 = this._buildSection({
+      const sub3 = this._buildSection({
         kind: "group",
         label: EFFECT_LABELS.get(key) ?? key,
         sectionKey: `${parentKey}:${key}`,
@@ -240906,8 +241692,8 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       });
       const liveChild = liveEffects ? liveEffects[key] : void 0;
       const childApply = liveChild && typeof liveChild.fromParams === "function" ? this._makeTargetApply(liveChild) : this._nestedApply(groupApply, key);
-      sub2.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
-      body.appendChild(sub2.section);
+      sub3.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
+      body.appendChild(sub3.section);
     }
   }
   /**
@@ -244718,21 +245504,21 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
     if (this._listenersAttached || this._destroyed)
       return;
     this._listenersAttached = true;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
     const sceneEv = this.studio.scene.events;
     if (sceneEv) {
       if (sceneEv.onSceneModelCreated?.subscribe)
-        sub2(sceneEv.onSceneModelCreated.subscribe(onChange));
+        sub3(sceneEv.onSceneModelCreated.subscribe(onChange));
       if (sceneEv.onSceneModelDestroyed?.subscribe)
-        sub2(sceneEv.onSceneModelDestroyed.subscribe(onChange));
+        sub3(sceneEv.onSceneModelDestroyed.subscribe(onChange));
     }
     const dataEv = this.studio.data.events;
     if (dataEv) {
       if (dataEv.onDataModelCreated?.subscribe)
-        sub2(dataEv.onDataModelCreated.subscribe(onChange));
+        sub3(dataEv.onDataModelCreated.subscribe(onChange));
       if (dataEv.onDataModelDestroyed?.subscribe)
-        sub2(dataEv.onDataModelDestroyed.subscribe(onChange));
+        sub3(dataEv.onDataModelDestroyed.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -245695,17 +246481,17 @@ var ExplorerPanel = class _ExplorerPanel extends FloatingPanelBase {
     const ev = this.data.events;
     if (!ev)
       return;
-    const sub2 = (emitter) => {
+    const sub3 = (emitter) => {
       if (emitter?.subscribe) {
         this._dataUnsubs.push(emitter.subscribe(() => this._scheduleRebuild()));
       }
     };
-    sub2(ev.onDataModelCreated);
-    sub2(ev.onDataModelDestroyed);
-    sub2(ev.onDataObjectCreated);
-    sub2(ev.onDataObjectDestroyed);
-    sub2(ev.onRelationshipCreated);
-    sub2(ev.onRelationshipDestroyed);
+    sub3(ev.onDataModelCreated);
+    sub3(ev.onDataModelDestroyed);
+    sub3(ev.onDataObjectCreated);
+    sub3(ev.onDataObjectDestroyed);
+    sub3(ev.onRelationshipCreated);
+    sub3(ev.onRelationshipDestroyed);
   }
   _detachDataListeners() {
     for (const u of this._dataUnsubs) {
@@ -245978,7 +246764,7 @@ function pickAggregationLinkTypes(data2) {
   const PREFERRED = ["IfcRelAggregates", "BasicAggregation"];
   const seen = /* @__PURE__ */ new Set();
   const result = [];
-  const add2 = (t) => {
+  const add3 = (t) => {
     if (!t || seen.has(t))
       return;
     seen.add(t);
@@ -246017,7 +246803,7 @@ function pickAggregationLinkTypes(data2) {
       pick2 = best;
     }
     if (pick2)
-      add2(pick2);
+      add3(pick2);
   }
   if (result.length === 0)
     return ["IfcRelAggregates"];
@@ -251543,16 +252329,16 @@ var CameraTourPanel = class _CameraTourPanel extends FloatingPanelBase {
     const sceneEv = this.studio.scene.events;
     if (!sceneEv)
       return;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv.onSceneModelCreated?.subscribe) {
-      sub2(sceneEv.onSceneModelCreated.subscribe((_, model) => {
+      sub3(sceneEv.onSceneModelCreated.subscribe((_, model) => {
         if (isDrawingId(model.id))
           return;
         this._renderBody();
       }));
     }
     if (sceneEv.onSceneModelDestroyed?.subscribe) {
-      sub2(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
+      sub3(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
         const rec = this._rows.get(model.id);
         if (rec) {
           rec.playback?.destroy();
@@ -252484,9 +253270,9 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     const sceneEv = this.studio.scene.events;
     if (!sceneEv)
       return;
-    const sub2 = (unsub) => this._unsubs.push(unsub);
+    const sub3 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv.onSceneModelCreated?.subscribe) {
-      sub2(sceneEv.onSceneModelCreated.subscribe((_, model) => {
+      sub3(sceneEv.onSceneModelCreated.subscribe((_, model) => {
         if (this._ownedProjectionIds.has(model.id))
           return;
         if (_DrawingsPanel.isDrawingModelId(model.id))
@@ -252495,7 +253281,7 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
       }));
     }
     if (sceneEv.onSceneModelDestroyed?.subscribe) {
-      sub2(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
+      sub3(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
         if (this._ownedProjectionIds.has(model.id)) {
           this._ownedProjectionIds.delete(model.id);
           return;
@@ -252512,15 +253298,15 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     if (viewerEv) {
       const refresh = () => this._scheduleSectionPlaneRefresh();
       if (viewerEv.onSectionPlaneCreated?.subscribe)
-        sub2(viewerEv.onSectionPlaneCreated.subscribe(refresh));
+        sub3(viewerEv.onSectionPlaneCreated.subscribe(refresh));
       if (viewerEv.onSectionPlaneDestroyed?.subscribe)
-        sub2(viewerEv.onSectionPlaneDestroyed.subscribe(refresh));
+        sub3(viewerEv.onSectionPlaneDestroyed.subscribe(refresh));
       if (viewerEv.onSectionPlanePosChanged?.subscribe)
-        sub2(viewerEv.onSectionPlanePosChanged.subscribe(refresh));
+        sub3(viewerEv.onSectionPlanePosChanged.subscribe(refresh));
       if (viewerEv.onSectionPlaneDirChanged?.subscribe)
-        sub2(viewerEv.onSectionPlaneDirChanged.subscribe(refresh));
+        sub3(viewerEv.onSectionPlaneDirChanged.subscribe(refresh));
       if (viewerEv.onSectionPlaneActive?.subscribe)
-        sub2(viewerEv.onSectionPlaneActive.subscribe(refresh));
+        sub3(viewerEv.onSectionPlaneActive.subscribe(refresh));
     }
   }
   /**
@@ -257458,8 +258244,8 @@ function sectionPlaneDirFromPickedNormal(normal2, rayDir) {
   if (!rayDir) {
     return cleanDir(normal2);
   }
-  const dot5 = normal2[0] * rayDir[0] + normal2[1] * rayDir[1] + normal2[2] * rayDir[2];
-  return dot5 > 0 ? cleanDir([-normal2[0], -normal2[1], -normal2[2]]) : cleanDir(normal2);
+  const dot6 = normal2[0] * rayDir[0] + normal2[1] * rayDir[1] + normal2[2] * rayDir[2];
+  return dot6 > 0 ? cleanDir([-normal2[0], -normal2[1], -normal2[2]]) : cleanDir(normal2);
 }
 function cleanDir(dir) {
   return [dir[0] || 0, dir[1] || 0, dir[2] || 0];
@@ -258250,7 +259036,15 @@ var toggleFirstPerson = {
       console.warn("[Toolbar] toggleFirstPerson \u2014 no walk navigation controller registered for the active View.");
       return;
     }
-    walk.active = !walk.active;
+    const nextActive = !walk.active;
+    if (nextActive) {
+      const vehicle = ctx2.vehicleNavigationController();
+      if (vehicle) {
+        vehicle.active = false;
+        ctx2.setPressed("toggleVehicleNavigation", false);
+      }
+    }
+    walk.active = nextActive;
     ctx2.setPressed("toggleFirstPerson", walk.active);
   }
 };
@@ -258314,6 +259108,35 @@ var toggleProjection = {
   }
 };
 
+// ../sdk/src/studio/panels/toolbar/actions/toggleVehicleNavigation.ts
+var toggleVehicleNavigation = {
+  id: "toggleVehicleNavigation",
+  do(ctx2) {
+    if (ctx2.fireAction("toggleVehicleNavigation")) {
+      const vehicleAfter = ctx2.vehicleNavigationController();
+      if (vehicleAfter) {
+        ctx2.setPressed("toggleVehicleNavigation", vehicleAfter.active);
+      }
+      return;
+    }
+    const vehicle = ctx2.vehicleNavigationController();
+    if (!vehicle) {
+      console.warn("[Toolbar] toggleVehicleNavigation \u2014 no vehicle navigation controller registered for the active View.");
+      return;
+    }
+    const nextActive = !vehicle.active;
+    if (nextActive) {
+      const walk = ctx2.walkNavigationController();
+      if (walk) {
+        walk.active = false;
+        ctx2.setPressed("toggleFirstPerson", false);
+      }
+    }
+    vehicle.active = nextActive;
+    ctx2.setPressed("toggleVehicleNavigation", vehicle.active);
+  }
+};
+
 // ../sdk/src/studio/panels/toolbar/actions/toggleViews.ts
 var toggleViews = {
   id: "toggleViews",
@@ -258357,10 +259180,24 @@ var TOOLBAR_ACTIONS = {
   toggleModels,
   toggleNavCube,
   toggleProjection,
+  toggleVehicleNavigation,
   toggleViews
 };
 
 // ../sdk/src/studio/panels/toolbar/Toolbar.ts
+var STUDIO_WALK_SPEED = 6;
+var STUDIO_RUN_SPEED = 13;
+var STUDIO_VEHICLE_MAX_FORWARD_SPEED = 22;
+var STUDIO_VEHICLE_MAX_REVERSE_SPEED = 5;
+var STUDIO_VEHICLE_ACCELERATION = 9;
+var STUDIO_VEHICLE_BRAKE_DECELERATION = 18;
+var STUDIO_VEHICLE_COAST_DECELERATION = 5;
+var STUDIO_VEHICLE_FLIGHT_ACCELERATION = 13;
+var STUDIO_VEHICLE_FLIGHT_BRAKE_DECELERATION = 12;
+var STUDIO_VEHICLE_FLIGHT_MIN_GLIDE_SPEED = 5;
+var NAVIGATION_SPEED_MIN = 0.25;
+var NAVIGATION_SPEED_MAX = 3;
+var NAVIGATION_SPEED_STEP = 0.25;
 var STYLE_TAG_ID33 = "xkt-tb-styles";
 var _stylesInjected34 = false;
 function injectStylesOnce35() {
@@ -258487,6 +259324,30 @@ var TOOLBAR_CSS = `
   height: 22px;
   display: block;
   pointer-events: none;
+}
+
+.xkt-tb-toolbar .xkt-tb-speed-control {
+  height: 40px;
+  width: 94px;
+  box-sizing: border-box;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #2d5e8c;
+  border: 1px solid #e6e6e6;
+  border-radius: 7px;
+}
+.xkt-tb-toolbar .xkt-tb-speed-control svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+.xkt-tb-toolbar .xkt-tb-speed-control input {
+  width: 58px;
+  min-width: 0;
+  accent-color: #2d5e8c;
 }
 
 .xkt-tb-toolbar .xkt-tb-close {
@@ -258722,6 +259583,8 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
    */
   _sectionPlanesClick = null;
   _sectionPlanesCanvas = null;
+  _navigationSpeedInput = null;
+  _navigationSpeedMultiplier = 1;
   // Lifecycle state.
   // Drag state.
   constructor(params) {
@@ -258749,6 +259612,8 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     this._pill.hidden = false;
     const walkController = this._walkNavigationController(false);
     this._setPressed("toggleFirstPerson", walkController?.active ?? false);
+    const vehicleController = this._vehicleNavigationController(false);
+    this._setPressed("toggleVehicleNavigation", vehicleController?.active ?? false);
     if (params.visible === false) {
       this.hide();
     } else {
@@ -258903,10 +259768,17 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       title: "View Fit All",
       svg: ICONS.fitAll
     }));
+    gCamera.btns.appendChild(this._mkNavigationSpeedControl());
     gCamera.btns.appendChild(this._mkBtn({
       action: "toggleFirstPerson",
       title: "Toggle Walk Navigation",
       svg: ICONS.person,
+      toggle: true
+    }));
+    gCamera.btns.appendChild(this._mkBtn({
+      action: "toggleVehicleNavigation",
+      title: "Toggle Vehicle Navigation",
+      svg: ICONS.vehicle,
       toggle: true
     }));
     gCamera.btns.appendChild(this._mkBtn({
@@ -259039,6 +259911,29 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     this._btns[opts.action] = btn;
     return btn;
   }
+  _mkNavigationSpeedControl() {
+    const wrap = el("label", "xkt-tb-speed-control", {
+      title: "Navigation Speed",
+      "aria-label": "Navigation Speed"
+    });
+    wrap.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+    wrap.addEventListener("click", (ev) => ev.stopPropagation());
+    wrap.innerHTML = ICONS.speed;
+    const input = el("input", "", {
+      type: "range",
+      min: String(NAVIGATION_SPEED_MIN),
+      max: String(NAVIGATION_SPEED_MAX),
+      step: String(NAVIGATION_SPEED_STEP),
+      value: String(this._navigationSpeedMultiplier),
+      "aria-label": "Navigation Speed"
+    });
+    input.addEventListener("input", () => {
+      this._setNavigationSpeedMultiplier(Number(input.value));
+    });
+    this._navigationSpeedInput = input;
+    wrap.appendChild(input);
+    return wrap;
+  }
   /**
    * Look the action up in {@link TOOLBAR_ACTIONS} and run it
    * against a freshly-built {@link ToolbarActionContext}. The
@@ -259065,10 +259960,11 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       activeView: () => this._activeView(),
       viewController: () => this._viewController(),
       walkNavigationController: () => this._walkNavigationController(),
+      vehicleNavigationController: () => this._vehicleNavigationController(),
       cameraFlight: () => this._cameraFlight(),
       sceneAabb: () => this._sceneAabb(),
       fireAction: (action) => this._fireAction(action),
-      setPressed: (action, pressed2) => this._setPressed(action, pressed2),
+      setPressed: (action, pressed3) => this._setPressed(action, pressed3),
       bindPanelSync: (panel, action) => this._bindPanelSync(panel, action)
     };
   }
@@ -259760,10 +260656,59 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     if (!record.walkNavigationController && create4) {
       record.walkNavigationController = new WalkNavigationController(view, {
         active: false,
+        walkSpeed: STUDIO_WALK_SPEED * this._navigationSpeedMultiplier,
+        runSpeed: STUDIO_RUN_SPEED * this._navigationSpeedMultiplier,
         suspendViewController: record.viewController
       });
     }
     return record.walkNavigationController ?? null;
+  }
+  _vehicleNavigationController(create4 = true) {
+    const view = this._activeView();
+    if (!view || !this.studio)
+      return null;
+    const record = this.studio.viewManager.views?.[view.id];
+    if (!record)
+      return null;
+    if (!record.vehicleNavigationController && create4) {
+      record.vehicleNavigationController = new VehicleNavigationController(view, {
+        active: false,
+        maxForwardSpeed: STUDIO_VEHICLE_MAX_FORWARD_SPEED * this._navigationSpeedMultiplier,
+        maxReverseSpeed: STUDIO_VEHICLE_MAX_REVERSE_SPEED * this._navigationSpeedMultiplier,
+        acceleration: STUDIO_VEHICLE_ACCELERATION * this._navigationSpeedMultiplier,
+        brakeDeceleration: STUDIO_VEHICLE_BRAKE_DECELERATION * this._navigationSpeedMultiplier,
+        coastDeceleration: STUDIO_VEHICLE_COAST_DECELERATION * this._navigationSpeedMultiplier,
+        flightAcceleration: STUDIO_VEHICLE_FLIGHT_ACCELERATION * this._navigationSpeedMultiplier,
+        flightBrakeDeceleration: STUDIO_VEHICLE_FLIGHT_BRAKE_DECELERATION * this._navigationSpeedMultiplier,
+        flightMinGlideSpeed: STUDIO_VEHICLE_FLIGHT_MIN_GLIDE_SPEED * this._navigationSpeedMultiplier,
+        suspendViewController: record.viewController
+      });
+    }
+    return record.vehicleNavigationController ?? null;
+  }
+  _setNavigationSpeedMultiplier(multiplier) {
+    this._navigationSpeedMultiplier = clampNumber(multiplier, NAVIGATION_SPEED_MIN, NAVIGATION_SPEED_MAX);
+    if (this._navigationSpeedInput && Number(this._navigationSpeedInput.value) !== this._navigationSpeedMultiplier) {
+      this._navigationSpeedInput.value = String(this._navigationSpeedMultiplier);
+    }
+    for (const record of Object.values(this.studio?.viewManager.views ?? {})) {
+      const walk = record.walkNavigationController;
+      if (walk) {
+        walk.walkSpeed = STUDIO_WALK_SPEED * this._navigationSpeedMultiplier;
+        walk.runSpeed = STUDIO_RUN_SPEED * this._navigationSpeedMultiplier;
+      }
+      const vehicle = record.vehicleNavigationController;
+      if (vehicle) {
+        vehicle.maxForwardSpeed = STUDIO_VEHICLE_MAX_FORWARD_SPEED * this._navigationSpeedMultiplier;
+        vehicle.maxReverseSpeed = STUDIO_VEHICLE_MAX_REVERSE_SPEED * this._navigationSpeedMultiplier;
+        vehicle.acceleration = STUDIO_VEHICLE_ACCELERATION * this._navigationSpeedMultiplier;
+        vehicle.brakeDeceleration = STUDIO_VEHICLE_BRAKE_DECELERATION * this._navigationSpeedMultiplier;
+        vehicle.coastDeceleration = STUDIO_VEHICLE_COAST_DECELERATION * this._navigationSpeedMultiplier;
+        vehicle.flightAcceleration = STUDIO_VEHICLE_FLIGHT_ACCELERATION * this._navigationSpeedMultiplier;
+        vehicle.flightBrakeDeceleration = STUDIO_VEHICLE_FLIGHT_BRAKE_DECELERATION * this._navigationSpeedMultiplier;
+        vehicle.flightMinGlideSpeed = STUDIO_VEHICLE_FLIGHT_MIN_GLIDE_SPEED * this._navigationSpeedMultiplier;
+      }
+    }
   }
   _wireDomEvents() {
   }
@@ -259776,11 +260721,11 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     const result = this._onAction(action, { toolbar: this, viewer: this.viewer, mode });
     return result === true;
   }
-  _setPressed(action, pressed2) {
+  _setPressed(action, pressed3) {
     const btn = this._btns[action];
     if (!btn)
       return;
-    btn.setAttribute("aria-pressed", String(pressed2));
+    btn.setAttribute("aria-pressed", String(pressed3));
   }
   /**
    * Subscribe a panel-toggle Toolbar button to its panel's
@@ -259843,8 +260788,12 @@ var ICONS = {
   loseContext: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 L4 13 L11 13 L9 22 L20 10 L13 10 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
   // Four corner brackets — fit all.
   fitAll: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9 L4 4 L9 4"   fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M15 4 L20 4 L20 9"  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 15 L20 20 L15 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 20 L4 20 L4 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  // Tachometer — navigation speed multiplier.
+  speed: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15 A8 8 0 0 1 20 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 15 L17 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="15" r="1.4" fill="currentColor"/><path d="M6.8 15 L5.2 15 M18.8 15 L17.2 15 M8.1 9.1 L7 8 M15.9 9.1 L17 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`,
   // Standing person — first-person nav.
   person: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.5" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 21 L7 13 C 7 11 8.5 10 12 10 C 15.5 10 17 11 17 13 L 17 21" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  // Leaning motorcycle / bicycle — vehicle nav.
+  vehicle: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6.5" cy="17" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="17" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 16 L11 10 L15 16 L9.5 16 M11 10 L15.5 9 L17.5 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 6.2 L16.2 8.7 M13.8 6.2 L11.8 8.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   // Eraser — hide objects mode.
   eraser: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16 L13 6 L19 12 L9 22 L3 22 L3 16 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 22 L20 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
   // Mouse pointer — select objects mode.
@@ -259872,6 +260821,12 @@ var ICONS = {
   // List with angle — Angle Measurements panel.
   anglePanel: AngleMeasurementsPanel.iconSvg()
 };
+function clampNumber(value, min, max) {
+  if (!Number.isFinite(value)) {
+    return min;
+  }
+  return Math.min(max, Math.max(min, value));
+}
 
 // ../sdk/src/studio/panels/exportBCF/ExportBCFPanel.ts
 var STYLE_TAG_ID34 = "xkt-bcf-styles";
@@ -260370,15 +261325,15 @@ var ExportBCFPanel = class _ExportBCFPanel extends FloatingPanelBase {
   // ── Live sync ─────────────────────────────────────────────────
   _attachLiveSync() {
     const ev = this.view.viewer?.events;
-    const sub2 = (unsub) => {
+    const sub3 = (unsub) => {
       if (typeof unsub === "function")
         this._unsubs.push(unsub);
     };
     if (ev?.onViewLayerCreated?.subscribe) {
-      sub2(ev.onViewLayerCreated.subscribe(() => this._scheduleRefresh()));
+      sub3(ev.onViewLayerCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (ev?.onViewLayerDestroyed?.subscribe) {
-      sub2(ev.onViewLayerDestroyed.subscribe(() => this._scheduleRefresh()));
+      sub3(ev.onViewLayerDestroyed.subscribe(() => this._scheduleRefresh()));
     }
   }
   _scheduleRefresh() {

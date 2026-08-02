@@ -1,0 +1,1354 @@
+{
+  "schema": "xeokit-procedural-building-style/1.0",
+  "generatedAt": "2026-07-24T16:02:36.170Z",
+  "description": "Procedural building style profile derived from selected xeokit website sample building models.",
+  "sources": [
+    {
+      "id": "otc_civic_anchor",
+      "model": "OTCConferenceCenter",
+      "source": {
+        "format": "xgf",
+        "uri": "OTCConferenceCenter/xgf/model.xgf"
+      },
+      "scale": 1,
+      "aabb": [
+        -2.8144,
+        -66.9418,
+        -8.9963,
+        101.0161,
+        7.9776,
+        27.4659
+      ],
+      "dimensions": {
+        "width": 103.831,
+        "depth": 74.919,
+        "height": 36.462
+      },
+      "counts": {
+        "objects": 6461,
+        "meshes": 16019,
+        "geometries": 2696,
+        "materials": 0,
+        "textures": 0,
+        "vertices": 192080,
+        "triangles": 353146,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 11,
+        "floorHeight": 3.315,
+        "footprintArea": 7778.929,
+        "meshDensityPerSquareMeter": 2.0593
+      },
+      "colors": {
+        "totalWeight": 767570,
+        "glassWeight": 76428,
+        "samples": [
+          {
+            "color": [
+              0.07,
+              0.07,
+              0.07
+            ],
+            "weight": 149867,
+            "glass": false
+          },
+          {
+            "color": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "weight": 113519,
+            "glass": false
+          },
+          {
+            "color": [
+              1,
+              1,
+              1
+            ],
+            "weight": 108741,
+            "glass": false
+          },
+          {
+            "color": [
+              0.87,
+              0.84,
+              0.58
+            ],
+            "weight": 81792,
+            "glass": false
+          },
+          {
+            "color": [
+              0.85,
+              0.85,
+              0.85
+            ],
+            "weight": 57408,
+            "glass": true
+          },
+          {
+            "color": [
+              0,
+              0,
+              0
+            ],
+            "weight": 56592,
+            "glass": false
+          },
+          {
+            "color": [
+              0.97,
+              0.97,
+              0.97
+            ],
+            "weight": 41417,
+            "glass": false
+          },
+          {
+            "color": [
+              0.84,
+              0.84,
+              0.84
+            ],
+            "weight": 24107,
+            "glass": false
+          },
+          {
+            "color": [
+              0.96,
+              0.87,
+              0.44
+            ],
+            "weight": 16863,
+            "glass": false
+          },
+          {
+            "color": [
+              0,
+              0.5,
+              0.75
+            ],
+            "weight": 16240,
+            "glass": true
+          },
+          {
+            "color": [
+              0.88,
+              0.7,
+              0.49
+            ],
+            "weight": 13200,
+            "glass": false
+          },
+          {
+            "color": [
+              0.89,
+              0.69,
+              0.5
+            ],
+            "weight": 12488,
+            "glass": false
+          },
+          {
+            "color": [
+              0.38,
+              0.4,
+              0.46
+            ],
+            "weight": 11920,
+            "glass": false
+          },
+          {
+            "color": [
+              0.98,
+              0.94,
+              0.9
+            ],
+            "weight": 11110,
+            "glass": false
+          },
+          {
+            "color": [
+              0.78,
+              0.78,
+              0.78
+            ],
+            "weight": 10855,
+            "glass": false
+          },
+          {
+            "color": [
+              0.75,
+              0.75,
+              0.75
+            ],
+            "weight": 9895,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "residential_usdz",
+      "model": "ResidentialBuilding",
+      "source": {
+        "format": "usdz",
+        "uri": "ResidentialBuilding/usdz/model.usdz",
+        "package": {
+          "rootLayerName": "scene.usdc",
+          "entries": [
+            {
+              "name": "scene.usdc",
+              "byteLength": 5379718
+            }
+          ]
+        }
+      },
+      "analysisSource": {
+        "format": "xgf",
+        "uri": "ResidentialBuilding/xgf/model.xgf"
+      },
+      "scale": 0.04,
+      "aabb": [
+        -25.1142,
+        -18.6549,
+        -1.9353,
+        22.7161,
+        18.5069,
+        43.1953
+      ],
+      "dimensions": {
+        "width": 47.83,
+        "depth": 37.162,
+        "height": 45.131
+      },
+      "counts": {
+        "objects": 128,
+        "meshes": 247,
+        "geometries": 197,
+        "materials": 27,
+        "textures": 0,
+        "vertices": 202121,
+        "triangles": 127902,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 13,
+        "floorHeight": 3.472,
+        "footprintArea": 1777.461,
+        "meshDensityPerSquareMeter": 0.139
+      },
+      "colors": {
+        "totalWeight": 213149,
+        "glassWeight": 7255,
+        "samples": [
+          {
+            "color": [
+              0.16,
+              0.17,
+              0.18
+            ],
+            "weight": 61942,
+            "glass": false
+          },
+          {
+            "color": [
+              0.14,
+              0.14,
+              0.14
+            ],
+            "weight": 45728,
+            "glass": false
+          },
+          {
+            "color": [
+              1,
+              1,
+              1
+            ],
+            "weight": 22680,
+            "glass": false
+          },
+          {
+            "color": [
+              0.02,
+              0.02,
+              0.02
+            ],
+            "weight": 18809,
+            "glass": false
+          },
+          {
+            "color": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "weight": 16921,
+            "glass": false
+          },
+          {
+            "color": [
+              0.01,
+              0.01,
+              0.01
+            ],
+            "weight": 9147,
+            "glass": false
+          },
+          {
+            "color": [
+              0.12,
+              0.02,
+              0.01
+            ],
+            "weight": 7434,
+            "glass": false
+          },
+          {
+            "color": [
+              0.29,
+              0.75,
+              0.8
+            ],
+            "weight": 6884,
+            "glass": true
+          },
+          {
+            "color": [
+              0.42,
+              0.8,
+              0.01
+            ],
+            "weight": 4789,
+            "glass": false
+          },
+          {
+            "color": [
+              0.07,
+              0.07,
+              0.07
+            ],
+            "weight": 3786,
+            "glass": false
+          },
+          {
+            "color": [
+              0.15,
+              0.23,
+              0.23
+            ],
+            "weight": 3110,
+            "glass": false
+          },
+          {
+            "color": [
+              0.8,
+              0.23,
+              0.02
+            ],
+            "weight": 3035,
+            "glass": false
+          },
+          {
+            "color": [
+              0.8,
+              0.04,
+              0.11
+            ],
+            "weight": 2731,
+            "glass": false
+          },
+          {
+            "color": [
+              0,
+              0.8,
+              0.22
+            ],
+            "weight": 2433,
+            "glass": false
+          },
+          {
+            "color": [
+              0.2,
+              0.06,
+              0.05
+            ],
+            "weight": 1229,
+            "glass": false
+          },
+          {
+            "color": [
+              0.8,
+              0.68,
+              0.38
+            ],
+            "weight": 986,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "sample_apartment_west",
+      "model": "SampleApartment",
+      "source": {
+        "format": "xgf",
+        "uri": "SampleApartment/xgf/model.xgf"
+      },
+      "scale": 8,
+      "aabb": [
+        -18.984,
+        -12.952,
+        -10.592,
+        22.3377,
+        15.1717,
+        10.6368
+      ],
+      "dimensions": {
+        "width": 41.322,
+        "depth": 28.124,
+        "height": 21.229
+      },
+      "counts": {
+        "objects": 1,
+        "meshes": 2,
+        "geometries": 2,
+        "materials": 1,
+        "textures": 1,
+        "vertices": 154965,
+        "triangles": 252532,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 6,
+        "floorHeight": 3.538,
+        "footprintArea": 1162.119,
+        "meshDensityPerSquareMeter": 0.0017
+      },
+      "colors": {
+        "totalWeight": 154965,
+        "glassWeight": 0,
+        "samples": [
+          {
+            "color": [
+              1,
+              1,
+              1
+            ],
+            "weight": 154965,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "duplex_lane_a",
+      "model": "Duplex",
+      "source": {
+        "format": "xgf",
+        "uri": "Duplex/xgf/model.xgf"
+      },
+      "scale": 1.2,
+      "aabb": [
+        -0.2898,
+        -5.2593,
+        -1.86,
+        10.8498,
+        26.6193,
+        7.9618
+      ],
+      "dimensions": {
+        "width": 11.14,
+        "depth": 31.879,
+        "height": 9.822
+      },
+      "counts": {
+        "objects": 214,
+        "meshes": 800,
+        "geometries": 346,
+        "materials": 0,
+        "textures": 0,
+        "vertices": 6459,
+        "triangles": 11684,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 3,
+        "floorHeight": 3.274,
+        "footprintArea": 355.114,
+        "meshDensityPerSquareMeter": 2.2528
+      },
+      "colors": {
+        "totalWeight": 14275,
+        "glassWeight": 288,
+        "samples": [
+          {
+            "color": [
+              0.22,
+              0.22,
+              0.22
+            ],
+            "weight": 3292,
+            "glass": false
+          },
+          {
+            "color": [
+              0.98,
+              0.98,
+              0.98
+            ],
+            "weight": 2676,
+            "glass": false
+          },
+          {
+            "color": [
+              1,
+              1,
+              1
+            ],
+            "weight": 1385,
+            "glass": false
+          },
+          {
+            "color": [
+              0.83,
+              0.7,
+              0.44
+            ],
+            "weight": 1156,
+            "glass": false
+          },
+          {
+            "color": [
+              0.88,
+              0.7,
+              0.49
+            ],
+            "weight": 1056,
+            "glass": false
+          },
+          {
+            "color": [
+              0.97,
+              0.97,
+              0.94
+            ],
+            "weight": 976,
+            "glass": false
+          },
+          {
+            "color": [
+              0.07,
+              0.07,
+              0.07
+            ],
+            "weight": 512,
+            "glass": false
+          },
+          {
+            "color": [
+              0.46,
+              0.27,
+              0.2
+            ],
+            "weight": 448,
+            "glass": false
+          },
+          {
+            "color": [
+              0.89,
+              0.69,
+              0.5
+            ],
+            "weight": 424,
+            "glass": false
+          },
+          {
+            "color": [
+              0.57,
+              0.44,
+              0.35
+            ],
+            "weight": 400,
+            "glass": false
+          },
+          {
+            "color": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "weight": 346,
+            "glass": false
+          },
+          {
+            "color": [
+              0.67,
+              0.39,
+              0.41
+            ],
+            "weight": 332,
+            "glass": false
+          },
+          {
+            "color": [
+              0.97,
+              0.97,
+              0.97
+            ],
+            "weight": 256,
+            "glass": false
+          },
+          {
+            "color": [
+              0.98,
+              0.94,
+              0.9
+            ],
+            "weight": 216,
+            "glass": false
+          },
+          {
+            "color": [
+              0,
+              0.5,
+              0.75
+            ],
+            "weight": 208,
+            "glass": true
+          },
+          {
+            "color": [
+              0.75,
+              0.75,
+              0.75
+            ],
+            "weight": 128,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "openhouse4_lane_b",
+      "model": "IfcOpenHouse4",
+      "source": {
+        "format": "xgf",
+        "uri": "IfcOpenHouse4/xgf/model.xgf"
+      },
+      "scale": 1,
+      "aabb": [
+        -10,
+        -9.9969,
+        -8.13,
+        9.9969,
+        10,
+        5.78
+      ],
+      "dimensions": {
+        "width": 19.997,
+        "depth": 19.997,
+        "height": 13.91
+      },
+      "counts": {
+        "objects": 32,
+        "meshes": 70,
+        "geometries": 28,
+        "materials": 0,
+        "textures": 0,
+        "vertices": 2430,
+        "triangles": 810,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 4,
+        "floorHeight": 3.478,
+        "footprintArea": 399.878,
+        "meshDensityPerSquareMeter": 0.1751
+      },
+      "colors": {
+        "totalWeight": 3186,
+        "glassWeight": 180,
+        "samples": [
+          {
+            "color": [
+              0.15,
+              0.25,
+              0.05
+            ],
+            "weight": 1710,
+            "glass": false
+          },
+          {
+            "color": [
+              0.5,
+              0.4,
+              0.3
+            ],
+            "weight": 612,
+            "glass": false
+          },
+          {
+            "color": [
+              0.75,
+              0.73,
+              0.68
+            ],
+            "weight": 372,
+            "glass": false
+          },
+          {
+            "color": [
+              0.6,
+              0.7,
+              0.75
+            ],
+            "weight": 180,
+            "glass": true
+          },
+          {
+            "color": [
+              0.9,
+              0.9,
+              0.9
+            ],
+            "weight": 144,
+            "glass": false
+          },
+          {
+            "color": [
+              0.26,
+              0.22,
+              0.18
+            ],
+            "weight": 96,
+            "glass": false
+          },
+          {
+            "color": [
+              0.24,
+              0.08,
+              0.04
+            ],
+            "weight": 72,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "openhouse2x3_hillside",
+      "model": "IfcOpenHouse2x3",
+      "source": {
+        "format": "xgf",
+        "uri": "IfcOpenHouse2x3/xgf/model.xgf"
+      },
+      "scale": 1,
+      "aabb": [
+        -10,
+        -10,
+        -8.13,
+        9.9969,
+        9.9969,
+        5.78
+      ],
+      "dimensions": {
+        "width": 19.997,
+        "depth": 19.997,
+        "height": 13.91
+      },
+      "counts": {
+        "objects": 33,
+        "meshes": 36,
+        "geometries": 14,
+        "materials": 0,
+        "textures": 0,
+        "vertices": 443,
+        "triangles": 810,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 4,
+        "floorHeight": 3.478,
+        "footprintArea": 399.878,
+        "meshDensityPerSquareMeter": 0.09
+      },
+      "colors": {
+        "totalWeight": 619,
+        "glassWeight": 40,
+        "samples": [
+          {
+            "color": [
+              0.15,
+              0.25,
+              0.05
+            ],
+            "weight": 299,
+            "glass": false
+          },
+          {
+            "color": [
+              0.5,
+              0.4,
+              0.3
+            ],
+            "weight": 144,
+            "glass": false
+          },
+          {
+            "color": [
+              0.75,
+              0.73,
+              0.68
+            ],
+            "weight": 68,
+            "glass": false
+          },
+          {
+            "color": [
+              0.6,
+              0.7,
+              0.75
+            ],
+            "weight": 40,
+            "glass": true
+          },
+          {
+            "color": [
+              0.9,
+              0.9,
+              0.9
+            ],
+            "weight": 32,
+            "glass": false
+          },
+          {
+            "color": [
+              0.26,
+              0.22,
+              0.18
+            ],
+            "weight": 20,
+            "glass": false
+          },
+          {
+            "color": [
+              0.24,
+              0.08,
+              0.04
+            ],
+            "weight": 16,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "sample_house_hillside",
+      "model": "Ifc4_SampleHouse",
+      "source": {
+        "format": "xgf",
+        "uri": "Ifc4_SampleHouse/xgf/model.xgf"
+      },
+      "scale": 1,
+      "aabb": [
+        -9.2348,
+        -5.9198,
+        -0.4699,
+        7.6301,
+        2.7464,
+        3.8549
+      ],
+      "dimensions": {
+        "width": 16.865,
+        "depth": 8.666,
+        "height": 4.325
+      },
+      "counts": {
+        "objects": 58,
+        "meshes": 400,
+        "geometries": 243,
+        "materials": 0,
+        "textures": 0,
+        "vertices": 41952,
+        "triangles": 15181,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 1,
+        "floorHeight": 4.325,
+        "footprintArea": 146.154,
+        "meshDensityPerSquareMeter": 2.7368
+      },
+      "colors": {
+        "totalWeight": 66593,
+        "glassWeight": 17730,
+        "samples": [
+          {
+            "color": [
+              0.28,
+              0.53,
+              0.74
+            ],
+            "weight": 17010,
+            "glass": true
+          },
+          {
+            "color": [
+              0.97,
+              0.97,
+              0.97
+            ],
+            "weight": 15348,
+            "glass": false
+          },
+          {
+            "color": [
+              0.6,
+              0.35,
+              0.02
+            ],
+            "weight": 10812,
+            "glass": false
+          },
+          {
+            "color": [
+              0.84,
+              0.64,
+              0.4
+            ],
+            "weight": 7263,
+            "glass": false
+          },
+          {
+            "color": [
+              0,
+              0,
+              0
+            ],
+            "weight": 3908,
+            "glass": false
+          },
+          {
+            "color": [
+              0.98,
+              0.98,
+              0.98
+            ],
+            "weight": 3816,
+            "glass": false
+          },
+          {
+            "color": [
+              0.97,
+              0.97,
+              0.94
+            ],
+            "weight": 2439,
+            "glass": false
+          },
+          {
+            "color": [
+              0.91,
+              0.89,
+              0.76
+            ],
+            "weight": 2160,
+            "glass": false
+          },
+          {
+            "color": [
+              0.67,
+              0.39,
+              0.41
+            ],
+            "weight": 1011,
+            "glass": false
+          },
+          {
+            "color": [
+              0,
+              0.5,
+              0.75
+            ],
+            "weight": 720,
+            "glass": true
+          },
+          {
+            "color": [
+              0.85,
+              0.85,
+              0.85
+            ],
+            "weight": 648,
+            "glass": false
+          },
+          {
+            "color": [
+              0.54,
+              0.34,
+              0.18
+            ],
+            "weight": 618,
+            "glass": false
+          },
+          {
+            "color": [
+              0.83,
+              0.7,
+              0.44
+            ],
+            "weight": 564,
+            "glass": false
+          },
+          {
+            "color": [
+              0.82,
+              0.62,
+              0.37
+            ],
+            "weight": 144,
+            "glass": false
+          },
+          {
+            "color": [
+              0.71,
+              0.71,
+              0.71
+            ],
+            "weight": 60,
+            "glass": false
+          },
+          {
+            "color": [
+              0.75,
+              0.75,
+              0.75
+            ],
+            "weight": 36,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "blender_house_north",
+      "model": "BlenderHouse",
+      "source": {
+        "format": "xgf",
+        "uri": "BlenderHouse/xgf/model.xgf"
+      },
+      "scale": 1.5,
+      "aabb": [
+        -2.25,
+        -0.015,
+        0,
+        10.56,
+        15.3,
+        14.04
+      ],
+      "dimensions": {
+        "width": 12.81,
+        "depth": 15.315,
+        "height": 14.04
+      },
+      "counts": {
+        "objects": 73,
+        "meshes": 73,
+        "geometries": 73,
+        "materials": 0,
+        "textures": 0,
+        "vertices": 7150,
+        "triangles": 13088,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 4,
+        "floorHeight": 3.51,
+        "footprintArea": 196.185,
+        "meshDensityPerSquareMeter": 0.3721
+      },
+      "colors": {
+        "totalWeight": 7150,
+        "glassWeight": 666,
+        "samples": [
+          {
+            "color": [
+              1,
+              1,
+              1
+            ],
+            "weight": 2637,
+            "glass": false
+          },
+          {
+            "color": [
+              1,
+              0.64,
+              0.26
+            ],
+            "weight": 1722,
+            "glass": false
+          },
+          {
+            "color": [
+              0.05,
+              0.05,
+              0.05
+            ],
+            "weight": 1311,
+            "glass": false
+          },
+          {
+            "color": [
+              0.18,
+              0.18,
+              0.18
+            ],
+            "weight": 666,
+            "glass": true
+          },
+          {
+            "color": [
+              0.38,
+              0.22,
+              0.11
+            ],
+            "weight": 280,
+            "glass": false
+          },
+          {
+            "color": [
+              0.71,
+              0.71,
+              0.71
+            ],
+            "weight": 198,
+            "glass": false
+          },
+          {
+            "color": [
+              0.06,
+              0.06,
+              0.06
+            ],
+            "weight": 144,
+            "glass": false
+          },
+          {
+            "color": [
+              1,
+              0.17,
+              0.15
+            ],
+            "weight": 88,
+            "glass": false
+          },
+          {
+            "color": [
+              0.13,
+              0.13,
+              0.13
+            ],
+            "weight": 40,
+            "glass": false
+          },
+          {
+            "color": [
+              1,
+              0.91,
+              0.6
+            ],
+            "weight": 32,
+            "glass": false
+          },
+          {
+            "color": [
+              0.22,
+              0.22,
+              0.22
+            ],
+            "weight": 24,
+            "glass": false
+          },
+          {
+            "color": [
+              0.33,
+              0.33,
+              0.33
+            ],
+            "weight": 8,
+            "glass": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "building_site_house",
+      "model": "BuildingSite",
+      "source": {
+        "format": "gltf",
+        "uri": "BuildingSite/threedtiles/house.glb"
+      },
+      "scale": 1.4,
+      "aabb": [
+        -21.4013,
+        8.7862,
+        0,
+        -6.5987,
+        19.2138,
+        8.4
+      ],
+      "dimensions": {
+        "width": 14.803,
+        "depth": 10.428,
+        "height": 8.4
+      },
+      "counts": {
+        "objects": 1,
+        "meshes": 5,
+        "geometries": 5,
+        "materials": 5,
+        "textures": 0,
+        "vertices": 828,
+        "triangles": 340,
+        "points": 0
+      },
+      "inferred": {
+        "storeys": 2,
+        "floorHeight": 4.2,
+        "footprintArea": 154.356,
+        "meshDensityPerSquareMeter": 0.0324
+      },
+      "colors": {
+        "totalWeight": 828,
+        "glassWeight": 24,
+        "samples": [
+          {
+            "color": [
+              0.56,
+              0.57,
+              0.6
+            ],
+            "weight": 514,
+            "glass": false
+          },
+          {
+            "color": [
+              0.34,
+              0.74,
+              0.6
+            ],
+            "weight": 134,
+            "glass": false
+          },
+          {
+            "color": [
+              0.95,
+              0.37,
+              0.29
+            ],
+            "weight": 102,
+            "glass": false
+          },
+          {
+            "color": [
+              0.39,
+              0.4,
+              0.45
+            ],
+            "weight": 54,
+            "glass": false
+          },
+          {
+            "color": [
+              0.74,
+              0.89,
+              1
+            ],
+            "weight": 24,
+            "glass": true
+          }
+        ]
+      }
+    }
+  ],
+  "aggregate": {
+    "sourceCount": 9,
+    "dimensions": {
+      "width": {
+        "min": 11.14,
+        "median": 19.997,
+        "p80": 43.925,
+        "max": 103.831
+      },
+      "depth": {
+        "min": 8.666,
+        "median": 19.997,
+        "p80": 33.992,
+        "max": 74.919
+      },
+      "height": {
+        "min": 4.325,
+        "median": 13.91,
+        "p80": 27.322,
+        "max": 45.131
+      }
+    },
+    "storeys": {
+      "min": 1,
+      "median": 4,
+      "p80": 8,
+      "max": 13
+    },
+    "facade": {
+      "floorHeight": 3.478,
+      "bayWidth": 4.073,
+      "windowToWallRatio": 0.18,
+      "recessDepth": 0.224,
+      "mullionWidth": 0.183
+    },
+    "massing": {
+      "podiumProbability": 0.333,
+      "towerProbability": 0.333,
+      "setbackRatio": 0.08,
+      "roofPlantProbability": 0.25
+    },
+    "palette": {
+      "wall": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "glass": [
+        0.28,
+        0.53,
+        0.74
+      ],
+      "trim": [
+        0.16,
+        0.17,
+        0.18
+      ],
+      "roof": [
+        0.16,
+        0.17,
+        0.18
+      ],
+      "accent": [
+        0.87,
+        0.84,
+        0.58
+      ]
+    },
+    "generationDefaults": {
+      "buildingCount": 14,
+      "spacing": 48,
+      "randomSeed": 42
+    }
+  }
+}

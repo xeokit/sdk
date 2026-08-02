@@ -1,0 +1,51 @@
+{
+  "schema": "xeokit-procedural-city-profile/1.0",
+  "version": 1,
+  "name": "berlin",
+  "description": "Berlin-like large perimeter blocks, broad roads, courtyards and moderate heights.",
+  "source": {"type": "preset", "note": "Representative OSM-style preset; regenerate from a Berlin extract for project-specific tuning."},
+  "roads": {
+    "hierarchyShare": {"arterial": 0.13, "collector": 0.24, "local": 0.54, "alley": 0.06, "pedestrian": 0.03},
+    "widthByHierarchy": {"arterial": 34, "collector": 21, "local": 13, "alley": 6.5, "pedestrian": 9},
+    "arterialSpacing": {"mean": 380, "p25": 280, "p75": 520},
+    "collectorSpacing": {"mean": 170, "p25": 110, "p75": 240},
+    "segmentLength": {"mean": 106, "p25": 68, "p75": 150},
+    "intersectionAngles": {"mean": 86, "p25": 76, "p75": 96},
+    "curvature": {"mean": 1.06, "p25": 1.01, "p75": 1.12},
+    "intersectionSpacing": {"mean": 138, "p25": 70, "p75": 188},
+    "roadDensityKmPerSquareKm": 13.2,
+    "intersectionDensityPerSquareKm": 56.0
+  },
+  "blocks": {
+    "area": {"mean": 11000, "p25": 5600, "p75": 17800},
+    "perimeter": {"mean": 430, "p25": 300, "p75": 580},
+    "compactness": {"mean": 0.68, "p25": 0.52, "p75": 0.82},
+    "aspectRatio": {"mean": 1.55, "p25": 1.1, "p75": 2.25},
+    "frontageLength": {"mean": 102, "p25": 58, "p75": 158},
+    "courtyardFrequency": 0.44,
+    "measuredCount": 58,
+    "openCellRatio": 0.84
+  },
+  "parcels": {
+    "frontage": {"mean": 25, "p25": 13, "p75": 42},
+    "depth": {"mean": 46, "p25": 28, "p75": 70},
+    "area": {"mean": 1200, "p25": 420, "p75": 2400},
+    "buildableCoverage": {"mean": 0.58, "p25": 0.40, "p75": 0.76},
+    "setbacks": {"mean": 5.4, "p25": 2.0, "p75": 10}
+  },
+  "buildings": {
+    "footprintArea": {"mean": 880, "p25": 280, "p75": 1800},
+    "aspectRatio": {"mean": 1.75, "p25": 1.12, "p75": 2.7},
+    "coverage": {"mean": 0.54, "p25": 0.36, "p75": 0.72},
+    "levels": {"mean": 6, "p25": 4, "p75": 8, "p95": 16},
+    "heights": {"mean": 21, "p25": 13, "p75": 30, "p95": 62},
+    "spacing": {"mean": 8, "p25": 2, "p75": 15},
+    "streetAlignment": {"mean": 0.80},
+    "streetAlignmentProbability": 0.80,
+    "streetDistance": {"mean": 13, "p25": 4, "p75": 20}
+  },
+  "landUse": {"residential": 0.43, "commercial": 0.16, "mixedUse": 0.25, "industrial": 0.05, "parks": 0.08, "civic": 0.03},
+  "publicSpace": {"parkFrequency": 0.09, "plazaSize": {"mean": 4200, "p25": 1200, "p75": 8800}, "streetTreeDensity": {"mean": 0.62}, "openSpaceRatio": 0.11, "plazaFrequencyPerSquareKm": 1.8},
+  "districts": {"Historic Core": 0.18, "Downtown": 0.20, "Mixed Residential": 0.50, "Civic District": 0.12},
+  "relationships": {"downtownHeightGradient": 0.82, "commercialRoadBias": 0.66, "courtyardProbability": 0.50, "roadHierarchyBlockScale": 1.15, "streetIrregularity": 0.38, "buildingStreetAlignment": 0.80, "heightRoadBias": 0.55, "perimeterBlockBias": 0.70, "pedestrianStreetBias": 1.0, "localRoadDensityBias": 1.1, "commercialIntersectionBias": 0.52}
+}

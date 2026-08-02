@@ -1,0 +1,98 @@
+{
+  "schema": "xeokit-procedural-city-profile/1.0",
+  "schemaVersion": 1,
+  "version": 1,
+  "name": "berlin-inner-city",
+  "description": "Berlin-style dense central European district profile: irregular streets, large perimeter blocks, internal courtyards, mid-rise mixed-use buildings, parks and plazas.",
+  "source": {
+    "type": "osm",
+    "region": "Berlin sample",
+    "areaSquareMeters": 2500000,
+    "note": "Offline demo profile for the first OSM-derived vertical slice. Regenerate from a local Berlin OSM extract with npm run analyze-osm."
+  },
+  "sampleCounts": {
+    "roads": 214,
+    "roadSegments": 682,
+    "intersections": 146,
+    "blocks": 62,
+    "buildings": 1280,
+    "buildingsWithLevels": 514,
+    "buildingsWithHeights": 76,
+    "parks": 8,
+    "plazas": 5
+  },
+  "roads": {
+    "hierarchyShare": {"arterial": 0.12, "collector": 0.23, "local": 0.55, "alley": 0.07, "pedestrian": 0.03},
+    "widthByHierarchy": {"arterial": 32, "collector": 20, "local": 12.5, "alley": 6.2, "pedestrian": 8.5},
+    "arterialSpacing": {"median": 365, "mean": 380, "p25": 285, "p75": 510},
+    "collectorSpacing": {"median": 168, "mean": 174, "p25": 112, "p75": 238},
+    "segmentLength": {"median": 82, "mean": 104, "p25": 45, "p75": 138},
+    "intersectionAngles": {"median": 86, "mean": 84, "p25": 70, "p75": 96},
+    "nodeDegree": {"median": 3, "mean": 3.31, "p25": 3, "p75": 4},
+    "intersectionDegreeWeights": {"3": 0.56, "4": 0.31, "5": 0.08, "6": 0.05},
+    "streetOrientation": {"median": 86, "mean": 72, "p25": 12, "p75": 97},
+    "orientationPeaksDegrees": [12, 97],
+    "curvature": {"median": 1.08, "mean": 1.11, "p25": 1.02, "p75": 1.18},
+    "intersectionSpacing": {"median": 118, "mean": 137, "p25": 68, "p75": 184},
+    "averageSpacing": 166,
+    "roadDensityKmPerSquareKm": 13.8,
+    "intersectionDensityPerSquareKm": 58.4
+  },
+  "blocks": {
+    "area": {"median": 7200, "mean": 9800, "p25": 4100, "p75": 11800},
+    "perimeter": {"median": 382, "mean": 422, "p25": 286, "p75": 548},
+    "compactness": {"median": 0.68, "mean": 0.64, "p25": 0.51, "p75": 0.78},
+    "aspectRatio": {"median": 1.58, "mean": 1.74, "p25": 1.14, "p75": 2.42},
+    "frontageLength": {"median": 88, "mean": 96, "p25": 48, "p75": 144},
+    "irregularity": {"median": 0.32, "mean": 0.36, "p25": 0.22, "p75": 0.49},
+    "courtyardFrequency": 0.58,
+    "measuredCount": 62,
+    "openCellRatio": 0.84
+  },
+  "parcels": {
+    "frontage": {"median": 18, "mean": 23, "p25": 9, "p75": 34},
+    "depth": {"median": 42, "mean": 47, "p25": 26, "p75": 68},
+    "area": {"median": 860, "mean": 1260, "p25": 340, "p75": 2200},
+    "buildableCoverage": {"median": 0.76, "mean": 0.69, "p25": 0.54, "p75": 0.84},
+    "setbacks": {"median": 3.4, "mean": 4.8, "p25": 1.6, "p75": 7.8}
+  },
+  "buildings": {
+    "footprintArea": {"median": 540, "mean": 880, "p25": 210, "p75": 1450},
+    "aspectRatio": {"median": 1.74, "mean": 1.92, "p25": 1.15, "p75": 2.82},
+    "coverage": {"median": 0.76, "mean": 0.69, "p25": 0.50, "p75": 0.86},
+    "levels": {"median": 5, "mean": 5.6, "p25": 4, "p75": 6, "p95": 12},
+    "heights": {"median": 18, "mean": 20, "p25": 13, "p75": 24, "p95": 48},
+    "spacing": {"median": 4.2, "mean": 6.8, "p25": 1.2, "p75": 10.5},
+    "streetAlignment": {"mean": 0.84},
+    "streetAlignmentProbability": 0.84,
+    "streetDistance": {"median": 9.5, "mean": 12.8, "p25": 4.2, "p75": 18.4},
+    "gapFrequency": 0.18,
+    "levelsConfidence": 0.42,
+    "heightsConfidence": 0.06
+  },
+  "landUse": {"residential": 0.42, "commercial": 0.18, "mixedUse": 0.27, "industrial": 0.03, "parks": 0.07, "civic": 0.03},
+  "publicSpace": {
+    "parkFrequency": 0.07,
+    "plazaSize": {"median": 2400, "mean": 4200, "p25": 900, "p75": 7300},
+    "streetTreeDensity": {"mean": 0.62},
+    "openSpaceRatio": 0.11,
+    "areaRatio": 0.11,
+    "parkFrequencyPerSquareKm": 3.2,
+    "plazaFrequencyPerSquareKm": 2.0,
+    "averageOpenSpaceSize": 9800
+  },
+  "districts": {"Historic Core": 0.18, "Downtown": 0.16, "Mixed Residential": 0.54, "Civic District": 0.12},
+  "relationships": {
+    "downtownHeightGradient": 0.72,
+    "commercialRoadBias": 0.70,
+    "courtyardProbability": 0.64,
+    "roadHierarchyBlockScale": 1.08,
+    "streetIrregularity": 0.46,
+    "buildingStreetAlignment": 0.84,
+    "heightRoadBias": 0.48,
+    "perimeterBlockBias": 0.78,
+    "pedestrianStreetBias": 1.05,
+    "localRoadDensityBias": 1.15,
+    "commercialIntersectionBias": 0.54
+  }
+}

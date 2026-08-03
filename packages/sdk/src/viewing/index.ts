@@ -11,3 +11,5 @@ export * as viewer from "./viewer";
 export * as renderer from "./renderer";
 export * as webGLRenderer from "./webGLRenderer";
 export * as webGPURenderer from "./webGPURenderer";
+export * as walkNavigation from "./walkNavigation";
+export * as vehicleNavigation from "./vehicleNavigation";

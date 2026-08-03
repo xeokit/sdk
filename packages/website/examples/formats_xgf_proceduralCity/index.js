@@ -15,6 +15,12 @@ const CHUNK_COMMIT_FRAME_BUDGET_MS = 4;
 const CAMERA_DEBOUNCE_MS = 140;
 const CACHE_XGF_FILE_BYTES = true;
 const MAX_CACHED_XGF_FILE_BYTES = 256 * 1024 * 1024;
+const RENDER_MODE_NAMES = {
+  navigation: xeokit.base.constants.NavigationRender,
+  detailed: xeokit.base.constants.DetailedRender,
+  realistic: xeokit.base.constants.RealisticRender
+};
+const DEFAULT_RENDER_MODE = RENDER_MODE_NAMES.detailed;
 
 const CAMERA_PRESETS = {
   aerial: {
@@ -61,6 +67,7 @@ studio.init().then(async () => {
   const view = studio.viewManager.createView({
     id: VIEW_ID,
     adaptiveQuality: false,
+    renderMode: DEFAULT_RENDER_MODE,
     camera: CAMERA_PRESETS.aerial
   });
   view.camera.perspectiveProjection.far = 10000;
@@ -155,6 +162,12 @@ studio.init().then(async () => {
 
 function wirePanel({view, studio, manifest, report, byLayer, streamController}) {
   const meta = document.getElementById("meta");
+  const renderModeSelect = ensureRenderModeControl();
+  renderModeSelect.value = nameForRenderMode(view.renderMode);
+  renderModeSelect.addEventListener("change", (event) => {
+    view.renderMode = renderModeFor(event.target.value);
+    view.needsRender?.();
+  });
 
   document.querySelectorAll("[data-camera]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -201,6 +214,47 @@ function wirePanel({view, studio, manifest, report, byLayer, streamController}) 
   });
 }
 
+function ensureRenderModeControl() {
+  let select = document.getElementById("renderMode");
+  if (select) {
+    return select;
+  }
+  const section = document.createElement("div");
+  section.className = "section";
+  section.innerHTML = `
+    <label>Render mode
+      <select id="renderMode">
+        <option value="navigation">Navigation</option>
+        <option value="detailed" selected>Detailed</option>
+        <option value="realistic">Realistic</option>
+      </select>
+    </label>`;
+  const colorSection = document.getElementById("colorMode")?.closest(".section");
+  if (colorSection?.parentElement) {
+    colorSection.parentElement.insertBefore(section, colorSection);
+  } else {
+    document.getElementById("panel")?.appendChild(section);
+  }
+  select = document.getElementById("renderMode");
+  if (!select) {
+    throw new Error("Failed to create render mode selector");
+  }
+  return select;
+}
+
+function renderModeFor(name) {
+  return RENDER_MODE_NAMES[name] ?? RENDER_MODE_NAMES.detailed;
+}
+
+function nameForRenderMode(mode) {
+  for (const [name, value] of Object.entries(RENDER_MODE_NAMES)) {
+    if (mode === value) {
+      return name;
+    }
+  }
+  return "detailed";
+}
+
 async function setupVehicleChase({studio, scene, view, config}) {
   const modelUrl = config.modelUrl;
   if (!modelUrl) {
@@ -208,17 +262,18 @@ async function setupVehicleChase({studio, scene, view, config}) {
   }
 
   const modelId = config.modelId || `${MODEL_ID}Vehicle`;
+  const vehicleCoordinateSystem = config.coordinateSystem || {
+    basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
+    origin: [0, 0, 0],
+    units: "meters",
+    scaleToMeters: 1
+  };
   const rootTransformId = "vehicleRoot";
   const contentTransformId = "vehicleContent";
   const sceneModel = must(scene.createModel({
     id: modelId,
     updateHint: "dynamic",
-    coordinateSystem: config.coordinateSystem || {
-      basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
-      origin: [0, 0, 0],
-      units: "meters",
-      scaleToMeters: 1
-    }
+    coordinateSystem: vehicleCoordinateSystem
   }));
 
   const rootTransform = must(sceneModel.createTransform({
@@ -238,6 +293,7 @@ async function setupVehicleChase({studio, scene, view, config}) {
     fileData,
     sceneModel
   });
+  sceneModel.updateHint = "dynamic";
 
   parentVehicleContent(sceneModel, rootTransformId, contentTransformId);
 
@@ -254,12 +310,22 @@ async function setupVehicleChase({studio, scene, view, config}) {
     contentTransform.rotation = config.contentRotation;
   }
 
+  const exhaust = setupVehicleExhaust({
+    scene,
+    modelId,
+    coordinateSystem: vehicleCoordinateSystem,
+    config
+  });
+
   const objectIds = Object.keys(sceneModel.objects);
   if (objectIds.length) {
     view.setObjectsPickable(objectIds, false);
   }
+  if (exhaust?.trailObjectIds?.length) {
+    view.setObjectsPickable(exhaust.trailObjectIds, false);
+  }
 
-  const shipController = createShipFlightController({studio, view, rootTransform, config});
+  const shipController = createVehicleNavigationShipController({studio, view, rootTransform, exhaust, config});
   shipController.update();
 
   window.__proceduralCityVehicle = {
@@ -267,7 +333,12 @@ async function setupVehicleChase({studio, scene, view, config}) {
     modelId,
     view,
     sceneModel,
+    vehicleSceneModel: sceneModel,
+    vehicleUpdateHint: sceneModel.updateHint,
+    exhaustSceneModel: exhaust?.sceneModel || null,
+    exhaustUpdateHint: exhaust?.sceneModel?.updateHint || null,
     rootTransform,
+    exhaust,
     objectIds,
     controller: shipController,
     chaseUpdateMode: shipController.updateMode
@@ -300,7 +371,304 @@ function parentVehicleContent(sceneModel, rootTransformId, contentTransformId) {
   }
 }
 
-function createShipFlightController({studio, view, rootTransform, config}) {
+function setupVehicleExhaust({scene, modelId, coordinateSystem, config}) {
+  const exhaustConfig = typeof config.exhaustPlume === "object" && config.exhaustPlume
+    ? config.exhaustPlume
+    : (config.exhaust || null);
+  if (!exhaustConfig && config.exhaustPlume !== true) {
+    return null;
+  }
+
+  const exhaustModelId = exhaustConfig?.modelId || `${modelId}Exhaust`;
+  const sceneModel = must(scene.createModel({
+    id: exhaustModelId,
+    updateHint: "dynamic",
+    coordinateSystem
+  }));
+  const forwardAxis = config.forwardAxis || "-Z";
+  const offset = Array.isArray(exhaustConfig?.offset)
+    ? toVec3(exhaustConfig.offset)
+    : [0, 0, 0];
+  const radialSegments = Math.max(5, Math.floor(Number(exhaustConfig?.radialSegments ?? 8)));
+  const baseRadius = Number(exhaustConfig?.radius ?? 1.2);
+  const wander = Number(exhaustConfig?.wander ?? 1.4);
+  const trailSegments = Math.max(10, Math.floor(Number(exhaustConfig?.trailSegments ?? 22)));
+  const trailLength = Number(exhaustConfig?.trailLength ?? 36);
+  const trailOpacity = Number(exhaustConfig?.trailOpacity ?? 0.16);
+  const trailExpansion = Number(exhaustConfig?.trailExpansion ?? 1.35);
+  const trailAdvection = clamp(Number(exhaustConfig?.trailAdvection ?? 0.68), 0, 0.98);
+  const trailTether = Math.max(0, Number(exhaustConfig?.trailTether ?? 1.35));
+
+  const trailGeometry = xeokit.model.scene.compressGeometryParams({
+    id: "vehicleExhaustTrailGeometry",
+    primitive: xeokit.base.constants.TrianglesPrimitive,
+    ...createTrailSegmentGeometry(radialSegments)
+  });
+  trailGeometry.edgeIndices = undefined;
+  must(sceneModel.createGeometryCompressed(trailGeometry));
+
+  const trailTransforms = [];
+  const trailObjectIds = [];
+  for (let i = 0; i < trailSegments; i++) {
+    const t = trailSegments <= 1 ? 0 : i / (trailSegments - 1);
+    const materialId = `vehicleExhaustTrailMaterial_${i}`;
+    const transformId = `vehicleExhaustTrailTransform_${i}`;
+    const meshId = `vehicleExhaustTrailMesh_${i}`;
+    const objectId = `vehicleExhaustTrail_${i}`;
+    const warm = Math.max(0, 1 - t * 1.35);
+    const cool = 1 - warm;
+    must(sceneModel.createMaterial({
+      id: materialId,
+      color: [
+        1.0 * warm + 0.50 * cool,
+        0.34 * warm + 0.72 * cool,
+        0.08 * warm + 0.96 * cool
+      ],
+      emissiveColor: [
+        0.64 * warm + 0.04 * cool,
+        0.18 * warm + 0.08 * cool,
+        0.02 * warm + 0.16 * cool
+      ],
+      opacity: Math.max(0.015, trailOpacity * Math.pow(1 - t, 1.25)),
+      alphaMode: "BLEND",
+      roughness: 0.32,
+      metallic: 0
+    }));
+    const transform = must(sceneModel.createTransform({
+      id: transformId,
+      matrix: hiddenExhaustMatrix()
+    }));
+    must(sceneModel.createMesh({
+      id: meshId,
+      geometryId: "vehicleExhaustTrailGeometry",
+      materialId,
+      parentTransformId: transformId
+    }));
+    must(sceneModel.createObject({
+      id: objectId,
+      meshIds: [meshId],
+      clippable: false
+    }));
+    trailTransforms.push(transform);
+    trailObjectIds.push(objectId);
+  }
+
+  return {
+    sceneModel,
+    trailTransforms,
+    trailObjectIds,
+    history: [],
+    distanceSinceEmit: 0,
+    lastEmitter: null,
+    lastEmissionPosition: null,
+    offset,
+    axis: forwardAxis,
+    trailSegments,
+    segmentSpacing: trailLength / trailSegments,
+    trailAdvection,
+    trailTether,
+    radius: baseRadius,
+    trailExpansion,
+    wander,
+    maxForwardSpeed: Number(config.maxForwardSpeed ?? 135),
+    pulsePhase: 0,
+    sampleSerial: 0
+  };
+}
+
+function createTrailSegmentGeometry(radialSegments) {
+  const positions = [];
+  const normals = [];
+  const indices = [];
+  const rings = [
+    {y: 0, radius: 0.88},
+    {y: 1.0, radius: 1.0}
+  ];
+  for (const ring of rings) {
+    for (let j = 0; j < radialSegments; j++) {
+      const angle = (j / radialSegments) * Math.PI * 2;
+      const x = Math.cos(angle);
+      const z = Math.sin(angle);
+      positions.push(x * ring.radius, ring.y, z * ring.radius);
+      normals.push(x, 0, z);
+    }
+  }
+  for (let i = 0; i < rings.length - 1; i++) {
+    const ring = i * radialSegments;
+    const nextRing = (i + 1) * radialSegments;
+    for (let j = 0; j < radialSegments; j++) {
+      const nextJ = (j + 1) % radialSegments;
+      const a = ring + j;
+      const b = ring + nextJ;
+      const c = nextRing + j;
+      const d = nextRing + nextJ;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+  return {
+    positions: new Float32Array(positions),
+    normals: new Float32Array(normals),
+    indices: new Uint32Array(indices)
+  };
+}
+
+function hiddenExhaustMatrix() {
+  return [
+    0.0001, 0, 0, 0,
+    0, 0.0001, 0, 0,
+    0, 0, 0.0001, 0,
+    0, 0, -100000, 1
+  ];
+}
+
+function updateVehicleExhaust(exhaust, config, sdkController, state, dt) {
+  if (!exhaust) {
+    return;
+  }
+  const maxForwardSpeed = Math.max(1, Number(config.maxForwardSpeed ?? exhaust.maxForwardSpeed ?? 135));
+  const speed = Math.max(0, Number(sdkController?.speed ?? config.startSpeed ?? 0));
+  const speedRatio = clamp(speed / maxForwardSpeed, 0, 1);
+  exhaust.pulsePhase += dt * (0.75 + speedRatio * 1.35);
+  updateVehicleExhaustTrail(exhaust, state, speedRatio, dt);
+}
+
+function updateVehicleExhaustTrail(exhaust, state, speedRatio, dt) {
+  if (!exhaust.trailTransforms?.length || !state) {
+    return;
+  }
+
+  const emitter = vehicleLocalPointToWorld(exhaust.offset, state, exhaust.axis);
+  const emitterDelta = exhaust.lastEmitter ? sub3(emitter, exhaust.lastEmitter) : [0, 0, 0];
+  const frameTravel = exhaust.lastEmitter ? length3(emitterDelta) : exhaust.segmentSpacing;
+  exhaust.distanceSinceEmit += frameTravel;
+
+  if (exhaust.history.length === 0) {
+    seedExhaustTrail(exhaust, state, emitter);
+  } else {
+    const carried = mul3(emitterDelta, exhaust.trailAdvection);
+    const tetherT = 1 - Math.exp(-exhaust.trailTether * dt);
+    for (let i = 0; i < exhaust.history.length; i++) {
+      const sample = exhaust.history[i];
+      sample.position = add3(sample.position, carried);
+      const target = add3(emitter, mul3(state.forward, -exhaust.segmentSpacing * (i + 1)));
+      sample.position = lerp3(sample.position, target, tetherT);
+    }
+    let emissionCursor = exhaust.lastEmissionPosition || exhaust.lastEmitter || emitter;
+    let pending = sub3(emitter, emissionCursor);
+    let pendingDistance = length3(pending);
+    let emitted = 0;
+    while (pendingDistance >= exhaust.segmentSpacing && emitted < exhaust.trailSegments) {
+      const direction = mul3(pending, 1 / pendingDistance);
+      emissionCursor = add3(emissionCursor, mul3(direction, exhaust.segmentSpacing));
+      exhaust.history.unshift(createExhaustSample(emissionCursor, state, exhaust.sampleSerial++, direction));
+      pending = sub3(emitter, emissionCursor);
+      pendingDistance = length3(pending);
+      emitted++;
+    }
+    if (emitted > 0) {
+      exhaust.history.length = Math.min(exhaust.history.length, exhaust.trailSegments);
+      exhaust.lastEmissionPosition = emissionCursor;
+      exhaust.distanceSinceEmit = pendingDistance;
+    }
+  }
+  exhaust.lastEmitter = emitter;
+
+  for (const sample of exhaust.history) {
+    sample.age += dt;
+  }
+
+  const samples = [createExhaustSample(emitter, state, exhaust.sampleSerial), ...exhaust.history];
+  while (samples.length <= exhaust.trailSegments) {
+    const lastSample = samples[samples.length - 1] || samples[0];
+    const nextForward = lastSample.forward || state.forward;
+    const nextPosition = add3(lastSample.position, mul3(nextForward, -exhaust.segmentSpacing));
+    samples.push({
+      position: nextPosition,
+      side: lastSample.side,
+      lift: lastSample.lift,
+      forward: nextForward,
+      phase: lastSample.phase + 0.83,
+      age: lastSample.age + 0.08
+    });
+  }
+
+  const displayPoints = samples.map((sample, index) => exhaustSampleDisplayPosition(exhaust, sample, index, speedRatio));
+  const radiusBoost = 0.84 + speedRatio * 0.55;
+  for (let i = 0; i < exhaust.trailTransforms.length; i++) {
+    const start = displayPoints[i];
+    const end = displayPoints[i + 1];
+    const t = exhaust.trailTransforms.length <= 1 ? 0 : i / (exhaust.trailTransforms.length - 1);
+    const radius = exhaust.radius * radiusBoost * (0.34 + Math.pow(t, 0.82) * exhaust.trailExpansion);
+    exhaust.trailTransforms[i].matrix = segmentMatrixBetween(start, end, radius, samples[i]?.lift || state.up, samples[i]?.side || state.right);
+  }
+}
+
+function seedExhaustTrail(exhaust, state, emitter) {
+  exhaust.history.length = 0;
+  for (let i = 1; i <= exhaust.trailSegments; i++) {
+    const position = add3(emitter, mul3(state.forward, -exhaust.segmentSpacing * i));
+    const sample = createExhaustSample(position, state, exhaust.sampleSerial++);
+    sample.age = i * 0.045;
+    exhaust.history.push(sample);
+  }
+  exhaust.distanceSinceEmit = 0;
+  exhaust.lastEmissionPosition = emitter;
+}
+
+function createExhaustSample(position, state, serial, forwardOverride = null) {
+  const basis = forwardOverride
+    ? basisFromForward(forwardOverride, state.up, state.right)
+    : state;
+  return {
+    position,
+    side: basis.right,
+    lift: basis.up,
+    forward: basis.forward,
+    phase: serial * 0.73,
+    age: 0
+  };
+}
+
+function exhaustSampleDisplayPosition(exhaust, sample, index, speedRatio) {
+  const t = exhaust.trailSegments <= 0 ? 0 : index / exhaust.trailSegments;
+  const curl = exhaust.wander * Math.pow(t, 1.15) * (0.035 + speedRatio * 0.13);
+  const phase = sample.phase + sample.age * 0.62 + exhaust.pulsePhase * 0.16;
+  return add3(
+    add3(sample.position, mul3(sample.side, Math.sin(phase + t * 3.8) * curl)),
+    mul3(sample.lift, Math.sin(phase * 1.22 + t * 4.2) * curl * 0.08)
+  );
+}
+
+function vehicleLocalPointToWorld(localPoint, state, forwardAxis) {
+  const axes = vehicleLocalAxes(state.right, state.up, state.forward, forwardAxis);
+  return add3(
+    add3(
+      add3(state.position, mul3(axes.localX, localPoint[0])),
+      mul3(axes.localY, localPoint[1])
+    ),
+    mul3(axes.localZ, localPoint[2])
+  );
+}
+
+function segmentMatrixBetween(start, end, radius, fallbackUp, fallbackRight) {
+  const axis = sub3(end, start);
+  const length = Math.max(0.001, length3(axis));
+  const yAxis = safeNormalize(axis, [0, 1, 0]);
+  let xAxis = cross3(yAxis, fallbackUp);
+  if (length3(xAxis) < 0.0001) {
+    xAxis = cross3(yAxis, fallbackRight);
+  }
+  xAxis = safeNormalize(xAxis, [1, 0, 0]);
+  const zAxis = safeNormalize(cross3(xAxis, yAxis), [0, 0, 1]);
+  return [
+    xAxis[0] * radius, xAxis[1] * radius, xAxis[2] * radius, 0,
+    yAxis[0] * length, yAxis[1] * length, yAxis[2] * length, 0,
+    zAxis[0] * radius, zAxis[1] * radius, zAxis[2] * radius, 0,
+    start[0], start[1], start[2], 1
+  ];
+}
+
+function createVehicleNavigationShipController({studio, view, rootTransform, exhaust, config}) {
   const worldUp = getWorldUp(view);
   const initialEye = toVec3(view.camera.eye);
   const initialLook = toVec3(view.camera.look);
@@ -316,24 +684,76 @@ function createShipFlightController({studio, view, rootTransform, config}) {
     forward: initialBasis.forward,
     right: initialBasis.right,
     up: initialBasis.up,
-    speed: Number(config.startSpeed ?? 34),
-    roll: 0,
     cameraEye: initialEye,
     cameraLook: initialLook,
-    cursorX: 0,
-    cursorActive: false,
     lastTime: performance.now()
   };
-  const keysDown = new Set();
-  const viewElement = view.htmlElement;
+  const vehicleCamera = {
+    eye: initialPosition,
+    look: add3(initialPosition, state.forward),
+    up: worldUp,
+    perspectiveProjection: view.camera.perspectiveProjection
+  };
+  const vehicleView = {
+    id: `${view.id}:vehicle-proxy`,
+    htmlElement: view.htmlElement,
+    camera: vehicleCamera,
+    objects: view.objects,
+    viewer: view.viewer,
+    needsRender: () => view.needsRender?.()
+  };
   const record = studio.viewManager.views?.[view.id];
-  const suspendedViewController = record?.viewController;
-  const suspendedActive = suspendedViewController ? suspendedViewController.active : null;
   if (record?.vehicleNavigationController?.destroy) {
     record.vehicleNavigationController.destroy();
   }
-  if (suspendedViewController) {
-    suspendedViewController.active = false;
+  const VehicleNavigationController = xeokit.viewing?.vehicleNavigation?.VehicleNavigationController;
+  if (!VehicleNavigationController) {
+    throw new Error("VehicleNavigationController is unavailable in the xeokit bundle");
+  }
+
+  const maxForwardSpeed = Number(config.maxForwardSpeed ?? 135);
+  const collisionObjectFilter = (objectId) => !isVehicleObjectId(objectId, config.modelId);
+  const sdkController = new VehicleNavigationController(vehicleView, {
+    active: true,
+    keyboardEnabledOnlyOnMouseover: false,
+    suspendViewController: record?.viewController,
+    collision: config.collision ?? true,
+    gravity: config.gravity ?? false,
+    cameraHeight: 0.01,
+    bodyRadius: Number(config.bodyRadius ?? 0.45),
+    maxForwardSpeed,
+    maxReverseSpeed: Number(config.maxReverseSpeed ?? 10),
+    acceleration: Number(config.acceleration ?? 46),
+    brakeDeceleration: Number(config.brakeDeceleration ?? 42),
+    coastDeceleration: Number(config.coastDeceleration ?? 2.8),
+    turnRateDegreesPerSecond: Number(config.shipYawRateDegreesPerSecond ?? config.turnRateDegreesPerSecond ?? 82),
+    keySteerInitialScale: Number(config.shipKeyYawInitialScale ?? config.keySteerInitialScale ?? 0.28),
+    keySteerRampSeconds: Number(config.shipKeyYawRampSeconds ?? config.keySteerRampSeconds ?? 1.45),
+    leanDegrees: Number(config.maxVisualRollDegrees ?? config.leanDegrees ?? 58),
+    leanSmoothing: Number(config.rollSmoothing ?? config.leanSmoothing ?? 10),
+    maxPitchDegrees: maxAbsolutePitchDegrees(config),
+    maxFlightPitchDegrees: maxAbsolutePitchDegrees(config),
+    flightTakeoffHeight: Number(config.flightTakeoffHeight ?? 0),
+    flightTakeoffSpeed: Number(config.flightTakeoffSpeed ?? 12),
+    flightLandingFallSpeed: Number(config.flightLandingFallSpeed ?? 12),
+    flightAcceleration: Number(config.flightAcceleration ?? config.acceleration ?? 46),
+    flightBrakeDeceleration: Number(config.flightBrakeDeceleration ?? config.brakeDeceleration ?? 42),
+    flightMinGlideSpeed: Number(config.flightMinGlideSpeed ?? config.minForwardSpeed ?? 18),
+    flightAirDrag: Number(config.flightAirDrag ?? (Number(config.coastDeceleration ?? 2.8) / Math.max(maxForwardSpeed, 1))),
+    flightGravity: Number(config.flightGravity ?? 0),
+    flightSoftLandingRange: Number(config.flightSoftLandingRange ?? 0.75),
+    flightPitchRateDegreesPerSecond: Number(config.shipPitchRateDegreesPerSecond ?? config.flightPitchRateDegreesPerSecond ?? 54),
+    flightSteeringResponse: Number(config.flightSteeringResponse ?? 4.6),
+    mouseDragYawSensitivity: Number(config.shipMouseDragYawSensitivity ?? config.mouseDragYawSensitivity ?? config.shipMouseDragSensitivity ?? 0.0028),
+    mouseDragPitchSensitivity: Number(config.shipMouseDragPitchSensitivity ?? config.mouseDragPitchSensitivity ?? config.shipMouseDragSensitivity ?? 0.0028),
+    mouseDragResponse: Number(config.shipMouseDragResponse ?? config.mouseDragResponse ?? 7.5),
+    maxMouseDragInputPerFrame: Number(config.maxShipMouseDragInputPerFrame ?? config.maxMouseDragInputPerFrame ?? 0.65),
+    obstacleFilter: collisionObjectFilter,
+    driveSurfaceFilter: collisionObjectFilter
+  });
+  sdkController.speed = clamp(Number(config.startSpeed ?? 34), 0, maxForwardSpeed);
+  if (config.startFlying !== false) {
+    sdkController.flying = true;
   }
 
   let animationFrame = 0;
@@ -341,14 +761,15 @@ function createShipFlightController({studio, view, rootTransform, config}) {
   let destroyed = false;
   const update = () => {
     if (!destroyed) {
-      updateShipFlight(view, rootTransform, config, state, keysDown);
+      const dt = updateShipFromVehicleNavigation(view, rootTransform, config, state, vehicleCamera);
+      updateVehicleExhaust(exhaust, config, sdkController, state, dt);
     }
   };
   const SDKTask = xeokit.base?.core?.SDKTask;
   if (SDKTask) {
     task = new SDKTask({
-      name: "ProceduralCityShipFlight",
-      stage: SDKTask.CollectInputStage,
+      name: "ProceduralCityVehicleChase",
+      stage: SDKTask.AnimateStage,
       repeat: true,
       task: update
     });
@@ -360,47 +781,11 @@ function createShipFlightController({studio, view, rootTransform, config}) {
     updateWithRAF();
   }
 
-  const onKeyDown = (event) => {
-    if (!shouldHandleShipKey(event)) {
-      return;
-    }
-    keysDown.add(event.code);
-    event.preventDefault();
-  };
-  const onKeyUp = (event) => {
-    if (!SHIP_CONTROL_KEYS.has(event.code)) {
-      return;
-    }
-    keysDown.delete(event.code);
-    event.preventDefault();
-  };
-  const onPointerMove = (event) => {
-    if (!viewElement) {
-      return;
-    }
-    const rect = viewElement.getBoundingClientRect();
-    const width = Math.max(rect.width || 1, 1);
-    state.cursorX = clamp(((event.clientX - rect.left) / width - 0.5) * 2, -1, 1);
-    state.cursorActive = true;
-  };
-  const onMouseLeave = () => {
-    state.cursorActive = false;
-  };
-  const onBlur = () => {
-    keysDown.clear();
-    state.cursorActive = false;
-  };
-
-  document.addEventListener("keydown", onKeyDown, {capture: true});
-  document.addEventListener("keyup", onKeyUp, {capture: true});
-  viewElement?.addEventListener("pointermove", onPointerMove);
-  viewElement?.addEventListener("mouseleave", onMouseLeave);
-  window.addEventListener("blur", onBlur);
-
   const controller = {
-    type: "ship-flight",
+    type: "vehicle-navigation-ship",
     state,
-    keysDown,
+    sdkController,
+    vehicleView,
     updateMode: task ? "sdk-task" : "raf",
     update,
     destroy: () => {
@@ -413,121 +798,79 @@ function createShipFlightController({studio, view, rootTransform, config}) {
         animationFrame = 0;
       }
       task?.destroy();
-      document.removeEventListener("keydown", onKeyDown, {capture: true});
-      document.removeEventListener("keyup", onKeyUp, {capture: true});
-      viewElement?.removeEventListener("pointermove", onPointerMove);
-      viewElement?.removeEventListener("mouseleave", onMouseLeave);
-      window.removeEventListener("blur", onBlur);
-      if (suspendedViewController && suspendedActive !== null) {
-        suspendedViewController.active = suspendedActive;
-      }
-      if (record?.vehicleNavigationController === controller) {
+      sdkController.destroy();
+      if (record?.vehicleNavigationController === sdkController) {
         record.vehicleNavigationController = undefined;
       }
     }
   };
   if (record) {
-    record.vehicleNavigationController = controller;
+    record.vehicleNavigationController = sdkController;
   }
   return controller;
 }
 
-const SHIP_CONTROL_KEYS = new Set([
-  "KeyW",
-  "KeyA",
-  "KeyS",
-  "KeyD",
-  "ArrowLeft",
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowDown",
-  "Space"
-]);
-
-function shouldHandleShipKey(event) {
-  if (!SHIP_CONTROL_KEYS.has(event.code)) {
+function isVehicleObjectId(objectId, modelId) {
+  if (!objectId || !modelId) {
     return false;
   }
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) {
-    return true;
-  }
-  const tagName = target.tagName.toLowerCase();
-  return tagName !== "input" && tagName !== "textarea" && tagName !== "select" && !target.isContentEditable;
+  const id = String(objectId);
+  const model = String(modelId);
+  return id === model ||
+    id.startsWith(`${model}__`) ||
+    id.startsWith(`${model}/`) ||
+    id.startsWith("vehicleExhaust") ||
+    id.includes("__vehicleExhaust") ||
+    id.includes(".vehicleExhaust");
 }
 
-function updateShipFlight(view, rootTransform, config, state, keysDown) {
+function updateShipFromVehicleNavigation(view, rootTransform, config, state, vehicleCamera) {
   const now = performance.now();
   const dt = Math.max(0.001, Math.min(0.1, (now - state.lastTime) / 1000));
   state.lastTime = now;
   const worldUp = getWorldUp(view);
-  const yawInput = getShipYawInput(state, keysDown, config);
-  const pitchInput = (keysDown.has("ArrowUp") ? 1 : 0) - (keysDown.has("ArrowDown") ? 1 : 0);
-  const yawRate = degreesToRadians(config.shipYawRateDegreesPerSecond ?? 82);
-  const pitchRate = degreesToRadians(config.shipPitchRateDegreesPerSecond ?? 54);
-  const maxPitch = degreesToRadians(config.maxShipPitchDegrees ?? 54);
-  const minPitch = degreesToRadians(config.minShipPitchDegrees ?? -42);
 
-  if (yawInput !== 0) {
-    state.forward = rotateAroundAxis3(state.forward, worldUp, -yawInput * yawRate * dt);
-  }
-  state.right = basisFromForward(state.forward, worldUp, state.right).right;
-  if (pitchInput !== 0) {
-    state.forward = rotateAroundAxis3(state.forward, state.right, pitchInput * pitchRate * dt);
-    state.forward = clampForwardPitch(state.forward, worldUp, minPitch, maxPitch);
-  }
-  const basis = basisFromForward(state.forward, worldUp, state.right);
-  state.forward = basis.forward;
-  state.right = basis.right;
-  state.up = basis.up;
-
-  const minSpeed = Number(config.minForwardSpeed ?? config.flightMinGlideSpeed ?? 18);
-  const maxSpeed = Number(config.maxForwardSpeed ?? 135);
-  const acceleration = Number(config.acceleration ?? 46);
-  const brakeDeceleration = Number(config.brakeDeceleration ?? 42);
-  const coastDeceleration = Number(config.coastDeceleration ?? 2.8);
-  if (keysDown.has("KeyW")) {
-    state.speed += acceleration * dt;
-  } else if (keysDown.has("KeyS")) {
-    state.speed -= brakeDeceleration * dt;
-  } else {
-    state.speed -= coastDeceleration * dt;
-  }
-  state.speed = clamp(state.speed, minSpeed, maxSpeed);
-  state.position = add3(state.position, mul3(state.forward, state.speed * dt));
-  const minAltitude = Number(config.minAltitude);
-  if (Number.isFinite(minAltitude) && state.position[2] < minAltitude) {
-    state.position[2] = minAltitude;
-    state.forward = clampForwardPitch(state.forward, worldUp, 0, maxPitch);
+  let position = toVec3(vehicleCamera.eye);
+  let forward = safeNormalize(sub3(toVec3(vehicleCamera.look), position), state.forward);
+  const minAltitude = Number(config.minAltitude ?? 0);
+  if (Number.isFinite(minAltitude)) {
+    const altitude = dot3(position, worldUp);
+    if (altitude < minAltitude) {
+      position = add3(position, mul3(worldUp, minAltitude - altitude));
+      if (dot3(forward, worldUp) < 0) {
+        forward = flatDirection3(forward, worldUp);
+      }
+      vehicleCamera.eye = position;
+      vehicleCamera.look = add3(position, forward);
+    }
   }
 
-  const targetRoll = clamp(yawInput * degreesToRadians(config.maxVisualRollDegrees ?? 58), -degreesToRadians(config.maxVisualRollDegrees ?? 58), degreesToRadians(config.maxVisualRollDegrees ?? 58));
-  const rollSmoothing = Math.max(0, Number(config.rollSmoothing ?? 10));
-  const rollT = rollSmoothing === 0 ? 1 : 1 - Math.exp(-rollSmoothing * dt);
-  state.roll += (targetRoll - state.roll) * rollT;
-  const bankedRight = rotateAroundAxis3(state.right, state.forward, state.roll);
-  const bankedUp = rotateAroundAxis3(state.up, state.forward, state.roll);
+  const cameraUp = safeNormalize(toVec3(vehicleCamera.up), worldUp);
+  const right = safeNormalize(cross3(forward, cameraUp), state.right);
+  const shipUp = safeNormalize(cross3(right, forward), cameraUp);
+  state.position = position;
+  state.forward = forward;
+  state.right = right;
+  state.up = shipUp;
+
   rootTransform.matrix = buildVehicleMatrix({
     position: state.position,
-    right: bankedRight,
-    up: bankedUp,
+    right,
+    up: shipUp,
     forward: state.forward,
     forwardAxis: config.forwardAxis || "-Z"
   });
 
   updateTrailingCamera(view, config, state, worldUp, dt);
   view.needsRender?.();
+  return dt;
 }
 
-function getShipYawInput(state, keysDown, config) {
-  const keyInput = (keysDown.has("KeyD") || keysDown.has("ArrowRight") ? 1 : 0) -
-    (keysDown.has("KeyA") || keysDown.has("ArrowLeft") ? 1 : 0);
-  if (!state.cursorActive) {
-    return clamp(keyInput, -1, 1);
-  }
-  const deadZone = Number(config.cursorTurnDeadZone ?? 0.08);
-  const cursor = Math.abs(state.cursorX) <= deadZone ? 0 : Math.sign(state.cursorX) * (Math.abs(state.cursorX) - deadZone) / (1 - deadZone);
-  return clamp(keyInput + cursor * Number(config.cursorTurnResponse ?? 0.7), -1, 1);
+function maxAbsolutePitchDegrees(config) {
+  return Math.max(
+    Math.abs(Number(config.minShipPitchDegrees ?? -42)),
+    Math.abs(Number(config.maxShipPitchDegrees ?? 54))
+  );
 }
 
 function updateTrailingCamera(view, config, state, worldUp, dt) {
@@ -536,13 +879,32 @@ function updateTrailingCamera(view, config, state, worldUp, dt) {
   const lateralOffset = Number(config.cameraLateralOffset ?? 0);
   const lookAhead = Number(config.cameraLookAhead ?? 28);
   const lookHeight = Number(config.cameraLookHeight ?? 4);
-  const desiredEye = add3(
+  let desiredEye = add3(
     add3(
       add3(state.position, mul3(state.forward, -distance)),
       mul3(worldUp, height)
     ),
     mul3(state.right, lateralOffset)
   );
+  const cameraTrailFollow = clamp(Number(config.cameraTrailFollow ?? 0), 0, 1);
+  if (cameraTrailFollow > 0) {
+    const exhaustConfig = typeof config.exhaustPlume === "object" && config.exhaustPlume
+      ? config.exhaustPlume
+      : (config.exhaust || null);
+    const exhaustOffset = Array.isArray(exhaustConfig?.offset)
+      ? toVec3(exhaustConfig.offset)
+      : [0, 0, 0];
+    const trailHeight = Number(config.cameraTrailHeight ?? Math.max(0, height * 0.25));
+    const exhaustPoint = vehicleLocalPointToWorld(exhaustOffset, state, config.forwardAxis || "-Z");
+    const trailEye = add3(
+      add3(
+        add3(exhaustPoint, mul3(state.forward, -distance)),
+        mul3(state.up, trailHeight)
+      ),
+      mul3(state.right, lateralOffset)
+    );
+    desiredEye = lerp3(desiredEye, trailEye, cameraTrailFollow);
+  }
   const desiredLook = add3(
     add3(state.position, mul3(state.forward, lookAhead)),
     mul3(worldUp, lookHeight)
@@ -568,17 +930,17 @@ function basisFromForward(forward, worldUp, fallbackRight = [1, 0, 0]) {
   };
 }
 
-function clampForwardPitch(forward, worldUp, minPitch, maxPitch) {
-  const pitch = Math.asin(clamp(dot3(normalize(forward), worldUp), -1, 1));
-  const clampedPitch = clamp(pitch, minPitch, maxPitch);
-  if (Math.abs(clampedPitch - pitch) < 0.0001) {
-    return normalize(forward);
-  }
-  const flatForward = flatDirection3(forward, worldUp);
-  return normalize(add3(mul3(flatForward, Math.cos(clampedPitch)), mul3(worldUp, Math.sin(clampedPitch))));
+function buildVehicleMatrix({position, right, up, forward, forwardAxis}) {
+  const {localX, localY, localZ} = vehicleLocalAxes(right, up, forward, forwardAxis);
+  return [
+    localX[0], localX[1], localX[2], 0,
+    localY[0], localY[1], localY[2], 0,
+    localZ[0], localZ[1], localZ[2], 0,
+    position[0], position[1], position[2], 1
+  ];
 }
 
-function buildVehicleMatrix({position, right, up, forward, forwardAxis}) {
+function vehicleLocalAxes(right, up, forward, forwardAxis) {
   let localX = right;
   let localY = up;
   let localZ = mul3(forward, -1);
@@ -598,12 +960,7 @@ function buildVehicleMatrix({position, right, up, forward, forwardAxis}) {
     localY = mul3(forward, -1);
     localZ = mul3(up, -1);
   }
-  return [
-    localX[0], localX[1], localX[2], 0,
-    localY[0], localY[1], localY[2], 0,
-    localZ[0], localZ[1], localZ[2], 0,
-    position[0], position[1], position[2], 1
-  ];
+  return {localX, localY, localZ};
 }
 
 function setupWindSound(view, enabled) {
@@ -631,6 +988,12 @@ function setupWindSound(view, enabled) {
   let lowWindFilter = null;
   let highWindFilter = null;
   let gustFilter = null;
+  let turbineOsc = null;
+  let compressorOsc = null;
+  let turbineGain = null;
+  let compressorGain = null;
+  let turbineFilter = null;
+  let compressorFilter = null;
   let running = false;
   let animationFrame = 0;
   let lastTime = performance.now();
@@ -705,25 +1068,43 @@ function setupWindSound(view, enabled) {
     lowWindFilter = context.createBiquadFilter();
     highWindFilter = context.createBiquadFilter();
     gustFilter = context.createBiquadFilter();
+    turbineOsc = context.createOscillator();
+    compressorOsc = context.createOscillator();
+    turbineGain = context.createGain();
+    compressorGain = context.createGain();
+    turbineFilter = context.createBiquadFilter();
+    compressorFilter = context.createBiquadFilter();
 
     masterGain.gain.value = 0;
     lowWindGain.gain.value = 0.0001;
     highWindGain.gain.value = 0.0001;
     gustGain.gain.value = 0.0001;
-    compressor.threshold.value = -20;
-    compressor.knee.value = 18;
-    compressor.ratio.value = 3;
-    compressor.attack.value = 0.018;
-    compressor.release.value = 0.28;
+    turbineGain.gain.value = 0.0001;
+    compressorGain.gain.value = 0.0001;
+    compressor.threshold.value = -18;
+    compressor.knee.value = 20;
+    compressor.ratio.value = 5;
+    compressor.attack.value = 0.012;
+    compressor.release.value = 0.22;
     lowWindFilter.type = "lowpass";
-    lowWindFilter.frequency.value = 420;
-    lowWindFilter.Q.value = 0.45;
+    lowWindFilter.frequency.value = 240;
+    lowWindFilter.Q.value = 0.9;
     highWindFilter.type = "bandpass";
-    highWindFilter.frequency.value = 1250;
-    highWindFilter.Q.value = 0.7;
+    highWindFilter.frequency.value = 2100;
+    highWindFilter.Q.value = 1.4;
     gustFilter.type = "bandpass";
-    gustFilter.frequency.value = 260;
-    gustFilter.Q.value = 0.8;
+    gustFilter.frequency.value = 95;
+    gustFilter.Q.value = 1.15;
+    turbineOsc.type = "triangle";
+    turbineOsc.frequency.value = 32;
+    turbineFilter.type = "lowpass";
+    turbineFilter.frequency.value = 135;
+    turbineFilter.Q.value = 1.1;
+    compressorOsc.type = "sine";
+    compressorOsc.frequency.value = 520;
+    compressorFilter.type = "bandpass";
+    compressorFilter.frequency.value = 980;
+    compressorFilter.Q.value = 5.5;
 
     noiseSource.buffer = createNoiseBuffer(context);
     noiseSource.loop = true;
@@ -736,10 +1117,18 @@ function setupWindSound(view, enabled) {
     lowWindGain.connect(masterGain);
     highWindGain.connect(masterGain);
     gustGain.connect(masterGain);
+    turbineOsc.connect(turbineFilter);
+    turbineFilter.connect(turbineGain);
+    turbineGain.connect(masterGain);
+    compressorOsc.connect(compressorFilter);
+    compressorFilter.connect(compressorGain);
+    compressorGain.connect(masterGain);
     masterGain.connect(compressor);
     compressor.connect(context.destination);
 
     noiseSource.start();
+    turbineOsc.start();
+    compressorOsc.start();
   }
 
   function updateSound(now) {
@@ -749,29 +1138,37 @@ function setupWindSound(view, enabled) {
     const eye = getCameraEye(view);
     const dt = Math.max(0.016, Math.min(0.25, (now - lastTime) / 1000));
     const cameraSpeed = distance3(eye, lastEye) / dt;
-    smoothedSpeed += (cameraSpeed - smoothedSpeed) * 0.18;
-    const speedNorm = clamp(smoothedSpeed / 95, 0, 1);
-    const keyWind = [...activeKeys].some((code) => movementKeys.has(code)) ? 0.18 : 0;
-    const targetIntensity = clamp(0.14 + speedNorm * 0.86 + keyWind, 0, 1);
-    windIntensity += (targetIntensity - windIntensity) * 0.09;
+    const vehicleSpeed = Number(window.__proceduralCityVehicle?.controller?.sdkController?.speed || 0);
+    const throttle = activeKeys.has("KeyW") ? 1 : 0;
+    smoothedSpeed += (Math.max(cameraSpeed, vehicleSpeed) - smoothedSpeed) * 0.18;
+    const speedNorm = clamp(smoothedSpeed / 150, 0, 1);
+    const keyWind = [...activeKeys].some((code) => movementKeys.has(code)) ? 0.1 : 0;
+    const targetIntensity = clamp(0.2 + speedNorm * 0.62 + throttle * 0.25 + keyWind, 0, 1);
+    windIntensity += (targetIntensity - windIntensity) * 0.075;
     const idle = isEnabled() ? 1 : 0;
     const nowSeconds = context.currentTime;
-    const gust = clamp(
-      0.62 +
-      Math.sin(nowSeconds * 0.38) * 0.22 +
-      Math.sin(nowSeconds * 0.91 + 1.7) * 0.12 +
-      Math.sin(nowSeconds * 2.14 + 0.4) * 0.045,
-      0.18,
-      1
+    const turbinePulse = clamp(
+      0.9 +
+      Math.sin(nowSeconds * 17.5) * 0.035 +
+      Math.sin(nowSeconds * 29.0 + 1.3) * 0.018,
+      0.82,
+      1.06
     );
-    const gustPressure = Math.max(0, gust - 0.46);
-    lowWindFilter.frequency.setTargetAtTime(260 + windIntensity * 560 + gustPressure * 240, nowSeconds, 0.18);
-    highWindFilter.frequency.setTargetAtTime(850 + windIntensity * 2500 + gustPressure * 420, nowSeconds, 0.16);
-    gustFilter.frequency.setTargetAtTime(120 + gustPressure * 680 + windIntensity * 240, nowSeconds, 0.2);
-    lowWindGain.gain.setTargetAtTime((0.018 + windIntensity * 0.07) * gust * idle + 0.0001, nowSeconds, 0.16);
-    highWindGain.gain.setTargetAtTime((0.002 + Math.pow(windIntensity, 1.45) * 0.058) * gust * idle + 0.0001, nowSeconds, 0.12);
-    gustGain.gain.setTargetAtTime((0.008 + windIntensity * 0.044) * gustPressure * idle + 0.0001, nowSeconds, 0.22);
-    masterGain.gain.setTargetAtTime((0.34 + windIntensity * 0.26) * idle, nowSeconds, 0.12);
+    const spool = windIntensity * turbinePulse;
+    const compressorPitch = 360 + spool * 760 + throttle * 90;
+    lowWindFilter.frequency.setTargetAtTime(130 + spool * 430, nowSeconds, 0.09);
+    highWindFilter.frequency.setTargetAtTime(1150 + spool * 2100, nowSeconds, 0.08);
+    gustFilter.frequency.setTargetAtTime(48 + spool * 150, nowSeconds, 0.12);
+    turbineOsc.frequency.setTargetAtTime(28 + spool * 42 + throttle * 6, nowSeconds, 0.08);
+    turbineFilter.frequency.setTargetAtTime(95 + spool * 280, nowSeconds, 0.1);
+    compressorOsc.frequency.setTargetAtTime(compressorPitch, nowSeconds, 0.06);
+    compressorFilter.frequency.setTargetAtTime(compressorPitch * 1.85, nowSeconds, 0.07);
+    lowWindGain.gain.setTargetAtTime((0.038 + Math.pow(spool, 1.04) * 0.16) * idle + 0.0001, nowSeconds, 0.08);
+    highWindGain.gain.setTargetAtTime((0.0015 + Math.pow(spool, 1.9) * 0.027) * idle + 0.0001, nowSeconds, 0.07);
+    gustGain.gain.setTargetAtTime((0.02 + spool * 0.095) * idle + 0.0001, nowSeconds, 0.12);
+    turbineGain.gain.setTargetAtTime((0.018 + spool * 0.085) * idle + 0.0001, nowSeconds, 0.08);
+    compressorGain.gain.setTargetAtTime((0.0006 + Math.pow(spool, 2.25) * 0.007) * idle + 0.0001, nowSeconds, 0.06);
+    masterGain.gain.setTargetAtTime((0.3 + spool * 0.28) * idle, nowSeconds, 0.08);
 
     lastTime = now;
     lastEye = eye;
@@ -871,33 +1268,9 @@ function lerp3(a, b, t) {
   ];
 }
 
-function blendDirection3(a, b, t) {
-  return safeNormalize(lerp3(a, b, clamp(t, 0, 1)), b);
-}
-
 function flatDirection3(direction, worldUp) {
   const flat = sub3(direction, mul3(worldUp, dot3(direction, worldUp)));
   return safeNormalize(flat, [1, 0, 0]);
-}
-
-function signedAngleAroundAxis(from, to, axis) {
-  const cross = cross3(from, to);
-  return Math.atan2(dot3(cross, axis), clamp(dot3(from, to), -1, 1));
-}
-
-function rotateAroundAxis3(v, axis, radians) {
-  const normalizedAxis = normalize(axis);
-  const cos = Math.cos(radians);
-  const sin = Math.sin(radians);
-  const axisDot = dot3(normalizedAxis, v);
-  return add3(
-    add3(mul3(v, cos), mul3(cross3(normalizedAxis, v), sin)),
-    mul3(normalizedAxis, axisDot * (1 - cos))
-  );
-}
-
-function degreesToRadians(degrees) {
-  return degrees * Math.PI / 180;
 }
 
 function getWorldUp(view) {

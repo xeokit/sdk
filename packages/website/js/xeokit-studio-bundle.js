@@ -198427,7 +198427,7 @@ void main(void) {
     float range = max(uEndDistance - uStartDistance, 1e-4);
     float distanceAmount = smoothstep(0.0, 1.0, clamp((viewDepth - uStartDistance) / range, 0.0, 1.0));
     float haze = min(uMaxOpacity, distanceAmount * uIntensity);
-    vec3 airlight = max(uFogColor, vec3(0.92, 0.96, 1.0));
+    vec3 airlight = clamp(uFogColor, vec3(0.0), vec3(1.0));
     vec3 fogged = mix(color.rgb, airlight, haze);
 
     float sourceLuma = dot(color.rgb, LUMA);
@@ -208739,8 +208739,8 @@ var DEFAULT_ACCELERATION = 9;
 var DEFAULT_BRAKE_DECELERATION = 18;
 var DEFAULT_COAST_DECELERATION = 5;
 var DEFAULT_TURN_RATE_DEGREES_PER_SECOND = 95;
-var DEFAULT_CURSOR_TURN_DEAD_ZONE = 0.05;
-var DEFAULT_CURSOR_TURN_RESPONSE = 1.15;
+var DEFAULT_KEY_STEER_INITIAL_SCALE = 0.28;
+var DEFAULT_KEY_STEER_RAMP_SECONDS = 1.45;
 var DEFAULT_LEAN_DEGREES = 18;
 var DEFAULT_LEAN_SMOOTHING = 8;
 var DEFAULT_MAX_PITCH_DEGREES2 = 18;
@@ -208754,6 +208754,12 @@ var DEFAULT_FLIGHT_MIN_GLIDE_SPEED = 5;
 var DEFAULT_FLIGHT_AIR_DRAG = 0.45;
 var DEFAULT_FLIGHT_GRAVITY = 3.2;
 var DEFAULT_FLIGHT_SOFT_LANDING_RANGE = 0.75;
+var DEFAULT_FLIGHT_PITCH_RATE_DEGREES_PER_SECOND = 58;
+var DEFAULT_FLIGHT_STEERING_RESPONSE = 2.8;
+var DEFAULT_MOUSE_DRAG_YAW_SENSITIVITY = 34e-4;
+var DEFAULT_MOUSE_DRAG_PITCH_SENSITIVITY = 21e-4;
+var DEFAULT_MOUSE_DRAG_RESPONSE = 5.2;
+var DEFAULT_MAX_MOUSE_DRAG_INPUT_PER_FRAME = 0.45;
 var DEFAULT_STEP_HEIGHT2 = 0.45;
 var DEFAULT_MAX_FALL2 = 1.2;
 var DEFAULT_FALL_ACCELERATION2 = 9.8;
@@ -208762,14 +208768,18 @@ var DEFAULT_MAX_SLOPE_DEGREES2 = 55;
 var MIN_LOOK_DISTANCE2 = 0.01;
 var MAX_FRAME_SECONDS2 = 0.1;
 var DOWN_RAY_CLEARANCE2 = 0.05;
-var THROTTLE_KEYS = /* @__PURE__ */ new Set(["KeyW", "w", "W", "ArrowUp"]);
-var BRAKE_KEYS = /* @__PURE__ */ new Set(["KeyS", "s", "S", "ArrowDown"]);
+var FORWARD_KEYS2 = /* @__PURE__ */ new Set(["KeyW", "w", "W"]);
+var BACKWARD_KEYS2 = /* @__PURE__ */ new Set(["KeyS", "s", "S"]);
+var GROUND_THROTTLE_KEYS = /* @__PURE__ */ new Set([...FORWARD_KEYS2, "ArrowUp"]);
+var GROUND_BRAKE_KEYS = /* @__PURE__ */ new Set([...BACKWARD_KEYS2, "ArrowDown"]);
+var PITCH_UP_KEYS = /* @__PURE__ */ new Set(["ArrowUp"]);
+var PITCH_DOWN_KEYS = /* @__PURE__ */ new Set(["ArrowDown"]);
 var LEFT_KEYS2 = /* @__PURE__ */ new Set(["KeyA", "a", "A", "ArrowLeft"]);
 var RIGHT_KEYS2 = /* @__PURE__ */ new Set(["KeyD", "d", "D", "ArrowRight"]);
 var FLIGHT_TOGGLE_KEYS = /* @__PURE__ */ new Set(["Space", " "]);
 var HANDLED_KEYS2 = /* @__PURE__ */ new Set([
-  ...THROTTLE_KEYS,
-  ...BRAKE_KEYS,
+  ...GROUND_THROTTLE_KEYS,
+  ...GROUND_BRAKE_KEYS,
   ...LEFT_KEYS2,
   ...RIGHT_KEYS2,
   ...FLIGHT_TOGGLE_KEYS
@@ -208787,10 +208797,9 @@ var VehicleNavigationController = class {
   #destroyed = false;
   #keysDown = /* @__PURE__ */ new Set();
   #mouseOver = false;
-  #cursorActive = false;
-  #cursorX = 0;
-  #cursorY = 0;
   #pointerId = null;
+  #pointerLastX = 0;
+  #pointerLastY = 0;
   #lastTime = performance.now();
   #task;
   #viewElement;
@@ -208805,8 +208814,10 @@ var VehicleNavigationController = class {
   #brakeDeceleration;
   #coastDeceleration;
   #turnRateRadiansPerSecond;
-  #cursorTurnDeadZone;
-  #cursorTurnResponse;
+  #keySteerInitialScale;
+  #keySteerRampSeconds;
+  #keySteerHoldSeconds = 0;
+  #keySteerDirection = 0;
   #leanRadians;
   #leanSmoothing;
   #currentLean = 0;
@@ -208821,6 +208832,16 @@ var VehicleNavigationController = class {
   #flightAirDrag;
   #flightGravity;
   #flightSoftLandingRange;
+  #flightPitchRateRadiansPerSecond;
+  #flightSteeringResponse;
+  #mouseDragYawSensitivity;
+  #mouseDragPitchSensitivity;
+  #mouseDragResponse;
+  #maxMouseDragInputPerFrame;
+  #relativeYawInput = 0;
+  #relativePitchInput = 0;
+  #mouseDragYawInput = 0;
+  #mouseDragPitchInput = 0;
   #flightVelocity = [0, 0, 0];
   #flying = false;
   #landingAfterFlight = false;
@@ -208850,8 +208871,8 @@ var VehicleNavigationController = class {
     this.#brakeDeceleration = Math.max(0, params.brakeDeceleration ?? DEFAULT_BRAKE_DECELERATION);
     this.#coastDeceleration = Math.max(0, params.coastDeceleration ?? DEFAULT_COAST_DECELERATION);
     this.#turnRateRadiansPerSecond = degreesToRadians2(params.turnRateDegreesPerSecond ?? DEFAULT_TURN_RATE_DEGREES_PER_SECOND);
-    this.#cursorTurnDeadZone = clamp3(params.cursorTurnDeadZone ?? DEFAULT_CURSOR_TURN_DEAD_ZONE, 0, 0.95);
-    this.#cursorTurnResponse = Math.max(0.01, params.cursorTurnResponse ?? DEFAULT_CURSOR_TURN_RESPONSE);
+    this.#keySteerInitialScale = clamp3(params.keySteerInitialScale ?? DEFAULT_KEY_STEER_INITIAL_SCALE, 0, 1);
+    this.#keySteerRampSeconds = Math.max(1e-3, params.keySteerRampSeconds ?? DEFAULT_KEY_STEER_RAMP_SECONDS);
     this.#leanRadians = degreesToRadians2(params.leanDegrees ?? DEFAULT_LEAN_DEGREES);
     this.#leanSmoothing = Math.max(0, params.leanSmoothing ?? DEFAULT_LEAN_SMOOTHING);
     this.#maxPitchRadians = degreesToRadians2(params.maxPitchDegrees ?? DEFAULT_MAX_PITCH_DEGREES2);
@@ -208865,6 +208886,12 @@ var VehicleNavigationController = class {
     this.#flightAirDrag = Math.max(0, params.flightAirDrag ?? DEFAULT_FLIGHT_AIR_DRAG);
     this.#flightGravity = Math.max(0, params.flightGravity ?? DEFAULT_FLIGHT_GRAVITY);
     this.#flightSoftLandingRange = Math.max(0, params.flightSoftLandingRange ?? DEFAULT_FLIGHT_SOFT_LANDING_RANGE);
+    this.#flightPitchRateRadiansPerSecond = degreesToRadians2(params.flightPitchRateDegreesPerSecond ?? DEFAULT_FLIGHT_PITCH_RATE_DEGREES_PER_SECOND);
+    this.#flightSteeringResponse = Math.max(0, params.flightSteeringResponse ?? DEFAULT_FLIGHT_STEERING_RESPONSE);
+    this.#mouseDragYawSensitivity = Math.max(0, params.mouseDragYawSensitivity ?? params.relativeMouseSensitivity ?? DEFAULT_MOUSE_DRAG_YAW_SENSITIVITY);
+    this.#mouseDragPitchSensitivity = Math.max(0, params.mouseDragPitchSensitivity ?? params.relativeMouseSensitivity ?? DEFAULT_MOUSE_DRAG_PITCH_SENSITIVITY);
+    this.#mouseDragResponse = Math.max(0, params.mouseDragResponse ?? DEFAULT_MOUSE_DRAG_RESPONSE);
+    this.#maxMouseDragInputPerFrame = Math.max(0, params.maxMouseDragInputPerFrame ?? DEFAULT_MAX_MOUSE_DRAG_INPUT_PER_FRAME);
     this.#stepHeight = Math.max(0, params.stepHeight ?? DEFAULT_STEP_HEIGHT2);
     this.#maxFall = Math.max(0, params.maxFall ?? DEFAULT_MAX_FALL2);
     this.#fallAcceleration = Math.max(0, params.fallAcceleration ?? DEFAULT_FALL_ACCELERATION2);
@@ -208904,6 +208931,12 @@ var VehicleNavigationController = class {
     this.#landingAfterFlight = false;
     this.#flightLiftRemaining = 0;
     this.#flightVelocity = [0, 0, 0];
+    this.#keySteerHoldSeconds = 0;
+    this.#keySteerDirection = 0;
+    this.#relativeYawInput = 0;
+    this.#relativePitchInput = 0;
+    this.#mouseDragYawInput = 0;
+    this.#mouseDragPitchInput = 0;
     if (active) {
       this.#suspendDefaultController();
     } else {
@@ -209094,33 +209127,37 @@ var VehicleNavigationController = class {
     document.removeEventListener("keyup", this.#onKeyUp);
     window.removeEventListener("blur", this.#onWindowBlur);
   }
-  #onMouseEnter = (event) => {
+  #onMouseEnter = () => {
     this.#mouseOver = true;
-    this.#updateCursorFromEvent(event);
   };
   #onMouseLeave = () => {
     this.#mouseOver = false;
-    if (this.#pointerId === null) {
-      this.#cursorActive = false;
-    }
   };
   #onPointerDown = (event) => {
     if (!this.#active || event.button !== 0) {
       return;
     }
     this.#pointerId = event.pointerId;
+    this.#pointerLastX = event.clientX;
+    this.#pointerLastY = event.clientY;
+    this.#relativeYawInput = 0;
+    this.#relativePitchInput = 0;
+    this.#mouseDragYawInput = 0;
+    this.#mouseDragPitchInput = 0;
     this.#viewElement.setPointerCapture?.(event.pointerId);
-    this.#updateCursorFromEvent(event);
     event.preventDefault();
   };
   #onPointerMove = (event) => {
     if (!this.#active) {
       return;
     }
-    if (this.#pointerId !== null && event.pointerId !== this.#pointerId) {
+    if (this.#pointerId === null) {
       return;
     }
-    this.#updateCursorFromEvent(event);
+    if (event.pointerId !== this.#pointerId) {
+      return;
+    }
+    this.#updatePointerDragFromEvent(event);
     event.preventDefault();
   };
   #onPointerUp = (event) => {
@@ -209128,10 +209165,9 @@ var VehicleNavigationController = class {
       return;
     }
     this.#pointerId = null;
+    this.#relativeYawInput = 0;
+    this.#relativePitchInput = 0;
     this.#viewElement.releasePointerCapture?.(event.pointerId);
-    if (!this.#mouseOver) {
-      this.#cursorActive = false;
-    }
   };
   #onKeyDown = (event) => {
     if (!this.#shouldHandleKeyEvent(event)) {
@@ -209164,8 +209200,12 @@ var VehicleNavigationController = class {
   #onWindowBlur = () => {
     this.#keysDown.clear();
     this.#pointerId = null;
-    this.#cursorActive = false;
-    this.flying = false;
+    this.#relativeYawInput = 0;
+    this.#relativePitchInput = 0;
+    this.#mouseDragYawInput = 0;
+    this.#mouseDragPitchInput = 0;
+    this.#keySteerHoldSeconds = 0;
+    this.#keySteerDirection = 0;
   };
   #shouldHandleKeyEvent(event) {
     if (!this.#active) {
@@ -209181,13 +209221,13 @@ var VehicleNavigationController = class {
     const tagName = target.tagName.toLowerCase();
     return tagName !== "input" && tagName !== "textarea" && tagName !== "select" && !target.isContentEditable;
   }
-  #updateCursorFromEvent(event) {
-    const rect = this.#viewElement.getBoundingClientRect();
-    const width = Math.max(rect.width || 1, 1);
-    const height = Math.max(rect.height || 1, 1);
-    this.#cursorX = clamp3((event.clientX - rect.left) / width * 2 - 1, -1, 1);
-    this.#cursorY = clamp3((event.clientY - rect.top) / height * 2 - 1, -1, 1);
-    this.#cursorActive = true;
+  #updatePointerDragFromEvent(event) {
+    const movementX = Number.isFinite(event.movementX) && event.movementX !== 0 ? event.movementX : event.clientX - this.#pointerLastX;
+    const movementY = Number.isFinite(event.movementY) && event.movementY !== 0 ? event.movementY : event.clientY - this.#pointerLastY;
+    this.#pointerLastX = event.clientX;
+    this.#pointerLastY = event.clientY;
+    this.#relativeYawInput += movementX * this.#mouseDragYawSensitivity;
+    this.#relativePitchInput -= movementY * this.#mouseDragPitchSensitivity;
   }
   #update() {
     if (!this.#active || this.#destroyed) {
@@ -209202,23 +209242,31 @@ var VehicleNavigationController = class {
     const up = this.#worldUp();
     const camera = this.view.camera;
     const basis = cameraBasis2(camera.eye, camera.look, up);
-    const throttle = pressed2(this.#keysDown, THROTTLE_KEYS) - pressed2(this.#keysDown, BRAKE_KEYS);
+    const throttle = this.#throttleInput();
     if (!this.#flying) {
       this.#updateSpeed(throttle, elapsedSeconds);
     }
-    const steering = this.#steeringInput();
+    const steering = this.#steeringInput(elapsedSeconds);
+    const rawDragYawInput = this.#mouseDragYawTargetInput();
+    const rawDragPitchInput = this.#mouseDragPitchTargetInput();
+    const dragT = this.#mouseDragResponse === 0 ? 1 : 1 - Math.exp(-this.#mouseDragResponse * elapsedSeconds);
+    this.#mouseDragYawInput = lerpNumber(this.#mouseDragYawInput, rawDragYawInput, dragT);
+    this.#mouseDragPitchInput = lerpNumber(this.#mouseDragPitchInput, rawDragPitchInput, dragT);
     const currentTravelSpeed = this.#flying ? length3(this.#flightVelocity) : Math.abs(this.#speed);
     const speedRatio = this.#maxForwardSpeed > 0 ? Math.min(currentTravelSpeed / this.#maxForwardSpeed, 1) : 0;
-    const turnSpeedScale = clamp3(speedRatio * 1.4, 0, 1);
+    const yawControl = clamp3(steering + this.#mouseDragYawInput, -1, 1);
+    const controlTurnScaleFloor = Math.abs(yawControl) > 1e-4 ? Math.max(this.#keySteerInitialScale, 0.55) : 0;
+    const turnSpeedScale = Math.max(controlTurnScaleFloor, clamp3(speedRatio * 1.4, 0, 1));
     const directionSign = this.#flying ? dot5(this.#flightVelocity, basis.flatForward) < 0 ? -1 : 1 : this.#speed < 0 ? -1 : 1;
-    const yaw = -steering * this.#turnRateRadiansPerSecond * elapsedSeconds * turnSpeedScale * directionSign;
+    const yaw = -yawControl * this.#turnRateRadiansPerSecond * elapsedSeconds * turnSpeedScale * directionSign;
     const flatForward = normalize4(rotateAroundAxis2(basis.flatForward, up, yaw));
     const pitchLimit = this.#flying ? this.#maxFlightPitchRadians : this.#maxPitchRadians;
-    const pitch = this.#cursorActive ? -this.#cursorY * pitchLimit : clamp3(basis.pitch, -pitchLimit, pitchLimit);
+    const pitch = this.#pitchInput(basis.pitch, pitchLimit, elapsedSeconds, this.#mouseDragPitchInput);
+    const pitchControlActive = this.#flying && this.#pitchControlActive();
     const direction = normalize4(add2(mul2(flatForward, Math.cos(pitch)), mul2(up, Math.sin(pitch))));
     let move;
     if (this.#flying) {
-      this.#updateFlightVelocity(throttle, direction, flatForward, up, elapsedSeconds);
+      this.#updateFlightVelocity(throttle, direction, up, pitchControlActive, elapsedSeconds);
       move = mul2(this.#flightVelocity, elapsedSeconds);
       if (this.#flightLiftRemaining > 0) {
         const lift = Math.min(this.#flightLiftRemaining, this.#flightTakeoffSpeed * elapsedSeconds);
@@ -209228,9 +209276,9 @@ var VehicleNavigationController = class {
     } else {
       move = mul2(flatForward, this.#speed * elapsedSeconds);
     }
-    this.#move(move, direction, up, steering, turnSpeedScale, elapsedSeconds);
+    this.#move(move, direction, up, yawControl, turnSpeedScale, elapsedSeconds);
   }
-  #updateFlightVelocity(throttle, direction, flatForward, up, elapsedSeconds) {
+  #updateFlightVelocity(throttle, direction, up, pitchControlActive, elapsedSeconds) {
     if (throttle > 0) {
       this.#flightVelocity = add2(this.#flightVelocity, mul2(direction, this.#flightAcceleration * elapsedSeconds));
     } else if (throttle < 0) {
@@ -209240,12 +209288,14 @@ var VehicleNavigationController = class {
     if (this.#flightAirDrag > 0) {
       this.#flightVelocity = mul2(this.#flightVelocity, Math.exp(-this.#flightAirDrag * elapsedSeconds));
     }
-    this.#flightVelocity = this.#withMinimumForwardGlide(this.#flightVelocity, flatForward);
+    this.#flightVelocity = this.#steerFlightVelocity(this.#flightVelocity, direction, up, throttle > 0 || pitchControlActive, elapsedSeconds);
+    const glideForward = flatDirection(direction, up);
+    this.#flightVelocity = this.#withMinimumForwardGlide(this.#flightVelocity, glideForward);
     const flightSpeed = length3(this.#flightVelocity);
     if (this.#maxForwardSpeed > 0 && flightSpeed > this.#maxForwardSpeed) {
       this.#flightVelocity = mul2(this.#flightVelocity, this.#maxForwardSpeed / flightSpeed);
     }
-    this.#speed = this.#flightVelocitySpeed(flatForward);
+    this.#speed = this.#flightVelocitySpeed(glideForward);
   }
   #updateSpeed(throttle, elapsedSeconds) {
     if (throttle > 0) {
@@ -209261,10 +209311,51 @@ var VehicleNavigationController = class {
     }
     this.#speed = clamp3(this.#speed, -this.#maxReverseSpeed, this.#maxForwardSpeed);
   }
-  #steeringInput() {
-    const cursorSteer = this.#cursorActive ? applyDeadZone(this.#cursorX, this.#cursorTurnDeadZone, this.#cursorTurnResponse) : 0;
-    const keySteer = pressed2(this.#keysDown, RIGHT_KEYS2) - pressed2(this.#keysDown, LEFT_KEYS2);
-    return clamp3(cursorSteer + keySteer, -1, 1);
+  #steeringInput(elapsedSeconds) {
+    const keyInput = pressed2(this.#keysDown, RIGHT_KEYS2) - pressed2(this.#keysDown, LEFT_KEYS2);
+    if (keyInput === 0) {
+      this.#keySteerHoldSeconds = 0;
+      this.#keySteerDirection = 0;
+      return 0;
+    }
+    const direction = Math.sign(keyInput);
+    if (direction !== this.#keySteerDirection) {
+      this.#keySteerHoldSeconds = 0;
+      this.#keySteerDirection = direction;
+    }
+    this.#keySteerHoldSeconds += elapsedSeconds;
+    const t = clamp3(this.#keySteerHoldSeconds / this.#keySteerRampSeconds, 0, 1);
+    const easedT = t * t * (3 - 2 * t);
+    return keyInput * (this.#keySteerInitialScale + (1 - this.#keySteerInitialScale) * easedT);
+  }
+  #throttleInput() {
+    if (this.#flying) {
+      return pressed2(this.#keysDown, FORWARD_KEYS2) - pressed2(this.#keysDown, BACKWARD_KEYS2);
+    }
+    return pressed2(this.#keysDown, GROUND_THROTTLE_KEYS) - pressed2(this.#keysDown, GROUND_BRAKE_KEYS);
+  }
+  #pitchControlActive() {
+    return pressed2(this.#keysDown, PITCH_UP_KEYS) !== 0 || pressed2(this.#keysDown, PITCH_DOWN_KEYS) !== 0 || Math.abs(this.#mouseDragPitchInput) > 1e-4;
+  }
+  #pitchInput(currentPitch, pitchLimit, elapsedSeconds, mouseDragPitchInput) {
+    const dragPitchDelta = mouseDragPitchInput * this.#flightPitchRateRadiansPerSecond * elapsedSeconds;
+    if (this.#flying) {
+      const keyPitch = pressed2(this.#keysDown, PITCH_UP_KEYS) - pressed2(this.#keysDown, PITCH_DOWN_KEYS);
+      if (keyPitch !== 0 || dragPitchDelta !== 0) {
+        return clamp3(currentPitch + keyPitch * this.#flightPitchRateRadiansPerSecond * elapsedSeconds + dragPitchDelta, -pitchLimit, pitchLimit);
+      }
+      return clamp3(currentPitch, -pitchLimit, pitchLimit);
+    }
+    if (dragPitchDelta !== 0) {
+      return clamp3(currentPitch + dragPitchDelta, -pitchLimit, pitchLimit);
+    }
+    return clamp3(currentPitch, -pitchLimit, pitchLimit);
+  }
+  #mouseDragYawTargetInput() {
+    return clamp3(this.#relativeYawInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
+  }
+  #mouseDragPitchTargetInput() {
+    return clamp3(this.#relativePitchInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
   }
   #move(move, viewDirection, up, steering, turnSpeedScale, elapsedSeconds) {
     const camera = this.view.camera;
@@ -209282,6 +209373,11 @@ var VehicleNavigationController = class {
         ground = landedGround;
         this.#landFromFlight(viewDirection, up);
       }
+    }
+    if (this.#flying && moveDistance > 0 && this.#collision && this.#isFlightBlocked(oldEye, move, moveDistance, up)) {
+      ground = oldGround;
+      this.#flightVelocity = [0, 0, 0];
+      this.#speed = 0;
     }
     if (!this.#flying && (this.#gravity || this.#landingAfterFlight)) {
       ground = this.#groundedPoint(ground, up, elapsedSeconds);
@@ -209301,17 +209397,26 @@ var VehicleNavigationController = class {
   }
   #flightLandingSurface(oldGround, move, up) {
     const downwardDistance = Math.max(0, -dot5(move, up));
-    const rayOrigin = add2(oldGround, mul2(up, DOWN_RAY_CLEARANCE2));
-    const result = this.raycaster.pick({
-      view: this.view,
-      ray: { origin: rayOrigin, dir: mul2(up, -1) },
-      tMin: 0,
-      tMax: downwardDistance + this.#flightSoftLandingRange + DOWN_RAY_CLEARANCE2,
-      pickSurfaceNormal: true,
-      filter: this.#driveSurfaceFilter
-    });
-    if (result.ok && result.value.hit && result.value.worldPos && this.#isDriveableNormal(result.value.worldNormal, up)) {
-      return [...result.value.worldPos];
+    const verticalMove = mul2(up, dot5(move, up));
+    const horizontalMove = sub2(move, verticalMove);
+    const rayOrigins = [
+      oldGround,
+      add2(oldGround, mul2(horizontalMove, 0.5)),
+      add2(oldGround, horizontalMove)
+    ];
+    for (const origin2 of rayOrigins) {
+      const rayOrigin = add2(origin2, mul2(up, DOWN_RAY_CLEARANCE2));
+      const result = this.raycaster.pick({
+        view: this.view,
+        ray: { origin: rayOrigin, dir: mul2(up, -1) },
+        tMin: 0,
+        tMax: downwardDistance + this.#flightSoftLandingRange + DOWN_RAY_CLEARANCE2,
+        pickSurfaceNormal: true,
+        filter: this.#driveSurfaceFilter
+      });
+      if (result.ok && result.value.hit && result.value.worldPos && this.#isDriveableNormal(result.value.worldNormal, up)) {
+        return [...result.value.worldPos];
+      }
     }
     return null;
   }
@@ -209343,6 +209448,27 @@ var VehicleNavigationController = class {
     }
     return add2(velocity, mul2(flatForward, minForwardSpeed - forwardSpeed));
   }
+  #steerFlightVelocity(velocity, direction, up, steerVertically, elapsedSeconds) {
+    if (this.#flightSteeringResponse === 0) {
+      return velocity;
+    }
+    const speed = length3(velocity);
+    if (speed < 1e-4) {
+      return velocity;
+    }
+    let desiredVelocity;
+    if (steerVertically) {
+      desiredVelocity = mul2(direction, speed);
+    } else {
+      const verticalSpeed = dot5(velocity, up);
+      const verticalVelocity = mul2(up, verticalSpeed);
+      const horizontalVelocity = sub2(velocity, verticalVelocity);
+      const horizontalSpeed = length3(horizontalVelocity);
+      desiredVelocity = add2(mul2(flatDirection(direction, up), horizontalSpeed), verticalVelocity);
+    }
+    const response = 1 - Math.exp(-this.#flightSteeringResponse * elapsedSeconds);
+    return lerp(velocity, desiredVelocity, clamp3(response, 0, 1));
+  }
   #effectiveMinGlideSpeed() {
     if (this.#maxForwardSpeed === 0) {
       return 0;
@@ -209360,6 +209486,32 @@ var VehicleNavigationController = class {
         ray: { origin: origin2, dir: direction },
         tMin: 0,
         tMax,
+        pickSurfaceNormal: true,
+        filter: this.#obstacleFilter
+      });
+      if (result.ok && result.value.hit && !this.#isDriveableNormal(result.value.worldNormal, up)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  #isFlightBlocked(originEye, move, moveDistance, up) {
+    const direction = normalize4(move);
+    const right = safePerpendicular(direction, up);
+    const offsets = [
+      [0, 0],
+      [this.#bodyRadius, 0],
+      [-this.#bodyRadius, 0],
+      [0, this.#bodyRadius],
+      [0, -this.#bodyRadius]
+    ];
+    for (const [rightOffset, upOffset] of offsets) {
+      const origin2 = add2(add2(originEye, mul2(right, rightOffset)), mul2(up, upOffset));
+      const result = this.raycaster.pick({
+        view: this.view,
+        ray: { origin: origin2, dir: direction },
+        tMin: 0.05,
+        tMax: moveDistance + this.#bodyRadius,
         pickSurfaceNormal: true,
         filter: this.#obstacleFilter
       });
@@ -209433,13 +209585,6 @@ function pressed2(keysDown, keys) {
 function keyCode2(event) {
   return event.code || event.key;
 }
-function applyDeadZone(value, deadZone, response) {
-  const abs = Math.abs(value);
-  if (abs <= deadZone) {
-    return 0;
-  }
-  return Math.sign(value) * Math.pow((abs - deadZone) / (1 - deadZone), response);
-}
 function moveTowards(value, target, maxDelta) {
   if (Math.abs(target - value) <= maxDelta) {
     return target;
@@ -209452,6 +209597,17 @@ function moveVectorTowardsZero(value, maxDelta) {
     return [0, 0, 0];
   }
   return mul2(value, (len - maxDelta) / len);
+}
+function lerp(a2, b4, t) {
+  return [
+    a2[0] + (b4[0] - a2[0]) * t,
+    a2[1] + (b4[1] - a2[1]) * t,
+    a2[2] + (b4[2] - a2[2]) * t
+  ];
+}
+function lerpNumber(a2, b4, t) {
+  const clampedT = clamp3(t, 0, 1);
+  return a2 + (b4 - a2) * clampedT;
 }
 function degreesToRadians2(degrees) {
   return degrees * Math.PI / 180;
@@ -209497,6 +209653,13 @@ function normalize4(v) {
 function perpendicular2(up) {
   const axis = Math.abs(up[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
   return normalize4(cross5(up, axis));
+}
+function safePerpendicular(direction, up) {
+  const right = cross5(direction, up);
+  if (length3(right) < 1e-5) {
+    return perpendicular2(up);
+  }
+  return normalize4(right);
 }
 function rotateAroundAxis2(v, axis, radians) {
   const normalizedAxis = normalize4(axis);

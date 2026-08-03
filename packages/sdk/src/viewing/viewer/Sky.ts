@@ -55,7 +55,7 @@ export class Sky {
       ? params.renderModes.slice()
       : [NavigationRender, DetailedRender, RealisticRender];
     this._enabled          = params.enabled          ?? true;
-    this._skyColor         = copy3(params.skyColor,         [0.74, 0.80, 0.88]);
+    this._skyColor         = copy3(params.skyColor,         [0.08, 0.22, 0.62]);
     this._horizonColor     = copy3(params.horizonColor,     [0.66, 0.72, 0.74]);
     this._groundColor      = copy3(params.groundColor,      [0.58, 0.64, 0.60]);
     this._horizonBlend     = params.horizonBlend     ?? 0.5;

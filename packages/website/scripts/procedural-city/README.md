@@ -14,10 +14,10 @@ Place the source extract outside the application bundle:
 packages/website/scripts/procedural-city/data/berlin-sample.osm.pbf
 ```
 
-Then run from `packages/website`:
+Then run from the repo root:
 
 ```bash
-npm run analyze-osm -- \
+pnpm city -- analyze-osm \
   --input ./scripts/procedural-city/data/berlin-sample.osm.pbf \
   --output ./scripts/procedural-city/profiles/berlin-inner-city.json \
   --name berlin-inner-city
@@ -61,10 +61,10 @@ Use a built-in name or a JSON path with `--profile`.
 
 ## Generate the Fictional Berlin-Style City
 
-From `packages/website`:
+From the repo root:
 
 ```bash
-npm run generate -- \
+pnpm city -- generate \
   --seed 42 \
   --profile ./scripts/procedural-city/profiles/berlin-inner-city.json \
   --size 1000 \
@@ -89,7 +89,7 @@ generated comparison metrics.
 Run the full deterministic calibration suite from the repo root:
 
 ```bash
-pnpm city-calibrate
+pnpm city -- calibrate
 ```
 
 This generates baseline and evaluated cities for seeds `7,19,42,73,101,256,512,1024`,
@@ -110,7 +110,7 @@ block, central park, and skyline silhouette.
 Use the fast regression gate in CI or before committing:
 
 ```bash
-pnpm city-regression
+pnpm city -- regression
 ```
 
 That command runs the same eight benchmark seeds, compares baseline against
@@ -130,7 +130,7 @@ artifacts/calibration/regression/
 For local tuning, run a smaller suite:
 
 ```bash
-pnpm --filter @xeokit/website city-calibrate -- \
+pnpm city -- calibrate \
   --seeds 42 \
   --size 600 \
   --buildings 240 \
@@ -141,9 +141,9 @@ pnpm --filter @xeokit/website city-calibrate -- \
 Evaluation presets are available on generation and calibration commands:
 
 ```bash
-pnpm --filter @xeokit/website generate -- --evaluation-preset fast
-pnpm --filter @xeokit/website generate -- --evaluation-preset balanced
-pnpm --filter @xeokit/website generate -- --evaluation-preset quality
+pnpm city -- generate --evaluation-preset fast
+pnpm city -- generate --evaluation-preset balanced
+pnpm city -- generate --evaluation-preset quality
 ```
 
 Use `--disable-evaluation` to generate the single-pass baseline.

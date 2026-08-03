@@ -7,10 +7,10 @@ packages/website/scripts/procedural-city/data/berlin-sample.osm.pbf
 ```
 
 The generator and demo do not require network access. To rebuild the profile from
-a local extract, run from `packages/website`:
+a local extract, run from the repo root:
 
 ```bash
-npm run analyze-osm -- \
+pnpm city -- analyze-osm \
   --input ./scripts/procedural-city/data/berlin-sample.osm.pbf \
   --output ./scripts/procedural-city/profiles/berlin-inner-city.json \
   --name berlin-inner-city \

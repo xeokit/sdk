@@ -1,3 +1,5 @@
+import type {EvaluationReport} from "./evaluation/EvaluationReport";
+
 export type Vec2 = [number, number];
 export type Vec3 = [number, number, number];
 
@@ -9,6 +11,134 @@ export type DistrictName =
 
 export type RoadHierarchy = "arterial" | "collector" | "local" | "alley" | "pedestrian";
 
+export type GrowthPhase =
+  | "historic-core"
+  | "industrial-expansion"
+  | "postwar-rebuild"
+  | "contemporary-infill"
+  | "waterfront-renewal";
+
+export type BlockGrammar =
+  | "mixed-infill"
+  | "fine-grain-streetwall"
+  | "perimeter-courtyard"
+  | "commercial-corridor"
+  | "civic-campus"
+  | "tower-podium"
+  | "waterfront-edge";
+
+export type UrbanPatternCategory = "city" | "district" | "street" | "block" | "building";
+
+export type EvaluationPresetName = "fast" | "balanced" | "quality";
+
+export interface UrbanPatternApplication {
+  id: string;
+  name: string;
+  category: UrbanPatternCategory;
+  weight: number;
+  stages: string[];
+  tags: string[];
+}
+
+export interface DistrictUrbanContext {
+  district: DistrictName;
+  identity: string;
+  dominantGrowthPhase: GrowthPhase;
+  landValueBase: number;
+  densityBias: number;
+  heightBias: number;
+  courtyardBias: number;
+  streetAlignmentBias: number;
+  imperfection: number;
+  preferredMaterials: string[];
+  facadeRhythm: number;
+  patterns: UrbanPatternApplication[];
+}
+
+export interface BlockUrbanContext {
+  blockId: string;
+  district: DistrictName;
+  grammar: BlockGrammar;
+  growthPhase: GrowthPhase;
+  landValue: number;
+  densityBias: number;
+  heightBias: number;
+  coverageBias: number;
+  setbackBias: number;
+  courtyardProbability: number;
+  streetAlignment: number;
+  roadInfluence: number;
+  roadHierarchy: RoadHierarchy;
+  landmarkInfluence: number;
+  waterfrontInfluence: number;
+  viewCorridorPressure: number;
+  imperfection: number;
+  neighborContinuity: number;
+  patterns: UrbanPatternApplication[];
+  treeDensityMultiplier: number;
+}
+
+export interface ParcelUrbanContext {
+  parcelId: string;
+  blockId: string;
+  grammar: BlockGrammar;
+  growthPhase: GrowthPhase;
+  landValue: number;
+  densityBias: number;
+  heightBias: number;
+  coverageBias: number;
+  setbackBias: number;
+  courtyardProbability: number;
+  streetAlignment: number;
+  roadInfluence: number;
+  roadHierarchy: RoadHierarchy;
+  landmarkInfluence: number;
+  waterfrontInfluence: number;
+  viewCorridorPressure: number;
+  imperfection: number;
+  neighborContinuity: number;
+  patterns: UrbanPatternApplication[];
+}
+
+export interface BuildingUrbanContext {
+  parcelId: string;
+  blockId: string;
+  grammar: BlockGrammar;
+  growthPhase: GrowthPhase;
+  landValue: number;
+  heightMultiplier: number;
+  coverageMultiplier: number;
+  towerProbability: number;
+  courtyardProbability: number;
+  setbackTowerProbability: number;
+  streetAlignment: number;
+  facadeRhythm: number;
+  facadeAge: "historic" | "industrial" | "postwar" | "contemporary";
+  materialFamily: string;
+  useBias: "residential" | "mixed" | "commercial" | "civic";
+  viewCorridorPressure: number;
+  imperfection: number;
+  patterns: UrbanPatternApplication[];
+}
+
+export interface CityUrbanContext {
+  schema: "xeokit-procedural-city-urban-context/1.0";
+  profileName: string;
+  growthPhases: GrowthPhase[];
+  districtContexts: Record<DistrictName, DistrictUrbanContext>;
+  blockContexts: Record<string, BlockUrbanContext>;
+  parcelContexts: Record<string, ParcelUrbanContext>;
+  buildingContexts: Record<string, BuildingUrbanContext>;
+  viewCorridors: Array<{
+    id: string;
+    from: Vec2;
+    to: Vec2;
+    protectedHeightFactor: number;
+  }>;
+  patternSummary: Record<string, number>;
+  cityPatterns: UrbanPatternApplication[];
+}
+
 export interface CityGeneratorConfig {
   seed: number | string;
   size: number;
@@ -18,6 +148,13 @@ export interface CityGeneratorConfig {
   profile?: string | CityProfile;
   profileData?: CityProfile;
   outputPath: string;
+  evaluationPreset?: EvaluationPresetName;
+  evaluation?: {
+    enabled?: boolean;
+    threshold?: number;
+    maxRetries?: number;
+    weights?: Record<string, number>;
+  };
 }
 
 export interface DistributionProfile {
@@ -269,6 +406,8 @@ export interface CityScene {
   objects: CityObject[];
   blocks: Block[];
   roads: Road[];
+  urbanContext?: CityUrbanContext;
+  evaluationReports?: EvaluationReport[];
   metadata: Record<string, Record<string, unknown>>;
   stats: {
     buildings: number;

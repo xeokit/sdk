@@ -6,6 +6,9 @@ import {TrianglesPrimitive} from "../../../../../sdk/src/base/constants";
 import {XGFExporter as SDKXGFExporter} from "../../../../../sdk/src/formats/xgf/XGFExporter";
 import {XGFStreamExporter as SDKXGFStreamExporter} from "../../../../../sdk/src/formats/xgfstream/XGFStreamExporter";
 
+const MAX_GEOMETRY_NORMAL_COMPONENTS = 900_000;
+const MAX_GEOMETRY_TRIANGLES = 180_000;
+
 const Z_UP_COORDINATE_SYSTEM = {
   basis: [
     1, 0, 0,
@@ -102,19 +105,21 @@ function buildSceneModel(cityScene: CityScene): {scene: Scene; sceneModel: any} 
   for (const object of cityScene.objects) {
     const meshIds: string[] = [];
     for (const mesh of object.meshes) {
-      if (!mesh || mesh.indices.length === 0 || mesh.positions.length === 0) {
-        continue;
+      for (const meshPart of splitOversizedMesh(mesh)) {
+        if (!meshPart || meshPart.indices.length === 0 || meshPart.positions.length === 0) {
+          continue;
+        }
+        const geometryId = `${object.id}-geometry-${meshOrdinal}`;
+        const meshId = `${object.id}-mesh-${meshOrdinal}`;
+        createGeometry(sceneModel, geometryId, meshPart);
+        must(sceneModel.createMesh({
+          id: meshId,
+          geometryId,
+          materialId: meshPart.materialId
+        }));
+        meshIds.push(meshId);
+        meshOrdinal++;
       }
-      const geometryId = `${object.id}-geometry-${meshOrdinal}`;
-      const meshId = `${object.id}-mesh-${meshOrdinal}`;
-      createGeometry(sceneModel, geometryId, mesh);
-      must(sceneModel.createMesh({
-        id: meshId,
-        geometryId,
-        materialId: mesh.materialId
-      }));
-      meshIds.push(meshId);
-      meshOrdinal++;
     }
     if (meshIds.length === 0) {
       continue;
@@ -152,6 +157,66 @@ function createGeometry(sceneModel: any, geometryId: string, mesh: MeshData): vo
     normals: mesh.normals,
     indices: mesh.indices
   }));
+}
+
+function splitOversizedMesh(mesh: MeshData): MeshData[] {
+  if (!mesh
+    || (mesh.normals.length <= MAX_GEOMETRY_NORMAL_COMPONENTS
+      && mesh.indices.length <= MAX_GEOMETRY_TRIANGLES * 3)) {
+    return [mesh];
+  }
+  const maxVertices = Math.floor(MAX_GEOMETRY_NORMAL_COMPONENTS / 3);
+  const parts: MeshData[] = [];
+  let positions: number[] = [];
+  let normals: number[] = [];
+  let indices: number[] = [];
+  let vertexMap = new Map<number, number>();
+
+  const flush = () => {
+    if (indices.length === 0) {
+      return;
+    }
+    const suffix = parts.length.toString().padStart(3, "0");
+    parts.push({
+      id: mesh.id ? `${mesh.id}-${suffix}` : undefined,
+      materialId: mesh.materialId,
+      positions,
+      normals,
+      indices
+    });
+    positions = [];
+    normals = [];
+    indices = [];
+    vertexMap = new Map();
+  };
+
+  for (let i = 0; i + 2 < mesh.indices.length; i += 3) {
+    const tri = [mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2]];
+    let requiredVertices = 0;
+    for (const index of tri) {
+      if (!vertexMap.has(index)) {
+        requiredVertices++;
+      }
+    }
+    if (indices.length > 0
+      && ((positions.length / 3) + requiredVertices > maxVertices
+        || (indices.length / 3) + 1 > MAX_GEOMETRY_TRIANGLES)) {
+      flush();
+    }
+    for (const index of tri) {
+      let mappedIndex = vertexMap.get(index);
+      if (mappedIndex === undefined) {
+        mappedIndex = positions.length / 3;
+        vertexMap.set(index, mappedIndex);
+        const src = index * 3;
+        positions.push(mesh.positions[src] ?? 0, mesh.positions[src + 1] ?? 0, mesh.positions[src + 2] ?? 0);
+        normals.push(mesh.normals[src] ?? 0, mesh.normals[src + 1] ?? 0, mesh.normals[src + 2] ?? 1);
+      }
+      indices.push(mappedIndex);
+    }
+  }
+  flush();
+  return parts;
 }
 
 function must<T>(result: {ok: boolean; value?: T; error?: string}): T {

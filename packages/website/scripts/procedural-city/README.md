@@ -83,3 +83,67 @@ reports/berlin-style-42.json
 The existing `formats_xgf_proceduralCity` example loads this XGF and displays the
 profile, seed, scene stats, selected building metadata, and source-versus-
 generated comparison metrics.
+
+## Calibrate Evaluation
+
+Run the full deterministic calibration suite from the repo root:
+
+```bash
+pnpm city-calibrate
+```
+
+This generates baseline and evaluated cities for seeds `7,19,42,73,101,256,512,1024`,
+runs evaluator ablations, searches a small fixed set of weight presets, and writes:
+
+```text
+artifacts/calibration/calibration-report.json
+artifacts/calibration/calibration-report.html
+artifacts/calibration/visual-comparison.html
+artifacts/calibration/seed-42/
+artifacts/calibration/seed-73/
+```
+
+The visual comparison artifacts are fixed SVG views for full-city aerial,
+downtown, historic district, arterial street, residential street, courtyard
+block, central park, and skyline silhouette.
+
+Use the fast regression gate in CI or before committing:
+
+```bash
+pnpm city-regression
+```
+
+That command runs the same eight benchmark seeds, compares baseline against
+evaluated generation, checks hard validity constraints, and fails on thresholds
+from:
+
+```text
+packages/website/scripts/procedural-city/calibration/regression-thresholds.json
+```
+
+It writes its compact report under:
+
+```text
+artifacts/calibration/regression/
+```
+
+For local tuning, run a smaller suite:
+
+```bash
+pnpm --filter @xeokit/website city-calibrate -- \
+  --seeds 42 \
+  --size 600 \
+  --buildings 240 \
+  --no-ablation \
+  --no-weight-search
+```
+
+Evaluation presets are available on generation and calibration commands:
+
+```bash
+pnpm --filter @xeokit/website generate -- --evaluation-preset fast
+pnpm --filter @xeokit/website generate -- --evaluation-preset balanced
+pnpm --filter @xeokit/website generate -- --evaluation-preset quality
+```
+
+Use `--disable-evaluation` to generate the single-pass baseline.

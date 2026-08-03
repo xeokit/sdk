@@ -1,36 +1,37 @@
-import type {Block, CityObject, RandomStreams, Vec2} from "../types";
+import type {Block, CityObject, CityUrbanContext, RandomStreams, Vec2} from "../types";
 import {bbox, insetPolygon, polygonCentroid, rectPolygon, round, scalePolygon} from "../geometry/PolygonUtils";
 import {extrudePolygon} from "../geometry/Extrusion";
 import {MeshBuilder} from "../geometry/MeshBuilder";
 import {createRoofMeshes} from "./RoofGenerator";
 
-export function generateParksAndPlazas(blocks: Block[], streams: RandomStreams): CityObject[] {
+export function generateParksAndPlazas(blocks: Block[], streams: RandomStreams, urbanContext?: CityUrbanContext): CityObject[] {
   const objects: CityObject[] = [];
   for (const block of blocks.filter((candidate) => candidate.openSpace)) {
-    objects.push(createOpenSpace(block, streams));
+    objects.push(createOpenSpace(block, streams, urbanContext));
   }
   return objects;
 }
 
-export function generateLandmarks(blocks: Block[], streams: RandomStreams): CityObject[] {
+export function generateLandmarks(blocks: Block[], streams: RandomStreams, urbanContext?: CityUrbanContext): CityObject[] {
   const objects: CityObject[] = [];
   for (const block of blocks.filter((candidate) => candidate.landmark)) {
     if (block.landmark === "cathedral") {
-      objects.push(createCathedral(block, streams));
+      objects.push(createCathedral(block, streams, urbanContext));
     } else if (block.landmark === "city-hall") {
-      objects.push(createCityHall(block, streams));
+      objects.push(createCityHall(block, streams, urbanContext));
     } else if (block.landmark === "museum") {
-      objects.push(createMuseum(block, streams));
+      objects.push(createMuseum(block, streams, urbanContext));
     } else {
-      objects.push(createObservationTower(block, streams));
+      objects.push(createObservationTower(block, streams, urbanContext));
     }
   }
   return objects;
 }
 
-function createOpenSpace(block: Block, streams: RandomStreams): CityObject {
+function createOpenSpace(block: Block, streams: RandomStreams, urbanContext?: CityUrbanContext): CityObject {
   const id = block.openSpace === "central-park" ? "park-central" : `${block.openSpace}-${block.id}`;
   const meshes = [];
+  const blockContext = urbanContext?.blockContexts[block.id];
   const green = block.openSpace?.includes("park");
   const groundMaterial = green ? "grass" : "paving-stone";
   const parkPoly = insetPolygon(block.polygon, green ? 5 : 2.2);
@@ -39,14 +40,19 @@ function createOpenSpace(block: Block, streams: RandomStreams): CityObject {
   const [minX, minY, maxX, maxY] = bbox(parkPoly);
   const center = polygonCentroid(parkPoly);
   const pathBuilder = new MeshBuilder();
-  pathBuilder.addRoadSegment([minX + 6, center[1]], [maxX - 6, center[1] + (streams.vegetation() - 0.5) * 10], green ? 4.2 : 6.5, 0.04);
-  pathBuilder.addRoadSegment([center[0], minY + 6], [center[0] + (streams.vegetation() - 0.5) * 12, maxY - 6], green ? 3.2 : 5.2, 0.045);
+  const civicAxis = blockContext?.viewCorridorPressure ?? 0;
+  const pathWobble = 1 + (blockContext?.imperfection ?? 0.2) * 0.42;
+  pathBuilder.addRoadSegment([minX + 6, center[1]], [maxX - 6, center[1] + (streams.vegetation() - 0.5) * 10 * pathWobble], green ? 4.2 + civicAxis * 1.4 : 6.5 + civicAxis * 2, 0.04);
+  pathBuilder.addRoadSegment([center[0], minY + 6], [center[0] + (streams.vegetation() - 0.5) * 12 * pathWobble, maxY - 6], green ? 3.2 + civicAxis : 5.2 + civicAxis * 1.6, 0.045);
   meshes.push(pathBuilder.toMesh("paving-stone", "paths"));
 
   const treeTrunks = new MeshBuilder();
   const treeCrowns = new MeshBuilder();
   const furniture = new MeshBuilder();
-  const treeCount = green ? Math.max(8, Math.floor(block.area / 850)) : Math.max(3, Math.floor(block.area / 1800));
+  const waterfrontReduction = blockContext?.waterfrontInfluence ? 1 - blockContext.waterfrontInfluence * 0.24 : 1;
+  const civicReduction = blockContext?.grammar === "civic-campus" ? 0.72 : 1;
+  const patternTreeMultiplier = blockContext?.treeDensityMultiplier ?? 1;
+  const treeCount = Math.floor((green ? Math.max(8, block.area / 850) : Math.max(3, block.area / 1800)) * waterfrontReduction * civicReduction * patternTreeMultiplier);
   for (let i = 0; i < treeCount; i++) {
     const x = minX + 7 + streams.vegetation() * Math.max(1, maxX - minX - 14);
     const y = minY + 7 + streams.vegetation() * Math.max(1, maxY - minY - 14);
@@ -79,12 +85,23 @@ function createOpenSpace(block: Block, streams: RandomStreams): CityObject {
       district: block.district,
       openSpaceType: block.openSpace,
       treeCount,
-      area: round(block.area, 1)
+      area: round(block.area, 1),
+      ...(blockContext ? {
+        grammar: blockContext.grammar,
+        growthPhase: blockContext.growthPhase,
+        landValue: blockContext.landValue,
+        viewCorridorPressure: blockContext.viewCorridorPressure,
+        waterfrontInfluence: blockContext.waterfrontInfluence,
+        patterns: blockContext.patterns.map((pattern) => ({
+          id: pattern.id,
+          weight: pattern.weight
+        }))
+      } : {})
     }
   };
 }
 
-function createCathedral(block: Block, streams: RandomStreams): CityObject {
+function createCathedral(block: Block, streams: RandomStreams, urbanContext?: CityUrbanContext): CityObject {
   const [minX, minY, maxX, maxY] = bbox(insetPolygon(block.polygon, 7));
   const center = polygonCentroid(block.polygon);
   const width = Math.min(42, (maxX - minX) * 0.62);
@@ -98,10 +115,10 @@ function createCathedral(block: Block, streams: RandomStreams): CityObject {
     meshes.push(extrudePolygon({polygon: tower, height: 42, materialId: "sandstone"}));
     meshes.push(...createRoofMeshes({bounds: bbox(tower), topZ: 42, roofType: "gable", roofMaterialId: "roof-tile", trimMaterialId: "limestone", equipmentMaterialId: "steel", rng: streams.roofs}));
   }
-  return landmarkObject("landmark-cathedral", "Cathedral", block, meshes, {height: 48, silhouette: "twin towers and gabled nave"});
+  return landmarkObject("landmark-cathedral", "Cathedral", block, meshes, {height: 48, silhouette: "twin towers and gabled nave"}, urbanContext);
 }
 
-function createCityHall(block: Block, streams: RandomStreams): CityObject {
+function createCityHall(block: Block, streams: RandomStreams, urbanContext?: CityUrbanContext): CityObject {
   const [minX, minY, maxX, maxY] = bbox(insetPolygon(block.polygon, 8));
   const center = polygonCentroid(block.polygon);
   const width = Math.min(74, (maxX - minX) * 0.74);
@@ -113,10 +130,10 @@ function createCityHall(block: Block, streams: RandomStreams): CityObject {
   meshes.push(extrudePolygon({polygon: tower, height: 48, materialId: "limestone"}));
   meshes.push(...createRoofMeshes({bounds: bbox(main), topZ: 20, roofType: "terrace", roofMaterialId: "flat-roof", trimMaterialId: "limestone", equipmentMaterialId: "steel", rng: streams.roofs}));
   meshes.push(...createRoofMeshes({bounds: bbox(tower), topZ: 48, roofType: "mansard", roofMaterialId: "roof-tile", trimMaterialId: "limestone", equipmentMaterialId: "steel", rng: streams.roofs}));
-  return landmarkObject("landmark-city-hall", "City Hall", block, meshes, {height: 52, silhouette: "civic tower and terrace roof"});
+  return landmarkObject("landmark-city-hall", "City Hall", block, meshes, {height: 52, silhouette: "civic tower and terrace roof"}, urbanContext);
 }
 
-function createMuseum(block: Block, streams: RandomStreams): CityObject {
+function createMuseum(block: Block, streams: RandomStreams, urbanContext?: CityUrbanContext): CityObject {
   const [minX, minY, maxX, maxY] = bbox(insetPolygon(block.polygon, 9));
   const center = polygonCentroid(block.polygon);
   const width = Math.min(82, (maxX - minX) * 0.78);
@@ -130,10 +147,10 @@ function createMuseum(block: Block, streams: RandomStreams): CityObject {
   }
   meshes.push(columns.toMesh("limestone", "museum-columns"));
   meshes.push(...createRoofMeshes({bounds: bbox(main), topZ: 18, roofType: "flat", roofMaterialId: "flat-roof", trimMaterialId: "limestone", equipmentMaterialId: "steel", rng: streams.roofs}));
-  return landmarkObject("landmark-museum", "Museum", block, meshes, {height: 21, silhouette: "low plinth with columned front"});
+  return landmarkObject("landmark-museum", "Museum", block, meshes, {height: 21, silhouette: "low plinth with columned front"}, urbanContext);
 }
 
-function createObservationTower(block: Block, streams: RandomStreams): CityObject {
+function createObservationTower(block: Block, streams: RandomStreams, urbanContext?: CityUrbanContext): CityObject {
   const center = polygonCentroid(block.polygon);
   const meshes = [];
   const shaft = new MeshBuilder();
@@ -142,10 +159,11 @@ function createObservationTower(block: Block, streams: RandomStreams): CityObjec
   meshes.push(shaft.toMesh("steel", "tower-shaft"));
   const cap = rectPolygon(center[0], center[1], 18, 18);
   meshes.push(extrudePolygon({polygon: cap, height: 3, baseZ: 76, materialId: "dark-glass"}));
-  return landmarkObject("landmark-observation-tower", "Observation Tower", block, meshes, {height: 79, silhouette: "slender tower with viewing deck"});
+  return landmarkObject("landmark-observation-tower", "Observation Tower", block, meshes, {height: 79, silhouette: "slender tower with viewing deck"}, urbanContext);
 }
 
-function landmarkObject(id: string, name: string, block: Block, meshes: CityObject["meshes"], extra: Record<string, unknown>): CityObject {
+function landmarkObject(id: string, name: string, block: Block, meshes: CityObject["meshes"], extra: Record<string, unknown>, urbanContext?: CityUrbanContext): CityObject {
+  const blockContext = urbanContext?.blockContexts[block.id];
   return {
     id,
     name,
@@ -158,6 +176,17 @@ function landmarkObject(id: string, name: string, block: Block, meshes: CityObje
       district: block.district,
       blockId: block.id,
       landmarkType: block.landmark,
+      ...(blockContext ? {
+        grammar: blockContext.grammar,
+        growthPhase: blockContext.growthPhase,
+        landValue: blockContext.landValue,
+        landmarkInfluence: blockContext.landmarkInfluence,
+        viewCorridorPressure: blockContext.viewCorridorPressure,
+        patterns: blockContext.patterns.map((pattern) => ({
+          id: pattern.id,
+          weight: pattern.weight
+        }))
+      } : {}),
       ...extra
     }
   };

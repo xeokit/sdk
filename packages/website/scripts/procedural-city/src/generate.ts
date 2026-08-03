@@ -4,6 +4,8 @@ import {generateCity, createManifest} from "./generator/CityGenerator";
 import {exportXGF, exportXGFStream} from "./export/XGFExporter";
 import {createComparisonReport, formatComparisonReport} from "./report/ComparisonReport";
 import {validateCity} from "./validation/CityValidator";
+import {compactEvaluationReports, summarizeEvaluationReports} from "./evaluation/EvaluationReport";
+import type {EvaluationPresetName} from "./types";
 
 const rootDir = resolveRepoRoot(process.cwd());
 
@@ -27,7 +29,11 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     density: (args.density === "medium" ? "medium" : "high"),
     buildingCount: args.buildings || stream ? numberArg(args.buildings, defaultBuildings) : undefined,
     profile: typeof args.profile === "string" ? args.profile : undefined,
-    outputPath: stream ? path.join(outputPath, "index.runtime.json") : outputPath
+    outputPath: stream ? path.join(outputPath, "index.runtime.json") : outputPath,
+    evaluationPreset: evaluationPresetArg(args["evaluation-preset"]),
+    evaluation: {
+      enabled: args["disable-evaluation"] === true ? false : undefined
+    }
   });
   const streamResult = stream ? await exportXGFStream(city, {
     outputDir: outputPath,
@@ -43,8 +49,12 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   await fs.writeFile(manifestPath, `${JSON.stringify(createManifest(city), null, 2)}\n`, "utf8");
   const comparison = createComparisonReport(city);
   const validation = validateCity(city);
+  const urbanContextMetadata = city.metadata["urban-context"] || {};
+  const evaluationSummary = summarizeEvaluationReports(city.evaluationReports || []);
   const report = {
     ...comparison,
+    patternSummary: urbanContextMetadata.patternSummary || {},
+    evaluationSummary,
     validation,
     warnings: [...comparison.warnings, ...validation.warnings]
   };
@@ -56,6 +66,15 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   if (path.resolve(reportPath) !== path.resolve(sidecarReportPath)) {
     await fs.writeFile(sidecarReportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   }
+  const evaluationArtifactPath = path.join(rootDir, "artifacts/evaluation", `${reportSlug(city.config.profileData?.name || "city", city.config.seed, stream ? "large-stream" : undefined)}.json`);
+  await fs.mkdir(path.dirname(evaluationArtifactPath), {recursive: true});
+  await fs.writeFile(evaluationArtifactPath, `${JSON.stringify({
+    schema: "xeokit-procedural-city-evaluation/1.0",
+    seed: city.config.seed,
+    profile: city.config.profileData?.name,
+    summary: evaluationSummary,
+    reports: compactEvaluationReports(city.evaluationReports || [])
+  }, null, 2)}\n`, "utf8");
 
   console.log(`Generated procedural city seed=${city.config.seed}`);
   console.log(`Buildings: ${city.stats.buildings}`);
@@ -73,6 +92,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   console.log(`Wrote ${path.relative(rootDir, manifestPath)}`);
   console.log(`Wrote ${path.relative(rootDir, reportPath)}`);
+  console.log(`Wrote ${path.relative(rootDir, evaluationArtifactPath)}`);
   console.log("");
   console.log(formatComparisonReport(report));
   if (validation.warnings.length) {
@@ -108,6 +128,10 @@ function numberArg(value: string | boolean | undefined, fallback: number): numbe
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
+function evaluationPresetArg(value: string | boolean | undefined): EvaluationPresetName | undefined {
+  return value === "fast" || value === "balanced" || value === "quality" ? value : undefined;
+}
+
 function printHelp(): void {
   console.log(`Usage:
   node packages/website/scripts/procedural-city/build-and-generate.mjs [options]
@@ -121,6 +145,8 @@ Options:
   --output <path>      XGF output path
   --report <path>      Comparison report JSON path
   --stream             Export an XGF stream instead of one XGF file
+  --evaluation-preset <fast|balanced|quality> Evaluation preset, default balanced
+  --disable-evaluation Use the first deterministic candidate at each decision point
   --chunk-budget <n>   Stream chunk mesh budget, default 420
   --min-chunk-budget <n> Minimum merged stream chunk budget, default 120
   --grid-cell-size <m> Stream grid cell size, default 260

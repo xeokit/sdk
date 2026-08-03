@@ -2,6 +2,10 @@ import seedrandom from "seedrandom";
 import {createNoise2D} from "simplex-noise";
 import polygonClipping from "polygon-clipping";
 import type {CityGeneratorConfig, CityObject, CityScene, MaterialDefinition, RandomStreams, Vec2, Waterway} from "../types";
+import type {EvaluationReport} from "../evaluation/EvaluationReport";
+import {summarizeEvaluationReports} from "../evaluation/EvaluationReport";
+import {setEvaluationReportSink} from "../evaluation/EvaluationEngine";
+import {resolveEvaluationPreset} from "../evaluation/EvaluationPresets";
 import {rectPolygon, round} from "../geometry/PolygonUtils";
 import {extrudePolygon} from "../geometry/Extrusion";
 import {generateRoadNetwork} from "./RoadNetwork";
@@ -12,9 +16,12 @@ import {generateLandmarks, generateParksAndPlazas} from "./ParkGenerator";
 import {generateRoadObjects, generateStreetDetails} from "./StreetDetailGenerator";
 import {generateWaterwayObjects} from "./WaterwayGenerator";
 import {resolveCityProfile} from "../profiles/ProfileResolver";
+import {applyUrbanContextToBlocks, createUrbanContext, summarizeUrbanContext} from "./UrbanContext";
 
 export async function generateCity(config: Partial<CityGeneratorConfig> = {}): Promise<CityScene> {
   const profile = await resolveCityProfile(config.profile);
+  const evaluationReports: EvaluationReport[] = [];
+  const evaluation = resolveEvaluationPreset(config);
   const resolved: CityGeneratorConfig = {
     seed: config.seed ?? 42,
     size: config.size ?? 1000,
@@ -23,18 +30,23 @@ export async function generateCity(config: Partial<CityGeneratorConfig> = {}): P
     buildingCount: config.buildingCount,
     profile: config.profile,
     profileData: profile,
-    outputPath: config.outputPath ?? "./public/generated-city.xgf"
+    outputPath: config.outputPath ?? "./public/generated-city.xgf",
+    evaluationPreset: config.evaluationPreset ?? "balanced",
+    evaluation
   };
+  setEvaluationReportSink(resolved, evaluationReports);
   const streams = createRandomStreams(resolved.seed);
   const network = generateRoadNetwork(resolved, streams);
   const blocks = generateBlocks(resolved, network, streams);
-  const parcels = generateParcels(blocks, streams, profile);
-  const buildings = generateBuildings(parcels, resolved, streams);
+  const urbanContext = createUrbanContext(resolved, network, blocks, streams);
+  applyUrbanContextToBlocks(blocks, urbanContext);
+  const parcels = generateParcels(blocks, streams, profile, urbanContext, resolved);
+  const buildings = generateBuildings(parcels, resolved, streams, urbanContext);
   const roadObjects = generateRoadObjects(network);
   const waterwayObjects = generateWaterwayObjects(network.waterways, streams);
-  const parks = generateParksAndPlazas(blocks, streams);
-  const landmarks = generateLandmarks(blocks, streams);
-  const streetDetails = generateStreetDetails(network, resolved, streams);
+  const parks = generateParksAndPlazas(blocks, streams, urbanContext);
+  const landmarks = generateLandmarks(blocks, streams, urbanContext);
+  const streetDetails = generateStreetDetails(network, resolved, streams, urbanContext, blocks);
   const base = createBaseObject(resolved.size, network.waterways);
   const objects: CityObject[] = [
     base,
@@ -64,6 +76,8 @@ export async function generateCity(config: Partial<CityGeneratorConfig> = {}): P
     version: profile.version,
     description: profile.description
   };
+  metadata["urban-context"] = summarizeUrbanContext(urbanContext) as Record<string, unknown>;
+  metadata["urban-evaluation"] = summarizeEvaluationReports(evaluationReports) as unknown as Record<string, unknown>;
 
   return {
     id: `ProceduralCity-${resolved.seed}`,
@@ -72,6 +86,8 @@ export async function generateCity(config: Partial<CityGeneratorConfig> = {}): P
     objects,
     blocks,
     roads: network.roads,
+    urbanContext,
+    evaluationReports,
     metadata,
     stats: {
       buildings: buildings.length,
@@ -222,6 +238,7 @@ export function createManifest(scene: CityScene): Record<string, unknown> {
       ...scene.stats,
       triangles: round(scene.stats.triangles, 0)
     },
+    evaluation: summarizeEvaluationReports(scene.evaluationReports || []),
     roads: scene.roads.map((road) => ({
       id: road.id,
       name: road.name,

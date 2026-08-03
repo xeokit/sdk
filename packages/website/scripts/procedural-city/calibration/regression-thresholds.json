@@ -1,0 +1,16 @@
+{
+  "minimumScores": {
+    "profileFit": 0.58,
+    "patternFit": 0.55,
+    "skyline": 0.52,
+    "validity": 0.82,
+    "overall": 0.58
+  },
+  "maximumValues": {
+    "unusableParcelRatio": 0.08,
+    "buildingRoadOverlaps": 0.04,
+    "isolatedTowerCount": 4,
+    "generationTimeSeconds": 12,
+    "triangleCount": 2000000
+  }
+}

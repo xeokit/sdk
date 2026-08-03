@@ -1,4 +1,4 @@
-import type {MeshData, Vec2, Vec3} from "../types";
+import type {BuildingUrbanContext, MeshData, Vec2, Vec3} from "../types";
 import {MeshBuilder} from "../geometry/MeshBuilder";
 import {clamp, ensureCCW} from "../geometry/PolygonUtils";
 
@@ -14,6 +14,7 @@ export interface FacadeParams {
   glassMaterialId: string;
   trimMaterialId: string;
   balconyMaterialId: string;
+  urbanContext?: BuildingUrbanContext;
 }
 
 export function createFacadeMeshes(params: FacadeParams): MeshData[] {
@@ -30,10 +31,15 @@ export function createFacadeMeshes(params: FacadeParams): MeshData[] {
   const zMin = params.baseZ;
   const isTower = params.facadeStyle === "curtain-wall";
   const isHistoric = params.facadeStyle === "brick" || params.facadeStyle === "stone" || params.facadeStyle === "stucco";
-  const floorStep = isTower ? 2 : 1;
-  const longBandWidth = width * (isTower ? 0.86 : isHistoric ? 0.58 : 0.70);
-  const shortBandWidth = depth * (isTower ? 0.84 : isHistoric ? 0.54 : 0.68);
-  const windowHeight = floorH * (isTower ? 0.72 : isHistoric ? 0.42 : 0.52);
+  const rhythm = params.urbanContext?.facadeRhythm ?? 1;
+  const imperfection = params.urbanContext?.imperfection ?? 0.22;
+  const continuity = 1 - imperfection * 0.18;
+  const floorStep = isTower ? Math.max(1, Math.round(2 / rhythm)) : 1;
+  const longBandFactor = clamp((isTower ? 0.86 : isHistoric ? 0.58 : 0.70) * (0.94 + rhythm * 0.06) * continuity, 0.42, 0.9);
+  const shortBandFactor = clamp((isTower ? 0.84 : isHistoric ? 0.54 : 0.68) * (0.94 + rhythm * 0.06) * continuity, 0.4, 0.88);
+  const longBandWidth = width * longBandFactor;
+  const shortBandWidth = depth * shortBandFactor;
+  const windowHeight = floorH * clamp((isTower ? 0.72 : isHistoric ? 0.42 : 0.52) * (0.94 + rhythm * 0.08), 0.34, 0.78);
   const eps = 0.08;
 
   for (let floor = 1; floor < params.floors; floor += floorStep) {
@@ -41,7 +47,7 @@ export function createFacadeMeshes(params: FacadeParams): MeshData[] {
     const z = zMin + floor * floorH + (floorH * groupFloors) * 0.52;
     const h = windowHeight * groupFloors + (isTower ? floorH * 0.34 * (groupFloors - 1) : 0);
     if (edges.length) {
-      addEdgePanels(glass, edges, eps, isTower ? 0.86 : isHistoric ? 0.58 : 0.70, z, h);
+      addEdgePanels(glass, edges, eps, longBandFactor, z, h);
     } else {
       addHorizontalPanel(glass, minY - eps, (minX + maxX) / 2, longBandWidth, z, h, [0, -1, 0]);
       addHorizontalPanel(glass, maxY + eps, (minX + maxX) / 2, longBandWidth, z, h, [0, 1, 0]);
@@ -58,7 +64,10 @@ export function createFacadeMeshes(params: FacadeParams): MeshData[] {
       }
     }
 
-    if (params.facadeStyle === "residential" && floor % 2 === 0 && width > 12) {
+    const balconyAllowed = params.facadeStyle === "residential"
+      && params.urbanContext?.useBias !== "commercial"
+      && params.urbanContext?.facadeAge !== "contemporary";
+    if (balconyAllowed && floor % 2 === 0 && width > 12) {
       const edge = edges.length ? longestEdge(edges) : undefined;
       const balconySpan = edge?.length ?? width;
       const balconyCount = Math.max(1, Math.floor(balconySpan / 18));
@@ -79,7 +88,8 @@ export function createFacadeMeshes(params: FacadeParams): MeshData[] {
     }
   }
 
-  if (params.usage === "MixedUse" || params.usage === "Retail" || params.district === "Downtown") {
+  const storefrontBias = params.urbanContext?.useBias === "commercial" || params.urbanContext?.useBias === "mixed";
+  if (params.usage === "MixedUse" || params.usage === "Retail" || params.district === "Downtown" || storefrontBias) {
     const storefrontH = Math.min(4.2, floorH * 0.72);
     const streetEdge = edges.length ? longestEdge(edges) : undefined;
     if (streetEdge) {

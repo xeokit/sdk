@@ -1,0 +1,219 @@
+{
+  "schema": "xeokit-procedural-city-profile/1.0",
+  "version": 1,
+  "name": "chicago-river",
+  "description": "Chicago-river-style downtown profile: rectilinear North American grid, broad streets, high-rise commercial core, a wide river with a north branch, riverwalks, bridges, and waterfront open space.",
+  "source": {
+    "type": "preset",
+    "note": "Hand-authored river-city preset for testing waterfront constraints; not copied from Chicago OSM geometry."
+  },
+  "roads": {
+    "hierarchyShare": {
+      "arterial": 0.18,
+      "collector": 0.27,
+      "local": 0.49,
+      "alley": 0.05,
+      "pedestrian": 0.01
+    },
+    "widthByHierarchy": {
+      "arterial": 36,
+      "collector": 25,
+      "local": 15,
+      "alley": 7,
+      "pedestrian": 10
+    },
+    "arterialSpacing": {
+      "mean": 275,
+      "p25": 190,
+      "p75": 380
+    },
+    "collectorSpacing": {
+      "mean": 160,
+      "p25": 105,
+      "p75": 230
+    },
+    "segmentLength": {
+      "mean": 108,
+      "p25": 72,
+      "p75": 160
+    },
+    "intersectionAngles": {
+      "mean": 90,
+      "p25": 88,
+      "p75": 92
+    },
+    "curvature": {
+      "mean": 1.02,
+      "p25": 1,
+      "p75": 1.05
+    },
+    "intersectionSpacing": {
+      "mean": 138,
+      "p25": 88,
+      "p75": 205
+    },
+    "roadDensityKmPerSquareKm": 11.8,
+    "intersectionDensityPerSquareKm": 58,
+    "averageSpacing": 160
+  },
+  "blocks": {
+    "area": {
+      "mean": 11800,
+      "p25": 6200,
+      "p75": 19800
+    },
+    "perimeter": {
+      "mean": 455,
+      "p25": 320,
+      "p75": 620
+    },
+    "compactness": {
+      "mean": 0.74,
+      "p25": 0.62,
+      "p75": 0.86
+    },
+    "aspectRatio": {
+      "mean": 1.72,
+      "p25": 1.22,
+      "p75": 2.42
+    },
+    "frontageLength": {
+      "mean": 116,
+      "p25": 68,
+      "p75": 185
+    },
+    "courtyardFrequency": 0.07,
+    "measuredCount": 56,
+    "openCellRatio": 0.84
+  },
+  "parcels": {
+    "frontage": {
+      "mean": 20,
+      "p25": 9,
+      "p75": 36
+    },
+    "depth": {
+      "mean": 58,
+      "p25": 34,
+      "p75": 92
+    },
+    "area": {
+      "mean": 1900,
+      "p25": 600,
+      "p75": 4200
+    },
+    "buildableCoverage": {
+      "mean": 0.56,
+      "p25": 0.34,
+      "p75": 0.8
+    },
+    "setbacks": {
+      "mean": 6.4,
+      "p25": 2,
+      "p75": 13
+    }
+  },
+  "buildings": {
+    "footprintArea": {
+      "mean": 1400,
+      "p25": 380,
+      "p75": 3400
+    },
+    "aspectRatio": {
+      "mean": 1.55,
+      "p25": 1.05,
+      "p75": 2.25
+    },
+    "coverage": {
+      "mean": 0.54,
+      "p25": 0.32,
+      "p75": 0.78
+    },
+    "levels": {
+      "mean": 14,
+      "p25": 5,
+      "p75": 26,
+      "p95": 54
+    },
+    "heights": {
+      "mean": 55,
+      "p25": 18,
+      "p75": 104,
+      "p95": 220
+    },
+    "spacing": {
+      "mean": 8,
+      "p25": 2,
+      "p75": 18
+    },
+    "streetAlignment": {
+      "mean": 0.76
+    },
+    "streetAlignmentProbability": 0.76,
+    "streetDistance": {
+      "mean": 16,
+      "p25": 5,
+      "p75": 30
+    }
+  },
+  "landUse": {
+    "residential": 0.28,
+    "commercial": 0.36,
+    "mixedUse": 0.19,
+    "industrial": 0.05,
+    "parks": 0.07,
+    "civic": 0.05
+  },
+  "publicSpace": {
+    "parkFrequency": 0.08,
+    "plazaSize": {
+      "mean": 6800,
+      "p25": 2200,
+      "p75": 15000
+    },
+    "streetTreeDensity": {
+      "mean": 0.46
+    },
+    "openSpaceRatio": 0.11,
+    "plazaFrequencyPerSquareKm": 1.2
+  },
+  "waterways": {
+    "enabled": true,
+    "style": "chicago-river",
+    "width": {
+      "mean": 82,
+      "p25": 68,
+      "p75": 96
+    },
+    "branchWidth": {
+      "mean": 58,
+      "p25": 48,
+      "p75": 68
+    },
+    "bridgeSpacing": {
+      "mean": 175,
+      "p25": 135,
+      "p75": 230
+    },
+    "waterfrontSetback": 24
+  },
+  "districts": {
+    "Historic Core": 0.04,
+    "Downtown": 0.48,
+    "Mixed Residential": 0.37,
+    "Civic District": 0.11
+  },
+  "relationships": {
+    "downtownHeightGradient": 1.58,
+    "commercialRoadBias": 0.94,
+    "courtyardProbability": 0.07,
+    "roadHierarchyBlockScale": 1.12,
+    "streetIrregularity": 0.08,
+    "buildingStreetAlignment": 0.76,
+    "heightRoadBias": 1.18,
+    "perimeterBlockBias": 0.16,
+    "pedestrianStreetBias": 0.7,
+    "localRoadDensityBias": 0.94,
+    "commercialIntersectionBias": 0.82
+  }
+}

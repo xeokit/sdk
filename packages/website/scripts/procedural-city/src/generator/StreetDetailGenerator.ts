@@ -1,4 +1,4 @@
-import type {CityGeneratorConfig, CityObject, RandomStreams, Road, RoadNetwork, Vec2, Waterway} from "../types";
+import type {Block, CityGeneratorConfig, CityObject, CityUrbanContext, RandomStreams, Road, RoadNetwork, Vec2, Waterway} from "../types";
 import {MeshBuilder} from "../geometry/MeshBuilder";
 import {distance, distanceToPolyline, lerp2, samplePolyline, segmentLength} from "../geometry/PolygonUtils";
 import {distanceToWaterway} from "./WaterwayGenerator";
@@ -59,7 +59,7 @@ export function generateRoadObjects(network: RoadNetwork): CityObject[] {
   });
 }
 
-export function generateStreetDetails(network: RoadNetwork, config: CityGeneratorConfig, streams: RandomStreams): CityObject[] {
+export function generateStreetDetails(network: RoadNetwork, config: CityGeneratorConfig, streams: RandomStreams, urbanContext?: CityUrbanContext, blocks: Block[] = []): CityObject[] {
   const trunks = new MeshBuilder();
   const crowns = new MeshBuilder();
   const lights = new MeshBuilder();
@@ -77,6 +77,7 @@ export function generateStreetDetails(network: RoadNetwork, config: CityGenerato
       if (pointIsInWaterReservedArea(point, road, network.waterways || [])) {
         continue;
       }
+      const treeDensityMultiplier = nearestBlockTreeMultiplier(point, urbanContext, blocks);
       const normal: Vec2 = [-tangent[1], tangent[0]];
       for (const side of [-1, 1]) {
         const treePoint: Vec2 = [
@@ -90,7 +91,7 @@ export function generateStreetDetails(network: RoadNetwork, config: CityGenerato
         if (
           road.hierarchy !== "alley"
           && road.hierarchy !== "pedestrian"
-          && streams.vegetation() < 0.62
+          && streams.vegetation() < Math.min(0.88, 0.62 * treeDensityMultiplier)
           && !pointIsInAnyRoadSurface(treePoint, network.roads, TREE_ROAD_SURFACE_CLEARANCE)
         ) {
           addStreetTree(trunks, crowns, treePoint, 5.2 + streams.vegetation() * 3.8);
@@ -127,7 +128,7 @@ export function generateStreetDetails(network: RoadNetwork, config: CityGenerato
         trunks.toMesh("tree-trunk", "street-tree-trunks"),
         crowns.toMesh("tree-canopy", "street-tree-canopies")
       ],
-      metadata: {id: "street-trees", type: "Vegetation", treeCount}
+      metadata: {id: "street-trees", type: "Vegetation", treeCount, patternAware: !!urbanContext}
     },
     {
       id: "street-furniture",
@@ -140,7 +141,7 @@ export function generateStreetDetails(network: RoadNetwork, config: CityGenerato
         traffic.toMesh("traffic-light", "traffic-lights"),
         shelters.toMesh("dark-glass", "bus-shelters")
       ],
-      metadata: {id: "street-furniture", type: "StreetFurniture", count: furnitureCount}
+      metadata: {id: "street-furniture", type: "StreetFurniture", count: furnitureCount, patternAware: !!urbanContext}
     }
   ];
 
@@ -148,6 +149,27 @@ export function generateStreetDetails(network: RoadNetwork, config: CityGenerato
     addBollards(objects[1], config.size);
   }
   return objects;
+}
+
+function nearestBlockTreeMultiplier(point: Vec2, urbanContext: CityUrbanContext | undefined, blocks: Block[]): number {
+  if (!urbanContext || !blocks.length) {
+    return 1;
+  }
+  let bestDistance = Infinity;
+  let multiplier = 1;
+  for (const block of blocks) {
+    const d = distance(point, block.center);
+    if (d >= bestDistance) {
+      continue;
+    }
+    const blockContext = urbanContext.blockContexts[block.id];
+    if (!blockContext) {
+      continue;
+    }
+    bestDistance = d;
+    multiplier = blockContext.treeDensityMultiplier;
+  }
+  return bestDistance < 120 ? multiplier : 1;
 }
 
 function clippedRoadSpans(a: Vec2, b: Vec2, road: Road, waterways: Waterway[], width: number, margin: number): Array<[Vec2, Vec2]> {

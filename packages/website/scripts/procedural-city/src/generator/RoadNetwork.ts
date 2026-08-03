@@ -3,6 +3,15 @@ import {landmarkAnchors} from "./Zoning";
 import {distance} from "../geometry/PolygonUtils";
 import {clampProfileValue, distributionRange, distributionValue, profileNumber} from "../profiles/ProfileResolver";
 import {generateWaterways, routeRoadsAroundWaterways} from "./WaterwayGenerator";
+import type {Candidate} from "../evaluation/Candidate";
+import {selectUrbanCandidate} from "../evaluation/UrbanEvaluation";
+
+interface RoadLayoutParameters {
+  minStep: number;
+  maxStep: number;
+  irregularity: number;
+  diagonalStrength: number;
+}
 
 export function generateRoadNetwork(config: CityGeneratorConfig, streams: RandomStreams): RoadNetwork {
   const half = config.size / 2;
@@ -15,15 +24,17 @@ export function generateRoadNetwork(config: CityGeneratorConfig, streams: Random
   const areaStep = clampProfileValue(Math.sqrt(Math.max(900, profileBlockArea)), 42, 190);
   const segmentMinStep = profileMinStep * blockScale;
   const segmentMaxStep = Math.max(profileMaxStep * blockScale, segmentMinStep + 20);
-  const minStep = clampProfileValue(segmentMinStep * 0.55 + areaStep * 0.72 * 0.45, 42, 165);
-  const maxStep = clampProfileValue(Math.max(segmentMaxStep * 0.55 + areaStep * 1.38 * 0.45, minStep + 20), minStep + 18, 240);
+  const baseMinStep = clampProfileValue(segmentMinStep * 0.55 + areaStep * 0.72 * 0.45, 42, 165);
+  const baseMaxStep = clampProfileValue(Math.max(segmentMaxStep * 0.55 + areaStep * 1.38 * 0.45, baseMinStep + 20), baseMinStep + 18, 240);
   const orientationRadians = 0;
-  const irregularity = clampProfileValue(
+  const baseIrregularity = clampProfileValue(
     profileNumber(profile?.relationships.streetIrregularity, 0.58) * 0.34
       + distributionValue(profile?.blocks.irregularity, 0.35) * 0.16,
     0,
     0.42
   );
+  const layout = selectRoadLayout(config, baseMinStep, baseMaxStep, baseIrregularity);
+  const {minStep, maxStep, irregularity} = layout;
   const xCoords = createStreetCoords(config.size, minStep, maxStep, streams.roads);
   const yCoords = createStreetCoords(config.size, minStep * 0.92, maxStep * 0.95, streams.roads);
   const gridPoints: Vec2[][] = [];
@@ -61,7 +72,7 @@ export function generateRoadNetwork(config: CityGeneratorConfig, streams: Random
     });
   }
 
-  const diagonalRoads = createDiagonalRoads(config.size, streams, irregularity, config, orientationRadians);
+  const diagonalRoads = createDiagonalRoads(config.size, streams, irregularity * layout.diagonalStrength, config, orientationRadians);
   roads.push(...diagonalRoads);
   roads.push(...createRadialRoads(config.size, streams, config, orientationRadians));
   roads.push(...createPedestrianStreets(config.size, config, orientationRadians));
@@ -76,6 +87,63 @@ export function generateRoadNetwork(config: CityGeneratorConfig, streams: Random
     diagonalRoads,
     landmarkAnchors: landmarkAnchors(),
     waterways
+  };
+}
+
+function selectRoadLayout(config: CityGeneratorConfig, minStep: number, maxStep: number, irregularity: number): RoadLayoutParameters {
+  const candidates: Candidate<RoadLayoutParameters>[] = [
+    roadLayoutCandidate("balanced", "Profile balanced street mesh", minStep, maxStep, irregularity, 1, ["profile", "connected"]),
+    roadLayoutCandidate("compact-walkable", "Compact walkable mesh", minStep * 0.88, maxStep * 0.9, irregularity + 0.035, 0.9, ["walkable", "fine-grain"]),
+    roadLayoutCandidate("open-hierarchy", "Open hierarchy mesh", minStep * 1.08, maxStep * 1.12, irregularity * 0.84, 1.05, ["hierarchy", "boulevard"]),
+    roadLayoutCandidate("irregular-inner-city", "Irregular inner-city mesh", minStep * 0.96, maxStep * 1.02, irregularity + 0.075, 1.28, ["irregular", "historic"])
+  ];
+  const context = {
+    stage: "road-layout" as const,
+    subjectId: "city-road-layout",
+    config,
+    profile: config.profileData
+  };
+  const result = selectUrbanCandidate(candidates, context, {
+    threshold: config.evaluation?.threshold ?? 0.58,
+    report: true,
+    weights: {
+      "Skyline": 0,
+      "Landmark Quality": 0
+    }
+  });
+  return result.candidate.value;
+}
+
+function roadLayoutCandidate(
+  id: string,
+  label: string,
+  minStep: number,
+  maxStep: number,
+  irregularity: number,
+  diagonalStrength: number,
+  tags: string[]
+): Candidate<RoadLayoutParameters> {
+  const safeMin = clampProfileValue(minStep, 38, 180);
+  const safeMax = clampProfileValue(Math.max(maxStep, safeMin + 18), safeMin + 18, 250);
+  const avgStep = (safeMin + safeMax) / 2;
+  return {
+    id,
+    label,
+    value: {
+      minStep: safeMin,
+      maxStep: safeMax,
+      irregularity: clampProfileValue(irregularity, 0, 0.48),
+      diagonalStrength
+    },
+    tags,
+    metrics: {
+      roadSegmentLength: avgStep,
+      roadSpacing: avgStep,
+      connectivity: avgStep < 140 ? 0.82 : 0.68,
+      walkableBlockSize: avgStep < 120 ? 0.86 : avgStep < 165 ? 0.7 : 0.48,
+      variety: 0.52 + Math.min(0.38, irregularity) * 0.8,
+      randomnessPenalty: irregularity > 0.42 ? 0.18 : 0
+    }
   };
 }
 

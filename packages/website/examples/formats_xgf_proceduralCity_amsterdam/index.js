@@ -25,6 +25,8 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
     "cameraLateralOffset": 0,
     "cameraTrailFollow": 0.65,
     "cameraTrailHeight": 1.4,
+    "cameraCockpitEyeOffset": [0, -1.55, -0.42],
+    "cameraCockpitLookOffset": [0, -16, -0.32],
     "shipMouseDragYawSensitivity": 0.0095,
     "shipMouseDragPitchSensitivity": 0.0068,
     "shipMouseDragResponse": 5.2,
@@ -41,7 +43,7 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
     "bodyRadius": 4,
     "minAltitude": 6,
     "exhaustPlume": {
-      "offset": [0, 4.25, 0.18],
+      "offset": [0, 4.25, 0.32],
       "trailLength": 44,
       "trailSegments": 16,
       "trailAdvection": 0,

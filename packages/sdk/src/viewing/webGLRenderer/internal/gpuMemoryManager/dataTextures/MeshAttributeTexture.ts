@@ -46,7 +46,8 @@ import { ItemDataTexture } from "./ItemDataTexture";
  *                 for materials with no emissive texture) zeroes that out,
  *                 while textured materials carry `[1,1,1]` (or an explicit
  *                 factor), so emissive = factor × texture.
- *   - `base + 17..19` reserved
+ *   - `base + 17` billboard mode (`0 = none`, `1 = spherical`)
+ *   - `base + 18..19` reserved
  *
  * Each UV transform takes per-vertex `vUV ∈ [0, 1]` to atlas-space:
  * `atlasUV = vUV * (uScale, vScale) + (uOffset, vOffset)`. Different
@@ -124,6 +125,8 @@ setItem(itemIndex: number, item: {
   // the PBR material slot (bits 16-31; the low 16 bits hold
   // packed roughness + metallic).
   hatchPatternSlot?: number;
+  // Billboard mode: 0 = none, 1 = spherical.
+  billboard?: number;
 }): void {
   const base = itemIndex * this.elementsPerItem;
   if (item.tileIndex !== undefined) this.buffer[base] = this.toU32(item.tileIndex);
@@ -208,6 +211,9 @@ setItem(itemIndex: number, item: {
     const g8 = clampU8(item.emissiveColor[1] * 255);
     const b8 = clampU8(item.emissiveColor[2] * 255);
     this.buffer[base + 16] = (r8 | (g8 << 8) | (b8 << 16)) >>> 0;
+  }
+  if (item.billboard !== undefined) {
+    this.buffer[base + 17] = this.toU32(item.billboard);
   }
   this.setItemDirty(itemIndex);
 }

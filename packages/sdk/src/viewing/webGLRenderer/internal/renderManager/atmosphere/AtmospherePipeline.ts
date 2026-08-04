@@ -236,7 +236,7 @@ void main(void) {
     float range = max(uEndDistance - uStartDistance, 1e-4);
     float distanceAmount = smoothstep(0.0, 1.0, clamp((viewDepth - uStartDistance) / range, 0.0, 1.0));
     float haze = min(uMaxOpacity, distanceAmount * uIntensity);
-    vec3 airlight = max(uFogColor, vec3(0.92, 0.96, 1.0));
+    vec3 airlight = clamp(uFogColor, vec3(0.0), vec3(1.0));
     vec3 fogged = mix(color.rgb, airlight, haze);
 
     float sourceLuma = dot(color.rgb, LUMA);

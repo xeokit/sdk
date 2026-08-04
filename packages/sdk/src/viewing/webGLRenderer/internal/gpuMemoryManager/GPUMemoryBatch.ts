@@ -840,6 +840,7 @@ export class GPUMemoryBatch {
       lineWidth: sceneMesh.effectiveLineWidth,
       linePatternSlot: patternSlots.linePatternSlot,
       hatchPatternSlot: patternSlots.hatchPatternSlot,
+      billboard: sceneMesh.billboard === "spherical" ? 1 : 0,
     });
   }
 

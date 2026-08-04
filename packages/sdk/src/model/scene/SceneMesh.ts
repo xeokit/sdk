@@ -12,7 +12,7 @@ import {
 } from "../../base/math/matrix";
 import type {FloatArrayParam} from "../../base/math";
 import type {SceneGeometry} from "./SceneGeometry";
-import type {SceneMeshParams} from "./SceneMeshParams";
+import type {SceneMeshBillboard, SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
 import type {SceneMaterial} from "./SceneMaterial";
 import type {SceneModel} from "./SceneModel";
@@ -111,6 +111,15 @@ export class SceneMesh {
    */
   readonly bin?: string;
 
+  /**
+   * Billboard mode for this SceneMesh.
+   *
+   * `"spherical"` keeps the mesh's transformed origin fixed while orienting
+   * its local axes to the active camera in the renderer. `"none"` uses the
+   * ordinary mesh transform.
+   */
+  readonly billboard: SceneMeshBillboard;
+
   private _color: Vec3;
   private _opacity: number;
   private _localMatrix: Mat4;
@@ -135,6 +144,7 @@ export class SceneMesh {
     color?: Vec3;
     opacity?: number;
     bin?: string;
+    billboard?: SceneMeshBillboard;
   }) {
     this.id = meshParams.id;
     this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
@@ -149,6 +159,7 @@ export class SceneMesh {
     this.geometry = meshParams.geometry;
     this.material = meshParams.material;
     this.bin = meshParams.bin;
+    this.billboard = meshParams.billboard ?? "none";
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
     this.object = null;
@@ -660,6 +671,9 @@ export class SceneMesh {
     }
     if (this.bin !== undefined) {
       meshParams.bin = this.bin;
+    }
+    if (this.billboard !== "none") {
+      meshParams.billboard = this.billboard;
     }
     return {
       ok: true,

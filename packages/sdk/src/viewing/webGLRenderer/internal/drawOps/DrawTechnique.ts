@@ -1159,6 +1159,8 @@ struct MeshAttribTable {
   // hatch (surface renders normally); > 0 = 5-texel slot to
   // fetch from uHatchPatternTexture.
   uint hatchPatternSlot;
+  // Billboard mode. 0 = none, 1 = spherical.
+  uint billboard;
 };
 
 struct MeshViewAttributes {
@@ -1316,6 +1318,7 @@ MeshAttribTable getMeshAttribTable(uint meshIndex) {
   s.occlusionUVOffsetPacked = t3.b;
   s.occlusionUVScalePacked  = t3.a;
   s.emissiveColorPacked     = t4.r;
+  s.billboard               = t4.g;
   // Unpack the 16-bit line-pattern slot from bits 16..31 of
   // the alpha slot. Bytes 0/1 carry alphaMode/alphaCutoff;
   // bytes 2-3 carry the slot index into uLinePatternTexture.
@@ -1375,6 +1378,58 @@ mat4 getMeshMatrix(uint meshIndex) {
   vec4 m2 = texelFetch(uMeshMatrixTexture, texCoord(base + 2u, texWidth), 0);
   vec4 m3 = texelFetch(uMeshMatrixTexture, texCoord(base + 3u, texWidth), 0);
   return mat4(m0, m1, m2, m3);
+}
+
+vec3 getMeshScale(mat4 modelMatrix) {
+  return vec3(
+    length(modelMatrix[0].xyz),
+    length(modelMatrix[1].xyz),
+    length(modelMatrix[2].xyz)
+  );
+}
+
+vec3 getCameraRightWorld(mat4 viewMatrix) {
+  return normalize(vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]));
+}
+
+vec3 getCameraUpWorld(mat4 viewMatrix) {
+  return normalize(vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]));
+}
+
+vec3 getCameraBackWorld(mat4 viewMatrix) {
+  return normalize(vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
+}
+
+vec4 getMeshWorldPosition(vec4 modelPos, mat4 modelMatrix, mat4 viewMatrix, uint billboard) {
+  if (billboard == 1u) {
+    vec3 scale = getMeshScale(modelMatrix);
+    vec3 centerWorld = modelMatrix[3].xyz;
+    vec3 worldPos =
+      centerWorld +
+      getCameraRightWorld(viewMatrix) * modelPos.x * scale.x +
+      getCameraUpWorld(viewMatrix)    * modelPos.y * scale.y +
+      getCameraBackWorld(viewMatrix)  * modelPos.z * scale.z;
+    return vec4(worldPos, 1.0);
+  }
+  return modelMatrix * modelPos;
+}
+
+vec3 getMeshViewNormal(vec3 modelNormal, mat4 modelMatrix, mat4 viewMatrix, uint billboard) {
+  if (billboard == 1u) {
+    return normalize(modelNormal);
+  }
+  return normalize(mat3(viewMatrix) * mat3(modelMatrix) * modelNormal);
+}
+
+vec3 getMeshWorldNormal(vec3 modelNormal, mat4 modelMatrix, mat4 viewMatrix, uint billboard) {
+  if (billboard == 1u) {
+    return normalize(
+      getCameraRightWorld(viewMatrix) * modelNormal.x +
+      getCameraUpWorld(viewMatrix)    * modelNormal.y +
+      getCameraBackWorld(viewMatrix)  * modelNormal.z
+    );
+  }
+  return normalize(mat3(modelMatrix) * modelNormal);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -2003,8 +2058,9 @@ void main(void) {`);
     mat4 modelMatrix = getMeshMatrix(meshIndex);
     mat4 viewMatrix  = getTileViewMatrix(tileIndex);
 
-    // Apply transforms through the standard pipeline
-    vec4 worldPos = modelMatrix * modelPos;      // model → world
+    // Apply transforms through the standard pipeline. Billboarded meshes keep
+    // their center in world space but align local axes to the active camera.
+    vec4 worldPos = getMeshWorldPosition(modelPos, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
     vec4 viewPos  = viewMatrix  * worldPos;      // world → view
     vec4 clipPos  = uProjMatrix * viewPos;       // view  → clip
 
@@ -2037,8 +2093,7 @@ void main(void) {`);
 
     uvec2 packedNormal = getVertexNormalPacked(geometryAttributes.normalsBase + vertexIndexWithinGeometry);
     vec3  modelNormal  = octDecodeNormalU16(packedNormal);
-    mat3  normalMatrix = mat3(viewMatrix) * mat3(modelMatrix);
-    vViewNormal        = normalize(normalMatrix * modelNormal);
+    vViewNormal        = getMeshViewNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
     vMaterial          = unpackRoughnessMetallic(meshAttributeTexture.material);` : ``}${this.hasUVs ? `
 
     vUV              = getVertexUV(geometryAttributes.uvsBase + vertexIndexWithinGeometry);` : ``}${this.triplanar ? `${this.hasNormals ? `
@@ -2047,7 +2102,7 @@ void main(void) {`);
     // near-rigid model matrix the rest of the pipeline already
     // requires; non-uniform scale would also break the position
     // pipeline).
-    vWorldNormal     = normalize(mat3(modelMatrix) * modelNormal);` : ``}
+    vWorldNormal     = getMeshWorldNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard);` : ``}
     vTriplanarScale  = meshAttributeTexture.triplanarScale;` : ``}${(this.hasUVs || this.triplanar) ? `
 
     vAlbedoUVOffset  = unpackUnorm2x16FromU32(meshAttributeTexture.albedoUVOffsetPacked);
@@ -2297,18 +2352,21 @@ void main(void) {
 
   mat4 modelMatrix = getMeshMatrix( meshIndex );
   mat4 viewMatrix  = getTileViewMatrix( tileIndex );
-  mat4 mvp         = uProjMatrix * viewMatrix * modelMatrix;
-  vec4 clipA = mvp * modelA;
-  vec4 clipB = mvp * modelB;
-  vec4 clipP = mvp * modelP;
-  vec4 clipN = mvp * modelN;
+  vec4 worldA = getMeshWorldPosition(modelA, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
+  vec4 worldB = getMeshWorldPosition(modelB, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
+  vec4 worldP = getMeshWorldPosition(modelP, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
+  vec4 worldN = getMeshWorldPosition(modelN, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
+  vec4 clipA = uProjMatrix * viewMatrix * worldA;
+  vec4 clipB = uProjMatrix * viewMatrix * worldB;
+  vec4 clipP = uProjMatrix * viewMatrix * worldP;
+  vec4 clipN = uProjMatrix * viewMatrix * worldN;
 
   // Standard view-space + world-space outputs, available for any
   // logic the technique emits after this block (slicing, colour,
   // edge fade …). Use the current endpoint, *un-offset*, so
   // downstream calculations stay correct.
   vec4 modelPos = (endpointIdx == 0u) ? modelA : modelB;
-  vec4 worldPos = modelMatrix * modelPos;
+  vec4 worldPos = getMeshWorldPosition(modelPos, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
   vec4 viewPos  = viewMatrix * worldPos;
 
   // Screen-space line geometry in *real* pixel units. NDC

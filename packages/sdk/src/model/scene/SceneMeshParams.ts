@@ -1,6 +1,16 @@
 import type  {Mat4} from "../../base/math/matrix";
 import type  {Vec3, Vec4} from "../../base/math/vector";
 import type {Quat} from "../../base/math/quat";
+
+/**
+ * Billboard mode for a {@link model!scene.SceneMesh | SceneMesh}.
+ *
+ * - `"none"`: the mesh uses its normal modeling transform.
+ * - `"spherical"`: the renderer keeps the mesh centered at its transformed
+ *   origin, while rotating its local X/Y/Z axes to face the active camera.
+ */
+export type SceneMeshBillboard = "none" | "spherical";
+
 /**
  * Parameters for a {@link model!scene.SceneMesh | SceneMesh}.
  *
@@ -80,6 +90,19 @@ export interface SceneMeshParams {
    * When this is given, then {@link SceneMeshParams.matrix | SceneMeshParams.matrix} will be relative to this origin.
    */
   origin?: Vec3;
+
+  /**
+   * Optional billboard mode.
+   *
+   * When `"spherical"`, the mesh is rendered as camera-facing in all axes.
+   * The mesh's transformed origin remains fixed in world space, while local
+   * vertex offsets are applied in camera right/up/depth axes using the mesh's
+   * scale. Geometry intended for billboard sprites should usually be centered
+   * around the local origin.
+   *
+   * Default is `"none"`.
+   */
+  billboard?: SceneMeshBillboard;
 
   /**
    * Free-form bin identifier the SceneMesh belongs to. Frozen after

@@ -21,12 +21,14 @@ function createMesh({
   uvs = false,
   bin,
   updateHint,
+  billboard,
 }: {
   primitive: number;
   normals?: boolean;
   uvs?: boolean;
   bin?: string;
   updateHint?: SceneModelUpdateHint;
+  billboard?: "none" | "spherical";
 }): SceneMesh {
   return {
     model: {
@@ -38,6 +40,7 @@ function createMesh({
       uvsCompressed: uvs ? new Uint16Array(2) : undefined,
     },
     bin,
+    billboard: billboard ?? "none",
   } as unknown as SceneMesh;
 }
 
@@ -80,6 +83,21 @@ describe("MeshManager batch lookup", () => {
     expect(getMeshBatch(createMesh({primitive: LinesPrimitive})).ok).toBe(true);
     expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
       primitive: LinesPrimitive,
+      geometryStorage: "dtx"
+    }));
+  });
+
+  test("uses DTX triangle geometry storage for billboarded static triangle meshes", () => {
+    const {manager, gpuMemoryManager} = createManager();
+    const getMeshBatch = (manager as any)._getMeshBatch.bind(manager);
+
+    expect(getMeshBatch(createMesh({
+      primitive: TrianglesPrimitive,
+      updateHint: "static",
+      billboard: "spherical"
+    })).ok).toBe(true);
+    expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
+      primitive: TrianglesPrimitive,
       geometryStorage: "dtx"
     }));
   });

@@ -1431,6 +1431,7 @@ export class SceneModel {
       quaternion,
       color,
       opacity,
+      billboard,
       bin
     } = meshParams;
 
@@ -1548,6 +1549,14 @@ export class SceneModel {
       });
     }
 
+    if (billboard !== undefined && billboard !== "none" && billboard !== "spherical") {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createMesh] Unsupported billboard mode: '${billboard}'`
+      });
+    }
+
     const sceneMesh = new SceneMesh({
       id,
       model: this,
@@ -1556,6 +1565,7 @@ export class SceneModel {
       matrix,
       color,
       opacity,
+      billboard: billboard ?? "none",
       bin
     });
 

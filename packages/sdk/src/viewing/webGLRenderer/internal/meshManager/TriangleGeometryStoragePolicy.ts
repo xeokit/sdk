@@ -15,6 +15,10 @@ export function selectTriangleGeometryStorage(
     return "dtx";
   }
 
+  if (sceneMesh.billboard === "spherical") {
+    return "dtx";
+  }
+
   return getTriangleGeometryStorageForUpdateHint(sceneMesh.model?.updateHint);
 }
 

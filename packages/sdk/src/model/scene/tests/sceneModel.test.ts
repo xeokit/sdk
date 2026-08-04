@@ -111,6 +111,45 @@ describe("SceneModel serialization", () => {
     expect(model.updateHint).toBe("dynamic");
   });
 
+  it("stores and serializes spherical mesh billboards", () => {
+    const model = new Scene().createModel({id: "billboardModel"}).value!;
+    expect(model.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES,
+    }).ok).toBe(true);
+
+    const meshResult = model.createMesh({
+      id: "billboardMesh",
+      geometryId: "g",
+      billboard: "spherical"
+    });
+
+    expect(meshResult.ok).toBe(true);
+    expect(meshResult.value!.billboard).toBe("spherical");
+    expect(meshResult.value!.toParams().value!.billboard).toBe("spherical");
+    expect(model.toParams().value!.meshes![0].billboard).toBe("spherical");
+  });
+
+  it("rejects unsupported mesh billboard modes", () => {
+    const model = new Scene().createModel({id: "badBillboardModel"}).value!;
+    expect(model.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES,
+    }).ok).toBe(true);
+
+    const result = model.createMesh({
+      id: "badBillboardMesh",
+      geometryId: "g",
+      billboard: "cylindrical"
+    } as any);
+
+    expect(result.ok).toBe(false);
+  });
+
   it("serializes a built model to SceneModelParams via toParams()", () => {
     const model = buildModel(new Scene(), "model1");
 

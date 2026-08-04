@@ -9,6 +9,8 @@ const VIEW_ID = EXAMPLE_CONFIG.viewId || "proceduralCityView";
 const STREAM_LABEL = EXAMPLE_CONFIG.streamLabel || "procedural city";
 const WIND_SOUND = !!EXAMPLE_CONFIG.windSound;
 const VEHICLE_CONFIG = EXAMPLE_CONFIG.vehicle || null;
+const VIEW_EFFECTS = EXAMPLE_CONFIG.effects || {};
+const VIEW_LIGHTS = EXAMPLE_CONFIG.lights || {};
 const AUTO_BATCH_SIZE = 12;
 const FETCH_CONCURRENCY = 10;
 const CHUNK_COMMIT_FRAME_BUDGET_MS = 4;
@@ -21,34 +23,6 @@ const RENDER_MODE_NAMES = {
   realistic: xeokit.base.constants.RealisticRender
 };
 const DEFAULT_RENDER_MODE = RENDER_MODE_NAMES.detailed;
-const VEHICLE_CAMERA_PRESET_KEYS = {
-  Digit0: "trailing",
-  Numpad0: "trailing",
-  Digit1: "left",
-  Numpad1: "left",
-  Digit2: "right",
-  Numpad2: "right",
-  Digit3: "front",
-  Numpad3: "front",
-  Digit4: "top",
-  Numpad4: "top",
-  Digit5: "topTrailing",
-  Numpad5: "topTrailing",
-  Digit6: "rearWide",
-  Numpad6: "rearWide",
-  Digit7: "cockpit",
-  Numpad7: "cockpit"
-};
-const VEHICLE_EXTERIOR_CAMERA_PRESETS = new Set([
-  "trailing",
-  "left",
-  "right",
-  "front",
-  "top",
-  "topTrailing",
-  "rearWide"
-]);
-
 const CAMERA_PRESETS = {
   aerial: {
     eye: [1320, -1570, 1120],
@@ -95,10 +69,13 @@ studio.init().then(async () => {
     id: VIEW_ID,
     adaptiveQuality: false,
     renderMode: DEFAULT_RENDER_MODE,
-    camera: CAMERA_PRESETS.aerial
+    camera: CAMERA_PRESETS.aerial,
+    effects: VIEW_EFFECTS,
+    lights: VIEW_LIGHTS
   });
   view.camera.perspectiveProjection.far = 10000;
-  setupWindSound(view, WIND_SOUND);
+  const vehicleRuntime = {controller: null};
+  setupWindSound(view, WIND_SOUND, () => Number(vehicleRuntime.controller?.sdkController?.speed || 0));
 
   try {
     status.textContent = `Loading ${STREAM_LABEL} stream index...`;
@@ -174,7 +151,7 @@ studio.init().then(async () => {
       applyCamera(view, "aerial");
     }
     if (VEHICLE_CONFIG) {
-      await setupVehicleChase({studio, scene, view, config: VEHICLE_CONFIG});
+      vehicleRuntime.controller = await setupVehicleChase({studio, scene, view, config: VEHICLE_CONFIG});
     }
     streamController.prefetchInitial(AUTO_BATCH_SIZE * 2);
     streamController.schedule(`Initial ${STREAM_LABEL} frustum`);
@@ -337,39 +314,48 @@ async function setupVehicleChase({studio, scene, view, config}) {
     contentTransform.rotation = config.contentRotation;
   }
 
-  const exhaust = setupVehicleExhaust({
-    scene,
-    modelId,
-    coordinateSystem: vehicleCoordinateSystem,
-    config
-  });
+  const AircraftExhaustTrail = xeokit.simulation?.aircraft?.AircraftExhaustTrail;
+  const AircraftController = xeokit.simulation?.aircraft?.AircraftController;
+  if (!AircraftController) {
+    throw new Error("AircraftController is unavailable in the xeokit bundle");
+  }
+  const exhaustConfig = typeof config.exhaustPlume === "object" && config.exhaustPlume
+    ? config.exhaustPlume
+    : (config.exhaust || null);
+  const exhaust = (AircraftExhaustTrail && (exhaustConfig || config.exhaustPlume === true))
+    ? new AircraftExhaustTrail({
+      scene,
+      modelId,
+      coordinateSystem: vehicleCoordinateSystem,
+      config
+    })
+    : null;
 
   const objectIds = Object.keys(sceneModel.objects);
   if (objectIds.length) {
     view.setObjectsPickable(objectIds, false);
   }
-  if (exhaust?.trailObjectIds?.length) {
-    view.setObjectsPickable(exhaust.trailObjectIds, false);
+  if (exhaust?.objectIds?.length) {
+    view.setObjectsPickable(exhaust.objectIds, false);
   }
 
-  const shipController = createVehicleNavigationShipController({studio, view, rootTransform, exhaust, config});
-  shipController.update();
-
-  window.__proceduralCityVehicle = {
-    ready: true,
-    modelId,
-    view,
-    sceneModel,
-    vehicleSceneModel: sceneModel,
-    vehicleUpdateHint: sceneModel.updateHint,
-    exhaustSceneModel: exhaust?.sceneModel || null,
-    exhaustUpdateHint: exhaust?.sceneModel?.updateHint || null,
+  const record = studio.viewManager.views?.[view.id];
+  if (record?.vehicleNavigationController?.destroy) {
+    record.vehicleNavigationController.destroy();
+  }
+  const shipController = new AircraftController(view, {
     rootTransform,
     exhaust,
-    objectIds,
-    controller: shipController,
-    chaseUpdateMode: shipController.updateMode
-  };
+    config,
+    suspendViewController: record?.viewController,
+    objectFilter: (objectId) => !isVehicleObjectId(objectId, config.modelId),
+    taskName: "ProceduralCityVehicleChase"
+  });
+  if (record) {
+    record.vehicleNavigationController = shipController.sdkController;
+  }
+  shipController.update();
+
   if (config.hideStudioOverlay !== false) {
     document.querySelectorAll(".xeokit-loading-overlay").forEach((element) => {
       element.style.display = "none";
@@ -377,10 +363,13 @@ async function setupVehicleChase({studio, scene, view, config}) {
   }
 
   window.addEventListener("pagehide", () => {
+    if (record?.vehicleNavigationController === shipController.sdkController) {
+      record.vehicleNavigationController = undefined;
+    }
     shipController.destroy();
   }, {once: true});
 
-  return {sceneModel, rootTransform, vehicleNavigationController: shipController};
+  return shipController;
 }
 
 function parentVehicleContent(sceneModel, rootTransformId, contentTransformId) {
@@ -398,522 +387,6 @@ function parentVehicleContent(sceneModel, rootTransformId, contentTransformId) {
   }
 }
 
-function setupVehicleExhaust({scene, modelId, coordinateSystem, config}) {
-  const exhaustConfig = typeof config.exhaustPlume === "object" && config.exhaustPlume
-    ? config.exhaustPlume
-    : (config.exhaust || null);
-  if (!exhaustConfig && config.exhaustPlume !== true) {
-    return null;
-  }
-
-  const exhaustModelId = exhaustConfig?.modelId || `${modelId}Exhaust`;
-  const sceneModel = must(scene.createModel({
-    id: exhaustModelId,
-    updateHint: "dynamic",
-    coordinateSystem
-  }));
-  const forwardAxis = config.forwardAxis || "-Z";
-  const offset = Array.isArray(exhaustConfig?.offset)
-    ? toVec3(exhaustConfig.offset)
-    : [0, 0, 0];
-  const radialSegments = Math.max(5, Math.floor(Number(exhaustConfig?.radialSegments ?? 8)));
-  const baseRadius = Number(exhaustConfig?.radius ?? 1.2);
-  const wander = Number(exhaustConfig?.wander ?? 1.4);
-  const trailSegments = Math.max(10, Math.floor(Number(exhaustConfig?.trailSegments ?? 22)));
-  const trailLength = Number(exhaustConfig?.trailLength ?? 36);
-  const trailOpacity = Number(exhaustConfig?.trailOpacity ?? 0.16);
-  const trailExpansion = Number(exhaustConfig?.trailExpansion ?? 1.35);
-  const trailAdvection = clamp(Number(exhaustConfig?.trailAdvection ?? 0.68), 0, 0.98);
-  const trailTether = Math.max(0, Number(exhaustConfig?.trailTether ?? 1.35));
-
-  const trailGeometry = xeokit.model.scene.compressGeometryParams({
-    id: "vehicleExhaustTrailGeometry",
-    primitive: xeokit.base.constants.TrianglesPrimitive,
-    ...createTrailSegmentGeometry(radialSegments)
-  });
-  trailGeometry.edgeIndices = undefined;
-  must(sceneModel.createGeometryCompressed(trailGeometry));
-
-  const trailTransforms = [];
-  const trailObjectIds = [];
-  for (let i = 0; i < trailSegments; i++) {
-    const t = trailSegments <= 1 ? 0 : i / (trailSegments - 1);
-    const materialId = `vehicleExhaustTrailMaterial_${i}`;
-    const transformId = `vehicleExhaustTrailTransform_${i}`;
-    const meshId = `vehicleExhaustTrailMesh_${i}`;
-    const objectId = `vehicleExhaustTrail_${i}`;
-    const warm = Math.max(0, 1 - t * 1.35);
-    const cool = 1 - warm;
-    must(sceneModel.createMaterial({
-      id: materialId,
-      color: [
-        1.0 * warm + 0.50 * cool,
-        0.34 * warm + 0.72 * cool,
-        0.08 * warm + 0.96 * cool
-      ],
-      emissiveColor: [
-        0.64 * warm + 0.04 * cool,
-        0.18 * warm + 0.08 * cool,
-        0.02 * warm + 0.16 * cool
-      ],
-      opacity: Math.max(0.015, trailOpacity * Math.pow(1 - t, 1.25)),
-      alphaMode: "BLEND",
-      roughness: 0.32,
-      metallic: 0
-    }));
-    const transform = must(sceneModel.createTransform({
-      id: transformId,
-      matrix: hiddenExhaustMatrix()
-    }));
-    must(sceneModel.createMesh({
-      id: meshId,
-      geometryId: "vehicleExhaustTrailGeometry",
-      materialId,
-      parentTransformId: transformId
-    }));
-    must(sceneModel.createObject({
-      id: objectId,
-      meshIds: [meshId],
-      clippable: false
-    }));
-    trailTransforms.push(transform);
-    trailObjectIds.push(objectId);
-  }
-
-  return {
-    sceneModel,
-    trailTransforms,
-    trailObjectIds,
-    history: [],
-    distanceSinceEmit: 0,
-    lastEmitter: null,
-    lastEmissionPosition: null,
-    offset,
-    axis: forwardAxis,
-    trailSegments,
-    segmentSpacing: trailLength / trailSegments,
-    trailAdvection,
-    trailTether,
-    radius: baseRadius,
-    trailExpansion,
-    wander,
-    maxForwardSpeed: Number(config.maxForwardSpeed ?? 135),
-    pulsePhase: 0,
-    sampleSerial: 0
-  };
-}
-
-function createTrailSegmentGeometry(radialSegments) {
-  const positions = [];
-  const normals = [];
-  const indices = [];
-  const rings = [
-    {y: 0, radius: 0.88},
-    {y: 1.0, radius: 1.0}
-  ];
-  for (const ring of rings) {
-    for (let j = 0; j < radialSegments; j++) {
-      const angle = (j / radialSegments) * Math.PI * 2;
-      const x = Math.cos(angle);
-      const z = Math.sin(angle);
-      positions.push(x * ring.radius, ring.y, z * ring.radius);
-      normals.push(x, 0, z);
-    }
-  }
-  for (let i = 0; i < rings.length - 1; i++) {
-    const ring = i * radialSegments;
-    const nextRing = (i + 1) * radialSegments;
-    for (let j = 0; j < radialSegments; j++) {
-      const nextJ = (j + 1) % radialSegments;
-      const a = ring + j;
-      const b = ring + nextJ;
-      const c = nextRing + j;
-      const d = nextRing + nextJ;
-      indices.push(a, c, b, b, c, d);
-    }
-  }
-  return {
-    positions: new Float32Array(positions),
-    normals: new Float32Array(normals),
-    indices: new Uint32Array(indices)
-  };
-}
-
-function hiddenExhaustMatrix() {
-  return [
-    0.0001, 0, 0, 0,
-    0, 0.0001, 0, 0,
-    0, 0, 0.0001, 0,
-    0, 0, -100000, 1
-  ];
-}
-
-function updateVehicleExhaust(exhaust, config, sdkController, state, dt) {
-  if (!exhaust) {
-    return;
-  }
-  const maxForwardSpeed = Math.max(1, Number(config.maxForwardSpeed ?? exhaust.maxForwardSpeed ?? 135));
-  const speed = Math.max(0, Number(sdkController?.speed ?? config.startSpeed ?? 0));
-  const speedRatio = clamp(speed / maxForwardSpeed, 0, 1);
-  exhaust.pulsePhase += dt * (0.75 + speedRatio * 1.35);
-  updateVehicleExhaustTrail(exhaust, state, speedRatio, dt);
-}
-
-function updateVehicleExhaustTrail(exhaust, state, speedRatio, dt) {
-  if (!exhaust.trailTransforms?.length || !state) {
-    return;
-  }
-
-  const exhaustState = visualVehicleState(state);
-  const emitter = vehicleLocalPointToWorld(exhaust.offset, exhaustState, exhaust.axis);
-  const emitterDelta = exhaust.lastEmitter ? sub3(emitter, exhaust.lastEmitter) : [0, 0, 0];
-  const frameTravel = exhaust.lastEmitter ? length3(emitterDelta) : exhaust.segmentSpacing;
-  exhaust.distanceSinceEmit += frameTravel;
-
-  if (exhaust.history.length === 0) {
-    seedExhaustTrail(exhaust, exhaustState, emitter);
-  } else {
-    const carried = mul3(emitterDelta, exhaust.trailAdvection);
-    const tetherT = 1 - Math.exp(-exhaust.trailTether * dt);
-    for (let i = 0; i < exhaust.history.length; i++) {
-      const sample = exhaust.history[i];
-      sample.position = add3(sample.position, carried);
-      const target = add3(emitter, mul3(exhaustState.forward, -exhaust.segmentSpacing * (i + 1)));
-      sample.position = lerp3(sample.position, target, tetherT);
-    }
-    let emissionCursor = exhaust.lastEmissionPosition || exhaust.lastEmitter || emitter;
-    let pending = sub3(emitter, emissionCursor);
-    let pendingDistance = length3(pending);
-    let emitted = 0;
-    while (pendingDistance >= exhaust.segmentSpacing && emitted < exhaust.trailSegments) {
-      const direction = mul3(pending, 1 / pendingDistance);
-      emissionCursor = add3(emissionCursor, mul3(direction, exhaust.segmentSpacing));
-      exhaust.history.unshift(createExhaustSample(emissionCursor, exhaustState, exhaust.sampleSerial++, direction));
-      pending = sub3(emitter, emissionCursor);
-      pendingDistance = length3(pending);
-      emitted++;
-    }
-    if (emitted > 0) {
-      exhaust.history.length = Math.min(exhaust.history.length, exhaust.trailSegments);
-      exhaust.lastEmissionPosition = emissionCursor;
-      exhaust.distanceSinceEmit = pendingDistance;
-    }
-  }
-  exhaust.lastEmitter = emitter;
-
-  for (const sample of exhaust.history) {
-    sample.age += dt;
-  }
-
-  const samples = [createExhaustSample(emitter, exhaustState, exhaust.sampleSerial), ...exhaust.history];
-  while (samples.length <= exhaust.trailSegments) {
-    const lastSample = samples[samples.length - 1] || samples[0];
-    const nextForward = lastSample.forward || exhaustState.forward;
-    const nextPosition = add3(lastSample.position, mul3(nextForward, -exhaust.segmentSpacing));
-    samples.push({
-      position: nextPosition,
-      side: lastSample.side,
-      lift: lastSample.lift,
-      forward: nextForward,
-      phase: lastSample.phase + 0.83,
-      age: lastSample.age + 0.08
-    });
-  }
-
-  const displayPoints = samples.map((sample, index) => exhaustSampleDisplayPosition(exhaust, sample, index, speedRatio));
-  const radiusBoost = 0.84 + speedRatio * 0.55;
-  for (let i = 0; i < exhaust.trailTransforms.length; i++) {
-    const start = displayPoints[i];
-    const end = displayPoints[i + 1];
-    const t = exhaust.trailTransforms.length <= 1 ? 0 : i / (exhaust.trailTransforms.length - 1);
-    const radius = exhaust.radius * radiusBoost * (0.34 + Math.pow(t, 0.82) * exhaust.trailExpansion);
-    exhaust.trailTransforms[i].matrix = segmentMatrixBetween(start, end, radius, samples[i]?.lift || exhaustState.up, samples[i]?.side || exhaustState.right);
-  }
-}
-
-function seedExhaustTrail(exhaust, state, emitter) {
-  exhaust.history.length = 0;
-  for (let i = 1; i <= exhaust.trailSegments; i++) {
-    const position = add3(emitter, mul3(state.forward, -exhaust.segmentSpacing * i));
-    const sample = createExhaustSample(position, state, exhaust.sampleSerial++);
-    sample.age = i * 0.045;
-    exhaust.history.push(sample);
-  }
-  exhaust.distanceSinceEmit = 0;
-  exhaust.lastEmissionPosition = emitter;
-}
-
-function createExhaustSample(position, state, serial, forwardOverride = null) {
-  const basis = forwardOverride
-    ? basisFromForward(forwardOverride, state.up, state.right)
-    : state;
-  return {
-    position,
-    side: basis.right,
-    lift: basis.up,
-    forward: basis.forward,
-    phase: serial * 0.73,
-    age: 0
-  };
-}
-
-function exhaustSampleDisplayPosition(exhaust, sample, index, speedRatio) {
-  const t = exhaust.trailSegments <= 0 ? 0 : index / exhaust.trailSegments;
-  const curl = exhaust.wander * Math.pow(t, 1.15) * (0.035 + speedRatio * 0.13);
-  const phase = sample.phase + sample.age * 0.62 + exhaust.pulsePhase * 0.16;
-  return add3(
-    add3(sample.position, mul3(sample.side, Math.sin(phase + t * 3.8) * curl)),
-    mul3(sample.lift, Math.sin(phase * 1.22 + t * 4.2) * curl * 0.08)
-  );
-}
-
-function vehicleLocalPointToWorld(localPoint, state, forwardAxis) {
-  const axes = vehicleLocalAxes(state.right, state.up, state.forward, forwardAxis);
-  return add3(
-    add3(
-      add3(state.position, mul3(axes.localX, localPoint[0])),
-      mul3(axes.localY, localPoint[1])
-    ),
-    mul3(axes.localZ, localPoint[2])
-  );
-}
-
-function segmentMatrixBetween(start, end, radius, fallbackUp, fallbackRight) {
-  const axis = sub3(end, start);
-  const length = Math.max(0.001, length3(axis));
-  const yAxis = safeNormalize(axis, [0, 1, 0]);
-  let xAxis = cross3(yAxis, fallbackUp);
-  if (length3(xAxis) < 0.0001) {
-    xAxis = cross3(yAxis, fallbackRight);
-  }
-  xAxis = safeNormalize(xAxis, [1, 0, 0]);
-  const zAxis = safeNormalize(cross3(xAxis, yAxis), [0, 0, 1]);
-  return [
-    xAxis[0] * radius, xAxis[1] * radius, xAxis[2] * radius, 0,
-    yAxis[0] * length, yAxis[1] * length, yAxis[2] * length, 0,
-    zAxis[0] * radius, zAxis[1] * radius, zAxis[2] * radius, 0,
-    start[0], start[1], start[2], 1
-  ];
-}
-
-function createVehicleNavigationShipController({studio, view, rootTransform, exhaust, config}) {
-  const worldUp = getWorldUp(view);
-  const initialEye = toVec3(view.camera.eye);
-  const initialLook = toVec3(view.camera.look);
-  const initialForward = safeNormalize(sub3(initialLook, initialEye), [0, 1, 0]);
-  const initialBasis = basisFromForward(initialForward, worldUp);
-  const cameraDistance = Number(config.cameraDistance ?? 64);
-  const cameraHeight = Number(config.cameraHeight ?? 18);
-  const initialPosition = Array.isArray(config.initialShipPosition)
-    ? toVec3(config.initialShipPosition)
-    : sub3(add3(initialEye, mul3(initialForward, cameraDistance)), mul3(worldUp, cameraHeight));
-  const state = {
-    position: initialPosition,
-    forward: initialBasis.forward,
-    right: initialBasis.right,
-    up: initialBasis.up,
-    visualPosition: initialPosition,
-    visualForward: initialBasis.forward,
-    visualRight: initialBasis.right,
-    visualUp: initialBasis.up,
-    cameraEye: initialEye,
-    cameraLook: initialLook,
-    cameraPreset: "trailing",
-    exteriorCameraDistanceScale: clamp(Number(config.cameraExteriorDistanceScale ?? 1), 0.35, 2.5),
-    lastTime: performance.now()
-  };
-  const vehicleCamera = {
-    eye: initialPosition,
-    look: add3(initialPosition, state.forward),
-    up: worldUp,
-    perspectiveProjection: view.camera.perspectiveProjection
-  };
-  const vehicleView = {
-    id: `${view.id}:vehicle-proxy`,
-    htmlElement: view.htmlElement,
-    camera: vehicleCamera,
-    objects: view.objects,
-    viewer: view.viewer,
-    needsRender: () => view.needsRender?.()
-  };
-  const record = studio.viewManager.views?.[view.id];
-  if (record?.vehicleNavigationController?.destroy) {
-    record.vehicleNavigationController.destroy();
-  }
-  const VehicleNavigationController = xeokit.viewing?.vehicleNavigation?.VehicleNavigationController;
-  if (!VehicleNavigationController) {
-    throw new Error("VehicleNavigationController is unavailable in the xeokit bundle");
-  }
-
-  const maxForwardSpeed = Number(config.maxForwardSpeed ?? 135);
-  const collisionObjectFilter = (objectId) => !isVehicleObjectId(objectId, config.modelId);
-  const sdkController = new VehicleNavigationController(vehicleView, {
-    active: true,
-    keyboardEnabledOnlyOnMouseover: false,
-    suspendViewController: record?.viewController,
-    collision: config.collision ?? true,
-    gravity: config.gravity ?? false,
-    cameraHeight: 0.01,
-    bodyRadius: Number(config.bodyRadius ?? 0.45),
-    maxForwardSpeed,
-    maxReverseSpeed: Number(config.maxReverseSpeed ?? 10),
-    acceleration: Number(config.acceleration ?? 46),
-    brakeDeceleration: Number(config.brakeDeceleration ?? 42),
-    coastDeceleration: Number(config.coastDeceleration ?? 2.8),
-    turnRateDegreesPerSecond: Number(config.shipYawRateDegreesPerSecond ?? config.turnRateDegreesPerSecond ?? 82),
-    keySteerInitialScale: Number(config.shipKeyYawInitialScale ?? config.keySteerInitialScale ?? 0.28),
-    keySteerRampSeconds: Number(config.shipKeyYawRampSeconds ?? config.keySteerRampSeconds ?? 1.45),
-    leanDegrees: Number(config.maxVisualRollDegrees ?? config.leanDegrees ?? 58),
-    leanSmoothing: Number(config.rollSmoothing ?? config.leanSmoothing ?? 10),
-    maxPitchDegrees: maxAbsolutePitchDegrees(config),
-    maxFlightPitchDegrees: maxAbsolutePitchDegrees(config),
-    flightTakeoffHeight: Number(config.flightTakeoffHeight ?? 0),
-    flightTakeoffSpeed: Number(config.flightTakeoffSpeed ?? 12),
-    flightLandingFallSpeed: Number(config.flightLandingFallSpeed ?? 12),
-    flightAcceleration: Number(config.flightAcceleration ?? config.acceleration ?? 46),
-    flightBrakeDeceleration: Number(config.flightBrakeDeceleration ?? config.brakeDeceleration ?? 42),
-    flightMinGlideSpeed: Number(config.flightMinGlideSpeed ?? config.minForwardSpeed ?? 18),
-    flightAirDrag: Number(config.flightAirDrag ?? (Number(config.coastDeceleration ?? 2.8) / Math.max(maxForwardSpeed, 1))),
-    flightGravity: Number(config.flightGravity ?? 0),
-    flightSoftLandingRange: Number(config.flightSoftLandingRange ?? 0.75),
-    flightPitchRateDegreesPerSecond: Number(config.shipPitchRateDegreesPerSecond ?? config.flightPitchRateDegreesPerSecond ?? 54),
-    flightSteeringResponse: Number(config.flightSteeringResponse ?? 4.6),
-    mouseDragYawSensitivity: Number(config.shipMouseDragYawSensitivity ?? config.mouseDragYawSensitivity ?? config.shipMouseDragSensitivity ?? 0.0028),
-    mouseDragPitchSensitivity: Number(config.shipMouseDragPitchSensitivity ?? config.mouseDragPitchSensitivity ?? config.shipMouseDragSensitivity ?? 0.0028),
-    mouseDragResponse: Number(config.shipMouseDragResponse ?? config.mouseDragResponse ?? 7.5),
-    maxMouseDragInputPerFrame: Number(config.maxShipMouseDragInputPerFrame ?? config.maxMouseDragInputPerFrame ?? 0.65),
-    obstacleFilter: collisionObjectFilter,
-    driveSurfaceFilter: collisionObjectFilter
-  });
-  sdkController.speed = clamp(Number(config.startSpeed ?? 34), 0, maxForwardSpeed);
-  if (config.startFlying !== false) {
-    sdkController.flying = true;
-  }
-  const unbindCameraPresetKeys = bindVehicleCameraPresetKeys(view, config, state);
-
-  let animationFrame = 0;
-  let task = null;
-  let destroyed = false;
-  const update = () => {
-    if (!destroyed) {
-      const dt = updateShipFromVehicleNavigation(view, rootTransform, config, state, vehicleCamera);
-      updateVehicleExhaust(exhaust, config, sdkController, state, dt);
-    }
-  };
-  const SDKTask = xeokit.base?.core?.SDKTask;
-  if (SDKTask) {
-    task = new SDKTask({
-      name: "ProceduralCityVehicleChase",
-      stage: SDKTask.AnimateStage,
-      repeat: true,
-      task: update
-    });
-  } else {
-    const updateWithRAF = () => {
-      update();
-      animationFrame = window.requestAnimationFrame(updateWithRAF);
-    };
-    updateWithRAF();
-  }
-
-  const controller = {
-    type: "vehicle-navigation-ship",
-    state,
-    sdkController,
-    vehicleView,
-    updateMode: task ? "sdk-task" : "raf",
-    update,
-    destroy: () => {
-      if (destroyed) {
-        return;
-      }
-      destroyed = true;
-      if (animationFrame) {
-        window.cancelAnimationFrame(animationFrame);
-        animationFrame = 0;
-      }
-      task?.destroy();
-      unbindCameraPresetKeys();
-      sdkController.destroy();
-      if (record?.vehicleNavigationController === sdkController) {
-        record.vehicleNavigationController = undefined;
-      }
-    }
-  };
-  if (record) {
-    record.vehicleNavigationController = sdkController;
-  }
-  return controller;
-}
-
-function bindVehicleCameraPresetKeys(view, config, state) {
-  const onKeyDown = (event) => {
-    if (event.defaultPrevented || isTextInputEvent(event)) {
-      return;
-    }
-    if (handleVehicleCameraDistanceKey(event, view, config, state)) {
-      return;
-    }
-    if (event.repeat) {
-      return;
-    }
-    const preset = VEHICLE_CAMERA_PRESET_KEYS[event.code];
-    if (!preset) {
-      return;
-    }
-    state.cameraPreset = preset;
-    snapVehicleCameraToPreset(view, config, state);
-    view.needsRender?.();
-    event.preventDefault();
-  };
-  document.addEventListener("keydown", onKeyDown, {capture: true});
-  return () => document.removeEventListener("keydown", onKeyDown, {capture: true});
-}
-
-function handleVehicleCameraDistanceKey(event, view, config, state) {
-  if (event.ctrlKey || event.metaKey || event.altKey || !VEHICLE_EXTERIOR_CAMERA_PRESETS.has(state.cameraPreset)) {
-    return false;
-  }
-  let direction = 0;
-  if (event.code === "Minus" || event.code === "NumpadSubtract" || event.key === "-") {
-    direction = -1;
-  } else if (event.code === "Equal" || event.code === "NumpadAdd" || event.key === "+") {
-    direction = 1;
-  }
-  if (direction === 0) {
-    return false;
-  }
-  const step = Math.max(1.01, Number(config.cameraExteriorDistanceStep ?? 1.12));
-  const current = exteriorCameraDistanceScale(config, state);
-  state.exteriorCameraDistanceScale = clamp(
-    current * (direction > 0 ? step : 1 / step),
-    Number(config.cameraExteriorMinDistanceScale ?? 0.35),
-    Number(config.cameraExteriorMaxDistanceScale ?? 2.5)
-  );
-  snapVehicleCameraToPreset(view, config, state);
-  view.needsRender?.();
-  event.preventDefault();
-  return true;
-}
-
-function isTextInputEvent(event) {
-  const target = event.target;
-  if (!target || !(target instanceof HTMLElement)) {
-    return false;
-  }
-  return target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
-}
-
-function snapVehicleCameraToPreset(view, config, state) {
-  const worldUp = getWorldUp(view);
-  const camera = computeVehicleCameraPreset(config, state, worldUp);
-  state.cameraEye = camera.eye;
-  state.cameraLook = camera.look;
-  view.camera.eye = camera.eye;
-  view.camera.look = camera.look;
-  view.camera.up = camera.up;
-}
-
 function isVehicleObjectId(objectId, modelId) {
   if (!objectId || !modelId) {
     return false;
@@ -924,329 +397,14 @@ function isVehicleObjectId(objectId, modelId) {
     id.startsWith(`${model}__`) ||
     id.startsWith(`${model}/`) ||
     id.startsWith("vehicleExhaust") ||
+    id.startsWith("vehicleAfterburner") ||
     id.includes("__vehicleExhaust") ||
-    id.includes(".vehicleExhaust");
+    id.includes(".vehicleExhaust") ||
+    id.includes("__vehicleAfterburner") ||
+    id.includes(".vehicleAfterburner");
 }
 
-function updateShipFromVehicleNavigation(view, rootTransform, config, state, vehicleCamera) {
-  const now = performance.now();
-  const dt = Math.max(0.001, Math.min(0.1, (now - state.lastTime) / 1000));
-  state.lastTime = now;
-  const worldUp = getWorldUp(view);
-
-  let position = toVec3(vehicleCamera.eye);
-  let forward = safeNormalize(sub3(toVec3(vehicleCamera.look), position), state.forward);
-  const minAltitude = Number(config.minAltitude ?? 0);
-  if (Number.isFinite(minAltitude)) {
-    const altitude = dot3(position, worldUp);
-    if (altitude < minAltitude) {
-      position = add3(position, mul3(worldUp, minAltitude - altitude));
-      if (dot3(forward, worldUp) < 0) {
-        forward = flatDirection3(forward, worldUp);
-      }
-      vehicleCamera.eye = position;
-      vehicleCamera.look = add3(position, forward);
-    }
-  }
-
-  const cameraUp = safeNormalize(toVec3(vehicleCamera.up), worldUp);
-  const right = safeNormalize(cross3(forward, cameraUp), state.right);
-  const shipUp = safeNormalize(cross3(right, forward), cameraUp);
-  state.position = position;
-  state.forward = forward;
-  state.right = right;
-  state.up = shipUp;
-  updateVehicleVisualState(config, state, dt);
-
-  rootTransform.matrix = buildVehicleMatrix({
-    position: state.visualPosition,
-    right: state.visualRight,
-    up: state.visualUp,
-    forward: state.visualForward,
-    forwardAxis: config.forwardAxis || "-Z"
-  });
-
-  updateVehicleCamera(view, config, state, worldUp, dt);
-  view.needsRender?.();
-  return dt;
-}
-
-function maxAbsolutePitchDegrees(config) {
-  return Math.max(
-    Math.abs(Number(config.minShipPitchDegrees ?? -42)),
-    Math.abs(Number(config.maxShipPitchDegrees ?? 54))
-  );
-}
-
-function updateVehicleVisualState(config, state, dt) {
-  const defaultSmoothing = state.cameraPreset === "trailing" ? 0 : 18;
-  const smoothing = Math.max(0, Number(config.vehicleVisualSmoothing ?? defaultSmoothing));
-  if (smoothing === 0) {
-    state.visualPosition = state.position;
-    state.visualForward = state.forward;
-    state.visualRight = state.right;
-    state.visualUp = state.up;
-    return;
-  }
-  const t = 1 - Math.exp(-smoothing * dt);
-  state.visualPosition = lerp3(state.visualPosition, state.position, t);
-  const forward = safeNormalize(lerp3(state.visualForward, state.forward, t), state.forward);
-  let up = safeNormalize(lerp3(state.visualUp, state.up, t), state.up);
-  let right = safeNormalize(cross3(forward, up), state.right);
-  up = safeNormalize(cross3(right, forward), state.up);
-  state.visualForward = forward;
-  state.visualRight = right;
-  state.visualUp = up;
-}
-
-function updateVehicleCamera(view, config, state, worldUp, dt) {
-  const desired = computeVehicleCameraPreset(config, state, worldUp);
-  if (state.cameraPreset === "cockpit") {
-    state.cameraEye = desired.eye;
-    state.cameraLook = desired.look;
-    view.camera.eye = desired.eye;
-    view.camera.look = desired.look;
-    view.camera.up = desired.up;
-    return;
-  }
-  const eyeT = 1 - Math.exp(-Math.max(0, Number(config.cameraFollowSmoothing ?? 4.2)) * dt);
-  const lookT = 1 - Math.exp(-Math.max(0, Number(config.cameraLookSmoothing ?? 7.5)) * dt);
-  state.cameraEye = lerp3(state.cameraEye, desired.eye, eyeT);
-  state.cameraLook = lerp3(state.cameraLook, desired.look, lookT);
-  if (state.cameraPreset === "front") {
-    state.cameraEye = keepFrontCameraAhead(config, state, worldUp, state.cameraEye);
-  }
-  view.camera.eye = state.cameraEye;
-  view.camera.look = state.cameraLook;
-  view.camera.up = desired.up;
-}
-
-function keepFrontCameraAhead(config, state, worldUp, eye) {
-  const target = visualVehicleState(state);
-  const axes = stableVehicleCameraAxes(target, worldUp);
-  const desiredDistance = Number(config.cameraDistance ?? 64) *
-    Number(config.cameraFrontDistanceScale ?? 0.95) *
-    exteriorCameraDistanceScale(config, state);
-  const minDistance = Math.max(
-    Number(config.cameraFrontMinDistance ?? 8),
-    desiredDistance * Number(config.cameraFrontMinDistanceScale ?? 0.58)
-  );
-  const offset = sub3(eye, target.position);
-  const frontDistance = dot3(offset, axes.forward);
-  if (frontDistance >= minDistance) {
-    return eye;
-  }
-  return add3(eye, mul3(axes.forward, minDistance - frontDistance));
-}
-
-function computeVehicleCameraPreset(config, state, worldUp) {
-  switch (state.cameraPreset) {
-    case "left": return computeExteriorVehicleCamera(config, state, worldUp, {
-      right: -1,
-      distanceScale: Number(config.cameraSideDistanceScale ?? 0.82),
-      heightScale: Number(config.cameraSideHeightScale ?? 0.42),
-      lookAheadScale: Number(config.cameraSideLookAheadScale ?? 0.12)
-    });
-    case "right": return computeExteriorVehicleCamera(config, state, worldUp, {
-      right: 1,
-      distanceScale: Number(config.cameraSideDistanceScale ?? 0.82),
-      heightScale: Number(config.cameraSideHeightScale ?? 0.42),
-      lookAheadScale: Number(config.cameraSideLookAheadScale ?? 0.12)
-    });
-    case "front": return computeExteriorVehicleCamera(config, state, worldUp, {
-      forward: 1,
-      distanceScale: Number(config.cameraFrontDistanceScale ?? 0.95),
-      heightScale: Number(config.cameraFrontHeightScale ?? 0.35),
-      lookAheadScale: Number(config.cameraFrontLookAheadScale ?? 0)
-    });
-    case "top": return computeTopVehicleCamera(config, state, worldUp, false);
-    case "topTrailing": return computeTopVehicleCamera(config, state, worldUp, true);
-    case "rearWide": return computeExteriorVehicleCamera(config, state, worldUp, {
-      forward: -1,
-      distanceScale: Number(config.cameraRearWideDistanceScale ?? 1.65),
-      heightScale: Number(config.cameraRearWideHeightScale ?? 0.95),
-      lookAheadScale: Number(config.cameraRearWideLookAheadScale ?? 0.35)
-    });
-    case "cockpit": return computeCockpitVehicleCamera(config, state);
-    default: return computeTrailingVehicleCamera(config, state, worldUp);
-  }
-}
-
-function computeCockpitVehicleCamera(config, state) {
-  const target = visualVehicleState(state);
-  const forwardAxis = config.forwardAxis || "-Z";
-  const eyeOffset = Array.isArray(config.cameraCockpitEyeOffset)
-    ? toVec3(config.cameraCockpitEyeOffset)
-    : [0, -1.45, -0.35];
-  const lookOffset = Array.isArray(config.cameraCockpitLookOffset)
-    ? toVec3(config.cameraCockpitLookOffset)
-    : [0, -14, -0.25];
-  return {
-    eye: vehicleLocalPointToWorldForState(eyeOffset, target, forwardAxis),
-    look: vehicleLocalPointToWorldForState(lookOffset, target, forwardAxis),
-    up: target.up
-  };
-}
-
-function computeExteriorVehicleCamera(config, state, worldUp, preset) {
-  const distance = Number(config.cameraDistance ?? 64) * Number(preset.distanceScale ?? 1) * exteriorCameraDistanceScale(config, state);
-  const height = Number(config.cameraHeight ?? 18) * Number(preset.heightScale ?? 1);
-  const lookAhead = Number(config.cameraLookAhead ?? 28) * Number(preset.lookAheadScale ?? 0);
-  const lookHeight = Number(config.cameraLookHeight ?? 4);
-  const target = visualVehicleState(state);
-  const axes = stableVehicleCameraAxes(target, worldUp);
-  let eye = add3(target.position, mul3(worldUp, height));
-  if (preset.forward) {
-    eye = add3(eye, mul3(axes.forward, distance * preset.forward));
-  }
-  if (preset.right) {
-    eye = add3(eye, mul3(axes.right, distance * preset.right));
-  }
-  return {
-    eye,
-    look: add3(add3(target.position, mul3(axes.forward, lookAhead)), mul3(worldUp, lookHeight)),
-    up: worldUp
-  };
-}
-
-function computeTopVehicleCamera(config, state, worldUp, trailing) {
-  const distance = Number(config.cameraDistance ?? 64);
-  const lookHeight = Number(config.cameraLookHeight ?? 4);
-  const distanceScale = exteriorCameraDistanceScale(config, state);
-  const topHeight = Number(config.cameraTopHeight ?? Math.max(distance * 1.35, Number(config.cameraHeight ?? 18) * 3.5)) * distanceScale;
-  const trailingDistance = trailing ? Number(config.cameraTopTrailingDistance ?? distance * 0.55) * distanceScale : 0;
-  const target = visualVehicleState(state);
-  const axes = stableVehicleCameraAxes(target, worldUp);
-  return {
-    eye: add3(add3(target.position, mul3(worldUp, topHeight)), mul3(axes.forward, -trailingDistance)),
-    look: add3(target.position, mul3(worldUp, lookHeight)),
-    up: axes.forward
-  };
-}
-
-function visualVehicleState(state) {
-  return {
-    position: state.visualPosition || state.position,
-    forward: state.visualForward || state.forward,
-    right: state.visualRight || state.right,
-    up: state.visualUp || state.up
-  };
-}
-
-function vehicleLocalPointToWorldForState(localPoint, state, forwardAxis) {
-  const axes = vehicleLocalAxes(state.right, state.up, state.forward, forwardAxis);
-  return add3(
-    add3(
-      add3(state.position, mul3(axes.localX, localPoint[0])),
-      mul3(axes.localY, localPoint[1])
-    ),
-    mul3(axes.localZ, localPoint[2])
-  );
-}
-
-function stableVehicleCameraAxes(state, worldUp) {
-  const forward = flatDirection3(state.forward, worldUp);
-  const right = safeNormalize(cross3(forward, worldUp), state.right);
-  return {forward, right};
-}
-
-function computeTrailingVehicleCamera(config, state, worldUp) {
-  const distance = Number(config.cameraDistance ?? 64) * exteriorCameraDistanceScale(config, state);
-  const height = Number(config.cameraHeight ?? 18);
-  const lateralOffset = Number(config.cameraLateralOffset ?? 0);
-  const lookAhead = Number(config.cameraLookAhead ?? 28);
-  const lookHeight = Number(config.cameraLookHeight ?? 4);
-  let desiredEye = add3(
-    add3(
-      add3(state.position, mul3(state.forward, -distance)),
-      mul3(worldUp, height)
-    ),
-    mul3(state.right, lateralOffset)
-  );
-  const cameraTrailFollow = clamp(Number(config.cameraTrailFollow ?? 0), 0, 1);
-  if (cameraTrailFollow > 0) {
-    const exhaustConfig = typeof config.exhaustPlume === "object" && config.exhaustPlume
-      ? config.exhaustPlume
-      : (config.exhaust || null);
-    const exhaustOffset = Array.isArray(exhaustConfig?.offset)
-      ? toVec3(exhaustConfig.offset)
-      : [0, 0, 0];
-    const trailHeight = Number(config.cameraTrailHeight ?? Math.max(0, height * 0.25));
-    const exhaustPoint = vehicleLocalPointToWorld(exhaustOffset, state, config.forwardAxis || "-Z");
-    const trailEye = add3(
-      add3(
-        add3(exhaustPoint, mul3(state.forward, -distance)),
-        mul3(state.up, trailHeight)
-      ),
-      mul3(state.right, lateralOffset)
-    );
-    desiredEye = lerp3(desiredEye, trailEye, cameraTrailFollow);
-  }
-  const desiredLook = add3(
-    add3(state.position, mul3(state.forward, lookAhead)),
-    mul3(worldUp, lookHeight)
-  );
-  return {
-    eye: desiredEye,
-    look: desiredLook,
-    up: worldUp
-  };
-}
-
-function exteriorCameraDistanceScale(config, state) {
-  return clamp(
-    Number(state.exteriorCameraDistanceScale ?? config.cameraExteriorDistanceScale ?? 1),
-    Number(config.cameraExteriorMinDistanceScale ?? 0.35),
-    Number(config.cameraExteriorMaxDistanceScale ?? 2.5)
-  );
-}
-
-function basisFromForward(forward, worldUp, fallbackRight = [1, 0, 0]) {
-  const normalizedForward = safeNormalize(forward, [0, 1, 0]);
-  const flatForward = flatDirection3(normalizedForward, worldUp);
-  const right = safeNormalize(cross3(flatForward, worldUp), fallbackRight);
-  const up = safeNormalize(cross3(right, normalizedForward), worldUp);
-  return {
-    forward: normalizedForward,
-    right,
-    up
-  };
-}
-
-function buildVehicleMatrix({position, right, up, forward, forwardAxis}) {
-  const {localX, localY, localZ} = vehicleLocalAxes(right, up, forward, forwardAxis);
-  return [
-    localX[0], localX[1], localX[2], 0,
-    localY[0], localY[1], localY[2], 0,
-    localZ[0], localZ[1], localZ[2], 0,
-    position[0], position[1], position[2], 1
-  ];
-}
-
-function vehicleLocalAxes(right, up, forward, forwardAxis) {
-  let localX = right;
-  let localY = up;
-  let localZ = mul3(forward, -1);
-  if (forwardAxis === "Z" || forwardAxis === "+Z") {
-    localZ = forward;
-    localX = mul3(right, -1);
-  } else if (forwardAxis === "X" || forwardAxis === "+X") {
-    localX = forward;
-    localZ = right;
-  } else if (forwardAxis === "-X") {
-    localX = mul3(forward, -1);
-    localZ = mul3(right, -1);
-  } else if (forwardAxis === "Y" || forwardAxis === "+Y") {
-    localY = forward;
-    localZ = up;
-  } else if (forwardAxis === "-Y") {
-    localY = mul3(forward, -1);
-    localZ = mul3(up, -1);
-  }
-  return {localX, localY, localZ};
-}
-
-function setupWindSound(view, enabled) {
+function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
   const toggle = document.getElementById("windSound");
   if (!enabled) {
     if (toggle) {
@@ -1263,6 +421,10 @@ function setupWindSound(view, enabled) {
     return;
   }
 
+  const createAircraftNoiseBuffer = xeokit.simulation?.aircraft?.createAircraftNoiseBuffer;
+  if (!createAircraftNoiseBuffer) {
+    throw new Error("createAircraftNoiseBuffer is unavailable in the xeokit bundle");
+  }
   let context = null;
   let masterGain = null;
   let lowWindGain = null;
@@ -1389,7 +551,7 @@ function setupWindSound(view, enabled) {
     compressorFilter.frequency.value = 980;
     compressorFilter.Q.value = 5.5;
 
-    noiseSource.buffer = createNoiseBuffer(context);
+    noiseSource.buffer = createAircraftNoiseBuffer(context);
     noiseSource.loop = true;
     noiseSource.connect(lowWindFilter);
     noiseSource.connect(highWindFilter);
@@ -1421,7 +583,7 @@ function setupWindSound(view, enabled) {
     const eye = getCameraEye(view);
     const dt = Math.max(0.016, Math.min(0.25, (now - lastTime) / 1000));
     const cameraSpeed = distance3(eye, lastEye) / dt;
-    const vehicleSpeed = Number(window.__proceduralCityVehicle?.controller?.sdkController?.speed || 0);
+    const vehicleSpeed = Number(getVehicleSpeed() || 0);
     const throttle = activeKeys.has("KeyW") ? 1 : 0;
     smoothedSpeed += (Math.max(cameraSpeed, vehicleSpeed) - smoothedSpeed) * 0.18;
     const speedNorm = clamp(smoothedSpeed / 150, 0, 1);
@@ -1470,28 +632,8 @@ function setupWindSound(view, enabled) {
   });
 }
 
-function createNoiseBuffer(context) {
-  const sampleCount = context.sampleRate * 2;
-  const buffer = context.createBuffer(1, sampleCount, context.sampleRate);
-  const data = buffer.getChannelData(0);
-  let seed = 0x9e3779b9;
-  for (let i = 0; i < sampleCount; i++) {
-    seed = (1664525 * seed + 1013904223) >>> 0;
-    data[i] = (seed / 0xffffffff) * 2 - 1;
-  }
-  return buffer;
-}
-
 function getCameraEye(view) {
   return Array.from(view.camera.eye || [0, 0, 0]);
-}
-
-function toVec3(value) {
-  return [
-    Number(value?.[0] || 0),
-    Number(value?.[1] || 0),
-    Number(value?.[2] || 0)
-  ];
 }
 
 function identityMat4() {
@@ -1501,63 +643,6 @@ function identityMat4() {
     0, 0, 1, 0,
     0, 0, 0, 1
   ];
-}
-
-function add3(a, b) {
-  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-}
-
-function sub3(a, b) {
-  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-}
-
-function mul3(v, scalar) {
-  return [v[0] * scalar, v[1] * scalar, v[2] * scalar];
-}
-
-function cross3(a, b) {
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0]
-  ];
-}
-
-function length3(v) {
-  return Math.hypot(v[0], v[1], v[2]);
-}
-
-function dot3(a, b) {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-function normalize(v) {
-  const len = length3(v);
-  if (len === 0) {
-    return [0, 0, 0];
-  }
-  return [v[0] / len, v[1] / len, v[2] / len];
-}
-
-function safeNormalize(v, fallback) {
-  return length3(v) > 0.00001 ? normalize(v) : fallback;
-}
-
-function lerp3(a, b, t) {
-  return [
-    a[0] + (b[0] - a[0]) * t,
-    a[1] + (b[1] - a[1]) * t,
-    a[2] + (b[2] - a[2]) * t
-  ];
-}
-
-function flatDirection3(direction, worldUp) {
-  const flat = sub3(direction, mul3(worldUp, dot3(direction, worldUp)));
-  return safeNormalize(flat, [1, 0, 0]);
-}
-
-function getWorldUp(view) {
-  return normalize(Array.from(view.viewer.scene.coordinateSystem.worldUp || [0, 0, 1]));
 }
 
 function distance3(a, b) {

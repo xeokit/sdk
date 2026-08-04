@@ -6,6 +6,43 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
   "viewId": "proceduralCityAmsterdamView",
   "streamLabel": "Amsterdam procedural city",
   "windSound": true,
+  "effects": {
+    "sao": {
+      "renderModes": []
+    },
+    "bloom": {
+      "renderModes": []
+    },
+    "atmosphere": {
+      "renderModes": []
+    },
+    "depthOfField": {
+      "renderModes": []
+    },
+    "tonemap": {
+      "renderModes": []
+    },
+    "antiAliasing": {
+      "renderModes": []
+    },
+    "shadows": {
+      "renderModes": []
+    },
+    "sectionPlaneCaps": {
+      "renderModes": []
+    },
+    "bodyHatch": {
+      "renderModes": []
+    }
+  },
+  "lights": {
+    "ibl": {
+      "renderModes": []
+    },
+    "hemispheric": {
+      "renderModes": []
+    }
+  },
   "vehicle": {
     "modelUrl": "../../models/SpaceShip/xgf/model.xgf",
     "modelId": "SpaceShip",
@@ -52,7 +89,15 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
       "trailOpacity": 0.6,
       "radius": 0.78,
       "wander": 0.16,
-      "radialSegments": 6
+      "radialSegments": 6,
+      "afterburner": {
+        "threshold": 0.16,
+        "length": 9.5,
+        "minLength": 3.4,
+        "radius": 1.05,
+        "flicker": 0.12,
+        "radialSegments": 10
+      }
     },
     "minForwardSpeed": 26,
     "maxForwardSpeed": 175,

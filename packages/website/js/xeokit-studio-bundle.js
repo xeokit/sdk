@@ -313,7 +313,7 @@ var require_DispatcherBase = __commonJS({
       has(fn) {
         if (!fn)
           return false;
-        return this._subscriptions.some((sub3) => sub3.handler == fn);
+        return this._subscriptions.some((sub4) => sub4.handler == fn);
       }
       /**
        * Unsubscribes the handler from the dispatcher.
@@ -359,13 +359,13 @@ var require_DispatcherBase = __commonJS({
        * @memberOf DispatcherBase
        */
       _dispatch(executeAsync, scope, args) {
-        for (let sub3 of [...this._subscriptions]) {
-          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub3.handler));
+        for (let sub4 of [...this._subscriptions]) {
+          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub4.handler));
           let nargs = Array.prototype.slice.call(args);
           nargs.push(ev);
-          let s = sub3;
+          let s = sub4;
           s.execute(executeAsync, scope, nargs);
-          this.cleanup(sub3);
+          this.cleanup(sub4);
           if (!executeAsync && ev.propagationStopped) {
             return { propagationStopped: true };
           }
@@ -396,10 +396,10 @@ var require_DispatcherBase = __commonJS({
        *
        * @memberOf DispatcherBase
        */
-      cleanup(sub3) {
+      cleanup(sub4) {
         let changes = false;
-        if (sub3.isOnce && sub3.isExecuted) {
-          let i = this._subscriptions.indexOf(sub3);
+        if (sub4.isOnce && sub4.isExecuted) {
+          let i = this._subscriptions.indexOf(sub4);
           if (i > -1) {
             this._subscriptions.splice(i, 1);
             changes = true;
@@ -705,13 +705,13 @@ var require_PromiseDispatcherBase = __commonJS({
        * @memberOf DispatcherBase
        */
       async _dispatchAsPromise(executeAsync, scope, args) {
-        for (let sub3 of [...this._subscriptions]) {
-          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub3.handler));
+        for (let sub4 of [...this._subscriptions]) {
+          let ev = new EventManagement_1.EventManagement(() => this.unsub(sub4.handler));
           let nargs = Array.prototype.slice.call(args);
           nargs.push(ev);
-          let ps = sub3;
+          let ps = sub4;
           await ps.execute(executeAsync, scope, nargs);
-          this.cleanup(sub3);
+          this.cleanup(sub4);
           if (!executeAsync && ev.propagationStopped) {
             return { propagationStopped: true };
           }
@@ -131354,8 +131354,8 @@ var POINT_FORMAT_READERS = {
 };
 function readAs(buf, Type = {}, offset, count) {
   count = count === void 0 || count === 0 ? 1 : count;
-  const sub3 = buf.slice(offset, offset + Type.BYTES_PER_ELEMENT * count);
-  const r = new Type(sub3);
+  const sub4 = buf.slice(offset, offset + Type.BYTES_PER_ELEMENT * count);
+  const r = new Type(sub4);
   if (count === 1) {
     return r[0];
   }
@@ -143284,31 +143284,31 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
       const coords = ca[1];
       let ci = 0;
       for (let so = 0; so < subOps.length; so++) {
-        const sub3 = subOps[so];
-        if (sub3 === OPS.moveTo) {
+        const sub4 = subOps[so];
+        if (sub4 === OPS.moveTo) {
           const x = coords[ci++], y = coords[ci++];
           startSubPath(x, y);
-        } else if (sub3 === OPS.lineTo) {
+        } else if (sub4 === OPS.lineTo) {
           const x = coords[ci++], y = coords[ci++];
           appendToSubPath(x, y);
-        } else if (sub3 === OPS.curveTo) {
+        } else if (sub4 === OPS.curveTo) {
           const c1x = coords[ci++], c1y = coords[ci++];
           const c2x = coords[ci++], c2y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, c1x, c1y, c2x, c2y, x, y);
-        } else if (sub3 === OPS.curveTo2) {
+        } else if (sub4 === OPS.curveTo2) {
           const c2x = coords[ci++], c2y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, subX, subY, c2x, c2y, x, y);
-        } else if (sub3 === OPS.curveTo3) {
+        } else if (sub4 === OPS.curveTo3) {
           const c1x = coords[ci++], c1y = coords[ci++];
           const x = coords[ci++], y = coords[ci++];
           tessellateCubic2(subX, subY, c1x, c1y, x, y, x, y);
-        } else if (sub3 === OPS.closePath) {
+        } else if (sub4 === OPS.closePath) {
           const ci_last = currentPath.length - 1;
           if (ci_last >= 0)
             closed[ci_last] = true;
-        } else if (sub3 === OPS.rectangle) {
+        } else if (sub4 === OPS.rectangle) {
           const x = coords[ci++], y = coords[ci++];
           const w2 = coords[ci++], h2 = coords[ci++];
           currentPath.push([x, y, x + w2, y, x + w2, y + h2, x, y + h2]);
@@ -149002,15 +149002,15 @@ async function parseSubtree(buffer, branch, fetchBuffer) {
 
 // ../sdk/src/formats/threedtiles/implicit/traverseImplicit.ts
 async function traverseImplicit(p) {
-  const sub3 = subdivisionOf(p.implicitTiling.subdivisionScheme);
+  const sub4 = subdivisionOf(p.implicitTiling.subdivisionScheme);
   const subtreeLevels = p.implicitTiling.subtreeLevels;
   const availableLevels = p.implicitTiling.availableLevels ?? (p.implicitTiling.maximumLevel ?? Infinity) + 1;
   const subtreeTemplate = p.implicitTiling.subtrees.uri;
-  const dims = sub3.dims;
+  const dims = sub4.dims;
   const fetchSubtree = async (level, coords) => {
     const url = p.resolveUrl(templateUri(subtreeTemplate, level, coords), p.baseUri);
     const buffer = await p.fetchArrayBuffer(url);
-    return parseSubtree(buffer, sub3.branch, (bufUri) => p.fetchArrayBuffer(p.resolveUrl(bufUri, dirOf(url))));
+    return parseSubtree(buffer, sub4.branch, (bufUri) => p.fetchArrayBuffer(p.resolveUrl(bufUri, dirOf(url))));
   };
   const walk = async (avail, localLevel, morton, globalLevel, coords) => {
     if (p.signal?.aborted)
@@ -149021,7 +149021,7 @@ async function traverseImplicit(p) {
     const childLocalLevel = localLevel + 1;
     const children = [];
     if (!atDepthCap) {
-      for (let c2 = 0; c2 < sub3.branch; c2++) {
+      for (let c2 = 0; c2 < sub4.branch; c2++) {
         const childMorton = morton << dims | c2;
         const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
         if (childLocalLevel < subtreeLevels) {
@@ -149163,9 +149163,9 @@ async function parseTileset(params, options = {}) {
     const url = resolveUrl2(uri, baseUri);
     const buffer = await fetchArrayBuffer(url);
     if (uri.split("?")[0].toLowerCase().endsWith(".json")) {
-      const sub3 = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
-      if (sub3 && sub3.root) {
-        await traverse(sub3.root, worldMatrix, 0, "REPLACE", dirOf2(url));
+      const sub4 = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
+      if (sub4 && sub4.root) {
+        await traverse(sub4.root, worldMatrix, 0, "REPLACE", dirOf2(url));
       }
       return;
     }
@@ -149478,15 +149478,15 @@ async function selectStreaming(root, camera, opts) {
     }
   };
   const visitImplicit = async (node, spec) => {
-    const sub3 = subdivisionOf(spec.subdivisionScheme);
-    const dims = sub3.dims;
+    const sub4 = subdivisionOf(spec.subdivisionScheme);
+    const dims = sub4.dims;
     const subtreeFor = async (level, coords) => {
       const key = `${level}/${coords.join("/")}`;
       let avail = opts.subtreeCache.get(key);
       if (!avail) {
         const url = opts.resolveUrl(templateUri(spec.subtreeTemplate, level, coords), node.baseUri);
         const buffer = await opts.fetchArrayBuffer(url);
-        avail = await parseSubtree(buffer, sub3.branch, (bufUri) => opts.fetchArrayBuffer(opts.resolveUrl(bufUri, dirOf(url))));
+        avail = await parseSubtree(buffer, sub4.branch, (bufUri) => opts.fetchArrayBuffer(opts.resolveUrl(bufUri, dirOf(url))));
         opts.subtreeCache.set(key, avail);
       }
       return avail;
@@ -149517,7 +149517,7 @@ async function selectStreaming(root, camera, opts) {
       const childLocalLevel = localLevel + 1;
       const children = [];
       if (refine) {
-        for (let c2 = 0; c2 < sub3.branch; c2++) {
+        for (let c2 = 0; c2 < sub4.branch; c2++) {
           const childMorton = morton << dims | c2;
           const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
           if (childLocalLevel < spec.subtreeLevels) {
@@ -160960,7 +160960,7 @@ var SAO = class {
   /** @private */
   constructor(view, saoParams) {
     this.view = view;
-    this._renderModes = [DetailedRender, RealisticRender];
+    this._renderModes = saoParams.renderModes !== void 0 ? saoParams.renderModes.slice() : [DetailedRender, RealisticRender];
     this._kernelRadius = saoParams.kernelRadius || 100;
     this._intensity = saoParams.intensity !== void 0 ? saoParams.intensity : 0.15;
     this._bias = saoParams.bias !== void 0 ? saoParams.bias : 0.5;
@@ -162147,7 +162147,7 @@ var Tonemap = class {
   /** @private */
   constructor(view, params) {
     this.view = view;
-    this._renderModes = [RealisticRender];
+    this._renderModes = params.renderModes !== void 0 ? params.renderModes.slice() : [RealisticRender];
     this._exposure = params.exposure !== void 0 ? params.exposure : 0.5;
     this._mode = params.mode !== void 0 ? params.mode : "aces";
     this._sRGBEncode = params.sRGBEncode !== void 0 ? params.sRGBEncode === true : true;
@@ -162309,7 +162309,7 @@ var AntiAliasing = class {
   /** @private */
   constructor(view, params) {
     this.view = view;
-    this._renderModes = [DetailedRender, RealisticRender];
+    this._renderModes = params.renderModes !== void 0 ? params.renderModes.slice() : [DetailedRender, RealisticRender];
     this._mode = params.mode !== void 0 ? params.mode : "smaa";
   }
   /**
@@ -164249,7 +164249,7 @@ var Texturing = class {
    */
   constructor(view, options = {}) {
     this.view = view;
-    this._renderModes = options.renderModes || [DetailedRender, RealisticRender];
+    this._renderModes = options.renderModes !== void 0 ? options.renderModes.slice() : [DetailedRender, RealisticRender];
     this._enabled = options.enabled !== false;
   }
   /**
@@ -164259,7 +164259,7 @@ var Texturing = class {
    * {@link base!constants.RealisticRender | RealisticRender}].
    */
   set renderModes(value) {
-    this._renderModes = value;
+    this._renderModes = value !== void 0 && value !== null ? value.slice() : [DetailedRender, RealisticRender];
     this.view.needsRender();
   }
   /**
@@ -164308,6 +164308,37 @@ var Texturing = class {
       }
     }
     return false;
+  }
+  /**
+   * Gets this Texturing as JSON.
+   */
+  toParams() {
+    return {
+      ok: true,
+      value: {
+        enabled: this._enabled,
+        renderModes: this._renderModes
+      }
+    };
+  }
+  /**
+   * Configures this Texturing.
+   */
+  fromParams(params) {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[Texturing.fromParams] Texturing has been destroyed."
+      });
+    }
+    if (params.enabled !== void 0) {
+      this.enabled = params.enabled;
+    }
+    if (params.renderModes !== void 0) {
+      this.renderModes = params.renderModes;
+    }
+    return { ok: true, value: void 0 };
   }
   /**
    * @private
@@ -166195,7 +166226,10 @@ var View2 = class {
     this.camera = new Camera2(this, viewParams.camera || {});
     this.effects = new Effects(this, viewParams.effects || {});
     this.lights = new Lights(this, viewParams.lights || {});
-    this.texturing = new Texturing(this, {});
+    if (viewParams.effects?.ibl) {
+      this.lights.ibl.fromParams(viewParams.effects.ibl);
+    }
+    this.texturing = new Texturing(this, viewParams.texturing || {});
     this.xrayMaterial = new Effect(this, viewParams.xrayMaterial || {
       // Conventional "x-ray ghost" — cool pale-blue body, translucent enough
       // to see through but solid enough not to wash out, with fully-opaque
@@ -167635,6 +167669,18 @@ var View2 = class {
           return result;
         }
       }
+      if (l.hemispheric) {
+        const result = this.lights.hemispheric.fromParams(l.hemispheric);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+    }
+    if (viewParams.texturing) {
+      const result = this.texturing.fromParams(viewParams.texturing);
+      if (result.ok === false) {
+        return result;
+      }
     }
     if (viewParams.highlightMaterial) {
       const result = this.highlightMaterial.fromParams(viewParams.highlightMaterial);
@@ -167695,6 +167741,11 @@ var View2 = class {
           // renderer-effect components whose look it drives.
           ibl: this.effects.ibl.toParams().value
         },
+        lights: {
+          ibl: this.lights.ibl.toParams().value,
+          hemispheric: this.lights.hemispheric.toParams().value
+        },
+        texturing: this.texturing.toParams().value,
         highlightMaterial: this.highlightMaterial.toParams().value,
         selectedMaterial: this.selectedMaterial.toParams().value,
         xrayMaterial: this.xrayMaterial.toParams().value,
@@ -168216,24 +168267,24 @@ var Viewer = class {
         }
       }
     };
-    const sub3 = (emitter, h2) => emitter.subscribe(h2);
+    const sub4 = (emitter, h2) => emitter.subscribe(h2);
     const events = this.scene.events;
-    this._onSceneObjectMeshAdded = sub3(events.onSceneObjectMeshAdded, nudgeAllViews);
-    this._onSceneObjectMeshRemoved = sub3(events.onSceneObjectMeshRemoved, nudgeAllViews);
-    this._onSceneMeshCreated = sub3(events.onSceneMeshCreated, nudgeAllViews);
-    this._onSceneMeshDestroyed = sub3(events.onSceneMeshDestroyed, nudgeAllViews);
-    this._onSceneMeshMatrixChanged = sub3(events.onSceneMeshMatrixChanged, nudgeAllViews);
-    this._onSceneMeshMoved = sub3(events.onSceneMeshMoved, nudgeAllViews);
-    this._onSceneMeshColorChanged = sub3(events.onSceneMeshColorChanged, nudgeAllViews);
-    this._onSceneMeshOpacityChanged = sub3(events.onSceneMeshOpacityChanged, nudgeAllViews);
-    this._onSceneTransformMatrixChanged = sub3(events.onSceneTransformMatrixChanged, nudgeAllViews);
-    this._onSceneGeometryCreated = sub3(events.onSceneGeometryCreated, nudgeAllViews);
-    this._onSceneGeometryDestroyed = sub3(events.onSceneGeometryDestroyed, nudgeAllViews);
-    this._onSceneGeometryUpdated = sub3(events.onSceneGeometryUpdated, nudgeAllViews);
-    this._onSceneMaterialColorChanged = sub3(events.onSceneMaterialColorChanged, nudgeAllViews);
-    this._onSceneMaterialEmissiveColorChanged = sub3(events.onSceneMaterialEmissiveColorChanged, nudgeAllViews);
-    this._onSceneMaterialOpacityChanged = sub3(events.onSceneMaterialOpacityChanged, nudgeAllViews);
-    this._onSceneMaterialPatternChanged = sub3(events.onSceneMaterialPatternChanged, nudgeAllViews);
+    this._onSceneObjectMeshAdded = sub4(events.onSceneObjectMeshAdded, nudgeAllViews);
+    this._onSceneObjectMeshRemoved = sub4(events.onSceneObjectMeshRemoved, nudgeAllViews);
+    this._onSceneMeshCreated = sub4(events.onSceneMeshCreated, nudgeAllViews);
+    this._onSceneMeshDestroyed = sub4(events.onSceneMeshDestroyed, nudgeAllViews);
+    this._onSceneMeshMatrixChanged = sub4(events.onSceneMeshMatrixChanged, nudgeAllViews);
+    this._onSceneMeshMoved = sub4(events.onSceneMeshMoved, nudgeAllViews);
+    this._onSceneMeshColorChanged = sub4(events.onSceneMeshColorChanged, nudgeAllViews);
+    this._onSceneMeshOpacityChanged = sub4(events.onSceneMeshOpacityChanged, nudgeAllViews);
+    this._onSceneTransformMatrixChanged = sub4(events.onSceneTransformMatrixChanged, nudgeAllViews);
+    this._onSceneGeometryCreated = sub4(events.onSceneGeometryCreated, nudgeAllViews);
+    this._onSceneGeometryDestroyed = sub4(events.onSceneGeometryDestroyed, nudgeAllViews);
+    this._onSceneGeometryUpdated = sub4(events.onSceneGeometryUpdated, nudgeAllViews);
+    this._onSceneMaterialColorChanged = sub4(events.onSceneMaterialColorChanged, nudgeAllViews);
+    this._onSceneMaterialEmissiveColorChanged = sub4(events.onSceneMaterialEmissiveColorChanged, nudgeAllViews);
+    this._onSceneMaterialOpacityChanged = sub4(events.onSceneMaterialOpacityChanged, nudgeAllViews);
+    this._onSceneMaterialPatternChanged = sub4(events.onSceneMaterialPatternChanged, nudgeAllViews);
     this.events.onSceneAttached.dispatch(this, scene);
     return {
       ok: true,
@@ -171109,12 +171160,12 @@ var TransformControls = class _TransformControls {
     const viewerEvents = this.view.viewer.events;
     const subs = [];
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      const sub3 = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
-      subs.push(() => viewerEvents.onCameraViewMatrixUpdated.unsubscribe?.(sub3));
+      const sub4 = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
+      subs.push(() => viewerEvents.onCameraViewMatrixUpdated.unsubscribe?.(sub4));
     }
     if (viewerEvents?.onCameraProjMatrixUpdated?.subscribe) {
-      const sub3 = viewerEvents.onCameraProjMatrixUpdated.subscribe(() => this._syncTransform());
-      subs.push(() => viewerEvents.onCameraProjMatrixUpdated.unsubscribe?.(sub3));
+      const sub4 = viewerEvents.onCameraProjMatrixUpdated.subscribe(() => this._syncTransform());
+      subs.push(() => viewerEvents.onCameraProjMatrixUpdated.unsubscribe?.(sub4));
     }
     this._camSub = subs.length === 0 ? null : () => {
       for (const u of subs)
@@ -171122,10 +171173,10 @@ var TransformControls = class _TransformControls {
     };
     const sceneEvents = this.view.viewer.scene.events;
     if (sceneEvents?.onSceneMeshDestroyed?.subscribe) {
-      const sub3 = sceneEvents.onSceneMeshDestroyed.subscribe(
+      const sub4 = sceneEvents.onSceneMeshDestroyed.subscribe(
         (_scene, mesh) => this._onSceneMeshDestroyed(mesh)
       );
-      this._meshDestroyedSub = () => sceneEvents.onSceneMeshDestroyed.unsubscribe?.(sub3);
+      this._meshDestroyedSub = () => sceneEvents.onSceneMeshDestroyed.unsubscribe?.(sub4);
     }
     if (params.target !== void 0 && params.target !== null) {
       this.attach(params.target);
@@ -204560,8 +204611,8 @@ var WebGLRenderer3 = class {
     };
   }
   _rollbackViewerAttach() {
-    for (const sub3 of this._viewerSubs) {
-      sub3();
+    for (const sub4 of this._viewerSubs) {
+      sub4();
     }
     this._viewerSubs = [];
     this._viewer = null;
@@ -204930,8 +204981,8 @@ var WebGLRenderer3 = class {
     if (this._viewManager) {
       this._destroyViewManager();
     }
-    for (const sub3 of this._viewerSubs) {
-      sub3();
+    for (const sub4 of this._viewerSubs) {
+      sub4();
     }
     this._viewerSubs = [];
     const viewer = this._viewer;
@@ -204942,8 +204993,8 @@ var WebGLRenderer3 = class {
     if (!this._viewManager) {
       return;
     }
-    for (const sub3 of this._viewManagerSubs) {
-      sub3();
+    for (const sub4 of this._viewManagerSubs) {
+      sub4();
     }
     this._viewManagerSubs = [];
     this._removeWebGLContextListeners();
@@ -204994,7 +205045,7 @@ function createMemoryConfigs(params) {
   const AVG_VERTICES_PER_GEOMETRY = 200;
   const AVG_INDICES_PER_GEOMETRY = 400;
   const AVG_PRIMS_PER_GEOMETRY = 200;
-  const clamp5 = (v, min, max) => Math.max(min, Math.min(v, max));
+  const clamp6 = (v, min, max) => Math.max(min, Math.min(v, max));
   const MB_TO_BYTES = 1024 * 1024;
   const grossBytes = params.grossMemoryMB * MB_TO_BYTES;
   const usableBytes = grossBytes * params.utilization;
@@ -205003,20 +205054,20 @@ function createMemoryConfigs(params) {
   const tileBudgetBytes = usableBytes * 0.1;
   const maxBatchesBase = user.maxBatches ?? perf.meshBatches;
   const maxTilesBase = user.maxTiles ?? perf.tiles;
-  const derivedMaxTiles = clamp5(
+  const derivedMaxTiles = clamp6(
     Math.floor(tileBudgetBytes / BYTES_PER_TILE),
     64,
     4096
   );
-  const maxTiles = clamp5(
+  const maxTiles = clamp6(
     Math.min(maxTilesBase, derivedMaxTiles),
     64,
     4096
   );
-  const maxBatches = clamp5(maxBatchesBase, 8, 1024);
+  const maxBatches = clamp6(maxBatchesBase, 8, 1024);
   const totalMeshCapacity = Math.floor(meshBudgetBytes / BYTES_PER_MESH);
   const meshesPerBatchFromBudget = Math.floor(totalMeshCapacity / Math.max(1, maxBatches));
-  const maxBatchMeshes = clamp5(
+  const maxBatchMeshes = clamp6(
     user.maxBatchMeshes ?? meshesPerBatchFromBudget,
     100,
     16384
@@ -205025,17 +205076,17 @@ function createMemoryConfigs(params) {
   const bytesPerBatch = maxBatches > 0 ? geometryBudgetBytes / maxBatches : geometryBudgetBytes;
   const costPerVertex = BYTES_PER_VERTEX + INDICES_PER_VERTEX * BYTES_PER_INDEX + PRIMS_PER_VERTEX * BYTES_PER_PRIM;
   const maxBatchVerticesRaw = Math.floor(bytesPerBatch / costPerVertex);
-  const maxBatchVertices = user.maxBatchVertices ?? clamp5(
+  const maxBatchVertices = user.maxBatchVertices ?? clamp6(
     maxBatchVerticesRaw,
     1e5,
     16e6
   );
-  const maxBatchIndices = user.maxBatchIndices ?? clamp5(
+  const maxBatchIndices = user.maxBatchIndices ?? clamp6(
     Math.floor(maxBatchVertices * INDICES_PER_VERTEX),
     1e5,
     16e6
   );
-  const maxBatchPrims = user.maxBatchPrims ?? clamp5(
+  const maxBatchPrims = user.maxBatchPrims ?? clamp6(
     Math.floor(maxBatchVertices * PRIMS_PER_VERTEX),
     1e5,
     16e6
@@ -205053,12 +205104,12 @@ function createMemoryConfigs(params) {
     1,
     Math.min(maxGeometriesByVerts, maxGeometriesByIdx, maxGeometriesByPrims)
   );
-  maxBatchGeometries = clamp5(
+  maxBatchGeometries = clamp6(
     Math.min(maxBatchGeometries, geomCap),
     1,
     maxBatchGeometries
   );
-  const finalMaxBatchMeshes = clamp5(
+  const finalMaxBatchMeshes = clamp6(
     Math.min(maxBatchMeshes, maxBatchGeometries),
     100,
     16384
@@ -207766,8 +207817,8 @@ var WebGPURenderer = class _WebGPURenderer {
       return;
     }
     this._destroyViewManager();
-    for (const sub3 of this._viewerSubs) {
-      sub3();
+    for (const sub4 of this._viewerSubs) {
+      sub4();
     }
     this._viewerSubs = [];
     const viewer = this._viewer;
@@ -207851,8 +207902,8 @@ var WebGPURenderer = class _WebGPURenderer {
   }
   _rollbackViewerAttach() {
     this._destroyViewManager(false);
-    for (const sub3 of this._viewerSubs) {
-      sub3();
+    for (const sub4 of this._viewerSubs) {
+      sub4();
     }
     this._viewerSubs = [];
     this._viewer = null;
@@ -208201,8 +208252,8 @@ var WebGPURenderer = class _WebGPURenderer {
     if (!viewManager) {
       return;
     }
-    for (const sub3 of this._viewManagerSubs) {
-      sub3();
+    for (const sub4 of this._viewManagerSubs) {
+      sub4();
     }
     this._viewManagerSubs = [];
     viewManager.destroy();
@@ -219332,8 +219383,1180 @@ var AngleMeasurementsTool = class _AngleMeasurementsTool {
 // ../sdk/src/simulation/index.ts
 var simulation_exports = {};
 __export(simulation_exports, {
+  aircraft: () => aircraft_exports,
   physics: () => physics_exports
 });
+
+// ../sdk/src/simulation/aircraft/index.ts
+var aircraft_exports = {};
+__export(aircraft_exports, {
+  AircraftController: () => AircraftController,
+  AircraftExhaustTrail: () => AircraftExhaustTrail,
+  add3: () => add3,
+  aircraftLocalPointToWorld: () => aircraftLocalPointToWorld,
+  basisFromForward: () => basisFromForward,
+  buildVehicleMatrix: () => buildVehicleMatrix,
+  clamp: () => clamp5,
+  createAircraftNoiseBuffer: () => createAircraftNoiseBuffer,
+  cross3: () => cross33,
+  dot3: () => dot32,
+  flatDirection3: () => flatDirection3,
+  isAircraftObjectId: () => isAircraftObjectId,
+  length3: () => length32,
+  lerp3: () => lerp32,
+  mul3: () => mul3,
+  normalize: () => normalize5,
+  safeNormalize: () => safeNormalize,
+  segmentMatrixBetween: () => segmentMatrixBetween,
+  sub3: () => sub3,
+  toVec3: () => toVec3,
+  vehicleLocalAxes: () => vehicleLocalAxes
+});
+
+// ../sdk/src/simulation/aircraft/AircraftAudio.ts
+function createAircraftNoiseBuffer(context, { durationSeconds = 2, seed = 2654435769 } = {}) {
+  const sampleCount = Math.max(1, Math.floor(context.sampleRate * durationSeconds));
+  const buffer = context.createBuffer(1, sampleCount, context.sampleRate);
+  const data2 = buffer.getChannelData(0);
+  let value = seed >>> 0;
+  for (let i = 0; i < sampleCount; i++) {
+    value = 1664525 * value + 1013904223 >>> 0;
+    data2[i] = value / 4294967295 * 2 - 1;
+  }
+  return buffer;
+}
+
+// ../sdk/src/simulation/aircraft/AircraftMath.ts
+function toVec3(value, fallback = [0, 0, 0]) {
+  if (!value) {
+    return [fallback[0], fallback[1], fallback[2]];
+  }
+  return [
+    Number(value[0] || 0),
+    Number(value[1] || 0),
+    Number(value[2] || 0)
+  ];
+}
+function add3(a2, b4) {
+  return [a2[0] + b4[0], a2[1] + b4[1], a2[2] + b4[2]];
+}
+function sub3(a2, b4) {
+  return [a2[0] - b4[0], a2[1] - b4[1], a2[2] - b4[2]];
+}
+function mul3(v, scalar) {
+  return [v[0] * scalar, v[1] * scalar, v[2] * scalar];
+}
+function cross33(a2, b4) {
+  return [
+    a2[1] * b4[2] - a2[2] * b4[1],
+    a2[2] * b4[0] - a2[0] * b4[2],
+    a2[0] * b4[1] - a2[1] * b4[0]
+  ];
+}
+function length32(v) {
+  return Math.hypot(v[0], v[1], v[2]);
+}
+function dot32(a2, b4) {
+  return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
+}
+function normalize5(v) {
+  const len = length32(v);
+  if (len === 0) {
+    return [0, 0, 0];
+  }
+  return [v[0] / len, v[1] / len, v[2] / len];
+}
+function safeNormalize(v, fallback) {
+  return length32(v) > 1e-5 ? normalize5(v) : fallback;
+}
+function lerp32(a2, b4, t) {
+  return [
+    a2[0] + (b4[0] - a2[0]) * t,
+    a2[1] + (b4[1] - a2[1]) * t,
+    a2[2] + (b4[2] - a2[2]) * t
+  ];
+}
+function flatDirection3(direction, worldUp) {
+  const flat = sub3(direction, mul3(worldUp, dot32(direction, worldUp)));
+  return safeNormalize(flat, [1, 0, 0]);
+}
+function clamp5(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+function basisFromForward(forward, worldUp, fallbackRight = [1, 0, 0]) {
+  const normalizedForward = safeNormalize(forward, [0, 1, 0]);
+  const flatForward = flatDirection3(normalizedForward, worldUp);
+  const right = safeNormalize(cross33(flatForward, worldUp), fallbackRight);
+  const up = safeNormalize(cross33(right, normalizedForward), worldUp);
+  return {
+    position: [0, 0, 0],
+    forward: normalizedForward,
+    right,
+    up
+  };
+}
+function vehicleLocalAxes(right, up, forward, forwardAxis) {
+  let localX = right;
+  let localY = up;
+  let localZ = mul3(forward, -1);
+  if (forwardAxis === "Z" || forwardAxis === "+Z") {
+    localZ = forward;
+    localX = mul3(right, -1);
+  } else if (forwardAxis === "X" || forwardAxis === "+X") {
+    localX = forward;
+    localZ = right;
+  } else if (forwardAxis === "-X") {
+    localX = mul3(forward, -1);
+    localZ = mul3(right, -1);
+  } else if (forwardAxis === "Y" || forwardAxis === "+Y") {
+    localY = forward;
+    localZ = up;
+  } else if (forwardAxis === "-Y") {
+    localY = mul3(forward, -1);
+    localZ = mul3(up, -1);
+  }
+  return { localX, localY, localZ };
+}
+function buildVehicleMatrix({ position, right, up, forward, forwardAxis }) {
+  const { localX, localY, localZ } = vehicleLocalAxes(right, up, forward, forwardAxis);
+  return [
+    localX[0],
+    localX[1],
+    localX[2],
+    0,
+    localY[0],
+    localY[1],
+    localY[2],
+    0,
+    localZ[0],
+    localZ[1],
+    localZ[2],
+    0,
+    position[0],
+    position[1],
+    position[2],
+    1
+  ];
+}
+function aircraftLocalPointToWorld(localPoint, state, forwardAxis) {
+  const axes = vehicleLocalAxes(state.right, state.up, state.forward, forwardAxis);
+  return add3(
+    add3(
+      add3(state.position, mul3(axes.localX, localPoint[0])),
+      mul3(axes.localY, localPoint[1])
+    ),
+    mul3(axes.localZ, localPoint[2])
+  );
+}
+function segmentMatrixBetween(start, end, radius, fallbackUp, fallbackRight) {
+  const axis = sub3(end, start);
+  const length4 = Math.max(1e-3, length32(axis));
+  const yAxis = safeNormalize(axis, [0, 1, 0]);
+  let xAxis = cross33(yAxis, fallbackUp);
+  if (length32(xAxis) < 1e-4) {
+    xAxis = cross33(yAxis, fallbackRight);
+  }
+  xAxis = safeNormalize(xAxis, [1, 0, 0]);
+  const zAxis = safeNormalize(cross33(xAxis, yAxis), [0, 0, 1]);
+  return [
+    xAxis[0] * radius,
+    xAxis[1] * radius,
+    xAxis[2] * radius,
+    0,
+    yAxis[0] * length4,
+    yAxis[1] * length4,
+    yAxis[2] * length4,
+    0,
+    zAxis[0] * radius,
+    zAxis[1] * radius,
+    zAxis[2] * radius,
+    0,
+    start[0],
+    start[1],
+    start[2],
+    1
+  ];
+}
+
+// ../sdk/src/simulation/aircraft/AircraftController.ts
+var VEHICLE_CAMERA_PRESET_KEYS = {
+  Digit0: "trailing",
+  Numpad0: "trailing",
+  Digit1: "left",
+  Numpad1: "left",
+  Digit2: "right",
+  Numpad2: "right",
+  Digit3: "front",
+  Numpad3: "front",
+  Digit4: "top",
+  Numpad4: "top",
+  Digit5: "topTrailing",
+  Numpad5: "topTrailing",
+  Digit6: "rearWide",
+  Numpad6: "rearWide",
+  Digit7: "cockpit",
+  Numpad7: "cockpit"
+};
+var VEHICLE_EXTERIOR_CAMERA_PRESETS = /* @__PURE__ */ new Set([
+  "trailing",
+  "left",
+  "right",
+  "front",
+  "top",
+  "topTrailing",
+  "rearWide"
+]);
+var AircraftController = class {
+  /** Stable controller type string for diagnostics and app-level routing. */
+  type = "vehicle-navigation-aircraft";
+  /** Mutable physical, visual and camera state. */
+  state;
+  /** Underlying SDK vehicle navigation controller. */
+  sdkController;
+  /** Proxy View passed to {@link VehicleNavigationController}. */
+  vehicleView;
+  /** Update loop implementation. Currently always `"sdk-task"`. */
+  updateMode;
+  view;
+  params;
+  config;
+  vehicleCamera;
+  unbindCameraPresetKeys;
+  animationFrame = 0;
+  task = null;
+  destroyed = false;
+  /**
+   * Creates an aircraft controller for a View.
+   *
+   * @param view View whose camera will track the aircraft.
+   * @param params Root transform, optional exhaust trail, input binding and
+   * flight/camera configuration.
+   */
+  constructor(view, params) {
+    this.view = view;
+    this.params = params;
+    this.config = params.config || {};
+    const worldUp = this.getWorldUp();
+    const initialEye = toVec3(view.camera.eye);
+    const initialLook = toVec3(view.camera.look);
+    const initialForward = safeNormalize(sub3(initialLook, initialEye), [0, 1, 0]);
+    const initialBasis = basisFromForward(initialForward, worldUp);
+    const cameraDistance = Number(this.config.cameraDistance ?? 64);
+    const cameraHeight = Number(this.config.cameraHeight ?? 18);
+    const initialPosition = Array.isArray(this.config.initialShipPosition) ? toVec3(this.config.initialShipPosition) : sub3(add3(initialEye, mul3(initialForward, cameraDistance)), mul3(worldUp, cameraHeight));
+    this.state = {
+      position: initialPosition,
+      forward: initialBasis.forward,
+      right: initialBasis.right,
+      up: initialBasis.up,
+      visualPosition: initialPosition,
+      visualForward: initialBasis.forward,
+      visualRight: initialBasis.right,
+      visualUp: initialBasis.up,
+      cameraEye: initialEye,
+      cameraLook: initialLook,
+      cameraPreset: "trailing",
+      exteriorCameraDistanceScale: clamp5(Number(this.config.cameraExteriorDistanceScale ?? 1), 0.35, 2.5),
+      lastTime: performance.now()
+    };
+    this.vehicleCamera = {
+      eye: initialPosition,
+      look: add3(initialPosition, this.state.forward),
+      up: worldUp,
+      perspectiveProjection: view.camera.perspectiveProjection
+    };
+    this.vehicleView = {
+      id: `${view.id}:vehicle-proxy`,
+      htmlElement: view.htmlElement,
+      camera: this.vehicleCamera,
+      objects: view.objects,
+      viewer: view.viewer,
+      needsRender: () => view.needsRender?.()
+    };
+    const maxForwardSpeed = Number(this.config.maxForwardSpeed ?? 135);
+    const objectFilter = params.objectFilter || ((objectId) => !isAircraftObjectId(objectId, this.config.modelId));
+    this.sdkController = new VehicleNavigationController(this.vehicleView, {
+      active: true,
+      keyboardEnabledOnlyOnMouseover: false,
+      suspendViewController: params.suspendViewController,
+      collision: this.config.collision ?? true,
+      gravity: this.config.gravity ?? false,
+      cameraHeight: 0.01,
+      bodyRadius: Number(this.config.bodyRadius ?? 0.45),
+      maxForwardSpeed,
+      maxReverseSpeed: Number(this.config.maxReverseSpeed ?? 10),
+      acceleration: Number(this.config.acceleration ?? 46),
+      brakeDeceleration: Number(this.config.brakeDeceleration ?? 42),
+      coastDeceleration: Number(this.config.coastDeceleration ?? 2.8),
+      turnRateDegreesPerSecond: Number(this.config.shipYawRateDegreesPerSecond ?? this.config.turnRateDegreesPerSecond ?? 82),
+      keySteerInitialScale: Number(this.config.shipKeyYawInitialScale ?? this.config.keySteerInitialScale ?? 0.28),
+      keySteerRampSeconds: Number(this.config.shipKeyYawRampSeconds ?? this.config.keySteerRampSeconds ?? 1.45),
+      leanDegrees: Number(this.config.maxVisualRollDegrees ?? this.config.leanDegrees ?? 58),
+      leanSmoothing: Number(this.config.rollSmoothing ?? this.config.leanSmoothing ?? 10),
+      maxPitchDegrees: maxAbsolutePitchDegrees(this.config),
+      maxFlightPitchDegrees: maxAbsolutePitchDegrees(this.config),
+      flightTakeoffHeight: Number(this.config.flightTakeoffHeight ?? 0),
+      flightTakeoffSpeed: Number(this.config.flightTakeoffSpeed ?? 12),
+      flightLandingFallSpeed: Number(this.config.flightLandingFallSpeed ?? 12),
+      flightAcceleration: Number(this.config.flightAcceleration ?? this.config.acceleration ?? 46),
+      flightBrakeDeceleration: Number(this.config.flightBrakeDeceleration ?? this.config.brakeDeceleration ?? 42),
+      flightMinGlideSpeed: Number(this.config.flightMinGlideSpeed ?? this.config.minForwardSpeed ?? 18),
+      flightAirDrag: Number(this.config.flightAirDrag ?? Number(this.config.coastDeceleration ?? 2.8) / Math.max(maxForwardSpeed, 1)),
+      flightGravity: Number(this.config.flightGravity ?? 0),
+      flightSoftLandingRange: Number(this.config.flightSoftLandingRange ?? 0.75),
+      flightPitchRateDegreesPerSecond: Number(this.config.shipPitchRateDegreesPerSecond ?? this.config.flightPitchRateDegreesPerSecond ?? 54),
+      flightSteeringResponse: Number(this.config.flightSteeringResponse ?? 4.6),
+      mouseDragYawSensitivity: Number(this.config.shipMouseDragYawSensitivity ?? this.config.mouseDragYawSensitivity ?? this.config.shipMouseDragSensitivity ?? 28e-4),
+      mouseDragPitchSensitivity: Number(this.config.shipMouseDragPitchSensitivity ?? this.config.mouseDragPitchSensitivity ?? this.config.shipMouseDragSensitivity ?? 28e-4),
+      mouseDragResponse: Number(this.config.shipMouseDragResponse ?? this.config.mouseDragResponse ?? 7.5),
+      maxMouseDragInputPerFrame: Number(this.config.maxShipMouseDragInputPerFrame ?? this.config.maxMouseDragInputPerFrame ?? 0.65),
+      obstacleFilter: objectFilter,
+      driveSurfaceFilter: objectFilter
+    });
+    this.sdkController.speed = clamp5(Number(this.config.startSpeed ?? 34), 0, maxForwardSpeed);
+    if (this.config.startFlying !== false) {
+      this.sdkController.flying = true;
+    }
+    this.unbindCameraPresetKeys = params.bindKeyboard === false ? () => void 0 : this.bindCameraPresetKeys();
+    const updateTask = () => this.update();
+    this.task = new SDKTask({
+      name: params.taskName || "AircraftController",
+      stage: SDKTask.AnimateStage,
+      repeat: true,
+      task: updateTask
+    });
+    this.updateMode = "sdk-task";
+  }
+  /**
+   * Advances the aircraft one frame.
+   *
+   * This is normally called by the controller's internal repeating SDKTask.
+   * Call it manually only when integrating with a custom task lifecycle.
+   */
+  update() {
+    if (this.destroyed) {
+      return;
+    }
+    const dt = this.updateAircraftFromVehicleNavigation();
+    this.params.exhaust?.update(this.config, Number(this.sdkController.speed || 0), this.state, dt);
+  }
+  /**
+   * Switches the View camera to one of the built-in aircraft presets.
+   *
+   * @param preset Camera preset to activate.
+   */
+  setCameraPreset(preset) {
+    this.state.cameraPreset = preset;
+    this.snapCameraToPreset();
+    this.view.needsRender?.();
+  }
+  /**
+   * Moves the active exterior camera closer or farther from the aircraft.
+   *
+   * No-op while the cockpit preset is active. Keyboard bindings call this for
+   * `-` and `+`.
+   *
+   * @param direction `-1` to move closer, `1` to move farther.
+   */
+  adjustExteriorCameraDistance(direction) {
+    if (!VEHICLE_EXTERIOR_CAMERA_PRESETS.has(this.state.cameraPreset)) {
+      return;
+    }
+    const step2 = Math.max(1.01, Number(this.config.cameraExteriorDistanceStep ?? 1.12));
+    const current = this.exteriorCameraDistanceScale();
+    this.state.exteriorCameraDistanceScale = clamp5(
+      current * (direction > 0 ? step2 : 1 / step2),
+      Number(this.config.cameraExteriorMinDistanceScale ?? 0.35),
+      Number(this.config.cameraExteriorMaxDistanceScale ?? 2.5)
+    );
+    this.snapCameraToPreset();
+    this.view.needsRender?.();
+  }
+  /**
+   * Stops updates, unbinds keyboard handlers and destroys the underlying
+   * vehicle navigation controller.
+   */
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this.destroyed = true;
+    if (this.animationFrame) {
+      window.cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = 0;
+    }
+    this.task?.destroy();
+    this.task = null;
+    this.unbindCameraPresetKeys();
+    this.sdkController.destroy();
+  }
+  bindCameraPresetKeys() {
+    const onKeyDown = (event) => {
+      if (event.defaultPrevented || isTextInputEvent(event)) {
+        return;
+      }
+      if (this.handleCameraDistanceKey(event)) {
+        return;
+      }
+      if (event.repeat) {
+        return;
+      }
+      const preset = VEHICLE_CAMERA_PRESET_KEYS[event.code];
+      if (!preset) {
+        return;
+      }
+      this.setCameraPreset(preset);
+      event.preventDefault();
+    };
+    document.addEventListener("keydown", onKeyDown, { capture: true });
+    return () => document.removeEventListener("keydown", onKeyDown, { capture: true });
+  }
+  handleCameraDistanceKey(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey || !VEHICLE_EXTERIOR_CAMERA_PRESETS.has(this.state.cameraPreset)) {
+      return false;
+    }
+    let direction = 0;
+    if (event.code === "Minus" || event.code === "NumpadSubtract" || event.key === "-") {
+      direction = -1;
+    } else if (event.code === "Equal" || event.code === "NumpadAdd" || event.key === "+") {
+      direction = 1;
+    }
+    if (direction === 0) {
+      return false;
+    }
+    this.adjustExteriorCameraDistance(direction);
+    event.preventDefault();
+    return true;
+  }
+  snapCameraToPreset() {
+    const camera = this.computeCameraPreset(this.getWorldUp());
+    this.state.cameraEye = camera.eye;
+    this.state.cameraLook = camera.look;
+    this.view.camera.eye = camera.eye;
+    this.view.camera.look = camera.look;
+    this.view.camera.up = camera.up;
+  }
+  updateAircraftFromVehicleNavigation() {
+    const now3 = performance.now();
+    const dt = Math.max(1e-3, Math.min(0.1, (now3 - this.state.lastTime) / 1e3));
+    this.state.lastTime = now3;
+    const worldUp = this.getWorldUp();
+    let position = toVec3(this.vehicleCamera.eye);
+    let forward = safeNormalize(sub3(toVec3(this.vehicleCamera.look), position), this.state.forward);
+    const minAltitude = Number(this.config.minAltitude ?? 0);
+    if (Number.isFinite(minAltitude)) {
+      const altitude = dot32(position, worldUp);
+      if (altitude < minAltitude) {
+        position = add3(position, mul3(worldUp, minAltitude - altitude));
+        if (dot32(forward, worldUp) < 0) {
+          forward = flatDirection3(forward, worldUp);
+        }
+        this.vehicleCamera.eye = position;
+        this.vehicleCamera.look = add3(position, forward);
+      }
+    }
+    const cameraUp = safeNormalize(toVec3(this.vehicleCamera.up), worldUp);
+    const right = safeNormalize(cross33(forward, cameraUp), this.state.right);
+    const aircraftUp = safeNormalize(cross33(right, forward), cameraUp);
+    this.state.position = position;
+    this.state.forward = forward;
+    this.state.right = right;
+    this.state.up = aircraftUp;
+    this.updateVisualState(dt);
+    this.params.rootTransform.matrix = buildVehicleMatrix({
+      position: this.state.visualPosition,
+      right: this.state.visualRight,
+      up: this.state.visualUp,
+      forward: this.state.visualForward,
+      forwardAxis: this.config.forwardAxis || "-Z"
+    });
+    this.updateCamera(worldUp, dt);
+    this.view.needsRender?.();
+    return dt;
+  }
+  updateVisualState(dt) {
+    const defaultSmoothing = this.state.cameraPreset === "trailing" ? 0 : 18;
+    const smoothing = Math.max(0, Number(this.config.vehicleVisualSmoothing ?? defaultSmoothing));
+    if (smoothing === 0) {
+      this.state.visualPosition = this.state.position;
+      this.state.visualForward = this.state.forward;
+      this.state.visualRight = this.state.right;
+      this.state.visualUp = this.state.up;
+      return;
+    }
+    const t = 1 - Math.exp(-smoothing * dt);
+    this.state.visualPosition = lerp32(this.state.visualPosition, this.state.position, t);
+    const forward = safeNormalize(lerp32(this.state.visualForward, this.state.forward, t), this.state.forward);
+    let up = safeNormalize(lerp32(this.state.visualUp, this.state.up, t), this.state.up);
+    const right = safeNormalize(cross33(forward, up), this.state.right);
+    up = safeNormalize(cross33(right, forward), this.state.up);
+    this.state.visualForward = forward;
+    this.state.visualRight = right;
+    this.state.visualUp = up;
+  }
+  updateCamera(worldUp, dt) {
+    const desired = this.computeCameraPreset(worldUp);
+    if (this.state.cameraPreset === "cockpit") {
+      this.state.cameraEye = desired.eye;
+      this.state.cameraLook = desired.look;
+      this.view.camera.eye = desired.eye;
+      this.view.camera.look = desired.look;
+      this.view.camera.up = desired.up;
+      return;
+    }
+    const eyeT = 1 - Math.exp(-Math.max(0, Number(this.config.cameraFollowSmoothing ?? 4.2)) * dt);
+    const lookT = 1 - Math.exp(-Math.max(0, Number(this.config.cameraLookSmoothing ?? 7.5)) * dt);
+    this.state.cameraEye = lerp32(this.state.cameraEye, desired.eye, eyeT);
+    this.state.cameraLook = lerp32(this.state.cameraLook, desired.look, lookT);
+    if (this.state.cameraPreset === "front") {
+      this.state.cameraEye = this.keepFrontCameraAhead(worldUp, this.state.cameraEye);
+    }
+    this.view.camera.eye = this.state.cameraEye;
+    this.view.camera.look = this.state.cameraLook;
+    this.view.camera.up = desired.up;
+  }
+  keepFrontCameraAhead(worldUp, eye) {
+    const target = visualAircraftState(this.state);
+    const axes = stableAircraftCameraAxes(target, worldUp);
+    const desiredDistance = Number(this.config.cameraDistance ?? 64) * Number(this.config.cameraFrontDistanceScale ?? 0.95) * this.exteriorCameraDistanceScale();
+    const minDistance = Math.max(
+      Number(this.config.cameraFrontMinDistance ?? 8),
+      desiredDistance * Number(this.config.cameraFrontMinDistanceScale ?? 0.58)
+    );
+    const offset = sub3(eye, target.position);
+    const frontDistance = dot32(offset, axes.forward);
+    if (frontDistance >= minDistance) {
+      return eye;
+    }
+    return add3(eye, mul3(axes.forward, minDistance - frontDistance));
+  }
+  computeCameraPreset(worldUp) {
+    switch (this.state.cameraPreset) {
+      case "left":
+        return this.computeExteriorCamera(worldUp, {
+          right: -1,
+          distanceScale: Number(this.config.cameraSideDistanceScale ?? 0.82),
+          heightScale: Number(this.config.cameraSideHeightScale ?? 0.42),
+          lookAheadScale: Number(this.config.cameraSideLookAheadScale ?? 0.12)
+        });
+      case "right":
+        return this.computeExteriorCamera(worldUp, {
+          right: 1,
+          distanceScale: Number(this.config.cameraSideDistanceScale ?? 0.82),
+          heightScale: Number(this.config.cameraSideHeightScale ?? 0.42),
+          lookAheadScale: Number(this.config.cameraSideLookAheadScale ?? 0.12)
+        });
+      case "front":
+        return this.computeExteriorCamera(worldUp, {
+          forward: 1,
+          distanceScale: Number(this.config.cameraFrontDistanceScale ?? 0.95),
+          heightScale: Number(this.config.cameraFrontHeightScale ?? 0.35),
+          lookAheadScale: Number(this.config.cameraFrontLookAheadScale ?? 0)
+        });
+      case "top":
+        return this.computeTopCamera(worldUp, false);
+      case "topTrailing":
+        return this.computeTopCamera(worldUp, true);
+      case "rearWide":
+        return this.computeExteriorCamera(worldUp, {
+          forward: -1,
+          distanceScale: Number(this.config.cameraRearWideDistanceScale ?? 1.65),
+          heightScale: Number(this.config.cameraRearWideHeightScale ?? 0.95),
+          lookAheadScale: Number(this.config.cameraRearWideLookAheadScale ?? 0.35)
+        });
+      case "cockpit":
+        return this.computeCockpitCamera();
+      default:
+        return this.computeTrailingCamera(worldUp);
+    }
+  }
+  computeCockpitCamera() {
+    const target = visualAircraftState(this.state);
+    const forwardAxis = this.config.forwardAxis || "-Z";
+    const eyeOffset = Array.isArray(this.config.cameraCockpitEyeOffset) ? toVec3(this.config.cameraCockpitEyeOffset) : [0, -1.45, -0.35];
+    const lookOffset = Array.isArray(this.config.cameraCockpitLookOffset) ? toVec3(this.config.cameraCockpitLookOffset) : [0, -14, -0.25];
+    return {
+      eye: aircraftLocalPointToWorld(eyeOffset, target, forwardAxis),
+      look: aircraftLocalPointToWorld(lookOffset, target, forwardAxis),
+      up: target.up
+    };
+  }
+  computeExteriorCamera(worldUp, preset) {
+    const distance3 = Number(this.config.cameraDistance ?? 64) * Number(preset.distanceScale ?? 1) * this.exteriorCameraDistanceScale();
+    const height = Number(this.config.cameraHeight ?? 18) * Number(preset.heightScale ?? 1);
+    const lookAhead = Number(this.config.cameraLookAhead ?? 28) * Number(preset.lookAheadScale ?? 0);
+    const lookHeight = Number(this.config.cameraLookHeight ?? 4);
+    const target = visualAircraftState(this.state);
+    const axes = stableAircraftCameraAxes(target, worldUp);
+    let eye = add3(target.position, mul3(worldUp, height));
+    if (preset.forward) {
+      eye = add3(eye, mul3(axes.forward, distance3 * preset.forward));
+    }
+    if (preset.right) {
+      eye = add3(eye, mul3(axes.right, distance3 * preset.right));
+    }
+    return {
+      eye,
+      look: add3(add3(target.position, mul3(axes.forward, lookAhead)), mul3(worldUp, lookHeight)),
+      up: worldUp
+    };
+  }
+  computeTopCamera(worldUp, trailing) {
+    const distance3 = Number(this.config.cameraDistance ?? 64);
+    const lookHeight = Number(this.config.cameraLookHeight ?? 4);
+    const distanceScale = this.exteriorCameraDistanceScale();
+    const topHeight = Number(this.config.cameraTopHeight ?? Math.max(distance3 * 1.35, Number(this.config.cameraHeight ?? 18) * 3.5)) * distanceScale;
+    const trailingDistance = trailing ? Number(this.config.cameraTopTrailingDistance ?? distance3 * 0.55) * distanceScale : 0;
+    const target = visualAircraftState(this.state);
+    const axes = stableAircraftCameraAxes(target, worldUp);
+    return {
+      eye: add3(add3(target.position, mul3(worldUp, topHeight)), mul3(axes.forward, -trailingDistance)),
+      look: add3(target.position, mul3(worldUp, lookHeight)),
+      up: axes.forward
+    };
+  }
+  computeTrailingCamera(worldUp) {
+    const distance3 = Number(this.config.cameraDistance ?? 64) * this.exteriorCameraDistanceScale();
+    const height = Number(this.config.cameraHeight ?? 18);
+    const lateralOffset = Number(this.config.cameraLateralOffset ?? 0);
+    const lookAhead = Number(this.config.cameraLookAhead ?? 28);
+    const lookHeight = Number(this.config.cameraLookHeight ?? 4);
+    let desiredEye = add3(
+      add3(
+        add3(this.state.position, mul3(this.state.forward, -distance3)),
+        mul3(worldUp, height)
+      ),
+      mul3(this.state.right, lateralOffset)
+    );
+    const cameraTrailFollow = clamp5(Number(this.config.cameraTrailFollow ?? 0), 0, 1);
+    if (cameraTrailFollow > 0) {
+      const exhaustConfig = typeof this.config.exhaustPlume === "object" && this.config.exhaustPlume ? this.config.exhaustPlume : this.config.exhaust || null;
+      const exhaustOffset = Array.isArray(exhaustConfig?.offset) ? toVec3(exhaustConfig.offset) : [0, 0, 0];
+      const trailHeight = Number(this.config.cameraTrailHeight ?? Math.max(0, height * 0.25));
+      const exhaustPoint = aircraftLocalPointToWorld(exhaustOffset, this.state, this.config.forwardAxis || "-Z");
+      const trailEye = add3(
+        add3(
+          add3(exhaustPoint, mul3(this.state.forward, -distance3)),
+          mul3(this.state.up, trailHeight)
+        ),
+        mul3(this.state.right, lateralOffset)
+      );
+      desiredEye = lerp32(desiredEye, trailEye, cameraTrailFollow);
+    }
+    const desiredLook = add3(
+      add3(this.state.position, mul3(this.state.forward, lookAhead)),
+      mul3(worldUp, lookHeight)
+    );
+    return {
+      eye: desiredEye,
+      look: desiredLook,
+      up: worldUp
+    };
+  }
+  exteriorCameraDistanceScale() {
+    return clamp5(
+      Number(this.state.exteriorCameraDistanceScale ?? this.config.cameraExteriorDistanceScale ?? 1),
+      Number(this.config.cameraExteriorMinDistanceScale ?? 0.35),
+      Number(this.config.cameraExteriorMaxDistanceScale ?? 2.5)
+    );
+  }
+  getWorldUp() {
+    return normalize5(Array.from(this.view.viewer.scene.coordinateSystem.worldUp || [0, 0, 1]));
+  }
+};
+function isAircraftObjectId(objectId, modelId) {
+  if (!objectId || !modelId) {
+    return false;
+  }
+  const id = String(objectId);
+  const model = String(modelId);
+  return id === model || id.startsWith(`${model}__`) || id.startsWith(`${model}/`) || id.startsWith("vehicleExhaust") || id.startsWith("vehicleAfterburner") || id.includes("__vehicleExhaust") || id.includes(".vehicleExhaust") || id.includes("__vehicleAfterburner") || id.includes(".vehicleAfterburner");
+}
+function isTextInputEvent(event) {
+  const target = event.target;
+  if (!target || !(target instanceof HTMLElement)) {
+    return false;
+  }
+  return target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
+}
+function maxAbsolutePitchDegrees(config2) {
+  return Math.max(
+    Math.abs(Number(config2.minShipPitchDegrees ?? -42)),
+    Math.abs(Number(config2.maxShipPitchDegrees ?? 54))
+  );
+}
+function visualAircraftState(state) {
+  return {
+    position: state.visualPosition || state.position,
+    forward: state.visualForward || state.forward,
+    right: state.visualRight || state.right,
+    up: state.visualUp || state.up
+  };
+}
+function stableAircraftCameraAxes(state, worldUp) {
+  const forward = flatDirection3(state.forward, worldUp);
+  const right = safeNormalize(cross33(forward, worldUp), state.right);
+  return { forward, right };
+}
+
+// ../sdk/src/simulation/aircraft/AircraftExhaustTrail.ts
+var AircraftExhaustTrail = class {
+  /** Generated dynamic SceneModel containing trail and flame geometry. */
+  sceneModel;
+  /** All generated SceneObject IDs. */
+  objectIds = [];
+  /** Generated trail SceneObject IDs. */
+  trailObjectIds = [];
+  /** Generated afterburner SceneObject IDs. */
+  afterburnerObjectIds = [];
+  /** Mutable transforms for trail segments. */
+  trailTransforms = [];
+  /** Aircraft-local exhaust emitter offset. */
+  offset;
+  /** Local aircraft axis used as the forward direction. */
+  axis;
+  /** Number of trail segments. */
+  trailSegments;
+  /** Target spacing between generated trail samples. */
+  segmentSpacing;
+  /** Fraction of emitter movement carried by existing samples. */
+  trailAdvection;
+  /** Tether strength pulling samples back toward the emitter path. */
+  trailTether;
+  /** Base trail radius. */
+  radius;
+  /** Radius growth along the trail. */
+  trailExpansion;
+  /** Sideways trail curl amount. */
+  wander;
+  /** Speed used to normalize trail/afterburner intensity. */
+  maxForwardSpeed;
+  /** Resolved afterburner config, or `null` when disabled. */
+  afterburner;
+  afterburnerLayers = [];
+  history = [];
+  lastEmitter = null;
+  lastEmissionPosition = null;
+  pulsePhase = 0;
+  sampleSerial = 0;
+  /**
+   * Creates generated trail geometry and materials.
+   */
+  constructor({ scene, modelId, coordinateSystem, config: config2 = {} }) {
+    const exhaustConfig = typeof config2.exhaustPlume === "object" && config2.exhaustPlume ? config2.exhaustPlume : config2.exhaust || {};
+    const exhaustModelId = exhaustConfig?.modelId || `${modelId}Exhaust`;
+    this.sceneModel = unwrapResult(scene.createModel({
+      id: exhaustModelId,
+      updateHint: "dynamic",
+      coordinateSystem
+    }));
+    this.axis = config2.forwardAxis || "-Z";
+    this.offset = Array.isArray(exhaustConfig?.offset) ? toVec3(exhaustConfig.offset) : [0, 0, 0];
+    const radialSegments = Math.max(5, Math.floor(Number(exhaustConfig?.radialSegments ?? 8)));
+    this.radius = Number(exhaustConfig?.radius ?? 1.2);
+    this.wander = Number(exhaustConfig?.wander ?? 1.4);
+    this.trailSegments = Math.max(10, Math.floor(Number(exhaustConfig?.trailSegments ?? 22)));
+    const trailLength = Number(exhaustConfig?.trailLength ?? 36);
+    const trailOpacity = Number(exhaustConfig?.trailOpacity ?? 0.16);
+    this.trailExpansion = Number(exhaustConfig?.trailExpansion ?? 1.35);
+    this.trailAdvection = clamp5(Number(exhaustConfig?.trailAdvection ?? 0.68), 0, 0.98);
+    this.trailTether = Math.max(0, Number(exhaustConfig?.trailTether ?? 1.35));
+    this.segmentSpacing = trailLength / this.trailSegments;
+    this.maxForwardSpeed = Number(config2.maxForwardSpeed ?? 135);
+    this.afterburner = resolveAfterburnerConfig(config2, exhaustConfig);
+    const trailGeometry = compressGeometryParams({
+      id: "vehicleExhaustTrailGeometry",
+      primitive: TrianglesPrimitive,
+      ...createTrailSegmentGeometry(radialSegments)
+    });
+    trailGeometry.edgeIndices = void 0;
+    unwrapResult(this.sceneModel.createGeometryCompressed(trailGeometry));
+    for (let i = 0; i < this.trailSegments; i++) {
+      const t = this.trailSegments <= 1 ? 0 : i / (this.trailSegments - 1);
+      const materialId = `vehicleExhaustTrailMaterial_${i}`;
+      const transformId = `vehicleExhaustTrailTransform_${i}`;
+      const meshId = `vehicleExhaustTrailMesh_${i}`;
+      const objectId = `vehicleExhaustTrail_${i}`;
+      const warm = Math.max(0, 1 - t * 1.35);
+      const cool = 1 - warm;
+      unwrapResult(this.sceneModel.createMaterial({
+        id: materialId,
+        color: [
+          1 * warm + 0.5 * cool,
+          0.34 * warm + 0.72 * cool,
+          0.08 * warm + 0.96 * cool
+        ],
+        emissiveColor: [
+          0.64 * warm + 0.04 * cool,
+          0.18 * warm + 0.08 * cool,
+          0.02 * warm + 0.16 * cool
+        ],
+        opacity: Math.max(0.015, trailOpacity * Math.pow(1 - t, 1.25)),
+        alphaMode: "BLEND",
+        roughness: 0.32,
+        metallic: 0
+      }));
+      const transform = unwrapResult(this.sceneModel.createTransform({
+        id: transformId,
+        matrix: hiddenExhaustMatrix()
+      }));
+      unwrapResult(this.sceneModel.createMesh({
+        id: meshId,
+        geometryId: "vehicleExhaustTrailGeometry",
+        materialId,
+        parentTransformId: transformId
+      }));
+      unwrapResult(this.sceneModel.createObject({
+        id: objectId,
+        meshIds: [meshId],
+        clippable: false
+      }));
+      this.trailTransforms.push(transform);
+      this.trailObjectIds.push(objectId);
+      this.objectIds.push(objectId);
+    }
+    if (this.afterburner) {
+      this.createAfterburner(this.afterburner);
+    }
+  }
+  /**
+   * Updates trail and afterburner transforms from the aircraft controller state.
+   *
+   * @param config Current aircraft config.
+   * @param speed Current forward speed.
+   * @param state Current aircraft pose/state.
+   * @param dt Elapsed seconds since the previous update.
+   */
+  update(config2, speed, state, dt) {
+    const maxForwardSpeed = Math.max(1, Number(config2.maxForwardSpeed ?? this.maxForwardSpeed ?? 135));
+    const speedRatio = clamp5(Math.max(0, speed) / maxForwardSpeed, 0, 1);
+    this.pulsePhase += dt * (0.75 + speedRatio * 1.35);
+    this.updateTrail(state, speedRatio, dt);
+    this.updateAfterburner(state, speedRatio);
+  }
+  updateTrail(state, speedRatio, dt) {
+    if (!this.trailTransforms.length || !state) {
+      return;
+    }
+    const exhaustState = visualAircraftState2(state);
+    const emitter = aircraftLocalPointToWorld(this.offset, exhaustState, this.axis);
+    const emitterDelta = this.lastEmitter ? sub3(emitter, this.lastEmitter) : [0, 0, 0];
+    if (this.history.length === 0) {
+      this.seedTrail(exhaustState, emitter);
+    } else {
+      const carried = mul3(emitterDelta, this.trailAdvection);
+      const tetherT = 1 - Math.exp(-this.trailTether * dt);
+      for (const sample of this.history) {
+        sample.position = add3(sample.position, carried);
+        const target = add3(emitter, mul3(exhaustState.forward, -this.segmentSpacing * (this.history.indexOf(sample) + 1)));
+        sample.position = lerp32(sample.position, target, tetherT);
+      }
+      let emissionCursor = this.lastEmissionPosition || this.lastEmitter || emitter;
+      let pending = sub3(emitter, emissionCursor);
+      let pendingDistance = length32(pending);
+      let emitted = 0;
+      while (pendingDistance >= this.segmentSpacing && emitted < this.trailSegments) {
+        const direction = mul3(pending, 1 / pendingDistance);
+        emissionCursor = add3(emissionCursor, mul3(direction, this.segmentSpacing));
+        this.history.unshift(this.createSample(emissionCursor, exhaustState, this.sampleSerial++, direction));
+        pending = sub3(emitter, emissionCursor);
+        pendingDistance = length32(pending);
+        emitted++;
+      }
+      if (emitted > 0) {
+        this.history.length = Math.min(this.history.length, this.trailSegments);
+        this.lastEmissionPosition = emissionCursor;
+      }
+    }
+    this.lastEmitter = emitter;
+    for (const sample of this.history) {
+      sample.age += dt;
+    }
+    const samples = [this.createSample(emitter, exhaustState, this.sampleSerial), ...this.history];
+    while (samples.length <= this.trailSegments) {
+      const lastSample = samples[samples.length - 1] || samples[0];
+      const nextForward = lastSample.forward || exhaustState.forward;
+      const nextPosition = add3(lastSample.position, mul3(nextForward, -this.segmentSpacing));
+      samples.push({
+        position: nextPosition,
+        side: lastSample.side,
+        lift: lastSample.lift,
+        forward: nextForward,
+        phase: lastSample.phase + 0.83,
+        age: lastSample.age + 0.08
+      });
+    }
+    const displayPoints = samples.map((sample, index) => this.sampleDisplayPosition(sample, index, speedRatio));
+    const radiusBoost = 0.84 + speedRatio * 0.55;
+    for (let i = 0; i < this.trailTransforms.length; i++) {
+      const start = displayPoints[i];
+      const end = displayPoints[i + 1];
+      const t = this.trailTransforms.length <= 1 ? 0 : i / (this.trailTransforms.length - 1);
+      const radius = this.radius * radiusBoost * (0.34 + Math.pow(t, 0.82) * this.trailExpansion);
+      this.trailTransforms[i].matrix = segmentMatrixBetween(start, end, radius, samples[i]?.lift || exhaustState.up, samples[i]?.side || exhaustState.right);
+    }
+  }
+  seedTrail(state, emitter) {
+    this.history.length = 0;
+    for (let i = 1; i <= this.trailSegments; i++) {
+      const position = add3(emitter, mul3(state.forward, -this.segmentSpacing * i));
+      const sample = this.createSample(position, state, this.sampleSerial++);
+      sample.age = i * 0.045;
+      this.history.push(sample);
+    }
+    this.lastEmissionPosition = emitter;
+  }
+  createSample(position, state, serial, forwardOverride = null) {
+    const basis = forwardOverride ? basisFromForward(forwardOverride, state.up, state.right) : state;
+    return {
+      position,
+      side: basis.right,
+      lift: basis.up,
+      forward: basis.forward,
+      phase: serial * 0.73,
+      age: 0
+    };
+  }
+  sampleDisplayPosition(sample, index, speedRatio) {
+    const t = this.trailSegments <= 0 ? 0 : index / this.trailSegments;
+    const curl = this.wander * Math.pow(t, 1.15) * (0.035 + speedRatio * 0.13);
+    const phase = sample.phase + sample.age * 0.62 + this.pulsePhase * 0.16;
+    return add3(
+      add3(sample.position, mul3(sample.side, Math.sin(phase + t * 3.8) * curl)),
+      mul3(sample.lift, Math.sin(phase * 1.22 + t * 4.2) * curl * 0.08)
+    );
+  }
+  createAfterburner(afterburner) {
+    const radialSegments = Math.max(5, Math.floor(Number(afterburner.radialSegments ?? 12)));
+    const geometry = compressGeometryParams({
+      id: "vehicleAfterburnerFlameGeometry",
+      primitive: TrianglesPrimitive,
+      ...createAfterburnerGeometry(radialSegments)
+    });
+    geometry.edgeIndices = void 0;
+    unwrapResult(this.sceneModel.createGeometryCompressed(geometry));
+    const layers = [
+      {
+        id: "core",
+        color: [0.72, 0.92, 1],
+        emissiveColor: [1, 1, 1],
+        opacity: 0.74,
+        lengthScale: 0.62,
+        radiusScale: Number(afterburner.coreRadiusScale ?? 0.44),
+        phase: 0.3
+      },
+      {
+        id: "flame",
+        color: [1, 0.42, 0.08],
+        emissiveColor: [1, 0.33, 0.04],
+        opacity: 0.58,
+        lengthScale: 1,
+        radiusScale: 1,
+        phase: 1.8
+      },
+      {
+        id: "halo",
+        color: [1, 0.12, 0.02],
+        emissiveColor: [0.8, 0.08, 0.02],
+        opacity: 0.28,
+        lengthScale: 1.16,
+        radiusScale: Number(afterburner.haloRadiusScale ?? 1.46),
+        phase: 2.7
+      }
+    ];
+    for (const layer of layers) {
+      const materialId = `vehicleAfterburnerMaterial_${layer.id}`;
+      const transformId = `vehicleAfterburnerTransform_${layer.id}`;
+      const meshId = `vehicleAfterburnerMesh_${layer.id}`;
+      const objectId = `vehicleAfterburner_${layer.id}`;
+      unwrapResult(this.sceneModel.createMaterial({
+        id: materialId,
+        color: layer.color,
+        emissiveColor: layer.emissiveColor,
+        opacity: layer.opacity,
+        alphaMode: "BLEND",
+        roughness: 0.12,
+        metallic: 0
+      }));
+      const transform = unwrapResult(this.sceneModel.createTransform({
+        id: transformId,
+        matrix: hiddenExhaustMatrix()
+      }));
+      unwrapResult(this.sceneModel.createMesh({
+        id: meshId,
+        geometryId: "vehicleAfterburnerFlameGeometry",
+        materialId,
+        parentTransformId: transformId
+      }));
+      unwrapResult(this.sceneModel.createObject({
+        id: objectId,
+        meshIds: [meshId],
+        clippable: false
+      }));
+      this.afterburnerLayers.push({
+        transform,
+        lengthScale: layer.lengthScale,
+        radiusScale: layer.radiusScale,
+        phase: layer.phase
+      });
+      this.afterburnerObjectIds.push(objectId);
+      this.objectIds.push(objectId);
+    }
+  }
+  updateAfterburner(state, speedRatio) {
+    if (!this.afterburner || this.afterburnerLayers.length === 0) {
+      return;
+    }
+    const threshold = clamp5(Number(this.afterburner.threshold ?? 0.62), 0, 0.98);
+    const intensity = clamp5((speedRatio - threshold) / Math.max(0.01, 1 - threshold), 0, 1);
+    if (intensity <= 0.01) {
+      for (const layer of this.afterburnerLayers) {
+        layer.transform.matrix = hiddenExhaustMatrix();
+      }
+      return;
+    }
+    const aircraftState = visualAircraftState2(state);
+    const emitter = aircraftLocalPointToWorld(this.offset, aircraftState, this.axis);
+    const baseLength = Number(this.afterburner.length ?? this.segmentSpacing * 2.2);
+    const minLength = Number(this.afterburner.minLength ?? baseLength * 0.36);
+    const baseRadius = Number(this.afterburner.radius ?? this.radius * 0.82);
+    const flicker = Number(this.afterburner.flicker ?? 0.16);
+    const pulse = 1 + Math.sin(this.pulsePhase * 7.5) * flicker + Math.sin(this.pulsePhase * 12.8 + 1.2) * flicker * 0.42;
+    const length4 = (minLength + (baseLength - minLength) * intensity) * Math.max(0.25, pulse);
+    const radius = baseRadius * (0.42 + intensity * 0.78);
+    const start = add3(emitter, mul3(aircraftState.forward, -0.08 * length4));
+    for (const layer of this.afterburnerLayers) {
+      const layerPulse = 1 + Math.sin(this.pulsePhase * 9 + layer.phase) * flicker * 0.55;
+      const end = add3(emitter, mul3(aircraftState.forward, -length4 * layer.lengthScale * layerPulse));
+      layer.transform.matrix = segmentMatrixBetween(
+        start,
+        end,
+        radius * layer.radiusScale * Math.max(0.18, layerPulse),
+        aircraftState.up,
+        aircraftState.right
+      );
+    }
+  }
+};
+function visualAircraftState2(state) {
+  return {
+    position: state.visualPosition || state.position,
+    forward: state.visualForward || state.forward,
+    right: state.visualRight || state.right,
+    up: state.visualUp || state.up
+  };
+}
+function createTrailSegmentGeometry(radialSegments) {
+  const positions = [];
+  const normals = [];
+  const indices = [];
+  const rings = [
+    { y: 0, radius: 0.88 },
+    { y: 1, radius: 1 }
+  ];
+  for (const ring of rings) {
+    for (let j = 0; j < radialSegments; j++) {
+      const angle2 = j / radialSegments * Math.PI * 2;
+      const x = Math.cos(angle2);
+      const z = Math.sin(angle2);
+      positions.push(x * ring.radius, ring.y, z * ring.radius);
+      normals.push(x, 0, z);
+    }
+  }
+  for (let i = 0; i < rings.length - 1; i++) {
+    const ring = i * radialSegments;
+    const nextRing = (i + 1) * radialSegments;
+    for (let j = 0; j < radialSegments; j++) {
+      const nextJ = (j + 1) % radialSegments;
+      const a2 = ring + j;
+      const b4 = ring + nextJ;
+      const c2 = nextRing + j;
+      const d = nextRing + nextJ;
+      indices.push(a2, c2, b4, b4, c2, d);
+    }
+  }
+  return {
+    positions: new Float32Array(positions),
+    normals: new Float32Array(normals),
+    indices: new Uint32Array(indices)
+  };
+}
+function createAfterburnerGeometry(radialSegments) {
+  const positions = [];
+  const normals = [];
+  const indices = [];
+  const rings = [
+    { y: 0, radius: 0.7 },
+    { y: 0.34, radius: 1 },
+    { y: 0.78, radius: 0.44 },
+    { y: 1, radius: 0.04 }
+  ];
+  for (const ring of rings) {
+    for (let j = 0; j < radialSegments; j++) {
+      const angle2 = j / radialSegments * Math.PI * 2;
+      const x = Math.cos(angle2);
+      const z = Math.sin(angle2);
+      positions.push(x * ring.radius, ring.y, z * ring.radius);
+      normals.push(x, 0.2, z);
+    }
+  }
+  for (let i = 0; i < rings.length - 1; i++) {
+    const ring = i * radialSegments;
+    const nextRing = (i + 1) * radialSegments;
+    for (let j = 0; j < radialSegments; j++) {
+      const nextJ = (j + 1) % radialSegments;
+      const a2 = ring + j;
+      const b4 = ring + nextJ;
+      const c2 = nextRing + j;
+      const d = nextRing + nextJ;
+      indices.push(a2, c2, b4, b4, c2, d);
+    }
+  }
+  return {
+    positions: new Float32Array(positions),
+    normals: new Float32Array(normals),
+    indices: new Uint32Array(indices)
+  };
+}
+function resolveAfterburnerConfig(config2, exhaustConfig) {
+  const afterburner = config2.afterburner ?? exhaustConfig?.afterburner;
+  if (!afterburner) {
+    return null;
+  }
+  if (afterburner === true) {
+    return {};
+  }
+  if (typeof afterburner === "object" && afterburner.enabled !== false) {
+    return afterburner;
+  }
+  return null;
+}
+function hiddenExhaustMatrix() {
+  return [
+    1e-4,
+    0,
+    0,
+    0,
+    0,
+    1e-4,
+    0,
+    0,
+    0,
+    0,
+    1e-4,
+    0,
+    0,
+    0,
+    -1e5,
+    1
+  ];
+}
+function unwrapResult(result) {
+  if (!result.ok) {
+    throw result.error;
+  }
+  return result.value;
+}
 
 // ../sdk/src/simulation/physics/index.ts
 var physics_exports = {};
@@ -228564,20 +229787,20 @@ var SchemaMaterialsPanel = class _SchemaMaterialsPanel extends FloatingPanelBase
   _attachLiveSync() {
     const sceneEv = this.scene.events;
     const dataEv = this.data ? this.data.events : null;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv?.onSceneModelCreated?.subscribe) {
-      sub3(sceneEv.onSceneModelCreated.subscribe(() => this._scheduleRefresh()));
+      sub4(sceneEv.onSceneModelCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (sceneEv?.onSceneModelDestroyed?.subscribe) {
-      sub3(sceneEv.onSceneModelDestroyed.subscribe((_s, sm) => {
+      sub4(sceneEv.onSceneModelDestroyed.subscribe((_s, sm) => {
         this._scheduleRefresh(sm);
       }));
     }
     if (dataEv?.onDataModelCreated?.subscribe) {
-      sub3(dataEv.onDataModelCreated.subscribe(() => this._scheduleRefresh()));
+      sub4(dataEv.onDataModelCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (dataEv?.onDataModelDestroyed?.subscribe) {
-      sub3(dataEv.onDataModelDestroyed.subscribe(() => this._scheduleRefresh()));
+      sub4(dataEv.onDataModelDestroyed.subscribe(() => this._scheduleRefresh()));
     }
   }
   _detachLiveSync() {
@@ -230429,15 +231652,15 @@ var ModelsPanel = class _ModelsPanel extends FloatingPanelBase {
     if (!ev)
       return;
     const refresh = () => this._renderBody();
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     if (ev.onSceneModelCreated?.subscribe)
-      sub3(ev.onSceneModelCreated.subscribe(refresh));
+      sub4(ev.onSceneModelCreated.subscribe(refresh));
     if (ev.onSceneModelDestroyed?.subscribe)
-      sub3(ev.onSceneModelDestroyed.subscribe(refresh));
+      sub4(ev.onSceneModelDestroyed.subscribe(refresh));
     if (ev.onSceneObjectCreated?.subscribe)
-      sub3(ev.onSceneObjectCreated.subscribe(refresh));
+      sub4(ev.onSceneObjectCreated.subscribe(refresh));
     if (ev.onSceneObjectDestroyed?.subscribe)
-      sub3(ev.onSceneObjectDestroyed.subscribe(refresh));
+      sub4(ev.onSceneObjectDestroyed.subscribe(refresh));
   }
   // ── Rendering ─────────────────────────────────────────────────
   _renderBody() {
@@ -232415,12 +233638,12 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     const ev = this.scene.events;
     if (!ev)
       return;
-    const sub3 = (unsub) => this._sceneUnsubs.push(unsub);
+    const sub4 = (unsub) => this._sceneUnsubs.push(unsub);
     if (ev.onSceneModelCreated?.subscribe) {
-      sub3(ev.onSceneModelCreated.subscribe(() => this._scheduleModelsRefresh()));
+      sub4(ev.onSceneModelCreated.subscribe(() => this._scheduleModelsRefresh()));
     }
     if (ev.onSceneModelDestroyed?.subscribe) {
-      sub3(ev.onSceneModelDestroyed.subscribe((_s, sm) => {
+      sub4(ev.onSceneModelDestroyed.subscribe((_s, sm) => {
         this._scheduleModelsRefresh(sm);
       }));
     }
@@ -235234,15 +236457,15 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
     const events = this.data.events;
     if (!events)
       return;
-    const sub3 = (handle) => {
+    const sub4 = (handle) => {
       if (handle && typeof handle.subscribe === "function") {
         const unsub = handle.subscribe(() => this._scheduleModelsRefresh());
         if (typeof unsub === "function")
           this._dataUnsubs.push(unsub);
       }
     };
-    sub3(events.onDataModelCreated);
-    sub3(events.onDataModelDestroyed);
+    sub4(events.onDataModelCreated);
+    sub4(events.onDataModelDestroyed);
   }
   _detachDataListeners() {
     for (const u of this._dataUnsubs) {
@@ -236474,21 +237697,21 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub3(ev.onSceneModelCreated.subscribe(onChange));
-    sub3(ev.onSceneModelDestroyed.subscribe(onChange));
-    sub3(ev.onSceneObjectCreated.subscribe(onChange));
-    sub3(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub3(ev.onSceneObjectMeshAdded.subscribe(onChange));
-    sub3(ev.onSceneObjectMeshRemoved.subscribe(onChange));
-    sub3(ev.onSceneMeshCreated.subscribe(onChange));
-    sub3(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub3(ev.onSceneMeshMatrixChanged.subscribe(onChange));
-    sub3(ev.onSceneMeshMoved.subscribe(onChange));
+    sub4(ev.onSceneModelCreated.subscribe(onChange));
+    sub4(ev.onSceneModelDestroyed.subscribe(onChange));
+    sub4(ev.onSceneObjectCreated.subscribe(onChange));
+    sub4(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub4(ev.onSceneObjectMeshAdded.subscribe(onChange));
+    sub4(ev.onSceneObjectMeshRemoved.subscribe(onChange));
+    sub4(ev.onSceneMeshCreated.subscribe(onChange));
+    sub4(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub4(ev.onSceneMeshMatrixChanged.subscribe(onChange));
+    sub4(ev.onSceneMeshMoved.subscribe(onChange));
     const viewerEvents = this.view.viewer?.events;
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      sub3(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
+      sub4(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -237543,21 +238766,21 @@ var TilesPanel = class _TilesPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub3(ev.onSceneModelCreated.subscribe(onChange));
-    sub3(ev.onSceneModelDestroyed.subscribe(onChange));
-    sub3(ev.onSceneObjectCreated.subscribe(onChange));
-    sub3(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub3(ev.onSceneObjectMeshAdded.subscribe(onChange));
-    sub3(ev.onSceneObjectMeshRemoved.subscribe(onChange));
-    sub3(ev.onSceneMeshCreated.subscribe(onChange));
-    sub3(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub3(ev.onSceneMeshMatrixChanged.subscribe(onChange));
-    sub3(ev.onSceneMeshMoved.subscribe(onChange));
+    sub4(ev.onSceneModelCreated.subscribe(onChange));
+    sub4(ev.onSceneModelDestroyed.subscribe(onChange));
+    sub4(ev.onSceneObjectCreated.subscribe(onChange));
+    sub4(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub4(ev.onSceneObjectMeshAdded.subscribe(onChange));
+    sub4(ev.onSceneObjectMeshRemoved.subscribe(onChange));
+    sub4(ev.onSceneMeshCreated.subscribe(onChange));
+    sub4(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub4(ev.onSceneMeshMatrixChanged.subscribe(onChange));
+    sub4(ev.onSceneMeshMoved.subscribe(onChange));
     const viewerEvents = this.view.viewer?.events;
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
-      sub3(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
+      sub4(viewerEvents.onCameraViewMatrixUpdated.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -238416,33 +239639,33 @@ var SceneStatsPanel = class _SceneStatsPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.scene.events;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub3(ev.onSceneModelCreated.subscribe((_s, model) => {
+    sub4(ev.onSceneModelCreated.subscribe((_s, model) => {
       this._addModelSection(model);
       this._scheduleRefresh();
     }));
-    sub3(ev.onSceneModelDestroyed.subscribe((_s, model) => {
+    sub4(ev.onSceneModelDestroyed.subscribe((_s, model) => {
       this._removeModelSection(model);
       this._scheduleRefresh();
     }));
-    sub3(ev.onSceneCoordSystemUpdated.subscribe(() => this._renderSceneCoordSys()));
-    sub3(ev.onSceneModelCoordSystemUpdated.subscribe((model) => {
+    sub4(ev.onSceneCoordSystemUpdated.subscribe(() => this._renderSceneCoordSys()));
+    sub4(ev.onSceneModelCoordSystemUpdated.subscribe((model) => {
       this._renderModelCoordSys(model);
     }));
-    sub3(ev.onSceneObjectCreated.subscribe(onChange));
-    sub3(ev.onSceneObjectDestroyed.subscribe(onChange));
-    sub3(ev.onSceneMeshCreated.subscribe(onChange));
-    sub3(ev.onSceneMeshDestroyed.subscribe(onChange));
-    sub3(ev.onSceneGeometryCreated.subscribe(onChange));
-    sub3(ev.onSceneGeometryDestroyed.subscribe(onChange));
-    sub3(ev.onSceneGeometryUpdated.subscribe(onChange));
-    sub3(ev.onSceneTransformCreated.subscribe(onChange));
-    sub3(ev.onSceneTransformDestroyed.subscribe(onChange));
-    sub3(ev.onSceneTextureCreated.subscribe(onChange));
-    sub3(ev.onSceneTextureDestroyed.subscribe(onChange));
-    sub3(ev.onSceneMaterialCreated.subscribe(onChange));
-    sub3(ev.onSceneMaterialDestroyed.subscribe(onChange));
+    sub4(ev.onSceneObjectCreated.subscribe(onChange));
+    sub4(ev.onSceneObjectDestroyed.subscribe(onChange));
+    sub4(ev.onSceneMeshCreated.subscribe(onChange));
+    sub4(ev.onSceneMeshDestroyed.subscribe(onChange));
+    sub4(ev.onSceneGeometryCreated.subscribe(onChange));
+    sub4(ev.onSceneGeometryDestroyed.subscribe(onChange));
+    sub4(ev.onSceneGeometryUpdated.subscribe(onChange));
+    sub4(ev.onSceneTransformCreated.subscribe(onChange));
+    sub4(ev.onSceneTransformDestroyed.subscribe(onChange));
+    sub4(ev.onSceneTextureCreated.subscribe(onChange));
+    sub4(ev.onSceneTextureDestroyed.subscribe(onChange));
+    sub4(ev.onSceneMaterialCreated.subscribe(onChange));
+    sub4(ev.onSceneMaterialDestroyed.subscribe(onChange));
   }
   _detachListeners() {
     if (!this._listenersAttached)
@@ -239294,22 +240517,22 @@ var DataStatsPanel = class _DataStatsPanel extends FloatingPanelBase {
       return;
     this._listenersAttached = true;
     const ev = this.data.events;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
-    sub3(ev.onDataModelCreated.subscribe((_d, model) => {
+    sub4(ev.onDataModelCreated.subscribe((_d, model) => {
       this._addModelSection(model);
       this._scheduleRefresh();
     }));
-    sub3(ev.onDataModelDestroyed.subscribe((_d, model) => {
+    sub4(ev.onDataModelDestroyed.subscribe((_d, model) => {
       this._removeModelSection(model);
       this._scheduleRefresh();
     }));
-    sub3(ev.onDataObjectCreated.subscribe(onChange));
-    sub3(ev.onDataObjectDestroyed.subscribe(onChange));
-    sub3(ev.onRelationshipCreated.subscribe(onChange));
-    sub3(ev.onRelationshipDestroyed.subscribe(onChange));
-    sub3(ev.onPropertySetCreated.subscribe(onChange));
-    sub3(ev.onPropertySetDestroyed.subscribe(onChange));
+    sub4(ev.onDataObjectCreated.subscribe(onChange));
+    sub4(ev.onDataObjectDestroyed.subscribe(onChange));
+    sub4(ev.onRelationshipCreated.subscribe(onChange));
+    sub4(ev.onRelationshipDestroyed.subscribe(onChange));
+    sub4(ev.onPropertySetCreated.subscribe(onChange));
+    sub4(ev.onPropertySetDestroyed.subscribe(onChange));
   }
   _detachListeners() {
     if (!this._listenersAttached)
@@ -241803,17 +243026,17 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     }
     const viewApply = liveView ? this._makeTargetApply(liveView) : () => this._setStatus("Apply skipped: no live View for this section", "error");
     if (general.length > 0) {
-      const sub3 = this._buildSection({
+      const sub4 = this._buildSection({
         kind: "group",
         label: "General",
         sectionKey: `${viewKey}:general`,
         defaultOpen: true
       });
-      sub3.body.appendChild(this._renderKVTable(view, general, viewApply, liveView));
-      section.body.appendChild(sub3.section);
+      sub4.body.appendChild(this._renderKVTable(view, general, viewApply, liveView));
+      section.body.appendChild(sub4.section);
     }
     for (const g of groups) {
-      const sub3 = this._buildSection({
+      const sub4 = this._buildSection({
         kind: "group",
         label: g.label,
         sectionKey: `${viewKey}:${g.key}`,
@@ -241827,23 +243050,23 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
           groupApply,
           liveGroup,
           `${viewKey}:${g.key}`,
-          sub3.body
+          sub4.body
         );
       } else {
-        sub3.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
+        sub4.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
       }
-      section.body.appendChild(sub3.section);
+      section.body.appendChild(sub4.section);
     }
     if (layers) {
-      const sub3 = this._buildSection({
+      const sub4 = this._buildSection({
         kind: "layers",
         label: "Layers",
         countText: `${layers.length} layer${layers.length === 1 ? "" : "s"}`,
         sectionKey: `${viewKey}:layers`,
         defaultOpen: false
       });
-      sub3.body.appendChild(this._renderLayersTable(layers, liveView));
-      section.body.appendChild(sub3.section);
+      sub4.body.appendChild(this._renderLayersTable(layers, liveView));
+      section.body.appendChild(sub4.section);
     }
     return section.section;
   }
@@ -241932,7 +243155,7 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       const val = effects[key];
       if (val == null || typeof val !== "object")
         continue;
-      const sub3 = this._buildSection({
+      const sub4 = this._buildSection({
         kind: "group",
         label: EFFECT_LABELS.get(key) ?? key,
         sectionKey: `${parentKey}:${key}`,
@@ -241940,8 +243163,8 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       });
       const liveChild = liveEffects ? liveEffects[key] : void 0;
       const childApply = liveChild && typeof liveChild.fromParams === "function" ? this._makeTargetApply(liveChild) : this._nestedApply(groupApply, key);
-      sub3.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
-      body.appendChild(sub3.section);
+      sub4.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
+      body.appendChild(sub4.section);
     }
   }
   /**
@@ -243602,8 +244825,8 @@ var NavCube = class _NavCube extends FloatingPanelBase {
     const look = cam.look;
     const up = cam.up;
     const fwd = norm3([look[0] - eye[0], look[1] - eye[1], look[2] - eye[2]]);
-    const r = norm3(cross33(fwd, up));
-    const u = cross33(r, fwd);
+    const r = norm3(cross34(fwd, up));
+    const u = cross34(r, fwd);
     const m = this._zUp ? [
       r[0],
       -u[0],
@@ -243648,7 +244871,7 @@ var NavCube = class _NavCube extends FloatingPanelBase {
     ];
     const worldUp = this._zUp ? [0, 0, 1] : [0, 1, 0];
     let up;
-    const dotFU = Math.abs(dot32(worldDir, worldUp));
+    const dotFU = Math.abs(dot33(worldDir, worldUp));
     if (dotFU > 0.999) {
       up = this._zUp ? [0, 1, 0] : [0, 0, -1];
     } else {
@@ -243675,14 +244898,14 @@ function norm3(v) {
   const n = Math.hypot(v[0], v[1], v[2]) || 1;
   return [v[0] / n, v[1] / n, v[2] / n];
 }
-function cross33(a2, b4) {
+function cross34(a2, b4) {
   return [
     a2[1] * b4[2] - a2[2] * b4[1],
     a2[2] * b4[0] - a2[0] * b4[2],
     a2[0] * b4[1] - a2[1] * b4[0]
   ];
 }
-function dot32(a2, b4) {
+function dot33(a2, b4) {
   return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
 }
 function aabb3Diag(aabb) {
@@ -245752,21 +246975,21 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
     if (this._listenersAttached || this._destroyed)
       return;
     this._listenersAttached = true;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     const onChange = () => this._scheduleRefresh();
     const sceneEv = this.studio.scene.events;
     if (sceneEv) {
       if (sceneEv.onSceneModelCreated?.subscribe)
-        sub3(sceneEv.onSceneModelCreated.subscribe(onChange));
+        sub4(sceneEv.onSceneModelCreated.subscribe(onChange));
       if (sceneEv.onSceneModelDestroyed?.subscribe)
-        sub3(sceneEv.onSceneModelDestroyed.subscribe(onChange));
+        sub4(sceneEv.onSceneModelDestroyed.subscribe(onChange));
     }
     const dataEv = this.studio.data.events;
     if (dataEv) {
       if (dataEv.onDataModelCreated?.subscribe)
-        sub3(dataEv.onDataModelCreated.subscribe(onChange));
+        sub4(dataEv.onDataModelCreated.subscribe(onChange));
       if (dataEv.onDataModelDestroyed?.subscribe)
-        sub3(dataEv.onDataModelDestroyed.subscribe(onChange));
+        sub4(dataEv.onDataModelDestroyed.subscribe(onChange));
     }
   }
   _detachListeners() {
@@ -246729,17 +247952,17 @@ var ExplorerPanel = class _ExplorerPanel extends FloatingPanelBase {
     const ev = this.data.events;
     if (!ev)
       return;
-    const sub3 = (emitter) => {
+    const sub4 = (emitter) => {
       if (emitter?.subscribe) {
         this._dataUnsubs.push(emitter.subscribe(() => this._scheduleRebuild()));
       }
     };
-    sub3(ev.onDataModelCreated);
-    sub3(ev.onDataModelDestroyed);
-    sub3(ev.onDataObjectCreated);
-    sub3(ev.onDataObjectDestroyed);
-    sub3(ev.onRelationshipCreated);
-    sub3(ev.onRelationshipDestroyed);
+    sub4(ev.onDataModelCreated);
+    sub4(ev.onDataModelDestroyed);
+    sub4(ev.onDataObjectCreated);
+    sub4(ev.onDataObjectDestroyed);
+    sub4(ev.onRelationshipCreated);
+    sub4(ev.onRelationshipDestroyed);
   }
   _detachDataListeners() {
     for (const u of this._dataUnsubs) {
@@ -247012,7 +248235,7 @@ function pickAggregationLinkTypes(data2) {
   const PREFERRED = ["IfcRelAggregates", "BasicAggregation"];
   const seen = /* @__PURE__ */ new Set();
   const result = [];
-  const add3 = (t) => {
+  const add4 = (t) => {
     if (!t || seen.has(t))
       return;
     seen.add(t);
@@ -247051,7 +248274,7 @@ function pickAggregationLinkTypes(data2) {
       pick2 = best;
     }
     if (pick2)
-      add3(pick2);
+      add4(pick2);
   }
   if (result.length === 0)
     return ["IfcRelAggregates"];
@@ -252577,16 +253800,16 @@ var CameraTourPanel = class _CameraTourPanel extends FloatingPanelBase {
     const sceneEv = this.studio.scene.events;
     if (!sceneEv)
       return;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv.onSceneModelCreated?.subscribe) {
-      sub3(sceneEv.onSceneModelCreated.subscribe((_, model) => {
+      sub4(sceneEv.onSceneModelCreated.subscribe((_, model) => {
         if (isDrawingId(model.id))
           return;
         this._renderBody();
       }));
     }
     if (sceneEv.onSceneModelDestroyed?.subscribe) {
-      sub3(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
+      sub4(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
         const rec = this._rows.get(model.id);
         if (rec) {
           rec.playback?.destroy();
@@ -253518,9 +254741,9 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     const sceneEv = this.studio.scene.events;
     if (!sceneEv)
       return;
-    const sub3 = (unsub) => this._unsubs.push(unsub);
+    const sub4 = (unsub) => this._unsubs.push(unsub);
     if (sceneEv.onSceneModelCreated?.subscribe) {
-      sub3(sceneEv.onSceneModelCreated.subscribe((_, model) => {
+      sub4(sceneEv.onSceneModelCreated.subscribe((_, model) => {
         if (this._ownedProjectionIds.has(model.id))
           return;
         if (_DrawingsPanel.isDrawingModelId(model.id))
@@ -253529,7 +254752,7 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
       }));
     }
     if (sceneEv.onSceneModelDestroyed?.subscribe) {
-      sub3(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
+      sub4(sceneEv.onSceneModelDestroyed.subscribe((_, model) => {
         if (this._ownedProjectionIds.has(model.id)) {
           this._ownedProjectionIds.delete(model.id);
           return;
@@ -253546,15 +254769,15 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     if (viewerEv) {
       const refresh = () => this._scheduleSectionPlaneRefresh();
       if (viewerEv.onSectionPlaneCreated?.subscribe)
-        sub3(viewerEv.onSectionPlaneCreated.subscribe(refresh));
+        sub4(viewerEv.onSectionPlaneCreated.subscribe(refresh));
       if (viewerEv.onSectionPlaneDestroyed?.subscribe)
-        sub3(viewerEv.onSectionPlaneDestroyed.subscribe(refresh));
+        sub4(viewerEv.onSectionPlaneDestroyed.subscribe(refresh));
       if (viewerEv.onSectionPlanePosChanged?.subscribe)
-        sub3(viewerEv.onSectionPlanePosChanged.subscribe(refresh));
+        sub4(viewerEv.onSectionPlanePosChanged.subscribe(refresh));
       if (viewerEv.onSectionPlaneDirChanged?.subscribe)
-        sub3(viewerEv.onSectionPlaneDirChanged.subscribe(refresh));
+        sub4(viewerEv.onSectionPlaneDirChanged.subscribe(refresh));
       if (viewerEv.onSectionPlaneActive?.subscribe)
-        sub3(viewerEv.onSectionPlaneActive.subscribe(refresh));
+        sub4(viewerEv.onSectionPlaneActive.subscribe(refresh));
     }
   }
   /**
@@ -261573,15 +262796,15 @@ var ExportBCFPanel = class _ExportBCFPanel extends FloatingPanelBase {
   // ── Live sync ─────────────────────────────────────────────────
   _attachLiveSync() {
     const ev = this.view.viewer?.events;
-    const sub3 = (unsub) => {
+    const sub4 = (unsub) => {
       if (typeof unsub === "function")
         this._unsubs.push(unsub);
     };
     if (ev?.onViewLayerCreated?.subscribe) {
-      sub3(ev.onViewLayerCreated.subscribe(() => this._scheduleRefresh()));
+      sub4(ev.onViewLayerCreated.subscribe(() => this._scheduleRefresh()));
     }
     if (ev?.onViewLayerDestroyed?.subscribe) {
-      sub3(ev.onViewLayerDestroyed.subscribe(() => this._scheduleRefresh()));
+      sub4(ev.onViewLayerDestroyed.subscribe(() => this._scheduleRefresh()));
     }
   }
   _scheduleRefresh() {

@@ -1,4 +1,6 @@
 import {DetailedRender, RealisticRender} from "../../base/constants";
+import {SDKErrorType, type SDKResult} from "../../base/core";
+import type {TexturingParams} from "./TexturingParams";
 import type {View} from "./View";
 
 
@@ -23,12 +25,9 @@ class Texturing {
     /**
      * @private
      */
-    constructor(view: View, options: {
-        enabled?: boolean;
-        renderModes?: number[];
-    } = {}) {
+    constructor(view: View, options: TexturingParams = {}) {
         this.view = view;
-        this._renderModes = options.renderModes || [DetailedRender, RealisticRender];
+        this._renderModes = options.renderModes !== undefined ? options.renderModes.slice() : [DetailedRender, RealisticRender];
         this._enabled = options.enabled !== false;
     }
 
@@ -39,7 +38,7 @@ class Texturing {
      * {@link base!constants.RealisticRender | RealisticRender}].
      */
     set renderModes(value: number[]) {
-        this._renderModes = value;
+        this._renderModes = value !== undefined && value !== null ? value.slice() : [DetailedRender, RealisticRender];
         this.view.needsRender();
     }
 
@@ -92,6 +91,39 @@ class Texturing {
             }
         }
         return false;
+    }
+
+    /**
+     * Gets this Texturing as JSON.
+     */
+    toParams(): SDKResult<TexturingParams> {
+        return {
+            ok: true,
+            value: {
+                enabled: this._enabled,
+                renderModes: this._renderModes
+            }
+        };
+    }
+
+    /**
+     * Configures this Texturing.
+     */
+    fromParams(params: TexturingParams): SDKResult<void> {
+        if (this._destroyed) {
+            return this.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[Texturing.fromParams] Texturing has been destroyed."
+            });
+        }
+        if (params.enabled !== undefined) {
+            this.enabled = params.enabled;
+        }
+        if (params.renderModes !== undefined) {
+            this.renderModes = params.renderModes;
+        }
+        return {ok: true, value: undefined};
     }
 
     /**

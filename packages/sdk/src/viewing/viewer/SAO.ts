@@ -36,7 +36,7 @@ export class SAO {
 
     this.view = view;
 
-    this._renderModes = [DetailedRender, RealisticRender];
+    this._renderModes = saoParams.renderModes !== undefined ? saoParams.renderModes.slice() : [DetailedRender, RealisticRender];
     this._kernelRadius = saoParams.kernelRadius || 100.0;
     this._intensity = (saoParams.intensity !== undefined) ? saoParams.intensity : 0.15;
     this._bias = (saoParams.bias !== undefined) ? saoParams.bias : 0.5;

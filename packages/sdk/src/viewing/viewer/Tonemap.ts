@@ -37,7 +37,7 @@ export class Tonemap {
   /** @private */
   constructor(view: View, params: TonemapParams) {
     this.view = view;
-    this._renderModes = [RealisticRender];
+    this._renderModes = params.renderModes !== undefined ? params.renderModes.slice() : [RealisticRender];
     this._exposure = params.exposure !== undefined ? params.exposure : 0.5;
     this._mode = params.mode !== undefined ? params.mode : "aces";
     this._sRGBEncode = params.sRGBEncode !== undefined ? params.sRGBEncode === true : true;

@@ -23,7 +23,7 @@ export class AntiAliasing {
   /** @private */
   constructor(view: View, params: AntiAliasingParams) {
     this.view = view;
-    this._renderModes = [DetailedRender, RealisticRender];
+    this._renderModes = params.renderModes !== undefined ? params.renderModes.slice() : [DetailedRender, RealisticRender];
     this._mode = params.mode !== undefined ? params.mode : "smaa";
   }
 

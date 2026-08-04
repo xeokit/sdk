@@ -620,6 +620,7 @@ export * from "./ViewLayerParams";
 export * from "./ResolutionScale";
 export * from "./ResolutionScaleParams";
 export * from "./Texturing";
+export * from "./TexturingParams";
 export * from "./TickParams";
 export * from "./SnapshotParams";
 export * from "./SnapshotResult";

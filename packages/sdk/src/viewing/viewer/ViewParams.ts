@@ -6,6 +6,7 @@ import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 import type {LightsParams} from "./LightsParams";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
+import type {TexturingParams} from "./TexturingParams";
 import type {ViewLayerParams} from "./ViewLayerParams";
 
 /**
@@ -106,6 +107,11 @@ export interface ViewParams {
    * {@link HemisphereAmbient} (analytical hemispheric).
    */
   lights?: LightsParams;
+
+  /**
+   * Parameters for the View's {@link Texturing} component.
+   */
+  texturing?: TexturingParams;
 
   /**
    * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are selected.

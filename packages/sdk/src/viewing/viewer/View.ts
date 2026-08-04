@@ -34,10 +34,12 @@ import type {AtmosphereParams} from "./AtmosphereParams";
 import type {DepthOfFieldParams} from "./DepthOfFieldParams";
 import type {EdgesParams} from "./EdgesParams";
 import type {IBLParams} from "./IBLParams";
+import type {HemisphereAmbientParams} from "./HemisphereAmbientParams";
 import type {SkyParams} from "./SkyParams";
 import type {EffectParams} from "./EffectParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
+import type {TexturingParams} from "./TexturingParams";
 import {ViewTransformParams} from "./ViewTransformParams";
 import {ViewTransform} from "./ViewTransform";
 
@@ -410,7 +412,11 @@ class View {
 
     this.lights = new Lights(this, viewParams.lights || {});
 
-    this.texturing = new Texturing(this, {});
+    if (viewParams.effects?.ibl) {
+      this.lights.ibl.fromParams(viewParams.effects.ibl);
+    }
+
+    this.texturing = new Texturing(this, viewParams.texturing || {});
 
     this.xrayMaterial = new Effect(this, viewParams.xrayMaterial || {
       // Conventional "x-ray ghost" — cool pale-blue body, translucent enough
@@ -2048,6 +2054,18 @@ class View {
           return result;
         }
       }
+      if (l.hemispheric) {
+        const result = this.lights.hemispheric.fromParams(l.hemispheric);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+    }
+    if (viewParams.texturing) {
+      const result = this.texturing.fromParams(viewParams.texturing);
+      if (result.ok === false) {
+        return result;
+      }
     }
     if (viewParams.highlightMaterial) {
       const result = this.highlightMaterial.fromParams(viewParams.highlightMaterial);
@@ -2110,6 +2128,11 @@ class View {
           // renderer-effect components whose look it drives.
           ibl:              (<{ value: IBLParams          }>this.effects.ibl.toParams()).value,
         },
+        lights: {
+          ibl:              (<{ value: IBLParams                 }>this.lights.ibl.toParams()).value,
+          hemispheric:      (<{ value: HemisphereAmbientParams   }>this.lights.hemispheric.toParams()).value
+        },
+        texturing: (<{ value: TexturingParams }>this.texturing.toParams()).value,
         highlightMaterial: (<{ value: EffectParams }>this.highlightMaterial.toParams()).value,
         selectedMaterial: (<{ value: EffectParams }>this.selectedMaterial.toParams()).value,
         xrayMaterial: (<{ value: EffectParams }>this.xrayMaterial.toParams()).value,

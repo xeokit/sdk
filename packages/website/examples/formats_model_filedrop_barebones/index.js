@@ -42,6 +42,13 @@ async function main() {
     id: "bareBonesFileDropView",
     htmlElement: canvas,
     backgroundColor: [0.96, 0.97, 0.98],
+    camera: {
+      projection: "perspective",
+      far: 1000000,
+      eye: [8, -10, 7],
+      look: [0, 0, 0],
+      up: [0, 0, 1]
+    },
     effects: {
       sao: {renderModes: []},
       edges: {renderModes: []},
@@ -59,12 +66,8 @@ async function main() {
       ibl: {renderModes: []},
       hemispheric: {renderModes: []}
     },
-    camera: {
-      projection: "perspective",
-      far: 1000000,
-      eye: [8, -10, 7],
-      look: [0, 0, 0],
-      up: [0, 0, 1]
+    texturing: {
+      renderModes: []
     }
   }));
   renderer = new WebGLRenderer({viewer});

@@ -19,6 +19,7 @@ const DATASET_COMBINATIONS = {
   "scenemodel": ["scenemodel"],
   "xgf": ["xgf"],
   "gltf": ["gltf"],
+  "citygml": ["citygml"],
   "fbx": ["fbx"],
   "ifc": ["ifc"],
   "laz": ["laz"],

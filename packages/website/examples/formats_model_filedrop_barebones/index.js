@@ -42,6 +42,23 @@ async function main() {
     id: "bareBonesFileDropView",
     htmlElement: canvas,
     backgroundColor: [0.96, 0.97, 0.98],
+    effects: {
+      sao: {renderModes: []},
+      edges: {renderModes: []},
+      bloom: {renderModes: []},
+      atmosphere: {renderModes: []},
+      depthOfField: {renderModes: []},
+      tonemap: {renderModes: []},
+      antiAliasing: {renderModes: []},
+      shadows: {renderModes: []},
+      sky: {renderModes: []},
+      sectionPlaneCaps: {renderModes: []},
+      bodyHatch: {renderModes: []}
+    },
+    lights: {
+      ibl: {renderModes: []},
+      hemispheric: {renderModes: []}
+    },
     camera: {
       projection: "perspective",
       far: 1000000,

@@ -7,6 +7,9 @@ const prompt = document.getElementById("prompt");
 const progressPanel = document.getElementById("progressPanel");
 const progressLabel = document.getElementById("progressLabel");
 const progressBar = document.getElementById("progressBar");
+const fpsValue = document.getElementById("fpsValue");
+const frameMsValue = document.getElementById("frameMsValue");
+const rafValue = document.getElementById("rafValue");
 
 const COORDINATE_SYSTEM = {
   basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -34,6 +37,7 @@ async function main() {
   const {Viewer} = xeokit.viewing.viewer;
   const {WebGLRenderer} = xeokit.viewing.webGLRenderer;
   const {ViewController} = xeokit.viewing.viewController;
+  const {SDKTask} = xeokit.base.core;
 
   const data = new Data();
   scene = new Scene({logging: false});
@@ -71,6 +75,7 @@ async function main() {
     }
   }));
   renderer = new WebGLRenderer({viewer});
+  const fpsMeter = startFpsMeter(view, renderer, SDKTask);
   inputController = new ViewController(view, {
     pick: noPick,
     followPointer: false,
@@ -91,7 +96,89 @@ async function main() {
     viewer,
     view,
     renderer,
-    inputController
+    inputController,
+    fpsMeter
+  };
+}
+
+function startFpsMeter(view, renderer, SDKTask) {
+  const sampleMs = 500;
+  const maxFrameMs = 250;
+  let lastRenderTime = 0;
+  let sampleStart = performance.now();
+  let renderedFrames = 0;
+  let renderedFrameMs = 0;
+  let rafHandle = 0;
+  let rafSampleStart = performance.now();
+  let rafFrames = 0;
+  let running = true;
+
+  const renderPumpTask = new SDKTask({
+    name: "BareBonesFPSMeterRenderPump",
+    stage: SDKTask.AnimateStage,
+    repeat: true,
+    task: () => {
+      if (running) {
+        view.needsRender?.();
+      }
+    }
+  });
+
+  const unsubscribe = renderer.events.onViewRendered.subscribe((_, renderedView) => {
+    if (!running || renderedView !== view) {
+      return;
+    }
+    const now = performance.now();
+    if (lastRenderTime !== 0) {
+      const delta = now - lastRenderTime;
+      if (delta <= maxFrameMs) {
+        renderedFrames++;
+        renderedFrameMs += delta;
+      } else {
+        sampleStart = now;
+        renderedFrames = 0;
+        renderedFrameMs = 0;
+      }
+    }
+    lastRenderTime = now;
+
+    if (now - sampleStart >= sampleMs && renderedFrames > 0) {
+      const elapsed = now - sampleStart;
+      const fps = (renderedFrames * 1000) / elapsed;
+      const frameMs = renderedFrameMs / renderedFrames;
+      fpsValue.textContent = `${fps.toFixed(fps >= 100 ? 0 : 1)} FPS`;
+      frameMsValue.textContent = `${frameMs.toFixed(2)} ms/draw`;
+      sampleStart = now;
+      renderedFrames = 0;
+      renderedFrameMs = 0;
+    }
+  });
+
+  const tickRaf = (now) => {
+    if (!running) {
+      return;
+    }
+    rafFrames++;
+    const elapsed = now - rafSampleStart;
+    if (elapsed >= sampleMs) {
+      const rafFps = (rafFrames * 1000) / elapsed;
+      rafValue.textContent = `${rafFps.toFixed(rafFps >= 100 ? 0 : 1)} RAF`;
+      rafSampleStart = now;
+      rafFrames = 0;
+    }
+    rafHandle = requestAnimationFrame(tickRaf);
+  };
+
+  view.needsRender?.();
+  rafHandle = requestAnimationFrame(tickRaf);
+
+  return {
+    stop() {
+      running = false;
+      renderPumpTask.destroy();
+      cancelAnimationFrame(rafHandle);
+      unsubscribe();
+    }
   };
 }
 

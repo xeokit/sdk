@@ -128,6 +128,35 @@
             animation: progress-slide 1.1s ease-in-out infinite;
         }
 
+        #fpsMeter {
+            position: fixed;
+            right: 14px;
+            top: 14px;
+            z-index: 2147483647;
+            min-width: 122px;
+            padding: 8px 10px;
+            border: 1px solid rgba(15, 23, 42, 0.18);
+            background: rgba(17, 24, 39, 0.88);
+            color: #f8fafc;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.35;
+            pointer-events: none;
+        }
+
+        #fpsMeter strong {
+            display: block;
+            font-size: 17px;
+            line-height: 1.1;
+            font-weight: 650;
+        }
+
+        #fpsMeter span {
+            display: block;
+            color: #cbd5e1;
+            white-space: nowrap;
+        }
+
         @keyframes progress-slide {
             0% {
                 left: -36%;
@@ -150,6 +179,11 @@
 <div id="progressPanel">
     <div id="progressLabel">Loading...</div>
     <div id="progressTrack"><div id="progressBar"></div></div>
+</div>
+<div id="fpsMeter">
+    <strong id="fpsValue">-- FPS</strong>
+    <span id="frameMsValue">-- ms/frame</span>
+    <span id="rafValue">-- RAF</span>
 </div>
 </body>
 <script type="module" src="./index.js"></script>

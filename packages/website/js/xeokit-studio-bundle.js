@@ -182694,7 +182694,8 @@ function createTriangleGeometryVBOViewState() {
     hybridVAO: null,
     leanStaticVAO: null,
     bakedEdgeVAO: null,
-    hybridEdgeVAO: null
+    hybridEdgeVAO: null,
+    leanStaticEdgeVAO: null
   };
 }
 function clearTriangleGeometryVBOViewState(view) {
@@ -183520,7 +183521,7 @@ function setIndexRange(map, key, firstIndex, indexCount) {
 
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOVAOCache.ts
 function getTriangleGeometryVBOVAO(params) {
-  const existing = params.layout === "lean-static" ? params.view.leanStaticVAO : params.topology === "edges" ? params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO : params.layout === "vbo-only" ? params.view.bakedVAO : params.view.hybridVAO;
+  const existing = params.layout === "lean-static" ? params.topology === "edges" ? params.view.leanStaticEdgeVAO : params.view.leanStaticVAO : params.topology === "edges" ? params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO : params.layout === "vbo-only" ? params.view.bakedVAO : params.view.hybridVAO;
   if (existing) {
     return existing;
   }
@@ -183583,6 +183584,9 @@ function deleteTriangleGeometryVBOVAOs(gl, view) {
   if (view.leanStaticVAO) {
     gl.deleteVertexArray(view.leanStaticVAO);
   }
+  if (view.leanStaticEdgeVAO) {
+    gl.deleteVertexArray(view.leanStaticEdgeVAO);
+  }
   if (view.bakedEdgeVAO) {
     gl.deleteVertexArray(view.bakedEdgeVAO);
   }
@@ -183594,10 +183598,15 @@ function deleteTriangleGeometryVBOVAOs(gl, view) {
   view.leanStaticVAO = null;
   view.bakedEdgeVAO = null;
   view.hybridEdgeVAO = null;
+  view.leanStaticEdgeVAO = null;
 }
 function setTriangleGeometryVBOVAO(view, layout, topology, vao) {
   if (layout === "lean-static") {
-    view.leanStaticVAO = vao;
+    if (topology === "edges") {
+      view.leanStaticEdgeVAO = vao;
+    } else {
+      view.leanStaticVAO = vao;
+    }
     return;
   }
   if (topology === "edges") {
@@ -183938,17 +183947,17 @@ var TriangleGeometryVBOBatch = class {
       primRange
     };
   }
-  getTileDrawStates(viewIndex, renderPass, layout) {
+  getTileDrawStates(viewIndex, renderPass, layout, topology = "triangles") {
     const view = this._views[viewIndex];
     if (!view) {
       return null;
     }
     const passRegionIndex = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.indexOf(renderPass);
-    const primRange = view.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
+    const primRange = topology === "edges" ? view.edgePassRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 } : view.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
     if (passRegionIndex < 0 || primRange.numPrims <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, "triangles");
+    const vao = this._getVAO(view, layout, topology);
     if (!vao) {
       return null;
     }
@@ -183959,33 +183968,35 @@ var TriangleGeometryVBOBatch = class {
     if (records.length === 0) {
       return null;
     }
-    const regionBase = passRegionIndex * this._indexCapacity;
-    const byTile = /* @__PURE__ */ new Map();
-    for (const record of records) {
-      const tileIndex = record.tileIndex | 0;
-      let tileState = byTile.get(tileIndex);
-      if (!tileState) {
-        tileState = { tileIndex, spans: [] };
-        byTile.set(tileIndex, tileState);
-      }
-      const firstIndex = regionBase + record.vertexBase;
-      const indexCount = record.vertexCount;
-      const prev = tileState.spans[tileState.spans.length - 1];
-      if (prev && prev.firstIndex + prev.indexCount === firstIndex) {
-        prev.indexCount += indexCount;
-        prev.primCount += record.primitiveCount;
-      } else {
-        tileState.spans.push({
-          firstIndex,
-          indexCount,
-          primCount: record.primitiveCount
-        });
-      }
-    }
+    const tileDrawStates = this._buildTileDrawStates(records, topology, passRegionIndex);
     return {
       vao,
       primRange,
-      tileDrawStates: Array.from(byTile.values()).filter((state) => state.spans.length > 0)
+      tileDrawStates
+    };
+  }
+  getPickTileDrawStates(viewIndex, layout, topology = "triangles") {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    const primRange = topology === "edges" ? view.pickEdgeRange : view.pickRange;
+    if (primRange.numPrims <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, topology);
+    if (!vao) {
+      return null;
+    }
+    const records = Array.from(this._meshRecords.values()).filter((record) => record.meshViewStates[viewIndex]?.visible).sort((a2, b4) => a2.vertexBase - b4.vertexBase);
+    if (records.length === 0) {
+      return null;
+    }
+    const tileDrawStates = this._buildTileDrawStates(records, topology, TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX);
+    return {
+      vao,
+      primRange,
+      tileDrawStates
     };
   }
   getPickDrawState(viewIndex, layout) {
@@ -184254,6 +184265,36 @@ var TriangleGeometryVBOBatch = class {
       meshIndexBuffer: this._buffers.meshIndexBuffer,
       geometryVertexIndexBuffer: this._buffers.geometryVertexIndexBuffer
     });
+  }
+  _buildTileDrawStates(records, topology, regionIndex) {
+    const regionBase = regionIndex * (topology === "edges" ? this._edgeIndexCapacity : this._indexCapacity);
+    const byTile = /* @__PURE__ */ new Map();
+    for (const record of records) {
+      const indexCount = topology === "edges" ? record.edgeVertexIndices.length : record.vertexCount;
+      if (indexCount <= 0) {
+        continue;
+      }
+      const tileIndex = record.tileIndex | 0;
+      let tileState = byTile.get(tileIndex);
+      if (!tileState) {
+        tileState = { tileIndex, spans: [] };
+        byTile.set(tileIndex, tileState);
+      }
+      const firstIndex = regionBase + (topology === "edges" ? record.vertexBase * 2 : record.vertexBase);
+      const primCount = topology === "edges" ? indexCount / 2 : record.primitiveCount;
+      const prev = tileState.spans[tileState.spans.length - 1];
+      if (prev && prev.firstIndex + prev.indexCount === firstIndex) {
+        prev.indexCount += indexCount;
+        prev.primCount += primCount;
+      } else {
+        tileState.spans.push({
+          firstIndex,
+          indexCount,
+          primCount
+        });
+      }
+    }
+    return Array.from(byTile.values()).filter((state) => state.spans.length > 0);
   }
   _getUsedVertexCapacity() {
     let count = 0;
@@ -188504,7 +188545,7 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
     }
     const useVBOGeometry = params.vboGeometry && params.primitive === TrianglesPrimitive && !params.thickLines;
     if (useVBOGeometry) {
-      if (params.vboTileUniform && !params.picking && !params.snap && !params.edges) {
+      if (params.vboTileUniform) {
         const vboTileDrawState = getVBOTileDrawState(params, params.vboViewAttributes ? "lean-static" : "hybrid");
         if (vboTileDrawState) {
           return new _DrawTechniqueGeometryBinding({
@@ -188575,11 +188616,12 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
             };
           }
           gl.bindVertexArray(vboTileDrawState.vao);
+          const drawMode = snap === 1 ? gl.POINTS : snap === 2 || edges ? gl.LINES : gl.TRIANGLES;
           let handledPrims = 0;
           for (const tileDrawState of vboTileDrawState.tileDrawStates) {
             setTileViewMatrix(tileMatrixTexture.getItem(tileDrawState.tileIndex).matrix);
             for (const span of tileDrawState.spans) {
-              gl.drawElements(gl.TRIANGLES, span.indexCount, gl.UNSIGNED_INT, span.firstIndex * 4);
+              gl.drawElements(drawMode, span.indexCount, gl.UNSIGNED_INT, span.firstIndex * 4);
               handledPrims += span.primCount;
             }
           }
@@ -188623,8 +188665,9 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
   }
 };
 function getVBOTileDrawState(params, layout) {
-  const { batchResources, viewIndex, renderPass } = params;
-  return batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout) ?? null;
+  const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
+  const topology = edges || snap === 1 || snap === 2 ? "edges" : "triangles";
+  return (picking || snap ? batchResources.triangleGeometryVBO?.getPickTileDrawStates(viewIndex, layout, topology) : batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout, topology)) ?? null;
 }
 function getVBODrawState(params) {
   const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
@@ -193260,7 +193303,9 @@ var TrianglesShadowDepthTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
   constructor(renderContext, gpuMemoryReader, opts = {}) {
     super(renderContext, gpuMemoryReader, {
-      vboGeometry: opts.vboGeometry === true
+      vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true
     });
   }
   buildVertexShader() {
@@ -193683,6 +193728,8 @@ var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
     super(renderContext, gpuMemoryReader, {
       edges: true,
       vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true,
       logDepth: opts.logDepth === true
     });
   }
@@ -193726,6 +193773,8 @@ var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
     super(renderContext, gpuMemoryReader, {
       edges: true,
       vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true,
       logDepth: opts.logDepth === true
     });
   }
@@ -193813,6 +193862,8 @@ var TrianglesDrawSilhouetteTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader, opts = {}) {
     super(renderContext, gpuMemoryReader, {
       vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true,
       logDepth: opts.logDepth === true
     });
   }
@@ -193857,7 +193908,9 @@ var GenericPickMeshTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader, vertsPerPrim, opts = {}) {
     super(renderContext, gpuMemoryReader, {
       picking: true,
-      vboGeometry: opts.vboGeometry === true
+      vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true
     });
     this.vertsPerPrim = vertsPerPrim;
   }
@@ -193889,7 +193942,9 @@ var TrianglesSnapInitTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader, opts = {}) {
     super(renderContext, gpuMemoryReader, {
       snap: 3,
-      vboGeometry: opts.vboGeometry === true
+      vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true
     });
   }
   buildVertexShader() {
@@ -193921,7 +193976,9 @@ var TrianglesSnapTechnique = class extends DrawTechnique {
     super(renderContext, gpuMemoryReader, {
       snap,
       edges: true,
-      vboGeometry: opts.vboGeometry === true
+      vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true
     });
   }
   buildVertexShader() {
@@ -194173,28 +194230,27 @@ var DrawOps = class {
       withTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, triplanar: true, logDepth: LOG_DEPTH })),
       withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, triplanar: true, logDepth: LOG_DEPTH }))
     });
-    const triangleVBOGeometryCfg = { vboGeometry: true };
     const triangleVBOTileUniformCfg = { vboGeometry: true, vboTileUniform: true, vboViewAttributes: true };
     const trianglesDrawColorDTX = lambertVariants(TrianglesDrawColorTechnique);
     const trianglesDrawColorSAODTX = lambertVariants(TrianglesDrawColorSAOTechnique);
     const trianglesDrawColorShadowDTX = lambertVariants(TrianglesDrawColorShadowTechnique);
     const trianglesDrawColorSAOShadowDTX = lambertVariants(TrianglesDrawColorSAOShadowTechnique);
     const trianglesDrawColorVBO = lambertVariants(TrianglesDrawColorTechnique, triangleVBOTileUniformCfg);
-    const trianglesDrawColorSAOVBO = lambertVariants(TrianglesDrawColorSAOTechnique, triangleVBOGeometryCfg);
-    const trianglesDrawColorShadowVBO = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOGeometryCfg);
-    const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOGeometryCfg);
-    const trianglesSilhouetteVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawColorSAOVBO = lambertVariants(TrianglesDrawColorSAOTechnique, triangleVBOTileUniformCfg);
+    const trianglesDrawColorShadowVBO = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOTileUniformCfg);
+    const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOTileUniformCfg);
+    const trianglesSilhouetteVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
     const trianglesDrawColorFlatDTX = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesDrawColorFlatVBO = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawColorFlatVBO = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
     const trianglesShadowDepthDTX = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
-    const trianglesShadowDepthVBO = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, triangleVBOGeometryCfg));
+    const trianglesShadowDepthVBO = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, triangleVBOTileUniformCfg));
     const trianglesDrawEdgeSilhouetteDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
     const trianglesDrawEdgeColorDTX = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
-    const trianglesDrawEdgeColorVBO = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { ...triangleVBOGeometryCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeColorVBO = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
     const trianglesDrawEdgeColorThickDTX = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesPickMeshDTX = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
-    const trianglesPickMeshVBO = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3, triangleVBOGeometryCfg));
+    const trianglesPickMeshVBO = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3, triangleVBOTileUniformCfg));
     const linesPickMesh = saveForCleanup(new ThickLinesPickMeshTechnique(renderContext, gpuMemoryReader));
     const pointsPickMesh = saveForCleanup(new PointsPickMeshTechnique(renderContext, gpuMemoryReader));
     const linesDrawColor = saveForCleanup(new ThickLinesDrawColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
@@ -194202,9 +194258,9 @@ var DrawOps = class {
     const trianglesSnapInitDTX = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
     const trianglesSnapVertexDTX = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1));
     const trianglesSnapEdgeDTX = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2));
-    const trianglesSnapInitVBO = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader, triangleVBOGeometryCfg));
-    const trianglesSnapVertexVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1, triangleVBOGeometryCfg));
-    const trianglesSnapEdgeVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2, triangleVBOGeometryCfg));
+    const trianglesSnapInitVBO = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader, triangleVBOTileUniformCfg));
+    const trianglesSnapVertexVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1, triangleVBOTileUniformCfg));
+    const trianglesSnapEdgeVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2, triangleVBOTileUniformCfg));
     const linesSnapVertex = saveForCleanup(new LinesSnapTechnique(renderContext, gpuMemoryReader, 1));
     const linesSnapEdge = saveForCleanup(new LinesSnapTechnique(renderContext, gpuMemoryReader, 2));
     const trianglesStencilMask = saveForCleanup(new TrianglesStencilMaskTechnique(renderContext, gpuMemoryReader));

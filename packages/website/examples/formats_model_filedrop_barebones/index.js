@@ -19,13 +19,6 @@ const COORDINATE_SYSTEM = {
   units: "meters",
   scaleToMeters: 1
 };
-const DEFAULT_XGF_MODEL = {
-  name: "West Riverside Hospital",
-  modelId: "WestRiverSideHospital",
-  modelUrl: "../../models/WestRiverSideHospital/xgf/model.xgf",
-  coordinateSystemUrl: "../../models/WestRiverSideHospital/coordSys.json"
-};
-
 let scene;
 let viewer;
 let view;
@@ -33,8 +26,6 @@ let renderer;
 let inputController;
 let activeSceneModel = null;
 let activeDataModel = null;
-let activeCameraOrbit = null;
-let cameraOrbitAnimationFrame = 0;
 let activeModelSerial = 0;
 
 main().catch((error) => {
@@ -107,8 +98,6 @@ async function main() {
     inputController,
     fpsMeter
   };
-  startCameraOrbit();
-  await loadDefaultXGFModel(data);
 }
 
 function startFpsMeter(view, renderer) {
@@ -342,63 +331,6 @@ async function loadDroppedFile(file, data) {
   view.needsRender?.();
 }
 
-async function loadDefaultXGFModel(data) {
-  const Loader = xeokit.formats.xgf?.XGFLoader;
-  if (!Loader) {
-    throw new Error("XGF loader is not available in this bundle.");
-  }
-
-  prompt.style.display = "none";
-  dropOverlay.style.display = "none";
-  destroyActiveModels();
-  updateStatus(`Loading ${DEFAULT_XGF_MODEL.name} XGF...`);
-  showProgress(`Loading ${DEFAULT_XGF_MODEL.name}`, 0, 0);
-  await paintProgress();
-
-  const coordinateSystem = await fetchJSON(DEFAULT_XGF_MODEL.coordinateSystemUrl);
-  const sceneModel = mustOk(scene.createModel({
-    id: DEFAULT_XGF_MODEL.modelId,
-    coordinateSystem,
-    updateHint: "static"
-  }));
-  const dataModel = mustOk(data.createModel({id: DEFAULT_XGF_MODEL.modelId}));
-
-  try {
-    const fileData = await fetchArrayBuffer(DEFAULT_XGF_MODEL.modelUrl);
-    const result = await new Loader().load({
-      fileData,
-      sceneModel,
-      dataModel
-    }, {
-      onProgress: (progress) => updateLoadProgress(progress),
-      yieldIntervalMs: 32
-    });
-    if (result && result.ok === false) {
-      throw new Error(result.error);
-    }
-    activeSceneModel = sceneModel;
-    activeDataModel = dataModel;
-  } catch (error) {
-    sceneModel.destroy();
-    dataModel.destroy();
-    hideProgress();
-    throw error;
-  }
-
-  const counts = {
-    objects: Object.keys(sceneModel.objects).length,
-    meshes: Object.keys(sceneModel.meshes).length,
-    geometries: Object.keys(sceneModel.geometries).length
-  };
-  showProgress("Fitting camera", 0, 0);
-  await paintProgress();
-  await fitLoadedModelToView(sceneModel);
-  status.dataset.state = "ok";
-  status.textContent = `${DEFAULT_XGF_MODEL.name} loaded: ${counts.objects} objects, ${counts.meshes} meshes, ${counts.geometries} geometries.`;
-  hideProgress();
-  view.needsRender?.();
-}
-
 async function loadDroppedXGFStream(droppedFiles, indexEntry, data) {
   const xgfstream = xeokit.formats.xgfstream;
   if (!xgfstream?.XGFStreamingLoader || !xgfstream?.createXGFStreamingIndexLookup) {
@@ -568,53 +500,11 @@ function readFileData(file, fileDataType) {
   return file.arrayBuffer();
 }
 
-async function fetchJSON(url) {
-  const response = await fetch(url, {cache: "no-cache"});
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} fetching ${url}`);
-  }
-  return response.json();
-}
-
-async function fetchArrayBuffer(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} fetching ${url}`);
-  }
-  return response.arrayBuffer();
-}
-
 function destroyActiveModels() {
-  activeCameraOrbit = null;
   activeSceneModel?.destroy();
   activeDataModel?.destroy();
   activeSceneModel = null;
   activeDataModel = null;
-}
-
-function startCameraOrbit() {
-  if (cameraOrbitAnimationFrame) {
-    return;
-  }
-  const tick = (now) => {
-    if (activeCameraOrbit) {
-      const elapsedSeconds = (now - activeCameraOrbit.startTime) / 1000;
-      const angle = activeCameraOrbit.startAngle + elapsedSeconds * activeCameraOrbit.radiansPerSecond;
-      const cos = Math.cos(angle);
-      const sin = Math.sin(angle);
-      const offset = activeCameraOrbit.eyeOffset;
-      view.camera.look = activeCameraOrbit.center;
-      view.camera.eye = [
-        activeCameraOrbit.center[0] + offset[0] * cos - offset[1] * sin,
-        activeCameraOrbit.center[1] + offset[0] * sin + offset[1] * cos,
-        activeCameraOrbit.center[2] + offset[2]
-      ];
-      view.camera.up = [0, 0, 1];
-      view.needsRender?.();
-    }
-    cameraOrbitAnimationFrame = requestAnimationFrame(tick);
-  };
-  cameraOrbitAnimationFrame = requestAnimationFrame(tick);
 }
 
 function getSceneModelAABB(sceneModel) {
@@ -636,7 +526,6 @@ async function fitLoadedModelToView(sceneModel) {
     const aabb = getSceneModelAABB(sceneModel);
     if (isFiniteAABB(aabb)) {
       fitViewToAABB(view, aabb);
-      configureCameraOrbit(aabb);
       view.needsRender?.();
       return;
     }
@@ -693,26 +582,6 @@ function fitViewToAABB(view, aabb) {
     view.camera.perspectiveProjection.near = Math.max(radius / 10000, 0.001);
     view.camera.perspectiveProjection.far = Math.max(radius * 8, 1000);
   }
-}
-
-function configureCameraOrbit(aabb) {
-  const center = [
-    (aabb[0] + aabb[3]) * 0.5,
-    (aabb[1] + aabb[4]) * 0.5,
-    (aabb[2] + aabb[5]) * 0.5
-  ];
-  const eye = view.camera.eye;
-  activeCameraOrbit = {
-    center,
-    eyeOffset: [
-      eye[0] - center[0],
-      eye[1] - center[1],
-      eye[2] - center[2]
-    ],
-    startAngle: 0,
-    startTime: performance.now(),
-    radiansPerSecond: Math.PI / 24
-  };
 }
 
 function isFiniteAABB(aabb) {

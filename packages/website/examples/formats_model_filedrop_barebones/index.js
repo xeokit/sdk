@@ -1,5 +1,7 @@
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
+globalThis.XEOKIT_LOG_USED_VERTEX_SHADERS = true;
+
 const canvas = document.getElementById("demoCanvas");
 const status = document.getElementById("status");
 const dropOverlay = document.getElementById("dropOverlay");
@@ -17,6 +19,12 @@ const COORDINATE_SYSTEM = {
   units: "meters",
   scaleToMeters: 1
 };
+const DEFAULT_XGF_MODEL = {
+  name: "West Riverside Hospital",
+  modelId: "WestRiverSideHospital",
+  modelUrl: "../../models/WestRiverSideHospital/xgf/model.xgf",
+  coordinateSystemUrl: "../../models/WestRiverSideHospital/coordSys.json"
+};
 
 let scene;
 let viewer;
@@ -25,6 +33,8 @@ let renderer;
 let inputController;
 let activeSceneModel = null;
 let activeDataModel = null;
+let activeCameraOrbit = null;
+let cameraOrbitAnimationFrame = 0;
 let activeModelSerial = 0;
 
 main().catch((error) => {
@@ -37,7 +47,6 @@ async function main() {
   const {Viewer} = xeokit.viewing.viewer;
   const {WebGLRenderer} = xeokit.viewing.webGLRenderer;
   const {ViewController} = xeokit.viewing.viewController;
-  const {SDKTask} = xeokit.base.core;
 
   const data = new Data();
   scene = new Scene({logging: false});
@@ -62,7 +71,7 @@ async function main() {
       tonemap: {renderModes: []},
       antiAliasing: {renderModes: []},
       shadows: {renderModes: []},
-      sky: {renderModes: []},
+      sky: {enabled: false, renderModes: []},
       sectionPlaneCaps: {renderModes: []},
       bodyHatch: {renderModes: []}
     },
@@ -75,7 +84,7 @@ async function main() {
     }
   }));
   renderer = new WebGLRenderer({viewer});
-  const fpsMeter = startFpsMeter(view, renderer, SDKTask);
+  const fpsMeter = startFpsMeter(view, renderer);
   inputController = new ViewController(view, {
     pick: noPick,
     followPointer: false,
@@ -89,7 +98,6 @@ async function main() {
   wireDropTarget(data);
   window.addEventListener("resize", () => view.needsRender?.());
 
-  updateStatus("Drop a model file onto the canvas.");
   window.bareBonesModelFileDrop = {
     scene,
     data,
@@ -99,58 +107,50 @@ async function main() {
     inputController,
     fpsMeter
   };
+  startCameraOrbit();
+  await loadDefaultXGFModel(data);
 }
 
-function startFpsMeter(view, renderer, SDKTask) {
+function startFpsMeter(view, renderer) {
   const sampleMs = 500;
-  const maxFrameMs = 250;
-  let lastRenderTime = 0;
   let sampleStart = performance.now();
   let renderedFrames = 0;
-  let renderedFrameMs = 0;
+  let renderedFrameMsTotal = 0;
+  let renderedDrawCallsTotal = 0;
   let rafHandle = 0;
   let rafSampleStart = performance.now();
   let rafFrames = 0;
   let running = true;
 
-  const renderPumpTask = new SDKTask({
-    name: "BareBonesFPSMeterRenderPump",
-    stage: SDKTask.AnimateStage,
-    repeat: true,
-    task: () => {
-      if (running) {
-        view.needsRender?.();
-      }
-    }
-  });
+  const renderInspectorResult = renderer.getRenderInspector?.();
+  const renderInspector = renderInspectorResult?.ok ? renderInspectorResult.value : null;
+  if (renderInspector) {
+    renderInspector.enabled = true;
+  }
 
   const unsubscribe = renderer.events.onViewRendered.subscribe((_, renderedView) => {
     if (!running || renderedView !== view) {
       return;
     }
     const now = performance.now();
-    if (lastRenderTime !== 0) {
-      const delta = now - lastRenderTime;
-      if (delta <= maxFrameMs) {
-        renderedFrames++;
-        renderedFrameMs += delta;
-      } else {
-        sampleStart = now;
-        renderedFrames = 0;
-        renderedFrameMs = 0;
-      }
+    const frame = renderInspector?.renderStats?.views?.[view.viewIndex];
+    renderedFrames++;
+    if (frame?.timeMs?.duration !== undefined) {
+      renderedFrameMsTotal += frame.timeMs.duration;
+      renderedDrawCallsTotal += frame.numDrawCalls || 0;
     }
-    lastRenderTime = now;
 
-    if (now - sampleStart >= sampleMs && renderedFrames > 0) {
+    if (now - sampleStart >= sampleMs) {
       const elapsed = now - sampleStart;
       const fps = (renderedFrames * 1000) / elapsed;
-      const frameMs = renderedFrameMs / renderedFrames;
+      const frameMs = renderedFrames > 0 ? renderedFrameMsTotal / renderedFrames : 0;
+      const drawCalls = renderedFrames > 0 ? renderedDrawCallsTotal / renderedFrames : 0;
       fpsValue.textContent = `${fps.toFixed(fps >= 100 ? 0 : 1)} FPS`;
-      frameMsValue.textContent = `${frameMs.toFixed(2)} ms/draw`;
+      frameMsValue.textContent = `${frameMs.toFixed(2)} ms/frame, ${drawCalls.toFixed(0)} draws`;
       sampleStart = now;
       renderedFrames = 0;
-      renderedFrameMs = 0;
+      renderedFrameMsTotal = 0;
+      renderedDrawCallsTotal = 0;
     }
   });
 
@@ -158,6 +158,7 @@ function startFpsMeter(view, renderer, SDKTask) {
     if (!running) {
       return;
     }
+    view.needsRender?.();
     rafFrames++;
     const elapsed = now - rafSampleStart;
     if (elapsed >= sampleMs) {
@@ -175,7 +176,6 @@ function startFpsMeter(view, renderer, SDKTask) {
   return {
     stop() {
       running = false;
-      renderPumpTask.destroy();
       cancelAnimationFrame(rafHandle);
       unsubscribe();
     }
@@ -199,17 +199,82 @@ function wireDropTarget(data) {
   document.addEventListener("drop", async (event) => {
     event.preventDefault();
     setActive(false);
-    const file = event.dataTransfer?.files?.[0];
-    if (!file) {
+    const droppedFiles = await collectDroppedFiles(event.dataTransfer);
+    if (droppedFiles.length === 0) {
       return;
     }
     prompt.style.display = "none";
     dropOverlay.style.display = "none";
     try {
-      await loadDroppedFile(file, data);
+      const streamIndexFile = findXGFStreamIndexFile(droppedFiles);
+      if (streamIndexFile) {
+        await loadDroppedXGFStream(droppedFiles, streamIndexFile, data);
+      } else if (droppedFiles.length === 1) {
+        await loadDroppedFile(droppedFiles[0].file, data);
+      } else {
+        throw new Error("Drop one model file, or an XGF stream folder containing a .runtime.json index.");
+      }
     } catch (error) {
       reportError(error instanceof Error ? error.message : String(error));
     }
+  });
+}
+
+async function collectDroppedFiles(dataTransfer) {
+  const items = Array.from(dataTransfer?.items || []);
+  const entries = items
+    .map((item) => item.webkitGetAsEntry?.())
+    .filter(Boolean);
+  if (entries.length > 0) {
+    const files = [];
+    for (const entry of entries) {
+      await collectEntryFiles(entry, files);
+    }
+    return files;
+  }
+  return Array.from(dataTransfer?.files || []).map((file) => ({
+    file,
+    path: normalizeDroppedPath(file.webkitRelativePath || file.name)
+  }));
+}
+
+function collectEntryFiles(entry, files) {
+  if (entry.isFile) {
+    return new Promise((resolve, reject) => {
+      entry.file((file) => {
+        files.push({
+          file,
+          path: normalizeDroppedPath(entry.fullPath || file.webkitRelativePath || file.name)
+        });
+        resolve();
+      }, reject);
+    });
+  }
+  if (!entry.isDirectory) {
+    return Promise.resolve();
+  }
+  return readDirectoryEntries(entry).then(async (entries) => {
+    for (const child of entries) {
+      await collectEntryFiles(child, files);
+    }
+  });
+}
+
+function readDirectoryEntries(directoryEntry) {
+  const reader = directoryEntry.createReader();
+  const entries = [];
+  return new Promise((resolve, reject) => {
+    const readBatch = () => {
+      reader.readEntries((batch) => {
+        if (batch.length === 0) {
+          resolve(entries);
+          return;
+        }
+        entries.push(...batch);
+        readBatch();
+      }, reject);
+    };
+    readBatch();
   });
 }
 
@@ -277,6 +342,197 @@ async function loadDroppedFile(file, data) {
   view.needsRender?.();
 }
 
+async function loadDefaultXGFModel(data) {
+  const Loader = xeokit.formats.xgf?.XGFLoader;
+  if (!Loader) {
+    throw new Error("XGF loader is not available in this bundle.");
+  }
+
+  prompt.style.display = "none";
+  dropOverlay.style.display = "none";
+  destroyActiveModels();
+  updateStatus(`Loading ${DEFAULT_XGF_MODEL.name} XGF...`);
+  showProgress(`Loading ${DEFAULT_XGF_MODEL.name}`, 0, 0);
+  await paintProgress();
+
+  const coordinateSystem = await fetchJSON(DEFAULT_XGF_MODEL.coordinateSystemUrl);
+  const sceneModel = mustOk(scene.createModel({
+    id: DEFAULT_XGF_MODEL.modelId,
+    coordinateSystem,
+    updateHint: "static"
+  }));
+  const dataModel = mustOk(data.createModel({id: DEFAULT_XGF_MODEL.modelId}));
+
+  try {
+    const fileData = await fetchArrayBuffer(DEFAULT_XGF_MODEL.modelUrl);
+    const result = await new Loader().load({
+      fileData,
+      sceneModel,
+      dataModel
+    }, {
+      onProgress: (progress) => updateLoadProgress(progress),
+      yieldIntervalMs: 32
+    });
+    if (result && result.ok === false) {
+      throw new Error(result.error);
+    }
+    activeSceneModel = sceneModel;
+    activeDataModel = dataModel;
+  } catch (error) {
+    sceneModel.destroy();
+    dataModel.destroy();
+    hideProgress();
+    throw error;
+  }
+
+  const counts = {
+    objects: Object.keys(sceneModel.objects).length,
+    meshes: Object.keys(sceneModel.meshes).length,
+    geometries: Object.keys(sceneModel.geometries).length
+  };
+  showProgress("Fitting camera", 0, 0);
+  await paintProgress();
+  await fitLoadedModelToView(sceneModel);
+  status.dataset.state = "ok";
+  status.textContent = `${DEFAULT_XGF_MODEL.name} loaded: ${counts.objects} objects, ${counts.meshes} meshes, ${counts.geometries} geometries.`;
+  hideProgress();
+  view.needsRender?.();
+}
+
+async function loadDroppedXGFStream(droppedFiles, indexEntry, data) {
+  const xgfstream = xeokit.formats.xgfstream;
+  if (!xgfstream?.XGFStreamingLoader || !xgfstream?.createXGFStreamingIndexLookup) {
+    throw new Error("XGF stream loader is not available in this bundle.");
+  }
+
+  const modelId = `droppedModel${++activeModelSerial}`;
+  destroyActiveModels();
+  updateStatus(`Reading XGF stream ${indexEntry.path}...`);
+  showProgress("Reading XGF stream index", 0, 0);
+  await paintProgress();
+
+  const fileLookup = createDroppedFileLookup(droppedFiles);
+  const indexBasePath = dirnamePath(indexEntry.path);
+  const index = readXGFStreamIndex(await indexEntry.file.text().then((text) => JSON.parse(text)));
+  const sceneModel = mustOk(scene.createModel({
+    id: modelId,
+    coordinateSystem: index.coordinateSystem || COORDINATE_SYSTEM,
+    updateHint: "static"
+  }));
+  const dataModel = mustOk(data.createModel({id: modelId}));
+
+  try {
+    const lookup = xgfstream.createXGFStreamingIndexLookup(index);
+    const sceneChunks = getXGFStreamSceneChunks(index, lookup);
+    const loader = new xgfstream.XGFStreamingLoader();
+    let loadedChunks = 0;
+
+    updateStatus(`Loading XGF stream ${indexEntry.path}...`);
+    showProgress("Loading XGF stream chunks", 0, Math.max(index.chunks.length, sceneChunks.length));
+    await paintProgress();
+
+    await loader.loadChunks({
+      manifests: sceneChunks,
+      sceneModel,
+      dataModel
+    }, {
+      manifests: lookup,
+      fetchConcurrency: 8,
+      yieldIntervalMs: 32,
+      getFileData: async (manifest) => {
+        if (!manifest.uri) {
+          return undefined;
+        }
+        const file = findDroppedFile(fileLookup, indexBasePath, manifest.uri);
+        return file ? file.arrayBuffer() : undefined;
+      },
+      onChunkLoaded: () => {
+        loadedChunks++;
+        setProgress("Loading XGF stream chunks", loadedChunks, Math.max(index.chunks.length, sceneChunks.length));
+      }
+    });
+
+    activeSceneModel = sceneModel;
+    activeDataModel = dataModel;
+  } catch (error) {
+    sceneModel.destroy();
+    dataModel.destroy();
+    hideProgress();
+    throw error;
+  }
+
+  const counts = {
+    objects: Object.keys(sceneModel.objects).length,
+    meshes: Object.keys(sceneModel.meshes).length,
+    geometries: Object.keys(sceneModel.geometries).length
+  };
+  showProgress("Fitting camera", 0, 0);
+  await paintProgress();
+  await fitLoadedModelToView(sceneModel);
+  status.dataset.state = "ok";
+  status.textContent = `${indexEntry.path} loaded: ${counts.objects} objects, ${counts.meshes} meshes, ${counts.geometries} geometries.`;
+  hideProgress();
+  view.needsRender?.();
+}
+
+function readXGFStreamIndex(json) {
+  const xgfstream = xeokit.formats.xgfstream;
+  const result = json?.format === "XGFStreamingRuntimeIndex"
+    ? xgfstream.readXGFStreamingRuntimeIndex(json)
+    : xgfstream.readXGFStreamingIndex(json);
+  if (!result.ok) {
+    throw new Error(result.error);
+  }
+  return result.value;
+}
+
+function getXGFStreamSceneChunks(index, lookup) {
+  const rootChunkIds = index.rootChunkIds && index.rootChunkIds.length > 0
+    ? index.rootChunkIds
+    : index.chunks.filter((chunk) => chunk.role !== "assetLibrary").map((chunk) => chunk.id);
+  return rootChunkIds.map((chunkId) => {
+    const chunk = lookup.byId[chunkId];
+    if (!chunk) {
+      throw new Error(`XGF stream index references missing root chunk '${chunkId}'.`);
+    }
+    return chunk;
+  });
+}
+
+function findXGFStreamIndexFile(droppedFiles) {
+  const candidates = droppedFiles.filter(({path}) => {
+    const normalized = path.toLowerCase();
+    const filename = basenamePath(normalized);
+    return filename.endsWith(".runtime.json") ||
+      (droppedFiles.length > 1 && (normalized.endsWith("/index.json") || normalized === "index.json"));
+  });
+  return candidates.sort((a, b) => {
+    const aRuntime = basenamePath(a.path).toLowerCase().endsWith(".runtime.json") ? 0 : 1;
+    const bRuntime = basenamePath(b.path).toLowerCase().endsWith(".runtime.json") ? 0 : 1;
+    return aRuntime - bRuntime || a.path.length - b.path.length;
+  })[0] || null;
+}
+
+function createDroppedFileLookup(droppedFiles) {
+  const byPath = new Map();
+  const byName = new Map();
+  for (const entry of droppedFiles) {
+    const path = normalizeDroppedPath(entry.path || entry.file.name);
+    byPath.set(path, entry.file);
+    byName.set(basenamePath(path), entry.file);
+  }
+  return {byPath, byName};
+}
+
+function findDroppedFile(fileLookup, basePath, uri) {
+  const normalizedURI = normalizeDroppedPath(uri);
+  const resolvedPath = normalizeDroppedPath(basePath ? `${basePath}/${normalizedURI}` : normalizedURI);
+  return fileLookup.byPath.get(resolvedPath) ||
+    fileLookup.byPath.get(normalizedURI) ||
+    fileLookup.byName.get(basenamePath(normalizedURI)) ||
+    null;
+}
+
 function getLoaderInfo(fileName) {
   const extension = fileName.toLowerCase().split(".").pop();
   const formats = xeokit.formats;
@@ -312,11 +568,53 @@ function readFileData(file, fileDataType) {
   return file.arrayBuffer();
 }
 
+async function fetchJSON(url) {
+  const response = await fetch(url, {cache: "no-cache"});
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} fetching ${url}`);
+  }
+  return response.json();
+}
+
+async function fetchArrayBuffer(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} fetching ${url}`);
+  }
+  return response.arrayBuffer();
+}
+
 function destroyActiveModels() {
+  activeCameraOrbit = null;
   activeSceneModel?.destroy();
   activeDataModel?.destroy();
   activeSceneModel = null;
   activeDataModel = null;
+}
+
+function startCameraOrbit() {
+  if (cameraOrbitAnimationFrame) {
+    return;
+  }
+  const tick = (now) => {
+    if (activeCameraOrbit) {
+      const elapsedSeconds = (now - activeCameraOrbit.startTime) / 1000;
+      const angle = activeCameraOrbit.startAngle + elapsedSeconds * activeCameraOrbit.radiansPerSecond;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      const offset = activeCameraOrbit.eyeOffset;
+      view.camera.look = activeCameraOrbit.center;
+      view.camera.eye = [
+        activeCameraOrbit.center[0] + offset[0] * cos - offset[1] * sin,
+        activeCameraOrbit.center[1] + offset[0] * sin + offset[1] * cos,
+        activeCameraOrbit.center[2] + offset[2]
+      ];
+      view.camera.up = [0, 0, 1];
+      view.needsRender?.();
+    }
+    cameraOrbitAnimationFrame = requestAnimationFrame(tick);
+  };
+  cameraOrbitAnimationFrame = requestAnimationFrame(tick);
 }
 
 function getSceneModelAABB(sceneModel) {
@@ -338,6 +636,7 @@ async function fitLoadedModelToView(sceneModel) {
     const aabb = getSceneModelAABB(sceneModel);
     if (isFiniteAABB(aabb)) {
       fitViewToAABB(view, aabb);
+      configureCameraOrbit(aabb);
       view.needsRender?.();
       return;
     }
@@ -394,6 +693,26 @@ function fitViewToAABB(view, aabb) {
     view.camera.perspectiveProjection.near = Math.max(radius / 10000, 0.001);
     view.camera.perspectiveProjection.far = Math.max(radius * 8, 1000);
   }
+}
+
+function configureCameraOrbit(aabb) {
+  const center = [
+    (aabb[0] + aabb[3]) * 0.5,
+    (aabb[1] + aabb[4]) * 0.5,
+    (aabb[2] + aabb[5]) * 0.5
+  ];
+  const eye = view.camera.eye;
+  activeCameraOrbit = {
+    center,
+    eyeOffset: [
+      eye[0] - center[0],
+      eye[1] - center[1],
+      eye[2] - center[2]
+    ],
+    startAngle: 0,
+    startTime: performance.now(),
+    radiansPerSecond: Math.PI / 24
+  };
 }
 
 function isFiniteAABB(aabb) {
@@ -470,4 +789,23 @@ function hideProgress() {
 async function paintProgress() {
   await nextFrame();
   await nextFrame();
+}
+
+function normalizeDroppedPath(path) {
+  return String(path || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "")
+    .replace(/\/+/g, "/");
+}
+
+function dirnamePath(path) {
+  const normalized = normalizeDroppedPath(path);
+  const slash = normalized.lastIndexOf("/");
+  return slash >= 0 ? normalized.slice(0, slash) : "";
+}
+
+function basenamePath(path) {
+  const normalized = normalizeDroppedPath(path);
+  const slash = normalized.lastIndexOf("/");
+  return slash >= 0 ? normalized.slice(slash + 1) : normalized;
 }

@@ -171,8 +171,8 @@
 <canvas id="demoCanvas"></canvas>
 <div id="dropOverlay">
     <div id="prompt">
-        <strong>Drop a model file onto the canvas</strong>
-        <span>Supported single-file formats: XGF, XKT, GLB, glTF, IFC, dotBIM, LAS/LAZ, PLY, FBX, USDZ, CityJSON, DXF, DWG, 3DXML, SPLAT.</span>
+        <strong>Drop a model file or XGF stream folder onto the canvas</strong>
+        <span>Supported single-file formats: XGF, XKT, GLB, glTF, IFC, dotBIM, LAS/LAZ, PLY, FBX, USDZ, CityJSON, DXF, DWG, 3DXML, SPLAT. For XGF streams, drop the folder containing a .runtime.json index.</span>
     </div>
 </div>
 <div id="status">Initializing viewer...</div>
@@ -182,7 +182,7 @@
 </div>
 <div id="fpsMeter">
     <strong id="fpsValue">-- FPS</strong>
-    <span id="frameMsValue">-- ms/frame</span>
+    <span id="frameMsValue">-- ms/frame, -- draws</span>
     <span id="rafValue">-- RAF</span>
 </div>
 </body>

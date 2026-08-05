@@ -1123,6 +1123,7 @@ export class GPUMemoryBatch {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshClippable: no MeshViewAttributeTexture for view ${viewIndex}`);
     }
     tex.setItem(meshIndex, {clippable});
+    this._geometryStorage.setMeshViewAttribs(meshIndex, viewIndex, {clippable});
   }
 
   /**

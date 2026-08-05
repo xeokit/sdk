@@ -341,6 +341,18 @@ export abstract class DrawTechnique {
   public vboGeometry: boolean;
 
   /**
+   * Supplies the RTC view matrix as a per-tile uniform for VBO triangle
+   * surface draws, avoiding a per-vertex matrix data-texture fetch.
+   */
+  public vboTileUniform: boolean;
+
+  /**
+   * Reads per-view color and render flags from VBO attributes instead of
+   * `uMeshViewAttributeTexture`. Intended for lean static VBO surface draws.
+   */
+  public vboViewAttributes: boolean;
+
+  /**
    * Enables body hatch logic in triangle body shaders. This is a distinct
    * permutation because ordinary untextured VBO body rendering should not pay
    * the per-mesh hatch slot check or hatch-pattern texture fetches.
@@ -448,6 +460,7 @@ export abstract class DrawTechnique {
     linePattern:         WebGLUniformLocation;   // float[8] — dash/gap entries in line-width units (only declared by the thick-line colour FS)
     linePatternLen:      WebGLUniformLocation;   // int — number of pattern entries in use (0 = solid, no pattern walk)
     linePatternPeriod:   WebGLUniformLocation;   // float — sum of in-use pattern entries (the modulus base for the FS walk)
+    rtcViewMatrix:       WebGLUniformLocation | null; // Per-tile RTC view matrix for VBO tile-uniform shaders
   };
 
   /**
@@ -520,6 +533,8 @@ export abstract class DrawTechnique {
     triplanar?: boolean,
     thickLines?: boolean,
     vboGeometry?: boolean,
+    vboTileUniform?: boolean,
+    vboViewAttributes?: boolean,
     bodyHatch?: boolean,
     /**
      * Permutation flag. When `true`, the technique's vertex
@@ -545,6 +560,8 @@ export abstract class DrawTechnique {
     triplanar: false,
     thickLines: false,
     vboGeometry: false,
+    vboTileUniform: false,
+    vboViewAttributes: false,
     bodyHatch: false,
     logDepth: false,
   }) {
@@ -576,6 +593,8 @@ export abstract class DrawTechnique {
     this.triplanar = cfg.triplanar === true;
     this.thickLines = cfg.thickLines === true;
     this.vboGeometry = cfg.vboGeometry === true;
+    this.vboTileUniform = cfg.vboTileUniform === true;
+    this.vboViewAttributes = cfg.vboViewAttributes === true;
     this.bodyHatch = cfg.bodyHatch === true;
     this.logDepth = cfg.logDepth === true;
     this._program = null;
@@ -727,6 +746,7 @@ export abstract class DrawTechnique {
       linePattern: program.getLocation("uLinePattern[0]"),
       linePatternLen: program.getLocation("uLinePatternLen"),
       linePatternPeriod: program.getLocation("uLinePatternPeriod"),
+      rtcViewMatrix: program.getLocation("uRTCViewMatrix"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
       edgeColorMode:     program.getLocation("uEdgeColorMode"),
       edgeDarken:        program.getLocation("uEdgeDarken"),
@@ -878,6 +898,8 @@ export abstract class DrawTechnique {
       `pass=${renderPass}`,
       `primitive=${primitiveName}`,
       `vboGeometry=${this.vboGeometry}`,
+      `vboTileUniform=${this.vboTileUniform}`,
+      `vboViewAttributes=${this.vboViewAttributes}`,
       `hasNormals=${this.hasNormals}`,
       `hasUVs=${this.hasUVs}`,
       `triplanar=${this.triplanar}`,
@@ -893,6 +915,8 @@ export abstract class DrawTechnique {
       renderPass,
       primitive: primitiveName,
       vboGeometry: this.vboGeometry,
+      vboTileUniform: this.vboTileUniform,
+      vboViewAttributes: this.vboViewAttributes,
       hasNormals: this.hasNormals,
       hasUVs: this.hasUVs,
       triplanar: this.triplanar,
@@ -937,7 +961,18 @@ export abstract class DrawTechnique {
       picking: this.picking,
       snap: this.snap,
       thickLines: this.thickLines,
-      vboGeometry: this.vboGeometry
+      vboGeometry: this.vboGeometry,
+      vboTileUniform: this.vboTileUniform,
+      vboViewAttributes: this.vboViewAttributes,
+      tileMatrixTexture: (this._renderContext.rayPicking
+        ? gpuResources.viewTilePickMatrixTexture
+        : gpuResources.viewTileCameraMatrixTexture)
+        [view.viewIndex],
+      setTileViewMatrix: (matrix) => {
+        if (this._uniforms.rtcViewMatrix) {
+          gl.uniformMatrix4fv(this._uniforms.rtcViewMatrix, false, matrix as any);
+        }
+      }
     });
 
     if (!geometryBinding) {
@@ -966,11 +1001,13 @@ export abstract class DrawTechnique {
 
     // Texture binds are repeated here; batch-level bind caching is a separate optimization.
 
-    this._bindTexture(samplers.viewTileCameraMatrixTexture,
-      (this._renderContext.rayPicking
-        ? gpuResources.viewTilePickMatrixTexture
-        : gpuResources.viewTileCameraMatrixTexture)
-        [view.viewIndex]);
+    if (!this.vboTileUniform) {
+      this._bindTexture(samplers.viewTileCameraMatrixTexture,
+        (this._renderContext.rayPicking
+          ? gpuResources.viewTilePickMatrixTexture
+          : gpuResources.viewTileCameraMatrixTexture)
+          [view.viewIndex]);
+    }
 
     geometryBinding.bindGeometryTextures(
       samplers,
@@ -1044,7 +1081,9 @@ export abstract class DrawTechnique {
     // triangle-surface colour techniques declare the sampler,
     // everyone else short-circuits on the null location.
     this._bindTexture(samplers.hatchPatternTexture, batchResources.hatchPatternTexture);
-    this._bindTexture(samplers.meshViewAttributeTexture, batchViewResources.meshViewAttributeTexture);
+    if (!this.vboViewAttributes) {
+      this._bindTexture(samplers.meshViewAttributeTexture, batchViewResources.meshViewAttributeTexture);
+    }
     this._bindTexture(samplers.geometryAttributes, batchResources.geometryAttributeTexture);
 
     // Bind SAO occlusion texture after all per-batch data textures so its texture
@@ -1158,6 +1197,9 @@ ${this.vboGeometry ? `
 layout(location = 0) in vec4 aPositionAndTile;
 layout(location = 1) in uint aMeshIndex;
 layout(location = 2) in uint aGeometryVertexIndex;
+${this.vboViewAttributes ? `layout(location = 3) in vec4 aViewColor;
+layout(location = 4) in uvec4 aRenderFlags;
+` : ``}
 ` : ``}
 
 // ─────────────────────────────────────────────────────────────
@@ -1172,14 +1214,14 @@ ${needsVertexColor ? `uniform highp usampler2D uVertexColorTexture;
 uniform highp usampler2D uVertexNormalTexture;` : ``}${this.hasUVs ? `
 uniform highp sampler2D  uVertexUVTexture;` : ``}
 // uniform highp usampler2D uEdgeIndexTexture;
-uniform highp sampler2D  uViewTileCameraMatrixTexture;
+${this.vboTileUniform ? `uniform mat4 uRTCViewMatrix;` : `uniform highp sampler2D  uViewTileCameraMatrixTexture;`}
 ${needsMeshMatrix ? `
 uniform highp sampler2D  uMeshMatrixTexture;
 ` : ``}
 ${needsMeshAttributes ? `
 uniform highp usampler2D uMeshAttributeTexture;
 ` : ``}
-uniform highp usampler2D uMeshViewAttributeTexture;
+${this.vboViewAttributes ? `` : `uniform highp usampler2D uMeshViewAttributeTexture;`}
 ${needsGeometryAttributes ? `
 uniform highp usampler2D uGeometryAttributeTexture;
 ` : ``}${needsQuantRange ? `
@@ -1448,12 +1490,20 @@ vec2 unpackUnorm2x16FromU32(uint packed) {
 ` : ``}
 
 MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
-  const uint texWidth = 4096u;
+${this.vboViewAttributes ? `  MeshViewAttributes s;
+  s.color = uvec4(
+    uint(aViewColor.r * 255.0 + 0.5),
+    uint(aViewColor.g * 255.0 + 0.5),
+    uint(aViewColor.b * 255.0 + 0.5),
+    uint(aViewColor.a * 255.0 + 0.5)
+  );
+  s.renderFlags = aRenderFlags;
+  return s;` : `  const uint texWidth = 4096u;
   uint base = meshIndex * 2u;
   MeshViewAttributes s;
   s.color       = texelFetch(uMeshViewAttributeTexture, texCoord(base + 0u, texWidth), 0);
   s.renderFlags = texelFetch(uMeshViewAttributeTexture, texCoord(base + 1u, texWidth), 0);
-  return s;
+  return s;`}
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1461,13 +1511,14 @@ MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
 // ─────────────────────────────────────────────────────────────
 
 mat4 getTileViewMatrix(uint tileIndex) {
+${this.vboTileUniform ? `  return uRTCViewMatrix;` : `
   const uint texWidth = 4096u;
   uint base = tileIndex * 4u;
   vec4 m0 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 0u, texWidth), 0);
   vec4 m1 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 1u, texWidth), 0);
   vec4 m2 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 2u, texWidth), 0);
   vec4 m3 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 3u, texWidth), 0);
-  return mat4(m0, m1, m2, m3);
+  return mat4(m0, m1, m2, m3);`}
 }
 
 ${needsMeshMatrix ? `mat4 getMeshMatrix(uint meshIndex) {

@@ -213,11 +213,12 @@ export class DrawOps {
       withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, hasNormals: true, triplanar: true, logDepth: LOG_DEPTH})),
     });
     const triangleVBOGeometryCfg = {vboGeometry: true};
+    const triangleVBOTileUniformCfg = {vboGeometry: true, vboTileUniform: true, vboViewAttributes: true};
     const trianglesDrawColorDTX          = lambertVariants(TrianglesDrawColorTechnique);
     const trianglesDrawColorSAODTX       = lambertVariants(TrianglesDrawColorSAOTechnique);
     const trianglesDrawColorShadowDTX    = lambertVariants(TrianglesDrawColorShadowTechnique);
     const trianglesDrawColorSAOShadowDTX = lambertVariants(TrianglesDrawColorSAOShadowTechnique);
-    const trianglesDrawColorVBO          = lambertVariants(TrianglesDrawColorTechnique, triangleVBOGeometryCfg);
+    const trianglesDrawColorVBO          = lambertVariants(TrianglesDrawColorTechnique, triangleVBOTileUniformCfg);
     const trianglesDrawColorSAOVBO       = lambertVariants(TrianglesDrawColorSAOTechnique, triangleVBOGeometryCfg);
     const trianglesDrawColorShadowVBO    = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOGeometryCfg);
     const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOGeometryCfg);

@@ -1,7 +1,7 @@
 {
   "schema": "xeokit-procedural-city-comparison/1.0",
   "profileName": "london",
-  "seed": "42",
+  "seed": 42,
   "generatedAt": "deterministic",
   "source": {
     "type": "preset",
@@ -13,11 +13,11 @@
     "roads": 165,
     "parks": 99,
     "landmarks": 3,
-    "trees": 7963,
+    "trees": 7984,
     "streetFurniture": 5189,
     "waterways": 1,
     "bridges": 6,
-    "triangles": 1065302
+    "triangles": 1064796
   },
   "metrics": [
     {
@@ -44,8 +44,8 @@
       "key": "medianBuildingCoverage",
       "label": "Median building coverage",
       "source": 0.58,
-      "generated": 0.44122334699237753,
-      "differencePercent": -23.927009139245246,
+      "generated": 0.443324665434845,
+      "differencePercent": -23.564712856061202,
       "tolerancePercent": 35,
       "ok": true
     },
@@ -71,8 +71,8 @@
       "key": "openSpaceRatio",
       "label": "Open-space ratio",
       "source": 0.09,
-      "generated": 0.0971623489078723,
-      "differencePercent": 7.958165453191449,
+      "generated": 0.09720272851442059,
+      "differencePercent": 8.00303168268955,
       "tolerancePercent": 40,
       "ok": true
     }
@@ -102,44 +102,44 @@
     "street.waterfront-promenade": 0.887
   },
   "evaluationSummary": {
-    "count": 4123,
-    "averageScore": 0.73,
-    "minimumScore": 0.604,
+    "count": 4073,
+    "averageScore": 0.691,
+    "minimumScore": 0.602,
     "byStage": {
       "road-layout": {
         "count": 1,
-        "averageScore": 0.743,
-        "minimumScore": 0.743
+        "averageScore": 0.713,
+        "minimumScore": 0.713
       },
       "district-boundary": {
         "count": 1090,
-        "averageScore": 0.769,
-        "minimumScore": 0.768
+        "averageScore": 0.688,
+        "minimumScore": 0.686
       },
       "block-subdivision": {
         "count": 1090,
-        "averageScore": 0.714,
-        "minimumScore": 0.604
+        "averageScore": 0.687,
+        "minimumScore": 0.602
       },
       "park-placement": {
         "count": 6,
-        "averageScore": 0.769,
-        "minimumScore": 0.655
+        "averageScore": 0.743,
+        "minimumScore": 0.659
       },
       "landmark-placement": {
         "count": 3,
         "averageScore": 0.74,
-        "minimumScore": 0.729
+        "minimumScore": 0.73
       },
       "parcel-subdivision": {
         "count": 988,
-        "averageScore": 0.758,
-        "minimumScore": 0.684
+        "averageScore": 0.718,
+        "minimumScore": 0.656
       },
       "building-massing": {
-        "count": 945,
-        "averageScore": 0.673,
-        "minimumScore": 0.605
+        "count": 895,
+        "averageScore": 0.671,
+        "minimumScore": 0.625
       }
     }
   },
@@ -151,7 +151,7 @@
         "key": "nonEmptyScene",
         "label": "No empty XGF scene",
         "ok": true,
-        "value": 1065302
+        "value": 1064796
       },
       {
         "key": "connectedRoadNetwork",
@@ -176,7 +176,7 @@
         "key": "buildingsOverRoads",
         "label": "No buildings overlapping roads",
         "ok": true,
-        "value": 0.010833333333333334,
+        "value": 0.011111111111111112,
         "tolerance": 0.04
       },
       {

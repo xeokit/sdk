@@ -1,5 +1,6 @@
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
+const HAS_STREAM_CONFIG = !!window.PROCEDURAL_CITY_STREAM_CONFIG;
 const EXAMPLE_CONFIG = window.PROCEDURAL_CITY_STREAM_CONFIG || {};
 const INDEX_URL = EXAMPLE_CONFIG.indexUrl || "../../models/ProceduralCityLarge/xgfstream/index.runtime.json";
 const METADATA_URL = EXAMPLE_CONFIG.metadataUrl || "../../models/ProceduralCityLarge/metadata.json";
@@ -9,8 +10,7 @@ const VIEW_ID = EXAMPLE_CONFIG.viewId || "proceduralCityView";
 const STREAM_LABEL = EXAMPLE_CONFIG.streamLabel || "procedural city";
 const WIND_SOUND = !!EXAMPLE_CONFIG.windSound;
 const VEHICLE_CONFIG = EXAMPLE_CONFIG.vehicle || null;
-const VIEW_EFFECTS = EXAMPLE_CONFIG.effects || {};
-const VIEW_LIGHTS = EXAMPLE_CONFIG.lights || {};
+const MULTIPLAYER_CONFIG = EXAMPLE_CONFIG.multiplayer || null;
 const AUTO_BATCH_SIZE = 12;
 const FETCH_CONCURRENCY = 10;
 const CHUNK_COMMIT_FRAME_BUDGET_MS = 4;
@@ -22,7 +22,60 @@ const RENDER_MODE_NAMES = {
   detailed: xeokit.base.constants.DetailedRender,
   realistic: xeokit.base.constants.RealisticRender
 };
-const DEFAULT_RENDER_MODE = RENDER_MODE_NAMES.detailed;
+const DEFAULT_PROCEDURAL_CITY_RENDER_CONFIG = {
+  renderMode: "realistic",
+  adaptiveQuality: {
+    fastMode: "navigation",
+    restMode: "realistic",
+    restMs: 500
+  },
+  effects: {
+    sao: {
+      renderModes: ["realistic"]
+    },
+    bloom: {
+      renderModes: ["realistic"]
+    },
+    atmosphere: {
+      renderModes: []
+    },
+    depthOfField: {
+      renderModes: []
+    },
+    tonemap: {
+      renderModes: ["realistic"]
+    },
+    antiAliasing: {
+      renderModes: ["realistic"]
+    },
+    shadows: {
+      renderModes: ["realistic"]
+    },
+    edges: {
+      renderModes: ["navigation", "detailed", "realistic"],
+      edgeWidth: 1
+    },
+    sectionPlaneCaps: {
+      renderModes: []
+    },
+    bodyHatch: {
+      renderModes: []
+    }
+  },
+  lights: {
+    ibl: {
+      renderModes: ["realistic"]
+    },
+    hemispheric: {
+      renderModes: ["navigation", "detailed", "realistic"]
+    }
+  }
+};
+const BASE_RENDER_CONFIG = HAS_STREAM_CONFIG ? {} : DEFAULT_PROCEDURAL_CITY_RENDER_CONFIG;
+const VIEW_EFFECTS = normalizeRenderModeConfig(EXAMPLE_CONFIG.effects || BASE_RENDER_CONFIG.effects || {});
+const VIEW_LIGHTS = normalizeRenderModeConfig(EXAMPLE_CONFIG.lights || BASE_RENDER_CONFIG.lights || {});
+const VIEW_ADAPTIVE_QUALITY = normalizeAdaptiveQuality(EXAMPLE_CONFIG.adaptiveQuality ?? BASE_RENDER_CONFIG.adaptiveQuality);
+const DEFAULT_RENDER_MODE = renderModeFor(EXAMPLE_CONFIG.renderMode ?? BASE_RENDER_CONFIG.renderMode, RENDER_MODE_NAMES.detailed);
 const CAMERA_PRESETS = {
   aerial: {
     eye: [1320, -1570, 1120],
@@ -67,7 +120,7 @@ studio.init().then(async () => {
   const {scene} = studio;
   const view = studio.viewManager.createView({
     id: VIEW_ID,
-    adaptiveQuality: false,
+    adaptiveQuality: VIEW_ADAPTIVE_QUALITY,
     renderMode: DEFAULT_RENDER_MODE,
     camera: CAMERA_PRESETS.aerial,
     effects: VIEW_EFFECTS,
@@ -152,6 +205,13 @@ studio.init().then(async () => {
     }
     if (VEHICLE_CONFIG) {
       vehicleRuntime.controller = await setupVehicleChase({studio, scene, view, config: VEHICLE_CONFIG});
+      setupAircraftMultiplayer({
+        scene,
+        view,
+        localVehicle: vehicleRuntime.controller,
+        vehicleConfig: VEHICLE_CONFIG,
+        multiplayerConfig: MULTIPLAYER_CONFIG
+      });
     }
     streamController.prefetchInitial(AUTO_BATCH_SIZE * 2);
     streamController.schedule(`Initial ${STREAM_LABEL} frustum`);
@@ -246,8 +306,14 @@ function ensureRenderModeControl() {
   return select;
 }
 
-function renderModeFor(name) {
-  return RENDER_MODE_NAMES[name] ?? RENDER_MODE_NAMES.detailed;
+function renderModeFor(value, fallback = RENDER_MODE_NAMES.detailed) {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return RENDER_MODE_NAMES[value] ?? fallback;
+  }
+  return fallback;
 }
 
 function nameForRenderMode(mode) {
@@ -257,6 +323,36 @@ function nameForRenderMode(mode) {
     }
   }
   return "detailed";
+}
+
+function normalizeAdaptiveQuality(config) {
+  if (config === true) {
+    return {};
+  }
+  if (!config || typeof config !== "object") {
+    return false;
+  }
+  return {
+    ...config,
+    fastMode: renderModeFor(config.fastMode, RENDER_MODE_NAMES.navigation),
+    restMode: renderModeFor(config.restMode, RENDER_MODE_NAMES.realistic)
+  };
+}
+
+function normalizeRenderModeConfig(config) {
+  if (Array.isArray(config)) {
+    return config.map((item) => normalizeRenderModeConfig(item));
+  }
+  if (!config || typeof config !== "object") {
+    return config;
+  }
+  const normalized = {};
+  for (const [key, value] of Object.entries(config)) {
+    normalized[key] = key === "renderModes" && Array.isArray(value)
+      ? value.map((mode) => renderModeFor(mode)).filter((mode) => mode !== undefined)
+      : normalizeRenderModeConfig(value);
+  }
+  return normalized;
 }
 
 async function setupVehicleChase({studio, scene, view, config}) {
@@ -354,6 +450,10 @@ async function setupVehicleChase({studio, scene, view, config}) {
   if (record) {
     record.vehicleNavigationController = shipController.sdkController;
   }
+  shipController.sceneModel = sceneModel;
+  shipController.rootTransform = rootTransform;
+  shipController.contentTransform = contentTransform;
+  shipController.objectIds = objectIds;
   shipController.update();
 
   if (config.hideStudioOverlay !== false) {
@@ -404,6 +504,514 @@ function isVehicleObjectId(objectId, modelId) {
     id.includes(".vehicleAfterburner");
 }
 
+function setupAircraftMultiplayer({scene, view, localVehicle, vehicleConfig, multiplayerConfig}) {
+  if (!localVehicle || !vehicleConfig?.modelUrl || !multiplayerConfig?.enabled) {
+    return null;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const mpParam = urlParams.get("mp") || urlParams.get("multiplayer");
+  if (mpParam === "0" || mpParam === "false" || mpParam === "off") {
+    return null;
+  }
+
+  const playerId = getOrCreateMultiplayerPlayerId();
+  const room = String(urlParams.get("room") || multiplayerConfig.room || "flight-sim");
+  const peerTimeoutMs = Number(multiplayerConfig.peerTimeoutMs || 5000);
+  const updateIntervalMs = Math.max(16, Number(multiplayerConfig.updateIntervalMs || 50));
+  const interpolationDelayMs = Math.max(updateIntervalMs * 2, Number(multiplayerConfig.interpolationDelayMs || 120));
+  const wsUrl = resolveMultiplayerWebSocketUrl(mpParam, multiplayerConfig);
+  const channelName = String(multiplayerConfig.broadcastChannel || `xeokit-${room}`);
+  const peers = new Map();
+  const peerLoads = new Map();
+  const connections = [];
+  const objectIdPrefix = vehicleConfig.modelId || `${MODEL_ID}Vehicle`;
+  let destroyed = false;
+  let publishTimer = 0;
+  let remoteAnimationFrame = 0;
+  let poseSequence = 0;
+
+  const status = ensureMultiplayerStatus();
+  updateMultiplayerStatus(status, {
+    transport: wsUrl ? "connecting" : "local tabs",
+    peers: 0
+  });
+
+  const publish = (message) => {
+    for (const connection of connections) {
+      connection.send(message);
+    }
+  };
+  const ensureRemotePoseAnimation = () => {
+    if (remoteAnimationFrame || destroyed) {
+      return;
+    }
+    remoteAnimationFrame = window.requestAnimationFrame(animateRemoteAircraft);
+  };
+  const animateRemoteAircraft = () => {
+    remoteAnimationFrame = 0;
+    if (destroyed) {
+      return;
+    }
+    if (updateRemoteAircraftPoses(peers, performance.now() - interpolationDelayMs)) {
+      view.needsRender?.();
+    }
+    if (peers.size > 0) {
+      ensureRemotePoseAnimation();
+    }
+  };
+
+  if (typeof BroadcastChannel !== "undefined") {
+    const channel = new BroadcastChannel(channelName);
+    channel.onmessage = (event) => receiveMultiplayerMessage(event.data);
+    connections.push({
+      send: (message) => channel.postMessage(message),
+      close: () => channel.close()
+    });
+  }
+
+  if (wsUrl && typeof WebSocket !== "undefined") {
+    const socket = new WebSocket(wsUrl);
+    socket.onopen = () => {
+      updateMultiplayerStatus(status, {transport: "online", peers: peers.size});
+      socket.send(JSON.stringify({type: "join", room, playerId}));
+    };
+    socket.onmessage = (event) => {
+      try {
+        receiveMultiplayerMessage(JSON.parse(event.data));
+      } catch (error) {
+        console.warn("Ignoring invalid multiplayer message", error);
+      }
+    };
+    socket.onerror = () => {
+      updateMultiplayerStatus(status, {transport: "offline", peers: peers.size});
+    };
+    socket.onclose = () => {
+      updateMultiplayerStatus(status, {transport: "offline", peers: peers.size});
+    };
+    connections.push({
+      send: (message) => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify(message));
+        }
+      },
+      close: () => socket.close()
+    });
+  }
+
+  const publishLocalPose = () => {
+    if (destroyed) {
+      return;
+    }
+    const matrix = readMatrix(localVehicle.rootTransform?.matrix);
+    if (matrix) {
+      publish({
+        type: "aircraftPose",
+        room,
+        playerId,
+        name: playerId.slice(-4),
+        matrix,
+        speed: Number(localVehicle.sdkController?.speed || 0),
+        sequence: ++poseSequence,
+        time: Date.now()
+      });
+    }
+    pruneStaleMultiplayerPeers(peers, peerTimeoutMs, status);
+  };
+  publishLocalPose();
+  publishTimer = window.setInterval(publishLocalPose, updateIntervalMs);
+
+  function receiveMultiplayerMessage(message) {
+    if (!message || message.type !== "aircraftPose" || message.room !== room || message.playerId === playerId) {
+      return;
+    }
+    const matrix = readMatrix(message.matrix);
+    if (!matrix) {
+      return;
+    }
+    const peer = peers.get(message.playerId);
+    if (peer) {
+      if (!acceptRemoteAircraftPose(peer, message)) {
+        return;
+      }
+      peer.speed = Number(message.speed || 0);
+      queueRemoteAircraftPose(peer, matrix, performance.now());
+      ensureRemotePoseAnimation();
+      return;
+    }
+    if (peerLoads.has(message.playerId)) {
+      const loadState = peerLoads.get(message.playerId);
+      if (acceptRemoteAircraftPose(loadState, message)) {
+        loadState.matrix = matrix;
+      }
+      return;
+    }
+    const loadState = {matrix};
+    acceptRemoteAircraftPose(loadState, message);
+    peerLoads.set(message.playerId, loadState);
+    createRemoteAircraft({
+      scene,
+      view,
+      peerId: message.playerId,
+      matrix,
+      vehicleConfig,
+      objectIdPrefix
+    }).then((remote) => {
+      peerLoads.delete(message.playerId);
+      if (destroyed) {
+        remote.sceneModel.destroy?.();
+        return;
+      }
+      remote.rootTransform.matrix = loadState.matrix || matrix;
+      peers.set(message.playerId, {
+        ...remote,
+        lastSeen: performance.now(),
+        lastRemoteSequence: loadState.lastRemoteSequence,
+        lastRemoteTime: loadState.lastRemoteTime,
+        matrix: loadState.matrix || matrix,
+        samples: [{time: performance.now(), matrix: loadState.matrix || matrix}],
+        displayedMatrix: loadState.matrix || matrix,
+        speed: Number(message.speed || 0)
+      });
+      updateMultiplayerStatus(status, {transport: wsUrl ? "online" : "local tabs", peers: peers.size});
+      ensureRemotePoseAnimation();
+      view.needsRender?.();
+    }).catch((error) => {
+      peerLoads.delete(message.playerId);
+      updateMultiplayerStatus(status, {
+        transport: "error",
+        peers: peers.size,
+        detail: error.message || error
+      });
+      console.error(error);
+    });
+  }
+
+  window.addEventListener("pagehide", () => {
+    destroyed = true;
+    if (publishTimer) {
+      window.clearInterval(publishTimer);
+      publishTimer = 0;
+    }
+    if (remoteAnimationFrame) {
+      window.cancelAnimationFrame(remoteAnimationFrame);
+      remoteAnimationFrame = 0;
+    }
+    publish({type: "leave", room, playerId});
+    for (const connection of connections) {
+      connection.close();
+    }
+    for (const peer of peers.values()) {
+      peer.sceneModel.destroy?.();
+    }
+    peers.clear();
+  }, {once: true});
+
+  return {
+    room,
+    peers
+  };
+}
+
+async function createRemoteAircraft({scene, view, peerId, matrix, vehicleConfig, objectIdPrefix}) {
+  const modelId = `Remote${sanitizeId(peerId)}`;
+  const rootTransformId = `${modelId}Root`;
+  const contentTransformId = `${modelId}Content`;
+  const sceneModel = must(scene.createModel({
+    id: modelId,
+    updateHint: "dynamic",
+    coordinateSystem: vehicleConfig.coordinateSystem || {
+      basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      origin: [0, 0, 0],
+      units: "meters",
+      scaleToMeters: 1
+    }
+  }));
+  const rootTransform = must(sceneModel.createTransform({
+    id: rootTransformId,
+    matrix
+  }));
+  must(sceneModel.createTransform({
+    id: contentTransformId,
+    parentTransformId: rootTransformId,
+    position: [0, 0, 0],
+    scale: [1, 1, 1]
+  }));
+
+  const fileData = await getMultiplayerAircraftFileData(vehicleConfig.modelUrl);
+  await new xeokit.formats.xgf.XGFLoader().load({
+    fileData: fileData.slice(0),
+    sceneModel
+  }, {
+    idPrefix: `${modelId}__`,
+    yieldIntervalMs: 100
+  });
+  sceneModel.updateHint = "dynamic";
+  parentVehicleContent(sceneModel, rootTransformId, contentTransformId);
+
+  const scale = Number(vehicleConfig.scale || 1);
+  const center = vehicleConfig.sourceCenter || [0, 0, 0];
+  const contentTransform = sceneModel.transforms[contentTransformId];
+  contentTransform.scale = [scale, scale, scale];
+  contentTransform.position = [
+    -Number(center[0] || 0) * scale,
+    -Number(center[1] || 0) * scale,
+    -Number(center[2] || 0) * scale
+  ];
+  if (Array.isArray(vehicleConfig.contentRotation)) {
+    contentTransform.rotation = vehicleConfig.contentRotation;
+  }
+
+  const objectIds = Object.keys(sceneModel.objects);
+  if (objectIds.length) {
+    view.setObjectsPickable(objectIds, false);
+  }
+  rootTransform.matrix = matrix;
+  return {
+    sceneModel,
+    rootTransform,
+    objectIds,
+    objectIdPrefix
+  };
+}
+
+const multiplayerAircraftFileData = new Map();
+
+async function getMultiplayerAircraftFileData(url) {
+  if (!multiplayerAircraftFileData.has(url)) {
+    multiplayerAircraftFileData.set(url, fetchArrayBuffer(url));
+  }
+  return multiplayerAircraftFileData.get(url);
+}
+
+function queueRemoteAircraftPose(peer, matrix, time) {
+  peer.lastSeen = performance.now();
+  peer.matrix = matrix;
+  const samples = peer.samples || (peer.samples = []);
+  samples.push({time, matrix});
+  while (samples.length > 8) {
+    samples.shift();
+  }
+}
+
+function acceptRemoteAircraftPose(peer, message) {
+  const sequence = Number(message.sequence);
+  if (Number.isFinite(sequence)) {
+    if (Number.isFinite(peer.lastRemoteSequence) && sequence <= peer.lastRemoteSequence) {
+      return false;
+    }
+    peer.lastRemoteSequence = sequence;
+    return true;
+  }
+  const time = Number(message.time);
+  if (Number.isFinite(time)) {
+    if (Number.isFinite(peer.lastRemoteTime) && time <= peer.lastRemoteTime) {
+      return false;
+    }
+    peer.lastRemoteTime = time;
+  }
+  return true;
+}
+
+function updateRemoteAircraftPoses(peers, targetTime) {
+  let changed = false;
+  for (const peer of peers.values()) {
+    const samples = peer.samples || [];
+    if (!samples.length) {
+      continue;
+    }
+    while (samples.length > 2 && samples[1].time <= targetTime) {
+      samples.shift();
+    }
+    const matrix = remoteAircraftMatrixAt(samples, targetTime);
+    if (!matrix || matricesAlmostEqual(matrix, peer.displayedMatrix)) {
+      continue;
+    }
+    peer.displayedMatrix = matrix;
+    peer.rootTransform.matrix = matrix;
+    changed = true;
+  }
+  return changed;
+}
+
+function remoteAircraftMatrixAt(samples, targetTime) {
+  if (samples.length === 1 || targetTime <= samples[0].time) {
+    return samples[0].matrix;
+  }
+  for (let i = 1; i < samples.length; i++) {
+    const previous = samples[i - 1];
+    const next = samples[i];
+    if (targetTime <= next.time) {
+      const span = Math.max(1, next.time - previous.time);
+      return interpolateAircraftMatrix(previous.matrix, next.matrix, clamp01((targetTime - previous.time) / span));
+    }
+  }
+  return samples[samples.length - 1].matrix;
+}
+
+function interpolateAircraftMatrix(a, b, t) {
+  const x = normalizeVector([
+    lerpNumber(a[0], b[0], t),
+    lerpNumber(a[1], b[1], t),
+    lerpNumber(a[2], b[2], t)
+  ], [1, 0, 0]);
+  let y = normalizeVector([
+    lerpNumber(a[4], b[4], t),
+    lerpNumber(a[5], b[5], t),
+    lerpNumber(a[6], b[6], t)
+  ], [0, 1, 0]);
+  let z = normalizeVector(crossVectors(x, y), [
+    lerpNumber(a[8], b[8], t),
+    lerpNumber(a[9], b[9], t),
+    lerpNumber(a[10], b[10], t)
+  ]);
+  y = normalizeVector(crossVectors(z, x), y);
+  z = normalizeVector(crossVectors(x, y), z);
+  return [
+    x[0], x[1], x[2], 0,
+    y[0], y[1], y[2], 0,
+    z[0], z[1], z[2], 0,
+    lerpNumber(a[12], b[12], t),
+    lerpNumber(a[13], b[13], t),
+    lerpNumber(a[14], b[14], t),
+    1
+  ];
+}
+
+function matricesAlmostEqual(a, b) {
+  if (!a || !b) {
+    return false;
+  }
+  for (let i = 0; i < 16; i++) {
+    if (Math.abs(a[i] - b[i]) > 0.00001) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function lerpNumber(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function clamp01(value) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function normalizeVector(value, fallback) {
+  const length = Math.hypot(value[0], value[1], value[2]);
+  if (!Number.isFinite(length) || length < 0.000001) {
+    return fallback;
+  }
+  return [value[0] / length, value[1] / length, value[2] / length];
+}
+
+function crossVectors(a, b) {
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0]
+  ];
+}
+
+function pruneStaleMultiplayerPeers(peers, peerTimeoutMs, status) {
+  const now = performance.now();
+  let changed = false;
+  for (const [peerId, peer] of peers) {
+    if (now - peer.lastSeen <= peerTimeoutMs) {
+      continue;
+    }
+    peer.sceneModel.destroy?.();
+    peers.delete(peerId);
+    changed = true;
+  }
+  if (changed) {
+    updateMultiplayerStatus(status, {peers: peers.size});
+  }
+}
+
+function ensureMultiplayerStatus() {
+  let element = document.getElementById("multiplayerStatus");
+  if (element) {
+    return element;
+  }
+  const section = document.createElement("div");
+  section.className = "section";
+  section.innerHTML = `<p class="stream-line"><span>Multiplayer</span><strong id="multiplayerStatus">-</strong></p>`;
+  const panel = document.getElementById("panel");
+  const streamSection = document.getElementById("chunkProgress")?.closest(".section");
+  if (panel && streamSection?.nextSibling) {
+    panel.insertBefore(section, streamSection.nextSibling);
+  } else {
+    panel?.appendChild(section);
+  }
+  return document.getElementById("multiplayerStatus");
+}
+
+function updateMultiplayerStatus(element, {transport, peers, detail} = {}) {
+  if (!element) {
+    return;
+  }
+  const current = element.dataset.transport || "local tabs";
+  const nextTransport = transport || current;
+  element.dataset.transport = nextTransport;
+  const peerCount = Number.isFinite(peers) ? peers : Number(element.dataset.peers || 0);
+  element.dataset.peers = String(peerCount);
+  element.textContent = `${nextTransport}, ${peerCount} peer${peerCount === 1 ? "" : "s"}`;
+  if (detail) {
+    element.title = String(detail);
+  }
+}
+
+function resolveMultiplayerWebSocketUrl(mpParam, config) {
+  const explicit = mpParam && mpParam !== "1" && mpParam !== "true" && mpParam !== "on"
+    ? mpParam
+    : (config.wsUrl || "");
+  if (!explicit && !config.wsPort && !config.wsPath) {
+    return "";
+  }
+  const fallback = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:${Number(config.wsPort || window.location.port || 80)}${config.wsPath || "/flight-sim"}`;
+  try {
+    return new URL(explicit || fallback, window.location.href).href.replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+  } catch {
+    return "";
+  }
+}
+
+function getOrCreateMultiplayerPlayerId() {
+  const storageKey = "xeokitAmsterdamFlightPlayerId";
+  try {
+    const existing = window.sessionStorage.getItem(storageKey);
+    if (existing) {
+      return existing;
+    }
+    const id = createRandomId();
+    window.sessionStorage.setItem(storageKey, id);
+    return id;
+  } catch {
+    return createRandomId();
+  }
+}
+
+function createRandomId() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  return `player-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
+function sanitizeId(id) {
+  return String(id).replace(/[^A-Za-z0-9_]/g, "_").slice(0, 48) || "player";
+}
+
+function readMatrix(value) {
+  if (!value || value.length !== 16) {
+    return null;
+  }
+  const matrix = Array.from(value, Number);
+  return matrix.every(Number.isFinite) ? matrix : null;
+}
+
 function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
   const toggle = document.getElementById("windSound");
   if (!enabled) {
@@ -435,10 +1043,15 @@ function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
   let gustFilter = null;
   let turbineOsc = null;
   let compressorOsc = null;
+  let compressorOvertoneOsc = null;
   let turbineGain = null;
   let compressorGain = null;
+  let compressorOvertoneGain = null;
+  let beepGain = null;
   let turbineFilter = null;
   let compressorFilter = null;
+  let compressorOvertoneFilter = null;
+  let nextBeepTime = 0;
   let running = false;
   let animationFrame = 0;
   let lastTime = performance.now();
@@ -515,10 +1128,14 @@ function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
     gustFilter = context.createBiquadFilter();
     turbineOsc = context.createOscillator();
     compressorOsc = context.createOscillator();
+    compressorOvertoneOsc = context.createOscillator();
     turbineGain = context.createGain();
     compressorGain = context.createGain();
+    compressorOvertoneGain = context.createGain();
+    beepGain = context.createGain();
     turbineFilter = context.createBiquadFilter();
     compressorFilter = context.createBiquadFilter();
+    compressorOvertoneFilter = context.createBiquadFilter();
 
     masterGain.gain.value = 0;
     lowWindGain.gain.value = 0.0001;
@@ -526,6 +1143,8 @@ function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
     gustGain.gain.value = 0.0001;
     turbineGain.gain.value = 0.0001;
     compressorGain.gain.value = 0.0001;
+    compressorOvertoneGain.gain.value = 0.0001;
+    beepGain.gain.value = 1;
     compressor.threshold.value = -18;
     compressor.knee.value = 20;
     compressor.ratio.value = 5;
@@ -535,21 +1154,26 @@ function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
     lowWindFilter.frequency.value = 240;
     lowWindFilter.Q.value = 0.9;
     highWindFilter.type = "bandpass";
-    highWindFilter.frequency.value = 2100;
-    highWindFilter.Q.value = 1.4;
+    highWindFilter.frequency.value = 1500;
+    highWindFilter.Q.value = 0.85;
     gustFilter.type = "bandpass";
     gustFilter.frequency.value = 95;
-    gustFilter.Q.value = 1.15;
+    gustFilter.Q.value = 0.7;
     turbineOsc.type = "triangle";
     turbineOsc.frequency.value = 32;
     turbineFilter.type = "lowpass";
     turbineFilter.frequency.value = 135;
-    turbineFilter.Q.value = 1.1;
-    compressorOsc.type = "sine";
+    turbineFilter.Q.value = 0.75;
+    compressorOsc.type = "triangle";
     compressorOsc.frequency.value = 520;
     compressorFilter.type = "bandpass";
-    compressorFilter.frequency.value = 980;
-    compressorFilter.Q.value = 5.5;
+    compressorFilter.frequency.value = 1250;
+    compressorFilter.Q.value = 2.4;
+    compressorOvertoneOsc.type = "sine";
+    compressorOvertoneOsc.frequency.value = 980;
+    compressorOvertoneFilter.type = "bandpass";
+    compressorOvertoneFilter.frequency.value = 2450;
+    compressorOvertoneFilter.Q.value = 2.8;
 
     noiseSource.buffer = createAircraftNoiseBuffer(context);
     noiseSource.loop = true;
@@ -568,12 +1192,17 @@ function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
     compressorOsc.connect(compressorFilter);
     compressorFilter.connect(compressorGain);
     compressorGain.connect(masterGain);
+    compressorOvertoneOsc.connect(compressorOvertoneFilter);
+    compressorOvertoneFilter.connect(compressorOvertoneGain);
+    compressorOvertoneGain.connect(masterGain);
+    beepGain.connect(masterGain);
     masterGain.connect(compressor);
     compressor.connect(context.destination);
 
     noiseSource.start();
     turbineOsc.start();
     compressorOsc.start();
+    compressorOvertoneOsc.start();
   }
 
   function updateSound(now) {
@@ -585,39 +1214,77 @@ function setupWindSound(view, enabled, getVehicleSpeed = () => 0) {
     const cameraSpeed = distance3(eye, lastEye) / dt;
     const vehicleSpeed = Number(getVehicleSpeed() || 0);
     const throttle = activeKeys.has("KeyW") ? 1 : 0;
-    smoothedSpeed += (Math.max(cameraSpeed, vehicleSpeed) - smoothedSpeed) * 0.18;
+    smoothedSpeed += (Math.max(cameraSpeed, vehicleSpeed) - smoothedSpeed) * 0.1;
     const speedNorm = clamp(smoothedSpeed / 150, 0, 1);
     const keyWind = [...activeKeys].some((code) => movementKeys.has(code)) ? 0.1 : 0;
-    const targetIntensity = clamp(0.2 + speedNorm * 0.62 + throttle * 0.25 + keyWind, 0, 1);
-    windIntensity += (targetIntensity - windIntensity) * 0.075;
+    const targetIntensity = clamp(0.16 + speedNorm * 0.52 + throttle * 0.2 + keyWind, 0, 1);
+    windIntensity += (targetIntensity - windIntensity) * 0.045;
     const idle = isEnabled() ? 1 : 0;
     const nowSeconds = context.currentTime;
     const turbinePulse = clamp(
       0.9 +
-      Math.sin(nowSeconds * 17.5) * 0.035 +
-      Math.sin(nowSeconds * 29.0 + 1.3) * 0.018,
-      0.82,
-      1.06
+      Math.sin(nowSeconds * 11.0) * 0.018 +
+      Math.sin(nowSeconds * 19.0 + 1.3) * 0.01,
+      0.88,
+      1.02
     );
     const spool = windIntensity * turbinePulse;
-    const compressorPitch = 360 + spool * 760 + throttle * 90;
-    lowWindFilter.frequency.setTargetAtTime(130 + spool * 430, nowSeconds, 0.09);
-    highWindFilter.frequency.setTargetAtTime(1150 + spool * 2100, nowSeconds, 0.08);
-    gustFilter.frequency.setTargetAtTime(48 + spool * 150, nowSeconds, 0.12);
-    turbineOsc.frequency.setTargetAtTime(28 + spool * 42 + throttle * 6, nowSeconds, 0.08);
-    turbineFilter.frequency.setTargetAtTime(95 + spool * 280, nowSeconds, 0.1);
-    compressorOsc.frequency.setTargetAtTime(compressorPitch, nowSeconds, 0.06);
-    compressorFilter.frequency.setTargetAtTime(compressorPitch * 1.85, nowSeconds, 0.07);
-    lowWindGain.gain.setTargetAtTime((0.038 + Math.pow(spool, 1.04) * 0.16) * idle + 0.0001, nowSeconds, 0.08);
-    highWindGain.gain.setTargetAtTime((0.0015 + Math.pow(spool, 1.9) * 0.027) * idle + 0.0001, nowSeconds, 0.07);
-    gustGain.gain.setTargetAtTime((0.02 + spool * 0.095) * idle + 0.0001, nowSeconds, 0.12);
-    turbineGain.gain.setTargetAtTime((0.018 + spool * 0.085) * idle + 0.0001, nowSeconds, 0.08);
-    compressorGain.gain.setTargetAtTime((0.0006 + Math.pow(spool, 2.25) * 0.007) * idle + 0.0001, nowSeconds, 0.06);
-    masterGain.gain.setTargetAtTime((0.3 + spool * 0.28) * idle, nowSeconds, 0.08);
+    const compressorPitch = 460 + spool * 740 + throttle * 80;
+    lowWindFilter.frequency.setTargetAtTime(165 + spool * 470, nowSeconds, 0.16);
+    highWindFilter.frequency.setTargetAtTime(780 + spool * 1250, nowSeconds, 0.15);
+    gustFilter.frequency.setTargetAtTime(54 + spool * 170, nowSeconds, 0.2);
+    turbineOsc.frequency.setTargetAtTime(28 + spool * 34 + throttle * 4, nowSeconds, 0.16);
+    turbineFilter.frequency.setTargetAtTime(90 + spool * 210, nowSeconds, 0.18);
+    compressorOsc.frequency.setTargetAtTime(compressorPitch, nowSeconds, 0.14);
+    compressorFilter.frequency.setTargetAtTime(compressorPitch * 1.55, nowSeconds, 0.14);
+    compressorOvertoneOsc.frequency.setTargetAtTime(compressorPitch * 1.48, nowSeconds, 0.12);
+    compressorOvertoneFilter.frequency.setTargetAtTime(compressorPitch * 2.25, nowSeconds, 0.12);
+    lowWindGain.gain.setTargetAtTime((0.046 + Math.pow(spool, 0.95) * 0.15) * idle + 0.0001, nowSeconds, 0.16);
+    highWindGain.gain.setTargetAtTime((0.007 + Math.pow(spool, 1.2) * 0.044) * idle + 0.0001, nowSeconds, 0.14);
+    gustGain.gain.setTargetAtTime((0.018 + spool * 0.075) * idle + 0.0001, nowSeconds, 0.2);
+    turbineGain.gain.setTargetAtTime((0.02 + spool * 0.075) * idle + 0.0001, nowSeconds, 0.16);
+    compressorGain.gain.setTargetAtTime((0.0014 + Math.pow(spool, 1.9) * 0.007 + throttle * 0.002) * idle + 0.0001, nowSeconds, 0.12);
+    compressorOvertoneGain.gain.setTargetAtTime((0.0004 + Math.pow(spool, 2.25) * 0.002 + throttle * 0.0006) * idle + 0.0001, nowSeconds, 0.12);
+    masterGain.gain.setTargetAtTime((0.26 + spool * 0.2) * idle, nowSeconds, 0.16);
+    maybePlaySoftBeep(nowSeconds, spool, idle);
 
     lastTime = now;
     lastEye = eye;
     animationFrame = window.requestAnimationFrame(updateSound);
+  }
+
+  function maybePlaySoftBeep(nowSeconds, spool, idle) {
+    if (!idle || nowSeconds < nextBeepTime) {
+      return;
+    }
+    const interval = 2.0;
+    nextBeepTime = nowSeconds + interval;
+    playBeepPulse(nowSeconds + 0.018, 0.34, 430 + spool * 70, 0.034);
+  }
+
+  function playBeepPulse(startTime, duration, frequency, peakGain) {
+    const osc = context.createOscillator();
+    const toneFilter = context.createBiquadFilter();
+    const toneGain = context.createGain();
+    const stopTime = startTime + duration;
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(frequency, startTime);
+    toneFilter.type = "lowpass";
+    toneFilter.frequency.setValueAtTime(820, startTime);
+    toneFilter.Q.value = 0.45;
+    toneGain.gain.setValueAtTime(0.0001, startTime);
+    toneGain.gain.exponentialRampToValueAtTime(peakGain, startTime + 0.08);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+    osc.connect(toneFilter);
+    toneFilter.connect(toneGain);
+    toneGain.connect(beepGain);
+    osc.start(startTime);
+    osc.stop(stopTime + 0.02);
+    osc.addEventListener("ended", () => {
+      osc.disconnect();
+      toneFilter.disconnect();
+      toneGain.disconnect();
+    }, {once: true});
   }
 
   window.addEventListener("pagehide", () => {

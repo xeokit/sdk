@@ -1,7 +1,7 @@
 {
   "schema": "xeokit-procedural-city-comparison/1.0",
   "profileName": "chicago-river",
-  "seed": "42",
+  "seed": 42,
   "generatedAt": "deterministic",
   "source": {
     "type": "preset",
@@ -17,7 +17,7 @@
     "streetFurniture": 3801,
     "waterways": 2,
     "bridges": 10,
-    "triangles": 866656
+    "triangles": 866484
   },
   "metrics": [
     {
@@ -44,8 +44,8 @@
       "key": "medianBuildingCoverage",
       "label": "Median building coverage",
       "source": 0.56,
-      "generated": 0.31953873576911956,
-      "differencePercent": -42.93951146980008,
+      "generated": 0.3201982215515935,
+      "differencePercent": -42.821746151501166,
       "tolerancePercent": 35,
       "ok": false,
       "warning": "Median building coverage differs by 43% from source profile"
@@ -109,44 +109,44 @@
     "street.waterfront-promenade": 0.853
   },
   "evaluationSummary": {
-    "count": 3372,
-    "averageScore": 0.7,
-    "minimumScore": 0.62,
+    "count": 3379,
+    "averageScore": 0.677,
+    "minimumScore": 0.618,
     "byStage": {
       "road-layout": {
         "count": 1,
-        "averageScore": 0.711,
-        "minimumScore": 0.711
+        "averageScore": 0.686,
+        "minimumScore": 0.686
       },
       "district-boundary": {
         "count": 438,
-        "averageScore": 0.769,
-        "minimumScore": 0.768
+        "averageScore": 0.681,
+        "minimumScore": 0.678
       },
       "block-subdivision": {
         "count": 438,
-        "averageScore": 0.708,
-        "minimumScore": 0.651
+        "averageScore": 0.686,
+        "minimumScore": 0.636
       },
       "park-placement": {
         "count": 6,
-        "averageScore": 0.767,
-        "minimumScore": 0.682
+        "averageScore": 0.743,
+        "minimumScore": 0.675
       },
       "landmark-placement": {
         "count": 1,
-        "averageScore": 0.731,
-        "minimumScore": 0.731
+        "averageScore": 0.732,
+        "minimumScore": 0.732
       },
       "parcel-subdivision": {
         "count": 386,
-        "averageScore": 0.773,
-        "minimumScore": 0.733
+        "averageScore": 0.732,
+        "minimumScore": 0.696
       },
       "building-massing": {
-        "count": 2102,
-        "averageScore": 0.67,
-        "minimumScore": 0.62
+        "count": 2109,
+        "averageScore": 0.664,
+        "minimumScore": 0.618
       }
     }
   },
@@ -158,7 +158,7 @@
         "key": "nonEmptyScene",
         "label": "No empty XGF scene",
         "ok": true,
-        "value": 866656
+        "value": 866484
       },
       {
         "key": "connectedRoadNetwork",
@@ -183,7 +183,7 @@
         "key": "buildingsOverRoads",
         "label": "No buildings overlapping roads",
         "ok": true,
-        "value": 0.004899777282850779,
+        "value": 0.004008908685968819,
         "tolerance": 0.04
       },
       {

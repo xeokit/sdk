@@ -33,7 +33,7 @@ const ROOT_COORDINATE_SYSTEM = {
 
 const STREAMS = [
   {id: "map", model: "MAP", title: "MAP", origin: [0, 0, 0]},
-  {id: "bakuStadium", model: "BakuStadium", title: "Baku Stadium", origin: [0, 0, 0]},
+  {id: "bakuStadium", model: "BakuStadium_xgfstream_2000", title: "Baku Stadium", origin: [0, 0, 0]},
   {id: "lyon", model: "Lyon", title: "Lyon", origin: [15000, 0, 0]},
   {id: "otcConferenceCenter", model: "OTCConferenceCenter", title: "OTC Conference Center", origin: [0, -1200, 0]},
   {id: "housePlan", model: "HousePlan", title: "HousePlan", origin: [0, 1200, 0]}

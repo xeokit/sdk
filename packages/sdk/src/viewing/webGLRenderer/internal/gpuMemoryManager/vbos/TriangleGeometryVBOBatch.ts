@@ -13,6 +13,7 @@ import {
   getTriangleGeometryEdgeIndexCount,
   getTriangleGeometryEdgeSlotCapacity,
   getTriangleGeometryPrimitiveCount,
+  TRIANGLE_GEOMETRY_VBO_PASS_ORDER,
   type TriangleGeometryVBOMeshRecord,
   type TriangleGeometryVBOViewState
 } from "./triangleGeometry/TriangleGeometryVBOState";
@@ -43,6 +44,21 @@ export type TriangleGeometryVBODrawState = {
   firstIndex: number;
   indexCount: number;
   primRange: PrimRange;
+};
+
+/**
+ * VBO draw state for one RTC tile. Each span points at one or more contiguous
+ * active mesh slots inside the pass region of the existing element buffer.
+ *
+ * @internal
+ */
+export type TriangleGeometryVBOTileDrawState = {
+  tileIndex: number;
+  spans: Array<{
+    firstIndex: number;
+    indexCount: number;
+    primCount: number;
+  }>;
 };
 
 /**
@@ -221,6 +237,8 @@ export class TriangleGeometryVBOBatch {
 
     const colors: Uint8Array[] = [];
     const opacities = new Uint8Array(this._maxViews);
+    const pickables = new Uint8Array(this._maxViews);
+    const clippables = new Uint8Array(this._maxViews);
     for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
       colors.push(new Uint8Array([
         clampTriangleGeometryVBOByte(params.color[0], 255),
@@ -228,6 +246,8 @@ export class TriangleGeometryVBOBatch {
         clampTriangleGeometryVBOByte(params.color[2], 255)
       ]));
       opacities[viewIndex] = clampTriangleGeometryVBOByte(params.opacity, 255);
+      pickables[viewIndex] = 1;
+      clippables[viewIndex] = 1;
     }
 
     const record: TriangleGeometryVBOMeshRecord = {
@@ -241,6 +261,8 @@ export class TriangleGeometryVBOBatch {
       matrix: copyTriangleGeometryVBOMatrix(params.matrix),
       colors,
       opacities,
+      pickables,
+      clippables,
       meshViewStates: this._views.map(() => ({
         renderPass: RENDER_PASSES.OPAQUE,
         visible: true
@@ -252,7 +274,7 @@ export class TriangleGeometryVBOBatch {
     for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
       const view = this._views[viewIndex];
       const colorStart = stats ? performance.now() : 0;
-      this._writeMeshColors(record, viewIndex);
+      this._writeMeshViewAttributes(record, viewIndex);
       if (stats) {
         stats.vboWriteColorsMs += performance.now() - colorStart;
       }
@@ -335,6 +357,8 @@ export class TriangleGeometryVBOBatch {
     params: {
       color?: Vec3;
       opacity?: number;
+      pickable?: boolean;
+      clippable?: boolean;
     }
   ): void {
     const record = this._meshRecords.get(meshIndex);
@@ -358,8 +382,18 @@ export class TriangleGeometryVBOBatch {
       dirty = dirty || record.opacities[viewIndex] !== opacity;
       record.opacities[viewIndex] = opacity;
     }
+    if (params.pickable !== undefined) {
+      const pickable = params.pickable ? 1 : 0;
+      dirty = dirty || record.pickables[viewIndex] !== pickable;
+      record.pickables[viewIndex] = pickable;
+    }
+    if (params.clippable !== undefined) {
+      const clippable = params.clippable ? 1 : 0;
+      dirty = dirty || record.clippables[viewIndex] !== clippable;
+      record.clippables[viewIndex] = clippable;
+    }
     if (dirty) {
-      this._writeMeshColors(record, viewIndex);
+      this._writeMeshViewAttributes(record, viewIndex);
     }
   }
 
@@ -402,6 +436,63 @@ export class TriangleGeometryVBOBatch {
       firstIndex: indexRange.firstIndex,
       indexCount: indexRange.indexCount,
       primRange
+    };
+  }
+
+  getTileDrawStates(viewIndex: number, renderPass: RenderPassValue, layout: "hybrid" | "lean-static"): {
+    vao: WebGLVertexArrayObject;
+    primRange: PrimRange;
+    tileDrawStates: TriangleGeometryVBOTileDrawState[];
+  } | null {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    const passRegionIndex = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.indexOf(renderPass);
+    const primRange = view.passRanges.get(renderPass) ?? {firstPrim: 0, numPrims: 0};
+    if (passRegionIndex < 0 || primRange.numPrims <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, "triangles");
+    if (!vao) {
+      return null;
+    }
+    const records = Array.from(this._meshRecords.values())
+      .filter((record) => {
+        const meshViewState = record.meshViewStates[viewIndex];
+        return meshViewState?.visible && meshViewState.renderPass === renderPass;
+      })
+      .sort((a, b) => a.vertexBase - b.vertexBase);
+    if (records.length === 0) {
+      return null;
+    }
+    const regionBase = passRegionIndex * this._indexCapacity;
+    const byTile = new Map<number, TriangleGeometryVBOTileDrawState>();
+    for (const record of records) {
+      const tileIndex = record.tileIndex | 0;
+      let tileState = byTile.get(tileIndex);
+      if (!tileState) {
+        tileState = {tileIndex, spans: []};
+        byTile.set(tileIndex, tileState);
+      }
+      const firstIndex = regionBase + record.vertexBase;
+      const indexCount = record.vertexCount;
+      const prev = tileState.spans[tileState.spans.length - 1];
+      if (prev && prev.firstIndex + prev.indexCount === firstIndex) {
+        prev.indexCount += indexCount;
+        prev.primCount += record.primitiveCount;
+      } else {
+        tileState.spans.push({
+          firstIndex,
+          indexCount,
+          primCount: record.primitiveCount
+        });
+      }
+    }
+    return {
+      vao,
+      primRange,
+      tileDrawStates: Array.from(byTile.values()).filter((state) => state.spans.length > 0)
     };
   }
 
@@ -658,10 +749,11 @@ export class TriangleGeometryVBOBatch {
     return this._geometryVertexLookupStamp++;
   }
 
-  private _writeMeshColors(record: TriangleGeometryVBOMeshRecord, viewIndex: number): void {
+  private _writeMeshViewAttributes(record: TriangleGeometryVBOMeshRecord, viewIndex: number): void {
     const view = this._views[viewIndex];
     const colors = view?.colors;
-    if (!view || !colors) {
+    const renderFlags = view?.renderFlags;
+    if (!view || !colors || !renderFlags) {
       return;
     }
     const color = record.colors[viewIndex];
@@ -673,8 +765,13 @@ export class TriangleGeometryVBOBatch {
       colors[offset + 1] = color[1];
       colors[offset + 2] = color[2];
       colors[offset + 3] = opacity;
+      renderFlags[offset] = record.pickables[viewIndex];
+      renderFlags[offset + 1] = record.clippables[viewIndex];
+      renderFlags[offset + 2] = 0;
+      renderFlags[offset + 3] = 0;
     }
     this._buffers.markColorDirty(view, record.vertexBase, record.vertexCount);
+    this._buffers.markRenderFlagDirty(view, record.vertexBase, record.vertexCount);
   }
 
   private _getVAO(

@@ -66,6 +66,7 @@ export class TriangleGeometryVBOBuffers {
         view.indices = new Uint32Array(params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT);
         view.edgeIndices = new Uint32Array(params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT);
         view.colors = new Uint8Array(params.vertexCapacity * 4);
+        view.renderFlags = new Uint8Array(params.vertexCapacity * 4);
       }
     } catch (e) {
       return {
@@ -109,7 +110,8 @@ export class TriangleGeometryVBOBuffers {
         view.indexBuffer = makeBuffer(gl.ELEMENT_ARRAY_BUFFER, params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
         view.edgeIndexBuffer = makeBuffer(gl.ELEMENT_ARRAY_BUFFER, params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
         view.colorBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
-        if (!view.indexBuffer || !view.edgeIndexBuffer || !view.colorBuffer) {
+        view.renderFlagBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
+        if (!view.indexBuffer || !view.edgeIndexBuffer || !view.colorBuffer || !view.renderFlagBuffer) {
           throw new Error("Failed to allocate per-view VBO buffers");
         }
       }
@@ -160,6 +162,10 @@ export class TriangleGeometryVBOBuffers {
         gl.deleteBuffer(view.colorBuffer);
         view.colorBuffer = null;
       }
+      if (view.renderFlagBuffer) {
+        gl.deleteBuffer(view.renderFlagBuffer);
+        view.renderFlagBuffer = null;
+      }
     }
   }
 
@@ -188,6 +194,7 @@ export class TriangleGeometryVBOBuffers {
     for (const view of views) {
       view.indicesDirty = true;
       this.markColorDirty(view, 0, nextVertex);
+      this.markRenderFlagDirty(view, 0, nextVertex);
     }
   }
 
@@ -209,6 +216,11 @@ export class TriangleGeometryVBOBuffers {
   markColorDirty(view: TriangleGeometryVBOViewState, vertexBase: number, vertexCount: number): void {
     view.colorDirtyMinVertex = Math.min(view.colorDirtyMinVertex, vertexBase);
     view.colorDirtyMaxVertex = Math.max(view.colorDirtyMaxVertex, vertexBase + vertexCount - 1);
+  }
+
+  markRenderFlagDirty(view: TriangleGeometryVBOViewState, vertexBase: number, vertexCount: number): void {
+    view.renderFlagDirtyMinVertex = Math.min(view.renderFlagDirtyMinVertex, vertexBase);
+    view.renderFlagDirtyMaxVertex = Math.max(view.renderFlagDirtyMaxVertex, vertexBase + vertexCount - 1);
   }
 
   markIndexRangeDirty(view: TriangleGeometryVBOViewState, base: number, count: number): void {
@@ -240,6 +252,7 @@ export class TriangleGeometryVBOBuffers {
     uploaded = this._uploadGeometryVertexIndexRange(params.gl) || uploaded;
     for (const view of params.views) {
       uploaded = this._uploadViewColorRange(params.gl, view) || uploaded;
+      uploaded = this._uploadViewRenderFlagRange(params.gl, view) || uploaded;
       uploaded = this._uploadViewIndexBuffer(params.gl, view) || uploaded;
       uploaded = this._uploadViewEdgeIndexBuffer(params.gl, view) || uploaded;
     }
@@ -256,6 +269,7 @@ export class TriangleGeometryVBOBuffers {
       params.vertexCapacity * 4 +
       params.vertexCapacity * 4 +
       params.maxViews * (
+        params.vertexCapacity * 4 +
         params.vertexCapacity * 4 +
         params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4 +
         params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4
@@ -276,6 +290,7 @@ export class TriangleGeometryVBOBuffers {
     return params.activeVertices * 4 * 4 +
       params.activeVertices * 4 +
       params.activeVertices * 4 +
+      params.maxViews * (params.activeVertices * 4) +
       params.maxViews * (params.activeVertices * 4) +
       activeIndices * 4 +
       activeEdgeIndices * 4;
@@ -334,6 +349,20 @@ export class TriangleGeometryVBOBuffers {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     view.colorDirtyMinVertex = Number.POSITIVE_INFINITY;
     view.colorDirtyMaxVertex = -1;
+    return true;
+  }
+
+  private _uploadViewRenderFlagRange(gl: WebGL2RenderingContext, view: TriangleGeometryVBOViewState): boolean {
+    if (!view.renderFlagBuffer || !view.renderFlags || view.renderFlagDirtyMaxVertex < view.renderFlagDirtyMinVertex) {
+      return false;
+    }
+    const start = view.renderFlagDirtyMinVertex * 4;
+    const end = (view.renderFlagDirtyMaxVertex + 1) * 4;
+    gl.bindBuffer(gl.ARRAY_BUFFER, view.renderFlagBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start, view.renderFlags.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    view.renderFlagDirtyMinVertex = Number.POSITIVE_INFINITY;
+    view.renderFlagDirtyMaxVertex = -1;
     return true;
   }
 

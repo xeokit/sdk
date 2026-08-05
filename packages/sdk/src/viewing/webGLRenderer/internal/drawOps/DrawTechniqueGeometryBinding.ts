@@ -1,9 +1,14 @@
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
+import type {Mat4} from "../../../../base/math/matrix";
 import type {RenderPassValue} from "../RENDER_PASSES";
 import type {BatchGPUResources} from "../gpuMemoryManager/BatchGPUResources";
 import type {PrimRange} from "../gpuMemoryManager/geometry/PrimRange";
-import type {TriangleGeometryVBODrawState} from "../gpuMemoryManager/vbos/TriangleGeometryVBOBatch";
+import type {
+  TriangleGeometryVBODrawState,
+  TriangleGeometryVBOTileDrawState
+} from "../gpuMemoryManager/vbos/TriangleGeometryVBOBatch";
+import type {MatrixTexture} from "../gpuMemoryManager/dataTextures/MatrixTexture";
 
 type TextureLike = { texture: WebGLTexture | null } | null | undefined;
 
@@ -31,6 +36,10 @@ type DrawTechniqueGeometryBindingParams = {
   snap: 0 | 1 | 2 | 3;
   thickLines: boolean;
   vboGeometry: boolean;
+  vboTileUniform: boolean;
+  vboViewAttributes: boolean;
+  tileMatrixTexture?: MatrixTexture | null;
+  setTileViewMatrix?: (matrix: Mat4) => void;
 };
 
 type DrawTechniqueGeometryBindingInspector = {
@@ -48,28 +57,39 @@ type DrawTechniqueGeometryBindingInspector = {
  * DrawTechnique still binds shared mesh/material/view data textures.
  */
 export class DrawTechniqueGeometryBinding {
-  readonly kind: "dtx" | "vbo";
+  readonly kind: "dtx" | "vbo" | "vboTileUniform";
   readonly drawRange: PrimRange;
   private readonly _params: DrawTechniqueGeometryBindingParams;
   private readonly _primitiveMeshIndexTexture: TextureLike;
   private readonly _vboDrawState: TriangleGeometryVBODrawState | null;
+  private readonly _vboTileDrawState: {
+    vao: WebGLVertexArrayObject;
+    primRange: PrimRange;
+    tileDrawStates: TriangleGeometryVBOTileDrawState[];
+  } | null;
 
   private constructor(params: {
-    kind: "dtx" | "vbo";
+    kind: "dtx" | "vbo" | "vboTileUniform";
     drawRange: PrimRange;
     bindingParams: DrawTechniqueGeometryBindingParams;
     primitiveMeshIndexTexture?: TextureLike;
     vboDrawState?: TriangleGeometryVBODrawState | null;
+    vboTileDrawState?: {
+      vao: WebGLVertexArrayObject;
+      primRange: PrimRange;
+      tileDrawStates: TriangleGeometryVBOTileDrawState[];
+    } | null;
   }) {
     this.kind = params.kind;
     this.drawRange = params.drawRange;
     this._params = params.bindingParams;
     this._primitiveMeshIndexTexture = params.primitiveMeshIndexTexture;
     this._vboDrawState = params.vboDrawState ?? null;
+    this._vboTileDrawState = params.vboTileDrawState ?? null;
   }
 
   get inspectorRange(): PrimRange {
-    return this._vboDrawState?.primRange ?? this.drawRange;
+    return this._vboTileDrawState?.primRange ?? this._vboDrawState?.primRange ?? this.drawRange;
   }
 
   static resolve(params: DrawTechniqueGeometryBindingParams): DrawTechniqueGeometryBinding | null {
@@ -97,6 +117,17 @@ export class DrawTechniqueGeometryBinding {
       && !params.thickLines;
 
     if (useVBOGeometry) {
+      if (params.vboTileUniform && !params.picking && !params.snap && !params.edges) {
+        const vboTileDrawState = getVBOTileDrawState(params, params.vboViewAttributes ? "lean-static" : "hybrid");
+        if (vboTileDrawState) {
+          return new DrawTechniqueGeometryBinding({
+            kind: "vboTileUniform",
+            drawRange,
+            bindingParams: params,
+            vboTileDrawState
+          });
+        }
+      }
       const vboDrawState = getVBODrawState(params);
       return vboDrawState
         ? new DrawTechniqueGeometryBinding({
@@ -161,6 +192,31 @@ export class DrawTechniqueGeometryBinding {
             handledBatches: 1,
             handledPrims: vboDrawState.primRange.numPrims
           });
+        } else if (this.kind === "vboTileUniform") {
+          const vboTileDrawState = this._vboTileDrawState!;
+          const tileMatrixTexture = this._params.tileMatrixTexture;
+          const setTileViewMatrix = this._params.setTileViewMatrix;
+          if (!tileMatrixTexture || !setTileViewMatrix) {
+            return {
+              ok: false,
+              type: SDKErrorType.InvalidInput,
+              error: "[DrawTechniqueGeometryBinding.draw] Missing tile matrix binding for VBO tile-uniform draw"
+            };
+          }
+          gl.bindVertexArray(vboTileDrawState.vao);
+          let handledPrims = 0;
+          for (const tileDrawState of vboTileDrawState.tileDrawStates) {
+            setTileViewMatrix(tileMatrixTexture.getItem(tileDrawState.tileIndex).matrix);
+            for (const span of tileDrawState.spans) {
+              gl.drawElements(gl.TRIANGLES, span.indexCount, gl.UNSIGNED_INT, span.firstIndex * 4);
+              handledPrims += span.primCount;
+            }
+          }
+          gl.bindVertexArray(null);
+          drawInspector?.vboGeometryTriangles({
+            handledBatches: 1,
+            handledPrims
+          });
         } else if (snap === 1) {
           // Vertex-snap rides the edge index buffer: two endpoint vertices
           // per edge, rendered as POINTS.
@@ -197,6 +253,15 @@ export class DrawTechniqueGeometryBinding {
 
     return {ok: true, value: undefined};
   }
+}
+
+function getVBOTileDrawState(params: DrawTechniqueGeometryBindingParams, layout: "hybrid" | "lean-static"): {
+  vao: WebGLVertexArrayObject;
+  primRange: PrimRange;
+  tileDrawStates: TriangleGeometryVBOTileDrawState[];
+} | null {
+  const {batchResources, viewIndex, renderPass} = params;
+  return batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout) ?? null;
 }
 
 function getVBODrawState(params: DrawTechniqueGeometryBindingParams): TriangleGeometryVBODrawState | null {

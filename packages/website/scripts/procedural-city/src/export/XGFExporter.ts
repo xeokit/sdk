@@ -6,7 +6,7 @@ import {TrianglesPrimitive} from "../../../../../sdk/src/base/constants";
 import {XGFExporter as SDKXGFExporter} from "../../../../../sdk/src/formats/xgf/XGFExporter";
 import {XGFStreamExporter as SDKXGFStreamExporter} from "../../../../../sdk/src/formats/xgfstream/XGFStreamExporter";
 
-const MAX_GEOMETRY_NORMAL_COMPONENTS = 900_000;
+const MAX_GEOMETRY_POSITION_COMPONENTS = 900_000;
 const MAX_GEOMETRY_TRIANGLES = 180_000;
 
 const Z_UP_COORDINATE_SYSTEM = {
@@ -154,21 +154,19 @@ function createGeometry(sceneModel: any, geometryId: string, mesh: MeshData): vo
     id: geometryId,
     primitive: TrianglesPrimitive,
     positions: mesh.positions,
-    normals: mesh.normals,
     indices: mesh.indices
   }));
 }
 
 function splitOversizedMesh(mesh: MeshData): MeshData[] {
   if (!mesh
-    || (mesh.normals.length <= MAX_GEOMETRY_NORMAL_COMPONENTS
+    || (mesh.positions.length <= MAX_GEOMETRY_POSITION_COMPONENTS
       && mesh.indices.length <= MAX_GEOMETRY_TRIANGLES * 3)) {
     return [mesh];
   }
-  const maxVertices = Math.floor(MAX_GEOMETRY_NORMAL_COMPONENTS / 3);
+  const maxVertices = Math.floor(MAX_GEOMETRY_POSITION_COMPONENTS / 3);
   const parts: MeshData[] = [];
   let positions: number[] = [];
-  let normals: number[] = [];
   let indices: number[] = [];
   let vertexMap = new Map<number, number>();
 
@@ -181,11 +179,10 @@ function splitOversizedMesh(mesh: MeshData): MeshData[] {
       id: mesh.id ? `${mesh.id}-${suffix}` : undefined,
       materialId: mesh.materialId,
       positions,
-      normals,
+      normals: [],
       indices
     });
     positions = [];
-    normals = [];
     indices = [];
     vertexMap = new Map();
   };
@@ -210,7 +207,6 @@ function splitOversizedMesh(mesh: MeshData): MeshData[] {
         vertexMap.set(index, mappedIndex);
         const src = index * 3;
         positions.push(mesh.positions[src] ?? 0, mesh.positions[src + 1] ?? 0, mesh.positions[src + 2] ?? 0);
-        normals.push(mesh.normals[src] ?? 0, mesh.normals[src + 1] ?? 0, mesh.normals[src + 2] ?? 1);
       }
       indices.push(mappedIndex);
     }

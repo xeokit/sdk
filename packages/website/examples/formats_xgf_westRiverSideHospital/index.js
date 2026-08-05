@@ -22,7 +22,7 @@ studio.init({logging: false}).then(async () => {
     xeokit.base.constants.RealisticRender
   ];
   view.effects.edges.useMeshColor = true;
-  view.effects.edges.edgeWidth = 1.5;
+  view.effects.edges.edgeWidth = 1;
 
   try {
     const coordinateSystem = await loadCoordinateSystem();

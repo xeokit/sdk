@@ -105,7 +105,7 @@ studio.init().then(async () => {
         useMeshColor: true,
         edgeDarken: 0.9,
         edgeAlpha: 0.74,
-        edgeWidth: 1.5
+        edgeWidth: 1
       },
       sky: {
         enabled: true,

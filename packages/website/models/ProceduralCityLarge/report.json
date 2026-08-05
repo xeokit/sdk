@@ -1,23 +1,23 @@
 {
   "schema": "xeokit-procedural-city-comparison/1.0",
   "profileName": "central-european",
-  "seed": "42",
+  "seed": 42,
   "generatedAt": "deterministic",
   "source": {
     "type": "preset",
     "note": "Hand-authored baseline; regenerate from OSM extracts with analyze-osm-profile."
   },
   "generatedStats": {
-    "buildings": 3139,
+    "buildings": 3156,
     "blocks": 792,
     "roads": 75,
     "parks": 74,
     "landmarks": 3,
-    "trees": 7355,
+    "trees": 7353,
     "streetFurniture": 4263,
     "waterways": 0,
     "bridges": 0,
-    "triangles": 1008756
+    "triangles": 1001834
   },
   "metrics": [
     {
@@ -35,8 +35,8 @@
       "label": "Median block area",
       "unit": "m2",
       "source": 7600,
-      "generated": 6093.218723084778,
-      "differencePercent": -19.826069433095032,
+      "generated": 6086.999792312887,
+      "differencePercent": -19.907897469567278,
       "tolerancePercent": 45,
       "ok": true
     },
@@ -44,8 +44,8 @@
       "key": "medianBuildingCoverage",
       "label": "Median building coverage",
       "source": 0.56,
-      "generated": 0.5677492804164517,
-      "differencePercent": 1.3838000743663605,
+      "generated": 0.5592140576605389,
+      "differencePercent": -0.14034684633235092,
       "tolerancePercent": 35,
       "ok": true
     },
@@ -71,8 +71,8 @@
       "key": "openSpaceRatio",
       "label": "Open-space ratio",
       "source": 0.09,
-      "generated": 0.09102667890393554,
-      "differencePercent": 1.1407543377061564,
+      "generated": 0.09169375208478316,
+      "differencePercent": 1.8819467608701772,
       "tolerancePercent": 40,
       "ok": true
     }
@@ -80,7 +80,7 @@
   "warnings": [],
   "patternSummary": {
     "block.civic-campus": 0.9,
-    "block.market-square": 0.896,
+    "block.market-square": 0.891,
     "block.perimeter-block": 0.674,
     "block.podium-and-tower": 0.727,
     "block.warehouse-yard": 0.432,
@@ -102,44 +102,44 @@
     "street.shopping-street": 0.882
   },
   "evaluationSummary": {
-    "count": 3579,
-    "averageScore": 0.712,
-    "minimumScore": 0.602,
+    "count": 3557,
+    "averageScore": 0.683,
+    "minimumScore": 0.604,
     "byStage": {
       "road-layout": {
         "count": 1,
-        "averageScore": 0.744,
-        "minimumScore": 0.744
+        "averageScore": 0.713,
+        "minimumScore": 0.713
       },
       "district-boundary": {
         "count": 792,
-        "averageScore": 0.769,
-        "minimumScore": 0.768
+        "averageScore": 0.693,
+        "minimumScore": 0.692
       },
       "block-subdivision": {
         "count": 792,
-        "averageScore": 0.718,
-        "minimumScore": 0.608
+        "averageScore": 0.689,
+        "minimumScore": 0.604
       },
       "park-placement": {
         "count": 6,
-        "averageScore": 0.761,
-        "minimumScore": 0.661
+        "averageScore": 0.737,
+        "minimumScore": 0.659
       },
       "landmark-placement": {
         "count": 3,
-        "averageScore": 0.729,
-        "minimumScore": 0.719
+        "averageScore": 0.728,
+        "minimumScore": 0.72
       },
       "parcel-subdivision": {
         "count": 715,
-        "averageScore": 0.756,
-        "minimumScore": 0.648
+        "averageScore": 0.716,
+        "minimumScore": 0.63
       },
       "building-massing": {
-        "count": 1270,
-        "averageScore": 0.647,
-        "minimumScore": 0.602
+        "count": 1248,
+        "averageScore": 0.654,
+        "minimumScore": 0.616
       }
     }
   },
@@ -151,7 +151,7 @@
         "key": "nonEmptyScene",
         "label": "No empty XGF scene",
         "ok": true,
-        "value": 1008756
+        "value": 1001834
       },
       {
         "key": "connectedRoadNetwork",
@@ -176,7 +176,7 @@
         "key": "buildingsOverRoads",
         "label": "No buildings overlapping roads",
         "ok": true,
-        "value": 0.00669002867155145,
+        "value": 0.005069708491761723,
         "tolerance": 0.04
       },
       {

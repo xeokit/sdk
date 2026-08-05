@@ -50,6 +50,8 @@ export type TriangleGeometryVBOMeshRecord = {
   matrix: Float64Array;
   colors: Uint8Array[];
   opacities: Uint8Array;
+  pickables: Uint8Array;
+  clippables: Uint8Array;
   meshViewStates: TriangleGeometryVBOMeshViewState[];
 };
 
@@ -62,9 +64,11 @@ export type TriangleGeometryVBOViewState = {
   indexBuffer: WebGLBuffer | null;
   edgeIndexBuffer: WebGLBuffer | null;
   colorBuffer: WebGLBuffer | null;
+  renderFlagBuffer: WebGLBuffer | null;
   indices: Uint32Array | null;
   edgeIndices: Uint32Array | null;
   colors: Uint8Array | null;
+  renderFlags: Uint8Array | null;
   passRanges: Map<number, PrimRange>;
   indexRanges: Map<number, TriangleGeometryVBOIndexRange>;
   edgePassRanges: Map<number, PrimRange>;
@@ -84,8 +88,11 @@ export type TriangleGeometryVBOViewState = {
   edgeIndexDirtySpans: TriangleGeometryVBOVertexSpan[];
   colorDirtyMinVertex: number;
   colorDirtyMaxVertex: number;
+  renderFlagDirtyMinVertex: number;
+  renderFlagDirtyMaxVertex: number;
   bakedVAO: WebGLVertexArrayObject | null;
   hybridVAO: WebGLVertexArrayObject | null;
+  leanStaticVAO: WebGLVertexArrayObject | null;
   bakedEdgeVAO: WebGLVertexArrayObject | null;
   hybridEdgeVAO: WebGLVertexArrayObject | null;
 };
@@ -118,9 +125,11 @@ export function createTriangleGeometryVBOViewState(): TriangleGeometryVBOViewSta
     indexBuffer: null,
     edgeIndexBuffer: null,
     colorBuffer: null,
+    renderFlagBuffer: null,
     indices: null,
     edgeIndices: null,
     colors: null,
+    renderFlags: null,
     passRanges,
     indexRanges,
     edgePassRanges,
@@ -140,8 +149,11 @@ export function createTriangleGeometryVBOViewState(): TriangleGeometryVBOViewSta
     edgeIndexDirtySpans: [],
     colorDirtyMinVertex: Number.POSITIVE_INFINITY,
     colorDirtyMaxVertex: -1,
+    renderFlagDirtyMinVertex: Number.POSITIVE_INFINITY,
+    renderFlagDirtyMaxVertex: -1,
     bakedVAO: null,
     hybridVAO: null,
+    leanStaticVAO: null,
     bakedEdgeVAO: null,
     hybridEdgeVAO: null
   };
@@ -151,6 +163,7 @@ export function clearTriangleGeometryVBOViewState(view: TriangleGeometryVBOViewS
   view.indices = null;
   view.edgeIndices = null;
   view.colors = null;
+  view.renderFlags = null;
   view.passRanges.clear();
   view.indexRanges.clear();
   view.edgePassRanges.clear();
@@ -170,6 +183,8 @@ export function clearTriangleGeometryVBOViewState(view: TriangleGeometryVBOViewS
   view.edgeIndexDirtySpans.length = 0;
   view.colorDirtyMinVertex = Number.POSITIVE_INFINITY;
   view.colorDirtyMaxVertex = -1;
+  view.renderFlagDirtyMinVertex = Number.POSITIVE_INFINITY;
+  view.renderFlagDirtyMaxVertex = -1;
 }
 
 export function copyTriangleGeometryVBOMatrix(matrix: Mat4): Float64Array {

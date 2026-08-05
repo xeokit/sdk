@@ -79,6 +79,7 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
     "collision": true,
     "bodyRadius": 4,
     "minAltitude": 6,
+    "initialShipPosition": [0, -1580, 36],
     "exhaustPlume": {
       "offset": [0, 4.25, 0.32],
       "trailLength": 44,
@@ -106,12 +107,23 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
     "coastDeceleration": 1.2,
     "startSpeed": 44,
     "initialCamera": {
-      "eye": [-360, -520, 118],
-      "look": [-260, -390, 72],
+      "eye": [0, -1618, 44],
+      "look": [0, -1524, 40],
       "up": [0, 0, 1],
       "fov": 62
     }
+  },
+  "multiplayer": {
+    "enabled": true,
+    "room": "amsterdam-flight-sim",
+    "broadcastChannel": "xeokit-amsterdam-flight-sim",
+    "wsPort": 8098,
+    "wsPath": "/flight-sim",
+    "updateIntervalMs": 50,
+    "peerTimeoutMs": 5000
   }
 };
+
+globalThis.XEOKIT_LOG_USED_VERTEX_SHADERS = true;
 
 import("../formats_xgf_proceduralCity/index.js");

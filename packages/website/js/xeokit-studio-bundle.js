@@ -182664,9 +182664,11 @@ function createTriangleGeometryVBOViewState() {
     indexBuffer: null,
     edgeIndexBuffer: null,
     colorBuffer: null,
+    renderFlagBuffer: null,
     indices: null,
     edgeIndices: null,
     colors: null,
+    renderFlags: null,
     passRanges,
     indexRanges,
     edgePassRanges,
@@ -182686,8 +182688,11 @@ function createTriangleGeometryVBOViewState() {
     edgeIndexDirtySpans: [],
     colorDirtyMinVertex: Number.POSITIVE_INFINITY,
     colorDirtyMaxVertex: -1,
+    renderFlagDirtyMinVertex: Number.POSITIVE_INFINITY,
+    renderFlagDirtyMaxVertex: -1,
     bakedVAO: null,
     hybridVAO: null,
+    leanStaticVAO: null,
     bakedEdgeVAO: null,
     hybridEdgeVAO: null
   };
@@ -182696,6 +182701,7 @@ function clearTriangleGeometryVBOViewState(view) {
   view.indices = null;
   view.edgeIndices = null;
   view.colors = null;
+  view.renderFlags = null;
   view.passRanges.clear();
   view.indexRanges.clear();
   view.edgePassRanges.clear();
@@ -182715,6 +182721,8 @@ function clearTriangleGeometryVBOViewState(view) {
   view.edgeIndexDirtySpans.length = 0;
   view.colorDirtyMinVertex = Number.POSITIVE_INFINITY;
   view.colorDirtyMaxVertex = -1;
+  view.renderFlagDirtyMinVertex = Number.POSITIVE_INFINITY;
+  view.renderFlagDirtyMaxVertex = -1;
 }
 function copyTriangleGeometryVBOMatrix(matrix) {
   const copy2 = new Float64Array(16);
@@ -182879,6 +182887,7 @@ var TriangleGeometryVBOBuffers = class {
         view.indices = new Uint32Array(params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT);
         view.edgeIndices = new Uint32Array(params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT);
         view.colors = new Uint8Array(params.vertexCapacity * 4);
+        view.renderFlags = new Uint8Array(params.vertexCapacity * 4);
       }
     } catch (e) {
       return {
@@ -182914,7 +182923,8 @@ var TriangleGeometryVBOBuffers = class {
         view.indexBuffer = makeBuffer(gl.ELEMENT_ARRAY_BUFFER, params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
         view.edgeIndexBuffer = makeBuffer(gl.ELEMENT_ARRAY_BUFFER, params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
         view.colorBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
-        if (!view.indexBuffer || !view.edgeIndexBuffer || !view.colorBuffer) {
+        view.renderFlagBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
+        if (!view.indexBuffer || !view.edgeIndexBuffer || !view.colorBuffer || !view.renderFlagBuffer) {
           throw new Error("Failed to allocate per-view VBO buffers");
         }
       }
@@ -182964,6 +182974,10 @@ var TriangleGeometryVBOBuffers = class {
         gl.deleteBuffer(view.colorBuffer);
         view.colorBuffer = null;
       }
+      if (view.renderFlagBuffer) {
+        gl.deleteBuffer(view.renderFlagBuffer);
+        view.renderFlagBuffer = null;
+      }
     }
   }
   destroyCPU(views) {
@@ -182990,6 +183004,7 @@ var TriangleGeometryVBOBuffers = class {
     for (const view of views) {
       view.indicesDirty = true;
       this.markColorDirty(view, 0, nextVertex);
+      this.markRenderFlagDirty(view, 0, nextVertex);
     }
   }
   markPositionDirty(vertexBase, vertexCount2) {
@@ -183007,6 +183022,10 @@ var TriangleGeometryVBOBuffers = class {
   markColorDirty(view, vertexBase, vertexCount2) {
     view.colorDirtyMinVertex = Math.min(view.colorDirtyMinVertex, vertexBase);
     view.colorDirtyMaxVertex = Math.max(view.colorDirtyMaxVertex, vertexBase + vertexCount2 - 1);
+  }
+  markRenderFlagDirty(view, vertexBase, vertexCount2) {
+    view.renderFlagDirtyMinVertex = Math.min(view.renderFlagDirtyMinVertex, vertexBase);
+    view.renderFlagDirtyMaxVertex = Math.max(view.renderFlagDirtyMaxVertex, vertexBase + vertexCount2 - 1);
   }
   markIndexRangeDirty(view, base, count) {
     if (count > 0) {
@@ -183031,13 +183050,14 @@ var TriangleGeometryVBOBuffers = class {
     uploaded = this._uploadGeometryVertexIndexRange(params.gl) || uploaded;
     for (const view of params.views) {
       uploaded = this._uploadViewColorRange(params.gl, view) || uploaded;
+      uploaded = this._uploadViewRenderFlagRange(params.gl, view) || uploaded;
       uploaded = this._uploadViewIndexBuffer(params.gl, view) || uploaded;
       uploaded = this._uploadViewEdgeIndexBuffer(params.gl, view) || uploaded;
     }
     return uploaded;
   }
   getAllocatedBytes(params) {
-    return params.vertexCapacity * 4 * 4 + params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.maxViews * (params.vertexCapacity * 4 + params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4 + params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
+    return params.vertexCapacity * 4 * 4 + params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.maxViews * (params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4 + params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
   }
   getUsedBytes(params) {
     let activeIndices = 0;
@@ -183046,7 +183066,7 @@ var TriangleGeometryVBOBuffers = class {
       activeIndices += view.indexCount;
       activeEdgeIndices += view.edgeIndexCount;
     }
-    return params.activeVertices * 4 * 4 + params.activeVertices * 4 + params.activeVertices * 4 + params.maxViews * (params.activeVertices * 4) + activeIndices * 4 + activeEdgeIndices * 4;
+    return params.activeVertices * 4 * 4 + params.activeVertices * 4 + params.activeVertices * 4 + params.maxViews * (params.activeVertices * 4) + params.maxViews * (params.activeVertices * 4) + activeIndices * 4 + activeEdgeIndices * 4;
   }
   _uploadPositionRange(gl) {
     if (!this._positionBuffer || !this._positions || this._positionDirtyMaxVertex < this._positionDirtyMinVertex) {
@@ -183098,6 +183118,19 @@ var TriangleGeometryVBOBuffers = class {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     view.colorDirtyMinVertex = Number.POSITIVE_INFINITY;
     view.colorDirtyMaxVertex = -1;
+    return true;
+  }
+  _uploadViewRenderFlagRange(gl, view) {
+    if (!view.renderFlagBuffer || !view.renderFlags || view.renderFlagDirtyMaxVertex < view.renderFlagDirtyMinVertex) {
+      return false;
+    }
+    const start = view.renderFlagDirtyMinVertex * 4;
+    const end = (view.renderFlagDirtyMaxVertex + 1) * 4;
+    gl.bindBuffer(gl.ARRAY_BUFFER, view.renderFlagBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start, view.renderFlags.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    view.renderFlagDirtyMinVertex = Number.POSITIVE_INFINITY;
+    view.renderFlagDirtyMaxVertex = -1;
     return true;
   }
   _uploadViewIndexBuffer(gl, view) {
@@ -183487,12 +183520,15 @@ function setIndexRange(map, key, firstIndex, indexCount) {
 
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOVAOCache.ts
 function getTriangleGeometryVBOVAO(params) {
-  const existing = params.topology === "edges" ? params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO : params.layout === "vbo-only" ? params.view.bakedVAO : params.view.hybridVAO;
+  const existing = params.layout === "lean-static" ? params.view.leanStaticVAO : params.topology === "edges" ? params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO : params.layout === "vbo-only" ? params.view.bakedVAO : params.view.hybridVAO;
   if (existing) {
     return existing;
   }
   const indexBuffer = params.topology === "edges" ? params.view.edgeIndexBuffer : params.view.indexBuffer;
   if (!params.positionBuffer || !params.meshIndexBuffer || !params.geometryVertexIndexBuffer || !indexBuffer || !params.view.colorBuffer) {
+    return null;
+  }
+  if (params.layout === "lean-static" && !params.view.renderFlagBuffer) {
     return null;
   }
   const gl = params.gl;
@@ -183504,7 +183540,21 @@ function getTriangleGeometryVBOVAO(params) {
   gl.bindBuffer(gl.ARRAY_BUFFER, params.positionBuffer);
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
-  if (params.layout === "vbo-only") {
+  if (params.layout === "lean-static") {
+    gl.bindBuffer(gl.ARRAY_BUFFER, params.meshIndexBuffer);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_INT, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, params.geometryVertexIndexBuffer);
+    gl.enableVertexAttribArray(2);
+    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_INT, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, params.view.colorBuffer);
+    gl.enableVertexAttribArray(3);
+    gl.vertexAttribPointer(3, 4, gl.UNSIGNED_BYTE, true, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, params.view.renderFlagBuffer);
+    gl.enableVertexAttribArray(4);
+    gl.vertexAttribIPointer(4, 4, gl.UNSIGNED_BYTE, 0, 0);
+    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao);
+  } else if (params.layout === "vbo-only") {
     gl.bindBuffer(gl.ARRAY_BUFFER, params.view.colorBuffer);
     gl.enableVertexAttribArray(1);
     gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 0, 0);
@@ -183530,6 +183580,9 @@ function deleteTriangleGeometryVBOVAOs(gl, view) {
   if (view.hybridVAO) {
     gl.deleteVertexArray(view.hybridVAO);
   }
+  if (view.leanStaticVAO) {
+    gl.deleteVertexArray(view.leanStaticVAO);
+  }
   if (view.bakedEdgeVAO) {
     gl.deleteVertexArray(view.bakedEdgeVAO);
   }
@@ -183538,10 +183591,15 @@ function deleteTriangleGeometryVBOVAOs(gl, view) {
   }
   view.bakedVAO = null;
   view.hybridVAO = null;
+  view.leanStaticVAO = null;
   view.bakedEdgeVAO = null;
   view.hybridEdgeVAO = null;
 }
 function setTriangleGeometryVBOVAO(view, layout, topology, vao) {
+  if (layout === "lean-static") {
+    view.leanStaticVAO = vao;
+    return;
+  }
   if (topology === "edges") {
     if (layout === "vbo-only") {
       view.bakedEdgeVAO = vao;
@@ -183699,6 +183757,8 @@ var TriangleGeometryVBOBatch = class {
     }
     const colors = [];
     const opacities = new Uint8Array(this._maxViews);
+    const pickables = new Uint8Array(this._maxViews);
+    const clippables = new Uint8Array(this._maxViews);
     for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
       colors.push(new Uint8Array([
         clampTriangleGeometryVBOByte(params.color[0], 255),
@@ -183706,6 +183766,8 @@ var TriangleGeometryVBOBatch = class {
         clampTriangleGeometryVBOByte(params.color[2], 255)
       ]));
       opacities[viewIndex] = clampTriangleGeometryVBOByte(params.opacity, 255);
+      pickables[viewIndex] = 1;
+      clippables[viewIndex] = 1;
     }
     const record = {
       meshIndex: params.meshIndex,
@@ -183718,6 +183780,8 @@ var TriangleGeometryVBOBatch = class {
       matrix: copyTriangleGeometryVBOMatrix(params.matrix),
       colors,
       opacities,
+      pickables,
+      clippables,
       meshViewStates: this._views.map(() => ({
         renderPass: RENDER_PASSES.OPAQUE,
         visible: true
@@ -183728,7 +183792,7 @@ var TriangleGeometryVBOBatch = class {
     for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
       const view = this._views[viewIndex];
       const colorStart = stats ? performance.now() : 0;
-      this._writeMeshColors(record, viewIndex);
+      this._writeMeshViewAttributes(record, viewIndex);
       if (stats) {
         stats.vboWriteColorsMs += performance.now() - colorStart;
       }
@@ -183821,8 +183885,18 @@ var TriangleGeometryVBOBatch = class {
       dirty = dirty || record.opacities[viewIndex] !== opacity;
       record.opacities[viewIndex] = opacity;
     }
+    if (params.pickable !== void 0) {
+      const pickable = params.pickable ? 1 : 0;
+      dirty = dirty || record.pickables[viewIndex] !== pickable;
+      record.pickables[viewIndex] = pickable;
+    }
+    if (params.clippable !== void 0) {
+      const clippable = params.clippable ? 1 : 0;
+      dirty = dirty || record.clippables[viewIndex] !== clippable;
+      record.clippables[viewIndex] = clippable;
+    }
     if (dirty) {
-      this._writeMeshColors(record, viewIndex);
+      this._writeMeshViewAttributes(record, viewIndex);
     }
   }
   setMeshRenderPass(meshIndex, viewIndex, renderPass) {
@@ -183862,6 +183936,56 @@ var TriangleGeometryVBOBatch = class {
       firstIndex: indexRange.firstIndex,
       indexCount: indexRange.indexCount,
       primRange
+    };
+  }
+  getTileDrawStates(viewIndex, renderPass, layout) {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    const passRegionIndex = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.indexOf(renderPass);
+    const primRange = view.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
+    if (passRegionIndex < 0 || primRange.numPrims <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, "triangles");
+    if (!vao) {
+      return null;
+    }
+    const records = Array.from(this._meshRecords.values()).filter((record) => {
+      const meshViewState = record.meshViewStates[viewIndex];
+      return meshViewState?.visible && meshViewState.renderPass === renderPass;
+    }).sort((a2, b4) => a2.vertexBase - b4.vertexBase);
+    if (records.length === 0) {
+      return null;
+    }
+    const regionBase = passRegionIndex * this._indexCapacity;
+    const byTile = /* @__PURE__ */ new Map();
+    for (const record of records) {
+      const tileIndex = record.tileIndex | 0;
+      let tileState = byTile.get(tileIndex);
+      if (!tileState) {
+        tileState = { tileIndex, spans: [] };
+        byTile.set(tileIndex, tileState);
+      }
+      const firstIndex = regionBase + record.vertexBase;
+      const indexCount = record.vertexCount;
+      const prev = tileState.spans[tileState.spans.length - 1];
+      if (prev && prev.firstIndex + prev.indexCount === firstIndex) {
+        prev.indexCount += indexCount;
+        prev.primCount += record.primitiveCount;
+      } else {
+        tileState.spans.push({
+          firstIndex,
+          indexCount,
+          primCount: record.primitiveCount
+        });
+      }
+    }
+    return {
+      vao,
+      primRange,
+      tileDrawStates: Array.from(byTile.values()).filter((state) => state.spans.length > 0)
     };
   }
   getPickDrawState(viewIndex, layout) {
@@ -184096,10 +184220,11 @@ var TriangleGeometryVBOBatch = class {
     }
     return this._geometryVertexLookupStamp++;
   }
-  _writeMeshColors(record, viewIndex) {
+  _writeMeshViewAttributes(record, viewIndex) {
     const view = this._views[viewIndex];
     const colors = view?.colors;
-    if (!view || !colors) {
+    const renderFlags = view?.renderFlags;
+    if (!view || !colors || !renderFlags) {
       return;
     }
     const color2 = record.colors[viewIndex];
@@ -184111,8 +184236,13 @@ var TriangleGeometryVBOBatch = class {
       colors[offset + 1] = color2[1];
       colors[offset + 2] = color2[2];
       colors[offset + 3] = opacity;
+      renderFlags[offset] = record.pickables[viewIndex];
+      renderFlags[offset + 1] = record.clippables[viewIndex];
+      renderFlags[offset + 2] = 0;
+      renderFlags[offset + 3] = 0;
     }
     this._buffers.markColorDirty(view, record.vertexBase, record.vertexCount);
+    this._buffers.markRenderFlagDirty(view, record.vertexBase, record.vertexCount);
   }
   _getVAO(view, layout, topology) {
     return getTriangleGeometryVBOVAO({
@@ -185624,6 +185754,7 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshClippable: no MeshViewAttributeTexture for view ${viewIndex}`);
     }
     tex.setItem(meshIndex, { clippable });
+    this._geometryStorage.setMeshViewAttribs(meshIndex, viewIndex, { clippable });
   }
   /**
    * Removes a SceneMesh from this GPU memory batch.
@@ -188351,15 +188482,17 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
   _params;
   _primitiveMeshIndexTexture;
   _vboDrawState;
+  _vboTileDrawState;
   constructor(params) {
     this.kind = params.kind;
     this.drawRange = params.drawRange;
     this._params = params.bindingParams;
     this._primitiveMeshIndexTexture = params.primitiveMeshIndexTexture;
     this._vboDrawState = params.vboDrawState ?? null;
+    this._vboTileDrawState = params.vboTileDrawState ?? null;
   }
   get inspectorRange() {
-    return this._vboDrawState?.primRange ?? this.drawRange;
+    return this._vboTileDrawState?.primRange ?? this._vboDrawState?.primRange ?? this.drawRange;
   }
   static resolve(params) {
     const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
@@ -188371,6 +188504,17 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
     }
     const useVBOGeometry = params.vboGeometry && params.primitive === TrianglesPrimitive && !params.thickLines;
     if (useVBOGeometry) {
+      if (params.vboTileUniform && !params.picking && !params.snap && !params.edges) {
+        const vboTileDrawState = getVBOTileDrawState(params, params.vboViewAttributes ? "lean-static" : "hybrid");
+        if (vboTileDrawState) {
+          return new _DrawTechniqueGeometryBinding({
+            kind: "vboTileUniform",
+            drawRange,
+            bindingParams: params,
+            vboTileDrawState
+          });
+        }
+      }
       const vboDrawState = getVBODrawState(params);
       return vboDrawState ? new _DrawTechniqueGeometryBinding({
         kind: "vbo",
@@ -188419,6 +188563,31 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
             handledBatches: 1,
             handledPrims: vboDrawState.primRange.numPrims
           });
+        } else if (this.kind === "vboTileUniform") {
+          const vboTileDrawState = this._vboTileDrawState;
+          const tileMatrixTexture = this._params.tileMatrixTexture;
+          const setTileViewMatrix = this._params.setTileViewMatrix;
+          if (!tileMatrixTexture || !setTileViewMatrix) {
+            return {
+              ok: false,
+              type: 2 /* InvalidInput */,
+              error: "[DrawTechniqueGeometryBinding.draw] Missing tile matrix binding for VBO tile-uniform draw"
+            };
+          }
+          gl.bindVertexArray(vboTileDrawState.vao);
+          let handledPrims = 0;
+          for (const tileDrawState of vboTileDrawState.tileDrawStates) {
+            setTileViewMatrix(tileMatrixTexture.getItem(tileDrawState.tileIndex).matrix);
+            for (const span of tileDrawState.spans) {
+              gl.drawElements(gl.TRIANGLES, span.indexCount, gl.UNSIGNED_INT, span.firstIndex * 4);
+              handledPrims += span.primCount;
+            }
+          }
+          gl.bindVertexArray(null);
+          drawInspector?.vboGeometryTriangles({
+            handledBatches: 1,
+            handledPrims
+          });
         } else if (snap === 1) {
           gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
         } else if (edges && thickLines) {
@@ -188453,6 +188622,10 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
     return { ok: true, value: void 0 };
   }
 };
+function getVBOTileDrawState(params, layout) {
+  const { batchResources, viewIndex, renderPass } = params;
+  return batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout) ?? null;
+}
 function getVBODrawState(params) {
   const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
   return (picking ? batchResources.triangleGeometryVBO?.getPickDrawState(viewIndex, "hybrid") : snap ? edges ? batchResources.triangleGeometryVBO?.getPickEdgeDrawState(viewIndex, "hybrid") : batchResources.triangleGeometryVBO?.getPickDrawState(viewIndex, "hybrid") : edges ? batchResources.triangleGeometryVBO?.getEdgeDrawState(viewIndex, renderPass, "hybrid") : batchResources.triangleGeometryVBO?.getDrawState(viewIndex, renderPass, "hybrid")) ?? null;
@@ -188647,6 +188820,16 @@ var DrawTechnique = class {
    */
   vboGeometry;
   /**
+   * Supplies the RTC view matrix as a per-tile uniform for VBO triangle
+   * surface draws, avoiding a per-vertex matrix data-texture fetch.
+   */
+  vboTileUniform;
+  /**
+   * Reads per-view color and render flags from VBO attributes instead of
+   * `uMeshViewAttributeTexture`. Intended for lean static VBO surface draws.
+   */
+  vboViewAttributes;
+  /**
    * Enables body hatch logic in triangle body shaders. This is a distinct
    * permutation because ordinary untextured VBO body rendering should not pay
    * the per-mesh hatch slot check or hatch-pattern texture fetches.
@@ -188715,6 +188898,8 @@ var DrawTechnique = class {
     triplanar: false,
     thickLines: false,
     vboGeometry: false,
+    vboTileUniform: false,
+    vboViewAttributes: false,
     bodyHatch: false,
     logDepth: false
   }) {
@@ -188746,6 +188931,8 @@ var DrawTechnique = class {
     this.triplanar = cfg.triplanar === true;
     this.thickLines = cfg.thickLines === true;
     this.vboGeometry = cfg.vboGeometry === true;
+    this.vboTileUniform = cfg.vboTileUniform === true;
+    this.vboViewAttributes = cfg.vboViewAttributes === true;
     this.bodyHatch = cfg.bodyHatch === true;
     this.logDepth = cfg.logDepth === true;
     this._program = null;
@@ -188876,6 +189063,7 @@ var DrawTechnique = class {
       linePattern: program.getLocation("uLinePattern[0]"),
       linePatternLen: program.getLocation("uLinePatternLen"),
       linePatternPeriod: program.getLocation("uLinePatternPeriod"),
+      rtcViewMatrix: program.getLocation("uRTCViewMatrix"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
       edgeColorMode: program.getLocation("uEdgeColorMode"),
       edgeDarken: program.getLocation("uEdgeDarken"),
@@ -188992,6 +189180,8 @@ var DrawTechnique = class {
       `pass=${renderPass}`,
       `primitive=${primitiveName}`,
       `vboGeometry=${this.vboGeometry}`,
+      `vboTileUniform=${this.vboTileUniform}`,
+      `vboViewAttributes=${this.vboViewAttributes}`,
       `hasNormals=${this.hasNormals}`,
       `hasUVs=${this.hasUVs}`,
       `triplanar=${this.triplanar}`,
@@ -189007,6 +189197,8 @@ var DrawTechnique = class {
       renderPass,
       primitive: primitiveName,
       vboGeometry: this.vboGeometry,
+      vboTileUniform: this.vboTileUniform,
+      vboViewAttributes: this.vboViewAttributes,
       hasNormals: this.hasNormals,
       hasUVs: this.hasUVs,
       triplanar: this.triplanar,
@@ -189048,7 +189240,15 @@ var DrawTechnique = class {
       picking: this.picking,
       snap: this.snap,
       thickLines: this.thickLines,
-      vboGeometry: this.vboGeometry
+      vboGeometry: this.vboGeometry,
+      vboTileUniform: this.vboTileUniform,
+      vboViewAttributes: this.vboViewAttributes,
+      tileMatrixTexture: (this._renderContext.rayPicking ? gpuResources.viewTilePickMatrixTexture : gpuResources.viewTileCameraMatrixTexture)[view.viewIndex],
+      setTileViewMatrix: (matrix) => {
+        if (this._uniforms.rtcViewMatrix) {
+          gl.uniformMatrix4fv(this._uniforms.rtcViewMatrix, false, matrix);
+        }
+      }
     });
     if (!geometryBinding) {
       return {
@@ -189067,10 +189267,12 @@ var DrawTechnique = class {
       };
     }
     renderContext.textureUnit = 0;
-    this._bindTexture(
-      samplers.viewTileCameraMatrixTexture,
-      (this._renderContext.rayPicking ? gpuResources.viewTilePickMatrixTexture : gpuResources.viewTileCameraMatrixTexture)[view.viewIndex]
-    );
+    if (!this.vboTileUniform) {
+      this._bindTexture(
+        samplers.viewTileCameraMatrixTexture,
+        (this._renderContext.rayPicking ? gpuResources.viewTilePickMatrixTexture : gpuResources.viewTileCameraMatrixTexture)[view.viewIndex]
+      );
+    }
     geometryBinding.bindGeometryTextures(
       samplers,
       (sampler, dataTexture) => this._bindTexture(sampler, dataTexture ?? null)
@@ -189118,7 +189320,9 @@ var DrawTechnique = class {
     this._bindTexture(samplers.linePatternTexture, batchResources.linePatternTexture);
     this._bindTexture(samplers.polylineCumDistTexture, batchResources.polylineCumDistTexture);
     this._bindTexture(samplers.hatchPatternTexture, batchResources.hatchPatternTexture);
-    this._bindTexture(samplers.meshViewAttributeTexture, batchViewResources.meshViewAttributeTexture);
+    if (!this.vboViewAttributes) {
+      this._bindTexture(samplers.meshViewAttributeTexture, batchViewResources.meshViewAttributeTexture);
+    }
     this._bindTexture(samplers.geometryAttributes, batchResources.geometryAttributeTexture);
     this._bindSAOTexture();
     this._bindShadowMapTexture();
@@ -189201,6 +189405,9 @@ ${this.vboGeometry ? `
 layout(location = 0) in vec4 aPositionAndTile;
 layout(location = 1) in uint aMeshIndex;
 layout(location = 2) in uint aGeometryVertexIndex;
+${this.vboViewAttributes ? `layout(location = 3) in vec4 aViewColor;
+layout(location = 4) in uvec4 aRenderFlags;
+` : ``}
 ` : ``}
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -189215,14 +189422,14 @@ ${needsVertexColor ? `uniform highp usampler2D uVertexColorTexture;
 uniform highp usampler2D uVertexNormalTexture;` : ``}${this.hasUVs ? `
 uniform highp sampler2D  uVertexUVTexture;` : ``}
 // uniform highp usampler2D uEdgeIndexTexture;
-uniform highp sampler2D  uViewTileCameraMatrixTexture;
+${this.vboTileUniform ? `uniform mat4 uRTCViewMatrix;` : `uniform highp sampler2D  uViewTileCameraMatrixTexture;`}
 ${needsMeshMatrix ? `
 uniform highp sampler2D  uMeshMatrixTexture;
 ` : ``}
 ${needsMeshAttributes ? `
 uniform highp usampler2D uMeshAttributeTexture;
 ` : ``}
-uniform highp usampler2D uMeshViewAttributeTexture;
+${this.vboViewAttributes ? `` : `uniform highp usampler2D uMeshViewAttributeTexture;`}
 ${needsGeometryAttributes ? `
 uniform highp usampler2D uGeometryAttributeTexture;
 ` : ``}${needsQuantRange ? `
@@ -189491,12 +189698,20 @@ vec2 unpackUnorm2x16FromU32(uint packed) {
 ` : ``}
 
 MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
-  const uint texWidth = 4096u;
+${this.vboViewAttributes ? `  MeshViewAttributes s;
+  s.color = uvec4(
+    uint(aViewColor.r * 255.0 + 0.5),
+    uint(aViewColor.g * 255.0 + 0.5),
+    uint(aViewColor.b * 255.0 + 0.5),
+    uint(aViewColor.a * 255.0 + 0.5)
+  );
+  s.renderFlags = aRenderFlags;
+  return s;` : `  const uint texWidth = 4096u;
   uint base = meshIndex * 2u;
   MeshViewAttributes s;
   s.color       = texelFetch(uMeshViewAttributeTexture, texCoord(base + 0u, texWidth), 0);
   s.renderFlags = texelFetch(uMeshViewAttributeTexture, texCoord(base + 1u, texWidth), 0);
-  return s;
+  return s;`}
 }
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -189504,13 +189719,14 @@ MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 mat4 getTileViewMatrix(uint tileIndex) {
+${this.vboTileUniform ? `  return uRTCViewMatrix;` : `
   const uint texWidth = 4096u;
   uint base = tileIndex * 4u;
   vec4 m0 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 0u, texWidth), 0);
   vec4 m1 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 1u, texWidth), 0);
   vec4 m2 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 2u, texWidth), 0);
   vec4 m3 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 3u, texWidth), 0);
-  return mat4(m0, m1, m2, m3);
+  return mat4(m0, m1, m2, m3);`}
 }
 
 ${needsMeshMatrix ? `mat4 getMeshMatrix(uint meshIndex) {
@@ -193958,11 +194174,12 @@ var DrawOps = class {
       withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, triplanar: true, logDepth: LOG_DEPTH }))
     });
     const triangleVBOGeometryCfg = { vboGeometry: true };
+    const triangleVBOTileUniformCfg = { vboGeometry: true, vboTileUniform: true, vboViewAttributes: true };
     const trianglesDrawColorDTX = lambertVariants(TrianglesDrawColorTechnique);
     const trianglesDrawColorSAODTX = lambertVariants(TrianglesDrawColorSAOTechnique);
     const trianglesDrawColorShadowDTX = lambertVariants(TrianglesDrawColorShadowTechnique);
     const trianglesDrawColorSAOShadowDTX = lambertVariants(TrianglesDrawColorSAOShadowTechnique);
-    const trianglesDrawColorVBO = lambertVariants(TrianglesDrawColorTechnique, triangleVBOGeometryCfg);
+    const trianglesDrawColorVBO = lambertVariants(TrianglesDrawColorTechnique, triangleVBOTileUniformCfg);
     const trianglesDrawColorSAOVBO = lambertVariants(TrianglesDrawColorSAOTechnique, triangleVBOGeometryCfg);
     const trianglesDrawColorShadowVBO = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOGeometryCfg);
     const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOGeometryCfg);

@@ -30,6 +30,10 @@ export interface DrawOpVariants {
    * from per-vertex normals rotated to world space.
    */
   withNormalsAndTriplanar?: DrawTechnique;
+  /** Hatch-enabled flat body variant. Used only while body hatch is active. */
+  withBodyHatch?: DrawTechnique;
+  /** Hatch-enabled smooth body variant. Used only while body hatch is active. */
+  withNormalsBodyHatch?: DrawTechnique;
 }
 
 /**
@@ -73,6 +77,12 @@ export class DrawOp {
   /** Smooth-shaded triplanar variant. */
   public readonly techniqueWithNormalsAndTriplanar: DrawTechnique | null;
 
+  /** Hatch-enabled flat body variant. */
+  public readonly techniqueWithBodyHatch: DrawTechnique | null;
+
+  /** Hatch-enabled smooth body variant. */
+  public readonly techniqueWithNormalsBodyHatch: DrawTechnique | null;
+
   /** The render pass in which this draw operation is executed. */
   public readonly renderPass: RenderPassValue;
 
@@ -96,6 +106,8 @@ export class DrawOp {
       this.techniqueWithNormalsAndUVs       = null;
       this.techniqueWithTriplanar           = null;
       this.techniqueWithNormalsAndTriplanar = null;
+      this.techniqueWithBodyHatch           = null;
+      this.techniqueWithNormalsBodyHatch    = null;
     } else {
       // Variants-object form — populates all six slots up front.
       this.technique = techniqueOrVariants.technique;
@@ -104,6 +116,8 @@ export class DrawOp {
       this.techniqueWithNormalsAndUVs       = techniqueOrVariants.withNormalsAndUVs ?? null;
       this.techniqueWithTriplanar           = techniqueOrVariants.withTriplanar ?? null;
       this.techniqueWithNormalsAndTriplanar = techniqueOrVariants.withNormalsAndTriplanar ?? null;
+      this.techniqueWithBodyHatch           = techniqueOrVariants.withBodyHatch ?? null;
+      this.techniqueWithNormalsBodyHatch    = techniqueOrVariants.withNormalsBodyHatch ?? null;
     }
   }
 
@@ -135,6 +149,12 @@ export class DrawOp {
     const view = (this.technique as any)._renderContext?.activeView;
     const allowTextureVariants = !view?.effects?.bodyHatch?.applied;
 
+    if (!allowTextureVariants && meshBatch.hasNormals && this.techniqueWithNormalsBodyHatch) {
+      return this.techniqueWithNormalsBodyHatch;
+    }
+    if (!allowTextureVariants && this.techniqueWithBodyHatch) {
+      return this.techniqueWithBodyHatch;
+    }
     if (allowTextureVariants && meshBatch.hasNormals && meshBatch.hasUVs && this.techniqueWithNormalsAndUVs) {
       return this.techniqueWithNormalsAndUVs;
     }
@@ -169,4 +189,3 @@ export class DrawOp {
     this._select(meshBatch).drawMesh(meshBatch, meshIndex, this.renderPass);
   }
 }
-

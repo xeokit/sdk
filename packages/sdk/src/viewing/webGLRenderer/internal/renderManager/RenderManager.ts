@@ -870,7 +870,7 @@ export class RenderManager {
       ri?.renderBinStarted("sky");
       this.skyRenderer.render(rendererView);
     }
-    if (this.infiniteGrid) {
+    if (this.infiniteGrid?.enabled) {
       ri?.renderBinStarted("grid");
       this.infiniteGrid.render(rendererView);
     }

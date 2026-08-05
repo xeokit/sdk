@@ -204,6 +204,8 @@ export class DrawOps {
     // depth-precision choice, not a per-batch axis.
     const lambertVariants = <T extends new (...args: any[]) => any>(Cls: T, baseCfg: any = {}) => ({
       technique:               saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, logDepth: LOG_DEPTH})),
+      withBodyHatch:           saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, bodyHatch: true, logDepth: LOG_DEPTH})),
+      withNormalsBodyHatch:    saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, hasNormals: true, bodyHatch: true, logDepth: LOG_DEPTH})),
       withNormals:             saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, hasNormals: true, logDepth: LOG_DEPTH})),
       withUVs:                 saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, hasUVs: true, logDepth: LOG_DEPTH})),
       withNormalsAndUVs:       saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, hasNormals: true, hasUVs: true, logDepth: LOG_DEPTH})),

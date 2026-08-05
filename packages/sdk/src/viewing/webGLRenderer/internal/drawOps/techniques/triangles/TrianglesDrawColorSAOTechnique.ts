@@ -9,7 +9,7 @@ export class TrianglesDrawColorSAOTechnique extends DrawTechnique {
   public readonly vertsPerPrim = 3;
 
   protected buildVertexShader(): void {
-    const hatch = !this.hasUVs && !this.triplanar;
+    const hatch = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.vsHeader();
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
@@ -25,7 +25,7 @@ export class TrianglesDrawColorSAOTechnique extends DrawTechnique {
   }
 
   protected buildFragmentShader(): void {
-    const hatch = !this.hasUVs && !this.triplanar;
+    const hatch = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.fsHeader();
     this.fsPrecisionDeclarations();
     this.fsColorDeclarations();

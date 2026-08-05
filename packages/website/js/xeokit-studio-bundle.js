@@ -161323,7 +161323,7 @@ var Edges = class {
     this._useMeshColor = options.useMeshColor !== false;
     this._edgeDarken = options.edgeDarken !== void 0 && options.edgeDarken !== null ? options.edgeDarken : 0.5;
     this._edgeAlpha = options.edgeAlpha !== void 0 && options.edgeAlpha !== null ? options.edgeAlpha : 0.8;
-    this._edgeWidth = options.edgeWidth !== void 0 && options.edgeWidth !== null ? options.edgeWidth : 2;
+    this._edgeWidth = options.edgeWidth !== void 0 && options.edgeWidth !== null ? options.edgeWidth : 1;
     this._edgeFadeStart = options.edgeFadeStart !== void 0 && options.edgeFadeStart !== null ? options.edgeFadeStart : 0.4;
     this._edgeFadeEnd = options.edgeFadeEnd !== void 0 && options.edgeFadeEnd !== null ? options.edgeFadeEnd : 1;
   }
@@ -161458,7 +161458,7 @@ var Edges = class {
   /**
    * Sets edge width for {@link ViewObject | ViewObjects}.
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixels.
    */
   set edgeWidth(value) {
     if (this._edgeWidth === value) {
@@ -161472,7 +161472,7 @@ var Edges = class {
    *
    * This is not supported by WebGL implementations based on DirectX [2019].
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixels.
    */
   get edgeWidth() {
     return this._edgeWidth;
@@ -188524,6 +188524,9 @@ function packSectionPlanes(planes, out) {
 }
 var SECTION_PLANE_SCRATCH = new Float32Array(MAX_SECTION_PLANES * 4);
 var DEBUG_VISUALIZE_NORMAL_MAP = false;
+function shouldLogUsedVertexShaders() {
+  return globalThis.XEOKIT_LOG_USED_VERTEX_SHADERS === true;
+}
 var DrawTechnique = class {
   /**
    * When false, vertex positions are addressed directly (no index-buffer lookup).
@@ -188534,6 +188537,7 @@ var DrawTechnique = class {
   _gpuMemoryReader;
   _program;
   _viewUniformFrameId = -1;
+  _loggedVertexShaderOnUse = false;
   /**
    * Compilation errors encountered during program initialization.
    * Available after `init()` is called.
@@ -188643,6 +188647,12 @@ var DrawTechnique = class {
    */
   vboGeometry;
   /**
+   * Enables body hatch logic in triangle body shaders. This is a distinct
+   * permutation because ordinary untextured VBO body rendering should not pay
+   * the per-mesh hatch slot check or hatch-pattern texture fetches.
+   */
+  bodyHatch;
+  /**
    * Vertex shader source code. Available after `init()` is called.
    */
   vertexShaderSrc;
@@ -188705,6 +188715,7 @@ var DrawTechnique = class {
     triplanar: false,
     thickLines: false,
     vboGeometry: false,
+    bodyHatch: false,
     logDepth: false
   }) {
     if (cfg.picking && cfg.edges) {
@@ -188735,6 +188746,7 @@ var DrawTechnique = class {
     this.triplanar = cfg.triplanar === true;
     this.thickLines = cfg.thickLines === true;
     this.vboGeometry = cfg.vboGeometry === true;
+    this.bodyHatch = cfg.bodyHatch === true;
     this.logDepth = cfg.logDepth === true;
     this._program = null;
   }
@@ -188967,6 +188979,50 @@ var DrawTechnique = class {
   drawMesh(meshBatch, meshIndex, renderPass) {
     return this._draw(meshBatch, renderPass, meshIndex);
   }
+  _logVertexShaderOnFirstUse(meshBatch, renderPass) {
+    if (this._loggedVertexShaderOnUse || !shouldLogUsedVertexShaders()) {
+      return;
+    }
+    this._loggedVertexShaderOnUse = true;
+    const primitive = meshBatch.primitive;
+    const primitiveName = typeof primitive === "function" ? primitive.name : String(primitive);
+    const label = [
+      "[xeokit] GLSL vertex shader used",
+      this.constructor.name,
+      `pass=${renderPass}`,
+      `primitive=${primitiveName}`,
+      `vboGeometry=${this.vboGeometry}`,
+      `hasNormals=${this.hasNormals}`,
+      `hasUVs=${this.hasUVs}`,
+      `triplanar=${this.triplanar}`,
+      `bodyHatch=${this.bodyHatch}`,
+      `edges=${this.edges}`,
+      `picking=${this.picking}`,
+      `snap=${this.snap}`,
+      `thickLines=${this.thickLines}`
+    ].join(" ");
+    const entry = {
+      label,
+      technique: this.constructor.name,
+      renderPass,
+      primitive: primitiveName,
+      vboGeometry: this.vboGeometry,
+      hasNormals: this.hasNormals,
+      hasUVs: this.hasUVs,
+      triplanar: this.triplanar,
+      bodyHatch: this.bodyHatch,
+      edges: this.edges,
+      picking: this.picking,
+      snap: this.snap,
+      thickLines: this.thickLines,
+      vertexShaderSrc: this.vertexShaderSrc
+    };
+    const debugGlobal = globalThis;
+    (debugGlobal.XEOKIT_USED_VERTEX_SHADERS ??= []).push(entry);
+    console.groupCollapsed?.(label);
+    console.log(this.vertexShaderSrc);
+    console.groupEnd?.();
+  }
   _draw(meshBatch, renderPass, meshIndex) {
     if (!this._program) {
       return {
@@ -189001,6 +189057,7 @@ var DrawTechnique = class {
         // Nothing to draw for this pass, or no compatible geometry binding.
       };
     }
+    this._logVertexShaderOnFirstUse(meshBatch, renderPass);
     const drawInspector = renderContext.renderInspector && renderContext.renderInspector.enabled ? renderContext.renderInspector : null;
     if (!this._bind(renderPass)) {
       return {
@@ -189116,6 +189173,17 @@ ${this.vboGeometry ? `// This shader renders triangle geometry from batch-owned 
    * techniques.  Every vertex shader calls this once, right after {@link vsHeader}.
    */
   vsCommonDeclarations() {
+    const usesVBOGeometry = this.vboGeometry;
+    const needsDTXGeometryFetch = !usesVBOGeometry;
+    const needsGeometryAttributes = needsDTXGeometryFetch || this.hasNormals || this.hasUVs;
+    const needsMeshAttributes = needsDTXGeometryFetch || needsGeometryAttributes || this.bodyHatch || this.thickLines || this.triplanar;
+    const needsQuantRange = needsDTXGeometryFetch;
+    const needsMeshMatrix = needsDTXGeometryFetch;
+    const needsBillboardHelpers = needsDTXGeometryFetch;
+    const needsVertexColor = needsDTXGeometryFetch && this.vertsPerPrim === 1;
+    const needsPickPacking = this.picking;
+    const needsMaterialPacking = this.hasNormals;
+    const needsUVPacking = this.hasUVs || this.triplanar;
     this._vertSrcBuf.push(`
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -189139,30 +189207,39 @@ layout(location = 2) in uint aGeometryVertexIndex;
 // GPU data textures (structured storage via texelFetch)
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
+${needsDTXGeometryFetch ? `
 uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
-uniform highp usampler2D uVertexColorTexture;${this.hasNormals ? `
+${needsVertexColor ? `uniform highp usampler2D uVertexColorTexture;
+` : ``}uniform highp usampler2D uIndexTexture;` : ``}${this.hasNormals ? `
 uniform highp usampler2D uVertexNormalTexture;` : ``}${this.hasUVs ? `
 uniform highp sampler2D  uVertexUVTexture;` : ``}
-uniform highp usampler2D uIndexTexture;
 // uniform highp usampler2D uEdgeIndexTexture;
 uniform highp sampler2D  uViewTileCameraMatrixTexture;
+${needsMeshMatrix ? `
 uniform highp sampler2D  uMeshMatrixTexture;
+` : ``}
+${needsMeshAttributes ? `
 uniform highp usampler2D uMeshAttributeTexture;
+` : ``}
 uniform highp usampler2D uMeshViewAttributeTexture;
+${needsGeometryAttributes ? `
 uniform highp usampler2D uGeometryAttributeTexture;
+` : ``}${needsQuantRange ? `
 uniform highp sampler2D  uGeometryQuantRangeTexture;
+` : ``}
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Data structures stored inside textures
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
-struct QuantRange {
+${needsQuantRange ? `struct QuantRange {
   vec3 offset;
   vec3 scale;
 };
+` : ``}
 
-struct MeshAttribTable {
+${needsMeshAttributes ? `struct MeshAttribTable {
   uint tileIndex;
   uint geometryIndex;
   // Packed Cook-Torrance material: byte 0 = roughness, byte 1 = metallic
@@ -189213,13 +189290,14 @@ struct MeshAttribTable {
   // Billboard mode. 0 = none, 1 = spherical.
   uint billboard;
 };
+` : ``}
 
 struct MeshViewAttributes {
   uvec4 color;
   uvec4 renderFlags;
 };
 
-struct GeometryAttributes {
+${needsGeometryAttributes ? `struct GeometryAttributes {
   uint verticesBase;
   uint indicesBase;
   uint edgeIndicesBase;
@@ -189234,6 +189312,7 @@ struct GeometryAttributes {
   uint polylineCumDistBase;
   uint vertexColorsBase;
 };
+` : ``}
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Utility: Convert linear index \u2192 2D texture coordinate
@@ -189249,7 +189328,7 @@ ivec2 texCoord(uint index, uint texWidth) {
 
 // Each texel stores (meshIndex, primOffsetWithinGeometry) in .r/.g.
 // RG32UI format: 1 texel per primitive, replacing the old 2-texel R32UI layout.
-uvec2 getPrimData(uint primIndex) {
+${needsDTXGeometryFetch ? `uvec2 getPrimData(uint primIndex) {
   const uint texWidth = 4096u;
   return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex, texWidth), 0).rg;
 }
@@ -189267,11 +189346,11 @@ uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
   const uint texWidth = 4096u;
   return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
 }
-
+` : ``}${needsVertexColor ? `
 uvec4 getVertexColor(uint vertexIndexWithinGeometry) {
   const uint texWidth = 4096u;
   return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgba;
-}${this.hasNormals ? `
+}` : ``}${this.hasNormals ? `
 
 // Octahedral RG16UI normal fetch + decode. The encoder maps unit-vector
 // octahedral coords from [-1, 1] to [0, 65535]; we undo that, then run the
@@ -189306,7 +189385,7 @@ vec2 getVertexUV(uint vertexIndexWithinGeometry) {
 // Geometry + mesh metadata fetch
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
-QuantRange getGeometryQuantRange(uint geometryIndex) {
+${needsQuantRange ? `QuantRange getGeometryQuantRange(uint geometryIndex) {
   const uint texWidth = 2048u;
   const uint texelsPerItem = 2u;
   uint base = geometryIndex * texelsPerItem;
@@ -189317,8 +189396,9 @@ QuantRange getGeometryQuantRange(uint geometryIndex) {
   r.scale  = texel1.rgb;
   return r;
 }
+` : ``}
 
-GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
+${needsGeometryAttributes ? `GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
   // Two texels per geometry \u2014 the texture holds 8 u32 slots of metadata
   // per item to leave room for future per-attribute base addresses.
   const uint texWidth = 4096u;
@@ -189336,67 +189416,79 @@ GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
   s.vertexColorsBase     = t1.b;
   return s;
 }
+` : ``}
 
-MeshAttribTable getMeshAttribTable(uint meshIndex) {
-  // Five texels per mesh \u2014 texel 0 holds tile/geometry/material/flags;
-  // texel 1 holds the albedo + MR UV transforms; texel 2 holds the
-  // normal-map UV transform + triplanarScale + lineWidth; texel 3 holds
-  // the emissive + occlusion UV transforms; texel 4 holds the packed
-  // emissive colour factor. Layout matches MeshAttributeTexture's setItem.
+${needsMeshAttributes ? `MeshAttribTable getMeshAttribTable(uint meshIndex) {
+  // Mesh attributes are packed into five texels, but each compiled
+  // technique fetches only the texels it can actually consume.
+  // texel 0: tile/geometry/material/flags, line + hatch slots.
+  // texel 1: albedo + metallic/roughness UV transforms.
+  // texel 2: normal-map UV transform, triplanar scale, line width.
+  // texel 3: emissive + occlusion UV transforms.
+  // texel 4: emissive colour and billboard flag.
   const uint texWidth = 4096u;
   const uint texelsPerItem = 5u;
   uint base = meshIndex * texelsPerItem;
   uvec4 t0 = texelFetch(uMeshAttributeTexture, texCoord(base + 0u, texWidth), 0);
-  uvec4 t1 = texelFetch(uMeshAttributeTexture, texCoord(base + 1u, texWidth), 0);
-  uvec4 t2 = texelFetch(uMeshAttributeTexture, texCoord(base + 2u, texWidth), 0);
-  uvec4 t3 = texelFetch(uMeshAttributeTexture, texCoord(base + 3u, texWidth), 0);
-  uvec4 t4 = texelFetch(uMeshAttributeTexture, texCoord(base + 4u, texWidth), 0);
+${this.hasUVs || this.triplanar ? `  uvec4 t1 = texelFetch(uMeshAttributeTexture, texCoord(base + 1u, texWidth), 0);
+` : ``}${this.hasUVs || this.triplanar || this.thickLines ? `  uvec4 t2 = texelFetch(uMeshAttributeTexture, texCoord(base + 2u, texWidth), 0);
+` : ``}${this.hasUVs || this.triplanar ? `  uvec4 t3 = texelFetch(uMeshAttributeTexture, texCoord(base + 3u, texWidth), 0);
+` : ``}${this.hasUVs || this.triplanar || !this.vboGeometry ? `  uvec4 t4 = texelFetch(uMeshAttributeTexture, texCoord(base + 4u, texWidth), 0);
+` : ``}
   MeshAttribTable s;
   s.tileIndex            = t0.r;
   s.geometryIndex        = t0.g;
   s.material             = t0.b;
   s.alpha                = t0.a;
-  s.albedoUVOffsetPacked = t1.r;
+${this.hasUVs || this.triplanar ? `  s.albedoUVOffsetPacked = t1.r;
   s.albedoUVScalePacked  = t1.g;
   s.mrUVOffsetPacked     = t1.b;
   s.mrUVScalePacked      = t1.a;
   s.normalUVOffsetPacked = t2.r;
   s.normalUVScalePacked  = t2.g;
   s.triplanarScale       = uintBitsToFloat(t2.b);
-  s.lineWidth            = uintBitsToFloat(t2.a);
   s.emissiveUVOffsetPacked  = t3.r;
   s.emissiveUVScalePacked   = t3.g;
   s.occlusionUVOffsetPacked = t3.b;
   s.occlusionUVScalePacked  = t3.a;
   s.emissiveColorPacked     = t4.r;
-  s.billboard               = t4.g;
+` : ``}${this.thickLines ? `  s.lineWidth            = uintBitsToFloat(t2.a);
+` : ``}${!this.vboGeometry ? `  s.billboard               = t4.g;
+` : `  s.billboard               = 0u;
+`}
   // Unpack the 16-bit line-pattern slot from bits 16..31 of
   // the alpha slot. Bytes 0/1 carry alphaMode/alphaCutoff;
   // bytes 2-3 carry the slot index into uLinePatternTexture.
   s.linePatternSlot      = (t0.a >> 16u) & 0xFFFFu;
+${this.bodyHatch ? `
   // Hatch slot in bits 16..31 of the PBR-material slot. Low
   // 16 bits there carry (roughness, metallic).
-  s.hatchPatternSlot     = (t0.b >> 16u) & 0xFFFFu;
+  s.hatchPatternSlot     = (t0.b >> 16u) & 0xFFFFu;` : ``}
   return s;
 }
+` : ``}
 
 // Unpacks the packed Cook-Torrance material into (roughness, metallic).
 // Cheap: two bit ops + one divide.
+${needsMaterialPacking ? `
 vec2 unpackRoughnessMetallic(uint packed) {
   return vec2(
     float(packed & 0xFFu),
     float((packed >> 8u) & 0xFFu)
   ) / 255.0;
 }
+` : ``}
 
 // Unpacks two u16s in [0, 65535] (R = lo, G = hi) to a vec2 in [0, 1].
 // WebGL2's GLSL ES 3.00 doesn't have unpackUnorm2x16, so do it manually.
+${needsUVPacking ? `
 vec2 unpackUnorm2x16FromU32(uint packed) {
   return vec2(
     float(packed & 0xFFFFu),
     float((packed >> 16u) & 0xFFFFu)
   ) / 65535.0;
 }
+` : ``}
 
 MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
   const uint texWidth = 4096u;
@@ -189421,7 +189513,7 @@ mat4 getTileViewMatrix(uint tileIndex) {
   return mat4(m0, m1, m2, m3);
 }
 
-mat4 getMeshMatrix(uint meshIndex) {
+${needsMeshMatrix ? `mat4 getMeshMatrix(uint meshIndex) {
   const uint texWidth = 4096u;
   uint base = meshIndex * 4u;
   vec4 m0 = texelFetch(uMeshMatrixTexture, texCoord(base + 0u, texWidth), 0);
@@ -189430,7 +189522,9 @@ mat4 getMeshMatrix(uint meshIndex) {
   vec4 m3 = texelFetch(uMeshMatrixTexture, texCoord(base + 3u, texWidth), 0);
   return mat4(m0, m1, m2, m3);
 }
+` : ``}
 
+${needsBillboardHelpers ? `
 vec3 getMeshScale(mat4 modelMatrix) {
   return vec3(
     length(modelMatrix[0].xyz),
@@ -189482,12 +189576,14 @@ vec3 getMeshWorldNormal(vec3 modelNormal, mat4 modelMatrix, mat4 viewMatrix, uin
   }
   return normalize(mat3(modelMatrix) * modelNormal);
 }
+` : ``}
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Packs a uint into an RGBA color (each channel stores one byte).
 // Little-endian byte order: R = least significant byte
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
+${needsPickPacking ? `
 vec4 packUintToRGBA8(uint v) {
    return vec4(
      float( ( v        & 0xFFu)),
@@ -189496,6 +189592,7 @@ vec4 packUintToRGBA8(uint v) {
      float(((v >> 24u) & 0xFFu))
    ) / 255.0;
 }
+` : ``}
 
 `);
   }
@@ -189998,15 +190095,17 @@ void main(void) {`);
    */
   _vsMeshLogic2() {
     if (this.vboGeometry) {
+      const needsGeometryAttributes = this.hasNormals || this.hasUVs;
+      const needsMeshAttributes = needsGeometryAttributes || this.bodyHatch || this.triplanar;
       this._vertSrcBuf.push(
         `
     // Mesh \u2192 tile + geometry resolution. Position/tile come directly from
-    // the VBO, while mesh/geometry metadata remains in DTX for material,
-    // normal and UV lookup compatibility.
-    MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );
-    uint tileIndex = uint(aPositionAndTile.w + 0.5);
+    // the VBO. Geometry metadata remains in DTX only for variants that
+    // still need per-geometry attribute bases, such as normals or UVs.${needsMeshAttributes ? `
+    MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );` : ``}
+    uint tileIndex = uint(aPositionAndTile.w + 0.5);${needsGeometryAttributes ? `
     uint geometryIndex = meshAttributeTexture.geometryIndex;
-    GeometryAttributes geometryAttributes = getGeometryAttributeTexture( geometryIndex );
+    GeometryAttributes geometryAttributes = getGeometryAttributeTexture( geometryIndex );` : ``}
 
     // Positions are already dequantized and mesh-matrix-baked by
     // TriangleGeometryVBOBatch. Keep modelMatrix as identity for the
@@ -190099,7 +190198,7 @@ void main(void) {`);
 
     uvec2 packedNormal = getVertexNormalPacked(geometryAttributes.normalsBase + vertexIndexWithinGeometry);
     vec3  modelNormal  = octDecodeNormalU16(packedNormal);
-    vViewNormal        = getMeshViewNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard);
+    vViewNormal        = ${this.vboGeometry ? `normalize(mat3(viewMatrix) * modelNormal)` : `getMeshViewNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard)`};
     vMaterial          = unpackRoughnessMetallic(meshAttributeTexture.material);` : ``}${this.hasUVs ? `
 
     vUV              = getVertexUV(geometryAttributes.uvsBase + vertexIndexWithinGeometry);` : ``}${this.triplanar ? `${this.hasNormals ? `
@@ -190108,7 +190207,7 @@ void main(void) {`);
     // near-rigid model matrix the rest of the pipeline already
     // requires; non-uniform scale would also break the position
     // pipeline).
-    vWorldNormal     = getMeshWorldNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard);` : ``}
+    vWorldNormal     = ${this.vboGeometry ? `normalize(modelNormal)` : `getMeshWorldNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard)`};` : ``}
     vTriplanarScale  = meshAttributeTexture.triplanarScale;` : ``}${this.hasUVs || this.triplanar ? `
 
     vAlbedoUVOffset  = unpackUnorm2x16FromU32(meshAttributeTexture.albedoUVOffsetPacked);
@@ -192773,7 +192872,7 @@ var TrianglesDrawColorTechnique = class extends DrawTechnique {
    * variant so hatch can apply there).
    */
   _hatchInBody() {
-    return !this.hasUVs && !this.triplanar;
+    return this.bodyHatch && !this.hasUVs && !this.triplanar;
   }
 };
 
@@ -192809,7 +192908,7 @@ var TrianglesDrawColorFlatTechnique = class extends DrawTechnique {
 var TrianglesDrawColorSAOTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
   buildVertexShader() {
-    const hatch4 = !this.hasUVs && !this.triplanar;
+    const hatch4 = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.vsHeader();
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
@@ -192826,7 +192925,7 @@ var TrianglesDrawColorSAOTechnique = class extends DrawTechnique {
     this.vsMainEnd();
   }
   buildFragmentShader() {
-    const hatch4 = !this.hasUVs && !this.triplanar;
+    const hatch4 = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.fsHeader();
     this.fsPrecisionDeclarations();
     this.fsColorDeclarations();
@@ -192852,7 +192951,7 @@ var TrianglesDrawColorSAOTechnique = class extends DrawTechnique {
 var TrianglesDrawColorShadowTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
   buildVertexShader() {
-    const hatch4 = !this.hasUVs && !this.triplanar;
+    const hatch4 = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.vsHeader();
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
@@ -192871,7 +192970,7 @@ var TrianglesDrawColorShadowTechnique = class extends DrawTechnique {
     this.vsMainEnd();
   }
   buildFragmentShader() {
-    const hatch4 = !this.hasUVs && !this.triplanar;
+    const hatch4 = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.fsHeader();
     this.fsPrecisionDeclarations();
     this.fsColorDeclarations();
@@ -192897,7 +192996,7 @@ var TrianglesDrawColorShadowTechnique = class extends DrawTechnique {
 var TrianglesDrawColorSAOShadowTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
   buildVertexShader() {
-    const hatch4 = !this.hasUVs && !this.triplanar;
+    const hatch4 = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.vsHeader();
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
@@ -192916,7 +193015,7 @@ var TrianglesDrawColorSAOShadowTechnique = class extends DrawTechnique {
     this.vsMainEnd();
   }
   buildFragmentShader() {
-    const hatch4 = !this.hasUVs && !this.triplanar;
+    const hatch4 = this.bodyHatch && !this.hasUVs && !this.triplanar;
     this.fsHeader();
     this.fsPrecisionDeclarations();
     this.fsColorDeclarations();
@@ -193259,6 +193358,10 @@ var DrawOp = class {
   techniqueWithTriplanar;
   /** Smooth-shaded triplanar variant. */
   techniqueWithNormalsAndTriplanar;
+  /** Hatch-enabled flat body variant. */
+  techniqueWithBodyHatch;
+  /** Hatch-enabled smooth body variant. */
+  techniqueWithNormalsBodyHatch;
   /** The render pass in which this draw operation is executed. */
   renderPass;
   /**
@@ -193277,6 +193380,8 @@ var DrawOp = class {
       this.techniqueWithNormalsAndUVs = null;
       this.techniqueWithTriplanar = null;
       this.techniqueWithNormalsAndTriplanar = null;
+      this.techniqueWithBodyHatch = null;
+      this.techniqueWithNormalsBodyHatch = null;
     } else {
       this.technique = techniqueOrVariants.technique;
       this.techniqueWithNormals = techniqueOrVariants.withNormals ?? null;
@@ -193284,6 +193389,8 @@ var DrawOp = class {
       this.techniqueWithNormalsAndUVs = techniqueOrVariants.withNormalsAndUVs ?? null;
       this.techniqueWithTriplanar = techniqueOrVariants.withTriplanar ?? null;
       this.techniqueWithNormalsAndTriplanar = techniqueOrVariants.withNormalsAndTriplanar ?? null;
+      this.techniqueWithBodyHatch = techniqueOrVariants.withBodyHatch ?? null;
+      this.techniqueWithNormalsBodyHatch = techniqueOrVariants.withNormalsBodyHatch ?? null;
     }
   }
   /**
@@ -193313,6 +193420,12 @@ var DrawOp = class {
   _select(meshBatch) {
     const view = this.technique._renderContext?.activeView;
     const allowTextureVariants = !view?.effects?.bodyHatch?.applied;
+    if (!allowTextureVariants && meshBatch.hasNormals && this.techniqueWithNormalsBodyHatch) {
+      return this.techniqueWithNormalsBodyHatch;
+    }
+    if (!allowTextureVariants && this.techniqueWithBodyHatch) {
+      return this.techniqueWithBodyHatch;
+    }
     if (allowTextureVariants && meshBatch.hasNormals && meshBatch.hasUVs && this.techniqueWithNormalsAndUVs) {
       return this.techniqueWithNormalsAndUVs;
     }
@@ -193836,6 +193949,8 @@ var DrawOps = class {
     const trianglesSilhouetteDTX = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const lambertVariants = (Cls, baseCfg = {}) => ({
       technique: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, logDepth: LOG_DEPTH })),
+      withBodyHatch: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, bodyHatch: true, logDepth: LOG_DEPTH })),
+      withNormalsBodyHatch: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, bodyHatch: true, logDepth: LOG_DEPTH })),
       withNormals: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, logDepth: LOG_DEPTH })),
       withUVs: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasUVs: true, logDepth: LOG_DEPTH })),
       withNormalsAndUVs: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, hasNormals: true, hasUVs: true, logDepth: LOG_DEPTH })),
@@ -201175,7 +201290,7 @@ var RenderManager = class _RenderManager {
       ri?.renderBinStarted("sky");
       this.skyRenderer.render(rendererView);
     }
-    if (this.infiniteGrid) {
+    if (this.infiniteGrid?.enabled) {
       ri?.renderBinStarted("grid");
       this.infiniteGrid.render(rendererView);
     }
@@ -219392,25 +219507,7 @@ var aircraft_exports = {};
 __export(aircraft_exports, {
   AircraftController: () => AircraftController,
   AircraftExhaustTrail: () => AircraftExhaustTrail,
-  add3: () => add3,
-  aircraftLocalPointToWorld: () => aircraftLocalPointToWorld,
-  basisFromForward: () => basisFromForward,
-  buildVehicleMatrix: () => buildVehicleMatrix,
-  clamp: () => clamp5,
-  createAircraftNoiseBuffer: () => createAircraftNoiseBuffer,
-  cross3: () => cross33,
-  dot3: () => dot32,
-  flatDirection3: () => flatDirection3,
-  isAircraftObjectId: () => isAircraftObjectId,
-  length3: () => length32,
-  lerp3: () => lerp32,
-  mul3: () => mul3,
-  normalize: () => normalize5,
-  safeNormalize: () => safeNormalize,
-  segmentMatrixBetween: () => segmentMatrixBetween,
-  sub3: () => sub3,
-  toVec3: () => toVec3,
-  vehicleLocalAxes: () => vehicleLocalAxes
+  createAircraftNoiseBuffer: () => createAircraftNoiseBuffer
 });
 
 // ../sdk/src/simulation/aircraft/AircraftAudio.ts

@@ -56,6 +56,6 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
    * variant so hatch can apply there).
    */
   private _hatchInBody(): boolean {
-    return !this.hasUVs && !this.triplanar;
+    return this.bodyHatch && !this.hasUVs && !this.triplanar;
   }
 }

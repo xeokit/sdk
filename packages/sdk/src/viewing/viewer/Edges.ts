@@ -43,7 +43,7 @@ class Edges {
         this._useMeshColor = options.useMeshColor !== false;
         this._edgeDarken = (options.edgeDarken !== undefined && options.edgeDarken !== null) ? options.edgeDarken : 0.5;
         this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.8;
-        this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 2;
+        this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
         this._edgeFadeStart = (options.edgeFadeStart !== undefined && options.edgeFadeStart !== null) ? options.edgeFadeStart : 0.4;
         this._edgeFadeEnd = (options.edgeFadeEnd !== undefined && options.edgeFadeEnd !== null) ? options.edgeFadeEnd : 1.0;
     }
@@ -189,7 +189,7 @@ class Edges {
     /**
      * Sets edge width for {@link ViewObject | ViewObjects}.
      *
-     * Default value is ````2.0```` pixels.
+     * Default value is ````1.0```` pixels.
      */
     set edgeWidth(value: number) {
         if (this._edgeWidth === value) {
@@ -204,7 +204,7 @@ class Edges {
      *
      * This is not supported by WebGL implementations based on DirectX [2019].
      *
-     * Default value is ````2.0```` pixels.
+     * Default value is ````1.0```` pixels.
      */
     get edgeWidth(): number {
         return this._edgeWidth;

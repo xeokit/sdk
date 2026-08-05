@@ -95,6 +95,7 @@ export type TriangleGeometryVBOViewState = {
   leanStaticVAO: WebGLVertexArrayObject | null;
   bakedEdgeVAO: WebGLVertexArrayObject | null;
   hybridEdgeVAO: WebGLVertexArrayObject | null;
+  leanStaticEdgeVAO: WebGLVertexArrayObject | null;
 };
 
 export const TRIANGLE_GEOMETRY_VBO_PASS_ORDER: RenderPassValue[] = [
@@ -155,7 +156,8 @@ export function createTriangleGeometryVBOViewState(): TriangleGeometryVBOViewSta
     hybridVAO: null,
     leanStaticVAO: null,
     bakedEdgeVAO: null,
-    hybridEdgeVAO: null
+    hybridEdgeVAO: null,
+    leanStaticEdgeVAO: null
   };
 }
 

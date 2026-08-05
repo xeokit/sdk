@@ -36,12 +36,14 @@ export class TrianglesSnapTechnique extends DrawTechnique {
     renderContext: RenderContext,
     gpuMemoryReader: GPUMemoryReader,
     snap: 1 | 2,
-    opts: { vboGeometry?: boolean } = {},
+    opts: { vboGeometry?: boolean; vboTileUniform?: boolean; vboViewAttributes?: boolean } = {},
   ) {
     super(renderContext, gpuMemoryReader, {
       snap,
       edges: true,
-      vboGeometry: opts.vboGeometry === true
+      vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true
     });
   }
 

@@ -474,6 +474,69 @@ describe("TriangleGeometryVBOBatch RTC precision", () => {
     expect(batch.getPickEdgePrimitiveRange(0)).toEqual({firstPrim: 0, numPrims: 0});
   });
 
+  it("builds lean-static tile draw states for edge and pick regions", () => {
+    const uploads: RecordedUpload[] = [];
+    const gl = createMockGL(uploads);
+    const batch = new TriangleGeometryVBOBatch({
+      gl,
+      batchIndex: 0,
+      maxPrims: 8,
+      maxViews: 1
+    });
+    expect(batch.allocate().ok).toBe(true);
+
+    expect(batch.addMesh({
+      meshIndex: 4,
+      sceneMesh: createQuadMesh() as any,
+      tileIndex: 7,
+      matrix: createMatrix(0, 0, 0),
+      color: [255, 255, 255],
+      opacity: 255
+    }).ok).toBe(true);
+
+    batch.setMeshRenderPass(4, 0, RENDER_PASSES.SELECTED);
+    expect(batch.uploadChanges()).toBe(true);
+
+    const selectedEdgeBase = edgeIndexRegionBase(8, TEST_PASS_ORDER.indexOf(RENDER_PASSES.SELECTED));
+    const selectedEdgeTileState = batch.getTileDrawStates(0, RENDER_PASSES.SELECTED, "lean-static", "edges");
+    expect(selectedEdgeTileState).not.toBeNull();
+    expect(selectedEdgeTileState!.primRange).toEqual({firstPrim: 0, numPrims: 4});
+    expect(selectedEdgeTileState!.tileDrawStates).toEqual([{
+      tileIndex: 7,
+      spans: [{
+        firstIndex: selectedEdgeBase,
+        indexCount: 8,
+        primCount: 4
+      }]
+    }]);
+
+    const pickTriangleBase = triangleIndexRegionBase(8, TEST_PICK_REGION_INDEX);
+    const pickTriangleTileState = batch.getPickTileDrawStates(0, "lean-static", "triangles");
+    expect(pickTriangleTileState).not.toBeNull();
+    expect(pickTriangleTileState!.primRange).toEqual({firstPrim: 0, numPrims: 2});
+    expect(pickTriangleTileState!.tileDrawStates).toEqual([{
+      tileIndex: 7,
+      spans: [{
+        firstIndex: pickTriangleBase,
+        indexCount: 6,
+        primCount: 2
+      }]
+    }]);
+
+    const pickEdgeBase = edgeIndexRegionBase(8, TEST_PICK_REGION_INDEX);
+    const pickEdgeTileState = batch.getPickTileDrawStates(0, "lean-static", "edges");
+    expect(pickEdgeTileState).not.toBeNull();
+    expect(pickEdgeTileState!.primRange).toEqual({firstPrim: 0, numPrims: 4});
+    expect(pickEdgeTileState!.tileDrawStates).toEqual([{
+      tileIndex: 7,
+      spans: [{
+        firstIndex: pickEdgeBase,
+        indexCount: 8,
+        primCount: 4
+      }]
+    }]);
+  });
+
   it("reuses a deleted mesh vertex span without reallocating the fixed VBO", () => {
     const uploads: RecordedUpload[] = [];
     const gl = createMockGL(uploads);

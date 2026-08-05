@@ -12,10 +12,12 @@ export class TrianglesDrawSilhouetteTechnique extends DrawTechnique {
   constructor(
     renderContext,
     gpuMemoryReader,
-    opts: { vboGeometry?: boolean; logDepth?: boolean } = {},
+    opts: { vboGeometry?: boolean; vboTileUniform?: boolean; vboViewAttributes?: boolean; logDepth?: boolean } = {},
   ) {
     super(renderContext, gpuMemoryReader, {
       vboGeometry: opts.vboGeometry === true,
+      vboTileUniform: opts.vboTileUniform === true,
+      vboViewAttributes: opts.vboViewAttributes === true,
       logDepth: opts.logDepth === true,
     });
   }

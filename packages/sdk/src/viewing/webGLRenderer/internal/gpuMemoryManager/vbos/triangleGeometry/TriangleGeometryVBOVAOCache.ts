@@ -24,7 +24,7 @@ export function getTriangleGeometryVBOVAO(params: {
   geometryVertexIndexBuffer: WebGLBuffer | null;
 }): WebGLVertexArrayObject | null {
   const existing = params.layout === "lean-static"
-    ? params.view.leanStaticVAO
+    ? (params.topology === "edges" ? params.view.leanStaticEdgeVAO : params.view.leanStaticVAO)
     : params.topology === "edges"
     ? (params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO)
     : (params.layout === "vbo-only" ? params.view.bakedVAO : params.view.hybridVAO);
@@ -91,6 +91,9 @@ export function deleteTriangleGeometryVBOVAOs(gl: WebGL2RenderingContext, view: 
   if (view.leanStaticVAO) {
     gl.deleteVertexArray(view.leanStaticVAO);
   }
+  if (view.leanStaticEdgeVAO) {
+    gl.deleteVertexArray(view.leanStaticEdgeVAO);
+  }
   if (view.bakedEdgeVAO) {
     gl.deleteVertexArray(view.bakedEdgeVAO);
   }
@@ -102,6 +105,7 @@ export function deleteTriangleGeometryVBOVAOs(gl: WebGL2RenderingContext, view: 
   view.leanStaticVAO = null;
   view.bakedEdgeVAO = null;
   view.hybridEdgeVAO = null;
+  view.leanStaticEdgeVAO = null;
 }
 
 function setTriangleGeometryVBOVAO(
@@ -111,7 +115,11 @@ function setTriangleGeometryVBOVAO(
   vao: WebGLVertexArrayObject
 ): void {
   if (layout === "lean-static") {
-    view.leanStaticVAO = vao;
+    if (topology === "edges") {
+      view.leanStaticEdgeVAO = vao;
+    } else {
+      view.leanStaticVAO = vao;
+    }
     return;
   }
   if (topology === "edges") {

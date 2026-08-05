@@ -13,6 +13,7 @@ import {
   getTriangleGeometryEdgeIndexCount,
   getTriangleGeometryEdgeSlotCapacity,
   getTriangleGeometryPrimitiveCount,
+  TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX,
   TRIANGLE_GEOMETRY_VBO_PASS_ORDER,
   type TriangleGeometryVBOMeshRecord,
   type TriangleGeometryVBOViewState
@@ -21,6 +22,7 @@ import {TriangleGeometryVBOSpanAllocator} from "./triangleGeometry/TriangleGeome
 import {
   deleteTriangleGeometryVBOVAOs,
   getTriangleGeometryVBOVAO,
+  type TriangleGeometryVBOTopology,
   type TriangleGeometryVBOVAOLayout
 } from "./triangleGeometry/TriangleGeometryVBOVAOCache";
 import type {MeshManagerStepStats} from "../../meshManager/MeshManagerStepStats";
@@ -439,7 +441,12 @@ export class TriangleGeometryVBOBatch {
     };
   }
 
-  getTileDrawStates(viewIndex: number, renderPass: RenderPassValue, layout: "hybrid" | "lean-static"): {
+  getTileDrawStates(
+    viewIndex: number,
+    renderPass: RenderPassValue,
+    layout: "hybrid" | "lean-static",
+    topology: TriangleGeometryVBOTopology = "triangles"
+  ): {
     vao: WebGLVertexArrayObject;
     primRange: PrimRange;
     tileDrawStates: TriangleGeometryVBOTileDrawState[];
@@ -449,11 +456,13 @@ export class TriangleGeometryVBOBatch {
       return null;
     }
     const passRegionIndex = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.indexOf(renderPass);
-    const primRange = view.passRanges.get(renderPass) ?? {firstPrim: 0, numPrims: 0};
+    const primRange = topology === "edges"
+      ? (view.edgePassRanges.get(renderPass) ?? {firstPrim: 0, numPrims: 0})
+      : (view.passRanges.get(renderPass) ?? {firstPrim: 0, numPrims: 0});
     if (passRegionIndex < 0 || primRange.numPrims <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, "triangles");
+    const vao = this._getVAO(view, layout, topology);
     if (!vao) {
       return null;
     }
@@ -466,33 +475,46 @@ export class TriangleGeometryVBOBatch {
     if (records.length === 0) {
       return null;
     }
-    const regionBase = passRegionIndex * this._indexCapacity;
-    const byTile = new Map<number, TriangleGeometryVBOTileDrawState>();
-    for (const record of records) {
-      const tileIndex = record.tileIndex | 0;
-      let tileState = byTile.get(tileIndex);
-      if (!tileState) {
-        tileState = {tileIndex, spans: []};
-        byTile.set(tileIndex, tileState);
-      }
-      const firstIndex = regionBase + record.vertexBase;
-      const indexCount = record.vertexCount;
-      const prev = tileState.spans[tileState.spans.length - 1];
-      if (prev && prev.firstIndex + prev.indexCount === firstIndex) {
-        prev.indexCount += indexCount;
-        prev.primCount += record.primitiveCount;
-      } else {
-        tileState.spans.push({
-          firstIndex,
-          indexCount,
-          primCount: record.primitiveCount
-        });
-      }
-    }
+    const tileDrawStates = this._buildTileDrawStates(records, topology, passRegionIndex);
     return {
       vao,
       primRange,
-      tileDrawStates: Array.from(byTile.values()).filter((state) => state.spans.length > 0)
+      tileDrawStates
+    };
+  }
+
+  getPickTileDrawStates(
+    viewIndex: number,
+    layout: "hybrid" | "lean-static",
+    topology: TriangleGeometryVBOTopology = "triangles"
+  ): {
+    vao: WebGLVertexArrayObject;
+    primRange: PrimRange;
+    tileDrawStates: TriangleGeometryVBOTileDrawState[];
+  } | null {
+    const view = this._views[viewIndex];
+    if (!view) {
+      return null;
+    }
+    const primRange = topology === "edges" ? view.pickEdgeRange : view.pickRange;
+    if (primRange.numPrims <= 0) {
+      return null;
+    }
+    const vao = this._getVAO(view, layout, topology);
+    if (!vao) {
+      return null;
+    }
+    const records = Array.from(this._meshRecords.values())
+      .filter((record) => record.meshViewStates[viewIndex]?.visible)
+      .sort((a, b) => a.vertexBase - b.vertexBase);
+    if (records.length === 0) {
+      return null;
+    }
+    const tileDrawStates = this._buildTileDrawStates(records, topology, TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX);
+    return {
+      vao,
+      primRange,
+      tileDrawStates
     };
   }
 
@@ -777,7 +799,7 @@ export class TriangleGeometryVBOBatch {
   private _getVAO(
     view: TriangleGeometryVBOViewState,
     layout: TriangleGeometryVBOVAOLayout,
-    topology: "triangles" | "edges"
+    topology: TriangleGeometryVBOTopology
   ): WebGLVertexArrayObject | null {
     return getTriangleGeometryVBOVAO({
       gl: this.gl,
@@ -788,6 +810,41 @@ export class TriangleGeometryVBOBatch {
       meshIndexBuffer: this._buffers.meshIndexBuffer,
       geometryVertexIndexBuffer: this._buffers.geometryVertexIndexBuffer
     });
+  }
+
+  private _buildTileDrawStates(
+    records: TriangleGeometryVBOMeshRecord[],
+    topology: TriangleGeometryVBOTopology,
+    regionIndex: number
+  ): TriangleGeometryVBOTileDrawState[] {
+    const regionBase = regionIndex * (topology === "edges" ? this._edgeIndexCapacity : this._indexCapacity);
+    const byTile = new Map<number, TriangleGeometryVBOTileDrawState>();
+    for (const record of records) {
+      const indexCount = topology === "edges" ? record.edgeVertexIndices.length : record.vertexCount;
+      if (indexCount <= 0) {
+        continue;
+      }
+      const tileIndex = record.tileIndex | 0;
+      let tileState = byTile.get(tileIndex);
+      if (!tileState) {
+        tileState = {tileIndex, spans: []};
+        byTile.set(tileIndex, tileState);
+      }
+      const firstIndex = regionBase + (topology === "edges" ? record.vertexBase * 2 : record.vertexBase);
+      const primCount = topology === "edges" ? indexCount / 2 : record.primitiveCount;
+      const prev = tileState.spans[tileState.spans.length - 1];
+      if (prev && prev.firstIndex + prev.indexCount === firstIndex) {
+        prev.indexCount += indexCount;
+        prev.primCount += primCount;
+      } else {
+        tileState.spans.push({
+          firstIndex,
+          indexCount,
+          primCount
+        });
+      }
+    }
+    return Array.from(byTile.values()).filter((state) => state.spans.length > 0);
   }
 
   private _getUsedVertexCapacity(): number {

@@ -212,32 +212,31 @@ export class DrawOps {
       withTriplanar:           saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, triplanar: true, logDepth: LOG_DEPTH})),
       withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, {...baseCfg, hasNormals: true, triplanar: true, logDepth: LOG_DEPTH})),
     });
-    const triangleVBOGeometryCfg = {vboGeometry: true};
     const triangleVBOTileUniformCfg = {vboGeometry: true, vboTileUniform: true, vboViewAttributes: true};
     const trianglesDrawColorDTX          = lambertVariants(TrianglesDrawColorTechnique);
     const trianglesDrawColorSAODTX       = lambertVariants(TrianglesDrawColorSAOTechnique);
     const trianglesDrawColorShadowDTX    = lambertVariants(TrianglesDrawColorShadowTechnique);
     const trianglesDrawColorSAOShadowDTX = lambertVariants(TrianglesDrawColorSAOShadowTechnique);
     const trianglesDrawColorVBO          = lambertVariants(TrianglesDrawColorTechnique, triangleVBOTileUniformCfg);
-    const trianglesDrawColorSAOVBO       = lambertVariants(TrianglesDrawColorSAOTechnique, triangleVBOGeometryCfg);
-    const trianglesDrawColorShadowVBO    = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOGeometryCfg);
-    const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOGeometryCfg);
-    const trianglesSilhouetteVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOGeometryCfg, logDepth: LOG_DEPTH}));
+    const trianglesDrawColorSAOVBO       = lambertVariants(TrianglesDrawColorSAOTechnique, triangleVBOTileUniformCfg);
+    const trianglesDrawColorShadowVBO    = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOTileUniformCfg);
+    const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOTileUniformCfg);
+    const trianglesSilhouetteVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
     // Unlit pure-colour technique for the overlay bin (gizmos, HUD chrome).
     // No Lambert / PBR, no SAO, no shadow — fragment colour comes straight
     // from `MeshViewAttributes.color`. Single variant (none of the
     // hasNormals / hasUVs / triplanar axes are sampled).
     const trianglesDrawColorFlatDTX = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
-    const trianglesDrawColorFlatVBO = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, {...triangleVBOGeometryCfg, logDepth: LOG_DEPTH}));
+    const trianglesDrawColorFlatVBO = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
     const trianglesShadowDepthDTX = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
-    const trianglesShadowDepthVBO = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, triangleVBOGeometryCfg));
+    const trianglesShadowDepthVBO = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, triangleVBOTileUniformCfg));
     const trianglesDrawEdgeSilhouetteDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
-    const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOGeometryCfg, logDepth: LOG_DEPTH}));
+    const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeColorDTX = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
-    const trianglesDrawEdgeColorVBO = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {...triangleVBOGeometryCfg, logDepth: LOG_DEPTH}));
+    const trianglesDrawEdgeColorVBO = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeColorThickDTX = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesPickMeshDTX = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
-    const trianglesPickMeshVBO = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3, triangleVBOGeometryCfg));
+    const trianglesPickMeshVBO = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3, triangleVBOTileUniformCfg));
     // Thick-line pick — same quad-expansion as the colour pass,
     // so the pickable region matches what the user sees as the
     // line's body (not the 1-pixel `gl.LINES` core the legacy
@@ -249,9 +248,9 @@ export class DrawOps {
     const trianglesSnapInitDTX   = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
     const trianglesSnapVertexDTX = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1));
     const trianglesSnapEdgeDTX   = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2));
-    const trianglesSnapInitVBO   = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader, triangleVBOGeometryCfg));
-    const trianglesSnapVertexVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1, triangleVBOGeometryCfg));
-    const trianglesSnapEdgeVBO   = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2, triangleVBOGeometryCfg));
+    const trianglesSnapInitVBO   = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader, triangleVBOTileUniformCfg));
+    const trianglesSnapVertexVBO = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1, triangleVBOTileUniformCfg));
+    const trianglesSnapEdgeVBO   = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2, triangleVBOTileUniformCfg));
     // Lines snap to the mathematical centerline of each line —
     // vertex snap is endpoints rasterised as POINTS, edge snap is
     // the lines rasterised as 1-pixel `gl.LINES`. The snap-radius

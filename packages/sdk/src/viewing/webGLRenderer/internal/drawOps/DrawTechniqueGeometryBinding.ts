@@ -117,7 +117,7 @@ export class DrawTechniqueGeometryBinding {
       && !params.thickLines;
 
     if (useVBOGeometry) {
-      if (params.vboTileUniform && !params.picking && !params.snap && !params.edges) {
+      if (params.vboTileUniform) {
         const vboTileDrawState = getVBOTileDrawState(params, params.vboViewAttributes ? "lean-static" : "hybrid");
         if (vboTileDrawState) {
           return new DrawTechniqueGeometryBinding({
@@ -204,11 +204,16 @@ export class DrawTechniqueGeometryBinding {
             };
           }
           gl.bindVertexArray(vboTileDrawState.vao);
+          const drawMode = snap === 1
+            ? gl.POINTS
+            : (snap === 2 || edges)
+              ? gl.LINES
+              : gl.TRIANGLES;
           let handledPrims = 0;
           for (const tileDrawState of vboTileDrawState.tileDrawStates) {
             setTileViewMatrix(tileMatrixTexture.getItem(tileDrawState.tileIndex).matrix);
             for (const span of tileDrawState.spans) {
-              gl.drawElements(gl.TRIANGLES, span.indexCount, gl.UNSIGNED_INT, span.firstIndex * 4);
+              gl.drawElements(drawMode, span.indexCount, gl.UNSIGNED_INT, span.firstIndex * 4);
               handledPrims += span.primCount;
             }
           }
@@ -260,8 +265,11 @@ function getVBOTileDrawState(params: DrawTechniqueGeometryBindingParams, layout:
   primRange: PrimRange;
   tileDrawStates: TriangleGeometryVBOTileDrawState[];
 } | null {
-  const {batchResources, viewIndex, renderPass} = params;
-  return batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout) ?? null;
+  const {batchResources, viewIndex, renderPass, edges, picking, snap} = params;
+  const topology = (edges || snap === 1 || snap === 2) ? "edges" : "triangles";
+  return (picking || snap
+    ? batchResources.triangleGeometryVBO?.getPickTileDrawStates(viewIndex, layout, topology)
+    : batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout, topology)) ?? null;
 }
 
 function getVBODrawState(params: DrawTechniqueGeometryBindingParams): TriangleGeometryVBODrawState | null {

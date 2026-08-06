@@ -9,4 +9,5 @@
  *
  * @module simulation
  */
+export * as aircraft from "./aircraft";
 export * as physics from "./physics";

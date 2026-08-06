@@ -92,6 +92,8 @@ export class GLTFExporter extends ModelExporter {
 async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8Array<any>> {
   const {sceneModel} = params;
   options = options ?? {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
 
   const onProgress: ((p: LoaderProgress) => void) | undefined = options.onProgress;
   const signal: AbortSignal | undefined = options.signal;
@@ -207,7 +209,7 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
 
     const bundle: AccessorBundle = {position: positionAccessor};
 
-    if (geom.normalsCompressed) {
+    if (!ignoreNormals && geom.normalsCompressed) {
       // 16-bit oct-encoded (octEncodeNormalsToU16) → 3D unit vectors. Must use
       // the matching U16 decoder; decompressNormals decodes a different format.
       const normals = new Float32Array((geom.normalsCompressed.length / 2) * 3);
@@ -216,7 +218,7 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
         .setType('VEC3').setArray(normals).setBuffer(buffer);
     }
 
-    if (geom.uvsCompressed) {
+    if (!ignoreUVs && geom.uvsCompressed) {
       // UVs live in `uvsCompressed` as plain float RG32F; a decompress matrix
       // is present only for quantised UVs and must be applied when it is.
       const uvs = geom.uvsDecompressMatrix

@@ -1107,6 +1107,12 @@ export abstract class DrawTechnique {
     drawInspector?.drawMeshBatch(meshBatch, renderPass, {
       firstPrim: inspectorRange.firstPrim,
       numPrims: inspectorRange.numPrims
+    }, this.edges, {
+      drawPath: this.vboGeometry ? "vbo" : "dtx",
+      technique: this.constructor.name,
+      edges: this.edges,
+      picking: this.picking,
+      snap: this.snap
     });
 
     return {

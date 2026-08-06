@@ -26,11 +26,12 @@ import {octDecodeNormalsU16, decompressPositions3WithAABB3} from "../../../../ba
 
 const textEncoder = new TextEncoder();
 
-export async function encode(params: ModelEncodeParams, _options?: any): Promise<ArrayBuffer> {
+export async function encode(params: ModelEncodeParams, options?: any): Promise<ArrayBuffer> {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw new Error("[3DXMLExporter] params.sceneModel is required");
   }
+  const ignoreNormals = options?.ignoreNormals === true;
 
   const structure: string[] = [`<Reference3D id="1" name="${esc(sceneModel.id)}"/>`];
   const repFiles: {name: string; data: Uint8Array}[] = [];
@@ -45,7 +46,7 @@ export async function encode(params: ModelEncodeParams, _options?: any): Promise
     }
 
     const positions = decompressPositions3WithAABB3(geom.positionsCompressed, geom.aabb as any);
-    const normals = geom.normalsCompressed
+    const normals = !ignoreNormals && geom.normalsCompressed
       ? octDecodeNormalsU16(geom.normalsCompressed, new Float32Array((geom.normalsCompressed.length / 2) * 3))
       : null;
 

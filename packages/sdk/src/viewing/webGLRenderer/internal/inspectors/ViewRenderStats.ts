@@ -10,6 +10,26 @@ export interface TriangleVBOGeometryFrameStats {
   blockedPrims: number;
 }
 
+export interface DrawPathFrameStats {
+  dtxDrawCalls: number;
+  vboDrawCalls: number;
+  dtxPrims: number;
+  vboPrims: number;
+  dtxBatches: number[];
+  vboBatches: number[];
+  byTechnique: Record<string, {
+    drawCalls: number;
+    prims: number;
+    path: "dtx" | "vbo";
+    batchStorage: "dtx" | "vbo";
+    hasNormals: boolean;
+    hasUVs: boolean;
+    edges: boolean;
+    picking: boolean;
+    snap: number;
+  }>;
+}
+
 /**
  * Log entry for a single render frame, made up of multiple render passes.
  */
@@ -60,4 +80,11 @@ export interface ViewRenderStats {
    * @internal
    */
   vboGeometryTriangles?: TriangleVBOGeometryFrameStats;
+
+  /**
+   * Per-frame summary of the geometry draw paths that actually rendered.
+   *
+   * @internal
+   */
+  drawPaths?: DrawPathFrameStats;
 }

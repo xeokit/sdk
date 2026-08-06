@@ -23,11 +23,13 @@ import {findChild, type FBXNode} from "../../FBXNode";
 
 const DEG2RAD = Math.PI / 180;
 
-export async function parse(params: ModelParseParams, _options?: any): Promise<void> {
+export async function parse(params: ModelParseParams, options?: any): Promise<void> {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
   }
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
 
   const root = readFBXBinary(params.fileData as ArrayBuffer);
   const objectsNode = findChild(root, "Objects");
@@ -102,8 +104,8 @@ export async function parse(params: ModelParseParams, _options?: any): Promise<v
         id: geometryId,
         primitive: TrianglesPrimitive,
         positions: geo.positions,
-        normals: geo.normals,
-        uvs: geo.uvs,
+        normals: ignoreNormals ? undefined : geo.normals,
+        uvs: ignoreUVs ? undefined : geo.uvs,
         indices: geo.indices,
       });
       if ((gr as any).ok === false) {

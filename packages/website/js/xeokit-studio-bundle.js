@@ -32886,10 +32886,10 @@ function parseMesh(node, ctx2, matrix, meshIds) {
         if (primitive.attributes.COLOR_0) {
           geometryParams.colors = primitive.attributes.COLOR_0.value;
         }
-        if (primitive.attributes.NORMAL) {
+        if (!ctx2.options.ignoreNormals && primitive.attributes.NORMAL) {
           geometryParams.normals = primitive.attributes.NORMAL.value;
         }
-        if (primitive.attributes.TEXCOORD_0) {
+        if (!ctx2.options.ignoreUVs && primitive.attributes.TEXCOORD_0) {
           geometryParams.uvs = primitive.attributes.TEXCOORD_0.value;
         }
         if (primitive.indices) {
@@ -32994,8 +32994,8 @@ function splitPrimitiveByFeature(ctx2, primitive, matrix) {
   if (!featureValues || !positions) {
     return false;
   }
-  const normals = primitive.attributes.NORMAL?.value;
-  const uvs = primitive.attributes.TEXCOORD_0?.value;
+  const normals = ctx2.options.ignoreNormals ? void 0 : primitive.attributes.NORMAL?.value;
+  const uvs = ctx2.options.ignoreUVs ? void 0 : primitive.attributes.TEXCOORD_0?.value;
   const srcIndices = primitive.indices?.value;
   const triangleCount2 = srcIndices ? srcIndices.length / 3 : positions.length / 9;
   const cornersByFeature = /* @__PURE__ */ new Map();
@@ -38670,6 +38670,8 @@ var GLTFExporter = class extends ModelExporter {
 async function encode22(params, options) {
   const { sceneModel } = params;
   options = options ?? {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const onProgress = options.onProgress;
   const signal = options.signal;
   const progress = { phase: "", current: 0, total: 0 };
@@ -38751,12 +38753,12 @@ async function encode22(params, options) {
     }
     const positionAccessor = doc.createAccessor().setType("VEC3").setArray(positions).setBuffer(buffer);
     const bundle = { position: positionAccessor };
-    if (geom.normalsCompressed) {
+    if (!ignoreNormals && geom.normalsCompressed) {
       const normals = new Float32Array(geom.normalsCompressed.length / 2 * 3);
       octDecodeNormalsU16(geom.normalsCompressed, normals);
       bundle.normal = doc.createAccessor().setType("VEC3").setArray(normals).setBuffer(buffer);
     }
-    if (geom.uvsCompressed) {
+    if (!ignoreUVs && geom.uvsCompressed) {
       const uvs = geom.uvsDecompressMatrix ? decompressUVs(geom.uvsCompressed, geom.uvsDecompressMatrix, new Float32Array(geom.uvsCompressed.length)) : new Float32Array(geom.uvsCompressed);
       bundle.uv = doc.createAccessor().setType("VEC2").setArray(uvs).setBuffer(buffer);
     }
@@ -106856,6 +106858,8 @@ var ALPHA_MODE_NAMES = ["OPAQUE", "MASK", "BLEND"];
 async function xgfToModel(params) {
   const { xgfData, sceneModel, dataModel, options } = params;
   const layerId = options?.layerId || "default";
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
   const progress = { phase: "", current: 0, total: 0 };
   const step2 = async (phase, current, total) => {
@@ -107109,12 +107113,12 @@ async function xgfToModel(params) {
           if (colSlice.length > 0)
             params2.colorsCompressed = colSlice;
           const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-          if (normalsBaseI !== NO_INDEX) {
+          if (!ignoreNormals && normalsBaseI !== NO_INDEX) {
             const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
             params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
           }
           const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-          if (uvsBaseI !== NO_INDEX) {
+          if (!ignoreUVs && uvsBaseI !== NO_INDEX) {
             const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
             params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
           }
@@ -107223,6 +107227,8 @@ async function xgfToModel2(params) {
   const coordinateSystemMatrix = sceneModel && options?.coordinateSystem ? createCoordinateSystemTransform(options.coordinateSystem, sceneModel.coordinateSystem, createMat4Float64()) : void 0;
   const meshIdPrefix = options?.meshIdPrefix;
   const createdIds = options?.createdIds;
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
   const prefixId = (id) => id && idPrefix ? `${idPrefix}${id}` : id;
   const transformMatrix = (matrix, apply3) => {
@@ -107552,12 +107558,12 @@ async function xgfToModel2(params) {
     if (colSlice.length > 0)
       params2.colorsCompressed = colSlice;
     const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-    if (normalsBaseI !== NO_INDEX2) {
+    if (!ignoreNormals && normalsBaseI !== NO_INDEX2) {
       const normalsEnd = nextNonSentinelBase2(eachGeometryNormalsBase, geometryIdx, normals.length);
       params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
     }
     const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-    if (uvsBaseI !== NO_INDEX2) {
+    if (!ignoreUVs && uvsBaseI !== NO_INDEX2) {
       const uvsEnd = nextNonSentinelBase2(eachGeometryUVsBase, geometryIdx, uvs.length);
       params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
     }
@@ -107874,6 +107880,8 @@ var samplerCode = (v) => v !== void 0 && SAMPLER_CODE[v] !== void 0 ? SAMPLER_CO
 async function modelToXGF(params) {
   const sceneModel = params.sceneModel;
   const options = params.options || {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const onProgress = options.onProgress;
   const signal = options.signal;
   const progress = { phase: "", current: 0, total: 0 };
@@ -107917,9 +107925,9 @@ async function modelToXGF(params) {
       sizeEdgeIndices += geometry.edgeIndices.length;
     if (geometry.colorsCompressed)
       sizeColors += geometry.colorsCompressed.length;
-    if (geometry.normalsCompressed)
+    if (!ignoreNormals && geometry.normalsCompressed)
       sizeNormals += geometry.normalsCompressed.length;
-    if (geometry.uvsCompressed)
+    if (!ignoreUVs && geometry.uvsCompressed)
       sizeUVs += geometry.uvsCompressed.length;
     if (geometry.scales)
       sizeScales += geometry.scales.length;
@@ -108122,14 +108130,14 @@ async function modelToXGF(params) {
       xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
       edgeIndicesBase += geometry.edgeIndices.length;
     }
-    if (geometry.normalsCompressed) {
+    if (!ignoreNormals && geometry.normalsCompressed) {
       xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
       xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX3;
     }
-    if (geometry.uvsCompressed) {
+    if (!ignoreUVs && geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
@@ -108397,6 +108405,8 @@ var samplerCode2 = (v) => v !== void 0 && SAMPLER_CODE2[v] !== void 0 ? SAMPLER_
 async function modelToXGF2(params) {
   const sceneModel = params.sceneModel;
   const options = params.options || {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const assetMode = options.assetMode === "assetLibrary" || options.assetMode === "referencesOnly" ? options.assetMode : "full";
   const preserveTransforms = options.preserveTransforms !== false && !options.coordinateSystem;
   const onProgress = options.onProgress;
@@ -108449,9 +108459,9 @@ async function modelToXGF2(params) {
     }
     if (geometry.colorsCompressed)
       sizeColors += geometry.colorsCompressed.length;
-    if (geometry.normalsCompressed)
+    if (!ignoreNormals && geometry.normalsCompressed)
       sizeNormals += geometry.normalsCompressed.length;
-    if (geometry.uvsCompressed)
+    if (!ignoreUVs && geometry.uvsCompressed)
       sizeUVs += geometry.uvsCompressed.length;
     if (geometry.scales)
       sizeScales += geometry.scales.length;
@@ -108663,14 +108673,14 @@ async function modelToXGF2(params) {
       xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
       edgeIndicesBase += geometry.edgeIndices.length;
     }
-    if (geometry.normalsCompressed) {
+    if (!ignoreNormals && geometry.normalsCompressed) {
       xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
       xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX4;
     }
-    if (geometry.uvsCompressed) {
+    if (!ignoreUVs && geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
@@ -109369,7 +109379,9 @@ var XGFStreamingExporter = class {
         const view = createAssetLibraryView(sceneModel, spec);
         const fileData = await this._xgfExporter.write({ sceneModel: view }, {
           assetMode: "assetLibrary",
-          coordinateSystem: outputCoordinateSystem
+          coordinateSystem: outputCoordinateSystem,
+          ignoreNormals: params.ignoreNormals,
+          ignoreUVs: params.ignoreUVs
         });
         const manifest = createXGFManifest(
           { sceneModel: view },
@@ -109390,7 +109402,9 @@ var XGFStreamingExporter = class {
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
         const fileData = await this._xgfExporter.write({ sceneModel: view }, {
           assetMode: "referencesOnly",
-          coordinateSystem: outputCoordinateSystem
+          coordinateSystem: outputCoordinateSystem,
+          ignoreNormals: params.ignoreNormals,
+          ignoreUVs: params.ignoreUVs
         });
         const manifest = createXGFManifest(
           { sceneModel: view },
@@ -109700,7 +109714,9 @@ async function encodeXGFStream(params, options = {}) {
     gridCellSize,
     baseUri,
     chunkDirName,
-    assetId
+    assetId,
+    ignoreNormals: options.ignoreNormals === true,
+    ignoreUVs: options.ignoreUVs === true
   });
   const assetLibraries = createAssetLibrarySpecs({
     sceneModel,
@@ -109721,7 +109737,9 @@ async function encodeXGFStream(params, options = {}) {
     indexUri: joinUri(baseUri, indexName),
     runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : void 0,
     collapseChunkObjects: options.collapseChunkObjects === true,
-    coordinateSystem: options.coordinateSystem
+    coordinateSystem: options.coordinateSystem,
+    ignoreNormals: options.ignoreNormals === true,
+    ignoreUVs: options.ignoreUVs === true
   });
   if (result.ok === false) {
     throw new Error(result.error);
@@ -109761,7 +109779,7 @@ function createGridChunkSpecs(params) {
       id: objectId,
       aabb,
       center: aabbCenter(aabb),
-      cost: estimateObjectCost(sceneObject, params.chunkMetric)
+      cost: estimateObjectCost(sceneObject, params.chunkMetric, params.ignoreNormals, params.ignoreUVs)
     });
   }
   if (records.length === 0) {
@@ -110098,7 +110116,7 @@ function computeObjectAABB(sceneObject) {
   }
   return found ? out : null;
 }
-function estimateObjectCost(sceneObject, metric) {
+function estimateObjectCost(sceneObject, metric, ignoreNormals = false, ignoreUVs = false) {
   if (metric === "objects") {
     return 1;
   }
@@ -110116,8 +110134,12 @@ function estimateObjectCost(sceneObject, metric) {
     geometryIds.add(geometry.id);
     bytes += arrayByteLength(geometry.positionsCompressed);
     bytes += arrayByteLength(geometry.colorsCompressed);
-    bytes += arrayByteLength(geometry.normalsCompressed);
-    bytes += arrayByteLength(geometry.uvsCompressed);
+    if (!ignoreNormals) {
+      bytes += arrayByteLength(geometry.normalsCompressed);
+    }
+    if (!ignoreUVs) {
+      bytes += arrayByteLength(geometry.uvsCompressed);
+    }
     bytes += arrayByteLength(geometry.indices);
     bytes += arrayByteLength(geometry.edgeIndices);
     bytes += arrayByteLength(geometry.scales);
@@ -139907,6 +139929,8 @@ var parse23 = async (params, options = {}) => {
   }
   const onProgress = options.onProgress;
   const signal = options.signal;
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const progress = { phase: "", current: 0, total: 0 };
   const step2 = async (phase, current, total) => {
     if (onProgress) {
@@ -139957,10 +139981,10 @@ var parse23 = async (params, options = {}) => {
   if (hasFaces) {
     geometryCfg.indices = indices;
   }
-  if (normals.length === vertexCount2 * 3) {
+  if (!ignoreNormals && normals.length === vertexCount2 * 3) {
     geometryCfg.normals = normals;
   }
-  if (uvs.length === vertexCount2 * 2) {
+  if (!ignoreUVs && uvs.length === vertexCount2 * 2) {
     geometryCfg.uvs = uvs;
   }
   if (colors.length === vertexCount2 * 4) {
@@ -140163,6 +140187,8 @@ async function encode18(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
+  const ignoreNormals = opts.ignoreNormals === true;
+  const ignoreUVs = opts.ignoreUVs === true;
   const progress = { phase: "", current: 0, total: 0 };
   const step2 = async (phase, current, total) => {
     if (onProgress) {
@@ -140182,7 +140208,7 @@ async function encode18(params, options) {
     const sceneObject = sceneObjects[i];
     const meshes = sceneObject.meshes || [];
     for (const mesh of meshes) {
-      appendMesh(mesh, vertices, faces2);
+      appendMesh(mesh, vertices, faces2, ignoreNormals, ignoreUVs);
     }
   }
   await step2("Encoding PLY", sceneObjects.length, sceneObjects.length);
@@ -140243,7 +140269,7 @@ async function encode18(params, options) {
   }
   return lines.join("\n");
 }
-function appendMesh(mesh, vertices, faces2) {
+function appendMesh(mesh, vertices, faces2, ignoreNormals, ignoreUVs) {
   const geometry = mesh.geometry;
   if (!geometry || geometry.primitive !== TrianglesPrimitive && geometry.primitive !== PointsPrimitive) {
     return;
@@ -140255,8 +140281,8 @@ function appendMesh(mesh, vertices, faces2) {
   const vertexOffset = vertices.length;
   const vertexCount2 = positionsCompressed.length / 3;
   const matrix = getMeshWorldMatrix(mesh);
-  const decodedNormals = geometry.normalsCompressed ? octDecodeNormalsU16(geometry.normalsCompressed, new Float32Array(geometry.normalsCompressed.length / 2 * 3)) : null;
-  const uvs = geometry.uvsCompressed;
+  const decodedNormals = !ignoreNormals && geometry.normalsCompressed ? octDecodeNormalsU16(geometry.normalsCompressed, new Float32Array(geometry.normalsCompressed.length / 2 * 3)) : null;
+  const uvs = ignoreUVs ? void 0 : geometry.uvsCompressed;
   const colors = geometry.colorsCompressed;
   const meshColor = mesh.color || [1, 1, 1];
   const meshOpacity = mesh.opacity !== void 0 ? mesh.opacity : 1;
@@ -140774,11 +140800,13 @@ function findChild(node, name12) {
 
 // ../sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse25(params, _options) {
+async function parse25(params, options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
   }
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
   const root = readFBXBinary(params.fileData);
   const objectsNode = findChild(root, "Objects");
   if (!objectsNode) {
@@ -140847,8 +140875,8 @@ async function parse25(params, _options) {
         id: geometryId,
         primitive: TrianglesPrimitive,
         positions: geo.positions,
-        normals: geo.normals,
-        uvs: geo.uvs,
+        normals: ignoreNormals ? void 0 : geo.normals,
+        uvs: ignoreUVs ? void 0 : geo.uvs,
         indices: geo.indices
       });
       if (gr.ok === false) {
@@ -141304,6 +141332,8 @@ async function encode20(params, options) {
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
   }
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
   const triplanarSkip = findTriplanarTextureSkip(sceneModel);
   if (triplanarSkip.any) {
     const warn = options?.onWarning ?? ((m) => console.warn(m));
@@ -141321,7 +141351,7 @@ async function encode20(params, options) {
     const existing = geomFbxId.get(geom.id);
     if (existing !== void 0)
       return existing;
-    const node = buildGeometryNode(geom, newId());
+    const node = buildGeometryNode(geom, newId(), ignoreNormals, ignoreUVs);
     if (!node)
       return null;
     geomFbxId.set(geom.id, node.props[0].v);
@@ -141413,7 +141443,7 @@ async function encode20(params, options) {
     fbxNode("Connections", [], connections)
   ]);
 }
-function buildGeometryNode(geom, id) {
+function buildGeometryNode(geom, id, ignoreNormals, ignoreUVs) {
   const pc = geom.positionsCompressed;
   const aabb = geom.aabb;
   if (!pc || !aabb || pc.length === 0)
@@ -141442,12 +141472,12 @@ function buildGeometryNode(geom, id) {
     fbxLeaf("Vertices", fbxDArr(positions)),
     fbxLeaf("PolygonVertexIndex", fbxIArr(poly))
   ];
-  if (geom.normalsCompressed) {
+  if (!ignoreNormals && geom.normalsCompressed) {
     const normals = new Float32Array(geom.normalsCompressed.length / 2 * 3);
     octDecodeNormalsU16(geom.normalsCompressed, normals);
     children.push(layerNode("LayerElementNormal", "Normals", normals));
   }
-  if (geom.uvsCompressed && geom.uvsCompressed.length) {
+  if (!ignoreUVs && geom.uvsCompressed && geom.uvsCompressed.length) {
     children.push(layerNode("LayerElementUV", "UV", geom.uvsCompressed));
   }
   return fbxNode("Geometry", [fbxL(id), fbxS(`${geom.id}${SEP}Geometry`), fbxS("Mesh")], children);
@@ -148380,11 +148410,12 @@ var ThreeDXMLLoader = class extends ModelLoader {
 
 // ../sdk/src/formats/threedxml/versions/v1/encode.ts
 var textEncoder2 = new TextEncoder();
-async function encode26(params, _options) {
+async function encode26(params, options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw new Error("[3DXMLExporter] params.sceneModel is required");
   }
+  const ignoreNormals = options?.ignoreNormals === true;
   const structure = [`<Reference3D id="1" name="${esc(sceneModel.id)}"/>`];
   const repFiles = [];
   let nextId = 2;
@@ -148395,7 +148426,7 @@ async function encode26(params, _options) {
       continue;
     }
     const positions = decompressPositions3WithAABB3(geom.positionsCompressed, geom.aabb);
-    const normals = geom.normalsCompressed ? octDecodeNormalsU16(geom.normalsCompressed, new Float32Array(geom.normalsCompressed.length / 2 * 3)) : null;
+    const normals = !ignoreNormals && geom.normalsCompressed ? octDecodeNormalsU16(geom.normalsCompressed, new Float32Array(geom.normalsCompressed.length / 2 * 3)) : null;
     const repName = `Rep_${repIndex}.3DRep`;
     repFiles.push({ name: repName, data: textEncoder2.encode(repDocument(positions, normals, geom.indices, mesh)) });
     const partRefId = nextId++;
@@ -177766,6 +177797,9 @@ var nowMs = () => {
   const p = globalThis?.performance;
   return p?.now ? p.now() : Date.now();
 };
+function shouldLogDrawPaths() {
+  return globalThis.XEOKIT_LOG_DRAW_PATHS === true;
+}
 var TIME_ELAPSED_EXT = 35007;
 var GPU_DISJOINT_EXT = 36795;
 var RenderInspector = class _RenderInspector {
@@ -177813,6 +177847,16 @@ var RenderInspector = class _RenderInspector {
       tiles: {},
       views: []
     };
+  }
+  /**
+   * True when the inspector should receive frame/draw callbacks.
+   *
+   * This includes normal inspector capture plus lightweight draw-path logging.
+   *
+   * @internal
+   */
+  get active() {
+    return this.enabled || shouldLogDrawPaths();
   }
   /**
    * Attaches a WebGL2 context to enable per-bin GPU timing.
@@ -177924,7 +177968,7 @@ var RenderInspector = class _RenderInspector {
    * @private
    */
   frameStarted(view) {
-    if (!this.enabled) {
+    if (!this.enabled && !shouldLogDrawPaths()) {
       return;
     }
     const viewIndex = view.viewIndex;
@@ -177949,7 +177993,7 @@ var RenderInspector = class _RenderInspector {
    */
   renderBinStarted(renderBinName) {
     const s = this.getActiveState();
-    if (!this.enabled || !s || !s.currentFrame) {
+    if (!this.enabled && !shouldLogDrawPaths() || !s || !s.currentFrame) {
       return;
     }
     if (!this.getRenderBinEnabled(renderBinName)) {
@@ -177972,9 +178016,9 @@ var RenderInspector = class _RenderInspector {
    * Duration measured until the next draw (or end of pass / frame).
    * @private
    */
-  drawMeshBatch(meshBatch, renderPass, primRange, edges) {
+  drawMeshBatch(meshBatch, renderPass, primRange, edges, drawPathInfo) {
     const s = this.getActiveState();
-    if (!this.enabled || !s || !s.currentFrame) {
+    if (!this.enabled && !shouldLogDrawPaths() || !s || !s.currentFrame) {
       return;
     }
     if (!s.currentPass) {
@@ -178031,12 +178075,18 @@ var RenderInspector = class _RenderInspector {
       renderPass: renderBinName,
       primitive: primitiveName,
       primRange,
-      timeMs: { start: t, end: t, duration: 0 }
+      timeMs: { start: t, end: t, duration: 0 },
+      drawPath: drawPathInfo?.drawPath,
+      batchStorage: meshBatch.geometryStorage,
+      technique: drawPathInfo?.technique
     };
     s.currentPass.drawCalls.push(draw);
     s.currentDraw = draw;
     s.currentFrame.numDrawCalls++;
     s.currentFrame.numPrims += primRange.numPrims;
+    if (drawPathInfo) {
+      this.recordDrawPath(s.currentFrame, meshBatch, primRange, drawPathInfo);
+    }
   }
   /**
    * Records coverage for triangle surface DrawTechniques using the VBO geometry
@@ -178070,7 +178120,7 @@ var RenderInspector = class _RenderInspector {
    */
   frameEnded() {
     const viewIndex = this._activeViewIndex;
-    if (!this.enabled || viewIndex == null)
+    if (!this.enabled && !shouldLogDrawPaths() || viewIndex == null)
       return;
     const s = this.ensureState(viewIndex);
     if (!s.currentFrame)
@@ -178092,10 +178142,72 @@ var RenderInspector = class _RenderInspector {
     s.currentPass = null;
     s.currentDraw = null;
     this._pollGpuTimers();
+    this._logDrawPaths(finishedFrame);
     this._captureMaybePush(finishedFrame);
     this._captureMaybeResolve();
   }
   // ----------------- internals -----------------
+  recordDrawPath(frame, meshBatch, primRange, drawPathInfo) {
+    const stats = frame.drawPaths ??= createDrawPathFrameStats();
+    const batches = drawPathInfo.drawPath === "vbo" ? stats.vboBatches : stats.dtxBatches;
+    if (!batches.includes(meshBatch.gpuMemoryBatchIndex)) {
+      batches.push(meshBatch.gpuMemoryBatchIndex);
+    }
+    if (drawPathInfo.drawPath === "vbo") {
+      stats.vboDrawCalls++;
+      stats.vboPrims += primRange.numPrims;
+    } else {
+      stats.dtxDrawCalls++;
+      stats.dtxPrims += primRange.numPrims;
+    }
+    const key = [
+      drawPathInfo.technique,
+      drawPathInfo.drawPath,
+      meshBatch.geometryStorage,
+      meshBatch.hasNormals ? "normals" : "flat",
+      meshBatch.hasUVs ? "uvs" : "noUVs",
+      drawPathInfo.edges ? "edges" : "surface",
+      drawPathInfo.picking ? "pick" : "draw",
+      `snap${drawPathInfo.snap}`
+    ].join("|");
+    const bucket = stats.byTechnique[key] ??= {
+      drawCalls: 0,
+      prims: 0,
+      path: drawPathInfo.drawPath,
+      batchStorage: meshBatch.geometryStorage,
+      hasNormals: meshBatch.hasNormals,
+      hasUVs: meshBatch.hasUVs,
+      edges: drawPathInfo.edges,
+      picking: drawPathInfo.picking,
+      snap: drawPathInfo.snap
+    };
+    bucket.drawCalls++;
+    bucket.prims += primRange.numPrims;
+  }
+  _logDrawPaths(frame) {
+    if (!frame || !frame.drawPaths || !shouldLogDrawPaths()) {
+      return;
+    }
+    const stats = frame.drawPaths;
+    const summary = {
+      viewId: frame.viewId,
+      drawCalls: {
+        dtx: stats.dtxDrawCalls,
+        vbo: stats.vboDrawCalls
+      },
+      primitives: {
+        dtx: stats.dtxPrims,
+        vbo: stats.vboPrims
+      },
+      batches: {
+        dtx: stats.dtxBatches.slice(),
+        vbo: stats.vboBatches.slice()
+      },
+      byTechnique: stats.byTechnique
+    };
+    globalThis.XEOKIT_LAST_DRAW_PATHS = summary;
+    console.log("[xeokit] WebGL draw paths last frame", summary);
+  }
   getActiveState() {
     if (this._activeViewIndex == null)
       return null;
@@ -178238,6 +178350,17 @@ var RenderInspector = class _RenderInspector {
     resolve2?.(frames);
   }
 };
+function createDrawPathFrameStats() {
+  return {
+    dtxDrawCalls: 0,
+    vboDrawCalls: 0,
+    dtxPrims: 0,
+    vboPrims: 0,
+    dtxBatches: [],
+    vboBatches: [],
+    byTechnique: {}
+  };
+}
 
 // ../sdk/src/viewing/webGLRenderer/internal/RenderContext.ts
 var MAX_SHADOW_CASCADES = 6;
@@ -189511,6 +189634,12 @@ var DrawTechnique = class {
     drawInspector?.drawMeshBatch(meshBatch, renderPass, {
       firstPrim: inspectorRange.firstPrim,
       numPrims: inspectorRange.numPrims
+    }, this.edges, {
+      drawPath: this.vboGeometry ? "vbo" : "dtx",
+      technique: this.constructor.name,
+      edges: this.edges,
+      picking: this.picking,
+      snap: this.snap
     });
     return {
       ok: true,
@@ -201517,7 +201646,7 @@ var RenderManager = class _RenderManager {
    */
   _inspector() {
     const ri = this._renderContext.renderInspector;
-    return ri && ri.enabled ? ri : null;
+    return ri && ri.active ? ri : null;
   }
   /**
    * Releases GL-backed resources when the WebGL context is lost.

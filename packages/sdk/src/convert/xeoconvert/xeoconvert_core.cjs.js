@@ -4820,7 +4820,7 @@ var require_decoder = __commonJS({
           }.bind(this);
           xhr.send(null);
         },
-        parse: function parse32(data) {
+        parse: function parse33(data) {
           var maxResolutionInPixels = this.opts.maxResolutionInMP * 1e3 * 1e3;
           var offset = 0, length2 = data.length;
           function readUint16() {
@@ -6890,10 +6890,10 @@ var require_packer_sync = __commonJS({
 var require_png_sync = __commonJS({
   "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png-sync.js"(exports2) {
     "use strict";
-    var parse32 = require_parser_sync();
+    var parse33 = require_parser_sync();
     var pack = require_packer_sync();
     exports2.read = function(buffer, options) {
-      return parse32(buffer, options || {});
+      return parse33(buffer, options || {});
     };
     exports2.write = function(png) {
       return pack(png);
@@ -10453,10 +10453,10 @@ var require_packer_sync2 = __commonJS({
 var require_png_sync2 = __commonJS({
   "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png-sync.js"(exports2) {
     "use strict";
-    var parse32 = require_parser_sync2();
+    var parse33 = require_parser_sync2();
     var pack = require_packer_sync2();
     exports2.read = function(buffer, options) {
-      return parse32(buffer, options || {});
+      return parse33(buffer, options || {});
     };
     exports2.write = function(png, options) {
       return pack(png, options);
@@ -12557,7 +12557,7 @@ var require_cookie = __commonJS({
       c3.value = cookieValue;
       return c3;
     }
-    function parse32(str, options) {
+    function parse33(str, options) {
       if (!options || typeof options !== "object") {
         options = {};
       }
@@ -12739,7 +12739,7 @@ var require_cookie = __commonJS({
       });
     }
     Cookie.cookiesCreated = 0;
-    Cookie.parse = parse32;
+    Cookie.parse = parse33;
     Cookie.fromJSON = fromJSON;
     Cookie.prototype.key = "";
     Cookie.prototype.value = "";
@@ -13296,7 +13296,7 @@ var require_cookie = __commonJS({
     exports2.MemoryCookieStore = MemoryCookieStore;
     exports2.parseDate = parseDate;
     exports2.formatDate = formatDate;
-    exports2.parse = parse32;
+    exports2.parse = parse33;
     exports2.fromJSON = fromJSON;
     exports2.domainMatch = domainMatch;
     exports2.defaultPath = defaultPath;
@@ -13495,7 +13495,7 @@ var require_helpers = __commonJS({
 var require_aws_sign2 = __commonJS({
   "node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js"(exports2, module2) {
     var crypto3 = require("crypto");
-    var parse32 = require("url").parse;
+    var parse33 = require("url").parse;
     var keys = [
       "acl",
       "location",
@@ -13561,7 +13561,7 @@ var require_aws_sign2 = __commonJS({
     }
     module2.exports.canonicalizeHeaders = canonicalizeHeaders;
     function canonicalizeResource(resource) {
-      var url = parse32(resource, true), path2 = url.pathname, buf = [];
+      var url = parse33(resource, true), path2 = url.pathname, buf = [];
       Object.keys(url.query).forEach(function(key) {
         if (!~keys.indexOf(key))
           return;
@@ -38166,11 +38166,11 @@ var require_lib4 = __commonJS({
   "node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/index.js"(exports2, module2) {
     "use strict";
     var stringify = require_stringify2();
-    var parse32 = require_parse();
+    var parse33 = require_parse();
     var formats2 = require_formats();
     module2.exports = {
       formats: formats2,
-      parse: parse32,
+      parse: parse33,
       stringify
     };
   }
@@ -38761,7 +38761,7 @@ var require_uri_all = __commonJS({
       }
       var URI_PARSE = /^(?:([^:\/?#]+):)?(?:\/\/((?:([^\/?#@]*)@)?(\[[^\/?#\]]+\]|[^\/?#:]*)(?:\:(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#((?:.|\n|\r)*))?/i;
       var NO_MATCH_IS_UNDEFINED = "".match(/(){0}/)[1] === void 0;
-      function parse32(uriString) {
+      function parse33(uriString) {
         var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
         var components = {};
         var protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
@@ -38932,8 +38932,8 @@ var require_uri_all = __commonJS({
         var skipNormalization = arguments[3];
         var target = {};
         if (!skipNormalization) {
-          base2 = parse32(serialize(base2, options), options);
-          relative = parse32(serialize(relative, options), options);
+          base2 = parse33(serialize(base2, options), options);
+          relative = parse33(serialize(relative, options), options);
         }
         options = options || {};
         if (!options.tolerant && relative.scheme) {
@@ -38984,24 +38984,24 @@ var require_uri_all = __commonJS({
       }
       function resolve3(baseURI, relativeURI, options) {
         var schemelessOptions = assign2({ scheme: "null" }, options);
-        return serialize(resolveComponents(parse32(baseURI, schemelessOptions), parse32(relativeURI, schemelessOptions), schemelessOptions, true), schemelessOptions);
+        return serialize(resolveComponents(parse33(baseURI, schemelessOptions), parse33(relativeURI, schemelessOptions), schemelessOptions, true), schemelessOptions);
       }
       function normalize(uri, options) {
         if (typeof uri === "string") {
-          uri = serialize(parse32(uri, options), options);
+          uri = serialize(parse33(uri, options), options);
         } else if (typeOf(uri) === "object") {
-          uri = parse32(serialize(uri, options), options);
+          uri = parse33(serialize(uri, options), options);
         }
         return uri;
       }
       function equal(uriA, uriB, options) {
         if (typeof uriA === "string") {
-          uriA = serialize(parse32(uriA, options), options);
+          uriA = serialize(parse33(uriA, options), options);
         } else if (typeOf(uriA) === "object") {
           uriA = serialize(uriA, options);
         }
         if (typeof uriB === "string") {
-          uriB = serialize(parse32(uriB, options), options);
+          uriB = serialize(parse33(uriB, options), options);
         } else if (typeOf(uriB) === "object") {
           uriB = serialize(uriB, options);
         }
@@ -39016,7 +39016,7 @@ var require_uri_all = __commonJS({
       var handler = {
         scheme: "http",
         domainHost: true,
-        parse: function parse33(components, options) {
+        parse: function parse34(components, options) {
           if (!components.host) {
             components.error = components.error || "HTTP URIs must have a host.";
           }
@@ -39045,7 +39045,7 @@ var require_uri_all = __commonJS({
       var handler$2 = {
         scheme: "ws",
         domainHost: true,
-        parse: function parse33(components, options) {
+        parse: function parse34(components, options) {
           var wsComponents = components;
           wsComponents.secure = isSecure(wsComponents);
           wsComponents.resourceName = (wsComponents.path || "/") + (wsComponents.query ? "?" + wsComponents.query : "");
@@ -39221,7 +39221,7 @@ var require_uri_all = __commonJS({
       var UUID = /^[0-9A-Fa-f]{8}(?:\-[0-9A-Fa-f]{4}){3}\-[0-9A-Fa-f]{12}$/;
       var handler$6 = {
         scheme: "urn:uuid",
-        parse: function parse33(urnComponents, options) {
+        parse: function parse34(urnComponents, options) {
           var uuidComponents = urnComponents;
           uuidComponents.uuid = uuidComponents.nss;
           uuidComponents.nss = void 0;
@@ -39246,7 +39246,7 @@ var require_uri_all = __commonJS({
       exports3.SCHEMES = SCHEMES;
       exports3.pctEncChar = pctEncChar;
       exports3.pctDecChars = pctDecChars;
-      exports3.parse = parse32;
+      exports3.parse = parse33;
       exports3.removeDotSegments = removeDotSegments;
       exports3.serialize = serialize;
       exports3.resolveComponents = resolveComponents;
@@ -136106,6 +136106,12 @@ var NORMALS_TEXTURE = 2;
 var EMISSIVE_TEXTURE = 3;
 var OCCLUSION_TEXTURE = 4;
 var TEXTURE_ENCODING_OPTIONS = {};
+function normalizeUpdateHint(updateHint) {
+  if (updateHint === "stream") {
+    return "dynamic";
+  }
+  return updateHint === "static" || updateHint === "dynamic" ? updateHint : "auto";
+}
 TEXTURE_ENCODING_OPTIONS[COLOR_TEXTURE] = {
   useSRGB: true,
   qualityLevel: 50,
@@ -136177,6 +136183,12 @@ var SceneModel2 = class {
      * This is ````false```` by default.
      */
     __publicField(this, "globalizedIds");
+    /**
+     * Hint describing how often this SceneModel's geometry is expected to change.
+     *
+     * Renderers can use this to choose an internal storage path.
+     */
+    __publicField(this, "_updateHint");
     /**
      * Unique ID of this SceneModel.
      *
@@ -136254,6 +136266,7 @@ var SceneModel2 = class {
      */
     __publicField(this, "destroyed", false);
     __publicField(this, "_building", false);
+    var _a2;
     this.id = sceneModelParams.id;
     this.scene = scene;
     this.coordinateSystem = new CoordinateSystem(
@@ -136267,6 +136280,7 @@ var SceneModel2 = class {
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = !!sceneModelParams.globalizedIds;
+    this._updateHint = normalizeUpdateHint((_a2 = sceneModelParams.updateHint) != null ? _a2 : sceneModelParams.updateUsage);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
     this.geometries = {};
@@ -136288,6 +136302,24 @@ var SceneModel2 = class {
       numVertices: 0,
       textureBytes: 0
     };
+  }
+  /**
+   * Hint describing how often this SceneModel's geometry is expected to change.
+   */
+  get updateHint() {
+    return this._updateHint;
+  }
+  set updateHint(updateHint) {
+    this._updateHint = normalizeUpdateHint(updateHint);
+  }
+  /**
+   * @deprecated Use `updateHint`.
+   */
+  get updateUsage() {
+    return this._updateHint;
+  }
+  set updateUsage(updateUsage) {
+    this.updateHint = updateUsage;
   }
   /**
    * Whether this SceneModel is currently being populated by a loader.
@@ -137586,6 +137618,7 @@ var SceneModel2 = class {
    * * On failure, an error message.
    */
   fromParams(sceneModelParams) {
+    var _a2;
     if (this.destroyed) {
       return this.scene.logError({
         ok: false,
@@ -137595,6 +137628,10 @@ var SceneModel2 = class {
     }
     if (sceneModelParams.coordinateSystem) {
       this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
+    }
+    const updateHint = (_a2 = sceneModelParams.updateHint) != null ? _a2 : sceneModelParams.updateUsage;
+    if (updateHint !== void 0) {
+      this.updateHint = updateHint;
     }
     if (sceneModelParams.transforms) {
       for (let i2 = 0, len = sceneModelParams.transforms.length; i2 < len; i2++) {
@@ -137680,6 +137717,8 @@ var SceneModel2 = class {
     const sceneModelParams = {
       id: this.id,
       coordinateSystem: this.coordinateSystem.toParams(),
+      updateHint: this.updateHint,
+      updateUsage: this.updateHint,
       geometriesCompressed: [],
       textures: [],
       materials: [],
@@ -141696,9 +141735,9 @@ var DracoParser = class {
    * @param attributeData
    */
   _deduceAttributeName(attribute, options) {
-    const uniqueId2 = attribute.unique_id;
+    const uniqueId3 = attribute.unique_id;
     for (const [attributeName, attributeUniqueId] of Object.entries(options.extraAttributes || {})) {
-      if (attributeUniqueId === uniqueId2) {
+      if (attributeUniqueId === uniqueId3) {
         return attributeName;
       }
     }
@@ -141713,7 +141752,7 @@ var DracoParser = class {
     if (attribute.metadata[entryName]) {
       return attribute.metadata[entryName].string;
     }
-    return `CUSTOM_ATTRIBUTE_${uniqueId2}`;
+    return `CUSTOM_ATTRIBUTE_${uniqueId3}`;
   }
   // METADATA EXTRACTION
   /** Get top level metadata */
@@ -153507,6 +153546,651 @@ var CityJSONExporter = class extends ModelExporter {
   }
 };
 
+// packages/sdk/src/formats/citygml/index.ts
+var citygml_exports = {};
+__export(citygml_exports, {
+  CityGMLLoader: () => CityGMLLoader,
+  getCityGMLVersion: () => getCityGMLVersion
+});
+
+// packages/sdk/src/formats/citygml/versions/v2_0/parse.ts
+var GML_NS = "http://www.opengis.net/gml";
+var SCHEMA2 = "citygml_2_0";
+var DEFAULT_COLOR = [0.75, 0.75, 0.72];
+var NON_FEATURE_LOCAL_NAMES = /* @__PURE__ */ new Set([
+  "CityModel",
+  "cityObjectMember",
+  "featureMember",
+  "boundedBy",
+  "Polygon",
+  "Triangle",
+  "Rectangle",
+  "LinearRing",
+  "MultiSurface",
+  "CompositeSurface",
+  "Surface",
+  "Solid",
+  "CompositeSolid",
+  "MultiSolid",
+  "Shell",
+  "surfaceMember",
+  "surfaceMembers",
+  "solidMember",
+  "solidMembers",
+  "exterior",
+  "interior",
+  "posList",
+  "pos",
+  "Point",
+  "LineString",
+  "MultiCurve",
+  "Curve",
+  "segments",
+  "LineStringSegment"
+]);
+var parse5 = async (params, options) => {
+  const { fileData, sceneModel, dataModel } = params;
+  const opts = options || {};
+  const onProgress = opts.onProgress;
+  const signal = opts.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total2) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total2;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  if (!sceneModel && !dataModel) {
+    return;
+  }
+  const root = await getRootElement(fileData);
+  if (!root) {
+    throw new Error("[CityGMLLoader] Failed to parse CityGML file: XML Document or Element expected");
+  }
+  const usedIds = /* @__PURE__ */ new Set();
+  const features = collectFeatures(root, usedIds);
+  const ctx2 = {
+    sceneModel,
+    dataModel,
+    options: opts,
+    errors: [],
+    warnings: [],
+    nextId: 0,
+    featureElements: new Set(features.map((feature) => feature.element)),
+    elementsById: buildElementById(root)
+  };
+  const total = features.length;
+  for (let i2 = 0; i2 < total; i2++) {
+    if ((i2 & 31) === 0) {
+      await step2("Parsing CityGML features", i2, total);
+    }
+    if (!parseFeature(ctx2, features[i2])) {
+      throw new Error(`[CityGMLLoader] Failed to parse CityGML file: ${ctx2.errors[0]}`);
+    }
+  }
+  if (dataModel) {
+    for (let i2 = 0; i2 < total; i2++) {
+      if ((i2 & 63) === 0) {
+        await step2("Building CityGML relationships", i2, total);
+      }
+      if (!parseRelationship2(ctx2, features[i2])) {
+        throw new Error(`[CityGMLLoader] Failed to parse CityGML file: ${ctx2.errors[0]}`);
+      }
+    }
+  }
+  await step2("Parsing CityGML features", total, total);
+  if (ctx2.warnings.length > 0) {
+    console.warn(`[CityGMLLoader] Warning while parsing CityGML file: ${ctx2.warnings[0]}`);
+  }
+};
+async function getRootElement(fileData) {
+  if (!fileData) {
+    return null;
+  }
+  if (fileData.nodeType === 9) {
+    return fileData.documentElement || null;
+  }
+  if (fileData.nodeType === 1) {
+    return fileData;
+  }
+  const text = await fileDataToText(fileData);
+  if (typeof DOMParser === "undefined") {
+    throw new Error("[CityGMLLoader] DOMParser is required to parse CityGML text input");
+  }
+  const doc = new DOMParser().parseFromString(text, "application/xml");
+  const parserError = localName(doc.documentElement) === "parsererror" ? doc.documentElement : firstDescendantByLocalName(doc.documentElement, "parsererror");
+  if (parserError) {
+    throw new Error(`[CityGMLLoader] Failed to parse CityGML XML: ${textContent(parserError) || "invalid XML"}`);
+  }
+  return doc.documentElement;
+}
+async function fileDataToText(fileData) {
+  if (typeof fileData === "string") {
+    return fileData;
+  }
+  if (fileData instanceof ArrayBuffer) {
+    return new TextDecoder().decode(fileData);
+  }
+  if (ArrayBuffer.isView(fileData)) {
+    return new TextDecoder().decode(fileData);
+  }
+  if (typeof fileData.text === "function") {
+    return fileData.text();
+  }
+  return String(fileData);
+}
+function collectFeatures(root, usedIds) {
+  const features = [];
+  const visit = (element, parent) => {
+    const feature = isFeatureElement(element) ? {
+      element,
+      originalId: getGmlId(element),
+      id: uniqueId(getGmlId(element), usedIds),
+      type: localName(element),
+      name: firstChildText(element, "name"),
+      parent
+    } : void 0;
+    if (feature) {
+      features.push(feature);
+    }
+    const nextParent = feature || parent;
+    forEachElementChild(element, (child) => visit(child, nextParent));
+  };
+  visit(root);
+  return features;
+}
+function isFeatureElement(element) {
+  const id = getGmlId(element);
+  if (!id) {
+    return false;
+  }
+  const name12 = localName(element);
+  if (NON_FEATURE_LOCAL_NAMES.has(name12)) {
+    return false;
+  }
+  return hasDescendantSurfaceGeometry(element);
+}
+function hasDescendantSurfaceGeometry(element) {
+  let found = false;
+  walkDescendants(element, (child) => {
+    if (isSurfaceGeometryElement(child) || getHref(child)) {
+      found = true;
+      return false;
+    }
+    return true;
+  });
+  return found;
+}
+function parseFeature(ctx2, feature) {
+  if (ctx2.dataModel) {
+    const result = ctx2.dataModel.createObject({
+      id: feature.id,
+      originalSystemId: feature.originalId,
+      name: feature.name || `${feature.type} : ${feature.originalId}`,
+      type: feature.type,
+      schema: SCHEMA2
+    });
+    if (!result.ok) {
+      ctx2.errors.push(`Failed to create DataObject for CityGML feature ${feature.originalId} -> ${result.error}`);
+      return false;
+    }
+  }
+  if (!ctx2.sceneModel) {
+    return true;
+  }
+  const geometry = buildFeatureGeometry(ctx2, feature);
+  if (geometry.positions.length === 0 || geometry.indices.length === 0) {
+    return true;
+  }
+  const geometryId = uniqueGeneratedId(ctx2, `${feature.id}-geometry`);
+  const geometryResult = ctx2.sceneModel.createGeometry({
+    id: geometryId,
+    primitive: TrianglesPrimitive,
+    positions: geometry.positions,
+    indices: geometry.indices
+  });
+  if (!geometryResult.ok) {
+    ctx2.errors.push(`Failed to create SceneGeometry for CityGML feature ${feature.originalId} -> ${geometryResult.error}`);
+    return false;
+  }
+  const meshId = uniqueGeneratedId(ctx2, `${feature.id}-mesh`);
+  const meshResult = ctx2.sceneModel.createMesh({
+    id: meshId,
+    geometryId,
+    color: colorForFeatureType(feature.type),
+    opacity: 1
+  });
+  if (!meshResult.ok) {
+    ctx2.errors.push(`Failed to create SceneMesh for CityGML feature ${feature.originalId} -> ${meshResult.error}`);
+    return false;
+  }
+  const objectResult = ctx2.sceneModel.createObject({
+    id: feature.id,
+    originalSystemId: feature.originalId,
+    meshIds: [meshId],
+    layerId: ctx2.options.layerId
+  });
+  if (!objectResult.ok) {
+    ctx2.errors.push(`Failed to create SceneObject for CityGML feature ${feature.originalId} -> ${objectResult.error}`);
+    return false;
+  }
+  return true;
+}
+function parseRelationship2(ctx2, feature) {
+  if (!feature.parent || !ctx2.dataModel) {
+    return true;
+  }
+  const result = ctx2.dataModel.createRelationship({
+    relatingObjectId: feature.parent.id,
+    relatedObjectId: feature.id,
+    type: "BasicAggregation",
+    schema: SCHEMA2
+  });
+  if (!result.ok) {
+    ctx2.errors.push(`Failed to create DataRelationship for CityGML feature ${feature.originalId} -> ${result.error}`);
+    return false;
+  }
+  return true;
+}
+function buildFeatureGeometry(ctx2, feature) {
+  const geometry = {
+    positions: [],
+    indices: []
+  };
+  const visit = (element) => {
+    if (element !== feature.element && ctx2.featureElements.has(element)) {
+      return;
+    }
+    const href = getHref(element);
+    if (href) {
+      const referencedElement = ctx2.elementsById.get(href);
+      if (referencedElement) {
+        parseGeometryElement(ctx2, referencedElement, geometry);
+      }
+    }
+    if (isSurfaceGeometryElement(element)) {
+      parseGeometryElement(ctx2, element, geometry);
+      return;
+    }
+    forEachElementChild(element, visit);
+  };
+  visit(feature.element);
+  return geometry;
+}
+function parseGeometryElement(ctx2, element, geometry) {
+  if (localName(element) === "Polygon" || localName(element) === "Triangle" || localName(element) === "Rectangle") {
+    parsePolygon(ctx2, element, geometry);
+    return;
+  }
+  forEachElementChild(element, (child) => {
+    if (isSurfaceGeometryElement(child)) {
+      parseGeometryElement(ctx2, child, geometry);
+    }
+  });
+}
+function parsePolygon(ctx2, polygon, geometry) {
+  const rings = readPolygonRings(ctx2, polygon);
+  if (rings.length === 0 || rings[0].length < 9) {
+    return;
+  }
+  const normal2 = normalOfRing(rings[0]);
+  const dropAxis = dominantAxis(normal2);
+  const flat = [];
+  const holes = [];
+  let vertexCount2 = 0;
+  const startIndex = geometry.positions.length / 3;
+  for (let i2 = 0; i2 < rings.length; i2++) {
+    const ring = rings[i2];
+    if (ring.length < 9) {
+      continue;
+    }
+    if (i2 > 0) {
+      holes.push(vertexCount2);
+    }
+    for (let j2 = 0; j2 < ring.length; j2 += 3) {
+      const x2 = ring[j2];
+      const y2 = ring[j2 + 1];
+      const z2 = ring[j2 + 2];
+      geometry.positions.push(x2, y2, z2);
+      pushProjected(flat, dropAxis, x2, y2, z2);
+      vertexCount2++;
+    }
+  }
+  if (vertexCount2 < 3) {
+    return;
+  }
+  const triangles = earcut(flat, holes, 2);
+  for (let i2 = 0; i2 < triangles.length; i2 += 3) {
+    geometry.indices.push(
+      startIndex + triangles[i2],
+      startIndex + triangles[i2 + 1],
+      startIndex + triangles[i2 + 2]
+    );
+  }
+}
+function readPolygonRings(ctx2, polygon) {
+  const rings = [];
+  const exterior = firstDescendantByLocalName(polygon, "exterior");
+  const exteriorRing = exterior ? firstDescendantByLocalName(exterior, "LinearRing") : firstDescendantByLocalName(polygon, "LinearRing");
+  if (exteriorRing) {
+    const ring = readLinearRing(ctx2, exteriorRing);
+    if (ring.length >= 9) {
+      rings.push(ring);
+    }
+  }
+  const interiors = descendantsByLocalName(polygon, "interior");
+  for (let i2 = 0; i2 < interiors.length; i2++) {
+    const ringElement = firstDescendantByLocalName(interiors[i2], "LinearRing");
+    if (ringElement) {
+      const ring = readLinearRing(ctx2, ringElement);
+      if (ring.length >= 9) {
+        rings.push(ring);
+      }
+    }
+  }
+  if (rings.length === 0) {
+    const linearRings = descendantsByLocalName(polygon, "LinearRing");
+    for (let i2 = 0; i2 < linearRings.length; i2++) {
+      const ring = readLinearRing(ctx2, linearRings[i2]);
+      if (ring.length >= 9) {
+        rings.push(ring);
+      }
+    }
+  }
+  return rings;
+}
+function readLinearRing(ctx2, ring) {
+  var _a2, _b, _c, _d, _e2, _f, _g, _h;
+  const posList = firstDescendantByLocalName(ring, "posList");
+  const points = [];
+  const localOrigin = ctx2.options.localOrigin;
+  if (posList) {
+    const values = numbersFromText(textContent(posList));
+    const dimension = coordinateDimension(posList, values.length);
+    for (let i2 = 0; i2 + 1 < values.length; i2 += dimension) {
+      points.push(
+        values[i2] - ((_a2 = localOrigin == null ? void 0 : localOrigin[0]) != null ? _a2 : 0),
+        values[i2 + 1] - ((_b = localOrigin == null ? void 0 : localOrigin[1]) != null ? _b : 0),
+        ((_c = values[i2 + 2]) != null ? _c : 0) - ((_d = localOrigin == null ? void 0 : localOrigin[2]) != null ? _d : 0)
+      );
+    }
+  } else {
+    const poses = descendantsByLocalName(ring, "pos");
+    for (let i2 = 0; i2 < poses.length; i2++) {
+      const values = numbersFromText(textContent(poses[i2]));
+      if (values.length >= 2) {
+        points.push(
+          values[0] - ((_e2 = localOrigin == null ? void 0 : localOrigin[0]) != null ? _e2 : 0),
+          values[1] - ((_f = localOrigin == null ? void 0 : localOrigin[1]) != null ? _f : 0),
+          ((_g = values[2]) != null ? _g : 0) - ((_h = localOrigin == null ? void 0 : localOrigin[2]) != null ? _h : 0)
+        );
+      }
+    }
+  }
+  if (points.length >= 6 && samePoint(points, 0, points.length - 3)) {
+    points.length -= 3;
+  }
+  return points;
+}
+function coordinateDimension(element, valueCount) {
+  let cursor = element;
+  while (cursor) {
+    const srsDimension = cursor.getAttribute("srsDimension") || cursor.getAttribute("dimension");
+    if (srsDimension) {
+      const parsed = Number.parseInt(srsDimension, 10);
+      if (Number.isFinite(parsed) && parsed >= 2) {
+        return parsed;
+      }
+    }
+    cursor = cursor.parentElement;
+  }
+  return valueCount % 3 === 0 ? 3 : 2;
+}
+function normalOfRing(ring) {
+  let nx = 0;
+  let ny = 0;
+  let nz = 0;
+  const len = ring.length;
+  for (let i2 = 0; i2 < len; i2 += 3) {
+    const next = (i2 + 3) % len;
+    const x2 = ring[i2], y2 = ring[i2 + 1], z2 = ring[i2 + 2];
+    const nx2 = ring[next], ny2 = ring[next + 1], nz2 = ring[next + 2];
+    nx += (y2 - ny2) * (z2 + nz2);
+    ny += (z2 - nz2) * (x2 + nx2);
+    nz += (x2 - nx2) * (y2 + ny2);
+  }
+  return [nx, ny, nz];
+}
+function dominantAxis(normal2) {
+  const ax = Math.abs(normal2[0]);
+  const ay = Math.abs(normal2[1]);
+  const az = Math.abs(normal2[2]);
+  if (ax >= ay && ax >= az) {
+    return 0;
+  }
+  if (ay >= ax && ay >= az) {
+    return 1;
+  }
+  return 2;
+}
+function pushProjected(flat, dropAxis, x2, y2, z2) {
+  switch (dropAxis) {
+    case 0:
+      flat.push(y2, z2);
+      break;
+    case 1:
+      flat.push(x2, z2);
+      break;
+    default:
+      flat.push(x2, y2);
+      break;
+  }
+}
+function numbersFromText(text) {
+  const tokens = text.trim().split(/\s+/);
+  const values = [];
+  for (let i2 = 0; i2 < tokens.length; i2++) {
+    const value = Number(tokens[i2]);
+    if (Number.isFinite(value)) {
+      values.push(value);
+    }
+  }
+  return values;
+}
+function samePoint(points, a3, b5) {
+  return Math.abs(points[a3] - points[b5]) < 1e-9 && Math.abs(points[a3 + 1] - points[b5 + 1]) < 1e-9 && Math.abs(points[a3 + 2] - points[b5 + 2]) < 1e-9;
+}
+function buildElementById(root) {
+  const elementsById = /* @__PURE__ */ new Map();
+  const visit = (element) => {
+    const id = getGmlId(element);
+    if (id) {
+      elementsById.set(id, element);
+    }
+    forEachElementChild(element, visit);
+  };
+  visit(root);
+  return elementsById;
+}
+function isSurfaceGeometryElement(element) {
+  const name12 = localName(element);
+  return name12 === "Polygon" || name12 === "Triangle" || name12 === "Rectangle";
+}
+function firstDescendantByLocalName(element, name12) {
+  let found;
+  walkDescendants(element, (child) => {
+    if (localName(child) === name12) {
+      found = child;
+      return false;
+    }
+    return true;
+  });
+  return found;
+}
+function descendantsByLocalName(element, name12) {
+  const result = [];
+  walkDescendants(element, (child) => {
+    if (localName(child) === name12) {
+      result.push(child);
+    }
+    return true;
+  });
+  return result;
+}
+function walkDescendants(element, visitor) {
+  for (let i2 = 0; i2 < element.children.length; i2++) {
+    const child = element.children.item(i2);
+    if (visitor(child) === false) {
+      return false;
+    }
+    if (walkDescendants(child, visitor) === false) {
+      return false;
+    }
+  }
+  return true;
+}
+function forEachElementChild(element, callback) {
+  for (let i2 = 0; i2 < element.children.length; i2++) {
+    callback(element.children.item(i2));
+  }
+}
+function localName(element) {
+  const name12 = element.localName || element.nodeName;
+  const colon = name12.indexOf(":");
+  return colon >= 0 ? name12.slice(colon + 1) : name12;
+}
+function getGmlId(element) {
+  return element.getAttribute("gml:id") || element.getAttributeNS(GML_NS, "id") || element.getAttribute("id") || void 0;
+}
+function getHref(element) {
+  const href = element.getAttribute("xlink:href") || element.getAttributeNS("http://www.w3.org/1999/xlink", "href") || element.getAttribute("href") || void 0;
+  return href && href.charAt(0) === "#" ? href.slice(1) : void 0;
+}
+function textContent(element) {
+  return element.textContent || "";
+}
+function firstChildText(element, name12) {
+  for (let i2 = 0; i2 < element.children.length; i2++) {
+    const child = element.children.item(i2);
+    if (localName(child) === name12) {
+      const text = textContent(child).trim();
+      return text || void 0;
+    }
+  }
+  return void 0;
+}
+function uniqueId(id, usedIds) {
+  let candidate = id;
+  let suffix = 1;
+  while (usedIds.has(candidate)) {
+    candidate = `${id}_${suffix++}`;
+  }
+  usedIds.add(candidate);
+  return candidate;
+}
+function uniqueGeneratedId(ctx2, prefix) {
+  return `${prefix}_${ctx2.nextId++}`;
+}
+function colorForFeatureType(type) {
+  const normalized = type.toLowerCase();
+  if (normalized.includes("roof")) {
+    return [0.58, 0.22, 0.18];
+  }
+  if (normalized.includes("wall") || normalized.includes("building")) {
+    return [0.72, 0.68, 0.6];
+  }
+  if (normalized.includes("ground") || normalized.includes("floor")) {
+    return [0.45, 0.48, 0.42];
+  }
+  if (normalized.includes("water")) {
+    return [0.22, 0.42, 0.68];
+  }
+  if (normalized.includes("vegetation") || normalized.includes("plant")) {
+    return [0.24, 0.48, 0.26];
+  }
+  if (normalized.includes("road") || normalized.includes("transport") || normalized.includes("traffic")) {
+    return [0.28, 0.29, 0.3];
+  }
+  return DEFAULT_COLOR;
+}
+
+// packages/sdk/src/formats/citygml/CityGMLLoader.ts
+var CityGMLLoader = class extends ModelLoader {
+  /**
+   * Constructs a CityGMLLoader.
+   */
+  constructor() {
+    super({
+      format: "CityGML",
+      fileDataType: "text",
+      parsers: {
+        "1.0": parse5,
+        "2.0": parse5,
+        "3.0": parse5
+      },
+      getVersion: getCityGMLVersion
+    });
+  }
+  /**
+   * Loads CityGML file data into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
+   *
+   * @param params - The parameters used for loading the file data.
+   * @param options - Options for loading the CityGML file.
+   * @returns Resolves when the file data has been successfully loaded.
+   */
+  load(params, options = {}) {
+    return super.load(params, options);
+  }
+};
+function getCityGMLVersion(fileData) {
+  if (fileData == null ? void 0 : fileData.version) {
+    return `${fileData.version}`;
+  }
+  const namespace = getNamespace(fileData);
+  if (namespace) {
+    const version2 = versionFromText(namespace);
+    if (version2) {
+      return version2;
+    }
+  }
+  if (typeof fileData === "string") {
+    return versionFromText(fileData.slice(0, 8192)) || "2.0";
+  }
+  if (fileData instanceof ArrayBuffer) {
+    return versionFromText(new TextDecoder().decode(fileData.slice(0, 8192))) || "2.0";
+  }
+  if (ArrayBuffer.isView(fileData)) {
+    const bytes = new Uint8Array(fileData.buffer, fileData.byteOffset, Math.min(fileData.byteLength, 8192));
+    return versionFromText(new TextDecoder().decode(bytes)) || "2.0";
+  }
+  return "2.0";
+}
+function getNamespace(fileData) {
+  var _a2;
+  if ((fileData == null ? void 0 : fileData.nodeType) === 9) {
+    return ((_a2 = fileData.documentElement) == null ? void 0 : _a2.namespaceURI) || void 0;
+  }
+  if ((fileData == null ? void 0 : fileData.nodeType) === 1) {
+    return fileData.namespaceURI || void 0;
+  }
+  return void 0;
+}
+function versionFromText(text) {
+  if (/citygml\/(?:[^"'\s]*\/)?3\.0/i.test(text)) {
+    return "3.0";
+  }
+  if (/citygml\/(?:[^"'\s]*\/)?2\.0/i.test(text)) {
+    return "2.0";
+  }
+  if (/citygml\/(?:[^"'\s]*\/)?1\.0/i.test(text)) {
+    return "1.0";
+  }
+  return void 0;
+}
+
 // packages/sdk/src/formats/ifc/index.ts
 var ifc_exports = {};
 __export(ifc_exports, {
@@ -153516,8 +154200,8 @@ __export(ifc_exports, {
 
 // packages/sdk/src/formats/ifc/versions/IFC4/parse.ts
 var WebIFC = __toESM(require_web_ifc_api_node());
-var SCHEMA2 = "IFC4";
-async function parse5(ifcAPI, params, options) {
+var SCHEMA3 = "IFC4";
+async function parse6(ifcAPI, params, options) {
   await parseWebIFC(ifcAPI, params, options);
 }
 async function step(ctx2, phase, current, total) {
@@ -153596,7 +154280,7 @@ async function parsePropertySets(ctx2) {
     ctx2.dataModel.createPropertySet({
       id: propertySetId,
       type: "Default",
-      schema: SCHEMA2,
+      schema: SCHEMA3,
       name: (_b = def.Name) == null ? void 0 : _b.value,
       properties
     });
@@ -153626,13 +154310,13 @@ function createDataObject(ctx2, element, parentId, relType) {
     id,
     name: name12,
     type: typeCode,
-    schema: SCHEMA2,
+    schema: SCHEMA3,
     ...propertySetIds && propertySetIds.length > 0 ? { propertySetIds } : {}
   });
   if (parentId) {
     ctx2.dataModel.createRelationship({
       type: relType || "IfcRelAggregates",
-      schema: SCHEMA2,
+      schema: SCHEMA3,
       relatingObjectId: parentId,
       relatedObjectId: id
     });
@@ -153795,8 +154479,8 @@ var IFCLoader = class extends ModelLoader {
       format: "IFC",
       fileDataType: "arraybuffer",
       parsers: {
-        "IFC4": parse6,
-        "IFC2x3": parse6
+        "IFC4": parse7,
+        "IFC2x3": parse7
       },
       getVersion: (fileData) => {
         return "IFC4";
@@ -153804,10 +154488,10 @@ var IFCLoader = class extends ModelLoader {
     });
   }
 };
-async function parse6(params, options) {
+async function parse7(params, options) {
   try {
     const ifcAPI = await getInitializedIFCAPI();
-    return await parse5(ifcAPI, params, options);
+    return await parse6(ifcAPI, params, options);
   } catch (err5) {
     return Promise.reject("[IFCLoader] " + err5);
   }
@@ -154792,7 +155476,7 @@ function nextNonSentinelBase(bases, startIdx, arrayLength) {
 }
 
 // packages/sdk/src/formats/xgf/versions/v1/parse.ts
-async function parse7(params, options) {
+async function parse8(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xgfToModel({
     xgfData: unpackXGF(fileData),
@@ -155432,7 +156116,7 @@ function unpackXGF2(arrayBuffer) {
 }
 
 // packages/sdk/src/formats/xgf/versions/v2/parse.ts
-async function parse8(params, options) {
+async function parse9(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xgfToModel2({
     xgfData: unpackXGF2(fileData),
@@ -155449,8 +156133,8 @@ var XGFLoader = class extends ModelLoader {
       format: "XGF",
       fileDataType: "arraybuffer",
       parsers: {
-        "1": parse7,
-        "2": parse8
+        "1": parse8,
+        "2": parse9
       },
       getVersion: (fileData) => "" + new DataView(fileData).getUint32(0, true)
     });
@@ -156757,7 +157441,7 @@ function createXGFManifest(params, options = {}) {
     priority: options.priority,
     lod: options.lod
   };
-  const aabb = computeSceneModelAABB(sceneModel);
+  const aabb = computeSceneModelAABB(sceneModel, options.coordinateSystem);
   if (aabb) {
     manifest.aabb = aabb;
   }
@@ -156787,7 +157471,7 @@ function addTextureId(textureIds, texture) {
     textureIds.add(texture.id);
   }
 }
-function computeSceneModelAABB(sceneModel) {
+function computeSceneModelAABB(sceneModel, coordinateSystem) {
   let xmin = Number.POSITIVE_INFINITY;
   let ymin = Number.POSITIVE_INFINITY;
   let zmin = Number.POSITIVE_INFINITY;
@@ -156800,7 +157484,7 @@ function computeSceneModelAABB(sceneModel) {
     if (!aabb || aabb.length !== 6) {
       return;
     }
-    const matrix = mesh.worldMatrix;
+    const matrix = coordinateSystem ? getMeshWorldMatrix(mesh, coordinateSystem) : mesh.worldMatrix;
     for (let xBit = 0; xBit <= 1; xBit++) {
       const x2 = aabb[xBit ? 3 : 0];
       for (let yBit = 0; yBit <= 1; yBit++) {
@@ -156977,6 +157661,7 @@ var XGFStreamingExporter = class {
       return validation;
     }
     const { sceneModel } = params;
+    const outputCoordinateSystem = params.coordinateSystem || sceneModel.coordinateSystem;
     const files = {};
     const manifests = [];
     const librarySpecsById = {};
@@ -156984,7 +157669,10 @@ var XGFStreamingExporter = class {
       for (const spec of params.assetLibraries) {
         librarySpecsById[spec.id] = spec;
         const view = createAssetLibraryView(sceneModel, spec);
-        const fileData = await this._xgfExporter.write({ sceneModel: view }, { assetMode: "assetLibrary" });
+        const fileData = await this._xgfExporter.write({ sceneModel: view }, {
+          assetMode: "assetLibrary",
+          coordinateSystem: outputCoordinateSystem
+        });
         const manifest = createXGFManifest(
           { sceneModel: view },
           {
@@ -156992,7 +157680,8 @@ var XGFStreamingExporter = class {
             uri: spec.uri,
             assetMode: "assetLibrary",
             priority: spec.priority,
-            lod: spec.lod
+            lod: spec.lod,
+            coordinateSystem: outputCoordinateSystem
           }
         );
         files[spec.uri] = fileData;
@@ -157001,7 +157690,10 @@ var XGFStreamingExporter = class {
       for (const spec of params.chunks) {
         const view = createChunkView(sceneModel, spec, params.collapseChunkObjects === true);
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
-        const fileData = await this._xgfExporter.write({ sceneModel: view }, { assetMode: "referencesOnly" });
+        const fileData = await this._xgfExporter.write({ sceneModel: view }, {
+          assetMode: "referencesOnly",
+          coordinateSystem: outputCoordinateSystem
+        });
         const manifest = createXGFManifest(
           { sceneModel: view },
           {
@@ -157010,7 +157702,8 @@ var XGFStreamingExporter = class {
             assetMode: "referencesOnly",
             dependencies,
             priority: spec.priority,
-            lod: spec.lod
+            lod: spec.lod,
+            coordinateSystem: outputCoordinateSystem
           }
         );
         files[spec.uri] = fileData;
@@ -157022,7 +157715,7 @@ var XGFStreamingExporter = class {
         chunks: manifests,
         rootChunkIds: params.chunks.map((chunk) => chunk.id),
         aabb: aggregateManifestAABB(manifests),
-        coordinateSystem: cloneCoordinateSystem(sceneModel.coordinateSystem)
+        coordinateSystem: cloneCoordinateSystem(outputCoordinateSystem)
       };
       files[params.indexUri || "index.json"] = writeXGFStreamingIndex(index2);
       if (params.runtimeIndexUri) {
@@ -157266,6 +157959,7 @@ function invalid(error) {
 }
 
 // packages/sdk/src/formats/xgfstream/XGFStreamExporter.ts
+var ASSET_KINDS = ["geometries", "materials", "textures"];
 var XGFStreamExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -157317,6 +158011,8 @@ async function encodeXGFStream(params, options = {}) {
     assetId,
     assetLibraryChunkSize: positiveInteger(options.assetLibraryChunkSize, 0),
     sharedAssetMinLibraryUses: positiveInteger(options.sharedAssetMinLibraryUses, 2),
+    sharedAssetMode: normalizeSharedAssetMode(options.sharedAssetMode || "global"),
+    sharedAssetShardSize: positiveInteger(options.sharedAssetShardSize, 512),
     baseUri,
     chunkDirName
   });
@@ -157326,7 +158022,8 @@ async function encodeXGFStream(params, options = {}) {
     chunks,
     indexUri: joinUri(baseUri, indexName),
     runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : void 0,
-    collapseChunkObjects: options.collapseChunkObjects === true
+    collapseChunkObjects: options.collapseChunkObjects === true,
+    coordinateSystem: options.coordinateSystem
   });
   if (result.ok === false) {
     throw new Error(result.error);
@@ -157452,11 +158149,19 @@ function createAssetLibrarySpecs(params) {
       assets: collectAssetIds2(params.sceneModel, Array.from(libraryObjectIds))
     });
   }
-  const sharedAssets = collectSharedAssets(groups, params.sharedAssetMinLibraryUses);
+  const sharedAssets = params.sharedAssetMode === "local" ? emptyAssets() : collectSharedAssets(groups, params.sharedAssetMinLibraryUses);
   const hasSharedAssets = hasAnyAsset(sharedAssets);
   const sharedLibraryId = `${params.assetId}-shared`;
   const libraries = [];
-  if (hasSharedAssets) {
+  const shardedSharedAssets = params.sharedAssetMode === "sharded" && hasSharedAssets ? createSharedAssetShards({
+    groups,
+    sharedAssets,
+    assetId: params.assetId,
+    sharedAssetShardSize: params.sharedAssetShardSize,
+    baseUri: params.baseUri,
+    chunkDirName: params.chunkDirName
+  }) : null;
+  if (params.sharedAssetMode === "global" && hasSharedAssets) {
     libraries.push({
       id: sharedLibraryId,
       uri: joinUri(params.baseUri, params.chunkDirName, `${sharedLibraryId}.xgf`),
@@ -157466,9 +158171,18 @@ function createAssetLibrarySpecs(params) {
       priority: 0
     });
   }
+  if (shardedSharedAssets) {
+    libraries.push(...shardedSharedAssets.libraries);
+  }
   for (const group of groups) {
     const localAssets = subtractAssets(group.assets, sharedAssets);
-    const groupLibraryIds = hasSharedAssets ? [sharedLibraryId] : [];
+    const groupLibraryIds = [];
+    if (params.sharedAssetMode === "global" && hasSharedAssets) {
+      groupLibraryIds.push(sharedLibraryId);
+    }
+    if (shardedSharedAssets) {
+      groupLibraryIds.push(...sharedShardIdsForAssets(group.assets, shardedSharedAssets.assetToShardIds));
+    }
     if (hasAnyAsset(localAssets)) {
       libraries.push({
         id: group.id,
@@ -157508,6 +158222,108 @@ function collectAssetIds2(sceneModel, objectIds) {
     }
   }
   return assets;
+}
+function emptyAssets() {
+  return {
+    geometries: /* @__PURE__ */ new Set(),
+    materials: /* @__PURE__ */ new Set(),
+    textures: /* @__PURE__ */ new Set()
+  };
+}
+function createSharedAssetShards(params) {
+  const libraries = [];
+  const assetToShardIds = {
+    geometries: /* @__PURE__ */ new Map(),
+    materials: /* @__PURE__ */ new Map(),
+    textures: /* @__PURE__ */ new Map()
+  };
+  const records = sharedAssetRecords(params.groups, params.sharedAssets);
+  let shardIndex = 0;
+  let shardId = "";
+  let shardAssets = emptyAssets();
+  let shardAssetCount = 0;
+  const startShard = () => {
+    shardId = `${params.assetId}-shared-${String(shardIndex).padStart(3, "0")}`;
+    shardAssets = emptyAssets();
+    shardAssetCount = 0;
+    shardIndex++;
+  };
+  const flushShard = () => {
+    if (shardAssetCount === 0) {
+      return;
+    }
+    libraries.push({
+      id: shardId,
+      uri: joinUri(params.baseUri, params.chunkDirName, `${shardId}.xgf`),
+      geometryIds: Array.from(shardAssets.geometries).sort(),
+      materialIds: Array.from(shardAssets.materials).sort(),
+      textureIds: Array.from(shardAssets.textures).sort(),
+      priority: 0
+    });
+  };
+  startShard();
+  for (const record of records) {
+    if (shardAssetCount >= params.sharedAssetShardSize) {
+      flushShard();
+      startShard();
+    }
+    shardAssets[record.kind].add(record.id);
+    assetToShardIds[record.kind].set(record.id, shardId);
+    shardAssetCount++;
+  }
+  flushShard();
+  return { libraries, assetToShardIds };
+}
+function sharedAssetRecords(groups, sharedAssets) {
+  const records = [];
+  for (const kind of ASSET_KINDS) {
+    for (const id of sharedAssets[kind]) {
+      const usage = groupAssetUsage(groups, kind, id);
+      records.push({
+        kind,
+        id,
+        firstGroup: usage.firstGroup,
+        uses: usage.uses,
+        groupIds: usage.groupIds
+      });
+    }
+  }
+  return records.sort(
+    (a3, b5) => a3.firstGroup - b5.firstGroup || compareGroupIds(a3.groupIds, b5.groupIds) || b5.uses - a3.uses || ASSET_KINDS.indexOf(a3.kind) - ASSET_KINDS.indexOf(b5.kind) || a3.id.localeCompare(b5.id)
+  );
+}
+function compareGroupIds(a3, b5) {
+  const len = Math.min(a3.length, b5.length);
+  for (let i2 = 0; i2 < len; i2++) {
+    const diff = a3[i2] - b5[i2];
+    if (diff !== 0) {
+      return diff;
+    }
+  }
+  return a3.length - b5.length;
+}
+function groupAssetUsage(groups, kind, id) {
+  let firstGroup = Number.POSITIVE_INFINITY;
+  const groupIds = [];
+  for (let i2 = 0; i2 < groups.length; i2++) {
+    if (groups[i2].assets[kind].has(id)) {
+      firstGroup = Math.min(firstGroup, i2);
+      groupIds.push(i2);
+    }
+  }
+  return { firstGroup, uses: groupIds.length, groupIds };
+}
+function sharedShardIdsForAssets(assets, assetToShardIds) {
+  const shardIds = /* @__PURE__ */ new Set();
+  for (const kind of ASSET_KINDS) {
+    for (const id of assets[kind]) {
+      const shardId = assetToShardIds[kind].get(id);
+      if (shardId) {
+        shardIds.add(shardId);
+      }
+    }
+  }
+  return Array.from(shardIds).sort();
 }
 function addMaterialTextureIds2(material, textures) {
   addTextureId3(textures, material.colorTexture);
@@ -157785,6 +158601,12 @@ function positiveNumber(value, defaultValue) {
     throw new Error("[XGFStreamExporter.write] Expected a positive number option");
   }
   return n2;
+}
+function normalizeSharedAssetMode(value) {
+  if (value === "global" || value === "local" || value === "sharded") {
+    return value;
+  }
+  throw new Error("[XGFStreamExporter.write] Expected sharedAssetMode to be 'global', 'local' or 'sharded'");
 }
 function trimSlashes(value) {
   return String(value || "").replace(/^\/+|\/+$/g, "");
@@ -159061,6 +159883,7 @@ var XGFViewStreamController = class {
     __publicField(this, "_assetChunksById");
     __publicField(this, "_batchSize");
     __publicField(this, "_commitFrameBudgetMs");
+    __publicField(this, "_progressCadenceMs");
     __publicField(this, "_frustumOnly");
     __publicField(this, "_frustumDepthMultiplier");
     __publicField(this, "_frustumMinDepth");
@@ -159089,6 +159912,9 @@ var XGFViewStreamController = class {
     __publicField(this, "_projectedVisibilityClip", [0, 0, 0, 1]);
     __publicField(this, "_projectedVisibilityPoint", [0, 0, 0, 1]);
     __publicField(this, "_timer");
+    __publicField(this, "_progressTimer");
+    __publicField(this, "_progressPending", false);
+    __publicField(this, "_lastProgressEmitTime", Number.NEGATIVE_INFINITY);
     __publicField(this, "_candidateQueue", {
       generation: 0,
       chunks: [],
@@ -159116,6 +159942,7 @@ var XGFViewStreamController = class {
     );
     this._batchSize = params.batchSize || DEFAULT_BATCH_SIZE;
     this._commitFrameBudgetMs = (_b = params.commitFrameBudgetMs) != null ? _b : DEFAULT_COMMIT_FRAME_BUDGET_MS;
+    this._progressCadenceMs = params.progressCadenceMs !== void 0 && Number.isFinite(params.progressCadenceMs) && params.progressCadenceMs > 0 ? params.progressCadenceMs : 0;
     this._frustumOnly = params.frustumOnly !== false;
     this._frustumDepthMultiplier = params.frustumDepthMultiplier !== void 0 && Number.isFinite(params.frustumDepthMultiplier) && params.frustumDepthMultiplier > 0 ? params.frustumDepthMultiplier : void 0;
     this._frustumMinDepth = params.frustumMinDepth !== void 0 && Number.isFinite(params.frustumMinDepth) && params.frustumMinDepth > 0 ? params.frustumMinDepth : 0;
@@ -159457,7 +160284,7 @@ var XGFViewStreamController = class {
           this.markQueueChunkLoaded(generation);
         }
         this.loadingChunkIds.delete(manifest.id);
-        this.emitProgress();
+        this.emitProgressBatched();
         await waitForFrameBudget(this._commitFrameBudgetMs);
       }
       this.emitStatus(`${label}: ${candidates.length} chunk(s) in ${(now2() - start).toFixed(1)} ms`);
@@ -159896,7 +160723,37 @@ var XGFViewStreamController = class {
   }
   emitProgress() {
     var _a2;
+    if (this._progressTimer !== void 0) {
+      clearTimeout(this._progressTimer);
+      this._progressTimer = void 0;
+    }
+    this._progressPending = false;
+    this._lastProgressEmitTime = now2();
     (_a2 = this._onProgress) == null ? void 0 : _a2.call(this, this.queueProgress);
+  }
+  emitProgressBatched() {
+    if (!this._onProgress) {
+      return;
+    }
+    if (this._progressCadenceMs <= 0) {
+      this.emitProgress();
+      return;
+    }
+    const elapsed = now2() - this._lastProgressEmitTime;
+    if (elapsed >= this._progressCadenceMs) {
+      this.emitProgress();
+      return;
+    }
+    this._progressPending = true;
+    if (this._progressTimer !== void 0) {
+      return;
+    }
+    this._progressTimer = setTimeout(() => {
+      this._progressTimer = void 0;
+      if (this._progressPending) {
+        this.emitProgress();
+      }
+    }, Math.max(0, this._progressCadenceMs - elapsed));
   }
 };
 function createPrioritizedFileDataCache(concurrency, resolveFileData, options = {}) {
@@ -160174,11 +161031,11 @@ function readStreamIndexJSON(json) {
   return readXGFStreamingIndex(json);
 }
 function resolveSubstreamManifest(stream2, baseURI) {
-  const origin2 = stream2.origin || [0, 0, 0];
+  var _a2;
   return {
     ...stream2,
     uri: resolveURI(stream2.uri, baseURI),
-    aabb: translateAABB(stream2.aabb, origin2),
+    aabb: (_a2 = stream2.aabb) == null ? void 0 : _a2.slice(),
     origin: stream2.origin ? [stream2.origin[0], stream2.origin[1], stream2.origin[2]] : void 0,
     metadata: stream2.metadata ? JSON.parse(JSON.stringify(stream2.metadata)) : void 0
   };
@@ -160193,7 +161050,7 @@ function namespaceStreamIndex(index2, namespace, indexURI, origin2, targetCoordi
     ...stream2,
     id: `${namespace}${stream2.id}`,
     uri: resolveURI(stream2.uri, indexURI),
-    aabb: transformAndTranslateAABB(stream2.aabb, coordinateSystemMatrix, addOrigins(origin2, stream2.origin)),
+    aabb: transformAndTranslateAABB(stream2.aabb, coordinateSystemMatrix, origin2),
     origin: addOrigins(origin2, stream2.origin),
     metadata: stream2.metadata ? JSON.parse(JSON.stringify(stream2.metadata)) : void 0
   }));
@@ -179652,8 +180509,8 @@ function parseE57Xml(xml) {
   }
   const doc = new DOMParser().parseFromString(xml, "application/xml");
   const root = doc.documentElement;
-  if (!root || localName(root) !== "e57Root") {
-    throw new Error(`[parseE57Xml] expected <e57Root>, got <${root ? localName(root) : "null"}>`);
+  if (!root || localName2(root) !== "e57Root") {
+    throw new Error(`[parseE57Xml] expected <e57Root>, got <${root ? localName2(root) : "null"}>`);
   }
   const pointClouds = [];
   const data3D = childByLocalName(root, "data3D");
@@ -179694,7 +180551,7 @@ function parseField(el) {
   const type = el.getAttribute("type");
   const precision = el.getAttribute("precision");
   return {
-    name: localName(el),
+    name: localName2(el),
     type,
     precision: precision === "single" || precision === "double" ? precision : void 0,
     minimum: (_a2 = floatAttr(el, "minimum")) != null ? _a2 : 0,
@@ -179735,7 +180592,7 @@ function parseBounds(el) {
     zMaximum: f2("zMaximum")
   };
 }
-function localName(el) {
+function localName2(el) {
   return el.localName || el.nodeName.replace(/^.*:/, "");
 }
 function childElements(parent) {
@@ -179746,13 +180603,13 @@ function childElements(parent) {
 }
 function childByLocalName(parent, name12) {
   for (let n2 = parent.firstElementChild; n2; n2 = n2.nextElementSibling) {
-    if (localName(n2) === name12)
+    if (localName2(n2) === name12)
       return n2;
   }
   return null;
 }
 function childrenByLocalName(parent, name12) {
-  return childElements(parent).filter((n2) => localName(n2) === name12);
+  return childElements(parent).filter((n2) => localName2(n2) === name12);
 }
 function textOf(el) {
   var _a2;
@@ -180259,8 +181116,8 @@ __export(dotbim_exports, {
 });
 
 // packages/sdk/src/formats/dotbim/versions/1_0_0/parse.ts
-var SCHEMA3 = "IFC4";
-var parse9 = async (params, options) => {
+var SCHEMA4 = "IFC4";
+var parse10 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -180331,7 +181188,7 @@ var parse9 = async (params, options) => {
           const dataObjectRes = params.dataModel.createObject({
             id: objectId,
             type: element.type,
-            schema: SCHEMA3,
+            schema: SCHEMA4,
             name: info == null ? void 0 : info.Name,
             description: info == null ? void 0 : info.Description
           });
@@ -180350,8 +181207,8 @@ var parse9 = async (params, options) => {
 };
 
 // packages/sdk/src/formats/dotbim/versions/1_1_0/parse.ts
-var SCHEMA4 = "IFC4";
-var parse10 = async (params, options) => {
+var SCHEMA5 = "IFC4";
+var parse11 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -180422,7 +181279,7 @@ var parse10 = async (params, options) => {
           const dataObjectRes = params.dataModel.createObject({
             id: objectId,
             type: element.type,
-            schema: SCHEMA4,
+            schema: SCHEMA5,
             name: info == null ? void 0 : info.Name,
             description: info == null ? void 0 : info.Description
           });
@@ -180447,8 +181304,8 @@ var DotBIMLoader = class extends ModelLoader {
       format: "DotBIM",
       fileDataType: "json",
       parsers: {
-        "1.0.0": parse9,
-        "1.1.0": parse10
+        "1.0.0": parse10,
+        "1.1.0": parse11
       },
       getVersion: (sourceFileData) => {
         return sourceFileData.schema_version || "1.0.0";
@@ -180761,7 +181618,7 @@ __export(scenemodel_exports, {
 });
 
 // packages/sdk/src/formats/scenemodel/versions/1_0/parse.ts
-function parse11(params, options) {
+function parse12(params, options) {
   return new Promise(function(resolve3, reject) {
     if (params.sceneModel && params.fileData) {
       const result = params.sceneModel.fromParams(params.fileData);
@@ -180783,7 +181640,7 @@ var SceneModelImporter = class extends ModelLoader {
       format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse11
+        "1.0": parse12
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -180840,7 +181697,7 @@ __export(datamodel_exports, {
 });
 
 // packages/sdk/src/formats/datamodel/versions/1_0/parse.ts
-function parse12(params, options) {
+function parse13(params, options) {
   return new Promise(function(resolve3, reject) {
     if (params.dataModel && params.fileData) {
       const result = params.dataModel.fromParams(params.fileData);
@@ -180862,7 +181719,7 @@ var DataModelImporter = class extends ModelLoader {
       format: "DataModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse12
+        "1.0": parse13
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -185535,7 +186392,7 @@ function inflateString(array) {
 // packages/sdk/src/formats/legacy/xkt/versions/v6/parse.ts
 var MAX_GEOMETRY_POSITION_COMPONENTS = 135e4;
 var MAX_GEOMETRY_VERTICES = Math.floor(MAX_GEOMETRY_POSITION_COMPONENTS / 3);
-async function parse13(params, options = {}) {
+async function parse14(params, options = {}) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -185984,7 +186841,7 @@ function buildDataModel(dataModel, metadata) {
 }
 
 // packages/sdk/src/formats/legacy/xkt/versions/v7/parse.ts
-async function parse14(params, options) {
+async function parse15(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -186010,7 +186867,7 @@ async function parse14(params, options) {
 }
 
 // packages/sdk/src/formats/legacy/xkt/versions/v8/parse.ts
-async function parse15(params, options) {
+async function parse16(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const types = JSON.parse(inflateString(e2[0]));
@@ -186053,7 +186910,7 @@ async function parse15(params, options) {
 }
 
 // packages/sdk/src/formats/legacy/xkt/versions/v9/parse.ts
-async function parse16(params, options) {
+async function parse17(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -186080,7 +186937,7 @@ async function parse16(params, options) {
 }
 
 // packages/sdk/src/formats/legacy/xkt/versions/v10/parse.ts
-async function parse17(params, options) {
+async function parse18(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -186107,7 +186964,7 @@ async function parse17(params, options) {
 }
 
 // packages/sdk/src/formats/legacy/xkt/versions/v11/parse.ts
-async function parse18(params, options) {
+async function parse19(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const requiresSwapFromLittleEndian = function() {
     const b5 = new ArrayBuffer(2);
@@ -186468,7 +187325,7 @@ function buildDataModel2(dataModel, metadata) {
 }
 
 // packages/sdk/src/formats/legacy/xkt/versions/v12/parse.ts
-async function parse19(params, options) {
+async function parse20(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xktToModel({
     xktData: unpackXKT(fileData),
@@ -186479,7 +187336,7 @@ async function parse19(params, options) {
 }
 
 // packages/sdk/src/formats/legacy/xkt/versions/v12/parseCompressed.ts
-async function parse20(params, options) {
+async function parse21(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -186512,14 +187369,14 @@ var XKTLoader = class extends ModelLoader {
       format: "XKT",
       fileDataType: "arraybuffer",
       parsers: {
-        "6": parse13,
-        "7": parse14,
-        "8": parse15,
-        "9": parse16,
-        "10": parse17,
-        "11": parse18,
-        "12": parse19,
-        "12z": parse20
+        "6": parse14,
+        "7": parse15,
+        "8": parse16,
+        "9": parse17,
+        "10": parse18,
+        "11": parse19,
+        "12": parse20,
+        "12z": parse21
       },
       getVersion: (fileData) => {
         const word = new DataView(fileData).getUint32(0, true);
@@ -186873,7 +187730,7 @@ __export(obj_exports, {
 });
 
 // packages/sdk/src/formats/obj/versions/v1_0/parse.ts
-var parse21 = async (params, options) => {
+var parse22 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -187285,7 +188142,7 @@ var OBJLoader = class extends ModelLoader {
       format: "OBJ",
       fileDataType: "text",
       parsers: {
-        "1.0": parse21
+        "1.0": parse22
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -187418,7 +188275,7 @@ __export(ply_exports, {
 });
 
 // packages/sdk/src/formats/ply/versions/v1_0/parse.ts
-var parse22 = async (params, options = {}) => {
+var parse23 = async (params, options = {}) => {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     throw new Error("[PLYLoader] params.sceneModel is required");
@@ -187665,7 +188522,7 @@ var PLYLoader = class extends ModelLoader {
       format: "PLY",
       fileDataType: "text",
       parsers: {
-        "1.0": parse22
+        "1.0": parse23
       },
       getVersion: () => "1.0"
     });
@@ -187858,7 +188715,7 @@ __export(mtl_exports, {
 });
 
 // packages/sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse23 = async (params, options) => {
+var parse24 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -187968,7 +188825,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse23
+        "1.0": parse24
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -188299,7 +189156,7 @@ function findChild(node, name12) {
 
 // packages/sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse24(params, _options2) {
+async function parse25(params, _options2) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -188678,7 +189535,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse24
+        binary: parse25
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -189303,7 +190160,7 @@ function buildSceneModel(scene, sceneModel) {
     if (!ok(sceneModel.createMesh(meshParams)))
       return;
     stats.meshes++;
-    const objectId = uniqueId(node.absPath || node.primName || meshId, usedObjectIds);
+    const objectId = uniqueId2(node.absPath || node.primName || meshId, usedObjectIds);
     if (ok(sceneModel.createObject({ id: objectId, meshIds: [meshId] })))
       stats.objects++;
   };
@@ -189331,7 +190188,7 @@ function childArray(children) {
   }
   return [];
 }
-function uniqueId(base, used) {
+function uniqueId2(base, used) {
   if (!used.has(base)) {
     used.add(base);
     return base;
@@ -189363,7 +190220,7 @@ function mulMat44(a3, b5) {
 }
 
 // packages/sdk/src/formats/usdz/versions/v1/parse.ts
-async function parse25(params, options) {
+async function parse26(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -189403,7 +190260,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse25
+        "1.0": parse26
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -189818,7 +190675,7 @@ async function loadPdfJs(opts) {
   }
   return p2;
 }
-async function parse26(input, options = {}) {
+async function parse27(input, options = {}) {
   var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k, _l;
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
@@ -191128,7 +191985,7 @@ var PDFLoader = class {
     __privateSet(this, _pdfjs, params.pdfjs);
   }
   load(input, options = {}) {
-    return parse26(input, {
+    return parse27(input, {
       ...options,
       pdfjsEsmUrl: __privateGet(this, _pdfjsEsmUrl),
       pdfjsWorkerSrc: __privateGet(this, _pdfjsWorkerSrc),
@@ -191168,7 +192025,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // packages/sdk/src/formats/svg/versions/v1_0/parse.ts
-async function parse27(input, options = {}) {
+async function parse28(input, options = {}) {
   var _a2, _b, _c;
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
@@ -192459,7 +193316,7 @@ function domToSVGNode(el) {
 // packages/sdk/src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse27(
+    return parse28(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -192766,7 +193623,7 @@ async function loadLibredwg(opts) {
   }
   return p2;
 }
-async function parse28(input, options = {}) {
+async function parse29(input, options = {}) {
   var _a2, _b, _c;
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
@@ -193614,7 +194471,7 @@ var DWGLoader = class {
     __privateSet(this, _libredwg, params.libredwg);
   }
   load(input, options = {}) {
-    return parse28(
+    return parse29(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -193637,7 +194494,7 @@ __export(dxf_exports, {
 });
 
 // packages/sdk/src/formats/dxf/versions/v1_0/parse.ts
-async function parse29(input, options = {}) {
+async function parse30(input, options = {}) {
   var _a2;
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
@@ -193960,7 +194817,7 @@ function err4(type, message) {
 // packages/sdk/src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse29(
+    return parse30(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -194959,7 +195816,7 @@ function unitWireBox(id) {
 }
 
 // packages/sdk/src/formats/fds/versions/v6/parse.ts
-var parse30 = async (params) => {
+var parse31 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -195174,7 +196031,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse30
+        "6": parse31
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -195569,24 +196426,24 @@ function parseXML(text) {
   }
   return doc;
 }
-function descendants(root, localName2) {
-  return Array.from(root.getElementsByTagNameNS("*", localName2));
+function descendants(root, localName3) {
+  return Array.from(root.getElementsByTagNameNS("*", localName3));
 }
-function firstDescendant(root, localName2) {
+function firstDescendant(root, localName3) {
   var _a2;
-  return (_a2 = root.getElementsByTagNameNS("*", localName2)[0]) != null ? _a2 : null;
+  return (_a2 = root.getElementsByTagNameNS("*", localName3)[0]) != null ? _a2 : null;
 }
-function childrenByLocalName2(el, localName2) {
+function childrenByLocalName2(el, localName3) {
   const out = [];
   for (let n2 = el.firstElementChild; n2; n2 = n2.nextElementSibling) {
-    if (n2.localName === localName2) {
+    if (n2.localName === localName3) {
       out.push(n2);
     }
   }
   return out;
 }
-function textOf2(root, localName2) {
-  const el = firstDescendant(root, localName2);
+function textOf2(root, localName3) {
+  const el = firstDescendant(root, localName3);
   const t2 = el == null ? void 0 : el.textContent;
   return t2 == null ? null : t2.trim();
 }
@@ -195749,8 +196606,8 @@ function parseRepresentation(doc) {
   }
   return out;
 }
-function nearestOwned(rep, localName2) {
-  for (const el of descendants(rep, localName2)) {
+function nearestOwned(rep, localName3) {
+  for (const el of descendants(rep, localName3)) {
     if (nearestRep(el) === rep) {
       return el;
     }
@@ -195765,9 +196622,9 @@ function nearestRep(el) {
   }
   return null;
 }
-function textOfChild(parent, localName2) {
+function textOfChild(parent, localName3) {
   var _a2, _b;
-  return (_b = (_a2 = descendants(parent, localName2)[0]) == null ? void 0 : _a2.textContent) != null ? _b : null;
+  return (_b = (_a2 = descendants(parent, localName3)[0]) == null ? void 0 : _a2.textContent) != null ? _b : null;
 }
 function floats(text) {
   return Float32Array.from(numbersIn(text));
@@ -195802,7 +196659,7 @@ function num4(el, attr) {
 // packages/sdk/src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
-async function parse31(params, _options2) {
+async function parse32(params, _options2) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -195958,7 +196815,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      parsers: { "*": parse31 },
+      parsers: { "*": parse32 },
       getVersion: (fileData) => isZip(fileData) ? "*" : ""
     });
   }
@@ -204011,6 +204868,8 @@ var createConversionReport = (modelConverterResult) => {
 var FORMAT_BY_EXTENSION = {
   ".glb": { loader: "glb", exporter: "glb" },
   ".gltf": { loader: "glb", exporter: "glb" },
+  ".gml": { loader: "citygml" },
+  ".citygml": { loader: "citygml" },
   ".xgf": { loader: "xgf", exporter: "xgf" },
   ".xgfstream": { exporter: "xgfstream" },
   ".ifc": { loader: "ifc", exporter: "ifc" },
@@ -204161,6 +205020,7 @@ var modelConverter = new ModelConverter({
     "dotbim": new DotBIMLoader(),
     "glb": new GLTFLoader2(),
     "cityjson": new CityJSONLoader(),
+    "citygml": new CityGMLLoader(),
     "xgf": new XGFLoader(),
     "las": new LASLoader4(),
     "datamodel": new DataModelImporter(),
@@ -204344,6 +205204,81 @@ var modelConverter = new ModelConverter({
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }
+        }
+      }
+    },
+    "citygml": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+    "citygml2xgf": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgf": {
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+    "citygml2xgfstream": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgfstream": {
+          exporter: "xgfstream",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters,
+            partition: "grid",
+            runtimeIndex: "index.runtime.json"
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+    "citygml2json": {
+      inputs: {
+        "citygml": {
+          loader: "citygml",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "scenemodel": {
+          exporter: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
         }
       }
     },

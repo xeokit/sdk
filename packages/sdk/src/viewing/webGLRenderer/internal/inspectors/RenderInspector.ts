@@ -4,7 +4,7 @@ import { RENDER_PASSES } from "../RENDER_PASSES";
 import type { PrimRange } from "../gpuMemoryManager/geometry/PrimRange";
 import type { View } from "../../../viewer";
 import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../../../../base/constants";
-import { type TriangleVBOGeometryFrameStats, type ViewRenderStats } from "./ViewRenderStats";
+import { type DrawPathFrameStats, type TriangleVBOGeometryFrameStats, type ViewRenderStats } from "./ViewRenderStats";
 import { type RenderBinStats } from "./RenderBinStats";
 import { type DrawCallStats } from "./DrawCallStats";
 import {RENDER_BINS} from "../RENDER_BINS";
@@ -15,6 +15,18 @@ const nowMs = (): number => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const p = (globalThis as any)?.performance;
   return p?.now ? p.now() : Date.now();
+};
+
+function shouldLogDrawPaths(): boolean {
+  return (globalThis as any).XEOKIT_LOG_DRAW_PATHS === true;
+}
+
+type DrawPathInfo = {
+  drawPath: "dtx" | "vbo";
+  technique: string;
+  edges: boolean;
+  picking: boolean;
+  snap: number;
 };
 
 type ActiveState = {
@@ -105,6 +117,17 @@ export class RenderInspector {
       tiles: {},
       views: []
     };
+  }
+
+  /**
+   * True when the inspector should receive frame/draw callbacks.
+   *
+   * This includes normal inspector capture plus lightweight draw-path logging.
+   *
+   * @internal
+   */
+  public get active(): boolean {
+    return this.enabled || shouldLogDrawPaths();
   }
 
   /**
@@ -224,7 +247,7 @@ export class RenderInspector {
    * @private
    */
   public frameStarted(view: View & { viewIndex: number }): void {
-    if (!this.enabled) {
+    if (!this.enabled && !shouldLogDrawPaths()) {
       return;
     }
 
@@ -252,7 +275,7 @@ export class RenderInspector {
    */
   public renderBinStarted(renderBinName: string): void {
     const s = this.getActiveState();
-    if (!this.enabled || !s || !s.currentFrame) {
+    if ((!this.enabled && !shouldLogDrawPaths()) || !s || !s.currentFrame) {
       return;
     }
 
@@ -282,9 +305,9 @@ export class RenderInspector {
    * Duration measured until the next draw (or end of pass / frame).
    * @private
    */
-  public drawMeshBatch(meshBatch: MeshBatch, renderPass: RenderPassValue, primRange: PrimRange, edges? : boolean): void {
+  public drawMeshBatch(meshBatch: MeshBatch, renderPass: RenderPassValue, primRange: PrimRange, edges? : boolean, drawPathInfo?: DrawPathInfo): void {
     const s = this.getActiveState();
-    if (!this.enabled || !s || !s.currentFrame) {
+    if ((!this.enabled && !shouldLogDrawPaths()) || !s || !s.currentFrame) {
       return;
     }
 
@@ -347,11 +370,18 @@ export class RenderInspector {
       primitive: primitiveName,
       primRange,
       timeMs: { start: t, end: t, duration: 0 },
+      drawPath: drawPathInfo?.drawPath,
+      batchStorage: meshBatch.geometryStorage,
+      technique: drawPathInfo?.technique
     };
     s.currentPass.drawCalls.push(draw);
     s.currentDraw = draw;
     s.currentFrame.numDrawCalls++;
     s.currentFrame.numPrims += primRange.numPrims;
+
+    if (drawPathInfo) {
+      this.recordDrawPath(s.currentFrame, meshBatch, primRange, drawPathInfo);
+    }
   }
 
   /**
@@ -387,7 +417,7 @@ export class RenderInspector {
    */
   public frameEnded(): void {
     const viewIndex = this._activeViewIndex;
-    if (!this.enabled || viewIndex == null) return;
+    if ((!this.enabled && !shouldLogDrawPaths()) || viewIndex == null) return;
 
     const s = this.ensureState(viewIndex);
     if (!s.currentFrame) return;
@@ -416,11 +446,75 @@ export class RenderInspector {
     s.currentDraw = null;
 
     this._pollGpuTimers();
+    this._logDrawPaths(finishedFrame);
     this._captureMaybePush(finishedFrame);
     this._captureMaybeResolve();
   }
 
   // ----------------- internals -----------------
+
+  private recordDrawPath(frame: ViewRenderStats, meshBatch: MeshBatch, primRange: PrimRange, drawPathInfo: DrawPathInfo): void {
+    const stats = frame.drawPaths ??= createDrawPathFrameStats();
+    const batches = drawPathInfo.drawPath === "vbo" ? stats.vboBatches : stats.dtxBatches;
+    if (!batches.includes(meshBatch.gpuMemoryBatchIndex)) {
+      batches.push(meshBatch.gpuMemoryBatchIndex);
+    }
+    if (drawPathInfo.drawPath === "vbo") {
+      stats.vboDrawCalls++;
+      stats.vboPrims += primRange.numPrims;
+    } else {
+      stats.dtxDrawCalls++;
+      stats.dtxPrims += primRange.numPrims;
+    }
+    const key = [
+      drawPathInfo.technique,
+      drawPathInfo.drawPath,
+      meshBatch.geometryStorage,
+      meshBatch.hasNormals ? "normals" : "flat",
+      meshBatch.hasUVs ? "uvs" : "noUVs",
+      drawPathInfo.edges ? "edges" : "surface",
+      drawPathInfo.picking ? "pick" : "draw",
+      `snap${drawPathInfo.snap}`
+    ].join("|");
+    const bucket = stats.byTechnique[key] ??= {
+      drawCalls: 0,
+      prims: 0,
+      path: drawPathInfo.drawPath,
+      batchStorage: meshBatch.geometryStorage,
+      hasNormals: meshBatch.hasNormals,
+      hasUVs: meshBatch.hasUVs,
+      edges: drawPathInfo.edges,
+      picking: drawPathInfo.picking,
+      snap: drawPathInfo.snap
+    };
+    bucket.drawCalls++;
+    bucket.prims += primRange.numPrims;
+  }
+
+  private _logDrawPaths(frame: ViewRenderStats | null): void {
+    if (!frame || !frame.drawPaths || !shouldLogDrawPaths()) {
+      return;
+    }
+    const stats = frame.drawPaths;
+    const summary = {
+      viewId: frame.viewId,
+      drawCalls: {
+        dtx: stats.dtxDrawCalls,
+        vbo: stats.vboDrawCalls
+      },
+      primitives: {
+        dtx: stats.dtxPrims,
+        vbo: stats.vboPrims
+      },
+      batches: {
+        dtx: stats.dtxBatches.slice(),
+        vbo: stats.vboBatches.slice()
+      },
+      byTechnique: stats.byTechnique
+    };
+    (globalThis as any).XEOKIT_LAST_DRAW_PATHS = summary;
+    console.log("[xeokit] WebGL draw paths last frame", summary);
+  }
 
   private getActiveState(): ActiveState | null {
     if (this._activeViewIndex == null) return null;
@@ -570,4 +664,16 @@ export class RenderInspector {
     this._captureTarget = 0;
     resolve?.(frames);
   }
+}
+
+function createDrawPathFrameStats(): DrawPathFrameStats {
+  return {
+    dtxDrawCalls: 0,
+    vboDrawCalls: 0,
+    dtxPrims: 0,
+    vboPrims: 0,
+    dtxBatches: [],
+    vboBatches: [],
+    byTechnique: {}
+  };
 }

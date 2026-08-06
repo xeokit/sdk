@@ -92,6 +92,8 @@ export async function xgfToModel(params: {
     meshIdPrefix?: string;
     /** @private Used by manifest streaming to track chunk ownership without whole-model diffs. */
     createdIds?: XGFCreatedIdsCollector;
+    ignoreNormals?: boolean;
+    ignoreUVs?: boolean;
     signal?: AbortSignal;
     onProgress?: (p: LoaderProgress) => void;
   }
@@ -106,6 +108,8 @@ export async function xgfToModel(params: {
     : undefined;
   const meshIdPrefix = options?.meshIdPrefix;
   const createdIds = options?.createdIds;
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
   const prefixId = (id: string): string => id && idPrefix ? `${idPrefix}${id}` : id;
   const transformMatrix = (matrix: any, apply: boolean): any => {
@@ -445,12 +449,12 @@ export async function xgfToModel(params: {
     if (colSlice.length > 0) params.colorsCompressed = colSlice;
 
     const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-    if (normalsBaseI !== NO_INDEX) {
+    if (!ignoreNormals && normalsBaseI !== NO_INDEX) {
       const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
       params.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
     }
     const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-    if (uvsBaseI !== NO_INDEX) {
+    if (!ignoreUVs && uvsBaseI !== NO_INDEX) {
       const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
       params.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
     }

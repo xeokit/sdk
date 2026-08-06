@@ -32,6 +32,8 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
   }
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
 
   // Triplanar (world-projected, UV-less) textures can't be expressed in FBX;
   // drop them and flatten the affected materials.
@@ -56,7 +58,7 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
   function geometryId(geom: any): number | null {
     const existing = geomFbxId.get(geom.id);
     if (existing !== undefined) return existing;
-    const node = buildGeometryNode(geom, newId());
+    const node = buildGeometryNode(geom, newId(), ignoreNormals, ignoreUVs);
     if (!node) return null;
     geomFbxId.set(geom.id, node.props[0].v as number);
     objectsChildren.push(node);
@@ -154,7 +156,7 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
 
 // ── Node builders ─────────────────────────────────────────────────
 
-function buildGeometryNode(geom: any, id: number): FBXWriteNode | null {
+function buildGeometryNode(geom: any, id: number, ignoreNormals: boolean, ignoreUVs: boolean): FBXWriteNode | null {
   const pc = geom.positionsCompressed;
   const aabb = geom.aabb;
   if (!pc || !aabb || pc.length === 0) return null;
@@ -184,12 +186,12 @@ function buildGeometryNode(geom: any, id: number): FBXWriteNode | null {
     fbxLeaf("PolygonVertexIndex", fbxIArr(poly)),
   ];
 
-  if (geom.normalsCompressed) {
+  if (!ignoreNormals && geom.normalsCompressed) {
     const normals = new Float32Array((geom.normalsCompressed.length / 2) * 3);
     octDecodeNormalsU16(geom.normalsCompressed, normals);
     children.push(layerNode("LayerElementNormal", "Normals", normals));
   }
-  if (geom.uvsCompressed && geom.uvsCompressed.length) {
+  if (!ignoreUVs && geom.uvsCompressed && geom.uvsCompressed.length) {
     // UVs are stored as raw RG32F floats (no quantisation) — emit directly.
     children.push(layerNode("LayerElementUV", "UV", geom.uvsCompressed));
   }

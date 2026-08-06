@@ -302,6 +302,7 @@ async function loadDroppedFile(file, data) {
       sceneModel,
       ...(dataModel ? {dataModel} : {})
     }, {
+      ignoreNormals: true,
       onProgress: (progress) => updateLoadProgress(progress),
       yieldIntervalMs: 32
     });

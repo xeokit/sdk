@@ -28,6 +28,22 @@ export interface ModelLoadOptions {
   layerId?: string;
 
   /**
+   * When `true`, loaders should omit vertex normals when the source format and
+   * parser can do so without breaking required target data. This is a
+   * best-effort option: formats that do not carry normals, or whose parser
+   * cannot avoid them, may ignore it.
+   */
+  ignoreNormals?: boolean;
+
+  /**
+   * When `true`, loaders should omit texture coordinates when the source format
+   * and parser can do so without breaking required target data. This is a
+   * best-effort option: formats that do not carry UVs, or whose parser cannot
+   * avoid them, may ignore it.
+   */
+  ignoreUVs?: boolean;
+
+  /**
    * Optional base URL used by formats that reference external resources
    * (e.g. glTF's separate `.bin` and texture files). When set, the loader
    * resolves relative URIs in the model file against this base — set this

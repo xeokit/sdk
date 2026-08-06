@@ -45,6 +45,8 @@ export const parse: ModelParser = async (params, options = {}) => {
 
   const onProgress: ((p: LoaderProgress) => void) | undefined = options.onProgress;
   const signal: AbortSignal | undefined = options.signal;
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const progress: LoaderProgress = {phase: "", current: 0, total: 0};
   const step = async (phase: string, current: number, total: number): Promise<void> => {
     if (onProgress) {
@@ -102,10 +104,10 @@ export const parse: ModelParser = async (params, options = {}) => {
   if (hasFaces) {
     geometryCfg.indices = indices;
   }
-  if (normals.length === vertexCount * 3) {
+  if (!ignoreNormals && normals.length === vertexCount * 3) {
     geometryCfg.normals = normals;
   }
-  if (uvs.length === vertexCount * 2) {
+  if (!ignoreUVs && uvs.length === vertexCount * 2) {
     geometryCfg.uvs = uvs;
   }
   if (colors.length === vertexCount * 4) {

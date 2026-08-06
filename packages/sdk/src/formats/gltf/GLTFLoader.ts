@@ -904,10 +904,10 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         if (primitive.attributes.COLOR_0) {
           geometryParams.colors = primitive.attributes.COLOR_0.value;
         }
-        if (primitive.attributes.NORMAL) {
+        if (!ctx.options.ignoreNormals && primitive.attributes.NORMAL) {
           geometryParams.normals = primitive.attributes.NORMAL.value;
         }
-        if (primitive.attributes.TEXCOORD_0) {
+        if (!ctx.options.ignoreUVs && primitive.attributes.TEXCOORD_0) {
           geometryParams.uvs = primitive.attributes.TEXCOORD_0.value;
         }
         if (primitive.indices) {
@@ -1036,8 +1036,8 @@ function splitPrimitiveByFeature(ctx: ParsingContext, primitive: any, matrix: Ma
   if (!featureValues || !positions) {
     return false;
   }
-  const normals = primitive.attributes.NORMAL?.value;
-  const uvs = primitive.attributes.TEXCOORD_0?.value;
+  const normals = ctx.options.ignoreNormals ? undefined : primitive.attributes.NORMAL?.value;
+  const uvs = ctx.options.ignoreUVs ? undefined : primitive.attributes.TEXCOORD_0?.value;
   const srcIndices = primitive.indices?.value;
   const triangleCount = srcIndices ? srcIndices.length / 3 : positions.length / 9;
 

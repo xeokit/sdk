@@ -3,13 +3,7 @@ import {getMeshWorldMatrix} from "../../model/scene";
 import type {XGFChunkManifest} from "./chunk/XGFChunkManifest";
 import type {XGFManifestOptions} from "./manifest/XGFManifestOptions";
 
-/**
- * Creates manifest metadata for an XGF v2 stream chunk.
- *
- * The manifest describes the chunk role, dependency IDs, assets created by the
- * chunk, object/mesh/resource counts, and aggregate bounds. It is JSON-safe and
- * can be embedded directly in an {@link XGFStreamingIndex}.
- */
+/** @internal */
 export function createXGFManifest(params: {
   sceneModel: SceneModel;
 }, options: XGFManifestOptions = {}): XGFChunkManifest {

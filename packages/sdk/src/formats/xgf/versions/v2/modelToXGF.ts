@@ -75,6 +75,8 @@ export async function modelToXGF(params: {
 
   const sceneModel = params.sceneModel;
   const options = params.options || {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const assetMode = options.assetMode === "assetLibrary" || options.assetMode === "referencesOnly"
     ? options.assetMode
     : "full";
@@ -138,8 +140,8 @@ export async function modelToXGF(params: {
       maxEdgeIndex = Math.max(maxEdgeIndex, maxArrayValue(geometry.edgeIndices));
     }
     if (geometry.colorsCompressed) sizeColors      += geometry.colorsCompressed.length;
-    if (geometry.normalsCompressed) sizeNormals    += geometry.normalsCompressed.length;
-    if (geometry.uvsCompressed)    sizeUVs         += geometry.uvsCompressed.length;
+    if (!ignoreNormals && geometry.normalsCompressed) sizeNormals += geometry.normalsCompressed.length;
+    if (!ignoreUVs && geometry.uvsCompressed) sizeUVs += geometry.uvsCompressed.length;
     if (geometry.scales)           sizeScales      += geometry.scales.length;
     if (geometry.rotations)        sizeRotations   += geometry.rotations.length;
   }
@@ -372,7 +374,7 @@ export async function modelToXGF(params: {
       edgeIndicesBase += geometry.edgeIndices.length;
     }
 
-    if (geometry.normalsCompressed) {
+    if (!ignoreNormals && geometry.normalsCompressed) {
       xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
@@ -380,7 +382,7 @@ export async function modelToXGF(params: {
       xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX;
     }
 
-    if (geometry.uvsCompressed) {
+    if (!ignoreUVs && geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;

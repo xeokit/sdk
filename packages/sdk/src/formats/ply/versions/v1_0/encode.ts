@@ -35,6 +35,8 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
   const opts = options || {};
   const onProgress: ((p: LoaderProgress) => void) | undefined = opts.onProgress;
   const signal: AbortSignal | undefined = opts.signal;
+  const ignoreNormals = opts.ignoreNormals === true;
+  const ignoreUVs = opts.ignoreUVs === true;
   const progress: LoaderProgress = {phase: "", current: 0, total: 0};
   const step = async (phase: string, current: number, total: number): Promise<void> => {
     if (onProgress) {
@@ -55,7 +57,7 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
     const sceneObject: any = sceneObjects[i];
     const meshes = sceneObject.meshes || [];
     for (const mesh of meshes) {
-      appendMesh(mesh, vertices, faces);
+      appendMesh(mesh, vertices, faces, ignoreNormals, ignoreUVs);
     }
   }
 
@@ -125,7 +127,7 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
   return lines.join("\n");
 }
 
-function appendMesh(mesh: any, vertices: OutputVertex[], faces: number[][]): void {
+function appendMesh(mesh: any, vertices: OutputVertex[], faces: number[][], ignoreNormals: boolean, ignoreUVs: boolean): void {
   const geometry = mesh.geometry;
   if (!geometry || (geometry.primitive !== TrianglesPrimitive && geometry.primitive !== PointsPrimitive)) {
     return;
@@ -139,10 +141,10 @@ function appendMesh(mesh: any, vertices: OutputVertex[], faces: number[][]): voi
   const vertexOffset = vertices.length;
   const vertexCount = positionsCompressed.length / 3;
   const matrix = getMeshWorldMatrix(mesh);
-  const decodedNormals = geometry.normalsCompressed
+  const decodedNormals = !ignoreNormals && geometry.normalsCompressed
     ? octDecodeNormalsU16(geometry.normalsCompressed, new Float32Array((geometry.normalsCompressed.length / 2) * 3))
     : null;
-  const uvs = geometry.uvsCompressed;
+  const uvs = ignoreUVs ? undefined : geometry.uvsCompressed;
   const colors = geometry.colorsCompressed;
   const meshColor = mesh.color || [1, 1, 1];
   const meshOpacity = mesh.opacity !== undefined ? mesh.opacity : 1;

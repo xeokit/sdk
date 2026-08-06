@@ -14,6 +14,20 @@ export type ModelExportOptions = {
   coordinateSystem?: CoordinateSystemParams;
 
   /**
+   * When `true`, exporters should omit vertex normals when the target format
+   * can represent the model without them. Exporters may ignore this when
+   * normals are unavoidable in the target format.
+   */
+  ignoreNormals?: boolean;
+
+  /**
+   * When `true`, exporters should omit texture coordinates when the target
+   * format can represent the model without them. Exporters may ignore this when
+   * UVs are unavoidable in the target format.
+   */
+  ignoreUVs?: boolean;
+
+  /**
    * Optional `AbortSignal`. Exporters that have been swept to
    * cooperative-yield check `signal.aborted` at every yield
    * point and throw a `DOMException("Aborted", "AbortError")`

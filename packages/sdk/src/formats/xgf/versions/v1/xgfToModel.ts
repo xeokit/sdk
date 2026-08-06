@@ -69,6 +69,8 @@ export async function xgfToModel(params: {
   dataModel?: DataModel,
   options: {
     layerId?: string;
+    ignoreNormals?: boolean;
+    ignoreUVs?: boolean;
     signal?: AbortSignal;
     onProgress?: (p: LoaderProgress) => void;
   }
@@ -76,6 +78,8 @@ export async function xgfToModel(params: {
 
   const {xgfData, sceneModel, dataModel, options} = params;
   const layerId = options?.layerId || "default";
+  const ignoreNormals = options?.ignoreNormals === true;
+  const ignoreUVs = options?.ignoreUVs === true;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
 
   // Reusable progress payload — mutated and re-emitted to keep
@@ -351,12 +355,12 @@ export async function xgfToModel(params: {
           // since geometries without normals/UVs are sparse, we can't
           // just look at the next entry.
           const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-          if (normalsBaseI !== NO_INDEX) {
+          if (!ignoreNormals && normalsBaseI !== NO_INDEX) {
             const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
             params.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
           }
           const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-          if (uvsBaseI !== NO_INDEX) {
+          if (!ignoreUVs && uvsBaseI !== NO_INDEX) {
             const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
             params.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
           }

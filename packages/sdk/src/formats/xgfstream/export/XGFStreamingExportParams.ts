@@ -12,4 +12,6 @@ export interface XGFStreamingExportParams {
   collapseChunkObjects?: boolean;
   /** Target coordinate system for chunk payloads and stream index bounds. */
   coordinateSystem?: any;
+  ignoreNormals?: boolean;
+  ignoreUVs?: boolean;
 }

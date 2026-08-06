@@ -31,4 +31,19 @@ export interface DrawCallStats {
    * The MeshBatch being drawn.
    */
   batchIndex: number;
+
+  /**
+   * Geometry source used by the DrawTechnique that issued this draw.
+   */
+  drawPath?: "dtx" | "vbo";
+
+  /**
+   * Geometry storage owned by the MeshBatch.
+   */
+  batchStorage?: "dtx" | "vbo";
+
+  /**
+   * DrawTechnique class that issued this draw.
+   */
+  technique?: string;
 }

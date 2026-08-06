@@ -329,17 +329,12 @@ formats/xgfstream/
 ├── README.md                         (this file)
 ├── index.ts                          module re-exports
 ├── XGFStreamExporter.ts              high-level stream file-map exporter
-├── XGFStreamingExporter.ts           low-level chunk/index writer
 ├── XGFStreamingLoader.ts             manifest-aware chunk loader/unloader
 ├── chunk/
 │   ├── XGFChunkManifest.ts           per-chunk metadata
 │   ├── XGFChunkLoadOptions.ts        single-chunk load options
 │   ├── XGFChunksLoadOptions.ts       batch load options
 │   └── XGFChunkLoadStats.ts          timing/ownership stats
-├── export/
-│   ├── XGFStreamingChunkExportSpec.ts
-│   ├── XGFAssetLibraryExportSpec.ts
-│   └── XGFStreamingExportResult.ts
 ├── index/
 │   ├── XGFStreamingIndex.ts          human-readable stream index
 │   ├── XGFStreamingRuntimeIndex.ts   compact runtime index

@@ -148,7 +148,9 @@ async function encodeXGFStream(params: ModelEncodeParams, options: XGFStreamExpo
     gridCellSize,
     baseUri,
     chunkDirName,
-    assetId
+    assetId,
+    ignoreNormals: options.ignoreNormals === true,
+    ignoreUVs: options.ignoreUVs === true
   });
   const assetLibraries = createAssetLibrarySpecs({
     sceneModel,
@@ -170,7 +172,9 @@ async function encodeXGFStream(params: ModelEncodeParams, options: XGFStreamExpo
     indexUri: joinUri(baseUri, indexName),
     runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : undefined,
     collapseChunkObjects: options.collapseChunkObjects === true,
-    coordinateSystem: options.coordinateSystem
+    coordinateSystem: options.coordinateSystem,
+    ignoreNormals: options.ignoreNormals === true,
+    ignoreUVs: options.ignoreUVs === true
   });
   if (result.ok === false) {
     throw new Error(result.error);
@@ -190,6 +194,8 @@ function createChunkSpecs(params: {
   baseUri: string;
   chunkDirName: string;
   assetId: string;
+  ignoreNormals: boolean;
+  ignoreUVs: boolean;
 }): XGFStreamingChunkExportSpec[] {
   if (params.partition === "object-order") {
     return createObjectOrderChunkSpecs(params);
@@ -225,6 +231,8 @@ function createGridChunkSpecs(params: {
   baseUri: string;
   chunkDirName: string;
   assetId: string;
+  ignoreNormals: boolean;
+  ignoreUVs: boolean;
 }): XGFStreamingChunkExportSpec[] {
   const records: any[] = [];
   const unboundedObjectIds: string[] = [];
@@ -241,7 +249,7 @@ function createGridChunkSpecs(params: {
       id: objectId,
       aabb,
       center: aabbCenter(aabb),
-      cost: estimateObjectCost(sceneObject, params.chunkMetric)
+      cost: estimateObjectCost(sceneObject, params.chunkMetric, params.ignoreNormals, params.ignoreUVs)
     });
   }
   if (records.length === 0) {
@@ -638,7 +646,7 @@ function computeObjectAABB(sceneObject: any): number[] | null {
   return found ? out : null;
 }
 
-function estimateObjectCost(sceneObject: any, metric: XGFStreamChunkMetric): number {
+function estimateObjectCost(sceneObject: any, metric: XGFStreamChunkMetric, ignoreNormals = false, ignoreUVs = false): number {
   if (metric === "objects") {
     return 1;
   }
@@ -656,8 +664,12 @@ function estimateObjectCost(sceneObject: any, metric: XGFStreamChunkMetric): num
     geometryIds.add(geometry.id);
     bytes += arrayByteLength(geometry.positionsCompressed);
     bytes += arrayByteLength(geometry.colorsCompressed);
-    bytes += arrayByteLength(geometry.normalsCompressed);
-    bytes += arrayByteLength(geometry.uvsCompressed);
+    if (!ignoreNormals) {
+      bytes += arrayByteLength(geometry.normalsCompressed);
+    }
+    if (!ignoreUVs) {
+      bytes += arrayByteLength(geometry.uvsCompressed);
+    }
     bytes += arrayByteLength(geometry.indices);
     bytes += arrayByteLength(geometry.edgeIndices);
     bytes += arrayByteLength(geometry.scales);

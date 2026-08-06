@@ -1,9 +1,7 @@
 import type {XGFAssetMode} from "../export/XGFAssetMode";
 import type {XGFChunkDependency} from "../chunk/XGFChunkDependency";
 
-/**
- * Options used when creating an XGF chunk manifest from a SceneModel view.
- */
+/** @internal */
 export interface XGFManifestOptions {
   /** Stable chunk ID. Defaults to the SceneModel ID. */
   id?: string;

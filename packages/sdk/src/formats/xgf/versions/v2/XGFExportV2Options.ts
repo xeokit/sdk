@@ -10,6 +10,8 @@ export interface XGFExportV2Options {
   assetMode?: XGFAssetMode;
   preserveTransforms?: boolean;
   coordinateSystem?: any;
+  ignoreNormals?: boolean;
+  ignoreUVs?: boolean;
   signal?: AbortSignal;
   onProgress?: (progress: LoaderProgress) => void;
 }

@@ -42,7 +42,9 @@ export class XGFStreamingExporter {
         const view = createAssetLibraryView(sceneModel, spec);
         const fileData = await this._xgfExporter.write({sceneModel: view as SceneModel}, {
           assetMode: "assetLibrary",
-          coordinateSystem: outputCoordinateSystem
+          coordinateSystem: outputCoordinateSystem,
+          ignoreNormals: params.ignoreNormals,
+          ignoreUVs: params.ignoreUVs
         });
         const manifest = createXGFManifest(
           {sceneModel: view as SceneModel},
@@ -64,7 +66,9 @@ export class XGFStreamingExporter {
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
         const fileData = await this._xgfExporter.write({sceneModel: view as SceneModel}, {
           assetMode: "referencesOnly",
-          coordinateSystem: outputCoordinateSystem
+          coordinateSystem: outputCoordinateSystem,
+          ignoreNormals: params.ignoreNormals,
+          ignoreUVs: params.ignoreUVs
         });
         const manifest = createXGFManifest(
           {sceneModel: view as SceneModel},

@@ -1,6 +1,4 @@
 import type {XGFAssetMode} from "../export/XGFAssetMode";
 
-/**
- * Role of an XGF stream chunk.
- */
+/** @internal */
 export type XGFChunkRole = XGFAssetMode;

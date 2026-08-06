@@ -634,7 +634,7 @@ export class RenderManager {
    */
   private _inspector(): RenderInspector | null {
     const ri = this._renderContext.renderInspector;
-    return ri && ri.enabled ? ri : null;
+    return ri && ri.active ? ri : null;
   }
 
   /**

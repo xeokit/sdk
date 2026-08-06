@@ -16,11 +16,25 @@ export interface XGFStreamingRuntimeIndex {
   counts?: ["transforms", "geometries", "materials", "textures", "meshes", "objects"];
   /** String lookup table used by runtime index v1.1. */
   strings?: string[];
-  /** AABB quantization used by runtime index v1.1 chunk tuples. */
+  /**
+   * AABB quantization used by compact runtime tuples.
+   *
+   * @internal
+   */
   aabbQuantization?: XGFStreamingRuntimeAABBQuantization;
-  /** Compact chunk tuples. */
+  /**
+   * Compact chunk tuples. Use {@link readXGFStreamingRuntimeIndex} to expand
+   * them into the public {@link XGFStreamingIndex} shape.
+   *
+   * @internal
+   */
   chunks?: XGFStreamingRuntimeChunk[];
-  /** Compact child stream tuples. */
+  /**
+   * Compact child stream tuples. Use {@link readXGFStreamingRuntimeIndex} to
+   * expand them into the public {@link XGFSubstreamManifest} shape.
+   *
+   * @internal
+   */
   streams?: XGFStreamingRuntimeSubstream[];
   /** IDs of primary scene-content chunks. */
   root?: Array<string | number>;

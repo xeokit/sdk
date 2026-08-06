@@ -67,11 +67,9 @@ describe("SceneModel serialization", () => {
     }).value!;
 
     expect(src.updateHint).toBe("static");
-    expect(src.updateUsage).toBe("static");
 
     const params = src.toParams().value!;
     expect(params.updateHint).toBe("static");
-    expect(params.updateUsage).toBe("static");
 
     const dst = new Scene().createModel({id: "hintDst"}).value!;
     const fromRes = dst.fromParams(params);
@@ -80,35 +78,105 @@ describe("SceneModel serialization", () => {
     expect(dst.updateHint).toBe("static");
   });
 
-  it("keeps updateUsage as a deprecated alias", () => {
-    const model = new Scene().createModel({
-      id: "legacyUsage",
-      updateUsage: "static"
+  it("round-trips lifecycle and memory policy", () => {
+    const src = new Scene().createModel({
+      id: "policyModel",
+      lifecycle: "streaming",
+      memoryPolicy: "compact"
     }).value!;
 
-    expect(model.updateHint).toBe("static");
+    expect(src.lifecycle).toBe("streaming");
+    expect(src.memoryPolicy).toBe("compact");
 
-    model.updateUsage = "dynamic";
-    expect(model.updateHint).toBe("dynamic");
+    const params = src.toParams().value!;
+    expect(params.lifecycle).toBe("streaming");
+    expect(params.memoryPolicy).toBe("compact");
+
+    const dst = new Scene().createModel({id: "policyDst"}).value!;
+    const fromRes = dst.fromParams(params);
+
+    expect(fromRes.ok).toBe(true);
+    expect(dst.lifecycle).toBe("streaming");
+    expect(dst.memoryPolicy).toBe("compact");
   });
 
-  it("prefers updateHint when both updateHint and updateUsage are provided", () => {
+  it("records components created while a batch is active", () => {
     const model = new Scene().createModel({
-      id: "hintWins",
-      updateHint: "static",
-      updateUsage: "dynamic"
+      id: "batchModel",
+      lifecycle: "streaming",
+      memoryPolicy: "compact"
     }).value!;
 
-    expect(model.updateHint).toBe("static");
+    const batchRes = model.beginBatch({id: "tile-1"});
+    expect(batchRes.ok).toBe(true);
+    expect(model.activeBatch).toBe(batchRes.value);
+
+    const geom = model.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES
+    }).value!;
+    const mesh = model.createMesh({id: "mesh", geometryId: "g"}).value!;
+    const object = model.createObject({id: "object", meshIds: ["mesh"]}).value!;
+
+    expect(model.activeBatch!.geometries).toEqual([geom]);
+    expect(model.activeBatch!.meshes).toEqual([mesh]);
+    expect(model.activeBatch!.objects).toEqual([object]);
+    expect((mesh as any).batchId).toBe("tile-1");
+
+    const commitRes = model.commitBatch();
+
+    expect(commitRes.ok).toBe(true);
+    expect(commitRes.value).toBe(batchRes.value);
+    expect(commitRes.value!.committed).toBe(true);
+    expect(model.activeBatch).toBeNull();
   });
 
-  it("normalizes legacy stream update hint to dynamic", () => {
-    const model = new Scene().createModel({
-      id: "legacyStreamHint",
-      updateUsage: "stream" as any
+  it("rolls back an active batch by destroying its components", () => {
+    const model = new Scene().createModel({id: "rollbackModel"}).value!;
+
+    expect(model.beginBatch({id: "temp"}).ok).toBe(true);
+    expect(model.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES
+    }).ok).toBe(true);
+    expect(model.createMesh({id: "mesh", geometryId: "g"}).ok).toBe(true);
+    expect(model.createObject({id: "object", meshIds: ["mesh"]}).ok).toBe(true);
+
+    const rollbackRes = model.rollbackBatch();
+
+    expect(rollbackRes.ok).toBe(true);
+    expect(model.activeBatch).toBeNull();
+    expect(Object.keys(model.objects)).toHaveLength(0);
+    expect(Object.keys(model.meshes)).toHaveLength(0);
+    expect(Object.keys(model.geometries)).toHaveLength(0);
+  });
+
+  it("seals a model after initial params and rejects later topology growth", () => {
+    const scene = new Scene();
+    const model = scene.createModel({
+      id: "sealedModel",
+      lifecycle: "sealed",
+      geometries: [{
+        id: "g",
+        primitive: TrianglesPrimitive,
+        positions: QUAD_POSITIONS,
+        indices: QUAD_INDICES
+      }]
     }).value!;
 
-    expect(model.updateHint).toBe("dynamic");
+    expect(model.lifecycle).toBe("sealed");
+    expect(Object.keys(model.geometries)).toEqual(["g"]);
+    expect(model.createGeometry({
+      id: "g2",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES
+    }).ok).toBe(false);
+    expect(model.beginBatch({id: "late"}).ok).toBe(false);
   });
 
   it("stores and serializes spherical mesh billboards", () => {

@@ -10,6 +10,7 @@ import { CoordinateSystem } from "./CoordinateSystem";
 import { SceneTexture } from "./SceneTexture";
 import { SceneMaterial } from "./SceneMaterial";
 import { SceneTechnique } from "./SceneTechnique";
+import { SceneModelBatch } from "./SceneModelBatch";
 
 /**
  * Represents the events emitted by a {@link model!scene.Scene | Scene}.
@@ -81,6 +82,30 @@ export class SceneEvents {
    * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
    */
   public readonly onSceneModelBuildFinished: EventEmitter<Scene, SceneModel>;
+
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} begins a component
+   * creation batch.
+   */
+  public readonly onSceneModelBatchStarted: EventEmitter<SceneModel, SceneModelBatch>;
+
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} commits a
+   * component creation batch.
+   */
+  public readonly onSceneModelBatchCommitted: EventEmitter<SceneModel, SceneModelBatch>;
+
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} rolls back a
+   * component creation batch.
+   */
+  public readonly onSceneModelBatchRolledBack: EventEmitter<SceneModel, SceneModelBatch>;
+
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} is sealed against
+   * further topology/resource growth.
+   */
+  public readonly onSceneModelSealed: EventEmitter<Scene, SceneModel>;
 
   /**
    * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
@@ -271,6 +296,10 @@ export class SceneEvents {
     this.onSceneModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onSceneModelBuildStarted = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onSceneModelBuildFinished = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+    this.onSceneModelBatchStarted = new EventEmitter(new EventDispatcher<SceneModel, SceneModelBatch>());
+    this.onSceneModelBatchCommitted = new EventEmitter(new EventDispatcher<SceneModel, SceneModelBatch>());
+    this.onSceneModelBatchRolledBack = new EventEmitter(new EventDispatcher<SceneModel, SceneModelBatch>());
+    this.onSceneModelSealed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
     this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
@@ -320,6 +349,10 @@ export class SceneEvents {
     this.onSceneModelDestroyed.clear();
     this.onSceneModelBuildStarted.clear();
     this.onSceneModelBuildFinished.clear();
+    this.onSceneModelBatchStarted.clear();
+    this.onSceneModelBatchCommitted.clear();
+    this.onSceneModelBatchRolledBack.clear();
+    this.onSceneModelSealed.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
     this.onSceneModelCoordSystemUnitsChanged.clear();
@@ -354,4 +387,3 @@ export class SceneEvents {
     this.onSceneTransformDestroyed.clear();
   }
 }
-

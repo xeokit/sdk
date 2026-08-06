@@ -3,7 +3,7 @@
  */
 
 import {SDKErrorType} from "../../../base/core";
-import type {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../../model/scene";
+import type {SceneGeometry, SceneMesh, SceneModel, SceneModelBatch, SceneObject} from "../../../model/scene";
 
 jest.mock("../internal/ViewManager", () => ({ViewManager: jest.fn()}));
 jest.mock("../internal/webGL", () => ({getWebGLExtension: jest.fn()}));
@@ -24,6 +24,7 @@ function createModel(building: boolean): SceneModel {
     geometries: {},
     meshes: {},
     objects: {},
+    activeBatch: null,
   } as unknown as SceneModel;
 }
 
@@ -110,6 +111,40 @@ describe("WebGLRenderer deferred scene registration", () => {
     expect(renderer._deferSceneGeometryCreated(geometry)).toBe(false);
     expect(renderer._deferSceneMeshCreated(mesh)).toBe(false);
     expect(renderer._deferSceneObjectCreated(object)).toBe(false);
+  });
+
+  test("defers active-batch creation and can flush directly from committed batch contents", () => {
+    const renderer = new WebGLRenderer() as any;
+    const model = createModel(false);
+    const {geometry, mesh, object} = createModelEntries(model);
+    const batch = {
+      geometries: [geometry],
+      meshes: [mesh],
+      objects: [object],
+      includesGeometry: (candidate: SceneGeometry) => candidate === geometry,
+      includesMesh: (candidate: SceneMesh) => candidate === mesh,
+      includesObject: (candidate: SceneObject) => candidate === object,
+    } as unknown as SceneModelBatch;
+    (model as any).activeBatch = batch;
+
+    expect(renderer._deferSceneGeometryCreated(geometry)).toBe(true);
+    expect(renderer._deferSceneMeshCreated(mesh)).toBe(true);
+    expect(renderer._deferSceneObjectCreated(object)).toBe(true);
+
+    (model as any).activeBatch = null;
+
+    const calls: string[] = [];
+    const viewManager = createViewManager(calls);
+    renderer._flushDeferredSceneModelRegistrations(model, viewManager, batch);
+
+    expect(calls).toEqual([
+      "geometry:geometry",
+      "mesh:mesh",
+      "object:object",
+    ]);
+    expect(viewManager.sceneGeometryCreated).toHaveBeenCalledTimes(1);
+    expect(viewManager.sceneMeshesCreated).toHaveBeenCalledTimes(1);
+    expect(viewManager.sceneObjectCreated).toHaveBeenCalledTimes(1);
   });
 
   test("discarded or stale deferred entries are not flushed", () => {

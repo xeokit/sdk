@@ -9,7 +9,7 @@ import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParam
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 import {SceneMesh} from "./SceneMesh";
 import type {SceneMeshParams} from "./SceneMeshParams";
-import type {SceneModelParams, SceneModelUpdateHint} from "./SceneModelParams";
+import type {SceneModelLifecycle, SceneModelMemoryPolicy, SceneModelParams, SceneModelUpdateHint} from "./SceneModelParams";
 import type {SceneModelStats} from "./SceneModelStats";
 import {SceneObject} from "./SceneObject";
 import type {SceneObjectParams} from "./SceneObjectParams";
@@ -24,6 +24,7 @@ import {CoordinateSystem} from "./CoordinateSystem";
 import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
 import {SceneTransform} from "./SceneTransform";
 import {type SceneTransformParams} from "./SceneTransformParams";
+import {SceneModelBatch, type SceneModelBatchParams} from "./SceneModelBatch";
 
 
 /**
@@ -72,13 +73,18 @@ const TEXTURE_ENCODING_OPTIONS: {
   [key: string]: any
 } = {}
 
-function normalizeUpdateHint(updateHint: SceneModelUpdateHint | "stream" | undefined): SceneModelUpdateHint {
-  if (updateHint === "stream") {
-    return "dynamic";
-  }
+function normalizeUpdateHint(updateHint: SceneModelUpdateHint | undefined): SceneModelUpdateHint {
   return updateHint === "static" || updateHint === "dynamic"
     ? updateHint
     : "auto";
+}
+
+function normalizeLifecycle(lifecycle: SceneModelLifecycle | undefined): SceneModelLifecycle {
+  return lifecycle === "streaming" || lifecycle === "sealed" ? lifecycle : "open";
+}
+
+function normalizeMemoryPolicy(memoryPolicy: SceneModelMemoryPolicy | undefined): SceneModelMemoryPolicy {
+  return memoryPolicy === "compact" ? "compact" : "stream";
 }
 
 TEXTURE_ENCODING_OPTIONS[COLOR_TEXTURE] = {
@@ -158,32 +164,52 @@ export class SceneModel {
   public readonly globalizedIds: boolean;
 
   /**
-   * Hint describing how often this SceneModel's geometry is expected to change.
+   * Hint describing how often this SceneModel's renderer-facing values are
+   * expected to be uploaded.
    *
-   * Renderers can use this to choose an internal storage path.
+   * Renderers can use this to choose storage for matrices, transforms, colors,
+   * visibility flags, opacity and object state.
    */
   private _updateHint: SceneModelUpdateHint;
 
   /**
-   * Hint describing how often this SceneModel's geometry is expected to change.
+   * Hint describing how often this SceneModel's renderer-facing values are
+   * expected to be uploaded.
    */
   public get updateHint(): SceneModelUpdateHint {
     return this._updateHint;
   }
 
-  public set updateHint(updateHint: SceneModelUpdateHint | "stream") {
+  public set updateHint(updateHint: SceneModelUpdateHint) {
     this._updateHint = normalizeUpdateHint(updateHint);
   }
 
+  private _lifecycle: SceneModelLifecycle;
+
   /**
-   * @deprecated Use `updateHint`.
+   * Describes whether this SceneModel is open to new components, streaming
+   * committed batches, or sealed against topology/resource growth.
    */
-  public get updateUsage(): SceneModelUpdateHint {
-    return this._updateHint;
+  public get lifecycle(): SceneModelLifecycle {
+    return this._lifecycle;
   }
 
-  public set updateUsage(updateUsage: SceneModelUpdateHint | "stream") {
-    this.updateHint = updateUsage;
+  private _memoryPolicy: SceneModelMemoryPolicy;
+
+  /**
+   * Renderer-side capacity policy requested for this SceneModel.
+   */
+  public get memoryPolicy(): SceneModelMemoryPolicy {
+    return this._memoryPolicy;
+  }
+
+  private _activeBatch: SceneModelBatch | null = null;
+
+  /**
+   * Currently active component creation batch, if any.
+   */
+  public get activeBatch(): SceneModelBatch | null {
+    return this._activeBatch;
   }
 
   /**
@@ -306,6 +332,206 @@ export class SceneModel {
     }
   }
 
+  private _assertCanCreate(method: string): SDKResult<any> | null {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.${method}] SceneModel already destroyed`
+      });
+    }
+    if (this._lifecycle === "sealed") {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.${method}] SceneModel is sealed`
+      });
+    }
+    return null;
+  }
+
+  private _recordActiveBatchComponent(component: SceneTransform | SceneGeometry | SceneTexture | SceneMaterial | SceneTechnique | SceneMesh | SceneObject): void {
+    const batch = this._activeBatch;
+    if (!batch) {
+      return;
+    }
+    (component as {batchId?: string}).batchId = batch.id;
+    if (component instanceof SceneTransform) {
+      batch.transforms.push(component);
+    } else if (component instanceof SceneGeometry) {
+      batch.geometries.push(component);
+    } else if (component instanceof SceneTexture) {
+      batch.textures.push(component);
+    } else if (component instanceof SceneMaterial) {
+      batch.materials.push(component);
+    } else if (component instanceof SceneTechnique) {
+      batch.techniques.push(component);
+    } else if (component instanceof SceneMesh) {
+      batch.meshes.push(component);
+    } else {
+      batch.objects.push(component);
+    }
+  }
+
+  /**
+   * Starts a component creation batch on this SceneModel.
+   *
+   * Components created while the batch is active are recorded in
+   * {@link SceneModel.activeBatch}. Viewers and renderers may defer those
+   * components until {@link SceneModel.commitBatch | commitBatch} publishes the
+   * batch as a single unit.
+   *
+   * This is mainly for {@link SceneModel.lifecycle | lifecycle} `"streaming"`
+   * models, where chunks arrive over time. Only one batch can be active at once.
+   * Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the active
+   * batch before it is committed.
+   */
+  beginBatch(params: SceneModelBatchParams): SDKResult<SceneModelBatch> {
+    const createError = this._assertCanCreate("beginBatch");
+    if (createError) {
+      return createError;
+    }
+    if (!params?.id) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.beginBatch] Parameter expected: params.id"
+      });
+    }
+    if (this._activeBatch) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.beginBatch] SceneModel already has an active batch: ${this._activeBatch.id}`
+      });
+    }
+    const batch = new SceneModelBatch(params);
+    this._activeBatch = batch;
+    this.scene.events.onSceneModelBatchStarted.dispatch(this, batch);
+    return {
+      ok: true,
+      value: batch
+    };
+  }
+
+  /**
+   * Commits the active component creation batch.
+   *
+   * The batch is marked committed, {@link SceneModel.activeBatch} is cleared and
+   * {@link SceneEvents.onSceneModelBatchCommitted} is fired. Renderers can use
+   * the committed batch as a stable allocation unit, especially when
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`.
+   */
+  commitBatch(): SDKResult<SceneModelBatch> {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.commitBatch] SceneModel already destroyed"
+      });
+    }
+    const batch = this._activeBatch;
+    if (!batch) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.commitBatch] SceneModel has no active batch"
+      });
+    }
+    batch.committed = true;
+    this._activeBatch = null;
+    this.scene.events.onSceneModelBatchCommitted.dispatch(this, batch);
+    return {
+      ok: true,
+      value: batch
+    };
+  }
+
+  /**
+   * Destroys all components created in the active batch and clears it.
+   *
+   * This is only valid before {@link SceneModel.commitBatch | commitBatch}.
+   * Components are destroyed in dependency order and
+   * {@link SceneEvents.onSceneModelBatchRolledBack} is fired.
+   */
+  rollbackBatch(): SDKResult<void> {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.rollbackBatch] SceneModel already destroyed"
+      });
+    }
+    const batch = this._activeBatch;
+    if (!batch) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.rollbackBatch] SceneModel has no active batch"
+      });
+    }
+    this._activeBatch = null;
+    const destroyAll = (components: {destroy(): unknown; destroyed?: boolean}[]): void => {
+      for (let i = components.length - 1; i >= 0; i--) {
+        if (!components[i]?.destroyed) {
+          components[i].destroy();
+        }
+      }
+    };
+    destroyAll(batch.objects);
+    destroyAll(batch.meshes);
+    destroyAll(batch.techniques);
+    destroyAll(batch.materials);
+    destroyAll(batch.transforms);
+    destroyAll(batch.geometries);
+    destroyAll(batch.textures);
+    this.scene.events.onSceneModelBatchRolledBack.dispatch(this, batch);
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  /**
+   * Seals this SceneModel against further topology/resource growth.
+   *
+   * After sealing, creation methods such as
+   * {@link SceneModel.createGeometry | createGeometry},
+   * {@link SceneModel.createMesh | createMesh},
+   * {@link SceneModel.createObject | createObject} and
+   * {@link SceneModel.beginBatch | beginBatch} reject new content. Renderers can
+   * treat a sealed model as complete and may use snug allocations when
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`.
+   */
+  seal(): SDKResult<void> {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.seal] SceneModel already destroyed"
+      });
+    }
+    if (this._activeBatch) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.seal] Cannot seal while batch '${this._activeBatch.id}' is active`
+      });
+    }
+    if (this._lifecycle === "sealed") {
+      return {
+        ok: true,
+        value: undefined
+      };
+    }
+    this._lifecycle = "sealed";
+    this.scene.events.onSceneModelSealed.dispatch(this.scene, this);
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
   /**
    * Constructs a new {@link model!scene.SceneModel | SceneModel}.
    *
@@ -335,7 +561,9 @@ export class SceneModel {
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = (!!sceneModelParams.globalizedIds);
-    this._updateHint = normalizeUpdateHint(sceneModelParams.updateHint ?? sceneModelParams.updateUsage);
+    this._updateHint = normalizeUpdateHint(sceneModelParams.updateHint);
+    this._lifecycle = sceneModelParams.lifecycle === "sealed" ? "open" : normalizeLifecycle(sceneModelParams.lifecycle);
+    this._memoryPolicy = normalizeMemoryPolicy(sceneModelParams.memoryPolicy);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
     this.geometries = {};
@@ -417,12 +645,9 @@ export class SceneModel {
    */
   createTransform(transformParams: SceneTransformParams): SDKResult<SceneTransform> {
 
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createTransform] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTransform");
+    if (createError) {
+      return createError;
     }
 
 
@@ -462,6 +687,7 @@ export class SceneModel {
 
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
+    this._recordActiveBatchComponent(sceneTransform);
     this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
     return {
       ok: true,
@@ -533,12 +759,9 @@ export class SceneModel {
    */
   createTexture(textureParams: SceneTextureParams): SDKResult<SceneTexture> {
 
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createTexture] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTexture");
+    if (createError) {
+      return createError;
     }
     if (!textureParams.id) {
       return this.scene.logError({
@@ -575,6 +798,7 @@ export class SceneModel {
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
     this.stats.textureBytes += texture.textureBytes;
+    this._recordActiveBatchComponent(texture);
     this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
     return {
       ok: true,
@@ -638,12 +862,9 @@ export class SceneModel {
    */
   createMaterial(materialParams: SceneMaterialParams): SDKResult<SceneMaterial> {
 
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createMaterial] Cannot create SceneMaterial - SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createMaterial");
+    if (createError) {
+      return createError;
     }
 
 
@@ -746,6 +967,7 @@ export class SceneModel {
 
     this.materials[materialParams.id] = material;
     this.stats.numMaterials++;
+    this._recordActiveBatchComponent(material);
     this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
     return {
       ok: true,
@@ -791,12 +1013,9 @@ export class SceneModel {
    * {@link SceneEvents.onSceneTechniqueCreated} on success.
    */
   createTechnique(params: SceneTechniqueParams): SDKResult<SceneTechnique> {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createTechnique] Cannot create SceneTechnique - SceneModel already destroyed",
-      });
+    const createError = this._assertCanCreate("createTechnique");
+    if (createError) {
+      return createError;
     }
     if (this.techniques[params.id]) {
       return this.scene.logError({
@@ -818,6 +1037,7 @@ export class SceneModel {
         });
     }
     this.techniques[params.id] = technique;
+    this._recordActiveBatchComponent(technique);
     this.scene.events.onSceneTechniqueCreated.dispatch(this.scene, technique);
     return {ok: true, value: technique};
   }
@@ -876,12 +1096,9 @@ export class SceneModel {
    */
   createGeometry(geometryParams: SceneGeometryParams): SDKResult<SceneGeometry> {
 
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createGeometry] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createGeometry");
+    if (createError) {
+      return createError;
     }
 
 
@@ -1034,6 +1251,7 @@ export class SceneModel {
     }
     this.stats.numVertices += positions.length / 3;
 
+    this._recordActiveBatchComponent(sceneGeometry);
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
 
     return {
@@ -1098,12 +1316,9 @@ export class SceneModel {
     geometryCompressedParams: SceneGeometryCompressedParams
   ): SDKResult<SceneGeometry> {
 
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createGeometryCompressed] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createGeometryCompressed");
+    if (createError) {
+      return createError;
     }
 
 
@@ -1315,6 +1530,7 @@ export class SceneModel {
     }
     this.stats.numVertices += positionsCompressed.length / 3;
 
+    this._recordActiveBatchComponent(sceneGeometry);
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
 
     return {
@@ -1429,18 +1645,16 @@ export class SceneModel {
       scale,
       rotation,
       quaternion,
+      origin,
       color,
       opacity,
       billboard,
       bin
     } = meshParams;
 
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.addMesh] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createMesh");
+    if (createError) {
+      return createError;
     }
 
 
@@ -1484,8 +1698,16 @@ export class SceneModel {
 
     // Build matrix (clone if provided; otherwise compose or identity)
 
+    if (origin && origin.length !== 3) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createMesh] Parameter 'origin' is not a vec3 array`
+      });
+    }
+
     if (!matrix) {
-      if (position || scale || rotation || quaternion) {
+      if (position || scale || rotation || quaternion || origin) {
 
         if (position && position.length !== 3) {
           return this.scene.logError({
@@ -1541,6 +1763,12 @@ export class SceneModel {
       matrix = createMat4Float64(matrix);
     }
 
+    if (origin && matrix) {
+      matrix[12] += origin[0];
+      matrix[13] += origin[1];
+      matrix[14] += origin[2];
+    }
+
     if (color && color.length !== 3) {
       return this.scene.logError({
         ok: false,
@@ -1579,6 +1807,7 @@ export class SceneModel {
     }
     this.meshes[id] = sceneMesh;
     this.stats.numMeshes++;
+    this._recordActiveBatchComponent(sceneMesh);
     this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
 
     return {
@@ -1669,12 +1898,9 @@ export class SceneModel {
       originalSystemId
     } = objectParams;
 
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createObject] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createObject");
+    if (createError) {
+      return createError;
     }
 
 
@@ -1732,6 +1958,7 @@ export class SceneModel {
 
     this.objects[objectId] = sceneObject;
     this.stats.numObjects++;
+    this._recordActiveBatchComponent(sceneObject);
     this.scene._registerObject(sceneObject);
 
     return {
@@ -1796,14 +2023,28 @@ export class SceneModel {
       });
     }
 
+    if (this._lifecycle === "sealed") {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.fromParams] SceneModel is sealed"
+      });
+    }
+
 
     if (sceneModelParams.coordinateSystem) {
       this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
     }
 
-    const updateHint = sceneModelParams.updateHint ?? sceneModelParams.updateUsage;
+    const updateHint = sceneModelParams.updateHint;
     if (updateHint !== undefined) {
       this.updateHint = updateHint;
+    }
+    if (sceneModelParams.lifecycle !== undefined && sceneModelParams.lifecycle !== "sealed") {
+      this._lifecycle = normalizeLifecycle(sceneModelParams.lifecycle);
+    }
+    if (sceneModelParams.memoryPolicy !== undefined) {
+      this._memoryPolicy = normalizeMemoryPolicy(sceneModelParams.memoryPolicy);
     }
 
     if (sceneModelParams.transforms) {
@@ -1864,6 +2105,10 @@ export class SceneModel {
       }
     }
 
+    if (sceneModelParams.lifecycle === "sealed") {
+      return this.seal();
+    }
+
     return {
       ok: true,
       value: undefined
@@ -1891,7 +2136,8 @@ export class SceneModel {
       id: this.id,
       coordinateSystem: this.coordinateSystem.toParams(),
       updateHint: this.updateHint,
-      updateUsage: this.updateHint,
+      lifecycle: this.lifecycle,
+      memoryPolicy: this.memoryPolicy,
       geometriesCompressed: [],
       textures: [],
       materials: [],

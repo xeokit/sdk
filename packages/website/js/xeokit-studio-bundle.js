@@ -19157,6 +19157,62 @@ var SceneTechnique = class {
   }
 };
 
+// ../sdk/src/model/scene/SceneModelBatch.ts
+var SceneModelBatch = class {
+  /**
+   * Unique ID of this batch within the parent SceneModel.
+   */
+  id;
+  /**
+   * True after the batch has been committed.
+   */
+  committed = false;
+  /**
+   * Transforms created in this batch.
+   */
+  transforms = [];
+  /**
+   * Geometries created in this batch.
+   */
+  geometries = [];
+  /**
+   * Textures created in this batch.
+   */
+  textures = [];
+  /**
+   * Materials created in this batch.
+   */
+  materials = [];
+  /**
+   * Techniques created in this batch.
+   */
+  techniques = [];
+  /**
+   * Meshes created in this batch.
+   */
+  meshes = [];
+  /**
+   * Objects created in this batch.
+   */
+  objects = [];
+  /** @private */
+  constructor(params) {
+    this.id = params.id;
+  }
+  /** @private */
+  includesGeometry(sceneGeometry) {
+    return this.geometries.indexOf(sceneGeometry) >= 0;
+  }
+  /** @private */
+  includesMesh(sceneMesh) {
+    return this.meshes.indexOf(sceneMesh) >= 0;
+  }
+  /** @private */
+  includesObject(sceneObject) {
+    return this.objects.indexOf(sceneObject) >= 0;
+  }
+};
+
 // ../sdk/src/model/scene/SceneEvents.ts
 var SceneEvents = class {
   /**
@@ -19210,6 +19266,26 @@ var SceneEvents = class {
    * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
    */
   onSceneModelBuildFinished;
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} begins a component
+   * creation batch.
+   */
+  onSceneModelBatchStarted;
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} commits a
+   * component creation batch.
+   */
+  onSceneModelBatchCommitted;
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} rolls back a
+   * component creation batch.
+   */
+  onSceneModelBatchRolledBack;
+  /**
+   * Emits when a {@link model!scene.SceneModel | SceneModel} is sealed against
+   * further topology/resource growth.
+   */
+  onSceneModelSealed;
   /**
    * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
    */
@@ -19366,6 +19442,10 @@ var SceneEvents = class {
     this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelBuildStarted = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelBuildFinished = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelBatchStarted = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelBatchCommitted = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelBatchRolledBack = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelSealed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
@@ -19414,6 +19494,10 @@ var SceneEvents = class {
     this.onSceneModelDestroyed.clear();
     this.onSceneModelBuildStarted.clear();
     this.onSceneModelBuildFinished.clear();
+    this.onSceneModelBatchStarted.clear();
+    this.onSceneModelBatchCommitted.clear();
+    this.onSceneModelBatchRolledBack.clear();
+    this.onSceneModelSealed.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
     this.onSceneModelCoordSystemUnitsChanged.clear();
@@ -19553,6 +19637,13 @@ var Scene2 = class {
     if (populated.ok === false) {
       sceneModel.destroy();
       return this.logError(populated);
+    }
+    if (paramsWithId.lifecycle === "sealed") {
+      const sealed = sceneModel.seal();
+      if (sealed.ok === false) {
+        sceneModel.destroy();
+        return this.logError(sealed);
+      }
     }
     return { ok: true, value: sceneModel };
   }
@@ -21189,10 +21280,13 @@ var EMISSIVE_TEXTURE = 3;
 var OCCLUSION_TEXTURE = 4;
 var TEXTURE_ENCODING_OPTIONS = {};
 function normalizeUpdateHint(updateHint) {
-  if (updateHint === "stream") {
-    return "dynamic";
-  }
   return updateHint === "static" || updateHint === "dynamic" ? updateHint : "auto";
+}
+function normalizeLifecycle(lifecycle) {
+  return lifecycle === "streaming" || lifecycle === "sealed" ? lifecycle : "open";
+}
+function normalizeMemoryPolicy(memoryPolicy) {
+  return memoryPolicy === "compact" ? "compact" : "stream";
 }
 TEXTURE_ENCODING_OPTIONS[COLOR_TEXTURE] = {
   useSRGB: true,
@@ -21263,14 +21357,27 @@ var SceneModel3 = class {
   set updateHint(updateHint) {
     this._updateHint = normalizeUpdateHint(updateHint);
   }
+  _lifecycle;
   /**
-   * @deprecated Use `updateHint`.
+   * Describes whether this SceneModel is open to new components, streaming
+   * committed batches, or sealed against topology/resource growth.
    */
-  get updateUsage() {
-    return this._updateHint;
+  get lifecycle() {
+    return this._lifecycle;
   }
-  set updateUsage(updateUsage) {
-    this.updateHint = updateUsage;
+  _memoryPolicy;
+  /**
+   * Renderer-side capacity policy requested for this SceneModel.
+   */
+  get memoryPolicy() {
+    return this._memoryPolicy;
+  }
+  _activeBatch = null;
+  /**
+   * Currently active component creation batch, if any.
+   */
+  get activeBatch() {
+    return this._activeBatch;
   }
   /**
    * Unique ID of this SceneModel.
@@ -21377,6 +21484,200 @@ var SceneModel3 = class {
       this.scene.events.onSceneModelBuildFinished.dispatch(this.scene, this);
     }
   }
+  _assertCanCreate(method) {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.${method}] SceneModel already destroyed`
+      });
+    }
+    if (this._lifecycle === "sealed") {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.${method}] SceneModel is sealed`
+      });
+    }
+    return null;
+  }
+  _recordActiveBatchComponent(component) {
+    const batch = this._activeBatch;
+    if (!batch) {
+      return;
+    }
+    component.batchId = batch.id;
+    if (component instanceof SceneTransform2) {
+      batch.transforms.push(component);
+    } else if (component instanceof SceneGeometry) {
+      batch.geometries.push(component);
+    } else if (component instanceof SceneTexture) {
+      batch.textures.push(component);
+    } else if (component instanceof SceneMaterial) {
+      batch.materials.push(component);
+    } else if (component instanceof SceneTechnique) {
+      batch.techniques.push(component);
+    } else if (component instanceof SceneMesh3) {
+      batch.meshes.push(component);
+    } else {
+      batch.objects.push(component);
+    }
+  }
+  /**
+   * Starts a component creation batch on this SceneModel.
+   *
+   * Components created while the batch is active are recorded in
+   * {@link SceneModel.activeBatch}. Viewers and renderers may defer those
+   * components until {@link SceneModel.commitBatch | commitBatch} publishes the
+   * batch as a single unit.
+   *
+   * This is mainly for {@link SceneModel.lifecycle | lifecycle} `"streaming"`
+   * models, where chunks arrive over time. Only one batch can be active at once.
+   * Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the active
+   * batch before it is committed.
+   */
+  beginBatch(params) {
+    const createError = this._assertCanCreate("beginBatch");
+    if (createError) {
+      return createError;
+    }
+    if (!params?.id) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[SceneModel.beginBatch] Parameter expected: params.id"
+      });
+    }
+    if (this._activeBatch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.beginBatch] SceneModel already has an active batch: ${this._activeBatch.id}`
+      });
+    }
+    const batch = new SceneModelBatch(params);
+    this._activeBatch = batch;
+    this.scene.events.onSceneModelBatchStarted.dispatch(this, batch);
+    return {
+      ok: true,
+      value: batch
+    };
+  }
+  /**
+   * Commits the active component creation batch.
+   *
+   * The batch is marked committed, {@link SceneModel.activeBatch} is cleared and
+   * {@link SceneEvents.onSceneModelBatchCommitted} is fired. Renderers can use
+   * the committed batch as a stable allocation unit, especially when
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`.
+   */
+  commitBatch() {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.commitBatch] SceneModel already destroyed"
+      });
+    }
+    const batch = this._activeBatch;
+    if (!batch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.commitBatch] SceneModel has no active batch"
+      });
+    }
+    batch.committed = true;
+    this._activeBatch = null;
+    this.scene.events.onSceneModelBatchCommitted.dispatch(this, batch);
+    return {
+      ok: true,
+      value: batch
+    };
+  }
+  /**
+   * Destroys all components created in the active batch and clears it.
+   *
+   * This is only valid before {@link SceneModel.commitBatch | commitBatch}.
+   * Components are destroyed in dependency order and
+   * {@link SceneEvents.onSceneModelBatchRolledBack} is fired.
+   */
+  rollbackBatch() {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.rollbackBatch] SceneModel already destroyed"
+      });
+    }
+    const batch = this._activeBatch;
+    if (!batch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.rollbackBatch] SceneModel has no active batch"
+      });
+    }
+    this._activeBatch = null;
+    const destroyAll = (components) => {
+      for (let i = components.length - 1; i >= 0; i--) {
+        if (!components[i]?.destroyed) {
+          components[i].destroy();
+        }
+      }
+    };
+    destroyAll(batch.objects);
+    destroyAll(batch.meshes);
+    destroyAll(batch.techniques);
+    destroyAll(batch.materials);
+    destroyAll(batch.transforms);
+    destroyAll(batch.geometries);
+    destroyAll(batch.textures);
+    this.scene.events.onSceneModelBatchRolledBack.dispatch(this, batch);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Seals this SceneModel against further topology/resource growth.
+   *
+   * After sealing, creation methods such as
+   * {@link SceneModel.createGeometry | createGeometry},
+   * {@link SceneModel.createMesh | createMesh},
+   * {@link SceneModel.createObject | createObject} and
+   * {@link SceneModel.beginBatch | beginBatch} reject new content. Renderers can
+   * treat a sealed model as complete and may use snug allocations when
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`.
+   */
+  seal() {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.seal] SceneModel already destroyed"
+      });
+    }
+    if (this._activeBatch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.seal] Cannot seal while batch '${this._activeBatch.id}' is active`
+      });
+    }
+    if (this._lifecycle === "sealed") {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    this._lifecycle = "sealed";
+    this.scene.events.onSceneModelSealed.dispatch(this.scene, this);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
   /**
    * Constructs a new {@link model!scene.SceneModel | SceneModel}.
    *
@@ -21407,7 +21708,9 @@ var SceneModel3 = class {
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = !!sceneModelParams.globalizedIds;
-    this._updateHint = normalizeUpdateHint(sceneModelParams.updateHint ?? sceneModelParams.updateUsage);
+    this._updateHint = normalizeUpdateHint(sceneModelParams.updateHint);
+    this._lifecycle = sceneModelParams.lifecycle === "sealed" ? "open" : normalizeLifecycle(sceneModelParams.lifecycle);
+    this._memoryPolicy = normalizeMemoryPolicy(sceneModelParams.memoryPolicy);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
     this.geometries = {};
@@ -21485,12 +21788,9 @@ var SceneModel3 = class {
    *   - Parent SceneTransform not found with the given parentTransformId.
    */
   createTransform(transformParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createTransform] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTransform");
+    if (createError) {
+      return createError;
     }
     if (!transformParams.id) {
       return this.scene.logError({
@@ -21523,6 +21823,7 @@ var SceneModel3 = class {
     }
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
+    this._recordActiveBatchComponent(sceneTransform);
     this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
     return {
       ok: true,
@@ -21591,12 +21892,9 @@ var SceneModel3 = class {
    *   - Unsupported image extension.
    */
   createTexture(textureParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createTexture] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTexture");
+    if (createError) {
+      return createError;
     }
     if (!textureParams.id) {
       return this.scene.logError({
@@ -21626,6 +21924,7 @@ var SceneModel3 = class {
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
     this.stats.textureBytes += texture.textureBytes;
+    this._recordActiveBatchComponent(texture);
     this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
     return {
       ok: true,
@@ -21686,12 +21985,9 @@ var SceneModel3 = class {
    *  - Referenced texture not found in SceneModel.
    */
   createMaterial(materialParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createMaterial] Cannot create SceneMaterial - SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createMaterial");
+    if (createError) {
+      return createError;
     }
     if (this.materials[materialParams.id]) {
       return this.scene.logError({
@@ -21779,6 +22075,7 @@ var SceneModel3 = class {
       emissiveTexture.numMaterials++;
     this.materials[materialParams.id] = material;
     this.stats.numMaterials++;
+    this._recordActiveBatchComponent(material);
     this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
     return {
       ok: true,
@@ -21826,12 +22123,9 @@ var SceneModel3 = class {
    * {@link SceneEvents.onSceneTechniqueCreated} on success.
    */
   createTechnique(params) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createTechnique] Cannot create SceneTechnique - SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTechnique");
+    if (createError) {
+      return createError;
     }
     if (this.techniques[params.id]) {
       return this.scene.logError({
@@ -21853,6 +22147,7 @@ var SceneModel3 = class {
         });
     }
     this.techniques[params.id] = technique;
+    this._recordActiveBatchComponent(technique);
     this.scene.events.onSceneTechniqueCreated.dispatch(this.scene, technique);
     return { ok: true, value: technique };
   }
@@ -21909,12 +22204,9 @@ var SceneModel3 = class {
    *   - Mismatch between the quantities of vertex positions and UVs.
    */
   createGeometry(geometryParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createGeometry] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createGeometry");
+    if (createError) {
+      return createError;
     }
     if (!geometryParams) {
       return this.scene.logError({
@@ -22040,6 +22332,7 @@ var SceneModel3 = class {
       this.stats.numPoints += positions.length / 3;
     }
     this.stats.numVertices += positions.length / 3;
+    this._recordActiveBatchComponent(sceneGeometry);
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
     return {
       ok: true,
@@ -22099,12 +22392,9 @@ var SceneModel3 = class {
    *   - Mismatch between given quantities of vertex positions and UVs.
    */
   createGeometryCompressed(geometryCompressedParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createGeometryCompressed] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createGeometryCompressed");
+    if (createError) {
+      return createError;
     }
     if (!geometryCompressedParams) {
       return this.scene.logError({
@@ -22281,6 +22571,7 @@ var SceneModel3 = class {
       this.stats.numPoints += positionsCompressed.length / 3;
     }
     this.stats.numVertices += positionsCompressed.length / 3;
+    this._recordActiveBatchComponent(sceneGeometry);
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
     return {
       ok: true,
@@ -22387,17 +22678,15 @@ var SceneModel3 = class {
       scale: scale3,
       rotation,
       quaternion,
+      origin: origin2,
       color: color2,
       opacity,
       billboard,
       bin
     } = meshParams;
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.addMesh] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createMesh");
+    if (createError) {
+      return createError;
     }
     if (this.meshes[id]) {
       return this.scene.logError({
@@ -22433,8 +22722,15 @@ var SceneModel3 = class {
         error: `[SceneModel.createMesh] Material not found: '${materialId}'`
       });
     }
+    if (origin2 && origin2.length !== 3) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneModel.createMesh] Parameter 'origin' is not a vec3 array`
+      });
+    }
     if (!matrix) {
-      if (position || scale3 || rotation || quaternion) {
+      if (position || scale3 || rotation || quaternion || origin2) {
         if (position && position.length !== 3) {
           return this.scene.logError({
             ok: false,
@@ -22481,6 +22777,11 @@ var SceneModel3 = class {
       }
       matrix = createMat4Float64(matrix);
     }
+    if (origin2 && matrix) {
+      matrix[12] += origin2[0];
+      matrix[13] += origin2[1];
+      matrix[14] += origin2[2];
+    }
     if (color2 && color2.length !== 3) {
       return this.scene.logError({
         ok: false,
@@ -22515,6 +22816,7 @@ var SceneModel3 = class {
     }
     this.meshes[id] = sceneMesh;
     this.stats.numMeshes++;
+    this._recordActiveBatchComponent(sceneMesh);
     this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
     return {
       ok: true,
@@ -22598,12 +22900,9 @@ var SceneModel3 = class {
       layerId,
       originalSystemId
     } = objectParams;
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createObject] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createObject");
+    if (createError) {
+      return createError;
     }
     if (!meshIds || meshIds.length === 0) {
       return this.scene.logError({
@@ -22654,6 +22953,7 @@ var SceneModel3 = class {
     }
     this.objects[objectId] = sceneObject;
     this.stats.numObjects++;
+    this._recordActiveBatchComponent(sceneObject);
     this.scene._registerObject(sceneObject);
     return {
       ok: true,
@@ -22712,12 +23012,25 @@ var SceneModel3 = class {
         error: "[SceneModel.fromParams] SceneModel already destroyed"
       });
     }
+    if (this._lifecycle === "sealed") {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.fromParams] SceneModel is sealed"
+      });
+    }
     if (sceneModelParams.coordinateSystem) {
       this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
     }
-    const updateHint = sceneModelParams.updateHint ?? sceneModelParams.updateUsage;
+    const updateHint = sceneModelParams.updateHint;
     if (updateHint !== void 0) {
       this.updateHint = updateHint;
+    }
+    if (sceneModelParams.lifecycle !== void 0 && sceneModelParams.lifecycle !== "sealed") {
+      this._lifecycle = normalizeLifecycle(sceneModelParams.lifecycle);
+    }
+    if (sceneModelParams.memoryPolicy !== void 0) {
+      this._memoryPolicy = normalizeMemoryPolicy(sceneModelParams.memoryPolicy);
     }
     if (sceneModelParams.transforms) {
       for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
@@ -22778,6 +23091,9 @@ var SceneModel3 = class {
           return res;
       }
     }
+    if (sceneModelParams.lifecycle === "sealed") {
+      return this.seal();
+    }
     return {
       ok: true,
       value: void 0
@@ -22804,7 +23120,8 @@ var SceneModel3 = class {
       id: this.id,
       coordinateSystem: this.coordinateSystem.toParams(),
       updateHint: this.updateHint,
-      updateUsage: this.updateHint,
+      lifecycle: this.lifecycle,
+      memoryPolicy: this.memoryPolicy,
       geometriesCompressed: [],
       textures: [],
       materials: [],
@@ -23334,6 +23651,7 @@ __export(scene_exports, {
   SceneMaterial: () => SceneMaterial,
   SceneMesh: () => SceneMesh3,
   SceneModel: () => SceneModel3,
+  SceneModelBatch: () => SceneModelBatch,
   SceneObject: () => SceneObject,
   SceneTechnique: () => SceneTechnique,
   SceneTexture: () => SceneTexture,
@@ -168204,6 +168522,7 @@ var Viewer = class {
   _onSceneDestroyed;
   _onSceneObjectCreated;
   _onSceneObjectDestroyed;
+  _onSceneModelBatchCommitted;
   _onSceneObjectMeshAdded;
   _onSceneObjectMeshRemoved;
   _onSceneMeshCreated;
@@ -168289,6 +168608,14 @@ var Viewer = class {
     this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((_scene, sceneObject) => {
       this._detachSceneObject(sceneObject);
     });
+    this._onSceneModelBatchCommitted = this.scene.events.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+      for (const sceneObject of batch.objects) {
+        if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+          this._attachSceneObject(sceneObject);
+        }
+      }
+      nudgeAllViews();
+    });
     const nudgeAllViews = () => {
       const viewList = this.viewList;
       for (let i = 0, len = viewList.length; i < len; i++) {
@@ -168323,6 +168650,10 @@ var Viewer = class {
     };
   }
   _attachSceneObject(sceneObject) {
+    const activeBatch = sceneObject.model.activeBatch;
+    if (activeBatch?.includesObject(sceneObject)) {
+      return;
+    }
     const viewList = this.viewList;
     for (let i = 0, len = viewList.length; i < len; i++) {
       const view = viewList[i];
@@ -168369,6 +168700,7 @@ var Viewer = class {
       this._onSceneDestroyed,
       this._onSceneObjectCreated,
       this._onSceneObjectDestroyed,
+      this._onSceneModelBatchCommitted,
       this._onSceneObjectMeshAdded,
       this._onSceneObjectMeshRemoved,
       this._onSceneMeshCreated,
@@ -168393,6 +168725,7 @@ var Viewer = class {
     this._onSceneDestroyed = void 0;
     this._onSceneObjectCreated = void 0;
     this._onSceneObjectDestroyed = void 0;
+    this._onSceneModelBatchCommitted = void 0;
     this._onSceneObjectMeshAdded = void 0;
     this._onSceneObjectMeshRemoved = void 0;
     this._onSceneMeshCreated = void 0;
@@ -185275,6 +185608,22 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
    */
   primitive;
   /**
+   * Renderer allocation scope represented by this batch.
+   */
+  allocationKind;
+  /**
+   * Capacity policy requested by the source SceneModel.
+   */
+  memoryPolicy;
+  /**
+   * Source SceneModel ID when the batch is model- or batch-scoped.
+   */
+  sceneModelId;
+  /**
+   * Source SceneModel batch ID when this is a committed-batch allocation.
+   */
+  sceneBatchId;
+  /**
    * Creates a new GPUMemoryBatch.
    */
   constructor(index, renderContext, options = {}) {
@@ -185286,6 +185635,10 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
     this.triplanar = options.triplanar === true;
     this.mipmap = options.mipmap === true;
     this.geometryStorage = this.primitive === TrianglesPrimitive && options.geometryStorage === "vbo" ? "vbo" : "dtx";
+    this.allocationKind = options.allocationKind ?? "dynamic";
+    this.memoryPolicy = options.memoryPolicy ?? "stream";
+    this.sceneModelId = options.sceneModelId;
+    this.sceneBatchId = options.sceneBatchId;
     this._geometryHandles = {};
     this._meshHandles = {};
     this._meshIndicesByUniqueId = {};
@@ -185410,6 +185763,10 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
     const dtxGeometryResources = geometryResources.kind === "dtx" ? geometryResources : null;
     const vboGeometryResources = geometryResources.kind === "vbo" ? geometryResources : null;
     this.batchResources = {
+      allocationKind: this.allocationKind,
+      memoryPolicy: this.memoryPolicy,
+      sceneModelId: this.sceneModelId,
+      sceneBatchId: this.sceneBatchId,
       geometryStorage: this.geometryStorage,
       views,
       indexTexture: dtxGeometryResources?.indexTexture,
@@ -187927,7 +188284,11 @@ var MeshManager = class {
       this.sceneModelCreated(sceneModels[sceneModelId]);
     }
     for (const sceneObjectId in sceneObjects) {
-      const result = this.sceneObjectCreated(sceneObjects[sceneObjectId]);
+      const sceneObject = sceneObjects[sceneObjectId];
+      if (sceneObject.model.activeBatch?.includesObject(sceneObject)) {
+        continue;
+      }
+      const result = this.sceneObjectCreated(sceneObject);
       if (result.ok === false) {
         return result;
       }
@@ -188287,9 +188648,23 @@ var MeshManager = class {
     const triplanar = !hasUVs && _materialHasAnyTexture(sceneMesh);
     const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
     const geometryStorage = selectTriangleGeometryStorage(sceneMesh);
+    const sceneBatchId = sceneMesh.batchId;
+    const allocationKind = sceneBatchId ? "sealedBatch" : sceneMesh.model.lifecycle === "sealed" ? "sealedModel" : "dynamic";
     const bin = sceneMesh.bin;
     const stats = this._stepStatsEnabled ? this._stepStats : null;
-    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin);
+    const key = this._getMeshBatchKey(
+      primitive,
+      hasNormals,
+      hasUVs,
+      triplanar,
+      mipmap,
+      geometryStorage,
+      bin,
+      allocationKind,
+      sceneMesh.model.memoryPolicy,
+      sceneBatchId ? sceneMesh.model.id : void 0,
+      sceneBatchId
+    );
     const compatibleBatches = this._batchesByKey.get(key);
     const len = compatibleBatches?.length ?? 0;
     let iters = 0;
@@ -188308,7 +188683,18 @@ var MeshManager = class {
       stats.batchScanIters += iters;
       stats.newBatches++;
     }
-    const result = this._gpuMemoryManager.createBatch({ primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage });
+    const result = this._gpuMemoryManager.createBatch({
+      primitive,
+      hasNormals,
+      hasUVs,
+      triplanar,
+      mipmap,
+      geometryStorage,
+      allocationKind,
+      memoryPolicy: sceneMesh.model.memoryPolicy,
+      sceneModelId: allocationKind === "dynamic" ? void 0 : sceneMesh.model.id,
+      sceneBatchId
+    });
     if (result.ok === false) {
       return result;
     }
@@ -188334,9 +188720,9 @@ var MeshManager = class {
     this._batchesDirty = true;
     return { ok: true, value: newMeshBatch };
   }
-  _getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin) {
+  _getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin, allocationKind = "dynamic", memoryPolicy = "stream", sceneModelId, sceneBatchId) {
     const binKey = bin === void 0 ? "u" : `s${bin}`;
-    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
+    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}|${sceneBatchId ?? ""}`;
   }
   /**
    * Unregisters a {@link model!scene.SceneObject | SceneObject}.
@@ -205180,7 +205566,7 @@ var WebGLRenderer3 = class {
   }
   _deferSceneGeometryCreated(sceneGeometry) {
     const sceneModel = sceneGeometry.model;
-    if (!sceneModel.building) {
+    if (!sceneModel.building && !sceneModel.activeBatch?.includesGeometry(sceneGeometry)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
@@ -205188,7 +205574,7 @@ var WebGLRenderer3 = class {
   }
   _deferSceneMeshCreated(sceneMesh) {
     const sceneModel = sceneMesh.model;
-    if (!sceneModel.building) {
+    if (!sceneModel.building && !sceneModel.activeBatch?.includesMesh(sceneMesh)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
@@ -205196,7 +205582,7 @@ var WebGLRenderer3 = class {
   }
   _deferSceneObjectCreated(sceneObject) {
     const sceneModel = sceneObject.model;
-    if (!sceneModel.building) {
+    if (!sceneModel.building && !sceneModel.activeBatch?.includesObject(sceneObject)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
@@ -205211,19 +205597,27 @@ var WebGLRenderer3 = class {
   _discardDeferredSceneObject(sceneObject) {
     return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
   }
-  _flushDeferredSceneModelRegistrations(sceneModel, viewManager) {
+  _flushDeferredSceneModelRegistrations(sceneModel, viewManager, batch) {
     const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
-    if (!registrations) {
+    if (!registrations && !batch) {
       return;
     }
     this._deferredSceneModelRegistrations.delete(sceneModel);
-    for (const sceneGeometry of registrations.geometries) {
+    const geometries = /* @__PURE__ */ new Set([
+      ...registrations?.geometries ?? [],
+      ...batch?.geometries ?? []
+    ]);
+    for (const sceneGeometry of geometries) {
       if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
         this.logError(viewManager.sceneGeometryCreated(sceneGeometry));
       }
     }
     const sceneMeshes = [];
-    for (const sceneMesh of registrations.meshes) {
+    const meshes = /* @__PURE__ */ new Set([
+      ...registrations?.meshes ?? [],
+      ...batch?.meshes ?? []
+    ]);
+    for (const sceneMesh of meshes) {
       if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
         sceneMeshes.push(sceneMesh);
       }
@@ -205231,7 +205625,11 @@ var WebGLRenderer3 = class {
     if (sceneMeshes.length > 0) {
       this.logError(viewManager.sceneMeshesCreated(sceneMeshes));
     }
-    for (const sceneObject of registrations.objects) {
+    const objects = /* @__PURE__ */ new Set([
+      ...registrations?.objects ?? [],
+      ...batch?.objects ?? []
+    ]);
+    for (const sceneObject of objects) {
       if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
         this.logError(viewManager.sceneObjectCreated(sceneObject));
       }
@@ -205351,6 +205749,28 @@ var WebGLRenderer3 = class {
           for (let i = 0, len = views.length; i < len; i++) {
             views[i]?.needsRender();
           }
+        }
+      }),
+      sceneEvents.onSceneModelBatchStarted.subscribe((sceneModel) => {
+        this._renderSuspendCount++;
+        this._getDeferredSceneModelRegistrations(sceneModel);
+      }),
+      sceneEvents.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager, batch);
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneModelBatchRolledBack.subscribe((sceneModel) => {
+        this._deferredSceneModelRegistrations.delete(sceneModel);
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
         }
       }),
       sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => {
@@ -267284,7 +267704,7 @@ var Studio = class _Studio {
    * - If fetching or parsing the model data fails
    */
   async loadModel(params, options) {
-    const updateHint = params.updateHint ?? params.updateUsage;
+    const updateHint = params.updateHint;
     let coordinateSystem;
     if (!params.sceneModel && params.modelId) {
       coordinateSystem = await this._loadCoordSys(params.modelId);
@@ -267743,7 +268163,7 @@ var Studio = class _Studio {
    */
   async loadDataset(params) {
     const { modelId, formats: formats2 } = params;
-    const updateHint = params.updateHint ?? params.updateUsage;
+    const updateHint = params.updateHint;
     const clear = params.clear !== false;
     sdkProgress.addTask();
     try {

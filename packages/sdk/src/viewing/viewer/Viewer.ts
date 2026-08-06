@@ -91,6 +91,7 @@ export class Viewer {
   private _onSceneDestroyed?: () => void;
   private _onSceneObjectCreated?: () => void;
   private _onSceneObjectDestroyed?: () => void;
+  private _onSceneModelBatchCommitted?: () => void;
   private _onSceneObjectMeshAdded?: () => void;
   private _onSceneObjectMeshRemoved?: () => void;
   private _onSceneMeshCreated?: () => void;
@@ -188,6 +189,15 @@ export class Viewer {
       this._detachSceneObject(sceneObject);
     });
 
+    this._onSceneModelBatchCommitted = this.scene.events.onSceneModelBatchCommitted.subscribe((sceneModel: SceneModel, batch) => {
+      for (const sceneObject of batch.objects) {
+        if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+          this._attachSceneObject(sceneObject);
+        }
+      }
+      nudgeAllViews();
+    });
+
     // Single shared callback used by every render-relevant Scene
     // mutation event. Args are ignored — the Viewer's job here is to
     // tell each View "you have a fresh frame to draw"; the renderer
@@ -235,6 +245,10 @@ export class Viewer {
   }
 
   private _attachSceneObject(sceneObject: SceneObject) {
+    const activeBatch = sceneObject.model.activeBatch;
+    if (activeBatch?.includesObject(sceneObject)) {
+      return;
+    }
     const viewList = this.viewList;
     for (let i = 0, len = viewList.length; i < len; i++) {
       const view = viewList[i];
@@ -290,6 +304,7 @@ export class Viewer {
       this._onSceneDestroyed,
       this._onSceneObjectCreated,
       this._onSceneObjectDestroyed,
+      this._onSceneModelBatchCommitted,
       this._onSceneObjectMeshAdded,
       this._onSceneObjectMeshRemoved,
       this._onSceneMeshCreated,
@@ -313,6 +328,7 @@ export class Viewer {
     this._onSceneDestroyed                = undefined;
     this._onSceneObjectCreated            = undefined;
     this._onSceneObjectDestroyed          = undefined;
+    this._onSceneModelBatchCommitted      = undefined;
     this._onSceneObjectMeshAdded          = undefined;
     this._onSceneObjectMeshRemoved        = undefined;
     this._onSceneMeshCreated              = undefined;

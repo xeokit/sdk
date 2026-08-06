@@ -1,4 +1,5 @@
 import {SceneGeometry, SceneMaterial, SceneMesh} from "../../../../model/scene";
+import type {SceneModelMemoryPolicy} from "../../../../model/scene";
 import {RenderContext} from "../RenderContext";
 import {MeshViewAttributeTexture} from "./dataTextures/MeshViewAttributeTexture";
 import {MeshAttributeTexture} from "./dataTextures/MeshAttributeTexture";
@@ -63,6 +64,10 @@ export type GPUMemoryBatchOptions = {
   triplanar?: boolean;
   mipmap?: boolean;
   geometryStorage?: TriangleGeometryStorageKind;
+  allocationKind?: "dynamic" | "sealedModel" | "sealedBatch";
+  memoryPolicy?: SceneModelMemoryPolicy;
+  sceneModelId?: string;
+  sceneBatchId?: string;
 };
 
 type GeometryHandle = {
@@ -214,6 +219,26 @@ export class GPUMemoryBatch {
   public readonly primitive: number | undefined;
 
   /**
+   * Renderer allocation scope represented by this batch.
+   */
+  public readonly allocationKind: "dynamic" | "sealedModel" | "sealedBatch";
+
+  /**
+   * Capacity policy requested by the source SceneModel.
+   */
+  public readonly memoryPolicy: SceneModelMemoryPolicy;
+
+  /**
+   * Source SceneModel ID when the batch is model- or batch-scoped.
+   */
+  public readonly sceneModelId?: string;
+
+  /**
+   * Source SceneModel batch ID when this is a committed-batch allocation.
+   */
+  public readonly sceneBatchId?: string;
+
+  /**
    * Creates a new GPUMemoryBatch.
    */
   constructor(index: number, renderContext: RenderContext, options: GPUMemoryBatchOptions = {}) {
@@ -227,6 +252,10 @@ export class GPUMemoryBatch {
     this.triplanar = options.triplanar === true;
     this.mipmap = options.mipmap === true;
     this.geometryStorage = this.primitive === TrianglesPrimitive && options.geometryStorage === "vbo" ? "vbo" : "dtx";
+    this.allocationKind = options.allocationKind ?? "dynamic";
+    this.memoryPolicy = options.memoryPolicy ?? "stream";
+    this.sceneModelId = options.sceneModelId;
+    this.sceneBatchId = options.sceneBatchId;
 
     this._geometryHandles = {};
     this._meshHandles = {};
@@ -369,6 +398,10 @@ export class GPUMemoryBatch {
     const vboGeometryResources = geometryResources.kind === "vbo" ? geometryResources : null;
 
     this.batchResources = {
+      allocationKind: this.allocationKind,
+      memoryPolicy: this.memoryPolicy,
+      sceneModelId: this.sceneModelId,
+      sceneBatchId: this.sceneBatchId,
       geometryStorage: this.geometryStorage,
       views,
       indexTexture: dtxGeometryResources?.indexTexture,

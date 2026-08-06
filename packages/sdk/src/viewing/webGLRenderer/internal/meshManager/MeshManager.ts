@@ -159,7 +159,11 @@ export class MeshManager {
     }
 
     for (const sceneObjectId in sceneObjects) {
-      const result = this.sceneObjectCreated(sceneObjects[sceneObjectId]);
+      const sceneObject = sceneObjects[sceneObjectId];
+      if (sceneObject.model.activeBatch?.includesObject(sceneObject)) {
+        continue;
+      }
+      const result = this.sceneObjectCreated(sceneObject);
       if (result.ok === false) {
         return result;
       }
@@ -578,13 +582,31 @@ export class MeshManager {
     // mipped atlas too — predictable, documented on the param.
     const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
     const geometryStorage = selectTriangleGeometryStorage(sceneMesh);
+    const sceneBatchId = (sceneMesh as {batchId?: string}).batchId;
+    const allocationKind = sceneBatchId
+      ? "sealedBatch"
+      : sceneMesh.model.lifecycle === "sealed"
+        ? "sealedModel"
+        : "dynamic";
     // Bin is part of the batch identity so each batch is bin-homogeneous —
     // the renderer's overlay pass needs to be able to skip / include whole
     // batches by bin without subdividing draw calls per-mesh.
     const bin = sceneMesh.bin;
 
     const stats = this._stepStatsEnabled ? this._stepStats : null;
-    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin);
+    const key = this._getMeshBatchKey(
+      primitive,
+      hasNormals,
+      hasUVs,
+      triplanar,
+      mipmap,
+      geometryStorage,
+      bin,
+      allocationKind,
+      sceneMesh.model.memoryPolicy,
+      sceneBatchId ? sceneMesh.model.id : undefined,
+      sceneBatchId
+    );
     const compatibleBatches = this._batchesByKey.get(key);
     const len = compatibleBatches?.length ?? 0;
     let iters = 0;
@@ -603,7 +625,18 @@ export class MeshManager {
       stats.newBatches++;
     }
 
-    const result = this._gpuMemoryManager.createBatch({primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage});
+    const result = this._gpuMemoryManager.createBatch({
+      primitive,
+      hasNormals,
+      hasUVs,
+      triplanar,
+      mipmap,
+      geometryStorage,
+      allocationKind,
+      memoryPolicy: sceneMesh.model.memoryPolicy,
+      sceneModelId: allocationKind === "dynamic" ? undefined : sceneMesh.model.id,
+      sceneBatchId
+    });
     if (result.ok === false) {
       return result;
     }
@@ -641,10 +674,14 @@ export class MeshManager {
     triplanar: boolean,
     mipmap: boolean,
     geometryStorage: TriangleGeometryStorageKind,
-    bin?: string
+    bin?: string,
+    allocationKind: "dynamic" | "sealedModel" | "sealedBatch" = "dynamic",
+    memoryPolicy: string = "stream",
+    sceneModelId?: string,
+    sceneBatchId?: string
   ): MeshBatchKey {
     const binKey = bin === undefined ? "u" : `s${bin}`;
-    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
+    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}|${sceneBatchId ?? ""}`;
   }
 
   /**

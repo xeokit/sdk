@@ -149,6 +149,14 @@ export class Scene {
       return this.logError(populated);
     }
 
+    if (paramsWithId.lifecycle === "sealed") {
+      const sealed = sceneModel.seal();
+      if (sealed.ok === false) {
+        sceneModel.destroy();
+        return this.logError(sealed);
+      }
+    }
+
     return {ok: true, value: sceneModel};
   }
 

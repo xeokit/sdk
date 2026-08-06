@@ -16,6 +16,7 @@ import {TextureAtlas} from "./dataTextures/TextureAtlas";
 import {MeshViewAttributeTexture} from "./dataTextures/MeshViewAttributeTexture";
 import {IndexTexture} from "./dataTextures/IndexTexture";
 import type {TriangleGeometryVBOBatch} from "./vbos/TriangleGeometryVBOBatch";
+import type {SceneModelMemoryPolicy} from "../../../../model/scene";
 
 export type TriangleGeometryStorageKind = "dtx" | "vbo";
 
@@ -37,6 +38,28 @@ export type TriangleGeometryStorageKind = "dtx" | "vbo";
  * @internal
  */
 export interface BatchGPUResources {
+
+  /**
+   * Renderer allocation scope represented by this batch.
+   */
+  allocationKind: "dynamic" | "sealedModel" | "sealedBatch";
+
+  /**
+   * Capacity policy requested by the source SceneModel.
+   */
+  memoryPolicy: SceneModelMemoryPolicy;
+
+  /**
+   * Source SceneModel ID when this batch was created from a sealed model or
+   * committed SceneModel batch.
+   */
+  sceneModelId?: string;
+
+  /**
+   * Source SceneModel batch ID when this batch was created from a committed
+   * SceneModel batch.
+   */
+  sceneBatchId?: string;
 
   /**
    * Geometry storage kind used by this batch.

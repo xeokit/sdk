@@ -11,20 +11,40 @@ import type {Quat} from "../../base/math/quat";
 import type {SceneTransformParams} from "./SceneTransformParams";
 
 /**
- * Hint describing how a {@link model!scene.SceneModel | SceneModel}'s geometry
- * is expected to be updated after creation.
+ * Hint describing how often a {@link model!scene.SceneModel | SceneModel}'s
+ * renderer-facing values are expected to be uploaded after creation.
  *
- * Renderers can use this to choose an internal storage path. For example,
- * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} may choose VBO
- * geometry for `"static"` triangle models and data-texture geometry for
- * `"dynamic"` models.
+ * Renderers can use this to choose storage for values such as matrices,
+ * transforms, colors, visibility flags, opacity and object state. For example,
+ * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} may favor
+ * draw-time optimized VBO-backed batches for `"static"` models and
+ * update-friendly data-texture-backed batches for `"dynamic"` models.
  */
 export type SceneModelUpdateHint = "auto" | "static" | "dynamic";
 
 /**
- * @deprecated Use `SceneModelUpdateHint`.
+ * Describes whether a {@link model!scene.SceneModel | SceneModel}'s topology
+ * remains open for growth, is loaded incrementally, or has been closed to new
+ * components.
  */
-export type SceneModelUpdateUsage = SceneModelUpdateHint;
+export type SceneModelLifecycle = "open" | "streaming" | "sealed";
+
+/**
+ * Renderer allocation policy requested by a
+ * {@link model!scene.SceneModel | SceneModel}.
+ *
+ * This is a hint, not a hard memory limit. It tells renderers whether they
+ * should use their normal reusable storage strategy or allocate tightly around
+ * finalized content.
+ *
+ * - `"stream"`: default. Use for open, streaming or editable models. Renderers
+ *   may keep reusable backing stores that can accept more content without
+ *   repacking.
+ * - `"compact"`: use for sealed models or committed batches whose contents are
+ *   expected to remain immutable. Renderers should allocate close to the
+ *   current content size where supported.
+ */
+export type SceneModelMemoryPolicy = "stream" | "compact";
 
 /**
  * Parameters for a {@link model!scene.SceneModel | SceneModel}.
@@ -60,22 +80,50 @@ export interface SceneModelParams {
   globalizedIds?: boolean
 
   /**
-   * Hint describing how often this SceneModel's geometry is expected to change.
+   * Hint describing how often this SceneModel's renderer-facing values are
+   * expected to be uploaded.
    *
    * - `"auto"`: let the renderer choose its safe default.
-   * - `"static"`: low modification rate, drawn many times; renderers may favor
-   *   faster draw-time geometry storage such as VBOs.
-   * - `"dynamic"`: smaller, frequently modified, or progressively loaded model;
-   *   renderers may favor update-friendly storage.
+   * - `"static"`: low runtime value upload rate, drawn many times; renderers
+   *   may favor draw-time optimized storage such as VBO-backed batches.
+   * - `"dynamic"`: frequent runtime uploads of matrices, transforms, colors or
+   *   object state; renderers may favor update-friendly storage.
    *
    * Default is `"auto"`.
    */
   updateHint?: SceneModelUpdateHint;
 
   /**
-   * @deprecated Use `updateHint`.
+   * Describes the model's construction lifecycle.
+   *
+   * - `"open"`: components can be added until the model is destroyed or sealed.
+   * - `"streaming"`: components can continue to arrive over time; committed
+   *   batches may be treated as immutable allocation units by renderers.
+   * - `"sealed"`: the model is closed to new topology after initial creation.
+   *
+   * Default is `"open"`.
    */
-  updateUsage?: SceneModelUpdateHint;
+  lifecycle?: SceneModelLifecycle;
+
+  /**
+   * Renderer allocation policy for this SceneModel.
+   *
+   * This controls whether renderers should prefer reusable backing stores or
+   * tightly sized storage for internal resources such as VBOs, data textures
+   * and renderer-side batch tables. It does not change the SceneModel's public
+   * data, and it is not a strict heap budget.
+   *
+   * - `"stream"`: default. Use for models that can keep receiving components,
+   *   batches or edits. Renderers may use their normal growable/reusable
+   *   allocation strategy.
+   * - `"compact"`: use for finalized models or committed streaming batches
+   *   where memory footprint matters more than cheap future growth. Renderers
+   *   should avoid avoidable slack when allocating storage for sealed models or
+   *   committed batches.
+   *
+   * Default is `"stream"`.
+   */
+  memoryPolicy?: SceneModelMemoryPolicy;
 
   /**
    * 4x4 transform matrix.

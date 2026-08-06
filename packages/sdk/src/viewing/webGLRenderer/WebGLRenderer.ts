@@ -9,7 +9,7 @@ import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
 import {type RendererGPUResources} from "./internal/gpuMemoryManager";
-import {SceneGeometry, SceneMesh, type SceneModel, type SceneObject} from "../../model/scene";
+import {SceneGeometry, SceneMesh, type SceneModel, type SceneModelBatch, type SceneObject} from "../../model/scene";
 import {ShaderInspector, RenderInspector, type MemoryInspector} from "./internal/inspectors";
 import {type PickParams, type PickResult} from "../viewer";
 import {createDefaultMemoryConfigs} from "./defaultMemoryConfigs";
@@ -502,7 +502,7 @@ export class WebGLRenderer implements Renderer {
 
   private _deferSceneGeometryCreated(sceneGeometry: SceneGeometry): boolean {
     const sceneModel = sceneGeometry.model;
-    if (!sceneModel.building) {
+    if (!sceneModel.building && !sceneModel.activeBatch?.includesGeometry(sceneGeometry)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
@@ -511,7 +511,7 @@ export class WebGLRenderer implements Renderer {
 
   private _deferSceneMeshCreated(sceneMesh: SceneMesh): boolean {
     const sceneModel = sceneMesh.model;
-    if (!sceneModel.building) {
+    if (!sceneModel.building && !sceneModel.activeBatch?.includesMesh(sceneMesh)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
@@ -520,7 +520,7 @@ export class WebGLRenderer implements Renderer {
 
   private _deferSceneObjectCreated(sceneObject: SceneObject): boolean {
     const sceneModel = sceneObject.model;
-    if (!sceneModel.building) {
+    if (!sceneModel.building && !sceneModel.activeBatch?.includesObject(sceneObject)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
@@ -539,22 +539,30 @@ export class WebGLRenderer implements Renderer {
     return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
   }
 
-  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: ViewManager): void {
+  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: ViewManager, batch?: SceneModelBatch): void {
     const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
-    if (!registrations) {
+    if (!registrations && !batch) {
       return;
     }
 
     this._deferredSceneModelRegistrations.delete(sceneModel);
 
-    for (const sceneGeometry of registrations.geometries) {
+    const geometries = new Set<SceneGeometry>([
+      ...(registrations?.geometries ?? []),
+      ...(batch?.geometries ?? [])
+    ]);
+    for (const sceneGeometry of geometries) {
       if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
         this.logError(viewManager.sceneGeometryCreated(sceneGeometry));
       }
     }
 
     const sceneMeshes: SceneMesh[] = [];
-    for (const sceneMesh of registrations.meshes) {
+    const meshes = new Set<SceneMesh>([
+      ...(registrations?.meshes ?? []),
+      ...(batch?.meshes ?? [])
+    ]);
+    for (const sceneMesh of meshes) {
       if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
         sceneMeshes.push(sceneMesh);
       }
@@ -563,7 +571,11 @@ export class WebGLRenderer implements Renderer {
       this.logError(viewManager.sceneMeshesCreated(sceneMeshes));
     }
 
-    for (const sceneObject of registrations.objects) {
+    const objects = new Set<SceneObject>([
+      ...(registrations?.objects ?? []),
+      ...(batch?.objects ?? [])
+    ]);
+    for (const sceneObject of objects) {
       if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
         this.logError(viewManager.sceneObjectCreated(sceneObject));
       }
@@ -706,6 +718,29 @@ export class WebGLRenderer implements Renderer {
           for (let i = 0, len = views.length; i < len; i++) {
             views[i]?.needsRender();
           }
+        }
+      }),
+
+      sceneEvents.onSceneModelBatchStarted.subscribe((sceneModel) => {
+        this._renderSuspendCount++;
+        this._getDeferredSceneModelRegistrations(sceneModel);
+      }),
+      sceneEvents.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager, batch);
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneModelBatchRolledBack.subscribe((sceneModel) => {
+        this._deferredSceneModelRegistrations.delete(sceneModel);
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
         }
       }),
 

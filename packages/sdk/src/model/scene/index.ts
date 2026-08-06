@@ -132,6 +132,72 @@
  * const objectFromScene = scene.objects["legObject"];
  * ```
  *
+ * ## Lifecycle and Memory Policy
+ *
+ * A SceneModel can describe both how it will be built and how tightly renderers
+ * should allocate backing storage.
+ *
+ * ```ts
+ * const model = scene.createModel({
+ *   id: "hospital",
+ *   updateHint: "static",
+ *   lifecycle: "streaming",
+ *   memoryPolicy: "compact",
+ * }).value;
+ * ```
+ *
+ * {@link SceneModelParams.updateHint | updateHint} describes expected
+ * renderer-facing value upload cadence:
+ *
+ * - `"auto"` lets a renderer choose.
+ * - `"static"` is for models whose matrices, transforms, colors and object
+ *   state are mostly stable while they are drawn many times.
+ * - `"dynamic"` is for models that frequently upload matrices, transforms,
+ *   colors or object state.
+ *
+ * {@link SceneModelParams.lifecycle | lifecycle} describes construction:
+ *
+ * - `"open"` allows ordinary ad-hoc component creation.
+ * - `"streaming"` allows incremental chunks or batches to arrive over time.
+ * - `"sealed"` closes the model to new topology after initial creation.
+ *
+ * {@link SceneModelParams.memoryPolicy | memoryPolicy} is a renderer allocation
+ * hint. It does not change the SceneModel's public data and is not a hard heap
+ * limit. It tells renderers whether to use reusable backing stores or tightly
+ * sized storage such as VBOs, data textures and renderer-side batch tables:
+ *
+ * - `"stream"` is the default for open, streaming or editable content.
+ *   Renderers may use their normal growable/reusable allocation strategy.
+ * - `"compact"` is for finalized content. Renderers should avoid avoidable
+ *   slack when allocating sealed models or committed batches.
+ *
+ * Use {@link SceneModel.seal | seal} when a model is complete and should reject
+ * further topology/resource growth:
+ *
+ * ```ts
+ * model.createGeometry({ id: "g", primitive, positions, indices });
+ * model.createMesh({ id: "m", geometryId: "g" });
+ * model.createObject({ id: "o", meshIds: ["m"] });
+ *
+ * const sealRes = model.seal();
+ * if (!sealRes.ok) throw new Error(sealRes.error);
+ * ```
+ *
+ * For progressive loading, use batches to stage a chunk and then publish it as a
+ * unit. Viewers and renderers can defer partial batch content until commit.
+ *
+ * ```ts
+ * const batchRes = model.beginBatch({ id: "tile-42" });
+ * if (!batchRes.ok) throw new Error(batchRes.error);
+ *
+ * model.createGeometry({ id: "tile-42:g", primitive, positions, indices });
+ * model.createMesh({ id: "tile-42:m", geometryId: "tile-42:g" });
+ * model.createObject({ id: "tile-42:o", meshIds: ["tile-42:m"] });
+ *
+ * const commitRes = model.commitBatch();
+ * if (!commitRes.ok) throw new Error(commitRes.error);
+ * ```
+ *
  * ## Rendering
  *
  * Browser rendering is optional. A minimal setup uses a Scene, Viewer,
@@ -249,6 +315,7 @@ export * from "./SceneParams";
 export * from "./Scene";
 export * from "./SceneEvents";
 export * from "./SceneModel";
+export * from "./SceneModelBatch";
 export * from "./SceneModelParams";
 export * from "./isDefaultLayer";
 export * from "./SceneModelStats";

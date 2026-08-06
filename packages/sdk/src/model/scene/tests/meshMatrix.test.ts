@@ -117,6 +117,22 @@ describe("SceneMesh lazy world matrix + shared identity", () => {
     expect(instanced._worldMatrix).toBeNull();
   });
 
+  it("bakes mesh origin into the local matrix translation", () => {
+    const m = model();
+    m.createMesh({id: "originOnly", geometryId: "g", origin: [100, 200, 300]});
+    m.createMesh({id: "matrixAndOrigin", geometryId: "g", matrix: TRANSLATE as any, origin: [100, 200, 300]});
+
+    const originOnly = m.meshes["originOnly"];
+    const matrixAndOrigin = m.meshes["matrixAndOrigin"];
+
+    expect(originOnly.matrix[12]).toBeCloseTo(100, 6);
+    expect(originOnly.matrix[13]).toBeCloseTo(200, 6);
+    expect(originOnly.matrix[14]).toBeCloseTo(300, 6);
+    expect(matrixAndOrigin.matrix[12]).toBeCloseTo(105, 6);
+    expect(matrixAndOrigin.matrix[13]).toBeCloseTo(206, 6);
+    expect(matrixAndOrigin.matrix[14]).toBeCloseTo(307, 6);
+  });
+
   it("shares one identity matrix across untransformed meshes without cross-contamination", () => {
     const m = model();
     m.createMesh({id: "a", geometryId: "g"});

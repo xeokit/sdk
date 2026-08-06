@@ -35,6 +35,7 @@ type DrawTechniqueGeometryBindingParams = {
   picking: boolean;
   snap: 0 | 1 | 2 | 3;
   thickLines: boolean;
+  hasNormals: boolean;
   vboGeometry: boolean;
   vboTileUniform: boolean;
   vboViewAttributes: boolean;
@@ -268,8 +269,8 @@ function getVBOTileDrawState(params: DrawTechniqueGeometryBindingParams, layout:
   const {batchResources, viewIndex, renderPass, edges, picking, snap} = params;
   const topology = (edges || snap === 1 || snap === 2) ? "edges" : "triangles";
   return (picking || snap
-    ? batchResources.triangleGeometryVBO?.getPickTileDrawStates(viewIndex, layout, topology)
-    : batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout, topology)) ?? null;
+    ? batchResources.triangleGeometryVBO?.getPickTileDrawStates(viewIndex, layout, topology, params.hasNormals)
+    : batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout, topology, params.hasNormals)) ?? null;
 }
 
 function getVBODrawState(params: DrawTechniqueGeometryBindingParams): TriangleGeometryVBODrawState | null {

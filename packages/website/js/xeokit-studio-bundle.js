@@ -182691,8 +182691,11 @@ function createTriangleGeometryVBOViewState() {
     renderFlagDirtyMinVertex: Number.POSITIVE_INFINITY,
     renderFlagDirtyMaxVertex: -1,
     bakedVAO: null,
+    bakedNormalsVAO: null,
     hybridVAO: null,
+    hybridNormalsVAO: null,
     leanStaticVAO: null,
+    leanStaticNormalsVAO: null,
     bakedEdgeVAO: null,
     hybridEdgeVAO: null,
     leanStaticEdgeVAO: null
@@ -182850,19 +182853,26 @@ var TriangleGeometryVBOSpanAllocator = class _TriangleGeometryVBOSpanAllocator {
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOBuffers.ts
 var TriangleGeometryVBOBuffers = class {
   _positions = null;
+  _normals = null;
   _meshIndices = null;
   _geometryVertexIndices = null;
   _positionBuffer = null;
+  _normalBuffer = null;
   _meshIndexBuffer = null;
   _geometryVertexIndexBuffer = null;
   _positionDirtyMinVertex = Number.POSITIVE_INFINITY;
   _positionDirtyMaxVertex = -1;
+  _normalDirtyMinVertex = Number.POSITIVE_INFINITY;
+  _normalDirtyMaxVertex = -1;
   _meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
   _meshIndexDirtyMaxVertex = -1;
   _geometryVertexIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
   _geometryVertexIndexDirtyMaxVertex = -1;
   get positions() {
     return this._positions;
+  }
+  get normals() {
+    return this._normals;
   }
   get meshIndices() {
     return this._meshIndices;
@@ -182873,6 +182883,9 @@ var TriangleGeometryVBOBuffers = class {
   get positionBuffer() {
     return this._positionBuffer;
   }
+  get normalBuffer() {
+    return this._normalBuffer;
+  }
   get meshIndexBuffer() {
     return this._meshIndexBuffer;
   }
@@ -182882,6 +182895,7 @@ var TriangleGeometryVBOBuffers = class {
   allocateCPU(params) {
     try {
       this._positions = new Float32Array(params.vertexCapacity * 4);
+      this._normals = params.hasNormals === true ? new Uint16Array(params.vertexCapacity * 2) : null;
       this._meshIndices = new Uint32Array(params.vertexCapacity);
       this._geometryVertexIndices = new Uint32Array(params.vertexCapacity);
       for (const view of params.views) {
@@ -182915,9 +182929,10 @@ var TriangleGeometryVBOBuffers = class {
     };
     try {
       this._positionBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4 * 4);
+      this._normalBuffer = params.hasNormals === true ? makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 2 * 2) : null;
       this._meshIndexBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
       this._geometryVertexIndexBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
-      if (!this._positionBuffer || !this._meshIndexBuffer || !this._geometryVertexIndexBuffer) {
+      if (!this._positionBuffer || params.hasNormals === true && !this._normalBuffer || !this._meshIndexBuffer || !this._geometryVertexIndexBuffer) {
         throw new Error("Failed to allocate static VBO buffers");
       }
       for (const view of params.views) {
@@ -182935,6 +182950,7 @@ var TriangleGeometryVBOBuffers = class {
         gl.deleteBuffer(buffer);
       }
       this._positionBuffer = null;
+      this._normalBuffer = null;
       this._meshIndexBuffer = null;
       this._geometryVertexIndexBuffer = null;
       for (const view of params.views) {
@@ -182953,6 +182969,10 @@ var TriangleGeometryVBOBuffers = class {
     if (this._positionBuffer) {
       gl.deleteBuffer(this._positionBuffer);
       this._positionBuffer = null;
+    }
+    if (this._normalBuffer) {
+      gl.deleteBuffer(this._normalBuffer);
+      this._normalBuffer = null;
     }
     if (this._meshIndexBuffer) {
       gl.deleteBuffer(this._meshIndexBuffer);
@@ -182983,10 +183003,13 @@ var TriangleGeometryVBOBuffers = class {
   }
   destroyCPU(views) {
     this._positions = null;
+    this._normals = null;
     this._meshIndices = null;
     this._geometryVertexIndices = null;
     this._positionDirtyMinVertex = Number.POSITIVE_INFINITY;
     this._positionDirtyMaxVertex = -1;
+    this._normalDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._normalDirtyMaxVertex = -1;
     this._meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
     this._meshIndexDirtyMaxVertex = -1;
     this._geometryVertexIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
@@ -183000,6 +183023,7 @@ var TriangleGeometryVBOBuffers = class {
       return;
     }
     this.markPositionDirty(0, nextVertex);
+    this.markNormalDirty(0, nextVertex);
     this.markMeshIndexDirty(0, nextVertex);
     this.markGeometryVertexIndexDirty(0, nextVertex);
     for (const view of views) {
@@ -183011,6 +183035,13 @@ var TriangleGeometryVBOBuffers = class {
   markPositionDirty(vertexBase, vertexCount2) {
     this._positionDirtyMinVertex = Math.min(this._positionDirtyMinVertex, vertexBase);
     this._positionDirtyMaxVertex = Math.max(this._positionDirtyMaxVertex, vertexBase + vertexCount2 - 1);
+  }
+  markNormalDirty(vertexBase, vertexCount2) {
+    if (!this._normals) {
+      return;
+    }
+    this._normalDirtyMinVertex = Math.min(this._normalDirtyMinVertex, vertexBase);
+    this._normalDirtyMaxVertex = Math.max(this._normalDirtyMaxVertex, vertexBase + vertexCount2 - 1);
   }
   markMeshIndexDirty(vertexBase, vertexCount2) {
     this._meshIndexDirtyMinVertex = Math.min(this._meshIndexDirtyMinVertex, vertexBase);
@@ -183047,6 +183078,7 @@ var TriangleGeometryVBOBuffers = class {
       }
     }
     uploaded = this._uploadPositionRange(params.gl) || uploaded;
+    uploaded = this._uploadNormalRange(params.gl) || uploaded;
     uploaded = this._uploadMeshIndexRange(params.gl) || uploaded;
     uploaded = this._uploadGeometryVertexIndexRange(params.gl) || uploaded;
     for (const view of params.views) {
@@ -183058,7 +183090,7 @@ var TriangleGeometryVBOBuffers = class {
     return uploaded;
   }
   getAllocatedBytes(params) {
-    return params.vertexCapacity * 4 * 4 + params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.maxViews * (params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4 + params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
+    return params.vertexCapacity * 4 * 4 + (this._normals ? params.vertexCapacity * 2 * 2 : 0) + params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.maxViews * (params.vertexCapacity * 4 + params.vertexCapacity * 4 + params.indexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4 + params.edgeIndexCapacity * TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT * 4);
   }
   getUsedBytes(params) {
     let activeIndices = 0;
@@ -183067,7 +183099,7 @@ var TriangleGeometryVBOBuffers = class {
       activeIndices += view.indexCount;
       activeEdgeIndices += view.edgeIndexCount;
     }
-    return params.activeVertices * 4 * 4 + params.activeVertices * 4 + params.activeVertices * 4 + params.maxViews * (params.activeVertices * 4) + params.maxViews * (params.activeVertices * 4) + activeIndices * 4 + activeEdgeIndices * 4;
+    return params.activeVertices * 4 * 4 + (this._normals ? params.activeVertices * 2 * 2 : 0) + params.activeVertices * 4 + params.activeVertices * 4 + params.maxViews * (params.activeVertices * 4) + params.maxViews * (params.activeVertices * 4) + activeIndices * 4 + activeEdgeIndices * 4;
   }
   _uploadPositionRange(gl) {
     if (!this._positionBuffer || !this._positions || this._positionDirtyMaxVertex < this._positionDirtyMinVertex) {
@@ -183093,6 +183125,19 @@ var TriangleGeometryVBOBuffers = class {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     this._meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
     this._meshIndexDirtyMaxVertex = -1;
+    return true;
+  }
+  _uploadNormalRange(gl) {
+    if (!this._normalBuffer || !this._normals || this._normalDirtyMaxVertex < this._normalDirtyMinVertex) {
+      return false;
+    }
+    const start = this._normalDirtyMinVertex * 2;
+    const end = (this._normalDirtyMaxVertex + 1) * 2;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._normalBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start * 2, this._normals.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this._normalDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._normalDirtyMaxVertex = -1;
     return true;
   }
   _uploadGeometryVertexIndexRange(gl) {
@@ -183521,12 +183566,16 @@ function setIndexRange(map, key, firstIndex, indexCount) {
 
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/vbos/triangleGeometry/TriangleGeometryVBOVAOCache.ts
 function getTriangleGeometryVBOVAO(params) {
-  const existing = params.layout === "lean-static" ? params.topology === "edges" ? params.view.leanStaticEdgeVAO : params.view.leanStaticVAO : params.topology === "edges" ? params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO : params.layout === "vbo-only" ? params.view.bakedVAO : params.view.hybridVAO;
+  const hasNormals = params.hasNormals === true && params.topology !== "edges";
+  const existing = params.layout === "lean-static" ? params.topology === "edges" ? params.view.leanStaticEdgeVAO : hasNormals ? params.view.leanStaticNormalsVAO : params.view.leanStaticVAO : params.topology === "edges" ? params.layout === "vbo-only" ? params.view.bakedEdgeVAO : params.view.hybridEdgeVAO : params.layout === "vbo-only" ? hasNormals ? params.view.bakedNormalsVAO : params.view.bakedVAO : hasNormals ? params.view.hybridNormalsVAO : params.view.hybridVAO;
   if (existing) {
     return existing;
   }
   const indexBuffer = params.topology === "edges" ? params.view.edgeIndexBuffer : params.view.indexBuffer;
   if (!params.positionBuffer || !params.meshIndexBuffer || !params.geometryVertexIndexBuffer || !indexBuffer || !params.view.colorBuffer) {
+    return null;
+  }
+  if (hasNormals && !params.normalBuffer) {
     return null;
   }
   if (params.layout === "lean-static" && !params.view.renderFlagBuffer) {
@@ -183541,6 +183590,11 @@ function getTriangleGeometryVBOVAO(params) {
   gl.bindBuffer(gl.ARRAY_BUFFER, params.positionBuffer);
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+  if (hasNormals) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, params.normalBuffer);
+    gl.enableVertexAttribArray(5);
+    gl.vertexAttribIPointer(5, 2, gl.UNSIGNED_SHORT, 0, 0);
+  }
   if (params.layout === "lean-static") {
     gl.bindBuffer(gl.ARRAY_BUFFER, params.meshIndexBuffer);
     gl.enableVertexAttribArray(1);
@@ -183554,17 +183608,17 @@ function getTriangleGeometryVBOVAO(params) {
     gl.bindBuffer(gl.ARRAY_BUFFER, params.view.renderFlagBuffer);
     gl.enableVertexAttribArray(4);
     gl.vertexAttribIPointer(4, 4, gl.UNSIGNED_BYTE, 0, 0);
-    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao);
+    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao, hasNormals);
   } else if (params.layout === "vbo-only") {
     gl.bindBuffer(gl.ARRAY_BUFFER, params.view.colorBuffer);
     gl.enableVertexAttribArray(1);
     gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 0, 0);
-    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao);
+    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao, hasNormals);
   } else {
     gl.bindBuffer(gl.ARRAY_BUFFER, params.meshIndexBuffer);
     gl.enableVertexAttribArray(1);
     gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_INT, 0, 0);
-    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao);
+    setTriangleGeometryVBOVAO(params.view, params.layout, params.topology, vao, hasNormals);
   }
   gl.bindBuffer(gl.ARRAY_BUFFER, params.geometryVertexIndexBuffer);
   gl.enableVertexAttribArray(2);
@@ -183578,11 +183632,20 @@ function deleteTriangleGeometryVBOVAOs(gl, view) {
   if (view.bakedVAO) {
     gl.deleteVertexArray(view.bakedVAO);
   }
+  if (view.bakedNormalsVAO) {
+    gl.deleteVertexArray(view.bakedNormalsVAO);
+  }
   if (view.hybridVAO) {
     gl.deleteVertexArray(view.hybridVAO);
   }
+  if (view.hybridNormalsVAO) {
+    gl.deleteVertexArray(view.hybridNormalsVAO);
+  }
   if (view.leanStaticVAO) {
     gl.deleteVertexArray(view.leanStaticVAO);
+  }
+  if (view.leanStaticNormalsVAO) {
+    gl.deleteVertexArray(view.leanStaticNormalsVAO);
   }
   if (view.leanStaticEdgeVAO) {
     gl.deleteVertexArray(view.leanStaticEdgeVAO);
@@ -183594,16 +183657,21 @@ function deleteTriangleGeometryVBOVAOs(gl, view) {
     gl.deleteVertexArray(view.hybridEdgeVAO);
   }
   view.bakedVAO = null;
+  view.bakedNormalsVAO = null;
   view.hybridVAO = null;
+  view.hybridNormalsVAO = null;
   view.leanStaticVAO = null;
+  view.leanStaticNormalsVAO = null;
   view.bakedEdgeVAO = null;
   view.hybridEdgeVAO = null;
   view.leanStaticEdgeVAO = null;
 }
-function setTriangleGeometryVBOVAO(view, layout, topology, vao) {
+function setTriangleGeometryVBOVAO(view, layout, topology, vao, hasNormals) {
   if (layout === "lean-static") {
     if (topology === "edges") {
       view.leanStaticEdgeVAO = vao;
+    } else if (hasNormals) {
+      view.leanStaticNormalsVAO = vao;
     } else {
       view.leanStaticVAO = vao;
     }
@@ -183616,9 +183684,17 @@ function setTriangleGeometryVBOVAO(view, layout, topology, vao) {
       view.hybridEdgeVAO = vao;
     }
   } else if (layout === "vbo-only") {
-    view.bakedVAO = vao;
+    if (hasNormals) {
+      view.bakedNormalsVAO = vao;
+    } else {
+      view.bakedVAO = vao;
+    }
   } else {
-    view.hybridVAO = vao;
+    if (hasNormals) {
+      view.hybridNormalsVAO = vao;
+    } else {
+      view.hybridVAO = vao;
+    }
   }
 }
 
@@ -183628,6 +183704,7 @@ var TriangleGeometryVBOBatch = class {
   _batchIndex;
   _maxPrims;
   _maxViews;
+  _hasNormals;
   _vertexCapacity;
   _indexCapacity;
   _edgeIndexCapacity;
@@ -183646,6 +183723,7 @@ var TriangleGeometryVBOBatch = class {
     this._batchIndex = params.batchIndex;
     this._maxPrims = Math.max(1, params.maxPrims | 0);
     this._maxViews = Math.max(1, params.maxViews | 0);
+    this._hasNormals = params.hasNormals === true;
     this._vertexCapacity = this._maxPrims * 3;
     this._indexCapacity = this._maxPrims * 3;
     this._edgeIndexCapacity = this._maxPrims * 6;
@@ -183665,7 +183743,8 @@ var TriangleGeometryVBOBatch = class {
       vertexCapacity: this._vertexCapacity,
       indexCapacity: this._indexCapacity,
       edgeIndexCapacity: this._edgeIndexCapacity,
-      views: this._views
+      views: this._views,
+      hasNormals: this._hasNormals
     });
     if (cpuResult.ok === false) {
       return cpuResult;
@@ -183936,7 +184015,7 @@ var TriangleGeometryVBOBatch = class {
     if (primRange.numPrims <= 0 || indexRange.indexCount <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, "triangles");
+    const vao = this._getVAO(view, layout, "triangles", this._hasNormals);
     if (!vao) {
       return null;
     }
@@ -183947,7 +184026,7 @@ var TriangleGeometryVBOBatch = class {
       primRange
     };
   }
-  getTileDrawStates(viewIndex, renderPass, layout, topology = "triangles") {
+  getTileDrawStates(viewIndex, renderPass, layout, topology = "triangles", hasNormals = false) {
     const view = this._views[viewIndex];
     if (!view) {
       return null;
@@ -183957,7 +184036,7 @@ var TriangleGeometryVBOBatch = class {
     if (passRegionIndex < 0 || primRange.numPrims <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, topology);
+    const vao = this._getVAO(view, layout, topology, hasNormals);
     if (!vao) {
       return null;
     }
@@ -183975,7 +184054,7 @@ var TriangleGeometryVBOBatch = class {
       tileDrawStates
     };
   }
-  getPickTileDrawStates(viewIndex, layout, topology = "triangles") {
+  getPickTileDrawStates(viewIndex, layout, topology = "triangles", hasNormals = false) {
     const view = this._views[viewIndex];
     if (!view) {
       return null;
@@ -183984,7 +184063,7 @@ var TriangleGeometryVBOBatch = class {
     if (primRange.numPrims <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, topology);
+    const vao = this._getVAO(view, layout, topology, hasNormals);
     if (!vao) {
       return null;
     }
@@ -184007,7 +184086,7 @@ var TriangleGeometryVBOBatch = class {
     if (view.pickRange.numPrims <= 0 || view.pickIndexRange.indexCount <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, "triangles");
+    const vao = this._getVAO(view, layout, "triangles", this._hasNormals);
     if (!vao) {
       return null;
     }
@@ -184115,7 +184194,8 @@ var TriangleGeometryVBOBatch = class {
       vertexCapacity: this._vertexCapacity,
       indexCapacity: this._indexCapacity,
       edgeIndexCapacity: this._edgeIndexCapacity,
-      views: this._views
+      views: this._views,
+      hasNormals: this._hasNormals
     });
   }
   _deleteGPUResources() {
@@ -184140,6 +184220,7 @@ var TriangleGeometryVBOBatch = class {
   _writeMeshGeometry(record, stats) {
     const start = stats ? performance.now() : 0;
     const positions = this._buffers.positions;
+    const normals = this._buffers.normals;
     const meshIndices = this._buffers.meshIndices;
     const geometryVertexIndices = this._buffers.geometryVertexIndices;
     if (!positions || !meshIndices || !geometryVertexIndices) {
@@ -184147,6 +184228,7 @@ var TriangleGeometryVBOBatch = class {
     }
     const geometry = record.sceneMesh.geometry;
     const compressed = geometry.positionsCompressed;
+    const normalsCompressed = geometry.normalsCompressed;
     const indices = geometry.indices;
     const aabb = geometry.aabb;
     if (!compressed || !indices || !aabb) {
@@ -184177,6 +184259,9 @@ var TriangleGeometryVBOBatch = class {
         positions[positionOffset + 1] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
         positions[positionOffset + 2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
         positions[positionOffset + 3] = record.tileIndex;
+        if (normals && normalsCompressed) {
+          writeTransformedOctNormal(normalsCompressed, geometryVertexIndex, matrix, normals, writeVertex);
+        }
         meshIndices[writeVertex] = record.meshIndex;
         geometryVertexIndices[writeVertex] = geometryVertexIndex;
         if (geometryVertexLookupStamps[geometryVertexIndex] !== lookupStamp) {
@@ -184211,6 +184296,7 @@ var TriangleGeometryVBOBatch = class {
       stats.vboPackEdgesMs += performance.now() - edgeStart;
     }
     this._buffers.markPositionDirty(record.vertexBase, record.vertexCount);
+    this._buffers.markNormalDirty(record.vertexBase, record.vertexCount);
     this._buffers.markMeshIndexDirty(record.vertexBase, record.vertexCount);
     this._buffers.markGeometryVertexIndexDirty(record.vertexBase, record.vertexCount);
     if (stats) {
@@ -184255,15 +184341,17 @@ var TriangleGeometryVBOBatch = class {
     this._buffers.markColorDirty(view, record.vertexBase, record.vertexCount);
     this._buffers.markRenderFlagDirty(view, record.vertexBase, record.vertexCount);
   }
-  _getVAO(view, layout, topology) {
+  _getVAO(view, layout, topology, hasNormals = false) {
     return getTriangleGeometryVBOVAO({
       gl: this.gl,
       view,
       layout,
       topology,
       positionBuffer: this._buffers.positionBuffer,
+      normalBuffer: this._buffers.normalBuffer,
       meshIndexBuffer: this._buffers.meshIndexBuffer,
-      geometryVertexIndexBuffer: this._buffers.geometryVertexIndexBuffer
+      geometryVertexIndexBuffer: this._buffers.geometryVertexIndexBuffer,
+      hasNormals
     });
   }
   _buildTileDrawStates(records, topology, regionIndex) {
@@ -184306,6 +184394,9 @@ var TriangleGeometryVBOBatch = class {
   get _positions() {
     return this._buffers.positions;
   }
+  get _normals() {
+    return this._buffers.normals;
+  }
   get _meshIndices() {
     return this._buffers.meshIndices;
   }
@@ -184319,6 +184410,42 @@ var TriangleGeometryVBOBatch = class {
     return this._vertexSpans.nextVertex;
   }
 };
+function writeTransformedOctNormal(normalsCompressed, geometryVertexIndex, matrix, out, outVertexIndex) {
+  const sourceOffset = geometryVertexIndex * 2;
+  let x = Number(normalsCompressed[sourceOffset]) / 65535 * 2 - 1;
+  let y = Number(normalsCompressed[sourceOffset + 1]) / 65535 * 2 - 1;
+  let z = 1 - Math.abs(x) - Math.abs(y);
+  if (z < 0) {
+    const oldX = x;
+    const oldY = y;
+    x = (1 - Math.abs(oldY)) * (oldX >= 0 ? 1 : -1);
+    y = (1 - Math.abs(oldX)) * (oldY >= 0 ? 1 : -1);
+  }
+  const nx = matrix[0] * x + matrix[4] * y + matrix[8] * z;
+  const ny = matrix[1] * x + matrix[5] * y + matrix[9] * z;
+  const nz = matrix[2] * x + matrix[6] * y + matrix[10] * z;
+  const len = Math.hypot(nx, ny, nz);
+  if (len > 0) {
+    x = nx / len;
+    y = ny / len;
+    z = nz / len;
+  }
+  const invL1 = 1 / (Math.abs(x) + Math.abs(y) + Math.abs(z) || 1);
+  let ox = x * invL1;
+  let oy = y * invL1;
+  if (z < 0) {
+    const oldX = ox;
+    const oldY = oy;
+    ox = (1 - Math.abs(oldY)) * (oldX >= 0 ? 1 : -1);
+    oy = (1 - Math.abs(oldX)) * (oldY >= 0 ? 1 : -1);
+  }
+  const outOffset = outVertexIndex * 2;
+  out[outOffset] = clampNormalU16((ox * 0.5 + 0.5) * 65535);
+  out[outOffset + 1] = clampNormalU16((oy * 0.5 + 0.5) * 65535);
+}
+function clampNormalU16(value) {
+  return Math.min(65535, Math.max(0, Math.round(value)));
+}
 
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/geometry/VBOGeometryStorage.ts
 var EMPTY_PRIM_RANGE = { firstPrim: 0, numPrims: 0 };
@@ -184332,7 +184459,8 @@ var VBOGeometryStorage = class {
       gl,
       batchIndex,
       maxPrims: memoryConfigs.vboGeometry?.maxBatchPrims ?? memoryConfigs.maxBatchPrims,
-      maxViews: memoryConfigs.maxViews
+      maxViews: memoryConfigs.maxViews,
+      hasNormals: params.hasNormals === true
     });
     this._resources = [this._triangleGeometryVBO];
   }
@@ -185058,7 +185186,8 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
         RENDER_PASSES.SELECTED,
         RENDER_PASSES.XRAYED
       ],
-      getNumGeometries: () => this._numGeometries
+      getNumGeometries: () => this._numGeometries,
+      hasNormals: this.hasNormals
     });
     this._vertexNormalTexture = null;
     this._vertexUVTexture = null;
@@ -185111,7 +185240,7 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
       getNumItems: () => this._numGeometries,
       description: `[Batch ${this.index}] - geometryIndex -> verticesBase, indicesBase, edgeIndicesBase`
     });
-    if (this.hasNormals) {
+    if (this.hasNormals && this.geometryStorage !== "vbo") {
       this._vertexNormalTexture = new VertexNormalTexture({
         gl,
         maxItems: memoryConfigs.maxBatchVertices,
@@ -188667,7 +188796,7 @@ var DrawTechniqueGeometryBinding = class _DrawTechniqueGeometryBinding {
 function getVBOTileDrawState(params, layout) {
   const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
   const topology = edges || snap === 1 || snap === 2 ? "edges" : "triangles";
-  return (picking || snap ? batchResources.triangleGeometryVBO?.getPickTileDrawStates(viewIndex, layout, topology) : batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout, topology)) ?? null;
+  return (picking || snap ? batchResources.triangleGeometryVBO?.getPickTileDrawStates(viewIndex, layout, topology, params.hasNormals) : batchResources.triangleGeometryVBO?.getTileDrawStates(viewIndex, renderPass, layout, topology, params.hasNormals)) ?? null;
 }
 function getVBODrawState(params) {
   const { batchResources, viewIndex, renderPass, edges, picking, snap } = params;
@@ -189166,7 +189295,7 @@ var DrawTechnique = class {
       viewTileCameraMatrixTexture: program.getSampler("uViewTileCameraMatrixTexture"),
       vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
-      vertexNormalTexture: this.hasNormals ? program.getSampler("uVertexNormalTexture") : null,
+      vertexNormalTexture: this.hasNormals && !this.vboGeometry ? program.getSampler("uVertexNormalTexture") : null,
       vertexUVTexture: this.hasUVs ? program.getSampler("uVertexUVTexture") : null,
       // Atlas samplers — bound by both the UV-attribute path and the
       // triplanar fallback. Only the UV path samples through `vUV`; the
@@ -189283,6 +189412,7 @@ var DrawTechnique = class {
       picking: this.picking,
       snap: this.snap,
       thickLines: this.thickLines,
+      hasNormals: this.hasNormals,
       vboGeometry: this.vboGeometry,
       vboTileUniform: this.vboTileUniform,
       vboViewAttributes: this.vboViewAttributes,
@@ -189421,9 +189551,11 @@ ${this.vboGeometry ? `// This shader renders triangle geometry from batch-owned 
    */
   vsCommonDeclarations() {
     const usesVBOGeometry = this.vboGeometry;
+    const usesVBONormals = this.vboGeometry && this.hasNormals;
+    const needsNormalTexture = this.hasNormals && !usesVBONormals;
     const needsDTXGeometryFetch = !usesVBOGeometry;
-    const needsGeometryAttributes = needsDTXGeometryFetch || this.hasNormals || this.hasUVs;
-    const needsMeshAttributes = needsDTXGeometryFetch || needsGeometryAttributes || this.bodyHatch || this.thickLines || this.triplanar;
+    const needsGeometryAttributes = needsDTXGeometryFetch || needsNormalTexture || this.hasUVs;
+    const needsMeshAttributes = needsDTXGeometryFetch || needsGeometryAttributes || this.hasNormals || this.bodyHatch || this.thickLines || this.triplanar;
     const needsQuantRange = needsDTXGeometryFetch;
     const needsMeshMatrix = needsDTXGeometryFetch;
     const needsBillboardHelpers = needsDTXGeometryFetch;
@@ -189451,6 +189583,8 @@ layout(location = 2) in uint aGeometryVertexIndex;
 ${this.vboViewAttributes ? `layout(location = 3) in vec4 aViewColor;
 layout(location = 4) in uvec4 aRenderFlags;
 ` : ``}
+${usesVBONormals ? `layout(location = 5) in uvec2 aNormal;
+` : ``}
 ` : ``}
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -189461,7 +189595,7 @@ ${needsDTXGeometryFetch ? `
 uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
 ${needsVertexColor ? `uniform highp usampler2D uVertexColorTexture;
-` : ``}uniform highp usampler2D uIndexTexture;` : ``}${this.hasNormals ? `
+` : ``}uniform highp usampler2D uIndexTexture;` : ``}${needsNormalTexture ? `
 uniform highp usampler2D uVertexNormalTexture;` : ``}${this.hasUVs ? `
 uniform highp sampler2D  uVertexUVTexture;` : ``}
 // uniform highp usampler2D uEdgeIndexTexture;
@@ -189607,10 +189741,12 @@ uvec4 getVertexColor(uint vertexIndexWithinGeometry) {
 // standard signed-zero unwrap before normalising. Decoding in the vertex
 // stage so the varying is a vec3 \u2014 interpolating octahedral coords across
 // the triangle would produce incorrect normals.
+${needsNormalTexture ? `
 uvec2 getVertexNormalPacked(uint vertexIndexWithinGeometry) {
   const uint texWidth = 4096u;
   return texelFetch(uVertexNormalTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rg;
 }
+` : ``}
 
 vec3 octDecodeNormalU16(uvec2 packed) {
   vec2 e = vec2(packed) / 65535.0 * 2.0 - 1.0;
@@ -190354,13 +190490,13 @@ void main(void) {`);
    */
   _vsMeshLogic2() {
     if (this.vboGeometry) {
-      const needsGeometryAttributes = this.hasNormals || this.hasUVs;
-      const needsMeshAttributes = needsGeometryAttributes || this.bodyHatch || this.triplanar;
+      const needsGeometryAttributes = this.hasUVs;
+      const needsMeshAttributes = needsGeometryAttributes || this.hasNormals || this.bodyHatch || this.triplanar;
       this._vertSrcBuf.push(
         `
     // Mesh \u2192 tile + geometry resolution. Position/tile come directly from
     // the VBO. Geometry metadata remains in DTX only for variants that
-    // still need per-geometry attribute bases, such as normals or UVs.${needsMeshAttributes ? `
+    // still need per-geometry attribute bases, such as UVs.${needsMeshAttributes ? `
     MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );` : ``}
     uint tileIndex = uint(aPositionAndTile.w + 0.5);${needsGeometryAttributes ? `
     uint geometryIndex = meshAttributeTexture.geometryIndex;
@@ -190455,7 +190591,7 @@ void main(void) {`);
     vColor   = color;
     vViewPos = viewPos.xyz;${this.hasNormals ? `
 
-    uvec2 packedNormal = getVertexNormalPacked(geometryAttributes.normalsBase + vertexIndexWithinGeometry);
+    uvec2 packedNormal = ${this.vboGeometry ? `aNormal` : `getVertexNormalPacked(geometryAttributes.normalsBase + vertexIndexWithinGeometry)`};
     vec3  modelNormal  = octDecodeNormalU16(packedNormal);
     vViewNormal        = ${this.vboGeometry ? `normalize(mat3(viewMatrix) * modelNormal)` : `getMeshViewNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard)`};
     vMaterial          = unpackRoughnessMetallic(meshAttributeTexture.material);` : ``}${this.hasUVs ? `
@@ -203420,6 +203556,19 @@ var ViewManager2 = class {
     return this._renderContext.renderInspector;
   }
   /**
+   * Enables or disables the renderer-owned infinite ground grid.
+   *
+   * @internal
+   */
+  setInfiniteGridEnabled(enabled) {
+    if (!this._renderManager) {
+      throw new SDKInternalException("[ViewManager.setInfiniteGridEnabled] ViewManager is not initialized");
+    }
+    this._renderManager.infiniteGrid.enabled = enabled;
+    this._activeViewNeedsRenderAfterAlignment = true;
+    this._renderActiveViewIfNeeded();
+  }
+  /**
    * Returns the {@link viewing!viewer.View | View} at a given index in the internal view list.
    *
    * @param viewIndex - Index into the internal view list (aligned with {@link View.viewIndex}).
@@ -204785,6 +204934,26 @@ var WebGLRenderer3 = class {
     return {
       ok: true,
       value: this._viewManager.getRenderInspector()
+    };
+  }
+  /**
+   * Enables or disables the renderer-owned infinite ground grid.
+   *
+   * This is disabled by default for bare renderer use. Studio enables it during
+   * initialization for its default scene reference plane.
+   */
+  setInfiniteGridEnabled(enabled) {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGLRenderer.setInfiniteGridEnabled] Failed to set infinite grid visibility - no Viewer with Scene is currently attached."
+      });
+    }
+    this._viewManager.setInfiniteGridEnabled(enabled);
+    return {
+      ok: true,
+      value: void 0
     };
   }
   /**
@@ -266898,6 +267067,10 @@ var Studio = class _Studio {
       throw attachResult.error;
     }
     if (this.renderer instanceof WebGLRenderer3) {
+      const gridResult = this.renderer.setInfiniteGridEnabled(true);
+      if (gridResult.ok !== true) {
+        throw gridResult.error;
+      }
       const renderInspectorResult = this.renderer.getRenderInspector();
       if (renderInspectorResult.ok !== true) {
         throw renderInspectorResult.error;

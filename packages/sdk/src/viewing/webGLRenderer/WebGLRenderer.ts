@@ -387,6 +387,27 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
+   * Enables or disables the renderer-owned infinite ground grid.
+   *
+   * This is disabled by default for bare renderer use. Studio enables it during
+   * initialization for its default scene reference plane.
+   */
+  public setInfiniteGridEnabled(enabled: boolean): SDKResult<void> {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.setInfiniteGridEnabled] Failed to set infinite grid visibility - no Viewer with Scene is currently attached."
+      });
+    }
+    this._viewManager.setInfiniteGridEnabled(enabled);
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  /**
    * Returns submitted-geometry stats for a View's most recently
    * completed frame: the total number of draw calls and primitives
    * issued across all render passes (color, shadow cascades, SAO, …).

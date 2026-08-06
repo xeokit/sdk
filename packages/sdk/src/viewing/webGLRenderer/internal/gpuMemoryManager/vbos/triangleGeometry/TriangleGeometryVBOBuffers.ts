@@ -16,13 +16,17 @@ import {TriangleGeometryVBOSpanAllocator} from "./TriangleGeometryVBOSpanAllocat
  */
 export class TriangleGeometryVBOBuffers {
   private _positions: Float32Array | null = null;
+  private _normals: Uint16Array | null = null;
   private _meshIndices: Uint32Array | null = null;
   private _geometryVertexIndices: Uint32Array | null = null;
   private _positionBuffer: WebGLBuffer | null = null;
+  private _normalBuffer: WebGLBuffer | null = null;
   private _meshIndexBuffer: WebGLBuffer | null = null;
   private _geometryVertexIndexBuffer: WebGLBuffer | null = null;
   private _positionDirtyMinVertex = Number.POSITIVE_INFINITY;
   private _positionDirtyMaxVertex = -1;
+  private _normalDirtyMinVertex = Number.POSITIVE_INFINITY;
+  private _normalDirtyMaxVertex = -1;
   private _meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
   private _meshIndexDirtyMaxVertex = -1;
   private _geometryVertexIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
@@ -30,6 +34,10 @@ export class TriangleGeometryVBOBuffers {
 
   get positions(): Float32Array | null {
     return this._positions;
+  }
+
+  get normals(): Uint16Array | null {
+    return this._normals;
   }
 
   get meshIndices(): Uint32Array | null {
@@ -42,6 +50,10 @@ export class TriangleGeometryVBOBuffers {
 
   get positionBuffer(): WebGLBuffer | null {
     return this._positionBuffer;
+  }
+
+  get normalBuffer(): WebGLBuffer | null {
+    return this._normalBuffer;
   }
 
   get meshIndexBuffer(): WebGLBuffer | null {
@@ -57,9 +69,11 @@ export class TriangleGeometryVBOBuffers {
     indexCapacity: number;
     edgeIndexCapacity: number;
     views: TriangleGeometryVBOViewState[];
+    hasNormals?: boolean;
   }): SDKResult<void> {
     try {
       this._positions = new Float32Array(params.vertexCapacity * 4);
+      this._normals = params.hasNormals === true ? new Uint16Array(params.vertexCapacity * 2) : null;
       this._meshIndices = new Uint32Array(params.vertexCapacity);
       this._geometryVertexIndices = new Uint32Array(params.vertexCapacity);
       for (const view of params.views) {
@@ -84,6 +98,7 @@ export class TriangleGeometryVBOBuffers {
     indexCapacity: number;
     edgeIndexCapacity: number;
     views: TriangleGeometryVBOViewState[];
+    hasNormals?: boolean;
   }): SDKResult<void> {
     const gl = params.gl;
     const created: WebGLBuffer[] = [];
@@ -101,9 +116,10 @@ export class TriangleGeometryVBOBuffers {
 
     try {
       this._positionBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4 * 4);
+      this._normalBuffer = params.hasNormals === true ? makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 2 * 2) : null;
       this._meshIndexBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
       this._geometryVertexIndexBuffer = makeBuffer(gl.ARRAY_BUFFER, params.vertexCapacity * 4);
-      if (!this._positionBuffer || !this._meshIndexBuffer || !this._geometryVertexIndexBuffer) {
+      if (!this._positionBuffer || (params.hasNormals === true && !this._normalBuffer) || !this._meshIndexBuffer || !this._geometryVertexIndexBuffer) {
         throw new Error("Failed to allocate static VBO buffers");
       }
       for (const view of params.views) {
@@ -121,6 +137,7 @@ export class TriangleGeometryVBOBuffers {
         gl.deleteBuffer(buffer);
       }
       this._positionBuffer = null;
+      this._normalBuffer = null;
       this._meshIndexBuffer = null;
       this._geometryVertexIndexBuffer = null;
       for (const view of params.views) {
@@ -140,6 +157,10 @@ export class TriangleGeometryVBOBuffers {
     if (this._positionBuffer) {
       gl.deleteBuffer(this._positionBuffer);
       this._positionBuffer = null;
+    }
+    if (this._normalBuffer) {
+      gl.deleteBuffer(this._normalBuffer);
+      this._normalBuffer = null;
     }
     if (this._meshIndexBuffer) {
       gl.deleteBuffer(this._meshIndexBuffer);
@@ -171,10 +192,13 @@ export class TriangleGeometryVBOBuffers {
 
   destroyCPU(views: TriangleGeometryVBOViewState[]): void {
     this._positions = null;
+    this._normals = null;
     this._meshIndices = null;
     this._geometryVertexIndices = null;
     this._positionDirtyMinVertex = Number.POSITIVE_INFINITY;
     this._positionDirtyMaxVertex = -1;
+    this._normalDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._normalDirtyMaxVertex = -1;
     this._meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
     this._meshIndexDirtyMaxVertex = -1;
     this._geometryVertexIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
@@ -189,6 +213,7 @@ export class TriangleGeometryVBOBuffers {
       return;
     }
     this.markPositionDirty(0, nextVertex);
+    this.markNormalDirty(0, nextVertex);
     this.markMeshIndexDirty(0, nextVertex);
     this.markGeometryVertexIndexDirty(0, nextVertex);
     for (const view of views) {
@@ -201,6 +226,14 @@ export class TriangleGeometryVBOBuffers {
   markPositionDirty(vertexBase: number, vertexCount: number): void {
     this._positionDirtyMinVertex = Math.min(this._positionDirtyMinVertex, vertexBase);
     this._positionDirtyMaxVertex = Math.max(this._positionDirtyMaxVertex, vertexBase + vertexCount - 1);
+  }
+
+  markNormalDirty(vertexBase: number, vertexCount: number): void {
+    if (!this._normals) {
+      return;
+    }
+    this._normalDirtyMinVertex = Math.min(this._normalDirtyMinVertex, vertexBase);
+    this._normalDirtyMaxVertex = Math.max(this._normalDirtyMaxVertex, vertexBase + vertexCount - 1);
   }
 
   markMeshIndexDirty(vertexBase: number, vertexCount: number): void {
@@ -248,6 +281,7 @@ export class TriangleGeometryVBOBuffers {
       }
     }
     uploaded = this._uploadPositionRange(params.gl) || uploaded;
+    uploaded = this._uploadNormalRange(params.gl) || uploaded;
     uploaded = this._uploadMeshIndexRange(params.gl) || uploaded;
     uploaded = this._uploadGeometryVertexIndexRange(params.gl) || uploaded;
     for (const view of params.views) {
@@ -266,6 +300,7 @@ export class TriangleGeometryVBOBuffers {
     maxViews: number;
   }): number {
     return params.vertexCapacity * 4 * 4 +
+      (this._normals ? params.vertexCapacity * 2 * 2 : 0) +
       params.vertexCapacity * 4 +
       params.vertexCapacity * 4 +
       params.maxViews * (
@@ -288,6 +323,7 @@ export class TriangleGeometryVBOBuffers {
       activeEdgeIndices += view.edgeIndexCount;
     }
     return params.activeVertices * 4 * 4 +
+      (this._normals ? params.activeVertices * 2 * 2 : 0) +
       params.activeVertices * 4 +
       params.activeVertices * 4 +
       params.maxViews * (params.activeVertices * 4) +
@@ -321,6 +357,20 @@ export class TriangleGeometryVBOBuffers {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     this._meshIndexDirtyMinVertex = Number.POSITIVE_INFINITY;
     this._meshIndexDirtyMaxVertex = -1;
+    return true;
+  }
+
+  private _uploadNormalRange(gl: WebGL2RenderingContext): boolean {
+    if (!this._normalBuffer || !this._normals || this._normalDirtyMaxVertex < this._normalDirtyMinVertex) {
+      return false;
+    }
+    const start = this._normalDirtyMinVertex * 2;
+    const end = (this._normalDirtyMaxVertex + 1) * 2;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._normalBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, start * 2, this._normals.subarray(start, end));
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this._normalDirtyMinVertex = Number.POSITIVE_INFINITY;
+    this._normalDirtyMaxVertex = -1;
     return true;
   }
 

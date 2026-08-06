@@ -834,7 +834,7 @@ export abstract class DrawTechnique {
       viewTileCameraMatrixTexture: program.getSampler("uViewTileCameraMatrixTexture"),
       vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
-      vertexNormalTexture: this.hasNormals ? program.getSampler("uVertexNormalTexture") : null,
+      vertexNormalTexture: this.hasNormals && !this.vboGeometry ? program.getSampler("uVertexNormalTexture") : null,
       vertexUVTexture: this.hasUVs ? program.getSampler("uVertexUVTexture") : null,
       // Atlas samplers — bound by both the UV-attribute path and the
       // triplanar fallback. Only the UV path samples through `vUV`; the
@@ -961,6 +961,7 @@ export abstract class DrawTechnique {
       picking: this.picking,
       snap: this.snap,
       thickLines: this.thickLines,
+      hasNormals: this.hasNormals,
       vboGeometry: this.vboGeometry,
       vboTileUniform: this.vboTileUniform,
       vboViewAttributes: this.vboViewAttributes,
@@ -1170,9 +1171,11 @@ ${this.vboGeometry
    */
   protected vsCommonDeclarations() {
     const usesVBOGeometry = this.vboGeometry;
+    const usesVBONormals = this.vboGeometry && this.hasNormals;
+    const needsNormalTexture = this.hasNormals && !usesVBONormals;
     const needsDTXGeometryFetch = !usesVBOGeometry;
-    const needsGeometryAttributes = needsDTXGeometryFetch || this.hasNormals || this.hasUVs;
-    const needsMeshAttributes = needsDTXGeometryFetch || needsGeometryAttributes || this.bodyHatch || this.thickLines || this.triplanar;
+    const needsGeometryAttributes = needsDTXGeometryFetch || needsNormalTexture || this.hasUVs;
+    const needsMeshAttributes = needsDTXGeometryFetch || needsGeometryAttributes || this.hasNormals || this.bodyHatch || this.thickLines || this.triplanar;
     const needsQuantRange = needsDTXGeometryFetch;
     const needsMeshMatrix = needsDTXGeometryFetch;
     const needsBillboardHelpers = needsDTXGeometryFetch;
@@ -1200,6 +1203,8 @@ layout(location = 2) in uint aGeometryVertexIndex;
 ${this.vboViewAttributes ? `layout(location = 3) in vec4 aViewColor;
 layout(location = 4) in uvec4 aRenderFlags;
 ` : ``}
+${usesVBONormals ? `layout(location = 5) in uvec2 aNormal;
+` : ``}
 ` : ``}
 
 // ─────────────────────────────────────────────────────────────
@@ -1210,7 +1215,7 @@ ${needsDTXGeometryFetch ? `
 uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
 ${needsVertexColor ? `uniform highp usampler2D uVertexColorTexture;
-` : ``}uniform highp usampler2D uIndexTexture;` : ``}${this.hasNormals ? `
+` : ``}uniform highp usampler2D uIndexTexture;` : ``}${needsNormalTexture ? `
 uniform highp usampler2D uVertexNormalTexture;` : ``}${this.hasUVs ? `
 uniform highp sampler2D  uVertexUVTexture;` : ``}
 // uniform highp usampler2D uEdgeIndexTexture;
@@ -1356,10 +1361,12 @@ uvec4 getVertexColor(uint vertexIndexWithinGeometry) {
 // standard signed-zero unwrap before normalising. Decoding in the vertex
 // stage so the varying is a vec3 — interpolating octahedral coords across
 // the triangle would produce incorrect normals.
+${needsNormalTexture ? `
 uvec2 getVertexNormalPacked(uint vertexIndexWithinGeometry) {
   const uint texWidth = 4096u;
   return texelFetch(uVertexNormalTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rg;
 }
+` : ``}
 
 vec3 octDecodeNormalU16(uvec2 packed) {
   vec2 e = vec2(packed) / 65535.0 * 2.0 - 1.0;
@@ -2146,12 +2153,12 @@ void main(void) {`);
    */
   private _vsMeshLogic2() { // after renderPass check
     if (this.vboGeometry) {
-      const needsGeometryAttributes = this.hasNormals || this.hasUVs;
-      const needsMeshAttributes = needsGeometryAttributes || this.bodyHatch || this.triplanar;
+      const needsGeometryAttributes = this.hasUVs;
+      const needsMeshAttributes = needsGeometryAttributes || this.hasNormals || this.bodyHatch || this.triplanar;
       this._vertSrcBuf.push(`
     // Mesh → tile + geometry resolution. Position/tile come directly from
     // the VBO. Geometry metadata remains in DTX only for variants that
-    // still need per-geometry attribute bases, such as normals or UVs.${needsMeshAttributes ? `
+    // still need per-geometry attribute bases, such as UVs.${needsMeshAttributes ? `
     MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );` : ``}
     uint tileIndex = uint(aPositionAndTile.w + 0.5);${needsGeometryAttributes ? `
     uint geometryIndex = meshAttributeTexture.geometryIndex;
@@ -2249,7 +2256,7 @@ void main(void) {`);
     vColor   = color;
     vViewPos = viewPos.xyz;${this.hasNormals ? `
 
-    uvec2 packedNormal = getVertexNormalPacked(geometryAttributes.normalsBase + vertexIndexWithinGeometry);
+    uvec2 packedNormal = ${this.vboGeometry ? `aNormal` : `getVertexNormalPacked(geometryAttributes.normalsBase + vertexIndexWithinGeometry)`};
     vec3  modelNormal  = octDecodeNormalU16(packedNormal);
     vViewNormal        = ${this.vboGeometry
         ? `normalize(mat3(viewMatrix) * modelNormal)`

@@ -17,6 +17,7 @@ export function createBatchGeometryStorage(params: {
   memoryConfigs: MemoryConfigs;
   bins: RenderPassValue[];
   getNumGeometries: () => number;
+  hasNormals?: boolean;
 }): BatchGeometryStorage {
   return params.kind === "vbo"
     ? new VBOGeometryStorage(params)

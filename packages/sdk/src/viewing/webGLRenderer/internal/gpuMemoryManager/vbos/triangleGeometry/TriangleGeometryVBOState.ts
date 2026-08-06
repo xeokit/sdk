@@ -91,8 +91,11 @@ export type TriangleGeometryVBOViewState = {
   renderFlagDirtyMinVertex: number;
   renderFlagDirtyMaxVertex: number;
   bakedVAO: WebGLVertexArrayObject | null;
+  bakedNormalsVAO: WebGLVertexArrayObject | null;
   hybridVAO: WebGLVertexArrayObject | null;
+  hybridNormalsVAO: WebGLVertexArrayObject | null;
   leanStaticVAO: WebGLVertexArrayObject | null;
+  leanStaticNormalsVAO: WebGLVertexArrayObject | null;
   bakedEdgeVAO: WebGLVertexArrayObject | null;
   hybridEdgeVAO: WebGLVertexArrayObject | null;
   leanStaticEdgeVAO: WebGLVertexArrayObject | null;
@@ -153,8 +156,11 @@ export function createTriangleGeometryVBOViewState(): TriangleGeometryVBOViewSta
     renderFlagDirtyMinVertex: Number.POSITIVE_INFINITY,
     renderFlagDirtyMaxVertex: -1,
     bakedVAO: null,
+    bakedNormalsVAO: null,
     hybridVAO: null,
+    hybridNormalsVAO: null,
     leanStaticVAO: null,
+    leanStaticNormalsVAO: null,
     bakedEdgeVAO: null,
     hybridEdgeVAO: null,
     leanStaticEdgeVAO: null

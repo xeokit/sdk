@@ -406,6 +406,20 @@ export class ViewManager {
   }
 
   /**
+   * Enables or disables the renderer-owned infinite ground grid.
+   *
+   * @internal
+   */
+  public setInfiniteGridEnabled(enabled: boolean): void {
+    if (!this._renderManager) {
+      throw new SDKInternalException("[ViewManager.setInfiniteGridEnabled] ViewManager is not initialized");
+    }
+    this._renderManager.infiniteGrid.enabled = enabled;
+    this._activeViewNeedsRenderAfterAlignment = true;
+    this._renderActiveViewIfNeeded();
+  }
+
+  /**
    * Returns the {@link viewing!viewer.View | View} at a given index in the internal view list.
    *
    * @param viewIndex - Index into the internal view list (aligned with {@link View.viewIndex}).

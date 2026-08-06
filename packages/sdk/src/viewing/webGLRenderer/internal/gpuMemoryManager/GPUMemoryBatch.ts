@@ -253,7 +253,8 @@ export class GPUMemoryBatch {
         RENDER_PASSES.SELECTED,
         RENDER_PASSES.XRAYED
       ],
-      getNumGeometries: () => this._numGeometries
+      getNumGeometries: () => this._numGeometries,
+      hasNormals: this.hasNormals
     });
     this._vertexNormalTexture = null;
     this._vertexUVTexture = null;
@@ -315,7 +316,7 @@ export class GPUMemoryBatch {
       description: `[Batch ${this.index}] - geometryIndex -> verticesBase, indicesBase, edgeIndicesBase`
     });
 
-    if (this.hasNormals) {
+    if (this.hasNormals && this.geometryStorage !== "vbo") {
       this._vertexNormalTexture = new VertexNormalTexture({
         gl,
         maxItems: memoryConfigs.maxBatchVertices,

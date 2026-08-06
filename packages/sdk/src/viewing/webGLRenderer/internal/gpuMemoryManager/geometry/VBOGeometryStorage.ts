@@ -49,13 +49,15 @@ export class VBOGeometryStorage implements BatchGeometryStorage<VBOGeometryResou
     gl: WebGL2RenderingContext;
     batchIndex: number;
     memoryConfigs: MemoryConfigs;
+    hasNormals?: boolean;
   }) {
     const {gl, batchIndex, memoryConfigs} = params;
     this._triangleGeometryVBO = new TriangleGeometryVBOBatchImpl({
       gl,
       batchIndex,
       maxPrims: memoryConfigs.vboGeometry?.maxBatchPrims ?? memoryConfigs.maxBatchPrims,
-      maxViews: memoryConfigs.maxViews
+      maxViews: memoryConfigs.maxViews,
+      hasNormals: params.hasNormals === true
     });
     this._resources = [this._triangleGeometryVBO];
   }

@@ -77,6 +77,7 @@ export class TriangleGeometryVBOBatch {
   private readonly _batchIndex: number;
   private readonly _maxPrims: number;
   private readonly _maxViews: number;
+  private readonly _hasNormals: boolean;
   private readonly _vertexCapacity: number;
   private readonly _indexCapacity: number;
   private readonly _edgeIndexCapacity: number;
@@ -96,11 +97,13 @@ export class TriangleGeometryVBOBatch {
     batchIndex: number;
     maxPrims: number;
     maxViews: number;
+    hasNormals?: boolean;
   }) {
     this.gl = params.gl;
     this._batchIndex = params.batchIndex;
     this._maxPrims = Math.max(1, params.maxPrims | 0);
     this._maxViews = Math.max(1, params.maxViews | 0);
+    this._hasNormals = params.hasNormals === true;
     this._vertexCapacity = this._maxPrims * 3;
     this._indexCapacity = this._maxPrims * 3;
     this._edgeIndexCapacity = this._maxPrims * 6;
@@ -121,7 +124,8 @@ export class TriangleGeometryVBOBatch {
       vertexCapacity: this._vertexCapacity,
       indexCapacity: this._indexCapacity,
       edgeIndexCapacity: this._edgeIndexCapacity,
-      views: this._views
+      views: this._views,
+      hasNormals: this._hasNormals
     });
     if (cpuResult.ok === false) {
       return cpuResult;
@@ -429,7 +433,7 @@ export class TriangleGeometryVBOBatch {
     if (primRange.numPrims <= 0 || indexRange.indexCount <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, "triangles");
+    const vao = this._getVAO(view, layout, "triangles", this._hasNormals);
     if (!vao) {
       return null;
     }
@@ -445,7 +449,8 @@ export class TriangleGeometryVBOBatch {
     viewIndex: number,
     renderPass: RenderPassValue,
     layout: "hybrid" | "lean-static",
-    topology: TriangleGeometryVBOTopology = "triangles"
+    topology: TriangleGeometryVBOTopology = "triangles",
+    hasNormals: boolean = false
   ): {
     vao: WebGLVertexArrayObject;
     primRange: PrimRange;
@@ -462,7 +467,7 @@ export class TriangleGeometryVBOBatch {
     if (passRegionIndex < 0 || primRange.numPrims <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, topology);
+    const vao = this._getVAO(view, layout, topology, hasNormals);
     if (!vao) {
       return null;
     }
@@ -486,7 +491,8 @@ export class TriangleGeometryVBOBatch {
   getPickTileDrawStates(
     viewIndex: number,
     layout: "hybrid" | "lean-static",
-    topology: TriangleGeometryVBOTopology = "triangles"
+    topology: TriangleGeometryVBOTopology = "triangles",
+    hasNormals: boolean = false
   ): {
     vao: WebGLVertexArrayObject;
     primRange: PrimRange;
@@ -500,7 +506,7 @@ export class TriangleGeometryVBOBatch {
     if (primRange.numPrims <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, topology);
+    const vao = this._getVAO(view, layout, topology, hasNormals);
     if (!vao) {
       return null;
     }
@@ -526,7 +532,7 @@ export class TriangleGeometryVBOBatch {
     if (view.pickRange.numPrims <= 0 || view.pickIndexRange.indexCount <= 0) {
       return null;
     }
-    const vao = this._getVAO(view, layout, "triangles");
+    const vao = this._getVAO(view, layout, "triangles", this._hasNormals);
     if (!vao) {
       return null;
     }
@@ -647,7 +653,8 @@ export class TriangleGeometryVBOBatch {
       vertexCapacity: this._vertexCapacity,
       indexCapacity: this._indexCapacity,
       edgeIndexCapacity: this._edgeIndexCapacity,
-      views: this._views
+      views: this._views,
+      hasNormals: this._hasNormals
     });
   }
 
@@ -676,6 +683,7 @@ export class TriangleGeometryVBOBatch {
   private _writeMeshGeometry(record: TriangleGeometryVBOMeshRecord, stats?: MeshManagerStepStats | null): void {
     const start = stats ? performance.now() : 0;
     const positions = this._buffers.positions;
+    const normals = this._buffers.normals;
     const meshIndices = this._buffers.meshIndices;
     const geometryVertexIndices = this._buffers.geometryVertexIndices;
     if (!positions || !meshIndices || !geometryVertexIndices) {
@@ -683,6 +691,7 @@ export class TriangleGeometryVBOBatch {
     }
     const geometry = record.sceneMesh.geometry;
     const compressed = geometry.positionsCompressed;
+    const normalsCompressed = geometry.normalsCompressed;
     const indices = geometry.indices;
     const aabb = geometry.aabb;
     if (!compressed || !indices || !aabb) {
@@ -713,6 +722,9 @@ export class TriangleGeometryVBOBatch {
         positions[positionOffset + 1] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
         positions[positionOffset + 2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
         positions[positionOffset + 3] = record.tileIndex;
+        if (normals && normalsCompressed) {
+          writeTransformedOctNormal(normalsCompressed, geometryVertexIndex, matrix, normals, writeVertex);
+        }
         meshIndices[writeVertex] = record.meshIndex;
         geometryVertexIndices[writeVertex] = geometryVertexIndex;
         if (geometryVertexLookupStamps[geometryVertexIndex] !== lookupStamp) {
@@ -749,6 +761,7 @@ export class TriangleGeometryVBOBatch {
       stats.vboPackEdgesMs += performance.now() - edgeStart;
     }
     this._buffers.markPositionDirty(record.vertexBase, record.vertexCount);
+    this._buffers.markNormalDirty(record.vertexBase, record.vertexCount);
     this._buffers.markMeshIndexDirty(record.vertexBase, record.vertexCount);
     this._buffers.markGeometryVertexIndexDirty(record.vertexBase, record.vertexCount);
     if (stats) {
@@ -799,7 +812,8 @@ export class TriangleGeometryVBOBatch {
   private _getVAO(
     view: TriangleGeometryVBOViewState,
     layout: TriangleGeometryVBOVAOLayout,
-    topology: TriangleGeometryVBOTopology
+    topology: TriangleGeometryVBOTopology,
+    hasNormals: boolean = false
   ): WebGLVertexArrayObject | null {
     return getTriangleGeometryVBOVAO({
       gl: this.gl,
@@ -807,8 +821,10 @@ export class TriangleGeometryVBOBatch {
       layout,
       topology,
       positionBuffer: this._buffers.positionBuffer,
+      normalBuffer: this._buffers.normalBuffer,
       meshIndexBuffer: this._buffers.meshIndexBuffer,
-      geometryVertexIndexBuffer: this._buffers.geometryVertexIndexBuffer
+      geometryVertexIndexBuffer: this._buffers.geometryVertexIndexBuffer,
+      hasNormals
     });
   }
 
@@ -859,6 +875,10 @@ export class TriangleGeometryVBOBatch {
     return this._buffers.positions;
   }
 
+  private get _normals(): Uint16Array | null {
+    return this._buffers.normals;
+  }
+
   private get _meshIndices(): Uint32Array | null {
     return this._buffers.meshIndices;
   }
@@ -874,4 +894,48 @@ export class TriangleGeometryVBOBatch {
   private get _nextVertex(): number {
     return this._vertexSpans.nextVertex;
   }
+}
+
+function writeTransformedOctNormal(
+  normalsCompressed: ArrayLike<number>,
+  geometryVertexIndex: number,
+  matrix: Float64Array,
+  out: Uint16Array,
+  outVertexIndex: number
+): void {
+  const sourceOffset = geometryVertexIndex * 2;
+  let x = Number(normalsCompressed[sourceOffset]) / 65535 * 2 - 1;
+  let y = Number(normalsCompressed[sourceOffset + 1]) / 65535 * 2 - 1;
+  let z = 1 - Math.abs(x) - Math.abs(y);
+  if (z < 0) {
+    const oldX = x;
+    const oldY = y;
+    x = (1 - Math.abs(oldY)) * (oldX >= 0 ? 1 : -1);
+    y = (1 - Math.abs(oldX)) * (oldY >= 0 ? 1 : -1);
+  }
+  const nx = matrix[0] * x + matrix[4] * y + matrix[8] * z;
+  const ny = matrix[1] * x + matrix[5] * y + matrix[9] * z;
+  const nz = matrix[2] * x + matrix[6] * y + matrix[10] * z;
+  const len = Math.hypot(nx, ny, nz);
+  if (len > 0) {
+    x = nx / len;
+    y = ny / len;
+    z = nz / len;
+  }
+  const invL1 = 1 / (Math.abs(x) + Math.abs(y) + Math.abs(z) || 1);
+  let ox = x * invL1;
+  let oy = y * invL1;
+  if (z < 0) {
+    const oldX = ox;
+    const oldY = oy;
+    ox = (1 - Math.abs(oldY)) * (oldX >= 0 ? 1 : -1);
+    oy = (1 - Math.abs(oldX)) * (oldY >= 0 ? 1 : -1);
+  }
+  const outOffset = outVertexIndex * 2;
+  out[outOffset] = clampNormalU16((ox * 0.5 + 0.5) * 65535);
+  out[outOffset + 1] = clampNormalU16((oy * 0.5 + 0.5) * 65535);
+}
+
+function clampNormalU16(value: number): number {
+  return Math.min(65535, Math.max(0, Math.round(value)));
 }

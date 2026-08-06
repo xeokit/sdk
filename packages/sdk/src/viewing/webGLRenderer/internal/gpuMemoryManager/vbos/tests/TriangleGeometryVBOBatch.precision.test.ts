@@ -9,6 +9,12 @@ type RecordedUpload = {
   type: string;
 };
 
+type RecordedVertexAttribIPointer = {
+  index: number;
+  size: number;
+  type: number;
+};
+
 type DebugMeshRecord = {
   vertexBase: number;
   vertexCount: number;
@@ -20,6 +26,7 @@ type DebugTriangleGeometryVBOBatch = {
   _freeVertexSpans: Array<{ base: number; count: number }>;
   _nextVertex: number;
   _positions: Float32Array | null;
+  _normals: Uint16Array | null;
   _geometryVertexIndices: Uint32Array | null;
   _views: Array<{
     indices: Uint32Array | null;
@@ -58,7 +65,7 @@ function createMatrix(tx: number, ty: number, tz: number): Float64Array {
   ]);
 }
 
-function createMockGL(uploads: RecordedUpload[]): WebGL2RenderingContext {
+function createMockGL(uploads: RecordedUpload[], attribIPointers: RecordedVertexAttribIPointer[] = []): WebGL2RenderingContext {
   let nextId = 1;
   const gl: Record<string, unknown> = {
     ARRAY_BUFFER: 0x8892,
@@ -66,6 +73,7 @@ function createMockGL(uploads: RecordedUpload[]): WebGL2RenderingContext {
     DYNAMIC_DRAW: 0x88E8,
     FLOAT: 0x1406,
     UNSIGNED_BYTE: 0x1401,
+    UNSIGNED_SHORT: 0x1403,
     UNSIGNED_INT: 0x1405,
     createBuffer: () => ({id: nextId++}),
     bindBuffer: () => undefined,
@@ -84,7 +92,9 @@ function createMockGL(uploads: RecordedUpload[]): WebGL2RenderingContext {
     deleteVertexArray: () => undefined,
     enableVertexAttribArray: () => undefined,
     vertexAttribPointer: () => undefined,
-    vertexAttribIPointer: () => undefined
+    vertexAttribIPointer: (index: number, size: number, type: number) => {
+      attribIPointers.push({index, size, type});
+    }
   };
   return gl as unknown as WebGL2RenderingContext;
 }
@@ -127,6 +137,20 @@ function createTriangleMesh() {
         0, 65535, 0
       ]),
       indices: new Uint32Array([0, 1, 2])
+    }
+  };
+}
+
+function createTriangleMeshWithNormals() {
+  const mesh = createTriangleMesh();
+  return {
+    geometry: {
+      ...mesh.geometry,
+      normalsCompressed: new Uint16Array([
+        32768, 32768,
+        32768, 32768,
+        32768, 32768
+      ])
     }
   };
 }
@@ -281,6 +305,45 @@ describe("TriangleGeometryVBOBatch RTC precision", () => {
     expect(visiblePickState).not.toBeNull();
     expect(visiblePickState!.indexCount).toBe(6);
     expect(visiblePickState!.primRange).toEqual({firstPrim: 0, numPrims: 1});
+  });
+
+  it("stores packed normals in an optional VBO and binds them only for normal layouts", () => {
+    const uploads: RecordedUpload[] = [];
+    const attribIPointers: RecordedVertexAttribIPointer[] = [];
+    const gl = createMockGL(uploads, attribIPointers);
+    const batch = new TriangleGeometryVBOBatch({
+      gl,
+      batchIndex: 0,
+      maxPrims: 2,
+      maxViews: 1,
+      hasNormals: true
+    });
+    expect(batch.allocate().ok).toBe(true);
+
+    expect(batch.addMesh({
+      meshIndex: 9,
+      sceneMesh: createTriangleMeshWithNormals() as any,
+      tileIndex: 0,
+      matrix: createMatrix(0, 0, 0),
+      color: [255, 255, 255],
+      opacity: 255
+    }).ok).toBe(true);
+
+    const internals = getDebugInternals(batch);
+    expect(internals._normals).not.toBeNull();
+    expect(Array.from(internals._normals!.subarray(0, 6))).toEqual([
+      32768, 32768,
+      32768, 32768,
+      32768, 32768
+    ]);
+
+    uploads.length = 0;
+    expect(batch.uploadChanges()).toBe(true);
+    expect(uploads.some(upload => upload.type === "Uint16Array" && upload.data.slice(0, 6).join(",") === "32768,32768,32768,32768,32768,32768")).toBe(true);
+
+    const tileState = batch.getTileDrawStates(0, RENDER_PASSES.OPAQUE, "lean-static", "triangles", true);
+    expect(tileState).not.toBeNull();
+    expect(attribIPointers).toContainEqual({index: 5, size: 2, type: 0x1403});
   });
 
   it("tombstones fixed slots on visibility changes without full index-buffer rebuilds", () => {

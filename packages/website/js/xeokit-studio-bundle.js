@@ -21343,13 +21343,16 @@ var SceneModel3 = class {
    */
   globalizedIds;
   /**
-   * Hint describing how often this SceneModel's geometry is expected to change.
+   * Hint describing how often this SceneModel's renderer-facing values are
+   * expected to be uploaded.
    *
-   * Renderers can use this to choose an internal storage path.
+   * Renderers can use this to choose storage for matrices, transforms, colors,
+   * visibility flags, opacity and object state.
    */
   _updateHint;
   /**
-   * Hint describing how often this SceneModel's geometry is expected to change.
+   * Hint describing how often this SceneModel's renderer-facing values are
+   * expected to be uploaded.
    */
   get updateHint() {
     return this._updateHint;
@@ -21532,9 +21535,10 @@ var SceneModel3 = class {
    * batch as a single unit.
    *
    * This is mainly for {@link SceneModel.lifecycle | lifecycle} `"streaming"`
-   * models, where chunks arrive over time. Only one batch can be active at once.
-   * Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the active
-   * batch before it is committed.
+   * models, where chunks arrive over time. Format loaders can use batches to
+   * publish complete stream chunks atomically. Only one batch can be active at
+   * once. Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the
+   * active batch before it is committed.
    */
   beginBatch(params) {
     const createError = this._assertCanCreate("beginBatch");
@@ -21569,7 +21573,9 @@ var SceneModel3 = class {
    * The batch is marked committed, {@link SceneModel.activeBatch} is cleared and
    * {@link SceneEvents.onSceneModelBatchCommitted} is fired. Renderers can use
    * the committed batch as a stable allocation unit, especially when
-   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`.
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`. With
+   * `memoryPolicy: "stream"`, renderers can keep using pooled/reusable storage
+   * while still observing the batch boundary.
    */
   commitBatch() {
     if (this.destroyed) {
@@ -110884,28 +110890,15 @@ var XGFStreamingLoader = class {
         state.chunks.set(key, ownershipFromExistingAssets(manifest));
         return;
       }
-      createdIds = emptyCreatedIds();
-      const parserOptions = {
-        ...options,
-        idPrefix: manifest.idPrefix,
-        origin: manifest.origin,
-        coordinateSystem: manifest.coordinateSystem,
-        meshIdPrefix: key ? `${key}/mesh/` : void 0,
-        createdIds
-      };
-      try {
-        await this._xgfLoader.load({ fileData, sceneModel, dataModel }, parserOptions);
-      } catch (loadError) {
-        error = `[XGFStreamingLoader.loadChunk] Failed loading chunk '${manifest.id}': ${formatError(loadError)}`;
+      const loadResult = await loadXGFIntoSceneModelBatch(this._xgfLoader, fileData, sceneModel, dataModel, manifest, options, key);
+      createdIds = loadResult.createdIds;
+      if (loadResult.ok === false) {
+        error = loadResult.error;
         sceneModel.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
           error
         });
-        return;
-      }
-      if (createdIds.error) {
-        error = createdIds.error;
         return;
       }
       const ownership = ownershipFromCreatedIds(key, manifest, createdIds);
@@ -110922,6 +110915,67 @@ var XGFStreamingLoader = class {
     emitChunkLoadStats(options, manifest, !error && (!key || state.loadedChunkIds.has(key)), bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error);
   }
 };
+async function loadXGFIntoSceneModelBatch(xgfLoader, fileData, sceneModel, dataModel, manifest, options, key) {
+  const createdIds = emptyCreatedIds();
+  const batchId = key || void 0;
+  let batchStarted = false;
+  if (batchId) {
+    const beginResult = sceneModel.beginBatch({ id: batchId });
+    if (beginResult.ok === false) {
+      return {
+        ok: false,
+        createdIds,
+        error: beginResult.error
+      };
+    }
+    batchStarted = true;
+  }
+  const parserOptions = {
+    ...options,
+    idPrefix: manifest.idPrefix,
+    origin: manifest.origin,
+    coordinateSystem: manifest.coordinateSystem,
+    meshIdPrefix: key ? `${key}/mesh/` : void 0,
+    createdIds
+  };
+  try {
+    await xgfLoader.load({ fileData, sceneModel, dataModel }, parserOptions);
+  } catch (loadError) {
+    if (batchStarted) {
+      sceneModel.rollbackBatch();
+    }
+    return {
+      ok: false,
+      createdIds,
+      error: `[XGFStreamingLoader.loadChunk] Failed loading chunk '${manifest.id}': ${formatError(loadError)}`
+    };
+  }
+  if (createdIds.error) {
+    if (batchStarted) {
+      sceneModel.rollbackBatch();
+    }
+    return {
+      ok: false,
+      createdIds,
+      error: createdIds.error
+    };
+  }
+  if (batchStarted) {
+    const commitResult = sceneModel.commitBatch();
+    if (commitResult.ok === false) {
+      sceneModel.rollbackBatch();
+      return {
+        ok: false,
+        createdIds,
+        error: commitResult.error
+      };
+    }
+  }
+  return {
+    ok: true,
+    createdIds
+  };
+}
 function stateFor(sceneModel, stateBySceneModel) {
   let state = stateBySceneModel.get(sceneModel);
   if (!state) {
@@ -188416,11 +188470,7 @@ var MeshManager = class {
   sceneObjectCreated(sceneObject) {
     const objectId = sceneObject.id;
     if (this._rendererObjects[objectId]) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[MeshManager.sceneObjectCreated] SceneObject already added with this ID: ${objectId}`
-      };
+      return { ok: true, value: void 0 };
     }
     const rendererMeshes = [];
     for (const sceneMesh of sceneObject.meshes) {
@@ -188487,12 +188537,9 @@ var MeshManager = class {
    */
   _addMesh(sceneMesh, bulkBatches) {
     const meshGlobalId = sceneMesh.uniqueId;
-    if (this._rendererMeshes[meshGlobalId]) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[MeshManager._addMesh] SceneMesh already added with this globalId: ${meshGlobalId}`
-      };
+    const existingRendererMesh = this._rendererMeshes[meshGlobalId];
+    if (existingRendererMesh) {
+      return { ok: true, value: existingRendererMesh };
     }
     const stats = this._stepStatsEnabled ? this._stepStats : null;
     const t0 = stats ? performance.now() : 0;
@@ -188560,12 +188607,9 @@ var MeshManager = class {
    */
   _addSplatMesh(sceneMesh) {
     const meshGlobalId = sceneMesh.uniqueId;
-    if (this._rendererSplatMeshes[meshGlobalId]) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[MeshManager._addSplatMesh] Splat mesh already added with this globalId: ${meshGlobalId}`
-      };
+    const existingRendererSplatMesh = this._rendererSplatMeshes[meshGlobalId];
+    if (existingRendererSplatMesh) {
+      return { ok: true, value: existingRendererSplatMesh };
     }
     const geom = sceneMesh.geometry;
     if (!geom.scales || !geom.rotations || !geom.aabb) {
@@ -188662,8 +188706,7 @@ var MeshManager = class {
       bin,
       allocationKind,
       sceneMesh.model.memoryPolicy,
-      sceneBatchId ? sceneMesh.model.id : void 0,
-      sceneBatchId
+      sceneBatchId ? sceneMesh.model.id : void 0
     );
     const compatibleBatches = this._batchesByKey.get(key);
     const len = compatibleBatches?.length ?? 0;
@@ -188692,8 +188735,7 @@ var MeshManager = class {
       geometryStorage,
       allocationKind,
       memoryPolicy: sceneMesh.model.memoryPolicy,
-      sceneModelId: allocationKind === "dynamic" ? void 0 : sceneMesh.model.id,
-      sceneBatchId
+      sceneModelId: allocationKind === "dynamic" ? void 0 : sceneMesh.model.id
     });
     if (result.ok === false) {
       return result;
@@ -188720,9 +188762,9 @@ var MeshManager = class {
     this._batchesDirty = true;
     return { ok: true, value: newMeshBatch };
   }
-  _getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin, allocationKind = "dynamic", memoryPolicy = "stream", sceneModelId, sceneBatchId) {
+  _getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin, allocationKind = "dynamic", memoryPolicy = "stream", sceneModelId) {
     const binKey = bin === void 0 ? "u" : `s${bin}`;
-    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}|${sceneBatchId ?? ""}`;
+    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}`;
   }
   /**
    * Unregisters a {@link model!scene.SceneObject | SceneObject}.
@@ -267692,7 +267734,7 @@ var Studio = class _Studio {
    * @param params.format - Model format determining which loader to use
    * @param params.dataModel - Optional existing {@link model!data.DataModel | DataModel} to populate
    * @param params.sceneModel - Optional existing {@link model!scene.SceneModel | SceneModel} to populate
-   * @param params.updateHint - Optional hint describing how dynamically the SceneModel will be updated
+   * @param params.updateHint - Optional hint describing runtime value upload frequency for the SceneModel
    *
    * @param options - Loader-specific options passed through to the underlying loader
    *

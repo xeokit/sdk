@@ -185,6 +185,11 @@
  *
  * For progressive loading, use batches to stage a chunk and then publish it as a
  * unit. Viewers and renderers can defer partial batch content until commit.
+ * The XGF stream loader uses this pattern for manifest chunks: each loaded XGF
+ * stream chunk with a manifest ID or URI is wrapped in a SceneModel batch whose
+ * ID is the chunk key, then committed only after the chunk has parsed
+ * successfully. This exposes chunk boundaries without forcing a renderer to
+ * allocate one GPU batch per stream chunk.
  *
  * ```ts
  * const batchRes = model.beginBatch({ id: "tile-42" });

@@ -382,9 +382,10 @@ export class SceneModel {
    * batch as a single unit.
    *
    * This is mainly for {@link SceneModel.lifecycle | lifecycle} `"streaming"`
-   * models, where chunks arrive over time. Only one batch can be active at once.
-   * Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the active
-   * batch before it is committed.
+   * models, where chunks arrive over time. Format loaders can use batches to
+   * publish complete stream chunks atomically. Only one batch can be active at
+   * once. Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the
+   * active batch before it is committed.
    */
   beginBatch(params: SceneModelBatchParams): SDKResult<SceneModelBatch> {
     const createError = this._assertCanCreate("beginBatch");
@@ -420,7 +421,9 @@ export class SceneModel {
    * The batch is marked committed, {@link SceneModel.activeBatch} is cleared and
    * {@link SceneEvents.onSceneModelBatchCommitted} is fired. Renderers can use
    * the committed batch as a stable allocation unit, especially when
-   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`.
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`. With
+   * `memoryPolicy: "stream"`, renderers can keep using pooled/reusable storage
+   * while still observing the batch boundary.
    */
   commitBatch(): SDKResult<SceneModelBatch> {
     if (this.destroyed) {

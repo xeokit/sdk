@@ -305,11 +305,7 @@ export class MeshManager {
     const objectId = sceneObject.id;
 
     if (this._rendererObjects[objectId]) {
-      return {
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: `[MeshManager.sceneObjectCreated] SceneObject already added with this ID: ${objectId}`
-      };
+      return {ok: true, value: undefined};
     }
 
     const rendererMeshes: RendererMesh[] = [];
@@ -398,12 +394,9 @@ export class MeshManager {
   private _addMesh(sceneMesh: SceneMesh, bulkBatches?: Set<MeshBatchImpl>): SDKResult<RendererMesh> {
     const meshGlobalId = sceneMesh.uniqueId;
 
-    if (this._rendererMeshes[meshGlobalId]) {
-      return {
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: `[MeshManager._addMesh] SceneMesh already added with this globalId: ${meshGlobalId}`
-      };
+    const existingRendererMesh = this._rendererMeshes[meshGlobalId];
+    if (existingRendererMesh) {
+      return {ok: true, value: existingRendererMesh};
     }
 
     const stats = this._stepStatsEnabled ? this._stepStats : null;
@@ -480,12 +473,9 @@ export class MeshManager {
    */
   private _addSplatMesh(sceneMesh: SceneMesh): SDKResult<RendererSplatMesh> {
     const meshGlobalId = sceneMesh.uniqueId;
-    if (this._rendererSplatMeshes[meshGlobalId]) {
-      return {
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: `[MeshManager._addSplatMesh] Splat mesh already added with this globalId: ${meshGlobalId}`
-      };
+    const existingRendererSplatMesh = this._rendererSplatMeshes[meshGlobalId];
+    if (existingRendererSplatMesh) {
+      return {ok: true, value: existingRendererSplatMesh};
     }
     const geom = sceneMesh.geometry;
     if (!geom.scales || !geom.rotations || !geom.aabb) {
@@ -604,8 +594,7 @@ export class MeshManager {
       bin,
       allocationKind,
       sceneMesh.model.memoryPolicy,
-      sceneBatchId ? sceneMesh.model.id : undefined,
-      sceneBatchId
+      sceneBatchId ? sceneMesh.model.id : undefined
     );
     const compatibleBatches = this._batchesByKey.get(key);
     const len = compatibleBatches?.length ?? 0;
@@ -634,8 +623,7 @@ export class MeshManager {
       geometryStorage,
       allocationKind,
       memoryPolicy: sceneMesh.model.memoryPolicy,
-      sceneModelId: allocationKind === "dynamic" ? undefined : sceneMesh.model.id,
-      sceneBatchId
+      sceneModelId: allocationKind === "dynamic" ? undefined : sceneMesh.model.id
     });
     if (result.ok === false) {
       return result;
@@ -677,11 +665,10 @@ export class MeshManager {
     bin?: string,
     allocationKind: "dynamic" | "sealedModel" | "sealedBatch" = "dynamic",
     memoryPolicy: string = "stream",
-    sceneModelId?: string,
-    sceneBatchId?: string
+    sceneModelId?: string
   ): MeshBatchKey {
     const binKey = bin === undefined ? "u" : `s${bin}`;
-    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}|${sceneBatchId ?? ""}`;
+    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}`;
   }
 
   /**

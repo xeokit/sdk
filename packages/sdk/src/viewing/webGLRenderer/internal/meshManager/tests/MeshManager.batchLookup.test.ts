@@ -1,5 +1,5 @@
 import {LinesPrimitive, TrianglesPrimitive} from "../../../../../base/constants";
-import type {SceneMesh, SceneModelUpdateHint} from "../../../../../model/scene";
+import type {SceneMesh, SceneModelLifecycle, SceneModelMemoryPolicy, SceneModelUpdateHint} from "../../../../../model/scene";
 import {GPUMemoryCheckResult} from "../../gpuMemoryManager";
 import {MeshManager} from "../MeshManager";
 
@@ -21,6 +21,10 @@ function createMesh({
   uvs = false,
   bin,
   updateHint,
+  lifecycle,
+  memoryPolicy,
+  modelId,
+  batchId,
   billboard,
 }: {
   primitive: number;
@@ -28,11 +32,18 @@ function createMesh({
   uvs?: boolean;
   bin?: string;
   updateHint?: SceneModelUpdateHint;
+  lifecycle?: SceneModelLifecycle;
+  memoryPolicy?: SceneModelMemoryPolicy;
+  modelId?: string;
+  batchId?: string;
   billboard?: "none" | "spherical";
 }): SceneMesh {
   return {
     model: {
+      id: modelId,
       updateHint,
+      lifecycle,
+      memoryPolicy,
     },
     geometry: {
       primitive,
@@ -40,6 +51,7 @@ function createMesh({
       uvsCompressed: uvs ? new Uint16Array(2) : undefined,
     },
     bin,
+    batchId,
     billboard: billboard ?? "none",
   } as unknown as SceneMesh;
 }
@@ -128,5 +140,26 @@ describe("MeshManager batch lookup", () => {
       primitive: TrianglesPrimitive,
       geometryStorage: "dtx"
     }));
+  });
+
+  test("does not split compatible renderer batches by SceneModel batch ID", () => {
+    const {manager, gpuMemoryManager} = createManager();
+    const getMeshBatch = (manager as any)._getMeshBatch.bind(manager);
+    const base = {
+      primitive: TrianglesPrimitive,
+      lifecycle: "streaming" as const,
+      memoryPolicy: "compact" as const,
+      modelId: "stream-model"
+    };
+
+    expect(getMeshBatch(createMesh({...base, batchId: "chunk-a"})).ok).toBe(true);
+    expect(getMeshBatch(createMesh({...base, batchId: "chunk-b"})).ok).toBe(true);
+
+    expect(gpuMemoryManager.createBatch).toHaveBeenCalledTimes(1);
+    expect(gpuMemoryManager.createBatch).toHaveBeenLastCalledWith(expect.objectContaining({
+      allocationKind: "sealedBatch",
+      sceneModelId: "stream-model"
+    }));
+    expect(gpuMemoryManager.createBatch.mock.calls[0][0]).not.toHaveProperty("sceneBatchId");
   });
 });

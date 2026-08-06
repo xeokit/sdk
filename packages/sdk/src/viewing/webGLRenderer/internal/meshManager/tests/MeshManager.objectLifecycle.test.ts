@@ -1,4 +1,4 @@
-import {TrianglesPrimitive} from "../../../../../base/constants";
+import {GaussianSplatsPrimitive, TrianglesPrimitive} from "../../../../../base/constants";
 import type {SceneMesh, SceneObject} from "../../../../../model/scene";
 import {MeshManager} from "../MeshManager";
 
@@ -67,5 +67,31 @@ describe("MeshManager object lifecycle", () => {
     expect(rendererMesh.setColorInView).toHaveBeenCalledWith(1, null);
     expect(rendererMesh.setOpacityInView).toHaveBeenCalledWith(0, null);
     expect(rendererMesh.setOpacityInView).toHaveBeenCalledWith(1, null);
+  });
+
+  test("treats repeated renderer registration notifications as idempotent", () => {
+    const manager = createManager();
+    const rendererMesh = createRendererMesh();
+    const rendererSplatMesh = {destroy: jest.fn()};
+    const mesh = {
+      uniqueId: "model__mesh",
+      geometry: {primitive: TrianglesPrimitive},
+    } as unknown as SceneMesh;
+    const splatMesh = {
+      uniqueId: "model__splat",
+      geometry: {primitive: GaussianSplatsPrimitive},
+    } as unknown as SceneMesh;
+    const object = {
+      id: "object-a",
+      meshes: [mesh],
+    } as unknown as SceneObject;
+
+    manager._rendererMeshes[mesh.uniqueId] = rendererMesh;
+    manager._rendererSplatMeshes[splatMesh.uniqueId] = rendererSplatMesh;
+
+    expect(manager.sceneMeshCreated(mesh)).toEqual({ok: true, value: rendererMesh});
+    expect(manager.sceneMeshCreated(splatMesh)).toEqual({ok: true, value: rendererSplatMesh});
+    expect(manager.sceneObjectCreated(object).ok).toBe(true);
+    expect(manager.sceneObjectCreated(object)).toEqual({ok: true, value: undefined});
   });
 });

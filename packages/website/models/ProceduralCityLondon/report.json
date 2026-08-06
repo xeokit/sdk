@@ -1,7 +1,7 @@
 {
   "schema": "xeokit-procedural-city-comparison/1.0",
   "profileName": "london",
-  "seed": 42,
+  "seed": "42",
   "generatedAt": "deterministic",
   "source": {
     "type": "preset",

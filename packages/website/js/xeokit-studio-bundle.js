@@ -110920,7 +110920,9 @@ async function loadXGFIntoSceneModelBatch(xgfLoader, fileData, sceneModel, dataM
   const batchId = key || void 0;
   let batchStarted = false;
   if (batchId) {
-    const beginResult = sceneModel.beginBatch({ id: batchId });
+    const beginResult = sceneModel.beginBatch({
+      id: batchId
+    });
     if (beginResult.ok === false) {
       return {
         ok: false,

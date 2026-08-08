@@ -285,28 +285,15 @@ export class XGFStreamingLoader {
         return;
       }
 
-      createdIds = emptyCreatedIds();
-      const parserOptions: any = {
-        ...options,
-        idPrefix: (manifest as any).idPrefix,
-        origin: (manifest as any).origin,
-        coordinateSystem: (manifest as any).coordinateSystem,
-        meshIdPrefix: key ? `${key}/mesh/` : undefined,
-        createdIds
-      };
-      try {
-        await this._xgfLoader.load({fileData, sceneModel, dataModel}, parserOptions);
-      } catch (loadError) {
-        error = `[XGFStreamingLoader.loadChunk] Failed loading chunk '${manifest.id}': ${formatError(loadError)}`;
+      const loadResult = await loadXGFIntoSceneModel(this._xgfLoader, fileData, sceneModel, dataModel, manifest, options, key);
+      createdIds = loadResult.createdIds;
+      if (loadResult.ok === false) {
+        error = loadResult.error;
         sceneModel.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
           error
         });
-        return;
-      }
-      if (createdIds.error) {
-        error = createdIds.error;
         return;
       }
       const ownership = ownershipFromCreatedIds(key, manifest, createdIds);
@@ -321,6 +308,63 @@ export class XGFStreamingLoader {
     });
     commitMs = now() - commitStart;
     emitChunkLoadStats(options, manifest, !error && (!key || state.loadedChunkIds.has(key)), bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error);
+  }
+}
+
+async function loadXGFIntoSceneModel(
+  xgfLoader: XGFLoader,
+  fileData: ArrayBuffer,
+  sceneModel: SceneModel,
+  dataModel: XGFChunkLoadParams["dataModel"],
+  manifest: XGFChunkManifest,
+  options: XGFChunkLoadOptions,
+  key: string
+): Promise<{ ok: true; createdIds: XGFCreatedIdsCollector } | { ok: false; createdIds: XGFCreatedIdsCollector; error: string }> {
+  const createdIds = emptyCreatedIds();
+  const parserOptions: any = {
+    ...options,
+    idPrefix: (manifest as any).idPrefix,
+    origin: (manifest as any).origin,
+    coordinateSystem: (manifest as any).coordinateSystem,
+    meshIdPrefix: key ? `${key}/mesh/` : undefined,
+    createdIds
+  };
+
+  try {
+    await xgfLoader.load({fileData, sceneModel, dataModel}, parserOptions);
+  } catch (loadError) {
+    rollbackCreatedContent(sceneModel, key, manifest, createdIds);
+    return {
+      ok: false,
+      createdIds,
+      error: `[XGFStreamingLoader.loadChunk] Failed loading chunk '${manifest.id}': ${formatError(loadError)}`
+    };
+  }
+
+  if (createdIds.error) {
+    rollbackCreatedContent(sceneModel, key, manifest, createdIds);
+    return {
+      ok: false,
+      createdIds,
+      error: createdIds.error
+    };
+  }
+
+  return {
+    ok: true,
+    createdIds
+  };
+}
+
+function rollbackCreatedContent(
+  sceneModel: SceneModel,
+  key: string,
+  manifest: XGFChunkManifest,
+  createdIds: XGFCreatedIdsCollector
+): void {
+  const result = destroyOwnedContent(sceneModel, ownershipFromCreatedIds(key, manifest, createdIds));
+  if (result.ok === false) {
+    sceneModel.scene.logError(result);
   }
 }
 

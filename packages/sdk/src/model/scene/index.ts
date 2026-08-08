@@ -158,7 +158,7 @@
  * {@link SceneModelParams.lifecycle | lifecycle} describes construction:
  *
  * - `"open"` allows ordinary ad-hoc component creation.
- * - `"streaming"` allows incremental chunks or batches to arrive over time.
+ * - `"streaming"` allows incremental model construction over time.
  * - `"sealed"` closes the model to new topology after initial creation.
  *
  * {@link SceneModelParams.memoryPolicy | memoryPolicy} is a renderer allocation
@@ -183,21 +183,21 @@
  * if (!sealRes.ok) throw new Error(sealRes.error);
  * ```
  *
- * For progressive loading, use batches to stage a chunk and then publish it as a
- * unit. Viewers and renderers can defer partial batch content until commit.
- * The XGF stream loader uses this pattern for manifest chunks: each loaded XGF
- * stream chunk with a manifest ID or URI is wrapped in a SceneModel batch whose
- * ID is the chunk key, then committed only after the chunk has parsed
- * successfully. This exposes chunk boundaries without forcing a renderer to
- * allocate one GPU batch per stream chunk.
+ * For progressive construction of a single SceneModel, use batches when you
+ * need to know exactly which components were created during a named loading
+ * interval, or when an importer needs to partition a loading process into
+ * explicit phases. A batch can stage a model file or file section and then
+ * publish it as a unit. Viewers and renderers can defer partial batch content
+ * until commit. Batch IDs are SceneModel construction IDs; they do not define
+ * renderer draw batches or XGF stream structure.
  *
  * ```ts
- * const batchRes = model.beginBatch({ id: "tile-42" });
+ * const batchRes = model.beginBatch({ id: "storey-02" });
  * if (!batchRes.ok) throw new Error(batchRes.error);
  *
- * model.createGeometry({ id: "tile-42:g", primitive, positions, indices });
- * model.createMesh({ id: "tile-42:m", geometryId: "tile-42:g" });
- * model.createObject({ id: "tile-42:o", meshIds: ["tile-42:m"] });
+ * model.createGeometry({ id: "storey-02:g", primitive, positions, indices });
+ * model.createMesh({ id: "storey-02:m", geometryId: "storey-02:g" });
+ * model.createObject({ id: "storey-02:o", meshIds: ["storey-02:m"] });
  *
  * const commitRes = model.commitBatch();
  * if (!commitRes.ok) throw new Error(commitRes.error);

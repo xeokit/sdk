@@ -901,7 +901,14 @@ describe("xgf", () => {
         }
       );
 
-      const dst = new Scene().createModel({id: "dst"}).value!;
+      const scene = new Scene();
+      const dst = scene.createModel({id: "dst", lifecycle: "streaming", memoryPolicy: "compact"}).value!;
+      const batchEvents: string[] = [];
+      scene.events.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+        if (sceneModel === dst) {
+          batchEvents.push(batch.id);
+        }
+      });
       const loadedChunks: string[] = [];
       await new XGFStreamingLoader().loadChunk(
         {manifest: chunkManifest, fileData: referencesOnly, sceneModel: dst},
@@ -913,6 +920,8 @@ describe("xgf", () => {
       );
 
       expect(loadedChunks).toEqual(["lib-a", "tile-a"]);
+      expect(batchEvents).toEqual([]);
+      expect(dst.activeBatch).toBeNull();
       expect(dst.geometries["shared-geom"]).toBeDefined();
       expect(dst.materials["shared-mat"]).toBeDefined();
       expect(dst.objects["obj"]).toBeDefined();
@@ -1343,6 +1352,12 @@ describe("xgf", () => {
         }
       };
       const loader = new XGFStreamingLoader({xgfLoader: xgfLoader as any});
+      const batchEvents: string[] = [];
+      scene.events.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+        if (sceneModel === dst) {
+          batchEvents.push(batch.id);
+        }
+      });
       const manifestA = createXGFManifest(
         {sceneModel: dst},
         {id: "tile-a", uri: "tile-a.xgf", assetMode: "full"}
@@ -1359,9 +1374,48 @@ describe("xgf", () => {
       ]);
 
       expect(errors).toHaveLength(0);
+      expect(batchEvents).toEqual([]);
+      expect(dst.activeBatch).toBeNull();
       expect(Object.keys(dst.meshes).sort()).toEqual(["0", "1"]);
       expect(dst.objects["obj-0"]).toBeDefined();
       expect(dst.objects["obj-1"]).toBeDefined();
+    });
+
+    it("removes created XGF stream chunk content when apply fails", async () => {
+      const scene = new Scene();
+      const errors: any[] = [];
+      scene.events.onError.subscribe((_scene, error) => errors.push(error));
+      const dst = scene.createModel({id: "dst", lifecycle: "streaming", memoryPolicy: "compact"}).value!;
+      const batchEvents: string[] = [];
+      scene.events.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+        if (sceneModel === dst) {
+          batchEvents.push(batch.id);
+        }
+      });
+      const xgfLoader = {
+        load: async ({sceneModel}: any, options: any) => {
+          sceneModel.createGeometry({
+            id: "temp-geom",
+            primitive: TrianglesPrimitive,
+            positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+            indices: [0, 1, 2],
+          });
+          options.createdIds?.geometries.push("temp-geom");
+          throw new Error("synthetic chunk failure");
+        }
+      };
+      const manifest = createXGFManifest(
+        {sceneModel: dst},
+        {id: "tile-fail", uri: "tile-fail.xgf", assetMode: "full"}
+      );
+
+      await new XGFStreamingLoader({xgfLoader: xgfLoader as any})
+        .loadChunk({manifest, fileData: new ArrayBuffer(1), sceneModel: dst});
+
+      expect(dst.activeBatch).toBeNull();
+      expect(batchEvents).toEqual([]);
+      expect(dst.geometries["temp-geom"]).toBeUndefined();
+      expect(errors[0].error).toContain("synthetic chunk failure");
     });
 
     it("unloads v2 references-only chunks without destroying shared assets", async () => {

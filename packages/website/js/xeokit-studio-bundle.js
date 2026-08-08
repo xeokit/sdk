@@ -21534,11 +21534,13 @@ var SceneModel3 = class {
    * components until {@link SceneModel.commitBatch | commitBatch} publishes the
    * batch as a single unit.
    *
-   * This is mainly for {@link SceneModel.lifecycle | lifecycle} `"streaming"`
-   * models, where chunks arrive over time. Format loaders can use batches to
-   * publish complete stream chunks atomically. Only one batch can be active at
-   * once. Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the
-   * active batch before it is committed.
+   * Batches are designed for loaders or application code that need to know
+   * exactly which components were created during a named loading interval, and
+   * for importers that need to partition a loading process into explicit
+   * construction phases. For example, an importer might stage one model file or
+   * file section before making it visible. Only one batch can be active at once.
+   * Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the active
+   * batch before it is committed.
    */
   beginBatch(params) {
     const createError = this._assertCanCreate("beginBatch");
@@ -21572,10 +21574,12 @@ var SceneModel3 = class {
    *
    * The batch is marked committed, {@link SceneModel.activeBatch} is cleared and
    * {@link SceneEvents.onSceneModelBatchCommitted} is fired. Renderers can use
-   * the committed batch as a stable allocation unit, especially when
+   * the committed batch as a stable construction unit, especially when
    * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`. With
    * `memoryPolicy: "stream"`, renderers can keep using pooled/reusable storage
-   * while still observing the batch boundary.
+   * while still observing the batch boundary. A SceneModel batch is a model
+   * construction concept; it does not require renderers to preserve the same
+   * boundary as a GPU draw batch.
    */
   commitBatch() {
     if (this.destroyed) {
@@ -110890,7 +110894,7 @@ var XGFStreamingLoader = class {
         state.chunks.set(key, ownershipFromExistingAssets(manifest));
         return;
       }
-      const loadResult = await loadXGFIntoSceneModelBatch(this._xgfLoader, fileData, sceneModel, dataModel, manifest, options, key);
+      const loadResult = await loadXGFIntoSceneModel(this._xgfLoader, fileData, sceneModel, dataModel, manifest, options, key);
       createdIds = loadResult.createdIds;
       if (loadResult.ok === false) {
         error = loadResult.error;
@@ -110915,23 +110919,8 @@ var XGFStreamingLoader = class {
     emitChunkLoadStats(options, manifest, !error && (!key || state.loadedChunkIds.has(key)), bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error);
   }
 };
-async function loadXGFIntoSceneModelBatch(xgfLoader, fileData, sceneModel, dataModel, manifest, options, key) {
+async function loadXGFIntoSceneModel(xgfLoader, fileData, sceneModel, dataModel, manifest, options, key) {
   const createdIds = emptyCreatedIds();
-  const batchId = key || void 0;
-  let batchStarted = false;
-  if (batchId) {
-    const beginResult = sceneModel.beginBatch({
-      id: batchId
-    });
-    if (beginResult.ok === false) {
-      return {
-        ok: false,
-        createdIds,
-        error: beginResult.error
-      };
-    }
-    batchStarted = true;
-  }
   const parserOptions = {
     ...options,
     idPrefix: manifest.idPrefix,
@@ -110943,9 +110932,7 @@ async function loadXGFIntoSceneModelBatch(xgfLoader, fileData, sceneModel, dataM
   try {
     await xgfLoader.load({ fileData, sceneModel, dataModel }, parserOptions);
   } catch (loadError) {
-    if (batchStarted) {
-      sceneModel.rollbackBatch();
-    }
+    rollbackCreatedContent(sceneModel, key, manifest, createdIds);
     return {
       ok: false,
       createdIds,
@@ -110953,30 +110940,23 @@ async function loadXGFIntoSceneModelBatch(xgfLoader, fileData, sceneModel, dataM
     };
   }
   if (createdIds.error) {
-    if (batchStarted) {
-      sceneModel.rollbackBatch();
-    }
+    rollbackCreatedContent(sceneModel, key, manifest, createdIds);
     return {
       ok: false,
       createdIds,
       error: createdIds.error
     };
   }
-  if (batchStarted) {
-    const commitResult = sceneModel.commitBatch();
-    if (commitResult.ok === false) {
-      sceneModel.rollbackBatch();
-      return {
-        ok: false,
-        createdIds,
-        error: commitResult.error
-      };
-    }
-  }
   return {
     ok: true,
     createdIds
   };
+}
+function rollbackCreatedContent(sceneModel, key, manifest, createdIds) {
+  const result = destroyOwnedContent(sceneModel, ownershipFromCreatedIds(key, manifest, createdIds));
+  if (result.ok === false) {
+    sceneModel.scene.logError(result);
+  }
 }
 function stateFor(sceneModel, stateBySceneModel) {
   let state = stateBySceneModel.get(sceneModel);

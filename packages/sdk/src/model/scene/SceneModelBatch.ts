@@ -19,10 +19,12 @@ export interface SceneModelBatchParams {
 /**
  * Tracks components created while a SceneModel batch is active.
  *
- * A batch is a renderer-facing construction scope: components created between
+ * A batch is a SceneModel construction scope: components created between
  * {@link SceneModel.beginBatch} and {@link SceneModel.commitBatch} are recorded
- * here so viewers and renderers can defer partial content and then allocate or
- * attach the committed batch in one step.
+ * here so callers can identify exactly what was created during that interval,
+ * and so loaders can partition a larger import into explicit phases. Viewers
+ * and renderers can defer partial content until the batch is committed. This is
+ * independent of how a renderer groups draw calls or GPU storage.
  */
 export class SceneModelBatch {
 

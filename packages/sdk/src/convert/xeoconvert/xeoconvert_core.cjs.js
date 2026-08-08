@@ -61,18 +61,18 @@ var __privateMethod = (obj, member, method) => {
   return method;
 };
 
-// node_modules/.pnpm/isarray@0.0.1/node_modules/isarray/index.js
+// ../../node_modules/.pnpm/isarray@0.0.1/node_modules/isarray/index.js
 var require_isarray = __commonJS({
-  "node_modules/.pnpm/isarray@0.0.1/node_modules/isarray/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/isarray@0.0.1/node_modules/isarray/index.js"(exports2, module2) {
     module2.exports = Array.isArray || function(arr) {
       return Object.prototype.toString.call(arr) == "[object Array]";
     };
   }
 });
 
-// node_modules/.pnpm/core-util-is@1.0.3/node_modules/core-util-is/lib/util.js
+// ../../node_modules/.pnpm/core-util-is@1.0.3/node_modules/core-util-is/lib/util.js
 var require_util = __commonJS({
-  "node_modules/.pnpm/core-util-is@1.0.3/node_modules/core-util-is/lib/util.js"(exports2) {
+  "../../node_modules/.pnpm/core-util-is@1.0.3/node_modules/core-util-is/lib/util.js"(exports2) {
     function isArray3(arg) {
       if (Array.isArray) {
         return Array.isArray(arg);
@@ -140,9 +140,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits_browser.js
+// ../../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits_browser.js
 var require_inherits_browser = __commonJS({
-  "node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits_browser.js"(exports2, module2) {
+  "../../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits_browser.js"(exports2, module2) {
     if (typeof Object.create === "function") {
       module2.exports = function inherits(ctor, superCtor) {
         if (superCtor) {
@@ -172,9 +172,9 @@ var require_inherits_browser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits.js
+// ../../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits.js
 var require_inherits = __commonJS({
-  "node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits.js"(exports2, module2) {
+  "../../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits.js"(exports2, module2) {
     try {
       util = require("util");
       if (typeof util.inherits !== "function")
@@ -187,9 +187,9 @@ var require_inherits = __commonJS({
   }
 });
 
-// node_modules/.pnpm/string_decoder@0.10.31/node_modules/string_decoder/index.js
+// ../../node_modules/.pnpm/string_decoder@0.10.31/node_modules/string_decoder/index.js
 var require_string_decoder = __commonJS({
-  "node_modules/.pnpm/string_decoder@0.10.31/node_modules/string_decoder/index.js"(exports2) {
+  "../../node_modules/.pnpm/string_decoder@0.10.31/node_modules/string_decoder/index.js"(exports2) {
     var Buffer2 = require("buffer").Buffer;
     var isBufferEncoding = Buffer2.isEncoding || function(encoding) {
       switch (encoding && encoding.toLowerCase()) {
@@ -325,9 +325,9 @@ var require_string_decoder = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_readable.js
+// ../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_readable.js
 var require_stream_readable = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_readable.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_readable.js"(exports2, module2) {
     module2.exports = Readable5;
     var isArray3 = require_isarray();
     var Buffer2 = require("buffer").Buffer;
@@ -934,9 +934,9 @@ var require_stream_readable = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_duplex.js
+// ../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_duplex.js
 var require_stream_duplex = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_duplex.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_duplex.js"(exports2, module2) {
     module2.exports = Duplex;
     var objectKeys = Object.keys || function(obj) {
       var keys = [];
@@ -980,9 +980,9 @@ var require_stream_duplex = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_writable.js
+// ../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_writable.js
 var require_stream_writable = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_writable.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_writable.js"(exports2, module2) {
     module2.exports = Writable;
     var Buffer2 = require("buffer").Buffer;
     Writable.WritableState = WritableState;
@@ -1211,9 +1211,9 @@ var require_stream_writable = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_transform.js
+// ../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_transform.js
 var require_stream_transform = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_transform.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_transform.js"(exports2, module2) {
     module2.exports = Transform;
     var Duplex = require_stream_duplex();
     var util = require_util();
@@ -1305,9 +1305,9 @@ var require_stream_transform = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_passthrough.js
+// ../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_passthrough.js
 var require_stream_passthrough = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_passthrough.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_passthrough.js"(exports2, module2) {
     module2.exports = PassThrough;
     var Transform = require_stream_transform();
     var util = require_util();
@@ -1324,9 +1324,9 @@ var require_stream_passthrough = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/readable.js
+// ../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/readable.js
 var require_readable = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/readable.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/readable.js"(exports2, module2) {
     var Stream3 = require("stream");
     exports2 = module2.exports = require_stream_readable();
     exports2.Stream = Stream3;
@@ -1341,9 +1341,9 @@ var require_readable = __commonJS({
   }
 });
 
-// node_modules/.pnpm/contentstream@1.0.0/node_modules/contentstream/index.js
+// ../../node_modules/.pnpm/contentstream@1.0.0/node_modules/contentstream/index.js
 var require_contentstream = __commonJS({
-  "node_modules/.pnpm/contentstream@1.0.0/node_modules/contentstream/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/contentstream@1.0.0/node_modules/contentstream/index.js"(exports2, module2) {
     "use strict";
     var Readable5 = require_readable().Readable;
     var util = require("util");
@@ -1373,9 +1373,9 @@ var require_contentstream = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_writable.js
+// ../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_writable.js
 var require_stream_writable2 = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_writable.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_writable.js"(exports2, module2) {
     module2.exports = Writable;
     var Buffer2 = require("buffer").Buffer;
     Writable.WritableState = WritableState;
@@ -1661,9 +1661,9 @@ var require_stream_writable2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_duplex.js
+// ../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_duplex.js
 var require_stream_duplex2 = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_duplex.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_duplex.js"(exports2, module2) {
     module2.exports = Duplex;
     var objectKeys = Object.keys || function(obj) {
       var keys = [];
@@ -1707,9 +1707,9 @@ var require_stream_duplex2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_readable.js
+// ../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_readable.js
 var require_stream_readable2 = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_readable.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_readable.js"(exports2, module2) {
     module2.exports = Readable5;
     var isArray3 = require_isarray();
     var Buffer2 = require("buffer").Buffer;
@@ -2334,9 +2334,9 @@ var require_stream_readable2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_transform.js
+// ../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_transform.js
 var require_stream_transform2 = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_transform.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_transform.js"(exports2, module2) {
     module2.exports = Transform;
     var Duplex = require_stream_duplex2();
     var util = require_util();
@@ -2427,9 +2427,9 @@ var require_stream_transform2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_passthrough.js
+// ../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_passthrough.js
 var require_stream_passthrough2 = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_passthrough.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_passthrough.js"(exports2, module2) {
     module2.exports = PassThrough;
     var Transform = require_stream_transform2();
     var util = require_util();
@@ -2446,9 +2446,9 @@ var require_stream_passthrough2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/readable.js
+// ../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/readable.js
 var require_readable2 = __commonJS({
-  "node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/readable.js"(exports2, module2) {
+  "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/readable.js"(exports2, module2) {
     exports2 = module2.exports = require_stream_readable2();
     exports2.Stream = require("stream");
     exports2.Readable = exports2;
@@ -2462,9 +2462,9 @@ var require_readable2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/TypedNeuQuant.js
+// ../../node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/TypedNeuQuant.js
 var require_TypedNeuQuant = __commonJS({
-  "node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/TypedNeuQuant.js"(exports2, module2) {
+  "../../node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/TypedNeuQuant.js"(exports2, module2) {
     var ncycles = 100;
     var netsize = 256;
     var maxnetpos = netsize - 1;
@@ -2756,9 +2756,9 @@ var require_TypedNeuQuant = __commonJS({
   }
 });
 
-// node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/LZWEncoder.js
+// ../../node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/LZWEncoder.js
 var require_LZWEncoder = __commonJS({
-  "node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/LZWEncoder.js"(exports2, module2) {
+  "../../node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/LZWEncoder.js"(exports2, module2) {
     var EOF = -1;
     var BITS = 12;
     var HSIZE = 5003;
@@ -2923,9 +2923,9 @@ var require_LZWEncoder = __commonJS({
   }
 });
 
-// node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/GIFEncoder.js
+// ../../node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/GIFEncoder.js
 var require_GIFEncoder = __commonJS({
-  "node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/GIFEncoder.js"(exports2, module2) {
+  "../../node_modules/.pnpm/gif-encoder@0.4.3/node_modules/gif-encoder/lib/GIFEncoder.js"(exports2, module2) {
     var assert7 = require("assert");
     var EventEmitter3 = require("events").EventEmitter;
     var ReadableStream3 = require_readable2();
@@ -3215,9 +3215,9 @@ var require_GIFEncoder = __commonJS({
   }
 });
 
-// node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/encoder.js
+// ../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/encoder.js
 var require_encoder = __commonJS({
-  "node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/encoder.js"(exports2, module2) {
+  "../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/encoder.js"(exports2, module2) {
     var btoa3 = btoa3 || function(buf) {
       return Buffer.from(buf).toString("base64");
     };
@@ -4300,9 +4300,9 @@ var require_encoder = __commonJS({
   }
 });
 
-// node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/decoder.js
+// ../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/decoder.js
 var require_decoder = __commonJS({
-  "node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/decoder.js"(exports2, module2) {
+  "../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/lib/decoder.js"(exports2, module2) {
     var JpegImage = function jpegImage() {
       "use strict";
       var dctZigZag = new Int32Array([
@@ -5348,9 +5348,9 @@ var require_decoder = __commonJS({
   }
 });
 
-// node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js
+// ../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js
 var require_jpeg_js = __commonJS({
-  "node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js"(exports2, module2) {
     var encode28 = require_encoder();
     var decode12 = require_decoder();
     module2.exports = {
@@ -5360,9 +5360,9 @@ var require_jpeg_js = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/chunkstream.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/chunkstream.js
 var require_chunkstream = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/chunkstream.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/chunkstream.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var Stream3 = require("stream");
@@ -5499,9 +5499,9 @@ var require_chunkstream = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/interlace.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/interlace.js
 var require_interlace = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/interlace.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/interlace.js"(exports2) {
     "use strict";
     var imagePasses = [
       {
@@ -5582,9 +5582,9 @@ var require_interlace = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/paeth-predictor.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/paeth-predictor.js
 var require_paeth_predictor = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/paeth-predictor.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/paeth-predictor.js"(exports2, module2) {
     "use strict";
     module2.exports = function paethPredictor(left, above, upLeft) {
       var paeth = left + above - upLeft;
@@ -5602,9 +5602,9 @@ var require_paeth_predictor = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse.js
 var require_filter_parse = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse.js"(exports2, module2) {
     "use strict";
     var interlaceUtils = require_interlace();
     var paethPredictor = require_paeth_predictor();
@@ -5740,9 +5740,9 @@ var require_filter_parse = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-async.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-async.js
 var require_filter_parse_async = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-async.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var ChunkStream = require_chunkstream();
@@ -5766,9 +5766,9 @@ var require_filter_parse_async = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/constants.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/constants.js
 var require_constants = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/constants.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/constants.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       PNG_SIGNATURE: [137, 80, 78, 71, 13, 10, 26, 10],
@@ -5801,9 +5801,9 @@ var require_constants = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/crc.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/crc.js
 var require_crc = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/crc.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/crc.js"(exports2, module2) {
     "use strict";
     var crcTable4 = [];
     (function() {
@@ -5841,9 +5841,9 @@ var require_crc = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser.js
 var require_parser = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser.js"(exports2, module2) {
     "use strict";
     var constants2 = require_constants();
     var CrcCalculator = require_crc();
@@ -6058,9 +6058,9 @@ var require_parser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitmapper.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitmapper.js
 var require_bitmapper = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitmapper.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitmapper.js"(exports2) {
     "use strict";
     var interlaceUtils = require_interlace();
     var pixelBppMap = {
@@ -6240,9 +6240,9 @@ var require_bitmapper = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/format-normaliser.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/format-normaliser.js
 var require_format_normaliser = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/format-normaliser.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/format-normaliser.js"(exports2, module2) {
     "use strict";
     function dePalette(indata, outdata, width, height, palette) {
       var pxPos = 0;
@@ -6319,9 +6319,9 @@ var require_format_normaliser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-async.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-async.js
 var require_parser_async = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-async.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var zlib2 = require("zlib");
@@ -6404,9 +6404,9 @@ var require_parser_async = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitpacker.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitpacker.js
 var require_bitpacker = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitpacker.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/bitpacker.js"(exports2, module2) {
     "use strict";
     var constants2 = require_constants();
     module2.exports = function(data, width, height, options) {
@@ -6464,9 +6464,9 @@ var require_bitpacker = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-pack.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-pack.js
 var require_filter_pack = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-pack.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-pack.js"(exports2, module2) {
     "use strict";
     var paethPredictor = require_paeth_predictor();
     function filterNone(pxData, pxPos, byteWidth, rawData, rawPos) {
@@ -6601,9 +6601,9 @@ var require_filter_pack = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer.js
 var require_packer = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer.js"(exports2, module2) {
     "use strict";
     var constants2 = require_constants();
     var CrcStream = require_crc();
@@ -6678,9 +6678,9 @@ var require_packer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-async.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-async.js
 var require_packer_async = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-async.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var Stream3 = require("stream");
@@ -6714,9 +6714,9 @@ var require_packer_async = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/sync-reader.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/sync-reader.js
 var require_sync_reader = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/sync-reader.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/sync-reader.js"(exports2, module2) {
     "use strict";
     var SyncReader = module2.exports = function(buffer) {
       this._buffer = buffer;
@@ -6752,9 +6752,9 @@ var require_sync_reader = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-sync.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-sync.js
 var require_filter_parse_sync = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-sync.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/filter-parse-sync.js"(exports2) {
     "use strict";
     var SyncReader = require_sync_reader();
     var Filter = require_filter_parse();
@@ -6776,9 +6776,9 @@ var require_filter_parse_sync = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-sync.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-sync.js
 var require_parser_sync = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-sync.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/parser-sync.js"(exports2, module2) {
     "use strict";
     var hasSyncZlib = true;
     var zlib2 = require("zlib");
@@ -6850,9 +6850,9 @@ var require_parser_sync = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-sync.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-sync.js
 var require_packer_sync = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-sync.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/packer-sync.js"(exports2, module2) {
     "use strict";
     var hasSyncZlib = true;
     var zlib2 = require("zlib");
@@ -6886,9 +6886,9 @@ var require_packer_sync = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png-sync.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png-sync.js
 var require_png_sync = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png-sync.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png-sync.js"(exports2) {
     "use strict";
     var parse33 = require_parser_sync();
     var pack = require_packer_sync();
@@ -6901,9 +6901,9 @@ var require_png_sync = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png.js
+// ../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png.js
 var require_png = __commonJS({
-  "node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png.js"(exports2) {
     "use strict";
     var util = require("util");
     var Stream3 = require("stream");
@@ -7027,9 +7027,9 @@ var require_png = __commonJS({
   }
 });
 
-// node_modules/.pnpm/iota-array@1.0.0/node_modules/iota-array/iota.js
+// ../../node_modules/.pnpm/iota-array@1.0.0/node_modules/iota-array/iota.js
 var require_iota = __commonJS({
-  "node_modules/.pnpm/iota-array@1.0.0/node_modules/iota-array/iota.js"(exports2, module2) {
+  "../../node_modules/.pnpm/iota-array@1.0.0/node_modules/iota-array/iota.js"(exports2, module2) {
     "use strict";
     function iota(n2) {
       var result = new Array(n2);
@@ -7042,9 +7042,9 @@ var require_iota = __commonJS({
   }
 });
 
-// node_modules/.pnpm/is-buffer@1.1.6/node_modules/is-buffer/index.js
+// ../../node_modules/.pnpm/is-buffer@1.1.6/node_modules/is-buffer/index.js
 var require_is_buffer = __commonJS({
-  "node_modules/.pnpm/is-buffer@1.1.6/node_modules/is-buffer/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/is-buffer@1.1.6/node_modules/is-buffer/index.js"(exports2, module2) {
     module2.exports = function(obj) {
       return obj != null && (isBuffer5(obj) || isSlowBuffer(obj) || !!obj._isBuffer);
     };
@@ -7057,9 +7057,9 @@ var require_is_buffer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ndarray@1.0.19/node_modules/ndarray/ndarray.js
+// ../../node_modules/.pnpm/ndarray@1.0.19/node_modules/ndarray/ndarray.js
 var require_ndarray = __commonJS({
-  "node_modules/.pnpm/ndarray@1.0.19/node_modules/ndarray/ndarray.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ndarray@1.0.19/node_modules/ndarray/ndarray.js"(exports2, module2) {
     var iota = require_iota();
     var isBuffer5 = require_is_buffer();
     var hasTypedArrays = typeof Float64Array !== "undefined";
@@ -7311,9 +7311,9 @@ var require_ndarray = __commonJS({
   }
 });
 
-// node_modules/.pnpm/uniq@1.0.1/node_modules/uniq/uniq.js
+// ../../node_modules/.pnpm/uniq@1.0.1/node_modules/uniq/uniq.js
 var require_uniq = __commonJS({
-  "node_modules/.pnpm/uniq@1.0.1/node_modules/uniq/uniq.js"(exports2, module2) {
+  "../../node_modules/.pnpm/uniq@1.0.1/node_modules/uniq/uniq.js"(exports2, module2) {
     "use strict";
     function unique_pred(list, compare) {
       var ptr = 1, len = list.length, a3 = list[0], b5 = list[0];
@@ -7366,9 +7366,9 @@ var require_uniq = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/compile.js
+// ../../node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/compile.js
 var require_compile = __commonJS({
-  "node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/compile.js"(exports2, module2) {
+  "../../node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/compile.js"(exports2, module2) {
     "use strict";
     var uniq = require_uniq();
     function innerFill(order, proc, body) {
@@ -7664,9 +7664,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/thunk.js
+// ../../node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/thunk.js
 var require_thunk = __commonJS({
-  "node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/thunk.js"(exports2, module2) {
+  "../../node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/lib/thunk.js"(exports2, module2) {
     "use strict";
     var compile = require_compile();
     function createThunk(proc) {
@@ -7742,9 +7742,9 @@ var require_thunk = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/compiler.js
+// ../../node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/compiler.js
 var require_compiler = __commonJS({
-  "node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/compiler.js"(exports2, module2) {
+  "../../node_modules/.pnpm/cwise-compiler@1.1.3/node_modules/cwise-compiler/compiler.js"(exports2, module2) {
     "use strict";
     var createThunk = require_thunk();
     function Procedure() {
@@ -7837,9 +7837,9 @@ var require_compiler = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ndarray-ops@1.2.2/node_modules/ndarray-ops/ndarray-ops.js
+// ../../node_modules/.pnpm/ndarray-ops@1.2.2/node_modules/ndarray-ops/ndarray-ops.js
 var require_ndarray_ops = __commonJS({
-  "node_modules/.pnpm/ndarray-ops@1.2.2/node_modules/ndarray-ops/ndarray-ops.js"(exports2) {
+  "../../node_modules/.pnpm/ndarray-ops@1.2.2/node_modules/ndarray-ops/ndarray-ops.js"(exports2) {
     "use strict";
     var compile = require_compiler();
     var EmptyProc = {
@@ -8323,9 +8323,9 @@ var require_ndarray_ops = __commonJS({
   }
 });
 
-// node_modules/.pnpm/through@2.3.8/node_modules/through/index.js
+// ../../node_modules/.pnpm/through@2.3.8/node_modules/through/index.js
 var require_through = __commonJS({
-  "node_modules/.pnpm/through@2.3.8/node_modules/through/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/through@2.3.8/node_modules/through/index.js"(exports2, module2) {
     var Stream3 = require("stream");
     exports2 = module2.exports = through;
     through.through = through;
@@ -8416,9 +8416,9 @@ var require_through = __commonJS({
   }
 });
 
-// node_modules/.pnpm/save-pixels@2.3.6/node_modules/save-pixels/save-pixels.js
+// ../../node_modules/.pnpm/save-pixels@2.3.6/node_modules/save-pixels/save-pixels.js
 var require_save_pixels = __commonJS({
-  "node_modules/.pnpm/save-pixels@2.3.6/node_modules/save-pixels/save-pixels.js"(exports2, module2) {
+  "../../node_modules/.pnpm/save-pixels@2.3.6/node_modules/save-pixels/save-pixels.js"(exports2, module2) {
     "use strict";
     var ContentStream = require_contentstream();
     var GifEncoder = require_GIFEncoder();
@@ -8582,9 +8582,9 @@ var require_save_pixels = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/chunkstream.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/chunkstream.js
 var require_chunkstream2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/chunkstream.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/chunkstream.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var Stream3 = require("stream");
@@ -8721,9 +8721,9 @@ var require_chunkstream2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/interlace.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/interlace.js
 var require_interlace2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/interlace.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/interlace.js"(exports2) {
     "use strict";
     var imagePasses = [
       {
@@ -8804,9 +8804,9 @@ var require_interlace2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/paeth-predictor.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/paeth-predictor.js
 var require_paeth_predictor2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/paeth-predictor.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/paeth-predictor.js"(exports2, module2) {
     "use strict";
     module2.exports = function paethPredictor(left, above, upLeft) {
       var paeth = left + above - upLeft;
@@ -8824,9 +8824,9 @@ var require_paeth_predictor2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse.js
 var require_filter_parse2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse.js"(exports2, module2) {
     "use strict";
     var interlaceUtils = require_interlace2();
     var paethPredictor = require_paeth_predictor2();
@@ -8962,9 +8962,9 @@ var require_filter_parse2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-async.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-async.js
 var require_filter_parse_async2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-async.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var ChunkStream = require_chunkstream2();
@@ -8988,9 +8988,9 @@ var require_filter_parse_async2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/constants.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/constants.js
 var require_constants2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/constants.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/constants.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       PNG_SIGNATURE: [137, 80, 78, 71, 13, 10, 26, 10],
@@ -9023,9 +9023,9 @@ var require_constants2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/crc.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/crc.js
 var require_crc2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/crc.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/crc.js"(exports2, module2) {
     "use strict";
     var crcTable4 = [];
     (function() {
@@ -9063,9 +9063,9 @@ var require_crc2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser.js
 var require_parser2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser.js"(exports2, module2) {
     "use strict";
     var constants2 = require_constants2();
     var CrcCalculator = require_crc2();
@@ -9288,9 +9288,9 @@ var require_parser2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitmapper.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitmapper.js
 var require_bitmapper2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitmapper.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitmapper.js"(exports2) {
     "use strict";
     var interlaceUtils = require_interlace2();
     var pixelBppMapper = [
@@ -9521,9 +9521,9 @@ var require_bitmapper2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/format-normaliser.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/format-normaliser.js
 var require_format_normaliser2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/format-normaliser.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/format-normaliser.js"(exports2, module2) {
     "use strict";
     function dePalette(indata, outdata, width, height, palette) {
       var pxPos = 0;
@@ -9600,9 +9600,9 @@ var require_format_normaliser2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-async.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-async.js
 var require_parser_async2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-async.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var zlib2 = require("zlib");
@@ -9726,9 +9726,9 @@ var require_parser_async2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitpacker.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitpacker.js
 var require_bitpacker2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitpacker.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/bitpacker.js"(exports2, module2) {
     "use strict";
     var constants2 = require_constants2();
     module2.exports = function(dataIn, width, height, options) {
@@ -9862,9 +9862,9 @@ var require_bitpacker2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-pack.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-pack.js
 var require_filter_pack2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-pack.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-pack.js"(exports2, module2) {
     "use strict";
     var paethPredictor = require_paeth_predictor2();
     function filterNone(pxData, pxPos, byteWidth, rawData, rawPos) {
@@ -10004,9 +10004,9 @@ var require_filter_pack2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer.js
 var require_packer2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer.js"(exports2, module2) {
     "use strict";
     var constants2 = require_constants2();
     var CrcStream = require_crc2();
@@ -10095,9 +10095,9 @@ var require_packer2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-async.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-async.js
 var require_packer_async2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-async.js"(exports2, module2) {
     "use strict";
     var util = require("util");
     var Stream3 = require("stream");
@@ -10131,9 +10131,9 @@ var require_packer_async2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-inflate.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-inflate.js
 var require_sync_inflate = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-inflate.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-inflate.js"(exports2, module2) {
     "use strict";
     var assert7 = require("assert").ok;
     var zlib2 = require("zlib");
@@ -10265,9 +10265,9 @@ var require_sync_inflate = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-reader.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-reader.js
 var require_sync_reader2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-reader.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/sync-reader.js"(exports2, module2) {
     "use strict";
     var SyncReader = module2.exports = function(buffer) {
       this._buffer = buffer;
@@ -10303,9 +10303,9 @@ var require_sync_reader2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-sync.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-sync.js
 var require_filter_parse_sync2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-sync.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/filter-parse-sync.js"(exports2) {
     "use strict";
     var SyncReader = require_sync_reader2();
     var Filter = require_filter_parse2();
@@ -10327,9 +10327,9 @@ var require_filter_parse_sync2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-sync.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-sync.js
 var require_parser_sync2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-sync.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/parser-sync.js"(exports2, module2) {
     "use strict";
     var hasSyncZlib = true;
     var zlib2 = require("zlib");
@@ -10413,9 +10413,9 @@ var require_parser_sync2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-sync.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-sync.js
 var require_packer_sync2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-sync.js"(exports2, module2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/packer-sync.js"(exports2, module2) {
     "use strict";
     var hasSyncZlib = true;
     var zlib2 = require("zlib");
@@ -10449,9 +10449,9 @@ var require_packer_sync2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png-sync.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png-sync.js
 var require_png_sync2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png-sync.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png-sync.js"(exports2) {
     "use strict";
     var parse33 = require_parser_sync2();
     var pack = require_packer_sync2();
@@ -10464,9 +10464,9 @@ var require_png_sync2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png.js
+// ../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png.js
 var require_png2 = __commonJS({
-  "node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png.js"(exports2) {
+  "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png.js"(exports2) {
     "use strict";
     var util = require("util");
     var Stream3 = require("stream");
@@ -10596,16 +10596,16 @@ var require_png2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/doConvert.js
+// ../../node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/doConvert.js
 var require_doConvert = __commonJS({
-  "node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/doConvert.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/doConvert.js"(exports2, module2) {
     module2.exports = require_compiler()({ "args": ["array", "scalar", "index"], "pre": { "body": "{}", "args": [], "thisVars": [], "localVars": [] }, "body": { "body": "{\nvar _inline_1_v=_inline_1_arg1_,_inline_1_i\nfor(_inline_1_i=0;_inline_1_i<_inline_1_arg2_.length-1;++_inline_1_i) {\n_inline_1_v=_inline_1_v[_inline_1_arg2_[_inline_1_i]]\n}\n_inline_1_arg0_=_inline_1_v[_inline_1_arg2_[_inline_1_arg2_.length-1]]\n}", "args": [{ "name": "_inline_1_arg0_", "lvalue": true, "rvalue": false, "count": 1 }, { "name": "_inline_1_arg1_", "lvalue": false, "rvalue": true, "count": 1 }, { "name": "_inline_1_arg2_", "lvalue": false, "rvalue": true, "count": 4 }], "thisVars": [], "localVars": ["_inline_1_i", "_inline_1_v"] }, "post": { "body": "{}", "args": [], "thisVars": [], "localVars": [] }, "funcName": "convert", "blockSize": 64 });
   }
 });
 
-// node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/convert.js
+// ../../node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/convert.js
 var require_convert = __commonJS({
-  "node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/convert.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ndarray-pack@1.2.1/node_modules/ndarray-pack/convert.js"(exports2, module2) {
     "use strict";
     var ndarray2 = require_ndarray();
     var do_convert = require_doConvert();
@@ -10628,9 +10628,9 @@ var require_convert = __commonJS({
   }
 });
 
-// node_modules/.pnpm/omggif@1.0.10/node_modules/omggif/omggif.js
+// ../../node_modules/.pnpm/omggif@1.0.10/node_modules/omggif/omggif.js
 var require_omggif = __commonJS({
-  "node_modules/.pnpm/omggif@1.0.10/node_modules/omggif/omggif.js"(exports2) {
+  "../../node_modules/.pnpm/omggif@1.0.10/node_modules/omggif/omggif.js"(exports2) {
     "use strict";
     function GifWriter(buf, width, height, gopts) {
       var p2 = 0;
@@ -11203,9 +11203,9 @@ var require_omggif = __commonJS({
   }
 });
 
-// node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/lib/bitmap.js
+// ../../node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/lib/bitmap.js
 var require_bitmap = __commonJS({
-  "node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/lib/bitmap.js"(exports2, module2) {
+  "../../node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/lib/bitmap.js"(exports2, module2) {
     var Bitmap = module2.exports = exports2 = function(buffer) {
       this.buffer = buffer;
       this.initialized = false;
@@ -11782,16 +11782,16 @@ var require_bitmap = __commonJS({
   }
 });
 
-// node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/index.js
+// ../../node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/index.js
 var require_node_bitmap = __commonJS({
-  "node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/node-bitmap@0.0.1/node_modules/node-bitmap/index.js"(exports2, module2) {
     module2.exports = require_bitmap();
   }
 });
 
-// node_modules/.pnpm/extend@3.0.2/node_modules/extend/index.js
+// ../../node_modules/.pnpm/extend@3.0.2/node_modules/extend/index.js
 var require_extend = __commonJS({
-  "node_modules/.pnpm/extend@3.0.2/node_modules/extend/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/extend@3.0.2/node_modules/extend/index.js"(exports2, module2) {
     "use strict";
     var hasOwn = Object.prototype.hasOwnProperty;
     var toStr = Object.prototype.toString;
@@ -11880,9 +11880,9 @@ var require_extend = __commonJS({
   }
 });
 
-// node_modules/.pnpm/psl@1.15.0/node_modules/psl/dist/psl.cjs
+// ../../node_modules/.pnpm/psl@1.15.0/node_modules/psl/dist/psl.cjs
 var require_psl = __commonJS({
-  "node_modules/.pnpm/psl@1.15.0/node_modules/psl/dist/psl.cjs"(exports2) {
+  "../../node_modules/.pnpm/psl@1.15.0/node_modules/psl/dist/psl.cjs"(exports2) {
     "use strict";
     Object.defineProperties(exports2, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
     function K2(e2) {
@@ -12070,9 +12070,9 @@ var require_psl = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pubsuffix-psl.js
+// ../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pubsuffix-psl.js
 var require_pubsuffix_psl = __commonJS({
-  "node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pubsuffix-psl.js"(exports2) {
+  "../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pubsuffix-psl.js"(exports2) {
     "use strict";
     var psl = require_psl();
     function getPublicSuffix(domain) {
@@ -12082,9 +12082,9 @@ var require_pubsuffix_psl = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/store.js
+// ../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/store.js
 var require_store = __commonJS({
-  "node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/store.js"(exports2) {
+  "../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/store.js"(exports2) {
     "use strict";
     function Store() {
     }
@@ -12117,9 +12117,9 @@ var require_store = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/permuteDomain.js
+// ../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/permuteDomain.js
 var require_permuteDomain = __commonJS({
-  "node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/permuteDomain.js"(exports2) {
+  "../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/permuteDomain.js"(exports2) {
     "use strict";
     var pubsuffix = require_pubsuffix_psl();
     function permuteDomain(domain) {
@@ -12144,9 +12144,9 @@ var require_permuteDomain = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pathMatch.js
+// ../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pathMatch.js
 var require_pathMatch = __commonJS({
-  "node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pathMatch.js"(exports2) {
+  "../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/pathMatch.js"(exports2) {
     "use strict";
     function pathMatch(reqPath, cookiePath) {
       if (cookiePath === reqPath) {
@@ -12167,9 +12167,9 @@ var require_pathMatch = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/memstore.js
+// ../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/memstore.js
 var require_memstore = __commonJS({
-  "node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/memstore.js"(exports2) {
+  "../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/memstore.js"(exports2) {
     "use strict";
     var Store = require_store().Store;
     var permuteDomain = require_permuteDomain().permuteDomain;
@@ -12292,16 +12292,16 @@ var require_memstore = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/version.js
+// ../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/version.js
 var require_version = __commonJS({
-  "node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/version.js"(exports2, module2) {
+  "../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/version.js"(exports2, module2) {
     module2.exports = "2.5.0";
   }
 });
 
-// node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/cookie.js
+// ../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/cookie.js
 var require_cookie = __commonJS({
-  "node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/cookie.js"(exports2) {
+  "../../node_modules/.pnpm/tough-cookie@2.5.0/node_modules/tough-cookie/lib/cookie.js"(exports2) {
     "use strict";
     var net = require("net");
     var urlParse = require("url").parse;
@@ -13309,9 +13309,9 @@ var require_cookie = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/cookies.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/cookies.js
 var require_cookies = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/cookies.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/cookies.js"(exports2) {
     "use strict";
     var tough = require_cookie();
     var Cookie = tough.Cookie;
@@ -13347,9 +13347,9 @@ var require_cookies = __commonJS({
   }
 });
 
-// node_modules/.pnpm/json-stringify-safe@5.0.1/node_modules/json-stringify-safe/stringify.js
+// ../../node_modules/.pnpm/json-stringify-safe@5.0.1/node_modules/json-stringify-safe/stringify.js
 var require_stringify = __commonJS({
-  "node_modules/.pnpm/json-stringify-safe@5.0.1/node_modules/json-stringify-safe/stringify.js"(exports2, module2) {
+  "../../node_modules/.pnpm/json-stringify-safe@5.0.1/node_modules/json-stringify-safe/stringify.js"(exports2, module2) {
     exports2 = module2.exports = stringify;
     exports2.getSerialize = serializer;
     function stringify(obj, replacer, spaces, cycleReplacer) {
@@ -13378,9 +13378,9 @@ var require_stringify = __commonJS({
   }
 });
 
-// node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer/index.js
+// ../../node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer/index.js
 var require_safe_buffer = __commonJS({
-  "node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer/index.js"(exports2, module2) {
     var buffer = require("buffer");
     var Buffer2 = buffer.Buffer;
     function copyProps(src, dst) {
@@ -13436,9 +13436,9 @@ var require_safe_buffer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/helpers.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/helpers.js
 var require_helpers = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/helpers.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/helpers.js"(exports2) {
     "use strict";
     var jsonSafeStringify = require_stringify();
     var crypto3 = require("crypto");
@@ -13491,9 +13491,9 @@ var require_helpers = __commonJS({
   }
 });
 
-// node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js
+// ../../node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js
 var require_aws_sign2 = __commonJS({
-  "node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js"(exports2, module2) {
     var crypto3 = require("crypto");
     var parse33 = require("url").parse;
     var keys = [
@@ -13574,9 +13574,9 @@ var require_aws_sign2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/lru.js
+// ../../node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/lru.js
 var require_lru = __commonJS({
-  "node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/lru.js"(exports2, module2) {
+  "../../node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/lru.js"(exports2, module2) {
     module2.exports = function(size) {
       return new LruCache(size);
     };
@@ -13666,9 +13666,9 @@ var require_lru = __commonJS({
   }
 });
 
-// node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/aws4.js
+// ../../node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/aws4.js
 var require_aws4 = __commonJS({
-  "node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/aws4.js"(exports2) {
+  "../../node_modules/.pnpm/aws4@1.13.2/node_modules/aws4/aws4.js"(exports2) {
     var aws4 = exports2;
     var url = require("url");
     var querystring = require("querystring");
@@ -13960,9 +13960,9 @@ var require_aws4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/assert-plus@1.0.0/node_modules/assert-plus/assert.js
+// ../../node_modules/.pnpm/assert-plus@1.0.0/node_modules/assert-plus/assert.js
 var require_assert = __commonJS({
-  "node_modules/.pnpm/assert-plus@1.0.0/node_modules/assert-plus/assert.js"(exports2, module2) {
+  "../../node_modules/.pnpm/assert-plus@1.0.0/node_modules/assert-plus/assert.js"(exports2, module2) {
     var assert7 = require("assert");
     var Stream3 = require("stream").Stream;
     var util = require("util");
@@ -14156,9 +14156,9 @@ var require_assert = __commonJS({
   }
 });
 
-// node_modules/.pnpm/safer-buffer@2.1.2/node_modules/safer-buffer/safer.js
+// ../../node_modules/.pnpm/safer-buffer@2.1.2/node_modules/safer-buffer/safer.js
 var require_safer = __commonJS({
-  "node_modules/.pnpm/safer-buffer@2.1.2/node_modules/safer-buffer/safer.js"(exports2, module2) {
+  "../../node_modules/.pnpm/safer-buffer@2.1.2/node_modules/safer-buffer/safer.js"(exports2, module2) {
     "use strict";
     var buffer = require("buffer");
     var Buffer2 = buffer.Buffer;
@@ -14228,9 +14228,9 @@ var require_safer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/algs.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/algs.js
 var require_algs = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/algs.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/algs.js"(exports2, module2) {
     var Buffer2 = require_safer().Buffer;
     var algInfo = {
       "dsa": {
@@ -14314,9 +14314,9 @@ var require_algs = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/errors.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/errors.js
 var require_errors = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/errors.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/errors.js"(exports2, module2) {
     var assert7 = require_assert();
     var util = require("util");
     function FingerprintFormatError(fp, format) {
@@ -14390,9 +14390,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/errors.js
+// ../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/errors.js
 var require_errors2 = __commonJS({
-  "node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/errors.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/errors.js"(exports2, module2) {
     module2.exports = {
       newInvalidAsn1Error: function(msg) {
         var e2 = new Error();
@@ -14404,9 +14404,9 @@ var require_errors2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/types.js
+// ../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/types.js
 var require_types = __commonJS({
-  "node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/types.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/types.js"(exports2, module2) {
     module2.exports = {
       EOC: 0,
       Boolean: 1,
@@ -14444,9 +14444,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/reader.js
+// ../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/reader.js
 var require_reader = __commonJS({
-  "node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/reader.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/reader.js"(exports2, module2) {
     var assert7 = require("assert");
     var Buffer2 = require_safer().Buffer;
     var ASN1 = require_types();
@@ -14609,9 +14609,9 @@ var require_reader = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/writer.js
+// ../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/writer.js
 var require_writer = __commonJS({
-  "node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/writer.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/writer.js"(exports2, module2) {
     var assert7 = require("assert");
     var Buffer2 = require_safer().Buffer;
     var ASN1 = require_types();
@@ -14852,9 +14852,9 @@ var require_writer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/index.js
+// ../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/index.js
 var require_ber = __commonJS({
-  "node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/ber/index.js"(exports2, module2) {
     var errors = require_errors2();
     var types = require_types();
     var Reader = require_reader();
@@ -14876,9 +14876,9 @@ var require_ber = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/index.js
+// ../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/index.js
 var require_lib = __commonJS({
-  "node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asn1@0.2.6/node_modules/asn1/lib/index.js"(exports2, module2) {
     var Ber = require_ber();
     module2.exports = {
       Ber,
@@ -14888,9 +14888,9 @@ var require_lib = __commonJS({
   }
 });
 
-// node_modules/.pnpm/jsbn@0.1.1/node_modules/jsbn/index.js
+// ../../node_modules/.pnpm/jsbn@0.1.1/node_modules/jsbn/index.js
 var require_jsbn = __commonJS({
-  "node_modules/.pnpm/jsbn@0.1.1/node_modules/jsbn/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/jsbn@0.1.1/node_modules/jsbn/index.js"(exports2, module2) {
     (function() {
       var dbits;
       var canary = 244837814094590;
@@ -16310,9 +16310,9 @@ var require_jsbn = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/ec.js
+// ../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/ec.js
 var require_ec = __commonJS({
-  "node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/ec.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/ec.js"(exports2, module2) {
     var BigInteger = require_jsbn().BigInteger;
     var Barrett = BigInteger.prototype.Barrett;
     function ECFieldElementFp(q3, x2) {
@@ -16724,9 +16724,9 @@ var require_ec = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tweetnacl@0.14.5/node_modules/tweetnacl/nacl-fast.js
+// ../../node_modules/.pnpm/tweetnacl@0.14.5/node_modules/tweetnacl/nacl-fast.js
 var require_nacl_fast = __commonJS({
-  "node_modules/.pnpm/tweetnacl@0.14.5/node_modules/tweetnacl/nacl-fast.js"(exports2, module2) {
+  "../../node_modules/.pnpm/tweetnacl@0.14.5/node_modules/tweetnacl/nacl-fast.js"(exports2, module2) {
     (function(nacl) {
       "use strict";
       var gf = function(init2) {
@@ -19021,9 +19021,9 @@ var require_nacl_fast = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/utils.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/utils.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/utils.js"(exports2, module2) {
     module2.exports = {
       bufferSplit,
       addRSAMissing,
@@ -19387,9 +19387,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ssh-buffer.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ssh-buffer.js
 var require_ssh_buffer = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ssh-buffer.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ssh-buffer.js"(exports2, module2) {
     module2.exports = SSHBuffer;
     var assert7 = require_assert();
     var Buffer2 = require_safer().Buffer;
@@ -19522,9 +19522,9 @@ var require_ssh_buffer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/signature.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/signature.js
 var require_signature = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/signature.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/signature.js"(exports2, module2) {
     module2.exports = Signature;
     var assert7 = require_assert();
     var Buffer2 = require_safer().Buffer;
@@ -19792,9 +19792,9 @@ var require_signature = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/sec.js
+// ../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/sec.js
 var require_sec = __commonJS({
-  "node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/sec.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/sec.js"(exports2, module2) {
     var BigInteger = require_jsbn().BigInteger;
     var ECCurveFp = require_ec().ECCurveFp;
     function X9ECParameters(curve, g2, n2, h3) {
@@ -19904,9 +19904,9 @@ var require_sec = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/index.js
+// ../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/index.js
 var require_ecc_jsbn = __commonJS({
-  "node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/index.js"(exports2) {
+  "../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/index.js"(exports2) {
     var crypto3 = require("crypto");
     var BigInteger = require_jsbn().BigInteger;
     var ECPointFp = require_ec().ECPointFp;
@@ -19951,9 +19951,9 @@ var require_ecc_jsbn = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/dhe.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/dhe.js
 var require_dhe = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/dhe.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/dhe.js"(exports2, module2) {
     module2.exports = {
       DiffieHellman,
       generateECDSA,
@@ -20304,9 +20304,9 @@ var require_dhe = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ed-compat.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ed-compat.js
 var require_ed_compat = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ed-compat.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/ed-compat.js"(exports2, module2) {
     module2.exports = {
       Verifier,
       Signer
@@ -20385,9 +20385,9 @@ var require_ed_compat = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs8.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs8.js
 var require_pkcs8 = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs8.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs8.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       readPkcs8,
@@ -20915,9 +20915,9 @@ var require_pkcs8 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs1.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs1.js
 var require_pkcs1 = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs1.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs1.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       readPkcs1,
@@ -21225,9 +21225,9 @@ var require_pkcs1 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/rfc4253.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/rfc4253.js
 var require_rfc4253 = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/rfc4253.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/rfc4253.js"(exports2, module2) {
     module2.exports = {
       read: read2.bind(void 0, false, void 0),
       readType: read2.bind(void 0, false),
@@ -21367,9 +21367,9 @@ var require_rfc4253 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/bcrypt-pbkdf@1.0.2/node_modules/bcrypt-pbkdf/index.js
+// ../../node_modules/.pnpm/bcrypt-pbkdf@1.0.2/node_modules/bcrypt-pbkdf/index.js
 var require_bcrypt_pbkdf = __commonJS({
-  "node_modules/.pnpm/bcrypt-pbkdf@1.0.2/node_modules/bcrypt-pbkdf/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/bcrypt-pbkdf@1.0.2/node_modules/bcrypt-pbkdf/index.js"(exports2, module2) {
     "use strict";
     var crypto_hash_sha512 = require_nacl_fast().lowlevel.crypto_hash;
     var BLF_J = 0;
@@ -22621,9 +22621,9 @@ var require_bcrypt_pbkdf = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh-private.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh-private.js
 var require_ssh_private = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh-private.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh-private.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       readSSHPrivate,
@@ -22867,9 +22867,9 @@ var require_ssh_private = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pem.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pem.js
 var require_pem = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pem.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pem.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       write
@@ -23127,9 +23127,9 @@ var require_pem = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh.js
 var require_ssh = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       write
@@ -23204,9 +23204,9 @@ var require_ssh = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/dnssec.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/dnssec.js
 var require_dnssec = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/dnssec.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/dnssec.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       write
@@ -23457,9 +23457,9 @@ var require_dnssec = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/putty.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/putty.js
 var require_putty = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/putty.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/putty.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       write
@@ -23638,9 +23638,9 @@ var require_putty = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/auto.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/auto.js
 var require_auto = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/auto.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/auto.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       write
@@ -23741,9 +23741,9 @@ var require_auto = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/private-key.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/private-key.js
 var require_private_key = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/private-key.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/private-key.js"(exports2, module2) {
     module2.exports = PrivateKey;
     var assert7 = require_assert();
     var Buffer2 = require_safer().Buffer;
@@ -23945,9 +23945,9 @@ var require_private_key = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/identity.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/identity.js
 var require_identity = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/identity.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/identity.js"(exports2, module2) {
     module2.exports = Identity;
     var assert7 = require_assert();
     var algs = require_algs();
@@ -24253,9 +24253,9 @@ var require_identity = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/openssh-cert.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/openssh-cert.js
 var require_openssh_cert = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/openssh-cert.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/openssh-cert.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       verify,
@@ -24539,9 +24539,9 @@ var require_openssh_cert = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509.js
 var require_x509 = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509.js"(exports2, module2) {
     module2.exports = {
       read: read2,
       verify,
@@ -25170,9 +25170,9 @@ var require_x509 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509-pem.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509-pem.js
 var require_x509_pem = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509-pem.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509-pem.js"(exports2, module2) {
     var x509 = require_x509();
     module2.exports = {
       read: read2,
@@ -25253,9 +25253,9 @@ var require_x509_pem = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/certificate.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/certificate.js
 var require_certificate = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/certificate.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/certificate.js"(exports2, module2) {
     module2.exports = Certificate;
     var assert7 = require_assert();
     var Buffer2 = require_safer().Buffer;
@@ -25610,9 +25610,9 @@ var require_certificate = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/fingerprint.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/fingerprint.js
 var require_fingerprint = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/fingerprint.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/fingerprint.js"(exports2, module2) {
     module2.exports = Fingerprint;
     var assert7 = require_assert();
     var Buffer2 = require_safer().Buffer;
@@ -25805,9 +25805,9 @@ var require_fingerprint = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/key.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/key.js
 var require_key = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/key.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/key.js"(exports2, module2) {
     module2.exports = Key;
     var assert7 = require_assert();
     var algs = require_algs();
@@ -26044,9 +26044,9 @@ var require_key = __commonJS({
   }
 });
 
-// node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/index.js
+// ../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/index.js
 var require_lib2 = __commonJS({
-  "node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/index.js"(exports2, module2) {
     var Key = require_key();
     var Fingerprint = require_fingerprint();
     var Signature = require_signature();
@@ -26086,9 +26086,9 @@ var require_lib2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/utils.js
+// ../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/utils.js
 var require_utils2 = __commonJS({
-  "node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/utils.js"(exports2, module2) {
+  "../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/utils.js"(exports2, module2) {
     var assert7 = require_assert();
     var sshpk = require_lib2();
     var util = require("util");
@@ -26176,9 +26176,9 @@ var require_utils2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/parser.js
+// ../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/parser.js
 var require_parser3 = __commonJS({
-  "node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/parser.js"(exports2, module2) {
+  "../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/parser.js"(exports2, module2) {
     var assert7 = require_assert();
     var util = require("util");
     var utils = require_utils2();
@@ -26420,9 +26420,9 @@ var require_parser3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/extsprintf@1.3.0/node_modules/extsprintf/lib/extsprintf.js
+// ../../node_modules/.pnpm/extsprintf@1.3.0/node_modules/extsprintf/lib/extsprintf.js
 var require_extsprintf = __commonJS({
-  "node_modules/.pnpm/extsprintf@1.3.0/node_modules/extsprintf/lib/extsprintf.js"(exports2) {
+  "../../node_modules/.pnpm/extsprintf@1.3.0/node_modules/extsprintf/lib/extsprintf.js"(exports2) {
     var mod_assert = require("assert");
     var mod_util = require("util");
     exports2.sprintf = jsSprintf;
@@ -26554,9 +26554,9 @@ var require_extsprintf = __commonJS({
   }
 });
 
-// node_modules/.pnpm/core-util-is@1.0.2/node_modules/core-util-is/lib/util.js
+// ../../node_modules/.pnpm/core-util-is@1.0.2/node_modules/core-util-is/lib/util.js
 var require_util2 = __commonJS({
-  "node_modules/.pnpm/core-util-is@1.0.2/node_modules/core-util-is/lib/util.js"(exports2) {
+  "../../node_modules/.pnpm/core-util-is@1.0.2/node_modules/core-util-is/lib/util.js"(exports2) {
     function isArray3(arg) {
       if (Array.isArray) {
         return Array.isArray(arg);
@@ -26624,9 +26624,9 @@ var require_util2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/verror@1.10.0/node_modules/verror/lib/verror.js
+// ../../node_modules/.pnpm/verror@1.10.0/node_modules/verror/lib/verror.js
 var require_verror = __commonJS({
-  "node_modules/.pnpm/verror@1.10.0/node_modules/verror/lib/verror.js"(exports2, module2) {
+  "../../node_modules/.pnpm/verror@1.10.0/node_modules/verror/lib/verror.js"(exports2, module2) {
     var mod_assertplus = require_assert();
     var mod_util = require("util");
     var mod_extsprintf = require_extsprintf();
@@ -26867,9 +26867,9 @@ var require_verror = __commonJS({
   }
 });
 
-// node_modules/.pnpm/json-schema@0.4.0/node_modules/json-schema/lib/validate.js
+// ../../node_modules/.pnpm/json-schema@0.4.0/node_modules/json-schema/lib/validate.js
 var require_validate = __commonJS({
-  "node_modules/.pnpm/json-schema@0.4.0/node_modules/json-schema/lib/validate.js"(exports2, module2) {
+  "../../node_modules/.pnpm/json-schema@0.4.0/node_modules/json-schema/lib/validate.js"(exports2, module2) {
     (function(root, factory) {
       if (typeof define === "function" && define.amd) {
         define([], function() {
@@ -27089,9 +27089,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/.pnpm/jsprim@1.4.2/node_modules/jsprim/lib/jsprim.js
+// ../../node_modules/.pnpm/jsprim@1.4.2/node_modules/jsprim/lib/jsprim.js
 var require_jsprim = __commonJS({
-  "node_modules/.pnpm/jsprim@1.4.2/node_modules/jsprim/lib/jsprim.js"(exports2) {
+  "../../node_modules/.pnpm/jsprim@1.4.2/node_modules/jsprim/lib/jsprim.js"(exports2) {
     var mod_assert = require_assert();
     var mod_util = require("util");
     var mod_extsprintf = require_extsprintf();
@@ -27578,9 +27578,9 @@ var require_jsprim = __commonJS({
   }
 });
 
-// node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/signer.js
+// ../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/signer.js
 var require_signer = __commonJS({
-  "node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/signer.js"(exports2, module2) {
+  "../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/signer.js"(exports2, module2) {
     var assert7 = require_assert();
     var crypto3 = require("crypto");
     var http2 = require("http");
@@ -27878,9 +27878,9 @@ var require_signer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/verify.js
+// ../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/verify.js
 var require_verify = __commonJS({
-  "node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/verify.js"(exports2, module2) {
+  "../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/verify.js"(exports2, module2) {
     var assert7 = require_assert();
     var crypto3 = require("crypto");
     var sshpk = require_lib2();
@@ -27948,9 +27948,9 @@ var require_verify = __commonJS({
   }
 });
 
-// node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/index.js
+// ../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/index.js
 var require_lib3 = __commonJS({
-  "node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/index.js"(exports2, module2) {
     var parser = require_parser3();
     var signer = require_signer();
     var verify = require_verify();
@@ -27972,9 +27972,9 @@ var require_lib3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/db.json
+// ../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/db.json
 var require_db = __commonJS({
-  "node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/db.json"(exports2, module2) {
+  "../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/db.json"(exports2, module2) {
     module2.exports = {
       "application/1d-interleaved-parityfec": {
         source: "iana"
@@ -36497,16 +36497,16 @@ var require_db = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/index.js
+// ../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/index.js
 var require_mime_db = __commonJS({
-  "node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/index.js"(exports2, module2) {
     module2.exports = require_db();
   }
 });
 
-// node_modules/.pnpm/mime-types@2.1.35/node_modules/mime-types/index.js
+// ../../node_modules/.pnpm/mime-types@2.1.35/node_modules/mime-types/index.js
 var require_mime_types = __commonJS({
-  "node_modules/.pnpm/mime-types@2.1.35/node_modules/mime-types/index.js"(exports2) {
+  "../../node_modules/.pnpm/mime-types@2.1.35/node_modules/mime-types/index.js"(exports2) {
     "use strict";
     var db = require_mime_db();
     var extname = require("path").extname;
@@ -36595,9 +36595,9 @@ var require_mime_types = __commonJS({
   }
 });
 
-// node_modules/.pnpm/caseless@0.12.0/node_modules/caseless/index.js
+// ../../node_modules/.pnpm/caseless@0.12.0/node_modules/caseless/index.js
 var require_caseless = __commonJS({
-  "node_modules/.pnpm/caseless@0.12.0/node_modules/caseless/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/caseless@0.12.0/node_modules/caseless/index.js"(exports2, module2) {
     function Caseless(dict) {
       this.dict = dict || {};
     }
@@ -36674,9 +36674,9 @@ var require_caseless = __commonJS({
   }
 });
 
-// node_modules/.pnpm/forever-agent@0.6.1/node_modules/forever-agent/index.js
+// ../../node_modules/.pnpm/forever-agent@0.6.1/node_modules/forever-agent/index.js
 var require_forever_agent = __commonJS({
-  "node_modules/.pnpm/forever-agent@0.6.1/node_modules/forever-agent/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/forever-agent@0.6.1/node_modules/forever-agent/index.js"(exports2, module2) {
     module2.exports = ForeverAgent;
     ForeverAgent.SSL = ForeverAgentSSL;
     var util = require("util");
@@ -36790,9 +36790,9 @@ var require_forever_agent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/delayed-stream@1.0.0/node_modules/delayed-stream/lib/delayed_stream.js
+// ../../node_modules/.pnpm/delayed-stream@1.0.0/node_modules/delayed-stream/lib/delayed_stream.js
 var require_delayed_stream = __commonJS({
-  "node_modules/.pnpm/delayed-stream@1.0.0/node_modules/delayed-stream/lib/delayed_stream.js"(exports2, module2) {
+  "../../node_modules/.pnpm/delayed-stream@1.0.0/node_modules/delayed-stream/lib/delayed_stream.js"(exports2, module2) {
     var Stream3 = require("stream").Stream;
     var util = require("util");
     module2.exports = DelayedStream;
@@ -36881,9 +36881,9 @@ var require_delayed_stream = __commonJS({
   }
 });
 
-// node_modules/.pnpm/combined-stream@1.0.8/node_modules/combined-stream/lib/combined_stream.js
+// ../../node_modules/.pnpm/combined-stream@1.0.8/node_modules/combined-stream/lib/combined_stream.js
 var require_combined_stream = __commonJS({
-  "node_modules/.pnpm/combined-stream@1.0.8/node_modules/combined-stream/lib/combined_stream.js"(exports2, module2) {
+  "../../node_modules/.pnpm/combined-stream@1.0.8/node_modules/combined-stream/lib/combined_stream.js"(exports2, module2) {
     var util = require("util");
     var Stream3 = require("stream").Stream;
     var DelayedStream = require_delayed_stream();
@@ -37052,9 +37052,9 @@ var require_combined_stream = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/defer.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/defer.js
 var require_defer = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/defer.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/defer.js"(exports2, module2) {
     module2.exports = defer;
     function defer(fn) {
       var nextTick = typeof setImmediate == "function" ? setImmediate : typeof process == "object" && typeof process.nextTick == "function" ? process.nextTick : null;
@@ -37067,9 +37067,9 @@ var require_defer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/async.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/async.js
 var require_async = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/async.js"(exports2, module2) {
     var defer = require_defer();
     module2.exports = async;
     function async(callback) {
@@ -37090,9 +37090,9 @@ var require_async = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/abort.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/abort.js
 var require_abort = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/abort.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/abort.js"(exports2, module2) {
     module2.exports = abort;
     function abort(state) {
       Object.keys(state.jobs).forEach(clean2.bind(state));
@@ -37106,9 +37106,9 @@ var require_abort = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/iterate.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/iterate.js
 var require_iterate = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/iterate.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/iterate.js"(exports2, module2) {
     var async = require_async();
     var abort = require_abort();
     module2.exports = iterate;
@@ -37139,9 +37139,9 @@ var require_iterate = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/state.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/state.js
 var require_state = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/state.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/state.js"(exports2, module2) {
     module2.exports = state;
     function state(list, sortMethod) {
       var isNamedList = !Array.isArray(list), initState = {
@@ -37161,9 +37161,9 @@ var require_state = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/terminator.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/terminator.js
 var require_terminator = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/terminator.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/terminator.js"(exports2, module2) {
     var abort = require_abort();
     var async = require_async();
     module2.exports = terminator;
@@ -37178,9 +37178,9 @@ var require_terminator = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/parallel.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/parallel.js
 var require_parallel = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/parallel.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/parallel.js"(exports2, module2) {
     var iterate = require_iterate();
     var initState = require_state();
     var terminator = require_terminator();
@@ -37205,9 +37205,9 @@ var require_parallel = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serialOrdered.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serialOrdered.js
 var require_serialOrdered = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serialOrdered.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serialOrdered.js"(exports2, module2) {
     var iterate = require_iterate();
     var initState = require_state();
     var terminator = require_terminator();
@@ -37239,9 +37239,9 @@ var require_serialOrdered = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serial.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serial.js
 var require_serial = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serial.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serial.js"(exports2, module2) {
     var serialOrdered = require_serialOrdered();
     module2.exports = serial;
     function serial(list, iterator, callback) {
@@ -37250,9 +37250,9 @@ var require_serial = __commonJS({
   }
 });
 
-// node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/index.js
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/index.js
 var require_asynckit = __commonJS({
-  "node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/index.js"(exports2, module2) {
     module2.exports = {
       parallel: require_parallel(),
       serial: require_serial(),
@@ -37261,9 +37261,9 @@ var require_asynckit = __commonJS({
   }
 });
 
-// node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/populate.js
+// ../../node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/populate.js
 var require_populate = __commonJS({
-  "node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/populate.js"(exports2, module2) {
+  "../../node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/populate.js"(exports2, module2) {
     module2.exports = function(dst, src) {
       Object.keys(src).forEach(function(prop2) {
         dst[prop2] = dst[prop2] || src[prop2];
@@ -37273,9 +37273,9 @@ var require_populate = __commonJS({
   }
 });
 
-// node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/form_data.js
+// ../../node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/form_data.js
 var require_form_data = __commonJS({
-  "node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/form_data.js"(exports2, module2) {
+  "../../node_modules/.pnpm/form-data@2.3.3/node_modules/form-data/lib/form_data.js"(exports2, module2) {
     var CombinedStream = require_combined_stream();
     var util = require("util");
     var path2 = require("path");
@@ -37558,9 +37558,9 @@ var require_form_data = __commonJS({
   }
 });
 
-// node_modules/.pnpm/isstream@0.1.2/node_modules/isstream/isstream.js
+// ../../node_modules/.pnpm/isstream@0.1.2/node_modules/isstream/isstream.js
 var require_isstream = __commonJS({
-  "node_modules/.pnpm/isstream@0.1.2/node_modules/isstream/isstream.js"(exports2, module2) {
+  "../../node_modules/.pnpm/isstream@0.1.2/node_modules/isstream/isstream.js"(exports2, module2) {
     var stream2 = require("stream");
     function isStream(obj) {
       return obj instanceof stream2.Stream;
@@ -37581,9 +37581,9 @@ var require_isstream = __commonJS({
   }
 });
 
-// node_modules/.pnpm/is-typedarray@1.0.0/node_modules/is-typedarray/index.js
+// ../../node_modules/.pnpm/is-typedarray@1.0.0/node_modules/is-typedarray/index.js
 var require_is_typedarray = __commonJS({
-  "node_modules/.pnpm/is-typedarray@1.0.0/node_modules/is-typedarray/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/is-typedarray@1.0.0/node_modules/is-typedarray/index.js"(exports2, module2) {
     module2.exports = isTypedArray;
     isTypedArray.strict = isStrictTypedArray;
     isTypedArray.loose = isLooseTypedArray;
@@ -37611,9 +37611,9 @@ var require_is_typedarray = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/getProxyFromURI.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/getProxyFromURI.js
 var require_getProxyFromURI = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/getProxyFromURI.js"(exports2, module2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/getProxyFromURI.js"(exports2, module2) {
     "use strict";
     function formatHostname(hostname) {
       return hostname.replace(/^\.*/, ".").toLowerCase();
@@ -37659,9 +37659,9 @@ var require_getProxyFromURI = __commonJS({
   }
 });
 
-// node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/utils.js
+// ../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/utils.js
 var require_utils3 = __commonJS({
-  "node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/utils.js"(exports2, module2) {
+  "../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/utils.js"(exports2, module2) {
     "use strict";
     var has = Object.prototype.hasOwnProperty;
     var hexTable = function() {
@@ -37828,9 +37828,9 @@ var require_utils3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/formats.js
+// ../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/formats.js
 var require_formats = __commonJS({
-  "node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/formats.js"(exports2, module2) {
+  "../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/formats.js"(exports2, module2) {
     "use strict";
     var replace = String.prototype.replace;
     var percentTwenties = /%20/g;
@@ -37850,9 +37850,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/stringify.js
+// ../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/stringify.js
 var require_stringify2 = __commonJS({
-  "node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/stringify.js"(exports2, module2) {
+  "../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/stringify.js"(exports2, module2) {
     "use strict";
     var utils = require_utils3();
     var formats2 = require_formats();
@@ -38030,9 +38030,9 @@ var require_stringify2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/parse.js
+// ../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/parse.js
 var require_parse = __commonJS({
-  "node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/parse.js"(exports2, module2) {
+  "../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/parse.js"(exports2, module2) {
     "use strict";
     var utils = require_utils3();
     var has = Object.prototype.hasOwnProperty;
@@ -38161,9 +38161,9 @@ var require_parse = __commonJS({
   }
 });
 
-// node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/index.js
+// ../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/index.js
 var require_lib4 = __commonJS({
-  "node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/index.js"(exports2, module2) {
     "use strict";
     var stringify = require_stringify2();
     var parse33 = require_parse();
@@ -38176,9 +38176,9 @@ var require_lib4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/querystring.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/querystring.js
 var require_querystring = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/querystring.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/querystring.js"(exports2) {
     "use strict";
     var qs = require_lib4();
     var querystring = require("querystring");
@@ -38224,9 +38224,9 @@ var require_querystring = __commonJS({
   }
 });
 
-// node_modules/.pnpm/uri-js@4.4.1/node_modules/uri-js/dist/es5/uri.all.js
+// ../../node_modules/.pnpm/uri-js@4.4.1/node_modules/uri-js/dist/es5/uri.all.js
 var require_uri_all = __commonJS({
-  "node_modules/.pnpm/uri-js@4.4.1/node_modules/uri-js/dist/es5/uri.all.js"(exports2, module2) {
+  "../../node_modules/.pnpm/uri-js@4.4.1/node_modules/uri-js/dist/es5/uri.all.js"(exports2, module2) {
     (function(global2, factory) {
       typeof exports2 === "object" && typeof module2 !== "undefined" ? factory(exports2) : typeof define === "function" && define.amd ? define(["exports"], factory) : factory(global2.URI = global2.URI || {});
     })(exports2, function(exports3) {
@@ -39260,9 +39260,9 @@ var require_uri_all = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js
+// ../../node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js"(exports2, module2) {
     "use strict";
     module2.exports = function equal(a3, b5) {
       if (a3 === b5)
@@ -39305,9 +39305,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/ucs2length.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/ucs2length.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/ucs2length.js"(exports2, module2) {
     "use strict";
     module2.exports = function ucs2length(str) {
       var length2 = 0, len = str.length, pos = 0, value;
@@ -39325,9 +39325,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/util.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/util.js
 var require_util3 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/util.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/util.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       copy,
@@ -39531,9 +39531,9 @@ var require_util3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/schema_obj.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/schema_obj.js
 var require_schema_obj = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/schema_obj.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/schema_obj.js"(exports2, module2) {
     "use strict";
     var util = require_util3();
     module2.exports = SchemaObject;
@@ -39543,9 +39543,9 @@ var require_schema_obj = __commonJS({
   }
 });
 
-// node_modules/.pnpm/json-schema-traverse@0.4.1/node_modules/json-schema-traverse/index.js
+// ../../node_modules/.pnpm/json-schema-traverse@0.4.1/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/.pnpm/json-schema-traverse@0.4.1/node_modules/json-schema-traverse/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/json-schema-traverse@0.4.1/node_modules/json-schema-traverse/index.js"(exports2, module2) {
     "use strict";
     var traverse = module2.exports = function(schema, opts, cb2) {
       if (typeof opts == "function") {
@@ -39627,9 +39627,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/resolve.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/resolve.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/resolve.js"(exports2, module2) {
     "use strict";
     var URI = require_uri_all();
     var equal = require_fast_deep_equal();
@@ -39871,9 +39871,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/error_classes.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/error_classes.js
 var require_error_classes = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/error_classes.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/error_classes.js"(exports2, module2) {
     "use strict";
     var resolve3 = require_resolve();
     module2.exports = {
@@ -39901,9 +39901,9 @@ var require_error_classes = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-json-stable-stringify@2.1.0/node_modules/fast-json-stable-stringify/index.js
+// ../../node_modules/.pnpm/fast-json-stable-stringify@2.1.0/node_modules/fast-json-stable-stringify/index.js
 var require_fast_json_stable_stringify = __commonJS({
-  "node_modules/.pnpm/fast-json-stable-stringify@2.1.0/node_modules/fast-json-stable-stringify/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/fast-json-stable-stringify@2.1.0/node_modules/fast-json-stable-stringify/index.js"(exports2, module2) {
     "use strict";
     module2.exports = function(data, opts) {
       if (!opts)
@@ -39967,9 +39967,9 @@ var require_fast_json_stable_stringify = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/validate.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/validate.js
 var require_validate2 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/validate.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/validate.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_validate(it2, $keyword, $ruleType) {
       var out = "";
@@ -40438,9 +40438,9 @@ var require_validate2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/index.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/index.js
 var require_compile2 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/index.js"(exports2, module2) {
     "use strict";
     var resolve3 = require_resolve();
     var util = require_util3();
@@ -40730,9 +40730,9 @@ var require_compile2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/cache.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/cache.js
 var require_cache = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/cache.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/cache.js"(exports2, module2) {
     "use strict";
     var Cache = module2.exports = function Cache2() {
       this._cache = {};
@@ -40752,9 +40752,9 @@ var require_cache = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/formats.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/formats.js
 var require_formats2 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/formats.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/formats.js"(exports2, module2) {
     "use strict";
     var util = require_util3();
     var DATE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
@@ -40867,9 +40867,9 @@ var require_formats2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/ref.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/ref.js
 var require_ref = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/ref.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/ref.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_ref(it2, $keyword, $ruleType) {
       var out = " ";
@@ -40996,9 +40996,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/allOf.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/allOf.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/allOf.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_allOf(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41042,9 +41042,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/anyOf.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/anyOf.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/anyOf.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_anyOf(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41119,9 +41119,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/comment.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/comment.js
 var require_comment = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/comment.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/comment.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_comment(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41139,9 +41139,9 @@ var require_comment = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/const.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/const.js
 var require_const = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/const.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/const.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_const(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41199,9 +41199,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/contains.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/contains.js
 var require_contains = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/contains.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/contains.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_contains(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41281,9 +41281,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/dependencies.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/dependencies.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/dependencies.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_dependencies(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41447,9 +41447,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/enum.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/enum.js
 var require_enum = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/enum.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/enum.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_enum(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41516,9 +41516,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/format.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/format.js
 var require_format = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/format.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/format.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_format(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41669,9 +41669,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/if.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/if.js
 var require_if = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/if.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/if.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_if(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41773,9 +41773,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/items.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/items.js
 var require_items = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/items.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/items.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_items(it2, $keyword, $ruleType) {
       var out = " ";
@@ -41914,9 +41914,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limit.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limit.js
 var require_limit = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limit.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limit.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate__limit(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42069,9 +42069,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitItems.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitItems.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitItems.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate__limitItems(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42153,9 +42153,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitLength.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitLength.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitLength.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate__limitLength(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42242,9 +42242,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitProperties.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitProperties.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/_limitProperties.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate__limitProperties(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42326,9 +42326,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/multipleOf.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/multipleOf.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/multipleOf.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_multipleOf(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42410,9 +42410,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/not.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/not.js
 var require_not = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/not.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/not.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_not(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42500,9 +42500,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/oneOf.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/oneOf.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/oneOf.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_oneOf(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42575,9 +42575,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/pattern.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/pattern.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/pattern.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_pattern(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42654,9 +42654,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/properties.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/properties.js
 var require_properties = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/properties.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/properties.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_properties(it2, $keyword, $ruleType) {
       var out = " ";
@@ -42970,9 +42970,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/propertyNames.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/propertyNames.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/propertyNames.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_propertyNames(it2, $keyword, $ruleType) {
       var out = " ";
@@ -43048,9 +43048,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/required.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/required.js
 var require_required = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/required.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/required.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_required(it2, $keyword, $ruleType) {
       var out = " ";
@@ -43308,9 +43308,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/uniqueItems.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/uniqueItems.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/uniqueItems.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_uniqueItems(it2, $keyword, $ruleType) {
       var out = " ";
@@ -43397,9 +43397,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/index.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/index.js
 var require_dotjs = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/index.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       "$ref": require_ref(),
@@ -43434,9 +43434,9 @@ var require_dotjs = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/rules.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/rules.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/rules.js"(exports2, module2) {
     "use strict";
     var ruleModules = require_dotjs();
     var toHash = require_util3().toHash;
@@ -43529,9 +43529,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/data.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/data.js
 var require_data = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/data.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/data.js"(exports2, module2) {
     "use strict";
     var KEYWORDS = [
       "multipleOf",
@@ -43580,9 +43580,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/async.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/async.js
 var require_async2 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/async.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/compile/async.js"(exports2, module2) {
     "use strict";
     var MissingRefError = require_error_classes().MissingRef;
     module2.exports = compileAsync;
@@ -43650,9 +43650,9 @@ var require_async2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/custom.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/custom.js
 var require_custom = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/custom.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/dotjs/custom.js"(exports2, module2) {
     "use strict";
     module2.exports = function generate_custom(it2, $keyword, $ruleType) {
       var out = " ";
@@ -43876,9 +43876,9 @@ var require_custom = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-07.json
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-07.json"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-07.json"(exports2, module2) {
     module2.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -44050,9 +44050,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/definition_schema.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/definition_schema.js
 var require_definition_schema = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/definition_schema.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/definition_schema.js"(exports2, module2) {
     "use strict";
     var metaSchema = require_json_schema_draft_07();
     module2.exports = {
@@ -44091,9 +44091,9 @@ var require_definition_schema = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/keyword.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/keyword.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/keyword.js"(exports2, module2) {
     "use strict";
     var IDENTIFIER = /^[a-z_$][a-z0-9_$-]*$/i;
     var customRuleCode = require_custom();
@@ -44192,9 +44192,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/data.json
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/data.json
 var require_data2 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/data.json"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/data.json"(exports2, module2) {
     module2.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
@@ -44215,9 +44215,9 @@ var require_data2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/ajv.js
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/ajv.js"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/ajv.js"(exports2, module2) {
     "use strict";
     var compileSchema = require_compile2();
     var resolve3 = require_resolve();
@@ -44597,9 +44597,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/error.js
+// ../../node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/error.js
 var require_error = __commonJS({
-  "node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/error.js"(exports2, module2) {
+  "../../node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/error.js"(exports2, module2) {
     function HARError(errors) {
       var message = "validation failed";
       this.name = "HARError";
@@ -44616,9 +44616,9 @@ var require_error = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/afterRequest.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/afterRequest.json
 var require_afterRequest = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/afterRequest.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/afterRequest.json"(exports2, module2) {
     module2.exports = {
       $id: "afterRequest.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44652,9 +44652,9 @@ var require_afterRequest = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/beforeRequest.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/beforeRequest.json
 var require_beforeRequest = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/beforeRequest.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/beforeRequest.json"(exports2, module2) {
     module2.exports = {
       $id: "beforeRequest.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44688,9 +44688,9 @@ var require_beforeRequest = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/browser.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/browser.json
 var require_browser = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/browser.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/browser.json"(exports2, module2) {
     module2.exports = {
       $id: "browser.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44714,9 +44714,9 @@ var require_browser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cache.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cache.json
 var require_cache2 = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cache.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cache.json"(exports2, module2) {
     module2.exports = {
       $id: "cache.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44741,9 +44741,9 @@ var require_cache2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/content.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/content.json
 var require_content = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/content.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/content.json"(exports2, module2) {
     module2.exports = {
       $id: "content.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44776,9 +44776,9 @@ var require_content = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cookie.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cookie.json
 var require_cookie2 = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cookie.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/cookie.json"(exports2, module2) {
     module2.exports = {
       $id: "cookie.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44818,9 +44818,9 @@ var require_cookie2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/creator.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/creator.json
 var require_creator = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/creator.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/creator.json"(exports2, module2) {
     module2.exports = {
       $id: "creator.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44844,9 +44844,9 @@ var require_creator = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/entry.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/entry.json
 var require_entry = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/entry.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/entry.json"(exports2, module2) {
     module2.exports = {
       $id: "entry.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44903,9 +44903,9 @@ var require_entry = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/har.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/har.json
 var require_har = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/har.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/har.json"(exports2, module2) {
     module2.exports = {
       $id: "har.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44922,9 +44922,9 @@ var require_har = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/header.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/header.json
 var require_header = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/header.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/header.json"(exports2, module2) {
     module2.exports = {
       $id: "header.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44948,9 +44948,9 @@ var require_header = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/log.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/log.json
 var require_log = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/log.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/log.json"(exports2, module2) {
     module2.exports = {
       $id: "log.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -44990,9 +44990,9 @@ var require_log = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/page.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/page.json
 var require_page = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/page.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/page.json"(exports2, module2) {
     module2.exports = {
       $id: "page.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -45028,9 +45028,9 @@ var require_page = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/pageTimings.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/pageTimings.json
 var require_pageTimings = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/pageTimings.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/pageTimings.json"(exports2, module2) {
     module2.exports = {
       $id: "pageTimings.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -45052,9 +45052,9 @@ var require_pageTimings = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/postData.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/postData.json
 var require_postData = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/postData.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/postData.json"(exports2, module2) {
     module2.exports = {
       $id: "postData.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -45101,9 +45101,9 @@ var require_postData = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/query.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/query.json
 var require_query = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/query.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/query.json"(exports2, module2) {
     module2.exports = {
       $id: "query.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -45127,9 +45127,9 @@ var require_query = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/request.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/request.json
 var require_request = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/request.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/request.json"(exports2, module2) {
     module2.exports = {
       $id: "request.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -45190,9 +45190,9 @@ var require_request = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/response.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/response.json
 var require_response = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/response.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/response.json"(exports2, module2) {
     module2.exports = {
       $id: "response.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -45250,9 +45250,9 @@ var require_response = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/timings.json
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/timings.json
 var require_timings = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/timings.json"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/timings.json"(exports2, module2) {
     module2.exports = {
       $id: "timings.json#",
       $schema: "http://json-schema.org/draft-06/schema#",
@@ -45298,9 +45298,9 @@ var require_timings = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/index.js
+// ../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/index.js
 var require_lib5 = __commonJS({
-  "node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/har-schema@2.0.0/node_modules/har-schema/lib/index.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       afterRequest: require_afterRequest(),
@@ -45325,9 +45325,9 @@ var require_lib5 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-06.json
+// ../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-06.json
 var require_json_schema_draft_06 = __commonJS({
-  "node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-06.json"(exports2, module2) {
+  "../../node_modules/.pnpm/ajv@6.12.6/node_modules/ajv/lib/refs/json-schema-draft-06.json"(exports2, module2) {
     module2.exports = {
       $schema: "http://json-schema.org/draft-06/schema#",
       $id: "http://json-schema.org/draft-06/schema#",
@@ -45485,9 +45485,9 @@ var require_json_schema_draft_06 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/promise.js
+// ../../node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/promise.js
 var require_promise = __commonJS({
-  "node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/promise.js"(exports2) {
+  "../../node_modules/.pnpm/har-validator@5.1.5/node_modules/har-validator/lib/promise.js"(exports2) {
     var Ajv = require_ajv();
     var HARError = require_error();
     var schemas = require_lib5();
@@ -45566,9 +45566,9 @@ var require_promise = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/har.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/har.js
 var require_har2 = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/har.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/har.js"(exports2) {
     "use strict";
     var fs4 = require("fs");
     var qs = require("querystring");
@@ -45727,9 +45727,9 @@ var require_har2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/rng.js
+// ../../node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/rng.js
 var require_rng = __commonJS({
-  "node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/rng.js"(exports2, module2) {
+  "../../node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/rng.js"(exports2, module2) {
     var crypto3 = require("crypto");
     module2.exports = function nodeRNG() {
       return crypto3.randomBytes(16);
@@ -45737,9 +45737,9 @@ var require_rng = __commonJS({
   }
 });
 
-// node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/bytesToUuid.js
+// ../../node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/bytesToUuid.js
 var require_bytesToUuid = __commonJS({
-  "node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/bytesToUuid.js"(exports2, module2) {
+  "../../node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/bytesToUuid.js"(exports2, module2) {
     var byteToHex = [];
     for (i2 = 0; i2 < 256; ++i2) {
       byteToHex[i2] = (i2 + 256).toString(16).substr(1);
@@ -45775,9 +45775,9 @@ var require_bytesToUuid = __commonJS({
   }
 });
 
-// node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/v4.js
+// ../../node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/v4.js
 var require_v4 = __commonJS({
-  "node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/v4.js"(exports2, module2) {
+  "../../node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/v4.js"(exports2, module2) {
     var rng = require_rng();
     var bytesToUuid = require_bytesToUuid();
     function v4(options, buf, offset) {
@@ -45801,9 +45801,9 @@ var require_v4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/auth.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/auth.js
 var require_auth = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/auth.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/auth.js"(exports2) {
     "use strict";
     var caseless = require_caseless();
     var uuid3 = require_v4();
@@ -45935,9 +45935,9 @@ var require_auth = __commonJS({
   }
 });
 
-// node_modules/.pnpm/oauth-sign@0.9.0/node_modules/oauth-sign/index.js
+// ../../node_modules/.pnpm/oauth-sign@0.9.0/node_modules/oauth-sign/index.js
 var require_oauth_sign = __commonJS({
-  "node_modules/.pnpm/oauth-sign@0.9.0/node_modules/oauth-sign/index.js"(exports2) {
+  "../../node_modules/.pnpm/oauth-sign@0.9.0/node_modules/oauth-sign/index.js"(exports2) {
     var crypto3 = require("crypto");
     function sha(key, body, algorithm) {
       return crypto3.createHmac(algorithm, key).update(body).digest("base64");
@@ -46041,9 +46041,9 @@ var require_oauth_sign = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/oauth.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/oauth.js
 var require_oauth = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/oauth.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/oauth.js"(exports2) {
     "use strict";
     var url = require("url");
     var qs = require_lib4();
@@ -46167,9 +46167,9 @@ var require_oauth = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/hawk.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/hawk.js
 var require_hawk = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/hawk.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/hawk.js"(exports2) {
     "use strict";
     var crypto3 = require("crypto");
     function randomString(size) {
@@ -46234,9 +46234,9 @@ var require_hawk = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/multipart.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/multipart.js
 var require_multipart = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/multipart.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/multipart.js"(exports2) {
     "use strict";
     var uuid3 = require_v4();
     var CombinedStream = require_combined_stream();
@@ -46332,9 +46332,9 @@ var require_multipart = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/redirect.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/redirect.js
 var require_redirect = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/redirect.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/redirect.js"(exports2) {
     "use strict";
     var url = require("url");
     var isUrl = /^https?:/;
@@ -46460,9 +46460,9 @@ var require_redirect = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tunnel-agent@0.6.0/node_modules/tunnel-agent/index.js
+// ../../node_modules/.pnpm/tunnel-agent@0.6.0/node_modules/tunnel-agent/index.js
 var require_tunnel_agent = __commonJS({
-  "node_modules/.pnpm/tunnel-agent@0.6.0/node_modules/tunnel-agent/index.js"(exports2) {
+  "../../node_modules/.pnpm/tunnel-agent@0.6.0/node_modules/tunnel-agent/index.js"(exports2) {
     "use strict";
     var net = require("net");
     var tls = require("tls");
@@ -46671,9 +46671,9 @@ var require_tunnel_agent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/lib/tunnel.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/tunnel.js
 var require_tunnel = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/lib/tunnel.js"(exports2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/tunnel.js"(exports2) {
     "use strict";
     var url = require("url");
     var tunnel = require_tunnel_agent();
@@ -46812,9 +46812,9 @@ var require_tunnel = __commonJS({
   }
 });
 
-// node_modules/.pnpm/performance-now@2.1.0/node_modules/performance-now/lib/performance-now.js
+// ../../node_modules/.pnpm/performance-now@2.1.0/node_modules/performance-now/lib/performance-now.js
 var require_performance_now = __commonJS({
-  "node_modules/.pnpm/performance-now@2.1.0/node_modules/performance-now/lib/performance-now.js"(exports2, module2) {
+  "../../node_modules/.pnpm/performance-now@2.1.0/node_modules/performance-now/lib/performance-now.js"(exports2, module2) {
     (function() {
       var getNanoSeconds, hrtime, loadTime, moduleLoadTime, nodeLoadTime, upTime;
       if (typeof performance !== "undefined" && performance !== null && performance.now) {
@@ -46849,9 +46849,9 @@ var require_performance_now = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/request.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/request.js
 var require_request2 = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/request.js"(exports2, module2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/request.js"(exports2, module2) {
     "use strict";
     var http2 = require("http");
     var https2 = require("https");
@@ -48095,9 +48095,9 @@ var require_request2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/request@2.88.2/node_modules/request/index.js
+// ../../node_modules/.pnpm/request@2.88.2/node_modules/request/index.js
 var require_request3 = __commonJS({
-  "node_modules/.pnpm/request@2.88.2/node_modules/request/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/request@2.88.2/node_modules/request/index.js"(exports2, module2) {
     "use strict";
     var extend = require_extend();
     var cookies = require_cookies();
@@ -48208,9 +48208,9 @@ var require_request3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/data-uri-to-buffer@0.0.3/node_modules/data-uri-to-buffer/index.js
+// ../../node_modules/.pnpm/data-uri-to-buffer@0.0.3/node_modules/data-uri-to-buffer/index.js
 var require_data_uri_to_buffer = __commonJS({
-  "node_modules/.pnpm/data-uri-to-buffer@0.0.3/node_modules/data-uri-to-buffer/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/data-uri-to-buffer@0.0.3/node_modules/data-uri-to-buffer/index.js"(exports2, module2) {
     module2.exports = dataUriToBuffer;
     function dataUriToBuffer(uri) {
       if (!/^data\:/i.test(uri)) {
@@ -48240,9 +48240,9 @@ var require_data_uri_to_buffer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/parse-data-uri@0.2.0/node_modules/parse-data-uri/index.js
+// ../../node_modules/.pnpm/parse-data-uri@0.2.0/node_modules/parse-data-uri/index.js
 var require_parse_data_uri = __commonJS({
-  "node_modules/.pnpm/parse-data-uri@0.2.0/node_modules/parse-data-uri/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/parse-data-uri@0.2.0/node_modules/parse-data-uri/index.js"(exports2, module2) {
     var toBuffer3 = require_data_uri_to_buffer();
     function parseDataUri(dataUri) {
       return {
@@ -48266,9 +48266,9 @@ var require_parse_data_uri = __commonJS({
   }
 });
 
-// node_modules/.pnpm/get-pixels@3.3.3/node_modules/get-pixels/node-pixels.js
+// ../../node_modules/.pnpm/get-pixels@3.3.3/node_modules/get-pixels/node-pixels.js
 var require_node_pixels = __commonJS({
-  "node_modules/.pnpm/get-pixels@3.3.3/node_modules/get-pixels/node-pixels.js"(exports2, module2) {
+  "../../node_modules/.pnpm/get-pixels@3.3.3/node_modules/get-pixels/node-pixels.js"(exports2, module2) {
     "use strict";
     var ndarray2 = require_ndarray();
     var path2 = require("path");
@@ -48454,9 +48454,9 @@ var require_node_pixels = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherWrapper.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherWrapper.js
 var require_DispatcherWrapper = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherWrapper.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherWrapper.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.DispatcherWrapper = void 0;
@@ -48571,9 +48571,9 @@ var require_DispatcherWrapper = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/Subscription.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/Subscription.js
 var require_Subscription = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/Subscription.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/Subscription.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.Subscription = void 0;
@@ -48614,9 +48614,9 @@ var require_Subscription = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/management/EventManagement.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/management/EventManagement.js
 var require_EventManagement = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/management/EventManagement.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/management/EventManagement.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.EventManagement = void 0;
@@ -48645,9 +48645,9 @@ var require_EventManagement = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherBase.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherBase.js
 var require_DispatcherBase = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatcherBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SubscriptionChangeEventDispatcher = exports2.DispatcherBase = void 0;
@@ -48887,9 +48887,9 @@ var require_DispatcherBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatchError.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatchError.js
 var require_DispatchError = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatchError.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/DispatchError.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.DispatchError = void 0;
@@ -48908,9 +48908,9 @@ var require_DispatchError = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/EventListBase.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/EventListBase.js
 var require_EventListBase = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/EventListBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/EventListBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.EventListBase = void 0;
@@ -48950,9 +48950,9 @@ var require_EventListBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/handling/HandlingBase.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/handling/HandlingBase.js
 var require_HandlingBase = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/handling/HandlingBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/handling/HandlingBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.HandlingBase = void 0;
@@ -49031,9 +49031,9 @@ var require_HandlingBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/PromiseSubscription.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/PromiseSubscription.js
 var require_PromiseSubscription = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/PromiseSubscription.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/events/PromiseSubscription.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSubscription = void 0;
@@ -49078,9 +49078,9 @@ var require_PromiseSubscription = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/PromiseDispatcherBase.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/PromiseDispatcherBase.js
 var require_PromiseDispatcherBase = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/PromiseDispatcherBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/dispatching/PromiseDispatcherBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseDispatcherBase = void 0;
@@ -49149,9 +49149,9 @@ var require_PromiseDispatcherBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/index.js
+// ../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/ste-core@3.0.11/node_modules/ste-core/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SubscriptionChangeEventDispatcher = exports2.HandlingBase = exports2.PromiseDispatcherBase = exports2.PromiseSubscription = exports2.DispatchError = exports2.EventManagement = exports2.EventListBase = exports2.DispatcherWrapper = exports2.DispatcherBase = exports2.Subscription = void 0;
@@ -49197,9 +49197,9 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventDispatcher.js
+// ../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventDispatcher.js
 var require_EventDispatcher = __commonJS({
-  "node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventDispatcher.js"(exports2) {
+  "../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventDispatcher.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.EventDispatcher = void 0;
@@ -49256,9 +49256,9 @@ var require_EventDispatcher = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventList.js
+// ../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventList.js
 var require_EventList = __commonJS({
-  "node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.EventList = void 0;
@@ -49282,9 +49282,9 @@ var require_EventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventHandlingBase.js
+// ../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventHandlingBase.js
 var require_EventHandlingBase = __commonJS({
-  "node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventHandlingBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/EventHandlingBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.EventHandlingBase = void 0;
@@ -49299,9 +49299,9 @@ var require_EventHandlingBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/NonUniformEventList.js
+// ../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/NonUniformEventList.js
 var require_NonUniformEventList = __commonJS({
-  "node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/NonUniformEventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/NonUniformEventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformEventList = void 0;
@@ -49340,9 +49340,9 @@ var require_NonUniformEventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/index.js
+// ../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/index.js
 var require_dist2 = __commonJS({
-  "node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformEventList = exports2.EventList = exports2.EventHandlingBase = exports2.EventDispatcher = void 0;
@@ -49365,9 +49365,9 @@ var require_dist2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventDispatcher.js
+// ../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventDispatcher.js
 var require_SimpleEventDispatcher = __commonJS({
-  "node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventDispatcher.js"(exports2) {
+  "../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventDispatcher.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SimpleEventDispatcher = void 0;
@@ -49422,9 +49422,9 @@ var require_SimpleEventDispatcher = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventList.js
+// ../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventList.js
 var require_SimpleEventList = __commonJS({
-  "node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SimpleEventList = void 0;
@@ -49448,9 +49448,9 @@ var require_SimpleEventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventHandlingBase.js
+// ../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventHandlingBase.js
 var require_SimpleEventHandlingBase = __commonJS({
-  "node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventHandlingBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/SimpleEventHandlingBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SimpleEventHandlingBase = void 0;
@@ -49465,9 +49465,9 @@ var require_SimpleEventHandlingBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/NonUniformSimpleEventList.js
+// ../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/NonUniformSimpleEventList.js
 var require_NonUniformSimpleEventList = __commonJS({
-  "node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/NonUniformSimpleEventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/NonUniformSimpleEventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformSimpleEventList = void 0;
@@ -49506,9 +49506,9 @@ var require_NonUniformSimpleEventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/index.js
+// ../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/index.js
 var require_dist3 = __commonJS({
-  "node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/ste-simple-events@3.0.11/node_modules/ste-simple-events/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformSimpleEventList = exports2.SimpleEventList = exports2.SimpleEventHandlingBase = exports2.SimpleEventDispatcher = void 0;
@@ -49531,9 +49531,9 @@ var require_dist3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalDispatcher.js
+// ../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalDispatcher.js
 var require_SignalDispatcher = __commonJS({
-  "node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalDispatcher.js"(exports2) {
+  "../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalDispatcher.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SignalDispatcher = void 0;
@@ -49577,9 +49577,9 @@ var require_SignalDispatcher = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalList.js
+// ../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalList.js
 var require_SignalList = __commonJS({
-  "node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SignalList = void 0;
@@ -49610,9 +49610,9 @@ var require_SignalList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalHandlingBase.js
+// ../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalHandlingBase.js
 var require_SignalHandlingBase = __commonJS({
-  "node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalHandlingBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/SignalHandlingBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SignalHandlingBase = void 0;
@@ -49632,9 +49632,9 @@ var require_SignalHandlingBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/index.js
+// ../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/index.js
 var require_dist4 = __commonJS({
-  "node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/ste-signals@3.0.11/node_modules/ste-signals/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SignalList = exports2.SignalHandlingBase = exports2.SignalDispatcher = void 0;
@@ -49653,9 +49653,9 @@ var require_dist4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventDispatcher.js
+// ../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventDispatcher.js
 var require_PromiseEventDispatcher = __commonJS({
-  "node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventDispatcher.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventDispatcher.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseEventDispatcher = void 0;
@@ -49706,9 +49706,9 @@ var require_PromiseEventDispatcher = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventList.js
+// ../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventList.js
 var require_PromiseEventList = __commonJS({
-  "node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseEventList = void 0;
@@ -49732,9 +49732,9 @@ var require_PromiseEventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventHandlingBase.js
+// ../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventHandlingBase.js
 var require_PromiseEventHandlingBase = __commonJS({
-  "node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventHandlingBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/PromiseEventHandlingBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseEventHandlingBase = void 0;
@@ -49749,9 +49749,9 @@ var require_PromiseEventHandlingBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/NonUniformPromiseEventList.js
+// ../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/NonUniformPromiseEventList.js
 var require_NonUniformPromiseEventList = __commonJS({
-  "node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/NonUniformPromiseEventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/NonUniformPromiseEventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformPromiseEventList = void 0;
@@ -49790,9 +49790,9 @@ var require_NonUniformPromiseEventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/index.js
+// ../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/index.js
 var require_dist5 = __commonJS({
-  "node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-events@3.0.11/node_modules/ste-promise-events/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformPromiseEventList = exports2.PromiseEventList = exports2.PromiseEventHandlingBase = exports2.PromiseEventDispatcher = void 0;
@@ -49815,9 +49815,9 @@ var require_dist5 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalDispatcher.js
+// ../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalDispatcher.js
 var require_PromiseSignalDispatcher = __commonJS({
-  "node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalDispatcher.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalDispatcher.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSignalDispatcher = void 0;
@@ -49861,9 +49861,9 @@ var require_PromiseSignalDispatcher = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalList.js
+// ../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalList.js
 var require_PromiseSignalList = __commonJS({
-  "node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSignalList = void 0;
@@ -49887,9 +49887,9 @@ var require_PromiseSignalList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalHandlingBase.js
+// ../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalHandlingBase.js
 var require_PromiseSignalHandlingBase = __commonJS({
-  "node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalHandlingBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/PromiseSignalHandlingBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSignalHandlingBase = void 0;
@@ -49904,9 +49904,9 @@ var require_PromiseSignalHandlingBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/index.js
+// ../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/index.js
 var require_dist6 = __commonJS({
-  "node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-signals@3.0.11/node_modules/ste-promise-signals/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSignalList = exports2.PromiseSignalHandlingBase = exports2.PromiseSignalDispatcher = void 0;
@@ -49925,9 +49925,9 @@ var require_dist6 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventDispatcher.js
+// ../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventDispatcher.js
 var require_PromiseSimpleEventDispatcher = __commonJS({
-  "node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventDispatcher.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventDispatcher.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSimpleEventDispatcher = void 0;
@@ -49972,9 +49972,9 @@ var require_PromiseSimpleEventDispatcher = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/NonUniformPromiseSimpleEventList.js
+// ../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/NonUniformPromiseSimpleEventList.js
 var require_NonUniformPromiseSimpleEventList = __commonJS({
-  "node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/NonUniformPromiseSimpleEventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/NonUniformPromiseSimpleEventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformPromiseSimpleEventList = void 0;
@@ -50013,9 +50013,9 @@ var require_NonUniformPromiseSimpleEventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventList.js
+// ../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventList.js
 var require_PromiseSimpleEventList = __commonJS({
-  "node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventList.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventList.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSimpleEventList = void 0;
@@ -50039,9 +50039,9 @@ var require_PromiseSimpleEventList = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventHandlingBase.js
+// ../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventHandlingBase.js
 var require_PromiseSimpleEventHandlingBase = __commonJS({
-  "node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventHandlingBase.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/PromiseSimpleEventHandlingBase.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.PromiseSimpleEventHandlingBase = void 0;
@@ -50056,9 +50056,9 @@ var require_PromiseSimpleEventHandlingBase = __commonJS({
   }
 });
 
-// node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/index.js
+// ../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/index.js
 var require_dist7 = __commonJS({
-  "node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/ste-promise-simple-events@3.0.11/node_modules/ste-promise-simple-events/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformPromiseSimpleEventList = exports2.PromiseSimpleEventList = exports2.PromiseSimpleEventHandlingBase = exports2.PromiseSimpleEventDispatcher = void 0;
@@ -50081,9 +50081,9 @@ var require_dist7 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/strongly-typed-events@3.0.7/node_modules/strongly-typed-events/dist/index.js
+// ../../node_modules/.pnpm/strongly-typed-events@3.0.7/node_modules/strongly-typed-events/dist/index.js
 var require_dist8 = __commonJS({
-  "node_modules/.pnpm/strongly-typed-events@3.0.7/node_modules/strongly-typed-events/dist/index.js"(exports2) {
+  "../../node_modules/.pnpm/strongly-typed-events@3.0.7/node_modules/strongly-typed-events/dist/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NonUniformPromiseSimpleEventList = exports2.PromiseSimpleEventList = exports2.PromiseSimpleEventHandlingBase = exports2.PromiseSimpleEventDispatcher = exports2.PromiseSignalList = exports2.PromiseSignalHandlingBase = exports2.PromiseSignalDispatcher = exports2.NonUniformPromiseEventList = exports2.PromiseEventList = exports2.PromiseEventHandlingBase = exports2.PromiseEventDispatcher = exports2.SignalList = exports2.SignalHandlingBase = exports2.SignalDispatcher = exports2.NonUniformSimpleEventList = exports2.SimpleEventList = exports2.SimpleEventHandlingBase = exports2.SimpleEventDispatcher = exports2.NonUniformEventList = exports2.EventList = exports2.EventHandlingBase = exports2.EventDispatcher = exports2.HandlingBase = exports2.PromiseDispatcherBase = exports2.PromiseSubscription = exports2.DispatchError = exports2.EventManagement = exports2.EventListBase = exports2.DispatcherWrapper = exports2.DispatcherBase = exports2.Subscription = void 0;
@@ -50190,9 +50190,9 @@ var require_dist8 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/web-ifc@0.0.50/node_modules/web-ifc/web-ifc-api-node.js
+// ../../node_modules/.pnpm/web-ifc@0.0.50/node_modules/web-ifc/web-ifc-api-node.js
 var require_web_ifc_api_node = __commonJS({
-  "node_modules/.pnpm/web-ifc@0.0.50/node_modules/web-ifc/web-ifc-api-node.js"(exports2) {
+  "../../node_modules/.pnpm/web-ifc@0.0.50/node_modules/web-ifc/web-ifc-api-node.js"(exports2) {
     var __defProp2 = Object.defineProperty;
     var __defProps = Object.defineProperties;
     var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
@@ -116724,14 +116724,14 @@ var require_web_ifc_api_node = __commonJS({
   }
 });
 
-// node_modules/.pnpm/tinyusdz@0.9.1/node_modules/tinyusdz/tinyusdz.js
+// ../../node_modules/.pnpm/tinyusdz@0.9.1/node_modules/tinyusdz/tinyusdz.js
 var tinyusdz_exports = {};
 __export(tinyusdz_exports, {
   default: () => tinyusdz_default
 });
 var import_meta, Module3, tinyusdz_default;
 var init_tinyusdz = __esm({
-  "node_modules/.pnpm/tinyusdz@0.9.1/node_modules/tinyusdz/tinyusdz.js"() {
+  "../../node_modules/.pnpm/tinyusdz@0.9.1/node_modules/tinyusdz/tinyusdz.js"() {
     import_meta = {};
     Module3 = /* @__PURE__ */ (() => {
       return async function(moduleArg = {}) {
@@ -120985,7 +120985,7 @@ ${invokerFnBody}`;
   }
 });
 
-// packages/sdk/src/convert/xeoconvert/xeoconvert_core.ts
+// src/convert/xeoconvert/xeoconvert_core.ts
 var xeoconvert_core_exports = {};
 __export(xeoconvert_core_exports, {
   CoordinateSystems: () => CoordinateSystems,
@@ -121001,13 +121001,13 @@ __export(xeoconvert_core_exports, {
 });
 module.exports = __toCommonJS(xeoconvert_core_exports);
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/utils/is-browser.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/utils/is-browser.js
 var isBrowser = (
   // @ts-ignore process.browser
   typeof process !== "object" || String(process) !== "[object process]" || process.browser
 );
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/text-encoder/encoding-indexes.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/text-encoder/encoding-indexes.js
 var encoding_indexes_default = {
   "ibm866": [1040, 1041, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057, 1058, 1059, 1060, 1061, 1062, 1063, 1064, 1065, 1066, 1067, 1068, 1069, 1070, 1071, 1072, 1073, 1074, 1075, 1076, 1077, 1078, 1079, 1080, 1081, 1082, 1083, 1084, 1085, 1086, 1087, 9617, 9618, 9619, 9474, 9508, 9569, 9570, 9558, 9557, 9571, 9553, 9559, 9565, 9564, 9563, 9488, 9492, 9524, 9516, 9500, 9472, 9532, 9566, 9567, 9562, 9556, 9577, 9574, 9568, 9552, 9580, 9575, 9576, 9572, 9573, 9561, 9560, 9554, 9555, 9579, 9578, 9496, 9484, 9608, 9604, 9612, 9616, 9600, 1088, 1089, 1090, 1091, 1092, 1093, 1094, 1095, 1096, 1097, 1098, 1099, 1100, 1101, 1102, 1103, 1025, 1105, 1028, 1108, 1031, 1111, 1038, 1118, 176, 8729, 183, 8730, 8470, 164, 9632, 160],
   "iso-8859-2": [128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 260, 728, 321, 164, 317, 346, 167, 168, 352, 350, 356, 377, 173, 381, 379, 176, 261, 731, 322, 180, 318, 347, 711, 184, 353, 351, 357, 378, 733, 382, 380, 340, 193, 194, 258, 196, 313, 262, 199, 268, 201, 280, 203, 282, 205, 206, 270, 272, 323, 327, 211, 212, 336, 214, 215, 344, 366, 218, 368, 220, 221, 354, 223, 341, 225, 226, 259, 228, 314, 263, 231, 269, 233, 281, 235, 283, 237, 238, 271, 273, 324, 328, 243, 244, 337, 246, 247, 345, 367, 250, 369, 252, 253, 355, 729],
@@ -121038,7 +121038,7 @@ var encoding_indexes_default = {
   "x-mac-cyrillic": [1040, 1041, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057, 1058, 1059, 1060, 1061, 1062, 1063, 1064, 1065, 1066, 1067, 1068, 1069, 1070, 1071, 8224, 176, 1168, 163, 167, 8226, 182, 1030, 174, 169, 8482, 1026, 1106, 8800, 1027, 1107, 8734, 177, 8804, 8805, 1110, 181, 1169, 1032, 1028, 1108, 1031, 1111, 1033, 1113, 1034, 1114, 1112, 1029, 172, 8730, 402, 8776, 8710, 171, 187, 8230, 160, 1035, 1115, 1036, 1116, 1109, 8211, 8212, 8220, 8221, 8216, 8217, 247, 8222, 1038, 1118, 1039, 1119, 8470, 1025, 1105, 1103, 1072, 1073, 1074, 1075, 1076, 1077, 1078, 1079, 1080, 1081, 1082, 1083, 1084, 1085, 1086, 1087, 1088, 1089, 1090, 1091, 1092, 1093, 1094, 1095, 1096, 1097, 1098, 1099, 1100, 1101, 1102, 8364]
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/text-encoder/text-encoder.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/text-encoder/text-encoder.js
 globalThis["encoding-indexes"] = encoding_indexes_default || {};
 function inRange(a3, min, max) {
   return min <= a3 && a3 <= max;
@@ -122631,7 +122631,7 @@ decoders["x-user-defined"] = function(options) {
   return new XUserDefinedDecoder(options);
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/buffer/btoa.node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/buffer/btoa.node.js
 function atob2(string) {
   return Buffer.from(string).toString("base64");
 }
@@ -122639,11 +122639,11 @@ function btoa2(base64) {
   return Buffer.from(base64, "base64").toString("ascii");
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/images/encode-image-node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/images/encode-image-node.js
 var import_save_pixels = __toESM(require_save_pixels(), 1);
 var import_ndarray = __toESM(require_ndarray(), 1);
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/buffer/to-array-buffer.node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/buffer/to-array-buffer.node.js
 function bufferToArrayBuffer(buffer) {
   if (Buffer.isBuffer(buffer)) {
     const typedArray = new Uint8Array(buffer);
@@ -122652,7 +122652,7 @@ function bufferToArrayBuffer(buffer) {
   return buffer;
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/images/encode-image-node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/images/encode-image-node.js
 function encodeImageToStreamNode(image, options) {
   const type = options.type ? options.type.replace("image/", "") : "jpeg";
   const pixels = (0, import_ndarray.default)(image.data, [image.width, image.height, 4], [4, image.width * 4, 1], 0);
@@ -122670,7 +122670,7 @@ function encodeImageNode(image, options) {
   });
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/images/parse-image-node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/images/parse-image-node.js
 var import_get_pixels = __toESM(require_node_pixels(), 1);
 var NODE_FORMAT_SUPPORT = ["image/png", "image/jpeg", "image/gif"];
 async function parseImageNode(arrayBuffer, mimeType) {
@@ -122701,19 +122701,19 @@ function getPixelsAsync(buffer, mimeType) {
   }));
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/loader-types.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/loader-types.js
 async function parseFromContext(data, loaders, options, context) {
   return context._parse(data, loaders, options, context);
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/env-utils/assert.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/env-utils/assert.js
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message || "loader assertion failed.");
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/env-utils/globals.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/env-utils/globals.js
 var globals = {
   self: typeof self !== "undefined" && self,
   window: typeof window !== "undefined" && window,
@@ -122731,14 +122731,14 @@ var isBrowser2 = (
 var matches = typeof process !== "undefined" && process.version && /v([0-9]*)/.exec(process.version);
 var nodeVersion = matches && parseFloat(matches[1]) || 0;
 
-// node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/globals.js
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/globals.js
 var window_2 = globalThis;
 var document_2 = globalThis.document || {};
 var process_ = globalThis.process || {};
 var console_ = globalThis.console;
 var navigator_ = globalThis.navigator || {};
 
-// node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/is-electron.js
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/is-electron.js
 function isElectron(mockUserAgent) {
   var _a2, _b;
   if (typeof window !== "undefined" && ((_a2 = window.process) == null ? void 0 : _a2.type) === "renderer") {
@@ -122752,7 +122752,7 @@ function isElectron(mockUserAgent) {
   return Boolean(userAgent && userAgent.indexOf("Electron") >= 0);
 }
 
-// node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/is-browser.js
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/is-browser.js
 function isBrowser3() {
   const isNode = (
     // @ts-expect-error
@@ -122761,10 +122761,10 @@ function isBrowser3() {
   return !isNode || isElectron();
 }
 
-// node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/index.js
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/index.js
 var VERSION = true ? "4.1.0" : "untranspiled source";
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/local-storage.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/local-storage.js
 function getStorage(type) {
   try {
     const storage = window[type];
@@ -122805,7 +122805,7 @@ var LocalStorage = class {
   }
 };
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/formatters.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/formatters.js
 function formatTime(ms) {
   let formatted;
   if (ms < 10) {
@@ -122824,7 +122824,7 @@ function leftPad(string, length2 = 8) {
   return `${" ".repeat(padLength)}${string}`;
 }
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/color.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/color.js
 var COLOR;
 (function(COLOR2) {
   COLOR2[COLOR2["BLACK"] = 30] = "BLACK";
@@ -122866,7 +122866,7 @@ function addColor(string, color, background) {
   return string;
 }
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/autobind.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/autobind.js
 function autobind(obj, predefined = ["constructor"]) {
   const proto = Object.getPrototypeOf(obj);
   const propNames = Object.getOwnPropertyNames(proto);
@@ -122881,14 +122881,14 @@ function autobind(obj, predefined = ["constructor"]) {
   }
 }
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/assert.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/assert.js
 function assert2(condition, message) {
   if (!condition) {
     throw new Error(message || "Assertion failed");
   }
 }
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/hi-res-timestamp.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/hi-res-timestamp.js
 function getHiResTimestamp() {
   var _a2, _b, _c, _d, _e2;
   let timestamp;
@@ -122903,7 +122903,7 @@ function getHiResTimestamp() {
   return timestamp;
 }
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/log.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/log.js
 var originalConsole = {
   debug: isBrowser3() ? console.debug || console.log : console.log,
   log: console.log,
@@ -123158,13 +123158,13 @@ function getTableHeader(table) {
   return "empty";
 }
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/init.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/init.js
 globalThis.probe = {};
 
-// node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/index.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/index.js
 var dist_default = new Log({ id: "@probe.gl/log" });
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/log-utils/log.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/log-utils/log.js
 var VERSION2 = true ? "4.3.3" : "latest";
 var version = VERSION2[0] >= "0" && VERSION2[0] <= "9" ? `v${VERSION2}` : "";
 function createLog() {
@@ -123178,7 +123178,7 @@ function createLog() {
 }
 var log = createLog();
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/option-utils/merge-loader-options.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/option-utils/merge-loader-options.js
 function mergeLoaderOptions(baseOptions, newOptions) {
   return mergeOptionsRecursively(baseOptions || {}, newOptions);
 }
@@ -123197,7 +123197,7 @@ function mergeOptionsRecursively(baseOptions, newOptions, level = 0) {
   return options;
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/module-utils/js-module-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/module-utils/js-module-utils.js
 function registerJSModules(modules) {
   var _a2;
   globalThis.loaders || (globalThis.loaders = {});
@@ -123210,7 +123210,7 @@ function getJSModuleOrNull(name12) {
   return module2 || null;
 }
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/env-utils/version.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/env-utils/version.js
 var NPM_TAG = "latest";
 function getVersion() {
   var _a2;
@@ -123227,14 +123227,14 @@ function getVersion() {
 }
 var VERSION3 = getVersion();
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/env-utils/assert.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/env-utils/assert.js
 function assert3(condition, message) {
   if (!condition) {
     throw new Error(message || "loaders.gl assertion failed.");
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/env-utils/globals.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/env-utils/globals.js
 var globals2 = {
   self: typeof self !== "undefined" && self,
   window: typeof window !== "undefined" && window,
@@ -123254,7 +123254,7 @@ var isMobile = typeof window !== "undefined" && typeof window.orientation !== "u
 var matches2 = typeof process !== "undefined" && process.version && /v([0-9]*)/.exec(process.version);
 var nodeVersion2 = matches2 && parseFloat(matches2[1]) || 0;
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-job.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-job.js
 var WorkerJob = class {
   constructor(jobName, workerThread) {
     __publicField(this, "name");
@@ -123303,7 +123303,7 @@ var WorkerJob = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/node/worker_threads.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/node/worker_threads.js
 var worker_threads_exports = {};
 __export(worker_threads_exports, {
   NodeWorker: () => NodeWorker,
@@ -123314,7 +123314,7 @@ __reExport(worker_threads_exports, require("worker_threads"));
 var parentPort = WorkerThreads == null ? void 0 : WorkerThreads.parentPort;
 var NodeWorker = WorkerThreads.Worker;
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-utils/get-loadable-worker-url.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-utils/get-loadable-worker-url.js
 var workerURLCache = /* @__PURE__ */ new Map();
 function getLoadableWorkerURL(props) {
   assert3(props.source && !props.url || !props.source && props.url);
@@ -123352,7 +123352,7 @@ function buildScriptSource(workerUrl) {
 }`;
 }
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-utils/get-transfer-list.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-utils/get-transfer-list.js
 function getTransferList(object, recursive = true, transfers) {
   const transfersSet = transfers || /* @__PURE__ */ new Set();
   if (!object) {
@@ -123387,7 +123387,7 @@ function isTransferable(object) {
   return false;
 }
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-thread.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-thread.js
 var NOOP = () => {
 };
 var WorkerThread = class {
@@ -123498,7 +123498,7 @@ var WorkerThread = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-pool.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-pool.js
 var WorkerPool = class {
   /**
    * @param processor - worker function
@@ -123641,7 +123641,7 @@ var WorkerPool = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-farm.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-farm/worker-farm.js
 var DEFAULT_PROPS = {
   maxConcurrency: 3,
   maxMobileConcurrency: 1,
@@ -123724,7 +123724,7 @@ var _WorkerFarm = class _WorkerFarm {
 __publicField(_WorkerFarm, "_workerFarm");
 var WorkerFarm = _WorkerFarm;
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-api/get-worker-url.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-api/get-worker-url.js
 function getWorkerURL(worker, options = {}) {
   const workerOptions = options[worker.id] || {};
   const workerFile = isBrowser4 ? `${worker.id}-worker.js` : `${worker.id}-worker-node.js`;
@@ -123751,7 +123751,7 @@ function getWorkerURL(worker, options = {}) {
   return url;
 }
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-api/validate-worker-version.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/worker-api/validate-worker-version.js
 function validateWorkerVersion(worker, coreVersion = VERSION3) {
   assert3(worker, "no worker provided");
   const workerVersion = worker.version;
@@ -123761,7 +123761,7 @@ function validateWorkerVersion(worker, coreVersion = VERSION3) {
   return true;
 }
 
-// node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/library-utils/library-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+worker-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/worker-utils/dist/lib/library-utils/library-utils.js
 var loadLibraryPromises = {};
 async function loadLibrary(libraryUrl, moduleName = null, options = {}, libraryName = null) {
   if (moduleName) {
@@ -123847,7 +123847,7 @@ async function loadAsText(url) {
   return await readFileAsText2(url);
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/worker-loader-utils/parse-with-worker.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/worker-loader-utils/parse-with-worker.js
 function canParseWithWorker(loader, options) {
   if (!WorkerFarm.isSupported()) {
     return false;
@@ -123902,7 +123902,7 @@ async function onMessage(parseOnMainThread, job, type, payload) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/get-first-characters.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/get-first-characters.js
 function getFirstCharacters(data, length2 = 5) {
   if (typeof data === "string") {
     return data.slice(0, length2);
@@ -123926,7 +123926,7 @@ function getMagicString(arrayBuffer, byteOffset, length2) {
   return magic;
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/parser-utils/parse-json.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/parser-utils/parse-json.js
 function parseJSON(string) {
   try {
     return JSON.parse(string);
@@ -123935,7 +123935,7 @@ function parseJSON(string) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/array-buffer-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/array-buffer-utils.js
 function compareArrayBuffers(arrayBuffer1, arrayBuffer2, byteLength) {
   byteLength = byteLength || arrayBuffer1.byteLength;
   if (arrayBuffer1.byteLength < byteLength || arrayBuffer2.byteLength < byteLength) {
@@ -123970,7 +123970,7 @@ function sliceArrayBuffer(arrayBuffer, byteOffset, byteLength) {
   return arrayCopy.buffer;
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/memory-copy-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/memory-copy-utils.js
 function padToNBytes(byteLength, padding) {
   assert(byteLength >= 0);
   assert(padding > 0);
@@ -123989,7 +123989,7 @@ function copyToArray(source, target, targetOffset) {
   return targetOffset + padToNBytes(sourceArray.byteLength, 4);
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/iterators/async-iteration.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/iterators/async-iteration.js
 async function concatenateArrayBuffersAsync(asyncIterator) {
   const arrayBuffers = [];
   for await (const chunk of asyncIterator) {
@@ -123998,7 +123998,7 @@ async function concatenateArrayBuffersAsync(asyncIterator) {
   return concatenateArrayBuffers(...arrayBuffers);
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/file-aliases.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/file-aliases.js
 var pathPrefix = "";
 var fileAliases = {};
 function resolvePath(filename2) {
@@ -124014,7 +124014,7 @@ function resolvePath(filename2) {
   return filename2;
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/node/buffer.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/node/buffer.js
 function toArrayBuffer(buffer) {
   if (Buffer.isBuffer(buffer)) {
     const typedArray = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.length);
@@ -124023,7 +124023,7 @@ function toArrayBuffer(buffer) {
   return buffer;
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/memory-conversion-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/memory-conversion-utils.js
 function isBuffer(value) {
   return value && typeof value === "object" && value.isBuffer;
 }
@@ -124051,7 +124051,7 @@ function toArrayBuffer2(data) {
   throw new Error("toArrayBuffer");
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/path.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/path.js
 var path_exports = {};
 __export(path_exports, {
   dirname: () => dirname,
@@ -124060,7 +124060,7 @@ __export(path_exports, {
   resolve: () => resolve
 });
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/get-cwd.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/get-cwd.js
 function getCWD() {
   var _a2;
   if (typeof process !== "undefined" && typeof process.cwd !== "undefined") {
@@ -124070,7 +124070,7 @@ function getCWD() {
   return (pathname == null ? void 0 : pathname.slice(0, pathname.lastIndexOf("/") + 1)) || "";
 }
 
-// node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/path.js
+// ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/path-utils/path.js
 function filename(url) {
   const slashIndex = url ? url.lastIndexOf("/") : -1;
   return slashIndex >= 0 ? url.substr(slashIndex + 1) : "";
@@ -124195,7 +124195,7 @@ function normalizeStringPosix(path2, allowAboveRoot) {
   return res;
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/node-file.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/node-file.js
 var import_fs = __toESM(require("fs"), 1);
 var NodeFile = class {
   constructor(path2, flags, mode) {
@@ -124293,14 +124293,14 @@ async function readBytes(fd, uint8Array, offset, length2, position) {
   ));
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/node-filesystem.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/node-filesystem.js
 var import_promises = __toESM(require("fs/promises"), 1);
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/fetch-node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/fetch-node.js
 var import_fs2 = __toESM(require("fs"), 1);
 var import_stream = require("stream");
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/stream-utils.node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/stream-utils.node.js
 var import_zlib = __toESM(require("zlib"), 1);
 var isArrayBuffer = (x2) => x2 && x2 instanceof ArrayBuffer;
 var isBuffer2 = (x2) => x2 && x2 instanceof Buffer;
@@ -124366,7 +124366,7 @@ function toArrayBuffer3(data) {
   throw new Error(`toArrayBuffer(${JSON.stringify(data, null, 2).slice(10)})`);
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/fetch-node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/fetch-node.js
 var isBoolean = (x2) => typeof x2 === "boolean";
 var isFunction = (x2) => typeof x2 === "function";
 var isObject = (x2) => x2 !== null && typeof x2 === "object";
@@ -124426,7 +124426,7 @@ function getHeadersForFile(noqueryUrl) {
   return new Headers(headers);
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/node-filesystem.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/filesystems/node-filesystem.js
 var NodeFileSystem = class {
   // implements FileSystem
   constructor() {
@@ -124459,7 +124459,7 @@ var NodeFileSystem = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+crypto@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/crypto/dist/lib/hash.js
+// ../../node_modules/.pnpm/@loaders.gl+crypto@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/crypto/dist/lib/hash.js
 var Hash = class {
   constructor(options = {}) {
     this.hashBatches = this.hashBatches.bind(this);
@@ -124484,7 +124484,7 @@ var Hash = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/crypto/node-hash.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/crypto/node-hash.js
 var crypto2 = __toESM(require("crypto"), 1);
 var NodeHash = class extends Hash {
   constructor(options) {
@@ -124535,10 +124535,10 @@ var NodeHash = class extends Hash {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/index.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/index.js
 var import_node_process = require("process");
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/streams/make-node-stream.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/streams/make-node-stream.js
 var Stream2 = __toESM(require("stream"), 1);
 var _Readable = class {
 };
@@ -124601,7 +124601,7 @@ var AsyncIterableReadable = class extends Readable3 {
   }
 };
 
-// node_modules/.pnpm/web-streams-polyfill@4.2.0/node_modules/web-streams-polyfill/dist/ponyfill.mjs
+// ../../node_modules/.pnpm/web-streams-polyfill@4.2.0/node_modules/web-streams-polyfill/dist/ponyfill.mjs
 function e() {
 }
 function t(e2) {
@@ -126745,11 +126745,11 @@ function oo(e2) {
 }
 Object.defineProperties(TransformStreamDefaultController.prototype, { enqueue: { enumerable: true }, error: { enumerable: true }, terminate: { enumerable: true }, desiredSize: { enumerable: true } }), o(TransformStreamDefaultController.prototype.enqueue, "enqueue"), o(TransformStreamDefaultController.prototype.error, "error"), o(TransformStreamDefaultController.prototype.terminate, "terminate"), "symbol" == typeof Symbol.toStringTag && Object.defineProperty(TransformStreamDefaultController.prototype, Symbol.toStringTag, { value: "TransformStreamDefaultController", configurable: true });
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/readable-stream.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/readable-stream.js
 var ReadableStreamPolyfill = class extends ReadableStream2 {
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/blob-stream-controller.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/blob-stream-controller.js
 var BlobStreamController = class {
   /**
    * @param chunks
@@ -126805,7 +126805,7 @@ var BlobStreamController = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/blob-stream.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/blob-stream.js
 var BlobStream = class extends ReadableStreamPolyfill {
   /**
    * @param chunks
@@ -126826,7 +126826,7 @@ var BlobStream = class extends ReadableStreamPolyfill {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/blob.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/blob.js
 var BlobPolyfill = class _BlobPolyfill {
   /**
    * @param [init]
@@ -126969,7 +126969,7 @@ function readType(input = "") {
   return /[^\u0020-\u007E]/.test(type) ? "" : type;
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/install-blob-polyfills.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/install-blob-polyfills.js
 function instalBlobPolyfills() {
   if (typeof Blob === "undefined" && !globalThis.Blob) {
     globalThis.Blob = BlobPolyfill;
@@ -126978,7 +126978,7 @@ function instalBlobPolyfills() {
 }
 var Blob_ = instalBlobPolyfills();
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/file-reader.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/file-reader.js
 var FileReaderPolyfill = class {
   constructor() {
     // onload: ({result: any}) => void;
@@ -127026,7 +127026,7 @@ var FileReaderPolyfill = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/file.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/file.js
 var FilePolyfill = class extends globalThis.Blob {
   /**
    * @param init
@@ -127055,7 +127055,7 @@ var FilePolyfill = class extends globalThis.Blob {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/install-file-polyfills.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/file/install-file-polyfills.js
 function installFilePolyfills() {
   if (typeof FileReader === "undefined" && !globalThis.FileReader) {
     globalThis.FileReader = FileReaderPolyfill;
@@ -127067,7 +127067,7 @@ function installFilePolyfills() {
 }
 var File_ = installFilePolyfills();
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/load-library/require-utils.node.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/load-library/require-utils.node.js
 var import_module = __toESM(require("module"), 1);
 var import_path = __toESM(require("path"), 1);
 var import_fs3 = __toESM(require("fs"), 1);
@@ -127120,7 +127120,7 @@ function requireFromString(code, filename2 = "", options) {
   return newModule.exports;
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/headers-polyfill.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/headers-polyfill.js
 var Headers2 = class _Headers {
   constructor(headers) {
     __publicField(this, "map");
@@ -127216,14 +127216,14 @@ function iteratorFor(items) {
   return iterator;
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/utils/assert.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/utils/assert.js
 function assert4(condition, message) {
   if (!condition) {
     throw new Error(`@loaders.gl/polyfills assertion ${message}`);
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/response-polyfill.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/response-polyfill.js
 var stream = __toESM(require("stream"), 1);
 var isBoolean2 = (x2) => typeof x2 === "boolean";
 var isFunction2 = (x2) => typeof x2 === "function";
@@ -127286,11 +127286,11 @@ var Response2 = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/fetch-polyfill.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/fetch-polyfill.js
 var import_http = __toESM(require("http"), 1);
 var import_https = __toESM(require("https"), 1);
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/decode-data-uri.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/decode-data-uri.js
 var isArrayBuffer2 = (x2) => x2 && x2 instanceof ArrayBuffer;
 var isBuffer3 = (x2) => x2 && x2 instanceof Buffer;
 function decodeDataUri(uri) {
@@ -127333,7 +127333,7 @@ function toArrayBuffer4(data) {
   throw new Error(`toArrayBuffer(${JSON.stringify(data, null, 2).slice(10)})`);
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/fetch-polyfill.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/fetch/fetch-polyfill.js
 var isDataURL = (url) => url.startsWith("data:");
 var isRequestURL = (url) => url.startsWith("http:") || url.startsWith("https:");
 async function fetchNode2(url, options) {
@@ -127435,7 +127435,7 @@ function getContentLength(url) {
   return isDataURL(url) ? url.length - "data:".length : null;
 }
 
-// node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/index.js
+// ../../node_modules/.pnpm/@loaders.gl+polyfills@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/polyfills/dist/index.js
 var nodeVersion3 = parseInt(import_node_process.versions.node.split(".")[0]);
 if (isBrowser) {
   console.error("loaders.gl: The @loaders.gl/polyfills should only be used in Node.js environments");
@@ -127482,7 +127482,7 @@ if (nodeVersion3 < 18) {
   }
 }
 
-// packages/sdk/src/base/core/SDKTaskRunner.ts
+// src/base/core/SDKTaskRunner.ts
 var SDKTaskRunner = class {
   constructor() {
     /**
@@ -127624,7 +127624,7 @@ function getGlobalTaskRunner() {
   return globalTaskRunner;
 }
 
-// packages/sdk/src/base/core/SDKTask.ts
+// src/base/core/SDKTask.ts
 var taskRunner = getGlobalTaskRunner();
 var SDKTask = class {
   /**
@@ -127769,7 +127769,7 @@ __publicField(SDKTask, "RenderStage", 4);
  */
 __publicField(SDKTask, "PostRenderStage", 5);
 
-// packages/sdk/src/base/core/SDKInternalException.ts
+// src/base/core/SDKInternalException.ts
 var SDKInternalException = class extends Error {
   /**
    * Creates a new internal SDK exception.
@@ -127782,7 +127782,7 @@ var SDKInternalException = class extends Error {
   }
 };
 
-// packages/sdk/src/base/core/EventEmitter.ts
+// src/base/core/EventEmitter.ts
 var _ievent, _name, _wrapped, _wrap, wrap_fn;
 var EventEmitter = class {
   constructor(ievent, name12) {
@@ -127913,7 +127913,7 @@ ${detail}`);
   return wrapped;
 };
 
-// packages/sdk/src/base/core/SDKProgress.ts
+// src/base/core/SDKProgress.ts
 var import_strongly_typed_events = __toESM(require_dist8());
 var SDKProgress = class {
   constructor() {
@@ -127950,7 +127950,7 @@ var SDKProgress = class {
 };
 var sdkProgress = new SDKProgress();
 
-// packages/sdk/src/model/data/DataObject.ts
+// src/model/data/DataObject.ts
 var DataObject = class {
   /**
    * @private
@@ -128031,7 +128031,7 @@ var DataObject = class {
   }
 };
 
-// packages/sdk/src/model/data/Property.ts
+// src/model/data/Property.ts
 var Property = class {
   /**
    * @private
@@ -128071,7 +128071,7 @@ var Property = class {
   }
 };
 
-// packages/sdk/src/model/data/PropertySet.ts
+// src/model/data/PropertySet.ts
 var PropertySet = class {
   /**
    * Constructs a new PropertySet.
@@ -128127,7 +128127,7 @@ var PropertySet = class {
   }
 };
 
-// packages/sdk/src/model/data/Relationship.ts
+// src/model/data/Relationship.ts
 var Relationship = class {
   /**
    * Constructs a new Relationship between two {@link DataObject | DataObjects}.
@@ -128175,7 +128175,7 @@ var Relationship = class {
   }
 };
 
-// packages/sdk/src/model/data/DataModel.ts
+// src/model/data/DataModel.ts
 var _validateRelationshipExport, validateRelationshipExport_fn, _validateSharedPropertySetReuse, validateSharedPropertySetReuse_fn, _snapshotTransactionState, snapshotTransactionState_fn, _restoreTransactionState, restoreTransactionState_fn, _destroyComponents, destroyComponents_fn, _removePropertySetFromModels, removePropertySetFromModels_fn, _validateSharedObjectReuse, validateSharedObjectReuse_fn, _removeObjectFromModels, removeObjectFromModels_fn, _removeRelation, removeRelation_fn, _hasIncomingRelationship, hasIncomingRelationship_fn;
 var DataModel = class {
   /**
@@ -129160,7 +129160,7 @@ function propertyValueEqual(a3, b5) {
   return true;
 }
 
-// packages/sdk/src/model/data/DataEvents.ts
+// src/model/data/DataEvents.ts
 var import_strongly_typed_events2 = __toESM(require_dist8());
 var DataEvents = class {
   /**
@@ -129238,7 +129238,7 @@ var DataEvents = class {
   }
 };
 
-// packages/sdk/src/base/utils/yieldToHost.ts
+// src/base/utils/yieldToHost.ts
 var _lastYieldMs = 0;
 var _intervalOverrideMs = void 0;
 var DEFAULT_INTERVAL_MS = 16;
@@ -129275,7 +129275,7 @@ function _abortError() {
   return err5;
 }
 
-// packages/sdk/src/base/utils/index.ts
+// src/base/utils/index.ts
 function isJSONObject(arg) {
   return typeof arg === "object" && arg !== null && !Array.isArray(arg);
 }
@@ -129302,7 +129302,7 @@ var createUUID = (() => {
   };
 })();
 
-// packages/sdk/src/model/data/Data.ts
+// src/model/data/Data.ts
 var Data2 = class {
   /**
    * Creates a new Data.
@@ -129497,7 +129497,7 @@ var Data2 = class {
   }
 };
 
-// packages/sdk/src/base/math/matrix.ts
+// src/base/math/matrix.ts
 var matrix_exports = {};
 __export(matrix_exports, {
   compareMat4: () => compareMat4,
@@ -129548,7 +129548,7 @@ __export(matrix_exports, {
   vec3FromMat4Scale: () => vec3FromMat4Scale
 });
 
-// packages/sdk/src/base/math/vector.ts
+// src/base/math/vector.ts
 var vector_exports = {};
 __export(vector_exports, {
   addVec3: () => addVec3,
@@ -129998,7 +129998,7 @@ function testOrthogonalAxis(axes, epsilon = 1e-6) {
   return Math.abs(dotVec3(x2, y2)) < epsilon && Math.abs(dotVec3(x2, z2)) < epsilon && Math.abs(dotVec3(y2, z2)) < epsilon;
 }
 
-// packages/sdk/src/base/math/quat.ts
+// src/base/math/quat.ts
 var quat_exports = {};
 __export(quat_exports, {
   angleAxisToQuaternion: () => angleAxisToQuaternion,
@@ -130263,7 +130263,7 @@ function quatToAngleAxis(q3, angleAxis = createVec4Float64()) {
   return angleAxis;
 }
 
-// packages/sdk/src/base/math/misc.ts
+// src/base/math/misc.ts
 var tempVec3 = createVec3Float64();
 var tempVec3b = createVec3Float64();
 var tempVec3c = createVec3Float64();
@@ -130301,7 +130301,7 @@ var canvasPosToWorldRay = (() => {
   };
 })();
 
-// packages/sdk/src/base/math/boundaries.ts
+// src/base/math/boundaries.ts
 var boundaries_exports = {};
 __export(boundaries_exports, {
   AABB3ToOBB3: () => AABB3ToOBB3,
@@ -130350,7 +130350,7 @@ __export(boundaries_exports, {
   transformOBB3: () => transformOBB3
 });
 
-// packages/sdk/src/base/math/compression.ts
+// src/base/math/compression.ts
 var compression_exports = {};
 __export(compression_exports, {
   compressNormals: () => compressNormals,
@@ -130824,7 +130824,7 @@ function octDecodeNormalsU16(octs, result = new Float32Array(octs.length / 2 * 3
   return result;
 }
 
-// packages/sdk/src/base/math/boundaries.ts
+// src/base/math/boundaries.ts
 var tempVec3a = createVec3Float64();
 var tempVec3b2 = createVec3Float64();
 var tempVec3c2 = createVec3Float64();
@@ -131183,7 +131183,7 @@ function containsAABB2Point2(aabb, p2) {
   return aabb[0] <= p2[0] && p2[0] <= aabb[3] && aabb[1] <= p2[1] && p2[1] <= aabb[4];
 }
 
-// packages/sdk/src/base/math/rtc.ts
+// src/base/math/rtc.ts
 var rtc_exports = {};
 __export(rtc_exports, {
   RTC_CELL_SIZE: () => RTC_CELL_SIZE,
@@ -131305,7 +131305,7 @@ function getPlaneRTCPos(dist, dir, rtcCenter2, rtcPlanePos) {
   return rtcPlanePos;
 }
 
-// packages/sdk/src/base/math/curves/index.ts
+// src/base/math/curves/index.ts
 var curves_exports = {};
 __export(curves_exports, {
   CubicBezierCurve: () => CubicBezierCurve,
@@ -131327,7 +131327,7 @@ __export(curves_exports, {
   tangentSpline: () => tangentSpline
 });
 
-// packages/sdk/src/base/math/curves/Curve.ts
+// src/base/math/curves/Curve.ts
 var Curve = class {
   /**
    * Creates a curve.
@@ -131510,7 +131510,7 @@ var Curve = class {
   }
 };
 
-// packages/sdk/src/base/math/curves/QuadraticBezierCurve.ts
+// src/base/math/curves/QuadraticBezierCurve.ts
 var QuadraticBezierCurve = class extends Curve {
   /**
    * @param cfg Configuration
@@ -131601,7 +131601,7 @@ var QuadraticBezierCurve = class extends Curve {
   }
 };
 
-// packages/sdk/src/base/math/curves/CubicBezierCurve.ts
+// src/base/math/curves/CubicBezierCurve.ts
 var CubicBezierCurve = class extends Curve {
   /**
    * @param cfg Configs
@@ -131694,7 +131694,7 @@ var CubicBezierCurve = class extends Curve {
   }
 };
 
-// packages/sdk/src/base/math/curves/SplineCurve.ts
+// src/base/math/curves/SplineCurve.ts
 var SplineCurve = class extends Curve {
   /**
    * @param cfg Configs
@@ -131760,7 +131760,7 @@ var SplineCurve = class extends Curve {
   }
 };
 
-// packages/sdk/src/base/math/curves/index.ts
+// src/base/math/curves/index.ts
 function tangentQuadraticBezier(t2, p0, p1, p2) {
   return 2 * (1 - t2) * (p1 - p0) + 2 * t2 * (p2 - p1);
 }
@@ -131813,7 +131813,7 @@ function b3(t2, p0, p1, p2, p3) {
   return b3p0(t2, p0) + b3p1(t2, p1) + b3p2(t2, p2) + b3p3(t2, p3);
 }
 
-// packages/sdk/src/base/math/polygon2D.ts
+// src/base/math/polygon2D.ts
 var polygon2D_exports = {};
 __export(polygon2D_exports, {
   douglasPeuckerClosed2D: () => douglasPeuckerClosed2D,
@@ -132020,7 +132020,7 @@ function marchingSquares2D(mask, width, height) {
   return loops;
 }
 
-// packages/sdk/src/base/math/index.ts
+// src/base/math/index.ts
 var MIN_DOUBLE = -Number.MAX_SAFE_INTEGER;
 var MAX_DOUBLE = Number.MAX_SAFE_INTEGER;
 var DEGTORAD = 0.0174532925;
@@ -132037,7 +132037,7 @@ function newFloatArray(values) {
   return typeof values === "number" ? new Float64Array(values) : new Float64Array(values);
 }
 
-// packages/sdk/src/base/math/matrix.ts
+// src/base/math/matrix.ts
 function perspectiveMat4(fovyrad, aspectratio, znear, zfar, m2) {
   const pmin = createVec3Float64();
   const pmax = createVec3Float64();
@@ -132803,7 +132803,7 @@ var vec3FromMat4Scale = (() => {
   };
 })();
 
-// packages/sdk/src/base/constants/index.ts
+// src/base/constants/index.ts
 var RepeatWrapping = 1e3;
 var ClampToEdgeWrapping = 1001;
 var MirroredRepeatWrapping = 1002;
@@ -132824,7 +132824,7 @@ var SolidPrimitive = 20003;
 var SurfacePrimitive = 20004;
 var GaussianSplatsPrimitive = 20005;
 
-// packages/sdk/src/model/scene/buildEdgeIndices.ts
+// src/model/scene/buildEdgeIndices.ts
 var uniquePositions = [];
 var indicesLookup = [];
 var indicesReverseLookup = [];
@@ -132970,7 +132970,7 @@ function buildEdgeIndices(positions, indices, aabb, edgeThreshold) {
   return largeIndex ? new Uint32Array(edgeIndices) : new Uint16Array(edgeIndices);
 }
 
-// packages/sdk/src/model/scene/compressGeometryParams.ts
+// src/model/scene/compressGeometryParams.ts
 var rtcCenter = createVec3Float64();
 function compressGeometryParams(geometryParams) {
   const rtcNeeded = false;
@@ -133036,7 +133036,7 @@ function compressGeometryParams(geometryParams) {
   }
 }
 
-// packages/sdk/src/model/scene/SceneGeometry.ts
+// src/model/scene/SceneGeometry.ts
 function narrowIndexArray(indices) {
   if (!indices || indices.length === 0) {
     return indices;
@@ -133235,7 +133235,7 @@ var SceneGeometry = class {
   }
 };
 
-// packages/sdk/src/model/scene/CoordinateSystem.ts
+// src/model/scene/CoordinateSystem.ts
 var CoordinateSystem = class {
   /**
    * @private
@@ -133539,7 +133539,7 @@ var CoordinateSystem = class {
   }
 };
 
-// packages/sdk/src/model/scene/createCoordinateSystemTransform.ts
+// src/model/scene/createCoordinateSystemTransform.ts
 var tempMat3a = createMat4Float64();
 var tempMat3b = createMat4Float64();
 var tempVec3a3 = createVec3Float64();
@@ -133609,7 +133609,7 @@ function unitScale(unit) {
   }
 }
 
-// packages/sdk/src/model/scene/SceneTransform.ts
+// src/model/scene/SceneTransform.ts
 var SceneTransform = class {
   /**
    * Creates a new {@link SceneTransform}.
@@ -134118,7 +134118,7 @@ var SceneTransform = class {
   }
 };
 
-// packages/sdk/src/model/scene/SceneMesh.ts
+// src/model/scene/SceneMesh.ts
 var DEFAULT_ROUGHNESS = 0.6;
 var DEFAULT_METALLIC = 0;
 var DEFAULT_TRIPLANAR_SCALE = 1;
@@ -134189,6 +134189,14 @@ var SceneMesh = class {
      * round-trip the value verbatim.
      */
     __publicField(this, "bin");
+    /**
+     * Billboard mode for this SceneMesh.
+     *
+     * `"spherical"` keeps the mesh's transformed origin fixed while orienting
+     * its local axes to the active camera in the renderer. `"none"` uses the
+     * ordinary mesh transform.
+     */
+    __publicField(this, "billboard");
     __publicField(this, "_color");
     __publicField(this, "_opacity");
     __publicField(this, "_localMatrix");
@@ -134199,7 +134207,7 @@ var SceneMesh = class {
     __publicField(this, "_parentTransform", null);
     __publicField(this, "_worldMatrixDirty", true);
     __publicField(this, "destroyed", false);
-    var _a2;
+    var _a2, _b;
     this.id = meshParams.id;
     this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
     this.model = meshParams.model;
@@ -134209,6 +134217,7 @@ var SceneMesh = class {
     this.geometry = meshParams.geometry;
     this.material = meshParams.material;
     this.bin = meshParams.bin;
+    this.billboard = (_b = meshParams.billboard) != null ? _b : "none";
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
     this.object = null;
@@ -134670,6 +134679,9 @@ var SceneMesh = class {
     if (this.bin !== void 0) {
       meshParams.bin = this.bin;
     }
+    if (this.billboard !== "none") {
+      meshParams.billboard = this.billboard;
+    }
     return {
       ok: true,
       value: meshParams
@@ -134709,7 +134721,7 @@ var SceneMesh = class {
   }
 };
 
-// packages/sdk/src/model/scene/SceneObject.ts
+// src/model/scene/SceneObject.ts
 var SceneObject = class {
   /**
    * @private
@@ -134926,7 +134938,7 @@ var SceneObject = class {
   }
 };
 
-// packages/sdk/src/model/scene/SceneTexture.ts
+// src/model/scene/SceneTexture.ts
 var SceneTexture = class {
   /**
    * @private
@@ -135289,7 +135301,7 @@ function serializeImageToDataURL(image) {
   }
 }
 
-// packages/sdk/src/model/scene/linePattern.ts
+// src/model/scene/linePattern.ts
 var MAX_LINE_PATTERN_ENTRIES = 8;
 var LINE_STYLE_PRESETS = {
   solid: [],
@@ -135348,7 +135360,7 @@ function normaliseLinePattern(value, out) {
   return out;
 }
 
-// packages/sdk/src/model/scene/hatchPattern.ts
+// src/model/scene/hatchPattern.ts
 var MAX_HATCH_FAMILIES = 4;
 var HATCH_STYLE_PRESETS = {
   solid: [],
@@ -135489,7 +135501,7 @@ function validateFamilies(families) {
   return true;
 }
 
-// packages/sdk/src/model/scene/SceneMaterial.ts
+// src/model/scene/SceneMaterial.ts
 var SceneMaterial = class {
   /**
    * @private
@@ -135993,7 +136005,7 @@ function cloneHatchPattern(value) {
   return cloned;
 }
 
-// packages/sdk/src/model/scene/SceneTechnique.ts
+// src/model/scene/SceneTechnique.ts
 var SceneTechnique = class {
   /**
    * @private
@@ -136060,7 +136072,7 @@ var SceneTechnique = class {
   }
 };
 
-// packages/sdk/src/model/scene/ThickLinesTechnique.ts
+// src/model/scene/ThickLinesTechnique.ts
 var ThickLinesTechnique = class extends SceneTechnique {
   /**
    * @private
@@ -136099,7 +136111,63 @@ var ThickLinesTechnique = class extends SceneTechnique {
   }
 };
 
-// packages/sdk/src/model/scene/SceneModel.ts
+// src/model/scene/SceneModelBatch.ts
+var SceneModelBatch = class {
+  /** @private */
+  constructor(params) {
+    /**
+     * Unique ID of this batch within the parent SceneModel.
+     */
+    __publicField(this, "id");
+    /**
+     * True after the batch has been committed.
+     */
+    __publicField(this, "committed", false);
+    /**
+     * Transforms created in this batch.
+     */
+    __publicField(this, "transforms", []);
+    /**
+     * Geometries created in this batch.
+     */
+    __publicField(this, "geometries", []);
+    /**
+     * Textures created in this batch.
+     */
+    __publicField(this, "textures", []);
+    /**
+     * Materials created in this batch.
+     */
+    __publicField(this, "materials", []);
+    /**
+     * Techniques created in this batch.
+     */
+    __publicField(this, "techniques", []);
+    /**
+     * Meshes created in this batch.
+     */
+    __publicField(this, "meshes", []);
+    /**
+     * Objects created in this batch.
+     */
+    __publicField(this, "objects", []);
+    this.id = params.id;
+  }
+  /** @private */
+  includesGeometry(sceneGeometry) {
+    return this.geometries.indexOf(sceneGeometry) >= 0;
+  }
+  /** @private */
+  includesMesh(sceneMesh) {
+    return this.meshes.indexOf(sceneMesh) >= 0;
+  }
+  /** @private */
+  includesObject(sceneObject) {
+    return this.objects.indexOf(sceneObject) >= 0;
+  }
+};
+
+// src/model/scene/SceneModel.ts
 var COLOR_TEXTURE = 0;
 var METALLIC_ROUGHNESS_TEXTURE = 1;
 var NORMALS_TEXTURE = 2;
@@ -136107,10 +136175,13 @@ var EMISSIVE_TEXTURE = 3;
 var OCCLUSION_TEXTURE = 4;
 var TEXTURE_ENCODING_OPTIONS = {};
 function normalizeUpdateHint(updateHint) {
-  if (updateHint === "stream") {
-    return "dynamic";
-  }
   return updateHint === "static" || updateHint === "dynamic" ? updateHint : "auto";
+}
+function normalizeLifecycle(lifecycle) {
+  return lifecycle === "streaming" || lifecycle === "sealed" ? lifecycle : "open";
+}
+function normalizeMemoryPolicy(memoryPolicy) {
+  return memoryPolicy === "compact" ? "compact" : "stream";
 }
 TEXTURE_ENCODING_OPTIONS[COLOR_TEXTURE] = {
   useSRGB: true,
@@ -136184,11 +136255,16 @@ var SceneModel2 = class {
      */
     __publicField(this, "globalizedIds");
     /**
-     * Hint describing how often this SceneModel's geometry is expected to change.
+     * Hint describing how often this SceneModel's renderer-facing values are
+     * expected to be uploaded.
      *
-     * Renderers can use this to choose an internal storage path.
+     * Renderers can use this to choose storage for matrices, transforms, colors,
+     * visibility flags, opacity and object state.
      */
     __publicField(this, "_updateHint");
+    __publicField(this, "_lifecycle");
+    __publicField(this, "_memoryPolicy");
+    __publicField(this, "_activeBatch", null);
     /**
      * Unique ID of this SceneModel.
      *
@@ -136266,7 +136342,6 @@ var SceneModel2 = class {
      */
     __publicField(this, "destroyed", false);
     __publicField(this, "_building", false);
-    var _a2;
     this.id = sceneModelParams.id;
     this.scene = scene;
     this.coordinateSystem = new CoordinateSystem(
@@ -136280,7 +136355,9 @@ var SceneModel2 = class {
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = !!sceneModelParams.globalizedIds;
-    this._updateHint = normalizeUpdateHint((_a2 = sceneModelParams.updateHint) != null ? _a2 : sceneModelParams.updateUsage);
+    this._updateHint = normalizeUpdateHint(sceneModelParams.updateHint);
+    this._lifecycle = sceneModelParams.lifecycle === "sealed" ? "open" : normalizeLifecycle(sceneModelParams.lifecycle);
+    this._memoryPolicy = normalizeMemoryPolicy(sceneModelParams.memoryPolicy);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
     this.geometries = {};
@@ -136304,7 +136381,8 @@ var SceneModel2 = class {
     };
   }
   /**
-   * Hint describing how often this SceneModel's geometry is expected to change.
+   * Hint describing how often this SceneModel's renderer-facing values are
+   * expected to be uploaded.
    */
   get updateHint() {
     return this._updateHint;
@@ -136313,13 +136391,23 @@ var SceneModel2 = class {
     this._updateHint = normalizeUpdateHint(updateHint);
   }
   /**
-   * @deprecated Use `updateHint`.
+   * Describes whether this SceneModel is open to new components, streaming
+   * committed batches, or sealed against topology/resource growth.
    */
-  get updateUsage() {
-    return this._updateHint;
+  get lifecycle() {
+    return this._lifecycle;
   }
-  set updateUsage(updateUsage) {
-    this.updateHint = updateUsage;
+  /**
+   * Renderer-side capacity policy requested for this SceneModel.
+   */
+  get memoryPolicy() {
+    return this._memoryPolicy;
+  }
+  /**
+   * Currently active component creation batch, if any.
+   */
+  get activeBatch() {
+    return this._activeBatch;
   }
   /**
    * Whether this SceneModel is currently being populated by a loader.
@@ -136348,6 +136436,204 @@ var SceneModel2 = class {
     } else {
       this.scene.events.onSceneModelBuildFinished.dispatch(this.scene, this);
     }
+  }
+  _assertCanCreate(method) {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.${method}] SceneModel already destroyed`
+      });
+    }
+    if (this._lifecycle === "sealed") {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.${method}] SceneModel is sealed`
+      });
+    }
+    return null;
+  }
+  _recordActiveBatchComponent(component) {
+    const batch = this._activeBatch;
+    if (!batch) {
+      return;
+    }
+    component.batchId = batch.id;
+    if (component instanceof SceneTransform) {
+      batch.transforms.push(component);
+    } else if (component instanceof SceneGeometry) {
+      batch.geometries.push(component);
+    } else if (component instanceof SceneTexture) {
+      batch.textures.push(component);
+    } else if (component instanceof SceneMaterial) {
+      batch.materials.push(component);
+    } else if (component instanceof SceneTechnique) {
+      batch.techniques.push(component);
+    } else if (component instanceof SceneMesh) {
+      batch.meshes.push(component);
+    } else {
+      batch.objects.push(component);
+    }
+  }
+  /**
+   * Starts a component creation batch on this SceneModel.
+   *
+   * Components created while the batch is active are recorded in
+   * {@link SceneModel.activeBatch}. Viewers and renderers may defer those
+   * components until {@link SceneModel.commitBatch | commitBatch} publishes the
+   * batch as a single unit.
+   *
+   * This is mainly for {@link SceneModel.lifecycle | lifecycle} `"streaming"`
+   * models, where chunks arrive over time. Format loaders can use batches to
+   * publish complete stream chunks atomically. Only one batch can be active at
+   * once. Use {@link SceneModel.rollbackBatch | rollbackBatch} to discard the
+   * active batch before it is committed.
+   */
+  beginBatch(params) {
+    const createError = this._assertCanCreate("beginBatch");
+    if (createError) {
+      return createError;
+    }
+    if (!(params == null ? void 0 : params.id)) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[SceneModel.beginBatch] Parameter expected: params.id"
+      });
+    }
+    if (this._activeBatch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.beginBatch] SceneModel already has an active batch: ${this._activeBatch.id}`
+      });
+    }
+    const batch = new SceneModelBatch(params);
+    this._activeBatch = batch;
+    this.scene.events.onSceneModelBatchStarted.dispatch(this, batch);
+    return {
+      ok: true,
+      value: batch
+    };
+  }
+  /**
+   * Commits the active component creation batch.
+   *
+   * The batch is marked committed, {@link SceneModel.activeBatch} is cleared and
+   * {@link SceneEvents.onSceneModelBatchCommitted} is fired. Renderers can use
+   * the committed batch as a stable allocation unit, especially when
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`. With
+   * `memoryPolicy: "stream"`, renderers can keep using pooled/reusable storage
+   * while still observing the batch boundary.
+   */
+  commitBatch() {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.commitBatch] SceneModel already destroyed"
+      });
+    }
+    const batch = this._activeBatch;
+    if (!batch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.commitBatch] SceneModel has no active batch"
+      });
+    }
+    batch.committed = true;
+    this._activeBatch = null;
+    this.scene.events.onSceneModelBatchCommitted.dispatch(this, batch);
+    return {
+      ok: true,
+      value: batch
+    };
+  }
+  /**
+   * Destroys all components created in the active batch and clears it.
+   *
+   * This is only valid before {@link SceneModel.commitBatch | commitBatch}.
+   * Components are destroyed in dependency order and
+   * {@link SceneEvents.onSceneModelBatchRolledBack} is fired.
+   */
+  rollbackBatch() {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.rollbackBatch] SceneModel already destroyed"
+      });
+    }
+    const batch = this._activeBatch;
+    if (!batch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.rollbackBatch] SceneModel has no active batch"
+      });
+    }
+    this._activeBatch = null;
+    const destroyAll = (components) => {
+      var _a2;
+      for (let i2 = components.length - 1; i2 >= 0; i2--) {
+        if (!((_a2 = components[i2]) == null ? void 0 : _a2.destroyed)) {
+          components[i2].destroy();
+        }
+      }
+    };
+    destroyAll(batch.objects);
+    destroyAll(batch.meshes);
+    destroyAll(batch.techniques);
+    destroyAll(batch.materials);
+    destroyAll(batch.transforms);
+    destroyAll(batch.geometries);
+    destroyAll(batch.textures);
+    this.scene.events.onSceneModelBatchRolledBack.dispatch(this, batch);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Seals this SceneModel against further topology/resource growth.
+   *
+   * After sealing, creation methods such as
+   * {@link SceneModel.createGeometry | createGeometry},
+   * {@link SceneModel.createMesh | createMesh},
+   * {@link SceneModel.createObject | createObject} and
+   * {@link SceneModel.beginBatch | beginBatch} reject new content. Renderers can
+   * treat a sealed model as complete and may use snug allocations when
+   * {@link SceneModel.memoryPolicy | memoryPolicy} is `"compact"`.
+   */
+  seal() {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.seal] SceneModel already destroyed"
+      });
+    }
+    if (this._activeBatch) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.seal] Cannot seal while batch '${this._activeBatch.id}' is active`
+      });
+    }
+    if (this._lifecycle === "sealed") {
+      return {
+        ok: true,
+        value: void 0
+      };
+    }
+    this._lifecycle = "sealed";
+    this.scene.events.onSceneModelSealed.dispatch(this.scene, this);
+    return {
+      ok: true,
+      value: void 0
+    };
   }
   /**
    * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
@@ -136404,12 +136690,9 @@ var SceneModel2 = class {
    *   - Parent SceneTransform not found with the given parentTransformId.
    */
   createTransform(transformParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createTransform] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTransform");
+    if (createError) {
+      return createError;
     }
     if (!transformParams.id) {
       return this.scene.logError({
@@ -136442,6 +136725,7 @@ var SceneModel2 = class {
     }
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
+    this._recordActiveBatchComponent(sceneTransform);
     this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
     return {
       ok: true,
@@ -136510,12 +136794,9 @@ var SceneModel2 = class {
    *   - Unsupported image extension.
    */
   createTexture(textureParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createTexture] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTexture");
+    if (createError) {
+      return createError;
     }
     if (!textureParams.id) {
       return this.scene.logError({
@@ -136545,6 +136826,7 @@ var SceneModel2 = class {
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
     this.stats.textureBytes += texture.textureBytes;
+    this._recordActiveBatchComponent(texture);
     this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
     return {
       ok: true,
@@ -136605,12 +136887,9 @@ var SceneModel2 = class {
    *  - Referenced texture not found in SceneModel.
    */
   createMaterial(materialParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createMaterial] Cannot create SceneMaterial - SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createMaterial");
+    if (createError) {
+      return createError;
     }
     if (this.materials[materialParams.id]) {
       return this.scene.logError({
@@ -136698,6 +136977,7 @@ var SceneModel2 = class {
       emissiveTexture.numMaterials++;
     this.materials[materialParams.id] = material;
     this.stats.numMaterials++;
+    this._recordActiveBatchComponent(material);
     this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
     return {
       ok: true,
@@ -136746,12 +137026,9 @@ var SceneModel2 = class {
    */
   createTechnique(params) {
     var _a2;
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createTechnique] Cannot create SceneTechnique - SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createTechnique");
+    if (createError) {
+      return createError;
     }
     if (this.techniques[params.id]) {
       return this.scene.logError({
@@ -136773,6 +137050,7 @@ var SceneModel2 = class {
         });
     }
     this.techniques[params.id] = technique;
+    this._recordActiveBatchComponent(technique);
     this.scene.events.onSceneTechniqueCreated.dispatch(this.scene, technique);
     return { ok: true, value: technique };
   }
@@ -136829,12 +137107,9 @@ var SceneModel2 = class {
    *   - Mismatch between the quantities of vertex positions and UVs.
    */
   createGeometry(geometryParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createGeometry] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createGeometry");
+    if (createError) {
+      return createError;
     }
     if (!geometryParams) {
       return this.scene.logError({
@@ -136960,6 +137235,7 @@ var SceneModel2 = class {
       this.stats.numPoints += positions.length / 3;
     }
     this.stats.numVertices += positions.length / 3;
+    this._recordActiveBatchComponent(sceneGeometry);
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
     return {
       ok: true,
@@ -137019,12 +137295,9 @@ var SceneModel2 = class {
    *   - Mismatch between given quantities of vertex positions and UVs.
    */
   createGeometryCompressed(geometryCompressedParams) {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createGeometryCompressed] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createGeometryCompressed");
+    if (createError) {
+      return createError;
     }
     if (!geometryCompressedParams) {
       return this.scene.logError({
@@ -137201,6 +137474,7 @@ var SceneModel2 = class {
       this.stats.numPoints += positionsCompressed.length / 3;
     }
     this.stats.numVertices += positionsCompressed.length / 3;
+    this._recordActiveBatchComponent(sceneGeometry);
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
     return {
       ok: true,
@@ -137309,16 +137583,15 @@ var SceneModel2 = class {
       scale: scale3,
       rotation,
       quaternion,
+      origin: origin2,
       color,
       opacity,
+      billboard,
       bin
     } = meshParams;
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.addMesh] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createMesh");
+    if (createError) {
+      return createError;
     }
     if (this.meshes[id]) {
       return this.scene.logError({
@@ -137354,8 +137627,15 @@ var SceneModel2 = class {
         error: `[SceneModel.createMesh] Material not found: '${materialId}'`
       });
     }
+    if (origin2 && origin2.length !== 3) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneModel.createMesh] Parameter 'origin' is not a vec3 array`
+      });
+    }
     if (!matrix) {
-      if (position || scale3 || rotation || quaternion) {
+      if (position || scale3 || rotation || quaternion || origin2) {
         if (position && position.length !== 3) {
           return this.scene.logError({
             ok: false,
@@ -137402,11 +137682,23 @@ var SceneModel2 = class {
       }
       matrix = createMat4Float64(matrix);
     }
+    if (origin2 && matrix) {
+      matrix[12] += origin2[0];
+      matrix[13] += origin2[1];
+      matrix[14] += origin2[2];
+    }
     if (color && color.length !== 3) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
         error: `[SceneModel.createMesh] Parameter 'color' is not a vec3 array`
+      });
+    }
+    if (billboard !== void 0 && billboard !== "none" && billboard !== "spherical") {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneModel.createMesh] Unsupported billboard mode: '${billboard}'`
       });
     }
     const sceneMesh = new SceneMesh({
@@ -137417,6 +137709,7 @@ var SceneModel2 = class {
       matrix,
       color,
       opacity,
+      billboard: billboard != null ? billboard : "none",
       bin
     });
     if (transform) {
@@ -137428,6 +137721,7 @@ var SceneModel2 = class {
     }
     this.meshes[id] = sceneMesh;
     this.stats.numMeshes++;
+    this._recordActiveBatchComponent(sceneMesh);
     this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
     return {
       ok: true,
@@ -137511,12 +137805,9 @@ var SceneModel2 = class {
       layerId,
       originalSystemId
     } = objectParams;
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createObject] SceneModel already destroyed"
-      });
+    const createError = this._assertCanCreate("createObject");
+    if (createError) {
+      return createError;
     }
     if (!meshIds || meshIds.length === 0) {
       return this.scene.logError({
@@ -137567,6 +137858,7 @@ var SceneModel2 = class {
     }
     this.objects[objectId] = sceneObject;
     this.stats.numObjects++;
+    this._recordActiveBatchComponent(sceneObject);
     this.scene._registerObject(sceneObject);
     return {
       ok: true,
@@ -137618,7 +137910,6 @@ var SceneModel2 = class {
    * * On failure, an error message.
    */
   fromParams(sceneModelParams) {
-    var _a2;
     if (this.destroyed) {
       return this.scene.logError({
         ok: false,
@@ -137626,12 +137917,25 @@ var SceneModel2 = class {
         error: "[SceneModel.fromParams] SceneModel already destroyed"
       });
     }
+    if (this._lifecycle === "sealed") {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.fromParams] SceneModel is sealed"
+      });
+    }
     if (sceneModelParams.coordinateSystem) {
       this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
     }
-    const updateHint = (_a2 = sceneModelParams.updateHint) != null ? _a2 : sceneModelParams.updateUsage;
+    const updateHint = sceneModelParams.updateHint;
     if (updateHint !== void 0) {
       this.updateHint = updateHint;
+    }
+    if (sceneModelParams.lifecycle !== void 0 && sceneModelParams.lifecycle !== "sealed") {
+      this._lifecycle = normalizeLifecycle(sceneModelParams.lifecycle);
+    }
+    if (sceneModelParams.memoryPolicy !== void 0) {
+      this._memoryPolicy = normalizeMemoryPolicy(sceneModelParams.memoryPolicy);
     }
     if (sceneModelParams.transforms) {
       for (let i2 = 0, len = sceneModelParams.transforms.length; i2 < len; i2++) {
@@ -137692,6 +137996,9 @@ var SceneModel2 = class {
           return res;
       }
     }
+    if (sceneModelParams.lifecycle === "sealed") {
+      return this.seal();
+    }
     return {
       ok: true,
       value: void 0
@@ -137718,7 +138025,8 @@ var SceneModel2 = class {
       id: this.id,
       coordinateSystem: this.coordinateSystem.toParams(),
       updateHint: this.updateHint,
-      updateUsage: this.updateHint,
+      lifecycle: this.lifecycle,
+      memoryPolicy: this.memoryPolicy,
       geometriesCompressed: [],
       textures: [],
       materials: [],
@@ -137810,7 +138118,7 @@ var SceneModel2 = class {
   }
 };
 
-// packages/sdk/src/model/scene/SceneEvents.ts
+// src/model/scene/SceneEvents.ts
 var import_strongly_typed_events3 = __toESM(require_dist8());
 var SceneEvents = class {
   /**
@@ -137868,6 +138176,26 @@ var SceneEvents = class {
      * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
      */
     __publicField(this, "onSceneModelBuildFinished");
+    /**
+     * Emits when a {@link model!scene.SceneModel | SceneModel} begins a component
+     * creation batch.
+     */
+    __publicField(this, "onSceneModelBatchStarted");
+    /**
+     * Emits when a {@link model!scene.SceneModel | SceneModel} commits a
+     * component creation batch.
+     */
+    __publicField(this, "onSceneModelBatchCommitted");
+    /**
+     * Emits when a {@link model!scene.SceneModel | SceneModel} rolls back a
+     * component creation batch.
+     */
+    __publicField(this, "onSceneModelBatchRolledBack");
+    /**
+     * Emits when a {@link model!scene.SceneModel | SceneModel} is sealed against
+     * further topology/resource growth.
+     */
+    __publicField(this, "onSceneModelSealed");
     /**
      * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
      */
@@ -138020,6 +138348,10 @@ var SceneEvents = class {
     this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
     this.onSceneModelBuildStarted = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
     this.onSceneModelBuildFinished = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onSceneModelBatchStarted = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onSceneModelBatchCommitted = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onSceneModelBatchRolledBack = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onSceneModelSealed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
     this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
@@ -138068,6 +138400,10 @@ var SceneEvents = class {
     this.onSceneModelDestroyed.clear();
     this.onSceneModelBuildStarted.clear();
     this.onSceneModelBuildFinished.clear();
+    this.onSceneModelBatchStarted.clear();
+    this.onSceneModelBatchCommitted.clear();
+    this.onSceneModelBatchRolledBack.clear();
+    this.onSceneModelSealed.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
     this.onSceneModelCoordSystemUnitsChanged.clear();
@@ -138103,7 +138439,7 @@ var SceneEvents = class {
   }
 };
 
-// packages/sdk/src/model/scene/Scene.ts
+// src/model/scene/Scene.ts
 var Scene = class {
   /**
    * Creates a new Scene.
@@ -138210,6 +138546,13 @@ var Scene = class {
       sceneModel.destroy();
       return this.logError(populated);
     }
+    if (paramsWithId.lifecycle === "sealed") {
+      const sealed = sceneModel.seal();
+      if (sealed.ok === false) {
+        sceneModel.destroy();
+        return this.logError(sealed);
+      }
+    }
     return { ok: true, value: sceneModel };
   }
   /**
@@ -138315,7 +138658,7 @@ var Scene = class {
   }
 };
 
-// packages/sdk/src/model/scene/getMeshWorldMatrix.ts
+// src/model/scene/getMeshWorldMatrix.ts
 function getMeshWorldMatrix(sceneMesh, targetCoordinateSystem) {
   const matrices = [];
   matrices.push(sceneMesh.matrix);
@@ -138345,10 +138688,10 @@ function getMeshWorldMatrix(sceneMesh, targetCoordinateSystem) {
   return mulMat4(coordTransform, result, createMat4Float64());
 }
 
-// packages/sdk/src/model/scene/buildMat4.ts
+// src/model/scene/buildMat4.ts
 var identityQuaternion = identityQuat();
 
-// packages/sdk/src/formats/gltf/index.ts
+// src/formats/gltf/index.ts
 var gltf_exports = {};
 __export(gltf_exports, {
   GLTFExporter: () => GLTFExporter,
@@ -138356,7 +138699,7 @@ __export(gltf_exports, {
   assertValidGLBHeader: () => assertValidGLBHeader
 });
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_mesh_features.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_mesh_features.js
 var EXT_mesh_features_exports = {};
 __export(EXT_mesh_features_exports, {
   createExtMeshFeatures: () => createExtMeshFeatures,
@@ -138365,10 +138708,10 @@ __export(EXT_mesh_features_exports, {
   name: () => name
 });
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/utils/version.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/utils/version.js
 var VERSION4 = true ? "4.3.3" : "latest";
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/image-type.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/image-type.js
 var _a;
 var parseImageNode2 = (_a = globalThis.loaders) == null ? void 0 : _a.parseImageNode;
 var IMAGE_SUPPORTED = typeof Image !== "undefined";
@@ -138402,7 +138745,7 @@ function getDefaultImageType() {
   throw new Error("Install '@loaders.gl/polyfills' to parse images under Node.js");
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/parsed-image-api.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/parsed-image-api.js
 function getImageType(image) {
   const format = getImageTypeOrNull(image);
   if (!format) {
@@ -138442,7 +138785,7 @@ function getImageTypeOrNull(image) {
   return null;
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/svg-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/svg-utils.js
 var SVG_DATA_URL_PATTERN = /^data:image\/svg\+xml/;
 var SVG_URL_PATTERN = /\.svg((\?|#).*)?$/;
 function isSVG(url) {
@@ -138471,7 +138814,7 @@ function getBlob(arrayBuffer, url) {
   return new Blob([new Uint8Array(arrayBuffer)]);
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-to-image.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-to-image.js
 async function parseToImage(arrayBuffer, options, url) {
   const blobOrDataUrl = getBlobOrSVGDataUrl(arrayBuffer, url);
   const URL2 = self.URL || self.webkitURL;
@@ -138504,7 +138847,7 @@ async function loadToImage(url, options) {
   });
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-to-image-bitmap.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-to-image-bitmap.js
 var EMPTY_OBJECT = {};
 var imagebitmapOptionsSupported = true;
 async function parseToImageBitmap(arrayBuffer, options, url) {
@@ -138539,7 +138882,7 @@ function isEmptyObject(object) {
   return true;
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/parse-isobmff-binary.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/parse-isobmff-binary.js
 function getISOBMFFMediaType(buffer) {
   if (!checkString(buffer, "ftyp", 4)) {
     return null;
@@ -138575,7 +138918,7 @@ function checkString(buffer, header, offset = 0) {
   return true;
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/binary-image-api.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/binary-image-api.js
 var BIG_ENDIAN = false;
 var LITTLE_ENDIAN = true;
 function getBinaryImageMetadata(binaryData) {
@@ -138694,7 +139037,7 @@ function toDataView(data) {
   throw new Error("toDataView");
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-to-node-image.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-to-node-image.js
 async function parseToNodeImage(arrayBuffer, options) {
   var _a2;
   const { mimeType } = getBinaryImageMetadata(arrayBuffer) || {};
@@ -138703,7 +139046,7 @@ async function parseToNodeImage(arrayBuffer, options) {
   return await parseImageNode3(arrayBuffer, mimeType);
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-image.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/parsers/parse-image.js
 async function parseImage(arrayBuffer, options, context) {
   options = options || {};
   const imageOptions = options.image || {};
@@ -138740,7 +139083,7 @@ function getLoadableImageType(type) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/image-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/image-loader.js
 var EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "bmp", "ico", "svg", "avif"];
 var MIME_TYPES = [
   "image/png",
@@ -138775,7 +139118,7 @@ var ImageLoader = {
   options: DEFAULT_IMAGE_LOADER_OPTIONS
 };
 
-// node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/image-format.js
+// ../../node_modules/.pnpm/@loaders.gl+images@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/images/dist/lib/category-api/image-format.js
 var mimeTypeSupportedSync = {};
 function isImageFormatSupported(mimeType) {
   if (mimeTypeSupportedSync[mimeType] === void 0) {
@@ -138810,14 +139153,14 @@ function testBrowserImageFormatSupport(mimeType) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/utils/assert.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/utils/assert.js
 function assert5(condition, message) {
   if (!condition) {
     throw new Error(message || "assert failed: gltf");
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/gltf-constants.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/gltf-constants.js
 var COMPONENTS = {
   SCALAR: 1,
   VEC2: 2,
@@ -138842,7 +139185,7 @@ var BYTES = {
   // FLOAT
 };
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/gltf-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/gltf-utils.js
 var TYPES = ["SCALAR", "VEC2", "VEC3", "VEC4"];
 var ARRAY_CONSTRUCTOR_TO_WEBGL_CONSTANT = [
   [Int8Array, 5120],
@@ -138902,7 +139245,7 @@ function getAccessorArrayTypeAndLength(accessor, bufferView) {
   return { ArrayType, length: length2, byteLength, componentByteSize, numberOfComponentsInElement };
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/get-typed-array.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/get-typed-array.js
 function getTypedArrayForBufferView(json, buffers, bufferViewIndex) {
   const bufferView = json.bufferViews[bufferViewIndex];
   assert5(bufferView);
@@ -138939,7 +139282,7 @@ function getTypedArrayForAccessor(json, buffers, accessor) {
   return result;
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/gltf-scenegraph.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/gltf-scenegraph.js
 function makeDefaultGLTFJson() {
   return {
     asset: {
@@ -139466,7 +139809,7 @@ var GLTFScenegraph = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/utils/3d-tiles-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/utils/3d-tiles-utils.js
 function emod(n2) {
   return (n2 % 1 + 1) % 1;
 }
@@ -139671,7 +140014,7 @@ function getPropertyDataString(numberOfElements, valuesDataBytes, arrayOffsets, 
   return [];
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_mesh_features.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_mesh_features.js
 var EXT_MESH_FEATURES_NAME = "EXT_mesh_features";
 var name = EXT_MESH_FEATURES_NAME;
 async function decode2(gltfData, options) {
@@ -139794,7 +140137,7 @@ function createAccessorKey(attributes) {
   return { accessorKey, index: max };
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_structural_metadata.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_structural_metadata.js
 var EXT_structural_metadata_exports = {};
 __export(EXT_structural_metadata_exports, {
   createExtStructuralMetadata: () => createExtStructuralMetadata,
@@ -140234,7 +140577,7 @@ function createBufferView(typedArray, scenegraph) {
   return scenegraph.addBufferView(typedArray);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/EXT_feature_metadata.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/EXT_feature_metadata.js
 var EXT_feature_metadata_exports = {};
 __export(EXT_feature_metadata_exports, {
   decode: () => decode4,
@@ -140439,13 +140782,13 @@ function processPrimitiveTextures(scenegraph, attributeName, featureTexturePrope
   primitivePropertyDataToAttributes(scenegraph, attributeName, propertyData, featureTextureTable, primitive);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/utils/version.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/utils/version.js
 var VERSION5 = true ? "4.3.3" : "latest";
 
-// node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/utils/version.js
+// ../../node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/utils/version.js
 var VERSION6 = true ? "4.3.3" : "latest";
 
-// node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/parsers/basis-module-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/parsers/basis-module-loader.js
 var BASIS_EXTERNAL_LIBRARIES = {
   /** Basis transcoder, javascript wrapper part */
   TRANSCODER: "basis_transcoder.js",
@@ -140522,7 +140865,7 @@ function initializeBasisEncoderModule(BasisEncoderModule, wasmBinary) {
   });
 }
 
-// node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/gl-extensions.js
+// ../../node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/gl-extensions.js
 var GL_EXTENSIONS_CONSTANTS = {
   // WEBGL_compressed_texture_s3tc
   COMPRESSED_RGB_S3TC_DXT1_EXT: 33776,
@@ -140592,7 +140935,7 @@ var GL_EXTENSIONS_CONSTANTS = {
   COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT: 35919
 };
 
-// node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/utils/texture-formats.js
+// ../../node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/utils/texture-formats.js
 var BROWSER_PREFIXES = ["", "WEBKIT_", "MOZ_"];
 var WEBGL_EXTENSIONS = {
   /* eslint-disable camelcase */
@@ -140631,7 +140974,7 @@ function getWebGLContext() {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/parsers/parse-ktx.js
+// ../../node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/parsers/parse-ktx.js
 var KTX2_ID = [
   // '´', 'K', 'T', 'X', '2', '0', 'ª', '\r', '\n', '\x1A', '\n'
   171,
@@ -140664,7 +141007,7 @@ function isKTX(data) {
   return !notKTX;
 }
 
-// node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/parsers/parse-basis.js
+// ../../node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/lib/parsers/parse-basis.js
 var OutputFormat = {
   etc1: {
     basisFormat: 0,
@@ -140859,7 +141202,7 @@ function selectSupportedBasisFormat() {
   return "rgb565";
 }
 
-// node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/basis-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+textures@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/textures/dist/basis-loader.js
 var BasisWorkerLoader = {
   dataType: null,
   batchType: null,
@@ -140886,7 +141229,7 @@ var BasisLoader = {
   parse: parseBasis
 };
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/parsers/parse-glb.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/parsers/parse-glb.js
 var LITTLE_ENDIAN2 = true;
 var MAGIC_glTF = 1735152710;
 var GLB_FILE_HEADER_SIZE = 12;
@@ -140996,7 +141339,7 @@ function parseBINChunk(glb, dataView, byteOffset, chunkLength) {
   return padToNBytes(chunkLength, 4);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/resolve-url.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/resolve-url.js
 function resolveUrl(url, options) {
   const absolute = url.startsWith("data:") || url.startsWith("http:") || url.startsWith("https:");
   if (absolute) {
@@ -141009,14 +141352,14 @@ function resolveUrl(url, options) {
   return baseUrl.substr(0, baseUrl.lastIndexOf("/") + 1) + url;
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_meshopt_compression.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_meshopt_compression.js
 var EXT_meshopt_compression_exports = {};
 __export(EXT_meshopt_compression_exports, {
   decode: () => decode6,
   name: () => name4
 });
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/meshopt/meshopt-decoder.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/meshopt/meshopt-decoder.js
 var wasm_base = "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";
 var wasm_simd = "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";
 var detector = new Uint8Array([
@@ -141207,7 +141550,7 @@ function decode5(instance, fun, target, count, size, source, filter) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_meshopt_compression.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_meshopt_compression.js
 var EXT_MESHOPT_COMPRESSION = "EXT_meshopt_compression";
 var name4 = EXT_MESHOPT_COMPRESSION;
 async function decode6(gltfData, options) {
@@ -141235,7 +141578,7 @@ async function decodeMeshoptBufferView(scenegraph, bufferView) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_texture_webp.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_texture_webp.js
 var EXT_texture_webp_exports = {};
 __export(EXT_texture_webp_exports, {
   name: () => name5,
@@ -141262,7 +141605,7 @@ function preprocess(gltfData, options) {
   scenegraph.removeExtension(EXT_TEXTURE_WEBP);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_texture_basisu.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_texture_basisu.js
 var KHR_texture_basisu_exports = {};
 __export(KHR_texture_basisu_exports, {
   name: () => name6,
@@ -141283,7 +141626,7 @@ function preprocess2(gltfData, options) {
   scene.removeExtension(KHR_TEXTURE_BASISU);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_draco_mesh_compression.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_draco_mesh_compression.js
 var KHR_draco_mesh_compression_exports = {};
 __export(KHR_draco_mesh_compression_exports, {
   decode: () => decode7,
@@ -141292,10 +141635,10 @@ __export(KHR_draco_mesh_compression_exports, {
   preprocess: () => preprocess3
 });
 
-// node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/utils/version.js
+// ../../node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/utils/version.js
 var VERSION7 = true ? "4.3.3" : "latest";
 
-// node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/draco-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/draco-loader.js
 var DracoLoader = {
   dataType: null,
   batchType: null,
@@ -141320,7 +141663,7 @@ var DracoLoader = {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+schema@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/schema/dist/lib/table/simple-table/data-type.js
+// ../../node_modules/.pnpm/@loaders.gl+schema@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/schema/dist/lib/table/simple-table/data-type.js
 function getDataTypeFromTypedArray(array) {
   switch (array.constructor) {
     case Int8Array:
@@ -141345,7 +141688,7 @@ function getDataTypeFromTypedArray(array) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+schema@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/schema/dist/lib/mesh/mesh-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+schema@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/schema/dist/lib/mesh/mesh-utils.js
 function getMeshBoundingBox(attributes) {
   let minX = Infinity;
   let minY = Infinity;
@@ -141372,7 +141715,7 @@ function getMeshBoundingBox(attributes) {
   ];
 }
 
-// node_modules/.pnpm/@loaders.gl+schema@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/schema/dist/lib/mesh/deduce-mesh-schema.js
+// ../../node_modules/.pnpm/@loaders.gl+schema@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/schema/dist/lib/mesh/deduce-mesh-schema.js
 function deduceMeshSchema(attributes, metadata = {}) {
   const fields = deduceMeshFields(attributes);
   return { fields, metadata };
@@ -141409,7 +141752,7 @@ function makeMeshAttributeMetadata(attribute) {
   return result;
 }
 
-// node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/utils/get-draco-schema.js
+// ../../node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/utils/get-draco-schema.js
 function getDracoSchema(attributes, loaderData, indices) {
   const metadata = makeMetadata(loaderData.metadata);
   const fields = [];
@@ -141447,7 +141790,7 @@ function makeMetadata(metadata) {
   return serializedMetadata;
 }
 
-// node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/draco-parser.js
+// ../../node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/draco-parser.js
 var DRACO_TO_GLTF_ATTRIBUTE_NAME_MAP = {
   POSITION: "POSITION",
   NORMAL: "NORMAL",
@@ -141891,7 +142234,7 @@ function getUint32Array(dracoArray) {
   return intArray;
 }
 
-// node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/draco-module-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/lib/draco-module-loader.js
 var DRACO_DECODER_VERSION = "1.5.6";
 var DRACO_ENCODER_VERSION = "1.4.1";
 var STATIC_DECODER_URL = `https://www.gstatic.com/draco/versioned/decoders/${DRACO_DECODER_VERSION}`;
@@ -141954,7 +142297,7 @@ function initializeDracoDecoder(DracoDecoderModule, wasmBinary) {
   });
 }
 
-// node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/index.js
+// ../../node_modules/.pnpm/@loaders.gl+draco@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/draco/dist/index.js
 var DracoLoader2 = {
   ...DracoLoader,
   parse
@@ -141969,7 +142312,7 @@ async function parse(arrayBuffer, options) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/gltf-attribute-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/gltf-utils/gltf-attribute-utils.js
 function getGLTFAccessors(attributes) {
   const accessors = {};
   for (const name12 in attributes) {
@@ -142028,7 +142371,7 @@ function toTypedArray(array, ArrayType, convertTypedArrays = false) {
   return array;
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_draco_mesh_compression.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_draco_mesh_compression.js
 var KHR_DRACO_MESH_COMPRESSION = "KHR_draco_mesh_compression";
 var name7 = KHR_DRACO_MESH_COMPRESSION;
 function preprocess3(gltfData, options, context) {
@@ -142129,14 +142472,14 @@ function* makeMeshPrimitiveIterator(scenegraph) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_texture_transform.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_texture_transform.js
 var KHR_texture_transform_exports = {};
 __export(KHR_texture_transform_exports, {
   decode: () => decode8,
   name: () => name8
 });
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/common.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/common.js
 var RADIANS_TO_DEGREES = 1 / Math.PI * 180;
 var DEGREES_TO_RADIANS = 1 / 180 * Math.PI;
 var DEFAULT_CONFIG = {
@@ -142195,7 +142538,7 @@ function round(value) {
   return Math.round(value / config.EPSILON) * config.EPSILON;
 }
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/base/math-array.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/base/math-array.js
 var MathArray = class extends Array {
   // Common methods
   /**
@@ -142412,7 +142755,7 @@ var MathArray = class extends Array {
   }
 };
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/validators.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/validators.js
 function validateVector(v2, length2) {
   if (v2.length !== length2) {
     return false;
@@ -142437,14 +142780,14 @@ function checkVector(v2, length2, callerName = "") {
   return v2;
 }
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/assert.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/assert.js
 function assert6(condition, message) {
   if (!condition) {
     throw new Error(`math.gl assertion ${message}`);
   }
 }
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/base/vector.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/base/vector.js
 var Vector = class extends MathArray {
   // ACCESSORS
   get x() {
@@ -142567,11 +142910,11 @@ var Vector = class extends MathArray {
   }
 };
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/common.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/common.js
 var ARRAY_TYPE = typeof Float32Array !== "undefined" ? Float32Array : Array;
 var degree = Math.PI / 180;
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/vec2.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/vec2.js
 function create() {
   const out = new ARRAY_TYPE(2);
   if (ARRAY_TYPE != Float32Array) {
@@ -142614,7 +142957,7 @@ var forEach2 = function() {
   };
 }();
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/gl-matrix-extras.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/lib/gl-matrix-extras.js
 function vec3_transformMat4AsVector(out, a3, m2) {
   const x2 = a3[0];
   const y2 = a3[1];
@@ -142644,7 +142987,7 @@ function vec4_transformMat3(out, a3, m2) {
   return out;
 }
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/vec3.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/vec3.js
 function create2() {
   const out = new ARRAY_TYPE(3);
   if (ARRAY_TYPE != Float32Array) {
@@ -142797,7 +143140,7 @@ var forEach3 = function() {
   };
 }();
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/vector3.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/vector3.js
 var ORIGIN = [0, 0, 0];
 var ZERO;
 var Vector3 = class _Vector3 extends Vector {
@@ -142918,7 +143261,7 @@ var Vector3 = class _Vector3 extends Vector {
   }
 };
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/base/matrix.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/base/matrix.js
 var Matrix = class extends MathArray {
   // fromObject(object) {
   //   const array = object.elements;
@@ -142976,7 +143319,7 @@ var Matrix = class extends MathArray {
   }
 };
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/mat3.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/gl-matrix/mat3.js
 function transpose(out, a3) {
   if (out === a3) {
     const a01 = a3[1];
@@ -143161,7 +143504,7 @@ function fromQuat(out, q3) {
   return out;
 }
 
-// node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/matrix3.js
+// ../../node_modules/.pnpm/@math.gl+core@4.1.0/node_modules/@math.gl/core/dist/classes/matrix3.js
 var INDICES;
 (function(INDICES2) {
   INDICES2[INDICES2["COL0ROW0"] = 0] = "COL0ROW0";
@@ -143353,7 +143696,7 @@ function getIdentityMatrix() {
   return IDENTITY_MATRIX3;
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_texture_transform.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_texture_transform.js
 var KHR_TEXTURE_TRANSFORM = "KHR_texture_transform";
 var name8 = KHR_TEXTURE_TRANSFORM;
 var scratchVector = new Vector3();
@@ -143498,7 +143841,7 @@ function makeTransformationMatrix(extensionData) {
   return translationMatrix.multiplyRight(rotationMatrix).multiplyRight(scaleMatrix2);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/KHR_lights_punctual.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/KHR_lights_punctual.js
 var KHR_lights_punctual_exports = {};
 __export(KHR_lights_punctual_exports, {
   decode: () => decode9,
@@ -143541,7 +143884,7 @@ async function encode5(gltfData) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/KHR_materials_unlit.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/KHR_materials_unlit.js
 var KHR_materials_unlit_exports = {};
 __export(KHR_materials_unlit_exports, {
   decode: () => decode10,
@@ -143576,7 +143919,7 @@ function encode6(gltfData) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/KHR_techniques_webgl.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/KHR_techniques_webgl.js
 var KHR_techniques_webgl_exports = {};
 __export(KHR_techniques_webgl_exports, {
   decode: () => decode11,
@@ -143643,7 +143986,7 @@ function resolveValues(technique, gltfScenegraph) {
   return values;
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/gltf-extensions.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/gltf-extensions.js
 var EXTENSIONS2 = [
   // 1.0
   // KHR_binary_gltf is handled separately - must be processed before other parsing starts
@@ -143683,7 +144026,7 @@ function useExtension(extensionName, options) {
   return !exclude;
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_binary_gltf.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/KHR_binary_gltf.js
 var KHR_BINARY_GLTF = "KHR_binary_glTF";
 function preprocess4(gltfData) {
   const gltfScenegraph = new GLTFScenegraph(gltfData);
@@ -143701,7 +144044,7 @@ function preprocess4(gltfData) {
   gltfScenegraph.removeExtension(KHR_BINARY_GLTF);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/normalize-gltf-v1.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/normalize-gltf-v1.js
 var GLTF_ARRAYS = {
   accessors: "accessor",
   animations: "animation",
@@ -143916,7 +144259,7 @@ function normalizeGLTFV1(gltf, options = {}) {
   return new GLTFV1Normalizer().normalize(gltf, options);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/parsers/parse-gltf.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/parsers/parse-gltf.js
 async function parseGLTF(gltf, arrayBufferOrString, byteOffset = 0, options, context) {
   var _a2, _b, _c;
   parseGLTFContainerSync(gltf, arrayBufferOrString, byteOffset, options);
@@ -144043,7 +144386,7 @@ async function loadImage(gltf, image, index2, options, context) {
   gltf.images[index2] = parsedImage;
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/gltf-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/gltf-loader.js
 var GLTFLoader = {
   dataType: null,
   batchType: null,
@@ -144081,7 +144424,7 @@ async function parse2(arrayBuffer, options = {}, context) {
   return await parseGLTF(gltf, arrayBuffer, byteOffset, options, context);
 }
 
-// node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/post-process-gltf.js
+// ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/post-process-gltf.js
 var COMPONENTS2 = {
   SCALAR: 1,
   VEC2: 2,
@@ -144484,7 +144827,7 @@ function postProcessGLTF(gltf, options) {
   return new GLTFPostProcessor().postProcess(gltf, options);
 }
 
-// packages/sdk/src/base/io/BrowserFileIO.ts
+// src/base/io/BrowserFileIO.ts
 var BrowserFileIO = class {
   /**
    * Loads a file from the given URL and returns it as a CrossPlatformBlob.
@@ -144511,7 +144854,7 @@ var BrowserFileIO = class {
   }
 };
 
-// packages/sdk/src/base/io/FileIOFactory.ts
+// src/base/io/FileIOFactory.ts
 function createFileIO() {
   var _a2;
   const isNode = typeof process !== "undefined" && !!((_a2 = process.versions) == null ? void 0 : _a2.node);
@@ -144523,7 +144866,7 @@ function createFileIO() {
   return new BrowserFileIO();
 }
 
-// packages/sdk/src/formats/ModelLoader.ts
+// src/formats/ModelLoader.ts
 var MIN_YIELD_INTERVAL_MS = 16;
 var _fileIO = null;
 function getFileIO() {
@@ -144664,7 +145007,7 @@ var ModelLoader = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/javascript-utils/is-type.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/javascript-utils/is-type.js
 var isBoolean3 = (x2) => typeof x2 === "boolean";
 var isFunction3 = (x2) => typeof x2 === "function";
 var isObject3 = (x2) => x2 !== null && typeof x2 === "object";
@@ -144678,7 +145021,7 @@ var isReadableDOMStream = (x2) => typeof ReadableStream !== "undefined" && x2 in
 var isReadableNodeStream3 = (x2) => isObject3(x2) && isFunction3(x2.read) && isFunction3(x2.pipe) && isBoolean3(x2.readable);
 var isReadableStream = (x2) => isReadableDOMStream(x2) || isReadableNodeStream3(x2);
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/fetch/fetch-error.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/fetch/fetch-error.js
 var FetchError = class extends Error {
   constructor(message, info) {
     super(message);
@@ -144694,7 +145037,7 @@ var FetchError = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/mime-type-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/mime-type-utils.js
 var DATA_URL_PATTERN = /^data:([-\w.]+\/[-\w.+]+)(;|,)/;
 var MIME_TYPE_PATTERN = /^([-\w.]+\/[-\w.+]+)/;
 function compareMIMETypes(mimeType1, mimeType2) {
@@ -144718,7 +145061,7 @@ function parseMIMETypeFromURL(url) {
   return "";
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/url-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/url-utils.js
 var QUERY_STRING_PATTERN = /\?.*/;
 function extractQueryString(url) {
   const matches3 = url.match(QUERY_STRING_PATTERN);
@@ -144736,7 +145079,7 @@ function shortenUrlForDisplay(url) {
   return `${urlStart}...${urlEnd}`;
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/resource-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/resource-utils.js
 function getResourceUrl(resource) {
   if (isResponse(resource)) {
     const response = resource;
@@ -144788,7 +145131,7 @@ function getResourceContentLength(resource) {
   return -1;
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/response-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/utils/response-utils.js
 async function makeResponse(resource) {
   if (isResponse(resource)) {
     return resource;
@@ -144868,7 +145211,7 @@ function arrayBufferToBase64(buffer) {
   return btoa(binary);
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/fetch/fetch-file.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/fetch/fetch-file.js
 function isNodePath(url) {
   return !isRequestURL2(url) && !isDataURL2(url);
 }
@@ -144892,7 +145235,7 @@ async function fetchFile(urlOrData, fetchOptions) {
   return await makeResponse(urlOrData);
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/loggers.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/loggers.js
 var probeLog = new Log({ id: "loaders.gl" });
 var NullLog = class {
   log() {
@@ -144931,7 +145274,7 @@ var ConsoleLog = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/option-defaults.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/option-defaults.js
 var DEFAULT_LOADER_OPTIONS = {
   // baseUri
   fetch: null,
@@ -144980,7 +145323,7 @@ var REMOVED_LOADER_OPTIONS = {
   signal: "fetch.signal"
 };
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/option-utils.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/option-utils.js
 function getGlobalLoaderState() {
   globalThis.loaders = globalThis.loaders || {};
   const { loaders } = globalThis;
@@ -145075,7 +145418,7 @@ function addUrlOptions(options, url) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/normalize-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/normalize-loader.js
 function isLoaderObject(loader) {
   if (!loader) {
     return false;
@@ -145107,7 +145450,7 @@ function normalizeLoader(loader) {
   return loader;
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/register-loaders.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/register-loaders.js
 var getGlobalLoaderRegistry = () => {
   const state = getGlobalLoaderState();
   state.loaderRegistry = state.loaderRegistry || [];
@@ -145117,7 +145460,7 @@ function getRegisteredLoaders() {
   return getGlobalLoaderRegistry();
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/select-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/select-loader.js
 var EXT_PATTERN = /\.([^.]+)$/;
 async function selectLoader(data, loaders = [], options, context) {
   if (!validHTTPResponse(data)) {
@@ -145304,7 +145647,7 @@ function getMagicString3(arrayBuffer, byteOffset, length2) {
   return magic;
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-string-iterator.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-string-iterator.js
 var DEFAULT_CHUNK_SIZE = 256 * 1024;
 function* makeStringIterator(string, options) {
   const chunkSize = (options == null ? void 0 : options.chunkSize) || DEFAULT_CHUNK_SIZE;
@@ -145318,7 +145661,7 @@ function* makeStringIterator(string, options) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-array-buffer-iterator.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-array-buffer-iterator.js
 var DEFAULT_CHUNK_SIZE2 = 256 * 1024;
 function* makeArrayBufferIterator(arrayBuffer, options = {}) {
   const { chunkSize = DEFAULT_CHUNK_SIZE2 } = options;
@@ -145334,7 +145677,7 @@ function* makeArrayBufferIterator(arrayBuffer, options = {}) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-blob-iterator.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-blob-iterator.js
 var DEFAULT_CHUNK_SIZE3 = 1024 * 1024;
 async function* makeBlobIterator(blob, options) {
   const chunkSize = (options == null ? void 0 : options.chunkSize) || DEFAULT_CHUNK_SIZE3;
@@ -145347,7 +145690,7 @@ async function* makeBlobIterator(blob, options) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-stream-iterator.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-stream-iterator.js
 function makeStreamIterator(stream2, options) {
   return isBrowser2 ? makeBrowserStreamIterator(stream2, options) : makeNodeStreamIterator(stream2, options);
 }
@@ -145376,7 +145719,7 @@ async function* makeNodeStreamIterator(stream2, options) {
   }
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-iterator.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-iterator.js
 function makeIterator(data, options) {
   if (typeof data === "string") {
     return makeStringIterator(data, options);
@@ -145397,7 +145740,7 @@ function makeIterator(data, options) {
   throw new Error("makeIterator");
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/get-data.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/get-data.js
 var ERR_DATA = "Cannot convert supplied data type";
 function getArrayBufferOrStringFromDataSync(data, loader, options) {
   if (loader.text && typeof data === "string") {
@@ -145450,7 +145793,7 @@ async function getArrayBufferOrStringFromData(data, loader, options) {
   throw new Error(ERR_DATA);
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/get-fetch-function.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/get-fetch-function.js
 function getFetchFunction(options, context) {
   const globalOptions = getGlobalLoaderOptions();
   const loaderOptions = options || globalOptions;
@@ -145466,7 +145809,7 @@ function getFetchFunction(options, context) {
   return fetchFile;
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/loader-context.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/loader-context.js
 function getLoaderContext(context, options, parentContext) {
   if (parentContext) {
     return parentContext;
@@ -145502,7 +145845,7 @@ function getLoadersFromContext(loaders, context) {
   return candidateLoaders && candidateLoaders.length ? candidateLoaders : void 0;
 }
 
-// node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/parse.js
+// ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/parse.js
 async function parse3(data, loaders, options, context) {
   if (loaders && !Array.isArray(loaders) && !isLoaderObject(loaders)) {
     context = void 0;
@@ -145554,7 +145897,7 @@ async function parseWithLoader(loader, data, options, context) {
   throw new Error(`${loader.id} loader - no parser found and worker is disabled`);
 }
 
-// packages/sdk/src/formats/gltf/GLTFLoader.ts
+// src/formats/gltf/GLTFLoader.ts
 var GLTFLoader2 = class extends ModelLoader {
   constructor() {
     super({
@@ -146229,10 +146572,10 @@ function parseMesh(node, ctx2, matrix, meshIds) {
         if (primitive.attributes.COLOR_0) {
           geometryParams.colors = primitive.attributes.COLOR_0.value;
         }
-        if (primitive.attributes.NORMAL) {
+        if (!ctx2.options.ignoreNormals && primitive.attributes.NORMAL) {
           geometryParams.normals = primitive.attributes.NORMAL.value;
         }
-        if (primitive.attributes.TEXCOORD_0) {
+        if (!ctx2.options.ignoreUVs && primitive.attributes.TEXCOORD_0) {
           geometryParams.uvs = primitive.attributes.TEXCOORD_0.value;
         }
         if (primitive.indices) {
@@ -146338,8 +146681,8 @@ function splitPrimitiveByFeature(ctx2, primitive, matrix) {
   if (!featureValues || !positions) {
     return false;
   }
-  const normals = (_f = primitive.attributes.NORMAL) == null ? void 0 : _f.value;
-  const uvs = (_g = primitive.attributes.TEXCOORD_0) == null ? void 0 : _g.value;
+  const normals = ctx2.options.ignoreNormals ? void 0 : (_f = primitive.attributes.NORMAL) == null ? void 0 : _f.value;
+  const uvs = ctx2.options.ignoreUVs ? void 0 : (_g = primitive.attributes.TEXCOORD_0) == null ? void 0 : _g.value;
   const srcIndices = (_h = primitive.indices) == null ? void 0 : _h.value;
   const triangleCount2 = srcIndices ? srcIndices.length / 3 : positions.length / 9;
   const cornersByFeature = /* @__PURE__ */ new Map();
@@ -146413,7 +146756,7 @@ function splitPrimitiveByFeature(ctx2, primitive, matrix) {
   return true;
 }
 
-// packages/sdk/src/formats/ModelExporter.ts
+// src/formats/ModelExporter.ts
 var MIN_YIELD_INTERVAL_MS2 = 16;
 var ModelExporter = class {
   /**
@@ -146508,7 +146851,7 @@ var ModelExporter = class {
   }
 };
 
-// node_modules/.pnpm/property-graph@3.0.0/node_modules/property-graph/dist/property-graph.modern.js
+// ../../node_modules/.pnpm/property-graph@3.0.0/node_modules/property-graph/dist/property-graph.modern.js
 var EventDispatcher4 = class {
   constructor() {
     this._listeners = {};
@@ -147112,7 +147455,7 @@ var GraphNode = class _GraphNode extends EventDispatcher4 {
   }
 };
 
-// node_modules/.pnpm/@gltf-transform+core@4.2.1/node_modules/@gltf-transform/core/dist/index.modern.js
+// ../../node_modules/.pnpm/@gltf-transform+core@4.2.1/node_modules/@gltf-transform/core/dist/index.modern.js
 var VERSION8 = `v${"4.2.1"}`;
 var GLB_BUFFER = "@glb.bin";
 var PropertyType;
@@ -151939,7 +152282,7 @@ var WebIO = class extends PlatformIO {
   }
 };
 
-// packages/sdk/src/formats/findTriplanarTextureSkip.ts
+// src/formats/findTriplanarTextureSkip.ts
 var TEXTURE_REFS = [
   "colorTexture",
   "metallicRoughnessTexture",
@@ -151997,7 +152340,7 @@ function triplanarSkipWarning(format, skip) {
   return `[${format}] Dropped ${skip.textureIds.size} texture(s) on ${skip.materialIds.size} material(s): they are sampled via triplanar (world-projected) texturing, which ${format} cannot represent \u2014 those materials are exported as flat colour. Export to XGF to keep them.`;
 }
 
-// packages/sdk/src/formats/gltf/GLTFExporter.ts
+// src/formats/gltf/GLTFExporter.ts
 var tempVec3a4 = createVec3Float64();
 var tempVec3b4 = createVec3Float64();
 var GLTFExporter = class extends ModelExporter {
@@ -152016,6 +152359,8 @@ async function encode22(params, options) {
   var _a2;
   const { sceneModel } = params;
   options = options != null ? options : {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const onProgress = options.onProgress;
   const signal = options.signal;
   const progress = { phase: "", current: 0, total: 0 };
@@ -152097,12 +152442,12 @@ async function encode22(params, options) {
     }
     const positionAccessor = doc.createAccessor().setType("VEC3").setArray(positions).setBuffer(buffer);
     const bundle = { position: positionAccessor };
-    if (geom.normalsCompressed) {
+    if (!ignoreNormals && geom.normalsCompressed) {
       const normals = new Float32Array(geom.normalsCompressed.length / 2 * 3);
       octDecodeNormalsU16(geom.normalsCompressed, normals);
       bundle.normal = doc.createAccessor().setType("VEC3").setArray(normals).setBuffer(buffer);
     }
-    if (geom.uvsCompressed) {
+    if (!ignoreUVs && geom.uvsCompressed) {
       const uvs = geom.uvsDecompressMatrix ? decompressUVs(geom.uvsCompressed, geom.uvsDecompressMatrix, new Float32Array(geom.uvsCompressed.length)) : new Float32Array(geom.uvsCompressed);
       bundle.uv = doc.createAccessor().setType("VEC2").setArray(uvs).setBuffer(buffer);
     }
@@ -152382,14 +152727,14 @@ function xeokitWrapToGLTF(wrap) {
   }
 }
 
-// packages/sdk/src/formats/cityjson/index.ts
+// src/formats/cityjson/index.ts
 var cityjson_exports = {};
 __export(cityjson_exports, {
   CityJSONExporter: () => CityJSONExporter,
   CityJSONLoader: () => CityJSONLoader
 });
 
-// packages/sdk/src/formats/cityjson/versions/v1_0/earcut.ts
+// src/formats/cityjson/versions/v1_0/earcut.ts
 var earcut = /* @__PURE__ */ (() => {
   class Node2 {
     constructor(i2, x2, y2) {
@@ -152889,7 +153234,7 @@ var earcut = /* @__PURE__ */ (() => {
   return earcut2;
 })();
 
-// packages/sdk/src/formats/cityjson/versions/v1_0/parse.ts
+// src/formats/cityjson/versions/v1_0/parse.ts
 var tempVec2a = createVec2Float64();
 var tempVec3a5 = createVec3Float64();
 var tempVec3b5 = createVec3Float64();
@@ -153337,7 +153682,7 @@ function to2D(_p, _n, re2) {
   re2[1] = y2;
 }
 
-// packages/sdk/src/formats/cityjson/CityJSONLoader.ts
+// src/formats/cityjson/CityJSONLoader.ts
 var CityJSONLoader = class extends ModelLoader {
   /**
    * Constructs a CityJSONLoader.
@@ -153356,7 +153701,7 @@ var CityJSONLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/cityjson/versions/v1_0/encode.ts
+// src/formats/cityjson/versions/v1_0/encode.ts
 var PRECISION = 1e-3;
 async function encode8(params, options) {
   const { sceneModel, dataModel } = params;
@@ -153532,7 +153877,7 @@ function uniform(values) {
   return true;
 }
 
-// packages/sdk/src/formats/cityjson/CityJSONExporter.ts
+// src/formats/cityjson/CityJSONExporter.ts
 var CityJSONExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -153546,14 +153891,14 @@ var CityJSONExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/citygml/index.ts
+// src/formats/citygml/index.ts
 var citygml_exports = {};
 __export(citygml_exports, {
   CityGMLLoader: () => CityGMLLoader,
   getCityGMLVersion: () => getCityGMLVersion
 });
 
-// packages/sdk/src/formats/citygml/versions/v2_0/parse.ts
+// src/formats/citygml/versions/v2_0/parse.ts
 var GML_NS = "http://www.opengis.net/gml";
 var SCHEMA2 = "citygml_2_0";
 var DEFAULT_COLOR = [0.75, 0.75, 0.72];
@@ -154117,7 +154462,7 @@ function colorForFeatureType(type) {
   return DEFAULT_COLOR;
 }
 
-// packages/sdk/src/formats/citygml/CityGMLLoader.ts
+// src/formats/citygml/CityGMLLoader.ts
 var CityGMLLoader = class extends ModelLoader {
   /**
    * Constructs a CityGMLLoader.
@@ -154191,14 +154536,14 @@ function versionFromText(text) {
   return void 0;
 }
 
-// packages/sdk/src/formats/ifc/index.ts
+// src/formats/ifc/index.ts
 var ifc_exports = {};
 __export(ifc_exports, {
   IFCExporter: () => IFCExporter,
   IFCLoader: () => IFCLoader
 });
 
-// packages/sdk/src/formats/ifc/versions/IFC4/parse.ts
+// src/formats/ifc/versions/IFC4/parse.ts
 var WebIFC = __toESM(require_web_ifc_api_node());
 var SCHEMA3 = "IFC4";
 async function parse6(ifcAPI, params, options) {
@@ -154433,7 +154778,7 @@ async function parseSceneModel(ctx2) {
   await step(ctx2, "Building meshes", total, total);
 }
 
-// packages/sdk/src/formats/ifc/getInitializedIFCAPI.ts
+// src/formats/ifc/getInitializedIFCAPI.ts
 var import_web_ifc = __toESM(require_web_ifc_api_node());
 var ifcAPIInstance = null;
 async function getInitializedIFCAPI() {
@@ -154472,7 +154817,7 @@ function detectEnvironment() {
   return "unknown";
 }
 
-// packages/sdk/src/formats/ifc/IFCLoader.ts
+// src/formats/ifc/IFCLoader.ts
 var IFCLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -154497,10 +154842,10 @@ async function parse7(params, options) {
   }
 }
 
-// packages/sdk/src/formats/ifc/versions/IFC4/encode.ts
+// src/formats/ifc/versions/IFC4/encode.ts
 var WebIFC2 = __toESM(require_web_ifc_api_node());
 
-// packages/sdk/src/formats/ifc/createDefaultIFCDataModel.ts
+// src/formats/ifc/createDefaultIFCDataModel.ts
 function createDefaultIFCDataModel(sceneModel, dataModel) {
   const getFirstObjectOfType = (type) => {
     var _a2;
@@ -154592,7 +154937,7 @@ function createDefaultIFCDataModel(sceneModel, dataModel) {
   }
 }
 
-// packages/sdk/src/formats/ifc/versions/IFC4/encode.ts
+// src/formats/ifc/versions/IFC4/encode.ts
 var _compressedPos = new Float32Array(3);
 var _decompressedPos = new Float64Array(3);
 async function encode9(ifcAPI, params, options) {
@@ -155015,7 +155360,7 @@ async function encode9(ifcAPI, params, options) {
   return ifcAPI.SaveModel(modelId);
 }
 
-// packages/sdk/src/formats/ifc/IFCExporter.ts
+// src/formats/ifc/IFCExporter.ts
 var IFCExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -155037,14 +155382,14 @@ async function encode10(params, options) {
   }
 }
 
-// packages/sdk/src/formats/xgf/index.ts
+// src/formats/xgf/index.ts
 var xgf_exports = {};
 __export(xgf_exports, {
   XGFExporter: () => XGFExporter,
   XGFLoader: () => XGFLoader
 });
 
-// packages/sdk/src/formats/xgf/versions/v1/unpackXGF.ts
+// src/formats/xgf/versions/v1/unpackXGF.ts
 function unpackXGF(arrayBuffer) {
   const requiresSwapFromLittleEndian = function() {
     const b5 = new ArrayBuffer(2);
@@ -155124,7 +155469,7 @@ function unpackXGF(arrayBuffer) {
   };
 }
 
-// packages/sdk/src/formats/xgf/versions/v1/xgfToModel.ts
+// src/formats/xgf/versions/v1/xgfToModel.ts
 var NUM_MATERIAL_ATTRIBUTES = 4;
 var NUM_MATERIAL_TEXTURE_REFS = 5;
 var NUM_MATERIAL_PBR_BYTES = 8;
@@ -155150,6 +155495,8 @@ var ALPHA_MODE_NAMES = ["OPAQUE", "MASK", "BLEND"];
 async function xgfToModel(params) {
   const { xgfData, sceneModel, dataModel, options } = params;
   const layerId = (options == null ? void 0 : options.layerId) || "default";
+  const ignoreNormals = (options == null ? void 0 : options.ignoreNormals) === true;
+  const ignoreUVs = (options == null ? void 0 : options.ignoreUVs) === true;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
   const progress = { phase: "", current: 0, total: 0 };
   const step2 = async (phase, current, total) => {
@@ -155403,12 +155750,12 @@ async function xgfToModel(params) {
           if (colSlice.length > 0)
             params2.colorsCompressed = colSlice;
           const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-          if (normalsBaseI !== NO_INDEX) {
+          if (!ignoreNormals && normalsBaseI !== NO_INDEX) {
             const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
             params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
           }
           const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-          if (uvsBaseI !== NO_INDEX) {
+          if (!ignoreUVs && uvsBaseI !== NO_INDEX) {
             const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
             params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
           }
@@ -155475,7 +155822,7 @@ function nextNonSentinelBase(bases, startIdx, arrayLength) {
   return arrayLength;
 }
 
-// packages/sdk/src/formats/xgf/versions/v1/parse.ts
+// src/formats/xgf/versions/v1/parse.ts
 async function parse8(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xgfToModel({
@@ -155486,7 +155833,7 @@ async function parse8(params, options) {
   });
 }
 
-// packages/sdk/src/formats/xgf/versions/v2/xgfToModel.ts
+// src/formats/xgf/versions/v2/xgfToModel.ts
 var NUM_MATERIAL_ATTRIBUTES2 = 4;
 var NUM_MATERIAL_TEXTURE_REFS2 = 5;
 var NUM_MATERIAL_PBR_BYTES2 = 8;
@@ -155517,6 +155864,8 @@ async function xgfToModel2(params) {
   const coordinateSystemMatrix = sceneModel && (options == null ? void 0 : options.coordinateSystem) ? createCoordinateSystemTransform(options.coordinateSystem, sceneModel.coordinateSystem, createMat4Float64()) : void 0;
   const meshIdPrefix = options == null ? void 0 : options.meshIdPrefix;
   const createdIds = options == null ? void 0 : options.createdIds;
+  const ignoreNormals = (options == null ? void 0 : options.ignoreNormals) === true;
+  const ignoreUVs = (options == null ? void 0 : options.ignoreUVs) === true;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
   const prefixId = (id) => id && idPrefix ? `${idPrefix}${id}` : id;
   const transformMatrix = (matrix, apply) => {
@@ -155846,12 +156195,12 @@ async function xgfToModel2(params) {
     if (colSlice.length > 0)
       params2.colorsCompressed = colSlice;
     const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-    if (normalsBaseI !== NO_INDEX2) {
+    if (!ignoreNormals && normalsBaseI !== NO_INDEX2) {
       const normalsEnd = nextNonSentinelBase2(eachGeometryNormalsBase, geometryIdx, normals.length);
       params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
     }
     const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-    if (uvsBaseI !== NO_INDEX2) {
+    if (!ignoreUVs && uvsBaseI !== NO_INDEX2) {
       const uvsEnd = nextNonSentinelBase2(eachGeometryUVsBase, geometryIdx, uvs.length);
       params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
     }
@@ -155983,7 +156332,7 @@ function nextAvailableNumericMeshId(sceneModel) {
   return nextMeshId;
 }
 
-// packages/sdk/src/formats/xgf/versions/v2/unpackXGF.ts
+// src/formats/xgf/versions/v2/unpackXGF.ts
 function unpackXGF2(arrayBuffer) {
   const requiresSwapFromLittleEndian = function() {
     const b5 = new ArrayBuffer(2);
@@ -156115,7 +156464,7 @@ function unpackXGF2(arrayBuffer) {
   };
 }
 
-// packages/sdk/src/formats/xgf/versions/v2/parse.ts
+// src/formats/xgf/versions/v2/parse.ts
 async function parse9(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xgfToModel2({
@@ -156126,7 +156475,7 @@ async function parse9(params, options) {
   });
 }
 
-// packages/sdk/src/formats/xgf/XGFLoader.ts
+// src/formats/xgf/XGFLoader.ts
 var XGFLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -156141,7 +156490,7 @@ var XGFLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/xgf/versions/v1/modelToXGF.ts
+// src/formats/xgf/versions/v1/modelToXGF.ts
 var NUM_MATERIAL_ATTRIBUTES3 = 4;
 var NUM_MATERIAL_TEXTURE_REFS3 = 5;
 var NUM_MATERIAL_PBR_BYTES3 = 8;
@@ -156169,6 +156518,8 @@ async function modelToXGF(params) {
   var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n;
   const sceneModel = params.sceneModel;
   const options = params.options || {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const onProgress = options.onProgress;
   const signal = options.signal;
   const progress = { phase: "", current: 0, total: 0 };
@@ -156212,9 +156563,9 @@ async function modelToXGF(params) {
       sizeEdgeIndices += geometry.edgeIndices.length;
     if (geometry.colorsCompressed)
       sizeColors += geometry.colorsCompressed.length;
-    if (geometry.normalsCompressed)
+    if (!ignoreNormals && geometry.normalsCompressed)
       sizeNormals += geometry.normalsCompressed.length;
-    if (geometry.uvsCompressed)
+    if (!ignoreUVs && geometry.uvsCompressed)
       sizeUVs += geometry.uvsCompressed.length;
     if (geometry.scales)
       sizeScales += geometry.scales.length;
@@ -156417,14 +156768,14 @@ async function modelToXGF(params) {
       xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
       edgeIndicesBase += geometry.edgeIndices.length;
     }
-    if (geometry.normalsCompressed) {
+    if (!ignoreNormals && geometry.normalsCompressed) {
       xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
       xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX3;
     }
-    if (geometry.uvsCompressed) {
+    if (!ignoreUVs && geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
@@ -156559,12 +156910,12 @@ function encodeImageToPNGNode(imageData, w, h, isPixelBuffer) {
   return new Uint8Array(canvas.toBuffer("image/png"));
 }
 
-// packages/sdk/src/formats/xgf/versions/v1/XGF_INFO.ts
+// src/formats/xgf/versions/v1/XGF_INFO.ts
 var XGF_INFO = {
   xgfVersion: 1
 };
 
-// packages/sdk/src/formats/xgf/versions/v1/packXGF.ts
+// src/formats/xgf/versions/v1/packXGF.ts
 var object2Array = function() {
   const encoder = new TextEncoder();
   return (obj) => encoder.encode(JSON.stringify(obj));
@@ -156659,13 +157010,13 @@ function packXGF(xgfData) {
   ]);
 }
 
-// packages/sdk/src/formats/xgf/versions/v1/encode.ts
+// src/formats/xgf/versions/v1/encode.ts
 async function encode11(params, options) {
   const xgfData = await modelToXGF({ sceneModel: params.sceneModel, options });
   return packXGF(xgfData);
 }
 
-// packages/sdk/src/formats/xgf/versions/v2/modelToXGF.ts
+// src/formats/xgf/versions/v2/modelToXGF.ts
 var NUM_MATERIAL_ATTRIBUTES4 = 4;
 var NUM_MATERIAL_TEXTURE_REFS4 = 5;
 var NUM_MATERIAL_PBR_BYTES4 = 8;
@@ -156693,6 +157044,8 @@ async function modelToXGF2(params) {
   var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
   const sceneModel = params.sceneModel;
   const options = params.options || {};
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const assetMode = options.assetMode === "assetLibrary" || options.assetMode === "referencesOnly" ? options.assetMode : "full";
   const preserveTransforms = options.preserveTransforms !== false && !options.coordinateSystem;
   const onProgress = options.onProgress;
@@ -156745,9 +157098,9 @@ async function modelToXGF2(params) {
     }
     if (geometry.colorsCompressed)
       sizeColors += geometry.colorsCompressed.length;
-    if (geometry.normalsCompressed)
+    if (!ignoreNormals && geometry.normalsCompressed)
       sizeNormals += geometry.normalsCompressed.length;
-    if (geometry.uvsCompressed)
+    if (!ignoreUVs && geometry.uvsCompressed)
       sizeUVs += geometry.uvsCompressed.length;
     if (geometry.scales)
       sizeScales += geometry.scales.length;
@@ -156962,14 +157315,14 @@ async function modelToXGF2(params) {
       xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
       edgeIndicesBase += geometry.edgeIndices.length;
     }
-    if (geometry.normalsCompressed) {
+    if (!ignoreNormals && geometry.normalsCompressed) {
       xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
       xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX4;
     }
-    if (geometry.uvsCompressed) {
+    if (!ignoreUVs && geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
@@ -157200,12 +157553,12 @@ function encodeImageToPNGNode2(imageData, w, h, isPixelBuffer) {
   return new Uint8Array(canvas.toBuffer("image/png"));
 }
 
-// packages/sdk/src/formats/xgf/versions/v2/XGF_INFO.ts
+// src/formats/xgf/versions/v2/XGF_INFO.ts
 var XGF_INFO2 = {
   xgfVersion: 2
 };
 
-// packages/sdk/src/formats/xgf/versions/v2/packXGF.ts
+// src/formats/xgf/versions/v2/packXGF.ts
 var stringRefs2Array = function() {
   const encoder = new TextEncoder();
   return (values) => {
@@ -157351,13 +157704,13 @@ function packXGF2(xgfData) {
   ]);
 }
 
-// packages/sdk/src/formats/xgf/versions/v2/encode.ts
+// src/formats/xgf/versions/v2/encode.ts
 async function encode12(params, options) {
   const xgfData = await modelToXGF2({ sceneModel: params.sceneModel, options });
   return packXGF2(xgfData);
 }
 
-// packages/sdk/src/formats/xgf/XGFExporter.ts
+// src/formats/xgf/XGFExporter.ts
 var XGFExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -157372,7 +157725,7 @@ var XGFExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/xgfstream/index.ts
+// src/formats/xgfstream/index.ts
 var xgfstream_exports = {};
 __export(xgfstream_exports, {
   XGFStreamExporter: () => XGFStreamExporter,
@@ -157389,7 +157742,7 @@ __export(xgfstream_exports, {
   writeXGFStreamingRuntimeIndex: () => writeXGFStreamingRuntimeIndex
 });
 
-// packages/sdk/src/formats/xgfstream/XGFManifest.ts
+// src/formats/xgfstream/XGFManifest.ts
 function createXGFManifest(params, options = {}) {
   const sceneModel = params.sceneModel;
   const role = options.assetMode === "assetLibrary" || options.assetMode === "referencesOnly" ? options.assetMode : "full";
@@ -157508,12 +157861,12 @@ function computeSceneModelAABB(sceneModel, coordinateSystem) {
   return hasBounds ? [xmin, ymin, zmin, xmax, ymax, zmax] : void 0;
 }
 
-// packages/sdk/src/formats/xgfstream/index/writeXGFStreamingIndex.ts
+// src/formats/xgfstream/index/writeXGFStreamingIndex.ts
 function writeXGFStreamingIndex(index2) {
   return JSON.parse(JSON.stringify(index2));
 }
 
-// packages/sdk/src/formats/xgfstream/index/writeXGFStreamingRuntimeIndex.ts
+// src/formats/xgfstream/index/writeXGFStreamingRuntimeIndex.ts
 var ROLE_CODES = {
   full: 0,
   assetLibrary: 1,
@@ -157649,7 +158002,7 @@ function quantizeAABBValue(value, origin2, scale3, rounding) {
   return Math.max(0, Math.min(AABB_QUANTIZATION_MAX, quantized));
 }
 
-// packages/sdk/src/formats/xgfstream/XGFStreamingExporter.ts
+// src/formats/xgfstream/XGFStreamingExporter.ts
 var XGFStreamingExporter = class {
   constructor(params = {}) {
     __publicField(this, "_xgfExporter");
@@ -157671,7 +158024,9 @@ var XGFStreamingExporter = class {
         const view = createAssetLibraryView(sceneModel, spec);
         const fileData = await this._xgfExporter.write({ sceneModel: view }, {
           assetMode: "assetLibrary",
-          coordinateSystem: outputCoordinateSystem
+          coordinateSystem: outputCoordinateSystem,
+          ignoreNormals: params.ignoreNormals,
+          ignoreUVs: params.ignoreUVs
         });
         const manifest = createXGFManifest(
           { sceneModel: view },
@@ -157692,7 +158047,9 @@ var XGFStreamingExporter = class {
         const dependencies = dependenciesForChunk(spec, params.assetLibraries, librarySpecsById);
         const fileData = await this._xgfExporter.write({ sceneModel: view }, {
           assetMode: "referencesOnly",
-          coordinateSystem: outputCoordinateSystem
+          coordinateSystem: outputCoordinateSystem,
+          ignoreNormals: params.ignoreNormals,
+          ignoreUVs: params.ignoreUVs
         });
         const manifest = createXGFManifest(
           { sceneModel: view },
@@ -157958,7 +158315,7 @@ function invalid(error) {
   };
 }
 
-// packages/sdk/src/formats/xgfstream/XGFStreamExporter.ts
+// src/formats/xgfstream/XGFStreamExporter.ts
 var ASSET_KINDS = ["geometries", "materials", "textures"];
 var XGFStreamExporter = class extends ModelExporter {
   constructor() {
@@ -158002,7 +158359,9 @@ async function encodeXGFStream(params, options = {}) {
     gridCellSize,
     baseUri,
     chunkDirName,
-    assetId
+    assetId,
+    ignoreNormals: options.ignoreNormals === true,
+    ignoreUVs: options.ignoreUVs === true
   });
   const assetLibraries = createAssetLibrarySpecs({
     sceneModel,
@@ -158023,7 +158382,9 @@ async function encodeXGFStream(params, options = {}) {
     indexUri: joinUri(baseUri, indexName),
     runtimeIndexUri: options.runtimeIndex ? joinUri(baseUri, options.runtimeIndex) : void 0,
     collapseChunkObjects: options.collapseChunkObjects === true,
-    coordinateSystem: options.coordinateSystem
+    coordinateSystem: options.coordinateSystem,
+    ignoreNormals: options.ignoreNormals === true,
+    ignoreUVs: options.ignoreUVs === true
   });
   if (result.ok === false) {
     throw new Error(result.error);
@@ -158063,7 +158424,7 @@ function createGridChunkSpecs(params) {
       id: objectId,
       aabb,
       center: aabbCenter(aabb),
-      cost: estimateObjectCost(sceneObject, params.chunkMetric)
+      cost: estimateObjectCost(sceneObject, params.chunkMetric, params.ignoreNormals, params.ignoreUVs)
     });
   }
   if (records.length === 0) {
@@ -158400,7 +158761,7 @@ function computeObjectAABB(sceneObject) {
   }
   return found ? out : null;
 }
-function estimateObjectCost(sceneObject, metric) {
+function estimateObjectCost(sceneObject, metric, ignoreNormals = false, ignoreUVs = false) {
   if (metric === "objects") {
     return 1;
   }
@@ -158418,8 +158779,12 @@ function estimateObjectCost(sceneObject, metric) {
     geometryIds.add(geometry.id);
     bytes += arrayByteLength(geometry.positionsCompressed);
     bytes += arrayByteLength(geometry.colorsCompressed);
-    bytes += arrayByteLength(geometry.normalsCompressed);
-    bytes += arrayByteLength(geometry.uvsCompressed);
+    if (!ignoreNormals) {
+      bytes += arrayByteLength(geometry.normalsCompressed);
+    }
+    if (!ignoreUVs) {
+      bytes += arrayByteLength(geometry.uvsCompressed);
+    }
     bytes += arrayByteLength(geometry.indices);
     bytes += arrayByteLength(geometry.edgeIndices);
     bytes += arrayByteLength(geometry.scales);
@@ -158615,7 +158980,7 @@ function joinUri(...parts) {
   return parts.filter((part) => part !== void 0 && String(part).length > 0).map((part) => trimSlashes(part)).filter((part) => part.length > 0).join("/");
 }
 
-// packages/sdk/src/formats/xgfstream/index/XGFStreamingIndexLookup.ts
+// src/formats/xgfstream/index/XGFStreamingIndexLookup.ts
 var XGFStreamingIndexLookup = class {
   /**
    * Creates a lookup from a stream index.
@@ -158645,7 +159010,7 @@ var XGFStreamingIndexLookup = class {
   }
 };
 
-// packages/sdk/src/formats/xgfstream/XGFStreamingLoader.ts
+// src/formats/xgfstream/XGFStreamingLoader.ts
 var XGFStreamingLoader = class {
   constructor(params = {}) {
     __publicField(this, "_xgfLoader");
@@ -158847,28 +159212,15 @@ var XGFStreamingLoader = class {
         state.chunks.set(key, ownershipFromExistingAssets(manifest));
         return;
       }
-      createdIds = emptyCreatedIds();
-      const parserOptions = {
-        ...options,
-        idPrefix: manifest.idPrefix,
-        origin: manifest.origin,
-        coordinateSystem: manifest.coordinateSystem,
-        meshIdPrefix: key ? `${key}/mesh/` : void 0,
-        createdIds
-      };
-      try {
-        await this._xgfLoader.load({ fileData, sceneModel, dataModel }, parserOptions);
-      } catch (loadError) {
-        error = `[XGFStreamingLoader.loadChunk] Failed loading chunk '${manifest.id}': ${formatError(loadError)}`;
+      const loadResult = await loadXGFIntoSceneModelBatch(this._xgfLoader, fileData, sceneModel, dataModel, manifest, options, key);
+      createdIds = loadResult.createdIds;
+      if (loadResult.ok === false) {
+        error = loadResult.error;
         sceneModel.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
           error
         });
-        return;
-      }
-      if (createdIds.error) {
-        error = createdIds.error;
         return;
       }
       const ownership = ownershipFromCreatedIds(key, manifest, createdIds);
@@ -158885,6 +159237,67 @@ var XGFStreamingLoader = class {
     emitChunkLoadStats(options, manifest, !error && (!key || state.loadedChunkIds.has(key)), bytes, dependencyMs, fetchMs, commitMs, totalStart, createdIds, error);
   }
 };
+async function loadXGFIntoSceneModelBatch(xgfLoader, fileData, sceneModel, dataModel, manifest, options, key) {
+  const createdIds = emptyCreatedIds();
+  const batchId = key || void 0;
+  let batchStarted = false;
+  if (batchId) {
+    const beginResult = sceneModel.beginBatch({ id: batchId });
+    if (beginResult.ok === false) {
+      return {
+        ok: false,
+        createdIds,
+        error: beginResult.error
+      };
+    }
+    batchStarted = true;
+  }
+  const parserOptions = {
+    ...options,
+    idPrefix: manifest.idPrefix,
+    origin: manifest.origin,
+    coordinateSystem: manifest.coordinateSystem,
+    meshIdPrefix: key ? `${key}/mesh/` : void 0,
+    createdIds
+  };
+  try {
+    await xgfLoader.load({ fileData, sceneModel, dataModel }, parserOptions);
+  } catch (loadError) {
+    if (batchStarted) {
+      sceneModel.rollbackBatch();
+    }
+    return {
+      ok: false,
+      createdIds,
+      error: `[XGFStreamingLoader.loadChunk] Failed loading chunk '${manifest.id}': ${formatError(loadError)}`
+    };
+  }
+  if (createdIds.error) {
+    if (batchStarted) {
+      sceneModel.rollbackBatch();
+    }
+    return {
+      ok: false,
+      createdIds,
+      error: createdIds.error
+    };
+  }
+  if (batchStarted) {
+    const commitResult = sceneModel.commitBatch();
+    if (commitResult.ok === false) {
+      sceneModel.rollbackBatch();
+      return {
+        ok: false,
+        createdIds,
+        error: commitResult.error
+      };
+    }
+  }
+  return {
+    ok: true,
+    createdIds
+  };
+}
 function stateFor(sceneModel, stateBySceneModel) {
   let state = stateBySceneModel.get(sceneModel);
   if (!state) {
@@ -159207,12 +159620,12 @@ async function resolveChunkFileData(manifest, options) {
   return void 0;
 }
 
-// packages/sdk/src/formats/xgfstream/index/createXGFStreamingIndexLookup.ts
+// src/formats/xgfstream/index/createXGFStreamingIndexLookup.ts
 function createXGFStreamingIndexLookup(index2) {
   return new XGFStreamingIndexLookup(index2);
 }
 
-// packages/sdk/src/formats/xgfstream/manifest/validateXGFChunkManifest.ts
+// src/formats/xgfstream/manifest/validateXGFChunkManifest.ts
 function validateXGFChunkManifest(value) {
   if (!isObject5(value)) {
     return invalid3("[XGFChunkManifest] Expected JSON object");
@@ -159305,7 +159718,7 @@ function invalid3(error) {
   };
 }
 
-// packages/sdk/src/formats/xgfstream/index/readXGFStreamingIndex.ts
+// src/formats/xgfstream/index/readXGFStreamingIndex.ts
 function readXGFStreamingIndex(json) {
   if (!isObject6(json)) {
     return invalid4("[XGFStreamingIndex] Expected JSON object");
@@ -159438,7 +159851,7 @@ function invalid4(error) {
   };
 }
 
-// packages/sdk/src/formats/xgfstream/index/readXGFStreamingRuntimeIndex.ts
+// src/formats/xgfstream/index/readXGFStreamingRuntimeIndex.ts
 var ROLES = ["full", "assetLibrary", "referencesOnly"];
 function readXGFStreamingRuntimeIndex(json) {
   if (!isObject7(json)) {
@@ -159843,7 +160256,7 @@ function invalid5(error) {
   };
 }
 
-// packages/sdk/src/formats/xgfstream/view/XGFViewStreamController.ts
+// src/formats/xgfstream/view/XGFViewStreamController.ts
 var DEFAULT_BATCH_SIZE = 8;
 var DEFAULT_FETCH_CONCURRENCY = 8;
 var DEFAULT_COMMIT_FRAME_BUDGET_MS = 10;
@@ -161179,23 +161592,23 @@ function now2() {
   return typeof performance !== "undefined" ? performance.now() : Date.now();
 }
 
-// packages/sdk/src/formats/xgfstream/manifest/writeXGFChunkManifest.ts
+// src/formats/xgfstream/manifest/writeXGFChunkManifest.ts
 function writeXGFChunkManifest(manifest) {
   return JSON.parse(JSON.stringify(manifest));
 }
 
-// packages/sdk/src/formats/xgfstream/manifest/readXGFChunkManifest.ts
+// src/formats/xgfstream/manifest/readXGFChunkManifest.ts
 function readXGFChunkManifest(json) {
   return validateXGFChunkManifest(json);
 }
 
-// packages/sdk/src/formats/las/index.ts
+// src/formats/las/index.ts
 var las_exports = {};
 __export(las_exports, {
   LASLoader: () => LASLoader4
 });
 
-// node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/las-loader.js
+// ../../node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/las-loader.js
 var VERSION9 = true ? "4.3.3" : "latest";
 var LASLoader = {
   dataType: null,
@@ -161222,7 +161635,7 @@ var LASLoader = {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/libs/laz-perf.js
+// ../../node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/libs/laz-perf.js
 function getModule() {
   var Module4 = typeof Module4 !== "undefined" ? Module4 : {};
   var moduleOverrides = {};
@@ -179637,7 +180050,7 @@ function getModule() {
   return Module4;
 }
 
-// node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/laslaz-decoder.js
+// ../../node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/laslaz-decoder.js
 var Module2 = null;
 var POINT_FORMAT_READERS = {
   0: (dv) => {
@@ -180004,7 +180417,7 @@ var LASFile = class {
   }
 };
 
-// node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/get-las-schema.js
+// ../../node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/get-las-schema.js
 function getLASSchema(lasHeader, attributes) {
   const metadataMap = makeMetadataFromLasHeader(lasHeader);
   const schema = deduceMeshSchema(attributes, metadataMap);
@@ -180035,7 +180448,7 @@ function makeMetadataFromLasHeader(lasHeader) {
   return metadata;
 }
 
-// node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/parse-las.js
+// ../../node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/lib/parse-las.js
 function parseLAS(arrayBuffer, options) {
   return parseLASMesh(arrayBuffer, options);
 }
@@ -180180,14 +180593,14 @@ function detectTwoByteColors(decoder = {}, batchSize, colorDepth) {
   return twoByteColor;
 }
 
-// node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/index.js
+// ../../node_modules/.pnpm/@loaders.gl+las@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/las/dist/index.js
 var LASLoader3 = {
   ...LASLoader,
   parse: async (arrayBuffer, options) => parseLAS(arrayBuffer, options),
   parseSync: (arrayBuffer, options) => parseLAS(arrayBuffer, options)
 };
 
-// packages/sdk/src/formats/las/LASLoader.ts
+// src/formats/las/LASLoader.ts
 var MAX_VERTICES = 2e4;
 var LASLoader4 = class extends ModelLoader {
   constructor() {
@@ -180418,14 +180831,14 @@ async function parseLAS2(params, options = {}) {
   }
 }
 
-// packages/sdk/src/formats/e57/index.ts
+// src/formats/e57/index.ts
 var e57_exports = {};
 __export(e57_exports, {
   E57Exporter: () => E57Exporter,
   E57Loader: () => E57Loader
 });
 
-// packages/sdk/src/formats/e57/parser/parseE57Header.ts
+// src/formats/e57/parser/parseE57Header.ts
 var E57_HEADER_LENGTH = 48;
 var SIGNATURE = "ASTM-E57";
 function parseE57Header(fileData) {
@@ -180458,7 +180871,7 @@ function parseE57Header(fileData) {
   return header;
 }
 
-// packages/sdk/src/formats/e57/parser/e57PageReader.ts
+// src/formats/e57/parser/e57PageReader.ts
 function buildLogicalStream(fileData, pageSize) {
   const data = new Uint8Array(fileData);
   const dataPerPage = pageSize - 4;
@@ -180482,7 +180895,7 @@ function logicalToPhysical(logicalOffset, pageSize) {
   return Math.floor(logicalOffset / dataPerPage) * pageSize + logicalOffset % dataPerPage;
 }
 
-// packages/sdk/src/formats/e57/parser/crc32c.ts
+// src/formats/e57/parser/crc32c.ts
 var TABLE = (() => {
   const t2 = new Uint32Array(256);
   for (let n2 = 0; n2 < 256; n2++) {
@@ -180502,7 +180915,7 @@ function crc32c(bytes, start = 0, end = bytes.length) {
   return (crc ^ 4294967295) >>> 0;
 }
 
-// packages/sdk/src/formats/e57/parser/parseE57Xml.ts
+// src/formats/e57/parser/parseE57Xml.ts
 function parseE57Xml(xml) {
   if (typeof DOMParser === "undefined") {
     throw new Error("[parseE57Xml] no DOMParser available \u2014 install a DOMParser polyfill under Node");
@@ -180638,7 +181051,7 @@ function floatAttr(el, name12) {
   return Number.isNaN(n2) ? void 0 : n2;
 }
 
-// packages/sdk/src/formats/e57/parser/decodeCompressedVector.ts
+// src/formats/e57/parser/decodeCompressedVector.ts
 var DATA_PACKET = 1;
 var SECTION_HEADER_LENGTH = 32;
 function decodeCompressedVector(logical, scan, pageSize) {
@@ -180725,7 +181138,7 @@ function concat(chunks) {
   return out;
 }
 
-// packages/sdk/src/formats/e57/parser/readE57.ts
+// src/formats/e57/parser/readE57.ts
 function readE57(fileData) {
   const header = parseE57Header(fileData);
   const logical = buildLogicalStream(fileData, header.pageSize);
@@ -180739,7 +181152,7 @@ function readE57(fileData) {
   return { header, logical, document: document2 };
 }
 
-// packages/sdk/src/formats/e57/E57Loader.ts
+// src/formats/e57/E57Loader.ts
 var MAX_VERTICES2 = 2e4;
 var E57Loader = class extends ModelLoader {
   constructor() {
@@ -180904,7 +181317,7 @@ async function buildScanObject(sceneModel, pc, columns, scanIndex, skip, options
   return objectId;
 }
 
-// packages/sdk/src/formats/e57/E57Exporter.ts
+// src/formats/e57/E57Exporter.ts
 var PAGE_SIZE = 1024;
 var SECTION_LOGICAL_START = 48;
 var SECTION_HEADER_LENGTH2 = 32;
@@ -181108,14 +181521,14 @@ function concat2(parts) {
   return out;
 }
 
-// packages/sdk/src/formats/dotbim/index.ts
+// src/formats/dotbim/index.ts
 var dotbim_exports = {};
 __export(dotbim_exports, {
   DotBIMExporter: () => DotBIMExporter,
   DotBIMLoader: () => DotBIMLoader
 });
 
-// packages/sdk/src/formats/dotbim/versions/1_0_0/parse.ts
+// src/formats/dotbim/versions/1_0_0/parse.ts
 var SCHEMA4 = "IFC4";
 var parse10 = async (params, options) => {
   const fileData = params.fileData;
@@ -181206,7 +181619,7 @@ var parse10 = async (params, options) => {
   }
 };
 
-// packages/sdk/src/formats/dotbim/versions/1_1_0/parse.ts
+// src/formats/dotbim/versions/1_1_0/parse.ts
 var SCHEMA5 = "IFC4";
 var parse11 = async (params, options) => {
   const fileData = params.fileData;
@@ -181297,7 +181710,7 @@ var parse11 = async (params, options) => {
   }
 };
 
-// packages/sdk/src/formats/dotbim/DotBIMLoader.ts
+// src/formats/dotbim/DotBIMLoader.ts
 var DotBIMLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -181314,7 +181727,7 @@ var DotBIMLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/dotbim/versions/1_0_0/encode.ts
+// src/formats/dotbim/versions/1_0_0/encode.ts
 var tempVec3a6 = createVec3Float64();
 var tempVec3b6 = createVec3Float64();
 var tempMat4a4 = createMat4Float64();
@@ -181454,7 +181867,7 @@ async function encode13(params, options) {
   return dotBim;
 }
 
-// packages/sdk/src/formats/dotbim/versions/1_1_0/encode.ts
+// src/formats/dotbim/versions/1_1_0/encode.ts
 var tempVec3a7 = createVec3Float64();
 var tempVec3b7 = createVec3Float64();
 var tempMat4a5 = createMat4Float64();
@@ -181595,7 +182008,7 @@ async function encode14(params, options) {
   return dotBim;
 }
 
-// packages/sdk/src/formats/dotbim/DotBIMExporter.ts
+// src/formats/dotbim/DotBIMExporter.ts
 var DotBIMExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -181610,14 +182023,14 @@ var DotBIMExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/scenemodel/index.ts
+// src/formats/scenemodel/index.ts
 var scenemodel_exports = {};
 __export(scenemodel_exports, {
   SceneModelExporter: () => SceneModelExporter,
   SceneModelImporter: () => SceneModelImporter
 });
 
-// packages/sdk/src/formats/scenemodel/versions/1_0/parse.ts
+// src/formats/scenemodel/versions/1_0/parse.ts
 function parse12(params, options) {
   return new Promise(function(resolve3, reject) {
     if (params.sceneModel && params.fileData) {
@@ -181630,7 +182043,7 @@ function parse12(params, options) {
   });
 }
 
-// packages/sdk/src/formats/scenemodel/SceneModelImporter.ts
+// src/formats/scenemodel/SceneModelImporter.ts
 var SceneModelImporter = class extends ModelLoader {
   /**
    * Constructs a SceneModelImporter.
@@ -181649,7 +182062,7 @@ var SceneModelImporter = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/scenemodel/versions/1_0/encode.ts
+// src/formats/scenemodel/versions/1_0/encode.ts
 async function encode15(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -181672,7 +182085,7 @@ async function encode15(params, options) {
   return sceneModelParams;
 }
 
-// packages/sdk/src/formats/scenemodel/SceneModelExporter.ts
+// src/formats/scenemodel/SceneModelExporter.ts
 var SceneModelExporter = class extends ModelExporter {
   /**
    * Constructs a SceneModelExporter.
@@ -181689,14 +182102,14 @@ var SceneModelExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/datamodel/index.ts
+// src/formats/datamodel/index.ts
 var datamodel_exports = {};
 __export(datamodel_exports, {
   DataModelExporter: () => DataModelExporter,
   DataModelImporter: () => DataModelImporter
 });
 
-// packages/sdk/src/formats/datamodel/versions/1_0/parse.ts
+// src/formats/datamodel/versions/1_0/parse.ts
 function parse13(params, options) {
   return new Promise(function(resolve3, reject) {
     if (params.dataModel && params.fileData) {
@@ -181709,7 +182122,7 @@ function parse13(params, options) {
   });
 }
 
-// packages/sdk/src/formats/datamodel/DataModelImporter.ts
+// src/formats/datamodel/DataModelImporter.ts
 var DataModelImporter = class extends ModelLoader {
   /**
    * Constructs a DataModelImporter.
@@ -181728,7 +182141,7 @@ var DataModelImporter = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/datamodel/versions/1_0/encode.ts
+// src/formats/datamodel/versions/1_0/encode.ts
 async function encode16(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -181749,7 +182162,7 @@ async function encode16(params, options) {
   return dataModelParams;
 }
 
-// packages/sdk/src/formats/datamodel/DataModelExporter.ts
+// src/formats/datamodel/DataModelExporter.ts
 var DataModelExporter = class extends ModelExporter {
   /**
    * Constructs a DataModelExporter.
@@ -181766,14 +182179,14 @@ var DataModelExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/gaussiansplat/index.ts
+// src/formats/gaussiansplat/index.ts
 var gaussiansplat_exports = {};
 __export(gaussiansplat_exports, {
   GaussianSplatExporter: () => GaussianSplatExporter,
   GaussianSplatLoader: () => GaussianSplatLoader
 });
 
-// packages/sdk/src/formats/gaussiansplat/versions/v1/parseSplat.ts
+// src/formats/gaussiansplat/versions/v1/parseSplat.ts
 var SPLAT_RECORD_BYTES = 32;
 function parseSplat(data) {
   const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
@@ -181808,7 +182221,7 @@ function parseSplat(data) {
   return { count, positions, scales, colors, rotations };
 }
 
-// packages/sdk/src/formats/gaussiansplat/GaussianSplatLoader.ts
+// src/formats/gaussiansplat/GaussianSplatLoader.ts
 var GaussianSplatLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -181853,7 +182266,7 @@ async function parseSplatModel(params) {
   }
 }
 
-// packages/sdk/src/formats/gaussiansplat/versions/v1/encodeSplat.ts
+// src/formats/gaussiansplat/versions/v1/encodeSplat.ts
 function clampByte3(v2) {
   return v2 < 0 ? 0 : v2 > 255 ? 255 : v2;
 }
@@ -181886,7 +182299,7 @@ function encodeSplat(buffers) {
   return buffer;
 }
 
-// packages/sdk/src/formats/gaussiansplat/GaussianSplatExporter.ts
+// src/formats/gaussiansplat/GaussianSplatExporter.ts
 var GaussianSplatExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -181951,7 +182364,7 @@ async function encodeSplatModel(params) {
   return encodeSplat({ count, positions, scales, rotations, colors });
 }
 
-// packages/sdk/src/formats/legacy/metamodel/index.ts
+// src/formats/legacy/metamodel/index.ts
 var metamodel_exports = {};
 __export(metamodel_exports, {
   MetaModelExporter: () => MetaModelExporter,
@@ -181960,7 +182373,7 @@ __export(metamodel_exports, {
   convertMetaModel: () => convertMetaModel
 });
 
-// packages/sdk/src/formats/legacy/metamodel/MetaModelLoader.ts
+// src/formats/legacy/metamodel/MetaModelLoader.ts
 var MetaModelLoader = class extends ModelLoader {
   /**
    * Constructs a MetaModelLoader.
@@ -182075,7 +182488,7 @@ async function parseMetaModel(params, options = {}) {
   }
 }
 
-// packages/sdk/src/formats/legacy/metamodel/convertDataModel.ts
+// src/formats/legacy/metamodel/convertDataModel.ts
 function convertDataModel(dataModelParams) {
   var _a2, _b, _c, _d, _e2;
   const parentOf = {};
@@ -182123,7 +182536,7 @@ function convertDataModel(dataModelParams) {
   };
 }
 
-// packages/sdk/src/formats/legacy/metamodel/MetaModelExporter.ts
+// src/formats/legacy/metamodel/MetaModelExporter.ts
 var MetaModelExporter = class extends ModelExporter {
   /**
    * Constructs a MetaModelExporter.
@@ -182159,7 +182572,7 @@ async function encodeMetaModel(params, options = {}) {
   return convertDataModel(result.value);
 }
 
-// packages/sdk/src/formats/legacy/metamodel/convertMetaModel.ts
+// src/formats/legacy/metamodel/convertMetaModel.ts
 function convertMetaModel(metaModelParams) {
   const dataModelParams = {
     id: "",
@@ -182196,14 +182609,14 @@ function convertMetaModel(metaModelParams) {
   return dataModelParams;
 }
 
-// packages/sdk/src/formats/legacy/xkt/index.ts
+// src/formats/legacy/xkt/index.ts
 var xkt_exports = {};
 __export(xkt_exports, {
   XKTExporter: () => XKTExporter,
   XKTLoader: () => XKTLoader
 });
 
-// packages/sdk/src/formats/legacy/xkt/versions/shared/splitElements.ts
+// src/formats/legacy/xkt/versions/shared/splitElements.ts
 function splitElements(arrayBuffer) {
   const dataView = new DataView(arrayBuffer);
   const dataArray = new Uint8Array(arrayBuffer);
@@ -182218,7 +182631,7 @@ function splitElements(arrayBuffer) {
   return elements;
 }
 
-// node_modules/.pnpm/pako@2.1.0/node_modules/pako/dist/pako.esm.mjs
+// ../../node_modules/.pnpm/pako@2.1.0/node_modules/pako/dist/pako.esm.mjs
 var Z_FIXED$1 = 4;
 var Z_BINARY = 0;
 var Z_TEXT = 1;
@@ -186381,7 +186794,7 @@ var { Inflate, inflate, inflateRaw, ungzip } = inflate_1$1;
 var inflate_1 = inflate;
 var inflateRaw_1 = inflateRaw;
 
-// packages/sdk/src/formats/legacy/xkt/versions/shared/inflateElements.ts
+// src/formats/legacy/xkt/versions/shared/inflateElements.ts
 function inflateBuffer(array) {
   return array.length === 0 ? new ArrayBuffer(0) : inflate_1(array).buffer;
 }
@@ -186389,7 +186802,7 @@ function inflateString(array) {
   return array.length === 0 ? "" : inflate_1(array, { to: "string" });
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v6/parse.ts
+// src/formats/legacy/xkt/versions/v6/parse.ts
 var MAX_GEOMETRY_POSITION_COMPONENTS = 135e4;
 var MAX_GEOMETRY_VERTICES = Math.floor(MAX_GEOMETRY_POSITION_COMPONENTS / 3);
 async function parse14(params, options = {}) {
@@ -186622,7 +187035,7 @@ function decompressPositions(compressed, m2) {
   return out;
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/shared/buildTiledSceneModel.ts
+// src/formats/legacy/xkt/versions/shared/buildTiledSceneModel.ts
 var MESH_ATTRIBUTES = 6;
 async function buildTiledSceneModel(params) {
   const { xktData, sceneModel, dataModel, options } = params;
@@ -186840,7 +187253,7 @@ function buildDataModel(dataModel, metadata) {
   }
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v7/parse.ts
+// src/formats/legacy/xkt/versions/v7/parse.ts
 async function parse15(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
@@ -186866,7 +187279,7 @@ async function parse15(params, options) {
   await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v8/parse.ts
+// src/formats/legacy/xkt/versions/v8/parse.ts
 async function parse16(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
@@ -186909,7 +187322,7 @@ async function parse16(params, options) {
   await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v9/parse.ts
+// src/formats/legacy/xkt/versions/v9/parse.ts
 async function parse17(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
@@ -186936,7 +187349,7 @@ async function parse17(params, options) {
   await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v10/parse.ts
+// src/formats/legacy/xkt/versions/v10/parse.ts
 async function parse18(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
@@ -186963,7 +187376,7 @@ async function parse18(params, options) {
   await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v11/parse.ts
+// src/formats/legacy/xkt/versions/v11/parse.ts
 async function parse19(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const requiresSwapFromLittleEndian = function() {
@@ -187048,7 +187461,7 @@ async function parse19(params, options) {
   await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/unpackXKT.ts
+// src/formats/legacy/xkt/versions/v12/unpackXKT.ts
 function unpackXKT(arrayBuffer) {
   const requiresSwapFromLittleEndian = function() {
     const b5 = new ArrayBuffer(2);
@@ -187118,7 +187531,7 @@ function unpackXKT(arrayBuffer) {
   };
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/xktToModel.ts
+// src/formats/legacy/xkt/versions/v12/xktToModel.ts
 var MESH_ATTRIBUTES2 = 6;
 async function xktToModel(params) {
   const { xktData, sceneModel, dataModel, options } = params;
@@ -187324,7 +187737,7 @@ function buildDataModel2(dataModel, metadata) {
   }
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/parse.ts
+// src/formats/legacy/xkt/versions/v12/parse.ts
 async function parse20(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xktToModel({
@@ -187335,7 +187748,7 @@ async function parse20(params, options) {
   });
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/parseCompressed.ts
+// src/formats/legacy/xkt/versions/v12/parseCompressed.ts
 async function parse21(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
@@ -187362,7 +187775,7 @@ async function parse21(params, options) {
   await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
 }
 
-// packages/sdk/src/formats/legacy/xkt/XKTLoader.ts
+// src/formats/legacy/xkt/XKTLoader.ts
 var XKTLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -187387,7 +187800,7 @@ var XKTLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/modelToXKT.ts
+// src/formats/legacy/xkt/versions/v12/modelToXKT.ts
 var MESH_ATTRIBUTES3 = 6;
 var IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 function xktPrimitiveCode(primitive) {
@@ -187601,12 +188014,12 @@ function buildMetadata(sceneModel, dataModel) {
   return { id: sceneModel.id, metaObjects, propertySets };
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/XKT_INFO.ts
+// src/formats/legacy/xkt/versions/v12/XKT_INFO.ts
 var XKT_INFO = {
   xktVersion: 12
 };
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/packXKT.ts
+// src/formats/legacy/xkt/versions/v12/packXKT.ts
 var object2Array2 = function() {
   const encoder = new TextEncoder();
   return (obj) => encoder.encode(JSON.stringify(obj));
@@ -187690,7 +188103,7 @@ function packXKT(xktData) {
   ]);
 }
 
-// packages/sdk/src/formats/legacy/xkt/versions/v12/encode.ts
+// src/formats/legacy/xkt/versions/v12/encode.ts
 async function encode17(params, options) {
   var _a2;
   if (params.sceneModel) {
@@ -187708,7 +188121,7 @@ async function encode17(params, options) {
   return packXKT(xktData);
 }
 
-// packages/sdk/src/formats/legacy/xkt/XKTExporter.ts
+// src/formats/legacy/xkt/XKTExporter.ts
 var XKTExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -187722,14 +188135,14 @@ var XKTExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/obj/index.ts
+// src/formats/obj/index.ts
 var obj_exports = {};
 __export(obj_exports, {
   OBJExporter: () => OBJExporter,
   OBJLoader: () => OBJLoader
 });
 
-// packages/sdk/src/formats/obj/versions/v1_0/parse.ts
+// src/formats/obj/versions/v1_0/parse.ts
 var parse22 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
@@ -188132,7 +188545,7 @@ function addLineGeometry(ctx2, line) {
   }
 }
 
-// packages/sdk/src/formats/obj/OBJLoader.ts
+// src/formats/obj/OBJLoader.ts
 var OBJLoader = class extends ModelLoader {
   /**
    * Constructs a OBJLoader.
@@ -188151,7 +188564,7 @@ var OBJLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/obj/versions/v1_0/encode.ts
+// src/formats/obj/versions/v1_0/encode.ts
 var tempVec3a8 = createVec3Float64();
 var tempVec3b8 = createVec3Float64();
 var tempVec3c4 = createVec3Float64();
@@ -188253,7 +188666,7 @@ function formatNum(value) {
   return Number(value.toFixed(9)).toString();
 }
 
-// packages/sdk/src/formats/obj/OBJExporter.ts
+// src/formats/obj/OBJExporter.ts
 var OBJExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -188267,14 +188680,14 @@ var OBJExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/ply/index.ts
+// src/formats/ply/index.ts
 var ply_exports = {};
 __export(ply_exports, {
   PLYExporter: () => PLYExporter,
   PLYLoader: () => PLYLoader
 });
 
-// packages/sdk/src/formats/ply/versions/v1_0/parse.ts
+// src/formats/ply/versions/v1_0/parse.ts
 var parse23 = async (params, options = {}) => {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
@@ -188285,6 +188698,8 @@ var parse23 = async (params, options = {}) => {
   }
   const onProgress = options.onProgress;
   const signal = options.signal;
+  const ignoreNormals = options.ignoreNormals === true;
+  const ignoreUVs = options.ignoreUVs === true;
   const progress = { phase: "", current: 0, total: 0 };
   const step2 = async (phase, current, total) => {
     if (onProgress) {
@@ -188335,10 +188750,10 @@ var parse23 = async (params, options = {}) => {
   if (hasFaces) {
     geometryCfg.indices = indices;
   }
-  if (normals.length === vertexCount2 * 3) {
+  if (!ignoreNormals && normals.length === vertexCount2 * 3) {
     geometryCfg.normals = normals;
   }
-  if (uvs.length === vertexCount2 * 2) {
+  if (!ignoreUVs && uvs.length === vertexCount2 * 2) {
     geometryCfg.uvs = uvs;
   }
   if (colors.length === vertexCount2 * 4) {
@@ -188515,7 +188930,7 @@ function colorToFloat(value) {
   return value > 1 ? Math.max(0, Math.min(255, value)) / 255 : Math.max(0, Math.min(1, value));
 }
 
-// packages/sdk/src/formats/ply/PLYLoader.ts
+// src/formats/ply/PLYLoader.ts
 var PLYLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -188529,7 +188944,7 @@ var PLYLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/ply/versions/v1_0/encode.ts
+// src/formats/ply/versions/v1_0/encode.ts
 var tempCompressed = createVec3Float64();
 var tempPosition = createVec3Float64();
 var tempWorld = createVec3Float64();
@@ -188542,6 +188957,8 @@ async function encode19(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
+  const ignoreNormals = opts.ignoreNormals === true;
+  const ignoreUVs = opts.ignoreUVs === true;
   const progress = { phase: "", current: 0, total: 0 };
   const step2 = async (phase, current, total) => {
     if (onProgress) {
@@ -188561,7 +188978,7 @@ async function encode19(params, options) {
     const sceneObject = sceneObjects[i2];
     const meshes = sceneObject.meshes || [];
     for (const mesh of meshes) {
-      appendMesh(mesh, vertices, faces2);
+      appendMesh(mesh, vertices, faces2, ignoreNormals, ignoreUVs);
     }
   }
   await step2("Encoding PLY", sceneObjects.length, sceneObjects.length);
@@ -188622,7 +189039,7 @@ async function encode19(params, options) {
   }
   return lines.join("\n");
 }
-function appendMesh(mesh, vertices, faces2) {
+function appendMesh(mesh, vertices, faces2, ignoreNormals, ignoreUVs) {
   const geometry = mesh.geometry;
   if (!geometry || geometry.primitive !== TrianglesPrimitive && geometry.primitive !== PointsPrimitive) {
     return;
@@ -188634,8 +189051,8 @@ function appendMesh(mesh, vertices, faces2) {
   const vertexOffset = vertices.length;
   const vertexCount2 = positionsCompressed.length / 3;
   const matrix = getMeshWorldMatrix(mesh);
-  const decodedNormals = geometry.normalsCompressed ? octDecodeNormalsU16(geometry.normalsCompressed, new Float32Array(geometry.normalsCompressed.length / 2 * 3)) : null;
-  const uvs = geometry.uvsCompressed;
+  const decodedNormals = !ignoreNormals && geometry.normalsCompressed ? octDecodeNormalsU16(geometry.normalsCompressed, new Float32Array(geometry.normalsCompressed.length / 2 * 3)) : null;
+  const uvs = ignoreUVs ? void 0 : geometry.uvsCompressed;
   const colors = geometry.colorsCompressed;
   const meshColor = mesh.color || [1, 1, 1];
   const meshOpacity = mesh.opacity !== void 0 ? mesh.opacity : 1;
@@ -188693,7 +189110,7 @@ function formatNum2(value) {
   return Number(value.toFixed(9)).toString();
 }
 
-// packages/sdk/src/formats/ply/PLYExporter.ts
+// src/formats/ply/PLYExporter.ts
 var PLYExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -188707,14 +189124,14 @@ var PLYExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/mtl/index.ts
+// src/formats/mtl/index.ts
 var mtl_exports = {};
 __export(mtl_exports, {
   MTLExporter: () => MTLExporter,
   MTLLoader: () => MTLLoader
 });
 
-// packages/sdk/src/formats/mtl/versions/v1_0/parse.ts
+// src/formats/mtl/versions/v1_0/parse.ts
 var parse24 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
@@ -188815,7 +189232,7 @@ async function parseMTL(ctx2, text, step2) {
   await step2("Parsing MTL", lines.length, lines.length);
 }
 
-// packages/sdk/src/formats/mtl/MTLLoader.ts
+// src/formats/mtl/MTLLoader.ts
 var MTLLoader = class extends ModelLoader {
   /**
    * Constructs a MTLLoader.
@@ -188834,7 +189251,7 @@ var MTLLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/mtl/versions/v1_0/encode.ts
+// src/formats/mtl/versions/v1_0/encode.ts
 async function encode20(params, options) {
   var _a2;
   const { sceneModel } = params;
@@ -188953,7 +189370,7 @@ function formatNum3(value) {
   return Number(value.toFixed(9)).toString();
 }
 
-// packages/sdk/src/formats/mtl/MTLExporter.ts
+// src/formats/mtl/MTLExporter.ts
 var MTLExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -188967,14 +189384,14 @@ var MTLExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/fbx/index.ts
+// src/formats/fbx/index.ts
 var fbx_exports = {};
 __export(fbx_exports, {
   FBXExporter: () => FBXExporter,
   FBXLoader: () => FBXLoader
 });
 
-// packages/sdk/src/formats/fbx/fbxBinaryReader.ts
+// src/formats/fbx/fbxBinaryReader.ts
 var MAGIC = [
   75,
   97,
@@ -189143,7 +189560,7 @@ function readLatin1(view, p2, len) {
   return s2;
 }
 
-// packages/sdk/src/formats/fbx/FBXNode.ts
+// src/formats/fbx/FBXNode.ts
 function findChild(node, name12) {
   if (!node)
     return void 0;
@@ -189154,13 +189571,15 @@ function findChild(node, name12) {
   return void 0;
 }
 
-// packages/sdk/src/formats/fbx/versions/binary/parse.ts
+// src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse25(params, _options2) {
+async function parse25(params, options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
   }
+  const ignoreNormals = (options == null ? void 0 : options.ignoreNormals) === true;
+  const ignoreUVs = (options == null ? void 0 : options.ignoreUVs) === true;
   const root = readFBXBinary(params.fileData);
   const objectsNode = findChild(root, "Objects");
   if (!objectsNode) {
@@ -189229,8 +189648,8 @@ async function parse25(params, _options2) {
         id: geometryId,
         primitive: TrianglesPrimitive,
         positions: geo.positions,
-        normals: geo.normals,
-        uvs: geo.uvs,
+        normals: ignoreNormals ? void 0 : geo.normals,
+        uvs: ignoreUVs ? void 0 : geo.uvs,
         indices: geo.indices
       });
       if (gr2.ok === false) {
@@ -189528,7 +189947,7 @@ function scalarProp(node) {
   return node && node.props.length > 0 ? node.props[0] : void 0;
 }
 
-// packages/sdk/src/formats/fbx/FBXLoader.ts
+// src/formats/fbx/FBXLoader.ts
 var FBXLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -189544,7 +189963,7 @@ var FBXLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/fbx/fbxBinaryWriter.ts
+// src/formats/fbx/fbxBinaryWriter.ts
 var FBX_VERSION = 7400;
 var fbxI = (v2) => ({ t: "I", v: v2 });
 var fbxL = (v2) => ({ t: "L", v: v2 });
@@ -189682,7 +190101,7 @@ function concat3(parts) {
   return out;
 }
 
-// packages/sdk/src/formats/fbx/versions/binary/encode.ts
+// src/formats/fbx/versions/binary/encode.ts
 var RAD2DEG = 180 / Math.PI;
 var SEP = "\0";
 async function encode21(params, options) {
@@ -189691,6 +190110,8 @@ async function encode21(params, options) {
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
   }
+  const ignoreNormals = (options == null ? void 0 : options.ignoreNormals) === true;
+  const ignoreUVs = (options == null ? void 0 : options.ignoreUVs) === true;
   const triplanarSkip = findTriplanarTextureSkip(sceneModel);
   if (triplanarSkip.any) {
     const warn = (_a2 = options == null ? void 0 : options.onWarning) != null ? _a2 : (m2) => console.warn(m2);
@@ -189708,7 +190129,7 @@ async function encode21(params, options) {
     const existing = geomFbxId.get(geom.id);
     if (existing !== void 0)
       return existing;
-    const node = buildGeometryNode(geom, newId());
+    const node = buildGeometryNode(geom, newId(), ignoreNormals, ignoreUVs);
     if (!node)
       return null;
     geomFbxId.set(geom.id, node.props[0].v);
@@ -189800,7 +190221,7 @@ async function encode21(params, options) {
     fbxNode("Connections", [], connections)
   ]);
 }
-function buildGeometryNode(geom, id) {
+function buildGeometryNode(geom, id, ignoreNormals, ignoreUVs) {
   var _a2;
   const pc = geom.positionsCompressed;
   const aabb = geom.aabb;
@@ -189830,12 +190251,12 @@ function buildGeometryNode(geom, id) {
     fbxLeaf("Vertices", fbxDArr(positions)),
     fbxLeaf("PolygonVertexIndex", fbxIArr(poly))
   ];
-  if (geom.normalsCompressed) {
+  if (!ignoreNormals && geom.normalsCompressed) {
     const normals = new Float32Array(geom.normalsCompressed.length / 2 * 3);
     octDecodeNormalsU16(geom.normalsCompressed, normals);
     children.push(layerNode("LayerElementNormal", "Normals", normals));
   }
-  if (geom.uvsCompressed && geom.uvsCompressed.length) {
+  if (!ignoreUVs && geom.uvsCompressed && geom.uvsCompressed.length) {
     children.push(layerNode("LayerElementUV", "UV", geom.uvsCompressed));
   }
   return fbxNode("Geometry", [fbxL(id), fbxS(`${geom.id}${SEP}Geometry`), fbxS("Mesh")], children);
@@ -189936,7 +190357,7 @@ async function canvasEncodePNG(source) {
   return new Uint8Array(await blob.arrayBuffer());
 }
 
-// packages/sdk/src/formats/fbx/FBXExporter.ts
+// src/formats/fbx/FBXExporter.ts
 var FBXExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -189950,14 +190371,14 @@ var FBXExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/usdz/index.ts
+// src/formats/usdz/index.ts
 var usdz_exports = {};
 __export(usdz_exports, {
   USDZExporter: () => USDZExporter,
   USDZLoader: () => USDZLoader
 });
 
-// packages/sdk/src/formats/usdz/usdzArchive.ts
+// src/formats/usdz/usdzArchive.ts
 var SIG_EOCD = 101010256;
 var SIG_CDFH = 33639248;
 var SIG_LFH = 67324752;
@@ -190041,7 +190462,7 @@ function pickRootLayer(entries) {
   return "";
 }
 
-// packages/sdk/src/formats/usdz/usdLayer.ts
+// src/formats/usdz/usdLayer.ts
 var CRATE_MAGIC = "PXR-USDC";
 var ASCII_MAGIC = "#usda";
 function detectUSDLayer(data) {
@@ -190065,7 +190486,7 @@ function startsWithAscii(data, magic) {
   return true;
 }
 
-// packages/sdk/src/formats/usdz/getTinyUSDZ.ts
+// src/formats/usdz/getTinyUSDZ.ts
 var WASM_URL = "https://cdn.jsdelivr.net/npm/tinyusdz@0.9.1/tinyusdz.wasm";
 var modulePromise = null;
 function getTinyUSDZ() {
@@ -190088,7 +190509,7 @@ async function init() {
   return initTinyUSDZNative({ wasmBinary });
 }
 
-// packages/sdk/src/formats/usdz/versions/v1/buildSceneModel.ts
+// src/formats/usdz/versions/v1/buildSceneModel.ts
 function buildSceneModel(scene, sceneModel) {
   const geomByContentId = /* @__PURE__ */ new Map();
   const matByMaterialId = /* @__PURE__ */ new Map();
@@ -190219,7 +190640,7 @@ function mulMat44(a3, b5) {
   return out;
 }
 
-// packages/sdk/src/formats/usdz/versions/v1/parse.ts
+// src/formats/usdz/versions/v1/parse.ts
 async function parse26(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
@@ -190250,7 +190671,7 @@ async function parse26(params, options) {
   );
 }
 
-// packages/sdk/src/formats/usdz/USDZLoader.ts
+// src/formats/usdz/USDZLoader.ts
 var USDZLoader = class extends ModelLoader {
   /**
    * Constructs a USDZLoader.
@@ -190267,7 +190688,7 @@ var USDZLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/usdz/versions/v1/buildUSDA.ts
+// src/formats/usdz/versions/v1/buildUSDA.ts
 function buildUSDA(scene) {
   const out = [];
   out.push("#usda 1.0");
@@ -190373,7 +190794,7 @@ function num(x2) {
   return s2.includes("e") || s2.includes("E") ? x2.toFixed(9) : s2;
 }
 
-// packages/sdk/src/formats/usdz/usdzWriter.ts
+// src/formats/usdz/usdzWriter.ts
 var SIG_LFH2 = 67324752;
 var SIG_CDFH2 = 33639248;
 var SIG_EOCD2 = 101010256;
@@ -190454,7 +190875,7 @@ function crc322(data) {
   return (crc ^ 4294967295) >>> 0;
 }
 
-// packages/sdk/src/formats/usdz/versions/v1/encode.ts
+// src/formats/usdz/versions/v1/encode.ts
 var ROOT_LAYER = "model.usda";
 async function encode23(params, options) {
   var _a2;
@@ -190597,7 +191018,7 @@ function sequential2(n2) {
   return a3;
 }
 
-// packages/sdk/src/formats/usdz/USDZExporter.ts
+// src/formats/usdz/USDZExporter.ts
 var USDZExporter = class extends ModelExporter {
   /**
    * Constructs a USDZExporter.
@@ -190614,7 +191035,7 @@ var USDZExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/pdf/index.ts
+// src/formats/pdf/index.ts
 var pdf_exports = {};
 __export(pdf_exports, {
   DEFAULT_PDFJS_ESM_URL: () => DEFAULT_PDFJS_ESM_URL,
@@ -190623,7 +191044,7 @@ __export(pdf_exports, {
   PDFLoader: () => PDFLoader
 });
 
-// packages/sdk/src/formats/pdf/PDFLoadOptions.ts
+// src/formats/pdf/PDFLoadOptions.ts
 var DEFAULT_PDFJS_ESM_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs";
 var DEFAULT_PDFJS_WORKER_SRC = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs";
 var DEFAULT_PDF_LOAD_OPTIONS = {
@@ -190645,7 +191066,7 @@ var DEFAULT_PDF_LOAD_OPTIONS = {
   backingBox: false
 };
 
-// packages/sdk/src/formats/pdf/versions/v1_0/parse.ts
+// src/formats/pdf/versions/v1_0/parse.ts
 var _pdfjsCache = /* @__PURE__ */ new Map();
 async function loadPdfJs(opts) {
   var _a2, _b;
@@ -191967,7 +192388,7 @@ function computePageOffset(index2, firstPageWidth, firstPageHeight, layout, grid
   }
 }
 
-// packages/sdk/src/formats/pdf/PDFLoader.ts
+// src/formats/pdf/PDFLoader.ts
 var _pdfjsEsmUrl, _pdfjsWorkerSrc, _pdfjs;
 var PDFLoader = class {
   /**
@@ -191997,7 +192418,7 @@ _pdfjsEsmUrl = new WeakMap();
 _pdfjsWorkerSrc = new WeakMap();
 _pdfjs = new WeakMap();
 
-// packages/sdk/src/formats/svg/index.ts
+// src/formats/svg/index.ts
 var svg_exports = {};
 __export(svg_exports, {
   DEFAULT_SVG_EXPORT_OPTIONS: () => DEFAULT_SVG_EXPORT_OPTIONS,
@@ -192006,7 +192427,7 @@ __export(svg_exports, {
   SVGLoader: () => SVGLoader
 });
 
-// packages/sdk/src/formats/svg/SVGLoadOptions.ts
+// src/formats/svg/SVGLoadOptions.ts
 var DEFAULT_SVG_LOAD_OPTIONS = {
   scale: 1,
   flipY: true,
@@ -192024,7 +192445,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
   textPxPerUnit: 4
 };
 
-// packages/sdk/src/formats/svg/versions/v1_0/parse.ts
+// src/formats/svg/versions/v1_0/parse.ts
 async function parse28(input, options = {}) {
   var _a2, _b, _c;
   if (!input || !input.sceneModel) {
@@ -193313,7 +193734,7 @@ function domToSVGNode(el) {
   return node;
 }
 
-// packages/sdk/src/formats/svg/SVGLoader.ts
+// src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
     return parse28(
@@ -193323,7 +193744,7 @@ var SVGLoader = class {
   }
 };
 
-// packages/sdk/src/formats/svg/SVGExportOptions.ts
+// src/formats/svg/SVGExportOptions.ts
 var DEFAULT_SVG_EXPORT_OPTIONS = {
   projectionPlane: "XY",
   flipY: true,
@@ -193335,7 +193756,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
   coalescePolylines: false
 };
 
-// packages/sdk/src/formats/svg/versions/v1_0/encode.ts
+// src/formats/svg/versions/v1_0/encode.ts
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
@@ -193560,7 +193981,7 @@ function coalesceSegments(indices, projected) {
   return out;
 }
 
-// packages/sdk/src/formats/svg/SVGExporter.ts
+// src/formats/svg/SVGExporter.ts
 var SVGExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -193572,13 +193993,13 @@ var SVGExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/dwg/index.ts
+// src/formats/dwg/index.ts
 var dwg_exports = {};
 __export(dwg_exports, {
   DWGLoader: () => DWGLoader
 });
 
-// packages/sdk/src/formats/dwg/lib/DWGLoadOptions.ts
+// src/formats/dwg/lib/DWGLoadOptions.ts
 var DEFAULT_LIBREDWG_ESM_URL = "https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/+esm";
 var DEFAULT_LIBREDWG_WASM_DIR = "https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/wasm";
 var DEFAULT_DWG_LOAD_OPTIONS = {
@@ -193595,7 +194016,7 @@ var DEFAULT_DWG_LOAD_OPTIONS = {
   textPxPerUnit: 4
 };
 
-// packages/sdk/src/formats/dwg/versions/v1_0/parse.ts
+// src/formats/dwg/versions/v1_0/parse.ts
 var _libredwgCache = /* @__PURE__ */ new Map();
 async function loadLibredwg(opts) {
   var _a2, _b;
@@ -194453,7 +194874,7 @@ function err3(type, message) {
   return { ok: false, type, error: message };
 }
 
-// packages/sdk/src/formats/dwg/DWGLoader.ts
+// src/formats/dwg/DWGLoader.ts
 var _libredwgEsmUrl, _libredwgWasmDir, _libredwg;
 var DWGLoader = class {
   /**
@@ -194486,14 +194907,14 @@ _libredwgEsmUrl = new WeakMap();
 _libredwgWasmDir = new WeakMap();
 _libredwg = new WeakMap();
 
-// packages/sdk/src/formats/dxf/index.ts
+// src/formats/dxf/index.ts
 var dxf_exports = {};
 __export(dxf_exports, {
   DXFExporter: () => DXFExporter,
   DXFLoader: () => DXFLoader
 });
 
-// packages/sdk/src/formats/dxf/versions/v1_0/parse.ts
+// src/formats/dxf/versions/v1_0/parse.ts
 async function parse30(input, options = {}) {
   var _a2;
   if (!input || !input.sceneModel) {
@@ -194814,7 +195235,7 @@ function err4(type, message) {
   return { ok: false, type, error: message };
 }
 
-// packages/sdk/src/formats/dxf/DXFLoader.ts
+// src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
     return parse30(
@@ -194824,7 +195245,7 @@ var DXFLoader = class {
   }
 };
 
-// packages/sdk/src/formats/dxf/versions/v1_0/encode.ts
+// src/formats/dxf/versions/v1_0/encode.ts
 var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
@@ -195016,7 +195437,7 @@ function sanitizeDXFName(name12) {
   return String(name12 || "0").replace(/[^A-Za-z0-9_$\-]/g, "_") || "0";
 }
 
-// packages/sdk/src/formats/dxf/DXFExporter.ts
+// src/formats/dxf/DXFExporter.ts
 var DXFExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -195028,14 +195449,14 @@ var DXFExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/fds/index.ts
+// src/formats/fds/index.ts
 var fds_exports = {};
 __export(fds_exports, {
   FDSExporter: () => FDSExporter,
   FDSLoader: () => FDSLoader
 });
 
-// packages/sdk/src/formats/fds/versions/v6/tokenize.ts
+// src/formats/fds/versions/v6/tokenize.ts
 function tokenize(input) {
   const records = [];
   const stripped = stripComments(input);
@@ -195242,7 +195663,7 @@ function readOneValue(src, start, end) {
   return null;
 }
 
-// packages/sdk/src/formats/fds/versions/v6/applyHoles.ts
+// src/formats/fds/versions/v6/applyHoles.ts
 function applyHoles(obsts, holes) {
   const out = [];
   for (const obst of obsts) {
@@ -195305,10 +195726,10 @@ function normalise(xb) {
   ];
 }
 
-// packages/sdk/src/formats/fds/versions/v6/schema.ts
+// src/formats/fds/versions/v6/schema.ts
 var FDS_SCHEMA_ID = "fds6";
 
-// packages/sdk/src/formats/fds/versions/v6/buildDataModel.ts
+// src/formats/fds/versions/v6/buildDataModel.ts
 function buildDataModel3(model, dataModel, modelId) {
   var _a2, _b, _c, _d, _e2, _f, _g, _h;
   const projectId = idProject();
@@ -195534,7 +195955,7 @@ function idHole(i2) {
   return `FDS::hole:${i2}`;
 }
 
-// packages/sdk/src/formats/fds/versions/v6/buildGeometry.ts
+// src/formats/fds/versions/v6/buildGeometry.ts
 var GEOM_CUBE = "FDS::geom::cube";
 var GEOM_QUAD = "FDS::geom::quad";
 var GEOM_WIRE = "FDS::geom::wireBox";
@@ -195815,7 +196236,7 @@ function unitWireBox(id) {
   return { id, primitive: LinesPrimitive, positions, indices };
 }
 
-// packages/sdk/src/formats/fds/versions/v6/parse.ts
+// src/formats/fds/versions/v6/parse.ts
 var parse31 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
@@ -196021,7 +196442,7 @@ function extras(params, consumed) {
   return out;
 }
 
-// packages/sdk/src/formats/fds/FDSLoader.ts
+// src/formats/fds/FDSLoader.ts
 var FDSLoader = class extends ModelLoader {
   /**
    * Constructs an FDSLoader.
@@ -196041,7 +196462,7 @@ var FDSLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/fds/versions/v6/encode.ts
+// src/formats/fds/versions/v6/encode.ts
 async function encode26(params, _options2) {
   const { dataModel } = params;
   if (!dataModel) {
@@ -196313,7 +196734,7 @@ function isSyntheticName(name12, kind) {
   return new RegExp(`^${kind} \\d+$`).test(name12);
 }
 
-// packages/sdk/src/formats/fds/FDSExporter.ts
+// src/formats/fds/FDSExporter.ts
 var FDSExporter = class extends ModelExporter {
   /**
    * Constructs an FDSExporter.
@@ -196330,14 +196751,14 @@ var FDSExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/threedxml/index.ts
+// src/formats/threedxml/index.ts
 var threedxml_exports = {};
 __export(threedxml_exports, {
   ThreeDXMLExporter: () => ThreeDXMLExporter,
   ThreeDXMLLoader: () => ThreeDXMLLoader
 });
 
-// packages/sdk/src/formats/threedxml/unzip.ts
+// src/formats/threedxml/unzip.ts
 var SIG_EOCD3 = 101010256;
 var SIG_CDFH3 = 33639248;
 var SIG_LFH3 = 67324752;
@@ -196414,7 +196835,7 @@ function entryText(archive, name12) {
   return data ? textDecoder2.decode(data) : null;
 }
 
-// packages/sdk/src/formats/threedxml/versions/v1/xml.ts
+// src/formats/threedxml/versions/v1/xml.ts
 function parseXML(text) {
   if (typeof DOMParser === "undefined") {
     throw new Error("[3DXMLLoader] DOMParser is not available \u2014 run in a browser, or install a DOMParser polyfill (e.g. linkedom / @xmldom/xmldom) onto globalThis");
@@ -196462,7 +196883,7 @@ function numbersIn(text) {
   return out;
 }
 
-// packages/sdk/src/formats/threedxml/versions/v1/parseProductStructure.ts
+// src/formats/threedxml/versions/v1/parseProductStructure.ts
 var IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 function parseProductStructure(doc) {
   const references = /* @__PURE__ */ new Map();
@@ -196562,7 +196983,7 @@ function findRoot(doc, references, instance3Ds) {
   return (_a2 = references.keys().next().value) != null ? _a2 : "";
 }
 
-// packages/sdk/src/formats/threedxml/versions/v1/parseRepresentation.ts
+// src/formats/threedxml/versions/v1/parseRepresentation.ts
 function parseRepresentation(doc) {
   const out = [];
   for (const rep of descendants(doc, "Rep")) {
@@ -196656,7 +197077,7 @@ function num4(el, attr) {
   return Number.isFinite(n2) ? n2 : null;
 }
 
-// packages/sdk/src/formats/threedxml/versions/v1/parse.ts
+// src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
 async function parse32(params, _options2) {
@@ -196809,7 +197230,7 @@ function lastSegment(s2) {
   return cut >= 0 ? s2.slice(cut + 1) : s2;
 }
 
-// packages/sdk/src/formats/threedxml/ThreeDXMLLoader.ts
+// src/formats/threedxml/ThreeDXMLLoader.ts
 var ThreeDXMLLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -196821,14 +197242,15 @@ var ThreeDXMLLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/threedxml/versions/v1/encode.ts
+// src/formats/threedxml/versions/v1/encode.ts
 var textEncoder2 = new TextEncoder();
-async function encode27(params, _options2) {
+async function encode27(params, options) {
   var _a2, _b;
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw new Error("[3DXMLExporter] params.sceneModel is required");
   }
+  const ignoreNormals = (options == null ? void 0 : options.ignoreNormals) === true;
   const structure = [`<Reference3D id="1" name="${esc(sceneModel.id)}"/>`];
   const repFiles = [];
   let nextId = 2;
@@ -196839,7 +197261,7 @@ async function encode27(params, _options2) {
       continue;
     }
     const positions = decompressPositions3WithAABB3(geom.positionsCompressed, geom.aabb);
-    const normals = geom.normalsCompressed ? octDecodeNormalsU16(geom.normalsCompressed, new Float32Array(geom.normalsCompressed.length / 2 * 3)) : null;
+    const normals = !ignoreNormals && geom.normalsCompressed ? octDecodeNormalsU16(geom.normalsCompressed, new Float32Array(geom.normalsCompressed.length / 2 * 3)) : null;
     const repName = `Rep_${repIndex}.3DRep`;
     repFiles.push({ name: repName, data: textEncoder2.encode(repDocument(positions, normals, geom.indices, mesh)) });
     const partRefId = nextId++;
@@ -196969,7 +197391,7 @@ function makeZip(files) {
   return out.buffer;
 }
 
-// packages/sdk/src/formats/threedxml/ThreeDXMLExporter.ts
+// src/formats/threedxml/ThreeDXMLExporter.ts
 var ThreeDXMLExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -196981,7 +197403,7 @@ var ThreeDXMLExporter = class extends ModelExporter {
   }
 };
 
-// packages/sdk/src/formats/threedtiles/index.ts
+// src/formats/threedtiles/index.ts
 var threedtiles_exports = {};
 __export(threedtiles_exports, {
   ThreeDTilesLoader: () => ThreeDTilesLoader,
@@ -196994,7 +197416,7 @@ __export(threedtiles_exports, {
   streamTilesetInView: () => streamTilesetInView
 });
 
-// packages/sdk/src/formats/threedtiles/content/binaryTables.ts
+// src/formats/threedtiles/content/binaryTables.ts
 var COMPONENT_ARRAYS = {
   BYTE: Int8Array,
   UNSIGNED_BYTE: Uint8Array,
@@ -197050,7 +197472,7 @@ function readBatchTable(json, binary, count) {
   return out;
 }
 
-// packages/sdk/src/formats/threedtiles/content/decodeContent.ts
+// src/formats/threedtiles/content/decodeContent.ts
 var Y_UP_TO_Z_UP = createMat4Float64([
   1,
   0,
@@ -197396,7 +197818,7 @@ function addBatchTableToDataModel(ctx2, btJSON, btBin, batchLength) {
   }
 }
 
-// packages/sdk/src/formats/threedtiles/implicit/morton.ts
+// src/formats/threedtiles/implicit/morton.ts
 function subdivisionOf(scheme) {
   return scheme === "OCTREE" ? { branch: 8, dims: 3 } : { branch: 4, dims: 2 };
 }
@@ -197404,7 +197826,7 @@ function tilesBeforeLevel(branch, level) {
   return (Math.pow(branch, level) - 1) / (branch - 1);
 }
 
-// packages/sdk/src/formats/threedtiles/implicit/parseSubtree.ts
+// src/formats/threedtiles/implicit/parseSubtree.ts
 async function parseSubtree(buffer, branch, fetchBuffer) {
   const dv = new DataView(buffer);
   const magic = String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3));
@@ -197445,7 +197867,7 @@ async function parseSubtree(buffer, branch, fetchBuffer) {
   };
 }
 
-// packages/sdk/src/formats/threedtiles/implicit/traverseImplicit.ts
+// src/formats/threedtiles/implicit/traverseImplicit.ts
 async function traverseImplicit(p2) {
   var _a2, _b;
   const sub = subdivisionOf(p2.implicitTiling.subdivisionScheme);
@@ -197506,7 +197928,7 @@ function dirOf(url) {
   return i2 >= 0 ? url.slice(0, i2 + 1) : url;
 }
 
-// packages/sdk/src/formats/threedtiles/tilesetMetadata.ts
+// src/formats/threedtiles/tilesetMetadata.ts
 function toProperties(props) {
   return Object.keys(props || {}).map((name12) => ({ name: name12, value: props[name12] }));
 }
@@ -197579,7 +198001,7 @@ function applyTileMetadata(dataModel, tile, rootDataObjectId, groupObjectIds, in
   }
 }
 
-// packages/sdk/src/formats/threedtiles/parseTileset.ts
+// src/formats/threedtiles/parseTileset.ts
 var IDENTITY3 = createMat4Float64([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 function defaultFetchArrayBuffer(url) {
   return fetch(url).then((response) => {
@@ -197687,7 +198109,7 @@ function resolveUrl2(uri, baseUri) {
   }
 }
 
-// packages/sdk/src/formats/threedtiles/ThreeDTilesLoader.ts
+// src/formats/threedtiles/ThreeDTilesLoader.ts
 var ThreeDTilesLoader = class extends ModelLoader {
   constructor() {
     super({
@@ -197708,7 +198130,7 @@ var ThreeDTilesLoader = class extends ModelLoader {
   }
 };
 
-// packages/sdk/src/formats/threedtiles/streaming/TileTree.ts
+// src/formats/threedtiles/streaming/TileTree.ts
 var IDENTITY4 = createMat4Float64([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 function buildTileTree(tileset, baseUri) {
   if (!(tileset == null ? void 0 : tileset.root)) {
@@ -197815,7 +198237,7 @@ function maxAxisScale(m2) {
   );
 }
 
-// packages/sdk/src/formats/threedtiles/streaming/screenSpaceError.ts
+// src/formats/threedtiles/streaming/screenSpaceError.ts
 function distanceToTile(eye, sphere) {
   const d2 = Math.hypot(eye[0] - sphere.center[0], eye[1] - sphere.center[1], eye[2] - sphere.center[2]);
   return Math.max(0, d2 - sphere.radius);
@@ -197859,7 +198281,7 @@ function selectTiles(root, camera, maxScreenSpaceError) {
   return out;
 }
 
-// packages/sdk/src/formats/threedtiles/implicit/boxSubdivision.ts
+// src/formats/threedtiles/implicit/boxSubdivision.ts
 function subdividedSphere(rootBox, dims, level, coords, world) {
   const n2 = Math.pow(2, level);
   const c3 = [rootBox[0], rootBox[1], rootBox[2]];
@@ -197885,7 +198307,7 @@ function geometricErrorAtLevel(rootGeometricError, level) {
   return rootGeometricError / Math.pow(2, level);
 }
 
-// packages/sdk/src/formats/threedtiles/streaming/selectStreaming.ts
+// src/formats/threedtiles/streaming/selectStreaming.ts
 async function selectStreaming(root, camera, opts) {
   const out = [];
   const frustum = camera.viewMatrix && camera.projMatrix ? setFrustum3(camera.viewMatrix, camera.projMatrix, new Frustum3()) : null;
@@ -198005,7 +198427,7 @@ async function selectStreaming(root, camera, opts) {
   return out;
 }
 
-// packages/sdk/src/formats/threedtiles/streaming/TilesetStreamer.ts
+// src/formats/threedtiles/streaming/TilesetStreamer.ts
 var _scene, _tree, _fetchArrayBuffer, _maxSSE, _maxLoadedTiles, _concurrency, _options, _loaded, _inFlight, _subtreeCache, _destroyed, _loadTile, loadTile_fn, _runPool, runPool_fn;
 var TilesetStreamer = class {
   constructor(params) {
@@ -198165,7 +198587,7 @@ function streamTilesetInView(view, tree, params = {}) {
   return streamer;
 }
 
-// packages/sdk/src/inspect/sceneModel/InspectionRegistry.ts
+// src/inspect/sceneModel/InspectionRegistry.ts
 var _inspections, _configs;
 var InspectionRegistry = class {
   /**
@@ -198341,7 +198763,7 @@ var InspectionRegistry = class {
 _inspections = new WeakMap();
 _configs = new WeakMap();
 
-// packages/sdk/src/inspect/sceneModel/inspections/util.ts
+// src/inspect/sceneModel/inspections/util.ts
 function isFiniteMat4(m2) {
   if (m2.length < 16)
     return false;
@@ -198399,7 +198821,7 @@ function formatDistance(d2) {
   return `${d2.toFixed(0)} units`;
 }
 
-// packages/sdk/src/inspect/sceneModel/inspections/geometryDataIntegrity.ts
+// src/inspect/sceneModel/inspections/geometryDataIntegrity.ts
 var geometryDataIntegrity = {
   codes: [
     "GEOMETRY_NO_POSITIONS",
@@ -198624,7 +199046,7 @@ function checkGeometry(geom, issues) {
   }
 }
 
-// packages/sdk/src/inspect/sceneModel/inspections/meshReferences.ts
+// src/inspect/sceneModel/inspections/meshReferences.ts
 var meshReferences = {
   codes: [
     "MESH_DANGLING_GEOMETRY",
@@ -198702,7 +199124,7 @@ var meshReferences = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/objectMeshReferences.ts
+// src/inspect/sceneModel/inspections/objectMeshReferences.ts
 var objectMeshReferences = {
   codes: ["OBJECT_DANGLING_MESH"],
   description: "Object mesh references",
@@ -198739,7 +199161,7 @@ var objectMeshReferences = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/transformParentCycles.ts
+// src/inspect/sceneModel/inspections/transformParentCycles.ts
 var transformParentCycles = {
   codes: ["TRANSFORM_CYCLE"],
   description: "Transform parent cycles",
@@ -198783,7 +199205,7 @@ var transformParentCycles = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/internal/createSceneModelInspectionIndex.ts
+// src/inspect/sceneModel/internal/createSceneModelInspectionIndex.ts
 function createSceneModelInspectionIndex(sceneModel) {
   const geomRows = /* @__PURE__ */ new Map();
   const objRows = /* @__PURE__ */ new Map();
@@ -199474,7 +199896,7 @@ function vertsEqual(positions, normals, uvs, colors, a3, b5) {
   return true;
 }
 
-// packages/sdk/src/inspect/sceneModel/internal/getInspectionIndex.ts
+// src/inspect/sceneModel/internal/getInspectionIndex.ts
 var indexes = /* @__PURE__ */ new WeakMap();
 function getInspectionIndex(sceneModel) {
   let ix = indexes.get(sceneModel);
@@ -199485,7 +199907,7 @@ function getInspectionIndex(sceneModel) {
   return ix;
 }
 
-// packages/sdk/src/inspect/sceneModel/inspections/unusedResources.ts
+// src/inspect/sceneModel/inspections/unusedResources.ts
 var unusedResources = {
   codes: [
     "MATERIAL_UNUSED",
@@ -199564,7 +199986,7 @@ var unusedResources = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/identityTransforms.ts
+// src/inspect/sceneModel/inspections/identityTransforms.ts
 var IDENTITY_EPS = 1e-9;
 var identityTransforms = {
   codes: ["TRANSFORM_IDENTITY"],
@@ -199604,12 +200026,12 @@ function isIdentityMat42(m2) {
   return true;
 }
 
-// packages/sdk/src/inspect/sceneModel/labels/findSceneObjectsForGeometry.ts
+// src/inspect/sceneModel/labels/findSceneObjectsForGeometry.ts
 function findSceneObjectsForGeometry(sceneModel, geometryId) {
   return getInspectionIndex(sceneModel).geometryObjects(geometryId).slice();
 }
 
-// packages/sdk/src/inspect/sceneModel/Config.ts
+// src/inspect/sceneModel/Config.ts
 function resolveConfig(schema, overrides) {
   var _a2, _b, _c;
   const out = { enabled: true };
@@ -199634,7 +200056,7 @@ function resolveConfig(schema, overrides) {
   return out;
 }
 
-// packages/sdk/src/inspect/sceneModel/inspections/duplicateGeometries.ts
+// src/inspect/sceneModel/inspections/duplicateGeometries.ts
 var duplicateGeometries = {
   codes: ["GEOMETRY_DUPLICATE"],
   description: "Duplicate geometries (byte-identical)",
@@ -199701,7 +200123,7 @@ var duplicateGeometries = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/similarGeometries.ts
+// src/inspect/sceneModel/inspections/similarGeometries.ts
 var similarGeometries = {
   codes: ["GEOMETRY_SIMILAR"],
   description: "Similar geometries (same shape, any pose)",
@@ -199790,7 +200212,7 @@ var similarGeometries = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/denseGeometries.ts
+// src/inspect/sceneModel/inspections/denseGeometries.ts
 var denseGeometries = {
   codes: ["GEOMETRY_OVER_BUDGET"],
   description: "Dense geometries (over storage budget)",
@@ -199872,7 +200294,7 @@ var denseGeometries = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/geometryArrayLengths.ts
+// src/inspect/sceneModel/inspections/geometryArrayLengths.ts
 var geometryArrayLengths = {
   codes: ["GEOMETRY_ARRAY_OVERSIZED"],
   description: "Geometries with oversized vertex / index arrays",
@@ -200039,7 +200461,7 @@ var geometryArrayLengths = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/largeGeometries.ts
+// src/inspect/sceneModel/inspections/largeGeometries.ts
 var largeGeometries = {
   codes: ["GEOMETRY_OVER_EXTENT"],
   description: "Large geometries (over spatial extent)",
@@ -200114,7 +200536,7 @@ var largeGeometries = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/geometryQuality.ts
+// src/inspect/sceneModel/inspections/geometryQuality.ts
 var geometryQuality = {
   codes: [
     "GEOMETRY_ZERO_VOLUME_AABB",
@@ -200398,7 +200820,7 @@ function checkGeometry2(geom, sceneModel, index2, issues, minAabbFill) {
 }
 var DEGENERATE_AREA_EPS_SQ = 1e-20;
 
-// packages/sdk/src/inspect/sceneModel/inspections/objectPlacement.ts
+// src/inspect/sceneModel/inspections/objectPlacement.ts
 var objectPlacement = {
   codes: ["OBJECT_FAR_FROM_ORIGIN", "OBJECT_DUPLICATE_AABB"],
   description: "Object placement (far from origin, duplicates)",
@@ -200496,7 +200918,7 @@ var objectPlacement = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/inspections/textureDimensions.ts
+// src/inspect/sceneModel/inspections/textureDimensions.ts
 var textureDimensions = {
   codes: ["TEXTURE_NPOT", "TEXTURE_OVERSIZED"],
   description: "Texture dimensions (non-power-of-two, oversized)",
@@ -200576,7 +200998,7 @@ function estimateBytesMB(w3, h3) {
   return (w3 * h3 * 4 / (1024 * 1024)).toFixed(1);
 }
 
-// packages/sdk/src/inspect/sceneModel/inspections/farFromOriginGeometries.ts
+// src/inspect/sceneModel/inspections/farFromOriginGeometries.ts
 var farFromOriginGeometries = {
   codes: ["GEOMETRY_FAR_FROM_ORIGIN"],
   description: "Geometries far from origin",
@@ -200646,7 +201068,7 @@ var farFromOriginGeometries = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/DEFAULT_INSPECTION_REGISTRY.ts
+// src/inspect/sceneModel/DEFAULT_INSPECTION_REGISTRY.ts
 var DEFAULT_INSPECTION_REGISTRY = new InspectionRegistry([
   geometryDataIntegrity,
   meshReferences,
@@ -200665,7 +201087,7 @@ var DEFAULT_INSPECTION_REGISTRY = new InspectionRegistry([
   farFromOriginGeometries
 ]);
 
-// packages/sdk/src/inspect/sceneModel/inspectSceneModel.ts
+// src/inspect/sceneModel/inspectSceneModel.ts
 function inspectSceneModel(params) {
   var _a2;
   const sceneModel = params.sceneModel;
@@ -200714,7 +201136,7 @@ function finalise(issues) {
   return { issues, errors, warnings, info, byCode };
 }
 
-// packages/sdk/src/inspect/sceneModel/async/inspectSceneModelAsync.ts
+// src/inspect/sceneModel/async/inspectSceneModelAsync.ts
 async function inspectSceneModelAsync(params) {
   var _a2;
   const sceneModel = params.sceneModel;
@@ -200789,7 +201211,7 @@ function yieldToMainThread() {
   return new Promise((resolve3) => setTimeout(resolve3, 0));
 }
 
-// packages/sdk/src/inspect/sceneModel/labels/labelForCode.ts
+// src/inspect/sceneModel/labels/labelForCode.ts
 function labelForCode(code, registry = DEFAULT_INSPECTION_REGISTRY) {
   for (const inspection of registry.inspections()) {
     const labels = inspection.labels;
@@ -200800,7 +201222,7 @@ function labelForCode(code, registry = DEFAULT_INSPECTION_REGISTRY) {
   return code;
 }
 
-// packages/sdk/src/inspect/sceneModel/serializers/inspectionReportToJson.ts
+// src/inspect/sceneModel/serializers/inspectionReportToJson.ts
 function inspectionReportToJson(report, params = {}) {
   var _a2;
   const registry = (_a2 = params.registry) != null ? _a2 : DEFAULT_INSPECTION_REGISTRY;
@@ -200844,7 +201266,7 @@ function issueToJson(issue) {
   return out;
 }
 
-// packages/sdk/src/inspect/sceneModel/FixRegistry.ts
+// src/inspect/sceneModel/FixRegistry.ts
 var _byCode, _configs2;
 var FixRegistry = class {
   /**
@@ -201018,7 +201440,7 @@ var FixRegistry = class {
 _byCode = new WeakMap();
 _configs2 = new WeakMap();
 
-// packages/sdk/src/inspect/sceneModel/fixes/pruneDanglingMeshRefs.ts
+// src/inspect/sceneModel/fixes/pruneDanglingMeshRefs.ts
 var pruneDanglingMeshRefs = {
   codes: ["OBJECT_DANGLING_MESH"],
   description: "Drop dangling mesh references",
@@ -201065,7 +201487,7 @@ var pruneDanglingMeshRefs = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/dropUnusedMaterial.ts
+// src/inspect/sceneModel/fixes/dropUnusedMaterial.ts
 var dropUnusedMaterial = {
   codes: ["MATERIAL_UNUSED"],
   description: "Destroy unused materials",
@@ -201115,7 +201537,7 @@ var dropUnusedMaterial = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/dropUnusedTexture.ts
+// src/inspect/sceneModel/fixes/dropUnusedTexture.ts
 var dropUnusedTexture = {
   codes: ["TEXTURE_UNUSED"],
   description: "Destroy unused textures",
@@ -201165,7 +201587,7 @@ var dropUnusedTexture = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/dropUnusedTransform.ts
+// src/inspect/sceneModel/fixes/dropUnusedTransform.ts
 var dropUnusedTransform = {
   codes: ["TRANSFORM_UNUSED"],
   description: "Destroy unused transforms",
@@ -201220,7 +201642,7 @@ var dropUnusedTransform = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/dropIdentityTransform.ts
+// src/inspect/sceneModel/fixes/dropIdentityTransform.ts
 var dropIdentityTransform = {
   codes: ["TRANSFORM_IDENTITY"],
   description: "Remove identity transforms",
@@ -201281,7 +201703,7 @@ var dropIdentityTransform = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/mergeDuplicateGeometries.ts
+// src/inspect/sceneModel/fixes/mergeDuplicateGeometries.ts
 var mergeDuplicateGeometries = {
   codes: ["GEOMETRY_DUPLICATE"],
   description: "Coalesce duplicate geometries",
@@ -201445,7 +201867,7 @@ function cleanupCreatedMesh(sceneObject, mesh) {
   return { ok: true, value: void 0 };
 }
 
-// packages/sdk/src/inspect/sceneModel/fixes/mergeSimilarGeometries.ts
+// src/inspect/sceneModel/fixes/mergeSimilarGeometries.ts
 var RESIDUAL_THRESHOLD_FRAC = 1e-3;
 var mergeSimilarGeometries = {
   codes: ["GEOMETRY_SIMILAR"],
@@ -201833,7 +202255,7 @@ function aabbDiagonal(aabb) {
   return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-// packages/sdk/src/inspect/sceneModel/internal/splitSceneGeometry.ts
+// src/inspect/sceneModel/internal/splitSceneGeometry.ts
 function splitSceneGeometry(params) {
   var _a2, _b, _c;
   const src = params.sceneGeometry;
@@ -201985,7 +202407,7 @@ function errInvalid(message) {
   return { ok: false, type: 1 /* InvalidOperation */, error: message };
 }
 
-// packages/sdk/src/inspect/sceneModel/internal/splitGeometryAndRebuildMeshes.ts
+// src/inspect/sceneModel/internal/splitGeometryAndRebuildMeshes.ts
 function splitGeometryAndRebuildMeshes(sceneModel, geometryId) {
   const geom = sceneModel.geometries[geometryId];
   if (!geom || geom.destroyed) {
@@ -202123,7 +202545,7 @@ function uniqueMeshId(sceneModel, baseId) {
   return `${baseId}_${i2}`;
 }
 
-// packages/sdk/src/inspect/sceneModel/fixes/splitDenseGeometry.ts
+// src/inspect/sceneModel/fixes/splitDenseGeometry.ts
 var splitDenseGeometry = {
   codes: ["GEOMETRY_OVER_BUDGET"],
   description: "Split dense geometry in half",
@@ -202156,7 +202578,7 @@ var splitDenseGeometry = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/splitLargeGeometry.ts
+// src/inspect/sceneModel/fixes/splitLargeGeometry.ts
 var splitLargeGeometry = {
   codes: ["GEOMETRY_OVER_EXTENT"],
   description: "Split large geometry in half",
@@ -202189,7 +202611,7 @@ var splitLargeGeometry = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/splitOversizedGeometry.ts
+// src/inspect/sceneModel/fixes/splitOversizedGeometry.ts
 var splitOversizedGeometry = {
   codes: ["GEOMETRY_ARRAY_OVERSIZED"],
   description: "Split geometry with oversized vertex / index arrays in half",
@@ -202222,7 +202644,7 @@ var splitOversizedGeometry = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/internal/finishGeometryMutation.ts
+// src/inspect/sceneModel/internal/finishGeometryMutation.ts
 function snapshotGeometryMutation(geom) {
   return {
     primitive: geom.primitive,
@@ -202260,7 +202682,7 @@ function pointCount(snapshot) {
   return snapshot.primitive === PointsPrimitive && snapshot.indicesLength === 0 ? snapshot.positionsLength / 3 : 0;
 }
 
-// packages/sdk/src/inspect/sceneModel/fixes/dropDegenerateTriangles.ts
+// src/inspect/sceneModel/fixes/dropDegenerateTriangles.ts
 var DEGENERATE_AREA_EPS_SQ2 = 1e-20;
 var dropDegenerateTriangles = {
   codes: ["GEOMETRY_DEGENERATE_TRIANGLES"],
@@ -202348,7 +202770,7 @@ var dropDegenerateTriangles = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/compactUnusedVertices.ts
+// src/inspect/sceneModel/fixes/compactUnusedVertices.ts
 var compactUnusedVertices = {
   codes: ["GEOMETRY_UNUSED_VERTICES"],
   description: "Compact unused vertex slots",
@@ -202456,7 +202878,7 @@ var compactUnusedVertices = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/mergeDuplicateVertices.ts
+// src/inspect/sceneModel/fixes/mergeDuplicateVertices.ts
 var mergeDuplicateVertices = {
   codes: ["GEOMETRY_DUPLICATE_VERTICES"],
   description: "Coalesce duplicate vertices",
@@ -202563,7 +202985,7 @@ var mergeDuplicateVertices = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/downgradeNonWatertight.ts
+// src/inspect/sceneModel/fixes/downgradeNonWatertight.ts
 var downgradeNonWatertight = {
   codes: ["GEOMETRY_NON_WATERTIGHT"],
   description: "Downgrade Solid \u2192 Surface primitive",
@@ -202603,7 +203025,7 @@ var downgradeNonWatertight = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/dropDuplicateObject.ts
+// src/inspect/sceneModel/fixes/dropDuplicateObject.ts
 var dropDuplicateObject = {
   codes: ["OBJECT_DUPLICATE_AABB"],
   description: "Destroy duplicate objects",
@@ -202671,7 +203093,7 @@ var dropDuplicateObject = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/recenterGeometry.ts
+// src/inspect/sceneModel/fixes/recenterGeometry.ts
 var RECENTER_EPS = 1e-6;
 var recenterGeometry = {
   codes: ["GEOMETRY_FAR_FROM_ORIGIN"],
@@ -202738,7 +203160,7 @@ var recenterGeometry = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/unifyTriangleWinding.ts
+// src/inspect/sceneModel/fixes/unifyTriangleWinding.ts
 var unifyTriangleWinding = {
   codes: ["GEOMETRY_INCONSISTENT_WINDING"],
   description: "Unify triangle winding",
@@ -202848,7 +203270,7 @@ var unifyTriangleWinding = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/fixes/tightenAabb.ts
+// src/inspect/sceneModel/fixes/tightenAabb.ts
 var tightenAabb = {
   codes: ["GEOMETRY_AABB_NOT_TIGHT"],
   description: "Tighten AABB and re-quantize positions",
@@ -202944,7 +203366,7 @@ function axisAlreadyTight(minU, maxU, worldRange) {
   return minU === 0 && maxU === 65535 || worldRange === 0 && minU === maxU;
 }
 
-// packages/sdk/src/inspect/sceneModel/fixes/dropDuplicateTriangles.ts
+// src/inspect/sceneModel/fixes/dropDuplicateTriangles.ts
 var dropDuplicateTriangles = {
   codes: ["GEOMETRY_DUPLICATE_INDICES"],
   description: "Drop duplicate triangles",
@@ -203007,7 +203429,7 @@ var dropDuplicateTriangles = {
   }
 };
 
-// packages/sdk/src/inspect/sceneModel/DEFAULT_FIX_REGISTRY.ts
+// src/inspect/sceneModel/DEFAULT_FIX_REGISTRY.ts
 var DEFAULT_FIX_REGISTRY = new FixRegistry([
   pruneDanglingMeshRefs,
   dropUnusedMaterial,
@@ -203030,7 +203452,7 @@ var DEFAULT_FIX_REGISTRY = new FixRegistry([
   dropDuplicateTriangles
 ]);
 
-// packages/sdk/src/inspect/sceneModel/applyFixes.ts
+// src/inspect/sceneModel/applyFixes.ts
 function applyFixes(params) {
   var _a2;
   const { sceneModel, report } = params;
@@ -203104,7 +203526,7 @@ function invalidateForIssue(index2, issue) {
 }
 var GEOM_ID_LIST_KEYS = ["duplicates", "similar"];
 
-// packages/sdk/src/inspect/sceneModel/serializers/applyFixesResultToJson.ts
+// src/inspect/sceneModel/serializers/applyFixesResultToJson.ts
 function applyFixesResultToJson(result) {
   return {
     generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
@@ -203132,7 +203554,7 @@ function outcomeToJson(o2) {
   return out;
 }
 
-// packages/sdk/src/inspect/dataModel/InspectionRegistry.ts
+// src/inspect/dataModel/InspectionRegistry.ts
 var _inspections2;
 var InspectionRegistry2 = class {
   constructor(inspections = []) {
@@ -203181,7 +203603,7 @@ var InspectionRegistry2 = class {
 };
 _inspections2 = new WeakMap();
 
-// packages/sdk/src/inspect/dataModel/inspections/generic/objectIntegrity.ts
+// src/inspect/dataModel/inspections/generic/objectIntegrity.ts
 var objectIntegrity = {
   codes: [
     "OBJECT_MISSING_TYPE",
@@ -203247,7 +203669,7 @@ var objectIntegrity = {
   }
 };
 
-// packages/sdk/src/inspect/dataModel/inspections/schema/objectTypeRegistration.ts
+// src/inspect/dataModel/inspections/schema/objectTypeRegistration.ts
 var objectTypeRegistration = {
   codes: ["OBJECT_UNKNOWN_TYPE"],
   description: "DataObject types registered in schema",
@@ -203281,7 +203703,7 @@ var objectTypeRegistration = {
   }
 };
 
-// packages/sdk/src/inspect/dataModel/inspections/generic/relationshipReferences.ts
+// src/inspect/dataModel/inspections/generic/relationshipReferences.ts
 var relationshipReferences = {
   codes: [
     "RELATIONSHIP_DANGLING_RELATING_OBJECT",
@@ -203349,7 +203771,7 @@ function relationshipLocator2(rel) {
   return `${a3}->${b5}#${rel.type}`;
 }
 
-// packages/sdk/src/inspect/dataModel/inspections/schema/relationshipTypeRegistration.ts
+// src/inspect/dataModel/inspections/schema/relationshipTypeRegistration.ts
 var relationshipTypeRegistration = {
   codes: ["RELATIONSHIP_UNKNOWN_TYPE"],
   description: "Relationship types registered in schema",
@@ -203383,7 +203805,7 @@ var relationshipTypeRegistration = {
   }
 };
 
-// packages/sdk/src/inspect/dataModel/inspections/schema/propertySetReferences.ts
+// src/inspect/dataModel/inspections/schema/propertySetReferences.ts
 var propertySetReferences = {
   codes: [
     "OBJECT_REQUIRED_PROPERTY_SET_MISSING",
@@ -203453,7 +203875,7 @@ var propertySetReferences = {
   }
 };
 
-// packages/sdk/src/inspect/dataModel/DataFormatSchema.ts
+// src/inspect/dataModel/DataFormatSchema.ts
 function typeMatchesOrInherits(schema, typeId, allowedTypes) {
   var _a2, _b;
   if (!allowedTypes || allowedTypes.length === 0)
@@ -203470,7 +203892,7 @@ function typeMatchesOrInherits(schema, typeId, allowedTypes) {
   return false;
 }
 
-// packages/sdk/src/inspect/dataModel/inspections/schema/relationshipTypeBinding.ts
+// src/inspect/dataModel/inspections/schema/relationshipTypeBinding.ts
 var relationshipTypeBinding = {
   codes: [
     "RELATIONSHIP_FORBIDDEN_RELATING_TYPE",
@@ -203553,7 +203975,7 @@ function formatList(list) {
   return `[${list.join(", ")}]`;
 }
 
-// packages/sdk/src/inspect/dataModel/inspections/schema/schemaTagging.ts
+// src/inspect/dataModel/inspections/schema/schemaTagging.ts
 var schemaTagging = {
   codes: [
     "OBJECT_SCHEMA_MISMATCH",
@@ -203608,7 +204030,7 @@ var schemaTagging = {
   }
 };
 
-// packages/sdk/src/inspect/dataModel/inspections/generic/relationshipCycles.ts
+// src/inspect/dataModel/inspections/generic/relationshipCycles.ts
 var relationshipCycles = {
   codes: ["RELATIONSHIP_CYCLE"],
   description: "Container relationships form a DAG",
@@ -203690,7 +204112,7 @@ var DEFAULT_CYCLE_TYPES = [
   "IfcRelContainedInSpatialStructure"
 ];
 
-// packages/sdk/src/inspect/dataModel/inspections/ifc/IFC_SCHEMAS.ts
+// src/inspect/dataModel/inspections/ifc/IFC_SCHEMAS.ts
 var IFC_SCHEMAS = [
   "IFC4",
   "IFC4x3",
@@ -203702,7 +204124,7 @@ var IFC_SCHEMAS = [
   "IFC2X3"
 ];
 
-// packages/sdk/src/inspect/dataModel/inspections/ifc/ifcSpatialHierarchy.ts
+// src/inspect/dataModel/inspections/ifc/ifcSpatialHierarchy.ts
 var ifcSpatialHierarchy = {
   codes: [
     "IFC_NO_PROJECT",
@@ -203825,7 +204247,7 @@ var DEFAULT_SPATIAL_PARENTS = {
   IfcSpace: ["IfcBuildingStorey", "IfcBuilding", "IfcSite"]
 };
 
-// packages/sdk/src/inspect/dataModel/inspections/ifc/ifcElementContainment.ts
+// src/inspect/dataModel/inspections/ifc/ifcElementContainment.ts
 var ifcElementContainment = {
   codes: ["IFC_ELEMENT_AGGREGATED_NOT_CONTAINED"],
   description: "IFC element containment uses the right relationship",
@@ -203880,7 +204302,7 @@ var ifcElementContainment = {
   }
 };
 
-// packages/sdk/src/inspect/dataModel/DEFAULT_INSPECTION_REGISTRY.ts
+// src/inspect/dataModel/DEFAULT_INSPECTION_REGISTRY.ts
 var DEFAULT_INSPECTION_REGISTRY2 = new InspectionRegistry2([
   objectIntegrity,
   objectTypeRegistration,
@@ -203894,7 +204316,7 @@ var DEFAULT_INSPECTION_REGISTRY2 = new InspectionRegistry2([
   ifcElementContainment
 ]);
 
-// packages/sdk/src/inspect/dataModel/inspectDataModel.ts
+// src/inspect/dataModel/inspectDataModel.ts
 function inspectDataModel(params) {
   var _a2, _b, _c;
   const dataModel = params.dataModel;
@@ -203948,7 +204370,7 @@ function finalise3(issues, inspectionsRun) {
   return { issues, errors, warnings, info, byCode, inspectionsRun };
 }
 
-// packages/sdk/src/inspect/dataModel/async/inspectDataModelAsync.ts
+// src/inspect/dataModel/async/inspectDataModelAsync.ts
 async function inspectDataModelAsync(params) {
   var _a2, _b, _c;
   const dataModel = params.dataModel;
@@ -204040,7 +204462,7 @@ function throwAborted() {
   throw err5;
 }
 
-// packages/sdk/src/inspect/dataModel/labels/labelForCode.ts
+// src/inspect/dataModel/labels/labelForCode.ts
 function labelForCode2(code, registry = DEFAULT_INSPECTION_REGISTRY2) {
   for (const inspection of registry.inspections()) {
     const labels = inspection.labels;
@@ -204051,7 +204473,7 @@ function labelForCode2(code, registry = DEFAULT_INSPECTION_REGISTRY2) {
   return code;
 }
 
-// packages/sdk/src/inspect/dataModel/serializers/inspectionReportToJson.ts
+// src/inspect/dataModel/serializers/inspectionReportToJson.ts
 function inspectionReportToJson2(report, params = {}) {
   var _a2;
   const registry = (_a2 = params.registry) != null ? _a2 : DEFAULT_INSPECTION_REGISTRY2;
@@ -204107,7 +204529,7 @@ function issueToJson2(issue) {
   return out;
 }
 
-// packages/sdk/src/convert/modelConverter/ModelConverter.ts
+// src/convert/modelConverter/ModelConverter.ts
 var _fileIO2 = null;
 function getFileIO2() {
   return _fileIO2 != null ? _fileIO2 : _fileIO2 = createFileIO();
@@ -204590,7 +205012,7 @@ function fileMapByteLength(files) {
   return bytes;
 }
 
-// packages/sdk/src/convert/modelConverter/reporters/index.ts
+// src/convert/modelConverter/reporters/index.ts
 var reporters_exports = {};
 __export(reporters_exports, {
   inspection: () => inspection_exports,
@@ -204598,13 +205020,13 @@ __export(reporters_exports, {
   stats: () => stats_exports
 });
 
-// packages/sdk/src/convert/modelConverter/reporters/manifest/index.ts
+// src/convert/modelConverter/reporters/manifest/index.ts
 var manifest_exports = {};
 __export(manifest_exports, {
   createManifestReport: () => createManifestReport
 });
 
-// packages/sdk/src/convert/modelConverter/reporters/manifest/createManifestReport.ts
+// src/convert/modelConverter/reporters/manifest/createManifestReport.ts
 var createManifestReport = (modelConverterResult) => {
   return {
     files: getEntries(modelConverterResult)
@@ -204629,13 +205051,13 @@ function getEntries(modelConverterResult) {
   return entries;
 }
 
-// packages/sdk/src/convert/modelConverter/reporters/stats/index.ts
+// src/convert/modelConverter/reporters/stats/index.ts
 var stats_exports = {};
 __export(stats_exports, {
   createStatsReport: () => createStatsReport
 });
 
-// packages/sdk/src/convert/modelConverter/reporters/stats/createStatsReport.ts
+// src/convert/modelConverter/reporters/stats/createStatsReport.ts
 var createStatsReport = (modelConverterResult) => {
   const modelConverterStatsReport = {
     description: "Generated by @xeokit/sdk/convert/modelConverter/createStatsReport",
@@ -204693,13 +205115,13 @@ var createStatsReport = (modelConverterResult) => {
   return modelConverterStatsReport;
 };
 
-// packages/sdk/src/convert/modelConverter/reporters/inspection/index.ts
+// src/convert/modelConverter/reporters/inspection/index.ts
 var inspection_exports = {};
 __export(inspection_exports, {
   createInspectionReport: () => createInspectionReport
 });
 
-// packages/sdk/src/convert/modelConverter/reporters/inspection/createInspectionReport.ts
+// src/convert/modelConverter/reporters/inspection/createInspectionReport.ts
 var createInspectionReport = (modelConverterResult) => {
   const inspection = modelConverterResult.inspection;
   if (!inspection)
@@ -204781,7 +205203,7 @@ function collectFileSizes(result) {
   };
 }
 
-// packages/sdk/src/convert/modelConverter/reporters/optimization/createOptimizationReport.ts
+// src/convert/modelConverter/reporters/optimization/createOptimizationReport.ts
 var createOptimizationReport = (modelConverterResult) => {
   const inspection = modelConverterResult.inspection;
   if (!inspection)
@@ -204820,7 +205242,7 @@ var createOptimizationReport = (modelConverterResult) => {
   return { counts, bytes, files: { inputs, outputs }, bySceneModel };
 };
 
-// packages/sdk/src/convert/modelConverter/reporters/conversion/createConversionReport.ts
+// src/convert/modelConverter/reporters/conversion/createConversionReport.ts
 var createConversionReport = (modelConverterResult) => {
   const outputIds = Object.keys(modelConverterResult.outputs);
   if (outputIds.length === 0)
@@ -204864,7 +205286,7 @@ var createConversionReport = (modelConverterResult) => {
   return { summary, warnings, errors };
 };
 
-// packages/sdk/src/convert/xeoconvert/resolveFormat.ts
+// src/convert/xeoconvert/resolveFormat.ts
 var FORMAT_BY_EXTENSION = {
   ".glb": { loader: "glb", exporter: "glb" },
   ".gltf": { loader: "glb", exporter: "glb" },
@@ -204920,7 +205342,7 @@ function resolveExporterId(filePath, map = FORMAT_BY_EXTENSION) {
   return binding.exporter;
 }
 
-// packages/sdk/src/convert/xeoconvert/loadRuleConfig.ts
+// src/convert/xeoconvert/loadRuleConfig.ts
 var import_path2 = require("path");
 function defaultRegistries() {
   return { inspections: DEFAULT_INSPECTION_REGISTRY, optimizations: DEFAULT_FIX_REGISTRY };
@@ -204964,7 +205386,7 @@ function serializeRuleConfig(registries = defaultRegistries()) {
   };
 }
 
-// packages/sdk/src/convert/xeoconvert/xeoconvert_core.ts
+// src/convert/xeoconvert/xeoconvert_core.ts
 var reporters = {
   "stats-report": createStatsReport,
   "manifest-report": createManifestReport,

@@ -240,6 +240,10 @@ describe("ThreeDTilesLoader", () => {
     // One shared geometry, one mesh per instance.
     expect(Object.values(sceneModel.geometries).length).toBe(1);
     expect(Object.values(sceneModel.meshes).length).toBe(2);
+    expect(Object.values(sceneModel.meshes).map(mesh => mesh.materialId)).toEqual([
+      Object.values(sceneModel.meshes)[0].materialId,
+      Object.values(sceneModel.meshes)[0].materialId,
+    ]);
   });
 
   it("loads sibling tiles sharing the same content without id collisions", async () => {

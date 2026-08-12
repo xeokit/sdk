@@ -261,7 +261,12 @@ async function decodeI3DM(buffer: ArrayBuffer, ctx: TileContentCtx): Promise<voi
       ctx.sceneModel.createMesh({
         id: meshId,
         geometryId: base.geometryId,
+        materialId: base.materialId,
+        color: base.color,
+        opacity: base.opacity,
         matrix: mulMat4(delta, base.matrix as Mat4, createMat4Float64()),
+        billboard: base.billboard,
+        bin: base.bin,
       });
       meshIds.push(meshId);
     }

@@ -217,6 +217,10 @@ parsed JSON.
 
 ### Streaming
 
+Use `streamTilesetInView` when a tileset should follow a normal xeokit `View`.
+It creates a `TilesetStreamer`, runs an initial selection, re-selects on camera
+changes, and destroys streamed tile models when the view is destroyed.
+
 ```ts
 import {buildTileTree, streamTilesetInView} from "@xeokit/sdk/formats/threedtiles";
 
@@ -224,16 +228,51 @@ const tileset = await (await fetch("./city/tileset.json")).json();
 const tree = buildTileTree(tileset, "./city/");
 
 // Streams into view.viewer.scene, re-selecting on every camera change.
-streamTilesetInView(view, tree, {maxScreenSpaceError: 16, maxLoadedTiles: 256});
+const streamer = streamTilesetInView(view, tree, {
+  maxScreenSpaceError: 16,
+  maxLoadedTiles: 256,
+  concurrency: 8,
+});
+
+// Optional: force a refresh after changing budgets or replacing camera state.
+await streamer.update({
+  eye: view.camera.eye,
+  viewportHeight: view.boundary[3],
+  fov: view.camera.perspectiveProjection.fov,
+  viewMatrix: view.camera.viewMatrix,
+  projMatrix: view.camera.projMatrix,
+});
 ```
 
 For manual control (tests, custom render loops), drive the streamer directly:
 
 ```ts
-import {TilesetStreamer} from "@xeokit/sdk/formats/threedtiles";
+import {Scene} from "@xeokit/sdk/model/scene";
+import {buildTileTree, TilesetStreamer} from "@xeokit/sdk/formats/threedtiles";
 
-const streamer = new TilesetStreamer({scene, tree});
-await streamer.update({eye, viewportHeight, fov, viewMatrix, projMatrix});
+const scene = new Scene();
+const tileset = await (await fetch("./city/tileset.json")).json();
+const tree = buildTileTree(tileset, "./city/");
+
+const streamer = new TilesetStreamer({
+  scene,
+  tree,
+  maxScreenSpaceError: 12,
+  maxLoadedTiles: 128,
+  fetchArrayBuffer: (url) => fetch(url).then((response) => response.arrayBuffer()),
+});
+
+await streamer.update({
+  eye,
+  viewportHeight,
+  fov,
+  viewMatrix,
+  projMatrix,
+});
+
+console.log(streamer.loadedCount);
+
+streamer.destroy();
 ```
 
 ---

@@ -33,7 +33,7 @@
  * See the linked format guide for the full pipeline, content decode, and limitations.
  *
  * ```ts
- * import {Scene} from "@xeokit/sdk/scene";
+ * import {Scene} from "@xeokit/sdk/model/scene";
  * import {ThreeDTilesLoader} from "@xeokit/sdk/formats/threedtiles";
  *
  * const scene = new Scene();
@@ -46,6 +46,40 @@
  * );
  *
  * sceneModel.build();
+ * ```
+ *
+ * For camera-driven streaming, build a tile tree once and attach it to a View:
+ *
+ * ```ts
+ * import {buildTileTree, streamTilesetInView} from "@xeokit/sdk/formats/threedtiles";
+ *
+ * const tileset = await (await fetch("./city/tileset.json")).json();
+ * const tree = buildTileTree(tileset, "./city/");
+ *
+ * const streamer = streamTilesetInView(view, tree, {
+ *   maxScreenSpaceError: 16,
+ *   maxLoadedTiles: 256,
+ *   concurrency: 8,
+ * });
+ * ```
+ *
+ * For tests or a custom render loop, drive {@link TilesetStreamer} directly
+ * with a `CameraState`:
+ *
+ * ```ts
+ * import {TilesetStreamer} from "@xeokit/sdk/formats/threedtiles";
+ *
+ * const streamer = new TilesetStreamer({scene, tree, maxLoadedTiles: 128});
+ *
+ * await streamer.update({
+ *   eye,
+ *   viewportHeight,
+ *   fov,
+ *   viewMatrix,
+ *   projMatrix,
+ * });
+ *
+ * streamer.destroy();
  * ```
  *
  * @module threedtiles

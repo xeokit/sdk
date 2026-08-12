@@ -149202,7 +149202,12 @@ async function decodeI3DM(buffer, ctx2) {
       ctx2.sceneModel.createMesh({
         id: meshId,
         geometryId: base.geometryId,
-        matrix: mulMat4(delta, base.matrix, createMat4Float64())
+        materialId: base.materialId,
+        color: base.color,
+        opacity: base.opacity,
+        matrix: mulMat4(delta, base.matrix, createMat4Float64()),
+        billboard: base.billboard,
+        bin: base.bin
       });
       meshIds.push(meshId);
     }
@@ -266494,7 +266499,7 @@ var LoadingSpinner = class _LoadingSpinner {
           radial-gradient(circle at 50% 50%, rgba(80, 140, 255, 0.10), rgba(0, 0, 0, 0.50)),
           rgba(7, 10, 18, 0.45);
         backdrop-filter: blur(4px);
-        z-index: 2000000;
+        z-index: 1;
       }
 
       .xeokit-loading-card {

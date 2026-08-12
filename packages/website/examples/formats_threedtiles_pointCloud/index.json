@@ -1,0 +1,11 @@
+{
+  "id": "formats_threedtiles_pointCloud",
+  "title": "Viewing 3D Tiles Point Cloud Content",
+  "description": "Loads a sampled real LiDAR scan as PNTS point-cloud content through ThreeDTilesLoader.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Point Clouds",
+    "3D Tiles"
+  ]
+}

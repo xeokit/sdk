@@ -1,0 +1,11 @@
+{
+  "id": "formats_threedtiles_composite",
+  "title": "Viewing 3D Tiles Composite Content",
+  "description": "Loads a CMPT tile containing mixed PNTS point-cloud and I3DM instanced glTF payloads.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Point Clouds",
+    "3D Tiles"
+  ]
+}

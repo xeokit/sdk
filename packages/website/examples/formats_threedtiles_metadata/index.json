@@ -1,0 +1,11 @@
+{
+  "id": "formats_threedtiles_metadata",
+  "title": "Viewing 3D Tiles Metadata",
+  "description": "Loads a 3D Tiles 1.1 metadata sample and maps tileset, group and tile metadata into xeokit's DataModel.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Metadata",
+    "3D Tiles"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "formats_threedtiles_instancing",
+  "title": "Viewing 3D Tiles Instanced Content",
+  "description": "Loads a small I3DM tileset with repeated glTF building instances.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF",
+    "3D Tiles"
+  ]
+}

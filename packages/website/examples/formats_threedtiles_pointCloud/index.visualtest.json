@@ -1,0 +1,120 @@
+{
+  "stats": {
+    "startTime": 1719.0999999940395,
+    "endTime": 4444.200000017881,
+    "elapsedTime": 2725.100000023842,
+    "aabb": [
+      -9.976699829101562,
+      5.7657999992370605,
+      -0.48249998688697815,
+      18.744400024414062,
+      35.97439956665039,
+      3.88919997215271
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 1,
+      "numMeshes": 1,
+      "numGeometries": 1,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 0,
+      "numLines": 0,
+      "numPoints": 60441,
+      "numVertices": 60441,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 25.76202392578125,
+      "usedMB": 1.0380573272705078
+    },
+    "renderer": {
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 1000,
+          "tileIndex": 0,
+          "numMeshes": 1
+        }
+      },
+      "views": [
+        {
+          "viewId": "665eaeaa-e82e-4ffa-a32d-a0c2a48e4e6a",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "POINTS",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 60441
+                  },
+                  "timeMs": {
+                    "start": 4987.0999999940395,
+                    "end": 4987.0999999940395,
+                    "duration": 0
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "PointsDrawColorTechnique"
+                }
+              ],
+              "timeMs": {
+                "start": 4986.9000000059605,
+                "end": 4987.0999999940395,
+                "duration": 0.19999998807907104
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 4946.0999999940395,
+            "end": 4990.4000000059605,
+            "duration": 44.30000001192093
+          },
+          "numDrawCalls": 1,
+          "numPrims": 60441,
+          "drawPaths": {
+            "dtxDrawCalls": 1,
+            "vboDrawCalls": 0,
+            "dtxPrims": 60441,
+            "vboPrims": 0,
+            "dtxBatches": [
+              0
+            ],
+            "vboBatches": [],
+            "byTechnique": {
+              "PointsDrawColorTechnique|dtx|dtx|flat|noUVs|surface|draw|snap0": {
+                "drawCalls": 1,
+                "prims": 60441,
+                "path": "dtx",
+                "batchStorage": "dtx",
+                "hasNormals": false,
+                "hasUVs": false,
+                "edges": false,
+                "picking": false,
+                "snap": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

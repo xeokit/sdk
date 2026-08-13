@@ -50,6 +50,8 @@ export class TilesetStreamer {
   readonly #inFlight = new Set<string>();
   // Implicit `.subtree` availability, parsed once and reused across updates.
   readonly #subtreeCache = new Map<string, SubtreeAvailability>();
+  #pendingCamera: CameraState | null = null;
+  #updatePromise: Promise<void> | null = null;
   #destroyed = false;
 
   constructor(params: TilesetStreamerParams) {
@@ -76,6 +78,24 @@ export class TilesetStreamer {
    */
   async update(camera: CameraState): Promise<void> {
     if (this.#destroyed) return;
+    this.#pendingCamera = camera;
+    if (!this.#updatePromise) {
+      this.#updatePromise = this.#drainUpdates().finally(() => {
+        this.#updatePromise = null;
+      });
+    }
+    return this.#updatePromise;
+  }
+
+  async #drainUpdates(): Promise<void> {
+    while (!this.#destroyed && this.#pendingCamera) {
+      const camera = this.#pendingCamera;
+      this.#pendingCamera = null;
+      await this.#updateOnce(camera);
+    }
+  }
+
+  async #updateOnce(camera: CameraState): Promise<void> {
 
     let selected = (await selectStreaming(this.#tree, camera, {
       maxScreenSpaceError: this.#maxSSE,
@@ -120,7 +140,13 @@ export class TilesetStreamer {
       // Globalized ids prefix each object id with the model id, so identical
       // glTF node names across tiles (each a separate SceneModel) stay unique
       // scene-wide.
-      const res = this.#scene.createModel({id: `tilestream-${node.id}`, globalizedIds: true});
+      const res = this.#scene.createModel({
+        id: `tilestream-${node.id}`,
+        globalizedIds: true,
+        updateHint: "static",
+        lifecycle: "streaming",
+        memoryPolicy: "stream",
+      });
       if (!res.ok || !res.value) return;
       sceneModel = res.value;
       const ctx: TileContentCtx = {

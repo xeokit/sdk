@@ -141,4 +141,39 @@ describe("OBJExporter / OBJLoader", () => {
     expect(minY).toBeCloseTo(20, 6);
     expect(minZ).toBeCloseTo(30, 6);
   });
+
+  it("splits meshes when usemtl changes within an object", async () => {
+    const obj = [
+      "o layered",
+      "v 0 0 0",
+      "v 1 0 0",
+      "v 1 1 0",
+      "v 0 1 0",
+      "v 2 0 0",
+      "v 3 0 0",
+      "v 3 1 0",
+      "v 2 1 0",
+      "usemtl red",
+      "f 1 2 3",
+      "f 1 3 4",
+      "usemtl blue",
+      "f 5 6 7",
+      "f 5 7 8",
+    ].join("\n");
+
+    const calls: {geom: any[]; mesh: any[]; object: any[]} = {geom: [], mesh: [], object: []};
+    const dstScene: any = {
+      createGeometry: (p: any) => { calls.geom.push(p);   return {ok: true, value: {}}; },
+      createMesh:     (p: any) => { calls.mesh.push(p);   return {ok: true, value: {}}; },
+      createObject:   (p: any) => { calls.object.push(p); return {ok: true, value: {}}; },
+    };
+
+    await parse({fileData: obj, sceneModel: dstScene} as any, {});
+
+    expect(calls.geom).toHaveLength(2);
+    expect(calls.mesh).toHaveLength(2);
+    expect(calls.object).toHaveLength(2);
+    expect(calls.mesh[0].materialId).toBe("red");
+    expect(calls.mesh[1].materialId).toBe("blue");
+  });
 });

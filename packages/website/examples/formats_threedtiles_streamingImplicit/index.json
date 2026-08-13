@@ -1,7 +1,7 @@
 {
   "id": "formats_threedtiles_streamingImplicit",
-  "title": "Streaming an Implicit 3D Tiles Tileset",
-  "description": "Streams an implicit 3D Tiles tileset, loading and unloading tiles as the camera moves.",
+  "title": "Streaming an Implicit Procedural City Tileset",
+  "description": "Streams a generated procedural city through an implicit 3D Tiles quadtree, loading and unloading GLB city cells as the camera moves.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

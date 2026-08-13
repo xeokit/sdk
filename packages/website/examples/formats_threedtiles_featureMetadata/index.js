@@ -6,6 +6,7 @@ const BASE_PATH = "../../models/ThreeDTilesExamples/FeatureIdAttributeAndPropert
 const studio = new xeokit.studio.Studio({});
 
 const FEATURE_LABELS = ["Envelope", "Structure", "Services", "Circulation"];
+const CHANNELS = ["condition", "capacity", "priority"];
 
 function propsByName(propertySet) {
   return Object.fromEntries((propertySet?.properties || []).map((property) => [property.name, property.value]));
@@ -24,10 +25,20 @@ function vectorText(vector) {
   return `[${vector.map((value) => Number(value).toFixed(2)).join(", ")}]`;
 }
 
+function barMarkup(vector, color) {
+  return `<div class="bars">${vector.map((value, index) => `
+    <div class="bar">
+      <span>${CHANNELS[index] || `v${index}`}</span>
+      <span class="barTrack"><span class="barFill" style="width:${Math.round(value * 100)}%;background:${color}"></span></span>
+      <span class="barValue">${Math.round(value * 100)}%</span>
+    </div>
+  `).join("")}</div>`;
+}
+
 studio.init().then(async () => {
   const {scene, data} = studio;
   const view = studio.viewManager.createView({
-    camera: {eye: [4.8, -6.4, 3.2], look: [0, 0, 0.75], up: [0, 0, 1]},
+    camera: {eye: [5.8, -6.8, 4.1], look: [0, -0.15, 1.35], up: [0, 0, 1]},
   });
 
   const status = document.getElementById("status");
@@ -63,12 +74,14 @@ studio.init().then(async () => {
       const index = featureIndexFromId(object.id);
       const props = propsByName(dataModel.propertySets[`${object.id}-props`]);
       const vector = props.example_VEC3_FLOAT32 || [0.7, 0.7, 0.7];
+      const color = cssColor(vector);
       const viewObject = view.objects[object.id];
       return {
         id: object.id,
         index,
         label: FEATURE_LABELS[index] || `Feature ${index}`,
         vector,
+        color,
         viewObject,
         linked: Boolean(sceneModel.objects[object.id] && viewObject),
       };
@@ -100,7 +113,8 @@ studio.init().then(async () => {
       if (record.viewObject) record.viewObject.highlighted = true;
       buttonsById.get(id)?.classList.add("selected");
       details.innerHTML = [
-        `<div><strong>${record.label}</strong></div>`,
+        `<div class="detailHeader"><span class="swatch" style="background:${record.color}"></span><span class="detailTitle">${record.label}</span></div>`,
+        barMarkup(record.vector, record.color),
         `<div>object: <code>${record.id}</code></div>`,
         `<div>property row: <code>${record.index}</code></div>`,
         `<div>example_VEC3_FLOAT32: <code>${vectorText(record.vector)}</code></div>`,
@@ -113,9 +127,9 @@ studio.init().then(async () => {
         button.type = "button";
         button.className = "featureButton";
         button.innerHTML = [
-          `<span class="swatch" style="background:${cssColor(record.vector)}"></span>`,
+          `<span class="swatch" style="background:${record.color}"></span>`,
           `<span><span class="featureName">${record.label}</span><br><span class="featureVector">${vectorText(record.vector)}</span></span>`,
-          `<span>${record.linked ? "linked" : "missing"}</span>`,
+          `<span class="linkBadge">${record.linked ? "linked" : "missing"}</span>`,
         ].join("");
         button.addEventListener("click", () => selectFeature(record.id));
         buttonsById.set(record.id, button);

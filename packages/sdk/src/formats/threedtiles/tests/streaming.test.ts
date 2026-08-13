@@ -218,4 +218,54 @@ describe("TilesetStreamer", () => {
     await streamer.update(near);
     expect(streamer.loadedCount).toBe(1);
   });
+
+  it("creates streamed tile SceneModels with renderer-friendly streaming hints", async () => {
+    const glb = await buildGLB();
+    const glbAB = glb.buffer.slice(glb.byteOffset, glb.byteOffset + glb.byteLength);
+    const scene = new Scene();
+    const tree = buildTileTree(tilesetWithChildren(), BASE);
+
+    const streamer = new TilesetStreamer({scene, tree, fetchArrayBuffer: async () => glbAB});
+
+    await streamer.update(far);
+
+    const model = scene.models["tilestream-t0"];
+    expect(model.updateHint).toBe("static");
+    expect(model.lifecycle).toBe("streaming");
+    expect(model.memoryPolicy).toBe("stream");
+  });
+
+  it("serializes overlapping updates so tiles are not created twice", async () => {
+    const glb = await buildGLB();
+    const glbAB = glb.buffer.slice(glb.byteOffset, glb.byteOffset + glb.byteLength);
+    const scene = new Scene();
+    const tree = buildTileTree(tilesetWithChildren(), BASE);
+    const duplicateCreateAttempts: string[] = [];
+    const createModel = scene.createModel.bind(scene);
+    (scene as any).createModel = (params: any) => {
+      if (scene.models[params.id]) duplicateCreateAttempts.push(params.id);
+      return createModel(params);
+    };
+
+    const streamer = new TilesetStreamer({
+      scene,
+      tree,
+      fetchArrayBuffer: async () => {
+        await new Promise(resolve => setTimeout(resolve, 1));
+        return glbAB;
+      }
+    });
+
+    await Promise.all([
+      streamer.update(far),
+      streamer.update(near),
+      streamer.update(far),
+      streamer.update(near),
+      streamer.update(far),
+      streamer.update(near),
+    ]);
+
+    expect(duplicateCreateAttempts).toEqual([]);
+    expect(Object.keys(scene.models).sort()).toEqual(["tilestream-t1", "tilestream-t2"]);
+  });
 });

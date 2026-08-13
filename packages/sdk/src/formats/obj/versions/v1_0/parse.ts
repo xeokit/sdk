@@ -198,8 +198,13 @@ async function parseOBJDirect(
     }
 
     if (regexp.material_use_pattern.test(line)) {
+      const materialId = line.substring(7).trim();
       if (ctx.currentObject) {
-        ctx.currentObject.material.id = line.substring(7).trim();
+        const currentMaterialId = ctx.currentObject.material.id;
+        if (ctx.currentObject.geometry.indices.length > 0 && currentMaterialId !== materialId) {
+          flushCurrentObject(ctx);
+        }
+        ctx.currentObject.material.id = materialId;
       }
       continue;
     }

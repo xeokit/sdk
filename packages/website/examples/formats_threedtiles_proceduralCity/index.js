@@ -1,25 +1,27 @@
-// Streams a generated procedural city as an implicit 3D Tiles quadtree with
-// TilesetStreamer.
+// Streams a generated procedural city exported as explicit 3D Tiles 1.1
+// with GLB tile payloads. The dataset has one root GLB, 59 spatial GLB tiles,
+// 1,800 generated buildings, about 494k triangles, and about 31 MB of content.
 //
-// Implicit tilesets carry no explicit tile hierarchy — the tree is described by
-// binary `.subtree` availability files and Morton-indexed coordinates. The
-// streamer fetches `.subtree` files on demand as the screen-space-error walk
-// descends, derives each tile's bounding volume by subdividing the root box,
-// frustum-culls tiles outside the view, and loads / unloads per-tile
-// SceneModels — the Cesium-ion / Google Photorealistic streaming pattern.
+// Tile selection is camera-driven. TilesetStreamer first rejects tiles whose
+// spatial bounding volumes fall outside the camera frustum, then selects visible
+// tiles by screen-space error. SSE estimates each tile's projected size on the
+// canvas from its geometric error, camera distance, field of view, and viewport
+// height.
 //
-// The sample maps generated city GLB tiles onto an implicit quadtree. Content
-// lives on the deepest available city cells, while the subtree file describes
-// which cells exist. Orbit and zoom: tiles outside the view unload and reload,
-// and the subtree is fetched through the implicit-tiling path before templated
-// GLB content URIs are resolved. The example also performs a second,
-// object-level cull in view space: after tiles are loaded, each streamed
-// SceneObject's world AABB is projected into the canvas and culled when it is
-// too small to contribute useful pixels. This does not evict the object from
-// memory; it only toggles that ViewObject's culling flag for this View.
+// A selected tile is fetched as GLB and decoded into its own SceneModel. When a
+// tile leaves the selected set, for example because it moves out of view or the
+// loaded-tile budget is exceeded, that SceneModel is destroyed. That eviction
+// removes the tile's scene objects and releases the SDK/renderer resources
+// owned by that per-tile model instead of keeping all tile models resident. The
+// example also performs an object-level projected-size cull after each stream
+// update: streamed SceneObjects whose world AABBs occupy too few canvas pixels
+// are marked culled for this View. This hides tiny objects without evicting
+// their tile model from memory.
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
-const TILESET_PATH = "../../models/ProceduralCity3DTiles/implicit/tileset.json";
+const TILESET_PATH = "../../models/ProceduralCity3DTiles/threedtiles/tileset.json";
+const BASE_PATH = "../../models/ProceduralCity3DTiles/threedtiles/";
+const METADATA_PATH = "../../models/ProceduralCity3DTiles/metadata.json";
 const OBJECT_CULL_HIDE_PX = 18;
 const OBJECT_CULL_SHOW_PX = 24;
 
@@ -28,19 +30,22 @@ const studio = new xeokit.studio.Studio({});
 studio.init().then(async () => {
 
   const view = studio.viewManager.createView({
-    // Oblique view (up must not be parallel to the eye→look axis).
     camera: {eye: [760, -980, 620], look: [80, 120, 58], up: [0, 0, 1]},
   });
 
   const statusEl = document.getElementById("status");
-  const setStatus = (text) => { if (statusEl) statusEl.textContent = text; };
+  const setStatus = (html) => { if (statusEl) statusEl.innerHTML = html; };
 
   try {
-    setStatus("Loading tileset.json…");
+    setStatus("Loading procedural city 3D Tiles...");
 
     const tilesetUrl = new URL(TILESET_PATH, window.location.href);
-    const tileset = await (await fetch(tilesetUrl)).json();
-    const baseUri = new URL("../../models/ProceduralCity3DTiles/implicit/", window.location.href).toString();
+    const metadataUrl = new URL(METADATA_PATH, window.location.href);
+    const [tileset, metadata] = await Promise.all([
+      fetch(tilesetUrl).then((response) => response.json()),
+      fetch(metadataUrl).then((response) => response.ok ? response.json() : null).catch(() => null),
+    ]);
+    const baseUri = new URL(BASE_PATH, window.location.href).toString();
 
     const {buildTileTree, TilesetStreamer} = xeokit.formats.threedtiles;
     const tree = buildTileTree(tileset, baseUri);
@@ -48,9 +53,12 @@ studio.init().then(async () => {
     const streamer = new TilesetStreamer({
       scene: studio.scene,
       tree,
-      maxScreenSpaceError: 16,
-      maxLoadedTiles: 64,
+      maxScreenSpaceError: 18,
+      maxLoadedTiles: 36,
+      concurrency: 8,
     });
+
+    window.xeokitExample = {studio, view, streamer, tileset, metadata};
 
     const cameraState = () => ({
       eye: view.camera.eye,
@@ -112,14 +120,19 @@ studio.init().then(async () => {
     };
 
     const updateStatus = (cullStats = applyObjectCanvasCulling()) => {
-      setStatus(`Implicit city streaming — ${streamer.loadedCount} tile(s) loaded, ${cullStats.hidden}/${cullStats.considered} object(s) hidden below ${OBJECT_CULL_HIDE_PX}px. The quadtree culls by bounds, refines by screen-space error, and resolves templated GLB content at selected cells.`);
+      const stats = metadata?.stats || {};
+      setStatus(
+        `<strong>Procedural City GLB 3D Tiles</strong> — ${streamer.loadedCount} tile(s) loaded. ` +
+        `${stats.buildings || tileset.root?.metadata?.properties?.buildingCount || "-"} buildings, ` +
+        `${tileset.root?.metadata?.properties?.tileCount || "-"} grid tiles, ` +
+        `${Math.round((stats.triangles || 0) / 1000)}k triangles, 31 MB dataset.` +
+        `<span class="streamInfo">Tiles outside the camera frustum are culled by spatial bounding volume; visible tiles are selected by screen-space error, estimating each tile's projected size on the canvas from camera distance, FOV, and viewport height. ${cullStats.hidden}/${cullStats.considered} streamed object(s) are currently culled below ${OBJECT_CULL_HIDE_PX}px projected canvas size.</span>`
+      );
     };
 
-    // First pass with the initial camera, then frame what loaded. The spatial
-    // index may not have the freshly-created tiles on the very next tick, so
-    // retry the fit for up to ~1s until a valid scene AABB is available.
     await streamer.update(cameraState());
-    applyObjectCanvasCulling();
+    updateStatus();
+
     let fitTries = 0;
     const fitToScene = () => {
       const aabb = studio.picking.collisionIndex.getSceneAABB();
@@ -132,23 +145,20 @@ studio.init().then(async () => {
     };
     fitToScene();
 
-    // Re-stream on every camera change for this View.
     const events = studio.viewer.events;
     const onCamera = (changedView) => {
-      if (changedView === view) {
-        streamer.update(cameraState()).then(() => {
-          updateStatus();
-        });
+      if (changedView !== view) {
+        return;
       }
+      streamer.update(cameraState()).then(updateStatus);
     };
     events.onCameraViewMatrixUpdated.subscribe(onCamera);
     events.onCameraProjMatrixUpdated.subscribe(onCamera);
 
-    updateStatus();
     studio.finished();
 
   } catch (err) {
-    setStatus(`Failed to stream implicit procedural city 3D Tiles: ${err.message || err}`);
+    setStatus(`Failed to stream procedural city 3D Tiles: ${err.message || err}`);
     console.error(err);
   }
 });

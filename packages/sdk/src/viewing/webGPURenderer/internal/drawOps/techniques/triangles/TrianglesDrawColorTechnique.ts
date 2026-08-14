@@ -131,6 +131,7 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
     params.commandStateTracker.setBindGroup(1, instanceBindGroup);
 
     return encodePackedTriangleBatches({
+      device: this._renderContext.device,
       passEncoder,
       batches,
       renderPass: params.renderPass,

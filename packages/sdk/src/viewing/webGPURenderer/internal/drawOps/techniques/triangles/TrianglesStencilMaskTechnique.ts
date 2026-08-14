@@ -68,6 +68,7 @@ export class TrianglesStencilMaskTechnique extends DrawTechnique {
     params.commandStateTracker.setBindGroup(1, instanceBindGroup);
     params.commandStateTracker.setBindGroup(3, capParamsBindGroupResult.value);
     return encodePackedTriangleBatches({
+      device: this._renderContext.device,
       passEncoder,
       batches,
       renderPass: params.renderPass,

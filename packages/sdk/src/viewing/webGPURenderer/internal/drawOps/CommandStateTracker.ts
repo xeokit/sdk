@@ -98,6 +98,14 @@ export class CommandStateTracker {
     this._passEncoder.drawIndexed?.(indexCount, instanceCount, firstIndex, baseVertex, firstInstance);
   }
 
+  public drawIndexedIndirect(indirectBuffer: WebGPUBufferLike, indirectOffset: number): void {
+    this._passEncoder.drawIndexedIndirect?.(indirectBuffer, indirectOffset);
+  }
+
+  public multiDrawIndexedIndirect(indirectBuffer: WebGPUBufferLike, indirectOffset: number, drawCount: number): void {
+    this._passEncoder.multiDrawIndexedIndirect?.(indirectBuffer, indirectOffset, drawCount);
+  }
+
   public draw(vertexCount: number, instanceCount?: number, firstVertex?: number, firstInstance?: number): void {
     this._passEncoder.draw?.(vertexCount, instanceCount, firstVertex, firstInstance);
   }

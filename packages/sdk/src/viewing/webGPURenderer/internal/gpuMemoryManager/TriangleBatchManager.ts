@@ -55,6 +55,7 @@ export interface TriangleBatchSegment {
   indices: Uint16Array | Uint32Array;
   edgeIndices: Uint16Array | Uint32Array;
   indexFormat: "uint16" | "uint32";
+  indicesPageLocal: boolean;
   worldAABB: Float64Array;
   boundsVersion: string;
   destroy(): void;
@@ -664,7 +665,7 @@ export class TriangleBatchManager {
     this._lastSegmentBuildSample = null;
 
     try {
-      const positionAABB = createPositionAABB(meshStates);
+      const positionAABB = createPackedPositionAABB(meshStates);
       const positions = new Uint16Array(totalVertices * 4);
       const positionDecode = createPositionDecodeUniform(positionAABB);
       const vertexMetadata = new Uint32Array(totalVertices * 2);
@@ -676,6 +677,8 @@ export class TriangleBatchManager {
       }
       const pageAllocation = pageAllocationResult.value;
       bufferPage = pageAllocation.page;
+      const indicesPageLocal = false;
+      const indexVertexBase = 0;
       const indices = indexFormat === "uint32"
         ? new Uint32Array(totalIndices)
         : new Uint16Array(totalIndices);
@@ -693,22 +696,28 @@ export class TriangleBatchManager {
       for (let slotIndex = 0, len = meshStates.length; slotIndex < len; slotIndex++) {
         const meshState = meshStates[slotIndex];
         const geometryState = meshState.geometryState;
-        const vertexCount = geometryState.positions.length / 3;
+        const vertexCount = geometryState.geometry.positionsCompressed!.length / 3;
         const indexCount = geometryState.indices.length;
         const edgeIndexCount = geometryState.edgeIndexCount;
 
-        quantizePositionsInto(geometryState.positions, positions, vertexOffset, positionAABB);
+        quantizeCompressedPositionsInto(
+          geometryState.geometry.positionsCompressed!,
+          geometryState.geometry.aabb!,
+          positions,
+          vertexOffset,
+          positionAABB
+        );
         for (let i = 0; i < vertexCount; i++) {
           const metadataOffset = (vertexOffset + i) * 2;
           vertexMetadata[metadataOffset] = baseSlot + slotIndex;
           vertexMetadata[metadataOffset + 1] = pageAllocation.positionDecodeIndex;
         }
         for (let i = 0; i < indexCount; i++) {
-          indices[indexOffset + i] = geometryState.indices[i] + vertexOffset;
+          indices[indexOffset + i] = geometryState.indices[i] + vertexOffset + indexVertexBase;
         }
         if (geometryState.edgeIndices) {
           for (let i = 0; i < edgeIndexCount; i++) {
-            edgeIndices[edgeIndexOffset + i] = geometryState.edgeIndices[i] + vertexOffset;
+            edgeIndices[edgeIndexOffset + i] = geometryState.edgeIndices[i] + vertexOffset + indexVertexBase;
           }
         }
 
@@ -766,6 +775,7 @@ export class TriangleBatchManager {
         indices,
         edgeIndices,
         indexFormat,
+        indicesPageLocal,
         worldAABB,
         boundsVersion: this._getBoundsVersion(slots),
         destroy: () => {
@@ -815,7 +825,33 @@ export class TriangleBatchManager {
     const {batchSet, view, meshManager, instanceFrame} = params;
     const viewStateVersion = meshManager.getViewStateVersion(view);
     const segments = instanceFrame.forceFullUpload ? batchSet.segments : (params.segments ?? batchSet.segments);
-    const markSegmentDirty = !instanceFrame.forceFullUpload && !!params.segments;
+    let dirtyBaseSlot = -1;
+    let dirtyEndSlot = -1;
+    const flushDirtyRange = () => {
+      if (dirtyBaseSlot < 0) {
+        return;
+      }
+      InstanceBufferManager.markDirtySlotRange(instanceFrame, dirtyBaseSlot, dirtyEndSlot - dirtyBaseSlot);
+      dirtyBaseSlot = -1;
+      dirtyEndSlot = -1;
+    };
+    const markDirtySlot = (globalSlot: number) => {
+      if (instanceFrame.forceFullUpload) {
+        return;
+      }
+      if (dirtyBaseSlot < 0) {
+        dirtyBaseSlot = globalSlot;
+        dirtyEndSlot = globalSlot + 1;
+        return;
+      }
+      if (globalSlot === dirtyEndSlot) {
+        dirtyEndSlot++;
+        return;
+      }
+      flushDirtyRange();
+      dirtyBaseSlot = globalSlot;
+      dirtyEndSlot = globalSlot + 1;
+    };
 
     for (let segmentIndex = 0, segmentLen = segments.length; segmentIndex < segmentLen; segmentIndex++) {
       const segment = segments[segmentIndex];
@@ -842,14 +878,10 @@ export class TriangleBatchManager {
           meshInstanceDataVersion: meshState.instanceDataVersion,
           viewStateVersion
         };
-        if (!markSegmentDirty) {
-          InstanceBufferManager.markDirtySlotRange(instanceFrame, slot.globalSlot, 1);
-        }
-      }
-      if (markSegmentDirty) {
-        InstanceBufferManager.markDirtySlotRange(instanceFrame, segment.baseSlot, segment.slotCount);
+        markDirtySlot(slot.globalSlot);
       }
     }
+    flushDirtyRange();
     instanceFrame.instanceCount = batchSet.instanceCapacity;
   }
 
@@ -990,6 +1022,7 @@ export class TriangleBatchManager {
             indexFormat: segment.indexFormat,
             indexCount: topology === "edges" ? segment.edgeIndices.length : segment.indices.length,
             firstIndex: 0,
+            indicesPageLocal: segment.indicesPageLocal,
             temporaryIndexBuffer: false,
             temporaryIndexBufferCreated: false,
             destroy: () => {
@@ -1067,6 +1100,7 @@ export class TriangleBatchManager {
           indexFormat: segment.indexFormat,
           indexCount: indices.length,
           firstIndex: 0,
+          indicesPageLocal: segment.indicesPageLocal,
           temporaryIndexBuffer: true,
           temporaryIndexBufferCreated: true,
           destroy: () => {
@@ -1607,6 +1641,7 @@ function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boole
       indexFormat: packedBatch.indexFormat,
       indexCount: packedBatch.indexCount,
       firstIndex: packedBatch.firstIndex,
+      indicesPageLocal: packedBatch.indicesPageLocal,
       temporaryIndexBuffer: true,
       temporaryIndexBufferCreated: createdThisFrame,
       destroy: () => {
@@ -1628,7 +1663,7 @@ function parseSegmentBaseKey(baseKey: string): {lifecycle: string; memoryPolicy:
   };
 }
 
-function createPositionAABB(meshStates: RendererMesh[]): Float32Array {
+function createPackedPositionAABB(meshStates: RendererMesh[]): Float32Array {
   const aabb = new Float32Array([
     Number.POSITIVE_INFINITY,
     Number.POSITIVE_INFINITY,
@@ -1638,11 +1673,19 @@ function createPositionAABB(meshStates: RendererMesh[]): Float32Array {
     Number.NEGATIVE_INFINITY
   ]);
   for (let meshIndex = 0, meshLen = meshStates.length; meshIndex < meshLen; meshIndex++) {
-    const positions = meshStates[meshIndex].geometryState.positions;
+    const geometry = meshStates[meshIndex].geometryState.geometry;
+    const positions = geometry.positionsCompressed!;
+    const sourceAABB = geometry.aabb!;
+    const minX = sourceAABB[0];
+    const minY = sourceAABB[1];
+    const minZ = sourceAABB[2];
+    const scaleX = (sourceAABB[3] - minX) / 65535;
+    const scaleY = (sourceAABB[4] - minY) / 65535;
+    const scaleZ = (sourceAABB[5] - minZ) / 65535;
     for (let i = 0, len = positions.length; i < len; i += 3) {
-      const x = positions[i];
-      const y = positions[i + 1];
-      const z = positions[i + 2];
+      const x = minX + positions[i] * scaleX;
+      const y = minY + positions[i + 1] * scaleY;
+      const z = minZ + positions[i + 2] * scaleZ;
       if (x < aabb[0]) {
         aabb[0] = x;
       }
@@ -1680,21 +1723,33 @@ function createPositionDecodeUniform(aabb: Float32Array): Float32Array {
   return uniform;
 }
 
-function quantizePositionsInto(source: Float32Array, target: Uint16Array, vertexOffset: number, aabb: Float32Array): void {
-  const minX = aabb[0];
-  const minY = aabb[1];
-  const minZ = aabb[2];
-  const extentX = aabb[3] - minX;
-  const extentY = aabb[4] - minY;
-  const extentZ = aabb[5] - minZ;
-  const scaleX = extentX > 0 ? 65535 / extentX : 0;
-  const scaleY = extentY > 0 ? 65535 / extentY : 0;
-  const scaleZ = extentZ > 0 ? 65535 / extentZ : 0;
+function quantizeCompressedPositionsInto(
+  source: ArrayLike<number>,
+  sourceAABB: ArrayLike<number>,
+  target: Uint16Array,
+  vertexOffset: number,
+  targetAABB: Float32Array
+): void {
+  const targetMinX = targetAABB[0];
+  const targetMinY = targetAABB[1];
+  const targetMinZ = targetAABB[2];
+  const targetExtentX = targetAABB[3] - targetMinX;
+  const targetExtentY = targetAABB[4] - targetMinY;
+  const targetExtentZ = targetAABB[5] - targetMinZ;
+  const targetScaleX = targetExtentX > 0 ? 65535 / targetExtentX : 0;
+  const targetScaleY = targetExtentY > 0 ? 65535 / targetExtentY : 0;
+  const targetScaleZ = targetExtentZ > 0 ? 65535 / targetExtentZ : 0;
+  const sourceMinX = sourceAABB[0];
+  const sourceMinY = sourceAABB[1];
+  const sourceMinZ = sourceAABB[2];
+  const sourceScaleX = (sourceAABB[3] - sourceMinX) / 65535;
+  const sourceScaleY = (sourceAABB[4] - sourceMinY) / 65535;
+  const sourceScaleZ = (sourceAABB[5] - sourceMinZ) / 65535;
   let dst = vertexOffset * 4;
   for (let src = 0, len = source.length; src < len; src += 3) {
-    target[dst++] = quantizeUnorm16((source[src] - minX) * scaleX);
-    target[dst++] = quantizeUnorm16((source[src + 1] - minY) * scaleY);
-    target[dst++] = quantizeUnorm16((source[src + 2] - minZ) * scaleZ);
+    target[dst++] = quantizeUnorm16(((sourceMinX + source[src] * sourceScaleX) - targetMinX) * targetScaleX);
+    target[dst++] = quantizeUnorm16(((sourceMinY + source[src + 1] * sourceScaleY) - targetMinY) * targetScaleY);
+    target[dst++] = quantizeUnorm16(((sourceMinZ + source[src + 2] * sourceScaleZ) - targetMinZ) * targetScaleZ);
     target[dst++] = 0;
   }
 }

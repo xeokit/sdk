@@ -16,6 +16,7 @@ export interface PackedMeshBatch {
   indexFormat: "uint16" | "uint32";
   indexCount: number;
   firstIndex?: number;
+  indicesPageLocal?: boolean;
   temporaryIndexBuffer?: boolean;
   temporaryIndexBufferCreated?: boolean;
   destroy(): void;

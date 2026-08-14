@@ -93,6 +93,7 @@ export class InstanceBufferManager {
     try {
       const previousBuffer = frame.buffer;
       const previousCapacity = frame.capacity;
+      const previousData = frame.data;
       frame.bindGroup = null;
       frame.bindGroupLayout = null;
       frame.buffer = this._renderContext.device.createBuffer({
@@ -102,9 +103,14 @@ export class InstanceBufferManager {
       });
       frame.data = new Float32Array(nextCapacity * INSTANCE_FLOATS);
       const copiedPreviousBuffer = this._copyPreviousBuffer(previousBuffer, frame.buffer, previousCapacity);
+      if (copiedPreviousBuffer) {
+        frame.data.set(previousData.subarray(0, previousCapacity * INSTANCE_FLOATS));
+      }
       previousBuffer?.destroy?.();
       frame.capacity = nextCapacity;
-      frame.bufferVersion++;
+      if (!copiedPreviousBuffer) {
+        frame.bufferVersion++;
+      }
       frame.forceFullUpload = !copiedPreviousBuffer;
       frame.copiedByteLength = copiedPreviousBuffer ? previousCapacity * INSTANCE_BYTES : 0;
       frame.dirtySlotRanges.length = 0;

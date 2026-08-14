@@ -4,6 +4,7 @@ export const GPU_BUFFER_USAGE = {
   MAP_READ: 1,
   COPY_SRC: 4,
   COPY_DST: 8,
+  INDIRECT: 256,
   INDEX: 16,
   QUERY_RESOLVE: 512,
   STORAGE: 128,

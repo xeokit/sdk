@@ -19,6 +19,8 @@ import {INSTANCE_BYTES, INSTANCE_FLOATS, RTC_TILE_BYTES, SECTION_PLANE_CAP_COLOR
 import {RENDER_PASSES} from "../internal/RENDER_PASSES";
 import {RenderContext} from "../internal/RenderContext";
 import {encodePackedTriangleBatches} from "../internal/drawOps/techniques/triangles/PackedTriangleBatchEncoder";
+import {InstanceBufferManager} from "../internal/gpuMemoryManager/InstanceBufferManager";
+import {TriangleBatchManager} from "../internal/gpuMemoryManager/TriangleBatchManager";
 import {WebGPUPickBuffer, WebGPUSnapBufferCache} from "../internal/webGPU";
 import {createMemoryConfigs} from "../createMemoryConfigs";
 import {createWebGPURenderConfigs} from "../createWebGPURenderConfigs";
@@ -1349,6 +1351,7 @@ describe("WebGPURenderer contract", () => {
     };
 
     const result = encodePackedTriangleBatches({
+      device: gpu.device,
       passEncoder: gpu.passEncoder,
       renderPass: RENDER_PASSES.OPAQUE,
       validateLabel: "test",
@@ -1388,6 +1391,146 @@ describe("WebGPURenderer contract", () => {
       bufferPageGroups: 2,
       renderStateGroups: 3
     });
+  });
+
+  test("encodes compatible packed triangle batches with multi-draw indirect", () => {
+    const gpu = createWebGPUHarness();
+    const vertexBuffer = {label: "vertex"} as any;
+    const vertexMetadataBuffer = {label: "vertexMetadata"} as any;
+    const decodeBindGroup = {label: "decode"} as any;
+    const indexBuffer = {label: "index"} as any;
+    (gpu.passEncoder as any).multiDrawIndexedIndirect = jest.fn();
+    gpu.device.features.has.mockImplementation((feature: string) =>
+      feature === "timestamp-query" || feature === "chromium-experimental-multi-draw-indirect"
+    );
+
+    const batchA = createPackedTriangleBatch(
+      "a0",
+      "segmentA0",
+      vertexBuffer,
+      vertexMetadataBuffer,
+      decodeBindGroup,
+      indexBuffer,
+      "pageA",
+      "fill"
+    );
+    const batchB = createPackedTriangleBatch(
+      "a1",
+      "segmentA1",
+      vertexBuffer,
+      vertexMetadataBuffer,
+      decodeBindGroup,
+      indexBuffer,
+      "pageA",
+      "fill"
+    );
+    batchB.packedBatch.vertexBufferOffset = 32;
+    batchB.packedBatch.vertexMetadataBufferOffset = 32;
+    batchB.packedBatch.indexBufferOffset = 12;
+    batchA.packedBatch.indicesPageLocal = true;
+    batchB.packedBatch.indicesPageLocal = true;
+
+    const result = encodePackedTriangleBatches({
+      device: gpu.device,
+      passEncoder: gpu.passEncoder,
+      renderPass: RENDER_PASSES.OPAQUE,
+      validateLabel: "test",
+      batches: [batchA, batchB]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.setVertexBuffer.mock.calls).toEqual([
+      [0, vertexBuffer],
+      [1, vertexMetadataBuffer]
+    ]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls).toEqual([
+      [2, decodeBindGroup]
+    ]);
+    expect(gpu.passEncoder.setIndexBuffer.mock.calls).toEqual([
+      [indexBuffer, "uint16"]
+    ]);
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+    expect((gpu.passEncoder as any).multiDrawIndexedIndirect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        descriptor: expect.objectContaining({
+          label: "xeokit-webgpu-packed-triangle-multi-draw-indirect"
+        })
+      }),
+      0,
+      2
+    );
+    const writeCall = gpu.device.queue.writeBuffer.mock.calls.find((call: any[]) =>
+      call[0]?.descriptor?.label === "xeokit-webgpu-packed-triangle-multi-draw-indirect"
+    );
+    expect(writeCall).toBeDefined();
+    if (!writeCall) {
+      throw new Error("Expected multi-draw indirect commands to be uploaded");
+    }
+    expect(Array.from(writeCall[2] as Uint32Array)).toEqual([
+      3, 1, 0, 0, 0,
+      6, 1, 6, 0, 0
+    ]);
+  });
+
+  test("falls back from multi-draw indirect for offset packed triangle vertices", () => {
+    const gpu = createWebGPUHarness();
+    const vertexBuffer = {label: "vertex"} as any;
+    const vertexMetadataBuffer = {label: "vertexMetadata"} as any;
+    const decodeBindGroup = {label: "decode"} as any;
+    const indexBuffer = {label: "index"} as any;
+    (gpu.passEncoder as any).multiDrawIndexedIndirect = jest.fn();
+    gpu.device.features.has.mockImplementation((feature: string) =>
+      feature === "timestamp-query" || feature === "chromium-experimental-multi-draw-indirect"
+    );
+
+    const batchA = createPackedTriangleBatch(
+      "a0",
+      "segmentA0",
+      vertexBuffer,
+      vertexMetadataBuffer,
+      decodeBindGroup,
+      indexBuffer,
+      "pageA",
+      "fill"
+    );
+    const batchB = createPackedTriangleBatch(
+      "a1",
+      "segmentA1",
+      vertexBuffer,
+      vertexMetadataBuffer,
+      decodeBindGroup,
+      indexBuffer,
+      "pageA",
+      "fill"
+    );
+    batchB.packedBatch.vertexBufferOffset = 32;
+    batchB.packedBatch.vertexMetadataBufferOffset = 32;
+    batchB.packedBatch.indexBufferOffset = 12;
+
+    const result = encodePackedTriangleBatches({
+      device: gpu.device,
+      passEncoder: gpu.passEncoder,
+      renderPass: RENDER_PASSES.OPAQUE,
+      validateLabel: "test",
+      batches: [batchA, batchB]
+    });
+
+    expect(result.ok).toBe(true);
+    expect((gpu.passEncoder as any).multiDrawIndexedIndirect).not.toHaveBeenCalled();
+    expect(gpu.passEncoder.drawIndexed.mock.calls).toEqual([
+      [3, 1, 0, 0, 0],
+      [6, 1, 0, 0, 0]
+    ]);
+    expect(gpu.passEncoder.setVertexBuffer.mock.calls).toEqual([
+      [0, vertexBuffer],
+      [1, vertexMetadataBuffer],
+      [0, vertexBuffer, 32],
+      [1, vertexMetadataBuffer, 32]
+    ]);
+    expect(gpu.passEncoder.setIndexBuffer.mock.calls).toEqual([
+      [indexBuffer, "uint16"],
+      [indexBuffer, "uint16", 12]
+    ]);
   });
 
   test("packs opaque meshes with shared geometry into one draw", () => {
@@ -2015,6 +2158,140 @@ describe("WebGPURenderer contract", () => {
     expect(frameStats?.numPendingSegments).toBe(0);
 
     expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0")).toBe(3);
+  });
+
+  test("keeps copied instance buffer growth append-friendly", () => {
+    const gpu = createWebGPUHarness();
+    const renderContext = new RenderContext({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      memoryConfigs: createMemoryConfigs({
+        grossMemoryMB: 512,
+        device: "medium",
+        utilization: 0.5
+      }),
+      renderConfigs: createWebGPURenderConfigs({})
+    });
+    const manager = new InstanceBufferManager(renderContext);
+
+    const firstFrameResult = manager.beginFrame(2, "view");
+    expect(firstFrameResult.ok).toBe(true);
+    if (!firstFrameResult.ok) {
+      throw new Error("Expected InstanceBufferManager.beginFrame to succeed");
+    }
+    const firstFrame = firstFrameResult.value;
+    firstFrame.data[0] = 42;
+    firstFrame.data[INSTANCE_FLOATS] = 84;
+    firstFrame.instanceCount = 2;
+    InstanceBufferManager.markDirtySlotRange(firstFrame, 0, 2);
+    manager.upload(firstFrame);
+    const bufferVersion = firstFrame.bufferVersion;
+    const initialCopies = gpu.commandEncoder.copyBufferToBuffer.mock.calls.length;
+
+    const grownFrameResult = manager.beginFrame(3, "view");
+    expect(grownFrameResult.ok).toBe(true);
+    if (!grownFrameResult.ok) {
+      throw new Error("Expected InstanceBufferManager.beginFrame to grow");
+    }
+    const grownFrame = grownFrameResult.value;
+    expect(grownFrame.bufferVersion).toBe(bufferVersion);
+    expect(grownFrame.forceFullUpload).toBe(false);
+    expect(grownFrame.copiedByteLength).toBe(2 * INSTANCE_BYTES);
+    expect(grownFrame.data[0]).toBe(42);
+    expect(grownFrame.data[INSTANCE_FLOATS]).toBe(84);
+    expect(gpu.commandEncoder.copyBufferToBuffer).toHaveBeenCalledTimes(initialCopies + 1);
+
+    grownFrame.data[2 * INSTANCE_FLOATS] = 126;
+    grownFrame.instanceCount = 3;
+    InstanceBufferManager.markDirtySlotRange(grownFrame, 2, 1);
+    const uploadStats = manager.upload(grownFrame);
+    expect(uploadStats).toMatchObject({
+      writeCount: 1,
+      byteLength: INSTANCE_BYTES,
+      rangeCount: 1,
+      maxRangeSlots: 1,
+      fullUpload: false,
+      copiedByteLength: 2 * INSTANCE_BYTES
+    });
+    const instanceWrites = gpu.device.queue.writeBuffer.mock.calls.filter((call) => {
+      const buffer = call[0] as any;
+      return buffer.descriptor?.label === "xeokit-webgpu-instance-buffer";
+    });
+    const instanceWrite = instanceWrites[instanceWrites.length - 1];
+    expect(instanceWrite[1]).toBe(2 * INSTANCE_BYTES);
+    expect(instanceWrite[3]).toBe(2 * INSTANCE_FLOATS);
+    expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
+  });
+
+  test("dirties only rewritten slots for incremental triangle segments", () => {
+    const manager = Object.create(TriangleBatchManager.prototype) as TriangleBatchManager;
+    const view = {id: "view"} as any;
+    const meshStates = [0, 1, 2].map((index) => ({
+      id: `mesh${index}`,
+      instanceDataVersion: 1
+    }));
+    const slots = meshStates.map((meshState, index) => ({
+      meshState,
+      signature: "triangles",
+      globalSlot: 10 + index,
+      indexStart: 0,
+      indexCount: 3,
+      edgeIndexStart: 0,
+      edgeIndexCount: 0,
+      instanceWriteStateByViewId: index === 1 ? {} : {
+        view: {
+          bufferVersion: 4,
+          meshInstanceDataVersion: 1,
+          viewStateVersion: 7
+        }
+      }
+    }));
+    const segment = {
+      key: "segment",
+      baseKey: "segment",
+      bufferPageKey: "page",
+      label: "segment",
+      signature: "triangles",
+      baseSlot: 10,
+      slotCount: 3,
+      slotEnd: 13,
+      slots,
+      slotByMeshId: {}
+    } as any;
+    const instanceFrame = {
+      buffer: null,
+      bindGroup: null,
+      bindGroupLayout: null,
+      data: new Float32Array(32 * INSTANCE_FLOATS),
+      capacity: 32,
+      instanceCount: 0,
+      bufferVersion: 4,
+      forceFullUpload: false,
+      dirtySlotRanges: [],
+      copiedByteLength: 0
+    };
+    const meshManager = {
+      getViewStateVersion: jest.fn(() => 7),
+      getMeshOpacityInView: jest.fn(() => 1),
+      writeInstanceData: jest.fn((_drawItem, _view, target: Float32Array, offset: number) => {
+        target[offset] = 123;
+      })
+    };
+
+    manager.writeInstances({
+      batchSet: {
+        segments: [segment],
+        instanceCapacity: 32
+      } as any,
+      segments: [segment],
+      view,
+      meshManager: meshManager as any,
+      instanceFrame
+    });
+
+    expect(meshManager.writeInstanceData).toHaveBeenCalledTimes(1);
+    expect(instanceFrame.dirtySlotRanges).toEqual([{base: 11, count: 1}]);
+    expect(instanceFrame.instanceCount).toBe(32);
   });
 
   test("keeps model segment storage stable when another lifecycle segment is replaced", () => {
@@ -2690,6 +2967,64 @@ describe("WebGPURenderer contract", () => {
     const metadataBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:model_dynamic_stream_page_0");
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, positionBuffer, 640000);
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, metadataBuffer, 640000);
+  });
+
+  test("keeps shared-page packed segment indices segment-local", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry: geometryA, mesh: meshA} = createTriangleMesh("meshA");
+    const {geometry: geometryB, mesh: meshB} = createTriangleMesh("meshB");
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometryA.id]: geometryA,
+        [geometryB.id]: geometryB
+      },
+      meshes: {
+        [meshA.id]: meshA,
+        [meshB.id]: meshB
+      },
+      objects: {}
+    };
+    (geometryA as any).model = model;
+    (geometryB as any).model = model;
+    (meshA as any).model = model;
+    (meshB as any).model = model;
+
+    testViewer.viewer.scene.models = {model};
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchVertices: 3,
+        maxBatchIndices: 3,
+        maxBatchMeshes: 1,
+        maxBatchGeometries: 1,
+        maxBatchPrims: 1,
+        maxBatchBuildTimeMs: -1,
+        maxBatchBuildSegments: -1,
+        frustumCulling: false,
+        minProjectedCanvasSize: 0
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const packedIndexLabel = "xeokit-webgpu-packed-indices:triangles:model_dynamic_stream_page_0";
+    const secondIndexWrite = getLastWriteBufferDataAtOffset<Uint8Array>(gpu, packedIndexLabel, 6);
+    const secondIndices = new Uint16Array(secondIndexWrite.buffer, secondIndexWrite.byteOffset, 3);
+    expect(Array.from(secondIndices)).toEqual([0, 1, 2]);
+
+    const positionBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:model_dynamic_stream_page_0");
+    const metadataBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:model_dynamic_stream_page_0");
+    expect(gpu.passEncoder.setVertexBuffer.mock.calls).toContainEqual([0, positionBuffer, 24]);
+    expect(gpu.passEncoder.setVertexBuffer.mock.calls).toContainEqual([1, metadataBuffer, 24]);
   });
 
   test("reuses cached opaque batches on append-only structure changes", () => {
@@ -4760,6 +5095,39 @@ describe("WebGPURenderer contract", () => {
       expect(result.ok).toBe(true);
       expect(adapter.requestDevice).toHaveBeenCalledWith({
         requiredFeatures: ["timestamp-query"]
+      });
+    } finally {
+      restoreNavigator(originalNavigator);
+    }
+  });
+
+  test("create requests multi-draw indirect when the adapter exposes it", async () => {
+    const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    const gpu = createWebGPUHarness();
+    const adapter = {
+      features: {
+        has: jest.fn((feature: string) => feature === "chromium-experimental-multi-draw-indirect")
+      },
+      requestDevice: jest.fn(async () => gpu.device)
+    };
+    const navigatorGPU = {
+      requestAdapter: jest.fn(async () => adapter),
+      getPreferredCanvasFormat: jest.fn(() => "rgba8unorm")
+    };
+
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {
+        gpu: navigatorGPU
+      }
+    });
+
+    try {
+      const result = await WebGPURenderer.create({logging: false});
+
+      expect(result.ok).toBe(true);
+      expect(adapter.requestDevice).toHaveBeenCalledWith({
+        requiredFeatures: ["chromium-experimental-multi-draw-indirect"]
       });
     } finally {
       restoreNavigator(originalNavigator);

@@ -28,6 +28,8 @@ interface DeferredSceneModelRegistrations {
   objects: Set<SceneObject>;
 }
 
+const WEBGPU_MULTI_DRAW_INDIRECT_FEATURE = "chromium-experimental-multi-draw-indirect";
+
 /**
  * WebGPU renderer backend.
  *
@@ -910,7 +912,9 @@ export class WebGPURenderer implements Renderer {
     adapter: WebGPUAdapterLike;
     gpuTimestamps: boolean;
   }): WebGPUDeviceDescriptor | undefined {
-    if (!params.gpuTimestamps || !params.adapter.features?.has?.("timestamp-query")) {
+    const timestampQuerySupported = params.gpuTimestamps && params.adapter.features?.has?.("timestamp-query");
+    const multiDrawIndirectSupported = params.adapter.features?.has?.(WEBGPU_MULTI_DRAW_INDIRECT_FEATURE);
+    if (!timestampQuerySupported && !multiDrawIndirectSupported) {
       return params.descriptor;
     }
     const descriptor = {
@@ -919,7 +923,12 @@ export class WebGPURenderer implements Renderer {
       requiredFeatures?: string[];
     };
     const requiredFeatures = new Set(descriptor.requiredFeatures ?? []);
-    requiredFeatures.add("timestamp-query");
+    if (timestampQuerySupported) {
+      requiredFeatures.add("timestamp-query");
+    }
+    if (multiDrawIndirectSupported) {
+      requiredFeatures.add(WEBGPU_MULTI_DRAW_INDIRECT_FEATURE);
+    }
     descriptor.requiredFeatures = Array.from(requiredFeatures);
     return descriptor;
   }

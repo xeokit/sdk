@@ -1,1 +1,1 @@
-export * from "./WebGPUPickManager";
+export * from "./PickManager";

@@ -1,4 +1,4 @@
-import type {WebGPUDrawOp} from "./WebGPUDrawOp";
+import type {DrawOp} from "./DrawOp";
 
 /**
  * Collection of WebGPU draw operations for a primitive type, indexed by render
@@ -7,9 +7,14 @@ import type {WebGPUDrawOp} from "./WebGPUDrawOp";
  * @internal
  */
 export interface RenderPassDrawOps {
-  opaque?: WebGPUDrawOp;
-  transparent?: WebGPUDrawOp;
-  pick?: WebGPUDrawOp;
-  snapVertex?: WebGPUDrawOp;
-  snapEdge?: WebGPUDrawOp;
+  depthPrepass?: DrawOp;
+  opaque?: DrawOp;
+  transparent?: DrawOp;
+  edges?: DrawOp;
+  sectionPlaneCaps?: DrawOp;
+  stencilMaskFront?: DrawOp;
+  stencilMaskBack?: DrawOp;
+  pick?: DrawOp;
+  snapVertex?: DrawOp;
+  snapEdge?: DrawOp;
 }

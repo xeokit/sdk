@@ -1,1 +1,1 @@
-export * from "./WebGPUSnapManager";
+export * from "./SnapManager";

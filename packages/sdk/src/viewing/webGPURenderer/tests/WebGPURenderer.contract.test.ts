@@ -4,8 +4,24 @@
 
 import {SDKErrorType} from "../../../base/core";
 import {TrianglesPrimitive} from "../../../base/constants";
+import {
+  createMat4Float64,
+  lookAtMat4v,
+  mulMat4,
+  perspectiveMat4,
+  transformVec4,
+  type Mat4
+} from "../../../base/math/matrix";
+import {Scene} from "../../../model/scene";
 import type {RendererError} from "../../renderer";
 import {WebGPURenderer, type WebGPUDeviceLike} from "../core";
+import {INSTANCE_BYTES, INSTANCE_FLOATS, RTC_TILE_BYTES, SECTION_PLANE_CAP_COLOR_UNIFORM_OFFSET} from "../internal/constants";
+import {RENDER_PASSES} from "../internal/RENDER_PASSES";
+import {RenderContext} from "../internal/RenderContext";
+import {encodePackedTriangleBatches} from "../internal/drawOps/techniques/triangles/PackedTriangleBatchEncoder";
+import {WebGPUPickBuffer, WebGPUSnapBufferCache} from "../internal/webGPU";
+import {createMemoryConfigs} from "../createMemoryConfigs";
+import {createWebGPURenderConfigs} from "../createWebGPURenderConfigs";
 
 type Handler = (...args: any[]) => void;
 
@@ -23,6 +39,11 @@ function createSubscribable() {
       });
       unsubs.push(unsub);
       return unsub;
+    }),
+    dispatch: jest.fn((...args: any[]) => {
+      for (const handler of handlers.slice()) {
+        handler(...args);
+      }
     })
   };
 
@@ -82,7 +103,14 @@ function createViewer(hasScene: boolean) {
   const onViewObjectOpacityChanged = createSubscribable();
   const onViewObjectPickableChanged = createSubscribable();
   const onCameraViewMatrixUpdated = createSubscribable();
+  const onCameraProjMatrixUpdated = createSubscribable();
+  const onSectionPlaneCreated = createSubscribable();
+  const onSectionPlaneDestroyed = createSubscribable();
+  const onSectionPlanePosChanged = createSubscribable();
+  const onSectionPlaneDirChanged = createSubscribable();
+  const onSectionPlaneActive = createSubscribable();
   const onSceneModelCreated = createSubscribable();
+  const onSceneModelSealed = createSubscribable();
   const onSceneModelDestroyed = createSubscribable();
   const onSceneModelBuildStarted = createSubscribable();
   const onSceneModelBuildFinished = createSubscribable();
@@ -109,6 +137,7 @@ function createViewer(hasScene: boolean) {
     models: {},
     events: {
       onSceneModelCreated: onSceneModelCreated.event,
+      onSceneModelSealed: onSceneModelSealed.event,
       onSceneModelDestroyed: onSceneModelDestroyed.event,
       onSceneModelBuildStarted: onSceneModelBuildStarted.event,
       onSceneModelBuildFinished: onSceneModelBuildFinished.event,
@@ -155,7 +184,26 @@ function createViewer(hasScene: boolean) {
       onViewObjectColorizeChanged: onViewObjectColorizeChanged.event,
       onViewObjectOpacityChanged: onViewObjectOpacityChanged.event,
       onViewObjectPickableChanged: onViewObjectPickableChanged.event,
-      onCameraViewMatrixUpdated: onCameraViewMatrixUpdated.event
+      onCameraViewMatrixUpdated: onCameraViewMatrixUpdated.event,
+      onCameraProjMatrixUpdated: onCameraProjMatrixUpdated.event,
+      onSectionPlaneCreated: onSectionPlaneCreated.event,
+      onSectionPlaneDestroyed: onSectionPlaneDestroyed.event,
+      onSectionPlanePosChanged: onSectionPlanePosChanged.event,
+      onSectionPlaneDirChanged: onSectionPlaneDirChanged.event,
+      onSectionPlaneActive: onSectionPlaneActive.event
+    }
+  };
+
+  const emitViewUpdated = onViewUpdated.emit;
+  onViewUpdated.emit = (...args: any[]) => {
+    if ((viewer as any).__dispatchingViewUpdate) {
+      return;
+    }
+    (viewer as any).__dispatchingViewUpdate = true;
+    try {
+      emitViewUpdated(...args);
+    } finally {
+      (viewer as any).__dispatchingViewUpdate = false;
     }
   };
 
@@ -179,7 +227,14 @@ function createViewer(hasScene: boolean) {
     onViewObjectOpacityChanged,
     onViewObjectPickableChanged,
     onCameraViewMatrixUpdated,
+    onCameraProjMatrixUpdated,
+    onSectionPlaneCreated,
+    onSectionPlaneDestroyed,
+    onSectionPlanePosChanged,
+    onSectionPlaneDirChanged,
+    onSectionPlaneActive,
     onSceneModelCreated,
+    onSceneModelSealed,
     onSceneModelDestroyed,
     onSceneModelBuildStarted,
     onSceneModelBuildFinished,
@@ -214,6 +269,8 @@ function createWebGPUHarness() {
   const renderPipelines: any[] = [];
   const bindGroups: any[] = [];
   const buffers: any[] = [];
+  const querySets: any[] = [];
+  const pickReadbackBytes = new Uint8Array(4);
   const depthTextures: any[] = [];
   const depthTextureView = {};
   const passEncoder = {
@@ -222,14 +279,35 @@ function createWebGPUHarness() {
     setIndexBuffer: jest.fn(),
     setBindGroup: jest.fn(),
     drawIndexed: jest.fn(),
+    draw: jest.fn(),
     end: jest.fn()
   };
   const commandBuffer = {};
   const commandEncoder = {
     beginRenderPass: jest.fn(() => passEncoder),
+    copyBufferToBuffer: jest.fn((_source: any, _sourceOffset: number, destination: any, _destinationOffset: number, size: number) => {
+      const target = destination?.__mappedRange;
+      if (target instanceof ArrayBuffer) {
+        const timestamps = new BigUint64Array(target);
+        for (let i = 0; i < size / 8; i += 2) {
+          timestamps[i] = BigInt(i / 2) * 10000000n;
+          timestamps[i + 1] = timestamps[i] + 2000000n;
+        }
+      }
+    }),
+    copyTextureToBuffer: jest.fn((_source: any, destination: any) => {
+      const target = destination?.buffer?.__mappedRange;
+      if (target instanceof ArrayBuffer) {
+        new Uint8Array(target).set(pickReadbackBytes);
+      }
+    }),
+    resolveQuerySet: jest.fn(),
     finish: jest.fn(() => commandBuffer)
   };
   const device = {
+    features: {
+      has: jest.fn((feature: string) => feature === "timestamp-query")
+    },
     queue: {
       submit: jest.fn(),
       writeBuffer: jest.fn((
@@ -257,10 +335,33 @@ function createWebGPUHarness() {
       })
     },
     createBuffer: jest.fn((descriptor: any) => {
-      const buffer = {
+      const mappedRange = new ArrayBuffer(descriptor.size ?? 0);
+      const supportsReadbackMapping = (descriptor.usage & 1) !== 0;
+      const buffer: any = {
         descriptor,
         destroy: jest.fn()
       };
+      if (supportsReadbackMapping) {
+        let mapPending = false;
+        let mapped = false;
+        buffer.__mappedRange = mappedRange;
+        buffer.mapAsync = jest.fn(async () => {
+          if (mapPending || mapped) {
+            throw new Error("Buffer already has an outstanding map pending.");
+          }
+          mapPending = true;
+          try {
+            await Promise.resolve();
+            mapped = true;
+          } finally {
+            mapPending = false;
+          }
+        });
+        buffer.getMappedRange = jest.fn(() => mappedRange);
+        buffer.unmap = jest.fn(() => {
+          mapped = false;
+        });
+      }
       buffers.push(buffer);
       return buffer;
     }),
@@ -272,6 +373,14 @@ function createWebGPUHarness() {
       };
       depthTextures.push(texture);
       return texture;
+    }),
+    createQuerySet: jest.fn((descriptor: any) => {
+      const querySet = {
+        descriptor,
+        destroy: jest.fn()
+      };
+      querySets.push(querySet);
+      return querySet;
     }),
     createShaderModule: jest.fn(() => shaderModule),
     createBindGroupLayout: jest.fn(() => bindGroupLayout),
@@ -291,8 +400,10 @@ function createWebGPUHarness() {
     lost: new Promise(() => {})
   } as unknown as WebGPUDeviceLike & {
     queue: {submit: jest.Mock; writeBuffer: jest.Mock};
+    features: {has: jest.Mock};
     createBuffer: jest.Mock;
     createTexture: jest.Mock;
+    createQuerySet: jest.Mock;
     createShaderModule: jest.Mock;
     createBindGroupLayout: jest.Mock;
     createPipelineLayout: jest.Mock;
@@ -315,6 +426,7 @@ function createWebGPUHarness() {
     passEncoder,
     commandBuffer,
     commandEncoder,
+    pickReadbackBytes,
     device,
     renderPipeline,
     renderPipelines,
@@ -324,6 +436,7 @@ function createWebGPUHarness() {
     bindGroup,
     bindGroups,
     buffers,
+    querySets,
     depthTextures,
     depthTextureView,
     texture,
@@ -347,7 +460,7 @@ function createView(viewer: any, context: any, transparent = false) {
     toJSON: () => ({})
   }));
 
-  return {
+  const view: any = {
     id: "view",
     viewer,
     htmlElement: canvas,
@@ -359,8 +472,20 @@ function createView(viewer: any, context: any, transparent = false) {
     objects: {},
     backgroundColor: [0.2, 0.3, 0.4],
     transparent,
-    needsRender: jest.fn()
+    needsRender: jest.fn(() => {
+      if (viewer.__dispatchingViewUpdate) {
+        return;
+      }
+      viewer.__dispatchingViewUpdate = true;
+      try {
+        viewer.events.onViewUpdated.dispatch(view, view);
+      } finally {
+        viewer.__dispatchingViewUpdate = false;
+      }
+    })
   };
+  view.camera.view = view;
+  return view;
 }
 
 function createTriangleMesh(meshId = "mesh") {
@@ -375,6 +500,7 @@ function createTriangleMesh(meshId = "mesh") {
     ]),
     aabb: new Float32Array([0, 0, 0, 1, 1, 0]),
     indices: new Uint16Array([0, 1, 2]),
+    edgeIndices: new Uint16Array([0, 1, 1, 2, 2, 0]),
     destroyed: false
   };
   const mesh = {
@@ -391,6 +517,245 @@ function createTriangleMesh(meshId = "mesh") {
   };
 
   return {geometry, mesh};
+}
+
+function createLargeTriangleMesh(meshId: string, vertexCount: number) {
+  const positionsCompressed = new Uint16Array(vertexCount * 3);
+  positionsCompressed[3] = 65535;
+  positionsCompressed[7] = 65535;
+  const geometry = {
+    id: `${meshId}Geometry`,
+    uniqueId: `model__${meshId}Geometry`,
+    primitive: TrianglesPrimitive,
+    positionsCompressed,
+    aabb: new Float32Array([0, 0, 0, 1, 1, 0]),
+    indices: new Uint16Array([0, 1, 2]),
+    edgeIndices: new Uint16Array([0, 1, 1, 2, 2, 0]),
+    destroyed: false
+  };
+  const mesh = {
+    id: meshId,
+    uniqueId: `model__${meshId}`,
+    geometry,
+    object: null,
+    destroyed: false,
+    worldMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    color: [0.5, 0.6, 0.7],
+    effectiveColor: [0.5, 0.6, 0.7],
+    opacity: 1,
+    effectiveOpacity: 1
+  };
+  return {geometry, mesh};
+}
+
+function createQuadMesh(meshId = "mesh", aabb: Float32Array | number[] = [0, 0, 0, 1, 1, 0]) {
+  const geometry = {
+    id: `${meshId}Geometry`,
+    uniqueId: `model__${meshId}Geometry`,
+    primitive: TrianglesPrimitive,
+    positionsCompressed: new Uint16Array([
+      0, 0, 0,
+      65535, 0, 0,
+      0, 65535, 0,
+      65535, 65535, 0
+    ]),
+    aabb: new Float32Array(aabb),
+    indices: new Uint16Array([0, 1, 2, 2, 1, 3]),
+    edgeIndices: new Uint16Array([0, 1, 1, 3, 3, 2, 2, 0]),
+    destroyed: false
+  };
+  const mesh = {
+    id: meshId,
+    uniqueId: `model__${meshId}`,
+    geometry,
+    object: null,
+    destroyed: false,
+    worldMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    color: [0.5, 0.6, 0.7],
+    effectiveColor: [0.5, 0.6, 0.7],
+    opacity: 1,
+    effectiveOpacity: 1
+  };
+
+  return {geometry, mesh};
+}
+
+function createBoxGeometry(geometryId = "boxGeometry") {
+  const one = 65535;
+  const zero = 0;
+  return {
+    id: geometryId,
+    uniqueId: `model__${geometryId}`,
+    primitive: TrianglesPrimitive,
+    positionsCompressed: new Uint16Array([
+      one, one, one, zero, one, one, zero, zero, one, one, zero, one,
+      one, one, one, one, zero, one, one, zero, zero, one, one, zero,
+      one, one, one, one, one, zero, zero, one, zero, zero, one, one,
+      zero, one, one, zero, one, zero, zero, zero, zero, zero, zero, one,
+      zero, zero, zero, one, zero, zero, one, zero, one, zero, zero, one,
+      one, zero, zero, zero, zero, zero, zero, one, zero, one, one, zero
+    ]),
+    aabb: new Float32Array([-1, -1, -1, 1, 1, 1]),
+    indices: new Uint16Array([
+      0, 1, 2, 0, 2, 3,
+      4, 5, 6, 4, 6, 7,
+      8, 9, 10, 8, 10, 11,
+      12, 13, 14, 12, 14, 15,
+      16, 17, 18, 16, 18, 19,
+      20, 21, 22, 20, 22, 23
+    ]),
+    edgeIndices: new Uint16Array([
+      0, 1, 1, 2, 2, 3, 3, 0,
+      4, 5, 5, 6, 6, 7, 7, 4,
+      8, 9, 9, 10, 10, 11, 11, 8,
+      12, 13, 13, 14, 14, 15, 15, 12,
+      16, 17, 17, 18, 18, 19, 19, 16,
+      20, 21, 21, 22, 22, 23, 23, 20
+    ]),
+    destroyed: false
+  };
+}
+
+function createBoxMesh(meshId: string, geometry: any, worldMatrix: Mat4) {
+  return {
+    id: meshId,
+    uniqueId: `model__${meshId}`,
+    geometry,
+    object: null,
+    destroyed: false,
+    worldMatrix,
+    color: [0.5, 0.6, 0.7],
+    effectiveColor: [0.5, 0.6, 0.7],
+    opacity: 1,
+    effectiveOpacity: 1
+  };
+}
+
+function createTableSceneModelParams() {
+  const one = 1;
+  const neg = -1;
+  return {
+    id: "webgpuSnapTable",
+    geometries: [
+      {
+        id: "demoBoxGeometry",
+        primitive: TrianglesPrimitive,
+        positions: [
+          one, one, one, neg, one, one, neg, neg, one, one, neg, one,
+          one, one, one, one, neg, one, one, neg, neg, one, one, neg,
+          one, one, one, one, one, neg, neg, one, neg, neg, one, one,
+          neg, one, one, neg, one, neg, neg, neg, neg, neg, neg, one,
+          neg, neg, neg, one, neg, neg, one, neg, one, neg, neg, one,
+          one, neg, neg, neg, neg, neg, neg, one, neg, one, one, neg
+        ],
+        indices: [
+          0, 1, 2, 0, 2, 3,
+          4, 5, 6, 4, 6, 7,
+          8, 9, 10, 8, 10, 11,
+          12, 13, 14, 12, 14, 15,
+          16, 17, 18, 16, 18, 19,
+          20, 21, 22, 20, 22, 23
+        ],
+        edgeIndices: [
+          0, 1, 1, 2, 2, 3, 3, 0,
+          4, 5, 5, 6, 6, 7, 7, 4,
+          8, 9, 9, 10, 10, 11, 11, 8,
+          12, 13, 13, 14, 14, 15, 15, 12,
+          16, 17, 17, 18, 18, 19, 19, 16,
+          20, 21, 21, 22, 22, 23, 23, 20
+        ]
+      }
+    ],
+    meshes: [
+      {
+        id: "redLeg-mesh",
+        geometryId: "demoBoxGeometry",
+        position: [-4, -4, 3],
+        scale: [1, 1, 3],
+        color: [1, 0.3, 0.3],
+        opacity: 1
+      },
+      {
+        id: "tableTop-mesh",
+        geometryId: "demoBoxGeometry",
+        position: [0, 0, 6],
+        scale: [6, 6, 0.5],
+        color: [1.0, 0.3, 1.0],
+        opacity: 1
+      }
+    ],
+    objects: [
+      {
+        id: "redLeg",
+        meshIds: ["redLeg-mesh"]
+      },
+      {
+        id: "purpleTableTop",
+        meshIds: ["tableTop-mesh"]
+      }
+    ]
+  };
+}
+
+function createScaleTranslateMatrix(position: [number, number, number], scale: [number, number, number]): Mat4 {
+  return createMat4Float64([
+    scale[0], 0, 0, 0,
+    0, scale[1], 0, 0,
+    0, 0, scale[2], 0,
+    position[0], position[1], position[2], 1
+  ]);
+}
+
+function setPerspectiveTableCamera(view: any): void {
+  view.camera.viewMatrix = lookAtMat4v(
+    new Float64Array([14, -14, 10]),
+    new Float64Array([0, 0, 3]),
+    new Float64Array([0, 0, 1])
+  );
+  view.camera.projMatrix = perspectiveMat4(60 * Math.PI / 180, view.boundary[2] / view.boundary[3], 0.1, 1000);
+}
+
+function projectWorldToCanvas(view: any, worldPos: [number, number, number]): [number, number] {
+  const viewProjection = createMat4Float64();
+  const world = new Float64Array([worldPos[0], worldPos[1], worldPos[2], 1]);
+  const clip = new Float64Array(4);
+  mulMat4(view.camera.projMatrix, view.camera.viewMatrix, viewProjection);
+  transformVec4(viewProjection, world, clip);
+  const width = view.boundary[2];
+  const height = view.boundary[3];
+  const ndcX = clip[0] / clip[3];
+  const ndcY = clip[1] / clip[3];
+  return [
+    (ndcX * 0.5 + 0.5) * width,
+    (0.5 - ndcY * 0.5) * height
+  ];
+}
+
+function attachMeshToObject(mesh: any, view: any, model: any, objectId = `${mesh.id}Object`) {
+  const sceneObject = {
+    id: objectId,
+    model,
+    meshes: [mesh],
+    destroyed: false
+  };
+  const viewObject = {
+    id: sceneObject.id,
+    view,
+    sceneObject,
+    visible: true,
+    culled: false,
+    pickable: true,
+    colorize: null as number[] | null,
+    opacityUpdated: false,
+    opacity: 1
+  };
+
+  mesh.object = sceneObject;
+  if (model.objects) {
+    model.objects[sceneObject.id] = sceneObject;
+  }
+  view.objects[sceneObject.id] = viewObject;
+  return {sceneObject, viewObject};
 }
 
 function getLastWriteBufferCall(gpu: ReturnType<typeof createWebGPUHarness>, bufferLabel: string): any[] {
@@ -411,6 +776,21 @@ function getLastWriteBufferData<T extends ArrayBufferView = Float32Array>(
   return getLastWriteBufferCall(gpu, bufferLabel)[2] as T;
 }
 
+function getLastWriteBufferDataAtOffset<T extends ArrayBufferView = Float32Array>(
+  gpu: ReturnType<typeof createWebGPUHarness>,
+  bufferLabel: string,
+  offset: number
+): T {
+  const calls = gpu.device.queue.writeBuffer.mock.calls;
+  for (let i = calls.length - 1; i >= 0; i--) {
+    const buffer = calls[i][0] as any;
+    if (buffer.descriptor?.label === bufferLabel && calls[i][1] === offset) {
+      return calls[i][2] as T;
+    }
+  }
+  throw new Error(`Expected writeBuffer call for ${bufferLabel} at offset ${offset}`);
+}
+
 function countWriteBufferCalls(gpu: ReturnType<typeof createWebGPUHarness>, bufferLabel: string): number {
   return gpu.device.queue.writeBuffer.mock.calls.filter((call) => {
     const buffer = call[0] as any;
@@ -424,6 +804,38 @@ function getBufferByLabel(gpu: ReturnType<typeof createWebGPUHarness>, bufferLab
     throw new Error(`Expected buffer ${bufferLabel}`);
   }
   return buffer;
+}
+
+function createPackedTriangleBatch(
+  label: string,
+  segmentKey: string,
+  vertexBuffer: any,
+  vertexMetadataBuffer: any,
+  positionDecodeBindGroup: any,
+  indexBuffer: any,
+  bufferPageKey?: string,
+  renderStateKey?: string
+): any {
+  const indexCountByLabel: {[key: string]: number} = {
+    a0: 3,
+    a1: 6,
+    b0: 9
+  };
+  return {
+    packedBatch: {
+      label,
+      segmentKey,
+      bufferPageKey,
+      renderStateKey,
+      vertexBuffer,
+      vertexMetadataBuffer,
+      positionDecodeBindGroup,
+      indexBuffer,
+      indexFormat: "uint16",
+      indexCount: indexCountByLabel[label] ?? 3,
+      destroy: jest.fn()
+    }
+  };
 }
 
 function restoreNavigator(descriptor: PropertyDescriptor | undefined): void {
@@ -479,7 +891,10 @@ describe("WebGPURenderer contract", () => {
     const renderer = new WebGPURenderer({
       device: gpu.device,
       contextFormat: "rgba8unorm",
-      logging: false
+      logging: false,
+      renderConfigs: {
+        transparentSortStrategy: "object"
+      }
     });
     const rendered: any[] = [];
     const stopped: boolean[] = [];
@@ -508,17 +923,17 @@ describe("WebGPURenderer contract", () => {
         height: 50,
         depthOrArrayLayers: 1
       },
-      format: "depth24plus",
+      format: "depth24plus-stencil8",
       usage: 16
     });
     expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalledTimes(1);
     expect(gpu.passEncoder.end).toHaveBeenCalledTimes(1);
     expect(gpu.device.queue.submit).toHaveBeenCalledWith([gpu.commandBuffer]);
-    expect(rendered).toEqual([]);
+    expect(rendered).toEqual([view]);
 
     testViewer.onViewUpdated.emit(view, view);
 
-    expect(rendered).toEqual([view]);
+    expect(rendered).toEqual([view, view]);
     expect(gpu.context.configure).toHaveBeenCalledTimes(1);
     expect(gpu.device.createTexture).toHaveBeenCalledTimes(1);
     expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalledTimes(2);
@@ -534,7 +949,10 @@ describe("WebGPURenderer contract", () => {
       view: gpu.depthTextureView,
       depthClearValue: 1,
       depthLoadOp: "clear",
-      depthStoreOp: "store"
+      depthStoreOp: "store",
+      stencilClearValue: 0,
+      stencilLoadOp: "clear",
+      stencilStoreOp: "store"
     });
 
     const firstDepthTexture = gpu.depthTextures[0];
@@ -568,7 +986,7 @@ describe("WebGPURenderer contract", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
-    const {geometry, mesh} = createTriangleMesh();
+    const {mesh} = createTriangleMesh();
 
     testViewer.viewer.scene.models = {
       model: {
@@ -582,84 +1000,85 @@ describe("WebGPURenderer contract", () => {
     const renderer = new WebGPURenderer({
       device: gpu.device,
       contextFormat: "rgba8unorm",
-      logging: false
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
     });
 
     const result = renderer.attachViewer(testViewer.viewer as any);
 
     expect(result.ok).toBe(true);
-    expect(gpu.device.createShaderModule).toHaveBeenCalledTimes(1);
-    expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(1);
-    const pipelineDescriptor = gpu.device.createRenderPipeline.mock.calls[0][0] as any;
-    expect(pipelineDescriptor.depthStencil).toEqual({
-      format: "depth24plus",
+    expect(gpu.device.createShaderModule).toHaveBeenCalledTimes(2);
+    expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(2);
+    const depthPipelineDescriptor = gpu.device.createRenderPipeline.mock.calls[0][0] as any;
+    const colorPipelineDescriptor = gpu.device.createRenderPipeline.mock.calls[1][0] as any;
+    expect(depthPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-depth-prepass-pipeline");
+    expect(depthPipelineDescriptor.depthStencil).toEqual({
+      format: "depth24plus-stencil8",
       depthWriteEnabled: true,
       depthCompare: "less"
     });
-    expect(gpu.device.createBuffer).toHaveBeenCalledTimes(9);
+    expect(depthPipelineDescriptor.fragment.targets).toEqual([]);
+    expect(colorPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-opaque-pipeline");
+    expect(colorPipelineDescriptor.depthStencil).toEqual({
+      format: "depth24plus-stencil8",
+      depthWriteEnabled: true,
+      depthCompare: "less-equal"
+    });
+    expect(gpu.device.createBuffer).toHaveBeenCalledTimes(8);
     expect(gpu.device.queue.writeBuffer).toHaveBeenCalledTimes(9);
     expect(gpu.passEncoder.setPipeline).toHaveBeenCalledWith(gpu.renderPipeline);
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:view:opaque"));
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, getBufferByLabel(gpu, "xeokit-webgpu-packed-normals:view:opaque"));
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(2, getBufferByLabel(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque"));
-    expect(gpu.passEncoder.setIndexBuffer).toHaveBeenCalledWith(getBufferByLabel(gpu, "xeokit-webgpu-packed-indices:view:opaque"), "uint16");
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0"));
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0"));
+    expect(gpu.passEncoder.setIndexBuffer).toHaveBeenCalledWith(getBufferByLabel(gpu, "xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0"), "uint16");
     expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(0, gpu.bindGroup);
     expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(1, gpu.bindGroups[1]);
+    expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(2, gpu.bindGroups[2]);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
 
-    expect(pipelineDescriptor.vertex.buffers).toEqual([
+    expect(colorPipelineDescriptor.vertex.buffers).toEqual([
       {
-        arrayStride: 12,
+        arrayStride: 8,
         attributes: [{
           shaderLocation: 0,
           offset: 0,
-          format: "float32x3"
+          format: "unorm16x4"
         }]
       },
       {
-        arrayStride: 12,
+        arrayStride: 8,
         attributes: [{
           shaderLocation: 1,
           offset: 0,
-          format: "float32x3"
-        }]
-      },
-      {
-        arrayStride: 4,
-        attributes: [{
-          shaderLocation: 2,
-          offset: 0,
-          format: "uint32"
+          format: "uint32x2"
         }]
       }
     ]);
 
-    const positionUpload = gpu.device.queue.writeBuffer.mock.calls[0][2] as Float32Array;
+    const positionUpload = getLastWriteBufferData<Uint16Array>(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0");
     expect(Array.from(positionUpload)).toEqual([
-      0, 0, 0,
-      1, 0, 0,
-      0, 1, 0
+      0, 0, 0, 0,
+      65535, 0, 0, 0,
+      0, 65535, 0, 0
     ]);
-    const normalUpload = gpu.device.queue.writeBuffer.mock.calls[1][2] as Float32Array;
-    for (let i = 0; i < normalUpload.length; i += 3) {
-      expect(normalUpload[i]).toBeCloseTo(0, 3);
-      expect(normalUpload[i + 1]).toBeCloseTo(0, 3);
-      expect(normalUpload[i + 2]).toBeCloseTo(1, 3);
-    }
-    const indexUpload = gpu.device.queue.writeBuffer.mock.calls[2][2] as Uint8Array;
-    expect(indexUpload.byteLength).toBe(8);
-    expect(Array.from(new Uint16Array(indexUpload.buffer, indexUpload.byteOffset, geometry.indices.length))).toEqual(Array.from(geometry.indices));
-    const packedMeshIndexUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque");
-    expect(Array.from(packedMeshIndexUpload)).toEqual([0, 0, 0]);
+    const vertexMetadataUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0");
+    expect(Array.from(vertexMetadataUpload)).toEqual([0, 0, 0, 0, 0, 0]);
+    const positionDecodeUpload = getLastWriteBufferData<Float32Array>(gpu, "xeokit-webgpu-triangle-position-decodes:triangles:unowned_dynamic_stream_page_0");
+    expect(Array.from(positionDecodeUpload)).toEqual([
+      0, 0, 0, 0,
+      1, 1, 0, 0
+    ]);
     const instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
-    expect(instanceWrite[4]).toBe(36);
+    expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
     const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
     expect(Array.from(instanceUpload.slice(0, 16))).toEqual(mesh.worldMatrix);
-    expect(Array.from(instanceUpload.slice(16, 32))).toEqual(view.camera.projMatrix);
-    expect(instanceUpload[32]).toBeCloseTo(0.5);
-    expect(instanceUpload[33]).toBeCloseTo(0.6);
-    expect(instanceUpload[34]).toBeCloseTo(0.7);
-    expect(instanceUpload[35]).toBeCloseTo(1);
+    expect(instanceUpload[16]).toBeCloseTo(0.5);
+    expect(instanceUpload[17]).toBeCloseTo(0.6);
+    expect(instanceUpload[18]).toBeCloseTo(0.7);
+    expect(instanceUpload[19]).toBeCloseTo(1);
+    expect(instanceUpload[20]).toBeCloseTo(1);
+    expect(instanceUpload[21]).toBeCloseTo(0);
     const frameUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-frame-uniforms");
     expect(Array.from(frameUpload.slice(0, 16))).toEqual([
       1, 0, 0, 0,
@@ -674,6 +1093,301 @@ describe("WebGPURenderer contract", () => {
     for (const buffer of gpu.buffers) {
       expect(buffer.destroy).toHaveBeenCalledTimes(1);
     }
+  });
+
+  test("uploads WebGPU mesh instances relative to RTC tiles", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+    mesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000000, 300, 0, 1];
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceUpload[12]).toBeCloseTo(0);
+    expect(instanceUpload[13]).toBeCloseTo(-100);
+    expect(instanceUpload[14]).toBeCloseTo(0);
+    expect(instanceUpload[21]).toBeCloseTo(1);
+
+    const tileUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-rtc-tile-buffer");
+    expect(tileUpload[16]).toBeCloseTo(1000000);
+    expect(tileUpload[17]).toBeCloseTo(400);
+    expect(tileUpload[18]).toBeCloseTo(0);
+
+    mesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000400, 300, 0, 1];
+    testViewer.onSceneMeshMatrixChanged.emit(testViewer.viewer.scene, mesh);
+    testViewer.onViewUpdated.emit(view, view);
+
+    const movedInstanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
+    expect(movedInstanceUpload[12]).toBeCloseTo(0);
+    expect(movedInstanceUpload[13]).toBeCloseTo(-100);
+    expect(movedInstanceUpload[14]).toBeCloseTo(0);
+    expect(movedInstanceUpload[21]).toBeCloseTo(1);
+
+    const movedTileUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-rtc-tile-buffer");
+    expect(movedTileUpload[16]).toBeCloseTo(1000400);
+    expect(movedTileUpload[17]).toBeCloseTo(400);
+    expect(movedTileUpload[18]).toBeCloseTo(0);
+
+    renderer.detachViewer();
+  });
+
+  test("assigns multiple WebGPU mesh instances to independent RTC tile matrices", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh: westMesh} = createTriangleMesh("westMesh");
+    const {mesh: eastMesh} = createTriangleMesh("eastMesh");
+    westMesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000000, 300, 0, 1];
+    eastMesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000400, 300, 0, 1];
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [westMesh.id]: westMesh,
+          [eastMesh.id]: eastMesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceUpload[12]).toBeCloseTo(0);
+    expect(instanceUpload[13]).toBeCloseTo(-100);
+    expect(instanceUpload[14]).toBeCloseTo(0);
+    expect(instanceUpload[21]).toBeCloseTo(1);
+    expect(instanceUpload[INSTANCE_FLOATS + 12]).toBeCloseTo(0);
+    expect(instanceUpload[INSTANCE_FLOATS + 13]).toBeCloseTo(-100);
+    expect(instanceUpload[INSTANCE_FLOATS + 14]).toBeCloseTo(0);
+    expect(instanceUpload[INSTANCE_FLOATS + 21]).toBeCloseTo(2);
+
+    const westTileUpload = getLastWriteBufferDataAtOffset(gpu, "xeokit-webgpu-rtc-tile-buffer", RTC_TILE_BYTES);
+    expect(westTileUpload[16]).toBeCloseTo(1000000);
+    expect(westTileUpload[17]).toBeCloseTo(400);
+    expect(westTileUpload[18]).toBeCloseTo(0);
+
+    const eastTileUpload = getLastWriteBufferDataAtOffset(gpu, "xeokit-webgpu-rtc-tile-buffer", RTC_TILE_BYTES * 2);
+    expect(eastTileUpload[16]).toBeCloseTo(1000400);
+    expect(eastTileUpload[17]).toBeCloseTo(400);
+    expect(eastTileUpload[18]).toBeCloseTo(0);
+
+    renderer.detachViewer();
+  });
+
+  test("falls back to origin RTC tile when WebGPU RTC tile capacity is exhausted", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const meshes: any = {};
+
+    for (let i = 0; i < 3; i++) {
+      const {geometry, mesh} = createTriangleMesh(`mesh${i}`);
+      geometry.id = `geometry${i}`;
+      geometry.uniqueId = `model__geometry${i}`;
+      mesh.geometry = geometry;
+      mesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000000 + i * 400, 300, 0, 1];
+      meshes[mesh.id] = mesh;
+    }
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxTiles: 2
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+    testViewer.onViewUpdated.emit(view, view);
+
+    const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceUpload[21]).toBeCloseTo(1);
+    expect(instanceUpload[INSTANCE_FLOATS + 12]).toBeCloseTo(1000400);
+    expect(instanceUpload[INSTANCE_FLOATS + 21]).toBeCloseTo(0);
+    expect(instanceUpload[INSTANCE_FLOATS * 2 + 12]).toBeCloseTo(1000800);
+    expect(instanceUpload[INSTANCE_FLOATS * 2 + 21]).toBeCloseTo(0);
+
+    const frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(frameStats).toMatchObject({
+      numRTCTiles: 1,
+      numRTCTileMatrixUploads: 2,
+      numMeshesWithRTCTile: 1,
+      numMeshesUsingRTCFallback: 2
+    });
+    expect(renderer.getViewRenderStats(0)).toMatchObject({
+      numRTCTiles: 1,
+      numRTCTileMatrixUploads: 2,
+      numMeshesWithRTCTile: 1,
+      numMeshesUsingRTCFallback: 2
+    });
+
+    renderer.detachViewer();
+  });
+
+  test("can render opaque triangles without the depth prepass", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      renderConfigs: {
+        depthPrepass: false
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(1);
+    expect((gpu.device.createRenderPipeline.mock.calls[0][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-opaque-pipeline");
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
+    expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalledTimes(1);
+    expect(gpu.commandEncoder.beginRenderPass.mock.calls[0][0]).toMatchObject({
+      colorAttachments: [expect.any(Object)],
+      depthStencilAttachment: {
+        view: gpu.depthTextureView,
+        depthClearValue: 1,
+        depthLoadOp: "clear",
+        depthStoreOp: "store",
+        stencilClearValue: 0,
+        stencilLoadOp: "clear",
+        stencilStoreOp: "store"
+      }
+    });
+
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+
+    inspectorResult.value.enabled = true;
+    testViewer.onViewUpdated.emit(view, view);
+
+    const frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(frameStats?.numDrawCalls).toBe(1);
+    expect(frameStats?.renderBins.map((bin) => bin.name)).toEqual(["OPAQUE"]);
+  });
+
+  test("encodes packed triangle batches without redundant page-state binds", () => {
+    const gpu = createWebGPUHarness();
+    const vertexBufferA = {label: "vertexA"} as any;
+    const vertexMetadataBufferA = {label: "vertexMetadataA"} as any;
+    const decodeBindGroupA = {label: "decodeA"} as any;
+    const vertexBufferB = {label: "vertexB"} as any;
+    const vertexMetadataBufferB = {label: "vertexMetadataB"} as any;
+    const decodeBindGroupB = {label: "decodeB"} as any;
+    const indexBufferA = {label: "indexA"} as any;
+    const indexBufferB0 = {label: "indexB0"} as any;
+    const commandStats = {
+      pipelineBound: jest.fn(),
+      vertexBufferBound: jest.fn(),
+      indexBufferBound: jest.fn(),
+      bindGroupBound: jest.fn(),
+      submissionGroupsSubmitted: jest.fn()
+    };
+
+    const result = encodePackedTriangleBatches({
+      passEncoder: gpu.passEncoder,
+      renderPass: RENDER_PASSES.OPAQUE,
+      validateLabel: "test",
+      commandStats,
+      batches: [
+        createPackedTriangleBatch("a0", "segmentA0", vertexBufferA, vertexMetadataBufferA, decodeBindGroupA, indexBufferA, "pageA", "fill"),
+        createPackedTriangleBatch("b0", "segmentB0", vertexBufferB, vertexMetadataBufferB, decodeBindGroupB, indexBufferB0, "pageB", "fill"),
+        createPackedTriangleBatch("a1", "segmentA1", vertexBufferA, vertexMetadataBufferA, decodeBindGroupA, indexBufferA, "pageA", "emphasis")
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.setVertexBuffer.mock.calls).toEqual([
+      [0, vertexBufferA],
+      [1, vertexMetadataBufferA],
+      [0, vertexBufferB],
+      [1, vertexMetadataBufferB]
+    ]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls).toEqual([
+      [2, decodeBindGroupA],
+      [2, decodeBindGroupB]
+    ]);
+    expect(gpu.passEncoder.setIndexBuffer.mock.calls).toEqual([
+      [indexBufferA, "uint16"],
+      [indexBufferB0, "uint16"]
+    ]);
+    expect(gpu.passEncoder.drawIndexed.mock.calls).toEqual([
+      [3, 1, 0, 0, 0],
+      [6, 1, 0, 0, 0],
+      [9, 1, 0, 0, 0]
+    ]);
+    expect(commandStats.vertexBufferBound.mock.calls).toEqual([[0], [1], [0], [1]]);
+    expect(commandStats.bindGroupBound.mock.calls).toEqual([[2], [2]]);
+    expect(commandStats.indexBufferBound).toHaveBeenCalledTimes(2);
+    expect(commandStats.submissionGroupsSubmitted).toHaveBeenCalledWith({
+      submissionGroups: 3,
+      bufferPageGroups: 2,
+      renderStateGroups: 3
+    });
   });
 
   test("packs opaque meshes with shared geometry into one draw", () => {
@@ -703,24 +1417,307 @@ describe("WebGPURenderer contract", () => {
     const renderer = new WebGPURenderer({
       device: gpu.device,
       contextFormat: "rgba8unorm",
-      logging: false
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
     });
 
     const result = renderer.attachViewer(testViewer.viewer as any);
 
     expect(result.ok).toBe(true);
-    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalled();
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
-    const packedMeshIndexUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque");
-    expect(Array.from(packedMeshIndexUpload)).toEqual([0, 0, 0, 1, 1, 1]);
+    const vertexMetadataUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0");
+    expect(Array.from(vertexMetadataUpload)).toEqual([0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0]);
     const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
-    expect(instanceUpload[32]).toBeCloseTo(0.5);
-    expect(instanceUpload[33]).toBeCloseTo(0.6);
-    expect(instanceUpload[34]).toBeCloseTo(0.7);
-    expect(instanceUpload[36 + 12]).toBeCloseTo(2);
-    expect(instanceUpload[36 + 32]).toBeCloseTo(0.1);
-    expect(instanceUpload[36 + 33]).toBeCloseTo(0.2);
-    expect(instanceUpload[36 + 34]).toBeCloseTo(0.3);
+    expect(instanceUpload[16]).toBeCloseTo(0.5);
+    expect(instanceUpload[17]).toBeCloseTo(0.6);
+    expect(instanceUpload[18]).toBeCloseTo(0.7);
+    expect(instanceUpload[INSTANCE_FLOATS + 12]).toBeCloseTo(2);
+    expect(instanceUpload[INSTANCE_FLOATS + 16]).toBeCloseTo(0.1);
+    expect(instanceUpload[INSTANCE_FLOATS + 17]).toBeCloseTo(0.2);
+    expect(instanceUpload[INSTANCE_FLOATS + 18]).toBeCloseTo(0.3);
+  });
+
+  test("reports WebGPU render inspector stats", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+
+    inspectorResult.value.enabled = true;
+    testViewer.onViewUpdated.emit(view, view);
+
+    let frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(frameStats?.numDrawCalls).toBe(2);
+    expect(frameStats?.numPrims).toBe(2);
+    expect(frameStats?.numBatches).toBe(2);
+    expect(frameStats?.renderReason).toBe("cacheReuse");
+    expect(frameStats?.commandState).toMatchObject({
+      numPipelineBinds: 2,
+      numVertexBufferBinds: 4,
+      numIndexBufferBinds: 2,
+      numBindGroupBinds: 6,
+      bindGroupBindsBySlot: {
+        "0": 2,
+        "1": 2,
+        "2": 2
+      }
+    });
+    expect(frameStats?.renderBins.map((bin) => bin.name)).toEqual(["DEPTH_PREPASS", "OPAQUE"]);
+    expect(frameStats?.renderBins[0].commandState).toMatchObject({
+      numPipelineBinds: 1,
+      numVertexBufferBinds: 2,
+      numIndexBufferBinds: 1,
+      numBindGroupBinds: 3
+    });
+    expect(frameStats?.renderBins[0].drawCalls[0]).toMatchObject({
+      renderPass: "DEPTH_PREPASS",
+      primitive: "TRIANGLES",
+      technique: "TrianglesDepthPrepassTechnique",
+      indexCount: 3,
+      numPrims: 1
+    });
+    expect(frameStats?.renderBins[1].drawCalls[0]).toMatchObject({
+      renderPass: "OPAQUE",
+      primitive: "TRIANGLES",
+      technique: "TrianglesDrawColorTechnique",
+      indexCount: 3,
+      numPrims: 1
+    });
+    expect(renderer.getViewRenderStats(0)).toMatchObject({
+      numDrawCalls: 2,
+      numPrimitives: 2,
+      numBatches: 2
+    });
+
+    view.camera.viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 0, 1];
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(frameStats?.renderReason).toBe("cameraOnlyReuse");
+  });
+
+  test("reports optional WebGPU render pass GPU timestamps", async () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      renderConfigs: {
+        gpuTimestamps: true
+      }
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    testViewer.onViewUpdated.emit(view, view);
+    let frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(frameStats?.gpuTime).toMatchObject({
+      available: true,
+      pending: true
+    });
+    expect(gpu.device.createQuerySet).toHaveBeenCalledWith({
+      label: "xeokit-webgpu-render-timestamp-query-set",
+      type: "timestamp",
+      count: 4
+    });
+    expect(gpu.commandEncoder.resolveQuerySet).toHaveBeenCalled();
+    expect(gpu.commandEncoder.copyBufferToBuffer).toHaveBeenCalled();
+
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(frameStats?.gpuTime.available).toBe(true);
+    expect(frameStats?.gpuTime.pending).toBe(false);
+    expect(frameStats?.gpuTime.passes).toEqual({
+      DEPTH_PREPASS: 2,
+      MAIN_COLOR: 2
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(gpu.querySets[0].destroy).toHaveBeenCalledTimes(1);
+  });
+
+  test("packs active section planes into WebGPU frame uniforms", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    view.sectionPlanesList = [
+      {active: true, dir: [1, 0, 0], dist: -0.25, capColor: [0.2, 0.4, 0.6]},
+      {active: false, dir: [0, 1, 0], dist: -0.5},
+      {active: true, dir: [0, 0, 1], dist: -0.75}
+    ];
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const frameUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-frame-uniforms");
+    expect(frameUpload[20]).toBe(2);
+    expect(Array.from(frameUpload.slice(24, 32))).toEqual([
+      1, 0, 0, -0.25,
+      0, 0, 1, -0.75
+    ]);
+    expect(Array.from(frameUpload.slice(SECTION_PLANE_CAP_COLOR_UNIFORM_OFFSET, SECTION_PLANE_CAP_COLOR_UNIFORM_OFFSET + 8))).toEqual([
+      0.20000000298023224, 0.4000000059604645, 0.6000000238418579, 1,
+      0, 0, 0, 0
+    ]);
+  });
+
+  test("draws WebGPU section plane caps only when the caps effect applies", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    view.effects = {
+      sectionPlaneCaps: {
+        applied: true
+      }
+    };
+    view.sectionPlanesList = [{active: true, dir: [1, 0, 0], dist: -0.25, capColor: [0.2, 0.4, 0.6]}];
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(4);
+    expect(gpu.passEncoder.draw).toHaveBeenCalledTimes(1);
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    gpu.passEncoder.draw.mockClear();
+    view.effects.sectionPlaneCaps.applied = false;
+    testViewer.onViewUpdated.emit(view, view);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(gpu.passEncoder.draw).not.toHaveBeenCalled();
+  });
+
+  test("enabling WebGPU section plane caps reuses packed geometry", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    view.effects = {
+      sectionPlaneCaps: {
+        applied: false
+      }
+    };
+    view.sectionPlanesList = [{active: true, dir: [1, 0, 0], dist: -0.25, capColor: [0.2, 0.4, 0.6]}];
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const packedPositionWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0");
+    const packedIndexWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0");
+    gpu.passEncoder.drawIndexed.mockClear();
+    view.effects.sectionPlaneCaps.applied = true;
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0")).toBe(packedPositionWrites);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0")).toBe(packedIndexWrites);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(4);
+    expect(gpu.passEncoder.draw).toHaveBeenCalledTimes(1);
   });
 
   test("packs opaque meshes with different geometries into one draw", () => {
@@ -747,18 +1744,369 @@ describe("WebGPURenderer contract", () => {
     const renderer = new WebGPURenderer({
       device: gpu.device,
       contextFormat: "rgba8unorm",
-      logging: false
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
     });
 
     const result = renderer.attachViewer(testViewer.viewer as any);
 
     expect(result.ok).toBe(true);
-    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
-    expect(getBufferByLabel(gpu, "xeokit-webgpu-positions:model__geometry")).toBeDefined();
-    expect(getBufferByLabel(gpu, "xeokit-webgpu-positions:model__geometryB")).toBeDefined();
-    const packedMeshIndexUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-mesh-indices:view:opaque");
-    expect(Array.from(packedMeshIndexUpload)).toEqual([0, 0, 0, 1, 1, 1]);
+    const vertexMetadataUpload = getLastWriteBufferData<Uint32Array>(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0");
+    expect(Array.from(vertexMetadataUpload)).toEqual([0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0]);
+  });
+
+  test("renders WebGPU triangle edges from scene edge indices", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view as any).effects = {
+      edges: {
+        applied: true
+      }
+    };
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(3);
+    expect(gpu.passEncoder.drawIndexed.mock.calls[0]).toEqual([3, 1, 0, 0, 0]);
+    expect(gpu.passEncoder.drawIndexed.mock.calls[1]).toEqual([3, 1, 0, 0, 0]);
+    expect(gpu.passEncoder.drawIndexed.mock.calls[2]).toEqual([6, 1, 0, 0, 0]);
+    expect(gpu.passEncoder.setIndexBuffer.mock.calls[2][0].descriptor.label).toBe("xeokit-webgpu-packed-edge-indices:triangles:unowned_dynamic_stream_page_0");
+    expect(gpu.renderPipelines[2].descriptor.primitive.topology).toBe("line-list");
+  });
+
+  test("can disable WebGPU edge batch construction through render configs", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view as any).effects = {
+      edges: {
+        applied: true
+      }
+    };
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      renderConfigs: {
+        edges: false
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(gpu.passEncoder.drawIndexed.mock.calls[0]).toEqual([3, 1, 0, 0, 0]);
+    expect(gpu.passEncoder.drawIndexed.mock.calls[1]).toEqual([3, 1, 0, 0, 0]);
+    expect(gpu.passEncoder.setIndexBuffer.mock.calls.map((call) => call[0].descriptor.label))
+      .not.toContain("xeokit-webgpu-packed-edge-indices:triangles:unowned_dynamic_stream_page_0");
+    expect(gpu.renderPipelines
+      .map((pipeline) => pipeline.descriptor?.primitive?.topology)
+      .filter((topology) => topology !== undefined))
+      .not.toContain("line-list");
+  });
+
+  test("uses memoryConfigs to size packed triangle segments", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const meshes: any = {};
+
+    for (let i = 0; i < 3; i++) {
+      const {geometry, mesh} = createTriangleMesh(`mesh${i}`);
+      geometry.id = `geometry${i}`;
+      geometry.uniqueId = `model__geometry${i}`;
+      mesh.geometry = geometry;
+      meshes[mesh.id] = mesh;
+    }
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchMeshes: 1,
+        maxBatchGeometries: 1,
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(6);
+    const packedIndexBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0");
+    expect(gpu.passEncoder.setIndexBuffer.mock.calls).toEqual([
+      [packedIndexBuffer, "uint16"],
+      [packedIndexBuffer, "uint16", 6],
+      [packedIndexBuffer, "uint16", 12],
+      [packedIndexBuffer, "uint16"],
+      [packedIndexBuffer, "uint16", 6],
+      [packedIndexBuffer, "uint16", 12]
+    ]);
+    expect(gpu.passEncoder.drawIndexed.mock.calls).toEqual([
+      [3, 1, 0, 0, 0],
+      [3, 1, 0, 0, 0],
+      [3, 1, 0, 0, 0],
+      [3, 1, 0, 0, 0],
+      [3, 1, 0, 0, 0],
+      [3, 1, 0, 0, 0]
+    ]);
+    expect(getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0")).toBeTruthy();
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0")).toBe(3);
+
+    const memoryStats = renderer.getMemoryStats();
+    expect(memoryStats).toMatchObject({
+      packedTrianglePages: 1,
+      packedTriangleSegments: 3,
+      packedTriangleUsedVertexBytes: 3 * 3 * 8,
+      packedTriangleUsedVertexMetadataBytes: 3 * 3 * 8,
+      packedTriangleUsedIndexBytes: 3 * 3 * Uint16Array.BYTES_PER_ELEMENT,
+      packedTriangleUsedEdgeIndexBytes: 3 * 6 * Uint16Array.BYTES_PER_ELEMENT,
+      instanceBufferCapacity: 4,
+      instanceBufferFrames: 1,
+      instanceBufferBytes: INSTANCE_BYTES * 4,
+      rtcTileCapacity: 4096,
+      rtcTileBufferBytes: RTC_TILE_BYTES * 4096,
+      rtcTiles: 0,
+      segmentsByLifecycle: {
+        dynamic: 3
+      },
+      segmentsByMemoryPolicy: {
+        stream: 3
+      }
+    });
+    expect(memoryStats?.packedTriangleBytes).toBeGreaterThan(0);
+    expect(memoryStats?.packedTriangleUsedPositionDecodeBytes).toBeGreaterThan(0);
+    expect(memoryStats?.packedTrianglePageDetails).toHaveLength(1);
+    expect(memoryStats?.packedTrianglePageDetails[0]).toMatchObject({
+      indexFormat: "uint16",
+      segmentCount: 3,
+      vertexCapacity: 12,
+      usedVertices: 9,
+      indexCapacity: 12,
+      usedIndices: 9,
+      edgeIndexCapacity: 24,
+      usedEdgeIndices: 18,
+      positionDecodeCapacity: 4,
+      usedPositionDecodes: 3
+    });
+    expect(memoryStats?.totalBytes)
+      .toBe((memoryStats?.packedTriangleBytes ?? 0) + INSTANCE_BYTES * 4 + RTC_TILE_BYTES * 4096);
+  });
+
+  test("builds pending packed triangle segments incrementally", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const meshes: any = {};
+
+    for (let i = 0; i < 3; i++) {
+      const {geometry, mesh} = createTriangleMesh(`mesh${i}`);
+      geometry.id = `geometry${i}`;
+      geometry.uniqueId = `model__geometry${i}`;
+      mesh.geometry = geometry;
+      meshes[mesh.id] = mesh;
+    }
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchMeshes: 1,
+        maxBatchGeometries: 1,
+        maxBatchBuildTimeMs: 0,
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(view.needsRender).toHaveBeenCalled();
+
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+    let frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(4);
+    expect(frameStats?.numBuiltSegments).toBe(2);
+    expect(frameStats?.numPendingSegments).toBe(1);
+    expect(frameStats?.renderReason).toBe("pendingSegmentAppend");
+    let instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceWrite[1]).toBe(INSTANCE_BYTES);
+    expect(instanceWrite[3]).toBe(INSTANCE_FLOATS);
+    expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+    frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(6);
+    expect(frameStats?.numBuiltSegments).toBe(3);
+    expect(frameStats?.numPendingSegments).toBe(0);
+    expect(frameStats?.renderReason).toBe("pendingSegmentAppend");
+    instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceWrite[1]).toBe(2 * INSTANCE_BYTES);
+    expect(instanceWrite[3]).toBe(2 * INSTANCE_FLOATS);
+    expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+    frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(6);
+    expect(frameStats?.numBuiltSegments).toBe(3);
+    expect(frameStats?.numPendingSegments).toBe(0);
+
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0")).toBe(3);
+  });
+
+  test("keeps model segment storage stable when another lifecycle segment is replaced", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+
+    const createSegmentedModel = (modelId: string, meshId: string) => {
+      const {geometry, mesh} = createTriangleMesh(meshId);
+      geometry.id = `${meshId}Geometry`;
+      geometry.uniqueId = `${modelId}__${meshId}Geometry`;
+      mesh.uniqueId = `${modelId}__${meshId}`;
+      const model = {
+        id: modelId,
+        lifecycle: "sealed",
+        memoryPolicy: "compact",
+        building: false,
+        geometries: {
+          [geometry.id]: geometry
+        },
+        meshes: {
+          [mesh.id]: mesh
+        },
+        objects: {}
+      };
+      (geometry as any).model = model;
+      (mesh as any).model = model;
+      return model;
+    };
+
+    const modelA = createSegmentedModel("modelA", "meshA");
+    const modelB = createSegmentedModel("modelB", "meshB");
+    const modelC = createSegmentedModel("modelC", "meshC");
+
+    testViewer.viewer.scene.models = {
+      modelA,
+      modelB
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(4);
+
+    const modelAPositionLabel = "xeokit-webgpu-packed-positions:triangles:modelA_sealed_compact_page_0";
+    const modelBPositionLabel = "xeokit-webgpu-packed-positions:triangles:modelB_sealed_compact_page_0";
+    const modelCPositionLabel = "xeokit-webgpu-packed-positions:triangles:modelC_sealed_compact_page_0";
+    const memoryStats = renderer.getMemoryStats();
+    expect(memoryStats?.packedTrianglePageDetails).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        segmentCount: 1,
+        vertexCapacity: 3,
+        usedVertices: 3,
+        indexCapacity: 3,
+        usedIndices: 3,
+        edgeIndexCapacity: 6,
+        usedEdgeIndices: 6,
+        positionDecodeCapacity: 1,
+        usedPositionDecodes: 1
+      })
+    ]));
+    expect(memoryStats?.packedTrianglePageDetails.every((page) => page.bytes === page.usedBytes)).toBe(true);
+    expect(countWriteBufferCalls(gpu, modelAPositionLabel)).toBe(1);
+    expect(countWriteBufferCalls(gpu, modelBPositionLabel)).toBe(1);
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onSceneModelDestroyed.emit(testViewer.viewer.scene, modelB);
+    delete testViewer.viewer.scene.models.modelB;
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(4);
+    expect(getBufferByLabel(gpu, modelBPositionLabel).destroy).toHaveBeenCalledTimes(1);
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.viewer.scene.models.modelC = modelC;
+    testViewer.onSceneModelCreated.emit(testViewer.viewer.scene, modelC);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(8);
+    expect(countWriteBufferCalls(gpu, modelAPositionLabel)).toBe(1);
+    expect(countWriteBufferCalls(gpu, modelBPositionLabel)).toBe(1);
+    expect(countWriteBufferCalls(gpu, modelCPositionLabel)).toBe(1);
   });
 
   test("reuses cached opaque instance data on camera-only redraws", () => {
@@ -798,7 +2146,890 @@ describe("WebGPURenderer contract", () => {
     expect(countWriteBufferCalls(gpu, "xeokit-webgpu-frame-uniforms")).toBe(frameWrites + 1);
   });
 
-  test("rebuilds transparent instance order on camera redraws", () => {
+  test("frustum culls meshes while building draw batches", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh: visibleMesh} = createTriangleMesh("visibleMesh");
+    const offscreenMesh = {
+      ...visibleMesh,
+      id: "offscreenMesh",
+      uniqueId: "model__offscreenMesh",
+      worldMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 0, 0, 1]
+    };
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [visibleMesh.id]: visibleMesh,
+          [offscreenMesh.id]: offscreenMesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        frustumCulling: true
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numCullCandidates: 2,
+      numRenderedMeshes: 2,
+      numFrustumCulledMeshes: 0,
+      numCullSegmentCandidates: 1,
+      numFullyDrawnSegments: 1,
+      numPartiallyRefinedSegments: 0,
+      numTemporaryIndexBuffers: 0
+    });
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numTemporaryIndexBuffers: 0
+    });
+  });
+
+  test("camera-dependent frustum culling rebuilds draw batches without repacking triangle storage", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view.camera as any).view = view;
+    const {mesh} = createTriangleMesh();
+    mesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 0, 0, 1];
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        frustumCulling: true
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+
+    const positionLabel = "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0";
+    const initialPositionWrites = countWriteBufferCalls(gpu, positionLabel);
+    expect(initialPositionWrites).toBe(1);
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    view.camera.viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -5, 0, 0, 1];
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+    expect(countWriteBufferCalls(gpu, positionLabel)).toBe(initialPositionWrites);
+  });
+
+  test("skips camera-culling rebuilds when camera events do not change matrices", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view.camera as any).view = view;
+    const {mesh: visibleMesh} = createTriangleMesh("visibleMesh");
+    const offscreenMesh = {
+      ...visibleMesh,
+      id: "offscreenMesh",
+      uniqueId: "model__offscreenMesh",
+      worldMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 0, 0, 1]
+    };
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [visibleMesh.id]: visibleMesh,
+          [offscreenMesh.id]: offscreenMesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        frustumCulling: true
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    testViewer.onViewUpdated.emit(view, view);
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numTemporaryIndexBuffers: 0
+    });
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numTemporaryIndexBuffers: 0
+    });
+  });
+
+  test("uses coarse segment culling for large camera moves", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view.camera as any).view = view;
+    const {mesh: visibleMesh} = createTriangleMesh("visibleMesh");
+    const offscreenMesh = {
+      ...visibleMesh,
+      id: "offscreenMesh",
+      uniqueId: "model__offscreenMesh",
+      worldMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 0, 0, 1]
+    };
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [visibleMesh.id]: visibleMesh,
+          [offscreenMesh.id]: offscreenMesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        frustumCulling: true,
+        maxBatchMeshes: 1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    testViewer.onViewUpdated.emit(view, view);
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numRenderedMeshes: 1,
+      numFrustumCulledMeshes: 1
+    });
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numRenderedMeshes: 1,
+      numFrustumCulledMeshes: 1,
+      numCullSegmentCandidates: 2,
+      numTemporaryIndexBuffers: 0
+    });
+  });
+
+  test("projected canvas size culls tiny meshes while building draw batches", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    geometry.aabb = new Float32Array([0, 0, 0, 0.01, 0.01, 0]);
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        minProjectedCanvasSize: 2
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numCullCandidates: 0,
+      numRenderedMeshes: 0,
+      numProjectedSizeCulledMeshes: 1,
+      numCullSegmentCandidates: 1,
+      numPartiallyRefinedSegments: 0
+    });
+  });
+
+  test("updates instance data without repacking triangle storage", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const positionWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0");
+    const vertexMetadataWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0");
+    const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+
+    mesh.color = [0.2, 0.3, 0.4];
+    mesh.effectiveColor = [0.2, 0.3, 0.4];
+    testViewer.onSceneMeshColorChanged.emit(testViewer.viewer.scene, mesh);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0")).toBe(positionWrites);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0")).toBe(vertexMetadataWrites);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites + 1);
+    const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceUpload[16]).toBeCloseTo(0.2);
+    expect(instanceUpload[17]).toBeCloseTo(0.3);
+    expect(instanceUpload[18]).toBeCloseTo(0.4);
+  });
+
+  test("updates only moved mesh instance data when crossing WebGPU RTC tile boundaries", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh: stationaryMesh} = createTriangleMesh("stationaryMesh");
+    const {geometry: movingGeometry, mesh: movingMesh} = createTriangleMesh("movingMesh");
+    movingGeometry.id = "movingGeometry";
+    movingGeometry.uniqueId = "model__movingGeometry";
+    movingMesh.geometry = movingGeometry;
+    stationaryMesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000000, 300, 0, 1];
+    movingMesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000400, 150, 0, 1];
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [stationaryMesh.id]: stationaryMesh,
+          [movingMesh.id]: movingMesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const positionWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0");
+    const indexWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0");
+    const vertexMetadataWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0");
+    const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+
+    movingMesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1000800, 150, 0, 1];
+    testViewer.onSceneMeshMatrixChanged.emit(testViewer.viewer.scene, movingMesh);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0")).toBe(positionWrites);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0")).toBe(indexWrites);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0")).toBe(vertexMetadataWrites);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites + 1);
+
+    const movedInstanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
+    expect(movedInstanceWrite[1]).toBe(INSTANCE_BYTES);
+    expect(movedInstanceWrite[3]).toBe(INSTANCE_FLOATS);
+    expect(movedInstanceWrite[4]).toBe(INSTANCE_FLOATS);
+
+    const movedInstanceData = movedInstanceWrite[2] as Float32Array;
+    const movedInstanceUpload = movedInstanceData.subarray(movedInstanceWrite[3], movedInstanceWrite[3] + movedInstanceWrite[4]);
+    expect(movedInstanceUpload[12]).toBeCloseTo(0);
+    expect(movedInstanceUpload[13]).toBeCloseTo(-50);
+    expect(movedInstanceUpload[14]).toBeCloseTo(0);
+    expect(movedInstanceUpload[21]).toBeGreaterThan(0);
+
+    const movedTileUpload = getLastWriteBufferDataAtOffset(gpu, "xeokit-webgpu-rtc-tile-buffer", RTC_TILE_BYTES * movedInstanceUpload[21]);
+    expect(movedTileUpload[16]).toBeCloseTo(1000800);
+    expect(movedTileUpload[17]).toBeCloseTo(200);
+    expect(movedTileUpload[18]).toBeCloseTo(0);
+
+    renderer.detachViewer();
+  });
+
+  test("uploads only dirty instance slots when one mesh changes", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh: meshA} = createTriangleMesh("meshA");
+    const {geometry: geometryB, mesh: meshB} = createTriangleMesh("meshB");
+    geometryB.id = "geometryB";
+    geometryB.uniqueId = "model__geometryB";
+    meshB.geometry = geometryB;
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [meshA.id]: meshA,
+          [meshB.id]: meshB
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+    meshB.color = [0.1, 0.2, 0.3];
+    meshB.effectiveColor = [0.1, 0.2, 0.3];
+    testViewer.onSceneMeshColorChanged.emit(testViewer.viewer.scene, meshB);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites + 1);
+    const instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceWrite[1]).toBe(INSTANCE_BYTES);
+    expect(instanceWrite[3]).toBe(INSTANCE_FLOATS);
+    expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
+  });
+
+  test("appends dynamic model meshes without repacking existing triangle pages", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry: geometryA, mesh: meshA} = createTriangleMesh("meshA");
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometryA.id]: geometryA
+      },
+      meshes: {
+        [meshA.id]: meshA
+      },
+      objects: {}
+    };
+
+    (geometryA as any).model = model;
+    (meshA as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const firstPagePositionLabel = "xeokit-webgpu-packed-positions:triangles:model_dynamic_stream_page_0";
+    expect(countWriteBufferCalls(gpu, firstPagePositionLabel)).toBe(1);
+    const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+    const bufferCopies = gpu.commandEncoder.copyBufferToBuffer.mock.calls.length;
+
+    const {geometry: geometryB, mesh: meshB} = createTriangleMesh("meshB");
+    geometryB.id = "geometryB";
+    geometryB.uniqueId = "model__geometryB";
+    meshB.geometry = geometryB;
+    meshB.uniqueId = "model__meshB";
+    (geometryB as any).model = model;
+    (meshB as any).model = model;
+    (model.geometries as any)[geometryB.id] = geometryB;
+    (model.meshes as any)[meshB.id] = meshB;
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometryB);
+    testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, meshB);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(countWriteBufferCalls(gpu, firstPagePositionLabel)).toBe(2);
+    expect(gpu.commandEncoder.copyBufferToBuffer).toHaveBeenCalledTimes(bufferCopies + 1);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites + 1);
+    const instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceWrite[1]).toBe(INSTANCE_BYTES);
+    expect(instanceWrite[3]).toBe(INSTANCE_FLOATS);
+    expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(8);
+  });
+
+  test("keeps uint16 packed indices segment-local when sharing a large vertex page", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {},
+      meshes: {},
+      objects: {}
+    };
+    const addMesh = (meshId: string) => {
+      const {geometry, mesh} = createLargeTriangleMesh(meshId, 40000);
+      (geometry as any).model = model;
+      (mesh as any).model = model;
+      (model.geometries as any)[geometry.id] = geometry;
+      (model.meshes as any)[mesh.id] = mesh;
+      return {geometry, mesh};
+    };
+    addMesh("meshA");
+    addMesh("meshB");
+    addMesh("meshC");
+
+    testViewer.viewer.scene.models = {model};
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchVertices: 40000,
+        maxBatchIndices: 64,
+        maxBatchMeshes: 1,
+        maxBatchGeometries: 1,
+        maxBatchPrims: 64,
+        maxBatchBuildTimeMs: -1,
+        maxBatchBuildSegments: -1,
+        frustumCulling: false,
+        minProjectedCanvasSize: 0
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const packedIndexLabel = "xeokit-webgpu-packed-indices:triangles:model_dynamic_stream_page_0";
+    const lastIndexWrite = getLastWriteBufferCall(gpu, packedIndexLabel);
+    expect(lastIndexWrite[1]).toBe(12);
+    const uploadedIndexBytes = lastIndexWrite[2] as Uint8Array;
+    const uploadedIndices = new Uint16Array(uploadedIndexBytes.buffer, uploadedIndexBytes.byteOffset, 3);
+    expect(Array.from(uploadedIndices)).toEqual([0, 1, 2]);
+
+    const positionBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:model_dynamic_stream_page_0");
+    const metadataBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:model_dynamic_stream_page_0");
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, positionBuffer, 640000);
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, metadataBuffer, 640000);
+  });
+
+  test("reuses cached opaque batches on append-only structure changes", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {},
+      meshes: {},
+      objects: {}
+    };
+    const addMesh = (meshId: string) => {
+      const {geometry, mesh} = createTriangleMesh(meshId);
+      geometry.id = `${meshId}Geometry`;
+      geometry.uniqueId = `model__${meshId}Geometry`;
+      mesh.geometry = geometry;
+      mesh.uniqueId = `model__${meshId}`;
+      (geometry as any).model = model;
+      (mesh as any).model = model;
+      (model.geometries as any)[geometry.id] = geometry;
+      (model.meshes as any)[mesh.id] = mesh;
+      return {geometry, mesh};
+    };
+    addMesh("meshA");
+    addMesh("meshB");
+    addMesh("meshC");
+
+    testViewer.viewer.scene.models = {model};
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const firstPagePositions = getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:model_dynamic_stream_page_0");
+    const firstPageVertexMetadata = getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:model_dynamic_stream_page_0");
+    const firstPageIndices = getBufferByLabel(gpu, "xeokit-webgpu-packed-indices:triangles:model_dynamic_stream_page_0");
+    const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+    const {geometry, mesh} = addMesh("meshD");
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometry);
+    testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, mesh);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(firstPagePositions.destroy).not.toHaveBeenCalled();
+    expect(firstPageVertexMetadata.destroy).not.toHaveBeenCalled();
+    expect(firstPageIndices.destroy).not.toHaveBeenCalled();
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites + 1);
+    const instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceWrite[1]).toBe(3 * INSTANCE_BYTES);
+    expect(instanceWrite[3]).toBe(3 * INSTANCE_FLOATS);
+    expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(8);
+  });
+
+  test("uses segment rebuilds instead of append-only cache updates when camera culling is enabled", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {},
+      meshes: {},
+      objects: {}
+    };
+    const addMesh = (meshId: string) => {
+      const {geometry, mesh} = createTriangleMesh(meshId);
+      geometry.id = `${meshId}Geometry`;
+      geometry.uniqueId = `model__${meshId}Geometry`;
+      mesh.geometry = geometry;
+      mesh.uniqueId = `model__${meshId}`;
+      (geometry as any).model = model;
+      (mesh as any).model = model;
+      (model.geometries as any)[geometry.id] = geometry;
+      (model.meshes as any)[mesh.id] = mesh;
+      return {geometry, mesh};
+    };
+    addMesh("meshA");
+
+    testViewer.viewer.scene.models = {model};
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        frustumCulling: true
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    const {geometry, mesh} = addMesh("meshB");
+
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometry);
+    testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, mesh);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalled();
+    expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
+      numCullSegmentCandidates: 2,
+      numFullyDrawnSegments: 2
+    });
+  });
+
+  test("compacts streaming model pages when the model is sealed", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry: geometryA, mesh: meshA} = createTriangleMesh("meshA");
+    const model = {
+      id: "model",
+      lifecycle: "streaming",
+      memoryPolicy: "stream",
+      building: false,
+      geometries: {
+        [geometryA.id]: geometryA
+      },
+      meshes: {
+        [meshA.id]: meshA
+      },
+      objects: {}
+    };
+
+    (geometryA as any).model = model;
+    (meshA as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const {geometry: geometryB, mesh: meshB} = createTriangleMesh("meshB");
+    geometryB.id = "geometryB";
+    geometryB.uniqueId = "model__geometryB";
+    meshB.geometry = geometryB;
+    meshB.uniqueId = "model__meshB";
+    (geometryB as any).model = model;
+    (meshB as any).model = model;
+    (model.geometries as any)[geometryB.id] = geometryB;
+    (model.meshes as any)[meshB.id] = meshB;
+
+    testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometryB);
+    testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, meshB);
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(4);
+    const firstPageBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:model_streaming_stream_page_0");
+
+    (model as any).lifecycle = "sealed";
+    testViewer.onSceneModelSealed.emit(testViewer.viewer.scene, model);
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(firstPageBuffer.destroy).toHaveBeenCalledTimes(1);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:model_sealed_stream_page_0")).toBe(1);
+    expect(renderer.getMemoryStats()?.packedTrianglePageDetails).toEqual([
+      expect.objectContaining({
+        segmentCount: 1,
+        vertexCapacity: 6,
+        usedVertices: 6,
+        indexCapacity: 6,
+        usedIndices: 6,
+        edgeIndexCapacity: 12,
+        usedEdgeIndices: 12,
+        positionDecodeCapacity: 1,
+        usedPositionDecodes: 1
+      })
+    ]);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
+  });
+
+  test("can keep sealed stream pages append-friendly when sealed compaction is disabled", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh("mesh");
+    const model = {
+      id: "model",
+      lifecycle: "sealed",
+      memoryPolicy: "stream",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        compactSealedStreamPages: false
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(renderer.getMemoryStats()?.packedTrianglePageDetails).toEqual([
+      expect.objectContaining({
+        segmentCount: 1,
+        vertexCapacity: 12,
+        usedVertices: 3,
+        indexCapacity: 12,
+        usedIndices: 3,
+        edgeIndexCapacity: 24,
+        usedEdgeIndices: 6,
+        positionDecodeCapacity: 4,
+        usedPositionDecodes: 1
+      })
+    ]);
+  });
+
+  test("keeps streaming pages packed when sealing without sealed compaction", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry: geometryA, mesh: meshA} = createTriangleMesh("meshA");
+    const model = {
+      id: "model",
+      lifecycle: "streaming",
+      memoryPolicy: "stream",
+      building: false,
+      geometries: {
+        [geometryA.id]: geometryA
+      },
+      meshes: {
+        [meshA.id]: meshA
+      },
+      objects: {}
+    };
+
+    (geometryA as any).model = model;
+    (meshA as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1,
+        compactSealedStreamPages: false
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    const {geometry: geometryB, mesh: meshB} = createTriangleMesh("meshB");
+    geometryB.id = "geometryB";
+    geometryB.uniqueId = "model__geometryB";
+    meshB.geometry = geometryB;
+    meshB.uniqueId = "model__meshB";
+    (geometryB as any).model = model;
+    (meshB as any).model = model;
+    (model.geometries as any)[geometryB.id] = geometryB;
+    (model.meshes as any)[meshB.id] = meshB;
+
+    testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometryB);
+    testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, meshB);
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    const firstPageBuffer = getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:model_streaming_stream_page_0");
+    const writesBeforeSeal = countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:model_streaming_stream_page_0");
+
+    (model as any).lifecycle = "sealed";
+    testViewer.onSceneModelSealed.emit(testViewer.viewer.scene, model);
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(firstPageBuffer.destroy).not.toHaveBeenCalled();
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:model_streaming_stream_page_0")).toBe(writesBeforeSeal);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-packed-positions:triangles:model_sealed_stream_page_0")).toBe(0);
+    expect(renderer.getMemoryStats()?.packedTrianglePageDetails).toEqual([
+      expect.objectContaining({
+        segmentCount: 2,
+        vertexCapacity: 12,
+        usedVertices: 6,
+        indexCapacity: 12,
+        usedIndices: 6,
+        edgeIndexCapacity: 24,
+        usedEdgeIndices: 12,
+        positionDecodeCapacity: 4,
+        usedPositionDecodes: 2
+      })
+    ]);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(4);
+  });
+
+  test("rebuilds transparent index order without reuploading instances on camera redraws", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
@@ -826,11 +3057,16 @@ describe("WebGPURenderer contract", () => {
     expect(result.ok).toBe(true);
 
     const instanceWrites = countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer");
+    const transparentIndexLabel = "xeokit-webgpu-packed-indices:view:transparent:unowned_dynamic_stream_page_0:0";
+    const transparentIndexWrites = countWriteBufferCalls(gpu, transparentIndexLabel);
+    const firstTransparentIndexBuffer = getBufferByLabel(gpu, transparentIndexLabel);
 
     testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
     testViewer.onViewUpdated.emit(view, view);
 
-    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites + 1);
+    expect(countWriteBufferCalls(gpu, "xeokit-webgpu-instance-buffer")).toBe(instanceWrites);
+    expect(countWriteBufferCalls(gpu, transparentIndexLabel)).toBe(transparentIndexWrites);
+    expect(firstTransparentIndexBuffer.destroy).not.toHaveBeenCalled();
   });
 
   test("draws transparent meshes with transparent pipeline after depth sorting", () => {
@@ -871,7 +3107,7 @@ describe("WebGPURenderer contract", () => {
     expect(result.ok).toBe(true);
     expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(1);
     const transparentPipelineDescriptor = gpu.device.createRenderPipeline.mock.calls[0][0] as any;
-    expect(transparentPipelineDescriptor.label).toBe("xeokit-webgpu-basic-triangle-transparent-pipeline");
+    expect(transparentPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-transparent-pipeline");
     expect(transparentPipelineDescriptor.depthStencil.depthWriteEnabled).toBe(false);
     expect(gpu.passEncoder.setPipeline).toHaveBeenCalledWith(gpu.renderPipeline);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
@@ -879,8 +3115,111 @@ describe("WebGPURenderer contract", () => {
     expect(gpu.passEncoder.setBindGroup.mock.calls[0]).toEqual([0, gpu.bindGroup]);
     expect(gpu.passEncoder.setBindGroup.mock.calls[1]).toEqual([1, gpu.bindGroups[1]]);
     const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
-    expect(instanceUpload[14]).toBeCloseTo(-2);
-    expect(instanceUpload[36 + 14]).toBeCloseTo(-1);
+    expect(instanceUpload[14]).toBeCloseTo(-1);
+    expect(instanceUpload[INSTANCE_FLOATS + 14]).toBeCloseTo(-2);
+    const transparentIndices = getLastWriteBufferData<Uint16Array>(gpu, "xeokit-webgpu-packed-indices:view:transparent:unowned_dynamic_stream_page_0:0");
+    expect(Array.from(transparentIndices)).toEqual([3, 4, 5, 0, 1, 2]);
+  });
+
+  test("groups transparent draws by segment by default", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const meshes: any = {};
+
+    for (let i = 0; i < 4; i++) {
+      const {geometry, mesh} = createTriangleMesh(`mesh${i}`);
+      geometry.id = `geometry${i}`;
+      geometry.uniqueId = `model__geometry${i}`;
+      mesh.geometry = geometry;
+      mesh.uniqueId = `model__mesh${i}`;
+      mesh.opacity = 0.5;
+      mesh.effectiveOpacity = 0.5;
+      mesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -i, 1];
+      meshes[mesh.id] = mesh;
+    }
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchMeshes: 2,
+        maxBatchGeometries: 2
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+    expect(gpu.passEncoder.drawIndexed.mock.calls).toEqual([
+      [6, 1, 0, 0, 0],
+      [6, 1, 0, 0, 0]
+    ]);
+  });
+
+  test("reorders cached transparent segment batches on camera redraws", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const meshes: any = {};
+
+    for (let i = 0; i < 2; i++) {
+      const {geometry, mesh} = createTriangleMesh(`mesh${i}`);
+      geometry.id = `geometry${i}`;
+      geometry.uniqueId = `model__geometry${i}`;
+      mesh.geometry = geometry;
+      mesh.uniqueId = `model__mesh${i}`;
+      mesh.opacity = 0.5;
+      mesh.effectiveOpacity = 0.5;
+      mesh.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -1 - i, 1];
+      meshes[mesh.id] = mesh;
+    }
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchMeshes: 1,
+        maxBatchGeometries: 1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    gpu.passEncoder.setIndexBuffer.mockClear();
+    view.camera.viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 0, 1];
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(inspectorResult.value.renderStats.views?.[0]?.renderReason).toBe("transparentSegmentBatch");
+    expect(gpu.passEncoder.setIndexBuffer.mock.calls.map((call) => call[0].descriptor.label)).toEqual([
+      "xeokit-webgpu-packed-indices:view:transparent:unowned_dynamic_stream_page_1:0",
+      "xeokit-webgpu-packed-indices:view:transparent:unowned_dynamic_stream_page_0:1"
+    ]);
   });
 
   test("draws opaque meshes before transparent meshes", () => {
@@ -915,17 +3254,23 @@ describe("WebGPURenderer contract", () => {
     const result = renderer.attachViewer(testViewer.viewer as any);
 
     expect(result.ok).toBe(true);
-    expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(2);
-    expect((gpu.device.createRenderPipeline.mock.calls[0][0] as any).label).toBe("xeokit-webgpu-basic-triangle-opaque-pipeline");
-    expect((gpu.device.createRenderPipeline.mock.calls[1][0] as any).label).toBe("xeokit-webgpu-basic-triangle-transparent-pipeline");
+    expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(3);
+    expect((gpu.device.createRenderPipeline.mock.calls[0][0] as any).label).toBe("xeokit-webgpu-triangles-depth-prepass-pipeline");
+    expect((gpu.device.createRenderPipeline.mock.calls[1][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-opaque-pipeline");
+    expect((gpu.device.createRenderPipeline.mock.calls[2][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-transparent-pipeline");
     expect(gpu.passEncoder.setPipeline.mock.calls[0]).toEqual([gpu.renderPipelines[0]]);
     expect(gpu.passEncoder.setBindGroup.mock.calls[0]).toEqual([0, gpu.bindGroup]);
     expect(gpu.passEncoder.setBindGroup.mock.calls[1]).toEqual([1, gpu.bindGroups[1]]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[2][0]).toBe(2);
     expect(gpu.passEncoder.drawIndexed.mock.calls[0]).toEqual([3, 1, 0, 0, 0]);
     expect(gpu.passEncoder.setPipeline.mock.calls[1]).toEqual([gpu.renderPipelines[1]]);
-    expect(gpu.passEncoder.setBindGroup.mock.calls[2]).toEqual([0, gpu.bindGroup]);
-    expect(gpu.passEncoder.setBindGroup.mock.calls[3]).toEqual([1, gpu.bindGroups[1]]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[3]).toEqual([0, gpu.bindGroup]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[4]).toEqual([1, gpu.bindGroups[1]]);
+    expect(gpu.passEncoder.setBindGroup.mock.calls[5][0]).toBe(2);
     expect(gpu.passEncoder.drawIndexed.mock.calls[1]).toEqual([3, 1, 0, 0, 0]);
+    expect(gpu.passEncoder.setPipeline.mock.calls[2]).toEqual([gpu.renderPipelines[2]]);
+    expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledTimes(6);
+    expect(gpu.passEncoder.drawIndexed.mock.calls[2]).toEqual([3, 1, 0, 0, 0]);
   });
 
   test("respects basic per-view object render state", () => {
@@ -969,6 +3314,7 @@ describe("WebGPURenderer contract", () => {
 
     expect(result.ok).toBe(true);
     expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+    view.needsRender.mockClear();
 
     viewObject.visible = true;
     viewObject.colorize = [0.9, 0.1, 0.2];
@@ -982,10 +3328,10 @@ describe("WebGPURenderer contract", () => {
 
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
     const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
-    expect(instanceUpload[32]).toBeCloseTo(0.9);
-    expect(instanceUpload[33]).toBeCloseTo(0.1);
-    expect(instanceUpload[34]).toBeCloseTo(0.2);
-    expect(instanceUpload[35]).toBeCloseTo(0.35);
+    expect(instanceUpload[16]).toBeCloseTo(0.9);
+    expect(instanceUpload[17]).toBeCloseTo(0.1);
+    expect(instanceUpload[18]).toBeCloseTo(0.2);
+    expect(instanceUpload[19]).toBeCloseTo(0.35);
 
     gpu.passEncoder.drawIndexed.mockClear();
     viewObject.culled = true;
@@ -994,6 +3340,1166 @@ describe("WebGPURenderer contract", () => {
     testViewer.onViewUpdated.emit(view, view);
 
     expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+  });
+
+  test("routes emphasized view objects through WebGPU state bins and packs emphasis style", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view as any).xrayMaterial = {
+      fill: true,
+      fillColor: [0.85, 0.9, 1.0],
+      fillAlpha: 0.35,
+      edges: true
+    };
+    (view as any).highlightMaterial = {
+      fill: true,
+      fillColor: [1.0, 0.78, 0.25],
+      fillAlpha: 0.4,
+      edges: true
+    };
+    (view as any).selectedMaterial = {
+      fill: true,
+      fillColor: [0.1, 0.7, 1.0],
+      fillAlpha: 0.4,
+      edges: true
+    };
+    const {mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    const {viewObject} = attachMeshToObject(mesh, view, model);
+    viewObject.xrayed = true;
+    viewObject.highlighted = true;
+    viewObject.selected = true;
+    viewObject.colorize = [1, 0, 0];
+    viewObject.opacityUpdated = true;
+    viewObject.opacity = 1;
+
+    testViewer.viewer.scene.models = {model};
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceUpload[16]).toBeCloseTo(0.1);
+    expect(instanceUpload[17]).toBeCloseTo(0.7);
+    expect(instanceUpload[18]).toBeCloseTo(1.0);
+    expect(instanceUpload[19]).toBeCloseTo(0.4);
+
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+    gpu.passEncoder.drawIndexed.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    const frameStats = inspectorResult.value.renderStats.views?.[0];
+    expect(frameStats?.renderBins.map((bin) => bin.name)).toEqual([
+      "SELECTED_TRANSPARENT",
+      "SELECTED_EDGES_TRANSPARENT"
+    ]);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+  });
+
+  test("keeps emphasized WebGPU objects available to GPU picking", async () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    (view as any).selectedMaterial = {
+      fill: true,
+      fillColor: [0.1, 0.7, 1.0],
+      fillAlpha: 1,
+      edges: false
+    };
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      meshes: {
+        [mesh.id]: mesh
+      },
+      geometries: {
+        [geometry.id]: geometry
+      },
+      objects: {}
+    };
+    const {viewObject} = attachMeshToObject(mesh, view, model, "selectedObject");
+    viewObject.selected = true;
+
+    testViewer.viewer.scene.models = {model};
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    gpu.pickReadbackBytes.set([1, 0, 0, 0]);
+    const pickResult = await renderer.pickGPUAsync(view as any, {canvasPos: [5, 5]});
+    expect(pickResult.ok).toBe(true);
+    if (!pickResult.ok) {
+      throw new Error(pickResult.error);
+    }
+    expect(pickResult.value?.sceneMesh).toBe(mesh);
+    expect(pickResult.value?.viewObject?.id).toBe("selectedObject");
+  });
+
+  test("picks a visible triangle mesh through the WebGPU renderer", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    const {sceneObject, viewObject} = attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [60, 20]
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneMesh).toBe(mesh);
+    expect(pickResult.value?.sceneObject).toBe(sceneObject);
+    expect(pickResult.value?.viewObject).toBe(viewObject);
+    expect(Array.from(pickResult.value!.canvasPos)).toEqual([60, 20]);
+    expect(Array.from(pickResult.value!.indices!)).toEqual([0, 1, 2]);
+    expect(Array.from(pickResult.value!.localPos!).map((value) => Number(value.toFixed(3)))).toEqual([0.2, 0.2, 0]);
+    expect(Array.from(pickResult.value!.worldPos!).map((value) => Number(value.toFixed(3)))).toEqual([0.2, 0.2, 0]);
+    expect(Array.from(pickResult.value!.viewPos!).map((value) => Number(value.toFixed(3)))).toEqual([0.2, 0.2, 0]);
+  });
+
+  test("does not CPU-pick WebGPU triangle hits clipped by section planes", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    view.sectionPlanesList = [{active: true, dir: [1, 0, 0], dist: 0}];
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "clippedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [60, 20]
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value).toBeNull();
+  });
+
+  test("CPU-picks WebGPU triangle hits when the ViewObject is not clippable", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    view.sectionPlanesList = [{active: true, dir: [1, 0, 0], dist: 0}];
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    const {sceneObject, viewObject} = attachMeshToObject(mesh, view, model, "unclippableObject");
+    viewObject.clippable = false;
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [60, 20]
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject).toBe(sceneObject);
+  });
+
+  test("can resolve a visible triangle mesh through the async WebGPU pick pass", async () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    const {sceneObject, viewObject} = attachMeshToObject(mesh, view, model, "gpuPickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "bgra8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    gpu.pickReadbackBytes.set([1, 0, 0, 0]);
+    const pickResult = await renderer.pickGPUAsync(view as any, {
+      canvasPos: [60, 20]
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneMesh).toBe(mesh);
+    expect(pickResult.value?.sceneObject).toBe(sceneObject);
+    expect(pickResult.value?.viewObject).toBe(viewObject);
+    expect(Array.from(pickResult.value!.indices!)).toEqual([0, 1, 2]);
+    expect(gpu.commandEncoder.copyTextureToBuffer).toHaveBeenCalled();
+    const copyCall = gpu.commandEncoder.copyTextureToBuffer.mock.calls.at(-1)!;
+    expect(copyCall[0].origin).toEqual({
+      x: 60,
+      y: 20,
+      z: 0
+    });
+    const pickPipeline = gpu.renderPipelines.find((pipeline: any) => pipeline.descriptor?.label === "xeokit-webgpu-triangles-pick-pipeline");
+    expect(pickPipeline?.descriptor.fragment.targets[0].format).toBe("rgba8unorm");
+    const readbackBuffer = getBufferByLabel(gpu, "xeokit-webgpu-pick-readback-buffer");
+    expect(readbackBuffer.mapAsync).toHaveBeenCalledWith(1);
+    expect(readbackBuffer.unmap).toHaveBeenCalled();
+  });
+
+  test("serializes overlapping async WebGPU pick readbacks", async () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "gpuQueuedPickObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    gpu.pickReadbackBytes.set([1, 0, 0, 0]);
+    const [firstPick, secondPick] = await Promise.all([
+      renderer.pickGPUAsync(view as any, {
+        canvasPos: [60, 20]
+      }),
+      renderer.pickGPUAsync(view as any, {
+        canvasPos: [61, 21]
+      })
+    ]);
+
+    expect(firstPick.ok).toBe(true);
+    expect(secondPick.ok).toBe(true);
+    expect(firstPick.value?.sceneMesh).toBe(mesh);
+    expect(secondPick.value?.sceneMesh).toBe(mesh);
+    const readbackBuffer = getBufferByLabel(gpu, "xeokit-webgpu-pick-readback-buffer");
+    expect(readbackBuffer.mapAsync).toHaveBeenCalledTimes(2);
+    expect(readbackBuffer.unmap).toHaveBeenCalledTimes(2);
+  });
+
+  test("can resolve vertex snapping through the async WebGPU snap pass", async () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    const {sceneObject, viewObject} = attachMeshToObject(mesh, view, model, "gpuSnappedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    gpu.pickReadbackBytes.set([1, 0, 0, 0]);
+    const pickResult = await renderer.pickGPUAsync(view as any, {
+      canvasPos: [52, 24],
+      snapToVertex: true,
+      snapRadius: 8
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject).toBe(sceneObject);
+    expect(pickResult.value?.viewObject).toBe(viewObject);
+    expect(pickResult.value?.snappedToVertex).toBe(true);
+    expect(pickResult.value?.snappedToEdge).toBe(false);
+    expect(Array.from(pickResult.value!.snappedCanvasPos!).map(Math.round)).toEqual([50, 25]);
+    expect(Array.from(pickResult.value!.worldPos!).map((value) => Number(value.toFixed(3)))).toEqual([0, 0, 0]);
+
+    const snapReadbackBuffer = getBufferByLabel(gpu, "xeokit-webgpu-snap-readback-buffer:8");
+    expect(snapReadbackBuffer.mapAsync).toHaveBeenCalledWith(1);
+    expect(snapReadbackBuffer.unmap).toHaveBeenCalled();
+    const copyCall = gpu.commandEncoder.copyTextureToBuffer.mock.calls.at(-1)!;
+    expect(copyCall[2]).toEqual({
+      width: 17,
+      height: 17,
+      depthOrArrayLayers: 1
+    });
+  });
+
+  test("can resolve edge snapping through the async WebGPU snap pass", async () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    const {sceneObject, viewObject} = attachMeshToObject(mesh, view, model, "gpuEdgeSnappedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    gpu.pickReadbackBytes.set([1, 0, 0, 0]);
+    const pickResult = await renderer.pickGPUAsync(view as any, {
+      canvasPos: [75, 24],
+      snapToEdge: true,
+      snapRadius: 8
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject).toBe(sceneObject);
+    expect(pickResult.value?.viewObject).toBe(viewObject);
+    expect(pickResult.value?.snappedToVertex).toBe(false);
+    expect(pickResult.value?.snappedToEdge).toBe(true);
+    expect(Array.from(pickResult.value!.snappedCanvasPos!).map(Math.round)).toEqual([75, 25]);
+    expect(Array.from(pickResult.value!.worldPos!).map((value) => Number(value.toFixed(3)))).toEqual([0.5, 0, 0]);
+
+    const snapReadbackBuffer = getBufferByLabel(gpu, "xeokit-webgpu-snap-readback-buffer:8");
+    expect(snapReadbackBuffer.mapAsync).toHaveBeenCalledWith(1);
+    expect(snapReadbackBuffer.unmap).toHaveBeenCalled();
+    expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalledWith(expect.objectContaining({
+      depthStencilAttachment: expect.objectContaining({
+        depthLoadOp: "load"
+      })
+    }));
+  });
+
+  test("async WebGPU edge snapping respects explicit edge indices", async () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createQuadMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "gpuQuadObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    gpu.pickReadbackBytes.set([1, 0, 0, 0]);
+    const pickResult = await renderer.pickGPUAsync(view as any, {
+      canvasPos: [75, 12],
+      snapToEdge: true,
+      snapRadius: 5
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.snappedToEdge).not.toBe(true);
+  });
+
+  test("respects WebGPU view-object pickable and visibility state when picking", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    const {viewObject} = attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    viewObject.pickable = false;
+    expect(renderer.pick(view as any, {canvasPos: [60, 20]}).value).toBeNull();
+
+    viewObject.pickable = true;
+    viewObject.visible = false;
+    expect(renderer.pick(view as any, {canvasPos: [60, 20]}).value).toBeNull();
+
+    const invisiblePick = renderer.pick(view as any, {
+      canvasPos: [60, 20],
+      pickInvisible: true
+    });
+    expect(invisiblePick.ok).toBe(true);
+    expect(invisiblePick.value?.sceneMesh).toBe(mesh);
+  });
+
+  test("updates WebGPU picking after dynamic mesh destruction", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+    expect(renderer.pick(view as any, {canvasPos: [60, 20]}).value?.sceneMesh).toBe(mesh);
+
+    testViewer.onSceneMeshDestroyed.emit(testViewer.viewer.scene, mesh);
+
+    expect(renderer.pick(view as any, {canvasPos: [60, 20]}).value).toBeNull();
+  });
+
+  test("snaps WebGPU picks to nearby triangle vertices", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [52, 24],
+      snapToVertex: true,
+      snapRadius: 8
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.snappedToVertex).toBe(true);
+    expect(pickResult.value?.snappedToEdge).toBe(false);
+    expect(Array.from(pickResult.value!.snappedCanvasPos!).map(Math.round)).toEqual([50, 25]);
+    expect(Array.from(pickResult.value!.worldPos!).map((value) => Number(value.toFixed(3)))).toEqual([0, 0, 0]);
+  });
+
+  test("snaps WebGPU picks to the third triangle vertex", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [52, 2],
+      snapToVertex: true,
+      snapRadius: 8
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.snappedToVertex).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("pickedObject");
+    expect(Array.from(pickResult.value!.snappedCanvasPos!).map(Math.round)).toEqual([50, 0]);
+    expect(Array.from(pickResult.value!.worldPos!).map((value) => Number(value.toFixed(3)))).toEqual([0, 1, 0]);
+  });
+
+  test("snaps WebGPU picks to nearby triangle edges", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [75, 24],
+      snapToEdge: true,
+      snapRadius: 8
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.snappedToVertex).toBe(false);
+    expect(pickResult.value?.snappedToEdge).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("pickedObject");
+    expect(Array.from(pickResult.value!.snappedCanvasPos!).map(Math.round)).toEqual([75, 25]);
+    expect(Array.from(pickResult.value!.worldPos!).map((value) => Number(value.toFixed(3)))).toEqual([0.5, 0, 0]);
+  });
+
+  test("snaps WebGPU edge picks when the cursor is near but outside the triangle surface", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [75, 28],
+      snapToEdge: true,
+      snapRadius: 5
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("pickedObject");
+    expect(pickResult.value?.snappedToEdge).toBe(true);
+    expect(Array.from(pickResult.value!.snappedCanvasPos!).map(Math.round)).toEqual([75, 25]);
+  });
+
+  test("does not snap WebGPU edge picks to hidden triangulation diagonals", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createQuadMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [75, 12],
+      snapToEdge: true,
+      snapRadius: 5
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.snappedToEdge).not.toBe(true);
+  });
+
+  test("snaps WebGPU edge picks to visible silhouette edges without a covering triangle", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createQuadMesh();
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [mesh.id]: mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(mesh, view, model, "pickedObject");
+
+    (geometry as any).model = model;
+    (mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [75, -3],
+      snapToEdge: true,
+      snapRadius: 5
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("pickedObject");
+    expect(pickResult.value?.snappedToEdge).toBe(true);
+    expect(Array.from(pickResult.value!.snappedCanvasPos!).map(Math.round)).toEqual([75, 0]);
+  });
+
+  test("does not snap WebGPU edge picks to occluded boundary edges", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const front = createQuadMesh("frontQuad", [0, 0, 0, 1, 1, 0]);
+    const back = createQuadMesh("backQuad", [0.2, 0.2, 0.5, 0.8, 0.3, 0.5]);
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [front.geometry.id]: front.geometry,
+        [back.geometry.id]: back.geometry
+      },
+      meshes: {
+        [front.mesh.id]: front.mesh,
+        [back.mesh.id]: back.mesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(front.mesh, view, model, "frontObject");
+    attachMeshToObject(back.mesh, view, model, "backObject");
+
+    (front.geometry as any).model = model;
+    (front.mesh as any).model = model;
+    (back.geometry as any).model = model;
+    (back.mesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: [75, 18],
+      snapToEdge: true,
+      snapRadius: 3
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.snappedToEdge).not.toBe(true);
+  });
+
+  test("snaps WebGPU edge picks to transformed shared-geometry table legs", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    setPerspectiveTableCamera(view);
+
+    const geometry = createBoxGeometry();
+    const legMesh = createBoxMesh(
+      "redLeg-mesh",
+      geometry,
+      createScaleTranslateMatrix([-4, -4, 3], [1, 1, 3])
+    );
+    const tableTopMesh = createBoxMesh(
+      "tableTop-mesh",
+      geometry,
+      createScaleTranslateMatrix([0, 0, 6], [6, 6, 0.5])
+    );
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [legMesh.id]: legMesh,
+        [tableTopMesh.id]: tableTopMesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(legMesh, view, model, "redLeg");
+    attachMeshToObject(tableTopMesh, view, model, "purpleTableTop");
+
+    (geometry as any).model = model;
+    (legMesh as any).model = model;
+    (tableTopMesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: projectWorldToCanvas(view, [-5, -5, 3]),
+      snapToEdge: true,
+      snapRadius: 10
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.snappedToEdge).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("redLeg");
+  });
+
+  test("surface-picks transformed shared-geometry table legs", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    setPerspectiveTableCamera(view);
+
+    const geometry = createBoxGeometry();
+    const legMesh = createBoxMesh(
+      "redLeg-mesh",
+      geometry,
+      createScaleTranslateMatrix([-4, -4, 3], [1, 1, 3])
+    );
+    const tableTopMesh = createBoxMesh(
+      "tableTop-mesh",
+      geometry,
+      createScaleTranslateMatrix([0, 0, 6], [6, 6, 0.5])
+    );
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [legMesh.id]: legMesh,
+        [tableTopMesh.id]: tableTopMesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(legMesh, view, model, "redLeg");
+    attachMeshToObject(tableTopMesh, view, model, "purpleTableTop");
+
+    (geometry as any).model = model;
+    (legMesh as any).model = model;
+    (tableTopMesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: projectWorldToCanvas(view, [-5, -5, 3])
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("redLeg");
+  });
+
+  test("snaps WebGPU edge picks while hovering over a transformed table leg face", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    view.boundary[2] = 780;
+    view.boundary[3] = 441;
+    setPerspectiveTableCamera(view);
+
+    const geometry = createBoxGeometry();
+    const legMesh = createBoxMesh(
+      "redLeg-mesh",
+      geometry,
+      createScaleTranslateMatrix([-4, -4, 3], [1, 1, 3])
+    );
+    const tableTopMesh = createBoxMesh(
+      "tableTop-mesh",
+      geometry,
+      createScaleTranslateMatrix([0, 0, 6], [6, 6, 0.5])
+    );
+    const model = {
+      id: "model",
+      building: false,
+      geometries: {
+        [geometry.id]: geometry
+      },
+      meshes: {
+        [legMesh.id]: legMesh,
+        [tableTopMesh.id]: tableTopMesh
+      },
+      objects: {}
+    };
+    attachMeshToObject(legMesh, view, model, "redLeg");
+    attachMeshToObject(tableTopMesh, view, model, "purpleTableTop");
+
+    (geometry as any).model = model;
+    (legMesh as any).model = model;
+    (tableTopMesh as any).model = model;
+    testViewer.viewer.scene.models = {
+      model
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: projectWorldToCanvas(view, [-5, -4, 3]),
+      snapToEdge: true,
+      snapRadius: 22
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("redLeg");
+    expect(pickResult.value?.snappedToEdge).toBe(true);
+  });
+
+  test("snaps real SceneModel position-scale table leg vertices", () => {
+    const gpu = createWebGPUHarness();
+    const scene = new Scene({logging: false});
+    const testViewer = createViewer(false);
+    testViewer.viewer.scene = scene;
+    const view = createView(testViewer.viewer, gpu.context);
+    view.boundary[2] = 780;
+    view.boundary[3] = 441;
+    setPerspectiveTableCamera(view);
+    testViewer.viewer.viewList.push(view);
+
+    const modelResult = scene.createModel(createTableSceneModelParams() as any);
+    expect(modelResult.ok).toBe(true);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const attachResult = renderer.attachViewer(testViewer.viewer as any);
+    expect(attachResult.ok).toBe(true);
+
+    const pickResult = renderer.pick(view as any, {
+      canvasPos: projectWorldToCanvas(view, [-5, -5, 0]),
+      snapToVertex: true,
+      snapRadius: 12
+    });
+
+    expect(pickResult.ok).toBe(true);
+    expect(pickResult.value?.sceneObject?.id).toBe("redLeg");
+    expect(pickResult.value?.snappedToVertex).toBe(true);
   });
 
   test("handles dynamic scene mesh creation and destruction events", () => {
@@ -1037,18 +4543,21 @@ describe("WebGPURenderer contract", () => {
     testViewer.onViewUpdated.emit(view, view);
 
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+    const packedPositions = getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:model_dynamic_stream_page_0");
+    const packedVertexMetadata = getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:model_dynamic_stream_page_0");
+    const packedIndices = getBufferByLabel(gpu, "xeokit-webgpu-packed-indices:triangles:model_dynamic_stream_page_0");
 
     gpu.passEncoder.drawIndexed.mockClear();
     view.needsRender.mockClear();
     testViewer.onSceneMeshDestroyed.emit(testViewer.viewer.scene, mesh);
 
     expect(view.needsRender).toHaveBeenCalledTimes(1);
-    expect(gpu.buffers[0].destroy).toHaveBeenCalledTimes(1);
-    expect(gpu.buffers[1].destroy).toHaveBeenCalledTimes(1);
-    expect(gpu.buffers[2].destroy).toHaveBeenCalledTimes(1);
 
     testViewer.onViewUpdated.emit(view, view);
 
+    expect(packedPositions.destroy).toHaveBeenCalledTimes(1);
+    expect(packedVertexMetadata.destroy).toHaveBeenCalledTimes(1);
+    expect(packedIndices.destroy).toHaveBeenCalledTimes(1);
     expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
   });
 
@@ -1217,5 +4726,81 @@ describe("WebGPURenderer contract", () => {
     } finally {
       restoreNavigator(originalNavigator);
     }
+  });
+
+  test("create requests timestamp-query when GPU timestamps are enabled", async () => {
+    const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    const gpu = createWebGPUHarness();
+    const adapter = {
+      features: {
+        has: jest.fn((feature: string) => feature === "timestamp-query")
+      },
+      requestDevice: jest.fn(async () => gpu.device)
+    };
+    const navigatorGPU = {
+      requestAdapter: jest.fn(async () => adapter),
+      getPreferredCanvasFormat: jest.fn(() => "rgba8unorm")
+    };
+
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {
+        gpu: navigatorGPU
+      }
+    });
+
+    try {
+      const result = await WebGPURenderer.create({
+        logging: false,
+        renderConfigs: {
+          gpuTimestamps: true
+        }
+      });
+
+      expect(result.ok).toBe(true);
+      expect(adapter.requestDevice).toHaveBeenCalledWith({
+        requiredFeatures: ["timestamp-query"]
+      });
+    } finally {
+      restoreNavigator(originalNavigator);
+    }
+  });
+
+  test("owns WebGPU pick and snap render targets behind manager-style resources", () => {
+    const gpu = createWebGPUHarness();
+    const renderContext = new RenderContext({
+      device: gpu.device,
+      contextFormat: "bgra8unorm",
+      memoryConfigs: createMemoryConfigs({
+        grossMemoryMB: 64,
+        device: "medium",
+        utilization: 0.5
+      }),
+      renderConfigs: createWebGPURenderConfigs()
+    });
+    const pickBuffer = new WebGPUPickBuffer(renderContext);
+    const snapBufferCache = new WebGPUSnapBufferCache(renderContext);
+
+    expect(pickBuffer.ensureSize(1, 1).ok).toBe(true);
+    const snapBufferResult = snapBufferCache.get(32);
+    expect(snapBufferResult.ok).toBe(true);
+    expect(snapBufferCache.get(32).ok).toBe(true);
+
+    expect(gpu.device.createTexture).toHaveBeenCalledTimes(4);
+    expect(gpu.device.createTexture.mock.calls[0][0]).toMatchObject({
+      label: "xeokit-webgpu-pick-color-texture",
+      format: "rgba8unorm"
+    });
+    expect(gpu.device.createTexture.mock.calls[2][0]).toMatchObject({
+      label: "xeokit-webgpu-snap-color-texture:32",
+      format: "rgba8unorm"
+    });
+    const snapReadbackBuffer = getBufferByLabel(gpu, "xeokit-webgpu-snap-readback-buffer:32");
+    expect(snapReadbackBuffer.descriptor.size).toBe(512 * 65);
+    expect(snapBufferResult.value.getCopyDestination()?.bytesPerRow).toBe(512);
+
+    pickBuffer.destroy();
+    snapBufferCache.destroy();
+    expect(gpu.depthTextures.every((texture: any) => texture.destroy.mock.calls.length === 1)).toBe(true);
   });
 });

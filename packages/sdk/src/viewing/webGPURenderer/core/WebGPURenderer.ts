@@ -3,13 +3,22 @@ import {EventEmitter, SDKErrorType, type SDKResult} from "../../../base/core";
 import type {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../../model/scene";
 import type {Renderer, RendererError} from "../../renderer";
 import type {PickParams, PickResult, View, Viewer} from "../../viewer";
-import {type GlobalWithOptionalWebGPU, WebGPUViewManager, type WebGPUNavigatorLike} from "../internal";
+import {ViewManager} from "../internal";
+import type {RenderInspector, ViewRenderStats} from "../internal/inspectors";
+import {createMemoryConfigs} from "../createMemoryConfigs";
+import {createWebGPURenderConfigs} from "../createWebGPURenderConfigs";
+import type {MemoryConfigs} from "../MemoryConfigs";
+import type {WebGPUMemoryStats} from "../WebGPUMemoryStats";
+import type {WebGPURenderConfigs} from "../WebGPURenderConfigs";
 import type {WebGPURendererEvents} from "./WebGPURendererEvents";
 import type {
+  GlobalWithOptionalWebGPU,
   WebGPUAdapterLike,
   WebGPUCanvasAlphaMode,
+  WebGPUDeviceDescriptor,
   WebGPUDeviceLike,
   WebGPUDeviceLostInfoLike,
+  WebGPUNavigatorLike,
   WebGPURendererParams
 } from "./WebGPURendererParams";
 
@@ -25,14 +34,14 @@ interface DeferredSceneModelRegistrations {
  * This public class owns viewer attachment, event wiring, device acquisition,
  * and backend-neutral renderer contracts. Per-view WebGPU canvas state, GPU
  * buffers, pipelines, and draw submission are owned by the internal
- * {@link WebGPUViewManager}, matching the composition used by WebGLRenderer.
+ * {@link ViewManager}, matching the composition used by WebGLRenderer.
  */
 export class WebGPURenderer implements Renderer {
 
   private _viewer: Viewer | null = null;
   private _viewerSubs: (() => void)[] = [];
   private _viewManagerSubs: (() => void)[] = [];
-  private _viewManager: WebGPUViewManager | null = null;
+  private _viewManager: ViewManager | null = null;
   private _destroyed = false;
   private _deviceLost = false;
   private _deviceLostWatchToken: object | null = null;
@@ -40,6 +49,8 @@ export class WebGPURenderer implements Renderer {
   private readonly _contextFormat: string;
   private readonly _alphaMode?: WebGPUCanvasAlphaMode;
   private readonly _destroyDeviceOnDestroy: boolean;
+  private readonly _memoryConfigs: MemoryConfigs;
+  private readonly _renderConfigs: WebGPURenderConfigs;
   private _renderSuspendCount = 0;
   private _deferredSceneModelRegistrations: Map<SceneModel, DeferredSceneModelRegistrations> = new Map();
 
@@ -74,6 +85,13 @@ export class WebGPURenderer implements Renderer {
     this._contextFormat = params.contextFormat ?? WebGPURenderer._getPreferredCanvasFormat();
     this._alphaMode = params.alphaMode;
     this._destroyDeviceOnDestroy = params.destroyDeviceOnDestroy ?? false;
+    this._memoryConfigs = createMemoryConfigs({
+      grossMemoryMB: 512,
+      device: "medium",
+      utilization: 0.5,
+      user: params.memoryConfigs
+    });
+    this._renderConfigs = createWebGPURenderConfigs(params.renderConfigs);
     this._watchDeviceLost();
     if (params.viewer) {
       this.attachViewer(params.viewer);
@@ -109,7 +127,11 @@ export class WebGPURenderer implements Renderer {
           };
         }
 
-        device = await adapter.requestDevice(params.deviceDescriptor);
+        device = await adapter.requestDevice(WebGPURenderer._createDeviceDescriptor({
+          descriptor: params.deviceDescriptor,
+          adapter,
+          gpuTimestamps: params.renderConfigs?.gpuTimestamps === true
+        }));
         contextFormat = contextFormat ?? gpu?.getPreferredCanvasFormat?.();
       } else {
         ownsDevice = false;
@@ -297,11 +319,12 @@ export class WebGPURenderer implements Renderer {
   /**
    * Performs a renderer-backed pick in a View.
    *
-   * Picking is not implemented until the WebGPU rendering pipeline exists.
+   * Supports triangle mesh object picking, surface hit details, and first-pass
+   * vertex/edge snapping using renderer-side decoded triangle data.
    *
    * @param view - View whose canvas coordinates are being picked.
    * @param pickParams - Picking options and canvas coordinates.
-   * @returns An SDK error result.
+   * @returns The picked result, `null` when nothing was hit, or an SDK error result.
    */
   public pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
     if (!this._viewManager) {
@@ -319,6 +342,92 @@ export class WebGPURenderer implements Renderer {
     }
 
     return this._viewManager.pick(view, pickParams);
+  }
+
+  /**
+   * Performs the WebGPU object-ID pick pass and resolves the hit asynchronously.
+   *
+   * This is an internal bridge while the public renderer pick API remains
+   * synchronous. Surface details are still resolved from decoded mesh data after
+   * the GPU pass selects the front-most mesh.
+   *
+   * @internal
+   */
+  public async pickGPUAsync(view: View, pickParams: PickParams): Promise<SDKResult<PickResult>> {
+    if (!this._viewManager) {
+      return this._error(
+        SDKErrorType.InvalidOperation,
+        "[WebGPURenderer.pickGPUAsync] Viewer with Scene is not currently attached."
+      );
+    }
+
+    if (view.viewer !== this._viewer) {
+      return this._error(
+        SDKErrorType.InvalidOperation,
+        "[WebGPURenderer.pickGPUAsync] The specified View does not belong to the currently attached Viewer."
+      );
+    }
+
+    return this._viewManager.pickGPUAsync(view, pickParams);
+  }
+
+  /**
+   * Gets the lightweight WebGPU render inspector.
+   *
+   * Enable the returned inspector to collect per-frame draw-call and CPU timing
+   * stats for the current WebGPU render path.
+   */
+  public getRenderInspector(): SDKResult<RenderInspector> {
+    if (!this._viewManager) {
+      return this._error(
+        SDKErrorType.InvalidOperation,
+        "[WebGPURenderer.getRenderInspector] Viewer with Scene is not currently attached."
+      );
+    }
+
+    return {
+      ok: true,
+      value: this._viewManager.getRenderInspector()
+    };
+  }
+
+  /**
+   * Gets summary stats for the last rendered frame of a View.
+   */
+  public getViewRenderStats(viewIndex: number): {
+    numDrawCalls: number;
+    numPrimitives: number;
+    numBatches: number;
+    numRTCTiles: number;
+    numRTCTileMatrixUploads: number;
+    numMeshesWithRTCTile: number;
+    numMeshesUsingRTCFallback: number;
+    frameTimeMs: number;
+    cpuTime: ViewRenderStats["cpuTime"];
+  } | null {
+    const inspector = this._viewManager?.getRenderInspector();
+    const stats = inspector?.renderStats.views?.[viewIndex];
+    if (!stats) {
+      return null;
+    }
+    return {
+      numDrawCalls: stats.numDrawCalls,
+      numPrimitives: stats.numPrims,
+      numBatches: stats.numBatches,
+      numRTCTiles: stats.numRTCTiles,
+      numRTCTileMatrixUploads: stats.numRTCTileMatrixUploads,
+      numMeshesWithRTCTile: stats.numMeshesWithRTCTile,
+      numMeshesUsingRTCFallback: stats.numMeshesUsingRTCFallback,
+      frameTimeMs: stats.timeMs.duration,
+      cpuTime: stats.cpuTime
+    };
+  }
+
+  /**
+   * Gets a compact summary of GPU memory owned by the WebGPU renderer.
+   */
+  public getMemoryStats(): WebGPUMemoryStats | null {
+    return this._viewManager?.getMemoryStats() ?? null;
   }
 
   /**
@@ -419,7 +528,7 @@ export class WebGPURenderer implements Renderer {
     return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
   }
 
-  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: WebGPUViewManager): void {
+  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: ViewManager): void {
     const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
     if (!registrations) {
       return;
@@ -477,21 +586,25 @@ export class WebGPURenderer implements Renderer {
       };
     }
 
-    const viewManager = new WebGPUViewManager();
+    const viewManager = new ViewManager();
+    this._viewManager = viewManager;
+    this._subscribeViewManager(viewManager);
+
     const result = viewManager.init({
       viewer: this._viewer,
       device: this._device,
       contextFormat: this._contextFormat,
-      alphaMode: this._alphaMode
+      alphaMode: this._alphaMode,
+      memoryConfigs: this._memoryConfigs,
+      renderConfigs: this._renderConfigs
     });
 
     if (result.ok === false) {
+      this._unsubscribeViewManager();
+      this._viewManager = null;
       viewManager.destroy();
       return result;
     }
-
-    this._viewManager = viewManager;
-    this._subscribeViewManager(viewManager);
 
     return {
       ok: true,
@@ -499,7 +612,7 @@ export class WebGPURenderer implements Renderer {
     };
   }
 
-  private _subscribeViewManager(viewManager: WebGPUViewManager): void {
+  private _subscribeViewManager(viewManager: ViewManager): void {
     if (!this._viewer) {
       return;
     }
@@ -512,7 +625,7 @@ export class WebGPURenderer implements Renderer {
         }
         const result = viewManager.viewCreated(view);
         if (this._logError(result).ok) {
-          this.events.onViewRendered.dispatch(this, view);
+          view.needsRender();
         }
       }),
       viewerEvents.onViewUpdated.subscribe((_view, view) => {
@@ -591,6 +704,38 @@ export class WebGPURenderer implements Renderer {
         if (this._viewManager === viewManager) {
           viewManager.cameraViewMatrixUpdated(camera);
         }
+      }),
+      ...(viewerEvents.onCameraProjMatrixUpdated ? [
+        viewerEvents.onCameraProjMatrixUpdated.subscribe((_view, camera) => {
+          if (this._viewManager === viewManager) {
+            viewManager.cameraProjMatrixUpdated(camera);
+          }
+        })
+      ] : []),
+      viewerEvents.onSectionPlaneCreated.subscribe((view) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(view);
+        }
+      }),
+      viewerEvents.onSectionPlaneDestroyed.subscribe((view) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(view);
+        }
+      }),
+      viewerEvents.onSectionPlanePosChanged.subscribe((sectionPlane) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(sectionPlane.view);
+        }
+      }),
+      viewerEvents.onSectionPlaneDirChanged.subscribe((sectionPlane) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(sectionPlane.view);
+        }
+      }),
+      viewerEvents.onSectionPlaneActive.subscribe((sectionPlane) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(sectionPlane.view);
+        }
       })
     ];
 
@@ -603,6 +748,11 @@ export class WebGPURenderer implements Renderer {
       sceneEvents.onSceneModelCreated.subscribe((_scene, sceneModel) => {
         if (this._viewManager === viewManager) {
           this._logError(viewManager.sceneModelCreated(sceneModel));
+        }
+      }),
+      sceneEvents.onSceneModelSealed.subscribe((_scene, sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneModelSealed(sceneModel));
         }
       }),
       sceneEvents.onSceneModelDestroyed.subscribe((_scene, sceneModel) => {
@@ -736,10 +886,7 @@ export class WebGPURenderer implements Renderer {
       return;
     }
 
-    for (const sub of this._viewManagerSubs) {
-      sub();
-    }
-    this._viewManagerSubs = [];
+    this._unsubscribeViewManager();
 
     viewManager.destroy();
     this._viewManager = null;
@@ -749,6 +896,32 @@ export class WebGPURenderer implements Renderer {
     if (emitEvent) {
       this.events.onRendererStopped.dispatch(this);
     }
+  }
+
+  private _unsubscribeViewManager(): void {
+    for (const sub of this._viewManagerSubs) {
+      sub();
+    }
+    this._viewManagerSubs = [];
+  }
+
+  private static _createDeviceDescriptor(params: {
+    descriptor?: WebGPUDeviceDescriptor;
+    adapter: WebGPUAdapterLike;
+    gpuTimestamps: boolean;
+  }): WebGPUDeviceDescriptor | undefined {
+    if (!params.gpuTimestamps || !params.adapter.features?.has?.("timestamp-query")) {
+      return params.descriptor;
+    }
+    const descriptor = {
+      ...((params.descriptor ?? {}) as object)
+    } as {
+      requiredFeatures?: string[];
+    };
+    const requiredFeatures = new Set(descriptor.requiredFeatures ?? []);
+    requiredFeatures.add("timestamp-query");
+    descriptor.requiredFeatures = Array.from(requiredFeatures);
+    return descriptor;
   }
 
   private _watchDeviceLost(): void {

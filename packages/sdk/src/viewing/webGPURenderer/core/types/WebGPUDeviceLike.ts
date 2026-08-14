@@ -9,14 +9,22 @@ import type {WebGPURenderPipelineLike} from "./WebGPURenderPipelineLike";
 import type {WebGPUShaderModuleLike} from "./WebGPUShaderModuleLike";
 import type {WebGPUTextureLike} from "./WebGPUTextureLike";
 
+export interface WebGPUQuerySetLike {
+  destroy?(): void;
+}
+
 /**
  * Minimal WebGPU device shape used by WebGPURenderer.
  */
 export interface WebGPUDeviceLike {
   readonly queue: WebGPUQueueLike;
   readonly lost?: Promise<WebGPUDeviceLostInfoLike>;
+  readonly features?: {
+    has(feature: string): boolean;
+  };
   createBuffer(descriptor: object): WebGPUBufferLike;
   createTexture(descriptor: object): WebGPUTextureLike;
+  createQuerySet?(descriptor: object): WebGPUQuerySetLike;
   createShaderModule(descriptor: object): WebGPUShaderModuleLike;
   createBindGroupLayout(descriptor: object): WebGPUBindGroupLayoutLike;
   createPipelineLayout(descriptor: object): WebGPUPipelineLayoutLike;

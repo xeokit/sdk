@@ -1,4 +1,6 @@
 import type {Viewer} from "../../viewer";
+import type {MemoryConfigs} from "../MemoryConfigs";
+import type {WebGPURenderConfigs} from "../WebGPURenderConfigs";
 import type {
   WebGPUAdapterLike,
   WebGPUCanvasAlphaMode,
@@ -73,4 +75,18 @@ export interface WebGPURendererParams {
    * {@link WebGPURenderer.create}.
    */
   destroyDeviceOnDestroy?: boolean;
+
+  /**
+   * GPU memory and packed-batch sizing overrides.
+   *
+   * WebGPU uses this to size packed triangle segments and per-view instance
+   * storage. Larger values reduce draw calls; smaller values reduce streaming
+   * load hitches.
+   */
+  memoryConfigs?: Partial<MemoryConfigs>;
+
+  /**
+   * WebGPU render pass orchestration overrides.
+   */
+  renderConfigs?: Partial<WebGPURenderConfigs>;
 }

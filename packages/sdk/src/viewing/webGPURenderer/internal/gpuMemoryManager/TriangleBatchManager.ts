@@ -1,0 +1,1710 @@
+import {SDKErrorType, type SDKResult} from "../../../../base/core";
+import type {View} from "../../../viewer";
+import type {WebGPUBindGroupLike, WebGPUBufferLike} from "../../core";
+import {GPU_BUFFER_USAGE, INSTANCE_FLOATS} from "../constants";
+import type {InstancedDrawBatch} from "../drawOps";
+import {
+  TRIANGLE_POSITION_DECODE_UNIFORM_BYTES,
+  TRIANGLE_POSITION_DECODE_UNIFORM_FLOATS
+} from "../drawOps/techniques/triangles/TrianglePositionPacking";
+import type {DrawItem} from "../renderState";
+import {InstanceBufferManager, type InstanceBufferFrame} from "./InstanceBufferManager";
+import {MeshManager, type MeshRTCTileResolver, type RendererMesh} from "../meshManager";
+import {RenderContext} from "../RenderContext";
+import type {MemoryConfigs} from "../../MemoryConfigs";
+import {BindGroupLayoutManager} from "./BindGroupLayoutManager";
+
+interface InstanceWriteState {
+  bufferVersion: number;
+  meshInstanceDataVersion: number;
+  viewStateVersion: number;
+}
+
+export interface WebGPUTriangleMeshSlot {
+  meshState: RendererMesh;
+  signature: string;
+  globalSlot: number;
+  indexStart: number;
+  indexCount: number;
+  edgeIndexStart: number;
+  edgeIndexCount: number;
+  instanceWriteStateByViewId: {[viewId: string]: InstanceWriteState};
+}
+
+export interface TriangleBatchSegment {
+  key: string;
+  baseKey: string;
+  bufferPageKey: string;
+  label: string;
+  signature: string;
+  baseSlot: number;
+  slotCount: number;
+  slotEnd: number;
+  vertexBuffer: WebGPUBufferLike;
+  vertexBufferOffset: number;
+  positionDecodeBuffer: WebGPUBufferLike;
+  positionDecodeBindGroup: WebGPUBindGroupLike;
+  vertexMetadataBuffer: WebGPUBufferLike;
+  indexBuffer: WebGPUBufferLike;
+  edgeIndexBuffer: WebGPUBufferLike | null;
+  indexBufferOffset: number;
+  edgeIndexBufferOffset: number;
+  vertexMetadataBufferOffset: number;
+  slots: WebGPUTriangleMeshSlot[];
+  slotByMeshId: {[meshId: string]: WebGPUTriangleMeshSlot};
+  indices: Uint16Array | Uint32Array;
+  edgeIndices: Uint16Array | Uint32Array;
+  indexFormat: "uint16" | "uint32";
+  worldAABB: Float64Array;
+  boundsVersion: string;
+  destroy(): void;
+}
+
+interface TriangleBufferPage {
+  key: string;
+  indexFormat: "uint16" | "uint32";
+  vertexCapacity: number;
+  indexCapacity: number;
+  edgeIndexCapacity: number;
+  positionDecodeCapacity: number;
+  usedVertices: number;
+  usedIndices: number;
+  usedEdgeIndices: number;
+  usedPositionDecodes: number;
+  refCount: number;
+  vertexBuffer: WebGPUBufferLike;
+  vertexMetadataBuffer: WebGPUBufferLike;
+  positionDecodeBuffer: WebGPUBufferLike;
+  positionDecodeBindGroup: WebGPUBindGroupLike;
+  indexBuffer: WebGPUBufferLike;
+  edgeIndexBuffer: WebGPUBufferLike;
+  destroy(): void;
+}
+
+export interface TriangleBatchSet {
+  structureVersion: number;
+  instanceCapacity: number;
+  projectedInstanceCapacity: number;
+  segments: TriangleBatchSegment[];
+  segmentByMeshId: {[meshId: string]: TriangleBatchSegment};
+  pendingSegmentCount: number;
+  builtSegmentCount: number;
+  buildTelemetry: TriangleSegmentBuildTelemetry;
+}
+
+export interface TriangleSegmentBuildSample {
+  key: string;
+  baseKey: string;
+  meshCount: number;
+  vertexCount: number;
+  indexCount: number;
+  edgeIndexCount: number;
+  totalMs: number;
+  packMs: number;
+  uploadMs: number;
+  indexFormat: "uint16" | "uint32";
+}
+
+export interface TriangleSegmentBuildTelemetry {
+  totalSegmentsBuilt: number;
+  totalBuildMs: number;
+  totalPackMs: number;
+  totalUploadMs: number;
+  totalMeshCount: number;
+  totalVertexCount: number;
+  totalIndexCount: number;
+  totalEdgeIndexCount: number;
+  lastBuildSegments: number;
+  lastBuildMs: number;
+  lastBuildPackMs: number;
+  lastBuildUploadMs: number;
+  lastBuildPendingBefore: number;
+  lastBuildPendingAfter: number;
+  recentSamples: TriangleSegmentBuildSample[];
+  slowestSamples: TriangleSegmentBuildSample[];
+}
+
+export interface TriangleBatchMemoryStats {
+  pages: number;
+  segments: number;
+  totalBytes: number;
+  vertexBytes: number;
+  vertexMetadataBytes: number;
+  indexBytes: number;
+  edgeIndexBytes: number;
+  positionDecodeBytes: number;
+  usedVertexBytes: number;
+  usedVertexMetadataBytes: number;
+  usedIndexBytes: number;
+  usedEdgeIndexBytes: number;
+  usedPositionDecodeBytes: number;
+  pageDetails: TriangleBatchPageMemoryStats[];
+  segmentsByLifecycle: {[lifecycle: string]: number};
+  segmentsByMemoryPolicy: {[memoryPolicy: string]: number};
+}
+
+export interface TriangleBatchPageMemoryStats {
+  key: string;
+  indexFormat: "uint16" | "uint32";
+  segmentCount: number;
+  vertexCapacity: number;
+  usedVertices: number;
+  indexCapacity: number;
+  usedIndices: number;
+  edgeIndexCapacity: number;
+  usedEdgeIndices: number;
+  positionDecodeCapacity: number;
+  usedPositionDecodes: number;
+  bytes: number;
+  usedBytes: number;
+  vertexBytes: number;
+  vertexMetadataBytes: number;
+  indexBytes: number;
+  edgeIndexBytes: number;
+  positionDecodeBytes: number;
+  usedVertexBytes: number;
+  usedVertexMetadataBytes: number;
+  usedIndexBytes: number;
+  usedEdgeIndexBytes: number;
+  usedPositionDecodeBytes: number;
+}
+
+interface SlotRange {
+  base: number;
+  count: number;
+}
+
+interface TriangleSegmentBuildJob {
+  structureVersion: number;
+  baseKey: string;
+  key: string;
+  meshStates: RendererMesh[];
+  signature: string;
+}
+
+interface TriangleSegmentBuildResult {
+  builtSegments: TriangleBatchSegment[];
+}
+
+export interface TriangleBatchPrepareOptions {
+  buildPendingSegments?: boolean;
+}
+
+const nowMs = (): number => {
+  const performanceLike = (globalThis as {performance?: {now?: () => number}}).performance;
+  return performanceLike?.now ? performanceLike.now() : Date.now();
+};
+const IDENTITY_MATRIX: ReadonlyArray<number> = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+const TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER = 4;
+const MAX_SEGMENT_BUILD_SAMPLES = 16;
+
+/**
+ * Owns packed color-triangle mesh storage for the WebGPU renderer.
+ *
+ * The manager keeps persistent lifecycle-aware segments rather than one global
+ * packed array. Tile streamers create and destroy SceneModels frequently; a
+ * segment gives each model stable vertex storage and stable global instance
+ * slots, so adding or evicting one model does not repack unrelated models.
+ *
+ * @internal
+ */
+export class TriangleBatchManager {
+
+  private readonly _renderContext: RenderContext;
+  private readonly _bindGroupLayoutManager: BindGroupLayoutManager;
+  private readonly _memoryConfigs: MemoryConfigs;
+  private readonly _rtcTileResolver: MeshRTCTileResolver;
+  private readonly _segmentsByKey = new Map<string, TriangleBatchSegment>();
+  private readonly _segmentByMeshId = new Map<string, TriangleBatchSegment>();
+  private readonly _pageCountersByBaseKey = new Map<string, number>();
+  private readonly _bufferPagesByKey = new Map<string, TriangleBufferPage>();
+  private readonly _currentBufferPageByKey = new Map<string, TriangleBufferPage>();
+  private readonly _freeSlotRanges: SlotRange[] = [];
+  private readonly _pendingSegmentJobs: TriangleSegmentBuildJob[] = [];
+  private readonly _partialDrawBatchCache = new Map<string, InstancedDrawBatch>();
+  private readonly _recentBuildSamples: TriangleSegmentBuildSample[] = [];
+  private readonly _slowestBuildSamples: TriangleSegmentBuildSample[] = [];
+  private _lastSegmentBuildSample: TriangleSegmentBuildSample | null = null;
+  private _totalSegmentsBuilt = 0;
+  private _totalBuildMs = 0;
+  private _totalPackMs = 0;
+  private _totalUploadMs = 0;
+  private _totalMeshCount = 0;
+  private _totalVertexCount = 0;
+  private _totalIndexCount = 0;
+  private _totalEdgeIndexCount = 0;
+  private _lastBuildSegments = 0;
+  private _lastBuildMs = 0;
+  private _lastBuildPackMs = 0;
+  private _lastBuildUploadMs = 0;
+  private _lastBuildPendingBefore = 0;
+  private _lastBuildPendingAfter = 0;
+  private _batchSet: TriangleBatchSet | null = null;
+  private _nextSlot = 0;
+
+  constructor(params: {
+    renderContext: RenderContext;
+    bindGroupLayoutManager: BindGroupLayoutManager;
+    memoryConfigs: MemoryConfigs;
+    rtcTileResolver: MeshRTCTileResolver;
+  }) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._memoryConfigs = params.memoryConfigs;
+    this._rtcTileResolver = params.rtcTileResolver;
+  }
+
+  public prepare(meshManager: MeshManager, options: TriangleBatchPrepareOptions = {}): SDKResult<TriangleBatchSet> {
+    const buildPendingSegments = options.buildPendingSegments ?? true;
+    const structureVersion = meshManager.structureVersion;
+    if (this._batchSet?.structureVersion === structureVersion) {
+      let builtSegments: TriangleBatchSegment[] = [];
+      if (buildPendingSegments) {
+        const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+        if (pendingResult.ok === false) {
+          return pendingResult;
+        }
+        builtSegments = pendingResult.value.builtSegments;
+      }
+      this._batchSet = this._extendBatchSet(this._batchSet, structureVersion, builtSegments);
+      return {
+        ok: true,
+        value: this._batchSet
+      };
+    }
+
+    const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments);
+    if (appendOnlyResult) {
+      return appendOnlyResult;
+    }
+
+    this._pendingSegmentJobs.length = 0;
+
+    const liveMeshStatesById = new Map<string, RendererMesh>();
+    for (let i = 0, len = meshManager.meshStates.length; i < len; i++) {
+      const meshState = meshManager.meshStates[i];
+      liveMeshStatesById.set(meshState.mesh.uniqueId, meshState);
+    }
+
+    const assignedMeshIds = new Set<string>();
+    const segmentByMeshId: {[meshId: string]: TriangleBatchSegment} = {};
+
+    for (const [key, segment] of Array.from(this._segmentsByKey)) {
+      const meshStates: RendererMesh[] = [];
+      let needsRebuild = false;
+      let needsRegroup = false;
+      for (let i = 0, len = segment.slots.length; i < len; i++) {
+        const slot = segment.slots[i];
+        const meshId = slot.meshState.mesh.uniqueId;
+        const liveMeshState = liveMeshStatesById.get(meshId);
+        if (!liveMeshState) {
+          needsRebuild = true;
+          continue;
+        }
+        if (slot.signature !== this._getMeshSignature(liveMeshState) || slot.meshState !== liveMeshState) {
+          needsRebuild = true;
+        }
+        if (segment.baseKey !== this._getSegmentBaseKey(liveMeshState)) {
+          needsRegroup = true;
+        }
+        meshStates.push(liveMeshState);
+      }
+
+      if (meshStates.length === 0 || needsRegroup) {
+        this._destroySegment(segment);
+        this._segmentsByKey.delete(key);
+        continue;
+      }
+
+      let activeSegment = segment;
+      if (needsRebuild) {
+        this._destroySegment(segment);
+        const replacementResult = this._createSegment(segment.baseKey, key, meshStates, this._getSegmentSignature(meshStates));
+        if (replacementResult.ok === false) {
+          return replacementResult;
+        }
+        activeSegment = replacementResult.value;
+        this._segmentsByKey.set(key, activeSegment);
+      }
+
+      this._trackSegment(activeSegment, assignedMeshIds, segmentByMeshId);
+    }
+
+    const newGroups = this._groupNewMeshStates(meshManager.meshStates, assignedMeshIds);
+    for (const [baseKey, meshStates] of newGroups) {
+      this._enqueueSegments(structureVersion, baseKey, meshStates);
+    }
+
+    if (buildPendingSegments) {
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+      if (pendingResult.ok === false) {
+        return pendingResult;
+      }
+    }
+
+    this._batchSet = this._createBatchSet(structureVersion);
+
+    if (this._batchSet.segments.length === 0 && this._pendingSegmentJobs.length === 0) {
+      this._nextSlot = 0;
+      this._freeSlotRanges.length = 0;
+      this._pageCountersByBaseKey.clear();
+    }
+
+    return {
+      ok: true,
+      value: this._batchSet
+    };
+  }
+
+  public buildPendingSegments(meshManager: MeshManager): SDKResult<TriangleBatchSet> {
+    const prepareResult = this.prepare(meshManager, {buildPendingSegments: false});
+    if (prepareResult.ok === false) {
+      return prepareResult;
+    }
+
+    const structureVersion = meshManager.structureVersion;
+    const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+    if (pendingResult.ok === false) {
+      return pendingResult;
+    }
+
+    this._batchSet = this._batchSet?.structureVersion === structureVersion
+      ? this._extendBatchSet(this._batchSet, structureVersion, pendingResult.value.builtSegments)
+      : this._createBatchSet(structureVersion);
+    return {
+      ok: true,
+      value: this._batchSet
+    };
+  }
+
+  private _prepareAppendOnly(meshManager: MeshManager, structureVersion: number, buildPendingSegments: boolean): SDKResult<TriangleBatchSet> | null {
+    if (!this._batchSet) {
+      return null;
+    }
+    const changes = meshManager.getStructureChangesSince(this._batchSet.structureVersion);
+    if (!changes.appendOnly || changes.createdMeshStates.length === 0) {
+      return null;
+    }
+
+    this._retargetPendingSegments(structureVersion);
+    const segmentByMeshId = {...this._batchSet.segmentByMeshId};
+    const newGroups = this._groupNewMeshStates(changes.createdMeshStates, new Set<string>());
+    for (const [baseKey, meshStates] of newGroups) {
+      this._enqueueSegments(structureVersion, baseKey, meshStates);
+    }
+    void segmentByMeshId;
+
+    if (buildPendingSegments) {
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+      if (pendingResult.ok === false) {
+        return pendingResult;
+      }
+      this._batchSet = this._extendBatchSet(this._batchSet, structureVersion, pendingResult.value.builtSegments);
+      return {
+        ok: true,
+        value: this._batchSet
+      };
+    }
+
+    this._batchSet = this._extendBatchSet(this._batchSet, structureVersion, []);
+
+    return {
+      ok: true,
+      value: this._batchSet
+    };
+  }
+
+  private _enqueueSegments(structureVersion: number, baseKey: string, meshStates: RendererMesh[]): void {
+    const pageMeshStates: RendererMesh[] = [];
+    let pageVertexCount = 0;
+    let pageIndexCount = 0;
+    let pageEdgeIndexCount = 0;
+
+    const flushPage = (): void => {
+      if (pageMeshStates.length === 0) {
+        return;
+      }
+      const key = this._nextSegmentKey(baseKey);
+      const meshStatesForJob = pageMeshStates.slice();
+      this._pendingSegmentJobs.push({
+        structureVersion,
+        baseKey,
+        key,
+        meshStates: meshStatesForJob,
+        signature: this._getSegmentSignature(meshStatesForJob)
+      });
+      pageMeshStates.length = 0;
+      pageVertexCount = 0;
+      pageIndexCount = 0;
+      pageEdgeIndexCount = 0;
+    };
+
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const meshState = meshStates[i];
+      const vertexCount = meshState.geometryState.positions.length / 3;
+      const indexCount = meshState.geometryState.indices.length;
+      const edgeIndexCount = meshState.geometryState.edgeIndexCount;
+      if (
+        pageMeshStates.length > 0 &&
+        (
+          pageMeshStates.length >= this._memoryConfigs.maxBatchMeshes ||
+          pageMeshStates.length >= this._memoryConfigs.maxBatchGeometries ||
+          pageVertexCount + vertexCount > this._memoryConfigs.maxBatchVertices ||
+          pageIndexCount + indexCount > this._memoryConfigs.maxBatchIndices ||
+          pageEdgeIndexCount + edgeIndexCount > this._memoryConfigs.maxBatchIndices ||
+          Math.floor((pageIndexCount + indexCount) / 3) > this._memoryConfigs.maxBatchPrims
+        )
+      ) {
+        flushPage();
+      }
+
+      pageMeshStates.push(meshState);
+      pageVertexCount += vertexCount;
+      pageIndexCount += indexCount;
+      pageEdgeIndexCount += edgeIndexCount;
+    }
+
+    flushPage();
+  }
+
+  private _buildPendingSegmentJobs(structureVersion: number): SDKResult<TriangleSegmentBuildResult> {
+    const startedAt = nowMs();
+    let builtCount = 0;
+    let buildMs = 0;
+    let packMs = 0;
+    let uploadMs = 0;
+    const builtSegments: TriangleBatchSegment[] = [];
+    const pendingBefore = this._pendingSegmentJobs.filter((job) => job.structureVersion === structureVersion).length;
+    while (this._pendingSegmentJobs.length > 0) {
+      const job = this._pendingSegmentJobs[0];
+      if (job.structureVersion !== structureVersion) {
+        this._pendingSegmentJobs.shift();
+        continue;
+      }
+      if (
+        builtCount > 0 &&
+        this._memoryConfigs.maxBatchBuildTimeMs >= 0 &&
+        nowMs() - startedAt >= this._memoryConfigs.maxBatchBuildTimeMs
+      ) {
+        break;
+      }
+      if (
+        builtCount > 0 &&
+        this._memoryConfigs.maxBatchBuildSegments >= 0 &&
+        builtCount >= this._memoryConfigs.maxBatchBuildSegments
+      ) {
+        break;
+      }
+      this._lastSegmentBuildSample = null;
+      const segmentStartedAt = nowMs();
+      const segmentResult = this._createSegment(job.baseKey, job.key, job.meshStates, job.signature);
+      if (segmentResult.ok === false) {
+        return segmentResult;
+      }
+      const sample = this._lastSegmentBuildSample;
+      if (sample) {
+        buildMs += sample.totalMs;
+        packMs += sample.packMs;
+        uploadMs += sample.uploadMs;
+        this._recordBuildSample(sample);
+      } else {
+        buildMs += nowMs() - segmentStartedAt;
+      }
+      const segment = segmentResult.value;
+      this._segmentsByKey.set(segment.key, segment);
+      builtSegments.push(segment);
+      this._pendingSegmentJobs.shift();
+      builtCount++;
+    }
+
+    this._lastBuildSegments = builtCount;
+    this._lastBuildMs = buildMs;
+    this._lastBuildPackMs = packMs;
+    this._lastBuildUploadMs = uploadMs;
+    this._lastBuildPendingBefore = pendingBefore;
+    this._lastBuildPendingAfter = this._pendingSegmentJobs.filter((job) => job.structureVersion === structureVersion).length;
+
+    return {
+      ok: true,
+      value: {
+        builtSegments
+      }
+    };
+  }
+
+  private _retargetPendingSegments(structureVersion: number): void {
+    for (let i = 0, len = this._pendingSegmentJobs.length; i < len; i++) {
+      this._pendingSegmentJobs[i].structureVersion = structureVersion;
+    }
+  }
+
+  private _createBatchSet(structureVersion: number): TriangleBatchSet {
+    const segments = Array.from(this._segmentsByKey.values()).sort((a, b) => a.key.localeCompare(b.key));
+    const segmentByMeshId: {[meshId: string]: TriangleBatchSegment} = {};
+    const assignedMeshIds = new Set<string>();
+    for (let i = 0, len = segments.length; i < len; i++) {
+      this._trackSegment(segments[i], assignedMeshIds, segmentByMeshId);
+    }
+    const pendingSegmentJobs = this._pendingSegmentJobs.filter((job) => job.structureVersion === structureVersion);
+    return {
+      structureVersion,
+      instanceCapacity: this._getInstanceCapacity(segments),
+      projectedInstanceCapacity: this._getProjectedInstanceCapacity(segments, pendingSegmentJobs),
+      segments,
+      segmentByMeshId,
+      pendingSegmentCount: pendingSegmentJobs.length,
+      builtSegmentCount: segments.length,
+      buildTelemetry: this._createBuildTelemetrySnapshot()
+    };
+  }
+
+  private _extendBatchSet(previous: TriangleBatchSet, structureVersion: number, builtSegments: TriangleBatchSegment[]): TriangleBatchSet {
+    const segmentByMeshId = previous.segmentByMeshId;
+    let instanceCapacity = previous.instanceCapacity;
+    let segments = previous.segments;
+    if (builtSegments.length > 0) {
+      segments = this._mergeSortedSegments(previous.segments, builtSegments);
+      const assignedMeshIds = new Set<string>();
+      for (let i = 0, len = builtSegments.length; i < len; i++) {
+        this._trackSegment(builtSegments[i], assignedMeshIds, segmentByMeshId);
+        instanceCapacity += builtSegments[i].slotCount;
+      }
+    }
+    const pendingSegmentCount = this._countPendingSegmentJobs(structureVersion);
+    return {
+      structureVersion,
+      instanceCapacity,
+      projectedInstanceCapacity: instanceCapacity + this._getPendingSegmentInstanceCapacity(structureVersion),
+      segments,
+      segmentByMeshId,
+      pendingSegmentCount,
+      builtSegmentCount: segments.length,
+      buildTelemetry: this._createBuildTelemetrySnapshot()
+    };
+  }
+
+  private _mergeSortedSegments(existing: TriangleBatchSegment[], appended: TriangleBatchSegment[]): TriangleBatchSegment[] {
+    if (appended.length === 0) {
+      return existing;
+    }
+    const sortedAppended = appended.length === 1
+      ? appended
+      : appended.slice().sort((a, b) => a.key.localeCompare(b.key));
+    const merged: TriangleBatchSegment[] = [];
+    let existingIndex = 0;
+    let appendedIndex = 0;
+    while (existingIndex < existing.length && appendedIndex < sortedAppended.length) {
+      if (existing[existingIndex].key.localeCompare(sortedAppended[appendedIndex].key) <= 0) {
+        merged.push(existing[existingIndex++]);
+      } else {
+        merged.push(sortedAppended[appendedIndex++]);
+      }
+    }
+    while (existingIndex < existing.length) {
+      merged.push(existing[existingIndex++]);
+    }
+    while (appendedIndex < sortedAppended.length) {
+      merged.push(sortedAppended[appendedIndex++]);
+    }
+    return merged;
+  }
+
+  private _countPendingSegmentJobs(structureVersion: number): number {
+    let count = 0;
+    for (let i = 0, len = this._pendingSegmentJobs.length; i < len; i++) {
+      if (this._pendingSegmentJobs[i].structureVersion === structureVersion) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  private _getPendingSegmentInstanceCapacity(structureVersion: number): number {
+    let capacity = 0;
+    for (let i = 0, len = this._pendingSegmentJobs.length; i < len; i++) {
+      const job = this._pendingSegmentJobs[i];
+      if (job.structureVersion === structureVersion) {
+        capacity += job.meshStates.length;
+      }
+    }
+    return capacity;
+  }
+
+  private _createSegment(
+    baseKey: string,
+    key: string,
+    meshStates: RendererMesh[],
+    signature: string
+  ): SDKResult<TriangleBatchSegment> {
+    let totalVertices = 0;
+    let totalIndices = 0;
+    let totalEdgeIndices = 0;
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const geometryState = meshStates[i].geometryState;
+      totalVertices += geometryState.positions.length / 3;
+      totalIndices += geometryState.indices.length;
+      totalEdgeIndices += geometryState.edgeIndexCount;
+    }
+
+    if (totalVertices > 0xFFFFFFFF) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[TriangleBatchManager.prepare] Packed triangle segment '${key}' exceeds the uint32 index range.`
+      };
+    }
+
+    let vertexBuffer: WebGPUBufferLike | null = null;
+    let bufferPage: TriangleBufferPage | null = null;
+    const baseSlot = this._allocateSlots(meshStates.length);
+    const segmentLabel = this._sanitizeLabel(key);
+    const segmentStartedAt = nowMs();
+    let packMs = 0;
+    let uploadMs = 0;
+    this._lastSegmentBuildSample = null;
+
+    try {
+      const positionAABB = createPositionAABB(meshStates);
+      const positions = new Uint16Array(totalVertices * 4);
+      const positionDecode = createPositionDecodeUniform(positionAABB);
+      const vertexMetadata = new Uint32Array(totalVertices * 2);
+      const indexFormat = totalVertices > 65535 ? "uint32" : "uint16";
+      const pageAllocationResult = this._allocateBufferPageRange(baseKey, segmentLabel, indexFormat, totalVertices, totalIndices, totalEdgeIndices);
+      if (pageAllocationResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return pageAllocationResult;
+      }
+      const pageAllocation = pageAllocationResult.value;
+      bufferPage = pageAllocation.page;
+      const indices = indexFormat === "uint32"
+        ? new Uint32Array(totalIndices)
+        : new Uint16Array(totalIndices);
+      const edgeIndices = indexFormat === "uint32"
+        ? new Uint32Array(totalEdgeIndices)
+        : new Uint16Array(totalEdgeIndices);
+      const slots: WebGPUTriangleMeshSlot[] = [];
+      const slotByMeshId: {[meshId: string]: WebGPUTriangleMeshSlot} = {};
+      const worldAABB = createEmptyAABB();
+
+      const packStartedAt = nowMs();
+      let vertexOffset = 0;
+      let indexOffset = 0;
+      let edgeIndexOffset = 0;
+      for (let slotIndex = 0, len = meshStates.length; slotIndex < len; slotIndex++) {
+        const meshState = meshStates[slotIndex];
+        const geometryState = meshState.geometryState;
+        const vertexCount = geometryState.positions.length / 3;
+        const indexCount = geometryState.indices.length;
+        const edgeIndexCount = geometryState.edgeIndexCount;
+
+        quantizePositionsInto(geometryState.positions, positions, vertexOffset, positionAABB);
+        for (let i = 0; i < vertexCount; i++) {
+          const metadataOffset = (vertexOffset + i) * 2;
+          vertexMetadata[metadataOffset] = baseSlot + slotIndex;
+          vertexMetadata[metadataOffset + 1] = pageAllocation.positionDecodeIndex;
+        }
+        for (let i = 0; i < indexCount; i++) {
+          indices[indexOffset + i] = geometryState.indices[i] + vertexOffset;
+        }
+        if (geometryState.edgeIndices) {
+          for (let i = 0; i < edgeIndexCount; i++) {
+            edgeIndices[edgeIndexOffset + i] = geometryState.edgeIndices[i] + vertexOffset;
+          }
+        }
+
+        const slot: WebGPUTriangleMeshSlot = {
+          meshState,
+          signature: this._getMeshSignature(meshState),
+          globalSlot: baseSlot + slotIndex,
+          indexStart: indexOffset,
+          indexCount,
+          edgeIndexStart: edgeIndexOffset,
+          edgeIndexCount,
+          instanceWriteStateByViewId: {}
+        };
+        slots.push(slot);
+        slotByMeshId[meshState.mesh.uniqueId] = slot;
+        expandWorldAABB(worldAABB, geometryState.geometry.aabb, getMeshWorldMatrix(meshState));
+
+        vertexOffset += vertexCount;
+        indexOffset += indexCount;
+        edgeIndexOffset += edgeIndexCount;
+      }
+      packMs = nowMs() - packStartedAt;
+
+      const uploadStartedAt = nowMs();
+      this._renderContext.writeGPUBuffer(bufferPage.vertexBuffer, pageAllocation.vertexByteOffset, positions);
+      this._renderContext.writeGPUBuffer(bufferPage.vertexMetadataBuffer, pageAllocation.vertexMetadataByteOffset, vertexMetadata);
+      this._renderContext.writeGPUBuffer(bufferPage.positionDecodeBuffer, pageAllocation.positionDecodeByteOffset, positionDecode);
+      this._renderContext.writeGPUBuffer(bufferPage.indexBuffer, pageAllocation.indexByteOffset, indices);
+      if (edgeIndices.length > 0) {
+        this._renderContext.writeGPUBuffer(bufferPage.edgeIndexBuffer, pageAllocation.edgeIndexByteOffset, edgeIndices);
+      }
+      uploadMs = nowMs() - uploadStartedAt;
+
+      const segment: TriangleBatchSegment = {
+        key,
+        baseKey,
+        bufferPageKey: bufferPage.key,
+        label: segmentLabel,
+        signature,
+        baseSlot,
+        slotCount: slots.length,
+        slotEnd: baseSlot + slots.length,
+        vertexBuffer: bufferPage.vertexBuffer,
+        vertexBufferOffset: pageAllocation.vertexByteOffset,
+        positionDecodeBuffer: bufferPage.positionDecodeBuffer,
+        positionDecodeBindGroup: bufferPage.positionDecodeBindGroup,
+        vertexMetadataBuffer: bufferPage.vertexMetadataBuffer,
+        indexBuffer: bufferPage.indexBuffer,
+        edgeIndexBuffer: bufferPage.edgeIndexBuffer,
+        indexBufferOffset: pageAllocation.indexByteOffset,
+        edgeIndexBufferOffset: pageAllocation.edgeIndexByteOffset,
+        vertexMetadataBufferOffset: pageAllocation.vertexMetadataByteOffset,
+        slots,
+        slotByMeshId,
+        indices,
+        edgeIndices,
+        indexFormat,
+        worldAABB,
+        boundsVersion: this._getBoundsVersion(slots),
+        destroy: () => {
+          if (bufferPage) {
+            this._releaseBufferPage(bufferPage);
+          }
+        }
+      };
+
+      this._lastSegmentBuildSample = {
+        key,
+        baseKey,
+        meshCount: meshStates.length,
+        vertexCount: totalVertices,
+        indexCount: totalIndices,
+        edgeIndexCount: totalEdgeIndices,
+        totalMs: nowMs() - segmentStartedAt,
+        packMs,
+        uploadMs,
+        indexFormat
+      };
+
+      return {
+        ok: true,
+        value: segment
+      };
+    } catch (e) {
+      if (bufferPage) {
+        this._releaseBufferPage(bufferPage);
+      }
+      this._freeSlots(baseSlot, meshStates.length);
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[TriangleBatchManager.prepare] Failed to create packed triangle segment '${key}': ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+
+  public writeInstances(params: {
+    batchSet: TriangleBatchSet;
+    segments?: TriangleBatchSegment[];
+    view: View;
+    meshManager: MeshManager;
+    instanceFrame: InstanceBufferFrame;
+  }): void {
+    const {batchSet, view, meshManager, instanceFrame} = params;
+    const viewStateVersion = meshManager.getViewStateVersion(view);
+    const segments = instanceFrame.forceFullUpload ? batchSet.segments : (params.segments ?? batchSet.segments);
+    const markSegmentDirty = !instanceFrame.forceFullUpload && !!params.segments;
+
+    for (let segmentIndex = 0, segmentLen = segments.length; segmentIndex < segmentLen; segmentIndex++) {
+      const segment = segments[segmentIndex];
+      for (let i = 0, len = segment.slots.length; i < len; i++) {
+        const slot = segment.slots[i];
+        const meshState = slot.meshState;
+        const writeState = slot.instanceWriteStateByViewId[view.id];
+        if (
+          !instanceFrame.forceFullUpload &&
+          writeState?.bufferVersion === instanceFrame.bufferVersion &&
+          writeState.meshInstanceDataVersion === meshState.instanceDataVersion &&
+          writeState.viewStateVersion === viewStateVersion
+        ) {
+          continue;
+        }
+        const drawItem: DrawItem = {
+          meshState,
+          opacity: meshManager.getMeshOpacityInView(meshState, view),
+          viewDepth: 0
+        };
+        meshManager.writeInstanceData(drawItem, view, instanceFrame.data, slot.globalSlot * INSTANCE_FLOATS, this._rtcTileResolver);
+        slot.instanceWriteStateByViewId[view.id] = {
+          bufferVersion: instanceFrame.bufferVersion,
+          meshInstanceDataVersion: meshState.instanceDataVersion,
+          viewStateVersion
+        };
+        if (!markSegmentDirty) {
+          InstanceBufferManager.markDirtySlotRange(instanceFrame, slot.globalSlot, 1);
+        }
+      }
+      if (markSegmentDirty) {
+        InstanceBufferManager.markDirtySlotRange(instanceFrame, segment.baseSlot, segment.slotCount);
+      }
+    }
+    instanceFrame.instanceCount = batchSet.instanceCapacity;
+  }
+
+  public getMemoryStats(): TriangleBatchMemoryStats {
+    const stats: TriangleBatchMemoryStats = {
+      pages: this._bufferPagesByKey.size,
+      segments: this._segmentsByKey.size,
+      totalBytes: 0,
+      vertexBytes: 0,
+      vertexMetadataBytes: 0,
+      indexBytes: 0,
+      edgeIndexBytes: 0,
+      positionDecodeBytes: 0,
+      usedVertexBytes: 0,
+      usedVertexMetadataBytes: 0,
+      usedIndexBytes: 0,
+      usedEdgeIndexBytes: 0,
+      usedPositionDecodeBytes: 0,
+      pageDetails: [],
+      segmentsByLifecycle: {},
+      segmentsByMemoryPolicy: {}
+    };
+
+    const segmentCountsByPageKey = new Map<string, number>();
+    for (const segment of this._segmentsByKey.values()) {
+      segmentCountsByPageKey.set(segment.bufferPageKey, (segmentCountsByPageKey.get(segment.bufferPageKey) ?? 0) + 1);
+    }
+
+    for (const page of this._bufferPagesByKey.values()) {
+      const indexBytes = getIndexElementByteLength(page.indexFormat);
+      const vertexBytes = page.vertexCapacity * 8;
+      const vertexMetadataBytes = page.vertexCapacity * 8;
+      const pageIndexBytes = page.indexCapacity * indexBytes;
+      const edgeIndexBytes = page.edgeIndexCapacity * indexBytes;
+      const positionDecodeBytes = page.positionDecodeCapacity * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
+      const usedVertexBytes = page.usedVertices * 8;
+      const usedVertexMetadataBytes = page.usedVertices * 8;
+      const usedIndexBytes = page.usedIndices * indexBytes;
+      const usedEdgeIndexBytes = page.usedEdgeIndices * indexBytes;
+      const usedPositionDecodeBytes = page.usedPositionDecodes * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
+      const bytes = vertexBytes + vertexMetadataBytes + pageIndexBytes + edgeIndexBytes + positionDecodeBytes;
+      const usedBytes = usedVertexBytes + usedVertexMetadataBytes + usedIndexBytes + usedEdgeIndexBytes + usedPositionDecodeBytes;
+      stats.vertexBytes += vertexBytes;
+      stats.vertexMetadataBytes += vertexMetadataBytes;
+      stats.indexBytes += pageIndexBytes;
+      stats.edgeIndexBytes += edgeIndexBytes;
+      stats.positionDecodeBytes += positionDecodeBytes;
+      stats.usedVertexBytes += usedVertexBytes;
+      stats.usedVertexMetadataBytes += usedVertexMetadataBytes;
+      stats.usedIndexBytes += usedIndexBytes;
+      stats.usedEdgeIndexBytes += usedEdgeIndexBytes;
+      stats.usedPositionDecodeBytes += usedPositionDecodeBytes;
+      stats.pageDetails.push({
+        key: page.key,
+        indexFormat: page.indexFormat,
+        segmentCount: segmentCountsByPageKey.get(page.key) ?? 0,
+        vertexCapacity: page.vertexCapacity,
+        usedVertices: page.usedVertices,
+        indexCapacity: page.indexCapacity,
+        usedIndices: page.usedIndices,
+        edgeIndexCapacity: page.edgeIndexCapacity,
+        usedEdgeIndices: page.usedEdgeIndices,
+        positionDecodeCapacity: page.positionDecodeCapacity,
+        usedPositionDecodes: page.usedPositionDecodes,
+        bytes,
+        usedBytes,
+        vertexBytes,
+        vertexMetadataBytes,
+        indexBytes: pageIndexBytes,
+        edgeIndexBytes,
+        positionDecodeBytes,
+        usedVertexBytes,
+        usedVertexMetadataBytes,
+        usedIndexBytes,
+        usedEdgeIndexBytes,
+        usedPositionDecodeBytes
+      });
+    }
+
+    stats.totalBytes =
+      stats.vertexBytes +
+      stats.vertexMetadataBytes +
+      stats.indexBytes +
+      stats.edgeIndexBytes +
+      stats.positionDecodeBytes;
+
+    for (const segment of this._segmentsByKey.values()) {
+      const {lifecycle, memoryPolicy} = parseSegmentBaseKey(segment.baseKey);
+      stats.segmentsByLifecycle[lifecycle] = (stats.segmentsByLifecycle[lifecycle] ?? 0) + 1;
+      stats.segmentsByMemoryPolicy[memoryPolicy] = (stats.segmentsByMemoryPolicy[memoryPolicy] ?? 0) + 1;
+    }
+
+    return stats;
+  }
+
+  public createDrawBatch(params: {
+    segment: TriangleBatchSegment;
+    drawItems: DrawItem[];
+    label: string;
+    topology?: "triangles" | "edges";
+    renderStateKey?: string;
+    cacheKey?: string;
+    reuseFullSegmentIndex?: boolean;
+  }): SDKResult<InstancedDrawBatch | null> {
+    const {segment, drawItems} = params;
+    const topology = params.topology ?? "triangles";
+    if (drawItems.length === 0) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+
+    if (topology === "edges" && (!segment.edgeIndexBuffer || segment.edgeIndices.length === 0)) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+
+    if (params.reuseFullSegmentIndex && this._containsAllSegmentSlots(segment, drawItems, topology)) {
+      return {
+        ok: true,
+        value: {
+          packedBatch: {
+            label: params.label,
+            segmentKey: segment.key,
+            bufferPageKey: segment.bufferPageKey,
+            renderStateKey: params.renderStateKey,
+            topology,
+            vertexBuffer: segment.vertexBuffer,
+            vertexBufferOffset: segment.vertexBufferOffset,
+            positionDecodeBindGroup: segment.positionDecodeBindGroup,
+            vertexMetadataBuffer: segment.vertexMetadataBuffer,
+            vertexMetadataBufferOffset: segment.vertexMetadataBufferOffset,
+            indexBuffer: topology === "edges" ? segment.edgeIndexBuffer! : segment.indexBuffer,
+            indexBufferOffset: topology === "edges" ? segment.edgeIndexBufferOffset : segment.indexBufferOffset,
+            indexFormat: segment.indexFormat,
+            indexCount: topology === "edges" ? segment.edgeIndices.length : segment.indices.length,
+            firstIndex: 0,
+            temporaryIndexBuffer: false,
+            temporaryIndexBufferCreated: false,
+            destroy: () => {
+              // Borrowed from the persistent segment; destroyed with the segment.
+            }
+          }
+        }
+      };
+    }
+
+    let totalIndices = 0;
+    for (let i = 0, len = drawItems.length; i < len; i++) {
+      const slot = segment.slotByMeshId[drawItems[i].meshState.mesh.uniqueId];
+      if (!slot) {
+        return {
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+        error: `[TriangleBatchManager.createDrawBatch] Mesh '${drawItems[i].meshState.mesh.uniqueId}' is not in prepared triangle segment '${segment.key}'.`
+      };
+      }
+      totalIndices += topology === "edges" ? slot.edgeIndexCount : slot.indexCount;
+    }
+    if (totalIndices === 0) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+
+    const cachedBatch = params.cacheKey ? this._partialDrawBatchCache.get(params.cacheKey) : null;
+    if (cachedBatch) {
+      return {
+        ok: true,
+        value: cloneCachedDrawBatch(cachedBatch, false)
+      };
+    }
+
+    let indexBuffer: WebGPUBufferLike | null = null;
+    try {
+      const indices = segment.indexFormat === "uint32"
+        ? new Uint32Array(totalIndices)
+        : new Uint16Array(totalIndices);
+      let indexOffset = 0;
+      for (let i = 0, len = drawItems.length; i < len; i++) {
+        const slot = segment.slotByMeshId[drawItems[i].meshState.mesh.uniqueId];
+        if (topology === "edges") {
+          indices.set(segment.edgeIndices.subarray(slot.edgeIndexStart, slot.edgeIndexStart + slot.edgeIndexCount), indexOffset);
+          indexOffset += slot.edgeIndexCount;
+        } else {
+          indices.set(segment.indices.subarray(slot.indexStart, slot.indexStart + slot.indexCount), indexOffset);
+          indexOffset += slot.indexCount;
+        }
+      }
+
+      indexBuffer = this._renderContext.createGPUBuffer(
+        `xeokit-webgpu-packed-${topology === "edges" ? "edge-" : ""}indices:${params.label}`,
+        indices,
+        GPU_BUFFER_USAGE.INDEX
+      );
+
+      const newBatch: InstancedDrawBatch = {
+        packedBatch: {
+          label: params.label,
+          segmentKey: segment.key,
+          bufferPageKey: segment.bufferPageKey,
+          renderStateKey: params.renderStateKey,
+          topology,
+          vertexBuffer: segment.vertexBuffer,
+          vertexBufferOffset: segment.vertexBufferOffset,
+          positionDecodeBindGroup: segment.positionDecodeBindGroup,
+          vertexMetadataBuffer: segment.vertexMetadataBuffer,
+          vertexMetadataBufferOffset: segment.vertexMetadataBufferOffset,
+          indexBuffer,
+          indexBufferOffset: 0,
+          indexFormat: segment.indexFormat,
+          indexCount: indices.length,
+          firstIndex: 0,
+          temporaryIndexBuffer: true,
+          temporaryIndexBufferCreated: true,
+          destroy: () => {
+            indexBuffer?.destroy?.();
+          }
+        }
+      };
+
+      if (params.cacheKey) {
+        this._partialDrawBatchCache.set(params.cacheKey, newBatch);
+        return {
+          ok: true,
+          value: cloneCachedDrawBatch(newBatch, true)
+        };
+      }
+
+      return {
+        ok: true,
+        value: newBatch
+      };
+    } catch (e) {
+      indexBuffer?.destroy?.();
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[TriangleBatchManager.createDrawBatch] Failed to create triangle draw batch '${params.label}': ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+
+  public destroy(): void {
+    for (const segment of this._segmentsByKey.values()) {
+      this._destroySegment(segment);
+    }
+    this._segmentsByKey.clear();
+    this._segmentByMeshId.clear();
+    this._pageCountersByBaseKey.clear();
+    this._freeSlotRanges.length = 0;
+    this._pendingSegmentJobs.length = 0;
+    this._recentBuildSamples.length = 0;
+    this._slowestBuildSamples.length = 0;
+    this._lastSegmentBuildSample = null;
+    this._totalSegmentsBuilt = 0;
+    this._totalBuildMs = 0;
+    this._totalPackMs = 0;
+    this._totalUploadMs = 0;
+    this._totalMeshCount = 0;
+    this._totalVertexCount = 0;
+    this._totalIndexCount = 0;
+    this._totalEdgeIndexCount = 0;
+    this._lastBuildSegments = 0;
+    this._lastBuildMs = 0;
+    this._lastBuildPackMs = 0;
+    this._lastBuildUploadMs = 0;
+    this._lastBuildPendingBefore = 0;
+    this._lastBuildPendingAfter = 0;
+    for (const batch of this._partialDrawBatchCache.values()) {
+      batch.packedBatch.destroy();
+    }
+    this._partialDrawBatchCache.clear();
+    for (const page of this._bufferPagesByKey.values()) {
+      try {
+        page.destroy();
+      } catch {
+        // Ignore buffer destruction failures during teardown.
+      }
+    }
+    this._bufferPagesByKey.clear();
+    this._currentBufferPageByKey.clear();
+    this._nextSlot = 0;
+    this._batchSet = null;
+  }
+
+  private _groupNewMeshStates(meshStates: RendererMesh[], assignedMeshIds: Set<string>): Map<string, RendererMesh[]> {
+    const groups = new Map<string, RendererMesh[]>();
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const meshState = meshStates[i];
+      if (assignedMeshIds.has(meshState.mesh.uniqueId)) {
+        continue;
+      }
+      const key = this._getSegmentBaseKey(meshState);
+      let group = groups.get(key);
+      if (!group) {
+        group = [];
+        groups.set(key, group);
+      }
+      group.push(meshState);
+    }
+    return groups;
+  }
+
+  private _trackSegment(
+    segment: TriangleBatchSegment,
+    assignedMeshIds: Set<string>,
+    segmentByMeshId: {[meshId: string]: TriangleBatchSegment}
+  ): void {
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      const meshId = segment.slots[i].meshState.mesh.uniqueId;
+      assignedMeshIds.add(meshId);
+      this._segmentByMeshId.set(meshId, segment);
+      segmentByMeshId[meshId] = segment;
+    }
+  }
+
+  private _containsAllSegmentSlots(segment: TriangleBatchSegment, drawItems: DrawItem[], topology: "triangles" | "edges"): boolean {
+    if (drawItems.length !== segment.slots.length) {
+      return false;
+    }
+    const meshIds = new Set<string>();
+    for (let i = 0, len = drawItems.length; i < len; i++) {
+      meshIds.add(drawItems[i].meshState.mesh.uniqueId);
+    }
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      const slot = segment.slots[i];
+      if (!meshIds.has(slot.meshState.mesh.uniqueId)) {
+        return false;
+      }
+      if (topology === "edges" && slot.edgeIndexCount === 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private _allocateBufferPageRange(
+    baseKey: string,
+    segmentLabel: string,
+    indexFormat: "uint16" | "uint32",
+    vertexCount: number,
+    indexCount: number,
+    edgeIndexCount: number
+  ): SDKResult<{
+    page: TriangleBufferPage;
+    vertexBase: number;
+    positionDecodeIndex: number;
+    vertexByteOffset: number;
+    vertexMetadataByteOffset: number;
+    positionDecodeByteOffset: number;
+    indexByteOffset: number;
+    edgeIndexByteOffset: number;
+  }> {
+    const pageKey = `${baseKey}|${indexFormat}`;
+    const pageSegmentMultiplier = this._getBufferPageSegmentMultiplier(baseKey);
+    let page = this._currentBufferPageByKey.get(pageKey);
+    if (
+      !page ||
+      page.usedVertices + vertexCount > page.vertexCapacity ||
+      page.usedIndices + indexCount > page.indexCapacity ||
+      page.usedEdgeIndices + edgeIndexCount > page.edgeIndexCapacity ||
+      page.usedPositionDecodes + 1 > page.positionDecodeCapacity
+    ) {
+      const pageResult = this._createBufferPage(pageKey, segmentLabel, indexFormat, vertexCount, indexCount, edgeIndexCount, pageSegmentMultiplier);
+      if (pageResult.ok === false) {
+        return pageResult;
+      }
+      page = pageResult.value;
+      this._currentBufferPageByKey.set(pageKey, page);
+    }
+
+    const activePage = page;
+    const vertexBase = activePage.usedVertices;
+    const indexBase = activePage.usedIndices;
+    const edgeIndexBase = activePage.usedEdgeIndices;
+    const positionDecodeIndex = activePage.usedPositionDecodes;
+    activePage.usedVertices += vertexCount;
+    activePage.usedIndices += indexCount;
+    activePage.usedEdgeIndices += edgeIndexCount;
+    activePage.usedPositionDecodes++;
+    activePage.refCount++;
+
+    const indexBytes = indexFormat === "uint32" ? 4 : 2;
+    return {
+      ok: true,
+      value: {
+        page: activePage,
+        vertexBase,
+        positionDecodeIndex,
+        vertexByteOffset: vertexBase * 8,
+        vertexMetadataByteOffset: vertexBase * 8,
+        positionDecodeByteOffset: positionDecodeIndex * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES,
+        indexByteOffset: indexBase * indexBytes,
+        edgeIndexByteOffset: edgeIndexBase * indexBytes
+      }
+    };
+  }
+
+  private _createBufferPage(
+    pageKey: string,
+    segmentLabel: string,
+    indexFormat: "uint16" | "uint32",
+    vertexCount: number,
+    indexCount: number,
+    edgeIndexCount: number,
+    pageSegmentMultiplier: number
+  ): SDKResult<TriangleBufferPage> {
+    const sanitizedPageKey = this._sanitizeLabel(`${pageKey}|bufferPage:${this._bufferPagesByKey.size}`);
+    const vertexCapacity = Math.max(1, vertexCount * pageSegmentMultiplier);
+    const indexCapacity = Math.max(1, indexCount * pageSegmentMultiplier);
+    const edgeIndexCapacity = Math.max(1, edgeIndexCount * pageSegmentMultiplier);
+    const positionDecodeCapacity = pageSegmentMultiplier;
+    const indexBytes = indexFormat === "uint32" ? 4 : 2;
+    const positionDecodeLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeLayoutResult.ok === false) {
+      return positionDecodeLayoutResult;
+    }
+    try {
+      const vertexBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-positions:triangles:${segmentLabel}`,
+        vertexCapacity * 8,
+        GPU_BUFFER_USAGE.VERTEX
+      );
+      const vertexMetadataBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-vertex-metadata:triangles:${segmentLabel}`,
+        vertexCapacity * 8,
+        GPU_BUFFER_USAGE.VERTEX
+      );
+      const positionDecodeBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-triangle-position-decodes:triangles:${segmentLabel}`,
+        positionDecodeCapacity * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES,
+        GPU_BUFFER_USAGE.STORAGE
+      );
+      const positionDecodeBindGroup = this._renderContext.device.createBindGroup({
+        label: `xeokit-webgpu-triangle-position-decode-bind-group:triangles:${segmentLabel}`,
+        layout: positionDecodeLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: positionDecodeBuffer
+          }
+        }]
+      });
+      const indexBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-indices:triangles:${segmentLabel}`,
+        indexCapacity * indexBytes,
+        GPU_BUFFER_USAGE.INDEX
+      );
+      const edgeIndexBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-edge-indices:triangles:${segmentLabel}`,
+        edgeIndexCapacity * indexBytes,
+        GPU_BUFFER_USAGE.INDEX
+      );
+      const page: TriangleBufferPage = {
+        key: sanitizedPageKey,
+        indexFormat,
+        vertexCapacity,
+        indexCapacity,
+        edgeIndexCapacity,
+        positionDecodeCapacity,
+        usedVertices: 0,
+        usedIndices: 0,
+        usedEdgeIndices: 0,
+        usedPositionDecodes: 0,
+        refCount: 0,
+        vertexBuffer,
+        vertexMetadataBuffer,
+        positionDecodeBuffer,
+        positionDecodeBindGroup,
+        indexBuffer,
+        edgeIndexBuffer,
+        destroy: () => {
+          vertexBuffer.destroy?.();
+          vertexMetadataBuffer.destroy?.();
+          positionDecodeBuffer.destroy?.();
+          indexBuffer.destroy?.();
+          edgeIndexBuffer.destroy?.();
+        }
+      };
+      this._bufferPagesByKey.set(page.key, page);
+      return {
+        ok: true,
+        value: page
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[TriangleBatchManager._createBufferPage] Failed to create triangle buffer page '${segmentLabel}': ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+
+  private _getBufferPageSegmentMultiplier(baseKey: string): number {
+    const {lifecycle, memoryPolicy} = parseSegmentBaseKey(baseKey);
+    if (lifecycle !== "sealed") {
+      return TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER;
+    }
+    if (memoryPolicy === "compact") {
+      return 1;
+    }
+    if (memoryPolicy === "stream" && this._memoryConfigs.compactSealedStreamPages) {
+      return 1;
+    }
+    return TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER;
+  }
+
+  private _releaseBufferPage(page: TriangleBufferPage): void {
+    page.refCount--;
+    if (page.refCount > 0) {
+      return;
+    }
+    page.destroy();
+    this._bufferPagesByKey.delete(page.key);
+    for (const [key, currentPage] of Array.from(this._currentBufferPageByKey)) {
+      if (currentPage === page) {
+        this._currentBufferPageByKey.delete(key);
+      }
+    }
+  }
+
+  private _getSegmentBaseKey(meshState: RendererMesh): string {
+    const model = meshState.sceneModel ?? meshState.mesh.model;
+    const memoryPolicy = model?.memoryPolicy ?? "stream";
+    const lifecycle = this._getSegmentBaseLifecycle(model?.lifecycle ?? "dynamic", memoryPolicy);
+    return `${model?.id ?? "unowned"}|${lifecycle}|${memoryPolicy}`;
+  }
+
+  private _getSegmentBaseLifecycle(lifecycle: string, memoryPolicy: string): string {
+    if (
+      memoryPolicy === "stream" &&
+      !this._memoryConfigs.compactSealedStreamPages &&
+      (lifecycle === "open" || lifecycle === "streaming" || lifecycle === "sealed")
+    ) {
+      return "streaming";
+    }
+    return lifecycle;
+  }
+
+  private _nextSegmentKey(baseKey: string): string {
+    const pageIndex = this._pageCountersByBaseKey.get(baseKey) ?? 0;
+    this._pageCountersByBaseKey.set(baseKey, pageIndex + 1);
+    return `${baseKey}|page:${pageIndex}`;
+  }
+
+  private _getSegmentSignature(meshStates: RendererMesh[]): string {
+    const parts: string[] = [];
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      parts.push(this._getMeshSignature(meshStates[i]));
+    }
+    return parts.join("|");
+  }
+
+  private _getMeshSignature(meshState: RendererMesh): string {
+    return `${meshState.mesh.uniqueId}:${meshState.geometryState.geometry.uniqueId}:${meshState.geometryState.positions.length}:${meshState.geometryState.indices.length}`;
+  }
+
+  private _getBoundsVersion(slots: WebGPUTriangleMeshSlot[]): string {
+    const parts: string[] = [];
+    for (let i = 0, len = slots.length; i < len; i++) {
+      const meshState = slots[i].meshState;
+      parts.push(`${meshState.mesh.uniqueId}:${meshState.instanceDataVersion}`);
+    }
+    return parts.join("|");
+  }
+
+  private _destroySegment(segment: TriangleBatchSegment): void {
+    try {
+      segment.destroy();
+    } catch {
+      // Ignore buffer destruction failures during teardown.
+    }
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      this._segmentByMeshId.delete(segment.slots[i].meshState.mesh.uniqueId);
+    }
+    for (const [key, batch] of Array.from(this._partialDrawBatchCache)) {
+      if (batch.packedBatch.segmentKey === segment.key) {
+        batch.packedBatch.destroy();
+        this._partialDrawBatchCache.delete(key);
+      }
+    }
+    this._freeSlots(segment.baseSlot, segment.slotCount);
+    this._batchSet = null;
+  }
+
+  private _allocateSlots(count: number): number {
+    for (let i = 0, len = this._freeSlotRanges.length; i < len; i++) {
+      const range = this._freeSlotRanges[i];
+      if (range.count < count) {
+        continue;
+      }
+      const base = range.base;
+      range.base += count;
+      range.count -= count;
+      if (range.count === 0) {
+        this._freeSlotRanges.splice(i, 1);
+      }
+      return base;
+    }
+
+    const base = this._nextSlot;
+    this._nextSlot += count;
+    return base;
+  }
+
+  private _freeSlots(base: number, count: number): void {
+    if (count === 0) {
+      return;
+    }
+    this._freeSlotRanges.push({base, count});
+    this._freeSlotRanges.sort((a, b) => a.base - b.base);
+
+    for (let i = 0; i < this._freeSlotRanges.length - 1;) {
+      const current = this._freeSlotRanges[i];
+      const next = this._freeSlotRanges[i + 1];
+      if (current.base + current.count === next.base) {
+        current.count += next.count;
+        this._freeSlotRanges.splice(i + 1, 1);
+        continue;
+      }
+      i++;
+    }
+
+    const last = this._freeSlotRanges[this._freeSlotRanges.length - 1];
+    if (last && last.base + last.count === this._nextSlot) {
+      this._nextSlot = last.base;
+      this._freeSlotRanges.pop();
+    }
+  }
+
+  private _getInstanceCapacity(segments: TriangleBatchSegment[]): number {
+    let instanceCapacity = 0;
+    for (let i = 0, len = segments.length; i < len; i++) {
+      instanceCapacity = Math.max(instanceCapacity, segments[i].slotEnd);
+    }
+    return instanceCapacity;
+  }
+
+  private _getProjectedInstanceCapacity(segments: TriangleBatchSegment[], pendingJobs: TriangleSegmentBuildJob[]): number {
+    let instanceCapacity = this._getInstanceCapacity(segments);
+    for (let i = 0, len = pendingJobs.length; i < len; i++) {
+      instanceCapacity += pendingJobs[i].meshStates.length;
+    }
+    return Math.max(instanceCapacity, this._nextSlot);
+  }
+
+  private _recordBuildSample(sample: TriangleSegmentBuildSample): void {
+    this._totalSegmentsBuilt++;
+    this._totalBuildMs += sample.totalMs;
+    this._totalPackMs += sample.packMs;
+    this._totalUploadMs += sample.uploadMs;
+    this._totalMeshCount += sample.meshCount;
+    this._totalVertexCount += sample.vertexCount;
+    this._totalIndexCount += sample.indexCount;
+    this._totalEdgeIndexCount += sample.edgeIndexCount;
+
+    this._recentBuildSamples.push({...sample});
+    while (this._recentBuildSamples.length > MAX_SEGMENT_BUILD_SAMPLES) {
+      this._recentBuildSamples.shift();
+    }
+
+    this._slowestBuildSamples.push({...sample});
+    this._slowestBuildSamples.sort((a, b) => b.totalMs - a.totalMs);
+    if (this._slowestBuildSamples.length > MAX_SEGMENT_BUILD_SAMPLES) {
+      this._slowestBuildSamples.length = MAX_SEGMENT_BUILD_SAMPLES;
+    }
+  }
+
+  private _createBuildTelemetrySnapshot(): TriangleSegmentBuildTelemetry {
+    return {
+      totalSegmentsBuilt: this._totalSegmentsBuilt,
+      totalBuildMs: this._totalBuildMs,
+      totalPackMs: this._totalPackMs,
+      totalUploadMs: this._totalUploadMs,
+      totalMeshCount: this._totalMeshCount,
+      totalVertexCount: this._totalVertexCount,
+      totalIndexCount: this._totalIndexCount,
+      totalEdgeIndexCount: this._totalEdgeIndexCount,
+      lastBuildSegments: this._lastBuildSegments,
+      lastBuildMs: this._lastBuildMs,
+      lastBuildPackMs: this._lastBuildPackMs,
+      lastBuildUploadMs: this._lastBuildUploadMs,
+      lastBuildPendingBefore: this._lastBuildPendingBefore,
+      lastBuildPendingAfter: this._lastBuildPendingAfter,
+      recentSamples: this._recentBuildSamples.map((sample) => ({...sample})),
+      slowestSamples: this._slowestBuildSamples.map((sample) => ({...sample}))
+    };
+  }
+
+  private _sanitizeLabel(value: string): string {
+    return value.replace(/[^a-zA-Z0-9_.-]/g, "_");
+  }
+}
+
+function createEmptyAABB(): Float64Array {
+  return new Float64Array([
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY
+  ]);
+}
+
+function expandWorldAABB(worldAABB: Float64Array, localAABB: ArrayLike<number> | undefined, worldMatrix: ArrayLike<number>): void {
+  if (!localAABB) {
+    return;
+  }
+  for (let xIndex = 0; xIndex < 2; xIndex++) {
+    const x = localAABB[xIndex === 0 ? 0 : 3];
+    for (let yIndex = 0; yIndex < 2; yIndex++) {
+      const y = localAABB[yIndex === 0 ? 1 : 4];
+      for (let zIndex = 0; zIndex < 2; zIndex++) {
+        const z = localAABB[zIndex === 0 ? 2 : 5];
+        const worldX = worldMatrix[0] * x + worldMatrix[4] * y + worldMatrix[8] * z + worldMatrix[12];
+        const worldY = worldMatrix[1] * x + worldMatrix[5] * y + worldMatrix[9] * z + worldMatrix[13];
+        const worldZ = worldMatrix[2] * x + worldMatrix[6] * y + worldMatrix[10] * z + worldMatrix[14];
+        worldAABB[0] = Math.min(worldAABB[0], worldX);
+        worldAABB[1] = Math.min(worldAABB[1], worldY);
+        worldAABB[2] = Math.min(worldAABB[2], worldZ);
+        worldAABB[3] = Math.max(worldAABB[3], worldX);
+        worldAABB[4] = Math.max(worldAABB[4], worldY);
+        worldAABB[5] = Math.max(worldAABB[5], worldZ);
+      }
+    }
+  }
+}
+
+function getMeshWorldMatrix(meshState: RendererMesh): ArrayLike<number> {
+  return meshState.mesh.worldMatrix ?? meshState.mesh.matrix ?? IDENTITY_MATRIX;
+}
+
+function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boolean): InstancedDrawBatch {
+  const packedBatch = batch.packedBatch;
+  return {
+    packedBatch: {
+      label: packedBatch.label,
+      segmentKey: packedBatch.segmentKey,
+      bufferPageKey: packedBatch.bufferPageKey,
+      renderStateKey: packedBatch.renderStateKey,
+      topology: packedBatch.topology,
+      vertexBuffer: packedBatch.vertexBuffer,
+      vertexBufferOffset: packedBatch.vertexBufferOffset,
+      positionDecodeBindGroup: packedBatch.positionDecodeBindGroup,
+      vertexMetadataBuffer: packedBatch.vertexMetadataBuffer,
+      vertexMetadataBufferOffset: packedBatch.vertexMetadataBufferOffset,
+      indexBuffer: packedBatch.indexBuffer,
+      indexBufferOffset: packedBatch.indexBufferOffset,
+      indexFormat: packedBatch.indexFormat,
+      indexCount: packedBatch.indexCount,
+      firstIndex: packedBatch.firstIndex,
+      temporaryIndexBuffer: true,
+      temporaryIndexBufferCreated: createdThisFrame,
+      destroy: () => {
+        // Cached partial batches are owned and destroyed by TriangleBatchManager.
+      }
+    }
+  };
+}
+
+function getIndexElementByteLength(indexFormat: "uint16" | "uint32"): number {
+  return indexFormat === "uint32" ? Uint32Array.BYTES_PER_ELEMENT : Uint16Array.BYTES_PER_ELEMENT;
+}
+
+function parseSegmentBaseKey(baseKey: string): {lifecycle: string; memoryPolicy: string} {
+  const parts = baseKey.split("|");
+  return {
+    lifecycle: parts[1] || "dynamic",
+    memoryPolicy: parts[2] || "stream"
+  };
+}
+
+function createPositionAABB(meshStates: RendererMesh[]): Float32Array {
+  const aabb = new Float32Array([
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY
+  ]);
+  for (let meshIndex = 0, meshLen = meshStates.length; meshIndex < meshLen; meshIndex++) {
+    const positions = meshStates[meshIndex].geometryState.positions;
+    for (let i = 0, len = positions.length; i < len; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+      const z = positions[i + 2];
+      if (x < aabb[0]) {
+        aabb[0] = x;
+      }
+      if (y < aabb[1]) {
+        aabb[1] = y;
+      }
+      if (z < aabb[2]) {
+        aabb[2] = z;
+      }
+      if (x > aabb[3]) {
+        aabb[3] = x;
+      }
+      if (y > aabb[4]) {
+        aabb[4] = y;
+      }
+      if (z > aabb[5]) {
+        aabb[5] = z;
+      }
+    }
+  }
+  if (aabb[0] === Number.POSITIVE_INFINITY) {
+    aabb.set([0, 0, 0, 0, 0, 0]);
+  }
+  return aabb;
+}
+
+function createPositionDecodeUniform(aabb: Float32Array): Float32Array {
+  const uniform = new Float32Array(TRIANGLE_POSITION_DECODE_UNIFORM_FLOATS);
+  uniform[0] = aabb[0];
+  uniform[1] = aabb[1];
+  uniform[2] = aabb[2];
+  uniform[4] = aabb[3] - aabb[0];
+  uniform[5] = aabb[4] - aabb[1];
+  uniform[6] = aabb[5] - aabb[2];
+  return uniform;
+}
+
+function quantizePositionsInto(source: Float32Array, target: Uint16Array, vertexOffset: number, aabb: Float32Array): void {
+  const minX = aabb[0];
+  const minY = aabb[1];
+  const minZ = aabb[2];
+  const extentX = aabb[3] - minX;
+  const extentY = aabb[4] - minY;
+  const extentZ = aabb[5] - minZ;
+  const scaleX = extentX > 0 ? 65535 / extentX : 0;
+  const scaleY = extentY > 0 ? 65535 / extentY : 0;
+  const scaleZ = extentZ > 0 ? 65535 / extentZ : 0;
+  let dst = vertexOffset * 4;
+  for (let src = 0, len = source.length; src < len; src += 3) {
+    target[dst++] = quantizeUnorm16((source[src] - minX) * scaleX);
+    target[dst++] = quantizeUnorm16((source[src + 1] - minY) * scaleY);
+    target[dst++] = quantizeUnorm16((source[src + 2] - minZ) * scaleZ);
+    target[dst++] = 0;
+  }
+}
+
+function quantizeUnorm16(value: number): number {
+  if (value <= 0) {
+    return 0;
+  }
+  if (value >= 65535) {
+    return 65535;
+  }
+  return Math.round(value);
+}

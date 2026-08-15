@@ -109,4 +109,13 @@ export interface MemoryConfigs {
    * application deliberately keeps appending meshes to sealed stream models.
    */
   compactSealedStreamPages: boolean;
+
+  /**
+   * Fits packed triangle pages for live streaming models without reserving
+   * append headroom for additional compatible segments.
+   *
+   * This lowers peak GPU memory for very large streams at the cost of more
+   * packed pages and draw calls.
+   */
+  compactStreamPages: boolean;
 }

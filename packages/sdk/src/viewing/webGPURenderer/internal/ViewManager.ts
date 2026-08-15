@@ -421,7 +421,7 @@ export class ViewManager {
   }
 
   public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
-    void sceneTexture;
+    this._renderManager?.sceneTextureImageDataChanged(sceneTexture);
     this._requestRenderAllViews();
   }
 
@@ -582,6 +582,14 @@ export class ViewManager {
 
   public getRenderInspector(): RenderInspector {
     return this._renderInspector;
+  }
+
+  public setInfiniteGridEnabled(enabled: boolean): void {
+    if (!this._renderManager) {
+      return;
+    }
+    this._renderManager.infiniteGrid.enabled = enabled;
+    this._requestRenderAllViews();
   }
 
   public getMemoryStats(): WebGPUMemoryStats | null {

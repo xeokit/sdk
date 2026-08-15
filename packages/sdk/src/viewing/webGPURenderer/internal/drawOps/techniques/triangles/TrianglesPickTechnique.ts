@@ -5,7 +5,7 @@ import type {WebGPURenderPassValue} from "../../../RENDER_PASSES";
 import type {PipelineState} from "../../PipelineState";
 import {DrawTechnique, type DrawBatchesParams} from "../../DrawTechnique";
 import {encodePackedTriangleBatches} from "./PackedTriangleBatchEncoder";
-import {TRIANGLES_PICK_SHADER} from "./TrianglesPickShader";
+import {createTrianglesPickShader} from "./TrianglesPickShader";
 import {PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS} from "./TrianglePositionPacking";
 
 /**
@@ -145,8 +145,10 @@ export class TrianglesPickTechnique extends DrawTechnique {
 
     try {
       this._shaderModule = this._renderContext.device.createShaderModule({
-        label: "xeokit-webgpu-triangles-pick-shader",
-        code: TRIANGLES_PICK_SHADER
+        label: this._renderContext.renderConfigs.logDepth
+          ? "xeokit-webgpu-triangles-pick-log-depth-shader"
+          : "xeokit-webgpu-triangles-pick-shader",
+        code: createTrianglesPickShader(this._renderContext.renderConfigs.logDepth)
       });
     } catch (e) {
       return {

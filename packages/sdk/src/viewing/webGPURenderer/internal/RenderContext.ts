@@ -1,4 +1,4 @@
-import type {WebGPUBufferLike, WebGPUDeviceLike, WebGPUTextureLike} from "../core";
+import type {WebGPUBindGroupLike, WebGPUBufferLike, WebGPUDeviceLike, WebGPUSamplerLike, WebGPUTextureLike} from "../core";
 import type {MemoryConfigs} from "../MemoryConfigs";
 import type {WebGPURenderConfigs} from "../WebGPURenderConfigs";
 import {DEPTH_FORMAT, GPU_BUFFER_USAGE, GPU_TEXTURE_USAGE} from "./constants";
@@ -12,8 +12,16 @@ export class RenderContext {
 
   public readonly device: WebGPUDeviceLike;
   public readonly contextFormat: string;
+  public colorTargetFormat: string;
   public readonly memoryConfigs: MemoryConfigs;
   public readonly renderConfigs: WebGPURenderConfigs;
+  public shadowBindGroup: WebGPUBindGroupLike | null = null;
+  public iblUniformBuffer: WebGPUBufferLike | null = null;
+  public iblSampler: WebGPUSamplerLike | null = null;
+  public iblIrradianceView: unknown = null;
+  public iblPrefilteredView: unknown = null;
+  public iblBRDFLUTView: unknown = null;
+  public iblBindGroupVersion = 0;
 
   constructor(params: {
     device: WebGPUDeviceLike;
@@ -23,6 +31,7 @@ export class RenderContext {
   }) {
     this.device = params.device;
     this.contextFormat = params.contextFormat;
+    this.colorTargetFormat = params.contextFormat;
     this.memoryConfigs = params.memoryConfigs;
     this.renderConfigs = params.renderConfigs;
   }
@@ -65,7 +74,7 @@ export class RenderContext {
         depthOrArrayLayers: 1
       },
       format: DEPTH_FORMAT,
-      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT | GPU_TEXTURE_USAGE.TEXTURE_BINDING
     });
   }
 

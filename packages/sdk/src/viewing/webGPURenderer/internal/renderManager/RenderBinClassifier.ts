@@ -126,6 +126,9 @@ export class RenderBinClassifier {
   }
 
   private _classifyMesh(meshState: RendererMesh, view: View, meshManager: MeshManager, bins: RenderBins): void {
+    if (meshState.mesh.bin === "overlayPicker") {
+      return;
+    }
     if (!meshManager.isMeshVisibleInView(meshState, view)) {
       return;
     }
@@ -148,6 +151,9 @@ export class RenderBinClassifier {
     const {segment, view, meshManager, bins} = params;
     for (let i = 0, len = segment.slots.length; i < len; i++) {
       const meshState = segment.slots[i].meshState;
+      if (meshState.mesh.bin === "overlayPicker") {
+        return false;
+      }
       if (!meshManager.isMeshVisibleInView(meshState, view)) {
         return false;
       }
@@ -169,7 +175,7 @@ export class RenderBinClassifier {
     drawItem.opacity = opacity;
     this._stats.rendered++;
     const style = meshManager.getMeshDrawStyleInView(meshState, view);
-    const isOpaque = opacity >= 1;
+    const isOpaque = opacity >= 1 && style.alphaMode !== 2;
     const hasEdges = style.drawEdges && meshState.geometryState.edgeIndexCount > 0;
 
     if (isOpaque) {

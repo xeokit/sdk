@@ -9,6 +9,8 @@ import type {WebGPURenderPipelineLike} from "./WebGPURenderPipelineLike";
 import type {WebGPUShaderModuleLike} from "./WebGPUShaderModuleLike";
 import type {WebGPUTextureLike} from "./WebGPUTextureLike";
 
+export type WebGPUSamplerLike = object;
+
 export interface WebGPUQuerySetLike {
   destroy?(): void;
 }
@@ -30,6 +32,7 @@ export interface WebGPUDeviceLike {
   createPipelineLayout(descriptor: object): WebGPUPipelineLayoutLike;
   createRenderPipeline(descriptor: object): WebGPURenderPipelineLike;
   createBindGroup(descriptor: object): WebGPUBindGroupLike;
+  createSampler?(descriptor: object): WebGPUSamplerLike;
   createCommandEncoder(): WebGPUCommandEncoderLike;
   destroy?(): void;
 }

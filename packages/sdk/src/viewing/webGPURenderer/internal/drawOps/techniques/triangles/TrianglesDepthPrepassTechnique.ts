@@ -5,7 +5,7 @@ import type {WebGPURenderPassValue} from "../../../RENDER_PASSES";
 import type {PipelineState} from "../../PipelineState";
 import {DrawTechnique, type DrawBatchesParams} from "../../DrawTechnique";
 import {encodePackedTriangleBatches} from "./PackedTriangleBatchEncoder";
-import {TRIANGLES_DEPTH_PREPASS_SHADER} from "./TrianglesDepthPrepassShader";
+import {createTrianglesDepthPrepassShader} from "./TrianglesDepthPrepassShader";
 import {PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS} from "./TrianglePositionPacking";
 
 /**
@@ -139,8 +139,10 @@ export class TrianglesDepthPrepassTechnique extends DrawTechnique {
 
     try {
       this._shaderModule = this._renderContext.device.createShaderModule({
-        label: "xeokit-webgpu-triangles-depth-prepass-shader",
-        code: TRIANGLES_DEPTH_PREPASS_SHADER
+        label: this._renderContext.renderConfigs.logDepth
+          ? "xeokit-webgpu-triangles-depth-prepass-log-depth-shader"
+          : "xeokit-webgpu-triangles-depth-prepass-shader",
+        code: createTrianglesDepthPrepassShader(this._renderContext.renderConfigs.logDepth)
       });
     } catch (e) {
       return {

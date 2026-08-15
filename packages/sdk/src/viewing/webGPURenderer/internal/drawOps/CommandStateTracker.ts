@@ -41,17 +41,19 @@ export class CommandStateTracker {
   }
 
   public setPipeline(pipelineState: PipelineState): void {
-    this._invalidateIncompatibleBindGroups(pipelineState.bindGroupLayoutSignature);
     if (pipelineState.renderPipeline === this._activePipeline) {
+      this._invalidateIncompatibleBindGroups(pipelineState.bindGroupLayoutSignature);
       return;
     }
+    this._activeBindGroups = {};
+    this._activeBindGroupLayoutSignature = pipelineState.bindGroupLayoutSignature;
     this._passEncoder.setPipeline?.(pipelineState.renderPipeline);
     this._commandStats?.pipelineBound();
     this._activePipeline = pipelineState.renderPipeline;
   }
 
-  public setBindGroup(slot: number, bindGroup: WebGPUBindGroupLike): void {
-    if (this._activeBindGroups[slot] === bindGroup) {
+  public setBindGroup(slot: number, bindGroup: WebGPUBindGroupLike, force = false): void {
+    if (!force && this._activeBindGroups[slot] === bindGroup) {
       return;
     }
     this._passEncoder.setBindGroup?.(slot, bindGroup);

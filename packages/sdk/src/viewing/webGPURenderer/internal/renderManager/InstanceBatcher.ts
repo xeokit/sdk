@@ -1,5 +1,6 @@
 import {type SDKResult} from "../../../../base/core";
 import type {View} from "../../../viewer";
+import type {SceneTexture} from "../../../../model/scene";
 import type {InstancedDrawBatch, InstancedDrawBatches} from "../drawOps";
 import type {DrawItem, RenderBins} from "../renderState";
 import {MeshManager} from "../meshManager";
@@ -27,6 +28,8 @@ export class InstanceBatcher {
     opaque: [],
     edges: [],
     transparent: [],
+    overlayOpaque: [],
+    overlayTransparent: [],
     xrayedOpaque: [],
     xrayedEdgesOpaque: [],
     xrayedTransparent: [],
@@ -61,6 +64,10 @@ export class InstanceBatcher {
 
   public getMemoryStats() {
     return this._triangleBatchManager.getMemoryStats();
+  }
+
+  public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
+    this._triangleBatchManager.sceneTextureImageDataChanged(sceneTexture);
   }
 
   public prepare(meshManager: MeshManager): SDKResult<number> {
@@ -149,7 +156,7 @@ export class InstanceBatcher {
 
     const opaqueBatchResult = this._appendOpaqueBatches({
       batchSet: triangleBatch,
-      drawItems: bins.normalDrawOpaque,
+      drawItems: filterDrawItemsByOverlay(bins.normalDrawOpaque, false),
       viewId: view.id
     });
     if (opaqueBatchResult.ok === false) {
@@ -161,9 +168,9 @@ export class InstanceBatcher {
     if (includeEdges) {
       const edgeBatchResult = this._appendEdgeBatches({
         batchSet: triangleBatch,
-        drawItems: bins.normalEdgesOpaque,
-        viewId: view.id,
-        pass: "edges"
+      drawItems: filterDrawItemsByOverlay(bins.normalEdgesOpaque, false),
+      viewId: view.id,
+      pass: "edges"
       });
       if (edgeBatchResult.ok === false) {
         this._destroyBatches(this._batches);
@@ -174,7 +181,7 @@ export class InstanceBatcher {
 
     const transparentBatchResult = this._appendTransparentBatches({
       batchSet: triangleBatch,
-      drawItems: bins.normalFillTransparent,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, false),
       viewId: view.id,
       pass: "transparent"
     });
@@ -182,6 +189,32 @@ export class InstanceBatcher {
       this._destroyBatches(this._batches);
       this._clear();
       return transparentBatchResult;
+    }
+
+    const overlayOpaqueBatchResult = this._appendOpaqueBatches({
+      batchSet: triangleBatch,
+      drawItems: filterDrawItemsByOverlay(bins.normalDrawOpaque, true),
+      viewId: view.id,
+      pass: "overlayOpaque",
+      target: this._batches.overlayOpaque
+    });
+    if (overlayOpaqueBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return overlayOpaqueBatchResult;
+    }
+
+    const overlayTransparentBatchResult = this._appendTransparentBatches({
+      batchSet: triangleBatch,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, true),
+      viewId: view.id,
+      pass: "overlayTransparent",
+      target: this._batches.overlayTransparent
+    });
+    if (overlayTransparentBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return overlayTransparentBatchResult;
     }
 
     const emphasisResults = [
@@ -252,7 +285,7 @@ export class InstanceBatcher {
 
     const transparentBatchResult = this._appendTransparentBatches({
       batchSet,
-      drawItems: bins.normalFillTransparent,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, false),
       viewId: view.id,
       pass: "transparent"
     });
@@ -260,6 +293,19 @@ export class InstanceBatcher {
       this._destroyBatches(this._batches);
       this._clear();
       return transparentBatchResult;
+    }
+
+    const overlayTransparentBatchResult = this._appendTransparentBatches({
+      batchSet,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, true),
+      viewId: view.id,
+      pass: "overlayTransparent",
+      target: this._batches.overlayTransparent
+    });
+    if (overlayTransparentBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return overlayTransparentBatchResult;
     }
 
     const emphasisResults = [
@@ -557,6 +603,8 @@ export class InstanceBatcher {
     this._batches.opaque.length = 0;
     this._batches.edges.length = 0;
     this._batches.transparent.length = 0;
+    this._batches.overlayOpaque.length = 0;
+    this._batches.overlayTransparent.length = 0;
     this._batches.xrayedOpaque.length = 0;
     this._batches.xrayedEdgesOpaque.length = 0;
     this._batches.xrayedTransparent.length = 0;
@@ -595,6 +643,8 @@ export class InstanceBatcher {
       batches.transparent[i].packedBatch.destroy();
     }
     for (const batchList of [
+      batches.overlayOpaque,
+      batches.overlayTransparent,
       batches.xrayedOpaque,
       batches.xrayedEdgesOpaque,
       batches.xrayedTransparent,
@@ -619,4 +669,8 @@ export class InstanceBatcher {
     this._clear();
     this._triangleBatchManager.destroy();
   }
+}
+
+function filterDrawItemsByOverlay(drawItems: DrawItem[], overlay: boolean): DrawItem[] {
+  return drawItems.filter((drawItem) => (drawItem.meshState.mesh.bin === "overlay") === overlay);
 }

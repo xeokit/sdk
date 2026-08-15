@@ -6,6 +6,7 @@ import type {View} from "../viewer";
 // into Detailed/Realistic mid-gesture, and short enough that the quality
 // swap feels responsive when the user lets go.
 const DEFAULT_REST_MS = 500;
+const DEFAULT_REST_IDLE_TIMEOUT_MS = 1000;
 
 // One AdaptiveQuality per View — a second instance on the same View would
 // race the first on every camera event. Mirrors ViewCuller's liveCullers map.
@@ -43,6 +44,15 @@ export interface AdaptiveQualityParams {
    * `restMode`. Default 500 ms.
    */
   restMs?: number;
+
+  /**
+   * Maximum extra time to wait for an idle callback before restoring
+   * `restMode` after `restMs` has elapsed. Default 1000 ms.
+   *
+   * The delayed restore is still cancelable by a fresh camera event, which
+   * keeps navigation input ahead of the first expensive quality frame.
+   */
+  restIdleTimeoutMs?: number;
 }
 
 /**
@@ -89,9 +99,13 @@ export class AdaptiveQuality {
   readonly #fastMode: number;
   readonly #restMode: number;
   readonly #restMs: number;
+  readonly #restIdleTimeoutMs: number;
   readonly #unsubscribers: (() => void)[] = [];
 
   #restTimer: ReturnType<typeof setTimeout> | null = null;
+  #restIdleHandle: number | ReturnType<typeof setTimeout> | null = null;
+  #restIdleHandleType: "idle" | "timeout" | null = null;
+  #motionGeneration = 0;
   #enabled = true;
   #destroyed = false;
 
@@ -106,6 +120,7 @@ export class AdaptiveQuality {
     this.#fastMode = params.fastMode ?? NavigationRender;
     this.#restMode = params.restMode ?? RealisticRender;
     this.#restMs = Math.max(0, params.restMs ?? DEFAULT_REST_MS);
+    this.#restIdleTimeoutMs = Math.max(0, params.restIdleTimeoutMs ?? DEFAULT_REST_IDLE_TIMEOUT_MS);
 
     const events = view.viewer.events;
     const onCamera = (changedView: View) => {
@@ -157,10 +172,7 @@ export class AdaptiveQuality {
   }
 
   #restoreRestMode(): void {
-    if (this.#restTimer !== null) {
-      clearTimeout(this.#restTimer);
-      this.#restTimer = null;
-    }
+    this.#clearPendingRestRestore();
     // Restore quality on the way out so a deliberate disable doesn't strand
     // the View in fastMode.
     if (this.view.renderMode !== this.#restMode) {
@@ -168,19 +180,56 @@ export class AdaptiveQuality {
     }
   }
 
+  #clearPendingRestRestore(): void {
+    if (this.#restTimer !== null) {
+      clearTimeout(this.#restTimer);
+      this.#restTimer = null;
+    }
+    if (this.#restIdleHandle !== null) {
+      if (this.#restIdleHandleType === "idle") {
+        const cancelIdleCallback = (globalThis as any).cancelIdleCallback;
+        if (typeof cancelIdleCallback === "function") {
+          cancelIdleCallback(this.#restIdleHandle);
+        }
+      } else {
+        clearTimeout(this.#restIdleHandle as ReturnType<typeof setTimeout>);
+      }
+      this.#restIdleHandle = null;
+      this.#restIdleHandleType = null;
+    }
+  }
+
   #onCameraChanged(): void {
     if (this.#destroyed || !this.#enabled) return;
+    this.#motionGeneration++;
+    this.#clearPendingRestRestore();
     if (this.view.renderMode !== this.#fastMode) {
       this.view.renderMode = this.#fastMode;
     }
-    if (this.#restTimer !== null) clearTimeout(this.#restTimer);
+    const generation = this.#motionGeneration;
     this.#restTimer = setTimeout(() => {
       this.#restTimer = null;
-      if (this.#destroyed) return;
+      this.#scheduleRestModeRestore(generation);
+    }, this.#restMs);
+  }
+
+  #scheduleRestModeRestore(generation: number): void {
+    const restore = () => {
+      this.#restIdleHandle = null;
+      this.#restIdleHandleType = null;
+      if (this.#destroyed || !this.#enabled || generation !== this.#motionGeneration) return;
       if (this.view.renderMode !== this.#restMode) {
         this.view.renderMode = this.#restMode;
       }
-    }, this.#restMs);
+    };
+    const requestIdleCallback = (globalThis as any).requestIdleCallback;
+    if (typeof requestIdleCallback === "function") {
+      this.#restIdleHandleType = "idle";
+      this.#restIdleHandle = requestIdleCallback(restore, {timeout: this.#restIdleTimeoutMs});
+      return;
+    }
+    this.#restIdleHandleType = "timeout";
+    this.#restIdleHandle = setTimeout(restore, 0);
   }
 }
 

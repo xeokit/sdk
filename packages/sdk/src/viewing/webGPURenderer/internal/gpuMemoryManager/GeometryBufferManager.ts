@@ -1,5 +1,6 @@
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
-import {decompressPositions3WithAABB3} from "../../../../base/math/compression";
+import {GaussianSplatsPrimitive, PointsPrimitive} from "../../../../base/constants";
+import {decompressPositions3WithAABB3, octDecodeNormalsU16} from "../../../../base/math/compression";
 import type {SceneGeometry} from "../../../../model/scene";
 import type {RendererGeometry} from "./RendererGeometry";
 
@@ -24,11 +25,19 @@ export class GeometryBufferManager {
       };
     }
 
-    if (!sceneGeometry.aabb || !sceneGeometry.positionsCompressed || !sceneGeometry.indices) {
+    if (!sceneGeometry.aabb || !sceneGeometry.positionsCompressed) {
       return {
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[GeometryBufferManager.getOrCreateGeometryState] SceneGeometry '${sceneGeometry.uniqueId}' is missing positions, indices, or AABB.`
+        error: `[GeometryBufferManager.getOrCreateGeometryState] SceneGeometry '${sceneGeometry.uniqueId}' is missing positions or AABB.`
+      };
+    }
+    const isPointLike = sceneGeometry.primitive === PointsPrimitive || sceneGeometry.primitive === GaussianSplatsPrimitive;
+    if (!isPointLike && !sceneGeometry.indices) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[GeometryBufferManager.getOrCreateGeometryState] SceneGeometry '${sceneGeometry.uniqueId}' is missing indices.`
       };
     }
 
@@ -37,17 +46,29 @@ export class GeometryBufferManager {
       sceneGeometry.aabb,
       new Float32Array(sceneGeometry.positionsCompressed.length)
     ) as Float32Array;
-    const indexData = this._createIndexData(sceneGeometry.indices);
+    const normals = sceneGeometry.normalsCompressed
+      ? octDecodeNormalsU16(
+          sceneGeometry.normalsCompressed,
+          new Float32Array((sceneGeometry.normalsCompressed.length / 2) * 3)
+        ) as Float32Array
+      : null;
+    const indexData = isPointLike ? null : this._createIndexData(sceneGeometry.indices!);
     const edgeIndexData = sceneGeometry.edgeIndices && sceneGeometry.edgeIndices.length > 0
       ? this._createIndexData(sceneGeometry.edgeIndices)
       : null;
     const geometryState: RendererGeometry = {
       geometry: sceneGeometry,
       positions,
-      indices: indexData.data,
+      uvs: sceneGeometry.uvsCompressed
+        ? (sceneGeometry.uvsCompressed instanceof Float32Array
+            ? sceneGeometry.uvsCompressed
+            : new Float32Array(sceneGeometry.uvsCompressed))
+        : null,
+      normals,
+      indices: indexData?.data ?? null,
       edgeIndices: edgeIndexData?.data ?? null,
-      indexFormat: indexData.indexFormat,
-      indexCount: indexData.data.length,
+      indexFormat: indexData?.indexFormat ?? null,
+      indexCount: indexData?.data.length ?? 0,
       edgeIndexCount: edgeIndexData?.data.length ?? 0,
       numMeshes: 0
     };

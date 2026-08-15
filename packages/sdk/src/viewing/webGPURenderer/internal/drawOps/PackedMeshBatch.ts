@@ -1,6 +1,7 @@
 import type {WebGPUBindGroupLike, WebGPUBufferLike} from "../../core";
 
 export interface PackedMeshBatch {
+  primitive: number;
   label: string;
   segmentKey: string;
   bufferPageKey?: string;
@@ -8,7 +9,18 @@ export interface PackedMeshBatch {
   topology?: "triangles" | "edges";
   vertexBuffer: WebGPUBufferLike;
   vertexBufferOffset?: number;
+  colorBuffer?: WebGPUBufferLike | null;
+  colorBufferOffset?: number;
+  uvBuffer?: WebGPUBufferLike | null;
+  uvBufferOffset?: number;
+  normalBuffer?: WebGPUBufferLike | null;
+  normalBufferOffset?: number;
+  materialBuffer?: WebGPUBufferLike | null;
+  materialBufferOffset?: number;
+  lineOtherVertexBuffer?: WebGPUBufferLike | null;
+  lineOtherVertexBufferOffset?: number;
   positionDecodeBindGroup: WebGPUBindGroupLike;
+  colorBindGroup?: WebGPUBindGroupLike;
   vertexMetadataBuffer: WebGPUBufferLike;
   vertexMetadataBufferOffset?: number;
   indexBuffer: WebGPUBufferLike;
@@ -19,5 +31,10 @@ export interface PackedMeshBatch {
   indicesPageLocal?: boolean;
   temporaryIndexBuffer?: boolean;
   temporaryIndexBufferCreated?: boolean;
+  textureKey?: string;
+  splatDataBuffer?: WebGPUBufferLike;
+  splatIndexBuffer?: WebGPUBufferLike;
+  splatBindGroup?: WebGPUBindGroupLike;
+  splatCount?: number;
   destroy(): void;
 }

@@ -1,3 +1,4 @@
+import {DetailedRender, NavigationRender, RealisticRender} from "../../../base/constants";
 import {Scene} from "../../../model/scene";
 import {AmbientLight} from "../AmbientLight";
 import {DirLight} from "../DirLight";
@@ -32,6 +33,34 @@ function createHostElement(): HTMLElement {
 }
 
 describe("View lights", () => {
+
+  it("uses default ambient lighting modes for interactive and quality rendering", () => {
+    const viewer = new Viewer({scene: new Scene()});
+    const viewResult = viewer.createView({
+      id: "view",
+      htmlElement: createHostElement()
+    });
+    expect(viewResult.ok).toBe(true);
+
+    const view = viewResult.value!;
+
+    expect(view.lights.hemispheric.renderModes).toEqual([NavigationRender, DetailedRender]);
+    expect(view.lights.hemispheric.intensity).toBe(0.8);
+    expect(view.lights.ibl.renderModes).toEqual([RealisticRender]);
+    expect(view.lights.ibl.intensity).toBe(1.0);
+
+    view.renderMode = NavigationRender;
+    expect(view.lights.hemispheric.applied).toBe(true);
+    expect(view.lights.ibl.applied).toBe(false);
+
+    view.renderMode = DetailedRender;
+    expect(view.lights.hemispheric.applied).toBe(true);
+    expect(view.lights.ibl.applied).toBe(false);
+
+    view.renderMode = RealisticRender;
+    expect(view.lights.hemispheric.applied).toBe(false);
+    expect(view.lights.ibl.applied).toBe(true);
+  });
 
   it("schedules render when legacy lights are created and destroyed", () => {
     const viewer = new Viewer({scene: new Scene()});

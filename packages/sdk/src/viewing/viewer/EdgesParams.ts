@@ -14,7 +14,7 @@ export interface EdgesParams {
    *
    * Used unless {@link EdgesParams.useMeshColor | useMeshColor} is set.
    *
-   * Default value is ````[0.2, 0.2, 0.2]````.
+   * Default value is ````[0.35, 0.35, 0.35]````.
    */
   edgeColor?: Vec3;
 
@@ -45,7 +45,7 @@ export interface EdgesParams {
   /**
    * Line width for {@link Edges | Edges}.
    *
-   * Default value is ````2.0```` pixels.
+   * Default value is ````1.0```` pixels.
    */
   edgeWidth?: number;
 
@@ -61,8 +61,7 @@ export interface EdgesParams {
   /**
    * Which rendering modes in which to render edges.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
    */
   renderModes?: number[];
 

@@ -19,8 +19,7 @@ export class TrianglesStencilMaskTechnique extends DrawTechnique {
   private _shaderModule: WebGPUShaderModuleLike | null = null;
   private _capParamsLayout: WebGPUBindGroupLayoutLike | null = null;
   private _pipelineLayout: WebGPUPipelineLayoutLike | null = null;
-  private _frontPipelineState: PipelineState | null = null;
-  private _backPipelineState: PipelineState | null = null;
+  private _pipelineStates: {[key: string]: PipelineState | undefined} = {};
   private _capParamsBuffer: WebGPUBufferLike | null = null;
   private _capParamsBindGroup: WebGPUBindGroupLike | null = null;
   private readonly _capParamsData = new Float32Array(4);
@@ -87,14 +86,15 @@ export class TrianglesStencilMaskTechnique extends DrawTechnique {
     this._shaderModule = null;
     this._capParamsLayout = null;
     this._pipelineLayout = null;
-    this._frontPipelineState = null;
-    this._backPipelineState = null;
+    this._pipelineStates = {};
     this._capParamsBuffer = null;
     this._capParamsBindGroup = null;
   }
 
   private _getPipelineState(face: "front" | "back"): SDKResult<PipelineState> {
-    const cached = face === "front" ? this._frontPipelineState : this._backPipelineState;
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const pipelineKey = `${face}:${colorTargetFormat}`;
+    const cached = this._pipelineStates[pipelineKey];
     if (cached) {
       return {
         ok: true,
@@ -130,7 +130,7 @@ export class TrianglesStencilMaskTechnique extends DrawTechnique {
           module: shaderModuleResult.value,
           entryPoint: "fs_main",
           targets: [{
-            format: this._renderContext.contextFormat,
+            format: colorTargetFormat,
             writeMask: 0
           }]
         },
@@ -164,11 +164,7 @@ export class TrianglesStencilMaskTechnique extends DrawTechnique {
         renderPipeline,
         bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode", "sectionPlaneCapParams"]
       };
-      if (face === "front") {
-        this._frontPipelineState = pipelineState;
-      } else {
-        this._backPipelineState = pipelineState;
-      }
+      this._pipelineStates[pipelineKey] = pipelineState;
     } catch (e) {
       return {
         ok: false,
@@ -178,7 +174,7 @@ export class TrianglesStencilMaskTechnique extends DrawTechnique {
     }
     return {
       ok: true,
-      value: face === "front" ? this._frontPipelineState! : this._backPipelineState!
+      value: this._pipelineStates[pipelineKey]!
     };
   }
 

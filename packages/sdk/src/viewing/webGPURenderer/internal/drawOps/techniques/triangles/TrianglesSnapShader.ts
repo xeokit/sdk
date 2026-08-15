@@ -11,7 +11,9 @@ import {TRIANGLE_POSITION_DECODE_WGSL, TRIANGLE_RTC_TILE_WGSL} from "./TriangleP
 export const TRIANGLES_SNAP_SHADER = `
 struct FrameUniforms {
   viewProjection: mat4x4<f32>,
-  lightDirectionAndAmbient: vec4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
   sectionPlaneState: vec4<f32>,
   sectionPlanes: array<vec4<f32>, 8>,
 };

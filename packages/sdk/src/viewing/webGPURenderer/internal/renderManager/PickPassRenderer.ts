@@ -31,17 +31,24 @@ export class PickPassRenderer {
     instanceBindGroup: WebGPUBindGroupLike;
     batches: InstancedDrawBatch[];
     drawOp: DrawOp;
+    drawEntries?: Array<{batches: InstancedDrawBatch[]; drawOp: DrawOp}>;
   }): Promise<SDKResult<number>> {
     const commandEncoder = this._renderContext.device.createCommandEncoder();
     const passEncoder = commandEncoder.beginRenderPass(params.pickBuffer.createPickPassDescriptor());
-    const drawResult = params.drawOp.drawBatches({
-      passEncoder,
-      frameBindGroup: params.frameBindGroup,
-      instanceBindGroup: params.instanceBindGroup,
-      batches: params.batches
-    });
-    if (drawResult.ok === false) {
-      return drawResult;
+    const drawEntries = params.drawEntries ?? [{batches: params.batches, drawOp: params.drawOp}];
+    for (const entry of drawEntries) {
+      if (entry.batches.length === 0) {
+        continue;
+      }
+      const drawResult = entry.drawOp.drawBatches({
+        passEncoder,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: entry.batches
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
+      }
     }
     this._endRenderPass(passEncoder);
 

@@ -39,6 +39,7 @@ export function encodePackedTriangleBatches(params: {
   batches: InstancedDrawBatch[];
   renderPass: WebGPURenderPassValue;
   validateLabel: string;
+  bindPositionDecode?: boolean;
   bindBeforeDraw?: (packedBatch: PackedMeshBatch) => void;
   commandStats?: CommandEncoderStatsSink;
   commandStateTracker?: CommandStateTracker;
@@ -67,6 +68,7 @@ export function encodePackedTriangleBatches(params: {
 
   const canUseMultiDraw =
     params.renderPass !== RENDER_PASSES.TRANSPARENT &&
+    params.bindPositionDecode !== false &&
     !params.bindBeforeDraw &&
     params.device.features?.has?.(MULTI_DRAW_INDIRECT_FEATURE) === true &&
     typeof passEncoder.multiDrawIndexedIndirect === "function";
@@ -78,7 +80,7 @@ export function encodePackedTriangleBatches(params: {
         const firstPackedBatch = submissionOrder.batches[i].packedBatch;
         commandStateTracker.setVertexBuffer(0, firstPackedBatch.vertexBuffer, 0);
         commandStateTracker.setVertexBuffer(1, firstPackedBatch.vertexMetadataBuffer, 0);
-        commandStateTracker.setBindGroup(2, firstPackedBatch.positionDecodeBindGroup);
+        commandStateTracker.setBindGroup(2, firstPackedBatch.positionDecodeBindGroup, true);
         commandStateTracker.setIndexBuffer(firstPackedBatch.indexBuffer, firstPackedBatch.indexFormat, 0);
 
         const commands = createIndexedIndirectCommands(submissionOrder.batches, i, groupLength);
@@ -96,7 +98,9 @@ export function encodePackedTriangleBatches(params: {
     const vertexMetadataBufferOffset = packedBatch.indicesPageLocal ? 0 : (packedBatch.vertexMetadataBufferOffset ?? 0);
     commandStateTracker.setVertexBuffer(0, packedBatch.vertexBuffer, vertexBufferOffset);
     commandStateTracker.setVertexBuffer(1, packedBatch.vertexMetadataBuffer, vertexMetadataBufferOffset);
-    commandStateTracker.setBindGroup(2, packedBatch.positionDecodeBindGroup);
+    if (params.bindPositionDecode !== false) {
+      commandStateTracker.setBindGroup(2, packedBatch.positionDecodeBindGroup, true);
+    }
     commandStateTracker.setIndexBuffer(packedBatch.indexBuffer, packedBatch.indexFormat, packedBatch.indexBufferOffset ?? 0);
     params.bindBeforeDraw?.(packedBatch);
     commandStateTracker.drawIndexed(packedBatch.indexCount, 1, packedBatch.firstIndex ?? 0, 0, 0);
@@ -144,6 +148,8 @@ function canMultiDrawBatch(batch: PackedMeshBatch): boolean {
 
 function hasSameMultiDrawState(first: PackedMeshBatch, next: PackedMeshBatch): boolean {
   return first.vertexBuffer === next.vertexBuffer &&
+    first.uvBuffer === next.uvBuffer &&
+    first.colorBindGroup === next.colorBindGroup &&
     first.vertexMetadataBuffer === next.vertexMetadataBuffer &&
     first.positionDecodeBindGroup === next.positionDecodeBindGroup &&
     first.indexBuffer === next.indexBuffer &&

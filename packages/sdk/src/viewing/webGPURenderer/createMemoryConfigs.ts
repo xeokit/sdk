@@ -89,6 +89,7 @@ export function createMemoryConfigs(params: {
     maxBatchBuildSegments: user.maxBatchBuildSegments ?? preset.maxBatchBuildSegments,
     frustumCulling: user.frustumCulling ?? false,
     minProjectedCanvasSize: user.minProjectedCanvasSize ?? 0,
-    compactSealedStreamPages: user.compactSealedStreamPages ?? true
+    compactSealedStreamPages: user.compactSealedStreamPages ?? true,
+    compactStreamPages: user.compactStreamPages ?? false
   };
 }

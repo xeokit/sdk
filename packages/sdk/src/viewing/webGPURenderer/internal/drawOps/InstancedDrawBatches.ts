@@ -4,6 +4,8 @@ export interface InstancedDrawBatches {
   opaque: InstancedDrawBatch[];
   edges: InstancedDrawBatch[];
   transparent: InstancedDrawBatch[];
+  overlayOpaque: InstancedDrawBatch[];
+  overlayTransparent: InstancedDrawBatch[];
   xrayedOpaque: InstancedDrawBatch[];
   xrayedEdgesOpaque: InstancedDrawBatch[];
   xrayedTransparent: InstancedDrawBatch[];

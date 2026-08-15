@@ -32,6 +32,10 @@ function createHostElement(): HTMLElement {
   return new FakeHTMLElement() as any;
 }
 
+function waitForTaskRunner(): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, 30));
+}
+
 function createScene(objects: { id: string; layerId?: string }[]): Scene {
   const scene = new Scene();
   const modelResult = scene.createModel({id: "model"});
@@ -156,5 +160,110 @@ describe("ViewLayer lifecycle", () => {
     expect(layer.numObjects).toBe(1);
     expect(view.objects["environmentObject"]).toBeUndefined();
     expect(layer.objects["modelObject"]).toBe(view.objects["modelObject"]);
+  });
+
+  it("defers ViewObject attachment and render nudges until a building batch finishes", () => {
+    const scene = new Scene();
+    const viewer = new Viewer({scene});
+    const viewResult = viewer.createView({
+      id: "view",
+      htmlElement: createHostElement()
+    });
+    expect(viewResult.ok).toBe(true);
+    const view = viewResult.value!;
+    const needsRenderSpy = jest.spyOn(view, "needsRender");
+
+    const model = scene.createModel({id: "model"}).value!;
+    model.building = true;
+    expect(model.beginBatch({id: "xgf"}).ok).toBe(true);
+
+    expect(model.createGeometry({
+      id: "geometry",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES
+    }).ok).toBe(true);
+    expect(model.createMesh({
+      id: "mesh",
+      geometryId: "geometry"
+    }).ok).toBe(true);
+    expect(model.createObject({
+      id: "object",
+      meshIds: ["mesh"]
+    }).ok).toBe(true);
+
+    expect(view.objects["object"]).toBeUndefined();
+    expect(needsRenderSpy).not.toHaveBeenCalled();
+
+    expect(model.commitBatch().ok).toBe(true);
+
+    expect(view.objects["object"]).toBeUndefined();
+    expect(needsRenderSpy).not.toHaveBeenCalled();
+
+    model.building = false;
+
+    expect(view.objects["object"]).toBeDefined();
+    expect(needsRenderSpy).toHaveBeenCalled();
+  });
+
+  it("absorbs a scheduled view update while a model build is active", async () => {
+    const scene = new Scene();
+    const viewer = new Viewer({scene});
+    const viewResult = viewer.createView({
+      id: "view",
+      htmlElement: createHostElement()
+    });
+    expect(viewResult.ok).toBe(true);
+    const view = viewResult.value!;
+    await waitForTaskRunner();
+
+    let viewUpdatedCount = 0;
+    const unsubscribe = viewer.events.onViewUpdated.subscribe(() => {
+      viewUpdatedCount++;
+    });
+
+    view.needsRender();
+    const model = scene.createModel({id: "model"}).value!;
+    model.building = true;
+
+    await waitForTaskRunner();
+
+    expect(viewUpdatedCount).toBe(0);
+
+    model.building = false;
+    await waitForTaskRunner();
+
+    expect(viewUpdatedCount).toBe(1);
+    unsubscribe();
+  });
+
+  it("absorbs view updates when a model was already building before the render request", async () => {
+    const scene = new Scene();
+    const model = scene.createModel({id: "model"}).value!;
+    model.building = true;
+    const viewer = new Viewer({scene});
+    const viewResult = viewer.createView({
+      id: "view",
+      htmlElement: createHostElement()
+    });
+    expect(viewResult.ok).toBe(true);
+    const view = viewResult.value!;
+    await waitForTaskRunner();
+
+    let viewUpdatedCount = 0;
+    const unsubscribe = viewer.events.onViewUpdated.subscribe(() => {
+      viewUpdatedCount++;
+    });
+
+    view.needsRender();
+    await waitForTaskRunner();
+
+    expect(viewUpdatedCount).toBe(0);
+
+    model.building = false;
+    await waitForTaskRunner();
+
+    expect(viewUpdatedCount).toBe(1);
+    unsubscribe();
   });
 });

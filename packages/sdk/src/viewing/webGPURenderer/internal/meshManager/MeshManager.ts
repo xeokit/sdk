@@ -1,4 +1,4 @@
-import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {type SDKResult} from "../../../../base/core";
 import {
   createMat4Float64,
@@ -383,13 +383,16 @@ export class MeshManager {
       return false;
     }
     const geometry = sceneMesh.geometry;
-    if (!geometry || geometry.destroyed || !geometry.indices) {
+    if (!geometry || geometry.destroyed) {
       return false;
     }
     return (
       geometry.primitive === TrianglesPrimitive ||
       geometry.primitive === SolidPrimitive ||
-      geometry.primitive === SurfacePrimitive
+      geometry.primitive === SurfacePrimitive ||
+      geometry.primitive === LinesPrimitive ||
+      geometry.primitive === PointsPrimitive ||
+      geometry.primitive === GaussianSplatsPrimitive
     );
   }
 

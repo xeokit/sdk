@@ -2,7 +2,7 @@ import type {HemisphereAmbientParams} from "./HemisphereAmbientParams";
 import type {View} from "./View";
 import {createVec3Float64, type Vec3, type Vec3Float} from "../../base/math/vector";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {DetailedRender, NavigationRender, RealisticRender} from "../../base/constants";
+import {DetailedRender, NavigationRender} from "../../base/constants";
 
 
 /**
@@ -20,16 +20,10 @@ import {DetailedRender, NavigationRender, RealisticRender} from "../../base/cons
  * {@link HemisphereAmbient.renderModes}.
  *
  * Cheap: two uniforms and one `mix` + `dot` per fragment. Default-on
- * across all three render modes so {@link base!constants.NavigationRender |
- * NavigationRender} and {@link base!constants.DetailedRender |
- * DetailedRender} pick up the same directional fill that
- * {@link base!constants.RealisticRender | RealisticRender} gets from full
- * IBL — closing the brightness gap between modes.
- *
- * Stacks with {@link IBL} when both apply in the same render mode:
- * the cubemap diffuse contribution adds on top of the analytical
- * hemisphere. Tune {@link HemisphereAmbient.intensity} per scene to
- * keep the combined ambient at the level you want.
+ * in {@link base!constants.NavigationRender | NavigationRender} and
+ * {@link base!constants.DetailedRender | DetailedRender} so interactive
+ * modes keep directional fill without enabling the cubemap IBL path.
+ * Quality rendering is left to {@link IBL} by default.
  */
 class HemisphereAmbient {
 
@@ -50,8 +44,8 @@ class HemisphereAmbient {
    */
   constructor(view: View, params: HemisphereAmbientParams = {}) {
     this.view = view;
-    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender, RealisticRender];
-    this.#intensity = params.intensity !== undefined ? params.intensity : 1.0;
+    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender];
+    this.#intensity = params.intensity !== undefined ? params.intensity : 0.8;
     this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
     this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.30]);
     this.#worldUp = createVec3Float64(params.worldUp || [0, 0, 1]);
@@ -61,8 +55,7 @@ class HemisphereAmbient {
    * Sets which rendering modes in which to apply the hemisphere
    * ambient term.
    *
-   * Default value is `[NavigationRender, DetailedRender,
-   * RealisticRender]`.
+   * Default value is `[NavigationRender, DetailedRender]`.
    */
   set renderModes(value: number[]) {
     this.#renderModes = value;
@@ -73,8 +66,7 @@ class HemisphereAmbient {
    * Gets which rendering modes in which to apply the hemisphere
    * ambient term.
    *
-   * Default value is `[NavigationRender, DetailedRender,
-   * RealisticRender]`.
+   * Default value is `[NavigationRender, DetailedRender]`.
    */
   get renderModes(): number[] {
     return this.#renderModes;
@@ -110,7 +102,7 @@ class HemisphereAmbient {
    * `[0, ∞)`. Has no effect when the active {@link View.renderMode}
    * isn't in {@link HemisphereAmbient.renderModes}.
    *
-   * Default value is `1.0`.
+   * Default value is `0.8`.
    */
   set intensity(value: number) {
     if (typeof value !== "number") return;

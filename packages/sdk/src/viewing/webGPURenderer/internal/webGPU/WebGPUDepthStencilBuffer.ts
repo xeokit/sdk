@@ -13,6 +13,7 @@ export class WebGPUDepthStencilBuffer {
   private readonly _label: string;
   private _texture: WebGPUTextureLike | null = null;
   private _view: unknown | null = null;
+  private _depthOnlyView: unknown | null = null;
   private _width = 0;
   private _height = 0;
 
@@ -23,6 +24,10 @@ export class WebGPUDepthStencilBuffer {
 
   public get view(): unknown | null {
     return this._view;
+  }
+
+  public get depthOnlyView(): unknown | null {
+    return this._depthOnlyView;
   }
 
   public get texture(): WebGPUTextureLike | null {
@@ -47,6 +52,9 @@ export class WebGPUDepthStencilBuffer {
     this.destroy();
     this._texture = this._renderContext.createDepthTexture(this._label, nextWidth, nextHeight);
     this._view = this._texture.createView();
+    this._depthOnlyView = this._texture.createView({
+      aspect: "depth-only"
+    });
     this._width = nextWidth;
     this._height = nextHeight;
     return this._ok();
@@ -60,6 +68,7 @@ export class WebGPUDepthStencilBuffer {
     }
     this._texture = null;
     this._view = null;
+    this._depthOnlyView = null;
     this._width = 0;
     this._height = 0;
   }

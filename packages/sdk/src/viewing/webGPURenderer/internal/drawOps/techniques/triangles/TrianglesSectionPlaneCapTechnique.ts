@@ -22,17 +22,19 @@ export class TrianglesSectionPlaneCapTechnique extends DrawTechnique {
   private _shaderModule: WebGPUShaderModuleLike | null = null;
   private _capPlaneBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
   private _pipelineLayout: WebGPUPipelineLayoutLike | null = null;
-  private _pipelineState: PipelineState | null = null;
+  private _pipelineStates: {[format: string]: PipelineState | undefined} = {};
   private _capPlaneBuffer: WebGPUBufferLike | null = null;
   private _capPlaneBindGroup: WebGPUBindGroupLike | null = null;
   private readonly _uniformData = new Float32Array(CAP_PLANE_UNIFORM_FLOATS);
   private readonly _invViewProjection = createMat4Float64();
 
   public getPipelineState(_renderPass: WebGPURenderPassValue): SDKResult<PipelineState> {
-    if (this._pipelineState) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const existing = this._pipelineStates[colorTargetFormat];
+    if (existing) {
       return {
         ok: true,
-        value: this._pipelineState
+        value: existing
       };
     }
 
@@ -61,7 +63,7 @@ export class TrianglesSectionPlaneCapTechnique extends DrawTechnique {
           module: shaderModuleResult.value,
           entryPoint: "fs_main",
           targets: [{
-            format: this._renderContext.contextFormat
+            format: colorTargetFormat
           }]
         },
         depthStencil: {
@@ -87,7 +89,7 @@ export class TrianglesSectionPlaneCapTechnique extends DrawTechnique {
         }
       });
 
-      this._pipelineState = {
+      this._pipelineStates[colorTargetFormat] = {
         shaderModule: shaderModuleResult.value,
         frameBindGroupLayout: capPlaneBindGroupLayoutResult.value,
         instanceBindGroupLayout: capPlaneBindGroupLayoutResult.value,
@@ -105,7 +107,7 @@ export class TrianglesSectionPlaneCapTechnique extends DrawTechnique {
 
     return {
       ok: true,
-      value: this._pipelineState
+      value: this._pipelineStates[colorTargetFormat]!
     };
   }
 
@@ -166,7 +168,7 @@ export class TrianglesSectionPlaneCapTechnique extends DrawTechnique {
     this._shaderModule = null;
     this._capPlaneBindGroupLayout = null;
     this._pipelineLayout = null;
-    this._pipelineState = null;
+    this._pipelineStates = {};
     this._capPlaneBuffer = null;
     this._capPlaneBindGroup = null;
   }

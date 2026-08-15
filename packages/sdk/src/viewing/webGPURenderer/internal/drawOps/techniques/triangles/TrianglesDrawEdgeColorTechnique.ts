@@ -5,7 +5,7 @@ import type {WebGPURenderPassValue} from "../../../RENDER_PASSES";
 import type {PipelineState} from "../../PipelineState";
 import {DrawTechnique, type DrawBatchesParams} from "../../DrawTechnique";
 import {encodePackedTriangleBatches} from "./PackedTriangleBatchEncoder";
-import {TRIANGLES_DRAW_EDGE_COLOR_SHADER} from "./TrianglesDrawEdgeColorShader";
+import {createTrianglesDrawEdgeColorShader} from "./TrianglesDrawEdgeColorShader";
 import {PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS} from "./TrianglePositionPacking";
 
 /**
@@ -17,13 +17,15 @@ export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
 
   private _shaderModule: WebGPUShaderModuleLike | null = null;
   private _pipelineLayout: WebGPUPipelineLayoutLike | null = null;
-  private _pipelineState: PipelineState | null = null;
+  private _pipelineStates: {[format: string]: PipelineState | undefined} = {};
 
   public getPipelineState(_renderPass: WebGPURenderPassValue): SDKResult<PipelineState> {
-    if (this._pipelineState) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const existing = this._pipelineStates[colorTargetFormat];
+    if (existing) {
       return {
         ok: true,
-        value: this._pipelineState
+        value: existing
       };
     }
 
@@ -57,7 +59,7 @@ export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
           module: shaderModuleResult.value,
           entryPoint: "fs_main",
           targets: [{
-            format: this._renderContext.contextFormat,
+            format: colorTargetFormat,
             blend: {
               color: {
                 srcFactor: "src-alpha",
@@ -83,7 +85,7 @@ export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
         }
       });
 
-      this._pipelineState = {
+      this._pipelineStates[colorTargetFormat] = {
         shaderModule: shaderModuleResult.value,
         frameBindGroupLayout: frameBindGroupLayoutResult.value,
         instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
@@ -101,7 +103,7 @@ export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
 
     return {
       ok: true,
-      value: this._pipelineState
+      value: this._pipelineStates[colorTargetFormat]!
     };
   }
 
@@ -140,7 +142,7 @@ export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
   public destroy(): void {
     this._shaderModule = null;
     this._pipelineLayout = null;
-    this._pipelineState = null;
+    this._pipelineStates = {};
   }
 
   private _getShaderModule(): SDKResult<WebGPUShaderModuleLike> {
@@ -153,8 +155,10 @@ export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
 
     try {
       this._shaderModule = this._renderContext.device.createShaderModule({
-        label: "xeokit-webgpu-triangles-draw-edge-color-shader",
-        code: TRIANGLES_DRAW_EDGE_COLOR_SHADER
+        label: this._renderContext.renderConfigs.logDepth
+          ? "xeokit-webgpu-triangles-draw-edge-color-log-depth-shader"
+          : "xeokit-webgpu-triangles-draw-edge-color-shader",
+        code: createTrianglesDrawEdgeColorShader(this._renderContext.renderConfigs.logDepth)
       });
     } catch (e) {
       return {

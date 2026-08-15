@@ -6,8 +6,40 @@ import type {WebGPURenderPassValue} from "../../../RENDER_PASSES";
 import type {PipelineState} from "../../PipelineState";
 import {DrawTechnique, type DrawBatchesParams} from "../../DrawTechnique";
 import {encodePackedTriangleBatches} from "./PackedTriangleBatchEncoder";
-import {TRIANGLES_DRAW_COLOR_SHADER} from "./TrianglesDrawColorShader";
+import {createTrianglesDrawColorShader} from "./TrianglesDrawColorShader";
 import {PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS} from "./TrianglePositionPacking";
+
+const PACKED_TRIANGLE_TEXTURED_VERTEX_BUFFER_LAYOUTS = [
+  ...PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS,
+  {
+    arrayStride: 8,
+    attributes: [{
+      shaderLocation: 2,
+      offset: 0,
+      format: "float32x2"
+    }]
+  },
+  {
+    arrayStride: 32,
+    attributes: [{
+      shaderLocation: 3,
+      offset: 0,
+      format: "float32x4"
+    }, {
+      shaderLocation: 4,
+      offset: 16,
+      format: "float32x4"
+    }]
+  },
+  {
+    arrayStride: 16,
+    attributes: [{
+      shaderLocation: 5,
+      offset: 0,
+      format: "float32x4"
+    }]
+  }
+];
 
 /**
  * WebGPU draw technique for the current indexed triangle color path.
@@ -18,10 +50,12 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
 
   private _shaderModule: WebGPUShaderModuleLike | null = null;
   private _pipelineLayout: WebGPUPipelineLayoutLike | null = null;
-  private _pipelineStates: {[renderPass: number]: PipelineState | undefined} = {};
+  private _pipelineStates: {[key: string]: PipelineState | undefined} = {};
 
   public getPipelineState(renderPass: WebGPURenderPassValue): SDKResult<PipelineState> {
-    const existing = this._pipelineStates[renderPass];
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const pipelineKey = `${renderPass}:${colorTargetFormat}`;
+    const existing = this._pipelineStates[pipelineKey];
     if (existing) {
       return {
         ok: true,
@@ -55,16 +89,16 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
         vertex: {
           module: shaderModuleResult.value,
           entryPoint: "vs_main",
-          buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+          buffers: PACKED_TRIANGLE_TEXTURED_VERTEX_BUFFER_LAYOUTS
         },
         fragment: {
           module: shaderModuleResult.value,
           entryPoint: "fs_main",
           targets: [{
-            format: this._renderContext.contextFormat,
+            format: colorTargetFormat,
             blend: renderPass === RENDER_PASSES.TRANSPARENT ? {
               color: {
-                srcFactor: "src-alpha",
+                srcFactor: "one",
                 dstFactor: "one-minus-src-alpha",
                 operation: "add"
               },
@@ -79,7 +113,7 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
         depthStencil: {
           format: DEPTH_FORMAT,
           depthWriteEnabled: renderPass === RENDER_PASSES.OPAQUE,
-          depthCompare: renderPass === RENDER_PASSES.OPAQUE ? "less-equal" : "less"
+          depthCompare: "less-equal"
         },
         primitive: {
           topology: "triangle-list",
@@ -87,13 +121,13 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
         }
       });
 
-      this._pipelineStates[renderPass] = {
+      this._pipelineStates[pipelineKey] = {
         shaderModule: shaderModuleResult.value,
         frameBindGroupLayout: frameBindGroupLayoutResult.value,
         instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
         pipelineLayout: pipelineLayoutResult.value,
         renderPipeline,
-        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"]
+        bindGroupLayoutSignature: ["frame", "instance", "triangleColor", "shadow"]
       };
     } catch (e) {
       return {
@@ -105,7 +139,7 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
 
     return {
       ok: true,
-      value: this._pipelineStates[renderPass]!
+      value: this._pipelineStates[pipelineKey]!
     };
   }
 
@@ -129,6 +163,14 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
     params.commandStateTracker.setPipeline(pipelineState);
     params.commandStateTracker.setBindGroup(0, frameBindGroup);
     params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    if (!this._renderContext.shadowBindGroup) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[TrianglesDrawColorTechnique.drawBatches] WebGPU shadow bind group was not initialized."
+      };
+    }
+    params.commandStateTracker.setBindGroup(3, this._renderContext.shadowBindGroup);
 
     return encodePackedTriangleBatches({
       device: this._renderContext.device,
@@ -136,6 +178,27 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
       batches,
       renderPass: params.renderPass,
       validateLabel: "TrianglesDrawColorTechnique.drawBatches",
+      bindPositionDecode: false,
+      bindBeforeDraw: (packedBatch) => {
+        if (packedBatch.uvBuffer) {
+          const uvBufferOffset = packedBatch.indicesPageLocal ? 0 : (packedBatch.uvBufferOffset ?? 0);
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.uvBuffer, uvBufferOffset);
+        } else {
+          const vertexBufferOffset = packedBatch.indicesPageLocal ? 0 : (packedBatch.vertexBufferOffset ?? 0);
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.vertexBuffer, vertexBufferOffset);
+        }
+        if (packedBatch.colorBindGroup) {
+          params.commandStateTracker.setBindGroup(2, packedBatch.colorBindGroup);
+        }
+        if (packedBatch.materialBuffer) {
+          const materialBufferOffset = packedBatch.indicesPageLocal ? 0 : (packedBatch.materialBufferOffset ?? 0);
+          params.commandStateTracker.setVertexBuffer(3, packedBatch.materialBuffer, materialBufferOffset);
+        }
+        if (packedBatch.normalBuffer) {
+          const normalBufferOffset = packedBatch.indicesPageLocal ? 0 : (packedBatch.normalBufferOffset ?? 0);
+          params.commandStateTracker.setVertexBuffer(4, packedBatch.normalBuffer, normalBufferOffset);
+        }
+      },
       commandStats: params.commandStats,
       commandStateTracker: params.commandStateTracker
     });
@@ -157,8 +220,10 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
 
     try {
       this._shaderModule = this._renderContext.device.createShaderModule({
-        label: "xeokit-webgpu-triangles-draw-color-shader",
-        code: TRIANGLES_DRAW_COLOR_SHADER
+        label: this._renderContext.renderConfigs.logDepth
+          ? "xeokit-webgpu-triangles-draw-color-log-depth-shader"
+          : "xeokit-webgpu-triangles-draw-color-shader",
+        code: createTrianglesDrawColorShader(this._renderContext.renderConfigs.logDepth)
       });
     } catch (e) {
       return {
@@ -190,9 +255,13 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
     if (instanceBindGroupLayoutResult.ok === false) {
       return instanceBindGroupLayoutResult;
     }
-    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
-    if (positionDecodeBindGroupLayoutResult.ok === false) {
-      return positionDecodeBindGroupLayoutResult;
+    const triangleColorBindGroupLayoutResult = this._bindGroupLayoutManager.getTriangleColorBindGroupLayout();
+    if (triangleColorBindGroupLayoutResult.ok === false) {
+      return triangleColorBindGroupLayoutResult;
+    }
+    const shadowBindGroupLayoutResult = this._bindGroupLayoutManager.getShadowBindGroupLayout();
+    if (shadowBindGroupLayoutResult.ok === false) {
+      return shadowBindGroupLayoutResult;
     }
 
     try {
@@ -201,7 +270,8 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
         bindGroupLayouts: [
           frameBindGroupLayoutResult.value,
           instanceBindGroupLayoutResult.value,
-          positionDecodeBindGroupLayoutResult.value
+          triangleColorBindGroupLayoutResult.value,
+          shadowBindGroupLayoutResult.value
         ]
       });
     } catch (e) {

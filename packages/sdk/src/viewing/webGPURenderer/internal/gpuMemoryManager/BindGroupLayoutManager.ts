@@ -17,6 +17,9 @@ export class BindGroupLayoutManager {
   private _frameBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
   private _instanceBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
   private _trianglePositionDecodeBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
+  private _triangleColorBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
+  private _splatBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
+  private _shadowBindGroupLayout: WebGPUBindGroupLayoutLike | null = null;
 
   constructor(renderContext: RenderContext) {
     this._renderContext = renderContext;
@@ -44,6 +47,39 @@ export class BindGroupLayoutManager {
           visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
           buffer: {
             type: "read-only-storage"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }, {
+          binding: 3,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 4,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "cube"
+          }
+        }, {
+          binding: 5,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "cube"
+          }
+        }, {
+          binding: 6,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
           }
         }]
       });
@@ -127,9 +163,195 @@ export class BindGroupLayoutManager {
     };
   }
 
+  public getSplatBindGroupLayout(): SDKResult<WebGPUBindGroupLayoutLike> {
+    if (this._splatBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._splatBindGroupLayout
+      };
+    }
+
+    try {
+      this._splatBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-splat-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.VERTEX,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[BindGroupLayoutManager.getSplatBindGroupLayout] Failed to create WebGPU splat bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+
+    return {
+      ok: true,
+      value: this._splatBindGroupLayout
+    };
+  }
+
+  public getTriangleColorBindGroupLayout(): SDKResult<WebGPUBindGroupLayoutLike> {
+    if (this._triangleColorBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._triangleColorBindGroupLayout
+      };
+    }
+
+    try {
+      this._triangleColorBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-triangle-color-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 3,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 4,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 5,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 6,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 7,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 8,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 9,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 10,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[BindGroupLayoutManager.getTriangleColorBindGroupLayout] Failed to create WebGPU triangle color bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+
+    return {
+      ok: true,
+      value: this._triangleColorBindGroupLayout
+    };
+  }
+
+  public getShadowBindGroupLayout(): SDKResult<WebGPUBindGroupLayoutLike> {
+    if (this._shadowBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._shadowBindGroupLayout
+      };
+    }
+
+    try {
+      this._shadowBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-shadow-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "comparison"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "depth",
+            viewDimension: "2d-array"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[BindGroupLayoutManager.getShadowBindGroupLayout] Failed to create WebGPU shadow bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+
+    return {
+      ok: true,
+      value: this._shadowBindGroupLayout
+    };
+  }
+
   public destroy(): void {
     this._frameBindGroupLayout = null;
     this._instanceBindGroupLayout = null;
     this._trianglePositionDecodeBindGroupLayout = null;
+    this._triangleColorBindGroupLayout = null;
+    this._splatBindGroupLayout = null;
+    this._shadowBindGroupLayout = null;
   }
 }

@@ -68,6 +68,10 @@ export class ViewRenderState {
     return this._depthStencilBuffer?.view ?? null;
   }
 
+  public get sampledDepthTextureView(): unknown | null {
+    return this._depthStencilBuffer?.depthOnlyView ?? null;
+  }
+
   public get depthStencilBuffer(): WebGPUDepthStencilBuffer | null {
     return this._depthStencilBuffer;
   }

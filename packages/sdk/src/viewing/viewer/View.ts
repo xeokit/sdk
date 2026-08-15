@@ -552,6 +552,10 @@ class View {
       name: "View._fireViewUpdatedEventTask",
       task: () => {
         if (this._needsRender) {
+          if (!this.viewer._requestViewRender(this)) {
+            this._needsRender = false;
+            return;
+          }
           this.viewer.events.onViewUpdated.dispatch(this, this);
           this._needsRender = false;
         }
@@ -1327,6 +1331,9 @@ class View {
    */
   needsRender() {
     if (this._needsRender) {
+      return;
+    }
+    if (!this.viewer._requestViewRender(this)) {
       return;
     }
     this._needsRender = true;

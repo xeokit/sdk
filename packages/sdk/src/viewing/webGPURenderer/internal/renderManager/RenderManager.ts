@@ -1,11 +1,12 @@
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
-import {TrianglesPrimitive} from "../../../../base/constants";
+import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {createMat4Float64, mulMat4, type Mat4} from "../../../../base/math/matrix";
 import type {View} from "../../../viewer";
-import type {WebGPURenderPassEncoderLike} from "../../core";
+import type {SceneTexture} from "../../../../model/scene";
+import type {WebGPUBindGroupLike, WebGPURenderPassEncoderLike} from "../../core";
 import type {WebGPUMemoryStats} from "../../WebGPUMemoryStats";
 import {CommandStateTracker, DrawOps, type InstancedDrawBatch, type InstancedDrawBatches} from "../drawOps";
-import {BindGroupLayoutManager, InstanceBufferManager, type InstanceBufferFrame, type TriangleBatchPrepareOptions, type TriangleBatchSegment, type TriangleBatchSet} from "../gpuMemoryManager";
+import {BindGroupLayoutManager, InstanceBufferManager, SplatBatchManager, type InstanceBufferFrame, type SplatBatchSet, type TriangleBatchPrepareOptions, type TriangleBatchSegment, type TriangleBatchSet} from "../gpuMemoryManager";
 import {RenderInspector} from "../inspectors";
 import {MeshManager, type RendererMesh} from "../meshManager";
 import type {DrawItem, RenderBins} from "../renderState";
@@ -21,6 +22,11 @@ import {SnapPassRenderer} from "./SnapPassRenderer";
 import {TriangleDrawBinSubmitter} from "./TriangleDrawBinSubmitter";
 import {WEBGPU_CLIP_SPACE_MATRIX} from "../constants";
 import {RTCTileManager} from "./RTCTileManager";
+import {WebGPUPostProcessChain} from "./postprocess";
+import {WebGPUShadowPipeline} from "./shadows/WebGPUShadowPipeline";
+import {WebGPUIBLManager} from "./WebGPUIBLManager";
+import {SkyRenderer} from "./environment/SkyRenderer";
+import {InfiniteGridRenderer} from "./environment/InfiniteGridRenderer";
 
 const nowMs = (): number => {
   const performanceLike = (globalThis as {performance?: {now?: () => number}}).performance;
@@ -36,6 +42,7 @@ interface ViewRenderCache {
   structureVersion: number;
   instanceDataVersion: number;
   viewStateVersion: number;
+  renderEffectKey: string;
   cameraViewVersion: number;
   cameraMatrixSnapshot: number[] | null;
   hasTransparent: boolean;
@@ -43,7 +50,9 @@ interface ViewRenderCache {
   instanceFrame: InstanceBufferFrame | null;
   batchSet: TriangleBatchSet | null;
   batches: InstancedDrawBatches;
+  shadowOpaqueBatches: InstancedDrawBatch[];
   snapEdgeBatches: InstancedDrawBatch[];
+  splatBatches: InstancedDrawBatch[];
   meshStateByGlobalSlot: Map<number, RendererMesh>;
   knownMeshStates: Set<RendererMesh>;
   meshBaseKeys: Map<RendererMesh, string>;
@@ -82,6 +91,7 @@ export class RenderManager {
   private readonly _rtcTileManager: RTCTileManager;
   private readonly _frameUniformManager: FrameUniformManager;
   private readonly _instanceBufferManager: InstanceBufferManager;
+  private readonly _splatBatchManager: SplatBatchManager;
   private readonly _drawOps: DrawOps;
   private readonly _pickPassRenderer: PickPassRenderer;
   private readonly _readbackBufferReader: WebGPUReadbackBufferReader;
@@ -89,7 +99,12 @@ export class RenderManager {
   private readonly _sectionPlaneCapRenderer: SectionPlaneCapRenderer;
   private readonly _snapPassRenderer: SnapPassRenderer;
   private readonly _triangleDrawBinSubmitter: TriangleDrawBinSubmitter;
+  private readonly _postProcess: WebGPUPostProcessChain;
+  private readonly _shadowPipeline: WebGPUShadowPipeline;
+  private readonly _iblManager: WebGPUIBLManager;
   private readonly _renderInspector: RenderInspector;
+  public readonly infiniteGrid: InfiniteGridRenderer;
+  public readonly skyRenderer: SkyRenderer;
   private readonly _bins: RenderBins = {
     normalDrawOpaque: [],
     normalEdgesOpaque: [],
@@ -110,7 +125,6 @@ export class RenderManager {
   private readonly _binClassifier: RenderBinClassifier;
   private readonly _instanceBatcher: InstanceBatcher;
   private readonly _viewRenderCaches: {[viewId: string]: ViewRenderCache} = {};
-  private readonly _pendingSegmentPumpViews = new Set<string>();
 
   constructor(params: {
     renderContext: RenderContext;
@@ -145,15 +159,59 @@ export class RenderManager {
       readbackBufferReader: this._readbackBufferReader
     });
     this._triangleDrawBinSubmitter = new TriangleDrawBinSubmitter(this._renderInspector);
+    this._postProcess = new WebGPUPostProcessChain(this._renderContext);
+    this._iblManager = new WebGPUIBLManager(this._renderContext);
+    this.infiniteGrid = new InfiniteGridRenderer(this._renderContext, {
+      minorColor: [0.36, 0.40, 0.42],
+      majorColor: [0, 0, 0],
+      xAxisColor: [0.68, 0.42, 0.40],
+      zAxisColor: [0.40, 0.58, 0.70]
+    });
+    this.skyRenderer = new SkyRenderer(this._renderContext, {
+      skyColor: [0.74, 0.80, 0.88],
+      horizonColor: [0.66, 0.72, 0.74],
+      horizonBlend: 0.5,
+      groundColor: [0.58, 0.64, 0.60]
+    });
+    this._shadowPipeline = new WebGPUShadowPipeline({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager,
+      frameUniformManager: this._frameUniformManager,
+      renderInspector: this._renderInspector
+    });
     this._instanceBatcher = new InstanceBatcher({
       renderContext: this._renderContext,
       bindGroupLayoutManager: this._bindGroupLayoutManager,
       rtcTileManager: this._rtcTileManager
     });
+    this._splatBatchManager = new SplatBatchManager({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager
+    });
   }
 
   public init(): SDKResult<void> {
-    return this._drawOps.init();
+    const drawOpsResult = this._drawOps.init();
+    if (drawOpsResult.ok === false) {
+      return drawOpsResult;
+    }
+    const postProcessResult = this._postProcess.init();
+    if (postProcessResult.ok === false) {
+      return postProcessResult;
+    }
+    const iblResult = this._iblManager.init();
+    if (iblResult.ok === false) {
+      return iblResult;
+    }
+    const skyResult = this.skyRenderer.init();
+    if (skyResult.ok === false) {
+      return skyResult;
+    }
+    const gridResult = this.infiniteGrid.init();
+    if (gridResult.ok === false) {
+      return gridResult;
+    }
+    return this._shadowPipeline.init();
   }
 
   public getMemoryStats(): WebGPUMemoryStats {
@@ -187,6 +245,10 @@ export class RenderManager {
     };
   }
 
+  public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
+    this._instanceBatcher.sceneTextureImageDataChanged(sceneTexture);
+  }
+
   public renderView(viewRenderState: ViewRenderState): SDKResult<void> {
     const view = viewRenderState.view;
     let frameStarted = false;
@@ -212,7 +274,19 @@ export class RenderManager {
         return renderCacheResult;
       }
       const renderCache = renderCacheResult.value;
+      const splatRefreshResult = this._refreshSplatBatches(renderCache, view);
+      if (splatRefreshResult.ok === false) {
+        return splatRefreshResult;
+      }
       const totalInstances = renderCache.totalInstances;
+      if (totalInstances > 0) {
+        const iblResult = this._iblManager.prepare(view, {
+          active: this._renderContext.renderConfigs.triangleColorMode !== "flat"
+        });
+        if (iblResult.ok === false) {
+          return iblResult;
+        }
+      }
 
       const frameBindGroupResult = totalInstances > 0
         ? this._frameUniformManager.writeFrameUniforms(view)
@@ -247,9 +321,15 @@ export class RenderManager {
 
       const commandEncodingStart = nowMs();
       const device = this._renderContext.device;
-      const commandEncoder = device.createCommandEncoder();
+      let commandEncoder = device.createCommandEncoder();
+      const canvasView = viewRenderState.context.getCurrentTexture().createView();
+      const usePostProcess = this._postProcess.needsPostProcess(view);
+      const postProcessTarget = usePostProcess
+        ? this._postProcess.ensureSceneTarget(viewRenderState.canvas.width, viewRenderState.canvas.height)
+        : null;
+      this._renderContext.colorTargetFormat = postProcessTarget?.format ?? this._renderContext.contextFormat;
       const frameAttachments = new WebGPUFrameAttachments({
-        colorView: viewRenderState.context.getCurrentTexture().createView(),
+        colorView: postProcessTarget?.view ?? canvasView,
         depthStencilView: viewRenderState.depthTextureView
       });
       const triangleDrawOps = this._drawOps.prims[TrianglesPrimitive];
@@ -260,19 +340,58 @@ export class RenderManager {
           error: "[RenderManager.renderView] Triangle draw operations were not initialized."
         };
       }
+      const pointDrawOps = this._drawOps.prims[PointsPrimitive];
+      const lineDrawOps = this._drawOps.prims[LinesPrimitive];
+      const splatDrawOps = this._drawOps.prims[GaussianSplatsPrimitive];
+      const triangleBatches = this._filterBatchesByPrimitive(renderCache.batches, TrianglesPrimitive);
+      const pointBatches = this._filterBatchesByPrimitive(renderCache.batches, PointsPrimitive);
+      const lineBatches = this._filterBatchesByPrimitive(renderCache.batches, LinesPrimitive);
+      const splatBatches = renderCache.splatBatches;
 
-      const useDepthPrepass = this._renderContext.renderConfigs.depthPrepass && renderCache.batches.opaque.length > 0;
+      const useDepthPrepass = this._renderContext.renderConfigs.depthPrepass && triangleBatches.opaque.length > 0;
+      const useShadows = this._shadowPipeline.shouldRender(view, renderCache.shadowOpaqueBatches);
       const timestampPassNames = this._getTimestampPassNames({
         useDepthPrepass,
         hasMainColor: (
-          renderCache.batches.opaque.length > 0 ||
-          renderCache.batches.edges.length > 0 ||
+          triangleBatches.opaque.length > 0 ||
+          pointBatches.opaque.length > 0 ||
+          lineBatches.opaque.length > 0 ||
+          splatBatches.length > 0 ||
+          triangleBatches.edges.length > 0 ||
           totalInstances > 0 ||
-          renderCache.batches.transparent.length > 0
+          triangleBatches.transparent.length > 0 ||
+          triangleBatches.overlayOpaque.length > 0 ||
+          triangleBatches.overlayTransparent.length > 0 ||
+          pointBatches.transparent.length > 0 ||
+          lineBatches.transparent.length > 0
         ),
         hasLoadedColor: totalInstances > 0 && this._getSectionPlanesForCaps(view).some((plane) => !!plane.capColor)
       });
       const timestampFrame = this._timestampQueryManager.beginFrame(timestampPassNames);
+
+      if (useShadows) {
+        const shadowResult = this._shadowPipeline.render({
+          view,
+          canvasWidth: viewRenderState.canvas.width,
+          canvasHeight: viewRenderState.canvas.height,
+          frameBindGroup: frameBindGroupResult!.value,
+          instanceBindGroup: instanceBindGroupResult!.value,
+          batches: renderCache.shadowOpaqueBatches,
+          shadowDepthDrawOp: triangleDrawOps.shadowDepth
+        });
+        if (shadowResult.ok === false) {
+          return shadowResult;
+        }
+        const restoredFrameBindGroupResult = this._frameUniformManager.writeFrameUniformsForWebGPUViewProjection(view, tempWebGPUViewProjectionMatrix);
+        if (restoredFrameBindGroupResult.ok === false) {
+          return restoredFrameBindGroupResult;
+        }
+      } else if (totalInstances > 0) {
+        const shadowDisableResult = this._shadowPipeline.disable();
+        if (shadowDisableResult.ok === false) {
+          return shadowDisableResult;
+        }
+      }
 
       if (useDepthPrepass) {
         const depthPrepassDescriptor = this._withTimestampWrites(
@@ -290,7 +409,7 @@ export class RenderManager {
           commandStateTracker: depthPrepassCommandState,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
-          batches: renderCache.batches.opaque,
+          batches: triangleBatches.opaque,
           renderPass: "DEPTH_PREPASS",
           technique: "TrianglesDepthPrepassTechnique",
           drawOp: triangleDrawOps.depthPrepass,
@@ -316,30 +435,84 @@ export class RenderManager {
         commandStats: this._renderInspector
       });
 
-      if (renderCache.batches.opaque.length > 0) {
+      const skyResult = this.skyRenderer.render({
+        passEncoder,
+        viewRenderState
+      });
+      if (skyResult.ok === false) {
+        return skyResult;
+      }
+      const gridResult = this.infiniteGrid.render({
+        passEncoder,
+        viewRenderState
+      });
+      if (gridResult.ok === false) {
+        return gridResult;
+      }
+
+      if (triangleBatches.opaque.length > 0) {
+        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
         const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
           passEncoder,
           commandStateTracker: passCommandState,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
-          batches: renderCache.batches.opaque,
+          batches: triangleBatches.opaque,
           renderPass: "OPAQUE",
-          technique: "TrianglesDrawColorTechnique",
-          drawOp: triangleDrawOps.opaque,
+          technique: flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique",
+          drawOp: flatColorMode ? triangleDrawOps.flatOpaque : triangleDrawOps.opaque,
           missingMessage: "[RenderManager.renderView] Opaque triangle draw operation was not initialized."
         });
         if (drawResult.ok === false) {
           return drawResult;
         }
       }
+      if (pointDrawOps?.opaque) {
+        const pointOpaqueBatches = this._getOpaqueSurfaceBatches(pointBatches);
+        if (pointOpaqueBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult!.value,
+            instanceBindGroup: instanceBindGroupResult!.value,
+            batches: pointOpaqueBatches,
+            renderPass: "POINTS_OPAQUE",
+            technique: "PointsDrawColorTechnique",
+            drawOp: pointDrawOps.opaque,
+            missingMessage: "[RenderManager.renderView] Opaque point draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
+      if (lineDrawOps?.opaque) {
+        const lineOpaqueBatches = this._getOpaqueSurfaceBatches(lineBatches);
+        if (lineOpaqueBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult!.value,
+            instanceBindGroup: instanceBindGroupResult!.value,
+            batches: lineOpaqueBatches,
+            renderPass: "LINES_OPAQUE",
+            technique: "LinesDrawColorTechnique",
+            drawOp: lineDrawOps.opaque,
+            missingMessage: "[RenderManager.renderView] Opaque line draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
 
-      if (this._renderContext.renderConfigs.edges && renderCache.batches.edges.length > 0) {
+      if (this._renderContext.renderConfigs.edges && triangleBatches.edges.length > 0) {
         const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
           passEncoder,
           commandStateTracker: passCommandState,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
-          batches: renderCache.batches.edges,
+          batches: triangleBatches.edges,
           renderPass: "EDGES",
           technique: "TrianglesDrawEdgeColorTechnique",
           drawOp: triangleDrawOps.edges,
@@ -357,7 +530,7 @@ export class RenderManager {
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
           triangleDrawOps,
-          batches: renderCache.batches,
+          batches: triangleBatches,
           transparent: false
         });
         if (emphasizedOpaqueResult.ok === false) {
@@ -375,7 +548,7 @@ export class RenderManager {
           viewProjection: tempWebGPUViewProjectionMatrix,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
-          batches: this._getPickSurfaceBatches(renderCache.batches),
+          batches: this._getPickSurfaceBatches(triangleBatches),
           triangleDrawOps,
           activePlanes: activeSectionPlanes,
           viewportWidth: viewRenderState.canvas.width,
@@ -395,17 +568,72 @@ export class RenderManager {
         });
       }
 
-      if (renderCache.batches.transparent.length > 0) {
+      if (triangleBatches.transparent.length > 0) {
+        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
         const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
           passEncoder,
           commandStateTracker: passCommandState,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
-          batches: renderCache.batches.transparent,
+          batches: triangleBatches.transparent,
           renderPass: "TRANSPARENT",
-          technique: "TrianglesDrawColorTechnique",
-          drawOp: triangleDrawOps.transparent,
+          technique: flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique",
+          drawOp: flatColorMode ? triangleDrawOps.flatTransparent : triangleDrawOps.transparent,
           missingMessage: "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
+        }
+      }
+      if (pointDrawOps?.transparent) {
+        const pointTransparentBatches = this._getTransparentSurfaceBatches(pointBatches);
+        if (pointTransparentBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult!.value,
+            instanceBindGroup: instanceBindGroupResult!.value,
+            batches: pointTransparentBatches,
+            renderPass: "POINTS_TRANSPARENT",
+            technique: "PointsDrawColorTechnique",
+            drawOp: pointDrawOps.transparent,
+            missingMessage: "[RenderManager.renderView] Transparent point draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
+      if (lineDrawOps?.transparent) {
+        const lineTransparentBatches = this._getTransparentSurfaceBatches(lineBatches);
+        if (lineTransparentBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult!.value,
+            instanceBindGroup: instanceBindGroupResult!.value,
+            batches: lineTransparentBatches,
+            renderPass: "LINES_TRANSPARENT",
+            technique: "LinesDrawColorTechnique",
+            drawOp: lineDrawOps.transparent,
+            missingMessage: "[RenderManager.renderView] Transparent line draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
+      if (splatBatches.length > 0) {
+        const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult!.value,
+          instanceBindGroup: instanceBindGroupResult!.value,
+          batches: splatBatches,
+          renderPass: "SPLATS_TRANSPARENT",
+          technique: "SplatsDrawColorTechnique",
+          drawOp: splatDrawOps?.transparent,
+          missingMessage: "[RenderManager.renderView] Transparent splat draw operation was not initialized."
         });
         if (drawResult.ok === false) {
           return drawResult;
@@ -419,7 +647,7 @@ export class RenderManager {
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
           triangleDrawOps,
-          batches: renderCache.batches,
+          batches: triangleBatches,
           transparent: true
         });
         if (emphasizedTransparentResult.ok === false) {
@@ -427,7 +655,61 @@ export class RenderManager {
         }
       }
 
+      const hasTriangleOverlay = triangleBatches.overlayOpaque.length > 0 || triangleBatches.overlayTransparent.length > 0;
+      if (!usePostProcess && hasTriangleOverlay) {
+        const overlayResult = this._drawTriangleOverlayBatches({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult!.value,
+          instanceBindGroup: instanceBindGroupResult!.value,
+          triangleDrawOps,
+          triangleBatches
+        });
+        if (overlayResult.ok === false) {
+          return overlayResult;
+        }
+      }
+
       this._endRenderPass(passEncoder);
+      if (usePostProcess && postProcessTarget?.textureView) {
+        const compositeResult = this._postProcess.composite({
+          commandEncoder,
+          sourceView: postProcessTarget.textureView,
+          canvasView,
+          depthView: viewRenderState.sampledDepthTextureView ?? viewRenderState.depthTextureView,
+          width: viewRenderState.canvas.width,
+          height: viewRenderState.canvas.height,
+          view
+        });
+        if (compositeResult.ok === false) {
+          return compositeResult;
+        }
+        if (hasTriangleOverlay) {
+          this._renderContext.colorTargetFormat = this._renderContext.contextFormat;
+          const overlayAttachments = new WebGPUFrameAttachments({
+            colorView: canvasView,
+            depthStencilView: viewRenderState.depthTextureView
+          });
+          const overlayPassEncoder = commandEncoder.beginRenderPass(overlayAttachments.createLoadedColorPassDescriptor());
+          const overlayCommandState = new CommandStateTracker({
+            passEncoder: overlayPassEncoder,
+            commandStats: this._renderInspector
+          });
+          const overlayResult = this._drawTriangleOverlayBatches({
+            passEncoder: overlayPassEncoder,
+            commandStateTracker: overlayCommandState,
+            frameBindGroup: frameBindGroupResult!.value,
+            instanceBindGroup: instanceBindGroupResult!.value,
+            triangleDrawOps,
+            triangleBatches
+          });
+          if (overlayResult.ok === false) {
+            this._endRenderPass(overlayPassEncoder);
+            return overlayResult;
+          }
+          this._endRenderPass(overlayPassEncoder);
+        }
+      }
       this._timestampQueryManager.resolveAndRead({
         frame: timestampFrame,
         commandEncoder,
@@ -456,6 +738,52 @@ export class RenderManager {
       }
     }
 
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  private _drawTriangleOverlayBatches(params: {
+    passEncoder: WebGPURenderPassEncoderLike;
+    commandStateTracker: CommandStateTracker;
+    frameBindGroup: WebGPUBindGroupLike;
+    instanceBindGroup: WebGPUBindGroupLike;
+    triangleDrawOps: NonNullable<DrawOps["prims"][typeof TrianglesPrimitive]>;
+    triangleBatches: InstancedDrawBatches;
+  }): SDKResult<void> {
+    if (params.triangleBatches.overlayOpaque.length > 0) {
+      const opaqueResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: params.triangleBatches.overlayOpaque,
+        renderPass: "OVERLAY_OPAQUE",
+        technique: "TrianglesDrawColorFlatTechnique",
+        drawOp: params.triangleDrawOps.overlayOpaque,
+        missingMessage: "[RenderManager.renderView] Overlay opaque triangle draw operation was not initialized."
+      });
+      if (opaqueResult.ok === false) {
+        return opaqueResult;
+      }
+    }
+    if (params.triangleBatches.overlayTransparent.length > 0) {
+      const transparentResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: params.triangleBatches.overlayTransparent,
+        renderPass: "OVERLAY_TRANSPARENT",
+        technique: "TrianglesDrawColorFlatTechnique",
+        drawOp: params.triangleDrawOps.overlayTransparent,
+        missingMessage: "[RenderManager.renderView] Overlay transparent triangle draw operation was not initialized."
+      });
+      if (transparentResult.ok === false) {
+        return transparentResult;
+      }
+    }
     return {
       ok: true,
       value: undefined
@@ -492,14 +820,22 @@ export class RenderManager {
         return renderCacheResult;
       }
       const renderCache = renderCacheResult.value;
+      const splatRefreshResult = this._refreshSplatBatches(renderCache, view);
+      if (splatRefreshResult.ok === false) {
+        return splatRefreshResult;
+      }
       const pickBatches = this._getPickSurfaceBatches(renderCache.batches);
-      if (pickBatches.length === 0 || renderCache.totalInstances === 0) {
+      if ((pickBatches.length === 0 && renderCache.splatBatches.length === 0) || renderCache.totalInstances === 0) {
         return {
           ok: true,
           value: null
         };
       }
 
+      const iblResult = this._iblManager.prepare(view);
+      if (iblResult.ok === false) {
+        return iblResult;
+      }
       const frameBindGroupResult = this._frameUniformManager.writeFrameUniforms(view);
       if (frameBindGroupResult.ok === false) {
         return frameBindGroupResult;
@@ -529,6 +865,33 @@ export class RenderManager {
           error: "[RenderManager.pickMeshGPUAsync] Triangle pick draw operation was not initialized."
         };
       }
+      const pointDrawOps = this._drawOps.prims[PointsPrimitive];
+      const lineDrawOps = this._drawOps.prims[LinesPrimitive];
+      const splatDrawOps = this._drawOps.prims[GaussianSplatsPrimitive];
+      const trianglePickBatches = this._filterBatchListByPrimitive(pickBatches, TrianglesPrimitive);
+      const pointPickBatches = this._filterBatchListByPrimitive(pickBatches, PointsPrimitive);
+      const linePickBatches = this._filterBatchListByPrimitive(pickBatches, LinesPrimitive);
+      if (pointPickBatches.length > 0 && !pointDrawOps?.pick) {
+        return {
+          ok: false,
+          type: SDKErrorType.InitializationFailed,
+          error: "[RenderManager.pickMeshGPUAsync] Point pick draw operation was not initialized."
+        };
+      }
+      if (linePickBatches.length > 0 && !lineDrawOps?.pick) {
+        return {
+          ok: false,
+          type: SDKErrorType.InitializationFailed,
+          error: "[RenderManager.pickMeshGPUAsync] Line pick draw operation was not initialized."
+        };
+      }
+      if (renderCache.splatBatches.length > 0 && !splatDrawOps?.pick) {
+        return {
+          ok: false,
+          type: SDKErrorType.InitializationFailed,
+          error: "[RenderManager.pickMeshGPUAsync] Splat pick draw operation was not initialized."
+        };
+      }
 
       const encodedSlotResult = await this._pickPassRenderer.renderEncodedSlot({
         pickBuffer: params.pickBuffer,
@@ -537,8 +900,14 @@ export class RenderManager {
         height,
         frameBindGroup: frameBindGroupResult.value,
         instanceBindGroup: instanceBindGroupResult.value,
-        batches: pickBatches,
-        drawOp: triangleDrawOps.pick
+        batches: trianglePickBatches,
+        drawOp: triangleDrawOps.pick,
+        drawEntries: [
+          {batches: trianglePickBatches, drawOp: triangleDrawOps.pick},
+          ...(pointDrawOps?.pick ? [{batches: pointPickBatches, drawOp: pointDrawOps.pick}] : []),
+          ...(lineDrawOps?.pick ? [{batches: linePickBatches, drawOp: lineDrawOps.pick}] : []),
+          ...(splatDrawOps?.pick ? [{batches: renderCache.splatBatches, drawOp: splatDrawOps.pick}] : [])
+        ]
       });
       if (encodedSlotResult.ok === false) {
         return encodedSlotResult;
@@ -690,6 +1059,10 @@ export class RenderManager {
       const renderCache = params.renderCache;
       const snapViewProjectionMatrix = params.snapViewProjectionMatrix ??
         this._getSnapWebGPUViewProjectionMatrix(view, params.canvasPos, params.snapBuffer);
+      const iblResult = this._iblManager.prepare(view);
+      if (iblResult.ok === false) {
+        return iblResult;
+      }
       const frameBindGroupResult = this._frameUniformManager.writeFrameUniformsForWebGPUViewProjection(view, snapViewProjectionMatrix);
       if (frameBindGroupResult.ok === false) {
         return frameBindGroupResult;
@@ -773,23 +1146,29 @@ export class RenderManager {
   }
 
   public destroy(): void {
-    this._pendingSegmentPumpViews.clear();
     for (const viewId of Object.keys(this._viewRenderCaches)) {
       this.viewDestroyed(viewId);
     }
     this._instanceBatcher.destroy();
+    this._shadowPipeline.destroy();
+    this._postProcess.destroy();
+    this._iblManager.destroy();
+    this.skyRenderer.destroy();
+    this.infiniteGrid.destroy();
     this._drawOps.destroy();
+    this._splatBatchManager.destroy();
     this._instanceBufferManager.destroy();
     this._rtcTileManager.destroy();
     this._frameUniformManager.destroy();
   }
 
   public viewDestroyed(viewId: string): void {
-    this._pendingSegmentPumpViews.delete(viewId);
     const cache = this._viewRenderCaches[viewId];
     if (cache) {
       this._clearCachedBatches(cache.batches);
+      this._clearBatchList(cache.shadowOpaqueBatches);
       this._clearBatchList(cache.snapEdgeBatches);
+      this._clearBatchList(cache.splatBatches);
     }
     delete this._viewRenderCaches[viewId];
     this._instanceBufferManager.destroyFrame(viewId);
@@ -897,12 +1276,14 @@ export class RenderManager {
     const structureVersion = this._meshManager.structureVersion;
     const instanceDataVersion = this._meshManager.instanceDataVersion;
     const viewStateVersion = this._meshManager.getViewStateVersion(view);
+    const renderEffectKey = createRenderEffectKey(view);
     const cameraViewVersion = this._meshManager.getCameraViewVersion(view);
     const cameraMatrixChanged = cache.cameraViewVersion !== cameraViewVersion && !this._isCameraMatrixUnchanged(cache, view);
     const needsFullRebuild =
       cache.structureVersion !== structureVersion ||
       cache.instanceDataVersion !== instanceDataVersion ||
       cache.viewStateVersion !== viewStateVersion ||
+      cache.renderEffectKey !== renderEffectKey ||
       (this._usesCameraCulling() && cameraMatrixChanged) ||
       (cache.totalInstances > 0 && !cache.instanceFrame?.buffer);
     const needsTransparentSort =
@@ -917,6 +1298,7 @@ export class RenderManager {
           structureVersion,
           instanceDataVersion,
           viewStateVersion,
+          renderEffectKey,
           cameraViewVersion
         });
       }
@@ -943,6 +1325,7 @@ export class RenderManager {
       cache.batchSet?.structureVersion === structureVersion &&
       cache.instanceDataVersion === instanceDataVersion &&
       cache.viewStateVersion === viewStateVersion &&
+      cache.renderEffectKey === renderEffectKey &&
       !cache.hasTransparent &&
       cache.instanceFrame?.buffer
     ) {
@@ -950,10 +1333,11 @@ export class RenderManager {
         cache,
         viewRenderState,
         structureVersion,
-        instanceDataVersion,
-        viewStateVersion,
-        cameraViewVersion
-      });
+          instanceDataVersion,
+          viewStateVersion,
+          renderEffectKey,
+          cameraViewVersion
+        });
       if (pendingAppendResult) {
         return pendingAppendResult;
       }
@@ -961,10 +1345,10 @@ export class RenderManager {
 
     if (
       !this._usesCameraCulling() &&
-      cache.pendingSegmentCount === 0 &&
-      cache.structureVersion >= 0 &&
+      (cache.structureVersion >= 0 || cache.pendingSegmentCount > 0) &&
       cache.structureVersion !== structureVersion &&
       cache.viewStateVersion === viewStateVersion &&
+      cache.renderEffectKey === renderEffectKey &&
       !cache.hasTransparent &&
       cache.instanceFrame?.buffer
     ) {
@@ -972,10 +1356,11 @@ export class RenderManager {
         cache,
         viewRenderState,
         structureVersion,
-        instanceDataVersion,
-        viewStateVersion,
-        cameraViewVersion
-      });
+          instanceDataVersion,
+          viewStateVersion,
+          renderEffectKey,
+          cameraViewVersion
+        });
       if (appendOnlyResult) {
         return appendOnlyResult;
       }
@@ -987,6 +1372,7 @@ export class RenderManager {
       structureVersion,
       instanceDataVersion,
       viewStateVersion,
+      renderEffectKey,
       cameraMatrixChanged
     });
     const prepareStart = nowMs();
@@ -1001,6 +1387,15 @@ export class RenderManager {
       pending: batchSet.pendingSegmentCount,
       buildTelemetry: batchSet.buildTelemetry
     });
+    const splatBatchSetResult = this._splatBatchManager.prepare({
+      meshManager: this._meshManager,
+      view,
+      baseGlobalSlot: batchSet.projectedInstanceCapacity
+    });
+    if (splatBatchSetResult.ok === false) {
+      return splatBatchSetResult;
+    }
+    const splatBatchSet = splatBatchSetResult.value;
 
     const meshStates = this._meshManager.meshStates;
     const binningStart = nowMs();
@@ -1016,8 +1411,10 @@ export class RenderManager {
     cache.cullStats = cloneCullStats(this._binClassifier.stats);
 
     const totalSceneInstances = this._countVisibleDrawItems(this._bins);
-    if (totalSceneInstances === 0 || batchSet.instanceCapacity === 0) {
+    if ((totalSceneInstances === 0 || batchSet.instanceCapacity === 0) && splatBatchSet.splatCount === 0) {
       this._clearCachedBatches(cache.batches);
+      this._clearBatchList(cache.shadowOpaqueBatches);
+      this._clearBatchList(cache.splatBatches);
       cache.instanceFrame = null;
       cache.batchSet = batchSet;
       cache.totalInstances = 0;
@@ -1025,6 +1422,7 @@ export class RenderManager {
       cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : structureVersion;
       cache.instanceDataVersion = instanceDataVersion;
       cache.viewStateVersion = viewStateVersion;
+      cache.renderEffectKey = renderEffectKey;
       cache.cameraViewVersion = cameraViewVersion;
       this._rememberCameraMatrix(cache, view);
       cache.builtSegmentCount = batchSet.builtSegmentCount;
@@ -1035,8 +1433,8 @@ export class RenderManager {
       this._clearBatchList(cache.snapEdgeBatches);
       clearTransparentRenderBinCache(cache.transparentBins);
       this._rememberMeshSlots(cache, batchSet);
+      this._rememberSplatMeshSlots(cache, splatBatchSet);
       this._rememberMeshStates(cache, meshStates);
-      this._requestPendingSegmentFrame(view, batchSet);
       return {
         ok: true,
         value: cache
@@ -1065,6 +1463,15 @@ export class RenderManager {
     this._renderInspector.setInstanceUploadStats(this._instanceBufferManager.upload(cache.instanceFrame));
     this._renderInspector.addCPUTime("uploadMs", nowMs() - uploadStart);
     this._copyBatches(drawBatchesResult.value, cache.batches);
+    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+      batchSet,
+      drawItems: this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false),
+      view
+    });
+    if (shadowOpaqueBatchesResult.ok === false) {
+      return shadowOpaqueBatchesResult;
+    }
+    this._replaceBatches(shadowOpaqueBatchesResult.value, cache.shadowOpaqueBatches);
     const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
       batchSet,
       drawItems: this._getEdgeSnapDrawItems(this._bins),
@@ -1074,16 +1481,18 @@ export class RenderManager {
       return snapEdgeBatchesResult;
     }
     this._replaceSnapEdgeBatches(cache, snapEdgeBatchesResult.value);
+    this._replaceBatches(splatBatchSet.batches, cache.splatBatches);
     this._renderInspector.addCPUTime("drawBatchMs", nowMs() - drawBatchStart);
     this._renderInspector.addCPUTime("batchingMs", nowMs() - batchingStart);
     this._renderInspector.addSegments(this._countBatches(cache.batches));
     cache.batchSet = batchSet;
-    cache.totalInstances = batchSet.instanceCapacity;
-    cache.hasTransparent = this._hasTransparentDrawItems(this._bins);
+    cache.totalInstances = batchSet.instanceCapacity + splatBatchSet.slotCount;
+    cache.hasTransparent = this._hasTransparentDrawItems(this._bins) || splatBatchSet.splatCount > 0;
     this._rememberTransparentBins(cache, this._bins);
     cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : structureVersion;
     cache.instanceDataVersion = instanceDataVersion;
     cache.viewStateVersion = viewStateVersion;
+    cache.renderEffectKey = renderEffectKey;
     cache.cameraViewVersion = cameraViewVersion;
     this._rememberCameraMatrix(cache, view);
     cache.builtSegmentCount = batchSet.builtSegmentCount;
@@ -1091,9 +1500,8 @@ export class RenderManager {
     this._renderInspector.setCullStats(cache.cullStats);
     this._renderInspector.setRenderReason(renderReason);
     this._rememberMeshSlots(cache, batchSet);
+    this._rememberSplatMeshSlots(cache, splatBatchSet);
     this._rememberMeshStates(cache, meshStates);
-    this._requestPendingSegmentFrame(view, batchSet);
-
     return {
       ok: true,
       value: cache
@@ -1106,6 +1514,7 @@ export class RenderManager {
     structureVersion: number;
     instanceDataVersion: number;
     viewStateVersion: number;
+    renderEffectKey: string;
     cameraViewVersion: number;
   }): SDKResult<ViewRenderCache> | null {
     const {cache, viewRenderState} = params;
@@ -1136,20 +1545,6 @@ export class RenderManager {
       return null;
     }
 
-    const binningStart = nowMs();
-    this._binClassifier.clear(this._bins);
-    this._binClassifier.classify({
-      meshStates: newMeshStates,
-      view,
-      meshManager: this._meshManager,
-      bins: this._bins
-    });
-    this._renderInspector.addCPUTime("binningMs", nowMs() - binningStart);
-    const newCullStats = cloneCullStats(this._binClassifier.stats);
-    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
-      return null;
-    }
-
     const batchingStart = nowMs();
     const prepareStart = nowMs();
     const previousBatchSet = cache.batchSet;
@@ -1159,12 +1554,40 @@ export class RenderManager {
     }
     const previousSegmentKeys = new Set(previousBatchSet?.segments.map((segment) => segment.key) ?? []);
     const newSegments = batchSetResult.value.segments.filter((segment) => !previousSegmentKeys.has(segment.key));
+    if (newSegments.length === 0) {
+      return null;
+    }
     this._renderInspector.addCPUTime("prepareMs", nowMs() - prepareStart);
     this._renderInspector.setSegmentQueueStats({
       built: batchSetResult.value.builtSegmentCount,
       pending: batchSetResult.value.pendingSegmentCount,
       buildTelemetry: batchSetResult.value.buildTelemetry
     });
+    const partialBatchSet: TriangleBatchSet = {
+      structureVersion: batchSetResult.value.structureVersion,
+      instanceCapacity: batchSetResult.value.instanceCapacity,
+      projectedInstanceCapacity: batchSetResult.value.projectedInstanceCapacity,
+      segments: newSegments,
+      segmentByMeshId: batchSetResult.value.segmentByMeshId,
+      pendingSegmentCount: batchSetResult.value.pendingSegmentCount,
+      builtSegmentCount: newSegments.length,
+      buildTelemetry: batchSetResult.value.buildTelemetry
+    };
+
+    const binningStart = nowMs();
+    this._binClassifier.clear(this._bins);
+    this._binClassifier.classifySegments({
+      batchSet: partialBatchSet,
+      view,
+      meshManager: this._meshManager,
+      bins: this._bins,
+      cameraCulling: false
+    });
+    this._renderInspector.addCPUTime("binningMs", nowMs() - binningStart);
+    const newCullStats = cloneCullStats(this._binClassifier.stats);
+    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
+      return null;
+    }
     const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSetResult.value), view.id);
     if (instanceFrameResult.ok === false) {
       return instanceFrameResult;
@@ -1180,9 +1603,11 @@ export class RenderManager {
       instanceFrame: cache.instanceFrame
     });
 
+    const opaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false);
+    const overlayOpaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, true);
     const opaqueBatchesResult = this._instanceBatcher.buildOpaque({
-      batchSet: batchSetResult.value,
-      drawItems: this._bins.normalDrawOpaque,
+      batchSet: partialBatchSet,
+      drawItems: opaqueDrawItems,
       viewId: view.id
     });
     if (opaqueBatchesResult.ok === false) {
@@ -1191,10 +1616,32 @@ export class RenderManager {
     for (let i = 0, len = opaqueBatchesResult.value.length; i < len; i++) {
       cache.batches.opaque.push(opaqueBatchesResult.value[i]);
     }
+    const overlayOpaqueBatchesResult = this._instanceBatcher.buildOpaque({
+      batchSet: partialBatchSet,
+      drawItems: overlayOpaqueDrawItems,
+      viewId: view.id
+    });
+    if (overlayOpaqueBatchesResult.ok === false) {
+      return overlayOpaqueBatchesResult;
+    }
+    for (let i = 0, len = overlayOpaqueBatchesResult.value.length; i < len; i++) {
+      cache.batches.overlayOpaque.push(overlayOpaqueBatchesResult.value[i]);
+    }
+    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+      batchSet: partialBatchSet,
+      drawItems: opaqueDrawItems,
+      view
+    });
+    if (shadowOpaqueBatchesResult.ok === false) {
+      return shadowOpaqueBatchesResult;
+    }
+    for (let i = 0, len = shadowOpaqueBatchesResult.value.length; i < len; i++) {
+      cache.shadowOpaqueBatches.push(shadowOpaqueBatchesResult.value[i]);
+    }
     if (this._renderContext.renderConfigs.edges) {
       const edgeBatchesResult = this._instanceBatcher.buildEdges({
-        batchSet: batchSetResult.value,
-        drawItems: this._bins.normalEdgesOpaque,
+        batchSet: partialBatchSet,
+        drawItems: this._filterDrawItemsByOverlay(this._bins.normalEdgesOpaque, false),
         viewId: view.id
       });
       if (edgeBatchesResult.ok === false) {
@@ -1205,7 +1652,7 @@ export class RenderManager {
       }
     }
     const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
-      batchSet: batchSetResult.value,
+      batchSet: partialBatchSet,
       drawItems: this._getEdgeSnapDrawItems(this._bins),
       viewId: `${view.id}:snap-edge`
     });
@@ -1226,19 +1673,18 @@ export class RenderManager {
     this._renderInspector.setCullStats(cache.cullStats);
     this._renderInspector.setRenderReason("appendOnlyStructureUpdate");
 
-    cache.totalInstances += this._bins.normalDrawOpaque.length;
+    cache.totalInstances = batchSetResult.value.instanceCapacity;
     cache.hasTransparent = false;
     cache.structureVersion = batchSetResult.value.pendingSegmentCount > 0 ? -1 : params.structureVersion;
     cache.instanceDataVersion = params.instanceDataVersion;
     cache.viewStateVersion = params.viewStateVersion;
+    cache.renderEffectKey = params.renderEffectKey;
     cache.cameraViewVersion = params.cameraViewVersion;
     this._rememberCameraMatrix(cache, view);
     cache.builtSegmentCount = batchSetResult.value.builtSegmentCount;
     cache.pendingSegmentCount = batchSetResult.value.pendingSegmentCount;
     this._rememberMeshSlots(cache, batchSetResult.value);
     this._rememberMeshStates(cache, meshStates);
-    this._requestPendingSegmentFrame(view, batchSetResult.value);
-
     return {
       ok: true,
       value: cache
@@ -1251,6 +1697,7 @@ export class RenderManager {
     structureVersion: number;
     instanceDataVersion: number;
     viewStateVersion: number;
+    renderEffectKey: string;
     cameraViewVersion: number;
   }): SDKResult<ViewRenderCache> | null {
     const {cache, viewRenderState} = params;
@@ -1281,13 +1728,13 @@ export class RenderManager {
       cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : params.structureVersion;
       cache.instanceDataVersion = params.instanceDataVersion;
       cache.viewStateVersion = params.viewStateVersion;
+      cache.renderEffectKey = params.renderEffectKey;
       cache.cameraViewVersion = params.cameraViewVersion;
       cache.builtSegmentCount = batchSet.builtSegmentCount;
       cache.pendingSegmentCount = batchSet.pendingSegmentCount;
       this._rememberCameraMatrix(cache, view);
       this._renderInspector.setCullStats(cache.cullStats);
       this._renderInspector.setRenderReason("pendingSegmentAppend");
-      this._requestPendingSegmentFrame(view, batchSet);
       return {
         ok: true,
         value: cache
@@ -1336,9 +1783,11 @@ export class RenderManager {
       instanceFrame: cache.instanceFrame
     });
 
+    const opaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false);
+    const overlayOpaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, true);
     const opaqueBatchesResult = this._instanceBatcher.buildOpaque({
       batchSet: partialBatchSet,
-      drawItems: this._bins.normalDrawOpaque,
+      drawItems: opaqueDrawItems,
       viewId: view.id
     });
     if (opaqueBatchesResult.ok === false) {
@@ -1347,11 +1796,22 @@ export class RenderManager {
     for (let i = 0, len = opaqueBatchesResult.value.length; i < len; i++) {
       cache.batches.opaque.push(opaqueBatchesResult.value[i]);
     }
+    const overlayOpaqueBatchesResult = this._instanceBatcher.buildOpaque({
+      batchSet: partialBatchSet,
+      drawItems: overlayOpaqueDrawItems,
+      viewId: view.id
+    });
+    if (overlayOpaqueBatchesResult.ok === false) {
+      return overlayOpaqueBatchesResult;
+    }
+    for (let i = 0, len = overlayOpaqueBatchesResult.value.length; i < len; i++) {
+      cache.batches.overlayOpaque.push(overlayOpaqueBatchesResult.value[i]);
+    }
 
     if (this._renderContext.renderConfigs.edges) {
       const edgeBatchesResult = this._instanceBatcher.buildEdges({
         batchSet: partialBatchSet,
-        drawItems: this._bins.normalEdgesOpaque,
+        drawItems: this._filterDrawItemsByOverlay(this._bins.normalEdgesOpaque, false),
         viewId: view.id
       });
       if (edgeBatchesResult.ok === false) {
@@ -1389,13 +1849,12 @@ export class RenderManager {
     cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : params.structureVersion;
     cache.instanceDataVersion = params.instanceDataVersion;
     cache.viewStateVersion = params.viewStateVersion;
+    cache.renderEffectKey = params.renderEffectKey;
     cache.cameraViewVersion = params.cameraViewVersion;
     this._rememberCameraMatrix(cache, view);
     cache.builtSegmentCount = batchSet.builtSegmentCount;
     cache.pendingSegmentCount = batchSet.pendingSegmentCount;
     this._rememberMeshSlotsForSegments(cache, newSegments);
-    this._requestPendingSegmentFrame(view, batchSet);
-
     return {
       ok: true,
       value: cache
@@ -1408,6 +1867,7 @@ export class RenderManager {
     structureVersion: number;
     instanceDataVersion: number;
     viewStateVersion: number;
+    renderEffectKey: string;
     cameraViewVersion: number;
   }): SDKResult<ViewRenderCache> {
     const {cache, viewRenderState} = params;
@@ -1452,6 +1912,7 @@ export class RenderManager {
       cache.structureVersion = params.structureVersion;
       cache.instanceDataVersion = params.instanceDataVersion;
       cache.viewStateVersion = params.viewStateVersion;
+      cache.renderEffectKey = params.renderEffectKey;
       cache.cameraViewVersion = params.cameraViewVersion;
       this._rememberCameraMatrix(cache, view);
       return {
@@ -1471,6 +1932,7 @@ export class RenderManager {
     }
 
     this._replaceBatches(transparentBatchesResult.value.transparent, cache.batches.transparent);
+    this._replaceBatches(transparentBatchesResult.value.overlayTransparent, cache.batches.overlayTransparent);
     this._replaceBatches(transparentBatchesResult.value.xrayedTransparent, cache.batches.xrayedTransparent);
     this._replaceBatches(transparentBatchesResult.value.xrayedEdgesTransparent, cache.batches.xrayedEdgesTransparent);
     this._replaceBatches(transparentBatchesResult.value.highlightedTransparent, cache.batches.highlightedTransparent);
@@ -1492,6 +1954,7 @@ export class RenderManager {
     cache.structureVersion = params.structureVersion;
     cache.instanceDataVersion = params.instanceDataVersion;
     cache.viewStateVersion = params.viewStateVersion;
+    cache.renderEffectKey = params.renderEffectKey;
     cache.cameraViewVersion = params.cameraViewVersion;
     this._rememberCameraMatrix(cache, view);
 
@@ -1501,46 +1964,11 @@ export class RenderManager {
     };
   }
 
-  private _requestPendingSegmentFrame(view: View, batchSet: TriangleBatchSet): void {
-    if (batchSet.pendingSegmentCount > 0) {
-      if (this._usesBackgroundPendingSegmentPump()) {
-        this._schedulePendingSegmentPump(view);
-      } else {
-        view.needsRender();
-        globalThis.requestAnimationFrame?.(() => view.needsRender());
-      }
-    }
-  }
-
-  private _usesBackgroundPendingSegmentPump(): boolean {
-    return this._renderContext.memoryConfigs.maxBatchBuildSegments >= 0;
-  }
-
   private _getRenderFrameBatchPrepareOptions(): TriangleBatchPrepareOptions {
     return {
-      buildPendingSegments: !this._usesBackgroundPendingSegmentPump()
+      buildPendingSegments: true,
+      buildAllPendingSegments: true
     };
-  }
-
-  private _schedulePendingSegmentPump(view: View): void {
-    if (this._pendingSegmentPumpViews.has(view.id)) {
-      return;
-    }
-    this._pendingSegmentPumpViews.add(view.id);
-    const run = (): void => {
-      if (!this._pendingSegmentPumpViews.delete(view.id)) {
-        return;
-      }
-      if (!this._viewRenderCaches[view.id]) {
-        return;
-      }
-      const batchSetResult = this._instanceBatcher.buildPendingSegments(this._meshManager);
-      if (batchSetResult.ok === false) {
-        return;
-      }
-      view.needsRender();
-    };
-    globalThis.setTimeout(run, 0);
   }
 
   private _getViewRenderCache(viewId: string): ViewRenderCache {
@@ -1550,6 +1978,7 @@ export class RenderManager {
         structureVersion: -1,
         instanceDataVersion: -1,
         viewStateVersion: -1,
+        renderEffectKey: "",
         cameraViewVersion: -1,
         cameraMatrixSnapshot: null,
         hasTransparent: false,
@@ -1560,6 +1989,8 @@ export class RenderManager {
           opaque: [],
           edges: [],
           transparent: [],
+          overlayOpaque: [],
+          overlayTransparent: [],
           xrayedOpaque: [],
           xrayedEdgesOpaque: [],
           xrayedTransparent: [],
@@ -1573,7 +2004,9 @@ export class RenderManager {
           selectedTransparent: [],
           selectedEdgesTransparent: []
         },
+        shadowOpaqueBatches: [],
         snapEdgeBatches: [],
+        splatBatches: [],
         meshStateByGlobalSlot: new Map(),
         knownMeshStates: new Set(),
         meshBaseKeys: new Map(),
@@ -1591,6 +2024,33 @@ export class RenderManager {
   private _rememberMeshSlots(cache: ViewRenderCache, batchSet: TriangleBatchSet): void {
     cache.meshStateByGlobalSlot.clear();
     this._rememberMeshSlotsForSegments(cache, batchSet.segments);
+  }
+
+  private _rememberSplatMeshSlots(cache: ViewRenderCache, splatBatchSet: SplatBatchSet): void {
+    for (const [globalSlot, meshState] of splatBatchSet.meshStateByGlobalSlot) {
+      cache.meshStateByGlobalSlot.set(globalSlot, meshState);
+    }
+  }
+
+  private _refreshSplatBatches(cache: ViewRenderCache, view: View): SDKResult<void> {
+    const splatBatchSetResult = this._splatBatchManager.prepare({
+      meshManager: this._meshManager,
+      view,
+      baseGlobalSlot: cache.batchSet?.projectedInstanceCapacity ?? 0
+    });
+    if (splatBatchSetResult.ok === false) {
+      return splatBatchSetResult;
+    }
+    const splatBatchSet = splatBatchSetResult.value;
+    this._replaceBatches(splatBatchSet.batches, cache.splatBatches);
+    cache.meshStateByGlobalSlot.clear();
+    if (cache.batchSet) {
+      this._rememberMeshSlotsForSegments(cache, cache.batchSet.segments);
+    }
+    this._rememberSplatMeshSlots(cache, splatBatchSet);
+    cache.totalInstances = (cache.batchSet?.instanceCapacity ?? 0) + splatBatchSet.slotCount;
+    cache.hasTransparent = cache.hasTransparent || splatBatchSet.splatCount > 0;
+    return {ok: true, value: undefined};
   }
 
   private _rememberMeshSlotsForSegments(cache: ViewRenderCache, segments: TriangleBatchSegment[]): void {
@@ -1645,9 +2105,10 @@ export class RenderManager {
     structureVersion: number;
     instanceDataVersion: number;
     viewStateVersion: number;
+    renderEffectKey: string;
     cameraMatrixChanged: boolean;
   }): string {
-    const {cache, structureVersion, instanceDataVersion, viewStateVersion, cameraMatrixChanged} = params;
+    const {cache, structureVersion, instanceDataVersion, viewStateVersion, renderEffectKey, cameraMatrixChanged} = params;
     if (cache.pendingSegmentCount > 0 || cache.structureVersion < 0) {
       return "pendingSegmentBuild";
     }
@@ -1659,6 +2120,9 @@ export class RenderManager {
     }
     if (cache.viewStateVersion !== viewStateVersion) {
       return "viewObjectState";
+    }
+    if (cache.renderEffectKey !== renderEffectKey) {
+      return "renderEffects";
     }
     if (this._usesCameraCulling() && cameraMatrixChanged) {
       return "cameraCullingRebuild";
@@ -1727,6 +2191,7 @@ export class RenderManager {
 
   private _hasTransparentBatches(batches: InstancedDrawBatches): boolean {
     return batches.transparent.length > 0 ||
+      batches.overlayTransparent.length > 0 ||
       batches.xrayedTransparent.length > 0 ||
       batches.xrayedEdgesTransparent.length > 0 ||
       batches.highlightedTransparent.length > 0 ||
@@ -1765,6 +2230,8 @@ export class RenderManager {
     return batches.opaque.length +
       batches.edges.length +
       batches.transparent.length +
+      batches.overlayOpaque.length +
+      batches.overlayTransparent.length +
       batches.xrayedOpaque.length +
       batches.xrayedEdgesOpaque.length +
       batches.xrayedTransparent.length +
@@ -1783,6 +2250,8 @@ export class RenderManager {
     return [
       ...batches.opaque,
       ...batches.transparent,
+      ...batches.overlayOpaque,
+      ...batches.overlayTransparent,
       ...batches.xrayedOpaque,
       ...batches.xrayedTransparent,
       ...batches.highlightedOpaque,
@@ -1790,6 +2259,56 @@ export class RenderManager {
       ...batches.selectedOpaque,
       ...batches.selectedTransparent
     ];
+  }
+
+  private _getOpaqueSurfaceBatches(batches: InstancedDrawBatches): InstancedDrawBatch[] {
+    return [
+      ...batches.opaque,
+      ...batches.xrayedOpaque,
+      ...batches.highlightedOpaque,
+      ...batches.selectedOpaque
+    ];
+  }
+
+  private _getTransparentSurfaceBatches(batches: InstancedDrawBatches): InstancedDrawBatch[] {
+    return [
+      ...batches.transparent,
+      ...batches.xrayedTransparent,
+      ...batches.highlightedTransparent,
+      ...batches.selectedTransparent
+    ];
+  }
+
+  private _filterBatchesByPrimitive(
+    batches: InstancedDrawBatches,
+    primitive: number
+  ): InstancedDrawBatches {
+    return {
+      opaque: this._filterBatchListByPrimitive(batches.opaque, primitive),
+      edges: this._filterBatchListByPrimitive(batches.edges, primitive),
+      transparent: this._filterBatchListByPrimitive(batches.transparent, primitive),
+      overlayOpaque: this._filterBatchListByPrimitive(batches.overlayOpaque, primitive),
+      overlayTransparent: this._filterBatchListByPrimitive(batches.overlayTransparent, primitive),
+      xrayedOpaque: this._filterBatchListByPrimitive(batches.xrayedOpaque, primitive),
+      xrayedEdgesOpaque: this._filterBatchListByPrimitive(batches.xrayedEdgesOpaque, primitive),
+      xrayedTransparent: this._filterBatchListByPrimitive(batches.xrayedTransparent, primitive),
+      xrayedEdgesTransparent: this._filterBatchListByPrimitive(batches.xrayedEdgesTransparent, primitive),
+      highlightedOpaque: this._filterBatchListByPrimitive(batches.highlightedOpaque, primitive),
+      highlightedEdgesOpaque: this._filterBatchListByPrimitive(batches.highlightedEdgesOpaque, primitive),
+      highlightedTransparent: this._filterBatchListByPrimitive(batches.highlightedTransparent, primitive),
+      highlightedEdgesTransparent: this._filterBatchListByPrimitive(batches.highlightedEdgesTransparent, primitive),
+      selectedOpaque: this._filterBatchListByPrimitive(batches.selectedOpaque, primitive),
+      selectedEdgesOpaque: this._filterBatchListByPrimitive(batches.selectedEdgesOpaque, primitive),
+      selectedTransparent: this._filterBatchListByPrimitive(batches.selectedTransparent, primitive),
+      selectedEdgesTransparent: this._filterBatchListByPrimitive(batches.selectedEdgesTransparent, primitive)
+    };
+  }
+
+  private _filterBatchListByPrimitive(
+    batches: InstancedDrawBatch[],
+    primitive: number
+  ): InstancedDrawBatch[] {
+    return batches.filter((batch) => batch.packedBatch.primitive === primitive);
   }
 
   private _getEdgeSnapDrawItems(bins: RenderBins): DrawItem[] {
@@ -1803,6 +2322,10 @@ export class RenderManager {
       ...bins.selectedFillOpaque,
       ...bins.selectedFillTransparent
     ];
+  }
+
+  private _filterDrawItemsByOverlay(drawItems: DrawItem[], overlay: boolean): DrawItem[] {
+    return drawItems.filter((drawItem) => (drawItem.meshState.mesh.bin === "overlay") === overlay);
   }
 
   private _rememberTransparentBins(cache: ViewRenderCache, bins: RenderBins): void {
@@ -1877,6 +2400,8 @@ export class RenderManager {
     this._replaceBatches(source.opaque, target.opaque);
     this._replaceBatches(source.edges, target.edges);
     this._replaceBatches(source.transparent, target.transparent);
+    this._replaceBatches(source.overlayOpaque, target.overlayOpaque);
+    this._replaceBatches(source.overlayTransparent, target.overlayTransparent);
     this._replaceBatches(source.xrayedOpaque, target.xrayedOpaque);
     this._replaceBatches(source.xrayedEdgesOpaque, target.xrayedEdgesOpaque);
     this._replaceBatches(source.xrayedTransparent, target.xrayedTransparent);
@@ -1898,10 +2423,31 @@ export class RenderManager {
     }
   }
 
+  private _buildShadowOpaqueBatches(params: {
+    batchSet: TriangleBatchSet;
+    drawItems: DrawItem[];
+    view: View;
+  }): SDKResult<InstancedDrawBatch[]> {
+    const shadowDrawItems = params.drawItems.filter((drawItem) => castsShadow(drawItem, params.view));
+    if (shadowDrawItems.length === 0) {
+      return {
+        ok: true,
+        value: []
+      };
+    }
+    return this._instanceBatcher.buildOpaque({
+      batchSet: params.batchSet,
+      drawItems: shadowDrawItems,
+      viewId: `${params.view.id}:shadow`
+    });
+  }
+
   private _clearCachedBatches(batches: InstancedDrawBatches): void {
     this._clearBatchList(batches.opaque);
     this._clearBatchList(batches.edges);
     this._clearBatchList(batches.transparent);
+    this._clearBatchList(batches.overlayOpaque);
+    this._clearBatchList(batches.overlayTransparent);
     this._clearBatchList(batches.xrayedOpaque);
     this._clearBatchList(batches.xrayedEdgesOpaque);
     this._clearBatchList(batches.xrayedTransparent);
@@ -1963,6 +2509,29 @@ function cloneCullStats(stats: RenderCullStats): RenderCullStats {
     segmentFullyDrawn: stats.segmentFullyDrawn,
     segmentPartiallyRefined: stats.segmentPartiallyRefined
   };
+}
+
+function createRenderEffectKey(view: View): string {
+  const effects = (view as {effects?: any}).effects;
+  return [
+    view.renderMode,
+    effects?.edges?.applied ? 1 : 0,
+    effects?.sao?.applied ? 1 : 0,
+    effects?.shadows?.applied ? 1 : 0,
+    effects?.sectionPlaneCaps?.applied ? 1 : 0,
+    effects?.tonemap?.applied ? 1 : 0,
+    effects?.antiAliasing?.applied ? 1 : 0
+  ].join(":");
+}
+
+function castsShadow(drawItem: DrawItem, view: View): boolean {
+  const mesh = drawItem.meshState.mesh as {castsShadow?: boolean; object?: {id?: string; castsShadow?: boolean}};
+  if (mesh.castsShadow === false || mesh.object?.castsShadow === false) {
+    return false;
+  }
+  const objectId = mesh.object?.id;
+  const viewObject = objectId ? view.objects?.[objectId] as {castsShadow?: boolean} | undefined : undefined;
+  return viewObject?.castsShadow !== false;
 }
 
 function addCullStats(a: RenderCullStats, b: RenderCullStats): RenderCullStats {

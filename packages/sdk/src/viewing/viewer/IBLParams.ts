@@ -10,8 +10,7 @@ export interface IBLParams {
   /**
    * Which rendering modes in which to apply cubemap {@link IBL}.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
    */
   renderModes?: number[];
 
@@ -21,10 +20,7 @@ export interface IBLParams {
    * the active {@link View.renderMode} is in
    * {@link IBLParams.renderModes}.
    *
-   * Default value is `1.4` — a modest boost over the natural `1.0`
-   * level so RealisticRender's prefiltered-cubemap fill reads as
-   * distinctly brighter than the analytical hemisphere fill in
-   * NavigationRender / DetailedRender.
+   * Default value is `1.0`.
    */
   intensity?: number;
 }

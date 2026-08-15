@@ -91,7 +91,9 @@ export class Viewer {
   private _onSceneDestroyed?: () => void;
   private _onSceneObjectCreated?: () => void;
   private _onSceneObjectDestroyed?: () => void;
+  private _onSceneModelBuildStarted?: () => void;
   private _onSceneModelBatchCommitted?: () => void;
+  private _onSceneModelBuildFinished?: () => void;
   private _onSceneObjectMeshAdded?: () => void;
   private _onSceneObjectMeshRemoved?: () => void;
   private _onSceneMeshCreated?: () => void;
@@ -108,6 +110,8 @@ export class Viewer {
   private _onSceneMaterialEmissiveColorChanged?: () => void;
   private _onSceneMaterialOpacityChanged?: () => void;
   private _onSceneMaterialPatternChanged?: () => void;
+  private _renderSuspendCount = 0;
+  private readonly _pendingRenderViews = new Set<View>();
 
   /**
    * Creates a Viewer.
@@ -181,23 +185,6 @@ export class Viewer {
       this.detachScene();
     });
 
-    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((_scene: Scene, sceneObject: SceneObject) => {
-      this._attachSceneObject(sceneObject);
-    });
-
-    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((_scene: Scene, sceneObject: SceneObject) => {
-      this._detachSceneObject(sceneObject);
-    });
-
-    this._onSceneModelBatchCommitted = this.scene.events.onSceneModelBatchCommitted.subscribe((sceneModel: SceneModel, batch) => {
-      for (const sceneObject of batch.objects) {
-        if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
-          this._attachSceneObject(sceneObject);
-        }
-      }
-      nudgeAllViews();
-    });
-
     // Single shared callback used by every render-relevant Scene
     // mutation event. Args are ignored — the Viewer's job here is to
     // tell each View "you have a fresh frame to draw"; the renderer
@@ -212,6 +199,45 @@ export class Viewer {
       }
     };
 
+    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((_scene: Scene, sceneObject: SceneObject) => {
+      if (this._isSceneObjectDeferred(sceneObject)) {
+        return;
+      }
+      this._attachSceneObject(sceneObject);
+    });
+
+    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((_scene: Scene, sceneObject: SceneObject) => {
+      this._detachSceneObject(sceneObject);
+    });
+
+    this._onSceneModelBuildStarted = this.scene.events.onSceneModelBuildStarted.subscribe(() => {
+      this._renderSuspendCount++;
+    });
+
+    this._onSceneModelBatchCommitted = this.scene.events.onSceneModelBatchCommitted.subscribe((sceneModel: SceneModel, batch) => {
+      if (sceneModel.building) {
+        return;
+      }
+      for (const sceneObject of batch.objects) {
+        if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+          this._attachSceneObject(sceneObject);
+        }
+      }
+      nudgeAllViews();
+    });
+
+    this._onSceneModelBuildFinished = this.scene.events.onSceneModelBuildFinished.subscribe((_scene: Scene, sceneModel: SceneModel) => {
+      if (this._renderSuspendCount > 0) {
+        this._renderSuspendCount--;
+      }
+      const sceneObjects = sceneModel.objects;
+      for (const sceneObjectId in sceneObjects) {
+        this._attachSceneObject(sceneObjects[sceneObjectId]);
+      }
+      nudgeAllViews();
+      this._flushPendingRenderViews();
+    });
+
     // Each subscribe() returns an unsubscribe fn — store and call
     // on detach. The cast lets one `nudgeAllViews` serve emitters
     // with different (sender, args) signatures.
@@ -219,16 +245,32 @@ export class Viewer {
       emitter.subscribe(h as unknown as T);
 
     const events = this.scene.events;
-    this._onSceneObjectMeshAdded         = sub(events.onSceneObjectMeshAdded,         nudgeAllViews);
-    this._onSceneObjectMeshRemoved       = sub(events.onSceneObjectMeshRemoved,       nudgeAllViews);
-    this._onSceneMeshCreated             = sub(events.onSceneMeshCreated,             nudgeAllViews);
+    this._onSceneObjectMeshAdded         = events.onSceneObjectMeshAdded.subscribe((sceneObject) => {
+      if (!this._isSceneObjectDeferred(sceneObject)) {
+        nudgeAllViews();
+      }
+    });
+    this._onSceneObjectMeshRemoved       = events.onSceneObjectMeshRemoved.subscribe((sceneObject) => {
+      if (!this._isSceneObjectDeferred(sceneObject)) {
+        nudgeAllViews();
+      }
+    });
+    this._onSceneMeshCreated             = events.onSceneMeshCreated.subscribe((_scene, sceneMesh) => {
+      if (!this._isSceneMeshDeferred(sceneMesh)) {
+        nudgeAllViews();
+      }
+    });
     this._onSceneMeshDestroyed           = sub(events.onSceneMeshDestroyed,           nudgeAllViews);
     this._onSceneMeshMatrixChanged       = sub(events.onSceneMeshMatrixChanged,       nudgeAllViews);
     this._onSceneMeshMoved               = sub(events.onSceneMeshMoved,               nudgeAllViews);
     this._onSceneMeshColorChanged        = sub(events.onSceneMeshColorChanged,        nudgeAllViews);
     this._onSceneMeshOpacityChanged      = sub(events.onSceneMeshOpacityChanged,      nudgeAllViews);
     this._onSceneTransformMatrixChanged  = sub(events.onSceneTransformMatrixChanged,  nudgeAllViews);
-    this._onSceneGeometryCreated         = sub(events.onSceneGeometryCreated,         nudgeAllViews);
+    this._onSceneGeometryCreated         = events.onSceneGeometryCreated.subscribe((_scene, sceneGeometry) => {
+      if (!this._isSceneGeometryDeferred(sceneGeometry)) {
+        nudgeAllViews();
+      }
+    });
     this._onSceneGeometryDestroyed       = sub(events.onSceneGeometryDestroyed,       nudgeAllViews);
     this._onSceneGeometryUpdated         = sub(events.onSceneGeometryUpdated,         nudgeAllViews);
     this._onSceneMaterialColorChanged    = sub(events.onSceneMaterialColorChanged,    nudgeAllViews);
@@ -245,8 +287,7 @@ export class Viewer {
   }
 
   private _attachSceneObject(sceneObject: SceneObject) {
-    const activeBatch = sceneObject.model.activeBatch;
-    if (activeBatch?.includesObject(sceneObject)) {
+    if (this._isSceneObjectDeferred(sceneObject)) {
       return;
     }
     const viewList = this.viewList;
@@ -254,6 +295,63 @@ export class Viewer {
       const view = viewList[i];
       if (view) {
         view._attachSceneObject(sceneObject);
+      }
+    }
+  }
+
+  private _isSceneGeometryDeferred(sceneGeometry: {model?: SceneModel | null}): boolean {
+    const sceneModel = sceneGeometry.model;
+    return !!sceneModel && (sceneModel.building || !!sceneModel.activeBatch?.includesGeometry(sceneGeometry as any));
+  }
+
+  private _isSceneMeshDeferred(sceneMesh: SceneMesh): boolean {
+    const sceneModel = sceneMesh.model;
+    return !!sceneModel && (sceneModel.building || !!sceneModel.activeBatch?.includesMesh(sceneMesh));
+  }
+
+  private _isSceneObjectDeferred(sceneObject: SceneObject): boolean {
+    const sceneModel = sceneObject.model;
+    return !!sceneModel && (sceneModel.building || !!sceneModel.activeBatch?.includesObject(sceneObject));
+  }
+
+  /**
+   * @private
+   */
+  _requestViewRender(view: View): boolean {
+    if (this._isRenderSuspended()) {
+      this._pendingRenderViews.add(view);
+      return false;
+    }
+    return true;
+  }
+
+  private _isRenderSuspended(): boolean {
+    if (this._renderSuspendCount > 0) {
+      return true;
+    }
+    const sceneModels = this.scene?.models;
+    if (!sceneModels) {
+      return false;
+    }
+    for (const sceneModelId in sceneModels) {
+      const sceneModel = sceneModels[sceneModelId];
+      if (sceneModel && (sceneModel.building || sceneModel.activeBatch)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private _flushPendingRenderViews(): void {
+    if (this._isRenderSuspended() || this._pendingRenderViews.size === 0) {
+      return;
+    }
+    const views = Array.from(this._pendingRenderViews);
+    this._pendingRenderViews.clear();
+    for (let i = 0, len = views.length; i < len; i++) {
+      const view = views[i];
+      if (!view.destroyed) {
+        view.needsRender();
       }
     }
   }
@@ -304,7 +402,9 @@ export class Viewer {
       this._onSceneDestroyed,
       this._onSceneObjectCreated,
       this._onSceneObjectDestroyed,
+      this._onSceneModelBuildStarted,
       this._onSceneModelBatchCommitted,
+      this._onSceneModelBuildFinished,
       this._onSceneObjectMeshAdded,
       this._onSceneObjectMeshRemoved,
       this._onSceneMeshCreated,
@@ -328,7 +428,9 @@ export class Viewer {
     this._onSceneDestroyed                = undefined;
     this._onSceneObjectCreated            = undefined;
     this._onSceneObjectDestroyed          = undefined;
+    this._onSceneModelBuildStarted        = undefined;
     this._onSceneModelBatchCommitted      = undefined;
+    this._onSceneModelBuildFinished       = undefined;
     this._onSceneObjectMeshAdded          = undefined;
     this._onSceneObjectMeshRemoved        = undefined;
     this._onSceneMeshCreated              = undefined;
@@ -345,6 +447,8 @@ export class Viewer {
     this._onSceneMaterialEmissiveColorChanged = undefined;
     this._onSceneMaterialOpacityChanged   = undefined;
     this._onSceneMaterialPatternChanged   = undefined;
+    this._renderSuspendCount = 0;
+    this._pendingRenderViews.clear();
 
     const scene = this.scene;
     this.scene = null;

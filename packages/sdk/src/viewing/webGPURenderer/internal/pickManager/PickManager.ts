@@ -1,4 +1,5 @@
 import {type SDKResult} from "../../../../base/core";
+import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive} from "../../../../base/constants";
 import {
   createMat4Float64,
   mulMat4,
@@ -222,7 +223,10 @@ export class PickManager {
       };
     }
 
-    const surfaceHit = this._pickMeshTriangles(gpuHit.meshState, view, pickCanvasPos);
+    const primitive = gpuHit.meshState.geometryState.geometry.primitive;
+    const surfaceHit = primitive === PointsPrimitive || primitive === LinesPrimitive || primitive === GaussianSplatsPrimitive
+      ? null
+      : this._pickMeshTriangles(gpuHit.meshState, view, pickCanvasPos);
     const sceneMesh = surfaceHit?.sceneMesh ?? gpuHit.meshState.mesh;
     if (!sceneMesh.object) {
       return {
@@ -265,6 +269,10 @@ export class PickManager {
     for (let i = 0, len = meshStates.length; i < len; i++) {
       const meshState = meshStates[i];
       if (!this._meshManager.isMeshPickableInView(meshState, params.view, params.pickInvisible)) {
+        continue;
+      }
+      const primitive = meshState.geometryState.geometry.primitive;
+      if (primitive === PointsPrimitive || primitive === LinesPrimitive || primitive === GaussianSplatsPrimitive) {
         continue;
       }
       const meshHit = this._pickMeshTriangles(meshState, params.view, params.pickCanvasPos);

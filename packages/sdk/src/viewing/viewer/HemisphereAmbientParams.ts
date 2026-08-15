@@ -16,10 +16,9 @@ export interface HemisphereAmbientParams {
    * The {@link viewing!viewer.View | View} will apply the hemisphere ambient whenever
    * {@link View.renderMode} is set to one of these values.
    *
-   * Default value is
-   * `[NavigationRender, DetailedRender, RealisticRender]` — the
-   * hemisphere term is cheap and applies in every mode by default, so
-   * non-IBL modes don't drop back to flat ambient.
+   * Default value is `[NavigationRender, DetailedRender]` — the
+   * hemisphere term is cheap and keeps interactive modes directionally
+   * lit without enabling cubemap IBL.
    */
   renderModes?: number[];
 
@@ -29,7 +28,7 @@ export interface HemisphereAmbientParams {
    * falls back to flat ambient only). At `1` it contributes at full
    * strength.
    *
-   * Default value is `1.0`.
+   * Default value is `0.8`.
    */
   intensity?: number;
 

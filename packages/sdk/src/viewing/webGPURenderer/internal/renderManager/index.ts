@@ -1,6 +1,7 @@
 export * from "./FrameUniformManager";
 export * from "./InstanceBatcher";
 export * from "./LightingManager";
+export * from "./environment";
 export * from "./PickPassRenderer";
 export * from "./RenderBinClassifier";
 export * from "./RenderManager";

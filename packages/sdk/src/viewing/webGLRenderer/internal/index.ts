@@ -25,6 +25,48 @@
  *
  * <br>
  *
+ * ## Pattern Language
+ *
+ * The renderer does not follow a single formal pattern language in the
+ * Alexander/GoF sense. Its core architectural language is a pragmatic mix of
+ * object-oriented lifecycle boundaries and data-oriented WebGL draw submission.
+ * For developers familiar with software patterns, the short version is:
+ *
+ * ```md
+ * Facade + Event Adapter + Manager/Mediator
+ * + Data-Oriented Multi-Pass Render Pipeline
+ * + Strategy Matrix
+ * ```
+ *
+ * - **Facade at the boundary** -- {@link WebGLRenderer} is the public backend
+ *   object. It attaches to a {@link viewing!viewer.Viewer | Viewer}, exposes
+ *   lifecycle events and diagnostics, and hides the internal rendering machinery.
+ * - **Observer / event-driven synchronization** -- {@link WebGLRenderer}
+ *   subscribes to Viewer and Scene events, then converts scene, model, and view
+ *   lifecycle changes into renderer state changes.
+ * - **Coordinator / mediator manager** -- {@link ViewManager} is the internal
+ *   hub. It owns the shared {@link RenderContext} and wires together
+ *   {@link GPUMemoryManager}, {@link MeshManager}, {@link RenderManager},
+ *   {@link PickManager}, and {@link SnapManager}.
+ * - **Data-oriented rendering pipeline** -- scene objects are translated into
+ *   GPU batches, bins, passes, and data textures instead of being drawn
+ *   object-by-object. The hot path works in terms of batch compatibility,
+ *   packed GPU resources, render-pass classification, and explicit WebGL state.
+ * - **Strategy / technique table** -- {@link DrawOps} indexes draw behaviour by
+ *   primitive type and render pass. Each leaf is a {@link DrawOp} using a
+ *   {@link DrawTechnique}, effectively forming a strategy matrix for shader and
+ *   program variants.
+ * - **Resource manager / pool / flyweight style** -- GPU resources, draw
+ *   techniques, and draw operations are created once where possible, shared, and
+ *   reused to avoid program, buffer, texture, and allocation churn.
+ *
+ * What this renderer is **not**: MVC, clean/hexagonal architecture, strict ECS,
+ * or a pure scene-graph renderer. The Scene/View side is object/event-oriented;
+ * the WebGL core turns that into batch-oriented GPU state and multi-pass draw
+ * execution.
+ *
+ * <br>
+ *
  * ## Internal Structure
  *
  * The public {@link WebGLRenderer} owns a set of high-level facilities and a single internal

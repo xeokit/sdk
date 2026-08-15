@@ -1,4 +1,6 @@
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
+import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import type {SceneMesh, SceneTexture} from "../../../../model/scene";
 import type {View} from "../../../viewer";
 import type {WebGPUBindGroupLike, WebGPUBufferLike} from "../../core";
 import {GPU_BUFFER_USAGE, INSTANCE_FLOATS} from "../constants";
@@ -13,6 +15,7 @@ import {MeshManager, type MeshRTCTileResolver, type RendererMesh} from "../meshM
 import {RenderContext} from "../RenderContext";
 import type {MemoryConfigs} from "../../MemoryConfigs";
 import {BindGroupLayoutManager} from "./BindGroupLayoutManager";
+import {TextureBindGroupManager} from "./TextureBindGroupManager";
 
 interface InstanceWriteState {
   bufferVersion: number;
@@ -37,13 +40,25 @@ export interface TriangleBatchSegment {
   bufferPageKey: string;
   label: string;
   signature: string;
+  primitive: number;
   baseSlot: number;
   slotCount: number;
   slotEnd: number;
   vertexBuffer: WebGPUBufferLike;
   vertexBufferOffset: number;
+  colorBuffer: WebGPUBufferLike | null;
+  colorBufferOffset: number;
+  uvBuffer: WebGPUBufferLike | null;
+  uvBufferOffset: number;
+  normalBuffer: WebGPUBufferLike | null;
+  normalBufferOffset: number;
+  materialBuffer: WebGPUBufferLike | null;
+  materialBufferOffset: number;
+  lineOtherVertexBuffer: WebGPUBufferLike | null;
+  lineOtherVertexBufferOffset: number;
   positionDecodeBuffer: WebGPUBufferLike;
   positionDecodeBindGroup: WebGPUBindGroupLike;
+  colorBindGroup: WebGPUBindGroupLike;
   vertexMetadataBuffer: WebGPUBufferLike;
   indexBuffer: WebGPUBufferLike;
   edgeIndexBuffer: WebGPUBufferLike | null;
@@ -56,6 +71,7 @@ export interface TriangleBatchSegment {
   edgeIndices: Uint16Array | Uint32Array;
   indexFormat: "uint16" | "uint32";
   indicesPageLocal: boolean;
+  textureKey: string;
   worldAABB: Float64Array;
   boundsVersion: string;
   destroy(): void;
@@ -74,11 +90,16 @@ interface TriangleBufferPage {
   usedPositionDecodes: number;
   refCount: number;
   vertexBuffer: WebGPUBufferLike;
+  colorBuffer: WebGPUBufferLike | null;
+  uvBuffer: WebGPUBufferLike | null;
+  normalBuffer: WebGPUBufferLike | null;
+  materialBuffer: WebGPUBufferLike | null;
+  lineOtherVertexBuffer: WebGPUBufferLike | null;
   vertexMetadataBuffer: WebGPUBufferLike;
   positionDecodeBuffer: WebGPUBufferLike;
   positionDecodeBindGroup: WebGPUBindGroupLike;
   indexBuffer: WebGPUBufferLike;
-  edgeIndexBuffer: WebGPUBufferLike;
+  edgeIndexBuffer: WebGPUBufferLike | null;
   destroy(): void;
 }
 
@@ -130,11 +151,15 @@ export interface TriangleBatchMemoryStats {
   segments: number;
   totalBytes: number;
   vertexBytes: number;
+  uvBytes: number;
+  normalBytes: number;
   vertexMetadataBytes: number;
   indexBytes: number;
   edgeIndexBytes: number;
   positionDecodeBytes: number;
   usedVertexBytes: number;
+  usedUVBytes: number;
+  usedNormalBytes: number;
   usedVertexMetadataBytes: number;
   usedIndexBytes: number;
   usedEdgeIndexBytes: number;
@@ -159,11 +184,15 @@ export interface TriangleBatchPageMemoryStats {
   bytes: number;
   usedBytes: number;
   vertexBytes: number;
+  uvBytes: number;
+  normalBytes: number;
   vertexMetadataBytes: number;
   indexBytes: number;
   edgeIndexBytes: number;
   positionDecodeBytes: number;
   usedVertexBytes: number;
+  usedUVBytes: number;
+  usedNormalBytes: number;
   usedVertexMetadataBytes: number;
   usedIndexBytes: number;
   usedEdgeIndexBytes: number;
@@ -189,6 +218,7 @@ interface TriangleSegmentBuildResult {
 
 export interface TriangleBatchPrepareOptions {
   buildPendingSegments?: boolean;
+  buildAllPendingSegments?: boolean;
 }
 
 const nowMs = (): number => {
@@ -198,6 +228,7 @@ const nowMs = (): number => {
 const IDENTITY_MATRIX: ReadonlyArray<number> = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 const TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER = 4;
 const MAX_SEGMENT_BUILD_SAMPLES = 16;
+const DEFAULT_TEXTURE_KEY = "default";
 
 /**
  * Owns packed color-triangle mesh storage for the WebGPU renderer.
@@ -213,6 +244,7 @@ export class TriangleBatchManager {
 
   private readonly _renderContext: RenderContext;
   private readonly _bindGroupLayoutManager: BindGroupLayoutManager;
+  private readonly _textureBindGroupManager: TextureBindGroupManager;
   private readonly _memoryConfigs: MemoryConfigs;
   private readonly _rtcTileResolver: MeshRTCTileResolver;
   private readonly _segmentsByKey = new Map<string, TriangleBatchSegment>();
@@ -251,17 +283,22 @@ export class TriangleBatchManager {
   }) {
     this._renderContext = params.renderContext;
     this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._textureBindGroupManager = new TextureBindGroupManager({
+      renderContext: params.renderContext,
+      bindGroupLayoutManager: params.bindGroupLayoutManager
+    });
     this._memoryConfigs = params.memoryConfigs;
     this._rtcTileResolver = params.rtcTileResolver;
   }
 
   public prepare(meshManager: MeshManager, options: TriangleBatchPrepareOptions = {}): SDKResult<TriangleBatchSet> {
     const buildPendingSegments = options.buildPendingSegments ?? true;
+    const buildAllPendingSegments = options.buildAllPendingSegments ?? false;
     const structureVersion = meshManager.structureVersion;
     if (this._batchSet?.structureVersion === structureVersion) {
       let builtSegments: TriangleBatchSegment[] = [];
       if (buildPendingSegments) {
-        const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+        const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
         if (pendingResult.ok === false) {
           return pendingResult;
         }
@@ -274,7 +311,7 @@ export class TriangleBatchManager {
       };
     }
 
-    const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments);
+    const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments);
     if (appendOnlyResult) {
       return appendOnlyResult;
     }
@@ -337,7 +374,7 @@ export class TriangleBatchManager {
     }
 
     if (buildPendingSegments) {
-      const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
       if (pendingResult.ok === false) {
         return pendingResult;
       }
@@ -378,7 +415,12 @@ export class TriangleBatchManager {
     };
   }
 
-  private _prepareAppendOnly(meshManager: MeshManager, structureVersion: number, buildPendingSegments: boolean): SDKResult<TriangleBatchSet> | null {
+  private _prepareAppendOnly(
+    meshManager: MeshManager,
+    structureVersion: number,
+    buildPendingSegments: boolean,
+    buildAllPendingSegments: boolean
+  ): SDKResult<TriangleBatchSet> | null {
     if (!this._batchSet) {
       return null;
     }
@@ -396,7 +438,7 @@ export class TriangleBatchManager {
     void segmentByMeshId;
 
     if (buildPendingSegments) {
-      const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
       if (pendingResult.ok === false) {
         return pendingResult;
       }
@@ -442,9 +484,14 @@ export class TriangleBatchManager {
 
     for (let i = 0, len = meshStates.length; i < len; i++) {
       const meshState = meshStates[i];
-      const vertexCount = meshState.geometryState.positions.length / 3;
-      const indexCount = meshState.geometryState.indices.length;
-      const edgeIndexCount = meshState.geometryState.edgeIndexCount;
+      const sourceVertexCount = meshState.geometryState.positions.length / 3;
+      const primitive = meshState.geometryState.geometry.primitive;
+      const isPoints = primitive === PointsPrimitive;
+      const isLines = primitive === LinesPrimitive;
+      const lineSegmentCount = isLines ? Math.floor((meshState.geometryState.indices?.length ?? 0) / 2) : 0;
+      const vertexCount = isPoints ? sourceVertexCount * 6 : (isLines ? lineSegmentCount * 6 : sourceVertexCount);
+      const indexCount = isPoints ? sourceVertexCount * 6 : (isLines ? lineSegmentCount * 6 : meshState.geometryState.indices!.length);
+      const edgeIndexCount = isPoints || isLines ? 0 : meshState.geometryState.edgeIndexCount;
       if (
         pageMeshStates.length > 0 &&
         (
@@ -468,7 +515,7 @@ export class TriangleBatchManager {
     flushPage();
   }
 
-  private _buildPendingSegmentJobs(structureVersion: number): SDKResult<TriangleSegmentBuildResult> {
+  private _buildPendingSegmentJobs(structureVersion: number, buildAllSegments = false): SDKResult<TriangleSegmentBuildResult> {
     const startedAt = nowMs();
     let builtCount = 0;
     let buildMs = 0;
@@ -483,6 +530,7 @@ export class TriangleBatchManager {
         continue;
       }
       if (
+        !buildAllSegments &&
         builtCount > 0 &&
         this._memoryConfigs.maxBatchBuildTimeMs >= 0 &&
         nowMs() - startedAt >= this._memoryConfigs.maxBatchBuildTimeMs
@@ -490,6 +538,7 @@ export class TriangleBatchManager {
         break;
       }
       if (
+        !buildAllSegments &&
         builtCount > 0 &&
         this._memoryConfigs.maxBatchBuildSegments >= 0 &&
         builtCount >= this._memoryConfigs.maxBatchBuildSegments
@@ -640,11 +689,19 @@ export class TriangleBatchManager {
     let totalVertices = 0;
     let totalIndices = 0;
     let totalEdgeIndices = 0;
+    const primitive = meshStates[0]?.geometryState.geometry.primitive;
+    const isPoints = primitive === PointsPrimitive;
+    const isLines = primitive === LinesPrimitive;
+    const isTriangles = !isPoints && !isLines;
+    const pbrTriangleColor = isTriangles && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+    const includeEdges = isTriangles && this._renderContext.renderConfigs.edges;
     for (let i = 0, len = meshStates.length; i < len; i++) {
       const geometryState = meshStates[i].geometryState;
-      totalVertices += geometryState.positions.length / 3;
-      totalIndices += geometryState.indices.length;
-      totalEdgeIndices += geometryState.edgeIndexCount;
+      const pointCount = geometryState.positions.length / 3;
+      const lineSegmentCount = isLines ? Math.floor((geometryState.indices?.length ?? 0) / 2) : 0;
+      totalVertices += isPoints ? pointCount * 6 : (isLines ? lineSegmentCount * 6 : pointCount);
+      totalIndices += isPoints ? pointCount * 6 : (isLines ? lineSegmentCount * 6 : geometryState.indices!.length);
+      totalEdgeIndices += includeEdges ? geometryState.edgeIndexCount : 0;
     }
 
     if (totalVertices > 0xFFFFFFFF) {
@@ -667,8 +724,50 @@ export class TriangleBatchManager {
     try {
       const positionAABB = createPackedPositionAABB(meshStates);
       const positions = new Uint16Array(totalVertices * 4);
+      const colors = isPoints || isLines ? new Uint8Array(totalVertices * 4) : null;
+      const lineOtherPositions = isLines ? new Uint16Array(totalVertices * 4) : null;
       const positionDecode = createPositionDecodeUniform(positionAABB);
       const vertexMetadata = new Uint32Array(totalVertices * 2);
+      const firstMesh = meshStates[0]?.mesh;
+      const textureBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveColorTexture : null);
+      if (textureBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return textureBindingResult;
+      }
+      const albedoBinding = textureBindingResult.value;
+      const metallicRoughnessBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveMetallicRoughnessTexture : null);
+      if (metallicRoughnessBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return metallicRoughnessBindingResult;
+      }
+      const normalBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveNormalsTexture : null, "normal");
+      if (normalBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return normalBindingResult;
+      }
+      const emissiveBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveEmissiveTexture : null);
+      if (emissiveBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return emissiveBindingResult;
+      }
+      const occlusionBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveOcclusionTexture : null);
+      if (occlusionBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return occlusionBindingResult;
+      }
+      const metallicRoughnessBinding = metallicRoughnessBindingResult.value;
+      const normalBinding = normalBindingResult.value;
+      const emissiveBinding = emissiveBindingResult.value;
+      const occlusionBinding = occlusionBindingResult.value;
+      const colorBindGroupLayoutResult = this._bindGroupLayoutManager.getTriangleColorBindGroupLayout();
+      if (colorBindGroupLayoutResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return colorBindGroupLayoutResult;
+      }
+      const textureTupleKey = pbrTriangleColor ? getPBRTextureTupleKey(this._textureBindGroupManager, firstMesh) : DEFAULT_TEXTURE_KEY;
+      const uvs = pbrTriangleColor && textureTupleKey !== DEFAULT_TEXTURE_KEY ? new Float32Array(totalVertices * 2) : null;
+      const normals = pbrTriangleColor ? new Float32Array(totalVertices * 4) : null;
+      const materials = pbrTriangleColor ? new Float32Array(totalVertices * 8) : null;
       const indexFormat = totalVertices > 65535 ? "uint32" : "uint16";
       const pageAllocationResult = this._allocateBufferPageRange(baseKey, segmentLabel, indexFormat, totalVertices, totalIndices, totalEdgeIndices);
       if (pageAllocationResult.ok === false) {
@@ -696,26 +795,92 @@ export class TriangleBatchManager {
       for (let slotIndex = 0, len = meshStates.length; slotIndex < len; slotIndex++) {
         const meshState = meshStates[slotIndex];
         const geometryState = meshState.geometryState;
-        const vertexCount = geometryState.geometry.positionsCompressed!.length / 3;
-        const indexCount = geometryState.indices.length;
-        const edgeIndexCount = geometryState.edgeIndexCount;
+        const sourceVertexCount = geometryState.geometry.positionsCompressed!.length / 3;
+        const lineSegmentCount = isLines ? Math.floor((geometryState.indices?.length ?? 0) / 2) : 0;
+        const vertexCount = isPoints ? sourceVertexCount * 6 : (isLines ? lineSegmentCount * 6 : sourceVertexCount);
+        const indexCount = isPoints ? sourceVertexCount * 6 : (isLines ? lineSegmentCount * 6 : geometryState.indices!.length);
+        const edgeIndexCount = includeEdges ? geometryState.edgeIndexCount : 0;
 
-        quantizeCompressedPositionsInto(
-          geometryState.geometry.positionsCompressed!,
-          geometryState.geometry.aabb!,
-          positions,
-          vertexOffset,
-          positionAABB
-        );
+        if (isPoints) {
+          quantizeCompressedPointQuadsInto(
+            geometryState.geometry.positionsCompressed!,
+            geometryState.geometry.aabb!,
+            positions,
+            vertexOffset,
+            positionAABB
+          );
+          copyCompressedPointQuadColorsInto(
+            geometryState.geometry.colorsCompressed,
+            colors!,
+            vertexOffset,
+            sourceVertexCount
+          );
+        } else if (isLines) {
+          quantizeCompressedLineSegmentQuadsInto(
+            geometryState.geometry.positionsCompressed!,
+            geometryState.geometry.aabb!,
+            geometryState.indices!,
+            positions,
+            lineOtherPositions!,
+            vertexOffset,
+            positionAABB
+          );
+          copyCompressedLineSegmentQuadColorsInto(
+            geometryState.geometry.colorsCompressed,
+            geometryState.indices!,
+            colors!,
+            vertexOffset,
+            lineSegmentCount
+          );
+        } else {
+          quantizeCompressedPositionsInto(
+            geometryState.geometry.positionsCompressed!,
+            geometryState.geometry.aabb!,
+            positions,
+            vertexOffset,
+            positionAABB
+          );
+          if (pbrTriangleColor) {
+            copyUVsInto(
+              geometryState.uvs,
+              uvs,
+              vertexOffset,
+              sourceVertexCount
+            );
+            copyNormalsInto(
+              geometryState.normals,
+              normals!,
+              vertexOffset,
+              sourceVertexCount
+            );
+            copyMaterialInto(
+              meshState.mesh,
+              materials!,
+              vertexOffset,
+              sourceVertexCount,
+              geometryState.uvs !== null && geometryState.uvs.length > 0
+            );
+          }
+        }
         for (let i = 0; i < vertexCount; i++) {
           const metadataOffset = (vertexOffset + i) * 2;
           vertexMetadata[metadataOffset] = baseSlot + slotIndex;
           vertexMetadata[metadataOffset + 1] = pageAllocation.positionDecodeIndex;
         }
-        for (let i = 0; i < indexCount; i++) {
-          indices[indexOffset + i] = geometryState.indices[i] + vertexOffset + indexVertexBase;
+        if (isPoints) {
+          for (let i = 0; i < indexCount; i++) {
+            indices[indexOffset + i] = vertexOffset + i + indexVertexBase;
+          }
+        } else if (isLines) {
+          for (let i = 0; i < indexCount; i++) {
+            indices[indexOffset + i] = vertexOffset + i + indexVertexBase;
+          }
+        } else {
+          for (let i = 0; i < indexCount; i++) {
+            indices[indexOffset + i] = geometryState.indices![i] + vertexOffset + indexVertexBase;
+          }
         }
-        if (geometryState.edgeIndices) {
+        if (includeEdges && geometryState.edgeIndices) {
           for (let i = 0; i < edgeIndexCount; i++) {
             edgeIndices[edgeIndexOffset + i] = geometryState.edgeIndices[i] + vertexOffset + indexVertexBase;
           }
@@ -743,13 +908,69 @@ export class TriangleBatchManager {
 
       const uploadStartedAt = nowMs();
       this._renderContext.writeGPUBuffer(bufferPage.vertexBuffer, pageAllocation.vertexByteOffset, positions);
+      if (colors && bufferPage.colorBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.colorBuffer, pageAllocation.vertexColorByteOffset, colors);
+      }
+      if (uvs && bufferPage.uvBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.uvBuffer, pageAllocation.vertexUVByteOffset, uvs);
+      }
+      if (normals && bufferPage.normalBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.normalBuffer, pageAllocation.vertexNormalByteOffset, normals);
+      }
+      if (materials && bufferPage.materialBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.materialBuffer, pageAllocation.vertexMaterialByteOffset, materials);
+      }
+      if (lineOtherPositions && bufferPage.lineOtherVertexBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.lineOtherVertexBuffer, pageAllocation.vertexByteOffset, lineOtherPositions);
+      }
       this._renderContext.writeGPUBuffer(bufferPage.vertexMetadataBuffer, pageAllocation.vertexMetadataByteOffset, vertexMetadata);
       this._renderContext.writeGPUBuffer(bufferPage.positionDecodeBuffer, pageAllocation.positionDecodeByteOffset, positionDecode);
       this._renderContext.writeGPUBuffer(bufferPage.indexBuffer, pageAllocation.indexByteOffset, indices);
-      if (edgeIndices.length > 0) {
+      if (edgeIndices.length > 0 && bufferPage.edgeIndexBuffer) {
         this._renderContext.writeGPUBuffer(bufferPage.edgeIndexBuffer, pageAllocation.edgeIndexByteOffset, edgeIndices);
       }
       uploadMs = nowMs() - uploadStartedAt;
+
+      const colorBindGroup = this._renderContext.device.createBindGroup({
+        label: `xeokit-webgpu-triangle-color-bind-group:triangles:${segmentLabel}`,
+        layout: colorBindGroupLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: bufferPage.positionDecodeBuffer
+          }
+        }, {
+          binding: 1,
+          resource: albedoBinding.sampler
+        }, {
+          binding: 2,
+          resource: albedoBinding.textureView
+        }, {
+          binding: 3,
+          resource: metallicRoughnessBinding.sampler
+        }, {
+          binding: 4,
+          resource: metallicRoughnessBinding.textureView
+        }, {
+          binding: 5,
+          resource: normalBinding.sampler
+        }, {
+          binding: 6,
+          resource: normalBinding.textureView
+        }, {
+          binding: 7,
+          resource: emissiveBinding.sampler
+        }, {
+          binding: 8,
+          resource: emissiveBinding.textureView
+        }, {
+          binding: 9,
+          resource: occlusionBinding.sampler
+        }, {
+          binding: 10,
+          resource: occlusionBinding.textureView
+        }]
+      });
 
       const segment: TriangleBatchSegment = {
         key,
@@ -757,13 +978,25 @@ export class TriangleBatchManager {
         bufferPageKey: bufferPage.key,
         label: segmentLabel,
         signature,
+        primitive: isPoints ? PointsPrimitive : (isLines ? LinesPrimitive : TrianglesPrimitive),
         baseSlot,
         slotCount: slots.length,
         slotEnd: baseSlot + slots.length,
         vertexBuffer: bufferPage.vertexBuffer,
         vertexBufferOffset: pageAllocation.vertexByteOffset,
+        colorBuffer: bufferPage.colorBuffer,
+        colorBufferOffset: pageAllocation.vertexColorByteOffset,
+        uvBuffer: bufferPage.uvBuffer,
+        uvBufferOffset: pageAllocation.vertexUVByteOffset,
+        normalBuffer: bufferPage.normalBuffer,
+        normalBufferOffset: pageAllocation.vertexNormalByteOffset,
+        materialBuffer: bufferPage.materialBuffer,
+        materialBufferOffset: pageAllocation.vertexMaterialByteOffset,
+        lineOtherVertexBuffer: bufferPage.lineOtherVertexBuffer,
+        lineOtherVertexBufferOffset: pageAllocation.vertexByteOffset,
         positionDecodeBuffer: bufferPage.positionDecodeBuffer,
         positionDecodeBindGroup: bufferPage.positionDecodeBindGroup,
+        colorBindGroup,
         vertexMetadataBuffer: bufferPage.vertexMetadataBuffer,
         indexBuffer: bufferPage.indexBuffer,
         edgeIndexBuffer: bufferPage.edgeIndexBuffer,
@@ -776,6 +1009,7 @@ export class TriangleBatchManager {
         edgeIndices,
         indexFormat,
         indicesPageLocal,
+        textureKey: textureTupleKey,
         worldAABB,
         boundsVersion: this._getBoundsVersion(slots),
         destroy: () => {
@@ -891,11 +1125,15 @@ export class TriangleBatchManager {
       segments: this._segmentsByKey.size,
       totalBytes: 0,
       vertexBytes: 0,
+      uvBytes: 0,
+      normalBytes: 0,
       vertexMetadataBytes: 0,
       indexBytes: 0,
       edgeIndexBytes: 0,
       positionDecodeBytes: 0,
       usedVertexBytes: 0,
+      usedUVBytes: 0,
+      usedNormalBytes: 0,
       usedVertexMetadataBytes: 0,
       usedIndexBytes: 0,
       usedEdgeIndexBytes: 0,
@@ -913,23 +1151,31 @@ export class TriangleBatchManager {
     for (const page of this._bufferPagesByKey.values()) {
       const indexBytes = getIndexElementByteLength(page.indexFormat);
       const vertexBytes = page.vertexCapacity * 8;
+      const uvBytes = page.uvBuffer ? page.vertexCapacity * 8 : 0;
+      const normalBytes = page.normalBuffer ? page.vertexCapacity * 16 : 0;
       const vertexMetadataBytes = page.vertexCapacity * 8;
       const pageIndexBytes = page.indexCapacity * indexBytes;
       const edgeIndexBytes = page.edgeIndexCapacity * indexBytes;
       const positionDecodeBytes = page.positionDecodeCapacity * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
       const usedVertexBytes = page.usedVertices * 8;
+      const usedUVBytes = page.uvBuffer ? page.usedVertices * 8 : 0;
+      const usedNormalBytes = page.normalBuffer ? page.usedVertices * 16 : 0;
       const usedVertexMetadataBytes = page.usedVertices * 8;
       const usedIndexBytes = page.usedIndices * indexBytes;
       const usedEdgeIndexBytes = page.usedEdgeIndices * indexBytes;
       const usedPositionDecodeBytes = page.usedPositionDecodes * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
-      const bytes = vertexBytes + vertexMetadataBytes + pageIndexBytes + edgeIndexBytes + positionDecodeBytes;
-      const usedBytes = usedVertexBytes + usedVertexMetadataBytes + usedIndexBytes + usedEdgeIndexBytes + usedPositionDecodeBytes;
+      const bytes = vertexBytes + uvBytes + normalBytes + vertexMetadataBytes + pageIndexBytes + edgeIndexBytes + positionDecodeBytes;
+      const usedBytes = usedVertexBytes + usedUVBytes + usedNormalBytes + usedVertexMetadataBytes + usedIndexBytes + usedEdgeIndexBytes + usedPositionDecodeBytes;
       stats.vertexBytes += vertexBytes;
+      stats.uvBytes += uvBytes;
+      stats.normalBytes += normalBytes;
       stats.vertexMetadataBytes += vertexMetadataBytes;
       stats.indexBytes += pageIndexBytes;
       stats.edgeIndexBytes += edgeIndexBytes;
       stats.positionDecodeBytes += positionDecodeBytes;
       stats.usedVertexBytes += usedVertexBytes;
+      stats.usedUVBytes += usedUVBytes;
+      stats.usedNormalBytes += usedNormalBytes;
       stats.usedVertexMetadataBytes += usedVertexMetadataBytes;
       stats.usedIndexBytes += usedIndexBytes;
       stats.usedEdgeIndexBytes += usedEdgeIndexBytes;
@@ -949,11 +1195,15 @@ export class TriangleBatchManager {
         bytes,
         usedBytes,
         vertexBytes,
+        uvBytes,
+        normalBytes,
         vertexMetadataBytes,
         indexBytes: pageIndexBytes,
         edgeIndexBytes,
         positionDecodeBytes,
         usedVertexBytes,
+        usedUVBytes,
+        usedNormalBytes,
         usedVertexMetadataBytes,
         usedIndexBytes,
         usedEdgeIndexBytes,
@@ -963,6 +1213,8 @@ export class TriangleBatchManager {
 
     stats.totalBytes =
       stats.vertexBytes +
+      stats.uvBytes +
+      stats.normalBytes +
       stats.vertexMetadataBytes +
       stats.indexBytes +
       stats.edgeIndexBytes +
@@ -988,6 +1240,9 @@ export class TriangleBatchManager {
   }): SDKResult<InstancedDrawBatch | null> {
     const {segment, drawItems} = params;
     const topology = params.topology ?? "triangles";
+    const renderStateKey = topology === "triangles"
+      ? `${params.renderStateKey ?? "default"}|texture:${segment.textureKey}`
+      : params.renderStateKey;
     if (drawItems.length === 0) {
       return {
         ok: true,
@@ -1007,14 +1262,26 @@ export class TriangleBatchManager {
         ok: true,
         value: {
           packedBatch: {
+            primitive: segment.primitive,
             label: params.label,
             segmentKey: segment.key,
             bufferPageKey: segment.bufferPageKey,
-            renderStateKey: params.renderStateKey,
+            renderStateKey,
             topology,
             vertexBuffer: segment.vertexBuffer,
             vertexBufferOffset: segment.vertexBufferOffset,
+            colorBuffer: segment.colorBuffer,
+            colorBufferOffset: segment.colorBufferOffset,
+            uvBuffer: segment.uvBuffer,
+            uvBufferOffset: segment.uvBufferOffset,
+            normalBuffer: segment.normalBuffer,
+            normalBufferOffset: segment.normalBufferOffset,
+            materialBuffer: segment.materialBuffer,
+            materialBufferOffset: segment.materialBufferOffset,
+            lineOtherVertexBuffer: segment.lineOtherVertexBuffer,
+            lineOtherVertexBufferOffset: segment.lineOtherVertexBufferOffset,
             positionDecodeBindGroup: segment.positionDecodeBindGroup,
+            colorBindGroup: segment.colorBindGroup,
             vertexMetadataBuffer: segment.vertexMetadataBuffer,
             vertexMetadataBufferOffset: segment.vertexMetadataBufferOffset,
             indexBuffer: topology === "edges" ? segment.edgeIndexBuffer! : segment.indexBuffer,
@@ -1025,6 +1292,7 @@ export class TriangleBatchManager {
             indicesPageLocal: segment.indicesPageLocal,
             temporaryIndexBuffer: false,
             temporaryIndexBufferCreated: false,
+            textureKey: segment.textureKey,
             destroy: () => {
               // Borrowed from the persistent segment; destroyed with the segment.
             }
@@ -1086,13 +1354,25 @@ export class TriangleBatchManager {
       const newBatch: InstancedDrawBatch = {
         packedBatch: {
           label: params.label,
+          primitive: segment.primitive,
           segmentKey: segment.key,
           bufferPageKey: segment.bufferPageKey,
-          renderStateKey: params.renderStateKey,
+          renderStateKey,
           topology,
           vertexBuffer: segment.vertexBuffer,
           vertexBufferOffset: segment.vertexBufferOffset,
+          colorBuffer: segment.colorBuffer,
+          colorBufferOffset: segment.colorBufferOffset,
+          uvBuffer: segment.uvBuffer,
+          uvBufferOffset: segment.uvBufferOffset,
+          normalBuffer: segment.normalBuffer,
+          normalBufferOffset: segment.normalBufferOffset,
+          materialBuffer: segment.materialBuffer,
+          materialBufferOffset: segment.materialBufferOffset,
+          lineOtherVertexBuffer: segment.lineOtherVertexBuffer,
+          lineOtherVertexBufferOffset: segment.lineOtherVertexBufferOffset,
           positionDecodeBindGroup: segment.positionDecodeBindGroup,
+          colorBindGroup: segment.colorBindGroup,
           vertexMetadataBuffer: segment.vertexMetadataBuffer,
           vertexMetadataBufferOffset: segment.vertexMetadataBufferOffset,
           indexBuffer,
@@ -1103,6 +1383,7 @@ export class TriangleBatchManager {
           indicesPageLocal: segment.indicesPageLocal,
           temporaryIndexBuffer: true,
           temporaryIndexBufferCreated: true,
+          textureKey: segment.textureKey,
           destroy: () => {
             indexBuffer?.destroy?.();
           }
@@ -1170,7 +1451,19 @@ export class TriangleBatchManager {
     }
     this._bufferPagesByKey.clear();
     this._currentBufferPageByKey.clear();
+    this._textureBindGroupManager.destroy();
     this._nextSlot = 0;
+    this._batchSet = null;
+  }
+
+  public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
+    this._textureBindGroupManager.sceneTextureImageDataChanged(sceneTexture);
+    for (const batch of this._partialDrawBatchCache.values()) {
+      if (batch.packedBatch.textureKey === this._textureBindGroupManager.getTextureKey(sceneTexture)) {
+        batch.packedBatch.destroy();
+      }
+    }
+    this._partialDrawBatchCache.clear();
     this._batchSet = null;
   }
 
@@ -1179,6 +1472,9 @@ export class TriangleBatchManager {
     for (let i = 0, len = meshStates.length; i < len; i++) {
       const meshState = meshStates[i];
       if (assignedMeshIds.has(meshState.mesh.uniqueId)) {
+        continue;
+      }
+      if (meshState.geometryState.geometry.primitive === GaussianSplatsPrimitive) {
         continue;
       }
       const key = this._getSegmentBaseKey(meshState);
@@ -1237,6 +1533,10 @@ export class TriangleBatchManager {
     vertexBase: number;
     positionDecodeIndex: number;
     vertexByteOffset: number;
+    vertexColorByteOffset: number;
+    vertexUVByteOffset: number;
+    vertexNormalByteOffset: number;
+    vertexMaterialByteOffset: number;
     vertexMetadataByteOffset: number;
     positionDecodeByteOffset: number;
     indexByteOffset: number;
@@ -1245,11 +1545,13 @@ export class TriangleBatchManager {
     const pageKey = `${baseKey}|${indexFormat}`;
     const pageSegmentMultiplier = this._getBufferPageSegmentMultiplier(baseKey);
     let page = this._currentBufferPageByKey.get(pageKey);
+    let indexBase = page ? alignIndexElementCountForWrite(page.usedIndices, indexFormat) : 0;
+    let edgeIndexBase = page ? alignIndexElementCountForWrite(page.usedEdgeIndices, indexFormat) : 0;
     if (
       !page ||
       page.usedVertices + vertexCount > page.vertexCapacity ||
-      page.usedIndices + indexCount > page.indexCapacity ||
-      page.usedEdgeIndices + edgeIndexCount > page.edgeIndexCapacity ||
+      indexBase + indexCount > page.indexCapacity ||
+      edgeIndexBase + edgeIndexCount > page.edgeIndexCapacity ||
       page.usedPositionDecodes + 1 > page.positionDecodeCapacity
     ) {
       const pageResult = this._createBufferPage(pageKey, segmentLabel, indexFormat, vertexCount, indexCount, edgeIndexCount, pageSegmentMultiplier);
@@ -1258,16 +1560,16 @@ export class TriangleBatchManager {
       }
       page = pageResult.value;
       this._currentBufferPageByKey.set(pageKey, page);
+      indexBase = 0;
+      edgeIndexBase = 0;
     }
 
     const activePage = page;
     const vertexBase = activePage.usedVertices;
-    const indexBase = activePage.usedIndices;
-    const edgeIndexBase = activePage.usedEdgeIndices;
     const positionDecodeIndex = activePage.usedPositionDecodes;
     activePage.usedVertices += vertexCount;
-    activePage.usedIndices += indexCount;
-    activePage.usedEdgeIndices += edgeIndexCount;
+    activePage.usedIndices = indexBase + indexCount;
+    activePage.usedEdgeIndices = edgeIndexBase + edgeIndexCount;
     activePage.usedPositionDecodes++;
     activePage.refCount++;
 
@@ -1279,6 +1581,10 @@ export class TriangleBatchManager {
         vertexBase,
         positionDecodeIndex,
         vertexByteOffset: vertexBase * 8,
+        vertexColorByteOffset: vertexBase * 4,
+        vertexUVByteOffset: vertexBase * 8,
+        vertexNormalByteOffset: vertexBase * 16,
+        vertexMaterialByteOffset: vertexBase * 32,
         vertexMetadataByteOffset: vertexBase * 8,
         positionDecodeByteOffset: positionDecodeIndex * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES,
         indexByteOffset: indexBase * indexBytes,
@@ -1299,7 +1605,7 @@ export class TriangleBatchManager {
     const sanitizedPageKey = this._sanitizeLabel(`${pageKey}|bufferPage:${this._bufferPagesByKey.size}`);
     const vertexCapacity = Math.max(1, vertexCount * pageSegmentMultiplier);
     const indexCapacity = Math.max(1, indexCount * pageSegmentMultiplier);
-    const edgeIndexCapacity = Math.max(1, edgeIndexCount * pageSegmentMultiplier);
+    const edgeIndexCapacity = edgeIndexCount > 0 ? Math.max(1, edgeIndexCount * pageSegmentMultiplier) : 0;
     const positionDecodeCapacity = pageSegmentMultiplier;
     const indexBytes = indexFormat === "uint32" ? 4 : 2;
     const positionDecodeLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
@@ -1312,6 +1618,46 @@ export class TriangleBatchManager {
         vertexCapacity * 8,
         GPU_BUFFER_USAGE.VERTEX
       );
+      const isPointPage = pageKey.includes(`primitive:${PointsPrimitive}`);
+      const isLinePage = pageKey.includes(`primitive:${LinesPrimitive}`);
+      const isTrianglePage = !isPointPage && !isLinePage;
+      const pbrTrianglePage = isTrianglePage && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+      const colorBuffer = isPointPage || isLinePage
+        ? this._renderContext.createEmptyGPUBuffer(
+            `xeokit-webgpu-packed-colors:${isLinePage ? "lines" : "points"}:${segmentLabel}`,
+            vertexCapacity * 4,
+            GPU_BUFFER_USAGE.VERTEX
+          )
+        : null;
+      const hasTextureUVs = pageKey.includes("|texture:");
+      const uvBuffer = pbrTrianglePage && hasTextureUVs
+        ? this._renderContext.createEmptyGPUBuffer(
+            `xeokit-webgpu-packed-uvs:triangles:${segmentLabel}`,
+            vertexCapacity * 8,
+            GPU_BUFFER_USAGE.VERTEX
+          )
+        : null;
+      const materialBuffer = pbrTrianglePage
+        ? this._renderContext.createEmptyGPUBuffer(
+            `xeokit-webgpu-packed-materials:triangles:${segmentLabel}`,
+            vertexCapacity * 32,
+            GPU_BUFFER_USAGE.VERTEX
+          )
+        : null;
+      const normalBuffer = pbrTrianglePage
+        ? this._renderContext.createEmptyGPUBuffer(
+            `xeokit-webgpu-packed-normals:triangles:${segmentLabel}`,
+            vertexCapacity * 16,
+            GPU_BUFFER_USAGE.VERTEX
+          )
+        : null;
+      const lineOtherVertexBuffer = isLinePage
+        ? this._renderContext.createEmptyGPUBuffer(
+            `xeokit-webgpu-packed-line-other-positions:lines:${segmentLabel}`,
+            vertexCapacity * 8,
+            GPU_BUFFER_USAGE.VERTEX
+          )
+        : null;
       const vertexMetadataBuffer = this._renderContext.createEmptyGPUBuffer(
         `xeokit-webgpu-packed-vertex-metadata:triangles:${segmentLabel}`,
         vertexCapacity * 8,
@@ -1337,11 +1683,13 @@ export class TriangleBatchManager {
         indexCapacity * indexBytes,
         GPU_BUFFER_USAGE.INDEX
       );
-      const edgeIndexBuffer = this._renderContext.createEmptyGPUBuffer(
-        `xeokit-webgpu-packed-edge-indices:triangles:${segmentLabel}`,
-        edgeIndexCapacity * indexBytes,
-        GPU_BUFFER_USAGE.INDEX
-      );
+      const edgeIndexBuffer = edgeIndexCapacity > 0
+        ? this._renderContext.createEmptyGPUBuffer(
+            `xeokit-webgpu-packed-edge-indices:triangles:${segmentLabel}`,
+            edgeIndexCapacity * indexBytes,
+            GPU_BUFFER_USAGE.INDEX
+          )
+        : null;
       const page: TriangleBufferPage = {
         key: sanitizedPageKey,
         indexFormat,
@@ -1355,6 +1703,11 @@ export class TriangleBatchManager {
         usedPositionDecodes: 0,
         refCount: 0,
         vertexBuffer,
+        colorBuffer,
+        uvBuffer,
+        normalBuffer,
+        materialBuffer,
+        lineOtherVertexBuffer,
         vertexMetadataBuffer,
         positionDecodeBuffer,
         positionDecodeBindGroup,
@@ -1362,10 +1715,15 @@ export class TriangleBatchManager {
         edgeIndexBuffer,
         destroy: () => {
           vertexBuffer.destroy?.();
+          colorBuffer?.destroy?.();
+          uvBuffer?.destroy?.();
+          normalBuffer?.destroy?.();
+          materialBuffer?.destroy?.();
+          lineOtherVertexBuffer?.destroy?.();
           vertexMetadataBuffer.destroy?.();
           positionDecodeBuffer.destroy?.();
           indexBuffer.destroy?.();
-          edgeIndexBuffer.destroy?.();
+          edgeIndexBuffer?.destroy?.();
         }
       };
       this._bufferPagesByKey.set(page.key, page);
@@ -1384,11 +1742,14 @@ export class TriangleBatchManager {
 
   private _getBufferPageSegmentMultiplier(baseKey: string): number {
     const {lifecycle, memoryPolicy} = parseSegmentBaseKey(baseKey);
-    if (lifecycle !== "sealed") {
-      return TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER;
-    }
     if (memoryPolicy === "compact") {
       return 1;
+    }
+    if (memoryPolicy === "stream" && this._memoryConfigs.compactStreamPages) {
+      return 1;
+    }
+    if (lifecycle !== "sealed") {
+      return TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER;
     }
     if (memoryPolicy === "stream" && this._memoryConfigs.compactSealedStreamPages) {
       return 1;
@@ -1414,7 +1775,13 @@ export class TriangleBatchManager {
     const model = meshState.sceneModel ?? meshState.mesh.model;
     const memoryPolicy = model?.memoryPolicy ?? "stream";
     const lifecycle = this._getSegmentBaseLifecycle(model?.lifecycle ?? "dynamic", memoryPolicy);
-    return `${model?.id ?? "unowned"}|${lifecycle}|${memoryPolicy}`;
+    const baseKey = `${model?.id ?? "unowned"}|${lifecycle}|${memoryPolicy}`;
+    const primitive = meshState.geometryState.geometry.primitive;
+    if (primitive === PointsPrimitive || primitive === LinesPrimitive) {
+      return `${baseKey}|primitive:${primitive}`;
+    }
+    const textureKey = getPBRTextureTupleKey(this._textureBindGroupManager, meshState.mesh);
+    return textureKey === DEFAULT_TEXTURE_KEY ? baseKey : `${baseKey}|texture:${textureKey}`;
   }
 
   private _getSegmentBaseLifecycle(lifecycle: string, memoryPolicy: string): string {
@@ -1443,7 +1810,8 @@ export class TriangleBatchManager {
   }
 
   private _getMeshSignature(meshState: RendererMesh): string {
-    return `${meshState.mesh.uniqueId}:${meshState.geometryState.geometry.uniqueId}:${meshState.geometryState.positions.length}:${meshState.geometryState.indices.length}`;
+    const emissiveColor = getEffectiveEmissiveColor(meshState.mesh);
+    return `${meshState.mesh.uniqueId}:${meshState.geometryState.geometry.uniqueId}:${meshState.geometryState.geometry.primitive}:${meshState.geometryState.positions.length}:${meshState.geometryState.indices?.length ?? 0}:${meshState.geometryState.uvs?.length ?? 0}:${getEffectiveRoughness(meshState.mesh)}:${getEffectiveMetallic(meshState.mesh)}:${emissiveColor[0]},${emissiveColor[1]},${emissiveColor[2]}:${getEffectiveAlphaMode(meshState.mesh)}:${getEffectiveAlphaCutoff(meshState.mesh)}:${getPBRTextureTupleKey(this._textureBindGroupManager, meshState.mesh)}`;
   }
 
   private _getBoundsVersion(slots: WebGPUTriangleMeshSlot[]): string {
@@ -1626,6 +1994,7 @@ function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boole
   const packedBatch = batch.packedBatch;
   return {
     packedBatch: {
+      primitive: packedBatch.primitive,
       label: packedBatch.label,
       segmentKey: packedBatch.segmentKey,
       bufferPageKey: packedBatch.bufferPageKey,
@@ -1633,7 +2002,18 @@ function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boole
       topology: packedBatch.topology,
       vertexBuffer: packedBatch.vertexBuffer,
       vertexBufferOffset: packedBatch.vertexBufferOffset,
+      colorBuffer: packedBatch.colorBuffer,
+      colorBufferOffset: packedBatch.colorBufferOffset,
+      uvBuffer: packedBatch.uvBuffer,
+      uvBufferOffset: packedBatch.uvBufferOffset,
+      normalBuffer: packedBatch.normalBuffer,
+      normalBufferOffset: packedBatch.normalBufferOffset,
+      materialBuffer: packedBatch.materialBuffer,
+      materialBufferOffset: packedBatch.materialBufferOffset,
+      lineOtherVertexBuffer: packedBatch.lineOtherVertexBuffer,
+      lineOtherVertexBufferOffset: packedBatch.lineOtherVertexBufferOffset,
       positionDecodeBindGroup: packedBatch.positionDecodeBindGroup,
+      colorBindGroup: packedBatch.colorBindGroup,
       vertexMetadataBuffer: packedBatch.vertexMetadataBuffer,
       vertexMetadataBufferOffset: packedBatch.vertexMetadataBufferOffset,
       indexBuffer: packedBatch.indexBuffer,
@@ -1644,6 +2024,7 @@ function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boole
       indicesPageLocal: packedBatch.indicesPageLocal,
       temporaryIndexBuffer: true,
       temporaryIndexBufferCreated: createdThisFrame,
+      textureKey: packedBatch.textureKey,
       destroy: () => {
         // Cached partial batches are owned and destroyed by TriangleBatchManager.
       }
@@ -1752,6 +2133,264 @@ function quantizeCompressedPositionsInto(
     target[dst++] = quantizeUnorm16(((sourceMinZ + source[src + 2] * sourceScaleZ) - targetMinZ) * targetScaleZ);
     target[dst++] = 0;
   }
+}
+
+function copyUVsInto(
+  source: ArrayLike<number> | null,
+  target: Float32Array | null,
+  vertexOffset: number,
+  vertexCount: number
+): void {
+  if (!target) {
+    return;
+  }
+  const targetOffset = vertexOffset * 2;
+  if (!source) {
+    target.fill(0, targetOffset, targetOffset + vertexCount * 2);
+    return;
+  }
+  for (let i = 0, len = vertexCount * 2; i < len; i++) {
+    target[targetOffset + i] = source[i] ?? 0;
+  }
+}
+
+function copyNormalsInto(
+  source: Float32Array | null,
+  target: Float32Array,
+  vertexOffset: number,
+  vertexCount: number
+): void {
+  const targetOffset = vertexOffset * 4;
+  if (!source) {
+    target.fill(0, targetOffset, targetOffset + vertexCount * 4);
+    return;
+  }
+  for (let i = 0; i < vertexCount; i++) {
+    const sourceOffset = i * 3;
+    const targetIndex = targetOffset + i * 4;
+    target[targetIndex] = source[sourceOffset] ?? 0;
+    target[targetIndex + 1] = source[sourceOffset + 1] ?? 0;
+    target[targetIndex + 2] = source[sourceOffset + 2] ?? 1;
+    target[targetIndex + 3] = 1;
+  }
+}
+
+function copyMaterialInto(
+  sceneMesh: SceneMesh,
+  target: Float32Array,
+  vertexOffset: number,
+  vertexCount: number,
+  hasUVs: boolean
+): void {
+  const emissive = getEffectiveEmissiveColor(sceneMesh);
+  const alphaMode = getEffectiveAlphaMode(sceneMesh);
+  const triplanarScale = !hasUVs && meshHasAnyPBRTexture(sceneMesh)
+    ? getEffectiveTriplanarScale(sceneMesh)
+    : 0;
+  for (let i = 0; i < vertexCount; i++) {
+    const offset = (vertexOffset + i) * 8;
+    target[offset] = getEffectiveRoughness(sceneMesh);
+    target[offset + 1] = getEffectiveMetallic(sceneMesh);
+    target[offset + 2] = emissive[0];
+    target[offset + 3] = emissive[1];
+    target[offset + 4] = emissive[2];
+    target[offset + 5] = alphaMode;
+    target[offset + 6] = getEffectiveAlphaCutoff(sceneMesh);
+    target[offset + 7] = triplanarScale;
+  }
+}
+
+function getEffectiveRoughness(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveRoughness) ? sceneMesh.effectiveRoughness : 1.0;
+}
+
+function getEffectiveMetallic(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveMetallic) ? sceneMesh.effectiveMetallic : 0.0;
+}
+
+function getEffectiveEmissiveColor(sceneMesh: SceneMesh): ArrayLike<number> {
+  const emissiveColor = sceneMesh.effectiveEmissiveColor;
+  return emissiveColor && emissiveColor.length >= 3 ? emissiveColor : [0, 0, 0];
+}
+
+function getEffectiveAlphaMode(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveAlphaMode) ? sceneMesh.effectiveAlphaMode : 0;
+}
+
+function getEffectiveAlphaCutoff(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveAlphaCutoff) ? sceneMesh.effectiveAlphaCutoff : 0.5;
+}
+
+function getEffectiveTriplanarScale(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveTriplanarScale) && sceneMesh.effectiveTriplanarScale > 1e-4
+    ? sceneMesh.effectiveTriplanarScale
+    : 1.0;
+}
+
+function meshHasAnyPBRTexture(sceneMesh: SceneMesh): boolean {
+  return !!(
+    sceneMesh.effectiveColorTexture ||
+    sceneMesh.effectiveMetallicRoughnessTexture ||
+    sceneMesh.effectiveNormalsTexture ||
+    sceneMesh.effectiveEmissiveTexture ||
+    sceneMesh.effectiveOcclusionTexture
+  );
+}
+
+function getPBRTextureTupleKey(textureManager: TextureBindGroupManager, sceneMesh: SceneMesh | undefined): string {
+  if (!sceneMesh) {
+    return DEFAULT_TEXTURE_KEY;
+  }
+  const albedo = textureManager.getTextureKey(sceneMesh.effectiveColorTexture);
+  const metallicRoughness = textureManager.getTextureKey(sceneMesh.effectiveMetallicRoughnessTexture);
+  const normal = sceneMesh.effectiveNormalsTexture
+    ? textureManager.getTextureKey(sceneMesh.effectiveNormalsTexture)
+    : textureManager.getDefaultTextureKey("normal");
+  const emissive = textureManager.getTextureKey(sceneMesh.effectiveEmissiveTexture);
+  const occlusion = textureManager.getTextureKey(sceneMesh.effectiveOcclusionTexture);
+  if (
+    albedo === DEFAULT_TEXTURE_KEY &&
+    metallicRoughness === DEFAULT_TEXTURE_KEY &&
+    normal === textureManager.getDefaultTextureKey("normal") &&
+    emissive === DEFAULT_TEXTURE_KEY &&
+    occlusion === DEFAULT_TEXTURE_KEY
+  ) {
+    return DEFAULT_TEXTURE_KEY;
+  }
+  return `${albedo}|${metallicRoughness}|${normal}|${emissive}|${occlusion}`;
+}
+
+function quantizeCompressedPointQuadsInto(
+  source: ArrayLike<number>,
+  sourceAABB: ArrayLike<number>,
+  target: Uint16Array,
+  vertexOffset: number,
+  targetAABB: Float32Array
+): void {
+  const targetMinX = targetAABB[0];
+  const targetMinY = targetAABB[1];
+  const targetMinZ = targetAABB[2];
+  const targetExtentX = targetAABB[3] - targetMinX;
+  const targetExtentY = targetAABB[4] - targetMinY;
+  const targetExtentZ = targetAABB[5] - targetMinZ;
+  const targetScaleX = targetExtentX > 0 ? 65535 / targetExtentX : 0;
+  const targetScaleY = targetExtentY > 0 ? 65535 / targetExtentY : 0;
+  const targetScaleZ = targetExtentZ > 0 ? 65535 / targetExtentZ : 0;
+  const sourceMinX = sourceAABB[0];
+  const sourceMinY = sourceAABB[1];
+  const sourceMinZ = sourceAABB[2];
+  const sourceScaleX = (sourceAABB[3] - sourceMinX) / 65535;
+  const sourceScaleY = (sourceAABB[4] - sourceMinY) / 65535;
+  const sourceScaleZ = (sourceAABB[5] - sourceMinZ) / 65535;
+  let dst = vertexOffset * 4;
+  for (let src = 0, len = source.length; src < len; src += 3) {
+    const x = quantizeUnorm16(((sourceMinX + source[src] * sourceScaleX) - targetMinX) * targetScaleX);
+    const y = quantizeUnorm16(((sourceMinY + source[src + 1] * sourceScaleY) - targetMinY) * targetScaleY);
+    const z = quantizeUnorm16(((sourceMinZ + source[src + 2] * sourceScaleZ) - targetMinZ) * targetScaleZ);
+    for (let corner = 0; corner < 6; corner++) {
+      target[dst++] = x;
+      target[dst++] = y;
+      target[dst++] = z;
+      target[dst++] = 0;
+    }
+  }
+}
+
+function quantizeCompressedLineSegmentQuadsInto(
+  source: ArrayLike<number>,
+  sourceAABB: ArrayLike<number>,
+  sourceIndices: ArrayLike<number>,
+  targetPositions: Uint16Array,
+  targetOtherPositions: Uint16Array,
+  vertexOffset: number,
+  targetAABB: Float32Array
+): void {
+  const targetMinX = targetAABB[0];
+  const targetMinY = targetAABB[1];
+  const targetMinZ = targetAABB[2];
+  const targetExtentX = targetAABB[3] - targetMinX;
+  const targetExtentY = targetAABB[4] - targetMinY;
+  const targetExtentZ = targetAABB[5] - targetMinZ;
+  const targetScaleX = targetExtentX > 0 ? 65535 / targetExtentX : 0;
+  const targetScaleY = targetExtentY > 0 ? 65535 / targetExtentY : 0;
+  const targetScaleZ = targetExtentZ > 0 ? 65535 / targetExtentZ : 0;
+  const sourceMinX = sourceAABB[0];
+  const sourceMinY = sourceAABB[1];
+  const sourceMinZ = sourceAABB[2];
+  const sourceScaleX = (sourceAABB[3] - sourceMinX) / 65535;
+  const sourceScaleY = (sourceAABB[4] - sourceMinY) / 65535;
+  const sourceScaleZ = (sourceAABB[5] - sourceMinZ) / 65535;
+  let dst = vertexOffset * 4;
+  for (let segmentIndex = 0, len = sourceIndices.length; segmentIndex + 1 < len; segmentIndex += 2) {
+    const indexA = sourceIndices[segmentIndex] * 3;
+    const indexB = sourceIndices[segmentIndex + 1] * 3;
+    const ax = quantizeUnorm16(((sourceMinX + source[indexA] * sourceScaleX) - targetMinX) * targetScaleX);
+    const ay = quantizeUnorm16(((sourceMinY + source[indexA + 1] * sourceScaleY) - targetMinY) * targetScaleY);
+    const az = quantizeUnorm16(((sourceMinZ + source[indexA + 2] * sourceScaleZ) - targetMinZ) * targetScaleZ);
+    const bx = quantizeUnorm16(((sourceMinX + source[indexB] * sourceScaleX) - targetMinX) * targetScaleX);
+    const by = quantizeUnorm16(((sourceMinY + source[indexB + 1] * sourceScaleY) - targetMinY) * targetScaleY);
+    const bz = quantizeUnorm16(((sourceMinZ + source[indexB + 2] * sourceScaleZ) - targetMinZ) * targetScaleZ);
+    for (let corner = 0; corner < 6; corner++) {
+      const currentIsA = corner === 0 || corner === 3 || corner === 5;
+      targetPositions[dst] = currentIsA ? ax : bx;
+      targetPositions[dst + 1] = currentIsA ? ay : by;
+      targetPositions[dst + 2] = currentIsA ? az : bz;
+      targetPositions[dst + 3] = 0;
+      targetOtherPositions[dst] = currentIsA ? bx : ax;
+      targetOtherPositions[dst + 1] = currentIsA ? by : ay;
+      targetOtherPositions[dst + 2] = currentIsA ? bz : az;
+      targetOtherPositions[dst + 3] = 0;
+      dst += 4;
+    }
+  }
+}
+
+function copyCompressedPointQuadColorsInto(
+  source: ArrayLike<number> | undefined,
+  target: Uint8Array,
+  vertexOffset: number,
+  pointCount: number
+): void {
+  let dst = vertexOffset * 4;
+  for (let pointIndex = 0; pointIndex < pointCount; pointIndex++) {
+    const src = pointIndex * 4;
+    const r = source ? source[src] : 255;
+    const g = source ? source[src + 1] : 255;
+    const b = source ? source[src + 2] : 255;
+    const a = source ? source[src + 3] : 255;
+    for (let corner = 0; corner < 6; corner++) {
+      target[dst++] = r;
+      target[dst++] = g;
+      target[dst++] = b;
+      target[dst++] = a;
+    }
+  }
+}
+
+function copyCompressedLineSegmentQuadColorsInto(
+  source: ArrayLike<number> | undefined,
+  sourceIndices: ArrayLike<number>,
+  target: Uint8Array,
+  vertexOffset: number,
+  lineSegmentCount: number
+): void {
+  let dst = vertexOffset * 4;
+  for (let segmentIndex = 0; segmentIndex < lineSegmentCount; segmentIndex++) {
+    const indexA = sourceIndices[segmentIndex * 2];
+    const indexB = sourceIndices[segmentIndex * 2 + 1];
+    for (let corner = 0; corner < 6; corner++) {
+      const sourceIndex = corner === 0 || corner === 3 || corner === 5 ? indexA : indexB;
+      const src = sourceIndex * 4;
+      target[dst++] = source ? source[src] : 255;
+      target[dst++] = source ? source[src + 1] : 255;
+      target[dst++] = source ? source[src + 2] : 255;
+      target[dst++] = source ? source[src + 3] : 255;
+    }
+  }
+}
+
+function alignIndexElementCountForWrite(indexCount: number, indexFormat: "uint16" | "uint32"): number {
+  return indexFormat === "uint16" ? ((indexCount + 1) & ~1) : indexCount;
 }
 
 function quantizeUnorm16(value: number): number {

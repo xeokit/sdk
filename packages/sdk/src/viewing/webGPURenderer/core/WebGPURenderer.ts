@@ -1,6 +1,6 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {EventEmitter, SDKErrorType, type SDKResult} from "../../../base/core";
-import type {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../../model/scene";
+import type {SceneGeometry, SceneMesh, SceneModel, SceneModelBatch, SceneObject} from "../../../model/scene";
 import type {Renderer, RendererError} from "../../renderer";
 import type {PickParams, PickResult, View, Viewer} from "../../viewer";
 import {ViewManager} from "../internal";
@@ -394,12 +394,37 @@ export class WebGPURenderer implements Renderer {
   }
 
   /**
+   * Enables or disables the renderer-owned infinite ground grid.
+   *
+   * Disabled by default for bare renderer use. Studio enables it during
+   * initialization for its default scene reference plane.
+   */
+  public setInfiniteGridEnabled(enabled: boolean): SDKResult<void> {
+    if (!this._viewManager) {
+      return this._error(
+        SDKErrorType.InvalidOperation,
+        "[WebGPURenderer.setInfiniteGridEnabled] Failed to set infinite grid visibility - no Viewer with Scene is currently attached."
+      );
+    }
+    this._viewManager.setInfiniteGridEnabled(enabled);
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  /**
    * Gets summary stats for the last rendered frame of a View.
    */
   public getViewRenderStats(viewIndex: number): {
     numDrawCalls: number;
     numPrimitives: number;
     numBatches: number;
+    renderBins: {
+      name: string;
+      numDrawCalls: number;
+      numPrimitives: number;
+    }[];
     numRTCTiles: number;
     numRTCTileMatrixUploads: number;
     numMeshesWithRTCTile: number;
@@ -416,6 +441,11 @@ export class WebGPURenderer implements Renderer {
       numDrawCalls: stats.numDrawCalls,
       numPrimitives: stats.numPrims,
       numBatches: stats.numBatches,
+      renderBins: stats.renderBins.map((bin) => ({
+        name: bin.name,
+        numDrawCalls: bin.drawCalls.length,
+        numPrimitives: bin.drawCalls.reduce((sum, drawCall) => sum + drawCall.numPrims, 0)
+      })),
       numRTCTiles: stats.numRTCTiles,
       numRTCTileMatrixUploads: stats.numRTCTileMatrixUploads,
       numMeshesWithRTCTile: stats.numMeshesWithRTCTile,
@@ -493,7 +523,7 @@ export class WebGPURenderer implements Renderer {
 
   private _deferSceneGeometryCreated(sceneGeometry: SceneGeometry): boolean {
     const sceneModel = sceneGeometry.model;
-    if (!sceneModel?.building) {
+    if (!sceneModel || (!sceneModel.building && !sceneModel.activeBatch?.includesGeometry(sceneGeometry))) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
@@ -502,7 +532,7 @@ export class WebGPURenderer implements Renderer {
 
   private _deferSceneMeshCreated(sceneMesh: SceneMesh): boolean {
     const sceneModel = sceneMesh.model;
-    if (!sceneModel?.building) {
+    if (!sceneModel || (!sceneModel.building && !sceneModel.activeBatch?.includesMesh(sceneMesh))) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
@@ -511,7 +541,7 @@ export class WebGPURenderer implements Renderer {
 
   private _deferSceneObjectCreated(sceneObject: SceneObject): boolean {
     const sceneModel = sceneObject.model;
-    if (!sceneModel?.building) {
+    if (!sceneModel || (!sceneModel.building && !sceneModel.activeBatch?.includesObject(sceneObject))) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
@@ -530,27 +560,39 @@ export class WebGPURenderer implements Renderer {
     return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
   }
 
-  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: ViewManager): void {
+  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: ViewManager, batch?: SceneModelBatch): void {
     const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
-    if (!registrations) {
+    if (!registrations && !batch) {
       return;
     }
 
     this._deferredSceneModelRegistrations.delete(sceneModel);
 
-    for (const sceneGeometry of registrations.geometries) {
+    const geometries = new Set<SceneGeometry>([
+      ...(registrations?.geometries ?? []),
+      ...(batch?.geometries ?? [])
+    ]);
+    for (const sceneGeometry of geometries) {
       if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
         this._logError(viewManager.sceneGeometryCreated(sceneGeometry));
       }
     }
 
-    for (const sceneMesh of registrations.meshes) {
+    const meshes = new Set<SceneMesh>([
+      ...(registrations?.meshes ?? []),
+      ...(batch?.meshes ?? [])
+    ]);
+    for (const sceneMesh of meshes) {
       if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
         this._logError(viewManager.sceneMeshCreated(sceneMesh));
       }
     }
 
-    for (const sceneObject of registrations.objects) {
+    const objects = new Set<SceneObject>([
+      ...(registrations?.objects ?? []),
+      ...(batch?.objects ?? [])
+    ]);
+    for (const sceneObject of objects) {
       if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
         this._logError(viewManager.sceneObjectCreated(sceneObject));
       }
@@ -781,6 +823,38 @@ export class WebGPURenderer implements Renderer {
           const views = this._viewer.viewList;
           for (let i = 0, len = views.length; i < len; i++) {
             views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneModelBatchStarted.subscribe((sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._renderSuspendCount++;
+          this._getDeferredSceneModelRegistrations(sceneModel);
+        }
+      }),
+      sceneEvents.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+        if (this._viewManager !== viewManager) {
+          return;
+        }
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (sceneModel.building) {
+          return;
+        }
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager, batch);
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneModelBatchRolledBack.subscribe((sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._deferredSceneModelRegistrations.delete(sceneModel);
+          if (this._renderSuspendCount > 0) {
+            this._renderSuspendCount--;
           }
         }
       }),

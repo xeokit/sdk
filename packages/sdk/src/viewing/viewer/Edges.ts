@@ -1,5 +1,5 @@
 import type {EdgesParams} from "./EdgesParams";
-import {DetailedRender, RealisticRender} from "../../base/constants";
+import {DetailedRender} from "../../base/constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import {createVec3Float64, type Vec3} from "../../base/math/vector";
@@ -38,7 +38,7 @@ class Edges {
 
         this.view = view;
 
-        this._renderModes = options.renderModes || [DetailedRender, RealisticRender];
+        this._renderModes = options.renderModes || [DetailedRender];
         this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
         this._useMeshColor = options.useMeshColor !== false;
         this._edgeDarken = (options.edgeDarken !== undefined && options.edgeDarken !== null) ? options.edgeDarken : 0.5;
@@ -53,8 +53,7 @@ class Edges {
      *
      * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
      *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-     * {@link base!constants.RealisticRender | RealisticRender}].
+     * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
      */
     set renderModes(value: number[]) {
         this._renderModes = value;
@@ -66,8 +65,7 @@ class Edges {
      *
      * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
      *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-     * {@link base!constants.RealisticRender | RealisticRender}].
+     * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
      */
     get renderModes(): number[] {
         return this._renderModes;
@@ -76,7 +74,7 @@ class Edges {
     /**
      * Sets RGB edge color for {@link ViewObject | ViewObjects}.
      *
-     * Default value is ````[0.2, 0.2, 0.2]````.
+     * Default value is ````[0.35, 0.35, 0.35]````.
      */
     set edgeColor(value: Vec3) {
       if (!value || value.length < 3) {
@@ -100,7 +98,7 @@ class Edges {
     /**
      * Gets RGB edge color for {@link ViewObject | ViewObjects}.
      *
-     * Default value is ````[0.2, 0.2, 0.2]````.
+     * Default value is ````[0.35, 0.35, 0.35]````.
      */
     get edgeColor(): Vec3 {
         return this._edgeColor;

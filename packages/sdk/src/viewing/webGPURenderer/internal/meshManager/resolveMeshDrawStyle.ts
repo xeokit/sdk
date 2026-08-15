@@ -5,6 +5,7 @@ import type {View, ViewObject} from "../../../viewer";
 export interface MeshDrawStyle {
   color: Vec3 | number[];
   opacity: number;
+  alphaMode: number;
   emphasis: "normal" | "xrayed" | "highlighted" | "selected";
   drawEdges: boolean;
 }
@@ -28,6 +29,7 @@ export function resolveMeshDrawStyle(mesh: SceneMesh, view: View, viewObject: Vi
   return {
     color: viewObject?.colorize ?? mesh.effectiveColor ?? mesh.color ?? DEFAULT_COLOR,
     opacity: clamp01(opacity),
+    alphaMode: Number.isFinite(mesh.effectiveAlphaMode) ? mesh.effectiveAlphaMode : 0,
     emphasis: "normal",
     drawEdges: !!view.effects?.edges?.applied
   };
@@ -37,6 +39,7 @@ function resolveEffectStyle(effect: any, emphasis: MeshDrawStyle["emphasis"]): M
   return {
     color: effect?.fillColor ?? DEFAULT_COLOR,
     opacity: clamp01(effect?.fill === false ? 0 : effect?.fillAlpha ?? 1),
+    alphaMode: 0,
     emphasis,
     drawEdges: effect?.edges !== false
   };

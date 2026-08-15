@@ -1,7 +1,7 @@
 import type {IBLParams} from "./IBLParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {DetailedRender, RealisticRender} from "../../base/constants";
+import {RealisticRender} from "../../base/constants";
 import {parseHDR, type HDRImage} from "./hdrLoader";
 
 
@@ -19,8 +19,9 @@ import {parseHDR, type HDRImage} from "./hdrLoader";
  * {@link IBL.renderModes}.
  *
  * The cheap analytical sky/ground/up gradient lives separately on
- * {@link Lights.hemispheric} — it applies in every render mode by
- * default and stacks with this cubemap path when both are enabled.
+ * {@link Lights.hemispheric}. By default, IBL is reserved for quality
+ * rendering while the analytical hemisphere term lights the faster
+ * interactive modes.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -58,7 +59,7 @@ class IBL {
   constructor(view: View, params: IBLParams = {}) {
     this.view = view;
     this.#renderModes = params.renderModes ?? [RealisticRender];
-    this.#intensity = params.intensity !== undefined ? params.intensity : 1.4;
+    this.#intensity = params.intensity !== undefined ? params.intensity : 1.0;
   }
 
   /**
@@ -66,8 +67,7 @@ class IBL {
    *
    * The {@link viewing!viewer.View | View} will apply IBL whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
    */
   set renderModes(value: number[]) {
     this.#renderModes = value;
@@ -79,8 +79,7 @@ class IBL {
    *
    * The {@link viewing!viewer.View | View} will apply IBL whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
    */
   get renderModes(): number[] {
     return this.#renderModes;
@@ -116,10 +115,7 @@ class IBL {
    * `0` the cubemap contributes nothing even when the active
    * {@link View.renderMode} is in {@link IBL.renderModes}.
    *
-   * Default value is `1.4` — a modest boost over the natural `1.0`
-   * level so RealisticRender's prefiltered-cubemap fill reads as
-   * distinctly brighter than the analytical hemisphere fill in
-   * NavigationRender / DetailedRender.
+   * Default value is `1.0`.
    */
   set intensity(value: number) {
     if (typeof value !== "number") return;

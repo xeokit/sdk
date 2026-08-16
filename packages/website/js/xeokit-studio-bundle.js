@@ -17583,8 +17583,8 @@ function compressGeometryParams(geometryParams) {
       origin: rtcNeeded ? rtcCenter : null
     };
   } else {
-    let edgeIndices = null;
-    if ((geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices) {
+    let edgeIndices = geometryParams.edgeIndices ?? null;
+    if ((geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices && !edgeIndices) {
       const built = buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10);
       if (built && built.length > 0)
         edgeIndices = built;
@@ -111966,6 +111966,7 @@ var XGFViewStreamController = class {
   _onProgress;
   _onChunksLoading;
   _onError;
+  _backpressure;
   _getStreamIndex;
   _streamNodes;
   _manifestLookup;
@@ -111974,6 +111975,7 @@ var XGFViewStreamController = class {
   _resetGeneration = 0;
   _running = false;
   _paused = false;
+  _backpressurePaused = false;
   _lruSequence = 0;
   _chunkLastUsed = /* @__PURE__ */ new Map();
   _projectedVisibilityViewProjectionMatrix = createMat4Float64();
@@ -112028,6 +112030,7 @@ var XGFViewStreamController = class {
     this._onProgress = params.onProgress;
     this._onChunksLoading = params.onChunksLoading;
     this._onError = params.onError;
+    this._backpressure = params.backpressure;
     this._getStreamIndex = params.getStreamIndex || fetchStreamIndexJSON;
     this._streamNodes = (index.streams || []).map((stream) => ({
       manifest: resolveSubstreamManifest(stream, params.streamIndexBaseURI),
@@ -112110,10 +112113,45 @@ var XGFViewStreamController = class {
    * fetches. The currently committing chunk, if any, is allowed to finish.
    */
   pause() {
+    this.pauseInternal(false);
+  }
+  /**
+   * Checks the optional backpressure gate and pauses or resumes as needed.
+   *
+   * Returns true when the controller state changed. External callers can use
+   * this from render or timer callbacks to resume a backpressure pause after
+   * the renderer backlog has drained.
+   */
+  updateBackpressure(label = "Streaming") {
+    const backpressure = this._backpressure;
+    if (!backpressure) {
+      return false;
+    }
+    try {
+      if (this._paused) {
+        if (this._backpressurePaused && backpressure.shouldResume()) {
+          this.resume(label);
+          backpressure.onResume?.();
+          return true;
+        }
+        return false;
+      }
+      if (backpressure.shouldPause()) {
+        this.pauseInternal(true);
+        backpressure.onPause?.();
+        return true;
+      }
+    } catch (error) {
+      this._onError?.(error);
+    }
+    return false;
+  }
+  pauseInternal(backpressurePaused) {
     if (this._paused) {
       return;
     }
     this._paused = true;
+    this._backpressurePaused = backpressurePaused;
     this._generation++;
     this._pendingGeneration = 0;
     if (this._timer !== void 0) {
@@ -112131,6 +112169,7 @@ var XGFViewStreamController = class {
       return;
     }
     this._paused = false;
+    this._backpressurePaused = false;
     this.schedule(label);
   }
   /**
@@ -112256,6 +112295,9 @@ var XGFViewStreamController = class {
         if (this._paused) {
           break;
         }
+        if (this.updateBackpressure(label)) {
+          break;
+        }
         const batchGeneration = activeGeneration || this._generation;
         this._pendingGeneration = 0;
         if (this._unloadInactiveStreams) {
@@ -112277,6 +112319,9 @@ var XGFViewStreamController = class {
           generation: batchGeneration,
           frustumOnly: this._frustumOnly
         });
+        if (this._paused) {
+          break;
+        }
         this.evictLRUChunks();
         this.emitStatus(`${label}: ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
         activeGeneration = this._pendingGeneration || batchGeneration;
@@ -112310,6 +112355,9 @@ var XGFViewStreamController = class {
       }
       for (const manifest of candidates) {
         if (this._paused) {
+          break;
+        }
+        if (this.updateBackpressure(label)) {
           break;
         }
         if (generation !== void 0 && generation < this._resetGeneration) {
@@ -139847,8 +139895,13 @@ async function parseOBJDirect(ctx2, step2) {
       continue;
     }
     if (regexp.material_use_pattern.test(line)) {
+      const materialId = line.substring(7).trim();
       if (ctx2.currentObject) {
-        ctx2.currentObject.material.id = line.substring(7).trim();
+        const currentMaterialId = ctx2.currentObject.material.id;
+        if (ctx2.currentObject.geometry.indices.length > 0 && currentMaterialId !== materialId) {
+          flushCurrentObject(ctx2);
+        }
+        ctx2.currentObject.material.id = materialId;
       }
       continue;
     }
@@ -149956,6 +150009,8 @@ var TilesetStreamer = class {
   #inFlight = /* @__PURE__ */ new Set();
   // Implicit `.subtree` availability, parsed once and reused across updates.
   #subtreeCache = /* @__PURE__ */ new Map();
+  #pendingCamera = null;
+  #updatePromise = null;
   #destroyed = false;
   constructor(params) {
     this.#scene = params.scene;
@@ -149980,6 +150035,22 @@ var TilesetStreamer = class {
   async update(camera) {
     if (this.#destroyed)
       return;
+    this.#pendingCamera = camera;
+    if (!this.#updatePromise) {
+      this.#updatePromise = this.#drainUpdates().finally(() => {
+        this.#updatePromise = null;
+      });
+    }
+    return this.#updatePromise;
+  }
+  async #drainUpdates() {
+    while (!this.#destroyed && this.#pendingCamera) {
+      const camera = this.#pendingCamera;
+      this.#pendingCamera = null;
+      await this.#updateOnce(camera);
+    }
+  }
+  async #updateOnce(camera) {
     let selected = (await selectStreaming(this.#tree, camera, {
       maxScreenSpaceError: this.#maxSSE,
       fetchArrayBuffer: this.#fetchArrayBuffer,
@@ -150016,7 +150087,13 @@ var TilesetStreamer = class {
       const buffer = await this.#fetchArrayBuffer(resolveUrl2(node.contentUri, node.baseUri));
       if (this.#destroyed)
         return;
-      const res = this.#scene.createModel({ id: `tilestream-${node.id}`, globalizedIds: true });
+      const res = this.#scene.createModel({
+        id: `tilestream-${node.id}`,
+        globalizedIds: true,
+        updateHint: "static",
+        lifecycle: "streaming",
+        memoryPolicy: "stream"
+      });
       if (!res.ok || !res.value)
         return;
       sceneModel = res.value;
@@ -158446,6 +158523,7 @@ __export(adaptiveQuality_exports, {
 
 // ../sdk/src/viewing/adaptiveQuality/AdaptiveQuality.ts
 var DEFAULT_REST_MS = 500;
+var DEFAULT_REST_IDLE_TIMEOUT_MS = 1e3;
 var liveAdapters = /* @__PURE__ */ new WeakMap();
 var AdaptiveQuality = class {
   /** The live adapter driving `view`, or `undefined` if none. */
@@ -158457,8 +158535,12 @@ var AdaptiveQuality = class {
   #fastMode;
   #restMode;
   #restMs;
+  #restIdleTimeoutMs;
   #unsubscribers = [];
   #restTimer = null;
+  #restIdleHandle = null;
+  #restIdleHandleType = null;
+  #motionGeneration = 0;
   #enabled = true;
   #destroyed = false;
   constructor(params) {
@@ -158472,6 +158554,7 @@ var AdaptiveQuality = class {
     this.#fastMode = params.fastMode ?? NavigationRender;
     this.#restMode = params.restMode ?? RealisticRender;
     this.#restMs = Math.max(0, params.restMs ?? DEFAULT_REST_MS);
+    this.#restIdleTimeoutMs = Math.max(0, params.restIdleTimeoutMs ?? DEFAULT_REST_IDLE_TIMEOUT_MS);
     const events = view.viewer.events;
     const onCamera = (changedView) => {
       if (changedView === this.view)
@@ -158521,30 +158604,61 @@ var AdaptiveQuality = class {
     this.#unsubscribers.length = 0;
   }
   #restoreRestMode() {
+    this.#clearPendingRestRestore();
+    if (this.view.renderMode !== this.#restMode) {
+      this.view.renderMode = this.#restMode;
+    }
+  }
+  #clearPendingRestRestore() {
     if (this.#restTimer !== null) {
       clearTimeout(this.#restTimer);
       this.#restTimer = null;
     }
-    if (this.view.renderMode !== this.#restMode) {
-      this.view.renderMode = this.#restMode;
+    if (this.#restIdleHandle !== null) {
+      if (this.#restIdleHandleType === "idle") {
+        const cancelIdleCallback = globalThis.cancelIdleCallback;
+        if (typeof cancelIdleCallback === "function") {
+          cancelIdleCallback(this.#restIdleHandle);
+        }
+      } else {
+        clearTimeout(this.#restIdleHandle);
+      }
+      this.#restIdleHandle = null;
+      this.#restIdleHandleType = null;
     }
   }
   #onCameraChanged() {
     if (this.#destroyed || !this.#enabled)
       return;
+    this.#motionGeneration++;
+    this.#clearPendingRestRestore();
     if (this.view.renderMode !== this.#fastMode) {
       this.view.renderMode = this.#fastMode;
     }
-    if (this.#restTimer !== null)
-      clearTimeout(this.#restTimer);
+    const generation = this.#motionGeneration;
     this.#restTimer = setTimeout(() => {
       this.#restTimer = null;
-      if (this.#destroyed)
+      this.#scheduleRestModeRestore(generation);
+    }, this.#restMs);
+  }
+  #scheduleRestModeRestore(generation) {
+    const restore = () => {
+      this.#restIdleHandle = null;
+      this.#restIdleHandleType = null;
+      if (this.#destroyed || !this.#enabled || generation !== this.#motionGeneration)
         return;
       if (this.view.renderMode !== this.#restMode) {
         this.view.renderMode = this.#restMode;
       }
-    }, this.#restMs);
+    };
+    const requestIdleCallback = globalThis.requestIdleCallback;
+    if (typeof requestIdleCallback === "function") {
+      this.#restIdleHandleType = "idle";
+      this.#restIdleHandle = requestIdleCallback(restore, { timeout: this.#restIdleTimeoutMs });
+      return;
+    }
+    this.#restIdleHandleType = "timeout";
+    this.#restIdleHandle = setTimeout(restore, 0);
   }
 };
 
@@ -161708,7 +161822,7 @@ var Edges = class {
    */
   constructor(view, options = {}) {
     this.view = view;
-    this._renderModes = options.renderModes || [DetailedRender, RealisticRender];
+    this._renderModes = options.renderModes || [DetailedRender];
     this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
     this._useMeshColor = options.useMeshColor !== false;
     this._edgeDarken = options.edgeDarken !== void 0 && options.edgeDarken !== null ? options.edgeDarken : 0.5;
@@ -161722,8 +161836,7 @@ var Edges = class {
    *
    * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
    */
   set renderModes(value) {
     this._renderModes = value;
@@ -161734,8 +161847,7 @@ var Edges = class {
    *
    * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
    */
   get renderModes() {
     return this._renderModes;
@@ -161743,7 +161855,7 @@ var Edges = class {
   /**
    * Sets RGB edge color for {@link ViewObject | ViewObjects}.
    *
-   * Default value is ````[0.2, 0.2, 0.2]````.
+   * Default value is ````[0.35, 0.35, 0.35]````.
    */
   set edgeColor(value) {
     if (!value || value.length < 3) {
@@ -161766,7 +161878,7 @@ var Edges = class {
   /**
    * Gets RGB edge color for {@link ViewObject | ViewObjects}.
    *
-   * Default value is ````[0.2, 0.2, 0.2]````.
+   * Default value is ````[0.35, 0.35, 0.35]````.
    */
   get edgeColor() {
     return this._edgeColor;
@@ -163698,8 +163810,8 @@ var HemisphereAmbient = class {
    */
   constructor(view, params = {}) {
     this.view = view;
-    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender, RealisticRender];
-    this.#intensity = params.intensity !== void 0 ? params.intensity : 1;
+    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender];
+    this.#intensity = params.intensity !== void 0 ? params.intensity : 0.8;
     this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
     this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.3]);
     this.#worldUp = createVec3Float64(params.worldUp || [0, 0, 1]);
@@ -163708,8 +163820,7 @@ var HemisphereAmbient = class {
    * Sets which rendering modes in which to apply the hemisphere
    * ambient term.
    *
-   * Default value is `[NavigationRender, DetailedRender,
-   * RealisticRender]`.
+   * Default value is `[NavigationRender, DetailedRender]`.
    */
   set renderModes(value) {
     this.#renderModes = value;
@@ -163719,8 +163830,7 @@ var HemisphereAmbient = class {
    * Gets which rendering modes in which to apply the hemisphere
    * ambient term.
    *
-   * Default value is `[NavigationRender, DetailedRender,
-   * RealisticRender]`.
+   * Default value is `[NavigationRender, DetailedRender]`.
    */
   get renderModes() {
     return this.#renderModes;
@@ -163753,7 +163863,7 @@ var HemisphereAmbient = class {
    * `[0, ∞)`. Has no effect when the active {@link View.renderMode}
    * isn't in {@link HemisphereAmbient.renderModes}.
    *
-   * Default value is `1.0`.
+   * Default value is `0.8`.
    */
   set intensity(value) {
     if (typeof value !== "number")
@@ -164071,15 +164181,14 @@ var IBL = class {
   constructor(view, params = {}) {
     this.view = view;
     this.#renderModes = params.renderModes ?? [RealisticRender];
-    this.#intensity = params.intensity !== void 0 ? params.intensity : 1.4;
+    this.#intensity = params.intensity !== void 0 ? params.intensity : 1;
   }
   /**
    * Sets which rendering modes in which to apply IBL.
    *
    * The {@link viewing!viewer.View | View} will apply IBL whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
    */
   set renderModes(value) {
     this.#renderModes = value;
@@ -164090,8 +164199,7 @@ var IBL = class {
    *
    * The {@link viewing!viewer.View | View} will apply IBL whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
    */
   get renderModes() {
     return this.#renderModes;
@@ -164124,10 +164232,7 @@ var IBL = class {
    * `0` the cubemap contributes nothing even when the active
    * {@link View.renderMode} is in {@link IBL.renderModes}.
    *
-   * Default value is `1.4` — a modest boost over the natural `1.0`
-   * level so RealisticRender's prefiltered-cubemap fill reads as
-   * distinctly brighter than the analytical hemisphere fill in
-   * NavigationRender / DetailedRender.
+   * Default value is `1.0`.
    */
   set intensity(value) {
     if (typeof value !== "number")
@@ -166682,7 +166787,7 @@ var View2 = class {
     }
     new AmbientLight(this, {
       color: [1, 1, 1],
-      intensity: 1
+      intensity: 0
     });
     new DirLight(this, {
       dir: [0.8, -0.5, -0.5],
@@ -166728,6 +166833,10 @@ var View2 = class {
       name: "View._fireViewUpdatedEventTask",
       task: () => {
         if (this._needsRender) {
+          if (!this.viewer._requestViewRender(this)) {
+            this._needsRender = false;
+            return;
+          }
           this.viewer.events.onViewUpdated.dispatch(this, this);
           this._needsRender = false;
         }
@@ -167412,6 +167521,9 @@ var View2 = class {
    */
   needsRender() {
     if (this._needsRender) {
+      return;
+    }
+    if (!this.viewer._requestViewRender(this)) {
       return;
     }
     this._needsRender = true;
@@ -168563,7 +168675,9 @@ var Viewer = class {
   _onSceneDestroyed;
   _onSceneObjectCreated;
   _onSceneObjectDestroyed;
+  _onSceneModelBuildStarted;
   _onSceneModelBatchCommitted;
+  _onSceneModelBuildFinished;
   _onSceneObjectMeshAdded;
   _onSceneObjectMeshRemoved;
   _onSceneMeshCreated;
@@ -168580,6 +168694,8 @@ var Viewer = class {
   _onSceneMaterialEmissiveColorChanged;
   _onSceneMaterialOpacityChanged;
   _onSceneMaterialPatternChanged;
+  _renderSuspendCount = 0;
+  _pendingRenderViews = /* @__PURE__ */ new Set();
   /**
    * Creates a Viewer.
    *
@@ -168643,20 +168759,6 @@ var Viewer = class {
     this._onSceneDestroyed = this.scene.events.onSceneDestroyed.subscribe(() => {
       this.detachScene();
     });
-    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((_scene, sceneObject) => {
-      this._attachSceneObject(sceneObject);
-    });
-    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((_scene, sceneObject) => {
-      this._detachSceneObject(sceneObject);
-    });
-    this._onSceneModelBatchCommitted = this.scene.events.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
-      for (const sceneObject of batch.objects) {
-        if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
-          this._attachSceneObject(sceneObject);
-        }
-      }
-      nudgeAllViews();
-    });
     const nudgeAllViews = () => {
       const viewList = this.viewList;
       for (let i = 0, len = viewList.length; i < len; i++) {
@@ -168666,18 +168768,68 @@ var Viewer = class {
         }
       }
     };
+    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((_scene, sceneObject) => {
+      if (this._isSceneObjectDeferred(sceneObject)) {
+        return;
+      }
+      this._attachSceneObject(sceneObject);
+    });
+    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((_scene, sceneObject) => {
+      this._detachSceneObject(sceneObject);
+    });
+    this._onSceneModelBuildStarted = this.scene.events.onSceneModelBuildStarted.subscribe(() => {
+      this._renderSuspendCount++;
+    });
+    this._onSceneModelBatchCommitted = this.scene.events.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+      if (sceneModel.building) {
+        return;
+      }
+      for (const sceneObject of batch.objects) {
+        if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+          this._attachSceneObject(sceneObject);
+        }
+      }
+      nudgeAllViews();
+    });
+    this._onSceneModelBuildFinished = this.scene.events.onSceneModelBuildFinished.subscribe((_scene, sceneModel) => {
+      if (this._renderSuspendCount > 0) {
+        this._renderSuspendCount--;
+      }
+      const sceneObjects2 = sceneModel.objects;
+      for (const sceneObjectId in sceneObjects2) {
+        this._attachSceneObject(sceneObjects2[sceneObjectId]);
+      }
+      nudgeAllViews();
+      this._flushPendingRenderViews();
+    });
     const sub4 = (emitter, h2) => emitter.subscribe(h2);
     const events = this.scene.events;
-    this._onSceneObjectMeshAdded = sub4(events.onSceneObjectMeshAdded, nudgeAllViews);
-    this._onSceneObjectMeshRemoved = sub4(events.onSceneObjectMeshRemoved, nudgeAllViews);
-    this._onSceneMeshCreated = sub4(events.onSceneMeshCreated, nudgeAllViews);
+    this._onSceneObjectMeshAdded = events.onSceneObjectMeshAdded.subscribe((sceneObject) => {
+      if (!this._isSceneObjectDeferred(sceneObject)) {
+        nudgeAllViews();
+      }
+    });
+    this._onSceneObjectMeshRemoved = events.onSceneObjectMeshRemoved.subscribe((sceneObject) => {
+      if (!this._isSceneObjectDeferred(sceneObject)) {
+        nudgeAllViews();
+      }
+    });
+    this._onSceneMeshCreated = events.onSceneMeshCreated.subscribe((_scene, sceneMesh) => {
+      if (!this._isSceneMeshDeferred(sceneMesh)) {
+        nudgeAllViews();
+      }
+    });
     this._onSceneMeshDestroyed = sub4(events.onSceneMeshDestroyed, nudgeAllViews);
     this._onSceneMeshMatrixChanged = sub4(events.onSceneMeshMatrixChanged, nudgeAllViews);
     this._onSceneMeshMoved = sub4(events.onSceneMeshMoved, nudgeAllViews);
     this._onSceneMeshColorChanged = sub4(events.onSceneMeshColorChanged, nudgeAllViews);
     this._onSceneMeshOpacityChanged = sub4(events.onSceneMeshOpacityChanged, nudgeAllViews);
     this._onSceneTransformMatrixChanged = sub4(events.onSceneTransformMatrixChanged, nudgeAllViews);
-    this._onSceneGeometryCreated = sub4(events.onSceneGeometryCreated, nudgeAllViews);
+    this._onSceneGeometryCreated = events.onSceneGeometryCreated.subscribe((_scene, sceneGeometry) => {
+      if (!this._isSceneGeometryDeferred(sceneGeometry)) {
+        nudgeAllViews();
+      }
+    });
     this._onSceneGeometryDestroyed = sub4(events.onSceneGeometryDestroyed, nudgeAllViews);
     this._onSceneGeometryUpdated = sub4(events.onSceneGeometryUpdated, nudgeAllViews);
     this._onSceneMaterialColorChanged = sub4(events.onSceneMaterialColorChanged, nudgeAllViews);
@@ -168691,8 +168843,7 @@ var Viewer = class {
     };
   }
   _attachSceneObject(sceneObject) {
-    const activeBatch = sceneObject.model.activeBatch;
-    if (activeBatch?.includesObject(sceneObject)) {
+    if (this._isSceneObjectDeferred(sceneObject)) {
       return;
     }
     const viewList = this.viewList;
@@ -168700,6 +168851,57 @@ var Viewer = class {
       const view = viewList[i];
       if (view) {
         view._attachSceneObject(sceneObject);
+      }
+    }
+  }
+  _isSceneGeometryDeferred(sceneGeometry) {
+    const sceneModel = sceneGeometry.model;
+    return !!sceneModel && (sceneModel.building || !!sceneModel.activeBatch?.includesGeometry(sceneGeometry));
+  }
+  _isSceneMeshDeferred(sceneMesh) {
+    const sceneModel = sceneMesh.model;
+    return !!sceneModel && (sceneModel.building || !!sceneModel.activeBatch?.includesMesh(sceneMesh));
+  }
+  _isSceneObjectDeferred(sceneObject) {
+    const sceneModel = sceneObject.model;
+    return !!sceneModel && (sceneModel.building || !!sceneModel.activeBatch?.includesObject(sceneObject));
+  }
+  /**
+   * @private
+   */
+  _requestViewRender(view) {
+    if (this._isRenderSuspended()) {
+      this._pendingRenderViews.add(view);
+      return false;
+    }
+    return true;
+  }
+  _isRenderSuspended() {
+    if (this._renderSuspendCount > 0) {
+      return true;
+    }
+    const sceneModels = this.scene?.models;
+    if (!sceneModels) {
+      return false;
+    }
+    for (const sceneModelId in sceneModels) {
+      const sceneModel = sceneModels[sceneModelId];
+      if (sceneModel && (sceneModel.building || sceneModel.activeBatch)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _flushPendingRenderViews() {
+    if (this._isRenderSuspended() || this._pendingRenderViews.size === 0) {
+      return;
+    }
+    const views = Array.from(this._pendingRenderViews);
+    this._pendingRenderViews.clear();
+    for (let i = 0, len = views.length; i < len; i++) {
+      const view = views[i];
+      if (!view.destroyed) {
+        view.needsRender();
       }
     }
   }
@@ -168741,7 +168943,9 @@ var Viewer = class {
       this._onSceneDestroyed,
       this._onSceneObjectCreated,
       this._onSceneObjectDestroyed,
+      this._onSceneModelBuildStarted,
       this._onSceneModelBatchCommitted,
+      this._onSceneModelBuildFinished,
       this._onSceneObjectMeshAdded,
       this._onSceneObjectMeshRemoved,
       this._onSceneMeshCreated,
@@ -168766,7 +168970,9 @@ var Viewer = class {
     this._onSceneDestroyed = void 0;
     this._onSceneObjectCreated = void 0;
     this._onSceneObjectDestroyed = void 0;
+    this._onSceneModelBuildStarted = void 0;
     this._onSceneModelBatchCommitted = void 0;
+    this._onSceneModelBuildFinished = void 0;
     this._onSceneObjectMeshAdded = void 0;
     this._onSceneObjectMeshRemoved = void 0;
     this._onSceneMeshCreated = void 0;
@@ -168783,6 +168989,8 @@ var Viewer = class {
     this._onSceneMaterialEmissiveColorChanged = void 0;
     this._onSceneMaterialOpacityChanged = void 0;
     this._onSceneMaterialPatternChanged = void 0;
+    this._renderSuspendCount = 0;
+    this._pendingRenderViews.clear();
     const scene = this.scene;
     this.scene = null;
     this.events.onSceneDetached.dispatch(this, scene);
@@ -206180,7 +206388,7 @@ function createMemoryConfigs(params) {
   const AVG_VERTICES_PER_GEOMETRY = 200;
   const AVG_INDICES_PER_GEOMETRY = 400;
   const AVG_PRIMS_PER_GEOMETRY = 200;
-  const clamp6 = (v, min, max) => Math.max(min, Math.min(v, max));
+  const clamp7 = (v, min, max) => Math.max(min, Math.min(v, max));
   const MB_TO_BYTES = 1024 * 1024;
   const grossBytes = params.grossMemoryMB * MB_TO_BYTES;
   const usableBytes = grossBytes * params.utilization;
@@ -206189,20 +206397,20 @@ function createMemoryConfigs(params) {
   const tileBudgetBytes = usableBytes * 0.1;
   const maxBatchesBase = user.maxBatches ?? perf.meshBatches;
   const maxTilesBase = user.maxTiles ?? perf.tiles;
-  const derivedMaxTiles = clamp6(
+  const derivedMaxTiles = clamp7(
     Math.floor(tileBudgetBytes / BYTES_PER_TILE),
     64,
     4096
   );
-  const maxTiles = clamp6(
+  const maxTiles = clamp7(
     Math.min(maxTilesBase, derivedMaxTiles),
     64,
     4096
   );
-  const maxBatches = clamp6(maxBatchesBase, 8, 1024);
+  const maxBatches = clamp7(maxBatchesBase, 8, 1024);
   const totalMeshCapacity = Math.floor(meshBudgetBytes / BYTES_PER_MESH);
   const meshesPerBatchFromBudget = Math.floor(totalMeshCapacity / Math.max(1, maxBatches));
-  const maxBatchMeshes = clamp6(
+  const maxBatchMeshes = clamp7(
     user.maxBatchMeshes ?? meshesPerBatchFromBudget,
     100,
     16384
@@ -206211,17 +206419,17 @@ function createMemoryConfigs(params) {
   const bytesPerBatch = maxBatches > 0 ? geometryBudgetBytes / maxBatches : geometryBudgetBytes;
   const costPerVertex = BYTES_PER_VERTEX + INDICES_PER_VERTEX * BYTES_PER_INDEX + PRIMS_PER_VERTEX * BYTES_PER_PRIM;
   const maxBatchVerticesRaw = Math.floor(bytesPerBatch / costPerVertex);
-  const maxBatchVertices = user.maxBatchVertices ?? clamp6(
+  const maxBatchVertices = user.maxBatchVertices ?? clamp7(
     maxBatchVerticesRaw,
     1e5,
     16e6
   );
-  const maxBatchIndices = user.maxBatchIndices ?? clamp6(
+  const maxBatchIndices = user.maxBatchIndices ?? clamp7(
     Math.floor(maxBatchVertices * INDICES_PER_VERTEX),
     1e5,
     16e6
   );
-  const maxBatchPrims = user.maxBatchPrims ?? clamp6(
+  const maxBatchPrims = user.maxBatchPrims ?? clamp7(
     Math.floor(maxBatchVertices * PRIMS_PER_VERTEX),
     1e5,
     16e6
@@ -206239,12 +206447,12 @@ function createMemoryConfigs(params) {
     1,
     Math.min(maxGeometriesByVerts, maxGeometriesByIdx, maxGeometriesByPrims)
   );
-  maxBatchGeometries = clamp6(
+  maxBatchGeometries = clamp7(
     Math.min(maxBatchGeometries, geomCap),
     1,
     maxBatchGeometries
   );
-  const finalMaxBatchMeshes = clamp6(
+  const finalMaxBatchMeshes = clamp7(
     Math.min(maxBatchMeshes, maxBatchGeometries),
     100,
     16384
@@ -206289,7 +206497,9 @@ __export(internal_exports, {
 // ../sdk/src/viewing/webGPURenderer/index.ts
 var webGPURenderer_exports = {};
 __export(webGPURenderer_exports, {
-  WebGPURenderer: () => WebGPURenderer
+  WebGPURenderer: () => WebGPURenderer,
+  createMemoryConfigs: () => createMemoryConfigs2,
+  createWebGPURenderConfigs: () => createWebGPURenderConfigs
 });
 
 // ../sdk/src/viewing/webGPURenderer/core/WebGPURenderer.ts
@@ -206299,11 +206509,110 @@ var import_strongly_typed_events19 = __toESM(require_dist8());
 var RENDER_PASSES3 = {
   NOT_RENDERED: 0,
   OPAQUE: 1,
-  TRANSPARENT: 2
+  TRANSPARENT: 2,
+  PICK: 3,
+  SECTION_PLANE_CAPS: 4,
+  STENCIL_MASK_FRONT: 5,
+  STENCIL_MASK_BACK: 6,
+  DEPTH_PREPASS: 7,
+  SHADOW_DEPTH: 8
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/drawOps/WebGPUDrawOp.ts
-var WebGPUDrawOp = class {
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/CommandStateTracker.ts
+var CommandStateTracker = class {
+  _passEncoder;
+  _commandStats;
+  _activePipeline = null;
+  _activeBindGroupLayoutSignature = [];
+  _activeBindGroups = {};
+  _activeVertexBuffers = {};
+  _activeIndexBuffer = null;
+  _activeIndexFormat = null;
+  _activeIndexOffset = 0;
+  constructor(params) {
+    this._passEncoder = params.passEncoder;
+    this._commandStats = params.commandStats;
+  }
+  get passEncoder() {
+    return this._passEncoder;
+  }
+  setPipeline(pipelineState) {
+    if (pipelineState.renderPipeline === this._activePipeline) {
+      this._invalidateIncompatibleBindGroups(pipelineState.bindGroupLayoutSignature);
+      return;
+    }
+    this._activeBindGroups = {};
+    this._activeBindGroupLayoutSignature = pipelineState.bindGroupLayoutSignature;
+    this._passEncoder.setPipeline?.(pipelineState.renderPipeline);
+    this._commandStats?.pipelineBound();
+    this._activePipeline = pipelineState.renderPipeline;
+  }
+  setBindGroup(slot, bindGroup, force = false) {
+    if (!force && this._activeBindGroups[slot] === bindGroup) {
+      return;
+    }
+    this._passEncoder.setBindGroup?.(slot, bindGroup);
+    this._commandStats?.bindGroupBound(slot);
+    this._activeBindGroups[slot] = bindGroup;
+  }
+  setVertexBuffer(slot, buffer, offset = 0) {
+    const active = this._activeVertexBuffers[slot];
+    if (active?.buffer === buffer && active.offset === offset) {
+      return;
+    }
+    if (offset === 0) {
+      this._passEncoder.setVertexBuffer?.(slot, buffer);
+    } else {
+      this._passEncoder.setVertexBuffer?.(slot, buffer, offset);
+    }
+    this._commandStats?.vertexBufferBound(slot);
+    this._activeVertexBuffers[slot] = { buffer, offset };
+  }
+  setIndexBuffer(buffer, indexFormat, offset = 0) {
+    if (this._activeIndexBuffer === buffer && this._activeIndexFormat === indexFormat && this._activeIndexOffset === offset) {
+      return;
+    }
+    if (offset === 0) {
+      this._passEncoder.setIndexBuffer?.(buffer, indexFormat);
+    } else {
+      this._passEncoder.setIndexBuffer?.(buffer, indexFormat, offset);
+    }
+    this._commandStats?.indexBufferBound();
+    this._activeIndexBuffer = buffer;
+    this._activeIndexFormat = indexFormat;
+    this._activeIndexOffset = offset;
+  }
+  drawIndexed(indexCount, instanceCount, firstIndex, baseVertex, firstInstance) {
+    this._passEncoder.drawIndexed?.(indexCount, instanceCount, firstIndex, baseVertex, firstInstance);
+  }
+  drawIndexedIndirect(indirectBuffer, indirectOffset) {
+    this._passEncoder.drawIndexedIndirect?.(indirectBuffer, indirectOffset);
+  }
+  multiDrawIndexedIndirect(indirectBuffer, indirectOffset, drawCount) {
+    this._passEncoder.multiDrawIndexedIndirect?.(indirectBuffer, indirectOffset, drawCount);
+  }
+  draw(vertexCount2, instanceCount, firstVertex, firstInstance) {
+    this._passEncoder.draw?.(vertexCount2, instanceCount, firstVertex, firstInstance);
+  }
+  _invalidateIncompatibleBindGroups(nextSignature) {
+    const currentSignature = this._activeBindGroupLayoutSignature;
+    if (currentSignature === nextSignature) {
+      return;
+    }
+    const nextBindGroups = {};
+    for (const [slotText, bindGroup] of Object.entries(this._activeBindGroups)) {
+      const slot = Number(slotText);
+      if (currentSignature[slot] !== void 0 && currentSignature[slot] === nextSignature[slot]) {
+        nextBindGroups[slot] = bindGroup;
+      }
+    }
+    this._activeBindGroups = nextBindGroups;
+    this._activeBindGroupLayoutSignature = nextSignature;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/DrawOp.ts
+var DrawOp4 = class {
   technique;
   renderPass;
   constructor(technique, renderPass) {
@@ -206315,119 +206624,26 @@ var WebGPUDrawOp = class {
     if (pipelineStateResult.ok === false) {
       return pipelineStateResult;
     }
+    const commandStateTracker = params.commandStateTracker ?? new CommandStateTracker({
+      passEncoder: params.passEncoder,
+      commandStats: params.commandStats
+    });
     return this.technique.drawBatches({
       ...params,
+      commandStateTracker,
+      renderPass: this.renderPass,
       pipelineState: pipelineStateResult.value
     });
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/drawOps/WebGPUDrawTechnique.ts
-var WebGPUDrawTechnique = class {
-  _pipelineManager;
-  constructor(pipelineManager) {
-    this._pipelineManager = pipelineManager;
-  }
-  destroy() {
-  }
-};
-
-// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/WebGPUTrianglesDrawColorTechnique.ts
-var WebGPUTrianglesDrawColorTechnique = class extends WebGPUDrawTechnique {
-  constructor(pipelineManager) {
-    super(pipelineManager);
-  }
-  getPipelineState(renderPass) {
-    return this._pipelineManager.getMeshPipelineState(renderPass);
-  }
-  drawBatches(params) {
-    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
-    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: "[WebGPUTrianglesDrawColorTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
-      };
-    }
-    passEncoder.setPipeline(pipelineState.renderPipeline);
-    passEncoder.setBindGroup(0, frameBindGroup);
-    passEncoder.setBindGroup(1, instanceBindGroup);
-    for (const batch of batches) {
-      const packedBatch = batch.packedBatch;
-      passEncoder.setVertexBuffer(0, packedBatch.vertexBuffer);
-      passEncoder.setVertexBuffer(1, packedBatch.normalBuffer);
-      passEncoder.setVertexBuffer(2, packedBatch.meshIndexBuffer);
-      passEncoder.setIndexBuffer(packedBatch.indexBuffer, packedBatch.indexFormat);
-      passEncoder.drawIndexed(packedBatch.indexCount, 1, 0, 0, 0);
-    }
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-};
-
-// ../sdk/src/viewing/webGPURenderer/internal/drawOps/WebGPUDrawOps.ts
-var WebGPUDrawOps = class {
-  prims = {};
-  _pipelineManager;
-  _techniques = [];
-  constructor(pipelineManager) {
-    this._pipelineManager = pipelineManager;
-  }
-  init() {
-    this.destroy();
-    const trianglesDrawColor = this._saveForCleanup(
-      new WebGPUTrianglesDrawColorTechnique(this._pipelineManager)
-    );
-    this.prims[TrianglesPrimitive] = {
-      opaque: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES3.OPAQUE),
-      transparent: new WebGPUDrawOp(trianglesDrawColor, RENDER_PASSES3.TRANSPARENT)
-    };
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  destroy() {
-    for (const technique of this._techniques) {
-      technique.destroy();
-    }
-    this._techniques = [];
-    this.prims = {};
-  }
-  _saveForCleanup(technique) {
-    this._techniques.push(technique);
-    return technique;
-  }
-};
-
-// ../sdk/src/viewing/webGPURenderer/internal/pickManager/WebGPUPickManager.ts
-var WebGPUPickManager = class {
-  _snapManager;
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/DrawTechnique.ts
+var DrawTechnique4 = class {
+  _renderContext;
+  _bindGroupLayoutManager;
   constructor(params) {
-    this._snapManager = params.snapManager;
-  }
-  pick(view, pickParams) {
-    void this._snapManager;
-    return {
-      ok: false,
-      type: 6 /* NotSupported */,
-      error: "[WebGPUPickManager.pick] WebGPU picking is not implemented yet."
-    };
-  }
-  destroy() {
-  }
-};
-
-// ../sdk/src/viewing/webGPURenderer/internal/snapManager/WebGPUSnapManager.ts
-var WebGPUSnapManager = class {
-  snapPick(view, pickParams) {
-    return {
-      ok: false,
-      type: 6 /* NotSupported */,
-      error: "[WebGPUSnapManager.snapPick] WebGPU snap picking is not implemented yet."
-    };
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
   }
   destroy() {
   }
@@ -206435,24 +206651,54 @@ var WebGPUSnapManager = class {
 
 // ../sdk/src/viewing/webGPURenderer/internal/constants.ts
 var GPU_BUFFER_USAGE = {
+  MAP_READ: 1,
+  COPY_SRC: 4,
   COPY_DST: 8,
+  INDIRECT: 256,
   INDEX: 16,
+  QUERY_RESOLVE: 512,
   STORAGE: 128,
   VERTEX: 32,
   UNIFORM: 64
 };
 var GPU_TEXTURE_USAGE = {
+  COPY_SRC: 1,
+  COPY_DST: 2,
+  TEXTURE_BINDING: 4,
   RENDER_ATTACHMENT: 16
 };
 var GPU_SHADER_STAGE = {
   VERTEX: 1,
   FRAGMENT: 2
 };
-var DEPTH_FORMAT = "depth24plus";
-var FRAME_UNIFORM_FLOATS = 20;
+var DEPTH_FORMAT = "depth24plus-stencil8";
+var SHADOW_DEPTH_FORMAT = "depth32float";
+var ID_BUFFER_FORMAT = "rgba8unorm";
+var MAX_DIR_LIGHTS = 3;
+var MAX_SECTION_PLANES2 = 8;
+var AMBIENT_LIGHT_UNIFORM_OFFSET = 16;
+var DIR_LIGHT_DIRECTION_UNIFORM_OFFSET = AMBIENT_LIGHT_UNIFORM_OFFSET + 4;
+var DIR_LIGHT_COLOR_UNIFORM_OFFSET = DIR_LIGHT_DIRECTION_UNIFORM_OFFSET + MAX_DIR_LIGHTS * 4;
+var SECTION_PLANE_STATE_UNIFORM_OFFSET = DIR_LIGHT_COLOR_UNIFORM_OFFSET + MAX_DIR_LIGHTS * 4;
+var SECTION_PLANE_UNIFORM_OFFSET = SECTION_PLANE_STATE_UNIFORM_OFFSET + 4;
+var SECTION_PLANE_CAP_COLOR_UNIFORM_OFFSET = SECTION_PLANE_UNIFORM_OFFSET + MAX_SECTION_PLANES2 * 4;
+var DEPTH_PARAMS_UNIFORM_OFFSET = SECTION_PLANE_CAP_COLOR_UNIFORM_OFFSET + MAX_SECTION_PLANES2 * 4;
+var POINT_PARAMS_UNIFORM_OFFSET = DEPTH_PARAMS_UNIFORM_OFFSET + 4;
+var LINE_PARAMS_UNIFORM_OFFSET = POINT_PARAMS_UNIFORM_OFFSET + 8;
+var VIEW_MATRIX_UNIFORM_OFFSET = LINE_PARAMS_UNIFORM_OFFSET + 4;
+var SPLAT_PARAMS_UNIFORM_OFFSET = VIEW_MATRIX_UNIFORM_OFFSET + 16;
+var HEMISPHERE_SKY_UNIFORM_OFFSET = SPLAT_PARAMS_UNIFORM_OFFSET + 4;
+var HEMISPHERE_GROUND_UNIFORM_OFFSET = HEMISPHERE_SKY_UNIFORM_OFFSET + 4;
+var HEMISPHERE_UP_UNIFORM_OFFSET = HEMISPHERE_GROUND_UNIFORM_OFFSET + 4;
+var FRAME_UNIFORM_FLOATS = HEMISPHERE_UP_UNIFORM_OFFSET + 4;
 var FRAME_UNIFORM_BYTES = FRAME_UNIFORM_FLOATS * 4;
-var INSTANCE_FLOATS = 36;
+var RTC_TILE_FLOATS = 20;
+var RTC_TILE_BYTES = RTC_TILE_FLOATS * 4;
+var INSTANCE_FLOATS = 24;
 var INSTANCE_BYTES = INSTANCE_FLOATS * 4;
+var MAX_SHADOW_CASCADES2 = 6;
+var SHADOW_UNIFORM_FLOATS = 132;
+var SHADOW_UNIFORM_BYTES = SHADOW_UNIFORM_FLOATS * 4;
 var IDENTITY_MATRIX2 = identityMat4();
 var WEBGPU_CLIP_SPACE_MATRIX = [
   1,
@@ -206472,96 +206718,4743 @@ var WEBGPU_CLIP_SPACE_MATRIX = [
   0.5,
   1
 ];
-var TRIANGLE_SHADER = `
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/PackedTriangleBatchEncoder.ts
+var MULTI_DRAW_INDIRECT_FEATURE = "chromium-experimental-multi-draw-indirect";
+var INDIRECT_DRAW_INDEXED_UINT32S = 5;
+var PACKED_VERTEX_STRIDE_BYTES = 8;
+var MIN_INDIRECT_BUFFER_BYTES = 256;
+var indirectBufferCache = /* @__PURE__ */ new WeakMap();
+function encodePackedTriangleBatches(params) {
+  const { passEncoder } = params;
+  if (!passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+    return {
+      ok: false,
+      type: 0 /* InitializationFailed */,
+      error: `[${params.validateLabel}] WebGPU render pass encoder does not expose indexed drawing methods.`
+    };
+  }
+  const commandStateTracker = params.commandStateTracker ?? new CommandStateTracker({
+    passEncoder,
+    commandStats: params.commandStats
+  });
+  const submissionOrder = getSubmissionOrder(params.batches, params.renderPass);
+  params.commandStats?.submissionGroupsSubmitted?.(submissionOrder.groups);
+  const canUseMultiDraw = params.renderPass !== RENDER_PASSES3.TRANSPARENT && params.bindPositionDecode !== false && !params.bindBeforeDraw && params.device.features?.has?.(MULTI_DRAW_INDIRECT_FEATURE) === true && typeof passEncoder.multiDrawIndexedIndirect === "function";
+  for (let i = 0, len = submissionOrder.batches.length; i < len; ) {
+    if (canUseMultiDraw) {
+      const groupLength = getMultiDrawGroupLength(submissionOrder.batches, i);
+      if (groupLength > 1) {
+        const firstPackedBatch = submissionOrder.batches[i].packedBatch;
+        commandStateTracker.setVertexBuffer(0, firstPackedBatch.vertexBuffer, 0);
+        commandStateTracker.setVertexBuffer(1, firstPackedBatch.vertexMetadataBuffer, 0);
+        commandStateTracker.setBindGroup(2, firstPackedBatch.positionDecodeBindGroup, true);
+        commandStateTracker.setIndexBuffer(firstPackedBatch.indexBuffer, firstPackedBatch.indexFormat, 0);
+        const commands = createIndexedIndirectCommands(submissionOrder.batches, i, groupLength);
+        const indirectBuffer = getIndirectBuffer(params.device, commands.byteLength);
+        params.device.queue.writeBuffer(indirectBuffer, 0, commands);
+        commandStateTracker.multiDrawIndexedIndirect(indirectBuffer, 0, groupLength);
+        i += groupLength;
+        continue;
+      }
+    }
+    const batch = submissionOrder.batches[i];
+    const packedBatch = batch.packedBatch;
+    const vertexBufferOffset = packedBatch.indicesPageLocal ? 0 : packedBatch.vertexBufferOffset ?? 0;
+    const vertexMetadataBufferOffset = packedBatch.indicesPageLocal ? 0 : packedBatch.vertexMetadataBufferOffset ?? 0;
+    commandStateTracker.setVertexBuffer(0, packedBatch.vertexBuffer, vertexBufferOffset);
+    commandStateTracker.setVertexBuffer(1, packedBatch.vertexMetadataBuffer, vertexMetadataBufferOffset);
+    if (params.bindPositionDecode !== false) {
+      commandStateTracker.setBindGroup(2, packedBatch.positionDecodeBindGroup, true);
+    }
+    commandStateTracker.setIndexBuffer(packedBatch.indexBuffer, packedBatch.indexFormat, packedBatch.indexBufferOffset ?? 0);
+    params.bindBeforeDraw?.(packedBatch);
+    commandStateTracker.drawIndexed(packedBatch.indexCount, 1, packedBatch.firstIndex ?? 0, 0, 0);
+    i++;
+  }
+  return {
+    ok: true,
+    value: void 0
+  };
+}
+function getMultiDrawGroupLength(batches, startIndex) {
+  const first = batches[startIndex]?.packedBatch;
+  if (!first || !canMultiDrawBatch(first)) {
+    return 0;
+  }
+  let groupLength = 1;
+  for (let i = startIndex + 1, len = batches.length; i < len; i++) {
+    const next = batches[i].packedBatch;
+    if (!canMultiDrawBatch(next) || !hasSameMultiDrawState(first, next)) {
+      break;
+    }
+    groupLength++;
+  }
+  return groupLength;
+}
+function canMultiDrawBatch(batch) {
+  if (batch.temporaryIndexBuffer || batch.indexCount <= 0 || !batch.indicesPageLocal) {
+    return false;
+  }
+  const vertexBufferOffset = batch.vertexBufferOffset ?? 0;
+  const vertexMetadataBufferOffset = batch.vertexMetadataBufferOffset ?? 0;
+  if (vertexBufferOffset % PACKED_VERTEX_STRIDE_BYTES !== 0 || vertexMetadataBufferOffset % PACKED_VERTEX_STRIDE_BYTES !== 0) {
+    return false;
+  }
+  const indexByteLength = getIndexByteLength(batch.indexFormat);
+  const indexBufferOffset = batch.indexBufferOffset ?? 0;
+  return indexBufferOffset % indexByteLength === 0;
+}
+function hasSameMultiDrawState(first, next) {
+  return first.vertexBuffer === next.vertexBuffer && first.uvBuffer === next.uvBuffer && first.colorBindGroup === next.colorBindGroup && first.vertexMetadataBuffer === next.vertexMetadataBuffer && first.positionDecodeBindGroup === next.positionDecodeBindGroup && first.indexBuffer === next.indexBuffer && first.indexFormat === next.indexFormat && first.bufferPageKey === next.bufferPageKey && first.renderStateKey === next.renderStateKey && first.topology === next.topology;
+}
+function createIndexedIndirectCommands(batches, startIndex, groupLength) {
+  const commands = new Uint32Array(groupLength * INDIRECT_DRAW_INDEXED_UINT32S);
+  for (let i = 0; i < groupLength; i++) {
+    const batch = batches[startIndex + i].packedBatch;
+    const commandOffset = i * INDIRECT_DRAW_INDEXED_UINT32S;
+    const indexByteLength = getIndexByteLength(batch.indexFormat);
+    commands[commandOffset] = batch.indexCount;
+    commands[commandOffset + 1] = 1;
+    commands[commandOffset + 2] = (batch.indexBufferOffset ?? 0) / indexByteLength + (batch.firstIndex ?? 0);
+    commands[commandOffset + 3] = 0;
+    commands[commandOffset + 4] = 0;
+  }
+  return commands;
+}
+function getIndirectBuffer(device, byteLength) {
+  const cached = indirectBufferCache.get(device);
+  if (cached && cached.byteLength >= byteLength) {
+    return cached.buffer;
+  }
+  const nextByteLength = getNextPowerOfTwo(Math.max(MIN_INDIRECT_BUFFER_BYTES, byteLength));
+  const buffer = device.createBuffer({
+    label: "xeokit-webgpu-packed-triangle-multi-draw-indirect",
+    size: nextByteLength,
+    usage: GPU_BUFFER_USAGE.INDIRECT | GPU_BUFFER_USAGE.COPY_DST
+  });
+  indirectBufferCache.set(device, {
+    buffer,
+    byteLength: nextByteLength
+  });
+  return buffer;
+}
+function getIndexByteLength(indexFormat) {
+  return indexFormat === "uint32" ? 4 : 2;
+}
+function getNextPowerOfTwo(value) {
+  let next = 1;
+  while (next < value) {
+    next <<= 1;
+  }
+  return next;
+}
+function getSubmissionOrder(batches, renderPass) {
+  if (renderPass === RENDER_PASSES3.TRANSPARENT || batches.length < 2) {
+    return {
+      batches,
+      groups: countSubmissionGroupsInOrder(batches)
+    };
+  }
+  const pageGroups = /* @__PURE__ */ new Map();
+  for (const batch of batches) {
+    const pageKey = getOpaqueBufferPageGroupKey(batch.packedBatch);
+    const stateKey = getOpaqueRenderStateGroupKey(batch.packedBatch);
+    let stateGroups = pageGroups.get(pageKey);
+    if (!stateGroups) {
+      stateGroups = /* @__PURE__ */ new Map();
+      pageGroups.set(pageKey, stateGroups);
+    }
+    let group = stateGroups.get(stateKey);
+    if (!group) {
+      group = [];
+      stateGroups.set(stateKey, group);
+    }
+    group.push(batch);
+  }
+  const ordered = [];
+  let renderStateGroups = 0;
+  for (const stateGroups of pageGroups.values()) {
+    renderStateGroups += stateGroups.size;
+    for (const group of stateGroups.values()) {
+      ordered.push(...group);
+    }
+  }
+  return {
+    batches: ordered,
+    groups: {
+      submissionGroups: renderStateGroups,
+      bufferPageGroups: pageGroups.size,
+      renderStateGroups
+    }
+  };
+}
+function getOpaqueBufferPageGroupKey(batch) {
+  return `${batch.topology ?? "triangles"}|${batch.bufferPageKey ?? batch.segmentKey}`;
+}
+function getOpaqueRenderStateGroupKey(batch) {
+  return batch.renderStateKey ?? "default";
+}
+function countSubmissionGroupsInOrder(batches) {
+  if (batches.length === 0) {
+    return {
+      submissionGroups: 0,
+      bufferPageGroups: 0,
+      renderStateGroups: 0
+    };
+  }
+  let bufferPageGroups = 0;
+  let renderStateGroups = 0;
+  let lastPageKey = "";
+  let lastStateKey = "";
+  for (let i = 0, len = batches.length; i < len; i++) {
+    const batch = batches[i].packedBatch;
+    const pageKey = getOpaqueBufferPageGroupKey(batch);
+    const stateKey = getOpaqueRenderStateGroupKey(batch);
+    if (i === 0 || pageKey !== lastPageKey) {
+      bufferPageGroups++;
+      lastPageKey = pageKey;
+      lastStateKey = "";
+    }
+    if (i === 0 || stateKey !== lastStateKey) {
+      renderStateGroups++;
+      lastStateKey = stateKey;
+    }
+  }
+  return {
+    submissionGroups: renderStateGroups,
+    bufferPageGroups,
+    renderStateGroups
+  };
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglePositionPacking.ts
+var TRIANGLE_POSITION_DECODE_UNIFORM_FLOATS = 8;
+var TRIANGLE_POSITION_DECODE_UNIFORM_BYTES = TRIANGLE_POSITION_DECODE_UNIFORM_FLOATS * 4;
+var PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS = [
+  {
+    arrayStride: 8,
+    attributes: [{
+      shaderLocation: 0,
+      offset: 0,
+      format: "unorm16x4"
+    }]
+  },
+  {
+    arrayStride: 8,
+    attributes: [{
+      shaderLocation: 1,
+      offset: 0,
+      format: "uint32x2"
+    }]
+  }
+];
+var TRIANGLE_POSITION_DECODE_WGSL = `
+struct PositionDecode {
+  min: vec4<f32>,
+  extent: vec4<f32>,
+};
+
+@group(2) @binding(0) var<storage, read> positionDecodes: array<PositionDecode>;
+
+fn decodePackedPosition(packedPosition: vec4<f32>, decodeIndex: u32) -> vec3<f32> {
+  let positionDecode = positionDecodes[decodeIndex];
+  return positionDecode.min.xyz + packedPosition.xyz * positionDecode.extent.xyz;
+}
+`;
+var TRIANGLE_RTC_TILE_WGSL = `
+struct RTCTile {
+  viewProjection: mat4x4<f32>,
+  center: vec4<f32>,
+};
+
+@group(0) @binding(1) var<storage, read> rtcTiles: array<RTCTile>;
+
+fn getInstanceRTCTile(instance: MeshInstance) -> RTCTile {
+  return rtcTiles[u32(instance.flags.y)];
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TriangleLogDepth.ts
+function triangleLogDepthVertexField(logDepth, location2) {
+  return logDepth ? `  @location(${location2}) fragDepth: f32,
+` : "";
+}
+function triangleLogDepthVertexWrite(logDepth) {
+  return logDepth ? "  output.fragDepth = 1.0 + output.position.w;\n" : "";
+}
+function triangleLogDepthFragmentOutputStruct(logDepth, color2) {
+  if (!logDepth) {
+    return "";
+  }
+  return color2 ? `
+struct FragmentOutput {
+  @location(0) color: vec4<f32>,
+  @builtin(frag_depth) depth: f32,
+};
+` : `
+struct FragmentOutput {
+  @builtin(frag_depth) depth: f32,
+};
+`;
+}
+function triangleLogDepthReturnType(logDepth, color2) {
+  if (!logDepth) {
+    return color2 ? "@location(0) vec4<f32>" : "";
+  }
+  return "FragmentOutput";
+}
+function triangleLogDepthReturn(logDepth, colorExpression = "vec4<f32>(0.0)") {
+  if (!logDepth) {
+    return colorExpression;
+  }
+  return `FragmentOutput(${colorExpression}, log2(max(1.0e-6, input.fragDepth)) * frame.depthParams.x * 0.5)`;
+}
+function triangleLogDepthOnlyReturn() {
+  return "FragmentOutput(log2(max(1.0e-6, input.fragDepth)) * frame.depthParams.x * 0.5)";
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDepthPrepassShader.ts
+function createTrianglesDepthPrepassShader(logDepth = false) {
+  return `
 struct FrameUniforms {
   viewProjection: mat4x4<f32>,
-  lightDirectionAndAmbient: vec4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: FrameUniforms;
 
 struct MeshInstance {
   modelMatrix: mat4x4<f32>,
-  normalMatrix: mat4x4<f32>,
   color: vec4<f32>,
+  flags: vec4<f32>,
 };
 
 @group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
 
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
 struct VertexInput {
-  @location(0) position: vec3<f32>,
-  @location(1) normal: vec3<f32>,
-  @location(2) meshIndex: u32,
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) worldPos: vec3<f32>,
+  @location(1) clippable: f32,
+${triangleLogDepthVertexField(logDepth, 2)}
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  var output: VertexOutput;
+  output.position = rtcTile.viewProjection * rtcWorldPos;
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.clippable = instance.flags.x;
+${triangleLogDepthVertexWrite(logDepth)}
+  return output;
+}
+
+${triangleLogDepthFragmentOutputStruct(logDepth, false)}
+
+@fragment
+fn fs_main(input: VertexOutput)${logDepth ? " -> FragmentOutput" : ""} {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+${logDepth ? `  return ${triangleLogDepthOnlyReturn()};` : ""}
+}
+`;
+}
+var TRIANGLES_DEPTH_PREPASS_SHADER = createTrianglesDepthPrepassShader(false);
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDepthPrepassTechnique.ts
+var TrianglesDepthPrepassTechnique = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineState = null;
+  getPipelineState(_renderPass) {
+    if (this._pipelineState) {
+      return {
+        ok: true,
+        value: this._pipelineState
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      const renderPipeline = this._renderContext.device.createRenderPipeline({
+        label: "xeokit-webgpu-triangles-depth-prepass-pipeline",
+        layout: pipelineLayoutResult.value,
+        vertex: {
+          module: shaderModuleResult.value,
+          entryPoint: "vs_main",
+          buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+        },
+        fragment: {
+          module: shaderModuleResult.value,
+          entryPoint: "fs_main",
+          targets: []
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: true,
+          depthCompare: "less"
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        renderPipeline,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"]
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDepthPrepassTechnique.getPipelineState] Failed to create WebGPU triangles depth-prepass pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineState
+    };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesDepthPrepassTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
+      };
+    }
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesDepthPrepassTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineState = null;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: this._renderContext.renderConfigs.logDepth ? "xeokit-webgpu-triangles-depth-prepass-log-depth-shader" : "xeokit-webgpu-triangles-depth-prepass-shader",
+        code: createTrianglesDepthPrepassShader(this._renderContext.renderConfigs.logDepth)
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDepthPrepassTechnique._getShaderModule] Failed to create WebGPU triangles depth-prepass shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-triangles-depth-prepass-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDepthPrepassTechnique._getPipelineLayout] Failed to create WebGPU triangles depth-prepass pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDrawColorShader.ts
+function createTrianglesDrawColorShader(logDepth = false) {
+  return `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+  pointParams0: vec4<f32>,
+  pointParams1: vec4<f32>,
+  lineParams: vec4<f32>,
+  viewMatrix: mat4x4<f32>,
+  splatParams: vec4<f32>,
+  hemisphereSky: vec4<f32>,
+  hemisphereGround: vec4<f32>,
+  hemisphereUp: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct IBLUniforms {
+  params: vec4<f32>,
+  viewToWorld0: vec4<f32>,
+  viewToWorld1: vec4<f32>,
+  viewToWorld2: vec4<f32>,
+};
+
+@group(0) @binding(2) var<uniform> ibl: IBLUniforms;
+@group(0) @binding(3) var iblSampler: sampler;
+@group(0) @binding(4) var iblIrradianceCubemap: texture_cube<f32>;
+@group(0) @binding(5) var iblPrefilteredCubemap: texture_cube<f32>;
+@group(0) @binding(6) var iblBRDFLUT: texture_2d<f32>;
+
+struct ShadowUniforms {
+  lightViewProjections: array<mat4x4<f32>, 6>,
+  params: vec4<f32>,
+  lightDirection: vec4<f32>,
+  debug: vec4<f32>,
+  cameraView: mat4x4<f32>,
+  cascadeSplits0: vec4<f32>,
+  cascadeSplits1: vec4<f32>,
+};
+
+@group(3) @binding(0) var<uniform> shadow: ShadowUniforms;
+@group(3) @binding(1) var shadowSampler: sampler_comparison;
+@group(3) @binding(2) var shadowMap: texture_depth_2d_array;
+
+@group(2) @binding(1) var colorSampler: sampler;
+@group(2) @binding(2) var colorTexture: texture_2d<f32>;
+@group(2) @binding(3) var metallicRoughnessSampler: sampler;
+@group(2) @binding(4) var metallicRoughnessTexture: texture_2d<f32>;
+@group(2) @binding(5) var normalSampler: sampler;
+@group(2) @binding(6) var normalTexture: texture_2d<f32>;
+@group(2) @binding(7) var emissiveSampler: sampler;
+@group(2) @binding(8) var emissiveTexture: texture_2d<f32>;
+@group(2) @binding(9) var occlusionSampler: sampler;
+@group(2) @binding(10) var occlusionTexture: texture_2d<f32>;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+  @location(2) uv: vec2<f32>,
+  @location(3) material0: vec4<f32>,
+  @location(4) material1: vec4<f32>,
+  @location(5) normal: vec4<f32>,
 };
 
 struct VertexOutput {
   @builtin(position) position: vec4<f32>,
   @location(0) color: vec4<f32>,
-  @location(1) normal: vec3<f32>,
+  @location(1) worldPos: vec3<f32>,
+  @location(2) clippable: f32,
+  @location(3) rtcPos: vec3<f32>,
+  @location(4) shadowPos: vec4<f32>,
+  @location(5) uv: vec2<f32>,
+  @location(6) material0: vec4<f32>,
+  @location(7) material1: vec4<f32>,
+  @location(8) normal: vec4<f32>,
+${triangleLogDepthVertexField(logDepth, 9)}
 };
 
 @vertex
 fn vs_main(input: VertexInput) -> VertexOutput {
-  let instance = instances[input.meshIndex];
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
   var output: VertexOutput;
-  output.position = frame.viewProjection * instance.modelMatrix * vec4<f32>(input.position, 1.0);
+  output.position = rtcTile.viewProjection * rtcWorldPos;
   output.color = instance.color;
-  output.normal = normalize((instance.normalMatrix * vec4<f32>(input.normal, 0.0)).xyz);
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.clippable = instance.flags.x;
+  output.rtcPos = rtcWorldPos.xyz / rtcWorldPos.w;
+  output.shadowPos = shadow.lightViewProjections[0] * (shadow.cameraView * vec4<f32>(output.worldPos, 1.0));
+  output.uv = input.uv;
+  output.material0 = input.material0;
+  output.material1 = input.material1;
+  output.normal = vec4<f32>(0.0, 0.0, 0.0, input.normal.w);
+  if (input.normal.w > 0.5) {
+    output.normal = vec4<f32>(normalize((instance.modelMatrix * vec4<f32>(input.normal.xyz, 0.0)).xyz), 1.0);
+  }
+${triangleLogDepthVertexWrite(logDepth)}
+  return output;
+}
+
+${triangleLogDepthFragmentOutputStruct(logDepth, true)}
+
+fn getCascadeSplit(index: i32) -> f32 {
+  if (index == 0) {
+    return shadow.cascadeSplits0.x;
+  }
+  if (index == 1) {
+    return shadow.cascadeSplits0.y;
+  }
+  if (index == 2) {
+    return shadow.cascadeSplits0.z;
+  }
+  if (index == 3) {
+    return shadow.cascadeSplits0.w;
+  }
+  if (index == 4) {
+    return shadow.cascadeSplits1.x;
+  }
+  return shadow.cascadeSplits1.y;
+}
+
+fn selectShadowCascade(viewZ: f32) -> i32 {
+  let cascadeCount = i32(clamp(shadow.debug.y, 1.0, 6.0));
+  var cascade = 0;
+  for (var i = 0; i < 5; i = i + 1) {
+    if (i < cascadeCount - 1 && viewZ > getCascadeSplit(i)) {
+      cascade = cascade + 1;
+    }
+  }
+  return cascade;
+}
+
+fn sampleShadow(input: VertexOutput, normal: vec3<f32>) -> f32 {
+  if (shadow.params.x < 0.5) {
+    return 1.0;
+  }
+  let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
+  let cascade = selectShadowCascade(-viewPos.z);
+  let viewNormal = normalize((shadow.cameraView * vec4<f32>(normal, 0.0)).xyz);
+  var shadowClip = shadow.lightViewProjections[cascade] * viewPos;
+  if (shadow.params.w > 0.0) {
+    let shadowOffset = shadow.lightViewProjections[cascade] * vec4<f32>(viewNormal * shadow.params.w, 0.0);
+    shadowClip = shadowClip + shadowOffset;
+  }
+  let shadowNdc = shadowClip.xyz / shadowClip.w;
+  let shadowUV = vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5);
+  if (
+    shadowUV.x <= 0.0 || shadowUV.x >= 1.0 ||
+    shadowUV.y <= 0.0 || shadowUV.y >= 1.0 ||
+    shadowNdc.z <= 0.0 || shadowNdc.z >= 1.0
+  ) {
+    return 1.0;
+  }
+  let dims = vec2<f32>(textureDimensions(shadowMap));
+  let texel = 1.0 / max(dims, vec2<f32>(1.0, 1.0));
+  let lightDirView = normalize((shadow.cameraView * vec4<f32>(shadow.lightDirection.xyz, 0.0)).xyz);
+  let cosTheta = clamp(dot(viewNormal, -lightDirView), 0.001, 1.0);
+  let slopeFactor = min(sqrt(max(0.0, 1.0 - cosTheta * cosTheta)) / cosTheta, 10.0);
+  let slopeBias = shadow.lightDirection.w * slopeFactor;
+  let refDepth = shadowNdc.z - shadow.params.z - slopeBias;
+  if (shadow.params.w == 0.0 && shadow.lightDirection.w == 0.0) {
+    let hardLit = textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV, cascade, refDepth);
+    return 1.0 - (1.0 - hardLit) * shadow.params.y;
+  }
+  var lit = 0.0;
+  for (var y = -1; y <= 1; y = y + 1) {
+    for (var x = -1; x <= 1; x = x + 1) {
+      let offset = vec2<f32>(f32(x), f32(y)) * texel;
+      lit += textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV + offset, cascade, refDepth);
+    }
+  }
+  let visibility = lit / 9.0;
+  return 1.0 - (1.0 - visibility) * shadow.params.y;
+}
+
+const PI = 3.141592653589793;
+
+fn distributionGGX(nDotH: f32, roughness: f32) -> f32 {
+  let a = roughness * roughness;
+  let a2 = a * a;
+  let denom = max((nDotH * nDotH) * (a2 - 1.0) + 1.0, 0.0001);
+  return a2 / max(PI * denom * denom, 0.0001);
+}
+
+fn geometrySchlickGGX(nDotV: f32, roughness: f32) -> f32 {
+  let r = roughness + 1.0;
+  let k = (r * r) / 8.0;
+  return nDotV / max(nDotV * (1.0 - k) + k, 0.0001);
+}
+
+fn geometrySmith(nDotV: f32, nDotL: f32, roughness: f32) -> f32 {
+  return geometrySchlickGGX(nDotV, roughness) * geometrySchlickGGX(nDotL, roughness);
+}
+
+fn fresnelSchlick(cosTheta: f32, f0: vec3<f32>) -> vec3<f32> {
+  return f0 + (vec3<f32>(1.0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+fn viewToWorldDirection(dir: vec3<f32>) -> vec3<f32> {
+  return normalize(
+    ibl.viewToWorld0.xyz * dir.x +
+    ibl.viewToWorld1.xyz * dir.y +
+    ibl.viewToWorld2.xyz * dir.z
+  );
+}
+
+fn triplanarWeights(normal: vec3<f32>) -> vec3<f32> {
+  let w = pow(abs(normal), vec3<f32>(4.0));
+  let sum = max(w.x + w.y + w.z, 0.0001);
+  return w / sum;
+}
+
+fn sampleColorTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+  let p = worldPos / max(scale, 0.0001);
+  let w = triplanarWeights(normal);
+  let xSample = textureSampleLevel(colorTexture, colorSampler, fract(p.yz), 0.0);
+  let ySample = textureSampleLevel(colorTexture, colorSampler, fract(p.xz), 0.0);
+  let zSample = textureSampleLevel(colorTexture, colorSampler, fract(p.xy), 0.0);
+  return xSample * w.x + ySample * w.y + zSample * w.z;
+}
+
+fn sampleMetallicRoughnessTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+  let p = worldPos / max(scale, 0.0001);
+  let w = triplanarWeights(normal);
+  let xSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(p.yz), 0.0);
+  let ySample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(p.xz), 0.0);
+  let zSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(p.xy), 0.0);
+  return xSample * w.x + ySample * w.y + zSample * w.z;
+}
+
+fn sampleEmissiveTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+  let p = worldPos / max(scale, 0.0001);
+  let w = triplanarWeights(normal);
+  let xSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(p.yz), 0.0);
+  let ySample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(p.xz), 0.0);
+  let zSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(p.xy), 0.0);
+  return xSample * w.x + ySample * w.y + zSample * w.z;
+}
+
+fn sampleOcclusionTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+  let p = worldPos / max(scale, 0.0001);
+  let w = triplanarWeights(normal);
+  let xSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(p.yz), 0.0);
+  let ySample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(p.xz), 0.0);
+  let zSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(p.xy), 0.0);
+  return xSample * w.x + ySample * w.y + zSample * w.z;
+}
+
+fn perturbNormal(input: VertexOutput, normal: vec3<f32>, uv: vec2<f32>) -> vec3<f32> {
+  let tangentSampleRaw = textureSampleLevel(normalTexture, normalSampler, uv, 0.0).xyz * 2.0 - 1.0;
+  let tangentSample = vec3<f32>(tangentSampleRaw.x, -tangentSampleRaw.y, tangentSampleRaw.z);
+  let dp1 = dpdx(input.rtcPos);
+  let dp2 = dpdy(input.rtcPos);
+  let duv1 = dpdx(input.uv);
+  let duv2 = dpdy(input.uv);
+  let dp2perp = cross(dp2, normal);
+  let dp1perp = cross(normal, dp1);
+  let tangent = dp2perp * duv1.x + dp1perp * duv2.x;
+  let bitangent = dp2perp * duv1.y + dp1perp * duv2.y;
+  let invMax = inverseSqrt(max(max(dot(tangent, tangent), dot(bitangent, bitangent)), 1e-10));
+  let tbn = mat3x3<f32>(tangent * invMax, bitangent * invMax, normal);
+  return normalize(tbn * tangentSample);
+}
+
+@fragment
+fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${triangleLogDepthReturnType(logDepth, true)} {
+  let dpdxRTC = dpdx(input.rtcPos);
+  let dpdyRTC = dpdy(input.rtcPos);
+  var faceNormal = normalize(cross(dpdyRTC, dpdxRTC));
+  let faceNormalView = normalize((shadow.cameraView * vec4<f32>(faceNormal, 0.0)).xyz);
+  let viewPosForIBL = (shadow.cameraView * vec4<f32>(input.worldPos, 1.0)).xyz;
+  let viewDirView = normalize(-viewPosForIBL);
+  if (dot(faceNormalView, viewDirView) < 0.0) {
+    faceNormal = -faceNormal;
+  }
+  var normal = faceNormal;
+  if (input.normal.w > 0.5) {
+    normal = normalize(input.normal.xyz);
+    if (!frontFacing) {
+      normal = -normal;
+    }
+  }
+  let uv = fract(input.uv);
+  normal = perturbNormal(input, normal, uv);
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  let worldNormal = normalize(normal);
+  let triplanarScale = input.material1.w;
+  let useTriplanar = triplanarScale > 0.0;
+  var baseColorSample: vec4<f32>;
+  if (useTriplanar) {
+    baseColorSample = sampleColorTriplanar(input.worldPos, worldNormal, triplanarScale);
+  } else {
+    baseColorSample = textureSampleLevel(colorTexture, colorSampler, uv, 0.0);
+  }
+  let alpha = input.color.a * baseColorSample.a;
+  if (input.material1.y > 0.5 && input.material1.y < 1.5 && alpha < input.material1.z) {
+    discard;
+  }
+  let baseColor = input.color.rgb * baseColorSample.rgb;
+  var mrSample: vec4<f32>;
+  if (useTriplanar) {
+    mrSample = sampleMetallicRoughnessTriplanar(input.worldPos, worldNormal, triplanarScale);
+  } else {
+    mrSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, uv, 0.0);
+  }
+  let roughness = clamp(input.material0.x * mrSample.g, 0.045, 1.0);
+  let metallic = clamp(input.material0.y * mrSample.b, 0.0, 1.0);
+  var emissiveSample: vec4<f32>;
+  if (useTriplanar) {
+    emissiveSample = sampleEmissiveTriplanar(input.worldPos, worldNormal, triplanarScale);
+  } else {
+    emissiveSample = textureSampleLevel(emissiveTexture, emissiveSampler, uv, 0.0);
+  }
+  let emissive = emissiveSample.rgb * vec3<f32>(input.material0.z, input.material0.w, input.material1.x);
+  var aoSample: vec4<f32>;
+  if (useTriplanar) {
+    aoSample = sampleOcclusionTriplanar(input.worldPos, worldNormal, triplanarScale);
+  } else {
+    aoSample = textureSampleLevel(occlusionTexture, occlusionSampler, uv, 0.0);
+  }
+  let ao = aoSample.r;
+  let viewNormal = normalize((shadow.cameraView * vec4<f32>(normal, 0.0)).xyz);
+  let f0 = mix(vec3<f32>(0.04, 0.04, 0.04), baseColor, vec3<f32>(metallic));
+  let iblIntensity = max(ibl.params.x, 0.0);
+  let ambientScale = mix(1.0, 0.75, clamp(iblIntensity, 0.0, 1.0));
+  let flatAmbientColor = frame.ambientLight.rgb * frame.ambientLight.a * ambientScale * baseColor * ao;
+  let hemisphereFacing = clamp(dot(worldNormal, normalize(frame.hemisphereUp.xyz)) * 0.5 + 0.5, 0.0, 1.0);
+  let hemisphereAmbient = mix(frame.hemisphereGround.rgb, frame.hemisphereSky.rgb, hemisphereFacing);
+  let hemisphereColor = hemisphereAmbient * max(frame.hemisphereSky.a, 0.0) * baseColor * ao;
+  let ambientColor = flatAmbientColor + hemisphereColor;
+  var directColor = vec3<f32>(0.0, 0.0, 0.0);
+  for (var i = 0u; i < 3u; i = i + 1u) {
+    let lightDir = normalize((shadow.cameraView * vec4<f32>(frame.dirLightDirections[i].xyz, 0.0)).xyz);
+    let lightColor = frame.dirLightColors[i];
+    let l = normalize(-lightDir);
+    let halfDir = normalize(viewDirView + l);
+    let nDotL = max(dot(viewNormal, l), 0.0);
+    let nDotV = max(dot(viewNormal, viewDirView), 0.001);
+    let nDotH = max(dot(viewNormal, halfDir), 0.0);
+    let hDotV = max(dot(halfDir, viewDirView), 0.0);
+    let d = distributionGGX(nDotH, roughness);
+    let g = geometrySmith(nDotV, nDotL, roughness);
+    let f = fresnelSchlick(hDotV, f0);
+    let numerator = d * g * f;
+    let specular = numerator / max(4.0 * nDotV * nDotL, 0.0001);
+    let kd = (vec3<f32>(1.0) - f) * (1.0 - metallic);
+    let diffuse = kd * baseColor / PI;
+    directColor += (diffuse + specular) * lightColor.rgb * lightColor.a * nDotL;
+  }
+  let shadowFactor = sampleShadow(input, normal);
+  if (shadow.debug.x > 1.5) {
+    let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
+    let cascade = selectShadowCascade(-viewPos.z);
+    let shadowClip = shadow.lightViewProjections[cascade] * viewPos;
+    let shadowNdc = shadowClip.xyz / shadowClip.w;
+    let shadowUV = vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5);
+    if (
+      shadowUV.x <= 0.0 || shadowUV.x >= 1.0 ||
+      shadowUV.y <= 0.0 || shadowUV.y >= 1.0
+    ) {
+      return ${triangleLogDepthReturn(logDepth, "vec4<f32>(0.0, 0.0, 1.0, input.color.a)")};
+    }
+    let dims = vec2<i32>(textureDimensions(shadowMap));
+    let texelCoord = clamp(vec2<i32>(shadowUV * vec2<f32>(dims)), vec2<i32>(0, 0), dims - vec2<i32>(1, 1));
+    let rawDepth = textureLoad(shadowMap, texelCoord, cascade, 0);
+    return ${triangleLogDepthReturn(logDepth, "vec4<f32>(vec3<f32>(rawDepth), input.color.a)")};
+  }
+  if (shadow.debug.x > 0.5) {
+    return ${triangleLogDepthReturn(logDepth, "vec4<f32>(vec3<f32>(shadowFactor), input.color.a)")};
+  }
+  let worldViewDir = viewToWorldDirection(viewDirView);
+  let worldReflection = reflect(-worldViewDir, worldNormal);
+  let iblDiffuseEnv = textureSampleLevel(iblIrradianceCubemap, iblSampler, worldNormal, 0.0).rgb;
+  let specMip = roughness * ibl.params.y;
+  let iblSpecEnv = textureSampleLevel(iblPrefilteredCubemap, iblSampler, worldReflection, specMip).rgb;
+  let nDotVIBL = max(dot(viewNormal, viewDirView), 0.0);
+  let fNV = fresnelSchlick(nDotVIBL, f0);
+  let brdfLUT = textureSampleLevel(iblBRDFLUT, iblSampler, vec2<f32>(nDotVIBL, roughness), 0.0).rg;
+  let iblSpec = iblSpecEnv * (f0 * brdfLUT.x + brdfLUT.y);
+  let iblDiff = (vec3<f32>(1.0) - fNV) * (1.0 - metallic) * iblDiffuseEnv * baseColor;
+  let iblColor = (iblDiff + iblSpec) * iblIntensity * ao;
+  let litColor = ambientColor + iblColor + directColor * shadowFactor + emissive;
+  return ${triangleLogDepthReturn(logDepth, "vec4<f32>(litColor * alpha, alpha)")};
+}
+`;
+}
+var TRIANGLES_DRAW_COLOR_SHADER = createTrianglesDrawColorShader(false);
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDrawColorTechnique.ts
+var PACKED_TRIANGLE_TEXTURED_VERTEX_BUFFER_LAYOUTS = [
+  ...PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS,
+  {
+    arrayStride: 8,
+    attributes: [{
+      shaderLocation: 2,
+      offset: 0,
+      format: "float32x2"
+    }]
+  },
+  {
+    arrayStride: 32,
+    attributes: [{
+      shaderLocation: 3,
+      offset: 0,
+      format: "float32x4"
+    }, {
+      shaderLocation: 4,
+      offset: 16,
+      format: "float32x4"
+    }]
+  },
+  {
+    arrayStride: 16,
+    attributes: [{
+      shaderLocation: 5,
+      offset: 0,
+      format: "float32x4"
+    }]
+  }
+];
+var TrianglesDrawColorTechnique2 = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  getPipelineState(renderPass) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const pipelineKey = `${renderPass}:${colorTargetFormat}`;
+    const existing = this._pipelineStates[pipelineKey];
+    if (existing) {
+      return {
+        ok: true,
+        value: existing
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      const renderPipeline = this._renderContext.device.createRenderPipeline({
+        label: renderPass === RENDER_PASSES3.TRANSPARENT ? "xeokit-webgpu-triangles-draw-color-transparent-pipeline" : "xeokit-webgpu-triangles-draw-color-opaque-pipeline",
+        layout: pipelineLayoutResult.value,
+        vertex: {
+          module: shaderModuleResult.value,
+          entryPoint: "vs_main",
+          buffers: PACKED_TRIANGLE_TEXTURED_VERTEX_BUFFER_LAYOUTS
+        },
+        fragment: {
+          module: shaderModuleResult.value,
+          entryPoint: "fs_main",
+          targets: [{
+            format: colorTargetFormat,
+            blend: renderPass === RENDER_PASSES3.TRANSPARENT ? {
+              color: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              },
+              alpha: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              }
+            } : void 0
+          }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: renderPass === RENDER_PASSES3.OPAQUE,
+          depthCompare: "less-equal"
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._pipelineStates[pipelineKey] = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        renderPipeline,
+        bindGroupLayoutSignature: ["frame", "instance", "triangleColor", "shadow"]
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDrawColorTechnique.getPipelineState] Failed to create WebGPU triangles draw-color pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineStates[pipelineKey]
+    };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesDrawColorTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
+      };
+    }
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    if (!this._renderContext.shadowBindGroup) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesDrawColorTechnique.drawBatches] WebGPU shadow bind group was not initialized."
+      };
+    }
+    params.commandStateTracker.setBindGroup(3, this._renderContext.shadowBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesDrawColorTechnique.drawBatches",
+      bindPositionDecode: false,
+      bindBeforeDraw: (packedBatch) => {
+        if (packedBatch.uvBuffer) {
+          const uvBufferOffset = packedBatch.indicesPageLocal ? 0 : packedBatch.uvBufferOffset ?? 0;
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.uvBuffer, uvBufferOffset);
+        } else {
+          const vertexBufferOffset = packedBatch.indicesPageLocal ? 0 : packedBatch.vertexBufferOffset ?? 0;
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.vertexBuffer, vertexBufferOffset);
+        }
+        if (packedBatch.colorBindGroup) {
+          params.commandStateTracker.setBindGroup(2, packedBatch.colorBindGroup);
+        }
+        if (packedBatch.materialBuffer) {
+          const materialBufferOffset = packedBatch.indicesPageLocal ? 0 : packedBatch.materialBufferOffset ?? 0;
+          params.commandStateTracker.setVertexBuffer(3, packedBatch.materialBuffer, materialBufferOffset);
+        }
+        if (packedBatch.normalBuffer) {
+          const normalBufferOffset = packedBatch.indicesPageLocal ? 0 : packedBatch.normalBufferOffset ?? 0;
+          params.commandStateTracker.setVertexBuffer(4, packedBatch.normalBuffer, normalBufferOffset);
+        }
+      },
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineStates = {};
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: this._renderContext.renderConfigs.logDepth ? "xeokit-webgpu-triangles-draw-color-log-depth-shader" : "xeokit-webgpu-triangles-draw-color-shader",
+        code: createTrianglesDrawColorShader(this._renderContext.renderConfigs.logDepth)
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDrawColorTechnique._getShaderModule] Failed to create WebGPU triangles draw-color shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const triangleColorBindGroupLayoutResult = this._bindGroupLayoutManager.getTriangleColorBindGroupLayout();
+    if (triangleColorBindGroupLayoutResult.ok === false) {
+      return triangleColorBindGroupLayoutResult;
+    }
+    const shadowBindGroupLayoutResult = this._bindGroupLayoutManager.getShadowBindGroupLayout();
+    if (shadowBindGroupLayoutResult.ok === false) {
+      return shadowBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-triangles-draw-color-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          triangleColorBindGroupLayoutResult.value,
+          shadowBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDrawColorTechnique._getPipelineLayout] Failed to create WebGPU triangles draw-color pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDrawColorFlatShader.ts
+function createTrianglesDrawColorFlatShader(logDepth = false) {
+  return `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+${triangleLogDepthVertexField(logDepth, 1)}
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  var output: VertexOutput;
+  output.position = rtcTile.viewProjection * rtcWorldPos;
+  output.color = instance.color;
+${triangleLogDepthVertexWrite(logDepth)}
+  return output;
+}
+
+${triangleLogDepthFragmentOutputStruct(logDepth, true)}
+
+@fragment
+fn fs_main(input: VertexOutput) -> ${triangleLogDepthReturnType(logDepth, true)} {
+  let alpha = input.color.a;
+  let color = pow(max(input.color.rgb, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2));
+  return ${triangleLogDepthReturn(logDepth, "vec4<f32>(color * alpha, alpha)")};
+}
+`;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDrawColorFlatTechnique.ts
+var TrianglesDrawColorFlatTechnique2 = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  _depthCompare;
+  _labelSuffix;
+  constructor(params) {
+    super(params);
+    this._depthCompare = params.depthCompare ?? "always";
+    this._labelSuffix = params.labelPrefix ? `-${params.labelPrefix}` : "";
+  }
+  getPipelineState(renderPass) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const pipelineKey = `${this._depthCompare}:${renderPass}:${colorTargetFormat}`;
+    const existing = this._pipelineStates[pipelineKey];
+    if (existing) {
+      return {
+        ok: true,
+        value: existing
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      if (!this._shaderModule) {
+        this._shaderModule = this._renderContext.device.createShaderModule({
+          label: "xeokit-webgpu-triangles-draw-flat-color-shader",
+          code: createTrianglesDrawColorFlatShader()
+        });
+      }
+      if (!this._pipelineLayout) {
+        this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+          label: "xeokit-webgpu-triangles-draw-flat-color-pipeline-layout",
+          bindGroupLayouts: [
+            frameBindGroupLayoutResult.value,
+            instanceBindGroupLayoutResult.value,
+            positionDecodeBindGroupLayoutResult.value
+          ]
+        });
+      }
+      const transparent = renderPass === RENDER_PASSES3.TRANSPARENT;
+      const renderPipeline = this._renderContext.device.createRenderPipeline({
+        label: transparent ? `xeokit-webgpu-triangles-draw-flat-color${this._labelSuffix}-transparent-pipeline` : `xeokit-webgpu-triangles-draw-flat-color${this._labelSuffix}-opaque-pipeline`,
+        layout: this._pipelineLayout,
+        vertex: {
+          module: this._shaderModule,
+          entryPoint: "vs_main",
+          buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+        },
+        fragment: {
+          module: this._shaderModule,
+          entryPoint: "fs_main",
+          targets: [{
+            format: colorTargetFormat,
+            blend: transparent ? {
+              color: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              },
+              alpha: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              }
+            } : void 0
+          }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: !transparent,
+          depthCompare: this._depthCompare
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._pipelineStates[pipelineKey] = {
+        shaderModule: this._shaderModule,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: this._pipelineLayout,
+        renderPipeline,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"]
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDrawColorFlatTechnique.getPipelineState] Failed to create WebGPU pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineStates[pipelineKey]
+    };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState } = params;
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, params.frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, params.instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches: params.batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesDrawColorFlatTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeColorShader.ts
+function createTrianglesDrawEdgeColorShader(logDepth = false) {
+  return `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+  @location(1) worldPos: vec3<f32>,
+  @location(2) clippable: f32,
+${triangleLogDepthVertexField(logDepth, 3)}
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  var output: VertexOutput;
+  output.position = rtcTile.viewProjection * rtcWorldPos;
+  output.color = vec4<f32>(instance.color.rgb * 0.25, instance.color.a);
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.clippable = instance.flags.x;
+${triangleLogDepthVertexWrite(logDepth)}
+  return output;
+}
+
+${triangleLogDepthFragmentOutputStruct(logDepth, true)}
+
+@fragment
+fn fs_main(input: VertexOutput) -> ${triangleLogDepthReturnType(logDepth, true)} {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  return ${triangleLogDepthReturn(logDepth, "input.color")};
+}
+`;
+}
+var TRIANGLES_DRAW_EDGE_COLOR_SHADER = createTrianglesDrawEdgeColorShader(false);
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeColorTechnique.ts
+var TrianglesDrawEdgeColorTechnique2 = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  getPipelineState(_renderPass) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const existing = this._pipelineStates[colorTargetFormat];
+    if (existing) {
+      return {
+        ok: true,
+        value: existing
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      const renderPipeline = this._renderContext.device.createRenderPipeline({
+        label: "xeokit-webgpu-triangles-draw-edge-color-pipeline",
+        layout: pipelineLayoutResult.value,
+        vertex: {
+          module: shaderModuleResult.value,
+          entryPoint: "vs_main",
+          buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+        },
+        fragment: {
+          module: shaderModuleResult.value,
+          entryPoint: "fs_main",
+          targets: [{
+            format: colorTargetFormat,
+            blend: {
+              color: {
+                srcFactor: "src-alpha",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              },
+              alpha: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              }
+            }
+          }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: false,
+          depthCompare: "less-equal"
+        },
+        primitive: {
+          topology: "line-list",
+          cullMode: "none"
+        }
+      });
+      this._pipelineStates[colorTargetFormat] = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        renderPipeline,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"]
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDrawEdgeColorTechnique.getPipelineState] Failed to create WebGPU triangles edge-color pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineStates[colorTargetFormat]
+    };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesDrawEdgeColorTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
+      };
+    }
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesDrawEdgeColorTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineStates = {};
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: this._renderContext.renderConfigs.logDepth ? "xeokit-webgpu-triangles-draw-edge-color-log-depth-shader" : "xeokit-webgpu-triangles-draw-edge-color-shader",
+        code: createTrianglesDrawEdgeColorShader(this._renderContext.renderConfigs.logDepth)
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDrawEdgeColorTechnique._getShaderModule] Failed to create WebGPU triangles edge-color shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-triangles-draw-edge-color-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesDrawEdgeColorTechnique._getPipelineLayout] Failed to create WebGPU triangles edge-color pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesPickShader.ts
+function createTrianglesPickShader(logDepth = false) {
+  return `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) pickColor: vec4<f32>,
+  @location(1) worldPos: vec3<f32>,
+  @location(2) clippable: f32,
+${triangleLogDepthVertexField(logDepth, 3)}
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let pickId = input.vertexMetadata.x + 1u;
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  var output: VertexOutput;
+  output.position = rtcTile.viewProjection * rtcWorldPos;
+  output.pickColor = vec4<f32>(
+    f32(pickId & 255u) / 255.0,
+    f32((pickId >> 8u) & 255u) / 255.0,
+    f32((pickId >> 16u) & 255u) / 255.0,
+    f32((pickId >> 24u) & 255u) / 255.0
+  );
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.clippable = instance.flags.x;
+${triangleLogDepthVertexWrite(logDepth)}
+  return output;
+}
+
+${triangleLogDepthFragmentOutputStruct(logDepth, true)}
+
+@fragment
+fn fs_main(input: VertexOutput) -> ${triangleLogDepthReturnType(logDepth, true)} {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  return ${triangleLogDepthReturn(logDepth, "input.pickColor")};
+}
+`;
+}
+var TRIANGLES_PICK_SHADER = createTrianglesPickShader(false);
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesPickTechnique.ts
+var TrianglesPickTechnique = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineState = null;
+  getPipelineState(renderPass) {
+    if (this._pipelineState) {
+      return {
+        ok: true,
+        value: this._pipelineState
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      this._pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: "xeokit-webgpu-triangles-pick-pipeline",
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{
+              format: ID_BUFFER_FORMAT
+            }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: true,
+            depthCompare: "less"
+          },
+          primitive: {
+            topology: "triangle-list",
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesPickTechnique.getPipelineState] Failed to create WebGPU triangles pick pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineState
+    };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesPickTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
+      };
+    }
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesPickTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineState = null;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: this._renderContext.renderConfigs.logDepth ? "xeokit-webgpu-triangles-pick-log-depth-shader" : "xeokit-webgpu-triangles-pick-shader",
+        code: createTrianglesPickShader(this._renderContext.renderConfigs.logDepth)
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesPickTechnique._getShaderModule] Failed to create WebGPU triangles pick shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-triangles-pick-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesPickTechnique._getPipelineLayout] Failed to create WebGPU triangles pick pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesSnapShader.ts
+var TRIANGLES_SNAP_SHADER = `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+  @location(1) worldPos: vec3<f32>,
+  @location(2) clippable: f32,
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let snapId = input.vertexMetadata.x + 1u;
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  var output: VertexOutput;
+  output.position = rtcTile.viewProjection * rtcWorldPos;
+  output.color = vec4<f32>(
+    f32(snapId & 255u) / 255.0,
+    f32((snapId >> 8u) & 255u) / 255.0,
+    f32((snapId >> 16u) & 255u) / 255.0,
+    f32((snapId >> 24u) & 255u) / 255.0
+  );
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.clippable = instance.flags.x;
   return output;
 }
 
 @fragment
 fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
-  let normal = normalize(input.normal);
-  let lightDirection = normalize(frame.lightDirectionAndAmbient.xyz);
-  let ambient = frame.lightDirectionAndAmbient.w;
-  let diffuse = max(dot(normal, lightDirection), 0.0);
-  let lighting = ambient + diffuse * (1.0 - ambient);
-  return vec4<f32>(input.color.rgb * lighting, input.color.a);
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  return input.color;
 }
 `;
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPULightingManager.ts
-var WebGPULightingManager = class {
-  _lightDirection = new Float32Array([-0.35, 0.55, 0.76]);
-  _ambient = 0.35;
-  constructor() {
-    this._normalizeLightDirection();
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesSnapTechnique.ts
+var TrianglesSnapTechnique2 = class extends DrawTechnique4 {
+  _label;
+  _topology;
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineState = null;
+  constructor(params) {
+    super(params);
+    this._label = params.label;
+    this._topology = params.topology;
   }
-  writeLightingUniforms(target, offset) {
-    target[offset] = this._lightDirection[0];
-    target[offset + 1] = this._lightDirection[1];
-    target[offset + 2] = this._lightDirection[2];
-    target[offset + 3] = this._ambient;
+  getPipelineState(renderPass) {
+    if (this._pipelineState) {
+      return {
+        ok: true,
+        value: this._pipelineState
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      this._pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: `xeokit-webgpu-${this._label}-pipeline`,
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{
+              format: ID_BUFFER_FORMAT
+            }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: false,
+            depthCompare: "less-equal"
+          },
+          primitive: {
+            topology: this._topology,
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSnapTechnique.getPipelineState] Failed to create WebGPU ${this._label} pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineState
+    };
   }
-  _normalizeLightDirection() {
-    const x = this._lightDirection[0];
-    const y = this._lightDirection[1];
-    const z = this._lightDirection[2];
-    const length4 = Math.hypot(x, y, z) || 1;
-    this._lightDirection[0] = x / length4;
-    this._lightDirection[1] = y / length4;
-    this._lightDirection[2] = z / length4;
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSnapTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods for ${this._label}.`
+      };
+    }
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesSnapTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineState = null;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: `xeokit-webgpu-${this._label}-shader`,
+        code: TRIANGLES_SNAP_SHADER
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSnapTechnique._getShaderModule] Failed to create WebGPU ${this._label} shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: `xeokit-webgpu-${this._label}-pipeline-layout`,
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSnapTechnique._getPipelineLayout] Failed to create WebGPU ${this._label} pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+};
+var TrianglesSnapVertexTechnique = class extends TrianglesSnapTechnique2 {
+  constructor(params) {
+    super({
+      ...params,
+      label: "triangles-snap-vertex",
+      topology: "point-list"
+    });
+  }
+};
+var TrianglesSnapEdgeTechnique = class extends TrianglesSnapTechnique2 {
+  constructor(params) {
+    super({
+      ...params,
+      label: "triangles-snap-edge",
+      topology: "line-list"
+    });
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPURenderContext.ts
-var WebGPURenderContext = class {
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesSectionPlaneCapShader.ts
+var TRIANGLES_SECTION_PLANE_CAP_SHADER = `
+struct CapPlaneUniforms {
+  invViewProjection: mat4x4<f32>,
+  viewProjection: mat4x4<f32>,
+  eyeAndViewportWidth: vec4<f32>,
+  capPlane: vec4<f32>,
+  capColor: vec4<f32>,
+  otherPlanes: array<vec4<f32>, 8>,
+  otherPlaneCount: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> cap: CapPlaneUniforms;
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+};
+
+struct FragmentOutput {
+  @location(0) color: vec4<f32>,
+  @builtin(frag_depth) depth: f32,
+};
+
+@vertex
+fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+  var output: VertexOutput;
+  let x = f32((vertexIndex & 1u) << 2u) - 1.0;
+  let y = f32((vertexIndex & 2u) << 1u) - 1.0;
+  output.position = vec4<f32>(x, y, 0.0, 1.0);
+  return output;
+}
+
+@fragment
+fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> FragmentOutput {
+  let viewportWidth = cap.eyeAndViewportWidth.w;
+  let viewportHeight = cap.otherPlaneCount.y;
+  let eye = cap.eyeAndViewportWidth.xyz;
+  let ndc = vec2<f32>(
+    fragCoord.x / viewportWidth * 2.0 - 1.0,
+    1.0 - fragCoord.y / viewportHeight * 2.0
+  );
+  let worldFarH = cap.invViewProjection * vec4<f32>(ndc, 1.0, 1.0);
+  let worldFar = worldFarH.xyz / worldFarH.w;
+  let rayDir = worldFar - eye;
+  let denom = dot(cap.capPlane.xyz, rayDir);
+  if (abs(denom) < 0.000001) {
+    discard;
+  }
+  let t = -(dot(cap.capPlane.xyz, eye) + cap.capPlane.w) / denom;
+  if (t <= 0.0) {
+    discard;
+  }
+  let worldPos = eye + t * rayDir;
+  let otherCount = u32(cap.otherPlaneCount.x);
+  for (var i = 0u; i < 8u; i = i + 1u) {
+    if (i >= otherCount) {
+      break;
+    }
+    let plane = cap.otherPlanes[i];
+    if (dot(plane.xyz, worldPos) + plane.w > 0.0) {
+      discard;
+    }
+  }
+  let clip = cap.viewProjection * vec4<f32>(worldPos, 1.0);
+  if (clip.w <= 0.0) {
+    discard;
+  }
+  let depth = clip.z / clip.w;
+  if (depth < 0.0 || depth > 1.0) {
+    discard;
+  }
+  var output: FragmentOutput;
+  output.color = vec4<f32>(cap.capColor.rgb, 1.0);
+  output.depth = depth;
+  return output;
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesSectionPlaneCapTechnique.ts
+var CAP_PLANE_UNIFORM_FLOATS = 80;
+var TrianglesSectionPlaneCapTechnique = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _capPlaneBindGroupLayout = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  _capPlaneBuffer = null;
+  _capPlaneBindGroup = null;
+  _uniformData = new Float32Array(CAP_PLANE_UNIFORM_FLOATS);
+  _invViewProjection = createMat4Float64();
+  getPipelineState(_renderPass) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const existing = this._pipelineStates[colorTargetFormat];
+    if (existing) {
+      return {
+        ok: true,
+        value: existing
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const capPlaneBindGroupLayoutResult = this._getCapPlaneBindGroupLayout();
+    if (capPlaneBindGroupLayoutResult.ok === false) {
+      return capPlaneBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      const renderPipeline = this._renderContext.device.createRenderPipeline({
+        label: "xeokit-webgpu-section-plane-cap-plane-pipeline",
+        layout: pipelineLayoutResult.value,
+        vertex: {
+          module: shaderModuleResult.value,
+          entryPoint: "vs_main"
+        },
+        fragment: {
+          module: shaderModuleResult.value,
+          entryPoint: "fs_main",
+          targets: [{
+            format: colorTargetFormat
+          }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: true,
+          depthCompare: "less-equal",
+          stencilFront: {
+            compare: "not-equal",
+            failOp: "keep",
+            depthFailOp: "keep",
+            passOp: "keep"
+          },
+          stencilBack: {
+            compare: "not-equal",
+            failOp: "keep",
+            depthFailOp: "keep",
+            passOp: "keep"
+          }
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._pipelineStates[colorTargetFormat] = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: capPlaneBindGroupLayoutResult.value,
+        instanceBindGroupLayout: capPlaneBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        renderPipeline,
+        bindGroupLayoutSignature: ["sectionPlaneCapPlane"]
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSectionPlaneCapTechnique.getPipelineState] Failed to create WebGPU section-plane cap pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineStates[colorTargetFormat]
+    };
+  }
+  drawBatches(_params) {
+    return {
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: "[TrianglesSectionPlaneCapTechnique.drawBatches] Section-plane cap planes are drawn with renderCapPlane()."
+    };
+  }
+  renderCapPlane(params) {
+    const pipelineStateResult = this.getPipelineState(0);
+    if (pipelineStateResult.ok === false) {
+      return pipelineStateResult;
+    }
+    const bindGroupResult = this._writeCapPlaneUniforms(params);
+    if (bindGroupResult.ok === false) {
+      return bindGroupResult;
+    }
+    const passEncoder = params.passEncoder;
+    if (!passEncoder.setPipeline || !passEncoder.setBindGroup || !passEncoder.draw) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesSectionPlaneCapTechnique.renderCapPlane] WebGPU render pass encoder does not expose non-indexed drawing methods."
+      };
+    }
+    const commandStateTracker = params.commandStateTracker ?? new CommandStateTracker({
+      passEncoder,
+      commandStats: params.commandStats
+    });
+    commandStateTracker.setPipeline(pipelineStateResult.value);
+    commandStateTracker.setBindGroup(0, bindGroupResult.value);
+    commandStateTracker.draw(3, 1, 0, 0);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  destroy() {
+    try {
+      this._capPlaneBuffer?.destroy?.();
+    } catch {
+    }
+    this._shaderModule = null;
+    this._capPlaneBindGroupLayout = null;
+    this._pipelineLayout = null;
+    this._pipelineStates = {};
+    this._capPlaneBuffer = null;
+    this._capPlaneBindGroup = null;
+  }
+  _writeCapPlaneUniforms(params) {
+    const bindGroupResult = this._getOrCreateCapPlaneBindGroup();
+    if (bindGroupResult.ok === false) {
+      return bindGroupResult;
+    }
+    inverseMat4(params.viewProjection, this._invViewProjection);
+    this._uniformData.fill(0);
+    this._uniformData.set(this._invViewProjection, 0);
+    this._uniformData.set(params.viewProjection, 16);
+    const eye = params.view.camera.eye ?? [0, 0, 0];
+    this._uniformData[32] = eye[0];
+    this._uniformData[33] = eye[1];
+    this._uniformData[34] = eye[2];
+    this._uniformData[35] = params.viewportWidth;
+    this._uniformData[36] = params.plane.dir[0];
+    this._uniformData[37] = params.plane.dir[1];
+    this._uniformData[38] = params.plane.dir[2];
+    this._uniformData[39] = params.plane.dist;
+    this._uniformData[40] = params.plane.capColor[0];
+    this._uniformData[41] = params.plane.capColor[1];
+    this._uniformData[42] = params.plane.capColor[2];
+    this._uniformData[43] = 1;
+    const otherCount = Math.min(params.otherPlanes.length, MAX_SECTION_PLANES2);
+    for (let i = 0; i < otherCount; i++) {
+      const other = params.otherPlanes[i];
+      const offset = 44 + i * 4;
+      this._uniformData[offset + 0] = other.dir[0];
+      this._uniformData[offset + 1] = other.dir[1];
+      this._uniformData[offset + 2] = other.dir[2];
+      this._uniformData[offset + 3] = other.dist;
+    }
+    this._uniformData[76] = otherCount;
+    this._uniformData[77] = params.viewportHeight;
+    this._renderContext.device.queue.writeBuffer(this._capPlaneBuffer, 0, this._uniformData);
+    return bindGroupResult;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-section-plane-cap-plane-shader",
+        code: TRIANGLES_SECTION_PLANE_CAP_SHADER
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSectionPlaneCapTechnique._getShaderModule] Failed to create WebGPU section-plane cap shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getCapPlaneBindGroupLayout() {
+    if (this._capPlaneBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._capPlaneBindGroupLayout
+      };
+    }
+    try {
+      this._capPlaneBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-section-plane-cap-plane-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSectionPlaneCapTechnique._getCapPlaneBindGroupLayout] Failed to create WebGPU section-plane cap bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._capPlaneBindGroupLayout
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const bindGroupLayoutResult = this._getCapPlaneBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-section-plane-cap-plane-pipeline-layout",
+        bindGroupLayouts: [bindGroupLayoutResult.value]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSectionPlaneCapTechnique._getPipelineLayout] Failed to create WebGPU section-plane cap pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+  _getOrCreateCapPlaneBindGroup() {
+    if (this._capPlaneBindGroup) {
+      return {
+        ok: true,
+        value: this._capPlaneBindGroup
+      };
+    }
+    const bindGroupLayoutResult = this._getCapPlaneBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    try {
+      this._capPlaneBuffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-section-plane-cap-plane-uniforms",
+        size: this._uniformData.byteLength,
+        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._capPlaneBindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-section-plane-cap-plane-bind-group",
+        layout: bindGroupLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: this._capPlaneBuffer
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesSectionPlaneCapTechnique._getOrCreateCapPlaneBindGroup] Failed to create WebGPU section-plane cap bind group: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._capPlaneBindGroup
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesShadowDepthShader.ts
+var TRIANGLES_SHADOW_DEPTH_SHADER = `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) worldPos: vec3<f32>,
+  @location(1) clippable: f32,
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  var output: VertexOutput;
+  output.position = rtcTile.viewProjection * rtcWorldPos;
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.clippable = instance.flags.x;
+  return output;
+}
+
+@fragment
+fn fs_main(input: VertexOutput) {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesShadowDepthTechnique.ts
+var TrianglesShadowDepthTechnique2 = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineState = null;
+  getPipelineState(_renderPass) {
+    if (this._pipelineState) {
+      return {
+        ok: true,
+        value: this._pipelineState
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      const renderPipeline = this._renderContext.device.createRenderPipeline({
+        label: "xeokit-webgpu-triangles-shadow-depth-pipeline",
+        layout: pipelineLayoutResult.value,
+        vertex: {
+          module: shaderModuleResult.value,
+          entryPoint: "vs_main",
+          buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+        },
+        fragment: {
+          module: shaderModuleResult.value,
+          entryPoint: "fs_main",
+          targets: []
+        },
+        depthStencil: {
+          format: SHADOW_DEPTH_FORMAT,
+          depthWriteEnabled: true,
+          depthCompare: "less"
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "front"
+        }
+      });
+      this._pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        renderPipeline,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"]
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesShadowDepthTechnique.getPipelineState] Failed to create WebGPU triangles shadow-depth pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineState
+    };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesShadowDepthTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
+      };
+    }
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesShadowDepthTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineState = null;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-triangles-shadow-depth-shader",
+        code: TRIANGLES_SHADOW_DEPTH_SHADER
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesShadowDepthTechnique._getShaderModule] Failed to create WebGPU triangles shadow-depth shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-triangles-shadow-depth-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesShadowDepthTechnique._getPipelineLayout] Failed to create WebGPU triangles shadow-depth pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesStencilMaskShader.ts
+var TRIANGLES_STENCIL_MASK_SHADER = `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct CapParams {
+  capPlaneIndex: vec4<f32>,
+};
+
+@group(3) @binding(0) var<uniform> capParams: CapParams;
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) worldPos: vec3<f32>,
+  @location(1) clippable: f32,
+};
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  var output: VertexOutput;
+  output.position = rtcTile.viewProjection * rtcWorldPos;
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.clippable = instance.flags.x;
+  return output;
+}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  if (input.clippable < 0.5 || frame.sectionPlaneState.x <= 0.0) {
+    discard;
+  }
+  let planeIndex = u32(capParams.capPlaneIndex.x);
+  if (planeIndex >= u32(frame.sectionPlaneState.x)) {
+    discard;
+  }
+  let capPlane = frame.sectionPlanes[planeIndex];
+  if (dot(capPlane.xyz, input.worldPos) + capPlane.w <= 0.0) {
+    discard;
+  }
+  return vec4<f32>(0.0);
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/triangles/TrianglesStencilMaskTechnique.ts
+var TrianglesStencilMaskTechnique2 = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _capParamsLayout = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  _capParamsBuffer = null;
+  _capParamsBindGroup = null;
+  _capParamsData = new Float32Array(4);
+  setCapPlaneIndex(index) {
+    const bindGroupResult = this._getOrCreateCapParamsBindGroup();
+    if (bindGroupResult.ok === false) {
+      return bindGroupResult;
+    }
+    this._capParamsData[0] = index;
+    this._renderContext.device.queue.writeBuffer(this._capParamsBuffer, 0, this._capParamsData);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  getPipelineState(renderPass) {
+    return this._getPipelineState(renderPass === RENDER_PASSES3.STENCIL_MASK_BACK ? "back" : "front");
+  }
+  getFrontPipelineState() {
+    return this._getPipelineState("front");
+  }
+  getBackPipelineState() {
+    return this._getPipelineState("back");
+  }
+  drawBatches(params) {
+    const capParamsBindGroupResult = this._getOrCreateCapParamsBindGroup();
+    if (capParamsBindGroupResult.ok === false) {
+      return capParamsBindGroupResult;
+    }
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup, batches } = params;
+    if (!passEncoder.setPipeline || !passEncoder.setVertexBuffer || !passEncoder.setIndexBuffer || !passEncoder.setBindGroup || !passEncoder.drawIndexed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[TrianglesStencilMaskTechnique.drawBatches] WebGPU render pass encoder does not expose indexed drawing methods."
+      };
+    }
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    params.commandStateTracker.setBindGroup(3, capParamsBindGroupResult.value);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches,
+      renderPass: params.renderPass,
+      validateLabel: "TrianglesStencilMaskTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker
+    });
+  }
+  destroy() {
+    try {
+      this._capParamsBuffer?.destroy?.();
+    } catch {
+    }
+    this._shaderModule = null;
+    this._capParamsLayout = null;
+    this._pipelineLayout = null;
+    this._pipelineStates = {};
+    this._capParamsBuffer = null;
+    this._capParamsBindGroup = null;
+  }
+  _getPipelineState(face) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const pipelineKey = `${face}:${colorTargetFormat}`;
+    const cached = this._pipelineStates[pipelineKey];
+    if (cached) {
+      return {
+        ok: true,
+        value: cached
+      };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    try {
+      const renderPipeline = this._renderContext.device.createRenderPipeline({
+        label: `xeokit-webgpu-triangles-stencil-mask-${face}-pipeline`,
+        layout: pipelineLayoutResult.value,
+        vertex: {
+          module: shaderModuleResult.value,
+          entryPoint: "vs_main",
+          buffers: PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS
+        },
+        fragment: {
+          module: shaderModuleResult.value,
+          entryPoint: "fs_main",
+          targets: [{
+            format: colorTargetFormat,
+            writeMask: 0
+          }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: false,
+          depthCompare: "always",
+          stencilFront: {
+            compare: "always",
+            failOp: "keep",
+            depthFailOp: "keep",
+            passOp: face === "front" ? "decrement-wrap" : "increment-wrap"
+          },
+          stencilBack: {
+            compare: "always",
+            failOp: "keep",
+            depthFailOp: "keep",
+            passOp: face === "front" ? "decrement-wrap" : "increment-wrap"
+          }
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: face === "front" ? "back" : "front"
+        }
+      });
+      const pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        renderPipeline,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode", "sectionPlaneCapParams"]
+      };
+      this._pipelineStates[pipelineKey] = pipelineState;
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesStencilMaskTechnique._getPipelineState] Failed to create WebGPU triangles stencil-mask pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineStates[pipelineKey]
+    };
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return {
+        ok: true,
+        value: this._shaderModule
+      };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-triangles-stencil-mask-shader",
+        code: TRIANGLES_STENCIL_MASK_SHADER
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesStencilMaskTechnique._getShaderModule] Failed to create WebGPU triangles stencil-mask shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shaderModule
+    };
+  }
+  _getCapParamsLayout() {
+    if (this._capParamsLayout) {
+      return {
+        ok: true,
+        value: this._capParamsLayout
+      };
+    }
+    try {
+      this._capParamsLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-cap-params-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesStencilMaskTechnique._getCapParamsLayout] Failed to create WebGPU cap params bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._capParamsLayout
+    };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return {
+        ok: true,
+        value: this._pipelineLayout
+      };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    const capParamsLayoutResult = this._getCapParamsLayout();
+    if (capParamsLayoutResult.ok === false) {
+      return capParamsLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-triangles-stencil-mask-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value,
+          capParamsLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesStencilMaskTechnique._getPipelineLayout] Failed to create WebGPU triangles stencil-mask pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._pipelineLayout
+    };
+  }
+  _getOrCreateCapParamsBindGroup() {
+    if (this._capParamsBindGroup) {
+      return {
+        ok: true,
+        value: this._capParamsBindGroup
+      };
+    }
+    const capParamsLayoutResult = this._getCapParamsLayout();
+    if (capParamsLayoutResult.ok === false) {
+      return capParamsLayoutResult;
+    }
+    try {
+      this._capParamsBuffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-cap-params-uniforms",
+        size: this._capParamsData.byteLength,
+        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._capParamsBindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-cap-params-bind-group",
+        layout: capParamsLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: this._capParamsBuffer
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TrianglesStencilMaskTechnique._getOrCreateCapParamsBindGroup] Failed to create WebGPU cap params bind group: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._capParamsBindGroup
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/points/PointsShader.ts
+function frameUniformsWGSL() {
+  return `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+  pointParams0: vec4<f32>,
+  pointParams1: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+`;
+}
+function commonWGSL(pick2) {
+  return `
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+  @location(2) vertexColor: vec4<f32>,
+  @builtin(vertex_index) vertexIndex: u32,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+  @location(1) worldPos: vec3<f32>,
+  @location(2) clippable: f32,
+  @location(3) corner: vec2<f32>,
+  @location(4) slot: f32,
+};
+
+fn pointCorner(cornerIndex: u32) -> vec2<f32> {
+  if (cornerIndex == 0u) { return vec2<f32>(-1.0, -1.0); }
+  if (cornerIndex == 1u) { return vec2<f32>(1.0, -1.0); }
+  if (cornerIndex == 2u) { return vec2<f32>(1.0, 1.0); }
+  if (cornerIndex == 3u) { return vec2<f32>(-1.0, -1.0); }
+  if (cornerIndex == 4u) { return vec2<f32>(1.0, 1.0); }
+  return vec2<f32>(-1.0, 1.0);
+}
+
+fn getPointSize(clipW: f32) -> f32 {
+  var size = frame.pointParams0.x;
+  if (frame.pointParams0.y > 0.5) {
+    size = (frame.pointParams0.w * frame.pointParams0.x) / max(clipW, 0.000001);
+    size = clamp(size, frame.pointParams1.x, frame.pointParams1.y);
+  }
+  ${pick2 ? "size = max(size, 7.0);" : ""}
+  return size;
+}
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  let worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  let clipPos = rtcTile.viewProjection * rtcWorldPos;
+  let corner = pointCorner(input.vertexIndex % 6u);
+  let pointSize = getPointSize(clipPos.w);
+  let viewport = vec2<f32>(max(frame.pointParams1.z, 1.0), max(frame.pointParams1.w, 1.0));
+  let ndcOffset = corner * pointSize / viewport * 2.0;
+
+  var output: VertexOutput;
+  output.position = vec4<f32>(clipPos.xy + ndcOffset * clipPos.w, clipPos.z, clipPos.w);
+  output.color = vec4<f32>(input.vertexColor.rgb * instance.color.rgb, input.vertexColor.a * instance.color.a);
+  output.worldPos = worldPos;
+  output.clippable = instance.flags.x;
+  output.corner = corner;
+  output.slot = f32(input.vertexMetadata.x);
+  return output;
+}
+`;
+}
+function createPointsDrawColorShader() {
+  return `
+${frameUniformsWGSL()}
+${commonWGSL(false)}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  if (frame.pointParams0.z > 0.5 && dot(input.corner, input.corner) > 1.0) {
+    discard;
+  }
+  return input.color;
+}
+`;
+}
+function createPointsPickShader() {
+  return `
+${frameUniformsWGSL()}
+${commonWGSL(true)}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  if (frame.pointParams0.z > 0.5 && dot(input.corner, input.corner) > 1.0) {
+    discard;
+  }
+  let encoded = u32(input.slot) + 1u;
+  return vec4<f32>(
+    f32(encoded & 255u) / 255.0,
+    f32((encoded >> 8u) & 255u) / 255.0,
+    f32((encoded >> 16u) & 255u) / 255.0,
+    f32((encoded >> 24u) & 255u) / 255.0
+  );
+}
+`;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/points/PointsDrawColorTechnique.ts
+var PACKED_POINT_VERTEX_BUFFER_LAYOUTS = [
+  ...PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS,
+  {
+    arrayStride: 4,
+    attributes: [{
+      shaderLocation: 2,
+      offset: 0,
+      format: "unorm8x4"
+    }]
+  }
+];
+var PointsDrawColorTechnique2 = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  getPipelineState(renderPass) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const pipelineKey = `${renderPass}:${colorTargetFormat}`;
+    const existing = this._pipelineStates[pipelineKey];
+    if (existing) {
+      return { ok: true, value: existing };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineStates[pipelineKey] = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: renderPass === RENDER_PASSES3.TRANSPARENT ? "xeokit-webgpu-points-draw-color-transparent-pipeline" : "xeokit-webgpu-points-draw-color-opaque-pipeline",
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: PACKED_POINT_VERTEX_BUFFER_LAYOUTS
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{
+              format: colorTargetFormat,
+              blend: renderPass === RENDER_PASSES3.TRANSPARENT ? {
+                color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha", operation: "add" },
+                alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" }
+              } : void 0
+            }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: renderPass === RENDER_PASSES3.OPAQUE,
+            depthCompare: renderPass === RENDER_PASSES3.OPAQUE ? "less-equal" : "less"
+          },
+          primitive: {
+            topology: "triangle-list",
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[PointsDrawColorTechnique.getPipelineState] Failed to create WebGPU points draw-color pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineStates[pipelineKey] };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup } = params;
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches: params.batches,
+      renderPass: params.renderPass,
+      validateLabel: "PointsDrawColorTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker,
+      bindBeforeDraw: (packedBatch) => {
+        if (packedBatch.colorBuffer) {
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.colorBuffer, packedBatch.colorBufferOffset ?? 0);
+        }
+      }
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineStates = {};
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return { ok: true, value: this._shaderModule };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-points-draw-color-shader",
+        code: createPointsDrawColorShader()
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[PointsDrawColorTechnique._getShaderModule] Failed to create WebGPU points draw-color shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._shaderModule };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return { ok: true, value: this._pipelineLayout };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-points-draw-color-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[PointsDrawColorTechnique._getPipelineLayout] Failed to create WebGPU points draw-color pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineLayout };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/points/PointsPickTechnique.ts
+var PACKED_POINT_VERTEX_BUFFER_LAYOUTS2 = [
+  ...PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS,
+  {
+    arrayStride: 4,
+    attributes: [{
+      shaderLocation: 2,
+      offset: 0,
+      format: "unorm8x4"
+    }]
+  }
+];
+var PointsPickTechnique = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineState = null;
+  getPipelineState(renderPass) {
+    if (this._pipelineState) {
+      return { ok: true, value: this._pipelineState };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: "xeokit-webgpu-points-pick-pipeline",
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: PACKED_POINT_VERTEX_BUFFER_LAYOUTS2
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{ format: ID_BUFFER_FORMAT }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: true,
+            depthCompare: "less"
+          },
+          primitive: {
+            topology: "triangle-list",
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[PointsPickTechnique.getPipelineState] Failed to create WebGPU points pick pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineState };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup } = params;
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches: params.batches,
+      renderPass: params.renderPass,
+      validateLabel: "PointsPickTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker,
+      bindBeforeDraw: (packedBatch) => {
+        if (packedBatch.colorBuffer) {
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.colorBuffer, packedBatch.colorBufferOffset ?? 0);
+        }
+      }
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineState = null;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return { ok: true, value: this._shaderModule };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-points-pick-shader",
+        code: createPointsPickShader()
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[PointsPickTechnique._getShaderModule] Failed to create WebGPU points pick shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._shaderModule };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return { ok: true, value: this._pipelineLayout };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-points-pick-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[PointsPickTechnique._getPipelineLayout] Failed to create WebGPU points pick pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineLayout };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/lines/LinesShader.ts
+function frameUniformsWGSL2() {
+  return `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+  pointParams0: vec4<f32>,
+  pointParams1: vec4<f32>,
+  lineParams: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+`;
+}
+function commonWGSL2(pick2) {
+  return `
+struct MeshInstance {
+  modelMatrix: mat4x4<f32>,
+  color: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
+
+${TRIANGLE_POSITION_DECODE_WGSL}
+${TRIANGLE_RTC_TILE_WGSL}
+
+struct VertexInput {
+  @location(0) packedPosition: vec4<f32>,
+  @location(1) vertexMetadata: vec2<u32>,
+  @location(2) vertexColor: vec4<f32>,
+  @location(3) packedOtherPosition: vec4<f32>,
+  @builtin(vertex_index) vertexIndex: u32,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+  @location(1) worldPos: vec3<f32>,
+  @location(2) clippable: f32,
+  @location(3) lineCoord: vec2<f32>,
+  @location(4) slot: f32,
+};
+
+fn lineSide(cornerIndex: u32) -> f32 {
+  if (cornerIndex == 0u || cornerIndex == 1u || cornerIndex == 3u) {
+    return -1.0;
+  }
+  return 1.0;
+}
+
+fn lineEndpoint(cornerIndex: u32) -> f32 {
+  if (cornerIndex == 0u || cornerIndex == 3u || cornerIndex == 5u) {
+    return 0.0;
+  }
+  return 1.0;
+}
+
+fn lineCap(endpoint: f32, side: f32) -> vec2<f32> {
+  return vec2<f32>((endpoint * 2.0) - 1.0, side);
+}
+
+@vertex
+fn vs_main(input: VertexInput) -> VertexOutput {
+  let instance = instances[input.vertexMetadata.x];
+  let rtcTile = getInstanceRTCTile(instance);
+  let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
+  let localOtherPosition = decodePackedPosition(input.packedOtherPosition, input.vertexMetadata.y);
+  let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  let rtcOtherWorldPos = instance.modelMatrix * vec4<f32>(localOtherPosition, 1.0);
+  let worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  let clipPos = rtcTile.viewProjection * rtcWorldPos;
+  let otherClipPos = rtcTile.viewProjection * rtcOtherWorldPos;
+  let cornerIndex = input.vertexIndex % 6u;
+  let side = lineSide(cornerIndex);
+  let endpoint = lineEndpoint(cornerIndex);
+  let viewport = vec2<f32>(max(frame.lineParams.y, 1.0), max(frame.lineParams.z, 1.0));
+  let ndc = clipPos.xy / max(clipPos.w, 0.000001);
+  let otherNdc = otherClipPos.xy / max(otherClipPos.w, 0.000001);
+  let screenDir = (otherNdc - ndc) * viewport;
+  var safeDir = vec2<f32>(1.0, 0.0);
+  if (dot(screenDir, screenDir) > 0.000001) {
+    safeDir = normalize(screenDir);
+  }
+  let normal = vec2<f32>(-safeDir.y, safeDir.x);
+  let width = ${pick2 ? "max(frame.lineParams.x, 7.0)" : "frame.lineParams.x"};
+  let pixelOffset = normal * side * width * 0.5;
+  let ndcOffset = pixelOffset / viewport * 2.0;
+
+  var output: VertexOutput;
+  output.position = vec4<f32>(clipPos.xy + ndcOffset * clipPos.w, clipPos.z, clipPos.w);
+  output.color = vec4<f32>(input.vertexColor.rgb * instance.color.rgb, input.vertexColor.a * instance.color.a);
+  output.worldPos = worldPos;
+  output.clippable = instance.flags.x;
+  output.lineCoord = lineCap(endpoint, side);
+  output.slot = f32(input.vertexMetadata.x);
+  return output;
+}
+`;
+}
+function createLinesDrawColorShader() {
+  return `
+${frameUniformsWGSL2()}
+${commonWGSL2(false)}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  return input.color;
+}
+`;
+}
+function createLinesPickShader() {
+  return `
+${frameUniformsWGSL2()}
+${commonWGSL2(true)}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  if (input.clippable > 0.5) {
+    for (var i = 0u; i < 8u; i = i + 1u) {
+      if (i >= u32(frame.sectionPlaneState.x)) {
+        break;
+      }
+      let plane = frame.sectionPlanes[i];
+      if (dot(plane.xyz, input.worldPos) + plane.w > 0.0) {
+        discard;
+      }
+    }
+  }
+  let encoded = u32(input.slot) + 1u;
+  return vec4<f32>(
+    f32(encoded & 255u) / 255.0,
+    f32((encoded >> 8u) & 255u) / 255.0,
+    f32((encoded >> 16u) & 255u) / 255.0,
+    f32((encoded >> 24u) & 255u) / 255.0
+  );
+}
+`;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/lines/LinesDrawColorTechnique.ts
+var PACKED_LINE_VERTEX_BUFFER_LAYOUTS = [
+  ...PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS,
+  {
+    arrayStride: 4,
+    attributes: [{
+      shaderLocation: 2,
+      offset: 0,
+      format: "unorm8x4"
+    }]
+  },
+  {
+    arrayStride: 8,
+    attributes: [{
+      shaderLocation: 3,
+      offset: 0,
+      format: "unorm16x4"
+    }]
+  }
+];
+var LinesDrawColorTechnique2 = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  getPipelineState(renderPass) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const pipelineKey = `${renderPass}:${colorTargetFormat}`;
+    const existing = this._pipelineStates[pipelineKey];
+    if (existing) {
+      return { ok: true, value: existing };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineStates[pipelineKey] = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: renderPass === RENDER_PASSES3.TRANSPARENT ? "xeokit-webgpu-lines-draw-color-transparent-pipeline" : "xeokit-webgpu-lines-draw-color-opaque-pipeline",
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: PACKED_LINE_VERTEX_BUFFER_LAYOUTS
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{
+              format: colorTargetFormat,
+              blend: renderPass === RENDER_PASSES3.TRANSPARENT ? {
+                color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha", operation: "add" },
+                alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" }
+              } : void 0
+            }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: renderPass === RENDER_PASSES3.OPAQUE,
+            depthCompare: renderPass === RENDER_PASSES3.OPAQUE ? "less-equal" : "less"
+          },
+          primitive: {
+            topology: "triangle-list",
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[LinesDrawColorTechnique.getPipelineState] Failed to create WebGPU lines draw-color pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineStates[pipelineKey] };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup } = params;
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches: params.batches,
+      renderPass: params.renderPass,
+      validateLabel: "LinesDrawColorTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker,
+      bindBeforeDraw: (packedBatch) => {
+        if (packedBatch.colorBuffer) {
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.colorBuffer, packedBatch.colorBufferOffset ?? 0);
+        }
+        if (packedBatch.lineOtherVertexBuffer) {
+          params.commandStateTracker.setVertexBuffer(3, packedBatch.lineOtherVertexBuffer, packedBatch.lineOtherVertexBufferOffset ?? 0);
+        }
+      }
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineStates = {};
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return { ok: true, value: this._shaderModule };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-lines-draw-color-shader",
+        code: createLinesDrawColorShader()
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[LinesDrawColorTechnique._getShaderModule] Failed to create WebGPU lines draw-color shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._shaderModule };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return { ok: true, value: this._pipelineLayout };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-lines-draw-color-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[LinesDrawColorTechnique._getPipelineLayout] Failed to create WebGPU lines draw-color pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineLayout };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/lines/LinesPickTechnique.ts
+var PACKED_LINE_VERTEX_BUFFER_LAYOUTS2 = [
+  ...PACKED_TRIANGLE_POSITION_VERTEX_BUFFER_LAYOUTS,
+  {
+    arrayStride: 4,
+    attributes: [{
+      shaderLocation: 2,
+      offset: 0,
+      format: "unorm8x4"
+    }]
+  },
+  {
+    arrayStride: 8,
+    attributes: [{
+      shaderLocation: 3,
+      offset: 0,
+      format: "unorm16x4"
+    }]
+  }
+];
+var LinesPickTechnique = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineState = null;
+  getPipelineState(renderPass) {
+    if (this._pipelineState) {
+      return { ok: true, value: this._pipelineState };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "instance", "trianglePositionDecode"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: "xeokit-webgpu-lines-pick-pipeline",
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: PACKED_LINE_VERTEX_BUFFER_LAYOUTS2
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{ format: ID_BUFFER_FORMAT }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: true,
+            depthCompare: "less"
+          },
+          primitive: {
+            topology: "triangle-list",
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[LinesPickTechnique.getPipelineState] Failed to create WebGPU lines pick pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineState };
+  }
+  drawBatches(params) {
+    const { passEncoder, pipelineState, frameBindGroup, instanceBindGroup } = params;
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    params.commandStateTracker.setBindGroup(1, instanceBindGroup);
+    return encodePackedTriangleBatches({
+      device: this._renderContext.device,
+      passEncoder,
+      batches: params.batches,
+      renderPass: params.renderPass,
+      validateLabel: "LinesPickTechnique.drawBatches",
+      commandStats: params.commandStats,
+      commandStateTracker: params.commandStateTracker,
+      bindBeforeDraw: (packedBatch) => {
+        if (packedBatch.colorBuffer) {
+          params.commandStateTracker.setVertexBuffer(2, packedBatch.colorBuffer, packedBatch.colorBufferOffset ?? 0);
+        }
+        if (packedBatch.lineOtherVertexBuffer) {
+          params.commandStateTracker.setVertexBuffer(3, packedBatch.lineOtherVertexBuffer, packedBatch.lineOtherVertexBufferOffset ?? 0);
+        }
+      }
+    });
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineState = null;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return { ok: true, value: this._shaderModule };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-lines-pick-shader",
+        code: createLinesPickShader()
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[LinesPickTechnique._getShaderModule] Failed to create WebGPU lines pick shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._shaderModule };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return { ok: true, value: this._pipelineLayout };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+    if (instanceBindGroupLayoutResult.ok === false) {
+      return instanceBindGroupLayoutResult;
+    }
+    const positionDecodeBindGroupLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeBindGroupLayoutResult.ok === false) {
+      return positionDecodeBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-lines-pick-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          instanceBindGroupLayoutResult.value,
+          positionDecodeBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[LinesPickTechnique._getPipelineLayout] Failed to create WebGPU lines pick pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineLayout };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/splats/SplatsShader.ts
+function frameUniformsWGSL3() {
+  return `
+struct FrameUniforms {
+  viewProjection: mat4x4<f32>,
+  ambientLight: vec4<f32>,
+  dirLightDirections: array<vec4<f32>, 3>,
+  dirLightColors: array<vec4<f32>, 3>,
+  sectionPlaneState: vec4<f32>,
+  sectionPlanes: array<vec4<f32>, 8>,
+  sectionPlaneCapColors: array<vec4<f32>, 8>,
+  depthParams: vec4<f32>,
+  pointParams0: vec4<f32>,
+  pointParams1: vec4<f32>,
+  lineParams: vec4<f32>,
+  viewMatrix: mat4x4<f32>,
+  splatParams: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> frame: FrameUniforms;
+`;
+}
+function splatStorageWGSL() {
+  return `
+struct SplatRecord {
+  t0: vec4<f32>,
+  t1: vec4<f32>,
+  t2: vec4<f32>,
+  t3: vec4<f32>,
+};
+
+@group(1) @binding(0) var<storage, read> splats: array<SplatRecord>;
+@group(1) @binding(1) var<storage, read> sortedIndices: array<u32>;
+`;
+}
+function commonWGSL3(pick2) {
+  return `
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+  @location(1) corner: vec2<f32>,
+  @location(2) worldPos: vec3<f32>,
+  @location(3) slot: f32,
+};
+
+fn quadCorner(vertexIndex: u32) -> vec2<f32> {
+  switch (vertexIndex % 6u) {
+    case 0u: { return vec2<f32>(-2.0, -2.0); }
+    case 1u: { return vec2<f32>( 2.0, -2.0); }
+    case 2u: { return vec2<f32>(-2.0,  2.0); }
+    case 3u: { return vec2<f32>(-2.0,  2.0); }
+    case 4u: { return vec2<f32>( 2.0, -2.0); }
+    default: { return vec2<f32>( 2.0,  2.0); }
+  }
+}
+
+@vertex
+fn vs_main(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) instanceIndex: u32) -> VertexOutput {
+  let splatIndex = sortedIndices[instanceIndex];
+  let record = splats[splatIndex];
+  let center = record.t0.xyz;
+  let opacity = record.t0.w;
+  let color = record.t1.rgb;
+  let meshSlot = record.t1.w;
+  let corner = quadCorner(vertexIndex);
+
+  var output: VertexOutput;
+  output.color = vec4<f32>(color, opacity);
+  output.corner = corner;
+  output.worldPos = center;
+  output.slot = meshSlot;
+
+  for (var i = 0u; i < 8u; i = i + 1u) {
+    if (i >= u32(frame.sectionPlaneState.x)) {
+      break;
+    }
+    let plane = frame.sectionPlanes[i];
+    if (dot(plane.xyz, center) + plane.w > 0.0) {
+      output.position = vec4<f32>(0.0, 0.0, 2.0, 1.0);
+      return output;
+    }
+  }
+
+  let cam = frame.viewMatrix * vec4<f32>(center, 1.0);
+  if (cam.z > -0.01) {
+    output.position = vec4<f32>(0.0, 0.0, 2.0, 1.0);
+    return output;
+  }
+
+  let cov = mat3x3<f32>(
+    vec3<f32>(record.t2.x, record.t2.y, record.t2.z),
+    vec3<f32>(record.t2.y, record.t3.x, record.t3.y),
+    vec3<f32>(record.t2.z, record.t3.y, record.t3.z)
+  );
+  let z = cam.z;
+  let focal = frame.splatParams.zw;
+  let viewport = max(frame.splatParams.xy, vec2<f32>(1.0, 1.0));
+  let j = mat3x3<f32>(
+    vec3<f32>(focal.x / z, 0.0, -(focal.x * cam.x) / (z * z)),
+    vec3<f32>(0.0, focal.y / z, -(focal.y * cam.y) / (z * z)),
+    vec3<f32>(0.0, 0.0, 0.0)
+  );
+  let w = transpose(mat3x3<f32>(frame.viewMatrix[0].xyz, frame.viewMatrix[1].xyz, frame.viewMatrix[2].xyz));
+  let t = w * j;
+  let cov2d = transpose(t) * cov * t;
+  let a = cov2d[0][0] + 0.3;
+  let b = cov2d[0][1];
+  let c = cov2d[1][1] + 0.3;
+  let mid = 0.5 * (a + c);
+  let radius = length(vec2<f32>(0.5 * (a - c), b));
+  let l1 = mid + radius;
+  let l2 = mid - radius;
+  if (l2 <= 0.0) {
+    output.position = vec4<f32>(0.0, 0.0, 2.0, 1.0);
+    return output;
+  }
+
+  var e1 = vec2<f32>(1.0, 0.0);
+  if (abs(b) + abs(l1 - a) > 0.000001) {
+    e1 = normalize(vec2<f32>(b, l1 - a));
+  }
+  let e2 = vec2<f32>(e1.y, -e1.x);
+  let major = min(sqrt(2.0 * l1), 1024.0) * e1;
+  let minor = min(sqrt(2.0 * l2), 1024.0) * e2;
+  let clip = frame.viewProjection * vec4<f32>(center, 1.0);
+  let offset = (corner.x * major + corner.y * minor) / viewport * 2.0 * clip.w;
+  output.position = vec4<f32>(clip.xy + offset, clip.zw);
+  return output;
+}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  let alpha = exp(-dot(input.corner, input.corner)) * input.color.a;
+  if (alpha < ${pick2 ? "0.04" : "0.004"}) {
+    discard;
+  }
+  ${pick2 ? `
+  let encoded = u32(input.slot) + 1u;
+  return vec4<f32>(
+    f32(encoded & 255u) / 255.0,
+    f32((encoded >> 8u) & 255u) / 255.0,
+    f32((encoded >> 16u) & 255u) / 255.0,
+    f32((encoded >> 24u) & 255u) / 255.0
+  );
+  ` : `
+  return vec4<f32>(input.color.rgb * alpha, alpha);
+  `}
+}
+`;
+}
+function createSplatsDrawColorShader() {
+  return `${frameUniformsWGSL3()}${splatStorageWGSL()}${commonWGSL3(false)}`;
+}
+function createSplatsPickShader() {
+  return `${frameUniformsWGSL3()}${splatStorageWGSL()}${commonWGSL3(true)}`;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/splats/SplatsDrawColorTechnique.ts
+var SplatsDrawColorTechnique = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineStates = {};
+  getPipelineState(renderPass) {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const existing = this._pipelineStates[colorTargetFormat];
+    if (existing) {
+      return { ok: true, value: existing };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const splatBindGroupLayoutResult = this._bindGroupLayoutManager.getSplatBindGroupLayout();
+    if (splatBindGroupLayoutResult.ok === false) {
+      return splatBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineStates[colorTargetFormat] = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: splatBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "splat"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: "xeokit-webgpu-splats-draw-color-pipeline",
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: []
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{
+              format: colorTargetFormat,
+              blend: {
+                color: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" },
+                alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" }
+              }
+            }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: false,
+            depthCompare: "less"
+          },
+          primitive: {
+            topology: "triangle-list",
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatsDrawColorTechnique.getPipelineState] Failed to create WebGPU splats draw-color pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineStates[colorTargetFormat] };
+  }
+  drawBatches(params) {
+    const { pipelineState, frameBindGroup } = params;
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    for (let i = 0, len = params.batches.length; i < len; i++) {
+      const packedBatch = params.batches[i].packedBatch;
+      if (!packedBatch.splatBindGroup || !packedBatch.splatCount) {
+        continue;
+      }
+      params.commandStateTracker.setBindGroup(1, packedBatch.splatBindGroup);
+      params.commandStateTracker.draw(6, packedBatch.splatCount, 0, 0);
+    }
+    return { ok: true, value: void 0 };
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineStates = {};
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return { ok: true, value: this._shaderModule };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-splats-draw-color-shader",
+        code: createSplatsDrawColorShader()
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatsDrawColorTechnique._getShaderModule] Failed to create WebGPU splats draw-color shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._shaderModule };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return { ok: true, value: this._pipelineLayout };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const splatBindGroupLayoutResult = this._bindGroupLayoutManager.getSplatBindGroupLayout();
+    if (splatBindGroupLayoutResult.ok === false) {
+      return splatBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-splats-draw-color-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          splatBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatsDrawColorTechnique._getPipelineLayout] Failed to create WebGPU splats draw-color pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineLayout };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/techniques/splats/SplatsPickTechnique.ts
+var SplatsPickTechnique = class extends DrawTechnique4 {
+  _shaderModule = null;
+  _pipelineLayout = null;
+  _pipelineState = null;
+  getPipelineState(renderPass) {
+    if (this._pipelineState) {
+      return { ok: true, value: this._pipelineState };
+    }
+    const shaderModuleResult = this._getShaderModule();
+    if (shaderModuleResult.ok === false) {
+      return shaderModuleResult;
+    }
+    const pipelineLayoutResult = this._getPipelineLayout();
+    if (pipelineLayoutResult.ok === false) {
+      return pipelineLayoutResult;
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const splatBindGroupLayoutResult = this._bindGroupLayoutManager.getSplatBindGroupLayout();
+    if (splatBindGroupLayoutResult.ok === false) {
+      return splatBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineState = {
+        shaderModule: shaderModuleResult.value,
+        frameBindGroupLayout: frameBindGroupLayoutResult.value,
+        instanceBindGroupLayout: splatBindGroupLayoutResult.value,
+        pipelineLayout: pipelineLayoutResult.value,
+        bindGroupLayoutSignature: ["frame", "splat"],
+        renderPipeline: this._renderContext.device.createRenderPipeline({
+          label: "xeokit-webgpu-splats-pick-pipeline",
+          layout: pipelineLayoutResult.value,
+          vertex: {
+            module: shaderModuleResult.value,
+            entryPoint: "vs_main",
+            buffers: []
+          },
+          fragment: {
+            module: shaderModuleResult.value,
+            entryPoint: "fs_main",
+            targets: [{ format: ID_BUFFER_FORMAT }]
+          },
+          depthStencil: {
+            format: DEPTH_FORMAT,
+            depthWriteEnabled: true,
+            depthCompare: "less"
+          },
+          primitive: {
+            topology: "triangle-list",
+            cullMode: "none"
+          }
+        })
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatsPickTechnique.getPipelineState] Failed to create WebGPU splats pick pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineState };
+  }
+  drawBatches(params) {
+    const { pipelineState, frameBindGroup } = params;
+    params.commandStateTracker.setPipeline(pipelineState);
+    params.commandStateTracker.setBindGroup(0, frameBindGroup);
+    for (let i = 0, len = params.batches.length; i < len; i++) {
+      const packedBatch = params.batches[i].packedBatch;
+      if (!packedBatch.splatBindGroup || !packedBatch.splatCount) {
+        continue;
+      }
+      params.commandStateTracker.setBindGroup(1, packedBatch.splatBindGroup);
+      params.commandStateTracker.draw(6, packedBatch.splatCount, 0, 0);
+    }
+    return { ok: true, value: void 0 };
+  }
+  destroy() {
+    this._shaderModule = null;
+    this._pipelineLayout = null;
+    this._pipelineState = null;
+  }
+  _getShaderModule() {
+    if (this._shaderModule) {
+      return { ok: true, value: this._shaderModule };
+    }
+    try {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-splats-pick-shader",
+        code: createSplatsPickShader()
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatsPickTechnique._getShaderModule] Failed to create WebGPU splats pick shader module: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._shaderModule };
+  }
+  _getPipelineLayout() {
+    if (this._pipelineLayout) {
+      return { ok: true, value: this._pipelineLayout };
+    }
+    const frameBindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (frameBindGroupLayoutResult.ok === false) {
+      return frameBindGroupLayoutResult;
+    }
+    const splatBindGroupLayoutResult = this._bindGroupLayoutManager.getSplatBindGroupLayout();
+    if (splatBindGroupLayoutResult.ok === false) {
+      return splatBindGroupLayoutResult;
+    }
+    try {
+      this._pipelineLayout = this._renderContext.device.createPipelineLayout({
+        label: "xeokit-webgpu-splats-pick-pipeline-layout",
+        bindGroupLayouts: [
+          frameBindGroupLayoutResult.value,
+          splatBindGroupLayoutResult.value
+        ]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatsPickTechnique._getPipelineLayout] Failed to create WebGPU splats pick pipeline layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: this._pipelineLayout };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/drawOps/DrawOps.ts
+var DrawOps5 = class {
+  prims = {};
+  _renderContext;
+  _bindGroupLayoutManager;
+  _techniques = [];
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+  }
+  init() {
+    this.destroy();
+    const trianglesDrawColor = this._saveForCleanup(
+      new TrianglesDrawColorTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesDrawColorFlatScene = this._saveForCleanup(
+      new TrianglesDrawColorFlatTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager,
+        depthCompare: "less-equal",
+        labelPrefix: "scene"
+      })
+    );
+    const trianglesDrawColorFlatOverlay = this._saveForCleanup(
+      new TrianglesDrawColorFlatTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager,
+        depthCompare: "always"
+      })
+    );
+    const trianglesDepthPrepass = this._saveForCleanup(
+      new TrianglesDepthPrepassTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesShadowDepth = this._saveForCleanup(
+      new TrianglesShadowDepthTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesPick = this._saveForCleanup(
+      new TrianglesPickTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesSnapVertex = this._saveForCleanup(
+      new TrianglesSnapVertexTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesSnapEdge = this._saveForCleanup(
+      new TrianglesSnapEdgeTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesDrawEdgeColor = this._saveForCleanup(
+      new TrianglesDrawEdgeColorTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesSectionPlaneCap = this._saveForCleanup(
+      new TrianglesSectionPlaneCapTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesStencilMask = this._saveForCleanup(
+      new TrianglesStencilMaskTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const pointsDrawColor = this._saveForCleanup(
+      new PointsDrawColorTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const pointsPick = this._saveForCleanup(
+      new PointsPickTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const linesDrawColor = this._saveForCleanup(
+      new LinesDrawColorTechnique2({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const linesPick = this._saveForCleanup(
+      new LinesPickTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const splatsDrawColor = this._saveForCleanup(
+      new SplatsDrawColorTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const splatsPick = this._saveForCleanup(
+      new SplatsPickTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    this.prims[TrianglesPrimitive] = {
+      depthPrepass: new DrawOp4(trianglesDepthPrepass, RENDER_PASSES3.DEPTH_PREPASS),
+      shadowDepth: new DrawOp4(trianglesShadowDepth, RENDER_PASSES3.SHADOW_DEPTH),
+      opaque: new DrawOp4(trianglesDrawColor, RENDER_PASSES3.OPAQUE),
+      transparent: new DrawOp4(trianglesDrawColor, RENDER_PASSES3.TRANSPARENT),
+      flatOpaque: new DrawOp4(trianglesDrawColorFlatScene, RENDER_PASSES3.OPAQUE),
+      flatTransparent: new DrawOp4(trianglesDrawColorFlatScene, RENDER_PASSES3.TRANSPARENT),
+      overlayOpaque: new DrawOp4(trianglesDrawColorFlatOverlay, RENDER_PASSES3.OPAQUE),
+      overlayTransparent: new DrawOp4(trianglesDrawColorFlatOverlay, RENDER_PASSES3.TRANSPARENT),
+      edges: new DrawOp4(trianglesDrawEdgeColor, RENDER_PASSES3.OPAQUE),
+      sectionPlaneCaps: new DrawOp4(trianglesSectionPlaneCap, RENDER_PASSES3.SECTION_PLANE_CAPS),
+      stencilMaskFront: new DrawOp4(trianglesStencilMask, RENDER_PASSES3.STENCIL_MASK_FRONT),
+      stencilMaskBack: new DrawOp4(trianglesStencilMask, RENDER_PASSES3.STENCIL_MASK_BACK),
+      pick: new DrawOp4(trianglesPick, RENDER_PASSES3.PICK),
+      snapVertex: new DrawOp4(trianglesSnapVertex, RENDER_PASSES3.PICK),
+      snapEdge: new DrawOp4(trianglesSnapEdge, RENDER_PASSES3.PICK)
+    };
+    this.prims[PointsPrimitive] = {
+      opaque: new DrawOp4(pointsDrawColor, RENDER_PASSES3.OPAQUE),
+      transparent: new DrawOp4(pointsDrawColor, RENDER_PASSES3.TRANSPARENT),
+      pick: new DrawOp4(pointsPick, RENDER_PASSES3.PICK)
+    };
+    this.prims[LinesPrimitive] = {
+      opaque: new DrawOp4(linesDrawColor, RENDER_PASSES3.OPAQUE),
+      transparent: new DrawOp4(linesDrawColor, RENDER_PASSES3.TRANSPARENT),
+      pick: new DrawOp4(linesPick, RENDER_PASSES3.PICK)
+    };
+    this.prims[GaussianSplatsPrimitive] = {
+      transparent: new DrawOp4(splatsDrawColor, RENDER_PASSES3.TRANSPARENT),
+      pick: new DrawOp4(splatsPick, RENDER_PASSES3.PICK)
+    };
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  destroy() {
+    for (const technique of this._techniques) {
+      technique.destroy();
+    }
+    this._techniques = [];
+    this.prims = {};
+  }
+  _saveForCleanup(technique) {
+    this._techniques.push(technique);
+    return technique;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/RenderContext.ts
+var RenderContext18 = class {
   device;
   contextFormat;
+  colorTargetFormat;
+  memoryConfigs;
+  renderConfigs;
+  shadowBindGroup = null;
+  iblUniformBuffer = null;
+  iblSampler = null;
+  iblIrradianceView = null;
+  iblPrefilteredView = null;
+  iblBRDFLUTView = null;
+  iblBindGroupVersion = 0;
   constructor(params) {
     this.device = params.device;
     this.contextFormat = params.contextFormat;
+    this.colorTargetFormat = params.contextFormat;
+    this.memoryConfigs = params.memoryConfigs;
+    this.renderConfigs = params.renderConfigs;
   }
   createGPUBuffer(label, data2, usage) {
     const uploadData = this._createAlignedUploadData(data2);
     const buffer = this.device.createBuffer({
       label,
       size: uploadData.byteLength,
-      usage: usage | GPU_BUFFER_USAGE.COPY_DST
+      usage: usage | GPU_BUFFER_USAGE.COPY_DST,
+      mappedAtCreation: true
     });
+    if (buffer.getMappedRange && buffer.unmap) {
+      new Uint8Array(buffer.getMappedRange()).set(new Uint8Array(uploadData.buffer, uploadData.byteOffset, uploadData.byteLength));
+      buffer.unmap();
+      return buffer;
+    }
     this.device.queue.writeBuffer(buffer, 0, uploadData);
     return buffer;
+  }
+  createEmptyGPUBuffer(label, byteLength, usage) {
+    return this.device.createBuffer({
+      label,
+      size: Math.max(4, this._alignTo4(byteLength)),
+      usage: usage | GPU_BUFFER_USAGE.COPY_DST
+    });
+  }
+  writeGPUBuffer(buffer, bufferOffset, data2) {
+    this.device.queue.writeBuffer(buffer, bufferOffset, this._createAlignedUploadData(data2));
   }
   createDepthTexture(label, width, height) {
     return this.device.createTexture({
@@ -206572,7 +211465,7 @@ var WebGPURenderContext = class {
         depthOrArrayLayers: 1
       },
       format: DEPTH_FORMAT,
-      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT | GPU_TEXTURE_USAGE.TEXTURE_BINDING
     });
   }
   _alignTo4(value) {
@@ -206589,14 +211482,15 @@ var WebGPURenderContext = class {
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUPipelineManager.ts
-var WebGPUPipelineManager = class {
+// ../sdk/src/viewing/webGPURenderer/internal/gpuMemoryManager/BindGroupLayoutManager.ts
+var BindGroupLayoutManager = class {
   _renderContext;
-  _meshShaderModule = null;
   _frameBindGroupLayout = null;
   _instanceBindGroupLayout = null;
-  _meshPipelineLayout = null;
-  _meshPipelineStates = {};
+  _trianglePositionDecodeBindGroupLayout = null;
+  _triangleColorBindGroupLayout = null;
+  _splatBindGroupLayout = null;
+  _shadowBindGroupLayout = null;
   constructor(renderContext) {
     this._renderContext = renderContext;
   }
@@ -206616,13 +211510,52 @@ var WebGPUPipelineManager = class {
           buffer: {
             type: "uniform"
           }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }, {
+          binding: 3,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 4,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "cube"
+          }
+        }, {
+          binding: 5,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "cube"
+          }
+        }, {
+          binding: 6,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
         }]
       });
     } catch (e) {
       return {
         ok: false,
         type: 0 /* InitializationFailed */,
-        error: `[WebGPUPipelineManager.getFrameBindGroupLayout] Failed to create WebGPU frame bind group layout: ${e instanceof Error ? e.message : String(e)}`
+        error: `[BindGroupLayoutManager.getFrameBindGroupLayout] Failed to create WebGPU frame bind group layout: ${e instanceof Error ? e.message : String(e)}`
       };
     }
     return {
@@ -206652,7 +211585,7 @@ var WebGPUPipelineManager = class {
       return {
         ok: false,
         type: 0 /* InitializationFailed */,
-        error: `[WebGPUPipelineManager.getInstanceBindGroupLayout] Failed to create WebGPU instance bind group layout: ${e instanceof Error ? e.message : String(e)}`
+        error: `[BindGroupLayoutManager.getInstanceBindGroupLayout] Failed to create WebGPU instance bind group layout: ${e instanceof Error ? e.message : String(e)}`
       };
     }
     return {
@@ -206660,242 +211593,21 @@ var WebGPUPipelineManager = class {
       value: this._instanceBindGroupLayout
     };
   }
-  getMeshPipelineState(renderPass = RENDER_PASSES3.OPAQUE) {
-    const existing = this._meshPipelineStates[renderPass];
-    if (existing) {
+  getTrianglePositionDecodeBindGroupLayout() {
+    if (this._trianglePositionDecodeBindGroupLayout) {
       return {
         ok: true,
-        value: existing
-      };
-    }
-    const device = this._renderContext.device;
-    const shaderModuleResult = this._getMeshShaderModule();
-    if (shaderModuleResult.ok === false) {
-      return shaderModuleResult;
-    }
-    const bindGroupLayoutResult = this.getFrameBindGroupLayout();
-    if (bindGroupLayoutResult.ok === false) {
-      return bindGroupLayoutResult;
-    }
-    const instanceBindGroupLayoutResult = this.getInstanceBindGroupLayout();
-    if (instanceBindGroupLayoutResult.ok === false) {
-      return instanceBindGroupLayoutResult;
-    }
-    const pipelineLayoutResult = this._getMeshPipelineLayout();
-    if (pipelineLayoutResult.ok === false) {
-      return pipelineLayoutResult;
-    }
-    try {
-      const renderPipeline = device.createRenderPipeline({
-        label: renderPass === RENDER_PASSES3.TRANSPARENT ? "xeokit-webgpu-basic-triangle-transparent-pipeline" : "xeokit-webgpu-basic-triangle-opaque-pipeline",
-        layout: pipelineLayoutResult.value,
-        vertex: {
-          module: shaderModuleResult.value,
-          entryPoint: "vs_main",
-          buffers: [
-            {
-              arrayStride: 12,
-              attributes: [{
-                shaderLocation: 0,
-                offset: 0,
-                format: "float32x3"
-              }]
-            },
-            {
-              arrayStride: 12,
-              attributes: [{
-                shaderLocation: 1,
-                offset: 0,
-                format: "float32x3"
-              }]
-            },
-            {
-              arrayStride: 4,
-              attributes: [{
-                shaderLocation: 2,
-                offset: 0,
-                format: "uint32"
-              }]
-            }
-          ]
-        },
-        fragment: {
-          module: shaderModuleResult.value,
-          entryPoint: "fs_main",
-          targets: [{
-            format: this._renderContext.contextFormat,
-            blend: {
-              color: {
-                srcFactor: "src-alpha",
-                dstFactor: "one-minus-src-alpha",
-                operation: "add"
-              },
-              alpha: {
-                srcFactor: "one",
-                dstFactor: "one-minus-src-alpha",
-                operation: "add"
-              }
-            }
-          }]
-        },
-        depthStencil: {
-          format: DEPTH_FORMAT,
-          depthWriteEnabled: renderPass === RENDER_PASSES3.OPAQUE,
-          depthCompare: "less"
-        },
-        primitive: {
-          topology: "triangle-list",
-          cullMode: "none"
-        }
-      });
-      this._meshPipelineStates[renderPass] = {
-        shaderModule: shaderModuleResult.value,
-        frameBindGroupLayout: bindGroupLayoutResult.value,
-        instanceBindGroupLayout: instanceBindGroupLayoutResult.value,
-        pipelineLayout: pipelineLayoutResult.value,
-        renderPipeline
-      };
-    } catch (e) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: `[WebGPUPipelineManager.getMeshPipelineState] Failed to create WebGPU render pipeline: ${e instanceof Error ? e.message : String(e)}`
-      };
-    }
-    return {
-      ok: true,
-      value: this._meshPipelineStates[renderPass]
-    };
-  }
-  _getMeshShaderModule() {
-    if (this._meshShaderModule) {
-      return {
-        ok: true,
-        value: this._meshShaderModule
+        value: this._trianglePositionDecodeBindGroupLayout
       };
     }
     try {
-      this._meshShaderModule = this._renderContext.device.createShaderModule({
-        label: "xeokit-webgpu-basic-triangle-shader",
-        code: TRIANGLE_SHADER
-      });
-    } catch (e) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: `[WebGPUPipelineManager._getMeshShaderModule] Failed to create WebGPU mesh shader module: ${e instanceof Error ? e.message : String(e)}`
-      };
-    }
-    return {
-      ok: true,
-      value: this._meshShaderModule
-    };
-  }
-  _getMeshPipelineLayout() {
-    if (this._meshPipelineLayout) {
-      return {
-        ok: true,
-        value: this._meshPipelineLayout
-      };
-    }
-    const bindGroupLayoutResult = this.getFrameBindGroupLayout();
-    if (bindGroupLayoutResult.ok === false) {
-      return bindGroupLayoutResult;
-    }
-    const instanceBindGroupLayoutResult = this.getInstanceBindGroupLayout();
-    if (instanceBindGroupLayoutResult.ok === false) {
-      return instanceBindGroupLayoutResult;
-    }
-    try {
-      this._meshPipelineLayout = this._renderContext.device.createPipelineLayout({
-        label: "xeokit-webgpu-basic-triangle-pipeline-layout",
-        bindGroupLayouts: [bindGroupLayoutResult.value, instanceBindGroupLayoutResult.value]
-      });
-    } catch (e) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: `[WebGPUPipelineManager._getMeshPipelineLayout] Failed to create WebGPU mesh pipeline layout: ${e instanceof Error ? e.message : String(e)}`
-      };
-    }
-    return {
-      ok: true,
-      value: this._meshPipelineLayout
-    };
-  }
-  destroy() {
-    this._meshShaderModule = null;
-    this._frameBindGroupLayout = null;
-    this._instanceBindGroupLayout = null;
-    this._meshPipelineLayout = null;
-    this._meshPipelineStates = {};
-  }
-};
-
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUFrameUniformManager.ts
-var WebGPUFrameUniformManager = class {
-  _renderContext;
-  _pipelineManager;
-  _lightingManager;
-  _viewProjectionMatrix = createMat4Float64();
-  _webGPUViewProjectionMatrix = createMat4Float64();
-  _frameUniformData = new Float32Array(FRAME_UNIFORM_FLOATS);
-  _uniformBuffer = null;
-  _bindGroup = null;
-  constructor(params) {
-    this._renderContext = params.renderContext;
-    this._pipelineManager = params.pipelineManager;
-    this._lightingManager = params.lightingManager;
-  }
-  writeFrameUniforms(view) {
-    const bindGroupResult = this._getOrCreateBindGroup();
-    if (bindGroupResult.ok === false) {
-      return bindGroupResult;
-    }
-    const camera = view.camera;
-    const viewMatrix = camera?.viewMatrix ?? IDENTITY_MATRIX2;
-    const projMatrix = camera?.projMatrix ?? IDENTITY_MATRIX2;
-    mulMat4(projMatrix, viewMatrix, this._viewProjectionMatrix);
-    mulMat4(WEBGPU_CLIP_SPACE_MATRIX, this._viewProjectionMatrix, this._webGPUViewProjectionMatrix);
-    for (let i = 0; i < 16; i++) {
-      this._frameUniformData[i] = this._webGPUViewProjectionMatrix[i];
-    }
-    this._lightingManager.writeLightingUniforms(this._frameUniformData, 16);
-    this._renderContext.device.queue.writeBuffer(this._uniformBuffer, 0, this._frameUniformData);
-    return bindGroupResult;
-  }
-  destroy() {
-    try {
-      this._uniformBuffer?.destroy?.();
-    } catch {
-    }
-    this._uniformBuffer = null;
-    this._bindGroup = null;
-  }
-  _getOrCreateBindGroup() {
-    if (this._bindGroup) {
-      return {
-        ok: true,
-        value: this._bindGroup
-      };
-    }
-    const bindGroupLayoutResult = this._pipelineManager.getFrameBindGroupLayout();
-    if (bindGroupLayoutResult.ok === false) {
-      return bindGroupLayoutResult;
-    }
-    try {
-      this._uniformBuffer = this._renderContext.device.createBuffer({
-        label: "xeokit-webgpu-frame-uniforms",
-        size: FRAME_UNIFORM_BYTES,
-        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
-      });
-      this._bindGroup = this._renderContext.device.createBindGroup({
-        label: "xeokit-webgpu-frame-bind-group",
-        layout: bindGroupLayoutResult.value,
+      this._trianglePositionDecodeBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-triangle-position-decode-bind-group-layout",
         entries: [{
           binding: 0,
-          resource: {
-            buffer: this._uniformBuffer
+          visibility: GPU_SHADER_STAGE.VERTEX,
+          buffer: {
+            type: "read-only-storage"
           }
         }]
       });
@@ -206903,78 +211615,202 @@ var WebGPUFrameUniformManager = class {
       return {
         ok: false,
         type: 0 /* InitializationFailed */,
-        error: `[WebGPUFrameUniformManager._getOrCreateBindGroup] Failed to create WebGPU frame uniforms: ${e instanceof Error ? e.message : String(e)}`
+        error: `[BindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout] Failed to create WebGPU triangle position-decode bind group layout: ${e instanceof Error ? e.message : String(e)}`
       };
     }
     return {
       ok: true,
-      value: this._bindGroup
+      value: this._trianglePositionDecodeBindGroupLayout
     };
+  }
+  getSplatBindGroupLayout() {
+    if (this._splatBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._splatBindGroupLayout
+      };
+    }
+    try {
+      this._splatBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-splat-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.VERTEX,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[BindGroupLayoutManager.getSplatBindGroupLayout] Failed to create WebGPU splat bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._splatBindGroupLayout
+    };
+  }
+  getTriangleColorBindGroupLayout() {
+    if (this._triangleColorBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._triangleColorBindGroupLayout
+      };
+    }
+    try {
+      this._triangleColorBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-triangle-color-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX,
+          buffer: {
+            type: "read-only-storage"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 3,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 4,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 5,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 6,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 7,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 8,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }, {
+          binding: 9,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 10,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float",
+            viewDimension: "2d"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[BindGroupLayoutManager.getTriangleColorBindGroupLayout] Failed to create WebGPU triangle color bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._triangleColorBindGroupLayout
+    };
+  }
+  getShadowBindGroupLayout() {
+    if (this._shadowBindGroupLayout) {
+      return {
+        ok: true,
+        value: this._shadowBindGroupLayout
+      };
+    }
+    try {
+      this._shadowBindGroupLayout = this._renderContext.device.createBindGroupLayout({
+        label: "xeokit-webgpu-shadow-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "comparison"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "depth",
+            viewDimension: "2d-array"
+          }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[BindGroupLayoutManager.getShadowBindGroupLayout] Failed to create WebGPU shadow bind group layout: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._shadowBindGroupLayout
+    };
+  }
+  destroy() {
+    this._frameBindGroupLayout = null;
+    this._instanceBindGroupLayout = null;
+    this._trianglePositionDecodeBindGroupLayout = null;
+    this._triangleColorBindGroupLayout = null;
+    this._splatBindGroupLayout = null;
+    this._shadowBindGroupLayout = null;
   }
 };
 
-// ../sdk/src/model/scene/generateSmoothNormals.ts
-function generateSmoothNormals(positions, indices) {
-  const vertCount = positions.length / 3 | 0;
-  const triCount = indices.length / 3 | 0;
-  if (vertCount === 0 || triCount === 0 || indices.length % 3 !== 0) {
-    return null;
-  }
-  const acc = new Float32Array(vertCount * 3);
-  for (let t = 0; t < triCount; t++) {
-    const i0 = indices[t * 3];
-    const i1 = indices[t * 3 + 1];
-    const i2 = indices[t * 3 + 2];
-    const ax = positions[i0 * 3];
-    const ay = positions[i0 * 3 + 1];
-    const az = positions[i0 * 3 + 2];
-    const ex1 = positions[i1 * 3] - ax;
-    const ey1 = positions[i1 * 3 + 1] - ay;
-    const ez1 = positions[i1 * 3 + 2] - az;
-    const ex2 = positions[i2 * 3] - ax;
-    const ey2 = positions[i2 * 3 + 1] - ay;
-    const ez2 = positions[i2 * 3 + 2] - az;
-    const nx = ey1 * ez2 - ez1 * ey2;
-    const ny = ez1 * ex2 - ex1 * ez2;
-    const nz = ex1 * ey2 - ey1 * ex2;
-    acc[i0 * 3] += nx;
-    acc[i0 * 3 + 1] += ny;
-    acc[i0 * 3 + 2] += nz;
-    acc[i1 * 3] += nx;
-    acc[i1 * 3 + 1] += ny;
-    acc[i1 * 3 + 2] += nz;
-    acc[i2 * 3] += nx;
-    acc[i2 * 3 + 1] += ny;
-    acc[i2 * 3 + 2] += nz;
-  }
-  let anyNonZero = false;
-  for (let i = 0; i < vertCount; i++) {
-    const x = acc[i * 3], y = acc[i * 3 + 1], z = acc[i * 3 + 2];
-    const lenSq = x * x + y * y + z * z;
-    if (lenSq > 0) {
-      anyNonZero = true;
-      const inv = 1 / Math.sqrt(lenSq);
-      acc[i * 3] = x * inv;
-      acc[i * 3 + 1] = y * inv;
-      acc[i * 3 + 2] = z * inv;
-    } else {
-      acc[i * 3] = 0;
-      acc[i * 3 + 1] = 1;
-      acc[i * 3 + 2] = 0;
-    }
-  }
-  if (!anyNonZero) {
-    return null;
-  }
-  return octEncodeNormalsToU16(acc);
-}
-
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUGeometryManager.ts
-var WebGPUGeometryManager = class {
-  _renderContext;
+// ../sdk/src/viewing/webGPURenderer/internal/gpuMemoryManager/GeometryBufferManager.ts
+var GeometryBufferManager = class {
   _geometryStates = {};
-  constructor(renderContext) {
-    this._renderContext = renderContext;
+  constructor() {
   }
   getOrCreateGeometryState(sceneGeometry) {
     const existing = this._geometryStates[sceneGeometry.uniqueId];
@@ -206984,11 +211820,19 @@ var WebGPUGeometryManager = class {
         value: existing
       };
     }
-    if (!sceneGeometry.aabb || !sceneGeometry.positionsCompressed || !sceneGeometry.indices) {
+    if (!sceneGeometry.aabb || !sceneGeometry.positionsCompressed) {
       return {
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[WebGPUGeometryManager.getOrCreateGeometryState] SceneGeometry '${sceneGeometry.uniqueId}' is missing positions, indices, or AABB.`
+        error: `[GeometryBufferManager.getOrCreateGeometryState] SceneGeometry '${sceneGeometry.uniqueId}' is missing positions or AABB.`
+      };
+    }
+    const isPointLike = sceneGeometry.primitive === PointsPrimitive || sceneGeometry.primitive === GaussianSplatsPrimitive;
+    if (!isPointLike && !sceneGeometry.indices) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[GeometryBufferManager.getOrCreateGeometryState] SceneGeometry '${sceneGeometry.uniqueId}' is missing indices.`
       };
     }
     const positions = decompressPositions3WithAABB3(
@@ -206996,33 +211840,22 @@ var WebGPUGeometryManager = class {
       sceneGeometry.aabb,
       new Float32Array(sceneGeometry.positionsCompressed.length)
     );
-    const indexData = this._createIndexData(sceneGeometry.indices);
-    const normals = this._createNormalData(sceneGeometry, positions, sceneGeometry.indices);
-    const vertexBuffer = this._renderContext.createGPUBuffer(
-      `xeokit-webgpu-positions:${sceneGeometry.uniqueId}`,
-      positions,
-      GPU_BUFFER_USAGE.VERTEX
-    );
-    const normalBuffer = this._renderContext.createGPUBuffer(
-      `xeokit-webgpu-normals:${sceneGeometry.uniqueId}`,
-      normals,
-      GPU_BUFFER_USAGE.VERTEX
-    );
-    const indexBuffer = this._renderContext.createGPUBuffer(
-      `xeokit-webgpu-indices:${sceneGeometry.uniqueId}`,
-      indexData.data,
-      GPU_BUFFER_USAGE.INDEX
-    );
+    const normals = sceneGeometry.normalsCompressed ? octDecodeNormalsU16(
+      sceneGeometry.normalsCompressed,
+      new Float32Array(sceneGeometry.normalsCompressed.length / 2 * 3)
+    ) : null;
+    const indexData = isPointLike ? null : this._createIndexData(sceneGeometry.indices);
+    const edgeIndexData = sceneGeometry.edgeIndices && sceneGeometry.edgeIndices.length > 0 ? this._createIndexData(sceneGeometry.edgeIndices) : null;
     const geometryState = {
       geometry: sceneGeometry,
       positions,
+      uvs: sceneGeometry.uvsCompressed ? sceneGeometry.uvsCompressed instanceof Float32Array ? sceneGeometry.uvsCompressed : new Float32Array(sceneGeometry.uvsCompressed) : null,
       normals,
-      indices: indexData.data,
-      vertexBuffer,
-      normalBuffer,
-      indexBuffer,
-      indexFormat: indexData.indexFormat,
-      indexCount: indexData.data.length,
+      indices: indexData?.data ?? null,
+      edgeIndices: edgeIndexData?.data ?? null,
+      indexFormat: indexData?.indexFormat ?? null,
+      indexCount: indexData?.data.length ?? 0,
+      edgeIndexCount: edgeIndexData?.data.length ?? 0,
       numMeshes: 0
     };
     this._geometryStates[sceneGeometry.uniqueId] = geometryState;
@@ -207035,18 +211868,6 @@ var WebGPUGeometryManager = class {
     const geometryState = this._geometryStates[sceneGeometry.uniqueId];
     if (!geometryState) {
       return;
-    }
-    try {
-      geometryState.vertexBuffer.destroy?.();
-    } catch {
-    }
-    try {
-      geometryState.normalBuffer.destroy?.();
-    } catch {
-    }
-    try {
-      geometryState.indexBuffer.destroy?.();
-    } catch {
     }
     delete this._geometryStates[sceneGeometry.uniqueId];
   }
@@ -207074,31 +211895,44 @@ var WebGPUGeometryManager = class {
       indexFormat: "uint16"
     };
   }
-  _createNormalData(sceneGeometry, positions, indices) {
-    const expectedCompressedLength = positions.length / 3 * 2;
-    if (sceneGeometry.normalsCompressed && sceneGeometry.normalsCompressed.length === expectedCompressedLength) {
-      return octDecodeNormalsU16(
-        sceneGeometry.normalsCompressed,
-        new Float32Array(positions.length)
-      );
-    }
-    const generatedNormals = generateSmoothNormals(positions, indices);
-    if (generatedNormals) {
-      return octDecodeNormalsU16(
-        generatedNormals,
-        new Float32Array(positions.length)
-      );
-    }
-    const normals = new Float32Array(positions.length);
-    for (let i = 0, len = normals.length; i < len; i += 3) {
-      normals[i + 1] = 1;
-    }
-    return normals;
-  }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUMeshManager.ts
-var WebGPUMeshManager = class {
+// ../sdk/src/viewing/webGPURenderer/internal/meshManager/resolveMeshDrawStyle.ts
+var DEFAULT_COLOR2 = [1, 1, 1];
+function resolveMeshDrawStyle(mesh, view, viewObject) {
+  if (viewObject?.selected) {
+    return resolveEffectStyle(view.selectedMaterial, "selected");
+  }
+  if (viewObject?.highlighted) {
+    return resolveEffectStyle(view.highlightMaterial, "highlighted");
+  }
+  if (viewObject?.xrayed) {
+    return resolveEffectStyle(view.xrayMaterial, "xrayed");
+  }
+  const opacity = viewObject?.opacityUpdated ? viewObject.opacity : mesh.effectiveOpacity ?? mesh.opacity ?? 1;
+  return {
+    color: viewObject?.colorize ?? mesh.effectiveColor ?? mesh.color ?? DEFAULT_COLOR2,
+    opacity: clamp015(opacity),
+    alphaMode: Number.isFinite(mesh.effectiveAlphaMode) ? mesh.effectiveAlphaMode : 0,
+    emphasis: "normal",
+    drawEdges: !!view.effects?.edges?.applied
+  };
+}
+function resolveEffectStyle(effect, emphasis) {
+  return {
+    color: effect?.fillColor ?? DEFAULT_COLOR2,
+    opacity: clamp015(effect?.fill === false ? 0 : effect?.fillAlpha ?? 1),
+    alphaMode: 0,
+    emphasis,
+    drawEdges: effect?.edges !== false
+  };
+}
+function clamp015(value) {
+  return Math.max(0, Math.min(1, value));
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/meshManager/MeshManager.ts
+var MeshManager4 = class {
   _geometryManager;
   _meshStates = {};
   _meshStateIndices = {};
@@ -207108,6 +211942,8 @@ var WebGPUMeshManager = class {
   _viewMeshCenter = createVec3Float64();
   _structureVersion = 0;
   _instanceDataVersion = 0;
+  _lastNonAppendStructureVersion = 0;
+  _createdMeshStateEvents = [];
   _allViewStateVersion = 0;
   _viewStateVersions = {};
   _cameraViewVersions = {};
@@ -207123,6 +211959,37 @@ var WebGPUMeshManager = class {
   get instanceDataVersion() {
     return this._instanceDataVersion;
   }
+  getStructureChangesSince(structureVersion) {
+    if (structureVersion === this._structureVersion) {
+      return {
+        fromVersion: structureVersion,
+        toVersion: this._structureVersion,
+        appendOnly: true,
+        createdMeshStates: []
+      };
+    }
+    if (structureVersion < 0 || this._lastNonAppendStructureVersion > structureVersion) {
+      return {
+        fromVersion: structureVersion,
+        toVersion: this._structureVersion,
+        appendOnly: false,
+        createdMeshStates: []
+      };
+    }
+    const createdMeshStates = [];
+    for (let i = 0, len = this._createdMeshStateEvents.length; i < len; i++) {
+      const event = this._createdMeshStateEvents[i];
+      if (event.structureVersion > structureVersion) {
+        createdMeshStates.push(event.meshState);
+      }
+    }
+    return {
+      fromVersion: structureVersion,
+      toVersion: this._structureVersion,
+      appendOnly: true,
+      createdMeshStates
+    };
+  }
   getViewStateVersion(view) {
     return this._allViewStateVersion + (this._viewStateVersions[view.id] ?? 0);
   }
@@ -207132,15 +211999,19 @@ var WebGPUMeshManager = class {
   sceneModelCreated(sceneModel) {
     const meshes = sceneModel.meshes;
     for (const meshId in meshes) {
-      const result = this.registerSceneMesh(meshes[meshId]);
+      const result = this.registerSceneMesh(meshes[meshId], sceneModel);
       if (result.ok === false) {
         return result;
       }
     }
     return this._ok();
   }
+  sceneModelSealed(sceneModel) {
+    this._markStructureDirty("non-append");
+    return this._ok();
+  }
   sceneModelDestroyed(sceneModel) {
-    const meshes = this._meshStateList.filter((meshState) => meshState.mesh.model === sceneModel).map((meshState) => meshState.mesh);
+    const meshes = this._meshStateList.filter((meshState) => meshState.sceneModel === sceneModel || meshState.mesh.model === sceneModel).map((meshState) => meshState.mesh);
     for (const mesh of meshes) {
       this.destroyMeshState(mesh);
     }
@@ -207206,44 +212077,40 @@ var WebGPUMeshManager = class {
       return;
     }
     meshState.matrixDirty = true;
-    this._markInstanceDataDirty();
+    this._markMeshInstanceDataDirty(meshState);
   }
   sceneMeshMoved(sceneMesh) {
     this.sceneMeshMatrixChanged(sceneMesh);
   }
   sceneMeshColorChanged(sceneMesh) {
-    if (this._meshStates[sceneMesh.uniqueId]) {
-      this._markInstanceDataDirty();
+    const meshState = this._meshStates[sceneMesh.uniqueId];
+    if (meshState) {
+      this._markMeshInstanceDataDirty(meshState);
     }
   }
   sceneMeshOpacityChanged(sceneMesh) {
-    if (this._meshStates[sceneMesh.uniqueId]) {
-      this._markInstanceDataDirty();
+    const meshState = this._meshStates[sceneMesh.uniqueId];
+    if (meshState) {
+      this._markMeshInstanceDataDirty(meshState);
     }
   }
   sceneMaterialPatternChanged(sceneMaterial) {
-    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
-      this._markInstanceDataDirty();
-    }
+    this._markMaterialMeshesDirty(sceneMaterial);
   }
   sceneMaterialColorChanged(sceneMaterial) {
-    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
-      this._markInstanceDataDirty();
-    }
+    this._markMaterialMeshesDirty(sceneMaterial);
   }
   sceneMaterialEmissiveColorChanged(sceneMaterial) {
-    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
-      this._markInstanceDataDirty();
-    }
+    this._markMaterialMeshesDirty(sceneMaterial);
   }
   sceneMaterialOpacityChanged(sceneMaterial) {
-    if (this._materialHasRegisteredMeshes(sceneMaterial)) {
-      this._markInstanceDataDirty();
-    }
+    this._markMaterialMeshesDirty(sceneMaterial);
   }
   sceneTransformMatrixChanged(sceneTransform) {
     for (let i = 0, len = this._meshStateList.length; i < len; i++) {
-      this._meshStateList[i].matrixDirty = true;
+      const meshState = this._meshStateList[i];
+      meshState.matrixDirty = true;
+      this._markMeshInstanceDataDirty(meshState, false);
     }
     this._markInstanceDataDirty();
   }
@@ -207254,6 +212121,9 @@ var WebGPUMeshManager = class {
     }
     this._viewStateVersions[view.id] = (this._viewStateVersions[view.id] ?? 0) + 1;
   }
+  viewStateChanged(view) {
+    this._viewStateVersions[view.id] = (this._viewStateVersions[view.id] ?? 0) + 1;
+  }
   cameraViewMatrixUpdated(camera) {
     const view = camera.view;
     if (!view) {
@@ -207261,11 +212131,14 @@ var WebGPUMeshManager = class {
     }
     this._cameraViewVersions[view.id] = (this._cameraViewVersions[view.id] ?? 0) + 1;
   }
+  cameraProjMatrixUpdated(camera) {
+    this.cameraViewMatrixUpdated(camera);
+  }
   viewDestroyed(view) {
     delete this._viewStateVersions[view.id];
     delete this._cameraViewVersions[view.id];
   }
-  registerSceneMesh(sceneMesh) {
+  registerSceneMesh(sceneMesh, sceneModel = null) {
     if (this._meshStates[sceneMesh.uniqueId]) {
       return {
         ok: true,
@@ -207285,15 +212158,17 @@ var WebGPUMeshManager = class {
     geometryResult.value.numMeshes++;
     const meshState = {
       mesh: sceneMesh,
+      sceneModel: sceneModel ?? sceneMesh.model ?? null,
       geometryState: geometryResult.value,
       worldMatrix: createMat4Float64(),
-      normalMatrix: createMat4Float64(),
-      matrixDirty: true
+      matrixDirty: true,
+      instanceDataVersion: 0,
+      createdStructureVersion: this._structureVersion + 1
     };
     this._meshStates[sceneMesh.uniqueId] = meshState;
     this._meshStateIndices[sceneMesh.uniqueId] = this._meshStateList.length;
     this._meshStateList.push(meshState);
-    this._markStructureDirty();
+    this._markStructureDirty("append", meshState);
     return {
       ok: true,
       value: void 0
@@ -207314,7 +212189,7 @@ var WebGPUMeshManager = class {
     this._meshStateList.pop();
     delete this._meshStates[sceneMesh.uniqueId];
     delete this._meshStateIndices[sceneMesh.uniqueId];
-    this._markStructureDirty();
+    this._markStructureDirty("non-append");
     const geometryState = meshState.geometryState;
     geometryState.numMeshes = Math.max(0, geometryState.numMeshes - 1);
     if (geometryState.numMeshes === 0) {
@@ -207335,17 +212210,17 @@ var WebGPUMeshManager = class {
     this._meshStates = {};
     this._meshStateIndices = {};
     this._meshStateList.length = 0;
-    this._markStructureDirty();
+    this._markStructureDirty("non-append");
   }
   isRenderableMesh(sceneMesh) {
     if (!sceneMesh || sceneMesh.destroyed) {
       return false;
     }
     const geometry = sceneMesh.geometry;
-    if (!geometry || geometry.destroyed || !geometry.indices) {
+    if (!geometry || geometry.destroyed) {
       return false;
     }
-    return geometry.primitive === TrianglesPrimitive || geometry.primitive === SolidPrimitive || geometry.primitive === SurfacePrimitive;
+    return geometry.primitive === TrianglesPrimitive || geometry.primitive === SolidPrimitive || geometry.primitive === SurfacePrimitive || geometry.primitive === LinesPrimitive || geometry.primitive === PointsPrimitive || geometry.primitive === GaussianSplatsPrimitive;
   }
   isMeshVisibleInView(meshState, view) {
     if (!this.isRenderableMesh(meshState.mesh)) {
@@ -207354,10 +212229,24 @@ var WebGPUMeshManager = class {
     const viewObject = this._getViewObject(meshState.mesh, view);
     return !viewObject || viewObject.visible && !viewObject.culled;
   }
-  getMeshOpacityInView(meshState, view) {
+  isMeshPickableInView(meshState, view, pickInvisible) {
+    if (!this.isRenderableMesh(meshState.mesh)) {
+      return false;
+    }
     const viewObject = this._getViewObject(meshState.mesh, view);
-    const opacity = viewObject?.opacityUpdated ? viewObject.opacity : meshState.mesh.effectiveOpacity ?? meshState.mesh.opacity ?? 1;
-    return Math.max(0, Math.min(1, opacity));
+    if (viewObject?.pickable === false) {
+      return false;
+    }
+    return pickInvisible || !viewObject || viewObject.visible && !viewObject.culled;
+  }
+  getMeshOpacityInView(meshState, view) {
+    return this.getMeshDrawStyleInView(meshState, view).opacity;
+  }
+  getMeshDrawStyleInView(meshState, view) {
+    return resolveMeshDrawStyle(meshState.mesh, view, this._getViewObject(meshState.mesh, view));
+  }
+  isMeshClippableInView(meshState, view) {
+    return this._getViewObject(meshState.mesh, view)?.clippable !== false;
   }
   getMeshViewDepth(meshState, view) {
     const aabb = meshState.geometryState.geometry.aabb;
@@ -207374,19 +212263,46 @@ var WebGPUMeshManager = class {
     transformPoint3(viewMatrix, this._worldMeshCenter, this._viewMeshCenter);
     return this._viewMeshCenter[2];
   }
-  writeInstanceData(drawItem, view, target, targetOffset) {
+  getMeshWorldMatrix(meshState) {
+    this._ensureMeshMatrices(meshState);
+    return meshState.worldMatrix;
+  }
+  writeInstanceData(drawItem, view, target, targetOffset, rtcTileResolver) {
     const meshState = drawItem.meshState;
     const viewObject = this._getViewObject(meshState.mesh, view);
-    const color2 = viewObject?.colorize ?? meshState.mesh.effectiveColor ?? meshState.mesh.color ?? [1, 1, 1];
+    const color2 = this.getMeshDrawStyleInView(meshState, view).color;
     this._ensureMeshMatrices(meshState);
+    const rtcTile = rtcTileResolver ? rtcTileResolver.assignMesh(meshState.mesh.uniqueId, this._getMeshWorldCenter(meshState)) : null;
     for (let i = 0; i < 16; i++) {
       target[targetOffset + i] = meshState.worldMatrix[i];
-      target[targetOffset + 16 + i] = meshState.normalMatrix[i];
     }
-    target[targetOffset + 32] = color2[0];
-    target[targetOffset + 33] = color2[1];
-    target[targetOffset + 34] = color2[2];
-    target[targetOffset + 35] = drawItem.opacity;
+    if (rtcTile) {
+      target[targetOffset + 12] = meshState.worldMatrix[12] - rtcTile.center[0];
+      target[targetOffset + 13] = meshState.worldMatrix[13] - rtcTile.center[1];
+      target[targetOffset + 14] = meshState.worldMatrix[14] - rtcTile.center[2];
+    }
+    target[targetOffset + 16] = color2[0];
+    target[targetOffset + 17] = color2[1];
+    target[targetOffset + 18] = color2[2];
+    target[targetOffset + 19] = drawItem.opacity;
+    target[targetOffset + 20] = viewObject?.clippable === false ? 0 : 1;
+    target[targetOffset + 21] = rtcTile?.tileIndex ?? 0;
+    target[targetOffset + 22] = 0;
+    target[targetOffset + 23] = 0;
+  }
+  _getMeshWorldCenter(meshState) {
+    const aabb = meshState.geometryState.geometry.aabb;
+    if (!aabb) {
+      this._worldMeshCenter[0] = meshState.worldMatrix[12];
+      this._worldMeshCenter[1] = meshState.worldMatrix[13];
+      this._worldMeshCenter[2] = meshState.worldMatrix[14];
+      return this._worldMeshCenter;
+    }
+    this._meshCenter[0] = (aabb[0] + aabb[3]) * 0.5;
+    this._meshCenter[1] = (aabb[1] + aabb[4]) * 0.5;
+    this._meshCenter[2] = (aabb[2] + aabb[5]) * 0.5;
+    transformPoint3(meshState.worldMatrix, this._meshCenter, this._worldMeshCenter);
+    return this._worldMeshCenter;
   }
   _getViewObject(sceneMesh, view) {
     const sceneObject = sceneMesh.object;
@@ -207402,13 +212318,6 @@ var WebGPUMeshManager = class {
     const source = meshState.mesh.worldMatrix ?? meshState.mesh.matrix ?? IDENTITY_MATRIX2;
     for (let i = 0; i < 16; i++) {
       meshState.worldMatrix[i] = source[i] ?? IDENTITY_MATRIX2[i];
-    }
-    inverseMat4(meshState.worldMatrix, meshState.normalMatrix);
-    transposeMat4(meshState.normalMatrix, meshState.normalMatrix);
-    for (let i = 0; i < 16; i++) {
-      if (!Number.isFinite(meshState.normalMatrix[i])) {
-        meshState.normalMatrix[i] = IDENTITY_MATRIX2[i];
-      }
     }
     meshState.matrixDirty = false;
   }
@@ -207428,12 +212337,46 @@ var WebGPUMeshManager = class {
   _getViewObjectView(viewObject) {
     return viewObject.view ?? viewObject.layer?.view ?? null;
   }
-  _markStructureDirty() {
+  _markStructureDirty(kind, meshState) {
     this._structureVersion++;
+    if (kind === "append" && meshState) {
+      this._createdMeshStateEvents.push({
+        structureVersion: this._structureVersion,
+        meshState
+      });
+    } else {
+      this._lastNonAppendStructureVersion = this._structureVersion;
+      this._createdMeshStateEvents.length = 0;
+    }
     this._markInstanceDataDirty();
   }
   _markInstanceDataDirty() {
     this._instanceDataVersion++;
+  }
+  _markMeshInstanceDataDirty(meshState, markGlobal = true) {
+    meshState.instanceDataVersion++;
+    if (markGlobal) {
+      this._markInstanceDataDirty();
+    }
+  }
+  _markMaterialMeshesDirty(sceneMaterial) {
+    const meshes = sceneMaterial.model?.meshes;
+    if (!meshes) {
+      return;
+    }
+    let dirty = false;
+    for (const id in meshes) {
+      const mesh = meshes[id];
+      const meshState = this._meshStates[mesh.uniqueId];
+      if (mesh.material !== sceneMaterial || !meshState) {
+        continue;
+      }
+      this._markMeshInstanceDataDirty(meshState, false);
+      dirty = true;
+    }
+    if (dirty) {
+      this._markInstanceDataDirty();
+    }
   }
   _markAllViewStateDirty() {
     this._allViewStateVersion++;
@@ -207446,8 +212389,8 @@ var WebGPUMeshManager = class {
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUInstanceBufferManager.ts
-var WebGPUInstanceBufferManager = class {
+// ../sdk/src/viewing/webGPURenderer/internal/gpuMemoryManager/InstanceBufferManager.ts
+var InstanceBufferManager = class {
   _renderContext;
   _frames = {};
   _activeFrame = null;
@@ -207466,7 +212409,11 @@ var WebGPUInstanceBufferManager = class {
         bindGroupLayout: null,
         data: new Float32Array(0),
         capacity: 0,
-        instanceCount: 0
+        instanceCount: 0,
+        bufferVersion: 0,
+        forceFullUpload: false,
+        dirtySlotRanges: [],
+        copiedByteLength: 0
       };
       this._frames[frameId] = frame;
     }
@@ -207483,21 +212430,34 @@ var WebGPUInstanceBufferManager = class {
       nextCapacity *= 2;
     }
     try {
-      frame.buffer?.destroy?.();
+      const previousBuffer = frame.buffer;
+      const previousCapacity = frame.capacity;
+      const previousData = frame.data;
       frame.bindGroup = null;
       frame.bindGroupLayout = null;
       frame.buffer = this._renderContext.device.createBuffer({
         label: "xeokit-webgpu-instance-buffer",
         size: nextCapacity * INSTANCE_BYTES,
-        usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST
+        usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_SRC | GPU_BUFFER_USAGE.COPY_DST
       });
       frame.data = new Float32Array(nextCapacity * INSTANCE_FLOATS);
+      const copiedPreviousBuffer = this._copyPreviousBuffer(previousBuffer, frame.buffer, previousCapacity);
+      if (copiedPreviousBuffer) {
+        frame.data.set(previousData.subarray(0, previousCapacity * INSTANCE_FLOATS));
+      }
+      previousBuffer?.destroy?.();
       frame.capacity = nextCapacity;
+      if (!copiedPreviousBuffer) {
+        frame.bufferVersion++;
+      }
+      frame.forceFullUpload = !copiedPreviousBuffer;
+      frame.copiedByteLength = copiedPreviousBuffer ? previousCapacity * INSTANCE_BYTES : 0;
+      frame.dirtySlotRanges.length = 0;
     } catch (e) {
       return {
         ok: false,
         type: 0 /* InitializationFailed */,
-        error: `[WebGPUInstanceBufferManager.beginFrame] Failed to create WebGPU instance buffer: ${e instanceof Error ? e.message : String(e)}`
+        error: `[InstanceBufferManager.beginFrame] Failed to create WebGPU instance buffer: ${e instanceof Error ? e.message : String(e)}`
       };
     }
     return {
@@ -207516,7 +212476,7 @@ var WebGPUInstanceBufferManager = class {
       return {
         ok: false,
         type: 0 /* InitializationFailed */,
-        error: "[WebGPUInstanceBufferManager.getBindGroup] Instance buffer was not initialized."
+        error: "[InstanceBufferManager.getBindGroup] Instance buffer was not initialized."
       };
     }
     try {
@@ -207535,7 +212495,7 @@ var WebGPUInstanceBufferManager = class {
       return {
         ok: false,
         type: 0 /* InitializationFailed */,
-        error: `[WebGPUInstanceBufferManager.getBindGroup] Failed to create WebGPU instance bind group: ${e instanceof Error ? e.message : String(e)}`
+        error: `[InstanceBufferManager.getBindGroup] Failed to create WebGPU instance bind group: ${e instanceof Error ? e.message : String(e)}`
       };
     }
     return {
@@ -207546,30 +212506,142 @@ var WebGPUInstanceBufferManager = class {
   appendDrawItems(params) {
     const frame = params.frame ?? this._activeFrame;
     if (!frame) {
-      throw new Error("[WebGPUInstanceBufferManager.appendDrawItems] No active instance frame.");
+      throw new Error("[InstanceBufferManager.appendDrawItems] No active instance frame.");
     }
     const firstInstance = frame.instanceCount;
     const target = frame.data;
     let targetOffset = firstInstance * INSTANCE_FLOATS;
     const end = params.start + params.count;
     for (let i = params.start; i < end; i++) {
-      params.meshManager.writeInstanceData(params.drawItems[i], params.view, target, targetOffset);
+      params.meshManager.writeInstanceData(params.drawItems[i], params.view, target, targetOffset, params.rtcTileResolver);
       targetOffset += INSTANCE_FLOATS;
     }
     frame.instanceCount += params.count;
     return firstInstance;
   }
   upload(frame = this._activeFrame) {
+    const emptyStats = {
+      writeCount: 0,
+      byteLength: 0,
+      rangeCount: 0,
+      maxRangeSlots: 0,
+      fullUpload: false,
+      copiedByteLength: frame?.copiedByteLength ?? 0
+    };
     if (!frame?.buffer || frame.instanceCount === 0) {
+      return emptyStats;
+    }
+    if (frame.forceFullUpload) {
+      const byteLength2 = frame.instanceCount * INSTANCE_BYTES;
+      this._renderContext.device.queue.writeBuffer(
+        frame.buffer,
+        0,
+        frame.data,
+        0,
+        frame.instanceCount * INSTANCE_FLOATS
+      );
+      frame.forceFullUpload = false;
+      frame.dirtySlotRanges.length = 0;
+      const stats2 = {
+        writeCount: 1,
+        byteLength: byteLength2,
+        rangeCount: 1,
+        maxRangeSlots: frame.instanceCount,
+        fullUpload: true,
+        copiedByteLength: frame.copiedByteLength
+      };
+      frame.copiedByteLength = 0;
+      return stats2;
+    }
+    if (frame.dirtySlotRanges.length === 0) {
+      const stats2 = {
+        ...emptyStats,
+        copiedByteLength: frame.copiedByteLength
+      };
+      frame.copiedByteLength = 0;
+      return stats2;
+    }
+    this._mergeDirtySlotRanges(frame.dirtySlotRanges);
+    let byteLength = 0;
+    let maxRangeSlots = 0;
+    for (let i = 0, len = frame.dirtySlotRanges.length; i < len; i++) {
+      const range = frame.dirtySlotRanges[i];
+      byteLength += range.count * INSTANCE_BYTES;
+      maxRangeSlots = Math.max(maxRangeSlots, range.count);
+      this._renderContext.device.queue.writeBuffer(
+        frame.buffer,
+        range.base * INSTANCE_BYTES,
+        frame.data,
+        range.base * INSTANCE_FLOATS,
+        range.count * INSTANCE_FLOATS
+      );
+    }
+    const stats = {
+      writeCount: frame.dirtySlotRanges.length,
+      byteLength,
+      rangeCount: frame.dirtySlotRanges.length,
+      maxRangeSlots,
+      fullUpload: false,
+      copiedByteLength: frame.copiedByteLength
+    };
+    frame.dirtySlotRanges.length = 0;
+    frame.copiedByteLength = 0;
+    return stats;
+  }
+  static markDirtySlotRange(frame, base, count) {
+    if (count <= 0) {
       return;
     }
-    this._renderContext.device.queue.writeBuffer(
-      frame.buffer,
-      0,
-      frame.data,
-      0,
-      frame.instanceCount * INSTANCE_FLOATS
-    );
+    frame.dirtySlotRanges.push({ base, count });
+  }
+  _copyPreviousBuffer(previousBuffer, nextBuffer, previousCapacity) {
+    const byteLength = previousCapacity * INSTANCE_BYTES;
+    if (!previousBuffer || byteLength <= 0) {
+      return false;
+    }
+    const commandEncoder = this._renderContext.device.createCommandEncoder();
+    if (!commandEncoder.copyBufferToBuffer) {
+      return false;
+    }
+    commandEncoder.copyBufferToBuffer(previousBuffer, 0, nextBuffer, 0, byteLength);
+    this._renderContext.device.queue.submit([commandEncoder.finish()]);
+    return true;
+  }
+  getMemoryStats() {
+    let frames = 0;
+    let capacity = 0;
+    for (const frameId of Object.keys(this._frames)) {
+      const frame = this._frames[frameId];
+      if (!frame.buffer) {
+        continue;
+      }
+      frames++;
+      capacity += frame.capacity;
+    }
+    return {
+      frames,
+      capacity,
+      bytes: capacity * INSTANCE_BYTES
+    };
+  }
+  _mergeDirtySlotRanges(ranges) {
+    if (ranges.length < 2) {
+      return;
+    }
+    ranges.sort((a2, b4) => a2.base - b4.base);
+    let writeIndex = 0;
+    for (let readIndex = 1; readIndex < ranges.length; readIndex++) {
+      const current = ranges[writeIndex];
+      const next = ranges[readIndex];
+      const currentEnd = current.base + current.count;
+      if (next.base <= currentEnd) {
+        current.count = Math.max(current.count, next.base + next.count - current.base);
+        continue;
+      }
+      writeIndex++;
+      ranges[writeIndex] = next;
+    }
+    ranges.length = writeIndex + 1;
   }
   destroyFrame(frameId) {
     const frame = this._frames[frameId];
@@ -207595,220 +212667,5623 @@ var WebGPUInstanceBufferManager = class {
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUPackedMeshBatchBuilder.ts
-var WebGPUPackedMeshBatchBuilder = class {
+// ../sdk/src/viewing/webGPURenderer/internal/gpuMemoryManager/SplatBatchManager.ts
+var SplatBatchManager = class {
   _renderContext;
-  constructor(renderContext) {
-    this._renderContext = renderContext;
+  _bindGroupLayoutManager;
+  _meshStateByGlobalSlot = /* @__PURE__ */ new Map();
+  _packedData = new Float32Array(0);
+  _centres = new Float32Array(0);
+  _itemIndices = new Uint32Array(0);
+  _sortedIndices = new Uint32Array(0);
+  _dataBuffer = null;
+  _indexBuffer = null;
+  _bindGroup = null;
+  _batch = null;
+  _structureKey = "";
+  _cameraKey = "";
+  _slotCount = 0;
+  _splatCount = 0;
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
   }
-  build(params) {
-    const { drawItems } = params;
-    const meshCount = drawItems.length;
-    if (meshCount === 0) {
+  prepare(params) {
+    const splatMeshes = this._collectVisibleSplatMeshes(params.meshManager, params.view);
+    const structureKey = this._createStructureKey(splatMeshes, params.baseGlobalSlot);
+    if (structureKey !== this._structureKey) {
+      const rebuildResult = this._rebuildBuffers(params.meshManager, splatMeshes, params.baseGlobalSlot);
+      if (rebuildResult.ok === false) {
+        return rebuildResult;
+      }
+      this._structureKey = structureKey;
+      this._cameraKey = "";
+    }
+    if (this._splatCount === 0 || !this._batch) {
       return {
         ok: true,
-        value: null
+        value: {
+          batches: [],
+          meshStateByGlobalSlot: this._meshStateByGlobalSlot,
+          slotCount: 0,
+          splatCount: 0
+        }
       };
     }
+    const cameraKey = this._createCameraKey(params.view);
+    if (cameraKey !== this._cameraKey) {
+      this._sortedIndices = sortSplatsByDepth(this._centres, this._itemIndices, params.view.camera.viewMatrix);
+      this._renderContext.device.queue.writeBuffer(this._indexBuffer, 0, this._sortedIndices);
+      this._cameraKey = cameraKey;
+    }
+    return {
+      ok: true,
+      value: {
+        batches: [this._batch],
+        meshStateByGlobalSlot: this._meshStateByGlobalSlot,
+        slotCount: this._slotCount,
+        splatCount: this._splatCount
+      }
+    };
+  }
+  destroy() {
+    try {
+      this._dataBuffer?.destroy?.();
+      this._indexBuffer?.destroy?.();
+    } catch {
+    }
+    this._dataBuffer = null;
+    this._indexBuffer = null;
+    this._bindGroup = null;
+    this._batch = null;
+    this._packedData = new Float32Array(0);
+    this._centres = new Float32Array(0);
+    this._itemIndices = new Uint32Array(0);
+    this._sortedIndices = new Uint32Array(0);
+    this._meshStateByGlobalSlot.clear();
+    this._structureKey = "";
+    this._cameraKey = "";
+    this._slotCount = 0;
+    this._splatCount = 0;
+  }
+  _collectVisibleSplatMeshes(meshManager, view) {
+    const meshes = [];
+    for (let i = 0, len = meshManager.meshStates.length; i < len; i++) {
+      const meshState = meshManager.meshStates[i];
+      if (meshState.geometryState.geometry.primitive !== GaussianSplatsPrimitive) {
+        continue;
+      }
+      if (!meshManager.isMeshVisibleInView(meshState, view) || meshManager.getMeshOpacityInView(meshState, view) <= 0) {
+        continue;
+      }
+      meshes.push(meshState);
+    }
+    return meshes;
+  }
+  _rebuildBuffers(meshManager, meshes, baseGlobalSlot) {
+    this._meshStateByGlobalSlot.clear();
+    const packedParts = [];
+    let splatCount = 0;
+    for (let i = 0, len = meshes.length; i < len; i++) {
+      const meshState = meshes[i];
+      const attrs = this._getSplatAttributes(meshState);
+      if (!attrs) {
+        continue;
+      }
+      const globalSlot = baseGlobalSlot + this._meshStateByGlobalSlot.size;
+      this._meshStateByGlobalSlot.set(globalSlot, meshState);
+      const packed = packSplats(attrs, meshManager.getMeshWorldMatrix(meshState), globalSlot);
+      packedParts.push(packed);
+      splatCount += packed.length / SPLAT_FLOATS_PER_ITEM;
+    }
+    if (splatCount === 0) {
+      this.destroy();
+      return { ok: true, value: void 0 };
+    }
+    this._packedData = new Float32Array(splatCount * SPLAT_FLOATS_PER_ITEM);
+    this._centres = new Float32Array(splatCount * 3);
+    this._itemIndices = new Uint32Array(splatCount);
+    let dataOffset = 0;
+    let centreOffset = 0;
+    let itemIndex = 0;
+    for (let partIndex = 0, partLen = packedParts.length; partIndex < partLen; partIndex++) {
+      const part = packedParts[partIndex];
+      this._packedData.set(part, dataOffset);
+      const partSplatCount = part.length / SPLAT_FLOATS_PER_ITEM;
+      for (let i = 0; i < partSplatCount; i++) {
+        const sourceOffset = i * SPLAT_FLOATS_PER_ITEM;
+        this._centres[centreOffset++] = part[sourceOffset + 0];
+        this._centres[centreOffset++] = part[sourceOffset + 1];
+        this._centres[centreOffset++] = part[sourceOffset + 2];
+        this._itemIndices[itemIndex] = itemIndex;
+        itemIndex++;
+      }
+      dataOffset += part.length;
+    }
+    this._sortedIndices = this._itemIndices.slice();
+    this._slotCount = this._meshStateByGlobalSlot.size;
+    this._splatCount = splatCount;
+    try {
+      this._dataBuffer?.destroy?.();
+      this._indexBuffer?.destroy?.();
+      this._dataBuffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-splat-data",
+        size: Math.max(4, this._packedData.byteLength),
+        usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._indexBuffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-splat-indices",
+        size: Math.max(4, this._sortedIndices.byteLength),
+        usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._renderContext.device.queue.writeBuffer(this._dataBuffer, 0, this._packedData);
+      this._renderContext.device.queue.writeBuffer(this._indexBuffer, 0, this._sortedIndices);
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatBatchManager._rebuildBuffers] Failed to create WebGPU splat buffers: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    const bindGroupLayoutResult = this._bindGroupLayoutManager.getSplatBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    try {
+      this._bindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-splat-bind-group",
+        layout: bindGroupLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: { buffer: this._dataBuffer }
+        }, {
+          binding: 1,
+          resource: { buffer: this._indexBuffer }
+        }]
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SplatBatchManager._rebuildBuffers] Failed to create WebGPU splat bind group: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    const packedBatch = {
+      primitive: GaussianSplatsPrimitive,
+      label: "xeokit-webgpu-splat-batch",
+      segmentKey: "splats",
+      splatDataBuffer: this._dataBuffer,
+      splatIndexBuffer: this._indexBuffer,
+      splatBindGroup: this._bindGroup,
+      splatCount: this._splatCount,
+      destroy: () => void 0
+    };
+    this._batch = { packedBatch };
+    return { ok: true, value: void 0 };
+  }
+  _getSplatAttributes(meshState) {
+    const geometry = meshState.geometryState.geometry;
+    const positionsCompressed = geometry.positionsCompressed ?? geometry.positions;
+    const aabb = geometry.aabb;
+    const scales = geometry.scales;
+    const rotations = geometry.rotations;
+    if (!positionsCompressed || !aabb || !scales || !rotations) {
+      return null;
+    }
+    return {
+      positionsCompressed,
+      aabb,
+      scales,
+      rotations,
+      colorsCompressed: geometry.colorsCompressed ?? geometry.colors
+    };
+  }
+  _createStructureKey(meshes, baseGlobalSlot) {
+    let key = `${baseGlobalSlot}|${meshes.length}`;
+    for (let i = 0, len = meshes.length; i < len; i++) {
+      const meshState = meshes[i];
+      key += `|${meshState.mesh.uniqueId}:${meshState.instanceDataVersion}`;
+    }
+    return key;
+  }
+  _createCameraKey(view) {
+    const matrix = view.camera.viewMatrix;
+    let key = "";
+    for (let i = 0; i < 16; i++) {
+      key += `${matrix[i]},`;
+    }
+    return key;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/gpuMemoryManager/TextureBindGroupManager.ts
+var DEFAULT_TEXTURE_KEY = "default";
+var DEFAULT_NORMAL_TEXTURE_KEY = "default-normal";
+var TextureBindGroupManager = class {
+  _renderContext;
+  _bindGroupLayoutManager;
+  _resources = /* @__PURE__ */ new Map();
+  _defaultResource = null;
+  _defaultNormalResource = null;
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+  }
+  getBinding(sceneTexture, defaultKind = "white") {
+    if (!sceneTexture || sceneTexture.destroyed || sceneTexture.compressed) {
+      return this._getDefaultBinding(defaultKind);
+    }
+    const existing = this._resources.get(sceneTexture);
+    if (existing) {
+      return {
+        ok: true,
+        value: {
+          sampler: existing.sampler,
+          textureView: existing.textureView,
+          key: this.getTextureKey(sceneTexture)
+        }
+      };
+    }
+    const resourceResult = this._createTextureResource(sceneTexture);
+    if (resourceResult.ok === false) {
+      return resourceResult;
+    }
+    const resource = resourceResult.value;
+    this._resources.set(sceneTexture, resource);
+    return {
+      ok: true,
+      value: {
+        sampler: resource.sampler,
+        textureView: resource.textureView,
+        key: this.getTextureKey(sceneTexture)
+      }
+    };
+  }
+  getTextureKey(sceneTexture) {
+    if (!sceneTexture || sceneTexture.destroyed || sceneTexture.compressed) {
+      return DEFAULT_TEXTURE_KEY;
+    }
+    return `${sceneTexture.model.id}:${sceneTexture.id}:${sceneTexture.width}x${sceneTexture.height}`;
+  }
+  getDefaultTextureKey(defaultKind = "white") {
+    return defaultKind === "normal" ? DEFAULT_NORMAL_TEXTURE_KEY : DEFAULT_TEXTURE_KEY;
+  }
+  sceneTextureImageDataChanged(sceneTexture) {
+    const resource = this._resources.get(sceneTexture);
+    if (!resource) {
+      return;
+    }
+    const width = Math.max(1, sceneTexture.width | 0);
+    const height = Math.max(1, sceneTexture.height | 0);
+    if (resource.width === width && resource.height === height && this._uploadTexture(sceneTexture, resource.texture, width, height)) {
+      return;
+    }
+    resource.texture.destroy?.();
+    this._resources.delete(sceneTexture);
+  }
+  destroy() {
+    for (const resource of this._resources.values()) {
+      resource.texture.destroy?.();
+    }
+    this._resources.clear();
+    this._defaultResource?.texture.destroy?.();
+    this._defaultResource = null;
+    this._defaultNormalResource?.texture.destroy?.();
+    this._defaultNormalResource = null;
+  }
+  _getDefaultBinding(defaultKind) {
+    const resourceResult = this._getDefaultResource(defaultKind);
+    if (resourceResult.ok === false) {
+      return resourceResult;
+    }
+    return {
+      ok: true,
+      value: {
+        sampler: resourceResult.value.sampler,
+        textureView: resourceResult.value.textureView,
+        key: this.getDefaultTextureKey(defaultKind)
+      }
+    };
+  }
+  _getDefaultResource(defaultKind = "white") {
+    const existing = defaultKind === "normal" ? this._defaultNormalResource : this._defaultResource;
+    if (existing) {
+      return {
+        ok: true,
+        value: existing
+      };
+    }
+    try {
+      const pixel = defaultKind === "normal" ? new Uint8Array([128, 128, 255, 255]) : new Uint8Array([255, 255, 255, 255]);
+      const texture = this._renderContext.device.createTexture({
+        label: defaultKind === "normal" ? "xeokit-webgpu-default-normal-texture" : "xeokit-webgpu-default-white-texture",
+        size: { width: 1, height: 1, depthOrArrayLayers: 1 },
+        format: "rgba8unorm",
+        usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST | GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+      });
+      this._renderContext.device.queue.writeTexture?.(
+        { texture },
+        pixel,
+        { bytesPerRow: 4, rowsPerImage: 1 },
+        { width: 1, height: 1, depthOrArrayLayers: 1 }
+      );
+      const sampler = this._renderContext.device.createSampler?.({
+        label: defaultKind === "normal" ? "xeokit-webgpu-default-normal-texture-sampler" : "xeokit-webgpu-default-texture-sampler",
+        magFilter: "linear",
+        minFilter: "linear",
+        addressModeU: "repeat",
+        addressModeV: "repeat"
+      }) ?? {};
+      const resource = { texture, textureView: texture.createView(), sampler, width: 1, height: 1 };
+      if (defaultKind === "normal") {
+        this._defaultNormalResource = resource;
+      } else {
+        this._defaultResource = resource;
+      }
+      return {
+        ok: true,
+        value: resource
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TextureBindGroupManager._getDefaultResource] Failed to create default WebGPU texture: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _createTextureResource(sceneTexture) {
+    const width = Math.max(1, sceneTexture.width | 0);
+    const height = Math.max(1, sceneTexture.height | 0);
+    let texture = null;
+    try {
+      texture = this._renderContext.device.createTexture({
+        label: `xeokit-webgpu-scene-texture:${sceneTexture.model.id}:${sceneTexture.id}`,
+        size: { width, height, depthOrArrayLayers: 1 },
+        format: getTextureFormat(sceneTexture),
+        usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST | GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+      });
+      const uploaded = this._uploadTexture(sceneTexture, texture, width, height);
+      if (!uploaded) {
+        texture.destroy?.();
+        const defaultResult = this._getDefaultResource();
+        if (defaultResult.ok === false) {
+          return defaultResult;
+        }
+        return {
+          ok: true,
+          value: defaultResult.value
+        };
+      }
+      const sampler = this._renderContext.device.createSampler?.({
+        label: `xeokit-webgpu-scene-texture-sampler:${sceneTexture.model.id}:${sceneTexture.id}`,
+        magFilter: sceneTexture.magFilter === NearestFilter ? "nearest" : "linear",
+        minFilter: getMinFilter(sceneTexture.minFilter),
+        mipmapFilter: getMipmapFilter(sceneTexture.minFilter),
+        addressModeU: getAddressMode(sceneTexture.wrapS),
+        addressModeV: getAddressMode(sceneTexture.wrapT)
+      }) ?? {};
+      return {
+        ok: true,
+        value: { texture, textureView: texture.createView(), sampler, width, height }
+      };
+    } catch (e) {
+      texture?.destroy?.();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TextureBindGroupManager._createTextureResource] Failed to create WebGPU texture '${sceneTexture.id}': ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _uploadTexture(sceneTexture, texture, width, height) {
+    const imageData2 = sceneTexture.imageData;
+    if (imageData2 && this._renderContext.device.queue.writeTexture) {
+      this._renderContext.device.queue.writeTexture(
+        { texture },
+        imageData2.data,
+        { bytesPerRow: width * 4, rowsPerImage: height },
+        { width, height, depthOrArrayLayers: 1 }
+      );
+      return true;
+    }
+    if (sceneTexture.image && this._renderContext.device.queue.copyExternalImageToTexture) {
+      this._renderContext.device.queue.copyExternalImageToTexture(
+        { source: sceneTexture.image, flipY: sceneTexture.flipY },
+        { texture },
+        { width, height, depthOrArrayLayers: 1 }
+      );
+      return true;
+    }
+    return false;
+  }
+};
+function getAddressMode(wrap) {
+  if (wrap === ClampToEdgeWrapping) {
+    return "clamp-to-edge";
+  }
+  if (wrap === MirroredRepeatWrapping) {
+    return "mirror-repeat";
+  }
+  if (wrap === RepeatWrapping) {
+    return "repeat";
+  }
+  return "repeat";
+}
+function getMinFilter(filter) {
+  return filter === NearestFilter || filter === NearestMipMapNearestFilter || filter === NearestMipMapLinearFilter ? "nearest" : "linear";
+}
+function getMipmapFilter(filter) {
+  if (filter === LinearMipMapNearestFilter || filter === NearestMipMapNearestFilter) {
+    return "nearest";
+  }
+  if (filter === LinearMipMapLinearFilter || filter === LinearMipmapLinearFilter || filter === NearestMipMapLinearFilter) {
+    return "linear";
+  }
+  return void 0;
+}
+function getTextureFormat(sceneTexture) {
+  return sceneTexture.encoding === sRGBEncoding ? "rgba8unorm-srgb" : "rgba8unorm";
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/gpuMemoryManager/TriangleBatchManager.ts
+var nowMs2 = () => {
+  const performanceLike = globalThis.performance;
+  return performanceLike?.now ? performanceLike.now() : Date.now();
+};
+var IDENTITY_MATRIX4 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+var TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER = 4;
+var MAX_SEGMENT_BUILD_SAMPLES = 16;
+var DEFAULT_TEXTURE_KEY2 = "default";
+var TriangleBatchManager = class {
+  _renderContext;
+  _bindGroupLayoutManager;
+  _textureBindGroupManager;
+  _memoryConfigs;
+  _rtcTileResolver;
+  _segmentsByKey = /* @__PURE__ */ new Map();
+  _segmentByMeshId = /* @__PURE__ */ new Map();
+  _pageCountersByBaseKey = /* @__PURE__ */ new Map();
+  _bufferPagesByKey = /* @__PURE__ */ new Map();
+  _currentBufferPageByKey = /* @__PURE__ */ new Map();
+  _freeSlotRanges = [];
+  _pendingSegmentJobs = [];
+  _partialDrawBatchCache = /* @__PURE__ */ new Map();
+  _recentBuildSamples = [];
+  _slowestBuildSamples = [];
+  _lastSegmentBuildSample = null;
+  _totalSegmentsBuilt = 0;
+  _totalBuildMs = 0;
+  _totalPackMs = 0;
+  _totalUploadMs = 0;
+  _totalMeshCount = 0;
+  _totalVertexCount = 0;
+  _totalIndexCount = 0;
+  _totalEdgeIndexCount = 0;
+  _lastBuildSegments = 0;
+  _lastBuildMs = 0;
+  _lastBuildPackMs = 0;
+  _lastBuildUploadMs = 0;
+  _lastBuildPendingBefore = 0;
+  _lastBuildPendingAfter = 0;
+  _batchSet = null;
+  _nextSlot = 0;
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._textureBindGroupManager = new TextureBindGroupManager({
+      renderContext: params.renderContext,
+      bindGroupLayoutManager: params.bindGroupLayoutManager
+    });
+    this._memoryConfigs = params.memoryConfigs;
+    this._rtcTileResolver = params.rtcTileResolver;
+  }
+  prepare(meshManager, options = {}) {
+    const buildPendingSegments = options.buildPendingSegments ?? true;
+    const buildAllPendingSegments = options.buildAllPendingSegments ?? false;
+    const structureVersion = meshManager.structureVersion;
+    if (this._batchSet?.structureVersion === structureVersion) {
+      let builtSegments = [];
+      if (buildPendingSegments) {
+        const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+        if (pendingResult.ok === false) {
+          return pendingResult;
+        }
+        builtSegments = pendingResult.value.builtSegments;
+      }
+      this._batchSet = this._extendBatchSet(this._batchSet, structureVersion, builtSegments);
+      return {
+        ok: true,
+        value: this._batchSet
+      };
+    }
+    const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments);
+    if (appendOnlyResult) {
+      return appendOnlyResult;
+    }
+    this._pendingSegmentJobs.length = 0;
+    const liveMeshStatesById = /* @__PURE__ */ new Map();
+    for (let i = 0, len = meshManager.meshStates.length; i < len; i++) {
+      const meshState = meshManager.meshStates[i];
+      liveMeshStatesById.set(meshState.mesh.uniqueId, meshState);
+    }
+    const assignedMeshIds = /* @__PURE__ */ new Set();
+    const segmentByMeshId = {};
+    for (const [key, segment] of Array.from(this._segmentsByKey)) {
+      const meshStates = [];
+      let needsRebuild = false;
+      let needsRegroup = false;
+      for (let i = 0, len = segment.slots.length; i < len; i++) {
+        const slot = segment.slots[i];
+        const meshId = slot.meshState.mesh.uniqueId;
+        const liveMeshState = liveMeshStatesById.get(meshId);
+        if (!liveMeshState) {
+          needsRebuild = true;
+          continue;
+        }
+        if (slot.signature !== this._getMeshSignature(liveMeshState) || slot.meshState !== liveMeshState) {
+          needsRebuild = true;
+        }
+        if (segment.baseKey !== this._getSegmentBaseKey(liveMeshState)) {
+          needsRegroup = true;
+        }
+        meshStates.push(liveMeshState);
+      }
+      if (meshStates.length === 0 || needsRegroup) {
+        this._destroySegment(segment);
+        this._segmentsByKey.delete(key);
+        continue;
+      }
+      let activeSegment = segment;
+      if (needsRebuild) {
+        this._destroySegment(segment);
+        const replacementResult = this._createSegment(segment.baseKey, key, meshStates, this._getSegmentSignature(meshStates));
+        if (replacementResult.ok === false) {
+          return replacementResult;
+        }
+        activeSegment = replacementResult.value;
+        this._segmentsByKey.set(key, activeSegment);
+      }
+      this._trackSegment(activeSegment, assignedMeshIds, segmentByMeshId);
+    }
+    const newGroups = this._groupNewMeshStates(meshManager.meshStates, assignedMeshIds);
+    for (const [baseKey, meshStates] of newGroups) {
+      this._enqueueSegments(structureVersion, baseKey, meshStates);
+    }
+    if (buildPendingSegments) {
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+      if (pendingResult.ok === false) {
+        return pendingResult;
+      }
+    }
+    this._batchSet = this._createBatchSet(structureVersion);
+    if (this._batchSet.segments.length === 0 && this._pendingSegmentJobs.length === 0) {
+      this._nextSlot = 0;
+      this._freeSlotRanges.length = 0;
+      this._pageCountersByBaseKey.clear();
+    }
+    return {
+      ok: true,
+      value: this._batchSet
+    };
+  }
+  buildPendingSegments(meshManager) {
+    const prepareResult = this.prepare(meshManager, { buildPendingSegments: false });
+    if (prepareResult.ok === false) {
+      return prepareResult;
+    }
+    const structureVersion = meshManager.structureVersion;
+    const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+    if (pendingResult.ok === false) {
+      return pendingResult;
+    }
+    this._batchSet = this._batchSet?.structureVersion === structureVersion ? this._extendBatchSet(this._batchSet, structureVersion, pendingResult.value.builtSegments) : this._createBatchSet(structureVersion);
+    return {
+      ok: true,
+      value: this._batchSet
+    };
+  }
+  _prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments) {
+    if (!this._batchSet) {
+      return null;
+    }
+    const changes = meshManager.getStructureChangesSince(this._batchSet.structureVersion);
+    if (!changes.appendOnly || changes.createdMeshStates.length === 0) {
+      return null;
+    }
+    this._retargetPendingSegments(structureVersion);
+    const segmentByMeshId = { ...this._batchSet.segmentByMeshId };
+    const newGroups = this._groupNewMeshStates(changes.createdMeshStates, /* @__PURE__ */ new Set());
+    for (const [baseKey, meshStates] of newGroups) {
+      this._enqueueSegments(structureVersion, baseKey, meshStates);
+    }
+    if (buildPendingSegments) {
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+      if (pendingResult.ok === false) {
+        return pendingResult;
+      }
+      this._batchSet = this._extendBatchSet(this._batchSet, structureVersion, pendingResult.value.builtSegments);
+      return {
+        ok: true,
+        value: this._batchSet
+      };
+    }
+    this._batchSet = this._extendBatchSet(this._batchSet, structureVersion, []);
+    return {
+      ok: true,
+      value: this._batchSet
+    };
+  }
+  _enqueueSegments(structureVersion, baseKey, meshStates) {
+    const pageMeshStates = [];
+    let pageVertexCount = 0;
+    let pageIndexCount = 0;
+    let pageEdgeIndexCount = 0;
+    const flushPage = () => {
+      if (pageMeshStates.length === 0) {
+        return;
+      }
+      const key = this._nextSegmentKey(baseKey);
+      const meshStatesForJob = pageMeshStates.slice();
+      this._pendingSegmentJobs.push({
+        structureVersion,
+        baseKey,
+        key,
+        meshStates: meshStatesForJob,
+        signature: this._getSegmentSignature(meshStatesForJob)
+      });
+      pageMeshStates.length = 0;
+      pageVertexCount = 0;
+      pageIndexCount = 0;
+      pageEdgeIndexCount = 0;
+    };
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const meshState = meshStates[i];
+      const sourceVertexCount = meshState.geometryState.positions.length / 3;
+      const primitive = meshState.geometryState.geometry.primitive;
+      const isPoints = primitive === PointsPrimitive;
+      const isLines = primitive === LinesPrimitive;
+      const lineSegmentCount = isLines ? Math.floor((meshState.geometryState.indices?.length ?? 0) / 2) : 0;
+      const vertexCount2 = isPoints ? sourceVertexCount * 6 : isLines ? lineSegmentCount * 6 : sourceVertexCount;
+      const indexCount = isPoints ? sourceVertexCount * 6 : isLines ? lineSegmentCount * 6 : meshState.geometryState.indices.length;
+      const edgeIndexCount = isPoints || isLines ? 0 : meshState.geometryState.edgeIndexCount;
+      if (pageMeshStates.length > 0 && (pageMeshStates.length >= this._memoryConfigs.maxBatchMeshes || pageMeshStates.length >= this._memoryConfigs.maxBatchGeometries || pageVertexCount + vertexCount2 > this._memoryConfigs.maxBatchVertices || pageIndexCount + indexCount > this._memoryConfigs.maxBatchIndices || pageEdgeIndexCount + edgeIndexCount > this._memoryConfigs.maxBatchIndices || Math.floor((pageIndexCount + indexCount) / 3) > this._memoryConfigs.maxBatchPrims)) {
+        flushPage();
+      }
+      pageMeshStates.push(meshState);
+      pageVertexCount += vertexCount2;
+      pageIndexCount += indexCount;
+      pageEdgeIndexCount += edgeIndexCount;
+    }
+    flushPage();
+  }
+  _buildPendingSegmentJobs(structureVersion, buildAllSegments = false) {
+    const startedAt = nowMs2();
+    let builtCount = 0;
+    let buildMs = 0;
+    let packMs = 0;
+    let uploadMs = 0;
+    const builtSegments = [];
+    const pendingBefore = this._pendingSegmentJobs.filter((job) => job.structureVersion === structureVersion).length;
+    while (this._pendingSegmentJobs.length > 0) {
+      const job = this._pendingSegmentJobs[0];
+      if (job.structureVersion !== structureVersion) {
+        this._pendingSegmentJobs.shift();
+        continue;
+      }
+      if (!buildAllSegments && builtCount > 0 && this._memoryConfigs.maxBatchBuildTimeMs >= 0 && nowMs2() - startedAt >= this._memoryConfigs.maxBatchBuildTimeMs) {
+        break;
+      }
+      if (!buildAllSegments && builtCount > 0 && this._memoryConfigs.maxBatchBuildSegments >= 0 && builtCount >= this._memoryConfigs.maxBatchBuildSegments) {
+        break;
+      }
+      this._lastSegmentBuildSample = null;
+      const segmentStartedAt = nowMs2();
+      const segmentResult = this._createSegment(job.baseKey, job.key, job.meshStates, job.signature);
+      if (segmentResult.ok === false) {
+        return segmentResult;
+      }
+      const sample = this._lastSegmentBuildSample;
+      if (sample) {
+        buildMs += sample.totalMs;
+        packMs += sample.packMs;
+        uploadMs += sample.uploadMs;
+        this._recordBuildSample(sample);
+      } else {
+        buildMs += nowMs2() - segmentStartedAt;
+      }
+      const segment = segmentResult.value;
+      this._segmentsByKey.set(segment.key, segment);
+      builtSegments.push(segment);
+      this._pendingSegmentJobs.shift();
+      builtCount++;
+    }
+    this._lastBuildSegments = builtCount;
+    this._lastBuildMs = buildMs;
+    this._lastBuildPackMs = packMs;
+    this._lastBuildUploadMs = uploadMs;
+    this._lastBuildPendingBefore = pendingBefore;
+    this._lastBuildPendingAfter = this._pendingSegmentJobs.filter((job) => job.structureVersion === structureVersion).length;
+    return {
+      ok: true,
+      value: {
+        builtSegments
+      }
+    };
+  }
+  _retargetPendingSegments(structureVersion) {
+    for (let i = 0, len = this._pendingSegmentJobs.length; i < len; i++) {
+      this._pendingSegmentJobs[i].structureVersion = structureVersion;
+    }
+  }
+  _createBatchSet(structureVersion) {
+    const segments = Array.from(this._segmentsByKey.values()).sort((a2, b4) => a2.key.localeCompare(b4.key));
+    const segmentByMeshId = {};
+    const assignedMeshIds = /* @__PURE__ */ new Set();
+    for (let i = 0, len = segments.length; i < len; i++) {
+      this._trackSegment(segments[i], assignedMeshIds, segmentByMeshId);
+    }
+    const pendingSegmentJobs = this._pendingSegmentJobs.filter((job) => job.structureVersion === structureVersion);
+    return {
+      structureVersion,
+      instanceCapacity: this._getInstanceCapacity(segments),
+      projectedInstanceCapacity: this._getProjectedInstanceCapacity(segments, pendingSegmentJobs),
+      segments,
+      segmentByMeshId,
+      pendingSegmentCount: pendingSegmentJobs.length,
+      builtSegmentCount: segments.length,
+      buildTelemetry: this._createBuildTelemetrySnapshot()
+    };
+  }
+  _extendBatchSet(previous, structureVersion, builtSegments) {
+    const segmentByMeshId = previous.segmentByMeshId;
+    let instanceCapacity = previous.instanceCapacity;
+    let segments = previous.segments;
+    if (builtSegments.length > 0) {
+      segments = this._mergeSortedSegments(previous.segments, builtSegments);
+      const assignedMeshIds = /* @__PURE__ */ new Set();
+      for (let i = 0, len = builtSegments.length; i < len; i++) {
+        this._trackSegment(builtSegments[i], assignedMeshIds, segmentByMeshId);
+        instanceCapacity += builtSegments[i].slotCount;
+      }
+    }
+    const pendingSegmentCount = this._countPendingSegmentJobs(structureVersion);
+    return {
+      structureVersion,
+      instanceCapacity,
+      projectedInstanceCapacity: instanceCapacity + this._getPendingSegmentInstanceCapacity(structureVersion),
+      segments,
+      segmentByMeshId,
+      pendingSegmentCount,
+      builtSegmentCount: segments.length,
+      buildTelemetry: this._createBuildTelemetrySnapshot()
+    };
+  }
+  _mergeSortedSegments(existing, appended) {
+    if (appended.length === 0) {
+      return existing;
+    }
+    const sortedAppended = appended.length === 1 ? appended : appended.slice().sort((a2, b4) => a2.key.localeCompare(b4.key));
+    const merged = [];
+    let existingIndex = 0;
+    let appendedIndex = 0;
+    while (existingIndex < existing.length && appendedIndex < sortedAppended.length) {
+      if (existing[existingIndex].key.localeCompare(sortedAppended[appendedIndex].key) <= 0) {
+        merged.push(existing[existingIndex++]);
+      } else {
+        merged.push(sortedAppended[appendedIndex++]);
+      }
+    }
+    while (existingIndex < existing.length) {
+      merged.push(existing[existingIndex++]);
+    }
+    while (appendedIndex < sortedAppended.length) {
+      merged.push(sortedAppended[appendedIndex++]);
+    }
+    return merged;
+  }
+  _countPendingSegmentJobs(structureVersion) {
+    let count = 0;
+    for (let i = 0, len = this._pendingSegmentJobs.length; i < len; i++) {
+      if (this._pendingSegmentJobs[i].structureVersion === structureVersion) {
+        count++;
+      }
+    }
+    return count;
+  }
+  _getPendingSegmentInstanceCapacity(structureVersion) {
+    let capacity = 0;
+    for (let i = 0, len = this._pendingSegmentJobs.length; i < len; i++) {
+      const job = this._pendingSegmentJobs[i];
+      if (job.structureVersion === structureVersion) {
+        capacity += job.meshStates.length;
+      }
+    }
+    return capacity;
+  }
+  _createSegment(baseKey, key, meshStates, signature) {
     let totalVertices = 0;
     let totalIndices = 0;
-    for (let i = 0; i < meshCount; i++) {
-      const geometryState = drawItems[i].meshState.geometryState;
-      totalVertices += geometryState.positions.length / 3;
-      totalIndices += geometryState.indices.length;
+    let totalEdgeIndices = 0;
+    const primitive = meshStates[0]?.geometryState.geometry.primitive;
+    const isPoints = primitive === PointsPrimitive;
+    const isLines = primitive === LinesPrimitive;
+    const isTriangles = !isPoints && !isLines;
+    const pbrTriangleColor = isTriangles && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+    const includeEdges = isTriangles && this._renderContext.renderConfigs.edges;
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const geometryState = meshStates[i].geometryState;
+      const pointCount2 = geometryState.positions.length / 3;
+      const lineSegmentCount = isLines ? Math.floor((geometryState.indices?.length ?? 0) / 2) : 0;
+      totalVertices += isPoints ? pointCount2 * 6 : isLines ? lineSegmentCount * 6 : pointCount2;
+      totalIndices += isPoints ? pointCount2 * 6 : isLines ? lineSegmentCount * 6 : geometryState.indices.length;
+      totalEdgeIndices += includeEdges ? geometryState.edgeIndexCount : 0;
     }
     if (totalVertices > 4294967295) {
       return {
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[WebGPUPackedMeshBatchBuilder.build] Packed batch '${params.label}' exceeds the uint32 index range.`
+        error: `[TriangleBatchManager.prepare] Packed triangle segment '${key}' exceeds the uint32 index range.`
       };
     }
     let vertexBuffer = null;
-    let normalBuffer = null;
-    let meshIndexBuffer = null;
-    let indexBuffer = null;
+    let bufferPage = null;
+    const baseSlot = this._allocateSlots(meshStates.length);
+    const segmentLabel = this._sanitizeLabel(key);
+    const segmentStartedAt = nowMs2();
+    let packMs = 0;
+    let uploadMs = 0;
+    this._lastSegmentBuildSample = null;
     try {
-      const firstInstance = params.instanceBufferManager.appendDrawItems({
-        frame: params.instanceFrame,
-        drawItems,
-        start: 0,
-        count: meshCount,
-        view: params.view,
-        meshManager: params.meshManager
-      });
-      const positions = new Float32Array(totalVertices * 3);
-      const normals = new Float32Array(totalVertices * 3);
-      const meshIndices = new Uint32Array(totalVertices);
+      const positionAABB = createPackedPositionAABB(meshStates);
+      const positions = new Uint16Array(totalVertices * 4);
+      const colors = isPoints || isLines ? new Uint8Array(totalVertices * 4) : null;
+      const lineOtherPositions = isLines ? new Uint16Array(totalVertices * 4) : null;
+      const positionDecode = createPositionDecodeUniform(positionAABB);
+      const vertexMetadata = new Uint32Array(totalVertices * 2);
+      const firstMesh = meshStates[0]?.mesh;
+      const textureBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveColorTexture : null);
+      if (textureBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return textureBindingResult;
+      }
+      const albedoBinding = textureBindingResult.value;
+      const metallicRoughnessBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveMetallicRoughnessTexture : null);
+      if (metallicRoughnessBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return metallicRoughnessBindingResult;
+      }
+      const normalBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveNormalsTexture : null, "normal");
+      if (normalBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return normalBindingResult;
+      }
+      const emissiveBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveEmissiveTexture : null);
+      if (emissiveBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return emissiveBindingResult;
+      }
+      const occlusionBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveOcclusionTexture : null);
+      if (occlusionBindingResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return occlusionBindingResult;
+      }
+      const metallicRoughnessBinding = metallicRoughnessBindingResult.value;
+      const normalBinding = normalBindingResult.value;
+      const emissiveBinding = emissiveBindingResult.value;
+      const occlusionBinding = occlusionBindingResult.value;
+      const colorBindGroupLayoutResult = this._bindGroupLayoutManager.getTriangleColorBindGroupLayout();
+      if (colorBindGroupLayoutResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return colorBindGroupLayoutResult;
+      }
+      const textureTupleKey = pbrTriangleColor ? getPBRTextureTupleKey(this._textureBindGroupManager, firstMesh) : DEFAULT_TEXTURE_KEY2;
+      const uvs = pbrTriangleColor && textureTupleKey !== DEFAULT_TEXTURE_KEY2 ? new Float32Array(totalVertices * 2) : null;
+      const normals = pbrTriangleColor ? new Float32Array(totalVertices * 4) : null;
+      const materials = pbrTriangleColor ? new Float32Array(totalVertices * 8) : null;
       const indexFormat = totalVertices > 65535 ? "uint32" : "uint16";
+      const pageAllocationResult = this._allocateBufferPageRange(baseKey, segmentLabel, indexFormat, totalVertices, totalIndices, totalEdgeIndices);
+      if (pageAllocationResult.ok === false) {
+        this._freeSlots(baseSlot, meshStates.length);
+        return pageAllocationResult;
+      }
+      const pageAllocation = pageAllocationResult.value;
+      bufferPage = pageAllocation.page;
+      const indicesPageLocal = false;
+      const indexVertexBase = 0;
       const indices = indexFormat === "uint32" ? new Uint32Array(totalIndices) : new Uint16Array(totalIndices);
+      const edgeIndices = indexFormat === "uint32" ? new Uint32Array(totalEdgeIndices) : new Uint16Array(totalEdgeIndices);
+      const slots = [];
+      const slotByMeshId = {};
+      const worldAABB = createEmptyAABB();
+      const packStartedAt = nowMs2();
       let vertexOffset = 0;
       let indexOffset = 0;
-      for (let meshIndex = 0; meshIndex < meshCount; meshIndex++) {
-        const geometryState = drawItems[meshIndex].meshState.geometryState;
-        const vertexCount2 = geometryState.positions.length / 3;
-        const meshInstanceIndex = firstInstance + meshIndex;
-        positions.set(geometryState.positions, vertexOffset * 3);
-        normals.set(geometryState.normals, vertexOffset * 3);
-        meshIndices.fill(meshInstanceIndex, vertexOffset, vertexOffset + vertexCount2);
-        for (let i = 0, len = geometryState.indices.length; i < len; i++) {
-          indices[indexOffset + i] = geometryState.indices[i] + vertexOffset;
+      let edgeIndexOffset = 0;
+      for (let slotIndex = 0, len = meshStates.length; slotIndex < len; slotIndex++) {
+        const meshState = meshStates[slotIndex];
+        const geometryState = meshState.geometryState;
+        const sourceVertexCount = geometryState.geometry.positionsCompressed.length / 3;
+        const lineSegmentCount = isLines ? Math.floor((geometryState.indices?.length ?? 0) / 2) : 0;
+        const vertexCount2 = isPoints ? sourceVertexCount * 6 : isLines ? lineSegmentCount * 6 : sourceVertexCount;
+        const indexCount = isPoints ? sourceVertexCount * 6 : isLines ? lineSegmentCount * 6 : geometryState.indices.length;
+        const edgeIndexCount = includeEdges ? geometryState.edgeIndexCount : 0;
+        if (isPoints) {
+          quantizeCompressedPointQuadsInto(
+            geometryState.geometry.positionsCompressed,
+            geometryState.geometry.aabb,
+            positions,
+            vertexOffset,
+            positionAABB
+          );
+          copyCompressedPointQuadColorsInto(
+            geometryState.geometry.colorsCompressed,
+            colors,
+            vertexOffset,
+            sourceVertexCount
+          );
+        } else if (isLines) {
+          quantizeCompressedLineSegmentQuadsInto(
+            geometryState.geometry.positionsCompressed,
+            geometryState.geometry.aabb,
+            geometryState.indices,
+            positions,
+            lineOtherPositions,
+            vertexOffset,
+            positionAABB
+          );
+          copyCompressedLineSegmentQuadColorsInto(
+            geometryState.geometry.colorsCompressed,
+            geometryState.indices,
+            colors,
+            vertexOffset,
+            lineSegmentCount
+          );
+        } else {
+          quantizeCompressedPositionsInto(
+            geometryState.geometry.positionsCompressed,
+            geometryState.geometry.aabb,
+            positions,
+            vertexOffset,
+            positionAABB
+          );
+          if (pbrTriangleColor) {
+            copyUVsInto(
+              geometryState.uvs,
+              uvs,
+              vertexOffset,
+              sourceVertexCount
+            );
+            copyNormalsInto(
+              geometryState.normals,
+              normals,
+              vertexOffset,
+              sourceVertexCount
+            );
+            copyMaterialInto(
+              meshState.mesh,
+              materials,
+              vertexOffset,
+              sourceVertexCount,
+              geometryState.uvs !== null && geometryState.uvs.length > 0
+            );
+          }
         }
+        for (let i = 0; i < vertexCount2; i++) {
+          const metadataOffset = (vertexOffset + i) * 2;
+          vertexMetadata[metadataOffset] = baseSlot + slotIndex;
+          vertexMetadata[metadataOffset + 1] = pageAllocation.positionDecodeIndex;
+        }
+        if (isPoints) {
+          for (let i = 0; i < indexCount; i++) {
+            indices[indexOffset + i] = vertexOffset + i + indexVertexBase;
+          }
+        } else if (isLines) {
+          for (let i = 0; i < indexCount; i++) {
+            indices[indexOffset + i] = vertexOffset + i + indexVertexBase;
+          }
+        } else {
+          for (let i = 0; i < indexCount; i++) {
+            indices[indexOffset + i] = geometryState.indices[i] + vertexOffset + indexVertexBase;
+          }
+        }
+        if (includeEdges && geometryState.edgeIndices) {
+          for (let i = 0; i < edgeIndexCount; i++) {
+            edgeIndices[edgeIndexOffset + i] = geometryState.edgeIndices[i] + vertexOffset + indexVertexBase;
+          }
+        }
+        const slot = {
+          meshState,
+          signature: this._getMeshSignature(meshState),
+          globalSlot: baseSlot + slotIndex,
+          indexStart: indexOffset,
+          indexCount,
+          edgeIndexStart: edgeIndexOffset,
+          edgeIndexCount,
+          instanceWriteStateByViewId: {}
+        };
+        slots.push(slot);
+        slotByMeshId[meshState.mesh.uniqueId] = slot;
+        expandWorldAABB(worldAABB, geometryState.geometry.aabb, getMeshWorldMatrix2(meshState));
         vertexOffset += vertexCount2;
-        indexOffset += geometryState.indices.length;
+        indexOffset += indexCount;
+        edgeIndexOffset += edgeIndexCount;
       }
-      vertexBuffer = this._renderContext.createGPUBuffer(
-        `xeokit-webgpu-packed-positions:${params.label}`,
-        positions,
-        GPU_BUFFER_USAGE.VERTEX
-      );
-      normalBuffer = this._renderContext.createGPUBuffer(
-        `xeokit-webgpu-packed-normals:${params.label}`,
-        normals,
-        GPU_BUFFER_USAGE.VERTEX
-      );
-      meshIndexBuffer = this._renderContext.createGPUBuffer(
-        `xeokit-webgpu-packed-mesh-indices:${params.label}`,
-        meshIndices,
-        GPU_BUFFER_USAGE.VERTEX
-      );
-      indexBuffer = this._renderContext.createGPUBuffer(
-        `xeokit-webgpu-packed-indices:${params.label}`,
+      packMs = nowMs2() - packStartedAt;
+      const uploadStartedAt = nowMs2();
+      this._renderContext.writeGPUBuffer(bufferPage.vertexBuffer, pageAllocation.vertexByteOffset, positions);
+      if (colors && bufferPage.colorBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.colorBuffer, pageAllocation.vertexColorByteOffset, colors);
+      }
+      if (uvs && bufferPage.uvBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.uvBuffer, pageAllocation.vertexUVByteOffset, uvs);
+      }
+      if (normals && bufferPage.normalBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.normalBuffer, pageAllocation.vertexNormalByteOffset, normals);
+      }
+      if (materials && bufferPage.materialBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.materialBuffer, pageAllocation.vertexMaterialByteOffset, materials);
+      }
+      if (lineOtherPositions && bufferPage.lineOtherVertexBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.lineOtherVertexBuffer, pageAllocation.vertexByteOffset, lineOtherPositions);
+      }
+      this._renderContext.writeGPUBuffer(bufferPage.vertexMetadataBuffer, pageAllocation.vertexMetadataByteOffset, vertexMetadata);
+      this._renderContext.writeGPUBuffer(bufferPage.positionDecodeBuffer, pageAllocation.positionDecodeByteOffset, positionDecode);
+      this._renderContext.writeGPUBuffer(bufferPage.indexBuffer, pageAllocation.indexByteOffset, indices);
+      if (edgeIndices.length > 0 && bufferPage.edgeIndexBuffer) {
+        this._renderContext.writeGPUBuffer(bufferPage.edgeIndexBuffer, pageAllocation.edgeIndexByteOffset, edgeIndices);
+      }
+      uploadMs = nowMs2() - uploadStartedAt;
+      const colorBindGroup = this._renderContext.device.createBindGroup({
+        label: `xeokit-webgpu-triangle-color-bind-group:triangles:${segmentLabel}`,
+        layout: colorBindGroupLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: bufferPage.positionDecodeBuffer
+          }
+        }, {
+          binding: 1,
+          resource: albedoBinding.sampler
+        }, {
+          binding: 2,
+          resource: albedoBinding.textureView
+        }, {
+          binding: 3,
+          resource: metallicRoughnessBinding.sampler
+        }, {
+          binding: 4,
+          resource: metallicRoughnessBinding.textureView
+        }, {
+          binding: 5,
+          resource: normalBinding.sampler
+        }, {
+          binding: 6,
+          resource: normalBinding.textureView
+        }, {
+          binding: 7,
+          resource: emissiveBinding.sampler
+        }, {
+          binding: 8,
+          resource: emissiveBinding.textureView
+        }, {
+          binding: 9,
+          resource: occlusionBinding.sampler
+        }, {
+          binding: 10,
+          resource: occlusionBinding.textureView
+        }]
+      });
+      const segment = {
+        key,
+        baseKey,
+        bufferPageKey: bufferPage.key,
+        label: segmentLabel,
+        signature,
+        primitive: isPoints ? PointsPrimitive : isLines ? LinesPrimitive : TrianglesPrimitive,
+        baseSlot,
+        slotCount: slots.length,
+        slotEnd: baseSlot + slots.length,
+        vertexBuffer: bufferPage.vertexBuffer,
+        vertexBufferOffset: pageAllocation.vertexByteOffset,
+        colorBuffer: bufferPage.colorBuffer,
+        colorBufferOffset: pageAllocation.vertexColorByteOffset,
+        uvBuffer: bufferPage.uvBuffer,
+        uvBufferOffset: pageAllocation.vertexUVByteOffset,
+        normalBuffer: bufferPage.normalBuffer,
+        normalBufferOffset: pageAllocation.vertexNormalByteOffset,
+        materialBuffer: bufferPage.materialBuffer,
+        materialBufferOffset: pageAllocation.vertexMaterialByteOffset,
+        lineOtherVertexBuffer: bufferPage.lineOtherVertexBuffer,
+        lineOtherVertexBufferOffset: pageAllocation.vertexByteOffset,
+        positionDecodeBuffer: bufferPage.positionDecodeBuffer,
+        positionDecodeBindGroup: bufferPage.positionDecodeBindGroup,
+        colorBindGroup,
+        vertexMetadataBuffer: bufferPage.vertexMetadataBuffer,
+        indexBuffer: bufferPage.indexBuffer,
+        edgeIndexBuffer: bufferPage.edgeIndexBuffer,
+        indexBufferOffset: pageAllocation.indexByteOffset,
+        edgeIndexBufferOffset: pageAllocation.edgeIndexByteOffset,
+        vertexMetadataBufferOffset: pageAllocation.vertexMetadataByteOffset,
+        slots,
+        slotByMeshId,
         indices,
-        GPU_BUFFER_USAGE.INDEX
-      );
-      return {
-        ok: true,
-        value: {
-          vertexBuffer,
-          normalBuffer,
-          meshIndexBuffer,
-          indexBuffer,
-          indexFormat,
-          indexCount: indices.length,
-          destroy: () => {
-            vertexBuffer.destroy?.();
-            normalBuffer.destroy?.();
-            meshIndexBuffer.destroy?.();
-            indexBuffer.destroy?.();
+        edgeIndices,
+        indexFormat,
+        indicesPageLocal,
+        textureKey: textureTupleKey,
+        worldAABB,
+        boundsVersion: this._getBoundsVersion(slots),
+        destroy: () => {
+          if (bufferPage) {
+            this._releaseBufferPage(bufferPage);
           }
         }
       };
+      this._lastSegmentBuildSample = {
+        key,
+        baseKey,
+        meshCount: meshStates.length,
+        vertexCount: totalVertices,
+        indexCount: totalIndices,
+        edgeIndexCount: totalEdgeIndices,
+        totalMs: nowMs2() - segmentStartedAt,
+        packMs,
+        uploadMs,
+        indexFormat
+      };
+      return {
+        ok: true,
+        value: segment
+      };
     } catch (e) {
-      vertexBuffer?.destroy?.();
-      normalBuffer?.destroy?.();
-      meshIndexBuffer?.destroy?.();
+      if (bufferPage) {
+        this._releaseBufferPage(bufferPage);
+      }
+      this._freeSlots(baseSlot, meshStates.length);
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TriangleBatchManager.prepare] Failed to create packed triangle segment '${key}': ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  writeInstances(params) {
+    const { batchSet, view, meshManager, instanceFrame } = params;
+    const viewStateVersion = meshManager.getViewStateVersion(view);
+    const segments = instanceFrame.forceFullUpload ? batchSet.segments : params.segments ?? batchSet.segments;
+    let dirtyBaseSlot = -1;
+    let dirtyEndSlot = -1;
+    const flushDirtyRange = () => {
+      if (dirtyBaseSlot < 0) {
+        return;
+      }
+      InstanceBufferManager.markDirtySlotRange(instanceFrame, dirtyBaseSlot, dirtyEndSlot - dirtyBaseSlot);
+      dirtyBaseSlot = -1;
+      dirtyEndSlot = -1;
+    };
+    const markDirtySlot = (globalSlot) => {
+      if (instanceFrame.forceFullUpload) {
+        return;
+      }
+      if (dirtyBaseSlot < 0) {
+        dirtyBaseSlot = globalSlot;
+        dirtyEndSlot = globalSlot + 1;
+        return;
+      }
+      if (globalSlot === dirtyEndSlot) {
+        dirtyEndSlot++;
+        return;
+      }
+      flushDirtyRange();
+      dirtyBaseSlot = globalSlot;
+      dirtyEndSlot = globalSlot + 1;
+    };
+    for (let segmentIndex = 0, segmentLen = segments.length; segmentIndex < segmentLen; segmentIndex++) {
+      const segment = segments[segmentIndex];
+      for (let i = 0, len = segment.slots.length; i < len; i++) {
+        const slot = segment.slots[i];
+        const meshState = slot.meshState;
+        const writeState = slot.instanceWriteStateByViewId[view.id];
+        if (!instanceFrame.forceFullUpload && writeState?.bufferVersion === instanceFrame.bufferVersion && writeState.meshInstanceDataVersion === meshState.instanceDataVersion && writeState.viewStateVersion === viewStateVersion) {
+          continue;
+        }
+        const drawItem = {
+          meshState,
+          opacity: meshManager.getMeshOpacityInView(meshState, view),
+          viewDepth: 0
+        };
+        meshManager.writeInstanceData(drawItem, view, instanceFrame.data, slot.globalSlot * INSTANCE_FLOATS, this._rtcTileResolver);
+        slot.instanceWriteStateByViewId[view.id] = {
+          bufferVersion: instanceFrame.bufferVersion,
+          meshInstanceDataVersion: meshState.instanceDataVersion,
+          viewStateVersion
+        };
+        markDirtySlot(slot.globalSlot);
+      }
+    }
+    flushDirtyRange();
+    instanceFrame.instanceCount = batchSet.instanceCapacity;
+  }
+  getMemoryStats() {
+    const stats = {
+      pages: this._bufferPagesByKey.size,
+      segments: this._segmentsByKey.size,
+      totalBytes: 0,
+      vertexBytes: 0,
+      uvBytes: 0,
+      normalBytes: 0,
+      vertexMetadataBytes: 0,
+      indexBytes: 0,
+      edgeIndexBytes: 0,
+      positionDecodeBytes: 0,
+      usedVertexBytes: 0,
+      usedUVBytes: 0,
+      usedNormalBytes: 0,
+      usedVertexMetadataBytes: 0,
+      usedIndexBytes: 0,
+      usedEdgeIndexBytes: 0,
+      usedPositionDecodeBytes: 0,
+      pageDetails: [],
+      segmentsByLifecycle: {},
+      segmentsByMemoryPolicy: {}
+    };
+    const segmentCountsByPageKey = /* @__PURE__ */ new Map();
+    for (const segment of this._segmentsByKey.values()) {
+      segmentCountsByPageKey.set(segment.bufferPageKey, (segmentCountsByPageKey.get(segment.bufferPageKey) ?? 0) + 1);
+    }
+    for (const page of this._bufferPagesByKey.values()) {
+      const indexBytes = getIndexElementByteLength(page.indexFormat);
+      const vertexBytes = page.vertexCapacity * 8;
+      const uvBytes = page.uvBuffer ? page.vertexCapacity * 8 : 0;
+      const normalBytes = page.normalBuffer ? page.vertexCapacity * 16 : 0;
+      const vertexMetadataBytes = page.vertexCapacity * 8;
+      const pageIndexBytes = page.indexCapacity * indexBytes;
+      const edgeIndexBytes = page.edgeIndexCapacity * indexBytes;
+      const positionDecodeBytes = page.positionDecodeCapacity * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
+      const usedVertexBytes = page.usedVertices * 8;
+      const usedUVBytes = page.uvBuffer ? page.usedVertices * 8 : 0;
+      const usedNormalBytes = page.normalBuffer ? page.usedVertices * 16 : 0;
+      const usedVertexMetadataBytes = page.usedVertices * 8;
+      const usedIndexBytes = page.usedIndices * indexBytes;
+      const usedEdgeIndexBytes = page.usedEdgeIndices * indexBytes;
+      const usedPositionDecodeBytes = page.usedPositionDecodes * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
+      const bytes = vertexBytes + uvBytes + normalBytes + vertexMetadataBytes + pageIndexBytes + edgeIndexBytes + positionDecodeBytes;
+      const usedBytes = usedVertexBytes + usedUVBytes + usedNormalBytes + usedVertexMetadataBytes + usedIndexBytes + usedEdgeIndexBytes + usedPositionDecodeBytes;
+      stats.vertexBytes += vertexBytes;
+      stats.uvBytes += uvBytes;
+      stats.normalBytes += normalBytes;
+      stats.vertexMetadataBytes += vertexMetadataBytes;
+      stats.indexBytes += pageIndexBytes;
+      stats.edgeIndexBytes += edgeIndexBytes;
+      stats.positionDecodeBytes += positionDecodeBytes;
+      stats.usedVertexBytes += usedVertexBytes;
+      stats.usedUVBytes += usedUVBytes;
+      stats.usedNormalBytes += usedNormalBytes;
+      stats.usedVertexMetadataBytes += usedVertexMetadataBytes;
+      stats.usedIndexBytes += usedIndexBytes;
+      stats.usedEdgeIndexBytes += usedEdgeIndexBytes;
+      stats.usedPositionDecodeBytes += usedPositionDecodeBytes;
+      stats.pageDetails.push({
+        key: page.key,
+        indexFormat: page.indexFormat,
+        segmentCount: segmentCountsByPageKey.get(page.key) ?? 0,
+        vertexCapacity: page.vertexCapacity,
+        usedVertices: page.usedVertices,
+        indexCapacity: page.indexCapacity,
+        usedIndices: page.usedIndices,
+        edgeIndexCapacity: page.edgeIndexCapacity,
+        usedEdgeIndices: page.usedEdgeIndices,
+        positionDecodeCapacity: page.positionDecodeCapacity,
+        usedPositionDecodes: page.usedPositionDecodes,
+        bytes,
+        usedBytes,
+        vertexBytes,
+        uvBytes,
+        normalBytes,
+        vertexMetadataBytes,
+        indexBytes: pageIndexBytes,
+        edgeIndexBytes,
+        positionDecodeBytes,
+        usedVertexBytes,
+        usedUVBytes,
+        usedNormalBytes,
+        usedVertexMetadataBytes,
+        usedIndexBytes,
+        usedEdgeIndexBytes,
+        usedPositionDecodeBytes
+      });
+    }
+    stats.totalBytes = stats.vertexBytes + stats.uvBytes + stats.normalBytes + stats.vertexMetadataBytes + stats.indexBytes + stats.edgeIndexBytes + stats.positionDecodeBytes;
+    for (const segment of this._segmentsByKey.values()) {
+      const { lifecycle, memoryPolicy } = parseSegmentBaseKey(segment.baseKey);
+      stats.segmentsByLifecycle[lifecycle] = (stats.segmentsByLifecycle[lifecycle] ?? 0) + 1;
+      stats.segmentsByMemoryPolicy[memoryPolicy] = (stats.segmentsByMemoryPolicy[memoryPolicy] ?? 0) + 1;
+    }
+    return stats;
+  }
+  createDrawBatch(params) {
+    const { segment, drawItems } = params;
+    const topology = params.topology ?? "triangles";
+    const renderStateKey = topology === "triangles" ? `${params.renderStateKey ?? "default"}|texture:${segment.textureKey}` : params.renderStateKey;
+    if (drawItems.length === 0) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    if (topology === "edges" && (!segment.edgeIndexBuffer || segment.edgeIndices.length === 0)) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    if (params.reuseFullSegmentIndex && this._containsAllSegmentSlots(segment, drawItems, topology)) {
+      return {
+        ok: true,
+        value: {
+          packedBatch: {
+            primitive: segment.primitive,
+            label: params.label,
+            segmentKey: segment.key,
+            bufferPageKey: segment.bufferPageKey,
+            renderStateKey,
+            topology,
+            vertexBuffer: segment.vertexBuffer,
+            vertexBufferOffset: segment.vertexBufferOffset,
+            colorBuffer: segment.colorBuffer,
+            colorBufferOffset: segment.colorBufferOffset,
+            uvBuffer: segment.uvBuffer,
+            uvBufferOffset: segment.uvBufferOffset,
+            normalBuffer: segment.normalBuffer,
+            normalBufferOffset: segment.normalBufferOffset,
+            materialBuffer: segment.materialBuffer,
+            materialBufferOffset: segment.materialBufferOffset,
+            lineOtherVertexBuffer: segment.lineOtherVertexBuffer,
+            lineOtherVertexBufferOffset: segment.lineOtherVertexBufferOffset,
+            positionDecodeBindGroup: segment.positionDecodeBindGroup,
+            colorBindGroup: segment.colorBindGroup,
+            vertexMetadataBuffer: segment.vertexMetadataBuffer,
+            vertexMetadataBufferOffset: segment.vertexMetadataBufferOffset,
+            indexBuffer: topology === "edges" ? segment.edgeIndexBuffer : segment.indexBuffer,
+            indexBufferOffset: topology === "edges" ? segment.edgeIndexBufferOffset : segment.indexBufferOffset,
+            indexFormat: segment.indexFormat,
+            indexCount: topology === "edges" ? segment.edgeIndices.length : segment.indices.length,
+            firstIndex: 0,
+            indicesPageLocal: segment.indicesPageLocal,
+            temporaryIndexBuffer: false,
+            temporaryIndexBufferCreated: false,
+            textureKey: segment.textureKey,
+            destroy: () => {
+            }
+          }
+        }
+      };
+    }
+    let totalIndices = 0;
+    for (let i = 0, len = drawItems.length; i < len; i++) {
+      const slot = segment.slotByMeshId[drawItems[i].meshState.mesh.uniqueId];
+      if (!slot) {
+        return {
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: `[TriangleBatchManager.createDrawBatch] Mesh '${drawItems[i].meshState.mesh.uniqueId}' is not in prepared triangle segment '${segment.key}'.`
+        };
+      }
+      totalIndices += topology === "edges" ? slot.edgeIndexCount : slot.indexCount;
+    }
+    if (totalIndices === 0) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const cachedBatch = params.cacheKey ? this._partialDrawBatchCache.get(params.cacheKey) : null;
+    if (cachedBatch) {
+      return {
+        ok: true,
+        value: cloneCachedDrawBatch(cachedBatch, false)
+      };
+    }
+    let indexBuffer = null;
+    try {
+      const indices = segment.indexFormat === "uint32" ? new Uint32Array(totalIndices) : new Uint16Array(totalIndices);
+      let indexOffset = 0;
+      for (let i = 0, len = drawItems.length; i < len; i++) {
+        const slot = segment.slotByMeshId[drawItems[i].meshState.mesh.uniqueId];
+        if (topology === "edges") {
+          indices.set(segment.edgeIndices.subarray(slot.edgeIndexStart, slot.edgeIndexStart + slot.edgeIndexCount), indexOffset);
+          indexOffset += slot.edgeIndexCount;
+        } else {
+          indices.set(segment.indices.subarray(slot.indexStart, slot.indexStart + slot.indexCount), indexOffset);
+          indexOffset += slot.indexCount;
+        }
+      }
+      indexBuffer = this._renderContext.createGPUBuffer(
+        `xeokit-webgpu-packed-${topology === "edges" ? "edge-" : ""}indices:${params.label}`,
+        indices,
+        GPU_BUFFER_USAGE.INDEX
+      );
+      const newBatch = {
+        packedBatch: {
+          label: params.label,
+          primitive: segment.primitive,
+          segmentKey: segment.key,
+          bufferPageKey: segment.bufferPageKey,
+          renderStateKey,
+          topology,
+          vertexBuffer: segment.vertexBuffer,
+          vertexBufferOffset: segment.vertexBufferOffset,
+          colorBuffer: segment.colorBuffer,
+          colorBufferOffset: segment.colorBufferOffset,
+          uvBuffer: segment.uvBuffer,
+          uvBufferOffset: segment.uvBufferOffset,
+          normalBuffer: segment.normalBuffer,
+          normalBufferOffset: segment.normalBufferOffset,
+          materialBuffer: segment.materialBuffer,
+          materialBufferOffset: segment.materialBufferOffset,
+          lineOtherVertexBuffer: segment.lineOtherVertexBuffer,
+          lineOtherVertexBufferOffset: segment.lineOtherVertexBufferOffset,
+          positionDecodeBindGroup: segment.positionDecodeBindGroup,
+          colorBindGroup: segment.colorBindGroup,
+          vertexMetadataBuffer: segment.vertexMetadataBuffer,
+          vertexMetadataBufferOffset: segment.vertexMetadataBufferOffset,
+          indexBuffer,
+          indexBufferOffset: 0,
+          indexFormat: segment.indexFormat,
+          indexCount: indices.length,
+          firstIndex: 0,
+          indicesPageLocal: segment.indicesPageLocal,
+          temporaryIndexBuffer: true,
+          temporaryIndexBufferCreated: true,
+          textureKey: segment.textureKey,
+          destroy: () => {
+            indexBuffer?.destroy?.();
+          }
+        }
+      };
+      if (params.cacheKey) {
+        this._partialDrawBatchCache.set(params.cacheKey, newBatch);
+        return {
+          ok: true,
+          value: cloneCachedDrawBatch(newBatch, true)
+        };
+      }
+      return {
+        ok: true,
+        value: newBatch
+      };
+    } catch (e) {
       indexBuffer?.destroy?.();
       return {
         ok: false,
         type: 0 /* InitializationFailed */,
-        error: `[WebGPUPackedMeshBatchBuilder.build] Failed to build packed mesh batch '${params.label}': ${e instanceof Error ? e.message : String(e)}`
+        error: `[TriangleBatchManager.createDrawBatch] Failed to create triangle draw batch '${params.label}': ${e instanceof Error ? e.message : String(e)}`
       };
+    }
+  }
+  destroy() {
+    for (const segment of this._segmentsByKey.values()) {
+      this._destroySegment(segment);
+    }
+    this._segmentsByKey.clear();
+    this._segmentByMeshId.clear();
+    this._pageCountersByBaseKey.clear();
+    this._freeSlotRanges.length = 0;
+    this._pendingSegmentJobs.length = 0;
+    this._recentBuildSamples.length = 0;
+    this._slowestBuildSamples.length = 0;
+    this._lastSegmentBuildSample = null;
+    this._totalSegmentsBuilt = 0;
+    this._totalBuildMs = 0;
+    this._totalPackMs = 0;
+    this._totalUploadMs = 0;
+    this._totalMeshCount = 0;
+    this._totalVertexCount = 0;
+    this._totalIndexCount = 0;
+    this._totalEdgeIndexCount = 0;
+    this._lastBuildSegments = 0;
+    this._lastBuildMs = 0;
+    this._lastBuildPackMs = 0;
+    this._lastBuildUploadMs = 0;
+    this._lastBuildPendingBefore = 0;
+    this._lastBuildPendingAfter = 0;
+    for (const batch of this._partialDrawBatchCache.values()) {
+      batch.packedBatch.destroy();
+    }
+    this._partialDrawBatchCache.clear();
+    for (const page of this._bufferPagesByKey.values()) {
+      try {
+        page.destroy();
+      } catch {
+      }
+    }
+    this._bufferPagesByKey.clear();
+    this._currentBufferPageByKey.clear();
+    this._textureBindGroupManager.destroy();
+    this._nextSlot = 0;
+    this._batchSet = null;
+  }
+  sceneTextureImageDataChanged(sceneTexture) {
+    this._textureBindGroupManager.sceneTextureImageDataChanged(sceneTexture);
+    for (const batch of this._partialDrawBatchCache.values()) {
+      if (batch.packedBatch.textureKey === this._textureBindGroupManager.getTextureKey(sceneTexture)) {
+        batch.packedBatch.destroy();
+      }
+    }
+    this._partialDrawBatchCache.clear();
+    this._batchSet = null;
+  }
+  _groupNewMeshStates(meshStates, assignedMeshIds) {
+    const groups = /* @__PURE__ */ new Map();
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const meshState = meshStates[i];
+      if (assignedMeshIds.has(meshState.mesh.uniqueId)) {
+        continue;
+      }
+      if (meshState.geometryState.geometry.primitive === GaussianSplatsPrimitive) {
+        continue;
+      }
+      const key = this._getSegmentBaseKey(meshState);
+      let group = groups.get(key);
+      if (!group) {
+        group = [];
+        groups.set(key, group);
+      }
+      group.push(meshState);
+    }
+    return groups;
+  }
+  _trackSegment(segment, assignedMeshIds, segmentByMeshId) {
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      const meshId = segment.slots[i].meshState.mesh.uniqueId;
+      assignedMeshIds.add(meshId);
+      this._segmentByMeshId.set(meshId, segment);
+      segmentByMeshId[meshId] = segment;
+    }
+  }
+  _containsAllSegmentSlots(segment, drawItems, topology) {
+    if (drawItems.length !== segment.slots.length) {
+      return false;
+    }
+    const meshIds = /* @__PURE__ */ new Set();
+    for (let i = 0, len = drawItems.length; i < len; i++) {
+      meshIds.add(drawItems[i].meshState.mesh.uniqueId);
+    }
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      const slot = segment.slots[i];
+      if (!meshIds.has(slot.meshState.mesh.uniqueId)) {
+        return false;
+      }
+      if (topology === "edges" && slot.edgeIndexCount === 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+  _allocateBufferPageRange(baseKey, segmentLabel, indexFormat, vertexCount2, indexCount, edgeIndexCount) {
+    const pageKey = `${baseKey}|${indexFormat}`;
+    const pageSegmentMultiplier = this._getBufferPageSegmentMultiplier(baseKey);
+    let page = this._currentBufferPageByKey.get(pageKey);
+    let indexBase = page ? alignIndexElementCountForWrite(page.usedIndices, indexFormat) : 0;
+    let edgeIndexBase = page ? alignIndexElementCountForWrite(page.usedEdgeIndices, indexFormat) : 0;
+    if (!page || page.usedVertices + vertexCount2 > page.vertexCapacity || indexBase + indexCount > page.indexCapacity || edgeIndexBase + edgeIndexCount > page.edgeIndexCapacity || page.usedPositionDecodes + 1 > page.positionDecodeCapacity) {
+      const pageResult = this._createBufferPage(pageKey, segmentLabel, indexFormat, vertexCount2, indexCount, edgeIndexCount, pageSegmentMultiplier);
+      if (pageResult.ok === false) {
+        return pageResult;
+      }
+      page = pageResult.value;
+      this._currentBufferPageByKey.set(pageKey, page);
+      indexBase = 0;
+      edgeIndexBase = 0;
+    }
+    const activePage = page;
+    const vertexBase = activePage.usedVertices;
+    const positionDecodeIndex = activePage.usedPositionDecodes;
+    activePage.usedVertices += vertexCount2;
+    activePage.usedIndices = indexBase + indexCount;
+    activePage.usedEdgeIndices = edgeIndexBase + edgeIndexCount;
+    activePage.usedPositionDecodes++;
+    activePage.refCount++;
+    const indexBytes = indexFormat === "uint32" ? 4 : 2;
+    return {
+      ok: true,
+      value: {
+        page: activePage,
+        vertexBase,
+        positionDecodeIndex,
+        vertexByteOffset: vertexBase * 8,
+        vertexColorByteOffset: vertexBase * 4,
+        vertexUVByteOffset: vertexBase * 8,
+        vertexNormalByteOffset: vertexBase * 16,
+        vertexMaterialByteOffset: vertexBase * 32,
+        vertexMetadataByteOffset: vertexBase * 8,
+        positionDecodeByteOffset: positionDecodeIndex * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES,
+        indexByteOffset: indexBase * indexBytes,
+        edgeIndexByteOffset: edgeIndexBase * indexBytes
+      }
+    };
+  }
+  _createBufferPage(pageKey, segmentLabel, indexFormat, vertexCount2, indexCount, edgeIndexCount, pageSegmentMultiplier) {
+    const sanitizedPageKey = this._sanitizeLabel(`${pageKey}|bufferPage:${this._bufferPagesByKey.size}`);
+    const vertexCapacity = Math.max(1, vertexCount2 * pageSegmentMultiplier);
+    const indexCapacity = Math.max(1, indexCount * pageSegmentMultiplier);
+    const edgeIndexCapacity = edgeIndexCount > 0 ? Math.max(1, edgeIndexCount * pageSegmentMultiplier) : 0;
+    const positionDecodeCapacity = pageSegmentMultiplier;
+    const indexBytes = indexFormat === "uint32" ? 4 : 2;
+    const positionDecodeLayoutResult = this._bindGroupLayoutManager.getTrianglePositionDecodeBindGroupLayout();
+    if (positionDecodeLayoutResult.ok === false) {
+      return positionDecodeLayoutResult;
+    }
+    try {
+      const vertexBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-positions:triangles:${segmentLabel}`,
+        vertexCapacity * 8,
+        GPU_BUFFER_USAGE.VERTEX
+      );
+      const isPointPage = pageKey.includes(`primitive:${PointsPrimitive}`);
+      const isLinePage = pageKey.includes(`primitive:${LinesPrimitive}`);
+      const isTrianglePage = !isPointPage && !isLinePage;
+      const pbrTrianglePage = isTrianglePage && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+      const colorBuffer = isPointPage || isLinePage ? this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-colors:${isLinePage ? "lines" : "points"}:${segmentLabel}`,
+        vertexCapacity * 4,
+        GPU_BUFFER_USAGE.VERTEX
+      ) : null;
+      const hasTextureUVs = pageKey.includes("|texture:");
+      const uvBuffer = pbrTrianglePage && hasTextureUVs ? this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-uvs:triangles:${segmentLabel}`,
+        vertexCapacity * 8,
+        GPU_BUFFER_USAGE.VERTEX
+      ) : null;
+      const materialBuffer = pbrTrianglePage ? this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-materials:triangles:${segmentLabel}`,
+        vertexCapacity * 32,
+        GPU_BUFFER_USAGE.VERTEX
+      ) : null;
+      const normalBuffer = pbrTrianglePage ? this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-normals:triangles:${segmentLabel}`,
+        vertexCapacity * 16,
+        GPU_BUFFER_USAGE.VERTEX
+      ) : null;
+      const lineOtherVertexBuffer = isLinePage ? this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-line-other-positions:lines:${segmentLabel}`,
+        vertexCapacity * 8,
+        GPU_BUFFER_USAGE.VERTEX
+      ) : null;
+      const vertexMetadataBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-vertex-metadata:triangles:${segmentLabel}`,
+        vertexCapacity * 8,
+        GPU_BUFFER_USAGE.VERTEX
+      );
+      const positionDecodeBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-triangle-position-decodes:triangles:${segmentLabel}`,
+        positionDecodeCapacity * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES,
+        GPU_BUFFER_USAGE.STORAGE
+      );
+      const positionDecodeBindGroup = this._renderContext.device.createBindGroup({
+        label: `xeokit-webgpu-triangle-position-decode-bind-group:triangles:${segmentLabel}`,
+        layout: positionDecodeLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: positionDecodeBuffer
+          }
+        }]
+      });
+      const indexBuffer = this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-indices:triangles:${segmentLabel}`,
+        indexCapacity * indexBytes,
+        GPU_BUFFER_USAGE.INDEX
+      );
+      const edgeIndexBuffer = edgeIndexCapacity > 0 ? this._renderContext.createEmptyGPUBuffer(
+        `xeokit-webgpu-packed-edge-indices:triangles:${segmentLabel}`,
+        edgeIndexCapacity * indexBytes,
+        GPU_BUFFER_USAGE.INDEX
+      ) : null;
+      const page = {
+        key: sanitizedPageKey,
+        indexFormat,
+        vertexCapacity,
+        indexCapacity,
+        edgeIndexCapacity,
+        positionDecodeCapacity,
+        usedVertices: 0,
+        usedIndices: 0,
+        usedEdgeIndices: 0,
+        usedPositionDecodes: 0,
+        refCount: 0,
+        vertexBuffer,
+        colorBuffer,
+        uvBuffer,
+        normalBuffer,
+        materialBuffer,
+        lineOtherVertexBuffer,
+        vertexMetadataBuffer,
+        positionDecodeBuffer,
+        positionDecodeBindGroup,
+        indexBuffer,
+        edgeIndexBuffer,
+        destroy: () => {
+          vertexBuffer.destroy?.();
+          colorBuffer?.destroy?.();
+          uvBuffer?.destroy?.();
+          normalBuffer?.destroy?.();
+          materialBuffer?.destroy?.();
+          lineOtherVertexBuffer?.destroy?.();
+          vertexMetadataBuffer.destroy?.();
+          positionDecodeBuffer.destroy?.();
+          indexBuffer.destroy?.();
+          edgeIndexBuffer?.destroy?.();
+        }
+      };
+      this._bufferPagesByKey.set(page.key, page);
+      return {
+        ok: true,
+        value: page
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[TriangleBatchManager._createBufferPage] Failed to create triangle buffer page '${segmentLabel}': ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _getBufferPageSegmentMultiplier(baseKey) {
+    const { lifecycle, memoryPolicy } = parseSegmentBaseKey(baseKey);
+    if (memoryPolicy === "compact") {
+      return 1;
+    }
+    if (memoryPolicy === "stream" && this._memoryConfigs.compactStreamPages) {
+      return 1;
+    }
+    if (lifecycle !== "sealed") {
+      return TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER;
+    }
+    if (memoryPolicy === "stream" && this._memoryConfigs.compactSealedStreamPages) {
+      return 1;
+    }
+    return TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER;
+  }
+  _releaseBufferPage(page) {
+    page.refCount--;
+    if (page.refCount > 0) {
+      return;
+    }
+    page.destroy();
+    this._bufferPagesByKey.delete(page.key);
+    for (const [key, currentPage] of Array.from(this._currentBufferPageByKey)) {
+      if (currentPage === page) {
+        this._currentBufferPageByKey.delete(key);
+      }
+    }
+  }
+  _getSegmentBaseKey(meshState) {
+    const model = meshState.sceneModel ?? meshState.mesh.model;
+    const memoryPolicy = model?.memoryPolicy ?? "stream";
+    const lifecycle = this._getSegmentBaseLifecycle(model?.lifecycle ?? "dynamic", memoryPolicy);
+    const baseKey = `${model?.id ?? "unowned"}|${lifecycle}|${memoryPolicy}`;
+    const primitive = meshState.geometryState.geometry.primitive;
+    if (primitive === PointsPrimitive || primitive === LinesPrimitive) {
+      return `${baseKey}|primitive:${primitive}`;
+    }
+    const textureKey = getPBRTextureTupleKey(this._textureBindGroupManager, meshState.mesh);
+    return textureKey === DEFAULT_TEXTURE_KEY2 ? baseKey : `${baseKey}|texture:${textureKey}`;
+  }
+  _getSegmentBaseLifecycle(lifecycle, memoryPolicy) {
+    if (memoryPolicy === "stream" && !this._memoryConfigs.compactSealedStreamPages && (lifecycle === "open" || lifecycle === "streaming" || lifecycle === "sealed")) {
+      return "streaming";
+    }
+    return lifecycle;
+  }
+  _nextSegmentKey(baseKey) {
+    const pageIndex = this._pageCountersByBaseKey.get(baseKey) ?? 0;
+    this._pageCountersByBaseKey.set(baseKey, pageIndex + 1);
+    return `${baseKey}|page:${pageIndex}`;
+  }
+  _getSegmentSignature(meshStates) {
+    const parts = [];
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      parts.push(this._getMeshSignature(meshStates[i]));
+    }
+    return parts.join("|");
+  }
+  _getMeshSignature(meshState) {
+    const emissiveColor = getEffectiveEmissiveColor(meshState.mesh);
+    return `${meshState.mesh.uniqueId}:${meshState.geometryState.geometry.uniqueId}:${meshState.geometryState.geometry.primitive}:${meshState.geometryState.positions.length}:${meshState.geometryState.indices?.length ?? 0}:${meshState.geometryState.uvs?.length ?? 0}:${getEffectiveRoughness(meshState.mesh)}:${getEffectiveMetallic(meshState.mesh)}:${emissiveColor[0]},${emissiveColor[1]},${emissiveColor[2]}:${getEffectiveAlphaMode(meshState.mesh)}:${getEffectiveAlphaCutoff(meshState.mesh)}:${getPBRTextureTupleKey(this._textureBindGroupManager, meshState.mesh)}`;
+  }
+  _getBoundsVersion(slots) {
+    const parts = [];
+    for (let i = 0, len = slots.length; i < len; i++) {
+      const meshState = slots[i].meshState;
+      parts.push(`${meshState.mesh.uniqueId}:${meshState.instanceDataVersion}`);
+    }
+    return parts.join("|");
+  }
+  _destroySegment(segment) {
+    try {
+      segment.destroy();
+    } catch {
+    }
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      this._segmentByMeshId.delete(segment.slots[i].meshState.mesh.uniqueId);
+    }
+    for (const [key, batch] of Array.from(this._partialDrawBatchCache)) {
+      if (batch.packedBatch.segmentKey === segment.key) {
+        batch.packedBatch.destroy();
+        this._partialDrawBatchCache.delete(key);
+      }
+    }
+    this._freeSlots(segment.baseSlot, segment.slotCount);
+    this._batchSet = null;
+  }
+  _allocateSlots(count) {
+    for (let i = 0, len = this._freeSlotRanges.length; i < len; i++) {
+      const range = this._freeSlotRanges[i];
+      if (range.count < count) {
+        continue;
+      }
+      const base2 = range.base;
+      range.base += count;
+      range.count -= count;
+      if (range.count === 0) {
+        this._freeSlotRanges.splice(i, 1);
+      }
+      return base2;
+    }
+    const base = this._nextSlot;
+    this._nextSlot += count;
+    return base;
+  }
+  _freeSlots(base, count) {
+    if (count === 0) {
+      return;
+    }
+    this._freeSlotRanges.push({ base, count });
+    this._freeSlotRanges.sort((a2, b4) => a2.base - b4.base);
+    for (let i = 0; i < this._freeSlotRanges.length - 1; ) {
+      const current = this._freeSlotRanges[i];
+      const next = this._freeSlotRanges[i + 1];
+      if (current.base + current.count === next.base) {
+        current.count += next.count;
+        this._freeSlotRanges.splice(i + 1, 1);
+        continue;
+      }
+      i++;
+    }
+    const last = this._freeSlotRanges[this._freeSlotRanges.length - 1];
+    if (last && last.base + last.count === this._nextSlot) {
+      this._nextSlot = last.base;
+      this._freeSlotRanges.pop();
+    }
+  }
+  _getInstanceCapacity(segments) {
+    let instanceCapacity = 0;
+    for (let i = 0, len = segments.length; i < len; i++) {
+      instanceCapacity = Math.max(instanceCapacity, segments[i].slotEnd);
+    }
+    return instanceCapacity;
+  }
+  _getProjectedInstanceCapacity(segments, pendingJobs) {
+    let instanceCapacity = this._getInstanceCapacity(segments);
+    for (let i = 0, len = pendingJobs.length; i < len; i++) {
+      instanceCapacity += pendingJobs[i].meshStates.length;
+    }
+    return Math.max(instanceCapacity, this._nextSlot);
+  }
+  _recordBuildSample(sample) {
+    this._totalSegmentsBuilt++;
+    this._totalBuildMs += sample.totalMs;
+    this._totalPackMs += sample.packMs;
+    this._totalUploadMs += sample.uploadMs;
+    this._totalMeshCount += sample.meshCount;
+    this._totalVertexCount += sample.vertexCount;
+    this._totalIndexCount += sample.indexCount;
+    this._totalEdgeIndexCount += sample.edgeIndexCount;
+    this._recentBuildSamples.push({ ...sample });
+    while (this._recentBuildSamples.length > MAX_SEGMENT_BUILD_SAMPLES) {
+      this._recentBuildSamples.shift();
+    }
+    this._slowestBuildSamples.push({ ...sample });
+    this._slowestBuildSamples.sort((a2, b4) => b4.totalMs - a2.totalMs);
+    if (this._slowestBuildSamples.length > MAX_SEGMENT_BUILD_SAMPLES) {
+      this._slowestBuildSamples.length = MAX_SEGMENT_BUILD_SAMPLES;
+    }
+  }
+  _createBuildTelemetrySnapshot() {
+    return {
+      totalSegmentsBuilt: this._totalSegmentsBuilt,
+      totalBuildMs: this._totalBuildMs,
+      totalPackMs: this._totalPackMs,
+      totalUploadMs: this._totalUploadMs,
+      totalMeshCount: this._totalMeshCount,
+      totalVertexCount: this._totalVertexCount,
+      totalIndexCount: this._totalIndexCount,
+      totalEdgeIndexCount: this._totalEdgeIndexCount,
+      lastBuildSegments: this._lastBuildSegments,
+      lastBuildMs: this._lastBuildMs,
+      lastBuildPackMs: this._lastBuildPackMs,
+      lastBuildUploadMs: this._lastBuildUploadMs,
+      lastBuildPendingBefore: this._lastBuildPendingBefore,
+      lastBuildPendingAfter: this._lastBuildPendingAfter,
+      recentSamples: this._recentBuildSamples.map((sample) => ({ ...sample })),
+      slowestSamples: this._slowestBuildSamples.map((sample) => ({ ...sample }))
+    };
+  }
+  _sanitizeLabel(value) {
+    return value.replace(/[^a-zA-Z0-9_.-]/g, "_");
+  }
+};
+function createEmptyAABB() {
+  return new Float64Array([
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY
+  ]);
+}
+function expandWorldAABB(worldAABB, localAABB, worldMatrix) {
+  if (!localAABB) {
+    return;
+  }
+  for (let xIndex = 0; xIndex < 2; xIndex++) {
+    const x = localAABB[xIndex === 0 ? 0 : 3];
+    for (let yIndex = 0; yIndex < 2; yIndex++) {
+      const y = localAABB[yIndex === 0 ? 1 : 4];
+      for (let zIndex = 0; zIndex < 2; zIndex++) {
+        const z = localAABB[zIndex === 0 ? 2 : 5];
+        const worldX = worldMatrix[0] * x + worldMatrix[4] * y + worldMatrix[8] * z + worldMatrix[12];
+        const worldY = worldMatrix[1] * x + worldMatrix[5] * y + worldMatrix[9] * z + worldMatrix[13];
+        const worldZ = worldMatrix[2] * x + worldMatrix[6] * y + worldMatrix[10] * z + worldMatrix[14];
+        worldAABB[0] = Math.min(worldAABB[0], worldX);
+        worldAABB[1] = Math.min(worldAABB[1], worldY);
+        worldAABB[2] = Math.min(worldAABB[2], worldZ);
+        worldAABB[3] = Math.max(worldAABB[3], worldX);
+        worldAABB[4] = Math.max(worldAABB[4], worldY);
+        worldAABB[5] = Math.max(worldAABB[5], worldZ);
+      }
+    }
+  }
+}
+function getMeshWorldMatrix2(meshState) {
+  return meshState.mesh.worldMatrix ?? meshState.mesh.matrix ?? IDENTITY_MATRIX4;
+}
+function cloneCachedDrawBatch(batch, createdThisFrame) {
+  const packedBatch = batch.packedBatch;
+  return {
+    packedBatch: {
+      primitive: packedBatch.primitive,
+      label: packedBatch.label,
+      segmentKey: packedBatch.segmentKey,
+      bufferPageKey: packedBatch.bufferPageKey,
+      renderStateKey: packedBatch.renderStateKey,
+      topology: packedBatch.topology,
+      vertexBuffer: packedBatch.vertexBuffer,
+      vertexBufferOffset: packedBatch.vertexBufferOffset,
+      colorBuffer: packedBatch.colorBuffer,
+      colorBufferOffset: packedBatch.colorBufferOffset,
+      uvBuffer: packedBatch.uvBuffer,
+      uvBufferOffset: packedBatch.uvBufferOffset,
+      normalBuffer: packedBatch.normalBuffer,
+      normalBufferOffset: packedBatch.normalBufferOffset,
+      materialBuffer: packedBatch.materialBuffer,
+      materialBufferOffset: packedBatch.materialBufferOffset,
+      lineOtherVertexBuffer: packedBatch.lineOtherVertexBuffer,
+      lineOtherVertexBufferOffset: packedBatch.lineOtherVertexBufferOffset,
+      positionDecodeBindGroup: packedBatch.positionDecodeBindGroup,
+      colorBindGroup: packedBatch.colorBindGroup,
+      vertexMetadataBuffer: packedBatch.vertexMetadataBuffer,
+      vertexMetadataBufferOffset: packedBatch.vertexMetadataBufferOffset,
+      indexBuffer: packedBatch.indexBuffer,
+      indexBufferOffset: packedBatch.indexBufferOffset,
+      indexFormat: packedBatch.indexFormat,
+      indexCount: packedBatch.indexCount,
+      firstIndex: packedBatch.firstIndex,
+      indicesPageLocal: packedBatch.indicesPageLocal,
+      temporaryIndexBuffer: true,
+      temporaryIndexBufferCreated: createdThisFrame,
+      textureKey: packedBatch.textureKey,
+      destroy: () => {
+      }
+    }
+  };
+}
+function getIndexElementByteLength(indexFormat) {
+  return indexFormat === "uint32" ? Uint32Array.BYTES_PER_ELEMENT : Uint16Array.BYTES_PER_ELEMENT;
+}
+function parseSegmentBaseKey(baseKey) {
+  const parts = baseKey.split("|");
+  return {
+    lifecycle: parts[1] || "dynamic",
+    memoryPolicy: parts[2] || "stream"
+  };
+}
+function createPackedPositionAABB(meshStates) {
+  const aabb = new Float32Array([
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    Number.NEGATIVE_INFINITY
+  ]);
+  for (let meshIndex = 0, meshLen = meshStates.length; meshIndex < meshLen; meshIndex++) {
+    const geometry = meshStates[meshIndex].geometryState.geometry;
+    const positions = geometry.positionsCompressed;
+    const sourceAABB = geometry.aabb;
+    const minX = sourceAABB[0];
+    const minY = sourceAABB[1];
+    const minZ = sourceAABB[2];
+    const scaleX = (sourceAABB[3] - minX) / 65535;
+    const scaleY = (sourceAABB[4] - minY) / 65535;
+    const scaleZ = (sourceAABB[5] - minZ) / 65535;
+    for (let i = 0, len = positions.length; i < len; i += 3) {
+      const x = minX + positions[i] * scaleX;
+      const y = minY + positions[i + 1] * scaleY;
+      const z = minZ + positions[i + 2] * scaleZ;
+      if (x < aabb[0]) {
+        aabb[0] = x;
+      }
+      if (y < aabb[1]) {
+        aabb[1] = y;
+      }
+      if (z < aabb[2]) {
+        aabb[2] = z;
+      }
+      if (x > aabb[3]) {
+        aabb[3] = x;
+      }
+      if (y > aabb[4]) {
+        aabb[4] = y;
+      }
+      if (z > aabb[5]) {
+        aabb[5] = z;
+      }
+    }
+  }
+  if (aabb[0] === Number.POSITIVE_INFINITY) {
+    aabb.set([0, 0, 0, 0, 0, 0]);
+  }
+  return aabb;
+}
+function createPositionDecodeUniform(aabb) {
+  const uniform2 = new Float32Array(TRIANGLE_POSITION_DECODE_UNIFORM_FLOATS);
+  uniform2[0] = aabb[0];
+  uniform2[1] = aabb[1];
+  uniform2[2] = aabb[2];
+  uniform2[4] = aabb[3] - aabb[0];
+  uniform2[5] = aabb[4] - aabb[1];
+  uniform2[6] = aabb[5] - aabb[2];
+  return uniform2;
+}
+function quantizeCompressedPositionsInto(source, sourceAABB, target, vertexOffset, targetAABB) {
+  const targetMinX = targetAABB[0];
+  const targetMinY = targetAABB[1];
+  const targetMinZ = targetAABB[2];
+  const targetExtentX = targetAABB[3] - targetMinX;
+  const targetExtentY = targetAABB[4] - targetMinY;
+  const targetExtentZ = targetAABB[5] - targetMinZ;
+  const targetScaleX = targetExtentX > 0 ? 65535 / targetExtentX : 0;
+  const targetScaleY = targetExtentY > 0 ? 65535 / targetExtentY : 0;
+  const targetScaleZ = targetExtentZ > 0 ? 65535 / targetExtentZ : 0;
+  const sourceMinX = sourceAABB[0];
+  const sourceMinY = sourceAABB[1];
+  const sourceMinZ = sourceAABB[2];
+  const sourceScaleX = (sourceAABB[3] - sourceMinX) / 65535;
+  const sourceScaleY = (sourceAABB[4] - sourceMinY) / 65535;
+  const sourceScaleZ = (sourceAABB[5] - sourceMinZ) / 65535;
+  let dst = vertexOffset * 4;
+  for (let src = 0, len = source.length; src < len; src += 3) {
+    target[dst++] = quantizeUnorm16((sourceMinX + source[src] * sourceScaleX - targetMinX) * targetScaleX);
+    target[dst++] = quantizeUnorm16((sourceMinY + source[src + 1] * sourceScaleY - targetMinY) * targetScaleY);
+    target[dst++] = quantizeUnorm16((sourceMinZ + source[src + 2] * sourceScaleZ - targetMinZ) * targetScaleZ);
+    target[dst++] = 0;
+  }
+}
+function copyUVsInto(source, target, vertexOffset, vertexCount2) {
+  if (!target) {
+    return;
+  }
+  const targetOffset = vertexOffset * 2;
+  if (!source) {
+    target.fill(0, targetOffset, targetOffset + vertexCount2 * 2);
+    return;
+  }
+  for (let i = 0, len = vertexCount2 * 2; i < len; i++) {
+    target[targetOffset + i] = source[i] ?? 0;
+  }
+}
+function copyNormalsInto(source, target, vertexOffset, vertexCount2) {
+  const targetOffset = vertexOffset * 4;
+  if (!source) {
+    target.fill(0, targetOffset, targetOffset + vertexCount2 * 4);
+    return;
+  }
+  for (let i = 0; i < vertexCount2; i++) {
+    const sourceOffset = i * 3;
+    const targetIndex = targetOffset + i * 4;
+    target[targetIndex] = source[sourceOffset] ?? 0;
+    target[targetIndex + 1] = source[sourceOffset + 1] ?? 0;
+    target[targetIndex + 2] = source[sourceOffset + 2] ?? 1;
+    target[targetIndex + 3] = 1;
+  }
+}
+function copyMaterialInto(sceneMesh, target, vertexOffset, vertexCount2, hasUVs) {
+  const emissive = getEffectiveEmissiveColor(sceneMesh);
+  const alphaMode = getEffectiveAlphaMode(sceneMesh);
+  const triplanarScale = !hasUVs && meshHasAnyPBRTexture(sceneMesh) ? getEffectiveTriplanarScale(sceneMesh) : 0;
+  for (let i = 0; i < vertexCount2; i++) {
+    const offset = (vertexOffset + i) * 8;
+    target[offset] = getEffectiveRoughness(sceneMesh);
+    target[offset + 1] = getEffectiveMetallic(sceneMesh);
+    target[offset + 2] = emissive[0];
+    target[offset + 3] = emissive[1];
+    target[offset + 4] = emissive[2];
+    target[offset + 5] = alphaMode;
+    target[offset + 6] = getEffectiveAlphaCutoff(sceneMesh);
+    target[offset + 7] = triplanarScale;
+  }
+}
+function getEffectiveRoughness(sceneMesh) {
+  return Number.isFinite(sceneMesh.effectiveRoughness) ? sceneMesh.effectiveRoughness : 1;
+}
+function getEffectiveMetallic(sceneMesh) {
+  return Number.isFinite(sceneMesh.effectiveMetallic) ? sceneMesh.effectiveMetallic : 0;
+}
+function getEffectiveEmissiveColor(sceneMesh) {
+  const emissiveColor = sceneMesh.effectiveEmissiveColor;
+  return emissiveColor && emissiveColor.length >= 3 ? emissiveColor : [0, 0, 0];
+}
+function getEffectiveAlphaMode(sceneMesh) {
+  return Number.isFinite(sceneMesh.effectiveAlphaMode) ? sceneMesh.effectiveAlphaMode : 0;
+}
+function getEffectiveAlphaCutoff(sceneMesh) {
+  return Number.isFinite(sceneMesh.effectiveAlphaCutoff) ? sceneMesh.effectiveAlphaCutoff : 0.5;
+}
+function getEffectiveTriplanarScale(sceneMesh) {
+  return Number.isFinite(sceneMesh.effectiveTriplanarScale) && sceneMesh.effectiveTriplanarScale > 1e-4 ? sceneMesh.effectiveTriplanarScale : 1;
+}
+function meshHasAnyPBRTexture(sceneMesh) {
+  return !!(sceneMesh.effectiveColorTexture || sceneMesh.effectiveMetallicRoughnessTexture || sceneMesh.effectiveNormalsTexture || sceneMesh.effectiveEmissiveTexture || sceneMesh.effectiveOcclusionTexture);
+}
+function getPBRTextureTupleKey(textureManager, sceneMesh) {
+  if (!sceneMesh) {
+    return DEFAULT_TEXTURE_KEY2;
+  }
+  const albedo = textureManager.getTextureKey(sceneMesh.effectiveColorTexture);
+  const metallicRoughness = textureManager.getTextureKey(sceneMesh.effectiveMetallicRoughnessTexture);
+  const normal2 = sceneMesh.effectiveNormalsTexture ? textureManager.getTextureKey(sceneMesh.effectiveNormalsTexture) : textureManager.getDefaultTextureKey("normal");
+  const emissive = textureManager.getTextureKey(sceneMesh.effectiveEmissiveTexture);
+  const occlusion = textureManager.getTextureKey(sceneMesh.effectiveOcclusionTexture);
+  if (albedo === DEFAULT_TEXTURE_KEY2 && metallicRoughness === DEFAULT_TEXTURE_KEY2 && normal2 === textureManager.getDefaultTextureKey("normal") && emissive === DEFAULT_TEXTURE_KEY2 && occlusion === DEFAULT_TEXTURE_KEY2) {
+    return DEFAULT_TEXTURE_KEY2;
+  }
+  return `${albedo}|${metallicRoughness}|${normal2}|${emissive}|${occlusion}`;
+}
+function quantizeCompressedPointQuadsInto(source, sourceAABB, target, vertexOffset, targetAABB) {
+  const targetMinX = targetAABB[0];
+  const targetMinY = targetAABB[1];
+  const targetMinZ = targetAABB[2];
+  const targetExtentX = targetAABB[3] - targetMinX;
+  const targetExtentY = targetAABB[4] - targetMinY;
+  const targetExtentZ = targetAABB[5] - targetMinZ;
+  const targetScaleX = targetExtentX > 0 ? 65535 / targetExtentX : 0;
+  const targetScaleY = targetExtentY > 0 ? 65535 / targetExtentY : 0;
+  const targetScaleZ = targetExtentZ > 0 ? 65535 / targetExtentZ : 0;
+  const sourceMinX = sourceAABB[0];
+  const sourceMinY = sourceAABB[1];
+  const sourceMinZ = sourceAABB[2];
+  const sourceScaleX = (sourceAABB[3] - sourceMinX) / 65535;
+  const sourceScaleY = (sourceAABB[4] - sourceMinY) / 65535;
+  const sourceScaleZ = (sourceAABB[5] - sourceMinZ) / 65535;
+  let dst = vertexOffset * 4;
+  for (let src = 0, len = source.length; src < len; src += 3) {
+    const x = quantizeUnorm16((sourceMinX + source[src] * sourceScaleX - targetMinX) * targetScaleX);
+    const y = quantizeUnorm16((sourceMinY + source[src + 1] * sourceScaleY - targetMinY) * targetScaleY);
+    const z = quantizeUnorm16((sourceMinZ + source[src + 2] * sourceScaleZ - targetMinZ) * targetScaleZ);
+    for (let corner = 0; corner < 6; corner++) {
+      target[dst++] = x;
+      target[dst++] = y;
+      target[dst++] = z;
+      target[dst++] = 0;
+    }
+  }
+}
+function quantizeCompressedLineSegmentQuadsInto(source, sourceAABB, sourceIndices, targetPositions, targetOtherPositions, vertexOffset, targetAABB) {
+  const targetMinX = targetAABB[0];
+  const targetMinY = targetAABB[1];
+  const targetMinZ = targetAABB[2];
+  const targetExtentX = targetAABB[3] - targetMinX;
+  const targetExtentY = targetAABB[4] - targetMinY;
+  const targetExtentZ = targetAABB[5] - targetMinZ;
+  const targetScaleX = targetExtentX > 0 ? 65535 / targetExtentX : 0;
+  const targetScaleY = targetExtentY > 0 ? 65535 / targetExtentY : 0;
+  const targetScaleZ = targetExtentZ > 0 ? 65535 / targetExtentZ : 0;
+  const sourceMinX = sourceAABB[0];
+  const sourceMinY = sourceAABB[1];
+  const sourceMinZ = sourceAABB[2];
+  const sourceScaleX = (sourceAABB[3] - sourceMinX) / 65535;
+  const sourceScaleY = (sourceAABB[4] - sourceMinY) / 65535;
+  const sourceScaleZ = (sourceAABB[5] - sourceMinZ) / 65535;
+  let dst = vertexOffset * 4;
+  for (let segmentIndex = 0, len = sourceIndices.length; segmentIndex + 1 < len; segmentIndex += 2) {
+    const indexA = sourceIndices[segmentIndex] * 3;
+    const indexB = sourceIndices[segmentIndex + 1] * 3;
+    const ax = quantizeUnorm16((sourceMinX + source[indexA] * sourceScaleX - targetMinX) * targetScaleX);
+    const ay = quantizeUnorm16((sourceMinY + source[indexA + 1] * sourceScaleY - targetMinY) * targetScaleY);
+    const az = quantizeUnorm16((sourceMinZ + source[indexA + 2] * sourceScaleZ - targetMinZ) * targetScaleZ);
+    const bx = quantizeUnorm16((sourceMinX + source[indexB] * sourceScaleX - targetMinX) * targetScaleX);
+    const by = quantizeUnorm16((sourceMinY + source[indexB + 1] * sourceScaleY - targetMinY) * targetScaleY);
+    const bz = quantizeUnorm16((sourceMinZ + source[indexB + 2] * sourceScaleZ - targetMinZ) * targetScaleZ);
+    for (let corner = 0; corner < 6; corner++) {
+      const currentIsA = corner === 0 || corner === 3 || corner === 5;
+      targetPositions[dst] = currentIsA ? ax : bx;
+      targetPositions[dst + 1] = currentIsA ? ay : by;
+      targetPositions[dst + 2] = currentIsA ? az : bz;
+      targetPositions[dst + 3] = 0;
+      targetOtherPositions[dst] = currentIsA ? bx : ax;
+      targetOtherPositions[dst + 1] = currentIsA ? by : ay;
+      targetOtherPositions[dst + 2] = currentIsA ? bz : az;
+      targetOtherPositions[dst + 3] = 0;
+      dst += 4;
+    }
+  }
+}
+function copyCompressedPointQuadColorsInto(source, target, vertexOffset, pointCount2) {
+  let dst = vertexOffset * 4;
+  for (let pointIndex = 0; pointIndex < pointCount2; pointIndex++) {
+    const src = pointIndex * 4;
+    const r = source ? source[src] : 255;
+    const g = source ? source[src + 1] : 255;
+    const b4 = source ? source[src + 2] : 255;
+    const a2 = source ? source[src + 3] : 255;
+    for (let corner = 0; corner < 6; corner++) {
+      target[dst++] = r;
+      target[dst++] = g;
+      target[dst++] = b4;
+      target[dst++] = a2;
+    }
+  }
+}
+function copyCompressedLineSegmentQuadColorsInto(source, sourceIndices, target, vertexOffset, lineSegmentCount) {
+  let dst = vertexOffset * 4;
+  for (let segmentIndex = 0; segmentIndex < lineSegmentCount; segmentIndex++) {
+    const indexA = sourceIndices[segmentIndex * 2];
+    const indexB = sourceIndices[segmentIndex * 2 + 1];
+    for (let corner = 0; corner < 6; corner++) {
+      const sourceIndex = corner === 0 || corner === 3 || corner === 5 ? indexA : indexB;
+      const src = sourceIndex * 4;
+      target[dst++] = source ? source[src] : 255;
+      target[dst++] = source ? source[src + 1] : 255;
+      target[dst++] = source ? source[src + 2] : 255;
+      target[dst++] = source ? source[src + 3] : 255;
+    }
+  }
+}
+function alignIndexElementCountForWrite(indexCount, indexFormat) {
+  return indexFormat === "uint16" ? indexCount + 1 & ~1 : indexCount;
+}
+function quantizeUnorm16(value) {
+  if (value <= 0) {
+    return 0;
+  }
+  if (value >= 65535) {
+    return 65535;
+  }
+  return Math.round(value);
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/inspectors/CommandEncoderStats.ts
+function createCommandEncoderStats() {
+  return {
+    numPipelineBinds: 0,
+    numVertexBufferBinds: 0,
+    numIndexBufferBinds: 0,
+    numBindGroupBinds: 0,
+    numSubmissionGroups: 0,
+    numBufferPageGroups: 0,
+    numRenderStateGroups: 0,
+    bindGroupBindsBySlot: {}
+  };
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/inspectors/RenderInspector.ts
+var nowMs3 = () => {
+  const performanceLike = globalThis.performance;
+  return performanceLike?.now ? performanceLike.now() : Date.now();
+};
+var RenderInspector4 = class {
+  enabled = false;
+  renderStats = {
+    views: []
+  };
+  _currentFrame = null;
+  _currentBin = null;
+  _lastFrameEndByViewId = {};
+  _frameRatesByViewId = {};
+  get active() {
+    return this.enabled;
+  }
+  frameStarted(view) {
+    if (!this.enabled) {
+      return;
+    }
+    const t = nowMs3();
+    const viewIndex = view.viewIndex ?? 0;
+    const width = Math.max(0, Math.floor(view.boundary?.[2] ?? view.htmlElement?.clientWidth ?? 0));
+    const height = Math.max(0, Math.floor(view.boundary?.[3] ?? view.htmlElement?.clientHeight ?? 0));
+    this._currentFrame = {
+      viewId: view.id,
+      canvasSize: [width, height],
+      renderReason: "unknown",
+      renderBins: [],
+      timeMs: { start: t, end: t, duration: 0 },
+      numDrawCalls: 0,
+      numPrims: 0,
+      numInstances: 0,
+      numBatches: 0,
+      numSegments: 0,
+      numBuiltSegments: 0,
+      numPendingSegments: 0,
+      segmentBuildTelemetry: createEmptySegmentBuildTelemetry(),
+      numCullCandidates: 0,
+      numRenderedMeshes: 0,
+      numFrustumCulledMeshes: 0,
+      numProjectedSizeCulledMeshes: 0,
+      numRTCTiles: 0,
+      numRTCTileMatrixUploads: 0,
+      numMeshesWithRTCTile: 0,
+      numMeshesUsingRTCFallback: 0,
+      numCullSegmentCandidates: 0,
+      numFrustumCulledSegments: 0,
+      numFullyDrawnSegments: 0,
+      numPartiallyRefinedSegments: 0,
+      numTemporaryIndexBuffers: 0,
+      instanceUpload: createEmptyInstanceBufferUploadStats(),
+      commandState: createCommandEncoderStats(),
+      cpuTime: {
+        frameMs: 0,
+        prepareMs: 0,
+        binningMs: 0,
+        batchingMs: 0,
+        drawBatchMs: 0,
+        uploadMs: 0,
+        commandEncodingMs: 0,
+        submitMs: 0
+      },
+      gpuTime: {
+        available: false,
+        pending: false,
+        passes: {}
+      }
+    };
+    this.renderStats.views[viewIndex] = this._currentFrame;
+    this._currentBin = null;
+  }
+  setRenderReason(reason) {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.renderReason = reason;
+    }
+  }
+  renderBinStarted(name12) {
+    if (!this.enabled || !this._currentFrame) {
+      return;
+    }
+    this.renderBinEnded();
+    const t = nowMs3();
+    this._currentBin = {
+      name: name12,
+      drawCalls: [],
+      commandState: createCommandEncoderStats(),
+      timeMs: { start: t, end: t, duration: 0 }
+    };
+    this._currentFrame.renderBins.push(this._currentBin);
+  }
+  pipelineBound() {
+    this._mutateCommandState((commandState) => {
+      commandState.numPipelineBinds++;
+    });
+  }
+  vertexBufferBound(_slot) {
+    this._mutateCommandState((commandState) => {
+      commandState.numVertexBufferBinds++;
+    });
+  }
+  indexBufferBound() {
+    this._mutateCommandState((commandState) => {
+      commandState.numIndexBufferBinds++;
+    });
+  }
+  bindGroupBound(slot) {
+    this._mutateCommandState((commandState) => {
+      commandState.numBindGroupBinds++;
+      const key = String(slot);
+      commandState.bindGroupBindsBySlot[key] = (commandState.bindGroupBindsBySlot[key] ?? 0) + 1;
+    });
+  }
+  submissionGroupsSubmitted(groups) {
+    this._mutateCommandState((commandState) => {
+      commandState.numSubmissionGroups += groups.submissionGroups;
+      commandState.numBufferPageGroups += groups.bufferPageGroups;
+      commandState.numRenderStateGroups += groups.renderStateGroups;
+    });
+  }
+  drawBatches(params) {
+    if (!this.enabled || !this._currentFrame || !this._currentBin) {
+      return;
+    }
+    for (let i = 0, len = params.batches.length; i < len; i++) {
+      const batch = params.batches[i].packedBatch;
+      const edges = batch.topology === "edges";
+      const numPrims = Math.floor(batch.indexCount / (edges ? 2 : 3));
+      this._currentBin.drawCalls.push({
+        renderPass: params.renderPass,
+        primitive: edges ? "EDGES" : "TRIANGLES",
+        technique: params.technique,
+        batchLabel: batch.label,
+        segmentKey: batch.segmentKey,
+        bufferPageKey: batch.bufferPageKey,
+        renderStateKey: batch.renderStateKey,
+        indexCount: batch.indexCount,
+        numPrims,
+        instanceCount: 1,
+        timeMs: { start: 0, end: 0, duration: 0 }
+      });
+      this._currentFrame.numDrawCalls++;
+      this._currentFrame.numPrims += numPrims;
+      this._currentFrame.numInstances++;
+      this._currentFrame.numBatches++;
+      if (batch.temporaryIndexBufferCreated) {
+        this._currentFrame.numTemporaryIndexBuffers++;
+        batch.temporaryIndexBufferCreated = false;
+      }
+    }
+  }
+  addSegments(count) {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.numSegments += count;
+    }
+  }
+  setSegmentQueueStats(params) {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.numBuiltSegments = params.built;
+      this._currentFrame.numPendingSegments = params.pending;
+      this._currentFrame.segmentBuildTelemetry = cloneSegmentBuildTelemetry(params.buildTelemetry);
+    }
+  }
+  setCullStats(params) {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.numCullCandidates = params.considered;
+      this._currentFrame.numRenderedMeshes = params.rendered;
+      this._currentFrame.numFrustumCulledMeshes = params.frustumCulled;
+      this._currentFrame.numProjectedSizeCulledMeshes = params.projectedSizeCulled;
+      this._currentFrame.numCullSegmentCandidates = params.segmentCandidates ?? 0;
+      this._currentFrame.numFrustumCulledSegments = params.segmentFrustumCulled ?? 0;
+      this._currentFrame.numFullyDrawnSegments = params.segmentFullyDrawn ?? 0;
+      this._currentFrame.numPartiallyRefinedSegments = params.segmentPartiallyRefined ?? 0;
+    }
+  }
+  setRTCStats(params) {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.numRTCTiles = params.tiles;
+      this._currentFrame.numRTCTileMatrixUploads = params.tileMatrixUploads;
+      this._currentFrame.numMeshesWithRTCTile = params.meshesWithRTCTile;
+      this._currentFrame.numMeshesUsingRTCFallback = params.meshesUsingFallback;
+    }
+  }
+  addCPUTime(name12, durationMs) {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.cpuTime[name12] += durationMs;
+    }
+  }
+  setInstanceUploadStats(stats) {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.instanceUpload = { ...stats };
+    }
+  }
+  markGPUTimesPending(viewIndex) {
+    if (!this.enabled) {
+      return;
+    }
+    const frame = this.renderStats.views?.[viewIndex];
+    if (frame) {
+      frame.gpuTime.available = true;
+      frame.gpuTime.pending = true;
+      frame.gpuTime.passes = {};
+    }
+  }
+  setGPUTimes(viewIndex, passes) {
+    if (!this.enabled) {
+      return;
+    }
+    const frame = this.renderStats.views?.[viewIndex];
+    if (frame) {
+      frame.gpuTime.available = true;
+      frame.gpuTime.pending = false;
+      frame.gpuTime.passes = passes;
+    }
+  }
+  renderBinEnded() {
+    if (!this.enabled || !this._currentBin?.timeMs) {
+      return;
+    }
+    const t = nowMs3();
+    this._currentBin.timeMs.end = t;
+    this._currentBin.timeMs.duration = t - this._currentBin.timeMs.start;
+    this._currentBin = null;
+  }
+  frameEnded() {
+    if (!this.enabled || !this._currentFrame?.timeMs) {
+      return;
+    }
+    this.renderBinEnded();
+    const t = nowMs3();
+    const frame = this._currentFrame;
+    frame.timeMs.end = t;
+    frame.timeMs.duration = t - frame.timeMs.start;
+    frame.cpuTime.frameMs = frame.timeMs.duration;
+    const lastEnd = this._lastFrameEndByViewId[frame.viewId];
+    if (lastEnd !== void 0 && t > lastEnd) {
+      this._frameRatesByViewId[frame.viewId] = 1e3 / (t - lastEnd);
+    }
+    this._lastFrameEndByViewId[frame.viewId] = t;
+    this._currentFrame = null;
+    this._currentBin = null;
+  }
+  getFrameRate(viewId) {
+    return this._frameRatesByViewId[viewId] ?? null;
+  }
+  _mutateCommandState(mutator) {
+    if (!this.enabled || !this._currentFrame) {
+      return;
+    }
+    mutator(this._currentFrame.commandState);
+    if (this._currentBin) {
+      mutator(this._currentBin.commandState);
+    }
+  }
+};
+function createEmptySegmentBuildTelemetry() {
+  return {
+    totalSegmentsBuilt: 0,
+    totalBuildMs: 0,
+    totalPackMs: 0,
+    totalUploadMs: 0,
+    totalMeshCount: 0,
+    totalVertexCount: 0,
+    totalIndexCount: 0,
+    totalEdgeIndexCount: 0,
+    lastBuildSegments: 0,
+    lastBuildMs: 0,
+    lastBuildPackMs: 0,
+    lastBuildUploadMs: 0,
+    lastBuildPendingBefore: 0,
+    lastBuildPendingAfter: 0,
+    recentSamples: [],
+    slowestSamples: []
+  };
+}
+function createEmptyInstanceBufferUploadStats() {
+  return {
+    writeCount: 0,
+    byteLength: 0,
+    rangeCount: 0,
+    maxRangeSlots: 0,
+    fullUpload: false,
+    copiedByteLength: 0
+  };
+}
+function cloneSegmentBuildTelemetry(telemetry) {
+  if (!telemetry) {
+    return createEmptySegmentBuildTelemetry();
+  }
+  return {
+    ...telemetry,
+    recentSamples: telemetry.recentSamples.map((sample) => ({ ...sample })),
+    slowestSamples: telemetry.slowestSamples.map((sample) => ({ ...sample }))
+  };
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/webGPU/WebGPUDepthStencilBuffer.ts
+var WebGPUDepthStencilBuffer = class {
+  _renderContext;
+  _label;
+  _texture = null;
+  _view = null;
+  _depthOnlyView = null;
+  _width = 0;
+  _height = 0;
+  constructor(renderContext, label) {
+    this._renderContext = renderContext;
+    this._label = label;
+  }
+  get view() {
+    return this._view;
+  }
+  get depthOnlyView() {
+    return this._depthOnlyView;
+  }
+  get texture() {
+    return this._texture;
+  }
+  get width() {
+    return this._width;
+  }
+  get height() {
+    return this._height;
+  }
+  ensureSize(width, height) {
+    const nextWidth = Math.max(1, width | 0);
+    const nextHeight = Math.max(1, height | 0);
+    if (this._texture && this._view && this._width === nextWidth && this._height === nextHeight) {
+      return this._ok();
+    }
+    this.destroy();
+    this._texture = this._renderContext.createDepthTexture(this._label, nextWidth, nextHeight);
+    this._view = this._texture.createView();
+    this._depthOnlyView = this._texture.createView({
+      aspect: "depth-only"
+    });
+    this._width = nextWidth;
+    this._height = nextHeight;
+    return this._ok();
+  }
+  destroy() {
+    try {
+      this._texture?.destroy?.();
+    } catch {
+    }
+    this._texture = null;
+    this._view = null;
+    this._depthOnlyView = null;
+    this._width = 0;
+    this._height = 0;
+  }
+  _ok() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/webGPU/WebGPUFrameAttachments.ts
+var WebGPUFrameAttachments = class {
+  _colorView;
+  _depthStencilView;
+  constructor(params) {
+    this._colorView = params.colorView;
+    this._depthStencilView = params.depthStencilView;
+  }
+  get colorView() {
+    return this._colorView;
+  }
+  get depthStencilView() {
+    return this._depthStencilView;
+  }
+  createDepthPrepassDescriptor() {
+    return {
+      colorAttachments: [],
+      depthStencilAttachment: {
+        view: this._depthStencilView,
+        depthClearValue: 1,
+        depthLoadOp: "clear",
+        depthStoreOp: "store",
+        stencilClearValue: 0,
+        stencilLoadOp: "clear",
+        stencilStoreOp: "store"
+      }
+    };
+  }
+  createMainColorPassDescriptor(params) {
+    return {
+      colorAttachments: [{
+        view: this._colorView,
+        clearValue: params.clearColor,
+        loadOp: "clear",
+        storeOp: "store"
+      }],
+      depthStencilAttachment: {
+        view: this._depthStencilView,
+        depthClearValue: 1,
+        depthLoadOp: params.loadDepthStencil ? "load" : "clear",
+        depthStoreOp: "store",
+        stencilClearValue: 0,
+        stencilLoadOp: params.loadDepthStencil ? "load" : "clear",
+        stencilStoreOp: "store"
+      }
+    };
+  }
+  createLoadedColorPassDescriptor() {
+    return {
+      colorAttachments: [{
+        view: this._colorView,
+        loadOp: "load",
+        storeOp: "store"
+      }],
+      depthStencilAttachment: {
+        view: this._depthStencilView,
+        depthLoadOp: "load",
+        depthStoreOp: "store",
+        stencilLoadOp: "load",
+        stencilStoreOp: "store"
+      }
+    };
+  }
+  createSectionPlaneStencilMaskDescriptor() {
+    return {
+      colorAttachments: [{
+        view: this._colorView,
+        loadOp: "load",
+        storeOp: "store"
+      }],
+      depthStencilAttachment: {
+        view: this._depthStencilView,
+        depthLoadOp: "load",
+        depthStoreOp: "store",
+        stencilClearValue: 0,
+        stencilLoadOp: "clear",
+        stencilStoreOp: "store"
+      }
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/webGPU/WebGPUPickBuffer.ts
+var PICK_READBACK_BYTES_PER_ROW = 256;
+var PICK_READBACK_SIZE = PICK_READBACK_BYTES_PER_ROW;
+var WebGPUPickBuffer = class {
+  _renderContext;
+  _colorTexture = null;
+  _depthTexture = null;
+  _readbackBuffer = null;
+  _colorView = null;
+  _depthView = null;
+  _width = 0;
+  _height = 0;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  get colorView() {
+    return this._colorView;
+  }
+  get colorTexture() {
+    return this._colorTexture;
+  }
+  get depthView() {
+    return this._depthView;
+  }
+  get readbackBuffer() {
+    return this._readbackBuffer;
+  }
+  get width() {
+    return this._width;
+  }
+  get height() {
+    return this._height;
+  }
+  ensureSize(width = 1, height = 1) {
+    const nextWidth = Math.max(1, width | 0);
+    const nextHeight = Math.max(1, height | 0);
+    if (this._colorTexture && this._depthTexture && this._width === nextWidth && this._height === nextHeight) {
+      return this._ok();
+    }
+    this.destroy();
+    this._width = nextWidth;
+    this._height = nextHeight;
+    this._colorTexture = this._renderContext.device.createTexture({
+      label: "xeokit-webgpu-pick-color-texture",
+      size: {
+        width: nextWidth,
+        height: nextHeight,
+        depthOrArrayLayers: 1
+      },
+      format: ID_BUFFER_FORMAT,
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT | GPU_TEXTURE_USAGE.COPY_SRC
+    });
+    this._depthTexture = this._renderContext.device.createTexture({
+      label: "xeokit-webgpu-pick-depth-texture",
+      size: {
+        width: nextWidth,
+        height: nextHeight,
+        depthOrArrayLayers: 1
+      },
+      format: DEPTH_FORMAT,
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+    });
+    this._colorView = this._colorTexture.createView();
+    this._depthView = this._depthTexture.createView();
+    this._readbackBuffer = this._renderContext.device.createBuffer({
+      label: "xeokit-webgpu-pick-readback-buffer",
+      size: PICK_READBACK_SIZE,
+      usage: GPU_BUFFER_USAGE.COPY_DST | GPU_BUFFER_USAGE.MAP_READ
+    });
+    return this._ok();
+  }
+  getCopyDestination() {
+    if (!this._readbackBuffer) {
+      return null;
+    }
+    return {
+      buffer: this._readbackBuffer,
+      bytesPerRow: PICK_READBACK_BYTES_PER_ROW,
+      rowsPerImage: 1
+    };
+  }
+  createPickPassDescriptor() {
+    return {
+      colorAttachments: [{
+        view: this._colorView,
+        clearValue: {
+          r: 0,
+          g: 0,
+          b: 0,
+          a: 0
+        },
+        loadOp: "clear",
+        storeOp: "store"
+      }],
+      depthStencilAttachment: {
+        view: this._depthView,
+        depthClearValue: 1,
+        depthLoadOp: "clear",
+        depthStoreOp: "store",
+        stencilClearValue: 0,
+        stencilLoadOp: "clear",
+        stencilStoreOp: "store"
+      }
+    };
+  }
+  destroy() {
+    this._colorTexture?.destroy?.();
+    this._depthTexture?.destroy?.();
+    this._readbackBuffer?.destroy?.();
+    this._colorTexture = null;
+    this._depthTexture = null;
+    this._readbackBuffer = null;
+    this._colorView = null;
+    this._depthView = null;
+    this._width = 0;
+    this._height = 0;
+  }
+  _ok() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/webGPU/WebGPUReadbackBufferReader.ts
+var WebGPUReadbackBufferReader = class {
+  _renderContext;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  async copyMapAndDecode(params) {
+    const destination = params.destination;
+    const readbackBuffer = params.readbackBuffer;
+    if (!destination || !readbackBuffer?.mapAsync || !readbackBuffer.getMappedRange || !readbackBuffer.unmap) {
+      return {
+        ok: false,
+        type: 6 /* NotSupported */,
+        error: `[${params.errorPrefix}] WebGPU readback buffer mapping is not available.`
+      };
+    }
+    if (!params.commandEncoder.copyTextureToBuffer) {
+      return {
+        ok: false,
+        type: 6 /* NotSupported */,
+        error: `[${params.errorPrefix}] WebGPU copyTextureToBuffer is not available.`
+      };
+    }
+    params.commandEncoder.copyTextureToBuffer(
+      {
+        texture: params.sourceTexture,
+        origin: params.sourceOrigin
+      },
+      destination,
+      params.copySize
+    );
+    this._renderContext.device.queue.submit([params.commandEncoder.finish()]);
+    let mapped = false;
+    try {
+      await readbackBuffer.mapAsync(1);
+      mapped = true;
+      const bytes = new Uint8Array(readbackBuffer.getMappedRange());
+      return {
+        ok: true,
+        value: params.decode(bytes, destination)
+      };
+    } finally {
+      if (mapped) {
+        readbackBuffer.unmap();
+      }
     }
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUInstanceBatcher.ts
-var WebGPUInstanceBatcher = class {
-  _packedBatchBuilder;
+// ../sdk/src/viewing/webGPURenderer/internal/webGPU/WebGPUSnapBuffer.ts
+var WEBGPU_COPY_BYTES_PER_ROW_ALIGNMENT = 256;
+function alignBytesPerRow(bytesPerRow) {
+  return Math.ceil(bytesPerRow / WEBGPU_COPY_BYTES_PER_ROW_ALIGNMENT) * WEBGPU_COPY_BYTES_PER_ROW_ALIGNMENT;
+}
+var WebGPUSnapBuffer = class {
+  _renderContext;
+  _snapRadius;
+  _colorTexture = null;
+  _depthTexture = null;
+  _readbackBuffer = null;
+  _colorView = null;
+  _depthView = null;
+  _readbackBytesPerRow = 0;
+  constructor(renderContext, snapRadius) {
+    this._renderContext = renderContext;
+    this._snapRadius = snapRadius;
+  }
+  get snapRadius() {
+    return this._snapRadius;
+  }
+  get dimension() {
+    return this._snapRadius * 2 + 1;
+  }
+  get colorView() {
+    return this._colorView;
+  }
+  get colorTexture() {
+    return this._colorTexture;
+  }
+  get depthView() {
+    return this._depthView;
+  }
+  get readbackBuffer() {
+    return this._readbackBuffer;
+  }
+  init() {
+    if (this._colorTexture && this._depthTexture) {
+      return this._ok();
+    }
+    const dimension = this.dimension;
+    this._colorTexture = this._renderContext.device.createTexture({
+      label: `xeokit-webgpu-snap-color-texture:${this._snapRadius}`,
+      size: {
+        width: dimension,
+        height: dimension,
+        depthOrArrayLayers: 1
+      },
+      format: ID_BUFFER_FORMAT,
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT | GPU_TEXTURE_USAGE.COPY_SRC
+    });
+    this._depthTexture = this._renderContext.device.createTexture({
+      label: `xeokit-webgpu-snap-depth-texture:${this._snapRadius}`,
+      size: {
+        width: dimension,
+        height: dimension,
+        depthOrArrayLayers: 1
+      },
+      format: DEPTH_FORMAT,
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+    });
+    this._colorView = this._colorTexture.createView();
+    this._depthView = this._depthTexture.createView();
+    this._readbackBytesPerRow = alignBytesPerRow(dimension * 4);
+    this._readbackBuffer = this._renderContext.device.createBuffer({
+      label: `xeokit-webgpu-snap-readback-buffer:${this._snapRadius}`,
+      size: this._readbackBytesPerRow * dimension,
+      usage: GPU_BUFFER_USAGE.COPY_DST | GPU_BUFFER_USAGE.MAP_READ
+    });
+    return this._ok();
+  }
+  getCopyDestination() {
+    if (!this._readbackBuffer) {
+      return null;
+    }
+    return {
+      buffer: this._readbackBuffer,
+      bytesPerRow: this._readbackBytesPerRow,
+      rowsPerImage: this.dimension
+    };
+  }
+  createDepthPrepassDescriptor() {
+    return {
+      colorAttachments: [{
+        view: this._colorView,
+        clearValue: {
+          r: 0,
+          g: 0,
+          b: 0,
+          a: 0
+        },
+        loadOp: "clear",
+        storeOp: "store"
+      }],
+      depthStencilAttachment: {
+        view: this._depthView,
+        depthClearValue: 1,
+        depthLoadOp: "clear",
+        depthStoreOp: "store",
+        stencilClearValue: 0,
+        stencilLoadOp: "clear",
+        stencilStoreOp: "store"
+      }
+    };
+  }
+  createSnapPassDescriptor() {
+    return {
+      colorAttachments: [{
+        view: this._colorView,
+        clearValue: {
+          r: 0,
+          g: 0,
+          b: 0,
+          a: 0
+        },
+        loadOp: "clear",
+        storeOp: "store"
+      }],
+      depthStencilAttachment: {
+        view: this._depthView,
+        depthLoadOp: "load",
+        depthStoreOp: "store",
+        stencilLoadOp: "load",
+        stencilStoreOp: "store"
+      }
+    };
+  }
+  destroy() {
+    this._colorTexture?.destroy?.();
+    this._depthTexture?.destroy?.();
+    this._readbackBuffer?.destroy?.();
+    this._colorTexture = null;
+    this._depthTexture = null;
+    this._readbackBuffer = null;
+    this._colorView = null;
+    this._depthView = null;
+    this._readbackBytesPerRow = 0;
+  }
+  _ok() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+var WebGPUSnapBufferCache = class {
+  _renderContext;
+  _buffers = /* @__PURE__ */ new Map();
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  get(snapRadius) {
+    const radius = Math.max(1, snapRadius | 0);
+    let buffer = this._buffers.get(radius);
+    if (!buffer) {
+      buffer = new WebGPUSnapBuffer(this._renderContext, radius);
+      this._buffers.set(radius, buffer);
+    }
+    const initResult = buffer.init();
+    if (initResult.ok === false) {
+      return initResult;
+    }
+    return {
+      ok: true,
+      value: buffer
+    };
+  }
+  destroy() {
+    for (const buffer of this._buffers.values()) {
+      buffer.destroy();
+    }
+    this._buffers.clear();
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/webGPU/WebGPUTimestampQueryManager.ts
+var WebGPUTimestampQueryManager = class {
+  _renderContext;
+  _disabled = false;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  get supported() {
+    const device = this._renderContext.device;
+    return this._renderContext.renderConfigs.gpuTimestamps && !this._disabled && !!device.features?.has?.("timestamp-query") && !!device.createQuerySet;
+  }
+  beginFrame(passNames) {
+    if (!this.supported || passNames.length === 0) {
+      return null;
+    }
+    const queryCount = passNames.length * 2;
+    const byteLength = queryCount * 8;
+    const device = this._renderContext.device;
+    const querySet = device.createQuerySet({
+      label: "xeokit-webgpu-render-timestamp-query-set",
+      type: "timestamp",
+      count: queryCount
+    });
+    const resolveBuffer = device.createBuffer({
+      label: "xeokit-webgpu-render-timestamp-resolve-buffer",
+      size: byteLength,
+      usage: GPU_BUFFER_USAGE.QUERY_RESOLVE | GPU_BUFFER_USAGE.COPY_SRC
+    });
+    const readbackBuffer = device.createBuffer({
+      label: "xeokit-webgpu-render-timestamp-readback-buffer",
+      size: byteLength,
+      usage: GPU_BUFFER_USAGE.COPY_DST | GPU_BUFFER_USAGE.MAP_READ
+    });
+    return {
+      querySet,
+      resolveBuffer,
+      readbackBuffer,
+      passNames
+    };
+  }
+  createTimestampWrites(frame, passName) {
+    if (!frame) {
+      return void 0;
+    }
+    const passIndex = frame.passNames.indexOf(passName);
+    if (passIndex < 0) {
+      return void 0;
+    }
+    return {
+      querySet: frame.querySet,
+      beginningOfPassWriteIndex: passIndex * 2,
+      endOfPassWriteIndex: passIndex * 2 + 1
+    };
+  }
+  resolveAndRead(params) {
+    const frame = params.frame;
+    if (!frame) {
+      return;
+    }
+    if (!params.commandEncoder.resolveQuerySet || !params.commandEncoder.copyBufferToBuffer) {
+      this._disabled = true;
+      this._destroyFrame(frame);
+      return;
+    }
+    const byteLength = frame.passNames.length * 2 * 8;
+    try {
+      params.commandEncoder.resolveQuerySet(frame.querySet, 0, frame.passNames.length * 2, frame.resolveBuffer, 0);
+      params.commandEncoder.copyBufferToBuffer(frame.resolveBuffer, 0, frame.readbackBuffer, 0, byteLength);
+      params.renderInspector.markGPUTimesPending(params.viewIndex);
+    } catch {
+      this._disabled = true;
+      this._destroyFrame(frame);
+    }
+  }
+  readResolvedFrame(params) {
+    const frame = params.frame;
+    if (!frame) {
+      return;
+    }
+    const readbackBuffer = frame.readbackBuffer;
+    if (!readbackBuffer.mapAsync || !readbackBuffer.getMappedRange || !readbackBuffer.unmap) {
+      this._disabled = true;
+      this._destroyFrame(frame);
+      return;
+    }
+    void readbackBuffer.mapAsync(1).then(() => {
+      const timestamps = new BigUint64Array(readbackBuffer.getMappedRange());
+      const passes = {};
+      for (let i = 0, len = frame.passNames.length; i < len; i++) {
+        const begin = timestamps[i * 2];
+        const end = timestamps[i * 2 + 1];
+        passes[frame.passNames[i]] = Number(end > begin ? end - begin : 0n) / 1e6;
+      }
+      params.renderInspector.setGPUTimes(params.viewIndex, passes);
+    }).catch(() => {
+      this._disabled = true;
+    }).finally(() => {
+      try {
+        readbackBuffer.unmap?.();
+      } finally {
+        this._destroyFrame(frame);
+      }
+    });
+  }
+  _destroyFrame(frame) {
+    frame.querySet.destroy?.();
+    frame.resolveBuffer.destroy?.();
+    frame.readbackBuffer.destroy?.();
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/sectionPlanes.ts
+function isWorldPosClipped(view, worldPos, clippable) {
+  if (!clippable) {
+    return false;
+  }
+  const planes = view.sectionPlanesList;
+  if (!planes) {
+    return false;
+  }
+  for (let i = 0, len = planes.length; i < len; i++) {
+    const plane = planes[i];
+    if (!plane.active) {
+      continue;
+    }
+    const dir = plane.dir;
+    if (dir[0] * worldPos[0] + dir[1] * worldPos[1] + dir[2] * worldPos[2] + plane.dist > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/pickManager/PickManager.ts
+var tempModelViewMatrix = createMat4Float64();
+var tempModelViewProjectionMatrix = createMat4Float64();
+var tempVertex = createVec4Float64();
+var tempClip2 = createVec4Float64();
+var tempPickCanvas = createVec2Float64();
+var tempCanvasA = createVec2Float64();
+var tempCanvasB = createVec2Float64();
+var tempCanvasC = createVec2Float64();
+var tempLocalPos = createVec3Float64();
+var tempWorldPos = createVec3Float64();
+var tempViewPos2 = createVec3Float64();
+var tempWorldHomogeneous = createVec4Float64();
+var tempViewHomogeneous = createVec4Float64();
+var PickManager3 = class {
+  _meshManager;
+  _snapManager;
+  _pickBuffer;
+  _pickResult = new PickResult();
+  _gpuPickQueue = Promise.resolve();
+  constructor(params) {
+    this._meshManager = params.meshManager;
+    this._snapManager = params.snapManager;
+    this._pickBuffer = new WebGPUPickBuffer(params.renderContext);
+  }
+  pick(view, pickParams) {
+    void this._snapManager;
+    const pickCanvasPos = this._getPickCanvasPos(view, pickParams);
+    if (!pickCanvasPos) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const pickBufferResult = this._pickBuffer.ensureSize(1, 1);
+    if (pickBufferResult.ok === false) {
+      return pickBufferResult;
+    }
+    const surfaceHit = this._pickMesh({
+      view,
+      pickCanvasPos,
+      pickInvisible: !!pickParams.pickInvisible
+    });
+    const wantsSnap = this._wantsSnap(pickParams);
+    const snapResult = wantsSnap ? this._snapManager.snapPick(view, pickParams) : null;
+    if (snapResult?.ok === false) {
+      return snapResult;
+    }
+    const snap = snapResult?.value ?? null;
+    if (!surfaceHit?.sceneMesh.object && !snap?.sceneMesh?.object) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const pickResult = this._pickResult;
+    pickResult.reset();
+    pickResult.view = view;
+    pickResult.canvasPos = pickCanvasPos;
+    if (surfaceHit?.sceneMesh.object) {
+      const sceneObject = surfaceHit.sceneMesh.object;
+      pickResult.sceneMesh = surfaceHit.sceneMesh;
+      pickResult.sceneObject = sceneObject;
+      pickResult.viewObject = view.objects?.[sceneObject.id] ?? null;
+      pickResult.indices = surfaceHit.indices;
+      pickResult.localPos = surfaceHit.localPos;
+      pickResult.worldPos = surfaceHit.worldPos;
+      pickResult.viewPos = surfaceHit.viewPos;
+    }
+    if (snap?.sceneMesh?.object) {
+      pickResult.sceneMesh = snap.sceneMesh;
+      pickResult.sceneObject = snap.sceneMesh.object;
+      pickResult.viewObject = view.objects?.[snap.sceneMesh.object.id] ?? null;
+      pickResult.worldPos = snap.worldPos;
+      pickResult.snappedToVertex = snap.snappedToVertex;
+      pickResult.snappedToEdge = snap.snappedToEdge;
+      pickResult.snappedCanvasPos = snap.snappedCanvasPos;
+    }
+    return {
+      ok: true,
+      value: pickResult
+    };
+  }
+  async pickGPUAsync(view, pickParams, pickMeshGPUAsync, snapVertexGPUAsync, snapEdgeGPUAsync) {
+    const run = () => this._pickGPUAsyncNow(view, pickParams, pickMeshGPUAsync, snapVertexGPUAsync, snapEdgeGPUAsync);
+    const result = this._gpuPickQueue.then(run, run);
+    this._gpuPickQueue = result.then(() => void 0, () => void 0);
+    return result;
+  }
+  async _pickGPUAsyncNow(view, pickParams, pickMeshGPUAsync, snapVertexGPUAsync, snapEdgeGPUAsync) {
+    const pickCanvasPos = this._getPickCanvasPos(view, pickParams);
+    if (!pickCanvasPos) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    if (pickParams.pickInvisible || this._wantsSnap(pickParams) && !snapVertexGPUAsync && !snapEdgeGPUAsync) {
+      return this.pick(view, pickParams);
+    }
+    if (pickParams.snapToEdge === true && snapEdgeGPUAsync) {
+      const snapResult = await this._snapManager.snapEdgeGPUAsync(view, pickParams, snapEdgeGPUAsync);
+      if (snapResult.ok === false) {
+        return snapResult;
+      }
+      if (snapResult.value) {
+        return {
+          ok: true,
+          value: snapResult.value
+        };
+      }
+    }
+    if (pickParams.snapToVertex === true && snapVertexGPUAsync) {
+      const snapResult = await this._snapManager.snapVertexGPUAsync(view, pickParams, snapVertexGPUAsync);
+      if (snapResult.ok === false) {
+        return snapResult;
+      }
+      if (snapResult.value) {
+        return {
+          ok: true,
+          value: snapResult.value
+        };
+      }
+    }
+    const gpuHitResult = await pickMeshGPUAsync(this._pickBuffer, pickCanvasPos);
+    if (gpuHitResult.ok === false) {
+      return gpuHitResult;
+    }
+    const gpuHit = gpuHitResult.value;
+    if (!gpuHit || !this._meshManager.isMeshPickableInView(gpuHit.meshState, view, false)) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const primitive = gpuHit.meshState.geometryState.geometry.primitive;
+    const surfaceHit = primitive === PointsPrimitive || primitive === LinesPrimitive || primitive === GaussianSplatsPrimitive ? null : this._pickMeshTriangles(gpuHit.meshState, view, pickCanvasPos);
+    const sceneMesh = surfaceHit?.sceneMesh ?? gpuHit.meshState.mesh;
+    if (!sceneMesh.object) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const pickResult = new PickResult();
+    pickResult.view = view;
+    pickResult.canvasPos = pickCanvasPos;
+    pickResult.sceneMesh = sceneMesh;
+    pickResult.sceneObject = sceneMesh.object;
+    pickResult.viewObject = view.objects?.[sceneMesh.object.id] ?? null;
+    if (surfaceHit) {
+      pickResult.indices = surfaceHit.indices;
+      pickResult.localPos = surfaceHit.localPos;
+      pickResult.worldPos = surfaceHit.worldPos;
+      pickResult.viewPos = surfaceHit.viewPos;
+    }
+    return {
+      ok: true,
+      value: pickResult
+    };
+  }
+  destroy() {
+    this._pickBuffer.destroy();
+  }
+  _pickMesh(params) {
+    const meshStates = this._meshManager.meshStates;
+    let bestHit = null;
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const meshState = meshStates[i];
+      if (!this._meshManager.isMeshPickableInView(meshState, params.view, params.pickInvisible)) {
+        continue;
+      }
+      const primitive = meshState.geometryState.geometry.primitive;
+      if (primitive === PointsPrimitive || primitive === LinesPrimitive || primitive === GaussianSplatsPrimitive) {
+        continue;
+      }
+      const meshHit = this._pickMeshTriangles(meshState, params.view, params.pickCanvasPos);
+      if (!meshHit) {
+        continue;
+      }
+      if (!bestHit || meshHit.depth < bestHit.depth) {
+        bestHit = meshHit;
+      }
+    }
+    return bestHit;
+  }
+  _pickMeshTriangles(meshState, view, pickCanvasPos) {
+    const positions = meshState.geometryState.positions;
+    const indices = meshState.geometryState.indices;
+    const matrix = this._getModelViewProjectionMatrix(meshState, view);
+    let bestDepth = Number.POSITIVE_INFINITY;
+    const bestIndices = new Int32Array(3);
+    const bestLocalPos = createVec3Float64();
+    const bestWorldPos = createVec3Float64();
+    const bestViewPos = createVec3Float64();
+    for (let i = 0, len = indices.length; i < len; i += 3) {
+      const indexA = indices[i];
+      const indexB = indices[i + 1];
+      const indexC = indices[i + 2];
+      const ia = indexA * 3;
+      const ib = indexB * 3;
+      const ic = indexC * 3;
+      const aDepth = this._projectVertex(matrix, positions, ia, view, tempCanvasA);
+      const bDepth = this._projectVertex(matrix, positions, ib, view, tempCanvasB);
+      const cDepth = this._projectVertex(matrix, positions, ic, view, tempCanvasC);
+      if (aDepth === null || bDepth === null || cDepth === null) {
+        continue;
+      }
+      const barycentric = this._getBarycentricCanvasCoords(pickCanvasPos, tempCanvasA, tempCanvasB, tempCanvasC);
+      if (!barycentric) {
+        continue;
+      }
+      const depth = barycentric[0] * aDepth + barycentric[1] * bDepth + barycentric[2] * cDepth;
+      if (depth < bestDepth) {
+        bestIndices[0] = indexA;
+        bestIndices[1] = indexB;
+        bestIndices[2] = indexC;
+        this._interpolateLocalPosition(positions, ia, ib, ic, barycentric, tempLocalPos);
+        this._transformPickPosition(meshState, view, tempLocalPos, tempWorldPos, tempViewPos2);
+        if (isWorldPosClipped(view, tempWorldPos, this._meshManager.isMeshClippableInView(meshState, view))) {
+          continue;
+        }
+        bestDepth = depth;
+        bestLocalPos[0] = tempLocalPos[0];
+        bestLocalPos[1] = tempLocalPos[1];
+        bestLocalPos[2] = tempLocalPos[2];
+        bestWorldPos[0] = tempWorldPos[0];
+        bestWorldPos[1] = tempWorldPos[1];
+        bestWorldPos[2] = tempWorldPos[2];
+        bestViewPos[0] = tempViewPos2[0];
+        bestViewPos[1] = tempViewPos2[1];
+        bestViewPos[2] = tempViewPos2[2];
+      }
+    }
+    if (!Number.isFinite(bestDepth)) {
+      return null;
+    }
+    return {
+      sceneMesh: meshState.mesh,
+      depth: bestDepth,
+      indices: bestIndices,
+      localPos: bestLocalPos,
+      worldPos: bestWorldPos,
+      viewPos: bestViewPos
+    };
+  }
+  _getModelViewProjectionMatrix(meshState, view) {
+    const modelMatrix = this._meshManager.getMeshWorldMatrix(meshState);
+    const viewMatrix = view.camera.viewMatrix;
+    const projMatrix = view.camera.projMatrix;
+    mulMat4(viewMatrix, modelMatrix, tempModelViewMatrix);
+    mulMat4(projMatrix, tempModelViewMatrix, tempModelViewProjectionMatrix);
+    return tempModelViewProjectionMatrix;
+  }
+  _projectVertex(modelViewProjectionMatrix, positions, positionOffset, view, canvasPos2) {
+    tempVertex[0] = positions[positionOffset];
+    tempVertex[1] = positions[positionOffset + 1];
+    tempVertex[2] = positions[positionOffset + 2];
+    tempVertex[3] = 1;
+    transformVec4(modelViewProjectionMatrix, tempVertex, tempClip2);
+    const w2 = tempClip2[3];
+    if (w2 <= 0) {
+      return null;
+    }
+    const boundary = view.boundary ?? [0, 0, view.htmlElement?.clientWidth ?? 1, view.htmlElement?.clientHeight ?? 1];
+    const width = Math.max(1, boundary[2] || 1);
+    const height = Math.max(1, boundary[3] || 1);
+    const ndcX = tempClip2[0] / w2;
+    const ndcY = tempClip2[1] / w2;
+    canvasPos2[0] = (ndcX * 0.5 + 0.5) * width;
+    canvasPos2[1] = (0.5 - ndcY * 0.5) * height;
+    return tempClip2[2] / w2;
+  }
+  _getBarycentricCanvasCoords(point, a2, b4, c2) {
+    const v0x = c2[0] - a2[0];
+    const v0y = c2[1] - a2[1];
+    const v1x = b4[0] - a2[0];
+    const v1y = b4[1] - a2[1];
+    const v2x = point[0] - a2[0];
+    const v2y = point[1] - a2[1];
+    const dot00 = v0x * v0x + v0y * v0y;
+    const dot01 = v0x * v1x + v0y * v1y;
+    const dot02 = v0x * v2x + v0y * v2y;
+    const dot11 = v1x * v1x + v1y * v1y;
+    const dot12 = v1x * v2x + v1y * v2y;
+    const denom = dot00 * dot11 - dot01 * dot01;
+    if (Math.abs(denom) < 1e-12) {
+      return null;
+    }
+    const invDenom = 1 / denom;
+    const u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    const v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+    if (u < 0 || v < 0 || u + v > 1) {
+      return null;
+    }
+    return [1 - u - v, v, u];
+  }
+  _interpolateLocalPosition(positions, ia, ib, ic, barycentric, dest) {
+    const wa = barycentric[0];
+    const wb = barycentric[1];
+    const wc = barycentric[2];
+    dest[0] = positions[ia] * wa + positions[ib] * wb + positions[ic] * wc;
+    dest[1] = positions[ia + 1] * wa + positions[ib + 1] * wb + positions[ic + 1] * wc;
+    dest[2] = positions[ia + 2] * wa + positions[ib + 2] * wb + positions[ic + 2] * wc;
+    return dest;
+  }
+  _transformPickPosition(meshState, view, localPos, worldPos, viewPos2) {
+    tempVertex[0] = localPos[0];
+    tempVertex[1] = localPos[1];
+    tempVertex[2] = localPos[2];
+    tempVertex[3] = 1;
+    transformVec4(this._meshManager.getMeshWorldMatrix(meshState), tempVertex, tempWorldHomogeneous);
+    const worldW = tempWorldHomogeneous[3] || 1;
+    worldPos[0] = tempWorldHomogeneous[0] / worldW;
+    worldPos[1] = tempWorldHomogeneous[1] / worldW;
+    worldPos[2] = tempWorldHomogeneous[2] / worldW;
+    transformVec4(view.camera.viewMatrix, tempWorldHomogeneous, tempViewHomogeneous);
+    const viewW = tempViewHomogeneous[3] || 1;
+    viewPos2[0] = tempViewHomogeneous[0] / viewW;
+    viewPos2[1] = tempViewHomogeneous[1] / viewW;
+    viewPos2[2] = tempViewHomogeneous[2] / viewW;
+  }
+  _getPickCanvasPos(view, pickParams) {
+    if (pickParams.canvasPos) {
+      return pickParams.canvasPos;
+    }
+    if (!pickParams.rayPick) {
+      return null;
+    }
+    const boundary = view.boundary ?? [0, 0, view.htmlElement?.clientWidth ?? 1, view.htmlElement?.clientHeight ?? 1];
+    tempPickCanvas[0] = Math.max(1, boundary[2] || 1) * 0.5;
+    tempPickCanvas[1] = Math.max(1, boundary[3] || 1) * 0.5;
+    return tempPickCanvas;
+  }
+  _wantsSnap(pickParams) {
+    return !!pickParams.canvasPos && (pickParams.snapToVertex === true || pickParams.snapToEdge === true);
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/LightingManager.ts
+var LightingManager = class {
+  _defaultAmbient = new Float32Array([0.5, 0.5, 0.5, 1]);
+  _ambientScratch = new Float32Array(4);
+  writeLightingUniforms(view, target, offset) {
+    const ambient = this._getAmbientLight(view);
+    target[offset + 0] = ambient[0];
+    target[offset + 1] = ambient[1];
+    target[offset + 2] = ambient[2];
+    target[offset + 3] = ambient[3];
+    const lights = view?.lightsList || [];
+    let lightIndex = 0;
+    for (let i = 0, len = lights.length; i < len && lightIndex < 3; i++) {
+      const light = lights[i];
+      if (!this._isDirectionalLight(light)) {
+        continue;
+      }
+      this._writeDirectionalLight(view, light, target, offset, lightIndex);
+      lightIndex++;
+    }
+    for (; lightIndex < 3; lightIndex++) {
+      const dirOffset = offset + 4 + lightIndex * 4;
+      const colorOffset = offset + 16 + lightIndex * 4;
+      target[dirOffset + 0] = 0;
+      target[dirOffset + 1] = 1;
+      target[dirOffset + 2] = 1;
+      target[dirOffset + 3] = 0;
+      target[colorOffset + 0] = 0;
+      target[colorOffset + 1] = 0;
+      target[colorOffset + 2] = 0;
+      target[colorOffset + 3] = 0;
+    }
+    this._writeHemisphereAmbient(view, target);
+  }
+  _getAmbientLight(view) {
+    const lights = view?.lightsList || [];
+    for (let i = 0, len = lights.length; i < len; i++) {
+      const light = lights[i];
+      if (this._isAmbientLight(light)) {
+        const intensity = this._getLightIntensity(light);
+        this._ambientScratch[0] = light.color?.[0] ?? 0.5;
+        this._ambientScratch[1] = light.color?.[1] ?? 0.5;
+        this._ambientScratch[2] = light.color?.[2] ?? 0.5;
+        this._ambientScratch[3] = intensity;
+        return this._ambientScratch;
+      }
+    }
+    return this._defaultAmbient;
+  }
+  _writeDirectionalLight(view, light, target, offset, lightIndex) {
+    const dir = light.dir || [0, 1, 1];
+    const dirLength = Math.hypot(dir[0], dir[1], dir[2]) || 1;
+    const sx = dir[0] / dirLength;
+    const sy = dir[1] / dirLength;
+    const sz = dir[2] / dirLength;
+    const viewMatrix = view?.camera?.viewMatrix;
+    const transformToWorld = light.space !== "world" && viewMatrix;
+    const wx = transformToWorld ? viewMatrix[0] * sx + viewMatrix[1] * sy + viewMatrix[2] * sz : sx;
+    const wy = transformToWorld ? viewMatrix[4] * sx + viewMatrix[5] * sy + viewMatrix[6] * sz : sy;
+    const wz = transformToWorld ? viewMatrix[8] * sx + viewMatrix[9] * sy + viewMatrix[10] * sz : sz;
+    const worldLength = Math.hypot(wx, wy, wz) || 1;
+    const dirOffset = offset + 4 + lightIndex * 4;
+    const colorOffset = offset + 16 + lightIndex * 4;
+    target[dirOffset + 0] = wx / worldLength;
+    target[dirOffset + 1] = wy / worldLength;
+    target[dirOffset + 2] = wz / worldLength;
+    target[dirOffset + 3] = 0;
+    target[colorOffset + 0] = light.color?.[0] ?? 0;
+    target[colorOffset + 1] = light.color?.[1] ?? 0;
+    target[colorOffset + 2] = light.color?.[2] ?? 0;
+    target[colorOffset + 3] = this._getLightIntensity(light);
+  }
+  _isAmbientLight(light) {
+    return !!light && light.dir === void 0 && light.pos === void 0 && light.color !== void 0 && light.intensity !== void 0;
+  }
+  _isDirectionalLight(light) {
+    return !!light && light.dir !== void 0 && light.pos === void 0;
+  }
+  _getLightIntensity(light) {
+    return light?.intensity !== void 0 ? light.intensity : 1;
+  }
+  _writeHemisphereAmbient(view, target) {
+    const hemisphere = view?.lights?.hemispheric;
+    const applied = !!(hemisphere?.applied && hemisphere?.possible);
+    const intensity = applied ? Math.max(0, Number(hemisphere.intensity ?? 1)) : 0;
+    const sky = hemisphere?.skyColor || [0.62, 0.72, 0.86];
+    const ground = hemisphere?.groundColor || [0.42, 0.36, 0.3];
+    const up = hemisphere?.worldUp || [0, 0, 1];
+    const upLength = Math.hypot(up[0] ?? 0, up[1] ?? 0, up[2] ?? 0);
+    const upX = upLength > 0 ? (up[0] ?? 0) / upLength : 0;
+    const upY = upLength > 0 ? (up[1] ?? 0) / upLength : 0;
+    const upZ = upLength > 0 ? (up[2] ?? 0) / upLength : 1;
+    target[HEMISPHERE_SKY_UNIFORM_OFFSET + 0] = sky[0] ?? 0.62;
+    target[HEMISPHERE_SKY_UNIFORM_OFFSET + 1] = sky[1] ?? 0.72;
+    target[HEMISPHERE_SKY_UNIFORM_OFFSET + 2] = sky[2] ?? 0.86;
+    target[HEMISPHERE_SKY_UNIFORM_OFFSET + 3] = intensity;
+    target[HEMISPHERE_GROUND_UNIFORM_OFFSET + 0] = ground[0] ?? 0.42;
+    target[HEMISPHERE_GROUND_UNIFORM_OFFSET + 1] = ground[1] ?? 0.36;
+    target[HEMISPHERE_GROUND_UNIFORM_OFFSET + 2] = ground[2] ?? 0.3;
+    target[HEMISPHERE_GROUND_UNIFORM_OFFSET + 3] = 0;
+    target[HEMISPHERE_UP_UNIFORM_OFFSET + 0] = upX;
+    target[HEMISPHERE_UP_UNIFORM_OFFSET + 1] = upY;
+    target[HEMISPHERE_UP_UNIFORM_OFFSET + 2] = upZ;
+    target[HEMISPHERE_UP_UNIFORM_OFFSET + 3] = 0;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/RTCTileManager.ts
+var tempRTCCenter = createVec3Float64();
+var tempClipCenter = new Float64Array(4);
+var tempWorldCenter = new Float64Array(4);
+var tempWebGPUViewProjection = createMat4Float64();
+var tempTileMatrix = createMat4Float64();
+var RTCTileManager = class {
+  _renderContext;
+  _tiles = /* @__PURE__ */ new Map();
+  _meshTileIds = /* @__PURE__ */ new Map();
+  _fallbackMeshIds = /* @__PURE__ */ new Set();
+  _tileIndexesUsed = [];
+  _lastTileMatrixUploads = 0;
+  _buffer = null;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  get buffer() {
+    if (this._buffer) {
+      return this._buffer;
+    }
+    this._buffer = this._renderContext.device.createBuffer({
+      label: "xeokit-webgpu-rtc-tile-buffer",
+      size: Math.max(1, this._renderContext.memoryConfigs.maxTiles) * RTC_TILE_BYTES,
+      usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST
+    });
+    this._writeOriginTile();
+    return this._buffer;
+  }
+  assignMesh(meshId, worldCenter) {
+    const tileSize = this._renderContext.memoryConfigs.tileSize;
+    if (!Number.isFinite(tileSize) || tileSize <= 0 || this._getMaxTiles() <= 1) {
+      return {
+        tileIndex: 0,
+        center: ORIGIN_TILE_CENTER
+      };
+    }
+    const rtcCenter2 = worldToRTCCenter(worldCenter, tempRTCCenter, tileSize);
+    const previousTileId = this._meshTileIds.get(meshId);
+    if (rtcCenter2[0] === 0 && rtcCenter2[1] === 0 && rtcCenter2[2] === 0) {
+      if (previousTileId) {
+        this._meshTileIds.delete(meshId);
+        this._releaseTile(previousTileId);
+      }
+      this._fallbackMeshIds.delete(meshId);
+      return {
+        tileIndex: 0,
+        center: ORIGIN_TILE_CENTER
+      };
+    }
+    const tileId = this._makeTileId(rtcCenter2);
+    if (previousTileId === tileId) {
+      const existing = this._tiles.get(tileId);
+      if (existing) {
+        this._fallbackMeshIds.delete(meshId);
+        return existing;
+      }
+    }
+    if (previousTileId) {
+      this._releaseTile(previousTileId);
+    }
+    const existingTile = this._tiles.get(tileId);
+    const tile = existingTile ?? this._createTile(tileId, rtcCenter2);
+    if (!tile) {
+      this._fallbackMeshIds.add(meshId);
+      return {
+        tileIndex: 0,
+        center: ORIGIN_TILE_CENTER
+      };
+    }
+    tile.useCount++;
+    this._meshTileIds.set(meshId, tileId);
+    this._fallbackMeshIds.delete(meshId);
+    return tile;
+  }
+  releaseMesh(meshId) {
+    const tileId = this._meshTileIds.get(meshId);
+    if (!tileId) {
+      this._fallbackMeshIds.delete(meshId);
+      return;
+    }
+    this._meshTileIds.delete(meshId);
+    this._fallbackMeshIds.delete(meshId);
+    this._releaseTile(tileId);
+  }
+  releaseAll() {
+    this._meshTileIds.clear();
+    this._fallbackMeshIds.clear();
+    this._tiles.clear();
+    this._tileIndexesUsed.length = 0;
+    this._lastTileMatrixUploads = 0;
+  }
+  getStats() {
+    return {
+      tiles: this._tiles.size,
+      tileMatrixUploads: this._lastTileMatrixUploads,
+      meshesWithRTCTile: this._meshTileIds.size,
+      meshesUsingFallback: this._fallbackMeshIds.size
+    };
+  }
+  getMemoryStats() {
+    const capacity = this._getMaxTiles();
+    return {
+      capacity,
+      tiles: this._tiles.size,
+      bytes: capacity * RTC_TILE_BYTES
+    };
+  }
+  writeTileMatrices(view) {
+    const camera = view.camera;
+    const viewMatrix = camera.viewMatrix;
+    const projMatrix = camera.projMatrix;
+    mulMat4(projMatrix, viewMatrix, tempWebGPUViewProjection);
+    mulMat4(WEBGPU_CLIP_SPACE_MATRIX, tempWebGPUViewProjection, tempWebGPUViewProjection);
+    return this.writeTileMatricesForWebGPUViewProjection(tempWebGPUViewProjection);
+  }
+  writeTileMatricesForWebGPUViewProjection(webGPUViewProjectionMatrix) {
+    try {
+      this._lastTileMatrixUploads = 0;
+      this._writeTileMatrix(0, ORIGIN_TILE_CENTER, webGPUViewProjectionMatrix);
+      for (const tile of this._tiles.values()) {
+        this._writeTileMatrix(tile.tileIndex, tile.center, webGPUViewProjectionMatrix);
+      }
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[RTCTileManager.writeTileMatricesForWebGPUViewProjection] Failed to upload WebGPU RTC tile matrices: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  destroy() {
+    this.releaseAll();
+    try {
+      this._buffer?.destroy?.();
+    } catch {
+    }
+    this._buffer = null;
+  }
+  _createTile(id, rtcCenter2) {
+    const tileIndex = this._getFreeTileIndex();
+    if (tileIndex <= 0) {
+      return null;
+    }
+    const tile = {
+      id,
+      tileIndex,
+      center: createVec3Float64(rtcCenter2),
+      useCount: 0
+    };
+    this._tiles.set(id, tile);
+    return tile;
+  }
+  _releaseTile(tileId) {
+    const tile = this._tiles.get(tileId);
+    if (!tile) {
+      return;
+    }
+    tile.useCount--;
+    if (tile.useCount > 0) {
+      return;
+    }
+    this._tiles.delete(tileId);
+    this._putFreeTileIndex(tile.tileIndex);
+  }
+  _getFreeTileIndex() {
+    const maxTiles = this._getMaxTiles();
+    if (maxTiles <= 1) {
+      return 0;
+    }
+    for (let i = 1; i < maxTiles; i++) {
+      if (!this._tileIndexesUsed[i]) {
+        this._tileIndexesUsed[i] = true;
+        return i;
+      }
+    }
+    return 0;
+  }
+  _getMaxTiles() {
+    const maxTiles = this._renderContext.memoryConfigs.maxTiles;
+    return Number.isFinite(maxTiles) ? Math.max(1, Math.floor(maxTiles)) : 1;
+  }
+  _putFreeTileIndex(index) {
+    if (index <= 0) {
+      return;
+    }
+    delete this._tileIndexesUsed[index];
+  }
+  _writeOriginTile() {
+    this._writeTileMatrix(0, ORIGIN_TILE_CENTER, IDENTITY_WEBGPU_VIEW_PROJECTION);
+  }
+  _writeTileMatrix(tileIndex, center, webGPUViewProjectionMatrix) {
+    createRTCViewProjectionMat(webGPUViewProjectionMatrix, center, tempTileMatrix);
+    const data2 = new Float32Array(RTC_TILE_FLOATS);
+    for (let i = 0; i < 16; i++) {
+      data2[i] = tempTileMatrix[i];
+    }
+    data2[16] = center[0];
+    data2[17] = center[1];
+    data2[18] = center[2];
+    data2[19] = 0;
+    this._renderContext.device.queue.writeBuffer(this.buffer, tileIndex * RTC_TILE_BYTES, data2);
+    this._lastTileMatrixUploads++;
+  }
+  _makeTileId(rtcCenter2) {
+    return `${rtcCenter2[0]}:${rtcCenter2[1]}:${rtcCenter2[2]}`;
+  }
+};
+function createRTCViewProjectionMat(webGPUViewProjectionMatrix, rtcCenter2, target) {
+  for (let i = 0; i < 16; i++) {
+    target[i] = webGPUViewProjectionMatrix[i];
+  }
+  tempWorldCenter[0] = rtcCenter2[0];
+  tempWorldCenter[1] = rtcCenter2[1];
+  tempWorldCenter[2] = rtcCenter2[2];
+  tempWorldCenter[3] = 1;
+  transformVec4(webGPUViewProjectionMatrix, tempWorldCenter, tempClipCenter);
+  target[12] = tempClipCenter[0];
+  target[13] = tempClipCenter[1];
+  target[14] = tempClipCenter[2];
+  target[15] = tempClipCenter[3];
+  return target;
+}
+var ORIGIN_TILE_CENTER = createVec3Float64([0, 0, 0]);
+var IDENTITY_WEBGPU_VIEW_PROJECTION = createMat4Float64();
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/FrameUniformManager.ts
+var FrameUniformManager = class {
+  _renderContext;
+  _bindGroupLayoutManager;
+  _lightingManager;
+  _rtcTileManager;
+  _viewProjectionMatrix = createMat4Float64();
+  _webGPUViewProjectionMatrix = createMat4Float64();
+  _frameUniformData = new Float32Array(FRAME_UNIFORM_FLOATS);
+  _uniformBuffer = null;
+  _bindGroup = null;
+  _bindGroupVersion = -1;
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._lightingManager = params.lightingManager;
+    this._rtcTileManager = params.rtcTileManager;
+  }
+  writeFrameUniforms(view) {
+    const camera = view.camera;
+    const viewMatrix = camera?.viewMatrix ?? IDENTITY_MATRIX2;
+    const projMatrix = camera?.projMatrix ?? IDENTITY_MATRIX2;
+    mulMat4(projMatrix, viewMatrix, this._viewProjectionMatrix);
+    mulMat4(WEBGPU_CLIP_SPACE_MATRIX, this._viewProjectionMatrix, this._webGPUViewProjectionMatrix);
+    return this.writeFrameUniformsForWebGPUViewProjection(view, this._webGPUViewProjectionMatrix);
+  }
+  writeFrameUniformsForWebGPUViewProjection(view, webGPUViewProjectionMatrix) {
+    const tileUploadResult = this._rtcTileManager.writeTileMatricesForWebGPUViewProjection(webGPUViewProjectionMatrix);
+    if (tileUploadResult.ok === false) {
+      return tileUploadResult;
+    }
+    const bindGroupResult = this._getOrCreateBindGroup();
+    if (bindGroupResult.ok === false) {
+      return bindGroupResult;
+    }
+    for (let i = 0; i < 16; i++) {
+      this._frameUniformData[i] = webGPUViewProjectionMatrix[i];
+    }
+    this._lightingManager.writeLightingUniforms(view, this._frameUniformData, AMBIENT_LIGHT_UNIFORM_OFFSET);
+    this._writeSectionPlaneUniforms(view, this._frameUniformData, SECTION_PLANE_STATE_UNIFORM_OFFSET);
+    this._writeDepthUniforms(view, this._frameUniformData, DEPTH_PARAMS_UNIFORM_OFFSET);
+    this._writePointUniforms(view, this._frameUniformData, POINT_PARAMS_UNIFORM_OFFSET);
+    this._writeLineUniforms(view, this._frameUniformData, LINE_PARAMS_UNIFORM_OFFSET);
+    this._writeViewMatrixUniforms(view, this._frameUniformData, VIEW_MATRIX_UNIFORM_OFFSET);
+    this._writeSplatUniforms(view, this._frameUniformData, SPLAT_PARAMS_UNIFORM_OFFSET);
+    this._renderContext.device.queue.writeBuffer(this._uniformBuffer, 0, this._frameUniformData);
+    return bindGroupResult;
+  }
+  destroy() {
+    try {
+      this._uniformBuffer?.destroy?.();
+    } catch {
+    }
+    this._uniformBuffer = null;
+    this._bindGroup = null;
+  }
+  _getOrCreateBindGroup() {
+    if (this._bindGroup && this._bindGroupVersion === this._renderContext.iblBindGroupVersion) {
+      return {
+        ok: true,
+        value: this._bindGroup
+      };
+    }
+    const bindGroupLayoutResult = this._bindGroupLayoutManager.getFrameBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    try {
+      this._uniformBuffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-frame-uniforms",
+        size: FRAME_UNIFORM_BYTES,
+        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._bindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-frame-bind-group",
+        layout: bindGroupLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: this._uniformBuffer
+          }
+        }, {
+          binding: 1,
+          resource: {
+            buffer: this._rtcTileManager.buffer
+          }
+        }, {
+          binding: 2,
+          resource: {
+            buffer: this._renderContext.iblUniformBuffer
+          }
+        }, {
+          binding: 3,
+          resource: this._renderContext.iblSampler
+        }, {
+          binding: 4,
+          resource: this._renderContext.iblIrradianceView
+        }, {
+          binding: 5,
+          resource: this._renderContext.iblPrefilteredView
+        }, {
+          binding: 6,
+          resource: this._renderContext.iblBRDFLUTView
+        }]
+      });
+      this._bindGroupVersion = this._renderContext.iblBindGroupVersion;
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[FrameUniformManager._getOrCreateBindGroup] Failed to create WebGPU frame uniforms: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return {
+      ok: true,
+      value: this._bindGroup
+    };
+  }
+  _writeSectionPlaneUniforms(view, target, offset) {
+    const planes = view.sectionPlanesList;
+    let count = 0;
+    if (planes) {
+      for (let i = 0, len = planes.length; i < len && count < MAX_SECTION_PLANES2; i++) {
+        const plane = planes[i];
+        if (!plane.active) {
+          continue;
+        }
+        const planeOffset = offset + 4 + count * 4;
+        target[planeOffset + 0] = plane.dir[0];
+        target[planeOffset + 1] = plane.dir[1];
+        target[planeOffset + 2] = plane.dir[2];
+        target[planeOffset + 3] = plane.dist;
+        const capColorOffset = SECTION_PLANE_CAP_COLOR_UNIFORM_OFFSET + count * 4;
+        if (plane.capColor) {
+          target[capColorOffset + 0] = plane.capColor[0];
+          target[capColorOffset + 1] = plane.capColor[1];
+          target[capColorOffset + 2] = plane.capColor[2];
+          target[capColorOffset + 3] = 1;
+        } else {
+          target[capColorOffset + 0] = 0;
+          target[capColorOffset + 1] = 0;
+          target[capColorOffset + 2] = 0;
+          target[capColorOffset + 3] = 0;
+        }
+        count++;
+      }
+    }
+    target[offset] = count;
+    target[offset + 1] = 0;
+    target[offset + 2] = 0;
+    target[offset + 3] = 0;
+    for (let i = count; i < MAX_SECTION_PLANES2; i++) {
+      const planeOffset = offset + 4 + i * 4;
+      target[planeOffset + 0] = 0;
+      target[planeOffset + 1] = 0;
+      target[planeOffset + 2] = 0;
+      target[planeOffset + 3] = 0;
+      const capColorOffset = SECTION_PLANE_CAP_COLOR_UNIFORM_OFFSET + i * 4;
+      target[capColorOffset + 0] = 0;
+      target[capColorOffset + 1] = 0;
+      target[capColorOffset + 2] = 0;
+      target[capColorOffset + 3] = 0;
+    }
+  }
+  _writeDepthUniforms(view, target, offset) {
+    const far = Number(view.camera?.perspectiveProjection?.far ?? 1e6);
+    const safeFar = Number.isFinite(far) && far > 0 ? far : 1e6;
+    target[offset] = 2 / Math.log2(safeFar + 1);
+    target[offset + 1] = this._renderContext.renderConfigs.logDepth ? 1 : 0;
+    target[offset + 2] = 0;
+    target[offset + 3] = 0;
+  }
+  _writePointUniforms(view, target, offset) {
+    const pointMaterial = view.pointsMaterial;
+    const pointSize = Math.max(1, Number(pointMaterial?.pointSize ?? 1));
+    const minPerspectivePointSize = Math.max(1, Number(pointMaterial?.minPerspectivePointSize ?? pointSize));
+    const maxPerspectivePointSize = Math.max(minPerspectivePointSize, Number(pointMaterial?.maxPerspectivePointSize ?? pointSize));
+    const perspectivePoints = pointMaterial?.perspectivePoints === true ? 1 : 0;
+    const roundPoints = pointMaterial?.roundPoints === true ? 1 : 0;
+    const camera = view.camera;
+    const fov = Number(camera?.perspectiveProjection?.fov ?? 60);
+    const viewportHeight = Number(view.boundary?.[3] || view.htmlElement?.clientHeight || 1);
+    const nearPlaneHeight = camera?.projectionType === OrthoProjectionType ? 1 : viewportHeight / (2 * Math.tan(0.5 * fov * Math.PI / 180));
+    target[offset + 0] = pointSize;
+    target[offset + 1] = perspectivePoints;
+    target[offset + 2] = roundPoints;
+    target[offset + 3] = nearPlaneHeight;
+    target[offset + 4] = minPerspectivePointSize;
+    target[offset + 5] = maxPerspectivePointSize;
+    target[offset + 6] = Math.max(1, Number(view.boundary?.[2] || view.htmlElement?.clientWidth || 1));
+    target[offset + 7] = Math.max(1, viewportHeight);
+  }
+  _writeLineUniforms(view, target, offset) {
+    const lineMaterial = view.linesMaterial;
+    target[offset + 0] = Math.max(1, Number(lineMaterial?.lineWidth ?? 1));
+    target[offset + 1] = Math.max(1, Number(view.boundary?.[2] || view.htmlElement?.clientWidth || 1));
+    target[offset + 2] = Math.max(1, Number(view.boundary?.[3] || view.htmlElement?.clientHeight || 1));
+    target[offset + 3] = 0;
+  }
+  _writeViewMatrixUniforms(view, target, offset) {
+    const viewMatrix = view.camera?.viewMatrix ?? IDENTITY_MATRIX2;
+    for (let i = 0; i < 16; i++) {
+      target[offset + i] = viewMatrix[i];
+    }
+  }
+  _writeSplatUniforms(view, target, offset) {
+    const camera = view.camera;
+    const fov = Number(camera?.perspectiveProjection?.fov ?? 60);
+    const viewportWidth = Math.max(1, Number(view.boundary?.[2] || view.htmlElement?.clientWidth || 1));
+    const viewportHeight = Math.max(1, Number(view.boundary?.[3] || view.htmlElement?.clientHeight || 1));
+    const focalY = camera?.projectionType === OrthoProjectionType ? viewportHeight : viewportHeight / (2 * Math.tan(0.5 * fov * Math.PI / 180));
+    const focalX = focalY * (viewportWidth / viewportHeight);
+    target[offset + 0] = viewportWidth;
+    target[offset + 1] = viewportHeight;
+    target[offset + 2] = focalX;
+    target[offset + 3] = focalY;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/InstanceBatcher.ts
+var InstanceBatcher = class {
+  _renderContext;
+  _triangleBatchManager;
   _batches = {
     opaque: [],
-    transparent: []
+    edges: [],
+    transparent: [],
+    overlayOpaque: [],
+    overlayTransparent: [],
+    xrayedOpaque: [],
+    xrayedEdgesOpaque: [],
+    xrayedTransparent: [],
+    xrayedEdgesTransparent: [],
+    highlightedOpaque: [],
+    highlightedEdgesOpaque: [],
+    highlightedTransparent: [],
+    highlightedEdgesTransparent: [],
+    selectedOpaque: [],
+    selectedEdgesOpaque: [],
+    selectedTransparent: [],
+    selectedEdgesTransparent: []
   };
-  constructor(renderContext) {
-    this._packedBatchBuilder = new WebGPUPackedMeshBatchBuilder(renderContext);
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._triangleBatchManager = new TriangleBatchManager({
+      renderContext: params.renderContext,
+      bindGroupLayoutManager: params.bindGroupLayoutManager,
+      memoryConfigs: params.renderContext.memoryConfigs,
+      rtcTileResolver: params.rtcTileManager
+    });
   }
   get batches() {
     return this._batches;
   }
+  getMemoryStats() {
+    return this._triangleBatchManager.getMemoryStats();
+  }
+  sceneTextureImageDataChanged(sceneTexture) {
+    this._triangleBatchManager.sceneTextureImageDataChanged(sceneTexture);
+  }
+  prepare(meshManager) {
+    const batchResult = this._triangleBatchManager.prepare(meshManager);
+    if (batchResult.ok === false) {
+      return batchResult;
+    }
+    return {
+      ok: true,
+      value: batchResult.value.instanceCapacity
+    };
+  }
+  prepareBatchSet(meshManager, options) {
+    return this._triangleBatchManager.prepare(meshManager, options);
+  }
+  buildPendingSegments(meshManager) {
+    return this._triangleBatchManager.buildPendingSegments(meshManager);
+  }
+  writeInstances(params) {
+    this._triangleBatchManager.writeInstances(params);
+  }
   build(params) {
-    const { bins, view, meshManager, instanceBufferManager, instanceFrame } = params;
+    const { bins, view, meshManager, instanceFrame } = params;
     this._clear();
-    const opaqueBatchResult = this._packedBatchBuilder.build({
-      drawItems: bins.normalDrawOpaque,
-      label: `${view.id}:opaque`,
+    const batchResult = this._triangleBatchManager.prepare(meshManager);
+    if (batchResult.ok === false) {
+      return batchResult;
+    }
+    const triangleBatch = batchResult.value;
+    return this.buildPrepared({
+      batchSet: triangleBatch,
+      bins,
       view,
       meshManager,
-      instanceBufferManager,
+      instanceFrame,
+      includeEdges: params.includeEdges
+    });
+  }
+  buildPrepared(params) {
+    const { batchSet, bins, view, meshManager, instanceFrame } = params;
+    const includeEdges = params.includeEdges ?? true;
+    this._clear();
+    const triangleBatch = batchSet;
+    if (triangleBatch.segments.length === 0) {
+      instanceFrame.instanceCount = 0;
+      return {
+        ok: true,
+        value: this._batches
+      };
+    }
+    this._triangleBatchManager.writeInstances({
+      batchSet: triangleBatch,
+      view,
+      meshManager,
       instanceFrame
     });
+    const opaqueBatchResult = this._appendOpaqueBatches({
+      batchSet: triangleBatch,
+      drawItems: filterDrawItemsByOverlay(bins.normalDrawOpaque, false),
+      viewId: view.id
+    });
     if (opaqueBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
       return opaqueBatchResult;
     }
-    if (opaqueBatchResult.value) {
-      this._batches.opaque.push({
-        packedBatch: opaqueBatchResult.value
+    if (includeEdges) {
+      const edgeBatchResult = this._appendEdgeBatches({
+        batchSet: triangleBatch,
+        drawItems: filterDrawItemsByOverlay(bins.normalEdgesOpaque, false),
+        viewId: view.id,
+        pass: "edges"
       });
+      if (edgeBatchResult.ok === false) {
+        this._destroyBatches(this._batches);
+        this._clear();
+        return edgeBatchResult;
+      }
     }
-    const transparentBatchResult = this._packedBatchBuilder.build({
-      drawItems: bins.normalFillTransparent,
-      label: `${view.id}:transparent`,
-      view,
-      meshManager,
-      instanceBufferManager,
-      instanceFrame
+    const transparentBatchResult = this._appendTransparentBatches({
+      batchSet: triangleBatch,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, false),
+      viewId: view.id,
+      pass: "transparent"
     });
     if (transparentBatchResult.ok === false) {
       this._destroyBatches(this._batches);
       this._clear();
       return transparentBatchResult;
     }
-    if (transparentBatchResult.value) {
-      this._batches.transparent.push({
-        packedBatch: transparentBatchResult.value
-      });
+    const overlayOpaqueBatchResult = this._appendOpaqueBatches({
+      batchSet: triangleBatch,
+      drawItems: filterDrawItemsByOverlay(bins.normalDrawOpaque, true),
+      viewId: view.id,
+      pass: "overlayOpaque",
+      target: this._batches.overlayOpaque
+    });
+    if (overlayOpaqueBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return overlayOpaqueBatchResult;
     }
-    instanceBufferManager.upload(instanceFrame);
+    const overlayTransparentBatchResult = this._appendTransparentBatches({
+      batchSet: triangleBatch,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, true),
+      viewId: view.id,
+      pass: "overlayTransparent",
+      target: this._batches.overlayTransparent
+    });
+    if (overlayTransparentBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return overlayTransparentBatchResult;
+    }
+    const emphasisResults = [
+      this._appendOpaqueBatches({ batchSet: triangleBatch, drawItems: bins.xrayedFillOpaque, viewId: view.id, pass: "xrayedOpaque", target: this._batches.xrayedOpaque }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.xrayedEdgesOpaque, viewId: view.id, pass: "xrayedEdgesOpaque", target: this._batches.xrayedEdgesOpaque }) : null,
+      this._appendTransparentBatches({ batchSet: triangleBatch, drawItems: bins.xrayedFillTransparent, viewId: view.id, pass: "xrayedTransparent", target: this._batches.xrayedTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.xrayedEdgesTransparent, viewId: view.id, pass: "xrayedEdgesTransparent", target: this._batches.xrayedEdgesTransparent }) : null,
+      this._appendOpaqueBatches({ batchSet: triangleBatch, drawItems: bins.highlightedFillOpaque, viewId: view.id, pass: "highlightedOpaque", target: this._batches.highlightedOpaque }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.highlightedEdgesOpaque, viewId: view.id, pass: "highlightedEdgesOpaque", target: this._batches.highlightedEdgesOpaque }) : null,
+      this._appendTransparentBatches({ batchSet: triangleBatch, drawItems: bins.highlightedFillTransparent, viewId: view.id, pass: "highlightedTransparent", target: this._batches.highlightedTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.highlightedEdgesTransparent, viewId: view.id, pass: "highlightedEdgesTransparent", target: this._batches.highlightedEdgesTransparent }) : null,
+      this._appendOpaqueBatches({ batchSet: triangleBatch, drawItems: bins.selectedFillOpaque, viewId: view.id, pass: "selectedOpaque", target: this._batches.selectedOpaque }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.selectedEdgesOpaque, viewId: view.id, pass: "selectedEdgesOpaque", target: this._batches.selectedEdgesOpaque }) : null,
+      this._appendTransparentBatches({ batchSet: triangleBatch, drawItems: bins.selectedFillTransparent, viewId: view.id, pass: "selectedTransparent", target: this._batches.selectedTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.selectedEdgesTransparent, viewId: view.id, pass: "selectedEdgesTransparent", target: this._batches.selectedEdgesTransparent }) : null
+    ];
+    for (const result of emphasisResults) {
+      if (result === null) {
+        continue;
+      }
+      if (result.ok === false) {
+        this._destroyBatches(this._batches);
+        this._clear();
+        return result;
+      }
+    }
     return {
       ok: true,
       value: this._batches
     };
   }
+  buildTransparent(params) {
+    const { bins, view, meshManager } = params;
+    const includeEdges = params.includeEdges ?? true;
+    this._clear();
+    const batchResult = this._triangleBatchManager.prepare(meshManager);
+    if (batchResult.ok === false) {
+      return batchResult;
+    }
+    return this.buildTransparentPrepared({
+      batchSet: batchResult.value,
+      bins,
+      view,
+      includeEdges
+    });
+  }
+  buildTransparentPrepared(params) {
+    const { batchSet, bins, view } = params;
+    const includeEdges = params.includeEdges ?? true;
+    this._clear();
+    const transparentBatchResult = this._appendTransparentBatches({
+      batchSet,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, false),
+      viewId: view.id,
+      pass: "transparent"
+    });
+    if (transparentBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return transparentBatchResult;
+    }
+    const overlayTransparentBatchResult = this._appendTransparentBatches({
+      batchSet,
+      drawItems: filterDrawItemsByOverlay(bins.normalFillTransparent, true),
+      viewId: view.id,
+      pass: "overlayTransparent",
+      target: this._batches.overlayTransparent
+    });
+    if (overlayTransparentBatchResult.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return overlayTransparentBatchResult;
+    }
+    const emphasisResults = [
+      this._appendTransparentBatches({ batchSet, drawItems: bins.xrayedFillTransparent, viewId: view.id, pass: "xrayedTransparent", target: this._batches.xrayedTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet, drawItems: bins.xrayedEdgesTransparent, viewId: view.id, pass: "xrayedEdgesTransparent", target: this._batches.xrayedEdgesTransparent }) : null,
+      this._appendTransparentBatches({ batchSet, drawItems: bins.highlightedFillTransparent, viewId: view.id, pass: "highlightedTransparent", target: this._batches.highlightedTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet, drawItems: bins.highlightedEdgesTransparent, viewId: view.id, pass: "highlightedEdgesTransparent", target: this._batches.highlightedEdgesTransparent }) : null,
+      this._appendTransparentBatches({ batchSet, drawItems: bins.selectedFillTransparent, viewId: view.id, pass: "selectedTransparent", target: this._batches.selectedTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet, drawItems: bins.selectedEdgesTransparent, viewId: view.id, pass: "selectedEdgesTransparent", target: this._batches.selectedEdgesTransparent }) : null
+    ];
+    for (const result of emphasisResults) {
+      if (result === null) {
+        continue;
+      }
+      if (result.ok === false) {
+        this._destroyBatches(this._batches);
+        this._clear();
+        return result;
+      }
+    }
+    return {
+      ok: true,
+      value: this._batches
+    };
+  }
+  buildOpaque(params) {
+    this._clear();
+    const result = this._appendOpaqueBatches(params);
+    if (result.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return result;
+    }
+    const opaque = this._batches.opaque.slice();
+    this._batches.opaque.length = 0;
+    return {
+      ok: true,
+      value: opaque
+    };
+  }
+  buildEdges(params) {
+    this._clear();
+    const result = this._appendEdgeBatches(params);
+    if (result.ok === false) {
+      this._destroyBatches(this._batches);
+      this._clear();
+      return result;
+    }
+    const edges = this._batches.edges.slice();
+    this._batches.edges.length = 0;
+    return {
+      ok: true,
+      value: edges
+    };
+  }
+  _appendEdgeBatches(params) {
+    const pass = params.pass ?? "edges";
+    const target = params.target ?? this._batches.edges;
+    const groups = /* @__PURE__ */ new Map();
+    for (let i = 0, len = params.drawItems.length; i < len; i++) {
+      const drawItem = params.drawItems[i];
+      const segment = params.batchSet.segmentByMeshId[drawItem.meshState.mesh.uniqueId];
+      if (!segment) {
+        continue;
+      }
+      let group = groups.get(segment);
+      if (!group) {
+        group = [];
+        groups.set(segment, group);
+      }
+      group.push(drawItem);
+    }
+    let ordinal = 0;
+    for (let i = 0, len = params.batchSet.segments.length; i < len; i++) {
+      const segment = params.batchSet.segments[i];
+      const drawItems = groups.get(segment);
+      if (!drawItems?.length) {
+        continue;
+      }
+      const result = this._triangleBatchManager.createDrawBatch({
+        segment,
+        drawItems,
+        label: `${params.viewId}:${pass}:${segment.label}:${ordinal++}`,
+        topology: "edges",
+        renderStateKey: pass,
+        cacheKey: this._getDrawBatchCacheKey(params.viewId, pass, segment, drawItems),
+        reuseFullSegmentIndex: true
+      });
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
+        target.push(result.value);
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _appendOpaqueBatches(params) {
+    const pass = params.pass ?? "opaque";
+    const target = params.target ?? this._batches.opaque;
+    const groups = /* @__PURE__ */ new Map();
+    for (let i = 0, len = params.drawItems.length; i < len; i++) {
+      const drawItem = params.drawItems[i];
+      const segment = params.batchSet.segmentByMeshId[drawItem.meshState.mesh.uniqueId];
+      if (!segment) {
+        continue;
+      }
+      let group = groups.get(segment);
+      if (!group) {
+        group = [];
+        groups.set(segment, group);
+      }
+      group.push(drawItem);
+    }
+    let ordinal = 0;
+    for (let i = 0, len = params.batchSet.segments.length; i < len; i++) {
+      const segment = params.batchSet.segments[i];
+      const drawItems = groups.get(segment);
+      if (!drawItems?.length) {
+        continue;
+      }
+      const result = this._triangleBatchManager.createDrawBatch({
+        segment,
+        drawItems,
+        label: `${params.viewId}:${pass}:${segment.label}:${ordinal++}`,
+        renderStateKey: pass,
+        cacheKey: this._getDrawBatchCacheKey(params.viewId, pass, segment, drawItems),
+        reuseFullSegmentIndex: true
+      });
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
+        target.push(result.value);
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _appendTransparentBatches(params) {
+    const pass = params.pass ?? "transparent";
+    const target = params.target ?? this._batches.transparent;
+    if (this._renderContext.renderConfigs.transparentSortStrategy === "segment") {
+      return this._appendSegmentGroupedTransparentBatches({
+        ...params,
+        pass,
+        target
+      });
+    }
+    let currentSegment = null;
+    let currentItems = [];
+    let ordinal = 0;
+    const flush = () => {
+      if (!currentSegment || currentItems.length === 0) {
+        return {
+          ok: true,
+          value: void 0
+        };
+      }
+      const result = this._triangleBatchManager.createDrawBatch({
+        segment: currentSegment,
+        drawItems: currentItems,
+        label: `${params.viewId}:${pass}:${currentSegment.label}:${ordinal++}`,
+        renderStateKey: pass,
+        cacheKey: this._getDrawBatchCacheKey(params.viewId, pass, currentSegment, currentItems)
+      });
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
+        target.push(result.value);
+      }
+      currentItems = [];
+      return {
+        ok: true,
+        value: void 0
+      };
+    };
+    for (let i = 0, len = params.drawItems.length; i < len; i++) {
+      const drawItem = params.drawItems[i];
+      const segment = params.batchSet.segmentByMeshId[drawItem.meshState.mesh.uniqueId];
+      if (!segment) {
+        continue;
+      }
+      if (currentSegment && currentSegment !== segment) {
+        const result = flush();
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      currentSegment = segment;
+      currentItems.push(drawItem);
+    }
+    return flush();
+  }
+  _appendSegmentGroupedTransparentBatches(params) {
+    const groups = /* @__PURE__ */ new Map();
+    const segmentOrder = [];
+    for (let i = 0, len = params.drawItems.length; i < len; i++) {
+      const drawItem = params.drawItems[i];
+      const segment = params.batchSet.segmentByMeshId[drawItem.meshState.mesh.uniqueId];
+      if (!segment) {
+        continue;
+      }
+      let group = groups.get(segment);
+      if (!group) {
+        group = [];
+        groups.set(segment, group);
+        segmentOrder.push(segment);
+      }
+      group.push(drawItem);
+    }
+    let ordinal = 0;
+    for (let i = 0, len = segmentOrder.length; i < len; i++) {
+      const segment = segmentOrder[i];
+      const drawItems = groups.get(segment);
+      if (!drawItems?.length) {
+        continue;
+      }
+      const result = this._triangleBatchManager.createDrawBatch({
+        segment,
+        drawItems,
+        label: `${params.viewId}:${params.pass}:${segment.label}:${ordinal++}`,
+        renderStateKey: params.pass,
+        cacheKey: this._getDrawBatchCacheKey(params.viewId, params.pass, segment, drawItems)
+      });
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
+        params.target.push(result.value);
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
   _clear() {
     this._batches.opaque.length = 0;
+    this._batches.edges.length = 0;
     this._batches.transparent.length = 0;
+    this._batches.overlayOpaque.length = 0;
+    this._batches.overlayTransparent.length = 0;
+    this._batches.xrayedOpaque.length = 0;
+    this._batches.xrayedEdgesOpaque.length = 0;
+    this._batches.xrayedTransparent.length = 0;
+    this._batches.xrayedEdgesTransparent.length = 0;
+    this._batches.highlightedOpaque.length = 0;
+    this._batches.highlightedEdgesOpaque.length = 0;
+    this._batches.highlightedTransparent.length = 0;
+    this._batches.highlightedEdgesTransparent.length = 0;
+    this._batches.selectedOpaque.length = 0;
+    this._batches.selectedEdgesOpaque.length = 0;
+    this._batches.selectedTransparent.length = 0;
+    this._batches.selectedEdgesTransparent.length = 0;
+  }
+  _getDrawBatchCacheKey(viewId, pass, segment, drawItems) {
+    const meshIds = [];
+    for (let i = 0, len = drawItems.length; i < len; i++) {
+      meshIds.push(drawItems[i].meshState.mesh.uniqueId);
+    }
+    return `${viewId}|${pass}|${segment.key}|${meshIds.join(",")}`;
   }
   _destroyBatches(batches) {
     for (let i = 0, len = batches.opaque.length; i < len; i++) {
       batches.opaque[i].packedBatch.destroy();
     }
+    for (let i = 0, len = batches.edges.length; i < len; i++) {
+      batches.edges[i].packedBatch.destroy();
+    }
     for (let i = 0, len = batches.transparent.length; i < len; i++) {
       batches.transparent[i].packedBatch.destroy();
     }
+    for (const batchList of [
+      batches.overlayOpaque,
+      batches.overlayTransparent,
+      batches.xrayedOpaque,
+      batches.xrayedEdgesOpaque,
+      batches.xrayedTransparent,
+      batches.xrayedEdgesTransparent,
+      batches.highlightedOpaque,
+      batches.highlightedEdgesOpaque,
+      batches.highlightedTransparent,
+      batches.highlightedEdgesTransparent,
+      batches.selectedOpaque,
+      batches.selectedEdgesOpaque,
+      batches.selectedTransparent,
+      batches.selectedEdgesTransparent
+    ]) {
+      for (let i = 0, len = batchList.length; i < len; i++) {
+        batchList[i].packedBatch.destroy();
+      }
+    }
+  }
+  destroy() {
+    this._destroyBatches(this._batches);
+    this._clear();
+    this._triangleBatchManager.destroy();
   }
 };
+function filterDrawItemsByOverlay(drawItems, overlay) {
+  return drawItems.filter((drawItem) => drawItem.meshState.mesh.bin === "overlay" === overlay);
+}
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPURenderBinClassifier.ts
-var WebGPURenderBinClassifier = class {
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/environment/InfiniteGridRenderer.ts
+var InfiniteGridRenderer2 = class _InfiniteGridRenderer {
+  static _UNIFORM_FLOATS = 56;
+  static _UNIFORM_BYTES = _InfiniteGridRenderer._UNIFORM_FLOATS * 4;
+  _renderContext;
+  _viewProjMatrix = createMat4Float64();
+  _webGPUViewProjMatrix = createMat4Float64();
+  _rteViewMatrix = createMat4Float64();
+  _uniformData = new Float32Array(_InfiniteGridRenderer._UNIFORM_FLOATS);
+  _pipelines = {};
+  _uniformBuffer = null;
+  _bindGroupLayout = null;
+  _pipelineLayout = null;
+  _bindGroup = null;
+  _shaderModule = null;
+  /**
+   * When true, RenderManager renders this grid each frame.
+   */
+  enabled = false;
+  minorStep;
+  majorStep;
+  axisWidth;
+  fadeStart;
+  fadeEnd;
+  gridHalfSize;
+  followCamera;
+  minorColor;
+  majorColor;
+  xAxisColor;
+  zAxisColor;
+  worldUp;
+  worldRight;
+  worldForward;
+  initialized = false;
+  destroyed = false;
+  constructor(renderContext, options = {}) {
+    this._renderContext = renderContext;
+    this.minorStep = options.minorStep ?? 1;
+    this.majorStep = options.majorStep ?? 10;
+    this.axisWidth = options.axisWidth ?? 0.06;
+    this.fadeStart = options.fadeStart ?? 80;
+    this.fadeEnd = options.fadeEnd ?? 500;
+    this.gridHalfSize = options.gridHalfSize ?? 1e3;
+    this.followCamera = options.followCamera ?? true;
+    this.minorColor = options.minorColor ?? [0.24, 0.27, 0.31];
+    this.majorColor = options.majorColor ?? [0.42, 0.46, 0.52];
+    this.xAxisColor = options.xAxisColor ?? [0.93, 0.36, 0.3];
+    this.zAxisColor = options.zAxisColor ?? [0.33, 0.62, 0.96];
+    this.worldUp = options.worldUp ?? [0, 0, 1];
+    this.worldRight = options.worldRight ?? [1, 0, 0];
+    this.worldForward = options.worldForward ?? [0, 1, 0];
+  }
+  init() {
+    if (this.destroyed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[InfiniteGridRenderer] Renderer has been destroyed"
+      };
+    }
+    if (this.initialized) {
+      return { ok: true, value: void 0 };
+    }
+    this.initialized = true;
+    return { ok: true, value: void 0 };
+  }
+  render(params) {
+    if (!this.enabled) {
+      return { ok: true, value: false };
+    }
+    if (!this.initialized) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[InfiniteGridRenderer.render] Renderer not initialized - call init() first."
+      };
+    }
+    if (!params.passEncoder.setPipeline || !params.passEncoder.setBindGroup || !params.passEncoder.draw) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[InfiniteGridRenderer.render] WebGPU render pass encoder does not expose fullscreen drawing methods."
+      };
+    }
+    const resourceResult = this._ensureResources();
+    if (resourceResult.ok === false) {
+      return resourceResult;
+    }
+    const pipelineResult = this._getPipeline();
+    if (pipelineResult.ok === false) {
+      return pipelineResult;
+    }
+    this._writeUniforms(params.viewRenderState);
+    this._renderContext.device.queue.writeBuffer(resourceResult.value.uniformBuffer, 0, this._uniformData);
+    params.passEncoder.setPipeline(pipelineResult.value);
+    params.passEncoder.setBindGroup(0, resourceResult.value.bindGroup);
+    params.passEncoder.draw(4, 1, 0, 0);
+    return { ok: true, value: true };
+  }
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this._uniformBuffer?.destroy?.();
+    this._uniformBuffer = null;
+    this._bindGroupLayout = null;
+    this._pipelineLayout = null;
+    this._bindGroup = null;
+    this._shaderModule = null;
+    for (const key of Object.keys(this._pipelines)) {
+      delete this._pipelines[key];
+    }
+    this.initialized = false;
+    this.destroyed = true;
+  }
+  _writeUniforms(viewRenderState) {
+    const camera = viewRenderState.view.camera;
+    const eye = camera.eye ?? [0, 0, 0];
+    const vm = this._rteViewMatrix;
+    const src = camera.viewMatrix;
+    for (let i = 0; i < 16; i++) {
+      vm[i] = src[i];
+    }
+    vm[12] = 0;
+    vm[13] = 0;
+    vm[14] = 0;
+    mulMat4(camera.projMatrix, vm, this._viewProjMatrix);
+    mulMat4(WEBGPU_CLIP_SPACE_MATRIX, this._viewProjMatrix, this._webGPUViewProjMatrix);
+    const up = this.worldUp;
+    const upDot = eye[0] * up[0] + eye[1] * up[1] + eye[2] * up[2];
+    const gridCenter = this.followCamera ? [-up[0] * upDot, -up[1] * upDot, -up[2] * upDot] : [-eye[0], -eye[1], -eye[2]];
+    const axisWidth = this.minorStep * this.axisWidth;
+    const uniforms = this._uniformData;
+    uniforms.set(this._webGPUViewProjMatrix, 0);
+    writeVec4(uniforms, 16, gridCenter[0], gridCenter[1], gridCenter[2], 1);
+    writeVec4(uniforms, 20, 0, 0, 0, 1);
+    writeVec4(uniforms, 24, this.worldRight[0], this.worldRight[1], this.worldRight[2], 0);
+    writeVec4(uniforms, 28, this.worldForward[0], this.worldForward[1], this.worldForward[2], 0);
+    writeVec4(uniforms, 32, this.minorColor[0], this.minorColor[1], this.minorColor[2], 1);
+    writeVec4(uniforms, 36, this.majorColor[0], this.majorColor[1], this.majorColor[2], 1);
+    writeVec4(uniforms, 40, this.xAxisColor[0], this.xAxisColor[1], this.xAxisColor[2], 1);
+    writeVec4(uniforms, 44, this.zAxisColor[0], this.zAxisColor[1], this.zAxisColor[2], 1);
+    writeVec4(uniforms, 48, this.gridHalfSize, this.minorStep, this.majorStep, axisWidth);
+    writeVec4(uniforms, 52, this.fadeStart, this.fadeEnd, 0, 0);
+  }
+  _ensureResources() {
+    if (this._uniformBuffer && this._bindGroup && this._bindGroupLayout && this._pipelineLayout) {
+      return {
+        ok: true,
+        value: {
+          uniformBuffer: this._uniformBuffer,
+          bindGroup: this._bindGroup
+        }
+      };
+    }
+    try {
+      const device = this._renderContext.device;
+      this._uniformBuffer = device.createBuffer({
+        label: "xeokit-webgpu-infinite-grid-uniforms",
+        size: _InfiniteGridRenderer._UNIFORM_BYTES,
+        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._bindGroupLayout = device.createBindGroupLayout({
+        label: "xeokit-webgpu-infinite-grid-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: { type: "uniform" }
+        }]
+      });
+      this._pipelineLayout = device.createPipelineLayout({
+        label: "xeokit-webgpu-infinite-grid-pipeline-layout",
+        bindGroupLayouts: [this._bindGroupLayout]
+      });
+      this._bindGroup = device.createBindGroup({
+        label: "xeokit-webgpu-infinite-grid-bind-group",
+        layout: this._bindGroupLayout,
+        entries: [{
+          binding: 0,
+          resource: { buffer: this._uniformBuffer }
+        }]
+      });
+      return {
+        ok: true,
+        value: {
+          uniformBuffer: this._uniformBuffer,
+          bindGroup: this._bindGroup
+        }
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[InfiniteGridRenderer._ensureResources] Failed to allocate WebGPU grid resources: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _getPipeline() {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const existing = this._pipelines[colorTargetFormat];
+    if (existing) {
+      return { ok: true, value: existing };
+    }
+    if (!this._pipelineLayout) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[InfiniteGridRenderer._getPipeline] Pipeline layout was not initialized."
+      };
+    }
+    try {
+      const shaderModule = this._getShaderModule();
+      const pipeline = this._renderContext.device.createRenderPipeline({
+        label: "xeokit-webgpu-infinite-grid-pipeline",
+        layout: this._pipelineLayout,
+        vertex: {
+          module: shaderModule,
+          entryPoint: "vs_main",
+          buffers: []
+        },
+        fragment: {
+          module: shaderModule,
+          entryPoint: "fs_main",
+          targets: [{
+            format: colorTargetFormat,
+            blend: {
+              color: {
+                srcFactor: "src-alpha",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              },
+              alpha: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              }
+            },
+            writeMask: 15
+          }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: false,
+          depthCompare: "less-equal"
+        },
+        primitive: {
+          topology: "triangle-strip",
+          cullMode: "none"
+        }
+      });
+      this._pipelines[colorTargetFormat] = pipeline;
+      return { ok: true, value: pipeline };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[InfiniteGridRenderer._getPipeline] Failed to create WebGPU grid pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _getShaderModule() {
+    if (!this._shaderModule) {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-infinite-grid-shader",
+        code: SHADER_SOURCE
+      });
+    }
+    return this._shaderModule;
+  }
+};
+function writeVec4(dest, offset, x, y, z, w2) {
+  dest[offset] = x;
+  dest[offset + 1] = y;
+  dest[offset + 2] = z;
+  dest[offset + 3] = w2;
+}
+var SHADER_SOURCE = `
+struct GridUniforms {
+  viewProj: mat4x4<f32>,
+  gridCenter: vec4<f32>,
+  cameraPos: vec4<f32>,
+  worldRight: vec4<f32>,
+  worldForward: vec4<f32>,
+  minorColor: vec4<f32>,
+  majorColor: vec4<f32>,
+  xAxisColor: vec4<f32>,
+  zAxisColor: vec4<f32>,
+  params: vec4<f32>,
+  fade: vec4<f32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) worldPos: vec3<f32>,
+};
+
+@group(0) @binding(0) var<uniform> grid: GridUniforms;
+
+@vertex
+fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+  let positions = array<vec2<f32>, 4>(
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>( 1.0, -1.0),
+    vec2<f32>(-1.0,  1.0),
+    vec2<f32>( 1.0,  1.0)
+  );
+  let quadPos = positions[vertexIndex];
+  let worldPos = grid.gridCenter.xyz
+    + grid.worldRight.xyz * (quadPos.x * grid.params.x)
+    + grid.worldForward.xyz * (quadPos.y * grid.params.x);
+
+  var output: VertexOutput;
+  output.worldPos = worldPos;
+  output.position = grid.viewProj * vec4<f32>(worldPos, 1.0);
+  return output;
+}
+
+fn lineFactor(coord: f32, stepSize: f32) -> f32 {
+  let x = coord / stepSize;
+  let fw = max(fwidth(x), 1e-6);
+  let d = abs(fract(x - 0.5) - 0.5) / fw;
+  return 1.0 - min(d, 1.0);
+}
+
+fn gridFactor(p: vec2<f32>, stepSize: f32) -> f32 {
+  let gx = lineFactor(p.x, stepSize);
+  let gz = lineFactor(p.y, stepSize);
+  return max(gx, gz);
+}
+
+fn axisFactor(coord: f32, widthWorld: f32) -> f32 {
+  let fw = max(fwidth(coord), 1e-6);
+  let w = max(widthWorld, fw);
+  let d = abs(coord) / w;
+  return 1.0 - smoothstep(0.0, 1.0, d);
+}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  let p = vec2<f32>(
+    dot(input.worldPos, grid.worldRight.xyz),
+    dot(input.worldPos, grid.worldForward.xyz)
+  );
+
+  let minor = gridFactor(p, grid.params.y);
+  let major = gridFactor(p, grid.params.z);
+  let axisX = axisFactor(p.x, grid.params.w);
+  let axisZ = axisFactor(p.y, grid.params.w);
+
+  var color = vec3<f32>(0.0);
+  color += grid.minorColor.xyz * minor * 0.8;
+  color += grid.majorColor.xyz * major;
+  color = mix(color, grid.xAxisColor.xyz, axisX);
+  color = mix(color, grid.zAxisColor.xyz, axisZ);
+
+  let camFloor = vec2<f32>(
+    dot(grid.cameraPos.xyz, grid.worldRight.xyz),
+    dot(grid.cameraPos.xyz, grid.worldForward.xyz)
+  );
+  let distFloor = distance(camFloor, p);
+  let fade = 1.0 - smoothstep(grid.fade.x, grid.fade.y, distFloor);
+
+  let lineAlpha = max(max(minor * 0.55, major), max(axisX, axisZ));
+  let alpha = lineAlpha * fade;
+
+  if (alpha < 0.01) {
+    discard;
+  }
+
+  return vec4<f32>(color, alpha);
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/environment/SkyRenderer.ts
+var SkyRenderer2 = class _SkyRenderer {
+  static _UNIFORM_FLOATS = 48;
+  static _UNIFORM_BYTES = _SkyRenderer._UNIFORM_FLOATS * 4;
+  _renderContext;
+  _viewProjMatrix = createMat4Float64();
+  _webGPUViewProjMatrix = createMat4Float64();
+  _invViewProjMatrix = createMat4Float64();
+  _rteViewMatrix = createMat4Float64();
+  _uniformData = new Float32Array(_SkyRenderer._UNIFORM_FLOATS);
+  _pipelines = {};
+  _uniformBuffer = null;
+  _bindGroupLayout = null;
+  _pipelineLayout = null;
+  _bindGroup = null;
+  _shaderModule = null;
+  /**
+   * When true, low-level callers can force sky rendering even when a View does
+   * not expose `effects.sky`. Normal Viewer usage is driven by
+   * `view.effects.sky.applied`, matching WebGLRenderer.
+   */
+  enabled = false;
+  skyColor;
+  horizonColor;
+  groundColor;
+  horizonBlend;
+  sunEnabled;
+  sunDirection;
+  sunColor;
+  sunAngularSize;
+  sunGlowSize;
+  sunGlowIntensity;
+  worldUp;
+  initialized = false;
+  destroyed = false;
+  constructor(renderContext, options = {}) {
+    this._renderContext = renderContext;
+    this.skyColor = options.skyColor ?? [0.28, 0.52, 0.93];
+    this.horizonColor = options.horizonColor ?? [0.72, 0.86, 0.97];
+    this.groundColor = options.groundColor ?? [0.22, 0.2, 0.18];
+    this.horizonBlend = options.horizonBlend ?? 0.15;
+    this.sunEnabled = options.sunEnabled ?? true;
+    this.sunDirection = options.sunDirection ?? [0.577, 0.577, 0.577];
+    this.sunColor = options.sunColor ?? [1, 0.97, 0.82];
+    this.sunAngularSize = options.sunAngularSize ?? 3;
+    this.sunGlowSize = options.sunGlowSize ?? 16;
+    this.sunGlowIntensity = options.sunGlowIntensity ?? 0.25;
+    this.worldUp = options.worldUp ?? [0, 0, 1];
+  }
+  init() {
+    if (this.destroyed) {
+      return { ok: false, type: 0 /* InitializationFailed */, error: "[SkyRenderer] Renderer has been destroyed" };
+    }
+    if (this.initialized) {
+      return { ok: true, value: void 0 };
+    }
+    this.initialized = true;
+    return { ok: true, value: void 0 };
+  }
+  render(params) {
+    if (!this.initialized) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[SkyRenderer.render] Renderer not initialized - call init() first."
+      };
+    }
+    if (!params.passEncoder.setPipeline || !params.passEncoder.setBindGroup || !params.passEncoder.draw) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[SkyRenderer.render] WebGPU render pass encoder does not expose fullscreen drawing methods."
+      };
+    }
+    const view = params.viewRenderState.view;
+    const cfg = view.effects?.sky;
+    if (cfg) {
+      if (cfg.applied === false) {
+        return { ok: true, value: false };
+      }
+    } else if (!this.enabled) {
+      return { ok: true, value: false };
+    }
+    const resourceResult = this._ensureResources();
+    if (resourceResult.ok === false) {
+      return resourceResult;
+    }
+    const resources = resourceResult.value;
+    const pipelineResult = this._getPipeline();
+    if (pipelineResult.ok === false) {
+      return pipelineResult;
+    }
+    this._writeUniforms(params.viewRenderState, cfg);
+    this._renderContext.device.queue.writeBuffer(resources.uniformBuffer, 0, this._uniformData);
+    params.passEncoder.setPipeline(pipelineResult.value);
+    params.passEncoder.setBindGroup(0, resources.bindGroup);
+    params.passEncoder.draw(4, 1, 0, 0);
+    return { ok: true, value: true };
+  }
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this._uniformBuffer?.destroy?.();
+    this._uniformBuffer = null;
+    this._bindGroupLayout = null;
+    this._pipelineLayout = null;
+    this._bindGroup = null;
+    this._shaderModule = null;
+    for (const key of Object.keys(this._pipelines)) {
+      delete this._pipelines[key];
+    }
+    this.initialized = false;
+    this.destroyed = true;
+  }
+  _writeUniforms(viewRenderState, cfg) {
+    const camera = viewRenderState.view.camera;
+    const skyColor = cfg ? cfg.skyColor : this.skyColor;
+    const horizonColor = cfg ? cfg.horizonColor : this.horizonColor;
+    const groundColor = cfg ? cfg.groundColor : this.groundColor;
+    const horizonBlend = cfg ? cfg.horizonBlend : this.horizonBlend;
+    const sunEnabled = cfg ? cfg.sunEnabled : this.sunEnabled;
+    const sunDir = cfg ? cfg.sunDirection : this.sunDirection;
+    const sunColor = cfg ? cfg.sunColor : this.sunColor;
+    const sunAngularSize = cfg ? cfg.sunAngularSize : this.sunAngularSize;
+    const sunGlowSize = cfg ? cfg.sunGlowSize : this.sunGlowSize;
+    const sunGlowIntensity = cfg ? cfg.sunGlowIntensity : this.sunGlowIntensity;
+    const worldUp = cfg ? cfg.worldUp : this.worldUp;
+    const vm = this._rteViewMatrix;
+    const src = camera.viewMatrix;
+    for (let i = 0; i < 16; i++) {
+      vm[i] = src[i];
+    }
+    vm[12] = 0;
+    vm[13] = 0;
+    vm[14] = 0;
+    mulMat4(camera.projMatrix, vm, this._viewProjMatrix);
+    mulMat4(WEBGPU_CLIP_SPACE_MATRIX, this._viewProjMatrix, this._webGPUViewProjMatrix);
+    inverseMat4(this._webGPUViewProjMatrix, this._invViewProjMatrix);
+    const uniforms = this._uniformData;
+    uniforms.set(this._invViewProjMatrix, 0);
+    writeVec42(uniforms, 16, worldUp[0], worldUp[1], worldUp[2], 0);
+    writeVec42(uniforms, 20, skyColor[0], skyColor[1], skyColor[2], 1);
+    writeVec42(uniforms, 24, horizonColor[0], horizonColor[1], horizonColor[2], 1);
+    writeVec42(uniforms, 28, groundColor[0], groundColor[1], groundColor[2], 1);
+    const sdLen = Math.sqrt(sunDir[0] * sunDir[0] + sunDir[1] * sunDir[1] + sunDir[2] * sunDir[2]) || 1;
+    writeVec42(uniforms, 32, sunDir[0] / sdLen, sunDir[1] / sdLen, sunDir[2] / sdLen, 0);
+    writeVec42(uniforms, 36, sunColor[0], sunColor[1], sunColor[2], 1);
+    uniforms[40] = horizonBlend;
+    uniforms[41] = Math.cos(sunAngularSize * (Math.PI / 180) * 0.5);
+    uniforms[42] = sunGlowSize;
+    uniforms[43] = sunGlowIntensity;
+    uniforms[44] = sunEnabled ? 1 : 0;
+    uniforms[45] = 0;
+    uniforms[46] = 0;
+    uniforms[47] = 0;
+  }
+  _ensureResources() {
+    if (this._uniformBuffer && this._bindGroup && this._bindGroupLayout && this._pipelineLayout) {
+      return {
+        ok: true,
+        value: {
+          uniformBuffer: this._uniformBuffer,
+          bindGroup: this._bindGroup
+        }
+      };
+    }
+    try {
+      const device = this._renderContext.device;
+      this._uniformBuffer = device.createBuffer({
+        label: "xeokit-webgpu-sky-uniforms",
+        size: _SkyRenderer._UNIFORM_BYTES,
+        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+      });
+      this._bindGroupLayout = device.createBindGroupLayout({
+        label: "xeokit-webgpu-sky-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
+          buffer: { type: "uniform" }
+        }]
+      });
+      this._pipelineLayout = device.createPipelineLayout({
+        label: "xeokit-webgpu-sky-pipeline-layout",
+        bindGroupLayouts: [this._bindGroupLayout]
+      });
+      this._bindGroup = device.createBindGroup({
+        label: "xeokit-webgpu-sky-bind-group",
+        layout: this._bindGroupLayout,
+        entries: [{
+          binding: 0,
+          resource: { buffer: this._uniformBuffer }
+        }]
+      });
+      return {
+        ok: true,
+        value: {
+          uniformBuffer: this._uniformBuffer,
+          bindGroup: this._bindGroup
+        }
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SkyRenderer._ensureResources] Failed to allocate WebGPU sky resources: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _getPipeline() {
+    const colorTargetFormat = this._renderContext.colorTargetFormat;
+    const existing = this._pipelines[colorTargetFormat];
+    if (existing) {
+      return { ok: true, value: existing };
+    }
+    if (!this._pipelineLayout) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[SkyRenderer._getPipeline] Pipeline layout was not initialized."
+      };
+    }
+    try {
+      const shaderModule = this._getShaderModule();
+      const pipeline = this._renderContext.device.createRenderPipeline({
+        label: "xeokit-webgpu-sky-pipeline",
+        layout: this._pipelineLayout,
+        vertex: {
+          module: shaderModule,
+          entryPoint: "vs_main",
+          buffers: []
+        },
+        fragment: {
+          module: shaderModule,
+          entryPoint: "fs_main",
+          targets: [{ format: colorTargetFormat }]
+        },
+        depthStencil: {
+          format: DEPTH_FORMAT,
+          depthWriteEnabled: false,
+          depthCompare: "always"
+        },
+        primitive: {
+          topology: "triangle-strip",
+          cullMode: "none"
+        }
+      });
+      this._pipelines[colorTargetFormat] = pipeline;
+      return { ok: true, value: pipeline };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[SkyRenderer._getPipeline] Failed to create WebGPU sky pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _getShaderModule() {
+    if (!this._shaderModule) {
+      this._shaderModule = this._renderContext.device.createShaderModule({
+        label: "xeokit-webgpu-sky-shader",
+        code: SHADER_SOURCE2
+      });
+    }
+    return this._shaderModule;
+  }
+};
+function writeVec42(dest, offset, x, y, z, w2) {
+  dest[offset] = x;
+  dest[offset + 1] = y;
+  dest[offset + 2] = z;
+  dest[offset + 3] = w2;
+}
+var SHADER_SOURCE2 = `
+struct SkyUniforms {
+  invViewProj: mat4x4<f32>,
+  worldUp: vec4<f32>,
+  skyColor: vec4<f32>,
+  horizonColor: vec4<f32>,
+  groundColor: vec4<f32>,
+  sunDirection: vec4<f32>,
+  sunColor: vec4<f32>,
+  params: vec4<f32>,
+  flags: vec4<f32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) rayDir: vec3<f32>,
+};
+
+@group(0) @binding(0) var<uniform> sky: SkyUniforms;
+
+@vertex
+fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+  let positions = array<vec2<f32>, 4>(
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>( 1.0, -1.0),
+    vec2<f32>(-1.0,  1.0),
+    vec2<f32>( 1.0,  1.0)
+  );
+  let position = positions[vertexIndex];
+  let world = sky.invViewProj * vec4<f32>(position, 1.0, 1.0);
+
+  var output: VertexOutput;
+  output.rayDir = world.xyz / world.w;
+  output.position = vec4<f32>(position, 1.0, 1.0);
+  return output;
+}
+
+@fragment
+fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+  let dir = normalize(input.rayDir);
+
+  // Elevation: +1 at zenith, 0 at horizon, -1 at nadir.
+  let elevation = dot(dir, sky.worldUp.xyz);
+
+  // Sky half (elevation > 0): exponential ramp from horizon to zenith.
+  let blendInv = 1.0 / max(sky.params.x, 0.001);
+  let skyT = 1.0 - exp(-max(elevation, 0.0) * blendInv * 3.0);
+
+  // Ground half (elevation < 0): linear ramp controlled by horizonBlend.
+  let groundT = clamp(-elevation * blendInv, 0.0, 1.0);
+
+  var color = sky.horizonColor.xyz;
+  color = mix(color, sky.skyColor.xyz, skyT);
+  color = mix(color, sky.groundColor.xyz, groundT);
+
+  if (sky.flags.x != 0.0) {
+    // Sun disc: sharp edge with a thin antialiased ring.
+    let cosA = dot(dir, sky.sunDirection.xyz);
+    let discEdge = 0.0015;
+    let disc = smoothstep(sky.params.y - discEdge, sky.params.y + discEdge, cosA);
+
+    // Radial glow: pow gives a compact halo that falls off quickly.
+    let glow = pow(max(0.0, cosA), sky.params.z) * sky.params.w;
+
+    // Horizon haze: brighten the horizon band in the direction of the sun.
+    let horizonBand = 1.0 - smoothstep(0.0, sky.params.x * 2.5, abs(elevation));
+    let sunFloor = sky.sunDirection.xy;
+    let dirFloor = dir.xy;
+    var sunAzimuth = 0.0;
+    if (length(sunFloor) > 0.001 && length(dirFloor) > 0.001) {
+      sunAzimuth = dot(normalize(dirFloor), normalize(sunFloor));
+    }
+    let haze = horizonBand * max(0.0, sunAzimuth) * 0.18;
+
+    color += sky.sunColor.xyz * (disc + glow + haze);
+  }
+
+  return vec4<f32>(color, 1.0);
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/PickPassRenderer.ts
+var PickPassRenderer = class {
+  _renderContext;
+  _readbackBufferReader;
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._readbackBufferReader = params.readbackBufferReader;
+  }
+  async renderEncodedSlot(params) {
+    const commandEncoder = this._renderContext.device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginRenderPass(params.pickBuffer.createPickPassDescriptor());
+    const drawEntries = params.drawEntries ?? [{ batches: params.batches, drawOp: params.drawOp }];
+    for (const entry of drawEntries) {
+      if (entry.batches.length === 0) {
+        continue;
+      }
+      const drawResult = entry.drawOp.drawBatches({
+        passEncoder,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: entry.batches
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
+      }
+    }
+    this._endRenderPass(passEncoder);
+    const x = Math.max(0, Math.min(params.width - 1, Math.floor(params.canvasPos[0])));
+    const y = Math.max(0, Math.min(params.height - 1, Math.floor(params.canvasPos[1])));
+    return this._readbackBufferReader.copyMapAndDecode({
+      commandEncoder,
+      sourceTexture: params.pickBuffer.colorTexture,
+      sourceOrigin: {
+        x,
+        y,
+        z: 0
+      },
+      destination: params.pickBuffer.getCopyDestination(),
+      readbackBuffer: params.pickBuffer.readbackBuffer,
+      copySize: {
+        width: 1,
+        height: 1,
+        depthOrArrayLayers: 1
+      },
+      errorPrefix: "RenderManager.pickMeshGPUAsync",
+      decode: (bytes) => decodePickSlot(bytes)
+    });
+  }
+  _endRenderPass(passEncoder) {
+    if (typeof passEncoder.end === "function") {
+      passEncoder.end();
+      return;
+    }
+    passEncoder.endPass?.();
+  }
+};
+function decodePickSlot(bytes) {
+  return (bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24) >>> 0;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/RenderBinClassifier.ts
+var IDENTITY_MATRIX5 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+var MIN_CLIP_W = 1e-6;
+var RenderBinClassifier2 = class {
   _drawItemPool = [];
+  _viewPoint = [0, 0, 0];
+  _clipPoint = [0, 0, 0, 1];
+  _stats = createEmptyCullStats();
+  _memoryConfigs;
   _drawItemPoolCount = 0;
+  constructor(memoryConfigs) {
+    this._memoryConfigs = memoryConfigs;
+  }
+  get stats() {
+    return this._stats;
+  }
   clear(bins) {
     bins.normalDrawOpaque.length = 0;
+    bins.normalEdgesOpaque.length = 0;
     bins.normalFillTransparent.length = 0;
+    bins.xrayedFillOpaque.length = 0;
+    bins.xrayedEdgesOpaque.length = 0;
+    bins.xrayedFillTransparent.length = 0;
+    bins.xrayedEdgesTransparent.length = 0;
+    bins.highlightedFillOpaque.length = 0;
+    bins.highlightedEdgesOpaque.length = 0;
+    bins.highlightedFillTransparent.length = 0;
+    bins.highlightedEdgesTransparent.length = 0;
+    bins.selectedFillOpaque.length = 0;
+    bins.selectedEdgesOpaque.length = 0;
+    bins.selectedFillTransparent.length = 0;
+    bins.selectedEdgesTransparent.length = 0;
     this._drawItemPoolCount = 0;
+    resetCullStats(this._stats);
   }
   classify(params) {
     const { meshStates, view, meshManager, bins } = params;
     for (const meshState of meshStates) {
-      if (!meshManager.isMeshVisibleInView(meshState, view)) {
+      this._classifyMesh(meshState, view, meshManager, bins);
+    }
+    bins.normalFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    this._sortTransparentEmphasisBins(bins);
+  }
+  classifySegments(params) {
+    const { batchSet, view, meshManager, bins } = params;
+    const cameraCulling = params.cameraCulling ?? true;
+    for (let segmentIndex = 0, segmentLen = batchSet.segments.length; segmentIndex < segmentLen; segmentIndex++) {
+      const segment = batchSet.segments[segmentIndex];
+      this._stats.segmentCandidates++;
+      let segmentClipBounds = null;
+      if (cameraCulling) {
+        this._updateSegmentWorldAABB(segment, meshManager);
+        segmentClipBounds = this._getWorldAABBClipBounds(segment.worldAABB, view);
+        if (this._memoryConfigs.frustumCulling && segmentClipBounds && this._isOutsideFrustum(segmentClipBounds)) {
+          this._stats.segmentFrustumCulled++;
+          this._stats.frustumCulled += segment.slots.length;
+          continue;
+        }
+        if (this._memoryConfigs.minProjectedCanvasSize > 0 && segmentClipBounds && this._isBelowProjectedCanvasSize(segmentClipBounds, view, this._memoryConfigs.minProjectedCanvasSize)) {
+          this._stats.projectedSizeCulled += segment.slots.length;
+          continue;
+        }
+      }
+      if (this._tryAppendFullOpaqueSegment({ segment, view, meshManager, bins })) {
+        this._stats.segmentFullyDrawn++;
         continue;
       }
-      const opacity = meshManager.getMeshOpacityInView(meshState, view);
-      if (opacity <= 0) {
-        continue;
-      }
-      const drawItem = this._nextDrawItem();
-      drawItem.meshState = meshState;
-      drawItem.opacity = opacity;
-      if (opacity >= 1) {
-        drawItem.viewDepth = 0;
-        bins.normalDrawOpaque.push(drawItem);
-      } else {
-        drawItem.viewDepth = meshManager.getMeshViewDepth(meshState, view);
-        bins.normalFillTransparent.push(drawItem);
+      this._stats.segmentPartiallyRefined++;
+      for (let i = 0, len = segment.slots.length; i < len; i++) {
+        this._classifyMesh(segment.slots[i].meshState, view, meshManager, bins);
       }
     }
     bins.normalFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    this._sortTransparentEmphasisBins(bins);
+  }
+  _classifyMesh(meshState, view, meshManager, bins) {
+    if (meshState.mesh.bin === "overlayPicker") {
+      return;
+    }
+    if (!meshManager.isMeshVisibleInView(meshState, view)) {
+      return;
+    }
+    const opacity = meshManager.getMeshOpacityInView(meshState, view);
+    if (opacity <= 0) {
+      return;
+    }
+    this._stats.considered++;
+    this._appendDrawItem(meshState, opacity, view, meshManager, bins);
+  }
+  _tryAppendFullOpaqueSegment(params) {
+    const { segment, view, meshManager, bins } = params;
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      const meshState = segment.slots[i].meshState;
+      if (meshState.mesh.bin === "overlayPicker") {
+        return false;
+      }
+      if (!meshManager.isMeshVisibleInView(meshState, view)) {
+        return false;
+      }
+      if (meshManager.getMeshOpacityInView(meshState, view) < 1) {
+        return false;
+      }
+    }
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      this._stats.considered++;
+      this._appendDrawItem(segment.slots[i].meshState, 1, view, meshManager, bins);
+    }
+    return true;
+  }
+  _appendDrawItem(meshState, opacity, view, meshManager, bins) {
+    const drawItem = this._nextDrawItem();
+    drawItem.meshState = meshState;
+    drawItem.opacity = opacity;
+    this._stats.rendered++;
+    const style = meshManager.getMeshDrawStyleInView(meshState, view);
+    const isOpaque = opacity >= 1 && style.alphaMode !== 2;
+    const hasEdges = style.drawEdges && meshState.geometryState.edgeIndexCount > 0;
+    if (isOpaque) {
+      drawItem.viewDepth = 0;
+    } else {
+      drawItem.viewDepth = meshManager.getMeshViewDepth(meshState, view);
+    }
+    switch (style.emphasis) {
+      case "xrayed":
+        (isOpaque ? bins.xrayedFillOpaque : bins.xrayedFillTransparent).push(drawItem);
+        if (hasEdges) {
+          (isOpaque ? bins.xrayedEdgesOpaque : bins.xrayedEdgesTransparent).push(drawItem);
+        }
+        break;
+      case "highlighted":
+        (isOpaque ? bins.highlightedFillOpaque : bins.highlightedFillTransparent).push(drawItem);
+        if (hasEdges) {
+          (isOpaque ? bins.highlightedEdgesOpaque : bins.highlightedEdgesTransparent).push(drawItem);
+        }
+        break;
+      case "selected":
+        (isOpaque ? bins.selectedFillOpaque : bins.selectedFillTransparent).push(drawItem);
+        if (hasEdges) {
+          (isOpaque ? bins.selectedEdgesOpaque : bins.selectedEdgesTransparent).push(drawItem);
+        }
+        break;
+      default:
+        (isOpaque ? bins.normalDrawOpaque : bins.normalFillTransparent).push(drawItem);
+        if (isOpaque && hasEdges) {
+          bins.normalEdgesOpaque.push(drawItem);
+        }
+        break;
+    }
+  }
+  _sortTransparentEmphasisBins(bins) {
+    bins.xrayedFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    bins.xrayedEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    bins.highlightedFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    bins.highlightedEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    bins.selectedFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    bins.selectedEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
   }
   _nextDrawItem() {
     let drawItem = this._drawItemPool[this._drawItemPoolCount];
@@ -207823,10 +218298,175 @@ var WebGPURenderBinClassifier = class {
     this._drawItemPoolCount++;
     return drawItem;
   }
+  _getWorldAABBClipBounds(worldAABB, view) {
+    if (!Number.isFinite(worldAABB[0]) || !Number.isFinite(worldAABB[3])) {
+      return null;
+    }
+    const viewMatrix = view.camera?.viewMatrix ?? IDENTITY_MATRIX5;
+    const projectionMatrix = view.camera?.projMatrix ?? IDENTITY_MATRIX5;
+    const bounds = createClipBounds();
+    for (let xIndex = 0; xIndex < 2; xIndex++) {
+      const x = worldAABB[xIndex === 0 ? 0 : 3];
+      for (let yIndex = 0; yIndex < 2; yIndex++) {
+        const y = worldAABB[yIndex === 0 ? 1 : 4];
+        for (let zIndex = 0; zIndex < 2; zIndex++) {
+          const z = worldAABB[zIndex === 0 ? 2 : 5];
+          this._projectWorldPoint(viewMatrix, projectionMatrix, x, y, z);
+          growClipBounds(bounds, this._clipPoint);
+        }
+      }
+    }
+    return bounds.valid ? bounds : null;
+  }
+  _updateSegmentWorldAABB(segment, meshManager) {
+    const boundsVersion = getSegmentBoundsVersion(segment);
+    if (segment.boundsVersion === boundsVersion) {
+      return;
+    }
+    resetAABB(segment.worldAABB);
+    for (let i = 0, len = segment.slots.length; i < len; i++) {
+      const meshState = segment.slots[i].meshState;
+      expandWorldAABB2(segment.worldAABB, meshState.geometryState.geometry.aabb, meshManager.getMeshWorldMatrix(meshState));
+    }
+    segment.boundsVersion = boundsVersion;
+  }
+  _projectWorldPoint(viewMatrix, projectionMatrix, worldX, worldY, worldZ) {
+    const viewPoint = this._viewPoint;
+    viewPoint[0] = viewMatrix[0] * worldX + viewMatrix[4] * worldY + viewMatrix[8] * worldZ + viewMatrix[12];
+    viewPoint[1] = viewMatrix[1] * worldX + viewMatrix[5] * worldY + viewMatrix[9] * worldZ + viewMatrix[13];
+    viewPoint[2] = viewMatrix[2] * worldX + viewMatrix[6] * worldY + viewMatrix[10] * worldZ + viewMatrix[14];
+    const clipPoint = this._clipPoint;
+    clipPoint[0] = projectionMatrix[0] * viewPoint[0] + projectionMatrix[4] * viewPoint[1] + projectionMatrix[8] * viewPoint[2] + projectionMatrix[12];
+    clipPoint[1] = projectionMatrix[1] * viewPoint[0] + projectionMatrix[5] * viewPoint[1] + projectionMatrix[9] * viewPoint[2] + projectionMatrix[13];
+    clipPoint[2] = projectionMatrix[2] * viewPoint[0] + projectionMatrix[6] * viewPoint[1] + projectionMatrix[10] * viewPoint[2] + projectionMatrix[14];
+    clipPoint[3] = projectionMatrix[3] * viewPoint[0] + projectionMatrix[7] * viewPoint[1] + projectionMatrix[11] * viewPoint[2] + projectionMatrix[15];
+  }
+  _isOutsideFrustum(bounds) {
+    return bounds.maxX < -bounds.maxW || bounds.minX > bounds.maxW || bounds.maxY < -bounds.maxW || bounds.minY > bounds.maxW || bounds.maxZ < -bounds.maxW || bounds.minZ > bounds.maxW;
+  }
+  _isBelowProjectedCanvasSize(bounds, view, threshold) {
+    if (!Number.isFinite(bounds.minNdcX) || !Number.isFinite(bounds.maxNdcX)) {
+      return false;
+    }
+    const width = Math.max(0, Math.floor(view.boundary?.[2] ?? view.htmlElement?.clientWidth ?? 0));
+    const height = Math.max(0, Math.floor(view.boundary?.[3] ?? view.htmlElement?.clientHeight ?? 0));
+    if (width <= 0 || height <= 0) {
+      return false;
+    }
+    const projectedWidth = Math.max(0, (bounds.maxNdcX - bounds.minNdcX) * 0.5 * width);
+    const projectedHeight = Math.max(0, (bounds.maxNdcY - bounds.minNdcY) * 0.5 * height);
+    return Math.max(projectedWidth, projectedHeight) < threshold;
+  }
 };
+function createEmptyCullStats() {
+  return {
+    considered: 0,
+    rendered: 0,
+    frustumCulled: 0,
+    projectedSizeCulled: 0,
+    segmentCandidates: 0,
+    segmentFrustumCulled: 0,
+    segmentFullyDrawn: 0,
+    segmentPartiallyRefined: 0
+  };
+}
+function resetCullStats(stats) {
+  stats.considered = 0;
+  stats.rendered = 0;
+  stats.frustumCulled = 0;
+  stats.projectedSizeCulled = 0;
+  stats.segmentCandidates = 0;
+  stats.segmentFrustumCulled = 0;
+  stats.segmentFullyDrawn = 0;
+  stats.segmentPartiallyRefined = 0;
+}
+function createClipBounds() {
+  return {
+    minX: Number.POSITIVE_INFINITY,
+    maxX: Number.NEGATIVE_INFINITY,
+    minY: Number.POSITIVE_INFINITY,
+    maxY: Number.NEGATIVE_INFINITY,
+    minZ: Number.POSITIVE_INFINITY,
+    maxZ: Number.NEGATIVE_INFINITY,
+    maxW: 0,
+    minNdcX: Number.POSITIVE_INFINITY,
+    maxNdcX: Number.NEGATIVE_INFINITY,
+    minNdcY: Number.POSITIVE_INFINITY,
+    maxNdcY: Number.NEGATIVE_INFINITY,
+    allInsideFrustum: true,
+    valid: false
+  };
+}
+function growClipBounds(bounds, point) {
+  const x = point[0];
+  const y = point[1];
+  const z = point[2];
+  const w2 = Math.abs(point[3]);
+  if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z) || !Number.isFinite(w2)) {
+    return;
+  }
+  bounds.minX = Math.min(bounds.minX, x);
+  bounds.maxX = Math.max(bounds.maxX, x);
+  bounds.minY = Math.min(bounds.minY, y);
+  bounds.maxY = Math.max(bounds.maxY, y);
+  bounds.minZ = Math.min(bounds.minZ, z);
+  bounds.maxZ = Math.max(bounds.maxZ, z);
+  bounds.maxW = Math.max(bounds.maxW, w2);
+  bounds.valid = true;
+  if (w2 > MIN_CLIP_W) {
+    const ndcX = x / w2;
+    const ndcY = y / w2;
+    bounds.minNdcX = Math.min(bounds.minNdcX, ndcX);
+    bounds.maxNdcX = Math.max(bounds.maxNdcX, ndcX);
+    bounds.minNdcY = Math.min(bounds.minNdcY, ndcY);
+    bounds.maxNdcY = Math.max(bounds.maxNdcY, ndcY);
+  }
+  if (w2 <= MIN_CLIP_W || x < -w2 || x > w2 || y < -w2 || y > w2 || z < -w2 || z > w2) {
+    bounds.allInsideFrustum = false;
+  }
+}
+function getSegmentBoundsVersion(segment) {
+  const parts = [];
+  for (let i = 0, len = segment.slots.length; i < len; i++) {
+    const meshState = segment.slots[i].meshState;
+    parts.push(`${meshState.mesh.uniqueId}:${meshState.instanceDataVersion}`);
+  }
+  return parts.join("|");
+}
+function resetAABB(aabb) {
+  aabb[0] = Number.POSITIVE_INFINITY;
+  aabb[1] = Number.POSITIVE_INFINITY;
+  aabb[2] = Number.POSITIVE_INFINITY;
+  aabb[3] = Number.NEGATIVE_INFINITY;
+  aabb[4] = Number.NEGATIVE_INFINITY;
+  aabb[5] = Number.NEGATIVE_INFINITY;
+}
+function expandWorldAABB2(worldAABB, localAABB, worldMatrix) {
+  if (!localAABB) {
+    return;
+  }
+  for (let xIndex = 0; xIndex < 2; xIndex++) {
+    const x = localAABB[xIndex === 0 ? 0 : 3];
+    for (let yIndex = 0; yIndex < 2; yIndex++) {
+      const y = localAABB[yIndex === 0 ? 1 : 4];
+      for (let zIndex = 0; zIndex < 2; zIndex++) {
+        const z = localAABB[zIndex === 0 ? 2 : 5];
+        const worldX = worldMatrix[0] * x + worldMatrix[4] * y + worldMatrix[8] * z + worldMatrix[12];
+        const worldY = worldMatrix[1] * x + worldMatrix[5] * y + worldMatrix[9] * z + worldMatrix[13];
+        const worldZ = worldMatrix[2] * x + worldMatrix[6] * y + worldMatrix[10] * z + worldMatrix[14];
+        worldAABB[0] = Math.min(worldAABB[0], worldX);
+        worldAABB[1] = Math.min(worldAABB[1], worldY);
+        worldAABB[2] = Math.min(worldAABB[2], worldZ);
+        worldAABB[3] = Math.max(worldAABB[3], worldX);
+        worldAABB[4] = Math.max(worldAABB[4], worldY);
+        worldAABB[5] = Math.max(worldAABB[5], worldZ);
+      }
+    }
+  }
+}
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUView.ts
-var WebGPUView = class _WebGPUView {
+// ../sdk/src/viewing/webGPURenderer/internal/ViewRenderState.ts
+var ViewRenderState4 = class _ViewRenderState {
   view;
   canvas;
   context;
@@ -207834,8 +218474,7 @@ var WebGPUView = class _WebGPUView {
   _width = 0;
   _height = 0;
   _configured = false;
-  _depthTexture = null;
-  _depthTextureView = null;
+  _depthStencilBuffer = null;
   constructor(params) {
     this.view = params.view;
     this.canvas = params.canvas;
@@ -207843,25 +218482,25 @@ var WebGPUView = class _WebGPUView {
     this.alphaMode = params.alphaMode;
   }
   static create(view, alphaMode) {
-    const canvas3 = _WebGPUView._getCanvas(view);
+    const canvas3 = _ViewRenderState._getCanvas(view);
     if (!canvas3) {
       return {
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[WebGPUView.create] View '${view.id}' must use an HTMLCanvasElement for WebGPU rendering.`
+        error: `[ViewRenderState.create] View '${view.id}' must use an HTMLCanvasElement for WebGPU rendering.`
       };
     }
-    const context = _WebGPUView._getWebGPUContext(canvas3);
+    const context = _ViewRenderState._getWebGPUContext(canvas3);
     if (!context) {
       return {
         ok: false,
         type: 6 /* NotSupported */,
-        error: `[WebGPUView.create] View '${view.id}' canvas does not provide a WebGPU context.`
+        error: `[ViewRenderState.create] View '${view.id}' canvas does not provide a WebGPU context.`
       };
     }
     return {
       ok: true,
-      value: new _WebGPUView({
+      value: new _ViewRenderState({
         view,
         canvas: canvas3,
         context,
@@ -207870,12 +218509,21 @@ var WebGPUView = class _WebGPUView {
     };
   }
   get depthTextureView() {
-    return this._depthTextureView;
+    return this._depthStencilBuffer?.view ?? null;
+  }
+  get sampledDepthTextureView() {
+    return this._depthStencilBuffer?.depthOnlyView ?? null;
+  }
+  get depthStencilBuffer() {
+    return this._depthStencilBuffer;
   }
   configure(renderContext) {
     const metrics = this._getCanvasMetrics();
     if (this._configured && this._width === metrics.width && this._height === metrics.height) {
-      return;
+      return {
+        ok: true,
+        value: void 0
+      };
     }
     this.canvas.width = metrics.width;
     this.canvas.height = metrics.height;
@@ -207884,35 +218532,28 @@ var WebGPUView = class _WebGPUView {
       format: renderContext.contextFormat,
       alphaMode: this.alphaMode
     });
-    this._destroyDepthTexture();
-    this._depthTexture = renderContext.createDepthTexture(
-      `xeokit-webgpu-depth:${this.view.id}`,
-      metrics.width,
-      metrics.height
-    );
-    this._depthTextureView = this._depthTexture.createView();
+    if (!this._depthStencilBuffer) {
+      this._depthStencilBuffer = new WebGPUDepthStencilBuffer(renderContext, `xeokit-webgpu-depth:${this.view.id}`);
+    }
+    const depthResult = this._depthStencilBuffer.ensureSize(metrics.width, metrics.height);
+    if (depthResult.ok === false) {
+      return depthResult;
+    }
     this._width = metrics.width;
     this._height = metrics.height;
     this._configured = true;
+    return {
+      ok: true,
+      value: void 0
+    };
   }
   destroy() {
     try {
       this.context.unconfigure?.();
     } catch {
     }
-    this._destroyDepthTexture();
-  }
-  _destroyDepthTexture() {
-    if (!this._depthTexture) {
-      this._depthTextureView = null;
-      return;
-    }
-    try {
-      this._depthTexture.destroy?.();
-    } catch {
-    }
-    this._depthTexture = null;
-    this._depthTextureView = null;
+    this._depthStencilBuffer?.destroy();
+    this._depthStencilBuffer = null;
   }
   _getCanvasMetrics() {
     const rect = typeof this.canvas.getBoundingClientRect === "function" ? this.canvas.getBoundingClientRect() : null;
@@ -207951,166 +218592,104 @@ var WebGPUView = class _WebGPUView {
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPURenderManager.ts
-var WebGPURenderManager = class {
-  _renderContext;
-  _pipelineManager;
-  _meshManager;
-  _frameUniformManager;
-  _instanceBufferManager;
-  _drawOps;
-  _bins = {
-    normalDrawOpaque: [],
-    normalFillTransparent: []
-  };
-  _binClassifier = new WebGPURenderBinClassifier();
-  _instanceBatcher;
-  _viewRenderCaches = {};
-  constructor(params) {
-    this._renderContext = params.renderContext;
-    this._pipelineManager = params.pipelineManager;
-    this._meshManager = params.meshManager;
-    this._frameUniformManager = params.frameUniformManager;
-    this._instanceBufferManager = params.instanceBufferManager;
-    this._drawOps = new WebGPUDrawOps(this._pipelineManager);
-    this._instanceBatcher = new WebGPUInstanceBatcher(this._renderContext);
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/SectionPlaneCapRenderer.ts
+var SectionPlaneCapRenderer = class {
+  _renderInspector;
+  constructor(renderInspector) {
+    this._renderInspector = renderInspector;
   }
-  init() {
-    return this._drawOps.init();
-  }
-  renderView(webgpuView) {
-    const view = webgpuView.view;
-    try {
-      webgpuView.configure(this._renderContext);
-      if (!webgpuView.depthTextureView) {
-        return {
-          ok: false,
-          type: 0 /* InitializationFailed */,
-          error: `[WebGPURenderManager.renderView] View '${view.id}' depth texture was not initialized.`
-        };
-      }
-      const backgroundColor = view.backgroundColor;
-      const renderCacheResult = this._getOrBuildViewRenderCache(webgpuView);
-      if (renderCacheResult.ok === false) {
-        return renderCacheResult;
-      }
-      const renderCache = renderCacheResult.value;
-      const totalInstances = renderCache.totalInstances;
-      const frameBindGroupResult = totalInstances > 0 ? this._frameUniformManager.writeFrameUniforms(view) : null;
-      if (frameBindGroupResult?.ok === false) {
-        return frameBindGroupResult;
-      }
-      const instanceFrame = renderCache.instanceFrame;
-      if (totalInstances > 0 && !instanceFrame?.buffer) {
-        return {
-          ok: false,
-          type: 0 /* InitializationFailed */,
-          error: "[WebGPURenderManager.renderView] Instance buffer was not initialized."
-        };
-      }
-      const instanceBindGroupLayoutResult = totalInstances > 0 ? this._pipelineManager.getInstanceBindGroupLayout() : null;
-      if (instanceBindGroupLayoutResult?.ok === false) {
-        return instanceBindGroupLayoutResult;
-      }
-      const instanceBindGroupResult = totalInstances > 0 ? this._instanceBufferManager.getBindGroup(instanceFrame, instanceBindGroupLayoutResult.value) : null;
-      if (instanceBindGroupResult?.ok === false) {
-        return instanceBindGroupResult;
-      }
-      const device = this._renderContext.device;
-      const commandEncoder = device.createCommandEncoder();
-      const textureView = webgpuView.context.getCurrentTexture().createView();
-      const passEncoder = commandEncoder.beginRenderPass({
-        colorAttachments: [{
-          view: textureView,
-          clearValue: {
-            r: backgroundColor[0],
-            g: backgroundColor[1],
-            b: backgroundColor[2],
-            a: view.transparent ? 0 : 1
-          },
-          loadOp: "clear",
-          storeOp: "store"
-        }],
-        depthStencilAttachment: {
-          view: webgpuView.depthTextureView,
-          depthClearValue: 1,
-          depthLoadOp: "clear",
-          depthStoreOp: "store"
-        }
-      });
-      const triangleDrawOps = this._drawOps.prims[TrianglesPrimitive];
-      if (!triangleDrawOps) {
-        return {
-          ok: false,
-          type: 0 /* InitializationFailed */,
-          error: "[WebGPURenderManager.renderView] Triangle draw operations were not initialized."
-        };
-      }
-      if (renderCache.batches.opaque.length > 0) {
-        const drawResult = triangleDrawOps.opaque?.drawBatches({
-          passEncoder,
-          frameBindGroup: frameBindGroupResult.value,
-          instanceBindGroup: instanceBindGroupResult.value,
-          batches: renderCache.batches.opaque
-        });
-        if (!drawResult) {
-          return {
-            ok: false,
-            type: 0 /* InitializationFailed */,
-            error: "[WebGPURenderManager.renderView] Opaque triangle draw operation was not initialized."
-          };
-        }
-        if (drawResult.ok === false) {
-          return drawResult;
-        }
-      }
-      if (renderCache.batches.transparent.length > 0) {
-        const drawResult = triangleDrawOps.transparent?.drawBatches({
-          passEncoder,
-          frameBindGroup: frameBindGroupResult.value,
-          instanceBindGroup: instanceBindGroupResult.value,
-          batches: renderCache.batches.transparent
-        });
-        if (!drawResult) {
-          return {
-            ok: false,
-            type: 0 /* InitializationFailed */,
-            error: "[WebGPURenderManager.renderView] Transparent triangle draw operation was not initialized."
-          };
-        }
-        if (drawResult.ok === false) {
-          return drawResult;
-        }
-      }
-      this._endRenderPass(passEncoder);
-      device.queue.submit([commandEncoder.finish()]);
-    } catch (e) {
+  render(params) {
+    if (params.batches.length === 0 || params.activePlanes.length === 0) {
+      return this._ok();
+    }
+    const stencilFrontOp = params.triangleDrawOps.stencilMaskFront;
+    const stencilBackOp = params.triangleDrawOps.stencilMaskBack;
+    const capOp = params.triangleDrawOps.sectionPlaneCaps;
+    if (!stencilFrontOp || !stencilBackOp || !capOp) {
       return {
         ok: false,
-        type: 5 /* Unknown */,
-        error: `[WebGPURenderManager.renderView] Failed to render WebGPU frame: ${e instanceof Error ? e.message : String(e)}`
+        type: 0 /* InitializationFailed */,
+        error: "[SectionPlaneCapRenderer.render] Section-plane cap draw operations were not initialized."
       };
     }
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  destroy() {
-    for (const viewId of Object.keys(this._viewRenderCaches)) {
-      this.viewDestroyed(viewId);
+    const stencilTechnique = stencilFrontOp.technique;
+    const capTechnique = capOp.technique;
+    for (let i = 0, len = params.activePlanes.length; i < len; i++) {
+      const plane = params.activePlanes[i];
+      if (!plane.capColor) {
+        continue;
+      }
+      const capIndexResult = stencilTechnique.setCapPlaneIndex(i);
+      if (capIndexResult.ok === false) {
+        return capIndexResult;
+      }
+      const passEncoder = params.commandEncoder.beginRenderPass(params.frameAttachments.createSectionPlaneStencilMaskDescriptor());
+      const commandStateTracker = new CommandStateTracker({
+        passEncoder,
+        commandStats: this._renderInspector
+      });
+      this._renderInspector.renderBinStarted("SECTION_PLANE_STENCIL_MASK");
+      this._renderInspector.drawBatches({
+        renderPass: "SECTION_PLANE_STENCIL_MASK",
+        technique: "TrianglesStencilMaskTechnique",
+        batches: params.batches
+      });
+      const frontResult = stencilFrontOp.drawBatches({
+        passEncoder,
+        commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: params.batches,
+        commandStats: this._renderInspector
+      });
+      if (frontResult.ok === false) {
+        return frontResult;
+      }
+      const backResult = stencilBackOp.drawBatches({
+        passEncoder,
+        commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: params.batches,
+        commandStats: this._renderInspector
+      });
+      if (backResult.ok === false) {
+        return backResult;
+      }
+      this._renderInspector.renderBinStarted("SECTION_PLANE_CAPS");
+      const capResult = capTechnique.renderCapPlane({
+        passEncoder,
+        view: params.view,
+        viewProjection: params.viewProjection,
+        plane: {
+          dir: plane.dir,
+          dist: plane.dist,
+          capColor: plane.capColor
+        },
+        otherPlanes: this._getOtherPlanes(params.activePlanes, i),
+        viewportWidth: params.viewportWidth,
+        viewportHeight: params.viewportHeight,
+        commandStats: this._renderInspector,
+        commandStateTracker
+      });
+      if (capResult.ok === false) {
+        return capResult;
+      }
+      this._endRenderPass(passEncoder);
     }
-    this._drawOps.destroy();
-    this._instanceBufferManager.destroy();
-    this._frameUniformManager.destroy();
+    return this._ok();
   }
-  viewDestroyed(viewId) {
-    const cache2 = this._viewRenderCaches[viewId];
-    if (cache2) {
-      this._clearCachedBatches(cache2.batches);
+  _getOtherPlanes(activePlanes, capPlaneIndex) {
+    const otherPlanes = [];
+    for (let i = 0, len = activePlanes.length; i < len; i++) {
+      if (i !== capPlaneIndex) {
+        otherPlanes.push({
+          dir: activePlanes[i].dir,
+          dist: activePlanes[i].dist
+        });
+      }
     }
-    delete this._viewRenderCaches[viewId];
-    this._instanceBufferManager.destroyFrame(viewId);
+    return otherPlanes;
   }
   _endRenderPass(passEncoder) {
     if (typeof passEncoder.end === "function") {
@@ -208119,69 +218698,3869 @@ var WebGPURenderManager = class {
     }
     passEncoder.endPass?.();
   }
-  _getOrBuildViewRenderCache(webgpuView) {
-    const view = webgpuView.view;
+  _ok() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/SnapPassRenderer.ts
+var SnapPassRenderer = class {
+  _renderContext;
+  _readbackBufferReader;
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._readbackBufferReader = params.readbackBufferReader;
+  }
+  async renderEncodedSlot(params) {
+    const commandEncoder = this._renderContext.device.createCommandEncoder();
+    const depthPrepassEncoder = commandEncoder.beginRenderPass(params.snapBuffer.createDepthPrepassDescriptor());
+    const depthPrepassResult = params.depthPrepassDrawOp.drawBatches({
+      passEncoder: depthPrepassEncoder,
+      frameBindGroup: params.frameBindGroup,
+      instanceBindGroup: params.instanceBindGroup,
+      batches: params.depthPrepassBatches
+    });
+    if (depthPrepassResult.ok === false) {
+      return depthPrepassResult;
+    }
+    this._endRenderPass(depthPrepassEncoder);
+    const passEncoder = commandEncoder.beginRenderPass(params.snapBuffer.createSnapPassDescriptor());
+    const drawResult = params.candidateDrawOp.drawBatches({
+      passEncoder,
+      frameBindGroup: params.frameBindGroup,
+      instanceBindGroup: params.instanceBindGroup,
+      batches: params.candidateBatches
+    });
+    if (drawResult.ok === false) {
+      return drawResult;
+    }
+    this._endRenderPass(passEncoder);
+    const dimension = params.snapBuffer.dimension;
+    return this._readbackBufferReader.copyMapAndDecode({
+      commandEncoder,
+      sourceTexture: params.snapBuffer.colorTexture,
+      sourceOrigin: {
+        x: 0,
+        y: 0,
+        z: 0
+      },
+      destination: params.snapBuffer.getCopyDestination(),
+      readbackBuffer: params.snapBuffer.readbackBuffer,
+      copySize: {
+        width: dimension,
+        height: dimension,
+        depthOrArrayLayers: 1
+      },
+      errorPrefix: params.errorPrefix,
+      decode: (bytes, destination) => findNearestEncodedSlot(bytes, destination.bytesPerRow, dimension)
+    });
+  }
+  _endRenderPass(passEncoder) {
+    if (typeof passEncoder.end === "function") {
+      passEncoder.end();
+      return;
+    }
+    passEncoder.endPass?.();
+  }
+};
+function findNearestEncodedSlot(bytes, bytesPerRow, dimension) {
+  const center = Math.floor(dimension / 2);
+  let bestSlot = 0;
+  let bestDistanceSq = Number.POSITIVE_INFINITY;
+  for (let y = 0; y < dimension; y++) {
+    for (let x = 0; x < dimension; x++) {
+      const offset = y * bytesPerRow + x * 4;
+      const slot = decodePickSlot(bytes.subarray(offset, offset + 4));
+      if (slot === 0) {
+        continue;
+      }
+      const dx = x - center;
+      const dy = y - center;
+      const distanceSq = dx * dx + dy * dy;
+      if (distanceSq < bestDistanceSq) {
+        bestDistanceSq = distanceSq;
+        bestSlot = slot;
+      }
+    }
+  }
+  return bestSlot;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/TriangleDrawBinSubmitter.ts
+var TriangleDrawBinSubmitter = class {
+  _renderInspector;
+  constructor(renderInspector) {
+    this._renderInspector = renderInspector;
+  }
+  drawBatchList(params) {
+    if (params.batches.length === 0) {
+      return this._ok();
+    }
+    this._renderInspector.renderBinStarted(params.renderPass);
+    this._renderInspector.drawBatches({
+      renderPass: params.renderPass,
+      technique: params.technique,
+      batches: params.batches
+    });
+    const drawResult = params.drawOp?.drawBatches({
+      passEncoder: params.passEncoder,
+      commandStateTracker: params.commandStateTracker,
+      frameBindGroup: params.frameBindGroup,
+      instanceBindGroup: params.instanceBindGroup,
+      batches: params.batches,
+      commandStats: this._renderInspector
+    });
+    if (!drawResult) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: params.missingMessage
+      };
+    }
+    return drawResult;
+  }
+  drawEmphasisBatchLists(params) {
+    const fillDrawOp = params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque;
+    const fillTechnique = "TrianglesDrawColorTechnique";
+    const fillMissingMessage = params.transparent ? "[RenderManager.renderView] Transparent triangle draw operation was not initialized." : "[RenderManager.renderView] Opaque triangle draw operation was not initialized.";
+    const entries = params.transparent ? [
+      ["XRAYED_TRANSPARENT", params.batches.xrayedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
+      ["XRAYED_EDGES_TRANSPARENT", params.batches.xrayedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
+      ["HIGHLIGHTED_TRANSPARENT", params.batches.highlightedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
+      ["HIGHLIGHTED_EDGES_TRANSPARENT", params.batches.highlightedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
+      ["SELECTED_TRANSPARENT", params.batches.selectedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
+      ["SELECTED_EDGES_TRANSPARENT", params.batches.selectedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
+    ] : [
+      ["XRAYED_OPAQUE", params.batches.xrayedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
+      ["XRAYED_EDGES_OPAQUE", params.batches.xrayedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
+      ["HIGHLIGHTED_OPAQUE", params.batches.highlightedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
+      ["HIGHLIGHTED_EDGES_OPAQUE", params.batches.highlightedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
+      ["SELECTED_OPAQUE", params.batches.selectedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
+      ["SELECTED_EDGES_OPAQUE", params.batches.selectedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
+    ];
+    for (const [renderPass, batches, technique, drawOp, missingMessage] of entries) {
+      const result = this.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches,
+        renderPass,
+        technique,
+        drawOp,
+        missingMessage
+      });
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    return this._ok();
+  }
+  _ok() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/postprocess/WebGPUColorRenderTarget.ts
+var WebGPUColorRenderTarget = class {
+  _renderContext;
+  _label;
+  _format;
+  _width = 0;
+  _height = 0;
+  _texture = null;
+  _view = null;
+  constructor(renderContext, label, format) {
+    this._renderContext = renderContext;
+    this._label = label;
+    this._format = format ?? renderContext.contextFormat;
+  }
+  get texture() {
+    return this._texture;
+  }
+  get view() {
+    return this._view;
+  }
+  get format() {
+    return this._format;
+  }
+  ensureSize(width, height) {
+    const nextWidth = Math.max(1, Math.floor(width));
+    const nextHeight = Math.max(1, Math.floor(height));
+    if (this._texture && this._view && this._width === nextWidth && this._height === nextHeight) {
+      return;
+    }
+    this.destroy();
+    this._texture = this._renderContext.device.createTexture({
+      label: this._label,
+      size: {
+        width: nextWidth,
+        height: nextHeight,
+        depthOrArrayLayers: 1
+      },
+      format: this._format,
+      usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT | GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_SRC
+    });
+    this._view = this._texture.createView();
+    this._width = nextWidth;
+    this._height = nextHeight;
+  }
+  destroy() {
+    try {
+      this._texture?.destroy?.();
+    } catch {
+    }
+    this._texture = null;
+    this._view = null;
+    this._width = 0;
+    this._height = 0;
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/postprocess/WebGPUPostProcessPipeline.ts
+var TONEMAP_MODE_NONE2 = 0;
+var TONEMAP_MODE_REINHARD2 = 1;
+var TONEMAP_MODE_ACES2 = 2;
+var WebGPUPostProcessPipeline = class {
+  _renderContext;
+  _shaderModule = null;
+  _bindGroupLayout = null;
+  _pipelineLayout = null;
+  _pipeline = null;
+  _sampler = null;
+  _paramsBuffer = null;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  init() {
+    try {
+      const device = this._renderContext.device;
+      this._shaderModule = device.createShaderModule({
+        label: "xeokit-webgpu-postprocess-shader",
+        code: SHADER
+      });
+      this._bindGroupLayout = device.createBindGroupLayout({
+        label: "xeokit-webgpu-postprocess-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          sampler: {
+            type: "filtering"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }, {
+          binding: 3,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float"
+          }
+        }]
+      });
+      this._pipelineLayout = device.createPipelineLayout({
+        label: "xeokit-webgpu-postprocess-pipeline-layout",
+        bindGroupLayouts: [this._bindGroupLayout]
+      });
+      this._pipeline = device.createRenderPipeline({
+        label: "xeokit-webgpu-postprocess-pipeline",
+        layout: this._pipelineLayout,
+        vertex: {
+          module: this._shaderModule,
+          entryPoint: "vsMain"
+        },
+        fragment: {
+          module: this._shaderModule,
+          entryPoint: "fsMain",
+          targets: [{
+            format: this._renderContext.contextFormat,
+            blend: {
+              color: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              },
+              alpha: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add"
+              }
+            }
+          }]
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._sampler = device.createSampler ? device.createSampler({
+        label: "xeokit-webgpu-postprocess-sampler",
+        magFilter: "linear",
+        minFilter: "linear",
+        addressModeU: "clamp-to-edge",
+        addressModeV: "clamp-to-edge"
+      }) : {};
+      this._paramsBuffer = this._renderContext.createEmptyGPUBuffer(
+        "xeokit-webgpu-postprocess-params",
+        64,
+        64
+      );
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUPostProcessPipeline.init] Failed to create post-process pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: void 0 };
+  }
+  render(params) {
+    if (!this._pipeline || !this._bindGroupLayout || !this._sampler || !this._paramsBuffer) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGPUPostProcessPipeline.render] Pipeline was not initialized."
+      };
+    }
+    const uniformData = this._createUniformData(params.view, params.width, params.height);
+    this._renderContext.writeGPUBuffer(this._paramsBuffer, 0, uniformData);
+    const bindGroup = this._renderContext.device.createBindGroup({
+      label: "xeokit-webgpu-postprocess-bind-group",
+      layout: this._bindGroupLayout,
+      entries: [{
+        binding: 0,
+        resource: this._sampler
+      }, {
+        binding: 1,
+        resource: params.sourceView
+      }, {
+        binding: 2,
+        resource: {
+          buffer: this._paramsBuffer
+        }
+      }, {
+        binding: 3,
+        resource: params.saoOcclusionView ?? params.sourceView
+      }]
+    });
+    const passEncoder = params.commandEncoder.beginRenderPass({
+      label: "xeokit-webgpu-postprocess-pass",
+      colorAttachments: [{
+        view: params.canvasView,
+        loadOp: "clear",
+        clearValue: {
+          r: 0,
+          g: 0,
+          b: 0,
+          a: params.view.transparent ? 0 : 1
+        },
+        storeOp: "store"
+      }]
+    });
+    passEncoder.setPipeline?.(this._pipeline);
+    passEncoder.setBindGroup?.(0, bindGroup);
+    passEncoder.draw?.(3, 1, 0, 0);
+    passEncoder.end?.();
+    passEncoder.endPass?.();
+    return { ok: true, value: void 0 };
+  }
+  destroy() {
+    this._paramsBuffer?.destroy?.();
+    this._paramsBuffer = null;
+    this._shaderModule = null;
+    this._bindGroupLayout = null;
+    this._pipelineLayout = null;
+    this._pipeline = null;
+    this._sampler = null;
+  }
+  _createUniformData(view, width, height) {
+    const effects = view.effects;
+    const tonemap = effects?.tonemap;
+    const antiAliasing = effects?.antiAliasing;
+    const sao = effects?.sao;
+    const tonemapActive = !!(tonemap?.applied && tonemap?.possible);
+    const aaActive = !!(antiAliasing?.applied && antiAliasing?.possible && antiAliasing?.mode !== "none");
+    const saoActive = !!(sao?.applied && sao?.possible && (sao.intensity ?? 0) > 0);
+    const exposure = tonemapActive ? tonemap.exposure ?? 1 : 1;
+    const tonemapMode = tonemapActive ? modeToInt2(tonemap.mode) : TONEMAP_MODE_NONE2;
+    const sRGBEncode = tonemap ? tonemap.sRGBEncode !== false : false;
+    return new Float32Array([
+      width > 0 ? 1 / width : 0,
+      height > 0 ? 1 / height : 0,
+      exposure,
+      tonemapMode,
+      sRGBEncode ? 1 : 0,
+      aaActive ? 1 : 0,
+      saoActive ? 1 : 0,
+      sao?.blendFactor ?? 1,
+      sao?.blendCutoff ?? 0.3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]);
+  }
+};
+function modeToInt2(mode) {
+  if (mode === "reinhard")
+    return TONEMAP_MODE_REINHARD2;
+  if (mode === "aces")
+    return TONEMAP_MODE_ACES2;
+  return TONEMAP_MODE_NONE2;
+}
+var SHADER = `
+struct Params {
+  inverseViewport: vec2<f32>,
+  exposure: f32,
+  tonemapMode: f32,
+  sRGBEncode: f32,
+  fxaaEnabled: f32,
+  saoEnabled: f32,
+  saoBlendFactor: f32,
+  saoBlendCutoff: f32,
+  pad0: f32,
+  pad1: f32,
+  pad2: f32,
+  pad3: f32,
+  pad4: f32,
+  pad5: f32,
+};
+
+@group(0) @binding(0) var sceneSampler: sampler;
+@group(0) @binding(1) var sceneColor: texture_2d<f32>;
+@group(0) @binding(2) var<uniform> params: Params;
+@group(0) @binding(3) var saoOcclusionTexture: texture_2d<f32>;
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) uv: vec2<f32>,
+};
+
+@vertex
+fn vsMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+  var positions = array<vec2<f32>, 3>(
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>(3.0, -1.0),
+    vec2<f32>(-1.0, 3.0)
+  );
+  let pos = positions[vertexIndex];
+  var output: VertexOutput;
+  output.position = vec4<f32>(pos, 0.0, 1.0);
+  output.uv = vec2<f32>(pos.x * 0.5 + 0.5, 0.5 - pos.y * 0.5);
+  return output;
+}
+
+fn luma(color: vec3<f32>) -> f32 {
+  return dot(color, vec3<f32>(0.299, 0.587, 0.114));
+}
+
+fn reinhard(color: vec3<f32>) -> vec3<f32> {
+  return color / (color + vec3<f32>(1.0));
+}
+
+fn aces(color: vec3<f32>) -> vec3<f32> {
+  return clamp((color * (2.51 * color + vec3<f32>(0.03))) / (color * (2.43 * color + vec3<f32>(0.59)) + vec3<f32>(0.14)), vec3<f32>(0.0), vec3<f32>(1.0));
+}
+
+fn applyTonemap(colorIn: vec3<f32>) -> vec3<f32> {
+  let exposed = colorIn * params.exposure;
+  let reinhardColor = reinhard(exposed);
+  let acesColor = aces(exposed);
+  let reinhardOrNone = select(exposed, reinhardColor, params.tonemapMode > 0.5);
+  let toneMapped = select(reinhardOrNone, acesColor, params.tonemapMode > 1.5);
+  let encoded = pow(max(toneMapped, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2));
+  return select(toneMapped, encoded, params.sRGBEncode > 0.5);
+}
+
+fn sampleScene(uv: vec2<f32>) -> vec3<f32> {
+  return textureSample(sceneColor, sceneSampler, uv).rgb;
+}
+
+fn loadSAOFactor(uv: vec2<f32>) -> f32 {
+  let dimsU = textureDimensions(saoOcclusionTexture);
+  let dims = vec2<i32>(i32(dimsU.x), i32(dimsU.y));
+  let clampedUV = clamp(uv, vec2<f32>(0.0), vec2<f32>(1.0));
+  let px = clamp(vec2<i32>(clampedUV * vec2<f32>(f32(dims.x), f32(dims.y))), vec2<i32>(0), dims - vec2<i32>(1));
+  let occlusion = textureLoad(saoOcclusionTexture, px, 0).r;
+  return clamp((smoothstep(params.saoBlendCutoff, 1.0, occlusion) - 1.0) * params.saoBlendFactor + 1.0, 0.0, 1.0);
+}
+
+fn applyFXAA(uv: vec2<f32>) -> vec3<f32> {
+  let inv = params.inverseViewport;
+  let rgbNW = sampleScene(uv + vec2<f32>(-1.0, -1.0) * inv);
+  let rgbNE = sampleScene(uv + vec2<f32>( 1.0, -1.0) * inv);
+  let rgbSW = sampleScene(uv + vec2<f32>(-1.0,  1.0) * inv);
+  let rgbSE = sampleScene(uv + vec2<f32>( 1.0,  1.0) * inv);
+  let rgbM = sampleScene(uv);
+  let lumaNW = luma(rgbNW);
+  let lumaNE = luma(rgbNE);
+  let lumaSW = luma(rgbSW);
+  let lumaSE = luma(rgbSE);
+  let lumaM = luma(rgbM);
+  let lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
+  let lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
+  let lumaRange = lumaMax - lumaMin;
+  var dir = vec2<f32>(
+    -((lumaNW + lumaNE) - (lumaSW + lumaSE)),
+     ((lumaNW + lumaSW) - (lumaNE + lumaSE))
+  );
+  let dirReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 / 8.0), 1.0 / 128.0);
+  let rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
+  dir = clamp(dir * rcpDirMin, vec2<f32>(-8.0), vec2<f32>(8.0)) * inv;
+  let rgbA = 0.5 * (
+    sampleScene(uv + dir * (1.0 / 3.0 - 0.5)) +
+    sampleScene(uv + dir * (2.0 / 3.0 - 0.5))
+  );
+  let rgbB = rgbA * 0.5 + 0.25 * (
+    sampleScene(uv + dir * -0.5) +
+    sampleScene(uv + dir * 0.5)
+  );
+  let lumaB = luma(rgbB);
+  let constrained = select(rgbB, rgbA, lumaB < lumaMin || lumaB > lumaMax);
+  let nonEdge = lumaRange < max(1.0 / 32.0, lumaMax * (1.0 / 8.0));
+  return select(constrained, rgbM, nonEdge);
+}
+
+@fragment
+fn fsMain(input: VertexOutput) -> @location(0) vec4<f32> {
+  let scene = sampleScene(input.uv);
+  let fxaa = applyFXAA(input.uv);
+  var color = select(scene, fxaa, params.fxaaEnabled > 0.5);
+  let saoFactor = loadSAOFactor(input.uv);
+  color = color * select(1.0, saoFactor, params.saoEnabled > 0.5);
+  color = applyTonemap(color);
+  return vec4<f32>(color, 1.0);
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/postprocess/sao/WebGPUSAODepthLimitedBlurRenderer.ts
+var BLUR_STD_DEV = 4;
+var BLUR_DEPTH_CUTOFF = 0.01;
+var KERNEL_RADIUS2 = 16;
+var SAMPLE_WEIGHTS = createSampleWeights2(KERNEL_RADIUS2 + 1, BLUR_STD_DEV);
+var WebGPUSAODepthLimitedBlurRenderer = class {
+  _renderContext;
+  _shaderModule = null;
+  _bindGroupLayout = null;
+  _pipelineLayout = null;
+  _pipeline = null;
+  _paramsBuffer = null;
+  _initialized = false;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  init() {
+    if (this._initialized) {
+      return { ok: true, value: void 0 };
+    }
+    try {
+      const device = this._renderContext.device;
+      this._shaderModule = device.createShaderModule({
+        label: "xeokit-webgpu-sao-blur-shader",
+        code: SHADER2
+      });
+      this._bindGroupLayout = device.createBindGroupLayout({
+        label: "xeokit-webgpu-sao-blur-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "depth"
+          }
+        }, {
+          binding: 2,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "float"
+          }
+        }]
+      });
+      this._pipelineLayout = device.createPipelineLayout({
+        label: "xeokit-webgpu-sao-blur-pipeline-layout",
+        bindGroupLayouts: [this._bindGroupLayout]
+      });
+      this._pipeline = device.createRenderPipeline({
+        label: "xeokit-webgpu-sao-blur-pipeline",
+        layout: this._pipelineLayout,
+        vertex: {
+          module: this._shaderModule,
+          entryPoint: "vsMain"
+        },
+        fragment: {
+          module: this._shaderModule,
+          entryPoint: "fsMain",
+          targets: [{
+            format: "r8unorm"
+          }]
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._paramsBuffer = this._renderContext.createEmptyGPUBuffer(
+        "xeokit-webgpu-sao-blur-params",
+        160,
+        64
+      );
+      this._initialized = true;
+    } catch (e) {
+      this.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUSAODepthLimitedBlurRenderer.init] Failed to create SAO blur pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: void 0 };
+  }
+  render(params) {
+    const initResult = this.init();
+    if (initResult.ok === false) {
+      return initResult;
+    }
+    if (!this._pipeline || !this._bindGroupLayout || !this._paramsBuffer) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGPUSAODepthLimitedBlurRenderer.render] Pipeline was not initialized."
+      };
+    }
+    this._renderContext.writeGPUBuffer(
+      this._paramsBuffer,
+      0,
+      this._createUniformData(params.view, params.width, params.height, params.direction)
+    );
+    const bindGroup = this._renderContext.device.createBindGroup({
+      label: "xeokit-webgpu-sao-blur-bind-group",
+      layout: this._bindGroupLayout,
+      entries: [{
+        binding: 0,
+        resource: {
+          buffer: this._paramsBuffer
+        }
+      }, {
+        binding: 1,
+        resource: params.depthView
+      }, {
+        binding: 2,
+        resource: params.occlusionView
+      }]
+    });
+    const passEncoder = params.commandEncoder.beginRenderPass({
+      label: params.direction === 0 ? "xeokit-webgpu-sao-blur-horizontal-pass" : "xeokit-webgpu-sao-blur-vertical-pass",
+      colorAttachments: [{
+        view: params.targetView,
+        loadOp: "clear",
+        clearValue: { r: 1, g: 1, b: 1, a: 1 },
+        storeOp: "store"
+      }]
+    });
+    passEncoder.setPipeline?.(this._pipeline);
+    passEncoder.setBindGroup?.(0, bindGroup);
+    passEncoder.draw?.(3, 1, 0, 0);
+    passEncoder.end?.();
+    passEncoder.endPass?.();
+    return { ok: true, value: void 0 };
+  }
+  destroy() {
+    this._paramsBuffer?.destroy?.();
+    this._paramsBuffer = null;
+    this._shaderModule = null;
+    this._bindGroupLayout = null;
+    this._pipelineLayout = null;
+    this._pipeline = null;
+    this._initialized = false;
+  }
+  _createUniformData(view, width, height, direction) {
+    const projection = view.camera.projectionType === PerspectiveProjectionType ? view.camera.perspectiveProjection : view.camera.orthoProjection;
+    const data2 = new Float32Array(32);
+    data2[0] = Math.max(1, width);
+    data2[1] = Math.max(1, height);
+    data2[2] = projection.near;
+    data2[3] = projection.far;
+    data2[4] = view.camera.projectionType === PerspectiveProjectionType ? 1 : 0;
+    data2[5] = this._renderContext.renderConfigs.logDepth ? 1 : 0;
+    data2[6] = direction === 0 ? 1 : 0;
+    data2[7] = direction === 0 ? 0 : 1;
+    data2[8] = BLUR_DEPTH_CUTOFF;
+    for (let i = 0; i <= KERNEL_RADIUS2; i++) {
+      data2[12 + i] = SAMPLE_WEIGHTS[i];
+    }
+    return data2;
+  }
+};
+function createSampleWeights2(kernelRadius, stdDev) {
+  const weights = [];
+  for (let i = 0; i <= kernelRadius; i++) {
+    weights.push(Math.exp(-(i * i) / (2 * (stdDev * stdDev))) / (Math.sqrt(2 * Math.PI) * stdDev));
+  }
+  return weights;
+}
+var SHADER2 = `
+const KERNEL_RADIUS: i32 = 16;
+
+struct Params {
+  viewport: vec2<f32>,
+  near: f32,
+  far: f32,
+  perspective: f32,
+  logDepth: f32,
+  direction: vec2<f32>,
+  depthCutoff: f32,
+  pad0: vec3<f32>,
+  sampleWeights0: vec4<f32>,
+  sampleWeights1: vec4<f32>,
+  sampleWeights2: vec4<f32>,
+  sampleWeights3: vec4<f32>,
+  sampleWeights4: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> params: Params;
+@group(0) @binding(1) var sceneDepth: texture_depth_2d;
+@group(0) @binding(2) var occlusionTexture: texture_2d<f32>;
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) uv: vec2<f32>,
+};
+
+@vertex
+fn vsMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+  var positions = array<vec2<f32>, 3>(
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>(3.0, -1.0),
+    vec2<f32>(-1.0, 3.0)
+  );
+  let pos = positions[vertexIndex];
+  var output: VertexOutput;
+  output.position = vec4<f32>(pos, 0.0, 1.0);
+  output.uv = vec2<f32>(pos.x * 0.5 + 0.5, 0.5 - pos.y * 0.5);
+  return output;
+}
+
+fn weight(index: i32) -> f32 {
+  if (index < 4) {
+    return params.sampleWeights0[index];
+  }
+  if (index < 8) {
+    return params.sampleWeights1[index - 4];
+  }
+  if (index < 12) {
+    return params.sampleWeights2[index - 8];
+  }
+  if (index < 16) {
+    return params.sampleWeights3[index - 12];
+  }
+  return params.sampleWeights4[index - 16];
+}
+
+fn pixelFromUV(uv: vec2<f32>) -> vec2<i32> {
+  let dimsU = textureDimensions(sceneDepth);
+  let dims = vec2<i32>(i32(dimsU.x), i32(dimsU.y));
+  let clampedUV = clamp(uv, vec2<f32>(0.0), vec2<f32>(1.0));
+  return clamp(vec2<i32>(clampedUV * vec2<f32>(f32(dims.x), f32(dims.y))), vec2<i32>(0), dims - vec2<i32>(1));
+}
+
+fn loadDepthAtPixel(px: vec2<i32>) -> f32 {
+  return textureLoad(sceneDepth, px, 0);
+}
+
+fn loadOcclusionAtPixel(px: vec2<i32>) -> f32 {
+  return textureLoad(occlusionTexture, px, 0).r;
+}
+
+fn getViewZ(depth: f32) -> f32 {
+  let perspectiveStandardZ = (params.near * params.far) / ((params.far - params.near) * depth - params.far);
+  let perspectiveLogZ = 1.0 - pow(1.0 + params.far, depth);
+  let perspectiveZ = select(perspectiveStandardZ, perspectiveLogZ, params.logDepth > 0.5);
+  let orthoZ = depth * (params.near - params.far) - params.near;
+  return select(orthoZ, perspectiveZ, params.perspective > 0.5);
+}
+
+@fragment
+fn fsMain(input: VertexOutput) -> @location(0) vec4<f32> {
+  let centerPixel = pixelFromUV(input.uv);
+  let centerDepth = loadDepthAtPixel(centerPixel);
+  if (centerDepth >= 0.999999) {
+    return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+  }
+
+  let centerViewZ = -getViewZ(centerDepth);
+  let dimsU = textureDimensions(sceneDepth);
+  let dims = vec2<i32>(i32(dimsU.x), i32(dimsU.y));
+  let direction = vec2<i32>(i32(params.direction.x), i32(params.direction.y));
+  var rightBreak = false;
+  var leftBreak = false;
+  var weightSum = weight(0);
+  var occlusionSum = loadOcclusionAtPixel(centerPixel) * weightSum;
+
+  for (var i = 1; i <= KERNEL_RADIUS; i = i + 1) {
+    let sampleWeight = weight(i);
+    var samplePixel = clamp(centerPixel + direction * i, vec2<i32>(0), dims - vec2<i32>(1));
+    var viewZ = -getViewZ(loadDepthAtPixel(samplePixel));
+    if (abs(viewZ - centerViewZ) > params.depthCutoff) {
+      rightBreak = true;
+    }
+    if (!rightBreak) {
+      occlusionSum = occlusionSum + loadOcclusionAtPixel(samplePixel) * sampleWeight;
+      weightSum = weightSum + sampleWeight;
+    }
+
+    samplePixel = clamp(centerPixel - direction * i, vec2<i32>(0), dims - vec2<i32>(1));
+    viewZ = -getViewZ(loadDepthAtPixel(samplePixel));
+    if (abs(viewZ - centerViewZ) > params.depthCutoff) {
+      leftBreak = true;
+    }
+    if (!leftBreak) {
+      occlusionSum = occlusionSum + loadOcclusionAtPixel(samplePixel) * sampleWeight;
+      weightSum = weightSum + sampleWeight;
+    }
+  }
+  let occlusion = occlusionSum / max(weightSum, 0.000001);
+  return vec4<f32>(occlusion, 0.0, 0.0, 1.0);
+}
+`;
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/postprocess/sao/WebGPUSAOOcclusionRenderer.ts
+var WebGPUSAOOcclusionRenderer = class {
+  _renderContext;
+  _shaderModule = null;
+  _bindGroupLayout = null;
+  _pipelineLayout = null;
+  _pipeline = null;
+  _paramsBuffer = null;
+  _numSamples = 0;
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  render(params) {
+    const sao = params.view.effects.sao;
+    const sampleCount = Math.max(1, Math.min(32, Math.floor(sao.numSamples ?? 10)));
+    const initResult = this._ensurePipeline(sampleCount);
+    if (initResult.ok === false) {
+      return initResult;
+    }
+    if (!this._pipeline || !this._bindGroupLayout || !this._paramsBuffer) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGPUSAOOcclusionRenderer.render] Pipeline was not initialized."
+      };
+    }
+    this._renderContext.writeGPUBuffer(
+      this._paramsBuffer,
+      0,
+      this._createUniformData(params.view, params.width, params.height, sampleCount)
+    );
+    const bindGroup = this._renderContext.device.createBindGroup({
+      label: "xeokit-webgpu-sao-occlusion-bind-group",
+      layout: this._bindGroupLayout,
+      entries: [{
+        binding: 0,
+        resource: {
+          buffer: this._paramsBuffer
+        }
+      }, {
+        binding: 1,
+        resource: params.depthView
+      }]
+    });
+    const passEncoder = params.commandEncoder.beginRenderPass({
+      label: "xeokit-webgpu-sao-occlusion-pass",
+      colorAttachments: [{
+        view: params.targetView,
+        loadOp: "clear",
+        clearValue: { r: 1, g: 1, b: 1, a: 1 },
+        storeOp: "store"
+      }]
+    });
+    passEncoder.setPipeline?.(this._pipeline);
+    passEncoder.setBindGroup?.(0, bindGroup);
+    passEncoder.draw?.(3, 1, 0, 0);
+    passEncoder.end?.();
+    passEncoder.endPass?.();
+    return { ok: true, value: void 0 };
+  }
+  destroy() {
+    this._paramsBuffer?.destroy?.();
+    this._paramsBuffer = null;
+    this._shaderModule = null;
+    this._bindGroupLayout = null;
+    this._pipelineLayout = null;
+    this._pipeline = null;
+    this._numSamples = 0;
+  }
+  _ensurePipeline(numSamples) {
+    if (this._pipeline && this._numSamples === numSamples) {
+      return { ok: true, value: void 0 };
+    }
+    this.destroy();
+    this._numSamples = numSamples;
+    try {
+      const device = this._renderContext.device;
+      this._shaderModule = device.createShaderModule({
+        label: "xeokit-webgpu-sao-occlusion-shader",
+        code: createShader(numSamples)
+      });
+      this._bindGroupLayout = device.createBindGroupLayout({
+        label: "xeokit-webgpu-sao-occlusion-bind-group-layout",
+        entries: [{
+          binding: 0,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          buffer: {
+            type: "uniform"
+          }
+        }, {
+          binding: 1,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "depth"
+          }
+        }]
+      });
+      this._pipelineLayout = device.createPipelineLayout({
+        label: "xeokit-webgpu-sao-occlusion-pipeline-layout",
+        bindGroupLayouts: [this._bindGroupLayout]
+      });
+      this._pipeline = device.createRenderPipeline({
+        label: "xeokit-webgpu-sao-occlusion-pipeline",
+        layout: this._pipelineLayout,
+        vertex: {
+          module: this._shaderModule,
+          entryPoint: "vsMain"
+        },
+        fragment: {
+          module: this._shaderModule,
+          entryPoint: "fsMain",
+          targets: [{
+            format: "r8unorm"
+          }]
+        },
+        primitive: {
+          topology: "triangle-list",
+          cullMode: "none"
+        }
+      });
+      this._paramsBuffer = this._renderContext.createEmptyGPUBuffer(
+        "xeokit-webgpu-sao-occlusion-params",
+        128,
+        64
+      );
+    } catch (e) {
+      this.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUSAOOcclusionRenderer.init] Failed to create SAO occlusion pipeline: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    return { ok: true, value: void 0 };
+  }
+  _createUniformData(view, width, height, sampleCount) {
+    const sao = view.effects.sao;
+    const projection = view.camera.projectionType === PerspectiveProjectionType ? view.camera.perspectiveProjection : view.camera.orthoProjection;
+    const projMatrix = projection.projMatrix;
+    return new Float32Array([
+      width > 0 ? 1 / width : 0,
+      height > 0 ? 1 / height : 0,
+      Math.max(1, width),
+      Math.max(1, height),
+      projection.near,
+      projection.far,
+      (sao.scale ?? 1) * (projection.far / 5),
+      sao.intensity ?? 0.15,
+      sao.bias ?? 0.5,
+      sao.kernelRadius ?? 100,
+      sao.minResolution ?? 0,
+      Math.random(),
+      view.camera.projectionType === PerspectiveProjectionType ? 1 : 0,
+      sampleCount,
+      Number(projMatrix[0]),
+      Number(projMatrix[5]),
+      this._renderContext.renderConfigs.logDepth ? 1 : 0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]);
+  }
+};
+function createShader(numSamples) {
+  return `
+struct Params {
+  inverseViewport: vec2<f32>,
+  viewport: vec2<f32>,
+  near: f32,
+  far: f32,
+  scale: f32,
+  intensity: f32,
+  bias: f32,
+  kernelRadius: f32,
+  minResolution: f32,
+  randomSeed: f32,
+  perspective: f32,
+  numSamples: f32,
+  proj00: f32,
+  proj11: f32,
+  pad0: vec2<f32>,
+  pad1: vec4<f32>,
+  pad2: vec4<f32>,
+};
+
+@group(0) @binding(0) var<uniform> params: Params;
+@group(0) @binding(1) var sceneDepth: texture_depth_2d;
+
+struct VertexOutput {
+  @builtin(position) position: vec4<f32>,
+  @location(0) uv: vec2<f32>,
+};
+
+@vertex
+fn vsMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+  var positions = array<vec2<f32>, 3>(
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>(3.0, -1.0),
+    vec2<f32>(-1.0, 3.0)
+  );
+  let pos = positions[vertexIndex];
+  var output: VertexOutput;
+  output.position = vec4<f32>(pos, 0.0, 1.0);
+  output.uv = vec2<f32>(pos.x * 0.5 + 0.5, 0.5 - pos.y * 0.5);
+  return output;
+}
+
+fn rand(uv: vec2<f32>) -> f32 {
+  let dt = dot(uv, vec2<f32>(12.9898, 78.233));
+  return fract(sin(dt % 3.14159265359) * 43758.5453);
+}
+
+fn loadDepth(uv: vec2<f32>) -> f32 {
+  let dimsU = textureDimensions(sceneDepth);
+  let dims = vec2<i32>(i32(dimsU.x), i32(dimsU.y));
+  let clampedUV = clamp(uv, vec2<f32>(0.0), vec2<f32>(1.0));
+  let px = clamp(vec2<i32>(clampedUV * vec2<f32>(f32(dims.x), f32(dims.y))), vec2<i32>(0), dims - vec2<i32>(1));
+  return textureLoad(sceneDepth, px, 0);
+}
+
+fn getViewZ(depth: f32) -> f32 {
+  let perspectiveStandardZ = (params.near * params.far) / ((params.far - params.near) * depth - params.far);
+  let perspectiveLogZ = 1.0 - pow(1.0 + params.far, depth);
+  let perspectiveZ = select(perspectiveStandardZ, perspectiveLogZ, params.pad0.x > 0.5);
+  let orthoZ = depth * (params.near - params.far) - params.near;
+  return select(orthoZ, perspectiveZ, params.perspective > 0.5);
+}
+
+fn getViewPos(screenPos: vec2<f32>, depth: f32, viewZ: f32) -> vec3<f32> {
+  let ndcXY = vec2<f32>(screenPos.x * 2.0 - 1.0, 1.0 - screenPos.y * 2.0);
+  let perspectivePos = vec3<f32>(
+    ndcXY.x * (-viewZ) / params.proj00,
+    ndcXY.y * (-viewZ) / params.proj11,
+    viewZ
+  );
+  let orthoPos = vec3<f32>(ndcXY, depth);
+  return select(orthoPos, perspectivePos, params.perspective > 0.5);
+}
+
+fn getOcclusion(centerViewPosition: vec3<f32>, centerViewNormal: vec3<f32>, sampleViewPosition: vec3<f32>) -> f32 {
+  let viewDelta = sampleViewPosition - centerViewPosition;
+  let viewDistance = length(viewDelta);
+  let scaledScreenDistance = max((params.scale / params.far) * viewDistance, 0.000001);
+  let minResolution = params.minResolution * params.far;
+  let normalTerm = (dot(centerViewNormal, viewDelta) - minResolution) / scaledScreenDistance - params.bias;
+  return max(0.0, normalTerm) / (1.0 + scaledScreenDistance * scaledScreenDistance);
+}
+
+fn getAmbientOcclusion(centerViewPosition: vec3<f32>, uv: vec2<f32>) -> f32 {
+  let centerViewNormal = normalize(cross(dpdy(centerViewPosition), dpdx(centerViewPosition)));
+  var angle = rand(uv + vec2<f32>(params.randomSeed)) * 6.28318530718;
+  var radius = vec2<f32>(params.kernelRadius / f32(${numSamples})) * params.inverseViewport;
+  let radiusStep = radius;
+  var occlusionSum = 0.0;
+  var weightSum = 0.0;
+  for (var i = 0; i < ${numSamples}; i = i + 1) {
+    let sampleUV = uv + vec2<f32>(cos(angle), sin(angle)) * radius;
+    radius = radius + radiusStep;
+    angle = angle + (6.28318530718 * 4.0 / f32(${numSamples}));
+    let sampleDepth = loadDepth(sampleUV);
+    if (sampleDepth < 0.999999) {
+      let sampleViewZ = getViewZ(sampleDepth);
+      let sampleViewPosition = getViewPos(sampleUV, sampleDepth, sampleViewZ);
+      occlusionSum = occlusionSum + getOcclusion(centerViewPosition, centerViewNormal, sampleViewPosition);
+      weightSum = weightSum + 1.0;
+    }
+  }
+  return select(0.0, occlusionSum * (params.intensity / weightSum), weightSum > 0.0);
+}
+
+@fragment
+fn fsMain(input: VertexOutput) -> @location(0) vec4<f32> {
+  let centerDepth = loadDepth(input.uv);
+  let centerViewZ = getViewZ(centerDepth);
+  let centerViewPosition = getViewPos(input.uv, centerDepth, centerViewZ);
+  let ambientOcclusion = getAmbientOcclusion(centerViewPosition, input.uv);
+  let depthValid = select(1.0, 0.0, centerDepth >= 0.999999);
+  let occlusion = mix(1.0, clamp(1.0 - ambientOcclusion, 0.0, 1.0), depthValid);
+  return vec4<f32>(occlusion, 0.0, 0.0, 1.0);
+}
+`;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/postprocess/sao/WebGPUSAOPipeline.ts
+var WebGPUSAOPipeline = class {
+  _occlusionTarget;
+  _blurTarget;
+  _occlusionRenderer;
+  _blurRenderer;
+  constructor(renderContext) {
+    this._occlusionTarget = new WebGPUColorRenderTarget(renderContext, "xeokit-webgpu-sao-occlusion", "r8unorm");
+    this._blurTarget = new WebGPUColorRenderTarget(renderContext, "xeokit-webgpu-sao-blur", "r8unorm");
+    this._occlusionRenderer = new WebGPUSAOOcclusionRenderer(renderContext);
+    this._blurRenderer = new WebGPUSAODepthLimitedBlurRenderer(renderContext);
+  }
+  render(params) {
+    this._occlusionTarget.ensureSize(params.width, params.height);
+    const occlusionResult = this._occlusionRenderer.render({
+      commandEncoder: params.commandEncoder,
+      depthView: params.depthView,
+      targetView: this._occlusionTarget.view,
+      width: params.width,
+      height: params.height,
+      view: params.view
+    });
+    if (occlusionResult.ok === false) {
+      return occlusionResult;
+    }
+    if (params.view.effects.sao.blur) {
+      this._blurTarget.ensureSize(params.width, params.height);
+      const horizontalResult = this._blurRenderer.render({
+        commandEncoder: params.commandEncoder,
+        depthView: params.depthView,
+        occlusionView: this._occlusionTarget.view,
+        targetView: this._blurTarget.view,
+        width: params.width,
+        height: params.height,
+        view: params.view,
+        direction: 0
+      });
+      if (horizontalResult.ok === false) {
+        return horizontalResult;
+      }
+      const verticalResult = this._blurRenderer.render({
+        commandEncoder: params.commandEncoder,
+        depthView: params.depthView,
+        occlusionView: this._blurTarget.view,
+        targetView: this._occlusionTarget.view,
+        width: params.width,
+        height: params.height,
+        view: params.view,
+        direction: 1
+      });
+      if (verticalResult.ok === false) {
+        return verticalResult;
+      }
+    }
+    return {
+      ok: true,
+      value: {
+        occlusionView: this._occlusionTarget.view
+      }
+    };
+  }
+  destroy() {
+    this._occlusionRenderer.destroy();
+    this._blurRenderer.destroy();
+    this._occlusionTarget.destroy();
+    this._blurTarget.destroy();
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/postprocess/WebGPUPostProcessChain.ts
+var WebGPUPostProcessChain = class {
+  _sceneTarget;
+  _pipeline;
+  _saoPipeline;
+  _initialized = false;
+  constructor(renderContext) {
+    this._sceneTarget = new WebGPUColorRenderTarget(renderContext, "xeokit-webgpu-postprocess-scene-color", "rgba16float");
+    this._pipeline = new WebGPUPostProcessPipeline(renderContext);
+    this._saoPipeline = new WebGPUSAOPipeline(renderContext);
+  }
+  init() {
+    return { ok: true, value: void 0 };
+  }
+  needsPostProcess(view) {
+    const effects = view.effects;
+    const tonemap = effects?.tonemap;
+    const antiAliasing = effects?.antiAliasing;
+    return !!(tonemap?.applied && tonemap?.possible || antiAliasing?.applied && antiAliasing?.possible && antiAliasing?.mode !== "none" || this.needsSAO(view));
+  }
+  needsSAO(view) {
+    const sao = view.effects?.sao;
+    return !!(sao?.applied && sao?.possible && (sao.intensity ?? 0) > 0);
+  }
+  ensureSceneTarget(width, height) {
+    this._sceneTarget.ensureSize(width, height);
+    return {
+      view: this._sceneTarget.view,
+      textureView: this._sceneTarget.view,
+      format: this._sceneTarget.format
+    };
+  }
+  composite(params) {
+    if (!this._initialized) {
+      const initResult = this._pipeline.init();
+      if (initResult.ok === false) {
+        return initResult;
+      }
+      this._initialized = true;
+    }
+    let saoOcclusionView = null;
+    if (this.needsSAO(params.view)) {
+      const saoResult = this._saoPipeline.render({
+        commandEncoder: params.commandEncoder,
+        depthView: params.depthView,
+        width: params.width,
+        height: params.height,
+        view: params.view
+      });
+      if (saoResult.ok === false) {
+        return saoResult;
+      }
+      saoOcclusionView = saoResult.value.occlusionView;
+    }
+    return this._pipeline.render({
+      ...params,
+      saoOcclusionView
+    });
+  }
+  destroy() {
+    this._pipeline.destroy();
+    this._saoPipeline.destroy();
+    this._sceneTarget.destroy();
+  }
+};
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/shadows/WebGPUShadowPipeline.ts
+var tempLightView = createMat4Float64();
+var tempLightProjection = createMat4Float64();
+var tempLightViewProjection = createMat4Float64();
+var tempShadowDepthViewProjection = createMat4Float64();
+var tempLightViewProjections = Array.from({ length: MAX_SHADOW_CASCADES2 }, () => createMat4Float64());
+var tempShadowDepthViewProjections = Array.from({ length: MAX_SHADOW_CASCADES2 }, () => createMat4Float64());
+var WebGPUShadowPipeline = class {
+  _renderContext;
+  _bindGroupLayoutManager;
+  _frameUniformManager;
+  _renderInspector;
+  _uniformData = new Float32Array(SHADOW_UNIFORM_FLOATS);
+  _uniformBuffer = null;
+  _sampler = null;
+  _texture = null;
+  _textureView = null;
+  _layerViews = [];
+  _bindGroup = null;
+  _resolution = 0;
+  _cascadeCount = 0;
+  _sliceDistances = new Float32Array(MAX_SHADOW_CASCADES2 + 1);
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._frameUniformManager = params.frameUniformManager;
+    this._renderInspector = params.renderInspector;
+  }
+  init() {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  shouldRender(view, batches) {
+    const shadows = view.effects?.shadows;
+    return !!shadows && shadows.applied && shadows.possible && shadows.intensity > 0 && batches.length > 0;
+  }
+  disable() {
+    const resourcesResult = this._ensureResources(1, 1);
+    if (resourcesResult.ok === false) {
+      return resourcesResult;
+    }
+    for (let c2 = 0; c2 < MAX_SHADOW_CASCADES2; c2++) {
+      const offset = c2 * 16;
+      for (let i = 0; i < 16; i++) {
+        this._uniformData[offset + i] = i % 5 === 0 ? 1 : 0;
+      }
+    }
+    this._uniformData[96] = 0;
+    this._uniformData[97] = 0;
+    this._uniformData[98] = 0;
+    this._uniformData[99] = 0;
+    this._uniformData[100] = -0.5;
+    this._uniformData[101] = -1;
+    this._uniformData[102] = -0.3;
+    this._uniformData[103] = 0;
+    this._uniformData[104] = 0;
+    this._uniformData[105] = 0;
+    this._uniformData[106] = 1;
+    this._uniformData[107] = 0;
+    for (let i = 0; i < 16; i++) {
+      this._uniformData[108 + i] = i % 5 === 0 ? 1 : 0;
+    }
+    for (let i = 124; i < 132; i++) {
+      this._uniformData[i] = Number.MAX_VALUE;
+    }
+    this._renderContext.device.queue.writeBuffer(this._uniformBuffer, 0, this._uniformData);
+    this._renderContext.shadowBindGroup = this._bindGroup;
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  render(params) {
+    if (!params.shadowDepthDrawOp) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGPUShadowPipeline.render] Triangle shadow-depth draw operation was not initialized."
+      };
+    }
+    const shadows = params.view.effects.shadows;
+    const resolution = Math.max(1, Math.floor(shadows.resolution));
+    const cascadeCount = Math.min(MAX_SHADOW_CASCADES2, Math.max(1, Math.floor(shadows.cascadeCount ?? 1)));
+    const resourcesResult = this._ensureResources(resolution, cascadeCount);
+    if (resourcesResult.ok === false) {
+      return resourcesResult;
+    }
+    this._buildLightViewProjections(params.view, params.canvasWidth, params.canvasHeight, resolution, cascadeCount);
+    for (let c2 = 0; c2 < MAX_SHADOW_CASCADES2; c2++) {
+      const matrix = c2 < cascadeCount ? tempLightViewProjections[c2] : tempLightViewProjections[0];
+      const offset = c2 * 16;
+      for (let i = 0; i < 16; i++) {
+        this._uniformData[offset + i] = matrix[i];
+      }
+    }
+    this._uniformData[96] = 1;
+    this._uniformData[97] = Math.max(0, Math.min(1, shadows.intensity));
+    this._uniformData[98] = Math.max(0, shadows.bias);
+    const debugMode = shadows.debug;
+    this._uniformData[99] = Math.max(0, shadows.normalOffsetBias);
+    const direction = shadows.direction;
+    this._uniformData[100] = direction[0];
+    this._uniformData[101] = direction[1];
+    this._uniformData[102] = direction[2];
+    this._uniformData[103] = Math.max(0, shadows.slopeBias);
+    this._uniformData[104] = debugMode === "depth" ? 2 : debugMode ? 1 : 0;
+    this._uniformData[105] = cascadeCount;
+    this._uniformData[106] = 1 / Math.max(1, resolution);
+    this._uniformData[107] = 0;
+    const cameraViewMatrix = params.view.camera.viewMatrix;
+    for (let i = 0; i < 16; i++) {
+      this._uniformData[108 + i] = cameraViewMatrix[i];
+    }
+    for (let i = 0; i < 8; i++) {
+      this._uniformData[124 + i] = i < cascadeCount - 1 ? this._sliceDistances[i + 1] : Number.MAX_VALUE;
+    }
+    this._renderContext.device.queue.writeBuffer(this._uniformBuffer, 0, this._uniformData);
+    this._renderContext.shadowBindGroup = this._bindGroup;
+    for (let c2 = 0; c2 < cascadeCount; c2++) {
+      const frameBindGroupResult = this._frameUniformManager.writeFrameUniformsForWebGPUViewProjection(params.view, tempShadowDepthViewProjections[c2]);
+      if (frameBindGroupResult.ok === false) {
+        return frameBindGroupResult;
+      }
+      const commandEncoder = this._renderContext.device.createCommandEncoder();
+      const passEncoder = commandEncoder.beginRenderPass({
+        colorAttachments: [],
+        depthStencilAttachment: {
+          view: this._layerViews[c2],
+          depthClearValue: 1,
+          depthLoadOp: "clear",
+          depthStoreOp: "store"
+        }
+      });
+      this._renderInspector.renderBinStarted("SHADOW_DEPTH");
+      this._renderInspector.drawBatches({
+        renderPass: "SHADOW_DEPTH",
+        technique: "TrianglesShadowDepthTechnique",
+        batches: params.batches
+      });
+      const commandStateTracker = new CommandStateTracker({
+        passEncoder,
+        commandStats: this._renderInspector
+      });
+      const drawResult = params.shadowDepthDrawOp.drawBatches({
+        passEncoder,
+        commandStateTracker,
+        frameBindGroup: frameBindGroupResult.value,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: params.batches,
+        commandStats: this._renderInspector
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
+      }
+      passEncoder.end?.();
+      this._renderContext.device.queue.submit([commandEncoder.finish()]);
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  destroy() {
+    try {
+      this._texture?.destroy?.();
+      this._uniformBuffer?.destroy?.();
+    } catch {
+    }
+    this._uniformBuffer = null;
+    this._sampler = null;
+    this._texture = null;
+    this._textureView = null;
+    this._layerViews = [];
+    this._bindGroup = null;
+    this._resolution = 0;
+    this._cascadeCount = 0;
+    this._renderContext.shadowBindGroup = null;
+  }
+  _ensureResources(resolution, cascadeCount) {
+    const bindGroupLayoutResult = this._bindGroupLayoutManager.getShadowBindGroupLayout();
+    if (bindGroupLayoutResult.ok === false) {
+      return bindGroupLayoutResult;
+    }
+    if (!this._uniformBuffer) {
+      this._uniformBuffer = this._renderContext.device.createBuffer({
+        label: "xeokit-webgpu-shadow-uniforms",
+        size: SHADOW_UNIFORM_BYTES,
+        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+      });
+    }
+    if (!this._sampler) {
+      if (!this._renderContext.device.createSampler) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[WebGPUShadowPipeline._ensureResources] WebGPU device does not expose createSampler."
+        };
+      }
+      this._sampler = this._renderContext.device.createSampler({
+        label: "xeokit-webgpu-shadow-comparison-sampler",
+        compare: "less",
+        minFilter: "linear",
+        magFilter: "linear"
+      });
+    }
+    if (!this._texture || this._resolution !== resolution || this._cascadeCount !== cascadeCount) {
+      try {
+        this._texture?.destroy?.();
+      } catch {
+      }
+      this._texture = this._renderContext.device.createTexture({
+        label: "xeokit-webgpu-shadow-depth-texture",
+        size: {
+          width: resolution,
+          height: resolution,
+          depthOrArrayLayers: cascadeCount
+        },
+        format: SHADOW_DEPTH_FORMAT,
+        usage: GPU_TEXTURE_USAGE.RENDER_ATTACHMENT | GPU_TEXTURE_USAGE.TEXTURE_BINDING
+      });
+      this._textureView = this._texture.createView({
+        dimension: "2d-array",
+        baseArrayLayer: 0,
+        arrayLayerCount: cascadeCount
+      });
+      this._layerViews = [];
+      for (let c2 = 0; c2 < cascadeCount; c2++) {
+        this._layerViews.push(this._texture.createView({
+          dimension: "2d",
+          baseArrayLayer: c2,
+          arrayLayerCount: 1
+        }));
+      }
+      this._resolution = resolution;
+      this._cascadeCount = cascadeCount;
+      this._bindGroup = null;
+    }
+    if (!this._bindGroup) {
+      this._bindGroup = this._renderContext.device.createBindGroup({
+        label: "xeokit-webgpu-shadow-bind-group",
+        layout: bindGroupLayoutResult.value,
+        entries: [{
+          binding: 0,
+          resource: {
+            buffer: this._uniformBuffer
+          }
+        }, {
+          binding: 1,
+          resource: this._sampler
+        }, {
+          binding: 2,
+          resource: this._textureView
+        }]
+      });
+    }
+    this._renderContext.shadowBindGroup = this._bindGroup;
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _buildLightViewProjections(view, canvasWidth, canvasHeight, resolution, cascadeCount) {
+    const shadows = view.effects.shadows;
+    const dir = shadows.direction;
+    const camera = view.camera;
+    const cameraViewMatrix = camera.viewMatrix;
+    const dxV = cameraViewMatrix[0] * dir[0] + cameraViewMatrix[4] * dir[1] + cameraViewMatrix[8] * dir[2];
+    const dyV = cameraViewMatrix[1] * dir[0] + cameraViewMatrix[5] * dir[1] + cameraViewMatrix[9] * dir[2];
+    const dzV = cameraViewMatrix[2] * dir[0] + cameraViewMatrix[6] * dir[1] + cameraViewMatrix[10] * dir[2];
+    const dirView = normalize32(dxV, dyV, dzV);
+    const worldUp = Math.abs(dir[2]) < 0.95 ? [0, 0, 1] : [0, 1, 0];
+    const upView = [
+      cameraViewMatrix[0] * worldUp[0] + cameraViewMatrix[4] * worldUp[1] + cameraViewMatrix[8] * worldUp[2],
+      cameraViewMatrix[1] * worldUp[0] + cameraViewMatrix[5] * worldUp[1] + cameraViewMatrix[9] * worldUp[2],
+      cameraViewMatrix[2] * worldUp[0] + cameraViewMatrix[6] * worldUp[1] + cameraViewMatrix[10] * worldUp[2]
+    ];
+    const maxDistance = Math.max(1, Math.min(shadows.maxDistance, camera.projectionType === PerspectiveProjectionType ? camera.perspectiveProjection.far : camera.orthoProjection.far));
+    const nearDistance = 0.1;
+    this._computeCascadeSplits(nearDistance, maxDistance, cascadeCount, shadows.cascadeSplitLambda ?? 0.5);
+    const lightDistance = shadows.autoFit ? 1e3 : shadows.lightDistance;
+    const lightEyeView = [
+      -dirView[0] * lightDistance,
+      -dirView[1] * lightDistance,
+      -dirView[2] * lightDistance
+    ];
+    lookAtMat4v(lightEyeView, [0, 0, 0], upView, tempLightView);
+    for (let c2 = 0; c2 < cascadeCount; c2++) {
+      const sliceNear = this._sliceDistances[c2];
+      const sliceFar = this._sliceDistances[c2 + 1];
+      let left;
+      let rightExtent;
+      let bottom;
+      let top;
+      let near;
+      let far;
+      if (shadows.autoFit) {
+        const fit = fitLightProjectionToCamera(view, {
+          canvasWidth,
+          canvasHeight,
+          nearDistance: sliceNear,
+          farDistance: sliceFar,
+          lightView: tempLightView,
+          resolution,
+          padding: shadows.padding
+        });
+        left = fit.left;
+        rightExtent = fit.right;
+        bottom = fit.bottom;
+        top = fit.top;
+        near = fit.near;
+        far = fit.far;
+      } else {
+        const size = shadows.projectionSize;
+        left = -size;
+        rightExtent = size;
+        bottom = -size;
+        top = size;
+        near = 0.1;
+        far = Math.max(1, shadows.lightDistance * 3);
+      }
+      orthoMat4c(left, rightExtent, bottom, top, near, far, tempLightProjection);
+      mulMat4(tempLightProjection, tempLightView, tempLightViewProjection);
+      mulMat4(WEBGPU_CLIP_SPACE_MATRIX, tempLightViewProjection, tempLightViewProjections[c2]);
+      mulMat4(tempLightViewProjection, cameraViewMatrix, tempShadowDepthViewProjection);
+      mulMat4(WEBGPU_CLIP_SPACE_MATRIX, tempShadowDepthViewProjection, tempShadowDepthViewProjections[c2]);
+    }
+  }
+  _computeCascadeSplits(near, far, count, lambda) {
+    this._sliceDistances[0] = near;
+    const clampedLambda = Math.max(0, Math.min(1, lambda));
+    for (let i = 1; i <= count; i++) {
+      const p = i / count;
+      const log2 = near * Math.pow(far / near, p);
+      const uniform2 = near + (far - near) * p;
+      this._sliceDistances[i] = clampedLambda * log2 + (1 - clampedLambda) * uniform2;
+    }
+  }
+};
+function fitLightProjectionToCamera(view, params) {
+  const aspect = Math.max(1e-6, params.canvasHeight > 0 ? params.canvasWidth / params.canvasHeight : 1);
+  let halfNearH;
+  let halfNearW;
+  let halfFarH;
+  let halfFarW;
+  if (view.camera.projectionType === PerspectiveProjectionType) {
+    const fovRad = view.camera.perspectiveProjection.fov * Math.PI / 180;
+    const tanHalfFov = Math.tan(fovRad * 0.5);
+    if (aspect >= 1) {
+      halfNearH = tanHalfFov * params.nearDistance;
+      halfNearW = halfNearH * aspect;
+      halfFarH = tanHalfFov * params.farDistance;
+      halfFarW = halfFarH * aspect;
+    } else {
+      halfNearW = tanHalfFov * params.nearDistance;
+      halfNearH = halfNearW / aspect;
+      halfFarW = tanHalfFov * params.farDistance;
+      halfFarH = halfFarW / aspect;
+    }
+  } else {
+    const halfH = view.camera.orthoProjection.scale * 0.5;
+    halfNearH = halfFarH = halfH;
+    halfNearW = halfFarW = halfH * aspect;
+  }
+  const corners = [
+    [-halfNearW, -halfNearH, -params.nearDistance],
+    [halfNearW, -halfNearH, -params.nearDistance],
+    [-halfNearW, halfNearH, -params.nearDistance],
+    [halfNearW, halfNearH, -params.nearDistance],
+    [-halfFarW, -halfFarH, -params.farDistance],
+    [halfFarW, -halfFarH, -params.farDistance],
+    [-halfFarW, halfFarH, -params.farDistance],
+    [halfFarW, halfFarH, -params.farDistance]
+  ];
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  let minZ = Infinity;
+  let maxZ = -Infinity;
+  const m = params.lightView;
+  for (const c2 of corners) {
+    const x = m[0] * c2[0] + m[4] * c2[1] + m[8] * c2[2] + m[12];
+    const y = m[1] * c2[0] + m[5] * c2[1] + m[9] * c2[2] + m[13];
+    const z = m[2] * c2[0] + m[6] * c2[1] + m[10] * c2[2] + m[14];
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+    minZ = Math.min(minZ, z);
+    maxZ = Math.max(maxZ, z);
+  }
+  const padMul = Math.max(1, params.padding);
+  const padX = (maxX - minX) * (padMul - 1) * 0.5;
+  const padY = (maxY - minY) * (padMul - 1) * 0.5;
+  let left = minX - padX;
+  let right = maxX + padX;
+  let bottom = minY - padY;
+  let top = maxY + padY;
+  const texelX = (right - left) / params.resolution;
+  const texelY = (top - bottom) / params.resolution;
+  if (texelX > 0 && texelY > 0) {
+    left = Math.floor(left / texelX) * texelX;
+    right = left + texelX * params.resolution;
+    bottom = Math.floor(bottom / texelY) * texelY;
+    top = bottom + texelY * params.resolution;
+  }
+  return {
+    left,
+    right,
+    bottom,
+    top,
+    near: Math.max(0.01, -maxZ),
+    far: -minZ + params.farDistance
+  };
+}
+function normalize32(x, y, z) {
+  const len = Math.hypot(x, y, z);
+  if (len <= 1e-12) {
+    return [0, 0, 0, 0];
+  }
+  return [x / len, y / len, z / len, 1];
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/WebGPUIBLManager.ts
+var BRDF_LUT_SIZE = 128;
+var IRRADIANCE_SIZE2 = 16;
+var PREFILTER_SIZE = 64;
+var PREFILTER_MIPS = 7;
+var SAMPLE_COUNT = 64;
+var IBL_UNIFORM_FLOATS = 16;
+var IBL_CUBEMAP_FORMAT = "rgba16float";
+var PI = Math.PI;
+var HALF_FLOAT_VALUE = new Float32Array(1);
+var HALF_FLOAT_BITS = new Uint32Array(HALF_FLOAT_VALUE.buffer);
+var WebGPUIBLManager = class {
+  _renderContext;
+  _uniformData = new Float32Array(IBL_UNIFORM_FLOATS);
+  _textureSet = null;
+  _signature = "";
+  constructor(renderContext) {
+    this._renderContext = renderContext;
+  }
+  init() {
+    return { ok: true, value: void 0 };
+  }
+  prepare(view, options = {}) {
+    try {
+      const baseResult = this._ensureBaseResources();
+      if (baseResult.ok === false) {
+        return baseResult;
+      }
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUIBLManager.prepare] Failed to initialize WebGPU IBL resources: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+    const ibl = view.lights?.ibl;
+    const active = options.active !== false && !!(ibl?.applied && ibl?.possible);
+    const signature = active ? this._createSignature(view, ibl) : "disabled";
+    if (signature !== this._signature) {
+      const refreshResult = this._refreshTextures(active ? view : null);
+      if (refreshResult.ok === false) {
+        return refreshResult;
+      }
+      this._signature = signature;
+    }
+    this.writeUniforms(active ? view : null);
+    return { ok: true, value: void 0 };
+  }
+  writeUniforms(view) {
+    const ibl = view ? view.lights?.ibl : null;
+    const intensity = view && ibl?.applied && ibl?.possible ? Math.max(0, Number(ibl.intensity ?? 1)) : 0;
+    const vm = view?.camera?.viewMatrix;
+    this._uniformData.fill(0);
+    this._uniformData[0] = intensity;
+    this._uniformData[1] = PREFILTER_MIPS - 1;
+    if (vm) {
+      this._uniformData[4] = vm[0];
+      this._uniformData[5] = vm[4];
+      this._uniformData[6] = vm[8];
+      this._uniformData[8] = vm[1];
+      this._uniformData[9] = vm[5];
+      this._uniformData[10] = vm[9];
+      this._uniformData[12] = vm[2];
+      this._uniformData[13] = vm[6];
+      this._uniformData[14] = vm[10];
+    } else {
+      this._uniformData[4] = 1;
+      this._uniformData[9] = 1;
+      this._uniformData[14] = 1;
+    }
+    if (this._renderContext.iblUniformBuffer) {
+      this._renderContext.device.queue.writeBuffer(this._renderContext.iblUniformBuffer, 0, this._uniformData);
+    }
+  }
+  destroy() {
+    this._textureSet?.destroy();
+    this._textureSet = null;
+    this._renderContext.iblUniformBuffer?.destroy?.();
+    this._renderContext.iblUniformBuffer = null;
+    this._renderContext.iblSampler = null;
+    this._renderContext.iblIrradianceView = null;
+    this._renderContext.iblPrefilteredView = null;
+    this._renderContext.iblBRDFLUTView = null;
+    this._renderContext.iblBindGroupVersion++;
+  }
+  _refreshTextures(view) {
+    try {
+      const textureSet = this._createTextureSet(view);
+      this._textureSet?.destroy();
+      this._textureSet = textureSet;
+      this._renderContext.iblIrradianceView = textureSet.irradianceTexture.createView({
+        dimension: "cube",
+        baseArrayLayer: 0,
+        arrayLayerCount: 6
+      });
+      this._renderContext.iblPrefilteredView = textureSet.prefilteredTexture.createView({
+        dimension: "cube",
+        baseArrayLayer: 0,
+        arrayLayerCount: 6
+      });
+      this._renderContext.iblBRDFLUTView = textureSet.brdfLUTTexture.createView();
+      this._renderContext.iblBindGroupVersion++;
+      return { ok: true, value: void 0 };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUIBLManager._refreshTextures] Failed to build WebGPU IBL textures: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _ensureBaseResources() {
+    try {
+      if (!this._renderContext.iblUniformBuffer) {
+        this._renderContext.iblUniformBuffer = this._renderContext.device.createBuffer({
+          label: "xeokit-webgpu-ibl-uniforms",
+          size: IBL_UNIFORM_FLOATS * 4,
+          usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST
+        });
+      }
+      if (!this._renderContext.iblSampler) {
+        this._renderContext.iblSampler = this._renderContext.device.createSampler?.({
+          label: "xeokit-webgpu-ibl-sampler",
+          magFilter: "linear",
+          minFilter: "linear",
+          mipmapFilter: "linear",
+          addressModeU: "clamp-to-edge",
+          addressModeV: "clamp-to-edge"
+        }) ?? {};
+      }
+      if (!this._textureSet) {
+        const refreshResult = this._refreshTextures(null);
+        if (refreshResult.ok === false) {
+          return refreshResult;
+        }
+      }
+      return { ok: true, value: void 0 };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGPUIBLManager._ensureBaseResources] Failed to initialize WebGPU IBL base resources: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  _createTextureSet(view) {
+    if (!view) {
+      return this._createPlaceholderTextureSet();
+    }
+    const env = createEnvironmentSampler(view);
+    const irradianceTexture = this._createCubeTexture("xeokit-webgpu-ibl-irradiance-cubemap", IRRADIANCE_SIZE2, 1);
+    uploadCubeMip(this._renderContext, irradianceTexture, IRRADIANCE_SIZE2, 0, (dir) => {
+      return sampleIrradiance(env, dir);
+    });
+    const prefilteredTexture = this._createCubeTexture("xeokit-webgpu-ibl-prefiltered-cubemap", PREFILTER_SIZE, PREFILTER_MIPS);
+    for (let mip = 0; mip < PREFILTER_MIPS; mip++) {
+      const size = Math.max(1, PREFILTER_SIZE >> mip);
+      const roughness = mip / (PREFILTER_MIPS - 1);
+      uploadCubeMip(this._renderContext, prefilteredTexture, size, mip, (dir) => {
+        return samplePrefiltered(env, dir, roughness);
+      });
+    }
+    const brdfLUTTexture = this._renderContext.device.createTexture({
+      label: "xeokit-webgpu-ibl-brdf-lut",
+      size: { width: BRDF_LUT_SIZE, height: BRDF_LUT_SIZE, depthOrArrayLayers: 1 },
+      format: "rgba8unorm",
+      usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST
+    });
+    this._renderContext.device.queue.writeTexture?.(
+      { texture: brdfLUTTexture },
+      createBRDFLUTPixels(),
+      { bytesPerRow: BRDF_LUT_SIZE * 4, rowsPerImage: BRDF_LUT_SIZE },
+      { width: BRDF_LUT_SIZE, height: BRDF_LUT_SIZE, depthOrArrayLayers: 1 }
+    );
+    return {
+      irradianceTexture,
+      prefilteredTexture,
+      brdfLUTTexture,
+      destroy: () => {
+        irradianceTexture.destroy?.();
+        prefilteredTexture.destroy?.();
+        brdfLUTTexture.destroy?.();
+      }
+    };
+  }
+  _createPlaceholderTextureSet() {
+    const irradianceTexture = this._createCubeTexture("xeokit-webgpu-ibl-placeholder-irradiance-cubemap", 1, 1);
+    uploadCubeMip(this._renderContext, irradianceTexture, 1, 0, () => [0, 0, 0]);
+    const prefilteredTexture = this._createCubeTexture("xeokit-webgpu-ibl-placeholder-prefiltered-cubemap", 1, 1);
+    uploadCubeMip(this._renderContext, prefilteredTexture, 1, 0, () => [0, 0, 0]);
+    const brdfLUTTexture = this._renderContext.device.createTexture({
+      label: "xeokit-webgpu-ibl-placeholder-brdf-lut",
+      size: { width: 1, height: 1, depthOrArrayLayers: 1 },
+      format: "rgba8unorm",
+      usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST
+    });
+    this._renderContext.device.queue.writeTexture?.(
+      { texture: brdfLUTTexture },
+      new Uint8Array([255, 0, 0, 255]),
+      { bytesPerRow: 4, rowsPerImage: 1 },
+      { width: 1, height: 1, depthOrArrayLayers: 1 }
+    );
+    return {
+      irradianceTexture,
+      prefilteredTexture,
+      brdfLUTTexture,
+      destroy: () => {
+        irradianceTexture.destroy?.();
+        prefilteredTexture.destroy?.();
+        brdfLUTTexture.destroy?.();
+      }
+    };
+  }
+  _createCubeTexture(label, size, mipLevelCount) {
+    return this._renderContext.device.createTexture({
+      label,
+      size: { width: size, height: size, depthOrArrayLayers: 6 },
+      mipLevelCount,
+      format: IBL_CUBEMAP_FORMAT,
+      usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST
+    });
+  }
+  _createSignature(view, ibl) {
+    const hemi = view.lights?.hemispheric;
+    const shadowDir = view.effects?.shadows?.direction ?? [-0.45, -0.35, -0.8];
+    return [
+      "active",
+      ibl?.environmentVersion ?? 0,
+      ibl?.environmentHDR ? `${ibl.environmentHDR.width}x${ibl.environmentHDR.height}` : "procedural",
+      hemi?.skyColor?.join?.(",") ?? "",
+      hemi?.groundColor?.join?.(",") ?? "",
+      hemi?.worldUp?.join?.(",") ?? "",
+      shadowDir.join(",")
+    ].join("|");
+  }
+};
+function uploadCubeMip(renderContext, texture, size, mipLevel, sampler) {
+  for (let face = 0; face < 6; face++) {
+    const pixels = new Uint16Array(size * size * 4);
+    let offset = 0;
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const u = (x + 0.5) / size * 2 - 1;
+        const v = (y + 0.5) / size * 2 - 1;
+        const color2 = sampler(cubeDirection(face, u, v));
+        pixels[offset++] = toHalfFloat(Math.max(0, color2[0]));
+        pixels[offset++] = toHalfFloat(Math.max(0, color2[1]));
+        pixels[offset++] = toHalfFloat(Math.max(0, color2[2]));
+        pixels[offset++] = toHalfFloat(1);
+      }
+    }
+    renderContext.device.queue.writeTexture?.(
+      { texture, mipLevel, origin: { x: 0, y: 0, z: face } },
+      pixels,
+      { bytesPerRow: size * 8, rowsPerImage: size },
+      { width: size, height: size, depthOrArrayLayers: 1 }
+    );
+  }
+}
+function createEnvironmentSampler(view) {
+  const hemi = view ? view.lights?.hemispheric : null;
+  const shadowDir = view ? view.effects?.shadows?.direction ?? [-0.45, -0.35, -0.8] : [-0.45, -0.35, -0.8];
+  const up = normalizeVec3Safe([
+    Number(hemi?.worldUp?.[0] ?? 0),
+    Number(hemi?.worldUp?.[1] ?? 0),
+    Number(hemi?.worldUp?.[2] ?? 1)
+  ]);
+  const hdr = view ? view.lights?.ibl?.environmentHDR : void 0;
+  if (hdr?.data && hdr.width > 0 && hdr.height > 0) {
+    return (dir) => sampleHDR(hdr, dir, up);
+  }
+  const sky = [
+    Number(hemi?.skyColor?.[0] ?? 0.62),
+    Number(hemi?.skyColor?.[1] ?? 0.72),
+    Number(hemi?.skyColor?.[2] ?? 0.86)
+  ];
+  const ground = [
+    Number(hemi?.groundColor?.[0] ?? 0.42),
+    Number(hemi?.groundColor?.[1] ?? 0.36),
+    Number(hemi?.groundColor?.[2] ?? 0.3)
+  ];
+  const horizon = [
+    Math.min(1, sky[0] * 0.55 + 0.4),
+    Math.min(1, sky[1] * 0.55 + 0.4),
+    Math.min(1, sky[2] * 0.55 + 0.4)
+  ];
+  const sunDir = normalizeVec3Safe([-shadowDir[0], -shadowDir[1], -shadowDir[2]]);
+  return (dir) => {
+    const upDot = dotVec3(dir, up);
+    const skyMix = Math.max(0, upDot);
+    const groundMix = Math.max(0, -upDot);
+    const horizonMix = Math.pow(Math.max(0, 1 - Math.abs(upDot)), 2);
+    const sunDot = Math.max(0, dotVec3(dir, sunDir));
+    const sun = Math.pow(sunDot, 900) * 10 + Math.pow(sunDot, 80) * 2.5;
+    return [
+      sky[0] * skyMix + ground[0] * groundMix + horizon[0] * horizonMix + sun,
+      sky[1] * skyMix + ground[1] * groundMix + horizon[1] * horizonMix + sun * 0.92,
+      sky[2] * skyMix + ground[2] * groundMix + horizon[2] * horizonMix + sun * 0.72
+    ];
+  };
+}
+function sampleHDR(hdr, dir, up) {
+  const ref = Math.abs(up[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+  const east = normalizeVec3Safe(cross3Vec3(up, ref, [0, 0, 0]));
+  const north = cross3Vec3(east, up, [0, 0, 0]);
+  const lat = Math.asin(clamp2(dotVec3(dir, up), -1, 1));
+  const lon = Math.atan2(dotVec3(dir, east), dotVec3(dir, north));
+  const u = (0.5 + lon / (2 * PI)) * hdr.width;
+  const v = (0.5 - lat / PI) * hdr.height;
+  const x = Math.max(0, Math.min(hdr.width - 1, Math.floor(u)));
+  const y = Math.max(0, Math.min(hdr.height - 1, Math.floor(v)));
+  const idx = (y * hdr.width + x) * 4;
+  return [hdr.data[idx], hdr.data[idx + 1], hdr.data[idx + 2]];
+}
+function sampleIrradiance(env, n) {
+  let total = [0, 0, 0];
+  let weight = 0;
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    const xi = hammersley(i, SAMPLE_COUNT);
+    const local = cosineSampleHemisphere(xi[0], xi[1]);
+    const dir = tangentToWorld(local, n);
+    const ndotl = Math.max(0, dotVec3(n, dir));
+    const c2 = env(dir);
+    total = addVec3Result(total, scaleVec3(c2, ndotl));
+    weight += ndotl;
+  }
+  return weight > 0 ? scaleVec3(total, 1 / weight) : [0, 0, 0];
+}
+function samplePrefiltered(env, r, roughness) {
+  if (roughness <= 1e-3) {
+    return env(r);
+  }
+  let total = [0, 0, 0];
+  let weight = 0;
+  const v = r;
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    const xi = hammersley(i, SAMPLE_COUNT);
+    const h2 = tangentToWorld(importanceSampleGGX(xi[0], xi[1], roughness), r);
+    const l = normalizeVec3Safe(subVec3Result(scaleVec3(h2, 2 * dotVec3(v, h2)), v));
+    const ndotl = Math.max(0, dotVec3(r, l));
+    if (ndotl > 0) {
+      total = addVec3Result(total, scaleVec3(env(l), ndotl));
+      weight += ndotl;
+    }
+  }
+  return weight > 0 ? scaleVec3(total, 1 / weight) : env(r);
+}
+function createBRDFLUTPixels() {
+  const pixels = new Uint8Array(BRDF_LUT_SIZE * BRDF_LUT_SIZE * 4);
+  let offset = 0;
+  for (let y = 0; y < BRDF_LUT_SIZE; y++) {
+    const roughness = (y + 0.5) / BRDF_LUT_SIZE;
+    for (let x = 0; x < BRDF_LUT_SIZE; x++) {
+      const ndotv = (x + 0.5) / BRDF_LUT_SIZE;
+      const lut = integrateBRDF(ndotv, roughness);
+      pixels[offset++] = toByte2(lut[0]);
+      pixels[offset++] = toByte2(lut[1]);
+      pixels[offset++] = 0;
+      pixels[offset++] = 255;
+    }
+  }
+  return pixels;
+}
+function integrateBRDF(ndotv, roughness) {
+  const v = [Math.sqrt(Math.max(0, 1 - ndotv * ndotv)), 0, ndotv];
+  let a2 = 0;
+  let b4 = 0;
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    const xi = hammersley(i, SAMPLE_COUNT);
+    const h2 = importanceSampleGGX(xi[0], xi[1], roughness);
+    const l = normalizeVec3Safe(subVec3Result(scaleVec3(h2, 2 * dotVec3(v, h2)), v));
+    const ndotl = Math.max(l[2], 0);
+    const ndoth = Math.max(h2[2], 0);
+    const vdoth = Math.max(dotVec3(v, h2), 0);
+    if (ndotl > 0) {
+      const g = geometrySmithIBL(ndotv, ndotl, roughness);
+      const gVis = g * vdoth / Math.max(ndoth * ndotv, 1e-5);
+      const fc = Math.pow(1 - vdoth, 5);
+      a2 += (1 - fc) * gVis;
+      b4 += fc * gVis;
+    }
+  }
+  return [a2 / SAMPLE_COUNT, b4 / SAMPLE_COUNT];
+}
+function geometrySmithIBL(ndotv, ndotl, roughness) {
+  const a2 = roughness * roughness;
+  const k = a2 * a2 / 2;
+  return ndotv / (ndotv * (1 - k) + k) * ndotl / (ndotl * (1 - k) + k);
+}
+function importanceSampleGGX(u1, u2, roughness) {
+  const a2 = roughness * roughness;
+  const phi = 2 * PI * u1;
+  const cosTheta = Math.sqrt((1 - u2) / (1 + (a2 * a2 - 1) * u2));
+  const sinTheta = Math.sqrt(Math.max(0, 1 - cosTheta * cosTheta));
+  return [Math.cos(phi) * sinTheta, Math.sin(phi) * sinTheta, cosTheta];
+}
+function cosineSampleHemisphere(u1, u2) {
+  const r = Math.sqrt(u1);
+  const phi = 2 * PI * u2;
+  return [r * Math.cos(phi), r * Math.sin(phi), Math.sqrt(Math.max(0, 1 - u1))];
+}
+function tangentToWorld(local, n) {
+  const up = Math.abs(n[2]) < 0.999 ? [0, 0, 1] : [1, 0, 0];
+  const tangent = normalizeVec3Safe(cross3Vec3(up, n, [0, 0, 0]));
+  const bitangent = cross3Vec3(n, tangent, [0, 0, 0]);
+  return normalizeVec3Safe(addVec3Result(addVec3Result(scaleVec3(tangent, local[0]), scaleVec3(bitangent, local[1])), scaleVec3(n, local[2])));
+}
+function cubeDirection(face, u, v) {
+  switch (face) {
+    case 0:
+      return normalizeVec3Safe([1, -v, -u]);
+    case 1:
+      return normalizeVec3Safe([-1, -v, u]);
+    case 2:
+      return normalizeVec3Safe([u, 1, v]);
+    case 3:
+      return normalizeVec3Safe([u, -1, -v]);
+    case 4:
+      return normalizeVec3Safe([u, -v, 1]);
+    default:
+      return normalizeVec3Safe([-u, -v, -1]);
+  }
+}
+function hammersley(i, n) {
+  return [i / n, radicalInverseVdC(i)];
+}
+function radicalInverseVdC(bits) {
+  bits = bits << 16 | bits >>> 16;
+  bits = (bits & 1431655765) << 1 | (bits & 2863311530) >>> 1;
+  bits = (bits & 858993459) << 2 | (bits & 3435973836) >>> 2;
+  bits = (bits & 252645135) << 4 | (bits & 4042322160) >>> 4;
+  bits = (bits & 16711935) << 8 | (bits & 4278255360) >>> 8;
+  return (bits >>> 0) * 23283064365386963e-26;
+}
+function scaleVec3(v, s) {
+  return mulVec3Scalar(v, s, [0, 0, 0]);
+}
+function addVec3Result(a2, b4) {
+  return addVec3(a2, b4, [0, 0, 0]);
+}
+function subVec3Result(a2, b4) {
+  return subVec3(a2, b4, [0, 0, 0]);
+}
+function normalizeVec3Safe(v) {
+  return lenVec3(v) > 1e-8 ? normalizeVec3(v, [0, 0, 0]) : [0, 0, 1];
+}
+function clamp2(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+function toByte2(v) {
+  return Math.max(0, Math.min(255, Math.round(v * 255)));
+}
+function toHalfFloat(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return 0;
+  }
+  if (value >= 65504) {
+    return 31743;
+  }
+  HALF_FLOAT_VALUE[0] = value;
+  const bits = HALF_FLOAT_BITS[0];
+  const sign = bits >>> 16 & 32768;
+  let exponent = (bits >>> 23 & 255) - 127 + 15;
+  let mantissa = bits & 8388607;
+  if (exponent <= 0) {
+    if (exponent < -10) {
+      return sign;
+    }
+    mantissa = (mantissa | 8388608) >>> 1 - exponent;
+    return sign | mantissa + 4096 >>> 13;
+  }
+  if (exponent >= 31) {
+    return sign | 31743;
+  }
+  return sign | exponent << 10 | mantissa + 4096 >>> 13;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/renderManager/RenderManager.ts
+var nowMs4 = () => {
+  const performanceLike = globalThis.performance;
+  return performanceLike?.now ? performanceLike.now() : Date.now();
+};
+var tempViewProjectionMatrix = createMat4Float64();
+var tempWebGPUViewProjectionMatrix = createMat4Float64();
+var tempSnapCropMatrix = createMat4Float64();
+var tempSnapWebGPUViewProjectionMatrix = createMat4Float64();
+var RenderManager3 = class {
+  _renderContext;
+  _bindGroupLayoutManager;
+  _meshManager;
+  _rtcTileManager;
+  _frameUniformManager;
+  _instanceBufferManager;
+  _splatBatchManager;
+  _drawOps;
+  _pickPassRenderer;
+  _readbackBufferReader;
+  _timestampQueryManager;
+  _sectionPlaneCapRenderer;
+  _snapPassRenderer;
+  _triangleDrawBinSubmitter;
+  _postProcess;
+  _shadowPipeline;
+  _iblManager;
+  _renderInspector;
+  infiniteGrid;
+  skyRenderer;
+  _bins = {
+    normalDrawOpaque: [],
+    normalEdgesOpaque: [],
+    normalFillTransparent: [],
+    xrayedFillOpaque: [],
+    xrayedEdgesOpaque: [],
+    xrayedFillTransparent: [],
+    xrayedEdgesTransparent: [],
+    highlightedFillOpaque: [],
+    highlightedEdgesOpaque: [],
+    highlightedFillTransparent: [],
+    highlightedEdgesTransparent: [],
+    selectedFillOpaque: [],
+    selectedEdgesOpaque: [],
+    selectedFillTransparent: [],
+    selectedEdgesTransparent: []
+  };
+  _binClassifier;
+  _instanceBatcher;
+  _viewRenderCaches = {};
+  constructor(params) {
+    this._renderContext = params.renderContext;
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._meshManager = params.meshManager;
+    this._rtcTileManager = params.rtcTileManager;
+    this._frameUniformManager = params.frameUniformManager;
+    this._instanceBufferManager = params.instanceBufferManager;
+    this._renderInspector = params.renderInspector;
+    this._binClassifier = new RenderBinClassifier2(this._renderContext.memoryConfigs);
+    this._drawOps = new DrawOps5({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager
+    });
+    this._readbackBufferReader = new WebGPUReadbackBufferReader(this._renderContext);
+    this._timestampQueryManager = new WebGPUTimestampQueryManager(this._renderContext);
+    this._pickPassRenderer = new PickPassRenderer({
+      renderContext: this._renderContext,
+      readbackBufferReader: this._readbackBufferReader
+    });
+    this._sectionPlaneCapRenderer = new SectionPlaneCapRenderer(this._renderInspector);
+    this._snapPassRenderer = new SnapPassRenderer({
+      renderContext: this._renderContext,
+      readbackBufferReader: this._readbackBufferReader
+    });
+    this._triangleDrawBinSubmitter = new TriangleDrawBinSubmitter(this._renderInspector);
+    this._postProcess = new WebGPUPostProcessChain(this._renderContext);
+    this._iblManager = new WebGPUIBLManager(this._renderContext);
+    this.infiniteGrid = new InfiniteGridRenderer2(this._renderContext, {
+      minorColor: [0.36, 0.4, 0.42],
+      majorColor: [0, 0, 0],
+      xAxisColor: [0.68, 0.42, 0.4],
+      zAxisColor: [0.4, 0.58, 0.7]
+    });
+    this.skyRenderer = new SkyRenderer2(this._renderContext, {
+      skyColor: [0.74, 0.8, 0.88],
+      horizonColor: [0.66, 0.72, 0.74],
+      horizonBlend: 0.5,
+      groundColor: [0.58, 0.64, 0.6]
+    });
+    this._shadowPipeline = new WebGPUShadowPipeline({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager,
+      frameUniformManager: this._frameUniformManager,
+      renderInspector: this._renderInspector
+    });
+    this._instanceBatcher = new InstanceBatcher({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager,
+      rtcTileManager: this._rtcTileManager
+    });
+    this._splatBatchManager = new SplatBatchManager({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager
+    });
+  }
+  init() {
+    const drawOpsResult = this._drawOps.init();
+    if (drawOpsResult.ok === false) {
+      return drawOpsResult;
+    }
+    const postProcessResult = this._postProcess.init();
+    if (postProcessResult.ok === false) {
+      return postProcessResult;
+    }
+    const iblResult = this._iblManager.init();
+    if (iblResult.ok === false) {
+      return iblResult;
+    }
+    const skyResult = this.skyRenderer.init();
+    if (skyResult.ok === false) {
+      return skyResult;
+    }
+    const gridResult = this.infiniteGrid.init();
+    if (gridResult.ok === false) {
+      return gridResult;
+    }
+    return this._shadowPipeline.init();
+  }
+  getMemoryStats() {
+    const triangleStats = this._instanceBatcher.getMemoryStats();
+    const instanceStats = this._instanceBufferManager.getMemoryStats();
+    const rtcStats = this._rtcTileManager.getMemoryStats();
+    return {
+      totalBytes: triangleStats.totalBytes + instanceStats.bytes + rtcStats.bytes,
+      packedTrianglePages: triangleStats.pages,
+      packedTriangleSegments: triangleStats.segments,
+      packedTriangleBytes: triangleStats.totalBytes,
+      packedTriangleVertexBytes: triangleStats.vertexBytes,
+      packedTriangleVertexMetadataBytes: triangleStats.vertexMetadataBytes,
+      packedTriangleIndexBytes: triangleStats.indexBytes,
+      packedTriangleEdgeIndexBytes: triangleStats.edgeIndexBytes,
+      packedTrianglePositionDecodeBytes: triangleStats.positionDecodeBytes,
+      packedTriangleUsedVertexBytes: triangleStats.usedVertexBytes,
+      packedTriangleUsedVertexMetadataBytes: triangleStats.usedVertexMetadataBytes,
+      packedTriangleUsedIndexBytes: triangleStats.usedIndexBytes,
+      packedTriangleUsedEdgeIndexBytes: triangleStats.usedEdgeIndexBytes,
+      packedTriangleUsedPositionDecodeBytes: triangleStats.usedPositionDecodeBytes,
+      packedTrianglePageDetails: triangleStats.pageDetails,
+      instanceBufferBytes: instanceStats.bytes,
+      instanceBufferCapacity: instanceStats.capacity,
+      instanceBufferFrames: instanceStats.frames,
+      rtcTileBufferBytes: rtcStats.bytes,
+      rtcTileCapacity: rtcStats.capacity,
+      rtcTiles: rtcStats.tiles,
+      segmentsByLifecycle: triangleStats.segmentsByLifecycle,
+      segmentsByMemoryPolicy: triangleStats.segmentsByMemoryPolicy
+    };
+  }
+  sceneTextureImageDataChanged(sceneTexture) {
+    this._instanceBatcher.sceneTextureImageDataChanged(sceneTexture);
+  }
+  renderView(viewRenderState) {
+    const view = viewRenderState.view;
+    let frameStarted = false;
+    try {
+      const configureResult = viewRenderState.configure(this._renderContext);
+      if (configureResult.ok === false) {
+        return configureResult;
+      }
+      if (!viewRenderState.depthTextureView) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: `[RenderManager.renderView] View '${view.id}' depth texture was not initialized.`
+        };
+      }
+      this._renderInspector.frameStarted(view);
+      frameStarted = true;
+      const backgroundColor = view.backgroundColor;
+      const renderCacheResult = this._getOrBuildViewRenderCache(viewRenderState);
+      if (renderCacheResult.ok === false) {
+        return renderCacheResult;
+      }
+      const renderCache = renderCacheResult.value;
+      const splatRefreshResult = this._refreshSplatBatches(renderCache, view);
+      if (splatRefreshResult.ok === false) {
+        return splatRefreshResult;
+      }
+      const totalInstances = renderCache.totalInstances;
+      if (totalInstances > 0) {
+        const iblResult = this._iblManager.prepare(view, {
+          active: this._renderContext.renderConfigs.triangleColorMode !== "flat"
+        });
+        if (iblResult.ok === false) {
+          return iblResult;
+        }
+      }
+      const frameBindGroupResult = totalInstances > 0 ? this._frameUniformManager.writeFrameUniforms(view) : null;
+      if (frameBindGroupResult?.ok === false) {
+        return frameBindGroupResult;
+      }
+      this._reportRTCStats();
+      const instanceFrame = renderCache.instanceFrame;
+      if (totalInstances > 0 && !instanceFrame?.buffer) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.renderView] Instance buffer was not initialized."
+        };
+      }
+      const instanceBindGroupLayoutResult = totalInstances > 0 ? this._bindGroupLayoutManager.getInstanceBindGroupLayout() : null;
+      if (instanceBindGroupLayoutResult?.ok === false) {
+        return instanceBindGroupLayoutResult;
+      }
+      const instanceBindGroupResult = totalInstances > 0 ? this._instanceBufferManager.getBindGroup(instanceFrame, instanceBindGroupLayoutResult.value) : null;
+      if (instanceBindGroupResult?.ok === false) {
+        return instanceBindGroupResult;
+      }
+      const camera = view.camera;
+      mulMat4(camera.projMatrix, camera.viewMatrix, tempViewProjectionMatrix);
+      mulMat4(WEBGPU_CLIP_SPACE_MATRIX, tempViewProjectionMatrix, tempWebGPUViewProjectionMatrix);
+      const commandEncodingStart = nowMs4();
+      const device = this._renderContext.device;
+      let commandEncoder = device.createCommandEncoder();
+      const canvasView = viewRenderState.context.getCurrentTexture().createView();
+      const usePostProcess = this._postProcess.needsPostProcess(view);
+      const postProcessTarget = usePostProcess ? this._postProcess.ensureSceneTarget(viewRenderState.canvas.width, viewRenderState.canvas.height) : null;
+      this._renderContext.colorTargetFormat = postProcessTarget?.format ?? this._renderContext.contextFormat;
+      const frameAttachments = new WebGPUFrameAttachments({
+        colorView: postProcessTarget?.view ?? canvasView,
+        depthStencilView: viewRenderState.depthTextureView
+      });
+      const triangleDrawOps = this._drawOps.prims[TrianglesPrimitive];
+      if (!triangleDrawOps) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.renderView] Triangle draw operations were not initialized."
+        };
+      }
+      const pointDrawOps = this._drawOps.prims[PointsPrimitive];
+      const lineDrawOps = this._drawOps.prims[LinesPrimitive];
+      const splatDrawOps = this._drawOps.prims[GaussianSplatsPrimitive];
+      const triangleBatches = this._filterBatchesByPrimitive(renderCache.batches, TrianglesPrimitive);
+      const pointBatches = this._filterBatchesByPrimitive(renderCache.batches, PointsPrimitive);
+      const lineBatches = this._filterBatchesByPrimitive(renderCache.batches, LinesPrimitive);
+      const splatBatches = renderCache.splatBatches;
+      const useDepthPrepass = this._renderContext.renderConfigs.depthPrepass && triangleBatches.opaque.length > 0;
+      const useShadows = this._shadowPipeline.shouldRender(view, renderCache.shadowOpaqueBatches);
+      const timestampPassNames = this._getTimestampPassNames({
+        useDepthPrepass,
+        hasMainColor: triangleBatches.opaque.length > 0 || pointBatches.opaque.length > 0 || lineBatches.opaque.length > 0 || splatBatches.length > 0 || triangleBatches.edges.length > 0 || totalInstances > 0 || triangleBatches.transparent.length > 0 || triangleBatches.overlayOpaque.length > 0 || triangleBatches.overlayTransparent.length > 0 || pointBatches.transparent.length > 0 || lineBatches.transparent.length > 0,
+        hasLoadedColor: totalInstances > 0 && this._getSectionPlanesForCaps(view).some((plane) => !!plane.capColor)
+      });
+      const timestampFrame = this._timestampQueryManager.beginFrame(timestampPassNames);
+      if (useShadows) {
+        const shadowResult = this._shadowPipeline.render({
+          view,
+          canvasWidth: viewRenderState.canvas.width,
+          canvasHeight: viewRenderState.canvas.height,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: renderCache.shadowOpaqueBatches,
+          shadowDepthDrawOp: triangleDrawOps.shadowDepth
+        });
+        if (shadowResult.ok === false) {
+          return shadowResult;
+        }
+        const restoredFrameBindGroupResult = this._frameUniformManager.writeFrameUniformsForWebGPUViewProjection(view, tempWebGPUViewProjectionMatrix);
+        if (restoredFrameBindGroupResult.ok === false) {
+          return restoredFrameBindGroupResult;
+        }
+      } else if (totalInstances > 0) {
+        const shadowDisableResult = this._shadowPipeline.disable();
+        if (shadowDisableResult.ok === false) {
+          return shadowDisableResult;
+        }
+      }
+      if (useDepthPrepass) {
+        const depthPrepassDescriptor = this._withTimestampWrites(
+          frameAttachments.createDepthPrepassDescriptor(),
+          timestampFrame,
+          "DEPTH_PREPASS"
+        );
+        const depthPrepassEncoder = commandEncoder.beginRenderPass(depthPrepassDescriptor);
+        const depthPrepassCommandState = new CommandStateTracker({
+          passEncoder: depthPrepassEncoder,
+          commandStats: this._renderInspector
+        });
+        const depthPrepassResult = this._triangleDrawBinSubmitter.drawBatchList({
+          passEncoder: depthPrepassEncoder,
+          commandStateTracker: depthPrepassCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: triangleBatches.opaque,
+          renderPass: "DEPTH_PREPASS",
+          technique: "TrianglesDepthPrepassTechnique",
+          drawOp: triangleDrawOps.depthPrepass,
+          missingMessage: "[RenderManager.renderView] Depth prepass triangle draw operation was not initialized."
+        });
+        if (depthPrepassResult.ok === false) {
+          return depthPrepassResult;
+        }
+        this._endRenderPass(depthPrepassEncoder);
+      }
+      let passEncoder = commandEncoder.beginRenderPass(this._withTimestampWrites(frameAttachments.createMainColorPassDescriptor({
+        clearColor: {
+          r: backgroundColor[0],
+          g: backgroundColor[1],
+          b: backgroundColor[2],
+          a: view.transparent ? 0 : 1
+        },
+        loadDepthStencil: useDepthPrepass
+      }), timestampFrame, "MAIN_COLOR"));
+      let passCommandState = new CommandStateTracker({
+        passEncoder,
+        commandStats: this._renderInspector
+      });
+      const skyResult = this.skyRenderer.render({
+        passEncoder,
+        viewRenderState
+      });
+      if (skyResult.ok === false) {
+        return skyResult;
+      }
+      const gridResult = this.infiniteGrid.render({
+        passEncoder,
+        viewRenderState
+      });
+      if (gridResult.ok === false) {
+        return gridResult;
+      }
+      if (triangleBatches.opaque.length > 0) {
+        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
+        const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: triangleBatches.opaque,
+          renderPass: "OPAQUE",
+          technique: flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique",
+          drawOp: flatColorMode ? triangleDrawOps.flatOpaque : triangleDrawOps.opaque,
+          missingMessage: "[RenderManager.renderView] Opaque triangle draw operation was not initialized."
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
+        }
+      }
+      if (pointDrawOps?.opaque) {
+        const pointOpaqueBatches = this._getOpaqueSurfaceBatches(pointBatches);
+        if (pointOpaqueBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult.value,
+            instanceBindGroup: instanceBindGroupResult.value,
+            batches: pointOpaqueBatches,
+            renderPass: "POINTS_OPAQUE",
+            technique: "PointsDrawColorTechnique",
+            drawOp: pointDrawOps.opaque,
+            missingMessage: "[RenderManager.renderView] Opaque point draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
+      if (lineDrawOps?.opaque) {
+        const lineOpaqueBatches = this._getOpaqueSurfaceBatches(lineBatches);
+        if (lineOpaqueBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult.value,
+            instanceBindGroup: instanceBindGroupResult.value,
+            batches: lineOpaqueBatches,
+            renderPass: "LINES_OPAQUE",
+            technique: "LinesDrawColorTechnique",
+            drawOp: lineDrawOps.opaque,
+            missingMessage: "[RenderManager.renderView] Opaque line draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
+      if (this._renderContext.renderConfigs.edges && triangleBatches.edges.length > 0) {
+        const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: triangleBatches.edges,
+          renderPass: "EDGES",
+          technique: "TrianglesDrawEdgeColorTechnique",
+          drawOp: triangleDrawOps.edges,
+          missingMessage: "[RenderManager.renderView] Edge triangle draw operation was not initialized."
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
+        }
+      }
+      if (totalInstances > 0) {
+        const emphasizedOpaqueResult = this._triangleDrawBinSubmitter.drawEmphasisBatchLists({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          triangleDrawOps,
+          batches: triangleBatches,
+          transparent: false
+        });
+        if (emphasizedOpaqueResult.ok === false) {
+          return emphasizedOpaqueResult;
+        }
+      }
+      const activeSectionPlanes = this._getSectionPlanesForCaps(view);
+      if (totalInstances > 0 && activeSectionPlanes.some((plane) => !!plane.capColor)) {
+        this._endRenderPass(passEncoder);
+        const capResult = this._sectionPlaneCapRenderer.render({
+          commandEncoder,
+          frameAttachments,
+          view,
+          viewProjection: tempWebGPUViewProjectionMatrix,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: this._getPickSurfaceBatches(triangleBatches),
+          triangleDrawOps,
+          activePlanes: activeSectionPlanes,
+          viewportWidth: viewRenderState.canvas.width,
+          viewportHeight: viewRenderState.canvas.height
+        });
+        if (capResult.ok === false) {
+          return capResult;
+        }
+        passEncoder = commandEncoder.beginRenderPass(this._withTimestampWrites(
+          frameAttachments.createLoadedColorPassDescriptor(),
+          timestampFrame,
+          "LOADED_COLOR"
+        ));
+        passCommandState = new CommandStateTracker({
+          passEncoder,
+          commandStats: this._renderInspector
+        });
+      }
+      if (triangleBatches.transparent.length > 0) {
+        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
+        const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: triangleBatches.transparent,
+          renderPass: "TRANSPARENT",
+          technique: flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique",
+          drawOp: flatColorMode ? triangleDrawOps.flatTransparent : triangleDrawOps.transparent,
+          missingMessage: "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
+        }
+      }
+      if (pointDrawOps?.transparent) {
+        const pointTransparentBatches = this._getTransparentSurfaceBatches(pointBatches);
+        if (pointTransparentBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult.value,
+            instanceBindGroup: instanceBindGroupResult.value,
+            batches: pointTransparentBatches,
+            renderPass: "POINTS_TRANSPARENT",
+            technique: "PointsDrawColorTechnique",
+            drawOp: pointDrawOps.transparent,
+            missingMessage: "[RenderManager.renderView] Transparent point draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
+      if (lineDrawOps?.transparent) {
+        const lineTransparentBatches = this._getTransparentSurfaceBatches(lineBatches);
+        if (lineTransparentBatches.length > 0) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult.value,
+            instanceBindGroup: instanceBindGroupResult.value,
+            batches: lineTransparentBatches,
+            renderPass: "LINES_TRANSPARENT",
+            technique: "LinesDrawColorTechnique",
+            drawOp: lineDrawOps.transparent,
+            missingMessage: "[RenderManager.renderView] Transparent line draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        }
+      }
+      if (splatBatches.length > 0) {
+        const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          batches: splatBatches,
+          renderPass: "SPLATS_TRANSPARENT",
+          technique: "SplatsDrawColorTechnique",
+          drawOp: splatDrawOps?.transparent,
+          missingMessage: "[RenderManager.renderView] Transparent splat draw operation was not initialized."
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
+        }
+      }
+      if (totalInstances > 0) {
+        const emphasizedTransparentResult = this._triangleDrawBinSubmitter.drawEmphasisBatchLists({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          triangleDrawOps,
+          batches: triangleBatches,
+          transparent: true
+        });
+        if (emphasizedTransparentResult.ok === false) {
+          return emphasizedTransparentResult;
+        }
+      }
+      const hasTriangleOverlay = triangleBatches.overlayOpaque.length > 0 || triangleBatches.overlayTransparent.length > 0;
+      if (!usePostProcess && hasTriangleOverlay) {
+        const overlayResult = this._drawTriangleOverlayBatches({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          triangleDrawOps,
+          triangleBatches
+        });
+        if (overlayResult.ok === false) {
+          return overlayResult;
+        }
+      }
+      this._endRenderPass(passEncoder);
+      if (usePostProcess && postProcessTarget?.textureView) {
+        const compositeResult = this._postProcess.composite({
+          commandEncoder,
+          sourceView: postProcessTarget.textureView,
+          canvasView,
+          depthView: viewRenderState.sampledDepthTextureView ?? viewRenderState.depthTextureView,
+          width: viewRenderState.canvas.width,
+          height: viewRenderState.canvas.height,
+          view
+        });
+        if (compositeResult.ok === false) {
+          return compositeResult;
+        }
+        if (hasTriangleOverlay) {
+          this._renderContext.colorTargetFormat = this._renderContext.contextFormat;
+          const overlayAttachments = new WebGPUFrameAttachments({
+            colorView: canvasView,
+            depthStencilView: viewRenderState.depthTextureView
+          });
+          const overlayPassEncoder = commandEncoder.beginRenderPass(overlayAttachments.createLoadedColorPassDescriptor());
+          const overlayCommandState = new CommandStateTracker({
+            passEncoder: overlayPassEncoder,
+            commandStats: this._renderInspector
+          });
+          const overlayResult = this._drawTriangleOverlayBatches({
+            passEncoder: overlayPassEncoder,
+            commandStateTracker: overlayCommandState,
+            frameBindGroup: frameBindGroupResult.value,
+            instanceBindGroup: instanceBindGroupResult.value,
+            triangleDrawOps,
+            triangleBatches
+          });
+          if (overlayResult.ok === false) {
+            this._endRenderPass(overlayPassEncoder);
+            return overlayResult;
+          }
+          this._endRenderPass(overlayPassEncoder);
+        }
+      }
+      this._timestampQueryManager.resolveAndRead({
+        frame: timestampFrame,
+        commandEncoder,
+        renderInspector: this._renderInspector,
+        viewIndex: view.viewIndex ?? 0
+      });
+      this._renderInspector.addCPUTime("commandEncodingMs", nowMs4() - commandEncodingStart);
+      const submitStart = nowMs4();
+      const commandBuffer = commandEncoder.finish();
+      device.queue.submit([commandBuffer]);
+      this._renderInspector.addCPUTime("submitMs", nowMs4() - submitStart);
+      this._timestampQueryManager.readResolvedFrame({
+        frame: timestampFrame,
+        renderInspector: this._renderInspector,
+        viewIndex: view.viewIndex ?? 0
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 5 /* Unknown */,
+        error: `[RenderManager.renderView] Failed to render WebGPU frame: ${e instanceof Error ? e.message : String(e)}`
+      };
+    } finally {
+      if (frameStarted) {
+        this._renderInspector.frameEnded();
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _drawTriangleOverlayBatches(params) {
+    if (params.triangleBatches.overlayOpaque.length > 0) {
+      const opaqueResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: params.triangleBatches.overlayOpaque,
+        renderPass: "OVERLAY_OPAQUE",
+        technique: "TrianglesDrawColorFlatTechnique",
+        drawOp: params.triangleDrawOps.overlayOpaque,
+        missingMessage: "[RenderManager.renderView] Overlay opaque triangle draw operation was not initialized."
+      });
+      if (opaqueResult.ok === false) {
+        return opaqueResult;
+      }
+    }
+    if (params.triangleBatches.overlayTransparent.length > 0) {
+      const transparentResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: params.triangleBatches.overlayTransparent,
+        renderPass: "OVERLAY_TRANSPARENT",
+        technique: "TrianglesDrawColorFlatTechnique",
+        drawOp: params.triangleDrawOps.overlayTransparent,
+        missingMessage: "[RenderManager.renderView] Overlay transparent triangle draw operation was not initialized."
+      });
+      if (transparentResult.ok === false) {
+        return transparentResult;
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  async pickMeshGPUAsync(params) {
+    const view = params.viewRenderState.view;
+    try {
+      const configureResult = params.viewRenderState.configure(this._renderContext);
+      if (configureResult.ok === false) {
+        return configureResult;
+      }
+      const width = Math.max(1, view.boundary?.[2] || view.htmlElement?.clientWidth || 1);
+      const height = Math.max(1, view.boundary?.[3] || view.htmlElement?.clientHeight || 1);
+      const pickBufferResult = params.pickBuffer.ensureSize(width, height);
+      if (pickBufferResult.ok === false) {
+        return pickBufferResult;
+      }
+      if (!params.pickBuffer.colorView || !params.pickBuffer.depthView || !params.pickBuffer.colorTexture) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.pickMeshGPUAsync] Pick buffer was not initialized."
+        };
+      }
+      const renderCacheResult = this._getOrBuildViewRenderCache(params.viewRenderState);
+      if (renderCacheResult.ok === false) {
+        return renderCacheResult;
+      }
+      const renderCache = renderCacheResult.value;
+      const splatRefreshResult = this._refreshSplatBatches(renderCache, view);
+      if (splatRefreshResult.ok === false) {
+        return splatRefreshResult;
+      }
+      const pickBatches = this._getPickSurfaceBatches(renderCache.batches);
+      if (pickBatches.length === 0 && renderCache.splatBatches.length === 0 || renderCache.totalInstances === 0) {
+        return {
+          ok: true,
+          value: null
+        };
+      }
+      const iblResult = this._iblManager.prepare(view);
+      if (iblResult.ok === false) {
+        return iblResult;
+      }
+      const frameBindGroupResult = this._frameUniformManager.writeFrameUniforms(view);
+      if (frameBindGroupResult.ok === false) {
+        return frameBindGroupResult;
+      }
+      const instanceFrame = renderCache.instanceFrame;
+      if (!instanceFrame?.buffer) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.pickMeshGPUAsync] Instance buffer was not initialized."
+        };
+      }
+      const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+      if (instanceBindGroupLayoutResult.ok === false) {
+        return instanceBindGroupLayoutResult;
+      }
+      const instanceBindGroupResult = this._instanceBufferManager.getBindGroup(instanceFrame, instanceBindGroupLayoutResult.value);
+      if (instanceBindGroupResult.ok === false) {
+        return instanceBindGroupResult;
+      }
+      const triangleDrawOps = this._drawOps.prims[TrianglesPrimitive];
+      if (!triangleDrawOps?.pick) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.pickMeshGPUAsync] Triangle pick draw operation was not initialized."
+        };
+      }
+      const pointDrawOps = this._drawOps.prims[PointsPrimitive];
+      const lineDrawOps = this._drawOps.prims[LinesPrimitive];
+      const splatDrawOps = this._drawOps.prims[GaussianSplatsPrimitive];
+      const trianglePickBatches = this._filterBatchListByPrimitive(pickBatches, TrianglesPrimitive);
+      const pointPickBatches = this._filterBatchListByPrimitive(pickBatches, PointsPrimitive);
+      const linePickBatches = this._filterBatchListByPrimitive(pickBatches, LinesPrimitive);
+      if (pointPickBatches.length > 0 && !pointDrawOps?.pick) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.pickMeshGPUAsync] Point pick draw operation was not initialized."
+        };
+      }
+      if (linePickBatches.length > 0 && !lineDrawOps?.pick) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.pickMeshGPUAsync] Line pick draw operation was not initialized."
+        };
+      }
+      if (renderCache.splatBatches.length > 0 && !splatDrawOps?.pick) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.pickMeshGPUAsync] Splat pick draw operation was not initialized."
+        };
+      }
+      const encodedSlotResult = await this._pickPassRenderer.renderEncodedSlot({
+        pickBuffer: params.pickBuffer,
+        canvasPos: params.canvasPos,
+        width,
+        height,
+        frameBindGroup: frameBindGroupResult.value,
+        instanceBindGroup: instanceBindGroupResult.value,
+        batches: trianglePickBatches,
+        drawOp: triangleDrawOps.pick,
+        drawEntries: [
+          { batches: trianglePickBatches, drawOp: triangleDrawOps.pick },
+          ...pointDrawOps?.pick ? [{ batches: pointPickBatches, drawOp: pointDrawOps.pick }] : [],
+          ...lineDrawOps?.pick ? [{ batches: linePickBatches, drawOp: lineDrawOps.pick }] : [],
+          ...splatDrawOps?.pick ? [{ batches: renderCache.splatBatches, drawOp: splatDrawOps.pick }] : []
+        ]
+      });
+      if (encodedSlotResult.ok === false) {
+        return encodedSlotResult;
+      }
+      const encodedSlot = encodedSlotResult.value;
+      if (encodedSlot === 0) {
+        return {
+          ok: true,
+          value: null
+        };
+      }
+      const globalSlot = encodedSlot - 1;
+      const meshState = this._getMeshStateForGlobalSlot(renderCache, globalSlot);
+      if (!meshState) {
+        return {
+          ok: true,
+          value: null
+        };
+      }
+      return {
+        ok: true,
+        value: {
+          meshState,
+          globalSlot
+        }
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 5 /* Unknown */,
+        error: `[RenderManager.pickMeshGPUAsync] Failed to run WebGPU pick pass: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  async snapEdgeGPUAsync(params) {
+    const view = params.viewRenderState.view;
+    try {
+      const configureResult = params.viewRenderState.configure(this._renderContext);
+      if (configureResult.ok === false) {
+        return configureResult;
+      }
+      if (!params.snapBuffer.colorView || !params.snapBuffer.depthView || !params.snapBuffer.colorTexture) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.snapEdgeGPUAsync] Snap buffer was not initialized."
+        };
+      }
+      const renderCacheResult = this._getOrBuildViewRenderCache(params.viewRenderState);
+      if (renderCacheResult.ok === false) {
+        return renderCacheResult;
+      }
+      const renderCache = renderCacheResult.value;
+      if (renderCache.snapEdgeBatches.length === 0 || renderCache.totalInstances === 0) {
+        return {
+          ok: true,
+          value: null
+        };
+      }
+      return this._snapCandidateGPUAsync({
+        view,
+        snapBuffer: params.snapBuffer,
+        canvasPos: params.canvasPos,
+        renderCache,
+        candidateBatches: renderCache.snapEdgeBatches,
+        drawOpName: "snapEdge",
+        errorPrefix: "RenderManager.snapEdgeGPUAsync"
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 5 /* Unknown */,
+        error: `[RenderManager.snapEdgeGPUAsync] Failed to run WebGPU edge snap pass: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  async snapVertexGPUAsync(params) {
+    const view = params.viewRenderState.view;
+    try {
+      const configureResult = params.viewRenderState.configure(this._renderContext);
+      if (configureResult.ok === false) {
+        return configureResult;
+      }
+      if (!params.snapBuffer.colorView || !params.snapBuffer.depthView || !params.snapBuffer.colorTexture) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: "[RenderManager.snapVertexGPUAsync] Snap buffer was not initialized."
+        };
+      }
+      const renderCacheResult = this._getOrBuildViewRenderCache(params.viewRenderState);
+      if (renderCacheResult.ok === false) {
+        return renderCacheResult;
+      }
+      const renderCache = renderCacheResult.value;
+      const candidateBatches = this._getPickSurfaceBatches(renderCache.batches);
+      if (candidateBatches.length === 0 || renderCache.totalInstances === 0) {
+        return {
+          ok: true,
+          value: null
+        };
+      }
+      const snapViewProjectionMatrix = this._getSnapWebGPUViewProjectionMatrix(view, params.canvasPos, params.snapBuffer);
+      return this._snapCandidateGPUAsync({
+        view,
+        snapBuffer: params.snapBuffer,
+        canvasPos: params.canvasPos,
+        renderCache,
+        candidateBatches,
+        drawOpName: "snapVertex",
+        errorPrefix: "RenderManager.snapVertexGPUAsync",
+        snapViewProjectionMatrix
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        type: 5 /* Unknown */,
+        error: `[RenderManager.snapVertexGPUAsync] Failed to run WebGPU vertex snap pass: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  async _snapCandidateGPUAsync(params) {
+    try {
+      const view = params.view;
+      const renderCache = params.renderCache;
+      const snapViewProjectionMatrix = params.snapViewProjectionMatrix ?? this._getSnapWebGPUViewProjectionMatrix(view, params.canvasPos, params.snapBuffer);
+      const iblResult = this._iblManager.prepare(view);
+      if (iblResult.ok === false) {
+        return iblResult;
+      }
+      const frameBindGroupResult = this._frameUniformManager.writeFrameUniformsForWebGPUViewProjection(view, snapViewProjectionMatrix);
+      if (frameBindGroupResult.ok === false) {
+        return frameBindGroupResult;
+      }
+      const instanceFrame = renderCache.instanceFrame;
+      if (!instanceFrame?.buffer) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: `[${params.errorPrefix}] Instance buffer was not initialized.`
+        };
+      }
+      const instanceBindGroupLayoutResult = this._bindGroupLayoutManager.getInstanceBindGroupLayout();
+      if (instanceBindGroupLayoutResult.ok === false) {
+        return instanceBindGroupLayoutResult;
+      }
+      const instanceBindGroupResult = this._instanceBufferManager.getBindGroup(instanceFrame, instanceBindGroupLayoutResult.value);
+      if (instanceBindGroupResult.ok === false) {
+        return instanceBindGroupResult;
+      }
+      const triangleDrawOps = this._drawOps.prims[TrianglesPrimitive];
+      const candidateDrawOp = triangleDrawOps?.[params.drawOpName];
+      if (!candidateDrawOp) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: `[${params.errorPrefix}] Triangle snap draw operation was not initialized.`
+        };
+      }
+      if (!triangleDrawOps?.pick) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: `[${params.errorPrefix}] Triangle depth prepass draw operation was not initialized.`
+        };
+      }
+      const encodedSlotResult = await this._snapPassRenderer.renderEncodedSlot({
+        snapBuffer: params.snapBuffer,
+        frameBindGroup: frameBindGroupResult.value,
+        instanceBindGroup: instanceBindGroupResult.value,
+        depthPrepassBatches: renderCache.batches.opaque,
+        candidateBatches: params.candidateBatches,
+        depthPrepassDrawOp: triangleDrawOps.pick,
+        candidateDrawOp,
+        errorPrefix: params.errorPrefix
+      });
+      if (encodedSlotResult.ok === false) {
+        return encodedSlotResult;
+      }
+      const encodedSlot = encodedSlotResult.value;
+      if (encodedSlot === 0) {
+        return {
+          ok: true,
+          value: null
+        };
+      }
+      const globalSlot = encodedSlot - 1;
+      const meshState = this._getMeshStateForGlobalSlot(renderCache, globalSlot);
+      if (!meshState) {
+        return {
+          ok: true,
+          value: null
+        };
+      }
+      return {
+        ok: true,
+        value: {
+          meshState,
+          globalSlot
+        }
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        type: 5 /* Unknown */,
+        error: `[${params.errorPrefix}] Failed to run WebGPU snap pass: ${e instanceof Error ? e.message : String(e)}`
+      };
+    }
+  }
+  destroy() {
+    for (const viewId of Object.keys(this._viewRenderCaches)) {
+      this.viewDestroyed(viewId);
+    }
+    this._instanceBatcher.destroy();
+    this._shadowPipeline.destroy();
+    this._postProcess.destroy();
+    this._iblManager.destroy();
+    this.skyRenderer.destroy();
+    this.infiniteGrid.destroy();
+    this._drawOps.destroy();
+    this._splatBatchManager.destroy();
+    this._instanceBufferManager.destroy();
+    this._rtcTileManager.destroy();
+    this._frameUniformManager.destroy();
+  }
+  viewDestroyed(viewId) {
+    const cache2 = this._viewRenderCaches[viewId];
+    if (cache2) {
+      this._clearCachedBatches(cache2.batches);
+      this._clearBatchList(cache2.shadowOpaqueBatches);
+      this._clearBatchList(cache2.snapEdgeBatches);
+      this._clearBatchList(cache2.splatBatches);
+    }
+    delete this._viewRenderCaches[viewId];
+    this._instanceBufferManager.destroyFrame(viewId);
+  }
+  _getTimestampPassNames(params) {
+    if (!this._renderInspector.active) {
+      return [];
+    }
+    const passNames = [];
+    if (params.useDepthPrepass) {
+      passNames.push("DEPTH_PREPASS");
+    }
+    if (params.hasMainColor) {
+      passNames.push("MAIN_COLOR");
+    }
+    if (params.hasLoadedColor) {
+      passNames.push("LOADED_COLOR");
+    }
+    return passNames;
+  }
+  _withTimestampWrites(descriptor, timestampFrame, passName) {
+    const timestampWrites = this._timestampQueryManager.createTimestampWrites(timestampFrame, passName);
+    if (!timestampWrites) {
+      return descriptor;
+    }
+    return {
+      ...descriptor,
+      timestampWrites
+    };
+  }
+  _endRenderPass(passEncoder) {
+    if (typeof passEncoder.end === "function") {
+      passEncoder.end();
+      return;
+    }
+    passEncoder.endPass?.();
+  }
+  _reportRTCStats() {
+    const stats = this._rtcTileManager.getStats();
+    this._renderInspector.setRTCStats({
+      tiles: stats.tiles,
+      tileMatrixUploads: stats.tileMatrixUploads,
+      meshesWithRTCTile: stats.meshesWithRTCTile,
+      meshesUsingFallback: stats.meshesUsingFallback
+    });
+  }
+  _getSnapWebGPUViewProjectionMatrix(view, canvasPos2, snapBuffer) {
+    const camera = view.camera;
+    const viewMatrix = camera.viewMatrix;
+    const projMatrix = camera.projMatrix;
+    const boundary = view.boundary ?? [0, 0, view.htmlElement?.clientWidth ?? 1, view.htmlElement?.clientHeight ?? 1];
+    const width = Math.max(1, boundary[2] || 1);
+    const height = Math.max(1, boundary[3] || 1);
+    const dimension = snapBuffer.dimension;
+    const originX = Math.floor(canvasPos2[0]) - snapBuffer.snapRadius;
+    const originY = Math.floor(canvasPos2[1]) - snapBuffer.snapRadius;
+    const sx = width / dimension;
+    const sy = height / dimension;
+    const tx = (width - 2 * originX) / dimension - 1;
+    const ty = 1 - (height - 2 * originY) / dimension;
+    tempSnapCropMatrix[0] = sx;
+    tempSnapCropMatrix[1] = 0;
+    tempSnapCropMatrix[2] = 0;
+    tempSnapCropMatrix[3] = 0;
+    tempSnapCropMatrix[4] = 0;
+    tempSnapCropMatrix[5] = sy;
+    tempSnapCropMatrix[6] = 0;
+    tempSnapCropMatrix[7] = 0;
+    tempSnapCropMatrix[8] = 0;
+    tempSnapCropMatrix[9] = 0;
+    tempSnapCropMatrix[10] = 1;
+    tempSnapCropMatrix[11] = 0;
+    tempSnapCropMatrix[12] = tx;
+    tempSnapCropMatrix[13] = ty;
+    tempSnapCropMatrix[14] = 0;
+    tempSnapCropMatrix[15] = 1;
+    mulMat4(projMatrix, viewMatrix, tempViewProjectionMatrix);
+    mulMat4(WEBGPU_CLIP_SPACE_MATRIX, tempViewProjectionMatrix, tempWebGPUViewProjectionMatrix);
+    mulMat4(tempSnapCropMatrix, tempWebGPUViewProjectionMatrix, tempSnapWebGPUViewProjectionMatrix);
+    return tempSnapWebGPUViewProjectionMatrix;
+  }
+  _getMeshStateForGlobalSlot(cache2, globalSlot) {
+    return cache2.meshStateByGlobalSlot.get(globalSlot) ?? null;
+  }
+  _getOrBuildViewRenderCache(viewRenderState) {
+    const view = viewRenderState.view;
     const cache2 = this._getViewRenderCache(view.id);
     const structureVersion = this._meshManager.structureVersion;
     const instanceDataVersion = this._meshManager.instanceDataVersion;
     const viewStateVersion = this._meshManager.getViewStateVersion(view);
+    const renderEffectKey = createRenderEffectKey(view);
     const cameraViewVersion = this._meshManager.getCameraViewVersion(view);
-    const needsRebuild = cache2.structureVersion !== structureVersion || cache2.instanceDataVersion !== instanceDataVersion || cache2.viewStateVersion !== viewStateVersion || cache2.hasTransparent && cache2.cameraViewVersion !== cameraViewVersion || cache2.totalInstances > 0 && !cache2.instanceFrame?.buffer;
-    if (!needsRebuild) {
+    const cameraMatrixChanged = cache2.cameraViewVersion !== cameraViewVersion && !this._isCameraMatrixUnchanged(cache2, view);
+    const needsFullRebuild = cache2.structureVersion !== structureVersion || cache2.instanceDataVersion !== instanceDataVersion || cache2.viewStateVersion !== viewStateVersion || cache2.renderEffectKey !== renderEffectKey || this._usesCameraCulling() && cameraMatrixChanged || cache2.totalInstances > 0 && !cache2.instanceFrame?.buffer;
+    const needsTransparentSort = cache2.hasTransparent && cameraMatrixChanged;
+    if (!needsFullRebuild) {
+      if (needsTransparentSort) {
+        return this._rebuildTransparentViewRenderCache({
+          cache: cache2,
+          viewRenderState,
+          structureVersion,
+          instanceDataVersion,
+          viewStateVersion,
+          renderEffectKey,
+          cameraViewVersion
+        });
+      }
+      this._renderInspector.setSegmentQueueStats({
+        built: cache2.builtSegmentCount,
+        pending: cache2.pendingSegmentCount,
+        buildTelemetry: cache2.batchSet?.buildTelemetry
+      });
+      this._renderInspector.setCullStats(cache2.cullStats);
+      if (cache2.cameraViewVersion !== cameraViewVersion) {
+        cache2.cameraViewVersion = cameraViewVersion;
+        this._rememberCameraMatrix(cache2, view);
+      }
+      this._renderInspector.setRenderReason(cameraMatrixChanged ? "cameraOnlyReuse" : "cacheReuse");
       return {
         ok: true,
         value: cache2
       };
     }
+    if (!this._usesCameraCulling() && cache2.pendingSegmentCount > 0 && cache2.batchSet?.structureVersion === structureVersion && cache2.instanceDataVersion === instanceDataVersion && cache2.viewStateVersion === viewStateVersion && cache2.renderEffectKey === renderEffectKey && !cache2.hasTransparent && cache2.instanceFrame?.buffer) {
+      const pendingAppendResult = this._tryAppendPendingSegmentsViewRenderCache({
+        cache: cache2,
+        viewRenderState,
+        structureVersion,
+        instanceDataVersion,
+        viewStateVersion,
+        renderEffectKey,
+        cameraViewVersion
+      });
+      if (pendingAppendResult) {
+        return pendingAppendResult;
+      }
+    }
+    if (!this._usesCameraCulling() && (cache2.structureVersion >= 0 || cache2.pendingSegmentCount > 0) && cache2.structureVersion !== structureVersion && cache2.viewStateVersion === viewStateVersion && cache2.renderEffectKey === renderEffectKey && !cache2.hasTransparent && cache2.instanceFrame?.buffer) {
+      const appendOnlyResult = this._tryAppendOnlyViewRenderCache({
+        cache: cache2,
+        viewRenderState,
+        structureVersion,
+        instanceDataVersion,
+        viewStateVersion,
+        renderEffectKey,
+        cameraViewVersion
+      });
+      if (appendOnlyResult) {
+        return appendOnlyResult;
+      }
+    }
+    const batchingStart = nowMs4();
+    const renderReason = this._getFullRebuildReason({
+      cache: cache2,
+      structureVersion,
+      instanceDataVersion,
+      viewStateVersion,
+      renderEffectKey,
+      cameraMatrixChanged
+    });
+    const prepareStart = nowMs4();
+    const batchSetResult = this._instanceBatcher.prepareBatchSet(this._meshManager, this._getRenderFrameBatchPrepareOptions());
+    if (batchSetResult.ok === false) {
+      return batchSetResult;
+    }
+    this._renderInspector.addCPUTime("prepareMs", nowMs4() - prepareStart);
+    const batchSet = batchSetResult.value;
+    this._renderInspector.setSegmentQueueStats({
+      built: batchSet.builtSegmentCount,
+      pending: batchSet.pendingSegmentCount,
+      buildTelemetry: batchSet.buildTelemetry
+    });
+    const splatBatchSetResult = this._splatBatchManager.prepare({
+      meshManager: this._meshManager,
+      view,
+      baseGlobalSlot: batchSet.projectedInstanceCapacity
+    });
+    if (splatBatchSetResult.ok === false) {
+      return splatBatchSetResult;
+    }
+    const splatBatchSet = splatBatchSetResult.value;
     const meshStates = this._meshManager.meshStates;
+    const binningStart = nowMs4();
     this._binClassifier.clear(this._bins);
-    this._binClassifier.classify({
-      meshStates,
+    this._binClassifier.classifySegments({
+      batchSet,
       view,
       meshManager: this._meshManager,
-      bins: this._bins
+      bins: this._bins,
+      cameraCulling: this._usesCameraCulling()
     });
-    const totalInstances = this._bins.normalDrawOpaque.length + this._bins.normalFillTransparent.length;
-    if (totalInstances === 0) {
+    this._renderInspector.addCPUTime("binningMs", nowMs4() - binningStart);
+    cache2.cullStats = cloneCullStats(this._binClassifier.stats);
+    const totalSceneInstances = this._countVisibleDrawItems(this._bins);
+    if ((totalSceneInstances === 0 || batchSet.instanceCapacity === 0) && splatBatchSet.splatCount === 0) {
       this._clearCachedBatches(cache2.batches);
+      this._clearBatchList(cache2.shadowOpaqueBatches);
+      this._clearBatchList(cache2.splatBatches);
       cache2.instanceFrame = null;
+      cache2.batchSet = batchSet;
       cache2.totalInstances = 0;
       cache2.hasTransparent = false;
-      cache2.structureVersion = structureVersion;
+      cache2.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : structureVersion;
       cache2.instanceDataVersion = instanceDataVersion;
       cache2.viewStateVersion = viewStateVersion;
+      cache2.renderEffectKey = renderEffectKey;
       cache2.cameraViewVersion = cameraViewVersion;
+      this._rememberCameraMatrix(cache2, view);
+      cache2.builtSegmentCount = batchSet.builtSegmentCount;
+      cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+      this._renderInspector.setCullStats(cache2.cullStats);
+      this._renderInspector.setRenderReason("empty");
       this._instanceBufferManager.destroyFrame(view.id);
+      this._clearBatchList(cache2.snapEdgeBatches);
+      clearTransparentRenderBinCache(cache2.transparentBins);
+      this._rememberMeshSlots(cache2, batchSet);
+      this._rememberSplatMeshSlots(cache2, splatBatchSet);
+      this._rememberMeshStates(cache2, meshStates);
       return {
         ok: true,
         value: cache2
       };
     }
-    const instanceFrameResult = this._instanceBufferManager.beginFrame(totalInstances, view.id);
+    const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSet), view.id);
     if (instanceFrameResult.ok === false) {
       return instanceFrameResult;
     }
     cache2.instanceFrame = instanceFrameResult.value;
-    const drawBatchesResult = this._instanceBatcher.build({
+    const drawBatchStart = nowMs4();
+    const drawBatchesResult = this._instanceBatcher.buildPrepared({
+      batchSet,
       bins: this._bins,
       view,
       meshManager: this._meshManager,
-      instanceBufferManager: this._instanceBufferManager,
-      instanceFrame: cache2.instanceFrame
+      instanceFrame: cache2.instanceFrame,
+      includeEdges: this._renderContext.renderConfigs.edges
     });
     if (drawBatchesResult.ok === false) {
       return drawBatchesResult;
     }
+    const uploadStart = nowMs4();
+    this._renderInspector.setInstanceUploadStats(this._instanceBufferManager.upload(cache2.instanceFrame));
+    this._renderInspector.addCPUTime("uploadMs", nowMs4() - uploadStart);
     this._copyBatches(drawBatchesResult.value, cache2.batches);
-    cache2.totalInstances = totalInstances;
-    cache2.hasTransparent = this._bins.normalFillTransparent.length > 0;
-    cache2.structureVersion = structureVersion;
+    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+      batchSet,
+      drawItems: this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false),
+      view
+    });
+    if (shadowOpaqueBatchesResult.ok === false) {
+      return shadowOpaqueBatchesResult;
+    }
+    this._replaceBatches(shadowOpaqueBatchesResult.value, cache2.shadowOpaqueBatches);
+    const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
+      batchSet,
+      drawItems: this._getEdgeSnapDrawItems(this._bins),
+      viewId: `${view.id}:snap-edge`
+    });
+    if (snapEdgeBatchesResult.ok === false) {
+      return snapEdgeBatchesResult;
+    }
+    this._replaceSnapEdgeBatches(cache2, snapEdgeBatchesResult.value);
+    this._replaceBatches(splatBatchSet.batches, cache2.splatBatches);
+    this._renderInspector.addCPUTime("drawBatchMs", nowMs4() - drawBatchStart);
+    this._renderInspector.addCPUTime("batchingMs", nowMs4() - batchingStart);
+    this._renderInspector.addSegments(this._countBatches(cache2.batches));
+    cache2.batchSet = batchSet;
+    cache2.totalInstances = batchSet.instanceCapacity + splatBatchSet.slotCount;
+    cache2.hasTransparent = this._hasTransparentDrawItems(this._bins) || splatBatchSet.splatCount > 0;
+    this._rememberTransparentBins(cache2, this._bins);
+    cache2.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : structureVersion;
     cache2.instanceDataVersion = instanceDataVersion;
     cache2.viewStateVersion = viewStateVersion;
+    cache2.renderEffectKey = renderEffectKey;
     cache2.cameraViewVersion = cameraViewVersion;
+    this._rememberCameraMatrix(cache2, view);
+    cache2.builtSegmentCount = batchSet.builtSegmentCount;
+    cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+    this._renderInspector.setCullStats(cache2.cullStats);
+    this._renderInspector.setRenderReason(renderReason);
+    this._rememberMeshSlots(cache2, batchSet);
+    this._rememberSplatMeshSlots(cache2, splatBatchSet);
+    this._rememberMeshStates(cache2, meshStates);
     return {
       ok: true,
       value: cache2
+    };
+  }
+  _tryAppendOnlyViewRenderCache(params) {
+    const { cache: cache2, viewRenderState } = params;
+    const view = viewRenderState.view;
+    const meshStates = this._meshManager.meshStates;
+    if (meshStates.length <= cache2.meshStateCount || cache2.knownMeshStates.size === 0) {
+      return null;
+    }
+    const currentMeshStates = new Set(meshStates);
+    for (const meshState of cache2.knownMeshStates) {
+      if (!currentMeshStates.has(meshState)) {
+        return null;
+      }
+      if (cache2.meshBaseKeys.get(meshState) !== this._getMeshBaseKey(meshState)) {
+        return null;
+      }
+    }
+    const newMeshStates = [];
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const meshState = meshStates[i];
+      if (!cache2.knownMeshStates.has(meshState)) {
+        newMeshStates.push(meshState);
+      }
+    }
+    if (newMeshStates.length === 0) {
+      return null;
+    }
+    const batchingStart = nowMs4();
+    const prepareStart = nowMs4();
+    const previousBatchSet = cache2.batchSet;
+    const batchSetResult = this._instanceBatcher.prepareBatchSet(this._meshManager, this._getRenderFrameBatchPrepareOptions());
+    if (batchSetResult.ok === false) {
+      return batchSetResult;
+    }
+    const previousSegmentKeys = new Set(previousBatchSet?.segments.map((segment) => segment.key) ?? []);
+    const newSegments = batchSetResult.value.segments.filter((segment) => !previousSegmentKeys.has(segment.key));
+    if (newSegments.length === 0) {
+      return null;
+    }
+    this._renderInspector.addCPUTime("prepareMs", nowMs4() - prepareStart);
+    this._renderInspector.setSegmentQueueStats({
+      built: batchSetResult.value.builtSegmentCount,
+      pending: batchSetResult.value.pendingSegmentCount,
+      buildTelemetry: batchSetResult.value.buildTelemetry
+    });
+    const partialBatchSet = {
+      structureVersion: batchSetResult.value.structureVersion,
+      instanceCapacity: batchSetResult.value.instanceCapacity,
+      projectedInstanceCapacity: batchSetResult.value.projectedInstanceCapacity,
+      segments: newSegments,
+      segmentByMeshId: batchSetResult.value.segmentByMeshId,
+      pendingSegmentCount: batchSetResult.value.pendingSegmentCount,
+      builtSegmentCount: newSegments.length,
+      buildTelemetry: batchSetResult.value.buildTelemetry
+    };
+    const binningStart = nowMs4();
+    this._binClassifier.clear(this._bins);
+    this._binClassifier.classifySegments({
+      batchSet: partialBatchSet,
+      view,
+      meshManager: this._meshManager,
+      bins: this._bins,
+      cameraCulling: false
+    });
+    this._renderInspector.addCPUTime("binningMs", nowMs4() - binningStart);
+    const newCullStats = cloneCullStats(this._binClassifier.stats);
+    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
+      return null;
+    }
+    const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSetResult.value), view.id);
+    if (instanceFrameResult.ok === false) {
+      return instanceFrameResult;
+    }
+    cache2.instanceFrame = instanceFrameResult.value;
+    cache2.batchSet = batchSetResult.value;
+    const drawBatchStart = nowMs4();
+    this._instanceBatcher.writeInstances({
+      batchSet: batchSetResult.value,
+      segments: newSegments,
+      view,
+      meshManager: this._meshManager,
+      instanceFrame: cache2.instanceFrame
+    });
+    const opaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false);
+    const overlayOpaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, true);
+    const opaqueBatchesResult = this._instanceBatcher.buildOpaque({
+      batchSet: partialBatchSet,
+      drawItems: opaqueDrawItems,
+      viewId: view.id
+    });
+    if (opaqueBatchesResult.ok === false) {
+      return opaqueBatchesResult;
+    }
+    for (let i = 0, len = opaqueBatchesResult.value.length; i < len; i++) {
+      cache2.batches.opaque.push(opaqueBatchesResult.value[i]);
+    }
+    const overlayOpaqueBatchesResult = this._instanceBatcher.buildOpaque({
+      batchSet: partialBatchSet,
+      drawItems: overlayOpaqueDrawItems,
+      viewId: view.id
+    });
+    if (overlayOpaqueBatchesResult.ok === false) {
+      return overlayOpaqueBatchesResult;
+    }
+    for (let i = 0, len = overlayOpaqueBatchesResult.value.length; i < len; i++) {
+      cache2.batches.overlayOpaque.push(overlayOpaqueBatchesResult.value[i]);
+    }
+    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+      batchSet: partialBatchSet,
+      drawItems: opaqueDrawItems,
+      view
+    });
+    if (shadowOpaqueBatchesResult.ok === false) {
+      return shadowOpaqueBatchesResult;
+    }
+    for (let i = 0, len = shadowOpaqueBatchesResult.value.length; i < len; i++) {
+      cache2.shadowOpaqueBatches.push(shadowOpaqueBatchesResult.value[i]);
+    }
+    if (this._renderContext.renderConfigs.edges) {
+      const edgeBatchesResult = this._instanceBatcher.buildEdges({
+        batchSet: partialBatchSet,
+        drawItems: this._filterDrawItemsByOverlay(this._bins.normalEdgesOpaque, false),
+        viewId: view.id
+      });
+      if (edgeBatchesResult.ok === false) {
+        return edgeBatchesResult;
+      }
+      for (let i = 0, len = edgeBatchesResult.value.length; i < len; i++) {
+        cache2.batches.edges.push(edgeBatchesResult.value[i]);
+      }
+    }
+    const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
+      batchSet: partialBatchSet,
+      drawItems: this._getEdgeSnapDrawItems(this._bins),
+      viewId: `${view.id}:snap-edge`
+    });
+    if (snapEdgeBatchesResult.ok === false) {
+      return snapEdgeBatchesResult;
+    }
+    for (let i = 0, len = snapEdgeBatchesResult.value.length; i < len; i++) {
+      cache2.snapEdgeBatches.push(snapEdgeBatchesResult.value[i]);
+    }
+    this._renderInspector.addCPUTime("drawBatchMs", nowMs4() - drawBatchStart);
+    this._renderInspector.addCPUTime("batchingMs", nowMs4() - batchingStart);
+    const uploadStart = nowMs4();
+    this._renderInspector.setInstanceUploadStats(this._instanceBufferManager.upload(cache2.instanceFrame));
+    this._renderInspector.addCPUTime("uploadMs", nowMs4() - uploadStart);
+    this._renderInspector.addSegments(this._countBatches(cache2.batches));
+    cache2.cullStats = addCullStats(cache2.cullStats, newCullStats);
+    this._renderInspector.setCullStats(cache2.cullStats);
+    this._renderInspector.setRenderReason("appendOnlyStructureUpdate");
+    cache2.totalInstances = batchSetResult.value.instanceCapacity;
+    cache2.hasTransparent = false;
+    cache2.structureVersion = batchSetResult.value.pendingSegmentCount > 0 ? -1 : params.structureVersion;
+    cache2.instanceDataVersion = params.instanceDataVersion;
+    cache2.viewStateVersion = params.viewStateVersion;
+    cache2.renderEffectKey = params.renderEffectKey;
+    cache2.cameraViewVersion = params.cameraViewVersion;
+    this._rememberCameraMatrix(cache2, view);
+    cache2.builtSegmentCount = batchSetResult.value.builtSegmentCount;
+    cache2.pendingSegmentCount = batchSetResult.value.pendingSegmentCount;
+    this._rememberMeshSlots(cache2, batchSetResult.value);
+    this._rememberMeshStates(cache2, meshStates);
+    return {
+      ok: true,
+      value: cache2
+    };
+  }
+  _tryAppendPendingSegmentsViewRenderCache(params) {
+    const { cache: cache2, viewRenderState } = params;
+    const view = viewRenderState.view;
+    const previousBatchSet = cache2.batchSet;
+    if (!previousBatchSet) {
+      return null;
+    }
+    const batchingStart = nowMs4();
+    const prepareStart = nowMs4();
+    const batchSetResult = this._instanceBatcher.prepareBatchSet(this._meshManager, this._getRenderFrameBatchPrepareOptions());
+    if (batchSetResult.ok === false) {
+      return batchSetResult;
+    }
+    this._renderInspector.addCPUTime("prepareMs", nowMs4() - prepareStart);
+    const batchSet = batchSetResult.value;
+    this._renderInspector.setSegmentQueueStats({
+      built: batchSet.builtSegmentCount,
+      pending: batchSet.pendingSegmentCount,
+      buildTelemetry: batchSet.buildTelemetry
+    });
+    const previousSegmentKeys = new Set(previousBatchSet.segments.map((segment) => segment.key));
+    const newSegments = batchSet.segments.filter((segment) => !previousSegmentKeys.has(segment.key));
+    if (newSegments.length === 0) {
+      cache2.batchSet = batchSet;
+      cache2.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : params.structureVersion;
+      cache2.instanceDataVersion = params.instanceDataVersion;
+      cache2.viewStateVersion = params.viewStateVersion;
+      cache2.renderEffectKey = params.renderEffectKey;
+      cache2.cameraViewVersion = params.cameraViewVersion;
+      cache2.builtSegmentCount = batchSet.builtSegmentCount;
+      cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+      this._rememberCameraMatrix(cache2, view);
+      this._renderInspector.setCullStats(cache2.cullStats);
+      this._renderInspector.setRenderReason("pendingSegmentAppend");
+      return {
+        ok: true,
+        value: cache2
+      };
+    }
+    const partialBatchSet = {
+      structureVersion: batchSet.structureVersion,
+      instanceCapacity: batchSet.instanceCapacity,
+      projectedInstanceCapacity: batchSet.projectedInstanceCapacity,
+      segments: newSegments,
+      segmentByMeshId: batchSet.segmentByMeshId,
+      pendingSegmentCount: batchSet.pendingSegmentCount,
+      builtSegmentCount: newSegments.length,
+      buildTelemetry: batchSet.buildTelemetry
+    };
+    const binningStart = nowMs4();
+    this._binClassifier.clear(this._bins);
+    this._binClassifier.classifySegments({
+      batchSet: partialBatchSet,
+      view,
+      meshManager: this._meshManager,
+      bins: this._bins,
+      cameraCulling: false
+    });
+    this._renderInspector.addCPUTime("binningMs", nowMs4() - binningStart);
+    const newCullStats = cloneCullStats(this._binClassifier.stats);
+    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
+      return null;
+    }
+    const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSet), view.id);
+    if (instanceFrameResult.ok === false) {
+      return instanceFrameResult;
+    }
+    cache2.instanceFrame = instanceFrameResult.value;
+    cache2.batchSet = batchSet;
+    const drawBatchStart = nowMs4();
+    this._instanceBatcher.writeInstances({
+      batchSet,
+      segments: newSegments,
+      view,
+      meshManager: this._meshManager,
+      instanceFrame: cache2.instanceFrame
+    });
+    const opaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false);
+    const overlayOpaqueDrawItems = this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, true);
+    const opaqueBatchesResult = this._instanceBatcher.buildOpaque({
+      batchSet: partialBatchSet,
+      drawItems: opaqueDrawItems,
+      viewId: view.id
+    });
+    if (opaqueBatchesResult.ok === false) {
+      return opaqueBatchesResult;
+    }
+    for (let i = 0, len = opaqueBatchesResult.value.length; i < len; i++) {
+      cache2.batches.opaque.push(opaqueBatchesResult.value[i]);
+    }
+    const overlayOpaqueBatchesResult = this._instanceBatcher.buildOpaque({
+      batchSet: partialBatchSet,
+      drawItems: overlayOpaqueDrawItems,
+      viewId: view.id
+    });
+    if (overlayOpaqueBatchesResult.ok === false) {
+      return overlayOpaqueBatchesResult;
+    }
+    for (let i = 0, len = overlayOpaqueBatchesResult.value.length; i < len; i++) {
+      cache2.batches.overlayOpaque.push(overlayOpaqueBatchesResult.value[i]);
+    }
+    if (this._renderContext.renderConfigs.edges) {
+      const edgeBatchesResult = this._instanceBatcher.buildEdges({
+        batchSet: partialBatchSet,
+        drawItems: this._filterDrawItemsByOverlay(this._bins.normalEdgesOpaque, false),
+        viewId: view.id
+      });
+      if (edgeBatchesResult.ok === false) {
+        return edgeBatchesResult;
+      }
+      for (let i = 0, len = edgeBatchesResult.value.length; i < len; i++) {
+        cache2.batches.edges.push(edgeBatchesResult.value[i]);
+      }
+    }
+    const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
+      batchSet: partialBatchSet,
+      drawItems: this._getEdgeSnapDrawItems(this._bins),
+      viewId: `${view.id}:snap-edge`
+    });
+    if (snapEdgeBatchesResult.ok === false) {
+      return snapEdgeBatchesResult;
+    }
+    for (let i = 0, len = snapEdgeBatchesResult.value.length; i < len; i++) {
+      cache2.snapEdgeBatches.push(snapEdgeBatchesResult.value[i]);
+    }
+    this._renderInspector.addCPUTime("drawBatchMs", nowMs4() - drawBatchStart);
+    this._renderInspector.addCPUTime("batchingMs", nowMs4() - batchingStart);
+    const uploadStart = nowMs4();
+    this._renderInspector.setInstanceUploadStats(this._instanceBufferManager.upload(cache2.instanceFrame));
+    this._renderInspector.addCPUTime("uploadMs", nowMs4() - uploadStart);
+    this._renderInspector.addSegments(this._countBatches(cache2.batches));
+    cache2.cullStats = addCullStats(cache2.cullStats, newCullStats);
+    this._renderInspector.setCullStats(cache2.cullStats);
+    this._renderInspector.setRenderReason("pendingSegmentAppend");
+    cache2.totalInstances = batchSet.instanceCapacity;
+    cache2.hasTransparent = false;
+    cache2.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : params.structureVersion;
+    cache2.instanceDataVersion = params.instanceDataVersion;
+    cache2.viewStateVersion = params.viewStateVersion;
+    cache2.renderEffectKey = params.renderEffectKey;
+    cache2.cameraViewVersion = params.cameraViewVersion;
+    this._rememberCameraMatrix(cache2, view);
+    cache2.builtSegmentCount = batchSet.builtSegmentCount;
+    cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+    this._rememberMeshSlotsForSegments(cache2, newSegments);
+    return {
+      ok: true,
+      value: cache2
+    };
+  }
+  _rebuildTransparentViewRenderCache(params) {
+    const { cache: cache2, viewRenderState } = params;
+    const view = viewRenderState.view;
+    const batchingStart = nowMs4();
+    let batchSet = cache2.batchSet;
+    if (!batchSet) {
+      const prepareStart = nowMs4();
+      const batchSetResult = this._instanceBatcher.prepareBatchSet(this._meshManager, this._getRenderFrameBatchPrepareOptions());
+      if (batchSetResult.ok === false) {
+        return batchSetResult;
+      }
+      this._renderInspector.addCPUTime("prepareMs", nowMs4() - prepareStart);
+      batchSet = batchSetResult.value;
+      cache2.batchSet = batchSet;
+    }
+    this._renderInspector.setSegmentQueueStats({
+      built: batchSet.builtSegmentCount,
+      pending: batchSet.pendingSegmentCount,
+      buildTelemetry: batchSet.buildTelemetry
+    });
+    const canReuseSegmentBatches = this._renderContext.renderConfigs.transparentSortStrategy === "segment" && this._hasTransparentBatches(cache2.batches);
+    const binningStart = nowMs4();
+    if (canReuseSegmentBatches) {
+      this._restoreTransparentSegmentBins(cache2, view, batchSet);
+    } else {
+      this._restoreTransparentBins(cache2, view);
+    }
+    this._renderInspector.addCPUTime("binningMs", nowMs4() - binningStart);
+    const drawBatchStart = nowMs4();
+    if (canReuseSegmentBatches) {
+      this._sortCachedTransparentSegmentBatches(cache2, batchSet);
+      this._renderInspector.addCPUTime("drawBatchMs", nowMs4() - drawBatchStart);
+      this._renderInspector.addCPUTime("batchingMs", nowMs4() - batchingStart);
+      this._renderInspector.addSegments(this._countBatches(cache2.batches));
+      this._renderInspector.setCullStats(cache2.cullStats);
+      this._renderInspector.setRenderReason("transparentSegmentBatch");
+      cache2.hasTransparent = true;
+      cache2.structureVersion = params.structureVersion;
+      cache2.instanceDataVersion = params.instanceDataVersion;
+      cache2.viewStateVersion = params.viewStateVersion;
+      cache2.renderEffectKey = params.renderEffectKey;
+      cache2.cameraViewVersion = params.cameraViewVersion;
+      this._rememberCameraMatrix(cache2, view);
+      return {
+        ok: true,
+        value: cache2
+      };
+    }
+    const transparentBatchesResult = this._instanceBatcher.buildTransparentPrepared({
+      batchSet,
+      bins: this._bins,
+      view,
+      includeEdges: this._renderContext.renderConfigs.edges
+    });
+    if (transparentBatchesResult.ok === false) {
+      return transparentBatchesResult;
+    }
+    this._replaceBatches(transparentBatchesResult.value.transparent, cache2.batches.transparent);
+    this._replaceBatches(transparentBatchesResult.value.overlayTransparent, cache2.batches.overlayTransparent);
+    this._replaceBatches(transparentBatchesResult.value.xrayedTransparent, cache2.batches.xrayedTransparent);
+    this._replaceBatches(transparentBatchesResult.value.xrayedEdgesTransparent, cache2.batches.xrayedEdgesTransparent);
+    this._replaceBatches(transparentBatchesResult.value.highlightedTransparent, cache2.batches.highlightedTransparent);
+    this._replaceBatches(transparentBatchesResult.value.highlightedEdgesTransparent, cache2.batches.highlightedEdgesTransparent);
+    this._replaceBatches(transparentBatchesResult.value.selectedTransparent, cache2.batches.selectedTransparent);
+    this._replaceBatches(transparentBatchesResult.value.selectedEdgesTransparent, cache2.batches.selectedEdgesTransparent);
+    transparentBatchesResult.value.opaque.length = 0;
+    transparentBatchesResult.value.edges.length = 0;
+    this._renderInspector.addCPUTime("drawBatchMs", nowMs4() - drawBatchStart);
+    this._renderInspector.addCPUTime("batchingMs", nowMs4() - batchingStart);
+    this._renderInspector.addSegments(this._countBatches(cache2.batches));
+    this._renderInspector.setCullStats(cache2.cullStats);
+    this._renderInspector.setRenderReason(
+      this._renderContext.renderConfigs.transparentSortStrategy === "object" ? "transparentSort" : "transparentSegmentBatch"
+    );
+    cache2.hasTransparent = this._hasTransparentBatches(cache2.batches);
+    cache2.structureVersion = params.structureVersion;
+    cache2.instanceDataVersion = params.instanceDataVersion;
+    cache2.viewStateVersion = params.viewStateVersion;
+    cache2.renderEffectKey = params.renderEffectKey;
+    cache2.cameraViewVersion = params.cameraViewVersion;
+    this._rememberCameraMatrix(cache2, view);
+    return {
+      ok: true,
+      value: cache2
+    };
+  }
+  _getRenderFrameBatchPrepareOptions() {
+    return {
+      buildPendingSegments: true,
+      buildAllPendingSegments: true
     };
   }
   _getViewRenderCache(viewId) {
@@ -208191,99 +222570,1060 @@ var WebGPURenderManager = class {
         structureVersion: -1,
         instanceDataVersion: -1,
         viewStateVersion: -1,
+        renderEffectKey: "",
         cameraViewVersion: -1,
+        cameraMatrixSnapshot: null,
         hasTransparent: false,
         totalInstances: 0,
         instanceFrame: null,
+        batchSet: null,
         batches: {
           opaque: [],
-          transparent: []
-        }
+          edges: [],
+          transparent: [],
+          overlayOpaque: [],
+          overlayTransparent: [],
+          xrayedOpaque: [],
+          xrayedEdgesOpaque: [],
+          xrayedTransparent: [],
+          xrayedEdgesTransparent: [],
+          highlightedOpaque: [],
+          highlightedEdgesOpaque: [],
+          highlightedTransparent: [],
+          highlightedEdgesTransparent: [],
+          selectedOpaque: [],
+          selectedEdgesOpaque: [],
+          selectedTransparent: [],
+          selectedEdgesTransparent: []
+        },
+        shadowOpaqueBatches: [],
+        snapEdgeBatches: [],
+        splatBatches: [],
+        meshStateByGlobalSlot: /* @__PURE__ */ new Map(),
+        knownMeshStates: /* @__PURE__ */ new Set(),
+        meshBaseKeys: /* @__PURE__ */ new Map(),
+        meshStateCount: 0,
+        builtSegmentCount: 0,
+        pendingSegmentCount: 0,
+        cullStats: emptyCullStats(),
+        transparentBins: createTransparentRenderBinCache()
       };
       this._viewRenderCaches[viewId] = cache2;
     }
     return cache2;
   }
-  _copyBatches(source, target) {
-    this._clearCachedBatches(target);
-    for (let i = 0, len = source.opaque.length; i < len; i++) {
-      const batch = source.opaque[i];
-      target.opaque.push({
-        packedBatch: batch.packedBatch
-      });
-    }
-    for (let i = 0, len = source.transparent.length; i < len; i++) {
-      const batch = source.transparent[i];
-      target.transparent.push({
-        packedBatch: batch.packedBatch
-      });
+  _rememberMeshSlots(cache2, batchSet) {
+    cache2.meshStateByGlobalSlot.clear();
+    this._rememberMeshSlotsForSegments(cache2, batchSet.segments);
+  }
+  _rememberSplatMeshSlots(cache2, splatBatchSet) {
+    for (const [globalSlot, meshState] of splatBatchSet.meshStateByGlobalSlot) {
+      cache2.meshStateByGlobalSlot.set(globalSlot, meshState);
     }
   }
+  _refreshSplatBatches(cache2, view) {
+    const splatBatchSetResult = this._splatBatchManager.prepare({
+      meshManager: this._meshManager,
+      view,
+      baseGlobalSlot: cache2.batchSet?.projectedInstanceCapacity ?? 0
+    });
+    if (splatBatchSetResult.ok === false) {
+      return splatBatchSetResult;
+    }
+    const splatBatchSet = splatBatchSetResult.value;
+    this._replaceBatches(splatBatchSet.batches, cache2.splatBatches);
+    cache2.meshStateByGlobalSlot.clear();
+    if (cache2.batchSet) {
+      this._rememberMeshSlotsForSegments(cache2, cache2.batchSet.segments);
+    }
+    this._rememberSplatMeshSlots(cache2, splatBatchSet);
+    cache2.totalInstances = (cache2.batchSet?.instanceCapacity ?? 0) + splatBatchSet.slotCount;
+    cache2.hasTransparent = cache2.hasTransparent || splatBatchSet.splatCount > 0;
+    return { ok: true, value: void 0 };
+  }
+  _rememberMeshSlotsForSegments(cache2, segments) {
+    for (let segmentIndex = 0, segmentLen = segments.length; segmentIndex < segmentLen; segmentIndex++) {
+      const segment = segments[segmentIndex];
+      for (let slotIndex = 0, slotLen = segment.slots.length; slotIndex < slotLen; slotIndex++) {
+        const slot = segment.slots[slotIndex];
+        cache2.meshStateByGlobalSlot.set(slot.globalSlot, slot.meshState);
+      }
+    }
+  }
+  _rememberMeshStates(cache2, meshStates) {
+    cache2.knownMeshStates.clear();
+    cache2.meshBaseKeys.clear();
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      cache2.knownMeshStates.add(meshStates[i]);
+      cache2.meshBaseKeys.set(meshStates[i], this._getMeshBaseKey(meshStates[i]));
+    }
+    cache2.meshStateCount = meshStates.length;
+  }
+  _getInstanceFrameCapacity(batchSet) {
+    return Math.max(batchSet.projectedInstanceCapacity, batchSet.instanceCapacity, this._meshManager.meshStates.length);
+  }
+  _getMeshBaseKey(meshState) {
+    const model = meshState.sceneModel ?? meshState.mesh.model;
+    const lifecycle = model?.lifecycle ?? "dynamic";
+    const memoryPolicy = model?.memoryPolicy ?? "stream";
+    return `${model?.id ?? "unowned"}|${lifecycle}|${memoryPolicy}`;
+  }
+  _isCameraMatrixUnchanged(cache2, view) {
+    const snapshot = cache2.cameraMatrixSnapshot;
+    if (!snapshot) {
+      return false;
+    }
+    const camera = view.camera;
+    const viewMatrix = camera.viewMatrix;
+    const projMatrix = camera.projMatrix;
+    for (let i = 0; i < 16; i++) {
+      if (snapshot[i] !== viewMatrix[i] || snapshot[i + 16] !== projMatrix[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  _getFullRebuildReason(params) {
+    const { cache: cache2, structureVersion, instanceDataVersion, viewStateVersion, renderEffectKey, cameraMatrixChanged } = params;
+    if (cache2.pendingSegmentCount > 0 || cache2.structureVersion < 0) {
+      return "pendingSegmentBuild";
+    }
+    if (cache2.structureVersion !== structureVersion) {
+      return "sceneStructureRebuild";
+    }
+    if (cache2.instanceDataVersion !== instanceDataVersion) {
+      return "instanceUpdate";
+    }
+    if (cache2.viewStateVersion !== viewStateVersion) {
+      return "viewObjectState";
+    }
+    if (cache2.renderEffectKey !== renderEffectKey) {
+      return "renderEffects";
+    }
+    if (this._usesCameraCulling() && cameraMatrixChanged) {
+      return "cameraCullingRebuild";
+    }
+    if (cache2.totalInstances > 0 && !cache2.instanceFrame?.buffer) {
+      return "instanceBufferRecreated";
+    }
+    return "fullRebuild";
+  }
+  _rememberCameraMatrix(cache2, view) {
+    const camera = view.camera;
+    const viewMatrix = camera.viewMatrix;
+    const projMatrix = camera.projMatrix;
+    let snapshot = cache2.cameraMatrixSnapshot;
+    if (!snapshot) {
+      snapshot = new Array(32);
+      cache2.cameraMatrixSnapshot = snapshot;
+    }
+    for (let i = 0; i < 16; i++) {
+      snapshot[i] = viewMatrix[i];
+      snapshot[i + 16] = projMatrix[i];
+    }
+  }
+  _usesCameraCulling() {
+    const memoryConfigs = this._renderContext.memoryConfigs;
+    return memoryConfigs.frustumCulling || memoryConfigs.minProjectedCanvasSize > 0;
+  }
+  _countVisibleDrawItems(bins) {
+    return bins.normalDrawOpaque.length + bins.normalFillTransparent.length + bins.xrayedFillOpaque.length + bins.xrayedFillTransparent.length + bins.highlightedFillOpaque.length + bins.highlightedFillTransparent.length + bins.selectedFillOpaque.length + bins.selectedFillTransparent.length;
+  }
+  _hasTransparentDrawItems(bins) {
+    return bins.normalFillTransparent.length > 0 || bins.xrayedFillTransparent.length > 0 || bins.xrayedEdgesTransparent.length > 0 || bins.highlightedFillTransparent.length > 0 || bins.highlightedEdgesTransparent.length > 0 || bins.selectedFillTransparent.length > 0 || bins.selectedEdgesTransparent.length > 0;
+  }
+  _hasEmphasisDrawItems(bins) {
+    return bins.xrayedFillOpaque.length > 0 || bins.xrayedEdgesOpaque.length > 0 || bins.xrayedFillTransparent.length > 0 || bins.xrayedEdgesTransparent.length > 0 || bins.highlightedFillOpaque.length > 0 || bins.highlightedEdgesOpaque.length > 0 || bins.highlightedFillTransparent.length > 0 || bins.highlightedEdgesTransparent.length > 0 || bins.selectedFillOpaque.length > 0 || bins.selectedEdgesOpaque.length > 0 || bins.selectedFillTransparent.length > 0 || bins.selectedEdgesTransparent.length > 0;
+  }
+  _hasTransparentBatches(batches) {
+    return batches.transparent.length > 0 || batches.overlayTransparent.length > 0 || batches.xrayedTransparent.length > 0 || batches.xrayedEdgesTransparent.length > 0 || batches.highlightedTransparent.length > 0 || batches.highlightedEdgesTransparent.length > 0 || batches.selectedTransparent.length > 0 || batches.selectedEdgesTransparent.length > 0;
+  }
+  _getSectionPlanesForCaps(view) {
+    if (!view.effects?.sectionPlaneCaps?.applied) {
+      return [];
+    }
+    return this._getActiveSectionPlanes(view);
+  }
+  _getActiveSectionPlanes(view) {
+    const planes = view.sectionPlanesList;
+    if (!planes) {
+      return [];
+    }
+    const activePlanes = [];
+    for (let i = 0, len = planes.length; i < len; i++) {
+      if (planes[i].active) {
+        activePlanes.push(planes[i]);
+      }
+    }
+    return activePlanes;
+  }
+  _countBatches(batches) {
+    return batches.opaque.length + batches.edges.length + batches.transparent.length + batches.overlayOpaque.length + batches.overlayTransparent.length + batches.xrayedOpaque.length + batches.xrayedEdgesOpaque.length + batches.xrayedTransparent.length + batches.xrayedEdgesTransparent.length + batches.highlightedOpaque.length + batches.highlightedEdgesOpaque.length + batches.highlightedTransparent.length + batches.highlightedEdgesTransparent.length + batches.selectedOpaque.length + batches.selectedEdgesOpaque.length + batches.selectedTransparent.length + batches.selectedEdgesTransparent.length;
+  }
+  _getPickSurfaceBatches(batches) {
+    return [
+      ...batches.opaque,
+      ...batches.transparent,
+      ...batches.overlayOpaque,
+      ...batches.overlayTransparent,
+      ...batches.xrayedOpaque,
+      ...batches.xrayedTransparent,
+      ...batches.highlightedOpaque,
+      ...batches.highlightedTransparent,
+      ...batches.selectedOpaque,
+      ...batches.selectedTransparent
+    ];
+  }
+  _getOpaqueSurfaceBatches(batches) {
+    return [
+      ...batches.opaque,
+      ...batches.xrayedOpaque,
+      ...batches.highlightedOpaque,
+      ...batches.selectedOpaque
+    ];
+  }
+  _getTransparentSurfaceBatches(batches) {
+    return [
+      ...batches.transparent,
+      ...batches.xrayedTransparent,
+      ...batches.highlightedTransparent,
+      ...batches.selectedTransparent
+    ];
+  }
+  _filterBatchesByPrimitive(batches, primitive) {
+    return {
+      opaque: this._filterBatchListByPrimitive(batches.opaque, primitive),
+      edges: this._filterBatchListByPrimitive(batches.edges, primitive),
+      transparent: this._filterBatchListByPrimitive(batches.transparent, primitive),
+      overlayOpaque: this._filterBatchListByPrimitive(batches.overlayOpaque, primitive),
+      overlayTransparent: this._filterBatchListByPrimitive(batches.overlayTransparent, primitive),
+      xrayedOpaque: this._filterBatchListByPrimitive(batches.xrayedOpaque, primitive),
+      xrayedEdgesOpaque: this._filterBatchListByPrimitive(batches.xrayedEdgesOpaque, primitive),
+      xrayedTransparent: this._filterBatchListByPrimitive(batches.xrayedTransparent, primitive),
+      xrayedEdgesTransparent: this._filterBatchListByPrimitive(batches.xrayedEdgesTransparent, primitive),
+      highlightedOpaque: this._filterBatchListByPrimitive(batches.highlightedOpaque, primitive),
+      highlightedEdgesOpaque: this._filterBatchListByPrimitive(batches.highlightedEdgesOpaque, primitive),
+      highlightedTransparent: this._filterBatchListByPrimitive(batches.highlightedTransparent, primitive),
+      highlightedEdgesTransparent: this._filterBatchListByPrimitive(batches.highlightedEdgesTransparent, primitive),
+      selectedOpaque: this._filterBatchListByPrimitive(batches.selectedOpaque, primitive),
+      selectedEdgesOpaque: this._filterBatchListByPrimitive(batches.selectedEdgesOpaque, primitive),
+      selectedTransparent: this._filterBatchListByPrimitive(batches.selectedTransparent, primitive),
+      selectedEdgesTransparent: this._filterBatchListByPrimitive(batches.selectedEdgesTransparent, primitive)
+    };
+  }
+  _filterBatchListByPrimitive(batches, primitive) {
+    return batches.filter((batch) => batch.packedBatch.primitive === primitive);
+  }
+  _getEdgeSnapDrawItems(bins) {
+    return [
+      ...bins.normalDrawOpaque,
+      ...bins.normalFillTransparent,
+      ...bins.xrayedFillOpaque,
+      ...bins.xrayedFillTransparent,
+      ...bins.highlightedFillOpaque,
+      ...bins.highlightedFillTransparent,
+      ...bins.selectedFillOpaque,
+      ...bins.selectedFillTransparent
+    ];
+  }
+  _filterDrawItemsByOverlay(drawItems, overlay) {
+    return drawItems.filter((drawItem) => drawItem.meshState.mesh.bin === "overlay" === overlay);
+  }
+  _rememberTransparentBins(cache2, bins) {
+    copyDrawItems(bins.normalFillTransparent, cache2.transparentBins.normalFillTransparent);
+    copyDrawItems(bins.xrayedFillTransparent, cache2.transparentBins.xrayedFillTransparent);
+    copyDrawItems(bins.xrayedEdgesTransparent, cache2.transparentBins.xrayedEdgesTransparent);
+    copyDrawItems(bins.highlightedFillTransparent, cache2.transparentBins.highlightedFillTransparent);
+    copyDrawItems(bins.highlightedEdgesTransparent, cache2.transparentBins.highlightedEdgesTransparent);
+    copyDrawItems(bins.selectedFillTransparent, cache2.transparentBins.selectedFillTransparent);
+    copyDrawItems(bins.selectedEdgesTransparent, cache2.transparentBins.selectedEdgesTransparent);
+  }
+  _restoreTransparentBins(cache2, view) {
+    clearRenderBins(this._bins);
+    restoreTransparentDrawItems(cache2.transparentBins.normalFillTransparent, this._bins.normalFillTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.xrayedFillTransparent, this._bins.xrayedFillTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.highlightedFillTransparent, this._bins.highlightedFillTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.selectedFillTransparent, this._bins.selectedFillTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, view, this._meshManager);
+  }
+  _restoreTransparentSegmentBins(cache2, view, batchSet) {
+    clearRenderBins(this._bins);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.normalFillTransparent, this._bins.normalFillTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.xrayedFillTransparent, this._bins.xrayedFillTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.highlightedFillTransparent, this._bins.highlightedFillTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.selectedFillTransparent, this._bins.selectedFillTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, view, batchSet);
+  }
+  _sortCachedTransparentSegmentBatches(cache2, batchSet) {
+    this._sortCachedBatchListByDrawItems(cache2.batches.transparent, this._bins.normalFillTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.xrayedTransparent, this._bins.xrayedFillTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.highlightedTransparent, this._bins.highlightedFillTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.selectedTransparent, this._bins.selectedFillTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, batchSet);
+  }
+  _sortCachedBatchListByDrawItems(batches, drawItems, batchSet) {
+    if (batches.length < 2 || drawItems.length === 0) {
+      return;
+    }
+    const orderBySegmentKey = /* @__PURE__ */ new Map();
+    for (let i = 0, len = drawItems.length; i < len; i++) {
+      const segment = batchSet.segmentByMeshId[drawItems[i].meshState.mesh.uniqueId];
+      if (!segment || orderBySegmentKey.has(segment.key)) {
+        continue;
+      }
+      orderBySegmentKey.set(segment.key, orderBySegmentKey.size);
+    }
+    batches.sort((a2, b4) => {
+      const aOrder = orderBySegmentKey.get(a2.packedBatch.segmentKey) ?? Number.MAX_SAFE_INTEGER;
+      const bOrder = orderBySegmentKey.get(b4.packedBatch.segmentKey) ?? Number.MAX_SAFE_INTEGER;
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+      return a2.packedBatch.label < b4.packedBatch.label ? -1 : a2.packedBatch.label > b4.packedBatch.label ? 1 : 0;
+    });
+  }
+  _copyBatches(source, target) {
+    this._replaceBatches(source.opaque, target.opaque);
+    this._replaceBatches(source.edges, target.edges);
+    this._replaceBatches(source.transparent, target.transparent);
+    this._replaceBatches(source.overlayOpaque, target.overlayOpaque);
+    this._replaceBatches(source.overlayTransparent, target.overlayTransparent);
+    this._replaceBatches(source.xrayedOpaque, target.xrayedOpaque);
+    this._replaceBatches(source.xrayedEdgesOpaque, target.xrayedEdgesOpaque);
+    this._replaceBatches(source.xrayedTransparent, target.xrayedTransparent);
+    this._replaceBatches(source.xrayedEdgesTransparent, target.xrayedEdgesTransparent);
+    this._replaceBatches(source.highlightedOpaque, target.highlightedOpaque);
+    this._replaceBatches(source.highlightedEdgesOpaque, target.highlightedEdgesOpaque);
+    this._replaceBatches(source.highlightedTransparent, target.highlightedTransparent);
+    this._replaceBatches(source.highlightedEdgesTransparent, target.highlightedEdgesTransparent);
+    this._replaceBatches(source.selectedOpaque, target.selectedOpaque);
+    this._replaceBatches(source.selectedEdgesOpaque, target.selectedEdgesOpaque);
+    this._replaceBatches(source.selectedTransparent, target.selectedTransparent);
+    this._replaceBatches(source.selectedEdgesTransparent, target.selectedEdgesTransparent);
+  }
+  _replaceSnapEdgeBatches(cache2, batches) {
+    this._clearBatchList(cache2.snapEdgeBatches);
+    for (let i = 0, len = batches.length; i < len; i++) {
+      cache2.snapEdgeBatches.push(batches[i]);
+    }
+  }
+  _buildShadowOpaqueBatches(params) {
+    const shadowDrawItems = params.drawItems.filter((drawItem) => castsShadow(drawItem, params.view));
+    if (shadowDrawItems.length === 0) {
+      return {
+        ok: true,
+        value: []
+      };
+    }
+    return this._instanceBatcher.buildOpaque({
+      batchSet: params.batchSet,
+      drawItems: shadowDrawItems,
+      viewId: `${params.view.id}:shadow`
+    });
+  }
   _clearCachedBatches(batches) {
-    for (let i = 0, len = batches.opaque.length; i < len; i++) {
+    this._clearBatchList(batches.opaque);
+    this._clearBatchList(batches.edges);
+    this._clearBatchList(batches.transparent);
+    this._clearBatchList(batches.overlayOpaque);
+    this._clearBatchList(batches.overlayTransparent);
+    this._clearBatchList(batches.xrayedOpaque);
+    this._clearBatchList(batches.xrayedEdgesOpaque);
+    this._clearBatchList(batches.xrayedTransparent);
+    this._clearBatchList(batches.xrayedEdgesTransparent);
+    this._clearBatchList(batches.highlightedOpaque);
+    this._clearBatchList(batches.highlightedEdgesOpaque);
+    this._clearBatchList(batches.highlightedTransparent);
+    this._clearBatchList(batches.highlightedEdgesTransparent);
+    this._clearBatchList(batches.selectedOpaque);
+    this._clearBatchList(batches.selectedEdgesOpaque);
+    this._clearBatchList(batches.selectedTransparent);
+    this._clearBatchList(batches.selectedEdgesTransparent);
+  }
+  _replaceBatches(source, target) {
+    this._clearBatchList(target);
+    for (let i = 0, len = source.length; i < len; i++) {
+      const batch = source[i];
+      target.push({
+        packedBatch: batch.packedBatch
+      });
+    }
+    source.length = 0;
+  }
+  _clearBatchList(batches) {
+    for (let i = 0, len = batches.length; i < len; i++) {
       try {
-        batches.opaque[i].packedBatch.destroy();
+        batches[i].packedBatch.destroy();
       } catch {
       }
     }
-    for (let i = 0, len = batches.transparent.length; i < len; i++) {
-      try {
-        batches.transparent[i].packedBatch.destroy();
-      } catch {
+    batches.length = 0;
+  }
+};
+function emptyCullStats() {
+  return {
+    considered: 0,
+    rendered: 0,
+    frustumCulled: 0,
+    projectedSizeCulled: 0,
+    segmentCandidates: 0,
+    segmentFrustumCulled: 0,
+    segmentFullyDrawn: 0,
+    segmentPartiallyRefined: 0
+  };
+}
+function cloneCullStats(stats) {
+  return {
+    considered: stats.considered,
+    rendered: stats.rendered,
+    frustumCulled: stats.frustumCulled,
+    projectedSizeCulled: stats.projectedSizeCulled,
+    segmentCandidates: stats.segmentCandidates,
+    segmentFrustumCulled: stats.segmentFrustumCulled,
+    segmentFullyDrawn: stats.segmentFullyDrawn,
+    segmentPartiallyRefined: stats.segmentPartiallyRefined
+  };
+}
+function createRenderEffectKey(view) {
+  const effects = view.effects;
+  return [
+    view.renderMode,
+    effects?.edges?.applied ? 1 : 0,
+    effects?.sao?.applied ? 1 : 0,
+    effects?.shadows?.applied ? 1 : 0,
+    effects?.sectionPlaneCaps?.applied ? 1 : 0,
+    effects?.tonemap?.applied ? 1 : 0,
+    effects?.antiAliasing?.applied ? 1 : 0
+  ].join(":");
+}
+function castsShadow(drawItem, view) {
+  const mesh = drawItem.meshState.mesh;
+  if (mesh.castsShadow === false || mesh.object?.castsShadow === false) {
+    return false;
+  }
+  const objectId = mesh.object?.id;
+  const viewObject = objectId ? view.objects?.[objectId] : void 0;
+  return viewObject?.castsShadow !== false;
+}
+function addCullStats(a2, b4) {
+  return {
+    considered: a2.considered + b4.considered,
+    rendered: a2.rendered + b4.rendered,
+    frustumCulled: a2.frustumCulled + b4.frustumCulled,
+    projectedSizeCulled: a2.projectedSizeCulled + b4.projectedSizeCulled,
+    segmentCandidates: a2.segmentCandidates + b4.segmentCandidates,
+    segmentFrustumCulled: a2.segmentFrustumCulled + b4.segmentFrustumCulled,
+    segmentFullyDrawn: a2.segmentFullyDrawn + b4.segmentFullyDrawn,
+    segmentPartiallyRefined: a2.segmentPartiallyRefined + b4.segmentPartiallyRefined
+  };
+}
+function createTransparentRenderBinCache() {
+  return {
+    normalFillTransparent: [],
+    xrayedFillTransparent: [],
+    xrayedEdgesTransparent: [],
+    highlightedFillTransparent: [],
+    highlightedEdgesTransparent: [],
+    selectedFillTransparent: [],
+    selectedEdgesTransparent: []
+  };
+}
+function copyDrawItems(source, target) {
+  target.length = 0;
+  for (let i = 0, len = source.length; i < len; i++) {
+    const item = source[i];
+    target.push({
+      meshState: item.meshState,
+      opacity: item.opacity,
+      viewDepth: item.viewDepth
+    });
+  }
+}
+function restoreTransparentDrawItems(source, target, view, meshManager) {
+  target.length = 0;
+  for (let i = 0, len = source.length; i < len; i++) {
+    const item = source[i];
+    item.viewDepth = meshManager.getMeshViewDepth(item.meshState, view);
+    target.push(item);
+  }
+  target.sort(compareDrawItemDepth);
+}
+function restoreTransparentSegmentDrawItems(source, target, view, batchSet) {
+  target.length = 0;
+  if (source.length === 0) {
+    return;
+  }
+  const groupBySegmentKey = /* @__PURE__ */ new Map();
+  const groups = [];
+  for (let i = 0, len = source.length; i < len; i++) {
+    const item = source[i];
+    const segment = batchSet.segmentByMeshId[item.meshState.mesh.uniqueId];
+    if (!segment) {
+      continue;
+    }
+    let group = groupBySegmentKey.get(segment.key);
+    if (!group) {
+      group = {
+        segment,
+        depth: getSegmentViewDepth(segment, view),
+        drawItems: []
+      };
+      groupBySegmentKey.set(segment.key, group);
+      groups.push(group);
+    }
+    item.viewDepth = group.depth;
+    group.drawItems.push(item);
+  }
+  groups.sort(compareTransparentSegmentGroupDepth);
+  for (let groupIndex = 0, groupLen = groups.length; groupIndex < groupLen; groupIndex++) {
+    const group = groups[groupIndex];
+    for (let itemIndex = 0, itemLen = group.drawItems.length; itemIndex < itemLen; itemIndex++) {
+      target.push(group.drawItems[itemIndex]);
+    }
+  }
+}
+function getSegmentViewDepth(segment, view) {
+  const aabb = segment.worldAABB;
+  const x = (aabb[0] + aabb[3]) * 0.5;
+  const y = (aabb[1] + aabb[4]) * 0.5;
+  const z = (aabb[2] + aabb[5]) * 0.5;
+  const viewMatrix = view.camera?.viewMatrix;
+  if (!viewMatrix) {
+    return z;
+  }
+  return viewMatrix[2] * x + viewMatrix[6] * y + viewMatrix[10] * z + viewMatrix[14];
+}
+function compareTransparentSegmentGroupDepth(a2, b4) {
+  if (a2.depth !== b4.depth) {
+    return a2.depth - b4.depth;
+  }
+  return a2.segment.key < b4.segment.key ? -1 : a2.segment.key > b4.segment.key ? 1 : 0;
+}
+function compareDrawItemDepth(a2, b4) {
+  return a2.viewDepth - b4.viewDepth;
+}
+function clearTransparentRenderBinCache(cache2) {
+  cache2.normalFillTransparent.length = 0;
+  cache2.xrayedFillTransparent.length = 0;
+  cache2.xrayedEdgesTransparent.length = 0;
+  cache2.highlightedFillTransparent.length = 0;
+  cache2.highlightedEdgesTransparent.length = 0;
+  cache2.selectedFillTransparent.length = 0;
+  cache2.selectedEdgesTransparent.length = 0;
+}
+function clearRenderBins(bins) {
+  bins.normalDrawOpaque.length = 0;
+  bins.normalEdgesOpaque.length = 0;
+  bins.normalFillTransparent.length = 0;
+  bins.xrayedFillOpaque.length = 0;
+  bins.xrayedEdgesOpaque.length = 0;
+  bins.xrayedFillTransparent.length = 0;
+  bins.xrayedEdgesTransparent.length = 0;
+  bins.highlightedFillOpaque.length = 0;
+  bins.highlightedEdgesOpaque.length = 0;
+  bins.highlightedFillTransparent.length = 0;
+  bins.highlightedEdgesTransparent.length = 0;
+  bins.selectedFillOpaque.length = 0;
+  bins.selectedEdgesOpaque.length = 0;
+  bins.selectedFillTransparent.length = 0;
+  bins.selectedEdgesTransparent.length = 0;
+}
+
+// ../sdk/src/viewing/webGPURenderer/internal/snapManager/SnapManager.ts
+var DEFAULT_SNAP_RADIUS2 = 10;
+var SNAP_DEPTH_EPSILON = 1e-4;
+var tempModelViewMatrix2 = createMat4Float64();
+var tempModelViewProjectionMatrix2 = createMat4Float64();
+var tempDepthModelViewMatrix = createMat4Float64();
+var tempDepthModelViewProjectionMatrix = createMat4Float64();
+var tempVertex2 = createVec4Float64();
+var tempClip3 = createVec4Float64();
+var tempCanvasA2 = createVec2Float64();
+var tempCanvasB2 = createVec2Float64();
+var tempCanvasC2 = createVec2Float64();
+var tempWorldHomogeneous2 = createVec4Float64();
+var tempLocalPos2 = createVec3Float64();
+var tempWorldPos2 = createVec3Float64();
+var tempSnappedCanvas = createVec2Float64();
+var SnapManager2 = class {
+  _meshManager;
+  _snapBufferCache;
+  _snapResult = new PickResult();
+  constructor(params) {
+    this._meshManager = params.meshManager;
+    this._snapBufferCache = new WebGPUSnapBufferCache(params.renderContext);
+  }
+  snapPick(view, pickParams) {
+    if (!pickParams.canvasPos) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const wantVertex = pickParams.snapToVertex === true;
+    const wantEdge = pickParams.snapToEdge === true;
+    if (!wantVertex && !wantEdge) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const snapRadius = Math.max(1, pickParams.snapRadius ?? DEFAULT_SNAP_RADIUS2);
+    const snapBufferResult = this._snapBufferCache.get(snapRadius);
+    if (snapBufferResult.ok === false) {
+      return snapBufferResult;
+    }
+    const best = this._findSnapCandidate({
+      view,
+      canvasPos: pickParams.canvasPos,
+      snapRadius,
+      wantVertex,
+      wantEdge,
+      pickInvisible: !!pickParams.pickInvisible
+    });
+    if (!best) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const result = this._snapResult;
+    result.reset();
+    result.view = view;
+    result.canvasPos = pickParams.canvasPos;
+    result.sceneMesh = best.sceneMesh;
+    result.sceneObject = best.sceneMesh.object ?? null;
+    result.viewObject = best.sceneMesh.object ? view.objects?.[best.sceneMesh.object.id] ?? null : null;
+    result.worldPos = best.worldPos;
+    result.snappedCanvasPos = best.canvasPos;
+    result.snappedToVertex = best.snappedToVertex;
+    result.snappedToEdge = best.snappedToEdge;
+    return {
+      ok: true,
+      value: result
+    };
+  }
+  async snapVertexGPUAsync(view, pickParams, snapVertexGPUAsync) {
+    if (!pickParams.canvasPos || pickParams.snapToVertex !== true || pickParams.snapToEdge === true || pickParams.pickInvisible) {
+      return this.snapPick(view, pickParams);
+    }
+    const snapRadius = Math.max(1, pickParams.snapRadius ?? DEFAULT_SNAP_RADIUS2);
+    const snapBufferResult = this._snapBufferCache.get(snapRadius);
+    if (snapBufferResult.ok === false) {
+      return snapBufferResult;
+    }
+    const gpuHitResult = await snapVertexGPUAsync(snapBufferResult.value, pickParams.canvasPos);
+    if (gpuHitResult.ok === false) {
+      return gpuHitResult;
+    }
+    const gpuHit = gpuHitResult.value;
+    if (!gpuHit || !this._meshManager.isMeshPickableInView(gpuHit.meshState, view, false)) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const best = this._findMeshSnapCandidate(gpuHit.meshState, {
+      view,
+      canvasPos: pickParams.canvasPos,
+      wantVertex: true,
+      wantEdge: false,
+      pickInvisible: false
+    });
+    if (!best || best.distanceSq > snapRadius * snapRadius) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const result = new PickResult();
+    result.view = view;
+    result.canvasPos = pickParams.canvasPos;
+    result.sceneMesh = best.sceneMesh;
+    result.sceneObject = best.sceneMesh.object ?? null;
+    result.viewObject = best.sceneMesh.object ? view.objects?.[best.sceneMesh.object.id] ?? null : null;
+    result.worldPos = best.worldPos;
+    result.snappedCanvasPos = best.canvasPos;
+    result.snappedToVertex = true;
+    result.snappedToEdge = false;
+    return {
+      ok: true,
+      value: result
+    };
+  }
+  async snapEdgeGPUAsync(view, pickParams, snapEdgeGPUAsync) {
+    if (!pickParams.canvasPos || pickParams.snapToEdge !== true || pickParams.pickInvisible) {
+      return this.snapPick(view, pickParams);
+    }
+    const snapRadius = Math.max(1, pickParams.snapRadius ?? DEFAULT_SNAP_RADIUS2);
+    const snapBufferResult = this._snapBufferCache.get(snapRadius);
+    if (snapBufferResult.ok === false) {
+      return snapBufferResult;
+    }
+    const gpuHitResult = await snapEdgeGPUAsync(snapBufferResult.value, pickParams.canvasPos);
+    if (gpuHitResult.ok === false) {
+      return gpuHitResult;
+    }
+    const gpuHit = gpuHitResult.value;
+    if (!gpuHit || !this._meshManager.isMeshPickableInView(gpuHit.meshState, view, false)) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const best = this._findMeshSnapCandidate(gpuHit.meshState, {
+      view,
+      canvasPos: pickParams.canvasPos,
+      wantVertex: pickParams.snapToVertex === true,
+      wantEdge: true,
+      pickInvisible: false
+    });
+    if (!best || best.distanceSq > snapRadius * snapRadius) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    const result = new PickResult();
+    result.view = view;
+    result.canvasPos = pickParams.canvasPos;
+    result.sceneMesh = best.sceneMesh;
+    result.sceneObject = best.sceneMesh.object ?? null;
+    result.viewObject = best.sceneMesh.object ? view.objects?.[best.sceneMesh.object.id] ?? null : null;
+    result.worldPos = best.worldPos;
+    result.snappedCanvasPos = best.canvasPos;
+    result.snappedToVertex = best.snappedToVertex;
+    result.snappedToEdge = best.snappedToEdge;
+    return {
+      ok: true,
+      value: result
+    };
+  }
+  destroy() {
+    this._snapBufferCache.destroy();
+  }
+  _findSnapCandidate(params) {
+    const meshStates = this._meshManager.meshStates;
+    let best = null;
+    const maxDistanceSq = params.snapRadius * params.snapRadius;
+    for (let i = 0, len = meshStates.length; i < len; i++) {
+      const meshState = meshStates[i];
+      if (!this._meshManager.isMeshPickableInView(meshState, params.view, params.pickInvisible)) {
+        continue;
+      }
+      const candidate = this._findMeshSnapCandidate(meshState, params);
+      if (!candidate || candidate.distanceSq > maxDistanceSq) {
+        continue;
+      }
+      if (!best || candidate.distanceSq < best.distanceSq || candidate.distanceSq === best.distanceSq && candidate.snappedToVertex && !best.snappedToVertex || candidate.distanceSq === best.distanceSq && candidate.depth < best.depth) {
+        best = candidate;
       }
     }
-    batches.opaque.length = 0;
-    batches.transparent.length = 0;
+    return best;
+  }
+  _findMeshSnapCandidate(meshState, params) {
+    const positions = meshState.geometryState.positions;
+    const indices = meshState.geometryState.indices;
+    const edgeIndices = meshState.geometryState.edgeIndices;
+    const matrix = this._getModelViewProjectionMatrix(
+      meshState,
+      params.view,
+      tempModelViewMatrix2,
+      tempModelViewProjectionMatrix2
+    );
+    let best = null;
+    if (params.wantVertex) {
+      const visitedVertices = /* @__PURE__ */ new Set();
+      for (let i = 0, len = indices.length; i < len; i++) {
+        const vertexIndex = indices[i];
+        if (visitedVertices.has(vertexIndex)) {
+          continue;
+        }
+        visitedVertices.add(vertexIndex);
+        const offset = vertexIndex * 3;
+        const depth = this._projectVertex(matrix, positions, offset, params.view, tempCanvasA2);
+        if (depth === null) {
+          continue;
+        }
+        const candidate = this._makeVertexCandidate(meshState, params.view, positions, offset, tempCanvasA2, depth, params.canvasPos);
+        best = this._chooseVisibleSnapCandidate(best, candidate, params);
+      }
+    }
+    if (params.wantEdge && edgeIndices) {
+      for (let i = 0, len = edgeIndices.length; i + 1 < len; i += 2) {
+        const offsetA = edgeIndices[i] * 3;
+        const offsetB = edgeIndices[i + 1] * 3;
+        const depthA = this._projectVertex(matrix, positions, offsetA, params.view, tempCanvasA2);
+        const depthB = this._projectVertex(matrix, positions, offsetB, params.view, tempCanvasB2);
+        if (depthA === null || depthB === null) {
+          continue;
+        }
+        best = this._chooseVisibleSnapCandidate(best, this._makeEdgeCandidate(meshState, params.view, positions, offsetA, offsetB, tempCanvasA2, tempCanvasB2, depthA, depthB, params.canvasPos), params);
+      }
+    }
+    return best;
+  }
+  _makeVertexCandidate(meshState, view, positions, offset, canvasPos2, depth, pickCanvasPos) {
+    tempLocalPos2[0] = positions[offset];
+    tempLocalPos2[1] = positions[offset + 1];
+    tempLocalPos2[2] = positions[offset + 2];
+    const worldPos = this._getWorldPosition(meshState, tempLocalPos2);
+    return {
+      sceneMesh: meshState.mesh,
+      snappedToVertex: true,
+      snappedToEdge: false,
+      distanceSq: this._distanceSq(pickCanvasPos, canvasPos2),
+      depth,
+      localPos: createVec3Float64(tempLocalPos2),
+      worldPos: createVec3Float64(worldPos),
+      canvasPos: createVec2Float64(canvasPos2)
+    };
+  }
+  _makeEdgeCandidate(meshState, view, positions, offsetA, offsetB, canvasA, canvasB, depthA, depthB, pickCanvasPos) {
+    const t = this._closestSegmentT(pickCanvasPos, canvasA, canvasB);
+    tempSnappedCanvas[0] = canvasA[0] + (canvasB[0] - canvasA[0]) * t;
+    tempSnappedCanvas[1] = canvasA[1] + (canvasB[1] - canvasA[1]) * t;
+    tempLocalPos2[0] = positions[offsetA] + (positions[offsetB] - positions[offsetA]) * t;
+    tempLocalPos2[1] = positions[offsetA + 1] + (positions[offsetB + 1] - positions[offsetA + 1]) * t;
+    tempLocalPos2[2] = positions[offsetA + 2] + (positions[offsetB + 2] - positions[offsetA + 2]) * t;
+    const worldPos = this._getWorldPosition(meshState, tempLocalPos2);
+    return {
+      sceneMesh: meshState.mesh,
+      snappedToVertex: false,
+      snappedToEdge: true,
+      distanceSq: this._distanceSq(pickCanvasPos, tempSnappedCanvas),
+      depth: depthA + (depthB - depthA) * t,
+      localPos: createVec3Float64(tempLocalPos2),
+      worldPos: createVec3Float64(worldPos),
+      canvasPos: createVec2Float64(tempSnappedCanvas)
+    };
+  }
+  _chooseSnapCandidate(best, candidate) {
+    if (!best) {
+      return candidate;
+    }
+    if (candidate.distanceSq < best.distanceSq) {
+      return candidate;
+    }
+    if (candidate.distanceSq === best.distanceSq && candidate.snappedToVertex && !best.snappedToVertex) {
+      return candidate;
+    }
+    if (candidate.distanceSq === best.distanceSq && candidate.depth < best.depth) {
+      return candidate;
+    }
+    return best;
+  }
+  _chooseVisibleSnapCandidate(best, candidate, params) {
+    if (isWorldPosClipped(params.view, candidate.worldPos, this._isCandidateClippable(candidate, params.view))) {
+      return best;
+    }
+    if (!this._isCandidateVisible(candidate, params)) {
+      return best;
+    }
+    return this._chooseSnapCandidate(best, candidate);
+  }
+  _isCandidateClippable(candidate, view) {
+    const sceneObject = candidate.sceneMesh.object;
+    if (!sceneObject) {
+      return true;
+    }
+    return view.objects?.[sceneObject.id]?.clippable !== false;
+  }
+  _isCandidateVisible(candidate, params) {
+    const nearestDepth = this._findNearestDepthAtCanvas(candidate.canvasPos, params);
+    return nearestDepth === null || candidate.depth <= nearestDepth + SNAP_DEPTH_EPSILON;
+  }
+  _findNearestDepthAtCanvas(canvasPos2, params) {
+    const meshStates = this._meshManager.meshStates;
+    let nearestDepth = Number.POSITIVE_INFINITY;
+    for (let meshIndex = 0, meshLen = meshStates.length; meshIndex < meshLen; meshIndex++) {
+      const meshState = meshStates[meshIndex];
+      if (!this._meshManager.isMeshPickableInView(meshState, params.view, params.pickInvisible)) {
+        continue;
+      }
+      const matrix = this._getModelViewProjectionMatrix(
+        meshState,
+        params.view,
+        tempDepthModelViewMatrix,
+        tempDepthModelViewProjectionMatrix
+      );
+      const positions = meshState.geometryState.positions;
+      const indices = meshState.geometryState.indices;
+      for (let i = 0, len = indices.length; i < len; i += 3) {
+        const offsetA = indices[i] * 3;
+        const offsetB = indices[i + 1] * 3;
+        const offsetC = indices[i + 2] * 3;
+        const depthA = this._projectVertex(matrix, positions, offsetA, params.view, tempCanvasA2);
+        const depthB = this._projectVertex(matrix, positions, offsetB, params.view, tempCanvasB2);
+        const depthC = this._projectVertex(matrix, positions, offsetC, params.view, tempCanvasC2);
+        if (depthA === null || depthB === null || depthC === null) {
+          continue;
+        }
+        const barycentric = this._getBarycentricCanvasCoords(canvasPos2, tempCanvasA2, tempCanvasB2, tempCanvasC2);
+        if (!barycentric) {
+          continue;
+        }
+        const depth = barycentric[0] * depthA + barycentric[1] * depthB + barycentric[2] * depthC;
+        tempLocalPos2[0] = positions[offsetA] * barycentric[0] + positions[offsetB] * barycentric[1] + positions[offsetC] * barycentric[2];
+        tempLocalPos2[1] = positions[offsetA + 1] * barycentric[0] + positions[offsetB + 1] * barycentric[1] + positions[offsetC + 1] * barycentric[2];
+        tempLocalPos2[2] = positions[offsetA + 2] * barycentric[0] + positions[offsetB + 2] * barycentric[1] + positions[offsetC + 2] * barycentric[2];
+        if (isWorldPosClipped(params.view, this._getWorldPosition(meshState, tempLocalPos2), this._meshManager.isMeshClippableInView(meshState, params.view))) {
+          continue;
+        }
+        if (depth < nearestDepth) {
+          nearestDepth = depth;
+        }
+      }
+    }
+    return Number.isFinite(nearestDepth) ? nearestDepth : null;
+  }
+  _getBarycentricCanvasCoords(point, a2, b4, c2) {
+    const v0x = c2[0] - a2[0];
+    const v0y = c2[1] - a2[1];
+    const v1x = b4[0] - a2[0];
+    const v1y = b4[1] - a2[1];
+    const v2x = point[0] - a2[0];
+    const v2y = point[1] - a2[1];
+    const dot00 = v0x * v0x + v0y * v0y;
+    const dot01 = v0x * v1x + v0y * v1y;
+    const dot02 = v0x * v2x + v0y * v2y;
+    const dot11 = v1x * v1x + v1y * v1y;
+    const dot12 = v1x * v2x + v1y * v2y;
+    const denom = dot00 * dot11 - dot01 * dot01;
+    if (Math.abs(denom) < 1e-12) {
+      return null;
+    }
+    const invDenom = 1 / denom;
+    const u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    const v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+    const tolerance = 1e-6;
+    if (u < -tolerance || v < -tolerance || u + v > 1 + tolerance) {
+      return null;
+    }
+    return [1 - u - v, v, u];
+  }
+  _getModelViewProjectionMatrix(meshState, view, modelViewMatrix, modelViewProjectionMatrix) {
+    const modelMatrix = this._meshManager.getMeshWorldMatrix(meshState);
+    const viewMatrix = view.camera.viewMatrix;
+    const projMatrix = view.camera.projMatrix;
+    mulMat4(viewMatrix, modelMatrix, modelViewMatrix);
+    mulMat4(projMatrix, modelViewMatrix, modelViewProjectionMatrix);
+    return modelViewProjectionMatrix;
+  }
+  _projectVertex(modelViewProjectionMatrix, positions, positionOffset, view, canvasPos2) {
+    tempVertex2[0] = positions[positionOffset];
+    tempVertex2[1] = positions[positionOffset + 1];
+    tempVertex2[2] = positions[positionOffset + 2];
+    tempVertex2[3] = 1;
+    transformVec4(modelViewProjectionMatrix, tempVertex2, tempClip3);
+    const w2 = tempClip3[3];
+    if (w2 <= 0) {
+      return null;
+    }
+    const boundary = view.boundary ?? [0, 0, view.htmlElement?.clientWidth ?? 1, view.htmlElement?.clientHeight ?? 1];
+    const width = Math.max(1, boundary[2] || 1);
+    const height = Math.max(1, boundary[3] || 1);
+    const ndcX = tempClip3[0] / w2;
+    const ndcY = tempClip3[1] / w2;
+    canvasPos2[0] = (ndcX * 0.5 + 0.5) * width;
+    canvasPos2[1] = (0.5 - ndcY * 0.5) * height;
+    return tempClip3[2] / w2;
+  }
+  _getWorldPosition(meshState, localPos) {
+    tempVertex2[0] = localPos[0];
+    tempVertex2[1] = localPos[1];
+    tempVertex2[2] = localPos[2];
+    tempVertex2[3] = 1;
+    transformVec4(this._meshManager.getMeshWorldMatrix(meshState), tempVertex2, tempWorldHomogeneous2);
+    const w2 = tempWorldHomogeneous2[3] || 1;
+    tempWorldPos2[0] = tempWorldHomogeneous2[0] / w2;
+    tempWorldPos2[1] = tempWorldHomogeneous2[1] / w2;
+    tempWorldPos2[2] = tempWorldHomogeneous2[2] / w2;
+    return tempWorldPos2;
+  }
+  _closestSegmentT(point, a2, b4) {
+    const dx = b4[0] - a2[0];
+    const dy = b4[1] - a2[1];
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq <= 1e-12) {
+      return 0;
+    }
+    const t = ((point[0] - a2[0]) * dx + (point[1] - a2[1]) * dy) / lenSq;
+    return Math.max(0, Math.min(1, t));
+  }
+  _distanceSq(a2, b4) {
+    const dx = a2[0] - b4[0];
+    const dy = a2[1] - b4[1];
+    return dx * dx + dy * dy;
   }
 };
 
-// ../sdk/src/viewing/webGPURenderer/internal/WebGPUViewManager.ts
-var WebGPUViewManager = class {
+// ../sdk/src/viewing/webGPURenderer/internal/ViewManager.ts
+var ViewManager3 = class {
   _viewer = null;
   _alphaMode;
   _views = {};
   _renderContext = null;
   _geometryManager = null;
   _lightingManager = null;
-  _pipelineManager = null;
+  _bindGroupLayoutManager = null;
+  _rtcTileManager = null;
   _frameUniformManager = null;
   _instanceBufferManager = null;
   _meshManager = null;
   _renderManager = null;
   _pickManager = null;
   _snapManager = null;
+  _renderInspector = new RenderInspector4();
   /**
    * Initializes manager state and uploads existing supported scene meshes.
    */
   init(params) {
     this._viewer = params.viewer;
     this._alphaMode = params.alphaMode;
-    this._renderContext = new WebGPURenderContext({
+    this._renderContext = new RenderContext18({
       device: params.device,
-      contextFormat: params.contextFormat
+      contextFormat: params.contextFormat,
+      memoryConfigs: params.memoryConfigs,
+      renderConfigs: params.renderConfigs
     });
-    this._geometryManager = new WebGPUGeometryManager(this._renderContext);
-    this._lightingManager = new WebGPULightingManager();
-    this._pipelineManager = new WebGPUPipelineManager(this._renderContext);
-    this._frameUniformManager = new WebGPUFrameUniformManager({
+    this._geometryManager = new GeometryBufferManager();
+    this._lightingManager = new LightingManager();
+    this._bindGroupLayoutManager = new BindGroupLayoutManager(this._renderContext);
+    this._rtcTileManager = new RTCTileManager(this._renderContext);
+    this._frameUniformManager = new FrameUniformManager({
       renderContext: this._renderContext,
-      pipelineManager: this._pipelineManager,
-      lightingManager: this._lightingManager
+      bindGroupLayoutManager: this._bindGroupLayoutManager,
+      lightingManager: this._lightingManager,
+      rtcTileManager: this._rtcTileManager
     });
-    this._instanceBufferManager = new WebGPUInstanceBufferManager(this._renderContext);
-    this._meshManager = new WebGPUMeshManager({
+    this._instanceBufferManager = new InstanceBufferManager(this._renderContext);
+    this._meshManager = new MeshManager4({
       geometryManager: this._geometryManager
     });
-    this._snapManager = new WebGPUSnapManager();
-    this._pickManager = new WebGPUPickManager({
+    this._snapManager = new SnapManager2({
+      renderContext: this._renderContext,
+      meshManager: this._meshManager
+    });
+    this._pickManager = new PickManager3({
+      renderContext: this._renderContext,
+      meshManager: this._meshManager,
       snapManager: this._snapManager
     });
-    this._renderManager = new WebGPURenderManager({
+    this._renderManager = new RenderManager3({
       renderContext: this._renderContext,
-      pipelineManager: this._pipelineManager,
+      bindGroupLayoutManager: this._bindGroupLayoutManager,
       meshManager: this._meshManager,
+      rtcTileManager: this._rtcTileManager,
       frameUniformManager: this._frameUniformManager,
-      instanceBufferManager: this._instanceBufferManager
+      instanceBufferManager: this._instanceBufferManager,
+      renderInspector: this._renderInspector
     });
     const renderManagerResult = this._renderManager.init();
     if (renderManagerResult.ok === false) {
@@ -208305,10 +223645,7 @@ var WebGPUViewManager = class {
       return this._failInit(sceneResult);
     }
     for (const viewId in this._views) {
-      const result = this._renderView(this._views[viewId].view);
-      if (result.ok === false) {
-        return this._failInit(result);
-      }
+      this._views[viewId].view.needsRender();
     }
     return {
       ok: true,
@@ -208324,7 +223661,7 @@ var WebGPUViewManager = class {
     this._renderManager?.destroy();
     this._meshManager?.destroyAll();
     this._geometryManager?.destroyAll();
-    this._pipelineManager?.destroy();
+    this._bindGroupLayoutManager?.destroy();
     for (const viewId of Object.keys(this._views)) {
       this._views[viewId].destroy();
     }
@@ -208333,9 +223670,10 @@ var WebGPUViewManager = class {
     this._meshManager = null;
     this._instanceBufferManager = null;
     this._frameUniformManager = null;
+    this._rtcTileManager = null;
     this._pickManager = null;
     this._snapManager = null;
-    this._pipelineManager = null;
+    this._bindGroupLayoutManager = null;
     this._lightingManager = null;
     this._geometryManager = null;
     this._renderContext = null;
@@ -208345,11 +223683,7 @@ var WebGPUViewManager = class {
    * Registers and immediately renders a newly created View.
    */
   viewCreated(view) {
-    const result = this._createView(view);
-    if (result.ok === false) {
-      return result;
-    }
-    return this._renderView(view);
+    return this._createView(view);
   }
   /**
    * Renders a View that the Viewer marked dirty.
@@ -208364,13 +223698,13 @@ var WebGPUViewManager = class {
    * Releases state for a removed View.
    */
   viewDestroyed(view) {
-    const webgpuView = this._views[view.id];
-    if (!webgpuView) {
+    const viewRenderState = this._views[view.id];
+    if (!viewRenderState) {
       return;
     }
     this._renderManager?.viewDestroyed(view.id);
     this._meshManager?.viewDestroyed(view);
-    webgpuView.destroy();
+    viewRenderState.destroy();
     delete this._views[view.id];
   }
   /**
@@ -208401,6 +223735,17 @@ var WebGPUViewManager = class {
     }
     return result;
   }
+  sceneModelSealed(sceneModel) {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneModelSealed");
+    }
+    const result = meshManager.sceneModelSealed(sceneModel);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
   /**
    * Releases state for meshes from a destroyed SceneModel.
    */
@@ -208408,6 +223753,10 @@ var WebGPUViewManager = class {
     const meshManager = this._meshManager;
     if (!meshManager) {
       return this._notInitialized("sceneModelDestroyed");
+    }
+    const meshes = sceneModel.meshes;
+    for (const meshId in meshes) {
+      this._rtcTileManager?.releaseMesh(meshes[meshId].uniqueId);
     }
     const result = meshManager.sceneModelDestroyed(sceneModel);
     if (result.ok) {
@@ -208434,6 +223783,7 @@ var WebGPUViewManager = class {
     if (!meshManager) {
       return this._notInitialized("sceneMeshDestroyed");
     }
+    this._rtcTileManager?.releaseMesh(sceneMesh.uniqueId);
     const result = meshManager.sceneMeshDestroyed(sceneMesh);
     if (result.ok) {
       this._requestRenderAllViews();
@@ -208563,6 +223913,7 @@ var WebGPUViewManager = class {
     this._requestRenderAllViews();
   }
   sceneTextureImageDataChanged(sceneTexture) {
+    this._renderManager?.sceneTextureImageDataChanged(sceneTexture);
     this._requestRenderAllViews();
   }
   sceneTransformMatrixChanged(sceneTransform) {
@@ -208606,6 +223957,15 @@ var WebGPUViewManager = class {
   viewObjectSelectedChanged(viewObject) {
     this.viewObjectChanged(viewObject);
   }
+  sectionPlanesChanged(view) {
+    if (view.viewer !== this._viewer) {
+      return;
+    }
+    if (!this._views[view.id]) {
+      return;
+    }
+    view.needsRender();
+  }
   viewObjectColorizeChanged(viewObject) {
     this.viewObjectChanged(viewObject);
   }
@@ -208617,7 +223977,9 @@ var WebGPUViewManager = class {
   }
   cameraViewMatrixUpdated(camera) {
     this._meshManager?.cameraViewMatrixUpdated(camera);
-    camera.view.needsRender();
+  }
+  cameraProjMatrixUpdated(camera) {
+    this._meshManager?.cameraProjMatrixUpdated(camera);
   }
   /**
    * Performs renderer-backed picking for a View.
@@ -208627,7 +223989,7 @@ var WebGPUViewManager = class {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[WebGPUViewManager.pick] The specified View does not belong to the currently attached Viewer."
+        error: "[ViewManager.pick] The specified View does not belong to the currently attached Viewer."
       };
     }
     const pickManager = this._pickManager;
@@ -208635,6 +223997,63 @@ var WebGPUViewManager = class {
       return this._notInitialized("pick");
     }
     return pickManager.pick(view, pickParams);
+  }
+  async pickGPUAsync(view, pickParams) {
+    if (view.viewer !== this._viewer) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewManager.pickGPUAsync] The specified View does not belong to the currently attached Viewer."
+      };
+    }
+    const pickManager = this._pickManager;
+    if (!pickManager) {
+      return this._notInitialized("pickGPUAsync");
+    }
+    const renderManager = this._renderManager;
+    if (!renderManager) {
+      return this._notInitialized("pickGPUAsync");
+    }
+    const viewRenderState = this._views[view.id];
+    if (!viewRenderState) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[ViewManager.pickGPUAsync] View '${view.id}' is not registered with the renderer.`
+      };
+    }
+    return pickManager.pickGPUAsync(
+      view,
+      pickParams,
+      (pickBuffer, canvasPos2) => renderManager.pickMeshGPUAsync({
+        viewRenderState,
+        pickBuffer,
+        canvasPos: canvasPos2
+      }),
+      (snapBuffer, canvasPos2) => renderManager.snapVertexGPUAsync({
+        viewRenderState,
+        snapBuffer,
+        canvasPos: canvasPos2
+      }),
+      (snapBuffer, canvasPos2) => renderManager.snapEdgeGPUAsync({
+        viewRenderState,
+        snapBuffer,
+        canvasPos: canvasPos2
+      })
+    );
+  }
+  getRenderInspector() {
+    return this._renderInspector;
+  }
+  setInfiniteGridEnabled(enabled) {
+    if (!this._renderManager) {
+      return;
+    }
+    this._renderManager.infiniteGrid.enabled = enabled;
+    this._requestRenderAllViews();
+  }
+  getMemoryStats() {
+    return this._renderManager?.getMemoryStats() ?? null;
   }
   _failInit(result) {
     this.destroy();
@@ -208647,7 +224066,7 @@ var WebGPUViewManager = class {
         value: void 0
       };
     }
-    const result = WebGPUView.create(view, this._alphaMode);
+    const result = ViewRenderState4.create(view, this._alphaMode);
     if (result.ok === false) {
       return result;
     }
@@ -208698,22 +224117,22 @@ var WebGPUViewManager = class {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[WebGPUViewManager._renderView] The specified View does not belong to the currently attached Viewer."
+        error: "[ViewManager._renderView] The specified View does not belong to the currently attached Viewer."
       };
     }
-    const webgpuView = this._views[view.id];
-    if (!webgpuView) {
+    const viewRenderState = this._views[view.id];
+    if (!viewRenderState) {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: `[WebGPUViewManager._renderView] View '${view.id}' is not registered with the renderer.`
+        error: `[ViewManager._renderView] View '${view.id}' is not registered with the renderer.`
       };
     }
     const renderManager = this._renderManager;
     if (!renderManager) {
       return this._notInitialized("_renderView");
     }
-    return renderManager.renderView(webgpuView);
+    return renderManager.renderView(viewRenderState);
   }
   _requestRenderAllViews() {
     if (!this._viewer) {
@@ -208734,12 +224153,103 @@ var WebGPUViewManager = class {
     return {
       ok: false,
       type: 1 /* InvalidOperation */,
-      error: `[WebGPUViewManager.${method}] WebGPU view manager is not initialized.`
+      error: `[ViewManager.${method}] WebGPU view manager is not initialized.`
     };
   }
 };
 
+// ../sdk/src/viewing/webGPURenderer/createMemoryConfigs.ts
+function createMemoryConfigs2(params) {
+  const user = params.user ?? {};
+  const maxViews = user.maxViews ?? 1;
+  const preset = {
+    low: {
+      maxBatches: 64,
+      maxBatchVertices: 75e3,
+      maxBatchIndices: 225e3,
+      maxBatchGeometries: 2048,
+      maxBatchMeshes: 2048,
+      maxBatchPrims: 75e3,
+      maxBatchBuildTimeMs: 4,
+      maxBatchBuildSegments: -1
+    },
+    medium: {
+      maxBatches: 128,
+      maxBatchVertices: 15e4,
+      maxBatchIndices: 45e4,
+      maxBatchGeometries: 4096,
+      maxBatchMeshes: 4096,
+      maxBatchPrims: 15e4,
+      maxBatchBuildTimeMs: 6,
+      maxBatchBuildSegments: -1
+    },
+    high: {
+      maxBatches: 256,
+      maxBatchVertices: 3e5,
+      maxBatchIndices: 9e5,
+      maxBatchGeometries: 8192,
+      maxBatchMeshes: 8192,
+      maxBatchPrims: 3e5,
+      maxBatchBuildTimeMs: 10,
+      maxBatchBuildSegments: -1
+    }
+  }[params.device];
+  const clamp7 = (value, min, max) => Math.max(min, Math.min(value, max));
+  const usableBytes = Math.max(1, params.grossMemoryMB * 1024 * 1024 * params.utilization);
+  const bytesPerVertex = 16;
+  const bytesPerIndex = 4;
+  const maxVerticesByBudget = Math.floor(usableBytes * 0.2 / bytesPerVertex);
+  const maxIndicesByBudget = Math.floor(usableBytes * 0.2 / bytesPerIndex);
+  const maxBatchVertices = user.maxBatchVertices ?? clamp7(
+    Math.min(preset.maxBatchVertices, maxVerticesByBudget),
+    1e4,
+    1e6
+  );
+  const maxBatchIndices = user.maxBatchIndices ?? clamp7(
+    Math.min(preset.maxBatchIndices, maxIndicesByBudget),
+    3e4,
+    3e6
+  );
+  const maxBatchPrims = user.maxBatchPrims ?? clamp7(
+    Math.min(preset.maxBatchPrims, Math.floor(maxBatchIndices / 3)),
+    1e4,
+    1e6
+  );
+  const maxBatchGeometries = user.maxBatchGeometries ?? preset.maxBatchGeometries;
+  const maxBatchMeshes = user.maxBatchMeshes ?? Math.min(preset.maxBatchMeshes, maxBatchGeometries);
+  return {
+    maxViews,
+    tileSize: user.tileSize ?? 200,
+    maxTiles: user.maxTiles ?? 4096,
+    maxBatches: user.maxBatches ?? preset.maxBatches,
+    maxBatchVertices,
+    maxBatchIndices,
+    maxBatchGeometries,
+    maxBatchMeshes,
+    maxBatchPrims,
+    maxBatchBuildTimeMs: user.maxBatchBuildTimeMs ?? preset.maxBatchBuildTimeMs,
+    maxBatchBuildSegments: user.maxBatchBuildSegments ?? preset.maxBatchBuildSegments,
+    frustumCulling: user.frustumCulling ?? false,
+    minProjectedCanvasSize: user.minProjectedCanvasSize ?? 0,
+    compactSealedStreamPages: user.compactSealedStreamPages ?? true,
+    compactStreamPages: user.compactStreamPages ?? false
+  };
+}
+
+// ../sdk/src/viewing/webGPURenderer/createWebGPURenderConfigs.ts
+function createWebGPURenderConfigs(user = {}) {
+  return {
+    depthPrepass: user.depthPrepass ?? true,
+    logDepth: user.logDepth ?? false,
+    edges: user.edges ?? true,
+    triangleColorMode: user.triangleColorMode ?? "pbr",
+    gpuTimestamps: user.gpuTimestamps ?? false,
+    transparentSortStrategy: user.transparentSortStrategy ?? "segment"
+  };
+}
+
 // ../sdk/src/viewing/webGPURenderer/core/WebGPURenderer.ts
+var WEBGPU_MULTI_DRAW_INDIRECT_FEATURE = "chromium-experimental-multi-draw-indirect";
 var WebGPURenderer = class _WebGPURenderer {
   _viewer = null;
   _viewerSubs = [];
@@ -208752,6 +224262,8 @@ var WebGPURenderer = class _WebGPURenderer {
   _contextFormat;
   _alphaMode;
   _destroyDeviceOnDestroy;
+  _memoryConfigs;
+  _renderConfigs;
   _renderSuspendCount = 0;
   _deferredSceneModelRegistrations = /* @__PURE__ */ new Map();
   /**
@@ -208783,6 +224295,13 @@ var WebGPURenderer = class _WebGPURenderer {
     this._contextFormat = params.contextFormat ?? _WebGPURenderer._getPreferredCanvasFormat();
     this._alphaMode = params.alphaMode;
     this._destroyDeviceOnDestroy = params.destroyDeviceOnDestroy ?? false;
+    this._memoryConfigs = createMemoryConfigs2({
+      grossMemoryMB: 512,
+      device: "medium",
+      utilization: 0.5,
+      user: params.memoryConfigs
+    });
+    this._renderConfigs = createWebGPURenderConfigs(params.renderConfigs);
     this._watchDeviceLost();
     if (params.viewer) {
       this.attachViewer(params.viewer);
@@ -208813,7 +224332,11 @@ var WebGPURenderer = class _WebGPURenderer {
             error: "[WebGPURenderer.create] WebGPU is not available in this runtime."
           };
         }
-        device = await adapter.requestDevice(params.deviceDescriptor);
+        device = await adapter.requestDevice(_WebGPURenderer._createDeviceDescriptor({
+          descriptor: params.deviceDescriptor,
+          adapter,
+          gpuTimestamps: params.renderConfigs?.gpuTimestamps === true
+        }));
         contextFormat = contextFormat ?? gpu?.getPreferredCanvasFormat?.();
       } else {
         ownsDevice = false;
@@ -208982,11 +224505,12 @@ var WebGPURenderer = class _WebGPURenderer {
   /**
    * Performs a renderer-backed pick in a View.
    *
-   * Picking is not implemented until the WebGPU rendering pipeline exists.
+   * Supports triangle mesh object picking, surface hit details, and first-pass
+   * vertex/edge snapping using renderer-side decoded triangle data.
    *
    * @param view - View whose canvas coordinates are being picked.
    * @param pickParams - Picking options and canvas coordinates.
-   * @returns An SDK error result.
+   * @returns The picked result, `null` when nothing was hit, or an SDK error result.
    */
   pick(view, pickParams) {
     if (!this._viewManager) {
@@ -209002,6 +224526,99 @@ var WebGPURenderer = class _WebGPURenderer {
       );
     }
     return this._viewManager.pick(view, pickParams);
+  }
+  /**
+   * Performs the WebGPU object-ID pick pass and resolves the hit asynchronously.
+   *
+   * This is an internal bridge while the public renderer pick API remains
+   * synchronous. Surface details are still resolved from decoded mesh data after
+   * the GPU pass selects the front-most mesh.
+   *
+   * @internal
+   */
+  async pickGPUAsync(view, pickParams) {
+    if (!this._viewManager) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.pickGPUAsync] Viewer with Scene is not currently attached."
+      );
+    }
+    if (view.viewer !== this._viewer) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.pickGPUAsync] The specified View does not belong to the currently attached Viewer."
+      );
+    }
+    return this._viewManager.pickGPUAsync(view, pickParams);
+  }
+  /**
+   * Gets the lightweight WebGPU render inspector.
+   *
+   * Enable the returned inspector to collect per-frame draw-call and CPU timing
+   * stats for the current WebGPU render path.
+   */
+  getRenderInspector() {
+    if (!this._viewManager) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.getRenderInspector] Viewer with Scene is not currently attached."
+      );
+    }
+    return {
+      ok: true,
+      value: this._viewManager.getRenderInspector()
+    };
+  }
+  /**
+   * Enables or disables the renderer-owned infinite ground grid.
+   *
+   * Disabled by default for bare renderer use. Studio enables it during
+   * initialization for its default scene reference plane.
+   */
+  setInfiniteGridEnabled(enabled) {
+    if (!this._viewManager) {
+      return this._error(
+        1 /* InvalidOperation */,
+        "[WebGPURenderer.setInfiniteGridEnabled] Failed to set infinite grid visibility - no Viewer with Scene is currently attached."
+      );
+    }
+    this._viewManager.setInfiniteGridEnabled(enabled);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Gets summary stats for the last rendered frame of a View.
+   */
+  getViewRenderStats(viewIndex) {
+    const inspector = this._viewManager?.getRenderInspector();
+    const stats = inspector?.renderStats.views?.[viewIndex];
+    if (!stats) {
+      return null;
+    }
+    return {
+      numDrawCalls: stats.numDrawCalls,
+      numPrimitives: stats.numPrims,
+      numBatches: stats.numBatches,
+      renderBins: stats.renderBins.map((bin) => ({
+        name: bin.name,
+        numDrawCalls: bin.drawCalls.length,
+        numPrimitives: bin.drawCalls.reduce((sum, drawCall) => sum + drawCall.numPrims, 0)
+      })),
+      numRTCTiles: stats.numRTCTiles,
+      numRTCTileMatrixUploads: stats.numRTCTileMatrixUploads,
+      numMeshesWithRTCTile: stats.numMeshesWithRTCTile,
+      numMeshesUsingRTCFallback: stats.numMeshesUsingRTCFallback,
+      frameTimeMs: stats.timeMs.duration,
+      cpuTime: stats.cpuTime
+    };
+  }
+  /**
+   * Gets a compact summary of GPU memory owned by the WebGPU renderer.
+   */
+  getMemoryStats() {
+    return this._viewManager?.getMemoryStats() ?? null;
   }
   /**
    * Captures the current contents of a View as an image data URL.
@@ -209057,7 +224674,7 @@ var WebGPURenderer = class _WebGPURenderer {
   }
   _deferSceneGeometryCreated(sceneGeometry) {
     const sceneModel = sceneGeometry.model;
-    if (!sceneModel?.building) {
+    if (!sceneModel || !sceneModel.building && !sceneModel.activeBatch?.includesGeometry(sceneGeometry)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
@@ -209065,7 +224682,7 @@ var WebGPURenderer = class _WebGPURenderer {
   }
   _deferSceneMeshCreated(sceneMesh) {
     const sceneModel = sceneMesh.model;
-    if (!sceneModel?.building) {
+    if (!sceneModel || !sceneModel.building && !sceneModel.activeBatch?.includesMesh(sceneMesh)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
@@ -209073,7 +224690,7 @@ var WebGPURenderer = class _WebGPURenderer {
   }
   _deferSceneObjectCreated(sceneObject) {
     const sceneModel = sceneObject.model;
-    if (!sceneModel?.building) {
+    if (!sceneModel || !sceneModel.building && !sceneModel.activeBatch?.includesObject(sceneObject)) {
       return false;
     }
     this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
@@ -209088,23 +224705,35 @@ var WebGPURenderer = class _WebGPURenderer {
   _discardDeferredSceneObject(sceneObject) {
     return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
   }
-  _flushDeferredSceneModelRegistrations(sceneModel, viewManager) {
+  _flushDeferredSceneModelRegistrations(sceneModel, viewManager, batch) {
     const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
-    if (!registrations) {
+    if (!registrations && !batch) {
       return;
     }
     this._deferredSceneModelRegistrations.delete(sceneModel);
-    for (const sceneGeometry of registrations.geometries) {
+    const geometries = /* @__PURE__ */ new Set([
+      ...registrations?.geometries ?? [],
+      ...batch?.geometries ?? []
+    ]);
+    for (const sceneGeometry of geometries) {
       if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
         this._logError(viewManager.sceneGeometryCreated(sceneGeometry));
       }
     }
-    for (const sceneMesh of registrations.meshes) {
+    const meshes = /* @__PURE__ */ new Set([
+      ...registrations?.meshes ?? [],
+      ...batch?.meshes ?? []
+    ]);
+    for (const sceneMesh of meshes) {
       if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
         this._logError(viewManager.sceneMeshCreated(sceneMesh));
       }
     }
-    for (const sceneObject of registrations.objects) {
+    const objects = /* @__PURE__ */ new Set([
+      ...registrations?.objects ?? [],
+      ...batch?.objects ?? []
+    ]);
+    for (const sceneObject of objects) {
       if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
         this._logError(viewManager.sceneObjectCreated(sceneObject));
       }
@@ -209137,19 +224766,23 @@ var WebGPURenderer = class _WebGPURenderer {
         error: "[WebGPURenderer._createViewManager] WebGPU device has been lost."
       };
     }
-    const viewManager = new WebGPUViewManager();
+    const viewManager = new ViewManager3();
+    this._viewManager = viewManager;
+    this._subscribeViewManager(viewManager);
     const result = viewManager.init({
       viewer: this._viewer,
       device: this._device,
       contextFormat: this._contextFormat,
-      alphaMode: this._alphaMode
+      alphaMode: this._alphaMode,
+      memoryConfigs: this._memoryConfigs,
+      renderConfigs: this._renderConfigs
     });
     if (result.ok === false) {
+      this._unsubscribeViewManager();
+      this._viewManager = null;
       viewManager.destroy();
       return result;
     }
-    this._viewManager = viewManager;
-    this._subscribeViewManager(viewManager);
     return {
       ok: true,
       value: void 0
@@ -209167,7 +224800,7 @@ var WebGPURenderer = class _WebGPURenderer {
         }
         const result = viewManager.viewCreated(view);
         if (this._logError(result).ok) {
-          this.events.onViewRendered.dispatch(this, view);
+          view.needsRender();
         }
       }),
       viewerEvents.onViewUpdated.subscribe((_view, view) => {
@@ -209246,6 +224879,38 @@ var WebGPURenderer = class _WebGPURenderer {
         if (this._viewManager === viewManager) {
           viewManager.cameraViewMatrixUpdated(camera);
         }
+      }),
+      ...viewerEvents.onCameraProjMatrixUpdated ? [
+        viewerEvents.onCameraProjMatrixUpdated.subscribe((_view, camera) => {
+          if (this._viewManager === viewManager) {
+            viewManager.cameraProjMatrixUpdated(camera);
+          }
+        })
+      ] : [],
+      viewerEvents.onSectionPlaneCreated.subscribe((view) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(view);
+        }
+      }),
+      viewerEvents.onSectionPlaneDestroyed.subscribe((view) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(view);
+        }
+      }),
+      viewerEvents.onSectionPlanePosChanged.subscribe((sectionPlane) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(sectionPlane.view);
+        }
+      }),
+      viewerEvents.onSectionPlaneDirChanged.subscribe((sectionPlane) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(sectionPlane.view);
+        }
+      }),
+      viewerEvents.onSectionPlaneActive.subscribe((sectionPlane) => {
+        if (this._viewManager === viewManager) {
+          viewManager.sectionPlanesChanged(sectionPlane.view);
+        }
       })
     ];
     const sceneEvents = this._viewer.scene?.events;
@@ -209256,6 +224921,11 @@ var WebGPURenderer = class _WebGPURenderer {
       sceneEvents.onSceneModelCreated.subscribe((_scene, sceneModel) => {
         if (this._viewManager === viewManager) {
           this._logError(viewManager.sceneModelCreated(sceneModel));
+        }
+      }),
+      sceneEvents.onSceneModelSealed.subscribe((_scene, sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._logError(viewManager.sceneModelSealed(sceneModel));
         }
       }),
       sceneEvents.onSceneModelDestroyed.subscribe((_scene, sceneModel) => {
@@ -209282,6 +224952,38 @@ var WebGPURenderer = class _WebGPURenderer {
           const views = this._viewer.viewList;
           for (let i = 0, len = views.length; i < len; i++) {
             views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneModelBatchStarted.subscribe((sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._renderSuspendCount++;
+          this._getDeferredSceneModelRegistrations(sceneModel);
+        }
+      }),
+      sceneEvents.onSceneModelBatchCommitted.subscribe((sceneModel, batch) => {
+        if (this._viewManager !== viewManager) {
+          return;
+        }
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (sceneModel.building) {
+          return;
+        }
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager, batch);
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
+      sceneEvents.onSceneModelBatchRolledBack.subscribe((sceneModel) => {
+        if (this._viewManager === viewManager) {
+          this._deferredSceneModelRegistrations.delete(sceneModel);
+          if (this._renderSuspendCount > 0) {
+            this._renderSuspendCount--;
           }
         }
       }),
@@ -209387,10 +225089,7 @@ var WebGPURenderer = class _WebGPURenderer {
     if (!viewManager) {
       return;
     }
-    for (const sub4 of this._viewManagerSubs) {
-      sub4();
-    }
-    this._viewManagerSubs = [];
+    this._unsubscribeViewManager();
     viewManager.destroy();
     this._viewManager = null;
     this._renderSuspendCount = 0;
@@ -209398,6 +225097,31 @@ var WebGPURenderer = class _WebGPURenderer {
     if (emitEvent) {
       this.events.onRendererStopped.dispatch(this);
     }
+  }
+  _unsubscribeViewManager() {
+    for (const sub4 of this._viewManagerSubs) {
+      sub4();
+    }
+    this._viewManagerSubs = [];
+  }
+  static _createDeviceDescriptor(params) {
+    const timestampQuerySupported = params.gpuTimestamps && params.adapter.features?.has?.("timestamp-query");
+    const multiDrawIndirectSupported = params.adapter.features?.has?.(WEBGPU_MULTI_DRAW_INDIRECT_FEATURE);
+    if (!timestampQuerySupported && !multiDrawIndirectSupported) {
+      return params.descriptor;
+    }
+    const descriptor = {
+      ...params.descriptor ?? {}
+    };
+    const requiredFeatures = new Set(descriptor.requiredFeatures ?? []);
+    if (timestampQuerySupported) {
+      requiredFeatures.add("timestamp-query");
+    }
+    if (multiDrawIndirectSupported) {
+      requiredFeatures.add(WEBGPU_MULTI_DRAW_INDIRECT_FEATURE);
+    }
+    descriptor.requiredFeatures = Array.from(requiredFeatures);
+    return descriptor;
   }
   _watchDeviceLost() {
     const lost = this._device?.lost;
@@ -209807,7 +225531,7 @@ var WalkNavigationController = class {
     }
     const camera = this.view.camera;
     const basis = cameraBasis(camera.eye, camera.look, up);
-    const pitch = clamp2(basis.pitch + pitchDelta, -this.#maxPitchRadians, this.#maxPitchRadians);
+    const pitch = clamp3(basis.pitch + pitchDelta, -this.#maxPitchRadians, this.#maxPitchRadians);
     const flatForward = normalize2(rotateAroundAxis(basis.flatForward, up, yaw));
     const direction = normalize2(add(mul(flatForward, Math.cos(pitch)), mul(up, Math.sin(pitch))));
     const lookDistance = Math.max(distance(camera.eye, camera.look), MIN_LOOK_DISTANCE);
@@ -209930,7 +225654,7 @@ function cameraBasis(eye, look, up) {
     flatForward = normalize2(flatForward);
   }
   const right = normalize2(cross4(flatForward, up));
-  const pitch = Math.asin(clamp2(dot4(direction, up), -1, 1));
+  const pitch = Math.asin(clamp3(dot4(direction, up), -1, 1));
   return { direction, flatForward, right, pitch };
 }
 function pressed(keysDown, keys) {
@@ -209947,7 +225671,7 @@ function keyCode(event) {
 function degreesToRadians(degrees) {
   return degrees * Math.PI / 180;
 }
-function clamp2(value, min, max) {
+function clamp3(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 function add(a2, b4) {
@@ -210143,7 +225867,7 @@ var VehicleNavigationController = class {
     this.#brakeDeceleration = Math.max(0, params.brakeDeceleration ?? DEFAULT_BRAKE_DECELERATION);
     this.#coastDeceleration = Math.max(0, params.coastDeceleration ?? DEFAULT_COAST_DECELERATION);
     this.#turnRateRadiansPerSecond = degreesToRadians2(params.turnRateDegreesPerSecond ?? DEFAULT_TURN_RATE_DEGREES_PER_SECOND);
-    this.#keySteerInitialScale = clamp3(params.keySteerInitialScale ?? DEFAULT_KEY_STEER_INITIAL_SCALE, 0, 1);
+    this.#keySteerInitialScale = clamp4(params.keySteerInitialScale ?? DEFAULT_KEY_STEER_INITIAL_SCALE, 0, 1);
     this.#keySteerRampSeconds = Math.max(1e-3, params.keySteerRampSeconds ?? DEFAULT_KEY_STEER_RAMP_SECONDS);
     this.#leanRadians = degreesToRadians2(params.leanDegrees ?? DEFAULT_LEAN_DEGREES);
     this.#leanSmoothing = Math.max(0, params.leanSmoothing ?? DEFAULT_LEAN_SMOOTHING);
@@ -210250,7 +225974,7 @@ var VehicleNavigationController = class {
    * Current signed speed in world-space units per second.
    */
   set speed(speed) {
-    this.#speed = clamp3(speed, -this.#maxReverseSpeed, this.#maxForwardSpeed);
+    this.#speed = clamp4(speed, -this.#maxReverseSpeed, this.#maxForwardSpeed);
   }
   get speed() {
     return this.#speed;
@@ -210526,9 +226250,9 @@ var VehicleNavigationController = class {
     this.#mouseDragPitchInput = lerpNumber(this.#mouseDragPitchInput, rawDragPitchInput, dragT);
     const currentTravelSpeed = this.#flying ? length3(this.#flightVelocity) : Math.abs(this.#speed);
     const speedRatio = this.#maxForwardSpeed > 0 ? Math.min(currentTravelSpeed / this.#maxForwardSpeed, 1) : 0;
-    const yawControl = clamp3(steering + this.#mouseDragYawInput, -1, 1);
+    const yawControl = clamp4(steering + this.#mouseDragYawInput, -1, 1);
     const controlTurnScaleFloor = Math.abs(yawControl) > 1e-4 ? Math.max(this.#keySteerInitialScale, 0.55) : 0;
-    const turnSpeedScale = Math.max(controlTurnScaleFloor, clamp3(speedRatio * 1.4, 0, 1));
+    const turnSpeedScale = Math.max(controlTurnScaleFloor, clamp4(speedRatio * 1.4, 0, 1));
     const directionSign = this.#flying ? dot5(this.#flightVelocity, basis.flatForward) < 0 ? -1 : 1 : this.#speed < 0 ? -1 : 1;
     const yaw = -yawControl * this.#turnRateRadiansPerSecond * elapsedSeconds * turnSpeedScale * directionSign;
     const flatForward = normalize4(rotateAroundAxis2(basis.flatForward, up, yaw));
@@ -210580,7 +226304,7 @@ var VehicleNavigationController = class {
     } else {
       this.#speed = moveTowards(this.#speed, 0, this.#coastDeceleration * elapsedSeconds);
     }
-    this.#speed = clamp3(this.#speed, -this.#maxReverseSpeed, this.#maxForwardSpeed);
+    this.#speed = clamp4(this.#speed, -this.#maxReverseSpeed, this.#maxForwardSpeed);
   }
   #steeringInput(elapsedSeconds) {
     const keyInput = pressed2(this.#keysDown, RIGHT_KEYS2) - pressed2(this.#keysDown, LEFT_KEYS2);
@@ -210595,7 +226319,7 @@ var VehicleNavigationController = class {
       this.#keySteerDirection = direction;
     }
     this.#keySteerHoldSeconds += elapsedSeconds;
-    const t = clamp3(this.#keySteerHoldSeconds / this.#keySteerRampSeconds, 0, 1);
+    const t = clamp4(this.#keySteerHoldSeconds / this.#keySteerRampSeconds, 0, 1);
     const easedT = t * t * (3 - 2 * t);
     return keyInput * (this.#keySteerInitialScale + (1 - this.#keySteerInitialScale) * easedT);
   }
@@ -210613,20 +226337,20 @@ var VehicleNavigationController = class {
     if (this.#flying) {
       const keyPitch = pressed2(this.#keysDown, PITCH_UP_KEYS) - pressed2(this.#keysDown, PITCH_DOWN_KEYS);
       if (keyPitch !== 0 || dragPitchDelta !== 0) {
-        return clamp3(currentPitch + keyPitch * this.#flightPitchRateRadiansPerSecond * elapsedSeconds + dragPitchDelta, -pitchLimit, pitchLimit);
+        return clamp4(currentPitch + keyPitch * this.#flightPitchRateRadiansPerSecond * elapsedSeconds + dragPitchDelta, -pitchLimit, pitchLimit);
       }
-      return clamp3(currentPitch, -pitchLimit, pitchLimit);
+      return clamp4(currentPitch, -pitchLimit, pitchLimit);
     }
     if (dragPitchDelta !== 0) {
-      return clamp3(currentPitch + dragPitchDelta, -pitchLimit, pitchLimit);
+      return clamp4(currentPitch + dragPitchDelta, -pitchLimit, pitchLimit);
     }
-    return clamp3(currentPitch, -pitchLimit, pitchLimit);
+    return clamp4(currentPitch, -pitchLimit, pitchLimit);
   }
   #mouseDragYawTargetInput() {
-    return clamp3(this.#relativeYawInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
+    return clamp4(this.#relativeYawInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
   }
   #mouseDragPitchTargetInput() {
-    return clamp3(this.#relativePitchInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
+    return clamp4(this.#relativePitchInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
   }
   #move(move, viewDirection, up, steering, turnSpeedScale, elapsedSeconds) {
     const camera = this.view.camera;
@@ -210659,7 +226383,7 @@ var VehicleNavigationController = class {
     const newEye2 = add2(ground, mul2(up, this.#cameraHeight));
     const lookDistance = Math.max(distance2(camera.eye, camera.look), MIN_LOOK_DISTANCE2);
     const desiredLean = steering * this.#leanRadians * turnSpeedScale;
-    const leanT = clamp3(this.#leanSmoothing * elapsedSeconds, 0, 1);
+    const leanT = clamp4(this.#leanSmoothing * elapsedSeconds, 0, 1);
     this.#currentLean += (desiredLean - this.#currentLean) * leanT;
     const rollAxis = flatDirection(viewDirection, up);
     camera.eye = newEye2;
@@ -210693,7 +226417,7 @@ var VehicleNavigationController = class {
   }
   #landFromFlight(viewDirection, up) {
     const groundForward = flatDirection(viewDirection, up);
-    this.#speed = clamp3(dot5(this.#flightVelocity, groundForward), -this.#maxReverseSpeed, this.#maxForwardSpeed);
+    this.#speed = clamp4(dot5(this.#flightVelocity, groundForward), -this.#maxReverseSpeed, this.#maxForwardSpeed);
     this.#flightVelocity = [0, 0, 0];
     this.#flying = false;
     this.#landingAfterFlight = false;
@@ -210738,7 +226462,7 @@ var VehicleNavigationController = class {
       desiredVelocity = add2(mul2(flatDirection(direction, up), horizontalSpeed), verticalVelocity);
     }
     const response = 1 - Math.exp(-this.#flightSteeringResponse * elapsedSeconds);
-    return lerp(velocity, desiredVelocity, clamp3(response, 0, 1));
+    return lerp(velocity, desiredVelocity, clamp4(response, 0, 1));
   }
   #effectiveMinGlideSpeed() {
     if (this.#maxForwardSpeed === 0) {
@@ -210833,7 +226557,7 @@ function cameraBasis2(eye, look, up) {
   const direction = normalize4(sub2(look, eye));
   const flatForward = flatDirection(direction, up);
   const right = normalize4(cross5(flatForward, up));
-  const pitch = Math.asin(clamp3(dot5(direction, up), -1, 1));
+  const pitch = Math.asin(clamp4(dot5(direction, up), -1, 1));
   return { direction, flatForward, right, pitch };
 }
 function flatDirection(direction, up) {
@@ -210877,7 +226601,7 @@ function lerp(a2, b4, t) {
   ];
 }
 function lerpNumber(a2, b4, t) {
-  const clampedT = clamp3(t, 0, 1);
+  const clampedT = clamp4(t, 0, 1);
   return a2 + (b4 - a2) * clampedT;
 }
 function degreesToRadians2(degrees) {
@@ -210886,7 +226610,7 @@ function degreesToRadians2(degrees) {
 function radiansToDegrees(radians) {
   return radians * 180 / Math.PI;
 }
-function clamp3(value, min, max) {
+function clamp4(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 function add2(a2, b4) {
@@ -212031,10 +227755,10 @@ var extractSpacesFromGeometry = {
       const height = aabb[upAxis + 3] - aabb[upAxis];
       if (height < WALL_HEIGHT_MIN)
         continue;
-      const ix0 = clamp4(Math.floor((aabb[widthAxis] - sceneAabb[widthAxis]) / cellSize), 0, gw);
-      const ix1 = clamp4(Math.ceil((aabb[widthAxis + 3] - sceneAabb[widthAxis]) / cellSize), 0, gw);
-      const iz0 = clamp4(Math.floor((aabb[depthAxis] - sceneAabb[depthAxis]) / cellSize), 0, gd);
-      const iz1 = clamp4(Math.ceil((aabb[depthAxis + 3] - sceneAabb[depthAxis]) / cellSize), 0, gd);
+      const ix0 = clamp5(Math.floor((aabb[widthAxis] - sceneAabb[widthAxis]) / cellSize), 0, gw);
+      const ix1 = clamp5(Math.ceil((aabb[widthAxis + 3] - sceneAabb[widthAxis]) / cellSize), 0, gw);
+      const iz0 = clamp5(Math.floor((aabb[depthAxis] - sceneAabb[depthAxis]) / cellSize), 0, gd);
+      const iz1 = clamp5(Math.ceil((aabb[depthAxis + 3] - sceneAabb[depthAxis]) / cellSize), 0, gd);
       for (let z = iz0; z < iz1; z++) {
         const row = z * gw;
         for (let x = ix0; x < ix1; x++) {
@@ -212154,7 +227878,7 @@ var extractSpacesFromGeometry = {
 function emptyGraph() {
   return { nodes: [], edges: [], nodesById: /* @__PURE__ */ new Map() };
 }
-function clamp4(v, lo, hi) {
+function clamp5(v, lo, hi) {
   if (v < lo)
     return lo;
   if (v > hi)
@@ -214533,7 +230257,7 @@ function resolveBasis(direction, worldUp) {
   if (typeof direction === "string") {
     return FACE_BASES[direction];
   }
-  const f = normalize32(direction.forward);
+  const f = normalize33(direction.forward);
   let up = direction.up ?? worldUp ?? [0, 0, 1];
   let proj = up[0] * f[0] + up[1] * f[1] + up[2] * f[2];
   if (Math.abs(proj) > 0.9995) {
@@ -214546,7 +230270,7 @@ function resolveBasis(direction, worldUp) {
     up[1] - f[1] * proj,
     up[2] - f[2] * proj
   ];
-  const uN = normalize32(upPerp);
+  const uN = normalize33(upPerp);
   const r = [
     f[1] * uN[2] - f[2] * uN[1],
     f[2] * uN[0] - f[0] * uN[2],
@@ -214562,7 +230286,7 @@ var FACE_BASES = {
   left: { right: [0, 0, 1], up: [0, 1, 0], forward: [1, 0, 0] },
   right: { right: [0, 0, -1], up: [0, 1, 0], forward: [-1, 0, 0] }
 };
-function normalize32(v) {
+function normalize33(v) {
   const len = Math.hypot(v[0], v[1], v[2]) || 1;
   return [v[0] / len, v[1] / len, v[2] / len];
 }
@@ -215103,6 +230827,62 @@ __export(heatmaps_exports, {
   applyHeatMapMaterials: () => applyHeatMapMaterials,
   paintHeatMapPoint: () => paintHeatMapPoint
 });
+
+// ../sdk/src/model/scene/generateSmoothNormals.ts
+function generateSmoothNormals(positions, indices) {
+  const vertCount = positions.length / 3 | 0;
+  const triCount = indices.length / 3 | 0;
+  if (vertCount === 0 || triCount === 0 || indices.length % 3 !== 0) {
+    return null;
+  }
+  const acc = new Float32Array(vertCount * 3);
+  for (let t = 0; t < triCount; t++) {
+    const i0 = indices[t * 3];
+    const i1 = indices[t * 3 + 1];
+    const i2 = indices[t * 3 + 2];
+    const ax = positions[i0 * 3];
+    const ay = positions[i0 * 3 + 1];
+    const az = positions[i0 * 3 + 2];
+    const ex1 = positions[i1 * 3] - ax;
+    const ey1 = positions[i1 * 3 + 1] - ay;
+    const ez1 = positions[i1 * 3 + 2] - az;
+    const ex2 = positions[i2 * 3] - ax;
+    const ey2 = positions[i2 * 3 + 1] - ay;
+    const ez2 = positions[i2 * 3 + 2] - az;
+    const nx = ey1 * ez2 - ez1 * ey2;
+    const ny = ez1 * ex2 - ex1 * ez2;
+    const nz = ex1 * ey2 - ey1 * ex2;
+    acc[i0 * 3] += nx;
+    acc[i0 * 3 + 1] += ny;
+    acc[i0 * 3 + 2] += nz;
+    acc[i1 * 3] += nx;
+    acc[i1 * 3 + 1] += ny;
+    acc[i1 * 3 + 2] += nz;
+    acc[i2 * 3] += nx;
+    acc[i2 * 3 + 1] += ny;
+    acc[i2 * 3 + 2] += nz;
+  }
+  let anyNonZero = false;
+  for (let i = 0; i < vertCount; i++) {
+    const x = acc[i * 3], y = acc[i * 3 + 1], z = acc[i * 3 + 2];
+    const lenSq = x * x + y * y + z * z;
+    if (lenSq > 0) {
+      anyNonZero = true;
+      const inv = 1 / Math.sqrt(lenSq);
+      acc[i * 3] = x * inv;
+      acc[i * 3 + 1] = y * inv;
+      acc[i * 3 + 2] = z * inv;
+    } else {
+      acc[i * 3] = 0;
+      acc[i * 3 + 1] = 1;
+      acc[i * 3 + 2] = 0;
+    }
+  }
+  if (!anyNonZero) {
+    return null;
+  }
+  return octEncodeNormalsToU16(acc);
+}
 
 // ../sdk/src/model/scene/ensureGeometryAttribs.ts
 function ensureGeometryAttribs(sceneModel, sourceId, options = {}) {
@@ -215760,6 +231540,8 @@ var MaterialsPalette = class {
       colorTextureId: cTex,
       normalsTextureId: nTex,
       metallicRoughnessTextureId: mTex,
+      roughness: 1,
+      metallic: 1,
       // Forward the palette's `uvScale` as the material's
       // `triplanarScale`. Geometry coming in without UVs (most BIM,
       // sweeps, lofted curve meshes) routes through the renderer's
@@ -215856,10 +231638,10 @@ var ScheduleTask = class {
    * Compares against `[startMs, endMs)` — i.e. a task that ends at
    * exactly `now` is reported as `Complete`, not `InProgress`.
    */
-  statusAt(nowMs3) {
-    if (nowMs3 < this.startMs)
+  statusAt(nowMs6) {
+    if (nowMs6 < this.startMs)
       return "pending" /* Pending */;
-    if (nowMs3 >= this.endMs)
+    if (nowMs6 >= this.endMs)
       return "complete" /* Complete */;
     return "inProgress" /* InProgress */;
   }
@@ -215915,10 +231697,10 @@ var Schedule = class {
    * Linear scan over `tasksList` — fine for the few-hundred-task
    * schedules typical of construction projects.
    */
-  getTasksAt(nowMs3) {
+  getTasksAt(nowMs6) {
     const out = [];
     for (const t of this.tasksList) {
-      if (nowMs3 >= t.startMs && nowMs3 < t.endMs)
+      if (nowMs6 >= t.startMs && nowMs6 < t.endMs)
         out.push(t);
     }
     return out;
@@ -216211,13 +231993,13 @@ var SchedulePlayer = class {
    *  re-fires for milestones the cursor backed up past (`prev > now`).
    *  The `_crossedMilestoneIds` set guards against re-firing the same
    *  milestone on every tick during a long-running forward play. */
-  _fireMilestonesBetween(prevMs, nowMs3) {
+  _fireMilestonesBetween(prevMs, nowMs6) {
     for (const m of this.schedule.milestones) {
-      const crossed = prevMs < m.startMs && nowMs3 >= m.startMs;
+      const crossed = prevMs < m.startMs && nowMs6 >= m.startMs;
       if (crossed && !this._crossedMilestoneIds.has(m.id)) {
         this._crossedMilestoneIds.add(m.id);
         this.onMilestone.dispatch(this, m);
-      } else if (nowMs3 < m.startMs) {
+      } else if (nowMs6 < m.startMs) {
         this._crossedMilestoneIds.delete(m.id);
       }
     }
@@ -216857,7 +232639,7 @@ var SunStudy = class _SunStudy {
     this._driveSky = params.driveSky !== false;
     this._driveSkyPalette = params.driveSkyPalette !== false;
     this._driveExposure = params.driveExposure !== false;
-    this._nightExposureFactor = clamp015(params.nightExposureFactor ?? 0.15);
+    this._nightExposureFactor = clamp016(params.nightExposureFactor ?? 0.15);
     this._nightSkyColor = params.nightSkyColor ?? [0.02, 0.03, 0.08];
     this._nightHorizonColor = params.nightHorizonColor ?? [0.04, 0.05, 0.1];
     this._nightGroundColor = params.nightGroundColor ?? [0.01, 0.01, 0.02];
@@ -216958,7 +232740,7 @@ var SunStudy = class _SunStudy {
   set nightExposureFactor(v) {
     if (this._destroyed)
       return;
-    v = clamp015(v);
+    v = clamp016(v);
     if (v === this._nightExposureFactor)
       return;
     this._nightExposureFactor = v;
@@ -217079,7 +232861,7 @@ function defaultStartDate() {
   const now3 = /* @__PURE__ */ new Date();
   return new Date(Date.UTC(now3.getUTCFullYear(), 5, 21, 12, 0, 0));
 }
-function clamp015(v) {
+function clamp016(v) {
   if (!Number.isFinite(v))
     return 0;
   if (v < 0)
@@ -220597,7 +236379,7 @@ function flatDirection3(direction, worldUp) {
   const flat = sub3(direction, mul3(worldUp, dot32(direction, worldUp)));
   return safeNormalize(flat, [1, 0, 0]);
 }
-function clamp5(value, min, max) {
+function clamp6(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 function basisFromForward(forward, worldUp, fallbackRight = [1, 0, 0]) {
@@ -220773,7 +236555,7 @@ var AircraftController = class {
       cameraEye: initialEye,
       cameraLook: initialLook,
       cameraPreset: "trailing",
-      exteriorCameraDistanceScale: clamp5(Number(this.config.cameraExteriorDistanceScale ?? 1), 0.35, 2.5),
+      exteriorCameraDistanceScale: clamp6(Number(this.config.cameraExteriorDistanceScale ?? 1), 0.35, 2.5),
       lastTime: performance.now()
     };
     this.vehicleCamera = {
@@ -220830,7 +236612,7 @@ var AircraftController = class {
       obstacleFilter: objectFilter,
       driveSurfaceFilter: objectFilter
     });
-    this.sdkController.speed = clamp5(Number(this.config.startSpeed ?? 34), 0, maxForwardSpeed);
+    this.sdkController.speed = clamp6(Number(this.config.startSpeed ?? 34), 0, maxForwardSpeed);
     if (this.config.startFlying !== false) {
       this.sdkController.flying = true;
     }
@@ -220881,7 +236663,7 @@ var AircraftController = class {
     }
     const step2 = Math.max(1.01, Number(this.config.cameraExteriorDistanceStep ?? 1.12));
     const current = this.exteriorCameraDistanceScale();
-    this.state.exteriorCameraDistanceScale = clamp5(
+    this.state.exteriorCameraDistanceScale = clamp6(
       current * (direction > 0 ? step2 : 1 / step2),
       Number(this.config.cameraExteriorMinDistanceScale ?? 0.35),
       Number(this.config.cameraExteriorMaxDistanceScale ?? 2.5)
@@ -221145,7 +236927,7 @@ var AircraftController = class {
       ),
       mul3(this.state.right, lateralOffset)
     );
-    const cameraTrailFollow = clamp5(Number(this.config.cameraTrailFollow ?? 0), 0, 1);
+    const cameraTrailFollow = clamp6(Number(this.config.cameraTrailFollow ?? 0), 0, 1);
     if (cameraTrailFollow > 0) {
       const exhaustConfig = typeof this.config.exhaustPlume === "object" && this.config.exhaustPlume ? this.config.exhaustPlume : this.config.exhaust || null;
       const exhaustOffset = Array.isArray(exhaustConfig?.offset) ? toVec3(exhaustConfig.offset) : [0, 0, 0];
@@ -221171,7 +236953,7 @@ var AircraftController = class {
     };
   }
   exteriorCameraDistanceScale() {
-    return clamp5(
+    return clamp6(
       Number(this.state.exteriorCameraDistanceScale ?? this.config.cameraExteriorDistanceScale ?? 1),
       Number(this.config.cameraExteriorMinDistanceScale ?? 0.35),
       Number(this.config.cameraExteriorMaxDistanceScale ?? 2.5)
@@ -221276,7 +237058,7 @@ var AircraftExhaustTrail = class {
     const trailLength = Number(exhaustConfig?.trailLength ?? 36);
     const trailOpacity = Number(exhaustConfig?.trailOpacity ?? 0.16);
     this.trailExpansion = Number(exhaustConfig?.trailExpansion ?? 1.35);
-    this.trailAdvection = clamp5(Number(exhaustConfig?.trailAdvection ?? 0.68), 0, 0.98);
+    this.trailAdvection = clamp6(Number(exhaustConfig?.trailAdvection ?? 0.68), 0, 0.98);
     this.trailTether = Math.max(0, Number(exhaustConfig?.trailTether ?? 1.35));
     this.segmentSpacing = trailLength / this.trailSegments;
     this.maxForwardSpeed = Number(config2.maxForwardSpeed ?? 135);
@@ -221346,7 +237128,7 @@ var AircraftExhaustTrail = class {
    */
   update(config2, speed, state, dt) {
     const maxForwardSpeed = Math.max(1, Number(config2.maxForwardSpeed ?? this.maxForwardSpeed ?? 135));
-    const speedRatio = clamp5(Math.max(0, speed) / maxForwardSpeed, 0, 1);
+    const speedRatio = clamp6(Math.max(0, speed) / maxForwardSpeed, 0, 1);
     this.pulsePhase += dt * (0.75 + speedRatio * 1.35);
     this.updateTrail(state, speedRatio, dt);
     this.updateAfterburner(state, speedRatio);
@@ -221524,8 +237306,8 @@ var AircraftExhaustTrail = class {
     if (!this.afterburner || this.afterburnerLayers.length === 0) {
       return;
     }
-    const threshold = clamp5(Number(this.afterburner.threshold ?? 0.62), 0, 0.98);
-    const intensity = clamp5((speedRatio - threshold) / Math.max(0.01, 1 - threshold), 0, 1);
+    const threshold = clamp6(Number(this.afterburner.threshold ?? 0.62), 0, 0.98);
+    const intensity = clamp6((speedRatio - threshold) / Math.max(0.01, 1 - threshold), 0, 1);
     if (intensity <= 0.01) {
       for (const layer of this.afterburnerLayers) {
         layer.transform.matrix = hiddenExhaustMatrix();
@@ -226391,7 +242173,7 @@ __export(studio_exports, {
   LoaderRegistry: () => LoaderRegistry,
   LoadingSpinner: () => LoadingSpinner,
   Studio: () => Studio,
-  ViewManager: () => ViewManager3,
+  ViewManager: () => ViewManager4,
   createDefaultLoaderRegistry: () => createDefaultLoaderRegistry,
   dialogs: () => dialogs_exports,
   menus: () => contextMenus_exports,
@@ -229070,7 +244852,7 @@ var LoaderProgressDialog = class _LoaderProgressDialog {
     if (this._shown)
       return;
     this._shown = true;
-    this._shownAtMs = nowMs2();
+    this._shownAtMs = nowMs5();
     this._root.style.display = "flex";
     bringFloatingPanelToFront(
       this._root,
@@ -229090,7 +244872,7 @@ var LoaderProgressDialog = class _LoaderProgressDialog {
       this._delayTimer = null;
     }
     if (this._shown) {
-      const elapsed = nowMs2() - this._shownAtMs;
+      const elapsed = nowMs5() - this._shownAtMs;
       const remaining = this._minVisibleMs - elapsed;
       if (remaining > 0) {
         await new Promise((r) => setTimeout(r, remaining));
@@ -229118,7 +244900,7 @@ var LoaderProgressDialog = class _LoaderProgressDialog {
   // ── runWith implementation ────────────────────────────────────
   async _run(run) {
     this._state = "running";
-    this._startMs = nowMs2();
+    this._startMs = nowMs5();
     this._lastFractionAtMs = this._startMs;
     this._delayTimer = setTimeout(() => {
       this._delayTimer = null;
@@ -229173,7 +244955,7 @@ var LoaderProgressDialog = class _LoaderProgressDialog {
    * don't want to lie about a stalled load.
    */
   _updateEta(fraction) {
-    const now3 = nowMs2();
+    const now3 = nowMs5();
     const elapsed = now3 - this._startMs;
     if (fraction !== this._lastFraction) {
       this._lastFraction = fraction;
@@ -229230,7 +245012,7 @@ var LoaderProgressDialog = class _LoaderProgressDialog {
     this._abortController.abort();
   }
 };
-function nowMs2() {
+function nowMs5() {
   return typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
 }
 function formatNumber(n) {
@@ -229792,6 +245574,8 @@ async function applyIFCMaterials(params) {
       colorTextureId: cTex,
       normalsTextureId: nTex,
       metallicRoughnessTextureId: mTex,
+      roughness: 1,
+      metallic: 1,
       // The IFC pipeline emits geometry without UVs; the renderer
       // routes its textured materials through the triplanar
       // fallback, which reads `triplanarScale` to convert world
@@ -244316,7 +260100,7 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     if (typeof val === "boolean")
       return this._mkBoolInput(parent, key, val, apply3);
     if (typeof val === "number")
-      return this._mkNumberInput(parent, key, val, apply3);
+      return this._mkNumberInput(parent, key, val, apply3, liveTarget);
     if (typeof val === "string" && key === "mode" && looksLikeAntiAliasingParams(parent)) {
       return this._mkStringEnumSelect(parent, key, val, apply3, [
         ["none", "None"],
@@ -244429,8 +260213,8 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     });
     return inp;
   }
-  _mkNumberInput(parent, key, val, apply3) {
-    const range = typeof key === "string" ? SLIDER_RANGES.get(key) : void 0;
+  _mkNumberInput(parent, key, val, apply3, liveTarget) {
+    const range = this._getSliderRange(parent, key, liveTarget);
     if (range) {
       return this._mkSliderInput(parent, key, val, apply3, range);
     }
@@ -244443,6 +260227,15 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       apply3(key, next);
     });
     return inp;
+  }
+  _getSliderRange(parent, key, liveTarget) {
+    if (typeof key !== "string") {
+      return void 0;
+    }
+    if (key === "intensity" && looksLikeIBL(parent, liveTarget)) {
+      return [0, 2, 0.01];
+    }
+    return SLIDER_RANGES.get(key);
   }
   /**
    * Slider + number-input pair, sharing a single backing value. The
@@ -244724,6 +260517,16 @@ function looksLikeAntiAliasingParams(v) {
   const keys = Object.keys(v);
   return keys.length > 0 && keys.every((key) => key === "mode" || key === "renderModes");
 }
+function looksLikeIBL(params, liveTarget) {
+  if (liveTarget && typeof liveTarget.setEnvironmentHDRBuffer === "function") {
+    return true;
+  }
+  if (!params || typeof params !== "object" || Array.isArray(params)) {
+    return false;
+  }
+  const keys = Object.keys(params);
+  return keys.includes("intensity") && keys.includes("renderModes") && !keys.some((key) => key !== "intensity" && key !== "renderModes");
+}
 function looksLikeColor(key, arr) {
   if (arr.length !== 3 && arr.length !== 4)
     return false;
@@ -244784,18 +260587,6 @@ function applyKeyColumnWidth(table, keys) {
   const maxCh = 26;
   const keyCh = Math.max(minCh, Math.min(maxCh, maxLen + 2));
   table.style.setProperty("--xkt-vcp-keyw", `${keyCh}ch`);
-}
-
-// ../sdk/src/studio/panels/resolveWebGLRenderer.ts
-function asWebGLRenderer(renderer) {
-  return renderer instanceof WebGLRenderer3 ? renderer : null;
-}
-function requireWebGLRenderer(renderer, owner) {
-  const webGLRenderer = asWebGLRenderer(renderer);
-  if (!webGLRenderer) {
-    throw new Error(`${owner}: requires a WebGLRenderer`);
-  }
-  return webGLRenderer;
 }
 
 // ../sdk/src/studio/panels/gpuMemoryUsage/GPUMemoryUsage.ts
@@ -245155,7 +260946,7 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
     return inst;
   }
   renderer;
-  _webGLRenderer;
+  _memoryProvider;
   // DOM refs.
   _bodyEl;
   _allocatedEl;
@@ -245182,7 +260973,7 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
       classPrefix: "xkt-gpu"
     });
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "GPUMemoryPanel");
+    this._memoryProvider = params.renderer;
     const prior = _GPUMemoryPanel._instances.get(params.renderer);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -245293,8 +261084,7 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
   }
   /**
    * Public entry point — re-paint both halves of the panel.
-   * Cheap; calls into `getMemoryUsage()` and `getMemoryConfigs()`
-   * once each.
+   * Cheap; calls into the renderer memory diagnostic surface once.
    */
   refresh() {
     if (this._destroyed)
@@ -245380,9 +261170,9 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
   // ── Layout persistence ────────────────────────────────────────
   // ── Rendering ─────────────────────────────────────────────────
   _renderUsage() {
-    const usage = this._webGLRenderer.getMemoryUsage();
-    const allocated = Number(usage?.allocatedMB) || 0;
-    const used = Number(usage?.usedMB) || 0;
+    const snapshot = this._createMemorySnapshot();
+    const allocated = Number(snapshot?.allocatedMB) || 0;
+    const used = Number(snapshot?.usedMB) || 0;
     const free = Math.max(0, allocated - used);
     const pct = allocated > 0 ? clamp(used / allocated * 100, 0, 100) : 0;
     this._allocatedEl.textContent = formatMB(allocated);
@@ -245404,24 +261194,38 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
   }
   _renderConfigs() {
     this._configsBody.innerHTML = "";
-    const configs = this._webGLRenderer.getMemoryConfigs();
-    if (!configs) {
+    const snapshot = this._createMemorySnapshot();
+    const sections = snapshot?.configSections ?? [];
+    if (!sections.length) {
       this._configsBody.appendChild(el("div", "xkt-gpu-empty", { textContent: "No memory configs available." }));
       return;
     }
-    appendSubsection(this._configsBody, "RTC Tiling", [
-      ["tileSize", configs.tileSize],
-      ["maxTiles", configs.maxTiles],
-      ["maxViews", configs.maxViews]
-    ]);
-    appendSubsection(this._configsBody, "Batching", [
-      ["maxBatches", configs.maxBatches],
-      ["maxBatchVertices", configs.maxBatchVertices],
-      ["maxBatchIndices", configs.maxBatchIndices],
-      ["maxBatchGeometries", configs.maxBatchGeometries],
-      ["maxBatchMeshes", configs.maxBatchMeshes],
-      ["maxBatchPrims", configs.maxBatchPrims]
-    ]);
+    for (const section of sections) {
+      appendSubsection(this._configsBody, section.title, section.rows);
+    }
+  }
+  _createMemorySnapshot() {
+    if (typeof this._memoryProvider.getMemoryUsage === "function") {
+      const usage = this._memoryProvider.getMemoryUsage();
+      const configs = typeof this._memoryProvider.getMemoryConfigs === "function" ? this._memoryProvider.getMemoryConfigs() : null;
+      return {
+        allocatedMB: Number(usage?.allocatedMB) || 0,
+        usedMB: Number(usage?.usedMB) || 0,
+        configSections: createWebGLConfigSections(configs)
+      };
+    }
+    if (typeof this._memoryProvider.getMemoryStats === "function") {
+      const stats = this._memoryProvider.getMemoryStats();
+      if (!stats) {
+        return null;
+      }
+      return {
+        allocatedMB: bytesToMB(stats.totalBytes),
+        usedMB: bytesToMB(webGPUUsedBytes(stats)),
+        configSections: createWebGPUStatSections(stats)
+      };
+    }
+    return null;
   }
   /** Flicker the live-pulse dot for a few hundred ms after each
    * coalesced refresh, so the user can tell at a glance that the
@@ -245438,6 +261242,90 @@ var GPUMemoryPanel = class _GPUMemoryPanel extends FloatingPanelBase {
     }, 600);
   }
 };
+function createWebGLConfigSections(configs) {
+  if (!configs) {
+    return [];
+  }
+  return [
+    {
+      title: "RTC Tiling",
+      rows: [
+        ["tileSize", configs.tileSize],
+        ["maxTiles", configs.maxTiles],
+        ["maxViews", configs.maxViews]
+      ]
+    },
+    {
+      title: "Batching",
+      rows: [
+        ["maxBatches", configs.maxBatches],
+        ["maxBatchVertices", configs.maxBatchVertices],
+        ["maxBatchIndices", configs.maxBatchIndices],
+        ["maxBatchGeometries", configs.maxBatchGeometries],
+        ["maxBatchMeshes", configs.maxBatchMeshes],
+        ["maxBatchPrims", configs.maxBatchPrims]
+      ]
+    }
+  ];
+}
+function createWebGPUStatSections(stats) {
+  return [
+    {
+      title: "Packed Triangle Pages",
+      rows: [
+        ["pages", stats.packedTrianglePages],
+        ["segments", stats.packedTriangleSegments],
+        ["allocated", formatBytes2(stats.packedTriangleBytes)],
+        ["used", formatBytes2(webGPUUsedPackedTriangleBytes(stats))],
+        ["vertex", formatBytes2(stats.packedTriangleVertexBytes)],
+        ["metadata", formatBytes2(stats.packedTriangleVertexMetadataBytes)],
+        ["index", formatBytes2(stats.packedTriangleIndexBytes)],
+        ["edgeIndex", formatBytes2(stats.packedTriangleEdgeIndexBytes)],
+        ["positionDecode", formatBytes2(stats.packedTrianglePositionDecodeBytes)]
+      ]
+    },
+    {
+      title: "Instance Buffers",
+      rows: [
+        ["allocated", formatBytes2(stats.instanceBufferBytes)],
+        ["capacity", stats.instanceBufferCapacity],
+        ["frames", stats.instanceBufferFrames]
+      ]
+    },
+    {
+      title: "RTC Tiles",
+      rows: [
+        ["allocated", formatBytes2(stats.rtcTileBufferBytes)],
+        ["capacity", stats.rtcTileCapacity],
+        ["tiles", stats.rtcTiles]
+      ]
+    },
+    {
+      title: "Segment Lifecycle",
+      rows: objectRows(stats.segmentsByLifecycle)
+    },
+    {
+      title: "Memory Policy",
+      rows: objectRows(stats.segmentsByMemoryPolicy)
+    }
+  ];
+}
+function objectRows(values) {
+  return Object.entries(values ?? {}).sort(([a2], [b4]) => a2.localeCompare(b4));
+}
+function webGPUUsedBytes(stats) {
+  return webGPUUsedPackedTriangleBytes(stats) + stats.instanceBufferBytes + stats.rtcTileBufferBytes;
+}
+function webGPUUsedPackedTriangleBytes(stats) {
+  return stats.packedTriangleUsedVertexBytes + stats.packedTriangleUsedVertexMetadataBytes + stats.packedTriangleUsedIndexBytes + stats.packedTriangleUsedEdgeIndexBytes + stats.packedTriangleUsedPositionDecodeBytes;
+}
+function bytesToMB(bytes) {
+  return bytes / (1024 * 1024);
+}
+function formatBytes2(bytes) {
+  const mb = bytesToMB(Number(bytes) || 0);
+  return `${mb.toLocaleString(void 0, { maximumFractionDigits: 2 })} MB`;
+}
 function appendSubsection(host, title, rows) {
   host.appendChild(el("div", "xkt-gpu-subhead", { textContent: title }));
   const table = el("table", "xkt-gpu-kv");
@@ -252372,7 +268260,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     return inst;
   }
   renderer;
-  _webGLRenderer;
+  _rendererWithInspector;
   // DOM refs.
   _bodyEl;
   _headStatsEl;
@@ -252395,7 +268283,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
       classPrefix: "xkt-rp"
     });
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "RendererPanel");
+    this._rendererWithInspector = params.renderer;
     this._selectedViewIndex = readNumber2(`${this._storageKey}::viewsel`, 0);
     const prior = _RendererPanel._instances.get(params.renderer);
     if (prior && !prior._destroyed)
@@ -252453,7 +268341,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     if (this._listenersAttached || this._destroyed)
       return;
     this._listenersAttached = true;
-    const inspectorRes = this._webGLRenderer.getRenderInspector();
+    const inspectorRes = this._getRenderInspector();
     if (inspectorRes.ok && inspectorRes.value) {
       inspectorRes.value.enabled = true;
     }
@@ -252510,7 +268398,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     this._panel = el("div", "xkt-rp-panel");
     this._header = el("div", "xkt-rp-header");
     const title = el("h2", "xkt-rp-title");
-    title.innerHTML = `<span class="xkt-rp-title-icon">${_RendererPanel.iconSvg()}</span><span class="xkt-rp-title-stack"><span class="xkt-rp-title-text">Renderer</span><span class="xkt-rp-subtitle">WebGLRenderer execution log \u2014 last frame per view.</span></span>`;
+    title.innerHTML = `<span class="xkt-rp-title-icon">${_RendererPanel.iconSvg()}</span><span class="xkt-rp-title-stack"><span class="xkt-rp-title-text">Renderer</span><span class="xkt-rp-subtitle">Renderer execution log \u2014 last frame per view.</span></span>`;
     this._closeBtn = el("button", "xkt-rp-close", {
       type: "button",
       "aria-label": "Close panel",
@@ -252575,7 +268463,6 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
   _renderAll() {
     const inspector = this._currentInspector();
     const renderStats = inspector?.renderStats;
-    const frameRates = inspector?.frameRates;
     const views = renderStats?.views ?? [];
     if (views.length > 0) {
       this._selectedViewIndex = clampInt(this._selectedViewIndex, 0, views.length - 1);
@@ -252583,9 +268470,9 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
       this._selectedViewIndex = 0;
     }
     const selectedFrame = views[this._selectedViewIndex] ?? null;
-    const selectedFps = frameRates?.[this._selectedViewIndex] ?? null;
+    const selectedFps = this._frameRate(inspector, selectedFrame, this._selectedViewIndex);
     this._renderHeadStats(views, selectedFrame);
-    this._renderViewsTable(views, frameRates);
+    this._renderViewsTable(views, inspector);
     this._renderViewDetail(this._selectedViewIndex, selectedFrame, selectedFps);
     this._flashPulse();
   }
@@ -252597,7 +268484,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     appendPill(this._headStatsEl, `prims: ${selected?.numPrims ?? "\u2014"}`, selected ? "info" : "muted");
     appendPill(this._headStatsEl, `time: ${formatTimeMs(selected?.timeMs)}`, selected?.timeMs ? "info" : "muted");
   }
-  _renderViewsTable(views, frameRates) {
+  _renderViewsTable(views, inspector) {
     this._viewsTableBody.replaceChildren();
     if (!views.length) {
       const tr = el("tr");
@@ -252610,7 +268497,7 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
     }
     for (let i = 0; i < views.length; i++) {
       const frame = views[i] ?? null;
-      const fps = frameRates?.[i] ?? null;
+      const fps = this._frameRate(inspector, frame, i);
       const isSelected = i === this._selectedViewIndex;
       const tr = el("tr", `xkt-rp-viewrow ${isSelected ? "is-selected" : ""} ${frame ? "is-ready" : "is-empty"}`);
       tr.setAttribute("data-rp-viewrow", String(i));
@@ -252765,8 +268652,22 @@ var RendererPanel = class _RendererPanel extends FloatingPanelBase {
   }
   // ── Helpers ───────────────────────────────────────────────────
   _currentInspector() {
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     return res.ok ? res.value : null;
+  }
+  _getRenderInspector() {
+    const getRenderInspector = this._rendererWithInspector.getRenderInspector;
+    if (typeof getRenderInspector !== "function") {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[RendererPanel] Renderer does not expose getRenderInspector()."
+      };
+    }
+    return getRenderInspector.call(this._rendererWithInspector);
+  }
+  _frameRate(inspector, frame, viewIndex) {
+    return inspector?.frameRates?.[viewIndex] ?? (frame?.viewId ? inspector?.getFrameRate?.(frame.viewId) : null) ?? null;
   }
   /**
    * Flicker the live-pulse dot for a few hundred ms after each
@@ -253485,7 +269386,7 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
   }
   viewer;
   renderer;
-  _webGLRenderer;
+  _rendererWithInspector;
   // Config — global to the panel, applied to every ViewCuller.
   _solidAngleLimit = DEFAULT_CULL_PARAMS.solidAngleLimit;
   _cullEveryNUpdates = DEFAULT_CULL_PARAMS.cullEveryNUpdates;
@@ -253517,7 +269418,7 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "CullingPanel");
+    this._rendererWithInspector = params.renderer;
     const prior = _CullingPanel._instances.get(params.viewer);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -253816,7 +269717,7 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
   }
   // ── Live stats ────────────────────────────────────────────────
   _enableInspector() {
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     if (res.ok)
       res.value.enabled = true;
   }
@@ -253824,17 +269725,27 @@ var CullingPanel = class _CullingPanel extends FloatingPanelBase {
   _renderStats() {
     if (this._destroyed)
       return;
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     const inspector = res.ok ? res.value : null;
     for (const { view, fpsEl, frameEl, culledEl } of this._viewRows.values()) {
       const i = view.viewIndex;
-      const fps = inspector?.frameRates?.[i] ?? null;
+      const fps = inspector?.frameRates?.[i] ?? inspector?.getFrameRate?.(view.id) ?? null;
       const frame = inspector?.renderStats?.views?.[i] ?? null;
       const duration = frame?.timeMs?.duration;
       fpsEl.textContent = fps == null ? "\u2014" : fps.toFixed(0);
       frameEl.textContent = Number.isFinite(duration) ? duration.toFixed(1) : "\u2014";
       culledEl.textContent = countCulled(view);
     }
+  }
+  _getRenderInspector() {
+    const getRenderInspector = this._rendererWithInspector.getRenderInspector;
+    if (typeof getRenderInspector !== "function") {
+      return {
+        ok: false,
+        error: "[CullingPanel] Renderer does not expose a RenderInspector."
+      };
+    }
+    return getRenderInspector.call(this._rendererWithInspector);
   }
   /** Flicker the live-pulse dot after each coalesced stat repaint. */
   _flashPulse() {
@@ -254151,7 +270062,7 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
   }
   viewer;
   renderer;
-  _webGLRenderer;
+  _rendererWithInspector;
   _restMs = DEFAULT_REST_MS2;
   // DOM refs.
   _bodyEl;
@@ -254178,7 +270089,7 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "AdaptiveQualityPanel");
+    this._rendererWithInspector = params.renderer;
     const prior = _AdaptiveQualityPanel._instances.get(params.viewer);
     if (prior && !prior._destroyed)
       prior.destroy();
@@ -254410,18 +270321,18 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
   }
   // ── Live stats ────────────────────────────────────────────────
   _enableInspector() {
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     if (res.ok)
       res.value.enabled = true;
   }
   _renderStats() {
     if (this._destroyed)
       return;
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     const inspector = res.ok ? res.value : null;
     for (const { view, fpsEl, frameEl, modeChip, modeEl } of this._viewRows.values()) {
       const i = view.viewIndex;
-      const fps = inspector?.frameRates?.[i] ?? null;
+      const fps = inspector?.frameRates?.[i] ?? inspector?.getFrameRate?.(view.id) ?? null;
       const frame = inspector?.renderStats?.views?.[i] ?? null;
       const duration = frame?.timeMs?.duration;
       fpsEl.textContent = fps == null ? "\u2014" : fps.toFixed(0);
@@ -254430,6 +270341,17 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
       modeEl.textContent = label;
       modeChip.classList.toggle("xkt-aq-chip-nav", view.renderMode === NavigationRender);
     }
+  }
+  _getRenderInspector() {
+    const getRenderInspector = this._rendererWithInspector.getRenderInspector;
+    if (typeof getRenderInspector !== "function") {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[AdaptiveQualityPanel] Renderer does not expose getRenderInspector()."
+      };
+    }
+    return getRenderInspector.call(this._rendererWithInspector);
   }
   _flashPulse() {
     if (!this._pulseEl)
@@ -261368,6 +277290,11 @@ var openAdaptiveQuality = {
   }
 };
 
+// ../sdk/src/studio/panels/resolveWebGLRenderer.ts
+function asWebGLRenderer(renderer) {
+  return renderer instanceof WebGLRenderer3 ? renderer : null;
+}
+
 // ../sdk/src/studio/panels/toolbar/actions/loseContext.ts
 var loseContext = {
   id: "loseContext",
@@ -265353,56 +281280,30 @@ function registerBuiltinPanels(registry) {
     create: (ctx2) => ViewerConfigPanel.openFor({ viewer: ctx2.studio.viewer, studio: ctx2.studio })
   });
   registry.register("gpuMemory", {
-    find: (ctx2) => {
-      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
-      return webGLRenderer ? GPUMemoryPanel.getFor(ctx2.studio.renderer) : void 0;
-    },
-    create: (ctx2) => {
-      if (!asWebGLRenderer(ctx2.studio.renderer)) {
-        ctx2.studio.reportWarning("[PanelRegistry/gpuMemory] Requires WebGLRenderer.");
-        return void 0;
-      }
-      return GPUMemoryPanel.openFor({ renderer: ctx2.studio.renderer });
-    }
+    find: (ctx2) => GPUMemoryPanel.getFor(ctx2.studio.renderer),
+    create: (ctx2) => GPUMemoryPanel.openFor({ renderer: ctx2.studio.renderer })
   });
   registry.register("rendererPanel", {
-    find: (ctx2) => {
-      const webGLRenderer = asWebGLRenderer(ctx2.studio.renderer);
-      return webGLRenderer ? RendererPanel.getFor(ctx2.studio.renderer) : void 0;
-    },
-    create: (ctx2) => {
-      if (!asWebGLRenderer(ctx2.studio.renderer)) {
-        ctx2.studio.reportWarning("[PanelRegistry/rendererPanel] Requires WebGLRenderer.");
-        return void 0;
-      }
-      return RendererPanel.openFor({ renderer: ctx2.studio.renderer });
-    }
+    find: (ctx2) => RendererPanel.getFor(ctx2.studio.renderer),
+    create: (ctx2) => RendererPanel.openFor({ renderer: ctx2.studio.renderer })
   });
   registry.register("cullingPanel", {
-    find: (ctx2) => ctx2.studio.viewer && asWebGLRenderer(ctx2.studio.renderer) ? CullingPanel.getFor(ctx2.studio.viewer) : void 0,
+    find: (ctx2) => ctx2.studio.viewer ? CullingPanel.getFor(ctx2.studio.viewer) : void 0,
     create: (ctx2) => {
       const { viewer, renderer } = ctx2.studio;
       if (!viewer || !renderer) {
-        ctx2.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
-        return void 0;
-      }
-      if (!asWebGLRenderer(renderer)) {
-        ctx2.studio.reportWarning("[PanelRegistry/cullingPanel] Requires WebGLRenderer.");
+        ctx2.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and Renderer.");
         return void 0;
       }
       return CullingPanel.openFor({ viewer, renderer });
     }
   });
   registry.register("adaptiveQualityPanel", {
-    find: (ctx2) => ctx2.studio.viewer && asWebGLRenderer(ctx2.studio.renderer) ? AdaptiveQualityPanel.getFor(ctx2.studio.viewer) : void 0,
+    find: (ctx2) => ctx2.studio.viewer ? AdaptiveQualityPanel.getFor(ctx2.studio.viewer) : void 0,
     create: (ctx2) => {
       const { viewer, renderer } = ctx2.studio;
       if (!viewer || !renderer) {
-        ctx2.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
-        return void 0;
-      }
-      if (!asWebGLRenderer(renderer)) {
-        ctx2.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Requires WebGLRenderer.");
+        ctx2.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and Renderer.");
         return void 0;
       }
       return AdaptiveQualityPanel.openFor({ viewer, renderer });
@@ -266620,7 +282521,7 @@ var LoadingSpinner = class _LoadingSpinner {
 };
 
 // ../sdk/src/studio/viewManager/ViewManager.ts
-var ViewManager3 = class _ViewManager {
+var ViewManager4 = class _ViewManager {
   constructor(ctx2, hooks = {}, options = {}) {
     this.ctx = ctx2;
     this.hooks = hooks;
@@ -267355,6 +283256,7 @@ var taskRunner2 = getGlobalTaskRunner();
 function escapeHtmlForInfoPanel(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
+var STUDIO_RENDERER_BACKENDS = /* @__PURE__ */ new Set(["auto", "webgl", "webgpu"]);
 var Studio = class _Studio {
   /**
    * Base directory for loading models, relative to the HTML page.
@@ -267488,7 +283390,11 @@ var Studio = class _Studio {
    * need to request an adapter/device, so Studio keeps the factory async.
    */
   async _createRenderer(cfg) {
-    const backend = cfg.renderer ?? "webgl";
+    const backendResult = this._resolveRendererBackend(cfg);
+    if (backendResult.ok === false) {
+      return backendResult;
+    }
+    const backend = backendResult.value;
     if (backend === "webgpu") {
       const { viewer: _viewer, ...webGPUParams } = cfg.webGPU ?? {};
       const result = await WebGPURenderer.create(webGPUParams);
@@ -267523,8 +283429,50 @@ var Studio = class _Studio {
     return {
       ok: false,
       type: 2 /* InvalidInput */,
-      error: `[Studio.init] Unsupported renderer backend '${String(backend)}'. Expected 'webgl' or 'webgpu'.`
+      error: `[Studio.init] Unsupported renderer backend '${String(cfg.renderer)}'. Expected 'auto', 'webgl', or 'webgpu'.`
     };
+  }
+  /**
+   * Resolve Studio's public renderer option to the concrete backend that will
+   * be used for this runtime. `"auto"` prefers WebGPU only when the browser
+   * exposes the WebGPU entry point; explicit `"webgpu"` remains strict and lets
+   * {@link WebGPURenderer.create} report device/adapter failures.
+   */
+  _resolveRendererBackend(cfg) {
+    const backend = cfg.renderer ?? this._getURLRendererBackend() ?? "auto";
+    if (backend === "auto") {
+      return {
+        ok: true,
+        value: WebGPURenderer.isSupported() ? "webgpu" : "webgl"
+      };
+    }
+    if (backend === "webgl" || backend === "webgpu") {
+      return {
+        ok: true,
+        value: backend
+      };
+    }
+    return {
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: `[Studio.init] Unsupported renderer backend '${String(backend)}'. Expected 'auto', 'webgl', or 'webgpu'.`
+    };
+  }
+  _getURLRendererBackend() {
+    if (typeof window === "undefined" || typeof window.location?.search !== "string") {
+      return void 0;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const rawBackend = params.get("renderer") ?? params.get("backend");
+    if (rawBackend === null) {
+      return void 0;
+    }
+    const backend = rawBackend.toLowerCase();
+    if (STUDIO_RENDERER_BACKENDS.has(backend)) {
+      return backend;
+    }
+    console.warn(`[Studio.init] Ignoring unsupported URL renderer backend '${rawBackend}'. Expected 'auto', 'webgl', or 'webgpu'.`);
+    return void 0;
   }
   /**
    * Dispatch an error through this Studio's {@link StudioEvents.onError}
@@ -267573,9 +283521,13 @@ var Studio = class _Studio {
     this.scene = new Scene2();
     this.data = new Data2();
     this.viewer = new Viewer();
-    const rendererBackend = merged.renderer ?? "webgl";
+    const rendererBackendResult = this._resolveRendererBackend(merged);
+    if (rendererBackendResult.ok === false) {
+      throw rendererBackendResult.error;
+    }
+    const rendererBackend = rendererBackendResult.value;
     sdkProgress.setPhase("Creating view manager");
-    this.viewManager = new ViewManager3(
+    this.viewManager = new ViewManager4(
       {
         viewer: this.viewer,
         // PickingService is constructed in Studio's constructor;
@@ -267644,11 +283596,14 @@ var Studio = class _Studio {
     if (attachResult.ok === false) {
       throw attachResult.error;
     }
-    if (this.renderer instanceof WebGLRenderer3) {
-      const gridResult = this.renderer.setInfiniteGridEnabled(true);
+    const gridRenderer = this.renderer;
+    if (typeof gridRenderer.setInfiniteGridEnabled === "function") {
+      const gridResult = gridRenderer.setInfiniteGridEnabled(true);
       if (gridResult.ok !== true) {
         throw gridResult.error;
       }
+    }
+    if (this.renderer instanceof WebGLRenderer3) {
       const renderInspectorResult = this.renderer.getRenderInspector();
       if (renderInspectorResult.ok !== true) {
         throw renderInspectorResult.error;
@@ -267890,12 +283845,7 @@ var Studio = class _Studio {
       taskRunner2.suspend();
     };
     view.htmlElement.addEventListener("contextmenu", tryPick);
-    const sunWorld = (() => {
-      const sd = view.effects.shadows.direction;
-      const sl = Math.hypot(sd[0], sd[1], sd[2]) || 1;
-      return [-sd[0] / sl, -sd[1] / sl, -sd[2] / sl];
-    })();
-    const hdrPixels = paintSunSkyHDR(512, 256, { sunDirection: sunWorld });
+    const hdrPixels = paintStudioHDR(512, 256);
     const hdrBuf = encodeRadianceHDR(hdrPixels, 512, 256);
     const hdrResult = view.lights.ibl.setEnvironmentHDRBuffer(hdrBuf);
     if (hdrResult.ok === false) {

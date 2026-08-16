@@ -1,6 +1,6 @@
 {
   "schema": "xeokit-procedural-city/1.0",
-  "seed": 42,
+  "seed": "42",
   "size": 2400,
   "style": "european",
   "density": "high",

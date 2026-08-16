@@ -5,12 +5,8 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
   "modelId": "ProceduralCityChicagoRiver",
   "viewId": "proceduralCityChicagoRiverView",
   "streamLabel": "Chicago river procedural city",
-  "renderMode": "realistic",
-  "adaptiveQuality": {
-    "fastMode": "navigation",
-    "restMode": "realistic",
-    "restMs": 500
-  },
+  "renderMode": "navigation",
+  "adaptiveQuality": false,
   "effects": {
     "sao": {
       "renderModes": ["realistic"]
@@ -50,6 +46,11 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
     },
     "hemispheric": {
       "renderModes": ["navigation", "detailed", "realistic"]
+    }
+  },
+  "webGPU": {
+    "renderConfigs": {
+      "logDepth": true
     }
   }
 };

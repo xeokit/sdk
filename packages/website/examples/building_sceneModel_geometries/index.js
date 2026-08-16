@@ -15,13 +15,21 @@ studio.init().then(() => {
 
   // Create a View with a camera positioned to look along the row of
   // procedurally generated geometries.
-  studio.viewManager.createView({
+  const view = studio.viewManager.createView({
     camera: {
       eye: [10, -30, 0],
       look: [10, 0, 0],
       up: [0, 0, 1]
     }
   });
+  view.linesMaterial.linePattern = "solid";
+  view.effects.edges.renderModes = [];
+  if (studio.renderer.setInfiniteGridEnabled) {
+    const gridResult = studio.renderer.setInfiniteGridEnabled(false);
+    if (!gridResult.ok) {
+      throw new Error(gridResult.error);
+    }
+  }
 
   // Create a SceneModel to hold the geometry, meshes, transforms, and
   // objects used by this example. The coordinate system is defined

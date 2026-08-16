@@ -2,7 +2,7 @@ import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 const {getAABB3Center} = xeokit.base.math.boundaries;
 const {sdkProgress} = xeokit.base.core;
-const {RealisticRender} = xeokit.base.constants;
+const {NavigationRender, RealisticRender} = xeokit.base.constants;
 const INDEX_URL = "../../models/BakuStadium_xgfstream_200/xgfstream/index.runtime.json";
 const MODEL_ID = "BakuStadium_xgfstream_200";
 const THUMBNAIL_BASE_URL = "bcf_thumbnails/";
@@ -23,6 +23,11 @@ const ENABLE_LRU_CHUNK_EVICTION = false;
 const MAX_RESIDENT_REFERENCE_CHUNKS = 600;
 const CACHE_XGF_FILE_BYTES = true;
 const MAX_CACHED_XGF_FILE_BYTES = 256 * 1024 * 1024;
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const BACKPRESSURE_ENABLED = URL_PARAMS.get("backpressure") !== "0";
+const BACKPRESSURE_PAUSE_PENDING_SEGMENTS = getPositiveNumberParam("pausePendingSegments", 48);
+const BACKPRESSURE_RESUME_PENDING_SEGMENTS = getPositiveNumberParam("resumePendingSegments", 16);
+const BACKPRESSURE_CHECK_INTERVAL_MS = getPositiveNumberParam("backpressureIntervalMs", 250);
 
 const ISSUE_VIEWPOINTS = [
   {
@@ -151,10 +156,13 @@ studio.init().then(async () => {
   // sorts manifests by distance from this camera.
   const view = studio.viewManager.createView({
     id: "demoView",
-    adaptiveQuality: true,
+    adaptiveQuality: false,
     backgroundColor: [0.32, 0.49, 0.94],
-    renderMode: RealisticRender,
+    renderMode: NavigationRender,
     effects: {
+      ibl: {
+        renderModes: [NavigationRender, RealisticRender]
+      },
       edges: {
         renderModes: [RealisticRender],
         useMeshColor: true,
@@ -178,6 +186,7 @@ studio.init().then(async () => {
       up: INITIAL_VIEWPOINT.up
     }
   });
+  view.effects.edges.renderModes = view.effects.edges.renderModes.filter((renderMode) => renderMode !== NavigationRender);
   view.linesMaterial.lineWidth = 1.75;
   view.linesMaterial.joinStyle = "round";
 
@@ -209,6 +218,19 @@ studio.init().then(async () => {
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
     let renderScheduled = false;
     let streamController;
+    const renderInspectorResult = studio.renderer?.getRenderInspector?.();
+    const renderInspector = renderInspectorResult?.ok ? renderInspectorResult.value : null;
+    if (renderInspector) {
+      renderInspector.enabled = true;
+    }
+    const backpressureState = {
+      enabled: BACKPRESSURE_ENABLED,
+      paused: false,
+      pauseCount: 0,
+      lastPendingSegments: 0,
+      pausePendingSegments: BACKPRESSURE_PAUSE_PENDING_SEGMENTS,
+      resumePendingSegments: BACKPRESSURE_RESUME_PENDING_SEGMENTS
+    };
     let chunkPlaceholderObjectIds = new Map();
     const scheduleRender = () => {
       if (renderScheduled || !streamController) {
@@ -228,6 +250,21 @@ studio.init().then(async () => {
         view.setObjectsVisible(objectIds, false);
       }
     };
+    const getCurrentFrameStats = () => {
+      const viewIndex = view.viewIndex ?? 0;
+      return renderInspector?.renderStats?.views?.[viewIndex] || null;
+    };
+    const getPendingSegments = () => {
+      const pendingSegments = getCurrentFrameStats()?.numPendingSegments ?? 0;
+      backpressureState.lastPendingSegments = pendingSegments;
+      return pendingSegments;
+    };
+    const updateStreamingBackpressure = () => {
+      if (!BACKPRESSURE_ENABLED || !streamController) {
+        return;
+      }
+      streamController.updateBackpressure("Renderer backpressure");
+    };
 
     // The streaming loader automatically loads missing dependency chunks
     // declared in the manifest. Here that means the shared Baku asset library
@@ -246,6 +283,19 @@ studio.init().then(async () => {
       maxResidentChunks: MAX_RESIDENT_REFERENCE_CHUNKS,
       cacheFileData: CACHE_XGF_FILE_BYTES,
       maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
+      backpressure: BACKPRESSURE_ENABLED ? {
+        shouldPause: () => getPendingSegments() >= BACKPRESSURE_PAUSE_PENDING_SEGMENTS,
+        shouldResume: () => getPendingSegments() <= BACKPRESSURE_RESUME_PENDING_SEGMENTS,
+        onPause: () => {
+          backpressureState.paused = true;
+          backpressureState.pauseCount++;
+          scheduleRender();
+        },
+        onResume: () => {
+          backpressureState.paused = false;
+          scheduleRender();
+        }
+      } : undefined,
       onProgress: (progress) => {
         scheduleRender();
       },
@@ -267,11 +317,17 @@ studio.init().then(async () => {
 
     hideStartupSpinner();
     streamController.schedule("Current frustum");
+    const rendererEvents = studio.renderer?.events;
+    rendererEvents?.onViewRendered?.subscribe?.(updateStreamingBackpressure);
+    if (BACKPRESSURE_ENABLED) {
+      window.setInterval(updateStreamingBackpressure, BACKPRESSURE_CHECK_INTERVAL_MS);
+    }
     render(ui, streamController);
     window[GLOBAL_EXAMPLE_NAME] = {
       studio,
       view,
-      streamController
+      streamController,
+      backpressure: backpressureState
     };
     const cameraStreaming = bindCameraStreaming(studio, view, streamController, ui.stallStreamingToggle);
     const getViewpointMotion = bindViewpointMotionToggle(ui.viewpointMotionToggle);
@@ -507,6 +563,11 @@ function writePersistentChoice(key, value) {
   } catch (error) {
     // Ignore blocked storage and keep the in-memory toggle usable.
   }
+}
+
+function getPositiveNumberParam(name, fallback) {
+  const value = Number(URL_PARAMS.get(name));
+  return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 function bindIssueCards(view, cards, cameraStreaming, cameraFlight, getViewpointMotion) {

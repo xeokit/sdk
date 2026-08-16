@@ -1,0 +1,1902 @@
+{
+  "asset": {
+    "version": "1.1",
+    "tilesetVersion": "xeokit-procedural-city-3dtiles/1.0"
+  },
+  "schema": {
+    "classes": {
+      "proceduralCityRoot": {
+        "properties": {
+          "profile": {
+            "type": "STRING"
+          },
+          "buildingCount": {
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          },
+          "tileCount": {
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          },
+          "triangleCount": {
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          }
+        }
+      },
+      "proceduralCityTile": {
+        "properties": {
+          "tileId": {
+            "type": "STRING"
+          },
+          "gridX": {
+            "type": "SCALAR",
+            "componentType": "INT32"
+          },
+          "gridY": {
+            "type": "SCALAR",
+            "componentType": "INT32"
+          },
+          "objectCount": {
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          },
+          "triangleCount": {
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          }
+        }
+      }
+    }
+  },
+  "geometricError": 390,
+  "root": {
+    "boundingVolume": {
+      "box": [
+        0,
+        0,
+        39.440000000000005,
+        864,
+        0,
+        0,
+        0,
+        864,
+        0,
+        0,
+        0,
+        39.86000000000001
+      ]
+    },
+    "geometricError": 390,
+    "refine": "ADD",
+    "children": [
+      {
+        "boundingVolume": {
+          "box": [
+            -0.008664031446187437,
+            -27.633904772365696,
+            23.285,
+            800.3607171347993,
+            0,
+            0,
+            0,
+            421.4118890578046,
+            0,
+            0,
+            0,
+            23.315
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m001-m001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m001-m001",
+            "gridX": -1,
+            "gridY": -1,
+            "objectCount": 20,
+            "triangleCount": 4976
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -0.052646571788670826,
+            -277.53024942063746,
+            32.3,
+            800.3256175096169,
+            0,
+            0,
+            0,
+            367.95391057559004,
+            0,
+            0,
+            0,
+            32.3
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m001-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m001-m002",
+            "gridX": -1,
+            "gridY": -2,
+            "objectCount": 50,
+            "triangleCount": 12232
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -120.52022147388651,
+            -656.7059106987517,
+            20.884999999999998,
+            136.51463761878986,
+            0,
+            0,
+            0,
+            139.82516373345146,
+            0,
+            0,
+            0,
+            20.915
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m001-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m001-m003",
+            "gridX": -1,
+            "gridY": -3,
+            "objectCount": 31,
+            "triangleCount": 7936
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -57.56704770312345,
+            -781.5210816889601,
+            19.150000000000002,
+            73.49419937404278,
+            0,
+            0,
+            0,
+            10.082254301223372,
+            0,
+            0,
+            0,
+            19.150000000000002
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m001-m004.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m001-m004",
+            "gridX": -1,
+            "gridY": -4,
+            "objectCount": 2,
+            "triangleCount": 628
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -0.008064441798808275,
+            0.20890896042146778,
+            21.259999999999998,
+            800.1865118349958,
+            0,
+            0,
+            0,
+            800.4394678282144,
+            0,
+            0,
+            0,
+            21.29
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m001-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m001-p000",
+            "gridX": -1,
+            "gridY": 0,
+            "objectCount": 19,
+            "triangleCount": 4828
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -120.14206438510317,
+            445,
+            11.735,
+            134.75894852789602,
+            0,
+            0,
+            0,
+            355.36631908993013,
+            0,
+            0,
+            0,
+            11.765
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m001-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m001-p001",
+            "gridX": -1,
+            "gridY": 1,
+            "objectCount": 35,
+            "triangleCount": 5060
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -0.06085385642438723,
+            645.2324305828859,
+            19.150000000000002,
+            800.1007371265409,
+            0,
+            0,
+            0,
+            145.32839566137145,
+            0,
+            0,
+            0,
+            19.150000000000002
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m001-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m001-p002",
+            "gridX": -1,
+            "gridY": 2,
+            "objectCount": 50,
+            "triangleCount": 9100
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -388.05875172530347,
+            -0.006730012535683727,
+            12.11,
+            127.0403947626848,
+            0,
+            0,
+            0,
+            800.2813457621482,
+            0,
+            0,
+            0,
+            12.14
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-m001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-m001",
+            "gridX": -2,
+            "gridY": -1,
+            "objectCount": 20,
+            "triangleCount": 3780
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -385.1225171658257,
+            -406.53042371200195,
+            20.810000000000002,
+            125.6291952747658,
+            0,
+            0,
+            0,
+            141.1093111740307,
+            0,
+            0,
+            0,
+            20.840000000000003
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-m002",
+            "gridX": -2,
+            "gridY": -2,
+            "objectCount": 39,
+            "triangleCount": 7116
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -388.4328720903868,
+            -651.3495752220351,
+            19.285000000000004,
+            128.554278442031,
+            0,
+            0,
+            0,
+            126.66797140040552,
+            0,
+            0,
+            0,
+            19.315000000000005
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-m003",
+            "gridX": -2,
+            "gridY": -3,
+            "objectCount": 38,
+            "triangleCount": 9068
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -310.81692923131845,
+            -781.9024118639109,
+            15.950000000000001,
+            47.46517145442968,
+            0,
+            0,
+            0,
+            8.77283412602884,
+            0,
+            0,
+            0,
+            15.950000000000001
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-m004.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-m004",
+            "gridX": -2,
+            "gridY": -4,
+            "objectCount": 2,
+            "triangleCount": 456
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -497.5,
+            0.019627446437993967,
+            12.874999999999998,
+            303.2585585959041,
+            0,
+            0,
+            0,
+            800.0243866824751,
+            0,
+            0,
+            0,
+            12.874999999999998
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-p000",
+            "gridX": -2,
+            "gridY": 0,
+            "objectCount": 31,
+            "triangleCount": 4356
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -394.3801546736628,
+            398.2605259722634,
+            12.874999999999998,
+            127.91066349217331,
+            0,
+            0,
+            0,
+            95.38319692316446,
+            0,
+            0,
+            0,
+            12.874999999999998
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-p001",
+            "gridX": -2,
+            "gridY": 1,
+            "objectCount": 42,
+            "triangleCount": 5384
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -391.57776831584204,
+            646.4021963988184,
+            19.150000000000002,
+            127.08024455545797,
+            0,
+            0,
+            0,
+            143.0206090178343,
+            0,
+            0,
+            0,
+            19.150000000000002
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-p002",
+            "gridX": -2,
+            "gridY": 2,
+            "objectCount": 60,
+            "triangleCount": 11204
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -312.2793062186225,
+            784.2983492931019,
+            15.950000000000001,
+            45.347293230902324,
+            0,
+            0,
+            0,
+            10.130460810380953,
+            0,
+            0,
+            0,
+            15.950000000000001
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m002-p003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m002-p003",
+            "gridX": -2,
+            "gridY": 3,
+            "objectCount": 2,
+            "triangleCount": 472
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -644.5762546088624,
+            -0.02432782874109307,
+            20.375,
+            129.79015911811047,
+            0,
+            0,
+            0,
+            800.1620415223049,
+            0,
+            0,
+            0,
+            20.375
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m003-m001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m003-m001",
+            "gridX": -3,
+            "gridY": -1,
+            "objectCount": 29,
+            "triangleCount": 5588
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -638.0283507433355,
+            -365.2027514192522,
+            17.475,
+            137.1877748868545,
+            0,
+            0,
+            0,
+            99.46621031832765,
+            0,
+            0,
+            0,
+            17.475
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m003-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m003-m002",
+            "gridX": -3,
+            "gridY": -2,
+            "objectCount": 18,
+            "triangleCount": 3760
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -639.6932089832251,
+            -651.4943325079032,
+            19.150000000000002,
+            135.8719014869941,
+            0,
+            0,
+            0,
+            120.1958948065805,
+            0,
+            0,
+            0,
+            19.150000000000002
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m003-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m003-m003",
+            "gridX": -3,
+            "gridY": -3,
+            "objectCount": 34,
+            "triangleCount": 6580
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -647.5720908753723,
+            0.04826724384946601,
+            19.300000000000004,
+            131.4026920989063,
+            0,
+            0,
+            0,
+            800.1268146919274,
+            0,
+            0,
+            0,
+            19.300000000000004
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m003-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m003-p000",
+            "gridX": -3,
+            "gridY": 0,
+            "objectCount": 35,
+            "triangleCount": 6252
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -625.5310188474001,
+            397.12772884862557,
+            20.960000000000004,
+            150.9100877902217,
+            0,
+            0,
+            0,
+            94.01633917717916,
+            0,
+            0,
+            0,
+            20.990000000000006
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m003-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m003-p001",
+            "gridX": -3,
+            "gridY": 1,
+            "objectCount": 34,
+            "triangleCount": 6596
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -655.3873511869548,
+            645.6288573308357,
+            19.135,
+            140.0645803138516,
+            0,
+            0,
+            0,
+            148.14801805878759,
+            0,
+            0,
+            0,
+            19.165000000000003
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m003-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m003-p002",
+            "gridX": -3,
+            "gridY": 2,
+            "objectCount": 43,
+            "triangleCount": 10328
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -784.8218330744542,
+            -214.60073105003272,
+            14.275,
+            7.509633695818081,
+            0,
+            0,
+            0,
+            22.204890000000006,
+            0,
+            0,
+            0,
+            14.275
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m004-m001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m004-m001",
+            "gridX": -4,
+            "gridY": -1,
+            "objectCount": 1,
+            "triangleCount": 268
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -784.627898690673,
+            -317.4578560341016,
+            15.35,
+            8.836884773040708,
+            0,
+            0,
+            0,
+            51.68222270025245,
+            0,
+            0,
+            0,
+            15.35
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m004-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m004-m002",
+            "gridX": -4,
+            "gridY": -2,
+            "objectCount": 2,
+            "triangleCount": 456
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -784.8186933351823,
+            -662.0418586127735,
+            12.6,
+            9.089619139156866,
+            0,
+            0,
+            0,
+            105.52387233370132,
+            0,
+            0,
+            0,
+            12.6
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m004-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m004-m003",
+            "gridX": -4,
+            "gridY": -3,
+            "objectCount": 3,
+            "triangleCount": 608
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -796.4964448450705,
+            0,
+            13.825000000000001,
+            16.003555154929472,
+            0,
+            0,
+            0,
+            800,
+            0,
+            0,
+            0,
+            13.825000000000001
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m004-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m004-p000",
+            "gridX": -4,
+            "gridY": 0,
+            "objectCount": 3,
+            "triangleCount": 800
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -785.4031437296509,
+            398.18465448527553,
+            13.674999999999999,
+            7.452393307338639,
+            0,
+            0,
+            0,
+            88.93041955820081,
+            0,
+            0,
+            0,
+            13.674999999999999
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m004-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m004-p001",
+            "gridX": -4,
+            "gridY": 1,
+            "objectCount": 3,
+            "triangleCount": 432
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            -785.4687231775056,
+            675.285818866809,
+            18.849999999999998,
+            8.258558387673474,
+            0,
+            0,
+            0,
+            107.238091523023,
+            0,
+            0,
+            0,
+            18.849999999999998
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-m004-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-m004-p002",
+            "gridX": -4,
+            "gridY": 2,
+            "objectCount": 3,
+            "triangleCount": 620
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0.008652234307078288,
+            -0.0011005376435377912,
+            39.650000000000006,
+            819.7791864377506,
+            0,
+            0,
+            0,
+            819.7381996949272,
+            0,
+            0,
+            0,
+            39.650000000000006
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-m001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-m001",
+            "gridX": 0,
+            "gridY": -1,
+            "objectCount": 28,
+            "triangleCount": 77216
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            130.95783933010733,
+            -392.7791741751068,
+            36.425000000000004,
+            122.8957297232712,
+            0,
+            0,
+            0,
+            130.4927660527157,
+            0,
+            0,
+            0,
+            36.425000000000004
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-m002",
+            "gridX": 0,
+            "gridY": -2,
+            "objectCount": 46,
+            "triangleCount": 10608
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0.11666078909854605,
+            -654.7497852200565,
+            21.034999999999997,
+            800.2480511617747,
+            0,
+            0,
+            0,
+            140.69281355659672,
+            0,
+            0,
+            0,
+            21.064999999999998
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-m003",
+            "gridX": 0,
+            "gridY": -3,
+            "objectCount": 41,
+            "triangleCount": 9868
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0,
+            -795.8027220363778,
+            15.8,
+            800,
+            0,
+            0,
+            0,
+            16.69727796362224,
+            0,
+            0,
+            0,
+            15.8
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-m004.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-m004",
+            "gridX": 0,
+            "gridY": -4,
+            "objectCount": 2,
+            "triangleCount": 728
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0.3774999999999409,
+            0,
+            25.16,
+            814.2674999999999,
+            0,
+            0,
+            0,
+            813.89,
+            0,
+            0,
+            0,
+            25.19
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-p000",
+            "gridX": 0,
+            "gridY": 0,
+            "objectCount": 19,
+            "triangleCount": 57368
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0.13249500325173358,
+            482.5,
+            11.75,
+            800.2817267976604,
+            0,
+            0,
+            0,
+            320.1080890323657,
+            0,
+            0,
+            0,
+            11.75
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-p001",
+            "gridX": 0,
+            "gridY": 1,
+            "objectCount": 41,
+            "triangleCount": 6056
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0.04761086140990756,
+            648.0788286995071,
+            19.285000000000004,
+            800.144611852346,
+            0,
+            0,
+            0,
+            148.4046314051135,
+            0,
+            0,
+            0,
+            19.315000000000005
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-p002",
+            "gridX": 0,
+            "gridY": 2,
+            "objectCount": 37,
+            "triangleCount": 9964
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0,
+            797.3146223382448,
+            13.674999999999999,
+            800,
+            0,
+            0,
+            0,
+            15.18537766175524,
+            0,
+            0,
+            0,
+            13.674999999999999
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p000-p003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p000-p003",
+            "gridX": 0,
+            "gridY": 3,
+            "objectCount": 2,
+            "triangleCount": 640
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            368.76107565491264,
+            -193.79302648350716,
+            34.535000000000004,
+            156.93872921369092,
+            0,
+            0,
+            0,
+            360.65746702227483,
+            0,
+            0,
+            0,
+            34.565000000000005
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-m001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-m001",
+            "gridX": 1,
+            "gridY": -1,
+            "objectCount": 44,
+            "triangleCount": 9888
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            399.2394090034078,
+            -395.75259826970085,
+            21.034999999999997,
+            128.75037523339418,
+            0,
+            0,
+            0,
+            128.72206176186847,
+            0,
+            0,
+            0,
+            21.064999999999998
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-m002",
+            "gridX": 1,
+            "gridY": -2,
+            "objectCount": 36,
+            "triangleCount": 8292
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            399.13614268721795,
+            -653.6474541130622,
+            20.960000000000004,
+            130.39537912602844,
+            0,
+            0,
+            0,
+            142.24079148756954,
+            0,
+            0,
+            0,
+            20.990000000000006
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-m003",
+            "gridX": 1,
+            "gridY": -3,
+            "objectCount": 42,
+            "triangleCount": 11580
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            370.1631141407988,
+            -783.0817862843381,
+            15.8,
+            98.5302558794518,
+            0,
+            0,
+            0,
+            8.697616053390334,
+            0,
+            0,
+            0,
+            15.8
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-m004.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-m004",
+            "gridX": 1,
+            "gridY": -4,
+            "objectCount": 2,
+            "triangleCount": 432
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            495.81370711981253,
+            0.07362167467562131,
+            36.035,
+            307.5255799624622,
+            0,
+            0,
+            0,
+            800.2188854443627,
+            0,
+            0,
+            0,
+            36.065
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-p000",
+            "gridX": 1,
+            "gridY": 0,
+            "objectCount": 29,
+            "triangleCount": 5500
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            400.9684202157481,
+            423.2726864962258,
+            8.785,
+            129.1965287021625,
+            0,
+            0,
+            0,
+            108.8862196164279,
+            0,
+            0,
+            0,
+            8.815000000000001
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-p001",
+            "gridX": 1,
+            "gridY": 1,
+            "objectCount": 35,
+            "triangleCount": 4596
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            399.51997359317215,
+            646.7753566455277,
+            20.825000000000003,
+            130.70940137937217,
+            0,
+            0,
+            0,
+            143.0851289272415,
+            0,
+            0,
+            0,
+            20.825000000000003
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-p002",
+            "gridX": 1,
+            "gridY": 2,
+            "objectCount": 60,
+            "triangleCount": 13812
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            399.8635648006115,
+            785.6582239849961,
+            17.475,
+            124.92210027881498,
+            0,
+            0,
+            0,
+            7.551619731424978,
+            0,
+            0,
+            0,
+            17.475
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p001-p003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p001-p003",
+            "gridX": 1,
+            "gridY": 3,
+            "objectCount": 3,
+            "triangleCount": 604
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            664.9501442834116,
+            -0.10623363837999023,
+            19.150000000000002,
+            122.08942233886347,
+            0,
+            0,
+            0,
+            800.1143827531537,
+            0,
+            0,
+            0,
+            19.150000000000002
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p002-m001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p002-m001",
+            "gridX": 2,
+            "gridY": -1,
+            "objectCount": 39,
+            "triangleCount": 9652
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            658.3033202464994,
+            -396.32566404845755,
+            21.034999999999997,
+            137.5578469366764,
+            0,
+            0,
+            0,
+            131.0423126520863,
+            0,
+            0,
+            0,
+            21.064999999999998
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p002-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p002-m002",
+            "gridX": 2,
+            "gridY": -2,
+            "objectCount": 46,
+            "triangleCount": 11680
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            667.9448212925142,
+            -653.134124716332,
+            19.135,
+            127.7218995073415,
+            0,
+            0,
+            0,
+            125.2210046864505,
+            0,
+            0,
+            0,
+            19.165000000000003
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p002-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p002-m003",
+            "gridX": 2,
+            "gridY": -3,
+            "objectCount": 36,
+            "triangleCount": 8400
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            620.9173587895447,
+            -784.0713828452278,
+            17.625000000000004,
+            66.77200213785875,
+            0,
+            0,
+            0,
+            10.056246302593934,
+            0,
+            0,
+            0,
+            17.625000000000004
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p002-m004.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p002-m004",
+            "gridX": 2,
+            "gridY": -4,
+            "objectCount": 2,
+            "triangleCount": 636
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            655.3220413394067,
+            0.1837214489054304,
+            19.135,
+            140.94099356649184,
+            0,
+            0,
+            0,
+            800.3425173131043,
+            0,
+            0,
+            0,
+            19.165000000000003
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p002-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p002-p000",
+            "gridX": 2,
+            "gridY": 0,
+            "objectCount": 36,
+            "triangleCount": 8108
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            663.2794343575534,
+            428.9189061191007,
+            20.525,
+            122.0937751880881,
+            0,
+            0,
+            0,
+            62.12662409803008,
+            0,
+            0,
+            0,
+            20.525
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p002-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p002-p001",
+            "gridX": 2,
+            "gridY": 1,
+            "objectCount": 24,
+            "triangleCount": 5732
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            658.1300815154518,
+            647.3342709660527,
+            20.810000000000002,
+            121.6788058339119,
+            0,
+            0,
+            0,
+            144.3197079128408,
+            0,
+            0,
+            0,
+            20.840000000000003
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p002-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p002-p002",
+            "gridX": 2,
+            "gridY": 2,
+            "objectCount": 47,
+            "triangleCount": 10364
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            783.3306435471491,
+            -317.327756817857,
+            15.950000000000001,
+            9.291738276594572,
+            0,
+            0,
+            0,
+            51.95116755386235,
+            0,
+            0,
+            0,
+            15.950000000000001
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p003-m002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p003-m002",
+            "gridX": 3,
+            "gridY": -2,
+            "objectCount": 2,
+            "triangleCount": 432
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            786.5429135374065,
+            -646.997878129967,
+            10.925,
+            6.577882858256714,
+            0,
+            0,
+            0,
+            21.115347321543368,
+            0,
+            0,
+            0,
+            10.925
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p003-m003.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p003-m003",
+            "gridX": 3,
+            "gridY": -3,
+            "objectCount": 1,
+            "triangleCount": 156
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            795.5516117559177,
+            0,
+            17.475,
+            16.948388244082253,
+            0,
+            0,
+            0,
+            800,
+            0,
+            0,
+            0,
+            17.475
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p003-p000.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p003-p000",
+            "gridX": 3,
+            "gridY": 0,
+            "objectCount": 2,
+            "triangleCount": 772
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            785.2199772147638,
+            402.3029727187071,
+            17.025,
+            8.095422670082371,
+            0,
+            0,
+            0,
+            26.22844118779031,
+            0,
+            0,
+            0,
+            17.025
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p003-p001.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p003-p001",
+            "gridX": 3,
+            "gridY": 1,
+            "objectCount": 1,
+            "triangleCount": 172
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            782.4800321242815,
+            642.7335037431781,
+            15.500000000000002,
+            11.731840547617537,
+            0,
+            0,
+            0,
+            138.79125111841725,
+            0,
+            0,
+            0,
+            15.500000000000002
+          ]
+        },
+        "geometricError": 0,
+        "refine": "ADD",
+        "content": {
+          "uri": "tiles/tile-p003-p002.glb"
+        },
+        "metadata": {
+          "class": "proceduralCityTile",
+          "properties": {
+            "tileId": "tile-p003-p002",
+            "gridX": 3,
+            "gridY": 2,
+            "objectCount": 3,
+            "triangleCount": 524
+          }
+        }
+      }
+    ],
+    "metadata": {
+      "class": "proceduralCityRoot",
+      "properties": {
+        "profile": "central-european",
+        "buildingCount": 1267,
+        "tileCount": 55,
+        "triangleCount": 412676
+      }
+    },
+    "content": {
+      "uri": "root.glb"
+    }
+  }
+}

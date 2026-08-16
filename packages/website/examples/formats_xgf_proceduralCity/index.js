@@ -1,4 +1,8 @@
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
+import {
+  installRendererInteractionProfiler,
+  runRendererInteractionLatencyProfile
+} from "../utils/rendererInteractionProfiler.js";
 
 const HAS_STREAM_CONFIG = !!window.PROCEDURAL_CITY_STREAM_CONFIG;
 const EXAMPLE_CONFIG = window.PROCEDURAL_CITY_STREAM_CONFIG || {};
@@ -11,6 +15,8 @@ const STREAM_LABEL = EXAMPLE_CONFIG.streamLabel || "procedural city";
 const WIND_SOUND = !!EXAMPLE_CONFIG.windSound;
 const VEHICLE_CONFIG = EXAMPLE_CONFIG.vehicle || null;
 const MULTIPLAYER_CONFIG = EXAMPLE_CONFIG.multiplayer || null;
+const STREAM_FRUSTUM_ONLY = EXAMPLE_CONFIG.frustumOnly !== undefined ? !!EXAMPLE_CONFIG.frustumOnly : true;
+const PROFILE_PANEL = new URLSearchParams(window.location.search).get("profile") === "1";
 const AUTO_BATCH_SIZE = 12;
 const FETCH_CONCURRENCY = 10;
 const CHUNK_COMMIT_FRAME_BUDGET_MS = 4;
@@ -23,12 +29,8 @@ const RENDER_MODE_NAMES = {
   realistic: xeokit.base.constants.RealisticRender
 };
 const DEFAULT_PROCEDURAL_CITY_RENDER_CONFIG = {
-  renderMode: "realistic",
-  adaptiveQuality: {
-    fastMode: "navigation",
-    restMode: "realistic",
-    restMs: 500
-  },
+  renderMode: "navigation",
+  adaptiveQuality: false,
   effects: {
     sao: {
       renderModes: ["realistic"]
@@ -75,7 +77,14 @@ const BASE_RENDER_CONFIG = HAS_STREAM_CONFIG ? {} : DEFAULT_PROCEDURAL_CITY_REND
 const VIEW_EFFECTS = normalizeRenderModeConfig(EXAMPLE_CONFIG.effects || BASE_RENDER_CONFIG.effects || {});
 const VIEW_LIGHTS = normalizeRenderModeConfig(EXAMPLE_CONFIG.lights || BASE_RENDER_CONFIG.lights || {});
 const VIEW_ADAPTIVE_QUALITY = normalizeAdaptiveQuality(EXAMPLE_CONFIG.adaptiveQuality ?? BASE_RENDER_CONFIG.adaptiveQuality);
-const DEFAULT_RENDER_MODE = renderModeFor(EXAMPLE_CONFIG.renderMode ?? BASE_RENDER_CONFIG.renderMode, RENDER_MODE_NAMES.detailed);
+const WEBGPU_CONFIG = {
+  ...EXAMPLE_CONFIG.webGPU,
+  renderConfigs: {
+    ...EXAMPLE_CONFIG.webGPU?.renderConfigs,
+    logDepth: EXAMPLE_CONFIG.webGPU?.renderConfigs?.logDepth ?? true
+  }
+};
+const DEFAULT_RENDER_MODE = renderModeFor(EXAMPLE_CONFIG.renderMode ?? BASE_RENDER_CONFIG.renderMode, RENDER_MODE_NAMES.navigation);
 const CAMERA_PRESETS = {
   aerial: {
     eye: [1320, -1570, 1120],
@@ -112,7 +121,9 @@ const LAND_USE_COLORS = {
   Civic: [0.72, 0.64, 0.42]
 };
 
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({
+  webGPU: WEBGPU_CONFIG
+});
 
 studio.init().then(async () => {
   const status = document.getElementById("status");
@@ -169,7 +180,7 @@ studio.init().then(async () => {
       fetchConcurrency: FETCH_CONCURRENCY,
       commitFrameBudgetMs: CHUNK_COMMIT_FRAME_BUDGET_MS,
       cameraDebounceMs: CAMERA_DEBOUNCE_MS,
-      frustumOnly: true,
+      frustumOnly: STREAM_FRUSTUM_ONLY,
       cacheFileData: CACHE_XGF_FILE_BYTES,
       maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
       onStatus: (streamStatus) => {
@@ -218,6 +229,35 @@ studio.init().then(async () => {
     bindCameraStreaming(studio, view, streamController);
     renderStreamProgress(streamController);
     panel.style.display = "block";
+    const renderInspectorResult = studio.renderer.getRenderInspector?.();
+    const renderInspector = renderInspectorResult?.ok ? renderInspectorResult.value : null;
+    const interactionProfiler = installRendererInteractionProfiler({
+      label: "WebGL",
+      renderer: studio.renderer,
+      viewer: studio.viewer,
+      view,
+      renderInspector,
+      enabled: PROFILE_PANEL
+    });
+    window.addEventListener("pagehide", () => interactionProfiler?.destroy(), {once: true});
+    window.proceduralCityXGFStreamDemo = {
+      studio,
+      scene,
+      view,
+      streamController,
+      index,
+      manifest,
+      report,
+      interactionProfiler,
+      runInteractionLatencyProfile: (options = {}) => runRendererInteractionLatencyProfile({
+        renderer: studio.renderer,
+        view,
+        frames: Number(options.frames || 24),
+        radius: Number(options.radius || 1250),
+        angleStep: Number(options.angleStep || 0.045),
+        timeoutMs: Number(options.timeoutMs || 1000)
+      })
+    };
   } catch (error) {
     status.textContent = `Failed to load ${STREAM_LABEL}: ${error.message || error}`;
     console.error(error);

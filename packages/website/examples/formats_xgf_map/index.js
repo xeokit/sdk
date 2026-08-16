@@ -35,7 +35,7 @@ studio.init().then(() => {
     xeokit.base.constants.RealisticRender
   ];
   view.effects.edges.useMeshColor = true;
-  view.effects.edges.edgeWidth = 2;
+  view.effects.edges.edgeWidth = 1;
 
   // Create a SceneModel to hold renderable geometry and material state.
   // The coordinate system is defined explicitly so that axis orientation

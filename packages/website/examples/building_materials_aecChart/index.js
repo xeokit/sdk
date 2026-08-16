@@ -158,6 +158,7 @@ function buildScene() {
     primitive: xeokit.base.constants.TrianglesPrimitive,
     positions: sphere.positions,
     normals:   sphere.normals,
+    uvs:       sphere.uv,
     indices:   sphere.indices
   });
 
@@ -170,6 +171,7 @@ function buildScene() {
     primitive: xeokit.base.constants.TrianglesPrimitive,
     positions: box.positions,
     normals:   box.normals,
+    uvs:       box.uv,
     indices:   box.indices
   });
 

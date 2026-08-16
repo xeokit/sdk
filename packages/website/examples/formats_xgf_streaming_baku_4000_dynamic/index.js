@@ -2,7 +2,7 @@ import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 const {getAABB3Center} = xeokit.base.math.boundaries;
 const {sdkProgress} = xeokit.base.core;
-const {RealisticRender} = xeokit.base.constants;
+const {NavigationRender, RealisticRender} = xeokit.base.constants;
 const INDEX_URL = "../../models/BakuStadium_xgfstream_4000/xgfstream/index.runtime.json";
 const STREAM_CACHE_KEY = "baku-4000-dynamic-cousage-1024-20260730";
 const MODEL_ID = "BakuStadium_xgfstream_4000";
@@ -153,10 +153,13 @@ studio.init().then(async () => {
   // sorts manifests by distance from this camera.
   const view = studio.viewManager.createView({
     id: "demoView",
-    adaptiveQuality: true,
+    adaptiveQuality: false,
     backgroundColor: [0.32, 0.49, 0.94],
-    renderMode: RealisticRender,
+    renderMode: NavigationRender,
     effects: {
+      ibl: {
+        renderModes: [NavigationRender, RealisticRender]
+      },
       edges: {
         renderModes: [RealisticRender],
         useMeshColor: true,
@@ -180,6 +183,7 @@ studio.init().then(async () => {
       up: INITIAL_VIEWPOINT.up
     }
   });
+  view.effects.edges.renderModes = view.effects.edges.renderModes.filter((renderMode) => renderMode !== NavigationRender);
   view.linesMaterial.lineWidth = 1.75;
   view.linesMaterial.joinStyle = "round";
 

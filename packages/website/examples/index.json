@@ -207,6 +207,17 @@
       "Geometry"
     ]
   },
+  "building_sceneModel_lifecycleBatches": {
+    "id": "building_sceneModel_lifecycleBatches",
+    "title": "SceneModel Lifecycle Batches",
+    "description": "Demonstrates SceneModel streaming batches, compact memory policy, batch commit/rollback, and sealed-model growth rejection.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "Rendering"
+    ]
+  },
   "building_sceneModel_points": {
     "id": "building_sceneModel_points",
     "title": "Creating 3D Points",
@@ -615,6 +626,29 @@
       "LiDAR Scans"
     ]
   },
+  "formats_threedtiles_composite": {
+    "id": "formats_threedtiles_composite",
+    "title": "Viewing 3D Tiles Composite Content",
+    "description": "Loads a CMPT tile containing mixed PNTS point-cloud and I3DM instanced glTF payloads.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Point Clouds",
+      "3D Tiles"
+    ]
+  },
+  "formats_threedtiles_featureMetadata": {
+    "id": "formats_threedtiles_featureMetadata",
+    "title": "Viewing 3D Tiles Feature Metadata",
+    "description": "Loads glTF EXT_mesh_features and EXT_structural_metadata from 3D Tiles content and links features to SceneObjects.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "Metadata",
+      "3D Tiles"
+    ]
+  },
   "formats_threedtiles_helmets": {
     "id": "formats_threedtiles_helmets",
     "title": "Viewing a 3D Tiles Tileset",
@@ -624,6 +658,64 @@
     "categories": [
       "glTF",
       "3D Tiles"
+    ]
+  },
+  "formats_threedtiles_instancing": {
+    "id": "formats_threedtiles_instancing",
+    "title": "Viewing 3D Tiles Instanced Content",
+    "description": "Loads a small I3DM tileset with repeated glTF building instances.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "3D Tiles"
+    ]
+  },
+  "formats_threedtiles_metadata": {
+    "id": "formats_threedtiles_metadata",
+    "title": "Viewing 3D Tiles Metadata",
+    "description": "Loads a procedural city 3D Tiles 1.1 dataset and maps tileset, district, tile and content metadata into xeokit's DataModel.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Metadata",
+      "3D Tiles"
+    ]
+  },
+  "formats_threedtiles_pointCloud": {
+    "id": "formats_threedtiles_pointCloud",
+    "title": "Viewing 3D Tiles Point Cloud Content",
+    "description": "Loads a sampled real LiDAR scan as PNTS point-cloud content through ThreeDTilesLoader.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Point Clouds",
+      "3D Tiles"
+    ]
+  },
+  "formats_threedtiles_proceduralCity": {
+    "id": "formats_threedtiles_proceduralCity",
+    "title": "Streaming a Procedural City as 3D Tiles",
+    "description": "Streams a generated procedural city exported as explicit 3D Tiles 1.1 with GLB tile payloads: 1 root GLB, 59 spatial GLB tiles, 1,800 buildings, about 494k triangles and a 31 MB dataset. Tiles are frustum-culled by spatial bounds and selected by projected screen-space error.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "3D Tiles",
+      "Streaming"
+    ]
+  },
+  "formats_threedtiles_proceduralCity_webGPU": {
+    "id": "formats_threedtiles_proceduralCity_webGPU",
+    "title": "WebGPU - Streaming a Procedural City as 3D Tiles",
+    "description": "Streams the generated procedural city 3D Tiles dataset through TilesetStreamer and renders the dynamically loaded GLB tile SceneModels with WebGPURenderer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "3D Tiles",
+      "Streaming",
+      "WebGPU"
     ]
   },
   "formats_threedtiles_streamingBuilding": {
@@ -640,8 +732,8 @@
   },
   "formats_threedtiles_streamingImplicit": {
     "id": "formats_threedtiles_streamingImplicit",
-    "title": "Streaming an Implicit 3D Tiles Tileset",
-    "description": "Streams an implicit 3D Tiles tileset, loading and unloading tiles as the camera moves.",
+    "title": "Streaming an Implicit Procedural City Tileset",
+    "description": "Streams a generated procedural city through an implicit 3D Tiles quadtree, loading and unloading GLB city cells as the camera moves.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -707,6 +799,18 @@
       "Buildings"
     ]
   },
+  "formats_voxcity_layeredDataset": {
+    "id": "formats_voxcity_layeredDataset",
+    "title": "VoxCity Layered Dataset",
+    "description": "Loads a VoxCity-generated layered urban dataset from OBJ/MTL, then adds terrain, water, roads, rail, utility corridors, and context buildings around the voxel layers.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "OBJ/MTL",
+      "GIS",
+      "Urban Modeling"
+    ]
+  },
   "formats_xgf_ac20Institute": {
     "id": "formats_xgf_ac20Institute",
     "title": "XGF AC20 Institute",
@@ -744,6 +848,19 @@
       "Featured"
     ]
   },
+  "formats_xgf_map_webGPU": {
+    "id": "formats_xgf_map_webGPU",
+    "title": "XGF MAP Model (WebGPU)",
+    "description": "Loads the georeferenced MAP model from static XGF and renders it with WebGPU.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Buildings",
+      "Geolocation",
+      "WebGPU"
+    ]
+  },
   "formats_xgf_proceduralCity": {
     "id": "formats_xgf_proceduralCity",
     "title": "Procedural City XGF Stream",
@@ -770,6 +887,20 @@
       "XGF Stream",
       "Procedural generation",
       "SceneModel"
+    ],
+    "snapshotTimeoutMs": 240000
+  },
+  "formats_xgf_proceduralCity_amsterdam_webGPU": {
+    "id": "formats_xgf_proceduralCity_amsterdam_webGPU",
+    "title": "WebGPU - Amsterdam Procedural City Flight Simulator",
+    "description": "Streams the Amsterdam procedural city XGF dataset with XGFViewStreamController, renders it with WebGPURenderer, and flies the spacecraft controller through the dynamically loaded city.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "XGF Stream",
+      "Procedural generation",
+      "WebGPU"
     ],
     "snapshotTimeoutMs": 240000
   },
@@ -873,7 +1004,7 @@
   "formats_xgf_streaming_baku_2000_dynamic": {
     "id": "formats_xgf_streaming_baku_2000_dynamic",
     "title": "Streamed XGF Stadium, 2K Chunks, Dynamic",
-    "description": "Streams the 2000-chunk Baku Stadium model with dynamic geometry storage, providing the fast-load baseline we use to tune streaming budgets, cache limits, camera-stall behavior, and model partitioning sweet spots.",
+    "description": "Streams the 2000-chunk Baku Stadium model with dynamic renderer storage, providing the fast-load baseline we use to tune streaming budgets, cache limits, camera-stall behavior, and model partitioning sweet spots.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -900,7 +1031,7 @@
   "formats_xgf_streaming_baku_4000_dynamic": {
     "id": "formats_xgf_streaming_baku_4000_dynamic",
     "title": "Streamed XGF Stadium, 4K Chunks, Dynamic",
-    "description": "Streams the roughly 4000-chunk Baku Stadium model with dynamic geometry storage, giving a high-chunk-count DTX baseline for finding the sweet spot between first-frustum load speed, request fan-out, and memory pressure.",
+    "description": "Streams the roughly 4000-chunk Baku Stadium model with dynamic renderer storage, giving a high-chunk-count DTX baseline for finding the sweet spot between first-frustum load speed, request fan-out, and memory pressure.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -934,6 +1065,19 @@
       "Streaming",
       "BIM",
       "Benchmarks"
+    ]
+  },
+  "formats_xgf_streaming_baku_webGPU": {
+    "id": "formats_xgf_streaming_baku_webGPU",
+    "title": "WebGPU - Streaming Baku Stadium as XGF",
+    "description": "Streams the 2K-chunk Baku Stadium XGF stream with XGFViewStreamController and renders dynamically added SceneModel content with WebGPURenderer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "WebGPU"
     ]
   },
   "formats_xgf_streaming_benchmark": {
@@ -1037,6 +1181,18 @@
       "Buildings"
     ],
     "snapshotTimeoutMs": 300000
+  },
+  "formats_xgf_streaming_proceduralCity_webGPU": {
+    "id": "formats_xgf_streaming_proceduralCity_webGPU",
+    "title": "WebGPU - Streaming a Procedural City as XGF",
+    "description": "Streams the generated procedural city XGF stream with XGFViewStreamController and renders dynamically added SceneModel content with WebGPURenderer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "WebGPU"
+    ]
   },
   "formats_xgf_streaming_recursive": {
     "id": "formats_xgf_streaming_recursive",
@@ -1399,6 +1555,90 @@
       "Viewing",
       "Navigation",
       "Buildings"
+    ]
+  },
+  "viewing_webGPU_objectStates": {
+    "id": "viewing_webGPU_objectStates",
+    "title": "WebGPU renderer object states",
+    "description": "Shows WebGPU per-object selected, highlighted, xrayed, colorize, opacity, and visibility state updates.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Object States",
+      "WebGPU"
+    ]
+  },
+  "viewing_webGPU_pickSurface": {
+    "id": "viewing_webGPU_pickSurface",
+    "title": "WebGPU renderer surface picking",
+    "description": "Shows WebGPU triangle picking with mesh, object, triangle indices, and local/world/view hit positions.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Picking",
+      "WebGPU"
+    ]
+  },
+  "viewing_webGPU_rtcTiles": {
+    "id": "viewing_webGPU_rtcTiles",
+    "title": "WebGPU Renderer RTC Tiles",
+    "description": "Shows WebGPU RTC tile assignment for large-coordinate meshes and updates one mesh across tile centers without rebuilding geometry.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Geolocation",
+      "WebGPU"
+    ]
+  },
+  "viewing_webGPU_sectionPlanes": {
+    "id": "viewing_webGPU_sectionPlanes",
+    "title": "WebGPU renderer section planes",
+    "description": "Shows WebGPU triangle and edge clipping with a live section plane, cap coloring, and a non-clippable object.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Section Planes",
+      "WebGPU"
+    ]
+  },
+  "viewing_webGPU_snapEdge": {
+    "id": "viewing_webGPU_snapEdge",
+    "title": "WebGPU renderer edge snapping",
+    "description": "Shows WebGPU renderer-side snapping to triangle edges using decoded triangle data.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Snapping",
+      "WebGPU"
+    ]
+  },
+  "viewing_webGPU_snapVertex": {
+    "id": "viewing_webGPU_snapVertex",
+    "title": "WebGPU renderer vertex snapping",
+    "description": "Shows WebGPU renderer-side snapping to vertices on a table-shaped SceneModel.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Snapping",
+      "WebGPU"
+    ]
+  },
+  "viewing_webGPU_tableShadows": {
+    "id": "viewing_webGPU_tableShadows",
+    "title": "WebGPU - Table Shadows",
+    "description": "Shows a generated table model casting directional WebGPU shadows onto a floor.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Lighting",
+      "WebGPU"
     ]
   },
   "viewing_webGPU_triangle": {

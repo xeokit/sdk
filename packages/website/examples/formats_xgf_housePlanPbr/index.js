@@ -17,6 +17,7 @@ studio.init().then(async () => {
   // the GLTF / Sponza framing with Y / Z swapped to land on the same
   // corner-view angle.
   const view = studio.viewManager.createView({
+    adaptiveQuality: false,
     camera: {
       "eye": [1396.192488512606,-228.91295922593062,7.605782942380627],
       "look": [1389.9821022363608,-234.97883380249922,1.9956860109231078],
@@ -50,12 +51,9 @@ studio.init().then(async () => {
     const xgfLoader = new xeokit.formats.xgf.XGFLoader();
     await xgfLoader.load({ fileData: xgfBytes, sceneModel });
 
-    // HDR IBL — outdoor sun + sky environment, sun aligned to the
-    // directional light. Float32 RGBA so the sun core (~60 units)
-    // survives RGBA16F upload + the IBL prefilter as a sharp specular
-    // peak on glass and metal fittings.
-    const sunWorld  = sunUpFromDir(view.effects.shadows.direction);
-    const hdrPixels = xeokit.model.procgen.paintEnvironments.paintSunSkyHDR(1024, 512, { sunDirection: sunWorld });
+    // HDR IBL — neutral studio environment. The HousePlan is an
+    // interior model; the outdoor sun-sky probe tints the materials blue.
+    const hdrPixels = xeokit.model.procgen.paintEnvironments.paintStudioHDR(1024, 512);
     const hdrBuf    = xeokit.model.procgen.paintEnvironments.encodeRadianceHDR(hdrPixels, 1024, 512);
     view.lights.ibl.setEnvironmentHDRBuffer(hdrBuf);
 

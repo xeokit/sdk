@@ -286,7 +286,8 @@ async function loadDroppedFile(file, data) {
   const sceneModel = mustOk(scene.createModel({
     id: modelId,
     coordinateSystem: COORDINATE_SYSTEM,
-    updateHint: "static"
+    updateHint: "static",
+    memoryPolicy: "compact"
   }));
   const dataModel = loaderInfo.withDataModel
     ? mustOk(data.createModel({id: modelId}))
@@ -309,6 +310,7 @@ async function loadDroppedFile(file, data) {
     if (result && result.ok === false) {
       throw new Error(result.error);
     }
+    mustOk(sceneModel.seal());
     activeSceneModel = sceneModel;
     activeDataModel = dataModel;
   } catch (error) {
@@ -327,7 +329,7 @@ async function loadDroppedFile(file, data) {
   await paintProgress();
   await fitLoadedModelToView(sceneModel);
   status.dataset.state = "ok";
-  status.textContent = `${file.name} loaded: ${counts.objects} objects, ${counts.meshes} meshes, ${counts.geometries} geometries.`;
+  status.textContent = `${file.name} loaded: ${counts.objects} objects, ${counts.meshes} meshes, ${counts.geometries} geometries. Model: static / sealed / compact.`;
   hideProgress();
   view.needsRender?.();
 }
@@ -350,7 +352,8 @@ async function loadDroppedXGFStream(droppedFiles, indexEntry, data) {
   const sceneModel = mustOk(scene.createModel({
     id: modelId,
     coordinateSystem: index.coordinateSystem || COORDINATE_SYSTEM,
-    updateHint: "static"
+    updateHint: "static",
+    memoryPolicy: "compact"
   }));
   const dataModel = mustOk(data.createModel({id: modelId}));
 
@@ -387,6 +390,7 @@ async function loadDroppedXGFStream(droppedFiles, indexEntry, data) {
 
     activeSceneModel = sceneModel;
     activeDataModel = dataModel;
+    mustOk(sceneModel.seal());
   } catch (error) {
     sceneModel.destroy();
     dataModel.destroy();
@@ -403,7 +407,7 @@ async function loadDroppedXGFStream(droppedFiles, indexEntry, data) {
   await paintProgress();
   await fitLoadedModelToView(sceneModel);
   status.dataset.state = "ok";
-  status.textContent = `${indexEntry.path} loaded: ${counts.objects} objects, ${counts.meshes} meshes, ${counts.geometries} geometries.`;
+  status.textContent = `${indexEntry.path} loaded: ${counts.objects} objects, ${counts.meshes} meshes, ${counts.geometries} geometries. Model: static / sealed / compact.`;
   hideProgress();
   view.needsRender?.();
 }

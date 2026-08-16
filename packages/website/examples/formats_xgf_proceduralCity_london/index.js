@@ -5,12 +5,8 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
   "modelId": "ProceduralCityLondon",
   "viewId": "proceduralCityLondonView",
   "streamLabel": "London procedural city with the Thames",
-  "renderMode": "realistic",
-  "adaptiveQuality": {
-    "fastMode": "navigation",
-    "restMode": "realistic",
-    "restMs": 500
-  },
+  "renderMode": "navigation",
+  "adaptiveQuality": false,
   "effects": {
     "sao": {
       "renderModes": ["realistic"]

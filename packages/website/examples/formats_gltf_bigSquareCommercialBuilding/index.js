@@ -2,7 +2,6 @@ import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 const GLB_URL = "../../models/BigSquareCommercialBuilding/gltf/model.glb";
 const MODEL_ATTRIBUTION_URL = "https://sketchfab.com/3d-models/big-square-commercial-building-55ef437c8518489c8a35c5de2380e6b6";
-const FIRST_PERSON_NAVIGATION = xeokit.base.constants.FirstPersonNavigationMode;
 const REALISTIC_RENDER = xeokit.base.constants.RealisticRender;
 const INITIAL_CAMERA = {
   eye: [20, 15, 14],
@@ -62,7 +61,14 @@ studio.init().then(async () => {
       }
     }
   });
-  studio.viewManager.views[view.id].viewController.navMode = FIRST_PERSON_NAVIGATION;
+  const viewRecord = studio.viewManager.views[view.id];
+  viewRecord.walkNavigationController = new xeokit.viewing.walkNavigation.WalkNavigationController(view, {
+    active: false,
+    suspendViewController: viewRecord.viewController,
+    eyeHeight: 1.65,
+    walkSpeed: 4.0,
+    runSpeed: 8.5
+  });
   bindDepthOfFieldFocus(studio, view);
 
   const status = document.getElementById("status");

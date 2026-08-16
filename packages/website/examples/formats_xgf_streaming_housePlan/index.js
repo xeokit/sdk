@@ -28,7 +28,7 @@ studio.init().then(async () => {
 
   const view = studio.viewManager.createView({
     id: "demoView",
-    adaptiveQuality: true,
+    adaptiveQuality: false,
     backgroundColor: [0.93, 0.95, 0.96],
     camera: {
       perspectiveProjection: {fov: INITIAL_CAMERA.fov},

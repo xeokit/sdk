@@ -5,12 +5,8 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
   "modelId": "ProceduralCityBerlin",
   "viewId": "proceduralCityBerlinView",
   "streamLabel": "Berlin procedural city",
-  "renderMode": "realistic",
-  "adaptiveQuality": {
-    "fastMode": "navigation",
-    "restMode": "realistic",
-    "restMs": 500
-  },
+  "renderMode": "navigation",
+  "adaptiveQuality": false,
   "effects": {
     "sao": {
       "renderModes": ["realistic"]

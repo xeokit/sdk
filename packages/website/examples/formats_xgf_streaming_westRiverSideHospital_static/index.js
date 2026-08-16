@@ -1,4 +1,4 @@
-import * as xeokit from "../../js/xeokit-studio-bundle.js";
+import * as xeokit from "../../js/xeokit-studio-bundle.js?v=stream-publish-queue-20260815";
 
 const {sdkProgress} = xeokit.base.core;
 const {RealisticRender} = xeokit.base.constants;
@@ -22,6 +22,13 @@ const ENABLE_LRU_CHUNK_EVICTION = false;
 const MAX_RESIDENT_REFERENCE_CHUNKS = 300;
 const CACHE_XGF_FILE_BYTES = true;
 const MAX_CACHED_XGF_FILE_BYTES = 192 * 1024 * 1024;
+const EXAMPLE_VERSION = "stream-publish-queue-20260815";
+
+window.__westRiverSideHospitalStreamingPublishQueue = EXAMPLE_VERSION;
+console.info(`[formats_xgf_streaming_westRiverSideHospital_static] ${EXAMPLE_VERSION} loaded`);
+
+const demoCanvas = document.getElementById("demoCanvas");
+demoCanvas.style.visibility = "hidden";
 
 const REVIEW_VIEWPOINTS = [
   {
@@ -153,9 +160,29 @@ studio.init().then(async () => {
       updateHint: "static",
       coordinateSystem: index.coordinateSystem
     }));
+    sceneModel.building = true;
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
     let renderScheduled = false;
     let streamController;
+    let initialPublishDone = false;
+    const suspendStreamRender = () => {
+      if (!sceneModel.building) {
+        sceneModel.building = true;
+      }
+    };
+    const publishStreamRender = (progress) => {
+      if (!progress || progress.queued <= 0 || progress.loaded < progress.queued) {
+        return;
+      }
+      if (sceneModel.building) {
+        sceneModel.building = false;
+      }
+      if (!initialPublishDone) {
+        initialPublishDone = true;
+        demoCanvas.style.visibility = "visible";
+      }
+      view.needsRender();
+    };
     const scheduleRender = () => {
       if (renderScheduled || !streamController) {
         return;
@@ -182,13 +209,19 @@ studio.init().then(async () => {
       maxResidentChunks: MAX_RESIDENT_REFERENCE_CHUNKS,
       cacheFileData: CACHE_XGF_FILE_BYTES,
       maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
-      onProgress: () => {
+      onProgress: (progress) => {
+        publishStreamRender(progress);
         scheduleRender();
       },
       onChunksLoading: () => {
+        suspendStreamRender();
         hideStartupSpinner();
       },
       onError: (error) => {
+        if (sceneModel.building) {
+          sceneModel.building = false;
+        }
+        demoCanvas.style.visibility = "visible";
         console.error(error);
         scheduleRender();
       }
@@ -210,6 +243,7 @@ studio.init().then(async () => {
     const cameraFlight = studio.viewManager.views?.[view.id]?.cameraFlight;
     bindIssueCards(view, issueCards, cameraStreaming, cameraFlight, getViewpointMotion);
   } catch (error) {
+    demoCanvas.style.visibility = "visible";
     console.error(error);
   }
 });

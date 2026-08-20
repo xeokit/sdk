@@ -34,6 +34,7 @@ export class WebGPUPostProcessChain {
     const antiAliasing = effects?.antiAliasing;
     return !!(
       (tonemap?.applied && tonemap?.possible) ||
+      (tonemap?.sRGBEncode !== false && tonemap?.possible) ||
       (antiAliasing?.applied && antiAliasing?.possible && antiAliasing?.mode !== "none") ||
       this.needsSAO(view)
     );

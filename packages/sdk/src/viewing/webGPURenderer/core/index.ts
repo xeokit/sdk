@@ -1,5 +1,7 @@
-/** Core WebGPU renderer contracts and implementation. */
-export * from "./WebGPURenderer";
-export * from "./WebGPURendererEvents";
-export * from "./WebGPURendererParams";
+/** @internal */
+export * from "../WebGPURenderer";
+/** @internal */
+export * from "../WebGPURendererEvents";
+/** @internal */
+export * from "../WebGPURendererParams";
 export * from "./types";

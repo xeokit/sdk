@@ -155,7 +155,19 @@ export class MeshManager {
     } = this._renderContext.viewer.scene;
 
     for (const sceneModelId in sceneModels) {
-      this.sceneModelCreated(sceneModels[sceneModelId]);
+      const sceneModel = sceneModels[sceneModelId];
+      const modelResult = this.sceneModelCreated(sceneModel);
+      if (modelResult.ok === false) {
+        return modelResult;
+      }
+      const sceneMeshes = Object.values(sceneModel.meshes)
+        .filter((sceneMesh) => !sceneMesh.model.activeBatch?.includesMesh(sceneMesh));
+      if (sceneMeshes.length > 0) {
+        const meshResult = this.sceneMeshesCreated(sceneMeshes);
+        if (meshResult.ok === false) {
+          return meshResult;
+        }
+      }
     }
 
     for (const sceneObjectId in sceneObjects) {

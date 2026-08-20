@@ -22,6 +22,9 @@ struct MeshInstance {
   modelMatrix: mat4x4<f32>,
   color: vec4<f32>,
   flags: vec4<f32>,
+  normalMatrix0: vec4<f32>,
+  normalMatrix1: vec4<f32>,
+  normalMatrix2: vec4<f32>,
 };
 
 @group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;

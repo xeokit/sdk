@@ -33,6 +33,47 @@ function createRendererMesh(numViews = 2) {
 }
 
 describe("MeshManager object lifecycle", () => {
+  test("registers existing scene model meshes before existing scene objects during init", () => {
+    const sceneMesh = {
+      uniqueId: "model__mesh",
+      id: "mesh",
+      model: {activeBatch: null},
+      geometry: {primitive: TrianglesPrimitive},
+    } as unknown as SceneMesh;
+    const sceneObject = {
+      id: "object-a",
+      model: {activeBatch: null},
+      meshes: [sceneMesh],
+    } as unknown as SceneObject;
+    const manager = createManager() as any;
+    manager._renderContext.viewer.scene = {
+      models: {
+        model: {
+          meshes: {
+            mesh: sceneMesh,
+          },
+        },
+      },
+      objects: {
+        "object-a": sceneObject,
+      },
+    };
+    const calls: string[] = [];
+    manager.sceneMeshesCreated = jest.fn(() => {
+      calls.push("meshes");
+      manager._rendererMeshes[sceneMesh.uniqueId] = createRendererMesh();
+      return {ok: true, value: undefined};
+    });
+    const originalSceneObjectCreated = manager.sceneObjectCreated.bind(manager);
+    manager.sceneObjectCreated = jest.fn((object: SceneObject) => {
+      calls.push("object");
+      return originalSceneObjectCreated(object);
+    });
+
+    expect(manager.init()).toEqual({ok: true, value: undefined});
+    expect(calls).toEqual(["meshes", "object"]);
+  });
+
   test("keeps renderer meshes alive and resets stale object state when a scene mesh is reattached", () => {
     const manager = createManager();
     const rendererMesh = createRendererMesh();

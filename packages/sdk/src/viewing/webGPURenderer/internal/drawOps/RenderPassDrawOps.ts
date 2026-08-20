@@ -11,6 +11,8 @@ export interface RenderPassDrawOps {
   shadowDepth?: DrawOp;
   opaque?: DrawOp;
   transparent?: DrawOp;
+  noNormalsOpaque?: DrawOp;
+  noNormalsTransparent?: DrawOp;
   flatOpaque?: DrawOp;
   flatTransparent?: DrawOp;
   overlayOpaque?: DrawOp;

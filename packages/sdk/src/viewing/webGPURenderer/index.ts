@@ -3,23 +3,106 @@
  *
  * Experimental WebGPU renderer backend for xeokit Viewers.
  *
- * This module exposes the public renderer class and event/parameter contracts
- * so integrations can type against WebGPU without depending on WebGL-specific
- * APIs. The current backend can attach to a Viewer with an initialized WebGPU
- * device, configure View canvases, clear dirty Views, and draw a first narrow
- * depth-buffered path for indexed triangle-family meshes with flat per-mesh
- * color, plus renderer-backed picking and first-pass vertex/edge snapping.
- * Pick/snap now have WebGPU resource and draw-technique boundaries aligned
- * with WebGLRenderer, while their public synchronous result path still uses
- * renderer-side triangle traversal until async GPU readback replaces it.
- * Materials, points, lines, and snapshots are intentionally not implemented
- * yet.
+ * WebGPURenderer is the WebGPU rendering backend for
+ * {@link viewing!viewer.Viewer | Viewer}. It owns WebGPU device acquisition,
+ * viewer attachment, render lifecycle events, picking, snapping, memory
+ * diagnostics, and render diagnostics. Per-view canvas state and GPU resources
+ * are managed internally.
  *
- * @module viewing/webGPURenderer
+ * The renderer uses browser WebGPU APIs. Use {@link WebGPURenderer.isSupported}
+ * before offering WebGPU as a required backend, and prefer
+ * {@link WebGPURenderer.create} when the renderer should request its own
+ * adapter and device.
+ *
+ * ## Basic Usage
+ *
+ * ```ts
+ * import {Scene} from "@xeokit/sdk/model/scene";
+ * import {Viewer} from "@xeokit/sdk/viewing/viewer";
+ * import {WebGPURenderer} from "@xeokit/sdk/viewing/webGPURenderer";
+ *
+ * const scene = new Scene();
+ * const viewer = new Viewer({scene});
+ *
+ * const result = await WebGPURenderer.create({viewer});
+ *
+ * if (result.ok) {
+ *   const renderer = result.value;
+ *
+ *   renderer.events.onError.subscribe((_renderer, error) => {
+ *     console.error(error.error);
+ *   });
+ * } else {
+ *   console.error(result.error);
+ * }
+ * ```
+ *
+ * ## Injecting A Device
+ *
+ * Pass a pre-created device when another part of the application owns WebGPU
+ * device creation.
+ *
+ * ```ts
+ * import {WebGPURenderer} from "@xeokit/sdk/viewing/webGPURenderer";
+ *
+ * const adapter = await navigator.gpu?.requestAdapter();
+ * const device = await adapter?.requestDevice();
+ *
+ * if (device) {
+ *   const renderer = new WebGPURenderer({
+ *     device,
+ *     destroyDeviceOnDestroy: false
+ *   });
+ *
+ *   renderer.attachViewer(viewer);
+ * }
+ * ```
+ *
+ * ## Render And Memory Configuration
+ *
+ * ```ts
+ * import {WebGPURenderer} from "@xeokit/sdk/viewing/webGPURenderer";
+ *
+ * const result = await WebGPURenderer.create({
+ *   viewer,
+ *   memoryConfigs: {
+ *     maxBatchVertices: 200000,
+ *     maxBatchIndices: 600000,
+ *     compactSealedStreamPages: true
+ *   },
+ *   renderConfigs: {
+ *     depthPrepass: true,
+ *     edges: true,
+ *     triangleColorMode: "pbr",
+ *     transparentSortStrategy: "segment"
+ *   }
+ * });
+ * ```
+ *
+ * ## Diagnostics
+ *
+ * ```ts
+ * const memory = renderer.getMemoryStats();
+ *
+ * if (memory) {
+ *   console.log(memory.totalBytes);
+ *   console.log(memory.packedTrianglePages);
+ * }
+ *
+ * const viewStats = renderer.getViewRenderStats(0);
+ *
+ * if (viewStats) {
+ *   console.log(viewStats.numDrawCalls);
+ *   console.log(viewStats.cpuTime.commandEncodingMs);
+ * }
+ * ```
+ *
+ * @module webGPURenderer
  */
-export * from "./core";
+export * from "./WebGPURenderer";
+export * from "./WebGPURendererEvents";
+export * from "./WebGPURendererParams";
+export * from "./WebGPUViewRenderStats";
 export * from "./MemoryConfigs";
-export * from "./createMemoryConfigs";
 export * from "./WebGPURenderConfigs";
-export * from "./createWebGPURenderConfigs";
 export * from "./WebGPUMemoryStats";

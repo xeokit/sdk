@@ -9,6 +9,7 @@ import {DrawTechnique} from "./DrawTechnique";
 import {
   TrianglesDepthPrepassTechnique,
   TrianglesDrawColorFlatTechnique,
+  TrianglesDrawColorNoNormalsTechnique,
   TrianglesDrawColorTechnique,
   TrianglesDrawEdgeColorTechnique,
   LinesDrawColorTechnique,
@@ -59,6 +60,12 @@ export class DrawOps {
 
     const trianglesDrawColor = this._saveForCleanup(
       new TrianglesDrawColorTechnique({
+        renderContext: this._renderContext,
+        bindGroupLayoutManager: this._bindGroupLayoutManager
+      })
+    );
+    const trianglesDrawColorNoNormals = this._saveForCleanup(
+      new TrianglesDrawColorNoNormalsTechnique({
         renderContext: this._renderContext,
         bindGroupLayoutManager: this._bindGroupLayoutManager
       })
@@ -168,6 +175,8 @@ export class DrawOps {
       shadowDepth: new DrawOp(trianglesShadowDepth, RENDER_PASSES.SHADOW_DEPTH),
       opaque: new DrawOp(trianglesDrawColor, RENDER_PASSES.OPAQUE),
       transparent: new DrawOp(trianglesDrawColor, RENDER_PASSES.TRANSPARENT),
+      noNormalsOpaque: new DrawOp(trianglesDrawColorNoNormals, RENDER_PASSES.OPAQUE),
+      noNormalsTransparent: new DrawOp(trianglesDrawColorNoNormals, RENDER_PASSES.TRANSPARENT),
       flatOpaque: new DrawOp(trianglesDrawColorFlatScene, RENDER_PASSES.OPAQUE),
       flatTransparent: new DrawOp(trianglesDrawColorFlatScene, RENDER_PASSES.TRANSPARENT),
       overlayOpaque: new DrawOp(trianglesDrawColorFlatOverlay, RENDER_PASSES.OPAQUE),

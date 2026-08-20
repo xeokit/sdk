@@ -2,6 +2,7 @@ import type {WebGPUBindGroupLike, WebGPUBufferLike} from "../../core";
 
 export interface PackedMeshBatch {
   primitive: number;
+  hasNormals?: boolean;
   label: string;
   segmentKey: string;
   bufferPageKey?: string;

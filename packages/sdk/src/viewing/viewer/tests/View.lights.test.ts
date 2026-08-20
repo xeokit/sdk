@@ -48,6 +48,7 @@ describe("View lights", () => {
     expect(view.lights.hemispheric.intensity).toBe(0.8);
     expect(view.lights.ibl.renderModes).toEqual([RealisticRender]);
     expect(view.lights.ibl.intensity).toBe(1.0);
+    expect(view.lightsList.find((light: any) => light._type === "ambient")?.intensity).toBe(0.0);
 
     view.renderMode = NavigationRender;
     expect(view.lights.hemispheric.applied).toBe(true);

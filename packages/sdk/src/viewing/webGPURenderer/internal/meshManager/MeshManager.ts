@@ -484,6 +484,7 @@ export class MeshManager {
     target[targetOffset + 21] = rtcTile?.tileIndex ?? 0;
     target[targetOffset + 22] = 0;
     target[targetOffset + 23] = 0;
+    writeNormalMatrixRows(meshState.worldMatrix, target, targetOffset + 24);
   }
 
   private _getMeshWorldCenter(meshState: RendererMesh): Vec3 {
@@ -596,4 +597,51 @@ export class MeshManager {
     };
   }
 
+}
+
+function writeNormalMatrixRows(matrix: Mat4, target: Float32Array, offset: number): void {
+  const a00 = matrix[0];
+  const a01 = matrix[4];
+  const a02 = matrix[8];
+  const a10 = matrix[1];
+  const a11 = matrix[5];
+  const a12 = matrix[9];
+  const a20 = matrix[2];
+  const a21 = matrix[6];
+  const a22 = matrix[10];
+
+  const b01 = a22 * a11 - a12 * a21;
+  const b11 = -a22 * a10 + a12 * a20;
+  const b21 = a21 * a10 - a11 * a20;
+  const det = a00 * b01 + a01 * b11 + a02 * b21;
+
+  if (Math.abs(det) < 1e-12) {
+    target[offset + 0] = a00;
+    target[offset + 1] = a01;
+    target[offset + 2] = a02;
+    target[offset + 3] = 0;
+    target[offset + 4] = a10;
+    target[offset + 5] = a11;
+    target[offset + 6] = a12;
+    target[offset + 7] = 0;
+    target[offset + 8] = a20;
+    target[offset + 9] = a21;
+    target[offset + 10] = a22;
+    target[offset + 11] = 0;
+    return;
+  }
+
+  const invDet = 1 / det;
+  target[offset + 0] = b01 * invDet;
+  target[offset + 1] = b11 * invDet;
+  target[offset + 2] = b21 * invDet;
+  target[offset + 3] = 0;
+  target[offset + 4] = (-a22 * a01 + a02 * a21) * invDet;
+  target[offset + 5] = (a22 * a00 - a02 * a20) * invDet;
+  target[offset + 6] = (-a21 * a00 + a01 * a20) * invDet;
+  target[offset + 7] = 0;
+  target[offset + 8] = (a12 * a01 - a02 * a11) * invDet;
+  target[offset + 9] = (-a12 * a00 + a02 * a10) * invDet;
+  target[offset + 10] = (a11 * a00 - a01 * a10) * invDet;
+  target[offset + 11] = 0;
 }

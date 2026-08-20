@@ -1,5 +1,5 @@
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
-import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import {GaussianSplatsPrimitive, LinesPrimitive, NavigationRender, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {createMat4Float64, mulMat4, type Mat4} from "../../../../base/math/matrix";
 import type {View} from "../../../viewer";
 import type {SceneTexture} from "../../../../model/scene";
@@ -452,19 +452,56 @@ export class RenderManager {
 
       if (triangleBatches.opaque.length > 0) {
         const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
-        const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-          passEncoder,
-          commandStateTracker: passCommandState,
-          frameBindGroup: frameBindGroupResult!.value,
-          instanceBindGroup: instanceBindGroupResult!.value,
-          batches: triangleBatches.opaque,
-          renderPass: "OPAQUE",
-          technique: flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique",
-          drawOp: flatColorMode ? triangleDrawOps.flatOpaque : triangleDrawOps.opaque,
-          missingMessage: "[RenderManager.renderView] Opaque triangle draw operation was not initialized."
-        });
-        if (drawResult.ok === false) {
-          return drawResult;
+        if (flatColorMode) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult!.value,
+            instanceBindGroup: instanceBindGroupResult!.value,
+            batches: triangleBatches.opaque,
+            renderPass: "OPAQUE",
+            technique: "TrianglesDrawColorFlatTechnique",
+            drawOp: triangleDrawOps.flatOpaque,
+            missingMessage: "[RenderManager.renderView] Opaque flat triangle draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        } else {
+          const noNormalsBatches = this._getNoNormalsTriangleColorBatches(view, triangleBatches.opaque);
+          const pbrBatches = this._getPBRTriangleColorBatches(view, triangleBatches.opaque);
+          if (noNormalsBatches.length > 0) {
+            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+              passEncoder,
+              commandStateTracker: passCommandState,
+              frameBindGroup: frameBindGroupResult!.value,
+              instanceBindGroup: instanceBindGroupResult!.value,
+              batches: noNormalsBatches,
+              renderPass: "OPAQUE",
+              technique: "TrianglesDrawColorNoNormalsTechnique",
+              drawOp: triangleDrawOps.noNormalsOpaque,
+              missingMessage: "[RenderManager.renderView] Opaque no-normal triangle draw operation was not initialized."
+            });
+            if (drawResult.ok === false) {
+              return drawResult;
+            }
+          }
+          if (pbrBatches.length > 0) {
+            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+              passEncoder,
+              commandStateTracker: passCommandState,
+              frameBindGroup: frameBindGroupResult!.value,
+              instanceBindGroup: instanceBindGroupResult!.value,
+              batches: pbrBatches,
+              renderPass: "OPAQUE",
+              technique: "TrianglesDrawColorTechnique",
+              drawOp: triangleDrawOps.opaque,
+              missingMessage: "[RenderManager.renderView] Opaque triangle draw operation was not initialized."
+            });
+            if (drawResult.ok === false) {
+              return drawResult;
+            }
+          }
         }
       }
       if (pointDrawOps?.opaque) {
@@ -570,19 +607,56 @@ export class RenderManager {
 
       if (triangleBatches.transparent.length > 0) {
         const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
-        const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-          passEncoder,
-          commandStateTracker: passCommandState,
-          frameBindGroup: frameBindGroupResult!.value,
-          instanceBindGroup: instanceBindGroupResult!.value,
-          batches: triangleBatches.transparent,
-          renderPass: "TRANSPARENT",
-          technique: flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique",
-          drawOp: flatColorMode ? triangleDrawOps.flatTransparent : triangleDrawOps.transparent,
-          missingMessage: "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
-        });
-        if (drawResult.ok === false) {
-          return drawResult;
+        if (flatColorMode) {
+          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+            passEncoder,
+            commandStateTracker: passCommandState,
+            frameBindGroup: frameBindGroupResult!.value,
+            instanceBindGroup: instanceBindGroupResult!.value,
+            batches: triangleBatches.transparent,
+            renderPass: "TRANSPARENT",
+            technique: "TrianglesDrawColorFlatTechnique",
+            drawOp: triangleDrawOps.flatTransparent,
+            missingMessage: "[RenderManager.renderView] Transparent flat triangle draw operation was not initialized."
+          });
+          if (drawResult.ok === false) {
+            return drawResult;
+          }
+        } else {
+          const noNormalsBatches = this._getNoNormalsTriangleColorBatches(view, triangleBatches.transparent);
+          const pbrBatches = this._getPBRTriangleColorBatches(view, triangleBatches.transparent);
+          if (noNormalsBatches.length > 0) {
+            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+              passEncoder,
+              commandStateTracker: passCommandState,
+              frameBindGroup: frameBindGroupResult!.value,
+              instanceBindGroup: instanceBindGroupResult!.value,
+              batches: noNormalsBatches,
+              renderPass: "TRANSPARENT",
+              technique: "TrianglesDrawColorNoNormalsTechnique",
+              drawOp: triangleDrawOps.noNormalsTransparent,
+              missingMessage: "[RenderManager.renderView] Transparent no-normal triangle draw operation was not initialized."
+            });
+            if (drawResult.ok === false) {
+              return drawResult;
+            }
+          }
+          if (pbrBatches.length > 0) {
+            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+              passEncoder,
+              commandStateTracker: passCommandState,
+              frameBindGroup: frameBindGroupResult!.value,
+              instanceBindGroup: instanceBindGroupResult!.value,
+              batches: pbrBatches,
+              renderPass: "TRANSPARENT",
+              technique: "TrianglesDrawColorTechnique",
+              drawOp: triangleDrawOps.transparent,
+              missingMessage: "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
+            });
+            if (drawResult.ok === false) {
+              return drawResult;
+            }
+          }
         }
       }
       if (pointDrawOps?.transparent) {
@@ -2277,6 +2351,20 @@ export class RenderManager {
       ...batches.highlightedTransparent,
       ...batches.selectedTransparent
     ];
+  }
+
+  private _getNoNormalsTriangleColorBatches(view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
+    if (view.renderMode === NavigationRender) {
+      return batches;
+    }
+    return batches.filter((batch) => batch.packedBatch.hasNormals !== true);
+  }
+
+  private _getPBRTriangleColorBatches(view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
+    if (view.renderMode === NavigationRender) {
+      return [];
+    }
+    return batches.filter((batch) => batch.packedBatch.hasNormals === true);
   }
 
   private _filterBatchesByPrimitive(

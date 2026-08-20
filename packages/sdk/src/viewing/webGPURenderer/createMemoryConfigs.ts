@@ -3,8 +3,11 @@ import {type MemoryConfigs} from "./MemoryConfigs";
 /**
  * Generates WebGPU renderer memory configuration values.
  *
- * The shape follows {@link webGLRenderer!MemoryConfigs} where the two renderers
- * share a batching responsibility, while omitting WebGL-only RTC tile settings.
+ * The generated values size WebGPU packed geometry pages, RTC tile storage,
+ * per-view instance buffers, and streaming segment-build budgets. The shape
+ * follows {@link webGLRenderer!MemoryConfigs} where the renderers share a
+ * batching vocabulary, but the values are consumed by WebGPU-specific packed
+ * pages and draw-batch construction.
  */
 export function createMemoryConfigs(params: {
   grossMemoryMB: number;

@@ -33,6 +33,7 @@ import {
 import {RENDER_PASSES} from "../internal/RENDER_PASSES";
 import {RenderContext} from "../internal/RenderContext";
 import {encodePackedTriangleBatches} from "../internal/drawOps/techniques/triangles/PackedTriangleBatchEncoder";
+import {createTrianglesDrawColorNoNormalsShader} from "../internal/drawOps/techniques/triangles/TrianglesDrawColorNoNormalsShader";
 import {InstanceBufferManager} from "../internal/gpuMemoryManager/InstanceBufferManager";
 import {TriangleBatchManager} from "../internal/gpuMemoryManager/TriangleBatchManager";
 import {WebGPUPickBuffer, WebGPUSnapBufferCache} from "../internal/webGPU";
@@ -559,6 +560,16 @@ function createTriangleMesh(meshId = "mesh") {
     effectiveOpacity: 1
   };
 
+  return {geometry, mesh};
+}
+
+function createTriangleMeshWithNormals(meshId = "mesh") {
+  const {geometry, mesh} = createTriangleMesh(meshId);
+  (geometry as any).normalsCompressed = new Uint16Array([
+    32767, 32767,
+    32767, 32767,
+    32767, 32767
+  ]);
   return {geometry, mesh};
 }
 
@@ -1189,7 +1200,7 @@ describe("WebGPURenderer contract", () => {
       depthCompare: "less"
     });
     expect(depthPipelineDescriptor.fragment.targets).toEqual([]);
-    expect(colorPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-opaque-pipeline");
+    expect(colorPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline");
     expect(colorPipelineDescriptor.depthStencil).toEqual({
       format: "depth24plus-stencil8",
       depthWriteEnabled: true,
@@ -1387,7 +1398,7 @@ describe("WebGPURenderer contract", () => {
       (call[0] as any).label === "xeokit-webgpu-sky-pipeline"
     );
     const colorPipelineIndex = gpu.device.createRenderPipeline.mock.calls.findIndex((call) =>
-      (call[0] as any).label === "xeokit-webgpu-triangles-draw-color-opaque-pipeline"
+      (call[0] as any).label === "xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline"
     );
     expect(skyPipelineIndex).toBeGreaterThan(-1);
     expect(colorPipelineIndex).toBeGreaterThan(skyPipelineIndex);
@@ -1536,6 +1547,12 @@ describe("WebGPURenderer contract", () => {
       1, 0,
       0, 1
     ]);
+    const materialBuffer = gpu.buffers.find((candidate) => {
+      return candidate.descriptor?.label?.startsWith("xeokit-webgpu-packed-materials:triangles:unowned_dynamic_stream_texture_model_albedo_2x2_");
+    });
+    expect(materialBuffer).toBeDefined();
+    const materialUpload = getLastWriteBufferData<Float32Array>(gpu, materialBuffer.descriptor.label);
+    expect(materialUpload[7]).toBe(-1);
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(2, uvBuffer);
     expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(2, expect.any(Object));
   });
@@ -2013,11 +2030,72 @@ describe("WebGPURenderer contract", () => {
     ]);
   });
 
+  test("uploads inverse-transpose normal matrix for authored triangle normals", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMeshWithNormals();
+    mesh.worldMatrix = [
+      2.7, 0, 0, 0,
+      0, 2.0, 0, 0,
+      0, 0, 0.06, 0,
+      0, 0, 0, 1
+    ];
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      renderConfigs: {
+        depthPrepass: false
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    const instanceUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-instance-buffer");
+    expect(instanceUpload[24]).toBeCloseTo(1 / 2.7);
+    expect(instanceUpload[25]).toBeCloseTo(0);
+    expect(instanceUpload[26]).toBeCloseTo(0);
+    expect(instanceUpload[28]).toBeCloseTo(0);
+    expect(instanceUpload[29]).toBeCloseTo(1 / 2.0);
+    expect(instanceUpload[30]).toBeCloseTo(0);
+    expect(instanceUpload[32]).toBeCloseTo(0);
+    expect(instanceUpload[33]).toBeCloseTo(0);
+    expect(instanceUpload[34]).toBeCloseTo(1 / 0.06);
+
+    const triangleShader = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
+      call[0]?.label === "xeokit-webgpu-triangles-draw-color-shader"
+    )?.[0] as any;
+    expect(triangleShader?.code).toContain("dot(instance.normalMatrix0.xyz, input.normal.xyz)");
+    expect(triangleShader?.code).toContain("if (dot(normalView, viewPosForIBL) > 0.0)");
+    expect(triangleShader?.code).toContain("fn perturbNormalTriplanar");
+    expect(triangleShader?.code).toContain("let useUVTextures = textureMode < 0.0");
+    expect(triangleShader?.code).toContain("let uvNormal = perturbNormal(input, normal, uv)");
+    expect(triangleShader?.code).toContain("normal = select(normal, uvNormal, useUVTextures)");
+    expect(triangleShader?.code).toContain("normal = perturbNormalTriplanar(input.worldPos, normal, triplanarScale)");
+    expect(triangleShader?.code).not.toContain("nmX.y = -nmX.y");
+    expect(triangleShader?.code).not.toContain("nmY.y = -nmY.y");
+    expect(triangleShader?.code).not.toContain("nmZ.y = -nmZ.y");
+
+    renderer.detachViewer();
+  });
+
   test("renders WebGPU directional shadow cascades for opaque triangles", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
-    const {mesh} = createTriangleMesh();
+    const {mesh} = createTriangleMeshWithNormals();
 
     view.camera.eye = [0, 0, 5];
     view.camera.look = [0, 0, 0];
@@ -2117,10 +2195,20 @@ describe("WebGPURenderer contract", () => {
     expect(colorShader.code).toContain("var iblPrefilteredCubemap: texture_cube<f32>");
     expect(colorShader.code).toContain("var iblBRDFLUT: texture_2d<f32>");
     expect(colorShader.code).toContain("let viewDirView = normalize(-viewPosForIBL)");
-    expect(colorShader.code).toContain("let viewNormal = normalize((shadow.cameraView * vec4<f32>(normal, 0.0)).xyz)");
+    expect(colorShader.code).toContain("let faceNormalView = normalize((frame.viewMatrix * vec4<f32>(faceNormal, 0.0)).xyz)");
+    expect(colorShader.code).toContain("let viewPosForIBL = (frame.viewMatrix * vec4<f32>(input.worldPos, 1.0)).xyz");
+    expect(colorShader.code).toContain("let viewNormal = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz)");
+    expect(colorShader.code).toContain("let lightDir = normalize((frame.viewMatrix * vec4<f32>(frame.dirLightDirections[i].xyz, 0.0)).xyz)");
     expect(colorShader.code).toContain("ibl.viewToWorld0.xyz * dir.x");
     expect(colorShader.code).toContain("let worldViewDir = viewToWorldDirection(viewDirView)");
     expect(colorShader.code).toContain("let tangentSample = vec3<f32>(tangentSampleRaw.x, -tangentSampleRaw.y, tangentSampleRaw.z)");
+    expect(colorShader.code).toContain("let viewNormal = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz)");
+    expect(colorShader.code).toContain("let viewPos = (frame.viewMatrix * vec4<f32>(input.rtcPos, 1.0)).xyz");
+    expect(colorShader.code).toContain("let perturbedViewNormal = normalize(tbn * tangentSample)");
+    expect(colorShader.code).toContain("return normalize(transpose(viewRotation) * perturbedViewNormal)");
+    expect(colorShader.code).toContain("let xUV = vec2<f32>(p.y, -p.z)");
+    expect(colorShader.code).toContain("let yUV = vec2<f32>(p.x, -p.z)");
+    expect(colorShader.code).toContain("let zUV = vec2<f32>(p.x, -p.y)");
     expect(colorShader.code).toContain("let iblSpec = iblSpecEnv * (f0 * brdfLUT.x + brdfLUT.y)");
     expect(colorShader.code).toContain("let iblIntensity = max(ibl.params.x, 0.0)");
     expect(colorShader.code).toContain("let ambientScale = mix(1.0, 0.75, clamp(iblIntensity, 0.0, 1.0))");
@@ -2159,6 +2247,27 @@ describe("WebGPURenderer contract", () => {
     expect(gpu.device.createCommandEncoder).toHaveBeenCalledTimes(5);
     expect(gpu.device.queue.submit).toHaveBeenCalledTimes(5);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(6);
+  });
+
+  test("uses Lambert lighting without IBL for no-normal triangle shader", () => {
+    const shader = createTrianglesDrawColorNoNormalsShader();
+
+    expect(shader).toContain("let dpdxRTC = dpdx(input.rtcPos)");
+    expect(shader).toContain("let dpdyRTC = dpdy(input.rtcPos)");
+    expect(shader).toContain("let useUVTexture = textureMode < -0.5");
+    expect(shader).toContain("var baseColorSample = vec4<f32>(1.0, 1.0, 1.0, 1.0)");
+    expect(shader).toContain("var emissiveSample = vec4<f32>(0.0, 0.0, 0.0, 1.0)");
+    expect(shader).toContain("var aoSample = vec4<f32>(1.0, 1.0, 1.0, 1.0)");
+    expect(shader).toContain("directColor += baseColor * lightColor.rgb * lightColor.a * lambertian");
+    expect(shader).toContain("let litColor = max(ambientColor + directColor * shadowFactor + emissive, ambientColor + emissive)");
+    expect(shader).toContain("var shadowMap: texture_depth_2d_array");
+    expect(shader).not.toContain("IBLUniforms");
+    expect(shader).not.toContain("iblIrradianceCubemap");
+    expect(shader).not.toContain("iblPrefilteredCubemap");
+    expect(shader).not.toContain("iblBRDFLUT");
+    expect(shader).not.toContain("distributionGGX");
+    expect(shader).not.toContain("geometrySmith");
+    expect(shader).not.toContain("fresnelSchlick");
   });
 
   test("submits WebGPU shadow cascades with RTC tile matrices before rewriting them", () => {
@@ -2292,7 +2401,7 @@ describe("WebGPURenderer contract", () => {
       usage: 21
     }));
     const hdrTrianglePipeline = gpu.device.createRenderPipeline.mock.calls.find((call: any[]) =>
-      call[0]?.label === "xeokit-webgpu-triangles-draw-color-opaque-pipeline"
+      call[0]?.label === "xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline"
     )?.[0] as any;
     expect(hdrTrianglePipeline?.fragment.targets[0].format).toBe("rgba16float");
     expect(gpu.device.createRenderPipeline).toHaveBeenCalledWith(expect.objectContaining({
@@ -2342,6 +2451,69 @@ describe("WebGPURenderer contract", () => {
     expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalled();
     const scenePass = gpu.commandEncoder.beginRenderPass.mock.calls[1][0] as any;
     expect(scenePass.colorAttachments[0].view).toBe(gpu.depthTextureView);
+  });
+
+  test("routes sRGB encode through post-process when tonemap curve is inactive", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+
+    view.effects = {
+      tonemap: {
+        applied: false,
+        possible: true,
+        exposure: 0.5,
+        mode: "aces",
+        sRGBEncode: true
+      },
+      antiAliasing: {
+        applied: false,
+        possible: true,
+        mode: "none"
+      },
+      sao: {
+        applied: false,
+        possible: true,
+        intensity: 0
+      }
+    };
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "bgra8unorm",
+      logging: false,
+      renderConfigs: {
+        depthPrepass: false
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    const scenePipeline = gpu.device.createRenderPipeline.mock.calls.find((call: any[]) =>
+      call[0]?.label === "xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline"
+    )?.[0] as any;
+    expect(scenePipeline?.fragment.targets[0].format).toBe("rgba16float");
+    const postProcessPipeline = gpu.device.createRenderPipeline.mock.calls.find((call: any[]) =>
+      call[0]?.label === "xeokit-webgpu-postprocess-pipeline"
+    )?.[0] as any;
+    expect(postProcessPipeline?.fragment.targets[0].format).toBe("bgra8unorm");
+
+    const postProcessParams = getLastWriteBufferData<Float32Array>(gpu, "xeokit-webgpu-postprocess-params");
+    expect(postProcessParams[2]).toBe(1);
+    expect(postProcessParams[3]).toBe(0);
+    expect(postProcessParams[4]).toBe(1);
+    expect(postProcessParams[5]).toBe(0);
+    expect(postProcessParams[6]).toBe(0);
   });
 
   test("assigns multiple WebGPU mesh instances to independent RTC tile matrices", () => {
@@ -2492,7 +2664,7 @@ describe("WebGPURenderer contract", () => {
 
     expect(result.ok).toBe(true);
     expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(1);
-    expect((gpu.device.createRenderPipeline.mock.calls[0][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-opaque-pipeline");
+    expect((gpu.device.createRenderPipeline.mock.calls[0][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline");
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
     expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalledTimes(1);
     expect(gpu.commandEncoder.beginRenderPass.mock.calls[0][0]).toMatchObject({
@@ -2566,7 +2738,7 @@ describe("WebGPURenderer contract", () => {
 
     expect(result.ok).toBe(true);
     const shaderDescriptor = gpu.device.createShaderModule.mock.calls[0][0] as any;
-    expect(shaderDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-log-depth-shader");
+    expect(shaderDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-log-depth-shader");
     expect(shaderDescriptor.code).toContain("@builtin(frag_depth)");
     expect(shaderDescriptor.code).toContain("log2(max(1.0e-6, input.fragDepth))");
 
@@ -3067,7 +3239,7 @@ describe("WebGPURenderer contract", () => {
     expect(frameStats?.renderBins[1].drawCalls[0]).toMatchObject({
       renderPass: "OPAQUE",
       primitive: "TRIANGLES",
-      technique: "TrianglesDrawColorTechnique",
+      technique: "TrianglesDrawColorNoNormalsTechnique",
       indexCount: 3,
       numPrims: 1
     });
@@ -5023,7 +5195,7 @@ describe("WebGPURenderer contract", () => {
     expect(result.ok).toBe(true);
     expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(1);
     const transparentPipelineDescriptor = gpu.device.createRenderPipeline.mock.calls[0][0] as any;
-    expect(transparentPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-transparent-pipeline");
+    expect(transparentPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-transparent-pipeline");
     expect(transparentPipelineDescriptor.depthStencil.depthWriteEnabled).toBe(false);
     expect(transparentPipelineDescriptor.depthStencil.depthCompare).toBe("less-equal");
     expect(transparentPipelineDescriptor.fragment.targets[0].blend.color.srcFactor).toBe("one");
@@ -5068,14 +5240,14 @@ describe("WebGPURenderer contract", () => {
     expect(result.ok).toBe(true);
     expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(1);
     const pipelineDescriptor = gpu.device.createRenderPipeline.mock.calls[0][0] as any;
-    expect(pipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-transparent-pipeline");
+    expect(pipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-transparent-pipeline");
     expect(pipelineDescriptor.depthStencil).toEqual({
       format: "depth24plus-stencil8",
       depthWriteEnabled: false,
       depthCompare: "less-equal"
     });
     const shaderDescriptor = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
-      call[0]?.label === "xeokit-webgpu-triangles-draw-color-shader"
+      call[0]?.label === "xeokit-webgpu-triangles-draw-color-no-normals-shader"
     )?.[0] as any;
     expect(shaderDescriptor?.code).toContain("input.material1.y > 0.5 && input.material1.y < 1.5 && alpha < input.material1.z");
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
@@ -5414,8 +5586,8 @@ describe("WebGPURenderer contract", () => {
     expect(result.ok).toBe(true);
     expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(3);
     expect((gpu.device.createRenderPipeline.mock.calls[0][0] as any).label).toBe("xeokit-webgpu-triangles-depth-prepass-pipeline");
-    expect((gpu.device.createRenderPipeline.mock.calls[1][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-opaque-pipeline");
-    expect((gpu.device.createRenderPipeline.mock.calls[2][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-transparent-pipeline");
+    expect((gpu.device.createRenderPipeline.mock.calls[1][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline");
+    expect((gpu.device.createRenderPipeline.mock.calls[2][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-transparent-pipeline");
     expect(gpu.passEncoder.setPipeline.mock.calls[0]).toEqual([gpu.renderPipelines[0]]);
     expect(gpu.passEncoder.setBindGroup.mock.calls[0]).toEqual([0, gpu.bindGroup]);
     expect(gpu.passEncoder.setBindGroup.mock.calls[1]).toEqual([1, gpu.bindGroups[1]]);

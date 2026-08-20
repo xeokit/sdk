@@ -1,15 +1,19 @@
-import type {Viewer} from "../../viewer";
-import type {MemoryConfigs} from "../MemoryConfigs";
-import type {WebGPURenderConfigs} from "../WebGPURenderConfigs";
+import type {Viewer} from "../viewer";
+import type {MemoryConfigs} from "./MemoryConfigs";
+import type {WebGPURenderConfigs} from "./WebGPURenderConfigs";
 import type {
   WebGPUAdapterLike,
   WebGPUCanvasAlphaMode,
   WebGPUDeviceDescriptor,
   WebGPUDeviceLike,
   WebGPURequestAdapterOptions
-} from "./types";
+} from "./core/types";
 
-export * from "./types";
+export type {WebGPUAdapterLike} from "./core/types/WebGPUAdapterLike";
+export type {WebGPUCanvasAlphaMode} from "./core/types/WebGPUCanvasAlphaMode";
+export type {WebGPUDeviceDescriptor} from "./core/types/WebGPUDeviceDescriptor";
+export type {WebGPUDeviceLike} from "./core/types/WebGPUDeviceLike";
+export type {WebGPURequestAdapterOptions} from "./core/types/WebGPURequestAdapterOptions";
 
 /**
  * Configuration for {@link WebGPURenderer}.
@@ -79,9 +83,11 @@ export interface WebGPURendererParams {
   /**
    * GPU memory and packed-batch sizing overrides.
    *
-   * WebGPU uses this to size packed triangle segments and per-view instance
-   * storage. Larger values reduce draw calls; smaller values reduce streaming
-   * load hitches.
+   * WebGPU uses this to allocate RTC tile storage, size packed geometry buffer
+   * pages, limit segment-build work during streaming, size per-view instance
+   * buffers, and optionally cull packed segments before draw submission.
+   * Larger segment limits reduce draw calls; smaller limits reduce individual
+   * CPU packing and GPU upload jobs.
    */
   memoryConfigs?: Partial<MemoryConfigs>;
 

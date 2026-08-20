@@ -488,7 +488,7 @@ class View {
 
     new AmbientLight(this, {
       color: [1.0, 1.0, 1.0],
-      intensity: 1.0
+      intensity: 0.0
     });
 
     new DirLight(this, {

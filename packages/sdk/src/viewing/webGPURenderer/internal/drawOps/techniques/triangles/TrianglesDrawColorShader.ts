@@ -77,6 +77,9 @@ struct MeshInstance {
   modelMatrix: mat4x4<f32>,
   color: vec4<f32>,
   flags: vec4<f32>,
+  normalMatrix0: vec4<f32>,
+  normalMatrix1: vec4<f32>,
+  normalMatrix2: vec4<f32>,
 };
 
 @group(1) @binding(0) var<storage, read> instances: array<MeshInstance>;
@@ -125,7 +128,11 @@ fn vs_main(input: VertexInput) -> VertexOutput {
   output.material1 = input.material1;
   output.normal = vec4<f32>(0.0, 0.0, 0.0, input.normal.w);
   if (input.normal.w > 0.5) {
-    output.normal = vec4<f32>(normalize((instance.modelMatrix * vec4<f32>(input.normal.xyz, 0.0)).xyz), 1.0);
+    output.normal = vec4<f32>(normalize(vec3<f32>(
+      dot(instance.normalMatrix0.xyz, input.normal.xyz),
+      dot(instance.normalMatrix1.xyz, input.normal.xyz),
+      dot(instance.normalMatrix2.xyz, input.normal.xyz)
+    )), 1.0);
   }
 ${triangleLogDepthVertexWrite(logDepth)}
   return output;
@@ -246,53 +253,82 @@ fn triplanarWeights(normal: vec3<f32>) -> vec3<f32> {
 fn sampleColorTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(colorTexture, colorSampler, fract(p.yz), 0.0);
-  let ySample = textureSampleLevel(colorTexture, colorSampler, fract(p.xz), 0.0);
-  let zSample = textureSampleLevel(colorTexture, colorSampler, fract(p.xy), 0.0);
+  let xSample = textureSampleLevel(colorTexture, colorSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
+  let ySample = textureSampleLevel(colorTexture, colorSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
+  let zSample = textureSampleLevel(colorTexture, colorSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
 fn sampleMetallicRoughnessTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(p.yz), 0.0);
-  let ySample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(p.xz), 0.0);
-  let zSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(p.xy), 0.0);
+  let xSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
+  let ySample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
+  let zSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
 fn sampleEmissiveTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(p.yz), 0.0);
-  let ySample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(p.xz), 0.0);
-  let zSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(p.xy), 0.0);
+  let xSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
+  let ySample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
+  let zSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
 fn sampleOcclusionTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(p.yz), 0.0);
-  let ySample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(p.xz), 0.0);
-  let zSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(p.xy), 0.0);
+  let xSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
+  let ySample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
+  let zSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
   return xSample * w.x + ySample * w.y + zSample * w.z;
+}
+
+fn perturbNormalTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec3<f32> {
+  let p = worldPos / max(scale, 0.0001);
+  let w = triplanarWeights(normal);
+  // Use the same projection coordinates as the albedo map above. The
+  // signed world-axis mapping below accounts for each projection's
+  // tangent directions, so the bump features stay registered to color.
+  let xUV = vec2<f32>(p.y, -p.z);
+  let yUV = vec2<f32>(p.x, -p.z);
+  let zUV = vec2<f32>(p.x, -p.y);
+  var nmX = textureSampleLevel(normalTexture, normalSampler, fract(xUV), 0.0).xyz * 2.0 - 1.0;
+  var nmY = textureSampleLevel(normalTexture, normalSampler, fract(yUV), 0.0).xyz * 2.0 - 1.0;
+  var nmZ = textureSampleLevel(normalTexture, normalSampler, fract(zUV), 0.0).xyz * 2.0 - 1.0;
+  let nmWorld = vec3<f32>(0.0, nmX.x, -nmX.y) * w.x +
+    vec3<f32>(nmY.x, 0.0, -nmY.y) * w.y +
+    vec3<f32>(nmZ.x, -nmZ.y, 0.0) * w.z;
+  return normalize(normal + nmWorld);
 }
 
 fn perturbNormal(input: VertexOutput, normal: vec3<f32>, uv: vec2<f32>) -> vec3<f32> {
   let tangentSampleRaw = textureSampleLevel(normalTexture, normalSampler, uv, 0.0).xyz * 2.0 - 1.0;
   let tangentSample = vec3<f32>(tangentSampleRaw.x, -tangentSampleRaw.y, tangentSampleRaw.z);
-  let dp1 = dpdx(input.rtcPos);
-  let dp2 = dpdy(input.rtcPos);
+  // Match WebGLRenderer: build the tangent frame in view space from the
+  // same position and normal derivatives used by its UV path. Returning
+  // the result in world space keeps the WebGPU lighting path unchanged.
+  let viewNormal = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz);
+  let viewPos = (frame.viewMatrix * vec4<f32>(input.rtcPos, 1.0)).xyz;
+  let dp1 = dpdx(viewPos);
+  let dp2 = dpdy(viewPos);
   let duv1 = dpdx(input.uv);
   let duv2 = dpdy(input.uv);
-  let dp2perp = cross(dp2, normal);
-  let dp1perp = cross(normal, dp1);
+  let dp2perp = cross(dp2, viewNormal);
+  let dp1perp = cross(viewNormal, dp1);
   let tangent = dp2perp * duv1.x + dp1perp * duv2.x;
   let bitangent = dp2perp * duv1.y + dp1perp * duv2.y;
   let invMax = inverseSqrt(max(max(dot(tangent, tangent), dot(bitangent, bitangent)), 1e-10));
-  let tbn = mat3x3<f32>(tangent * invMax, bitangent * invMax, normal);
-  return normalize(tbn * tangentSample);
+  let tbn = mat3x3<f32>(tangent * invMax, bitangent * invMax, viewNormal);
+  let perturbedViewNormal = normalize(tbn * tangentSample);
+  let viewRotation = mat3x3<f32>(
+    frame.viewMatrix[0].xyz,
+    frame.viewMatrix[1].xyz,
+    frame.viewMatrix[2].xyz
+  );
+  return normalize(transpose(viewRotation) * perturbedViewNormal);
 }
 
 @fragment
@@ -300,8 +336,8 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let dpdxRTC = dpdx(input.rtcPos);
   let dpdyRTC = dpdy(input.rtcPos);
   var faceNormal = normalize(cross(dpdyRTC, dpdxRTC));
-  let faceNormalView = normalize((shadow.cameraView * vec4<f32>(faceNormal, 0.0)).xyz);
-  let viewPosForIBL = (shadow.cameraView * vec4<f32>(input.worldPos, 1.0)).xyz;
+  let faceNormalView = normalize((frame.viewMatrix * vec4<f32>(faceNormal, 0.0)).xyz);
+  let viewPosForIBL = (frame.viewMatrix * vec4<f32>(input.worldPos, 1.0)).xyz;
   let viewDirView = normalize(-viewPosForIBL);
   if (dot(faceNormalView, viewDirView) < 0.0) {
     faceNormal = -faceNormal;
@@ -309,12 +345,21 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   var normal = faceNormal;
   if (input.normal.w > 0.5) {
     normal = normalize(input.normal.xyz);
-    if (!frontFacing) {
+    let normalView = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz);
+    if (dot(normalView, viewPosForIBL) > 0.0) {
       normal = -normal;
     }
   }
   let uv = fract(input.uv);
-  normal = perturbNormal(input, normal, uv);
+  let textureMode = input.material1.w;
+  let triplanarScale = max(textureMode, 0.0);
+  let useUVTextures = textureMode < 0.0;
+  let useTriplanar = textureMode > 0.0;
+  let uvNormal = perturbNormal(input, normal, uv);
+  normal = select(normal, uvNormal, useUVTextures);
+  if (useTriplanar) {
+    normal = perturbNormalTriplanar(input.worldPos, normal, triplanarScale);
+  }
   if (input.clippable > 0.5) {
     for (var i = 0u; i < 8u; i = i + 1u) {
       if (i >= u32(frame.sectionPlaneState.x)) {
@@ -327,8 +372,6 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
     }
   }
   let worldNormal = normalize(normal);
-  let triplanarScale = input.material1.w;
-  let useTriplanar = triplanarScale > 0.0;
   var baseColorSample: vec4<f32>;
   if (useTriplanar) {
     baseColorSample = sampleColorTriplanar(input.worldPos, worldNormal, triplanarScale);
@@ -362,8 +405,7 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
     aoSample = textureSampleLevel(occlusionTexture, occlusionSampler, uv, 0.0);
   }
   let ao = aoSample.r;
-  let viewNormal = normalize((shadow.cameraView * vec4<f32>(normal, 0.0)).xyz);
-  let f0 = mix(vec3<f32>(0.04, 0.04, 0.04), baseColor, vec3<f32>(metallic));
+  let viewNormal = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz);
   let iblIntensity = max(ibl.params.x, 0.0);
   let ambientScale = mix(1.0, 0.75, clamp(iblIntensity, 0.0, 1.0));
   let flatAmbientColor = frame.ambientLight.rgb * frame.ambientLight.a * ambientScale * baseColor * ao;
@@ -371,25 +413,6 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let hemisphereAmbient = mix(frame.hemisphereGround.rgb, frame.hemisphereSky.rgb, hemisphereFacing);
   let hemisphereColor = hemisphereAmbient * max(frame.hemisphereSky.a, 0.0) * baseColor * ao;
   let ambientColor = flatAmbientColor + hemisphereColor;
-  var directColor = vec3<f32>(0.0, 0.0, 0.0);
-  for (var i = 0u; i < 3u; i = i + 1u) {
-    let lightDir = normalize((shadow.cameraView * vec4<f32>(frame.dirLightDirections[i].xyz, 0.0)).xyz);
-    let lightColor = frame.dirLightColors[i];
-    let l = normalize(-lightDir);
-    let halfDir = normalize(viewDirView + l);
-    let nDotL = max(dot(viewNormal, l), 0.0);
-    let nDotV = max(dot(viewNormal, viewDirView), 0.001);
-    let nDotH = max(dot(viewNormal, halfDir), 0.0);
-    let hDotV = max(dot(halfDir, viewDirView), 0.0);
-    let d = distributionGGX(nDotH, roughness);
-    let g = geometrySmith(nDotV, nDotL, roughness);
-    let f = fresnelSchlick(hDotV, f0);
-    let numerator = d * g * f;
-    let specular = numerator / max(4.0 * nDotV * nDotL, 0.0001);
-    let kd = (vec3<f32>(1.0) - f) * (1.0 - metallic);
-    let diffuse = kd * baseColor / PI;
-    directColor += (diffuse + specular) * lightColor.rgb * lightColor.a * nDotL;
-  }
   let shadowFactor = sampleShadow(input, normal);
   if (shadow.debug.x > 1.5) {
     let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
@@ -410,6 +433,26 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   }
   if (shadow.debug.x > 0.5) {
     return ${triangleLogDepthReturn(logDepth, "vec4<f32>(vec3<f32>(shadowFactor), input.color.a)")};
+  }
+  let f0 = mix(vec3<f32>(0.04, 0.04, 0.04), baseColor, vec3<f32>(metallic));
+  var directColor = vec3<f32>(0.0, 0.0, 0.0);
+  for (var i = 0u; i < 3u; i = i + 1u) {
+    let lightDir = normalize((frame.viewMatrix * vec4<f32>(frame.dirLightDirections[i].xyz, 0.0)).xyz);
+    let lightColor = frame.dirLightColors[i];
+    let l = normalize(-lightDir);
+    let halfDir = normalize(viewDirView + l);
+    let nDotL = max(dot(viewNormal, l), 0.0);
+    let nDotV = max(dot(viewNormal, viewDirView), 0.001);
+    let nDotH = max(dot(viewNormal, halfDir), 0.0);
+    let hDotV = max(dot(halfDir, viewDirView), 0.0);
+    let d = distributionGGX(nDotH, roughness);
+    let g = geometrySmith(nDotV, nDotL, roughness);
+    let f = fresnelSchlick(hDotV, f0);
+    let numerator = d * g * f;
+    let specular = numerator / max(4.0 * nDotV * nDotL, 0.0001);
+    let kd = (vec3<f32>(1.0) - f) * (1.0 - metallic);
+    let diffuse = kd * baseColor / PI;
+    directColor += (diffuse + specular) * lightColor.rgb * lightColor.a * nDotL;
   }
   let worldViewDir = viewToWorldDirection(viewDirView);
   let worldReflection = reflect(-worldViewDir, worldNormal);

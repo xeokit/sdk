@@ -1,4 +1,4 @@
-import type {RendererEvents} from "../../renderer";
+import type {RendererEvents} from "../renderer";
 import type {WebGPURenderer} from "./WebGPURenderer";
 
 /**

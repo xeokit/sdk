@@ -1,5 +1,6 @@
 export * from "./TrianglesDepthPrepassTechnique";
 export * from "./TrianglesDrawColorTechnique";
+export * from "./TrianglesDrawColorNoNormalsTechnique";
 export * from "./TrianglesDrawColorFlatTechnique";
 export * from "./TrianglesDrawEdgeColorTechnique";
 export * from "./TrianglesPickTechnique";

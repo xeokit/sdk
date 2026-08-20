@@ -41,6 +41,7 @@ export interface TriangleBatchSegment {
   label: string;
   signature: string;
   primitive: number;
+  hasNormals: boolean;
   baseSlot: number;
   slotCount: number;
   slotEnd: number;
@@ -693,6 +694,7 @@ export class TriangleBatchManager {
     const isPoints = primitive === PointsPrimitive;
     const isLines = primitive === LinesPrimitive;
     const isTriangles = !isPoints && !isLines;
+    const hasNormals = isTriangles && !!meshStates[0]?.geometryState.normals;
     const pbrTriangleColor = isTriangles && this._renderContext.renderConfigs.triangleColorMode === "pbr";
     const includeEdges = isTriangles && this._renderContext.renderConfigs.edges;
     for (let i = 0, len = meshStates.length; i < len; i++) {
@@ -715,7 +717,7 @@ export class TriangleBatchManager {
     let vertexBuffer: WebGPUBufferLike | null = null;
     let bufferPage: TriangleBufferPage | null = null;
     const baseSlot = this._allocateSlots(meshStates.length);
-    const segmentLabel = this._sanitizeLabel(key);
+    const segmentLabel = this._sanitizeSegmentLabel(key);
     const segmentStartedAt = nowMs();
     let packMs = 0;
     let uploadMs = 0;
@@ -979,6 +981,7 @@ export class TriangleBatchManager {
         label: segmentLabel,
         signature,
         primitive: isPoints ? PointsPrimitive : (isLines ? LinesPrimitive : TrianglesPrimitive),
+        hasNormals,
         baseSlot,
         slotCount: slots.length,
         slotEnd: baseSlot + slots.length,
@@ -1263,6 +1266,7 @@ export class TriangleBatchManager {
         value: {
           packedBatch: {
             primitive: segment.primitive,
+            hasNormals: segment.hasNormals,
             label: params.label,
             segmentKey: segment.key,
             bufferPageKey: segment.bufferPageKey,
@@ -1355,6 +1359,7 @@ export class TriangleBatchManager {
         packedBatch: {
           label: params.label,
           primitive: segment.primitive,
+          hasNormals: segment.hasNormals,
           segmentKey: segment.key,
           bufferPageKey: segment.bufferPageKey,
           renderStateKey,
@@ -1780,8 +1785,10 @@ export class TriangleBatchManager {
     if (primitive === PointsPrimitive || primitive === LinesPrimitive) {
       return `${baseKey}|primitive:${primitive}`;
     }
+    const hasNormals = !!meshState.geometryState.normals;
     const textureKey = getPBRTextureTupleKey(this._textureBindGroupManager, meshState.mesh);
-    return textureKey === DEFAULT_TEXTURE_KEY ? baseKey : `${baseKey}|texture:${textureKey}`;
+    const triangleBaseKey = `${baseKey}|hasNormals:${hasNormals ? 1 : 0}`;
+    return textureKey === DEFAULT_TEXTURE_KEY ? triangleBaseKey : `${triangleBaseKey}|texture:${textureKey}`;
   }
 
   private _getSegmentBaseLifecycle(lifecycle: string, memoryPolicy: string): string {
@@ -1949,6 +1956,10 @@ export class TriangleBatchManager {
   private _sanitizeLabel(value: string): string {
     return value.replace(/[^a-zA-Z0-9_.-]/g, "_");
   }
+
+  private _sanitizeSegmentLabel(value: string): string {
+    return this._sanitizeLabel(value.replace(/\|hasNormals:[01]/g, ""));
+  }
 }
 
 function createEmptyAABB(): Float64Array {
@@ -1995,6 +2006,7 @@ function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boole
   return {
     packedBatch: {
       primitive: packedBatch.primitive,
+      hasNormals: packedBatch.hasNormals,
       label: packedBatch.label,
       segmentKey: packedBatch.segmentKey,
       bufferPageKey: packedBatch.bufferPageKey,
@@ -2184,9 +2196,9 @@ function copyMaterialInto(
 ): void {
   const emissive = getEffectiveEmissiveColor(sceneMesh);
   const alphaMode = getEffectiveAlphaMode(sceneMesh);
-  const triplanarScale = !hasUVs && meshHasAnyPBRTexture(sceneMesh)
-    ? getEffectiveTriplanarScale(sceneMesh)
-    : 0;
+  const textureMode = hasUVs && meshHasAnyPBRTexture(sceneMesh)
+    ? -1
+    : (!hasUVs && meshHasAnyPBRTexture(sceneMesh) ? getEffectiveTriplanarScale(sceneMesh) : 0);
   for (let i = 0; i < vertexCount; i++) {
     const offset = (vertexOffset + i) * 8;
     target[offset] = getEffectiveRoughness(sceneMesh);
@@ -2196,7 +2208,7 @@ function copyMaterialInto(
     target[offset + 4] = emissive[2];
     target[offset + 5] = alphaMode;
     target[offset + 6] = getEffectiveAlphaCutoff(sceneMesh);
-    target[offset + 7] = triplanarScale;
+    target[offset + 7] = textureMode;
   }
 }
 

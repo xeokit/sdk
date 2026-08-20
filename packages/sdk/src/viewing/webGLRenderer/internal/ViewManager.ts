@@ -874,6 +874,10 @@ export class ViewManager {
 
     const wasActive = this._activeView === rendererView;
 
+    // WebGL renders through its shared canvas and hides the View's host
+    // element while that canvas is active. Restore the host element before
+    // releasing the view so another renderer can render into it.
+    rendererView.view.htmlElement.style.opacity = "";
     rendererView.destroy();
     delete this._rendererViews[view.id];
     this._rendererViewsList = this._rendererViewsList.filter(rv => rv !== rendererView);

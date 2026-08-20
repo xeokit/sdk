@@ -1,26 +1,29 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {EventEmitter, SDKErrorType, type SDKResult} from "../../../base/core";
-import type {SceneGeometry, SceneMesh, SceneModel, SceneModelBatch, SceneObject} from "../../../model/scene";
-import type {Renderer, RendererError} from "../../renderer";
-import type {PickParams, PickResult, View, Viewer} from "../../viewer";
-import {ViewManager} from "../internal";
-import type {RenderInspector, ViewRenderStats} from "../internal/inspectors";
-import {createMemoryConfigs} from "../createMemoryConfigs";
-import {createWebGPURenderConfigs} from "../createWebGPURenderConfigs";
-import type {MemoryConfigs} from "../MemoryConfigs";
-import type {WebGPUMemoryStats} from "../WebGPUMemoryStats";
-import type {WebGPURenderConfigs} from "../WebGPURenderConfigs";
+import {EventEmitter, SDKErrorType, type SDKResult} from "../../base/core";
+import type {SceneGeometry, SceneMesh, SceneModel, SceneModelBatch, SceneObject} from "../../model/scene";
+import type {Renderer, RendererError} from "../renderer";
+import type {PickParams, PickResult, View, Viewer} from "../viewer";
+import {ViewManager} from "./internal";
+import type {RenderInspector, ViewRenderStats} from "./internal/inspectors";
+import {createMemoryConfigs} from "./createMemoryConfigs";
+import {createWebGPURenderConfigs} from "./createWebGPURenderConfigs";
+import type {MemoryConfigs} from "./MemoryConfigs";
+import type {WebGPUMemoryStats} from "./WebGPUMemoryStats";
+import type {WebGPURenderConfigs} from "./WebGPURenderConfigs";
 import type {WebGPURendererEvents} from "./WebGPURendererEvents";
+import type {WebGPUViewRenderStats} from "./WebGPUViewRenderStats";
 import type {
-  GlobalWithOptionalWebGPU,
   WebGPUAdapterLike,
   WebGPUCanvasAlphaMode,
   WebGPUDeviceDescriptor,
   WebGPUDeviceLike,
-  WebGPUDeviceLostInfoLike,
-  WebGPUNavigatorLike,
   WebGPURendererParams
 } from "./WebGPURendererParams";
+import type {
+  GlobalWithOptionalWebGPU,
+  WebGPUDeviceLostInfoLike,
+  WebGPUNavigatorLike
+} from "./core/types";
 
 interface DeferredSceneModelRegistrations {
   geometries: Set<SceneGeometry>;
@@ -415,23 +418,11 @@ export class WebGPURenderer implements Renderer {
 
   /**
    * Gets summary stats for the last rendered frame of a View.
+   *
+   * @param viewIndex - Zero-based Viewer View index.
+   * @returns Last frame stats for the View, or `null` when no frame stats are available.
    */
-  public getViewRenderStats(viewIndex: number): {
-    numDrawCalls: number;
-    numPrimitives: number;
-    numBatches: number;
-    renderBins: {
-      name: string;
-      numDrawCalls: number;
-      numPrimitives: number;
-    }[];
-    numRTCTiles: number;
-    numRTCTileMatrixUploads: number;
-    numMeshesWithRTCTile: number;
-    numMeshesUsingRTCFallback: number;
-    frameTimeMs: number;
-    cpuTime: ViewRenderStats["cpuTime"];
-  } | null {
+  public getViewRenderStats(viewIndex: number): WebGPUViewRenderStats | null {
     const inspector = this._viewManager?.getRenderInspector();
     const stats = inspector?.renderStats.views?.[viewIndex];
     if (!stats) {

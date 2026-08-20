@@ -1,0 +1,209 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>SceneModel updateHint - Runtime Value Uploads | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="SceneModel_updateHint_-_Runtime_Value_Uploads.html">SceneModel updateHint - Runtime Value Uploads</a></li></ul></div><div class="tsd-panel tsd-typography"><a id="scenemodel-updatehint---runtime-value-uploads" class="tsd-anchor"></a><h1 class="tsd-anchor-link">SceneModel updateHint - Runtime Value Uploads<a href="#scenemodel-updatehint---runtime-value-uploads" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p><code>SceneModel.updateHint</code> tells the renderer how often a model's renderer-facing values are expected to be uploaded after creation.</p>
+<p>It is a model-level runtime hint. The same application can load one <code>SceneModel</code> as static and another as dynamic, and the renderer can choose the storage path per model batch.</p>
+<a id="api-contract" class="tsd-anchor"></a><h2 class="tsd-anchor-link">API Contract<a href="#api-contract" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p><code>updateHint</code> is accepted when a <code>SceneModel</code> is created, loaded from params, or loaded through Studio helpers.</p>
+<pre><code class="ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sceneModel</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;hospital&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">coordinateSystem</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">updateHint:</span><span class="hl-1"> </span><span class="hl-2">&quot;static&quot;</span><br/><span class="hl-1">}).</span><span class="hl-4">value</span><span class="hl-1">!;</span>
+</code><button type="button">Copy</button></pre>
+
+<pre><code class="ts"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-4">studio</span><span class="hl-1">.</span><span class="hl-0">loadDataset</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">modelId:</span><span class="hl-1"> </span><span class="hl-2">&quot;BakuStadium_2000&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">formats:</span><span class="hl-1"> [</span><span class="hl-2">&quot;xgfstream&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">updateHint:</span><span class="hl-1"> </span><span class="hl-2">&quot;dynamic&quot;</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Supported values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;static&quot;</code></td>
+<td>Runtime uploads of matrices, transforms, colors and object state are expected to be infrequent. Renderers may prefer draw-time optimized storage.</td>
+</tr>
+<tr>
+<td><code>&quot;dynamic&quot;</code></td>
+<td>Runtime uploads of matrices, transforms, colors or object state are expected to be frequent. Renderers may prefer update-friendly storage.</td>
+</tr>
+<tr>
+<td><code>&quot;auto&quot;</code></td>
+<td>Let the renderer choose its safe default. In the current WebGL renderer this follows the dynamic/data-texture path.</td>
+</tr>
+</tbody>
+</table>
+<p>Treat <code>updateHint</code> as a load-time decision. Set it before loaders create meshes so the renderer can put newly registered objects into the intended storage path.</p>
+<a id="webgl-renderer-storage" class="tsd-anchor"></a><h2 class="tsd-anchor-link">WebGL Renderer Storage<a href="#webgl-renderer-storage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The WebGL renderer currently applies <code>updateHint</code> to triangle batch storage:</p>
+<table>
+<thead>
+<tr>
+<th>SceneModel hint</th>
+<th>Triangle batch storage</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;static&quot;</code></td>
+<td>VBO-backed batches</td>
+<td>Optimizes stable renderer-facing values for drawing.</td>
+</tr>
+<tr>
+<td><code>&quot;dynamic&quot;</code></td>
+<td>Data-texture-backed batches</td>
+<td>Favors frequent value uploads and update-friendly registration.</td>
+</tr>
+<tr>
+<td><code>&quot;auto&quot;</code> or unset</td>
+<td>Data-texture-backed batches</td>
+<td>Current safe default.</td>
+</tr>
+<tr>
+<td>Non-triangle primitives</td>
+<td>Data-texture-backed batches</td>
+<td>Points and lines use the renderer's update-friendly path.</td>
+</tr>
+</tbody>
+</table>
+<p>This selection is driven by the <code>SceneModel</code> hint. Renderer memory configuration can still tune capacities, but it should not be used to choose DTX versus VBO for a model.</p>
+<a id="data-textures" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Data Textures<a href="#data-textures" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The data-texture path stores renderer-facing values in GPU textures addressed from shaders.</p>
+<p>This is the update-friendly path:</p>
+<ul>
+<li>visibility, selection, x-ray, opacity, color, and transform changes stay as texture updates</li>
+<li><code>auto</code> and <code>dynamic</code> models use this path in the current WebGL renderer</li>
+</ul>
+<p>Use <code>dynamic</code> when frequent matrix, transform, color or object-state uploads matter more than settled draw-time layout.</p>
+<a id="vbo-geometry" class="tsd-anchor"></a><h2 class="tsd-anchor-link">VBO Geometry<a href="#vbo-geometry" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The VBO path is used for <code>&quot;static&quot;</code> triangle batches.</p>
+<p>It is not a full return to one draw call per mesh. It is a hybrid path:</p>
+<ul>
+<li>triangle positions and lookup attributes live in batch-owned VBOs</li>
+<li>mesh, material, view, RTC tile, and other renderer state still come from GPU data textures</li>
+<li>batches are still renderer-owned and still draw many meshes together</li>
+</ul>
+<p>This moves storage setup toward load time. For models whose renderer-facing values stay stable across many frames, that can be worthwhile. For streams with many tiny chunks, upload and packing cadence can dominate early loading unless stream partitioning and first-frustum dependencies are tuned.</p>
+<p>The default VBO triangle batch capacity is:</p>
+<pre><code class="ts"><span class="hl-4">memoryConfigs</span><span class="hl-1">.</span><span class="hl-4">vboGeometry</span><span class="hl-1">.</span><span class="hl-4">maxBatchPrims</span><span class="hl-1"> = </span><span class="hl-7">200000</span><span class="hl-1">;</span>
+</code><button type="button">Copy</button></pre>
+
+<p>That capacity is a tuning knob for static triangle VBO batches. <code>SceneModel.updateHint</code> selects the model's renderer storage preference.</p>
+<a id="choosing-a-hint" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Choosing A Hint<a href="#choosing-a-hint" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>Recommended hint</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single optimized XGF model that is loaded once and then inspected</td>
+<td><code>&quot;static&quot;</code></td>
+<td>Stable renderer-facing values can use the VBO-backed path.</td>
+</tr>
+<tr>
+<td>XGF stream optimized for fastest initial visibility</td>
+<td><code>&quot;dynamic&quot;</code></td>
+<td>Keeps incoming state on the update-friendly path while chunks arrive.</td>
+</tr>
+<tr>
+<td>XGF stream used to benchmark settled static rendering</td>
+<td><code>&quot;static&quot;</code></td>
+<td>Exercises VBO-backed batches and draw-time behavior under streaming pressure.</td>
+</tr>
+<tr>
+<td>Frequently recolored, transformed or state-updated model</td>
+<td><code>&quot;dynamic&quot;</code></td>
+<td>Keeps value uploads on the update-friendly path.</td>
+</tr>
+<tr>
+<td>Unknown workload</td>
+<td><code>&quot;auto&quot;</code> or <code>&quot;dynamic&quot;</code></td>
+<td>Current WebGL default is the data-texture path.</td>
+</tr>
+</tbody>
+</table>
+<p>Chunk count and asset partitioning can change the result. A 200-chunk stream, a 2K-chunk stream, and a 4K-chunk stream do not stress the same bottleneck. First-frustum dependencies also matter: a small visible chunk that depends on a large shared asset file still waits for that shared asset, regardless of DTX or VBO storage.</p>
+<a id="xgf-examples" class="tsd-anchor"></a><h2 class="tsd-anchor-link">XGF Examples<a href="#xgf-examples" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Single-file XGF examples with explicit hints:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Hint</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_westRiverSideHospital">XGF West Riverside Hospital Static</a></td>
+<td><code>static</code></td>
+<td>Loads a hospital XGF into a static <code>SceneModel</code>.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_sportsCar">XGF Sports Car - Multiple Views</a></td>
+<td><code>dynamic</code></td>
+<td>Loads XGF into a dynamic <code>SceneModel</code> for a multi-view setup.</td>
+</tr>
+</tbody>
+</table>
+<p>Streaming XGF configuration examples:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Hint</th>
+<th>What it is used to compare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_baku_2000_dynamic">Streamed XGF Stadium, 2K Chunks, Dynamic</a></td>
+<td><code>dynamic</code></td>
+<td>Fast-load baseline for streaming budgets, cache limits, camera stalling, and model partitioning.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_baku_200_static">Streamed XGF Stadium, 200 Chunks, Static</a></td>
+<td><code>static</code></td>
+<td>Coarse model partitioning versus VBO upload cost.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_baku_4000_dynamic">Streamed XGF Stadium, 4K Chunks, Dynamic</a></td>
+<td><code>dynamic</code></td>
+<td>High-chunk-count data-texture baseline for first-frustum loading and request fan-out.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_baku_4000_static">Streamed XGF Stadium, 4K Chunks, Static</a></td>
+<td><code>static</code></td>
+<td>Static VBO uploads under many small streamed chunks.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_westRiverSideHospital_static">XGF Stream West Riverside Hospital Static</a></td>
+<td><code>static</code></td>
+<td>Hospital stream with review viewpoints and camera-move stream stalling.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_recursive">XGF Recursive Streaming - Nested Model Set</a></td>
+<td><code>static</code></td>
+<td>Recursive child streams with independent view-prioritized loading.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_lyon">XGF Streamed LoD2 Lyon</a></td>
+<td><code>static</code></td>
+<td>City-scale streamed chunk set.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_archipelago">XGF Streamed Archipelago</a></td>
+<td><code>dynamic</code></td>
+<td>Geolocated merged stream with mixed terrain, building, and ship content.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_otc">XGF Streaming OTC Conference Center</a></td>
+<td><code>dynamic</code></td>
+<td>Viewpoint-driven review loading where visible chunks are prioritized.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_housePlan">XGF Stream House Plan</a></td>
+<td><code>dynamic</code></td>
+<td>Small building stream using the update-friendly path.</td>
+</tr>
+</tbody>
+</table>
+<p>These examples are intentionally varied. They are used to find practical sweet spots across model partitioning, first-frustum dependency layout, request fan-out, VBO upload cadence, data-texture update cost, and settled navigation performance. There is no universal fastest setting independent of the model and loading pattern.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#scenemodel-updatehint---runtime-value-uploads"><span>Scene<wbr/>Model update<wbr/>Hint -<wbr/> <wbr/>Runtime <wbr/>Value <wbr/>Uploads</span></a><ul><li><a href="#api-contract"><span>API <wbr/>Contract</span></a></li><li><a href="#webgl-renderer-storage"><span>WebGL <wbr/>Renderer <wbr/>Storage</span></a></li><li><a href="#data-textures"><span>Data <wbr/>Textures</span></a></li><li><a href="#vbo-geometry"><span>VBO <wbr/>Geometry</span></a></li><li><a href="#choosing-a-hint"><span>Choosing <wbr/>A <wbr/>Hint</span></a></li><li><a href="#xgf-examples"><span>XGF <wbr/>Examples</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

@@ -12,12 +12,4 @@ export interface TexturingParams {
    * Default is `true`.
    */
   enabled?: boolean;
-
-  /**
-   * Rendering modes in which textures are rendered.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
-   */
-  renderModes?: number[];
 }

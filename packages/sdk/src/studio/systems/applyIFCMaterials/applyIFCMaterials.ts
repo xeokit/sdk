@@ -339,6 +339,8 @@ export async function applyIFCMaterials(params: {
       colorTextureId:             cTex,
       normalsTextureId:           nTex,
       metallicRoughnessTextureId: mTex,
+      roughness:                  1.0,
+      metallic:                   1.0,
       // The IFC pipeline emits geometry without UVs; the renderer
       // routes its textured materials through the triplanar
       // fallback, which reads `triplanarScale` to convert world
@@ -426,4 +428,3 @@ export async function applyIFCMaterials(params: {
   await step("Painting materials", plan.length, plan.length);
   return {ok: true, value: undefined};
 }
-

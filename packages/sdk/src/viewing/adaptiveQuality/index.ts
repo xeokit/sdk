@@ -3,36 +3,31 @@
  *
  * ---
  *
- * **Drops a {@link viewing!viewer.View | View} into a cheap
- * render mode while the camera is moving, restoring quality once it
- * settles.**
+ * **Switches a {@link viewing!viewProfiles.ViewProfiles | ViewProfiles}
+ * component to a low-cost profile while the camera is moving, then restores
+ * quality once it settles.**
  *
  * ---
  *
- * The mechanism is one line of state: `view.renderMode`. Each renderer
- * effect (SAO, shadows, bloom, final AA, ACES tonemap, edges, IBL, section
- * caps) declares its own `renderModes` list and gates its activation on
- * `view.renderMode` being in that list. Flipping the View's mode
- * therefore toggles every effect whose list doesn't include the new mode
- * — no per-effect setup needed here.
+ * The mechanism is a profile switch on `ViewProfiles`. Profiles decide the
+ * final `enabled` state and sparse configuration overrides for effects such
+ * as SAO, shadows, bloom, tonemap, antialiasing, IBL, and resolution scale.
  *
- * `AdaptiveQuality` listens for camera changes and drives that flip:
- * the first change in a burst switches the View into a low-cost mode
- * (default {@link base!constants.NavigationRender | NavigationRender}),
- * and a trailing timer flips it back to a high-quality mode (default
- * {@link base!constants.RealisticRender | RealisticRender}) once the
- * camera has been still long enough.
+ * `AdaptiveQuality` listens for camera changes: the first change in a burst
+ * selects the low-cost profile (default `"fast"`), and a trailing timer
+ * selects the quality profile (default `"realistic"`) once the camera has
+ * been still long enough.
  *
  * ## Quick Start
  *
  * ```ts
  * import {AdaptiveQuality} from "@xeokit/sdk/viewing/adaptiveQuality";
  *
- * const aq = new AdaptiveQuality({view});
+ * const aq = new AdaptiveQuality({viewProfiles});
  * // …
  * aq.destroy();
  * ```
  *
- * @module viewing/adaptiveQuality
+ * @module adaptiveQuality
  */
 export {AdaptiveQuality, type AdaptiveQualityParams} from "./AdaptiveQuality";

@@ -13,6 +13,7 @@ import type {Viewer, View} from "../../../../viewing/viewer";
 import type {Studio} from "../../../Studio";
 import type {ViewController} from "../../../../viewing/viewController";
 import type {WalkNavigationController} from "../../../../viewing/walkNavigation";
+import type {VehicleNavigationController} from "../../../../viewing/vehicleNavigation";
 import type {FloatingPanelBase} from "../../floatingPanelBase";
 import type {ToolbarAction} from "../Toolbar";
 
@@ -60,6 +61,12 @@ export interface ToolbarActionContext {
    * Toolbar when available.
    */
   walkNavigationController(): WalkNavigationController | null;
+
+  /**
+   * Active View's vehicle-navigation controller, lazily created by the host
+   * Toolbar when available.
+   */
+  vehicleNavigationController(): VehicleNavigationController | null;
 
   /**
    * Active View's registered camera flight, read off the

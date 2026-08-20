@@ -1,4 +1,3 @@
-import {DetailedRender, RealisticRender} from "../../base/constants";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import type {TexturingParams} from "./TexturingParams";
 import type {View} from "./View";
@@ -19,7 +18,6 @@ class Texturing {
     public readonly view: View;
 
     private _enabled: boolean;
-    private _renderModes: number[];
     private _destroyed: boolean = false;
 
     /**
@@ -27,32 +25,10 @@ class Texturing {
      */
     constructor(view: View, options: TexturingParams = {}) {
         this.view = view;
-        this._renderModes = options.renderModes !== undefined ? options.renderModes.slice() : [DetailedRender, RealisticRender];
         this._enabled = options.enabled !== false;
     }
 
-    /**
-     * Sets which rendering modes in which to render textures.
-     *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-     * {@link base!constants.RealisticRender | RealisticRender}].
-     */
-    set renderModes(value: number[]) {
-        this._renderModes = value !== undefined && value !== null ? value.slice() : [DetailedRender, RealisticRender];
-        this.view.needsRender();
-    }
-
-    /**
-     * Gets which rendering modes in which to render textures.
-     *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-     * {@link base!constants.RealisticRender | RealisticRender}].
-     */
-    get renderModes(): number[] {
-        return this._renderModes;
-    }
-
-    /**
+            /**
      * Sets if textures on {@link ViewObject | ViewObjects} are visible.
      *
      * Default is ````true````.
@@ -78,20 +54,12 @@ class Texturing {
      * Gets if textures are currently applied.
      *
      * This is `true` when {@link Texturing.enabled | Texturing.enabled} is `true`
-     * and {@link View.renderMode | View.renderMode} is
-     * in {@link Texturing.renderModes | Texturing.renderModes}.
+     * and the component enabled state is
+     * in the component enabled state.
      */
     get applied(): boolean {
-        if (!this._enabled) {
-            return false;
-        }
-        for (let i = 0, len = this._renderModes.length; i < len; i++) {
-            if (this.view.renderMode === this._renderModes[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
+    return this._enabled;
+  }
 
     /**
      * Gets this Texturing as JSON.
@@ -101,7 +69,6 @@ class Texturing {
             ok: true,
             value: {
                 enabled: this._enabled,
-                renderModes: this._renderModes
             }
         };
     }
@@ -119,9 +86,6 @@ class Texturing {
         }
         if (params.enabled !== undefined) {
             this.enabled = params.enabled;
-        }
-        if (params.renderModes !== undefined) {
-            this.renderModes = params.renderModes;
         }
         return {ok: true, value: undefined};
     }

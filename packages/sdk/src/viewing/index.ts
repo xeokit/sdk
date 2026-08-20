@@ -4,6 +4,7 @@
  * @module viewing
  */
 export * as adaptiveQuality from "./adaptiveQuality";
+export * as viewProfiles from "./viewProfiles";
 export * as cameraFlight from "./cameraFlight";
 export * as transformControls from "./transformControls";
 export * as viewController from "./viewController";

@@ -1,7 +1,6 @@
 import type {IBLParams} from "./IBLParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {RealisticRender} from "../../base/constants";
 import {parseHDR, type HDRImage} from "./hdrLoader";
 
 
@@ -15,8 +14,8 @@ import {parseHDR, type HDRImage} from "./hdrLoader";
  * (built from {@link Lights.hemispheric}) or a user-supplied
  * equirectangular environment image onto a cubemap, then prefilters
  * the diffuse irradiance and GGX-convolved specular for fast lookup at
- * draw time. Active whenever the current {@link View.renderMode} is in
- * {@link IBL.renderModes}.
+ * draw time. Active whenever the current the component enabled state is in
+ * the component enabled state.
  *
  * The cheap analytical sky/ground/up gradient lives separately on
  * {@link Lights.hemispheric}. By default, IBL is reserved for quality
@@ -31,8 +30,7 @@ class IBL {
    * The View to which this IBL belongs.
    */
   public readonly view: View;
-
-  #renderModes: number[];
+  #enabled: boolean;
   #intensity: number;
   #destroyed: boolean = false;
 
@@ -58,31 +56,19 @@ class IBL {
    */
   constructor(view: View, params: IBLParams = {}) {
     this.view = view;
-    this.#renderModes = params.renderModes ?? [RealisticRender];
+    this.#enabled = params.enabled !== false;
     this.#intensity = params.intensity !== undefined ? params.intensity : 1.0;
   }
 
-  /**
-   * Sets which rendering modes in which to apply IBL.
-   *
-   * The {@link viewing!viewer.View | View} will apply IBL whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
-   */
-  set renderModes(value: number[]) {
-    this.#renderModes = value;
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this.#enabled === enabled) return;
+    this.#enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply IBL.
-   *
-   * The {@link viewing!viewer.View | View} will apply IBL whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
-   */
-  get renderModes(): number[] {
-    return this.#renderModes;
+  get enabled(): boolean {
+    return this.#enabled;
   }
 
   /**
@@ -98,22 +84,17 @@ class IBL {
   /**
    * Gets if IBL is currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link IBL.renderModes | IBL.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    for (let i = 0, len = this.#renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this.#renderModes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this.#enabled;
   }
 
   /**
    * Sets the cubemap IBL contribution multiplier. Range `[0, ∞)`. At
    * `0` the cubemap contributes nothing even when the active
-   * {@link View.renderMode} is in {@link IBL.renderModes}.
+   * the component enabled state is in the component enabled state.
    *
    * Default value is `1.0`.
    */
@@ -331,7 +312,7 @@ class IBL {
     return {
       ok: true,
       value: {
-        renderModes: this.renderModes,
+        enabled: this.#enabled,
         intensity: this.intensity
       }
     };
@@ -348,7 +329,6 @@ class IBL {
         error: "[IBL.fromParams] IBL has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.intensity !== undefined)   this.intensity   = params.intensity;
     return { ok: true, value: undefined };
   }

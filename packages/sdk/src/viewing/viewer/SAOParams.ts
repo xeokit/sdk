@@ -6,6 +6,10 @@
  * * Located at {@link EffectsParams.sao}
  */
 export interface SAOParams {
+  /**
+   * Whether this component is enabled.
+   */
+  enabled?: boolean;
 
   /**
    * Sets the maximum area that {@link SAO} takes into account when checking for possible occlusion for each fragment.
@@ -69,12 +73,4 @@ export interface SAOParams {
    * Default value is ````0.15````.
    */
   intensity?: number;
-
-  /**
-   * Which rendering modes in which to apply {@link SAO}.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
-   */
-  renderModes?: number[];
 }

@@ -86,10 +86,8 @@ export class TonemapPipeline {
     this._program.bind();
     this._renderContext.lastProgramId = -1; // main scene programs re-bind next frame
 
-    // When the active render mode is outside Tonemap.renderModes the
-    // pass still has to run (it's the HDR→canvas composite), but it
-    // collapses to an identity copy so the View's "fast" mode looks
-    // the same as the pre-HDR output.
+    // The pass still has to run when Tonemap is disabled (it's the
+    // HDR-to-canvas composite), but it collapses to an identity copy.
     const active = tonemap.applied && tonemap.possible;
     params.hdrTexture.bind(0);
     if (this._uHDR) {
@@ -102,7 +100,7 @@ export class TonemapPipeline {
       gl.uniform1i(this._uTonemapMode, modeToInt(active ? tonemap.mode : "none"));
     }
     if (this._uSRGBEncode) {
-      // sRGB encode is independent of the active render mode — the
+      // sRGB encode is independent of tonemap curve selection: the
       // swap chain expects gamma-encoded values either way.
       gl.uniform1i(this._uSRGBEncode, tonemap.sRGBEncode ? 1 : 0);
     }

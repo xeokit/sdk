@@ -162,8 +162,8 @@ export class RenderBinClassifier {
       }
 
       // Normal edges (the global "wireframe overlay" effect) are gated on
-      // `view.effects.edges.applied`, which respects `Edges.renderModes`
-      // (DetailedRender by default).
+      // `view.effects.edges.applied`, which respects `Edges.enabled state`
+      // (detailed profile by default).
       if (supportsEdgePasses && edgeMaterial.applied) {
         if (opaque) bins.normalEdgesOpaque.push(meshBatch);
         if (transparent) bins.normalEdgesTransparent.push(meshBatch);
@@ -173,8 +173,8 @@ export class RenderBinClassifier {
       // of those *modes* — they belong wherever an object is xrayed /
       // highlighted / selected, regardless of the global edges effect.
       // Gate them on each effect material's own `edges` flag (and require
-      // a usable alpha) so e.g. flipping `View.renderMode` to
-      // RealisticRender doesn't silently swallow the silhouettes.
+      // a usable alpha) so e.g. flipping `View.active profile` to
+      // realistic profile doesn't silently swallow the silhouettes.
       if (supportsEdgePasses && xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
         (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
       }

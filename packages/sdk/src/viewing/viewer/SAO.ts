@@ -1,14 +1,14 @@
-import {CustomProjectionType, DetailedRender, FrustumProjectionType, RealisticRender} from "../../base/constants";
 import {type SAOParams} from "./SAOParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
+import {CustomProjectionType, FrustumProjectionType} from "../../base/constants";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.sao}, which lives at {@link View.effects}.
- * * View will apply SAO when {@link View.renderMode | View.renderMode} is set to one of the values
- * specified in {@link SAO.renderModes}.
+ * * View will apply SAO when the component enabled state is set to one of the values
+ * specified in the component enabled state.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -18,8 +18,7 @@ export class SAO {
    * The View to which this SAO belongs.
    */
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _intensity: number;
   private _minResolution: number;
   private _blendFactor: number;
@@ -35,8 +34,7 @@ export class SAO {
   constructor(view: View, saoParams: SAOParams) {
 
     this.view = view;
-
-    this._renderModes = saoParams.renderModes !== undefined ? saoParams.renderModes.slice() : [DetailedRender, RealisticRender];
+    this._enabled = saoParams.enabled !== false;
     this._kernelRadius = saoParams.kernelRadius || 100.0;
     this._intensity = (saoParams.intensity !== undefined) ? saoParams.intensity : 0.15;
     this._bias = (saoParams.bias !== undefined) ? saoParams.bias : 0.5;
@@ -48,35 +46,15 @@ export class SAO {
     this._blendFactor = (saoParams.blendFactor !== undefined) ? saoParams.blendFactor : 1.0;
   }
 
-  /**
-   * Sets which rendering modes in which to apply SAO.
-   *
-   * The {@link viewing!viewer.View | View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
-   */
-  set renderModes(value: number[]) {
-    // Treat `undefined` / `null` as "reset to default" rather than
-    // letting them through — without this guard, `fromParams` calls
-    // with a partial payload (or a direct `sao.renderModes = undefined`
-    // assignment) would leave the field unset and every subsequent
-    // `_beginFrame` would crash inside the `applied` getter at
-    // `this._renderModes.length`.
-    this._renderModes = value ?? [DetailedRender, RealisticRender];
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply SAO.
-   *
-   * The {@link viewing!viewer.View | View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
@@ -332,18 +310,11 @@ export class SAO {
   /**
    * Gets if SAO is currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link SAO.renderModes | SAO.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    const modes = this._renderModes;
-    if (!modes) return false;
-    for (let i = 0, len = modes.length; i < len; i++) {
-      if (this.view.renderMode === modes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this._enabled;
   }
 
   /**
@@ -353,7 +324,7 @@ export class SAO {
     return {
       ok: true,
       value: {
-        renderModes: this.renderModes,
+        enabled: this._enabled,
         intensity: this.intensity,
         minResolution: this.minResolution,
         blendFactor: this.blendFactor,
@@ -380,7 +351,7 @@ export class SAO {
         error: "[SAO.fromParams] SAO has been destroyed."
       });
     }
-    this.renderModes = saoParams.renderModes;
+    if (saoParams.enabled !== undefined) this.enabled = saoParams.enabled;
     this.intensity = saoParams.intensity;
     this.minResolution = saoParams.minResolution;
     this.blendFactor = saoParams.blendFactor;

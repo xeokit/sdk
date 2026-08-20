@@ -3,7 +3,7 @@
  */
 
 import {SDKErrorType} from "../../../base/core";
-import {DetailedRender, GaussianSplatsPrimitive, LinearFilter, LinearMipMapNearestFilter, LinesPrimitive, NavigationRender, PerspectiveProjectionType, PointsPrimitive, RealisticRender, RepeatWrapping, sRGBEncoding, TrianglesPrimitive} from "../../../base/constants";
+import {GaussianSplatsPrimitive, LinearFilter, LinearMipMapNearestFilter, LinesPrimitive, PerspectiveProjectionType, PointsPrimitive, RepeatWrapping, sRGBEncoding, TrianglesPrimitive} from "../../../base/constants";
 import {
   createMat4Float64,
   lookAtMat4v,
@@ -2346,8 +2346,6 @@ describe("WebGPURenderer contract", () => {
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
     const {mesh} = createTriangleMesh();
-
-    view.renderMode = DetailedRender;
     view.effects = {
       tonemap: {
         applied: true,
@@ -3529,15 +3527,15 @@ describe("WebGPURenderer contract", () => {
     expect(gpu.renderPipelines[2].descriptor.primitive.topology).toBe("line-list");
   });
 
-  test("rebuilds cached WebGPU batches when render mode disables edges", () => {
+  test("rebuilds cached WebGPU batches when edges are disabled", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
-    view.renderMode = RealisticRender;
+    let edgesApplied = true;
     (view as any).effects = {
       edges: {
         get applied() {
-          return view.renderMode === RealisticRender;
+          return edgesApplied;
         }
       }
     };
@@ -3571,7 +3569,7 @@ describe("WebGPURenderer contract", () => {
 
     gpu.passEncoder.drawIndexed.mockClear();
     gpu.passEncoder.setIndexBuffer.mockClear();
-    view.renderMode = NavigationRender;
+    edgesApplied = false;
     testViewer.onViewUpdated.emit(view, view);
 
     expect(gpu.passEncoder.drawIndexed.mock.calls).toEqual([

@@ -1,5 +1,5 @@
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
-import {GaussianSplatsPrimitive, LinesPrimitive, NavigationRender, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {createMat4Float64, mulMat4, type Mat4} from "../../../../base/math/matrix";
 import type {View} from "../../../viewer";
 import type {SceneTexture} from "../../../../model/scene";
@@ -2353,17 +2353,11 @@ export class RenderManager {
     ];
   }
 
-  private _getNoNormalsTriangleColorBatches(view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
-    if (view.renderMode === NavigationRender) {
-      return batches;
-    }
+  private _getNoNormalsTriangleColorBatches(_view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
     return batches.filter((batch) => batch.packedBatch.hasNormals !== true);
   }
 
-  private _getPBRTriangleColorBatches(view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
-    if (view.renderMode === NavigationRender) {
-      return [];
-    }
+  private _getPBRTriangleColorBatches(_view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
     return batches.filter((batch) => batch.packedBatch.hasNormals === true);
   }
 
@@ -2602,7 +2596,6 @@ function cloneCullStats(stats: RenderCullStats): RenderCullStats {
 function createRenderEffectKey(view: View): string {
   const effects = (view as {effects?: any}).effects;
   return [
-    view.renderMode,
     effects?.edges?.applied ? 1 : 0,
     effects?.sao?.applied ? 1 : 0,
     effects?.shadows?.applied ? 1 : 0,

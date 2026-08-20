@@ -39,9 +39,10 @@ import {ViewManager, type ViewRecord} from "./viewManager";
 import {PickingService} from "./picking";
 import type {TransformControlsMode, TransformControlsTarget} from "../viewing/transformControls";
 import {AdaptiveQuality} from "../viewing/adaptiveQuality";
+import {DEFAULT_VIEW_PROFILES, ViewProfiles} from "../viewing/viewProfiles";
 import type {StudioCreateViewParams} from "./StudioCreateViewParams";
 import type {Vec3} from "../base/math/vector";
-import {encodeRadianceHDR, paintSunSkyHDR} from "../model/procgen/paintEnvironments";
+import {encodeRadianceHDR, paintStudioHDR} from "../model/procgen/paintEnvironments";
 import {getScenePhysics, type ScenePhysics} from "../simulation/physics";
 
 const taskRunner = getGlobalTaskRunner();
@@ -64,7 +65,10 @@ function escapeHtmlForInfoPanel(s: string): string {
 /**
  * Configuration options for the Studio.
  */
-export type StudioRendererBackend = "webgl" | "webgpu";
+export type StudioRendererBackend = "auto" | "webgl" | "webgpu";
+type ResolvedStudioRendererBackend = "webgl" | "webgpu";
+
+const STUDIO_RENDERER_BACKENDS = new Set<StudioRendererBackend>(["auto", "webgl", "webgpu"]);
 
 export interface StudioConfig {
 
@@ -74,10 +78,15 @@ export interface StudioConfig {
   modelsDir?: string;
 
   /**
-   * Renderer backend to instantiate. Defaults to `"webgl"`.
+   * Renderer backend to instantiate. Defaults to `"auto"`.
+   *
+   * Use `"auto"` or omit this option to create a
+   * {@link viewing!webGPURenderer.WebGPURenderer | WebGPURenderer} when the
+   * runtime exposes WebGPU, falling back to
+   * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} otherwise.
    *
    * Use `"webgpu"` to create a {@link viewing!webGPURenderer.WebGPURenderer | WebGPURenderer}
-   * instead of the default {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}.
+   * explicitly, or `"webgl"` to force the WebGL backend.
    */
   renderer?: StudioRendererBackend;
 
@@ -181,6 +190,11 @@ export class Studio {
    * `studio.viewManager.destroyView(view)`.
    */
   public viewManager: ViewManager;
+
+  /**
+   * Render profiles for the most recently created Studio View.
+   */
+  public viewProfiles: ViewProfiles | null = null;
 
   /**
    * Owns the unified pick strategy and the BVH-backed
@@ -309,7 +323,11 @@ export class Studio {
    * need to request an adapter/device, so Studio keeps the factory async.
    */
   private async _createRenderer(cfg: StudioConfig): Promise<SDKResult<Renderer>> {
-    const backend = cfg.renderer ?? "webgl";
+    const backendResult = this._resolveRendererBackend(cfg);
+    if (backendResult.ok === false) {
+      return backendResult;
+    }
+    const backend = backendResult.value;
 
     if (backend === "webgpu") {
       const {viewer: _viewer, ...webGPUParams} = (cfg.webGPU ?? {}) as WebGPURendererParams;
@@ -347,8 +365,52 @@ export class Studio {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: `[Studio.init] Unsupported renderer backend '${String(backend)}'. Expected 'webgl' or 'webgpu'.`
+      error: `[Studio.init] Unsupported renderer backend '${String(cfg.renderer)}'. Expected 'auto', 'webgl', or 'webgpu'.`
     };
+  }
+
+  /**
+   * Resolve Studio's public renderer option to the concrete backend that will
+   * be used for this runtime. `"auto"` prefers WebGPU only when the browser
+   * exposes the WebGPU entry point; explicit `"webgpu"` remains strict and lets
+   * {@link WebGPURenderer.create} report device/adapter failures.
+   */
+  private _resolveRendererBackend(cfg: StudioConfig): SDKResult<ResolvedStudioRendererBackend> {
+    const backend = cfg.renderer ?? this._getURLRendererBackend() ?? "auto";
+    if (backend === "auto") {
+      return {
+        ok: true,
+        value: WebGPURenderer.isSupported() ? "webgpu" : "webgl"
+      };
+    }
+    if (backend === "webgl" || backend === "webgpu") {
+      return {
+        ok: true,
+        value: backend
+      };
+    }
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: `[Studio.init] Unsupported renderer backend '${String(backend)}'. Expected 'auto', 'webgl', or 'webgpu'.`
+    };
+  }
+
+  private _getURLRendererBackend(): StudioRendererBackend | undefined {
+    if (typeof window === "undefined" || typeof window.location?.search !== "string") {
+      return undefined;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const rawBackend = params.get("renderer") ?? params.get("backend");
+    if (rawBackend === null) {
+      return undefined;
+    }
+    const backend = rawBackend.toLowerCase();
+    if (STUDIO_RENDERER_BACKENDS.has(backend as StudioRendererBackend)) {
+      return backend as StudioRendererBackend;
+    }
+    console.warn(`[Studio.init] Ignoring unsupported URL renderer backend '${rawBackend}'. Expected 'auto', 'webgl', or 'webgpu'.`);
+    return undefined;
   }
 
   /**
@@ -412,7 +474,11 @@ export class Studio {
     this.data = new Data();
     this.viewer = new Viewer();
 
-    const rendererBackend = merged.renderer ?? "webgl";
+    const rendererBackendResult = this._resolveRendererBackend(merged);
+    if (rendererBackendResult.ok === false) {
+      throw rendererBackendResult.error;
+    }
+    const rendererBackend = rendererBackendResult.value;
 
     sdkProgress.setPhase("Creating view manager");
     this.viewManager = new ViewManager({
@@ -495,6 +561,16 @@ export class Studio {
     const attachResult = this.renderer.attachViewer(this.viewer);
     if (attachResult.ok === false) {
       throw attachResult.error;
+    }
+
+    const gridRenderer = this.renderer as Renderer & {
+      setInfiniteGridEnabled?: (enabled: boolean) => SDKResult<void>;
+    };
+    if (typeof gridRenderer.setInfiniteGridEnabled === "function") {
+      const gridResult = gridRenderer.setInfiniteGridEnabled(true);
+      if (gridResult.ok !== true) {
+        throw gridResult.error;
+      }
     }
 
     if (this.renderer instanceof WebGLRenderer) {
@@ -587,7 +663,7 @@ export class Studio {
    * @param params.format - Model format determining which loader to use
    * @param params.dataModel - Optional existing {@link model!data.DataModel | DataModel} to populate
    * @param params.sceneModel - Optional existing {@link model!scene.SceneModel | SceneModel} to populate
-   * @param params.updateHint - Optional hint describing how dynamically the SceneModel will be updated
+   * @param params.updateHint - Optional hint describing runtime value upload frequency for the SceneModel
    *
    * @param options - Loader-specific options passed through to the underlying loader
    *
@@ -606,12 +682,10 @@ export class Studio {
       dataModel?: DataModel;
       sceneModel?: SceneModel;
       updateHint?: SceneModelUpdateHint;
-      /** @deprecated Use updateHint. */
-      updateUsage?: SceneModelUpdateHint;
     },
     options: any
   ): Promise<SDKResult<any>> {
-    const updateHint = params.updateHint ?? params.updateUsage;
+    const updateHint = params.updateHint;
 
     let coordinateSystem: CoordinateSystemParams | undefined;
     if (!params.sceneModel && params.modelId) {
@@ -813,24 +887,23 @@ export class Studio {
 
     view.htmlElement.addEventListener("contextmenu", tryPick);
 
-    // Procedurally generate an HDR sun-sky environment aligned with
-    // the View's directional-light direction and load it as the IBL.
-    const sunWorld = (() => {
-      const sd = view.effects.shadows.direction;
-      const sl = Math.hypot(sd[0], sd[1], sd[2]) || 1;
-      return [-sd[0] / sl, -sd[1] / sl, -sd[2] / sl];
-    })();
-
-    const hdrPixels = paintSunSkyHDR(512, 256, {sunDirection: sunWorld as any});
+    // Use a neutral HDR studio probe for default PBR lighting. A saturated
+    // outdoor sky works for exterior demos, but it tints interiors blue.
+    const hdrPixels = paintStudioHDR(512, 256);
     const hdrBuf = encodeRadianceHDR(hdrPixels, 512, 256);
     const hdrResult = view.lights.ibl.setEnvironmentHDRBuffer(hdrBuf);
     if (hdrResult.ok === false) {
       this.reportWarning(`[Studio] HDR sky setup failed: ${hdrResult.error}`);
     }
 
-    // Adaptive quality is on by default for every Studio View. It drops to
-    // NavigationRender while the camera moves, then returns to the View's
-    // initial renderMode at rest. Callers can disable or override it via
+    this.viewProfiles = new ViewProfiles(view, {
+      profiles: DEFAULT_VIEW_PROFILES,
+      activeProfile: "realistic"
+    });
+
+    // Adaptive quality is on by default for every Studio View. It switches
+    // the Studio ViewProfiles to "fast" while the camera moves, then
+    // returns to "realistic" at rest. Callers can disable or override it via
     // `studio.viewManager.createView({adaptiveQuality: ...})`.
     const adaptiveQuality = params.adaptiveQuality;
     if (adaptiveQuality !== false) {
@@ -838,8 +911,7 @@ export class Studio {
         ? adaptiveQuality
         : {};
       new AdaptiveQuality({
-        view,
-        restMode: view.renderMode,
+        viewProfiles: this.viewProfiles,
         ...adaptiveQualityParams,
       });
     }
@@ -1173,16 +1245,14 @@ export class Studio {
      */
     yieldIntervalMs?: number;
     /**
-     * Hint describing how dynamically the loaded SceneModel will be updated.
+     * Hint describing runtime value upload frequency for the loaded SceneModel.
      * Forwarded to {@link model!scene.SceneModel.updateHint}, allowing the
-     * renderer to choose an appropriate internal geometry representation.
+     * renderer to choose appropriate internal storage.
      */
     updateHint?: SceneModelUpdateHint;
-    /** @deprecated Use updateHint. */
-    updateUsage?: SceneModelUpdateHint;
   }): Promise<SDKResult<{ sceneModel: SceneModel; dataModel: DataModel }>> {
     const {modelId, formats} = params;
-    const updateHint = params.updateHint ?? params.updateUsage;
+    const updateHint = params.updateHint;
     const clear = params.clear !== false;
     sdkProgress.addTask();
     try {

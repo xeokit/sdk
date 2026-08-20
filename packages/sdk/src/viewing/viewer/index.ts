@@ -17,7 +17,7 @@
  * * {@link data | @xeokit/sdk/model/data} for semantic graphs you can attach to models.
  *
  * This Viewer module focuses on the interactive layer: Views, Cameras, picking, emphasis effects (highlight/selection/x-ray),
- * section planes, lighting, and rendering modes.
+ * section planes, lighting, and render profiles.
  *
  * <br>
  *
@@ -102,8 +102,8 @@
  * - **Lighting + IBL + tonemap** — directional / point / ambient
  *   lights plus image-based lighting; HDR pipeline with bloom +
  *   FXAA/SMAA + tonemap (Reinhard / ACES / linear).
- * - **Rendering modes** — `RealisticRender` (full PBR + IBL +
- *   shadows), `DetailedRender` (engineering-style with hatched
+ * - **Render profiles** — `realistic profile` (full PBR + IBL +
+ *   shadows), `detailed profile` (engineering-style with hatched
  *   bodies + section caps), `EdgeRender`, etc.
  * - **Picking** — `View.pickByCanvasPos` routes through the
  *   {@link spatial!picking | spatial.picking} strategies for BVH /
@@ -156,7 +156,7 @@
  *
  * Next, create a {@link viewing!viewer.Viewer | Viewer}. The Viewer is the browser-facing facade for interactive viewing: it manages one or more
  * {@link View | Views} (canvases), user interaction state (camera control, picking, emphasis effects, section planes,
- * render modes, etc), and it provides a Viewer-centric event stream that reflects interactions and viewer-side changes.
+ * etc), and it provides a Viewer-centric event stream that reflects interactions and viewer-side changes.
  *
  * Finally, attach a {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}. The WebGLRenderer is the rendering backend that
  * listens to changes and draws the Scene into the View canvases using the browser’s WebGL API.
@@ -510,20 +510,22 @@
  *
  * <br>
  *
- * ## 14) Switch rendering modes
+ * ## 14) Switch render profiles
  *
- * Rendering modes let you enable/disable effects as a group (eg. quality vs performance).
+ * ViewProfiles let you enable/disable effects as a group (eg. quality vs performance)
+ * without making individual effects aware of application profile names.
  *
  * ````javascript
- * import { NavigationRender, DetailedRender, RealisticRender } from "@xeokit/sdk/base/constants";
+ * import {DEFAULT_VIEW_PROFILES, ViewProfiles} from "@xeokit/sdk/viewing/viewProfiles";
  *
- * view1.edges.renderModes = [DetailedRender];
- * view1.sao.renderModes = [DetailedRender, RealisticRender];
- * view1.resolutionScale.renderModes = [NavigationRender];
+ * const profiles = new ViewProfiles(view1, {
+ *   profiles: DEFAULT_VIEW_PROFILES,
+ *   activeProfile: "realistic"
+ * });
  *
- * view1.renderMode = NavigationRender;
- * view1.renderMode = DetailedRender;
- * view1.renderMode = RealisticRender;
+ * profiles.setActiveProfile("fast");
+ * profiles.setActiveProfile("detailed");
+ * profiles.setActiveProfile("realistic");
  * ````
  *
  * <br>
@@ -628,4 +630,6 @@ export * from "./PickResult";
 export * from "./PickParams";
 export * from "./MaterialPresets";
 export * from "./SectionPlaneCaps";
+export * from "./SectionPlaneCapsParams";
 export * from "./BodyHatch";
+export * from "./BodyHatchParams";

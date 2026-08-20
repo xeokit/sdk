@@ -1,4 +1,3 @@
-import {RealisticRender} from "../../../base/constants";
 import {Scene} from "../../../model/scene";
 import {Viewer} from "../Viewer";
 import {installViewerTestGlobals} from "./installViewerTestGlobals";
@@ -35,23 +34,21 @@ describe("View depth of field", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
-      htmlElement: createHostElement(),
-      renderMode: RealisticRender
+      htmlElement: createHostElement()
     });
     expect(viewResult.ok).toBe(true);
 
     const view = viewResult.value!;
 
-    expect(view.effects.depthOfField.renderModes).toEqual([]);
+    expect(view.effects.depthOfField.enabled).toBe(false);
     expect(view.effects.depthOfField.applied).toBe(false);
   });
 
-  it("enables RealisticRender defaults when explicitly configured", () => {
+  it("enables defaults when explicitly configured", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
       htmlElement: createHostElement(),
-      renderMode: RealisticRender,
       effects: {
         depthOfField: {}
       }
@@ -61,9 +58,9 @@ describe("View depth of field", () => {
     const view = viewResult.value!;
     const params = view.toParams();
 
-    expect(view.effects.depthOfField.renderModes).toEqual([RealisticRender]);
+    expect(view.effects.depthOfField.enabled).toBe(true);
     expect(view.effects.depthOfField.applied).toBe(true);
     expect(params.ok).toBe(true);
-    expect(params.value!.effects!.depthOfField!.renderModes).toEqual([RealisticRender]);
+    expect(params.value!.effects!.depthOfField!.enabled).toBe(true);
   });
 });

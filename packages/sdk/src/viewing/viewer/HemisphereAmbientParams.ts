@@ -9,18 +9,10 @@ import type {Vec3} from "../../base/math/vector";
  * * Located at {@link LightsParams.hemispheric}
  */
 export interface HemisphereAmbientParams {
-
   /**
-   * Which rendering modes in which to apply the hemisphere ambient term.
-   *
-   * The {@link viewing!viewer.View | View} will apply the hemisphere ambient whenever
-   * {@link View.renderMode} is set to one of these values.
-   *
-   * Default value is `[NavigationRender, DetailedRender]` — the
-   * hemisphere term is cheap and keeps interactive modes directionally
-   * lit without enabling cubemap IBL.
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * Multiplier on the hemisphere ambient contribution. Range `[0, ∞)`.

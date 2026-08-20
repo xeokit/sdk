@@ -1,7 +1,6 @@
 import type {DepthOfFieldParams} from "./DepthOfFieldParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {RealisticRender} from "../../base/constants";
 
 /**
  * Configures depth-of-field post processing for a {@link viewing!viewer.View | View}.
@@ -15,8 +14,7 @@ export class DepthOfField {
 
   /** The View this DepthOfField belongs to. */
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _focusDistance: number;
   private _focalRange: number;
   private _radius: number;
@@ -28,7 +26,7 @@ export class DepthOfField {
   /** @private */
   constructor(view: View, params: DepthOfFieldParams) {
     this.view = view;
-    this._renderModes = params.renderModes ?? [RealisticRender];
+    this._enabled = params.enabled !== false;
     this._focusDistance = clampPositive(params.focusDistance, 50);
     this._focalRange = clampPositive(params.focalRange, 20);
     this._radius = clampRange(params.radius, 0, 12, 4);
@@ -37,22 +35,15 @@ export class DepthOfField {
     this._farBlur = clampRange(params.farBlur, 0, 1, 1.0);
   }
 
-  /**
-   * Sets which rendering modes in which to apply depth of field.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}]
-   * when this effect is explicitly configured.
-   */
-  set renderModes(value: number[]) {
-    this._renderModes = value || [];
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply depth of field.
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
@@ -67,16 +58,11 @@ export class DepthOfField {
   /**
    * Gets if depth of field is currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link DepthOfField.renderModes | DepthOfField.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this._renderModes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this._enabled;
   }
 
   /** View-space distance, in world units, that remains sharp. Default `50`. */
@@ -156,7 +142,7 @@ export class DepthOfField {
     return {
       ok: true,
       value: {
-        renderModes: this._renderModes,
+        enabled: this._enabled,
         focusDistance: this._focusDistance,
         focalRange: this._focalRange,
         radius: this._radius,
@@ -176,7 +162,6 @@ export class DepthOfField {
         error: "[DepthOfField.fromParams] DepthOfField has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.focusDistance !== undefined) this.focusDistance = params.focusDistance;
     if (params.focalRange !== undefined) this.focalRange = params.focalRange;
     if (params.radius !== undefined) this.radius = params.radius;

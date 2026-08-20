@@ -2,7 +2,6 @@ import type {AtmosphereParams} from "./AtmosphereParams";
 import type {View} from "./View";
 import type {FloatArrayParam} from "../../base/math";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {RealisticRender} from "../../base/constants";
 
 /**
  * Configures distance-based atmospheric attenuation for a
@@ -16,8 +15,7 @@ export class Atmosphere {
 
   /** The View this Atmosphere belongs to. */
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _color: [number, number, number];
   private _startDistance: number;
   private _endDistance: number;
@@ -29,7 +27,7 @@ export class Atmosphere {
   /** @private */
   constructor(view: View, params: AtmosphereParams) {
     this.view = view;
-    this._renderModes = params.renderModes ?? [RealisticRender];
+    this._enabled = params.enabled !== false;
     this._color = copyColor(params.color, [0.72, 0.82, 0.92]);
     this._startDistance = clampNonNegative(params.startDistance, 80);
     this._endDistance = clampMin(params.endDistance, this._startDistance + 1, 500);
@@ -38,20 +36,15 @@ export class Atmosphere {
     this._affectSky = params.affectSky === true;
   }
 
-  /**
-   * Sets which rendering modes in which to apply atmospheric attenuation.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}]
-   * when this effect is explicitly configured.
-   */
-  set renderModes(value: number[]) {
-    this._renderModes = value || [];
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /** Gets which rendering modes in which to apply atmospheric attenuation. */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
@@ -66,16 +59,11 @@ export class Atmosphere {
   /**
    * Gets if atmospheric attenuation is currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link Atmosphere.renderModes | Atmosphere.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this._renderModes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this._enabled;
   }
 
   /** RGB haze color mixed into distant scene geometry. */
@@ -156,7 +144,7 @@ export class Atmosphere {
     return {
       ok: true,
       value: {
-        renderModes: this._renderModes,
+        enabled: this._enabled,
         color: [this._color[0], this._color[1], this._color[2]],
         startDistance: this._startDistance,
         endDistance: this._endDistance,
@@ -176,7 +164,6 @@ export class Atmosphere {
         error: "[Atmosphere.fromParams] Atmosphere has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.color !== undefined) this.color = params.color;
     if (params.startDistance !== undefined) this.startDistance = params.startDistance;
     if (params.endDistance !== undefined) this.endDistance = params.endDistance;

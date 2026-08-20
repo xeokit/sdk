@@ -31,7 +31,7 @@ export interface IfcPainterEntry {
     alphaMode?:    "OPAQUE" | "MASK" | "BLEND";
     /**
      * ANSI / ISO hatch convention for the IFC type, applied to
-     * the section-plane cap and (in DetailedRender) overlaid on
+     * the section-plane cap and (in detailed profile) overlaid on
      * the body. Accepts either a named style or full params.
      * Realistic mode ignores it and renders PBR.
      */

@@ -340,10 +340,10 @@ export class RenderManager {
   private _prepareIBL(view: import("../../../viewer").View): void {
     if (!this._brdfLUT) return; // BRDF LUT init failed earlier; soft-disable.
     // Effect activation is gated entirely by `applied` — when the
-    // current View.renderMode isn't in IBL.renderModes we skip the
+    // current View.active profile isn't in IBL.enabled state we skip the
     // prefilter refresh, sky-param build, and cubemap publish, and let
     // the BRDF's iblIntensity=0 path produce a zero contribution. As
-    // soon as renderMode flips back into the list, the next call here
+    // soon as active profile flips back into the list, the next call here
     // notices its dirty signature and re-renders the cubemap chain.
     if (!view.lights.ibl.applied || !view.lights.ibl.possible) return;
     const rc = this._renderContext;

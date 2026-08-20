@@ -1,8 +1,8 @@
-import {CustomProjectionType, FrustumProjectionType, RealisticRender} from "../../base/constants";
 import type {ShadowsParams} from "./ShadowsParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import type {FloatArrayParam} from "../../base/math";
+import {CustomProjectionType, FrustumProjectionType} from "../../base/constants";
 
 const DEFAULT_DIRECTION: [number, number, number] = [-0.5, -1.0, -0.3];
 
@@ -10,8 +10,8 @@ const DEFAULT_DIRECTION: [number, number, number] = [-0.5, -1.0, -0.3];
  * Configures single-cascade directional shadow mapping for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.shadows}, which lives at {@link View.effects}.
- * * View will cast shadows when {@link View.renderMode | View.renderMode} is set to one of the values
- *   specified in {@link Shadows.renderModes}.
+ * * View will cast shadows when the component enabled state is set to one of the values
+ *   specified in the component enabled state.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -21,8 +21,7 @@ export class Shadows {
    * The View to which this Shadows component belongs.
    */
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _intensity: number;
   private _bias: number;
   private _projectionSize: number;
@@ -42,7 +41,7 @@ export class Shadows {
   /** @private */
   constructor(view: View, params: ShadowsParams) {
     this.view = view;
-    this._renderModes = params.renderModes !== undefined ? params.renderModes.slice() : [RealisticRender];
+    this._enabled = params.enabled !== false;
     this._intensity = params.intensity !== undefined ? params.intensity : 0.45;
     this._bias = params.bias !== undefined ? params.bias : 0.003;
     this._projectionSize = params.projectionSize !== undefined ? params.projectionSize : 30;
@@ -63,24 +62,15 @@ export class Shadows {
     this._cascadeSplitLambda = clampCascadeSplitLambda(params.cascadeSplitLambda !== undefined ? params.cascadeSplitLambda : 0.5);
   }
 
-  /**
-   * Sets which rendering modes in which to apply shadows.
-   *
-   * Default `[`{@link base!constants.RealisticRender | RealisticRender}`]`
-   * — shadows fire only in the realistic preset, since they are the
-   * most expensive lighting term and rarely wanted during navigation
-   * or detailed inspection.
-   */
-  set renderModes(value: number[]) {
-    this._renderModes = value ? value.slice() : [];
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply shadows.
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
@@ -100,15 +90,11 @@ export class Shadows {
   /**
    * Gets whether shadows are currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link Shadows.renderModes | Shadows.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    const mode = this.view.renderMode;
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (mode === this._renderModes[i]) return true;
-    }
-    return false;
+    return this._enabled;
   }
 
   /**
@@ -324,7 +310,7 @@ export class Shadows {
     return {
       ok: true,
       value: {
-        renderModes: this._renderModes.slice(),
+        enabled: this._enabled,
         intensity: this._intensity,
         bias: this._bias,
         projectionSize: this._projectionSize,
@@ -354,7 +340,6 @@ export class Shadows {
         error: "[Shadows.fromParams] Shadows has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.intensity !== undefined) this.intensity = params.intensity;
     if (params.bias !== undefined) this.bias = params.bias;
     if (params.projectionSize !== undefined) this.projectionSize = params.projectionSize;

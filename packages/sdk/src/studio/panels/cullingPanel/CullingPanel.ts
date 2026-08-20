@@ -11,9 +11,9 @@
  * one re-creates any active cullers with the new settings.
  *
  * A live readout per View shows FPS, frame time, and the culled-object
- * count — read from the renderer's {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}
- * render inspector and each View's object set, the same numbers the
- * `building_doublePrecision_archipelago` example surfaces.
+ * count — read from the renderer's render inspector and each View's
+ * object set, the same numbers the `building_doublePrecision_archipelago`
+ * example surfaces.
  *
  * ## Lazy event setup
  *
@@ -31,13 +31,30 @@
  * ```
  */
 import type {Viewer, View} from "../../../viewing/viewer";
-import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
 import type {Renderer} from "../../../viewing/renderer";
 import {ViewCuller, DEFAULT_CULL_PARAMS} from "../../../spatial/culling";
+import type {SDKResult} from "../../../base/core";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {requireWebGLRenderer} from "../resolveWebGLRenderer";
+
+interface RenderInspectorLike {
+  enabled: boolean;
+  renderStats?: {
+    views?: Array<{
+      viewId?: string;
+      timeMs?: {
+        duration?: number;
+      };
+    } | undefined>;
+  };
+  frameRates?: Array<number | null>;
+  getFrameRate?: (viewId: string) => number | null;
+}
+
+type RendererWithInspector = Renderer & {
+  getRenderInspector?: () => SDKResult<RenderInspectorLike>;
+};
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -395,7 +412,7 @@ export class CullingPanel extends FloatingPanelBase {
 
   readonly viewer: Viewer;
   readonly renderer: Renderer;
-  private readonly _webGLRenderer: WebGLRenderer;
+  private readonly _rendererWithInspector: RendererWithInspector;
 
   // Config — global to the panel, applied to every ViewCuller.
   private _solidAngleLimit = DEFAULT_CULL_PARAMS.solidAngleLimit;
@@ -432,7 +449,7 @@ export class CullingPanel extends FloatingPanelBase {
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "CullingPanel");
+    this._rendererWithInspector = params.renderer as RendererWithInspector;
 
     // Replace any prior panel bound to the same Viewer.
     const prior = CullingPanel._instances.get(params.viewer);
@@ -753,19 +770,19 @@ export class CullingPanel extends FloatingPanelBase {
   // ── Live stats ────────────────────────────────────────────────
 
   private _enableInspector(): void {
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     if (res.ok) res.value.enabled = true;
   }
 
   /** Update FPS / frame time / culled count for every View row. */
   private _renderStats(): void {
     if (this._destroyed) return;
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     const inspector = res.ok ? res.value : null;
 
     for (const {view, fpsEl, frameEl, culledEl} of this._viewRows.values()) {
       const i = view.viewIndex;
-      const fps = inspector?.frameRates?.[i] ?? null;
+      const fps = inspector?.frameRates?.[i] ?? inspector?.getFrameRate?.(view.id) ?? null;
       const frame = inspector?.renderStats?.views?.[i] ?? null;
       const duration = (frame?.timeMs as any)?.duration;
 
@@ -773,6 +790,17 @@ export class CullingPanel extends FloatingPanelBase {
       frameEl.textContent = Number.isFinite(duration) ? duration.toFixed(1) : "—";
       culledEl.textContent = countCulled(view);
     }
+  }
+
+  private _getRenderInspector(): SDKResult<RenderInspectorLike> {
+    const getRenderInspector = this._rendererWithInspector.getRenderInspector;
+    if (typeof getRenderInspector !== "function") {
+      return {
+        ok: false,
+        error: "[CullingPanel] Renderer does not expose a RenderInspector."
+      } as SDKResult<RenderInspectorLike>;
+    }
+    return getRenderInspector.call(this._rendererWithInspector);
   }
 
   /** Flicker the live-pulse dot after each coalesced stat repaint. */

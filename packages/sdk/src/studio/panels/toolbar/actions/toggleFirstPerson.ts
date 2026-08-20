@@ -26,7 +26,15 @@ export const toggleFirstPerson: ToolbarActionDescriptor = {
       console.warn("[Toolbar] toggleFirstPerson — no walk navigation controller registered for the active View.");
       return;
     }
-    walk.active = !walk.active;
+    const nextActive = !walk.active;
+    if (nextActive) {
+      const vehicle = ctx.vehicleNavigationController();
+      if (vehicle) {
+        vehicle.active = false;
+        ctx.setPressed("toggleVehicleNavigation", false);
+      }
+    }
+    walk.active = nextActive;
     ctx.setPressed("toggleFirstPerson", walk.active);
   }
 };

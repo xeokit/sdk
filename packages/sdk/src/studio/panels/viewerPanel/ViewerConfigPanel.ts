@@ -29,23 +29,6 @@ import type {Studio} from "../../Studio";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {DetailedRender, NavigationRender, RealisticRender} from "../../../base/constants";
-
-
-/**
- * The three predefined render modes the demo exposes through the
- * UI. Each tuple is `[constant, displayLabel]`. Effect
- * `renderModes` lists and the per-View `renderMode` selector both
- * pivot on this table — strings appear in the panel, the numeric
- * constants stay on the params.
- */
-const RENDER_MODES: ReadonlyArray<readonly [number, string]> = [
-  [NavigationRender, "Navigation"],
-  [DetailedRender,   "Detailed"],
-  [RealisticRender,  "Realistic"],
-];
-const RENDER_MODE_LABELS: ReadonlyMap<number, string> = new Map(RENDER_MODES);
-
 
 /**
  * Single-field apply callback handed down through the render
@@ -499,8 +482,8 @@ const PANEL_CSS = `
   width: 8ch;
 }
 /* Render-mode controls — string labels for the three predefined
- * modes. Checkboxes for the per-effect renderModes list and a
- * native dropdown for the per-View renderMode field. */
+ * modes. Checkboxes for the per-effect enabled state list and a
+ * native dropdown for the per-View active profile field. */
 .xkt-vcp-panel .xkt-vcp-render-modes {
   gap: 10px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -1413,15 +1396,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
    * {@link _renderKVTable}.
    */
   private _renderObjectTable(obj: any, apply: ApplyFn, liveTarget?: any): HTMLElement {
-    // `renderModes` is the single most load-bearing option on every
-    // effect — it decides whether the effect even runs for the
-    // current View render mode — so it leads the row order. Every
-    // other field stays alphabetical.
-    const entries = Object.entries(obj || {}).sort((a, b) => {
-      if (a[0] === "renderModes") return b[0] === "renderModes" ? 0 : -1;
-      if (b[0] === "renderModes") return 1;
-      return a[0].localeCompare(b[0]);
-    });
+    const entries = Object.entries(obj || {}).sort((a, b) => a[0].localeCompare(b[0]));
     return this._renderKVTable(obj, entries, apply, liveTarget);
   }
 
@@ -1438,19 +1413,8 @@ export class ViewerConfigPanel extends FloatingPanelBase {
     apply: ApplyFn,
     liveTarget?: any,
   ): Node {
-    // Render-mode specialisations — `renderMode` is a single
-    // dropdown, `renderModes` is a checkbox row. Both ride on the
-    // three predefined modes the demo exposes; the data on the
-    // params object stays numeric (the SDK constants).
-    if (key === "renderMode" && typeof val === "number") {
-      return this._mkRenderModeSelect(parent, key, val, apply);
-    }
-    if (key === "renderModes" && Array.isArray(val) && val.every((n) => typeof n === "number")) {
-      return this._mkRenderModesChecks(parent, key, val as number[], apply);
-    }
-
     if (typeof val === "boolean") return this._mkBoolInput(parent, key, val, apply);
-    if (typeof val === "number")  return this._mkNumberInput(parent, key, val, apply);
+    if (typeof val === "number")  return this._mkNumberInput(parent, key, val, apply, liveTarget);
     if (typeof val === "string" && key === "mode" && looksLikeAntiAliasingParams(parent)) {
       return this._mkStringEnumSelect(parent, key, val, apply, [
         ["none", "None"],
@@ -1479,87 +1443,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
     return el("span", "xkt-vcp-readonly", {textContent: String(val)});
   }
 
-  /**
-   * Dropdown for the per-View `renderMode` field — one option per
-   * predefined mode (Navigation / Detailed / Realistic). Values
-   * outside the predefined set surface as a disabled
-   * `Other (<number>)` option so the user sees the current state
-   * without being able to set it back without a fresh constant.
-   */
-  private _mkRenderModeSelect(parent: any, key: string | number, val: number, apply: ApplyFn): HTMLSelectElement {
-    const sel = el("select", "xkt-vcp-input xkt-vcp-input--enum") as HTMLSelectElement;
-    for (const [code, label] of RENDER_MODES) {
-      const opt = document.createElement("option");
-      opt.value = String(code);
-      opt.textContent = label;
-      sel.appendChild(opt);
-    }
-    if (!RENDER_MODE_LABELS.has(val)) {
-      const opt = document.createElement("option");
-      opt.value = String(val);
-      opt.textContent = `Other (${val})`;
-      opt.disabled = true;
-      sel.appendChild(opt);
-    }
-    sel.value = String(val);
-    sel.addEventListener("change", () => {
-      const n = parseInt(sel.value, 10);
-      if (Number.isFinite(n)) {
-        parent[key] = n;
-        apply(key, n);
-      }
-    });
-    return sel;
-  }
-
-  /**
-   * Checkbox row for an effect's `renderModes` list — one box per
-   * predefined mode. Edits the array in place (writing the same
-   * reference back to `parent[key]` so existing handlers see the
-   * update) and preserves any non-predefined entries already in
-   * the list so the panel doesn't silently strip custom modes.
-   */
-  private _mkRenderModesChecks(parent: any, key: string | number, arr: number[], apply: ApplyFn): HTMLElement {
-    const wrap = el("span", "xkt-vcp-arr xkt-vcp-render-modes");
-    const present = new Set(arr);
-    for (const [code, label] of RENDER_MODES) {
-      const lbl = el("label", "xkt-vcp-render-mode") as HTMLLabelElement;
-      const inp = el("input", "xkt-vcp-input xkt-vcp-input--bool", {type: "checkbox"}) as HTMLInputElement;
-      inp.checked = present.has(code);
-      inp.addEventListener("change", () => {
-        if (inp.checked) present.add(code);
-        else              present.delete(code);
-        // Rebuild the array: predefined modes in canonical order,
-        // followed by any non-predefined entries the params already
-        // carried, so a custom mode survives a panel-driven edit.
-        const next: number[] = [];
-        for (const [c] of RENDER_MODES) {
-          if (present.has(c)) next.push(c);
-        }
-        for (const n of arr) {
-          if (!RENDER_MODE_LABELS.has(n) && !next.includes(n)) next.push(n);
-        }
-        arr.length = 0;
-        for (const n of next) arr.push(n);
-        parent[key] = arr;
-        apply(key, arr);
-      });
-      lbl.append(inp, document.createTextNode(" " + label));
-      wrap.appendChild(lbl);
-    }
-    // Tally any non-predefined entries as a small read-only tag so
-    // the user knows they're there.
-    const extras = arr.filter((n) => !RENDER_MODE_LABELS.has(n));
-    if (extras.length) {
-      wrap.appendChild(el("span", "xkt-vcp-render-mode-extras", {
-        textContent: `+${extras.length} other`,
-        title: extras.join(", "),
-      }));
-    }
-    return wrap;
-  }
-
-  private _mkBoolInput(parent: any, key: string | number, val: boolean, apply: ApplyFn): HTMLInputElement {
+      private _mkBoolInput(parent: any, key: string | number, val: boolean, apply: ApplyFn): HTMLInputElement {
     const inp = el("input", "xkt-vcp-input xkt-vcp-input--bool", {type: "checkbox"}) as HTMLInputElement;
     inp.checked = val;
     inp.addEventListener("change", () => {
@@ -1569,12 +1453,12 @@ export class ViewerConfigPanel extends FloatingPanelBase {
     return inp;
   }
 
-  private _mkNumberInput(parent: any, key: string | number, val: number, apply: ApplyFn): HTMLElement {
+  private _mkNumberInput(parent: any, key: string | number, val: number, apply: ApplyFn, liveTarget?: any): HTMLElement {
     // Known-range option → slider + number-input pair, two-way bound.
     // Drag the slider for quick eyeballing, type in the number for
     // precision. Falls through to a plain number input for anything
     // that has no defined range (camera positions, timestamps, etc).
-    const range = typeof key === "string" ? SLIDER_RANGES.get(key) : undefined;
+    const range = this._getSliderRange(parent, key, liveTarget);
     if (range) {
       return this._mkSliderInput(parent, key, val, apply, range);
     }
@@ -1587,6 +1471,16 @@ export class ViewerConfigPanel extends FloatingPanelBase {
       apply(key, next);
     });
     return inp;
+  }
+
+  private _getSliderRange(parent: any, key: string | number, liveTarget?: any): [number, number, number] | undefined {
+    if (typeof key !== "string") {
+      return undefined;
+    }
+    if (key === "intensity" && looksLikeIBL(parent, liveTarget)) {
+      return [0, 2, 0.01];
+    }
+    return SLIDER_RANGES.get(key);
   }
 
   /**
@@ -1877,8 +1771,8 @@ const EFFECT_ORDER: string[] = [
  * Numeric options whose range is well-bounded enough that a slider
  * makes sense alongside the number input. Keyed by leaf property
  * name (the same camelCase key the params object carries), so the
- * range applies wherever the option appears — `intensity` covers SAO,
- * Bloom, IBL, and Shadows alike, etc.
+ * range applies wherever the option appears. Target-specific controls
+ * such as IBL can override this generic range in `_getSliderRange`.
  *
  * Tuple shape: `[min, max, step]`. The slider clamps to this range
  * visually; the number input is the precise / out-of-range escape
@@ -1957,7 +1851,20 @@ function isNumberArray(v: any): v is number[] {
 function looksLikeAntiAliasingParams(v: any): boolean {
   if (!v || typeof v !== "object" || Array.isArray(v)) return false;
   const keys = Object.keys(v);
-  return keys.length > 0 && keys.every((key) => key === "mode" || key === "renderModes");
+  return keys.length > 0 && keys.every((key) => key === "mode" || key === "enabled");
+}
+
+function looksLikeIBL(params: any, liveTarget?: any): boolean {
+  if (liveTarget && typeof liveTarget.setEnvironmentHDRBuffer === "function") {
+    return true;
+  }
+  if (!params || typeof params !== "object" || Array.isArray(params)) {
+    return false;
+  }
+  const keys = Object.keys(params);
+  return keys.includes("intensity") &&
+    keys.includes("enabled") &&
+    !keys.some((key) => key !== "intensity" && key !== "enabled");
 }
 
 /**

@@ -6,15 +6,10 @@
  * * Located at {@link EffectsParams.depthOfField}
  */
 export interface DepthOfFieldParams {
-
   /**
-   * Which rendering modes in which to apply depth of field.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}]
-   * when this effect is explicitly configured. Omitted
-   * {@link EffectsParams.depthOfField} leaves the effect inactive.
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * View-space distance, in world units, that remains sharp.

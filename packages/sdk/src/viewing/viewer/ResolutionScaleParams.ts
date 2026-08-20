@@ -6,13 +6,10 @@
  * * Located at {@link ViewParams.resolutionScale | ViewParams.resolutionScale}
  */
 export interface ResolutionScaleParams {
-
   /**
-   * Which rendering modes in which to apply the {@link ResolutionScale}.
-   *
-   * Default value is `[]`.
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    *The scale when {@link ResolutionScale} is applied.

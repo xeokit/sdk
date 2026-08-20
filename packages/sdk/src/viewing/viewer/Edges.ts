@@ -1,5 +1,4 @@
 import type {EdgesParams} from "./EdgesParams";
-import {DetailedRender} from "../../base/constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import {createVec3Float64, type Vec3} from "../../base/math/vector";
@@ -9,8 +8,8 @@ import {createVec3Float64, type Vec3} from "../../base/math/vector";
  * Configures edge enhancement effect for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.edges}, which lives at {@link View.effects}.
- * * View will apply edge enhancement when {@link View.renderMode | View.renderMode} is set to one of the values
- * specified in {@link Edges.renderModes}.
+ * * View will apply edge enhancement when the component enabled state is set to one of the values
+ * specified in the component enabled state.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -28,7 +27,7 @@ class Edges {
     private _edgeAlpha: number;
     private _edgeFadeStart: number;
     private _edgeFadeEnd: number;
-    private _renderModes: number[];
+  private _enabled: boolean;
     private _destroyed = false;
 
     /**
@@ -37,8 +36,7 @@ class Edges {
     constructor(view: View, options: EdgesParams = {}) {
 
         this.view = view;
-
-        this._renderModes = options.renderModes || [DetailedRender];
+    this._enabled = options.enabled !== false;
         this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
         this._useMeshColor = options.useMeshColor !== false;
         this._edgeDarken = (options.edgeDarken !== undefined && options.edgeDarken !== null) ? options.edgeDarken : 0.5;
@@ -48,28 +46,16 @@ class Edges {
         this._edgeFadeEnd = (options.edgeFadeEnd !== undefined && options.edgeFadeEnd !== null) ? options.edgeFadeEnd : 1.0;
     }
 
-    /**
-     * Sets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-     *
-     * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
-     */
-    set renderModes(value: number[]) {
-        this._renderModes = value;
-        this.view.needsRender();
-    }
+          set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
+    this.view.needsRender();
+  }
 
-    /**
-     * Gets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-     *
-     * The {@link viewing!viewer.View | View} will show edges whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
-     */
-    get renderModes(): number[] {
-        return this._renderModes;
-    }
+  get enabled(): boolean {
+    return this._enabled;
+  }
 
     /**
      * Sets RGB edge color for {@link ViewObject | ViewObjects}.
@@ -264,17 +250,12 @@ class Edges {
     /**
      * Gets if edges are currently applied.
      *
-     * This is `true` when {@link View.renderMode | View.renderMode} is
-     * in {@link Edges.renderModes | Edges.renderModes}.
+     * This is `true` when the component enabled state is
+     * in the component enabled state.
      */
     get applied(): boolean {
-        for (let i = 0, len = this._renderModes.length; i < len; i++) {
-            if (this.view.renderMode === this._renderModes[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
+    return this._enabled;
+  }
 
     /**
      * Gets the current configuration of this Edges effect.
@@ -283,7 +264,7 @@ class Edges {
         return {
           ok: true,
           value:{
-            renderModes: this.renderModes,
+        enabled: this._enabled,
             edgeColor: <Vec3> Array.from(this.edgeColor),
             useMeshColor: this.useMeshColor,
             edgeDarken: this.edgeDarken,
@@ -311,8 +292,8 @@ class Edges {
         // Each field is applied only when present, so single-key patches
         // (e.g. from the Studio config panel's `fromParams({useMeshColor})`)
         // don't clobber — or throw on — the fields they omit.
-        if (edgesParams.renderModes !== undefined) {
-            this.renderModes = edgesParams.renderModes;
+        if (edgesParams.enabled !== undefined) {
+            this.enabled = edgesParams.enabled;
         }
         if (edgesParams.edgeColor !== undefined) {
             this.edgeColor = <Vec3>Array.from(edgesParams.edgeColor);

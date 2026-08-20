@@ -22,15 +22,29 @@
 import type {
   MemoryConfigs,
   MemoryUsage,
-  WebGLRenderer,
 } from "../../../viewing/webGLRenderer";
+import type {WebGPUMemoryStats} from "../../../viewing/webGPURenderer";
 import type {Renderer} from "../../../viewing/renderer";
 import {clamp} from "../../../base/math";
 
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {requireWebGLRenderer} from "../resolveWebGLRenderer";
+
+type RendererMemoryUsageProvider = Renderer & {
+  getMemoryUsage?: () => MemoryUsage;
+  getMemoryConfigs?: () => MemoryConfigs;
+  getMemoryStats?: () => WebGPUMemoryStats | null;
+};
+
+interface MemorySnapshot {
+  allocatedMB: number;
+  usedMB: number;
+  configSections: Array<{
+    title: string;
+    rows: Array<[string, any]>;
+  }>;
+}
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -447,7 +461,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
   }
 
   readonly renderer: Renderer;
-  private readonly _webGLRenderer: WebGLRenderer;
+  private readonly _memoryProvider: RendererMemoryUsageProvider;
 
   // DOM refs.
   private _bodyEl!: HTMLElement;
@@ -479,7 +493,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
       classPrefix: "xkt-gpu",
     });
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "GPUMemoryPanel");
+    this._memoryProvider = params.renderer as RendererMemoryUsageProvider;
 
     // Replace any prior panel bound to the same renderer.
     const prior = GPUMemoryPanel._instances.get(params.renderer);
@@ -594,8 +608,7 @@ export class GPUMemoryPanel extends FloatingPanelBase {
 
   /**
    * Public entry point — re-paint both halves of the panel.
-   * Cheap; calls into `getMemoryUsage()` and `getMemoryConfigs()`
-   * once each.
+   * Cheap; calls into the renderer memory diagnostic surface once.
    */
   refresh(): void {
     if (this._destroyed) return;
@@ -713,9 +726,9 @@ export class GPUMemoryPanel extends FloatingPanelBase {
   // ── Rendering ─────────────────────────────────────────────────
 
   private _renderUsage(): void {
-    const usage: MemoryUsage = this._webGLRenderer.getMemoryUsage();
-    const allocated = Number(usage?.allocatedMB) || 0;
-    const used      = Number(usage?.usedMB)      || 0;
+    const snapshot = this._createMemorySnapshot();
+    const allocated = Number(snapshot?.allocatedMB) || 0;
+    const used      = Number(snapshot?.usedMB)      || 0;
     const free      = Math.max(0, allocated - used);
     const pct       = allocated > 0 ? clamp((used / allocated) * 100, 0, 100) : 0;
 
@@ -739,25 +752,44 @@ export class GPUMemoryPanel extends FloatingPanelBase {
 
   private _renderConfigs(): void {
     this._configsBody.innerHTML = "";
-    const configs: MemoryConfigs = this._webGLRenderer.getMemoryConfigs();
-    if (!configs) {
+    const snapshot = this._createMemorySnapshot();
+    const sections = snapshot?.configSections ?? [];
+    if (!sections.length) {
       this._configsBody.appendChild(el("div", "xkt-gpu-empty", {textContent: "No memory configs available."}));
       return;
     }
 
-    appendSubsection(this._configsBody, "RTC Tiling", [
-      ["tileSize",  configs.tileSize],
-      ["maxTiles",  configs.maxTiles],
-      ["maxViews",  (configs as any).maxViews],
-    ]);
-    appendSubsection(this._configsBody, "Batching", [
-      ["maxBatches",          configs.maxBatches],
-      ["maxBatchVertices",    configs.maxBatchVertices],
-      ["maxBatchIndices",     configs.maxBatchIndices],
-      ["maxBatchGeometries",  configs.maxBatchGeometries],
-      ["maxBatchMeshes",      configs.maxBatchMeshes],
-      ["maxBatchPrims",       configs.maxBatchPrims],
-    ]);
+    for (const section of sections) {
+      appendSubsection(this._configsBody, section.title, section.rows);
+    }
+  }
+
+  private _createMemorySnapshot(): MemorySnapshot | null {
+    if (typeof this._memoryProvider.getMemoryUsage === "function") {
+      const usage = this._memoryProvider.getMemoryUsage();
+      const configs = typeof this._memoryProvider.getMemoryConfigs === "function"
+        ? this._memoryProvider.getMemoryConfigs()
+        : null;
+      return {
+        allocatedMB: Number(usage?.allocatedMB) || 0,
+        usedMB: Number(usage?.usedMB) || 0,
+        configSections: createWebGLConfigSections(configs),
+      };
+    }
+
+    if (typeof this._memoryProvider.getMemoryStats === "function") {
+      const stats = this._memoryProvider.getMemoryStats();
+      if (!stats) {
+        return null;
+      }
+      return {
+        allocatedMB: bytesToMB(stats.totalBytes),
+        usedMB: bytesToMB(webGPUUsedBytes(stats)),
+        configSections: createWebGPUStatSections(stats),
+      };
+    }
+
+    return null;
   }
 
   /** Flicker the live-pulse dot for a few hundred ms after each
@@ -779,6 +811,101 @@ export class GPUMemoryPanel extends FloatingPanelBase {
 // Module-private helpers
 // ─────────────────────────────────────────────────────────────────
 
+
+function createWebGLConfigSections(configs: MemoryConfigs | null): MemorySnapshot["configSections"] {
+  if (!configs) {
+    return [];
+  }
+  return [
+    {
+      title: "RTC Tiling",
+      rows: [
+        ["tileSize", configs.tileSize],
+        ["maxTiles", configs.maxTiles],
+        ["maxViews", (configs as any).maxViews],
+      ],
+    },
+    {
+      title: "Batching",
+      rows: [
+        ["maxBatches", configs.maxBatches],
+        ["maxBatchVertices", configs.maxBatchVertices],
+        ["maxBatchIndices", configs.maxBatchIndices],
+        ["maxBatchGeometries", configs.maxBatchGeometries],
+        ["maxBatchMeshes", configs.maxBatchMeshes],
+        ["maxBatchPrims", configs.maxBatchPrims],
+      ],
+    },
+  ];
+}
+
+function createWebGPUStatSections(stats: WebGPUMemoryStats): MemorySnapshot["configSections"] {
+  return [
+    {
+      title: "Packed Triangle Pages",
+      rows: [
+        ["pages", stats.packedTrianglePages],
+        ["segments", stats.packedTriangleSegments],
+        ["allocated", formatBytes(stats.packedTriangleBytes)],
+        ["used", formatBytes(webGPUUsedPackedTriangleBytes(stats))],
+        ["vertex", formatBytes(stats.packedTriangleVertexBytes)],
+        ["metadata", formatBytes(stats.packedTriangleVertexMetadataBytes)],
+        ["index", formatBytes(stats.packedTriangleIndexBytes)],
+        ["edgeIndex", formatBytes(stats.packedTriangleEdgeIndexBytes)],
+        ["positionDecode", formatBytes(stats.packedTrianglePositionDecodeBytes)],
+      ],
+    },
+    {
+      title: "Instance Buffers",
+      rows: [
+        ["allocated", formatBytes(stats.instanceBufferBytes)],
+        ["capacity", stats.instanceBufferCapacity],
+        ["frames", stats.instanceBufferFrames],
+      ],
+    },
+    {
+      title: "RTC Tiles",
+      rows: [
+        ["allocated", formatBytes(stats.rtcTileBufferBytes)],
+        ["capacity", stats.rtcTileCapacity],
+        ["tiles", stats.rtcTiles],
+      ],
+    },
+    {
+      title: "Segment Lifecycle",
+      rows: objectRows(stats.segmentsByLifecycle),
+    },
+    {
+      title: "Memory Policy",
+      rows: objectRows(stats.segmentsByMemoryPolicy),
+    },
+  ];
+}
+
+function objectRows(values: {[key: string]: number} | undefined): Array<[string, any]> {
+  return Object.entries(values ?? {}).sort(([a], [b]) => a.localeCompare(b));
+}
+
+function webGPUUsedBytes(stats: WebGPUMemoryStats): number {
+  return webGPUUsedPackedTriangleBytes(stats) + stats.instanceBufferBytes + stats.rtcTileBufferBytes;
+}
+
+function webGPUUsedPackedTriangleBytes(stats: WebGPUMemoryStats): number {
+  return stats.packedTriangleUsedVertexBytes +
+    stats.packedTriangleUsedVertexMetadataBytes +
+    stats.packedTriangleUsedIndexBytes +
+    stats.packedTriangleUsedEdgeIndexBytes +
+    stats.packedTriangleUsedPositionDecodeBytes;
+}
+
+function bytesToMB(bytes: number): number {
+  return bytes / (1024 * 1024);
+}
+
+function formatBytes(bytes: number): string {
+  const mb = bytesToMB(Number(bytes) || 0);
+  return `${mb.toLocaleString(undefined, {maximumFractionDigits: 2})} MB`;
+}
 
 function appendSubsection(host: HTMLElement, title: string, rows: Array<[string, any]>): void {
   host.appendChild(el("div", "xkt-gpu-subhead", {textContent: title}));

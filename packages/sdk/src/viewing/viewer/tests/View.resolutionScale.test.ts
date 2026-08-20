@@ -1,4 +1,3 @@
-import {NavigationRender} from "../../../base/constants";
 import {Scene} from "../../../model/scene";
 import {Viewer} from "../Viewer";
 import {installViewerTestGlobals} from "./installViewerTestGlobals";
@@ -31,29 +30,27 @@ function createHostElement(): HTMLElement {
 
 describe("View resolution scale", () => {
 
-  it("is inactive by default in every render mode", () => {
+  it("is inactive by default", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
-      htmlElement: createHostElement(),
-      renderMode: NavigationRender
+      htmlElement: createHostElement()
     });
     expect(viewResult.ok).toBe(true);
 
     const view = viewResult.value!;
 
-    expect(view.resolutionScale.renderModes).toEqual([]);
+    expect(view.resolutionScale.enabled).toBe(false);
     expect(view.resolutionScale.applied).toBe(false);
   });
 
-  it("can still be explicitly enabled for navigation rendering", () => {
+  it("can be explicitly enabled", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
       htmlElement: createHostElement(),
-      renderMode: NavigationRender,
       resolutionScale: {
-        renderModes: [NavigationRender],
+        enabled: true,
         resolutionScale: 0.5
       }
     });
@@ -61,7 +58,7 @@ describe("View resolution scale", () => {
 
     const view = viewResult.value!;
 
-    expect(view.resolutionScale.renderModes).toEqual([NavigationRender]);
+    expect(view.resolutionScale.enabled).toBe(true);
     expect(view.resolutionScale.applied).toBe(true);
   });
 });

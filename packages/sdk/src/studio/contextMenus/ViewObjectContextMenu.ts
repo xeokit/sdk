@@ -25,7 +25,7 @@ import {createViewObjectShowGroup} from "./submenus/createViewObjectShowGroup";
 import {createViewObjectModifyGroup} from "./submenus/createViewObjectModifyGroup";
 import {createViewObjectTransformGroup} from "./submenus/createViewObjectTransformGroup";
 import {createViewObjectDeleteGroup} from "./submenus/createViewObjectDeleteGroup";
-import {createRenderModeGroup} from "./submenus/createRenderModeGroup";
+import {createViewProfileGroup} from "./submenus/createViewProfileGroup";
 import {createDebugSubmenu} from "./submenus/createDebugSubmenu";
 
 
@@ -70,8 +70,8 @@ export class ViewObjectContextMenu extends ContextMenu {
         [createViewObjectModifyGroup()],
         [createViewObjectTransformGroup()],
         [{
-          getTitle: () => "Render Mode",
-          items: [createRenderModeGroup()],
+          getTitle: () => "View Profile",
+          items: [createViewProfileGroup()],
         }],
         createViewObjectDeleteGroup(),
         ...(debugSub ? [[debugSub]] : []),

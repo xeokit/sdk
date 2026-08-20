@@ -1,4 +1,3 @@
-import {DetailedRender, RealisticRender} from "../../../base/constants";
 import {Scene} from "../../../model/scene";
 import {Viewer} from "../Viewer";
 import {installViewerTestGlobals} from "./installViewerTestGlobals";
@@ -31,19 +30,18 @@ function createHostElement(): HTMLElement {
 
 describe("View anti-aliasing", () => {
 
-  it("defaults to SMAA in detailed and realistic render modes", () => {
+  it("defaults to enabled SMAA", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
-      htmlElement: createHostElement(),
-      renderMode: RealisticRender
+      htmlElement: createHostElement()
     });
     expect(viewResult.ok).toBe(true);
 
     const view = viewResult.value!;
 
     expect(view.effects.antiAliasing.mode).toBe("smaa");
-    expect(view.effects.antiAliasing.renderModes).toEqual([DetailedRender, RealisticRender]);
+    expect(view.effects.antiAliasing.enabled).toBe(true);
     expect(view.effects.antiAliasing.applied).toBe(true);
   });
 
@@ -52,7 +50,6 @@ describe("View anti-aliasing", () => {
     const viewResult = viewer.createView({
       id: "view",
       htmlElement: createHostElement(),
-      renderMode: RealisticRender,
       effects: {
         antiAliasing: {
           mode: "smaa"

@@ -3596,9 +3596,8 @@ flat out int  vHatchSpace;
       // direct lighting and cast shadows agree on which way the sun points.
       "uniform vec3 uPrimaryLightDirView;",
       // Analytical hemisphere ambient — sky/ground gradient driven by
-      // the dot of the surface normal with world up. Cheap (one dot,
-      // one mix) and active in every render mode listed in
-      // View.lights.hemispheric.renderModes. uHemisphereUpView is
+      // the dot of the surface normal with world up. Cheap: one dot,
+      // one mix. uHemisphereUpView is
       // world-up pre-rotated into view space so the dot stays a
       // single fma.
       "uniform float uHemisphereIntensity;",
@@ -4010,7 +4009,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3  iblContrib = (iblDiff + iblSpec);
 
     // Analytical hemisphere term — gated independently of the cubemap
-    // so non-IBL render modes still get a directional sky/ground fill.
+    // so non-IBL profiles can still get a directional sky/ground fill.
     // Same maths as the flat-shaded path: dot the view-space normal
     // with view-space world-up, lerp ground→sky.
     float hemiFacing = dot(N, uHemisphereUpView) * 0.5 + 0.5;
@@ -4957,9 +4956,9 @@ ${this.triplanar ? `
     }
 
     // Cubemap IBL multiplier — gates the prefiltered-cubemap diffuse +
-    // specular contribution. Zero when the active View.renderMode
-    // isn't in View.lights.ibl.renderModes; the shader's iblScale=0 path
-    // collapses the cubemap term to nothing without recompiling.
+    // specular contribution. Zero when IBL is disabled or unavailable; the
+    // shader's iblScale=0 path collapses the cubemap term to nothing without
+    // recompiling.
     if (uniforms.iblIntensity) {
       const ibl = (view as any).lights?.ibl;
       const iblActive = !!(ibl && ibl.applied && ibl.possible);
@@ -4968,9 +4967,9 @@ ${this.triplanar ? `
     }
 
     // Analytical hemisphere ambient — sky/ground/up plus an intensity,
-    // independent of the cubemap path so non-IBL render modes still
-    // get directional fill. Zero when the active View.renderMode
-    // isn't in View.lights.hemispheric.renderModes.
+    // independent of the cubemap path so non-IBL profiles can still
+    // get directional fill. Zero when hemispheric lighting is disabled
+    // or unavailable.
     const hemi = (view as any).lights?.hemispheric;
     const hemiActive = !!(hemi && hemi.applied && hemi.possible);
     if (uniforms.hemisphereIntensity) {

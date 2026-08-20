@@ -8,6 +8,8 @@ import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {ShadowsParams} from "./ShadowsParams";
 import type {SkyParams} from "./SkyParams";
 import type {IBLParams} from "./IBLParams";
+import type {SectionPlaneCapsParams} from "./SectionPlaneCapsParams";
+import type {BodyHatchParams} from "./BodyHatchParams";
 
 
 /**
@@ -45,8 +47,7 @@ export interface EffectsParams {
    * Parameters for the View's HDR atmospheric attenuation post-process,
    * {@link Atmosphere} — accessible at {@link Effects.atmosphere}.
    *
-   * Omit to leave the component inactive. Pass `{}` to use its
-   * RealisticRender defaults.
+   * Omit to leave the component inactive.
    */
   atmosphere?: AtmosphereParams;
 
@@ -55,8 +56,7 @@ export interface EffectsParams {
    * {@link DepthOfField} — accessible at
    * {@link Effects.depthOfField}.
    *
-   * Omit to leave the component inactive. Pass `{}` to use its
-   * RealisticRender defaults.
+   * Omit to leave the component inactive.
    */
   depthOfField?: DepthOfFieldParams;
 
@@ -95,18 +95,14 @@ export interface EffectsParams {
    * Defaults to off so callers can supply their own cap
    * geometry without paying the stencil-pass cost.
    */
-  sectionPlaneCaps?: { renderModes?: number[] };
+  sectionPlaneCaps?: SectionPlaneCapsParams;
 
   /**
    * Parameters for the View's hatched-Lambert body shading,
    * {@link BodyHatch} — accessible at {@link Effects.bodyHatch}.
    *
-   * Default `renderModes`: `[DetailedRender]`. The PBR-textured
-   * path runs in every other mode; this one swaps in the
-   * un-textured Lambert variant so the material's hatch pattern
-   * dominates the body.
    */
-  bodyHatch?: { renderModes?: number[] };
+  bodyHatch?: BodyHatchParams;
 
   /**
    * Parameters for the View's image-based lighting,

@@ -379,7 +379,6 @@ class ViewLayer {
    */
   readonly autoDestroy: boolean;
 
-  private _renderModes: number[];
   private _numObjects: number;
   private _objectIds: string[] | null;
   private _numVisibleObjects: number;
@@ -406,7 +405,6 @@ class ViewLayer {
     id: string;
     viewer: Viewer;
     view: View;
-    renderMode?: number;
     autoDestroy?: boolean;
   }) {
 
@@ -431,8 +429,6 @@ class ViewLayer {
     this._numSelectedObjects = 0;
     this._numColorizedObjects = 0;
     this._numOpacityObjects = 0;
-
-    this._renderModes = [];
   }
 
   _attachViewObject(viewObject: ViewObject) {
@@ -490,33 +486,6 @@ class ViewLayer {
    */
   get gammaFactor() { // TODO
     return 1.0;
-  }
-
-  /**
-   * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Default value is [].
-   */
-  set renderModes(value: number[]) {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[ViewLayer.renderModes] ViewLayer already destroyed"
-      });
-      return;
-    }
-    this._renderModes = value;
-    this.view.needsRender();
-  }
-
-  /**
-   * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Default value is [].
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
   }
 
   /**

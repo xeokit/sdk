@@ -31,6 +31,6 @@
  * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}, for those
  * implementation-specific APIs.
  *
- * @module viewing/renderer
+ * @module renderer
  */
 export * from "./core";

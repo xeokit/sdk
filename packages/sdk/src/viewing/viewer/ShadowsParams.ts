@@ -8,13 +8,10 @@ import type {FloatArrayParam} from "../../base/math";
  * * Located at {@link EffectsParams.shadows}
  */
 export interface ShadowsParams {
-
   /**
-   * Which rendering modes in which to apply {@link Shadows}.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * The darkness of the shadow where a surface is fully occluded from the light.

@@ -16,16 +16,10 @@ export type TonemapMode = "none" | "reinhard" | "aces";
  * * Located at {@link EffectsParams.tonemap}
  */
 export interface TonemapParams {
-
   /**
-   * Which rendering modes in which to apply {@link Tonemap} settings.
-   *
-   * When the active render mode is outside this list the tonemap pass
-   * runs as an identity copy.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * Linear scale applied to HDR scene colours before tonemapping. Values
@@ -33,7 +27,7 @@ export interface TonemapParams {
    * tonemap curve; values below 1 darken.
    *
    * Default is `0.5` — chosen so ACES midtones stay below the
-   * no-tonemap (DetailedRender) reference, leaving headroom for
+   * no-tonemap (detailed profile) reference, leaving headroom for
    * HDR specular peaks (sun, smooth-metal reflections) to read as
    * bright accents rather than washing into the rest of the frame.
    */

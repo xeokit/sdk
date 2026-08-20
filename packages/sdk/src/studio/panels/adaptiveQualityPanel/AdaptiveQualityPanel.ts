@@ -4,14 +4,9 @@
  * toolbar.
  *
  * Owns one {@link viewing!adaptiveQuality.AdaptiveQuality | AdaptiveQuality}
- * per enabled {@link viewing!viewer.View | View}: each adapter listens to
- * its View's camera events and toggles `view.renderMode` between
- * {@link base!constants.NavigationRender | NavigationRender} (during
- * motion) and {@link base!constants.RealisticRender | RealisticRender}
- * (at rest). The renderer side is fully driven by the View's
- * `renderMode` — every effect (SAO, shadows, bloom, final AA, ACES tonemap,
- * edges, IBL, section caps) gates its own activation on it via the
- * `renderModes` list, so no per-effect setup lives in the panel.
+ * per enabled {@link viewing!viewProfiles.ViewProfiles | ViewProfiles}:
+ * each adapter listens to its View's camera events and selects the fast
+ * profile during motion, then restores the realistic profile at rest.
  *
  * The `restMs` slider is panel-global (it applies to every adapter the
  * panel owns); changing it re-creates any live adapter with the new
@@ -19,8 +14,8 @@
  *
  * Per-View row shows live FPS, frame ms (from the renderer's
  * {@link viewing!webGLRenderer.RenderInspector | RenderInspector}), and
- * the View's current `renderMode` so it's visually obvious when the
- * mode flip fires.
+ * the View's active profile so it's visually obvious when the profile switch
+ * fires.
  *
  * ```ts
  * import {AdaptiveQualityPanel} from "@xeokit/sdk/studio";
@@ -31,18 +26,31 @@
  * ```
  */
 import type {Viewer, View} from "../../../viewing/viewer";
-import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
 import type {Renderer} from "../../../viewing/renderer";
 import {AdaptiveQuality} from "../../../viewing/adaptiveQuality";
-import {
-  DetailedRender,
-  NavigationRender,
-  RealisticRender,
-} from "../../../base/constants";
+import {DEFAULT_VIEW_PROFILES, ViewProfiles} from "../../../viewing/viewProfiles";
+import {SDKErrorType, type SDKResult} from "../../../base/core";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {requireWebGLRenderer} from "../resolveWebGLRenderer";
+
+interface RenderInspectorLike {
+  enabled: boolean;
+  renderStats?: {
+    views?: Array<{
+      viewId?: string;
+      timeMs?: {
+        duration?: number;
+      };
+    } | undefined>;
+  };
+  frameRates?: Array<number | null>;
+  getFrameRate?: (viewId: string) => number | null;
+}
+
+type RendererWithInspector = Renderer & {
+  getRenderInspector?: () => SDKResult<RenderInspectorLike>;
+};
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -335,8 +343,8 @@ const PANEL_CSS = `
   text-transform: uppercase;
   color: #94a3b8;
 }
-/* Mode-aware chip: shifts colour when the View is in NavigationRender so the
-   user can see at a glance which side of the flip each View is on. */
+/* Profile-aware chip: shifts colour while the View is using the fast
+   profile so the user can see which side of the flip each View is on. */
 .xkt-aq-panel .xkt-aq-chip.xkt-aq-chip-nav {
   background: ${ACCENT};
   color: #fff;
@@ -394,9 +402,10 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
 
   readonly viewer: Viewer;
   readonly renderer: Renderer;
-  private readonly _webGLRenderer: WebGLRenderer;
+  private readonly _rendererWithInspector: RendererWithInspector;
 
   private _restMs = DEFAULT_REST_MS;
+  private readonly _viewProfiles = new WeakMap<View, ViewProfiles>();
 
   // DOM refs.
   private _bodyEl!: HTMLElement;
@@ -425,7 +434,7 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
     });
     this.viewer = params.viewer;
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "AdaptiveQualityPanel");
+    this._rendererWithInspector = params.renderer as RendererWithInspector;
 
     const prior = AdaptiveQualityPanel._instances.get(params.viewer);
     if (prior && !prior._destroyed) prior.destroy();
@@ -543,7 +552,7 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
       `<span class="xkt-aq-title-icon">${AdaptiveQualityPanel.iconSvg()}</span>` +
       `<span class="xkt-aq-title-stack">` +
         `<span class="xkt-aq-title-text">Adaptive Quality</span>` +
-        `<span class="xkt-aq-subtitle">Switches View into NavigationRender while the camera moves; back at rest.</span>` +
+        `<span class="xkt-aq-subtitle">Switches View into fast profile while the camera moves; back at rest.</span>` +
       `</span>`;
     this._pulseEl = el("span", "xkt-aq-pulse", {
       title: "Flashes each time the stats update from a render.",
@@ -573,7 +582,7 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
       const row = el("div", "xkt-aq-row");
       row.appendChild(el("label", undefined, {
         textContent: "Rest delay",
-        title: "Milliseconds the camera must be still before switching back to RealisticRender.",
+        title: "Milliseconds the camera must be still before switching back to realistic profile.",
       }));
       const slider = el("input", undefined, {
         type: "range", min: "0", max: "500", step: "10",
@@ -608,10 +617,11 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
    */
   private _applyConfigToActiveAdapters(): void {
     for (const view of this.viewer.viewList) {
-      const existing = AdaptiveQuality.getFor(view);
+      const viewProfiles = this._getViewProfiles(view);
+      const existing = AdaptiveQuality.getFor(viewProfiles);
       if (!existing?.enabled) continue;
       existing.destroy();
-      new AdaptiveQuality({view, restMs: this._restMs});
+      new AdaptiveQuality({viewProfiles, restMs: this._restMs});
     }
   }
 
@@ -643,7 +653,8 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
       title: "Enable adaptive quality for this View.",
     });
     const toggle = el("input", undefined, {type: "checkbox"}) as HTMLInputElement;
-    toggle.checked = AdaptiveQuality.getFor(view)?.enabled === true;
+    const viewProfiles = this._getViewProfiles(view);
+    toggle.checked = AdaptiveQuality.getFor(viewProfiles)?.enabled === true;
     toggle.addEventListener("change", () => this._setViewAdaptive(view, toggle.checked));
     toggleLabel.appendChild(toggle);
 
@@ -663,12 +674,13 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
   }
 
   private _setViewAdaptive(view: View, enabled: boolean): void {
-    const existing = AdaptiveQuality.getFor(view);
+    const viewProfiles = this._getViewProfiles(view);
+    const existing = AdaptiveQuality.getFor(viewProfiles);
     if (enabled) {
       if (existing) {
         existing.enabled = true;
       } else {
-        new AdaptiveQuality({view, restMs: this._restMs});
+        new AdaptiveQuality({viewProfiles, restMs: this._restMs});
       }
     } else {
       if (existing) existing.enabled = false;
@@ -676,34 +688,57 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
     this._renderStats();
   }
 
+  private _getViewProfiles(view: View): ViewProfiles {
+    let viewProfiles = this._viewProfiles.get(view);
+    if (!viewProfiles) {
+      viewProfiles = new ViewProfiles(view, {
+        profiles: DEFAULT_VIEW_PROFILES,
+        activeProfile: "realistic"
+      });
+      this._viewProfiles.set(view, viewProfiles);
+    }
+    return viewProfiles;
+  }
+
 
   // ── Live stats ────────────────────────────────────────────────
 
   private _enableInspector(): void {
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     if (res.ok) res.value.enabled = true;
   }
 
   private _renderStats(): void {
     if (this._destroyed) return;
-    const res = this._webGLRenderer.getRenderInspector();
+    const res = this._getRenderInspector();
     const inspector = res.ok ? res.value : null;
 
     for (const {view, fpsEl, frameEl, modeChip, modeEl} of this._viewRows.values()) {
       const i = view.viewIndex;
-      const fps = inspector?.frameRates?.[i] ?? null;
+      const fps = inspector?.frameRates?.[i] ?? inspector?.getFrameRate?.(view.id) ?? null;
       const frame = inspector?.renderStats?.views?.[i] ?? null;
       const duration = (frame?.timeMs as any)?.duration;
 
       fpsEl.textContent = fps == null ? "—" : fps.toFixed(0);
       frameEl.textContent = Number.isFinite(duration) ? duration.toFixed(1) : "—";
 
-      const label = modeLabel(view.renderMode);
+      const activeProfile = this._getViewProfiles(view).activeProfile;
+      const label = profileLabel(activeProfile);
       modeEl.textContent = label;
-      // Light up the chip purple while the View is in NavigationRender so the
-      // flip is visible at a glance.
-      modeChip.classList.toggle("xkt-aq-chip-nav", view.renderMode === NavigationRender);
+      modeChip.classList.toggle("xkt-aq-chip-nav", activeProfile === "fast");
     }
+  }
+
+  private _getRenderInspector(): SDKResult<RenderInspectorLike> {
+    const getRenderInspector = this._rendererWithInspector.getRenderInspector;
+    if (typeof getRenderInspector !== "function") {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[AdaptiveQualityPanel] Renderer does not expose getRenderInspector().",
+      };
+    }
+    return getRenderInspector.call(this._rendererWithInspector);
   }
 
   private _flashPulse(): void {
@@ -735,11 +770,12 @@ function chipWithRef(host: HTMLElement, key: string): {chipEl: HTMLElement; valE
   return {chipEl: c, valEl: v};
 }
 
-function modeLabel(mode: number): string {
-  switch (mode) {
-    case NavigationRender: return "Nav";
-    case DetailedRender:   return "Detail";
-    case RealisticRender:  return "Real";
-    default:               return String(mode);
+function profileLabel(profile: string | null): string {
+  switch (profile) {
+    case "fast": return "Fast";
+    case "detailed": return "Detail";
+    case "realistic": return "Real";
+    case null: return "None";
+    default: return profile;
   }
 }

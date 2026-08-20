@@ -15,12 +15,11 @@ import {IBL} from "./IBL";
  *     prefiltered environment that drives the diffuse + GGX-specular
  *     contribution to each fragment's BRDF.
  *   - {@link Lights.hemispheric} — analytical sky/ground/up gradient
- *     ambient that lifts the flat ambient floor in every render mode
- *     by default.
+ *     ambient that cheaply lifts the flat ambient floor.
  *
- * Both effects stack additively when their respective render-mode
- * sets overlap. The cubemap is the heavyweight, physically-based
- * path; the hemisphere is the cheap analytical fallback.
+ * Both effects stack additively when enabled. Use
+ * {@link viewing!viewProfiles.ViewProfiles | ViewProfiles} when an
+ * application needs profile-specific IBL/hemisphere balance.
  */
 class Lights {
 

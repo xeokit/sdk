@@ -2,7 +2,6 @@ import type {HemisphereAmbientParams} from "./HemisphereAmbientParams";
 import type {View} from "./View";
 import {createVec3Float64, type Vec3, type Vec3Float} from "../../base/math/vector";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {DetailedRender, NavigationRender} from "../../base/constants";
 
 
 /**
@@ -15,15 +14,11 @@ import {DetailedRender, NavigationRender} from "../../base/constants";
  * {@link HemisphereAmbient.groundColor} based on how much the
  * fragment's normal faces world up vs. world down. No cubemap
  * textures, no specular reflections, no prefiltering — just a smooth
- * two-colour gradient that lifts the flat ambient floor whenever the
- * active {@link View.renderMode} is in
- * {@link HemisphereAmbient.renderModes}.
+ * two-colour gradient that lifts the flat ambient floor while enabled.
  *
- * Cheap: two uniforms and one `mix` + `dot` per fragment. Default-on
- * in {@link base!constants.NavigationRender | NavigationRender} and
- * {@link base!constants.DetailedRender | DetailedRender} so interactive
- * modes keep directional fill without enabling the cubemap IBL path.
- * Quality rendering is left to {@link IBL} by default.
+ * Cheap: two uniforms and one `mix` + `dot` per fragment. Use
+ * {@link viewing!viewProfiles.ViewProfiles | ViewProfiles} to balance
+ * this term against {@link IBL} for different application profiles.
  */
 class HemisphereAmbient {
 
@@ -31,8 +26,7 @@ class HemisphereAmbient {
    * The View to which this HemisphereAmbient belongs.
    */
   public readonly view: View;
-
-  #renderModes: number[];
+  #enabled: boolean;
   #intensity: number;
   #skyColor: Vec3Float;
   #groundColor: Vec3Float;
@@ -44,32 +38,22 @@ class HemisphereAmbient {
    */
   constructor(view: View, params: HemisphereAmbientParams = {}) {
     this.view = view;
-    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender];
+    this.#enabled = params.enabled !== false;
     this.#intensity = params.intensity !== undefined ? params.intensity : 0.8;
     this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
     this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.30]);
     this.#worldUp = createVec3Float64(params.worldUp || [0, 0, 1]);
   }
 
-  /**
-   * Sets which rendering modes in which to apply the hemisphere
-   * ambient term.
-   *
-   * Default value is `[NavigationRender, DetailedRender]`.
-   */
-  set renderModes(value: number[]) {
-    this.#renderModes = value;
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this.#enabled === enabled) return;
+    this.#enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply the hemisphere
-   * ambient term.
-   *
-   * Default value is `[NavigationRender, DetailedRender]`.
-   */
-  get renderModes(): number[] {
-    return this.#renderModes;
+  get enabled(): boolean {
+    return this.#enabled;
   }
 
   /**
@@ -85,22 +69,17 @@ class HemisphereAmbient {
   /**
    * Gets if the hemisphere ambient term is currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link HemisphereAmbient.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    for (let i = 0, len = this.#renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this.#renderModes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this.#enabled;
   }
 
   /**
    * Sets the hemisphere ambient contribution multiplier. Range
-   * `[0, ∞)`. Has no effect when the active {@link View.renderMode}
-   * isn't in {@link HemisphereAmbient.renderModes}.
+   * `[0, ∞)`. Has no effect when the active the component enabled state
+   * isn't in the component enabled state.
    *
    * Default value is `0.8`.
    */
@@ -202,7 +181,7 @@ class HemisphereAmbient {
     return {
       ok: true,
       value: {
-        renderModes: this.renderModes,
+        enabled: this.#enabled,
         intensity: this.intensity,
         skyColor: <Vec3>Array.from(this.skyColor),
         groundColor: <Vec3>Array.from(this.groundColor),
@@ -222,7 +201,6 @@ class HemisphereAmbient {
         error: "[HemisphereAmbient.fromParams] HemisphereAmbient has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.intensity !== undefined)   this.intensity   = params.intensity;
     if (params.skyColor !== undefined)    this.skyColor    = <Vec3>Array.from(params.skyColor);
     if (params.groundColor !== undefined) this.groundColor = <Vec3>Array.from(params.groundColor);

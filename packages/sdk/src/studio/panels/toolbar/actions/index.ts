@@ -40,6 +40,7 @@ import {toggleFirstPerson}   from "./toggleFirstPerson";
 import {toggleModels}        from "./toggleModels";
 import {toggleNavCube}       from "./toggleNavCube";
 import {toggleProjection}    from "./toggleProjection";
+import {toggleVehicleNavigation} from "./toggleVehicleNavigation";
 import {toggleViews}         from "./toggleViews";
 
 
@@ -75,6 +76,7 @@ export const TOOLBAR_ACTIONS: Partial<Record<ToolbarAction, ToolbarActionDescrip
   toggleModels,
   toggleNavCube,
   toggleProjection,
+  toggleVehicleNavigation,
   toggleViews,
 };
 

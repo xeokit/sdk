@@ -288,7 +288,7 @@ export class SkyRenderer {
       worldUp: [number, number, number];
     } | undefined;
 
-    // Gate on `applied` so the renderModes list takes effect alongside
+    // Gate on `applied` so the enabled state list takes effect alongside
     // the existing `enabled` flag. `applied` returns false when either
     // is false, so this is a strict superset of the prior check.
     if (cfg && cfg.applied === false) return;

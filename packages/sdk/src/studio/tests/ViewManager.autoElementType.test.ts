@@ -73,7 +73,7 @@ describe("Studio ViewManager auto-created view elements", () => {
     );
   });
 
-  it("does not add resolution scale render modes to Studio-created views", () => {
+  it("creates Studio views with resolution scale controlled by profiles", () => {
     const viewer = createViewer();
     const manager = createManager(viewer);
 

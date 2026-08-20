@@ -1,103 +1,84 @@
-import {DetailedRender, NavigationRender, RealisticRender} from "../../base/constants";
 import type {View} from "../viewer";
+import type {ViewProfiles} from "../viewProfiles";
 
-// Default delay between the last camera change and the switch back to the
-// rest render mode. Long enough that a flick of the mouse doesn't flicker
-// into Detailed/Realistic mid-gesture, and short enough that the quality
-// swap feels responsive when the user lets go.
 const DEFAULT_REST_MS = 500;
 const DEFAULT_REST_IDLE_TIMEOUT_MS = 1000;
+const DEFAULT_FAST_PROFILE = "fast";
+const DEFAULT_REST_PROFILE = "realistic";
 
-// One AdaptiveQuality per View — a second instance on the same View would
-// race the first on every camera event. Mirrors ViewCuller's liveCullers map.
-const liveAdapters = new WeakMap<View, AdaptiveQuality>();
+const liveAdapters = new WeakMap<ViewProfiles, AdaptiveQuality>();
 
 /**
  * Parameters for {@link AdaptiveQuality}.
  */
 export interface AdaptiveQualityParams {
   /**
-   * The {@link viewing!viewer.View | View} to drive.
+   * The {@link viewing!viewProfiles.ViewProfiles | ViewProfiles}
+   * component to drive.
    */
-  view: View;
+  viewProfiles: ViewProfiles;
 
   /**
-   * Render mode used while the camera is moving. Default
-   * {@link base!constants.NavigationRender | NavigationRender}.
-   *
-   * Each effect (SAO, shadows, bloom, final AA, ACES tonemap, edges, …) declares
-   * its own `renderModes` list; an effect activates iff `view.renderMode` is
-   * in that list. The Studio defaults exclude `NavigationRender` from every
-   * expensive effect, so flipping the View into this mode automatically
-   * disables them en masse.
+   * Profile selected while the camera is moving. Default `"fast"`.
    */
-  fastMode?: number;
+  fastProfile?: string | null;
 
   /**
-   * Render mode the view returns to once the camera settles. Default
-   * {@link base!constants.RealisticRender | RealisticRender}.
+   * Profile selected once the camera settles. Default `"realistic"`.
    */
-  restMode?: number;
+  restProfile?: string | null;
 
   /**
    * Milliseconds the camera must be still before switching back to
-   * `restMode`. Default 500 ms.
+   * `restProfile`. Default 500 ms.
    */
   restMs?: number;
 
   /**
    * Maximum extra time to wait for an idle callback before restoring
-   * `restMode` after `restMs` has elapsed. Default 1000 ms.
-   *
-   * The delayed restore is still cancelable by a fresh camera event, which
-   * keeps navigation input ahead of the first expensive quality frame.
+   * `restProfile` after `restMs` has elapsed. Default 1000 ms.
    */
   restIdleTimeoutMs?: number;
 }
 
 /**
- * Drives adaptive-quality switching for one {@link View}.
+ * Drives adaptive-quality switching for one {@link ViewProfiles}.
  *
- * Listens for camera changes on the View; on the first change in a burst it
- * flips `view.renderMode` to `fastMode` (default
- * {@link base!constants.NavigationRender | NavigationRender}), and once the
- * camera has been still for `restMs` it flips back to `restMode` (default
- * {@link base!constants.RealisticRender | RealisticRender}).
+ * Listens for camera changes on the associated {@link View}. On the first
+ * change in a burst it selects `fastProfile`; once the camera has been still
+ * for `restMs`, it selects `restProfile`.
  *
- * The mode switch is the *only* mechanism — this component never touches
- * SAO, shadows, bloom, final AA, tonemap, edges, IBL or section caps directly.
- * Each of those gates its own activation on `view.renderMode`, so flipping
- * the View's mode atomically toggles every effect whose `renderModes` list
- * doesn't include the new mode.
- *
- * At most one adapter may be live per View — constructing a second against
- * the same View throws. Set {@link AdaptiveQuality.enabled} to `false` to
- * suspend adaptive switching without releasing the adapter, or call
- * {@link AdaptiveQuality.destroy} to tear it down before re-configuring. The
- * adapter also self-destroys when its View is destroyed, so it never outlives
- * it. On disable or destroy the View is restored to `restMode`.
+ * At most one adapter may be live per ViewProfiles instance. Set
+ * {@link AdaptiveQuality.enabled} to `false` to suspend adaptive switching
+ * without releasing the adapter, or call {@link AdaptiveQuality.destroy} to
+ * tear it down before re-configuring. On disable or destroy the component
+ * restores `restProfile`.
  *
  * @example
  * ```ts
  * import {AdaptiveQuality} from "@xeokit/sdk/viewing/adaptiveQuality";
  *
- * const aq = new AdaptiveQuality({view});
- * // …
+ * const aq = new AdaptiveQuality({viewProfiles});
  * aq.destroy();
  * ```
  */
 export class AdaptiveQuality {
 
-  /** The live adapter driving `view`, or `undefined` if none. */
-  static getFor(view: View): AdaptiveQuality | undefined {
-    return liveAdapters.get(view);
+  /** The live adapter driving `viewProfiles`, or `undefined` if none. */
+  static getFor(viewProfiles: ViewProfiles): AdaptiveQuality | undefined {
+    return liveAdapters.get(viewProfiles);
   }
 
-  /** The View this adapter drives. */
-  readonly view: View;
+  /** The ViewProfiles component this adapter drives. */
+  readonly viewProfiles: ViewProfiles;
 
-  readonly #fastMode: number;
-  readonly #restMode: number;
+  /** The View owned by {@link AdaptiveQuality.viewProfiles}. */
+  get view(): View {
+    return this.viewProfiles.view;
+  }
+
+  readonly #fastProfile: string | null;
+  readonly #restProfile: string | null;
   readonly #restMs: number;
   readonly #restIdleTimeoutMs: number;
   readonly #unsubscribers: (() => void)[] = [];
@@ -110,18 +91,19 @@ export class AdaptiveQuality {
   #destroyed = false;
 
   constructor(params: AdaptiveQualityParams) {
-    const {view} = params;
-    if (liveAdapters.has(view)) {
+    const {viewProfiles} = params;
+    if (liveAdapters.has(viewProfiles)) {
       throw new Error(
-        `[adaptiveQuality] View "${view.id}" already has an AdaptiveQuality — destroy it before creating another`
+        `[adaptiveQuality] ViewProfiles for View "${viewProfiles.view.id}" already has an AdaptiveQuality - destroy it before creating another`
       );
     }
-    this.view = view;
-    this.#fastMode = params.fastMode ?? NavigationRender;
-    this.#restMode = params.restMode ?? RealisticRender;
+    this.viewProfiles = viewProfiles;
+    this.#fastProfile = params.fastProfile ?? DEFAULT_FAST_PROFILE;
+    this.#restProfile = params.restProfile ?? DEFAULT_REST_PROFILE;
     this.#restMs = Math.max(0, params.restMs ?? DEFAULT_REST_MS);
     this.#restIdleTimeoutMs = Math.max(0, params.restIdleTimeoutMs ?? DEFAULT_REST_IDLE_TIMEOUT_MS);
 
+    const view = viewProfiles.view;
     const events = view.viewer.events;
     const onCamera = (changedView: View) => {
       if (changedView === this.view) this.#onCameraChanged();
@@ -130,22 +112,14 @@ export class AdaptiveQuality {
       events.onCameraViewMatrixUpdated.subscribe((v) => onCamera(v)),
       events.onCameraProjMatrixUpdated.subscribe((v) => onCamera(v)),
       events.onCameraProjectionTypeChanged.subscribe((v) => onCamera(v)),
-      // Self-destruct when the View is destroyed.
       events.onViewDestroyed.subscribe((_viewer, destroyedView) => {
         if (destroyedView === this.view) this.destroy();
       })
     );
 
-    // Registered last, so a constructor that threw partway leaves no entry.
-    liveAdapters.set(view, this);
+    liveAdapters.set(viewProfiles, this);
   }
 
-  /**
-   * Whether this adapter responds to camera changes.
-   *
-   * Setting this to `false` leaves the adapter registered on its View, clears
-   * any pending rest timer and restores the View to `restMode`.
-   */
   get enabled(): boolean {
     return this.#enabled;
   }
@@ -155,29 +129,27 @@ export class AdaptiveQuality {
     if (this.#destroyed || this.#enabled === enabled) return;
     this.#enabled = enabled;
     if (!enabled) {
-      this.#restoreRestMode();
+      this.#restoreRestProfile();
     }
   }
 
-  /**
-   * Stops the adapter, restores `restMode`, and releases subscriptions.
-   */
   destroy(): void {
     if (this.#destroyed) return;
     this.#destroyed = true;
-    liveAdapters.delete(this.view);
-    this.#restoreRestMode();
+    liveAdapters.delete(this.viewProfiles);
+    this.#restoreRestProfile();
     for (const unsubscribe of this.#unsubscribers) unsubscribe();
     this.#unsubscribers.length = 0;
   }
 
-  #restoreRestMode(): void {
+  #setProfile(id: string | null): void {
+    if (this.viewProfiles.activeProfile === id) return;
+    this.viewProfiles.setActiveProfile(id);
+  }
+
+  #restoreRestProfile(): void {
     this.#clearPendingRestRestore();
-    // Restore quality on the way out so a deliberate disable doesn't strand
-    // the View in fastMode.
-    if (this.view.renderMode !== this.#restMode) {
-      this.view.renderMode = this.#restMode;
-    }
+    this.#setProfile(this.#restProfile);
   }
 
   #clearPendingRestRestore(): void {
@@ -203,24 +175,20 @@ export class AdaptiveQuality {
     if (this.#destroyed || !this.#enabled) return;
     this.#motionGeneration++;
     this.#clearPendingRestRestore();
-    if (this.view.renderMode !== this.#fastMode) {
-      this.view.renderMode = this.#fastMode;
-    }
+    this.#setProfile(this.#fastProfile);
     const generation = this.#motionGeneration;
     this.#restTimer = setTimeout(() => {
       this.#restTimer = null;
-      this.#scheduleRestModeRestore(generation);
+      this.#scheduleRestProfileRestore(generation);
     }, this.#restMs);
   }
 
-  #scheduleRestModeRestore(generation: number): void {
+  #scheduleRestProfileRestore(generation: number): void {
     const restore = () => {
       this.#restIdleHandle = null;
       this.#restIdleHandleType = null;
       if (this.#destroyed || !this.#enabled || generation !== this.#motionGeneration) return;
-      if (this.view.renderMode !== this.#restMode) {
-        this.view.renderMode = this.#restMode;
-      }
+      this.#setProfile(this.#restProfile);
     };
     const requestIdleCallback = (globalThis as any).requestIdleCallback;
     if (typeof requestIdleCallback === "function") {
@@ -232,7 +200,3 @@ export class AdaptiveQuality {
     this.#restIdleHandle = setTimeout(restore, 0);
   }
 }
-
-// Re-exported for parity with NavigationRender — most users won't touch
-// these but they're handy for params construction sites.
-export {DetailedRender, NavigationRender, RealisticRender};

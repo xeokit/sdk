@@ -13,13 +13,13 @@ export interface StudioCreateViewParams extends ViewParams {
    * Configure Studio's per-View adaptive quality controller.
    *
    * - `undefined` / `true` — create an AdaptiveQuality adapter for this View
-   *   using Studio defaults. The View's initial `renderMode` is used as the
-   *   rest mode, so custom modes such as `DetailedRender` survive interaction.
+   *   using Studio's `ViewProfiles` defaults.
    * - `false` — do not create an AdaptiveQuality adapter.
-   * - {@link viewing!adaptiveQuality.AdaptiveQualityParams} without `view` —
-   *   create an adapter with the supplied timing / render-mode overrides.
+   * - {@link viewing!adaptiveQuality.AdaptiveQualityParams} without
+   *   `viewProfiles` — create an adapter with the supplied timing / profile
+   *   overrides.
    */
-  adaptiveQuality?: boolean | Omit<AdaptiveQualityParams, "view">;
+  adaptiveQuality?: boolean | Omit<AdaptiveQualityParams, "viewProfiles">;
 
   /**
    * Open the new View inside a {@link ViewPanel} — a floating,

@@ -263,10 +263,9 @@ export class RenderContext implements WebGLContextProvider {
    * sampler in the active program pointing at a valid texture of the
    * matching type, which WebGL2 validates regardless of whether the
    * shader actually dereferences the sampler at runtime. Without this,
-   * switching to a render mode where IBL isn't applied leaves the
-   * cubemap samplers pointing at units that have `sampler2D` data
-   * textures bound, triggering `GL_INVALID_OPERATION: Two textures of
-   * different types use the same sampler location.`.
+   * disabling IBL can leave cubemap samplers pointing at units that have
+   * `sampler2D` data textures bound, triggering `GL_INVALID_OPERATION:
+   * Two textures of different types use the same sampler location.`.
    */
   private _placeholderCubemap: WebGLTexture | null = null;
 

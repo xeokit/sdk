@@ -140,9 +140,9 @@ export class DrawOp {
    * `withTriplanar`, `withNormalsAndUVs`,
    * `withNormalsAndTriplanar`) are skipped in favour of the
    * plain Lambert paths so the material's hatch / colour
-   * appearance dominates the body. The view decides which
-   * render modes activate that effect — the renderer just reads
-   * the boolean. Section-plane caps are unaffected: cap
+   * appearance dominates the body. Profile systems decide when to
+   * enable that effect — the renderer just reads the boolean.
+   * Section-plane caps are unaffected: cap
    * rendering reads the material's hatch independently.
    */
   private _select(meshBatch: MeshBatch): DrawTechnique {

@@ -56,7 +56,7 @@ export interface PainterCatalogEntry {
     alphaMode?:    "OPAQUE" | "MASK" | "BLEND";
     /**
      * ANSI / ISO hatch convention for this painter. Applied to
-     * the section-plane cap and (in DetailedRender) overlaid on
+     * the section-plane cap and (in detailed profile) overlaid on
      * the body. Realistic mode ignores it and renders PBR.
      */
     hatchPattern?: HatchStyle | HatchParams;

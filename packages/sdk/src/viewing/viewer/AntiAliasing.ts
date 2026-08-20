@@ -1,7 +1,6 @@
 import type {AntiAliasingMode, AntiAliasingParams} from "./AntiAliasingParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {DetailedRender, RealisticRender} from "../../base/constants";
 
 /**
  * Configures the final antialiasing post-process pass for a {@link viewing!viewer.View | View}.
@@ -15,41 +14,26 @@ export class AntiAliasing {
 
   /** The View this AntiAliasing belongs to. */
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _mode: AntiAliasingMode;
   private _destroyed = false;
 
   /** @private */
   constructor(view: View, params: AntiAliasingParams) {
     this.view = view;
-    this._renderModes = params.renderModes !== undefined ? params.renderModes.slice() : [DetailedRender, RealisticRender];
+    this._enabled = params.enabled !== false;
     this._mode = params.mode !== undefined ? params.mode : "smaa";
   }
 
-  /**
-   * Sets which rendering modes in which to apply AntiAliasing.
-   *
-   * The {@link viewing!viewer.View | View} will apply AA whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
-   */
-  set renderModes(value: number[]) {
-    this._renderModes = value;
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply AntiAliasing.
-   *
-   * The {@link viewing!viewer.View | View} will apply AA whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
@@ -65,16 +49,11 @@ export class AntiAliasing {
   /**
    * Gets if AntiAliasing is currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link AntiAliasing.renderModes | AntiAliasing.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this._renderModes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this._enabled;
   }
 
   /** AA mode. Default `"smaa"`. */
@@ -94,7 +73,7 @@ export class AntiAliasing {
     return {
       ok: true,
       value: {
-        renderModes: this._renderModes,
+        enabled: this._enabled,
         mode: this._mode
       }
     };
@@ -109,7 +88,6 @@ export class AntiAliasing {
         error: "[AntiAliasing.fromParams] AntiAliasing has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.mode !== undefined) this.mode = params.mode;
     return {ok: true, value: undefined};
   }

@@ -12,7 +12,6 @@ import {Sky} from "./Sky";
 import {SectionPlaneCaps} from "./SectionPlaneCaps";
 import {BodyHatch} from "./BodyHatch";
 import type {IBL} from "./IBL";
-import {RealisticRender} from "../../base/constants";
 
 
 /**
@@ -38,10 +37,6 @@ import {RealisticRender} from "../../base/constants";
  *   - {@link Effects.antiAliasing} — final antialiasing pass.
  *   - {@link Effects.shadows} — directional shadow mapping driven
  *     by the View's primary sun direction.
- *
- * Each effect declares which {@link View.renderMode} presets it
- * fires under via its own `renderModes`; the aggregate component
- * simply owns the lifetimes.
  */
 class Effects {
 
@@ -114,9 +109,6 @@ class Effects {
    * this View. When applied, opaque triangle batches render
    * via the un-textured Lambert variant and the material's
    * {@link SceneMaterial.hatchPattern} overlays the body.
-   * Defaults to {@link base!constants.DetailedRender | DetailedRender}
-   * so engineering presets get the schematic look automatically;
-   * Realistic stays PBR.
    */
   public readonly bodyHatch: BodyHatch;
 
@@ -139,34 +131,20 @@ class Effects {
     this.sao          = new SAO         (view, params.sao          || {});
     this.edges        = new Edges       (view, params.edges        || {});
     this.bloom        = new Bloom       (view, params.bloom        || {});
-    // Keep existing Views pixel-stable: omitted params leave atmosphere
-    // inactive. Passing `atmosphere: {}` opts into RealisticRender defaults.
-    this.atmosphere   = new Atmosphere  (view, params.atmosphere !== undefined ? params.atmosphere : {renderModes: []});
-    // Keep existing Views pixel-stable: the component exists on every View,
-    // but omitted params leave it inactive. Passing `depthOfField: {}` opts
-    // into the component's RealisticRender defaults.
-    this.depthOfField = new DepthOfField(view, params.depthOfField !== undefined ? params.depthOfField : {renderModes: []});
+    this.atmosphere   = new Atmosphere  (view, params.atmosphere !== undefined ? params.atmosphere : {enabled: false});
+    this.depthOfField = new DepthOfField(view, params.depthOfField !== undefined ? params.depthOfField : {enabled: false});
     this.tonemap      = new Tonemap     (view, params.tonemap      || {});
     this.antiAliasing = new AntiAliasing(view, params.antiAliasing || {});
-    // Shadows defaulted to RealisticRender to match the prior
-    // View-construction behaviour — preserved here so callers that
-    // don't pass `shadows` still see the same mode-gated behaviour.
-    this.shadows      = new Shadows     (view, params.shadows      || {renderModes: [RealisticRender]});
+    this.shadows      = new Shadows     (view, params.shadows      || {});
     // Sky defaults match the SkyRenderer's prior built-in values
     // — palette matches what the renderer used to bake in, so
     // any existing caller sees identical pixels when `sky` is
     // left at its default.
     this.sky          = new Sky         (view, params.sky          || {});
     // Section-plane caps default off — the stencil pass adds
-    // ~2 model renders per cap-enabled plane, so the caller
-    // opts in either by passing `sectionPlaneCaps` here or by
-    // assigning `view.effects.sectionPlaneCaps.renderModes` later.
+    // ~2 model renders per cap-enabled plane, so the caller opts in.
     this.sectionPlaneCaps = new SectionPlaneCaps(view, params.sectionPlaneCaps || {});
 
-    // Body hatch defaults to [DetailedRender] — engineering /
-    // schematic body shading without the caller connecting anything.
-    // Override per-view by passing `bodyHatch` here or via
-    // `view.effects.bodyHatch.renderModes`.
     this.bodyHatch = new BodyHatch(view, params.bodyHatch || {});
   }
 }

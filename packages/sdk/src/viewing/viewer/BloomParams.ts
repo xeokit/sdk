@@ -6,13 +6,10 @@
  * * Located at {@link EffectsParams.bloom}
  */
 export interface BloomParams {
-
   /**
-   * Which rendering modes in which to apply {@link Bloom}.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * Luminance threshold above which pixels contribute to bloom. Values
@@ -33,7 +30,7 @@ export interface BloomParams {
   /**
    * How strongly the bloom pyramid is added back to the scene. `0` =
    * no contribution (but still costs the prep passes — drop the active
-   * {@link View.renderMode} out of {@link BloomParams.renderModes} to
+   * the component enabled state out of the component enabled state to
    * skip the work entirely), `1` = full additive contribution.
    * Default is `0.15` — a subtle additive contribution that picks
    * up specular peaks (HDR sun, smooth-metal reflections) without

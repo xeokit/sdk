@@ -1,5 +1,4 @@
 import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult, SDKTask,} from "../../base/core";
-import {DetailedRender, RealisticRender} from "../../base/constants";
 import type {FloatArrayParam} from "../../base/math";
 import type { Vec3} from "../../base/math/vector";
 import type {SceneObject} from "../../model/scene";
@@ -276,7 +275,6 @@ class View {
    */
   public destroyed: boolean = false;
 
-  private _renderMode: number = DetailedRender;
   private _autoLayers: boolean;
   private _backgroundColor: FloatArrayParam;
   private _backgroundColorFromAmbientLight: boolean;
@@ -351,7 +349,6 @@ class View {
     this.layers = {};
     this.transforms = {};
 
-    this._renderMode = viewParams.renderMode !== undefined ? viewParams.renderMode : DetailedRender;
     this._numObjects = 0;
     this._objectIds = null;
     this._numVisibleObjects = 0;
@@ -456,7 +453,7 @@ class View {
     });
 
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
-      renderModes: [],
+      enabled: false,
       resolutionScale: 0.5
     });
 
@@ -732,36 +729,6 @@ class View {
    */
   get autoLayers(): boolean {
     return this._autoLayers;
-  }
-
-  /**
-   * Sets which rendering mode this View is in.
-   *
-   * Default value is {@link base!constants.DetailedRender | DetailedRender}.
-   *
-   * Setting a View's rendering mode will activate whatever effects (eg. SAO, edges, canas scaling) are configured to
-   * be active in that mode, while deactivating all other effects.
-   */
-  set renderMode(renderMode: number) {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[View.renderMode] View already destroyed"
-      });
-      return;
-    }
-    this._renderMode = renderMode;
-    this.needsRender();
-  }
-
-  /**
-   * Gets which rendering mode this View is in.
-   *
-   * Default value is {@link base!constants.DetailedRender | DetailedRender}.
-   */
-  get renderMode(): number {
-    return this._renderMode;
   }
 
   /**
@@ -1936,9 +1903,6 @@ class View {
         return result;
       }
     }
-    if (viewParams.renderMode !== undefined) {
-      this.renderMode = viewParams.renderMode;
-    }
     if (viewParams.backgroundColor !== undefined) {
       this.backgroundColor = viewParams.backgroundColor;
     }
@@ -2128,8 +2092,8 @@ class View {
           depthOfField:     (<{ value: DepthOfFieldParams }>this.effects.depthOfField.toParams()).value,
           edges:            (<{ value: EdgesParams        }>this.effects.edges.toParams()).value,
           sky:              (<{ value: SkyParams          }>this.effects.sky.toParams()).value,
-          sectionPlaneCaps: (<{ value: { renderModes: number[] } }>this.effects.sectionPlaneCaps.toParams()).value,
-          bodyHatch:        (<{ value: { renderModes: number[] } }>this.effects.bodyHatch.toParams()).value,
+          sectionPlaneCaps: (<{ value: { enabled: boolean } }>this.effects.sectionPlaneCaps.toParams()).value,
+          bodyHatch:        (<{ value: { enabled: boolean } }>this.effects.bodyHatch.toParams()).value,
           // IBL is anchored on `Lights` but surfaced through `effects`
           // so reflective UIs (the Studio View Panel) group it with the
           // renderer-effect components whose look it drives.
@@ -2144,8 +2108,7 @@ class View {
         selectedMaterial: (<{ value: EffectParams }>this.selectedMaterial.toParams()).value,
         xrayMaterial: (<{ value: EffectParams }>this.xrayMaterial.toParams()).value,
         pointsMaterial: (<{ value: PointsMaterialParams }>this.pointsMaterial.toParams()).value,
-        resolutionScale: (<{ value: ResolutionScaleParams }>this.resolutionScale.toParams()).value,
-        renderMode: this.renderMode
+        resolutionScale: (<{ value: ResolutionScaleParams }>this.resolutionScale.toParams()).value
       }
     };
   }

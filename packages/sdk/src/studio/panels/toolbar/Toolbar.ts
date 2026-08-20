@@ -4,7 +4,7 @@
  *
  *   1. Explorer toggle
  *   2. Camera / projection / framing — Reset View · Toggle 2D/3D ·
- *      Toggle Perspective/Ortho · Fit All · Toggle First-Person
+ *      Toggle Perspective/Ortho · Fit All · Toggle Walk · Toggle Vehicle
  *   3. Mutually-exclusive object tool modes — Hide · Select · Marquee
  *
  * Modeled visually after the xeokit v2 BIM viewer toolbar but
@@ -55,6 +55,7 @@ import {DistanceMeasurementsPanel} from "../distanceMeasurementsPanel/DistanceMe
 import {AngleMeasurementsPanel} from "../angleMeasurementsPanel/AngleMeasurementsPanel";
 import {TransformControls} from "../../../viewing/transformControls";
 import {WalkNavigationController} from "../../../viewing/walkNavigation";
+import {VehicleNavigationController} from "../../../viewing/vehicleNavigation";
 import {SectionPlanesController} from "../../systems/sectionPlanesTool/SectionPlanesController";
 import {sectionPlaneDirFromPickedNormal} from "../../systems/sectionPlanesTool/sectionPlanePick";
 import {SectionPlanesPanel} from "../sectionPlanesPanel/SectionPlanesPanel";
@@ -65,6 +66,21 @@ import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import {TOOLBAR_ACTIONS} from "./actions";
 import type {ToolbarActionContext, CameraFlightLike} from "./actions/ToolbarActionContext";
+
+const STUDIO_WALK_SPEED = 6;
+const STUDIO_RUN_SPEED = 13;
+const STUDIO_VEHICLE_MAX_FORWARD_SPEED = 22;
+const STUDIO_VEHICLE_MAX_REVERSE_SPEED = 5;
+const STUDIO_VEHICLE_ACCELERATION = 9;
+const STUDIO_VEHICLE_BRAKE_DECELERATION = 18;
+const STUDIO_VEHICLE_COAST_DECELERATION = 5;
+const STUDIO_VEHICLE_FLIGHT_ACCELERATION = 13;
+const STUDIO_VEHICLE_FLIGHT_BRAKE_DECELERATION = 12;
+const STUDIO_VEHICLE_FLIGHT_MIN_GLIDE_SPEED = 5;
+const NAVIGATION_SPEED_MIN = 0.25;
+const NAVIGATION_SPEED_MAX = 3;
+const NAVIGATION_SPEED_STEP = 0.25;
+
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -112,6 +128,7 @@ export type ToolbarAction =
   | "toggleProjection"
   | "fitAll"
   | "toggleFirstPerson"
+  | "toggleVehicleNavigation"
   | "toggleNavCube"
   | "toggleDistancePanel"
   | "toggleAnglePanel"
@@ -301,6 +318,30 @@ const TOOLBAR_CSS = `
   height: 22px;
   display: block;
   pointer-events: none;
+}
+
+.xkt-tb-toolbar .xkt-tb-speed-control {
+  height: 40px;
+  width: 94px;
+  box-sizing: border-box;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #2d5e8c;
+  border: 1px solid #e6e6e6;
+  border-radius: 7px;
+}
+.xkt-tb-toolbar .xkt-tb-speed-control svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+.xkt-tb-toolbar .xkt-tb-speed-control input {
+  width: 58px;
+  min-width: 0;
+  accent-color: #2d5e8c;
 }
 
 .xkt-tb-toolbar .xkt-tb-close {
@@ -564,6 +605,8 @@ export class Toolbar extends FloatingPanelBase {
    */
   private _sectionPlanesClick: ((e: MouseEvent) => void) | null = null;
   private _sectionPlanesCanvas: HTMLElement | null = null;
+  private _navigationSpeedInput: HTMLInputElement | null = null;
+  private _navigationSpeedMultiplier = 1;
 
   // Lifecycle state.
 
@@ -605,6 +648,8 @@ export class Toolbar extends FloatingPanelBase {
 
     const walkController = this._walkNavigationController(false);
     this._setPressed("toggleFirstPerson", walkController?.active ?? false);
+    const vehicleController = this._vehicleNavigationController(false);
+    this._setPressed("toggleVehicleNavigation", vehicleController?.active ?? false);
 
     if (params.visible === false) {
       this.hide();
@@ -801,10 +846,17 @@ export class Toolbar extends FloatingPanelBase {
       title:  "View Fit All",
       svg:    ICONS.fitAll,
     }));
+    gCamera.btns.appendChild(this._mkNavigationSpeedControl());
     gCamera.btns.appendChild(this._mkBtn({
       action: "toggleFirstPerson",
       title:  "Toggle Walk Navigation",
       svg:    ICONS.person,
+      toggle: true,
+    }));
+    gCamera.btns.appendChild(this._mkBtn({
+      action: "toggleVehicleNavigation",
+      title:  "Toggle Vehicle Navigation",
+      svg:    ICONS.vehicle,
       toggle: true,
     }));
     gCamera.btns.appendChild(this._mkBtn({
@@ -962,6 +1014,30 @@ export class Toolbar extends FloatingPanelBase {
     return btn;
   }
 
+  private _mkNavigationSpeedControl(): HTMLElement {
+    const wrap = el("label", "xkt-tb-speed-control", {
+      title: "Navigation Speed",
+      "aria-label": "Navigation Speed",
+    });
+    wrap.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+    wrap.addEventListener("click", (ev) => ev.stopPropagation());
+    wrap.innerHTML = ICONS.speed;
+    const input = el("input", "", {
+      type: "range",
+      min: String(NAVIGATION_SPEED_MIN),
+      max: String(NAVIGATION_SPEED_MAX),
+      step: String(NAVIGATION_SPEED_STEP),
+      value: String(this._navigationSpeedMultiplier),
+      "aria-label": "Navigation Speed",
+    }) as HTMLInputElement;
+    input.addEventListener("input", () => {
+      this._setNavigationSpeedMultiplier(Number(input.value));
+    });
+    this._navigationSpeedInput = input;
+    wrap.appendChild(input);
+    return wrap;
+  }
+
   /**
    * Look the action up in {@link TOOLBAR_ACTIONS} and run it
    * against a freshly-built {@link ToolbarActionContext}. The
@@ -989,6 +1065,7 @@ export class Toolbar extends FloatingPanelBase {
       activeView:    () => this._activeView(),
       viewController:() => this._viewController(),
       walkNavigationController: () => this._walkNavigationController(),
+      vehicleNavigationController: () => this._vehicleNavigationController(),
       cameraFlight:  () => this._cameraFlight(),
       sceneAabb:     () => this._sceneAabb(),
       fireAction:    (action) => this._fireAction(action),
@@ -1729,10 +1806,59 @@ export class Toolbar extends FloatingPanelBase {
     if (!record.walkNavigationController && create) {
       record.walkNavigationController = new WalkNavigationController(view, {
         active: false,
+        walkSpeed: STUDIO_WALK_SPEED * this._navigationSpeedMultiplier,
+        runSpeed: STUDIO_RUN_SPEED * this._navigationSpeedMultiplier,
         suspendViewController: record.viewController
       });
     }
     return record.walkNavigationController ?? null;
+  }
+
+  private _vehicleNavigationController(create = true): VehicleNavigationController | null {
+    const view = this._activeView();
+    if (!view || !this.studio) return null;
+    const record = this.studio.viewManager.views?.[view.id];
+    if (!record) return null;
+    if (!record.vehicleNavigationController && create) {
+      record.vehicleNavigationController = new VehicleNavigationController(view, {
+        active: false,
+        maxForwardSpeed: STUDIO_VEHICLE_MAX_FORWARD_SPEED * this._navigationSpeedMultiplier,
+        maxReverseSpeed: STUDIO_VEHICLE_MAX_REVERSE_SPEED * this._navigationSpeedMultiplier,
+        acceleration: STUDIO_VEHICLE_ACCELERATION * this._navigationSpeedMultiplier,
+        brakeDeceleration: STUDIO_VEHICLE_BRAKE_DECELERATION * this._navigationSpeedMultiplier,
+        coastDeceleration: STUDIO_VEHICLE_COAST_DECELERATION * this._navigationSpeedMultiplier,
+        flightAcceleration: STUDIO_VEHICLE_FLIGHT_ACCELERATION * this._navigationSpeedMultiplier,
+        flightBrakeDeceleration: STUDIO_VEHICLE_FLIGHT_BRAKE_DECELERATION * this._navigationSpeedMultiplier,
+        flightMinGlideSpeed: STUDIO_VEHICLE_FLIGHT_MIN_GLIDE_SPEED * this._navigationSpeedMultiplier,
+        suspendViewController: record.viewController
+      });
+    }
+    return record.vehicleNavigationController ?? null;
+  }
+
+  private _setNavigationSpeedMultiplier(multiplier: number): void {
+    this._navigationSpeedMultiplier = clampNumber(multiplier, NAVIGATION_SPEED_MIN, NAVIGATION_SPEED_MAX);
+    if (this._navigationSpeedInput && Number(this._navigationSpeedInput.value) !== this._navigationSpeedMultiplier) {
+      this._navigationSpeedInput.value = String(this._navigationSpeedMultiplier);
+    }
+    for (const record of Object.values(this.studio?.viewManager.views ?? {})) {
+      const walk = record.walkNavigationController;
+      if (walk) {
+        walk.walkSpeed = STUDIO_WALK_SPEED * this._navigationSpeedMultiplier;
+        walk.runSpeed = STUDIO_RUN_SPEED * this._navigationSpeedMultiplier;
+      }
+      const vehicle = record.vehicleNavigationController;
+      if (vehicle) {
+        vehicle.maxForwardSpeed = STUDIO_VEHICLE_MAX_FORWARD_SPEED * this._navigationSpeedMultiplier;
+        vehicle.maxReverseSpeed = STUDIO_VEHICLE_MAX_REVERSE_SPEED * this._navigationSpeedMultiplier;
+        vehicle.acceleration = STUDIO_VEHICLE_ACCELERATION * this._navigationSpeedMultiplier;
+        vehicle.brakeDeceleration = STUDIO_VEHICLE_BRAKE_DECELERATION * this._navigationSpeedMultiplier;
+        vehicle.coastDeceleration = STUDIO_VEHICLE_COAST_DECELERATION * this._navigationSpeedMultiplier;
+        vehicle.flightAcceleration = STUDIO_VEHICLE_FLIGHT_ACCELERATION * this._navigationSpeedMultiplier;
+        vehicle.flightBrakeDeceleration = STUDIO_VEHICLE_FLIGHT_BRAKE_DECELERATION * this._navigationSpeedMultiplier;
+        vehicle.flightMinGlideSpeed = STUDIO_VEHICLE_FLIGHT_MIN_GLIDE_SPEED * this._navigationSpeedMultiplier;
+      }
+    }
   }
 
   private _wireDomEvents(): void {
@@ -1893,11 +2019,32 @@ const ICONS = {
       `<path d="M9 20 L4 20 L4 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>` +
     `</svg>`,
 
+  // Tachometer — navigation speed multiplier.
+  speed:
+    `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+      `<path d="M4 15 A8 8 0 0 1 20 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>` +
+      `<path d="M12 15 L17 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>` +
+      `<circle cx="12" cy="15" r="1.4" fill="currentColor"/>` +
+      `<path d="M6.8 15 L5.2 15 M18.8 15 L17.2 15 M8.1 9.1 L7 8 M15.9 9.1 L17 8" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>` +
+    `</svg>`,
+
   // Standing person — first-person nav.
   person:
     `<svg viewBox="0 0 24 24" aria-hidden="true">` +
       `<circle cx="12" cy="5.5" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/>` +
       `<path d="M7 21 L7 13 C 7 11 8.5 10 12 10 C 15.5 10 17 11 17 13 L 17 21" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `</svg>`,
+
+  // Leaning motorcycle / bicycle — vehicle nav.
+  vehicle:
+    `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+      `<circle cx="6.5" cy="17" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/>` +
+      `<circle cx="17.5" cy="17" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/>` +
+      `<path d="M8 16 L11 10 L15 16 L9.5 16 M11 10 L15.5 9 L17.5 13" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<path d="M13.7 6.2 L16.2 8.7 M13.8 6.2 L11.8 8.7" ` +
             `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
     `</svg>`,
 
@@ -1985,3 +2132,10 @@ const ICONS = {
   // List with angle — Angle Measurements panel.
   anglePanel: AngleMeasurementsPanel.iconSvg(),
 };
+
+function clampNumber(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) {
+    return min;
+  }
+  return Math.min(max, Math.max(min, value));
+}

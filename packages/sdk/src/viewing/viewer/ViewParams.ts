@@ -152,11 +152,4 @@ export interface ViewParams {
    * Paramaters the View's {@link ResolutionScale}.
    */
   resolutionScale?: ResolutionScaleParams;
-
-  /**
-   * Configures which rendering mode the View is in.
-   *
-   * Default is {@link base!constants.DetailedRender | DetailedRender}.
-   */
-  renderMode?: number;
 }

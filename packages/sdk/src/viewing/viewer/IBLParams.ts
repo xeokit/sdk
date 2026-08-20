@@ -6,19 +6,15 @@
  * * Located at {@link LightsParams.ibl}
  */
 export interface IBLParams {
-
   /**
-   * Which rendering modes in which to apply cubemap {@link IBL}.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * Multiplier on the cubemap IBL ambient + specular contribution.
    * Range `[0, ∞)`. At `0` the cubemap contributes nothing even when
-   * the active {@link View.renderMode} is in
-   * {@link IBLParams.renderModes}.
+   * the component is enabled.
    *
    * Default value is `1.0`.
    */

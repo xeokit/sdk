@@ -1,4 +1,3 @@
-import {DetailedRender, NavigationRender, RealisticRender} from "../../../base/constants";
 import {Scene} from "../../../model/scene";
 import {Viewer} from "../Viewer";
 import {installViewerTestGlobals} from "./installViewerTestGlobals";
@@ -31,7 +30,7 @@ function createHostElement(): HTMLElement {
 
 describe("View edges", () => {
 
-  it("defaults base effect edges to detailed rendering only", () => {
+  it("defaults base effect edges to enabled", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
@@ -41,16 +40,11 @@ describe("View edges", () => {
 
     const view = viewResult.value!;
 
-    expect(view.effects.edges.renderModes).toEqual([DetailedRender]);
+    expect(view.effects.edges.enabled).toBe(true);
     expect(view.effects.edges.edgeWidth).toBe(1);
-
-    view.renderMode = NavigationRender;
-    expect(view.effects.edges.applied).toBe(false);
-
-    view.renderMode = DetailedRender;
     expect(view.effects.edges.applied).toBe(true);
 
-    view.renderMode = RealisticRender;
+    view.effects.edges.enabled = false;
     expect(view.effects.edges.applied).toBe(false);
   });
 });

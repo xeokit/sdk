@@ -1,7 +1,6 @@
 import type {TonemapMode, TonemapParams} from "./TonemapParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {RealisticRender} from "../../base/constants";
 
 /**
  * Configures the HDR tonemap pass for a {@link viewing!viewer.View | View}.
@@ -26,8 +25,7 @@ export class Tonemap {
 
   /** The View this Tonemap belongs to. */
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _exposure: number;
   private _mode: TonemapMode;
   private _sRGBEncode: boolean;
@@ -37,38 +35,22 @@ export class Tonemap {
   /** @private */
   constructor(view: View, params: TonemapParams) {
     this.view = view;
-    this._renderModes = params.renderModes !== undefined ? params.renderModes.slice() : [RealisticRender];
+    this._enabled = params.enabled !== false;
     this._exposure = params.exposure !== undefined ? params.exposure : 0.5;
     this._mode = params.mode !== undefined ? params.mode : "aces";
     this._sRGBEncode = params.sRGBEncode !== undefined ? params.sRGBEncode === true : true;
     this._renderScale = clampRenderScale(params.renderScale !== undefined ? params.renderScale : 1.0);
   }
 
-  /**
-   * Sets which rendering modes in which to apply Tonemap settings.
-   *
-   * The {@link viewing!viewer.View | View} will apply this Tonemap configuration whenever
-   * {@link View.renderMode} has been set to one of these values. When
-   * {@link View.renderMode} falls outside this list the tonemap pass
-   * still runs (it is the HDR-to-LDR composite), but it falls back to
-   * an identity tone-curve: `mode = "none"`, `exposure = 1.0`. The
-   * sRGB encode is always applied — the swap chain expects gamma-
-   * encoded values regardless of which render mode is active.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
-   */
-  set renderModes(value: number[]) {
-    this._renderModes = value;
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply Tonemap settings.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
@@ -84,17 +66,12 @@ export class Tonemap {
   /**
    * Gets if Tonemap settings are currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link Tonemap.renderModes | Tonemap.renderModes}. When false,
+   * This is `true` when the component enabled state is
+   * in the component enabled state. When false,
    * the tonemap pass runs as an identity copy.
    */
   get applied(): boolean {
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this._renderModes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this._enabled;
   }
 
   /** Linear multiplier applied before tonemapping. Default `0.5`. */
@@ -151,7 +128,7 @@ export class Tonemap {
     return {
       ok: true,
       value: {
-        renderModes: this._renderModes,
+        enabled: this._enabled,
         exposure: this._exposure,
         mode: this._mode,
         sRGBEncode: this._sRGBEncode,
@@ -169,7 +146,6 @@ export class Tonemap {
         error: "[Tonemap.fromParams] Tonemap has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.exposure !== undefined) this.exposure = params.exposure;
     if (params.mode !== undefined) this.mode = params.mode;
     if (params.sRGBEncode !== undefined) this.sRGBEncode = params.sRGBEncode;

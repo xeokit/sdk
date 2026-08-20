@@ -390,6 +390,8 @@ export class MaterialsPalette {
       colorTextureId:             cTex,
       normalsTextureId:           nTex,
       metallicRoughnessTextureId: mTex,
+      roughness:                  1.0,
+      metallic:                   1.0,
       // Forward the palette's `uvScale` as the material's
       // `triplanarScale`. Geometry coming in without UVs (most BIM,
       // sweeps, lofted curve meshes) routes through the renderer's

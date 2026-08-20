@@ -3,7 +3,7 @@
  *
  * Lives in the "Performance" toolbar group next to Culling. Adaptive
  * quality is a runtime performance control (it flips the View into
- * `NavigationRender` while the camera moves so expensive effects skip),
+ * `fast` profile while the camera moves so expensive effects skip),
  * so it sits alongside Culling rather than under Inspect.
  */
 

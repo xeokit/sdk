@@ -353,7 +353,7 @@ export class SunStudy {
       this.sunLight.color     = NIGHT_COLOR as any;
       this.sunLight.intensity = 0.06;
       // No sun → no shadows. Setting intensity to zero (rather than
-      // pulling the effect out of `renderModes`) leaves the pass
+      // pulling the effect out of `enabled state`) leaves the pass
       // running but produces no occlusion contribution, which is
       // cheaper than re-classifying the bin every frame around
       // sunrise / sunset.

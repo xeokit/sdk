@@ -21,10 +21,10 @@ import {HATCH_STYLE_PRESETS, type HatchFamily, type HatchParams} from "../../mod
  *
  * Each preset carries:
  *   - `color`, `roughness`, `metallic` — sensible PBR-ish base
- *     for {@link base!constants.RealisticRender | RealisticRender}.
+ *     values for realistic lighting.
  *   - `hatchPattern` — world-space hatch using the relevant
- *     ANSI/ISO families. Picked up when caps render or when the
- *     view is in {@link base!constants.DetailedRender | DetailedRender}.
+ *     ANSI/ISO families. Picked up when caps or body hatching are
+ *     enabled.
  *
  * Override any field by adding it AFTER the spread.
  *

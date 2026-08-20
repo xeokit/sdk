@@ -1,7 +1,6 @@
 import type {BloomParams} from "./BloomParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {RealisticRender} from "../../base/constants";
 
 /**
  * Configures the HDR bloom post-process for a {@link viewing!viewer.View | View}.
@@ -17,8 +16,7 @@ export class Bloom {
 
   /** The View this Bloom belongs to. */
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _threshold: number;
   private _knee: number;
   private _intensity: number;
@@ -27,33 +25,21 @@ export class Bloom {
   /** @private */
   constructor(view: View, params: BloomParams) {
     this.view = view;
-    this._renderModes = params.renderModes ?? [RealisticRender];
+    this._enabled = params.enabled !== false;
     this._threshold = params.threshold !== undefined ? params.threshold : 4.0;
     this._knee = params.knee !== undefined ? params.knee : 0.5;
     this._intensity = params.intensity !== undefined ? params.intensity : 0.15;
   }
 
-  /**
-   * Sets which rendering modes in which to apply Bloom.
-   *
-   * The {@link viewing!viewer.View | View} will apply Bloom whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
-   */
-  set renderModes(value: number[]) {
-    this._renderModes = value;
+      set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which rendering modes in which to apply Bloom.
-   *
-   * The {@link viewing!viewer.View | View} will apply Bloom whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}].
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
@@ -69,16 +55,11 @@ export class Bloom {
   /**
    * Gets if Bloom is currently applied.
    *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link Bloom.renderModes | Bloom.renderModes}.
+   * This is `true` when the component enabled state is
+   * in the component enabled state.
    */
   get applied(): boolean {
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this._renderModes[i]) {
-        return true;
-      }
-    }
-    return false;
+    return this._enabled;
   }
 
   /** Luminance threshold. Default `4.0`. */
@@ -122,7 +103,7 @@ export class Bloom {
     return {
       ok: true,
       value: {
-        renderModes: this._renderModes,
+        enabled: this._enabled,
         threshold: this._threshold,
         knee: this._knee,
         intensity: this._intensity
@@ -139,7 +120,6 @@ export class Bloom {
         error: "[Bloom.fromParams] Bloom has been destroyed."
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.threshold !== undefined) this.threshold = params.threshold;
     if (params.knee !== undefined) this.knee = params.knee;
     if (params.intensity !== undefined) this.intensity = params.intensity;

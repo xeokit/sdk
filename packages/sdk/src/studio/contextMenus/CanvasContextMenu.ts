@@ -17,7 +17,7 @@ import type {CanvasContextMenuContext} from "./CanvasContextMenuContext";
 import {createCanvasFrameGroup} from "./submenus/createCanvasFrameGroup";
 import {createCanvasShowGroup} from "./submenus/createCanvasShowGroup";
 import {createCanvasModifyGroup} from "./submenus/createCanvasModifyGroup";
-import {createRenderModeGroup} from "./submenus/createRenderModeGroup";
+import {createViewProfileGroup} from "./submenus/createViewProfileGroup";
 import {createDebugSubmenu} from "./submenus/createDebugSubmenu";
 
 
@@ -52,8 +52,8 @@ export class CanvasContextMenu extends ContextMenu {
         [createCanvasShowGroup()],
         [createCanvasModifyGroup()],
         [{
-          getTitle: () => "Render Mode",
-          items: [createRenderModeGroup()],
+          getTitle: () => "View Profile",
+          items: [createViewProfileGroup()],
         }],
         ...(debugSub ? [[debugSub]] : []),
       ]

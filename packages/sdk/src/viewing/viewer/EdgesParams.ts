@@ -8,6 +8,10 @@ import type {Vec3} from "../../base/math/vector";
  * * Located at {@link EffectsParams.edges}
  */
 export interface EdgesParams {
+  /**
+   * Whether this component is enabled.
+   */
+  enabled?: boolean;
 
   /**
    * RGB edge color for {@link Edges | Edges}.
@@ -57,13 +61,6 @@ export interface EdgesParams {
    * Default value is ````0.8````.
    */
   edgeAlpha?: number;
-
-  /**
-   * Which rendering modes in which to render edges.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender}].
-   */
-  renderModes?: number[];
 
   /**
    * Distance (as a fraction of the active camera's far plane) at which edge

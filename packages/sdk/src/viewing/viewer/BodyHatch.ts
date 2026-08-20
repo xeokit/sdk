@@ -1,6 +1,6 @@
-import {DetailedRender} from "../../base/constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
+import type {BodyHatchParams} from "./BodyHatchParams";
 
 /**
  * Configures whether the View renders surfaces with the
@@ -14,12 +14,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * material's `hatchPattern` (when set) overlays the body in
  * world / tangent / screen space according to its `space`. PBR
  * atlases (albedo / metallic-roughness / normal) on the same
- * material are ignored — they re-enter the picture in
- * RealisticRender (or any mode without bodyHatch).
- *
- * Default: `[`{@link base!constants.DetailedRender | DetailedRender}`]` —
- * engineering / inspection presentation gets the hatched body
- * by default; Realistic and Navigation stay PBR/textured.
+ * material are ignored while the component is applied.
  *
  * Section-plane caps are unaffected. The cap's appearance comes
  * from {@link SectionPlane.capColor} and the material's hatch
@@ -31,62 +26,40 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
 export class BodyHatch {
 
   public readonly view: View;
-
-  private _renderModes: number[];
+  private _enabled: boolean;
   private _destroyed: boolean = false;
 
   /** @private */
-  constructor(view: View, params: { renderModes?: number[] } = {}) {
+  constructor(view: View, params: BodyHatchParams = {}) {
     this.view = view;
-    this._renderModes = params.renderModes !== undefined
-      ? params.renderModes.slice()
-      : [DetailedRender];
+    this._enabled = params.enabled === true;
   }
 
-  /**
-   * Sets which {@link View.renderMode | render modes} render with
-   * the hatched-Lambert body path. Other modes use the standard
-   * attribute-driven selection (PBR when the mesh has UVs /
-   * triplanar atlases, plain Lambert otherwise).
-   *
-   * Default `[DetailedRender]`.
-   */
-  set renderModes(value: number[]) {
-    this._renderModes = value ? value.slice() : [];
+  set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
     this.view.needsRender();
   }
 
-  /**
-   * Gets which {@link View.renderMode | render modes} use the
-   * hatched-Lambert body path.
-   */
-  get renderModes(): number[] {
-    return this._renderModes;
+  get enabled(): boolean {
+    return this._enabled;
   }
 
   /**
-   * Whether hatched-Lambert body shading is currently applied —
-   * `true` iff {@link View.renderMode} is in
-   * {@link BodyHatch.renderModes}. The renderer reads this
-   * flag in its DrawOp variant selector to decide between the
-   * un-textured Lambert variant and the PBR-textured variant
-   * for opaque triangle batches.
+   * Whether hatched-Lambert body shading is currently applied.
    */
   get applied(): boolean {
-    const mode = this.view.renderMode;
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (mode === this._renderModes[i]) return true;
-    }
-    return false;
+    return this._enabled;
   }
 
   /** Gets this BodyHatch as JSON. */
-  toParams(): SDKResult<{ renderModes: number[] }> {
-    return {ok: true, value: {renderModes: this._renderModes.slice()}};
+  toParams(): SDKResult<BodyHatchParams> {
+    return {ok: true, value: {enabled: this._enabled}};
   }
 
   /** Configures this BodyHatch. */
-  fromParams(params: { renderModes?: number[] }): SDKResult<void> {
+  fromParams(params: BodyHatchParams): SDKResult<void> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,
@@ -94,7 +67,9 @@ export class BodyHatch {
         error: "[BodyHatch.fromParams] BodyHatch has been destroyed.",
       });
     }
-    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
+    if (params.enabled !== undefined) {
+      this.enabled = params.enabled;
+    }
     return {ok: true, value: undefined};
   }
 

@@ -8,8 +8,8 @@ import {type SDKResult} from "../../base/core";
  * * Located at {@link View.resolutionScale}.
  * * Resolution scaling reduces the pixel resolution of a View's canvas to improve its frame
  * rate, typically applied temporarily during camera movement to enhance responsiveness.
- * * View will apply resulotion scaling when {@link View.renderMode | View.renderMode} is set to one of the values
- * specified in {@link ResolutionScale.renderModes}.
+ * * View will apply resulotion scaling when the component enabled state is set to one of the values
+ * specified in the component enabled state.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -21,7 +21,7 @@ export class ResolutionScale {
     public readonly view: View;
 
     private _resolutionScale: number;
-    private _renderModes: number[];
+  private _enabled: boolean;
 
     /**
      * @private
@@ -29,29 +29,20 @@ export class ResolutionScale {
     constructor(view: View, options: ResolutionScaleParams = {}) {
 
         this.view = view;
-
-        this._renderModes = options.renderModes || [];
+    this._enabled = options.enabled !== false;
         this._resolutionScale = options.resolutionScale || 0.5;
     }
 
-    /**
-     * Sets which rendering modes in which to apply ResolutionScale.
-     *
-     * Default value is `[]`.
-     */
-    set renderModes(value: number[]) {
-        this._renderModes = value;
-        this.view.needsRender();
-    }
+          set enabled(value: boolean) {
+    const enabled = value === true;
+    if (this._enabled === enabled) return;
+    this._enabled = enabled;
+    this.view.needsRender();
+  }
 
-    /**
-     * Gets which rendering modes in which to apply ResolutionScale.
-     *
-     * Default value is `[]`.
-     */
-    get renderModes(): number[] {
-        return this._renderModes;
-    }
+  get enabled(): boolean {
+    return this._enabled;
+  }
 
     /**
      * Sets the scale when ResolutionScale is applied.
@@ -78,17 +69,12 @@ export class ResolutionScale {
     /**
      * Gets if resolution scaling is currently applied.
      *
-     * This is `true` when {@link View.renderMode | View.renderMode} is
-     * in {@link ResolutionScale.renderModes | ResolutionScale.renderModes}.
+     * This is `true` when the component enabled state is
+     * in the component enabled state.
      */
     get applied(): boolean {
-        for (let i = 0, len = this._renderModes.length; i < len; i++) {
-            if (this.view.renderMode === this._renderModes[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
+    return this._enabled;
+  }
 
     /**
      * Configures this ResolutionScale.
@@ -96,8 +82,8 @@ export class ResolutionScale {
      * @param resolutionScaleParams
      */
     fromParams(resolutionScaleParams: ResolutionScaleParams) : SDKResult<void> {
-        if (resolutionScaleParams.renderModes !== undefined) {
-            this.renderModes = resolutionScaleParams.renderModes;
+        if (resolutionScaleParams.enabled !== undefined) {
+            this.enabled = resolutionScaleParams.enabled;
         }
         if (resolutionScaleParams.resolutionScale !== undefined) {
             this.resolutionScale = resolutionScaleParams.resolutionScale;
@@ -115,7 +101,7 @@ export class ResolutionScale {
         return {
           ok: true,
           value: {
-            renderModes: this.renderModes,
+        enabled: this._enabled,
             resolutionScale: this.resolutionScale
           }
         };

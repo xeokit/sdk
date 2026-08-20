@@ -6,15 +6,10 @@
  * * Located at {@link EffectsParams.atmosphere}
  */
 export interface AtmosphereParams {
-
   /**
-   * Which rendering modes in which to apply atmospheric attenuation.
-   *
-   * Default value is [{@link base!constants.RealisticRender | RealisticRender}]
-   * when this effect is explicitly configured. Omitted
-   * {@link EffectsParams.atmosphere} leaves the effect inactive.
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * RGB haze color mixed into distant scene geometry.

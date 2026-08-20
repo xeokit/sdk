@@ -365,43 +365,21 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   });
 
   registry.register("gpuMemory", {
-    find: (ctx) => {
-      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
-      return webGLRenderer ? GPUMemoryPanel.getFor(ctx.studio.renderer) : undefined;
-    },
-    create: (ctx) => {
-      if (!asWebGLRenderer(ctx.studio.renderer)) {
-        ctx.studio.reportWarning("[PanelRegistry/gpuMemory] Requires WebGLRenderer.");
-        return undefined;
-      }
-      return GPUMemoryPanel.openFor({renderer: ctx.studio.renderer});
-    },
+    find:   (ctx) => GPUMemoryPanel.getFor(ctx.studio.renderer),
+    create: (ctx) => GPUMemoryPanel.openFor({renderer: ctx.studio.renderer}),
   });
 
   registry.register("rendererPanel", {
-    find: (ctx) => {
-      const webGLRenderer = asWebGLRenderer(ctx.studio.renderer);
-      return webGLRenderer ? RendererPanel.getFor(ctx.studio.renderer) : undefined;
-    },
-    create: (ctx) => {
-      if (!asWebGLRenderer(ctx.studio.renderer)) {
-        ctx.studio.reportWarning("[PanelRegistry/rendererPanel] Requires WebGLRenderer.");
-        return undefined;
-      }
-      return RendererPanel.openFor({renderer: ctx.studio.renderer});
-    },
+    find:   (ctx) => RendererPanel.getFor(ctx.studio.renderer),
+    create: (ctx) => RendererPanel.openFor({renderer: ctx.studio.renderer}),
   });
 
   registry.register("cullingPanel", {
-    find: (ctx) => ctx.studio.viewer && asWebGLRenderer(ctx.studio.renderer) ? CullingPanel.getFor(ctx.studio.viewer) : undefined,
+    find: (ctx) => ctx.studio.viewer ? CullingPanel.getFor(ctx.studio.viewer) : undefined,
     create: (ctx) => {
       const {viewer, renderer} = ctx.studio;
       if (!viewer || !renderer) {
-        ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
-        return undefined;
-      }
-      if (!asWebGLRenderer(renderer)) {
-        ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Requires WebGLRenderer.");
+        ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and Renderer.");
         return undefined;
       }
       return CullingPanel.openFor({viewer, renderer});
@@ -409,15 +387,11 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   });
 
   registry.register("adaptiveQualityPanel", {
-    find: (ctx) => ctx.studio.viewer && asWebGLRenderer(ctx.studio.renderer) ? AdaptiveQualityPanel.getFor(ctx.studio.viewer) : undefined,
+    find: (ctx) => ctx.studio.viewer ? AdaptiveQualityPanel.getFor(ctx.studio.viewer) : undefined,
     create: (ctx) => {
       const {viewer, renderer} = ctx.studio;
       if (!viewer || !renderer) {
-        ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
-        return undefined;
-      }
-      if (!asWebGLRenderer(renderer)) {
-        ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Requires WebGLRenderer.");
+        ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and Renderer.");
         return undefined;
       }
       return AdaptiveQualityPanel.openFor({viewer, renderer});

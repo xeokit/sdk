@@ -19,16 +19,25 @@
 import type {
   DrawCallStats,
   RenderBinStats,
-  RenderInspector,
   RenderStats,
   ViewRenderStats,
 } from "../../../viewing/webGLRenderer/internal/inspectors";
-import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
 import type {Renderer} from "../../../viewing/renderer";
+import {SDKErrorType, type SDKResult} from "../../../base/core";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {requireWebGLRenderer} from "../resolveWebGLRenderer";
+
+interface RenderInspectorLike {
+  enabled: boolean;
+  renderStats: RenderStats;
+  frameRates?: Array<number | null>;
+  getFrameRate?: (viewId: string) => number | null;
+}
+
+type RendererWithInspector = Renderer & {
+  getRenderInspector?: () => SDKResult<RenderInspectorLike>;
+};
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -120,7 +129,7 @@ export class RendererPanel extends FloatingPanelBase {
   }
 
   readonly renderer: Renderer;
-  private readonly _webGLRenderer: WebGLRenderer;
+  private readonly _rendererWithInspector: RendererWithInspector;
 
   // DOM refs.
   private _bodyEl!: HTMLElement;
@@ -146,7 +155,7 @@ export class RendererPanel extends FloatingPanelBase {
       classPrefix: "xkt-rp",
     });
     this.renderer = params.renderer;
-    this._webGLRenderer = requireWebGLRenderer(params.renderer, "RendererPanel");
+    this._rendererWithInspector = params.renderer as RendererWithInspector;
 
     // Restore the last-selected view from sessionStorage so the panel
     // resumes on the same row across opens within a session.
@@ -215,7 +224,7 @@ export class RendererPanel extends FloatingPanelBase {
     this._listenersAttached = true;
 
     // Make sure the inspector is on, otherwise renderStats stays empty.
-    const inspectorRes = this._webGLRenderer.getRenderInspector();
+    const inspectorRes = this._getRenderInspector();
     if (inspectorRes.ok && inspectorRes.value) {
       inspectorRes.value.enabled = true;
     }
@@ -278,7 +287,7 @@ export class RendererPanel extends FloatingPanelBase {
       `<span class="xkt-rp-title-icon">${RendererPanel.iconSvg()}</span>` +
       `<span class="xkt-rp-title-stack">` +
         `<span class="xkt-rp-title-text">Renderer</span>` +
-        `<span class="xkt-rp-subtitle">WebGLRenderer execution log — last frame per view.</span>` +
+        `<span class="xkt-rp-subtitle">Renderer execution log — last frame per view.</span>` +
       `</span>`;
 
     this._closeBtn = el("button", "xkt-rp-close", {
@@ -362,7 +371,6 @@ export class RendererPanel extends FloatingPanelBase {
   private _renderAll(): void {
     const inspector = this._currentInspector();
     const renderStats = inspector?.renderStats;
-    const frameRates = inspector?.frameRates;
     const views = (renderStats?.views ?? []) as Array<ViewRenderStats | null | undefined>;
 
     // Clamp selection — views array can shrink across renderer rebinds.
@@ -372,10 +380,10 @@ export class RendererPanel extends FloatingPanelBase {
       this._selectedViewIndex = 0;
     }
     const selectedFrame = views[this._selectedViewIndex] ?? null;
-    const selectedFps = frameRates?.[this._selectedViewIndex] ?? null;
+    const selectedFps = this._frameRate(inspector, selectedFrame, this._selectedViewIndex);
 
     this._renderHeadStats(views, selectedFrame);
-    this._renderViewsTable(views, frameRates);
+    this._renderViewsTable(views, inspector);
     this._renderViewDetail(this._selectedViewIndex, selectedFrame, selectedFps);
     this._flashPulse();
   }
@@ -391,7 +399,7 @@ export class RendererPanel extends FloatingPanelBase {
 
   private _renderViewsTable(
     views: Array<ViewRenderStats | null | undefined>,
-    frameRates: Array<number | null> | undefined,
+    inspector: RenderInspectorLike | null,
   ): void {
     this._viewsTableBody.replaceChildren();
     if (!views.length) {
@@ -406,7 +414,7 @@ export class RendererPanel extends FloatingPanelBase {
 
     for (let i = 0; i < views.length; i++) {
       const frame = views[i] ?? null;
-      const fps = frameRates?.[i] ?? null;
+      const fps = this._frameRate(inspector, frame, i);
       const isSelected = i === this._selectedViewIndex;
 
       const tr = el("tr", `xkt-rp-viewrow ${isSelected ? "is-selected" : ""} ${frame ? "is-ready" : "is-empty"}`);
@@ -593,9 +601,29 @@ export class RendererPanel extends FloatingPanelBase {
 
   // ── Helpers ───────────────────────────────────────────────────
 
-  private _currentInspector(): RenderInspector | null {
-    const res = this._webGLRenderer.getRenderInspector();
+  private _currentInspector(): RenderInspectorLike | null {
+    const res = this._getRenderInspector();
     return res.ok ? res.value : null;
+  }
+
+  private _getRenderInspector(): SDKResult<RenderInspectorLike> {
+    const getRenderInspector = this._rendererWithInspector.getRenderInspector;
+    if (typeof getRenderInspector !== "function") {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[RendererPanel] Renderer does not expose getRenderInspector().",
+      };
+    }
+    return getRenderInspector.call(this._rendererWithInspector);
+  }
+
+  private _frameRate(
+    inspector: RenderInspectorLike | null,
+    frame: ViewRenderStats | null,
+    viewIndex: number,
+  ): number | null {
+    return inspector?.frameRates?.[viewIndex] ?? (frame?.viewId ? inspector?.getFrameRate?.(frame.viewId) : null) ?? null;
   }
 
   /**

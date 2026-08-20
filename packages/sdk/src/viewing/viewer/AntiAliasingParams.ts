@@ -18,14 +18,10 @@ export type AntiAliasingMode = "none" | "fxaa" | "smaa";
  * * Located at {@link EffectsParams.antiAliasing}
  */
 export interface AntiAliasingParams {
-
   /**
-   * Which rendering modes in which to apply {@link AntiAliasing}.
-   *
-   * Default value is [{@link base!constants.DetailedRender | DetailedRender},
-   * {@link base!constants.RealisticRender | RealisticRender}].
+   * Whether this component is enabled.
    */
-  renderModes?: number[];
+  enabled?: boolean;
 
   /**
    * AA mode. Default is `"smaa"` so high-quality AA is on by default when the renderer

@@ -4,7 +4,7 @@ import type {AABB3Float} from "../../base/math/boundaries";
 import {CameraFlightAnimation} from "../../viewing/cameraFlight";
 import {ViewController} from "../../viewing/viewController";
 import type {WalkNavigationController} from "../../viewing/walkNavigation";
-import {RealisticRender} from "../../base/constants";
+import type {VehicleNavigationController} from "../../viewing/vehicleNavigation";
 import {createUUID} from "../../base/utils";
 
 import {
@@ -27,6 +27,7 @@ export interface ViewRecord {
   cameraFlight: CameraFlightAnimation;
   viewController: ViewController;
   walkNavigationController?: WalkNavigationController;
+  vehicleNavigationController?: VehicleNavigationController;
 }
 
 /**
@@ -179,10 +180,6 @@ export class ViewManager {
       id: sdkViewParams.id || createUUID(),
       backgroundColor: [0, 0, 0],
       transparent: false,
-      // RealisticRender by default (HDR pipeline + ACES tonemap +
-      // sRGB encode all live from the first frame). Overridden
-      // when the caller passes their own `renderMode`.
-      renderMode: RealisticRender,
       ...sdkViewParams,
     };
 

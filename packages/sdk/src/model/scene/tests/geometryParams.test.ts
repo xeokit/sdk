@@ -83,6 +83,19 @@ describe("compressGeometryParams", () => {
     });
     expect(withoutNormals.normalsCompressed).toBeUndefined();
   });
+
+  it("preserves explicit triangle edge indices", () => {
+    const edgeIndices = new Uint16Array([0, 1, 1, 2]);
+    const compressed = compressGeometryParams({
+      id: "g1",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES,
+      edgeIndices
+    });
+
+    expect(compressed.edgeIndices).toBe(edgeIndices);
+  });
 });
 
 // ensureGeometryAttribs operates on a SceneModel's compressed geometries, not a

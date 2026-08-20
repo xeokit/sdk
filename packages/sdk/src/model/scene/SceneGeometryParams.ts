@@ -69,6 +69,15 @@ export interface SceneGeometryParams {
   indices?: IntArrayParam;
 
   /**
+   * Flat array of triangle-mesh edge connectivity indices.
+   *
+   * When supplied for triangle-family primitives, renderers use these for
+   * edge rendering and edge snapping instead of deriving feature edges from
+   * triangle connectivity.
+   */
+  edgeIndices?: IntArrayParam;
+
+  /**
    * Flat array of per-splat scales — 3 floats per splat (the per-axis gaussian
    * std-devs). Only used for {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive}.
    */

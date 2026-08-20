@@ -1,6 +1,7 @@
 import {collapseAABB3, expandAABB3Points3, createAABB3Float32} from "../../base/math/boundaries";
 import {compressRGBColors, octEncodeNormalsToU16, packUVsToFloat32, quantizePositions3} from "../../base/math/compression";
 import {createVec3Float64} from "../../base/math/vector";
+import type {IntArrayParam} from "../../base/math";
 import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../base/constants";
 import {buildEdgeIndices} from "./buildEdgeIndices";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
@@ -72,10 +73,10 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
     // downstream consumers (specifically the WebGLRenderer's edge
     // portion allocator, which rejects size=0) see "no edges" as a
     // first-class state rather than an empty buffer to upload.
-    let edgeIndices: ReturnType<typeof buildEdgeIndices> | null = null;
+    let edgeIndices: IntArrayParam | ReturnType<typeof buildEdgeIndices> | null = geometryParams.edgeIndices ?? null;
     if ((geometryParams.primitive === SolidPrimitive
       || geometryParams.primitive === SurfacePrimitive
-      || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices) {
+      || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices && !edgeIndices) {
       const built = buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10);
       if (built && built.length > 0) edgeIndices = built;
     }

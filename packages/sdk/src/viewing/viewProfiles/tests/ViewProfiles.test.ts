@@ -54,6 +54,7 @@ function createView() {
       bloom: effect(),
       atmosphere: effect(),
       depthOfField: effect(),
+      colorGrading: effect(),
       tonemap: new ProfileEffect({exposure: 1.0}),
       antiAliasing: effect(),
       shadows: effect(),
@@ -76,6 +77,8 @@ describe("ViewProfiles", () => {
     const view = createView();
     view.lights.ibl.enabled = false;
     view.effects.sao.enabled = true;
+    view.effects.atmosphere.enabled = true;
+    view.effects.depthOfField.enabled = true;
     view.effects.tonemap.enabled = false;
 
     const profiles = new ViewProfiles(view, {
@@ -83,6 +86,8 @@ describe("ViewProfiles", () => {
         realistic: {
           ibl: {enabled: true, intensity: 0.4},
           toneMap: {enabled: true, exposure: 1.2},
+          atmosphere: {enabled: true, intensity: 0.25},
+          depthOfField: {enabled: true, intensity: 0.6},
           sao: {intensity: 0.5}
         }
       }
@@ -92,15 +97,23 @@ describe("ViewProfiles", () => {
     expect(view.lights.ibl.enabled).toBe(true);
     expect(view.effects.tonemap.enabled).toBe(true);
     expect(view.effects.sao.enabled).toBe(false);
+    expect(view.effects.atmosphere.enabled).toBe(true);
+    expect(view.effects.depthOfField.enabled).toBe(true);
     expect(view.lights.ibl.intensity).toBe(0.4);
     expect(view.effects.tonemap.exposure).toBe(1.2);
+    expect(view.effects.atmosphere.intensity).toBe(0.25);
+    expect(view.effects.depthOfField.intensity).toBe(0.6);
 
     expect(profiles.setActiveProfile(null).ok).toBe(true);
     expect(view.lights.ibl.enabled).toBe(false);
     expect(view.effects.sao.enabled).toBe(true);
+    expect(view.effects.atmosphere.enabled).toBe(true);
+    expect(view.effects.depthOfField.enabled).toBe(true);
     expect(view.effects.tonemap.enabled).toBe(false);
     expect(view.lights.ibl.intensity).toBe(1.0);
     expect(view.effects.tonemap.exposure).toBe(1.0);
+    expect(view.effects.atmosphere.intensity).toBe(1.0);
+    expect(view.effects.depthOfField.intensity).toBe(1.0);
   });
 
   test("transitions directly between profiles and avoids redundant writes", () => {

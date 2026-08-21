@@ -44,6 +44,7 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
     bloom: {enabled: false},
     atmosphere: {enabled: false},
     depthOfField: {enabled: false},
+    colorGrading: {enabled: false},
     shadows: {enabled: false},
     sectionPlaneCaps: {enabled: false},
     bodyHatch: {enabled: false},
@@ -108,6 +109,7 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
     bloom: {enabled: false},
     atmosphere: {enabled: false},
     depthOfField: {enabled: false},
+    colorGrading: {enabled: false},
     shadows: {enabled: false},
     sectionPlaneCaps: {enabled: true},
     bodyHatch: {enabled: false},
@@ -176,6 +178,7 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
       affectSky: false
     },
     depthOfField: {enabled: false},
+    colorGrading: {enabled: false},
     shadows: {
       enabled: true,
       intensity: 0.38,

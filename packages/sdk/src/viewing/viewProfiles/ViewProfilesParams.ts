@@ -2,6 +2,7 @@ import type {AntiAliasingParams} from "../viewer/AntiAliasingParams";
 import type {AtmosphereParams} from "../viewer/AtmosphereParams";
 import type {BloomParams} from "../viewer/BloomParams";
 import type {BodyHatchParams} from "../viewer/BodyHatchParams";
+import type {ColorGradingParams} from "../viewer/ColorGradingParams";
 import type {DepthOfFieldParams} from "../viewer/DepthOfFieldParams";
 import type {EdgesParams} from "../viewer/EdgesParams";
 import type {HemisphereAmbientParams} from "../viewer/HemisphereAmbientParams";
@@ -33,6 +34,8 @@ export type ViewProfileEffectParams = {
   atmosphere?: AtmosphereParams;
   /** Depth-of-field post-processing. */
   depthOfField?: DepthOfFieldParams;
+  /** Display-space color grading. */
+  colorGrading?: ColorGradingParams;
   /** HDR tonemapping. */
   tonemap?: TonemapParams;
   /** Post-process antialiasing. */

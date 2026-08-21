@@ -205,14 +205,38 @@ fn mipDy(dy: vec2<f32>) -> vec2<f32> {
   return dy;
 }
 
+fn triplanarUVX(p: vec3<f32>, normal: vec3<f32>) -> vec2<f32> {
+  return vec2<f32>(select(p.z, -p.z, normal.x < 0.0), p.y);
+}
+
+fn triplanarUVY(p: vec3<f32>, normal: vec3<f32>) -> vec2<f32> {
+  return vec2<f32>(p.x, select(p.z, -p.z, normal.y < 0.0));
+}
+
+fn triplanarUVZ(p: vec3<f32>, normal: vec3<f32>) -> vec2<f32> {
+  return vec2<f32>(select(p.x, -p.x, normal.z < 0.0), p.y);
+}
+
+fn triplanarDxX(dp: vec3<f32>, normal: vec3<f32>) -> vec2<f32> {
+  return vec2<f32>(select(dp.z, -dp.z, normal.x < 0.0), dp.y);
+}
+
+fn triplanarDxY(dp: vec3<f32>, normal: vec3<f32>) -> vec2<f32> {
+  return vec2<f32>(dp.x, select(dp.z, -dp.z, normal.y < 0.0));
+}
+
+fn triplanarDxZ(dp: vec3<f32>, normal: vec3<f32>) -> vec2<f32> {
+  return vec2<f32>(select(dp.x, -dp.x, normal.z < 0.0), dp.y);
+}
+
 fn sampleColorTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, dpdxWorld: vec3<f32>, dpdyWorld: vec3<f32>) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
   let dpdxP = dpdxWorld / max(scale, 0.0001);
   let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleGrad(colorTexture, colorSampler, p.yz, mipDx(dpdxP.yz), mipDy(dpdyP.yz));
-  let ySample = textureSampleGrad(colorTexture, colorSampler, p.xz, mipDx(dpdxP.xz), mipDy(dpdyP.xz));
-  let zSample = textureSampleGrad(colorTexture, colorSampler, p.xy, mipDx(dpdxP.xy), mipDy(dpdyP.xy));
+  let xSample = textureSampleGrad(colorTexture, colorSampler, triplanarUVX(p, normal), mipDx(triplanarDxX(dpdxP, normal)), mipDy(triplanarDxX(dpdyP, normal)));
+  let ySample = textureSampleGrad(colorTexture, colorSampler, triplanarUVY(p, normal), mipDx(triplanarDxY(dpdxP, normal)), mipDy(triplanarDxY(dpdyP, normal)));
+  let zSample = textureSampleGrad(colorTexture, colorSampler, triplanarUVZ(p, normal), mipDx(triplanarDxZ(dpdxP, normal)), mipDy(triplanarDxZ(dpdyP, normal)));
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
@@ -221,9 +245,9 @@ fn sampleEmissiveTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, d
   let dpdxP = dpdxWorld / max(scale, 0.0001);
   let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleGrad(emissiveTexture, emissiveSampler, p.yz, mipDx(dpdxP.yz), mipDy(dpdyP.yz));
-  let ySample = textureSampleGrad(emissiveTexture, emissiveSampler, p.xz, mipDx(dpdxP.xz), mipDy(dpdyP.xz));
-  let zSample = textureSampleGrad(emissiveTexture, emissiveSampler, p.xy, mipDx(dpdxP.xy), mipDy(dpdyP.xy));
+  let xSample = textureSampleGrad(emissiveTexture, emissiveSampler, triplanarUVX(p, normal), mipDx(triplanarDxX(dpdxP, normal)), mipDy(triplanarDxX(dpdyP, normal)));
+  let ySample = textureSampleGrad(emissiveTexture, emissiveSampler, triplanarUVY(p, normal), mipDx(triplanarDxY(dpdxP, normal)), mipDy(triplanarDxY(dpdyP, normal)));
+  let zSample = textureSampleGrad(emissiveTexture, emissiveSampler, triplanarUVZ(p, normal), mipDx(triplanarDxZ(dpdxP, normal)), mipDy(triplanarDxZ(dpdyP, normal)));
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
@@ -232,9 +256,9 @@ fn sampleOcclusionTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, 
   let dpdxP = dpdxWorld / max(scale, 0.0001);
   let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleGrad(occlusionTexture, occlusionSampler, p.yz, mipDx(dpdxP.yz), mipDy(dpdyP.yz));
-  let ySample = textureSampleGrad(occlusionTexture, occlusionSampler, p.xz, mipDx(dpdxP.xz), mipDy(dpdyP.xz));
-  let zSample = textureSampleGrad(occlusionTexture, occlusionSampler, p.xy, mipDx(dpdxP.xy), mipDy(dpdyP.xy));
+  let xSample = textureSampleGrad(occlusionTexture, occlusionSampler, triplanarUVX(p, normal), mipDx(triplanarDxX(dpdxP, normal)), mipDy(triplanarDxX(dpdyP, normal)));
+  let ySample = textureSampleGrad(occlusionTexture, occlusionSampler, triplanarUVY(p, normal), mipDx(triplanarDxY(dpdxP, normal)), mipDy(triplanarDxY(dpdyP, normal)));
+  let zSample = textureSampleGrad(occlusionTexture, occlusionSampler, triplanarUVZ(p, normal), mipDx(triplanarDxZ(dpdxP, normal)), mipDy(triplanarDxZ(dpdyP, normal)));
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 

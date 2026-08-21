@@ -140,7 +140,7 @@ export class WebGPUPostProcessPipeline {
       };
     }
 
-    const uniformData = this._createUniformData(params.view, params.width, params.height);
+    const uniformData = this._createUniformData(params.view, params.width, params.height, params.saoOcclusionView !== null);
     this._renderContext.writeGPUBuffer(this._paramsBuffer as any, 0, uniformData);
     const bindGroup: WebGPUBindGroupLike = this._renderContext.device.createBindGroup({
       label: "xeokit-webgpu-postprocess-bind-group",
@@ -193,14 +193,14 @@ export class WebGPUPostProcessPipeline {
     this._sampler = null;
   }
 
-  private _createUniformData(view: View, width: number, height: number): Float32Array {
+  private _createUniformData(view: View, width: number, height: number, hasSAOOcclusionView: boolean): Float32Array {
     const effects = (view as {effects?: any}).effects;
     const tonemap = effects?.tonemap;
     const antiAliasing = effects?.antiAliasing;
     const sao = effects?.sao;
     const tonemapActive = !!(tonemap?.applied && tonemap?.possible);
     const aaActive = !!(antiAliasing?.applied && antiAliasing?.possible && antiAliasing?.mode !== "none");
-    const saoActive = !!(sao?.applied && sao?.possible && (sao.intensity ?? 0) > 0);
+    const saoActive = hasSAOOcclusionView && !!(sao?.applied && sao?.possible && (sao.intensity ?? 0) > 0);
     const exposure = tonemapActive ? (tonemap.exposure ?? 1.0) : 1.0;
     const tonemapMode = tonemapActive ? modeToInt(tonemap.mode) : TONEMAP_MODE_NONE;
     const sRGBEncode = tonemap ? (tonemap.sRGBEncode !== false) : false;
@@ -214,6 +214,7 @@ export class WebGPUPostProcessPipeline {
       saoActive ? 1 : 0,
       sao?.blendFactor ?? 1.0,
       sao?.blendCutoff ?? 0.3,
+      0,
       0,
       0,
       0,
@@ -246,6 +247,7 @@ struct Params {
   pad3: f32,
   pad4: f32,
   pad5: f32,
+  pad6: f32,
 };
 
 @group(0) @binding(0) var sceneSampler: sampler;

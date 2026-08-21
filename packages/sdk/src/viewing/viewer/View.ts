@@ -31,6 +31,7 @@ import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {BloomParams} from "./BloomParams";
 import type {AtmosphereParams} from "./AtmosphereParams";
 import type {DepthOfFieldParams} from "./DepthOfFieldParams";
+import type {ColorGradingParams} from "./ColorGradingParams";
 import type {EdgesParams} from "./EdgesParams";
 import type {IBLParams} from "./IBLParams";
 import type {HemisphereAmbientParams} from "./HemisphereAmbientParams";
@@ -108,11 +109,12 @@ class View {
 
   /**
    * Aggregates the renderer-effect components for this View — SAO,
-   * Edges, Bloom, Atmosphere, DepthOfField, Tonemap, AntiAliasing, and Shadows. Reach the
+   * Edges, Bloom, Atmosphere, DepthOfField, ColorGrading, Tonemap, AntiAliasing, and Shadows. Reach the
    * individual effects through {@link Effects.sao},
    * {@link Effects.edges}, {@link Effects.bloom},
    * {@link Effects.atmosphere},
    * {@link Effects.depthOfField},
+   * {@link Effects.colorGrading},
    * {@link Effects.tonemap}, {@link Effects.antiAliasing}, and
    * {@link Effects.shadows}.
    */
@@ -1983,6 +1985,12 @@ class View {
           return result;
         }
       }
+      if (e.colorGrading) {
+        const result = this.effects.colorGrading.fromParams(e.colorGrading);
+        if (result.ok === false) {
+          return result;
+        }
+      }
       if (e.edges) {
         const result = this.effects.edges.fromParams(e.edges);
         if (result.ok === false) {
@@ -2090,6 +2098,7 @@ class View {
           bloom:            (<{ value: BloomParams        }>this.effects.bloom.toParams()).value,
           atmosphere:       (<{ value: AtmosphereParams   }>this.effects.atmosphere.toParams()).value,
           depthOfField:     (<{ value: DepthOfFieldParams }>this.effects.depthOfField.toParams()).value,
+          colorGrading:     (<{ value: ColorGradingParams }>this.effects.colorGrading.toParams()).value,
           edges:            (<{ value: EdgesParams        }>this.effects.edges.toParams()).value,
           sky:              (<{ value: SkyParams          }>this.effects.sky.toParams()).value,
           sectionPlaneCaps: (<{ value: { enabled: boolean } }>this.effects.sectionPlaneCaps.toParams()).value,

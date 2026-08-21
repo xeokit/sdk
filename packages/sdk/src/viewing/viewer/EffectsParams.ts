@@ -3,6 +3,7 @@ import type {EdgesParams} from "./EdgesParams";
 import type {BloomParams} from "./BloomParams";
 import type {AtmosphereParams} from "./AtmosphereParams";
 import type {DepthOfFieldParams} from "./DepthOfFieldParams";
+import type {ColorGradingParams} from "./ColorGradingParams";
 import type {TonemapParams} from "./TonemapParams";
 import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {ShadowsParams} from "./ShadowsParams";
@@ -19,9 +20,9 @@ import type {BodyHatchParams} from "./BodyHatchParams";
  *
  * Aggregates the View's renderer effects — Scalable Ambient
  * Obscurance, edge enhancement, HDR bloom, atmospheric attenuation,
- * depth of field, the HDR tonemap pass, antialiasing, and directional
- * shadow mapping. Each entry is optional; when omitted the component falls
- * back to its own constructor defaults.
+ * depth of field, color grading, the HDR tonemap pass, antialiasing, and
+ * directional shadow mapping. Each entry is optional; when omitted the
+ * component falls back to its own constructor defaults.
  */
 export interface EffectsParams {
 
@@ -59,6 +60,15 @@ export interface EffectsParams {
    * Omit to leave the component inactive.
    */
   depthOfField?: DepthOfFieldParams;
+
+  /**
+   * Parameters for the View's display-space color grading pass,
+   * {@link ColorGrading} — accessible at
+   * {@link Effects.colorGrading}.
+   *
+   * Omit to leave the component inactive.
+   */
+  colorGrading?: ColorGradingParams;
 
   /**
    * Parameters for the View's HDR tonemap pass,

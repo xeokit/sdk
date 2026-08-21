@@ -3627,10 +3627,14 @@ flat out int  vHatchSpace;
       ...((this.hasNormals || this.triplanar) ? [
         "uniform mat3        uIBLViewToWorldRot;"
       ] : []),
-      // `g_ambient` is the resolved per-fragment ambient (flat or IBL)
-      // declared at main-scope so the shadow stage can clamp shadowed
-      // fragments to the same floor without recomputing.
+      // `g_ambient` is the resolved per-fragment ambient (flat or IBL).
+      // `g_shadowFloor` is the lower bound used by shadow compositing.
+      // Keep them separate: the smooth/PBR path can have a bright IBL
+      // ambient term, but using that whole term as the shadow floor
+      // makes normal-bearing meshes appear to receive much weaker
+      // shadows than flat/no-normal meshes.
       "vec3 g_ambient;",
+      "vec3 g_shadowFloor;",
       // Emissive contribution (added to the lit colour) and ambient-occlusion
       // factor (multiplies the indirect term). Defaults mean "no emission /
       // no occlusion"; the UV-bearing variants overwrite them per fragment.
@@ -3682,9 +3686,9 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       if (DEBUG_VISUALIZE_NORMAL_MAP && this.hasUVs) {
         // The shadow stage (fsDrawShadowLogic) appended later in shadow-
         // aware techniques references `albedo` and `g_ambient` to clamp
-        // shadowed fragments. We declare both so the shader still
+        // shadowed fragments. We declare them so the shader still
         // compiles, and set them so shadows DON'T darken the debug
-        // colour — `ambientFloor = g_ambient * albedo * g_ao = nm_raw`, so the
+        // colour — `g_shadowFloor = nm_raw`, so the
         // shadow stage's `max(color * shadowFactor, ambientFloor)`
         // clamps back up to the raw normal-map sample. Net effect: the
         // debug viz comes through the BRDF and shadow stages unaffected.
@@ -3694,6 +3698,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3 nm_raw = texture(uNormalMapAtlas, normalAtlasUV).rgb;
     vec3 albedo = nm_raw;
     g_ambient = vec3(1.0);
+    g_shadowFloor = nm_raw;
     color = vec4(nm_raw, 1.0);`);
         return;
       }
@@ -4032,8 +4037,12 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
 
     // Ambient occlusion multiplies the indirect (ambient + IBL) term only —
     // direct light is unoccluded. Emissive is added on top, unlit.
+    vec3 ambientFloor = ((flatAmbient + hemiAmbient * hemiScale) * albedo
+                       + iblDiff * iblScale) * g_ao + g_emissive;
     vec3 indirect = (flatAmbient + hemiAmbient * hemiScale) * albedo
                   + iblContrib * iblScale;
+    vec3 indirectFloor = indirect * g_ao + g_emissive;
+    g_shadowFloor = mix(ambientFloor, indirectFloor, 0.25);
     vec3 lit = directContrib + indirect * g_ao + g_emissive;
     color = vec4(lit, albedoAlpha);`);
       return;
@@ -4171,6 +4180,7 @@ ${this.triplanar ? `
     // Combine ambient + diffuse lighting. Occlusion multiplies the ambient
     // term only (direct diffuse is unoccluded); emissive adds on top, unlit.
     vec3 lit = (g_ambient * albedo) * g_ao + (albedo * reflectedColor) + g_emissive;
+    g_shadowFloor = (g_ambient * albedo) * g_ao + g_emissive;
 
     color = vec4(lit, albedoAlpha);`);
   }
@@ -4359,13 +4369,12 @@ ${this.triplanar ? `
             float shadowFraction = 1.0 - (litSum / tapCount);
             float shadowFactor   = 1.0 - shadowFraction * uShadowParams.x;
 
-            // Shadows attenuate the direct light contribution but must not
-            // dim the surface below what indirect ambient fill would produce.
-            // Keep material AO in that floor: omitting g_ao here overwrites
-            // occlusion maps in shadowed regions, making AO disappear exactly
-            // where BIM crevices need it most.
-            vec3 ambientFloor = g_ambient * albedo * g_ao;
-            color = vec4(max(color.rgb * shadowFactor, ambientFloor), color.a);
+            // Shadows attenuate lit colour but must not dim the surface
+            // below the indirect floor resolved by the active shading path.
+            // The floor is deliberately separate from g_ambient so PBR/IBL
+            // receivers do not wash out shadows just because normals are
+            // present.
+            color = vec4(max(color.rgb * shadowFactor, g_shadowFloor), color.a);
         }
     }`);
   }

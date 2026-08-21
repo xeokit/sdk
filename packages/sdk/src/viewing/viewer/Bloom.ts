@@ -120,6 +120,7 @@ export class Bloom {
         error: "[Bloom.fromParams] Bloom has been destroyed."
       });
     }
+    if (params.enabled !== undefined) this.enabled = params.enabled;
     if (params.threshold !== undefined) this.threshold = params.threshold;
     if (params.knee !== undefined) this.knee = params.knee;
     if (params.intensity !== undefined) this.intensity = params.intensity;

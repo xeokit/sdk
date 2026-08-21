@@ -11,13 +11,14 @@ import {SMAAPipeline} from "../smaa/SMAAPipeline";
 import {BloomPipeline} from "../bloom/BloomPipeline";
 import {AtmospherePipeline} from "../atmosphere/AtmospherePipeline";
 import {DepthOfFieldPipeline} from "../dof/DepthOfFieldPipeline";
+import {ColorGradingPipeline} from "../colorGrading/ColorGradingPipeline";
 
 
 /**
  * Owns every piece of the HDR substrate and final post-process chain:
  *   - HDR scene render target (RGBA16F).
  *   - LDR intermediate FBO used between tonemap and final AA.
- *   - Bloom, atmosphere, depth of field, tonemap, FXAA, and SMAA pipelines.
+ *   - Bloom, atmosphere, depth of field, color grading, tonemap, FXAA, and SMAA pipelines.
  *
  * Separates two RenderManager concerns from each other:
  *   1. Where the scene draws (canvas vs. HDR target).
@@ -52,6 +53,7 @@ export class PostProcessChain {
   private _bloomPipeline: BloomPipeline | null = null;
   private _atmospherePipeline: AtmospherePipeline | null = null;
   private _depthOfFieldPipeline: DepthOfFieldPipeline | null = null;
+  private _colorGradingPipeline: ColorGradingPipeline | null = null;
   private _ldrIntermediate: WebGLRenderBuffer | null = null;
 
   constructor(renderContext: RenderContext) {
@@ -102,6 +104,25 @@ export class PostProcessChain {
     );
   }
 
+  /** True when the current View needs the color-grading post-process. */
+  needsColorGrading(view: View): boolean {
+    const colorGrading = view.effects.colorGrading;
+    return !!(
+      this.hasHDR() &&
+      this._colorGradingPipeline &&
+      colorGrading.applied &&
+      colorGrading.possible &&
+      (
+        colorGrading.brightness !== 0 ||
+        colorGrading.contrast !== 1 ||
+        colorGrading.saturation !== 1 ||
+        colorGrading.gamma !== 1 ||
+        colorGrading.temperature !== 0 ||
+        colorGrading.tint !== 0
+      )
+    );
+  }
+
   /** True when the current View needs the renderer to prepare scene depth. */
   needsSceneDepth(view: View): boolean {
     return this.needsAtmosphere(view) || this.needsDepthOfField(view);
@@ -127,9 +148,9 @@ export class PostProcessChain {
    *
    * Order: optional bloom (HDR → adds back into HDR), optional atmosphere
    * (HDR + depth → HDR intermediate), optional DOF (HDR + depth → HDR
-   * intermediate), tonemap (HDR -> LDR), optional final AA (LDR intermediate
-   * -> canvas). When HDR is off, this is a no-op — the scene has already drawn
-   * straight to the canvas.
+   * intermediate), optional color grading (HDR → HDR intermediate), tonemap
+   * (HDR -> LDR), optional final AA (LDR intermediate -> canvas). When HDR is
+   * off, this is a no-op — the scene has already drawn straight to the canvas.
    */
   composite(view: View): void {
     if (!this.hasHDR()) return;
@@ -175,6 +196,16 @@ export class PostProcessChain {
       });
       if (dofTexture) {
         tonemapSource = dofTexture;
+      }
+    }
+
+    if (this.needsColorGrading(view)) {
+      const colorGradingTexture = this._colorGradingPipeline!.render({
+        colorTexture: tonemapSource,
+        view
+      });
+      if (colorGradingTexture) {
+        tonemapSource = colorGradingTexture;
       }
     }
 
@@ -243,6 +274,8 @@ export class PostProcessChain {
     this._atmospherePipeline = null;
     this._depthOfFieldPipeline?.destroy();
     this._depthOfFieldPipeline = null;
+    this._colorGradingPipeline?.destroy();
+    this._colorGradingPipeline = null;
     this._ldrIntermediate?.destroy();
     this._ldrIntermediate = null;
   }
@@ -276,6 +309,7 @@ export class PostProcessChain {
     this._initBloom();
     this._initAtmosphere();
     this._initDepthOfField();
+    this._initColorGrading();
   }
 
   private _initFXAA(): void {
@@ -332,6 +366,15 @@ export class PostProcessChain {
     if (result.ok === false) {
       this._depthOfFieldPipeline.destroy();
       this._depthOfFieldPipeline = null;
+    }
+  }
+
+  private _initColorGrading(): void {
+    this._colorGradingPipeline = new ColorGradingPipeline(this._renderContext);
+    const result = this._colorGradingPipeline.init();
+    if (result.ok === false) {
+      this._colorGradingPipeline.destroy();
+      this._colorGradingPipeline = null;
     }
   }
 }

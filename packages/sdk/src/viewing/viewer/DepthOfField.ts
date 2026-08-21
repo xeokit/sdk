@@ -162,6 +162,7 @@ export class DepthOfField {
         error: "[DepthOfField.fromParams] DepthOfField has been destroyed."
       });
     }
+    if (params.enabled !== undefined) this.enabled = params.enabled;
     if (params.focusDistance !== undefined) this.focusDistance = params.focusDistance;
     if (params.focalRange !== undefined) this.focalRange = params.focalRange;
     if (params.radius !== undefined) this.radius = params.radius;

@@ -609,6 +609,8 @@ export * from "./Atmosphere";
 export * from "./AtmosphereParams";
 export * from "./DepthOfField";
 export * from "./DepthOfFieldParams";
+export * from "./ColorGrading";
+export * from "./ColorGradingParams";
 export * from "./HemisphereAmbient";
 export * from "./HemisphereAmbientParams";
 export * from "./IBL";

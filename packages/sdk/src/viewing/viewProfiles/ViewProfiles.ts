@@ -36,6 +36,7 @@ const EFFECT_RESOLVERS: Record<ViewProfileEffectId, (view: View) => object> = {
   bloom: view => view.effects.bloom,
   atmosphere: view => view.effects.atmosphere,
   depthOfField: view => view.effects.depthOfField,
+  colorGrading: view => view.effects.colorGrading,
   tonemap: view => view.effects.tonemap,
   antiAliasing: view => view.effects.antiAliasing,
   shadows: view => view.effects.shadows,

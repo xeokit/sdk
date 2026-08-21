@@ -5,6 +5,7 @@ import {Edges} from "./Edges";
 import {Bloom} from "./Bloom";
 import {Atmosphere} from "./Atmosphere";
 import {DepthOfField} from "./DepthOfField";
+import {ColorGrading} from "./ColorGrading";
 import {Tonemap} from "./Tonemap";
 import {AntiAliasing} from "./AntiAliasing";
 import {Shadows} from "./Shadows";
@@ -32,6 +33,8 @@ import type {IBL} from "./IBL";
  *     that fades distant geometry toward a haze colour.
  *   - {@link Effects.depthOfField} — HDR depth-of-field post-process
  *     that keeps the focus distance sharp and blurs nearer/farther pixels.
+ *   - {@link Effects.colorGrading} — display-space grading applied after
+ *     tonemap and before sRGB encoding.
  *   - {@link Effects.tonemap} — the HDR tonemap pass that flattens
  *     the linear-HDR framebuffer into displayable sRGB.
  *   - {@link Effects.antiAliasing} — final antialiasing pass.
@@ -69,6 +72,11 @@ class Effects {
    * HDR depth-of-field post-process for this View.
    */
   public readonly depthOfField: DepthOfField;
+
+  /**
+   * Display-space color grading pass for this View.
+   */
+  public readonly colorGrading: ColorGrading;
 
   /**
    * HDR tonemap pass for this View.
@@ -133,6 +141,7 @@ class Effects {
     this.bloom        = new Bloom       (view, params.bloom        || {});
     this.atmosphere   = new Atmosphere  (view, params.atmosphere !== undefined ? params.atmosphere : {enabled: false});
     this.depthOfField = new DepthOfField(view, params.depthOfField !== undefined ? params.depthOfField : {enabled: false});
+    this.colorGrading = new ColorGrading(view, params.colorGrading !== undefined ? params.colorGrading : {enabled: false});
     this.tonemap      = new Tonemap     (view, params.tonemap      || {});
     this.antiAliasing = new AntiAliasing(view, params.antiAliasing || {});
     this.shadows      = new Shadows     (view, params.shadows      || {});

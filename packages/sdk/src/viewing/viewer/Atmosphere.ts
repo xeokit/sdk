@@ -164,6 +164,7 @@ export class Atmosphere {
         error: "[Atmosphere.fromParams] Atmosphere has been destroyed."
       });
     }
+    if (params.enabled !== undefined) this.enabled = params.enabled;
     if (params.color !== undefined) this.color = params.color;
     if (params.startDistance !== undefined) this.startDistance = params.startDistance;
     if (params.endDistance !== undefined) this.endDistance = params.endDistance;

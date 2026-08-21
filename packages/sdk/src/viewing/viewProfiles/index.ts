@@ -46,11 +46,11 @@
  *   atmosphere, IBL, shadows and antialiasing, and enables resolution scale
  *   reduction.
  * - `"detailed"`: engineering readability profile. Enables subtle SAO,
- *   mesh-colored edges and SMAA while keeping lighting close to
+ *   soft mesh-colored edges and SMAA while keeping lighting close to
  *   `"realistic"`.
- * - `"realistic"`: quality profile. Enables IBL, shadows, sky, subtle SAO,
- *   restrained bloom and atmosphere with low hemisphere intensity to avoid
- *   washed-out lighting.
+ * - `"realistic"`: quality profile. Enables IBL, sky, subtle SAO,
+ *   restrained bloom, atmosphere and cast shadows, with low hemisphere
+ *   intensity to avoid washed-out lighting.
  *
  * @module viewProfiles
  */

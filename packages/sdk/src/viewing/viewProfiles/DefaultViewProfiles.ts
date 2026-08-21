@@ -29,11 +29,10 @@ const WORLD_UP: [number, number, number] = [0, 0, 1];
  *   bloom, atmosphere, IBL, shadows and antialiasing, and enables reduced
  *   resolution scale.
  * - `"detailed"` favors engineering readability. It enables subtle SAO,
- *   mesh-colored edges and SMAA, with moderate IBL balanced against
+ *   soft mesh-colored edges and SMAA, with moderate IBL balanced against
  *   hemisphere ambient.
- * - `"realistic"` favors presentation quality. It enables IBL, shadows, sky,
- *   subtle SAO, restrained bloom and atmosphere. Hemisphere ambient remains
- *   low so it does not flatten the IBL contribution.
+ * - `"realistic"` favors presentation quality. It enables IBL, sky, subtle
+ *   SAO, restrained bloom, atmosphere and cast shadows.
  *
  * These are normal profile definitions. Applications can clone and edit them,
  * or pass them directly to {@link ViewProfiles} when the defaults are suitable.
@@ -100,9 +99,9 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
       enabled: true,
       edgeColor: [0.28, 0.30, 0.34],
       useMeshColor: true,
-      edgeDarken: 0.45,
+      edgeDarken: 0.35,
       edgeWidth: 1,
-      edgeAlpha: 0.65,
+      edgeAlpha: 0.55,
       edgeFadeStart: 0.45,
       edgeFadeEnd: 1
     },
@@ -180,7 +179,7 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
     shadows: {
       enabled: true,
       intensity: 0.38,
-      bias: 0.003,
+      bias: 0.0015,
       projectionSize: 30,
       lightDistance: 50,
       resolution: 2048,
@@ -189,8 +188,8 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
       maxDistance: 200,
       padding: 1.1,
       pcfKernelSize: 3,
-      normalOffsetBias: 0.02,
-      slopeBias: 0.004,
+      normalOffsetBias: 0.005,
+      slopeBias: 0.001,
       cascadeCount: 4,
       cascadeSplitLambda: 0.5
     },

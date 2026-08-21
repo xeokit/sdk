@@ -3684,7 +3684,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
         // aware techniques references `albedo` and `g_ambient` to clamp
         // shadowed fragments. We declare both so the shader still
         // compiles, and set them so shadows DON'T darken the debug
-        // colour — `ambientFloor = g_ambient * albedo = nm_raw`, so the
+        // colour — `ambientFloor = g_ambient * albedo * g_ao = nm_raw`, so the
         // shadow stage's `max(color * shadowFactor, ambientFloor)`
         // clamps back up to the raw normal-map sample. Net effect: the
         // debug viz comes through the BRDF and shadow stages unaffected.
@@ -4360,17 +4360,11 @@ ${this.triplanar ? `
             float shadowFactor   = 1.0 - shadowFraction * uShadowParams.x;
 
             // Shadows attenuate the direct light contribution but must not
-            // dim the surface below what ambient fill alone would produce —
-            // ambient is a stand-in for indirect/bounce light that isn't
-            // occluded by the cast shadow. Without this clamp, fully-
-            // shadowed fragments end up darker than their ambient floor and
-            // read as "ink" rather than "shade", which is what the user
-            // reported on the Cityscape model. Per-channel max preserves
-            // colour tint when the ambient or surface colour is non-grey.
-            // Read the ambient term Lambert already resolved (flat or
-            // IBL hemisphere) so the shadowed floor matches the
-            // unshadowed-from-the-light side, without recomputing.
-            vec3 ambientFloor = g_ambient * albedo;
+            // dim the surface below what indirect ambient fill would produce.
+            // Keep material AO in that floor: omitting g_ao here overwrites
+            // occlusion maps in shadowed regions, making AO disappear exactly
+            // where BIM crevices need it most.
+            vec3 ambientFloor = g_ambient * albedo * g_ao;
             color = vec4(max(color.rgb * shadowFactor, ambientFloor), color.a);
         }
     }`);

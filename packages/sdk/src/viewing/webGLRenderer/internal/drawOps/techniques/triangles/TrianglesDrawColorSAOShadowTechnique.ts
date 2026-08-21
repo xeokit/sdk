@@ -5,13 +5,10 @@ import {DrawTechnique} from "../../DrawTechnique";
  * Obscurance and directional shadow mapping applied in the fragment shader.
  *
  * Applied in order Lambert → shadow → SAO. Order matters here because the
- * shadow stage clamps the shadowed result to `g_ambient * albedo` (the
- * ambient floor — see fsDrawShadowLogic), and that floor doesn't carry
- * the SAO factor. If SAO ran first, its darkening would be erased in
- * shadowed regions when the shadow clamp kicked in. Running SAO last
- * means it modulates whatever lit/shadowed value the shadow stage
- * produced, so AO crevices stay visible regardless of whether they're
- * also in cast shadow.
+ * shadow stage clamps the shadowed result to the material-AO-weighted
+ * ambient floor — see fsDrawShadowLogic. SAO is a separate screen-space
+ * occlusion term, so it still runs last and modulates whatever lit/shadowed
+ * value the shadow stage produced.
  *
  * @internal
  */

@@ -30,6 +30,7 @@ interface TextureResource {
   sampler: WebGPUSamplerLike;
   width: number;
   height: number;
+  mipLevelCount: number;
 }
 
 export type TextureDefaultKind = "white" | "normal";
@@ -108,7 +109,13 @@ export class TextureBindGroupManager {
     }
     const width = Math.max(1, sceneTexture.width | 0);
     const height = Math.max(1, sceneTexture.height | 0);
-    if (resource.width === width && resource.height === height && this._uploadTexture(sceneTexture, resource.texture, width, height)) {
+    const mipLevelCount = getMipLevelCount(sceneTexture, width, height);
+    if (
+      resource.width === width &&
+      resource.height === height &&
+      resource.mipLevelCount === mipLevelCount &&
+      this._uploadTexture(sceneTexture, resource.texture, width, height, mipLevelCount)
+    ) {
       return;
     }
     resource.texture.destroy?.();
@@ -173,7 +180,7 @@ export class TextureBindGroupManager {
         addressModeU: "repeat",
         addressModeV: "repeat"
       }) ?? {};
-      const resource = {texture, textureView: texture.createView(), sampler, width: 1, height: 1};
+      const resource = {texture, textureView: texture.createView(), sampler, width: 1, height: 1, mipLevelCount: 1};
       if (defaultKind === "normal") {
         this._defaultNormalResource = resource;
       } else {
@@ -195,15 +202,29 @@ export class TextureBindGroupManager {
   private _createTextureResource(sceneTexture: SceneTexture): SDKResult<TextureResource> {
     const width = Math.max(1, sceneTexture.width | 0);
     const height = Math.max(1, sceneTexture.height | 0);
+    let mipLevelCount = getMipLevelCount(sceneTexture, width, height);
     let texture: WebGPUTextureLike | null = null;
     try {
       texture = this._renderContext.device.createTexture({
         label: `xeokit-webgpu-scene-texture:${sceneTexture.model.id}:${sceneTexture.id}`,
         size: {width, height, depthOrArrayLayers: 1},
+        mipLevelCount,
         format: getTextureFormat(sceneTexture),
         usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST | GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
       });
-      const uploaded = this._uploadTexture(sceneTexture, texture, width, height);
+      let uploaded = this._uploadTexture(sceneTexture, texture, width, height, mipLevelCount);
+      if (!uploaded && mipLevelCount > 1) {
+        texture.destroy?.();
+        mipLevelCount = 1;
+        texture = this._renderContext.device.createTexture({
+          label: `xeokit-webgpu-scene-texture:${sceneTexture.model.id}:${sceneTexture.id}`,
+          size: {width, height, depthOrArrayLayers: 1},
+          mipLevelCount,
+          format: getTextureFormat(sceneTexture),
+          usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST | GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
+        });
+        uploaded = this._uploadTexture(sceneTexture, texture, width, height, mipLevelCount);
+      }
       if (!uploaded) {
         texture.destroy?.();
         const defaultResult = this._getDefaultResource();
@@ -215,17 +236,20 @@ export class TextureBindGroupManager {
           value: defaultResult.value
         };
       }
-      const sampler = this._renderContext.device.createSampler?.({
+      const minFilter = getMinFilter(sceneTexture.minFilter);
+      const mipmapFilter = mipLevelCount > 1 ? (getMipmapFilter(sceneTexture.minFilter) ?? "linear") : undefined;
+      const samplerDescriptor = withAnisotropy({
         label: `xeokit-webgpu-scene-texture-sampler:${sceneTexture.model.id}:${sceneTexture.id}`,
         magFilter: sceneTexture.magFilter === NearestFilter ? "nearest" : "linear",
-        minFilter: getMinFilter(sceneTexture.minFilter),
-        mipmapFilter: getMipmapFilter(sceneTexture.minFilter),
+        minFilter,
+        mipmapFilter,
         addressModeU: getAddressMode(sceneTexture.wrapS),
         addressModeV: getAddressMode(sceneTexture.wrapT)
-      }) ?? {};
+      });
+      const sampler = this._renderContext.device.createSampler?.(samplerDescriptor) ?? {};
       return {
         ok: true,
-        value: {texture, textureView: texture.createView(), sampler, width, height}
+        value: {texture, textureView: texture.createView(), sampler, width, height, mipLevelCount}
       };
     } catch (e) {
       texture?.destroy?.();
@@ -237,7 +261,7 @@ export class TextureBindGroupManager {
     }
   }
 
-  private _uploadTexture(sceneTexture: SceneTexture, texture: WebGPUTextureLike, width: number, height: number): boolean {
+  private _uploadTexture(sceneTexture: SceneTexture, texture: WebGPUTextureLike, width: number, height: number, mipLevelCount: number): boolean {
     const imageData = sceneTexture.imageData;
     if (imageData && this._renderContext.device.queue.writeTexture) {
       this._renderContext.device.queue.writeTexture(
@@ -246,6 +270,9 @@ export class TextureBindGroupManager {
         {bytesPerRow: width * 4, rowsPerImage: height},
         {width, height, depthOrArrayLayers: 1}
       );
+      if (mipLevelCount > 1) {
+        uploadImageDataMipmaps(this._renderContext, texture, imageData, mipLevelCount);
+      }
       return true;
     }
     if (sceneTexture.image && this._renderContext.device.queue.copyExternalImageToTexture) {
@@ -254,10 +281,155 @@ export class TextureBindGroupManager {
         {texture},
         {width, height, depthOrArrayLayers: 1}
       );
+      if (mipLevelCount > 1) {
+        if (!uploadExternalImageMipmaps(this._renderContext, texture, sceneTexture.image, sceneTexture.flipY, width, height, mipLevelCount)) {
+          return false;
+        }
+      }
       return true;
     }
     return false;
   }
+}
+
+function getMipLevelCount(sceneTexture: SceneTexture, width: number, height: number): number {
+  if (sceneTexture.mipmap !== true) {
+    return 1;
+  }
+  if (!sceneTexture.imageData && (!sceneTexture.image || !canCreateMipmapCanvas())) {
+    return 1;
+  }
+  return Math.floor(Math.log2(Math.max(width, height))) + 1;
+}
+
+function withAnisotropy<T extends {
+  magFilter?: string;
+  minFilter?: string;
+  mipmapFilter?: string;
+}>(descriptor: T): T & { maxAnisotropy?: number } {
+  if (
+    descriptor.magFilter === "linear" &&
+    descriptor.minFilter === "linear" &&
+    descriptor.mipmapFilter === "linear"
+  ) {
+    return {
+      ...descriptor,
+      maxAnisotropy: 8
+    };
+  }
+  return descriptor;
+}
+
+function uploadExternalImageMipmaps(
+  renderContext: RenderContext,
+  texture: WebGPUTextureLike,
+  image: unknown,
+  flipY: boolean,
+  width: number,
+  height: number,
+  mipLevelCount: number
+): boolean {
+  let source: unknown = image;
+  let srcWidth = width;
+  let srcHeight = height;
+  for (let mipLevel = 1; mipLevel < mipLevelCount; mipLevel++) {
+    const dstWidth = Math.max(1, srcWidth >> 1);
+    const dstHeight = Math.max(1, srcHeight >> 1);
+    const canvas = createMipmapCanvas(dstWidth, dstHeight);
+    if (!canvas) {
+      return false;
+    }
+    const context = canvas.getContext("2d");
+    if (!context) {
+      return false;
+    }
+    try {
+      if (flipY && mipLevel === 1) {
+        context.save();
+        context.translate(0, dstHeight);
+        context.scale(1, -1);
+        context.drawImage(source as CanvasImageSource, 0, 0, srcWidth, srcHeight, 0, 0, dstWidth, dstHeight);
+        context.restore();
+      } else {
+        context.drawImage(source as CanvasImageSource, 0, 0, srcWidth, srcHeight, 0, 0, dstWidth, dstHeight);
+      }
+      const imageData = context.getImageData(0, 0, dstWidth, dstHeight);
+      renderContext.device.queue.writeTexture?.(
+        {texture, mipLevel},
+        imageData.data,
+        {bytesPerRow: dstWidth * 4, rowsPerImage: dstHeight},
+        {width: dstWidth, height: dstHeight, depthOrArrayLayers: 1}
+      );
+    } catch {
+      return false;
+    }
+    source = canvas;
+    srcWidth = dstWidth;
+    srcHeight = dstHeight;
+  }
+  return true;
+}
+
+function uploadImageDataMipmaps(renderContext: RenderContext, texture: WebGPUTextureLike, imageData: ImageData, mipLevelCount: number): void {
+  let src: Uint8Array | Uint8ClampedArray = imageData.data;
+  let srcWidth = imageData.width;
+  let srcHeight = imageData.height;
+  for (let mipLevel = 1; mipLevel < mipLevelCount; mipLevel++) {
+    const dstWidth = Math.max(1, srcWidth >> 1);
+    const dstHeight = Math.max(1, srcHeight >> 1);
+    const dst = new Uint8Array(dstWidth * dstHeight * 4);
+    for (let y = 0; y < dstHeight; y++) {
+      for (let x = 0; x < dstWidth; x++) {
+        const dstOffset = (y * dstWidth + x) * 4;
+        const sx0 = Math.min(srcWidth - 1, x * 2);
+        const sy0 = Math.min(srcHeight - 1, y * 2);
+        const sx1 = Math.min(srcWidth - 1, sx0 + 1);
+        const sy1 = Math.min(srcHeight - 1, sy0 + 1);
+        const offsets = [
+          (sy0 * srcWidth + sx0) * 4,
+          (sy0 * srcWidth + sx1) * 4,
+          (sy1 * srcWidth + sx0) * 4,
+          (sy1 * srcWidth + sx1) * 4
+        ];
+        for (let c = 0; c < 4; c++) {
+          dst[dstOffset + c] = (
+            src[offsets[0] + c] +
+            src[offsets[1] + c] +
+            src[offsets[2] + c] +
+            src[offsets[3] + c] +
+            2
+          ) >> 2;
+        }
+      }
+    }
+    renderContext.device.queue.writeTexture?.(
+      {texture, mipLevel},
+      dst,
+      {bytesPerRow: dstWidth * 4, rowsPerImage: dstHeight},
+      {width: dstWidth, height: dstHeight, depthOrArrayLayers: 1}
+    );
+    src = dst;
+    srcWidth = dstWidth;
+    srcHeight = dstHeight;
+  }
+}
+
+function canCreateMipmapCanvas(): boolean {
+  return typeof OffscreenCanvas !== "undefined" ||
+    (typeof document !== "undefined" && typeof document.createElement === "function");
+}
+
+function createMipmapCanvas(width: number, height: number): OffscreenCanvas | HTMLCanvasElement | null {
+  if (typeof OffscreenCanvas !== "undefined") {
+    return new OffscreenCanvas(width, height);
+  }
+  if (typeof document !== "undefined" && typeof document.createElement === "function") {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  }
+  return null;
 }
 
 function getAddressMode(wrap: number): "clamp-to-edge" | "repeat" | "mirror-repeat" {

@@ -23,7 +23,7 @@ export interface ShadowsParams {
   /**
    * Depth-compare bias used to avoid self-shadowing ("shadow acne").
    *
-   * Applied in light-space normalized depth units. Default value is ````0.003````.
+   * Applied in light-space normalized depth units. Default value is ````0.0015````.
    */
   bias?: number;
 
@@ -100,7 +100,7 @@ export interface ShadowsParams {
    * sampling the shadow map. Eliminates shadow acne at glancing angles
    * without needing a large depth {@link ShadowsParams.bias}.
    *
-   * Default value is `0.02`.
+   * Default value is `0.005`.
    */
   normalOffsetBias?: number;
 
@@ -110,7 +110,7 @@ export interface ShadowsParams {
    * clamped to avoid blow-up at near-parallel angles. Complements
    * {@link ShadowsParams.normalOffsetBias}.
    *
-   * Default value is `0.004`.
+   * Default value is `0.001`.
    */
   slopeBias?: number;
 

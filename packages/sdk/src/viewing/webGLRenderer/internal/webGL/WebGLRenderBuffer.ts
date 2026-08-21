@@ -184,10 +184,11 @@ class WebGLRenderBuffer {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       if (this.#depthTextureCompare) {
         // Any sampler2DShadow sample will compare its reference against this
-        // texture with LESS (frag passes — i.e. is lit — when its refDepth is
-        // smaller than the stored texel).
+        // texture with LEQUAL (frag passes — i.e. is lit — when its refDepth is
+        // at or in front of the stored texel). This avoids needing a large
+        // receiver bias for coplanar/self-shadow cases.
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
       }
       // Use DEPTH_COMPONENT24 for wide compatibility; 32F may be unsupported on some devices.
       gl.texImage2D(

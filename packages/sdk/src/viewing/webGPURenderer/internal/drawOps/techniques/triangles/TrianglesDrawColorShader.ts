@@ -122,7 +122,7 @@ fn vs_main(input: VertexInput) -> VertexOutput {
   output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
   output.clippable = instance.flags.x;
   output.rtcPos = rtcWorldPos.xyz / rtcWorldPos.w;
-  output.shadowPos = shadow.lightViewProjections[0] * (shadow.cameraView * vec4<f32>(output.worldPos, 1.0));
+  output.shadowPos = shadow.lightViewProjections[0] * vec4<f32>(output.worldPos, 1.0);
   output.uv = input.uv;
   output.material0 = input.material0;
   output.material1 = input.material1;
@@ -176,10 +176,10 @@ fn sampleShadow(input: VertexOutput, normal: vec3<f32>) -> f32 {
   }
   let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
   let cascade = selectShadowCascade(-viewPos.z);
-  let viewNormal = normalize((shadow.cameraView * vec4<f32>(normal, 0.0)).xyz);
-  var shadowClip = shadow.lightViewProjections[cascade] * viewPos;
+  let shadowNormal = normalize(normal);
+  var shadowClip = shadow.lightViewProjections[cascade] * vec4<f32>(input.worldPos, 1.0);
   if (shadow.params.w > 0.0) {
-    let shadowOffset = shadow.lightViewProjections[cascade] * vec4<f32>(viewNormal * shadow.params.w, 0.0);
+    let shadowOffset = shadow.lightViewProjections[cascade] * vec4<f32>(shadowNormal * shadow.params.w, 0.0);
     shadowClip = shadowClip + shadowOffset;
   }
   let shadowNdc = shadowClip.xyz / shadowClip.w;
@@ -193,23 +193,26 @@ fn sampleShadow(input: VertexOutput, normal: vec3<f32>) -> f32 {
   }
   let dims = vec2<f32>(textureDimensions(shadowMap));
   let texel = 1.0 / max(dims, vec2<f32>(1.0, 1.0));
-  let lightDirView = normalize((shadow.cameraView * vec4<f32>(shadow.lightDirection.xyz, 0.0)).xyz);
-  let cosTheta = clamp(dot(viewNormal, -lightDirView), 0.001, 1.0);
+  let lightDirWorld = normalize(shadow.lightDirection.xyz);
+  let cosTheta = clamp(dot(shadowNormal, -lightDirWorld), 0.001, 1.0);
   let slopeFactor = min(sqrt(max(0.0, 1.0 - cosTheta * cosTheta)) / cosTheta, 10.0);
   let slopeBias = shadow.lightDirection.w * slopeFactor;
   let refDepth = shadowNdc.z - shadow.params.z - slopeBias;
-  if (shadow.params.w == 0.0 && shadow.lightDirection.w == 0.0) {
+  let radius = i32(clamp(shadow.debug.w, 0.0, 3.0));
+  if (radius == 0) {
     let hardLit = textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV, cascade, refDepth);
     return 1.0 - (1.0 - hardLit) * shadow.params.y;
   }
   var lit = 0.0;
-  for (var y = -1; y <= 1; y = y + 1) {
-    for (var x = -1; x <= 1; x = x + 1) {
+  let diameter = radius * 2 + 1;
+  let tapCount = f32(diameter * diameter);
+  for (var y = -radius; y <= radius; y = y + 1) {
+    for (var x = -radius; x <= radius; x = x + 1) {
       let offset = vec2<f32>(f32(x), f32(y)) * texel;
       lit += textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV + offset, cascade, refDepth);
     }
   }
-  let visibility = lit / 9.0;
+  let visibility = lit / tapCount;
   return 1.0 - (1.0 - visibility) * shadow.params.y;
 }
 
@@ -250,44 +253,62 @@ fn triplanarWeights(normal: vec3<f32>) -> vec3<f32> {
   return w / sum;
 }
 
-fn sampleColorTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+fn mipDx(dx: vec2<f32>) -> vec2<f32> {
+  return dx;
+}
+
+fn mipDy(dy: vec2<f32>) -> vec2<f32> {
+  return dy;
+}
+
+fn sampleColorTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, dpdxWorld: vec3<f32>, dpdyWorld: vec3<f32>) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
+  let dpdxP = dpdxWorld / max(scale, 0.0001);
+  let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(colorTexture, colorSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
-  let ySample = textureSampleLevel(colorTexture, colorSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
-  let zSample = textureSampleLevel(colorTexture, colorSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
+  let xSample = textureSampleGrad(colorTexture, colorSampler, vec2<f32>(p.y, -p.z), mipDx(vec2<f32>(dpdxP.y, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.y, -dpdyP.z)));
+  let ySample = textureSampleGrad(colorTexture, colorSampler, vec2<f32>(p.x, -p.z), mipDx(vec2<f32>(dpdxP.x, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.z)));
+  let zSample = textureSampleGrad(colorTexture, colorSampler, vec2<f32>(p.x, -p.y), mipDx(vec2<f32>(dpdxP.x, -dpdxP.y)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.y)));
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
-fn sampleMetallicRoughnessTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+fn sampleMetallicRoughnessTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, dpdxWorld: vec3<f32>, dpdyWorld: vec3<f32>) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
+  let dpdxP = dpdxWorld / max(scale, 0.0001);
+  let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
-  let ySample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
-  let zSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
+  let xSample = textureSampleGrad(metallicRoughnessTexture, metallicRoughnessSampler, vec2<f32>(p.y, -p.z), mipDx(vec2<f32>(dpdxP.y, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.y, -dpdyP.z)));
+  let ySample = textureSampleGrad(metallicRoughnessTexture, metallicRoughnessSampler, vec2<f32>(p.x, -p.z), mipDx(vec2<f32>(dpdxP.x, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.z)));
+  let zSample = textureSampleGrad(metallicRoughnessTexture, metallicRoughnessSampler, vec2<f32>(p.x, -p.y), mipDx(vec2<f32>(dpdxP.x, -dpdxP.y)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.y)));
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
-fn sampleEmissiveTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+fn sampleEmissiveTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, dpdxWorld: vec3<f32>, dpdyWorld: vec3<f32>) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
+  let dpdxP = dpdxWorld / max(scale, 0.0001);
+  let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
-  let ySample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
-  let zSample = textureSampleLevel(emissiveTexture, emissiveSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
+  let xSample = textureSampleGrad(emissiveTexture, emissiveSampler, vec2<f32>(p.y, -p.z), mipDx(vec2<f32>(dpdxP.y, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.y, -dpdyP.z)));
+  let ySample = textureSampleGrad(emissiveTexture, emissiveSampler, vec2<f32>(p.x, -p.z), mipDx(vec2<f32>(dpdxP.x, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.z)));
+  let zSample = textureSampleGrad(emissiveTexture, emissiveSampler, vec2<f32>(p.x, -p.y), mipDx(vec2<f32>(dpdxP.x, -dpdxP.y)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.y)));
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
-fn sampleOcclusionTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec4<f32> {
+fn sampleOcclusionTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, dpdxWorld: vec3<f32>, dpdyWorld: vec3<f32>) -> vec4<f32> {
   let p = worldPos / max(scale, 0.0001);
+  let dpdxP = dpdxWorld / max(scale, 0.0001);
+  let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
-  let xSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(vec2<f32>(p.y, -p.z)), 0.0);
-  let ySample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(vec2<f32>(p.x, -p.z)), 0.0);
-  let zSample = textureSampleLevel(occlusionTexture, occlusionSampler, fract(vec2<f32>(p.x, -p.y)), 0.0);
+  let xSample = textureSampleGrad(occlusionTexture, occlusionSampler, vec2<f32>(p.y, -p.z), mipDx(vec2<f32>(dpdxP.y, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.y, -dpdyP.z)));
+  let ySample = textureSampleGrad(occlusionTexture, occlusionSampler, vec2<f32>(p.x, -p.z), mipDx(vec2<f32>(dpdxP.x, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.z)));
+  let zSample = textureSampleGrad(occlusionTexture, occlusionSampler, vec2<f32>(p.x, -p.y), mipDx(vec2<f32>(dpdxP.x, -dpdxP.y)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.y)));
   return xSample * w.x + ySample * w.y + zSample * w.z;
 }
 
-fn perturbNormalTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) -> vec3<f32> {
+fn perturbNormalTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32, dpdxWorld: vec3<f32>, dpdyWorld: vec3<f32>) -> vec3<f32> {
   let p = worldPos / max(scale, 0.0001);
+  let dpdxP = dpdxWorld / max(scale, 0.0001);
+  let dpdyP = dpdyWorld / max(scale, 0.0001);
   let w = triplanarWeights(normal);
   // Use the same projection coordinates as the albedo map above. The
   // signed world-axis mapping below accounts for each projection's
@@ -295,17 +316,17 @@ fn perturbNormalTriplanar(worldPos: vec3<f32>, normal: vec3<f32>, scale: f32) ->
   let xUV = vec2<f32>(p.y, -p.z);
   let yUV = vec2<f32>(p.x, -p.z);
   let zUV = vec2<f32>(p.x, -p.y);
-  var nmX = textureSampleLevel(normalTexture, normalSampler, fract(xUV), 0.0).xyz * 2.0 - 1.0;
-  var nmY = textureSampleLevel(normalTexture, normalSampler, fract(yUV), 0.0).xyz * 2.0 - 1.0;
-  var nmZ = textureSampleLevel(normalTexture, normalSampler, fract(zUV), 0.0).xyz * 2.0 - 1.0;
+  var nmX = textureSampleGrad(normalTexture, normalSampler, xUV, mipDx(vec2<f32>(dpdxP.y, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.y, -dpdyP.z))).xyz * 2.0 - 1.0;
+  var nmY = textureSampleGrad(normalTexture, normalSampler, yUV, mipDx(vec2<f32>(dpdxP.x, -dpdxP.z)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.z))).xyz * 2.0 - 1.0;
+  var nmZ = textureSampleGrad(normalTexture, normalSampler, zUV, mipDx(vec2<f32>(dpdxP.x, -dpdxP.y)), mipDy(vec2<f32>(dpdyP.x, -dpdyP.y))).xyz * 2.0 - 1.0;
   let nmWorld = vec3<f32>(0.0, nmX.x, -nmX.y) * w.x +
     vec3<f32>(nmY.x, 0.0, -nmY.y) * w.y +
     vec3<f32>(nmZ.x, -nmZ.y, 0.0) * w.z;
   return normalize(normal + nmWorld);
 }
 
-fn perturbNormal(input: VertexOutput, normal: vec3<f32>, uv: vec2<f32>) -> vec3<f32> {
-  let tangentSampleRaw = textureSampleLevel(normalTexture, normalSampler, uv, 0.0).xyz * 2.0 - 1.0;
+fn perturbNormal(input: VertexOutput, normal: vec3<f32>, uv: vec2<f32>, uvDx: vec2<f32>, uvDy: vec2<f32>) -> vec3<f32> {
+  let tangentSampleRaw = textureSampleGrad(normalTexture, normalSampler, uv, mipDx(uvDx), mipDy(uvDy)).xyz * 2.0 - 1.0;
   let tangentSample = vec3<f32>(tangentSampleRaw.x, -tangentSampleRaw.y, tangentSampleRaw.z);
   // Match WebGLRenderer: build the tangent frame in view space from the
   // same position and normal derivatives used by its UV path. Returning
@@ -335,6 +356,10 @@ fn perturbNormal(input: VertexOutput, normal: vec3<f32>, uv: vec2<f32>) -> vec3<
 fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${triangleLogDepthReturnType(logDepth, true)} {
   let dpdxRTC = dpdx(input.rtcPos);
   let dpdyRTC = dpdy(input.rtcPos);
+  let dpdxWorld = dpdx(input.worldPos);
+  let dpdyWorld = dpdy(input.worldPos);
+  let uvDx = dpdx(input.uv);
+  let uvDy = dpdy(input.uv);
   var faceNormal = normalize(cross(dpdyRTC, dpdxRTC));
   let faceNormalView = normalize((frame.viewMatrix * vec4<f32>(faceNormal, 0.0)).xyz);
   let viewPosForIBL = (frame.viewMatrix * vec4<f32>(input.worldPos, 1.0)).xyz;
@@ -350,15 +375,15 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
       normal = -normal;
     }
   }
-  let uv = fract(input.uv);
+  let uv = input.uv;
   let textureMode = input.material1.w;
   let triplanarScale = max(textureMode, 0.0);
   let useUVTextures = textureMode < 0.0;
   let useTriplanar = textureMode > 0.0;
-  let uvNormal = perturbNormal(input, normal, uv);
+  let uvNormal = perturbNormal(input, normal, uv, uvDx, uvDy);
   normal = select(normal, uvNormal, useUVTextures);
   if (useTriplanar) {
-    normal = perturbNormalTriplanar(input.worldPos, normal, triplanarScale);
+    normal = perturbNormalTriplanar(input.worldPos, normal, triplanarScale, dpdxWorld, dpdyWorld);
   }
   if (input.clippable > 0.5) {
     for (var i = 0u; i < 8u; i = i + 1u) {
@@ -374,9 +399,9 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let worldNormal = normalize(normal);
   var baseColorSample: vec4<f32>;
   if (useTriplanar) {
-    baseColorSample = sampleColorTriplanar(input.worldPos, worldNormal, triplanarScale);
+    baseColorSample = sampleColorTriplanar(input.worldPos, worldNormal, triplanarScale, dpdxWorld, dpdyWorld);
   } else {
-    baseColorSample = textureSampleLevel(colorTexture, colorSampler, uv, 0.0);
+    baseColorSample = textureSampleGrad(colorTexture, colorSampler, uv, mipDx(uvDx), mipDy(uvDy));
   }
   let alpha = input.color.a * baseColorSample.a;
   if (input.material1.y > 0.5 && input.material1.y < 1.5 && alpha < input.material1.z) {
@@ -385,39 +410,38 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let baseColor = input.color.rgb * baseColorSample.rgb;
   var mrSample: vec4<f32>;
   if (useTriplanar) {
-    mrSample = sampleMetallicRoughnessTriplanar(input.worldPos, worldNormal, triplanarScale);
+    mrSample = sampleMetallicRoughnessTriplanar(input.worldPos, worldNormal, triplanarScale, dpdxWorld, dpdyWorld);
   } else {
-    mrSample = textureSampleLevel(metallicRoughnessTexture, metallicRoughnessSampler, uv, 0.0);
+    mrSample = textureSampleGrad(metallicRoughnessTexture, metallicRoughnessSampler, uv, mipDx(uvDx), mipDy(uvDy));
   }
   let roughness = clamp(input.material0.x * mrSample.g, 0.045, 1.0);
   let metallic = clamp(input.material0.y * mrSample.b, 0.0, 1.0);
   var emissiveSample: vec4<f32>;
   if (useTriplanar) {
-    emissiveSample = sampleEmissiveTriplanar(input.worldPos, worldNormal, triplanarScale);
+    emissiveSample = sampleEmissiveTriplanar(input.worldPos, worldNormal, triplanarScale, dpdxWorld, dpdyWorld);
   } else {
-    emissiveSample = textureSampleLevel(emissiveTexture, emissiveSampler, uv, 0.0);
+    emissiveSample = textureSampleGrad(emissiveTexture, emissiveSampler, uv, mipDx(uvDx), mipDy(uvDy));
   }
   let emissive = emissiveSample.rgb * vec3<f32>(input.material0.z, input.material0.w, input.material1.x);
   var aoSample: vec4<f32>;
   if (useTriplanar) {
-    aoSample = sampleOcclusionTriplanar(input.worldPos, worldNormal, triplanarScale);
+    aoSample = sampleOcclusionTriplanar(input.worldPos, worldNormal, triplanarScale, dpdxWorld, dpdyWorld);
   } else {
-    aoSample = textureSampleLevel(occlusionTexture, occlusionSampler, uv, 0.0);
+    aoSample = textureSampleGrad(occlusionTexture, occlusionSampler, uv, mipDx(uvDx), mipDy(uvDy));
   }
   let ao = aoSample.r;
   let viewNormal = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz);
   let iblIntensity = max(ibl.params.x, 0.0);
-  let ambientScale = mix(1.0, 0.75, clamp(iblIntensity, 0.0, 1.0));
-  let flatAmbientColor = frame.ambientLight.rgb * frame.ambientLight.a * ambientScale * baseColor * ao;
+  let flatAmbientColor = frame.ambientLight.rgb * frame.ambientLight.a * baseColor;
   let hemisphereFacing = clamp(dot(worldNormal, normalize(frame.hemisphereUp.xyz)) * 0.5 + 0.5, 0.0, 1.0);
   let hemisphereAmbient = mix(frame.hemisphereGround.rgb, frame.hemisphereSky.rgb, hemisphereFacing);
-  let hemisphereColor = hemisphereAmbient * max(frame.hemisphereSky.a, 0.0) * baseColor * ao;
+  let hemisphereColor = hemisphereAmbient * max(frame.hemisphereSky.a, 0.0) * baseColor;
   let ambientColor = flatAmbientColor + hemisphereColor;
   let shadowFactor = sampleShadow(input, normal);
   if (shadow.debug.x > 1.5) {
     let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
     let cascade = selectShadowCascade(-viewPos.z);
-    let shadowClip = shadow.lightViewProjections[cascade] * viewPos;
+    let shadowClip = shadow.lightViewProjections[cascade] * vec4<f32>(input.worldPos, 1.0);
     let shadowNdc = shadowClip.xyz / shadowClip.w;
     let shadowUV = vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5);
     if (
@@ -437,7 +461,8 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let f0 = mix(vec3<f32>(0.04, 0.04, 0.04), baseColor, vec3<f32>(metallic));
   var directColor = vec3<f32>(0.0, 0.0, 0.0);
   for (var i = 0u; i < 3u; i = i + 1u) {
-    let lightDir = normalize((frame.viewMatrix * vec4<f32>(frame.dirLightDirections[i].xyz, 0.0)).xyz);
+    let lightDirWorld = frame.dirLightDirections[i].xyz;
+    let lightDir = normalize((frame.viewMatrix * vec4<f32>(lightDirWorld, 0.0)).xyz);
     let lightColor = frame.dirLightColors[i];
     let l = normalize(-lightDir);
     let halfDir = normalize(viewDirView + l);
@@ -464,8 +489,13 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let brdfLUT = textureSampleLevel(iblBRDFLUT, iblSampler, vec2<f32>(nDotVIBL, roughness), 0.0).rg;
   let iblSpec = iblSpecEnv * (f0 * brdfLUT.x + brdfLUT.y);
   let iblDiff = (vec3<f32>(1.0) - fNV) * (1.0 - metallic) * iblDiffuseEnv * baseColor;
-  let iblColor = (iblDiff + iblSpec) * iblIntensity * ao;
-  let litColor = ambientColor + iblColor + directColor * shadowFactor + emissive;
+  let iblColor = (iblDiff + iblSpec) * iblIntensity;
+  let indirectColor = ambientColor + iblColor;
+  let unshadowedColor = indirectColor * ao + directColor + emissive;
+  let ambientFloor = (ambientColor + iblDiff * iblIntensity) * ao + emissive;
+  let indirectFloor = indirectColor * ao + emissive;
+  let shadowFloor = mix(ambientFloor, indirectFloor, 0.25);
+  let litColor = max(unshadowedColor * shadowFactor, shadowFloor);
   return ${triangleLogDepthReturn(logDepth, "vec4<f32>(litColor * alpha, alpha)")};
 }
 `;

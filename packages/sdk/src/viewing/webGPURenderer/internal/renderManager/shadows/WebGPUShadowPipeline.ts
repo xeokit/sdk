@@ -1,6 +1,7 @@
 import {PerspectiveProjectionType} from "../../../../../base/constants";
 import {SDKErrorType, type SDKResult} from "../../../../../base/core";
-import {createMat4Float64, lookAtMat4v, mulMat4, orthoMat4c, type Mat4} from "../../../../../base/math/matrix";
+import {createMat4Float64, inverseMat4, lookAtMat4v, mulMat4, orthoMat4c, type Mat4} from "../../../../../base/math/matrix";
+import {getSceneCollisionIndex} from "../../../../../spatial/collision";
 import type {View} from "../../../../viewer";
 import type {
   WebGPUBindGroupLike,
@@ -28,6 +29,7 @@ const tempLightView = createMat4Float64();
 const tempLightProjection = createMat4Float64();
 const tempLightViewProjection = createMat4Float64();
 const tempShadowDepthViewProjection = createMat4Float64();
+const tempInverseCameraView = createMat4Float64();
 const tempLightViewProjections: Mat4[] = Array.from({length: MAX_SHADOW_CASCADES}, () => createMat4Float64());
 const tempShadowDepthViewProjections: Mat4[] = Array.from({length: MAX_SHADOW_CASCADES}, () => createMat4Float64());
 
@@ -159,7 +161,8 @@ export class WebGPUShadowPipeline {
     this._uniformData[104] = debugMode === "depth" ? 2 : debugMode ? 1 : 0;
     this._uniformData[105] = cascadeCount;
     this._uniformData[106] = 1.0 / Math.max(1, resolution);
-    this._uniformData[107] = 0;
+    const pcfKernelSize = shadows.pcfKernelSize !== undefined ? shadows.pcfKernelSize : 3;
+    this._uniformData[107] = (Math.max(1, Math.min(7, Math.floor(pcfKernelSize))) - 1) >> 1;
     const cameraViewMatrix = params.view.camera.viewMatrix as ArrayLike<number>;
     for (let i = 0; i < 16; i++) {
       this._uniformData[108 + i] = cameraViewMatrix[i];
@@ -257,9 +260,9 @@ export class WebGPUShadowPipeline {
       }
       this._sampler = this._renderContext.device.createSampler({
         label: "xeokit-webgpu-shadow-comparison-sampler",
-        compare: "less",
-        minFilter: "linear",
-        magFilter: "linear"
+        compare: "less-equal",
+        minFilter: "nearest",
+        magFilter: "nearest"
       });
     }
     if (!this._texture || this._resolution !== resolution || this._cascadeCount !== cascadeCount) {
@@ -324,17 +327,8 @@ export class WebGPUShadowPipeline {
     const shadows = view.effects.shadows;
     const dir = shadows.direction;
     const camera = view.camera;
-    const cameraViewMatrix = camera.viewMatrix as ArrayLike<number>;
-    const dxV = cameraViewMatrix[0] * dir[0] + cameraViewMatrix[4] * dir[1] + cameraViewMatrix[8] * dir[2];
-    const dyV = cameraViewMatrix[1] * dir[0] + cameraViewMatrix[5] * dir[1] + cameraViewMatrix[9] * dir[2];
-    const dzV = cameraViewMatrix[2] * dir[0] + cameraViewMatrix[6] * dir[1] + cameraViewMatrix[10] * dir[2];
-    const dirView = normalize3(dxV, dyV, dzV);
+    const dirWorld = normalize3(dir[0], dir[1], dir[2]);
     const worldUp: [number, number, number] = Math.abs(dir[2]) < 0.95 ? [0, 0, 1] : [0, 1, 0];
-    const upView: [number, number, number] = [
-      cameraViewMatrix[0] * worldUp[0] + cameraViewMatrix[4] * worldUp[1] + cameraViewMatrix[8] * worldUp[2],
-      cameraViewMatrix[1] * worldUp[0] + cameraViewMatrix[5] * worldUp[1] + cameraViewMatrix[9] * worldUp[2],
-      cameraViewMatrix[2] * worldUp[0] + cameraViewMatrix[6] * worldUp[1] + cameraViewMatrix[10] * worldUp[2]
-    ];
     const maxDistance = Math.max(1, Math.min(shadows.maxDistance, camera.projectionType === PerspectiveProjectionType
       ? camera.perspectiveProjection.far
       : camera.orthoProjection.far));
@@ -342,11 +336,11 @@ export class WebGPUShadowPipeline {
     this._computeCascadeSplits(nearDistance, maxDistance, cascadeCount, shadows.cascadeSplitLambda ?? 0.5);
     const lightDistance = shadows.autoFit ? 1000 : shadows.lightDistance;
     const lightEyeView: [number, number, number] = [
-      -dirView[0] * lightDistance,
-      -dirView[1] * lightDistance,
-      -dirView[2] * lightDistance
+      -dirWorld[0] * lightDistance,
+      -dirWorld[1] * lightDistance,
+      -dirWorld[2] * lightDistance
     ];
-    lookAtMat4v(lightEyeView, [0, 0, 0] as any, upView as any, tempLightView);
+    lookAtMat4v(lightEyeView, [0, 0, 0] as any, worldUp as any, tempLightView);
 
     for (let c = 0; c < cascadeCount; c++) {
       const sliceNear = this._sliceDistances[c];
@@ -385,8 +379,7 @@ export class WebGPUShadowPipeline {
       orthoMat4c(left, rightExtent, bottom, top, near, far, tempLightProjection);
       mulMat4(tempLightProjection as Mat4, tempLightView as Mat4, tempLightViewProjection);
       mulMat4(WEBGPU_CLIP_SPACE_MATRIX as Mat4, tempLightViewProjection as Mat4, tempLightViewProjections[c]);
-      mulMat4(tempLightViewProjection as Mat4, cameraViewMatrix as Mat4, tempShadowDepthViewProjection);
-      mulMat4(WEBGPU_CLIP_SPACE_MATRIX as Mat4, tempShadowDepthViewProjection as Mat4, tempShadowDepthViewProjections[c]);
+      mulMat4(WEBGPU_CLIP_SPACE_MATRIX as Mat4, tempLightViewProjection as Mat4, tempShadowDepthViewProjections[c]);
     }
   }
 
@@ -455,10 +448,15 @@ function fitLightProjectionToCamera(
   let minZ = Infinity;
   let maxZ = -Infinity;
   const m = params.lightView;
+  const invView = (view.camera as {inverseViewMatrix?: ArrayLike<number>}).inverseViewMatrix
+    ?? inverseMat4(view.camera.viewMatrix as Mat4, tempInverseCameraView);
   for (const c of corners) {
-    const x = m[0] * c[0] + m[4] * c[1] + m[8] * c[2] + m[12];
-    const y = m[1] * c[0] + m[5] * c[1] + m[9] * c[2] + m[13];
-    const z = m[2] * c[0] + m[6] * c[1] + m[10] * c[2] + m[14];
+    const wx = invView[0] * c[0] + invView[4] * c[1] + invView[8] * c[2] + invView[12];
+    const wy = invView[1] * c[0] + invView[5] * c[1] + invView[9] * c[2] + invView[13];
+    const wz = invView[2] * c[0] + invView[6] * c[1] + invView[10] * c[2] + invView[14];
+    const x = m[0] * wx + m[4] * wy + m[8] * wz + m[12];
+    const y = m[1] * wx + m[5] * wy + m[9] * wz + m[13];
+    const z = m[2] * wx + m[6] * wy + m[10] * wz + m[14];
     minX = Math.min(minX, x);
     maxX = Math.max(maxX, x);
     minY = Math.min(minY, y);
@@ -466,6 +464,48 @@ function fitLightProjectionToCamera(
     minZ = Math.min(minZ, z);
     maxZ = Math.max(maxZ, z);
   }
+
+  const scene = view.viewer.scene;
+  if (scene && canUseSceneCollisionIndex(scene)) {
+    const sceneAABB = getSceneCollisionIndex(scene).getSceneAABB();
+    if (sceneAABB && isFiniteAABB(sceneAABB)) {
+      let sMinX = Infinity;
+      let sMaxX = -Infinity;
+      let sMinY = Infinity;
+      let sMaxY = -Infinity;
+      let sMinZ = Infinity;
+      let sMaxZ = -Infinity;
+      for (let cornerIdx = 0; cornerIdx < 8; cornerIdx++) {
+        const wx = (cornerIdx & 1) ? sceneAABB[3] : sceneAABB[0];
+        const wy = (cornerIdx & 2) ? sceneAABB[4] : sceneAABB[1];
+        const wz = (cornerIdx & 4) ? sceneAABB[5] : sceneAABB[2];
+        const lx = m[0] * wx + m[4] * wy + m[8] * wz + m[12];
+        const ly = m[1] * wx + m[5] * wy + m[9] * wz + m[13];
+        const lz = m[2] * wx + m[6] * wy + m[10] * wz + m[14];
+        sMinX = Math.min(sMinX, lx);
+        sMaxX = Math.max(sMaxX, lx);
+        sMinY = Math.min(sMinY, ly);
+        sMaxY = Math.max(sMaxY, ly);
+        sMinZ = Math.min(sMinZ, lz);
+        sMaxZ = Math.max(sMaxZ, lz);
+      }
+      const iMinX = Math.max(minX, sMinX);
+      const iMaxX = Math.min(maxX, sMaxX);
+      const iMinY = Math.max(minY, sMinY);
+      const iMaxY = Math.min(maxY, sMaxY);
+      const iMinZ = Math.max(minZ, sMinZ);
+      const iMaxZ = Math.min(maxZ, sMaxZ);
+      if (iMinX < iMaxX && iMinY < iMaxY && iMinZ < iMaxZ) {
+        minX = iMinX;
+        maxX = iMaxX;
+        minY = iMinY;
+        maxY = iMaxY;
+        minZ = iMinZ;
+        maxZ = iMaxZ;
+      }
+    }
+  }
+
   const padMul = Math.max(1, params.padding);
   const padX = (maxX - minX) * (padMul - 1) * 0.5;
   const padY = (maxY - minY) * (padMul - 1) * 0.5;
@@ -473,13 +513,19 @@ function fitLightProjectionToCamera(
   let right = maxX + padX;
   let bottom = minY - padY;
   let top = maxY + padY;
+  const extentX = right - left;
+  const extentY = top - bottom;
   const texelX = (right - left) / params.resolution;
   const texelY = (top - bottom) / params.resolution;
   if (texelX > 0 && texelY > 0) {
-    left = Math.floor(left / texelX) * texelX;
-    right = left + texelX * params.resolution;
-    bottom = Math.floor(bottom / texelY) * texelY;
-    top = bottom + texelY * params.resolution;
+    const originLightViewX = m[12];
+    const originLightViewY = m[13];
+    const modOffsetX = ((originLightViewX % texelX) + texelX) % texelX;
+    const modOffsetY = ((originLightViewY % texelY) + texelY) % texelY;
+    left = Math.floor((left - modOffsetX) / texelX) * texelX + modOffsetX;
+    right = left + extentX;
+    bottom = Math.floor((bottom - modOffsetY) / texelY) * texelY + modOffsetY;
+    top = bottom + extentY;
   }
   return {
     left,
@@ -497,4 +543,23 @@ function normalize3(x: number, y: number, z: number): [number, number, number, n
     return [0, 0, 0, 0];
   }
   return [x / len, y / len, z / len, 1];
+}
+
+function isFiniteAABB(aabb: ArrayLike<number>): boolean {
+  return (
+    aabb[0] <= aabb[3] &&
+    aabb[1] <= aabb[4] &&
+    aabb[2] <= aabb[5] &&
+    Number.isFinite(aabb[0]) && Number.isFinite(aabb[3]) &&
+    Number.isFinite(aabb[1]) && Number.isFinite(aabb[4]) &&
+    Number.isFinite(aabb[2]) && Number.isFinite(aabb[5])
+  );
+}
+
+function canUseSceneCollisionIndex(scene: unknown): boolean {
+  const sceneLike = scene as {id?: unknown; events?: {onSceneDestroyed?: {subscribe?: unknown}}};
+  return (
+    typeof sceneLike.id === "string" &&
+    typeof sceneLike.events?.onSceneDestroyed?.subscribe === "function"
+  );
 }

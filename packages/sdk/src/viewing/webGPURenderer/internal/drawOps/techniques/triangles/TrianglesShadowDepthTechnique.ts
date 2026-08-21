@@ -65,7 +65,7 @@ export class TrianglesShadowDepthTechnique extends DrawTechnique {
         },
         primitive: {
           topology: "triangle-list",
-          cullMode: "front"
+          cullMode: "none"
         }
       });
 

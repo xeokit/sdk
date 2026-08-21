@@ -43,7 +43,7 @@ export class Shadows {
     this.view = view;
     this._enabled = params.enabled !== false;
     this._intensity = params.intensity !== undefined ? params.intensity : 0.45;
-    this._bias = params.bias !== undefined ? params.bias : 0.003;
+    this._bias = params.bias !== undefined ? params.bias : 0.0015;
     this._projectionSize = params.projectionSize !== undefined ? params.projectionSize : 30;
     this._lightDistance = params.lightDistance !== undefined ? params.lightDistance : 50;
     this._resolution = params.resolution !== undefined ? params.resolution : 2048;
@@ -56,8 +56,8 @@ export class Shadows {
     this._maxDistance = params.maxDistance !== undefined ? params.maxDistance : 200;
     this._padding = params.padding !== undefined ? params.padding : 1.1;
     this._pcfKernelSize = clampPcfKernelSize(params.pcfKernelSize !== undefined ? params.pcfKernelSize : 3);
-    this._normalOffsetBias = params.normalOffsetBias !== undefined ? params.normalOffsetBias : 0.02;
-    this._slopeBias = params.slopeBias !== undefined ? params.slopeBias : 0.004;
+    this._normalOffsetBias = params.normalOffsetBias !== undefined ? params.normalOffsetBias : 0.005;
+    this._slopeBias = params.slopeBias !== undefined ? params.slopeBias : 0.001;
     this._cascadeCount = clampCascadeCount(params.cascadeCount !== undefined ? params.cascadeCount : 4);
     this._cascadeSplitLambda = clampCascadeSplitLambda(params.cascadeSplitLambda !== undefined ? params.cascadeSplitLambda : 0.5);
   }
@@ -112,14 +112,14 @@ export class Shadows {
   }
 
   /**
-   * Depth-compare bias used to avoid shadow acne. Default `0.003`.
+   * Depth-compare bias used to avoid shadow acne. Default `0.0015`.
    */
   get bias(): number {
     return this._bias;
   }
 
   set bias(value: number) {
-    if (value === undefined || value === null) value = 0.003;
+    if (value === undefined || value === null) value = 0.0015;
     if (this._bias === value) return;
     this._bias = value;
     this.view.needsRender();
@@ -245,28 +245,28 @@ export class Shadows {
 
   /**
    * View-space normal-offset bias applied when sampling the shadow map.
-   * Default `0.02`.
+   * Default `0.005`.
    */
   get normalOffsetBias(): number {
     return this._normalOffsetBias;
   }
 
   set normalOffsetBias(value: number) {
-    if (value === undefined || value === null) value = 0.02;
+    if (value === undefined || value === null) value = 0.005;
     if (this._normalOffsetBias === value) return;
     this._normalOffsetBias = value;
     this.view.needsRender();
   }
 
   /**
-   * Slope-scaled depth bias. Default `0.004`.
+   * Slope-scaled depth bias. Default `0.001`.
    */
   get slopeBias(): number {
     return this._slopeBias;
   }
 
   set slopeBias(value: number) {
-    if (value === undefined || value === null) value = 0.004;
+    if (value === undefined || value === null) value = 0.001;
     if (this._slopeBias === value) return;
     this._slopeBias = value;
     this.view.needsRender();

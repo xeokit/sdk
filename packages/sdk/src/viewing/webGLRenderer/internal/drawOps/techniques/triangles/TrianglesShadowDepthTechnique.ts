@@ -6,7 +6,7 @@ import {DrawTechnique} from "../../DrawTechnique";
  * Reuses the full mesh/transform vertex pipeline from the base class so that the
  * same data-texture bindings used by the color pass apply here. After vsMainBegin
  * sets gl_Position from the camera matrices, {@link vsShadowDepthLogic} overrides
- * it using the uniform `uShadowLightVP * worldPos`.
+ * it using the uniform `uShadowLightVP * viewPos`.
  *
  * The fragment shader writes a throwaway color; what matters is that the depth
  * buffer of the bound FBO gets populated.

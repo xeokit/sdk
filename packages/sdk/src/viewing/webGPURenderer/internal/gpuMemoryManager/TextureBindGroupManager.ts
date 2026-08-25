@@ -339,7 +339,7 @@ function uploadExternalImageMipmaps(
     if (!canvas) {
       return false;
     }
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext("2d") as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
     if (!context) {
       return false;
     }

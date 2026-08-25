@@ -127,22 +127,4 @@ describe("Scene + SceneModel build lifecycle", () => {
     expect(model.destroyed).toBe(true);
   });
 
-  it("destroys techniques when their model is destroyed", () => {
-    const scene = new Scene();
-    const model = scene.createModel({id: "model1"}).value!;
-    const techniqueResult = model.createTechnique({
-      id: "thickLines",
-      type: "thickLines",
-      lineWidth: 4,
-    });
-    expect(techniqueResult.ok).toBe(true);
-    const technique = techniqueResult.value!;
-
-    const result = model.destroy();
-
-    expect(result.ok).toBe(true);
-    expect(technique.destroyed).toBe(true);
-    expect(model.techniques["thickLines"]).toBeUndefined();
-    expect(scene.models["model1"]).toBeUndefined();
-  });
 });

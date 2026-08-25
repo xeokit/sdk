@@ -32,6 +32,7 @@ const enum ViewStateBits {
   Transparent = 1 << 2,
   ObjectVisible = 1 << 3,
   MeshVisible = 1 << 4,
+  LODSuppressed = 1 << 5,
 }
 
 /**
@@ -124,9 +125,23 @@ export class RendererMesh {
     }
   }
 
+  private _syncVisible(viewIndex: number): void {
+    this._meshBatch.setMeshVisible(
+      viewIndex,
+      this._meshHandle,
+      this._hasFlag(viewIndex, ViewStateBits.ObjectVisible)
+        && this._hasFlag(viewIndex, ViewStateBits.MeshVisible)
+        && !this._hasFlag(viewIndex, ViewStateBits.LODSuppressed)
+    );
+  }
+
   isObjectVisible(viewIndex: number): boolean {
     this._assertViewIndex(viewIndex, "isObjectVisible");
     return this._hasFlag(viewIndex, ViewStateBits.ObjectVisible);
+  }
+
+  usesBatchLOD(): boolean {
+    return !!this._meshBatch.lodRepMemberships && this._meshBatch.lodRepMemberships.length > 0;
   }
 
   /**
@@ -201,9 +216,7 @@ export class RendererMesh {
     }
 
     this._setFlag(viewIndex, ViewStateBits.ObjectVisible, objectVisible);
-
-    const meshVisible = this._hasFlag(viewIndex, ViewStateBits.MeshVisible);
-    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && meshVisible);
+    this._syncVisible(viewIndex);
   }
 
   /**
@@ -216,9 +229,21 @@ export class RendererMesh {
         continue;
       }
       this._setFlag(viewIndex, ViewStateBits.MeshVisible, meshVisible);
-      const objectVisible = this._hasFlag(viewIndex, ViewStateBits.ObjectVisible);
-      this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && meshVisible);
+      this._syncVisible(viewIndex);
     }
+  }
+
+  /**
+   * Applies renderer-side LOD suppression for a specific view without changing
+   * application ViewObject visibility.
+   */
+  setLODSuppressed(viewIndex: number, suppressed: boolean): void {
+    this._assertViewIndex(viewIndex, "setLODSuppressed");
+    if (this._hasFlag(viewIndex, ViewStateBits.LODSuppressed) === suppressed) {
+      return;
+    }
+    this._setFlag(viewIndex, ViewStateBits.LODSuppressed, suppressed);
+    this._syncVisible(viewIndex);
   }
 
   /**

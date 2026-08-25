@@ -1,11 +1,11 @@
 import {RenderContext} from "../RenderContext";
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
-import type {SceneMaterial, SceneMesh, SceneModel, SceneObject} from "../../../../model/scene";
+import type {SceneMaterial, SceneMesh, SceneModel, SceneObject, SceneRepSet} from "../../../../model/scene";
 import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";
 import {MeshBatchImpl} from "./MeshBatchImpl";
 import {type MeshBatch} from "./MeshBatch";
-import type {Camera, ViewObject} from "../../../viewer";
+import type {Camera, View, ViewObject} from "../../../viewer";
 import type {SceneTransform} from "../../../../model/scene/SceneTransform";
 import {GPUMemoryCheckResult, GPUMemoryManager, type GPUTile} from "../gpuMemoryManager";
 import {SceneGeometry} from "../../../../model/scene";
@@ -20,6 +20,7 @@ import {
   createMeshManagerStepStats,
   type MeshManagerStepStats
 } from "./MeshManagerStepStats";
+import type {LODRepMembership} from "../../../lod/LODVisibility";
 
 /**
  * Per-batch splat capacity for the (single) {@link SplatBatch}. Sizes the splat
@@ -38,6 +39,54 @@ type MeshTilePlacement = {
 
 const identityVec4 = createVec4Float64([0, 0, 0, 1]);
 const tempPlacementCenter = createVec4Float64();
+const repIdsByObjectCache: WeakMap<SceneRepSet, Map<string, string[]>> = new WeakMap();
+
+function getLODRepMembershipsForObject(sceneObject: SceneObject | null | undefined): readonly LODRepMembership[] {
+  if (!sceneObject || typeof sceneObject.model?.getRepSetsForObject !== "function") {
+    return [];
+  }
+  const repSets = sceneObject.model.getRepSetsForObject(sceneObject.id);
+  if (repSets.length === 0) {
+    return [];
+  }
+  const memberships: LODRepMembership[] = [];
+  for (let i = 0, len = repSets.length; i < len; i++) {
+    const repSet = repSets[i];
+    const repIds = getRepIdsForObject(repSet, sceneObject.id);
+    if (repIds.length > 0) {
+      memberships.push({
+        selectionId: `${repSet.model.id}:${repSet.id}`,
+        repIds
+      });
+    }
+  }
+  memberships.sort((a, b) => a.selectionId < b.selectionId ? -1 : a.selectionId > b.selectionId ? 1 : 0);
+  return memberships;
+}
+
+function getRepIdsForObject(repSet: SceneRepSet, objectId: string): readonly string[] {
+  let repIdsByObject = repIdsByObjectCache.get(repSet);
+  if (!repIdsByObject) {
+    repIdsByObject = new Map();
+    for (const repId in repSet.reps) {
+      const objectIds = repSet.reps[repId].objectIds;
+      for (let i = 0, len = objectIds.length; i < len; i++) {
+        const repObjectId = objectIds[i];
+        let repIds = repIdsByObject.get(repObjectId);
+        if (!repIds) {
+          repIds = [];
+          repIdsByObject.set(repObjectId, repIds);
+        }
+        repIds.push(repId);
+      }
+    }
+    for (const repIds of repIdsByObject.values()) {
+      repIds.sort();
+    }
+    repIdsByObjectCache.set(repSet, repIdsByObject);
+  }
+  return repIdsByObject.get(objectId) ?? [];
+}
 
 /**
  * Bridges scene/view state changes into GPU-ready render state for the renderer.
@@ -72,6 +121,8 @@ export class MeshManager {
    * treats object IDs as globally unique and maps them to a single {@link RendererObject}.
    */
   private _rendererObjects: Record<string, RendererObject> = {};
+  private readonly _lodVisibilityVersions: {[viewId: string]: number} = {};
+  private readonly _nonBatchLODObjectIds: Set<string> = new Set();
 
   /**
    * Renderer meshes keyed by {@link SceneMesh.uniqueId}.
@@ -185,6 +236,35 @@ export class MeshManager {
   }
 
   /**
+   * Synchronizes renderer-side LOD suppression into existing per-view mesh
+   * visibility. This is version-gated by {@link LODVisibility}, so it only
+   * walks renderer objects when an LOD group actually switches state.
+   */
+  public syncLODVisibility(view: View): void {
+    const lodVisibility = this._renderContext.viewer.lodVisibility;
+    const version = lodVisibility.getViewVersion(view.id);
+    const previousVersion = this._lodVisibilityVersions[view.id] ?? 0;
+    if (previousVersion === version) {
+      return;
+    }
+    const deltaResult = lodVisibility.getSuppressionDeltasSince(view.id, previousVersion);
+    if (deltaResult) {
+      for (let i = 0, len = deltaResult.deltas.length; i < len; i++) {
+        const delta = deltaResult.deltas[i];
+        const objectIds = delta.objectIds;
+        for (let j = 0, objectLen = objectIds.length; j < objectLen; j++) {
+          this._rendererObjects[objectIds[j]]?.setLODSuppressed(view.viewIndex, delta.suppressed);
+        }
+      }
+      this._lodVisibilityVersions[view.id] = version;
+      this._syncNonBatchLODObjects(view);
+      return;
+    }
+    this._lodVisibilityVersions[view.id] = version;
+    this._syncNonBatchLODObjects(view);
+  }
+
+  /**
    * Registers a newly created {@link model!scene.SceneModel | SceneModel}.
    *
    * @param sceneModel - The model to register.
@@ -211,6 +291,34 @@ export class MeshManager {
       this._removeMesh(sceneMesh);
     }
     this._batchesDirty = true;
+    return {ok: true, value: undefined};
+  }
+
+  public sceneRepSetCreated(repSet: SceneRepSet): SDKResult<any> {
+    for (const repId in repSet.reps) {
+      const objectIds = repSet.reps[repId].objectIds;
+      for (let i = 0, len = objectIds.length; i < len; i++) {
+        const sceneObject = repSet.model.objects[objectIds[i]];
+        if (sceneObject) {
+          this._updateObjectLODFilterMode(sceneObject);
+        }
+      }
+    }
+    return {ok: true, value: undefined};
+  }
+
+  public sceneRepSetDestroyed(repSet: SceneRepSet): SDKResult<any> {
+    for (const repId in repSet.reps) {
+      const objectIds = repSet.reps[repId].objectIds;
+      for (let i = 0, len = objectIds.length; i < len; i++) {
+        const sceneObject = repSet.model.objects[objectIds[i]];
+        if (sceneObject) {
+          this._updateObjectLODFilterMode(sceneObject);
+        } else {
+          this._nonBatchLODObjectIds.delete(objectIds[i]);
+        }
+      }
+    }
     return {ok: true, value: undefined};
   }
 
@@ -344,6 +452,7 @@ export class MeshManager {
       id: objectId,
       rendererMeshes
     });
+    this._updateObjectLODFilterMode(sceneObject, rendererMeshes);
 
     this._synchronizeCreatedRendererObject(sceneObject, rendererMeshes);
 
@@ -374,6 +483,38 @@ export class MeshManager {
         this._synchronizeRendererMeshWithDefaultObjectState(rendererMeshes[i], viewIndex, sceneObject);
       }
     }
+  }
+
+  private _syncNonBatchLODObjects(view: View): void {
+    if (this._nonBatchLODObjectIds.size === 0) {
+      return;
+    }
+    const lodVisibility = this._renderContext.viewer.lodVisibility;
+    for (const objectId of this._nonBatchLODObjectIds) {
+      this._rendererObjects[objectId]?.setLODSuppressed(
+        view.viewIndex,
+        lodVisibility.isSuppressed(view.id, objectId)
+      );
+    }
+  }
+
+  private _updateObjectLODFilterMode(sceneObject: SceneObject, rendererMeshes?: RendererMesh[]): void {
+    const objectId = sceneObject.id;
+    const lodRepMemberships = getLODRepMembershipsForObject(sceneObject);
+    if (lodRepMemberships.length === 0) {
+      this._nonBatchLODObjectIds.delete(objectId);
+      return;
+    }
+    const meshes = rendererMeshes ?? sceneObject.meshes
+      .map((sceneMesh) => this._rendererMeshes[sceneMesh.uniqueId])
+      .filter((rendererMesh): rendererMesh is RendererMesh => !!rendererMesh);
+    for (let i = 0, len = meshes.length; i < len; i++) {
+      if (!meshes[i].usesBatchLOD()) {
+        this._nonBatchLODObjectIds.add(objectId);
+        return;
+      }
+    }
+    this._nonBatchLODObjectIds.delete(objectId);
   }
 
   private _rendererMeshesNeedObjectStateSync(rendererMeshes: RendererMesh[], viewIndex: number): boolean {
@@ -677,10 +818,11 @@ export class MeshManager {
     bin?: string,
     allocationKind: "dynamic" | "sealedModel" | "sealedBatch" = "dynamic",
     memoryPolicy: string = "stream",
-    sceneModelId?: string
+    sceneModelId?: string,
+    lodRepMembershipKey: string = ""
   ): MeshBatchKey {
     const binKey = bin === undefined ? "u" : `s${bin}`;
-    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}`;
+    return `${primitive}|${geometryStorage}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}|${allocationKind}|${memoryPolicy}|${sceneModelId ?? ""}|${lodRepMembershipKey}`;
   }
 
   /**
@@ -711,6 +853,7 @@ export class MeshManager {
     }
 
     delete this._rendererObjects[sceneObject.id];
+    this._nonBatchLODObjectIds.delete(sceneObject.id);
     this._batchesDirty = true;
 
     return {ok: true, value: undefined};
@@ -756,6 +899,7 @@ export class MeshManager {
     }
 
     rendererObject.addRendererMesh(rendererMesh);
+    this._updateObjectLODFilterMode(sceneObject);
 
     const objectId = sceneObject.id;
     const viewer = this._renderContext.viewer;
@@ -844,6 +988,7 @@ export class MeshManager {
       };
     }
     this._detachRendererMeshFromObject(rendererObject, rendererMesh);
+    this._updateObjectLODFilterMode(sceneObject);
     return {ok: true, value: undefined};
   }
 

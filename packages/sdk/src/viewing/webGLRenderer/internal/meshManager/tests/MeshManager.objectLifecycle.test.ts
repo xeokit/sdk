@@ -29,6 +29,7 @@ function createRendererMesh(numViews = 2) {
     setClippable: jest.fn(),
     setColorInView: jest.fn(),
     setOpacityInView: jest.fn(),
+    usesBatchLOD: jest.fn(() => false),
   };
 }
 
@@ -134,5 +135,75 @@ describe("MeshManager object lifecycle", () => {
     expect(manager.sceneMeshCreated(splatMesh)).toEqual({ok: true, value: rendererSplatMesh});
     expect(manager.sceneObjectCreated(object).ok).toBe(true);
     expect(manager.sceneObjectCreated(object)).toEqual({ok: true, value: undefined});
+  });
+
+  test("syncs LOD visibility from deltas instead of scanning every renderer object", () => {
+    const manager = createManager();
+    const objectA = {setLODSuppressed: jest.fn()};
+    const objectB = {setLODSuppressed: jest.fn()};
+    const lodVisibility = {
+      getViewVersion: jest.fn(() => 1),
+      getSuppressionDeltasSince: jest.fn(() => ({
+        fromVersion: 0,
+        toVersion: 1,
+        deltas: [
+          {objectIds: ["object-a"], suppressed: true}
+        ]
+      })),
+      isSuppressed: jest.fn()
+    };
+    manager._renderContext.viewer.lodVisibility = lodVisibility;
+    manager._rendererObjects = {
+      "object-a": objectA,
+      "object-b": objectB
+    };
+
+    manager.syncLODVisibility({id: "view", viewIndex: 0} as any);
+
+    expect(lodVisibility.getSuppressionDeltasSince).toHaveBeenCalledWith("view", 0);
+    expect(objectA.setLODSuppressed).toHaveBeenCalledWith(0, true);
+    expect(objectB.setLODSuppressed).not.toHaveBeenCalled();
+    expect(lodVisibility.isSuppressed).not.toHaveBeenCalled();
+  });
+
+  test("syncs representation LOD objects through object state when renderer meshes are not LOD-batched", () => {
+    const manager = createManager();
+    const rendererMesh = createRendererMesh();
+    const rendererObject = {setLODSuppressed: jest.fn()};
+    const repSet = {
+      id: "chunk-lod",
+      model: {id: "model"},
+      reps: {
+        all: {objectIds: ["object-a"]},
+        dominant: {objectIds: ["object-b"]}
+      }
+    };
+    const model = {
+      getRepSetsForObject: jest.fn(() => [repSet])
+    };
+    const sceneMesh = {
+      uniqueId: "model__mesh",
+    } as unknown as SceneMesh;
+    const sceneObject = {
+      id: "object-a",
+      model,
+      meshes: [sceneMesh],
+    } as unknown as SceneObject;
+    const lodVisibility = {
+      getViewVersion: jest.fn(() => 1),
+      getSuppressionDeltasSince: jest.fn(() => null),
+      isSuppressed: jest.fn((_viewId: string, objectId: string) => objectId === "object-a")
+    };
+    manager._renderContext.viewer.lodVisibility = lodVisibility;
+    manager._rendererObjects = {
+      "object-a": rendererObject
+    };
+
+    manager._updateObjectLODFilterMode(sceneObject, [rendererMesh]);
+    manager.syncLODVisibility({id: "view", viewIndex: 0} as any);
+
+    expect(rendererMesh.usesBatchLOD).toHaveBeenCalled();
+    expect(lodVisibility.isSuppressed).toHaveBeenCalledWith("view", "object-a");
+    expect(rendererObject.setLODSuppressed).toHaveBeenCalledWith(0, true);
   });
 });

@@ -90,6 +90,9 @@ export class RenderBinClassifier {
     for (let segmentIndex = 0, segmentLen = batchSet.segments.length; segmentIndex < segmentLen; segmentIndex++) {
       const segment = batchSet.segments[segmentIndex];
       this._stats.segmentCandidates++;
+      if (meshManager.isLODRepMembershipSuppressedInView(segment.lodRepMemberships, view)) {
+        continue;
+      }
       let segmentClipBounds: ReturnType<RenderBinClassifier["_getWorldAABBClipBounds"]> | null = null;
       if (cameraCulling) {
         this._updateSegmentWorldAABB(segment, meshManager);

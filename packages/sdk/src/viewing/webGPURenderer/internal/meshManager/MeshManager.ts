@@ -6,13 +6,72 @@ import {
   type Mat4
 } from "../../../../base/math/matrix";
 import {createVec3Float64, type Vec3} from "../../../../base/math/vector";
-import type {SceneGeometry, SceneMaterial, SceneMesh, SceneModel, SceneObject, SceneTransform} from "../../../../model/scene";
+import type {SceneGeometry, SceneMaterial, SceneMesh, SceneModel, SceneObject, SceneRepSet, SceneTransform} from "../../../../model/scene";
+import type {LODRepMembership} from "../../../lod/LODVisibility";
 import type {Camera, View, ViewObject} from "../../../viewer";
 import {IDENTITY_MATRIX} from "../constants";
 import type {DrawItem} from "../renderState";
 import {GeometryBufferManager} from "../gpuMemoryManager";
 import type {RendererMesh} from "./RendererMesh";
 import {resolveMeshDrawStyle, type MeshDrawStyle} from "./resolveMeshDrawStyle";
+
+const repIdsByObjectCache: WeakMap<SceneRepSet, Map<string, string[]>> = new WeakMap();
+
+function getLODRepMembershipsForObject(sceneObject: SceneObject | null | undefined): readonly LODRepMembership[] {
+  if (!sceneObject || sceneObject.destroyed || !sceneObject.model || sceneObject.model.destroyed || typeof sceneObject.model.getRepSetsForObject !== "function") {
+    return [];
+  }
+  const repSets = sceneObject.model.getRepSetsForObject(sceneObject.id);
+  if (repSets.length === 0) {
+    return [];
+  }
+  const memberships: LODRepMembership[] = [];
+  for (let i = 0, len = repSets.length; i < len; i++) {
+    const repSet = repSets[i];
+    const repIds = getRepIdsForObject(repSet, sceneObject.id);
+    if (repIds.length > 0) {
+      memberships.push({
+        selectionId: `${repSet.model.id}:${repSet.id}`,
+        repIds
+      });
+    }
+  }
+  memberships.sort((a, b) => a.selectionId < b.selectionId ? -1 : a.selectionId > b.selectionId ? 1 : 0);
+  return memberships;
+}
+
+function getRepIdsForObject(repSet: SceneRepSet, objectId: string): readonly string[] {
+  let repIdsByObject = repIdsByObjectCache.get(repSet);
+  if (!repIdsByObject) {
+    repIdsByObject = new Map<string, string[]>();
+    for (const repId in repSet.reps) {
+      const objectIds = repSet.reps[repId].objectIds;
+      for (let i = 0, len = objectIds.length; i < len; i++) {
+        const id = objectIds[i];
+        let repIds = repIdsByObject.get(id);
+        if (!repIds) {
+          repIds = [];
+          repIdsByObject.set(id, repIds);
+        }
+        repIds.push(repId);
+      }
+    }
+    for (const repIds of repIdsByObject.values()) {
+      repIds.sort();
+    }
+    repIdsByObjectCache.set(repSet, repIdsByObject);
+  }
+  return repIdsByObject.get(objectId) ?? [];
+}
+
+function createLODRepMembershipKey(memberships: readonly LODRepMembership[]): string {
+  if (memberships.length === 0) {
+    return "";
+  }
+  return memberships
+    .map((membership) => `${membership.selectionId}:${membership.repIds.join(",")}`)
+    .join(";");
+}
 
 export interface MeshStructureChanges {
   fromVersion: number;
@@ -104,7 +163,13 @@ export class MeshManager {
   }
 
   public getViewStateVersion(view: View): number {
-    return this._allViewStateVersion + (this._viewStateVersions[view.id] ?? 0);
+    return this._allViewStateVersion
+      + (this._viewStateVersions[view.id] ?? 0);
+  }
+
+  public getRenderViewStateVersion(view: View): number {
+    return this.getViewStateVersion(view)
+      + (view.viewer?.lodVisibility?.getViewVersion(view.id) ?? 0);
   }
 
   public getCameraViewVersion(view: View): number {
@@ -184,6 +249,10 @@ export class MeshManager {
       if (result.ok === false) {
         return result;
       }
+      const meshState = this._meshStates[meshes[i].uniqueId];
+      if (meshState && this._updateMeshLODRepMembership(meshState)) {
+        this._markStructureDirty("non-append");
+      }
     }
     this._markAllViewStateDirty();
     return this._ok();
@@ -196,9 +265,13 @@ export class MeshManager {
   }
 
   public sceneObjectMeshAdded(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<void> {
-    void sceneObject;
     const result = this.registerSceneMesh(sceneMesh);
     if (result.ok) {
+      const meshState = this._meshStates[sceneMesh.uniqueId];
+      if (meshState && this._updateMeshLODRepMembership(meshState)) {
+        this._markStructureDirty("non-append");
+      }
+      void sceneObject;
       this._markAllViewStateDirty();
     }
     return result;
@@ -206,8 +279,21 @@ export class MeshManager {
 
   public sceneObjectMeshRemoved(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<void> {
     void sceneObject;
-    void sceneMesh;
+    const meshState = this._meshStates[sceneMesh.uniqueId];
+    if (meshState && this._updateMeshLODRepMembership(meshState)) {
+      this._markStructureDirty("non-append");
+    }
     this._markAllViewStateDirty();
+    return this._ok();
+  }
+
+  public sceneRepSetCreated(repSet: SceneRepSet): SDKResult<void> {
+    this._updateRepSetMeshMemberships(repSet);
+    return this._ok();
+  }
+
+  public sceneRepSetDestroyed(repSet: SceneRepSet): SDKResult<void> {
+    this._updateRepSetMeshMemberships(repSet);
     return this._ok();
   }
 
@@ -313,6 +399,7 @@ export class MeshManager {
     }
 
     geometryResult.value.numMeshes++;
+    const lodRepMemberships = getLODRepMembershipsForObject(sceneMesh.object);
     const meshState = {
       mesh: sceneMesh,
       sceneModel: sceneModel ?? sceneMesh.model ?? null,
@@ -320,7 +407,9 @@ export class MeshManager {
       worldMatrix: createMat4Float64(),
       matrixDirty: true,
       instanceDataVersion: 0,
-      createdStructureVersion: this._structureVersion + 1
+      createdStructureVersion: this._structureVersion + 1,
+      lodRepMemberships,
+      lodRepMembershipKey: createLODRepMembershipKey(lodRepMemberships)
     };
     this._meshStates[sceneMesh.uniqueId] = meshState;
     this._meshStateIndices[sceneMesh.uniqueId] = this._meshStateList.length;
@@ -402,6 +491,14 @@ export class MeshManager {
     }
 
     const viewObject = this._getViewObject(meshState.mesh, view);
+    const sceneObject = meshState.mesh.object;
+    const lodVisibility = view.viewer?.lodVisibility;
+    if (sceneObject && lodVisibility?.isSuppressed(view.id, sceneObject.id)) {
+      return false;
+    }
+    if (lodVisibility?.isRepMembershipSuppressed(view.id, meshState.lodRepMemberships)) {
+      return false;
+    }
     return !viewObject || (viewObject.visible && !viewObject.culled);
   }
 
@@ -411,10 +508,22 @@ export class MeshManager {
     }
 
     const viewObject = this._getViewObject(meshState.mesh, view);
+    const sceneObject = meshState.mesh.object;
+    const lodVisibility = view.viewer?.lodVisibility;
+    if (sceneObject && lodVisibility?.isSuppressed(view.id, sceneObject.id)) {
+      return false;
+    }
+    if (lodVisibility?.isRepMembershipSuppressed(view.id, meshState.lodRepMemberships)) {
+      return false;
+    }
     if (viewObject?.pickable === false) {
       return false;
     }
     return pickInvisible || !viewObject || (viewObject.visible && !viewObject.culled);
+  }
+
+  public isLODRepMembershipSuppressedInView(memberships: readonly LODRepMembership[] | null | undefined, view: View): boolean {
+    return view.viewer?.lodVisibility?.isRepMembershipSuppressed(view.id, memberships) === true;
   }
 
   public getMeshOpacityInView(meshState: RendererMesh, view: View): number {
@@ -553,6 +662,40 @@ export class MeshManager {
       this._createdMeshStateEvents.length = 0;
     }
     this._markInstanceDataDirty();
+  }
+
+  private _updateRepSetMeshMemberships(repSet: SceneRepSet): void {
+    let dirty = false;
+    for (const repId in repSet.reps) {
+      const objectIds = repSet.reps[repId].objectIds;
+      for (let i = 0, len = objectIds.length; i < len; i++) {
+        const sceneObject = repSet.model.objects[objectIds[i]];
+        if (!sceneObject) {
+          continue;
+        }
+        const meshes = sceneObject.meshes;
+        for (let j = 0, meshLen = meshes.length; j < meshLen; j++) {
+          const meshState = this._meshStates[meshes[j].uniqueId];
+          if (meshState && this._updateMeshLODRepMembership(meshState)) {
+            dirty = true;
+          }
+        }
+      }
+    }
+    if (dirty) {
+      this._markStructureDirty("non-append");
+    }
+  }
+
+  private _updateMeshLODRepMembership(meshState: RendererMesh): boolean {
+    const memberships = getLODRepMembershipsForObject(meshState.mesh.object);
+    const key = createLODRepMembershipKey(memberships);
+    if (meshState.lodRepMembershipKey === key) {
+      return false;
+    }
+    meshState.lodRepMemberships = memberships;
+    meshState.lodRepMembershipKey = key;
+    return true;
   }
 
   private _markInstanceDataDirty(): void {

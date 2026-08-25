@@ -4,13 +4,15 @@
  * @module viewing
  */
 export * as adaptiveQuality from "./adaptiveQuality";
+export * as lod from "./lod";
 export * as viewProfiles from "./viewProfiles";
 export * as cameraFlight from "./cameraFlight";
 export * as transformControls from "./transformControls";
-export * as viewController from "./viewController";
+export * as modelNavigation from "./modelNavigation";
 export * as viewer from "./viewer";
 export * as renderer from "./renderer";
 export * as webGLRenderer from "./webGLRenderer";
 export * as webGPURenderer from "./webGPURenderer";
+export * as globeNavigation from "./globeNavigation";
 export * as walkNavigation from "./walkNavigation";
 export * as vehicleNavigation from "./vehicleNavigation";

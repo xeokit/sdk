@@ -9,8 +9,8 @@ import { EventDispatcher } from "strongly-typed-events";
 import { CoordinateSystem } from "./CoordinateSystem";
 import { SceneTexture } from "./SceneTexture";
 import { SceneMaterial } from "./SceneMaterial";
-import { SceneTechnique } from "./SceneTechnique";
 import { SceneModelBatch } from "./SceneModelBatch";
+import type {SceneRepSet} from "./SceneRepSet";
 
 /**
  * Represents the events emitted by a {@link model!scene.Scene | Scene}.
@@ -106,6 +106,16 @@ export class SceneEvents {
    * further topology/resource growth.
    */
   public readonly onSceneModelSealed: EventEmitter<Scene, SceneModel>;
+
+  /**
+   * Emits an event each time a {@link model!scene.SceneRepSet | SceneRepSet} is created within a {@link model!scene.SceneModel | SceneModel}.
+   */
+  public readonly onSceneRepSetCreated: EventEmitter<SceneModel, SceneRepSet>;
+
+  /**
+   * Emits an event each time a {@link model!scene.SceneRepSet | SceneRepSet} is destroyed within a {@link model!scene.SceneModel | SceneModel}.
+   */
+  public readonly onSceneRepSetDestroyed: EventEmitter<SceneModel, SceneRepSet>;
 
   /**
    * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
@@ -267,21 +277,6 @@ export class SceneEvents {
   public readonly onSceneMaterialDestroyed: EventEmitter<Scene, SceneMaterial>;
 
   /**
-   * Emits an event each time a {@link SceneTechnique} is created
-   * within the {@link model!scene.Scene | Scene}. Subscribers (renderer variant
-   * registries, inspector panels) can pick the new technique up
-   * without polling.
-   */
-  public readonly onSceneTechniqueCreated: EventEmitter<Scene, SceneTechnique>;
-
-  /**
-   * Emits an event each time a {@link SceneTechnique} is destroyed
-   * within the {@link model!scene.Scene | Scene}.
-   */
-  public readonly onSceneTechniqueDestroyed: EventEmitter<Scene, SceneTechnique>;
-
-
-  /**
    * @private
    */
   constructor() {
@@ -300,6 +295,8 @@ export class SceneEvents {
     this.onSceneModelBatchCommitted = new EventEmitter(new EventDispatcher<SceneModel, SceneModelBatch>());
     this.onSceneModelBatchRolledBack = new EventEmitter(new EventDispatcher<SceneModel, SceneModelBatch>());
     this.onSceneModelSealed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+    this.onSceneRepSetCreated = new EventEmitter(new EventDispatcher<SceneModel, SceneRepSet>());
+    this.onSceneRepSetDestroyed = new EventEmitter(new EventDispatcher<SceneModel, SceneRepSet>());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
     this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
@@ -324,8 +321,6 @@ export class SceneEvents {
     this.onSceneMaterialOpacityChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialPatternChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
-    this.onSceneTechniqueCreated = new EventEmitter(new EventDispatcher<Scene, SceneTechnique>());
-    this.onSceneTechniqueDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneTechnique>());
     this.onSceneGeometryCreated = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
     this.onSceneGeometryDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
     this.onSceneGeometryUpdated = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
@@ -353,6 +348,8 @@ export class SceneEvents {
     this.onSceneModelBatchCommitted.clear();
     this.onSceneModelBatchRolledBack.clear();
     this.onSceneModelSealed.clear();
+    this.onSceneRepSetCreated.clear();
+    this.onSceneRepSetDestroyed.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
     this.onSceneModelCoordSystemUnitsChanged.clear();
@@ -374,8 +371,6 @@ export class SceneEvents {
     this.onSceneMaterialOpacityChanged.clear();
     this.onSceneMaterialPatternChanged.clear();
     this.onSceneMaterialDestroyed.clear();
-    this.onSceneTechniqueCreated.clear();
-    this.onSceneTechniqueDestroyed.clear();
     this.onSceneGeometryUpdated.clear();
     this.onSceneObjectDestroyed.clear();
     this.onSceneGeometryCreated.clear();

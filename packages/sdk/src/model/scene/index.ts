@@ -206,12 +206,12 @@
  * ## Rendering
  *
  * Browser rendering is optional. A minimal setup uses a Scene, Viewer,
- * WebGLRenderer, View and ViewController:
+ * WebGLRenderer, View and ModelNavigationController:
  *
  * ```ts
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewing/viewController";
+ * import { ModelNavigationController } from "@xeokit/sdk/viewing/modelNavigation";
  *
  * const viewer = new Viewer({ scene });
  * new WebGLRenderer({ viewer });
@@ -224,7 +224,7 @@
  * view.camera.look = [0, 0, 0];
  * view.camera.up = [0, 1, 0];
  *
- * new ViewController(view, {});
+ * new ModelNavigationController(view, {});
  * ```
  *
  * ## Compressed Geometry
@@ -325,10 +325,12 @@ export * from "./SceneModelParams";
 export * from "./isDefaultLayer";
 export * from "./SceneModelStats";
 export * from "./SceneObject";
+export * from "./SceneRep";
+export * from "./SceneRepParams";
+export * from "./SceneRepSet";
+export * from "./SceneRepSetParams";
 export * from "./SceneTexture";
 export * from "./SceneMaterial";
-export * from "./SceneTechnique";
-export * from "./ThickLinesTechnique";
 export * from "./SceneGeometry";
 export * from "./SceneMesh";
 
@@ -341,7 +343,6 @@ export * from "./SceneMeshParams";
 export * from "./SceneObjectParams";
 export * from "./SceneTextureParams";
 export * from "./SceneMaterialParams";
-export * from "./SceneTechniqueParams";
 export * from "./SceneTransform";
 export * from "./SceneTransformParams";
 export * from "./SceneGeometryCompressedParams";

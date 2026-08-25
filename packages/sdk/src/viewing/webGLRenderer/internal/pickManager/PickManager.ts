@@ -350,6 +350,7 @@ export class PickManager {
     renderContext.resetTextureBindings();
     for (let i = 0, len = meshBatches.length; i < len; i++) {
       const meshBatch = meshBatches[i];
+      if (view.viewer.lodVisibility.isRepMembershipSuppressed(view.id, meshBatch.lodRepMemberships)) continue;
       if (!meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.PICK)) continue;
       if (isOverlayBin(meshBatch.bin)) {
         overlayPending = true;
@@ -391,6 +392,7 @@ export class PickManager {
       renderContext.resetTextureBindings();
       for (let i = 0, len = meshBatches.length; i < len; i++) {
         const meshBatch = meshBatches[i];
+        if (view.viewer.lodVisibility.isRepMembershipSuppressed(view.id, meshBatch.lodRepMemberships)) continue;
         if (!isOverlayBin(meshBatch.bin)) continue;
         if (!meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.PICK)) continue;
         this._drawOps.prims[meshBatch.primitive]?.pick?.drawBatch(meshBatch);

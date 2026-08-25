@@ -12,6 +12,7 @@ import {GPUMemoryCheckResult} from "../gpuMemoryManager";
 import {LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import type {TriangleGeometryStorageKind} from "../gpuMemoryManager/BatchGPUResources";
 import type {MeshManagerStepStats} from "./MeshManagerStepStats";
+import type {LODRepMembership} from "../../../lod/LODVisibility";
 
 function getMeshIndexCount(sceneMesh: SceneMesh): number {
   return sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0;
@@ -19,6 +20,15 @@ function getMeshIndexCount(sceneMesh: SceneMesh): number {
 
 function getMeshVertexCount(sceneMesh: SceneMesh): number {
   return sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0;
+}
+
+function createLODRepMembershipKey(memberships: readonly LODRepMembership[] | undefined): string {
+  if (!memberships || memberships.length === 0) {
+    return "";
+  }
+  return memberships
+    .map((membership) => `${membership.selectionId}:${membership.repIds.join(",")}`)
+    .join(";");
 }
 
 /**
@@ -101,6 +111,11 @@ export class MeshBatchImpl implements MeshBatch {
   readonly bin?: string;
 
   /**
+   * Representation-set memberships shared by every mesh in this batch.
+   */
+  readonly lodRepMemberships?: readonly LODRepMembership[];
+
+  /**
    * Base primitive tileIndex for this batch.
    */
   primBaseIndex: number;
@@ -151,8 +166,9 @@ export class MeshBatchImpl implements MeshBatch {
     mipmap: boolean;
     geometryStorage: TriangleGeometryStorageKind;
     bin?: string;
+    lodRepMemberships?: readonly LODRepMembership[];
   }) {
-    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin} = batchParams;
+    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar, mipmap, geometryStorage, bin, lodRepMemberships} = batchParams;
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
@@ -163,8 +179,9 @@ export class MeshBatchImpl implements MeshBatch {
     this.mipmap = mipmap === true;
     this.geometryStorage = geometryStorage;
     this.bin = bin;
+    this.lodRepMemberships = lodRepMemberships;
     this.primBaseIndex = 0; // TODO
-    this.sortId = `batch-${primitive}-${this.geometryStorage}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}-${this.mipmap ? "m" : "0"}-${this.bin ?? ""}`;
+    this.sortId = `batch-${primitive}-${this.geometryStorage}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}-${this.mipmap ? "m" : "0"}-${this.bin ?? ""}-${createLODRepMembershipKey(lodRepMemberships)}`;
     this.numIndices = 0;
     this.numVertices = 0;
     // SAO and Shadows are triangle-only effects: the line / point draw-op
@@ -179,7 +196,7 @@ export class MeshBatchImpl implements MeshBatch {
    * A hash string representing this batch, used for quick comparisons.
    */
   public get hash(): string {
-    return `${this.primitive}-${this.geometryStorage}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}-${this.mipmap ? 1 : 0}`;
+    return `${this.primitive}-${this.geometryStorage}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}-${this.mipmap ? 1 : 0}-${createLODRepMembershipKey(this.lodRepMemberships)}`;
   }
 
   /**

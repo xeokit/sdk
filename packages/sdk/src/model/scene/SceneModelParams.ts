@@ -9,6 +9,7 @@ import type  {  Vec3} from "../../base/math/vector";
 import type  {Mat4} from "../../base/math/matrix";
 import type {Quat} from "../../base/math/quat";
 import type {SceneTransformParams} from "./SceneTransformParams";
+import type {SceneRepSetParams} from "./SceneRepSetParams";
 
 /**
  * Hint describing how often a {@link model!scene.SceneModel | SceneModel}'s
@@ -186,6 +187,14 @@ export interface SceneModelParams {
    * Parameters for {@link SceneObject  | SceneObjects} in the {@link SceneModel | SceneModel}.
    */
   objects?: SceneObjectParams[];
+
+  /**
+   * Parameters for representation sets in the SceneModel.
+   *
+   * A representation set declares alternative representations of the same
+   * logical content by referencing SceneObjects.
+   */
+  repSets?: SceneRepSetParams[];
 
   /**
    * If we want to view the SceneModel with a {@link viewing!viewer.Viewer | Viewer}, an

@@ -776,6 +776,8 @@ export class WebGLRenderer implements Renderer {
           this.logError(viewManager.sceneObjectDestroyed(sceneObject));
         }
       }),
+      sceneEvents.onSceneRepSetCreated.subscribe((_, repSet) => this.logError(viewManager.sceneRepSetCreated(repSet))),
+      sceneEvents.onSceneRepSetDestroyed.subscribe((_, repSet) => this.logError(viewManager.sceneRepSetDestroyed(repSet))),
 
       viewerEvents.onEffectCreated.subscribe((_, effect) => this.logError(viewManager.effectCreated(effect))),
       viewerEvents.onEffectDestroyed.subscribe((_, effect) => this.logError(viewManager.effectDestroyed(effect))),

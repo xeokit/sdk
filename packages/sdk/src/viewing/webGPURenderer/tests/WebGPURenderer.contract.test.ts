@@ -7303,6 +7303,93 @@ describe("WebGPURenderer contract", () => {
     }
   });
 
+  test("create requests the adapter storage-buffer binding limit when it exceeds the WebGPU default", async () => {
+    const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    const gpu = createWebGPUHarness();
+    const adapter = {
+      limits: {
+        maxStorageBufferBindingSize: 4294967292
+      },
+      requestDevice: jest.fn(async () => gpu.device)
+    };
+    const navigatorGPU = {
+      requestAdapter: jest.fn(async () => adapter),
+      getPreferredCanvasFormat: jest.fn(() => "rgba8unorm")
+    };
+
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {
+        gpu: navigatorGPU
+      }
+    });
+
+    try {
+      const result = await WebGPURenderer.create({logging: false});
+
+      expect(result.ok).toBe(true);
+      expect(adapter.requestDevice).toHaveBeenCalledWith({
+        requiredLimits: {
+          maxStorageBufferBindingSize: 4294967292
+        }
+      });
+    } finally {
+      restoreNavigator(originalNavigator);
+    }
+  });
+
+  test("create preserves caller device descriptor entries when requesting optional WebGPU capabilities", async () => {
+    const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    const gpu = createWebGPUHarness();
+    const adapter = {
+      features: {
+        has: jest.fn((feature: string) => feature === "timestamp-query")
+      },
+      limits: {
+        maxStorageBufferBindingSize: 268435456
+      },
+      requestDevice: jest.fn(async () => gpu.device)
+    };
+    const navigatorGPU = {
+      requestAdapter: jest.fn(async () => adapter),
+      getPreferredCanvasFormat: jest.fn(() => "rgba8unorm")
+    };
+
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {
+        gpu: navigatorGPU
+      }
+    });
+
+    try {
+      const result = await WebGPURenderer.create({
+        logging: false,
+        renderConfigs: {
+          gpuTimestamps: true
+        },
+        deviceDescriptor: {
+          label: "custom-device",
+          requiredFeatures: ["existing-feature"],
+          requiredLimits: {
+            maxStorageBufferBindingSize: 134217728
+          }
+        }
+      });
+
+      expect(result.ok).toBe(true);
+      expect(adapter.requestDevice).toHaveBeenCalledWith({
+        label: "custom-device",
+        requiredFeatures: ["existing-feature", "timestamp-query"],
+        requiredLimits: {
+          maxStorageBufferBindingSize: 268435456
+        }
+      });
+    } finally {
+      restoreNavigator(originalNavigator);
+    }
+  });
+
   test("owns WebGPU pick and snap render targets behind manager-style resources", () => {
     const gpu = createWebGPUHarness();
     const renderContext = new RenderContext({

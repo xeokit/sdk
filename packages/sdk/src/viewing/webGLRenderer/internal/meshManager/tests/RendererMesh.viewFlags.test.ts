@@ -15,6 +15,7 @@ function createRendererMesh(maxViews: number) {
     removeMesh: jest.fn(),
     setMeshMatrix: jest.fn(),
     setMeshOpacityInView: jest.fn(),
+    setMeshPlacement: jest.fn(),
     setMeshTile: jest.fn(),
     setMeshTransparent: jest.fn(),
     setMeshVisible: jest.fn(),

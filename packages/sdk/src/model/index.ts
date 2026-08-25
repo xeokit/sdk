@@ -6,6 +6,7 @@
  * @module model
  */
 export * as data from "./data";
+export * as lod from "./lod";
 export * as procgen from "./procgen";
 export * as scene from "./scene";
 export * as streaming from "./streaming";

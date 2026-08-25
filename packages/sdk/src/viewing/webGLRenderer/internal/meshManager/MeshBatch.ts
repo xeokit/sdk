@@ -3,6 +3,7 @@ import {type SceneMesh} from "../../../../model/scene";
 import {type RenderPassValue} from "../RENDER_PASSES";
 import type {DrawTechnique} from "../drawOps/DrawTechnique";
 import type {TriangleGeometryStorageKind} from "../gpuMemoryManager/BatchGPUResources";
+import type {LODRepMembership} from "../../../lod/LODVisibility";
 
 /**
  * A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together
@@ -97,6 +98,16 @@ export interface MeshBatch {
    * everything else.
    */
   bin?: string;
+
+  /**
+   * Representation-set memberships shared by every mesh in this batch.
+   *
+   * Render classification can use this per-view selection metadata to skip an
+   * inactive representation batch without rewriting per-object visibility.
+   *
+   * @internal
+   */
+  lodRepMemberships?: readonly LODRepMembership[];
 
   /**
    * The total number of indices in all meshes of this batch. This is used with WebGL draw calls to determine how many indices to draw

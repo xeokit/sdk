@@ -2,7 +2,6 @@ import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMaterial} from "./SceneMaterial";
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneObject} from "./SceneObject";
-import type {SceneTechnique} from "./SceneTechnique";
 import type {SceneTexture} from "./SceneTexture";
 import type {SceneTransform} from "./SceneTransform";
 
@@ -57,11 +56,6 @@ export class SceneModelBatch {
    * Materials created in this batch.
    */
   public readonly materials: SceneMaterial[] = [];
-
-  /**
-   * Techniques created in this batch.
-   */
-  public readonly techniques: SceneTechnique[] = [];
 
   /**
    * Meshes created in this batch.

@@ -11,9 +11,14 @@ import {RenderContext} from "../RenderContext";
 function createFakeGL() {
   let lost = false;
   let textureId = 0;
+  let bufferId = 0;
   const gl = {
     createTexture: jest.fn(() => ({id: ++textureId})),
     deleteTexture: jest.fn(),
+    createBuffer: jest.fn(() => ({id: ++bufferId})),
+    deleteBuffer: jest.fn(),
+    bindBuffer: jest.fn(),
+    bufferData: jest.fn(),
     bindTexture: jest.fn(),
     texImage2D: jest.fn(),
     texParameteri: jest.fn(),
@@ -22,6 +27,8 @@ function createFakeGL() {
     isContextLost: jest.fn(() => lost),
     FRAGMENT_SHADER_DERIVATIVE_HINT: 0x8B8B,
     NICEST: 0x1102,
+    UNIFORM_BUFFER: 0x8A11,
+    DYNAMIC_DRAW: 0x88E8,
     TEXTURE_CUBE_MAP: 0x8513,
     TEXTURE_CUBE_MAP_POSITIVE_X: 0x8515,
     TEXTURE_CUBE_MAP_NEGATIVE_X: 0x8516,

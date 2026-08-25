@@ -836,6 +836,7 @@ export class RenderManager {
   private _classifyBatches(view: import("../../../viewer").View): void {
     const drawWithSAO = view.effects.sao.applied && view.effects.sao.possible;
     const drawWithShadows = view.effects.shadows.applied && view.effects.shadows.possible;
+    this._meshManager.syncLODVisibility(view);
     this._binClassifier.clear(this._bins);
     this._binClassifier.classify({
       meshBatches: this._meshManager.sortedBatches,

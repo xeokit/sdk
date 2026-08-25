@@ -9,6 +9,13 @@ import type {WebGPUDeviceLike} from "./WebGPUDeviceLike";
  */
 export interface WebGPUAdapterLike {
   /**
+   * Adapter limits available before device creation.
+   */
+  readonly limits?: {
+    readonly maxStorageBufferBindingSize?: number;
+  };
+
+  /**
    * Adapter feature set queried before requesting optional renderer features.
    */
   readonly features?: {

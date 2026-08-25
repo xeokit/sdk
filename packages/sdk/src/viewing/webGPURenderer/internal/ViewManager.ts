@@ -5,6 +5,7 @@ import type {
   SceneMesh,
   SceneModel,
   SceneObject,
+  SceneRepSet,
   SceneTexture,
   SceneTransform
 } from "../../../model/scene";
@@ -367,6 +368,30 @@ export class ViewManager {
       return this._notInitialized("sceneObjectMeshRemoved");
     }
     const result = meshManager.sceneObjectMeshRemoved(sceneObject, sceneMesh);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  public sceneRepSetCreated(repSet: SceneRepSet): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneRepSetCreated");
+    }
+    const result = meshManager.sceneRepSetCreated(repSet);
+    if (result.ok) {
+      this._requestRenderAllViews();
+    }
+    return result;
+  }
+
+  public sceneRepSetDestroyed(repSet: SceneRepSet): SDKResult<void> {
+    const meshManager = this._meshManager;
+    if (!meshManager) {
+      return this._notInitialized("sceneRepSetDestroyed");
+    }
+    const result = meshManager.sceneRepSetDestroyed(repSet);
     if (result.ok) {
       this._requestRenderAllViews();
     }

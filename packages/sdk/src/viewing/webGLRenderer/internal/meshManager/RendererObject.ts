@@ -64,6 +64,16 @@ export class RendererObject  {
   }
 
   /**
+   * Sets renderer-side LOD suppression in a specific view without mutating
+   * application-visible ViewObject state.
+   */
+  setLODSuppressed(viewIndex: number, suppressed: boolean): void {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setLODSuppressed(viewIndex, suppressed);
+    }
+  }
+
+  /**
    * Sets the highlighted state of the object in a specific view.
    */
   setHighlighted(viewIndex: number, highlighted: boolean): void {

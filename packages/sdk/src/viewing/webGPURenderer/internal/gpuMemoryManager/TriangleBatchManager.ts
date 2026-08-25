@@ -16,6 +16,7 @@ import {RenderContext} from "../RenderContext";
 import type {MemoryConfigs} from "../../MemoryConfigs";
 import {BindGroupLayoutManager} from "./BindGroupLayoutManager";
 import {TextureBindGroupManager} from "./TextureBindGroupManager";
+import type {LODRepMembership} from "../../../lod/LODVisibility";
 
 interface InstanceWriteState {
   bufferVersion: number;
@@ -73,6 +74,7 @@ export interface TriangleBatchSegment {
   indexFormat: "uint16" | "uint32";
   indicesPageLocal: boolean;
   textureKey: string;
+  lodRepMemberships: readonly LODRepMembership[];
   worldAABB: Float64Array;
   boundsVersion: string;
   destroy(): void;
@@ -1013,6 +1015,7 @@ export class TriangleBatchManager {
         indexFormat,
         indicesPageLocal,
         textureKey: textureTupleKey,
+        lodRepMemberships: meshStates[0]?.lodRepMemberships ?? [],
         worldAABB,
         boundsVersion: this._getBoundsVersion(slots),
         destroy: () => {
@@ -1780,7 +1783,8 @@ export class TriangleBatchManager {
     const model = meshState.sceneModel ?? meshState.mesh.model;
     const memoryPolicy = model?.memoryPolicy ?? "stream";
     const lifecycle = this._getSegmentBaseLifecycle(model?.lifecycle ?? "dynamic", memoryPolicy);
-    const baseKey = `${model?.id ?? "unowned"}|${lifecycle}|${memoryPolicy}`;
+    const lodRepMembershipKey = meshState.lodRepMembershipKey ? `|lodRep:${meshState.lodRepMembershipKey}` : "";
+    const baseKey = `${model?.id ?? "unowned"}|${lifecycle}|${memoryPolicy}${lodRepMembershipKey}`;
     const primitive = meshState.geometryState.geometry.primitive;
     if (primitive === PointsPrimitive || primitive === LinesPrimitive) {
       return `${baseKey}|primitive:${primitive}`;

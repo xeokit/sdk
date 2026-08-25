@@ -41,6 +41,7 @@ const tempSnapWebGPUViewProjectionMatrix = createMat4Float64();
 interface ViewRenderCache {
   structureVersion: number;
   instanceDataVersion: number;
+  objectViewStateVersion: number;
   viewStateVersion: number;
   renderEffectKey: string;
   cameraViewVersion: number;
@@ -124,7 +125,7 @@ export class RenderManager {
   };
   private readonly _binClassifier: RenderBinClassifier;
   private readonly _instanceBatcher: InstanceBatcher;
-  private readonly _viewRenderCaches: {[viewId: string]: ViewRenderCache} = {};
+  private readonly _viewRenderCaches: {[cacheId: string]: ViewRenderCache} = {};
 
   constructor(params: {
     renderContext: RenderContext;
@@ -1237,14 +1238,18 @@ export class RenderManager {
   }
 
   public viewDestroyed(viewId: string): void {
-    const cache = this._viewRenderCaches[viewId];
-    if (cache) {
+    const cachePrefix = `${viewId}|`;
+    for (const cacheId of Object.keys(this._viewRenderCaches)) {
+      if (!cacheId.startsWith(cachePrefix)) {
+        continue;
+      }
+      const cache = this._viewRenderCaches[cacheId];
       this._clearCachedBatches(cache.batches);
       this._clearBatchList(cache.shadowOpaqueBatches);
       this._clearBatchList(cache.snapEdgeBatches);
       this._clearBatchList(cache.splatBatches);
+      delete this._viewRenderCaches[cacheId];
     }
-    delete this._viewRenderCaches[viewId];
     this._instanceBufferManager.destroyFrame(viewId);
   }
 
@@ -1346,10 +1351,11 @@ export class RenderManager {
 
   private _getOrBuildViewRenderCache(viewRenderState: ViewRenderState): SDKResult<ViewRenderCache> {
     const view = viewRenderState.view;
-    const cache = this._getViewRenderCache(view.id);
+    const cache = this._getViewRenderCache(view);
     const structureVersion = this._meshManager.structureVersion;
     const instanceDataVersion = this._meshManager.instanceDataVersion;
-    const viewStateVersion = this._meshManager.getViewStateVersion(view);
+    const objectViewStateVersion = this._meshManager.getViewStateVersion(view);
+    const viewStateVersion = this._meshManager.getRenderViewStateVersion(view);
     const renderEffectKey = createRenderEffectKey(view);
     const cameraViewVersion = this._meshManager.getCameraViewVersion(view);
     const cameraMatrixChanged = cache.cameraViewVersion !== cameraViewVersion && !this._isCameraMatrixUnchanged(cache, view);
@@ -1371,6 +1377,7 @@ export class RenderManager {
           viewRenderState,
           structureVersion,
           instanceDataVersion,
+          objectViewStateVersion,
           viewStateVersion,
           renderEffectKey,
           cameraViewVersion
@@ -1394,6 +1401,32 @@ export class RenderManager {
     }
 
     if (
+      cache.batchSet &&
+      cache.instanceFrame?.buffer &&
+      cache.structureVersion === structureVersion &&
+      cache.instanceDataVersion === instanceDataVersion &&
+      cache.objectViewStateVersion === objectViewStateVersion &&
+      cache.viewStateVersion !== viewStateVersion &&
+      cache.renderEffectKey === renderEffectKey &&
+      !cache.hasTransparent
+    ) {
+      const visibilityRefreshResult = this._refreshVisibilityViewRenderCache({
+        cache,
+        viewRenderState,
+        structureVersion,
+        instanceDataVersion,
+        objectViewStateVersion,
+        viewStateVersion,
+        renderEffectKey,
+        cameraViewVersion,
+        cameraMatrixChanged
+      });
+      if (visibilityRefreshResult) {
+        return visibilityRefreshResult;
+      }
+    }
+
+    if (
       !this._usesCameraCulling() &&
       cache.pendingSegmentCount > 0 &&
       cache.batchSet?.structureVersion === structureVersion &&
@@ -1405,9 +1438,10 @@ export class RenderManager {
     ) {
       const pendingAppendResult = this._tryAppendPendingSegmentsViewRenderCache({
         cache,
-        viewRenderState,
-        structureVersion,
+          viewRenderState,
+          structureVersion,
           instanceDataVersion,
+          objectViewStateVersion,
           viewStateVersion,
           renderEffectKey,
           cameraViewVersion
@@ -1428,9 +1462,10 @@ export class RenderManager {
     ) {
       const appendOnlyResult = this._tryAppendOnlyViewRenderCache({
         cache,
-        viewRenderState,
-        structureVersion,
+          viewRenderState,
+          structureVersion,
           instanceDataVersion,
+          objectViewStateVersion,
           viewStateVersion,
           renderEffectKey,
           cameraViewVersion
@@ -1495,6 +1530,7 @@ export class RenderManager {
       cache.hasTransparent = false;
       cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : structureVersion;
       cache.instanceDataVersion = instanceDataVersion;
+      cache.objectViewStateVersion = objectViewStateVersion;
       cache.viewStateVersion = viewStateVersion;
       cache.renderEffectKey = renderEffectKey;
       cache.cameraViewVersion = cameraViewVersion;
@@ -1565,6 +1601,7 @@ export class RenderManager {
     this._rememberTransparentBins(cache, this._bins);
     cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : structureVersion;
     cache.instanceDataVersion = instanceDataVersion;
+    cache.objectViewStateVersion = objectViewStateVersion;
     cache.viewStateVersion = viewStateVersion;
     cache.renderEffectKey = renderEffectKey;
     cache.cameraViewVersion = cameraViewVersion;
@@ -1582,11 +1619,136 @@ export class RenderManager {
     };
   }
 
+  private _refreshVisibilityViewRenderCache(params: {
+    cache: ViewRenderCache;
+    viewRenderState: ViewRenderState;
+    structureVersion: number;
+    instanceDataVersion: number;
+    objectViewStateVersion: number;
+    viewStateVersion: number;
+    renderEffectKey: string;
+    cameraViewVersion: number;
+    cameraMatrixChanged: boolean;
+  }): SDKResult<ViewRenderCache> | null {
+    const {cache, viewRenderState} = params;
+    const view = viewRenderState.view;
+    const batchSet = cache.batchSet;
+    if (!batchSet || !cache.instanceFrame?.buffer || cache.splatBatches.length > 0) {
+      return null;
+    }
+
+    const batchingStart = nowMs();
+    this._renderInspector.setSegmentQueueStats({
+      built: batchSet.builtSegmentCount,
+      pending: batchSet.pendingSegmentCount,
+      buildTelemetry: batchSet.buildTelemetry
+    });
+
+    const binningStart = nowMs();
+    this._binClassifier.clear(this._bins);
+    this._binClassifier.classifySegments({
+      batchSet,
+      view,
+      meshManager: this._meshManager,
+      bins: this._bins,
+      cameraCulling: this._usesCameraCulling()
+    });
+    this._renderInspector.addCPUTime("binningMs", nowMs() - binningStart);
+    cache.cullStats = cloneCullStats(this._binClassifier.stats);
+
+    const totalSceneInstances = this._countVisibleDrawItems(this._bins);
+    if (totalSceneInstances === 0 || batchSet.instanceCapacity === 0) {
+      this._clearCachedBatches(cache.batches);
+      this._clearBatchList(cache.shadowOpaqueBatches);
+      this._clearBatchList(cache.snapEdgeBatches);
+      cache.totalInstances = 0;
+      cache.hasTransparent = false;
+      cache.structureVersion = params.structureVersion;
+      cache.instanceDataVersion = params.instanceDataVersion;
+      cache.objectViewStateVersion = params.objectViewStateVersion;
+      cache.viewStateVersion = params.viewStateVersion;
+      cache.renderEffectKey = params.renderEffectKey;
+      cache.cameraViewVersion = params.cameraViewVersion;
+      this._rememberCameraMatrix(cache, view);
+      this._renderInspector.setCullStats(cache.cullStats);
+      this._renderInspector.setRenderReason("visibilitySelectionRefresh");
+      clearTransparentRenderBinCache(cache.transparentBins);
+      return {
+        ok: true,
+        value: cache
+      };
+    }
+
+    const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSet), view.id);
+    if (instanceFrameResult.ok === false) {
+      return instanceFrameResult;
+    }
+    cache.instanceFrame = instanceFrameResult.value;
+
+    const drawBatchStart = nowMs();
+    const drawBatchesResult = this._instanceBatcher.buildPrepared({
+      batchSet,
+      bins: this._bins,
+      view,
+      meshManager: this._meshManager,
+      instanceFrame: cache.instanceFrame,
+      includeEdges: this._renderContext.renderConfigs.edges
+    });
+    if (drawBatchesResult.ok === false) {
+      return drawBatchesResult;
+    }
+    const uploadStart = nowMs();
+    this._renderInspector.setInstanceUploadStats(this._instanceBufferManager.upload(cache.instanceFrame));
+    this._renderInspector.addCPUTime("uploadMs", nowMs() - uploadStart);
+    this._copyBatches(drawBatchesResult.value, cache.batches);
+
+    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+      batchSet,
+      drawItems: this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false),
+      view
+    });
+    if (shadowOpaqueBatchesResult.ok === false) {
+      return shadowOpaqueBatchesResult;
+    }
+    this._replaceBatches(shadowOpaqueBatchesResult.value, cache.shadowOpaqueBatches);
+
+    const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
+      batchSet,
+      drawItems: this._getEdgeSnapDrawItems(this._bins),
+      viewId: `${view.id}:snap-edge`
+    });
+    if (snapEdgeBatchesResult.ok === false) {
+      return snapEdgeBatchesResult;
+    }
+    this._replaceSnapEdgeBatches(cache, snapEdgeBatchesResult.value);
+
+    this._renderInspector.addCPUTime("drawBatchMs", nowMs() - drawBatchStart);
+    this._renderInspector.addCPUTime("batchingMs", nowMs() - batchingStart);
+    this._renderInspector.addSegments(this._countBatches(cache.batches));
+    cache.totalInstances = batchSet.instanceCapacity;
+    cache.hasTransparent = this._hasTransparentDrawItems(this._bins);
+    this._rememberTransparentBins(cache, this._bins);
+    cache.structureVersion = params.structureVersion;
+    cache.instanceDataVersion = params.instanceDataVersion;
+    cache.objectViewStateVersion = params.objectViewStateVersion;
+    cache.viewStateVersion = params.viewStateVersion;
+    cache.renderEffectKey = params.renderEffectKey;
+    cache.cameraViewVersion = params.cameraViewVersion;
+    this._rememberCameraMatrix(cache, view);
+    this._renderInspector.setCullStats(cache.cullStats);
+    this._renderInspector.setRenderReason(params.cameraMatrixChanged ? "visibilitySelectionCameraRefresh" : "visibilitySelectionRefresh");
+    return {
+      ok: true,
+      value: cache
+    };
+  }
+
   private _tryAppendOnlyViewRenderCache(params: {
     cache: ViewRenderCache;
     viewRenderState: ViewRenderState;
     structureVersion: number;
     instanceDataVersion: number;
+    objectViewStateVersion: number;
     viewStateVersion: number;
     renderEffectKey: string;
     cameraViewVersion: number;
@@ -1751,6 +1913,7 @@ export class RenderManager {
     cache.hasTransparent = false;
     cache.structureVersion = batchSetResult.value.pendingSegmentCount > 0 ? -1 : params.structureVersion;
     cache.instanceDataVersion = params.instanceDataVersion;
+    cache.objectViewStateVersion = params.objectViewStateVersion;
     cache.viewStateVersion = params.viewStateVersion;
     cache.renderEffectKey = params.renderEffectKey;
     cache.cameraViewVersion = params.cameraViewVersion;
@@ -1770,6 +1933,7 @@ export class RenderManager {
     viewRenderState: ViewRenderState;
     structureVersion: number;
     instanceDataVersion: number;
+    objectViewStateVersion: number;
     viewStateVersion: number;
     renderEffectKey: string;
     cameraViewVersion: number;
@@ -1801,6 +1965,7 @@ export class RenderManager {
       cache.batchSet = batchSet;
       cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : params.structureVersion;
       cache.instanceDataVersion = params.instanceDataVersion;
+      cache.objectViewStateVersion = params.objectViewStateVersion;
       cache.viewStateVersion = params.viewStateVersion;
       cache.renderEffectKey = params.renderEffectKey;
       cache.cameraViewVersion = params.cameraViewVersion;
@@ -1922,6 +2087,7 @@ export class RenderManager {
     cache.hasTransparent = false;
     cache.structureVersion = batchSet.pendingSegmentCount > 0 ? -1 : params.structureVersion;
     cache.instanceDataVersion = params.instanceDataVersion;
+    cache.objectViewStateVersion = params.objectViewStateVersion;
     cache.viewStateVersion = params.viewStateVersion;
     cache.renderEffectKey = params.renderEffectKey;
     cache.cameraViewVersion = params.cameraViewVersion;
@@ -1940,6 +2106,7 @@ export class RenderManager {
     viewRenderState: ViewRenderState;
     structureVersion: number;
     instanceDataVersion: number;
+    objectViewStateVersion: number;
     viewStateVersion: number;
     renderEffectKey: string;
     cameraViewVersion: number;
@@ -1985,6 +2152,7 @@ export class RenderManager {
       cache.hasTransparent = true;
       cache.structureVersion = params.structureVersion;
       cache.instanceDataVersion = params.instanceDataVersion;
+      cache.objectViewStateVersion = params.objectViewStateVersion;
       cache.viewStateVersion = params.viewStateVersion;
       cache.renderEffectKey = params.renderEffectKey;
       cache.cameraViewVersion = params.cameraViewVersion;
@@ -2027,6 +2195,7 @@ export class RenderManager {
     cache.hasTransparent = this._hasTransparentBatches(cache.batches);
     cache.structureVersion = params.structureVersion;
     cache.instanceDataVersion = params.instanceDataVersion;
+    cache.objectViewStateVersion = params.objectViewStateVersion;
     cache.viewStateVersion = params.viewStateVersion;
     cache.renderEffectKey = params.renderEffectKey;
     cache.cameraViewVersion = params.cameraViewVersion;
@@ -2045,12 +2214,14 @@ export class RenderManager {
     };
   }
 
-  private _getViewRenderCache(viewId: string): ViewRenderCache {
-    let cache = this._viewRenderCaches[viewId];
+  private _getViewRenderCache(view: View): ViewRenderCache {
+    const cacheId = this._getViewRenderCacheId(view);
+    let cache = this._viewRenderCaches[cacheId];
     if (!cache) {
       cache = {
         structureVersion: -1,
         instanceDataVersion: -1,
+        objectViewStateVersion: -1,
         viewStateVersion: -1,
         renderEffectKey: "",
         cameraViewVersion: -1,
@@ -2090,9 +2261,13 @@ export class RenderManager {
         cullStats: emptyCullStats(),
         transparentBins: createTransparentRenderBinCache()
       };
-      this._viewRenderCaches[viewId] = cache;
+      this._viewRenderCaches[cacheId] = cache;
     }
     return cache;
+  }
+
+  private _getViewRenderCacheId(view: View): string {
+    return view.id;
   }
 
   private _rememberMeshSlots(cache: ViewRenderCache, batchSet: TriangleBatchSet): void {

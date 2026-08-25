@@ -17,14 +17,14 @@ import {SceneTexture} from "./SceneTexture";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import {SceneMaterial} from "./SceneMaterial";
 import type {SceneMaterialParams} from "./SceneMaterialParams";
-import {SceneTechnique} from "./SceneTechnique";
-import type {SceneTechniqueParams} from "./SceneTechniqueParams";
-import {ThickLinesTechnique} from "./ThickLinesTechnique";
 import {CoordinateSystem} from "./CoordinateSystem";
 import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
 import {SceneTransform} from "./SceneTransform";
 import {type SceneTransformParams} from "./SceneTransformParams";
 import {SceneModelBatch, type SceneModelBatchParams} from "./SceneModelBatch";
+import {SceneRepSet} from "./SceneRepSet";
+import type {SceneRepSetParams} from "./SceneRepSetParams";
+import type {SceneRepParams} from "./SceneRepParams";
 
 
 /**
@@ -260,14 +260,6 @@ export class SceneModel {
   public readonly materials: { [key: string]: SceneMaterial };
 
   /**
-   * {@link SceneTechnique | Techniques} within this SceneModel,
-   * each mapped to {@link SceneTechnique.id | SceneTechnique.id}.
-   *
-   * - Created by {@link SceneModel.createTechnique | SceneModel.createTechnique}.
-   */
-  public readonly techniques: { [key: string]: SceneTechnique };
-
-  /**
    * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
    *
    * - Created by {@link SceneModel.createMesh | SceneModel.addMesh}.
@@ -280,6 +272,20 @@ export class SceneModel {
    * - Created by {@link SceneModel.createObject | SceneModel.createObject}.
    */
   public readonly objects: { [key: string]: SceneObject };
+
+  /**
+   * {@link SceneRepSet | Representation sets} within this SceneModel, each
+   * mapped to {@link SceneRepSet.id | SceneRepSet.id}.
+   *
+   * A representation set declares alternative groups of SceneObjects that
+   * represent the same logical content. It is generic model metadata and does
+   * not store the active representation for any view.
+   *
+   * - Created by {@link SceneModel.createRepSet | SceneModel.createRepSet}.
+   */
+  public readonly repSets: { [key: string]: SceneRepSet };
+
+  private readonly _repSetsByObjectId: Map<string, Set<SceneRepSet>> = new Map();
 
   /**
    * Statistics on this SceneModel.
@@ -350,7 +356,7 @@ export class SceneModel {
     return null;
   }
 
-  private _recordActiveBatchComponent(component: SceneTransform | SceneGeometry | SceneTexture | SceneMaterial | SceneTechnique | SceneMesh | SceneObject): void {
+  private _recordActiveBatchComponent(component: SceneTransform | SceneGeometry | SceneTexture | SceneMaterial | SceneMesh | SceneObject): void {
     const batch = this._activeBatch;
     if (!batch) {
       return;
@@ -364,8 +370,6 @@ export class SceneModel {
       batch.textures.push(component);
     } else if (component instanceof SceneMaterial) {
       batch.materials.push(component);
-    } else if (component instanceof SceneTechnique) {
-      batch.techniques.push(component);
     } else if (component instanceof SceneMesh) {
       batch.meshes.push(component);
     } else {
@@ -487,7 +491,6 @@ export class SceneModel {
     };
     destroyAll(batch.objects);
     destroyAll(batch.meshes);
-    destroyAll(batch.techniques);
     destroyAll(batch.materials);
     destroyAll(batch.transforms);
     destroyAll(batch.geometries);
@@ -576,9 +579,9 @@ export class SceneModel {
     this.geometries = {};
     this.textures = {};
     this.materials = {};
-    this.techniques = {};
     this.meshes = {};
     this.objects = {};
+    this.repSets = {};
 
     this.stats = {
       numTransforms: 0,
@@ -1004,49 +1007,6 @@ export class SceneModel {
     delete this.materials[materialId];
     this.stats.numMaterials--;
     this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
-  }
-
-  /**
-   * Creates a {@link SceneTechnique} within this SceneModel.
-   *
-   * Techniques carry rendering-style state — which non-default
-   * shader family runs for meshes that bind them — orthogonal
-   * to {@link model!scene.SceneMaterial | SceneMaterial}, which carries the surface
-   * shading model. A SceneMesh may attach either, both, or
-   * neither.
-   *
-   * The factory dispatches on `params.type` to the matching
-   * concrete subclass. Fires
-   * {@link SceneEvents.onSceneTechniqueCreated} on success.
-   */
-  createTechnique(params: SceneTechniqueParams): SDKResult<SceneTechnique> {
-    const createError = this._assertCanCreate("createTechnique");
-    if (createError) {
-      return createError;
-    }
-    if (this.techniques[params.id]) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createTechnique] SceneTechnique already exists with this ID: '${params.id}'`,
-      });
-    }
-    let technique: SceneTechnique;
-    switch (params.type) {
-      case "thickLines":
-        technique = new ThickLinesTechnique(this, params);
-        break;
-      default:
-        return this.scene.logError({
-          ok: false,
-          type: SDKErrorType.InvalidInput,
-          error: `[SceneModel.createTechnique] Unknown SceneTechnique type: '${(params as {type?: string}).type ?? "(missing)"}'`,
-        });
-    }
-    this.techniques[params.id] = technique;
-    this._recordActiveBatchComponent(technique);
-    this.scene.events.onSceneTechniqueCreated.dispatch(this.scene, technique);
-    return {ok: true, value: technique};
   }
 
   /**
@@ -1859,6 +1819,258 @@ export class SceneModel {
   }
 
   /**
+   * Creates a representation set in this SceneModel.
+   *
+   * A representation set declares alternative representations of the same
+   * logical content. Each representation references SceneObjects by ID; it does
+   * not own those objects and does not reference raw geometry or mesh resources.
+   *
+   * The active representation is intentionally not stored on SceneModel. Future
+   * viewing-layer code can choose different representations for different
+   * views at the same time.
+   *
+   * @param repSetParams Representation set parameters.
+   * @returns SDKResult with the created representation set, or an error when
+   * validation fails.
+   */
+  createRepSet(repSetParams: SceneRepSetParams): SDKResult<SceneRepSet> {
+    const createError = this._assertCanCreate("createRepSet");
+    if (createError) {
+      return createError;
+    }
+    const validation = this._validateRepSetParams(repSetParams);
+    if (validation) {
+      return validation;
+    }
+
+    const repSet = new SceneRepSet(this, repSetParams);
+    this.repSets[repSet.id] = repSet;
+    this._indexRepSet(repSet);
+    this.scene.events.onSceneRepSetCreated.dispatch(this, repSet);
+    return {
+      ok: true,
+      value: repSet
+    };
+  }
+
+  /**
+   * Gets representation sets that reference a SceneObject.
+   *
+   * @param objectId SceneObject ID.
+   * @returns Representation sets that contain the object in at least one
+   * representation.
+   */
+  getRepSetsForObject(objectId: string): SceneRepSet[] {
+    return Array.from(this._repSetsByObjectId.get(objectId) ?? []);
+  }
+
+  /**
+   * @private
+   * Destroys a representation set previously created in this model.
+   * Called by {@link SceneRepSet.destroy}.
+   */
+  _destroyRepSet(repSet: SceneRepSet): void {
+    if (this.destroyed) {
+      throw new SDKInternalException(`Cannot destroy SceneRepSet '${repSet.id}' - SceneModel already destroyed`);
+    }
+    if (!this.repSets[repSet.id]) {
+      throw new SDKInternalException(`Cannot destroy SceneRepSet '${repSet.id}' - SceneRepSet not found in SceneModel`);
+    }
+    this._unindexRepSet(repSet);
+    delete this.repSets[repSet.id];
+    this.scene.events.onSceneRepSetDestroyed.dispatch(this, repSet);
+  }
+
+  private _validateRepSetParams(repSetParams: SceneRepSetParams): SDKResult<SceneRepSet> | null {
+    if (!repSetParams) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createRepSet] Missing required 'repSetParams'."
+      });
+    }
+    if (!repSetParams.id) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createRepSet] Missing required 'id'."
+      });
+    }
+    if (this.repSets[repSetParams.id]) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createRepSet] SceneRepSet already exists with this ID: '${repSetParams.id}'`
+      });
+    }
+    if (!repSetParams.defaultRepId) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createRepSet] Missing required 'defaultRepId'."
+      });
+    }
+    if (!Array.isArray(repSetParams.reps) || repSetParams.reps.length === 0) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createRepSet] Expected at least one representation."
+      });
+    }
+    const selection = repSetParams.selection;
+    if (selection) {
+      if (selection.strategy !== "projectedSize") {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[SceneModel.createRepSet] Unsupported selection strategy: '${(selection as any).strategy}'`
+        });
+      }
+      if (selection.hysteresisPixels !== undefined && (!Number.isFinite(selection.hysteresisPixels) || selection.hysteresisPixels < 0)) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createRepSet] selection.hysteresisPixels must be a finite non-negative number."
+        });
+      }
+    }
+
+    const repIds = new Set<string>();
+    for (let i = 0, len = repSetParams.reps.length; i < len; i++) {
+      const rep = repSetParams.reps[i];
+      const result = this._validateRepParams(repSetParams.id, rep, repIds, rep.id === repSetParams.defaultRepId);
+      if (result) {
+        return result;
+      }
+    }
+    if (!repIds.has(repSetParams.defaultRepId)) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createRepSet] defaultRepId '${repSetParams.defaultRepId}' does not reference a representation in SceneRepSet '${repSetParams.id}'.`
+      });
+    }
+    return null;
+  }
+
+  private _validateRepParams(repSetId: string, repParams: SceneRepParams, repIds: Set<string>, isDefaultRep: boolean): SDKResult<SceneRepSet> | null {
+    if (!repParams || !repParams.id) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createRepSet] Representation in SceneRepSet '${repSetId}' is missing required 'id'.`
+      });
+    }
+    if (repIds.has(repParams.id)) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createRepSet] Duplicate representation ID '${repParams.id}' in SceneRepSet '${repSetId}'.`
+      });
+    }
+    repIds.add(repParams.id);
+    if (!Array.isArray(repParams.objectIds)) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createRepSet] Representation '${repParams.id}' in SceneRepSet '${repSetId}' must provide SceneObject IDs.`
+      });
+    }
+    if (isDefaultRep && repParams.objectIds.length === 0) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneModel.createRepSet] Default representation '${repParams.id}' in SceneRepSet '${repSetId}' must reference at least one SceneObject.`
+      });
+    }
+    const objectIds = new Set<string>();
+    for (let i = 0, len = repParams.objectIds.length; i < len; i++) {
+      const objectId = repParams.objectIds[i];
+      if (!objectId) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[SceneModel.createRepSet] Representation '${repParams.id}' in SceneRepSet '${repSetId}' has an empty SceneObject ID.`
+        });
+      }
+      if (objectIds.has(objectId)) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[SceneModel.createRepSet] Representation '${repParams.id}' in SceneRepSet '${repSetId}' references SceneObject '${objectId}' more than once.`
+        });
+      }
+      objectIds.add(objectId);
+      if (!this.objects[objectId]) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[SceneModel.createRepSet] SceneObject not found: '${objectId}'`
+        });
+      }
+    }
+    const range = repParams.range;
+    if (range) {
+      const minPixels = range.minPixels;
+      const maxPixels = range.maxPixels;
+      if (minPixels !== undefined && (!Number.isFinite(minPixels) || minPixels < 0)) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[SceneModel.createRepSet] Representation '${repParams.id}' range.minPixels must be a finite non-negative number.`
+        });
+      }
+      if (maxPixels !== undefined && (!Number.isFinite(maxPixels) || maxPixels < 0)) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[SceneModel.createRepSet] Representation '${repParams.id}' range.maxPixels must be a finite non-negative number.`
+        });
+      }
+      if (minPixels !== undefined && maxPixels !== undefined && minPixels > maxPixels) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[SceneModel.createRepSet] Representation '${repParams.id}' has contradictory projected-size range.`
+        });
+      }
+    }
+    return null;
+  }
+
+  private _indexRepSet(repSet: SceneRepSet): void {
+    for (const repId in repSet.reps) {
+      const rep = repSet.reps[repId];
+      for (let i = 0, len = rep.objectIds.length; i < len; i++) {
+        const objectId = rep.objectIds[i];
+        let repSets = this._repSetsByObjectId.get(objectId);
+        if (!repSets) {
+          repSets = new Set<SceneRepSet>();
+          this._repSetsByObjectId.set(objectId, repSets);
+        }
+        repSets.add(repSet);
+      }
+    }
+  }
+
+  private _unindexRepSet(repSet: SceneRepSet): void {
+    for (const repId in repSet.reps) {
+      const rep = repSet.reps[repId];
+      for (let i = 0, len = rep.objectIds.length; i < len; i++) {
+        const objectId = rep.objectIds[i];
+        const repSets = this._repSetsByObjectId.get(objectId);
+        if (!repSets) {
+          continue;
+        }
+        repSets.delete(repSet);
+        if (repSets.size === 0) {
+          this._repSetsByObjectId.delete(objectId);
+        }
+      }
+    }
+  }
+
+  /**
    * Creates a new {@link model!scene.SceneObject | SceneObject}.
    *
    * - Stores the new {@link model!scene.SceneObject | SceneObject} in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}.
@@ -2000,6 +2212,13 @@ export class SceneModel {
     if (!this.objects[objectId]) {
       throw new SDKInternalException(`Cannot destroy SceneObject '${objectId}' - SceneObject not found in SceneModel`);
     }
+    const repSets = this.getRepSetsForObject(objectId);
+    for (let i = 0, len = repSets.length; i < len; i++) {
+      const repSet = repSets[i];
+      if (!repSet.destroyed) {
+        repSet.destroy();
+      }
+    }
     const meshes = sceneObject.meshes;
     for (let i = 0, len = meshes.length; i < len; i++) {
       const mesh = meshes[i];
@@ -2112,6 +2331,13 @@ export class SceneModel {
       }
     }
 
+    if (sceneModelParams.repSets) {
+      for (let i = 0, len = sceneModelParams.repSets.length; i < len; i++) {
+        const res = this.createRepSet(sceneModelParams.repSets[i]);
+        if (!res.ok) return res;
+      }
+    }
+
     if (sceneModelParams.lifecycle === "sealed") {
       return this.seal();
     }
@@ -2150,7 +2376,8 @@ export class SceneModel {
       materials: [],
       transforms: [],
       meshes: [],
-      objects: []
+      objects: [],
+      repSets: []
     };
     // for (const key in this.transforms) {
     //         sceneModelParams.transforms.push(this.transforms[key].toParams());
@@ -2175,6 +2402,9 @@ export class SceneModel {
         return res;
       }
       sceneModelParams.objects.push(res.value);
+    }
+    for (const key in this.repSets) {
+      sceneModelParams.repSets.push(this.repSets[key].toParams());
     }
     for (const key in this.transforms) {
       const res = this.transforms[key].toParams();
@@ -2234,7 +2464,6 @@ export class SceneModel {
     };
     destroyAll(this.objects);
     destroyAll(this.meshes);
-    destroyAll(this.techniques);
     destroyAll(this.transforms);
     destroyAll(this.materials);
     destroyAll(this.geometries);

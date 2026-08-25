@@ -32,6 +32,7 @@ interface DeferredSceneModelRegistrations {
 }
 
 const WEBGPU_MULTI_DRAW_INDIRECT_FEATURE = "chromium-experimental-multi-draw-indirect";
+const WEBGPU_DEFAULT_MAX_STORAGE_BUFFER_BINDING_SIZE = 128 * 1024 * 1024;
 
 /**
  * WebGPU renderer backend.
@@ -894,6 +895,20 @@ export class WebGPURenderer implements Renderer {
           this._logError(viewManager.sceneObjectMeshRemoved(sceneObject, sceneMesh));
         }
       }),
+      ...(sceneEvents.onSceneRepSetCreated ? [
+        sceneEvents.onSceneRepSetCreated.subscribe((_sceneModel, repSet) => {
+          if (this._viewManager === viewManager) {
+            this._logError(viewManager.sceneRepSetCreated(repSet));
+          }
+        })
+      ] : []),
+      ...(sceneEvents.onSceneRepSetDestroyed ? [
+        sceneEvents.onSceneRepSetDestroyed.subscribe((_sceneModel, repSet) => {
+          if (this._viewManager === viewManager) {
+            this._logError(viewManager.sceneRepSetDestroyed(repSet));
+          }
+        })
+      ] : []),
       sceneEvents.onSceneMeshMatrixChanged.subscribe((_scene, sceneMesh) => {
         if (this._viewManager === viewManager) {
           viewManager.sceneMeshMatrixChanged(sceneMesh);
@@ -979,13 +994,21 @@ export class WebGPURenderer implements Renderer {
   }): WebGPUDeviceDescriptor | undefined {
     const timestampQuerySupported = params.gpuTimestamps && params.adapter.features?.has?.("timestamp-query");
     const multiDrawIndirectSupported = params.adapter.features?.has?.(WEBGPU_MULTI_DRAW_INDIRECT_FEATURE);
-    if (!timestampQuerySupported && !multiDrawIndirectSupported) {
+    const adapterMaxStorageBufferBindingSize = params.adapter.limits?.maxStorageBufferBindingSize;
+    const elevatedMaxStorageBufferBindingSize = Number.isFinite(adapterMaxStorageBufferBindingSize) &&
+      adapterMaxStorageBufferBindingSize! > WEBGPU_DEFAULT_MAX_STORAGE_BUFFER_BINDING_SIZE
+        ? Math.floor(adapterMaxStorageBufferBindingSize!)
+        : undefined;
+    if (!timestampQuerySupported && !multiDrawIndirectSupported && elevatedMaxStorageBufferBindingSize === undefined) {
       return params.descriptor;
     }
     const descriptor = {
       ...((params.descriptor ?? {}) as object)
     } as {
       requiredFeatures?: string[];
+      requiredLimits?: {
+        maxStorageBufferBindingSize?: number;
+      };
     };
     const requiredFeatures = new Set(descriptor.requiredFeatures ?? []);
     if (timestampQuerySupported) {
@@ -994,7 +1017,18 @@ export class WebGPURenderer implements Renderer {
     if (multiDrawIndirectSupported) {
       requiredFeatures.add(WEBGPU_MULTI_DRAW_INDIRECT_FEATURE);
     }
-    descriptor.requiredFeatures = Array.from(requiredFeatures);
+    if (requiredFeatures.size > 0) {
+      descriptor.requiredFeatures = Array.from(requiredFeatures);
+    }
+    if (elevatedMaxStorageBufferBindingSize !== undefined) {
+      descriptor.requiredLimits = {
+        ...(descriptor.requiredLimits ?? {}),
+        maxStorageBufferBindingSize: Math.max(
+          descriptor.requiredLimits?.maxStorageBufferBindingSize ?? 0,
+          elevatedMaxStorageBufferBindingSize
+        )
+      };
+    }
     return descriptor;
   }
 

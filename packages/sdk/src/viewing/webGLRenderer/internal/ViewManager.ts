@@ -9,7 +9,7 @@ import {SnapManager} from "./snapManager";
 import {GPUMemoryManager} from "./gpuMemoryManager";
 import {MeshManager} from "./meshManager";
 import {type GPUMemoryReader} from "./gpuMemoryManager";
-import {SceneGeometry, SceneMaterial, SceneMesh, SceneModel, SceneObject, SceneTexture} from "../../../model/scene";
+import {SceneGeometry, SceneMaterial, SceneMesh, SceneModel, SceneObject, SceneRepSet, SceneTexture} from "../../../model/scene";
 import {SceneTransform} from "../../../model/scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {RendererGPUResources} from "./gpuMemoryManager/RendererGPUResources";
@@ -627,7 +627,7 @@ export class ViewManager {
     // without this the panel's img — which still shows the
     // last snapshot — covers the live render. `opacity: 0`
     // keeps the element in layout and hit-testable so
-    // ViewController's pointer listeners on `view.htmlElement`
+    // ModelNavigationController's pointer listeners on `view.htmlElement`
     // continue to fire; `visibility: hidden` would lose those.
     rendererView.view.htmlElement.style.opacity = "0";
 
@@ -927,6 +927,14 @@ export class ViewManager {
    */
   public sceneModelDestroyed(sceneModel: SceneModel): SDKResult<any> {
     return this._meshManager.sceneModelDestroyed(sceneModel);
+  }
+
+  public sceneRepSetCreated(repSet: SceneRepSet): SDKResult<any> {
+    return this._meshManager.sceneRepSetCreated(repSet);
+  }
+
+  public sceneRepSetDestroyed(repSet: SceneRepSet): SDKResult<any> {
+    return this._meshManager.sceneRepSetDestroyed(repSet);
   }
 
   /**

@@ -108,82 +108,99 @@ export class RenderBinClassifier {
     const xrayMaterial = view.xrayMaterial;
     const highlightMaterial = view.highlightMaterial;
     const selectedMaterial = view.selectedMaterial;
+    const lodVisibility = view.viewer?.lodVisibility;
 
     for (const meshBatch of meshBatches) {
-      const opaque = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.OPAQUE);
-      const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
-      const xray = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.XRAYED);
-      const highlight = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.HIGHLIGHTED);
-      const select = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SELECTED);
-      const supportsEdgePasses = meshBatch.primitive === TrianglesPrimitive &&
-        (meshBatch.geometryStorage === "dtx" || meshBatch.geometryStorage === "vbo");
+      if (lodVisibility?.isRepMembershipSuppressed(view.id, meshBatch.lodRepMemberships)) {
+        continue;
+      }
+      this._classifyBatch(meshBatch, viewIndex, bins, flags, edgeMaterial, xrayMaterial, highlightMaterial, selectedMaterial);
+    }
+  }
 
-      if (opaque) {
-        // Overlay-bin batches skip SAO + shadow routing entirely. They
-        // are "floating UI" by contract (drawn in a depth-cleared pass
-        // after the rest of the scene), so they must not cast shadows
-        // onto host geometry and must not contribute to ambient
-        // occlusion — both effects would project the overlay back onto
-        // the underlying scene as ghost outlines or dark blotches.
-        if (meshBatch.bin !== undefined) {
-          bins.normalDrawOpaque.push(meshBatch);
+  private _classifyBatch(
+    meshBatch: MeshBatch,
+    viewIndex: number,
+    bins: RenderBins,
+    flags: RenderBinClassificationFlags,
+    edgeMaterial: View["effects"]["edges"],
+    xrayMaterial: View["xrayMaterial"],
+    highlightMaterial: View["highlightMaterial"],
+    selectedMaterial: View["selectedMaterial"]
+  ): void {
+    const opaque = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.OPAQUE);
+    const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
+    const xray = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.XRAYED);
+    const highlight = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.HIGHLIGHTED);
+    const select = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SELECTED);
+    const supportsEdgePasses = meshBatch.primitive === TrianglesPrimitive &&
+      (meshBatch.geometryStorage === "dtx" || meshBatch.geometryStorage === "vbo");
+
+    if (opaque) {
+      // Overlay-bin batches skip SAO + shadow routing entirely. They
+      // are "floating UI" by contract (drawn in a depth-cleared pass
+      // after the rest of the scene), so they must not cast shadows
+      // onto host geometry and must not contribute to ambient
+      // occlusion — both effects would project the overlay back onto
+      // the underlying scene as ghost outlines or dark blotches.
+      if (meshBatch.bin !== undefined) {
+        bins.normalDrawOpaque.push(meshBatch);
+      } else {
+        const wantSAO = flags.drawWithSAO && meshBatch.saoSupported;
+        const wantShadow = flags.drawWithShadows && meshBatch.shadowsSupported;
+        if (wantSAO && wantShadow) {
+          bins.normalDrawSAOShadow.push(meshBatch);
+        } else if (wantSAO) {
+          bins.normalDrawSAO.push(meshBatch);
+        } else if (wantShadow) {
+          bins.normalDrawShadow.push(meshBatch);
         } else {
-          const wantSAO = flags.drawWithSAO && meshBatch.saoSupported;
-          const wantShadow = flags.drawWithShadows && meshBatch.shadowsSupported;
-          if (wantSAO && wantShadow) {
-            bins.normalDrawSAOShadow.push(meshBatch);
-          } else if (wantSAO) {
-            bins.normalDrawSAO.push(meshBatch);
-          } else if (wantShadow) {
-            bins.normalDrawShadow.push(meshBatch);
-          } else {
-            bins.normalDrawOpaque.push(meshBatch);
-          }
+          bins.normalDrawOpaque.push(meshBatch);
         }
       }
+    }
 
-      if (transparent) {
-        bins.normalFillTransparent.push(meshBatch);
-      }
-      if (xray && xrayMaterial.fill) {
-        (xrayMaterial.fillAlpha < 1.0
-          ? bins.xrayedSilhouetteTransparent
-          : bins.xrayedSilhouetteOpaque).push(meshBatch);
-      }
-      if (highlight && highlightMaterial.fill) {
-        (highlightMaterial.fillAlpha < 1.0
-          ? bins.highlightedSilhouetteTransparent
-          : bins.highlightedSilhouetteOpaque).push(meshBatch);
-      }
-      if (select && selectedMaterial.fill) {
-        (selectedMaterial.fillAlpha < 1.0
-          ? bins.selectedSilhouetteTransparent
-          : bins.selectedSilhouetteOpaque).push(meshBatch);
-      }
+    if (transparent) {
+      bins.normalFillTransparent.push(meshBatch);
+    }
+    if (xray && xrayMaterial.fill) {
+      (xrayMaterial.fillAlpha < 1.0
+        ? bins.xrayedSilhouetteTransparent
+        : bins.xrayedSilhouetteOpaque).push(meshBatch);
+    }
+    if (highlight && highlightMaterial.fill) {
+      (highlightMaterial.fillAlpha < 1.0
+        ? bins.highlightedSilhouetteTransparent
+        : bins.highlightedSilhouetteOpaque).push(meshBatch);
+    }
+    if (select && selectedMaterial.fill) {
+      (selectedMaterial.fillAlpha < 1.0
+        ? bins.selectedSilhouetteTransparent
+        : bins.selectedSilhouetteOpaque).push(meshBatch);
+    }
 
-      // Normal edges (the global "wireframe overlay" effect) are gated on
-      // `view.effects.edges.applied`, which respects `Edges.enabled state`
-      // (detailed profile by default).
-      if (supportsEdgePasses && edgeMaterial.applied) {
-        if (opaque) bins.normalEdgesOpaque.push(meshBatch);
-        if (transparent) bins.normalEdgesTransparent.push(meshBatch);
-      }
+    // Normal edges (the global "wireframe overlay" effect) are gated on
+    // `view.effects.edges.applied`, which respects `Edges.enabled state`
+    // (detailed profile by default).
+    if (supportsEdgePasses && edgeMaterial.applied) {
+      if (opaque) bins.normalEdgesOpaque.push(meshBatch);
+      if (transparent) bins.normalEdgesTransparent.push(meshBatch);
+    }
 
-      // X-ray / highlight / selected edges are part of the visual identity
-      // of those *modes* — they belong wherever an object is xrayed /
-      // highlighted / selected, regardless of the global edges effect.
-      // Gate them on each effect material's own `edges` flag (and require
-      // a usable alpha) so e.g. flipping `View.active profile` to
-      // realistic profile doesn't silently swallow the silhouettes.
-      if (supportsEdgePasses && xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
-        (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
-      }
-      if (supportsEdgePasses && highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
-        (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
-      }
-      if (supportsEdgePasses && select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
-        (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
-      }
+    // X-ray / highlight / selected edges are part of the visual identity
+    // of those *modes* — they belong wherever an object is xrayed /
+    // highlighted / selected, regardless of the global edges effect.
+    // Gate them on each effect material's own `edges` flag (and require
+    // a usable alpha) so e.g. flipping `View.active profile` to
+    // realistic profile doesn't silently swallow the silhouettes.
+    if (supportsEdgePasses && xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
+      (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
+    }
+    if (supportsEdgePasses && highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
+      (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
+    }
+    if (supportsEdgePasses && select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
+      (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
     }
   }
 }

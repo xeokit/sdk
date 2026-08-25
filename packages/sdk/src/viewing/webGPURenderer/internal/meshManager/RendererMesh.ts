@@ -1,5 +1,6 @@
 import type {Mat4} from "../../../../base/math/matrix";
 import type {SceneMesh, SceneModel} from "../../../../model/scene";
+import type {LODRepMembership} from "../../../lod/LODVisibility";
 import type {RendererGeometry} from "../gpuMemoryManager";
 
 export interface RendererMesh {
@@ -10,4 +11,6 @@ export interface RendererMesh {
   matrixDirty: boolean;
   instanceDataVersion: number;
   createdStructureVersion: number;
+  lodRepMemberships: readonly LODRepMembership[];
+  lodRepMembershipKey: string;
 }

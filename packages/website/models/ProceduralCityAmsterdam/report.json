@@ -1,11 +1,12 @@
 {
   "schema": "xeokit-procedural-city-comparison/1.0",
-  "profileName": "amsterdam",
+  "profileName": "amsterdam-canal-core",
   "seed": "42",
   "generatedAt": "deterministic",
   "source": {
     "type": "preset",
-    "note": "Representative OSM-style preset; regenerate from an Amsterdam extract for project-specific tuning."
+    "region": "amsterdam-canal-core",
+    "note": "Path-loadable OSM-style profile preset. Use analyze-osm.mjs with a local extract to replace this with measured local statistics."
   },
   "generatedStats": {
     "buildings": 3600,

@@ -1,0 +1,29 @@
+{
+  "asset": {
+    "version": "1.0"
+  },
+  "geometricError": 0,
+  "root": {
+    "boundingVolume": {
+      "box": [
+        -7,
+        -2.5,
+        1.2,
+        18,
+        0,
+        0,
+        0,
+        18,
+        0,
+        0,
+        0,
+        5
+      ]
+    },
+    "geometricError": 0,
+    "refine": "ADD",
+    "content": {
+      "uri": "houses.i3dm"
+    }
+  }
+}

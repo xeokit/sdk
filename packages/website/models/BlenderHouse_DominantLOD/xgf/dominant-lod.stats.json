@@ -1,0 +1,324 @@
+{
+  "input": "packages/website/models/BlenderHouse/xgf/model.xgf",
+  "output": "packages/website/models/BlenderHouse_DominantLOD/xgf/model.xgf",
+  "coordinateSystem": "packages/website/models/BlenderHouse_DominantLOD/coordSys.json",
+  "format": "xgf",
+  "modelId": "BlenderHouse_DominantLOD",
+  "scene": {
+    "objects": 73,
+    "meshes": 73,
+    "geometries": 73,
+    "materials": 0,
+    "repSets": 1
+  },
+  "representationSet": {
+    "id": "model-lod",
+    "defaultRepId": "detailed",
+    "selection": {
+      "strategy": "projectedSize",
+      "hysteresisPixels": 16
+    },
+    "reps": [
+      {
+        "id": "detailed",
+        "objectIds": [
+          "5decc759-4af7-4a3a-9977-9a8749e82488",
+          "3e0844e2-c9da-4852-80a2-7e4554b6b930",
+          "27c6b3f6-3c7f-4ba3-8d3f-d47aff3312a7",
+          "3eab8b84-54f2-4a14-883a-72496e3b7556",
+          "63445d00-0a78-403b-b93d-3736dd153a65",
+          "532b09c1-0b94-4078-bb71-db59570a901e",
+          "4531894a-d4ad-48d6-9331-40f6b8a79a5e",
+          "4396b86f-fca4-49e9-85fe-b812350dabcf",
+          "d26a2b7e-b58b-46eb-a002-c43009cda0d6",
+          "f3121571-3528-4bbe-a23b-cfb7c7721f7b",
+          "7efd10e4-09fc-4e95-b722-4bcb99865384",
+          "3dcdda9c-a0b1-4b1c-b24a-402852a3e2db",
+          "d032e147-d807-44ab-bfca-7d0baedc96ae",
+          "fd09cfaa-e923-4aca-a6d4-c63b8f85b2a4",
+          "bd582397-2ffc-40b1-b20c-4aa11a9bfe05",
+          "fc552652-5abf-448d-a55f-11cca5be89f9",
+          "2c96a2e8-8792-4589-a2cd-bcd67f538fc5",
+          "22332ba6-89ae-4473-8186-bc1eb8b414d8",
+          "c5f849fa-223c-46af-a2d6-d36b3e6a9ccd",
+          "ea54658c-20c4-46ea-93a9-2db64d02a9d4",
+          "4e35cf4d-0585-422a-a061-535be9715bb8",
+          "26be520b-75ea-4304-b539-fef67d5e8ae8",
+          "a4a708a8-24d3-4564-8d3f-7106817e1c34",
+          "47beeb27-8b02-41c0-8f04-c6ea532d7dcd",
+          "dd78347f-37e1-48b5-8fa5-6a7120c79968",
+          "868a3703-1643-471e-8c52-c947335a4aea",
+          "dbbf7baf-2630-44fc-a539-9e0f004183c7",
+          "30ee2bbf-6695-4c45-bc96-381c16e28408",
+          "7a5df23f-b428-478b-bbaa-a96873e01a14",
+          "3f2d3408-c7ef-4b01-b802-100f06b8bb19",
+          "0197eafc-e0ff-4db0-b68a-3e2a630b7ba2",
+          "64c2be74-f884-4d1f-980f-fad63091a3af",
+          "11563772-aa31-4630-a251-58934be0053c",
+          "a6293cde-0ba3-4bd2-8492-e98020a8b402",
+          "ebc63898-45c9-434f-9974-45defe8b260b",
+          "2fb21d22-86b5-445f-943f-b92c821052a9",
+          "dc1c72ab-90b9-409f-8082-11ac0e959d1d",
+          "d3f50ada-01aa-440b-a44d-d3264f2d7cea",
+          "812ee3e3-003f-463b-9e88-377495e3ada8",
+          "70a99385-11aa-4d04-b293-dc877a1e55ef",
+          "ffe60338-c497-4d62-9650-054536081268",
+          "2b09d7c2-30ea-4c0e-b949-a44e865f67b4",
+          "12e971d4-cf62-42cc-8768-2181fd69cf02",
+          "1cb7f2f5-4277-4e36-b106-98b4db93ae98",
+          "0154d35d-7c0d-40c4-b6e9-56c8ebd34f34",
+          "ed5a88cb-2540-4e99-8065-e97086802f4f",
+          "60d8f0f8-af50-4a56-bb1f-5d6e07ded6d2",
+          "8a91e2f0-cb89-4249-8afe-a32f3dcb9265",
+          "49452446-dd54-425e-a436-b963a3d0ce09",
+          "831bfbd0-fcbc-4a91-905b-e55495ccc013",
+          "d734bd66-4a9c-4e9a-992e-86a392161387",
+          "97d86d4d-9c28-4c75-8a42-ae9d4ba2aca7",
+          "5512bdb7-bba3-40b1-bf12-768fbb8c6d29",
+          "f865bcf9-d089-4ae9-ba5f-e2a13f40fb35",
+          "24495cec-ef7e-4894-b98d-dda111cccf1a",
+          "d73ebc4e-266d-449e-a00e-243c1320e86c",
+          "3f8347ab-ca0c-4054-99b1-6c9c76ab2c44",
+          "49c594ff-f3fa-475c-b873-3ce18c31230c",
+          "0659237f-f6ba-4538-8446-feb1d8578974",
+          "598083f2-f907-4d4f-aaf4-7f4c93f8e23d",
+          "160aac75-72f8-4ae6-bb1d-03bfffa30b88",
+          "65bd9fcf-4b4d-4f5a-9ee4-0d904488e727",
+          "9db45ad9-2192-4e1c-a864-05a9dd5a0727",
+          "09b78e2d-3753-40c6-9d00-80aca1822235",
+          "5e510e6f-cffb-4e1e-a96c-ca31e0b2784f",
+          "d2a8d0a8-e122-4779-b5d4-b8d6f662c9bd",
+          "7f596745-6d78-487e-a468-1cd511c3d5e1",
+          "537720ed-e754-4e56-968a-f27afc7a2a49",
+          "99260302-b0a7-456f-85a6-fb982b88d1a1",
+          "c4d5aaa9-8ef5-4154-a091-b7c374bec363",
+          "3455761a-984f-4aa1-8fdc-2fc6d47a525b",
+          "dc739e76-78ab-4a7e-ad85-1664fc1bd726",
+          "b4df87d6-3772-4753-9082-eddefc3663ae"
+        ],
+        "range": {
+          "minPixels": 260
+        }
+      },
+      {
+        "id": "dominant",
+        "objectIds": [
+          "99260302-b0a7-456f-85a6-fb982b88d1a1",
+          "537720ed-e754-4e56-968a-f27afc7a2a49",
+          "c4d5aaa9-8ef5-4154-a091-b7c374bec363",
+          "3f2d3408-c7ef-4b01-b802-100f06b8bb19",
+          "0197eafc-e0ff-4db0-b68a-3e2a630b7ba2",
+          "7a5df23f-b428-478b-bbaa-a96873e01a14",
+          "dc739e76-78ab-4a7e-ad85-1664fc1bd726",
+          "3455761a-984f-4aa1-8fdc-2fc6d47a525b",
+          "868a3703-1643-471e-8c52-c947335a4aea",
+          "30ee2bbf-6695-4c45-bc96-381c16e28408"
+        ],
+        "range": {
+          "maxPixels": 220
+        }
+      }
+    ]
+  },
+  "detailed": {
+    "objectCount": 73
+  },
+  "dominant": {
+    "objectCount": 10,
+    "objectIds": [
+      "99260302-b0a7-456f-85a6-fb982b88d1a1",
+      "537720ed-e754-4e56-968a-f27afc7a2a49",
+      "c4d5aaa9-8ef5-4154-a091-b7c374bec363",
+      "3f2d3408-c7ef-4b01-b802-100f06b8bb19",
+      "0197eafc-e0ff-4db0-b68a-3e2a630b7ba2",
+      "7a5df23f-b428-478b-bbaa-a96873e01a14",
+      "dc739e76-78ab-4a7e-ad85-1664fc1bd726",
+      "3455761a-984f-4aa1-8fdc-2fc6d47a525b",
+      "868a3703-1643-471e-8c52-c947335a4aea",
+      "30ee2bbf-6695-4c45-bc96-381c16e28408"
+    ],
+    "scoreCoverage": 0.7453634005369171,
+    "topObjects": [
+      {
+        "id": "99260302-b0a7-456f-85a6-fb982b88d1a1",
+        "selected": true,
+        "score": 627.8530364942461,
+        "surfaceArea": 408.7251944175496,
+        "volume": 556.8143160846844,
+        "diagonal": 14.426709844897672,
+        "triangleCount": 2044
+      },
+      {
+        "id": "537720ed-e754-4e56-968a-f27afc7a2a49",
+        "selected": true,
+        "score": 617.6991954076934,
+        "surfaceArea": 403.84893092097445,
+        "volume": 546.374205215915,
+        "diagonal": 14.353970993961985,
+        "triangleCount": 224
+      },
+      {
+        "id": "c4d5aaa9-8ef5-4154-a091-b7c374bec363",
+        "selected": true,
+        "score": 465.9432236550595,
+        "surfaceArea": 301.43499404335023,
+        "volume": 353.44786903733257,
+        "diagonal": 12.35986817643999,
+        "triangleCount": 3424
+      },
+      {
+        "id": "3f2d3408-c7ef-4b01-b802-100f06b8bb19",
+        "selected": true,
+        "score": 431.8276212666359,
+        "surfaceArea": 270.3800105285645,
+        "volume": 279.93001815795924,
+        "diagonal": 12.408868005905628,
+        "triangleCount": 176
+      },
+      {
+        "id": "0197eafc-e0ff-4db0-b68a-3e2a630b7ba2",
+        "selected": true,
+        "score": 429.40440983591134,
+        "surfaceArea": 270.3800105285645,
+        "volume": 279.93001815795924,
+        "diagonal": 12.408868005905628,
+        "triangleCount": 32
+      },
+      {
+        "id": "7a5df23f-b428-478b-bbaa-a96873e01a14",
+        "selected": true,
+        "score": 391.7820667730698,
+        "surfaceArea": 237.78000728607174,
+        "volume": 214.83000680923448,
+        "diagonal": 12.098760583941717,
+        "triangleCount": 196
+      },
+      {
+        "id": "dc739e76-78ab-4a7e-ad85-1664fc1bd726",
+        "selected": true,
+        "score": 174.2094549153497,
+        "surfaceArea": 88.14000105619428,
+        "volume": 12.078000588655472,
+        "diagonal": 8.992218885988402,
+        "triangleCount": 36
+      },
+      {
+        "id": "3455761a-984f-4aa1-8fdc-2fc6d47a525b",
+        "selected": true,
+        "score": 174.12927681806195,
+        "surfaceArea": 88.13999625205997,
+        "volume": 12.077997716903747,
+        "diagonal": 8.992218722265214,
+        "triangleCount": 34
+      },
+      {
+        "id": "868a3703-1643-471e-8c52-c947335a4aea",
+        "selected": true,
+        "score": 155.42005784587332,
+        "surfaceArea": 96.62000480175016,
+        "volume": 60.817505897283496,
+        "diagonal": 7.3104378144886155,
+        "triangleCount": 40
+      },
+      {
+        "id": "30ee2bbf-6695-4c45-bc96-381c16e28408",
+        "selected": true,
+        "score": 130.2532394642566,
+        "surfaceArea": 82.05000138282776,
+        "volume": 49.72500121593475,
+        "diagonal": 6.5017305960694785,
+        "triangleCount": 60
+      },
+      {
+        "id": "532b09c1-0b94-4078-bb71-db59570a901e",
+        "selected": false,
+        "score": 124.96212737549459,
+        "surfaceArea": 35.06103210540732,
+        "volume": 7.628516102294725,
+        "diagonal": 9.15382820536354,
+        "triangleCount": 68
+      },
+      {
+        "id": "b4df87d6-3772-4753-9082-eddefc3663ae",
+        "selected": false,
+        "score": 90.77196328980258,
+        "surfaceArea": 40.14000599741948,
+        "volume": 5.21550102764373,
+        "diagonal": 6.739621942420373,
+        "triangleCount": 36
+      },
+      {
+        "id": "7efd10e4-09fc-4e95-b722-4bcb99865384",
+        "selected": false,
+        "score": 82.87041143310995,
+        "surfaceArea": 45.29250503897663,
+        "volume": 17.313754590600627,
+        "diagonal": 5.394267895655927,
+        "triangleCount": 356
+      },
+      {
+        "id": "dbbf7baf-2630-44fc-a539-9e0f004183c7",
+        "selected": false,
+        "score": 78.38956655923747,
+        "surfaceArea": 47.784517698992914,
+        "volume": 22.24865446436974,
+        "diagonal": 4.941176408646481,
+        "triangleCount": 72
+      },
+      {
+        "id": "598083f2-f907-4d4f-aaf4-7f4c93f8e23d",
+        "selected": false,
+        "score": 41.95922893594607,
+        "surfaceArea": 18.9001978646819,
+        "volume": 4.031315071215202,
+        "diagonal": 3.604013058631634,
+        "triangleCount": 1074
+      },
+      {
+        "id": "a4a708a8-24d3-4564-8d3f-7106817e1c34",
+        "selected": false,
+        "score": 29.579449522961315,
+        "surfaceArea": 12.044000955581623,
+        "volume": 1.5504006406783764,
+        "diagonal": 3.0798701300426825,
+        "triangleCount": 264
+      },
+      {
+        "id": "64c2be74-f884-4d1f-980f-fad63091a3af",
+        "selected": false,
+        "score": 27.994077004286833,
+        "surfaceArea": 15.005197410392839,
+        "volume": 3.809814989250239,
+        "diagonal": 2.851473057696043,
+        "triangleCount": 28
+      },
+      {
+        "id": "2fb21d22-86b5-445f-943f-b92c821052a9",
+        "selected": false,
+        "score": 27.994072417113994,
+        "surfaceArea": 15.005194234657779,
+        "volume": 3.809813761776368,
+        "diagonal": 2.851472810203289,
+        "triangleCount": 28
+      },
+      {
+        "id": "49c594ff-f3fa-475c-b873-3ce18c31230c",
+        "selected": false,
+        "score": 27.22293937124206,
+        "surfaceArea": 13.349999696016312,
+        "volume": 2.474999852478504,
+        "diagonal": 3.1894356800356793,
+        "triangleCount": 12
+      },
+      {
+        "id": "4531894a-d4ad-48d6-9331-40f6b8a79a5e",
+        "selected": false,
+        "score": 26.740439832582005,
+        "surfaceArea": 11.70000010728836,
+        "volume": 1.3500000536441803,
+        "diagonal": 3.3674916491585476,
+        "triangleCount": 12
+      }
+    ]
+  }
+}

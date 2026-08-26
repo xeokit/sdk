@@ -1,0 +1,360 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "schema": {
+    "id": "MetadataGranularitiesSchema",
+    "classes": {
+      "exampleTilesetMetadataClass": {
+        "name": "Example tileset metadata class",
+        "description": "An example metadata class for a tileset",
+        "properties": {
+          "author": {
+            "description": "The person or entity that made the tileset",
+            "type": "STRING"
+          },
+          "date": {
+            "description": "Date of tileset creation in YYYY-MM-DD format",
+            "type": "STRING"
+          },
+          "tileCount": {
+            "description": "Total number of tiles in the tileset",
+            "type": "SCALAR",
+            "componentType": "UINT8"
+          }
+        }
+      },
+      "exampleTileMetadataClass": {
+        "name": "Example tile metadata class",
+        "description": "An example metadata class for a tile",
+        "properties": {
+          "district": {
+            "description": "The district that the elements of this tile belong to",
+            "type": "STRING"
+          },
+          "population": {
+            "description": "The population of the area covered by this tile",
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          }
+        }
+      },
+      "exampleGroupMetadataClass": {
+        "name": "Example group metadata class",
+        "description": "An example metadata class for tile content groups",
+        "properties": {
+          "color": {
+            "description": "The color with which the group should be rendered",
+            "type": "VEC3",
+            "componentType": "UINT8"
+          },
+          "priority": {
+            "description": "A priority for rendering the group",
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          }
+        }
+      },
+      "exampleContentMetadataClass": {
+        "name": "Example content metadata class",
+        "description": "An example metadata class for tile content",
+        "properties": {
+          "vertices": {
+            "description": "The number of vertices in the geometry",
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          },
+          "materials": {
+            "description": "The number of materials in the geometry",
+            "type": "SCALAR",
+            "componentType": "UINT16"
+          },
+          "instances": {
+            "description": "The number of instanced buildings in this tile content",
+            "type": "SCALAR",
+            "componentType": "UINT32"
+          }
+        }
+      }
+    }
+  },
+  "groups": [
+    {
+      "class": "exampleGroupMetadataClass",
+      "properties": {
+        "color": [
+          64,
+          64,
+          255
+        ],
+        "priority": 1
+      }
+    },
+    {
+      "class": "exampleGroupMetadataClass",
+      "properties": {
+        "color": [
+          64,
+          255,
+          64
+        ],
+        "priority": 2
+      }
+    }
+  ],
+  "metadata": {
+    "class": "exampleTilesetMetadataClass",
+    "properties": {
+      "author": "Cesium",
+      "date": "2022-03-21",
+      "tileCount": 4
+    }
+  },
+  "geometricError": 1024,
+  "root": {
+    "boundingVolume": {
+      "box": [
+        0,
+        0,
+        3,
+        40,
+        0,
+        0,
+        0,
+        32,
+        0,
+        0,
+        0,
+        6
+      ]
+    },
+    "geometricError": 512,
+    "refine": "ADD",
+    "children": [
+      {
+        "boundingVolume": {
+          "box": [
+            0,
+            0,
+            2.5,
+            14,
+            0,
+            0,
+            0,
+            14,
+            0,
+            0,
+            0,
+            3.5
+          ]
+        },
+        "geometricError": 0,
+        "transform": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -24,
+          18,
+          0,
+          1
+        ],
+        "content": {
+          "uri": "district-01.i3dm",
+          "metadata": {
+            "class": "exampleContentMetadataClass",
+            "properties": {
+              "vertices": 12384,
+              "materials": 5,
+              "instances": 12
+            }
+          },
+          "group": 0
+        },
+        "metadata": {
+          "class": "exampleTileMetadataClass",
+          "properties": {
+            "district": "Callowhill",
+            "population": 12
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0,
+            0,
+            2.5,
+            14,
+            0,
+            0,
+            0,
+            14,
+            0,
+            0,
+            0,
+            3.5
+          ]
+        },
+        "geometricError": 0,
+        "transform": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          24,
+          18,
+          0,
+          1
+        ],
+        "content": {
+          "uri": "district-02.i3dm",
+          "metadata": {
+            "class": "exampleContentMetadataClass",
+            "properties": {
+              "vertices": 15732,
+              "materials": 5,
+              "instances": 23
+            }
+          },
+          "group": 1
+        },
+        "metadata": {
+          "class": "exampleTileMetadataClass",
+          "properties": {
+            "district": "Museum District",
+            "population": 23
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0,
+            0,
+            2.5,
+            14,
+            0,
+            0,
+            0,
+            14,
+            0,
+            0,
+            0,
+            3.5
+          ]
+        },
+        "geometricError": 0,
+        "transform": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -24,
+          -18,
+          0,
+          1
+        ],
+        "content": {
+          "uri": "district-03.i3dm",
+          "metadata": {
+            "class": "exampleContentMetadataClass",
+            "properties": {
+              "vertices": 7020,
+              "materials": 5,
+              "instances": 15
+            }
+          },
+          "group": 0
+        },
+        "metadata": {
+          "class": "exampleTileMetadataClass",
+          "properties": {
+            "district": "Old City",
+            "population": 15
+          }
+        }
+      },
+      {
+        "boundingVolume": {
+          "box": [
+            0,
+            0,
+            2.5,
+            14,
+            0,
+            0,
+            0,
+            14,
+            0,
+            0,
+            0,
+            3.5
+          ]
+        },
+        "geometricError": 0,
+        "transform": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          24,
+          -18,
+          0,
+          1
+        ],
+        "content": {
+          "uri": "district-04.i3dm",
+          "metadata": {
+            "class": "exampleContentMetadataClass",
+            "properties": {
+              "vertices": 20790,
+              "materials": 5,
+              "instances": 18
+            }
+          },
+          "group": 1
+        },
+        "metadata": {
+          "class": "exampleTileMetadataClass",
+          "properties": {
+            "district": "Market East",
+            "population": 18
+          }
+        }
+      }
+    ]
+  }
+}

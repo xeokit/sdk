@@ -1,0 +1,21 @@
+# OSM Sample Input
+
+Place the local Berlin OSM extract for the end-to-end demo here:
+
+```text
+packages/website/tools/city-generator/data/berlin-sample.osm.pbf
+```
+
+The generator and demo do not require network access. To rebuild the profile from
+a local extract, run from the repo root:
+
+```bash
+pnpm city -- analyze-osm \
+  --input ./packages/website/tools/city-generator/data/berlin-sample.osm.pbf \
+  --output ./packages/website/tools/city-generator/profiles/berlin-inner-city.json \
+  --name berlin-inner-city \
+  --description "Berlin inner-city OSM-derived procedural profile"
+```
+
+`.osm.pbf` input requires `osmium` on the PATH. `.geojson`, `.json`, `.osm`, and
+`.xml` inputs are read directly.

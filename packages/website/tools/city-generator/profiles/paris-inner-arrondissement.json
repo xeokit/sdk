@@ -1,0 +1,209 @@
+{
+  "schema": "xeokit-procedural-city-profile/1.0",
+  "version": 1,
+  "name": "paris-inner-arrondissement",
+  "description": "Paris inner-arrondissement profile: compact blocks, strong street alignment, high courtyard frequency, boulevards, plazas, and consistent mid-rise height.",
+  "source": {
+    "type": "preset",
+    "region": "paris-inner-arrondissement",
+    "note": "Path-loadable OSM-style profile preset. Use analyze-osm.mjs with a local extract to replace this with measured local statistics."
+  },
+  "roads": {
+    "hierarchyShare": {
+      "arterial": 0.12,
+      "collector": 0.27,
+      "local": 0.5,
+      "alley": 0.07,
+      "pedestrian": 0.04
+    },
+    "widthByHierarchy": {
+      "arterial": 32,
+      "collector": 20,
+      "local": 11,
+      "alley": 5.5,
+      "pedestrian": 8
+    },
+    "arterialSpacing": {
+      "mean": 320,
+      "p25": 220,
+      "p75": 450
+    },
+    "collectorSpacing": {
+      "mean": 125,
+      "p25": 75,
+      "p75": 180
+    },
+    "segmentLength": {
+      "mean": 82,
+      "p25": 44,
+      "p75": 122
+    },
+    "intersectionAngles": {
+      "mean": 82,
+      "p25": 62,
+      "p75": 101
+    },
+    "curvature": {
+      "mean": 1.1,
+      "p25": 1.02,
+      "p75": 1.18
+    },
+    "intersectionSpacing": {
+      "mean": 98,
+      "p25": 54,
+      "p75": 145
+    },
+    "roadDensityKmPerSquareKm": 15.2,
+    "intersectionDensityPerSquareKm": 90,
+    "averageSpacing": 125
+  },
+  "blocks": {
+    "area": {
+      "mean": 6200,
+      "p25": 2800,
+      "p75": 9600
+    },
+    "perimeter": {
+      "mean": 325,
+      "p25": 210,
+      "p75": 450
+    },
+    "compactness": {
+      "mean": 0.66,
+      "p25": 0.5,
+      "p75": 0.82
+    },
+    "aspectRatio": {
+      "mean": 1.45,
+      "p25": 1.08,
+      "p75": 2.05
+    },
+    "frontageLength": {
+      "mean": 72,
+      "p25": 34,
+      "p75": 112
+    },
+    "courtyardFrequency": 0.52,
+    "measuredCount": 78,
+    "openCellRatio": 0.84
+  },
+  "parcels": {
+    "frontage": {
+      "mean": 16,
+      "p25": 8,
+      "p75": 26
+    },
+    "depth": {
+      "mean": 34,
+      "p25": 19,
+      "p75": 52
+    },
+    "area": {
+      "mean": 570,
+      "p25": 190,
+      "p75": 1100
+    },
+    "buildableCoverage": {
+      "mean": 0.7,
+      "p25": 0.54,
+      "p75": 0.86
+    },
+    "setbacks": {
+      "mean": 2.1,
+      "p25": 0.4,
+      "p75": 4.2
+    }
+  },
+  "buildings": {
+    "footprintArea": {
+      "mean": 520,
+      "p25": 170,
+      "p75": 1040
+    },
+    "aspectRatio": {
+      "mean": 1.65,
+      "p25": 1.1,
+      "p75": 2.35
+    },
+    "coverage": {
+      "mean": 0.68,
+      "p25": 0.5,
+      "p75": 0.84
+    },
+    "levels": {
+      "mean": 7,
+      "p25": 5,
+      "p75": 8,
+      "p95": 14
+    },
+    "heights": {
+      "mean": 23,
+      "p25": 17,
+      "p75": 29,
+      "p95": 55
+    },
+    "spacing": {
+      "mean": 3,
+      "p25": 0.5,
+      "p75": 6
+    },
+    "streetAlignment": {
+      "mean": 0.9
+    },
+    "streetAlignmentProbability": 0.9,
+    "streetDistance": {
+      "mean": 7,
+      "p25": 2,
+      "p75": 13
+    }
+  },
+  "landUse": {
+    "residential": 0.34,
+    "commercial": 0.2,
+    "mixedUse": 0.34,
+    "industrial": 0.01,
+    "parks": 0.07,
+    "civic": 0.04
+  },
+  "publicSpace": {
+    "parkFrequency": 0.08,
+    "plazaSize": {
+      "mean": 2800,
+      "p25": 800,
+      "p75": 5600
+    },
+    "streetTreeDensity": {
+      "mean": 0.55
+    },
+    "openSpaceRatio": 0.08,
+    "plazaFrequencyPerSquareKm": 2.2
+  },
+  "districts": {
+    "Historic Core": 0.36,
+    "Downtown": 0.18,
+    "Mixed Residential": 0.36,
+    "Civic District": 0.1
+  },
+  "relationships": {
+    "downtownHeightGradient": 0.72,
+    "commercialRoadBias": 0.72,
+    "courtyardProbability": 0.56,
+    "roadHierarchyBlockScale": 0.9,
+    "streetIrregularity": 0.5,
+    "buildingStreetAlignment": 0.9,
+    "heightRoadBias": 0.48,
+    "perimeterBlockBias": 0.8,
+    "pedestrianStreetBias": 1.15,
+    "localRoadDensityBias": 1.22,
+    "commercialIntersectionBias": 0.6
+  },
+  "sampleCounts": {
+    "roads": 182,
+    "roadSegments": 730,
+    "intersections": 225,
+    "blocks": 78,
+    "buildings": 1248,
+    "parks": 8,
+    "plazas": 2
+  }
+}

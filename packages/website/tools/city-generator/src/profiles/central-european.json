@@ -1,0 +1,199 @@
+{
+  "schema": "xeokit-procedural-city-profile/1.0",
+  "version": 1,
+  "name": "central-european",
+  "description": "Central European mixed inner-city profile with moderately irregular streets, perimeter blocks, courtyards, mid-rise mixed use, and small parks.",
+  "source": {
+    "type": "preset",
+    "note": "Hand-authored baseline; regenerate from OSM extracts with analyze-osm."
+  },
+  "roads": {
+    "hierarchyShare": {
+      "arterial": 0.11,
+      "collector": 0.25,
+      "local": 0.52,
+      "alley": 0.09,
+      "pedestrian": 0.03
+    },
+    "widthByHierarchy": {
+      "arterial": 27,
+      "collector": 18,
+      "local": 11.5,
+      "alley": 6,
+      "pedestrian": 8
+    },
+    "arterialSpacing": {
+      "mean": 360,
+      "p25": 280,
+      "p75": 470
+    },
+    "collectorSpacing": {
+      "mean": 155,
+      "p25": 105,
+      "p75": 210
+    },
+    "segmentLength": {
+      "mean": 92,
+      "p25": 62,
+      "p75": 128
+    },
+    "intersectionAngles": {
+      "mean": 83,
+      "p25": 70,
+      "p75": 96
+    },
+    "curvature": {
+      "mean": 1.08,
+      "p25": 1.01,
+      "p75": 1.14
+    },
+    "intersectionSpacing": {
+      "mean": 128,
+      "p25": 76,
+      "p75": 178
+    },
+    "roadDensityKmPerSquareKm": 12.1,
+    "intersectionDensityPerSquareKm": 68,
+    "averageSpacing": 155
+  },
+  "blocks": {
+    "area": {
+      "mean": 7600,
+      "p25": 3600,
+      "p75": 11200
+    },
+    "perimeter": {
+      "mean": 360,
+      "p25": 250,
+      "p75": 480
+    },
+    "compactness": {
+      "mean": 0.62,
+      "p25": 0.47,
+      "p75": 0.76
+    },
+    "aspectRatio": {
+      "mean": 1.55,
+      "p25": 1.15,
+      "p75": 2.1
+    },
+    "frontageLength": {
+      "mean": 88,
+      "p25": 48,
+      "p75": 135
+    },
+    "courtyardFrequency": 0.28,
+    "measuredCount": 64,
+    "openCellRatio": 0.86
+  },
+  "parcels": {
+    "frontage": {
+      "mean": 21,
+      "p25": 12,
+      "p75": 34
+    },
+    "depth": {
+      "mean": 38,
+      "p25": 24,
+      "p75": 55
+    },
+    "area": {
+      "mean": 850,
+      "p25": 360,
+      "p75": 1450
+    },
+    "buildableCoverage": {
+      "mean": 0.56,
+      "p25": 0.42,
+      "p75": 0.72
+    },
+    "setbacks": {
+      "mean": 4.4,
+      "p25": 2.1,
+      "p75": 7.5
+    }
+  },
+  "buildings": {
+    "footprintArea": {
+      "mean": 620,
+      "p25": 240,
+      "p75": 1180
+    },
+    "aspectRatio": {
+      "mean": 1.7,
+      "p25": 1.1,
+      "p75": 2.5
+    },
+    "coverage": {
+      "mean": 0.5,
+      "p25": 0.34,
+      "p75": 0.68
+    },
+    "levels": {
+      "mean": 7,
+      "p25": 4,
+      "p75": 10,
+      "p95": 24
+    },
+    "heights": {
+      "mean": 24,
+      "p25": 13,
+      "p75": 36,
+      "p95": 92
+    },
+    "spacing": {
+      "mean": 7,
+      "p25": 2.5,
+      "p75": 12
+    },
+    "streetAlignment": {
+      "mean": 0.76
+    },
+    "streetAlignmentProbability": 0.76,
+    "streetDistance": {
+      "mean": 14,
+      "p25": 5,
+      "p75": 23
+    }
+  },
+  "landUse": {
+    "residential": 0.42,
+    "commercial": 0.19,
+    "mixedUse": 0.25,
+    "industrial": 0.03,
+    "parks": 0.07,
+    "civic": 0.04
+  },
+  "publicSpace": {
+    "parkFrequency": 0.08,
+    "plazaSize": {
+      "mean": 3600,
+      "p25": 1200,
+      "p75": 6800
+    },
+    "streetTreeDensity": {
+      "mean": 0.52
+    },
+    "openSpaceRatio": 0.09,
+    "plazaFrequencyPerSquareKm": 1.5
+  },
+  "districts": {
+    "Historic Core": 0.25,
+    "Downtown": 0.22,
+    "Mixed Residential": 0.42,
+    "Civic District": 0.11
+  },
+  "relationships": {
+    "downtownHeightGradient": 1,
+    "commercialRoadBias": 0.68,
+    "courtyardProbability": 0.32,
+    "roadHierarchyBlockScale": 1,
+    "streetIrregularity": 0.58,
+    "buildingStreetAlignment": 0.76,
+    "heightRoadBias": 0.72,
+    "perimeterBlockBias": 0.5,
+    "pedestrianStreetBias": 1,
+    "localRoadDensityBias": 1,
+    "commercialIntersectionBias": 0.5
+  }
+}

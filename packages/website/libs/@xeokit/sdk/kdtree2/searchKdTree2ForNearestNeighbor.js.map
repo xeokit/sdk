@@ -1,1 +1,0 @@
-{"version":3,"file":"searchKdTree2ForNearestNeighbor.js","sourceRoot":"","sources":["../../src/kdtree2/searchKdTree2ForNearestNeighbor.ts"],"names":[],"mappings":"AAIA;;GAEG;AACH,MAAM,UAAU,+BAA+B,CAAC,MAG/C;IACG,MAAM,MAAM,GAAG,MAAM,CAAC,MAAM,CAAC;IAC7B,MAAM,SAAS,GAAG,MAAM,CAAC,SAAS,CAAC;IACnC,aAAa;IACb,MAAM,YAAY,GAAG,EAAE,CAAC;IAE5B,KAAK;IAED,aAAa;IACb,OAAO,YAAY,CAAC;AACxB,CAAC"}

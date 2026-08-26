@@ -1,1 +1,0 @@
-{"version":3,"file":"convertMetaModel.d.ts","sourceRoot":"","sources":["../../src/metamodel/convertMetaModel.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAC,eAAe,EAAuC,MAAM,SAAS,CAAC;AAEnF,OAAO,EAAC,eAAe,EAAC,MAAM,mBAAmB,CAAC;AAElD;;;;GAIG;AACH,wBAAgB,gBAAgB,CAAC,eAAe,EAAE,eAAe,GAAG,eAAe,CAkClF"}

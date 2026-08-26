@@ -1,1 +1,0 @@
-{"version":3,"file":"SnapshotParams.d.ts","sourceRoot":"","sources":["../../src/viewer/SnapshotParams.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AACH,MAAM,WAAW,cAAc;IAC3B,aAAa,CAAC,EAAE,OAAO,CAAC;IACxB,MAAM,CAAC,EAAE,MAAM,CAAC;IAChB,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,MAAM,CAAC,EAAE,GAAG,CAAC;CAEhB"}

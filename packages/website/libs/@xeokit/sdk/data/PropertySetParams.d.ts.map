@@ -1,1 +1,0 @@
-{"version":3,"file":"PropertySetParams.d.ts","sourceRoot":"","sources":["../../src/data/PropertySetParams.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,kBAAkB,CAAC;AAEvD;;;;;;;;GAQG;AACH,MAAM,WAAW,iBAAiB;IAE9B;;;;OAIG;IACH,EAAE,EAAE,MAAM,CAAC;IAEX;;OAEG;IACH,IAAI,EAAE,MAAM,CAAC;IAEb;;OAEG;IACH,IAAI,EAAE,MAAM,CAAC;IAEb;;OAEG;IACH,UAAU,EAAE,cAAc,EAAE,CAAC;CAChC"}

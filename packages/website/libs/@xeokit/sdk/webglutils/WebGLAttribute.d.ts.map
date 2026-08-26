@@ -1,1 +1,0 @@
-{"version":3,"file":"WebGLAttribute.d.ts","sourceRoot":"","sources":["../../src/webglutils/WebGLAttribute.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAC,aAAa,EAAC,MAAM,iBAAiB,CAAC;AAEnD;;GAEG;AACH,qBAAa,cAAc;IACvB,EAAE,EAAE,sBAAsB,CAAC;IAC3B,QAAQ,EAAE,MAAM,CAAC;IAEjB;;;;OAIG;gBACS,EAAE,EAAE,sBAAsB,EAAE,QAAQ,EAAE,MAAM;IAKxD;;;OAGG;IACH,eAAe,CAAC,QAAQ,EAAE,aAAa;CAQ1C"}

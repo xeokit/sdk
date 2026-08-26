@@ -1,1 +1,0 @@
-{"version":3,"file":"KdVertex2.d.ts","sourceRoot":"","sources":["../../src/kdtree2/KdVertex2.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAC,WAAW,EAAC,MAAM,UAAU,CAAC;AAC1C,OAAO,KAAK,EAAC,eAAe,EAAE,aAAa,EAAC,MAAM,SAAS,CAAC;AAE5D;;;;GAIG;AACH,qBAAa,SAAS;IAClB,WAAW,EAAE,WAAW,CAAC;IACzB,QAAQ,EAAE,eAAe,CAAC;IAC1B,SAAS,EAAE,aAAa,CAAC;CAC5B"}

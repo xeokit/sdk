@@ -1,1 +1,0 @@
-{"version":3,"file":"modelToXGF.d.ts","sourceRoot":"","sources":["../../../../src/xgf/versions/v1/modelToXGF.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAC,UAAU,EAAC,MAAM,gBAAgB,CAAC;AAQ/C,OAAO,KAAK,EAAC,UAAU,EAAC,MAAM,cAAc,CAAC;AAK7C;;GAEG;AACH,wBAAgB,UAAU,CAAC,MAAM,EAAE;IAC/B,UAAU,EAAE,UAAU,CAAC;CAC1B,GAAG,UAAU,CAmKb"}

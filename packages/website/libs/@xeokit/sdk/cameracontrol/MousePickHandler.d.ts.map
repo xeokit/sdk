@@ -1,1 +1,0 @@
-{"version":3,"file":"MousePickHandler.d.ts","sourceRoot":"","sources":["../../src/cameracontrol/MousePickHandler.ts"],"names":[],"mappings":"AAAA,OAAO,EAAa,IAAI,EAAC,MAAM,WAAW,CAAC;AAI3C;;GAEG;AACH,cAAM,gBAAgB;;gBAWN,IAAI,EAAE,IAAI,EAAE,WAAW,EAAE,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,MAAM,EAAE,GAAG,EAAE,OAAO,EAAE,GAAG;IAsWjF,KAAK;IASL,OAAO;CAWV;AAGD,OAAO,EAAC,gBAAgB,EAAC,CAAC"}

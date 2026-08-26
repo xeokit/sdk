@@ -1,1 +1,0 @@
-{"version":3,"file":"loadMetaModel.d.ts","sourceRoot":"","sources":["../../src/metamodel/loadMetaModel.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAC,SAAS,EAAC,MAAM,SAAS,CAAC;AAEvC,OAAO,EAAC,eAAe,EAAC,MAAM,mBAAmB,CAAC;AAElD;;;;;;;;;;;;;;;GAeG;AACH,wBAAgB,aAAa,CAAC,MAAM,EAAE;IAClC,QAAQ,EAAE,eAAe,CAAC;IAC1B,SAAS,EAAE,SAAS,CAAC;CACxB,GAAG,OAAO,CAAC,IAAI,CAAC,CAqEhB"}

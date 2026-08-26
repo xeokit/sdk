@@ -1,1 +1,0 @@
-{"version":3,"file":"VBOTrianglesBatchingLayer.d.ts","sourceRoot":"","sources":["../../../../../src/webglrenderer/vbo/batching/triangles/VBOTrianglesBatchingLayer.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,gBAAgB,EAAC,MAAM,qBAAqB,CAAC;AACrD,OAAO,EAAC,sBAAsB,EAAC,MAAM,2BAA2B,CAAC;AAGjE;;GAEG;AACH,qBAAa,yBAA0B,SAAQ,gBAAgB;gBAC/C,WAAW,EAAE,sBAAsB;CAGlD"}

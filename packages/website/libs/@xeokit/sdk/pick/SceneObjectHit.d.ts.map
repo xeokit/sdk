@@ -1,1 +1,0 @@
-{"version":3,"file":"SceneObjectHit.d.ts","sourceRoot":"","sources":["../../src/pick/SceneObjectHit.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAC,WAAW,EAAC,MAAM,UAAU,CAAC;AAC1C,OAAO,KAAK,EAAC,OAAO,EAAC,MAAM,WAAW,CAAC;AAEvC;;;;GAIG;AACH,MAAM,WAAW,cAAc;IAE3B;;OAEG;IACH,WAAW,EAAE,WAAW,CAAC;IAEzB;;OAEG;IACH,QAAQ,EAAE,OAAO,EAAE,CAAC;CACvB"}

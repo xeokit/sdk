@@ -1,1 +1,0 @@
-{"version":3,"file":"GeometryHit.d.ts","sourceRoot":"","sources":["../../src/pick/GeometryHit.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAC,aAAa,EAAC,MAAM,UAAU,CAAC;AAC5C,OAAO,KAAK,EAAC,OAAO,EAAC,MAAM,WAAW,CAAC;AAEvC;;;;GAIG;AACH,MAAM,WAAW,WAAW;IAExB;;OAEG;IACH,QAAQ,EAAE,aAAa,CAAC;IAExB;;OAEG;IACH,QAAQ,EAAE,OAAO,EAAE,CAAC;CACvB"}

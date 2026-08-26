@@ -1,1 +1,0 @@
-{"version":3,"file":"AmbientLightParams.d.ts","sourceRoot":"","sources":["../../src/viewer/AmbientLightParams.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,eAAe,EAAC,MAAM,SAAS,CAAC;AAExC;;;;;;GAMG;AACH,MAAM,WAAW,kBAAkB;IAE/B;OACG;IACH,EAAE,CAAC,EAAE,MAAM,CAAC;IAEZ;;;;;;OAMG;IACH,KAAK,CAAC,EAAE,eAAe,CAAC;IAExB;;;;OAIG;IACH,SAAS,CAAC,EAAE,MAAM,CAAC;CACtB"}

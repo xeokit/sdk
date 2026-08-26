@@ -1,1 +1,0 @@
-{"version":3,"file":"MouseMiscHandler.d.ts","sourceRoot":"","sources":["../../src/cameracontrol/MouseMiscHandler.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,IAAI,EAAC,MAAM,WAAW,CAAC;AAG/B;;GAEG;AAEH,cAAM,gBAAgB;;gBASN,IAAI,EAAC,IAAI,EAAE,WAAW,KAAA,EAAE,OAAO,KAAA,EAAE,MAAM,KAAA,EAAE,OAAO,KAAA;IAkC5D,KAAK;IAGL,OAAO;CAUV;AAeD,OAAO,EAAC,gBAAgB,EAAC,CAAC"}

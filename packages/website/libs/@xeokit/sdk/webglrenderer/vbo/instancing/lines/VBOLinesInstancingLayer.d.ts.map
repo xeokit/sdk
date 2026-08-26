@@ -1,1 +1,0 @@
-{"version":3,"file":"VBOLinesInstancingLayer.d.ts","sourceRoot":"","sources":["../../../../../src/webglrenderer/vbo/instancing/lines/VBOLinesInstancingLayer.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,kBAAkB,EAAC,MAAM,uBAAuB,CAAC;AACzD,OAAO,EAAC,wBAAwB,EAAC,MAAM,6BAA6B,CAAC;AAGrE;;GAEG;AACH,qBAAa,uBAAwB,SAAQ,kBAAkB;gBAC/C,WAAW,EAAE,wBAAwB;CAGpD"}

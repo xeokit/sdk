@@ -1,1 +1,0 @@
-{"version":3,"file":"readXGF.d.ts","sourceRoot":"","sources":["../../../../src/xgf/versions/v1/readXGF.ts"],"names":[],"mappings":"AACA,OAAO,EAAC,UAAU,EAAC,MAAM,gBAAgB,CAAC;AAE1C,OAAO,EAAC,SAAS,EAAC,MAAM,eAAe,CAAC;AAExC;;GAEG;AACH,wBAAgB,OAAO,CAAC,MAAM,EAAE;IAC5B,QAAQ,EAAE,WAAW,CAAC;IACtB,UAAU,CAAC,EAAE,UAAU,CAAC;IACxB,SAAS,CAAC,EAAE,SAAS,CAAC;CACzB,GAAG,IAAI,CAOP"}

@@ -1,1 +1,0 @@
-{"version":3,"file":"xktToModel.d.ts","sourceRoot":"","sources":["../../../../src/xkt/versions/v10/xktToModel.ts"],"names":[],"mappings":"AAQA,OAAO,KAAK,EAAC,UAAU,EAAC,MAAM,gBAAgB,CAAC;AAC/C,OAAO,KAAK,EAAC,OAAO,EAAC,MAAM,WAAW,CAAC;AAoCvC;;GAEG;AACH,wBAAgB,UAAU,CAAC,MAAM,EAAE;IAC/B,OAAO,EAAE,OAAO,CAAC;IACjB,UAAU,EAAE,UAAU,CAAA;CACzB,GAAG,IAAI,CAkaP"}

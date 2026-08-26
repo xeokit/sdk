@@ -1,1 +1,0 @@
-{"version":3,"file":"PropertyParams.d.ts","sourceRoot":"","sources":["../../src/data/PropertyParams.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,MAAM,WAAW,cAAc;IAE3B;;OAEG;IACH,IAAI,EAAE,MAAM,CAAC;IAEb;;;OAGG;IACH,KAAK,EAAE,GAAG,CAAC;IAEX;;;OAGG;IACH,IAAI,CAAC,EAAE,MAAM,CAAC;IAEd;;;OAGG;IACH,SAAS,CAAC,EAAE,MAAM,GAAG,MAAM,CAAC;IAE5B;;;OAGG;IACH,WAAW,CAAC,EAAE,MAAM,CAAC;CACxB"}

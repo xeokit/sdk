@@ -1,1 +1,0 @@
-{"version":3,"file":"convertIfc2gltfManifest.d.ts","sourceRoot":"","sources":["../../src/ifc2gltf2xgf/convertIfc2gltfManifest.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,sBAAsB,EAAC,MAAM,0BAA0B,CAAC;AAChE,OAAO,EAAC,yBAAyB,EAAC,MAAM,SAAS,CAAC;AAElD;;;GAGG;AACH,iBAAS,uBAAuB,CAAC,sBAAsB,EAAE,sBAAsB,GAAG,yBAAyB,CAkB1G;AAMD,OAAO,EAAC,uBAAuB,EAAC,CAAC"}

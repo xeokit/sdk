@@ -1,1 +1,0 @@
-{"version":3,"file":"createSceneObjectPrimsKdTree3.d.ts","sourceRoot":"","sources":["../../src/kdtree3/createSceneObjectPrimsKdTree3.ts"],"names":[],"mappings":"AAAA,OAAO,EAA2D,WAAW,EAAC,MAAM,UAAU,CAAC;AAC/F,OAAO,EAAC,OAAO,EAAC,MAAM,WAAW,CAAC;AAMlC;;GAEG;AACH,qBAAa,wBAAyB,SAAQ,OAAO;CAAG;AAExD;;;;GAIG;AACH,wBAAgB,6BAA6B,CAAC,YAAY,EAAE,WAAW,EAAE,GAAG,wBAAwB,CA4FnG"}

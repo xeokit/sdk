@@ -1,1 +1,0 @@
-{"version":3,"file":"BCFPerspectiveCamera.d.ts","sourceRoot":"","sources":["../../src/bcf/BCFPerspectiveCamera.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,SAAS,EAAC,MAAM,aAAa,CAAC;AAEtC;;GAEG;AACH,MAAM,WAAW,oBAAoB;IAEjC;;OAEG;IACH,iBAAiB,EAAE,SAAS,CAAC;IAE7B;;OAEG;IACH,gBAAgB,EAAE,SAAS,CAAC;IAE5B;;OAEG;IACH,gBAAgB,EAAE,SAAS,CAAC;IAE5B;;OAEG;IACH,aAAa,EAAE,MAAM,CAAA;CACxB"}

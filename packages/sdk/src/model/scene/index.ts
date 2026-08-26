@@ -210,8 +210,8 @@
  *
  * ```ts
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
- * import { ModelNavigationController } from "@xeokit/sdk/viewing/modelNavigation";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
+ * import { ModelNavigationController } from "@xeokit/sdk/viewing/navigation/model";
  *
  * const viewer = new Viewer({ scene });
  * new WebGLRenderer({ viewer });

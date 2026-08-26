@@ -186,23 +186,23 @@ shards can be skipped before fetch.
 The website stream generators are useful reference scripts for content
 pipelines that run outside the browser:
 
-- [`generate-xgf-streaming-baku-example.js`](../../../../website/scripts/generate-xgf-streaming-baku-example.js)
+- [`build-baku-stream.js`](../../../../../packages/website/tools/asset-pipeline/xgf-streaming/build-baku-stream.js)
   converts a large source GLB through `xeoconvert` into grid-partitioned
   stream data.
-- [`generate-xgf-streaming-lyon-example.js`](../../../../website/scripts/generate-xgf-streaming-lyon-example.js)
+- [`build-lyon-stream.js`](../../../../../packages/website/tools/asset-pipeline/xgf-streaming/build-lyon-stream.js)
   loads several XKT files into one `SceneModel`, applies a model
   coordinate system, and exports one merged stream.
-- [`generate-xgf-streaming-archipelago-example.js`](../../../../website/scripts/generate-xgf-streaming-archipelago-example.js)
+- [`build-archipelago-stream.js`](../../../../../packages/website/tools/asset-pipeline/xgf-streaming/build-archipelago-stream.js)
   builds procedural scene content, places existing XGF models, and
   exports the combined result.
-- [`generate-xgf-streaming-example.js`](../../../../website/scripts/generate-xgf-streaming-example.js)
+- [`build-example-stream.js`](../../../../../packages/website/tools/asset-pipeline/xgf-streaming/build-example-stream.js)
   shows explicit asset-library and references-only chunk manifests for a
   small hand-authored stream.
-- [`generate-xgf-streaming-recursive-example.js`](../../../../website/scripts/generate-xgf-streaming-recursive-example.js)
+- [`build-recursive-stream.js`](../../../../../packages/website/tools/asset-pipeline/xgf-streaming/build-recursive-stream.js)
   writes a root index that references other stream indexes instead of
   copying their chunks.
 
-See [`packages/website/scripts/README.md`](../../../../website/scripts/README.md)
+See [`packages/website/tools/asset-pipeline/README.md`](../../../../../packages/website/tools/asset-pipeline/README.md)
 for the current script list and the common generation pipeline.
 
 ---

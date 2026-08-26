@@ -34,7 +34,7 @@
         "baseUrl": ".",
         "declarationMap": true,
         "noEmit": false,
-        "emitDeclarationOnly": true
+        "emitDeclarationOnly": false
     },
     "include": [
         "./src/**/*.ts"

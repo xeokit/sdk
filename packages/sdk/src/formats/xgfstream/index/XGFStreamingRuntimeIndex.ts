@@ -3,7 +3,7 @@
  *
  * This representation minimizes repeated JSON property names in large stream
  * indexes. Decode it with {@link readXGFStreamingRuntimeIndex} before passing
- * it to loaders or view controllers.
+ * it to loaders or orbit navigation controllers.
  */
 export interface XGFStreamingRuntimeIndex {
   /** Runtime index format identifier. */
@@ -55,7 +55,8 @@ export type XGFStreamingRuntimeChunk = [
   aabb: number[] | null,
   counts: [number, number, number, number, number, number],
   priority?: number | null,
-  lod?: number | string | null
+  lod?: number | string | null,
+  layerId?: string | number | null
 ];
 
 /** @internal */

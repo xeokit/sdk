@@ -9,7 +9,7 @@ import type {FloatArrayParam} from "../../base/math";
  */
 export interface ShadowsParams {
   /**
-   * Whether this component is enabled.
+   * Whether this component is enabled. Default is `false`.
    */
   enabled?: boolean;
 

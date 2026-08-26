@@ -98,6 +98,15 @@ function writeRuntimeChunk(
   if (manifest.lod !== undefined) {
     chunk[7] = manifest.lod;
   }
+  if (manifest.layerId !== undefined) {
+    if (chunk[6] === undefined) {
+      chunk[6] = null;
+    }
+    if (chunk[7] === undefined) {
+      chunk[7] = null;
+    }
+    chunk[8] = intern(manifest.layerId);
+  }
   return chunk;
 }
 

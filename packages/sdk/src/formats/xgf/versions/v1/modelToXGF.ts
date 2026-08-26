@@ -456,7 +456,7 @@ function textureIndexOrNone(id: string | undefined, indexById: Record<string, nu
  * Re-encode a texture image to PNG bytes. Accepts both drawable sources
  * (`HTMLImageElement` / `ImageBitmap` / `OffscreenCanvas` / `HTMLCanvasElement`)
  * and raw RGBA pixel buffers (`ImageData` or any `{data, width, height}`-shaped
- * value, e.g. `MaterialPixelBuffer` from `procgen/paintMaterials`).
+ * value, e.g. `MaterialPixelBuffer` from `generation/paintMaterials`).
  *
  * Uses an `OffscreenCanvas` when available — that's the faster path;
  * falls back to a DOM canvas + `toBlob` otherwise.

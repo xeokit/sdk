@@ -3,6 +3,8 @@
  *
  * These values are useful for choosing shell resolution, simplification
  * settings and LOD thresholds for a model family.
+ *
+ * @public
  */
 export interface ShellGenerationStats {
   /**

@@ -133,8 +133,8 @@
  * ````javascript
  * import { Scene } from "@xeokit/sdk/model/scene";
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewing/viewController";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
+ * import { ModelNavigationController } from "@xeokit/sdk/viewing/navigation/model";
  *
  * import {
  *   OrthoProjectionType,
@@ -199,7 +199,7 @@
  *
  * const view1 = view1Result.value;
  *
- * const viewController = new ViewController({
+ * const modelNavigation = new ModelNavigationController({
  *   view: view1
  * });
  * ````
@@ -230,7 +230,7 @@
  *
  * ## 6) Align navigation to a world axis convention
  *
- * Configure {@link Camera.worldAxis | worldAxis} to match your domain’s coordinate system. This affects navigation behavior when using {@link viewing!viewController.ViewController | ViewController}.
+ * Configure {@link Camera.worldAxis | worldAxis} to match your domain’s coordinate system. This affects navigation behavior when using ModelNavigationController.
  *
  * +Y up (+X right, -Z forward):
  *
@@ -444,7 +444,7 @@
  * view2.camera.look = [4.400, 3.724, 8.899];
  * view2.camera.up = [-0.018, 0.999, 0.039];
  *
- * const cameraControl2 = new ViewController({
+ * const cameraControl2 = new ModelNavigationController({
  *   view: view2
  * });
  *
@@ -516,7 +516,7 @@
  * without making individual effects aware of application profile names.
  *
  * ````javascript
- * import {DEFAULT_VIEW_PROFILES, ViewProfiles} from "@xeokit/sdk/viewing/viewProfiles";
+ * import {DEFAULT_VIEW_PROFILES, ViewProfiles} from "@xeokit/sdk/viewing/profiles";
  *
  * const profiles = new ViewProfiles(view1, {
  *   profiles: DEFAULT_VIEW_PROFILES,

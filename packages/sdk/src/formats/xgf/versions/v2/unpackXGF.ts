@@ -17,7 +17,12 @@ export function unpackXGF(arrayBuffer: ArrayBuffer): XGFData_v2 {
   const nextArray = (function () {
     let i = 0;
     const dataView = new DataView(arrayBuffer);
+    const firstArrayOffset = dataView.getUint32(4, true);
+    const arrayCount = Math.max(0, Math.floor((firstArrayOffset / 4 - 1) / 2));
     return function <T>(type: any): T {
+      if (i >= arrayCount) {
+        return new type(0) as T;
+      }
       const idx = 1 + 2 * i++;
       const byteOffset = dataView.getUint32(idx * 4, true);
       const byteLength = dataView.getUint32((idx + 1) * 4, true);
@@ -96,7 +101,7 @@ export function unpackXGF(arrayBuffer: ArrayBuffer): XGFData_v2 {
   const edgeIndexSize = nextArray<Uint8Array>(Uint8Array);
   const edgeIndices = nextIndexArray(edgeIndexSize);
 
-  return {
+  const data = {
     positions,
     colors,
     indexSize,
@@ -144,6 +149,17 @@ export function unpackXGF(arrayBuffer: ArrayBuffer): XGFData_v2 {
     eachTransformId:             nextStringRefs(),
     eachTransformParentId:       nextStringRefs(),
     eachTransformMatricesBase:   nextArray<Uint32Array>(Uint32Array),
-    eachMeshParentTransformId:   nextStringRefs()
+    eachMeshParentTransformId:   nextStringRefs(),
+    eachRepSetId:                nextStringRefs(),
+    eachRepSetDefaultRepId:      nextStringRefs(),
+    eachRepSetSelectionStrategy: nextArray<Uint8Array>(Uint8Array),
+    eachRepSetHysteresisPixels:  nextArray<Float32Array>(Float32Array),
+    eachRepSetRepsBase:          nextArray<Uint32Array>(Uint32Array),
+    eachRepId:                   nextStringRefs(),
+    eachRepRangeMinPixels:       nextArray<Float32Array>(Float32Array),
+    eachRepRangeMaxPixels:       nextArray<Float32Array>(Float32Array),
+    eachRepObjectIdsBase:        nextArray<Uint32Array>(Uint32Array),
+    repObjectIds:                nextStringRefs()
   };
+  return data;
 }

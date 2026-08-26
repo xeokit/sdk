@@ -21,26 +21,33 @@ import type {BodyHatchParams} from "./BodyHatchParams";
  * Aggregates the View's renderer effects — Scalable Ambient
  * Obscurance, edge enhancement, HDR bloom, atmospheric attenuation,
  * depth of field, color grading, the HDR tonemap pass, antialiasing, and
- * directional shadow mapping. Each entry is optional; when omitted the
- * component falls back to its own constructor defaults.
+ * directional shadow mapping. Expensive optional effects are disabled by
+ * default. Enable them explicitly with `enabled: true` on the corresponding
+ * entry, or through {@link viewing!viewProfiles.ViewProfiles | ViewProfiles}.
  */
 export interface EffectsParams {
 
   /**
    * Parameters for the View's Scalable Ambient Obscurance pass,
    * {@link SAO} — accessible at {@link Effects.sao}.
+   *
+   * Disabled by default. Set `enabled: true` to run the SAO pass.
    */
   sao?: SAOParams;
 
   /**
    * Parameters for the View's edge enhancement effect,
    * {@link Edges} — accessible at {@link Effects.edges}.
+   *
+   * Disabled by default. Set `enabled: true` to render enhanced mesh edges.
    */
   edges?: EdgesParams;
 
   /**
    * Parameters for the View's HDR bloom post-process,
    * {@link Bloom} — accessible at {@link Effects.bloom}.
+   *
+   * Disabled by default. Set `enabled: true` to run bloom.
    */
   bloom?: BloomParams;
 
@@ -48,7 +55,7 @@ export interface EffectsParams {
    * Parameters for the View's HDR atmospheric attenuation post-process,
    * {@link Atmosphere} — accessible at {@link Effects.atmosphere}.
    *
-   * Omit to leave the component inactive.
+   * Disabled by default. Set `enabled: true` to run atmospheric attenuation.
    */
   atmosphere?: AtmosphereParams;
 
@@ -57,7 +64,7 @@ export interface EffectsParams {
    * {@link DepthOfField} — accessible at
    * {@link Effects.depthOfField}.
    *
-   * Omit to leave the component inactive.
+   * Disabled by default. Set `enabled: true` to run depth of field.
    */
   depthOfField?: DepthOfFieldParams;
 
@@ -66,7 +73,7 @@ export interface EffectsParams {
    * {@link ColorGrading} — accessible at
    * {@link Effects.colorGrading}.
    *
-   * Omit to leave the component inactive.
+   * Disabled by default. Set `enabled: true` to run color grading.
    */
   colorGrading?: ColorGradingParams;
 
@@ -80,12 +87,16 @@ export interface EffectsParams {
    * Parameters for the View's final antialiasing pass,
    * {@link AntiAliasing} — accessible at
    * {@link Effects.antiAliasing}.
+   *
+   * Disabled by default. Set `enabled: true` to run FXAA or SMAA.
    */
   antiAliasing?: AntiAliasingParams;
 
   /**
    * Parameters for the View's directional shadow mapping,
    * {@link Shadows} — accessible at {@link Effects.shadows}.
+   *
+   * Disabled by default. Set `enabled: true` to render shadow maps.
    */
   shadows?: ShadowsParams;
 

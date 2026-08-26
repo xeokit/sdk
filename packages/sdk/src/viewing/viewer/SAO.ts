@@ -7,8 +7,8 @@ import {CustomProjectionType, FrustumProjectionType} from "../../base/constants"
  * Configures Scalable Ambient Obscurance (SAO) for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.sao}, which lives at {@link View.effects}.
- * * View will apply SAO when the component enabled state is set to one of the values
- * specified in the component enabled state.
+ * * Disabled by default. Set {@link SAO.enabled | enabled} to `true`
+ *   or pass `effects: {sao: {enabled: true}}` when creating a View.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -34,7 +34,7 @@ export class SAO {
   constructor(view: View, saoParams: SAOParams) {
 
     this.view = view;
-    this._enabled = saoParams.enabled !== false;
+    this._enabled = saoParams.enabled === true;
     this._kernelRadius = saoParams.kernelRadius || 100.0;
     this._intensity = (saoParams.intensity !== undefined) ? saoParams.intensity : 0.15;
     this._bias = (saoParams.bias !== undefined) ? saoParams.bias : 0.5;

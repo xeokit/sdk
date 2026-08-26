@@ -24,6 +24,8 @@ import type {ShellRepParams, ShellRepResult} from "./ShellRepParams";
  *
  * @param params Creation parameters.
  * @returns Created representation set and generated shell resources.
+ *
+ * @public
  */
 export function createShellRep(params: ShellRepParams): SDKResult<ShellRepResult> {
   if (!params) {

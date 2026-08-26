@@ -430,6 +430,97 @@ describe("XGFViewStreamController", () => {
     expect(Array.from(streamController.loadedChunkIds)).toEqual(["first"]);
   });
 
+  it("re-queues unloaded batch members after pausing mid-batch", async () => {
+    const first = chunk("first", [1, 0, 0, 2, 1, 1]);
+    const second = chunk("second", [3, 0, 0, 4, 1, 1]);
+    const third = chunk("third", [5, 0, 0, 6, 1, 1]);
+    const loaded: string[] = [];
+    let paused = false;
+    let streamController!: XGFViewStreamController;
+    streamController = new XGFViewStreamController({
+      index: {chunks: [first, second, third]} as any,
+      sceneModel: {} as any,
+      view: viewWithFrustum([1, 0, 0], 0, [1, 0, 0]),
+      loader: {
+        loadChunk: async (_params: any, options: any) => {
+          loaded.push(_params.manifest.id);
+          options.onChunkLoaded(_params.manifest);
+          if (!paused) {
+            paused = true;
+            streamController.pause();
+          }
+        },
+        unloadChunk: () => ({ok: true, value: undefined})
+      } as any,
+      batchSize: 3,
+      cameraDebounceMs: 0,
+      commitFrameBudgetMs: 0,
+      loadOptions: {
+        getFileData: () => new ArrayBuffer(8)
+      } as any
+    });
+
+    streamController.schedule("initial batch");
+    await wait(20);
+    expect(streamController.paused).toBe(true);
+    expect(loaded).toEqual(["first"]);
+
+    streamController.resume("resumed batch");
+    await wait(20);
+    expect(streamController.paused).toBe(false);
+    expect(loaded).toEqual(["first", "second", "third"]);
+    expect(Array.from(streamController.loadedChunkIds)).toEqual(["first", "second", "third"]);
+  });
+
+  it("pauses and resumes between chunk commits when backpressure trips", async () => {
+    const first = chunk("first", [1, 0, 0, 2, 1, 1]);
+    const second = chunk("second", [3, 0, 0, 4, 1, 1]);
+    const third = chunk("third", [5, 0, 0, 6, 1, 1]);
+    const loaded: string[] = [];
+    const transitions: string[] = [];
+    let resumeReady = false;
+    let commits = 0;
+    const streamController = new XGFViewStreamController({
+      index: {chunks: [first, second, third]} as any,
+      sceneModel: {} as any,
+      view: viewWithFrustum([1, 0, 0], 0, [1, 0, 0]),
+      loader: {
+        loadChunk: async (_params: any, options: any) => {
+          loaded.push(_params.manifest.id);
+          commits++;
+          options.onChunkLoaded(_params.manifest);
+        },
+        unloadChunk: () => ({ok: true, value: undefined})
+      } as any,
+      batchSize: 3,
+      cameraDebounceMs: 0,
+      commitFrameBudgetMs: 0,
+      backpressure: {
+        shouldPause: () => commits >= 1 && !resumeReady,
+        shouldResume: () => resumeReady,
+        onPause: () => transitions.push("pause"),
+        onResume: () => transitions.push("resume")
+      },
+      loadOptions: {
+        getFileData: () => new ArrayBuffer(8)
+      } as any
+    });
+
+    streamController.schedule("initial batch");
+    await wait(20);
+    expect(streamController.paused).toBe(true);
+    expect(loaded).toEqual(["first"]);
+    expect(transitions).toEqual(["pause"]);
+
+    resumeReady = true;
+    expect(streamController.updateBackpressure("resumed batch")).toBe(true);
+    await wait(20);
+    expect(streamController.paused).toBe(false);
+    expect(loaded).toEqual(["first", "second", "third"]);
+    expect(Array.from(streamController.loadedChunkIds)).toEqual(["first", "second", "third"]);
+    expect(transitions).toEqual(["pause", "resume"]);
+  });
+
   it("unloads all resident streamed chunks and continues streaming", async () => {
     const first = chunk("first", [1, 0, 0, 2, 1, 1]);
     const second = chunk("second", [3, 0, 0, 4, 1, 1]);

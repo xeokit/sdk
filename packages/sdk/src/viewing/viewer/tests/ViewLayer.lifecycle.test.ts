@@ -266,4 +266,31 @@ describe("ViewLayer lifecycle", () => {
     expect(viewUpdatedCount).toBe(1);
     unsubscribe();
   });
+
+  it("preserves render requests made during a view update", async () => {
+    const scene = new Scene();
+    const viewer = new Viewer({scene});
+    const viewResult = viewer.createView({
+      id: "view",
+      htmlElement: createHostElement()
+    });
+    expect(viewResult.ok).toBe(true);
+    const view = viewResult.value!;
+    await waitForTaskRunner();
+
+    let viewUpdatedCount = 0;
+    const unsubscribe = viewer.events.onViewUpdated.subscribe(() => {
+      viewUpdatedCount++;
+      if (viewUpdatedCount === 1) {
+        view.needsRender();
+      }
+    });
+
+    view.needsRender();
+    await waitForTaskRunner();
+    await waitForTaskRunner();
+
+    expect(viewUpdatedCount).toBe(2);
+    unsubscribe();
+  });
 });

@@ -9,7 +9,7 @@ import type {Vec3} from "../../base/math/vector";
  */
 export interface EdgesParams {
   /**
-   * Whether this component is enabled.
+   * Whether this component is enabled. Default is `false`.
    */
   enabled?: boolean;
 

@@ -22,7 +22,7 @@ import {angleAxisToQuaternion, type Quat, quatToMat4} from "../../base/math/quat
 import type {SceneMesh, SceneModel, SceneObject} from "../../model/scene";
 import {BVHPickStrategy, type PickStrategy} from "../../spatial/picking";
 import type {View} from "../viewer/View";
-import type {ViewController} from "../viewController";
+import type {ModelNavigationController} from "../navigation/model";
 import type {ViewLayer} from "../viewer/ViewLayer";
 import {buildGeometry, type BuiltGeometry} from "./internal/buildGeometry";
 import {COLOR_HIGHLIGHT} from "./internal/colors";
@@ -316,9 +316,9 @@ export class TransformControls {
   // ----- Picker (PickStrategy from spatial/picking) -----
   private readonly _picker: PickStrategy | null;
 
-  // ----- ViewController to suspend during drag (mousemove suppression) -----
-  private readonly _viewController: ViewController | null;
-  private _viewControllerWasActive: boolean = true;
+  // ----- ModelNavigationController to suspend during drag (mousemove suppression) -----
+  private readonly _modelNavigation: ModelNavigationController | null;
+  private _modelNavigationWasActive: boolean = true;
 
   // ----- Listeners -----
   private readonly _onPointerDown: (e: PointerEvent) => void;
@@ -360,7 +360,7 @@ export class TransformControls {
     TransformControls._instances.set(params.view, this);
 
     this._picker = params.picker ?? new BVHPickStrategy(params.view.viewer.scene);
-    this._viewController = params.viewController ?? null;
+    this._modelNavigation = params.modelNavigation ?? null;
     // The picker filter accepts both the visible handle ids and the
     // companion-picker ids (each handle gets a fat invisible collider
     // SceneObject with id "<handle>.picker" — see addPicker in
@@ -1099,8 +1099,8 @@ export class TransformControls {
     this._dragHandle = null;
     this.dragging = false;
     this.dragAxis = null;
-    if (this._viewController) {
-      this._viewController.active = this._viewControllerWasActive;
+    if (this._modelNavigation) {
+      this._modelNavigation.active = this._modelNavigationWasActive;
     }
     this.events.onDragEnd.dispatch(this, {
       axis: wasAxis,
@@ -1373,10 +1373,10 @@ export class TransformControls {
     this._beginDrag(picked, canvasPos);
     this.view.htmlElement.setPointerCapture?.(e.pointerId);
     // Pause the orbit controller (if one was supplied) for the duration
-    // of the drag — see the doc on TransformControlsParams.viewController.
-    if (this._viewController) {
-      this._viewControllerWasActive = this._viewController.active;
-      this._viewController.active = false;
+    // of the drag — see the doc on TransformControlsParams.modelNavigation.
+    if (this._modelNavigation) {
+      this._modelNavigationWasActive = this._modelNavigation.active;
+      this._modelNavigation.active = false;
     }
     this.events.onDragStart.dispatch(this, {
       axis: this.dragAxis,
@@ -1423,8 +1423,8 @@ export class TransformControls {
     this.dragAxis = null;
     this.view.htmlElement.releasePointerCapture?.(e.pointerId);
     // Restore the orbit controller's prior active state.
-    if (this._viewController) {
-      this._viewController.active = this._viewControllerWasActive;
+    if (this._modelNavigation) {
+      this._modelNavigation.active = this._modelNavigationWasActive;
     }
     this.events.onDragEnd.dispatch(this, {
       axis: wasAxis,

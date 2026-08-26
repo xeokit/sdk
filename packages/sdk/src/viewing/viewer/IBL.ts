@@ -18,9 +18,9 @@ import {parseHDR, type HDRImage} from "./hdrLoader";
  * the component enabled state.
  *
  * The cheap analytical sky/ground/up gradient lives separately on
- * {@link Lights.hemispheric}. By default, IBL is reserved for quality
- * rendering while the analytical hemisphere term lights the faster
- * interactive modes.
+ * {@link Lights.hemispheric}. IBL is disabled by default; applications
+ * that want image-based reflections and ambient irradiance opt in
+ * explicitly.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -56,7 +56,7 @@ class IBL {
    */
   constructor(view: View, params: IBLParams = {}) {
     this.view = view;
-    this.#enabled = params.enabled !== false;
+    this.#enabled = params.enabled === true;
     this.#intensity = params.intensity !== undefined ? params.intensity : 1.0;
   }
 
@@ -329,6 +329,7 @@ class IBL {
         error: "[IBL.fromParams] IBL has been destroyed."
       });
     }
+    if (params.enabled !== undefined)     this.enabled     = params.enabled;
     if (params.intensity !== undefined)   this.intensity   = params.intensity;
     return { ok: true, value: undefined };
   }

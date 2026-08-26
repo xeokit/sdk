@@ -79,6 +79,7 @@ export class XGFStreamingExporter {
             dependencies,
             priority: spec.priority,
             lod: spec.lod,
+            layerId: spec.layerId,
             coordinateSystem: outputCoordinateSystem
           }
         );
@@ -214,7 +215,8 @@ function createChunkView(sceneModel: SceneModel, spec: XGFStreamingChunkExportSp
     transformIds: transformSet,
     geometryIds: new Set<string>(),
     materialIds: new Set<string>(),
-    textureIds: new Set<string>()
+    textureIds: new Set<string>(),
+    repSets: spec.repSets || []
   });
   if (collapseObjects && chunkMeshes.length > 0) {
     view.objects = {
@@ -236,6 +238,7 @@ function createView(sceneModel: SceneModel, ids: {
   geometryIds: Set<string>;
   materialIds: Set<string>;
   textureIds: Set<string>;
+  repSets?: any[];
 }): any {
   return {
     id: sceneModel.id,
@@ -247,8 +250,40 @@ function createView(sceneModel: SceneModel, ids: {
     transforms: pick((sceneModel as any).transforms || {}, ids.transformIds),
     geometries: pick(sceneModel.geometries, ids.geometryIds),
     materials: pick(sceneModel.materials, ids.materialIds),
-    textures: pick(sceneModel.textures, ids.textureIds)
+    textures: pick(sceneModel.textures, ids.textureIds),
+    repSets: repSetParamsToMap(ids.repSets)
   };
+}
+
+function repSetParamsToMap(repSets: any[] | undefined): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const repSet of repSets || []) {
+    const reps: Record<string, any> = {};
+    for (const rep of repSet.reps || []) {
+      reps[rep.id] = {
+        id: rep.id,
+        objectIds: Array.from(rep.objectIds || []),
+        range: rep.range
+          ? {
+            minPixels: rep.range.minPixels,
+            maxPixels: rep.range.maxPixels
+          }
+          : undefined
+      };
+    }
+    result[repSet.id] = {
+      id: repSet.id,
+      defaultRepId: repSet.defaultRepId,
+      selection: repSet.selection
+        ? {
+          strategy: repSet.selection.strategy,
+          hysteresisPixels: repSet.selection.hysteresisPixels
+        }
+        : undefined,
+      reps
+    };
+  }
+  return result;
 }
 
 function collectAssetIds(sceneModel: SceneModel, objectIds: string[]): {

@@ -23,6 +23,8 @@ import type {ShellGenerator, ShellGeneratorResult} from "./ShellGenerator";
  *
  * All referenced SceneObjects belong to the same SceneModel. The helper does
  * not create cross-model representation sets.
+ *
+ * @public
  */
 export interface ShellRepParams {
   /**
@@ -125,6 +127,8 @@ export interface ShellRepParams {
 
 /**
  * Result from creating a shell representation set.
+ *
+ * @public
  */
 export interface ShellRepResult {
   /**
@@ -160,5 +164,7 @@ export interface ShellRepResult {
 
 /**
  * Function signature for shell representation creation.
+ *
+ * @public
  */
 export type ShellRepCreator = (params: ShellRepParams) => SDKResult<ShellRepResult>;

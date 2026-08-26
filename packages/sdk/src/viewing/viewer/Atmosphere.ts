@@ -8,6 +8,8 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.atmosphere}, which lives at {@link View.effects}.
+ * * Disabled by default. Set {@link Atmosphere.enabled | enabled} to `true`
+ *   or pass `effects: {atmosphere: {enabled: true}}` when creating a View.
  * * Runs as an HDR post-process before depth of field and tonemap.
  * * Uses scene depth to fade distant geometry toward a configurable haze color.
  */
@@ -27,7 +29,7 @@ export class Atmosphere {
   /** @private */
   constructor(view: View, params: AtmosphereParams) {
     this.view = view;
-    this._enabled = params.enabled !== false;
+    this._enabled = params.enabled === true;
     this._color = copyColor(params.color, [0.72, 0.82, 0.92]);
     this._startDistance = clampNonNegative(params.startDistance, 80);
     this._endDistance = clampMin(params.endDistance, this._startDistance + 1, 500);

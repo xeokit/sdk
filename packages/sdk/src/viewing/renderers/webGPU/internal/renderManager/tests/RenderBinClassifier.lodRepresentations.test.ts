@@ -1,0 +1,100 @@
+import {TrianglesPrimitive} from "../../../../../../base/constants";
+import type {View} from "../../../../../viewer";
+import {createMemoryConfigs} from "../../../createMemoryConfigs";
+import type {TriangleBatchSegment, TriangleBatchSet} from "../../gpuMemoryManager";
+import type {MeshManager, RendererMesh} from "../../meshManager";
+import type {RenderBins} from "../../renderState";
+import {RenderBinClassifier} from "../RenderBinClassifier";
+
+function createBins(): RenderBins {
+  return {
+    normalDrawOpaque: [],
+    normalEdgesOpaque: [],
+    normalFillTransparent: [],
+    xrayedFillOpaque: [],
+    xrayedEdgesOpaque: [],
+    xrayedFillTransparent: [],
+    xrayedEdgesTransparent: [],
+    highlightedFillOpaque: [],
+    highlightedEdgesOpaque: [],
+    highlightedFillTransparent: [],
+    highlightedEdgesTransparent: [],
+    selectedFillOpaque: [],
+    selectedEdgesOpaque: [],
+    selectedFillTransparent: [],
+    selectedEdgesTransparent: []
+  };
+}
+
+function createMeshState(id: string): RendererMesh {
+  return {
+    mesh: {
+      uniqueId: id,
+      bin: ""
+    },
+    geometryState: {
+      edgeIndexCount: 0
+    }
+  } as unknown as RendererMesh;
+}
+
+function createSegment(key: string, meshState: RendererMesh, suppressed: boolean): TriangleBatchSegment {
+  return {
+    key,
+    primitive: TrianglesPrimitive,
+    slots: [{
+      meshState
+    }],
+    lodRepMemberships: [{
+      selectionId: "model:floor3",
+      repIds: [suppressed ? "detailed" : "shell"]
+    }]
+  } as unknown as TriangleBatchSegment;
+}
+
+describe("WebGPU RenderBinClassifier representation LOD", () => {
+  it("skips suppressed representation segments before per-mesh visibility checks", () => {
+    const suppressedMesh = createMeshState("suppressedMesh");
+    const visibleMesh = createMeshState("visibleMesh");
+    const suppressedSegment = createSegment("suppressed", suppressedMesh, true);
+    const visibleSegment = createSegment("visible", visibleMesh, false);
+    const batchSet = {
+      segments: [suppressedSegment, visibleSegment]
+    } as unknown as TriangleBatchSet;
+    const view = {
+      id: "view"
+    } as unknown as View;
+    const meshManager = {
+      isLODRepMembershipSuppressedInView: jest.fn((memberships) => memberships === suppressedSegment.lodRepMemberships),
+      isMeshVisibleInView: jest.fn((meshState) => meshState === visibleMesh),
+      getMeshOpacityInView: jest.fn(() => 1),
+      getMeshDrawStyleInView: jest.fn(() => ({
+        alphaMode: 0,
+        drawEdges: false,
+        emphasis: "normal"
+      }))
+    } as unknown as MeshManager;
+    const bins = createBins();
+
+    const classifier = new RenderBinClassifier(createMemoryConfigs({
+      grossMemoryMB: 512,
+      device: "medium",
+      utilization: 0.5
+    }));
+    classifier.classifySegments({
+      batchSet,
+      view,
+      meshManager,
+      bins,
+      cameraCulling: false
+    });
+
+    expect(meshManager.isLODRepMembershipSuppressedInView).toHaveBeenCalledWith(suppressedSegment.lodRepMemberships, view);
+    expect(meshManager.isMeshVisibleInView).not.toHaveBeenCalledWith(suppressedMesh, view);
+    expect(meshManager.isMeshVisibleInView).toHaveBeenCalledWith(visibleMesh, view);
+    expect(bins.normalDrawOpaque.map((item) => item.meshState)).toEqual([visibleMesh]);
+    expect(classifier.stats.segmentCandidates).toBe(2);
+    expect(classifier.stats.segmentFullyDrawn).toBe(1);
+    expect(classifier.stats.segmentPartiallyRefined).toBe(0);
+  });
+});

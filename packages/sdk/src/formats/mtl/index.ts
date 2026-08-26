@@ -74,8 +74,8 @@
  * ```ts
  * import { Scene } from "@xeokit/sdk/model/scene";
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewing/viewController";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
+ * import { ModelNavigationController } from "@xeokit/sdk/viewing/navigation/model";
  * import { MTLLoader } from "@xeokit/sdk/formats/mtl";
  *
  * const handleError = (error: string) => {
@@ -101,7 +101,7 @@
  * const view = viewResult.value;
  *
  * // 3) Enable camera control
- * new ViewController(view, {});
+ * new ModelNavigationController(view, {});
  *
  * // 4) Create a SceneModel to receive materials
  * const sceneModelResult = scene.createModel({ id: "myModel" });

@@ -18,7 +18,7 @@ import {
   SurfacePrimitive,
   TrianglesPrimitive
 } from "../../../../base/constants";
-import type {SceneGeometryCompressedParams, SceneModel} from "../../../../model/scene";
+import type {SceneGeometryCompressedParams, SceneModel, SceneRepSetParams} from "../../../../model/scene";
 import {createCoordinateSystemTransform} from "../../../../model/scene";
 import {createMat4Float64, mulMat4} from "../../../../base/math/matrix";
 import {createUUID, yieldToHost} from "../../../../base/utils";
@@ -581,6 +581,10 @@ export async function xgfToModel(params: {
     }
   }
 
+  if (sceneModel) {
+    createRepSetsFromXGF(sceneModel, xgfData, prefixId, fail);
+  }
+
   // Final emit so the progress bar reads as 100% before the
   // promise resolves, regardless of which loop was last.
   if (options.onProgress) {
@@ -602,6 +606,89 @@ function nextNonSentinelBase(bases: Uint32Array<any>, startIdx: number, arrayLen
     if (bases[i] !== NO_INDEX) return bases[i];
   }
   return arrayLength;
+}
+
+function createRepSetsFromXGF(
+  sceneModel: SceneModel,
+  xgfData: XGFData_v2,
+  prefixId: (id: string) => string,
+  fail: (message: string) => void
+): void {
+  const {
+    eachRepSetId,
+    eachRepSetDefaultRepId,
+    eachRepSetSelectionStrategy,
+    eachRepSetHysteresisPixels,
+    eachRepSetRepsBase,
+    eachRepId,
+    eachRepRangeMinPixels,
+    eachRepRangeMaxPixels,
+    eachRepObjectIdsBase,
+    repObjectIds
+  } = xgfData;
+
+  if (!eachRepSetId || eachRepSetId.length === 0) {
+    return;
+  }
+
+  for (let repSetIdx = 0; repSetIdx < eachRepSetId.length; repSetIdx++) {
+    const repSetId = prefixId(eachRepSetId[repSetIdx]);
+    if (!repSetId || sceneModel.repSets[repSetId]) {
+      continue;
+    }
+
+    const atLastRepSet = repSetIdx === eachRepSetId.length - 1;
+    const firstRepIdx = eachRepSetRepsBase[repSetIdx];
+    const lastRepIdx = atLastRepSet ? eachRepId.length - 1 : eachRepSetRepsBase[repSetIdx + 1] - 1;
+    const reps: SceneRepSetParams["reps"] = [];
+
+    for (let repIdx = firstRepIdx; repIdx <= lastRepIdx; repIdx++) {
+      const atLastRep = repIdx === eachRepId.length - 1;
+      const firstObjectIdIdx = eachRepObjectIdsBase[repIdx];
+      const lastObjectIdIdx = atLastRep ? repObjectIds.length - 1 : eachRepObjectIdsBase[repIdx + 1] - 1;
+      const objectIds: string[] = [];
+      for (let objectIdIdx = firstObjectIdIdx; objectIdIdx <= lastObjectIdIdx; objectIdIdx++) {
+        objectIds.push(prefixId(repObjectIds[objectIdIdx]));
+      }
+
+      const minPixels = eachRepRangeMinPixels[repIdx];
+      const maxPixels = eachRepRangeMaxPixels[repIdx];
+      const rep: SceneRepSetParams["reps"][number] = {
+        id: eachRepId[repIdx],
+        objectIds
+      };
+      if (Number.isFinite(minPixels) || Number.isFinite(maxPixels)) {
+        rep.range = {};
+        if (Number.isFinite(minPixels)) {
+          rep.range.minPixels = minPixels;
+        }
+        if (Number.isFinite(maxPixels)) {
+          rep.range.maxPixels = maxPixels;
+        }
+      }
+      reps.push(rep);
+    }
+
+    const params: SceneRepSetParams = {
+      id: repSetId,
+      defaultRepId: eachRepSetDefaultRepId[repSetIdx],
+      reps
+    };
+
+    if (eachRepSetSelectionStrategy[repSetIdx] === 1) {
+      params.selection = {strategy: "projectedSize"};
+      const hysteresisPixels = eachRepSetHysteresisPixels[repSetIdx];
+      if (Number.isFinite(hysteresisPixels)) {
+        params.selection.hysteresisPixels = hysteresisPixels;
+      }
+    }
+
+    const result = sceneModel.createRepSet(params);
+    if (result.ok === false) {
+      fail(result.error);
+      return;
+    }
+  }
 }
 
 function nextAvailableNumericMeshId(sceneModel: SceneModel): number {

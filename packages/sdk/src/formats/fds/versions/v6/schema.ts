@@ -1,4 +1,4 @@
-import type {DataFormatSchema} from "../../../../inspect/dataModel/DataFormatSchema";
+import type {DataFormatSchema} from "../../../../quality/dataModel/DataFormatSchema";
 
 /**
  * Data schema for FDS-6 input files.

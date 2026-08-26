@@ -6,20 +6,9 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * Configures the HDR tonemap pass for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.tonemap}, which lives at {@link View.effects}.
- * * The renderer always composites the HDR scene target through this pass
- *   when HDR rendering is available. The defaults — `mode = "aces"`,
- *   `exposure = 0.5`, `sRGBEncode = true` — apply the ACES Filmic curve
- *   so HDR-range scene values roll off into displayable range without
- *   clipping, then encode the linear LDR result to sRGB so the canvas
- *   displays gamma-correct (the renderer's albedo textures upload as
- *   SRGB8_ALPHA8 and shade in linear space, so the swap-chain write
- *   needs the inverse encode). The exposure default is below 1.0
- *   because ACES lifts midtones noticeably above their linear input —
- *   at exposure 1.0 the scene reads brighter than the no-tonemap path
- *   that BIM assets are typically authored against; 0.5 controls
- *   midtones tightly so HDR peaks (sun, smooth-metal specular) stand
- *   out as bright accents rather than washing into the rest of the
- *   frame. Set `mode = "none"` for an identity copy.
+ * * Disabled by default. When disabled, the tonemap pass runs as an
+ *   identity copy. Applications that need HDR display mapping opt in
+ *   with `effects: {tonemap: {enabled: true}}`.
  */
 export class Tonemap {
 
@@ -35,9 +24,9 @@ export class Tonemap {
   /** @private */
   constructor(view: View, params: TonemapParams) {
     this.view = view;
-    this._enabled = params.enabled !== false;
-    this._exposure = params.exposure !== undefined ? params.exposure : 0.5;
-    this._mode = params.mode !== undefined ? params.mode : "aces";
+    this._enabled = params.enabled === true;
+    this._exposure = params.exposure !== undefined ? params.exposure : 1.0;
+    this._mode = params.mode !== undefined ? params.mode : "none";
     this._sRGBEncode = params.sRGBEncode !== undefined ? params.sRGBEncode === true : true;
     this._renderScale = clampRenderScale(params.renderScale !== undefined ? params.renderScale : 1.0);
   }

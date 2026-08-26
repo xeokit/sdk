@@ -159,6 +159,16 @@ export function packXGF(xgfData: XGFData_v2): ArrayBuffer {
     stringRefs2Array(xgfData.eachTransformId),
     stringRefs2Array(xgfData.eachTransformParentId),
     xgfData.eachTransformMatricesBase,
-    stringRefs2Array(xgfData.eachMeshParentTransformId)
+    stringRefs2Array(xgfData.eachMeshParentTransformId),
+    stringRefs2Array(xgfData.eachRepSetId),
+    stringRefs2Array(xgfData.eachRepSetDefaultRepId),
+    xgfData.eachRepSetSelectionStrategy,
+    xgfData.eachRepSetHysteresisPixels,
+    xgfData.eachRepSetRepsBase,
+    stringRefs2Array(xgfData.eachRepId),
+    xgfData.eachRepRangeMinPixels,
+    xgfData.eachRepRangeMaxPixels,
+    xgfData.eachRepObjectIdsBase,
+    stringRefs2Array(xgfData.repObjectIds)
   ]);
 }

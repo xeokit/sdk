@@ -264,7 +264,7 @@ formats/gaussiansplat/
 ```
 
 The GPU-side rendering (EWA technique, sort worker, pick pass, splat batch)
-lives under `viewing/webGLRenderer/internal/` — `packSplats.ts` and
+lives under `viewing/renderers/webGL/internal/` — `packSplats.ts` and
 `computeCovariance3D.ts` here are shared with it.
 ```
 

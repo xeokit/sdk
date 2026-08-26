@@ -139,9 +139,9 @@ class Effects {
     this.sao          = new SAO         (view, params.sao          || {});
     this.edges        = new Edges       (view, params.edges        || {});
     this.bloom        = new Bloom       (view, params.bloom        || {});
-    this.atmosphere   = new Atmosphere  (view, params.atmosphere !== undefined ? params.atmosphere : {enabled: false});
-    this.depthOfField = new DepthOfField(view, params.depthOfField !== undefined ? params.depthOfField : {enabled: false});
-    this.colorGrading = new ColorGrading(view, params.colorGrading !== undefined ? params.colorGrading : {enabled: false});
+    this.atmosphere   = new Atmosphere  (view, params.atmosphere   || {});
+    this.depthOfField = new DepthOfField(view, params.depthOfField || {});
+    this.colorGrading = new ColorGrading(view, params.colorGrading || {});
     this.tonemap      = new Tonemap     (view, params.tonemap      || {});
     this.antiAliasing = new AntiAliasing(view, params.antiAliasing || {});
     this.shadows      = new Shadows     (view, params.shadows      || {});

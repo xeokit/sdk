@@ -299,6 +299,8 @@ class View {
   private _snapshotBegun: boolean;
   private _autoCanvas: boolean;
   private _needsRender: boolean;
+  private _dispatchingViewUpdate: boolean;
+  private _needsRenderAfterViewUpdate: boolean;
   private _resizeObserver: ResizeObserver | null = null;
   private _windowResizeListener: (() => void) | null = null;
   private _fireViewUpdatedEventTask: SDKTask;
@@ -368,6 +370,8 @@ class View {
     this.gammaOutput = true;
     this._snapshotBegun = false;
     this._needsRender = false;
+    this._dispatchingViewUpdate = false;
+    this._needsRenderAfterViewUpdate = false;
 
     this._sectionPlanesHash = null;
     this._lightsHash = null;
@@ -487,26 +491,12 @@ class View {
 
     new AmbientLight(this, {
       color: [1.0, 1.0, 1.0],
-      intensity: 0.0
-    });
-
-    new DirLight(this, {
-      dir: [0.8, -.5, -0.5],
-      color: [0.8, 0.8, 1.0],
-      intensity: 1.0,
-      space: "world"
-    });
-
-    new DirLight(this, {
-      dir: [-0.8, -1.0, 0.5],
-      color: [1, 1, .9],
-      intensity: 1.0,
-      space: "world"
+      intensity: 0.35
     });
 
     new DirLight(this, {
       dir: [-0.8, -1.0, -0.5],
-      color: [.0, .0, 1],
+      color: [1.0, 1.0, 1.0],
       intensity: 1.0,
       space: "world"
     });
@@ -555,8 +545,28 @@ class View {
             this._needsRender = false;
             return;
           }
-          this.viewer.events.onViewUpdated.dispatch(this, this);
-          this._needsRender = false;
+          // Camera updates are lazy ComputeStage tasks. If a camera property
+          // changes after the runner has already passed ComputeStage, flush it
+          // before render listeners classify/draw from camera-dependent state.
+          this._dispatchingViewUpdate = true;
+          this._needsRenderAfterViewUpdate = false;
+          try {
+            void this.camera.projMatrix;
+            void this.camera.viewMatrix;
+            this.viewer.events.onViewUpdated.dispatch(this, this);
+          } finally {
+            this._dispatchingViewUpdate = false;
+          }
+          if (this._needsRenderAfterViewUpdate) {
+            this._needsRenderAfterViewUpdate = false;
+            setTimeout(() => {
+              if (this._needsRender && !this.destroyed) {
+                this._fireViewUpdatedEventTask.schedule();
+              }
+            }, 0);
+          } else {
+            this._needsRender = false;
+          }
         }
       },
       stage: SDKTask.RenderStage
@@ -1300,6 +1310,7 @@ class View {
    */
   needsRender() {
     if (this._needsRender) {
+      this._needsRenderAfterViewUpdate = true;
       return;
     }
     if (!this.viewer._requestViewRender(this)) {

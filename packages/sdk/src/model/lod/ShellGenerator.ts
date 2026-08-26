@@ -9,6 +9,8 @@ import type {ShellGenerationStats} from "./ShellGenerationStats";
 
 /**
  * One source triangle in world coordinates.
+ *
+ * @internal
  */
 export interface ShellTriangle {
   /** X coordinate of vertex A. */
@@ -33,6 +35,8 @@ export interface ShellTriangle {
 
 /**
  * Triangle input collected from one or more source scene objects.
+ *
+ * @internal
  */
 export interface ShellSourceTriangles {
   /**
@@ -64,6 +68,8 @@ export interface ShellSourceTriangles {
 
 /**
  * Occupancy grid produced by {@link voxelizeShellTriangles}.
+ *
+ * @internal
  */
 export interface ShellVoxelGrid {
   /**
@@ -95,6 +101,8 @@ export interface ShellVoxelGrid {
 
 /**
  * Triangle mesh emitted by the shell extraction stage.
+ *
+ * @internal
  */
 export interface ShellMesh {
   /**
@@ -120,6 +128,8 @@ export interface ShellMesh {
  * A runtime shell should therefore create geometry from {@link positions} and
  * place the mesh at {@link center}. Do not add {@link center} to the positions
  * before upload, or the shell will be translated twice.
+ *
+ * @public
  */
 export interface ShellGeneratorResult {
   /**
@@ -160,11 +170,15 @@ export interface ShellGeneratorResult {
 
 /**
  * Default longest-axis voxel resolution used when no resolution is supplied.
+ *
+ * @public
  */
 export const DEFAULT_SHELL_RESOLUTION = 64;
 
 /**
  * Maximum accepted longest-axis voxel resolution.
+ *
+ * @public
  */
 export const MAX_SHELL_RESOLUTION = 160;
 const EPSILON = 1e-7;
@@ -192,6 +206,8 @@ const tempWorld = [0, 0, 0];
  *   extraction: "voxelFaces"
  * });
  * ```
+ *
+ * @public
  */
 export class ShellGenerator {
   /**
@@ -216,6 +232,8 @@ export class ShellGenerator {
  * @param params Shell generation options.
  * @returns Generated shell geometry, placement data and metrics. Returned
  * positions are relative to the returned center.
+ *
+ * @public
  */
 export function generateShellFromSceneObjects(
   sceneObjects: readonly SceneObject[],
@@ -238,6 +256,8 @@ export function generateShellFromSceneObjects(
  *
  * @param sceneObjects Source scene objects to scan.
  * @returns World-space triangles and source metrics.
+ *
+ * @internal
  */
 export function collectShellSourceTriangles(sceneObjects: readonly SceneObject[]): ShellSourceTriangles {
   const triangles: ShellTriangle[] = [];
@@ -310,6 +330,8 @@ export function collectShellSourceTriangles(sceneObjects: readonly SceneObject[]
  * @param params Shell generation options.
  * @param startTimeMs Optional generation start timestamp used for stats.
  * @returns Generated shell geometry, placement data and metrics.
+ *
+ * @internal
  */
 export function generateShellFromTriangles(
   source: ShellSourceTriangles,
@@ -370,6 +392,8 @@ export function generateShellFromTriangles(
  * @param source Pre-collected source triangles.
  * @param params Shell generation options that affect grid resolution.
  * @returns Occupancy grid used by the shell extraction stage.
+ *
+ * @internal
  */
 export function voxelizeShellTriangles(source: ShellSourceTriangles, params: ShellGenerationParams = {}): ShellVoxelGrid {
   const sizeX = Math.max(source.aabb[3] - source.aabb[0], EPSILON);
@@ -438,6 +462,8 @@ export function voxelizeShellTriangles(source: ShellSourceTriangles, params: She
  * @param grid Occupancy grid to classify.
  * @returns Dense array matching `grid.occupied`; `1` marks exterior empty
  * cells.
+ *
+ * @internal
  */
 export function floodShellExterior(grid: ShellVoxelGrid): Uint8Array {
   return floodExterior(grid.occupied, grid.dims[0], grid.dims[1], grid.dims[2]);
@@ -451,6 +477,8 @@ export function floodShellExterior(grid: ShellVoxelGrid): Uint8Array {
  * @param center World-space origin to subtract from emitted positions.
  * @param extraction Mesh extraction mode.
  * @returns Generated shell mesh.
+ *
+ * @internal
  */
 export function extractShellMesh(
   grid: ShellVoxelGrid,
@@ -472,6 +500,8 @@ export function extractShellMesh(
  * @param exterior Exterior-cell mask from {@link floodShellExterior}.
  * @param center World-space origin to subtract from emitted positions.
  * @returns Generated shell mesh.
+ *
+ * @internal
  */
 export function extractVoxelFaceShellMesh(
   grid: ShellVoxelGrid,
@@ -490,6 +520,8 @@ export function extractVoxelFaceShellMesh(
  * @param exterior Exterior-cell mask from {@link floodShellExterior}.
  * @param center World-space origin to subtract from emitted positions.
  * @returns Generated shell mesh.
+ *
+ * @internal
  */
 export function extractSurfaceNetShellMesh(
   grid: ShellVoxelGrid,
@@ -510,6 +542,8 @@ export function extractSurfaceNetShellMesh(
  * @param indices Triangle indices for adjacency.
  * @param voxelSize Grid voxel size, used for displacement limits.
  * @param smoothing Smoothing settings or `false`.
+ *
+ * @internal
  */
 export function smoothShellMesh(
   positions: number[],
@@ -527,6 +561,8 @@ export function smoothShellMesh(
  * @param indices Triangle indices to rewrite.
  * @param voxelSize Grid voxel size, used to scale clustering cells.
  * @param simplification Simplification settings or `false`.
+ *
+ * @internal
  */
 export function simplifyShellMesh(
   positions: number[],
@@ -546,6 +582,8 @@ export function simplifyShellMesh(
  * @param nx Grid size on the X axis.
  * @param ny Grid size on the Y axis.
  * @returns Dense array index.
+ *
+ * @internal
  */
 export function shellVoxelIndex(x: number, y: number, z: number, nx: number, ny: number): number {
   return voxelIndex(x, y, z, nx, ny);
@@ -560,6 +598,8 @@ export function shellVoxelIndex(x: number, y: number, z: number, nx: number, ny:
  * @param cz Box center Z coordinate.
  * @param half Half the box edge length.
  * @returns `true` when the triangle intersects the voxel box.
+ *
+ * @internal
  */
 export function triangleIntersectsShellVoxel(tri: ShellTriangle, cx: number, cy: number, cz: number, half: number): boolean {
   return triangleIntersectsBox(tri, cx, cy, cz, half);
@@ -571,6 +611,8 @@ export function triangleIntersectsShellVoxel(tri: ShellTriangle, cx: number, cy:
  * @param aabb Axis-aligned bounding box as
  * `[xmin, ymin, zmin, xmax, ymax, zmax]`.
  * @returns AABB center as `[x, y, z]`.
+ *
+ * @internal
  */
 export function getShellAABBCenter(aabb: ShellSourceTriangles["aabb"]): [number, number, number] {
   return getAABBCenter(aabb);

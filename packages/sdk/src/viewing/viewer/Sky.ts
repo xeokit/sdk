@@ -20,8 +20,8 @@ const DEFAULT_SUN_DIRECTION: [number, number, number] = [0.577, 0.577, 0.577];
  * Although there's a single physical SkyRenderer shared across all
  * Views in a Viewer, each View carries its own `effects.sky`
  * configuration and the renderer pulls from the View it's currently
- * drawing — so multi-View layouts can give every View a different
- * sun.
+ * drawing, so multi-View layouts can give every View a different sun.
+ * Disabled by default; applications opt in when they want the sky pass.
  *
  * @module viewing/viewer
  */
@@ -46,12 +46,12 @@ export class Sky {
   /** @private */
   constructor(view: View, params: SkyParams) {
     this.view = view;
-    this._enabled          = params.enabled          ?? true;
+    this._enabled          = params.enabled          === true;
     this._skyColor         = copy3(params.skyColor,         [0.08, 0.22, 0.62]);
     this._horizonColor     = copy3(params.horizonColor,     [0.66, 0.72, 0.74]);
     this._groundColor      = copy3(params.groundColor,      [0.58, 0.64, 0.60]);
     this._horizonBlend     = params.horizonBlend     ?? 0.5;
-    this._sunEnabled       = params.sunEnabled       ?? true;
+    this._sunEnabled       = params.sunEnabled       ?? false;
     this._sunDirection     = copy3(params.sunDirection,     DEFAULT_SUN_DIRECTION);
     this._sunColor         = copy3(params.sunColor,         [1.0, 0.97, 0.82]);
     this._sunAngularSize   = params.sunAngularSize   ?? 3.0;

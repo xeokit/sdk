@@ -10,8 +10,8 @@ const DEFAULT_DIRECTION: [number, number, number] = [-0.5, -1.0, -0.3];
  * Configures single-cascade directional shadow mapping for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.shadows}, which lives at {@link View.effects}.
- * * View will cast shadows when the component enabled state is set to one of the values
- *   specified in the component enabled state.
+ * * Disabled by default. Set {@link Shadows.enabled | enabled} to `true`
+ *   or pass `effects: {shadows: {enabled: true}}` when creating a View.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -41,7 +41,7 @@ export class Shadows {
   /** @private */
   constructor(view: View, params: ShadowsParams) {
     this.view = view;
-    this._enabled = params.enabled !== false;
+    this._enabled = params.enabled === true;
     this._intensity = params.intensity !== undefined ? params.intensity : 0.45;
     this._bias = params.bias !== undefined ? params.bias : 0.0015;
     this._projectionSize = params.projectionSize !== undefined ? params.projectionSize : 30;

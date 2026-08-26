@@ -5,15 +5,453 @@
   "description": "Next generation xeokit SDK",
   "main": "dist/index.js",
   "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./base": {
+      "types": "./dist/base/index.d.ts",
+      "import": "./dist/base/index.js",
+      "default": "./dist/base/index.js"
+    },
+    "./base/constants": {
+      "types": "./dist/base/constants/index.d.ts",
+      "import": "./dist/base/constants/index.js",
+      "default": "./dist/base/constants/index.js"
+    },
+    "./base/core": {
+      "types": "./dist/base/core/index.d.ts",
+      "import": "./dist/base/core/index.js",
+      "default": "./dist/base/core/index.js"
+    },
+    "./base/math": {
+      "types": "./dist/base/math/index.d.ts",
+      "import": "./dist/base/math/index.js",
+      "default": "./dist/base/math/index.js"
+    },
+    "./base/math/boundaries": {
+      "types": "./dist/base/math/boundaries.d.ts",
+      "import": "./dist/base/math/boundaries.js",
+      "default": "./dist/base/math/boundaries.js"
+    },
+    "./base/math/compression": {
+      "types": "./dist/base/math/compression.d.ts",
+      "import": "./dist/base/math/compression.js",
+      "default": "./dist/base/math/compression.js"
+    },
+    "./base/math/matrix": {
+      "types": "./dist/base/math/matrix.d.ts",
+      "import": "./dist/base/math/matrix.js",
+      "default": "./dist/base/math/matrix.js"
+    },
+    "./base/math/polygon2D": {
+      "types": "./dist/base/math/polygon2D.d.ts",
+      "import": "./dist/base/math/polygon2D.js",
+      "default": "./dist/base/math/polygon2D.js"
+    },
+    "./base/math/vector": {
+      "types": "./dist/base/math/vector.d.ts",
+      "import": "./dist/base/math/vector.js",
+      "default": "./dist/base/math/vector.js"
+    },
+    "./base/utils": {
+      "types": "./dist/base/utils/index.d.ts",
+      "import": "./dist/base/utils/index.js",
+      "default": "./dist/base/utils/index.js"
+    },
+    "./model": {
+      "types": "./dist/model/index.d.ts",
+      "import": "./dist/model/index.js",
+      "default": "./dist/model/index.js"
+    },
+    "./model/data": {
+      "types": "./dist/model/data/index.d.ts",
+      "import": "./dist/model/data/index.js",
+      "default": "./dist/model/data/index.js"
+    },
+    "./model/lod": {
+      "types": "./dist/model/lod/index.d.ts",
+      "import": "./dist/model/lod/index.js",
+      "default": "./dist/model/lod/index.js"
+    },
+    "./model/scene": {
+      "types": "./dist/model/scene/index.d.ts",
+      "import": "./dist/model/scene/index.js",
+      "default": "./dist/model/scene/index.js"
+    },
+    "./formats": {
+      "types": "./dist/formats/index.d.ts",
+      "import": "./dist/formats/index.js",
+      "default": "./dist/formats/index.js"
+    },
+    "./formats/citygml": {
+      "types": "./dist/formats/citygml/index.d.ts",
+      "import": "./dist/formats/citygml/index.js",
+      "default": "./dist/formats/citygml/index.js"
+    },
+    "./formats/cityjson": {
+      "types": "./dist/formats/cityjson/index.d.ts",
+      "import": "./dist/formats/cityjson/index.js",
+      "default": "./dist/formats/cityjson/index.js"
+    },
+    "./formats/datamodel": {
+      "types": "./dist/formats/datamodel/index.d.ts",
+      "import": "./dist/formats/datamodel/index.js",
+      "default": "./dist/formats/datamodel/index.js"
+    },
+    "./formats/dotbim": {
+      "types": "./dist/formats/dotbim/index.d.ts",
+      "import": "./dist/formats/dotbim/index.js",
+      "default": "./dist/formats/dotbim/index.js"
+    },
+    "./formats/dwg": {
+      "types": "./dist/formats/dwg/index.d.ts",
+      "import": "./dist/formats/dwg/index.js",
+      "default": "./dist/formats/dwg/index.js"
+    },
+    "./formats/dxf": {
+      "types": "./dist/formats/dxf/index.d.ts",
+      "import": "./dist/formats/dxf/index.js",
+      "default": "./dist/formats/dxf/index.js"
+    },
+    "./formats/e57": {
+      "types": "./dist/formats/e57/index.d.ts",
+      "import": "./dist/formats/e57/index.js",
+      "default": "./dist/formats/e57/index.js"
+    },
+    "./formats/fbx": {
+      "types": "./dist/formats/fbx/index.d.ts",
+      "import": "./dist/formats/fbx/index.js",
+      "default": "./dist/formats/fbx/index.js"
+    },
+    "./formats/fds": {
+      "types": "./dist/formats/fds/index.d.ts",
+      "import": "./dist/formats/fds/index.js",
+      "default": "./dist/formats/fds/index.js"
+    },
+    "./formats/gaussiansplat": {
+      "types": "./dist/formats/gaussiansplat/index.d.ts",
+      "import": "./dist/formats/gaussiansplat/index.js",
+      "default": "./dist/formats/gaussiansplat/index.js"
+    },
+    "./formats/gltf": {
+      "types": "./dist/formats/gltf/index.d.ts",
+      "import": "./dist/formats/gltf/index.js",
+      "default": "./dist/formats/gltf/index.js"
+    },
+    "./formats/ifc": {
+      "types": "./dist/formats/ifc/index.d.ts",
+      "import": "./dist/formats/ifc/index.js",
+      "default": "./dist/formats/ifc/index.js"
+    },
+    "./formats/las": {
+      "types": "./dist/formats/las/index.d.ts",
+      "import": "./dist/formats/las/index.js",
+      "default": "./dist/formats/las/index.js"
+    },
+    "./formats/mtl": {
+      "types": "./dist/formats/mtl/index.d.ts",
+      "import": "./dist/formats/mtl/index.js",
+      "default": "./dist/formats/mtl/index.js"
+    },
+    "./formats/obj": {
+      "types": "./dist/formats/obj/index.d.ts",
+      "import": "./dist/formats/obj/index.js",
+      "default": "./dist/formats/obj/index.js"
+    },
+    "./formats/pdf": {
+      "types": "./dist/formats/pdf/index.d.ts",
+      "import": "./dist/formats/pdf/index.js",
+      "default": "./dist/formats/pdf/index.js"
+    },
+    "./formats/ply": {
+      "types": "./dist/formats/ply/index.d.ts",
+      "import": "./dist/formats/ply/index.js",
+      "default": "./dist/formats/ply/index.js"
+    },
+    "./formats/scenemodel": {
+      "types": "./dist/formats/scenemodel/index.d.ts",
+      "import": "./dist/formats/scenemodel/index.js",
+      "default": "./dist/formats/scenemodel/index.js"
+    },
+    "./formats/svg": {
+      "types": "./dist/formats/svg/index.d.ts",
+      "import": "./dist/formats/svg/index.js",
+      "default": "./dist/formats/svg/index.js"
+    },
+    "./formats/threedtiles": {
+      "types": "./dist/formats/threedtiles/index.d.ts",
+      "import": "./dist/formats/threedtiles/index.js",
+      "default": "./dist/formats/threedtiles/index.js"
+    },
+    "./formats/threedxml": {
+      "types": "./dist/formats/threedxml/index.d.ts",
+      "import": "./dist/formats/threedxml/index.js",
+      "default": "./dist/formats/threedxml/index.js"
+    },
+    "./formats/usdz": {
+      "types": "./dist/formats/usdz/index.d.ts",
+      "import": "./dist/formats/usdz/index.js",
+      "default": "./dist/formats/usdz/index.js"
+    },
+    "./formats/xgf": {
+      "types": "./dist/formats/xgf/index.d.ts",
+      "import": "./dist/formats/xgf/index.js",
+      "default": "./dist/formats/xgf/index.js"
+    },
+    "./formats/xgfstream": {
+      "types": "./dist/formats/xgfstream/index.d.ts",
+      "import": "./dist/formats/xgfstream/index.js",
+      "default": "./dist/formats/xgfstream/index.js"
+    },
+    "./quality": {
+      "types": "./dist/quality/index.d.ts",
+      "import": "./dist/quality/index.js",
+      "default": "./dist/quality/index.js"
+    },
+    "./interop": {
+      "types": "./dist/interop/index.d.ts",
+      "import": "./dist/interop/index.js",
+      "default": "./dist/interop/index.js"
+    },
+    "./interop/bcf": {
+      "types": "./dist/interop/bcf/index.d.ts",
+      "import": "./dist/interop/bcf/index.js",
+      "default": "./dist/interop/bcf/index.js"
+    },
+    "./spatial": {
+      "types": "./dist/spatial/index.d.ts",
+      "import": "./dist/spatial/index.js",
+      "default": "./dist/spatial/index.js"
+    },
+    "./spatial/collision": {
+      "types": "./dist/spatial/collision/index.d.ts",
+      "import": "./dist/spatial/collision/index.js",
+      "default": "./dist/spatial/collision/index.js"
+    },
+    "./spatial/picking": {
+      "types": "./dist/spatial/picking/index.d.ts",
+      "import": "./dist/spatial/picking/index.js",
+      "default": "./dist/spatial/picking/index.js"
+    },
+    "./tools": {
+      "types": "./dist/tools/index.d.ts",
+      "import": "./dist/tools/index.js",
+      "default": "./dist/tools/index.js"
+    },
+    "./viewing": {
+      "types": "./dist/viewing/index.d.ts",
+      "import": "./dist/viewing/index.js",
+      "default": "./dist/viewing/index.js"
+    },
+    "./viewing/adaptiveQuality": {
+      "types": "./dist/viewing/adaptiveQuality/index.d.ts",
+      "import": "./dist/viewing/adaptiveQuality/index.js",
+      "default": "./dist/viewing/adaptiveQuality/index.js"
+    },
+    "./viewing/cameraFlight": {
+      "types": "./dist/viewing/cameraFlight/index.d.ts",
+      "import": "./dist/viewing/cameraFlight/index.js",
+      "default": "./dist/viewing/cameraFlight/index.js"
+    },
+    "./viewing/lod": {
+      "types": "./dist/viewing/lod/index.d.ts",
+      "import": "./dist/viewing/lod/index.js",
+      "default": "./dist/viewing/lod/index.js"
+    },
+    "./viewing/navigation": {
+      "types": "./dist/viewing/navigation/index.d.ts",
+      "import": "./dist/viewing/navigation/index.js",
+      "default": "./dist/viewing/navigation/index.js"
+    },
+    "./viewing/navigation/globe": {
+      "types": "./dist/viewing/navigation/globe/index.d.ts",
+      "import": "./dist/viewing/navigation/globe/index.js",
+      "default": "./dist/viewing/navigation/globe/index.js"
+    },
+    "./viewing/navigation/model": {
+      "types": "./dist/viewing/navigation/model/index.d.ts",
+      "import": "./dist/viewing/navigation/model/index.js",
+      "default": "./dist/viewing/navigation/model/index.js"
+    },
+    "./viewing/navigation/vehicle": {
+      "types": "./dist/viewing/navigation/vehicle/index.d.ts",
+      "import": "./dist/viewing/navigation/vehicle/index.js",
+      "default": "./dist/viewing/navigation/vehicle/index.js"
+    },
+    "./viewing/navigation/walk": {
+      "types": "./dist/viewing/navigation/walk/index.d.ts",
+      "import": "./dist/viewing/navigation/walk/index.js",
+      "default": "./dist/viewing/navigation/walk/index.js"
+    },
+    "./viewing/transformControls": {
+      "types": "./dist/viewing/transformControls/index.d.ts",
+      "import": "./dist/viewing/transformControls/index.js",
+      "default": "./dist/viewing/transformControls/index.js"
+    },
+    "./viewing/viewer": {
+      "types": "./dist/viewing/viewer/index.d.ts",
+      "import": "./dist/viewing/viewer/index.js",
+      "default": "./dist/viewing/viewer/index.js"
+    },
+    "./viewing/profiles": {
+      "types": "./dist/viewing/profiles/index.d.ts",
+      "import": "./dist/viewing/profiles/index.js",
+      "default": "./dist/viewing/profiles/index.js"
+    },
+    "./viewing/renderers/webGL": {
+      "types": "./dist/viewing/renderers/webGL/index.d.ts",
+      "import": "./dist/viewing/renderers/webGL/index.js",
+      "default": "./dist/viewing/renderers/webGL/index.js"
+    },
+    "./viewing/renderers/webGPU": {
+      "types": "./dist/viewing/renderers/webGPU/index.d.ts",
+      "import": "./dist/viewing/renderers/webGPU/index.js",
+      "default": "./dist/viewing/renderers/webGPU/index.js"
+    },
+    "./conversion": {
+      "types": "./dist/conversion/index.d.ts",
+      "import": "./dist/conversion/index.js",
+      "default": "./dist/conversion/index.js"
+    },
+    "./package.json": "./package.json",
+    "./model/generation": {
+      "types": "./dist/model/generation/index.d.ts",
+      "import": "./dist/model/generation/index.js",
+      "default": "./dist/model/generation/index.js"
+    },
+    "./model/generation/paintMaterials": {
+      "types": "./dist/model/generation/paintMaterials/index.d.ts",
+      "import": "./dist/model/generation/paintMaterials/index.js",
+      "default": "./dist/model/generation/paintMaterials/index.js"
+    },
+    "./quality/sceneModel": {
+      "types": "./dist/quality/sceneModel/index.d.ts",
+      "import": "./dist/quality/sceneModel/index.js",
+      "default": "./dist/quality/sceneModel/index.js"
+    },
+    "./quality/dataModel": {
+      "types": "./dist/quality/dataModel/index.d.ts",
+      "import": "./dist/quality/dataModel/index.js",
+      "default": "./dist/quality/dataModel/index.js"
+    },
+    "./tools/measurement/angle": {
+      "types": "./dist/tools/measurement/angle/index.d.ts",
+      "import": "./dist/tools/measurement/angle/index.js",
+      "default": "./dist/tools/measurement/angle/index.js"
+    },
+    "./tools/measurement/distance": {
+      "types": "./dist/tools/measurement/distance/index.d.ts",
+      "import": "./dist/tools/measurement/distance/index.js",
+      "default": "./dist/tools/measurement/distance/index.js"
+    },
+    "./viewing/rendering": {
+      "types": "./dist/viewing/rendering/index.d.ts",
+      "import": "./dist/viewing/rendering/index.js",
+      "default": "./dist/viewing/rendering/index.js"
+    },
+    "./model/generation/buildGeometry": {
+      "types": "./dist/model/generation/buildGeometry/index.d.ts",
+      "import": "./dist/model/generation/buildGeometry/index.js",
+      "default": "./dist/model/generation/buildGeometry/index.js"
+    },
+    "./model/generation/paintEnvironments": {
+      "types": "./dist/model/generation/paintEnvironments/index.d.ts",
+      "import": "./dist/model/generation/paintEnvironments/index.js",
+      "default": "./dist/model/generation/paintEnvironments/index.js"
+    },
+    "./model/generation/treeGenerator": {
+      "types": "./dist/model/generation/treeGenerator/index.d.ts",
+      "import": "./dist/model/generation/treeGenerator/index.js",
+      "default": "./dist/model/generation/treeGenerator/index.js"
+    },
+    "./model/generation/buildGeometry/*": {
+      "types": "./dist/model/generation/buildGeometry/*.d.ts",
+      "import": "./dist/model/generation/buildGeometry/*.js",
+      "default": "./dist/model/generation/buildGeometry/*.js"
+    },
+    "./model/generation/paintEnvironments/*": {
+      "types": "./dist/model/generation/paintEnvironments/*.d.ts",
+      "import": "./dist/model/generation/paintEnvironments/*.js",
+      "default": "./dist/model/generation/paintEnvironments/*.js"
+    },
+    "./model/generation/paintMaterials/*": {
+      "types": "./dist/model/generation/paintMaterials/*.d.ts",
+      "import": "./dist/model/generation/paintMaterials/*.js",
+      "default": "./dist/model/generation/paintMaterials/*.js"
+    },
+    "./model/generation/treeGenerator/*": {
+      "types": "./dist/model/generation/treeGenerator/*.d.ts",
+      "import": "./dist/model/generation/treeGenerator/*.js",
+      "default": "./dist/model/generation/treeGenerator/*.js"
+    },
+    "./quality/dataModel/*": {
+      "types": "./dist/quality/dataModel/*.d.ts",
+      "import": "./dist/quality/dataModel/*.js",
+      "default": "./dist/quality/dataModel/*.js"
+    },
+    "./quality/sceneModel/*": {
+      "types": "./dist/quality/sceneModel/*.d.ts",
+      "import": "./dist/quality/sceneModel/*.js",
+      "default": "./dist/quality/sceneModel/*.js"
+    },
+    "./tools/measurement/angle/*": {
+      "types": "./dist/tools/measurement/angle/*.d.ts",
+      "import": "./dist/tools/measurement/angle/*.js",
+      "default": "./dist/tools/measurement/angle/*.js"
+    },
+    "./tools/measurement/distance/*": {
+      "types": "./dist/tools/measurement/distance/*.d.ts",
+      "import": "./dist/tools/measurement/distance/*.js",
+      "default": "./dist/tools/measurement/distance/*.js"
+    },
+    "./conversion/pipeline": {
+      "types": "./dist/conversion/pipeline/index.d.ts",
+      "import": "./dist/conversion/pipeline/index.js",
+      "default": "./dist/conversion/pipeline/index.js"
+    },
+    "./conversion/xeoconvert": {
+      "types": "./dist/conversion/xeoconvert/index.d.ts",
+      "import": "./dist/conversion/xeoconvert/index.js",
+      "default": "./dist/conversion/xeoconvert/index.js"
+    },
+    "./conversion/pipeline/*": {
+      "types": "./dist/conversion/pipeline/*.d.ts",
+      "import": "./dist/conversion/pipeline/*.js",
+      "default": "./dist/conversion/pipeline/*.js"
+    },
+    "./conversion/xeoconvert/*": {
+      "types": "./dist/conversion/xeoconvert/*.d.ts",
+      "import": "./dist/conversion/xeoconvert/*.js",
+      "default": "./dist/conversion/xeoconvert/*.js"
+    },
+    "./viewing/renderers": {
+      "types": "./dist/viewing/renderers/index.d.ts",
+      "import": "./dist/viewing/renderers/index.js",
+      "default": "./dist/viewing/renderers/index.js"
+    },
+    "./viewing/renderers/webGL/*": {
+      "types": "./dist/viewing/renderers/webGL/*.d.ts",
+      "import": "./dist/viewing/renderers/webGL/*.js",
+      "default": "./dist/viewing/renderers/webGL/*.js"
+    },
+    "./viewing/renderers/webGPU/*": {
+      "types": "./dist/viewing/renderers/webGPU/*.d.ts",
+      "import": "./dist/viewing/renderers/webGPU/*.js",
+      "default": "./dist/viewing/renderers/webGPU/*.js"
+    }
+  },
   "scripts": {
     "sdk-test": "jest --passWithNoTests",
     "sdk-test:browser": "jest --config jest.browser.config.js --runInBand --passWithNoTests",
     "sdk-test:formats": "jest src/formats",
-    "sdk-perf": "RUN_PERF=1 jest src/perf",
-    "sdk-perf:update": "RUN_PERF=1 UPDATE_PERF_BASELINE=1 jest src/perf",
+    "sdk-perf": "RUN_PERF=1 jest perf",
+    "sdk-perf:update": "RUN_PERF=1 UPDATE_PERF_BASELINE=1 jest perf",
     "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
-    "sdk-publish": "npm publish --access public",
-    "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
+    "sdk-publish": "npm publish --access public"
   },
   "bin": {
     "xeoconvert": "./dist/xeoconvert/xeoconvert.js"
@@ -29,7 +467,8 @@
   },
   "homepage": "https://xeokit.github.io/sdk/docs/api/index.html",
   "files": [
-    "src/",
+    "dist/",
+    "assets/",
     "README.md",
     "package.json"
   ],

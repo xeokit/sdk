@@ -178,9 +178,10 @@ function readRuntimeChunk(value: any): SDKResult<XGFChunkManifest> {
     number[] | null,
     [number, number, number, number, number, number],
     number | null | undefined,
-    number | string | null | undefined
+    number | string | null | undefined,
+    string | null | undefined
   ];
-  const [id, uri, roleCode, dependencies, aabb, counts, priority, lod] = chunk;
+  const [id, uri, roleCode, dependencies, aabb, counts, priority, lod, layerId] = chunk;
   if (!isNonEmptyString(id)) {
     return invalid("Expected non-empty chunk id");
   }
@@ -236,7 +237,8 @@ function readRuntimeChunk(value: any): SDKResult<XGFChunkManifest> {
     },
     aabb: aabb || undefined,
     priority: priority ?? undefined,
-    lod: lod ?? undefined
+    lod: lod ?? undefined,
+    layerId: layerId ?? undefined
   };
   return {ok: true, value: manifest};
 }
@@ -246,7 +248,7 @@ function readRuntimeChunkV11(value: any, index: XGFStreamingRuntimeIndex): SDKRe
     return invalid("Expected compact chunk tuple");
   }
   const chunk = value as XGFStreamingRuntimeChunk;
-  const [idRef, uriRef, roleCode, dependencies, encodedAABB, counts, priority, lod] = chunk;
+  const [idRef, uriRef, roleCode, dependencies, encodedAABB, counts, priority, lod, layerIdRef] = chunk;
   const idResult = readStringRef(idRef, index, "chunk id");
   if (idResult.ok === false) {
     return idResult;
@@ -278,6 +280,12 @@ function readRuntimeChunkV11(value: any, index: XGFStreamingRuntimeIndex): SDKRe
   }
   if (typeof lod === "number" && !isFiniteNumber(lod)) {
     return invalid("Expected numeric lod to be finite");
+  }
+  const layerIdResult = layerIdRef === null || layerIdRef === undefined
+    ? {ok: true as const, value: undefined}
+    : readStringRef(layerIdRef, index, "chunk layerId");
+  if (layerIdResult.ok === false) {
+    return layerIdResult;
   }
   const dependencyResults: XGFChunkDependency[] = [];
   for (const dependency of dependencies) {
@@ -315,7 +323,8 @@ function readRuntimeChunkV11(value: any, index: XGFStreamingRuntimeIndex): SDKRe
     },
     aabb: aabbResult.value,
     priority: priority ?? undefined,
-    lod: lod ?? undefined
+    lod: lod ?? undefined,
+    layerId: layerIdResult.value
   };
   return {ok: true, value: manifest};
 }

@@ -109,6 +109,7 @@ export async function modelToXGF(params: {
   const texturesList   = Object.values(sceneModel.textures);
   const materialsList  = Object.values(sceneModel.materials);
   const transformsList = Object.values(sceneModel.transforms);
+  const repSetPayload = buildRepSetPayload(sceneModel, assetMode, new Set(objectsList.map((object: any) => object.id)));
 
   const numGeometries = geometriesList.length;
   const numMeshes     = meshesList.length;
@@ -310,7 +311,17 @@ export async function modelToXGF(params: {
       : new Uint32Array(0),
     eachMeshParentTransformId: preserveTransforms
       ? new Array(numMeshes)
-      : []
+      : [],
+    eachRepSetId: repSetPayload.eachRepSetId,
+    eachRepSetDefaultRepId: repSetPayload.eachRepSetDefaultRepId,
+    eachRepSetSelectionStrategy: repSetPayload.eachRepSetSelectionStrategy,
+    eachRepSetHysteresisPixels: repSetPayload.eachRepSetHysteresisPixels,
+    eachRepSetRepsBase: repSetPayload.eachRepSetRepsBase,
+    eachRepId: repSetPayload.eachRepId,
+    eachRepRangeMinPixels: repSetPayload.eachRepRangeMinPixels,
+    eachRepRangeMaxPixels: repSetPayload.eachRepRangeMaxPixels,
+    eachRepObjectIdsBase: repSetPayload.eachRepObjectIdsBase,
+    repObjectIds: repSetPayload.repObjectIds
   };
 
   let positionsBase = 0;
@@ -515,6 +526,7 @@ function stripInstances(xgfData: XGFData_v2): void {
   xgfData.eachTransformMatricesBase = new Uint32Array(0);
   xgfData.eachObjectId = [];
   xgfData.eachObjectMeshesBase = new Uint32Array(0);
+  clearRepSets(xgfData);
 }
 
 function stripAssets(xgfData: XGFData_v2): void {
@@ -567,6 +579,97 @@ function stripExternalMeshRefs(xgfData: XGFData_v2): void {
   xgfData.eachMeshMaterialId = [];
 }
 
+function buildRepSetPayload(sceneModel: any, assetMode: string, objectIdSet: Set<string>): Pick<XGFData_v2,
+  "eachRepSetId" |
+  "eachRepSetDefaultRepId" |
+  "eachRepSetSelectionStrategy" |
+  "eachRepSetHysteresisPixels" |
+  "eachRepSetRepsBase" |
+  "eachRepId" |
+  "eachRepRangeMinPixels" |
+  "eachRepRangeMaxPixels" |
+  "eachRepObjectIdsBase" |
+  "repObjectIds"> {
+  const repSets = assetMode === "assetLibrary"
+    ? []
+    : Object.values(sceneModel.repSets || {}).filter((repSet: any) => repSetObjectsContained(repSet, objectIdSet));
+  const eachRepSetId: string[] = [];
+  const eachRepSetDefaultRepId: string[] = [];
+  const eachRepSetSelectionStrategy = new Uint8Array(repSets.length);
+  const eachRepSetHysteresisPixels = new Float32Array(repSets.length);
+  const eachRepSetRepsBase = new Uint32Array(repSets.length);
+  const eachRepId: string[] = [];
+  const eachRepRangeMinPixels: number[] = [];
+  const eachRepRangeMaxPixels: number[] = [];
+  const eachRepObjectIdsBase: number[] = [];
+  const repObjectIds: string[] = [];
+
+  for (let i = 0; i < eachRepSetHysteresisPixels.length; i++) {
+    eachRepSetHysteresisPixels[i] = Number.NaN;
+  }
+
+  for (let repSetIdx = 0; repSetIdx < repSets.length; repSetIdx++) {
+    const repSet: any = repSets[repSetIdx];
+    eachRepSetId.push(repSet.id);
+    eachRepSetDefaultRepId.push(repSet.defaultRepId);
+    eachRepSetRepsBase[repSetIdx] = eachRepId.length;
+    if (repSet.selection?.strategy === "projectedSize") {
+      eachRepSetSelectionStrategy[repSetIdx] = 1;
+      if (repSet.selection.hysteresisPixels !== undefined) {
+        eachRepSetHysteresisPixels[repSetIdx] = repSet.selection.hysteresisPixels;
+      }
+    }
+    for (const repId in repSet.reps) {
+      const rep = repSet.reps[repId];
+      eachRepId.push(rep.id);
+      eachRepRangeMinPixels.push(rep.range?.minPixels ?? Number.NaN);
+      eachRepRangeMaxPixels.push(rep.range?.maxPixels ?? Number.NaN);
+      eachRepObjectIdsBase.push(repObjectIds.length);
+      for (let i = 0, len = rep.objectIds.length; i < len; i++) {
+        repObjectIds.push(rep.objectIds[i]);
+      }
+    }
+  }
+
+  return {
+    eachRepSetId,
+    eachRepSetDefaultRepId,
+    eachRepSetSelectionStrategy,
+    eachRepSetHysteresisPixels,
+    eachRepSetRepsBase,
+    eachRepId,
+    eachRepRangeMinPixels: new Float32Array(eachRepRangeMinPixels),
+    eachRepRangeMaxPixels: new Float32Array(eachRepRangeMaxPixels),
+    eachRepObjectIdsBase: new Uint32Array(eachRepObjectIdsBase),
+    repObjectIds
+  };
+}
+
+function repSetObjectsContained(repSet: any, objectIdSet: Set<string>): boolean {
+  for (const repId in repSet.reps) {
+    const rep = repSet.reps[repId];
+    for (let i = 0, len = rep.objectIds.length; i < len; i++) {
+      if (!objectIdSet.has(rep.objectIds[i])) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function clearRepSets(xgfData: XGFData_v2): void {
+  xgfData.eachRepSetId = [];
+  xgfData.eachRepSetDefaultRepId = [];
+  xgfData.eachRepSetSelectionStrategy = new Uint8Array(0);
+  xgfData.eachRepSetHysteresisPixels = new Float32Array(0);
+  xgfData.eachRepSetRepsBase = new Uint32Array(0);
+  xgfData.eachRepId = [];
+  xgfData.eachRepRangeMinPixels = new Float32Array(0);
+  xgfData.eachRepRangeMaxPixels = new Float32Array(0);
+  xgfData.eachRepObjectIdsBase = new Uint32Array(0);
+  xgfData.repObjectIds = [];
+}
+
 function clampU8(v: number): number {
   v = Math.round(v);
   return v < 0 ? 0 : v > 255 ? 255 : v;
@@ -592,7 +695,7 @@ function maxArrayValue(values: ArrayLike<number>): number {
  * Re-encode a texture image to PNG bytes. Accepts both drawable sources
  * (`HTMLImageElement` / `ImageBitmap` / `OffscreenCanvas` / `HTMLCanvasElement`)
  * and raw RGBA pixel buffers (`ImageData` or any `{data, width, height}`-shaped
- * value, e.g. `MaterialPixelBuffer` from `procgen/paintMaterials`).
+ * value, e.g. `MaterialPixelBuffer` from `generation/paintMaterials`).
  *
  * Uses an `OffscreenCanvas` when available — that's the faster path;
  * falls back to a DOM canvas + `toBlob` otherwise.

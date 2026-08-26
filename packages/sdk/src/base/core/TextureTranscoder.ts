@@ -1,4 +1,4 @@
-import type {Capabilities} from "../../viewing/webGLRenderer/Capabilities";
+import type {Capabilities} from "../../viewing/renderers/webGL/Capabilities";
 import type {TextureCompressedParams} from "./TextureCompressedParams";
 
 

@@ -50,7 +50,9 @@ describe("View depth of field", () => {
       id: "view",
       htmlElement: createHostElement(),
       effects: {
-        depthOfField: {}
+        depthOfField: {
+          enabled: true
+        }
       }
     });
     expect(viewResult.ok).toBe(true);

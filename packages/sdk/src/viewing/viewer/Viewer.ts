@@ -6,6 +6,7 @@ import type {ViewerParams} from "./ViewerParams";
 import type {ViewParams} from "./ViewParams";
 import {ViewerEvents} from "./ViewerEvents";
 import {Effect} from "./Effect";
+import {LODVisibility} from "../lod/LODVisibility";
 
 /**
  * 3D model viewer.
@@ -63,6 +64,16 @@ export class Viewer {
    * @internal
    */
   readonly viewList: View[];
+
+  /**
+   * Per-view renderer-side LOD suppression mask.
+   *
+   * This does not mutate application-level {@link ViewObject.visible}. Renderers
+   * combine it with normal view/object visibility while drawing.
+   *
+   * @internal
+   */
+  readonly lodVisibility: LODVisibility;
 
   /**
    *  The number of {@link View | Views} belonging to this Viewer.
@@ -132,6 +143,9 @@ export class Viewer {
     this.viewList = [];
     this.numViews = 0;
     this.views = {};
+    this.lodVisibility = new LODVisibility((viewId) => {
+      this.views[viewId]?.needsRender();
+    });
     this.destroyed = false;
     this.logging = !!params?.logging;
     if (params?.scene) {
@@ -449,6 +463,7 @@ export class Viewer {
     this._onSceneMaterialPatternChanged   = undefined;
     this._renderSuspendCount = 0;
     this._pendingRenderViews.clear();
+    this.lodVisibility.clear();
 
     const scene = this.scene;
     this.scene = null;

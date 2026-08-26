@@ -5,6 +5,8 @@
  * Taubin smoothing alternates a positive Laplacian pass with a negative
  * inflation pass to reduce block noise without collapsing the shell as much as
  * plain Laplacian smoothing.
+ *
+ * @public
  */
 export interface ShellSmoothingParams {
   /**
@@ -39,6 +41,8 @@ export interface ShellSmoothingParams {
 
 /**
  * Vertex-clustering simplification settings for generated shell meshes.
+ *
+ * @public
  */
 export interface ShellSimplificationParams {
   /**
@@ -78,6 +82,8 @@ export interface ShellSimplificationParams {
  *   }
  * });
  * ```
+ *
+ * @public
  */
 export interface ShellGenerationParams {
   /**

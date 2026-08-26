@@ -1,6 +1,6 @@
 import type {Scene} from "../../model/scene";
 import {GaussianSplatsPrimitive, PointsPrimitive} from "../../base/constants";
-import type {Renderer} from "../../viewing/renderer";
+import type {Renderer} from "../../viewing/rendering";
 import {BVHPickStrategy} from "./BVHPickStrategy";
 import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";

@@ -30,7 +30,7 @@ function createHostElement(): HTMLElement {
 
 describe("View anti-aliasing", () => {
 
-  it("defaults to enabled SMAA", () => {
+  it("defaults to disabled SMAA", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
@@ -41,8 +41,8 @@ describe("View anti-aliasing", () => {
     const view = viewResult.value!;
 
     expect(view.effects.antiAliasing.mode).toBe("smaa");
-    expect(view.effects.antiAliasing.enabled).toBe(true);
-    expect(view.effects.antiAliasing.applied).toBe(true);
+    expect(view.effects.antiAliasing.enabled).toBe(false);
+    expect(view.effects.antiAliasing.applied).toBe(false);
   });
 
   it("accepts SMAA from view params and round-trips it", () => {
@@ -52,6 +52,7 @@ describe("View anti-aliasing", () => {
       htmlElement: createHostElement(),
       effects: {
         antiAliasing: {
+          enabled: true,
           mode: "smaa"
         }
       }
@@ -62,7 +63,9 @@ describe("View anti-aliasing", () => {
     const params = view.effects.antiAliasing.toParams();
 
     expect(view.effects.antiAliasing.mode).toBe("smaa");
+    expect(view.effects.antiAliasing.enabled).toBe(true);
     expect(params.ok).toBe(true);
+    expect(params.value!.enabled).toBe(true);
     expect(params.value!.mode).toBe("smaa");
   });
 
@@ -73,6 +76,7 @@ describe("View anti-aliasing", () => {
       htmlElement: createHostElement(),
       effects: {
         antiAliasing: {
+          enabled: true,
           mode: "fxaa"
         }
       }
@@ -82,6 +86,7 @@ describe("View anti-aliasing", () => {
     const view = viewResult.value!;
 
     expect(view.effects.antiAliasing.mode).toBe("fxaa");
+    expect(view.effects.antiAliasing.enabled).toBe(true);
   });
 
   it("ignores invalid AA modes", () => {

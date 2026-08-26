@@ -1,5 +1,5 @@
 import type {View} from "../viewer";
-import type {ViewProfiles} from "../viewProfiles";
+import type {ViewProfiles} from "../profiles";
 
 const DEFAULT_REST_MS = 500;
 const DEFAULT_REST_IDLE_TIMEOUT_MS = 1000;

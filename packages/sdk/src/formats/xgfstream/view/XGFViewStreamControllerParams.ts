@@ -22,6 +22,25 @@ export interface XGFViewStreamProgress {
 export type XGFChunkPriorityTarget = "look" | "eye";
 
 /**
+ * Optional loading gate for renderer- or application-level backpressure.
+ *
+ * The stream controller checks this between chunk commits, pausing before it
+ * starts the next chunk and resuming only when the caller reports enough
+ * headroom. This keeps backpressure decisions outside renderer internals while
+ * preserving deterministic chunk ownership in the controller.
+ */
+export interface XGFViewStreamBackpressure {
+  /** Returns true when streaming should pause before committing another chunk. */
+  shouldPause: () => boolean;
+  /** Returns true when a backpressure pause may resume streaming. */
+  shouldResume: () => boolean;
+  /** Called after backpressure pauses the controller. */
+  onPause?: () => void;
+  /** Called after backpressure resumes the controller. */
+  onResume?: () => void;
+}
+
+/**
  * Parameters for {@link XGFViewStreamController}.
  */
 export interface XGFViewStreamControllerParams {
@@ -80,6 +99,8 @@ export interface XGFViewStreamControllerParams {
   chunkPriorityTarget?: XGFChunkPriorityTarget;
   /** Debounce delay after `schedule()` before a streaming pass begins. */
   cameraDebounceMs?: number;
+  /** Optional loading backpressure gate checked between chunk commits. */
+  backpressure?: XGFViewStreamBackpressure;
   /** When true, unloads least-recently-used references-only chunks after loads exceed `maxResidentChunks`. */
   enableLRUEviction?: boolean;
   /** When true, unloads child stream chunks and unregisters their manifests after their stream AABB leaves the frustum. */

@@ -5,14 +5,10 @@
  */
 export * as adaptiveQuality from "./adaptiveQuality";
 export * as lod from "./lod";
-export * as viewProfiles from "./viewProfiles";
+export * as profiles from "./profiles";
 export * as cameraFlight from "./cameraFlight";
 export * as transformControls from "./transformControls";
-export * as modelNavigation from "./modelNavigation";
+export * as navigation from "./navigation";
 export * as viewer from "./viewer";
-export * as renderer from "./renderer";
-export * as webGLRenderer from "./webGLRenderer";
-export * as webGPURenderer from "./webGPURenderer";
-export * as globeNavigation from "./globeNavigation";
-export * as walkNavigation from "./walkNavigation";
-export * as vehicleNavigation from "./vehicleNavigation";
+export * as rendering from "./rendering";
+export * as renderers from "./renderers";

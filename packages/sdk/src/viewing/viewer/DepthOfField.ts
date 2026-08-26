@@ -6,6 +6,8 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * Configures depth-of-field post processing for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.depthOfField}, which lives at {@link View.effects}.
+ * * Disabled by default. Set {@link DepthOfField.enabled | enabled} to `true`
+ *   or pass `effects: {depthOfField: {enabled: true}}` when creating a View.
  * * Runs after the HDR scene render and before tonemap.
  * * Uses scene depth to keep a configurable focus distance sharp while
  *   softly blurring nearer or farther pixels.
@@ -26,7 +28,7 @@ export class DepthOfField {
   /** @private */
   constructor(view: View, params: DepthOfFieldParams) {
     this.view = view;
-    this._enabled = params.enabled !== false;
+    this._enabled = params.enabled === true;
     this._focusDistance = clampPositive(params.focusDistance, 50);
     this._focalRange = clampPositive(params.focalRange, 20);
     this._radius = clampRange(params.radius, 0, 12, 4);

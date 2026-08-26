@@ -50,7 +50,9 @@ describe("View atmosphere", () => {
       id: "view",
       htmlElement: createHostElement(),
       effects: {
-        atmosphere: {}
+        atmosphere: {
+          enabled: true
+        }
       }
     });
     expect(viewResult.ok).toBe(true);

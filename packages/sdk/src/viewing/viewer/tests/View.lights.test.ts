@@ -33,7 +33,7 @@ function createHostElement(): HTMLElement {
 
 describe("View lights", () => {
 
-  it("uses default ambient lighting components", () => {
+  it("uses minimal default lighting components", () => {
     const viewer = new Viewer({scene: new Scene()});
     const viewResult = viewer.createView({
       id: "view",
@@ -43,13 +43,20 @@ describe("View lights", () => {
 
     const view = viewResult.value!;
 
-    expect(view.lights.hemispheric.enabled).toBe(true);
+    expect(view.lights.hemispheric.enabled).toBe(false);
     expect(view.lights.hemispheric.intensity).toBe(0.8);
-    expect(view.lights.ibl.enabled).toBe(true);
+    expect(view.lights.ibl.enabled).toBe(false);
     expect(view.lights.ibl.intensity).toBe(1.0);
-    expect(view.lightsList.find((light: any) => light._type === "ambient")?.intensity).toBe(0.0);
-    expect(view.lights.hemispheric.applied).toBe(true);
-    expect(view.lights.ibl.applied).toBe(true);
+    expect(view.lights.hemispheric.applied).toBe(false);
+    expect(view.lights.ibl.applied).toBe(false);
+
+    const ambientLights = view.lightsList.filter((light: any) => light._type === "ambient");
+    const dirLights = view.lightsList.filter((light: any) => light.dir);
+    expect(ambientLights).toHaveLength(1);
+    expect(ambientLights[0].intensity).toBe(0.35);
+    expect(dirLights).toHaveLength(1);
+    expect(dirLights[0].intensity).toBe(1.0);
+    expect(Array.from(dirLights[0].color)).toEqual([1.0, 1.0, 1.0]);
   });
 
   it("schedules render when legacy lights are created and destroyed", () => {

@@ -7,7 +7,7 @@
  */
 export interface BloomParams {
   /**
-   * Whether this component is enabled.
+   * Whether this component is enabled. Default is `false`.
    */
   enabled?: boolean;
 
@@ -29,9 +29,9 @@ export interface BloomParams {
 
   /**
    * How strongly the bloom pyramid is added back to the scene. `0` =
-   * no contribution (but still costs the prep passes — drop the active
-   * the component enabled state out of the component enabled state to
-   * skip the work entirely), `1` = full additive contribution.
+   * no contribution (but still costs the prep passes when bloom is enabled;
+   * set {@link BloomParams.enabled | enabled} to `false` to skip the work),
+   * `1` = full additive contribution.
    * Default is `0.15` — a subtle additive contribution that picks
    * up specular peaks (HDR sun, smooth-metal reflections) without
    * washing out the rest of the scene. Increase for a more

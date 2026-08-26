@@ -118,8 +118,8 @@
  * ```ts
  * import { Scene } from "@xeokit/sdk/model/scene";
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewing/viewController";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
+ * import { ModelNavigationController } from "@xeokit/sdk/viewing/navigation/model";
  * import { E57Loader } from "@xeokit/sdk/formats/e57";
  *
  * const scene = new Scene();
@@ -142,7 +142,7 @@
  * view.pointsMaterial.pointSize = 2;
  * view.pointsMaterial.roundPoints = true;
  *
- * new ViewController(view, {});
+ * new ModelNavigationController(view, {});
  *
  * // E57 has no mandated up-axis — declare the scanner's source frame on the
  * // model's coordinate system (basis columns are Right, Up, Forward). Survey

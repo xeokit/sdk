@@ -1,2 +1,2 @@
 
-export * as measurements from "./measurements";
+export * as measurement from "./measurement";

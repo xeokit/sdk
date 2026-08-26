@@ -16,9 +16,9 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * textures, no specular reflections, no prefiltering — just a smooth
  * two-colour gradient that lifts the flat ambient floor while enabled.
  *
- * Cheap: two uniforms and one `mix` + `dot` per fragment. Use
- * {@link viewing!viewProfiles.ViewProfiles | ViewProfiles} to balance
- * this term against {@link IBL} for different application profiles.
+ * Cheap: two uniforms and one `mix` + `dot` per fragment. Disabled by
+ * default so a plain View uses only its basic ambient and directional
+ * lights.
  */
 class HemisphereAmbient {
 
@@ -38,7 +38,7 @@ class HemisphereAmbient {
    */
   constructor(view: View, params: HemisphereAmbientParams = {}) {
     this.view = view;
-    this.#enabled = params.enabled !== false;
+    this.#enabled = params.enabled === true;
     this.#intensity = params.intensity !== undefined ? params.intensity : 0.8;
     this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
     this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.30]);
@@ -201,6 +201,7 @@ class HemisphereAmbient {
         error: "[HemisphereAmbient.fromParams] HemisphereAmbient has been destroyed."
       });
     }
+    if (params.enabled !== undefined)     this.enabled     = params.enabled;
     if (params.intensity !== undefined)   this.intensity   = params.intensity;
     if (params.skyColor !== undefined)    this.skyColor    = <Vec3>Array.from(params.skyColor);
     if (params.groundColor !== undefined) this.groundColor = <Vec3>Array.from(params.groundColor);

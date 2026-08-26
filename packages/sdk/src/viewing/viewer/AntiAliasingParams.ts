@@ -19,13 +19,12 @@ export type AntiAliasingMode = "none" | "fxaa" | "smaa";
  */
 export interface AntiAliasingParams {
   /**
-   * Whether this component is enabled.
+   * Whether this component is enabled. Default is `false`.
    */
   enabled?: boolean;
 
   /**
-   * AA mode. Default is `"smaa"` so high-quality AA is on by default when the renderer
-   * supports it.
+   * AA mode. Default is `"smaa"` when antialiasing is enabled.
    */
   mode?: AntiAliasingMode;
 }

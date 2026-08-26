@@ -15,6 +15,8 @@ export interface XGFManifestOptions {
   priority?: number;
   /** Optional level-of-detail label or number. */
   lod?: number | string;
+  /** Optional ViewLayer ID applied to objects loaded from this chunk. */
+  layerId?: string;
   /** Target coordinate system for manifest bounds. */
   coordinateSystem?: any;
 }

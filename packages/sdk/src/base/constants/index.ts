@@ -41,7 +41,7 @@
  * - **GL-mapped at the boundary** — host code passes these constants;
  *   the renderer converts them.
  * - **Layout-aware key codes** — `QWERTYLayout` / `AZERTYLayout`
- *   ship with the {@link viewing!viewController | viewController}
+ *   ship with the orbit
  *   defaults, plus the underlying `KEY_*` codes for custom maps.
  *
  * <br>

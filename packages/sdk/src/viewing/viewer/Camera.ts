@@ -391,7 +391,7 @@ class Camera {
   set eye(eye: Vec3) {
     // @ts-ignore
     this._eye.set(eye);
-    this._buildViewMatrixTask.schedule(); // Ensure matrix built on next "tick"
+    this._scheduleViewMatrixUpdate();
   }
 
   /**
@@ -415,7 +415,7 @@ class Camera {
   set look(look: Vec3) {
     // @ts-ignore
     this._look.set(look);
-    this._buildViewMatrixTask.schedule(); // Ensure matrix built on next "tick"
+    this._scheduleViewMatrixUpdate();
   }
 
   /**
@@ -435,7 +435,7 @@ class Camera {
   set up(up: Vec3) {
     // @ts-ignore
     this._up.set(up);
-    this._buildViewMatrixTask.schedule();
+    this._scheduleViewMatrixUpdate();
   }
 
   /**
@@ -502,7 +502,7 @@ class Camera {
     // @ts-ignore
     this._deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this._hasDeviceMatrix = !!matrix;
-    this._buildViewMatrixTask.schedule();
+    this._scheduleViewMatrixUpdate();
   }
 
   /**
@@ -607,10 +607,15 @@ class Camera {
     // @ts-ignore
     //this._activeProjection.clean();
     this._projectionType = value;
-    this._buildViewMatrixTask.schedule();
+    this._scheduleViewMatrixUpdate();
     const events = this.view.viewer.events;
     events.onCameraProjectionTypeChanged.dispatch(this.view, this);
     events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+  }
+
+  private _scheduleViewMatrixUpdate(): void {
+    this._buildViewMatrixTask.schedule();
+    this.view.needsRender();
   }
 
   /**

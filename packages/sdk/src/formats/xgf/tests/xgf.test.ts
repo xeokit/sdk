@@ -269,6 +269,80 @@ describe("xgf", () => {
       return sceneModel;
     }
 
+    function realRepresentationSetModel() {
+      const sceneModel = new Scene().createModel({id: "m"}).value!;
+      sceneModel.createGeometry({
+        id: "t", primitive: TrianglesPrimitive,
+        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+        indices: [0, 1, 2],
+      });
+      for (const objectId of ["redLeg", "greenLeg", "blueLeg", "yellowLeg", "tableTop", "tableShell"]) {
+        const meshId = `${objectId}-mesh`;
+        sceneModel.createMesh({id: meshId, geometryId: "t"});
+        sceneModel.createObject({id: objectId, meshIds: [meshId]});
+      }
+      const result = sceneModel.createRepSet({
+        id: "table",
+        defaultRepId: "detailed",
+        selection: {
+          strategy: "projectedSize",
+          hysteresisPixels: 16
+        },
+        reps: [
+          {
+            id: "detailed",
+            objectIds: ["redLeg", "greenLeg", "blueLeg", "yellowLeg", "tableTop"],
+            range: {
+              minPixels: 120
+            }
+          },
+          {
+            id: "shell",
+            objectIds: ["tableShell"],
+            range: {
+              maxPixels: 100
+            }
+          }
+        ]
+      });
+      expect(result.ok).toBe(true);
+      return sceneModel;
+    }
+
+    function realDominanceStreamModel() {
+      const sceneModel = new Scene().createModel({id: "m"}).value!;
+      for (const [objectId, size] of [["small", 1], ["medium", 3], ["large", 10]] as const) {
+        const geometryId = `${objectId}-geom`;
+        const meshId = `${objectId}-mesh`;
+        sceneModel.createGeometry({
+          id: geometryId,
+          primitive: TrianglesPrimitive,
+          positions: [0, 0, 0, size, 0, 0, 0, size, size],
+          indices: [0, 1, 2],
+        });
+        sceneModel.createMesh({id: meshId, geometryId});
+        sceneModel.createObject({id: objectId, meshIds: [meshId]});
+      }
+      return sceneModel;
+    }
+
+    function realExplicitLODStreamModel() {
+      const sceneModel = new Scene().createModel({id: "m"}).value!;
+      for (const objectId of ["dominant", "regular", "detail"]) {
+        const geometryId = `${objectId}-geom`;
+        const meshId = `${objectId}-mesh`;
+        sceneModel.createGeometry({
+          id: geometryId,
+          primitive: TrianglesPrimitive,
+          positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+          indices: [0, 1, 2],
+        });
+        sceneModel.createMesh({id: meshId, geometryId});
+        sceneModel.createObject({id: objectId, meshIds: [meshId]});
+      }
+      return sceneModel;
+    }
+
     it("writes version 2 for a triangle model by default", async () => {
       const buffer = await new XGFExporter().write({sceneModel: realTriangleModel()});
       expect(versionTag(buffer)).toBe(2);
@@ -325,6 +399,140 @@ describe("xgf", () => {
 
       expect(Object.keys(dst.objects)).toHaveLength(123);
       expect(dst.objects["object-122"]).toBeDefined();
+    });
+
+    it("round-trips v2 representation sets", async () => {
+      const src = realRepresentationSetModel();
+      const buffer = await new XGFExporter().write({sceneModel: src});
+      const dst = new Scene().createModel({id: "dst"}).value!;
+
+      await new XGFLoader().load({fileData: buffer, sceneModel: dst});
+
+      const repSet = dst.repSets.table;
+      expect(repSet).toBeDefined();
+      expect(repSet.defaultRepId).toBe("detailed");
+      expect(repSet.selection).toEqual({strategy: "projectedSize", hysteresisPixels: 16});
+      expect(Object.keys(repSet.reps).sort()).toEqual(["detailed", "shell"]);
+      expect(repSet.reps.detailed.objectIds).toEqual(["redLeg", "greenLeg", "blueLeg", "yellowLeg", "tableTop"]);
+      expect(repSet.reps.detailed.range).toEqual({minPixels: 120});
+      expect(repSet.reps.shell.objectIds).toEqual(["tableShell"]);
+      expect(repSet.reps.shell.range).toEqual({maxPixels: 100});
+      expect(dst.getRepSetsForObject("tableShell")).toEqual([repSet]);
+    });
+
+    it("keeps v2 representation sets with references-only XGF chunks", async () => {
+      const src = realRepresentationSetModel();
+      const exporter = new XGFExporter();
+      const assetLibrary = await exporter.write(
+        {sceneModel: src},
+        {assetMode: "assetLibrary"}
+      );
+      const referencesOnly = await exporter.write(
+        {sceneModel: src},
+        {assetMode: "referencesOnly"}
+      );
+      const dst = new Scene().createModel({id: "dst"}).value!;
+      const loader = new XGFLoader();
+
+      await loader.load({fileData: assetLibrary, sceneModel: dst});
+      expect(Object.keys(dst.repSets)).toEqual([]);
+
+      await loader.load({fileData: referencesOnly, sceneModel: dst});
+
+      expect(dst.repSets.table.defaultRepId).toBe("detailed");
+      expect(dst.repSets.table.reps.shell.objectIds).toEqual(["tableShell"]);
+    });
+
+    it("writes per-chunk dominant-object representation sets in XGF streams", async () => {
+      const stream = await new XGFStreamExporter().write(
+        {sceneModel: realDominanceStreamModel()},
+        {
+          partition: "object-order",
+          chunkSize: 3,
+          chunkRepSets: {
+            idPrefix: "chunk-lod",
+            allRepId: "all",
+            dominantRepId: "dominant",
+            maxObjects: 1,
+            allMinPixels: 260,
+            dominantMaxPixels: 220,
+            hysteresisPixels: 16
+          }
+        }
+      );
+      const chunkManifest = stream.manifests.find(manifest => manifest.role === "referencesOnly")!;
+      const fileDataByChunkId: Record<string, ArrayBuffer> = {};
+      for (const manifest of stream.manifests) {
+        fileDataByChunkId[manifest.id] = stream.files[manifest.uri] as ArrayBuffer;
+      }
+      const dst = new Scene().createModel({id: "dst", lifecycle: "streaming", memoryPolicy: "compact"}).value!;
+
+      await new XGFStreamingLoader().loadChunk(
+        {
+          manifest: chunkManifest,
+          fileData: stream.files[chunkManifest.uri] as ArrayBuffer,
+          sceneModel: dst
+        },
+        {
+          manifests: stream.manifests,
+          fileDataByChunkId
+        }
+      );
+
+      const repSet = dst.repSets[`chunk-lod:${chunkManifest.id}`];
+      expect(repSet.defaultRepId).toBe("all");
+      expect(repSet.selection).toEqual({strategy: "projectedSize", hysteresisPixels: 16});
+      expect(repSet.reps.all.objectIds.sort()).toEqual(["large", "medium", "small"]);
+      expect(repSet.reps.all.range).toEqual({minPixels: 260});
+      expect(repSet.reps.regular.objectIds).toEqual([]);
+      expect(repSet.reps.regular.range).toEqual({minPixels: 220, maxPixels: 260});
+      expect(repSet.reps.dominant.objectIds).toEqual(["large"]);
+      expect(repSet.reps.dominant.range).toEqual({maxPixels: 220});
+    });
+
+    it("keeps explicit per-chunk LOD representations from including detail-only objects", async () => {
+      const stream = await new XGFStreamExporter().write(
+        {sceneModel: realExplicitLODStreamModel()},
+        {
+          partition: "object-order",
+          chunkSize: 3,
+          chunkRepSets: {
+            idPrefix: "chunk-lod",
+            allRepId: "all",
+            regularRepId: "regular",
+            dominantRepId: "dominant",
+            regularObjectIds: ["dominant", "regular"],
+            dominantObjectIds: ["dominant"],
+            allMinPixels: 780,
+            regularMinPixels: 440,
+            regularMaxPixels: 780,
+            dominantMaxPixels: 440
+          }
+        }
+      );
+      const chunkManifest = stream.manifests.find(manifest => manifest.role === "referencesOnly")!;
+      const fileDataByChunkId: Record<string, ArrayBuffer> = {};
+      for (const manifest of stream.manifests) {
+        fileDataByChunkId[manifest.id] = stream.files[manifest.uri] as ArrayBuffer;
+      }
+      const dst = new Scene().createModel({id: "dst", lifecycle: "streaming", memoryPolicy: "compact"}).value!;
+
+      await new XGFStreamingLoader().loadChunk(
+        {
+          manifest: chunkManifest,
+          fileData: stream.files[chunkManifest.uri] as ArrayBuffer,
+          sceneModel: dst
+        },
+        {
+          manifests: stream.manifests,
+          fileDataByChunkId
+        }
+      );
+
+      const repSet = dst.repSets[`chunk-lod:${chunkManifest.id}`];
+      expect(repSet.reps.all.objectIds.sort()).toEqual(["detail", "dominant", "regular"]);
+      expect(repSet.reps.regular.objectIds.sort()).toEqual(["dominant", "regular"]);
+      expect(repSet.reps.dominant.objectIds).toEqual(["dominant"]);
     });
 
     it("loads v2 asset-library and references-only chunks into one SceneModel", async () => {

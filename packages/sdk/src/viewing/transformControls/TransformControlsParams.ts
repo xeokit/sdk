@@ -1,6 +1,6 @@
 import type {PickStrategy} from "../../spatial/picking";
 import type {View} from "../viewer/View";
-import type {ViewController} from "../viewController";
+import type {ModelNavigationController} from "../navigation/model";
 import type {TransformControlsMode} from "./TransformControlsMode";
 import type {TransformControlsSpace} from "./TransformControlsSpace";
 import type {TransformControlsTarget} from "./TransformControlsTarget";
@@ -20,7 +20,7 @@ export interface TransformControlsParams {
   view: View;
 
   /**
-   * Optional {@link viewing!viewController.ViewController | ViewController}
+   * Optional ModelNavigationController
    * to suspend while a handle is being dragged.
    *
    * Without this, the orbit controller's `mousemove` listener still
@@ -29,10 +29,10 @@ export interface TransformControlsParams {
    * does not stop the other), and the camera orbits in lockstep with
    * the drag.
    *
-   * When provided, the controls set `viewController.active = false`
+   * When provided, the controls set `modelNavigation.active = false`
    * on drag start and restore the prior value on drag end.
    */
-  viewController?: ViewController;
+  modelNavigation?: ModelNavigationController;
 
   /**
    * {@link spatial!picking.PickStrategy | PickStrategy} used to

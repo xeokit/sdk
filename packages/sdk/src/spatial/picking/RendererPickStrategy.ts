@@ -4,7 +4,7 @@ import {
   type Vec2,
   type Vec3,
 } from "../../base/math/vector";
-import type {Renderer} from "../../viewing/renderer";
+import type {Renderer} from "../../viewing/rendering";
 import type {PickParams as RendererPickParams} from "../../viewing/viewer/PickParams";
 import type {PickResult as RendererPickResult} from "../../viewing/viewer/PickResult";
 import type {PickParams} from "./PickParams";

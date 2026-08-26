@@ -8,8 +8,8 @@ import {createVec3Float64, type Vec3} from "../../base/math/vector";
  * Configures edge enhancement effect for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.edges}, which lives at {@link View.effects}.
- * * View will apply edge enhancement when the component enabled state is set to one of the values
- * specified in the component enabled state.
+ * * Disabled by default. Set {@link Edges.enabled | enabled} to `true`
+ *   or pass `effects: {edges: {enabled: true}}` when creating a View.
  *
  * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
@@ -36,7 +36,7 @@ class Edges {
     constructor(view: View, options: EdgesParams = {}) {
 
         this.view = view;
-    this._enabled = options.enabled !== false;
+    this._enabled = options.enabled === true;
         this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
         this._useMeshColor = options.useMeshColor !== false;
         this._edgeDarken = (options.edgeDarken !== undefined && options.edgeDarken !== null) ? options.edgeDarken : 0.5;

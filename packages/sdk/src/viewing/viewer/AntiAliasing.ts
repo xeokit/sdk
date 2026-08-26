@@ -6,6 +6,8 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * Configures the final antialiasing post-process pass for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.antiAliasing}, which lives at {@link View.effects}.
+ * * Disabled by default. Set {@link AntiAliasing.enabled | enabled} to `true`
+ *   or pass `effects: {antiAliasing: {enabled: true}}` when creating a View.
  * * FXAA/SMAA run after {@link Tonemap} so they see final LDR colours.
  * * Has no effect when the renderer has fallen back to LDR mode (no HDR
  *   target), since there's no intermediate texture to filter from.
@@ -21,7 +23,7 @@ export class AntiAliasing {
   /** @private */
   constructor(view: View, params: AntiAliasingParams) {
     this.view = view;
-    this._enabled = params.enabled !== false;
+    this._enabled = params.enabled === true;
     this._mode = params.mode !== undefined ? params.mode : "smaa";
   }
 

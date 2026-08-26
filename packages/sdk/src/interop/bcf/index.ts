@@ -87,7 +87,7 @@
  * import { Scene } from "@xeokit/sdk/model/scene";
  * import { Data } from "@xeokit/sdk/model/data";
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
  * import { loadXKT } from "@xeokit/sdk/formats/xkt";
  * import { saveBCFViewpoint, loadBCFViewpoint } from "@xeokit/sdk/interop/bcf";
  *

@@ -111,8 +111,8 @@
  * import { Scene } from "@xeokit/sdk/model/scene";
  * import { Data } from "@xeokit/sdk/model/data";
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewing/viewController";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
+ * import { ModelNavigationController } from "@xeokit/sdk/viewing/navigation/model";
  * import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
  *
  * // 1) Create core containers for geometry and metadata
@@ -135,7 +135,7 @@
  * view.camera.up   = [0, 1, 0];
  *
  * // 5) Enable interactive camera control
- * new ViewController(view, {});
+ * new ModelNavigationController(view, {});
  *
  * // 6) Create target models for the loader
  * const sceneModel = scene.createModel({ id: "myModel" }).value;

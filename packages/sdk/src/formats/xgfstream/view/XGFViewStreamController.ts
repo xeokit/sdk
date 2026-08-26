@@ -9,7 +9,7 @@ import {readXGFStreamingRuntimeIndex} from "../index/readXGFStreamingRuntimeInde
 import type {XGFChunkLoadOptions} from "../chunk/XGFChunkLoadOptions";
 import type {XGFChunkManifest} from "../chunk/XGFChunkManifest";
 import type {XGFStreamingIndex, XGFSubstreamManifest} from "../index/XGFStreamingIndex";
-import type {XGFChunkPriorityTarget, XGFViewStreamControllerParams, XGFViewStreamProgress} from "./XGFViewStreamControllerParams";
+import type {XGFChunkPriorityTarget, XGFViewStreamBackpressure, XGFViewStreamControllerParams, XGFViewStreamProgress} from "./XGFViewStreamControllerParams";
 
 type StreamManifest = XGFChunkManifest;
 
@@ -114,6 +114,7 @@ export class XGFViewStreamController {
   private readonly _onProgress?: (progress: XGFViewStreamProgress) => void;
   private readonly _onChunksLoading?: (manifests: XGFChunkManifest[]) => void;
   private readonly _onError?: (error: unknown) => void;
+  private readonly _backpressure?: XGFViewStreamBackpressure;
   private readonly _getStreamIndex: (stream: XGFSubstreamManifest, signal?: AbortSignal) => Promise<any> | any;
   private readonly _streamNodes: StreamNode[];
   private readonly _manifestLookup: ReturnType<typeof createXGFStreamingIndexLookup>;
@@ -123,6 +124,7 @@ export class XGFViewStreamController {
   private _resetGeneration = 0;
   private _running = false;
   private _paused = false;
+  private _backpressurePaused = false;
   private _lruSequence = 0;
   private readonly _chunkLastUsed = new Map<string, number>();
   private readonly _projectedVisibilityViewProjectionMatrix = createMat4Float64();
@@ -190,6 +192,7 @@ export class XGFViewStreamController {
     this._onProgress = params.onProgress;
     this._onChunksLoading = params.onChunksLoading;
     this._onError = params.onError;
+    this._backpressure = params.backpressure;
     this._getStreamIndex = params.getStreamIndex || fetchStreamIndexJSON;
     this._streamNodes = (index.streams || []).map((stream) => ({
       manifest: resolveSubstreamManifest(stream, params.streamIndexBaseURI),
@@ -280,10 +283,47 @@ export class XGFViewStreamController {
    * fetches. The currently committing chunk, if any, is allowed to finish.
    */
   pause(): void {
+    this.pauseInternal(false);
+  }
+
+  /**
+   * Checks the optional backpressure gate and pauses or resumes as needed.
+   *
+   * Returns true when the controller state changed. External callers can use
+   * this from render or timer callbacks to resume a backpressure pause after
+   * the renderer backlog has drained.
+   */
+  updateBackpressure(label = "Streaming"): boolean {
+    const backpressure = this._backpressure;
+    if (!backpressure) {
+      return false;
+    }
+    try {
+      if (this._paused) {
+        if (this._backpressurePaused && backpressure.shouldResume()) {
+          this.resume(label);
+          backpressure.onResume?.();
+          return true;
+        }
+        return false;
+      }
+      if (backpressure.shouldPause()) {
+        this.pauseInternal(true);
+        backpressure.onPause?.();
+        return true;
+      }
+    } catch (error) {
+      this._onError?.(error);
+    }
+    return false;
+  }
+
+  private pauseInternal(backpressurePaused: boolean): void {
     if (this._paused) {
       return;
     }
     this._paused = true;
+    this._backpressurePaused = backpressurePaused;
     this._generation++;
     this._pendingGeneration = 0;
     if (this._timer !== undefined) {
@@ -302,6 +342,7 @@ export class XGFViewStreamController {
       return;
     }
     this._paused = false;
+    this._backpressurePaused = false;
     this.schedule(label);
   }
 
@@ -436,6 +477,9 @@ export class XGFViewStreamController {
         if (this._paused) {
           break;
         }
+        if (this.updateBackpressure(label)) {
+          break;
+        }
         const batchGeneration = activeGeneration || this._generation;
         this._pendingGeneration = 0;
         if (this._unloadInactiveStreams) {
@@ -457,6 +501,9 @@ export class XGFViewStreamController {
           generation: batchGeneration,
           frustumOnly: this._frustumOnly
         });
+        if (this._paused) {
+          break;
+        }
         this.evictLRUChunks();
         this.emitStatus(`${label}: ${this.loadedChunkIds.size}/${this.chunkManifests.length} chunks resident`);
         activeGeneration = this._pendingGeneration || batchGeneration;
@@ -495,6 +542,9 @@ export class XGFViewStreamController {
       }
       for (const manifest of candidates) {
         if (this._paused) {
+          break;
+        }
+        if (this.updateBackpressure(label)) {
           break;
         }
         if (generation !== undefined && generation < this._resetGeneration) {

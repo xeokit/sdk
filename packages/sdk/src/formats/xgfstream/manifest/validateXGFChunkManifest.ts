@@ -44,6 +44,9 @@ export function validateXGFChunkManifest(value: any): SDKResult<XGFChunkManifest
   if (typeof value.lod === "number" && !isFiniteNumber(value.lod)) {
     return invalid("[XGFChunkManifest] Expected lod number to be finite");
   }
+  if (value.layerId !== undefined && !isNonEmptyString(value.layerId)) {
+    return invalid("[XGFChunkManifest] Expected layerId to be a non-empty string when provided");
+  }
   return {ok: true, value: value as XGFChunkManifest};
 }
 

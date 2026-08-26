@@ -123,8 +123,8 @@
  * ```ts
  * import { Scene } from "@xeokit/sdk/model/scene";
  * import { Viewer } from "@xeokit/sdk/viewing/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewing/viewController";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
+ * import { ModelNavigationController } from "@xeokit/sdk/viewing/navigation/model";
  * import { GaussianSplatLoader } from "@xeokit/sdk/formats/gaussiansplat";
  *
  * const scene = new Scene();
@@ -143,7 +143,7 @@
  * view.camera.look = [0, 0, 0];
  * view.camera.up   = [0, 0, 1];
  *
- * new ViewController(view, {});
+ * new ModelNavigationController(view, {});
  *
  * // .splat scenes are authored Y-down. Declare that source frame on the model's
  * // coordinate system (basis columns are Right, Up, Forward) so the splats stand

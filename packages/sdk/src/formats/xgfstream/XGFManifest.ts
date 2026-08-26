@@ -64,7 +64,8 @@ export function createXGFManifest(params: {
       objects: role === "assetLibrary" ? 0 : Object.keys(sceneModel.objects).length
     },
     priority: options.priority,
-    lod: options.lod
+    lod: options.lod,
+    layerId: options.layerId
   };
 
   const aabb = computeSceneModelAABB(sceneModel, options.coordinateSystem);

@@ -6,6 +6,8 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * Configures the HDR bloom post-process for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.bloom}, which lives at {@link View.effects}.
+ * * Disabled by default. Set {@link Bloom.enabled | enabled} to `true`
+ *   or pass `effects: {bloom: {enabled: true}}` when creating a View.
  * * Runs between the scene phase and the tonemap pass. Reads the HDR scene
  *   target, builds a blur pyramid using Kawase dual filtering, and adds the
  *   result back into the HDR target before tonemap.
@@ -25,7 +27,7 @@ export class Bloom {
   /** @private */
   constructor(view: View, params: BloomParams) {
     this.view = view;
-    this._enabled = params.enabled !== false;
+    this._enabled = params.enabled === true;
     this._threshold = params.threshold !== undefined ? params.threshold : 4.0;
     this._knee = params.knee !== undefined ? params.knee : 0.5;
     this._intensity = params.intensity !== undefined ? params.intensity : 0.15;

@@ -14,6 +14,11 @@
  * when you want runtime per-view LOD switching over those authored
  * representations.
  *
+ * Public callers should normally use {@link ShellGenerator},
+ * {@link generateShellFromSceneObjects} or {@link createShellRep}. Lower-level
+ * voxelization and extraction helpers are exported for SDK tests and tooling,
+ * but are not part of the stable authored-LOD API.
+ *
  * ## Pipeline
  *
  * ```mermaid
@@ -94,6 +99,7 @@
  * ```
  *
  * @module lod
+ * @public
  */
 export * from "./ShellGenerationParams";
 export * from "./ShellGenerationStats";

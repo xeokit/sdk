@@ -323,6 +323,7 @@ async function loadXGFIntoSceneModel(
   const createdIds = emptyCreatedIds();
   const parserOptions: any = {
     ...options,
+    layerId: manifest.layerId || options.layerId,
     idPrefix: (manifest as any).idPrefix,
     origin: (manifest as any).origin,
     coordinateSystem: (manifest as any).coordinateSystem,

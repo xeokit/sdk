@@ -10,13 +10,25 @@
     "description": "Website for Next Generation xeokit SDK",
     "main": "src/index.ts",
     "scripts": {
-        "website-build-xeokit-lib": "node scripts/build-xeokit-studio-bundle.js",
-        "website-build-featured-gallery": "node scripts/build-featured-gallery.js",
-        "website-convert-models": "node scripts/convert-models.js",
-        "city": "node scripts/procedural-city/city.mjs",
-        "website-example-snapshots": "node scripts/create-example-snapshots.js",
-        "website-build": "mkdir -p ./libs/@xeokit/sdk; cp -Rf ../sdk/dist ./libs/@xeokit/sdk; node scripts/build-pages.js",
-        "website-build-local": "mkdir -p ./libs/@xeokit/sdk; cp -Rf ../sdk/dist ./libs/@xeokit/sdk; node scripts/build-pages.js -l;"
+        "website-build-xeokit-lib": "node scripts/build/build-xeokit-studio-bundle.js",
+        "build-earth:compile": "esbuild tools/earth-generator/src/cli.ts --bundle --platform=node --format=cjs --outfile=tools/earth-generator/dist/cli.cjs --banner:js=\"process.env.TS_NODE_COMPILER_OPTIONS='{\\\"module\\\":\\\"commonjs\\\",\\\"moduleResolution\\\":\\\"node\\\",\\\"verbatimModuleSyntax\\\":false}';\"",
+        "build-earth": "node tools/earth-generator/dist/cli.cjs",
+        "build-earth-viewer": "esbuild tools/earth-generator/viewer/main.ts --bundle --platform=browser --format=esm --outfile=tools/earth-generator/viewer/main.js",
+        "website-sdk-docs": "node scripts/build/build-sdk-docs.js",
+        "website-build-page-scripts": "node scripts/build/build-page-scripts.js",
+        "website-build-example-index": "node scripts/build/build-example-index.js",
+        "website-build-site-pages": "node scripts/build/build-site-pages.js",
+        "website-build-example-libs": "tsc --project tsconfig.examples.json && node scripts/build/build-example-libs.js",
+        "website-build-model-index": "node tools/asset-pipeline/catalog/build-model-index.js",
+        "website-convert-models": "node tools/asset-pipeline/conversions/convert-models.js",
+        "website-convert-models-to-xgf": "node tools/asset-pipeline/conversions/convert-to-xgf.js",
+        "city": "node tools/city-generator/cli.mjs",
+        "website-example-snapshots": "node scripts/snapshots/create-example-snapshots.js",
+        "website-model-catalog-snapshots": "node scripts/snapshots/create-model-catalog-snapshots.js",
+        "website-webgpu-render-path-gallery": "node scripts/snapshots/create-webgpu-render-path-gallery.js",
+        "website-audit-examples-console": "node scripts/browser-tests/audit-examples-console.js",
+        "website-build": "pnpm website-build-page-scripts && pnpm website-build-example-index && pnpm website-build-example-libs && rm -Rf ./libs/@xeokit/sdk && mkdir -p ./libs/@xeokit/sdk && cp -Rf ../sdk/dist ./libs/@xeokit/sdk && pnpm website-build-site-pages",
+        "website-build-local": "pnpm website-build-page-scripts && pnpm website-build-example-index && pnpm website-build-example-libs && rm -Rf ./libs/@xeokit/sdk && mkdir -p ./libs/@xeokit/sdk && cp -Rf ../sdk/dist ./libs/@xeokit/sdk && pnpm website-build-site-pages --local"
     },
     "author": "Lindsay Kay",
     "license": "SEE LICENSE IN LICENSE.md",
@@ -29,12 +41,14 @@
     ],
     "keywords": [],
     "dependencies": {
+        "@xeokit/sdk": "workspace:*",
         "commander": "^11.0.0",
         "earcut": "^3.2.3",
         "ejs": "3.1.10",
         "polygon-clipping": "^0.15.7",
         "seedrandom": "^3.0.5",
-        "simplex-noise": "^4.0.3"
+        "simplex-noise": "^4.0.3",
+        "strongly-typed-events": "3.0.7"
     },
     "devDependencies": {
         "express": "^4.21.1",

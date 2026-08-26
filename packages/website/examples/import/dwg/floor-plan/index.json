@@ -1,0 +1,11 @@
+{
+  "id": "import/dwg/floor-plan",
+  "title": "DWG Floor Plan Drawing",
+  "description": "Loads an AutoCAD DWG floor plan with DWGLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "DWG",
+    "Drawings"
+  ]
+}

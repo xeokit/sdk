@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ViewProfiles - Default Profiles</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border: 0;
+        }
+
+        #profilePanel {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 2147483000;
+            width: min(390px, calc(100vw - 36px));
+            max-height: calc(100vh - 36px);
+            overflow: auto;
+            padding: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.16);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: #0f172a;
+        }
+
+        #profilePanel h1 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        #profilePanel .buttons {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        #profilePanel button {
+            min-height: 32px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #f8fafc;
+            color: #0f172a;
+            font: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        #profilePanel button.active {
+            background: #0f766e;
+            border-color: #0f766e;
+            color: #fff;
+        }
+
+        #profilePanel .status {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        #profilePanel .profileInfo {
+            margin-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+
+        #profilePanel details {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: rgba(248, 250, 252, 0.9);
+            margin-top: 6px;
+        }
+
+        #profilePanel details[open] {
+            background: rgba(255, 255, 255, 0.96);
+        }
+
+        #profilePanel details.active {
+            border-color: #0f766e;
+        }
+
+        #profilePanel summary {
+            padding: 7px 9px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        #profilePanel .effectList {
+            display: grid;
+            gap: 6px;
+            padding: 0 9px 9px;
+        }
+
+        #profilePanel .effectRow {
+            display: grid;
+            grid-template-columns: 86px 1fr;
+            gap: 8px;
+            align-items: start;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        #profilePanel .effectName {
+            font-weight: 650;
+            color: #0f172a;
+            overflow-wrap: anywhere;
+        }
+
+        #profilePanel .effectProps {
+            color: #475569;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            overflow-wrap: anywhere;
+        }
+
+        #profilePanel .enabled {
+            color: #0f766e;
+            font-weight: 700;
+        }
+
+        #profilePanel .disabled {
+            color: #b91c1c;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<section id="profilePanel" aria-label="View profile selector">
+    <h1>ViewProfiles</h1>
+    <div class="buttons">
+        <button type="button" data-profile="fast">Fast</button>
+        <button type="button" data-profile="detailed">Detailed</button>
+        <button type="button" data-profile="realistic">Realistic</button>
+    </div>
+    <div class="status">realistic</div>
+    <div class="profileInfo" aria-label="View profile definitions"></div>
+</section>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

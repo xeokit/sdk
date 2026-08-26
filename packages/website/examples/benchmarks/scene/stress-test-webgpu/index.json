@@ -1,0 +1,12 @@
+{
+  "id": "benchmarks/scene/stress-test-webgpu",
+  "title": "WebGPU - Creating a 3D Model Benchmark",
+  "description": "Uses WebGPURenderer to stress dynamic SceneModel geometry, mesh, and object creation and deletion.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "WebGPU",
+    "Benchmarks"
+  ]
+}

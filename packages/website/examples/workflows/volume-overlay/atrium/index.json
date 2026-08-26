@@ -1,0 +1,11 @@
+{
+  "id": "workflows/volume-overlay/atrium",
+  "title": "Atrium Thermal Flow Visualization",
+  "description": "Shows thermal flow in an atrium with volume overlays for streamlines, slices and iso-surfaces.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Thermal Flow Visualization",
+    "Featured"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "interact/collision/hover",
+  "title": "Ray Picking Objects with SceneCollisionIndex",
+  "description": "Shows CPU-based object picking and hover highlighting on a duplex model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Picking"
+  ]
+}

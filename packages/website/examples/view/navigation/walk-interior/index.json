@@ -1,0 +1,12 @@
+{
+  "id": "view/navigation/walk-interior",
+  "title": "Walk Navigation Interior",
+  "description": "Loads the OTC Conference Center XGF model, starts inside the building, and enables WalkNavigationController for first-person movement.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Navigation",
+    "Buildings"
+  ]
+}

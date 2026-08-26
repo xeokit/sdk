@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wireframe Projection — Duplex</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+
+        #demoControls {
+            position: absolute;
+            top: 17px;
+            right: 17px;
+            z-index: 200000;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 14px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 12.5px;
+            color: #1f2937;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid #e6e6e6;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+            user-select: none;
+        }
+
+        #demoControls .ctl-section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        #demoControls .ctl-section:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        #demoControls .ctl-title {
+            font-weight: 650;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #2d5e8c;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        #demoControls .ctl-description {
+            color: #475569;
+            line-height: 1.35;
+        }
+
+        #demoControls .ctl-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #demoControls .ctl-row > label {
+            flex: 0 0 64px;
+            cursor: pointer;
+        }
+
+        #demoControls .ctl-row.toggles {
+            justify-content: flex-start;
+            gap: 14px;
+        }
+
+        #demoControls .ctl-row.toggles label {
+            flex: 0 0 auto;
+        }
+
+        #demoControls input[type="checkbox"] {
+            accent-color: #2d5e8c;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        #demoControls input[type="range"] {
+            flex: 1 1 auto;
+            min-width: 0;
+            accent-color: #2d5e8c;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        #demoControls select {
+            flex: 1 1 auto;
+            font: inherit;
+            padding: 1px 4px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        #demoControls .ctl-val {
+            flex: 0 0 34px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="demoControls">
+    <div class="ctl-section">
+        <div class="ctl-title">Auto-Generated Drawings</div>
+        <div class="ctl-description">Generates plan and elevation drawings from a building model, with live controls for drawing style, clipping and layout.</div>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-title">Style</div>
+        <div class="ctl-row toggles">
+            <input type="checkbox" id="cfgLines" checked>
+            <label for="cfgLines">Lines</label>
+            <input type="checkbox" id="cfgFill">
+            <label for="cfgFill">Fill</label>
+        </div>
+        <div class="ctl-row">
+            <label for="cfgColor">Color</label>
+            <select id="cfgColor">
+                <option value="blue" selected>Drawing blue</option>
+                <option value="black">Black</option>
+                <option value="red">Red</option>
+                <option value="ink">Ink</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-title">Hidden lines</div>
+        <div class="ctl-row toggles">
+            <input type="checkbox" id="cfgHLE" checked>
+            <label for="cfgHLE">Enabled</label>
+        </div>
+        <div class="ctl-row">
+            <label for="cfgResolution">Res</label>
+            <select id="cfgResolution">
+                <option value="1024">1024</option>
+                <option value="2048" selected>2048</option>
+                <option value="4096">4096</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-title">Chrome</div>
+        <div class="ctl-row">
+            <label for="cfgFrame">Frame</label>
+            <input type="range" id="cfgFrame" min="0" max="5" step="0.1" value="1.5">
+            <span class="ctl-val" id="cfgFrameVal">1.5</span>
+        </div>
+        <div class="ctl-row">
+            <label for="cfgPanelOpacity">Panel</label>
+            <input type="range" id="cfgPanelOpacity" min="0" max="1" step="0.05" value="0.55">
+            <span class="ctl-val" id="cfgPanelOpacityVal">0.55</span>
+        </div>
+        <div class="ctl-row toggles">
+            <input type="checkbox" id="cfgTitleBlock">
+            <label for="cfgTitleBlock">Title block</label>
+        </div>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-title">Projection</div>
+        <div class="ctl-row">
+            <label for="cfgOffset">Offset</label>
+            <input type="range" id="cfgOffset" min="0" max="30" step="0.5" value="10">
+            <span class="ctl-val" id="cfgOffsetVal">10</span>
+        </div>
+        <div class="ctl-row">
+            <label for="cfgLineWidth">Line</label>
+            <input type="range" id="cfgLineWidth" min="1" max="8" step="1" value="3">
+            <span class="ctl-val" id="cfgLineWidthVal">3</span>
+        </div>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-title">Section cut (plan view)</div>
+        <div class="ctl-row toggles">
+            <input type="checkbox" id="cfgClip">
+            <label for="cfgClip">Clip</label>
+            <input type="checkbox" id="cfgCaps">
+            <label for="cfgCaps">Caps</label>
+        </div>
+        <div class="ctl-row">
+            <label for="cfgClipDepth">Z cut</label>
+            <input type="range" id="cfgClipDepth" min="0" max="8" step="0.1" value="2.5">
+            <span class="ctl-val" id="cfgClipDepthVal">2.5</span>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

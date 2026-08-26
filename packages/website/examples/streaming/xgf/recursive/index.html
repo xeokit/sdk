@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>XGF Recursive Streaming - Nested Model Set</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../../../css/example-page.css">
+  <link rel="stylesheet" href="../../../../css/example-loading.css">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      user-select: none;
+      font-family: Arial, sans-serif;
+      background: #d7e2e7;
+    }
+    #viewerCanvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: linear-gradient(#c1d8e7 0%, #edf4f6 58%, #d8dedb 100%);
+    }
+    .stream-panel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(410px, calc(100vw - 32px));
+      max-height: calc(100vh - 76px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      box-shadow: 0 20px 42px rgba(0, 0, 0, 0.18);
+      padding: 16px;
+      font: 13px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #1f2933;
+      z-index: 2147483647;
+    }
+    .stream-panel h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .stream-panel p {
+      margin: 0 0 14px;
+      color: #4b5563;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat {
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      padding: 8px;
+      background: #f8fafc;
+    }
+    .stat strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.1;
+    }
+    .stat span {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      color: #64748b;
+    }
+    .queue-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 8px;
+      color: #475569;
+    }
+    progress {
+      width: 100%;
+      height: 8px;
+      border: 0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .viewpoint-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .viewpoint-card {
+      text-align: left;
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      background: #fff;
+      padding: 9px 10px;
+      cursor: pointer;
+    }
+    .viewpoint-card.active {
+      border-color: #2684ff;
+      background: #f1f7ff;
+    }
+    .viewpoint-card strong {
+      display: block;
+      font-size: 13px;
+    }
+    .viewpoint-card span {
+      display: block;
+      color: #64748b;
+      font-size: 12px;
+    }
+    .viewpoint-progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+      color: #64748b;
+      font-size: 11px;
+    }
+    .viewpoint-progress-track {
+      width: 100%;
+      height: 5px;
+      margin-top: 5px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .viewpoint-progress-fill {
+      width: var(--progress, 0%);
+      height: 100%;
+      border-radius: inherit;
+      background: #2684ff;
+      transition: width 160ms ease;
+    }
+    .viewpoint-card.loaded .viewpoint-progress-fill {
+      background: #16a34a;
+    }
+    .stream-options {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 34px;
+      padding: 8px 10px;
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      background: #f8fafc;
+      color: #1f2933;
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .switch-row input {
+      position: relative;
+      width: 38px;
+      height: 21px;
+      flex: 0 0 auto;
+      margin: 0;
+      border: 0;
+      border-radius: 999px;
+      background: #b6c3cc;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .switch-row input::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(30, 38, 48, 0.28);
+      transition: transform 120ms ease;
+    }
+    .switch-row input:checked {
+      background: #2684ff;
+    }
+    .switch-row input:checked::before {
+      transform: translateX(17px);
+    }
+    .switch-row input:focus-visible {
+      outline: 2px solid rgba(38, 132, 255, 0.45);
+      outline-offset: 2px;
+    }
+    .render-diagnostics {
+      display: grid;
+      gap: 7px;
+      margin: 12px 0;
+      padding: 10px;
+      border: 1px solid #d9e1ea;
+      border-radius: 7px;
+      background: #f8fafc;
+    }
+    .diagnostic-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: #475569;
+      font-size: 12px;
+    }
+    .diagnostic-row strong {
+      color: #172033;
+      text-align: right;
+    }
+    .toggle-row {
+      align-items: center;
+    }
+    .toggle-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #475569;
+      cursor: pointer;
+    }
+    .toggle-row input {
+      width: 15px;
+      height: 15px;
+      margin: 0;
+    }
+    .render-comment {
+      min-height: 34px;
+      padding-top: 6px;
+      border-top: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+<canvas id="viewerCanvas"></canvas>
+<section class="stream-panel">
+  <h1>XGF Recursive Streaming</h1>
+  <p>One root stream switches between MAP, Baku Stadium, Lyon, OTC Conference Center, and HousePlan child streams as their bounds enter the view.</p>
+  <div class="stats-grid">
+    <div class="stat"><strong id="loadedChunks">0/0</strong><span>chunks</span></div>
+    <div class="stat"><strong id="objectCount">0</strong><span>objects</span></div>
+    <div class="stat"><strong id="meshCount">0</strong><span>meshes</span></div>
+  </div>
+  <div class="queue-row">
+    <span>Objects loaded</span>
+    <span id="frustumQueueLabel">0/0 loaded</span>
+  </div>
+  <progress id="frustumQueueProgress" value="0" max="1"></progress>
+  <div class="stream-options">
+    <label class="switch-row" for="stallStreamingToggle">
+      <span>Stall streaming while moving</span>
+      <input id="stallStreamingToggle" type="checkbox">
+    </label>
+    <label class="switch-row" for="viewpointMotionToggle">
+      <span>Fly to viewpoints</span>
+      <input id="viewpointMotionToggle" type="checkbox">
+    </label>
+  </div>
+  <div class="render-diagnostics">
+    <div class="diagnostic-row"><span>Geometry storage</span><strong id="geometryStorageStatus">DTX stream</strong></div>
+    <div class="diagnostic-row"><span>Last frame</span><strong id="renderPathStatus">waiting</strong></div>
+    <div class="diagnostic-row toggle-row"><label><input id="viewCullingToggle" type="checkbox" checked> Draw culling</label><strong id="viewCullingStatus">starting</strong></div>
+    <div class="diagnostic-row"><span>Culled objects</span><strong id="viewCullingCount">0/0</strong></div>
+    <div id="renderPathComment" class="render-comment">This stream is configured for DTX geometry storage.</div>
+  </div>
+  <div id="streamStatus">Preparing stream</div>
+  <div id="viewpointCards" class="viewpoint-list"></div>
+</section>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

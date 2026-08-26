@@ -1,0 +1,12 @@
+{
+  "id": "import/xgf/sports-car",
+  "title": "XGF Sports Car - Multiple Views",
+  "description": "Loads a sports car model from XGF and displays it in multiple views.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "XGF",
+    "CAD",
+    "Featured"
+  ]
+}

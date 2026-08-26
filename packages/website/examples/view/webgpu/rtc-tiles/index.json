@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/rtc-tiles",
+  "title": "WebGPU Renderer RTC Tiles",
+  "description": "Shows WebGPU RTC tile assignment for large-coordinate meshes and updates one mesh across tile centers without rebuilding geometry.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Geolocation",
+    "WebGPU"
+  ]
+}

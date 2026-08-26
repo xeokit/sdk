@@ -1,0 +1,12 @@
+{
+  "id": "import/las/pumpkin",
+  "title": "LAZ Pumpkin Hill LiDAR Scan",
+  "description": "Loads a LAZ-encoded LiDAR scan with LASLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "LAS/LAZ",
+    "LiDAR Scans",
+    "Point Clouds"
+  ]
+}

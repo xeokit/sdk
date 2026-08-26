@@ -1,0 +1,10 @@
+{
+  "id": "import/gltf/damaged-helmet",
+  "title": "glTF Damaged Helmet",
+  "description": "Loads the Khronos Damaged Helmet glTF model with GLTFLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF"
+  ]
+}

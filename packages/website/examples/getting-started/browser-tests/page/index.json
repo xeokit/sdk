@@ -1,0 +1,11 @@
+{
+  "id": "getting-started/browser-tests/page",
+  "title": "SDK Browser Tests",
+  "description": "Runs the SDK Jest suite in the browser-backed Electron test environment and streams the result into a browser page.",
+  "auditSkipReason": "Requires the SDK browser test server. Run `pnpm sdk-test:browser:page` and open the printed URL instead of the static example audit server.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Benchmarks"
+  ]
+}

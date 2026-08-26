@@ -1,0 +1,11 @@
+{
+  "id": "import/threedtiles/helmets",
+  "title": "Viewing a 3D Tiles Tileset",
+  "description": "Loads a 3D Tiles helmets tileset with ThreeDTilesLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF",
+    "3D Tiles"
+  ]
+}

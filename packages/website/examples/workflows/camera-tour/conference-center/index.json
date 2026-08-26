@@ -1,0 +1,10 @@
+{
+  "id": "workflows/camera-tour/conference-center",
+  "title": "Automatic camera walkthrough of the OTC Conference Center IFC model",
+  "description": "Generates and plays an automatic room-by-room camera walkthrough of the OTC Conference Center model.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Walkthrough"
+  ]
+}

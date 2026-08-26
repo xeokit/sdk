@@ -1,0 +1,13 @@
+{
+  "id": "streaming/xgf/west-river-side-hospital-static",
+  "title": "XGF Stream West Riverside Hospital Static",
+  "description": "Streams the West Riverside Hospital XGF Stream into a static SceneModel with frustum-driven chunk scheduling, persisted camera-move stream stalling, and simulated review viewpoints.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "Buildings"
+  ],
+  "snapshotTimeoutMs": 300000
+}

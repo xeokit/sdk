@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/pick-surface",
+  "title": "WebGPU renderer surface picking",
+  "description": "Shows WebGPU triangle picking with mesh, object, triangle indices, and local/world/view hit positions.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Picking",
+    "WebGPU"
+  ]
+}

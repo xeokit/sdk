@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/table-shadows",
+  "title": "WebGPU - Table Shadows",
+  "description": "Shows a generated table model casting directional WebGPU shadows onto a floor.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Lighting",
+    "WebGPU"
+  ]
+}

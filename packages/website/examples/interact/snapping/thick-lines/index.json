@@ -1,0 +1,10 @@
+{
+  "id": "interact/snapping/thick-lines",
+  "title": "Pointer Snapping on Line Segments",
+  "description": "Shows pointer snapping on thick line geometry, with markers for vertex and edge snap targets.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Picking"
+  ]
+}

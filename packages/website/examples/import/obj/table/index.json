@@ -1,0 +1,10 @@
+{
+  "id": "import/obj/table",
+  "title": "OBJ Table",
+  "description": "Loads an OBJ table model with OBJLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "OBJ/MTL"
+  ]
+}

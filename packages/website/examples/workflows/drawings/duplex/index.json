@@ -1,0 +1,12 @@
+{
+  "id": "workflows/drawings/duplex",
+  "title": "Auto-Generated Drawings",
+  "description": "Generates plan and elevation drawings from a building model, with live controls for drawing style, clipping and layout.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Presentations",
+    "Drawings",
+    "Featured"
+  ]
+}

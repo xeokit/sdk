@@ -1,0 +1,12 @@
+{
+  "id": "interact/collision/hit-point",
+  "title": "Ray Picking Benchmark (Cityscape)",
+  "description": "Benchmarks precise ray picking against a large procedural city scene.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Picking",
+    "Benchmarks",
+    "Featured"
+  ]
+}

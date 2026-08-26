@@ -1,0 +1,12 @@
+{
+  "id": "streaming/xgf/house-plan",
+  "title": "XGF Stream House Plan",
+  "description": "Loads the HousePlan model from an XGF stream dataset.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "Buildings"
+  ]
+}

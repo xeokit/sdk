@@ -1,0 +1,12 @@
+{
+  "id": "import/pdf/duplex-level1",
+  "title": "PDF Duplex Floor Plan Drawing",
+  "description": "Loads a duplex floor plan PDF as top-down scene geometry.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "PDF",
+    "Drawings",
+    "Featured"
+  ]
+}

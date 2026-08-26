@@ -1,6 +1,115 @@
 {
-  "building_dataModel_table": {
-    "id": "building_dataModel_table",
+  "benchmarks/scene/procedural-cityscape": {
+    "id": "benchmarks/scene/procedural-cityscape",
+    "title": "Benchmark - Procedural Cityscape",
+    "description": "Benchmarks a large procedural city built from repeated geometry.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Benchmarks"
+    ]
+  },
+  "benchmarks/scene/stress-test": {
+    "id": "benchmarks/scene/stress-test",
+    "title": "Benchmark - Create & Destroy Meshes",
+    "description": "Contiouusly create and destroy meshes to test the performance of the scene model, viewer and renderer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "Benchmarks"
+    ]
+  },
+  "benchmarks/scene/stress-test-webgpu": {
+    "id": "benchmarks/scene/stress-test-webgpu",
+    "title": "WebGPU - Creating a 3D Model Benchmark",
+    "description": "Uses WebGPURenderer to stress dynamic SceneModel geometry, mesh, and object creation and deletion.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "WebGPU",
+      "Benchmarks"
+    ]
+  },
+  "benchmarks/streaming/infinite-landscape": {
+    "id": "benchmarks/streaming/infinite-landscape",
+    "title": "Infinite Streaming Landscape",
+    "description": "An endless cityscape that demonstrates how the SDK is optimized for efficiently streamed content.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Streaming",
+      "Benchmarks",
+      "Featured"
+    ]
+  },
+  "benchmarks/streaming/xgf-baku-2000-dynamic": {
+    "id": "benchmarks/streaming/xgf-baku-2000-dynamic",
+    "title": "Streamed XGF Stadium, 2K Chunks, Dynamic",
+    "description": "Streams the 2000-chunk Baku Stadium model with dynamic renderer storage, providing the fast-load baseline we use to tune streaming budgets, cache limits, camera-stall behavior, and model partitioning sweet spots.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Benchmarks",
+      "Featured"
+    ]
+  },
+  "benchmarks/streaming/xgf-baku-4000-dynamic": {
+    "id": "benchmarks/streaming/xgf-baku-4000-dynamic",
+    "title": "Streamed XGF Stadium, 4K Chunks, Dynamic",
+    "description": "Streams the roughly 4000-chunk Baku Stadium model with dynamic renderer storage, giving a high-chunk-count DTX baseline for finding the sweet spot between first-frustum load speed, request fan-out, and memory pressure.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Benchmarks"
+    ]
+  },
+  "benchmarks/streaming/xgf-baku-4000-static": {
+    "id": "benchmarks/streaming/xgf-baku-4000-static",
+    "title": "Streamed XGF Stadium, 4K Chunks, Static",
+    "description": "Streams the roughly 4000-chunk Baku Stadium model with static VBO geometry, stressing small-chunk scheduling and VBO upload cadence to find the sweet spot between initial visibility, fetch fan-out, and settled navigation.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "Benchmarks"
+    ]
+  },
+  "benchmarks/streaming/xgf-baku-webgpu": {
+    "id": "benchmarks/streaming/xgf-baku-webgpu",
+    "title": "WebGPU - Streaming Baku Stadium as XGF",
+    "description": "Streams the 2K-chunk Baku Stadium XGF stream with XGFViewStreamController and renders dynamically added SceneModel content with WebGPURenderer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "BIM",
+      "WebGPU"
+    ]
+  },
+  "benchmarks/streaming/xgf-basic": {
+    "id": "benchmarks/streaming/xgf-basic",
+    "title": "XGF Streaming Benchmark",
+    "description": "Streams all 961 generated city chunks from shared XGF asset libraries, prioritizing chunks near the current view first.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Streaming",
+      "Benchmark"
+    ]
+  },
+  "create/data/table-with-semantics": {
+    "id": "create/data/table-with-semantics",
     "title": "Creating a Model with Semantic Data",
     "description": "Programmatically building and viewing a minimal 3D model in the SDK, with a semantic data model attached.",
     "isTutorial": true,
@@ -10,8 +119,56 @@
       "Semantic Data"
     ]
   },
-  "building_doublePrecision_archipelago": {
-    "id": "building_doublePrecision_archipelago",
+  "create/materials/aec-chart": {
+    "id": "create/materials/aec-chart",
+    "title": "Physically-Based Materials for AEC",
+    "description": "Shows common AEC materials rendered with physically based shading.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "Materials",
+      "Featured"
+    ]
+  },
+  "create/materials/hatched-surfaces": {
+    "id": "create/materials/hatched-surfaces",
+    "title": "Hatch Patterns - Interactively Switch Coordinate Spaces",
+    "description": "Shows hatch-pattern materials with controls for switching between screen-space and world-space placement.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "Materials",
+      "Hatch Patterns"
+    ]
+  },
+  "create/materials/mutable-patterns": {
+    "id": "create/materials/mutable-patterns",
+    "title": "Hatch & Line Patterns - Interactive Demo",
+    "description": "Interactively update hatch and line patterns on triangle meshes and line segments.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "Materials",
+      "Hatch Patterns",
+      "Line Patterns"
+    ]
+  },
+  "create/materials/pbr-chart": {
+    "id": "create/materials/pbr-chart",
+    "title": "Metallic vs Roughness Chart",
+    "description": "Shows a PBR material chart comparing metallic and roughness settings under shared lighting.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "Materials"
+    ]
+  },
+  "create/precision/geolocated-archipelago": {
+    "id": "create/precision/geolocated-archipelago",
     "title": "Huge Scene with Geolocated Models",
     "description": "Shows multiple geolocated models placed across a large double-precision island scene.",
     "isTutorial": false,
@@ -25,20 +182,52 @@
       "Featured"
     ]
   },
-  "building_doublePrecision_infiniteLandscape": {
-    "id": "building_doublePrecision_infiniteLandscape",
-    "title": "Infinite Streaming Landscape",
-    "description": "An endless cityscape that demonstrates how the SDK is optimized for efficiently streamed content.",
+  "create/scene/box": {
+    "id": "create/scene/box",
+    "title": "Creating a Box",
+    "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "Modeling",
+      "Geometry"
+    ]
+  },
+  "create/scene/compressed-box": {
+    "id": "create/scene/compressed-box",
+    "title": "Creating a Box from Compressed Geometry",
+    "description": "Builds and displays a box model from compressed geometry data.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "Modeling",
+      "Geometry"
+    ]
+  },
+  "create/scene/create-geometry": {
+    "id": "create/scene/create-geometry",
+    "title": "Creating Geometries",
+    "description": "This example demonstrates how to use the xeokit SDK to create and display various geometries.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Modeling",
+      "Geometry"
+    ]
+  },
+  "create/scene/forest-generator": {
+    "id": "create/scene/forest-generator",
+    "title": "Procedural Forest Generator",
+    "description": "Creates a SceneModel forest from many procedural trees that share reusable branch and foliage geometry.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
-      "Streaming",
-      "Benchmarks",
-      "Featured"
+      "Modeling",
+      "Interaction"
     ]
   },
-  "building_fromParams_compressedBox": {
-    "id": "building_fromParams_compressedBox",
+  "create/scene/from-params-compressed-box": {
+    "id": "create/scene/from-params-compressed-box",
     "title": "Creating a Box from JSON with Compressed Geometry",
     "description": "Builds a box model from JSON parameters containing compressed geometry.",
     "isTutorial": false,
@@ -48,8 +237,8 @@
       "Geometry"
     ]
   },
-  "building_fromParams_table": {
-    "id": "building_fromParams_table",
+  "create/scene/from-params-table": {
+    "id": "create/scene/from-params-table",
     "title": "Creating a Model from JSON",
     "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
     "isTutorial": true,
@@ -59,8 +248,8 @@
       "Geometry"
     ]
   },
-  "building_fromParams_table_webGPU": {
-    "id": "building_fromParams_table_webGPU",
+  "create/scene/from-params-table-webgpu": {
+    "id": "create/scene/from-params-table-webgpu",
     "title": "WebGPU - Creating a Model from JSON",
     "description": "Builds a table model from JSON and renders it with WebGPU.",
     "isTutorial": false,
@@ -71,8 +260,8 @@
       "WebGPU"
     ]
   },
-  "building_fromParams_triangle": {
-    "id": "building_fromParams_triangle",
+  "create/scene/from-params-triangle": {
+    "id": "create/scene/from-params-triangle",
     "title": "Creating a Triangle from JSON",
     "description": "In this example, we'll use the xeokit SDK to build and view a simple model, from JSON",
     "isTutorial": false,
@@ -82,8 +271,8 @@
       "Geometry"
     ]
   },
-  "building_fromParams_triplanarTable": {
-    "id": "building_fromParams_triplanarTable",
+  "create/scene/from-params-triplanar-table": {
+    "id": "create/scene/from-params-triplanar-table",
     "title": "Triplanar Texturing on UV-less Geometry",
     "description": "Shows triplanar texturing on UV-less table geometry with physically scaled materials.",
     "isTutorial": true,
@@ -94,110 +283,8 @@
       "Materials"
     ]
   },
-  "building_materials_aecChart": {
-    "id": "building_materials_aecChart",
-    "title": "Physically-Based Materials for AEC",
-    "description": "Shows common AEC materials rendered with physically based shading.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Modeling",
-      "Materials",
-      "Featured"
-    ]
-  },
-  "building_materials_hatchedSurfaces": {
-    "id": "building_materials_hatchedSurfaces",
-    "title": "Hatch Patterns - Interactively Switch Coordinate Spaces",
-    "description": "Shows hatch-pattern materials with controls for switching between screen-space and world-space placement.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Modeling",
-      "Materials",
-      "Hatch Patterns"
-    ]
-  },
-  "building_materials_mutablePatterns": {
-    "id": "building_materials_mutablePatterns",
-    "title": "Hatch & Line Patterns - Interactive Demo",
-    "description": "Interactively update hatch and line patterns on triangle meshes and line segments.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Modeling",
-      "Materials",
-      "Hatch Patterns",
-      "Line Patterns"
-    ]
-  },
-  "building_materials_pbrChart": {
-    "id": "building_materials_pbrChart",
-    "title": "Metallic vs Roughness Chart",
-    "description": "Shows a PBR material chart comparing metallic and roughness settings under shared lighting.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Modeling",
-      "Materials"
-    ]
-  },
-  "building_sceneModel_box": {
-    "id": "building_sceneModel_box",
-    "title": "Creating a Box",
-    "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "Modeling",
-      "Geometry"
-    ]
-  },
-  "building_sceneModel_cityscape": {
-    "id": "building_sceneModel_cityscape",
-    "title": "Benchmark - Procedural Cityscape",
-    "description": "Benchmarks a large procedural city built from repeated geometry.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Benchmarks"
-    ]
-  },
-  "building_sceneModel_compressedBox": {
-    "id": "building_sceneModel_compressedBox",
-    "title": "Creating a Box from Compressed Geometry",
-    "description": "Builds and displays a box model from compressed geometry data.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "Modeling",
-      "Geometry"
-    ]
-  },
-  "building_sceneModel_createGeometry": {
-    "id": "building_sceneModel_createGeometry",
-    "title": "Creating Geometries",
-    "description": "This example demonstrates how to use the xeokit SDK to create and display various geometries.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "categories": [
-      "Modeling",
-      "Geometry"
-    ]
-  },
-  "building_sceneModel_forestGenerator": {
-    "id": "building_sceneModel_forestGenerator",
-    "title": "Procedural Forest Generator",
-    "description": "Creates a SceneModel forest from many procedural trees that share reusable branch and foliage geometry.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Modeling",
-      "Interaction"
-    ]
-  },
-  "building_sceneModel_geometries": {
-    "id": "building_sceneModel_geometries",
+  "create/scene/geometries": {
+    "id": "create/scene/geometries",
     "title": "Creating Geometries - Various Primitives",
     "description": "Shows generated geometry primitives in a simple scene model.",
     "isTutorial": true,
@@ -207,8 +294,8 @@
       "Geometry"
     ]
   },
-  "building_sceneModel_lifecycleBatches": {
-    "id": "building_sceneModel_lifecycleBatches",
+  "create/scene/lifecycle-batches": {
+    "id": "create/scene/lifecycle-batches",
     "title": "SceneModel Lifecycle Batches",
     "description": "Demonstrates SceneModel streaming batches, compact memory policy, batch commit/rollback, and sealed-model growth rejection.",
     "isTutorial": false,
@@ -218,8 +305,8 @@
       "Rendering"
     ]
   },
-  "building_sceneModel_points": {
-    "id": "building_sceneModel_points",
+  "create/scene/points": {
+    "id": "create/scene/points",
     "title": "Creating 3D Points",
     "description": "Using xeokit SDK to create and view a point cloud-style SceneModel in the browser.",
     "isTutorial": true,
@@ -229,8 +316,20 @@
       "Geometry"
     ]
   },
-  "building_sceneModel_sandDunes": {
-    "id": "building_sceneModel_sandDunes",
+  "create/scene/representation-sets": {
+    "id": "create/scene/representation-sets",
+    "title": "SceneModel JSON Representation Sets",
+    "description": "Loads a SceneModel JSON file containing representation sets and uses the loaded metadata to switch between alternative object representations.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Modeling",
+      "SceneModel",
+      "Interaction"
+    ]
+  },
+  "create/scene/sand-dunes": {
+    "id": "create/scene/sand-dunes",
     "title": "Benchmark - Sand Dunes",
     "description": "Shows a procedurally generated sand dune scene with seamless sandy PBR materials.",
     "isTutorial": true,
@@ -240,30 +339,8 @@
       "Benchmarks"
     ]
   },
-  "building_sceneModel_stressTest": {
-    "id": "building_sceneModel_stressTest",
-    "title": "Benchmark - Create & Destroy Meshes",
-    "description": "Contiouusly create and destroy meshes to test the performance of the scene model, viewer and renderer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "Benchmarks"
-    ]
-  },
-  "building_sceneModel_stressTest_webGPU": {
-    "id": "building_sceneModel_stressTest_webGPU",
-    "title": "WebGPU - Creating a 3D Model Benchmark",
-    "description": "Uses WebGPURenderer to stress dynamic SceneModel geometry, mesh, and object creation and deletion.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "Modeling",
-      "WebGPU",
-      "Benchmarks"
-    ]
-  },
-  "building_sceneModel_treeGenerator": {
-    "id": "building_sceneModel_treeGenerator",
+  "create/scene/tree-generator": {
+    "id": "create/scene/tree-generator",
     "title": "Procedural Tree Generator",
     "description": "Interactive SceneModel example that grows procedural tree geometry from reusable primitives.",
     "isTutorial": true,
@@ -273,8 +350,8 @@
       "Interaction"
     ]
   },
-  "building_transforms_animatedPuzzle": {
-    "id": "building_transforms_animatedPuzzle",
+  "create/transforms/animated-puzzle": {
+    "id": "create/transforms/animated-puzzle",
     "title": "Creating a Model with Animated Transforms",
     "description": "In this example, we'll use the xeokit SDK to create a 3D model with a transform hierarchy.",
     "isTutorial": true,
@@ -285,8 +362,8 @@
       "Animation"
     ]
   },
-  "building_transforms_separateStoreys": {
-    "id": "building_transforms_separateStoreys",
+  "create/transforms/separate-storeys": {
+    "id": "create/transforms/separate-storeys",
     "title": "Using Semantic Data to Separate IFC Building Storeys",
     "description": "Loading a building model, an then using the model's semantic data to isolate and separate the building storeys.",
     "isTutorial": true,
@@ -298,8 +375,8 @@
       "Featured"
     ]
   },
-  "building_transforms_table": {
-    "id": "building_transforms_table",
+  "create/transforms/table": {
+    "id": "create/transforms/table",
     "title": "Creating a Model with Transforms",
     "description": "In this example, we'll use the xeokit SDK to create a 3D model with a transform hierarchy.",
     "isTutorial": true,
@@ -309,9 +386,20 @@
       "Transforms"
     ]
   },
-  "convert_modelConverter_dotbim2json": {
-    "id": "convert_modelConverter_dotbim2json",
-    "title": "Convert DotBIM to JSON with ModelConverter",
+  "export/cityjson/round-trip": {
+    "id": "export/cityjson/round-trip",
+    "title": "CityJSON Round-Trip — Import, Export, Re-Import",
+    "description": "Loads a CityJSON model, exports it with CityJSONExporter, then re-imports the result to verify the round trip.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "CityJSON",
+      "City Models"
+    ]
+  },
+  "export/dotbim/to-json-pipeline": {
+    "id": "export/dotbim/to-json-pipeline",
+    "title": "Convert DotBIM to JSON with Conversion Pipeline",
     "description": "Converts a DotBIM model to SDK JSON params, then loads the result.",
     "isTutorial": true,
     "isVisualTest": true,
@@ -322,276 +410,8 @@
       "Data JSON"
     ]
   },
-  "formats_citygml_building": {
-    "id": "formats_citygml_building",
-    "title": "CityGML LOD4 City Block",
-    "description": "Loads a synthetic city block generated from the OGC CityGML LOD4 building sample with CityGMLLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "CityGML",
-      "City Models"
-    ]
-  },
-  "formats_cityjson_railway": {
-    "id": "formats_cityjson_railway",
-    "title": "CityJSON Train Track",
-    "description": "Loads a CityJSON railway model with CityJSONLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "CityJSON",
-      "City Models"
-    ]
-  },
-  "formats_cityjson_roundTrip": {
-    "id": "formats_cityjson_roundTrip",
-    "title": "CityJSON Round-Trip — Import, Export, Re-Import",
-    "description": "Loads a CityJSON model, exports it with CityJSONExporter, then re-imports the result to verify the round trip.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "CityJSON",
-      "City Models"
-    ]
-  },
-  "formats_dotbim_blenderHouse": {
-    "id": "formats_dotbim_blenderHouse",
-    "title": "DotBIM Blender House",
-    "description": "Loads a dotbim house model with DotBIMLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "dotbim",
-      "Buildings"
-    ]
-  },
-  "formats_dwg_floorPlan": {
-    "id": "formats_dwg_floorPlan",
-    "title": "DWG Floor Plan Drawing",
-    "description": "Loads an AutoCAD DWG floor plan with DWGLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "DWG",
-      "Drawings"
-    ]
-  },
-  "formats_dxf_floorPlan": {
-    "id": "formats_dxf_floorPlan",
-    "title": "DXF Floor Plan Drawing",
-    "description": "Loads an AutoCAD DXF floor plan with DXFLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "DXF",
-      "Drawings"
-    ]
-  },
-  "formats_fbx_e3dPlant": {
-    "id": "formats_fbx_e3dPlant",
-    "title": "FBX Industrial Plant",
-    "description": "Loads and views an industrial plant model from FBX.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "FBX",
-      "Industrial Plants"
-    ]
-  },
-  "formats_gltf_bigSquareCommercialBuilding": {
-    "id": "formats_gltf_bigSquareCommercialBuilding",
-    "title": "glTF Big Square Commercial Building",
-    "description": "Loads a big square commercial building model from a self-contained glTF binary. Model by VertaScan on Sketchfab, licensed under CC BY 4.0: https://sketchfab.com/3d-models/big-square-commercial-building-55ef437c8518489c8a35c5de2380e6b6.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF",
-      "Buildings"
-    ]
-  },
-  "formats_gltf_damagedHelmet": {
-    "id": "formats_gltf_damagedHelmet",
-    "title": "glTF Damaged Helmet",
-    "description": "Loads the Khronos Damaged Helmet glTF model with GLTFLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF"
-    ]
-  },
-  "formats_gltf_housePlanPbr": {
-    "id": "formats_gltf_housePlanPbr",
-    "title": "glTF House Plan",
-    "description": "Loads and renders a PBR house plan model from glTF.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF",
-      "Buildings",
-      "Featured"
-    ]
-  },
-  "formats_gltf_map": {
-    "id": "formats_gltf_map",
-    "title": "glTF Geolocated Apartment",
-    "description": "Loads a glTF map model with GLTFLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "glTF",
-      "Buildings",
-      "Geolocation"
-    ]
-  },
-  "formats_gltf_residentialBuilding": {
-    "id": "formats_gltf_residentialBuilding",
-    "title": "glTF Residential Building",
-    "description": "Loads a glTF residential building model with GLTFLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF",
-      "Buildings"
-    ]
-  },
-  "formats_gltf_sponzaPbr": {
-    "id": "formats_gltf_sponzaPbr",
-    "title": "glTF Sponza",
-    "description": "Loads the Sponza glTF sample and exposes renderer effects for comparing PBR presentation.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF",
-      "Buildings"
-    ]
-  },
-  "formats_ifc_duplex": {
-    "id": "formats_ifc_duplex",
-    "title": "IFC Duplex",
-    "description": "Loads an IFC Duplex model with IFCLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "IFC",
-      "Buildings"
-    ]
-  },
-  "formats_ifc_ifc4SampleHouse": {
-    "id": "formats_ifc_ifc4SampleHouse",
-    "title": "IFC4 Sample House",
-    "description": "Loads an IFC4 sample house model with IFCLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "IFC",
-      "Buildings",
-      "Featured"
-    ]
-  },
-  "formats_ifc_ifcOpenHouse4": {
-    "id": "formats_ifc_ifcOpenHouse4",
-    "title": "IFC4 Open House",
-    "description": "Loads an IFC Open House model with IFCLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "IFC",
-      "Buildings"
-    ]
-  },
-  "formats_las_pumpkin": {
-    "id": "formats_las_pumpkin",
-    "title": "LAZ Pumpkin Hill LiDAR Scan",
-    "description": "Loads a LAZ-encoded LiDAR scan with LASLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "LAS/LAZ",
-      "LiDAR Scans",
-      "Point Clouds"
-    ]
-  },
-  "formats_model_filedrop_barebones": {
-    "id": "formats_model_filedrop_barebones",
-    "title": "Bare-Bones Model File Drop",
-    "description": "Non-Studio viewer that loads a model file dropped onto the canvas, choosing the loader from the file extension.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Formats",
-      "Viewer"
-    ]
-  },
-  "formats_obj_sportsCar": {
-    "id": "formats_obj_sportsCar",
-    "title": "OBJ Sports Car - Multiple Views",
-    "description": "Load an OBJ sports car model with OBJLoader and display it in multiple independent views.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "OBJ/MTL",
-      "CAD"
-    ]
-  },
-  "formats_obj_table": {
-    "id": "formats_obj_table",
-    "title": "OBJ Table",
-    "description": "Loads an OBJ table model with OBJLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "OBJ/MTL"
-    ]
-  },
-  "formats_pdf_duplexLevel1": {
-    "id": "formats_pdf_duplexLevel1",
-    "title": "PDF Duplex Floor Plan Drawing",
-    "description": "Loads a duplex floor plan PDF as top-down scene geometry.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "PDF",
-      "Drawings",
-      "Featured"
-    ]
-  },
-  "formats_pdf_importPanel": {
-    "id": "formats_pdf_importPanel",
-    "title": "PDF File Viewer — drag & drop",
-    "description": "Shows drag-and-drop PDF import through the floating PDF import panel.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "PDF",
-      "Drawings"
-    ]
-  },
-  "formats_pdf_vectorPlan": {
-    "id": "formats_pdf_vectorPlan",
-    "title": "PDF Generated Floor Plan",
-    "description": "Loads a vector PDF floor plan with PDFLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "PDF",
-      "Drawings"
-    ]
-  },
-  "formats_splat_room": {
-    "id": "formats_splat_room",
-    "title": "Gaussian Splatting Room Interior",
-    "description": "Loads a captured building interior .splat scene with GaussianSplatLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Gaussian Splats",
-      "LiDAR Scans",
-      "Point Clouds"
-    ]
-  },
-  "formats_splat_roundTrip": {
-    "id": "formats_splat_roundTrip",
+  "export/splat/round-trip": {
+    "id": "export/splat/round-trip",
     "title": "Gaussian Splatting Round-Trip — Import, Export, Re-Import (.splat)",
     "description": "Loads a .splat capture, exports it with GaussianSplatExporter, then re-imports the result to verify the round trip.",
     "isTutorial": true,
@@ -602,20 +422,8 @@
       "Point Clouds"
     ]
   },
-  "formats_splat_streaming": {
-    "id": "formats_splat_streaming",
-    "title": "Streaming Gaussian Splats (dynamic load / unload)",
-    "description": "Shows streamed Gaussian Splat tiles loading and unloading around the moving camera.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Gaussian Splats",
-      "LiDAR Scans",
-      "Point Clouds"
-    ]
-  },
-  "formats_splat_xgfRoundTrip": {
-    "id": "formats_splat_xgfRoundTrip",
+  "export/splat/xgf-round-trip": {
+    "id": "export/splat/xgf-round-trip",
     "title": "Gaussian Splatting via XGF — Load, Export to XGF, Re-Import",
     "description": "Loads a .splat capture, exports it to native XGF, then re-imports it with XGFLoader to verify the round trip.",
     "isTutorial": true,
@@ -626,8 +434,308 @@
       "LiDAR Scans"
     ]
   },
-  "formats_threedtiles_composite": {
-    "id": "formats_threedtiles_composite",
+  "export/usdz/round-trip": {
+    "id": "export/usdz/round-trip",
+    "title": "USDZ Round-Trip — Import, Export, Re-Import",
+    "description": "Loads, exports, and re-imports a USDZ model to verify round-trip fidelity.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "USDZ",
+      "Buildings"
+    ]
+  },
+  "export/xkt/round-trip": {
+    "id": "export/xkt/round-trip",
+    "title": "Round-tripping a Model through XKT v12",
+    "description": "Loads, exports, and re-imports an XKT model to verify round-trip fidelity.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XKT",
+      "Buildings"
+    ]
+  },
+  "getting-started/browser-tests/page": {
+    "id": "getting-started/browser-tests/page",
+    "title": "SDK Browser Tests",
+    "description": "Runs the SDK Jest suite in the browser-backed Electron test environment and streams the result into a browser page.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Benchmarks"
+    ],
+    "auditSkipReason": "Requires the SDK browser test server. Run `pnpm sdk-test:browser:page` and open the printed URL instead of the static example audit server."
+  },
+  "getting-started/model-file-drop/barebones": {
+    "id": "getting-started/model-file-drop/barebones",
+    "title": "Bare-Bones Model File Drop",
+    "description": "Non-Studio viewer that loads a model file dropped onto the canvas, choosing the loader from the file extension.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Formats",
+      "Viewer"
+    ]
+  },
+  "getting-started/model-viewer/basic": {
+    "id": "getting-started/model-viewer/basic",
+    "title": "Model Viewer",
+    "description": "Loads a model from the website model catalog using query-string modelId and format parameters.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Tools"
+    ]
+  },
+  "import/citygml/building": {
+    "id": "import/citygml/building",
+    "title": "CityGML LOD4 City Block",
+    "description": "Loads a synthetic city block generated from the OGC CityGML LOD4 building sample with CityGMLLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "CityGML",
+      "City Models"
+    ]
+  },
+  "import/cityjson/railway": {
+    "id": "import/cityjson/railway",
+    "title": "CityJSON Train Track",
+    "description": "Loads a CityJSON railway model with CityJSONLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "CityJSON",
+      "City Models"
+    ]
+  },
+  "import/dotbim/blender-house": {
+    "id": "import/dotbim/blender-house",
+    "title": "DotBIM Blender House",
+    "description": "Loads a dotbim house model with DotBIMLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "dotbim",
+      "Buildings"
+    ]
+  },
+  "import/dwg/floor-plan": {
+    "id": "import/dwg/floor-plan",
+    "title": "DWG Floor Plan Drawing",
+    "description": "Loads an AutoCAD DWG floor plan with DWGLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "DWG",
+      "Drawings"
+    ]
+  },
+  "import/dxf/floor-plan": {
+    "id": "import/dxf/floor-plan",
+    "title": "DXF Floor Plan Drawing",
+    "description": "Loads an AutoCAD DXF floor plan with DXFLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "DXF",
+      "Drawings"
+    ]
+  },
+  "import/fbx/e3d-plant": {
+    "id": "import/fbx/e3d-plant",
+    "title": "FBX Industrial Plant",
+    "description": "Loads and views an industrial plant model from FBX.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "FBX",
+      "Industrial Plants"
+    ]
+  },
+  "import/gltf/big-square-commercial-building": {
+    "id": "import/gltf/big-square-commercial-building",
+    "title": "glTF Big Square Commercial Building",
+    "description": "Loads a big square commercial building model from a self-contained glTF binary. Model by VertaScan on Sketchfab, licensed under CC BY 4.0: https://sketchfab.com/3d-models/big-square-commercial-building-55ef437c8518489c8a35c5de2380e6b6.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "Buildings"
+    ]
+  },
+  "import/gltf/damaged-helmet": {
+    "id": "import/gltf/damaged-helmet",
+    "title": "glTF Damaged Helmet",
+    "description": "Loads the Khronos Damaged Helmet glTF model with GLTFLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF"
+    ]
+  },
+  "import/gltf/house-plan-pbr": {
+    "id": "import/gltf/house-plan-pbr",
+    "title": "glTF House Plan",
+    "description": "Loads and renders a PBR house plan model from glTF.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "Buildings",
+      "Featured"
+    ]
+  },
+  "import/gltf/map": {
+    "id": "import/gltf/map",
+    "title": "glTF Geolocated Apartment",
+    "description": "Loads a glTF map model with GLTFLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "glTF",
+      "Buildings",
+      "Geolocation"
+    ]
+  },
+  "import/gltf/residential-building": {
+    "id": "import/gltf/residential-building",
+    "title": "glTF Residential Building",
+    "description": "Loads a glTF residential building model with GLTFLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "Buildings"
+    ]
+  },
+  "import/gltf/sponza-pbr": {
+    "id": "import/gltf/sponza-pbr",
+    "title": "glTF Sponza",
+    "description": "Loads the Sponza glTF sample and exposes renderer effects for comparing PBR presentation.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "Buildings"
+    ]
+  },
+  "import/ifc/duplex": {
+    "id": "import/ifc/duplex",
+    "title": "IFC Duplex",
+    "description": "Loads an IFC Duplex model with IFCLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "IFC",
+      "Buildings"
+    ]
+  },
+  "import/ifc/ifc-open-house4": {
+    "id": "import/ifc/ifc-open-house4",
+    "title": "IFC4 Open House",
+    "description": "Loads an IFC Open House model with IFCLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "IFC",
+      "Buildings"
+    ]
+  },
+  "import/ifc/ifc4-sample-house": {
+    "id": "import/ifc/ifc4-sample-house",
+    "title": "IFC4 Sample House",
+    "description": "Loads an IFC4 sample house model with IFCLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "IFC",
+      "Buildings",
+      "Featured"
+    ]
+  },
+  "import/las/pumpkin": {
+    "id": "import/las/pumpkin",
+    "title": "LAZ Pumpkin Hill LiDAR Scan",
+    "description": "Loads a LAZ-encoded LiDAR scan with LASLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "LAS/LAZ",
+      "LiDAR Scans",
+      "Point Clouds"
+    ]
+  },
+  "import/obj/sports-car": {
+    "id": "import/obj/sports-car",
+    "title": "OBJ Sports Car - Multiple Views",
+    "description": "Load an OBJ sports car model with OBJLoader and display it in multiple independent views.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "OBJ/MTL",
+      "CAD"
+    ]
+  },
+  "import/obj/table": {
+    "id": "import/obj/table",
+    "title": "OBJ Table",
+    "description": "Loads an OBJ table model with OBJLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "OBJ/MTL"
+    ]
+  },
+  "import/pdf/duplex-level1": {
+    "id": "import/pdf/duplex-level1",
+    "title": "PDF Duplex Floor Plan Drawing",
+    "description": "Loads a duplex floor plan PDF as top-down scene geometry.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "PDF",
+      "Drawings",
+      "Featured"
+    ]
+  },
+  "import/pdf/import-panel": {
+    "id": "import/pdf/import-panel",
+    "title": "PDF File Viewer — drag & drop",
+    "description": "Shows drag-and-drop PDF import through the floating PDF import panel.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "PDF",
+      "Drawings"
+    ]
+  },
+  "import/pdf/vector-plan": {
+    "id": "import/pdf/vector-plan",
+    "title": "PDF Generated Floor Plan",
+    "description": "Loads a vector PDF floor plan with PDFLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "PDF",
+      "Drawings"
+    ]
+  },
+  "import/splat/room": {
+    "id": "import/splat/room",
+    "title": "Gaussian Splatting Room Interior",
+    "description": "Loads a captured building interior .splat scene with GaussianSplatLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Gaussian Splats",
+      "LiDAR Scans",
+      "Point Clouds"
+    ]
+  },
+  "import/threedtiles/composite": {
+    "id": "import/threedtiles/composite",
     "title": "Viewing 3D Tiles Composite Content",
     "description": "Loads a CMPT tile containing mixed PNTS point-cloud and I3DM instanced glTF payloads.",
     "isTutorial": true,
@@ -637,8 +745,8 @@
       "3D Tiles"
     ]
   },
-  "formats_threedtiles_featureMetadata": {
-    "id": "formats_threedtiles_featureMetadata",
+  "import/threedtiles/feature-metadata": {
+    "id": "import/threedtiles/feature-metadata",
     "title": "Viewing 3D Tiles Feature Metadata",
     "description": "Loads glTF EXT_mesh_features and EXT_structural_metadata from 3D Tiles content and links features to SceneObjects.",
     "isTutorial": true,
@@ -649,8 +757,8 @@
       "3D Tiles"
     ]
   },
-  "formats_threedtiles_helmets": {
-    "id": "formats_threedtiles_helmets",
+  "import/threedtiles/helmets": {
+    "id": "import/threedtiles/helmets",
     "title": "Viewing a 3D Tiles Tileset",
     "description": "Loads a 3D Tiles helmets tileset with ThreeDTilesLoader and frames it in the viewer.",
     "isTutorial": true,
@@ -660,8 +768,8 @@
       "3D Tiles"
     ]
   },
-  "formats_threedtiles_instancing": {
-    "id": "formats_threedtiles_instancing",
+  "import/threedtiles/instancing": {
+    "id": "import/threedtiles/instancing",
     "title": "Viewing 3D Tiles Instanced Content",
     "description": "Loads a small I3DM tileset with repeated glTF building instances.",
     "isTutorial": true,
@@ -671,8 +779,8 @@
       "3D Tiles"
     ]
   },
-  "formats_threedtiles_metadata": {
-    "id": "formats_threedtiles_metadata",
+  "import/threedtiles/metadata": {
+    "id": "import/threedtiles/metadata",
     "title": "Viewing 3D Tiles Metadata",
     "description": "Loads a procedural city 3D Tiles 1.1 dataset and maps tileset, district, tile and content metadata into xeokit's DataModel.",
     "isTutorial": true,
@@ -682,8 +790,8 @@
       "3D Tiles"
     ]
   },
-  "formats_threedtiles_pointCloud": {
-    "id": "formats_threedtiles_pointCloud",
+  "import/threedtiles/point-cloud": {
+    "id": "import/threedtiles/point-cloud",
     "title": "Viewing 3D Tiles Point Cloud Content",
     "description": "Loads a sampled real LiDAR scan as PNTS point-cloud content through ThreeDTilesLoader.",
     "isTutorial": true,
@@ -693,8 +801,8 @@
       "3D Tiles"
     ]
   },
-  "formats_threedtiles_proceduralCity": {
-    "id": "formats_threedtiles_proceduralCity",
+  "import/threedtiles/procedural-city": {
+    "id": "import/threedtiles/procedural-city",
     "title": "Streaming a Procedural City as 3D Tiles",
     "description": "Streams a generated procedural city exported as explicit 3D Tiles 1.1 with GLB tile payloads: 1 root GLB, 59 spatial GLB tiles, 1,800 buildings, about 494k triangles and a 31 MB dataset. Tiles are frustum-culled by spatial bounds and selected by projected screen-space error.",
     "isTutorial": true,
@@ -705,45 +813,8 @@
       "Streaming"
     ]
   },
-  "formats_threedtiles_proceduralCity_webGPU": {
-    "id": "formats_threedtiles_proceduralCity_webGPU",
-    "title": "WebGPU - Streaming a Procedural City as 3D Tiles",
-    "description": "Streams the generated procedural city 3D Tiles dataset through TilesetStreamer and renders the dynamically loaded GLB tile SceneModels with WebGPURenderer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF",
-      "3D Tiles",
-      "Streaming",
-      "WebGPU"
-    ]
-  },
-  "formats_threedtiles_streamingBuilding": {
-    "id": "formats_threedtiles_streamingBuilding",
-    "title": "Streaming a BIM 3D Tiles Tileset",
-    "description": "Streams a BIM 3D Tiles tileset, refining visible detail as the camera approaches.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF",
-      "3D Tiles",
-      "Streaming"
-    ]
-  },
-  "formats_threedtiles_streamingImplicit": {
-    "id": "formats_threedtiles_streamingImplicit",
-    "title": "Streaming an Implicit Procedural City Tileset",
-    "description": "Streams a generated procedural city through an implicit 3D Tiles quadtree, loading and unloading GLB city cells as the camera moves.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "glTF",
-      "3D Tiles",
-      "Streaming"
-    ]
-  },
-  "formats_threedxml_assembly": {
-    "id": "formats_threedxml_assembly",
+  "import/threedxml/assembly": {
+    "id": "import/threedxml/assembly",
     "title": "3DXML CAD Assembly",
     "description": "Loads a Dassault Systèmes 3DXML tooling assembly with ThreeDXMLLoader and frames it in the viewer.",
     "isTutorial": true,
@@ -753,8 +824,8 @@
       "CAD"
     ]
   },
-  "formats_usdz_residentialBuilding": {
-    "id": "formats_usdz_residentialBuilding",
+  "import/usdz/residential-building": {
+    "id": "import/usdz/residential-building",
     "title": "USDZ Residential Building",
     "description": "Loads and views a residential building model from USDZ.",
     "isTutorial": true,
@@ -765,67 +836,8 @@
       "Featured"
     ]
   },
-  "formats_usdz_residentialBuilding_webGPU": {
-    "id": "formats_usdz_residentialBuilding_webGPU",
-    "title": "USDZ Residential Building (WebGPU)",
-    "description": "Loads a residential building model from USDZ and renders it with WebGPU.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "USDZ",
-      "Buildings",
-      "WebGPU"
-    ]
-  },
-  "formats_usdz_residentialCommercialRetailDevelopment": {
-    "id": "formats_usdz_residentialCommercialRetailDevelopment",
-    "title": "USDZ Residential Commercial Retail Development",
-    "description": "Loads a mixed-use residential, commercial and retail development model from USDZ. Model by VertaScan on Sketchfab: https://sketchfab.com/VertaScan.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "USDZ",
-      "Buildings"
-    ]
-  },
-  "formats_usdz_roundTrip": {
-    "id": "formats_usdz_roundTrip",
-    "title": "USDZ Round-Trip — Import, Export, Re-Import",
-    "description": "Loads, exports, and re-imports a USDZ model to verify round-trip fidelity.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "USDZ",
-      "Buildings"
-    ]
-  },
-  "formats_voxcity_layeredDataset": {
-    "id": "formats_voxcity_layeredDataset",
-    "title": "VoxCity Layered Dataset",
-    "description": "Loads a VoxCity-generated layered urban dataset from OBJ/MTL, then adds terrain, water, roads, rail, utility corridors, and context buildings around the voxel layers.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "OBJ/MTL",
-      "GIS",
-      "Urban Modeling"
-    ]
-  },
-  "formats_xgf_ac20Institute": {
-    "id": "formats_xgf_ac20Institute",
-    "title": "XGF AC20 Institute",
-    "description": "Loads an IFC-derived AC20 Institute XGF with its DataModel JSON into a static SceneModel.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "IFC",
-      "Buildings",
-      "Data"
-    ]
-  },
-  "formats_xgf_housePlanPbr": {
-    "id": "formats_xgf_housePlanPbr",
+  "import/xgf/house-plan-pbr": {
+    "id": "import/xgf/house-plan-pbr",
     "title": "XGF House Plan",
     "description": "Loads a PBR house plan model from optimized XGF.",
     "isTutorial": true,
@@ -835,8 +847,8 @@
       "Buildings"
     ]
   },
-  "formats_xgf_map": {
-    "id": "formats_xgf_map",
+  "import/xgf/map": {
+    "id": "import/xgf/map",
     "title": "XGF Geolocated Apartment",
     "description": "Loads a georeferenced building model from optimized XGF.",
     "isTutorial": true,
@@ -848,21 +860,8 @@
       "Featured"
     ]
   },
-  "formats_xgf_map_webGPU": {
-    "id": "formats_xgf_map_webGPU",
-    "title": "XGF MAP Model (WebGPU)",
-    "description": "Loads the georeferenced MAP model from static XGF and renders it with WebGPU.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Buildings",
-      "Geolocation",
-      "WebGPU"
-    ]
-  },
-  "formats_xgf_proceduralCity": {
-    "id": "formats_xgf_proceduralCity",
+  "import/xgf/procedural-city": {
+    "id": "import/xgf/procedural-city",
     "title": "Procedural City XGF Stream",
     "description": "Streams a deterministic XGF-only procedural city with coherent districts, varied street hierarchy, perimeter and courtyard blocks, parks, landmarks, and inspectable building metadata.",
     "isTutorial": false,
@@ -876,8 +875,8 @@
     ],
     "snapshotTimeoutMs": 240000
   },
-  "formats_xgf_proceduralCity_amsterdam": {
-    "id": "formats_xgf_proceduralCity_amsterdam",
+  "import/xgf/procedural-city-amsterdam": {
+    "id": "import/xgf/procedural-city-amsterdam",
     "title": "Amsterdam Preset Procedural City XGF Stream",
     "description": "Streams a deterministic XGF-only procedural city generated from the Amsterdam preset, with compact irregular blocks, canal-core style density, parks, landmarks, and inspectable building metadata.",
     "isTutorial": false,
@@ -890,22 +889,8 @@
     ],
     "snapshotTimeoutMs": 240000
   },
-  "formats_xgf_proceduralCity_amsterdam_webGPU": {
-    "id": "formats_xgf_proceduralCity_amsterdam_webGPU",
-    "title": "WebGPU - Amsterdam Procedural City Flight Simulator",
-    "description": "Streams the Amsterdam procedural city XGF dataset with XGFViewStreamController, renders it with WebGPURenderer, and flies the spacecraft controller through the dynamically loaded city.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "XGF Stream",
-      "Procedural generation",
-      "WebGPU"
-    ],
-    "snapshotTimeoutMs": 240000
-  },
-  "formats_xgf_proceduralCity_berlin": {
-    "id": "formats_xgf_proceduralCity_berlin",
+  "import/xgf/procedural-city-berlin": {
+    "id": "import/xgf/procedural-city-berlin",
     "title": "Berlin Preset Procedural City XGF Stream",
     "description": "Streams a deterministic XGF-only procedural city generated from the Berlin preset, with mid-rise mixed-use blocks, courtyards, parks, landmarks, and inspectable building metadata.",
     "isTutorial": false,
@@ -918,8 +903,8 @@
     ],
     "snapshotTimeoutMs": 240000
   },
-  "formats_xgf_proceduralCity_chicagoRiver": {
-    "id": "formats_xgf_proceduralCity_chicagoRiver",
+  "import/xgf/procedural-city-chicago-river": {
+    "id": "import/xgf/procedural-city-chicago-river",
     "title": "Chicago River Procedural City XGF Stream",
     "description": "Streams a deterministic XGF-only procedural downtown generated from the Chicago river profile, with a wide main river, north branch, riverwalks, bridges, waterfront clearance, parks, landmarks, and inspectable building metadata.",
     "isTutorial": false,
@@ -933,8 +918,8 @@
     ],
     "snapshotTimeoutMs": 240000
   },
-  "formats_xgf_proceduralCity_london": {
-    "id": "formats_xgf_proceduralCity_london",
+  "import/xgf/procedural-city-london": {
+    "id": "import/xgf/procedural-city-london",
     "title": "London Thames Procedural City XGF Stream",
     "description": "Streams a deterministic XGF-only procedural city generated from the London preset, with a Thames-style river, embankments, bridges, irregular inner-city blocks, parks, landmarks, and inspectable building metadata.",
     "isTutorial": false,
@@ -947,8 +932,8 @@
     ],
     "snapshotTimeoutMs": 240000
   },
-  "formats_xgf_proceduralCity_paris": {
-    "id": "formats_xgf_proceduralCity_paris",
+  "import/xgf/procedural-city-paris": {
+    "id": "import/xgf/procedural-city-paris",
     "title": "Paris Preset Procedural City XGF Stream",
     "description": "Streams a deterministic XGF-only procedural city generated from the Paris preset, with dense perimeter blocks, courtyard buildings, civic open space, landmarks, and inspectable building metadata.",
     "isTutorial": false,
@@ -961,8 +946,8 @@
     ],
     "snapshotTimeoutMs": 240000
   },
-  "formats_xgf_pumpkin": {
-    "id": "formats_xgf_pumpkin",
+  "import/xgf/pumpkin": {
+    "id": "import/xgf/pumpkin",
     "title": "XGF Pumpkin Hill LiDAR Scan",
     "description": "Loads a LiDAR scan that has been preconverted to optimized XGF.",
     "isTutorial": true,
@@ -974,8 +959,8 @@
       "Featured"
     ]
   },
-  "formats_xgf_sportsCar": {
-    "id": "formats_xgf_sportsCar",
+  "import/xgf/sports-car": {
+    "id": "import/xgf/sports-car",
     "title": "XGF Sports Car - Multiple Views",
     "description": "Loads a sports car model from XGF and displays it in multiple views.",
     "isTutorial": true,
@@ -986,8 +971,154 @@
       "Featured"
     ]
   },
-  "formats_xgf_streaming_archipelago": {
-    "id": "formats_xgf_streaming_archipelago",
+  "import/xgf/west-river-side-hospital": {
+    "id": "import/xgf/west-river-side-hospital",
+    "title": "XGF West Riverside Hospital Static",
+    "description": "Loads the West Riverside Hospital XGF into a static SceneModel.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "Buildings"
+    ]
+  },
+  "import/xkt/model": {
+    "id": "import/xkt/model",
+    "title": "XKT Model Viewer",
+    "description": "Loads a xeokit XKT v12 model with XKTLoader and frames it in the viewer.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XKT"
+    ]
+  },
+  "inspect/data/duplex": {
+    "id": "inspect/data/duplex",
+    "title": "Data Model Health Inspection",
+    "description": "Shows semantic model validation and cleanup checks on a duplex building model.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Model Validation",
+      "Model Optimization",
+      "Featured"
+    ]
+  },
+  "inspect/scene/inspector": {
+    "id": "inspect/scene/inspector",
+    "title": "Scene Model Health Inspection",
+    "description": "Loads the Duplex XGF model and opens Studio Scene Health, a demo of the SDK model validation and optimization tools.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "Model Validation",
+      "Model Optimization",
+      "Featured"
+    ]
+  },
+  "interact/collision/hit-point": {
+    "id": "interact/collision/hit-point",
+    "title": "Ray Picking Benchmark (Cityscape)",
+    "description": "Benchmarks precise ray picking against a large procedural city scene.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Picking",
+      "Benchmarks",
+      "Featured"
+    ]
+  },
+  "interact/collision/hover": {
+    "id": "interact/collision/hover",
+    "title": "Ray Picking Objects with SceneCollisionIndex",
+    "description": "Shows CPU-based object picking and hover highlighting on a duplex model.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Picking"
+    ]
+  },
+  "interact/marker-occlusion/duplex": {
+    "id": "interact/marker-occlusion/duplex",
+    "title": "Duplex Model with Annotation Labels",
+    "description": "Shows annotation labels that hide correctly when occluded by the building model.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Annotations",
+      "Featured"
+    ]
+  },
+  "interact/snapping/table": {
+    "id": "interact/snapping/table",
+    "title": "Pointer Snapping on Triangle Meshes",
+    "description": "Shows pointer snapping on triangle meshes, with markers for vertex, edge, and surface hits.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Picking",
+      "Featured"
+    ]
+  },
+  "interact/snapping/thick-lines": {
+    "id": "interact/snapping/thick-lines",
+    "title": "Pointer Snapping on Line Segments",
+    "description": "Shows pointer snapping on thick line geometry, with markers for vertex and edge snap targets.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Picking"
+    ]
+  },
+  "simulation/physics/duplex": {
+    "id": "simulation/physics/duplex",
+    "title": "Duplex Model with Rapier Physics Engine",
+    "description": "Shows a building model driven by Rapier physics, with gravity controls that animate the model parts.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Physics",
+      "Featured"
+    ]
+  },
+  "streaming/splat/basic": {
+    "id": "streaming/splat/basic",
+    "title": "Streaming Gaussian Splats (dynamic load / unload)",
+    "description": "Shows streamed Gaussian Splat tiles loading and unloading around the moving camera.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Gaussian Splats",
+      "LiDAR Scans",
+      "Point Clouds"
+    ]
+  },
+  "streaming/threedtiles/building": {
+    "id": "streaming/threedtiles/building",
+    "title": "Streaming a BIM 3D Tiles Tileset",
+    "description": "Streams a BIM 3D Tiles tileset, refining visible detail as the camera approaches.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "3D Tiles",
+      "Streaming"
+    ]
+  },
+  "streaming/threedtiles/implicit": {
+    "id": "streaming/threedtiles/implicit",
+    "title": "Streaming an Implicit Procedural City Tileset",
+    "description": "Streams a generated procedural city through an implicit 3D Tiles quadtree, loading and unloading GLB city cells as the camera moves.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "3D Tiles",
+      "Streaming"
+    ]
+  },
+  "streaming/xgf/archipelago": {
+    "id": "streaming/xgf/archipelago",
     "title": "XGF Streamed Archipelago",
     "description": "Streams the same geolocated archipelago scene as one merged XGF chunk set, including the procedural islands, Duplex, IfcOpenHouse4, and Ferry.",
     "isTutorial": true,
@@ -1001,22 +1132,8 @@
       "Ships"
     ]
   },
-  "formats_xgf_streaming_baku_2000_dynamic": {
-    "id": "formats_xgf_streaming_baku_2000_dynamic",
-    "title": "Streamed XGF Stadium, 2K Chunks, Dynamic",
-    "description": "Streams the 2000-chunk Baku Stadium model with dynamic renderer storage, providing the fast-load baseline we use to tune streaming budgets, cache limits, camera-stall behavior, and model partitioning sweet spots.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "BIM",
-      "Benchmarks",
-      "Featured"
-    ]
-  },
-  "formats_xgf_streaming_baku_200_static": {
-    "id": "formats_xgf_streaming_baku_200_static",
+  "streaming/xgf/baku-200-static": {
+    "id": "streaming/xgf/baku-200-static",
     "title": "Streamed XGF Stadium, 200 Chunks, Static",
     "description": "Streams the 200-chunk Baku Stadium model with static VBO geometry, helping compare coarse model partitioning against VBO upload cost when searching for practical static-rendering sweet spots.",
     "isTutorial": true,
@@ -1028,72 +1145,8 @@
       "Benchmarks"
     ]
   },
-  "formats_xgf_streaming_baku_4000_dynamic": {
-    "id": "formats_xgf_streaming_baku_4000_dynamic",
-    "title": "Streamed XGF Stadium, 4K Chunks, Dynamic",
-    "description": "Streams the roughly 4000-chunk Baku Stadium model with dynamic renderer storage, giving a high-chunk-count DTX baseline for finding the sweet spot between first-frustum load speed, request fan-out, and memory pressure.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "BIM",
-      "Benchmarks"
-    ]
-  },
-  "formats_xgf_streaming_baku_4000_static": {
-    "id": "formats_xgf_streaming_baku_4000_static",
-    "title": "Streamed XGF Stadium, 4K Chunks, Static",
-    "description": "Streams the roughly 4000-chunk Baku Stadium model with static VBO geometry, stressing small-chunk scheduling and VBO upload cadence to find the sweet spot between initial visibility, fetch fan-out, and settled navigation.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "BIM",
-      "Benchmarks"
-    ]
-  },
-  "formats_xgf_streaming_baku_renderPaths": {
-    "id": "formats_xgf_streaming_baku_renderPaths",
-    "title": "XGF Baku Stadium Render Paths",
-    "description": "Loads the Baku Stadium stream with renderer-path controls, isolating DTX and VBO tradeoffs so we can tune memory configuration and upload cadence apart from model partitioning.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "BIM",
-      "Benchmarks"
-    ]
-  },
-  "formats_xgf_streaming_baku_webGPU": {
-    "id": "formats_xgf_streaming_baku_webGPU",
-    "title": "WebGPU - Streaming Baku Stadium as XGF",
-    "description": "Streams the 2K-chunk Baku Stadium XGF stream with XGFViewStreamController and renders dynamically added SceneModel content with WebGPURenderer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "BIM",
-      "WebGPU"
-    ]
-  },
-  "formats_xgf_streaming_benchmark": {
-    "id": "formats_xgf_streaming_benchmark",
-    "title": "XGF Streaming Benchmark",
-    "description": "Streams all 961 generated city chunks from shared XGF asset libraries, prioritizing chunks near the current view first.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "Benchmark"
-    ]
-  },
-  "formats_xgf_streaming_chunks": {
-    "id": "formats_xgf_streaming_chunks",
+  "streaming/xgf/chunks": {
+    "id": "streaming/xgf/chunks",
     "title": "Manual XGF Chunk Streaming",
     "description": "Loads shared XGF asset libraries once, then streams references-only tiles on demand.",
     "isTutorial": true,
@@ -1103,22 +1156,20 @@
       "Streaming"
     ]
   },
-  "formats_xgf_streaming_da13_buildings": {
-    "id": "formats_xgf_streaming_da13_buildings",
-    "title": "XGF Stream DA13 Buildings",
-    "description": "Streams the DA13 CityGML buildings dataset from XGF Stream into a static SceneModel. Use this example to inspect city-scale chunking and loading behavior after converting source CityGML to localized XGF stream assets.",
+  "streaming/xgf/earth": {
+    "id": "streaming/xgf/earth",
+    "title": "XGF Stream Earth",
+    "description": "Loads a Natural Earth land and coastline dataset from an XGF stream.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
       "XGF",
       "Streaming",
-      "CityGML",
-      "Buildings"
-    ],
-    "snapshotTimeoutMs": 300000
+      "GIS"
+    ]
   },
-  "formats_xgf_streaming_housePlan": {
-    "id": "formats_xgf_streaming_housePlan",
+  "streaming/xgf/house-plan": {
+    "id": "streaming/xgf/house-plan",
     "title": "XGF Stream House Plan",
     "description": "Loads the HousePlan model from an XGF stream dataset.",
     "isTutorial": true,
@@ -1129,8 +1180,8 @@
       "Buildings"
     ]
   },
-  "formats_xgf_streaming_lyon": {
-    "id": "formats_xgf_streaming_lyon",
+  "streaming/xgf/lyon": {
+    "id": "streaming/xgf/lyon",
     "title": "XGF Streamed LoD2 Lyon",
     "description": "Streams nine merged Lyon XKT files as one view-prioritized XGF chunk set, loading visible city regions before the whole dataset is resident.",
     "isTutorial": true,
@@ -1141,22 +1192,8 @@
       "BIM"
     ]
   },
-  "formats_xgf_streaming_officeBuildingEinsteinufer": {
-    "id": "formats_xgf_streaming_officeBuildingEinsteinufer",
-    "title": "XGF Stream Office Building - Einsteinufer",
-    "description": "Streams an IFC-derived Berlin office building XGF dataset into a static SceneModel using the Creoox IFC-to-glTF conversion path.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "IFC",
-      "Buildings"
-    ],
-    "snapshotTimeoutMs": 300000
-  },
-  "formats_xgf_streaming_otc": {
-    "id": "formats_xgf_streaming_otc",
+  "streaming/xgf/otc": {
+    "id": "streaming/xgf/otc",
     "title": "XGF Streaming OTC Conference Center",
     "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared OTC context before the whole model loads.",
     "isTutorial": true,
@@ -1168,34 +1205,8 @@
       "Featured"
     ]
   },
-  "formats_xgf_streaming_otmhL9Optimized": {
-    "id": "formats_xgf_streaming_otmhL9Optimized",
-    "title": "XGF Stream OTMH L9 Optimized",
-    "description": "Streams the IFC-derived OTMH L9 optimized model into a static SceneModel after Creoox IFC-to-glTF conversion.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "IFC",
-      "Buildings"
-    ],
-    "snapshotTimeoutMs": 300000
-  },
-  "formats_xgf_streaming_proceduralCity_webGPU": {
-    "id": "formats_xgf_streaming_proceduralCity_webGPU",
-    "title": "WebGPU - Streaming a Procedural City as XGF",
-    "description": "Streams the generated procedural city XGF stream with XGFViewStreamController and renders dynamically added SceneModel content with WebGPURenderer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Streaming",
-      "WebGPU"
-    ]
-  },
-  "formats_xgf_streaming_recursive": {
-    "id": "formats_xgf_streaming_recursive",
+  "streaming/xgf/recursive": {
+    "id": "streaming/xgf/recursive",
     "title": "XGF Recursive Streaming - Nested Model Set",
     "description": "Streams a root XGF index that references MAP, Baku Stadium, Lyon, OTC Conference Center, and HousePlan as independent child streams, loading each model from its own stream only when its bounds enter the current view.",
     "isTutorial": true,
@@ -1208,8 +1219,8 @@
       "Featured"
     ]
   },
-  "formats_xgf_streaming_westRiverSideHospital_static": {
-    "id": "formats_xgf_streaming_westRiverSideHospital_static",
+  "streaming/xgf/west-river-side-hospital-static": {
+    "id": "streaming/xgf/west-river-side-hospital-static",
     "title": "XGF Stream West Riverside Hospital Static",
     "description": "Streams the West Riverside Hospital XGF Stream into a static SceneModel with frustum-driven chunk scheduling, persisted camera-move stream stalling, and simulated review viewpoints.",
     "isTutorial": true,
@@ -1221,8 +1232,8 @@
     ],
     "snapshotTimeoutMs": 300000
   },
-  "formats_xgf_streaming_zurich_buildings": {
-    "id": "formats_xgf_streaming_zurich_buildings",
+  "streaming/xgf/zurich-buildings": {
+    "id": "streaming/xgf/zurich-buildings",
     "title": "XGF Stream Zurich Buildings",
     "description": "Streams the Zurich LoD2 CityGML buildings dataset into a static SceneModel with a second XGF Stream for chunked, orthophoto-textured terrain. Use this example to inspect large city-scale chunking, frustum-only loading, and loading behavior after converting source CityGML and map imagery to localized XGF stream assets.",
     "isTutorial": true,
@@ -1235,268 +1246,8 @@
     ],
     "snapshotTimeoutMs": 300000
   },
-  "formats_xgf_westRiverSideHospital": {
-    "id": "formats_xgf_westRiverSideHospital",
-    "title": "XGF West Riverside Hospital Static",
-    "description": "Loads the West Riverside Hospital XGF into a static SceneModel.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XGF",
-      "Buildings"
-    ]
-  },
-  "formats_xkt_model": {
-    "id": "formats_xkt_model",
-    "title": "XKT Model Viewer",
-    "description": "Loads a xeokit XKT v12 model with XKTLoader and frames it in the viewer.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XKT"
-    ]
-  },
-  "formats_xkt_roundTrip": {
-    "id": "formats_xkt_roundTrip",
-    "title": "Round-tripping a Model through XKT v12",
-    "description": "Loads, exports, and re-imports an XKT model to verify round-trip fidelity.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "XKT",
-      "Buildings"
-    ]
-  },
-  "inspect_dataModel_duplex": {
-    "id": "inspect_dataModel_duplex",
-    "title": "Data Model Health Inspection",
-    "description": "Shows semantic model validation and cleanup checks on a duplex building model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Model Validation",
-      "Model Optimization",
-      "Featured"
-    ]
-  },
-  "inspect_sceneModel_inspector": {
-    "id": "inspect_sceneModel_inspector",
-    "title": "Scene Model Health Inspection",
-    "description": "Loads the Duplex XGF model and opens Studio Scene Health, a demo of the SDK model validation and optimization tools.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "Model Validation",
-      "Model Optimization",
-      "Featured"
-    ]
-  },
-  "model_viewer": {
-    "id": "model_viewer",
-    "title": "Model Viewer",
-    "description": "Loads a model from the website model catalog using query-string modelId and format parameters.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "Tools"
-    ]
-  },
-  "presentations_cameraTour_conferenceCenter": {
-    "id": "presentations_cameraTour_conferenceCenter",
-    "title": "Automatic camera walkthrough of the OTC Conference Center IFC model",
-    "description": "Generates and plays an automatic room-by-room camera walkthrough of the OTC Conference Center model.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "Walkthrough"
-    ]
-  },
-  "presentations_drawings_duplex": {
-    "id": "presentations_drawings_duplex",
-    "title": "Auto-Generated Drawings",
-    "description": "Generates plan and elevation drawings from a building model, with live controls for drawing style, clipping and layout.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "categories": [
-      "Presentations",
-      "Drawings",
-      "Featured"
-    ]
-  },
-  "presentations_heatmaps_duplex": {
-    "id": "presentations_heatmaps_duplex",
-    "title": "Duplex Model Heat Map",
-    "description": "Shows an interactive heat map on a building model, with brush updates applied directly to the mapped surfaces.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Heat Maps"
-    ]
-  },
-  "presentations_heatmaps_ifcOpenHouse4": {
-    "id": "presentations_heatmaps_ifcOpenHouse4",
-    "title": "IfcOpenHouse4 Model Heat Map",
-    "description": "Shows a vertical heat map applied across the IfcOpenHouse4 building model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Heat Maps"
-    ]
-  },
-  "presentations_heatmaps_solarPipes": {
-    "id": "presentations_heatmaps_solarPipes",
-    "title": "Animated Thermography Heat Map",
-    "description": "Shows an animated thermography heat map on process equipment.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Heat Maps"
-    ]
-  },
-  "presentations_heatmaps_solarTable": {
-    "id": "presentations_heatmaps_solarTable",
-    "title": "Animated Solar Irradiance Heat Map",
-    "description": "Shows an animated solar-analysis heat map that updates surface irradiance as a synthetic sun moves around the model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Heat Maps",
-      "Solar Analysis",
-      "Featured"
-    ]
-  },
-  "presentations_materials_ifcAttach_duplex": {
-    "id": "presentations_materials_ifcAttach_duplex",
-    "title": "Duplex with Generated IFC Materials",
-    "description": "Shows generated IFC-based materials applied across a duplex building model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Presentations",
-      "Featured"
-    ]
-  },
-  "presentations_schedule_duplex": {
-    "id": "presentations_schedule_duplex",
-    "title": "4D Construction Scheduling — Duplex",
-    "description": "Shows a 4D BIM schedule linked to model state over time.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "4D BIM",
-      "Featured"
-    ]
-  },
-  "presentations_sunStudy_duplex": {
-    "id": "presentations_sunStudy_duplex",
-    "title": "Sun Study — Duplex (Vancouver)",
-    "description": "Shows an interactive sun study on a duplex model, with time controls that animate daylight and shadows.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Heat Maps",
-      "Solar Analysis",
-      "Featured"
-    ]
-  },
-  "presentations_volumeOverlay_atrium": {
-    "id": "presentations_volumeOverlay_atrium",
-    "title": "Atrium Thermal Flow Visualization",
-    "description": "Shows thermal flow in an atrium with volume overlays for streamlines, slices and iso-surfaces.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Thermal Flow Visualization",
-      "Featured"
-    ]
-  },
-  "profile_renderer_conferenceCenter": {
-    "id": "profile_renderer_conferenceCenter",
-    "title": "Profile the WebGL renderer on the OTC Conference Center model",
-    "description": "Profiles renderer cost on the OTC Conference Center model and reports whether the workload is fragment-bound.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "Benchmarks"
-    ]
-  },
-  "sdk_browser_tests": {
-    "id": "sdk_browser_tests",
-    "title": "SDK Browser Tests",
-    "description": "Runs the SDK Jest suite in the browser-backed Electron test environment and streams the result into a browser page.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "Benchmarks"
-    ]
-  },
-  "simulation_physics_duplex": {
-    "id": "simulation_physics_duplex",
-    "title": "Duplex Model with Rapier Physics Engine",
-    "description": "Shows a building model driven by Rapier physics, with gravity controls that animate the model parts.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Physics",
-      "Featured"
-    ]
-  },
-  "spatial_collision_hitPoint": {
-    "id": "spatial_collision_hitPoint",
-    "title": "Ray Picking Benchmark (Cityscape)",
-    "description": "Benchmarks precise ray picking against a large procedural city scene.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Picking",
-      "Benchmarks",
-      "Featured"
-    ]
-  },
-  "spatial_collision_hover": {
-    "id": "spatial_collision_hover",
-    "title": "Ray Picking Objects with SceneCollisionIndex",
-    "description": "Shows CPU-based object picking and hover highlighting on a duplex model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Picking"
-    ]
-  },
-  "spatial_markerOcclusion_duplex": {
-    "id": "spatial_markerOcclusion_duplex",
-    "title": "Duplex Model with Annotation Labels",
-    "description": "Shows annotation labels that hide correctly when occluded by the building model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Annotations",
-      "Featured"
-    ]
-  },
-  "spatial_snapping_table": {
-    "id": "spatial_snapping_table",
-    "title": "Pointer Snapping on Triangle Meshes",
-    "description": "Shows pointer snapping on triangle meshes, with markers for vertex, edge, and surface hits.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Picking",
-      "Featured"
-    ]
-  },
-  "spatial_snapping_thickLines": {
-    "id": "spatial_snapping_thickLines",
-    "title": "Pointer Snapping on Line Segments",
-    "description": "Shows pointer snapping on thick line geometry, with markers for vertex and edge snap targets.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Picking"
-    ]
-  },
-  "viewing_effects_duplex": {
-    "id": "viewing_effects_duplex",
+  "view/effects/duplex": {
+    "id": "view/effects/duplex",
     "title": "Duplex Model with Configurable Rendering Effects",
     "description": "Shows configurable rendering effects on a duplex building model.",
     "isTutorial": true,
@@ -1505,38 +1256,8 @@
       "Effects"
     ]
   },
-  "viewing_sectionPlane_intro": {
-    "id": "viewing_sectionPlane_intro",
-    "title": "View — section planes",
-    "description": "Shows movable section planes slicing simple geometry, with controls for position and visibility.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Slicing"
-    ]
-  },
-  "viewing_sectionPlane_transformControls": {
-    "id": "viewing_sectionPlane_transformControls",
-    "title": "SectionPlane driven by TransformControls",
-    "description": "Shows a transform gizmo controlling a section plane on a duplex model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "categories": [
-      "Slicing"
-    ]
-  },
-  "viewing_textureMatrix_renderPaths": {
-    "id": "viewing_textureMatrix_renderPaths",
-    "title": "Rendering Paths Matrix — normals × uvs × triplanarScale × mipmap",
-    "description": "Compares texture and shading render paths across normals, UVs, triplanar mapping, and mipmaps.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "categories": [
-      "Materials"
-    ]
-  },
-  "viewing_viewLayers_manual": {
-    "id": "viewing_viewLayers_manual",
+  "view/layers/manual": {
+    "id": "view/layers/manual",
     "title": "Creating a Viewer with manual ViewLayers",
     "description": "Create a viewer with explicitly managed ViewLayers for deterministic layer composition and control.",
     "isTutorial": true,
@@ -1545,8 +1266,45 @@
       "ViewLayers"
     ]
   },
-  "viewing_walkNavigation_interior": {
-    "id": "viewing_walkNavigation_interior",
+  "view/lod/blender-house-dominant-representations": {
+    "id": "view/lod/blender-house-dominant-representations",
+    "title": "LOD - Blender House Dominant Objects",
+    "description": "Loads the Blender House XGF model with authored projected-size representations that switch from the full model to the most visually dominant objects.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "LOD",
+      "SceneModel"
+    ]
+  },
+  "view/lod/blender-house-representations": {
+    "id": "view/lod/blender-house-representations",
+    "title": "LOD - Blender House Representations",
+    "description": "Loads the Blender House XGF model with authored representation sets and selects the detailed or shell representation by projected size.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "LOD",
+      "SceneModel"
+    ]
+  },
+  "view/lod/west-river-side-hospital-dominant-representations": {
+    "id": "view/lod/west-river-side-hospital-dominant-representations",
+    "title": "LOD - West Riverside Hospital Dominant Objects",
+    "description": "Loads the West Riverside Hospital XGF model with authored projected-size representations that switch from the full BIM model to the most visually dominant objects.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "LOD",
+      "SceneModel",
+      "BIM"
+    ]
+  },
+  "view/navigation/walk-interior": {
+    "id": "view/navigation/walk-interior",
     "title": "Walk Navigation Interior",
     "description": "Loads the OTC Conference Center XGF model, starts inside the building, and enables WalkNavigationController for first-person movement.",
     "isTutorial": false,
@@ -1557,8 +1315,62 @@
       "Buildings"
     ]
   },
-  "viewing_webGPU_objectStates": {
-    "id": "viewing_webGPU_objectStates",
+  "view/profiles/adaptive-quality": {
+    "id": "view/profiles/adaptive-quality",
+    "title": "AdaptiveQuality - ViewProfiles",
+    "description": "Uses AdaptiveQuality to switch ViewProfiles to fast while navigating and realistic at rest.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Effects",
+      "Performance"
+    ]
+  },
+  "view/profiles/default-profiles": {
+    "id": "view/profiles/default-profiles",
+    "title": "ViewProfiles - Default Profiles",
+    "description": "Switches a View between the SDK's fast, detailed and realistic ViewProfiles.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Effects",
+      "Performance"
+    ]
+  },
+  "view/section-planes/intro": {
+    "id": "view/section-planes/intro",
+    "title": "View — section planes",
+    "description": "Shows movable section planes slicing simple geometry, with controls for position and visibility.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Slicing"
+    ]
+  },
+  "view/section-planes/transform-controls": {
+    "id": "view/section-planes/transform-controls",
+    "title": "SectionPlane driven by TransformControls",
+    "description": "Shows a transform gizmo controlling a section plane on a duplex model.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Slicing"
+    ]
+  },
+  "view/texture-matrix/render-paths": {
+    "id": "view/texture-matrix/render-paths",
+    "title": "Rendering Paths Matrix — normals × uvs × triplanarScale × mipmap",
+    "description": "Compares texture and shading render paths across normals, UVs, triplanar mapping, and mipmaps.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "categories": [
+      "Materials"
+    ]
+  },
+  "view/webgpu/object-states": {
+    "id": "view/webgpu/object-states",
     "title": "WebGPU renderer object states",
     "description": "Shows WebGPU per-object selected, highlighted, xrayed, colorize, opacity, and visibility state updates.",
     "isTutorial": false,
@@ -1569,8 +1381,8 @@
       "WebGPU"
     ]
   },
-  "viewing_webGPU_pickSurface": {
-    "id": "viewing_webGPU_pickSurface",
+  "view/webgpu/pick-surface": {
+    "id": "view/webgpu/pick-surface",
     "title": "WebGPU renderer surface picking",
     "description": "Shows WebGPU triangle picking with mesh, object, triangle indices, and local/world/view hit positions.",
     "isTutorial": false,
@@ -1581,8 +1393,28 @@
       "WebGPU"
     ]
   },
-  "viewing_webGPU_rtcTiles": {
-    "id": "viewing_webGPU_rtcTiles",
+  "view/webgpu/render-path-matrix": {
+    "id": "view/webgpu/render-path-matrix",
+    "title": "WebGPU Render Path Matrix Controls",
+    "description": "Configurable geometry, material, view-effect, and renderer-backend combinations for checking render paths.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": []
+  },
+  "view/webgpu/render-path-matrix-gallery": {
+    "id": "view/webgpu/render-path-matrix-gallery",
+    "title": "Render Path Tests",
+    "description": "Captured WebGPU and WebGL render-path permutations for comparing renderer output across geometry, materials and view effects.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "WebGPU",
+      "WebGL"
+    ]
+  },
+  "view/webgpu/rtc-tiles": {
+    "id": "view/webgpu/rtc-tiles",
     "title": "WebGPU Renderer RTC Tiles",
     "description": "Shows WebGPU RTC tile assignment for large-coordinate meshes and updates one mesh across tile centers without rebuilding geometry.",
     "isTutorial": false,
@@ -1593,8 +1425,8 @@
       "WebGPU"
     ]
   },
-  "viewing_webGPU_sectionPlanes": {
-    "id": "viewing_webGPU_sectionPlanes",
+  "view/webgpu/section-planes": {
+    "id": "view/webgpu/section-planes",
     "title": "WebGPU renderer section planes",
     "description": "Shows WebGPU triangle and edge clipping with a live section plane, cap coloring, and a non-clippable object.",
     "isTutorial": false,
@@ -1605,8 +1437,8 @@
       "WebGPU"
     ]
   },
-  "viewing_webGPU_snapEdge": {
-    "id": "viewing_webGPU_snapEdge",
+  "view/webgpu/snap-edge": {
+    "id": "view/webgpu/snap-edge",
     "title": "WebGPU renderer edge snapping",
     "description": "Shows WebGPU renderer-side snapping to triangle edges using decoded triangle data.",
     "isTutorial": false,
@@ -1617,8 +1449,8 @@
       "WebGPU"
     ]
   },
-  "viewing_webGPU_snapVertex": {
-    "id": "viewing_webGPU_snapVertex",
+  "view/webgpu/snap-vertex": {
+    "id": "view/webgpu/snap-vertex",
     "title": "WebGPU renderer vertex snapping",
     "description": "Shows WebGPU renderer-side snapping to vertices on a table-shaped SceneModel.",
     "isTutorial": false,
@@ -1629,8 +1461,8 @@
       "WebGPU"
     ]
   },
-  "viewing_webGPU_tableShadows": {
-    "id": "viewing_webGPU_tableShadows",
+  "view/webgpu/table-shadows": {
+    "id": "view/webgpu/table-shadows",
     "title": "WebGPU - Table Shadows",
     "description": "Shows a generated table model casting directional WebGPU shadows onto a floor.",
     "isTutorial": false,
@@ -1641,8 +1473,8 @@
       "WebGPU"
     ]
   },
-  "viewing_webGPU_triangle": {
-    "id": "viewing_webGPU_triangle",
+  "view/webgpu/triangle": {
+    "id": "view/webgpu/triangle",
     "title": "WebGPU renderer triangle depth demo",
     "description": "Shows overlapping triangles rendered with the experimental WebGPU renderer.",
     "isTutorial": false,
@@ -1651,6 +1483,115 @@
       "Modeling",
       "Geometry",
       "WebGPU"
+    ]
+  },
+  "workflows/camera-tour/conference-center": {
+    "id": "workflows/camera-tour/conference-center",
+    "title": "Automatic camera walkthrough of the OTC Conference Center IFC model",
+    "description": "Generates and plays an automatic room-by-room camera walkthrough of the OTC Conference Center model.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Walkthrough"
+    ]
+  },
+  "workflows/drawings/duplex": {
+    "id": "workflows/drawings/duplex",
+    "title": "Auto-Generated Drawings",
+    "description": "Generates plan and elevation drawings from a building model, with live controls for drawing style, clipping and layout.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Presentations",
+      "Drawings",
+      "Featured"
+    ]
+  },
+  "workflows/heatmaps/duplex": {
+    "id": "workflows/heatmaps/duplex",
+    "title": "Duplex Model Heat Map",
+    "description": "Shows an interactive heat map on a building model, with brush updates applied directly to the mapped surfaces.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Heat Maps"
+    ]
+  },
+  "workflows/heatmaps/ifc-open-house4": {
+    "id": "workflows/heatmaps/ifc-open-house4",
+    "title": "IfcOpenHouse4 Model Heat Map",
+    "description": "Shows a vertical heat map applied across the IfcOpenHouse4 building model.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Heat Maps"
+    ]
+  },
+  "workflows/heatmaps/solar-pipes": {
+    "id": "workflows/heatmaps/solar-pipes",
+    "title": "Animated Thermography Heat Map",
+    "description": "Shows an animated thermography heat map on process equipment.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Heat Maps"
+    ]
+  },
+  "workflows/heatmaps/solar-table": {
+    "id": "workflows/heatmaps/solar-table",
+    "title": "Animated Solar Irradiance Heat Map",
+    "description": "Shows an animated solar-analysis heat map that updates surface irradiance as a synthetic sun moves around the model.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Heat Maps",
+      "Solar Analysis",
+      "Featured"
+    ]
+  },
+  "workflows/materials/ifc-attach-duplex": {
+    "id": "workflows/materials/ifc-attach-duplex",
+    "title": "Duplex with Generated IFC Materials",
+    "description": "Shows generated IFC-based materials applied across a duplex building model.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Presentations",
+      "Featured"
+    ]
+  },
+  "workflows/schedule/duplex": {
+    "id": "workflows/schedule/duplex",
+    "title": "4D Construction Scheduling — Duplex",
+    "description": "Shows a 4D BIM schedule linked to model state over time.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "4D BIM",
+      "Featured"
+    ]
+  },
+  "workflows/sun-study/duplex": {
+    "id": "workflows/sun-study/duplex",
+    "title": "Sun Study — Duplex (Vancouver)",
+    "description": "Shows an interactive sun study on a duplex model, with time controls that animate daylight and shadows.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Heat Maps",
+      "Solar Analysis",
+      "Featured"
+    ]
+  },
+  "workflows/volume-overlay/atrium": {
+    "id": "workflows/volume-overlay/atrium",
+    "title": "Atrium Thermal Flow Visualization",
+    "description": "Shows thermal flow in an atrium with volume overlays for streamlines, slices and iso-surfaces.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "Thermal Flow Visualization",
+      "Featured"
     ]
   }
 }

@@ -1,0 +1,14 @@
+{
+  "id": "streaming/xgf/recursive",
+  "title": "XGF Recursive Streaming - Nested Model Set",
+  "description": "Streams a root XGF index that references MAP, Baku Stadium, Lyon, OTC Conference Center, and HousePlan as independent child streams, loading each model from its own stream only when its bounds enter the current view.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM",
+    "Geolocation",
+    "Featured"
+  ]
+}

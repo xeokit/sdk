@@ -1,0 +1,11 @@
+{
+  "id": "import/fbx/e3d-plant",
+  "title": "FBX Industrial Plant",
+  "description": "Loads and views an industrial plant model from FBX.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "FBX",
+    "Industrial Plants"
+  ]
+}

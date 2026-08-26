@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/snap-edge",
+  "title": "WebGPU renderer edge snapping",
+  "description": "Shows WebGPU renderer-side snapping to triangle edges using decoded triangle data.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Snapping",
+    "WebGPU"
+  ]
+}

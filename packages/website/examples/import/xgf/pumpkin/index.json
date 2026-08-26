@@ -1,0 +1,13 @@
+{
+  "id": "import/xgf/pumpkin",
+  "title": "XGF Pumpkin Hill LiDAR Scan",
+  "description": "Loads a LiDAR scan that has been preconverted to optimized XGF.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "XGF",
+    "LiDAR Scans",
+    "Point Clouds",
+    "Featured"
+  ]
+}

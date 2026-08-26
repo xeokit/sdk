@@ -1,0 +1,12 @@
+{
+  "id": "import/gltf/house-plan-pbr",
+  "title": "glTF House Plan",
+  "description": "Loads and renders a PBR house plan model from glTF.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF",
+    "Buildings",
+    "Featured"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "streaming/xgf/otc",
+  "title": "XGF Streaming OTC Conference Center",
+  "description": "Streams only the objects visible from each selected issue viewpoint, so reviewers can inspect shared OTC context before the whole model loads.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM",
+    "Featured"
+  ]
+}

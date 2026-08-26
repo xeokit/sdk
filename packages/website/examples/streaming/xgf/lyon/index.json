@@ -1,0 +1,12 @@
+{
+  "id": "streaming/xgf/lyon",
+  "title": "XGF Streamed LoD2 Lyon",
+  "description": "Streams nine merged Lyon XKT files as one view-prioritized XGF chunk set, loading visible city regions before the whole dataset is resident.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM"
+  ]
+}

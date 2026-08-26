@@ -1,0 +1,11 @@
+{
+  "id": "import/threedxml/assembly",
+  "title": "3DXML CAD Assembly",
+  "description": "Loads a Dassault Systèmes 3DXML tooling assembly with ThreeDXMLLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "3DXML",
+    "CAD"
+  ]
+}

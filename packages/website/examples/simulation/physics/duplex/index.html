@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inverse-gravity Duplex (Rapier)</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+
+        #physicsHud {
+            position: absolute;
+            top: 17px;
+            right: 17px;
+            width: 240px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            color: #222;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            z-index: 200000;
+        }
+
+        #physicsHud h1 {
+            margin: 0 0 6px 0;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #444;
+        }
+
+        #physicsHud .hint {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        #physicsHud .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+        }
+
+        #physicsHud .label  { color: #222; }
+        #physicsHud .number {
+            color: #2d5e8c;
+            font-variant-numeric: tabular-nums;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 11px;
+        }
+        #physicsHud .accent {
+            color: #c97a14;
+            font-size: 11px;
+        }
+
+        #physicsHud button {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            padding: 6px 10px;
+            background: #fff;
+            color: #111;
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+        }
+
+        #physicsHud button:hover {
+            background: #fafafa;
+        }
+
+        #status {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            color: #444;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            z-index: 200000;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+
+<div id="physicsHud">
+    <h1>Inverse-gravity Duplex</h1>
+    <div class="hint">Shows a building model driven by Rapier physics, with gravity controls that animate the model parts.</div>
+    <div class="row"><span class="label">Bodies:</span>           <span id="hudBodies"  class="number">0</span></div>
+    <div class="row"><span class="label">Dynamic parts:</span>    <span id="hudDynamic" class="number">0</span></div>
+    <div class="row"><span class="label">Gravity:</span>          <span id="hudGravity" class="accent">↓ down (falling)</span></div>
+    <div class="row"><span class="label">Step time:</span>        <span id="hudStepMs"  class="number">0.0</span> ms</div>
+    <div class="row"><span class="label">FPS:</span>              <span id="hudFps"     class="number">—</span></div>
+    <button id="initiateCollapse">Initiate collapse</button>
+    <button id="toggleGravity">Toggle gravity</button>
+</div>
+
+<div id="status">Loading Rapier…</div>
+
+</body>
+<script type="module" src="./index.js"></script>
+</html>

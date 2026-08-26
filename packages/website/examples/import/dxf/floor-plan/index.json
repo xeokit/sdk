@@ -1,0 +1,11 @@
+{
+  "id": "import/dxf/floor-plan",
+  "title": "DXF Floor Plan Drawing",
+  "description": "Loads an AutoCAD DXF floor plan with DXFLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "DXF",
+    "Drawings"
+  ]
+}

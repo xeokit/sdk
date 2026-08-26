@@ -1,0 +1,12 @@
+{
+  "id": "create/scene/from-params-table-webgpu",
+  "title": "WebGPU - Creating a Model from JSON",
+  "description": "Builds a table model from JSON and renders it with WebGPU.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "Geometry",
+    "WebGPU"
+  ]
+}

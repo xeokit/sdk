@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blender House Representation LOD</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background: #f3f6f8;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        #demoCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: #f3f6f8;
+            border: 0;
+        }
+
+        #panel {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            z-index: 2147483000;
+            width: min(330px, calc(100vw - 32px));
+            padding: 12px;
+            border: 1px solid rgba(18, 32, 45, 0.16);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 14px 38px rgba(18, 32, 45, 0.18);
+            color: #12202d;
+        }
+
+        #panel h1 {
+            margin: 0 0 10px;
+            font-size: 15px;
+            line-height: 20px;
+            font-weight: 680;
+        }
+
+        #buttons {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            min-height: 32px;
+            border: 1px solid #b8c4cc;
+            border-radius: 6px;
+            background: #f8fafb;
+            color: #12202d;
+            font: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #eef3f6;
+        }
+
+        #stats {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 6px 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(18, 32, 45, 0.12);
+            font-size: 12px;
+            line-height: 17px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .name {
+            color: #52616c;
+        }
+
+        .value {
+            color: #12202d;
+            text-align: right;
+            font-weight: 640;
+        }
+
+        #error {
+            display: none;
+            margin-top: 10px;
+            color: #9f1239;
+            font-size: 12px;
+            line-height: 17px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<section id="panel">
+    <h1>Blender House LOD</h1>
+    <div id="buttons">
+        <button id="nearButton" type="button">Near</button>
+        <button id="farButton" type="button">Far</button>
+    </div>
+    <div id="stats"></div>
+    <div id="error"></div>
+</section>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

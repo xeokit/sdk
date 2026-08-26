@@ -1,0 +1,12 @@
+{
+  "id": "workflows/heatmaps/solar-table",
+  "title": "Animated Solar Irradiance Heat Map",
+  "description": "Shows an animated solar-analysis heat map that updates surface irradiance as a synthetic sun moves around the model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Heat Maps",
+    "Solar Analysis",
+    "Featured"
+  ]
+}

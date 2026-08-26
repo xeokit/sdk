@@ -1,0 +1,11 @@
+{
+  "id": "import/gltf/residential-building",
+  "title": "glTF Residential Building",
+  "description": "Loads a glTF residential building model with GLTFLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF",
+    "Buildings"
+  ]
+}

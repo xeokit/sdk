@@ -1,0 +1,11 @@
+{
+  "id": "export/cityjson/round-trip",
+  "title": "CityJSON Round-Trip — Import, Export, Re-Import",
+  "description": "Loads a CityJSON model, exports it with CityJSONExporter, then re-imports the result to verify the round trip.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "CityJSON",
+    "City Models"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "import/usdz/residential-building",
+  "title": "USDZ Residential Building",
+  "description": "Loads and views a residential building model from USDZ.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "USDZ",
+    "Buildings",
+    "Featured"
+  ]
+}

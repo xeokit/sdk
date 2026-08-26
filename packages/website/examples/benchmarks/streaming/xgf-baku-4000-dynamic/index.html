@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XGF Streamed Stadium 4K Dynamic</title>
+  <link rel="icon" href="data:,">
+  <link href="../../../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: #9ec9ee;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #demoCanvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: linear-gradient(#82b9ed 0%, #cfe3f4 58%, #eef2f3 100%);
+      border: 0;
+    }
+
+    .xkt-info-panel,
+    .xkt-info-pill {
+      display: none !important;
+    }
+
+    #streamPanel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(450px, calc(100vw - 32px));
+      max-height: calc(100vh - 68px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(35, 43, 52, 0.18);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(30, 38, 48, 0.18);
+      color: #1f2933;
+      z-index: 2147483647;
+    }
+
+    .panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(35, 43, 52, 0.12);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .stadium-preview {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin: 10px 0 0;
+      border-radius: 7px;
+      border: 1px solid rgba(35, 43, 52, 0.14);
+    }
+
+    .panel-header p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #52606d;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 16px;
+    }
+
+    .metric {
+      min-height: 50px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+      padding: 8px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.1;
+    }
+
+    .metric strong small {
+      font-size: 11px;
+      font-weight: 600;
+      color: #65717d;
+    }
+
+    .metric > span {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: #65717d;
+    }
+
+    .queue-progress {
+      margin: 0 16px 14px;
+      padding: 12px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+    }
+
+    .queue-progress label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11px;
+      color: #65717d;
+    }
+
+    .queue-progress strong {
+      font-size: 12px;
+      color: #26313b;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .queue-progress input {
+      display: block;
+      width: 100%;
+      height: 8px;
+      margin: 12px 0 0;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #6f8798 var(--progress, 0%), #dce3e8 var(--progress, 0%));
+      appearance: none;
+      -webkit-appearance: none;
+      pointer-events: none;
+    }
+
+    .queue-progress input::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 0;
+      height: 0;
+      border: 0;
+    }
+
+    .queue-progress input::-moz-range-thumb {
+      width: 0;
+      height: 0;
+      border: 0;
+    }
+
+    .queue-progress input::-moz-range-track {
+      height: 8px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .queue-progress[data-mode="pending"] input {
+      --progress: 35%;
+      background: linear-gradient(90deg, #dce3e8 0%, #6f8798 35%, #dce3e8 70%);
+    }
+
+    .stream-options {
+      display: grid;
+      gap: 8px;
+      padding: 0 16px 14px;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 34px;
+      padding: 8px 10px;
+      border: 1px solid rgba(35, 43, 52, 0.12);
+      border-radius: 7px;
+      background: #f8fafb;
+      font-size: 12px;
+      font-weight: 650;
+      color: #26313b;
+      cursor: pointer;
+    }
+
+    .switch-row input {
+      position: relative;
+      width: 38px;
+      height: 21px;
+      flex: 0 0 auto;
+      margin: 0;
+      border: 0;
+      border-radius: 999px;
+      background: #b6c3cc;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    .switch-row input::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(30, 38, 48, 0.28);
+      transition: transform 120ms ease;
+    }
+
+    .switch-row input:checked {
+      background: #6f8798;
+    }
+
+    .switch-row input:checked::before {
+      transform: translateX(17px);
+    }
+
+    .switch-row input:focus-visible {
+      outline: 2px solid rgba(111, 135, 152, 0.45);
+      outline-offset: 2px;
+    }
+
+    .issue-list {
+      padding: 0 16px 16px;
+    }
+
+    .issue-list h2 {
+      margin: 4px 0 8px;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: #26313b;
+    }
+
+    .issue-card {
+      display: block;
+      width: 100%;
+      min-height: 56px;
+      margin: 0 0 8px;
+      padding: 9px 10px;
+      text-align: left;
+      background: #f8fafb;
+      border: 1px solid rgba(35, 43, 52, 0.14);
+      border-radius: 7px;
+      color: #1f2933;
+      cursor: pointer;
+    }
+
+    .issue-card.has-thumbnail {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr);
+      column-gap: 12px;
+      align-items: center;
+      min-height: 122px;
+      padding: 9px 10px 9px 9px;
+    }
+
+    .issue-thumbnail {
+      grid-row: 1 / span 3;
+      width: 160px;
+      height: 106px;
+      border: 1px solid rgba(35, 43, 52, 0.16);
+      border-radius: 5px;
+      background: #d9e2e8;
+    }
+
+    .issue-card:hover,
+    .issue-card:focus-visible {
+      border-color: rgba(70, 94, 112, 0.44);
+      background: #eef4f7;
+      outline: none;
+    }
+
+    .issue-card[aria-pressed="true"] {
+      border-color: #6f8798;
+      box-shadow: inset 3px 0 0 #6f8798;
+      background: #eef4f7;
+    }
+
+    .issue-card strong {
+      display: block;
+      min-width: 0;
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .issue-card span {
+      display: block;
+      min-width: 0;
+      margin-top: 3px;
+      font-size: 11px;
+      line-height: 1.3;
+      color: #5f6f7c;
+    }
+
+    .issue-card em {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #dbeaf6;
+      color: #36566f;
+      font-style: normal;
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="streamPanel">
+  <div class="panel-header">
+    <h1>XGF Streamed Stadium 4K Dynamic</h1>
+    <img class="stadium-preview" src="bcf_thumbnails/baku.png" alt="Baku Olympic Stadium">
+    <p>Streams the roughly 4k-chunk Baku Stadium model using dynamic renderer storage and aggressive small-chunk scheduling.</p>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong><span id="loadedChunks">0</span> <small id="chunkTarget">/ 0</small></strong><span>chunks</span></div>
+    <div class="metric"><strong><span id="objectCount">0</span> <small id="objectTarget">/ 0</small></strong><span>objects</span></div>
+    <div class="metric"><strong id="meshCount">0</strong><span>meshes</span></div>
+  </div>
+  <div class="queue-progress" data-mode="pending">
+    <label for="frustumQueueProgress">
+      <span>Frustum chunks loaded</span>
+      <strong id="frustumQueueLabel">Preparing stream...</strong>
+    </label>
+    <input id="frustumQueueProgress" type="range" min="0" max="1" value="0" disabled>
+  </div>
+  <div class="stream-options">
+    <label class="switch-row" for="stallStreamingToggle">
+      <span>Stall streaming while moving</span>
+      <input id="stallStreamingToggle" type="checkbox">
+    </label>
+    <label class="switch-row" for="viewpointMotionToggle">
+      <span>Fly to viewpoints</span>
+      <input id="viewpointMotionToggle" type="checkbox">
+    </label>
+  </div>
+  <div class="issue-list">
+    <h2>Simulated BCF Issues</h2>
+    <div id="issueCards"></div>
+  </div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

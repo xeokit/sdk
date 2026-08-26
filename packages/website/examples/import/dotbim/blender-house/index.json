@@ -1,0 +1,11 @@
+{
+  "id": "import/dotbim/blender-house",
+  "title": "DotBIM Blender House",
+  "description": "Loads a dotbim house model with DotBIMLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "dotbim",
+    "Buildings"
+  ]
+}

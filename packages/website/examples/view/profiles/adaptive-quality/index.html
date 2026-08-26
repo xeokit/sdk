@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AdaptiveQuality - ViewProfiles</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border: 0;
+        }
+
+        #adaptivePanel {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 2147483000;
+            width: min(390px, calc(100vw - 36px));
+            max-height: calc(100vh - 36px);
+            overflow: auto;
+            padding: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.16);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: #0f172a;
+        }
+
+        #adaptivePanel h1 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        #adaptivePanel label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        #adaptivePanel .status {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 6px 10px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        #adaptivePanel .key {
+            color: #64748b;
+        }
+
+        #adaptivePanel .value {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: #0f172a;
+        }
+
+        #adaptivePanel .profileInfo {
+            margin-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+
+        #adaptivePanel details {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: rgba(248, 250, 252, 0.9);
+            margin-top: 6px;
+        }
+
+        #adaptivePanel details[open] {
+            background: rgba(255, 255, 255, 0.96);
+        }
+
+        #adaptivePanel details.active {
+            border-color: #0f766e;
+        }
+
+        #adaptivePanel summary {
+            padding: 7px 9px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        #adaptivePanel .effectList {
+            display: grid;
+            gap: 6px;
+            padding: 0 9px 9px;
+        }
+
+        #adaptivePanel .effectRow {
+            display: grid;
+            grid-template-columns: 86px 1fr;
+            gap: 8px;
+            align-items: start;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        #adaptivePanel .effectName {
+            font-weight: 650;
+            color: #0f172a;
+            overflow-wrap: anywhere;
+        }
+
+        #adaptivePanel .effectProps {
+            color: #475569;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            overflow-wrap: anywhere;
+        }
+
+        #adaptivePanel .enabled {
+            color: #0f766e;
+            font-weight: 700;
+        }
+
+        #adaptivePanel .disabled {
+            color: #b91c1c;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<section id="adaptivePanel" aria-label="Adaptive quality status">
+    <h1>AdaptiveQuality</h1>
+    <label>
+        <input id="adaptiveEnabled" type="checkbox" checked>
+        Enabled
+    </label>
+    <div class="status">
+        <span class="key">profile</span><span id="activeProfile" class="value">realistic</span>
+        <span class="key">moving</span><span id="movingState" class="value">no</span>
+    </div>
+    <div class="profileInfo" aria-label="View profile definitions"></div>
+</section>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

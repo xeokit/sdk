@@ -1,0 +1,12 @@
+{
+  "id": "view/lod/blender-house-dominant-representations",
+  "title": "LOD - Blender House Dominant Objects",
+  "description": "Loads the Blender House XGF model with authored projected-size representations that switch from the full model to the most visually dominant objects.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "LOD",
+    "SceneModel"
+  ]
+}

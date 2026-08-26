@@ -1,0 +1,12 @@
+{
+  "id": "view/profiles/default-profiles",
+  "title": "ViewProfiles - Default Profiles",
+  "description": "Switches a View between the SDK's fast, detailed and realistic ViewProfiles.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Effects",
+    "Performance"
+  ]
+}

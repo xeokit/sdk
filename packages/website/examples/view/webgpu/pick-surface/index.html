@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebGPU Renderer - Surface Picking</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #0f172a;
+            color: #e5e7eb;
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        #demoCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #0f172a;
+        }
+
+        #status {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            z-index: 4;
+            max-width: 560px;
+            padding: 12px 14px;
+            border: 1px solid rgba(148, 163, 184, 0.38);
+            background: rgba(15, 23, 42, 0.86);
+            color: #e5e7eb;
+            font-size: 13px;
+            line-height: 1.45;
+            pointer-events: none;
+        }
+
+        #status strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        #status code {
+            color: #bae6fd;
+        }
+
+        #status[data-state="error"] {
+            border-color: rgba(248, 113, 113, 0.65);
+            color: #fecaca;
+        }
+
+        #marker {
+            position: absolute;
+            z-index: 3;
+            width: 14px;
+            height: 14px;
+            margin-left: -7px;
+            margin-top: -7px;
+            border: 2px solid #f8fafc;
+            background: rgba(14, 165, 233, 0.72);
+            pointer-events: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="marker"></div>
+<div id="status"><strong>WebGPU Surface Pick</strong><span>Initializing...</span></div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/render-path-matrix-gallery",
+  "title": "Render Path Tests",
+  "description": "Captured WebGPU and WebGL render-path permutations for comparing renderer output across geometry, materials and view effects.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "WebGPU",
+    "WebGL"
+  ]
+}

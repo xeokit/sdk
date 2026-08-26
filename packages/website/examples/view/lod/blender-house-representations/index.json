@@ -1,0 +1,12 @@
+{
+  "id": "view/lod/blender-house-representations",
+  "title": "LOD - Blender House Representations",
+  "description": "Loads the Blender House XGF model with authored representation sets and selects the detailed or shell representation by projected size.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "LOD",
+    "SceneModel"
+  ]
+}

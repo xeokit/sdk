@@ -1,0 +1,13 @@
+{
+  "id": "view/lod/west-river-side-hospital-dominant-representations",
+  "title": "LOD - West Riverside Hospital Dominant Objects",
+  "description": "Loads the West Riverside Hospital XGF model with authored projected-size representations that switch from the full BIM model to the most visually dominant objects.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "LOD",
+    "SceneModel",
+    "BIM"
+  ]
+}

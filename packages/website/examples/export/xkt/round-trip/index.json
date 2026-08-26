@@ -1,0 +1,11 @@
+{
+  "id": "export/xkt/round-trip",
+  "title": "Round-tripping a Model through XKT v12",
+  "description": "Loads, exports, and re-imports an XKT model to verify round-trip fidelity.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XKT",
+    "Buildings"
+  ]
+}

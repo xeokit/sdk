@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>London Preset Procedural City XGF Stream</title>
+  <link href="../../../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      user-select: none;
+      background: #f6f7f5;
+      color: #202422;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #f6f7f5;
+      z-index: 0;
+    }
+
+    #status {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      z-index: 100100000;
+      padding: 8px 10px;
+      border: 1px solid rgba(24, 31, 29, 0.14);
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 6px;
+      font-size: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    #panel {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      z-index: 100100000;
+      width: 292px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      border: 1px solid rgba(24, 31, 29, 0.14);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+      padding: 12px;
+      display: none;
+    }
+
+    #panel h1 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.2;
+      font-weight: 680;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      border: 1px solid #e2e5e0;
+      border-radius: 6px;
+      padding: 6px;
+      background: #fafbf9;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .stat span,
+    label,
+    button,
+    select,
+    #meta {
+      font-size: 12px;
+    }
+
+    .section {
+      border-top: 1px solid #e6e8e4;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      accent-color: #34785a;
+    }
+
+    .stream-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 0 0 6px;
+      font-size: 12px;
+      color: #3d4741;
+    }
+
+    .buttons,
+    .toggles {
+      display: grid;
+      gap: 6px;
+    }
+
+    .buttons {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    button,
+    select {
+      border: 1px solid #cfd6d0;
+      background: #fff;
+      color: #202422;
+      border-radius: 5px;
+      padding: 5px 7px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #303833;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #34785a;
+    }
+
+    #meta {
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.35;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #1e2622;
+    }
+
+    .profile-line {
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: #3d4741;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .report-table th,
+    .report-table td {
+      border-bottom: 1px solid #e5e8e4;
+      padding: 4px 3px;
+      text-align: right;
+      vertical-align: top;
+    }
+
+    .report-table th:first-child,
+    .report-table td:first-child {
+      text-align: left;
+    }
+
+    .report-table tr.warn td {
+      color: #8d4b16;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading London procedural city stream...</div>
+<aside id="panel">
+  <h1>London Preset Procedural City XGF Stream</h1>
+  <p class="profile-line"><span id="profileName">-</span> · seed <span id="profileSeed">-</span></p>
+  <div class="stats">
+    <div class="stat"><strong id="statBuildings">-</strong><span>Buildings</span></div>
+    <div class="stat"><strong id="statBlocks">-</strong><span>Blocks</span></div>
+    <div class="stat"><strong id="statRoads">-</strong><span>Roads</span></div>
+    <div class="stat"><strong id="statTriangles">-</strong><span>Triangles</span></div>
+  </div>
+
+  <div class="section">
+    <p class="stream-line"><span id="streamStatus">Loading stream</span><strong id="loadedChunks">-</strong></p>
+    <progress id="chunkProgress" value="0" max="1"></progress>
+    <p class="stream-line"><span>Loaded objects</span><strong id="loadedObjects">-</strong></p>
+  </div>
+
+  <div class="section">
+    <div class="buttons">
+      <button data-camera="aerial">Aerial</button>
+      <button data-camera="downtown">Downtown</button>
+      <button data-camera="street">Street</button>
+    </div>
+  </div>
+
+  <div class="section toggles">
+    <label>Buildings <input type="checkbox" data-layer="buildings" checked></label>
+    <label>Roads <input type="checkbox" data-layer="roads" checked></label>
+    <label>Vegetation <input type="checkbox" data-layer="vegetation" checked></label>
+    <label>Street furniture <input type="checkbox" data-layer="streetFurniture" checked></label>
+    <label>Parks and plazas <input type="checkbox" data-layer="parks" checked></label>
+    <label>Landmarks <input type="checkbox" data-layer="landmarks" checked></label>
+  </div>
+
+  <div class="section">
+    <label>Color
+      <select id="colorMode">
+        <option value="materials">Materials</option>
+        <option value="height">Height</option>
+        <option value="block">Block</option>
+        <option value="landUse">Land use</option>
+        <option value="centerDistance">Distance from center</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="section">
+    <table class="report-table">
+      <thead>
+      <tr><th>Metric</th><th>Source</th><th>Generated</th></tr>
+      </thead>
+      <tbody id="reportRows">
+      <tr><td colspan="3">No report loaded.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <table class="report-table">
+      <thead>
+      <tr><th>Active pattern</th><th>Weight</th></tr>
+      </thead>
+      <tbody id="patternRows">
+      <tr><td colspan="2">No pattern summary loaded.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <pre id="meta">Pick a building.</pre>
+  </div>
+</aside>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

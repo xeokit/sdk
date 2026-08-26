@@ -1,0 +1,12 @@
+{
+  "id": "export/splat/xgf-round-trip",
+  "title": "Gaussian Splatting via XGF — Load, Export to XGF, Re-Import",
+  "description": "Loads a .splat capture, exports it to native XGF, then re-imports it with XGFLoader to verify the round trip.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Gaussian Splats",
+    "LiDAR Scans"
+  ]
+}

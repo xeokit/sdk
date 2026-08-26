@@ -1,0 +1,11 @@
+{
+  "id": "import/pdf/import-panel",
+  "title": "PDF File Viewer — drag & drop",
+  "description": "Shows drag-and-drop PDF import through the floating PDF import panel.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "PDF",
+    "Drawings"
+  ]
+}

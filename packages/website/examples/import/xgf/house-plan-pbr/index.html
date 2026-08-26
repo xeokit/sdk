@@ -1,0 +1,422 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>House Plan XGF + Rendering panel</title>
+  <link href="../../../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: white;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #111;
+    }
+
+    #demoCanvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: white;
+      border: 0;
+    }
+
+    #status {
+      position: absolute;
+      top: 120px;
+      left: 12px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.93);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      color: #444;
+      font-size: 12px;
+      z-index: 10;
+    }
+
+    #panel {
+      position: absolute;
+      top: 17px;
+      right: 17px;
+      width: 320px;
+      max-height: calc(100vh - 34px);
+      overflow-y: auto;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      border: 1px solid #e6e6e6;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #111;
+      z-index: 200000000;
+    }
+
+    #panel h2 {
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      font-weight: 650;
+      color: #111;
+    }
+
+    #panel .hint {
+      color: #666;
+      font-size: 12px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    #panel details {
+      border-top: 1px solid #f0f0f0;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    /* Static (non-collapsible) ViewProfile section sits at the top of
+       the panel, so no leading divider — but the next subpanel below it
+       still picks up its own border-top. */
+    #panel section.static {
+      margin-top: 0;
+    }
+
+    /* Subpanels whose effect doesn't fire under the active ViewProfile
+       are visually muted and pointer-events-disabled so the user can't
+       expand them or tweak their controls. */
+    #panel details.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    #panel section.static .section-title,
+    #panel summary {
+      font-size: 13px;
+      font-weight: 650;
+      color: #111;
+      margin-bottom: 8px;
+    }
+
+    #panel summary {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #panel summary::marker,
+    #panel summary::-webkit-details-marker {
+      color: #aaa;
+    }
+
+    #panel .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 5px 0;
+    }
+
+    #panel .row label {
+      flex: 0 0 auto;
+      color: #222;
+    }
+
+    #panel .row input[type="range"] {
+      flex: 1;
+      min-width: 0;
+    }
+
+    #panel .row .val {
+      min-width: 36px;
+      text-align: right;
+      color: #2d5e8c;
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    #panel select,
+    #panel input[type="number"] {
+      background: #fff;
+      color: #111;
+      border: 1px solid #e6e6e6;
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-size: 11px;
+    }
+
+    #panel input[type="checkbox"] {
+      accent-color: #2d5e8c;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading House Plan…</div>
+<div id="panel" style="display:none">
+  <h2>Rendering</h2>
+  <div class="hint">Loads a PBR house plan model from optimized XGF. Pick a preset, then refine the individual effects that activate under it.</div>
+
+  <section class="static">
+    <div class="section-title">Render Preset</div>
+    <div class="row">
+      <label for="viewProfile">Profile</label>
+      <select id="viewProfile">
+        <option value="fast">Fast</option>
+        <option value="detailed">Detailed</option>
+        <option value="realistic" selected>Realistic</option>
+      </select>
+    </div>
+    <div class="hint" style="margin-top:6px;margin-bottom:0">Sections below grey out when the current ViewProfile has disabled their effect.</div>
+  </section>
+
+  <details data-effect="tonemap">
+    <summary>Tonemap</summary>
+    <div class="row">
+      <label for="tonemapMode">Mode</label>
+      <select id="tonemapMode">
+        <option value="aces" selected>ACES</option>
+        <option value="reinhard">Reinhard</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="exposure">Exposure</label>
+      <input type="range" id="exposure" min="0" max="3" step="0.01" value="1.0">
+      <span class="val" id="exposureVal">1.00</span>
+    </div>
+    <div class="row">
+      <label for="tonemapSRGB">sRGB encode</label>
+      <input type="checkbox" id="tonemapSRGB">
+    </div>
+    <div class="row">
+      <label for="renderScale">Render scale</label>
+      <input type="range" id="renderScale" min="0.5" max="4" step="0.1" value="1.0">
+      <span class="val" id="renderScaleVal">1.0</span>
+    </div>
+  </details>
+
+  <details data-effect="hemispheric">
+    <summary>Hemisphere Ambient</summary>
+    <div class="row">
+      <label for="hemisphereIntensity">Intensity</label>
+      <input type="range" id="hemisphereIntensity" min="0" max="2" step="0.01" value="1.0">
+      <span class="val" id="hemisphereIntensityVal">1.00</span>
+    </div>
+    <div class="row">
+      <label for="hemisphereSky">Sky color</label>
+      <input type="color" id="hemisphereSky" value="#9eb8db">
+    </div>
+    <div class="row">
+      <label for="hemisphereGround">Ground color</label>
+      <input type="color" id="hemisphereGround" value="#6b5c4d">
+    </div>
+    <div class="row">
+      <label for="hemisphereFollowsSun">Follows sun</label>
+      <input type="checkbox" id="hemisphereFollowsSun" checked>
+    </div>
+  </details>
+
+  <details data-effect="ibl">
+    <summary>IBL (cubemap)</summary>
+    <div class="row">
+      <label for="iblIntensity">Intensity</label>
+      <input type="range" id="iblIntensity" min="0" max="2" step="0.01" value="1.0">
+      <span class="val" id="iblIntensityVal">1.00</span>
+    </div>
+  </details>
+
+  <details data-effect="shadows">
+    <summary>Sun + Shadows</summary>
+    <div class="row">
+      <label for="shadowsIntensity">Intensity</label>
+      <input type="range" id="shadowsIntensity" min="0" max="1" step="0.01" value="0.28">
+      <span class="val" id="shadowsIntensityVal">0.28</span>
+    </div>
+    <div class="row">
+      <label for="sunX">Dir X</label>
+      <input type="range" id="sunX" min="-1" max="1" step="0.01" value="-0.18">
+      <span class="val" id="sunXVal">-0.18</span>
+    </div>
+    <div class="row">
+      <label for="sunY">Dir Y</label>
+      <input type="range" id="sunY" min="-1" max="1" step="0.01" value="-0.28">
+      <span class="val" id="sunYVal">-0.28</span>
+    </div>
+    <div class="row">
+      <label for="sunZ">Dir Z</label>
+      <input type="range" id="sunZ" min="-1" max="1" step="0.01" value="-0.94">
+      <span class="val" id="sunZVal">-0.94</span>
+    </div>
+    <div class="row">
+      <label for="shadowsCascades">Cascades</label>
+      <select id="shadowsCascades">
+        <option selected>1</option><option>2</option><option>3</option><option>4</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="shadowsCascadeSplit">Split lambda</label>
+      <input type="range" id="shadowsCascadeSplit" min="0" max="1" step="0.01" value="0.5">
+      <span class="val" id="shadowsCascadeSplitVal">0.50</span>
+    </div>
+    <div class="row">
+      <label for="shadowsPCF">PCF kernel</label>
+      <select id="shadowsPCF">
+        <option value="1">1</option><option value="3" selected>3</option><option value="5">5</option><option value="7">7</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="shadowsResolution">Resolution</label>
+      <select id="shadowsResolution">
+        <option value="512">512</option>
+        <option value="1024">1024</option>
+        <option value="2048" selected>2048</option>
+        <option value="4096">4096</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="shadowsAutoFit">Auto-fit</label>
+      <input type="checkbox" id="shadowsAutoFit">
+    </div>
+    <div class="row">
+      <label for="shadowsBias">Bias</label>
+      <input type="range" id="shadowsBias" min="0" max="0.02" step="0.0005" value="0.003">
+      <span class="val" id="shadowsBiasVal">0.0030</span>
+    </div>
+    <div class="row">
+      <label for="shadowsNormalOffsetBias">Normal offset</label>
+      <input type="range" id="shadowsNormalOffsetBias" min="0" max="0.1" step="0.001" value="0.02">
+      <span class="val" id="shadowsNormalOffsetBiasVal">0.020</span>
+    </div>
+    <div class="row">
+      <label for="shadowsSlopeBias">Slope bias</label>
+      <input type="range" id="shadowsSlopeBias" min="0" max="0.02" step="0.0005" value="0.004">
+      <span class="val" id="shadowsSlopeBiasVal">0.0040</span>
+    </div>
+    <div class="row">
+      <label for="shadowsMaxDistance">Max distance</label>
+      <input type="range" id="shadowsMaxDistance" min="10" max="500" step="10" value="200">
+      <span class="val" id="shadowsMaxDistanceVal">200</span>
+    </div>
+    <div class="row">
+      <label for="shadowsPadding">Padding</label>
+      <input type="range" id="shadowsPadding" min="1" max="2" step="0.05" value="1.1">
+      <span class="val" id="shadowsPaddingVal">1.10</span>
+    </div>
+  </details>
+
+  <details data-effect="sao">
+    <summary>SAO</summary>
+    <div class="row">
+      <label for="saoIntensity">Intensity</label>
+      <input type="range" id="saoIntensity" min="0" max="1" step="0.01" value="0.15">
+      <span class="val" id="saoIntensityVal">0.15</span>
+    </div>
+    <div class="row">
+      <label for="saoKernelRadius">Kernel</label>
+      <input type="range" id="saoKernelRadius" min="1" max="200" step="1" value="100">
+      <span class="val" id="saoKernelRadiusVal">100</span>
+    </div>
+    <div class="row">
+      <label for="saoNumSamples">Samples</label>
+      <input type="range" id="saoNumSamples" min="4" max="32" step="1" value="10">
+      <span class="val" id="saoNumSamplesVal">10</span>
+    </div>
+    <div class="row">
+      <label for="saoBlur">Blur</label>
+      <input type="checkbox" id="saoBlur" checked>
+    </div>
+    <div class="row">
+      <label for="saoBias">Bias</label>
+      <input type="range" id="saoBias" min="0" max="2" step="0.01" value="0.5">
+      <span class="val" id="saoBiasVal">0.50</span>
+    </div>
+    <div class="row">
+      <label for="saoScale">Scale</label>
+      <input type="range" id="saoScale" min="0" max="2" step="0.01" value="1.0">
+      <span class="val" id="saoScaleVal">1.00</span>
+    </div>
+    <div class="row">
+      <label for="saoBlendCutoff">Blend cutoff</label>
+      <input type="range" id="saoBlendCutoff" min="0" max="1" step="0.01" value="0.3">
+      <span class="val" id="saoBlendCutoffVal">0.30</span>
+    </div>
+    <div class="row">
+      <label for="saoBlendFactor">Blend factor</label>
+      <input type="range" id="saoBlendFactor" min="0" max="2" step="0.01" value="1.0">
+      <span class="val" id="saoBlendFactorVal">1.00</span>
+    </div>
+    <div class="row">
+      <label for="saoMinResolution">Min resolution</label>
+      <input type="range" id="saoMinResolution" min="0" max="1" step="0.01" value="0.0">
+      <span class="val" id="saoMinResolutionVal">0.00</span>
+    </div>
+  </details>
+
+  <details data-effect="bloom">
+    <summary>Bloom</summary>
+    <div class="row">
+      <label for="bloomIntensity">Intensity</label>
+      <input type="range" id="bloomIntensity" min="0" max="2" step="0.01" value="0.4">
+      <span class="val" id="bloomIntensityVal">0.40</span>
+    </div>
+    <div class="row">
+      <label for="bloomThreshold">Threshold</label>
+      <input type="range" id="bloomThreshold" min="0" max="4" step="0.01" value="1.0">
+      <span class="val" id="bloomThresholdVal">1.00</span>
+    </div>
+    <div class="row">
+      <label for="bloomKnee">Knee</label>
+      <input type="range" id="bloomKnee" min="0" max="1" step="0.01" value="0.5">
+      <span class="val" id="bloomKneeVal">0.50</span>
+    </div>
+  </details>
+
+  <details data-effect="aa">
+    <summary>Antialiasing</summary>
+    <div class="row">
+      <label for="aaMode">Mode</label>
+      <select id="aaMode">
+        <option value="smaa" selected>SMAA</option>
+        <option value="fxaa">FXAA</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+  </details>
+
+  <details data-effect="edges">
+    <summary>Edges</summary>
+    <div class="row">
+      <label for="edgesColor">Colour</label>
+      <input type="color" id="edgesColor" value="#595959">
+    </div>
+    <div class="row">
+      <label for="edgesAlpha">Alpha</label>
+      <input type="range" id="edgesAlpha" min="0" max="1" step="0.01" value="0.5">
+      <span class="val" id="edgesAlphaVal">0.50</span>
+    </div>
+    <div class="row">
+      <label for="edgesWidth">Width</label>
+      <input type="range" id="edgesWidth" min="1" max="5" step="1" value="1">
+      <span class="val" id="edgesWidthVal">1</span>
+    </div>
+    <div class="row">
+      <label for="edgesFadeStart">Fade start</label>
+      <input type="range" id="edgesFadeStart" min="0" max="1" step="0.01" value="0.4">
+      <span class="val" id="edgesFadeStartVal">0.40</span>
+    </div>
+    <div class="row">
+      <label for="edgesFadeEnd">Fade end</label>
+      <input type="range" id="edgesFadeEnd" min="0" max="1" step="0.01" value="1.0">
+      <span class="val" id="edgesFadeEndVal">1.00</span>
+    </div>
+  </details>
+</div>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

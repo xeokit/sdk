@@ -1,0 +1,11 @@
+{
+  "id": "create/scene/compressed-box",
+  "title": "Creating a Box from Compressed Geometry",
+  "description": "Builds and displays a box model from compressed geometry data.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "Modeling",
+    "Geometry"
+  ]
+}

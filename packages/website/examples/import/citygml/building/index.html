@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Viewing a CityGML LOD4 City Block</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+
+        #status {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.88);
+            color: #1b1f23;
+            font: 13px/1.35 system-ui, sans-serif;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading CityGML LOD4 city block...</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

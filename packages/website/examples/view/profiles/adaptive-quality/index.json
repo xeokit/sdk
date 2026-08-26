@@ -1,0 +1,12 @@
+{
+  "id": "view/profiles/adaptive-quality",
+  "title": "AdaptiveQuality - ViewProfiles",
+  "description": "Uses AdaptiveQuality to switch ViewProfiles to fast while navigating and realistic at rest.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Effects",
+    "Performance"
+  ]
+}

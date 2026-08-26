@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/object-states",
+  "title": "WebGPU renderer object states",
+  "description": "Shows WebGPU per-object selected, highlighted, xrayed, colorize, opacity, and visibility state updates.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Object States",
+    "WebGPU"
+  ]
+}

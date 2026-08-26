@@ -1,0 +1,12 @@
+{
+  "id": "streaming/xgf/earth",
+  "title": "XGF Stream Earth",
+  "description": "Loads a Natural Earth land and coastline dataset from an XGF stream.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "GIS"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "create/scene/tree-generator",
+  "title": "Procedural Tree Generator",
+  "description": "Interactive SceneModel example that grows procedural tree geometry from reusable primitives.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "Interaction"
+  ]
+}

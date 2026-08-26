@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SceneModel Inspection Report</title>
+  <link href="../../../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: white;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #111;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      border: 0;
+    }
+
+    #status {
+      position: absolute;
+      top: 120px;
+      left: 12px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.93);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      color: #444;
+      font-size: 12px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading...</div>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

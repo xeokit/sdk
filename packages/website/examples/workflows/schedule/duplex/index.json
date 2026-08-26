@@ -1,0 +1,11 @@
+{
+  "id": "workflows/schedule/duplex",
+  "title": "4D Construction Scheduling — Duplex",
+  "description": "Shows a 4D BIM schedule linked to model state over time.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "4D BIM",
+    "Featured"
+  ]
+}

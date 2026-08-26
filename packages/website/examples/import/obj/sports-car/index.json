@@ -1,0 +1,11 @@
+{
+  "id": "import/obj/sports-car",
+  "title": "OBJ Sports Car - Multiple Views",
+  "description": "Load an OBJ sports car model with OBJLoader and display it in multiple independent views.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "OBJ/MTL",
+    "CAD"
+  ]
+}

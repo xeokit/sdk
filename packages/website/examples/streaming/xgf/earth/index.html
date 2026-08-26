@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XGF Stream Earth</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      user-select: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #000;
+    }
+
+    #streamPanel {
+      position: fixed !important;
+      top: 16px !important;
+      right: 16px !important;
+      width: min(300px, calc(100vw - 32px));
+      background: rgba(5, 8, 14, 0.84);
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      border-radius: 4px;
+      color: #d7dde7;
+      z-index: 3000000;
+      backdrop-filter: blur(5px);
+    }
+
+    .panel-header {
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.25;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .panel-body {
+      display: grid;
+      gap: 8px;
+      padding: 10px 12px 12px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #9aa8bb;
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .metric strong {
+      color: #edf2f8;
+      font-size: 13px;
+    }
+
+    progress {
+      width: 100%;
+      height: 6px;
+      accent-color: #7ba6a0;
+    }
+
+    #status {
+      color: #bec8d6;
+    }
+
+    .semantic-panel {
+      border-top: 1px solid rgba(148, 163, 184, 0.18);
+      padding-top: 8px;
+    }
+
+    .semantic-title {
+      margin: 0 0 8px;
+      color: #f3f6fa;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .semantic-grid {
+      display: grid;
+      grid-template-columns: minmax(82px, 1fr) minmax(0, 1.35fr);
+      gap: 5px 10px;
+    }
+
+    .semantic-grid dt {
+      margin: 0;
+      color: #8d9baf;
+    }
+
+    .semantic-grid dd {
+      margin: 0;
+      color: #e4eaf2;
+      overflow-wrap: anywhere;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="streamPanel">
+  <div class="panel-header">
+    <h1>XGF Stream Earth</h1>
+  </div>
+  <div class="panel-body">
+    <div class="metric"><span>Chunks</span><strong id="loadedChunks">0/0</strong></div>
+    <div class="metric"><span>Objects</span><strong id="objectCount">0</strong></div>
+    <div class="metric"><span>Meshes</span><strong id="meshCount">0</strong></div>
+    <progress id="chunkProgress" max="1" value="0"></progress>
+    <div id="status">Initializing...</div>
+    <div class="semantic-panel">
+      <p class="semantic-title" id="countryName">Country</p>
+      <dl class="semantic-grid" id="countryProperties">
+        <dt>Hover</dt><dd>None</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

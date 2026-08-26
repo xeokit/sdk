@@ -1,0 +1,13 @@
+{
+  "id": "import/xgf/map",
+  "title": "XGF Geolocated Apartment",
+  "description": "Loads a georeferenced building model from optimized XGF.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "XGF",
+    "Buildings",
+    "Geolocation",
+    "Featured"
+  ]
+}

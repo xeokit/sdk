@@ -1,0 +1,11 @@
+{
+  "id": "create/scene/lifecycle-batches",
+  "title": "SceneModel Lifecycle Batches",
+  "description": "Demonstrates SceneModel streaming batches, compact memory policy, batch commit/rollback, and sealed-model growth rejection.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "Rendering"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "view/section-planes/intro",
+  "title": "View — section planes",
+  "description": "Shows movable section planes slicing simple geometry, with controls for position and visibility.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Slicing"
+  ]
+}

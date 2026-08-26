@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/section-planes",
+  "title": "WebGPU renderer section planes",
+  "description": "Shows WebGPU triangle and edge clipping with a live section plane, cap coloring, and a non-clippable object.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Section Planes",
+    "WebGPU"
+  ]
+}

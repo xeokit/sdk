@@ -1,0 +1,10 @@
+{
+  "id": "import/xkt/model",
+  "title": "XKT Model Viewer",
+  "description": "Loads a xeokit XKT v12 model with XKTLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XKT"
+  ]
+}

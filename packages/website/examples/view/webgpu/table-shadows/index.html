@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebGPU - Table Shadows</title>
+    <link rel="icon" href="data:,">
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #f8fafc;
+            color: #0f172a;
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #f8fafc;
+        }
+
+        #status {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            z-index: 2;
+            max-width: 500px;
+            padding: 12px 14px;
+            border: 1px solid rgba(71, 85, 105, 0.25);
+            background: rgba(255, 255, 255, 0.9);
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        #status strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #0f172a;
+            font-size: 14px;
+        }
+
+        #status[data-state="error"] {
+            border-color: rgba(220, 38, 38, 0.5);
+            color: #991b1b;
+        }
+
+        #controls {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            z-index: 2;
+            width: min(300px, calc(100vw - 32px));
+            padding: 12px 14px;
+            border: 1px solid rgba(71, 85, 105, 0.25);
+            background: rgba(255, 255, 255, 0.9);
+            color: #0f172a;
+            font-size: 13px;
+        }
+
+        #controls strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        #controls label {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        #controls input[type="range"] {
+            width: 100%;
+        }
+
+        @media (max-width: 700px) {
+            #controls {
+                left: 16px;
+                right: 16px;
+                top: auto;
+                bottom: 16px;
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status"><strong>WebGPU Renderer</strong><span>Initializing...</span></div>
+<div id="controls">
+    <strong>Shadow Controls</strong>
+    <label>
+        <span>Enabled</span>
+        <input id="shadowEnabled" type="checkbox" checked>
+    </label>
+    <label>
+        <span>Intensity</span>
+        <input id="shadowIntensity" type="range" min="0" max="1" step="0.01" value="0.68">
+    </label>
+    <label>
+        <span>Bias</span>
+        <input id="shadowBias" type="range" min="0" max="0.02" step="0.0005" value="0.0008">
+    </label>
+    <label>
+        <span>Debug</span>
+        <select id="shadowDebug">
+            <option value="">Normal</option>
+            <option value="factor">Shadow Mask</option>
+            <option value="depth">Shadow Depth</option>
+        </select>
+    </label>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

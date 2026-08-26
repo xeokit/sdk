@@ -1,0 +1,12 @@
+{
+  "id": "streaming/threedtiles/building",
+  "title": "Streaming a BIM 3D Tiles Tileset",
+  "description": "Streams a BIM 3D Tiles tileset, refining visible detail as the camera approaches.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF",
+    "3D Tiles",
+    "Streaming"
+  ]
+}

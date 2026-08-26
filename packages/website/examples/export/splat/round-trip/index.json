@@ -1,0 +1,12 @@
+{
+  "id": "export/splat/round-trip",
+  "title": "Gaussian Splatting Round-Trip — Import, Export, Re-Import (.splat)",
+  "description": "Loads a .splat capture, exports it with GaussianSplatExporter, then re-imports the result to verify the round trip.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Gaussian Splats",
+    "LiDAR Scans",
+    "Point Clouds"
+  ]
+}

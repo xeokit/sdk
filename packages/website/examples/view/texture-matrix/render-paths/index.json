@@ -1,0 +1,10 @@
+{
+  "id": "view/texture-matrix/render-paths",
+  "title": "Rendering Paths Matrix — normals × uvs × triplanarScale × mipmap",
+  "description": "Compares texture and shading render paths across normals, UVs, triplanar mapping, and mipmaps.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "Materials"
+  ]
+}

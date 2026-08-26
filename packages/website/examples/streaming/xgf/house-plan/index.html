@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XGF Stream House Plan</title>
+  <link href="../../../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #eef2f4;
+      user-select: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #eef2f4;
+    }
+
+    #streamPanel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(320px, calc(100vw - 32px));
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(30, 35, 42, 0.16);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(28, 34, 42, 0.16);
+      color: #1f2933;
+      z-index: 3000000;
+    }
+
+    .panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(30, 35, 42, 0.12);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .panel-body {
+      display: grid;
+      gap: 10px;
+      padding: 12px 16px 14px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #52606d;
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .metric strong {
+      color: #1f2933;
+      font-size: 13px;
+    }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      accent-color: #2f7d7e;
+    }
+
+    #status {
+      color: #43505c;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="streamPanel">
+  <div class="panel-header">
+    <h1>XGF Stream House Plan</h1>
+  </div>
+  <div class="panel-body">
+    <div class="metric"><span>Chunks</span><strong id="loadedChunks">0/0</strong></div>
+    <div class="metric"><span>Objects</span><strong id="objectCount">0</strong></div>
+    <div class="metric"><span>Meshes</span><strong id="meshCount">0</strong></div>
+    <progress id="chunkProgress" max="1" value="0"></progress>
+    <div id="status">Initializing...</div>
+  </div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

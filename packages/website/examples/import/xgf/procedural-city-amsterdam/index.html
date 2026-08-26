@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amsterdam Preset Procedural City XGF Stream</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      user-select: none;
+      background: #f6f7f5;
+      color: #202422;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #f6f7f5;
+      z-index: 0;
+    }
+
+    #status {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      z-index: 100100000;
+      padding: 8px 10px;
+      border: 1px solid rgba(24, 31, 29, 0.14);
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 6px;
+      font-size: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas" tabindex="0"></canvas>
+<div id="status">Loading Amsterdam procedural city stream...</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

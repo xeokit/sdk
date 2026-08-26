@@ -1,0 +1,12 @@
+{
+  "id": "create/scene/from-params-triplanar-table",
+  "title": "Triplanar Texturing on UV-less Geometry",
+  "description": "Shows triplanar texturing on UV-less table geometry with physically scaled materials.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "Modeling",
+    "Geometry",
+    "Materials"
+  ]
+}

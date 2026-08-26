@@ -1,0 +1,15 @@
+{
+  "id": "create/precision/geolocated-archipelago",
+  "title": "Huge Scene with Geolocated Models",
+  "description": "Shows multiple geolocated models placed across a large double-precision island scene.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Geolocation",
+    "Buildings",
+    "Ships",
+    "Terrains",
+    "Benchmarks",
+    "Featured"
+  ]
+}

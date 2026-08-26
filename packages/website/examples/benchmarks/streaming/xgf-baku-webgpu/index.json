@@ -1,0 +1,13 @@
+{
+  "id": "benchmarks/streaming/xgf-baku-webgpu",
+  "title": "WebGPU - Streaming Baku Stadium as XGF",
+  "description": "Streams the 2K-chunk Baku Stadium XGF stream with XGFViewStreamController and renders dynamically added SceneModel content with WebGPURenderer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM",
+    "WebGPU"
+  ]
+}

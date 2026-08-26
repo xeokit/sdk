@@ -1,0 +1,11 @@
+{
+  "id": "import/pdf/vector-plan",
+  "title": "PDF Generated Floor Plan",
+  "description": "Loads a vector PDF floor plan with PDFLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "PDF",
+    "Drawings"
+  ]
+}

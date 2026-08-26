@@ -1,0 +1,12 @@
+{
+  "id": "import/splat/room",
+  "title": "Gaussian Splatting Room Interior",
+  "description": "Loads a captured building interior .splat scene with GaussianSplatLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Gaussian Splats",
+    "LiDAR Scans",
+    "Point Clouds"
+  ]
+}

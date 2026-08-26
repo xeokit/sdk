@@ -1,0 +1,11 @@
+{
+  "id": "create/scene/geometries",
+  "title": "Creating Geometries - Various Primitives",
+  "description": "Shows generated geometry primitives in a simple scene model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "Geometry"
+  ]
+}

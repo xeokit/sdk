@@ -1,0 +1,11 @@
+{
+  "id": "export/usdz/round-trip",
+  "title": "USDZ Round-Trip — Import, Export, Re-Import",
+  "description": "Loads, exports, and re-imports a USDZ model to verify round-trip fidelity.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "USDZ",
+    "Buildings"
+  ]
+}

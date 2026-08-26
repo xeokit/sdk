@@ -1,0 +1,14 @@
+{
+  "id": "streaming/xgf/zurich-buildings",
+  "title": "XGF Stream Zurich Buildings",
+  "description": "Streams the Zurich LoD2 CityGML buildings dataset into a static SceneModel with a second XGF Stream for chunked, orthophoto-textured terrain. Use this example to inspect large city-scale chunking, frustum-only loading, and loading behavior after converting source CityGML and map imagery to localized XGF stream assets.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "CityGML",
+    "Buildings"
+  ],
+  "snapshotTimeoutMs": 300000
+}

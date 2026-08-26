@@ -1,0 +1,8 @@
+{
+  "id": "view/webgpu/render-path-matrix",
+  "title": "WebGPU Render Path Matrix Controls",
+  "description": "Configurable geometry, material, view-effect, and renderer-backend combinations for checking render paths.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": []
+}

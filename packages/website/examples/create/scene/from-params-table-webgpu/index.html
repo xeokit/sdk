@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebGPU - Creating a 3D Model from JSON</title>
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #f8fafc;
+            color: #0f172a;
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #f8fafc;
+        }
+
+        #status {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            z-index: 2;
+            max-width: 520px;
+            padding: 12px 14px;
+            border: 1px solid rgba(71, 85, 105, 0.25);
+            background: rgba(255, 255, 255, 0.88);
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        #status strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #0f172a;
+            font-size: 14px;
+        }
+
+        #status[data-state="error"] {
+            border-color: rgba(220, 38, 38, 0.5);
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status"><strong>WebGPU Renderer</strong><span>Initializing...</span></div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

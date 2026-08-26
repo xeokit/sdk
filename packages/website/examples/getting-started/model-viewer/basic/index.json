@@ -1,0 +1,10 @@
+{
+  "id": "getting-started/model-viewer/basic",
+  "title": "Model Viewer",
+  "description": "Loads a model from the website model catalog using query-string modelId and format parameters.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Tools"
+  ]
+}

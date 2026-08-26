@@ -1,0 +1,12 @@
+{
+  "id": "import/gltf/map",
+  "title": "glTF Geolocated Apartment",
+  "description": "Loads a glTF map model with GLTFLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "glTF",
+    "Buildings",
+    "Geolocation"
+  ]
+}

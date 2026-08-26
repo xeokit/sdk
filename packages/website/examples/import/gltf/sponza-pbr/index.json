@@ -1,0 +1,11 @@
+{
+  "id": "import/gltf/sponza-pbr",
+  "title": "glTF Sponza",
+  "description": "Loads the Sponza glTF sample and exposes renderer effects for comparing PBR presentation.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF",
+    "Buildings"
+  ]
+}

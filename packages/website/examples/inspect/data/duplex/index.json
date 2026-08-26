@@ -1,0 +1,12 @@
+{
+  "id": "inspect/data/duplex",
+  "title": "Data Model Health Inspection",
+  "description": "Shows semantic model validation and cleanup checks on a duplex building model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Model Validation",
+    "Model Optimization",
+    "Featured"
+  ]
+}

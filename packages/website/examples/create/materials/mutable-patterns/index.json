@@ -1,0 +1,13 @@
+{
+  "id": "create/materials/mutable-patterns",
+  "title": "Hatch & Line Patterns - Interactive Demo",
+  "description": "Interactively update hatch and line patterns on triangle meshes and line segments.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "Materials",
+    "Hatch Patterns",
+    "Line Patterns"
+  ]
+}

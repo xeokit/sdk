@@ -1,0 +1,12 @@
+{
+  "id": "view/webgpu/snap-vertex",
+  "title": "WebGPU renderer vertex snapping",
+  "description": "Shows WebGPU renderer-side snapping to vertices on a table-shaped SceneModel.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Viewing",
+    "Snapping",
+    "WebGPU"
+  ]
+}

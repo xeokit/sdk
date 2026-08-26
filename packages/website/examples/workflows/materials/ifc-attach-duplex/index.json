@@ -1,0 +1,11 @@
+{
+  "id": "workflows/materials/ifc-attach-duplex",
+  "title": "Duplex with Generated IFC Materials",
+  "description": "Shows generated IFC-based materials applied across a duplex building model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Presentations",
+    "Featured"
+  ]
+}

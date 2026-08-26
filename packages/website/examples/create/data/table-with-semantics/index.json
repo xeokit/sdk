@@ -1,0 +1,11 @@
+{
+  "id": "create/data/table-with-semantics",
+  "title": "Creating a Model with Semantic Data",
+  "description": "Programmatically building and viewing a minimal 3D model in the SDK, with a semantic data model attached.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "Modeling",
+    "Semantic Data"
+  ]
+}

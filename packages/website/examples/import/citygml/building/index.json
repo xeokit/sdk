@@ -1,0 +1,11 @@
+{
+  "id": "import/citygml/building",
+  "title": "CityGML LOD4 City Block",
+  "description": "Loads a synthetic city block generated from the OGC CityGML LOD4 building sample with CityGMLLoader and frames it in the viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "categories": [
+    "CityGML",
+    "City Models"
+  ]
+}

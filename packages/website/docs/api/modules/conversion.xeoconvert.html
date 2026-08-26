@@ -1,0 +1,467 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>xeoconvert | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="conversion.html">conversion</a></li><li><a href="conversion.xeoconvert.html">xeoconvert</a></li></ul><h1>Namespace xeoconvert</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
+<a id="xeokit-multi-format-file-converter" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit Multi-Format File Converter<a href="#xeokit-multi-format-file-converter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><hr>
+<p><em><strong>CLI tool for converting 3D models between various formats.</strong></em></p>
+<hr>
+<p><code>xeoconvert</code> is a Node.js command-line utility that converts 3D
+model or data files between formats. Pre-defined pipelines describe
+how each input file flows into one or more output files; optional
+inspection / auto-fix passes catch data integrity issues before
+export.</p>
+<p>Wraps the
+convert!pipeline.ModelConverter | ModelConverter
+class — same engine, scriptable from a shell.</p>
+<br>
+<a id="tasks" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Tasks<a href="#tasks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Each run does one of four things. The flags select which; all four share one
+internal sequence — load, optionally inspect, optionally fix, optionally export.</p>
+<div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+flowchart LR
+    G([Run]) --&gt; C[Convert]
+    G --&gt; CO[Convert + optimize]
+    G --&gt; V[Validate]
+    G --&gt; O[Optimize in place]
+    C --&gt; C1[load A] --&gt; C2[export B] --&gt; C3[B]
+    CO --&gt; CO1[load A] --&gt; CO2[inspect + fix] --&gt; CO3[export B] --&gt; CO4[B + reports]
+    V --&gt; V1[load A] --&gt; V2[inspect] --&gt; V3[reports only]
+    O --&gt; O1[load A] --&gt; O2[inspect + fix] --&gt; O3[export A] --&gt; O4[A + reports]</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+flowchart LR
+    G([Run]) --&gt; C[Convert]
+    G --&gt; CO[Convert + optimize]
+    G --&gt; V[Validate]
+    G --&gt; O[Optimize in place]
+    C --&gt; C1[load A] --&gt; C2[export B] --&gt; C3[B]
+    CO --&gt; CO1[load A] --&gt; CO2[inspect + fix] --&gt; CO3[export B] --&gt; CO4[B + reports]
+    V --&gt; V1[load A] --&gt; V2[inspect] --&gt; V3[reports only]
+    O --&gt; O1[load A] --&gt; O2[inspect + fix] --&gt; O3[export A] --&gt; O4[A + reports]</div><pre><code class="language-mermaid">flowchart LR
+    G([Run]) --&gt; C[Convert]
+    G --&gt; CO[Convert + optimize]
+    G --&gt; V[Validate]
+    G --&gt; O[Optimize in place]
+    C --&gt; C1[load A] --&gt; C2[export B] --&gt; C3[B]
+    CO --&gt; CO1[load A] --&gt; CO2[inspect + fix] --&gt; CO3[export B] --&gt; CO4[B + reports]
+    V --&gt; V1[load A] --&gt; V2[inspect] --&gt; V3[reports only]
+    O --&gt; O1[load A] --&gt; O2[inspect + fix] --&gt; O3[export A] --&gt; O4[A + reports]</code></pre></div>
+<br>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th><code>--out</code>?</th>
+<th>Inspection flags</th>
+<th>Produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Convert</td>
+<td>different format</td>
+<td>none</td>
+<td>output file</td>
+</tr>
+<tr>
+<td>Convert + optimize</td>
+<td>different format</td>
+<td><code>--inspect-fix</code></td>
+<td>cleaned output + reports</td>
+</tr>
+<tr>
+<td>Validate</td>
+<td>omitted</td>
+<td><code>--inspect</code></td>
+<td>reports only</td>
+</tr>
+<tr>
+<td>Optimize in place</td>
+<td>same format</td>
+<td><code>--inspect-fix</code></td>
+<td>rewritten file + reports</td>
+</tr>
+</tbody>
+</table>
+<br>
+<a id="installation" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="usage" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Usage<a href="#usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>Two ways to name input and output:</p>
+<ul>
+<li><code>--in &lt;file&gt; --out &lt;file&gt;</code> — loader and exporter resolved from the file
+extensions. Covers the single-input/single-output case.</li>
+<li><code>--pipeline &lt;name&gt; --&lt;inputId&gt; &lt;file&gt; --&lt;outputId&gt; &lt;file&gt;</code> — a registered
+pipeline for multi-input/output, coordinate-system conversion, or the
+ambiguous <code>.json</code> formats. The pipeline declares the required ids; the CLI
+reports which are missing.</li>
+</ul>
+<p>Add <code>--log</code> to any command for progress output.</p>
+<br>
+<a id="convert" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Convert<a href="#convert" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Load one format, write another.</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--in</span><span class="hl-1"> </span><span class="hl-2">model.glb</span><span class="hl-1"> </span><span class="hl-5">--out</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Multi-output via a named pipeline (geometry to XGF, semantics to a DataModel):</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--pipeline</span><span class="hl-1"> </span><span class="hl-2">ifc2xgf</span><span class="hl-1"> </span><span class="hl-5">--ifc</span><span class="hl-1"> </span><span class="hl-2">model.ifc</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--xgf</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span><span class="hl-1"> </span><span class="hl-5">--datamodel</span><span class="hl-1"> </span><span class="hl-2">model.json</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Some target formats cannot represent every source feature. The
+<code>--conversion-report</code> reporter records what each exporter dropped or flattened
+(for example, triplanar textures the format has no projection for):</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--in</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span><span class="hl-1"> </span><span class="hl-5">--out</span><span class="hl-1"> </span><span class="hl-2">model.gltf</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--conversion-report</span><span class="hl-1"> </span><span class="hl-2">conversion.json</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="convert--optimize" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Convert + optimize<a href="#convert--optimize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Convert and clean the SceneModel in the same pass. <code>--inspect-fix</code> runs
+inspect!sceneModel.applyFixes | applyFixes before export, so the output
+is already deduplicated and re-quantised.</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--in</span><span class="hl-1"> </span><span class="hl-2">model.glb</span><span class="hl-1"> </span><span class="hl-5">--out</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--inspect-fix</span><span class="hl-1"> </span><span class="hl-5">--inspect-checks</span><span class="hl-1"> </span><span class="hl-2">all</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--optimization-report</span><span class="hl-1"> </span><span class="hl-2">optimization.json</span><span class="hl-1"> </span><span class="hl-5">--conversion-report</span><span class="hl-1"> </span><span class="hl-2">conversion.json</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="validate" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Validate<a href="#validate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Load and inspect; write no model file. Omit <code>--out</code> (or use a pipeline with no
+outputs) and request an inspection report.</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--in</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--inspect</span><span class="hl-1"> </span><span class="hl-5">--inspect-checks</span><span class="hl-1"> </span><span class="hl-2">all</span><span class="hl-1"> </span><span class="hl-5">--inspection-report</span><span class="hl-1"> </span><span class="hl-2">inspection.json</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Inspection runs sceneModelInspector on each loaded SceneModel. Results
+also surface on
+convert!pipeline.ModelConverterResult.inspection | ModelConverterResult.inspection.</p>
+<p>To gate a conversion on validation, combine <code>--out</code> with <code>--inspect</code> (without
+<code>--inspect-fix</code>): the export aborts if inspection finds errors, unless
+<code>--no-fail-on-inspect-errors</code> downgrades the gate to advisory.</p>
+<br>
+<a id="optimize-in-place" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Optimize in place<a href="#optimize-in-place" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Rewrite a file in its own format with fixes applied. Same in/out extension.</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--in</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span><span class="hl-1"> </span><span class="hl-5">--out</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--inspect-fix</span><span class="hl-1"> </span><span class="hl-5">--inspect-checks</span><span class="hl-1"> </span><span class="hl-2">all</span><span class="hl-1"> </span><span class="hl-5">--optimization-report</span><span class="hl-1"> </span><span class="hl-2">optimization.json</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="reference" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Reference<a href="#reference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><a id="pipelines" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Pipelines<a href="#pipelines" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p><code>--pipeline &lt;name&gt;</code> with the listed input/output arg ids. A pipeline with no
+outputs is validate-only.</p>
+<table>
+<thead>
+<tr>
+<th>Pipeline</th>
+<th>Input args (loader)</th>
+<th>Output args → files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json</code></td>
+<td><code>--scenemodel</code> <code>--datamodel</code></td>
+<td>validate-only</td>
+</tr>
+<tr>
+<td><code>gltf</code></td>
+<td><code>--gltf</code></td>
+<td>validate-only</td>
+</tr>
+<tr>
+<td><code>gltf2xgf</code></td>
+<td><code>--gltf</code></td>
+<td><code>--xgf</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>gltf2gltf</code></td>
+<td><code>--gltf</code></td>
+<td><code>--gltf-out</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>gltf2dotbim</code></td>
+<td><code>--gltf</code> <code>--datamodel</code></td>
+<td><code>--dotbim</code></td>
+</tr>
+<tr>
+<td><code>cityjson</code></td>
+<td><code>--cityjson</code></td>
+<td>validate-only</td>
+</tr>
+<tr>
+<td><code>cityjson2xgf</code></td>
+<td><code>--cityjson</code></td>
+<td><code>--xgf</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>cityjson2json</code></td>
+<td><code>--cityjson</code></td>
+<td><code>--scenemodel</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>citygml</code></td>
+<td><code>--citygml</code></td>
+<td>validate-only</td>
+</tr>
+<tr>
+<td><code>citygml2xgf</code></td>
+<td><code>--citygml</code></td>
+<td><code>--xgf</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>citygml2xgfstream</code></td>
+<td><code>--citygml</code></td>
+<td><code>--xgfstream</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>citygml2json</code></td>
+<td><code>--citygml</code></td>
+<td><code>--scenemodel</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>ifc</code></td>
+<td><code>--ifc</code></td>
+<td>validate-only</td>
+</tr>
+<tr>
+<td><code>ifc2json</code></td>
+<td><code>--ifc</code></td>
+<td><code>--datamodel</code>, <code>--scenemodel</code></td>
+</tr>
+<tr>
+<td><code>ifc2xgf</code></td>
+<td><code>--ifc</code></td>
+<td><code>--xgf</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>ifc2dotbim</code></td>
+<td><code>--ifc</code></td>
+<td><code>--dotbim</code></td>
+</tr>
+<tr>
+<td><code>dotbim</code></td>
+<td><code>--dotbim</code></td>
+<td>validate-only</td>
+</tr>
+<tr>
+<td><code>dotbim2gltf</code></td>
+<td><code>--dotbim</code></td>
+<td><code>--gltf</code></td>
+</tr>
+<tr>
+<td><code>dotbim2json</code></td>
+<td><code>--dotbim</code></td>
+<td><code>--datamodel</code>, <code>--scenemodel</code></td>
+</tr>
+<tr>
+<td><code>dotbim2xgf</code></td>
+<td><code>--dotbim</code></td>
+<td><code>--xgf</code>, <code>--datamodel</code></td>
+</tr>
+<tr>
+<td><code>dotbim2ifc</code></td>
+<td><code>--dotbim</code></td>
+<td><code>--ifc</code></td>
+</tr>
+<tr>
+<td><code>las</code></td>
+<td><code>--las</code></td>
+<td>validate-only</td>
+</tr>
+<tr>
+<td><code>las2xgf</code></td>
+<td><code>--las</code></td>
+<td><code>--xgf</code></td>
+</tr>
+</tbody>
+</table>
+<a id="formats-by-extension" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Formats by extension<a href="#formats-by-extension" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>In <code>--in</code>/<code>--out</code> mode the loader and exporter are resolved from the file
+extension. Same in/out extension is an in-place optimize/validate.</p>
+<table>
+<thead>
+<tr>
+<th>Ext</th>
+<th>Loader</th>
+<th>Exporter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.glb</code> / <code>.gltf</code></td>
+<td>glb</td>
+<td>glb</td>
+</tr>
+<tr>
+<td><code>.gml</code> / <code>.citygml</code></td>
+<td>citygml</td>
+<td>— (input only)</td>
+</tr>
+<tr>
+<td><code>.xgf</code></td>
+<td>xgf</td>
+<td>xgf</td>
+</tr>
+<tr>
+<td><code>.ifc</code></td>
+<td>ifc</td>
+<td>ifc</td>
+</tr>
+<tr>
+<td><code>.bim</code></td>
+<td>dotbim</td>
+<td>dotbim</td>
+</tr>
+<tr>
+<td><code>.las</code> / <code>.laz</code></td>
+<td>las</td>
+<td>— (input only)</td>
+</tr>
+<tr>
+<td><code>.e57</code></td>
+<td>e57</td>
+<td>e57</td>
+</tr>
+<tr>
+<td><code>.splat</code></td>
+<td>gaussiansplat</td>
+<td>gaussiansplat</td>
+</tr>
+<tr>
+<td><code>.fbx</code></td>
+<td>fbx</td>
+<td>fbx</td>
+</tr>
+<tr>
+<td><code>.obj</code></td>
+<td>obj</td>
+<td>obj</td>
+</tr>
+<tr>
+<td><code>.mtl</code></td>
+<td>mtl</td>
+<td>mtl</td>
+</tr>
+<tr>
+<td><code>.usdz</code></td>
+<td>usdz</td>
+<td>usdz</td>
+</tr>
+<tr>
+<td><code>.3dxml</code></td>
+<td>threedxml</td>
+<td>threedxml</td>
+</tr>
+<tr>
+<td><code>.fds</code></td>
+<td>fds</td>
+<td>fds</td>
+</tr>
+<tr>
+<td><code>.xkt</code></td>
+<td>xkt</td>
+<td>xkt</td>
+</tr>
+<tr>
+<td><code>.dxf</code></td>
+<td>—</td>
+<td>dxf (output only)</td>
+</tr>
+<tr>
+<td><code>.svg</code></td>
+<td>—</td>
+<td>svg (output only)</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>--loader</code> / <code>--exporter</code> to override resolution for the ambiguous <code>.json</code>
+scenemodel/datamodel pair.</p>
+<a id="inspection-flags" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Inspection flags<a href="#inspection-flags" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><code>--inspect</code> — enable inspection. Implied by any other <code>--inspect-*</code> flag.</li>
+<li><code>--inspect-fix</code> — run inspect!sceneModel.applyFixes | applyFixes after inspection (skipped if errors are present).</li>
+<li><code>--inspect-checks &lt;list&gt;</code> — comma-separated opt-in checks: <code>dup, similar, dense, large, quality, objects, textures, geom-far, all</code>.</li>
+<li><code>--no-fail-on-inspect-errors</code> — export even when inspection found errors. Default aborts.</li>
+<li><code>--inspect-async</code> — use inspect!sceneModel.inspectSceneModelAsync | inspectSceneModelAsync so very large models don't block.</li>
+</ul>
+<a id="configuration-flags" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Configuration flags<a href="#configuration-flags" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Tune which checks and fixes run, or print the effective config. These don't write models.</p>
+<ul>
+<li><code>--config &lt;file&gt;</code> — full rule config (inspections, optimizations, <code>dataInspections</code>, <code>plugins</code>).</li>
+<li><code>--inspect-config &lt;file&gt;</code> — inspection overrides only.</li>
+<li><code>--optimize-config &lt;file&gt;</code> — optimization (fix) overrides only.</li>
+<li><code>--print-config</code> — print the merged config to stdout and exit.</li>
+</ul>
+<a id="report-flags" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Report flags<a href="#report-flags" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Each writes JSON to the given path; omit the flag to skip the report. A path is required when the flag is present.</p>
+<ul>
+<li><code>--inspection-report &lt;file&gt;</code> — validation findings.</li>
+<li><code>--optimization-report &lt;file&gt;</code> — what <code>--inspect-fix</code> changed. Empty unless fixes ran.</li>
+<li><code>--conversion-report &lt;file&gt;</code> — per-output fidelity (see below).</li>
+<li><code>--stats-report &lt;file&gt;</code> — sizes, formats, counts.</li>
+<li><code>--manifest-report &lt;file&gt;</code> — inventory of written files.</li>
+</ul>
+<a id="conversion-report" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Conversion report<a href="#conversion-report" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Records how faithfully each output was produced. Each output's <code>status</code> is
+<code>ok</code> (no warnings/errors), <code>lossy</code> (something dropped or flattened) or
+<code>failed</code> (the export threw). <code>errors</code> entries are tagged with their output, or
+<code>null</code> for a run-level failure. Exporters surface these via the <code>onWarning</code>
+export option; currently emitted for triplanar (world-projected) textures the
+glTF, FBX, USDZ and XKT exporters cannot represent.</p>
+<p>The AECMaterials model uses triplanar texturing, which glTF can't represent:</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--in</span><span class="hl-1"> </span><span class="hl-2">AECMaterials/xgf/model.xgf</span><span class="hl-1"> </span><span class="hl-5">--out</span><span class="hl-1"> </span><span class="hl-2">AECMaterials.gltf</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--conversion-report</span><span class="hl-1"> </span><span class="hl-2">AECMaterials-conversion.json</span>
+</code><button type="button">Copy</button></pre>
+
+<p><code>AECMaterials-conversion.json</code>:</p>
+<pre><code class="json"><span class="hl-1">{</span><br/><span class="hl-1">    </span><span class="hl-13">&quot;summary&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">        </span><span class="hl-13">&quot;outputs&quot;</span><span class="hl-1">: </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-13">&quot;ok&quot;</span><span class="hl-1">: </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-13">&quot;lossy&quot;</span><span class="hl-1">: </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-13">&quot;failed&quot;</span><span class="hl-1">: </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-13">&quot;warnings&quot;</span><span class="hl-1">: </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-13">&quot;errors&quot;</span><span class="hl-1">: </span><span class="hl-7">0</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-13">&quot;byOutput&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">            </span><span class="hl-13">&quot;out&quot;</span><span class="hl-1">: { </span><span class="hl-13">&quot;filePath&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;AECMaterials.gltf&quot;</span><span class="hl-1">, </span><span class="hl-13">&quot;fileFormat&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;glTF&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">                     </span><span class="hl-13">&quot;fileFormatVersion&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;2&quot;</span><span class="hl-1">, </span><span class="hl-13">&quot;fileDataSizeBytes&quot;</span><span class="hl-1">: </span><span class="hl-7">137552</span><span class="hl-1">, </span><span class="hl-13">&quot;status&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;lossy&quot;</span><span class="hl-1"> }</span><br/><span class="hl-1">        }</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    </span><span class="hl-13">&quot;warnings&quot;</span><span class="hl-1">: [</span><br/><span class="hl-1">        { </span><span class="hl-13">&quot;output&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;out&quot;</span><span class="hl-1">, </span><span class="hl-13">&quot;fileFormat&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;glTF&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">          </span><span class="hl-13">&quot;message&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;[glTF] Dropped 63 texture(s) on 21 material(s): they are sampled via triplanar (world-projected) texturing, which glTF cannot represent — those materials are exported as flat colour. Export to XGF to keep them.&quot;</span><span class="hl-1"> }</span><br/><span class="hl-1">    ],</span><br/><span class="hl-1">    </span><span class="hl-13">&quot;errors&quot;</span><span class="hl-1">: []</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="behaviour" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Behaviour<a href="#behaviour" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>Output files are written only for the <code>--out</code> / <code>--&lt;outputId&gt;</code> paths supplied; missing directories are created.</li>
+<li><code>fileDataType</code> sets encoding — <code>json</code> minified, <code>text</code> as-is, binary as a <code>Buffer</code>.</li>
+<li>Exit code is <code>1</code> on success, <code>-1</code> on error.</li>
+</ul>
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-References"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> References</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="inspection-1" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>inspection</span><span> → </span><a href="conversion.html">conversion</a>.<a href="conversion.pipeline.html">pipeline</a>.<a href="conversion.pipeline.reporters.html">reporters</a>.<a href="conversion.pipeline.reporters.inspection.html">inspection</a><a href="#inspection-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="manifest-1" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>manifest</span><span> → </span><a href="conversion.html">conversion</a>.<a href="conversion.pipeline.html">pipeline</a>.<a href="conversion.pipeline.reporters.html">reporters</a>.<a href="conversion.pipeline.reporters.manifest.html">manifest</a><a href="#manifest-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="stats-1" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>stats</span><span> → </span><a href="conversion.html">conversion</a>.<a href="conversion.pipeline.html">pipeline</a>.<a href="conversion.pipeline.reporters.html">reporters</a>.<a href="conversion.pipeline.reporters.stats.html">stats</a><a href="#stats-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-multi-format-file-converter"><span>xeokit <wbr/>Multi-<wbr/>Format <wbr/>File <wbr/>Converter</span></a><ul><li><a href="#tasks"><span>Tasks</span></a></li></ul><a href="#installation"><span>Installation</span></a><a href="#usage"><span>Usage</span></a><ul><li><a href="#convert"><span>Convert</span></a></li><li><a href="#convert--optimize"><span>Convert + optimize</span></a></li><li><a href="#validate"><span>Validate</span></a></li><li><a href="#optimize-in-place"><span>Optimize in place</span></a></li></ul><a href="#reference"><span>Reference</span></a><ul><li><a href="#pipelines"><span>Pipelines</span></a></li><li><a href="#formats-by-extension"><span>Formats by extension</span></a></li><li><a href="#inspection-flags"><span>Inspection flags</span></a></li><li><a href="#configuration-flags"><span>Configuration flags</span></a></li><li><a href="#report-flags"><span>Report flags</span></a></li><li><ul><li><a href="#conversion-report"><span>Conversion report</span></a></li></ul></li><li><a href="#behaviour"><span>Behaviour</span></a></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-References"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>References</summary><div><a href="#inspection-1" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>inspection</span></a><a href="#manifest-1" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>manifest</span></a><a href="#stats-1" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>stats</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

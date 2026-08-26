@@ -1,0 +1,177 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>lod | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="viewing.html">viewing</a></li><li><a href="viewing.lod.html">lod</a></li></ul><h1>Namespace lod</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><a id="viewing-lod-representation-selection" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Viewing LOD Representation Selection<a href="#viewing-lod-representation-selection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The <code>viewing.lod</code> module selects authored SceneModel representations on a
+per-view basis. It does not generate shell geometry or create SceneModel
+content. Shells, impostors and other LOD representations are authored in
+<code>model.lod</code> and stored in <a href="../classes/model.scene.SceneRepSet.html" class="tsd-kind-class">SceneRepSet</a>
+metadata.</p>
+<p>LOD suppression is separate from ordinary application visibility. Renderers
+combine both states while drawing:</p>
+<pre><code class="text">effectiveVisible = applicationVisible &amp;&amp; !lodSuppressed
+</code><button type="button">Copy</button></pre>
+
+<p>Use <a href="../classes/viewing.lod.RepresentationLODSelector.html" class="tsd-kind-class">RepresentationLODSelector</a> to discover representation sets whose
+selection metadata uses <code>&quot;projectedSize&quot;</code> and select one representation per
+view.</p>
+<p>Representation selection is also the fast path for switching visibility of
+large object groups. Instead of rewriting ordinary object visibility for
+every object in a representation, the viewer records the selected
+representation per View and lets renderers suppress non-selected
+representation memberships at batch or draw-list granularity.</p>
+<a id="runtime-shape" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Runtime Shape<a href="#runtime-shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+classDiagram
+    direction TB
+    class RepresentationLODSelector {
+      +enabled
+      +setEnabled(enabled)
+      +updateView(view)
+      +updateAllViews()
+      +getActiveRepId(view, repSet)
+      +clear()
+      +destroy()
+    }
+    class LODVisibility {
+      +isSuppressed(viewId, objectId)
+      +setSuppressed(viewId, objectIds, suppressed)
+      +setSelectedRep(viewId, selectionId, reps, selectedRepId)
+      +getViewVersion(viewId)
+    }
+    RepresentationLODSelector ..&gt; LODVisibility : suppresses non-selected reps</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+classDiagram
+    direction TB
+    class RepresentationLODSelector {
+      +enabled
+      +setEnabled(enabled)
+      +updateView(view)
+      +updateAllViews()
+      +getActiveRepId(view, repSet)
+      +clear()
+      +destroy()
+    }
+    class LODVisibility {
+      +isSuppressed(viewId, objectId)
+      +setSuppressed(viewId, objectIds, suppressed)
+      +setSelectedRep(viewId, selectionId, reps, selectedRepId)
+      +getViewVersion(viewId)
+    }
+    RepresentationLODSelector ..&gt; LODVisibility : suppresses non-selected reps</div><pre><code class="language-mermaid">classDiagram
+    direction TB
+    class RepresentationLODSelector {
+      +enabled
+      +setEnabled(enabled)
+      +updateView(view)
+      +updateAllViews()
+      +getActiveRepId(view, repSet)
+      +clear()
+      +destroy()
+    }
+    class LODVisibility {
+      +isSuppressed(viewId, objectId)
+      +setSuppressed(viewId, objectIds, suppressed)
+      +setSelectedRep(viewId, selectionId, reps, selectedRepId)
+      +getViewVersion(viewId)
+    }
+    RepresentationLODSelector ..&gt; LODVisibility : suppresses non-selected reps</code></pre></div>
+<a id="basic-usage" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Basic Usage<a href="#basic-usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The selector works with representation sets already present in loaded
+SceneModels. Those sets can be authored offline, generated with
+<a href="../functions/model.lod.createShellRep.html" class="tsd-kind-function">model.lod.createShellRep</a>, or loaded from a
+format such as XGF that preserves representation metadata.</p>
+<p>Create the selector after the Viewer exists:</p>
+<pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">RepresentationLODSelector</span><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/viewing/lod&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">selector</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">RepresentationLODSelector</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">viewer</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>The selector discovers eligible representation sets automatically. A set is
+eligible when its selection metadata uses the projected-size strategy:</p>
+<pre><code class="ts"><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-0">createRepSet</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;floor3&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">defaultRepId:</span><span class="hl-1"> </span><span class="hl-2">&quot;detailed&quot;</span><span class="hl-1">,</span><br/><br/><span class="hl-1">  </span><span class="hl-4">selection:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">strategy:</span><span class="hl-1"> </span><span class="hl-2">&quot;projectedSize&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">hysteresisPixels:</span><span class="hl-1"> </span><span class="hl-7">16</span><br/><span class="hl-1">  },</span><br/><br/><span class="hl-1">  </span><span class="hl-4">reps:</span><span class="hl-1"> [</span><br/><span class="hl-1">    {</span><br/><span class="hl-1">      </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;detailed&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">      </span><span class="hl-4">objectIds:</span><span class="hl-1"> [</span><br/><span class="hl-1">        </span><span class="hl-2">&quot;wall1&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-2">&quot;wall2&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-2">&quot;slab1&quot;</span><br/><span class="hl-1">      ],</span><br/><span class="hl-1">      </span><span class="hl-4">range:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-4">minPixels:</span><span class="hl-1"> </span><span class="hl-7">160</span><br/><span class="hl-1">      }</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    {</span><br/><span class="hl-1">      </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;shell&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">      </span><span class="hl-4">objectIds:</span><span class="hl-1"> [</span><br/><span class="hl-1">        </span><span class="hl-2">&quot;__floor3_shell&quot;</span><br/><span class="hl-1">      ],</span><br/><span class="hl-1">      </span><span class="hl-4">range:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-4">maxPixels:</span><span class="hl-1"> </span><span class="hl-7">128</span><br/><span class="hl-1">      }</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">  ]</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>After the set exists, camera and viewport changes update selection for each
+View. Applications normally do not need to call <code>updateView()</code> manually.</p>
+<a id="loading-a-model-with-representations" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Loading a Model With Representations<a href="#loading-a-model-with-representations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>For a model format that restores SceneModel representation sets, create the
+selector once and load the model normally:</p>
+<pre><code class="ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">selector</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">RepresentationLODSelector</span><span class="hl-1">({</span><span class="hl-4">viewer</span><span class="hl-1">});</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sceneModel</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;hospital&quot;</span><br/><span class="hl-1">}).</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-4">xgfLoader</span><span class="hl-1">.</span><span class="hl-0">load</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">fileData</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">sceneModel</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-8">// Newly loaded representation sets are discovered automatically.</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="inspecting-selection" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Inspecting Selection<a href="#inspecting-selection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Use <code>getActiveRepId()</code> when UI or diagnostics need to show what a View is
+currently using:</p>
+<pre><code class="ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">repSet</span><span class="hl-1"> = </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-4">repSets</span><span class="hl-1">[</span><span class="hl-2">&quot;floor3&quot;</span><span class="hl-1">];</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">activeRepId</span><span class="hl-1"> = </span><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">getActiveRepId</span><span class="hl-1">(</span><span class="hl-4">view</span><span class="hl-1">, </span><span class="hl-4">repSet</span><span class="hl-1">);</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">mode</span><span class="hl-1"> = </span><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">getMode</span><span class="hl-1">(</span><span class="hl-4">view</span><span class="hl-1">, </span><span class="hl-4">repSet</span><span class="hl-1">);</span><br/><br/><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-4">activeRepId</span><span class="hl-1">, </span><span class="hl-4">mode</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
+
+<p><code>getMode()</code> returns:</p>
+<ul>
+<li><code>&quot;default&quot;</code> when the set's default representation is selected,</li>
+<li><code>&quot;selected&quot;</code> when another representation is selected,</li>
+<li><code>&quot;invalid&quot;</code> when the set cannot currently be evaluated.</li>
+</ul>
+<a id="enable-disable-and-destroy" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Enable, Disable and Destroy<a href="#enable-disable-and-destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Disabling the selector clears only selector-owned representation suppression.
+It does not change ordinary object visibility:</p>
+<pre><code class="ts"><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">setEnabled</span><span class="hl-1">(</span><span class="hl-5">false</span><span class="hl-1">); </span><span class="hl-8">// all representations are unsuppressed again</span><br/><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">setEnabled</span><span class="hl-1">(</span><span class="hl-5">true</span><span class="hl-1">);  </span><span class="hl-8">// selection resumes</span><br/><br/><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">destroy</span><span class="hl-1">();         </span><span class="hl-8">// clears suppression and removes event handlers</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="multiple-views" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Multiple Views<a href="#multiple-views" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Selection state is per View. Two Views can show different representations of
+the same SceneModel at the same time:</p>
+<pre><code class="ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">nearView</span><span class="hl-1"> = </span><span class="hl-4">viewer</span><span class="hl-1">.</span><span class="hl-4">viewList</span><span class="hl-1">[</span><span class="hl-7">0</span><span class="hl-1">];</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">farView</span><span class="hl-1"> = </span><span class="hl-4">viewer</span><span class="hl-1">.</span><span class="hl-4">viewList</span><span class="hl-1">[</span><span class="hl-7">1</span><span class="hl-1">];</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">repSet</span><span class="hl-1"> = </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-4">repSets</span><span class="hl-1">[</span><span class="hl-2">&quot;floor3&quot;</span><span class="hl-1">];</span><br/><br/><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">updateView</span><span class="hl-1">(</span><span class="hl-4">nearView</span><span class="hl-1">);</span><br/><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">updateView</span><span class="hl-1">(</span><span class="hl-4">farView</span><span class="hl-1">);</span><br/><br/><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">getActiveRepId</span><span class="hl-1">(</span><span class="hl-4">nearView</span><span class="hl-1">, </span><span class="hl-4">repSet</span><span class="hl-1">)); </span><span class="hl-8">// &quot;detailed&quot;</span><br/><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-4">selector</span><span class="hl-1">.</span><span class="hl-0">getActiveRepId</span><span class="hl-1">(</span><span class="hl-4">farView</span><span class="hl-1">, </span><span class="hl-4">repSet</span><span class="hl-1">));  </span><span class="hl-8">// &quot;shell&quot;</span>
+</code><button type="button">Copy</button></pre>
+
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Classes"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Classes</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="lodvisibility" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/viewing.lod.LODVisibility.html">LODVisibility</a><a href="#lodvisibility" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="representationlodselector" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/viewing.lod.RepresentationLODSelector.html">RepresentationLODSelector</a><a href="#representationlodselector" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Interfaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="lodrepmembership" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/viewing.lod.LODRepMembership.html">LODRepMembership</a><a href="#lodrepmembership" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="lodrepselection" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/viewing.lod.LODRepSelection.html">LODRepSelection</a><a href="#lodrepselection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="lodsuppressiondelta" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/viewing.lod.LODSuppressionDelta.html">LODSuppressionDelta</a><a href="#lodsuppressiondelta" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="lodsuppressiondeltas" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/viewing.lod.LODSuppressionDeltas.html">LODSuppressionDeltas</a><a href="#lodsuppressiondeltas" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="representationlodselectorparams" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/viewing.lod.RepresentationLODSelectorParams.html">RepresentationLODSelectorParams</a><a href="#representationlodselectorparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Type Aliases</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="representationlodmode" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><a href="../types/viewing.lod.RepresentationLODMode.html">RepresentationLODMode</a><a href="#representationlodmode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#viewing-lod-representation-selection"><span>Viewing LOD <wbr/>Representation <wbr/>Selection</span></a><ul><li><a href="#runtime-shape"><span>Runtime <wbr/>Shape</span></a></li><li><a href="#basic-usage"><span>Basic <wbr/>Usage</span></a></li><li><a href="#loading-a-model-with-representations"><span>Loading a <wbr/>Model <wbr/>With <wbr/>Representations</span></a></li><li><a href="#inspecting-selection"><span>Inspecting <wbr/>Selection</span></a></li><li><a href="#enable-disable-and-destroy"><span>Enable, <wbr/>Disable and <wbr/>Destroy</span></a></li><li><a href="#multiple-views"><span>Multiple <wbr/>Views</span></a></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Classes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Classes</summary><div><a href="#lodvisibility" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>LODVisibility</span></a><a href="#representationlodselector" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>RepresentationLODSelector</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary><div><a href="#lodrepmembership" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>LODRep<wbr/>Membership</span></a><a href="#lodrepselection" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>LODRep<wbr/>Selection</span></a><a href="#lodsuppressiondelta" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>LODSuppression<wbr/>Delta</span></a><a href="#lodsuppressiondeltas" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>LODSuppression<wbr/>Deltas</span></a><a href="#representationlodselectorparams" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>RepresentationLODSelector<wbr/>Params</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Type Aliases</summary><div><a href="#representationlodmode" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><span>RepresentationLODMode</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

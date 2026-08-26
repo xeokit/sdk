@@ -111,23 +111,23 @@ shards can be skipped before fetch.</p>
 <a id="node-generator-scripts" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Node generator scripts<a href="#node-generator-scripts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The website stream generators are useful reference scripts for content
 pipelines that run outside the browser:</p>
 <ul>
-<li><a href="../media/generate-xgf-streaming-baku-example.js"><code>generate-xgf-streaming-baku-example.js</code></a>
+<li><a href="../media/build-baku-stream.js"><code>build-baku-stream.js</code></a>
 converts a large source GLB through <code>xeoconvert</code> into grid-partitioned
 stream data.</li>
-<li><a href="../media/generate-xgf-streaming-lyon-example.js"><code>generate-xgf-streaming-lyon-example.js</code></a>
+<li><a href="../media/build-lyon-stream.js"><code>build-lyon-stream.js</code></a>
 loads several XKT files into one <code>SceneModel</code>, applies a model
 coordinate system, and exports one merged stream.</li>
-<li><a href="../media/generate-xgf-streaming-archipelago-example.js"><code>generate-xgf-streaming-archipelago-example.js</code></a>
+<li><a href="../media/build-archipelago-stream.js"><code>build-archipelago-stream.js</code></a>
 builds procedural scene content, places existing XGF models, and
 exports the combined result.</li>
-<li><a href="../media/generate-xgf-streaming-example.js"><code>generate-xgf-streaming-example.js</code></a>
+<li><a href="../media/build-example-stream.js"><code>build-example-stream.js</code></a>
 shows explicit asset-library and references-only chunk manifests for a
 small hand-authored stream.</li>
-<li><a href="../media/generate-xgf-streaming-recursive-example.js"><code>generate-xgf-streaming-recursive-example.js</code></a>
+<li><a href="../media/build-recursive-stream.js"><code>build-recursive-stream.js</code></a>
 writes a root index that references other stream indexes instead of
 copying their chunks.</li>
 </ul>
-<p>See <a href="../media/README.md"><code>packages/website/scripts/README.md</code></a>
+<p>See <a href="../media/README.md"><code>packages/website/tools/asset-pipeline/README.md</code></a>
 for the current script list and the common generation pipeline.</p>
 <hr>
 <a id="5-manual-chunk-loading" class="tsd-anchor"></a><h2 class="tsd-anchor-link">5. Manual chunk loading<a href="#5-manual-chunk-loading" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Use <code>XGFStreamingLoader</code> when application code decides exactly which

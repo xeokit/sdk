@@ -1,0 +1,305 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>dataModel | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="quality.html">quality</a></li><li><a href="quality.dataModel.html">dataModel</a></li></ul><h1>Namespace dataModel</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><img style="padding:20px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_docmodel_greyscale_icon.png"/>
+<a id="datamodel-inspector" class="tsd-anchor"></a><h1 class="tsd-anchor-link">DataModel Inspector<a href="#datamodel-inspector" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>Runs inspections on a <a href="../classes/model.data.DataModel.html" class="tsd-kind-class">DataModel</a>
+and returns a structured <a href="../interfaces/quality.dataModel.InspectionReport.html" class="tsd-kind-interface">InspectionReport</a>.</p>
+<p>The inspector does not modify the model. It reports issues for
+callers to handle. Provide a <a href="../interfaces/quality.dataModel.DataFormatSchema.html" class="tsd-kind-interface">DataFormatSchema</a> to enable
+schema-specific checks; omit it to run only schema-agnostic
+checks.</p>
+<a id="shape" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Shape<a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+classDiagram
+    direction TB
+    class inspectDataModel {
+      +(params) InspectionReport
+    }
+    class InspectDataModelParams {
+      +dataModel : DataModel
+      +schema?   : DataFormatSchema
+      +registry? : InspectionRegistry
+      +checkX?   : boolean
+    }
+    class InspectionReport {
+      +issues   : Issue[]
+      +errors / warnings / info
+      +byCode   : Map
+    }
+    class Issue {
+      +code     : string
+      +severity : error | warning | info
+      +message  : string
+      +resourceId? / context?
+    }
+    class Inspection {
+      +codes   : string[]
+      +schemas?: string[]
+      +run(dataModel, push)
+    }
+    class InspectionRegistry
+    class DataFormatSchema {
+      +id                : string
+      +objectTypes       : Map
+      +relationshipTypes : Map
+    }
+    class DataModel {
+      &lt;&lt;data&gt;&gt;
+    }
+    inspectDataModel ..&gt; InspectDataModelParams : reads
+    inspectDataModel ..&gt; InspectionReport : returns
+    InspectDataModelParams o-- DataModel
+    InspectDataModelParams o-- DataFormatSchema
+    InspectDataModelParams o-- InspectionRegistry
+    InspectionRegistry &quot;1&quot; *-- &quot;*&quot; Inspection
+    InspectionReport &quot;1&quot; *-- &quot;*&quot; Issue
+    Inspection ..&gt; DataFormatSchema : optional schemas[]</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+classDiagram
+    direction TB
+    class inspectDataModel {
+      +(params) InspectionReport
+    }
+    class InspectDataModelParams {
+      +dataModel : DataModel
+      +schema?   : DataFormatSchema
+      +registry? : InspectionRegistry
+      +checkX?   : boolean
+    }
+    class InspectionReport {
+      +issues   : Issue[]
+      +errors / warnings / info
+      +byCode   : Map
+    }
+    class Issue {
+      +code     : string
+      +severity : error | warning | info
+      +message  : string
+      +resourceId? / context?
+    }
+    class Inspection {
+      +codes   : string[]
+      +schemas?: string[]
+      +run(dataModel, push)
+    }
+    class InspectionRegistry
+    class DataFormatSchema {
+      +id                : string
+      +objectTypes       : Map
+      +relationshipTypes : Map
+    }
+    class DataModel {
+      &lt;&lt;data&gt;&gt;
+    }
+    inspectDataModel ..&gt; InspectDataModelParams : reads
+    inspectDataModel ..&gt; InspectionReport : returns
+    InspectDataModelParams o-- DataModel
+    InspectDataModelParams o-- DataFormatSchema
+    InspectDataModelParams o-- InspectionRegistry
+    InspectionRegistry &quot;1&quot; *-- &quot;*&quot; Inspection
+    InspectionReport &quot;1&quot; *-- &quot;*&quot; Issue
+    Inspection ..&gt; DataFormatSchema : optional schemas[]</div><pre><code class="language-mermaid">classDiagram
+    direction TB
+    class inspectDataModel {
+      +(params) InspectionReport
+    }
+    class InspectDataModelParams {
+      +dataModel : DataModel
+      +schema?   : DataFormatSchema
+      +registry? : InspectionRegistry
+      +checkX?   : boolean
+    }
+    class InspectionReport {
+      +issues   : Issue[]
+      +errors / warnings / info
+      +byCode   : Map
+    }
+    class Issue {
+      +code     : string
+      +severity : error | warning | info
+      +message  : string
+      +resourceId? / context?
+    }
+    class Inspection {
+      +codes   : string[]
+      +schemas?: string[]
+      +run(dataModel, push)
+    }
+    class InspectionRegistry
+    class DataFormatSchema {
+      +id                : string
+      +objectTypes       : Map
+      +relationshipTypes : Map
+    }
+    class DataModel {
+      &lt;&lt;data&gt;&gt;
+    }
+    inspectDataModel ..&gt; InspectDataModelParams : reads
+    inspectDataModel ..&gt; InspectionReport : returns
+    InspectDataModelParams o-- DataModel
+    InspectDataModelParams o-- DataFormatSchema
+    InspectDataModelParams o-- InspectionRegistry
+    InspectionRegistry &quot;1&quot; *-- &quot;*&quot; Inspection
+    InspectionReport &quot;1&quot; *-- &quot;*&quot; Issue
+    Inspection ..&gt; DataFormatSchema : optional schemas[]</code></pre></div>
+<a id="pipeline" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Pipeline<a href="#pipeline" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+flowchart LR
+    A[DataModel] --&gt; B[inspectDataModel]
+    C[DataFormatSchema] --&gt; B
+    B --&gt; D[InspectionReport]
+    D -. errors .-&gt; E[caller handles report]</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+flowchart LR
+    A[DataModel] --&gt; B[inspectDataModel]
+    C[DataFormatSchema] --&gt; B
+    B --&gt; D[InspectionReport]
+    D -. errors .-&gt; E[caller handles report]</div><pre><code class="language-mermaid">flowchart LR
+    A[DataModel] --&gt; B[inspectDataModel]
+    C[DataFormatSchema] --&gt; B
+    B --&gt; D[InspectionReport]
+    D -. errors .-&gt; E[caller handles report]</code></pre></div>
+<a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="core-types" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Core Types<a href="#core-types" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="../interfaces/quality.dataModel.Issue.html" class="tsd-kind-interface">Issue</a>: one finding with severity, code, message,
+optional resource id, and optional <code>context</code>.</li>
+<li><a href="../interfaces/quality.dataModel.InspectionReport.html" class="tsd-kind-interface">InspectionReport</a>: issue list plus severity and code
+groupings.</li>
+<li><a href="../interfaces/quality.dataModel.Inspection.html" class="tsd-kind-interface">Inspection</a>: <code>{codes[], description, run}</code>. Walks a
+DataModel and returns issues.</li>
+</ul>
+<a id="dataformatschema" class="tsd-anchor"></a><h2 class="tsd-anchor-link">DataFormatSchema<a href="#dataformatschema" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>A <a href="../interfaces/quality.dataModel.DataFormatSchema.html" class="tsd-kind-interface">DataFormatSchema</a> lists allowed object types, allowed
+relationship types, inheritance chains, and required or
+forbidden property sets. Pass one via
+<a href="../interfaces/quality.dataModel.InspectDataModelParams.html#schema" class="tsd-kind-property">InspectDataModelParams.schema</a>.</p>
+<pre><code class="ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">schema</span><span class="hl-1">: </span><span class="hl-10">DataFormatSchema</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;MyApp/v1&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">objectTypes:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">Building:</span><span class="hl-1"> {</span><span class="hl-4">label:</span><span class="hl-1"> </span><span class="hl-2">&quot;Building&quot;</span><span class="hl-1">},</span><br/><span class="hl-1">    </span><span class="hl-4">Floor:</span><span class="hl-1">    {</span><span class="hl-4">superType:</span><span class="hl-1"> </span><span class="hl-2">&quot;Building&quot;</span><span class="hl-1">},</span><br/><span class="hl-1">    </span><span class="hl-4">Door:</span><span class="hl-1">     {</span><span class="hl-4">superType:</span><span class="hl-1"> </span><span class="hl-2">&quot;Floor&quot;</span><span class="hl-1">, </span><span class="hl-4">requiredPropertySets:</span><span class="hl-1"> [</span><span class="hl-2">&quot;DoorMetadata&quot;</span><span class="hl-1">]},</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-4">relationshipTypes:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">contains:</span><span class="hl-1"> {</span><br/><span class="hl-1">      </span><span class="hl-4">allowedRelatingTypes:</span><span class="hl-1"> [</span><span class="hl-2">&quot;Building&quot;</span><span class="hl-1">, </span><span class="hl-2">&quot;Floor&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">      </span><span class="hl-4">allowedRelatedTypes:</span><span class="hl-1">  [</span><span class="hl-2">&quot;Floor&quot;</span><span class="hl-1">, </span><span class="hl-2">&quot;Door&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">};</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">report</span><span class="hl-1"> = </span><span class="hl-0">inspectDataModel</span><span class="hl-1">({</span><span class="hl-4">dataModel</span><span class="hl-1">, </span><span class="hl-4">schema</span><span class="hl-1">});</span><br/><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-4">report</span><span class="hl-1">.</span><span class="hl-4">errors</span><span class="hl-1">.</span><span class="hl-4">length</span><span class="hl-1"> &gt; </span><span class="hl-7">0</span><span class="hl-1">) { ... }</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="registries" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Registries<a href="#registries" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Inspections are stored in an <a href="../classes/quality.dataModel.InspectionRegistry.html" class="tsd-kind-class">InspectionRegistry</a>.
+<a href="../variables/quality.dataModel.DEFAULT_INSPECTION_REGISTRY.html" class="tsd-kind-variable">DEFAULT_INSPECTION_REGISTRY</a> contains the built-in
+inspections. Plugins can register more inspections:</p>
+<pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">DEFAULT_INSPECTION_REGISTRY</span><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/quality/dataModel&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-6">DEFAULT_INSPECTION_REGISTRY</span><span class="hl-1">.</span><span class="hl-0">register</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">codes:</span><span class="hl-1"> [</span><span class="hl-2">&quot;MyApp/CHECK_NAMING&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">description:</span><span class="hl-1"> </span><span class="hl-2">&quot;Enforce DataObject-naming convention&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">run</span><span class="hl-1">(</span><span class="hl-4">dataModel</span><span class="hl-1">) { ... },</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Tests and one-off pipelines can create a fresh
+<a href="../classes/quality.dataModel.InspectionRegistry.html" class="tsd-kind-class">InspectionRegistry</a> and pass it with
+<a href="../interfaces/quality.dataModel.InspectDataModelParams.html#registry" class="tsd-kind-property">InspectDataModelParams.registry</a>.</p>
+<a id="built-in-inspections" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Built-in inspections<a href="#built-in-inspections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><table>
+<thead>
+<tr>
+<th>Inspection</th>
+<th>Codes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../variables/quality.dataModel.objectIntegrity.html" class="tsd-kind-variable">objectIntegrity</a></td>
+<td><code>OBJECT_MISSING_TYPE</code> (error), <code>OBJECT_DUPLICATE_PROPERTY_SET_REF</code> (warning)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.objectTypeRegistration.html" class="tsd-kind-variable">objectTypeRegistration</a></td>
+<td><code>OBJECT_UNKNOWN_TYPE</code> (error, when schema supplied)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.relationshipReferences.html" class="tsd-kind-variable">relationshipReferences</a></td>
+<td><code>RELATIONSHIP_SELF_REFERENCE</code> (warning)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.relationshipTypeRegistration.html" class="tsd-kind-variable">relationshipTypeRegistration</a></td>
+<td><code>RELATIONSHIP_UNKNOWN_TYPE</code> (error, when schema supplied)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.propertySetReferences.html" class="tsd-kind-variable">propertySetReferences</a></td>
+<td><code>OBJECT_REQUIRED_PROPERTY_SET_MISSING</code> / <code>OBJECT_FORBIDDEN_PROPERTY_SET</code> (warnings, when schema supplied)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.relationshipTypeBinding.html" class="tsd-kind-variable">relationshipTypeBinding</a></td>
+<td><code>RELATIONSHIP_FORBIDDEN_RELATING_TYPE</code> / <code>RELATIONSHIP_FORBIDDEN_RELATED_TYPE</code> / <code>RELATIONSHIP_SELF_REFERENCE_FORBIDDEN</code> (errors, <strong>opt-in</strong> via <code>checkRelationshipTypeBinding</code>)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.schemaTagging.html" class="tsd-kind-variable">schemaTagging</a></td>
+<td><code>OBJECT_SCHEMA_MISMATCH</code> / <code>RELATIONSHIP_SCHEMA_MISMATCH</code> (warnings, <strong>opt-in</strong> via <code>checkSchemaTagging</code>)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.relationshipCycles.html" class="tsd-kind-variable">relationshipCycles</a></td>
+<td><code>RELATIONSHIP_CYCLE</code> (error, <strong>opt-in</strong> via <code>checkRelationshipCycles</code>)</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.ifcSpatialHierarchy.html" class="tsd-kind-variable">ifcSpatialHierarchy</a></td>
+<td><code>IFC_NO_PROJECT</code> / <code>IFC_MULTIPLE_PROJECTS</code> / <code>IFC_PROJECT_HAS_PARENT</code> / <code>IFC_SPATIAL_PARENT_TYPE_MISMATCH</code> (errors), <code>IFC_SPATIAL_ORPHAN</code> (warning); <strong>opt-in</strong> via <code>checkIfcSpatialHierarchy</code>; IFC-only</td>
+</tr>
+<tr>
+<td><a href="../variables/quality.dataModel.ifcElementContainment.html" class="tsd-kind-variable">ifcElementContainment</a></td>
+<td><code>IFC_ELEMENT_AGGREGATED_NOT_CONTAINED</code> (warning, <strong>opt-in</strong> via <code>checkIfcElementContainment</code>); IFC-only</td>
+</tr>
+</tbody>
+</table>
+<a id="schema-selection" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Schema Selection<a href="#schema-selection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Each <a href="../interfaces/quality.dataModel.Inspection.html" class="tsd-kind-interface">Inspection</a> can declare <a href="../interfaces/quality.dataModel.Inspection.html#schemas" class="tsd-kind-property">a list of schema ids</a>. The inspector resolves the model's
+schema id from <code>params.schema?.id ?? dataModel.schema</code> and skips
+inspections whose <code>schemas</code> list does not include it.</p>
+<p>IFC inspections run only for <code>IFC4 / IFC4x3 / IFC4X3 / IFC4x1 / IFC4X1 / IFC4_ADD2_TC1 / IFC2x3 / IFC2X3</code>. Inspections without
+<code>schemas</code> run for any model. A model with no schema id runs only
+schema-agnostic inspections.</p>
+<p>Dangling-reference checks (<code>RELATIONSHIP_DANGLING_*</code>,
+<code>OBJECT_DANGLING_PROPERTY_SET_REF</code>) aren't included because
+<code>DataModel</code> builder methods reject unknown ids at construction time, so a
+live DataModel can't carry dangling endpoints.</p>
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Classes"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Classes</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="inspectionregistry" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/quality.dataModel.InspectionRegistry.html">InspectionRegistry</a><a href="#inspectionregistry" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Interfaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="codeaggregatejson" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.CodeAggregateJson.html">CodeAggregateJson</a><a href="#codeaggregatejson" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="dataformatschema-1" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.DataFormatSchema.html">DataFormatSchema</a><a href="#dataformatschema-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectdatamodelparams" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.InspectDataModelParams.html">InspectDataModelParams</a><a href="#inspectdatamodelparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspection" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.Inspection.html">Inspection</a><a href="#inspection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectionreport" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.InspectionReport.html">InspectionReport</a><a href="#inspectionreport" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectionreportjson" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.InspectionReportJson.html">InspectionReportJson</a><a href="#inspectionreportjson" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectionreporttojsonparams" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.InspectionReportToJsonParams.html">InspectionReportToJsonParams</a><a href="#inspectionreporttojsonparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectionrunjson" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.InspectionRunJson.html">InspectionRunJson</a><a href="#inspectionrunjson" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectprogress" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.InspectProgress.html">InspectProgress</a><a href="#inspectprogress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="issue" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.Issue.html">Issue</a><a href="#issue" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="issuejson" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.IssueJson.html">IssueJson</a><a href="#issuejson" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="objecttypespec" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.ObjectTypeSpec.html">ObjectTypeSpec</a><a href="#objecttypespec" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="relationshiptypespec" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/quality.dataModel.RelationshipTypeSpec.html">RelationshipTypeSpec</a><a href="#relationshiptypespec" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Type Aliases</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="issueseverity" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><a href="../types/quality.dataModel.IssueSeverity.html">IssueSeverity</a><a href="#issueseverity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Variables"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Variables</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="default_inspection_registry" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.DEFAULT_INSPECTION_REGISTRY.html">DEFAULT_INSPECTION_REGISTRY</a><a href="#default_inspection_registry" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="ifc_schemas" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.IFC_SCHEMAS.html">IFC_SCHEMAS</a><a href="#ifc_schemas" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="ifcelementcontainment" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.ifcElementContainment.html">ifcElementContainment</a><a href="#ifcelementcontainment" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="ifcspatialhierarchy" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.ifcSpatialHierarchy.html">ifcSpatialHierarchy</a><a href="#ifcspatialhierarchy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="objectintegrity" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.objectIntegrity.html">objectIntegrity</a><a href="#objectintegrity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="objecttyperegistration" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.objectTypeRegistration.html">objectTypeRegistration</a><a href="#objecttyperegistration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="propertysetreferences" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.propertySetReferences.html">propertySetReferences</a><a href="#propertysetreferences" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="relationshipcycles" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.relationshipCycles.html">relationshipCycles</a><a href="#relationshipcycles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="relationshipreferences" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.relationshipReferences.html">relationshipReferences</a><a href="#relationshipreferences" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="relationshiptypebinding" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.relationshipTypeBinding.html">relationshipTypeBinding</a><a href="#relationshiptypebinding" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="relationshiptyperegistration" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.relationshipTypeRegistration.html">relationshipTypeRegistration</a><a href="#relationshiptyperegistration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="schematagging" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/quality.dataModel.schemaTagging.html">schemaTagging</a><a href="#schematagging" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Functions"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Functions</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="descriptionforcode" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.descriptionForCode.html">descriptionForCode</a><a href="#descriptionforcode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectdatamodel" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.inspectDataModel.html">inspectDataModel</a><a href="#inspectdatamodel" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectdatamodelasync" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.inspectDataModelAsync.html">inspectDataModelAsync</a><a href="#inspectdatamodelasync" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="inspectionreporttojson" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.inspectionReportToJson.html">inspectionReportToJson</a><a href="#inspectionreporttojson" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="issuetojson" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.issueToJson.html">issueToJson</a><a href="#issuetojson" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="labelforcode" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.labelForCode.html">labelForCode</a><a href="#labelforcode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="relationshiplocator" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.relationshipLocator.html">relationshipLocator</a><a href="#relationshiplocator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="typematchesorinherits" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/quality.dataModel.typeMatchesOrInherits.html">typeMatchesOrInherits</a><a href="#typematchesorinherits" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#datamodel-inspector"><span>Data<wbr/>Model <wbr/>Inspector</span></a><ul><li><a href="#shape"><span>Shape</span></a></li><li><a href="#pipeline"><span>Pipeline</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#core-types"><span>Core <wbr/>Types</span></a></li><li><a href="#dataformatschema"><span>Data<wbr/>Format<wbr/>Schema</span></a></li><li><a href="#registries"><span>Registries</span></a></li><li><a href="#built-in-inspections"><span>Built-<wbr/>in inspections</span></a></li><li><a href="#schema-selection"><span>Schema <wbr/>Selection</span></a></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Classes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Classes</summary><div><a href="#inspectionregistry" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Inspection<wbr/>Registry</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary><div><a href="#codeaggregatejson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Code<wbr/>Aggregate<wbr/>Json</span></a><a href="#dataformatschema-1" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Data<wbr/>Format<wbr/>Schema</span></a><a href="#inspectdatamodelparams" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Inspect<wbr/>Data<wbr/>Model<wbr/>Params</span></a><a href="#inspection" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Inspection</span></a><a href="#inspectionreport" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Inspection<wbr/>Report</span></a><a href="#inspectionreportjson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Inspection<wbr/>Report<wbr/>Json</span></a><a href="#inspectionreporttojsonparams" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Inspection<wbr/>Report<wbr/>To<wbr/>Json<wbr/>Params</span></a><a href="#inspectionrunjson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Inspection<wbr/>Run<wbr/>Json</span></a><a href="#inspectprogress" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Inspect<wbr/>Progress</span></a><a href="#issue" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Issue</span></a><a href="#issuejson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Issue<wbr/>Json</span></a><a href="#objecttypespec" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Object<wbr/>Type<wbr/>Spec</span></a><a href="#relationshiptypespec" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Relationship<wbr/>Type<wbr/>Spec</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Type Aliases</summary><div><a href="#issueseverity" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><span>Issue<wbr/>Severity</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Variables"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Variables</summary><div><a href="#default_inspection_registry" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>DEFAULT_<wbr/>INSPECTION_<wbr/>REGISTRY</span></a><a href="#ifc_schemas" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>IFC_<wbr/>SCHEMAS</span></a><a href="#ifcelementcontainment" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>ifc<wbr/>Element<wbr/>Containment</span></a><a href="#ifcspatialhierarchy" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>ifc<wbr/>Spatial<wbr/>Hierarchy</span></a><a href="#objectintegrity" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>object<wbr/>Integrity</span></a><a href="#objecttyperegistration" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>object<wbr/>Type<wbr/>Registration</span></a><a href="#propertysetreferences" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>property<wbr/>Set<wbr/>References</span></a><a href="#relationshipcycles" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>relationship<wbr/>Cycles</span></a><a href="#relationshipreferences" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>relationship<wbr/>References</span></a><a href="#relationshiptypebinding" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>relationship<wbr/>Type<wbr/>Binding</span></a><a href="#relationshiptyperegistration" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>relationship<wbr/>Type<wbr/>Registration</span></a><a href="#schematagging" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>schema<wbr/>Tagging</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Functions</summary><div><a href="#descriptionforcode" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>description<wbr/>For<wbr/>Code</span></a><a href="#inspectdatamodel" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>inspect<wbr/>Data<wbr/>Model</span></a><a href="#inspectdatamodelasync" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>inspect<wbr/>Data<wbr/>Model<wbr/>Async</span></a><a href="#inspectionreporttojson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>inspection<wbr/>Report<wbr/>To<wbr/>Json</span></a><a href="#issuetojson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>issue<wbr/>To<wbr/>Json</span></a><a href="#labelforcode" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>label<wbr/>For<wbr/>Code</span></a><a href="#relationshiplocator" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>relationship<wbr/>Locator</span></a><a href="#typematchesorinherits" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>type<wbr/>Matches<wbr/>Or<wbr/>Inherits</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

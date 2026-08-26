@@ -1,0 +1,54 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>FixSkipReason | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="../modules/quality.html">quality</a></li><li><a href="../modules/quality.sceneModel.html">sceneModel</a></li><li><a href="quality.sceneModel.FixSkipReason.html">FixSkipReason</a></li></ul><h1>Type Alias FixSkipReason</h1></div><div class="tsd-signature"><span class="tsd-kind-type-alias">FixSkipReason</span><span class="tsd-signature-symbol">:</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;filter-excluded&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;no-strategy&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;target-missing&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;malformed-issue&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;precondition-failed&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;no-op&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;disabled&quot;</span></div><div class="tsd-comment tsd-typography"><p>Why a <a href="../interfaces/quality.sceneModel.Fix.html#apply" class="tsd-kind-method">Fix.apply</a> call resulted in <code>{fixed: false}</code> (or
+why the orchestrator never invoked a strategy at all). Appears
+in <a href="../interfaces/quality.sceneModel.ApplyFixesIssueOutcome.html#reason" class="tsd-kind-property">ApplyFixesIssueOutcome.reason</a> so UIs can render more
+specific feedback than a flat &quot;skipped&quot;.</p>
+<ul>
+<li>
+<p><code>filter-excluded</code> — orchestrator: the issue's code wasn't in
+the <a href="../interfaces/quality.sceneModel.ApplyFixesParams.html#codes" class="tsd-kind-property">codes</a> filter the caller
+passed. The strategy never ran. Common when a &quot;Fix all
+X-CODE&quot; button funnels other codes from the same report
+through the dispatcher.</p>
+</li>
+<li>
+<p><code>no-strategy</code> — orchestrator: no <a href="../interfaces/quality.sceneModel.Fix.html" class="tsd-kind-interface">Fix</a> is registered
+for the issue's code in the active <a href="../classes/quality.sceneModel.FixRegistry.html" class="tsd-kind-class">FixRegistry</a>.
+Either the code is informational (we shipped no remediation)
+or a registry was passed that omits it.</p>
+</li>
+<li>
+<p><code>target-missing</code> — strategy: the canonical / target resource
+the fix would operate on is missing or already destroyed —
+usually because an earlier fix in the same applyFixes pass
+swept it up. The issue is effectively obsolete; re-inspecting
+would drop it.</p>
+</li>
+<li>
+<p><code>malformed-issue</code> — strategy: the issue's
+<a href="../interfaces/quality.sceneModel.Issue.html#context" class="tsd-kind-property">Issue.context</a> is missing fields the strategy needs
+(or has the wrong types). The inspection that produced the
+issue is buggy, or the issue list is stale relative to the
+SceneModel.</p>
+</li>
+<li>
+<p><code>precondition-failed</code> — strategy: a safety / quality gate the
+fix needs to clear didn't pass. Examples: a residual
+tolerance test in pose-fit, a watertightness check, a
+vertex-count parity check between two geometries.</p>
+</li>
+<li>
+<p><code>no-op</code> — strategy: the fix would do nothing because the
+SceneModel is already in the desired state for this issue —
+no resources to drop, no meshes to rebuild, the issue's
+payload was empty by design.</p>
+</li>
+<li>
+<p><code>disabled</code> — orchestrator: the strategy's
+<a href="../interfaces/quality.sceneModel.Fix.html#config" class="tsd-kind-property">config</a> resolves to <code>enabled: false</code>
+against the caller's
+<a href="../interfaces/quality.sceneModel.ApplyFixesParams.html#fixoverrides" class="tsd-kind-property">fixOverrides</a>. The
+fix is registered but switched off — typically from a UI
+toggle in a settings panel that walks the registry.</p>
+</li>
+</ul>
+</div><div class="tsd-comment tsd-typography"></div><aside class="tsd-sources"><ul><li>Defined in <a href="https://github.com/xeokit/sdk/blob/9be72d933b7d2e641680376d3259818ee85d27d9/packages/sdk/src/quality/sceneModel/params/FixSkipReason.ts#L47">packages/sdk/src/quality/sceneModel/params/FixSkipReason.ts:47</a></li></ul></aside></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

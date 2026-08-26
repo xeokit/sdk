@@ -272,4 +272,42 @@ export interface XGFData_v2 {
 
   /** Per-mesh parent transform ID. Empty string means no parent transform. */
   eachMeshParentTransformId: string[];
+
+  // ── Representation sets ───────────────────────────────────────────
+
+  /** Per-representation-set string ID. */
+  eachRepSetId: string[];
+
+  /** Per-representation-set default representation ID. */
+  eachRepSetDefaultRepId: string[];
+
+  /**
+   * Per-representation-set selection strategy:
+   *   0 — no declarative selection metadata
+   *   1 — projectedSize
+   */
+  eachRepSetSelectionStrategy: Uint8Array<any>;
+
+  /**
+   * Per-representation-set hysteresis in pixels. `NaN` means absent.
+   */
+  eachRepSetHysteresisPixels: Float32Array<any>;
+
+  /** Per-representation-set base into the representation arrays. */
+  eachRepSetRepsBase: Uint32Array<any>;
+
+  /** Per-representation string ID. */
+  eachRepId: string[];
+
+  /** Per-representation minimum projected size in pixels. `NaN` means absent. */
+  eachRepRangeMinPixels: Float32Array<any>;
+
+  /** Per-representation maximum projected size in pixels. `NaN` means absent. */
+  eachRepRangeMaxPixels: Float32Array<any>;
+
+  /** Per-representation base into {@link repObjectIds}. */
+  eachRepObjectIdsBase: Uint32Array<any>;
+
+  /** SceneObject IDs referenced by representations. */
+  repObjectIds: string[];
 }

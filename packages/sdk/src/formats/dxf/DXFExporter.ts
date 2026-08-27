@@ -7,7 +7,7 @@ import {encode as encode_1_0} from "./versions/v1_0/encode";
  * {@link DXFLoader} for round-tripping: lines and 3DFACEs are both
  * recognised on re-import.
  *
- * For detailed usage, refer to {@link dxf | @xeokit/sdk/formats/dxf}.
+ * For detailed usage, refer to {@link formats!dxf | @xeokit/sdk/formats/dxf}.
  */
 export class DXFExporter extends ModelExporter {
   constructor() {

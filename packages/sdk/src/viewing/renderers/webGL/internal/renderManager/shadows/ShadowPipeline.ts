@@ -6,9 +6,16 @@ import type {View} from "../../../../../viewer";
 
 import {MAX_SHADOW_CASCADES} from "../../RenderContext";
 import {PerspectiveProjectionType} from "../../../../../../base/constants";
-import {lookAtMat4v, mulMat4, orthoMat4c} from "../../../../../../base/math/matrix";
+import {inverseMat4, lookAtMat4v, mulMat4, orthoMat4c, type Mat4} from "../../../../../../base/math/matrix";
+import {
+  computeShadowCascadeSplits,
+  fitShadowCascadeToCamera,
+  isFiniteShadowAABB,
+  type ShadowCascadeCameraProjection
+} from "../../../../../../base/math/shadows";
 import {getSceneCollisionIndex} from "../../../../../../spatial/collision";
 import {SDKErrorType, type SDKResult} from "../../../../../../base/core";
+import {getShadowDebugModeId} from "../../../../../viewer/ShadowSampling";
 
 
 /**
@@ -44,6 +51,8 @@ export class ShadowPipeline {
   private readonly _lightView = new Float64Array(16);
   private readonly _lightProj = new Float64Array(16);
   private readonly _lightVP = new Float64Array(16);
+  private readonly _worldLightVP = new Float64Array(16);
+  private readonly _inverseCameraView = new Float64Array(16);
 
   // Slice distances including both ends: `[camNear, split0, split1, ..., camFar]`.
   // Length is `cascadeCount + 1`, reused and resized as needed.
@@ -72,8 +81,10 @@ export class ShadowPipeline {
     drawOps: DrawOps["prims"];
     shadowBatches: MeshBatch[];
     comboBatches: MeshBatch[];
+    transparentShadowBatches?: MeshBatch[];
   }): void {
     const {rendererView, drawOps, shadowBatches, comboBatches} = params;
+    const transparentShadowBatches = params.transparentShadowBatches ?? [];
     const view = rendererView.view;
     const rc = this._renderContext;
     const gl = rc.gl;
@@ -99,14 +110,22 @@ export class ShadowPipeline {
         ? view.camera.perspectiveProjection.far
         : view.camera.orthoProjection.far
     );
-    this._computeCascadeSplits(camNear, camFar, cascadeCount, shadowsCfg.cascadeSplitLambda);
+    computeShadowCascadeSplits({
+      nearDistance: camNear,
+      farDistance: camFar,
+      cascadeCount,
+      lambda: shadowsCfg.cascadeSplitLambda,
+      target: this._sliceDistances
+    });
 
     // For each cascade: fit ortho to the slice, render depth, publish.
     for (let c = 0; c < cascadeCount; c++) {
       const sliceNear = this._sliceDistances[c];
       const sliceFar = this._sliceDistances[c + 1];
 
-      this._buildLightVPForSlice(view, sliceNear, sliceFar, resolution, shadowsCfg.autoFit);
+      const fitMetrics = this._buildLightVPForSlice(view, sliceNear, sliceFar, resolution, shadowsCfg.autoFit);
+      rc.shadowCascadeDepthRanges[c] = fitMetrics.depthRange;
+      rc.shadowCascadeTexelSizes[c] = fitMetrics.texelWorldSize;
 
       // Matrix goes into the plural array (for the color pass) AND the
       // singular slot (for this cascade's upcoming depth pass).
@@ -120,7 +139,7 @@ export class ShadowPipeline {
       // gets its own cached WebGLRenderBuffer at the chosen resolution.
       const shadowBuffer = rendererView.renderBuffers.getRenderBuffer(`shadowMap_c${c}`, {
         depthTexture: true,
-        depthTextureCompare: true,
+        depthTextureCompare: false,
         size: [resolution, resolution]
       });
 
@@ -137,6 +156,10 @@ export class ShadowPipeline {
       }
       for (let i = 0; i < comboBatches.length; i++) {
         drawOps[comboBatches[i].primitive]?.shadowDepth?.drawBatch(comboBatches[i]);
+      }
+      for (let i = 0; i < transparentShadowBatches.length; i++) {
+        const drawOpsForPrimitive = drawOps[transparentShadowBatches[i].primitive];
+        (drawOpsForPrimitive?.shadowDepthTransparent ?? drawOpsForPrimitive?.shadowDepth)?.drawBatch(transparentShadowBatches[i]);
       }
       shadowBuffer.unbind();
 
@@ -156,6 +179,8 @@ export class ShadowPipeline {
     const cascade0Tex = rc.shadowMapTextures[0];
     for (let c = cascadeCount; c < MAX_SHADOW_CASCADES; c++) {
       rc.shadowMapTextures[c] = cascade0Tex;
+      rc.shadowCascadeDepthRanges[c] = rc.shadowCascadeDepthRanges[0] || 1;
+      rc.shadowCascadeTexelSizes[c] = rc.shadowCascadeTexelSizes[0] || 1;
       // Copy cascade 0's matrix so the shader's cascade-select math can't
       // pick up a stale zero matrix even if its logic misfires.
       const offset = c * 16;
@@ -165,6 +190,11 @@ export class ShadowPipeline {
     }
 
     rc.shadowCascadeCount = cascadeCount;
+    const lightRadius = Number.isFinite(Number(shadowsCfg.lightRadius)) ? Number(shadowsCfg.lightRadius) : 0.08;
+    rc.shadowSoftParams[0] = shadowsCfg.contactHardening ? 1 : 0;
+    rc.shadowSoftParams[1] = Math.max(0, lightRadius);
+    rc.shadowSoftParams[2] = 1;
+    rc.shadowSoftParams[3] = getShadowDebugModeId(shadowsCfg.debug);
   }
 
   destroy(): void {
@@ -180,12 +210,13 @@ export class ShadowPipeline {
     const shadowsCfg = view.effects.shadows;
     const cameraViewMatrix = view.camera.viewMatrix;
     const dir = shadowsCfg.direction;
+    const direction = normalize3(dir[0], dir[1], dir[2]);
 
     // Rotate the world-space light direction into camera-view space (w = 0 so
     // only the rotation part of the view matrix is applied).
-    const dxV = cameraViewMatrix[0] * dir[0] + cameraViewMatrix[4] * dir[1] + cameraViewMatrix[8]  * dir[2];
-    const dyV = cameraViewMatrix[1] * dir[0] + cameraViewMatrix[5] * dir[1] + cameraViewMatrix[9]  * dir[2];
-    const dzV = cameraViewMatrix[2] * dir[0] + cameraViewMatrix[6] * dir[1] + cameraViewMatrix[10] * dir[2];
+    const dxV = cameraViewMatrix[0] * direction[0] + cameraViewMatrix[4] * direction[1] + cameraViewMatrix[8]  * direction[2];
+    const dyV = cameraViewMatrix[1] * direction[0] + cameraViewMatrix[5] * direction[1] + cameraViewMatrix[9]  * direction[2];
+    const dzV = cameraViewMatrix[2] * direction[0] + cameraViewMatrix[6] * direction[1] + cameraViewMatrix[10] * direction[2];
     const dLen = Math.hypot(dxV, dyV, dzV) || 1.0;
     const dirViewX = dxV / dLen;
     const dirViewY = dyV / dLen;
@@ -195,40 +226,17 @@ export class ShadowPipeline {
     rc.shadowLightDirView[1] = dirViewY;
     rc.shadowLightDirView[2] = dirViewZ;
 
-    // Stable world-up rotated into view space.
-    const worldUp: [number, number, number] = Math.abs(dir[2]) < 0.95 ? [0, 0, 1] : [0, 1, 0];
-    const uxV = cameraViewMatrix[0] * worldUp[0] + cameraViewMatrix[4] * worldUp[1] + cameraViewMatrix[8]  * worldUp[2];
-    const uyV = cameraViewMatrix[1] * worldUp[0] + cameraViewMatrix[5] * worldUp[1] + cameraViewMatrix[9]  * worldUp[2];
-    const uzV = cameraViewMatrix[2] * worldUp[0] + cameraViewMatrix[6] * worldUp[1] + cameraViewMatrix[10] * worldUp[2];
-
-    // Place the virtual light far behind the camera along -dirView. Exact
+    // Place the virtual light far behind the scene along -dir. Exact
     // distance doesn't affect ortho projection — only orientation — so we
     // use a large fixed value in autoFit mode to keep caster z in front.
+    const worldUp: [number, number, number] = Math.abs(direction[2]) < 0.95 ? [0, 0, 1] : [0, 1, 0];
     const lightDistance = shadowsCfg.autoFit ? 1000.0 : shadowsCfg.lightDistance;
-    const lightEyeView: [number, number, number] = [
-      -dirViewX * lightDistance,
-      -dirViewY * lightDistance,
-      -dirViewZ * lightDistance
+    const lightEyeWorld: [number, number, number] = [
+      -direction[0] * lightDistance,
+      -direction[1] * lightDistance,
+      -direction[2] * lightDistance
     ];
-    const upView: [number, number, number] = [uxV, uyV, uzV];
-    lookAtMat4v(lightEyeView, [0, 0, 0] as any, upView, this._lightView as any);
-  }
-
-  // ------------------------------------------------------------------
-  // Cascade split math (PSSM).
-  //
-  // Stores distances (positive, view-space |z|) at indices 0..cascadeCount,
-  // where index 0 = camNear and index cascadeCount = camFar. Entries
-  // 1..cascadeCount-1 are the cascade boundaries.
-  // ------------------------------------------------------------------
-  private _computeCascadeSplits(near: number, far: number, count: number, lambda: number): void {
-    this._sliceDistances[0] = near;
-    for (let i = 1; i <= count; i++) {
-      const p = i / count;
-      const log = near * Math.pow(far / near, p);
-      const uniform = near + (far - near) * p;
-      this._sliceDistances[i] = lambda * log + (1.0 - lambda) * uniform;
-    }
+    lookAtMat4v(lightEyeWorld, [0, 0, 0] as any, worldUp, this._lightView as any);
   }
 
   // ------------------------------------------------------------------
@@ -237,16 +245,34 @@ export class ShadowPipeline {
   // Sizes the ortho bounds to tightly contain the camera frustum corners of
   // the slice `[sliceNear, sliceFar]` (and, when autoFit is on, intersects
   // with the scene's world AABB and snaps to world-space texels for
-  // temporal stability). Writes the resulting lightVP to `_lightVP`.
+  // temporal stability). Writes the resulting view-space lightVP to `_lightVP`.
   // ------------------------------------------------------------------
-  private _buildLightVPForSlice(view: View, sliceNear: number, sliceFar: number, resolution: number, autoFit: boolean): void {
+  private _buildLightVPForSlice(view: View, sliceNear: number, sliceFar: number, resolution: number, autoFit: boolean): {depthRange: number; texelWorldSize: number} {
     const rc = this._renderContext;
     const gl = rc.gl;
+    const camera = view.camera;
+    const inverseCameraViewMatrix = (camera as {inverseViewMatrix?: ArrayLike<number>}).inverseViewMatrix
+      ?? inverseMat4(camera.viewMatrix as Mat4, this._inverseCameraView as Mat4);
 
     let left: number, right: number, bottom: number, top: number, near: number, far: number;
+    let depthRange: number;
+    let texelWorldSize: number;
     if (autoFit) {
-      const fit = this._fitOrthoToSlice(view, gl.drawingBufferWidth, gl.drawingBufferHeight, resolution, sliceNear, sliceFar);
+      const fit = fitShadowCascadeToCamera({
+        projection: getShadowCameraProjection(view),
+        canvasWidth: gl.drawingBufferWidth,
+        canvasHeight: gl.drawingBufferHeight,
+        nearDistance: sliceNear,
+        farDistance: sliceFar,
+        lightViewMatrix: this._lightView as Mat4,
+        cameraInverseViewMatrix: inverseCameraViewMatrix,
+        resolution,
+        padding: view.effects.shadows.padding,
+        sceneAABB: getSceneAABB(this._renderContext.viewer.scene)
+      });
       left = fit.left; right = fit.right; bottom = fit.bottom; top = fit.top; near = fit.near; far = fit.far;
+      depthRange = fit.depthRange;
+      texelWorldSize = fit.texelWorldSize;
     } else {
       const shadowsCfg = view.effects.shadows;
       const projSize = shadowsCfg.projectionSize;
@@ -254,157 +280,52 @@ export class ShadowPipeline {
       left = -projSize; right = projSize; bottom = -projSize; top = projSize;
       near = 0.1;
       far = lightDistance * 3.0;
+      depthRange = Math.max(0.001, far - near);
+      texelWorldSize = Math.max(0.000001, Math.max(right - left, top - bottom) / Math.max(1, resolution));
     }
 
     orthoMat4c(left, right, bottom, top, near, far, this._lightProj as any);
-    mulMat4(this._lightProj as any, this._lightView as any, this._lightVP as any);
-  }
-
-  // ------------------------------------------------------------------
-  // Auto-fit ortho to a specific slice of the camera frustum.
-  //
-  // Near/far distances of the slice are inputs (instead of hardcoding
-  // 0.1 and maxDistance) so this same routine fits every cascade.
-  // ------------------------------------------------------------------
-  private _fitOrthoToSlice(
-    view: View,
-    drawingBufferWidth: number,
-    drawingBufferHeight: number,
-    resolution: number,
-    sliceNear: number,
-    sliceFar: number
-  ): { left: number; right: number; bottom: number; top: number; near: number; far: number } {
-    const shadowsCfg = view.effects.shadows;
-    const camera = view.camera;
-    const aspect = Math.max(1e-6, drawingBufferHeight > 0 ? drawingBufferWidth / drawingBufferHeight : 1);
-
-    // Camera frustum half-extents at the slice's near and far planes.
-    let halfNearH: number, halfNearW: number, halfFarH: number, halfFarW: number;
-    if (camera.projectionType === PerspectiveProjectionType) {
-      const fovRad = camera.perspectiveProjection.fov * Math.PI / 180.0;
-      const tanHalfFov = Math.tan(fovRad * 0.5);
-      if (aspect >= 1) {
-        halfNearH = tanHalfFov * sliceNear;
-        halfNearW = halfNearH * aspect;
-        halfFarH  = tanHalfFov * sliceFar;
-        halfFarW  = halfFarH * aspect;
-      } else {
-        halfNearW = tanHalfFov * sliceNear;
-        halfNearH = halfNearW / aspect;
-        halfFarW  = tanHalfFov * sliceFar;
-        halfFarH  = halfFarW / aspect;
-      }
-    } else {
-      const op = camera.orthoProjection;
-      const halfH = op.scale * 0.5;
-      halfNearH = halfFarH = halfH;
-      halfNearW = halfFarW = halfH * aspect;
-    }
-
-    // 8 slice-frustum corners in camera-view space. Camera looks down -Z.
-    const corners: [number, number, number][] = [
-      [-halfNearW, -halfNearH, -sliceNear], [halfNearW, -halfNearH, -sliceNear],
-      [-halfNearW,  halfNearH, -sliceNear], [halfNearW,  halfNearH, -sliceNear],
-      [-halfFarW,  -halfFarH,  -sliceFar ], [halfFarW,  -halfFarH,  -sliceFar ],
-      [-halfFarW,   halfFarH,  -sliceFar ], [halfFarW,   halfFarH,  -sliceFar ]
-    ];
-
-    // Project into light-view space and take the AABB.
-    const m = this._lightView;
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
-    let minZ = Infinity, maxZ = -Infinity;
-    for (const c of corners) {
-      const x = m[0] * c[0] + m[4] * c[1] + m[8]  * c[2] + m[12];
-      const y = m[1] * c[0] + m[5] * c[1] + m[9]  * c[2] + m[13];
-      const z = m[2] * c[0] + m[6] * c[1] + m[10] * c[2] + m[14];
-      if (x < minX) minX = x; if (x > maxX) maxX = x;
-      if (y < minY) minY = y; if (y > maxY) maxY = y;
-      if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
-    }
-
-    // Tight-fit against the scene AABB (RTC-precise via Float64 cameraView).
-    const scene = this._renderContext.viewer.scene;
-    if (scene) {
-      const sceneAABB = getSceneCollisionIndex(scene).getSceneAABB();
-      if (sceneAABB && isFiniteAABB(sceneAABB)) {
-        const cv = view.camera.viewMatrix;
-        let sMinX = Infinity, sMaxX = -Infinity;
-        let sMinY = Infinity, sMaxY = -Infinity;
-        let sMinZ = Infinity, sMaxZ = -Infinity;
-        for (let cornerIdx = 0; cornerIdx < 8; cornerIdx++) {
-          const wx = (cornerIdx & 1) ? sceneAABB[3] : sceneAABB[0];
-          const wy = (cornerIdx & 2) ? sceneAABB[4] : sceneAABB[1];
-          const wz = (cornerIdx & 4) ? sceneAABB[5] : sceneAABB[2];
-          const vx = cv[0] * wx + cv[4] * wy + cv[8]  * wz + cv[12];
-          const vy = cv[1] * wx + cv[5] * wy + cv[9]  * wz + cv[13];
-          const vz = cv[2] * wx + cv[6] * wy + cv[10] * wz + cv[14];
-          const lx = m[0] * vx + m[4] * vy + m[8]  * vz + m[12];
-          const ly = m[1] * vx + m[5] * vy + m[9]  * vz + m[13];
-          const lz = m[2] * vx + m[6] * vy + m[10] * vz + m[14];
-          if (lx < sMinX) sMinX = lx; if (lx > sMaxX) sMaxX = lx;
-          if (ly < sMinY) sMinY = ly; if (ly > sMaxY) sMaxY = ly;
-          if (lz < sMinZ) sMinZ = lz; if (lz > sMaxZ) sMaxZ = lz;
-        }
-        const iMinX = Math.max(minX, sMinX), iMaxX = Math.min(maxX, sMaxX);
-        const iMinY = Math.max(minY, sMinY), iMaxY = Math.min(maxY, sMaxY);
-        const iMinZ = Math.max(minZ, sMinZ), iMaxZ = Math.min(maxZ, sMaxZ);
-        if (iMinX < iMaxX && iMinY < iMaxY && iMinZ < iMaxZ) {
-          minX = iMinX; maxX = iMaxX;
-          minY = iMinY; maxY = iMaxY;
-          minZ = iMinZ; maxZ = iMaxZ;
-        }
-      }
-    }
-
-    // Edge padding.
-    const padMul = Math.max(1.0, shadowsCfg.padding);
-    const padX = (maxX - minX) * (padMul - 1.0) * 0.5;
-    const padY = (maxY - minY) * (padMul - 1.0) * 0.5;
-    let left = minX - padX;
-    let right = maxX + padX;
-    let bottom = minY - padY;
-    let top = maxY + padY;
-
-    // World-space texel snap (anchors the grid to the world origin's
-    // light-view position, stripping the integer-multiples part to stay
-    // float-precision-safe even for UTM-scale camera eyes).
-    const extentX = right - left;
-    const extentY = top - bottom;
-    const texelX = extentX / resolution;
-    const texelY = extentY / resolution;
-    if (texelX > 0 && texelY > 0) {
-      const cv = view.camera.viewMatrix;
-      const lv = this._lightView;
-      const wvX = cv[12], wvY = cv[13], wvZ = cv[14];
-      const originLVx = lv[0] * wvX + lv[4] * wvY + lv[8]  * wvZ + lv[12];
-      const originLVy = lv[1] * wvX + lv[5] * wvY + lv[9]  * wvZ + lv[13];
-      const modOffsetX = ((originLVx % texelX) + texelX) % texelX;
-      const modOffsetY = ((originLVy % texelY) + texelY) % texelY;
-
-      left = Math.floor((left - modOffsetX) / texelX) * texelX + modOffsetX;
-      right = left + extentX;
-      bottom = Math.floor((bottom - modOffsetY) / texelY) * texelY + modOffsetY;
-      top = bottom + extentY;
-    }
-
-    // Ortho near/far measured as positive distances from the light along -z.
-    // Pull the near plane further back by sliceFar so casters between the
-    // light and the frustum still register.
-    const near = Math.max(0.01, -maxZ);
-    const far  = -minZ + sliceFar;
-
-    return {left, right, bottom, top, near, far};
+    mulMat4(this._lightProj as any, this._lightView as any, this._worldLightVP as any);
+    mulMat4(this._worldLightVP as any, inverseCameraViewMatrix as Mat4, this._lightVP as any);
+    return {
+      depthRange,
+      texelWorldSize
+    };
   }
 }
 
-function isFiniteAABB(aabb: ArrayLike<number>): boolean {
+function getShadowCameraProjection(view: View): ShadowCascadeCameraProjection {
+  return view.camera.projectionType === PerspectiveProjectionType
+    ? {
+      type: "perspective",
+      fovDegrees: view.camera.perspectiveProjection.fov
+    }
+    : {
+      type: "ortho",
+      scale: view.camera.orthoProjection.scale
+    };
+}
+
+function getSceneAABB(scene: unknown): ArrayLike<number> | null {
+  if (!scene || !canUseSceneCollisionIndex(scene)) {
+    return null;
+  }
+  const sceneAABB = getSceneCollisionIndex(scene as any).getSceneAABB();
+  return sceneAABB && isFiniteShadowAABB(sceneAABB) ? sceneAABB : null;
+}
+
+function canUseSceneCollisionIndex(scene: unknown): boolean {
+  const sceneLike = scene as {id?: unknown; events?: {onSceneDestroyed?: {subscribe?: unknown}}};
   return (
-    aabb[0] <= aabb[3] &&
-    aabb[1] <= aabb[4] &&
-    aabb[2] <= aabb[5] &&
-    Number.isFinite(aabb[0]) && Number.isFinite(aabb[3]) &&
-    Number.isFinite(aabb[1]) && Number.isFinite(aabb[4]) &&
-    Number.isFinite(aabb[2]) && Number.isFinite(aabb[5])
+    typeof sceneLike.id === "string" &&
+    typeof sceneLike.events?.onSceneDestroyed?.subscribe === "function"
   );
+}
+
+function normalize3(x: number, y: number, z: number): [number, number, number] {
+  const len = Math.hypot(x, y, z);
+  if (len <= 1e-12) {
+    return [0, 0, -1];
+  }
+  return [x / len, y / len, z / len];
 }

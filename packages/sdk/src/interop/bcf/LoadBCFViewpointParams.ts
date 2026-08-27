@@ -5,7 +5,7 @@ import type {View} from "../../viewing/viewer";
 /**
  * Options for {@link loadBCFViewpoint | loadBCFViewpoint}.
  *
- * See {@link "bcf" | @xeokit/sdk/interop/bcf} for usage.
+ * See {@link interop!bcf | @xeokit/sdk/interop/bcf} for usage.
  */
 export interface LoadBCFViewpointParams {
 

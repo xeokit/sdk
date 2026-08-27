@@ -8,7 +8,7 @@
  * The scene module stores 3D model content: geometry, textures, materials,
  * meshes, objects and transforms. It does not render by itself. Rendering is done
  * by attaching a {@link viewing!viewer.Viewer | Viewer} and renderer such as
- * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}.
+ * {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}.
  *
  * A {@link Scene} owns one or more {@link SceneModel | SceneModels}. A SceneModel
  * contains shared resources ({@link SceneGeometry | geometries},

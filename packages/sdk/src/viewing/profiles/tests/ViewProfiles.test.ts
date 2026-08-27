@@ -1,4 +1,5 @@
 import {SDKErrorType} from "../../../base/core";
+import {DEFAULT_VIEW_PROFILES} from "../DefaultViewProfiles";
 import {ViewProfiles} from "../ViewProfiles";
 
 class ProfileEffect {
@@ -73,6 +74,22 @@ function createView() {
 }
 
 describe("ViewProfiles", () => {
+  test("uses higher-quality shadows in the built-in realistic profile", () => {
+    expect(DEFAULT_VIEW_PROFILES.realistic.shadows?.enabled).toBe(true);
+    expect(DEFAULT_VIEW_PROFILES.realistic.shadows?.pcfKernelSize).toBe(7);
+    expect(DEFAULT_VIEW_PROFILES.realistic.shadows?.contactHardening).toBe(true);
+    expect(DEFAULT_VIEW_PROFILES.realistic.shadows?.lightRadius).toBe(0.08);
+  });
+
+  test("keeps built-in IBL profiles from double-counting analytical hemisphere ambient", () => {
+    expect(DEFAULT_VIEW_PROFILES.detailed.ibl?.enabled).toBe(true);
+    expect(DEFAULT_VIEW_PROFILES.detailed.ibl?.intensity).toBeGreaterThan(
+      DEFAULT_VIEW_PROFILES.detailed.hemispheric?.intensity || 0
+    );
+    expect(DEFAULT_VIEW_PROFILES.realistic.ibl?.enabled).toBe(true);
+    expect(DEFAULT_VIEW_PROFILES.realistic.hemispheric?.intensity).toBeLessThanOrEqual(0.05);
+  });
+
   test("applies closed-world enablement and restores underlying state when cleared", () => {
     const view = createView();
     view.lights.ibl.enabled = false;

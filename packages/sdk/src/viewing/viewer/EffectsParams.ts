@@ -23,7 +23,7 @@ import type {BodyHatchParams} from "./BodyHatchParams";
  * depth of field, color grading, the HDR tonemap pass, antialiasing, and
  * directional shadow mapping. Expensive optional effects are disabled by
  * default. Enable them explicitly with `enabled: true` on the corresponding
- * entry, or through {@link viewing!viewProfiles.ViewProfiles | ViewProfiles}.
+ * entry, or through {@link viewing!profiles.ViewProfiles | ViewProfiles}.
  */
 export interface EffectsParams {
 

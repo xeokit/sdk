@@ -27,7 +27,7 @@ const RECORDS_PER_PACKET = 4000;
  * v1 exports points only — non-{@link base!constants.PointsPrimitive} geometry
  * is skipped. There is no intensity / pose / multi-scan output yet.
  *
- * For detailed usage, refer to {@link e57 | @xeokit/sdk/formats/e57}.
+ * For detailed usage, refer to {@link formats!e57 | @xeokit/sdk/formats/e57}.
  */
 export class E57Exporter extends ModelExporter {
   constructor() {

@@ -11,7 +11,7 @@ import type {Relationship} from "./Relationship";
  *   {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | DataModel.objects},
  *   and {@link DataModel.rootObjects | DataModel.rootObjects}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export class DataObject {
 

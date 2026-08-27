@@ -149,6 +149,7 @@ function canMultiDrawBatch(batch: PackedMeshBatch): boolean {
 function hasSameMultiDrawState(first: PackedMeshBatch, next: PackedMeshBatch): boolean {
   return first.vertexBuffer === next.vertexBuffer &&
     first.uvBuffer === next.uvBuffer &&
+    first.colorBuffer === next.colorBuffer &&
     first.colorBindGroup === next.colorBindGroup &&
     first.vertexMetadataBuffer === next.vertexMetadataBuffer &&
     first.positionDecodeBindGroup === next.positionDecodeBindGroup &&

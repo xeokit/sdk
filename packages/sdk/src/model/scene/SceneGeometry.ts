@@ -51,7 +51,7 @@ function narrowIndexArray(indices?: IntArrayParam): IntArrayParam | undefined {
  * or {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Referenced by {@link SceneMesh.geometry | SceneMesh.geometry}
  *
- * See {@link scene | @xeokit/sdk/model/scene}  for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene}  for usage.
  */
 export class SceneGeometry {
 

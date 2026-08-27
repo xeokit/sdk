@@ -4,10 +4,11 @@ import type {FloatArrayParam, IntArrayParam} from "../../base/math";
  * Non-compressed geometry parameters for {@link SceneModel.createGeometry | SceneModel.createGeometry}.
  *
  * * Contains uncompressed, human-readable geometry parameters for {@link SceneModel.createGeometry | SceneModel.createGeometry}
- * * Use {@link compressGeometryParams | compressGeometryParams} to compress {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}
- * for {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * * Use {@link compressGeometryParams | compressGeometryParams} to compress these params into
+ * {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams} for
+ * {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  *
- * See {@link scene | @xeokit/sdk/model/scene} for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
  */
 export interface SceneGeometryParams {
 

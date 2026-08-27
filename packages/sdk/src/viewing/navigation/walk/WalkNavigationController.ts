@@ -9,6 +9,8 @@ const DEFAULT_EYE_HEIGHT = 1.7;
 const DEFAULT_BODY_RADIUS = 0.28;
 const DEFAULT_WALK_SPEED = 4;
 const DEFAULT_RUN_SPEED = 8.5;
+const DEFAULT_MOVEMENT_ACCELERATION = Infinity;
+const DEFAULT_MOVEMENT_DECELERATION = Infinity;
 const DEFAULT_STEP_HEIGHT = 0.35;
 const DEFAULT_MAX_FALL = 1.5;
 const DEFAULT_FALL_ACCELERATION = 9.8;
@@ -82,6 +84,9 @@ export class WalkNavigationController {
     #bodyRadius: number;
     #walkSpeed: number;
     #runSpeed: number;
+    #movementAcceleration: number;
+    #movementDeceleration: number;
+    #horizontalVelocity: Vec3 = [0, 0, 0];
     #stepHeight: number;
     #maxFall: number;
     #fallAcceleration: number;
@@ -106,6 +111,8 @@ export class WalkNavigationController {
         this.#bodyRadius = params.bodyRadius ?? DEFAULT_BODY_RADIUS;
         this.#walkSpeed = params.walkSpeed ?? DEFAULT_WALK_SPEED;
         this.#runSpeed = params.runSpeed ?? DEFAULT_RUN_SPEED;
+        this.#movementAcceleration = finiteOrInfinity(params.movementAcceleration, DEFAULT_MOVEMENT_ACCELERATION);
+        this.#movementDeceleration = finiteOrInfinity(params.movementDeceleration, DEFAULT_MOVEMENT_DECELERATION);
         this.#stepHeight = params.stepHeight ?? DEFAULT_STEP_HEIGHT;
         this.#maxFall = params.maxFall ?? DEFAULT_MAX_FALL;
         this.#fallAcceleration = Math.max(0, params.fallAcceleration ?? DEFAULT_FALL_ACCELERATION);
@@ -148,6 +155,7 @@ export class WalkNavigationController {
         this.#looking = false;
         this.#pointerId = null;
         this.#fallSpeed = 0;
+        this.#horizontalVelocity = [0, 0, 0];
         if (active) {
             this.#suspendDefaultController();
         } else {
@@ -373,13 +381,15 @@ export class WalkNavigationController {
         const inputLength = Math.hypot(forwardAmount, rightAmount);
         const inputScale = inputLength > 1 ? 1 / inputLength : 1;
         const speed = pressed(this.#keysDown, RUN_KEYS) ? this.#runSpeed : this.#walkSpeed;
-        const distance = speed * elapsedSeconds * inputScale;
-        const move = inputLength === 0
+        const targetVelocity = inputLength === 0
             ? [0, 0, 0] as Vec3
             : add(
-                mul(basis.flatForward, forwardAmount * distance),
-                mul(basis.right, rightAmount * distance)
+                mul(basis.flatForward, forwardAmount * speed * inputScale),
+                mul(basis.right, rightAmount * speed * inputScale)
             );
+        const rate = inputLength === 0 ? this.#movementDeceleration : this.#movementAcceleration;
+        this.#horizontalVelocity = moveTowards(this.#horizontalVelocity, targetVelocity, rate * elapsedSeconds);
+        const move = mul(this.#horizontalVelocity, elapsedSeconds);
 
         this.#move(move, basis.direction, up, elapsedSeconds);
     }
@@ -588,6 +598,25 @@ function length(v: Vec3): number {
 
 function distance(a: Vec3, b: Vec3): number {
     return length(sub(a, b));
+}
+
+function moveTowards(current: Vec3, target: Vec3, maxDelta: number): Vec3 {
+    if (maxDelta === Infinity) {
+        return target;
+    }
+    const delta = sub(target, current);
+    const deltaLength = length(delta);
+    if (deltaLength === 0 || deltaLength <= maxDelta) {
+        return target;
+    }
+    return add(current, mul(delta, maxDelta / deltaLength));
+}
+
+function finiteOrInfinity(value: number | undefined, defaultValue: number): number {
+    if (value === undefined) {
+        return defaultValue;
+    }
+    return Number.isFinite(value) ? Math.max(0, value) : defaultValue;
 }
 
 function normalize(v: Vec3): Vec3 {

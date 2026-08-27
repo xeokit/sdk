@@ -9,7 +9,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * * Stored in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}
  * * Created with {@link SceneModel.createObject | SceneModel.createObject}
  *
- * See {@link scene | @xeokit/sdk/model/scene}   for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene}   for usage.
  */
 export class SceneObject {
 

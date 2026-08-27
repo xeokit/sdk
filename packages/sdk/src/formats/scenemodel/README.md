@@ -86,7 +86,7 @@ loader, and `JSON.stringify` the exporter's result before persisting it.
 
 ```ts
 import {Scene} from "@xeokit/sdk/model/scene";
-import {SceneModelImporter} from "@xeokit/sdk/scenemodel";
+import {SceneModelImporter} from "@xeokit/sdk/formats/scenemodel";
 
 const scene = new Scene();
 const sceneModel = scene.createModel({id: "myModel"}).value;
@@ -99,7 +99,7 @@ await new SceneModelImporter().load({fileData, sceneModel});
 ### Exporter
 
 ```ts
-import {SceneModelExporter} from "@xeokit/sdk/scenemodel";
+import {SceneModelExporter} from "@xeokit/sdk/formats/scenemodel";
 
 const sceneModelParams = await new SceneModelExporter().write({sceneModel});
 const json = JSON.stringify(sceneModelParams);

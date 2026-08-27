@@ -74,7 +74,7 @@
  * ## Usage
  *
  * This example demonstrates how to:
- * - Set up a {@link viewing!viewer.Viewer | Viewer}, {@link model!scene.Scene | Scene}, and {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}
+ * - Set up a {@link viewing!viewer.Viewer | Viewer}, {@link model!scene.Scene | Scene}, and {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}
  * - Attach a ModelNavigationController for interaction
  * - Load a LAS model using {@link LASLoader}
  * - Handle loading and error scenarios

@@ -4,7 +4,7 @@ import type {DataObject} from "./DataObject";
  * Parameters to configure the depth-first search performed by {@link searchObjects | searchObjects}
  * to locate {@link DataObject | DataObjects}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export interface SearchParams {
 

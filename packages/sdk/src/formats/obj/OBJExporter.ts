@@ -4,7 +4,7 @@ import {ModelExporter} from "../ModelExporter";
 /**
  * Exports a {@link model!scene.SceneModel | SceneModel} to OBJ format.
  *
- * For detailed usage, refer to {@link obj | @xeokit/sdk/formats/obj}.
+ * For detailed usage, refer to {@link formats!obj | @xeokit/sdk/formats/obj}.
  */
 export class OBJExporter extends ModelExporter {
   constructor() {

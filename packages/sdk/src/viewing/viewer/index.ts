@@ -13,8 +13,8 @@
  *
  * If you’re new to xeokit’s model representation, start with:
  *
- * * {@link scene | @xeokit/sdk/model/scene} for geometry/material content, and
- * * {@link data | @xeokit/sdk/model/data} for semantic graphs you can attach to models.
+ * * {@link model!scene | @xeokit/sdk/model/scene} for geometry/material content, and
+ * * {@link model!data | @xeokit/sdk/model/data} for semantic graphs you can attach to models.
  *
  * This Viewer module focuses on the interactive layer: Views, Cameras, picking, emphasis effects (highlight/selection/x-ray),
  * section planes, lighting, and render profiles.
@@ -152,13 +152,13 @@
  * Start by creating a {@link model!scene.Scene | Scene}. The Scene is the SDK’s in-memory scene graph: it owns the model
  * representation (SceneModels, objects, meshes, geometries, textures) and is where model content is created, updated,
  * imported, and exported. For a deeper introduction to Scene content and building/importing models, see
- * {@link scene | @xeokit/sdk/model/scene}.
+ * {@link model!scene | @xeokit/sdk/model/scene}.
  *
  * Next, create a {@link viewing!viewer.Viewer | Viewer}. The Viewer is the browser-facing facade for interactive viewing: it manages one or more
  * {@link View | Views} (canvases), user interaction state (camera control, picking, emphasis effects, section planes,
  * etc), and it provides a Viewer-centric event stream that reflects interactions and viewer-side changes.
  *
- * Finally, attach a {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}. The WebGLRenderer is the rendering backend that
+ * Finally, attach a {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}. The WebGLRenderer is the rendering backend that
  * listens to changes and draws the Scene into the View canvases using the browser’s WebGL API.
  *
  * The runtime event flow is:
@@ -256,7 +256,7 @@
  *
  * ## 7) Add some content
  *
- * For a full walkthrough on creating and importing geometry, see {@link scene | @xeokit/sdk/model/scene}.
+ * For a full walkthrough on creating and importing geometry, see {@link model!scene | @xeokit/sdk/model/scene}.
  * Below is a tiny example that creates a model with a few objects so you can try interactions immediately:
  *
  * ````javascript
@@ -481,7 +481,7 @@
  *
  * ## 13) Save and load BCF viewpoints
  *
- * Use BCF to exchange viewpoints with other BIM tools. For background and semantic context, see {@link data | @xeokit/sdk/model/data}.
+ * Use BCF to exchange viewpoints with other BIM tools. For background and semantic context, see {@link model!data | @xeokit/sdk/model/data}.
  *
  * ````javascript
  * import { saveBCFViewpoint, loadBCFViewpoint } from "@xeokit/sdk/interop/bcf";

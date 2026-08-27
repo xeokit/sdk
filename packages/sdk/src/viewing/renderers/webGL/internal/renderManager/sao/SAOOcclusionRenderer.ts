@@ -4,6 +4,7 @@ import {createVec2Float64} from "../../../../../../base/math/vector";
 import {PerspectiveProjectionType} from "../../../../../../base/constants";
 import type {RenderContext} from "../../RenderContext";
 import type {View} from "../../../../../viewer";
+import {getSAODebugModeId} from "../../../../../viewer/SAOSampling";
 
 const tempVec2 = createVec2Float64();
 
@@ -28,6 +29,7 @@ export class SAOOcclusionRenderer {
   #uKernelRadius: WebGLUniformLocation;
   #uMinResolution: WebGLUniformLocation;
   #uRandomSeed: WebGLUniformLocation;
+  #uDebugMode: WebGLUniformLocation;
   #uvBuf: WebGLArrayBuf;
   #positionsBuf: WebGLArrayBuf;
   #indicesBuf: WebGLArrayBuf;
@@ -67,6 +69,7 @@ export class SAOOcclusionRenderer {
     this.#uKernelRadius = null;
     this.#uMinResolution = null;
     this.#uRandomSeed = null;
+    this.#uDebugMode = null;
 
     // VBOs
 
@@ -104,7 +107,7 @@ export class SAOOcclusionRenderer {
     const far = projection.far;
     const projectionMatrix = projection.projMatrix;
     const inverseProjectionMatrix = projection.inverseProjMatrix;
-    const randomSeed = Math.random();
+    const randomSeed = 0;
     const perspective = (view.camera.projectionType === PerspectiveProjectionType);
 
     tempVec2[0] = viewportWidth;
@@ -134,6 +137,7 @@ export class SAOOcclusionRenderer {
     gl.uniform1f(this.#uMinResolution, sao.minResolution);
     gl.uniform2fv(this.#uViewport, <Float32List>tempVec2);
     gl.uniform1f(this.#uRandomSeed, randomSeed);
+    gl.uniform1f(this.#uDebugMode, getSAODebugModeId(sao.debug));
 
     const depthTexture = depthRenderBuffer.getDepthTexture();
     if (depthTexture) {
@@ -214,6 +218,7 @@ export class SAOOcclusionRenderer {
                 uniform float       uMinResolution;
                 uniform vec2        uViewport;
                 uniform float       uRandomSeed;
+                uniform float       uDebugMode;
 
                 float pow2( const in float x ) { return x*x; }
 
@@ -320,11 +325,10 @@ export class SAOOcclusionRenderer {
                 const float ANGLE_STEP = PI2 * float( NUM_RINGS ) / float( NUM_SAMPLES );
                 const float INV_NUM_SAMPLES = 1.0 / float( NUM_SAMPLES );
 
-                float getAmbientOcclusion( const in vec3 centerViewPosition ) {
+                float getAmbientOcclusion( const in vec3 centerViewPosition, const in vec3 centerViewNormal ) {
 
                 	scaleDividedByCameraFar = uScale / uCameraFar;
                 	minResolutionMultipliedByCameraFar = uMinResolution * uCameraFar;
-                	vec3 centerViewNormal = getViewNormal( centerViewPosition, vUV );
 
                 	float angle = rand( vUV + uRandomSeed ) * PI2;
                 	vec2 radius = vec2( uKernelRadius * INV_NUM_SAMPLES ) / uViewport;
@@ -366,8 +370,19 @@ export class SAOOcclusionRenderer {
 
                 	float centerViewZ = getViewZ( centerDepth );
                 	vec3 viewPosition = getViewPos( vUV, centerDepth, centerViewZ );
+                    vec3 centerViewNormal = getViewNormal( viewPosition, vUV );
 
-                	float ambientOcclusion = getAmbientOcclusion( viewPosition );
+                    if( floor( uDebugMode + 0.5 ) == 1.0 ) {
+                        outColor = packFloatToRGBA( clamp( -centerViewZ / max( uCameraFar, EPSILON ), 0.0, 1.0 ) );
+                        return;
+                    }
+
+                    if( floor( uDebugMode + 0.5 ) == 2.0 ) {
+                        outColor = packFloatToRGBA( clamp( centerViewNormal.z * 0.5 + 0.5, 0.0, 1.0 ) );
+                        return;
+                    }
+
+                    float ambientOcclusion = getAmbientOcclusion( viewPosition, centerViewNormal );
 
                 	outColor = packFloatToRGBA( clamp( 1.0 - ambientOcclusion, 0.0, 1.0 ) );
                 }`
@@ -407,6 +422,7 @@ export class SAOOcclusionRenderer {
     this.#uMinResolution = this.#program.getLocation("uMinResolution");
     this.#uViewport = this.#program.getLocation("uViewport");
     this.#uRandomSeed = this.#program.getLocation("uRandomSeed");
+    this.#uDebugMode = this.#program.getLocation("uDebugMode");
 
     this.#aPosition = this.#program.getAttribute("aPosition");
     this.#aUV = this.#program.getAttribute("aUV");
@@ -422,4 +438,3 @@ export class SAOOcclusionRenderer {
     }
   }
 }
-

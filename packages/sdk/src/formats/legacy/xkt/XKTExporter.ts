@@ -6,7 +6,7 @@ import {encode as encode_v12} from "./versions/v12/encode";
  * {@link model!data.DataModel | DataModel}) to a xeokit v2 XKT file.
  *
  * Writes XKT version 12 in the uncompressed offset-table container. For
- * detailed usage, refer to {@link xkt | @xeokit/sdk/formats/xkt}.
+ * detailed usage, refer to {@link formats!xkt | @xeokit/sdk/formats/xkt}.
  */
 export class XKTExporter extends ModelExporter {
   constructor() {

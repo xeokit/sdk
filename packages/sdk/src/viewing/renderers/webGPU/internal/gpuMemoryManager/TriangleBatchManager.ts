@@ -18,6 +18,9 @@ import {BindGroupLayoutManager} from "./BindGroupLayoutManager";
 import {TextureBindGroupManager} from "./TextureBindGroupManager";
 import type {LODRepMembership} from "../../../../lod/LODVisibility";
 
+const TRIANGLE_MATERIAL_FLOATS_PER_VERTEX = 12;
+const TRIANGLE_MATERIAL_VERTEX_STRIDE_BYTES = TRIANGLE_MATERIAL_FLOATS_PER_VERTEX * 4;
+
 interface InstanceWriteState {
   bufferVersion: number;
   meshInstanceDataVersion: number;
@@ -74,6 +77,7 @@ export interface TriangleBatchSegment {
   indexFormat: "uint16" | "uint32";
   indicesPageLocal: boolean;
   textureKey: string;
+  skipDepthPrepass: boolean;
   lodRepMemberships: readonly LODRepMembership[];
   worldAABB: Float64Array;
   boundsVersion: string;
@@ -728,18 +732,19 @@ export class TriangleBatchManager {
     try {
       const positionAABB = createPackedPositionAABB(meshStates);
       const positions = new Uint16Array(totalVertices * 4);
-      const colors = isPoints || isLines ? new Uint8Array(totalVertices * 4) : null;
+      const colors = (isPoints || isLines || pbrTriangleColor) ? new Uint8Array(totalVertices * 4) : null;
       const lineOtherPositions = isLines ? new Uint16Array(totalVertices * 4) : null;
       const positionDecode = createPositionDecodeUniform(positionAABB);
       const vertexMetadata = new Uint32Array(totalVertices * 2);
       const firstMesh = meshStates[0]?.mesh;
-      const textureBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveColorTexture : null);
+      const sanitizeAlphaMaskRGB = pbrTriangleColor && !!firstMesh && getEffectiveAlphaMode(firstMesh) === 1;
+      const textureBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveColorTexture : null, "color", "white", sanitizeAlphaMaskRGB);
       if (textureBindingResult.ok === false) {
         this._freeSlots(baseSlot, meshStates.length);
         return textureBindingResult;
       }
       const albedoBinding = textureBindingResult.value;
-      const metallicRoughnessBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveMetallicRoughnessTexture : null);
+      const metallicRoughnessBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveMetallicRoughnessTexture : null, "metallicRoughness");
       if (metallicRoughnessBindingResult.ok === false) {
         this._freeSlots(baseSlot, meshStates.length);
         return metallicRoughnessBindingResult;
@@ -749,12 +754,12 @@ export class TriangleBatchManager {
         this._freeSlots(baseSlot, meshStates.length);
         return normalBindingResult;
       }
-      const emissiveBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveEmissiveTexture : null);
+      const emissiveBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveEmissiveTexture : null, "emissive");
       if (emissiveBindingResult.ok === false) {
         this._freeSlots(baseSlot, meshStates.length);
         return emissiveBindingResult;
       }
-      const occlusionBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveOcclusionTexture : null);
+      const occlusionBindingResult = this._textureBindGroupManager.getBinding(pbrTriangleColor ? firstMesh?.effectiveOcclusionTexture : null, "occlusion");
       if (occlusionBindingResult.ok === false) {
         this._freeSlots(baseSlot, meshStates.length);
         return occlusionBindingResult;
@@ -771,7 +776,8 @@ export class TriangleBatchManager {
       const textureTupleKey = pbrTriangleColor ? getPBRTextureTupleKey(this._textureBindGroupManager, firstMesh) : DEFAULT_TEXTURE_KEY;
       const uvs = pbrTriangleColor && textureTupleKey !== DEFAULT_TEXTURE_KEY ? new Float32Array(totalVertices * 2) : null;
       const normals = pbrTriangleColor ? new Float32Array(totalVertices * 4) : null;
-      const materials = pbrTriangleColor ? new Float32Array(totalVertices * 8) : null;
+      const materials = pbrTriangleColor ? new Float32Array(totalVertices * TRIANGLE_MATERIAL_FLOATS_PER_VERTEX) : null;
+      const skipDepthPrepass = isTriangles && meshStates.some((meshState) => getEffectiveAlphaMode(meshState.mesh) !== 0);
       const indexFormat = totalVertices > 65535 ? "uint32" : "uint16";
       const pageAllocationResult = this._allocateBufferPageRange(baseKey, segmentLabel, indexFormat, totalVertices, totalIndices, totalEdgeIndices);
       if (pageAllocationResult.ok === false) {
@@ -845,6 +851,12 @@ export class TriangleBatchManager {
             positionAABB
           );
           if (pbrTriangleColor) {
+            copyCompressedTriangleColorsInto(
+              geometryState.geometry.colorsCompressed,
+              colors!,
+              vertexOffset,
+              sourceVertexCount
+            );
             copyUVsInto(
               geometryState.uvs,
               uvs,
@@ -1015,6 +1027,7 @@ export class TriangleBatchManager {
         indexFormat,
         indicesPageLocal,
         textureKey: textureTupleKey,
+        skipDepthPrepass,
         lodRepMemberships: meshStates[0]?.lodRepMemberships ?? [],
         worldAABB,
         boundsVersion: this._getBoundsVersion(slots),
@@ -1157,6 +1170,7 @@ export class TriangleBatchManager {
     for (const page of this._bufferPagesByKey.values()) {
       const indexBytes = getIndexElementByteLength(page.indexFormat);
       const vertexBytes = page.vertexCapacity * 8;
+      const colorBytes = page.colorBuffer ? page.vertexCapacity * 4 : 0;
       const uvBytes = page.uvBuffer ? page.vertexCapacity * 8 : 0;
       const normalBytes = page.normalBuffer ? page.vertexCapacity * 16 : 0;
       const vertexMetadataBytes = page.vertexCapacity * 8;
@@ -1164,14 +1178,15 @@ export class TriangleBatchManager {
       const edgeIndexBytes = page.edgeIndexCapacity * indexBytes;
       const positionDecodeBytes = page.positionDecodeCapacity * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
       const usedVertexBytes = page.usedVertices * 8;
+      const usedColorBytes = page.colorBuffer ? page.usedVertices * 4 : 0;
       const usedUVBytes = page.uvBuffer ? page.usedVertices * 8 : 0;
       const usedNormalBytes = page.normalBuffer ? page.usedVertices * 16 : 0;
       const usedVertexMetadataBytes = page.usedVertices * 8;
       const usedIndexBytes = page.usedIndices * indexBytes;
       const usedEdgeIndexBytes = page.usedEdgeIndices * indexBytes;
       const usedPositionDecodeBytes = page.usedPositionDecodes * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES;
-      const bytes = vertexBytes + uvBytes + normalBytes + vertexMetadataBytes + pageIndexBytes + edgeIndexBytes + positionDecodeBytes;
-      const usedBytes = usedVertexBytes + usedUVBytes + usedNormalBytes + usedVertexMetadataBytes + usedIndexBytes + usedEdgeIndexBytes + usedPositionDecodeBytes;
+      const bytes = vertexBytes + colorBytes + uvBytes + normalBytes + vertexMetadataBytes + pageIndexBytes + edgeIndexBytes + positionDecodeBytes;
+      const usedBytes = usedVertexBytes + usedColorBytes + usedUVBytes + usedNormalBytes + usedVertexMetadataBytes + usedIndexBytes + usedEdgeIndexBytes + usedPositionDecodeBytes;
       stats.vertexBytes += vertexBytes;
       stats.uvBytes += uvBytes;
       stats.normalBytes += normalBytes;
@@ -1300,6 +1315,7 @@ export class TriangleBatchManager {
             temporaryIndexBuffer: false,
             temporaryIndexBufferCreated: false,
             textureKey: segment.textureKey,
+            skipDepthPrepass: segment.skipDepthPrepass,
             destroy: () => {
               // Borrowed from the persistent segment; destroyed with the segment.
             }
@@ -1392,6 +1408,7 @@ export class TriangleBatchManager {
           temporaryIndexBuffer: true,
           temporaryIndexBufferCreated: true,
           textureKey: segment.textureKey,
+          skipDepthPrepass: segment.skipDepthPrepass,
           destroy: () => {
             indexBuffer?.destroy?.();
           }
@@ -1467,9 +1484,7 @@ export class TriangleBatchManager {
   public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
     this._textureBindGroupManager.sceneTextureImageDataChanged(sceneTexture);
     for (const batch of this._partialDrawBatchCache.values()) {
-      if (batch.packedBatch.textureKey === this._textureBindGroupManager.getTextureKey(sceneTexture)) {
-        batch.packedBatch.destroy();
-      }
+      batch.packedBatch.destroy();
     }
     this._partialDrawBatchCache.clear();
     this._batchSet = null;
@@ -1592,7 +1607,7 @@ export class TriangleBatchManager {
         vertexColorByteOffset: vertexBase * 4,
         vertexUVByteOffset: vertexBase * 8,
         vertexNormalByteOffset: vertexBase * 16,
-        vertexMaterialByteOffset: vertexBase * 32,
+        vertexMaterialByteOffset: vertexBase * TRIANGLE_MATERIAL_VERTEX_STRIDE_BYTES,
         vertexMetadataByteOffset: vertexBase * 8,
         positionDecodeByteOffset: positionDecodeIndex * TRIANGLE_POSITION_DECODE_UNIFORM_BYTES,
         indexByteOffset: indexBase * indexBytes,
@@ -1630,9 +1645,9 @@ export class TriangleBatchManager {
       const isLinePage = pageKey.includes(`primitive:${LinesPrimitive}`);
       const isTrianglePage = !isPointPage && !isLinePage;
       const pbrTrianglePage = isTrianglePage && this._renderContext.renderConfigs.triangleColorMode === "pbr";
-      const colorBuffer = isPointPage || isLinePage
+      const colorBuffer = isPointPage || isLinePage || pbrTrianglePage
         ? this._renderContext.createEmptyGPUBuffer(
-            `xeokit-webgpu-packed-colors:${isLinePage ? "lines" : "points"}:${segmentLabel}`,
+            `xeokit-webgpu-packed-colors:${isTrianglePage ? "triangles" : (isLinePage ? "lines" : "points")}:${segmentLabel}`,
             vertexCapacity * 4,
             GPU_BUFFER_USAGE.VERTEX
           )
@@ -1648,7 +1663,7 @@ export class TriangleBatchManager {
       const materialBuffer = pbrTrianglePage
         ? this._renderContext.createEmptyGPUBuffer(
             `xeokit-webgpu-packed-materials:triangles:${segmentLabel}`,
-            vertexCapacity * 32,
+            vertexCapacity * TRIANGLE_MATERIAL_VERTEX_STRIDE_BYTES,
             GPU_BUFFER_USAGE.VERTEX
           )
         : null;
@@ -2041,6 +2056,7 @@ function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boole
       temporaryIndexBuffer: true,
       temporaryIndexBufferCreated: createdThisFrame,
       textureKey: packedBatch.textureKey,
+      skipDepthPrepass: packedBatch.skipDepthPrepass,
       destroy: () => {
         // Cached partial batches are owned and destroyed by TriangleBatchManager.
       }
@@ -2191,6 +2207,27 @@ function copyNormalsInto(
   }
 }
 
+function copyCompressedTriangleColorsInto(
+  source: ArrayLike<number> | undefined,
+  target: Uint8Array,
+  vertexOffset: number,
+  vertexCount: number
+): void {
+  const targetOffset = vertexOffset * 4;
+  if (!source) {
+    target.fill(255, targetOffset, targetOffset + vertexCount * 4);
+    return;
+  }
+  for (let i = 0; i < vertexCount; i++) {
+    const sourceOffset = i * 4;
+    const targetIndex = targetOffset + sourceOffset;
+    target[targetIndex] = source[sourceOffset] ?? 255;
+    target[targetIndex + 1] = source[sourceOffset + 1] ?? 255;
+    target[targetIndex + 2] = source[sourceOffset + 2] ?? 255;
+    target[targetIndex + 3] = source[sourceOffset + 3] ?? 255;
+  }
+}
+
 function copyMaterialInto(
   sceneMesh: SceneMesh,
   target: Float32Array,
@@ -2204,7 +2241,7 @@ function copyMaterialInto(
     ? -1
     : (!hasUVs && meshHasAnyPBRTexture(sceneMesh) ? getEffectiveTriplanarScale(sceneMesh) : 0);
   for (let i = 0; i < vertexCount; i++) {
-    const offset = (vertexOffset + i) * 8;
+    const offset = (vertexOffset + i) * TRIANGLE_MATERIAL_FLOATS_PER_VERTEX;
     target[offset] = getEffectiveRoughness(sceneMesh);
     target[offset + 1] = getEffectiveMetallic(sceneMesh);
     target[offset + 2] = emissive[0];
@@ -2213,6 +2250,10 @@ function copyMaterialInto(
     target[offset + 5] = alphaMode;
     target[offset + 6] = getEffectiveAlphaCutoff(sceneMesh);
     target[offset + 7] = textureMode;
+    target[offset + 8] = getEffectiveClearcoat(sceneMesh);
+    target[offset + 9] = getEffectiveClearcoatRoughness(sceneMesh);
+    target[offset + 10] = getEffectiveSheen(sceneMesh);
+    target[offset + 11] = getEffectiveSheenRoughness(sceneMesh);
   }
 }
 
@@ -2222,6 +2263,22 @@ function getEffectiveRoughness(sceneMesh: SceneMesh): number {
 
 function getEffectiveMetallic(sceneMesh: SceneMesh): number {
   return Number.isFinite(sceneMesh.effectiveMetallic) ? sceneMesh.effectiveMetallic : 0.0;
+}
+
+function getEffectiveClearcoat(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveClearcoat) ? sceneMesh.effectiveClearcoat : 0.0;
+}
+
+function getEffectiveClearcoatRoughness(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveClearcoatRoughness) ? sceneMesh.effectiveClearcoatRoughness : 0.0;
+}
+
+function getEffectiveSheen(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveSheen) ? sceneMesh.effectiveSheen : 0.0;
+}
+
+function getEffectiveSheenRoughness(sceneMesh: SceneMesh): number {
+  return Number.isFinite(sceneMesh.effectiveSheenRoughness) ? sceneMesh.effectiveSheenRoughness : 0.5;
 }
 
 function getEffectiveEmissiveColor(sceneMesh: SceneMesh): ArrayLike<number> {
@@ -2257,13 +2314,13 @@ function getPBRTextureTupleKey(textureManager: TextureBindGroupManager, sceneMes
   if (!sceneMesh) {
     return DEFAULT_TEXTURE_KEY;
   }
-  const albedo = textureManager.getTextureKey(sceneMesh.effectiveColorTexture);
-  const metallicRoughness = textureManager.getTextureKey(sceneMesh.effectiveMetallicRoughnessTexture);
+  const albedo = textureManager.getTextureKey(sceneMesh.effectiveColorTexture, "color");
+  const metallicRoughness = textureManager.getTextureKey(sceneMesh.effectiveMetallicRoughnessTexture, "metallicRoughness");
   const normal = sceneMesh.effectiveNormalsTexture
-    ? textureManager.getTextureKey(sceneMesh.effectiveNormalsTexture)
+    ? textureManager.getTextureKey(sceneMesh.effectiveNormalsTexture, "normal")
     : textureManager.getDefaultTextureKey("normal");
-  const emissive = textureManager.getTextureKey(sceneMesh.effectiveEmissiveTexture);
-  const occlusion = textureManager.getTextureKey(sceneMesh.effectiveOcclusionTexture);
+  const emissive = textureManager.getTextureKey(sceneMesh.effectiveEmissiveTexture, "emissive");
+  const occlusion = textureManager.getTextureKey(sceneMesh.effectiveOcclusionTexture, "occlusion");
   if (
     albedo === DEFAULT_TEXTURE_KEY &&
     metallicRoughness === DEFAULT_TEXTURE_KEY &&

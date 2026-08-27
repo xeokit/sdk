@@ -16,7 +16,7 @@ import type {Vec3} from "../../base/math/vector";
  * ViewLayers group ViewObjects based on the {@link model!scene.SceneObject.layerId | layerId} of the
  * corresponding {@link model!scene.SceneObject | SceneObject}.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer}  for more info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer}  for more info.
  *
  * <br>
  *

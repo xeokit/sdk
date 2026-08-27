@@ -19,7 +19,7 @@ const PACKED_TRIANGLE_NO_NORMALS_VERTEX_BUFFER_LAYOUTS = [
     }]
   },
   {
-    arrayStride: 32,
+    arrayStride: 48,
     attributes: [{
       shaderLocation: 3,
       offset: 0,
@@ -27,6 +27,10 @@ const PACKED_TRIANGLE_NO_NORMALS_VERTEX_BUFFER_LAYOUTS = [
     }, {
       shaderLocation: 4,
       offset: 16,
+      format: "float32x4"
+    }, {
+      shaderLocation: 8,
+      offset: 32,
       format: "float32x4"
     }]
   },
@@ -36,6 +40,14 @@ const PACKED_TRIANGLE_NO_NORMALS_VERTEX_BUFFER_LAYOUTS = [
       shaderLocation: 5,
       offset: 0,
       format: "float32x4"
+    }]
+  },
+  {
+    arrayStride: 4,
+    attributes: [{
+      shaderLocation: 6,
+      offset: 0,
+      format: "unorm8x4"
     }]
   }
 ];
@@ -116,7 +128,7 @@ export class TrianglesDrawColorNoNormalsTechnique extends DrawTechnique {
         },
         primitive: {
           topology: "triangle-list",
-          cullMode: "none"
+          cullMode: renderPass === RENDER_PASSES.TRANSPARENT ? "back" : "none"
         }
       });
 
@@ -196,6 +208,10 @@ export class TrianglesDrawColorNoNormalsTechnique extends DrawTechnique {
         if (packedBatch.normalBuffer) {
           const normalBufferOffset = packedBatch.indicesPageLocal ? 0 : (packedBatch.normalBufferOffset ?? 0);
           params.commandStateTracker.setVertexBuffer(4, packedBatch.normalBuffer, normalBufferOffset);
+        }
+        if (packedBatch.colorBuffer) {
+          const colorBufferOffset = packedBatch.indicesPageLocal ? 0 : (packedBatch.colorBufferOffset ?? 0);
+          params.commandStateTracker.setVertexBuffer(5, packedBatch.colorBuffer, colorBufferOffset);
         }
       },
       commandStats: params.commandStats,

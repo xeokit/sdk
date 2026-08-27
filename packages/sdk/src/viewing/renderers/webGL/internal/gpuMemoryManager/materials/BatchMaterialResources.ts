@@ -1,6 +1,6 @@
 import type {SceneMesh} from "../../../../../../model/scene";
 import {type SDKResult} from "../../../../../../base/core";
-import {TextureAtlas, type AtlasTransform} from "../dataTextures/TextureAtlas";
+import {TextureAtlas, type AtlasTransform, type TextureAtlasUploadOptions} from "../dataTextures/TextureAtlas";
 
 type SceneTextureLike = {
   id: string;
@@ -54,14 +54,15 @@ const ZERO_ATLAS_TRANSFORM: AtlasTransform = { uOffset: 0, vOffset: 0, uScale: 0
  */
 function atlasOverflow(
   atlas: TextureAtlas | null,
-  sceneTexture: SceneTextureLike | undefined
+  sceneTexture: SceneTextureLike | undefined,
+  options: TextureAtlasUploadOptions = {}
 ): boolean {
   if (!atlas || !sceneTexture) return false;
   const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
   const w = (source && source.width)  ?? sceneTexture.width  ?? 0;
   const h = (source && source.height) ?? sceneTexture.height ?? 0;
   if (w <= 0 || h <= 0) return false;
-  return atlas.canFitTexture(sceneTexture.id, w, h) === "would-fit-in-fresh-atlas";
+  return atlas.canFitTexture(sceneTexture.id, w, h, options) === "would-fit-in-fresh-atlas";
 }
 
 /**
@@ -72,7 +73,8 @@ function atlasOverflow(
 function resolveAtlasTransform(
   atlas: TextureAtlas | null,
   sceneTexture: SceneTextureLike | undefined,
-  label: string
+  label: string,
+  options: TextureAtlasUploadOptions = {}
 ): AtlasTransform {
   if (!atlas) {
     return ZERO_ATLAS_TRANSFORM;
@@ -80,7 +82,7 @@ function resolveAtlasTransform(
   if (sceneTexture) {
     const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
     if (source) {
-      const t = atlas.addTexture(sceneTexture.id, source);
+      const t = atlas.addTexture(sceneTexture.id, source, options);
       if (t) return t;
       console.warn(`GPUMemoryBatch.addMesh: ${label} atlas full or upload failed for SceneTexture '${sceneTexture.id}' - falling back to sentinel`);
     }
@@ -201,7 +203,8 @@ export class BatchMaterialResources {
    * Tests whether any atlas would force this mesh into another batch.
    */
   hasAtlasOverflow(sceneMesh: SceneMesh): boolean {
-    return atlasOverflow(this._albedoAtlasTexture, sceneMesh.effectiveColorTexture)
+    const sanitizeAlphaMaskRGB = sceneMesh.effectiveAlphaMode === 1;
+    return atlasOverflow(this._albedoAtlasTexture, sceneMesh.effectiveColorTexture, {sanitizeAlphaMaskRGB})
       || atlasOverflow(this._metallicRoughnessAtlasTexture, sceneMesh.effectiveMetallicRoughnessTexture)
       || atlasOverflow(this._normalMapAtlasTexture, sceneMesh.effectiveNormalsTexture)
       || atlasOverflow(this._emissiveAtlasTexture, sceneMesh.effectiveEmissiveTexture)
@@ -212,11 +215,13 @@ export class BatchMaterialResources {
    * Adds the mesh's textures to the atlases and returns their UV transforms.
    */
   resolveTextureTransforms(sceneMesh: SceneMesh): BatchMaterialTextureTransforms {
+    const sanitizeAlphaMaskRGB = sceneMesh.effectiveAlphaMode === 1;
     return {
       albedo: resolveAtlasTransform(
         this._albedoAtlasTexture,
         sceneMesh.effectiveColorTexture,
-        "albedo"
+        "albedo",
+        {sanitizeAlphaMaskRGB}
       ),
       metallicRoughness: resolveAtlasTransform(
         this._metallicRoughnessAtlasTexture,

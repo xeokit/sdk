@@ -3,6 +3,8 @@
  */
 
 import {SDKErrorType} from "../../../../base/core";
+import fs from "fs";
+import path from "path";
 import {GaussianSplatsPrimitive, LinearFilter, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinesPrimitive, PerspectiveProjectionType, PointsPrimitive, RepeatWrapping, sRGBEncoding, TrianglesPrimitive} from "../../../../base/constants";
 import {
   createMat4Float64,
@@ -36,6 +38,7 @@ import {encodePackedTriangleBatches} from "../internal/drawOps/techniques/triang
 import {createTrianglesDrawColorNoNormalsShader} from "../internal/drawOps/techniques/triangles/TrianglesDrawColorNoNormalsShader";
 import {InstanceBufferManager} from "../internal/gpuMemoryManager/InstanceBufferManager";
 import {TriangleBatchManager} from "../internal/gpuMemoryManager/TriangleBatchManager";
+import {TextureBindGroupManager} from "../internal/gpuMemoryManager/TextureBindGroupManager";
 import {WebGPUPickBuffer, WebGPUSnapBufferCache} from "../internal/webGPU";
 import {createMemoryConfigs} from "../createMemoryConfigs";
 import {createWebGPURenderConfigs} from "../createWebGPURenderConfigs";
@@ -1166,7 +1169,12 @@ describe("WebGPURenderer contract", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
-    const {mesh} = createTriangleMesh();
+    const {geometry, mesh} = createTriangleMesh();
+    (geometry as any).colorsCompressed = new Uint8Array([
+      0, 0, 0, 255,
+      128, 64, 32, 255,
+      255, 255, 255, 255
+    ]);
 
     testViewer.viewer.scene.models = {
       model: {
@@ -1206,14 +1214,15 @@ describe("WebGPURenderer contract", () => {
       depthWriteEnabled: true,
       depthCompare: "less-equal"
     });
-    expect(gpu.device.createBuffer).toHaveBeenCalledTimes(12);
-    expect(gpu.device.queue.writeBuffer).toHaveBeenCalledTimes(13);
+    expect(gpu.device.createBuffer).toHaveBeenCalledTimes(13);
+    expect(gpu.device.queue.writeBuffer).toHaveBeenCalledTimes(14);
     expect(gpu.passEncoder.setPipeline).toHaveBeenCalledWith(gpu.renderPipeline);
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0"));
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0"));
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(2, getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0"));
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(3, getBufferByLabel(gpu, "xeokit-webgpu-packed-materials:triangles:unowned_dynamic_stream_page_0"));
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(4, getBufferByLabel(gpu, "xeokit-webgpu-packed-normals:triangles:unowned_dynamic_stream_page_0"));
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(5, getBufferByLabel(gpu, "xeokit-webgpu-packed-colors:triangles:unowned_dynamic_stream_page_0"));
     expect(gpu.passEncoder.setIndexBuffer).toHaveBeenCalledWith(getBufferByLabel(gpu, "xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0"), "uint16");
     expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(0, gpu.bindGroup);
     expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(1, gpu.bindGroups[1]);
@@ -1247,7 +1256,7 @@ describe("WebGPURenderer contract", () => {
         }]
       },
       {
-        arrayStride: 32,
+        arrayStride: 48,
         attributes: [{
           shaderLocation: 3,
           offset: 0,
@@ -1255,6 +1264,10 @@ describe("WebGPURenderer contract", () => {
         }, {
           shaderLocation: 4,
           offset: 16,
+          format: "float32x4"
+        }, {
+          shaderLocation: 8,
+          offset: 32,
           format: "float32x4"
         }]
       },
@@ -1264,6 +1277,14 @@ describe("WebGPURenderer contract", () => {
           shaderLocation: 5,
           offset: 0,
           format: "float32x4"
+        }]
+      },
+      {
+        arrayStride: 4,
+        attributes: [{
+          shaderLocation: 6,
+          offset: 0,
+          format: "unorm8x4"
         }]
       }
     ]);
@@ -1283,15 +1304,21 @@ describe("WebGPURenderer contract", () => {
     ]);
     const materialUpload = getLastWriteBufferData<Float32Array>(gpu, "xeokit-webgpu-packed-materials:triangles:unowned_dynamic_stream_page_0");
     expect(Array.from(materialUpload)).toEqual([
-      1, 0, 0, 0, 0, 0, 0.5, 0,
-      1, 0, 0, 0, 0, 0, 0.5, 0,
-      1, 0, 0, 0, 0, 0, 0.5, 0
+      1, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5,
+      1, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5,
+      1, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5
     ]);
     const normalUpload = getLastWriteBufferData<Float32Array>(gpu, "xeokit-webgpu-packed-normals:triangles:unowned_dynamic_stream_page_0");
     expect(Array.from(normalUpload)).toEqual([
       0, 0, 0, 0,
       0, 0, 0, 0,
       0, 0, 0, 0
+    ]);
+    const colorUpload = getLastWriteBufferData<Uint8Array>(gpu, "xeokit-webgpu-packed-colors:triangles:unowned_dynamic_stream_page_0");
+    expect(Array.from(colorUpload)).toEqual([
+      0, 0, 0, 255,
+      128, 64, 32, 255,
+      255, 255, 255, 255
     ]);
     const instanceWrite = getLastWriteBufferCall(gpu, "xeokit-webgpu-instance-buffer");
     expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
@@ -1497,8 +1524,32 @@ describe("WebGPURenderer contract", () => {
       wrapS: RepeatWrapping,
       wrapT: RepeatWrapping,
       flipY: false,
-      encoding: sRGBEncoding,
+      encoding: 0,
       mipmap: true
+    };
+    const metallicRoughnessTexture = {
+      ...sceneTexture,
+      id: "metallicRoughness",
+      encoding: sRGBEncoding,
+      mipmap: false
+    };
+    const normalTexture = {
+      ...sceneTexture,
+      id: "normal",
+      encoding: sRGBEncoding,
+      mipmap: false
+    };
+    const emissiveTexture = {
+      ...sceneTexture,
+      id: "emissive",
+      encoding: 0,
+      mipmap: false
+    };
+    const occlusionTexture = {
+      ...sceneTexture,
+      id: "occlusion",
+      encoding: sRGBEncoding,
+      mipmap: false
     };
     geometry.uvsCompressed = new Float32Array([
       0, 0,
@@ -1506,6 +1557,10 @@ describe("WebGPURenderer contract", () => {
       0, 1
     ]);
     mesh.effectiveColorTexture = sceneTexture;
+    mesh.effectiveMetallicRoughnessTexture = metallicRoughnessTexture;
+    mesh.effectiveNormalsTexture = normalTexture;
+    mesh.effectiveEmissiveTexture = emissiveTexture;
+    mesh.effectiveOcclusionTexture = occlusionTexture;
 
     testViewer.viewer.scene.models = {
       model: {
@@ -1534,6 +1589,22 @@ describe("WebGPURenderer contract", () => {
       mipLevelCount: 2,
       format: "rgba8unorm-srgb"
     }));
+    expect(gpu.device.createTexture).toHaveBeenCalledWith(expect.objectContaining({
+      label: "xeokit-webgpu-scene-texture:model:metallicRoughness",
+      format: "rgba8unorm"
+    }));
+    expect(gpu.device.createTexture).toHaveBeenCalledWith(expect.objectContaining({
+      label: "xeokit-webgpu-scene-texture:model:normal",
+      format: "rgba8unorm"
+    }));
+    expect(gpu.device.createTexture).toHaveBeenCalledWith(expect.objectContaining({
+      label: "xeokit-webgpu-scene-texture:model:emissive",
+      format: "rgba8unorm-srgb"
+    }));
+    expect(gpu.device.createTexture).toHaveBeenCalledWith(expect.objectContaining({
+      label: "xeokit-webgpu-scene-texture:model:occlusion",
+      format: "rgba8unorm"
+    }));
     expect(gpu.device.queue.writeTexture).toHaveBeenCalledWith(
       {texture: expect.objectContaining({descriptor: expect.objectContaining({label: "xeokit-webgpu-scene-texture:model:albedo"})})},
       imageData.data,
@@ -1553,7 +1624,7 @@ describe("WebGPURenderer contract", () => {
       maxAnisotropy: 8
     }));
     const uvBuffer = gpu.buffers.find((candidate) => {
-      return candidate.descriptor?.label?.startsWith("xeokit-webgpu-packed-uvs:triangles:unowned_dynamic_stream_texture_model_albedo_2x2_");
+      return candidate.descriptor?.label?.startsWith("xeokit-webgpu-packed-uvs:triangles:unowned_dynamic_stream_texture_color_model_albedo_2x2_metallicRoughness_model_metallicRoughness_2x2_normal_model_normal_2x2_emissive_model_emissive_2x2_occlusion_model_occlusion_2x2_");
     });
     expect(uvBuffer).toBeDefined();
     expect(Array.from(getLastWriteBufferData<Float32Array>(gpu, uvBuffer.descriptor.label))).toEqual([
@@ -1562,13 +1633,58 @@ describe("WebGPURenderer contract", () => {
       0, 1
     ]);
     const materialBuffer = gpu.buffers.find((candidate) => {
-      return candidate.descriptor?.label?.startsWith("xeokit-webgpu-packed-materials:triangles:unowned_dynamic_stream_texture_model_albedo_2x2_");
+      return candidate.descriptor?.label?.startsWith("xeokit-webgpu-packed-materials:triangles:unowned_dynamic_stream_texture_color_model_albedo_2x2_metallicRoughness_model_metallicRoughness_2x2_normal_model_normal_2x2_emissive_model_emissive_2x2_occlusion_model_occlusion_2x2_");
     });
     expect(materialBuffer).toBeDefined();
     const materialUpload = getLastWriteBufferData<Float32Array>(gpu, materialBuffer.descriptor.label);
     expect(materialUpload[7]).toBe(-1);
     expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(2, uvBuffer);
     expect(gpu.passEncoder.setBindGroup).toHaveBeenCalledWith(2, expect.any(Object));
+  });
+
+  test("sanitizes alpha-masked color texture padding before upload", () => {
+    const gpu = createWebGPUHarness();
+    const imageData = {
+      data: new Uint8ClampedArray([
+        255, 255, 255, 0,
+        8, 96, 24, 255,
+        8, 96, 24, 255,
+        8, 96, 24, 255
+      ]),
+      width: 2,
+      height: 2
+    };
+    const sceneTexture = {
+      id: "maskedAlbedo",
+      model: {id: "model"},
+      imageData,
+      image: null,
+      width: 2,
+      height: 2,
+      compressed: false,
+      destroyed: false,
+      magFilter: LinearFilter,
+      minFilter: LinearMipMapNearestFilter,
+      wrapS: RepeatWrapping,
+      wrapT: RepeatWrapping,
+      flipY: false,
+      encoding: sRGBEncoding,
+      mipmap: false
+    };
+    const textureManager = new TextureBindGroupManager({
+      renderContext: {device: gpu.device} as any,
+      bindGroupLayoutManager: {} as any
+    });
+
+    const result = textureManager.getBinding(sceneTexture as any, "color", "white", true);
+
+    expect(result.ok).toBe(true);
+    const upload = gpu.device.queue.writeTexture.mock.calls.find((call: any[]) =>
+      call[0]?.texture?.descriptor?.label === "xeokit-webgpu-scene-texture:model:maskedAlbedo"
+    );
+    expect(upload).toBeDefined();
+    const data = upload![1] as Uint8ClampedArray;
+    expect(Array.from(data.slice(0, 4))).toEqual([8, 96, 24, 0]);
   });
 
   test("updates same-sized scene texture image data without destroying the WebGPU texture", () => {
@@ -2093,6 +2209,7 @@ describe("WebGPURenderer contract", () => {
     )?.[0] as any;
     expect(triangleShader?.code).toContain("dot(instance.normalMatrix0.xyz, input.normal.xyz)");
     expect(triangleShader?.code).toContain("if (dot(normalView, viewPosForIBL) > 0.0)");
+    expect(triangleShader?.code).toContain("let shadowBiasNormal = normalize(normal)");
     expect(triangleShader?.code).toContain("fn perturbNormalTriplanar");
     expect(triangleShader?.code).toContain("let useUVTextures = textureMode < 0.0");
     expect(triangleShader?.code).toContain("let tbnDp1 = dpdx(tbnViewPos)");
@@ -2100,6 +2217,8 @@ describe("WebGPURenderer contract", () => {
     expect(triangleShader?.code).toContain("if (dot(viewNormal, viewPosForIBL) > 0.0)");
     expect(triangleShader?.code).toContain("normal = viewToWorldNormal(viewNormal)");
     expect(triangleShader?.code).toContain("normal = perturbNormalTriplanar(input.worldPos, normal, triplanarScale, dpdxWorld, dpdyWorld)");
+    expect(triangleShader?.code).toContain("let shadowSample = sampleShadow(input, shadowBiasNormal)");
+    expect(triangleShader?.code).toContain("let shadowFactor = shadowSample.factor");
     expect(triangleShader?.code).not.toContain("nmX.y = -nmX.y");
     expect(triangleShader?.code).not.toContain("nmY.y = -nmY.y");
     expect(triangleShader?.code).not.toContain("nmZ.y = -nmZ.y");
@@ -2135,6 +2254,10 @@ describe("WebGPURenderer contract", () => {
         lightDistance: 100,
         projectionSize: 30,
         padding: 1.1,
+        pcfKernelSize: 7,
+        contactHardening: true,
+        lightRadius: 0.12,
+        debug: "cascade",
         cascadeCount: 4,
         cascadeSplitLambda: 0.5
       }
@@ -2188,19 +2311,45 @@ describe("WebGPURenderer contract", () => {
     expect(gpu.device.createSampler).toHaveBeenCalledWith(expect.objectContaining({
       label: "xeokit-webgpu-shadow-comparison-sampler",
       compare: "less-equal",
-      minFilter: "nearest",
-      magFilter: "nearest"
+      minFilter: "linear",
+      magFilter: "linear"
     }));
     const colorShader = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
       call[0]?.label === "xeokit-webgpu-triangles-draw-color-shader"
     )?.[0] as any;
+    expect(colorShader.code).not.toContain("shadowPos");
+    expect(colorShader.code).toContain("@location(4) uv: vec2<f32>");
+    expect(colorShader.code).toContain("@location(8) material2: vec4<f32>");
     expect(colorShader.code).toContain("var shadowSampler: sampler_comparison");
     expect(colorShader.code).toContain("vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5)");
     expect(colorShader.code).toContain("shadow.lightDirection.w * slopeFactor");
     expect(colorShader.code).toContain("var shadowMap: texture_depth_2d_array");
     expect(colorShader.code).toContain("textureLoad(shadowMap, texelCoord, cascade, 0)");
-    expect(colorShader.code).toContain("textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV, cascade, refDepth)");
+    expect(colorShader.code).toContain("fn shadowDepthCompare(depth: f32, refDepth: f32) -> f32");
+    expect(colorShader.code).toContain("fn shadowCompareAt(cascade: i32, uv: vec2<f32>, refDepth: f32, texel: vec2<f32>) -> f32");
+    expect(colorShader.code).toContain("return mix(mix(c00, c10, f.x), mix(c01, c11, f.x), f.y)");
+    expect(colorShader.code).toContain("return shadowCompareAt(cascade, shadowUV, refDepth, texel)");
     expect(colorShader.code).toContain("let radius = i32(clamp(shadow.debug.w, 0.0, 3.0))");
+    expect(colorShader.code).toContain("soft: vec4<f32>");
+    expect(colorShader.code).toContain("cascadeDepthRanges0: vec4<f32>");
+    expect(colorShader.code).toContain("cascadeTexelSizes0: vec4<f32>");
+    expect(colorShader.code).toContain("fn findAverageBlockerDepth");
+    expect(colorShader.code).toContain("if (shadow.soft.x > 0.5 && radius > 0)");
+    expect(colorShader.code).toContain("let receiverBlockerSeparation = max(refDepth - blockerDepth, 0.0) * getCascadeDepthRange(cascade)");
+    expect(colorShader.code).toContain("let penumbraTexels = receiverBlockerSeparation * max(shadow.soft.y, 0.0) / max(getCascadeTexelWorldSize(cascade), 0.000001)");
+    expect(colorShader.code).toContain("var weightSum = 0.0");
+    expect(colorShader.code).toContain("shadowCompareAt(cascade, shadowUV + offset, refDepth, texel) * weight");
+    expect(colorShader.code).toContain("visibility = sampleWeightedPCF(cascade, shadowUV, refDepth, texel, radius, filterRadius)");
+    expect(colorShader.code).toContain("fn shadowCascadeDebugColor(cascade: i32) -> vec3<f32>");
+    expect(colorShader.code).toContain("struct ShadowSample");
+    expect(colorShader.code).toContain("fn debugShadowSampleColor(sample: ShadowSample, alpha: f32) -> vec4<f32>");
+    expect(colorShader.code).toContain("if (mode == 3)");
+    expect(colorShader.code).toContain("if (mode == 4)");
+    expect(colorShader.code).toContain("if (mode == 5)");
+    expect(colorShader.code).toContain("if (mode == 6)");
+    expect(colorShader.code).toContain("if (mode == 7)");
+    expect(colorShader.code).toContain("if (mode == 8)");
+    expect(colorShader.code).toContain("debugShadowSampleColor(shadowSample, input.color.a)");
     expect(colorShader.code).toContain("debug: vec4<f32>");
     expect(colorShader.code).toContain("cameraView: mat4x4<f32>");
     expect(colorShader.code).toContain("lightViewProjections: array<mat4x4<f32>, 6>");
@@ -2209,7 +2358,7 @@ describe("WebGPURenderer contract", () => {
     expect(colorShader.code).toContain("let shadowOffset = shadow.lightViewProjections[cascade] * vec4<f32>(shadowNormal * shadow.params.w, 0.0)");
     expect(colorShader.code).toContain("let lightDirWorld = normalize(shadow.lightDirection.xyz)");
     expect(colorShader.code).toContain("shadow.debug.x > 0.5");
-    expect(colorShader.code).toContain("textureSampleCompareLevel(shadowMap, shadowSampler");
+    expect(colorShader.code).not.toContain("textureSampleCompareLevel(shadowMap, shadowSampler");
     expect(colorShader.code).toContain("var iblSampler: sampler");
     expect(colorShader.code).toContain("var iblIrradianceCubemap: texture_cube<f32>");
     expect(colorShader.code).toContain("var iblPrefilteredCubemap: texture_cube<f32>");
@@ -2218,8 +2367,9 @@ describe("WebGPURenderer contract", () => {
     expect(colorShader.code).toContain("let faceNormalView = normalize((frame.viewMatrix * vec4<f32>(faceNormal, 0.0)).xyz)");
     expect(colorShader.code).toContain("let viewPosForIBL = (frame.viewMatrix * vec4<f32>(input.worldPos, 1.0)).xyz");
     expect(colorShader.code).toContain("var viewNormal = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz)");
-    expect(colorShader.code).toContain("let lightDirWorld = frame.dirLightDirections[i].xyz");
-    expect(colorShader.code).toContain("directColor += (diffuse + specular) * lightColor.rgb * lightColor.a * nDotL");
+    expect(colorShader.code).toContain("let shadowBiasNormal = normalize(normal)");
+    expect(colorShader.code).toContain("let lightDirWorld = frame.dirLightDirections[0].xyz");
+    expect(colorShader.code).toContain("let directColor = ((diffuse + specular + sheenDirect) * clearcoatBaseAttenuation + vec3<f32>(clearcoatSpecular)) * lightColor.rgb * lightColor.a * nDotL");
     expect(colorShader.code).toContain("let denom = (nDotH * a2 - nDotH) * nDotH + 1.0");
     expect(colorShader.code).toContain("return a2 / max(PI * denom * denom, 1e-6)");
     expect(colorShader.code).not.toContain("return a2 / max(PI * denom * denom, 0.0001)");
@@ -2236,16 +2386,30 @@ describe("WebGPURenderer contract", () => {
     expect(colorShader.code).toContain("viewNormal = perturbNormalView(normal, uv, uvDx, uvDy, tbnDp1, tbnDp2, tbnDuv1, tbnDuv2)");
     expect(colorShader.code).toContain("if (dot(viewNormal, viewPosForIBL) > 0.0)");
     expect(colorShader.code).toContain("normal = viewToWorldNormal(viewNormal)");
+    expect(colorShader.code).toContain("let shadowSample = sampleShadow(input, shadowBiasNormal)");
+    expect(colorShader.code).toContain("let shadowFactor = shadowSample.factor");
     expect(colorShader.code).toContain("fn triplanarUVX(p: vec3<f32>, normal: vec3<f32>) -> vec2<f32>");
     expect(colorShader.code).toContain("return vec2<f32>(select(p.z, -p.z, normal.x < 0.0), p.y)");
     expect(colorShader.code).toContain("return vec2<f32>(p.x, select(p.z, -p.z, normal.y < 0.0))");
     expect(colorShader.code).toContain("return vec2<f32>(select(p.x, -p.x, normal.z < 0.0), p.y)");
-    expect(colorShader.code).toContain("let iblSpec = iblSpecEnv * (f0 * brdfLUT.x + brdfLUT.y)");
+    expect(colorShader.code).toContain("let sampledAlpha = input.color.a * baseColorSample.a");
+    expect(colorShader.code).toContain("let alpha = select(input.color.a, sampledAlpha, input.material1.y > 1.5)");
+    expect(colorShader.code).not.toContain("metallicSpecularTint");
+    expect(colorShader.code).toContain("let specular = numerator / max(4.0 * nDotV * nDotL, 0.0001)");
+    expect(colorShader.code).toContain("fn specularOcclusion(nDotV: f32, ao: f32, roughness: f32) -> f32");
+    expect(colorShader.code).toContain("fn fresnelSchlickScalar(cosTheta: f32, f0: f32) -> f32");
+    expect(colorShader.code).toContain("let clearcoat = clamp(input.material2.x, 0.0, 1.0)");
+    expect(colorShader.code).toContain("let sheen = clamp(input.material2.z, 0.0, 1.0)");
+    expect(colorShader.code).toContain("let sheenDirect = baseColor * sheen * pow(max(1.0 - hDotV, 0.0), sheenExponent) * (1.0 - metallic)");
+    expect(colorShader.code).toContain("let clearcoatIBLSpec = clearcoatSpecEnv * (0.04 * clearcoatBRDFLUT.x + clearcoatBRDFLUT.y) * clearcoat * clearcoatIBLOcclusion");
+    expect(colorShader.code).toContain("let iblSheen = iblDiffuseEnv * baseColor * sheenIBLWeight");
+    expect(colorShader.code).toContain("let iblSpecOcclusion = specularOcclusion(nDotVIBL, ao, roughness)");
+    expect(colorShader.code).toContain("let iblSpec = iblSpecEnv * (f0 * brdfLUT.x + brdfLUT.y) * iblSpecOcclusion");
     expect(colorShader.code).toContain("let iblIntensity = max(ibl.params.x, 0.0)");
     expect(colorShader.code).toContain("let flatAmbientColor = frame.ambientLight.rgb * frame.ambientLight.a * baseColor");
     expect(colorShader.code).toContain("let hemisphereAmbient = mix(frame.hemisphereGround.rgb, frame.hemisphereSky.rgb, hemisphereFacing)");
     expect(colorShader.code).toContain("let ambientColor = flatAmbientColor + hemisphereColor");
-    expect(colorShader.code).toContain("let iblColor = (iblDiff + iblSpec) * iblIntensity");
+    expect(colorShader.code).toContain("let iblColor = ((iblDiff + iblSpec + iblSheen) * (1.0 - clearcoat * clearcoatFNV) + clearcoatIBLSpec) * iblIntensity");
     expect(colorShader.code).toContain("let indirectColor = ambientColor + iblColor");
     expect(colorShader.code).toContain("let unshadowedColor = indirectColor * ao + directColor + emissive");
     expect(colorShader.code).toContain("let ambientFloor = (ambientColor + iblDiff * iblIntensity) * ao + emissive");
@@ -2272,17 +2436,123 @@ describe("WebGPURenderer contract", () => {
     );
     const shadowUniforms = getLastWriteBufferData(gpu, "xeokit-webgpu-shadow-uniforms");
     expect(shadowUniforms[99]).toBeCloseTo(0.01);
-    expect(shadowUniforms[104]).toBe(0);
+    expect(shadowUniforms[104]).toBe(3);
     expect(shadowUniforms[105]).toBe(4);
-    expect(shadowUniforms[107]).toBe(1);
+    expect(shadowUniforms[107]).toBe(3);
     expect(shadowUniforms[108]).toBeCloseTo(view.camera.viewMatrix[0]);
     expect(shadowUniforms[123]).toBeCloseTo(view.camera.viewMatrix[15]);
     expect(shadowUniforms[124]).toBeGreaterThan(0.1);
     expect(shadowUniforms[126]).toBeLessThanOrEqual(80);
+    expect(shadowUniforms[132]).toBe(1);
+    expect(shadowUniforms[133]).toBeCloseTo(0.12);
+    expect(shadowUniforms[134]).toBe(1);
+    expect(shadowUniforms[136]).toBeGreaterThan(0);
+    expect(shadowUniforms[144]).toBeGreaterThan(0);
     expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalledTimes(6);
     expect(gpu.device.createCommandEncoder).toHaveBeenCalledTimes(5);
     expect(gpu.device.queue.submit).toHaveBeenCalledTimes(5);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(6);
+  });
+
+  test("renders WebGPU shadow depth for alpha-masked opaque triangles with alpha discard", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry, mesh} = createTriangleMeshWithNormals();
+    const imageData = {
+      data: new Uint8ClampedArray([
+        255, 255, 255, 0,
+        8, 96, 24, 255,
+        8, 96, 24, 255,
+        8, 96, 24, 255
+      ]),
+      width: 2,
+      height: 2
+    };
+    const sceneTexture = {
+      id: "maskedShadowAlbedo",
+      model: {id: "model"},
+      imageData,
+      image: null,
+      width: 2,
+      height: 2,
+      compressed: false,
+      destroyed: false,
+      magFilter: LinearFilter,
+      minFilter: LinearMipMapNearestFilter,
+      wrapS: RepeatWrapping,
+      wrapT: RepeatWrapping,
+      flipY: false,
+      encoding: sRGBEncoding,
+      mipmap: false
+    };
+    geometry.uvsCompressed = new Float32Array([
+      0, 0,
+      1, 0,
+      0, 1
+    ]);
+    mesh.effectiveColorTexture = sceneTexture;
+    mesh.effectiveAlphaMode = 1;
+    mesh.effectiveAlphaCutoff = 0.5;
+
+    view.camera.eye = [0, 0, 5];
+    view.camera.look = [0, 0, 0];
+    view.camera.up = [0, 1, 0];
+    view.camera.projectionType = PerspectiveProjectionType;
+    view.camera.perspectiveProjection = {
+      fov: 60,
+      far: 1000
+    };
+    view.effects = {
+      shadows: {
+        applied: true,
+        possible: true,
+        intensity: 0.4,
+        bias: 0.002,
+        normalOffsetBias: 0.01,
+        resolution: 512,
+        direction: [-0.5, -1, -0.3],
+        autoFit: true,
+        maxDistance: 80,
+        lightDistance: 100,
+        projectionSize: 30,
+        padding: 1.1,
+        cascadeCount: 4,
+        cascadeSplitLambda: 0.5
+      }
+    };
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    const pipelineLabels = gpu.device.createRenderPipeline.mock.calls.map((call: any[]) => call[0]?.label);
+    expect(pipelineLabels).toContain("xeokit-webgpu-triangles-masked-shadow-depth-pipeline");
+    expect(pipelineLabels).toContain("xeokit-webgpu-triangles-draw-color-opaque-pipeline");
+    const maskedShadowShader = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
+      call[0]?.label === "xeokit-webgpu-triangles-masked-shadow-depth-shader"
+    )?.[0] as any;
+    expect(maskedShadowShader?.code).toContain("var colorTexture: texture_2d<f32>");
+    expect(maskedShadowShader?.code).toContain("textureSampleLevel(colorTexture, colorSampler, input.uv, 0.0)");
+    expect(maskedShadowShader?.code).toContain("let sampledAlpha = input.color.a * baseColorSample.a");
+    expect(maskedShadowShader?.code).toContain("if (input.material1.y > 0.5 && input.material1.y < 1.5 && sampledAlpha < input.material1.z)");
+    expect(maskedShadowShader?.code).toContain("let shadowCoverage = shadowCoverageFromBlendAlpha(sampledAlpha)");
+    expect(maskedShadowShader?.code).toContain("shadowAlphaHash(input.position.xy) > shadowCoverage");
+    expect(gpu.device.createCommandEncoder).toHaveBeenCalledTimes(5);
   });
 
   test("uses Lambert lighting without IBL for no-normal triangle shader", () => {
@@ -2294,7 +2564,9 @@ describe("WebGPURenderer contract", () => {
     expect(shader).toContain("var baseColorSample = vec4<f32>(1.0, 1.0, 1.0, 1.0)");
     expect(shader).toContain("var emissiveSample = vec4<f32>(0.0, 0.0, 0.0, 1.0)");
     expect(shader).toContain("var aoSample = vec4<f32>(1.0, 1.0, 1.0, 1.0)");
-    expect(shader).toContain("directColor += baseColor * lightColor.rgb * lightColor.a * lambertian");
+    expect(shader).toContain("let sampledAlpha = input.color.a * baseColorSample.a");
+    expect(shader).toContain("let alpha = select(input.color.a, sampledAlpha, input.material1.y > 1.5)");
+    expect(shader).toContain("let directColor = baseColor * lightColor.rgb * lightColor.a * lambertian");
     expect(shader).toContain("let unshadowedColor = ambientColor + directColor + emissive");
     expect(shader).toContain("let ambientFloor = ambientColor + emissive");
     expect(shader).toContain("let shadowFloor = ambientFloor");
@@ -2408,7 +2680,8 @@ describe("WebGPURenderer contract", () => {
         minResolution: 0,
         blendFactor: 1,
         blendCutoff: 0.3,
-        numSamples: 12
+        numSamples: 12,
+        debug: "finalFactor"
       }
     };
     testViewer.viewer.scene.models = {
@@ -2437,6 +2710,11 @@ describe("WebGPURenderer contract", () => {
       format: "rgba16float",
       usage: 21
     }));
+    expect(gpu.device.createTexture).toHaveBeenCalledWith(expect.objectContaining({
+      label: "xeokit-webgpu-sao-occlusion",
+      format: "r16float",
+      usage: 21
+    }));
     const hdrTrianglePipeline = gpu.device.createRenderPipeline.mock.calls.find((call: any[]) =>
       call[0]?.label === "xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline"
     )?.[0] as any;
@@ -2445,19 +2723,44 @@ describe("WebGPURenderer contract", () => {
       label: "xeokit-webgpu-postprocess-pipeline"
     }));
     expect(gpu.device.createRenderPipeline).toHaveBeenCalledWith(expect.objectContaining({
-      label: "xeokit-webgpu-sao-occlusion-pipeline"
+      label: "xeokit-webgpu-sao-occlusion-pipeline",
+      fragment: expect.objectContaining({
+        targets: [{format: "r16float"}]
+      })
     }));
     const postProcessShader = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
       call[0]?.label === "xeokit-webgpu-postprocess-shader"
     )?.[0] as any;
     expect(postProcessShader?.code).toContain("0.5 - pos.y * 0.5");
-    expect(postProcessShader?.code).toContain("color = color * select(1.0, saoFactor, params.saoEnabled > 0.5)");
+    expect(postProcessShader?.code).toContain("let occluded = scene * select(1.0, saoFactor, params.saoEnabled > 0.5)");
+    expect(postProcessShader?.code).toContain("return applyTonemap(occluded)");
+    expect(postProcessShader?.code).toContain("let rgbM = sampleDisplay(uv)");
     expect(postProcessShader?.code).not.toContain("return 0.5;");
     expect(postProcessShader?.code).not.toContain("color = vec3<f32>(params.saoEnabled)");
     const saoOcclusionShader = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
       call[0]?.label === "xeokit-webgpu-sao-occlusion-shader"
     )?.[0] as any;
     expect(saoOcclusionShader?.code).toContain("cross(dpdy(centerViewPosition), dpdx(centerViewPosition))");
+    expect(saoOcclusionShader?.code).toContain("debugMode: f32");
+    expect(saoOcclusionShader?.code).toContain("if (debugMode == 1)");
+    expect(saoOcclusionShader?.code).toContain("if (debugMode == 2)");
+    expect(saoOcclusionShader?.code).toContain("inverseProjMatrix0: vec4<f32>");
+    expect(saoOcclusionShader?.code).toContain("dot(params.inverseProjMatrix0, clipPosition)");
+    expect(saoOcclusionShader?.code).toContain("let ambientOcclusion = getAmbientOcclusion(centerViewPosition, centerViewNormal, input.uv)");
+    expect(gpu.device.createBuffer).toHaveBeenCalledWith(expect.objectContaining({
+      label: "xeokit-webgpu-sao-occlusion-params",
+      size: 192
+    }));
+    const saoCompositeSource = fs.readFileSync(
+      path.resolve(__dirname, "../internal/renderManager/postprocess/sao/WebGPUSAOCompositePipeline.ts"),
+      "utf8"
+    );
+    expect(saoCompositeSource).toContain("@group(0) @binding(4) var sceneDepth: texture_depth_2d");
+    expect(saoCompositeSource).toContain("debugMode: f32");
+    expect(saoCompositeSource).toContain("if (debugMode == 5)");
+    expect(saoCompositeSource).toContain("return vec4<f32>(vec3<f32>(loadRawSAO(input.uv)), scene.a)");
+    expect(saoCompositeSource).toContain("binding: 4");
+    expect(saoCompositeSource).toContain("sampleType: \"depth\"");
     expect(gpu.device.createBindGroupLayout).toHaveBeenCalledWith(expect.objectContaining({
       label: "xeokit-webgpu-postprocess-bind-group-layout",
       entries: expect.arrayContaining([
@@ -2729,6 +3032,41 @@ describe("WebGPURenderer contract", () => {
     const frameStats = inspectorResult.value.renderStats.views?.[0];
     expect(frameStats?.numDrawCalls).toBe(1);
     expect(frameStats?.renderBins.map((bin) => bin.name)).toEqual(["OPAQUE"]);
+  });
+
+  test("skips the depth prepass for alpha-masked opaque triangles", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+    mesh.effectiveAlphaMode = 1;
+    mesh.effectiveAlphaCutoff = 0.5;
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    expect(gpu.device.createRenderPipeline).toHaveBeenCalledTimes(1);
+    expect((gpu.device.createRenderPipeline.mock.calls[0][0] as any).label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline");
+    expect(gpu.commandEncoder.beginRenderPass).toHaveBeenCalledTimes(1);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
   });
 
   test("enables logarithmic depth only when requested", () => {
@@ -3249,7 +3587,7 @@ describe("WebGPURenderer contract", () => {
     expect(frameStats?.renderReason).toBe("cacheReuse");
     expect(frameStats?.commandState).toMatchObject({
       numPipelineBinds: 2,
-      numVertexBufferBinds: 7,
+      numVertexBufferBinds: 8,
       numIndexBufferBinds: 2,
       numBindGroupBinds: 7,
       bindGroupBindsBySlot: {
@@ -5235,6 +5573,7 @@ describe("WebGPURenderer contract", () => {
     expect(transparentPipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-color-no-normals-transparent-pipeline");
     expect(transparentPipelineDescriptor.depthStencil.depthWriteEnabled).toBe(false);
     expect(transparentPipelineDescriptor.depthStencil.depthCompare).toBe("less-equal");
+    expect(transparentPipelineDescriptor.primitive.cullMode).toBe("back");
     expect(transparentPipelineDescriptor.fragment.targets[0].blend.color.srcFactor).toBe("one");
     expect(gpu.passEncoder.setPipeline).toHaveBeenCalledWith(gpu.renderPipeline);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(1);
@@ -5283,11 +5622,84 @@ describe("WebGPURenderer contract", () => {
       depthWriteEnabled: false,
       depthCompare: "less-equal"
     });
+    expect(pipelineDescriptor.primitive.cullMode).toBe("back");
     const shaderDescriptor = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
       call[0]?.label === "xeokit-webgpu-triangles-draw-color-no-normals-shader"
     )?.[0] as any;
-    expect(shaderDescriptor?.code).toContain("input.material1.y > 0.5 && input.material1.y < 1.5 && alpha < input.material1.z");
+    expect(shaderDescriptor?.code).toContain("let sampledAlphaWidth = max(fwidth(sampledAlpha), 0.0001)");
+    expect(shaderDescriptor?.code).toContain("let aaAlpha = (sampledAlpha - input.material1.z) / sampledAlphaWidth + 0.5");
+    expect(shaderDescriptor?.code).toContain("if (aaAlpha < 1.0)");
+    expect(shaderDescriptor?.code).toContain("let alpha = select(input.color.a, sampledAlpha, input.material1.y > 1.5)");
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+  });
+
+  test("builds WebGPU shadow-depth batches for translucent BLEND alpha-mode triangles", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMeshWithNormals("blendShadowMesh");
+    mesh.effectiveOpacity = 0.42;
+    mesh.opacity = 0.42;
+    mesh.effectiveAlphaMode = 2;
+    view.camera.eye = [0, 0, 5];
+    view.camera.look = [0, 0, 0];
+    view.camera.up = [0, 1, 0];
+    view.camera.projectionType = PerspectiveProjectionType;
+    view.camera.perspectiveProjection = {
+      fov: 60,
+      far: 1000
+    };
+    view.effects = {
+      shadows: {
+        applied: true,
+        possible: true,
+        intensity: 0.4,
+        bias: 0.002,
+        normalOffsetBias: 0.01,
+        resolution: 512,
+        direction: [-0.5, -1, -0.3],
+        autoFit: true,
+        maxDistance: 80,
+        lightDistance: 100,
+        projectionSize: 30,
+        padding: 1.1,
+        cascadeCount: 4,
+        cascadeSplitLambda: 0.5
+      }
+    };
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    const pipelineLabels = gpu.device.createRenderPipeline.mock.calls.map((call: any[]) => call[0]?.label);
+    expect(pipelineLabels).toContain("xeokit-webgpu-triangles-draw-color-transparent-pipeline");
+    expect(pipelineLabels).toContain("xeokit-webgpu-triangles-shadow-depth-pipeline");
+    expect(pipelineLabels).not.toContain("xeokit-webgpu-triangles-masked-shadow-depth-pipeline");
+    const shadowShader = gpu.device.createShaderModule.mock.calls.find((call: any[]) =>
+      call[0]?.label === "xeokit-webgpu-triangles-shadow-depth-shader"
+    )?.[0] as any;
+    expect(shadowShader?.code).toContain("@location(2) color: vec4<f32>");
+    expect(shadowShader?.code).toContain("output.color = instance.color");
+    expect(shadowShader?.code).toContain("input.color.a < 0.999");
+    expect(shadowShader?.code).toContain("fn shadowCoverageFromBlendAlpha(alphaInput: f32) -> f32");
+    expect(shadowShader?.code).toContain("return alpha * alpha");
+    expect(shadowShader?.code).toContain("let shadowCoverage = shadowCoverageFromBlendAlpha(input.color.a)");
+    expect(shadowShader?.code).toContain("shadowAlphaHash(input.position.xy) > shadowCoverage");
   });
 
   test("draws transparent overlay triangles with the flat overlay pipeline", () => {
@@ -5324,6 +5736,7 @@ describe("WebGPURenderer contract", () => {
     expect(pipelineDescriptor.label).toBe("xeokit-webgpu-triangles-draw-flat-color-transparent-pipeline");
     expect(pipelineDescriptor.fragment.targets[0].format).toBe("rgba8unorm");
     expect(pipelineDescriptor.fragment.targets[0].blend.color.srcFactor).toBe("one");
+    expect(pipelineDescriptor.primitive.cullMode).toBe("back");
     expect(pipelineDescriptor.depthStencil).toEqual({
       format: "depth24plus-stencil8",
       depthWriteEnabled: false,

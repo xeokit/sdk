@@ -6,6 +6,7 @@ import {
   triangleLogDepthVertexField,
   triangleLogDepthVertexWrite
 } from "./TriangleLogDepth";
+import {TRIANGLES_SHADOW_SAMPLING_WGSL} from "./TrianglesShadowSampling";
 
 /**
  * WGSL shader for the current WebGPU indexed triangle color technique.
@@ -56,6 +57,11 @@ struct ShadowUniforms {
   cameraView: mat4x4<f32>,
   cascadeSplits0: vec4<f32>,
   cascadeSplits1: vec4<f32>,
+  soft: vec4<f32>,
+  cascadeDepthRanges0: vec4<f32>,
+  cascadeDepthRanges1: vec4<f32>,
+  cascadeTexelSizes0: vec4<f32>,
+  cascadeTexelSizes1: vec4<f32>,
 };
 
 @group(3) @binding(0) var<uniform> shadow: ShadowUniforms;
@@ -94,6 +100,8 @@ struct VertexInput {
   @location(3) material0: vec4<f32>,
   @location(4) material1: vec4<f32>,
   @location(5) normal: vec4<f32>,
+  @location(6) vertexColor: vec4<f32>,
+  @location(8) material2: vec4<f32>,
 };
 
 struct VertexOutput {
@@ -102,11 +110,11 @@ struct VertexOutput {
   @location(1) worldPos: vec3<f32>,
   @location(2) clippable: f32,
   @location(3) rtcPos: vec3<f32>,
-  @location(4) shadowPos: vec4<f32>,
-  @location(5) uv: vec2<f32>,
-  @location(6) material0: vec4<f32>,
-  @location(7) material1: vec4<f32>,
-  @location(8) normal: vec4<f32>,
+  @location(4) uv: vec2<f32>,
+  @location(5) material0: vec4<f32>,
+  @location(6) material1: vec4<f32>,
+  @location(7) normal: vec4<f32>,
+  @location(8) material2: vec4<f32>,
 ${triangleLogDepthVertexField(logDepth, 9)}
 };
 
@@ -118,14 +126,14 @@ fn vs_main(input: VertexInput) -> VertexOutput {
   let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
   var output: VertexOutput;
   output.position = rtcTile.viewProjection * rtcWorldPos;
-  output.color = instance.color;
+  output.color = instance.color * input.vertexColor;
   output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
   output.clippable = instance.flags.x;
   output.rtcPos = rtcWorldPos.xyz / rtcWorldPos.w;
-  output.shadowPos = shadow.lightViewProjections[0] * vec4<f32>(output.worldPos, 1.0);
   output.uv = input.uv;
   output.material0 = input.material0;
   output.material1 = input.material1;
+  output.material2 = input.material2;
   output.normal = vec4<f32>(0.0, 0.0, 0.0, input.normal.w);
   if (input.normal.w > 0.5) {
     output.normal = vec4<f32>(normalize(vec3<f32>(
@@ -140,81 +148,7 @@ ${triangleLogDepthVertexWrite(logDepth)}
 
 ${triangleLogDepthFragmentOutputStruct(logDepth, true)}
 
-fn getCascadeSplit(index: i32) -> f32 {
-  if (index == 0) {
-    return shadow.cascadeSplits0.x;
-  }
-  if (index == 1) {
-    return shadow.cascadeSplits0.y;
-  }
-  if (index == 2) {
-    return shadow.cascadeSplits0.z;
-  }
-  if (index == 3) {
-    return shadow.cascadeSplits0.w;
-  }
-  if (index == 4) {
-    return shadow.cascadeSplits1.x;
-  }
-  return shadow.cascadeSplits1.y;
-}
-
-fn selectShadowCascade(viewZ: f32) -> i32 {
-  let cascadeCount = i32(clamp(shadow.debug.y, 1.0, 6.0));
-  var cascade = 0;
-  for (var i = 0; i < 5; i = i + 1) {
-    if (i < cascadeCount - 1 && viewZ > getCascadeSplit(i)) {
-      cascade = cascade + 1;
-    }
-  }
-  return cascade;
-}
-
-fn sampleShadow(input: VertexOutput, normal: vec3<f32>) -> f32 {
-  if (shadow.params.x < 0.5) {
-    return 1.0;
-  }
-  let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
-  let cascade = selectShadowCascade(-viewPos.z);
-  let shadowNormal = normalize(normal);
-  var shadowClip = shadow.lightViewProjections[cascade] * vec4<f32>(input.worldPos, 1.0);
-  if (shadow.params.w > 0.0) {
-    let shadowOffset = shadow.lightViewProjections[cascade] * vec4<f32>(shadowNormal * shadow.params.w, 0.0);
-    shadowClip = shadowClip + shadowOffset;
-  }
-  let shadowNdc = shadowClip.xyz / shadowClip.w;
-  let shadowUV = vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5);
-  if (
-    shadowUV.x <= 0.0 || shadowUV.x >= 1.0 ||
-    shadowUV.y <= 0.0 || shadowUV.y >= 1.0 ||
-    shadowNdc.z <= 0.0 || shadowNdc.z >= 1.0
-  ) {
-    return 1.0;
-  }
-  let dims = vec2<f32>(textureDimensions(shadowMap));
-  let texel = 1.0 / max(dims, vec2<f32>(1.0, 1.0));
-  let lightDirWorld = normalize(shadow.lightDirection.xyz);
-  let cosTheta = clamp(dot(shadowNormal, -lightDirWorld), 0.001, 1.0);
-  let slopeFactor = min(sqrt(max(0.0, 1.0 - cosTheta * cosTheta)) / cosTheta, 10.0);
-  let slopeBias = shadow.lightDirection.w * slopeFactor;
-  let refDepth = shadowNdc.z - shadow.params.z - slopeBias;
-  let radius = i32(clamp(shadow.debug.w, 0.0, 3.0));
-  if (radius == 0) {
-    let hardLit = textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV, cascade, refDepth);
-    return 1.0 - (1.0 - hardLit) * shadow.params.y;
-  }
-  var lit = 0.0;
-  let diameter = radius * 2 + 1;
-  let tapCount = f32(diameter * diameter);
-  for (var y = -radius; y <= radius; y = y + 1) {
-    for (var x = -radius; x <= radius; x = x + 1) {
-      let offset = vec2<f32>(f32(x), f32(y)) * texel;
-      lit += textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV + offset, cascade, refDepth);
-    }
-  }
-  let visibility = lit / tapCount;
-  return 1.0 - (1.0 - visibility) * shadow.params.y;
-}
+${TRIANGLES_SHADOW_SAMPLING_WGSL}
 
 const PI = 3.141592653589793;
 
@@ -237,6 +171,18 @@ fn geometrySmith(nDotV: f32, nDotL: f32, roughness: f32) -> f32 {
 
 fn fresnelSchlick(cosTheta: f32, f0: vec3<f32>) -> vec3<f32> {
   return f0 + (vec3<f32>(1.0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+fn fresnelSchlickRoughness(cosTheta: f32, f0: vec3<f32>, roughness: f32) -> vec3<f32> {
+  return f0 + (max(vec3<f32>(1.0 - roughness), f0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+fn specularOcclusion(nDotV: f32, ao: f32, roughness: f32) -> f32 {
+  return clamp(pow(nDotV + ao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ao, 0.0, 1.0);
+}
+
+fn fresnelSchlickScalar(cosTheta: f32, f0: f32) -> f32 {
+  return f0 + (1.0 - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 fn viewToWorldDirection(dir: vec3<f32>) -> vec3<f32> {
@@ -405,6 +351,7 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
       normal = -normal;
     }
   }
+  let shadowBiasNormal = normalize(normal);
   let uv = input.uv;
   let textureMode = input.material1.w;
   let triplanarScale = max(textureMode, 0.0);
@@ -440,10 +387,17 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   } else {
     baseColorSample = textureSampleGrad(colorTexture, colorSampler, uv, mipDx(uvDx), mipDy(uvDy));
   }
-  let alpha = input.color.a * baseColorSample.a;
-  if (input.material1.y > 0.5 && input.material1.y < 1.5 && alpha < input.material1.z) {
-    discard;
+  let sampledAlpha = input.color.a * baseColorSample.a;
+  let sampledAlphaWidth = max(fwidth(sampledAlpha), 0.0001);
+  if (input.material1.y > 0.5 && input.material1.y < 1.5) {
+    // Reject the bilinear transition band so masked foliage does not shade
+    // RGB from source texels authored only as transparent padding.
+    let aaAlpha = (sampledAlpha - input.material1.z) / sampledAlphaWidth + 0.5;
+    if (aaAlpha < 1.0) {
+      discard;
+    }
   }
+  let alpha = select(input.color.a, sampledAlpha, input.material1.y > 1.5);
   let baseColor = input.color.rgb * baseColorSample.rgb;
   var mrSample: vec4<f32>;
   if (useTriplanar) {
@@ -453,6 +407,10 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   }
   let roughness = clamp(input.material0.x * mrSample.g, 0.045, 1.0);
   let metallic = clamp(input.material0.y * mrSample.b, 0.0, 1.0);
+  let clearcoat = clamp(input.material2.x, 0.0, 1.0);
+  let clearcoatRoughness = clamp(input.material2.y, 0.045, 1.0);
+  let sheen = clamp(input.material2.z, 0.0, 1.0);
+  let sheenRoughness = clamp(input.material2.w, 0.045, 1.0);
   var emissiveSample: vec4<f32>;
   if (useTriplanar) {
     emissiveSample = sampleEmissiveTriplanar(input.worldPos, worldNormal, triplanarScale, dpdxWorld, dpdyWorld);
@@ -473,59 +431,56 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let hemisphereAmbient = mix(frame.hemisphereGround.rgb, frame.hemisphereSky.rgb, hemisphereFacing);
   let hemisphereColor = hemisphereAmbient * max(frame.hemisphereSky.a, 0.0) * baseColor;
   let ambientColor = flatAmbientColor + hemisphereColor;
-  let shadowFactor = sampleShadow(input, normal);
-  if (shadow.debug.x > 1.5) {
-    let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
-    let cascade = selectShadowCascade(-viewPos.z);
-    let shadowClip = shadow.lightViewProjections[cascade] * vec4<f32>(input.worldPos, 1.0);
-    let shadowNdc = shadowClip.xyz / shadowClip.w;
-    let shadowUV = vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5);
-    if (
-      shadowUV.x <= 0.0 || shadowUV.x >= 1.0 ||
-      shadowUV.y <= 0.0 || shadowUV.y >= 1.0
-    ) {
-      return ${triangleLogDepthReturn(logDepth, "vec4<f32>(0.0, 0.0, 1.0, input.color.a)")};
-    }
-    let dims = vec2<i32>(textureDimensions(shadowMap));
-    let texelCoord = clamp(vec2<i32>(shadowUV * vec2<f32>(dims)), vec2<i32>(0, 0), dims - vec2<i32>(1, 1));
-    let rawDepth = textureLoad(shadowMap, texelCoord, cascade, 0);
-    return ${triangleLogDepthReturn(logDepth, "vec4<f32>(vec3<f32>(rawDepth), input.color.a)")};
-  }
+  let shadowSample = sampleShadow(input, shadowBiasNormal);
+  let shadowFactor = shadowSample.factor;
   if (shadow.debug.x > 0.5) {
-    return ${triangleLogDepthReturn(logDepth, "vec4<f32>(vec3<f32>(shadowFactor), input.color.a)")};
+    return ${triangleLogDepthReturn(logDepth, "debugShadowSampleColor(shadowSample, input.color.a)")};
   }
   let f0 = mix(vec3<f32>(0.04, 0.04, 0.04), baseColor, vec3<f32>(metallic));
-  var directColor = vec3<f32>(0.0, 0.0, 0.0);
-  for (var i = 0u; i < 3u; i = i + 1u) {
-    let lightDirWorld = frame.dirLightDirections[i].xyz;
-    let lightDir = normalize((frame.viewMatrix * vec4<f32>(lightDirWorld, 0.0)).xyz);
-    let lightColor = frame.dirLightColors[i];
-    let l = normalize(-lightDir);
-    let halfDir = normalize(viewDirView + l);
-    let nDotL = max(dot(viewNormal, l), 0.0);
-    let nDotV = max(dot(viewNormal, viewDirView), 0.001);
-    let nDotH = max(dot(viewNormal, halfDir), 0.0);
-    let hDotV = max(dot(halfDir, viewDirView), 0.0);
-    let d = distributionGGX(nDotH, roughness);
-    let g = geometrySmith(nDotV, nDotL, roughness);
-    let f = fresnelSchlick(hDotV, f0);
-    let numerator = d * g * f;
-    let specular = numerator / max(4.0 * nDotV * nDotL, 0.0001);
-    let kd = (vec3<f32>(1.0) - f) * (1.0 - metallic);
-    let diffuse = kd * baseColor / PI;
-    directColor += (diffuse + specular) * lightColor.rgb * lightColor.a * nDotL;
-  }
+  let lightDirWorld = frame.dirLightDirections[0].xyz;
+  let lightDir = normalize((frame.viewMatrix * vec4<f32>(lightDirWorld, 0.0)).xyz);
+  let lightColor = frame.dirLightColors[0];
+  let l = normalize(-lightDir);
+  let halfDir = normalize(viewDirView + l);
+  let nDotL = max(dot(viewNormal, l), 0.0);
+  let nDotV = max(dot(viewNormal, viewDirView), 0.001);
+  let nDotH = max(dot(viewNormal, halfDir), 0.0);
+  let hDotV = max(dot(halfDir, viewDirView), 0.0);
+  let d = distributionGGX(nDotH, roughness);
+  let g = geometrySmith(nDotV, nDotL, roughness);
+  let f = fresnelSchlick(hDotV, f0);
+  let numerator = d * g * f;
+  let specular = numerator / max(4.0 * nDotV * nDotL, 0.0001);
+  let clearcoatF = fresnelSchlickScalar(hDotV, 0.04);
+  let clearcoatD = distributionGGX(nDotH, clearcoatRoughness);
+  let clearcoatG = geometrySmith(nDotV, nDotL, clearcoatRoughness);
+  let clearcoatSpecular = clearcoat * clearcoatD * clearcoatG * clearcoatF / max(4.0 * nDotV * nDotL, 0.0001);
+  let kd = (vec3<f32>(1.0) - f) * (1.0 - metallic);
+  let diffuse = kd * baseColor / PI;
+  let clearcoatBaseAttenuation = 1.0 - clearcoat * clearcoatF;
+  let sheenExponent = mix(8.0, 2.0, sheenRoughness);
+  let sheenDirect = baseColor * sheen * pow(max(1.0 - hDotV, 0.0), sheenExponent) * (1.0 - metallic);
+  let directColor = ((diffuse + specular + sheenDirect) * clearcoatBaseAttenuation + vec3<f32>(clearcoatSpecular)) * lightColor.rgb * lightColor.a * nDotL;
   let worldViewDir = viewToWorldDirection(viewDirView);
   let worldReflection = reflect(-worldViewDir, worldNormal);
   let iblDiffuseEnv = textureSampleLevel(iblIrradianceCubemap, iblSampler, worldNormal, 0.0).rgb;
   let specMip = roughness * ibl.params.y;
   let iblSpecEnv = textureSampleLevel(iblPrefilteredCubemap, iblSampler, worldReflection, specMip).rgb;
+  let clearcoatSpecMip = clearcoatRoughness * ibl.params.y;
+  let clearcoatSpecEnv = textureSampleLevel(iblPrefilteredCubemap, iblSampler, worldReflection, clearcoatSpecMip).rgb;
   let nDotVIBL = max(dot(viewNormal, viewDirView), 0.0);
-  let fNV = fresnelSchlick(nDotVIBL, f0);
+  let fNV = fresnelSchlickRoughness(nDotVIBL, f0, roughness);
   let brdfLUT = textureSampleLevel(iblBRDFLUT, iblSampler, vec2<f32>(nDotVIBL, roughness), 0.0).rg;
-  let iblSpec = iblSpecEnv * (f0 * brdfLUT.x + brdfLUT.y);
+  let iblSpecOcclusion = specularOcclusion(nDotVIBL, ao, roughness);
+  let iblSpec = iblSpecEnv * (f0 * brdfLUT.x + brdfLUT.y) * iblSpecOcclusion;
   let iblDiff = (vec3<f32>(1.0) - fNV) * (1.0 - metallic) * iblDiffuseEnv * baseColor;
-  let iblColor = (iblDiff + iblSpec) * iblIntensity;
+  let sheenIBLWeight = sheen * pow(max(1.0 - nDotVIBL, 0.0), mix(4.0, 1.0, sheenRoughness)) * (1.0 - metallic);
+  let iblSheen = iblDiffuseEnv * baseColor * sheenIBLWeight;
+  let clearcoatFNV = fresnelSchlickScalar(nDotVIBL, 0.04);
+  let clearcoatBRDFLUT = textureSampleLevel(iblBRDFLUT, iblSampler, vec2<f32>(nDotVIBL, clearcoatRoughness), 0.0).rg;
+  let clearcoatIBLOcclusion = specularOcclusion(nDotVIBL, ao, clearcoatRoughness);
+  let clearcoatIBLSpec = clearcoatSpecEnv * (0.04 * clearcoatBRDFLUT.x + clearcoatBRDFLUT.y) * clearcoat * clearcoatIBLOcclusion;
+  let iblColor = ((iblDiff + iblSpec + iblSheen) * (1.0 - clearcoat * clearcoatFNV) + clearcoatIBLSpec) * iblIntensity;
   let indirectColor = ambientColor + iblColor;
   let unshadowedColor = indirectColor * ao + directColor + emissive;
   let ambientFloor = (ambientColor + iblDiff * iblIntensity) * ao + emissive;

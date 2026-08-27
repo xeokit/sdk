@@ -4,7 +4,7 @@ import {encode as encode_1_0} from "./versions/v1_0/encode";
 /**
  * Exports a {@link model!scene.SceneModel | SceneModel} to ASCII PLY.
  *
- * For detailed usage, refer to {@link ply | @xeokit/sdk/formats/ply}.
+ * For detailed usage, refer to {@link formats!ply | @xeokit/sdk/formats/ply}.
  */
 export class PLYExporter extends ModelExporter {
   constructor() {

@@ -4,7 +4,7 @@
  * * Passed to  {@link DataModel.createRelationship | DataModel.createRelationship}
  * * Located at {@link DataModelParams.relationships | DataModelParams.relationships}
  *
- * See {@link data | @xeokit/sdk/model/data}   for usage.
+ * See {@link model!data | @xeokit/sdk/model/data}   for usage.
  */
 export interface RelationshipParams {
 

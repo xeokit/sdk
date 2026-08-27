@@ -10,6 +10,7 @@ function createBins(): RenderBins {
     normalDrawSAO: [],
     normalDrawShadow: [],
     normalDrawSAOShadow: [],
+    normalShadowTransparent: [],
     normalEdgesOpaque: [],
     normalFillTransparent: [],
     normalEdgesTransparent: [],
@@ -60,6 +61,41 @@ describe("RenderBinClassifier VBO edges", () => {
 
     expect(bins.normalDrawOpaque).toEqual([batch]);
     expect(bins.normalEdgesOpaque).toEqual([batch]);
+  });
+
+  it("routes transparent triangle batches to transparent color and shadow-depth bins", () => {
+    const batch = {
+      primitive: TrianglesPrimitive,
+      geometryStorage: "vbo",
+      saoSupported: true,
+      shadowsSupported: true,
+      hasMeshesInRenderPass: (_viewIndex: number, renderPass: number) => renderPass === RENDER_PASSES.TRANSPARENT
+    } as unknown as MeshBatch;
+    const view = {
+      effects: {
+        edges: {applied: false}
+      },
+      xrayMaterial: {fill: false, edges: false, edgeAlpha: 0},
+      highlightMaterial: {fill: false, edges: false, edgeAlpha: 0},
+      selectedMaterial: {fill: false, edges: false, edgeAlpha: 0}
+    } as unknown as View;
+    const bins = createBins();
+
+    new RenderBinClassifier().classify({
+      meshBatches: [batch],
+      view,
+      viewIndex: 0,
+      bins,
+      flags: {
+        drawWithSAO: true,
+        drawWithShadows: true
+      }
+    });
+
+    expect(bins.normalFillTransparent).toEqual([batch]);
+    expect(bins.normalShadowTransparent).toEqual([batch]);
+    expect(bins.normalDrawShadow).toEqual([]);
+    expect(bins.normalDrawSAOShadow).toEqual([]);
   });
 
   it("skips batches suppressed by representation membership", () => {

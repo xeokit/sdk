@@ -27,7 +27,7 @@ import {createUUID} from "../../base/utils";
  * - Lifecycle management (creation, destruction, registration)
  * - Error reporting with optional console logging
  *
- * See {@link scene | @xeokit/sdk/model/scene} for general usage examples.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for general usage examples.
  */
 export class Scene {
 

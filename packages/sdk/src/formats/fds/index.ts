@@ -28,7 +28,7 @@
  * particles), `&MULT` instancing, and `&DEVC` devices are not
  * imported in v1; records of these groups are silently ignored.
  *
- * The DataModel uses the `fds6` {@link inspect!dataModel.DataFormatSchema | DataFormatSchema}
+ * The DataModel uses the `fds6` {@link quality!dataModel.DataFormatSchema | DataFormatSchema}
  * with object types `FDSProject`, `FDSMesh`, `FDSObstruction`,
  * `FDSVent`, `FDSHole`, `FDSSurface`, and the `contains` /
  * `usesSurface` relationship types.

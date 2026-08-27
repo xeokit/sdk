@@ -22,7 +22,7 @@ import {parseHDR, type HDRImage} from "./hdrLoader";
  * that want image-based reflections and ambient irradiance opt in
  * explicitly.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
 class IBL {
 

@@ -52,7 +52,7 @@ interface DataModelTransactionState {
  * * Supports traversal and search of the data structure.
  * * Can be built programmatically.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 
 export class DataModel  {
@@ -229,7 +229,7 @@ export class DataModel  {
    * - A `PropertySet` ID **must be unique within a single `DataModel`** but can be shared between multiple `DataModels`.
    * - Triggers an event via {@link DataEvents.onPropertySetCreated | DataEvents.onPropertySetCreated}.
    *
-   * See {@link data | @xeokit/sdk/model/data} for usage.
+   * See {@link model!data | @xeokit/sdk/model/data} for usage.
    *
    * @param propertySetCfg - Configuration parameters for the new `PropertySet`.
    * @returns A result containing the created `PropertySet` on success, or an error message on failure.
@@ -299,7 +299,7 @@ export class DataModel  {
    *  - A `DataObject` ID **must be unique within a single `DataModel`** but can be shared between multiple `DataModels`.
    *  - Triggers an event via {@link DataEvents.onDataObjectCreated | DataEvents.onObjectCreated}.
    *
-   * See {@link data | @xeokit/sdk/model/data} for usage.
+   * See {@link model!data | @xeokit/sdk/model/data} for usage.
    *
    * @param dataObjectParams - Configuration parameters for the new `DataObject`.
    * @returns A result containing the created `DataObject` on success, or an error message on failure.
@@ -438,7 +438,7 @@ export class DataModel  {
    * - The new `Relationship` is stored in {@link DataModel.relationships | DataModel.relationships}.
    * - Triggers an event via {@link DataEvents.onRelationshipCreated | DataEvents.onRelationshipCreated}.
    *
-   * See {@link data | @xeokit/sdk/model/data} for usage
+   * See {@link model!data | @xeokit/sdk/model/data} for usage
    *
    * @param relationshipParams - Configuration parameters for the new `Relationship`.
    * @returns A result containing the created `Relationship` on success, or an error message on failure.

@@ -7,7 +7,7 @@ import type {DataObject} from "./DataObject";
  * that identifies the relationship. This relationship is stored within the related and relating
  * attributes of the {@link DataObject | DataObject}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export class Relationship {
 

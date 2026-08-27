@@ -160,7 +160,8 @@ export class RenderBinClassifier {
       if (!meshManager.isMeshVisibleInView(meshState, view)) {
         return false;
       }
-      if (meshManager.getMeshOpacityInView(meshState, view) < 1) {
+      const style = meshManager.getMeshDrawStyleInView(meshState, view);
+      if (style.opacity < 1 || style.alphaMode === 2) {
         return false;
       }
     }

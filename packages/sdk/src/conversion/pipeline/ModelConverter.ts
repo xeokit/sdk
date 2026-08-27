@@ -45,7 +45,7 @@ function getFileIO(): ReturnType<typeof createFileIO> {
  * **loaders** (parsers for input formats) and **exporters** (generators for output formats).
  * It uses **pipelines** to define structured conversion workflows.
  *
- * For detailed usage, refer to {@link pipeline | @xeokit/sdk/conversion/pipeline}.
+ * For detailed usage, refer to {@link conversion!pipeline | @xeokit/sdk/conversion/pipeline}.
  */
 export class ModelConverter {
 

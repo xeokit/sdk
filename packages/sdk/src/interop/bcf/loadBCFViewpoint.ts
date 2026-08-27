@@ -15,7 +15,7 @@ const tempVec3c = createVec3Float64();
 /**
  * Loads a {@link BCFViewpoint | BCFViewpoint} into a {@link viewing!viewer.View | View}.
  *
- * See {@link bcf | @xeokit/sdk/interop/bcf} for usage.
+ * See {@link interop!bcf | @xeokit/sdk/interop/bcf} for usage.
  *
  * @param params BCF viewpoint loading parameters.
  */

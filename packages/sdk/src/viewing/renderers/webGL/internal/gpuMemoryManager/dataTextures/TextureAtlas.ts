@@ -1,5 +1,9 @@
 import {EventEmitter, SDKErrorType, type SDKResult} from "../../../../../../base/core";
 import {EventDispatcher} from "strongly-typed-events";
+import {
+  createSanitizedAlphaMaskedColorImageData,
+  sanitizeAlphaMaskedColorImageData
+} from "../../../../common/AlphaMaskedTexture";
 
 /**
  * UV transform that maps a mesh's `[0, 1]` UVs into its sub-rect of the
@@ -16,7 +20,11 @@ export interface AtlasTransform {
   vScale: number;
 }
 
-export type ImageSource = HTMLImageElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas;
+export type ImageSource = HTMLImageElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | ImageData;
+
+export type TextureAtlasUploadOptions = {
+  sanitizeAlphaMaskRGB?: boolean;
+};
 
 interface Shelf {
   /** Top edge of this shelf, in atlas pixels. */
@@ -28,12 +36,16 @@ interface Shelf {
 }
 
 interface AtlasEntry {
+  id: string;
   x: number;
   y: number;
   width: number;
   height: number;
   source: ImageSource;
+  sanitizeAlphaMaskRGB: boolean;
 }
+
+const ALPHA_MASK_RGB_ENTRY_SUFFIX = "::alphaMaskRGB";
 
 /**
  * Shared GL resources for the gamma-correct mip-pyramid pass used
@@ -500,6 +512,18 @@ export class TextureAtlas {
   }
 
   /**
+   * Returns a copy whose low-alpha texel RGB has been filled from nearby
+   * opaque texels. Used only for albedo atlas entries sampled by MASK-mode
+   * materials.
+   */
+  private _sanitizeAlphaMaskedColorSource(source: ImageSource, w: number, h: number): ImageSource | null {
+    if (typeof ImageData !== "undefined" && source instanceof ImageData) {
+      return sanitizeAlphaMaskedColorImageData(source) as ImageSource;
+    }
+    return createSanitizedAlphaMaskedColorImageData(source, false, w, h) as ImageSource | null;
+  }
+
+  /**
    * Adds an image to the atlas — or returns the cached transform if `id`
    * is already present. Returns `null` if the atlas is full.
    *
@@ -512,18 +536,19 @@ export class TextureAtlas {
    *
    * Caller must have called {@link allocate} first.
    */
-  public addTexture(id: string, source: ImageSource): AtlasTransform | null {
+  public addTexture(id: string, source: ImageSource, options: TextureAtlasUploadOptions = {}): AtlasTransform | null {
     if (!this.allocated || !this.texture) {
       return null;
     }
-    const cached = this._entries.get(id);
+    const entryKey = this._getEntryKey(id, options);
+    const cached = this._entries.get(entryKey);
     if (cached) {
       return { uOffset: cached.uOffset, vOffset: cached.vOffset, uScale: cached.uScale, vScale: cached.vScale };
     }
     if (source.width <= 0 || source.height <= 0) return null;
 
     const prepared = this._maybeDownscale(id, source, source.width, source.height);
-    const uploadSource = prepared.source;
+    let uploadSource = prepared.source;
     const w = prepared.w;
     const h = prepared.h;
 
@@ -538,6 +563,9 @@ export class TextureAtlas {
     // pixel rect so the gutter ring lands in the reserved area.
     // `null` return = environment can't extrude (no canvas); fall
     // back to the un-extruded upload at the entry's pixel rect.
+    if (options.sanitizeAlphaMaskRGB === true) {
+      uploadSource = this._sanitizeAlphaMaskedColorSource(uploadSource, w, h) ?? uploadSource;
+    }
     const extruded = this._extrudeWithGutter(uploadSource, w, h);
     const uploadX = extruded ? placed.x - this.padding : placed.x;
     const uploadY = extruded ? placed.y - this.padding : placed.y;
@@ -583,7 +611,15 @@ export class TextureAtlas {
       uScale:  w / this.size,
       vScale:  h / this.size
     };
-    this._entries.set(id, { ...placed, width: w, height: h, source: uploadSource, ...transform });
+    this._entries.set(entryKey, {
+      ...placed,
+      id,
+      width: w,
+      height: h,
+      source: uploadSource,
+      sanitizeAlphaMaskRGB: options.sanitizeAlphaMaskRGB === true,
+      ...transform
+    });
     this.onUpdated.dispatch(this, undefined);
     return transform;
   }
@@ -606,8 +642,8 @@ export class TextureAtlas {
     if (!this.allocated || !this.texture) {
       return false;
     }
-    const entry = this._entries.get(id);
-    if (!entry) {
+    const matchingEntries = [...this._entries.values()].filter((entry) => entry.id === id);
+    if (matchingEntries.length === 0) {
       return false;
     }
     // If the cached entry was downscaled at add time, the new source
@@ -615,55 +651,64 @@ export class TextureAtlas {
     // off the end of the cached sub-rect. Reuse the same downscale
     // helper — when the incoming dimensions already match the entry,
     // it's a no-op draw at native size.
-    let uploadSource: ImageSource = source;
-    if (source.width !== entry.width || source.height !== entry.height) {
-      const scaled = this._downscaleSource(source, entry.width, entry.height);
-      if (!scaled) {
-        console.warn(
-          `[TextureAtlas] updateTexture('${id}'): source ${source.width}×${source.height} does not match cached entry ${entry.width}×${entry.height} and downscaling is unavailable — refusing update`
-        );
-        return false;
+    let updated = false;
+    for (const entry of matchingEntries) {
+      let uploadSource: ImageSource = source;
+      if (source.width !== entry.width || source.height !== entry.height) {
+        const scaled = this._downscaleSource(source, entry.width, entry.height);
+        if (!scaled) {
+          console.warn(
+            `[TextureAtlas] updateTexture('${id}'): source ${source.width}×${source.height} does not match cached entry ${entry.width}×${entry.height} and downscaling is unavailable — refusing update`
+          );
+          continue;
+        }
+        uploadSource = scaled;
       }
-      uploadSource = scaled;
-    }
-    // Re-build the edge-extruded copy at the cached entry's size
-    // so the gutter ring around the entry contains the NEW source's
-    // edge pixels rather than the stale ones from the first add.
-    const extruded = this._extrudeWithGutter(uploadSource, entry.width, entry.height);
-    const uploadX = extruded ? entry.x - this.padding : entry.x;
-    const uploadY = extruded ? entry.y - this.padding : entry.y;
-    const finalUpload = extruded ?? uploadSource;
+      if (entry.sanitizeAlphaMaskRGB) {
+        uploadSource = this._sanitizeAlphaMaskedColorSource(uploadSource, entry.width, entry.height) ?? uploadSource;
+      }
+      // Re-build the edge-extruded copy at the cached entry's size
+      // so the gutter ring around the entry contains the NEW source's
+      // edge pixels rather than the stale ones from the first add.
+      const extruded = this._extrudeWithGutter(uploadSource, entry.width, entry.height);
+      const uploadX = extruded ? entry.x - this.padding : entry.x;
+      const uploadY = extruded ? entry.y - this.padding : entry.y;
+      const finalUpload = extruded ?? uploadSource;
 
-    const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    try {
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        uploadX,
-        uploadY,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        finalUpload as any
-      );
-      // Same deferred-flush as `addTexture` — see comment there.
-      if (this.mipmap) {
-        this._mipsDirty = true;
+      const gl = this.gl;
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+      try {
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          uploadX,
+          uploadY,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          finalUpload as any
+        );
+        // Same deferred-flush as `addTexture` — see comment there.
+        if (this.mipmap) {
+          this._mipsDirty = true;
+        }
+      } catch (e) {
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        console.warn(`[TextureAtlas] updateTexture texSubImage2D failed for id='${id}': ${e}`);
+        continue;
       }
-    } catch (e) {
       gl.bindTexture(gl.TEXTURE_2D, null);
-      console.warn(`[TextureAtlas] updateTexture texSubImage2D failed for id='${id}': ${e}`);
-      return false;
+      // Cache the new source for future `addTexture(id)` repeat-calls
+      // (which return the cached transform without re-uploading).
+      entry.source = uploadSource;
+      updated = true;
     }
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    // Cache the new source for future `addTexture(id)` repeat-calls
-    // (which return the cached transform without re-uploading).
-    entry.source = uploadSource;
-    this.onUpdated.dispatch(this, undefined);
-    return true;
+    if (updated) {
+      this.onUpdated.dispatch(this, undefined);
+    }
+    return updated;
   }
 
   /**
@@ -688,8 +733,13 @@ export class TextureAtlas {
    * a SceneTexture shared by multiple meshes doesn't keep triggering
    * batch overflow.
    */
-  public canFitTexture(id: string, w: number, h: number): "fits" | "would-fit-in-fresh-atlas" | "too-big" {
-    if (this._entries.has(id)) {
+  public canFitTexture(
+    id: string,
+    w: number,
+    h: number,
+    options: TextureAtlasUploadOptions = {}
+  ): "fits" | "would-fit-in-fresh-atlas" | "too-big" {
+    if (this._entries.has(this._getEntryKey(id, options))) {
       return "fits";
     }
     if (w <= 0 || h <= 0) {
@@ -716,8 +766,8 @@ export class TextureAtlas {
    * Looks up an already-added entry's transform. Useful for sharing one
    * SceneTexture across multiple meshes in a batch.
    */
-  public getTransform(id: string): AtlasTransform | null {
-    const e = this._entries.get(id);
+  public getTransform(id: string, options: TextureAtlasUploadOptions = {}): AtlasTransform | null {
+    const e = this._entries.get(this._getEntryKey(id, options));
     if (!e) return null;
     return { uOffset: e.uOffset, vOffset: e.vOffset, uScale: e.uScale, vScale: e.vScale };
   }
@@ -745,7 +795,7 @@ export class TextureAtlas {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    for (const [id, entry] of this._entries) {
+    for (const [entryKey, entry] of this._entries) {
       const extruded = this._extrudeWithGutter(entry.source, entry.width, entry.height);
       const uploadX = extruded ? entry.x - this.padding : entry.x;
       const uploadY = extruded ? entry.y - this.padding : entry.y;
@@ -761,7 +811,7 @@ export class TextureAtlas {
           finalUpload as any
         );
       } catch (e) {
-        console.warn(`[TextureAtlas] context-restore re-stamp failed for id='${id}': ${e}`);
+        console.warn(`[TextureAtlas] context-restore re-stamp failed for id='${entryKey}': ${e}`);
       }
     }
     // Mark dirty rather than regenerating directly. The next
@@ -903,6 +953,10 @@ export class TextureAtlas {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  private _getEntryKey(id: string, options: TextureAtlasUploadOptions = {}): string {
+    return options.sanitizeAlphaMaskRGB === true ? `${id}${ALPHA_MASK_RGB_ENTRY_SUFFIX}` : id;
   }
 
   /**

@@ -4,7 +4,7 @@ import {parse as parse_1_0} from "./versions/v1_0/parse"
 /**
  * Loads a CityJSON file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link cityjson | @xeokit/sdk/formats/cityjson}.
+ * For detailed usage, refer to {@link formats!cityjson | @xeokit/sdk/formats/cityjson}.
  */
 export class CityJSONLoader extends ModelLoader {
 

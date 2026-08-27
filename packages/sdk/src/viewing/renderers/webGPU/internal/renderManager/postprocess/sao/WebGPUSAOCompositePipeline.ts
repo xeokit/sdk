@@ -12,6 +12,7 @@ import type {
 import {GPU_SHADER_STAGE} from "../../../constants";
 import type {RenderContext} from "../../../RenderContext";
 import {WebGPUColorRenderTarget} from "../WebGPUColorRenderTarget";
+import {getSAODebugModeId} from "../../../../../../viewer/SAOSampling";
 
 /**
  * Multiplies the SAO occlusion texture into the HDR scene color.
@@ -75,6 +76,12 @@ export class WebGPUSAOCompositePipeline {
           buffer: {
             type: "uniform"
           }
+        }, {
+          binding: 4,
+          visibility: GPU_SHADER_STAGE.FRAGMENT,
+          texture: {
+            sampleType: "depth"
+          }
         }]
       });
       this._pipelineLayout = device.createPipelineLayout({
@@ -130,6 +137,7 @@ export class WebGPUSAOCompositePipeline {
     commandEncoder: WebGPUCommandEncoderLike;
     colorView: unknown;
     occlusionView: unknown;
+    depthView: unknown;
     width: number;
     height: number;
     view: View;
@@ -165,6 +173,9 @@ export class WebGPUSAOCompositePipeline {
         resource: {
           buffer: this._paramsBuffer
         }
+      }, {
+        binding: 4,
+        resource: params.depthView
       }]
     });
     const passEncoder = params.commandEncoder.beginRenderPass({
@@ -206,7 +217,7 @@ export class WebGPUSAOCompositePipeline {
     return new Float32Array([
       sao?.blendFactor ?? 1.0,
       sao?.blendCutoff ?? 0.3,
-      0,
+      getSAODebugModeId(sao?.debug),
       0,
       0,
       0,
@@ -228,7 +239,7 @@ const SHADER = `
 struct Params {
   saoBlendFactor: f32,
   saoBlendCutoff: f32,
-  pad0: f32,
+  debugMode: f32,
   pad1: f32,
   pad2: f32,
   pad3: f32,
@@ -248,6 +259,7 @@ struct Params {
 @group(0) @binding(1) var sceneColor: texture_2d<f32>;
 @group(0) @binding(2) var saoOcclusionTexture: texture_2d<f32>;
 @group(0) @binding(3) var<uniform> params: Params;
+@group(0) @binding(4) var sceneDepth: texture_depth_2d;
 
 struct VertexOutput {
   @builtin(position) position: vec4<f32>,
@@ -277,10 +289,37 @@ fn loadSAOFactor(uv: vec2<f32>) -> f32 {
   return clamp((smoothstep(params.saoBlendCutoff, 1.0, occlusion) - 1.0) * params.saoBlendFactor + 1.0, 0.0, 1.0);
 }
 
+fn loadRawSAO(uv: vec2<f32>) -> f32 {
+  let dimsU = textureDimensions(saoOcclusionTexture);
+  let dims = vec2<i32>(i32(dimsU.x), i32(dimsU.y));
+  let clampedUV = clamp(uv, vec2<f32>(0.0), vec2<f32>(1.0));
+  let px = clamp(vec2<i32>(clampedUV * vec2<f32>(f32(dims.x), f32(dims.y))), vec2<i32>(0), dims - vec2<i32>(1));
+  return textureLoad(saoOcclusionTexture, px, 0).r;
+}
+
+fn loadDepth(uv: vec2<f32>) -> f32 {
+  let dimsU = textureDimensions(sceneDepth);
+  let dims = vec2<i32>(i32(dimsU.x), i32(dimsU.y));
+  let clampedUV = clamp(uv, vec2<f32>(0.0), vec2<f32>(1.0));
+  let px = clamp(vec2<i32>(clampedUV * vec2<f32>(f32(dims.x), f32(dims.y))), vec2<i32>(0), dims - vec2<i32>(1));
+  return textureLoad(sceneDepth, px, 0);
+}
+
 @fragment
 fn fsMain(input: VertexOutput) -> @location(0) vec4<f32> {
   let scene = textureSample(sceneColor, sceneSampler, input.uv);
   let saoFactor = loadSAOFactor(input.uv);
+  let debugMode = i32(params.debugMode + 0.5);
+  if (debugMode > 0) {
+    let depth = loadDepth(input.uv);
+    if (depth >= 0.999999) {
+      return scene;
+    }
+    if (debugMode == 5) {
+      return vec4<f32>(vec3<f32>(saoFactor), scene.a);
+    }
+    return vec4<f32>(vec3<f32>(loadRawSAO(input.uv)), scene.a);
+  }
   return vec4<f32>(scene.rgb * saoFactor, scene.a);
 }
 `;

@@ -5,7 +5,7 @@ import {ModelExporter} from "../ModelExporter";
 /**
  * Exports a {@link model!scene.SceneModel | SceneModel} and a {@link model!data.DataModel | DataModel} to .BIM format.
  *
- * For detailed usage, refer to {@link dotbim | @xeokit/sdk/formats/dotbim}.
+ * For detailed usage, refer to {@link formats!dotbim | @xeokit/sdk/formats/dotbim}.
  */
 export class DotBIMExporter extends ModelExporter {
   constructor() {

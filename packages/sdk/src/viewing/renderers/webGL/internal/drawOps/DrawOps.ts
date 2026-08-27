@@ -228,8 +228,12 @@ export class DrawOps {
     // hasNormals / hasUVs / triplanar axes are sampled).
     const trianglesDrawColorFlatDTX = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesDrawColorFlatVBO = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
-    const trianglesShadowDepthDTX = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
-    const trianglesShadowDepthVBO = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, triangleVBOTileUniformCfg));
+    const shadowDepthVariants = (cfg = {}) => ({
+      technique: saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, cfg)),
+      withUVs: saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader, {...cfg, hasUVs: true})),
+    });
+    const trianglesShadowDepthDTX = shadowDepthVariants();
+    const trianglesShadowDepthVBO = shadowDepthVariants(triangleVBOTileUniformCfg);
     const trianglesDrawEdgeSilhouetteDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeColorDTX = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
@@ -335,7 +339,8 @@ export class DrawOps {
         // Unlit pure-colour ops — used by the overlay-bin pass for gizmos.
         flatColor: triangleSurfaceSingleOp(trianglesDrawColorFlatDTX, trianglesDrawColorFlatVBO, OPAQUE),
         flatColorTransparent: triangleSurfaceSingleOp(trianglesDrawColorFlatDTX, trianglesDrawColorFlatVBO, TRANSPARENT),
-        shadowDepth: triangleSurfaceSingleOp(trianglesShadowDepthDTX, trianglesShadowDepthVBO, OPAQUE),
+        shadowDepth: triangleSurfaceOp(trianglesShadowDepthDTX, trianglesShadowDepthVBO, OPAQUE),
+        shadowDepthTransparent: triangleSurfaceOp(trianglesShadowDepthDTX, trianglesShadowDepthVBO, TRANSPARENT),
         opaqueEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorDTX, trianglesDrawEdgeColorVBO, OPAQUE),
         // VBO triangle batches currently render wide edge requests with the
         // thin VBO edge path. DTX batches keep the existing quad-expanded

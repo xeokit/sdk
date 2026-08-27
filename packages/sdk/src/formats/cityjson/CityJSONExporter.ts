@@ -6,7 +6,7 @@ import {ModelExporter} from "../ModelExporter";
  * {@link model!data.DataModel | DataModel}) to CityJSON — the inverse of
  * {@link CityJSONLoader}.
  *
- * For detailed usage, refer to {@link cityjson | @xeokit/sdk/formats/cityjson}.
+ * For detailed usage, refer to {@link formats!cityjson | @xeokit/sdk/formats/cityjson}.
  */
 export class CityJSONExporter extends ModelExporter {
   constructor() {

@@ -5,7 +5,7 @@ import type {LoaderProgress} from "./LoaderProgress";
  * Options for customizing the export process when exporting a {@link model!scene.SceneModel | SceneModel}
  * and/or a {@link model!data.DataModel | DataModel} to a file.
  */
-export type ModelExportOptions = {
+export interface ModelExportOptions {
 
   /**
    * Optional target CoordinateSystem for export. If not provided,
@@ -68,4 +68,5 @@ export type ModelExportOptions = {
    */
   yieldIntervalMs?: number;
 
-} & Record<string, any>;
+  [key: string]: any;
+}

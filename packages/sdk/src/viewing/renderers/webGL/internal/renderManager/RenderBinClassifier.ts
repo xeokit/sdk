@@ -21,6 +21,8 @@ export interface RenderBins {
   normalDrawShadow: MeshBatch[];
   /** Opaque batches that want both SAO + shadows. Drawn with `opaqueSAOShadow`. */
   normalDrawSAOShadow: MeshBatch[];
+  /** Transparent batches that cast into the shadow map only. */
+  normalShadowTransparent: MeshBatch[];
 
   normalEdgesOpaque: MeshBatch[];
   normalFillTransparent: MeshBatch[];
@@ -75,6 +77,7 @@ export class RenderBinClassifier {
     bins.normalDrawSAO.length = 0;
     bins.normalDrawShadow.length = 0;
     bins.normalDrawSAOShadow.length = 0;
+    bins.normalShadowTransparent.length = 0;
     bins.normalEdgesOpaque.length = 0;
     bins.normalFillTransparent.length = 0;
     bins.normalEdgesTransparent.length = 0;
@@ -162,6 +165,9 @@ export class RenderBinClassifier {
 
     if (transparent) {
       bins.normalFillTransparent.push(meshBatch);
+      if (meshBatch.bin === undefined && flags.drawWithShadows && meshBatch.shadowsSupported) {
+        bins.normalShadowTransparent.push(meshBatch);
+      }
     }
     if (xray && xrayMaterial.fill) {
       (xrayMaterial.fillAlpha < 1.0

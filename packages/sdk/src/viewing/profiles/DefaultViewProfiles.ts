@@ -29,8 +29,8 @@ const WORLD_UP: [number, number, number] = [0, 0, 1];
  *   bloom, atmosphere, IBL, shadows and antialiasing, and enables reduced
  *   resolution scale.
  * - `"detailed"` favors engineering readability. It enables subtle SAO,
- *   soft mesh-colored edges and SMAA, with moderate IBL balanced against
- *   hemisphere ambient.
+ *   soft mesh-colored edges and SMAA, with moderate IBL as the primary
+ *   ambient source and a low analytical hemisphere fill.
  * - `"realistic"` favors presentation quality. It enables IBL, sky, subtle
  *   SAO, restrained bloom, atmosphere and cast shadows.
  *
@@ -136,7 +136,7 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
     },
     hemispheric: {
       enabled: true,
-      intensity: 0.42,
+      intensity: 0.18,
       skyColor: HEMISPHERE_SKY,
       groundColor: HEMISPHERE_GROUND,
       worldUp: WORLD_UP
@@ -182,7 +182,7 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
     shadows: {
       enabled: true,
       intensity: 0.38,
-      bias: 0.0015,
+      bias: 0.001,
       projectionSize: 30,
       lightDistance: 50,
       resolution: 2048,
@@ -190,9 +190,11 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
       autoFit: true,
       maxDistance: 200,
       padding: 1.1,
-      pcfKernelSize: 3,
-      normalOffsetBias: 0.005,
-      slopeBias: 0.001,
+      pcfKernelSize: 7,
+      contactHardening: true,
+      lightRadius: 0.08,
+      normalOffsetBias: 0.0035,
+      slopeBias: 0.00125,
       cascadeCount: 4,
       cascadeSplitLambda: 0.5
     },
@@ -223,7 +225,7 @@ export const DEFAULT_VIEW_PROFILES: DefaultViewProfiles = {
     },
     hemispheric: {
       enabled: true,
-      intensity: 0.12,
+      intensity: 0.04,
       skyColor: HEMISPHERE_SKY,
       groundColor: HEMISPHERE_GROUND,
       worldUp: WORLD_UP

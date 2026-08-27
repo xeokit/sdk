@@ -1,19 +1,20 @@
-import type {ShadowsParams} from "./ShadowsParams";
+import type {ShadowDebugMode, ShadowsParams} from "./ShadowsParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import type {FloatArrayParam} from "../../base/math";
 import {CustomProjectionType, FrustumProjectionType} from "../../base/constants";
+import {clampShadowPcfKernelSize, normalizeShadowDebugMode} from "./ShadowSampling";
 
 const DEFAULT_DIRECTION: [number, number, number] = [-0.5, -1.0, -0.3];
 
 /**
- * Configures single-cascade directional shadow mapping for a {@link viewing!viewer.View | View}.
+ * Configures directional shadow mapping for a {@link viewing!viewer.View | View}.
  *
  * * Located at {@link Effects.shadows}, which lives at {@link View.effects}.
  * * Disabled by default. Set {@link Shadows.enabled | enabled} to `true`
  *   or pass `effects: {shadows: {enabled: true}}` when creating a View.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
 export class Shadows {
 
@@ -32,6 +33,9 @@ export class Shadows {
   private _maxDistance: number;
   private _padding: number;
   private _pcfKernelSize: number;
+  private _contactHardening: boolean;
+  private _lightRadius: number;
+  private _debug: ShadowDebugMode;
   private _normalOffsetBias: number;
   private _slopeBias: number;
   private _cascadeCount: number;
@@ -43,7 +47,7 @@ export class Shadows {
     this.view = view;
     this._enabled = params.enabled === true;
     this._intensity = params.intensity !== undefined ? params.intensity : 0.45;
-    this._bias = params.bias !== undefined ? params.bias : 0.0015;
+    this._bias = params.bias !== undefined ? params.bias : 0.001;
     this._projectionSize = params.projectionSize !== undefined ? params.projectionSize : 30;
     this._lightDistance = params.lightDistance !== undefined ? params.lightDistance : 50;
     this._resolution = params.resolution !== undefined ? params.resolution : 2048;
@@ -55,9 +59,12 @@ export class Shadows {
     this._autoFit = params.autoFit !== false;
     this._maxDistance = params.maxDistance !== undefined ? params.maxDistance : 200;
     this._padding = params.padding !== undefined ? params.padding : 1.1;
-    this._pcfKernelSize = clampPcfKernelSize(params.pcfKernelSize !== undefined ? params.pcfKernelSize : 3);
-    this._normalOffsetBias = params.normalOffsetBias !== undefined ? params.normalOffsetBias : 0.005;
-    this._slopeBias = params.slopeBias !== undefined ? params.slopeBias : 0.001;
+    this._pcfKernelSize = clampShadowPcfKernelSize(params.pcfKernelSize !== undefined ? params.pcfKernelSize : 3);
+    this._contactHardening = params.contactHardening === true;
+    this._lightRadius = clampNonNegative(params.lightRadius !== undefined ? params.lightRadius : 0.08);
+    this._debug = normalizeShadowDebugMode(params.debug);
+    this._normalOffsetBias = params.normalOffsetBias !== undefined ? params.normalOffsetBias : 0.0035;
+    this._slopeBias = params.slopeBias !== undefined ? params.slopeBias : 0.00125;
     this._cascadeCount = clampCascadeCount(params.cascadeCount !== undefined ? params.cascadeCount : 4);
     this._cascadeSplitLambda = clampCascadeSplitLambda(params.cascadeSplitLambda !== undefined ? params.cascadeSplitLambda : 0.5);
   }
@@ -112,14 +119,14 @@ export class Shadows {
   }
 
   /**
-   * Depth-compare bias used to avoid shadow acne. Default `0.0015`.
+   * Depth-compare bias used to avoid shadow acne. Default `0.001`.
    */
   get bias(): number {
     return this._bias;
   }
 
   set bias(value: number) {
-    if (value === undefined || value === null) value = 0.0015;
+    if (value === undefined || value === null) value = 0.001;
     if (this._bias === value) return;
     this._bias = value;
     this.view.needsRender();
@@ -237,43 +244,87 @@ export class Shadows {
 
   set pcfKernelSize(value: number) {
     if (value === undefined || value === null) value = 3;
-    value = clampPcfKernelSize(value);
+    value = clampShadowPcfKernelSize(value);
     if (this._pcfKernelSize === value) return;
     this._pcfKernelSize = value;
     this.view.needsRender();
   }
 
   /**
+   * Whether shadow filtering grows with caster/receiver separation.
+   * Default `false`.
+   */
+  get contactHardening(): boolean {
+    return this._contactHardening;
+  }
+
+  set contactHardening(value: boolean) {
+    const enabled = value === true;
+    if (this._contactHardening === enabled) return;
+    this._contactHardening = enabled;
+    this.view.needsRender();
+  }
+
+  /**
+   * World-space penumbra scale used by contact-hardening shadows.
+   * Default `0.08`.
+   */
+  get lightRadius(): number {
+    return this._lightRadius;
+  }
+
+  set lightRadius(value: number) {
+    value = clampNonNegative(value !== undefined && value !== null ? value : 0.08);
+    if (this._lightRadius === value) return;
+    this._lightRadius = value;
+    this.view.needsRender();
+  }
+
+  /**
+   * Debug output mode for inspecting shadow-map sampling. Default `false`.
+   */
+  get debug(): ShadowDebugMode {
+    return this._debug;
+  }
+
+  set debug(value: ShadowDebugMode) {
+    const mode = normalizeShadowDebugMode(value);
+    if (this._debug === mode) return;
+    this._debug = mode;
+    this.view.needsRender();
+  }
+
+  /**
    * View-space normal-offset bias applied when sampling the shadow map.
-   * Default `0.005`.
+   * Default `0.0035`.
    */
   get normalOffsetBias(): number {
     return this._normalOffsetBias;
   }
 
   set normalOffsetBias(value: number) {
-    if (value === undefined || value === null) value = 0.005;
+    if (value === undefined || value === null) value = 0.0035;
     if (this._normalOffsetBias === value) return;
     this._normalOffsetBias = value;
     this.view.needsRender();
   }
 
   /**
-   * Slope-scaled depth bias. Default `0.001`.
+   * Slope-scaled depth bias. Default `0.00125`.
    */
   get slopeBias(): number {
     return this._slopeBias;
   }
 
   set slopeBias(value: number) {
-    if (value === undefined || value === null) value = 0.001;
+    if (value === undefined || value === null) value = 0.00125;
     if (this._slopeBias === value) return;
     this._slopeBias = value;
     this.view.needsRender();
   }
 
   /**
-   * Number of shadow cascades. Range `[1, 4]`. Default `1`.
+   * Number of shadow cascades. Range `[1, 6]`. Default `4`.
    */
   get cascadeCount(): number {
     return this._cascadeCount;
@@ -321,6 +372,9 @@ export class Shadows {
         maxDistance: this._maxDistance,
         padding: this._padding,
         pcfKernelSize: this._pcfKernelSize,
+        contactHardening: this._contactHardening,
+        lightRadius: this._lightRadius,
+        debug: this._debug,
         normalOffsetBias: this._normalOffsetBias,
         slopeBias: this._slopeBias,
         cascadeCount: this._cascadeCount,
@@ -350,6 +404,9 @@ export class Shadows {
     if (params.maxDistance !== undefined) this.maxDistance = params.maxDistance;
     if (params.padding !== undefined) this.padding = params.padding;
     if (params.pcfKernelSize !== undefined) this.pcfKernelSize = params.pcfKernelSize;
+    if (params.contactHardening !== undefined) this.contactHardening = params.contactHardening;
+    if (params.lightRadius !== undefined) this.lightRadius = params.lightRadius;
+    if (params.debug !== undefined) this.debug = params.debug;
     if (params.normalOffsetBias !== undefined) this.normalOffsetBias = params.normalOffsetBias;
     if (params.slopeBias !== undefined) this.slopeBias = params.slopeBias;
     if (params.cascadeCount !== undefined) this.cascadeCount = params.cascadeCount;
@@ -377,13 +434,9 @@ function clampCascadeSplitLambda(value: number): number {
   return value;
 }
 
-function clampPcfKernelSize(value: number): number {
-  // Snap to the nearest odd integer in [1, 7].
-  let v = Math.round(value);
-  if (v < 1) v = 1;
-  if (v > 7) v = 7;
-  if ((v & 1) === 0) v += 1;
-  return v;
+function clampNonNegative(value: number): number {
+  if (!Number.isFinite(value) || value < 0) return 0;
+  return value;
 }
 
 function normalizeInPlace(v: Float32Array<any>): void {

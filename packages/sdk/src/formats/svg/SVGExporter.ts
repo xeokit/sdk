@@ -13,7 +13,7 @@ import {encode as encode_1_0} from "./versions/v1_0/encode";
  * controls which. Pairs naturally with {@link SVGLoader} for
  * round-tripping.
  *
- * For detailed usage, refer to {@link svg | @xeokit/sdk/formats/svg}.
+ * For detailed usage, refer to {@link formats!svg | @xeokit/sdk/formats/svg}.
  */
 export class SVGExporter extends ModelExporter {
   constructor() {

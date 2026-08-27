@@ -21,7 +21,7 @@ import {ViewTransform} from "./ViewTransform";
  * we destroy a SceneObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View
  * are therefore a manifest of the ViewerObjects in the View.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage.
  */
 export class ViewObject {
 

@@ -4,6 +4,7 @@ import type {DrawOps} from "../../drawOps/DrawOps";
 import type {MeshBatch} from "../../meshManager/MeshBatch";
 
 import {SDKErrorType, type SDKResult} from "../../../../../../base/core";
+import {isRawSAODebugMode} from "../../../../../viewer/SAOSampling";
 
 import {SAOOcclusionRenderer} from "./SAOOcclusionRenderer";
 import {SAODepthLimitedBlurRenderer} from "./SAODepthLimitedBlurRenderer";
@@ -121,7 +122,7 @@ export class SAOPipeline {
     occlusionBuffer.unbind();
 
     // Optional two-pass depth-limited Gaussian blur.
-    if (view.effects.sao.blur) {
+    if (view.effects.sao.blur && !isRawSAODebugMode(view.effects.sao.debug)) {
       const blurBuffer = rendererView.renderBuffers.getRenderBuffer("saoBlur", {size: [sceneW, sceneH]});
       blurBuffer.bind();
       this._blurRenderer!.render({

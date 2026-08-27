@@ -4,7 +4,7 @@ import type {PropertySet} from "./PropertySet";
 /**
  * Represents a property in a {@link PropertySet | PropertySet}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export class Property {
 

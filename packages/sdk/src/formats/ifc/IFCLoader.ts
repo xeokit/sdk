@@ -6,7 +6,7 @@ import {getInitializedIFCAPI} from "./getInitializedIFCAPI";
 /**
  * Loads an IFC file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link ifc | @xeokit/sdk/formats/ifc}.
+ * For detailed usage, refer to {@link formats!ifc | @xeokit/sdk/formats/ifc}.
  */
 export class IFCLoader extends ModelLoader {
 

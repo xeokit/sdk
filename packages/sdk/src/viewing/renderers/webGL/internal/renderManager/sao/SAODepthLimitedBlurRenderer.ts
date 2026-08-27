@@ -145,12 +145,11 @@ export class SAODepthLimitedBlurRenderer {
                     return linearClipZ * ( uCameraNear - uCameraFar ) - uCameraNear;
                 }
 
-                float viewZToPerspectiveDepth( const in float viewZ) {
-                    return (( uCameraNear + viewZ ) * uCameraFar ) / (( uCameraFar - uCameraNear ) * viewZ );
-                }
-
-                float perspectiveDepthToViewZ( const in float invClipZ) {
-                    return ( uCameraNear * uCameraFar ) / ( ( uCameraFar - uCameraNear ) * invClipZ - uCameraFar );
+                // WebGL surface draw techniques currently write logarithmic depth globally.
+                // Match SAOOcclusionRenderer so the depth-limited blur compares the same
+                // view-Z domain as the occlusion pass that produced the source texture.
+                float perspectiveDepthToViewZ( const in float depth) {
+                    return 1.0 - pow( 1.0 + uCameraFar, depth );
                 }
 
                 float getDepth( const in vec2 screenPosition ) {
@@ -335,5 +334,4 @@ function createSampleOffsets(kernelRadius: number, uvIncrement: number[]) {
   }
   return offsets;
 }
-
 

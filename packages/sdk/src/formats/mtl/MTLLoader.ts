@@ -4,7 +4,7 @@ import {parse as parse_1_0} from "./versions/v1_0/parse"
 /**
  * Loads a MTL file into a {@link model!scene.SceneModel | SceneModel}.
  *
- * For detailed usage, refer to {@link mtl | @xeokit/sdk/formats/mtl}.
+ * For detailed usage, refer to {@link formats!mtl | @xeokit/sdk/formats/mtl}.
  */
 export class MTLLoader extends ModelLoader {
 

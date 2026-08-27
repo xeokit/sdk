@@ -17,7 +17,7 @@ import type {SceneRepSetParams} from "./SceneRepSetParams";
  *
  * Renderers can use this to choose storage for values such as matrices,
  * transforms, colors, visibility flags, opacity and object state. For example,
- * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} may favor
+ * {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer} may favor
  * draw-time optimized VBO-backed batches for `"static"` models and
  * update-friendly data-texture-backed batches for `"dynamic"` models.
  */
@@ -53,7 +53,7 @@ export type SceneModelMemoryPolicy = "stream" | "compact";
  * * Returned by {@link SceneModel.toParams | SceneModel.toParams}
  * * Passed to {@link SceneModel.fromParams | SceneModel.fromParams} and {@link Scene.createModel | Scene.createModel}
  *
- * See {@link scene | @xeokit/sdk/model/scene} for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
  */
 export interface SceneModelParams {
 

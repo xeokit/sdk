@@ -26,7 +26,7 @@ import {
  * * Created with {@link SceneModel.createMaterial | SceneModel.createMaterial}
  * * Referenced by {@link SceneMaterial.material | SceneMaterial.material}
  *
- * See {@link scene | @xeokit/sdk/model/scene}   for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene}   for usage.
  */
 export class SceneMaterial {
 
@@ -57,6 +57,14 @@ export class SceneMaterial {
   private _roughness: number;
 
   private _metallic: number;
+
+  private _clearcoat: number;
+
+  private _clearcoatRoughness: number;
+
+  private _sheen: number;
+
+  private _sheenRoughness: number;
 
   /**
    * Alpha-handling mode encoded as a small integer:
@@ -191,6 +199,18 @@ export class SceneMaterial {
     );
     this._metallic = clamp01(
       (materialParams.metallic !== undefined && materialParams.metallic !== null) ? materialParams.metallic : 0.0
+    );
+    this._clearcoat = clamp01(
+      (materialParams.clearcoat !== undefined && materialParams.clearcoat !== null) ? materialParams.clearcoat : 0.0
+    );
+    this._clearcoatRoughness = clamp01(
+      (materialParams.clearcoatRoughness !== undefined && materialParams.clearcoatRoughness !== null) ? materialParams.clearcoatRoughness : 0.0
+    );
+    this._sheen = clamp01(
+      (materialParams.sheen !== undefined && materialParams.sheen !== null) ? materialParams.sheen : 0.0
+    );
+    this._sheenRoughness = clamp01(
+      (materialParams.sheenRoughness !== undefined && materialParams.sheenRoughness !== null) ? materialParams.sheenRoughness : 0.5
     );
     // Alpha mode: glTF default is OPAQUE. We accept the string form on
     // the way in (matches the glTF JSON) and store as a small integer
@@ -365,6 +385,35 @@ export class SceneMaterial {
    */
   get metallic(): number {
     return this._metallic;
+  }
+
+  /**
+   * Scalar dielectric clearcoat strength consumed by the Cook-Torrance
+   * BRDF. `0` disables the coat; `1` applies the full coat layer.
+   */
+  get clearcoat(): number {
+    return this._clearcoat;
+  }
+
+  /**
+   * Microfacet roughness for the scalar clearcoat layer.
+   */
+  get clearcoatRoughness(): number {
+    return this._clearcoatRoughness;
+  }
+
+  /**
+   * Scalar sheen strength consumed by the Cook-Torrance render path.
+   */
+  get sheen(): number {
+    return this._sheen;
+  }
+
+  /**
+   * Roughness for the scalar sheen lobe.
+   */
+  get sheenRoughness(): number {
+    return this._sheenRoughness;
   }
 
   /**
@@ -544,6 +593,10 @@ export class SceneMaterial {
       opacity: this._opacity,
       roughness: this._roughness,
       metallic: this._metallic,
+      clearcoat: this._clearcoat,
+      clearcoatRoughness: this._clearcoatRoughness,
+      sheen: this._sheen,
+      sheenRoughness: this._sheenRoughness,
       alphaMode: this._alphaMode === 1 ? "MASK" : this._alphaMode === 2 ? "BLEND" : "OPAQUE",
       alphaCutoff: this._alphaCutoff,
       triplanarScale: this._triplanarScale,

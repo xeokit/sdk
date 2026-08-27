@@ -22,6 +22,10 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
 
 const DEFAULT_ROUGHNESS       = 0.6;
 const DEFAULT_METALLIC        = 0.0;
+const DEFAULT_CLEARCOAT       = 0.0;
+const DEFAULT_CLEARCOAT_ROUGHNESS = 0.0;
+const DEFAULT_SHEEN           = 0.0;
+const DEFAULT_SHEEN_ROUGHNESS = 0.5;
 const DEFAULT_TRIPLANAR_SCALE = 1.0;
 const DEFAULT_LINE_WIDTH      = 0.0;  // 0 = fall back to View linesMaterial.lineWidth
 
@@ -40,7 +44,7 @@ const SHARED_IDENTITY_MATRIX: Mat4 = identityMat4();
  * * Created with {@link SceneModel.createMesh | SceneModel.addMesh}
  * * Referenced by {@link SceneObject.meshes | SceneObject.meshes}
  *
- * See {@link scene | @xeokit/sdk/model/scene}   for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene}   for usage.
  */
 export class SceneMesh {
 
@@ -373,6 +377,38 @@ export class SceneMesh {
    */
   get effectiveMetallic(): number {
     return this.material ? this.material.metallic : DEFAULT_METALLIC;
+  }
+
+  /**
+   * Effective scalar clearcoat strength — the material's clearcoat if a
+   * material is attached, otherwise no clearcoat.
+   */
+  get effectiveClearcoat(): number {
+    return this.material ? this.material.clearcoat : DEFAULT_CLEARCOAT;
+  }
+
+  /**
+   * Effective scalar clearcoat roughness — the material's clearcoat
+   * roughness if a material is attached, otherwise mirror-smooth.
+   */
+  get effectiveClearcoatRoughness(): number {
+    return this.material ? this.material.clearcoatRoughness : DEFAULT_CLEARCOAT_ROUGHNESS;
+  }
+
+  /**
+   * Effective scalar sheen strength — the material's sheen if a material is
+   * attached, otherwise no sheen.
+   */
+  get effectiveSheen(): number {
+    return this.material ? this.material.sheen : DEFAULT_SHEEN;
+  }
+
+  /**
+   * Effective scalar sheen roughness — the material's sheen roughness if a
+   * material is attached, otherwise moderately broad.
+   */
+  get effectiveSheenRoughness(): number {
+    return this.material ? this.material.sheenRoughness : DEFAULT_SHEEN_ROUGHNESS;
   }
 
   /**

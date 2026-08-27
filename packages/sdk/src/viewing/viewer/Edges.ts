@@ -11,7 +11,7 @@ import {createVec3Float64, type Vec3} from "../../base/math/vector";
  * * Disabled by default. Set {@link Edges.enabled | enabled} to `true`
  *   or pass `effects: {edges: {enabled: true}}` when creating a View.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
 class Edges {
 

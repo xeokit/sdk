@@ -246,6 +246,94 @@ describe("GLTFExporter / GLTFLoader", () => {
     expect(Array.from(uvs as Float32Array).map(v => +v.toFixed(4))).toEqual([0, 0,  1, 0,  1, 1,  0, 1]);
   });
 
+  it("round-trips scalar KHR_materials_clearcoat factors", async () => {
+    const {sceneModel, mesh} = buildSource(IDENTITY, [1, 1, 1], 1.0);
+    const material: any = {
+      id: "clearcoatPaint",
+      color: [0.1, 0.2, 0.5],
+      opacity: 1,
+      roughness: 0.4,
+      metallic: 0,
+      clearcoat: 0.85,
+      clearcoatRoughness: 0.12,
+      alphaMode: 0,
+      alphaCutoff: 0.5,
+      emissiveColor: [0, 0, 0],
+    };
+    sceneModel.materials[material.id] = material;
+    mesh.material = material;
+
+    const glb = await new GLTFExporter().write({sceneModel} as any);
+    const view = new DataView(glb.buffer, glb.byteOffset, glb.byteLength);
+    const jsonChunkLen = view.getUint32(12, true);
+    const json = JSON.parse(new TextDecoder().decode(glb.subarray(20, 20 + jsonChunkLen)));
+    expect(json.extensionsUsed).toContain("KHR_materials_clearcoat");
+    expect(json.materials[0].extensions.KHR_materials_clearcoat).toMatchObject({
+      clearcoatFactor: 0.85,
+      clearcoatRoughnessFactor: 0.12
+    });
+
+    const materialCalls: any[] = [];
+    const dstScene: any = {
+      objects: {},
+      geometries: {},
+      createGeometry: (p: any) => { dstScene.geometries[p.id] = p; return {ok: true, value: {id: p.id}}; },
+      createMesh: (p: any) => ({ok: true, value: {id: p.id}}),
+      createObject: (p: any) => { dstScene.objects[p.id] = p; return {ok: true, value: {id: p.id}}; },
+      createMaterial: (p: any) => { materialCalls.push(p); return {ok: true, value: {id: p.id}}; },
+    };
+
+    await new GLTFLoader().load({fileData: toArrayBuffer(glb), sceneModel: dstScene} as any);
+
+    expect(materialCalls).toHaveLength(1);
+    expect(materialCalls[0].clearcoat).toBeCloseTo(0.85, 4);
+    expect(materialCalls[0].clearcoatRoughness).toBeCloseTo(0.12, 4);
+  });
+
+  it("round-trips scalar KHR_materials_sheen factors", async () => {
+    const {sceneModel, mesh} = buildSource(IDENTITY, [1, 1, 1], 1.0);
+    const material: any = {
+      id: "sheenFabric",
+      color: [0.45, 0.12, 0.08],
+      opacity: 1,
+      roughness: 0.72,
+      metallic: 0,
+      sheen: 0.65,
+      sheenRoughness: 0.38,
+      alphaMode: 0,
+      alphaCutoff: 0.5,
+      emissiveColor: [0, 0, 0],
+    };
+    sceneModel.materials[material.id] = material;
+    mesh.material = material;
+
+    const glb = await new GLTFExporter().write({sceneModel} as any);
+    const view = new DataView(glb.buffer, glb.byteOffset, glb.byteLength);
+    const jsonChunkLen = view.getUint32(12, true);
+    const json = JSON.parse(new TextDecoder().decode(glb.subarray(20, 20 + jsonChunkLen)));
+    expect(json.extensionsUsed).toContain("KHR_materials_sheen");
+    expect(json.materials[0].extensions.KHR_materials_sheen).toMatchObject({
+      sheenColorFactor: [0.65, 0.65, 0.65],
+      sheenRoughnessFactor: 0.38
+    });
+
+    const materialCalls: any[] = [];
+    const dstScene: any = {
+      objects: {},
+      geometries: {},
+      createGeometry: (p: any) => { dstScene.geometries[p.id] = p; return {ok: true, value: {id: p.id}}; },
+      createMesh: (p: any) => ({ok: true, value: {id: p.id}}),
+      createObject: (p: any) => { dstScene.objects[p.id] = p; return {ok: true, value: {id: p.id}}; },
+      createMaterial: (p: any) => { materialCalls.push(p); return {ok: true, value: {id: p.id}}; },
+    };
+
+    await new GLTFLoader().load({fileData: toArrayBuffer(glb), sceneModel: dstScene} as any);
+
+    expect(materialCalls).toHaveLength(1);
+    expect(materialCalls[0].sheen).toBeCloseTo(0.65, 4);
+    expect(materialCalls[0].sheenRoughness).toBeCloseTo(0.38, 4);
+  });
+
   it("expands glTF LINE_STRIP primitives to pairwise line indices", async () => {
     const geomCalls: any[] = [];
     const dstScene: any = {

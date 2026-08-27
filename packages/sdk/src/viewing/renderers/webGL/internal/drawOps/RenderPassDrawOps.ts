@@ -27,6 +27,12 @@ export interface RenderPassDrawOps {
   shadowDepth?: DrawOp;
 
   /**
+   * Transparent-pass variant of {@link shadowDepth}, used when translucent
+   * geometry contributes to the shadow map.
+   */
+  shadowDepthTransparent?: DrawOp;
+
+  /**
    * Draw operation for rendering opaque objects with directional shadow mapping.
    */
   opaqueShadow?: DrawOp;

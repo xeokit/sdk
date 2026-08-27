@@ -57,6 +57,22 @@ export interface WalkNavigationControllerParams {
     runSpeed?: number;
 
     /**
+     * Horizontal acceleration toward the requested walk/run velocity, in
+     * world-space units per second squared.
+     *
+     * Default is unlimited, preserving immediate movement.
+     */
+    movementAcceleration?: number;
+
+    /**
+     * Horizontal deceleration when movement input is released, in
+     * world-space units per second squared.
+     *
+     * Default is unlimited, preserving immediate stop.
+     */
+    movementDeceleration?: number;
+
+    /**
      * Maximum height that the controller can step up onto.
      *
      * Default is ``0.35``.

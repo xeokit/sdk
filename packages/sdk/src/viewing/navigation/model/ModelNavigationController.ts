@@ -55,7 +55,7 @@ export class HoverEvent {
 /**
  * Mouse and touch controller for a {@link viewing!viewer.Viewer | Viewer's} {@link viewing!viewer.Camera | Camera}.
  *
- * See {@link modelNavigation | @xeokit/sdk/viewing/navigation/model} for usage.
+ * See {@link viewing!navigation.model | @xeokit/sdk/viewing/navigation/model} for usage.
  */
 export class ModelNavigationController {
 

@@ -477,21 +477,32 @@ export class InfiniteGridRenderer {
 
   private createShader(type: number, source: string): WebGLShader {
     const gl = this.gl;
-    const shader = gl.createShader(type);
-    if (!shader) {
-      throw new Error("[InfiniteGridRenderer] Failed to create shader");
-    }
+    const typeName = type === gl.VERTEX_SHADER ? "vertex" : "fragment";
 
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const shader = gl.createShader(type);
+      if (!shader) {
+        throw new Error(`[InfiniteGridRenderer] Failed to create ${typeName} shader`);
+      }
 
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      const info = gl.getShaderInfoLog(shader) || "Shader compile failed";
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+
+      if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        return shader;
+      }
+
+      const info = gl.getShaderInfoLog(shader) || "";
+      const glError = gl.getError();
       gl.deleteShader(shader);
-      throw new Error(`[InfiniteGridRenderer] ${info}`);
+      if (!info && glError === gl.NO_ERROR && !gl.isContextLost() && attempt === 0) {
+        continue;
+      }
+      const detail = info || `Shader compile failed without a driver log (glError=0x${glError.toString(16)}, contextLost=${gl.isContextLost()})`;
+      throw new Error(`[InfiniteGridRenderer] ${typeName} ${detail}`);
     }
 
-    return shader;
+    throw new Error(`[InfiniteGridRenderer] Failed to compile ${typeName} shader`);
   }
 
   private getUniformLocation(name: string): WebGLUniformLocation {

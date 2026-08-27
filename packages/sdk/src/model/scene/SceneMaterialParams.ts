@@ -57,6 +57,55 @@ export interface SceneMaterialParams {
   metallic?: number;
 
   /**
+   * Strength of a dielectric clearcoat layer above the base material, in
+   * `[0, 1]`.
+   *
+   * Matches scalar glTF `KHR_materials_clearcoat.clearcoatFactor`
+   * semantics. `0` disables the layer; `1` applies the full coat. Only
+   * consulted on the smooth-shaded Cook-Torrance path.
+   *
+   * Default is `0.0`.
+   */
+  clearcoat?: number;
+
+  /**
+   * Microfacet roughness for the clearcoat layer, in `[0, 1]`.
+   *
+   * Matches scalar glTF
+   * `KHR_materials_clearcoat.clearcoatRoughnessFactor` semantics. Lower
+   * values produce tighter secondary highlights; higher values broaden
+   * them. Only consulted when {@link SceneMaterialParams.clearcoat} is
+   * greater than zero.
+   *
+   * Default is `0.0`.
+   */
+  clearcoatRoughness?: number;
+
+  /**
+   * Strength of a soft fabric-like sheen lobe above the base material, in
+   * `[0, 1]`.
+   *
+   * Matches scalar glTF `KHR_materials_sheen.sheenColorFactor` semantics by
+   * using one grayscale factor for all colour channels. `0` disables sheen;
+   * `1` applies the full lobe. Only consulted on the smooth-shaded
+   * Cook-Torrance path.
+   *
+   * Default is `0.0`.
+   */
+  sheen?: number;
+
+  /**
+   * Roughness for the scalar sheen lobe, in `[0, 1]`.
+   *
+   * Matches glTF `KHR_materials_sheen.sheenRoughnessFactor` semantics. Lower
+   * values give a tighter grazing highlight; higher values broaden it. Only
+   * consulted when {@link SceneMaterialParams.sheen} is greater than zero.
+   *
+   * Default is `0.5`.
+   */
+  sheenRoughness?: number;
+
+  /**
    * ID of a color texture created previously with {@link SceneModel.createTexture}.
    *
    * A color texture has color in *RGB* and alpha in *A*.

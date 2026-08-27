@@ -8,7 +8,7 @@ import type {RelationshipParams} from "./RelationshipParams";
  * This interface provides the configuration required to load {@link PropertySet | PropertySets},
  * {@link DataObject | DataObjects}, and {@link Relationship | Relationships} into a {@link DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export interface DataModelContentParams {
 

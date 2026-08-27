@@ -5,7 +5,7 @@ import {ModelExporter} from "../ModelExporter";
 /**
  * Exports a {@link model!scene.SceneModel | SceneModel} to an XGF file.
  *
- * For detailed usage, refer to {@link xgf | @xeokit/sdk/formats/xgf}.
+ * For detailed usage, refer to {@link formats!xgf | @xeokit/sdk/formats/xgf}.
  *
  * XGF carries the full visual model: geometry (positions, normals, UVs,
  * per-vertex colours, indices, edge indices, AABBs, modelling matrices), 3D

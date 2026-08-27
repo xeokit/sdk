@@ -7,7 +7,7 @@
  * This module describes the stable shape that viewer, Studio, presentation,
  * and spatial-picking code can use without depending on a concrete renderer
  * backend. Applications normally instantiate a backend such as
- * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}, while reusable
+ * {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}, while reusable
  * tooling can depend on the interfaces exported here.
  *
  * ## Usage
@@ -28,7 +28,7 @@
  * Backend-specific diagnostics, debug hooks, memory internals, shader
  * inspection, and render-bin statistics are intentionally outside this
  * contract. Use the concrete backend module, such as
- * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}, for those
+ * {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}, for those
  * implementation-specific APIs.
  *
  * @module rendering

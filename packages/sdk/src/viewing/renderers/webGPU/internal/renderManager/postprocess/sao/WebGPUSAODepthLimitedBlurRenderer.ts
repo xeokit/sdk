@@ -78,7 +78,7 @@ export class WebGPUSAODepthLimitedBlurRenderer {
           module: this._shaderModule,
           entryPoint: "fsMain",
           targets: [{
-            format: "r8unorm"
+            format: "r16float"
           }]
         },
         primitive: {

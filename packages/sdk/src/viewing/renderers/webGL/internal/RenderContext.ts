@@ -236,6 +236,15 @@ export class RenderContext implements WebGLContextProvider {
   /** Number of shadow cascades active this frame, in `[1, MAX_SHADOW_CASCADES]`. */
   public shadowCascadeCount: number;
 
+  /** Per-cascade light-depth range in world units, used for contact-hardening shadows. */
+  public shadowCascadeDepthRanges: Float32Array<any>;
+
+  /** Per-cascade world-space shadow-map texel size, used for contact-hardening shadows. */
+  public shadowCascadeTexelSizes: Float32Array<any>;
+
+  /** Contact-hardening shadow parameters: enabled, light radius, minimum radius, debug mode. */
+  public shadowSoftParams: Float32Array<any>;
+
   /**
    * IBL Layer-2 prefiltered samplers — populated by the IBL prefilter
    * pipeline before the BRDF passes run. The smooth-shaded technique
@@ -539,6 +548,9 @@ export class RenderContext implements WebGLContextProvider {
     this.shadowLightViewProjMatrices = new Float32Array(16 * MAX_SHADOW_CASCADES);
     this.shadowCascadeSplits = new Float32Array(MAX_SHADOW_CASCADES);
     this.shadowCascadeCount = 0;
+    this.shadowCascadeDepthRanges = new Float32Array(MAX_SHADOW_CASCADES);
+    this.shadowCascadeTexelSizes = new Float32Array(MAX_SHADOW_CASCADES);
+    this.shadowSoftParams = new Float32Array(4);
     this.shadowLightDirView = new Float32Array(3);
     this.iblIrradianceCubemap = this._placeholderCubemap;
     this.iblPrefilteredCubemap = this._placeholderCubemap;

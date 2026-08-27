@@ -309,13 +309,20 @@ fn loadSAOFactor(uv: vec2<f32>) -> f32 {
   return clamp((smoothstep(params.saoBlendCutoff, 1.0, occlusion) - 1.0) * params.saoBlendFactor + 1.0, 0.0, 1.0);
 }
 
+fn sampleDisplay(uv: vec2<f32>) -> vec3<f32> {
+  let scene = sampleScene(uv);
+  let saoFactor = loadSAOFactor(uv);
+  let occluded = scene * select(1.0, saoFactor, params.saoEnabled > 0.5);
+  return applyTonemap(occluded);
+}
+
 fn applyFXAA(uv: vec2<f32>) -> vec3<f32> {
   let inv = params.inverseViewport;
-  let rgbNW = sampleScene(uv + vec2<f32>(-1.0, -1.0) * inv);
-  let rgbNE = sampleScene(uv + vec2<f32>( 1.0, -1.0) * inv);
-  let rgbSW = sampleScene(uv + vec2<f32>(-1.0,  1.0) * inv);
-  let rgbSE = sampleScene(uv + vec2<f32>( 1.0,  1.0) * inv);
-  let rgbM = sampleScene(uv);
+  let rgbNW = sampleDisplay(uv + vec2<f32>(-1.0, -1.0) * inv);
+  let rgbNE = sampleDisplay(uv + vec2<f32>( 1.0, -1.0) * inv);
+  let rgbSW = sampleDisplay(uv + vec2<f32>(-1.0,  1.0) * inv);
+  let rgbSE = sampleDisplay(uv + vec2<f32>( 1.0,  1.0) * inv);
+  let rgbM = sampleDisplay(uv);
   let lumaNW = luma(rgbNW);
   let lumaNE = luma(rgbNE);
   let lumaSW = luma(rgbSW);
@@ -332,12 +339,12 @@ fn applyFXAA(uv: vec2<f32>) -> vec3<f32> {
   let rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
   dir = clamp(dir * rcpDirMin, vec2<f32>(-8.0), vec2<f32>(8.0)) * inv;
   let rgbA = 0.5 * (
-    sampleScene(uv + dir * (1.0 / 3.0 - 0.5)) +
-    sampleScene(uv + dir * (2.0 / 3.0 - 0.5))
+    sampleDisplay(uv + dir * (1.0 / 3.0 - 0.5)) +
+    sampleDisplay(uv + dir * (2.0 / 3.0 - 0.5))
   );
   let rgbB = rgbA * 0.5 + 0.25 * (
-    sampleScene(uv + dir * -0.5) +
-    sampleScene(uv + dir * 0.5)
+    sampleDisplay(uv + dir * -0.5) +
+    sampleDisplay(uv + dir * 0.5)
   );
   let lumaB = luma(rgbB);
   let constrained = select(rgbB, rgbA, lumaB < lumaMin || lumaB > lumaMax);
@@ -347,12 +354,9 @@ fn applyFXAA(uv: vec2<f32>) -> vec3<f32> {
 
 @fragment
 fn fsMain(input: VertexOutput) -> @location(0) vec4<f32> {
-  let scene = sampleScene(input.uv);
+  let scene = sampleDisplay(input.uv);
   let fxaa = applyFXAA(input.uv);
-  var color = select(scene, fxaa, params.fxaaEnabled > 0.5);
-  let saoFactor = loadSAOFactor(input.uv);
-  color = color * select(1.0, saoFactor, params.saoEnabled > 0.5);
-  color = applyTonemap(color);
+  let color = select(scene, fxaa, params.fxaaEnabled > 0.5);
   return vec4<f32>(color, 1.0);
 }
 `;

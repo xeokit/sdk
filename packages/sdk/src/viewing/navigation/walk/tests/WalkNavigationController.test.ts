@@ -1,4 +1,5 @@
 import type {Vec3} from "../../../../base/math/vector";
+import {getGlobalTaskRunner} from "../../../../base/core";
 import {WalkNavigationController} from "../WalkNavigationController";
 
 type Listener = (event: any) => void;
@@ -123,6 +124,10 @@ function dispatchKey(type: string, code: string, key: string) {
     } as any);
 }
 
+function runTasks() {
+    (getGlobalTaskRunner() as any).runTasks();
+}
+
 describe("WalkNavigationController", () => {
     let now = 0;
     let nowSpy: jest.SpyInstance<number, []>;
@@ -201,6 +206,39 @@ describe("WalkNavigationController", () => {
 
         expect(controller.walkSpeed).toBe(4);
         expect(controller.runSpeed).toBe(8.5);
+        controller.destroy();
+    });
+
+    it("can smooth horizontal acceleration and deceleration", () => {
+        const view = makeView();
+        const controller = new WalkNavigationController(view, {
+            active: true,
+            raycaster: makeEdgeRaycaster() as any,
+            keyboardEnabledOnlyOnMouseover: false,
+            collision: false,
+            gravity: false,
+            walkSpeed: 10,
+            movementAcceleration: 20,
+            movementDeceleration: 10
+        });
+
+        press("KeyW", "w");
+        now = 100;
+        runTasks();
+        expect(view.camera.eye[0]).toBeCloseTo(0.2);
+
+        now = 200;
+        runTasks();
+        expect(view.camera.eye[0]).toBeCloseTo(0.6);
+
+        release("KeyW", "w");
+        now = 300;
+        runTasks();
+        expect(view.camera.eye[0]).toBeCloseTo(0.9);
+
+        now = 400;
+        runTasks();
+        expect(view.camera.eye[0]).toBeCloseTo(1.1);
         controller.destroy();
     });
 });

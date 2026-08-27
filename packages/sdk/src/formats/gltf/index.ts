@@ -106,7 +106,7 @@
  *
  * The following example demonstrates a complete flow:
  *
- * - create a {@link viewing!viewer.Viewer | Viewer} and {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}
+ * - create a {@link viewing!viewer.Viewer | Viewer} and {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}
  * - create a {@link viewing!viewer.View | View} bound to a canvas
  * - load a binary glTF (`.glb`) file into a {@link model!scene.SceneModel | SceneModel}
  *

@@ -4,7 +4,7 @@ import {ModelExporter} from "../ModelExporter";
 /**
  * Exports a {@link model!scene.SceneModel | SceneModel} to MTL format.
  *
- * For detailed usage, refer to {@link mtl | @xeokit/sdk/formats/mtl}.
+ * For detailed usage, refer to {@link formats!mtl | @xeokit/sdk/formats/mtl}.
  */
 export class MTLExporter extends ModelExporter {
   constructor() {

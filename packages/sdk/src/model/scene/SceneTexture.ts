@@ -33,7 +33,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * {@link SceneMaterial.metallicRoughnessTexture | SceneMaterial.metallicRoughnessTexture},
  * {@link SceneMaterial.occlusionTexture | SceneMaterial.occlusionTexture} and {@link SceneMaterial.emissiveTexture | SceneMaterial.emissiveTexture}
  *
- * See {@link scene | @xeokit/sdk/model/scene}   for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene}   for usage.
  */
 export class SceneTexture {
 

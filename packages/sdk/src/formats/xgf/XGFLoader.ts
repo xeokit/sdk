@@ -5,7 +5,7 @@ import {parse as parseV2} from "./versions/v2/parse";
 /**
  * Loads an XGF file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link xgf | @xeokit/sdk/formats/xgf}.
+ * For detailed usage, refer to {@link formats!xgf | @xeokit/sdk/formats/xgf}.
  */
 export class XGFLoader extends ModelLoader {
 

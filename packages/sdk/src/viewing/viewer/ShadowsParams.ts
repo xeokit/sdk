@@ -1,6 +1,21 @@
 import type {FloatArrayParam} from "../../base/math";
 
 /**
+ * Shadow debug output mode.
+ */
+export type ShadowDebugMode =
+  | boolean
+  | "factor"
+  | "depth"
+  | "rawDepth"
+  | "cascade"
+  | "refDepth"
+  | "bias"
+  | "blockerDepth"
+  | "filterRadius"
+  | "visibility";
+
+/**
  * Parameters for a {@link Shadows}.
  *
  * * Returned by {@link Shadows.toParams | Shadows.toParams}
@@ -23,7 +38,7 @@ export interface ShadowsParams {
   /**
    * Depth-compare bias used to avoid self-shadowing ("shadow acne").
    *
-   * Applied in light-space normalized depth units. Default value is ````0.0015````.
+   * Applied in light-space normalized depth units. Default value is ````0.001````.
    */
   bias?: number;
 
@@ -96,11 +111,45 @@ export interface ShadowsParams {
   pcfKernelSize?: number;
 
   /**
+   * Enables contact-hardening shadow filtering. When enabled, the renderer
+   * searches nearby shadow-map texels for blockers and grows the PCF radius
+   * as receiver distance from those blockers increases.
+   *
+   * Default value is `false`.
+   */
+  contactHardening?: boolean;
+
+  /**
+   * World-space penumbra scale used by contact-hardening shadows.
+   * Higher values make separated caster/receiver pairs soften faster.
+   *
+   * Default value is `0.08`.
+   */
+  lightRadius?: number;
+
+  /**
+   * Debug output mode for inspecting shadow-map sampling.
+   *
+   * * `false` disables debug output.
+   * * `true` or `"factor"` shows the final shadow visibility factor.
+   * * `"rawDepth"` or `"depth"` shows raw shadow-map depth for the selected cascade.
+   * * `"cascade"` false-colors fragments by selected cascade.
+   * * `"refDepth"` shows the receiver reference depth after bias.
+   * * `"bias"` shows the total depth bias, scaled for visualization.
+   * * `"blockerDepth"` shows the average blocker depth used by contact hardening.
+   * * `"filterRadius"` shows the resolved PCF filter radius.
+   * * `"visibility"` shows raw PCF visibility before intensity is applied.
+   *
+   * Default value is `false`.
+   */
+  debug?: ShadowDebugMode;
+
+  /**
    * View-space distance by which receivers are pushed toward the light before
    * sampling the shadow map. Eliminates shadow acne at glancing angles
    * without needing a large depth {@link ShadowsParams.bias}.
    *
-   * Default value is `0.005`.
+   * Default value is `0.0035`.
    */
   normalOffsetBias?: number;
 
@@ -110,7 +159,7 @@ export interface ShadowsParams {
    * clamped to avoid blow-up at near-parallel angles. Complements
    * {@link ShadowsParams.normalOffsetBias}.
    *
-   * Default value is `0.001`.
+   * Default value is `0.00125`.
    */
   slopeBias?: number;
 

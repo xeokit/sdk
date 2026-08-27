@@ -81,7 +81,7 @@
  * `write` resolves with the `SceneModelParams` object itself — stringify it yourself to persist it.
  *
  * ```ts
- * import { SceneModelExporter } from "@xeokit/sdk/scenemodel";
+ * import { SceneModelExporter } from "@xeokit/sdk/formats/scenemodel";
  *
  * const exporter = new SceneModelExporter();
  *
@@ -100,7 +100,7 @@
  * pass the params as `fileData`, then `build` it once loaded — `load` resolves with no value.
  *
  * ```ts
- * import { SceneModelImporter } from "@xeokit/sdk/scenemodel";
+ * import { SceneModelImporter } from "@xeokit/sdk/formats/scenemodel";
  * import { Scene } from "@xeokit/sdk/model/scene";
  *
  * const scene = new Scene();

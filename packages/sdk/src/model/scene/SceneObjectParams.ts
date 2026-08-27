@@ -4,7 +4,7 @@
  * * Passed to  {@link SceneModel.createObject | SceneModel.createObject}
  * * Located at {@link SceneModelParams.objects | SceneModelParams.objects}
  *
- * See {@link scene | @xeokit/sdk/model/scene} for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
  */
 export interface SceneObjectParams {
 

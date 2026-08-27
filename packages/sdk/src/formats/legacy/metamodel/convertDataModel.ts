@@ -11,7 +11,7 @@ import type {MetaPropertySetParams} from "./MetaPropertySetParams";
  * back into each meta-object's `parent`, and the entity–relationship graph is
  * flattened into the MetaModel's parent-pointer hierarchy.
  *
- * See {@link "metamodel" | @xeokit/sdk/metamodel} for usage.
+ * See {@link formats!metamodel | @xeokit/sdk/formats/metamodel} for usage.
  */
 export function convertDataModel(dataModelParams: DataModelParams): MetaModelParams {
 

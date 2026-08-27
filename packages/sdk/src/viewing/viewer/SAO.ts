@@ -2,6 +2,8 @@ import {type SAOParams} from "./SAOParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import {CustomProjectionType, FrustumProjectionType} from "../../base/constants";
+import {normalizeSAODebugMode} from "./SAOSampling";
+import type {SAODebugMode} from "./SAOParams";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link viewing!viewer.View | View}.
@@ -10,7 +12,7 @@ import {CustomProjectionType, FrustumProjectionType} from "../../base/constants"
  * * Disabled by default. Set {@link SAO.enabled | enabled} to `true`
  *   or pass `effects: {sao: {enabled: true}}` when creating a View.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
 export class SAO {
 
@@ -28,6 +30,7 @@ export class SAO {
   private _blur: boolean;
   private _blendCutoff: number;
   private _kernelRadius: number;
+  private _debug: SAODebugMode;
   private _destroyed: boolean = false;
 
   /** @private */
@@ -44,6 +47,7 @@ export class SAO {
     this._blur = saoParams.blur !== false;
     this._blendCutoff = (saoParams.blendCutoff !== undefined) ? saoParams.blendCutoff : 0.3;
     this._blendFactor = (saoParams.blendFactor !== undefined) ? saoParams.blendFactor : 1.0;
+    this._debug = normalizeSAODebugMode(saoParams.debug);
   }
 
       set enabled(value: boolean) {
@@ -308,6 +312,29 @@ export class SAO {
   }
 
   /**
+   * Gets the SAO debug output mode.
+   *
+   * Default value is `false`.
+   */
+  get debug(): SAODebugMode {
+    return this._debug;
+  }
+
+  /**
+   * Sets the SAO debug output mode.
+   *
+   * Default value is `false`.
+   */
+  set debug(value: SAODebugMode) {
+    const mode = normalizeSAODebugMode(value);
+    if (this._debug === mode) {
+      return;
+    }
+    this._debug = mode;
+    this.view.needsRender();
+  }
+
+  /**
    * Gets if SAO is currently applied.
    *
    * This is `true` when the component enabled state is
@@ -333,7 +360,8 @@ export class SAO {
         scale: this.scale,
         blur: this.blur,
         blendCutoff: this.blendCutoff,
-        kernelRadius: this.kernelRadius
+        kernelRadius: this.kernelRadius,
+        debug: this.debug
       }
     };
   }
@@ -361,6 +389,7 @@ export class SAO {
     this.blur = saoParams.blur;
     this.blendCutoff = saoParams.blendCutoff;
     this.kernelRadius = saoParams.kernelRadius;
+    this.debug = saoParams.debug;
     return {
       ok: true,
       value: undefined

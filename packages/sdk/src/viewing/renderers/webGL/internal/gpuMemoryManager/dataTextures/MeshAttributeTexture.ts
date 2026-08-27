@@ -47,7 +47,11 @@ import { ItemDataTexture } from "./ItemDataTexture";
  *                 while textured materials carry `[1,1,1]` (or an explicit
  *                 factor), so emissive = factor × texture.
  *   - `base + 17` billboard mode (`0 = none`, `1 = spherical`)
- *   - `base + 18..19` reserved
+ *   - `base + 18` scalar surface layer params — bits 0-7 are clearcoat
+ *                 strength (u8), bits 8-15 are clearcoat roughness (u8),
+ *                 bits 16-23 are sheen strength (u8), bits 24-31 are sheen
+ *                 roughness (u8)
+ *   - `base + 19` reserved
  *
  * Each UV transform takes per-vertex `vUV ∈ [0, 1]` to atlas-space:
  * `atlasUV = vUV * (uScale, vScale) + (uOffset, vOffset)`. Different
@@ -95,6 +99,10 @@ setItem(itemIndex: number, item: {
   geometryIndex?: number;
   roughness?: number;
   metallic?: number;
+  clearcoat?: number;
+  clearcoatRoughness?: number;
+  sheen?: number;
+  sheenRoughness?: number;
   alphaMode?: number;
   alphaCutoff?: number;
   albedoUVOffset?: [number, number];
@@ -215,6 +223,22 @@ setItem(itemIndex: number, item: {
   if (item.billboard !== undefined) {
     this.buffer[base + 17] = this.toU32(item.billboard);
   }
+  if (item.clearcoat !== undefined || item.clearcoatRoughness !== undefined || item.sheen !== undefined || item.sheenRoughness !== undefined) {
+    const existing = this.buffer[base + 18] >>> 0;
+    const clearcoat8 = item.clearcoat !== undefined
+      ? clampU8(item.clearcoat * 255)
+      : (existing & 0xff);
+    const roughness8 = item.clearcoatRoughness !== undefined
+      ? clampU8(item.clearcoatRoughness * 255)
+      : ((existing >>> 8) & 0xff);
+    const sheen8 = item.sheen !== undefined
+      ? clampU8(item.sheen * 255)
+      : ((existing >>> 16) & 0xff);
+    const sheenRoughness8 = item.sheenRoughness !== undefined
+      ? clampU8(item.sheenRoughness * 255)
+      : ((existing >>> 24) & 0xff);
+    this.buffer[base + 18] = (clearcoat8 | (roughness8 << 8) | (sheen8 << 16) | (sheenRoughness8 << 24)) >>> 0;
+  }
   this.setItemDirty(itemIndex);
 }
 
@@ -223,6 +247,10 @@ getItem(itemIndex: number): {
   geometryIndex: number;
   roughness: number;
   metallic: number;
+  clearcoat: number;
+  clearcoatRoughness: number;
+  sheen: number;
+  sheenRoughness: number;
   albedoUVOffset: [number, number];
   albedoUVScale:  [number, number];
   metallicRoughnessUVOffset: [number, number];
@@ -232,11 +260,16 @@ getItem(itemIndex: number): {
 } {
   const base = itemIndex * this.elementsPerItem;
   const packedMat = this.buffer[base + 2] >>> 0;
+  const packedClearcoat = this.buffer[base + 18] >>> 0;
   return {
     tileIndex: this.buffer[base],
     geometryIndex: this.buffer[base + 1],
     roughness: (packedMat & 0xff) / 255,
     metallic:  ((packedMat >>> 8) & 0xff) / 255,
+    clearcoat: (packedClearcoat & 0xff) / 255,
+    clearcoatRoughness: ((packedClearcoat >>> 8) & 0xff) / 255,
+    sheen: ((packedClearcoat >>> 16) & 0xff) / 255,
+    sheenRoughness: ((packedClearcoat >>> 24) & 0xff) / 255,
     albedoUVOffset: unpackUV2(this.buffer[base + 4] >>> 0),
     albedoUVScale:  unpackUV2(this.buffer[base + 5] >>> 0),
     metallicRoughnessUVOffset: unpackUV2(this.buffer[base + 6] >>> 0),

@@ -8,6 +8,7 @@ export interface PackedMeshBatch {
   bufferPageKey?: string;
   renderStateKey?: string;
   topology?: "triangles" | "edges";
+  skipDepthPrepass?: boolean;
   vertexBuffer: WebGPUBufferLike;
   vertexBufferOffset?: number;
   colorBuffer?: WebGPUBufferLike | null;

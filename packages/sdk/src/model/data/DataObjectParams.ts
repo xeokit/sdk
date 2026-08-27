@@ -4,7 +4,7 @@
  * - Passed to {@link DataModel.createObject | DataModel.createObject}.
  * - Located at {@link DataModelParams.objects | DataModelParams.objects}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export interface DataObjectParams {
 
@@ -15,7 +15,7 @@ export interface DataObjectParams {
    * {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType},
    * {@link DataModel.objects | DataModel.objects}, and {@link DataModel.rootObjects | DataModel.rootObjects}.
    *
-   * For further details, see {@link scene | @xeokit/sdk/model/scene}.
+   * For further details, see {@link model!scene | @xeokit/sdk/model/scene}.
    */
   id: string;
 

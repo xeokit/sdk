@@ -23,7 +23,7 @@ const MAX_VERTICES = 20000;
  * stored relative to a per-scan RTC origin for precision, and batched into
  * {@link base!constants.PointsPrimitive | point} geometries.
  *
- * For detailed usage, refer to {@link e57 | @xeokit/sdk/formats/e57}.
+ * For detailed usage, refer to {@link formats!e57 | @xeokit/sdk/formats/e57}.
  */
 export class E57Loader extends ModelLoader {
   constructor() {

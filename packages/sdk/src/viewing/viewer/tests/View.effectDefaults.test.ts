@@ -40,6 +40,7 @@ describe("View effect defaults", () => {
 
     const effects = viewResult.value!.effects;
     expect(effects.sao.enabled).toBe(false);
+    expect(effects.sao.debug).toBe(false);
     expect(effects.edges.enabled).toBe(false);
     expect(effects.bloom.enabled).toBe(false);
     expect(effects.atmosphere.enabled).toBe(false);
@@ -48,6 +49,9 @@ describe("View effect defaults", () => {
     expect(effects.tonemap.enabled).toBe(false);
     expect(effects.antiAliasing.enabled).toBe(false);
     expect(effects.shadows.enabled).toBe(false);
+    expect(effects.shadows.contactHardening).toBe(false);
+    expect(effects.shadows.lightRadius).toBe(0.08);
+    expect(effects.shadows.debug).toBe(false);
     expect(effects.sky.enabled).toBe(false);
     expect(viewResult.value!.lights.ibl.enabled).toBe(false);
     expect(viewResult.value!.lights.hemispheric.enabled).toBe(false);
@@ -92,7 +96,7 @@ describe("View effect defaults", () => {
       id: "view",
       htmlElement: createHostElement(),
       effects: {
-        sao: {enabled: true},
+        sao: {enabled: true, debug: "rawOcclusion"},
         edges: {enabled: true},
         bloom: {enabled: true},
         atmosphere: {enabled: true},
@@ -100,7 +104,7 @@ describe("View effect defaults", () => {
         colorGrading: {enabled: true},
         tonemap: {enabled: true},
         antiAliasing: {enabled: true},
-        shadows: {enabled: true},
+        shadows: {enabled: true, contactHardening: true, lightRadius: 0.12, debug: "cascade"},
         sky: {enabled: true},
         ibl: {enabled: true}
       },
@@ -112,6 +116,7 @@ describe("View effect defaults", () => {
 
     const effects = viewResult.value!.effects;
     expect(effects.sao.enabled).toBe(true);
+    expect(effects.sao.debug).toBe("rawOcclusion");
     expect(effects.edges.enabled).toBe(true);
     expect(effects.bloom.enabled).toBe(true);
     expect(effects.atmosphere.enabled).toBe(true);
@@ -120,9 +125,46 @@ describe("View effect defaults", () => {
     expect(effects.tonemap.enabled).toBe(true);
     expect(effects.antiAliasing.enabled).toBe(true);
     expect(effects.shadows.enabled).toBe(true);
+    expect(effects.shadows.contactHardening).toBe(true);
+    expect(effects.shadows.lightRadius).toBe(0.12);
+    expect(effects.shadows.debug).toBe("cascade");
     expect(effects.sky.enabled).toBe(true);
     expect(viewResult.value!.lights.ibl.enabled).toBe(true);
     expect(viewResult.value!.lights.hemispheric.enabled).toBe(true);
+  });
+
+  it("round-trips contact-hardening shadow params", () => {
+    const viewer = new Viewer({scene: new Scene()});
+    const viewResult = viewer.createView({
+      id: "view",
+      htmlElement: createHostElement(),
+      effects: {
+        shadows: {enabled: true, contactHardening: true, lightRadius: 0.14, debug: true}
+      }
+    });
+    expect(viewResult.ok).toBe(true);
+
+    const params = viewResult.value!.toParams();
+    expect(params.ok).toBe(true);
+    expect(params.value!.effects?.shadows?.contactHardening).toBe(true);
+    expect(params.value!.effects?.shadows?.lightRadius).toBe(0.14);
+    expect(params.value!.effects?.shadows?.debug).toBe("factor");
+  });
+
+  it("round-trips SAO debug params", () => {
+    const viewer = new Viewer({scene: new Scene()});
+    const viewResult = viewer.createView({
+      id: "view",
+      htmlElement: createHostElement(),
+      effects: {
+        sao: {enabled: true, debug: true}
+      }
+    });
+    expect(viewResult.ok).toBe(true);
+
+    const params = viewResult.value!.toParams();
+    expect(params.ok).toBe(true);
+    expect(params.value!.effects?.sao?.debug).toBe("finalFactor");
   });
 
   it("applies deferred lighting effect enablement from params", () => {

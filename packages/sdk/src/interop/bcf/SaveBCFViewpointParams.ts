@@ -18,7 +18,7 @@ export interface BCFSnapshotSource {
 /**
  * Parameters for {@link saveBCFViewpoint | saveBCFViewpoint}.
  *
- * See {@link bcf | @xeokit/sdk/interop/bcf}  for usage.
+ * See {@link interop!bcf | @xeokit/sdk/interop/bcf}  for usage.
  */
 export interface SaveBCFViewpointParams {
 

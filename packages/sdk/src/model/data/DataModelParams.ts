@@ -7,7 +7,7 @@ import type {DataModelContentParams} from "./DataModelContentParams";
  * * Returned by {@link DataModel.toParams | DataModel.toParams}.
  * * Passed to {@link DataModel.fromParams | DataModel.fromParams} and {@link Data.createModel | Data.createModel}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export interface DataModelParams extends DataModelContentParams {
 

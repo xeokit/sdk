@@ -1286,9 +1286,9 @@ export function compressRGBColors(colors: FloatArrayParam): IntArrayParam {
  * This is the conversion the WebGL renderer applies before writing into
  * its `RGBA8UI` per-view attribute texture. Centralising it here keeps
  * the convention in one place — both the initial-upload path
- * ({@link viewing!webGLRenderer.internal.GPUMemoryBatch | GPUMemoryBatch})
+ * ({@link viewing!renderers.webGL.internal.GPUMemoryBatch | GPUMemoryBatch})
  * and the colour-change / colorize-clear paths
- * ({@link viewing!webGLRenderer.internal.RendererMesh | RendererMesh})
+ * ({@link viewing!renderers.webGL.internal.RendererMesh | RendererMesh})
  * agree on it.
  *
  * Differences from {@link compressRGBColors}:

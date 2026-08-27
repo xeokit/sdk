@@ -129,7 +129,7 @@ export interface FlyToParams {
  * Animates a {@link viewing!viewer.View | View}'s {@link viewing!viewer.Camera | Camera}
  * to smoothly transition to a specified target, such as a component, bounding box, or viewpoint.
  *
- * Use {@link cameraFlight | @xeokit/sdk/viewing/cameraFlight} to create cinematic camera motions.
+ * Use {@link viewing!cameraFlight | @xeokit/sdk/viewing/cameraFlight} to create cinematic camera motions.
  */
 export class CameraFlightAnimation {
 

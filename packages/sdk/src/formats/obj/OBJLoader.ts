@@ -4,7 +4,7 @@ import {parse as parse_1_0} from "./versions/v1_0/parse"
 /**
  * Loads a OBJ file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link obj | @xeokit/sdk/formats/obj}.
+ * For detailed usage, refer to {@link formats!obj | @xeokit/sdk/formats/obj}.
  */
 export class OBJLoader extends ModelLoader {
 

@@ -17,7 +17,7 @@ export type SceneMeshBillboard = "none" | "spherical";
  * * Passed to  {@link SceneModel.createMesh | SceneModel.addMesh}
  * * Located at {@link SceneModelParams.meshes | SceneModelParams.meshes}
  *
- * See {@link scene | @xeokit/sdk/model/scene} for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
  */
 export interface SceneMeshParams {
 

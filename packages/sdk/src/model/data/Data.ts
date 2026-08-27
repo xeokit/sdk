@@ -22,7 +22,7 @@ import {createUUID} from "../../base/utils";
  * - Lifecycle management (creation, destruction, registration)
  * - Error reporting with optional console logging
  *
- * See {@link data | @xeokit/sdk/model/data} for general usage examples.
+ * See {@link model!data | @xeokit/sdk/model/data} for general usage examples.
  */
 export class Data {
 
@@ -79,7 +79,7 @@ export class Data {
   /**
    * Creates a new Data.
    *
-   * See {@link data | @xeokit/sdk/model/data}   for usage.
+   * See {@link model!data | @xeokit/sdk/model/data}   for usage.
    *
    * @param dataParams Parameters for creating this Data.
    * @param dataParams.logging Indicates whether to log errors to the console for this Data.

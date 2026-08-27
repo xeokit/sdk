@@ -4,7 +4,7 @@ import type {Mat4} from "../../base/math/matrix";
 /**
  * Options for {@link formats!las.LASLoader.load | LASLoader.load}.
  *
- * For detailed usage, refer to {@link las | @xeokit/sdk/formats/las}.
+ * For detailed usage, refer to {@link formats!las | @xeokit/sdk/formats/las}.
  */
 export interface LASLoaderOptions extends ModelLoadOptions  {
 

@@ -93,7 +93,7 @@
  *   Accepts ray, matrix, or `canvasPos` (turned into a ray via the
  *   View's camera). No GPU stall; no snap.
  * - **{@link RendererPickStrategy}** — GPU-side, drives the
- *   {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}. Only
+ *   {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}. Only
  *   `canvasPos` input; returns world normals, UVs, and snap targets
  *   at the cost of a `gl.readPixels` per call.
  * - **{@link RoutingPickStrategy}** — composes the two. Without snap,
@@ -134,7 +134,7 @@
  * ### 2) Construct a routing picker
  *
  * Pass the {@link model!scene.Scene | Scene} and the (optional)
- * {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}. Without
+ * {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}. Without
  * a renderer the strategy is BVH-only; snap requests degrade silently.
  *
  * ```javascript

@@ -11,7 +11,7 @@
  * ---
  *
  * XKT is the native binary format of xeokit v2, produced by `xeokit-convert`. It
- * has been superseded by {@link xgf | XGF} in v3, but is still supported for
+ * has been superseded by {@link formats!xgf | XGF} in v3, but is still supported for
  * compatibility with existing XKT assets. {@link XKTLoader} reads the geometry,
  * meshes, and objects into a {@link model!scene.SceneModel | SceneModel}, and the
  * embedded model / object metadata into a {@link model!data.DataModel | DataModel};

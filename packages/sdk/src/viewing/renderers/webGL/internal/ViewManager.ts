@@ -414,7 +414,7 @@ export class ViewManager {
     if (!this._renderManager) {
       throw new SDKInternalException("[ViewManager.setInfiniteGridEnabled] ViewManager is not initialized");
     }
-    this._renderManager.infiniteGrid.enabled = enabled;
+    this._renderManager.setInfiniteGridEnabled(enabled);
     this._activeViewNeedsRenderAfterAlignment = true;
     this._renderActiveViewIfNeeded();
   }

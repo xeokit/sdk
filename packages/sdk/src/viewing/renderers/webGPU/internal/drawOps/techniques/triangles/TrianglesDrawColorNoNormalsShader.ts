@@ -6,6 +6,7 @@ import {
   triangleLogDepthVertexField,
   triangleLogDepthVertexWrite
 } from "./TriangleLogDepth";
+import {TRIANGLES_SHADOW_SAMPLING_WGSL} from "./TrianglesShadowSampling";
 
 /**
  * WGSL shader for no-normal triangle surface rendering.
@@ -46,6 +47,11 @@ struct ShadowUniforms {
   cameraView: mat4x4<f32>,
   cascadeSplits0: vec4<f32>,
   cascadeSplits1: vec4<f32>,
+  soft: vec4<f32>,
+  cascadeDepthRanges0: vec4<f32>,
+  cascadeDepthRanges1: vec4<f32>,
+  cascadeTexelSizes0: vec4<f32>,
+  cascadeTexelSizes1: vec4<f32>,
 };
 
 @group(3) @binding(0) var<uniform> shadow: ShadowUniforms;
@@ -80,6 +86,8 @@ struct VertexInput {
   @location(3) material0: vec4<f32>,
   @location(4) material1: vec4<f32>,
   @location(5) normal: vec4<f32>,
+  @location(6) vertexColor: vec4<f32>,
+  @location(8) material2: vec4<f32>,
 };
 
 struct VertexOutput {
@@ -102,7 +110,7 @@ fn vs_main(input: VertexInput) -> VertexOutput {
   let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
   var output: VertexOutput;
   output.position = rtcTile.viewProjection * rtcWorldPos;
-  output.color = instance.color;
+  output.color = instance.color * input.vertexColor;
   output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
   output.clippable = instance.flags.x;
   output.rtcPos = rtcWorldPos.xyz / rtcWorldPos.w;
@@ -115,81 +123,7 @@ ${triangleLogDepthVertexWrite(logDepth)}
 
 ${triangleLogDepthFragmentOutputStruct(logDepth, true)}
 
-fn getCascadeSplit(index: i32) -> f32 {
-  if (index == 0) {
-    return shadow.cascadeSplits0.x;
-  }
-  if (index == 1) {
-    return shadow.cascadeSplits0.y;
-  }
-  if (index == 2) {
-    return shadow.cascadeSplits0.z;
-  }
-  if (index == 3) {
-    return shadow.cascadeSplits0.w;
-  }
-  if (index == 4) {
-    return shadow.cascadeSplits1.x;
-  }
-  return shadow.cascadeSplits1.y;
-}
-
-fn selectShadowCascade(viewZ: f32) -> i32 {
-  let cascadeCount = i32(clamp(shadow.debug.y, 1.0, 6.0));
-  var cascade = 0;
-  for (var i = 0; i < 5; i = i + 1) {
-    if (i < cascadeCount - 1 && viewZ > getCascadeSplit(i)) {
-      cascade = cascade + 1;
-    }
-  }
-  return cascade;
-}
-
-fn sampleShadow(input: VertexOutput, normal: vec3<f32>) -> f32 {
-  if (shadow.params.x < 0.5) {
-    return 1.0;
-  }
-  let viewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
-  let cascade = selectShadowCascade(-viewPos.z);
-  let shadowNormal = normalize(normal);
-  var shadowClip = shadow.lightViewProjections[cascade] * vec4<f32>(input.worldPos, 1.0);
-  if (shadow.params.w > 0.0) {
-    let shadowOffset = shadow.lightViewProjections[cascade] * vec4<f32>(shadowNormal * shadow.params.w, 0.0);
-    shadowClip = shadowClip + shadowOffset;
-  }
-  let shadowNdc = shadowClip.xyz / shadowClip.w;
-  let shadowUV = vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5);
-  if (
-    shadowUV.x <= 0.0 || shadowUV.x >= 1.0 ||
-    shadowUV.y <= 0.0 || shadowUV.y >= 1.0 ||
-    shadowNdc.z <= 0.0 || shadowNdc.z >= 1.0
-  ) {
-    return 1.0;
-  }
-  let dims = vec2<f32>(textureDimensions(shadowMap));
-  let texel = 1.0 / max(dims, vec2<f32>(1.0, 1.0));
-  let lightDirWorld = normalize(shadow.lightDirection.xyz);
-  let cosTheta = clamp(dot(shadowNormal, -lightDirWorld), 0.001, 1.0);
-  let slopeFactor = min(sqrt(max(0.0, 1.0 - cosTheta * cosTheta)) / cosTheta, 10.0);
-  let slopeBias = shadow.lightDirection.w * slopeFactor;
-  let refDepth = shadowNdc.z - shadow.params.z - slopeBias;
-  let radius = i32(clamp(shadow.debug.w, 0.0, 3.0));
-  if (radius == 0) {
-    let hardLit = textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV, cascade, refDepth);
-    return 1.0 - (1.0 - hardLit) * shadow.params.y;
-  }
-  var lit = 0.0;
-  let diameter = radius * 2 + 1;
-  let tapCount = f32(diameter * diameter);
-  for (var y = -radius; y <= radius; y = y + 1) {
-    for (var x = -radius; x <= radius; x = x + 1) {
-      let offset = vec2<f32>(f32(x), f32(y)) * texel;
-      lit += textureSampleCompareLevel(shadowMap, shadowSampler, shadowUV + offset, cascade, refDepth);
-    }
-  }
-  let visibility = lit / tapCount;
-  return 1.0 - (1.0 - visibility) * shadow.params.y;
-}
+${TRIANGLES_SHADOW_SAMPLING_WGSL}
 
 fn triplanarWeights(normal: vec3<f32>) -> vec3<f32> {
   let w = pow(abs(normal), vec3<f32>(4.0));
@@ -301,10 +235,17 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   } else if (useUVTexture) {
     baseColorSample = textureSampleGrad(colorTexture, colorSampler, uv, mipDx(uvDx), mipDy(uvDy));
   }
-  let alpha = input.color.a * baseColorSample.a;
-  if (input.material1.y > 0.5 && input.material1.y < 1.5 && alpha < input.material1.z) {
-    discard;
+  let sampledAlpha = input.color.a * baseColorSample.a;
+  let sampledAlphaWidth = max(fwidth(sampledAlpha), 0.0001);
+  if (input.material1.y > 0.5 && input.material1.y < 1.5) {
+    // Reject the bilinear transition band so masked foliage does not shade
+    // RGB from source texels authored only as transparent padding.
+    let aaAlpha = (sampledAlpha - input.material1.z) / sampledAlphaWidth + 0.5;
+    if (aaAlpha < 1.0) {
+      discard;
+    }
   }
+  let alpha = select(input.color.a, sampledAlpha, input.material1.y > 1.5);
   let baseColor = input.color.rgb * baseColorSample.rgb;
 
   var emissiveSample = vec4<f32>(0.0, 0.0, 0.0, 1.0);
@@ -332,35 +273,16 @@ fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${t
   let hemisphereColor = hemisphereAmbient * max(frame.hemisphereSky.a, 0.0) * baseColor * ao;
   let ambientColor = flatAmbientColor + hemisphereColor;
 
-  let shadowFactor = sampleShadow(input, normal);
-  var directColor = vec3<f32>(0.0, 0.0, 0.0);
-  for (var i = 0u; i < 3u; i = i + 1u) {
-    let lightDirWorld = frame.dirLightDirections[i].xyz;
-    let lightDir = normalize((frame.viewMatrix * vec4<f32>(lightDirWorld, 0.0)).xyz);
-    let lightColor = frame.dirLightColors[i];
-    let lambertian = max(dot(viewNormal, normalize(-lightDir)), 0.0);
-    directColor += baseColor * lightColor.rgb * lightColor.a * lambertian;
-  }
+  let shadowSample = sampleShadow(input, normal);
+  let shadowFactor = shadowSample.factor;
+  let lightDirWorld = frame.dirLightDirections[0].xyz;
+  let lightDir = normalize((frame.viewMatrix * vec4<f32>(lightDirWorld, 0.0)).xyz);
+  let lightColor = frame.dirLightColors[0];
+  let lambertian = max(dot(viewNormal, normalize(-lightDir)), 0.0);
+  let directColor = baseColor * lightColor.rgb * lightColor.a * lambertian;
 
-  if (shadow.debug.x > 1.5) {
-    let shadowViewPos = shadow.cameraView * vec4<f32>(input.worldPos, 1.0);
-    let cascade = selectShadowCascade(-shadowViewPos.z);
-    let shadowClip = shadow.lightViewProjections[cascade] * vec4<f32>(input.worldPos, 1.0);
-    let shadowNdc = shadowClip.xyz / shadowClip.w;
-    let shadowUV = vec2<f32>(shadowNdc.x * 0.5 + 0.5, 0.5 - shadowNdc.y * 0.5);
-    if (
-      shadowUV.x <= 0.0 || shadowUV.x >= 1.0 ||
-      shadowUV.y <= 0.0 || shadowUV.y >= 1.0
-    ) {
-      return ${triangleLogDepthReturn(logDepth, "vec4<f32>(0.0, 0.0, 1.0, input.color.a)")};
-    }
-    let dims = vec2<i32>(textureDimensions(shadowMap));
-    let texelCoord = clamp(vec2<i32>(shadowUV * vec2<f32>(dims)), vec2<i32>(0, 0), dims - vec2<i32>(1, 1));
-    let rawDepth = textureLoad(shadowMap, texelCoord, cascade, 0);
-    return ${triangleLogDepthReturn(logDepth, "vec4<f32>(vec3<f32>(rawDepth), input.color.a)")};
-  }
   if (shadow.debug.x > 0.5) {
-    return ${triangleLogDepthReturn(logDepth, "vec4<f32>(vec3<f32>(shadowFactor), input.color.a)")};
+    return ${triangleLogDepthReturn(logDepth, "debugShadowSampleColor(shadowSample, input.color.a)")};
   }
 
   let unshadowedColor = ambientColor + directColor + emissive;

@@ -4,7 +4,7 @@ import {parse as parse_1_0} from "./versions/v1_0/parse";
 /**
  * Loads ASCII PLY mesh or point-cloud data into a {@link model!scene.SceneModel | SceneModel}.
  *
- * For detailed usage, refer to {@link ply | @xeokit/sdk/formats/ply}.
+ * For detailed usage, refer to {@link formats!ply | @xeokit/sdk/formats/ply}.
  */
 export class PLYLoader extends ModelLoader {
   constructor() {

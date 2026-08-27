@@ -92,7 +92,7 @@ import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform
  * - Setting {@link matrix} directly replaces the local transform and updates TRS values.
  * - Destroying a transform automatically detaches it from the hierarchy.
  *
- * See {@link scene | @xeokit/sdk/model/scene} for more complete examples.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for more complete examples.
  */
 export class SceneTransform {
 

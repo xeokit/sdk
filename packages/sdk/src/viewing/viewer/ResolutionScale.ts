@@ -11,7 +11,7 @@ import {type SDKResult} from "../../base/core";
  * * View will apply resulotion scaling when the component enabled state is set to one of the values
  * specified in the component enabled state.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
 export class ResolutionScale {
 

@@ -16,7 +16,7 @@ const MAX_VERTICES = 20000; // TODO: Rough estimate
 /**
  * Loads a LAS/LAZ file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link las | @xeokit/sdk/formats/las}.
+ * For detailed usage, refer to {@link formats!las | @xeokit/sdk/formats/las}.
  */
 export class LASLoader extends ModelLoader {
   constructor() {

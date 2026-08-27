@@ -13,7 +13,7 @@ const liveAdapters = new WeakMap<ViewProfiles, AdaptiveQuality>();
  */
 export interface AdaptiveQualityParams {
   /**
-   * The {@link viewing!viewProfiles.ViewProfiles | ViewProfiles}
+   * The {@link viewing!profiles.ViewProfiles | ViewProfiles}
    * component to drive.
    */
   viewProfiles: ViewProfiles;

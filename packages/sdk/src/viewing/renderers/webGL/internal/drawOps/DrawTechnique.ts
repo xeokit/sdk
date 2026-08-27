@@ -7,6 +7,8 @@ import {type MeshBatch} from "../meshManager/MeshBatch";
 import {SDKErrorType, type SDKResult} from "../../../../../base/core";
 import {type WebGLContextProvider} from "../webGL/WebGLContextProvider";
 import {DrawTechniqueGeometryBinding} from "./DrawTechniqueGeometryBinding";
+import {getSAODebugModeId} from "../../../../viewer/SAOSampling";
+import {getShadowPcfRadius} from "../../../../viewer/ShadowSampling";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 const defaultAmbientLight = new Float32Array([0.5, 0.5, 0.5, 1.0]);
@@ -442,11 +444,15 @@ export abstract class DrawTechnique {
     iblMaxSpecularMipLevel: WebGLUniformLocation;
     iblViewToWorldRot: WebGLUniformLocation;
     saoParams: WebGLUniformLocation;
+    saoDebugMode: WebGLUniformLocation;
     shadowLightVP: WebGLUniformLocation;       // singular — depth pass uses one cascade at a time
     shadowLightVPs: WebGLUniformLocation;      // mat4[MAX_SHADOW_CASCADES] — color pass picks per fragment
     shadowCascadeSplits: WebGLUniformLocation; // vec4 — view-space |z| boundaries between cascades
     shadowCascadeCount: WebGLUniformLocation;  // int — how many entries of the arrays carry data
     shadowParams: WebGLUniformLocation;
+    shadowSoftParams: WebGLUniformLocation;
+    shadowCascadeDepthRanges: WebGLUniformLocation;
+    shadowCascadeTexelSizes: WebGLUniformLocation;
     shadowPcfRadius: WebGLUniformLocation;
     shadowSlope: WebGLUniformLocation;
     edgeFadeRange: WebGLUniformLocation; // vec2(start, end) view-space distances; only edge techniques declare this
@@ -767,11 +773,15 @@ export abstract class DrawTechnique {
       lightAmbient: program.getLocation("uLightAmbient"),
       primaryLightDirView: program.getLocation("uPrimaryLightDirView"),
       saoParams: program.getLocation("saoParams"),
+      saoDebugMode: program.getLocation("saoDebugMode"),
       shadowLightVP: program.getLocation("uShadowLightVP"),
       shadowLightVPs: program.getLocation("uShadowLightVPs[0]"),
       shadowCascadeSplits: program.getLocation("uShadowCascadeSplits[0]"),
       shadowCascadeCount: program.getLocation("uShadowCascadeCount"),
       shadowParams: program.getLocation("uShadowParams"),
+      shadowSoftParams: program.getLocation("uShadowSoftParams"),
+      shadowCascadeDepthRanges: program.getLocation("uShadowCascadeDepthRanges[0]"),
+      shadowCascadeTexelSizes: program.getLocation("uShadowCascadeTexelSizes[0]"),
       shadowPcfRadius: program.getLocation("uShadowPcfRadius"),
       shadowSlope: program.getLocation("uShadowSlope"),
       edgeFadeRange: program.getLocation("uEdgeFadeRange"),
@@ -1257,6 +1267,10 @@ ${needsMeshAttributes ? `struct MeshAttribTable {
   // future per-mesh material flags. Only consumed by the smooth-shaded
   // technique variant; flat-shaded shaders ignore it.
   uint material;
+  // Packed scalar surface layers: byte 0 = clearcoat strength, byte 1 =
+  // clearcoat roughness, byte 2 = sheen strength, byte 3 = sheen roughness
+  // (each in 0..255, mapped from [0, 1]).
+  uint clearcoat;
   // Packed alpha attributes: byte 0 = alphaMode (0=OPAQUE, 1=MASK,
   // 2=BLEND), byte 1 = alphaCutoff (0..255, mapped from [0, 1]).
   // Drives the per-fragment discard for cutout materials.
@@ -1445,12 +1459,14 @@ ${needsMeshAttributes ? `MeshAttribTable getMeshAttribTable(uint meshIndex) {
 ${(this.hasUVs || this.triplanar) ? `  uvec4 t1 = texelFetch(uMeshAttributeTexture, texCoord(base + 1u, texWidth), 0);
 ` : ``}${(this.hasUVs || this.triplanar || this.thickLines) ? `  uvec4 t2 = texelFetch(uMeshAttributeTexture, texCoord(base + 2u, texWidth), 0);
 ` : ``}${(this.hasUVs || this.triplanar) ? `  uvec4 t3 = texelFetch(uMeshAttributeTexture, texCoord(base + 3u, texWidth), 0);
-` : ``}${(this.hasUVs || this.triplanar || !this.vboGeometry) ? `  uvec4 t4 = texelFetch(uMeshAttributeTexture, texCoord(base + 4u, texWidth), 0);
+` : ``}${(this.hasUVs || this.triplanar || !this.vboGeometry || this.hasNormals) ? `  uvec4 t4 = texelFetch(uMeshAttributeTexture, texCoord(base + 4u, texWidth), 0);
 ` : ``}
   MeshAttribTable s;
   s.tileIndex            = t0.r;
   s.geometryIndex        = t0.g;
   s.material             = t0.b;
+${this.hasNormals ? `  s.clearcoat           = t4.b;
+` : ``}
   s.alpha                = t0.a;
 ${(this.hasUVs || this.triplanar) ? `  s.albedoUVOffsetPacked = t1.r;
   s.albedoUVScalePacked  = t1.g;
@@ -1487,6 +1503,15 @@ vec2 unpackRoughnessMetallic(uint packed) {
   return vec2(
     float(packed & 0xFFu),
     float((packed >> 8u) & 0xFFu)
+  ) / 255.0;
+}
+
+vec4 unpackClearcoat(uint packed) {
+  return vec4(
+    float(packed & 0xFFu),
+    float((packed >> 8u) & 0xFFu),
+    float((packed >> 16u) & 0xFFu),
+    float((packed >> 24u) & 0xFFu)
   ) / 255.0;
 }
 ` : ``}
@@ -1654,7 +1679,8 @@ vec4 packUintToRGBA8(uint v) {
         // flat so every fragment in a triangle sees the source mesh's
         // values verbatim. Decoding here keeps the fragment shader free of
         // bit-shifts on hot paths.
-        "flat out vec2 vMaterial;"
+        "flat out vec2 vMaterial;",
+        "flat out vec4 vClearcoat;"
       ] : []),
       // UV varying — only emitted on the hasUVs variant. The fragment
       // stage uses it together with the per-mesh atlas transforms to
@@ -2267,7 +2293,8 @@ void main(void) {`);
     vViewNormal        = ${this.vboGeometry
         ? `normalize(mat3(viewMatrix) * modelNormal)`
         : `getMeshViewNormal(modelNormal, modelMatrix, viewMatrix, meshAttributeTexture.billboard)`};
-    vMaterial          = unpackRoughnessMetallic(meshAttributeTexture.material);` : ``}${this.hasUVs ? `
+    vMaterial          = unpackRoughnessMetallic(meshAttributeTexture.material);
+    vClearcoat         = unpackClearcoat(meshAttributeTexture.clearcoat);` : ``}${this.hasUVs ? `
 
     vUV              = getVertexUV(geometryAttributes.uvsBase + vertexIndexWithinGeometry);` : ``}${this.triplanar ? `${this.hasNormals ? `
     // Reuse the model-space normal decoded above — rotate just by the
@@ -3528,7 +3555,8 @@ flat out int  vHatchSpace;
       "in vec3 vViewPos;",
       ...(this.hasNormals ? [
         "in vec3 vViewNormal;",
-        "flat in vec2 vMaterial;"
+        "flat in vec2 vMaterial;",
+        "flat in vec4 vClearcoat;"
       ] : []),
       ...(this.hasUVs ? [
         "in vec2 vUV;"
@@ -3665,6 +3693,20 @@ float G_Smith(float NdotL, float NdotV, float roughness) {
 }
 
 vec3 F_Schlick(vec3 F0, float cosTheta) {
+  float f = pow(1.0 - cosTheta, 5.0);
+  return F0 + (1.0 - F0) * f;
+}
+
+vec3 F_SchlickRoughness(vec3 F0, float cosTheta, float roughness) {
+  float f = pow(1.0 - cosTheta, 5.0);
+  return F0 + (max(vec3(1.0 - roughness), F0) - F0) * f;
+}
+
+float specularOcclusion(float NdotV, float ao, float roughness) {
+  return clamp(pow(NdotV + ao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ao, 0.0, 1.0);
+}
+
+float F_SchlickScalar(float F0, float cosTheta) {
   float f = pow(1.0 - cosTheta, 5.0);
   return F0 + (1.0 - F0) * f;
 }`);
@@ -3847,6 +3889,10 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
 
     ${albedoSrc}
 
+    ${this.hasUVs || this.triplanar
+        ? "float outputAlpha = (vAlphaMode == 2u) ? albedoAlpha : vColor.a;"
+        : "float outputAlpha = albedoAlpha;"}
+
     // Re-normalize after rasterizer interpolation; linear blends of unit
     // vectors generally come out sub-unit length. Guard the divide:
     // along sharp normal seams (very common in IFC, where adjacent
@@ -3962,6 +4008,10 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     // denominator from collapsing at mirror-smooth.
     float roughness = max(vMaterial.x * mrRoughnessFactor, PBR_MIN_ROUGHNESS);
     float metallic  = clamp(vMaterial.y * mrMetallicFactor, 0.0, 1.0);
+    float clearcoat = clamp(vClearcoat.x, 0.0, 1.0);
+    float clearcoatRoughness = max(vClearcoat.y, PBR_MIN_ROUGHNESS);
+    float sheen = clamp(vClearcoat.z, 0.0, 1.0);
+    float sheenRoughness = max(vClearcoat.w, PBR_MIN_ROUGHNESS);
     float a         = roughness * roughness;
     float a2        = a * a;
 
@@ -3973,6 +4023,11 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     float G = G_Smith(NdotL, NdotV, roughness);
     vec3  F = F_Schlick(F0, VdotH);
     vec3  specular = (D * G) * F / max(4.0 * NdotL * NdotV, 1e-4);
+    float Fcc = F_SchlickScalar(0.04, VdotH);
+    float ccA = clearcoatRoughness * clearcoatRoughness;
+    float Dcc = D_GGX(NdotH, ccA * ccA);
+    float Gcc = G_Smith(NdotL, NdotV, clearcoatRoughness);
+    float clearcoatSpecular = clearcoat * Dcc * Gcc * Fcc / max(4.0 * NdotL * NdotV, 1e-4);
 
     // Diffuse term — energy conservation: any light reflected as specular
     // can't also be diffuse, and metals have no diffuse term at all.
@@ -3982,7 +4037,10 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     // Direct lighting contribution from the primary directional light.
     // Light colour (uLightColor1.rgb * .a = colour * intensity) plus N·L.
     vec3 directLight = uLightColor1.rgb * uLightColor1.a * NdotL;
-    vec3 directContrib = (diffuse + specular) * directLight;
+    float clearcoatBaseAttenuation = 1.0 - clearcoat * Fcc;
+    float sheenExponent = mix(8.0, 2.0, sheenRoughness);
+    vec3 sheenDirect = albedo * sheen * pow(max(1.0 - VdotH, 0.0), sheenExponent) * (1.0 - metallic);
+    vec3 directContrib = ((diffuse + specular + sheenDirect) * clearcoatBaseAttenuation + vec3(clearcoatSpecular)) * directLight;
 
     // ── Indirect (IBL Layer 2 — split-sum) ────────────────────────────
     // Sample the prefiltered cubemap pair generated once per view by
@@ -4003,15 +4061,24 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     // would over-blur on curved surfaces.
     float specMip = roughness * uIBLMaxSpecularMipLevel;
     vec3 iblSpecEnv = textureLod(uIBLPrefilteredCubemap, worldR, specMip).rgb;
+    float clearcoatSpecMip = clearcoatRoughness * uIBLMaxSpecularMipLevel;
+    vec3 clearcoatSpecEnv = textureLod(uIBLPrefilteredCubemap, worldR, clearcoatSpecMip).rgb;
 
     // Standard split-sum form: prefilteredColor * (F0 * lut.x + lut.y)
     // where lut.x is the F0 scale factor and lut.y is the F0-independent
     // bias. Encodes both the Fresnel and geometry terms exactly.
-    vec3  F_NV    = F_Schlick(F0, NdotV);
+    vec3  F_NV    = F_SchlickRoughness(F0, NdotV, roughness);
     vec2  brdfLUT = texture(uIBLBRDFLUT, vec2(NdotV, roughness)).rg;
-    vec3  iblSpec = iblSpecEnv * (F0 * brdfLUT.x + brdfLUT.y);
+    float iblSpecOcclusion = specularOcclusion(NdotV, g_ao, roughness);
+    vec3  iblSpec = iblSpecEnv * (F0 * brdfLUT.x + brdfLUT.y) * iblSpecOcclusion;
     vec3  iblDiff = (1.0 - F_NV) * (1.0 - metallic) * iblDiffuseEnv * albedo;
-    vec3  iblContrib = (iblDiff + iblSpec);
+    float sheenIBLWeight = sheen * pow(max(1.0 - NdotV, 0.0), mix(4.0, 1.0, sheenRoughness)) * (1.0 - metallic);
+    vec3  iblSheen = iblDiffuseEnv * albedo * sheenIBLWeight;
+    float clearcoatFNV = F_SchlickScalar(0.04, NdotV);
+    vec2  clearcoatBRDFLUT = texture(uIBLBRDFLUT, vec2(NdotV, clearcoatRoughness)).rg;
+    float clearcoatIBLOcclusion = specularOcclusion(NdotV, g_ao, clearcoatRoughness);
+    vec3  clearcoatIBLSpec = clearcoatSpecEnv * (0.04 * clearcoatBRDFLUT.x + clearcoatBRDFLUT.y) * clearcoat * clearcoatIBLOcclusion;
+    vec3  iblContrib = (iblDiff + iblSpec + iblSheen) * (1.0 - clearcoat * clearcoatFNV) + clearcoatIBLSpec;
 
     // Analytical hemisphere term — gated independently of the cubemap
     // so non-IBL profiles can still get a directional sky/ground fill.
@@ -4044,7 +4111,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3 indirectFloor = indirect * g_ao + g_emissive;
     g_shadowFloor = mix(ambientFloor, indirectFloor, 0.25);
     vec3 lit = directContrib + indirect * g_ao + g_emissive;
-    color = vec4(lit, albedoAlpha);`);
+    color = vec4(lit, outputAlpha);`);
       return;
     }
     this._fragSrcBuf.push(`
@@ -4110,6 +4177,10 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     }`
       : `vec3 albedo = vColor.rgb;
     float albedoAlpha = vColor.a;`}
+
+    ${this.hasUVs || this.triplanar
+      ? "float outputAlpha = (vAlphaMode == 2u) ? albedoAlpha : vColor.a;"
+      : "float outputAlpha = albedoAlpha;"}
 
     // Reconstruct a face normal in view space from position derivatives.
     // This gives a flat-shaded normal per fragment without refetching the
@@ -4182,7 +4253,7 @@ ${this.triplanar ? `
     vec3 lit = (g_ambient * albedo) * g_ao + (albedo * reflectedColor) + g_emissive;
     g_shadowFloor = (g_ambient * albedo) * g_ao + g_emissive;
 
-    color = vec4(lit, albedoAlpha);`);
+    color = vec4(lit, outputAlpha);`);
   }
 
   /**
@@ -4209,6 +4280,7 @@ ${this.triplanar ? `
     this._fragSrcBuf.push(
       "uniform sampler2D saoOcclusionTexture;",
       "uniform vec4      saoParams;",
+      "uniform float     saoDebugMode;",
       "const float       saoUnpackDownScale = 255. / 256.;",
       "const vec3        saoPackFactors = vec3( 256. * 256. * 256., 256. * 256.,  256. );",
       "const vec4        saoUnpackFactors = saoUnpackDownScale / vec4( saoPackFactors, 1. );",
@@ -4230,7 +4302,14 @@ ${this.triplanar ? `
       "   vec2  saoUV = vec2(gl_FragCoord.x / saoViewportWidth, gl_FragCoord.y / saoViewportHeight);",
       "   float saoOcclusion = saoUnpackRGBToFloat(texture(saoOcclusionTexture, saoUV));",
       "   float saoAOFactor = (smoothstep(saoBlendCutoff, 1.0, saoOcclusion) - 1.0) * saoBlendFactor + 1.0;",
-      "   color = vec4(color.rgb * clamp(saoAOFactor, 0.0, 1.0), color.a);");
+      "   float saoDebugModeId = floor(saoDebugMode + 0.5);",
+      "   if (saoDebugModeId >= 1.0 && saoDebugModeId <= 4.0) {",
+      "       color = vec4(vec3(saoOcclusion), color.a);",
+      "   } else if (saoDebugModeId == 5.0) {",
+      "       color = vec4(vec3(clamp(saoAOFactor, 0.0, 1.0)), color.a);",
+      "   } else {",
+      "       color = vec4(color.rgb * clamp(saoAOFactor, 0.0, 1.0), color.a);",
+      "   }");
   }
 
   /**
@@ -4239,15 +4318,17 @@ ${this.triplanar ? `
    * and the PCF / slope-bias data.
    *
    * Uniform layout:
-   *   - `uShadowMap0..3`: `sampler2DShadow` per cascade. `TEXTURE_COMPARE_MODE`
-   *     is set on each depth texture so `texture(sampler, vec3(uv, refDepth))`
-   *     returns the hardware-bilinear PCF comparison (0 = shadow, 1 = lit).
+   *   - `uShadowMap0..5`: raw depth maps, sampled with explicit depth
+   *     compares so PCF and contact-hardening blocker search share one path.
    *   - `uShadowLightVPs[4]`: mat4 per cascade, camera-view → cascade light-clip.
    *   - `uShadowCascadeSplits`: view-space `|z|` boundaries between cascades;
    *     entry `i` is the far edge of cascade `i`. Only entries
    *     `0 .. uShadowCascadeCount - 2` are meaningful.
    *   - `uShadowCascadeCount`: number of populated cascades in `[1, 4]`.
    *   - `uShadowParams`: `(intensity, depthBias, texelSize, normalOffsetBias)`.
+   *   - `uShadowSoftParams`: `(contactHardening, lightRadius, minRadius, debugMode)`.
+   *   - `uShadowCascadeDepthRanges`: light-depth ranges per cascade.
+   *   - `uShadowCascadeTexelSizes`: world-space texel sizes per cascade.
    *   - `uShadowSlope`: `(dirViewX, dirViewY, dirViewZ, slopeBias)`.
    *   - `uShadowPcfRadius`: half-width of the PCF kernel (0 = 1×1, 1 = 3×3…).
    *
@@ -4257,25 +4338,104 @@ ${this.triplanar ? `
    */
   protected fsDrawShadowDeclarations() {
     this._fragSrcBuf.push(
-      "uniform sampler2DShadow uShadowMap0;",
-      "uniform sampler2DShadow uShadowMap1;",
-      "uniform sampler2DShadow uShadowMap2;",
-      "uniform sampler2DShadow uShadowMap3;",
-      "uniform sampler2DShadow uShadowMap4;",
-      "uniform sampler2DShadow uShadowMap5;",
+      "uniform sampler2D       uShadowMap0;",
+      "uniform sampler2D       uShadowMap1;",
+      "uniform sampler2D       uShadowMap2;",
+      "uniform sampler2D       uShadowMap3;",
+      "uniform sampler2D       uShadowMap4;",
+      "uniform sampler2D       uShadowMap5;",
       "uniform mat4            uShadowLightVPs[6];",
       "uniform float           uShadowCascadeSplits[6];",
+      "uniform float           uShadowCascadeDepthRanges[6];",
+      "uniform float           uShadowCascadeTexelSizes[6];",
       "uniform int             uShadowCascadeCount;",
       "uniform vec4            uShadowParams;",
+      "uniform vec4            uShadowSoftParams;",
       "uniform vec4            uShadowSlope;",
-      "uniform int             uShadowPcfRadius;"
+      "uniform int             uShadowPcfRadius;",
+      `
+float shadowDepthAt(int cascade, vec2 uv) {
+    if      (cascade == 0) return texture(uShadowMap0, uv).r;
+    else if (cascade == 1) return texture(uShadowMap1, uv).r;
+    else if (cascade == 2) return texture(uShadowMap2, uv).r;
+    else if (cascade == 3) return texture(uShadowMap3, uv).r;
+    else if (cascade == 4) return texture(uShadowMap4, uv).r;
+    else                   return texture(uShadowMap5, uv).r;
+}
+
+float shadowDepthCompare(float depth, float refDepth) {
+    return refDepth <= depth ? 1.0 : 0.0;
+}
+
+float shadowCompareAt(int cascade, vec2 uv, float refDepth) {
+    float texel = max(uShadowParams.z, 0.000001);
+    vec2 texelPos = uv / texel - vec2(0.5);
+    vec2 base = floor(texelPos);
+    vec2 f = fract(texelPos);
+    vec2 minUv = vec2(texel * 0.5);
+    vec2 maxUv = vec2(1.0 - texel * 0.5);
+    vec2 uv00 = clamp((base + vec2(0.5, 0.5)) * texel, minUv, maxUv);
+    vec2 uv10 = clamp((base + vec2(1.5, 0.5)) * texel, minUv, maxUv);
+    vec2 uv01 = clamp((base + vec2(0.5, 1.5)) * texel, minUv, maxUv);
+    vec2 uv11 = clamp((base + vec2(1.5, 1.5)) * texel, minUv, maxUv);
+    float c00 = shadowDepthCompare(shadowDepthAt(cascade, uv00), refDepth);
+    float c10 = shadowDepthCompare(shadowDepthAt(cascade, uv10), refDepth);
+    float c01 = shadowDepthCompare(shadowDepthAt(cascade, uv01), refDepth);
+    float c11 = shadowDepthCompare(shadowDepthAt(cascade, uv11), refDepth);
+    return mix(mix(c00, c10, f.x), mix(c01, c11, f.x), f.y);
+}
+
+vec3 shadowCascadeDebugColor(int cascade) {
+    if      (cascade == 0) return vec3(0.95, 0.18, 0.12);
+    else if (cascade == 1) return vec3(0.15, 0.72, 0.25);
+    else if (cascade == 2) return vec3(0.15, 0.34, 0.95);
+    else if (cascade == 3) return vec3(0.95, 0.78, 0.18);
+    else if (cascade == 4) return vec3(0.72, 0.25, 0.95);
+    else                   return vec3(0.12, 0.82, 0.90);
+}
+
+float shadowAverageBlockerDepth(int cascade, vec2 shadowUv, float refDepth, float texel, int radius) {
+    float blockerDepth = 0.0;
+    float blockerCount = 0.0;
+    for (int dy = -radius; dy <= radius; dy++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            vec2 off = vec2(float(dx), float(dy)) * texel;
+            float depth = shadowDepthAt(cascade, shadowUv.xy + off);
+            if (depth < refDepth) {
+                blockerDepth += depth;
+                blockerCount += 1.0;
+            }
+        }
+    }
+    return blockerCount > 0.0 ? blockerDepth / blockerCount : -1.0;
+}
+
+float shadowWeightedPCF(int cascade, vec2 shadowUv, float refDepth, float texel, int radius, float filterRadius) {
+    if (radius == 0) {
+        return shadowCompareAt(cascade, shadowUv, refDepth);
+    }
+    float litSum = 0.0;
+    float weightSum = 0.0;
+    for (int dy = -radius; dy <= radius; dy++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            vec2 absOffset = vec2(abs(float(dx)), abs(float(dy)));
+            if (absOffset.x <= filterRadius + 0.001 && absOffset.y <= filterRadius + 0.001) {
+                vec2 off = vec2(float(dx), float(dy)) * texel;
+                float weight = max(filterRadius + 1.0 - absOffset.x, 0.0) * max(filterRadius + 1.0 - absOffset.y, 0.0);
+                litSum += shadowCompareAt(cascade, shadowUv.xy + off, refDepth) * weight;
+                weightSum += weight;
+            }
+        }
+    }
+    return litSum / max(weightSum, 1.0);
+}`
     );
   }
 
   /**
    * Selects the best-fitting cascade for the current fragment (based on its
-   * camera-view-space `|z|`), samples that cascade's shadow map with hardware
-   * PCF, and darkens `color`.
+   * camera-view-space `|z|`), samples that cascade's shadow map with
+   * comparison-filtered PCF, and darkens `color`.
    *
    * Per-fragment steps:
    *   1. Cascade selection from view-space `-vViewPos.z` against
@@ -4289,13 +4449,14 @@ ${this.triplanar ? `
    */
   protected fsDrawShadowLogic() {
     this._fragSrcBuf.push(`
-    {
-        // ---- Cascade selection (view-space |z|). ----------------------------
-        // Start at cascade 0 and walk up while this fragment is past each split.
-        // Splits beyond \`uShadowCascadeCount - 1\` are MAX_VALUE so they never
-        // trigger an upgrade.
-        float shadowViewZ = -vViewPos.z;
-        int   shadowCascade = 0;
+	    {
+	        // ---- Cascade selection (view-space |z|). ----------------------------
+	        // Start at cascade 0 and walk up while this fragment is past each split.
+	        // Splits beyond \`uShadowCascadeCount - 1\` are MAX_VALUE so they never
+	        // trigger an upgrade.
+	        float shadowDebugMode = floor(uShadowSoftParams.w + 0.5);
+	        float shadowViewZ = -vViewPos.z;
+	        int   shadowCascade = 0;
         if (uShadowCascadeCount > 1 && shadowViewZ > uShadowCascadeSplits[0]) shadowCascade = 1;
         if (uShadowCascadeCount > 2 && shadowViewZ > uShadowCascadeSplits[1]) shadowCascade = 2;
         if (uShadowCascadeCount > 3 && shadowViewZ > uShadowCascadeSplits[2]) shadowCascade = 3;
@@ -4335,48 +4496,62 @@ ${this.triplanar ? `
             shadowUv.y > 0.0 && shadowUv.y < 1.0 &&
             shadowUv.z > 0.0 && shadowUv.z < 1.0;
 
-        if (inside) {
-            // Slope-scaled bias: tan(angle(normal, light)), clamped.
-            float cosTheta = clamp(dot(shadowNormalView, -uShadowSlope.xyz), 0.001, 1.0);
-            float slopeFactor = min(sqrt(max(0.0, 1.0 - cosTheta * cosTheta)) / cosTheta, 10.0);
-            float totalBias = uShadowParams.y + uShadowSlope.w * slopeFactor;
+	        if (shadowDebugMode == 3.0) {
+	            color = vec4(shadowCascadeDebugColor(shadowCascade), color.a);
+	        } else if (inside) {
+	            // Slope-scaled bias: tan(angle(normal, light)), clamped.
+	            float cosTheta = clamp(dot(shadowNormalView, -uShadowSlope.xyz), 0.001, 1.0);
+	            float slopeFactor = min(sqrt(max(0.0, 1.0 - cosTheta * cosTheta)) / cosTheta, 10.0);
+	            float totalBias = uShadowParams.y + uShadowSlope.w * slopeFactor;
 
-            float refDepth  = shadowUv.z - totalBias;
-            float texel     = uShadowParams.z;
-            int   r         = uShadowPcfRadius;
-            int   diameter  = 2 * r + 1;
-            float tapCount  = float(diameter * diameter);
-            float litSum    = 0.0;
+	            float refDepth  = shadowUv.z - totalBias;
+	            float texel     = uShadowParams.z;
+	            int   r         = uShadowPcfRadius;
+	            float filterRadius = float(r);
+	            float blockerDepth = -1.0;
+	            float visibility = 1.0;
+	            float rawDepth = shadowDepthAt(shadowCascade, shadowUv.xy);
+	            if (uShadowSoftParams.x > 0.5 && r > 0) {
+	                blockerDepth = shadowAverageBlockerDepth(shadowCascade, shadowUv.xy, refDepth, texel, r);
+	                if (blockerDepth >= 0.0) {
+	                    float receiverBlockerSeparation = max(refDepth - blockerDepth, 0.0) * uShadowCascadeDepthRanges[shadowCascade];
+	                    float penumbraTexels = receiverBlockerSeparation * max(uShadowSoftParams.y, 0.0) / max(uShadowCascadeTexelSizes[shadowCascade], 0.000001);
+	                    filterRadius = clamp(max(uShadowSoftParams.z, penumbraTexels), 0.0, float(r));
+	                    visibility = shadowWeightedPCF(shadowCascade, shadowUv.xy, refDepth, texel, r, filterRadius);
+	                }
+	            } else {
+	                visibility = shadowWeightedPCF(shadowCascade, shadowUv.xy, refDepth, texel, r, filterRadius);
+	            }
 
-            // Hardware PCF: each tap is a bilinear 2×2 compare, so a 3×3 tap
-            // grid effectively samples a 6×6 neighbourhood. sampler2DShadow
-            // can't be indexed with a non-constant, so branch on cascade.
-            for (int dy = -r; dy <= r; dy++) {
-                for (int dx = -r; dx <= r; dx++) {
-                    vec2 off = vec2(float(dx), float(dy)) * texel;
-                    vec3 uvd = vec3(shadowUv.xy + off, refDepth);
-                    float lit;
-                    if      (shadowCascade == 0) lit = texture(uShadowMap0, uvd);
-                    else if (shadowCascade == 1) lit = texture(uShadowMap1, uvd);
-                    else if (shadowCascade == 2) lit = texture(uShadowMap2, uvd);
-                    else if (shadowCascade == 3) lit = texture(uShadowMap3, uvd);
-                    else if (shadowCascade == 4) lit = texture(uShadowMap4, uvd);
-                    else                         lit = texture(uShadowMap5, uvd);
-                    litSum += lit;
-                }
+	            float shadowFraction = 1.0 - visibility;
+	            float shadowFactor   = 1.0 - shadowFraction * uShadowParams.x;
+
+	            if (shadowDebugMode == 1.0) {
+	                color = vec4(vec3(shadowFactor), color.a);
+	            } else if (shadowDebugMode == 2.0) {
+	                color = vec4(vec3(rawDepth), color.a);
+	            } else if (shadowDebugMode == 4.0) {
+	                color = vec4(vec3(refDepth), color.a);
+	            } else if (shadowDebugMode == 5.0) {
+	                color = vec4(vec3(clamp(totalBias * 100.0, 0.0, 1.0)), color.a);
+	            } else if (shadowDebugMode == 6.0) {
+	                color = vec4(vec3(blockerDepth >= 0.0 ? blockerDepth : 1.0), color.a);
+	            } else if (shadowDebugMode == 7.0) {
+	                color = vec4(vec3(filterRadius / max(float(r), 1.0)), color.a);
+	            } else if (shadowDebugMode == 8.0) {
+	                color = vec4(vec3(visibility), color.a);
+	            } else {
+	                // Shadows attenuate lit colour but must not dim the surface
+	                // below the indirect floor resolved by the active shading path.
+                // The floor is deliberately separate from g_ambient so PBR/IBL
+                // receivers do not wash out shadows just because normals are
+                // present.
+                color = vec4(max(color.rgb * shadowFactor, g_shadowFloor), color.a);
             }
-
-            float shadowFraction = 1.0 - (litSum / tapCount);
-            float shadowFactor   = 1.0 - shadowFraction * uShadowParams.x;
-
-            // Shadows attenuate lit colour but must not dim the surface
-            // below the indirect floor resolved by the active shading path.
-            // The floor is deliberately separate from g_ambient so PBR/IBL
-            // receivers do not wash out shadows just because normals are
-            // present.
-            color = vec4(max(color.rgb * shadowFactor, g_shadowFloor), color.a);
-        }
-    }`);
+	        } else if (shadowDebugMode > 0.5) {
+	            color = shadowDebugMode == 2.0 ? vec4(0.0, 0.0, 1.0, color.a) : vec4(vec3(1.0), color.a);
+	        }
+	    }`);
   }
 
   /**
@@ -4762,6 +4937,9 @@ ${this.triplanar ? `
       const saoVH = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
       gl.uniform4f(uniforms.saoParams, saoVW, saoVH, sao.blendCutoff, sao.blendFactor);
     }
+    if (uniforms.saoDebugMode) {
+      gl.uniform1f(uniforms.saoDebugMode, getSAODebugModeId(view.effects.sao.debug));
+    }
 
     // Shadow uniforms: the light VP matrix is always uploaded when the shader
     // declares it — the shadow-DEPTH pass needs it even though the shadow-map
@@ -4797,17 +4975,25 @@ ${this.triplanar ? `
         texelSize,
         shadows ? shadows.normalOffsetBias : 0.0);
     }
+    if (uniforms.shadowSoftParams) {
+      gl.uniform4fv(uniforms.shadowSoftParams, renderContext.shadowSoftParams);
+    }
+    if (uniforms.shadowCascadeDepthRanges) {
+      gl.uniform1fv(uniforms.shadowCascadeDepthRanges, renderContext.shadowCascadeDepthRanges);
+    }
+    if (uniforms.shadowCascadeTexelSizes) {
+      gl.uniform1fv(uniforms.shadowCascadeTexelSizes, renderContext.shadowCascadeTexelSizes);
+    }
     if (uniforms.shadowPcfRadius) {
-      // Kernel size is an odd number in [1, 7]; radius = (size - 1) / 2, so 0..3.
-      const size = view.effects.shadows ? view.effects.shadows.pcfKernelSize : 1;
-      gl.uniform1i(uniforms.shadowPcfRadius, (size - 1) >> 1);
+      gl.uniform1i(uniforms.shadowPcfRadius, getShadowPcfRadius(view.effects.shadows?.pcfKernelSize, 1));
     }
     if (uniforms.shadowSlope) {
       // (dirViewX, dirViewY, dirViewZ, slopeBias)
       const d = renderContext.shadowLightDirView;
+      const slopeBias = Number.isFinite(Number(view.effects.shadows?.slopeBias)) ? Number(view.effects.shadows?.slopeBias) : 0.00125;
       gl.uniform4f(uniforms.shadowSlope,
         d[0], d[1], d[2],
-        view.effects.shadows ? view.effects.shadows.slopeBias : 0.0);
+        view.effects.shadows ? slopeBias : 0.0);
     }
     return true;
   }

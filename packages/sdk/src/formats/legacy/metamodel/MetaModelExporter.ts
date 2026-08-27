@@ -7,7 +7,7 @@ import {convertDataModel} from "./convertDataModel";
  * Writes a {@link model!data.DataModel | DataModel} to legacy
  * {@link MetaModelParams | MetaModelParams} as JSON.
  *
- * The inverse of {@link MetaModelLoader}. See {@link "metamodel" | @xeokit/sdk/metamodel}.
+ * The inverse of {@link MetaModelLoader}. See {@link formats!metamodel | @xeokit/sdk/formats/metamodel}.
  */
 export class MetaModelExporter extends ModelExporter {
 

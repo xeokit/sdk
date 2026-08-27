@@ -18,7 +18,7 @@ import {IBL} from "./IBL";
  *     ambient that cheaply lifts the flat ambient floor.
  *
  * Both effects stack additively when enabled. Use
- * {@link viewing!viewProfiles.ViewProfiles | ViewProfiles} when an
+ * {@link viewing!profiles.ViewProfiles | ViewProfiles} when an
  * application needs profile-specific IBL/hemisphere balance.
  */
 class Lights {

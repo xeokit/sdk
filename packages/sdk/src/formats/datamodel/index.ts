@@ -79,7 +79,7 @@
  * `write` resolves with the `DataModelParams` object itself — stringify it yourself to persist it.
  *
  * ```ts
- * import { DataModelExporter } from "@xeokit/sdk/datamodel";
+ * import { DataModelExporter } from "@xeokit/sdk/formats/datamodel";
  *
  * const exporter = new DataModelExporter();
  *
@@ -98,7 +98,7 @@
  * then pass the params as `fileData` — `load` resolves with no value.
  *
  * ```ts
- * import { DataModelImporter } from "@xeokit/sdk/datamodel";
+ * import { DataModelImporter } from "@xeokit/sdk/formats/datamodel";
  * import { Data } from "@xeokit/sdk/model/data";
  *
  * const data = new Data();

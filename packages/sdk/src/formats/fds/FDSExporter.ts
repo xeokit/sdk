@@ -18,7 +18,7 @@ import {encode as encode_v6} from "./versions/v6/encode";
  * supplied — is not consulted by the v1 encoder. Reconstituting the
  * authored XB from hole-cut SceneMesh remainders would be lossy.
  *
- * For detailed usage, refer to {@link fds | @xeokit/sdk/formats/fds}.
+ * For detailed usage, refer to {@link formats!fds | @xeokit/sdk/formats/fds}.
  */
 export class FDSExporter extends ModelExporter {
 

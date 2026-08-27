@@ -5,6 +5,7 @@ import type {View} from "../../../../../../viewer";
 import type {WebGPUBindGroupLayoutLike, WebGPUBindGroupLike, WebGPUCommandEncoderLike, WebGPURenderPipelineLike, WebGPUShaderModuleLike} from "../../../../core";
 import {GPU_SHADER_STAGE} from "../../../constants";
 import type {RenderContext} from "../../../RenderContext";
+import {getSAODebugModeId} from "../../../../../../viewer/SAOSampling";
 
 /**
  * Computes a WebGPU SAO occlusion texture from the scene depth buffer.
@@ -140,7 +141,7 @@ export class WebGPUSAOOcclusionRenderer {
           module: this._shaderModule,
           entryPoint: "fsMain",
           targets: [{
-            format: "r8unorm"
+            format: "r16float"
           }]
         },
         primitive: {
@@ -150,7 +151,7 @@ export class WebGPUSAOOcclusionRenderer {
       });
       this._paramsBuffer = this._renderContext.createEmptyGPUBuffer(
         "xeokit-webgpu-sao-occlusion-params",
-        128,
+        192,
         64
       );
     } catch (e) {
@@ -170,7 +171,9 @@ export class WebGPUSAOOcclusionRenderer {
       ? view.camera.perspectiveProjection
       : view.camera.orthoProjection;
     const projMatrix = projection.projMatrix;
-    return new Float32Array([
+    const inverseProjMatrix = projection.inverseProjMatrix;
+    const data = new Float32Array(48);
+    data.set([
       width > 0 ? 1.0 / width : 0,
       height > 0 ? 1.0 / height : 0,
       Math.max(1, width),
@@ -182,14 +185,17 @@ export class WebGPUSAOOcclusionRenderer {
       sao.bias ?? 0.5,
       sao.kernelRadius ?? 100,
       sao.minResolution ?? 0,
-      Math.random(),
+      0,
       view.camera.projectionType === PerspectiveProjectionType ? 1 : 0,
       sampleCount,
       Number(projMatrix[0]),
       Number(projMatrix[5]),
       this._renderContext.renderConfigs.logDepth ? 1 : 0,
-      0, 0, 0, 0, 0, 0, 0
+      getSAODebugModeId(sao.debug),
+      0, 0, 0, 0, 0, 0
     ]);
+    data.set(Array.from(inverseProjMatrix, Number), 24);
+    return data;
   }
 }
 
@@ -210,9 +216,14 @@ struct Params {
   numSamples: f32,
   proj00: f32,
   proj11: f32,
-  pad0: vec2<f32>,
+  logDepth: f32,
+  debugMode: f32,
   pad1: vec4<f32>,
   pad2: vec4<f32>,
+  inverseProjMatrix0: vec4<f32>,
+  inverseProjMatrix1: vec4<f32>,
+  inverseProjMatrix2: vec4<f32>,
+  inverseProjMatrix3: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> params: Params;
@@ -253,7 +264,7 @@ fn loadDepth(uv: vec2<f32>) -> f32 {
 fn getViewZ(depth: f32) -> f32 {
   let perspectiveStandardZ = (params.near * params.far) / ((params.far - params.near) * depth - params.far);
   let perspectiveLogZ = 1.0 - pow(1.0 + params.far, depth);
-  let perspectiveZ = select(perspectiveStandardZ, perspectiveLogZ, params.pad0.x > 0.5);
+  let perspectiveZ = select(perspectiveStandardZ, perspectiveLogZ, params.logDepth > 0.5);
   let orthoZ = depth * (params.near - params.far) - params.near;
   return select(orthoZ, perspectiveZ, params.perspective > 0.5);
 }
@@ -265,7 +276,14 @@ fn getViewPos(screenPos: vec2<f32>, depth: f32, viewZ: f32) -> vec3<f32> {
     ndcXY.y * (-viewZ) / params.proj11,
     viewZ
   );
-  let orthoPos = vec3<f32>(ndcXY, depth);
+  let clipPosition = vec4<f32>(ndcXY, depth * 2.0 - 1.0, 1.0);
+  let orthoProjected = vec4<f32>(
+    dot(params.inverseProjMatrix0, clipPosition),
+    dot(params.inverseProjMatrix1, clipPosition),
+    dot(params.inverseProjMatrix2, clipPosition),
+    dot(params.inverseProjMatrix3, clipPosition)
+  );
+  let orthoPos = orthoProjected.xyz / max(orthoProjected.w, 0.000001);
   return select(orthoPos, perspectivePos, params.perspective > 0.5);
 }
 
@@ -278,8 +296,7 @@ fn getOcclusion(centerViewPosition: vec3<f32>, centerViewNormal: vec3<f32>, samp
   return max(0.0, normalTerm) / (1.0 + scaledScreenDistance * scaledScreenDistance);
 }
 
-fn getAmbientOcclusion(centerViewPosition: vec3<f32>, uv: vec2<f32>) -> f32 {
-  let centerViewNormal = normalize(cross(dpdy(centerViewPosition), dpdx(centerViewPosition)));
+fn getAmbientOcclusion(centerViewPosition: vec3<f32>, centerViewNormal: vec3<f32>, uv: vec2<f32>) -> f32 {
   var angle = rand(uv + vec2<f32>(params.randomSeed)) * 6.28318530718;
   var radius = vec2<f32>(params.kernelRadius / f32(${numSamples})) * params.inverseViewport;
   let radiusStep = radius;
@@ -305,9 +322,20 @@ fn fsMain(input: VertexOutput) -> @location(0) vec4<f32> {
   let centerDepth = loadDepth(input.uv);
   let centerViewZ = getViewZ(centerDepth);
   let centerViewPosition = getViewPos(input.uv, centerDepth, centerViewZ);
-  let ambientOcclusion = getAmbientOcclusion(centerViewPosition, input.uv);
-  let depthValid = select(1.0, 0.0, centerDepth >= 0.999999);
-  let occlusion = mix(1.0, clamp(1.0 - ambientOcclusion, 0.0, 1.0), depthValid);
+  let centerViewNormal = normalize(cross(dpdy(centerViewPosition), dpdx(centerViewPosition)));
+  let depthValid = centerDepth < 0.999999;
+  let debugMode = i32(params.debugMode + 0.5);
+  if (debugMode == 1) {
+    let value = select(1.0, clamp(-centerViewZ / max(params.far, 0.000001), 0.0, 1.0), depthValid);
+    return vec4<f32>(value, 0.0, 0.0, 1.0);
+  }
+  if (debugMode == 2) {
+    let value = select(1.0, clamp(centerViewNormal.z * 0.5 + 0.5, 0.0, 1.0), depthValid);
+    return vec4<f32>(value, 0.0, 0.0, 1.0);
+  }
+  let ambientOcclusion = getAmbientOcclusion(centerViewPosition, centerViewNormal, input.uv);
+  let depthValidFactor = select(0.0, 1.0, depthValid);
+  let occlusion = mix(1.0, clamp(1.0 - ambientOcclusion, 0.0, 1.0), depthValidFactor);
   return vec4<f32>(occlusion, 0.0, 0.0, 1.0);
 }
 `;

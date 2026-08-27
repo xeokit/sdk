@@ -48,9 +48,10 @@ export interface DrawOpVariants {
  *   - `hasNormals` — batch carries per-vertex normals
  *   - `hasUVs`     — batch carries per-vertex UV coordinates
  *
- * Lambert colour ops typically supply 4 variants. Edge, silhouette, pick,
- * shadow-depth and snap ops only need the flat/no-UVs default and ignore
- * both flags.
+ * Lambert colour ops typically supply 4 variants. Shadow-depth supplies a UV
+ * variant so alpha-mapped surfaces can discard cutout texels while rendering
+ * shadow maps. Edge, silhouette, pick and snap ops only need the flat/no-UVs
+ * default and ignore both flags.
  *
  * @internal
  */

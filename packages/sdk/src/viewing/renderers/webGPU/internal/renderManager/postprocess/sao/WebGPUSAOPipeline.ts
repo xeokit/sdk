@@ -5,6 +5,7 @@ import type {RenderContext} from "../../../RenderContext";
 import {WebGPUColorRenderTarget} from "../WebGPUColorRenderTarget";
 import {WebGPUSAODepthLimitedBlurRenderer} from "./WebGPUSAODepthLimitedBlurRenderer";
 import {WebGPUSAOOcclusionRenderer} from "./WebGPUSAOOcclusionRenderer";
+import {isRawSAODebugMode} from "../../../../../../viewer/SAOSampling";
 
 /**
  * Runs the WebGPU SAO occlusion pass and optional two-pass depth-limited blur.
@@ -23,8 +24,8 @@ export class WebGPUSAOPipeline {
   private readonly _blurRenderer: WebGPUSAODepthLimitedBlurRenderer;
 
   constructor(renderContext: RenderContext) {
-    this._occlusionTarget = new WebGPUColorRenderTarget(renderContext, "xeokit-webgpu-sao-occlusion", "r8unorm");
-    this._blurTarget = new WebGPUColorRenderTarget(renderContext, "xeokit-webgpu-sao-blur", "r8unorm");
+    this._occlusionTarget = new WebGPUColorRenderTarget(renderContext, "xeokit-webgpu-sao-occlusion", "r16float");
+    this._blurTarget = new WebGPUColorRenderTarget(renderContext, "xeokit-webgpu-sao-blur", "r16float");
     this._occlusionRenderer = new WebGPUSAOOcclusionRenderer(renderContext);
     this._blurRenderer = new WebGPUSAODepthLimitedBlurRenderer(renderContext);
   }
@@ -49,7 +50,7 @@ export class WebGPUSAOPipeline {
       return occlusionResult;
     }
 
-    if (params.view.effects.sao.blur) {
+    if (params.view.effects.sao.blur && !isRawSAODebugMode(params.view.effects.sao.debug)) {
       this._blurTarget.ensureSize(params.width, params.height);
       const horizontalResult = this._blurRenderer.render({
         commandEncoder: params.commandEncoder,

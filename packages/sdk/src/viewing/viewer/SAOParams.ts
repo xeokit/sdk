@@ -1,4 +1,15 @@
 /**
+ * SAO debug output mode.
+ */
+export type SAODebugMode =
+  | boolean
+  | "linearDepth"
+  | "normal"
+  | "rawOcclusion"
+  | "blurredOcclusion"
+  | "finalFactor";
+
+/**
  * Parameters for an {@link SAO}.
  *
  * * Returned by {@link SAO.toParams | SAO.toParams}
@@ -73,4 +84,18 @@ export interface SAOParams {
    * Default value is ````0.15````.
    */
   intensity?: number;
+
+  /**
+   * Debug output mode for inspecting SAO sampling.
+   *
+   * * `false` disables debug output.
+   * * `true` or `"finalFactor"` shows the final post-blend SAO multiplier.
+   * * `"linearDepth"` shows normalized reconstructed view depth for visible surfaces.
+   * * `"normal"` shows a scalar encoding of the reconstructed view normal.
+   * * `"rawOcclusion"` shows the pre-blur occlusion term.
+   * * `"blurredOcclusion"` shows the post-blur occlusion term.
+   *
+   * Default value is `false`.
+   */
+  debug?: SAODebugMode;
 }

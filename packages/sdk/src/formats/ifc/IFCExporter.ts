@@ -6,7 +6,7 @@ import { getInitializedIFCAPI } from "./getInitializedIFCAPI";
 /**
  * Exports a {@link model!scene.SceneModel | SceneModel} and {@link model!data.DataModel | DataModel} to an IFC file.
  *
- * For detailed usage, refer to {@link ifc | @xeokit/sdk/formats/ifc}.
+ * For detailed usage, refer to {@link formats!ifc | @xeokit/sdk/formats/ifc}.
  */
 export class IFCExporter extends ModelExporter {
   constructor() {

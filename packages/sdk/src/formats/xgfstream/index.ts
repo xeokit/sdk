@@ -1,7 +1,7 @@
 /**
  * # xeokit XGF Stream Format
  *
- * XGF Stream is the chunked streaming companion to {@link xgf | XGF}.
+ * XGF Stream is the chunked streaming companion to {@link formats!xgf | XGF}.
  * It stores a model as a streaming index plus multiple XGF v2 chunks.
  * Asset-library chunks create reusable geometry, materials and textures;
  * references-only chunks create scene content that binds to those assets by

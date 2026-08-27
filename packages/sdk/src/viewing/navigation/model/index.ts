@@ -101,7 +101,7 @@
  *
  * # Usage
  *
- * This example demonstrates how to set up a {@link viewing!viewer.Viewer | Viewer} with a {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer},
+ * This example demonstrates how to set up a {@link viewing!viewer.Viewer | Viewer} with a {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer},
  * a {@link model!scene.Scene | Scene} to manage geometry and materials, plus model-centric camera navigation and pointer interaction via ModelNavigationController.
  *
  * ```javascript

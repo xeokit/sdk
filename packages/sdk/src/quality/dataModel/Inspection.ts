@@ -5,7 +5,7 @@ import type {InspectDataModelParams} from "./params/InspectDataModelParams";
 
 /**
  * One pluggable check in the DataModel inspector pipeline. Mirrors
- * {@link inspect!sceneModel.Inspection | Inspection} without the fix half — SDK
+ * {@link quality!sceneModel.Inspection | Inspection} without the fix half — SDK
  * policy is to report defects in user data, not auto-mutate.
  */
 export interface Inspection {

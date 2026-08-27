@@ -9,7 +9,7 @@ import type {PropertySetParams} from "./PropertySetParams";
  * * Created using {@link DataModel.createPropertySet | DataModel.createPropertySet}.
  * * Stored in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | DataModel.propertySets}.
  *
- * For detailed usage, refer to {@link data | @xeokit/sdk/model/data}.
+ * For detailed usage, refer to {@link model!data | @xeokit/sdk/model/data}.
  */
 export class PropertySet {
 

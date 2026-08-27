@@ -96,7 +96,7 @@ export class RenderManager {
   /**
    * Infinite ground grid renderer. Set {@link InfiniteGridRenderer.enabled} to true to activate.
    */
-  public infiniteGrid: InfiniteGridRenderer;
+  public infiniteGrid: InfiniteGridRenderer | null = null;
 
   /**
    * 3D Gaussian Splatting draw pass. Renders the {@link MeshManager}'s splat
@@ -110,6 +110,7 @@ export class RenderManager {
     normalDrawSAO: [],
     normalDrawShadow: [],
     normalDrawSAOShadow: [],
+    normalShadowTransparent: [],
     normalEdgesOpaque: [],
     normalFillTransparent: [],
     normalEdgesTransparent: [],
@@ -133,7 +134,7 @@ export class RenderManager {
   /**
    * Sky/environment renderer.
    */
-  public skyRenderer: SkyRenderer;
+  public skyRenderer: SkyRenderer | null = null;
 
   /** Owns the SAO depth → AO → blur sequence. */
   private _saoPipeline: SAOPipeline;
@@ -161,6 +162,9 @@ export class RenderManager {
 
   /** Shared BRDF LUT for the split-sum specular IBL approximation. */
   private _brdfLUT: BRDFLUTTexture | null = null;
+
+  /** Prevents repeated per-frame BRDF LUT allocation attempts after a soft IBL failure. */
+  private _brdfLUTDisabled = false;
 
   /**
    * One IBL prefilter pipeline per view (each carries its own sky
@@ -218,52 +222,23 @@ export class RenderManager {
    * - Draw operations are pooled; this may reuse previously created programs
    */
   public init(): SDKResult<void> {
+    this._extensionHandles = {};
+    this._activateExtensions();
+
+    if (!this.infiniteGrid) {
+      this.infiniteGrid = this._createInfiniteGridRenderer();
+    }
+
+    if (!this.skyRenderer) {
+      this.skyRenderer = this._createSkyRenderer();
+    }
+
     if (!this.drawOps) {
       const result = getDrawOps(this._renderContext, this._gpuMemoryReader);
       if (result.ok === false) {
         return result;
       }
       this.drawOps = result.value;
-    }
-
-    this._extensionHandles = {};
-    this._activateExtensions();
-
-    if (!this.infiniteGrid) {
-      this.infiniteGrid = new InfiniteGridRenderer(this._renderContext.gl, {
-        minorColor: [0.36, 0.40, 0.42],
-        majorColor: [0,0,0],
-        xAxisColor: [0.68, 0.42, 0.40],
-        zAxisColor: [0.40, 0.58, 0.70]
-      });
-      const gridResult = this.infiniteGrid.init();
-      if (gridResult.ok === false) {
-        this.infiniteGrid = null;
-        return gridResult;
-      }
-    }
-
-    if (!this.gaussianSplats) {
-      this.gaussianSplats = new GaussianSplatTechnique(this._renderContext.gl);
-      const splatResult = this.gaussianSplats.init();
-      if (splatResult.ok === false) {
-        this.gaussianSplats = null;
-        return splatResult;
-      }
-    }
-
-    if (!this.skyRenderer) {
-      this.skyRenderer = new SkyRenderer(this._renderContext.gl, {
-        skyColor: [0.74, 0.80, 0.88],
-        horizonColor: [0.66, 0.72, 0.74],
-        horizonBlend: 0.5,
-        groundColor: [0.58, 0.64, 0.60]
-      });
-      const skyResult = this.skyRenderer.init();
-      if (skyResult.ok === false) {
-        this.skyRenderer = null;
-        return skyResult;
-      }
     }
 
     if (!this._saoPipeline) {
@@ -310,22 +285,54 @@ export class RenderManager {
       }
     }
 
-    // Split-sum BRDF integration LUT — generated once, shared across views.
-    // Per-view IBL prefilter pipelines are created lazily in _renderScene
-    // when a view first asks for IBL.
-    if (!this._brdfLUT) {
-      this._brdfLUT = new BRDFLUTTexture(this._renderContext.gl);
-      const lutResult = this._brdfLUT.allocate();
-      if (lutResult.ok === false) {
-        this._brdfLUT = null;
-        return lutResult;
-      }
-    }
-
     return {
       ok: true,
       value: undefined
     };
+  }
+
+  public setInfiniteGridEnabled(enabled: boolean): void {
+    if (!this.infiniteGrid || this.infiniteGrid.destroyed) {
+      this.infiniteGrid = this._createInfiniteGridRenderer();
+    }
+    this.infiniteGrid.enabled = enabled;
+  }
+
+  private _createInfiniteGridRenderer(): InfiniteGridRenderer {
+    return new InfiniteGridRenderer(this._renderContext.gl, {
+      minorColor: [0.36, 0.40, 0.42],
+      majorColor: [0,0,0],
+      xAxisColor: [0.68, 0.42, 0.40],
+      zAxisColor: [0.40, 0.58, 0.70]
+    });
+  }
+
+  private _createSkyRenderer(): SkyRenderer {
+    return new SkyRenderer(this._renderContext.gl, {
+      skyColor: [0.74, 0.80, 0.88],
+      horizonColor: [0.66, 0.72, 0.74],
+      horizonBlend: 0.5,
+      groundColor: [0.58, 0.64, 0.60]
+    });
+  }
+
+  private _ensureBRDFLUT(): boolean {
+    if (this._brdfLUT) {
+      return true;
+    }
+    if (this._brdfLUTDisabled) {
+      return false;
+    }
+    const lut = new BRDFLUTTexture(this._renderContext.gl);
+    const result = lut.allocate();
+    if (result.ok === false) {
+      lut.destroy();
+      this._brdfLUTDisabled = true;
+      console.warn(`[RenderManager] IBL BRDF LUT disabled: ${result.error}`);
+      return false;
+    }
+    this._brdfLUT = lut;
+    return true;
   }
 
   /**
@@ -338,7 +345,6 @@ export class RenderManager {
    * itself by signature and only re-renders when sky/sun/up moves.
    */
   private _prepareIBL(view: import("../../../../viewer").View): void {
-    if (!this._brdfLUT) return; // BRDF LUT init failed earlier; soft-disable.
     // Effect activation is gated entirely by `applied` — when the
     // current View.active profile isn't in IBL.enabled state we skip the
     // prefilter refresh, sky-param build, and cubemap publish, and let
@@ -346,6 +352,7 @@ export class RenderManager {
     // soon as active profile flips back into the list, the next call here
     // notices its dirty signature and re-renders the cubemap chain.
     if (!view.lights.ibl.applied || !view.lights.ibl.possible) return;
+    if (!this._ensureBRDFLUT()) return;
     const rc = this._renderContext;
     const viewIndex = view.viewIndex;
 
@@ -354,7 +361,7 @@ export class RenderManager {
       // HDR cubemaps require EXT_color_buffer_float — already activated in
       // `_activateExtensions`. Without it we silently fall back to RGBA8.
       const hdr = !!(this._extensionHandles && this._extensionHandles.EXT_color_buffer_float);
-      pipeline = new IBLPrefilter(rc.gl, this._brdfLUT, { hdr });
+      pipeline = new IBLPrefilter(rc.gl, this._brdfLUT!, { hdr });
       const allocResult = pipeline.allocate();
       if (allocResult.ok === false) {
         // Logged once and the view simply doesn't get IBL; the BRDF
@@ -697,6 +704,7 @@ export class RenderManager {
     this._iblEnvVersions.clear();
     this._brdfLUT?.destroy();
     this._brdfLUT = null;
+    this._brdfLUTDisabled = false;
   }
 
   private _activateExtensions() {
@@ -867,13 +875,25 @@ export class RenderManager {
     // Front-load the names so SAO/shadow prep and sky/grid cost is
     // attributed to its own bin in the inspector's per-frame report.
     const ri = this._inspector();
-    if (this.skyRenderer) {
+    if (this.skyRenderer && view.effects.sky.applied !== false) {
       ri?.renderBinStarted("sky");
-      this.skyRenderer.render(rendererView);
+      const skyResult = this.skyRenderer.init();
+      if (skyResult.ok === false) {
+        console.warn(`[RenderManager] Sky disabled: ${skyResult.error}`);
+        this.skyRenderer = this._createSkyRenderer();
+      } else {
+        this.skyRenderer.render(rendererView);
+      }
     }
     if (this.infiniteGrid?.enabled) {
       ri?.renderBinStarted("grid");
-      this.infiniteGrid.render(rendererView);
+      const gridResult = this.infiniteGrid.init();
+      if (gridResult.ok === false) {
+        console.warn(`[RenderManager] Infinite grid disabled: ${gridResult.error}`);
+        this.infiniteGrid = this._createInfiniteGridRenderer();
+      } else {
+        this.infiniteGrid.render(rendererView);
+      }
     }
 
     // IBL prefilter — refreshes the per-view sky cubemap + irradiance +
@@ -885,7 +905,9 @@ export class RenderManager {
     // drawing into its own FBO). All pull their batches from the relevant
     // bin sets.
     const needSAO = bins.normalDrawSAO.length > 0 || bins.normalDrawSAOShadow.length > 0;
-    const needShadow = bins.normalDrawShadow.length > 0 || bins.normalDrawSAOShadow.length > 0;
+    const needShadow = bins.normalDrawShadow.length > 0 ||
+      bins.normalDrawSAOShadow.length > 0 ||
+      bins.normalShadowTransparent.length > 0;
     const needSceneDepth = this._postProcess.needsSceneDepth(view);
     if (needSAO) {
       ri?.renderBinStarted("saoPrep");
@@ -902,7 +924,8 @@ export class RenderManager {
         rendererView,
         drawOps: this.drawOps.prims,
         shadowBatches: bins.normalDrawShadow,
-        comboBatches: bins.normalDrawSAOShadow
+        comboBatches: bins.normalDrawSAOShadow,
+        transparentShadowBatches: bins.normalShadowTransparent
       });
     }
     if (needSceneDepth) {
@@ -947,10 +970,13 @@ export class RenderManager {
     this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
 
     // Gaussian splats: after opaque (so they depth-test against it), before the
-    // transparent mesh pass. Self-contained blended pass; no-op when no splats.
-    if (this.gaussianSplats) {
+    // transparent mesh pass. Lazily compile the optional splat program only
+    // once a scene actually contains splats, so ordinary mesh viewers cannot
+    // fail attach because of an unused splat shader.
+    const splatBatch = this._meshManager.getSplatBatch();
+    if (splatBatch && splatBatch.numSplats > 0 && this._ensureGaussianSplats()) {
       ri?.renderBinStarted("gaussianSplats");
-      this.gaussianSplats.render(rendererView, this._meshManager.getSplatBatch());
+      this.gaussianSplats?.render(rendererView, splatBatch);
     }
 
     this._renderTransparents(view);
@@ -1036,6 +1062,21 @@ export class RenderManager {
     depthBuffer.unbind();
     renderContext.sceneDepthTexture = depthBuffer.getDepthTexture();
     renderContext.lastProgramId = -1;
+  }
+
+  private _ensureGaussianSplats(): boolean {
+    if (this.gaussianSplats) {
+      return true;
+    }
+    const gaussianSplats = new GaussianSplatTechnique(this._renderContext.gl);
+    const result = gaussianSplats.init();
+    if (result.ok === false) {
+      gaussianSplats.destroy();
+      console.warn(`[RenderManager] Gaussian splats disabled: ${result.error}`);
+      return false;
+    }
+    this.gaussianSplats = gaussianSplats;
+    return true;
   }
 
   /**

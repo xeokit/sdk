@@ -51,7 +51,7 @@ interface ViewRenderCache {
   instanceFrame: InstanceBufferFrame | null;
   batchSet: TriangleBatchSet | null;
   batches: InstancedDrawBatches;
-  shadowOpaqueBatches: InstancedDrawBatch[];
+  shadowBatches: InstancedDrawBatch[];
   snapEdgeBatches: InstancedDrawBatch[];
   splatBatches: InstancedDrawBatch[];
   meshStateByGlobalSlot: Map<number, RendererMesh>;
@@ -329,10 +329,12 @@ export class RenderManager {
         ? this._postProcess.ensureSceneTarget(viewRenderState.canvas.width, viewRenderState.canvas.height)
         : null;
       this._renderContext.colorTargetFormat = postProcessTarget?.format ?? this._renderContext.contextFormat;
-      const frameAttachments = new WebGPUFrameAttachments({
+      let frameAttachments = new WebGPUFrameAttachments({
         colorView: postProcessTarget?.view ?? canvasView,
         depthStencilView: viewRenderState.depthTextureView
       });
+      let postProcessSourceView = postProcessTarget?.textureView ?? null;
+      let saoAppliedBeforeFinalComposite = false;
       const triangleDrawOps = this._drawOps.prims[TrianglesPrimitive];
       if (!triangleDrawOps) {
         return {
@@ -348,9 +350,14 @@ export class RenderManager {
       const pointBatches = this._filterBatchesByPrimitive(renderCache.batches, PointsPrimitive);
       const lineBatches = this._filterBatchesByPrimitive(renderCache.batches, LinesPrimitive);
       const splatBatches = renderCache.splatBatches;
+      const hasTransparentSurfaceBatches = triangleBatches.transparent.length > 0 ||
+        pointBatches.transparent.length > 0 ||
+        lineBatches.transparent.length > 0 ||
+        splatBatches.length > 0;
 
-      const useDepthPrepass = this._renderContext.renderConfigs.depthPrepass && triangleBatches.opaque.length > 0;
-      const useShadows = this._shadowPipeline.shouldRender(view, renderCache.shadowOpaqueBatches);
+      const depthPrepassTriangleBatches = triangleBatches.opaque.filter((batch) => !batch.packedBatch.skipDepthPrepass);
+      const useDepthPrepass = this._renderContext.renderConfigs.depthPrepass && depthPrepassTriangleBatches.length > 0;
+      const useShadows = this._shadowPipeline.shouldRender(view, renderCache.shadowBatches);
       const timestampPassNames = this._getTimestampPassNames({
         useDepthPrepass,
         hasMainColor: (
@@ -377,7 +384,7 @@ export class RenderManager {
           canvasHeight: viewRenderState.canvas.height,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
-          batches: renderCache.shadowOpaqueBatches,
+          batches: renderCache.shadowBatches,
           shadowDepthDrawOp: triangleDrawOps.shadowDepth
         });
         if (shadowResult.ok === false) {
@@ -410,7 +417,7 @@ export class RenderManager {
           commandStateTracker: depthPrepassCommandState,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
-          batches: triangleBatches.opaque,
+          batches: depthPrepassTriangleBatches,
           renderPass: "DEPTH_PREPASS",
           technique: "TrianglesDepthPrepassTechnique",
           drawOp: triangleDrawOps.depthPrepass,
@@ -574,6 +581,32 @@ export class RenderManager {
         if (emphasizedOpaqueResult.ok === false) {
           return emphasizedOpaqueResult;
         }
+      }
+
+      if (usePostProcess && postProcessSourceView && hasTransparentSurfaceBatches && this._postProcess.needsSAO(view)) {
+        this._endRenderPass(passEncoder);
+        const saoResult = this._postProcess.applySAO({
+          commandEncoder,
+          sourceView: postProcessSourceView,
+          depthView: viewRenderState.sampledDepthTextureView ?? viewRenderState.depthTextureView,
+          width: viewRenderState.canvas.width,
+          height: viewRenderState.canvas.height,
+          view
+        });
+        if (saoResult.ok === false) {
+          return saoResult;
+        }
+        postProcessSourceView = saoResult.value.colorView;
+        saoAppliedBeforeFinalComposite = saoResult.value.applied;
+        frameAttachments = new WebGPUFrameAttachments({
+          colorView: postProcessSourceView,
+          depthStencilView: viewRenderState.depthTextureView
+        });
+        passEncoder = commandEncoder.beginRenderPass(frameAttachments.createLoadedColorPassDescriptor());
+        passCommandState = new CommandStateTracker({
+          passEncoder,
+          commandStats: this._renderInspector
+        });
       }
 
       const activeSectionPlanes = this._getSectionPlanesForCaps(view);
@@ -746,15 +779,16 @@ export class RenderManager {
       }
 
       this._endRenderPass(passEncoder);
-      if (usePostProcess && postProcessTarget?.textureView) {
+      if (usePostProcess && postProcessSourceView) {
         const compositeResult = this._postProcess.composite({
           commandEncoder,
-          sourceView: postProcessTarget.textureView,
+          sourceView: postProcessSourceView,
           canvasView,
           depthView: viewRenderState.sampledDepthTextureView ?? viewRenderState.depthTextureView,
           width: viewRenderState.canvas.width,
           height: viewRenderState.canvas.height,
-          view
+          view,
+          skipSAO: saoAppliedBeforeFinalComposite
         });
         if (compositeResult.ok === false) {
           return compositeResult;
@@ -907,7 +941,7 @@ export class RenderManager {
         };
       }
 
-      const iblResult = this._iblManager.prepare(view);
+      const iblResult = this._iblManager.prepare(view, {active: false});
       if (iblResult.ok === false) {
         return iblResult;
       }
@@ -1134,7 +1168,7 @@ export class RenderManager {
       const renderCache = params.renderCache;
       const snapViewProjectionMatrix = params.snapViewProjectionMatrix ??
         this._getSnapWebGPUViewProjectionMatrix(view, params.canvasPos, params.snapBuffer);
-      const iblResult = this._iblManager.prepare(view);
+      const iblResult = this._iblManager.prepare(view, {active: false});
       if (iblResult.ok === false) {
         return iblResult;
       }
@@ -1245,7 +1279,7 @@ export class RenderManager {
       }
       const cache = this._viewRenderCaches[cacheId];
       this._clearCachedBatches(cache.batches);
-      this._clearBatchList(cache.shadowOpaqueBatches);
+      this._clearBatchList(cache.shadowBatches);
       this._clearBatchList(cache.snapEdgeBatches);
       this._clearBatchList(cache.splatBatches);
       delete this._viewRenderCaches[cacheId];
@@ -1522,7 +1556,7 @@ export class RenderManager {
     const totalSceneInstances = this._countVisibleDrawItems(this._bins);
     if ((totalSceneInstances === 0 || batchSet.instanceCapacity === 0) && splatBatchSet.splatCount === 0) {
       this._clearCachedBatches(cache.batches);
-      this._clearBatchList(cache.shadowOpaqueBatches);
+      this._clearBatchList(cache.shadowBatches);
       this._clearBatchList(cache.splatBatches);
       cache.instanceFrame = null;
       cache.batchSet = batchSet;
@@ -1573,15 +1607,15 @@ export class RenderManager {
     this._renderInspector.setInstanceUploadStats(this._instanceBufferManager.upload(cache.instanceFrame));
     this._renderInspector.addCPUTime("uploadMs", nowMs() - uploadStart);
     this._copyBatches(drawBatchesResult.value, cache.batches);
-    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+    const shadowBatchesResult = this._buildShadowBatches({
       batchSet,
-      drawItems: this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false),
+      drawItems: this._getNormalShadowDrawItems(this._bins),
       view
     });
-    if (shadowOpaqueBatchesResult.ok === false) {
-      return shadowOpaqueBatchesResult;
+    if (shadowBatchesResult.ok === false) {
+      return shadowBatchesResult;
     }
-    this._replaceBatches(shadowOpaqueBatchesResult.value, cache.shadowOpaqueBatches);
+    this._replaceBatches(shadowBatchesResult.value, cache.shadowBatches);
     const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
       batchSet,
       drawItems: this._getEdgeSnapDrawItems(this._bins),
@@ -1659,7 +1693,7 @@ export class RenderManager {
     const totalSceneInstances = this._countVisibleDrawItems(this._bins);
     if (totalSceneInstances === 0 || batchSet.instanceCapacity === 0) {
       this._clearCachedBatches(cache.batches);
-      this._clearBatchList(cache.shadowOpaqueBatches);
+      this._clearBatchList(cache.shadowBatches);
       this._clearBatchList(cache.snapEdgeBatches);
       cache.totalInstances = 0;
       cache.hasTransparent = false;
@@ -1702,15 +1736,15 @@ export class RenderManager {
     this._renderInspector.addCPUTime("uploadMs", nowMs() - uploadStart);
     this._copyBatches(drawBatchesResult.value, cache.batches);
 
-    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+    const shadowBatchesResult = this._buildShadowBatches({
       batchSet,
-      drawItems: this._filterDrawItemsByOverlay(this._bins.normalDrawOpaque, false),
+      drawItems: this._getNormalShadowDrawItems(this._bins),
       view
     });
-    if (shadowOpaqueBatchesResult.ok === false) {
-      return shadowOpaqueBatchesResult;
+    if (shadowBatchesResult.ok === false) {
+      return shadowBatchesResult;
     }
-    this._replaceBatches(shadowOpaqueBatchesResult.value, cache.shadowOpaqueBatches);
+    this._replaceBatches(shadowBatchesResult.value, cache.shadowBatches);
 
     const snapEdgeBatchesResult = this._instanceBatcher.buildEdges({
       batchSet,
@@ -1863,16 +1897,16 @@ export class RenderManager {
     for (let i = 0, len = overlayOpaqueBatchesResult.value.length; i < len; i++) {
       cache.batches.overlayOpaque.push(overlayOpaqueBatchesResult.value[i]);
     }
-    const shadowOpaqueBatchesResult = this._buildShadowOpaqueBatches({
+    const shadowBatchesResult = this._buildShadowBatches({
       batchSet: partialBatchSet,
       drawItems: opaqueDrawItems,
       view
     });
-    if (shadowOpaqueBatchesResult.ok === false) {
-      return shadowOpaqueBatchesResult;
+    if (shadowBatchesResult.ok === false) {
+      return shadowBatchesResult;
     }
-    for (let i = 0, len = shadowOpaqueBatchesResult.value.length; i < len; i++) {
-      cache.shadowOpaqueBatches.push(shadowOpaqueBatchesResult.value[i]);
+    for (let i = 0, len = shadowBatchesResult.value.length; i < len; i++) {
+      cache.shadowBatches.push(shadowBatchesResult.value[i]);
     }
     if (this._renderContext.renderConfigs.edges) {
       const edgeBatchesResult = this._instanceBatcher.buildEdges({
@@ -2183,6 +2217,15 @@ export class RenderManager {
     this._replaceBatches(transparentBatchesResult.value.selectedEdgesTransparent, cache.batches.selectedEdgesTransparent);
     transparentBatchesResult.value.opaque.length = 0;
     transparentBatchesResult.value.edges.length = 0;
+    const shadowBatchesResult = this._buildShadowBatches({
+      batchSet,
+      drawItems: this._getNormalShadowDrawItems(this._bins),
+      view
+    });
+    if (shadowBatchesResult.ok === false) {
+      return shadowBatchesResult;
+    }
+    this._replaceBatches(shadowBatchesResult.value, cache.shadowBatches);
     this._renderInspector.addCPUTime("drawBatchMs", nowMs() - drawBatchStart);
     this._renderInspector.addCPUTime("batchingMs", nowMs() - batchingStart);
     this._renderInspector.addSegments(this._countBatches(cache.batches));
@@ -2249,7 +2292,7 @@ export class RenderManager {
           selectedTransparent: [],
           selectedEdgesTransparent: []
         },
-        shadowOpaqueBatches: [],
+        shadowBatches: [],
         snapEdgeBatches: [],
         splatBatches: [],
         meshStateByGlobalSlot: new Map(),
@@ -2693,7 +2736,7 @@ export class RenderManager {
     }
   }
 
-  private _buildShadowOpaqueBatches(params: {
+  private _buildShadowBatches(params: {
     batchSet: TriangleBatchSet;
     drawItems: DrawItem[];
     view: View;
@@ -2710,6 +2753,13 @@ export class RenderManager {
       drawItems: shadowDrawItems,
       viewId: `${params.view.id}:shadow`
     });
+  }
+
+  private _getNormalShadowDrawItems(bins: RenderBins): DrawItem[] {
+    return [
+      ...this._filterDrawItemsByOverlay(bins.normalDrawOpaque, false),
+      ...this._filterDrawItemsByOverlay(bins.normalFillTransparent, false)
+    ];
   }
 
   private _clearCachedBatches(batches: InstancedDrawBatches): void {

@@ -14,16 +14,23 @@ import type {WebGPUTextureLike} from "../../core";
 import {GPU_BUFFER_USAGE, GPU_TEXTURE_USAGE} from "../constants";
 import {RenderContext} from "../RenderContext";
 
-const BRDF_LUT_SIZE = 128;
-const IRRADIANCE_SIZE = 16;
-const PREFILTER_SIZE = 64;
-const PREFILTER_MIPS = 7;
-const SAMPLE_COUNT = 64;
+const BRDF_LUT_SIZE = 256;
+const BRDF_SAMPLE_COUNT = 256;
+const SOURCE_SIZE = 256;
+const SOURCE_MIPS = 9;
+const IRRADIANCE_SIZE = 32;
+const IRRADIANCE_SAMPLE_COUNT = 64;
+const PREFILTER_SIZE = 128;
+const PREFILTER_MIPS = 8;
+const PREFILTER_SAMPLE_COUNT = 128;
+const CUBE_FACE_COUNT = 6;
 const IBL_UNIFORM_FLOATS = 16;
 const IBL_CUBEMAP_FORMAT = "rgba16float";
 const PI = Math.PI;
+const TWO_PI = Math.PI * 2;
 const HALF_FLOAT_VALUE = new Float32Array(1);
 const HALF_FLOAT_BITS = new Uint32Array(HALF_FLOAT_VALUE.buffer);
+let cachedBRDFLUTPixels: Uint8Array | null = null;
 
 interface HDRImageLike {
   data: Float32Array;
@@ -36,6 +43,33 @@ interface IBLTextureSet {
   prefilteredTexture: WebGPUTextureLike;
   brdfLUTTexture: WebGPUTextureLike;
   destroy(): void;
+}
+
+interface EnvironmentSampler {
+  sample(dir: Vec3, lod?: number): Vec3;
+  sourceMipLevel?(dir: Vec3, targetCubeSize: number): number;
+}
+
+interface SourceCubeMip {
+  size: number;
+  faces: Float32Array[];
+}
+
+interface SourceCubeMap extends EnvironmentSampler {
+  mips: SourceCubeMip[];
+}
+
+interface EquirectMip {
+  width: number;
+  height: number;
+  data: Float32Array;
+}
+
+interface ImagePixelsLike {
+  data: ArrayLike<number>;
+  width: number;
+  height: number;
+  linear: boolean;
 }
 
 /**
@@ -184,7 +218,7 @@ export class WebGPUIBLManager {
     if (!view) {
       return this._createPlaceholderTextureSet();
     }
-    const env = createEnvironmentSampler(view);
+    const env = createSourceCubeMap(createEnvironmentSampler(view));
     const irradianceTexture = this._createCubeTexture("xeokit-webgpu-ibl-irradiance-cubemap", IRRADIANCE_SIZE, 1);
     uploadCubeMip(this._renderContext, irradianceTexture, IRRADIANCE_SIZE, 0, (dir) => {
       return sampleIrradiance(env, dir);
@@ -282,7 +316,7 @@ function uploadCubeMip(
   mipLevel: number,
   sampler: (dir: Vec3) => Vec3
 ): void {
-  for (let face = 0; face < 6; face++) {
+  for (let face = 0; face < CUBE_FACE_COUNT; face++) {
     const pixels = new Uint16Array(size * size * 4);
     let offset = 0;
     for (let y = 0; y < size; y++) {
@@ -305,7 +339,7 @@ function uploadCubeMip(
   }
 }
 
-function createEnvironmentSampler(view: View | null): (dir: Vec3) => Vec3 {
+function createEnvironmentSampler(view: View | null): EnvironmentSampler {
   const hemi: any = view ? (view as any).lights?.hemispheric : null;
   const shadowDir = view ? ((view as any).effects?.shadows?.direction ?? [-0.45, -0.35, -0.80]) : [-0.45, -0.35, -0.80];
   const up = normalizeVec3Safe([
@@ -315,7 +349,16 @@ function createEnvironmentSampler(view: View | null): (dir: Vec3) => Vec3 {
   ]);
   const hdr = view ? ((view as any).lights?.ibl?.environmentHDR as HDRImageLike | undefined) : undefined;
   if (hdr?.data && hdr.width > 0 && hdr.height > 0) {
-    return (dir) => sampleHDR(hdr, dir, up);
+    return createEquirectEnvironmentSampler({
+      data: hdr.data,
+      width: hdr.width,
+      height: hdr.height,
+      linear: true
+    }, up);
+  }
+  const ldrImage = view ? ((view as any).lights?.ibl?.environmentImage as TexImageSource | undefined) : undefined;
+  if (ldrImage) {
+    return createEquirectEnvironmentSampler(readLDRImagePixels(ldrImage), up);
   }
   const sky = [
     Number(hemi?.skyColor?.[0] ?? 0.62),
@@ -333,71 +376,358 @@ function createEnvironmentSampler(view: View | null): (dir: Vec3) => Vec3 {
     Math.min(1, sky[2] * 0.55 + 0.40)
   ] as Vec3;
   const sunDir = normalizeVec3Safe([-shadowDir[0], -shadowDir[1], -shadowDir[2]]);
-  return (dir) => {
-    const upDot = dotVec3(dir, up);
-    const skyMix = Math.max(0, upDot);
-    const groundMix = Math.max(0, -upDot);
-    const horizonMix = Math.pow(Math.max(0, 1 - Math.abs(upDot)), 2);
-    const sunDot = Math.max(0, dotVec3(dir, sunDir));
-    const sun = Math.pow(sunDot, 900) * 10 + Math.pow(sunDot, 80) * 2.5;
-    return [
-      sky[0] * skyMix + ground[0] * groundMix + horizon[0] * horizonMix + sun,
-      sky[1] * skyMix + ground[1] * groundMix + horizon[1] * horizonMix + sun * 0.92,
-      sky[2] * skyMix + ground[2] * groundMix + horizon[2] * horizonMix + sun * 0.72
-    ];
+  const sunColor: Vec3 = [12.0, 11.0, 8.5];
+  const horizonBlend = 0.25;
+  const sunCosSize = Math.cos((4.0 * PI / 180.0) * 0.5);
+  const sunGlowSize = 8.0;
+  const sunGlowIntensity = 4.5;
+  return {
+    sample: (dir) => {
+      const upDot = dotVec3(dir, up);
+      const blend = smoothstep(0, 1, Math.min(1, Math.abs(upDot) / horizonBlend));
+      const base = upDot > 0
+        ? mixVec3(horizon, sky, blend)
+        : mixVec3(horizon, ground, blend);
+      const sunDot = Math.max(0, dotVec3(dir, sunDir));
+      if (sunDot > sunCosSize) {
+        return sunColor;
+      }
+      const glow = Math.pow(sunDot, sunGlowSize) * sunGlowIntensity;
+      return addVec3Result(base, scaleVec3(sunColor, glow));
+    }
   };
 }
 
-function sampleHDR(hdr: HDRImageLike, dir: Vec3, up: Vec3): Vec3 {
+function mixVec3(a: Vec3, b: Vec3, t: number): Vec3 {
+  const s = 1 - t;
+  return [
+    a[0] * s + b[0] * t,
+    a[1] * s + b[1] * t,
+    a[2] * s + b[2] * t
+  ];
+}
+
+function smoothstep(edge0: number, edge1: number, x: number): number {
+  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+function createEquirectEnvironmentSampler(source: ImagePixelsLike, up: Vec3): EnvironmentSampler {
+  const mips = createEquirectMips(source);
   const ref: Vec3 = Math.abs(up[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
   const east = normalizeVec3Safe(cross3Vec3(up, ref, [0, 0, 0]));
   const north = cross3Vec3(east, up, [0, 0, 0]);
-  const lat = Math.asin(clamp(dotVec3(dir, up), -1, 1));
-  const lon = Math.atan2(dotVec3(dir, east), dotVec3(dir, north));
-  const u = (0.5 + lon / (2 * PI)) * hdr.width;
-  const v = (0.5 - lat / PI) * hdr.height;
-  const x = Math.max(0, Math.min(hdr.width - 1, Math.floor(u)));
-  const y = Math.max(0, Math.min(hdr.height - 1, Math.floor(v)));
-  const idx = (y * hdr.width + x) * 4;
-  return [hdr.data[idx], hdr.data[idx + 1], hdr.data[idx + 2]];
+  return {
+    sample: (dir, lod = 0) => sampleEquirectMips(mips, dir, up, east, north, lod),
+    sourceMipLevel: (dir, targetCubeSize) => {
+      const lat = Math.asin(clamp(dotVec3(dir, up), -1, 1));
+      const saCube = 4 * PI / (CUBE_FACE_COUNT * targetCubeSize * targetCubeSize);
+      const saEquirect = 2 * PI * PI * Math.max(Math.cos(lat), 1e-3) / (source.width * source.height);
+      return Math.max(0, 0.5 * Math.log2(saCube / saEquirect));
+    }
+  };
 }
 
-function sampleIrradiance(env: (dir: Vec3) => Vec3, n: Vec3): Vec3 {
+function readLDRImagePixels(source: TexImageSource): ImagePixelsLike {
+  const width = Number((source as any).naturalWidth || (source as any).videoWidth || (source as any).displayWidth || (source as any).width || 0);
+  const height = Number((source as any).naturalHeight || (source as any).videoHeight || (source as any).displayHeight || (source as any).height || 0);
+  if (width <= 0 || height <= 0) {
+    throw new Error("[WebGPUIBLManager] IBL environment image has zero dimensions.");
+  }
+  const canvas = createReadbackCanvas(width, height);
+  const ctx = (canvas as any).getContext?.("2d", {willReadFrequently: true});
+  if (!ctx?.drawImage || !ctx?.getImageData) {
+    throw new Error("[WebGPUIBLManager] 2D canvas readback is unavailable for IBL environment image sampling.");
+  }
+  try {
+    ctx.drawImage(source as any, 0, 0, width, height);
+    const image = ctx.getImageData(0, 0, width, height);
+    return {
+      data: image.data,
+      width,
+      height,
+      linear: false
+    };
+  } catch (e) {
+    throw new Error(`[WebGPUIBLManager] Failed to read IBL environment image pixels: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+function createReadbackCanvas(width: number, height: number): HTMLCanvasElement | OffscreenCanvas {
+  const doc = (globalThis as any).document;
+  if (doc?.createElement) {
+    const canvas = doc.createElement("canvas") as HTMLCanvasElement;
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  }
+  const OffscreenCanvasCtor = (globalThis as any).OffscreenCanvas;
+  if (typeof OffscreenCanvasCtor === "function") {
+    return new OffscreenCanvasCtor(width, height) as OffscreenCanvas;
+  }
+  throw new Error("[WebGPUIBLManager] IBL environment image sampling requires HTMLCanvasElement or OffscreenCanvas.");
+}
+
+function createEquirectMips(source: ImagePixelsLike): EquirectMip[] {
+  let width = source.width;
+  let height = source.height;
+  let previous = convertSourcePixelsToLinearRGB(source);
+  const mips: EquirectMip[] = [{width, height, data: previous}];
+  while (width > 1 || height > 1) {
+    const nextWidth = Math.max(1, width >> 1);
+    const nextHeight = Math.max(1, height >> 1);
+    const next = new Float32Array(nextWidth * nextHeight * 3);
+    let dst = 0;
+    for (let y = 0; y < nextHeight; y++) {
+      for (let x = 0; x < nextWidth; x++) {
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+        for (let dy = 0; dy < 2; dy++) {
+          const sy = Math.min(height - 1, y * 2 + dy);
+          for (let dx = 0; dx < 2; dx++) {
+            const sx = (x * 2 + dx) % width;
+            const src = (sy * width + sx) * 3;
+            r += previous[src];
+            g += previous[src + 1];
+            b += previous[src + 2];
+            count++;
+          }
+        }
+        next[dst++] = r / count;
+        next[dst++] = g / count;
+        next[dst++] = b / count;
+      }
+    }
+    width = nextWidth;
+    height = nextHeight;
+    previous = next;
+    mips.push({width, height, data: previous});
+  }
+  return mips;
+}
+
+function convertSourcePixelsToLinearRGB(source: ImagePixelsLike): Float32Array {
+  const data = source.data;
+  const pixels = new Float32Array(source.width * source.height * 3);
+  let dst = 0;
+  for (let src = 0; src < data.length; src += 4) {
+    if (source.linear) {
+      pixels[dst++] = Number(data[src]);
+      pixels[dst++] = Number(data[src + 1]);
+      pixels[dst++] = Number(data[src + 2]);
+    } else {
+      pixels[dst++] = srgbByteToLinear(Number(data[src]));
+      pixels[dst++] = srgbByteToLinear(Number(data[src + 1]));
+      pixels[dst++] = srgbByteToLinear(Number(data[src + 2]));
+    }
+  }
+  return pixels;
+}
+
+function sampleEquirectMips(mips: EquirectMip[], dir: Vec3, up: Vec3, east: Vec3, north: Vec3, lod: number): Vec3 {
+  const lat = Math.asin(clamp(dotVec3(dir, up), -1, 1));
+  const lon = Math.atan2(dotVec3(dir, east), dotVec3(dir, north));
+  const level = clamp(lod, 0, mips.length - 1);
+  const mip0 = Math.floor(level);
+  const mip1 = Math.min(mips.length - 1, mip0 + 1);
+  const t = level - mip0;
+  const c0 = sampleEquirectMip(mips[mip0], lon, lat);
+  if (t <= 0 || mip0 === mip1) {
+    return c0;
+  }
+  return mixVec3(c0, sampleEquirectMip(mips[mip1], lon, lat), t);
+}
+
+function sampleEquirectMip(mip: EquirectMip, lon: number, lat: number): Vec3 {
+  const u = (0.5 + lon / TWO_PI) * mip.width - 0.5;
+  const v = (0.5 - lat / PI) * mip.height - 0.5;
+  const x0 = Math.floor(u);
+  const y0 = Math.floor(v);
+  const tx = u - x0;
+  const ty = v - y0;
+  const c00 = readEquirectMipPixel(mip, x0, y0);
+  const c10 = readEquirectMipPixel(mip, x0 + 1, y0);
+  const c01 = readEquirectMipPixel(mip, x0, y0 + 1);
+  const c11 = readEquirectMipPixel(mip, x0 + 1, y0 + 1);
+  return mixVec3(mixVec3(c00, c10, tx), mixVec3(c01, c11, tx), ty);
+}
+
+function readEquirectMipPixel(mip: EquirectMip, x: number, y: number): Vec3 {
+  const px = ((x % mip.width) + mip.width) % mip.width;
+  const py = Math.max(0, Math.min(mip.height - 1, y));
+  const idx = (py * mip.width + px) * 3;
+  return [mip.data[idx], mip.data[idx + 1], mip.data[idx + 2]];
+}
+
+function createSourceCubeMap(env: EnvironmentSampler): SourceCubeMap {
+  const baseFaces: Float32Array[] = [];
+  for (let face = 0; face < CUBE_FACE_COUNT; face++) {
+    const pixels = new Float32Array(SOURCE_SIZE * SOURCE_SIZE * 3);
+    let offset = 0;
+    for (let y = 0; y < SOURCE_SIZE; y++) {
+      for (let x = 0; x < SOURCE_SIZE; x++) {
+        const u = ((x + 0.5) / SOURCE_SIZE) * 2 - 1;
+        const v = ((y + 0.5) / SOURCE_SIZE) * 2 - 1;
+        const dir = cubeDirection(face, u, v);
+        const color = env.sample(dir, env.sourceMipLevel?.(dir, SOURCE_SIZE) ?? 0);
+        pixels[offset++] = Math.max(0, color[0]);
+        pixels[offset++] = Math.max(0, color[1]);
+        pixels[offset++] = Math.max(0, color[2]);
+      }
+    }
+    baseFaces.push(pixels);
+  }
+  const mips: SourceCubeMip[] = [{size: SOURCE_SIZE, faces: baseFaces}];
+  while (mips.length < SOURCE_MIPS) {
+    mips.push(downsampleCubeMip(mips[mips.length - 1]));
+  }
+  return {
+    mips,
+    sample: (dir, lod = 0) => sampleSourceCubeMap(mips, dir, lod)
+  };
+}
+
+function downsampleCubeMip(source: SourceCubeMip): SourceCubeMip {
+  const width = source.size;
+  const nextSize = Math.max(1, width >> 1);
+  const faces = source.faces.map((sourceFace) => {
+    const next = new Float32Array(nextSize * nextSize * 3);
+    let dst = 0;
+    for (let y = 0; y < nextSize; y++) {
+      for (let x = 0; x < nextSize; x++) {
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+        for (let dy = 0; dy < 2; dy++) {
+          const sy = Math.min(width - 1, y * 2 + dy);
+          for (let dx = 0; dx < 2; dx++) {
+            const sx = Math.min(width - 1, x * 2 + dx);
+            const src = (sy * width + sx) * 3;
+            r += sourceFace[src];
+            g += sourceFace[src + 1];
+            b += sourceFace[src + 2];
+            count++;
+          }
+        }
+        next[dst++] = r / count;
+        next[dst++] = g / count;
+        next[dst++] = b / count;
+      }
+    }
+    return next;
+  });
+  return {size: nextSize, faces};
+}
+
+function sampleSourceCubeMap(mips: SourceCubeMip[], dir: Vec3, lod: number): Vec3 {
+  const level = clamp(lod, 0, mips.length - 1);
+  const mip0 = Math.floor(level);
+  const mip1 = Math.min(mips.length - 1, mip0 + 1);
+  const t = level - mip0;
+  const c0 = sampleSourceCubeMip(mips[mip0], dir);
+  if (t <= 0 || mip0 === mip1) {
+    return c0;
+  }
+  return mixVec3(c0, sampleSourceCubeMip(mips[mip1], dir), t);
+}
+
+function sampleSourceCubeMip(mip: SourceCubeMip, dir: Vec3): Vec3 {
+  const n = normalizeVec3Safe(dir);
+  const ax = Math.abs(n[0]);
+  const ay = Math.abs(n[1]);
+  const az = Math.abs(n[2]);
+  let face: number;
+  let u: number;
+  let v: number;
+  if (ax >= ay && ax >= az) {
+    if (n[0] >= 0) {
+      face = 0; u = -n[2] / ax; v = -n[1] / ax;
+    } else {
+      face = 1; u = n[2] / ax; v = -n[1] / ax;
+    }
+  } else if (ay >= ax && ay >= az) {
+    if (n[1] >= 0) {
+      face = 2; u = n[0] / ay; v = n[2] / ay;
+    } else {
+      face = 3; u = n[0] / ay; v = -n[2] / ay;
+    }
+  } else if (n[2] >= 0) {
+    face = 4; u = n[0] / az; v = -n[1] / az;
+  } else {
+    face = 5; u = -n[0] / az; v = -n[1] / az;
+  }
+  const x = ((u + 1) * 0.5) * mip.size - 0.5;
+  const y = ((v + 1) * 0.5) * mip.size - 0.5;
+  const x0 = Math.floor(x);
+  const y0 = Math.floor(y);
+  const tx = x - x0;
+  const ty = y - y0;
+  const c00 = readCubeMipPixel(mip, face, x0, y0);
+  const c10 = readCubeMipPixel(mip, face, x0 + 1, y0);
+  const c01 = readCubeMipPixel(mip, face, x0, y0 + 1);
+  const c11 = readCubeMipPixel(mip, face, x0 + 1, y0 + 1);
+  return mixVec3(mixVec3(c00, c10, tx), mixVec3(c01, c11, tx), ty);
+}
+
+function readCubeMipPixel(mip: SourceCubeMip, face: number, x: number, y: number): Vec3 {
+  const px = Math.max(0, Math.min(mip.size - 1, x));
+  const py = Math.max(0, Math.min(mip.size - 1, y));
+  const idx = (py * mip.size + px) * 3;
+  const data = mip.faces[face];
+  return [data[idx], data[idx + 1], data[idx + 2]];
+}
+
+function sampleIrradiance(env: EnvironmentSampler, n: Vec3): Vec3 {
   let total: Vec3 = [0, 0, 0];
   let weight = 0;
-  for (let i = 0; i < SAMPLE_COUNT; i++) {
-    const xi = hammersley(i, SAMPLE_COUNT);
+  for (let i = 0; i < IRRADIANCE_SAMPLE_COUNT; i++) {
+    const xi = hammersley(i, IRRADIANCE_SAMPLE_COUNT);
     const local = cosineSampleHemisphere(xi[0], xi[1]);
     const dir = tangentToWorld(local, n);
     const ndotl = Math.max(0, dotVec3(n, dir));
-    const c = env(dir);
+    const c = env.sample(dir, 0);
     total = addVec3Result(total, scaleVec3(c, ndotl));
     weight += ndotl;
   }
   return weight > 0 ? scaleVec3(total, 1 / weight) : [0, 0, 0];
 }
 
-function samplePrefiltered(env: (dir: Vec3) => Vec3, r: Vec3, roughness: number): Vec3 {
+function samplePrefiltered(env: EnvironmentSampler, r: Vec3, roughness: number): Vec3 {
   if (roughness <= 0.001) {
-    return env(r);
+    return env.sample(r, 0);
   }
   let total: Vec3 = [0, 0, 0];
   let weight = 0;
   const v = r;
-  for (let i = 0; i < SAMPLE_COUNT; i++) {
-    const xi = hammersley(i, SAMPLE_COUNT);
+  const a = roughness * roughness;
+  const a2 = a * a;
+  const saTexel = 4 * PI / (CUBE_FACE_COUNT * SOURCE_SIZE * SOURCE_SIZE);
+  for (let i = 0; i < PREFILTER_SAMPLE_COUNT; i++) {
+    const xi = hammersley(i, PREFILTER_SAMPLE_COUNT);
     const h = tangentToWorld(importanceSampleGGX(xi[0], xi[1], roughness), r);
     const l = normalizeVec3Safe(subVec3Result(scaleVec3(h, 2 * dotVec3(v, h)), v));
     const ndotl = Math.max(0, dotVec3(r, l));
     if (ndotl > 0) {
-      total = addVec3Result(total, scaleVec3(env(l), ndotl));
+      const ndoth = Math.max(0, dotVec3(r, h));
+      const denom = ndoth * ndoth * (a2 - 1) + 1;
+      const d = a2 / Math.max(PI * denom * denom, 1e-8);
+      const pdf = d * 0.25 + 1e-4;
+      const saSample = 1 / (PREFILTER_SAMPLE_COUNT * pdf);
+      const lod = Math.max(0, 0.5 * Math.log2(saSample / saTexel));
+      total = addVec3Result(total, scaleVec3(env.sample(l, lod), ndotl));
       weight += ndotl;
     }
   }
-  return weight > 0 ? scaleVec3(total, 1 / weight) : env(r);
+  return weight > 0 ? scaleVec3(total, 1 / weight) : env.sample(r, 0);
 }
 
 function createBRDFLUTPixels(): Uint8Array {
+  if (cachedBRDFLUTPixels) {
+    return cachedBRDFLUTPixels;
+  }
   const pixels = new Uint8Array(BRDF_LUT_SIZE * BRDF_LUT_SIZE * 4);
   let offset = 0;
   for (let y = 0; y < BRDF_LUT_SIZE; y++) {
@@ -411,6 +741,7 @@ function createBRDFLUTPixels(): Uint8Array {
       pixels[offset++] = 255;
     }
   }
+  cachedBRDFLUTPixels = pixels;
   return pixels;
 }
 
@@ -418,8 +749,8 @@ function integrateBRDF(ndotv: number, roughness: number): [number, number] {
   const v: Vec3 = [Math.sqrt(Math.max(0, 1 - ndotv * ndotv)), 0, ndotv];
   let a = 0;
   let b = 0;
-  for (let i = 0; i < SAMPLE_COUNT; i++) {
-    const xi = hammersley(i, SAMPLE_COUNT);
+  for (let i = 0; i < BRDF_SAMPLE_COUNT; i++) {
+    const xi = hammersley(i, BRDF_SAMPLE_COUNT);
     const h = importanceSampleGGX(xi[0], xi[1], roughness);
     const l = normalizeVec3Safe(subVec3Result(scaleVec3(h, 2 * dotVec3(v, h)), v));
     const ndotl = Math.max(l[2], 0);
@@ -433,12 +764,11 @@ function integrateBRDF(ndotv: number, roughness: number): [number, number] {
       b += fc * gVis;
     }
   }
-  return [a / SAMPLE_COUNT, b / SAMPLE_COUNT];
+  return [a / BRDF_SAMPLE_COUNT, b / BRDF_SAMPLE_COUNT];
 }
 
 function geometrySmithIBL(ndotv: number, ndotl: number, roughness: number): number {
-  const a = roughness * roughness;
-  const k = (a * a) / 2;
+  const k = (roughness * roughness) / 2;
   return ndotv / (ndotv * (1 - k) + k) * ndotl / (ndotl * (1 - k) + k);
 }
 
@@ -509,6 +839,11 @@ function clamp(v: number, min: number, max: number): number {
 
 function toByte(v: number): number {
   return Math.max(0, Math.min(255, Math.round(v * 255)));
+}
+
+function srgbByteToLinear(value: number): number {
+  const c = clamp(value / 255, 0, 1);
+  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
 }
 
 function toHalfFloat(value: number): number {

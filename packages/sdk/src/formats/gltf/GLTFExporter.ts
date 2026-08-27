@@ -10,6 +10,7 @@ import {
   type Accessor as GLTFAccessor,
   WebIO,
 } from '@gltf-transform/core';
+import {KHRMaterialsClearcoat, KHRMaterialsSheen} from "@gltf-transform/extensions";
 
 import {
   octDecodeNormalsU16,
@@ -69,7 +70,7 @@ const tempVec3b = createVec3Float64();
  * — embedding them would require a `KHR_texture_basisu`-style extension
  * that isn't supported here.
  *
- * For detailed usage, refer to {@link gltf | @xeokit/sdk/formats/gltf}.
+ * For detailed usage, refer to {@link formats!gltf | @xeokit/sdk/formats/gltf}.
  */
 export class GLTFExporter extends ModelExporter {
   constructor() {
@@ -168,10 +169,28 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
   // TextureInfo so it survives the round-trip.
   const materialMap = new Map<string, GLTFMaterial>();
   const materialIds = Object.keys(sceneModel.materials);
+  const clearcoatExtension = materialIds.some((id) => {
+    const sceneMat = sceneModel.materials[id];
+    return (sceneMat.clearcoat ?? 0) > 0 || (sceneMat.clearcoatRoughness ?? 0) > 0;
+  })
+    ? doc.createExtension(KHRMaterialsClearcoat)
+    : null;
+  const sheenExtension = materialIds.some((id) => {
+    const sceneMat = sceneModel.materials[id];
+    return (sceneMat.sheen ?? 0) > 0 || (sceneMat.sheenRoughness ?? 0.5) !== 0.5;
+  })
+    ? doc.createExtension(KHRMaterialsSheen)
+    : null;
+  if (clearcoatExtension) {
+    io.registerExtensions([KHRMaterialsClearcoat]);
+  }
+  if (sheenExtension) {
+    io.registerExtensions([KHRMaterialsSheen]);
+  }
   for (let mi = 0; mi < materialIds.length; mi++) {
     if ((mi & 0x3F) === 0) await step("Encoding materials", mi, materialIds.length);
     const sceneMat: SceneMaterial = sceneModel.materials[materialIds[mi]];
-    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap, triplanarSkip.materialIds.has(sceneMat.id)));
+    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap, triplanarSkip.materialIds.has(sceneMat.id), clearcoatExtension, sheenExtension));
   }
 
   // ── 3. Geometry attribute accessors ─────────────────────────────
@@ -349,7 +368,9 @@ function buildGltfMaterial(
   doc: Document,
   sceneMat: SceneMaterial,
   textureMap: Map<string, GLTFTexture>,
-  skipTextures: boolean
+  skipTextures: boolean,
+  clearcoatExtension: KHRMaterialsClearcoat | null,
+  sheenExtension: KHRMaterialsSheen | null
 ): GLTFMaterial {
   const mat = doc.createMaterial(sceneMat.id);
 
@@ -365,6 +386,21 @@ function buildGltfMaterial(
   const em = sceneMat.emissiveColor;
   if (em) {
     mat.setEmissiveFactor([em[0], em[1], em[2]]);
+  }
+
+  if (clearcoatExtension && ((sceneMat.clearcoat ?? 0) > 0 || (sceneMat.clearcoatRoughness ?? 0) > 0)) {
+    const clearcoat = clearcoatExtension.createClearcoat()
+      .setClearcoatFactor(sceneMat.clearcoat ?? 0)
+      .setClearcoatRoughnessFactor(sceneMat.clearcoatRoughness ?? 0);
+    mat.setExtension("KHR_materials_clearcoat", clearcoat);
+  }
+
+  if (sheenExtension && ((sceneMat.sheen ?? 0) > 0 || (sceneMat.sheenRoughness ?? 0.5) !== 0.5)) {
+    const sheen = sceneMat.sheen ?? 0;
+    const gltfSheen = sheenExtension.createSheen()
+      .setSheenColorFactor([sheen, sheen, sheen])
+      .setSheenRoughnessFactor(sceneMat.sheenRoughness ?? 0.5);
+    mat.setExtension("KHR_materials_sheen", gltfSheen);
   }
 
   // Alpha mode (matches glTF semantics 1:1).

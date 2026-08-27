@@ -94,7 +94,7 @@ ready to query as soon as `load` resolves.
 
 ```ts
 import {Data} from "@xeokit/sdk/model/data";
-import {DataModelImporter} from "@xeokit/sdk/datamodel";
+import {DataModelImporter} from "@xeokit/sdk/formats/datamodel";
 
 const data = new Data();
 const dataModel = data.createModel({id: "myModel"}).value;
@@ -107,7 +107,7 @@ await new DataModelImporter().load({fileData, dataModel});
 ### Exporter
 
 ```ts
-import {DataModelExporter} from "@xeokit/sdk/datamodel";
+import {DataModelExporter} from "@xeokit/sdk/formats/datamodel";
 
 const dataModelParams = await new DataModelExporter().write({dataModel});
 const json = JSON.stringify(dataModelParams);

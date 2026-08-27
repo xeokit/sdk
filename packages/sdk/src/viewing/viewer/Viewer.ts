@@ -11,7 +11,7 @@ import {LODVisibility} from "../lod/LODVisibility";
 /**
  * 3D model viewer.
  *
- * See {@link viewer | "@xeokit/sdk/viewing/viewer" } for usage.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage.
  */
 export class Viewer {
 

@@ -9,7 +9,7 @@ import type {Quat} from "../../base/math/quat";
  * * Passed to  {@link SceneModel.createTransform | SceneModel.createTransform}
  * * Located at {@link SceneModelParams.transforms | SceneModelParams.transforms}
  *
- * See {@link scene | @xeokit/sdk/model/scene} for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
  */
 export interface SceneTransformParams {
 

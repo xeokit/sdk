@@ -8,7 +8,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
 /**
  * Saves a {@link viewing!viewer.View | View} to a {@link BCFViewpoint | BCFViewpoint}.
  *
- * See {@link bcf | @xeokit/sdk/interop/bcf} for usage.
+ * See {@link interop!bcf | @xeokit/sdk/interop/bcf} for usage.
  *
  * @param params BCF saving parameters.
  * @returns The BCF viewpoint.

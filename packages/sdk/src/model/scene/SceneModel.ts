@@ -133,7 +133,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * - Import and export various file formats
  * - Build programmatically
  *
- * See {@link scene | @xeokit/sdk/model/scene} for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
  */
 export class SceneModel {
 
@@ -756,7 +756,7 @@ export class SceneModel {
    * const textureAgain = sceneModel.textures["myColorTexture"];
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene} for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene} for more usage info.
    *
    * @param textureParams - SceneTexture creation parameters.
    * @returns SDKResult with:
@@ -859,7 +859,7 @@ export class SceneModel {
    * const materialAgain = sceneModel.materials["myMaterial"];
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param materialParams SceneMaterial creation parameters.
    *
@@ -1045,7 +1045,7 @@ export class SceneModel {
    * const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param geometryParams Non-compressed geometry parameters.
    * @returns SDKResult with:
@@ -1262,7 +1262,7 @@ export class SceneModel {
    * }
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param geometryCompressedParams Pre-compressed geometry parameters.
    *
@@ -1587,7 +1587,7 @@ export class SceneModel {
    * }
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param meshParams Pre-compressed mesh parameters.
    * @returns SDKResult with:
@@ -2096,7 +2096,7 @@ export class SceneModel {
    * }
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param objectParams SceneObject parameters.
    * @returns SDKResult with:
@@ -2232,7 +2232,7 @@ export class SceneModel {
   /**
    * Creates components in this SceneModel from {@link SceneModelParams}.
    *
-   * See {@link scene | @xeokit/sdk/model/scene} for usage.
+   * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
    *
    * @param sceneModelParams The batch of components to create.
    * @returns SDKResult with:
@@ -2355,7 +2355,7 @@ export class SceneModel {
    * Currently serializes: `transforms`, `geometriesCompressed`, `meshes`, and `objects`.
    * (Textures and materials are intentionally omitted/commented.)
    *
-   * See {@link scene | @xeokit/sdk/model/scene} for usage.
+   * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
    */
   toParams(): SDKResult<SceneModelParams> {
     if (this.destroyed) {

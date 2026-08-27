@@ -119,6 +119,7 @@ export class WebGPUPostProcessChain {
     width: number;
     height: number;
     view: View;
+    skipSAO?: boolean;
   }): SDKResult<void> {
     if (!this._initialized) {
       const initResult = this._pipeline.init();
@@ -128,7 +129,7 @@ export class WebGPUPostProcessChain {
       this._initialized = true;
     }
     let saoOcclusionView: unknown | null = null;
-    if (this.needsSAO(params.view)) {
+    if (!params.skipSAO && this.needsSAO(params.view)) {
       const saoResult = this._saoPipeline.render({
         commandEncoder: params.commandEncoder,
         depthView: params.depthView,
@@ -147,6 +148,7 @@ export class WebGPUPostProcessChain {
         commandEncoder: params.commandEncoder,
         colorView: sourceView,
         occlusionView: saoOcclusionView,
+        depthView: params.depthView,
         width: params.width,
         height: params.height,
         view: params.view
@@ -216,6 +218,54 @@ export class WebGPUPostProcessChain {
       sourceView,
       saoOcclusionView
     });
+  }
+
+  applySAO(params: {
+    commandEncoder: WebGPUCommandEncoderLike;
+    sourceView: unknown;
+    depthView: unknown;
+    width: number;
+    height: number;
+    view: View;
+  }): SDKResult<{applied: boolean; colorView: unknown}> {
+    if (!this.needsSAO(params.view)) {
+      return {
+        ok: true,
+        value: {
+          applied: false,
+          colorView: params.sourceView
+        }
+      };
+    }
+    const saoResult = this._saoPipeline.render({
+      commandEncoder: params.commandEncoder,
+      depthView: params.depthView,
+      width: params.width,
+      height: params.height,
+      view: params.view
+    });
+    if (saoResult.ok === false) {
+      return saoResult;
+    }
+    const saoCompositeResult = this._saoCompositePipeline.render({
+      commandEncoder: params.commandEncoder,
+      colorView: params.sourceView,
+      occlusionView: saoResult.value.occlusionView,
+      depthView: params.depthView,
+      width: params.width,
+      height: params.height,
+      view: params.view
+    });
+    if (saoCompositeResult.ok === false) {
+      return saoCompositeResult;
+    }
+    return {
+      ok: true,
+      value: {
+        applied: true,
+        colorView: saoCompositeResult.value.colorView
+      }
+    };
   }
 
   destroy(): void {

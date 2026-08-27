@@ -111,7 +111,7 @@ export class TrianglesDrawColorFlatTechnique extends DrawTechnique {
         },
         primitive: {
           topology: "triangle-list",
-          cullMode: "none"
+          cullMode: transparent ? "back" : "none"
         }
       });
 

@@ -13,6 +13,7 @@ import {
   PNGMediaType,
   PointsPrimitive,
   RepeatWrapping,
+  sRGBEncoding,
   TrianglesPrimitive
 } from "../../base/constants";
 import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, translationMat4v} from "../../base/math/matrix";
@@ -31,7 +32,7 @@ import type {LoaderProgress} from "../LoaderProgress";
 /**
  * Loads a glTF file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link gltf | @xeokit/sdk/formats/gltf}.
+ * For detailed usage, refer to {@link formats!gltf | @xeokit/sdk/formats/gltf}.
  */
 export class GLTFLoader extends ModelLoader {
   constructor() {
@@ -279,6 +280,7 @@ function parseTextures(ctx: any): boolean {
   const textures = gltfData.textures;
   if (textures) {
     for (let i = 0, len = textures.length; i < len; i++) {
+      textures[i]._textureIndex = i;
       if (!parseTexture(ctx, textures[i])) {
         return false;
       }
@@ -391,7 +393,7 @@ function parseTexture(ctx: any, texture: any): boolean {
     wrapT,
     wrapR,
     flipY: !!texture.flipY,
-    //     encoding: "sRGB"
+    encoding: isColorSpaceTexture(ctx, texture) ? sRGBEncoding : undefined
   });
   if (result.ok === false) {
     ctx.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
@@ -399,6 +401,36 @@ function parseTexture(ctx: any, texture: any): boolean {
   }
   texture._textureId = textureId;
   return true;
+}
+
+function isColorSpaceTexture(ctx: any, texture: any): boolean {
+  const materials = ctx.gltfData?.materials || [];
+  for (let i = 0, len = materials.length; i < len; i++) {
+    const material = materials[i];
+    const metallicPBR = material.pbrMetallicRoughness;
+    if (textureInfoReferencesTexture(metallicPBR?.baseColorTexture || metallicPBR?.colorTexture, texture) ||
+        textureInfoReferencesTexture(material.emissiveTexture, texture) ||
+        textureInfoReferencesTexture(material.extensions?.KHR_materials_pbrSpecularGlossiness?.diffuseTexture, texture)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function textureInfoReferencesTexture(textureInfo: any, texture: any): boolean {
+  if (!textureInfo) {
+    return false;
+  }
+  if (textureInfo.texture === texture) {
+    return true;
+  }
+  if (textureInfo.index === texture) {
+    return true;
+  }
+  if (typeof textureInfo.index === "number") {
+    return textureInfo.index === texture._textureIndex;
+  }
+  return false;
 }
 
 /**
@@ -485,6 +517,10 @@ function parseMaterials(ctx: ParsingContext): boolean {
  *   - `pbrMetallicRoughness.roughnessFactor` → `roughness` (default 1)
  *   - `pbrMetallicRoughness.baseColorTexture`         → `colorTextureId`
  *   - `pbrMetallicRoughness.metallicRoughnessTexture` → `metallicRoughnessTextureId`
+ *   - `KHR_materials_clearcoat.clearcoatFactor` → `clearcoat`
+ *   - `KHR_materials_clearcoat.clearcoatRoughnessFactor` → `clearcoatRoughness`
+ *   - `KHR_materials_sheen.sheenColorFactor` → `sheen` (max RGB channel)
+ *   - `KHR_materials_sheen.sheenRoughnessFactor` → `sheenRoughness`
  *   - `normalTexture`                                  → `normalsTextureId`
  *   - `occlusionTexture`                               → `occlusionTextureId`
  *   - `emissiveTexture`                                → `emissiveTextureId`
@@ -528,6 +564,27 @@ function parseMaterial(ctx: ParsingContext, material: any): SceneMaterialParams 
     }
     if (metallicPBR.metallicRoughnessTexture) {
       materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx, metallicPBR.metallicRoughnessTexture);
+    }
+  }
+
+  const clearcoatPBR = material.extensions?.KHR_materials_clearcoat;
+  if (clearcoatPBR) {
+    if (clearcoatPBR.clearcoatFactor !== undefined && clearcoatPBR.clearcoatFactor !== null) {
+      materialCfg.clearcoat = clearcoatPBR.clearcoatFactor;
+    }
+    if (clearcoatPBR.clearcoatRoughnessFactor !== undefined && clearcoatPBR.clearcoatRoughnessFactor !== null) {
+      materialCfg.clearcoatRoughness = clearcoatPBR.clearcoatRoughnessFactor;
+    }
+  }
+
+  const sheenPBR = material.extensions?.KHR_materials_sheen;
+  if (sheenPBR) {
+    if (sheenPBR.sheenColorFactor !== undefined && sheenPBR.sheenColorFactor !== null) {
+      const sheenColor = sheenPBR.sheenColorFactor;
+      materialCfg.sheen = Math.max(sheenColor[0] ?? 0, sheenColor[1] ?? 0, sheenColor[2] ?? 0);
+    }
+    if (sheenPBR.sheenRoughnessFactor !== undefined && sheenPBR.sheenRoughnessFactor !== null) {
+      materialCfg.sheenRoughness = sheenPBR.sheenRoughnessFactor;
     }
   }
 

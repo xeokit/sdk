@@ -1,7 +1,14 @@
 import {PerspectiveProjectionType} from "../../../../../../base/constants";
 import {SDKErrorType, type SDKResult} from "../../../../../../base/core";
 import {createMat4Float64, inverseMat4, lookAtMat4v, mulMat4, orthoMat4c, type Mat4} from "../../../../../../base/math/matrix";
+import {
+  computeShadowCascadeSplits,
+  fitShadowCascadeToCamera,
+  isFiniteShadowAABB,
+  type ShadowCascadeCameraProjection
+} from "../../../../../../base/math/shadows";
 import {getSceneCollisionIndex} from "../../../../../../spatial/collision";
+import {getShadowDebugModeId, getShadowPcfRadius} from "../../../../../viewer/ShadowSampling";
 import type {View} from "../../../../../viewer";
 import type {
   WebGPUBindGroupLike,
@@ -54,6 +61,8 @@ export class WebGPUShadowPipeline {
   private _resolution = 0;
   private _cascadeCount = 0;
   private readonly _sliceDistances = new Float32Array(MAX_SHADOW_CASCADES + 1);
+  private readonly _cascadeDepthRanges = new Float32Array(MAX_SHADOW_CASCADES);
+  private readonly _cascadeTexelSizes = new Float32Array(MAX_SHADOW_CASCADES);
 
   constructor(params: {
     renderContext: RenderContext;
@@ -84,6 +93,7 @@ export class WebGPUShadowPipeline {
     if (resourcesResult.ok === false) {
       return resourcesResult;
     }
+    this._uniformData.fill(0);
     for (let c = 0; c < MAX_SHADOW_CASCADES; c++) {
       const offset = c * 16;
       for (let i = 0; i < 16; i++) {
@@ -107,6 +117,12 @@ export class WebGPUShadowPipeline {
     }
     for (let i = 124; i < 132; i++) {
       this._uniformData[i] = Number.MAX_VALUE;
+    }
+    for (let i = 136; i < 144; i++) {
+      this._uniformData[i] = 1;
+    }
+    for (let i = 144; i < 152; i++) {
+      this._uniformData[i] = 1;
     }
     this._renderContext.device.queue.writeBuffer(this._uniformBuffer!, 0, this._uniformData);
     this._renderContext.shadowBindGroup = this._bindGroup;
@@ -151,24 +167,33 @@ export class WebGPUShadowPipeline {
     this._uniformData[96] = 1;
     this._uniformData[97] = Math.max(0, Math.min(1, shadows.intensity));
     this._uniformData[98] = Math.max(0, shadows.bias);
-    const debugMode = (shadows as {debug?: boolean | "factor" | "depth"}).debug;
+    const debugMode = getShadowDebugModeId(shadows.debug);
     this._uniformData[99] = Math.max(0, shadows.normalOffsetBias);
     const direction = shadows.direction;
     this._uniformData[100] = direction[0];
     this._uniformData[101] = direction[1];
     this._uniformData[102] = direction[2];
-    this._uniformData[103] = Math.max(0, shadows.slopeBias);
-    this._uniformData[104] = debugMode === "depth" ? 2 : debugMode ? 1 : 0;
+    const slopeBias = Number.isFinite(Number(shadows.slopeBias)) ? Number(shadows.slopeBias) : 0.00125;
+    this._uniformData[103] = Math.max(0, slopeBias);
+    this._uniformData[104] = debugMode;
     this._uniformData[105] = cascadeCount;
     this._uniformData[106] = 1.0 / Math.max(1, resolution);
-    const pcfKernelSize = shadows.pcfKernelSize !== undefined ? shadows.pcfKernelSize : 3;
-    this._uniformData[107] = (Math.max(1, Math.min(7, Math.floor(pcfKernelSize))) - 1) >> 1;
+    this._uniformData[107] = getShadowPcfRadius(shadows.pcfKernelSize);
     const cameraViewMatrix = params.view.camera.viewMatrix as ArrayLike<number>;
     for (let i = 0; i < 16; i++) {
       this._uniformData[108 + i] = cameraViewMatrix[i];
     }
     for (let i = 0; i < 8; i++) {
       this._uniformData[124 + i] = i < cascadeCount - 1 ? this._sliceDistances[i + 1] : Number.MAX_VALUE;
+    }
+    const lightRadius = Number.isFinite(Number(shadows.lightRadius)) ? Number(shadows.lightRadius) : 0.08;
+    this._uniformData[132] = shadows.contactHardening ? 1 : 0;
+    this._uniformData[133] = Math.max(0, lightRadius);
+    this._uniformData[134] = 1;
+    this._uniformData[135] = 0;
+    for (let i = 0; i < MAX_SHADOW_CASCADES; i++) {
+      this._uniformData[136 + i] = this._cascadeDepthRanges[i] || 1;
+      this._uniformData[144 + i] = this._cascadeTexelSizes[i] || 1;
     }
     this._renderContext.device.queue.writeBuffer(this._uniformBuffer!, 0, this._uniformData);
     this._renderContext.shadowBindGroup = this._bindGroup;
@@ -261,8 +286,8 @@ export class WebGPUShadowPipeline {
       this._sampler = this._renderContext.device.createSampler({
         label: "xeokit-webgpu-shadow-comparison-sampler",
         compare: "less-equal",
-        minFilter: "nearest",
-        magFilter: "nearest"
+        minFilter: "linear",
+        magFilter: "linear"
       });
     }
     if (!this._texture || this._resolution !== resolution || this._cascadeCount !== cascadeCount) {
@@ -333,7 +358,13 @@ export class WebGPUShadowPipeline {
       ? camera.perspectiveProjection.far
       : camera.orthoProjection.far));
     const nearDistance = 0.1;
-    this._computeCascadeSplits(nearDistance, maxDistance, cascadeCount, shadows.cascadeSplitLambda ?? 0.5);
+    computeShadowCascadeSplits({
+      nearDistance,
+      farDistance: maxDistance,
+      cascadeCount,
+      lambda: shadows.cascadeSplitLambda ?? 0.5,
+      target: this._sliceDistances
+    });
     const lightDistance = shadows.autoFit ? 1000 : shadows.lightDistance;
     const lightEyeView: [number, number, number] = [
       -dirWorld[0] * lightDistance,
@@ -341,6 +372,10 @@ export class WebGPUShadowPipeline {
       -dirWorld[2] * lightDistance
     ];
     lookAtMat4v(lightEyeView, [0, 0, 0] as any, worldUp as any, tempLightView);
+    const inverseCameraViewMatrix = (camera as {inverseViewMatrix?: ArrayLike<number>}).inverseViewMatrix
+      ?? inverseMat4(camera.viewMatrix as Mat4, tempInverseCameraView);
+    const projection = getShadowCameraProjection(view);
+    const sceneAABB = getSceneAABB(view.viewer.scene);
 
     for (let c = 0; c < cascadeCount; c++) {
       const sliceNear = this._sliceDistances[c];
@@ -352,14 +387,17 @@ export class WebGPUShadowPipeline {
       let near: number;
       let far: number;
       if (shadows.autoFit) {
-        const fit = fitLightProjectionToCamera(view, {
+        const fit = fitShadowCascadeToCamera({
+          projection,
           canvasWidth,
           canvasHeight,
           nearDistance: sliceNear,
           farDistance: sliceFar,
-          lightView: tempLightView,
+          lightViewMatrix: tempLightView,
+          cameraInverseViewMatrix: inverseCameraViewMatrix,
           resolution,
-          padding: shadows.padding
+          padding: shadows.padding,
+          sceneAABB
         });
         left = fit.left;
         rightExtent = fit.right;
@@ -367,6 +405,8 @@ export class WebGPUShadowPipeline {
         top = fit.top;
         near = fit.near;
         far = fit.far;
+        this._cascadeDepthRanges[c] = fit.depthRange;
+        this._cascadeTexelSizes[c] = fit.texelWorldSize;
       } else {
         const size = shadows.projectionSize;
         left = -size;
@@ -375,166 +415,23 @@ export class WebGPUShadowPipeline {
         top = size;
         near = 0.1;
         far = Math.max(1, shadows.lightDistance * 3);
+        this._cascadeDepthRanges[c] = Math.max(0.001, far - near);
+        this._cascadeTexelSizes[c] = Math.max(
+          0.000001,
+          Math.max(rightExtent - left, top - bottom) / Math.max(1, resolution)
+        );
       }
       orthoMat4c(left, rightExtent, bottom, top, near, far, tempLightProjection);
       mulMat4(tempLightProjection as Mat4, tempLightView as Mat4, tempLightViewProjection);
       mulMat4(WEBGPU_CLIP_SPACE_MATRIX as Mat4, tempLightViewProjection as Mat4, tempLightViewProjections[c]);
       mulMat4(WEBGPU_CLIP_SPACE_MATRIX as Mat4, tempLightViewProjection as Mat4, tempShadowDepthViewProjections[c]);
     }
-  }
-
-  private _computeCascadeSplits(near: number, far: number, count: number, lambda: number): void {
-    this._sliceDistances[0] = near;
-    const clampedLambda = Math.max(0, Math.min(1, lambda));
-    for (let i = 1; i <= count; i++) {
-      const p = i / count;
-      const log = near * Math.pow(far / near, p);
-      const uniform = near + (far - near) * p;
-      this._sliceDistances[i] = clampedLambda * log + (1 - clampedLambda) * uniform;
-    }
-  }
-}
-
-function fitLightProjectionToCamera(
-  view: View,
-  params: {
-    canvasWidth: number;
-    canvasHeight: number;
-    nearDistance: number;
-    farDistance: number;
-    lightView: Mat4;
-    resolution: number;
-    padding: number;
-  }
-): {left: number; right: number; bottom: number; top: number; near: number; far: number} {
-  const aspect = Math.max(1e-6, params.canvasHeight > 0 ? params.canvasWidth / params.canvasHeight : 1);
-  let halfNearH: number;
-  let halfNearW: number;
-  let halfFarH: number;
-  let halfFarW: number;
-  if (view.camera.projectionType === PerspectiveProjectionType) {
-    const fovRad = view.camera.perspectiveProjection.fov * Math.PI / 180;
-    const tanHalfFov = Math.tan(fovRad * 0.5);
-    if (aspect >= 1) {
-      halfNearH = tanHalfFov * params.nearDistance;
-      halfNearW = halfNearH * aspect;
-      halfFarH = tanHalfFov * params.farDistance;
-      halfFarW = halfFarH * aspect;
-    } else {
-      halfNearW = tanHalfFov * params.nearDistance;
-      halfNearH = halfNearW / aspect;
-      halfFarW = tanHalfFov * params.farDistance;
-      halfFarH = halfFarW / aspect;
-    }
-  } else {
-    const halfH = view.camera.orthoProjection.scale * 0.5;
-    halfNearH = halfFarH = halfH;
-    halfNearW = halfFarW = halfH * aspect;
-  }
-  const corners = [
-    [-halfNearW, -halfNearH, -params.nearDistance],
-    [halfNearW, -halfNearH, -params.nearDistance],
-    [-halfNearW, halfNearH, -params.nearDistance],
-    [halfNearW, halfNearH, -params.nearDistance],
-    [-halfFarW, -halfFarH, -params.farDistance],
-    [halfFarW, -halfFarH, -params.farDistance],
-    [-halfFarW, halfFarH, -params.farDistance],
-    [halfFarW, halfFarH, -params.farDistance]
-  ];
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
-  let minZ = Infinity;
-  let maxZ = -Infinity;
-  const m = params.lightView;
-  const invView = (view.camera as {inverseViewMatrix?: ArrayLike<number>}).inverseViewMatrix
-    ?? inverseMat4(view.camera.viewMatrix as Mat4, tempInverseCameraView);
-  for (const c of corners) {
-    const wx = invView[0] * c[0] + invView[4] * c[1] + invView[8] * c[2] + invView[12];
-    const wy = invView[1] * c[0] + invView[5] * c[1] + invView[9] * c[2] + invView[13];
-    const wz = invView[2] * c[0] + invView[6] * c[1] + invView[10] * c[2] + invView[14];
-    const x = m[0] * wx + m[4] * wy + m[8] * wz + m[12];
-    const y = m[1] * wx + m[5] * wy + m[9] * wz + m[13];
-    const z = m[2] * wx + m[6] * wy + m[10] * wz + m[14];
-    minX = Math.min(minX, x);
-    maxX = Math.max(maxX, x);
-    minY = Math.min(minY, y);
-    maxY = Math.max(maxY, y);
-    minZ = Math.min(minZ, z);
-    maxZ = Math.max(maxZ, z);
-  }
-
-  const scene = view.viewer.scene;
-  if (scene && canUseSceneCollisionIndex(scene)) {
-    const sceneAABB = getSceneCollisionIndex(scene).getSceneAABB();
-    if (sceneAABB && isFiniteAABB(sceneAABB)) {
-      let sMinX = Infinity;
-      let sMaxX = -Infinity;
-      let sMinY = Infinity;
-      let sMaxY = -Infinity;
-      let sMinZ = Infinity;
-      let sMaxZ = -Infinity;
-      for (let cornerIdx = 0; cornerIdx < 8; cornerIdx++) {
-        const wx = (cornerIdx & 1) ? sceneAABB[3] : sceneAABB[0];
-        const wy = (cornerIdx & 2) ? sceneAABB[4] : sceneAABB[1];
-        const wz = (cornerIdx & 4) ? sceneAABB[5] : sceneAABB[2];
-        const lx = m[0] * wx + m[4] * wy + m[8] * wz + m[12];
-        const ly = m[1] * wx + m[5] * wy + m[9] * wz + m[13];
-        const lz = m[2] * wx + m[6] * wy + m[10] * wz + m[14];
-        sMinX = Math.min(sMinX, lx);
-        sMaxX = Math.max(sMaxX, lx);
-        sMinY = Math.min(sMinY, ly);
-        sMaxY = Math.max(sMaxY, ly);
-        sMinZ = Math.min(sMinZ, lz);
-        sMaxZ = Math.max(sMaxZ, lz);
-      }
-      const iMinX = Math.max(minX, sMinX);
-      const iMaxX = Math.min(maxX, sMaxX);
-      const iMinY = Math.max(minY, sMinY);
-      const iMaxY = Math.min(maxY, sMaxY);
-      const iMinZ = Math.max(minZ, sMinZ);
-      const iMaxZ = Math.min(maxZ, sMaxZ);
-      if (iMinX < iMaxX && iMinY < iMaxY && iMinZ < iMaxZ) {
-        minX = iMinX;
-        maxX = iMaxX;
-        minY = iMinY;
-        maxY = iMaxY;
-        minZ = iMinZ;
-        maxZ = iMaxZ;
-      }
+    for (let c = cascadeCount; c < MAX_SHADOW_CASCADES; c++) {
+      this._cascadeDepthRanges[c] = this._cascadeDepthRanges[0] || 1;
+      this._cascadeTexelSizes[c] = this._cascadeTexelSizes[0] || 1;
     }
   }
 
-  const padMul = Math.max(1, params.padding);
-  const padX = (maxX - minX) * (padMul - 1) * 0.5;
-  const padY = (maxY - minY) * (padMul - 1) * 0.5;
-  let left = minX - padX;
-  let right = maxX + padX;
-  let bottom = minY - padY;
-  let top = maxY + padY;
-  const extentX = right - left;
-  const extentY = top - bottom;
-  const texelX = (right - left) / params.resolution;
-  const texelY = (top - bottom) / params.resolution;
-  if (texelX > 0 && texelY > 0) {
-    const originLightViewX = m[12];
-    const originLightViewY = m[13];
-    const modOffsetX = ((originLightViewX % texelX) + texelX) % texelX;
-    const modOffsetY = ((originLightViewY % texelY) + texelY) % texelY;
-    left = Math.floor((left - modOffsetX) / texelX) * texelX + modOffsetX;
-    right = left + extentX;
-    bottom = Math.floor((bottom - modOffsetY) / texelY) * texelY + modOffsetY;
-    top = bottom + extentY;
-  }
-  return {
-    left,
-    right,
-    bottom,
-    top,
-    near: Math.max(0.01, -maxZ),
-    far: -minZ + params.farDistance
-  };
 }
 
 function normalize3(x: number, y: number, z: number): [number, number, number, number] {
@@ -545,15 +442,24 @@ function normalize3(x: number, y: number, z: number): [number, number, number, n
   return [x / len, y / len, z / len, 1];
 }
 
-function isFiniteAABB(aabb: ArrayLike<number>): boolean {
-  return (
-    aabb[0] <= aabb[3] &&
-    aabb[1] <= aabb[4] &&
-    aabb[2] <= aabb[5] &&
-    Number.isFinite(aabb[0]) && Number.isFinite(aabb[3]) &&
-    Number.isFinite(aabb[1]) && Number.isFinite(aabb[4]) &&
-    Number.isFinite(aabb[2]) && Number.isFinite(aabb[5])
-  );
+function getShadowCameraProjection(view: View): ShadowCascadeCameraProjection {
+  return view.camera.projectionType === PerspectiveProjectionType
+    ? {
+      type: "perspective",
+      fovDegrees: view.camera.perspectiveProjection.fov
+    }
+    : {
+      type: "ortho",
+      scale: view.camera.orthoProjection.scale
+    };
+}
+
+function getSceneAABB(scene: unknown): ArrayLike<number> | null {
+  if (!scene || !canUseSceneCollisionIndex(scene)) {
+    return null;
+  }
+  const sceneAABB = getSceneCollisionIndex(scene as any).getSceneAABB();
+  return sceneAABB && isFiniteShadowAABB(sceneAABB) ? sceneAABB : null;
 }
 
 function canUseSceneCollisionIndex(scene: unknown): boolean {

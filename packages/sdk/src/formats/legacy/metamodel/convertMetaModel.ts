@@ -4,7 +4,7 @@ import type {MetaModelParams} from "./MetaModelParams";
 /***
  * Converts a {@link formats!metamodel.MetaModelParams | MetaModelParams} to a {@link model!data.DataModelParams | DataModelParams}.
  *
- * See {@link "metamodel" | @xeokit/sdk/metamodel} for usage.
+ * See {@link formats!metamodel | @xeokit/sdk/formats/metamodel} for usage.
  */
 export function convertMetaModel(metaModelParams: MetaModelParams): DataModelParams {
   const dataModelParams: DataModelParams = {

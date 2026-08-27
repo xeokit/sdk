@@ -3,7 +3,7 @@
  *
  * ---
  *
- * **Switches a {@link viewing!viewProfiles.ViewProfiles | ViewProfiles}
+ * **Switches a {@link viewing!profiles.ViewProfiles | ViewProfiles}
  * component to a low-cost profile while the camera is moving, then restores
  * quality once it settles.**
  *

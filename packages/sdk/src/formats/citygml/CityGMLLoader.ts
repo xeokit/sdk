@@ -6,7 +6,7 @@ import type {CityGMLLoadOptions} from "./CityGMLLoadOptions";
 /**
  * Loads a CityGML file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link citygml | @xeokit/sdk/formats/citygml}.
+ * For detailed usage, refer to {@link formats!citygml | @xeokit/sdk/formats/citygml}.
  */
 export class CityGMLLoader extends ModelLoader {
 

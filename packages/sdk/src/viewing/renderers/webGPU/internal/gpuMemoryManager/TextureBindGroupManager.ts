@@ -9,11 +9,15 @@ import {
   NearestMipMapLinearFilter,
   NearestMipMapNearestFilter,
   RepeatWrapping,
-  sRGBEncoding
 } from "../../../../../base/constants";
 import {SDKErrorType, type SDKResult} from "../../../../../base/core";
 import type {SceneTexture} from "../../../../../model/scene";
 import type {WebGPUBindGroupLike, WebGPUSamplerLike, WebGPUTextureLike} from "../../core";
+import {
+  createSanitizedAlphaMaskedColorImageData,
+  sanitizeAlphaMaskedColorImageData,
+  type AlphaMaskedColorImageData
+} from "../../../common/AlphaMaskedTexture";
 import {GPU_TEXTURE_USAGE} from "../constants";
 import {RenderContext} from "../RenderContext";
 import {BindGroupLayoutManager} from "./BindGroupLayoutManager";
@@ -25,6 +29,9 @@ export interface WebGPUTextureBinding {
 }
 
 interface TextureResource {
+  sceneTexture: SceneTexture | null;
+  role: TextureRole | null;
+  sanitizeAlphaMaskRGB: boolean;
   texture: WebGPUTextureLike;
   textureView: unknown;
   sampler: WebGPUSamplerLike;
@@ -34,6 +41,7 @@ interface TextureResource {
 }
 
 export type TextureDefaultKind = "white" | "normal";
+export type TextureRole = "color" | "metallicRoughness" | "normal" | "emissive" | "occlusion";
 
 const DEFAULT_TEXTURE_KEY = "default";
 const DEFAULT_NORMAL_TEXTURE_KEY = "default-normal";
@@ -47,7 +55,7 @@ export class TextureBindGroupManager {
 
   private readonly _renderContext: RenderContext;
   private readonly _bindGroupLayoutManager: BindGroupLayoutManager;
-  private readonly _resources = new Map<SceneTexture, TextureResource>();
+  private readonly _resources = new Map<string, TextureResource>();
   private _defaultResource: TextureResource | null = null;
   private _defaultNormalResource: TextureResource | null = null;
 
@@ -59,43 +67,50 @@ export class TextureBindGroupManager {
     this._bindGroupLayoutManager = params.bindGroupLayoutManager;
   }
 
-  public getBinding(sceneTexture: SceneTexture | null | undefined, defaultKind: TextureDefaultKind = "white"): SDKResult<WebGPUTextureBinding> {
+  public getBinding(
+    sceneTexture: SceneTexture | null | undefined,
+    role: TextureRole = "color",
+    defaultKind: TextureDefaultKind = role === "normal" ? "normal" : "white",
+    sanitizeAlphaMaskRGB: boolean = false
+  ): SDKResult<WebGPUTextureBinding> {
     if (!sceneTexture || sceneTexture.destroyed || sceneTexture.compressed) {
       return this._getDefaultBinding(defaultKind);
     }
-    const existing = this._resources.get(sceneTexture);
+    sanitizeAlphaMaskRGB = sanitizeAlphaMaskRGB && role === "color";
+    const resourceKey = this._getResourceKey(sceneTexture, role, sanitizeAlphaMaskRGB);
+    const existing = this._resources.get(resourceKey);
     if (existing) {
       return {
         ok: true,
         value: {
           sampler: existing.sampler,
           textureView: existing.textureView,
-          key: this.getTextureKey(sceneTexture)
+          key: this.getTextureKey(sceneTexture, role)
         }
       };
     }
 
-    const resourceResult = this._createTextureResource(sceneTexture);
+    const resourceResult = this._createTextureResource(sceneTexture, role, sanitizeAlphaMaskRGB);
     if (resourceResult.ok === false) {
       return resourceResult;
     }
     const resource = resourceResult.value;
-    this._resources.set(sceneTexture, resource);
+    this._resources.set(resourceKey, resource);
     return {
       ok: true,
       value: {
         sampler: resource.sampler,
         textureView: resource.textureView,
-        key: this.getTextureKey(sceneTexture)
+        key: this.getTextureKey(sceneTexture, role)
       }
     };
   }
 
-  public getTextureKey(sceneTexture: SceneTexture | null | undefined): string {
+  public getTextureKey(sceneTexture: SceneTexture | null | undefined, role: TextureRole = "color"): string {
     if (!sceneTexture || sceneTexture.destroyed || sceneTexture.compressed) {
       return DEFAULT_TEXTURE_KEY;
     }
-    return `${sceneTexture.model.id}:${sceneTexture.id}:${sceneTexture.width}x${sceneTexture.height}`;
+    return `${role}:${sceneTexture.model.id}:${sceneTexture.id}:${sceneTexture.width}x${sceneTexture.height}`;
   }
 
   public getDefaultTextureKey(defaultKind: TextureDefaultKind = "white"): string {
@@ -103,23 +118,24 @@ export class TextureBindGroupManager {
   }
 
   public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
-    const resource = this._resources.get(sceneTexture);
-    if (!resource) {
-      return;
-    }
     const width = Math.max(1, sceneTexture.width | 0);
     const height = Math.max(1, sceneTexture.height | 0);
     const mipLevelCount = getMipLevelCount(sceneTexture, width, height);
-    if (
-      resource.width === width &&
-      resource.height === height &&
-      resource.mipLevelCount === mipLevelCount &&
-      this._uploadTexture(sceneTexture, resource.texture, width, height, mipLevelCount)
-    ) {
-      return;
+    for (const [key, resource] of this._resources) {
+      if (resource.sceneTexture !== sceneTexture) {
+        continue;
+      }
+      if (
+        resource.width === width &&
+        resource.height === height &&
+        resource.mipLevelCount === mipLevelCount &&
+        this._uploadTexture(sceneTexture, resource.texture, width, height, mipLevelCount, resource.sanitizeAlphaMaskRGB)
+      ) {
+        continue;
+      }
+      resource.texture.destroy?.();
+      this._resources.delete(key);
     }
-    resource.texture.destroy?.();
-    this._resources.delete(sceneTexture);
   }
 
   public destroy(): void {
@@ -180,7 +196,7 @@ export class TextureBindGroupManager {
         addressModeU: "repeat",
         addressModeV: "repeat"
       }) ?? {};
-      const resource = {texture, textureView: texture.createView(), sampler, width: 1, height: 1, mipLevelCount: 1};
+      const resource = {sceneTexture: null, role: null, sanitizeAlphaMaskRGB: false, texture, textureView: texture.createView(), sampler, width: 1, height: 1, mipLevelCount: 1};
       if (defaultKind === "normal") {
         this._defaultNormalResource = resource;
       } else {
@@ -199,7 +215,7 @@ export class TextureBindGroupManager {
     }
   }
 
-  private _createTextureResource(sceneTexture: SceneTexture): SDKResult<TextureResource> {
+  private _createTextureResource(sceneTexture: SceneTexture, role: TextureRole, sanitizeAlphaMaskRGB: boolean): SDKResult<TextureResource> {
     const width = Math.max(1, sceneTexture.width | 0);
     const height = Math.max(1, sceneTexture.height | 0);
     let mipLevelCount = getMipLevelCount(sceneTexture, width, height);
@@ -209,10 +225,10 @@ export class TextureBindGroupManager {
         label: `xeokit-webgpu-scene-texture:${sceneTexture.model.id}:${sceneTexture.id}`,
         size: {width, height, depthOrArrayLayers: 1},
         mipLevelCount,
-        format: getTextureFormat(sceneTexture),
+        format: getTextureFormat(role),
         usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST | GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
       });
-      let uploaded = this._uploadTexture(sceneTexture, texture, width, height, mipLevelCount);
+      let uploaded = this._uploadTexture(sceneTexture, texture, width, height, mipLevelCount, sanitizeAlphaMaskRGB);
       if (!uploaded && mipLevelCount > 1) {
         texture.destroy?.();
         mipLevelCount = 1;
@@ -220,10 +236,10 @@ export class TextureBindGroupManager {
           label: `xeokit-webgpu-scene-texture:${sceneTexture.model.id}:${sceneTexture.id}`,
           size: {width, height, depthOrArrayLayers: 1},
           mipLevelCount,
-          format: getTextureFormat(sceneTexture),
+          format: getTextureFormat(role),
           usage: GPU_TEXTURE_USAGE.TEXTURE_BINDING | GPU_TEXTURE_USAGE.COPY_DST | GPU_TEXTURE_USAGE.RENDER_ATTACHMENT
         });
-        uploaded = this._uploadTexture(sceneTexture, texture, width, height, mipLevelCount);
+        uploaded = this._uploadTexture(sceneTexture, texture, width, height, mipLevelCount, sanitizeAlphaMaskRGB);
       }
       if (!uploaded) {
         texture.destroy?.();
@@ -249,7 +265,7 @@ export class TextureBindGroupManager {
       const sampler = this._renderContext.device.createSampler?.(samplerDescriptor) ?? {};
       return {
         ok: true,
-        value: {texture, textureView: texture.createView(), sampler, width, height, mipLevelCount}
+        value: {sceneTexture, role, sanitizeAlphaMaskRGB, texture, textureView: texture.createView(), sampler, width, height, mipLevelCount}
       };
     } catch (e) {
       texture?.destroy?.();
@@ -261,21 +277,46 @@ export class TextureBindGroupManager {
     }
   }
 
-  private _uploadTexture(sceneTexture: SceneTexture, texture: WebGPUTextureLike, width: number, height: number, mipLevelCount: number): boolean {
+  private _uploadTexture(
+    sceneTexture: SceneTexture,
+    texture: WebGPUTextureLike,
+    width: number,
+    height: number,
+    mipLevelCount: number,
+    sanitizeAlphaMaskRGB: boolean
+  ): boolean {
     const imageData = sceneTexture.imageData;
     if (imageData && this._renderContext.device.queue.writeTexture) {
+      const uploadImageData = sanitizeAlphaMaskRGB
+        ? sanitizeAlphaMaskedColorImageData(imageData)
+        : imageData;
       this._renderContext.device.queue.writeTexture(
         {texture},
-        imageData.data,
+        uploadImageData.data,
         {bytesPerRow: width * 4, rowsPerImage: height},
         {width, height, depthOrArrayLayers: 1}
       );
       if (mipLevelCount > 1) {
-        uploadImageDataMipmaps(this._renderContext, texture, imageData, mipLevelCount);
+        uploadImageDataMipmaps(this._renderContext, texture, uploadImageData, mipLevelCount);
       }
       return true;
     }
     if (sceneTexture.image && this._renderContext.device.queue.copyExternalImageToTexture) {
+      if (sanitizeAlphaMaskRGB && this._renderContext.device.queue.writeTexture) {
+        const uploadImageData = createSanitizedAlphaMaskedColorImageData(sceneTexture.image, sceneTexture.flipY, width, height);
+        if (uploadImageData) {
+          this._renderContext.device.queue.writeTexture(
+            {texture},
+            uploadImageData.data,
+            {bytesPerRow: width * 4, rowsPerImage: height},
+            {width, height, depthOrArrayLayers: 1}
+          );
+          if (mipLevelCount > 1) {
+            uploadImageDataMipmaps(this._renderContext, texture, uploadImageData, mipLevelCount);
+          }
+          return true;
+        }
+      }
       this._renderContext.device.queue.copyExternalImageToTexture(
         {source: sceneTexture.image, flipY: sceneTexture.flipY},
         {texture},
@@ -289,6 +330,10 @@ export class TextureBindGroupManager {
       return true;
     }
     return false;
+  }
+
+  private _getResourceKey(sceneTexture: SceneTexture, role: TextureRole, sanitizeAlphaMaskRGB: boolean): string {
+    return `${role}:${sceneTexture.model.id}:${sceneTexture.id}${sanitizeAlphaMaskRGB ? ":alphaMaskRGB" : ""}`;
   }
 }
 
@@ -370,7 +415,7 @@ function uploadExternalImageMipmaps(
   return true;
 }
 
-function uploadImageDataMipmaps(renderContext: RenderContext, texture: WebGPUTextureLike, imageData: ImageData, mipLevelCount: number): void {
+function uploadImageDataMipmaps(renderContext: RenderContext, texture: WebGPUTextureLike, imageData: AlphaMaskedColorImageData, mipLevelCount: number): void {
   let src: Uint8Array | Uint8ClampedArray = imageData.data;
   let srcWidth = imageData.width;
   let srcHeight = imageData.height;
@@ -470,6 +515,6 @@ function getMipmapFilter(filter: number): "nearest" | "linear" | undefined {
   return undefined;
 }
 
-function getTextureFormat(sceneTexture: SceneTexture): "rgba8unorm" | "rgba8unorm-srgb" {
-  return sceneTexture.encoding === sRGBEncoding ? "rgba8unorm-srgb" : "rgba8unorm";
+function getTextureFormat(role: TextureRole): "rgba8unorm" | "rgba8unorm-srgb" {
+  return role === "color" || role === "emissive" ? "rgba8unorm-srgb" : "rgba8unorm";
 }

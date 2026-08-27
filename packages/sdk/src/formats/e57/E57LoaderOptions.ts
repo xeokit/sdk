@@ -3,7 +3,7 @@ import type {ModelLoadOptions} from "../ModelLoadOptions";
 /**
  * Options for {@link formats!e57.E57Loader.load | E57Loader.load}.
  *
- * For detailed usage, refer to {@link e57 | @xeokit/sdk/formats/e57}.
+ * For detailed usage, refer to {@link formats!e57 | @xeokit/sdk/formats/e57}.
  */
 export interface E57LoaderOptions extends ModelLoadOptions {
 

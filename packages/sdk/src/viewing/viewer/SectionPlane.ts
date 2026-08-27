@@ -15,7 +15,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  * * Discards elements from the half-space in the direction of {@link SectionPlane.dir}.
  * * Can be enabled or disabled via {@link SectionPlane.active}.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
 class SectionPlane {
 

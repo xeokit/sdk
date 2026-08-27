@@ -8,7 +8,7 @@ import type {View} from "./View";
  *
  * * Located at {@link View.texturing}.
  *
- * See {@link viewer | @xeokit/sdk/viewing/viewer} for usage info.
+ * See {@link viewing!viewer | @xeokit/sdk/viewing/viewer} for usage info.
  */
 class Texturing {
 

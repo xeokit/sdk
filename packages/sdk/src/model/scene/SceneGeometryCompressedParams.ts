@@ -15,7 +15,7 @@ import type {Mat4} from "../../base/math/matrix";
  * * Quantizes normals (when supplied) as octahedral pairs in 16-bit unsigned integers; geometry without
  *   normals continues to render with shader-derived flat normals
  *
- * See {@link scene | @xeokit/sdk/model/scene} for usage.
+ * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
  */
 export interface SceneGeometryCompressedParams {
 
@@ -46,7 +46,7 @@ export interface SceneGeometryCompressedParams {
   /**
    * 3D vertex positions, quantized as 16-bit integers.
    *
-   * Internally, the Viewer decompresses thses
+   * Internally, the Viewer decompresses these
    * with {@link SceneGeometryCompressedParams.aabb | SceneGeometryCompressedParams.aabb}.
    *
    * Vertex positions are required for all primitive types.
@@ -106,7 +106,9 @@ export interface SceneGeometryCompressedParams {
   rotations?: FloatArrayParam;
 
   /**
-   * TODO
+   * Optional RTC origin for the compressed vertex positions. When present,
+   * renderers add this world-space offset after decompressing positions from
+   * {@link SceneGeometryCompressedParams.aabb | SceneGeometryCompressedParams.aabb}.
    */
   origin?: Vec3;
 }

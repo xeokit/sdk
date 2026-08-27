@@ -16,7 +16,7 @@
  * export.
  *
  * Wraps the
- * {@link convert!pipeline.ModelConverter | ModelConverter}
+ * {@link conversion!pipeline.ModelConverter | ModelConverter}
  * class — same engine, scriptable from a shell.
  *
  * <br>
@@ -101,7 +101,7 @@
  * ## Convert + optimize
  *
  * Convert and clean the SceneModel in the same pass. `--inspect-fix` runs
- * {@link inspect!sceneModel.applyFixes | applyFixes} before export, so the output
+ * {@link quality!sceneModel.applyFixes | applyFixes} before export, so the output
  * is already deduplicated and re-quantised.
  *
  * ````bash
@@ -124,7 +124,7 @@
  *
  * Inspection runs {@link sceneModelInspector} on each loaded SceneModel. Results
  * also surface on
- * {@link convert!pipeline.ModelConverterResult.inspection | ModelConverterResult.inspection}.
+ * {@link conversion!pipeline.ModelConverterResult.inspection | ModelConverterResult.inspection}.
  *
  * To gate a conversion on validation, combine `--out` with `--inspect` (without
  * `--inspect-fix`): the export aborts if inspection finds errors, unless
@@ -207,10 +207,10 @@
  * ## Inspection flags
  *
  * * `--inspect` — enable inspection. Implied by any other `--inspect-*` flag.
- * * `--inspect-fix` — run {@link inspect!sceneModel.applyFixes | applyFixes} after inspection (skipped if errors are present).
+ * * `--inspect-fix` — run {@link quality!sceneModel.applyFixes | applyFixes} after inspection (skipped if errors are present).
  * * `--inspect-checks <list>` — comma-separated opt-in checks: `dup, similar, dense, large, quality, objects, textures, geom-far, all`.
  * * `--no-fail-on-inspect-errors` — export even when inspection found errors. Default aborts.
- * * `--inspect-async` — use {@link inspect!sceneModel.inspectSceneModelAsync | inspectSceneModelAsync} so very large models don't block.
+ * * `--inspect-async` — use {@link quality!sceneModel.inspectSceneModelAsync | inspectSceneModelAsync} so very large models don't block.
  *
  * ## Configuration flags
  *

@@ -6,7 +6,7 @@ import {parse as parse_v6} from "./versions/v6/parse";
  * {@link model!scene.SceneModel | SceneModel} and/or a
  * {@link model!data.DataModel | DataModel}.
  *
- * For detailed usage, refer to {@link fds | @xeokit/sdk/formats/fds}.
+ * For detailed usage, refer to {@link formats!fds | @xeokit/sdk/formats/fds}.
  */
 export class FDSLoader extends ModelLoader {
 

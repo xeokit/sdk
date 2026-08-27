@@ -12,7 +12,7 @@ const rtcCenter = createVec3Float64();
 /**
  * Compresses a {@link SceneGeometryParams | SceneGeometryParams} into a {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *
- * See {@link scene | @xeokit/sdk/model/scene}  for usage examples.
+ * See {@link model!scene | @xeokit/sdk/model/scene}  for usage examples.
  *
  * @param geometryParams Uncompressed geometry params.
  * @returns Compressed geometry params.

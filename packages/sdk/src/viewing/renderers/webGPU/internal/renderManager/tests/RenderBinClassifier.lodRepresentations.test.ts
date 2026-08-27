@@ -69,6 +69,7 @@ describe("WebGPU RenderBinClassifier representation LOD", () => {
       isMeshVisibleInView: jest.fn((meshState) => meshState === visibleMesh),
       getMeshOpacityInView: jest.fn(() => 1),
       getMeshDrawStyleInView: jest.fn(() => ({
+        opacity: 1,
         alphaMode: 0,
         drawEdges: false,
         emphasis: "normal"
@@ -96,5 +97,50 @@ describe("WebGPU RenderBinClassifier representation LOD", () => {
     expect(classifier.stats.segmentCandidates).toBe(2);
     expect(classifier.stats.segmentFullyDrawn).toBe(1);
     expect(classifier.stats.segmentPartiallyRefined).toBe(0);
+  });
+
+  it("does not route fully opaque BLEND materials through the opaque segment fast path", () => {
+    const blendMesh = createMeshState("blendMesh");
+    const blendSegment = createSegment("blend", blendMesh, false);
+    const batchSet = {
+      segments: [blendSegment],
+      segmentByMeshId: {
+        [blendMesh.mesh.uniqueId]: blendSegment
+      }
+    } as unknown as TriangleBatchSet;
+    const view = {
+      id: "view"
+    } as unknown as View;
+    const meshManager = {
+      isLODRepMembershipSuppressedInView: jest.fn(() => false),
+      isMeshVisibleInView: jest.fn(() => true),
+      getMeshOpacityInView: jest.fn(() => 1),
+      getMeshDrawStyleInView: jest.fn(() => ({
+        opacity: 1,
+        alphaMode: 2,
+        drawEdges: false,
+        emphasis: "normal"
+      })),
+      getMeshViewDepth: jest.fn(() => -10)
+    } as unknown as MeshManager;
+    const bins = createBins();
+
+    const classifier = new RenderBinClassifier(createMemoryConfigs({
+      grossMemoryMB: 512,
+      device: "medium",
+      utilization: 0.5
+    }));
+    classifier.classifySegments({
+      batchSet,
+      view,
+      meshManager,
+      bins,
+      cameraCulling: false
+    });
+
+    expect(bins.normalDrawOpaque).toHaveLength(0);
+    expect(bins.normalFillTransparent.map((item) => item.meshState)).toEqual([blendMesh]);
+    expect(classifier.stats.segmentFullyDrawn).toBe(0);
+    expect(classifier.stats.segmentPartiallyRefined).toBe(1);
   });
 });

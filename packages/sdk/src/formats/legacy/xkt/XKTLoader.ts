@@ -15,7 +15,7 @@ import {parse as parse_v12_compressed} from "./versions/v12/parseCompressed";
  * Supports XKT versions 6 through 12. Versions 6-10 use the deflated container.
  * Version 12 has both a deflated form (header high bit set) and an uncompressed
  * offset-table form; version 11 is uncompressed only. Textures and UVs are not
- * loaded. For detailed usage, refer to {@link xkt | @xeokit/sdk/formats/xkt}.
+ * loaded. For detailed usage, refer to {@link formats!xkt | @xeokit/sdk/formats/xkt}.
  */
 export class XKTLoader extends ModelLoader {
   constructor() {

@@ -1,0 +1,33 @@
+{
+  "id": "view/renderers/webgl-webgpu-shared-scene",
+  "title": "WebGL + WebGPU - Shared Scene",
+  "description": "Runs separate WebGL and WebGPU viewers against one shared Scene and Data graph loaded from the House Plan PBR GLB.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "WebGL",
+    "WebGPU"
+  ],
+  "visualAudit": {
+    "enabled": true,
+    "selectors": [
+      "#webglViewport",
+      "#webgpuViewport"
+    ],
+    "minUniqueBuckets": 12,
+    "minNonBackgroundRatio": 0.04,
+    "maskSelectors": [
+      "#effectBanner",
+      "#rendererLabels",
+      ".hud",
+      "#dataStatus"
+    ],
+    "comparePairs": [
+      {
+        "a": "#webglViewport",
+        "b": "#webgpuViewport"
+      }
+    ]
+  }
+}

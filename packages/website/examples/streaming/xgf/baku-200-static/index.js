@@ -42,7 +42,7 @@ const WEBGPU_LOW_MEMORY_CONFIG = {
   },
   renderConfigs: {
     triangleColorMode: "flat",
-    edges: false,
+    edges: true,
     depthPrepass: false
   }
 };
@@ -181,25 +181,46 @@ studio.init().then(async () => {
   const view = studio.viewManager.createView({
     id: "demoView",
     adaptiveQuality: false,
-    backgroundColor: [0.32, 0.49, 0.94],
+    backgroundColor: [0.24, 0.34, 0.5],
     effects: {
+      sao: {
+        enabled: false
+      },
       ibl: {
-        enabled: true
+        enabled: false
       },
       edges: {
         enabled: true,
         useMeshColor: true,
-        edgeDarken: 0.92,
-        edgeAlpha: 0.75,
+        edgeDarken: 0.45,
+        edgeAlpha: 0.85,
         edgeWidth: 1
+      },
+      shadows: {
+        enabled: false
+      },
+      atmosphere: {
+        enabled: false
+      },
+      bloom: {
+        enabled: false
+      },
+      depthOfField: {
+        enabled: false
+      },
+      colorGrading: {
+        enabled: false
+      },
+      antiAliasing: {
+        enabled: false
       },
       sky: {
         enabled: true,
-        skyColor: [0.38, 0.64, 0.91],
-        horizonColor: [0.78, 0.89, 0.97],
-        groundColor: [0.86, 0.89, 0.86],
-        blend: 0.55,
-        intensity: 1.0
+        skyColor: [0.28, 0.45, 0.66],
+        horizonColor: [0.58, 0.68, 0.76],
+        groundColor: [0.56, 0.58, 0.55],
+        horizonBlend: 0.42,
+        sunGlowIntensity: 0.12
       }
     },
     camera: {
@@ -209,7 +230,13 @@ studio.init().then(async () => {
       up: INITIAL_VIEWPOINT.up
     }
   });
+  studio.viewProfiles?.setActiveProfile("fast");
+  enforceFastBakuRendering(view);
   view.effects.edges.enabled = true;
+  view.effects.edges.useMeshColor = true;
+  view.effects.edges.edgeDarken = 0.45;
+  view.effects.edges.edgeAlpha = 0.85;
+  view.effects.edges.edgeWidth = 1;
   view.linesMaterial.lineWidth = 1.75;
   view.linesMaterial.joinStyle = "round";
 
@@ -652,7 +679,31 @@ function applyIssueProjection(view, issue) {
 }
 
 function updateDepthOfFieldFocus(view) {
+  if (!view.effects.depthOfField || !view.effects.depthOfField.enabled) {
+    return;
+  }
   view.effects.depthOfField.focusDistance = getPointDistance(view.camera.eye, view.camera.look);
+}
+
+function enforceFastBakuRendering(view) {
+  const effects = view.effects || {};
+  for (const effectId of [
+    "sao",
+    "shadows",
+    "atmosphere",
+    "bloom",
+    "depthOfField",
+    "colorGrading",
+    "antiAliasing"
+  ]) {
+    if (effects[effectId]) {
+      effects[effectId].enabled = false;
+    }
+  }
+  if (effects.ibl) {
+    effects.ibl.enabled = false;
+    effects.ibl.intensity = 0;
+  }
 }
 
 function getViewpointFocusDistance(viewpoint) {

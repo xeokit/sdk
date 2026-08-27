@@ -6,7 +6,10 @@ import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
 
 // Create the demo helper. This helper initializes the shared runtime
 // context and provides utilities for configuring and running the demo.
-const studio = new xeokit.studio.Studio({});
+const urlParams = new URLSearchParams(window.location.search);
+const studio = new xeokit.studio.Studio({
+  renderer: urlParams.get("renderer") || "webgl"
+});
 
 // Initialize the runtime context before creating views or loading
 // model content.
@@ -102,6 +105,15 @@ studio.init().then(() => {
         });
 
         studio.finished();
+        if (urlParams.get("renderer") === "webgpu") {
+          window.webgpuXGFMapDemo = {
+            studio,
+            renderer: studio.renderer,
+            scene,
+            view,
+            sceneModel
+          };
+        }
         document.querySelectorAll(".xeokit-loading-overlay").forEach(el => {
           el.style.display = "none";
         });

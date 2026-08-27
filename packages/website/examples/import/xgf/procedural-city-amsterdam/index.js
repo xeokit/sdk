@@ -12,6 +12,33 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
   "buildingPicking": false,
   "signalStudioFinished": false,
   "frustumOnly": true,
+  "fastVisuals": {
+    "backgroundColor": [0.90, 0.94, 0.97],
+    "sky": {
+      "skyColor": [0.56, 0.74, 0.91],
+      "horizonColor": [0.88, 0.94, 0.98],
+      "groundColor": [0.58, 0.62, 0.57],
+      "blend": 0.26,
+      "intensity": 0.96
+    },
+    "hemispheric": {
+      "enabled": true,
+      "intensity": 0.22,
+      "skyColor": [0.72, 0.82, 0.94],
+      "groundColor": [0.42, 0.44, 0.40],
+      "worldUp": [0, 0, 1]
+    },
+    "ambientLight": {
+      "color": [1, 1, 1],
+      "intensity": 0.48
+    },
+    "dirLight": {
+      "dir": [-0.42, -0.62, -0.72],
+      "color": [1, 0.97, 0.90],
+      "intensity": 1.08,
+      "space": "world"
+    }
+  },
   "endlessWorld": {
     "enabled": true,
     "margin": 0
@@ -141,4 +168,4 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
   }
 };
 
-import("../import/xgf/procedural-city/index.js");
+import("../procedural-city/index.js");

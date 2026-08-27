@@ -1,0 +1,34 @@
+{
+  "id": "view/renderers/webgl-webgpu-sao-quality",
+  "title": "WebGL + WebGPU - SAO Quality",
+  "description": "Runs WebGL and WebGPU viewers against a model-free procedural SAO stress scene with shared debug views for depth, normals, raw occlusion, blurred occlusion, and final factor.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "SAO",
+    "WebGL",
+    "WebGPU"
+  ],
+  "visualAudit": {
+    "enabled": true,
+    "selectors": [
+      "#webglViewport",
+      "#webgpuViewport"
+    ],
+    "minUniqueBuckets": 8,
+    "minNonBackgroundRatio": 0.05,
+    "maskSelectors": [
+      "#saoBar",
+      "#rendererLabels",
+      ".label",
+      ".status"
+    ],
+    "comparePairs": [
+      {
+        "a": "#webglViewport",
+        "b": "#webgpuViewport"
+      }
+    ]
+  }
+}

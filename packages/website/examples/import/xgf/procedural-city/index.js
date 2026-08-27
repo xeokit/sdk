@@ -25,12 +25,14 @@ const VIEW_ID = EXAMPLE_CONFIG.viewId || "proceduralCityView";
 const STREAM_LABEL = EXAMPLE_CONFIG.streamLabel || "procedural city";
 const WIND_SOUND = !!EXAMPLE_CONFIG.windSound;
 const URL_PARAMS = new URLSearchParams(window.location.search);
+const RENDERER = URL_PARAMS.get("renderer") || EXAMPLE_CONFIG.renderer || "webgl";
 const BENCHMARK_START_PAUSED = urlFlag(URL_PARAMS, "benchmarkStartPaused", false);
 const ENABLE_SDK_FLIGHT_SIM = urlFlag(URL_PARAMS, "sdkFlight", false);
 const VEHICLE_CONFIG = createVehicleConfig(EXAMPLE_CONFIG.vehicle || null);
 const MULTIPLAYER_CONFIG = EXAMPLE_CONFIG.multiplayer || null;
 const ENDLESS_WORLD_CONFIG = EXAMPLE_CONFIG.endlessWorld || VEHICLE_CONFIG?.endlessWorld || null;
 const HUD_CONFIG = EXAMPLE_CONFIG.hud || VEHICLE_CONFIG?.hud || null;
+const FAST_VISUALS = EXAMPLE_CONFIG.fastVisuals || {};
 const STREAM_FRUSTUM_ONLY = urlFlag(URL_PARAMS, "frustumOnly", EXAMPLE_CONFIG.frustumOnly !== undefined ? !!EXAMPLE_CONFIG.frustumOnly : true);
 const SHOW_PANEL = EXAMPLE_CONFIG.panel !== false && EXAMPLE_CONFIG.showPanel !== false;
 const ENABLE_BUILDING_PICKING = EXAMPLE_CONFIG.buildingPicking !== false;
@@ -144,7 +146,7 @@ const LAND_USE_COLORS = {
 };
 
 const studio = new xeokit.studio.Studio({
-  renderer: EXAMPLE_CONFIG.renderer || "webgl",
+  renderer: RENDERER,
   webGPU: WEBGPU_CONFIG
 });
 
@@ -172,7 +174,7 @@ studio.init().then(async () => {
     profiles?.setActiveProfile(null);
   }
   disableExpensiveEffects(view);
-  enableSky(view);
+  applyFastVisuals(view, FAST_VISUALS);
   focusViewSurface(view);
   const representationLODSelector = ENABLE_REPRESENTATION_LOD && xeokit.viewing.lod?.RepresentationLODSelector
     ? new xeokit.viewing.lod.RepresentationLODSelector({viewer: studio.viewer})
@@ -298,6 +300,7 @@ studio.init().then(async () => {
     window.addEventListener("pagehide", () => interactionProfiler?.destroy(), {once: true});
     window.proceduralCityXGFStreamDemo = {
       studio,
+      renderer: studio.renderer,
       scene,
       view,
       profiles,
@@ -318,6 +321,9 @@ studio.init().then(async () => {
         timeoutMs: Number(options.timeoutMs || 1000)
       })
     };
+    if (RENDERER === "webgpu") {
+      window.webgpuProceduralCityXGFStreamDemo = window.proceduralCityXGFStreamDemo;
+    }
   } catch (error) {
     status.textContent = `Failed to load ${STREAM_LABEL}: ${error.message || error}`;
     console.error(error);
@@ -455,17 +461,58 @@ function disableExpensiveEffects(view) {
   }
 }
 
-function enableSky(view) {
+function applyFastVisuals(view, visuals = {}) {
+  if (Array.isArray(visuals.backgroundColor)) {
+    view.backgroundColor = visuals.backgroundColor;
+  }
+  applyFastSky(view, visuals.sky || {});
+  applyFastHemisphericLight(view, visuals.hemispheric || null);
+  applyFastLocalLights(view, visuals);
+}
+
+function applyFastSky(view, overrides = {}) {
   const sky = view.effects?.sky;
   if (!sky) {
     return;
   }
   sky.enabled = true;
-  sky.skyColor = [0.48, 0.68, 0.84];
-  sky.horizonColor = [0.82, 0.91, 0.95];
-  sky.groundColor = [0.72, 0.78, 0.72];
-  sky.blend = 0.5;
-  sky.intensity = 0.85;
+  sky.skyColor = overrides.skyColor || [0.48, 0.68, 0.84];
+  sky.horizonColor = overrides.horizonColor || [0.82, 0.91, 0.95];
+  sky.groundColor = overrides.groundColor || [0.72, 0.78, 0.72];
+  sky.blend = overrides.blend ?? 0.5;
+  sky.intensity = overrides.intensity ?? 0.85;
+}
+
+function applyFastHemisphericLight(view, config) {
+  if (!config || !view.lights?.hemispheric) {
+    return;
+  }
+  const hemispheric = view.lights.hemispheric;
+  hemispheric.enabled = config.enabled !== false;
+  hemispheric.intensity = config.intensity ?? hemispheric.intensity;
+  if (Array.isArray(config.skyColor)) {
+    hemispheric.skyColor = config.skyColor;
+  }
+  if (Array.isArray(config.groundColor)) {
+    hemispheric.groundColor = config.groundColor;
+  }
+  if (Array.isArray(config.worldUp)) {
+    hemispheric.worldUp = config.worldUp;
+  }
+}
+
+function applyFastLocalLights(view, visuals) {
+  if (!visuals.ambientLight && !visuals.dirLight) {
+    return;
+  }
+  const {AmbientLight, DirLight} = xeokit.viewing.viewer;
+  view.clearLights();
+  if (visuals.ambientLight) {
+    new AmbientLight(view, visuals.ambientLight);
+  }
+  if (visuals.dirLight) {
+    new DirLight(view, visuals.dirLight);
+  }
 }
 
 function focusViewSurface(view) {

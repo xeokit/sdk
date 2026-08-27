@@ -1,0 +1,32 @@
+{
+  "id": "view/renderers/webgl-webgpu-material-parity",
+  "title": "WebGL + WebGPU - Material Feature Parity",
+  "description": "Runs WebGL and WebGPU viewers against one procedural material probe scene with shared toggles and focused IBL probes for mirror metal, rough dielectric, dark clearcoat, alpha, emissive, and sheen paths.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "Materials",
+    "WebGL",
+    "WebGPU"
+  ],
+  "visualAudit": {
+    "enabled": true,
+    "selectors": [
+      "#webglViewport",
+      "#webgpuViewport"
+    ],
+    "minUniqueBuckets": 12,
+    "minNonBackgroundRatio": 0.04,
+    "maskSelectors": [
+      ".label",
+      ".status"
+    ],
+    "comparePairs": [
+      {
+        "a": "#webglViewport",
+        "b": "#webgpuViewport"
+      }
+    ]
+  }
+}

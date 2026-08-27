@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebGL + WebGPU - Shared Scene</title>
+    <link rel="icon" href="data:,">
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #0f172a;
+            color: #e5e7eb;
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        #layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            width: 100%;
+            height: 100%;
+            padding-top: 76px;
+            box-sizing: border-box;
+        }
+
+        #effectBanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 76px;
+            padding: 10px 12px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.18);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+            color: #172033;
+        }
+
+        #effectBanner h1 {
+            flex: 0 0 auto;
+            margin: 0 8px 0 0;
+            font-size: 14px;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        #effectControls {
+            display: flex;
+            flex: 1 1 auto;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+        }
+
+        #effectControls button {
+            min-height: 26px;
+            padding: 3px 7px;
+            border: 1px solid rgba(15, 23, 42, 0.16);
+            border-radius: 4px;
+            background: #e5edf5;
+            color: #123a5d;
+            font: inherit;
+            font-size: 12px;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+
+        #effectControls button.is-active {
+            background: #235b91;
+            border-color: #235b91;
+            color: #fff;
+        }
+
+        .viewport {
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+        }
+
+        .viewport:first-child::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 3;
+            width: 1px;
+            background: rgba(148, 163, 184, 0.35);
+            pointer-events: none;
+        }
+
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #f6f7f9;
+        }
+
+        .hud {
+            position: absolute;
+            left: 14px;
+            top: 46px;
+            z-index: 100020;
+            max-width: min(420px, calc(100% - 28px));
+            padding: 10px 12px;
+            border: 1px solid rgba(15, 23, 42, 0.18);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.86);
+            color: #172033;
+            font-size: 12px;
+            line-height: 1.45;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .hud strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #020617;
+            font-size: 13px;
+        }
+
+        .hud[data-state="ok"] {
+            border-color: rgba(22, 101, 52, 0.3);
+        }
+
+        .hud[data-state="warn"] {
+            border-color: rgba(180, 83, 9, 0.42);
+            color: #78350f;
+        }
+
+        .hud[data-state="error"] {
+            border-color: rgba(185, 28, 28, 0.5);
+            color: #7f1d1d;
+        }
+
+        #rendererLabels {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 86px;
+            z-index: 100030;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            pointer-events: none;
+        }
+
+        .renderer-label {
+            justify-self: center;
+            padding: 7px 12px;
+            border-radius: 4px;
+            background: rgba(2, 6, 23, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: 0;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.22);
+        }
+
+        #dataStatus {
+            position: absolute;
+            left: 50%;
+            bottom: 14px;
+            z-index: 100020;
+            transform: translateX(-50%);
+            max-width: min(620px, calc(100% - 28px));
+            padding: 9px 12px;
+            border: 1px solid rgba(15, 23, 42, 0.18);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #172033;
+            font-size: 12px;
+            line-height: 1.35;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        @media (max-width: 780px) {
+            #layout {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+                padding-top: 116px;
+            }
+
+            #effectBanner {
+                min-height: 116px;
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            #effectBanner h1 {
+                margin-right: 0;
+            }
+
+            #rendererLabels {
+                top: 126px;
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+                height: calc(100vh - 116px);
+                align-items: start;
+            }
+
+            .viewport {
+                border-bottom: 0;
+            }
+
+            .viewport:first-child::after {
+                left: 0;
+                right: 0;
+                top: auto;
+                bottom: 0;
+                width: auto;
+                height: 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="effectBanner">
+    <h1>Shared Effects</h1>
+    <div id="effectControls" aria-label="Shared view effects"></div>
+</div>
+<div id="rendererLabels" aria-hidden="true">
+    <div class="renderer-label">WebGL</div>
+    <div class="renderer-label">WebGPU</div>
+</div>
+<div id="layout">
+    <section id="webglViewport" class="viewport" aria-label="WebGL viewer">
+        <canvas id="webglCanvas"></canvas>
+        <div id="webglStatus" class="hud"><strong>WebGL</strong><span>Initializing...</span></div>
+    </section>
+    <section id="webgpuViewport" class="viewport" aria-label="WebGPU viewer">
+        <canvas id="webgpuCanvas"></canvas>
+        <div id="webgpuStatus" class="hud"><strong>WebGPU</strong><span>Initializing...</span></div>
+    </section>
+</div>
+<div id="dataStatus">Loading House Plan GLB into the shared Scene and Data graph...</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

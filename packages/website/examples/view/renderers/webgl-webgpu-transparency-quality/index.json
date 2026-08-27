@@ -1,0 +1,32 @@
+{
+  "id": "view/renderers/webgl-webgpu-transparency-quality",
+  "title": "WebGL + WebGPU - Transparency Quality",
+  "description": "Runs WebGL and WebGPU viewers against a procedural transparency stress scene with alpha-mask foliage, blended glass, glossy transparent surfaces, and overlapping transparent layers.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "Transparency",
+    "WebGL",
+    "WebGPU"
+  ],
+  "visualAudit": {
+    "enabled": true,
+    "selectors": [
+      "#webglViewport",
+      "#webgpuViewport"
+    ],
+    "minUniqueBuckets": 12,
+    "minNonBackgroundRatio": 0.04,
+    "maskSelectors": [
+      ".label",
+      ".status"
+    ],
+    "comparePairs": [
+      {
+        "a": "#webglViewport",
+        "b": "#webgpuViewport"
+      }
+    ]
+  }
+}

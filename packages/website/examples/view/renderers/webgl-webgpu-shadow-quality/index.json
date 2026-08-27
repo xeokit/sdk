@@ -1,0 +1,34 @@
+{
+  "id": "view/renderers/webgl-webgpu-shadow-quality",
+  "title": "WebGL + WebGPU - Shadow Quality",
+  "description": "Runs WebGL and WebGPU viewers against a model-free procedural shadow stress scene with counter/stool contact, a masked potted plant, thin geometry, and transparent materials.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "Shadows",
+    "WebGL",
+    "WebGPU"
+  ],
+  "visualAudit": {
+    "enabled": true,
+    "selectors": [
+      "#webglViewport",
+      "#webgpuViewport"
+    ],
+    "minUniqueBuckets": 12,
+    "minNonBackgroundRatio": 0.04,
+    "maskSelectors": [
+      "#shadowBar",
+      "#rendererLabels",
+      ".label",
+      ".status"
+    ],
+    "comparePairs": [
+      {
+        "a": "#webglViewport",
+        "b": "#webgpuViewport"
+      }
+    ]
+  }
+}

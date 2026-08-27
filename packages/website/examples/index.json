@@ -1339,6 +1339,205 @@
       "Performance"
     ]
   },
+  "view/renderers/webgl-webgpu-material-parity": {
+    "id": "view/renderers/webgl-webgpu-material-parity",
+    "title": "WebGL + WebGPU - Material Feature Parity",
+    "description": "Runs WebGL and WebGPU viewers against one procedural material probe scene with shared toggles and focused IBL probes for mirror metal, rough dielectric, dark clearcoat, alpha, emissive, and sheen paths.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "Materials",
+      "WebGL",
+      "WebGPU"
+    ],
+    "visualAudit": {
+      "enabled": true,
+      "selectors": [
+        "#webglViewport",
+        "#webgpuViewport"
+      ],
+      "minUniqueBuckets": 12,
+      "minNonBackgroundRatio": 0.04,
+      "maskSelectors": [
+        ".label",
+        ".status"
+      ],
+      "comparePairs": [
+        {
+          "a": "#webglViewport",
+          "b": "#webgpuViewport"
+        }
+      ]
+    }
+  },
+  "view/renderers/webgl-webgpu-sao-quality": {
+    "id": "view/renderers/webgl-webgpu-sao-quality",
+    "title": "WebGL + WebGPU - SAO Quality",
+    "description": "Runs WebGL and WebGPU viewers against a model-free procedural SAO stress scene with shared debug views for depth, normals, raw occlusion, blurred occlusion, and final factor.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "SAO",
+      "WebGL",
+      "WebGPU"
+    ],
+    "visualAudit": {
+      "enabled": true,
+      "selectors": [
+        "#webglViewport",
+        "#webgpuViewport"
+      ],
+      "minUniqueBuckets": 8,
+      "minNonBackgroundRatio": 0.05,
+      "maskSelectors": [
+        "#saoBar",
+        "#rendererLabels",
+        ".label",
+        ".status"
+      ],
+      "comparePairs": [
+        {
+          "a": "#webglViewport",
+          "b": "#webgpuViewport"
+        }
+      ]
+    }
+  },
+  "view/renderers/webgl-webgpu-shadow-parity": {
+    "id": "view/renderers/webgl-webgpu-shadow-parity",
+    "title": "WebGL + WebGPU - Shadow Parity",
+    "description": "Runs WebGL and WebGPU viewers against one procedural shadow diagnostic scene with opaque, thin, normal-mapped, alpha-masked, and translucent BLEND casters.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "Shadows",
+      "WebGL",
+      "WebGPU"
+    ],
+    "visualAudit": {
+      "enabled": true,
+      "selectors": [
+        "#webglViewport",
+        "#webgpuViewport"
+      ],
+      "minUniqueBuckets": 12,
+      "minNonBackgroundRatio": 0.04,
+      "maskSelectors": [
+        "#shadowBar",
+        "#rendererLabels",
+        ".label",
+        ".status"
+      ],
+      "comparePairs": [
+        {
+          "a": "#webglViewport",
+          "b": "#webgpuViewport"
+        }
+      ]
+    }
+  },
+  "view/renderers/webgl-webgpu-shadow-quality": {
+    "id": "view/renderers/webgl-webgpu-shadow-quality",
+    "title": "WebGL + WebGPU - Shadow Quality",
+    "description": "Runs WebGL and WebGPU viewers against a model-free procedural shadow stress scene with counter/stool contact, a masked potted plant, thin geometry, and transparent materials.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "Shadows",
+      "WebGL",
+      "WebGPU"
+    ],
+    "visualAudit": {
+      "enabled": true,
+      "selectors": [
+        "#webglViewport",
+        "#webgpuViewport"
+      ],
+      "minUniqueBuckets": 12,
+      "minNonBackgroundRatio": 0.04,
+      "maskSelectors": [
+        "#shadowBar",
+        "#rendererLabels",
+        ".label",
+        ".status"
+      ],
+      "comparePairs": [
+        {
+          "a": "#webglViewport",
+          "b": "#webgpuViewport"
+        }
+      ]
+    }
+  },
+  "view/renderers/webgl-webgpu-shared-scene": {
+    "id": "view/renderers/webgl-webgpu-shared-scene",
+    "title": "WebGL + WebGPU - Shared Scene",
+    "description": "Runs separate WebGL and WebGPU viewers against one shared Scene and Data graph loaded from the House Plan PBR GLB.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "WebGL",
+      "WebGPU"
+    ],
+    "visualAudit": {
+      "enabled": true,
+      "selectors": [
+        "#webglViewport",
+        "#webgpuViewport"
+      ],
+      "minUniqueBuckets": 12,
+      "minNonBackgroundRatio": 0.04,
+      "maskSelectors": [
+        "#effectBanner",
+        "#rendererLabels",
+        ".hud",
+        "#dataStatus"
+      ],
+      "comparePairs": [
+        {
+          "a": "#webglViewport",
+          "b": "#webgpuViewport"
+        }
+      ]
+    }
+  },
+  "view/renderers/webgl-webgpu-transparency-quality": {
+    "id": "view/renderers/webgl-webgpu-transparency-quality",
+    "title": "WebGL + WebGPU - Transparency Quality",
+    "description": "Runs WebGL and WebGPU viewers against a procedural transparency stress scene with alpha-mask foliage, blended glass, glossy transparent surfaces, and overlapping transparent layers.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "Transparency",
+      "WebGL",
+      "WebGPU"
+    ],
+    "visualAudit": {
+      "enabled": true,
+      "selectors": [
+        "#webglViewport",
+        "#webgpuViewport"
+      ],
+      "minUniqueBuckets": 12,
+      "minNonBackgroundRatio": 0.04,
+      "maskSelectors": [
+        ".label",
+        ".status"
+      ],
+      "comparePairs": [
+        {
+          "a": "#webglViewport",
+          "b": "#webgpuViewport"
+        }
+      ]
+    }
+  },
   "view/section-planes/intro": {
     "id": "view/section-planes/intro",
     "title": "View — section planes",

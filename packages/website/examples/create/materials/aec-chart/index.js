@@ -54,6 +54,11 @@ const ROWS = 6;
 const DIFFUSE_TINT = [1.6, 1.6, 1.6];
 const METAL_TINT   = [1.2, 1.2, 1.2];
 const NEUTRAL_TINT = [1.0, 1.0, 1.0];
+const SEALED_MASONRY_PARAMS = { color: DIFFUSE_TINT, clearcoat: 0.18, clearcoatRoughness: 0.42 };
+const POLISHED_STONE_PARAMS = { color: DIFFUSE_TINT, clearcoat: 0.55, clearcoatRoughness: 0.18 };
+const LACQUERED_FINISH_PARAMS = { color: DIFFUSE_TINT, clearcoat: 0.45, clearcoatRoughness: 0.16 };
+const PROTECTIVE_METAL_COAT_PARAMS = { color: METAL_TINT, metallic: 1.0, roughness: 1.0, clearcoat: 0.35, clearcoatRoughness: 0.12 };
+const GLASS_PARAMS = { color: NEUTRAL_TINT, opacity: 0.35, alphaMode: "BLEND", clearcoat: 1.0, clearcoatRoughness: 0.02 };
 
 // Metals need explicit `metallic: 1.0, roughness: 1.0` SceneMaterial
 // factors. The shader multiplies the painted MR-texture sample by
@@ -62,26 +67,27 @@ const NEUTRAL_TINT = [1.0, 1.0, 1.0];
 // `metallic: 0.0`/`roughness: 0.6`, which would zero out the painted
 // metallic and dampen roughness. With both factors pinned at 1.0 the
 // MR texture drives the BRDF directly, so the metals actually look
-// metallic instead of plastic.
-const METAL_PARAMS = { color: METAL_TINT, metallic: 1.0, roughness: 1.0 };
+// metallic instead of plastic. The clearcoat factors below are scalar
+// material terms layered over those texture-driven base properties.
+const METAL_PARAMS = PROTECTIVE_METAL_COAT_PARAMS;
 
 const MATERIALS = [
   // Row 1 — masonry
-  { id: "brick",       label: "Brick",        paint: xeokit.model.generation.paintMaterials.paintBrick,     params: { color: DIFFUSE_TINT } },
-  { id: "concrete",    label: "Concrete",     paint: xeokit.model.generation.paintMaterials.paintConcrete,  params: { color: DIFFUSE_TINT } },
-  { id: "limestone",   label: "Limestone",    paint: xeokit.model.generation.paintMaterials.paintLimestone, params: { color: DIFFUSE_TINT } },
-  { id: "granite",     label: "Granite",      paint: xeokit.model.generation.paintMaterials.paintGranite,   params: { color: DIFFUSE_TINT } },
+  { id: "brick",       label: "Brick",        paint: xeokit.model.generation.paintMaterials.paintBrick,     params: SEALED_MASONRY_PARAMS },
+  { id: "concrete",    label: "Concrete",     paint: xeokit.model.generation.paintMaterials.paintConcrete,  params: SEALED_MASONRY_PARAMS },
+  { id: "limestone",   label: "Limestone",    paint: xeokit.model.generation.paintMaterials.paintLimestone, params: SEALED_MASONRY_PARAMS },
+  { id: "granite",     label: "Granite",      paint: xeokit.model.generation.paintMaterials.paintGranite,   params: POLISHED_STONE_PARAMS },
   // Row 2 — interior finish
-  { id: "marble",      label: "Marble",       paint: xeokit.model.generation.paintMaterials.paintMarble,    params: { color: DIFFUSE_TINT } },
-  { id: "oak",         label: "Oak",          paint: xeokit.model.generation.paintMaterials.paintOak,       params: { color: DIFFUSE_TINT } },
-  { id: "plaster",     label: "Plaster",      paint: xeokit.model.generation.paintMaterials.paintPlaster,   params: { color: DIFFUSE_TINT } },
-  { id: "asphalt",     label: "Asphalt",      paint: xeokit.model.generation.paintMaterials.paintAsphalt,   params: { color: DIFFUSE_TINT } },
+  { id: "marble",      label: "Marble",       paint: xeokit.model.generation.paintMaterials.paintMarble,    params: POLISHED_STONE_PARAMS },
+  { id: "oak",         label: "Oak",          paint: xeokit.model.generation.paintMaterials.paintOak,       params: LACQUERED_FINISH_PARAMS },
+  { id: "plaster",     label: "Plaster",      paint: xeokit.model.generation.paintMaterials.paintPlaster,   params: LACQUERED_FINISH_PARAMS },
+  { id: "asphalt",     label: "Asphalt",      paint: xeokit.model.generation.paintMaterials.paintAsphalt,   params: { color: DIFFUSE_TINT, clearcoat: 0.08, clearcoatRoughness: 0.55 } },
   // Row 3 — working metals + glass
   { id: "steel_pol",   label: "Steel pol.",   paint: xeokit.model.generation.paintMaterials.paintPolSteel,  params: METAL_PARAMS },
   { id: "steel_brush", label: "Steel brush.", paint: xeokit.model.generation.paintMaterials.paintBrushSteel,params: METAL_PARAMS },
   { id: "copper",      label: "Copper",       paint: xeokit.model.generation.paintMaterials.paintCopper,    params: METAL_PARAMS },
   { id: "glass",       label: "Glass",        paint: xeokit.model.generation.paintMaterials.paintGlass,
-    params: { color: NEUTRAL_TINT, opacity: 0.35, alphaMode: "BLEND" } },
+    params: GLASS_PARAMS },
   // Row 4 — mirror metals. Roughness pinned low so the IBL studio
   // environment reflects clearly on the spheres' curved surfaces;
   // each picks a different tint so you can see chromatic Fresnel

@@ -12,7 +12,7 @@
  *
  * A live readout per View shows FPS, frame time, and the culled-object
  * count — read from the renderer's render inspector and each View's
- * object set, the same numbers the `building_doublePrecision_archipelago`
+ * object set, the same numbers the `create/precision/geolocated-archipelago`
  * example surfaces.
  *
  * ## Lazy event setup

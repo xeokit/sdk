@@ -162,6 +162,7 @@ studio.init().then(async () => {
     });
     studio.viewProfiles?.setActiveProfile(null);
     disableExpensiveEffects(view);
+    configureBasicLighting(view);
 
     const sceneModel = must(scene.createModel({
       id: BUILDINGS_MODEL_ID,
@@ -345,6 +346,22 @@ function disableExpensiveEffects(view) {
       effects[effectId].enabled = false;
     }
   }
+}
+
+function configureBasicLighting(view) {
+  view.clearLights();
+  new xeokit.viewing.viewer.AmbientLight(view, {
+    id: "zurichAmbient",
+    color: [1.0, 1.0, 1.0],
+    intensity: 0.46
+  });
+  new xeokit.viewing.viewer.DirLight(view, {
+    id: "zurichSun",
+    dir: [-0.45, -0.35, -0.82],
+    color: [1.0, 0.97, 0.9],
+    intensity: 1.65,
+    space: "world"
+  });
 }
 
 function createStreamControllerGroup(controllers) {

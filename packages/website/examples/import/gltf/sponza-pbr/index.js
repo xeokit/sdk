@@ -57,6 +57,23 @@ studio.init().then(() => {
     }
   });
   view.effects.edges.enabled = false;
+  const viewRecord = studio.viewManager.views[view.id];
+  viewRecord.walkNavigationController = new xeokit.viewing.navigation.walk.WalkNavigationController(view, {
+    active: true,
+    suspendModelNavigationController: viewRecord.modelNavigation,
+    eyeHeight: 1.65,
+    bodyRadius: 0.32,
+    walkSpeed: 4.8,
+    runSpeed: 11.0,
+    movementAcceleration: 18.0,
+    movementDeceleration: 24.0,
+    stepHeight: 0.35,
+    maxFall: 1.0,
+    mouseLookDegreesPerPixel: 0.09,
+    keyboardLookDegreesPerSecond: 72,
+    maxPitchDegrees: 80,
+    keyboardEnabledOnlyOnMouseover: false
+  });
   const profiles = studio.viewProfiles;
   const profileResult = profiles.fromParams({
     profiles: DEFAULT_VIEW_PROFILES,

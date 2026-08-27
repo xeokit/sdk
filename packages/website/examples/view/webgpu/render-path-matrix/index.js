@@ -43,6 +43,8 @@ const DEFAULT_CONFIG = {
   normalTexture: false,
   occlusionTexture: true,
   metallicRoughnessTexture: true,
+  clearcoat: false,
+  sheen: false,
   ambientLight: true,
   directionalLight: false,
   hemisphereLight: false,
@@ -68,6 +70,8 @@ const BOOLEAN_FIELDS = [
   "normalTexture",
   "occlusionTexture",
   "metallicRoughnessTexture",
+  "clearcoat",
+  "sheen",
   "ambientLight",
   "directionalLight",
   "hemisphereLight",
@@ -102,7 +106,9 @@ const MODEL_CONFIG_FIELDS = [
   "colorTexture",
   "normalTexture",
   "occlusionTexture",
-  "metallicRoughnessTexture"
+  "metallicRoughnessTexture",
+  "clearcoat",
+  "sheen"
 ];
 
 let config = parseConfig();
@@ -425,6 +431,8 @@ function parseConfig() {
     cfg.normalTexture = false;
     cfg.occlusionTexture = false;
     cfg.metallicRoughnessTexture = false;
+    cfg.clearcoat = false;
+    cfg.sheen = false;
   }
 
   return cfg;
@@ -547,6 +555,14 @@ function createDiagnosticMaterials(sceneModel, cfg) {
   }
   if (cfg.metallicRoughnessTexture) {
     materialParams.metallicRoughnessTextureId = textureId("mr");
+  }
+  if (cfg.clearcoat) {
+    materialParams.clearcoat = 1.0;
+    materialParams.clearcoatRoughness = cfg.material === "gripPlate" ? 0.06 : 0.14;
+  }
+  if (cfg.sheen) {
+    materialParams.sheen = cfg.material === "gripPlate" ? 0.35 : 0.75;
+    materialParams.sheenRoughness = cfg.material === "rust" ? 0.82 : 0.5;
   }
   if (cfg.triplanar) {
     materialParams.triplanarScale = TRIPLANAR_TILE_SCALE;
@@ -766,6 +782,8 @@ function writePanel(cfg) {
       ${toggleRow(cfg, "Normal texture", "normalTexture", cfg.normalTexture)}
       ${toggleRow(cfg, "Occlusion texture", "occlusionTexture", cfg.occlusionTexture)}
       ${toggleRow(cfg, "Metal/rough texture", "metallicRoughnessTexture", cfg.metallicRoughnessTexture)}
+      ${toggleRow(cfg, "Clear coat", "clearcoat", cfg.clearcoat)}
+      ${toggleRow(cfg, "Sheen", "sheen", cfg.sheen)}
       ${toggleRow(cfg, "Ambient light", "ambientLight", cfg.ambientLight)}
       ${toggleRow(cfg, "Directional light", "directionalLight", cfg.directionalLight)}
       ${toggleRow(cfg, "Hemisphere light", "hemisphereLight", cfg.hemisphereLight)}
@@ -791,6 +809,8 @@ function writeCaptureSummary(cfg) {
     return;
   }
   const enabledEffects = [
+    "clearcoat",
+    "sheen",
     "ambientLight",
     "directionalLight",
     "hemisphereLight",

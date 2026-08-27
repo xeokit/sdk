@@ -54,4 +54,4 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
   }
 };
 
-import("../import/xgf/procedural-city/index.js");
+import("../procedural-city/index.js");

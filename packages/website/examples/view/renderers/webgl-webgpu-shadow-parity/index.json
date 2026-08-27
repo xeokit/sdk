@@ -1,0 +1,34 @@
+{
+  "id": "view/renderers/webgl-webgpu-shadow-parity",
+  "title": "WebGL + WebGPU - Shadow Parity",
+  "description": "Runs WebGL and WebGPU viewers against one procedural shadow diagnostic scene with opaque, thin, normal-mapped, alpha-masked, and translucent BLEND casters.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "Shadows",
+    "WebGL",
+    "WebGPU"
+  ],
+  "visualAudit": {
+    "enabled": true,
+    "selectors": [
+      "#webglViewport",
+      "#webgpuViewport"
+    ],
+    "minUniqueBuckets": 12,
+    "minNonBackgroundRatio": 0.04,
+    "maskSelectors": [
+      "#shadowBar",
+      "#rendererLabels",
+      ".label",
+      ".status"
+    ],
+    "comparePairs": [
+      {
+        "a": "#webglViewport",
+        "b": "#webgpuViewport"
+      }
+    ]
+  }
+}

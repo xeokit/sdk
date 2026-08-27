@@ -21,7 +21,7 @@ const {TrianglesPrimitive} = sdkRequire("base/constants");
 const {Scene} = sdkRequire("model/scene/Scene");
 const {XGFStreamingExporter} = sdkRequire("formats/xgfstream/XGFStreamingExporter");
 
-const OUT_DIR = path.resolve(__dirname, "..", "..", "..", "examples/formats_xgf_streaming_chunks/chunks");
+const OUT_DIR = path.resolve(__dirname, "..", "..", "..", "examples/streaming/xgf/chunks/chunks");
 
 main().catch((error) => {
   console.error(error);

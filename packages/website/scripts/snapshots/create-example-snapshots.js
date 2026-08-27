@@ -17,6 +17,9 @@
 //   --workers <n>      Number of parallel pages (default 4). Each worker
 //                      processes a slice of the queue with its own page +
 //                      error bin; the headless browser is shared.
+//   --headful          Run Chrome visibly. Useful for WebGPU examples on
+//                      systems where headless WebGPU loses the device.
+//   --chrome <path>    Chrome executable path.
 //   -h, --help         Print this message.
 //
 // Per-example tuning:
@@ -39,15 +42,37 @@ const DEFAULT_WORKERS = 4;
 
 const examplesDir = path.join(__dirname, "..", "..", "examples");
 
+function getDefaultChromePath() {
+  const candidates = [
+    process.env.CHROME_BIN,
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser"
+  ];
+  return candidates.find((candidate) => candidate && fs.existsSync(candidate)) || null;
+}
 
 // ─── CLI parsing ─────────────────────────────────────────────
 
 function parseArgs(argv) {
-  const args = { filter: null, onlyStale: false, workers: DEFAULT_WORKERS };
+  const args = {
+    filter: null,
+    onlyStale: false,
+    workers: DEFAULT_WORKERS,
+    headless: true,
+    chromePath: getDefaultChromePath()
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--filter" || a === "-f") {
       args.filter = argv[++i] || null;
+    } else if (a === "--chrome" || a === "--chrome-path") {
+      args.chromePath = argv[++i] || null;
+    } else if (a === "--headful" || a === "--no-headless") {
+      args.headless = false;
+    } else if (a === "--headless") {
+      args.headless = true;
     } else if (a === "--only-stale" || a === "--incremental") {
       args.onlyStale = true;
     } else if (a === "--workers" || a === "-w") {
@@ -76,6 +101,11 @@ Options:
   --only-stale      Process only examples whose index.png is missing or older
                     than index.js / index.html / index.json.
   --workers <n>     Number of parallel pages (default ${DEFAULT_WORKERS}).
+  --headful         Run Chrome visibly instead of headless.
+                    Use this for WebGPU comparison examples when headless
+                    Chrome loses the WebGPU device or captures black canvases.
+  --chrome <path>   Chrome executable path (default CHROME_BIN,
+                    PUPPETEER_EXECUTABLE_PATH, or system Chrome).
   -h, --help        Print this message.
 
 Per-example tuning: set "snapshotTimeoutMs" in index.json to override the
@@ -154,7 +184,7 @@ function raceWithTimeout(promise, ms, fallback) {
  * record the post-`#ExampleLoaded` render even when no JSON is
  * forthcoming.
  */
-async function captureExample(page, dir, timeoutMs) {
+async function captureExample(page, dir, timeoutMs, meta) {
   await page.waitForFunction(
     () => {
       if (!document.querySelector("#ExampleLoaded")) return false;
@@ -182,6 +212,14 @@ async function captureExample(page, dir, timeoutMs) {
     fullPage: true,
   });
 
+  const visualErrors = await validateSnapshotVisualTargets(page, meta.visualAudit);
+  if (visualErrors.length > 0) {
+    throw new Error([
+      `Snapshot visual audit failed: ${visualErrors.join("; ")}`,
+      "If this is a WebGPU comparison example in Chrome headless, rerun with --headful."
+    ].join(" "));
+  }
+
   const visualTestJson = await raceWithTimeout(
     page.evaluate(() => new Promise(resolve => {
       function handler(event) {
@@ -205,6 +243,137 @@ async function captureExample(page, dir, timeoutMs) {
   }
 
   return { jsonCaptured: visualTestJson !== null };
+}
+
+async function validateSnapshotVisualTargets(page, rawConfig) {
+  const config = normalizeSnapshotVisualAuditConfig(rawConfig);
+  if (!config.enabled) {
+    return [];
+  }
+
+  const errors = [];
+  for (const selector of config.selectors) {
+    const stats = await analyzeSnapshotTarget(page, selector, config);
+    if (!stats) {
+      errors.push(`${selector} not found or not visible`);
+      continue;
+    }
+    if (stats.uniqueBuckets < config.minUniqueBuckets || stats.nonDominantRatio < config.minNonBackgroundRatio) {
+      errors.push(
+        `${selector} flat render unique=${stats.uniqueBuckets}, nonDominant=${(stats.nonDominantRatio * 100).toFixed(1)}%, lumaRange=${stats.lumaRange.toFixed(1)}`
+      );
+    }
+  }
+  return errors;
+}
+
+function normalizeSnapshotVisualAuditConfig(rawConfig) {
+  const config = rawConfig && typeof rawConfig === "object" ? rawConfig : {};
+  return {
+    enabled: config.enabled === true,
+    selectors: Array.isArray(config.selectors) && config.selectors.length > 0 ? config.selectors : [],
+    minUniqueBuckets: numberOr(config.minUniqueBuckets, 8),
+    minNonBackgroundRatio: numberOr(config.minNonBackgroundRatio, 0.02),
+    sampleWidth: numberOr(config.sampleWidth, 160),
+    sampleHeight: numberOr(config.sampleHeight, 90),
+    maskSelectors: Array.isArray(config.maskSelectors) ? config.maskSelectors.filter((selector) => typeof selector === "string" && selector) : []
+  };
+}
+
+function numberOr(value, fallback) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+async function analyzeSnapshotTarget(page, selector, config) {
+  const clip = await page.evaluate((selector) => {
+    const element = document.querySelector(selector);
+    if (!element) {
+      return null;
+    }
+    const rect = element.getBoundingClientRect();
+    if (rect.width < 1 || rect.height < 1) {
+      return null;
+    }
+    return {
+      x: Math.max(0, rect.left),
+      y: Math.max(0, rect.top),
+      width: Math.max(1, rect.width),
+      height: Math.max(1, rect.height)
+    };
+  }, selector);
+  if (!clip) {
+    return null;
+  }
+  const base64 = await screenshotSnapshotTarget(page, clip, config.maskSelectors);
+  const {sampleWidth, sampleHeight} = config;
+  return page.evaluate(({base64, sampleWidth, sampleHeight}) => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = sampleWidth;
+      canvas.height = sampleHeight;
+      const ctx = canvas.getContext("2d", {willReadFrequently: true});
+      if (!ctx) {
+        resolve(null);
+        return;
+      }
+      ctx.drawImage(image, 0, 0, sampleWidth, sampleHeight);
+      const data = ctx.getImageData(0, 0, sampleWidth, sampleHeight).data;
+      const buckets = new Map();
+      let minLuma = 255;
+      let maxLuma = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        const bucket = `${r >> 4},${g >> 4},${b >> 4}`;
+        buckets.set(bucket, (buckets.get(bucket) || 0) + 1);
+        minLuma = Math.min(minLuma, luma);
+        maxLuma = Math.max(maxLuma, luma);
+      }
+      let dominantCount = 0;
+      for (const count of buckets.values()) {
+        dominantCount = Math.max(dominantCount, count);
+      }
+      const total = data.length / 4;
+      resolve({
+        uniqueBuckets: buckets.size,
+        nonDominantRatio: 1 - dominantCount / total,
+        lumaRange: maxLuma - minLuma
+      });
+    };
+    image.onerror = () => reject(new Error("Unable to decode snapshot visual target"));
+    image.src = `data:image/png;base64,${base64}`;
+  }), {base64, sampleWidth, sampleHeight});
+}
+
+async function screenshotSnapshotTarget(page, clip, maskSelectors) {
+  if (!maskSelectors.length) {
+    return page.screenshot({encoding: "base64", clip});
+  }
+  await page.evaluate((selectors) => {
+    const token = `snapshot-mask-${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+    for (const selector of selectors) {
+      for (const element of document.querySelectorAll(selector)) {
+        element.setAttribute("data-snapshot-mask-token", token);
+        element.setAttribute("data-snapshot-mask-visibility", element.style.visibility || "");
+        element.style.visibility = "hidden";
+      }
+    }
+  }, maskSelectors);
+  try {
+    return await page.screenshot({encoding: "base64", clip});
+  } finally {
+    await page.evaluate(() => {
+      for (const element of document.querySelectorAll("[data-snapshot-mask-token]")) {
+        const visibility = element.getAttribute("data-snapshot-mask-visibility") || "";
+        element.style.visibility = visibility;
+        element.removeAttribute("data-snapshot-mask-token");
+        element.removeAttribute("data-snapshot-mask-visibility");
+      }
+    });
+  }
 }
 
 
@@ -248,8 +417,15 @@ async function captureSnapshots(args) {
   const server = httpServer.createServer({
     root: path.join(__dirname, "..", ".."),
   });
-  await new Promise(resolve => server.listen(PORT, resolve));
-  console.log(`Server running at http://localhost:${PORT}`);
+  await new Promise((resolve, reject) => {
+    server.server.once("error", reject);
+    server.listen(PORT, "127.0.0.1", () => {
+      server.server.off("error", reject);
+      resolve();
+    });
+  });
+  console.log(`Server running at http://127.0.0.1:${PORT}`);
+  console.log(`Using Chrome: ${args.chromePath || "Puppeteer default"} (${args.headless ? "headless" : "headful"})`);
 
   let browser;
   const captured = [];
@@ -257,7 +433,8 @@ async function captureSnapshots(args) {
 
   try {
     browser = await puppeteer.launch({
-      headless: true,
+      headless: args.headless,
+      executablePath: args.chromePath || undefined,
       protocolTimeout: Math.max(DEFAULT_TIMEOUT_MS, ...eligible.map(({meta}) => meta.snapshotTimeoutMs || 0)) + 30000,
       // `--enable-unsafe-swiftshader` lets headless Chromium fall
       // back to software WebGL when no GPU is available — without
@@ -268,7 +445,7 @@ async function captureSnapshots(args) {
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--enable-unsafe-swiftshader",
-        "--enable-features=Vulkan",
+        "--enable-features=Vulkan,UseSkiaRenderer",
         "--enable-unsafe-webgpu",
         "--ignore-gpu-blocklist",
       ],
@@ -302,14 +479,14 @@ async function captureSnapshots(args) {
           const job = queue.shift();
           if (!job) break;
           const { id, dir, meta } = job;
-          const url = `http://localhost:${PORT}/examples/${id}/index.html`;
+          const url = `http://127.0.0.1:${PORT}/examples/${id}/index.html`;
           const timeoutMs = (typeof meta.snapshotTimeoutMs === "number" && Number.isFinite(meta.snapshotTimeoutMs))
               ? meta.snapshotTimeoutMs
               : DEFAULT_TIMEOUT_MS;
           pageErrors = [];
           try {
             await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs });
-            const result = await captureExample(page, dir, timeoutMs);
+            const result = await captureExample(page, dir, timeoutMs, meta);
             captured.push({ id, jsonCaptured: result.jsonCaptured });
             console.log(`  ✓ ${id}${result.jsonCaptured ? " (+json)" : ""}`);
           } catch (e) {

@@ -12,23 +12,34 @@
         "examples:dev": "pnpm --filter @xeokit/examples dev",
         "examples:build": "pnpm --filter @xeokit/examples build",
         "examples:preview": "pnpm --filter @xeokit/examples preview",
+        "build": "pnpm build-earth:compile && pnpm build-earth-viewer",
+        "build-earth:compile": "pnpm --filter @xeokit/website build-earth:compile",
+        "build-earth": "pnpm --filter @xeokit/website build-earth",
+        "build-earth-viewer": "pnpm --filter @xeokit/website build-earth-viewer",
         "lint": "eslint --cache .",
         "lint:fix": "eslint --fix .",
         "sdk-dist": "pnpm --filter @xeokit/sdk sdk-dist",
         "__sdk-test": "pnpm --filter @xeokit/sdk sdk-test || node scripts/test-html-report/index.mjs",
         "sdk-test:report": "pnpm --filter @xeokit/sdk sdk-test; status=$?; node scripts/test-html-report/index.mjs; exit $status",
+        "sdk-test:browser": "pnpm --filter @xeokit/sdk sdk-test:browser",
+        "sdk-test:browser:page": "node packages/website/scripts/browser-tests/serve-sdk-browser-tests.js",
         "sdk-publish": "pnpm --filter @xeokit/sdk sdk-publish",
-        "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && pnpm --filter @xeokit/sdk website-sdk-docs && (cd packages/sdk && typedoc --entryPointStrategy merge \"../website/docs/json/*.json\" --tsconfig ../../tsconfig.typedoc.json --out ../website/docs/api)",
+        "website-sdk-docs": "pnpm --filter @xeokit/website website-sdk-docs",
         "website-build-xeokit-lib": "pnpm --filter @xeokit/website website-build-xeokit-lib",
+        "website-build-example-libs": "pnpm --filter @xeokit/website website-build-example-libs",
+        "website-build-model-index": "pnpm --filter @xeokit/website website-build-model-index",
         "website-convert-models": "pnpm website-build-xeokit-lib && pnpm --filter @xeokit/website website-convert-models",
+        "website-convert-models-to-xgf": "pnpm website-build-xeokit-lib && pnpm --filter @xeokit/website website-convert-models-to-xgf",
         "website-example-snapshots": "pnpm --filter @xeokit/website website-example-snapshots",
+        "website-audit-examples-console": "pnpm --filter @xeokit/website website-audit-examples-console",
+        "website-sweep-material-parity": "pnpm --filter @xeokit/website website-sweep-material-parity",
         "website-build": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build && pnpm website-example-snapshots",
         "website-build-local": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local && pnpm website-example-snapshots",
-        "website-build-local-nosnapshots": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local"
+        "website-build-local-nosnapshots": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local",
+        "city": "pnpm --filter @xeokit/website city --"
     },
     "devDependencies": {
         "@boneskull/typedoc-plugin-mermaid": "^0.1.0",
-        "typedoc-plugin-mermaid": "^1.12.0",
         "@changesets/cli": "^2.27.1",
         "@kayahr/jest-electron-runner": "^29.11.0",
         "@types/command-exists": "1.2.0",
@@ -56,13 +67,17 @@
         "ts-loader": "^9.4.2",
         "ts-node": "10.9.1",
         "typedoc": "^0.27.6",
+        "typedoc-plugin-mermaid": "^1.12.0",
         "typescript": "^5.7.2"
-    },
-    "optionalDependencies": {
-
     },
     "packageManager": "pnpm@8.7.6",
     "dependencies": {
+        "@types/adm-zip": "^0.5.8",
+        "adm-zip": "^0.6.0",
+        "commander": "^11.0.0",
+        "earcut": "^3.2.3",
+        "polygon-clipping": "^0.15.7",
+        "shapefile": "^0.6.6",
         "sharp": "^0.33.5"
     }
 }

@@ -27,6 +27,7 @@
         "website-model-catalog-snapshots": "node scripts/snapshots/create-model-catalog-snapshots.js",
         "website-webgpu-render-path-gallery": "node scripts/snapshots/create-webgpu-render-path-gallery.js",
         "website-audit-examples-console": "node scripts/browser-tests/audit-examples-console.js",
+        "website-sweep-material-parity": "node scripts/browser-tests/sweep-material-parity.js",
         "website-build": "pnpm website-build-page-scripts && pnpm website-build-example-index && pnpm website-build-example-libs && rm -Rf ./libs/@xeokit/sdk && mkdir -p ./libs/@xeokit/sdk && cp -Rf ../sdk/dist ./libs/@xeokit/sdk && pnpm website-build-site-pages",
         "website-build-local": "pnpm website-build-page-scripts && pnpm website-build-example-index && pnpm website-build-example-libs && rm -Rf ./libs/@xeokit/sdk && mkdir -p ./libs/@xeokit/sdk && cp -Rf ../sdk/dist ./libs/@xeokit/sdk && pnpm website-build-site-pages --local"
     },

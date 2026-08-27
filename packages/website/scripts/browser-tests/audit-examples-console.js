@@ -18,6 +18,7 @@ const IGNORED_BROWSER_ERROR_RULES = [
   {
     id: "system-chrome-headless-webgpu-device-lost",
     match: "[WebGPURenderer] [WebGPURenderer.deviceLost] WebGPU device was lost. A valid external Instance reference no longer exists.",
+    headlessOnly: true,
     note: "Known system Chrome headless WebGPU environment failure. Do not chase this as an SDK/example regression unless it reproduces outside the audit harness."
   }
 ];
@@ -40,6 +41,8 @@ function parseArgs(argv) {
     query: "",
     headless: true,
     includeWarnings: false,
+    visualAudit: false,
+    visualOutputDir: null,
     failOnErrors: true,
     waitForExampleLoaded: true,
     workers: DEFAULT_WORKERS,
@@ -73,6 +76,10 @@ function parseArgs(argv) {
       args.output = path.resolve(argv[++i] || args.output);
     } else if (arg === "--include-warnings") {
       args.includeWarnings = true;
+    } else if (arg === "--visual-audit") {
+      args.visualAudit = true;
+    } else if (arg === "--visual-output" || arg === "--visual-output-dir") {
+      args.visualOutputDir = path.resolve(argv[++i] || "");
     } else if (arg === "--no-fail-on-errors") {
       args.failOnErrors = false;
     } else if (arg === "--no-wait-for-example-loaded") {
@@ -132,6 +139,8 @@ Options:
   --headful                   Run Chrome visibly instead of headless.
   --output <path>             JSON output path (default packages/website/reports/example-console-audit.json).
   --include-warnings          Include console.warn messages in the report.
+  --visual-audit              Capture configured canvases/elements and flag blank or nearly flat renders.
+  --visual-output <dir>       Directory for visual audit PNG artifacts.
   --no-fail-on-errors         Always exit 0 after writing the report.
   --no-wait-for-example-loaded Do not wait for #ExampleLoaded.
   -h, --help                  Print this message.`);
@@ -170,13 +179,21 @@ function pushIssue(issues, type, text, extra = {}) {
   });
 }
 
-function getIgnoredBrowserErrorRule(text) {
+function getIgnoredBrowserErrorRule(text, context = {}) {
   const value = String(text || "");
-  return IGNORED_BROWSER_ERROR_RULES.find((rule) => value.includes(rule.match)) || null;
+  return IGNORED_BROWSER_ERROR_RULES.find((rule) => {
+    if (!value.includes(rule.match)) {
+      return false;
+    }
+    if (rule.headlessOnly && context.headless === false) {
+      return false;
+    }
+    return true;
+  }) || null;
 }
 
-function pushBrowserIssue(report, type, text, extra = {}) {
-  const rule = getIgnoredBrowserErrorRule(text);
+function pushBrowserIssue(report, type, text, extra = {}, context = {}) {
+  const rule = getIgnoredBrowserErrorRule(text, context);
   if (rule) {
     pushIssue(report.ignoredErrors, type, text, {
       ...extra,
@@ -281,7 +298,9 @@ function createExampleReport(job, url, startedAt) {
     ignoredErrors: [],
     auditErrors: [],
     warnings: [],
-    requests: []
+    requests: [],
+    visualAudits: [],
+    visualComparisons: []
   };
 }
 
@@ -315,7 +334,7 @@ async function auditExample(page, job, baseUrl, args) {
       if (type === "error") {
         pushBrowserIssue(report, "console.error", text, {
           location
-        });
+        }, {headless: args.headless});
       } else if (args.includeWarnings && type === "warning") {
         pushIssue(report.warnings, "console.warn", text, {
           location
@@ -324,7 +343,7 @@ async function auditExample(page, job, baseUrl, args) {
     })());
   };
   const onPageError = (error) => {
-    pushBrowserIssue(report, "pageerror", error.stack || error.message || String(error));
+    pushBrowserIssue(report, "pageerror", error.stack || error.message || String(error), {}, {headless: args.headless});
   };
   const onRequestFailed = (request) => {
     if (shouldIgnoreResource(request.url())) return;
@@ -339,7 +358,7 @@ async function auditExample(page, job, baseUrl, args) {
     pushBrowserIssue(report, "requestfailed", `${item.method} ${item.url}: ${item.errorText}`, {
       url: item.url,
       method: item.method
-    });
+    }, {headless: args.headless});
   };
   const onResponse = (response) => {
     const status = response.status();
@@ -358,7 +377,7 @@ async function auditExample(page, job, baseUrl, args) {
       url: item.url,
       method: item.method,
       status
-    });
+    }, {headless: args.headless});
   };
 
   page.on("console", onConsole);
@@ -369,6 +388,9 @@ async function auditExample(page, job, baseUrl, args) {
   try {
     await page.goto(url, {waitUntil: "domcontentloaded", timeout: timeoutMs});
     await waitForReadiness(page, args, job.meta);
+    if (args.visualAudit) {
+      await captureVisualAudits(page, job, args, report);
+    }
   } catch (error) {
     pushIssue(report.auditErrors, "audit", error.stack || error.message || String(error));
   } finally {
@@ -383,6 +405,368 @@ async function auditExample(page, job, baseUrl, args) {
   report.durationMs = Date.now() - started;
   report.ok = report.errors.length === 0 && report.auditErrors.length === 0;
   return report;
+}
+
+async function captureVisualAudits(page, job, args, report) {
+  const config = normalizeVisualAuditConfig(job.meta.visualAudit);
+  if (!config.enabled) return;
+  if (args.visualOutputDir) {
+    fs.mkdirSync(args.visualOutputDir, {recursive: true});
+  }
+  const screenshotsBySelector = new Map();
+
+  for (const selector of config.selectors) {
+    const element = await page.$(selector);
+    if (!element) {
+      pushIssue(report.auditErrors, "visual", `Visual audit target not found: ${selector}`);
+      continue;
+    }
+    const box = await element.boundingBox();
+    if (!box || box.width < 1 || box.height < 1) {
+      pushIssue(report.auditErrors, "visual", `Visual audit target has no measurable area: ${selector}`);
+      continue;
+    }
+
+    const clip = {
+      x: Math.max(0, Math.floor(box.x)),
+      y: Math.max(0, Math.floor(box.y)),
+      width: Math.max(1, Math.floor(box.width)),
+      height: Math.max(1, Math.floor(box.height))
+    };
+    const capture = await captureVisualTarget(page, selector, clip, config);
+    const base64 = capture.base64;
+    screenshotsBySelector.set(selector, base64);
+    const artifactPath = args.visualOutputDir
+      ? path.join(args.visualOutputDir, `${sanitizeArtifactName(job.id)}-${sanitizeArtifactName(selector)}.png`)
+      : "";
+    if (artifactPath) {
+      fs.writeFileSync(artifactPath, Buffer.from(base64, "base64"));
+    }
+    const stats = await analyzeScreenshotInPage(page, base64, config.sampleWidth, config.sampleHeight);
+    const item = {selector, rect: clip, artifactPath, captureSource: capture.source, ...stats};
+    const ignoreVisualFailure = shouldIgnoreVisualFailure(report, selector);
+    if (ignoreVisualFailure) {
+      item.ignored = true;
+      item.note = ignoreVisualFailure;
+    }
+    report.visualAudits.push(item);
+
+    if (item.uniqueBuckets < config.minUniqueBuckets) {
+      if (!ignoreVisualFailure) {
+        pushIssue(report.auditErrors, "visual", `${selector} appears visually flat: ${item.uniqueBuckets} color buckets`, item);
+      }
+    }
+    if (item.nonDominantRatio < config.minNonBackgroundRatio) {
+      if (!ignoreVisualFailure) {
+        pushIssue(report.auditErrors, "visual", `${selector} appears blank or nearly blank: ${(item.nonDominantRatio * 100).toFixed(1)}% non-dominant pixels`, item);
+      }
+    }
+  }
+
+  for (const pair of config.comparePairs) {
+    const a = report.visualAudits.find((item) => item.selector === pair.a);
+    const b = report.visualAudits.find((item) => item.selector === pair.b);
+    const aBase64 = screenshotsBySelector.get(pair.a);
+    const bBase64 = screenshotsBySelector.get(pair.b);
+    if (!a || !b || !aBase64 || !bBase64) {
+      pushIssue(report.auditErrors, "visual", `Visual comparison target missing: ${pair.a} vs ${pair.b}`);
+      continue;
+    }
+    const comparison = {
+      a: pair.a,
+      b: pair.b,
+      ignored: !!(a.ignored || b.ignored),
+      ...await compareScreenshotsInPage(page, aBase64, bBase64, config.sampleWidth, config.sampleHeight)
+    };
+    if (args.visualOutputDir) {
+      const artifactBaseName = `${sanitizeArtifactName(job.id)}-${sanitizeArtifactName(pair.a)}-vs-${sanitizeArtifactName(pair.b)}`;
+      const artifactBase64 = await createComparisonArtifactsInPage(page, aBase64, bBase64, config.diffAmplification);
+      const sideBySideArtifactPath = path.join(args.visualOutputDir, `${artifactBaseName}-side-by-side.png`);
+      const deltaArtifactPath = path.join(args.visualOutputDir, `${artifactBaseName}-delta.png`);
+      fs.writeFileSync(sideBySideArtifactPath, Buffer.from(artifactBase64.sideBySide, "base64"));
+      fs.writeFileSync(deltaArtifactPath, Buffer.from(artifactBase64.delta, "base64"));
+      comparison.sideBySideArtifactPath = sideBySideArtifactPath;
+      comparison.deltaArtifactPath = deltaArtifactPath;
+      comparison.artifactWidth = artifactBase64.width;
+      comparison.artifactHeight = artifactBase64.height;
+      comparison.diffAmplification = artifactBase64.diffAmplification;
+    }
+    if (comparison.ignored) {
+      comparison.note = "One or both visual comparison targets are ignored.";
+    }
+    report.visualComparisons.push(comparison);
+    if (!comparison.ignored) {
+      if (typeof pair.maxMeanLumaDelta === "number" && comparison.meanLumaDelta > pair.maxMeanLumaDelta) {
+        pushIssue(report.auditErrors, "visual", `${pair.a} vs ${pair.b} mean luma delta ${comparison.meanLumaDelta.toFixed(1)} exceeds ${pair.maxMeanLumaDelta}`, comparison);
+      }
+      if (typeof pair.maxMeanRGBDelta === "number" && comparison.meanRGBDelta > pair.maxMeanRGBDelta) {
+        pushIssue(report.auditErrors, "visual", `${pair.a} vs ${pair.b} mean RGB delta ${comparison.meanRGBDelta.toFixed(1)} exceeds ${pair.maxMeanRGBDelta}`, comparison);
+      }
+      if (typeof pair.maxRmsLumaDelta === "number" && comparison.rmsLumaDelta > pair.maxRmsLumaDelta) {
+        pushIssue(report.auditErrors, "visual", `${pair.a} vs ${pair.b} RMS luma delta ${comparison.rmsLumaDelta.toFixed(1)} exceeds ${pair.maxRmsLumaDelta}`, comparison);
+      }
+    }
+  }
+}
+
+function shouldIgnoreVisualFailure(report, selector) {
+  const selectorText = String(selector || "").toLowerCase();
+  if (!selectorText.includes("webgpu") && !selectorText.includes("canvas")) {
+    return "";
+  }
+  const hasKnownHeadlessDeviceLoss = report.ignoredErrors.some((error) => {
+    return error.ignoreRuleId === "system-chrome-headless-webgpu-device-lost";
+  });
+  return hasKnownHeadlessDeviceLoss
+    ? "Known system Chrome headless WebGPU device loss also invalidates the captured WebGPU canvas. Do not chase this visual result unless it reproduces outside the audit harness."
+    : "";
+}
+
+function normalizeVisualAuditConfig(raw) {
+  const cfg = raw && typeof raw === "object" ? raw : {};
+  return {
+    enabled: cfg.enabled !== false,
+    selectors: Array.isArray(cfg.selectors) && cfg.selectors.length > 0 ? cfg.selectors : ["canvas"],
+    minUniqueBuckets: numberOr(cfg.minUniqueBuckets, 8),
+    minNonBackgroundRatio: numberOr(cfg.minNonBackgroundRatio, 0.02),
+    sampleWidth: numberOr(cfg.sampleWidth, 160),
+    sampleHeight: numberOr(cfg.sampleHeight, 90),
+    diffAmplification: numberOr(cfg.diffAmplification, 4),
+    preferCanvasCapture: cfg.preferCanvasCapture === true,
+    maskSelectors: Array.isArray(cfg.maskSelectors) ? cfg.maskSelectors.filter((selector) => typeof selector === "string" && selector) : [],
+    comparePairs: Array.isArray(cfg.comparePairs) ? cfg.comparePairs.filter((pair) => pair && pair.a && pair.b) : []
+  };
+}
+
+function numberOr(value, fallback) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function sanitizeArtifactName(value) {
+  return String(value || "item")
+    .replace(/^[#.]+/, "")
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120) || "item";
+}
+
+async function captureVisualTarget(page, selector, clip, config) {
+  if (config.preferCanvasCapture) {
+    const canvasCapture = await captureCanvasVisualTarget(page, selector);
+    if (canvasCapture) {
+      return canvasCapture;
+    }
+  }
+  return {
+    base64: await screenshotWithHiddenSelectors(page, clip, config.maskSelectors),
+    source: config.maskSelectors.length > 0 ? "screenshot-masked" : "screenshot"
+  };
+}
+
+async function screenshotWithHiddenSelectors(page, clip, maskSelectors) {
+  if (!maskSelectors.length) {
+    return page.screenshot({encoding: "base64", clip});
+  }
+  await page.evaluate((selectors) => {
+    const now = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+    let next = 0;
+    for (const selector of selectors) {
+      for (const element of document.querySelectorAll(selector)) {
+        const token = `visual-audit-mask-${now}-${next++}`;
+        element.setAttribute("data-visual-audit-mask-token", token);
+        element.setAttribute("data-visual-audit-mask-visibility", element.style.visibility || "");
+        element.style.visibility = "hidden";
+      }
+    }
+  }, maskSelectors);
+  try {
+    return await page.screenshot({encoding: "base64", clip});
+  } finally {
+    await page.evaluate(() => {
+      for (const element of document.querySelectorAll("[data-visual-audit-mask-token]")) {
+        const visibility = element.getAttribute("data-visual-audit-mask-visibility") || "";
+        element.style.visibility = visibility;
+        element.removeAttribute("data-visual-audit-mask-token");
+        element.removeAttribute("data-visual-audit-mask-visibility");
+      }
+    });
+  }
+}
+
+async function captureCanvasVisualTarget(page, selector) {
+  const canvasBase64 = await page.evaluate((selector) => {
+    const element = document.querySelector(selector);
+    if (!(element instanceof HTMLCanvasElement)) {
+      return "";
+    }
+    if (element.width < 1 || element.height < 1) {
+      return "";
+    }
+    try {
+      return element.toDataURL("image/png").replace(/^data:image\/png;base64,/, "");
+    } catch (_e) {
+      return "";
+    }
+  }, selector);
+  if (canvasBase64) {
+    return {
+      base64: canvasBase64,
+      source: "canvas"
+    };
+  }
+  return null;
+}
+
+async function analyzeScreenshotInPage(page, base64, sampleWidth, sampleHeight) {
+  return page.evaluate(({base64, sampleWidth, sampleHeight}) => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = sampleWidth;
+      canvas.height = sampleHeight;
+      const ctx = canvas.getContext("2d", {willReadFrequently: true});
+      ctx.drawImage(image, 0, 0, sampleWidth, sampleHeight);
+      const data = ctx.getImageData(0, 0, sampleWidth, sampleHeight).data;
+      const buckets = new Map();
+      let sumLuma = 0;
+      let minLuma = 255;
+      let maxLuma = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        const bucket = `${r >> 4},${g >> 4},${b >> 4}`;
+        buckets.set(bucket, (buckets.get(bucket) || 0) + 1);
+        sumLuma += luma;
+        minLuma = Math.min(minLuma, luma);
+        maxLuma = Math.max(maxLuma, luma);
+      }
+      const total = data.length / 4;
+      let dominantCount = 0;
+      for (const count of buckets.values()) {
+        dominantCount = Math.max(dominantCount, count);
+      }
+      resolve({
+        meanLuma: sumLuma / total,
+        minLuma,
+        maxLuma,
+        lumaRange: maxLuma - minLuma,
+        uniqueBuckets: buckets.size,
+        dominantRatio: dominantCount / total,
+        nonDominantRatio: 1 - dominantCount / total
+      });
+    };
+    image.onerror = () => reject(new Error("Unable to decode visual audit screenshot"));
+    image.src = `data:image/png;base64,${base64}`;
+  }), {base64, sampleWidth, sampleHeight});
+}
+
+async function compareScreenshotsInPage(page, aBase64, bBase64, sampleWidth, sampleHeight) {
+  return page.evaluate(({aBase64, bBase64, sampleWidth, sampleHeight}) => new Promise((resolve, reject) => {
+    const loadImage = (base64) => new Promise((imageResolve, imageReject) => {
+      const image = new Image();
+      image.onload = () => imageResolve(image);
+      image.onerror = () => imageReject(new Error("Unable to decode visual comparison screenshot"));
+      image.src = `data:image/png;base64,${base64}`;
+    });
+    Promise.all([loadImage(aBase64), loadImage(bBase64)]).then(([aImage, bImage]) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = sampleWidth;
+      canvas.height = sampleHeight;
+      const ctx = canvas.getContext("2d", {willReadFrequently: true});
+      ctx.drawImage(aImage, 0, 0, sampleWidth, sampleHeight);
+      const a = ctx.getImageData(0, 0, sampleWidth, sampleHeight).data;
+      ctx.clearRect(0, 0, sampleWidth, sampleHeight);
+      ctx.drawImage(bImage, 0, 0, sampleWidth, sampleHeight);
+      const b = ctx.getImageData(0, 0, sampleWidth, sampleHeight).data;
+      let rgbDelta = 0;
+      let lumaDelta = 0;
+      let lumaDeltaSq = 0;
+      let maxLumaDelta = 0;
+      const total = a.length / 4;
+      for (let i = 0; i < a.length; i += 4) {
+        const dr = Math.abs(a[i] - b[i]);
+        const dg = Math.abs(a[i + 1] - b[i + 1]);
+        const db = Math.abs(a[i + 2] - b[i + 2]);
+        const lumaA = 0.2126 * a[i] + 0.7152 * a[i + 1] + 0.0722 * a[i + 2];
+        const lumaB = 0.2126 * b[i] + 0.7152 * b[i + 1] + 0.0722 * b[i + 2];
+        const dl = Math.abs(lumaA - lumaB);
+        rgbDelta += (dr + dg + db) / 3;
+        lumaDelta += dl;
+        lumaDeltaSq += dl * dl;
+        maxLumaDelta = Math.max(maxLumaDelta, dl);
+      }
+      resolve({
+        meanRGBDelta: rgbDelta / total,
+        meanLumaDelta: lumaDelta / total,
+        rmsLumaDelta: Math.sqrt(lumaDeltaSq / total),
+        maxLumaDelta
+      });
+    }).catch(reject);
+  }), {aBase64, bBase64, sampleWidth, sampleHeight});
+}
+
+async function createComparisonArtifactsInPage(page, aBase64, bBase64, diffAmplification) {
+  return page.evaluate(({aBase64, bBase64, diffAmplification}) => new Promise((resolve, reject) => {
+    const loadImage = (base64) => new Promise((imageResolve, imageReject) => {
+      const image = new Image();
+      image.onload = () => imageResolve(image);
+      image.onerror = () => imageReject(new Error("Unable to decode visual comparison artifact screenshot"));
+      image.src = `data:image/png;base64,${base64}`;
+    });
+    Promise.all([loadImage(aBase64), loadImage(bBase64)]).then(([aImage, bImage]) => {
+      const width = Math.max(1, Math.min(aImage.naturalWidth || aImage.width, bImage.naturalWidth || bImage.width));
+      const height = Math.max(1, Math.min(aImage.naturalHeight || aImage.height, bImage.naturalHeight || bImage.height));
+      const gap = 8;
+      const sideBySide = document.createElement("canvas");
+      sideBySide.width = width * 2 + gap;
+      sideBySide.height = height;
+      const sideCtx = sideBySide.getContext("2d", {willReadFrequently: false});
+      sideCtx.fillStyle = "#111827";
+      sideCtx.fillRect(0, 0, sideBySide.width, sideBySide.height);
+      sideCtx.drawImage(aImage, 0, 0, width, height);
+      sideCtx.drawImage(bImage, width + gap, 0, width, height);
+
+      const sample = document.createElement("canvas");
+      sample.width = width;
+      sample.height = height;
+      const sampleCtx = sample.getContext("2d", {willReadFrequently: true});
+      sampleCtx.drawImage(aImage, 0, 0, width, height);
+      const a = sampleCtx.getImageData(0, 0, width, height);
+      sampleCtx.clearRect(0, 0, width, height);
+      sampleCtx.drawImage(bImage, 0, 0, width, height);
+      const b = sampleCtx.getImageData(0, 0, width, height);
+      const delta = sampleCtx.createImageData(width, height);
+      const scale = Math.max(1, Number(diffAmplification) || 4);
+      for (let i = 0; i < a.data.length; i += 4) {
+        const dr = Math.abs(a.data[i] - b.data[i]);
+        const dg = Math.abs(a.data[i + 1] - b.data[i + 1]);
+        const db = Math.abs(a.data[i + 2] - b.data[i + 2]);
+        const lumaA = 0.2126 * a.data[i] + 0.7152 * a.data[i + 1] + 0.0722 * a.data[i + 2];
+        const lumaB = 0.2126 * b.data[i] + 0.7152 * b.data[i + 1] + 0.0722 * b.data[i + 2];
+        const magnitude = Math.min(255, ((dr + dg + db) / 3) * scale);
+        if (lumaB >= lumaA) {
+          delta.data[i] = magnitude;
+          delta.data[i + 1] = magnitude * 0.28;
+          delta.data[i + 2] = 0;
+        } else {
+          delta.data[i] = 0;
+          delta.data[i + 1] = magnitude * 0.38;
+          delta.data[i + 2] = magnitude;
+        }
+        delta.data[i + 3] = 255;
+      }
+      sampleCtx.putImageData(delta, 0, 0);
+      resolve({
+        sideBySide: sideBySide.toDataURL("image/png").replace(/^data:image\/png;base64,/, ""),
+        delta: sample.toDataURL("image/png").replace(/^data:image\/png;base64,/, ""),
+        width,
+        height,
+        diffAmplification: scale
+      });
+    }).catch(reject);
+  }), {aBase64, bBase64, diffAmplification});
 }
 
 function buildMarkdownReport(report) {
@@ -401,6 +785,8 @@ function buildMarkdownReport(report) {
   lines.push(`- Browser errors: ${report.summary.browserErrors}`);
   lines.push(`- Ignored browser errors: ${report.summary.ignoredBrowserErrors}`);
   lines.push(`- Audit errors: ${report.summary.auditErrors}`);
+  lines.push(`- Visual audit errors: ${report.summary.visualAuditErrors}`);
+  lines.push(`- Visual comparisons: ${report.summary.visualComparisons}`);
   lines.push(`- Warnings: ${report.summary.warnings}`);
   lines.push(`- Duration: ${Math.round(report.summary.durationMs / 1000)}s`);
   lines.push("");
@@ -444,6 +830,23 @@ function buildMarkdownReport(report) {
           }
         }
       }
+      if (example.visualAudits && example.visualAudits.length > 0) {
+        lines.push("");
+        lines.push("Visual audits:");
+        for (const visual of example.visualAudits) {
+          const artifact = visual.artifactPath ? `, artifact=${visual.artifactPath}` : "";
+          lines.push(`- ${visual.selector}: unique=${visual.uniqueBuckets}, nonDominant=${(visual.nonDominantRatio * 100).toFixed(1)}%, lumaRange=${visual.lumaRange.toFixed(1)}${artifact}`);
+        }
+      }
+      if (example.visualComparisons && example.visualComparisons.length > 0) {
+        lines.push("");
+        lines.push("Visual comparisons:");
+        for (const comparison of example.visualComparisons) {
+          const ignoredNote = comparison.ignored ? " ignored" : "";
+          const artifacts = formatComparisonArtifacts(comparison);
+          lines.push(`- ${comparison.a} vs ${comparison.b}${ignoredNote}: meanRGBDelta=${comparison.meanRGBDelta.toFixed(1)}, meanLumaDelta=${comparison.meanLumaDelta.toFixed(1)}, rmsLumaDelta=${comparison.rmsLumaDelta.toFixed(1)}, maxLumaDelta=${comparison.maxLumaDelta.toFixed(1)}${artifacts}`);
+        }
+      }
       if (example.warnings.length > 0) {
         lines.push("");
         lines.push("Warnings:");
@@ -475,6 +878,34 @@ function buildMarkdownReport(report) {
     }
   }
 
+  const visualExamples = report.examples.filter((example) => example.visualAudits && example.visualAudits.length > 0);
+  if (visualExamples.length > 0) {
+    lines.push("## Visual Audits");
+    lines.push("");
+    for (const example of visualExamples) {
+      lines.push(`### ${example.id}`);
+      for (const visual of example.visualAudits) {
+        const ignoredNote = visual.ignored ? " ignored" : "";
+        const artifact = visual.artifactPath ? `, artifact=${visual.artifactPath}` : "";
+        lines.push(`- ${visual.selector}${ignoredNote}: unique=${visual.uniqueBuckets}, nonDominant=${(visual.nonDominantRatio * 100).toFixed(1)}%, lumaRange=${visual.lumaRange.toFixed(1)}${artifact}`);
+        if (visual.note) {
+          lines.push(`  Note: ${visual.note}`);
+        }
+      }
+      if (example.visualComparisons && example.visualComparisons.length > 0) {
+        for (const comparison of example.visualComparisons) {
+          const ignoredNote = comparison.ignored ? " ignored" : "";
+          const artifacts = formatComparisonArtifacts(comparison);
+          lines.push(`- ${comparison.a} vs ${comparison.b}${ignoredNote}: meanRGBDelta=${comparison.meanRGBDelta.toFixed(1)}, meanLumaDelta=${comparison.meanLumaDelta.toFixed(1)}, rmsLumaDelta=${comparison.rmsLumaDelta.toFixed(1)}, maxLumaDelta=${comparison.maxLumaDelta.toFixed(1)}${artifacts}`);
+          if (comparison.note) {
+            lines.push(`  Note: ${comparison.note}`);
+          }
+        }
+      }
+      lines.push("");
+    }
+  }
+
   const skipped = report.examples.filter((example) => example.skipped);
   if (skipped.length > 0) {
     lines.push("## Skipped");
@@ -489,6 +920,18 @@ function buildMarkdownReport(report) {
   }
 
   return `${lines.join("\n")}\n`;
+}
+
+function formatComparisonArtifacts(comparison) {
+  const parts = [];
+  if (comparison.sideBySideArtifactPath) {
+    parts.push(`sideBySide=${comparison.sideBySideArtifactPath}`);
+  }
+  if (comparison.deltaArtifactPath) {
+    const scale = comparison.diffAmplification ? `@${comparison.diffAmplification}x` : "";
+    parts.push(`delta${scale}=${comparison.deltaArtifactPath}`);
+  }
+  return parts.length > 0 ? `, ${parts.join(", ")}` : "";
 }
 
 function writeReports(report, outputPath) {
@@ -517,6 +960,11 @@ async function startServer(port) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.visualAudit && !args.visualOutputDir) {
+    const extension = path.extname(args.output);
+    const baseName = extension ? path.basename(args.output, extension) : path.basename(args.output);
+    args.visualOutputDir = path.join(path.dirname(args.output), `${baseName}-artifacts`);
+  }
   const examplesIndex = readJson(path.join(examplesDir, "index.json"));
   if (!examplesIndex) {
     console.error(`Could not read ${path.join(examplesDir, "index.json")}`);
@@ -593,6 +1041,8 @@ async function main() {
       headless: args.headless,
       query: args.query,
       includeWarnings: args.includeWarnings,
+      visualAudit: args.visualAudit,
+      visualOutputDir: args.visualOutputDir,
       waitForExampleLoaded: args.waitForExampleLoaded,
       timeoutMs: args.timeoutMs,
       settleMs: args.settleMs,
@@ -606,6 +1056,8 @@ async function main() {
       browserErrors: examples.reduce((sum, example) => sum + example.errors.length, 0),
       ignoredBrowserErrors: examples.reduce((sum, example) => sum + example.ignoredErrors.length, 0),
       auditErrors: examples.reduce((sum, example) => sum + example.auditErrors.length, 0),
+      visualAuditErrors: examples.reduce((sum, example) => sum + example.auditErrors.filter((error) => error.type === "visual").length, 0),
+      visualComparisons: examples.reduce((sum, example) => sum + example.visualComparisons.length, 0),
       warnings: examples.reduce((sum, example) => sum + example.warnings.length, 0),
       durationMs: Date.now() - started
     },
@@ -616,7 +1068,7 @@ async function main() {
   console.log("");
   console.log(`Wrote ${outputs.jsonPath}`);
   console.log(`Wrote ${outputs.markdownPath}`);
-  console.log(`Summary: ${report.summary.passed}/${report.summary.total} passed, ${report.summary.failed} failed, ${report.summary.skipped} skipped, ${report.summary.browserErrors} browser errors, ${report.summary.ignoredBrowserErrors} ignored browser errors, ${report.summary.auditErrors} audit errors.`);
+  console.log(`Summary: ${report.summary.passed}/${report.summary.total} passed, ${report.summary.failed} failed, ${report.summary.skipped} skipped, ${report.summary.browserErrors} browser errors, ${report.summary.ignoredBrowserErrors} ignored browser errors, ${report.summary.auditErrors} audit errors, ${report.summary.visualAuditErrors} visual audit errors.`);
 
   if (args.failOnErrors && report.summary.failed > 0) {
     process.exitCode = 1;

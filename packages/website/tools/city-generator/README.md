@@ -105,7 +105,7 @@ models/ProceduralCity/report.json
 artifacts/evaluation/berlin-style-42.json
 ```
 
-The existing `formats_xgf_proceduralCity` example loads this XGF and displays the
+The existing `import/xgf/procedural-city` example loads this XGF and displays the
 profile, seed, scene stats, selected building metadata, and source-versus-
 generated comparison metrics.
 

@@ -49,7 +49,7 @@ how each input file flows into one or more output files; optional
 inspection / auto-fix passes catch data integrity issues before
 export.</p>
 <p>Wraps the
-convert!pipeline.ModelConverter | ModelConverter
+<a href="../classes/conversion.pipeline.ModelConverter.html" class="tsd-kind-class">ModelConverter</a>
 class — same engine, scriptable from a shell.</p>
 <br>
 <a id="tasks" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Tasks<a href="#tasks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Each run does one of four things. The flags select which; all four share one
@@ -150,7 +150,7 @@ reports which are missing.</li>
 
 <br>
 <a id="convert--optimize" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Convert + optimize<a href="#convert--optimize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Convert and clean the SceneModel in the same pass. <code>--inspect-fix</code> runs
-inspect!sceneModel.applyFixes | applyFixes before export, so the output
+<a href="../functions/quality.sceneModel.applyFixes.html" class="tsd-kind-function">applyFixes</a> before export, so the output
 is already deduplicated and re-quantised.</p>
 <pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">xeoconvert.js</span><span class="hl-1"> </span><span class="hl-5">--in</span><span class="hl-1"> </span><span class="hl-2">model.glb</span><span class="hl-1"> </span><span class="hl-5">--out</span><span class="hl-1"> </span><span class="hl-2">model.xgf</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--inspect-fix</span><span class="hl-1"> </span><span class="hl-5">--inspect-checks</span><span class="hl-1"> </span><span class="hl-2">all</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--optimization-report</span><span class="hl-1"> </span><span class="hl-2">optimization.json</span><span class="hl-1"> </span><span class="hl-5">--conversion-report</span><span class="hl-1"> </span><span class="hl-2">conversion.json</span>
 </code><button type="button">Copy</button></pre>
@@ -163,7 +163,7 @@ outputs) and request an inspection report.</p>
 
 <p>Inspection runs sceneModelInspector on each loaded SceneModel. Results
 also surface on
-convert!pipeline.ModelConverterResult.inspection | ModelConverterResult.inspection.</p>
+<a href="../interfaces/conversion.pipeline.ModelConverterResult.html#inspection" class="tsd-kind-property">ModelConverterResult.inspection</a>.</p>
 <p>To gate a conversion on validation, combine <code>--out</code> with <code>--inspect</code> (without
 <code>--inspect-fix</code>): the export aborts if inspection finds errors, unless
 <code>--no-fail-on-inspect-errors</code> downgrades the gate to advisory.</p>
@@ -403,10 +403,10 @@ extension. Same in/out extension is an in-place optimize/validate.</p>
 scenemodel/datamodel pair.</p>
 <a id="inspection-flags" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Inspection flags<a href="#inspection-flags" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
 <li><code>--inspect</code> — enable inspection. Implied by any other <code>--inspect-*</code> flag.</li>
-<li><code>--inspect-fix</code> — run inspect!sceneModel.applyFixes | applyFixes after inspection (skipped if errors are present).</li>
+<li><code>--inspect-fix</code> — run <a href="../functions/quality.sceneModel.applyFixes.html" class="tsd-kind-function">applyFixes</a> after inspection (skipped if errors are present).</li>
 <li><code>--inspect-checks &lt;list&gt;</code> — comma-separated opt-in checks: <code>dup, similar, dense, large, quality, objects, textures, geom-far, all</code>.</li>
 <li><code>--no-fail-on-inspect-errors</code> — export even when inspection found errors. Default aborts.</li>
-<li><code>--inspect-async</code> — use inspect!sceneModel.inspectSceneModelAsync | inspectSceneModelAsync so very large models don't block.</li>
+<li><code>--inspect-async</code> — use <a href="../functions/quality.sceneModel.inspectSceneModelAsync.html" class="tsd-kind-function">inspectSceneModelAsync</a> so very large models don't block.</li>
 </ul>
 <a id="configuration-flags" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Configuration flags<a href="#configuration-flags" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Tune which checks and fixes run, or print the effective config. These don't write models.</p>
 <ul>

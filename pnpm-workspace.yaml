@@ -1,6 +1,8 @@
 packages:
   - 'packages/*'
 
+linkWorkspacePackages: deep
+
 catalogs:
   lint:
     "@eslint/js": "^9.25.1"

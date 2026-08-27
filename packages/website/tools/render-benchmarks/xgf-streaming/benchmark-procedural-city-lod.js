@@ -77,7 +77,7 @@ function printHelp() {
   console.log(`Usage: node packages/website/tools/render-benchmarks/xgf-streaming/benchmark-procedural-city-lod.js [options]
 
 Options:
-  --city <name>                Example suffix. Use lodBenchmarkLandscape for the LOD benchmark fixture. Default ${DEFAULTS.city}.
+  --city <name>                Procedural city preset suffix, for example amsterdam or chicago-river. Default ${DEFAULTS.city}.
   --renderer <webgl|webgpu>    Renderer URL param. Default ${DEFAULTS.renderer}.
   --frames <n>                 RAF samples per LOD mode. Default ${DEFAULTS.frames}.
   --warmup-ms <n>              Fixed warmup before sampling. Default ${DEFAULTS.warmupMs}.
@@ -153,10 +153,20 @@ function sleep(ms) {
 }
 
 function examplePathFor(city) {
-  if (city === "lodBenchmarkLandscape" || city === "lod-benchmark-landscape") {
-    return "formats_xgf_lodBenchmarkLandscape";
+  const normalized = city.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`).replace(/^procedural-city-/, "");
+  const cityPaths = {
+    default: "import/xgf/procedural-city",
+    amsterdam: "import/xgf/procedural-city-amsterdam",
+    berlin: "import/xgf/procedural-city-berlin",
+    "chicago-river": "import/xgf/procedural-city-chicago-river",
+    london: "import/xgf/procedural-city-london",
+    paris: "import/xgf/procedural-city-paris"
+  };
+  const path = cityPaths[normalized];
+  if (!path) {
+    throw new Error(`Unknown procedural city example "${city}". Known values: ${Object.keys(cityPaths).join(", ")}`);
   }
-  return `formats_xgf_proceduralCity_${city}`;
+  return path;
 }
 
 async function runCase(browser, baseUrl, args, lodEnabled) {
@@ -498,7 +508,7 @@ async function main() {
     printTable(results);
     const payload = {
       generatedAt: new Date().toISOString(),
-      example: `formats_xgf_proceduralCity_${args.city}`,
+      example: examplePathFor(args.city),
       renderer: args.renderer,
       viewport: `${args.viewportWidth}x${args.viewportHeight}`,
       frames: args.frames,

@@ -4,8 +4,9 @@ import { parse } from 'node-html-parser';
 
 const source = './packages';
 const templateSource = './scripts/test-html-report/template.html';
-const destination = './packages/website/test-report.html';
+const destination = './test-report.html';
 const destinationPath = resolve(destination);
+const ignoredPackages = new Set(['website']);
 
 const emptyCounts = () => ({
     suites: {total: 0, passed: 0, failed: 0, pending: 0},
@@ -278,6 +279,7 @@ const tocHtml = (packages, suites) => {
     const folders = (await readdir(source, {withFileTypes: true}))
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)
+        .filter((name) => !ignoredPackages.has(name))
         .sort((left, right) => left.localeCompare(right));
     const templateMenu = templateRoot.querySelector('nav ul');
     const reportHeader = templateRoot.querySelector('body .jesthtml-content');

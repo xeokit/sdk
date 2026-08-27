@@ -5,6 +5,7 @@
     "entryPointStrategy": "packages",
     "out": "./packages/website/docs/api",
     "excludePrivate": true,
+    "excludeInternal": true,
     "excludeNotDocumented": true,
     "includeVersion": true,
     "titleLink": "https://xeokit.io",

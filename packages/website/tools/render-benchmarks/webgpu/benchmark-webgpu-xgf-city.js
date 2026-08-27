@@ -150,7 +150,7 @@ async function runMode(browser, baseUrl, mode, args) {
     depth: mode.depth ? "1" : "0",
     edges: mode.edges ? "1" : "0",
   });
-  const url = `${baseUrl}/examples/formats_xgf_streaming_proceduralCity_webGPU/index.html?${query}`;
+  const url = `${baseUrl}/examples/import/xgf/procedural-city/index.html?renderer=webgpu&${query}`;
 
   try {
     await page.setViewport({
@@ -578,7 +578,7 @@ async function main() {
     printTable(results);
     const payload = {
       generatedAt: new Date().toISOString(),
-      example: "formats_xgf_streaming_proceduralCity_webGPU",
+      example: "import/xgf/procedural-city?renderer=webgpu",
       viewport: `${args.viewportWidth}x${args.viewportHeight}`,
       frames: args.frames,
       results,

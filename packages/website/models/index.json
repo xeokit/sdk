@@ -81,6 +81,15 @@
     "formats": ["xgf"],
     "dataset": ["xgf"]
   },
+  "BlenderHouse_LoD": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
+  },
   "BuildingSite": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],

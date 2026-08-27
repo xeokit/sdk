@@ -48,7 +48,7 @@ async function main() {
   fs.rmSync(outDir, {recursive: true, force: true});
   fs.mkdirSync(outDir, {recursive: true});
 
-  const {buildArchipelago} = await import("../examples/building_doublePrecision_archipelago/archipelago.js");
+  const {buildArchipelago} = await import("../../../examples/create/precision/geolocated-archipelago/archipelago.js");
   const scene = new Scene();
   const data = new Data();
   const sceneModel = must(scene.createModel({

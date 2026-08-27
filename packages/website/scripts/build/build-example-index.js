@@ -47,6 +47,9 @@ function toPublicExampleInfo(id, exampleInfo) {
   if (typeof exampleInfo.auditTimeoutMs === "number" && Number.isFinite(exampleInfo.auditTimeoutMs)) {
     publicInfo.auditTimeoutMs = exampleInfo.auditTimeoutMs;
   }
+  if (exampleInfo.visualAudit && typeof exampleInfo.visualAudit === "object") {
+    publicInfo.visualAudit = exampleInfo.visualAudit;
+  }
   if (exampleInfo.auditSkipReason) {
     publicInfo.auditSkipReason = exampleInfo.auditSkipReason;
   }

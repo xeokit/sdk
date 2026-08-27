@@ -29,19 +29,19 @@ const DEFAULTS = {
 const DEFAULT_EXAMPLES = [
   {
     name: "xgf-procedural-city-compact",
-    path: "/examples/formats_xgf_streaming_proceduralCity_webGPU/index.html?stats=1&memory=compact&depth=0&edges=0&tileSize=1000",
+    path: "/examples/import/xgf/procedural-city/index.html?renderer=webgpu&stats=1&memory=compact&depth=0&edges=0&tileSize=1000",
     demoName: "webgpuProceduralCityXGFStreamDemo",
     streaming: true,
   },
   {
     name: "xgf-procedural-city-large-static",
-    path: "/examples/formats_xgf_streaming_proceduralCity_webGPU/index.html?stats=1&memory=largeStatic&depth=0&edges=0&tileSize=1000",
+    path: "/examples/import/xgf/procedural-city/index.html?renderer=webgpu&stats=1&memory=largeStatic&depth=0&edges=0&tileSize=1000",
     demoName: "webgpuProceduralCityXGFStreamDemo",
     streaming: true,
   },
   {
     name: "xgf-map-static",
-    path: "/examples/formats_xgf_map_webGPU/index.html?stats=1",
+    path: "/examples/import/xgf/map/index.html?renderer=webgpu&stats=1",
     demoName: "webgpuXGFMapDemo",
     streaming: false,
   },
@@ -50,21 +50,21 @@ const DEFAULT_EXAMPLES = [
 const EXPENSIVE_EXAMPLES = [
   {
     name: "xgf-baku-200-compact",
-    path: "/examples/formats_xgf_streaming_baku_webGPU/index.html?stats=1&dataset=200&memory=compact&depth=0&edges=0&tileSize=1000",
+    path: "/examples/benchmarks/streaming/xgf-baku-webgpu/index.html?stats=1&dataset=200&memory=compact&depth=0&edges=0&tileSize=1000",
     demoName: "webgpuBakuStadiumXGFStreamDemo",
     streaming: true,
     targetChunks: "bakuTargetChunks",
   },
   {
     name: "xgf-baku-200-medium-packed",
-    path: "/examples/formats_xgf_streaming_baku_webGPU/index.html?stats=1&dataset=200&memory=mediumPacked&depth=0&edges=0&tileSize=1000",
+    path: "/examples/benchmarks/streaming/xgf-baku-webgpu/index.html?stats=1&dataset=200&memory=mediumPacked&depth=0&edges=0&tileSize=1000",
     demoName: "webgpuBakuStadiumXGFStreamDemo",
     streaming: true,
     targetChunks: "bakuTargetChunks",
   },
   {
     name: "xgf-baku-200-large-packed",
-    path: "/examples/formats_xgf_streaming_baku_webGPU/index.html?stats=1&dataset=200&memory=largePacked&depth=0&edges=0&tileSize=1000",
+    path: "/examples/benchmarks/streaming/xgf-baku-webgpu/index.html?stats=1&dataset=200&memory=largePacked&depth=0&edges=0&tileSize=1000",
     demoName: "webgpuBakuStadiumXGFStreamDemo",
     streaming: true,
     targetChunks: "bakuTargetChunks",
@@ -582,7 +582,7 @@ async function sample(page, example) {
       };
     }
     const viewIndex = demo.view.viewIndex ?? 0;
-    const renderer = demo.renderer;
+    const renderer = demo.renderer || demo.studio?.renderer;
     const renderSummary = renderer.getViewRenderStats?.(viewIndex) || null;
     const inspector = renderer.getRenderInspector?.()?.value || null;
     const frame = inspector?.renderStats?.views?.[viewIndex] || null;

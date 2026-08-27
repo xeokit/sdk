@@ -134,6 +134,8 @@ const BOOLEAN_FIELDS = [
   "normalTexture",
   "occlusionTexture",
   "metallicRoughnessTexture",
+  "clearcoat",
+  "sheen",
   "ambientLight",
   "directionalLight",
   "hemisphereLight",
@@ -176,12 +178,16 @@ const MATERIAL_FILTER_TAGS = [
       !item.cfg.colorTexture &&
       !item.cfg.normalTexture &&
       !item.cfg.occlusionTexture &&
-      !item.cfg.metallicRoughnessTexture
+      !item.cfg.metallicRoughnessTexture &&
+      !item.cfg.clearcoat &&
+      !item.cfg.sheen
   },
   {id: "material:color", label: "Color", matches: (item) => item.cfg.colorTexture},
   {id: "material:normal", label: "Normal", matches: (item) => item.cfg.normalTexture},
   {id: "material:ao", label: "AO", matches: (item) => item.cfg.occlusionTexture},
   {id: "material:metal-rough", label: "Metal/Rough", matches: (item) => item.cfg.metallicRoughnessTexture},
+  {id: "material:clearcoat", label: "Clear coat", matches: (item) => item.cfg.clearcoat},
+  {id: "material:sheen", label: "Sheen", matches: (item) => item.cfg.sheen},
   {id: "material:vertex-color", label: "Vertex color", matches: (item) => item.cfg.primitive !== "triangles"}
 ];
 
@@ -296,13 +302,18 @@ Options:
 }
 
 function buildPermutations(args) {
+  const permutations = buildAllPermutations(args.renderers, args.quick);
+  return selectPermutations(permutations, args);
+}
+
+function buildAllPermutations(renderers, quick) {
   const materialModes = buildMaterialModes();
-  const viewPresets = args.quick ? VIEW_PRESETS.filter((preset) => QUICK_VIEW_IDS.has(preset.id)) : VIEW_PRESETS;
+  const viewPresets = quick ? VIEW_PRESETS.filter((preset) => QUICK_VIEW_IDS.has(preset.id)) : VIEW_PRESETS;
   const permutations = [];
 
-  for (const renderer of args.renderers) {
+  for (const renderer of renderers) {
     for (const geometry of GEOMETRY_MODES) {
-      const geometryMaterials = selectMaterialsForGeometry(geometry, materialModes, args.quick);
+      const geometryMaterials = selectMaterialsForGeometry(geometry, materialModes, quick);
       const geometryViews = geometry.primitive === "triangles"
         ? viewPresets
         : viewPresets.filter((preset) => ["ambient", "post"].includes(preset.id));
@@ -349,8 +360,13 @@ function buildPermutations(args) {
         }
       }
     }
+    permutations.push(...buildClearcoatPermutations(renderer));
+    permutations.push(...buildSheenPermutations(renderer));
   }
+  return permutations;
+}
 
+function selectPermutations(permutations, args) {
   const matched = args.match
     ? permutations.filter((permutation) => permutation.id.toLowerCase().includes(args.match.toLowerCase()))
     : permutations;
@@ -358,6 +374,115 @@ function buildPermutations(args) {
     ? matched.filter((permutation) => args.ids.includes(permutation.id))
     : matched;
   return args.limit > 0 ? selected.slice(0, args.limit) : selected;
+}
+
+function buildClearcoatPermutations(renderer) {
+  const geometry = GEOMETRY_MODES.find((mode) => mode.id === "tri-normals-uv");
+  const view = VIEW_PRESETS.find((preset) => preset.id === "directional-ibl");
+  const materialCases = [
+    {id: "shiny-clearcoat-off", material: "gripPlate", label: "Shiny Tiles, no clear coat", clearcoat: false},
+    {id: "shiny-clearcoat", material: "gripPlate", label: "Shiny Tiles + Clear coat", clearcoat: true},
+    {id: "bricks-clearcoat", material: "bricks", label: "Bricks + Clear coat", clearcoat: true},
+    {id: "rust-clearcoat", material: "rust", label: "Rust + Clear coat", clearcoat: true}
+  ];
+  return materialCases.map((materialCase) => {
+    const cfg = {
+      ...BASE_TOGGLES,
+      renderer,
+      primitive: geometry.primitive,
+      material: materialCase.material,
+      normals: geometry.normals,
+      uvs: geometry.uvs,
+      triplanar: geometry.triplanar,
+      colorTexture: true,
+      normalTexture: true,
+      occlusionTexture: true,
+      metallicRoughnessTexture: true,
+      clearcoat: materialCase.clearcoat,
+      ...view.toggles
+    };
+    const id = [
+      renderer,
+      geometry.id,
+      materialCase.id,
+      view.id
+    ].join("__");
+    const hash = configToHash(cfg);
+    return {
+      id,
+      renderer,
+      geometryId: geometry.id,
+      materialId: materialCase.id,
+      viewId: view.id,
+      title: `${geometry.label} / ${materialCase.label} / ${view.label}`,
+      labels: {
+        geometry: geometry.label,
+        material: materialCase.label,
+        view: view.label
+      },
+      cfg,
+      hash,
+      exampleUrl: `../${EXAMPLE_ID}/index.html#${hash}`,
+      screenshot: `screenshots/${id}.png`,
+      status: "planned",
+      errors: []
+    };
+  });
+}
+
+function buildSheenPermutations(renderer) {
+  const geometry = GEOMETRY_MODES.find((mode) => mode.id === "tri-normals-uv");
+  const view = VIEW_PRESETS.find((preset) => preset.id === "directional-ibl");
+  const materialCases = [
+    {id: "bricks-sheen-off", material: "bricks", label: "Bricks, no sheen", sheen: false},
+    {id: "bricks-sheen", material: "bricks", label: "Bricks + Sheen", sheen: true},
+    {id: "rust-sheen", material: "rust", label: "Rust + Sheen", sheen: true},
+    {id: "shiny-clearcoat-sheen", material: "gripPlate", label: "Shiny Tiles + Clear coat + Sheen", clearcoat: true, sheen: true}
+  ];
+  return materialCases.map((materialCase) => {
+    const cfg = {
+      ...BASE_TOGGLES,
+      renderer,
+      primitive: geometry.primitive,
+      material: materialCase.material,
+      normals: geometry.normals,
+      uvs: geometry.uvs,
+      triplanar: geometry.triplanar,
+      colorTexture: true,
+      normalTexture: true,
+      occlusionTexture: true,
+      metallicRoughnessTexture: true,
+      clearcoat: !!materialCase.clearcoat,
+      sheen: materialCase.sheen,
+      ...view.toggles
+    };
+    const id = [
+      renderer,
+      geometry.id,
+      materialCase.id,
+      view.id
+    ].join("__");
+    const hash = configToHash(cfg);
+    return {
+      id,
+      renderer,
+      geometryId: geometry.id,
+      materialId: materialCase.id,
+      viewId: view.id,
+      title: `${geometry.label} / ${materialCase.label} / ${view.label}`,
+      labels: {
+        geometry: geometry.label,
+        material: materialCase.label,
+        view: view.label
+      },
+      cfg,
+      hash,
+      exampleUrl: `../${EXAMPLE_ID}/index.html#${hash}`,
+      screenshot: `screenshots/${id}.png`,
+      status: "planned",
+      errors: []
+    };
+  });
 }
 
 function buildMaterialModes() {
@@ -597,6 +722,24 @@ function writeGallery(args, permutations) {
   };
   fs.writeFileSync(path.join(args.outputDir, "permutations.json"), `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   fs.writeFileSync(path.join(args.outputDir, "index.html"), renderGalleryHtml(payload), "utf8");
+}
+
+function mergeSelectedIntoFullPermutations(args, selectedPermutations) {
+  if (!args.match && args.ids.length === 0 && args.limit === 0) {
+    return selectedPermutations;
+  }
+  const fullPermutations = buildAllPermutations(args.renderers, args.quick);
+  mergeExistingCaptureState(args.outputDir, fullPermutations);
+  const selectedById = new Map(selectedPermutations.map((item) => [item.id, item]));
+  for (const permutation of fullPermutations) {
+    const selected = selectedById.get(permutation.id);
+    if (!selected) {
+      continue;
+    }
+    permutation.status = selected.status;
+    permutation.errors = Array.isArray(selected.errors) ? selected.errors : [];
+  }
+  return fullPermutations;
 }
 
 function renderGalleryHtml(payload) {
@@ -996,7 +1139,7 @@ async function main() {
     console.log("Dry run: writing gallery without screenshots.");
   }
   await capturePermutations(args, permutations);
-  writeGallery(args, permutations);
+  writeGallery(args, mergeSelectedIntoFullPermutations(args, permutations));
   console.log(`Gallery: ${path.join(args.outputDir, "index.html")}`);
 }
 

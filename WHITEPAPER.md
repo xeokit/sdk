@@ -23,7 +23,7 @@ Around those two foundations, the SDK separates geometry from semantic data, exp
 
 ![Baku Stadium loaded with XGF streaming](packages/website/images/bakuStadium2.png)
 
-The [Baku Stadium XGF streaming example](https://xeokit.github.io/sdk/examples/index.html#formats_xgf_streaming_baku_2000_dynamic) demonstrates viewpoint-driven loading on a large BIM dataset. As reviewers select simulated BCF issues, xeokit streams the XGF chunks visible from each issue viewpoint first, allowing useful review context to appear before the whole model has loaded.
+The [Baku Stadium XGF streaming example](https://xeokit.github.io/sdk/examples/index.html#benchmarks/streaming/xgf-baku-2000-dynamic) demonstrates viewpoint-driven loading on a large BIM dataset. As reviewers select simulated BCF issues, xeokit streams the XGF chunks visible from each issue viewpoint first, allowing useful review context to appear before the whole model has loaded.
 
 ---
 
@@ -84,11 +84,9 @@ A single draw call can process thousands of meshes. Changing 50,000 object flags
 | `spatial/` | Picking, snapping, collision/BVH, AABB and region queries. |
 | `inspect/` | Scene/data validation and issue reporting. |
 | `tools/` | Interactive measurements. |
-| `simulation/` | Optional physics hooks. |
 | `interop/` | BCF viewpoint import/export. |
 | `convert/` | Conversion pipelines and CLI tooling. |
 | `ui/` | Plain-DOM UI primitives. |
-| `studio/` | Optional demo/workbench integration layer. |
 
 ### Scene And Data
 
@@ -123,7 +121,7 @@ Expected failures are values: duplicate IDs, bad parameters, malformed input, an
 import { Scene } from "@xeokit/sdk/model/scene";
 import { Data, searchObjects } from "@xeokit/sdk/model/data";
 import { Viewer } from "@xeokit/sdk/viewing/viewer";
-import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
 import { IFCLoader } from "@xeokit/sdk/formats/ifc";
 
 const scene = new Scene();
@@ -239,7 +237,7 @@ Conversion tooling includes IFC -> glTF -> XGF and generic format-to-format conv
 
 ## Studio And Tooling
 
-`studio/` is optional. It provides the demo/workbench shell: toolbar, panel registry, model loading helpers, diagnostics, and runtime UI used by the website examples. Applications can use the SDK core without instantiating Studio.
+The website examples layer provides the demo/workbench shell: toolbar, panel registry, model loading helpers, diagnostics, and runtime UI. Applications can use the SDK core without the example Studio helper.
 
 The SDK also uses:
 
@@ -264,4 +262,5 @@ AI assistance was used later to accelerate implementation of additional loaders,
 2. The minimal scene/view example in the README.
 3. The IFC model viewer example for loader + data graph flow.
 4. `packages/website/examples/` for focused examples by prefix: `viewing_*`, `formats_*`, `building_*`.
-5. The generated API reference at `https://xeokit.github.io/sdk/docs/api/`.
+5. `WHITEPAPER_SCENEMODEL_UPDATE_HINTS.md` for static/dynamic `SceneModel.updateHint` behavior and XGF renderer storage examples.
+6. The generated API reference at `https://xeokit.github.io/sdk/docs/api/`.

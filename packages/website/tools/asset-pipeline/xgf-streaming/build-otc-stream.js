@@ -9,7 +9,7 @@ const {spawnSync} = require("child_process");
 
 const rootDir = path.resolve(__dirname, "..", "..", "..", "..", "..");
 const input = path.join(rootDir, "packages/website/models/OTCConferenceCenter/xgf/model.xgf");
-const out = path.join(rootDir, "packages/website/examples/formats_xgf_streaming_otc");
+const out = path.join(rootDir, "packages/website/examples/streaming/xgf/otc");
 
 const result = spawnSync(process.execPath, [
   path.join(rootDir, "packages/website/tools/asset-pipeline/xgf-streaming/split-xgf-stream.js"),

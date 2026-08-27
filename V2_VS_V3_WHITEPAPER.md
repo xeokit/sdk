@@ -108,7 +108,7 @@ buckets**, each an independent import path:
 | --------------- | -------------- |
 | `base/`         | Math (Float32 + Float64), `SDKResult`, events, WebGL primitives, IO, locale, constants |
 | `model/`        | `scene/` (render graph), `data/` (semantic graph), `procgen/`, `streaming/` |
-| `viewing/`      | `viewer/` (`Viewer`, `View`, `Camera`, `SectionPlane`, lights, effects), `webGLRenderer/`, `viewController/`, `cameraFlight/`, `transformControls/` |
+| `viewing/`      | `viewer/` (`Viewer`, `View`, `Camera`, `SectionPlane`, lights, effects), `webGLRenderer/`, `navigation/model/`, `cameraFlight/`, `transformControls/` |
 | `formats/`      | Import / export for every supported format |
 | `spatial/`      | `collision/` (KdTree / BVH), `picking/` |
 | `inspect/`      | Scene + data model validation |
@@ -358,7 +358,7 @@ In **V3** the converter is part of the same SDK and reuses the very same
   result object for the caller to persist.
 
   ```ts
-  import { ModelConverter } from "@xeokit/sdk/convert/modelConverter";
+  import { ModelConverter } from "@xeokit/sdk/conversion/pipeline";
   import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
   import { XGFExporter } from "@xeokit/sdk/formats/xgf";
   import { DataModelExporter } from "@xeokit/sdk/model/data";

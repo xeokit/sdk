@@ -213,7 +213,7 @@ async function openRendererPage(page, baseUrl, rendererName) {
         }
       };
     });
-    const url = `${baseUrl}/examples/formats_xgf_proceduralCity/index.html?profile=1`;
+    const url = `${baseUrl}/examples/import/xgf/procedural-city/index.html?profile=1`;
     await page.goto(url, {waitUntil: "domcontentloaded", timeout: 60000});
     return url;
   }
@@ -224,7 +224,7 @@ async function openRendererPage(page, baseUrl, rendererName) {
     edges: "0",
     memory: "stream",
   });
-  const url = `${baseUrl}/examples/formats_xgf_streaming_proceduralCity_webGPU/index.html?${query}`;
+  const url = `${baseUrl}/examples/import/xgf/procedural-city/index.html?renderer=webgpu&${query}`;
   await page.goto(url, {waitUntil: "domcontentloaded", timeout: 60000});
   return url;
 }
@@ -240,8 +240,8 @@ async function waitForRendererReady(page, rendererName) {
 
 async function enableInspector(page, rendererName) {
   await page.evaluate((name) => {
-    const demo = name === "webgl" ? window.proceduralCityXGFStreamDemo : window.webgpuProceduralCityXGFStreamDemo;
-    const renderer = name === "webgl" ? demo?.studio?.renderer : demo?.renderer;
+      const demo = name === "webgl" ? window.proceduralCityXGFStreamDemo : window.webgpuProceduralCityXGFStreamDemo;
+      const renderer = demo?.renderer || demo?.studio?.renderer;
     const inspectorResult = renderer?.getRenderInspector?.();
     if (inspectorResult?.ok) {
       inspectorResult.value.enabled = true;
@@ -301,7 +301,7 @@ async function installSampler(page) {
         };
       }
       const streamController = demo.streamController;
-      const renderer = name === "webgl" ? demo.studio.renderer : demo.renderer;
+      const renderer = demo.renderer || demo.studio.renderer;
       const viewIndex = demo.view.viewIndex ?? 0;
       const inspector = renderer.getRenderInspector?.()?.value;
       const frame = inspector?.renderStats?.views?.[viewIndex] || null;
@@ -351,7 +351,7 @@ async function installInteractionProfiler(page) {
         resolve({latencyMs: 0, wallMs: 0, timedOut: true});
         return;
       }
-      const renderer = name === "webgl" ? demo.studio.renderer : demo.renderer;
+      const renderer = demo.renderer || demo.studio.renderer;
       const view = demo.view;
       const camera = view.camera;
       const angle = frameIndex * 0.045;

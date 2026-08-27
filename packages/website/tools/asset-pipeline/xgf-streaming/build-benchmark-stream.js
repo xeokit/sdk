@@ -20,7 +20,7 @@ const {TrianglesPrimitive} = sdkRequire("base/constants");
 const {Scene} = sdkRequire("model/scene/Scene");
 const {XGFStreamingExporter} = sdkRequire("formats/xgfstream/XGFStreamingExporter");
 
-const OUT_DIR = path.resolve(__dirname, "..", "..", "..", "examples/formats_xgf_streaming_benchmark/chunks");
+const OUT_DIR = path.resolve(__dirname, "..", "..", "..", "examples/benchmarks/streaming/xgf-basic/chunks");
 const GRID_SIZE = 31;
 const BLOCK_SPACING = 24;
 const BLOCK_OBJECT_IDS = new Map();

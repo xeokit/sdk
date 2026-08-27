@@ -220,7 +220,7 @@ collision!SceneCollisionIndex | SceneCollisionIndex.
 Accepts ray, matrix, or <code>canvasPos</code> (turned into a ray via the
 View's camera). No GPU stall; no snap.</li>
 <li><strong><a href="../classes/spatial.picking.RendererPickStrategy.html" class="tsd-kind-class">RendererPickStrategy</a></strong> — GPU-side, drives the
-viewing!webGLRenderer.WebGLRenderer | WebGLRenderer. Only
+<a href="../classes/viewing.renderers.webGL.WebGLRenderer.html" class="tsd-kind-class">WebGLRenderer</a>. Only
 <code>canvasPos</code> input; returns world normals, UVs, and snap targets
 at the cost of a <code>gl.readPixels</code> per call.</li>
 <li><strong><a href="../classes/spatial.picking.RoutingPickStrategy.html" class="tsd-kind-class">RoutingPickStrategy</a></strong> — composes the two. Without snap,
@@ -244,7 +244,7 @@ support snap drop the request and return a plain hit.</li>
 
 <br>
 <a id="2-construct-a-routing-picker" class="tsd-anchor"></a><h3 class="tsd-anchor-link">2) Construct a routing picker<a href="#2-construct-a-routing-picker" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Pass the <a href="../classes/model.scene.Scene.html" class="tsd-kind-class">Scene</a> and the (optional)
-viewing!webGLRenderer.WebGLRenderer | WebGLRenderer. Without
+<a href="../classes/viewing.renderers.webGL.WebGLRenderer.html" class="tsd-kind-class">WebGLRenderer</a>. Without
 a renderer the strategy is BVH-only; snap requests degrade silently.</p>
 <pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">picker</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">RoutingPickStrategy</span><span class="hl-1">({ </span><span class="hl-4">scene</span><span class="hl-1">, </span><span class="hl-4">renderer</span><span class="hl-1"> });</span>
 </code><button type="button">Copy</button></pre>

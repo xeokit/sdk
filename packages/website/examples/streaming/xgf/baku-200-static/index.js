@@ -42,7 +42,7 @@ const WEBGPU_LOW_MEMORY_CONFIG = {
   },
   renderConfigs: {
     triangleColorMode: "flat",
-    edges: true,
+    edges: false,
     depthPrepass: false
   }
 };
@@ -190,7 +190,7 @@ studio.init().then(async () => {
         enabled: false
       },
       edges: {
-        enabled: true,
+        enabled: false,
         useMeshColor: true,
         edgeDarken: 0.45,
         edgeAlpha: 0.85,
@@ -232,11 +232,8 @@ studio.init().then(async () => {
   });
   studio.viewProfiles?.setActiveProfile("fast");
   enforceFastBakuRendering(view);
-  view.effects.edges.enabled = true;
-  view.effects.edges.useMeshColor = true;
-  view.effects.edges.edgeDarken = 0.45;
-  view.effects.edges.edgeAlpha = 0.85;
-  view.effects.edges.edgeWidth = 1;
+  configureFastBakuLighting(view);
+  view.effects.edges.enabled = false;
   view.linesMaterial.lineWidth = 1.75;
   view.linesMaterial.joinStyle = "round";
 
@@ -377,6 +374,21 @@ studio.init().then(async () => {
       studio,
       view,
       streamController,
+      renderInspector,
+      issueViewpoints: ISSUE_VIEWPOINTS,
+      applyIssueViewpoint: (issueId, scheduleStream = false) => {
+        const issue = ISSUE_VIEWPOINTS.find((candidate) => candidate.id === issueId);
+        if (!issue) {
+          return false;
+        }
+        applyIssueViewpointToCamera(view, issue);
+        updateDepthOfFieldFocus(view);
+        if (scheduleStream) {
+          streamController.schedule(issue.id);
+        }
+        view.needsRender();
+        return true;
+      },
       backpressure: backpressureState
     };
     const cameraStreaming = bindCameraStreaming(studio, view, streamController, ui.stallStreamingToggle);
@@ -703,6 +715,23 @@ function enforceFastBakuRendering(view) {
   if (effects.ibl) {
     effects.ibl.enabled = false;
     effects.ibl.intensity = 0;
+  }
+}
+
+function configureFastBakuLighting(view) {
+  for (const light of view.lightsList || []) {
+    if (light._type === "ambient") {
+      light.color = [1, 1, 1];
+      light.intensity = 0.28;
+    } else if (light.dir && light.space) {
+      light.dir = [-0.8, -1.0, -0.5];
+      light.color = [1, 1, 1];
+      light.intensity = 0.82;
+    }
+  }
+  if (view.lights?.hemispheric) {
+    view.lights.hemispheric.enabled = false;
+    view.lights.hemispheric.intensity = 0;
   }
 }
 

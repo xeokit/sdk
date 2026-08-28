@@ -226,6 +226,8 @@ interface TriangleSegmentBuildResult {
 export interface TriangleBatchPrepareOptions {
   buildPendingSegments?: boolean;
   buildAllPendingSegments?: boolean;
+  forceRepack?: boolean;
+  maxBuildSegments?: number;
 }
 
 const nowMs = (): number => {
@@ -301,11 +303,15 @@ export class TriangleBatchManager {
   public prepare(meshManager: MeshManager, options: TriangleBatchPrepareOptions = {}): SDKResult<TriangleBatchSet> {
     const buildPendingSegments = options.buildPendingSegments ?? true;
     const buildAllPendingSegments = options.buildAllPendingSegments ?? false;
+    const forceRepack = options.forceRepack === true;
     const structureVersion = meshManager.structureVersion;
-    if (this._batchSet?.structureVersion === structureVersion) {
+    if (forceRepack) {
+      this._clearPackedSegmentsForRepack();
+    }
+    if (!forceRepack && this._batchSet?.structureVersion === structureVersion) {
       let builtSegments: TriangleBatchSegment[] = [];
       if (buildPendingSegments) {
-        const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+        const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments, options.maxBuildSegments);
         if (pendingResult.ok === false) {
           return pendingResult;
         }
@@ -318,9 +324,11 @@ export class TriangleBatchManager {
       };
     }
 
-    const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments);
-    if (appendOnlyResult) {
-      return appendOnlyResult;
+    if (!forceRepack) {
+      const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments, options.maxBuildSegments);
+      if (appendOnlyResult) {
+        return appendOnlyResult;
+      }
     }
 
     this._pendingSegmentJobs.length = 0;
@@ -381,7 +389,7 @@ export class TriangleBatchManager {
     }
 
     if (buildPendingSegments) {
-      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments, options.maxBuildSegments);
       if (pendingResult.ok === false) {
         return pendingResult;
       }
@@ -401,14 +409,14 @@ export class TriangleBatchManager {
     };
   }
 
-  public buildPendingSegments(meshManager: MeshManager): SDKResult<TriangleBatchSet> {
+  public buildPendingSegments(meshManager: MeshManager, options: TriangleBatchPrepareOptions = {}): SDKResult<TriangleBatchSet> {
     const prepareResult = this.prepare(meshManager, {buildPendingSegments: false});
     if (prepareResult.ok === false) {
       return prepareResult;
     }
 
     const structureVersion = meshManager.structureVersion;
-    const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+    const pendingResult = this._buildPendingSegmentJobs(structureVersion, options.buildAllPendingSegments === true, options.maxBuildSegments);
     if (pendingResult.ok === false) {
       return pendingResult;
     }
@@ -426,7 +434,8 @@ export class TriangleBatchManager {
     meshManager: MeshManager,
     structureVersion: number,
     buildPendingSegments: boolean,
-    buildAllPendingSegments: boolean
+    buildAllPendingSegments: boolean,
+    maxBuildSegments?: number
   ): SDKResult<TriangleBatchSet> | null {
     if (!this._batchSet) {
       return null;
@@ -445,7 +454,7 @@ export class TriangleBatchManager {
     void segmentByMeshId;
 
     if (buildPendingSegments) {
-      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments, maxBuildSegments);
       if (pendingResult.ok === false) {
         return pendingResult;
       }
@@ -522,7 +531,7 @@ export class TriangleBatchManager {
     flushPage();
   }
 
-  private _buildPendingSegmentJobs(structureVersion: number, buildAllSegments = false): SDKResult<TriangleSegmentBuildResult> {
+  private _buildPendingSegmentJobs(structureVersion: number, buildAllSegments = false, maxBuildSegments = -1): SDKResult<TriangleSegmentBuildResult> {
     const startedAt = nowMs();
     let builtCount = 0;
     let buildMs = 0;
@@ -535,6 +544,14 @@ export class TriangleBatchManager {
       if (job.structureVersion !== structureVersion) {
         this._pendingSegmentJobs.shift();
         continue;
+      }
+      if (
+        !buildAllSegments &&
+        builtCount > 0 &&
+        maxBuildSegments >= 0 &&
+        builtCount >= maxBuildSegments
+      ) {
+        break;
       }
       if (
         !buildAllSegments &&
@@ -1477,6 +1494,32 @@ export class TriangleBatchManager {
     this._bufferPagesByKey.clear();
     this._currentBufferPageByKey.clear();
     this._textureBindGroupManager.destroy();
+    this._nextSlot = 0;
+    this._batchSet = null;
+  }
+
+  private _clearPackedSegmentsForRepack(): void {
+    for (const segment of this._segmentsByKey.values()) {
+      this._destroySegment(segment);
+    }
+    this._segmentsByKey.clear();
+    this._segmentByMeshId.clear();
+    this._pageCountersByBaseKey.clear();
+    this._freeSlotRanges.length = 0;
+    this._pendingSegmentJobs.length = 0;
+    for (const batch of this._partialDrawBatchCache.values()) {
+      batch.packedBatch.destroy();
+    }
+    this._partialDrawBatchCache.clear();
+    for (const page of this._bufferPagesByKey.values()) {
+      try {
+        page.destroy();
+      } catch {
+        // Ignore buffer destruction failures during repack.
+      }
+    }
+    this._bufferPagesByKey.clear();
+    this._currentBufferPageByKey.clear();
     this._nextSlot = 0;
     this._batchSet = null;
   }

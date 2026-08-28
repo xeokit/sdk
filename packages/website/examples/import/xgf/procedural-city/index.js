@@ -39,6 +39,9 @@ const ENABLE_BUILDING_PICKING = EXAMPLE_CONFIG.buildingPicking !== false;
 const SIGNAL_STUDIO_FINISHED = EXAMPLE_CONFIG.signalStudioFinished !== false;
 const PROFILE_PANEL = new URLSearchParams(window.location.search).get("profile") === "1";
 const ENABLE_REPRESENTATION_LOD = urlFlag(URL_PARAMS, "lod", EXAMPLE_CONFIG.representationLOD === true || EXAMPLE_CONFIG.lod === true);
+const MEMORY_PROFILE = getMemoryProfile();
+const RTC_TILE_SIZE = getPositiveNumberParam("tileSize", 1000);
+const MEMORY_CONFIGS = getMemoryConfigs(MEMORY_PROFILE);
 const AUTO_BATCH_SIZE = 12;
 const FETCH_CONCURRENCY = 10;
 const CHUNK_COMMIT_FRAME_BUDGET_MS = 4;
@@ -96,6 +99,17 @@ const DEFAULT_PROCEDURAL_CITY_RENDER_CONFIG = {
     }
   }
 };
+const OUTDOOR_DAYLIGHT = {
+  iblIntensity: 0.42,
+  hemisphereIntensity: 0.12,
+  hemisphereSkyColor: [0.72, 0.84, 0.96],
+  hemisphereGroundColor: [0.44, 0.45, 0.40],
+  ambientIntensity: 0.08,
+  sunDir: [-0.42, -0.62, -0.72],
+  sunColor: [1.0, 0.96, 0.88],
+  sunIntensity: 1.18
+};
+let outdoorDaylightHDRBuffer = null;
 const BASE_RENDER_CONFIG = HAS_STREAM_CONFIG ? {} : DEFAULT_PROCEDURAL_CITY_RENDER_CONFIG;
 const VIEW_EFFECTS = normalizeProfileConfig(EXAMPLE_CONFIG.effects || BASE_RENDER_CONFIG.effects || {});
 const VIEW_LIGHTS = normalizeProfileConfig(EXAMPLE_CONFIG.lights || BASE_RENDER_CONFIG.lights || {});
@@ -104,6 +118,10 @@ const ACTIVE_VIEW_PROFILE = EXAMPLE_CONFIG.viewProfile || EXAMPLE_CONFIG.activeP
 const {DEFAULT_VIEW_PROFILES} = xeokit.viewing.profiles;
 const WEBGPU_CONFIG = {
   ...EXAMPLE_CONFIG.webGPU,
+  memoryConfigs: {
+    ...MEMORY_CONFIGS,
+    ...EXAMPLE_CONFIG.webGPU?.memoryConfigs
+  },
   renderConfigs: {
     ...EXAMPLE_CONFIG.webGPU?.renderConfigs,
     logDepth: EXAMPLE_CONFIG.webGPU?.renderConfigs?.logDepth ?? true
@@ -175,6 +193,7 @@ studio.init().then(async () => {
   }
   disableExpensiveEffects(view);
   applyFastVisuals(view, FAST_VISUALS);
+  applyOutdoorDaylight(view, EXAMPLE_CONFIG.outdoorDaylight || OUTDOOR_DAYLIGHT);
   focusViewSurface(view);
   const representationLODSelector = ENABLE_REPRESENTATION_LOD && xeokit.viewing.lod?.RepresentationLODSelector
     ? new xeokit.viewing.lod.RepresentationLODSelector({viewer: studio.viewer})
@@ -338,6 +357,68 @@ function urlFlag(params, name, fallback = false) {
   return value !== "0" && value !== "false" && value !== "off";
 }
 
+function getMemoryProfile() {
+  const value = URL_PARAMS.get("memory");
+  if (value === "compact" || value === "mediumPacked" || value === "largePacked" || value === "largeStatic") {
+    return value;
+  }
+  return "stream";
+}
+
+function getMemoryConfigs(profile) {
+  if (profile === "mediumPacked") {
+    return {
+      maxBatchVertices: 150000,
+      maxBatchIndices: 450000,
+      maxBatchMeshes: 16384,
+      maxBatchGeometries: 16384,
+      maxBatchPrims: 150000,
+      maxBatchBuildTimeMs: 12,
+      tileSize: RTC_TILE_SIZE,
+      frustumCulling: false,
+      minProjectedCanvasSize: 0,
+      compactStreamPages: true,
+      compactSealedStreamPages: false
+    };
+  }
+  if (profile === "largePacked" || profile === "largeStatic") {
+    return {
+      maxBatchVertices: 900000,
+      maxBatchIndices: 2700000,
+      maxBatchMeshes: 32768,
+      maxBatchGeometries: 32768,
+      maxBatchPrims: 900000,
+      maxBatchBuildTimeMs: 16,
+      tileSize: RTC_TILE_SIZE,
+      frustumCulling: false,
+      minProjectedCanvasSize: 0,
+      compactStreamPages: true
+    };
+  }
+  if (profile === "compact") {
+    return {
+      maxBatchVertices: 300000,
+      maxBatchIndices: 900000,
+      maxBatchMeshes: 8192,
+      maxBatchGeometries: 8192,
+      maxBatchPrims: 300000,
+      maxBatchBuildTimeMs: 10,
+      tileSize: RTC_TILE_SIZE,
+      frustumCulling: false,
+      minProjectedCanvasSize: 0,
+      compactStreamPages: true
+    };
+  }
+  return {
+    tileSize: RTC_TILE_SIZE
+  };
+}
+
+function getPositiveNumberParam(name, fallback) {
+  const value = Number(URL_PARAMS.get(name));
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
 function createVehicleConfig(config) {
   if (!config) {
     return null;
@@ -456,9 +537,71 @@ function disableExpensiveEffects(view) {
       effects[effectId].enabled = false;
     }
   }
-  if (view.lights?.ibl) {
-    view.lights.ibl.enabled = false;
+}
+
+function applyOutdoorDaylight(view, config) {
+  if (!config) {
+    return;
   }
+  if (view.lights?.ibl) {
+    view.lights.ibl.enabled = config.iblIntensity > 0;
+    view.lights.ibl.intensity = config.iblIntensity ?? 0.42;
+    if (view.lights.ibl.enabled) {
+      const iblResult = applyOutdoorIBLEnvironment(view, config);
+      if (!iblResult) {
+        view.lights.ibl.enabled = false;
+        view.lights.ibl.intensity = 0;
+      }
+    }
+  }
+  if (view.lights?.hemispheric) {
+    view.lights.hemispheric.enabled = config.hemisphereIntensity > 0;
+    view.lights.hemispheric.intensity = config.hemisphereIntensity ?? 0.12;
+    view.lights.hemispheric.skyColor = config.hemisphereSkyColor || [0.72, 0.84, 0.96];
+    view.lights.hemispheric.groundColor = config.hemisphereGroundColor || [0.44, 0.45, 0.40];
+    view.lights.hemispheric.worldUp = [0, 0, 1];
+  }
+  const {AmbientLight, DirLight} = xeokit.viewing.viewer;
+  view.clearLights();
+  new AmbientLight(view, {
+    id: "outdoorDaylightAmbient",
+    color: [1.0, 1.0, 1.0],
+    intensity: config.ambientIntensity ?? 0.08
+  });
+  new DirLight(view, {
+    id: "outdoorDaylightSun",
+    dir: config.sunDir || [-0.42, -0.62, -0.72],
+    color: config.sunColor || [1.0, 0.96, 0.88],
+    intensity: config.sunIntensity ?? 1.18,
+    space: "world"
+  });
+}
+
+function applyOutdoorIBLEnvironment(view, config) {
+  const paint = xeokit.model?.generation?.paintEnvironments;
+  if (!paint?.paintSunSkyHDR || !paint?.encodeRadianceHDR) {
+    return false;
+  }
+  if (!outdoorDaylightHDRBuffer) {
+    const sunDirection = normalizeVec3(config.sunDirection || negateVec3(config.sunDir || [-0.42, -0.62, -0.72]));
+    const hdrPixels = paint.paintSunSkyHDR(512, 256, {sunDirection});
+    outdoorDaylightHDRBuffer = paint.encodeRadianceHDR(hdrPixels, 512, 256);
+  }
+  const result = view.lights.ibl.setEnvironmentHDRBuffer(outdoorDaylightHDRBuffer);
+  if (!result.ok) {
+    console.warn("[import/xgf/procedural-city] Outdoor IBL setup failed:", result.error);
+    return false;
+  }
+  return true;
+}
+
+function negateVec3(value) {
+  return [-value[0], -value[1], -value[2]];
+}
+
+function normalizeVec3(value) {
+  const length = Math.hypot(value[0], value[1], value[2]) || 1;
+  return [value[0] / length, value[1] / length, value[2] / length];
 }
 
 function applyFastVisuals(view, visuals = {}) {

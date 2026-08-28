@@ -113,14 +113,14 @@ export class RenderBinClassifier {
         }
       }
 
-      if (this._tryAppendFullOpaqueSegment({segment, view, meshManager, bins})) {
+      if ((!cameraCulling || !segmentClipBounds || segmentClipBounds.allInsideFrustum) && this._tryAppendFullOpaqueSegment({segment, view, meshManager, bins})) {
         this._stats.segmentFullyDrawn++;
         continue;
       }
 
       this._stats.segmentPartiallyRefined++;
       for (let i = 0, len = segment.slots.length; i < len; i++) {
-        this._classifyMesh(segment.slots[i].meshState, view, meshManager, bins);
+        this._classifyMesh(segment.slots[i].meshState, view, meshManager, bins, cameraCulling);
       }
     }
 
@@ -128,11 +128,14 @@ export class RenderBinClassifier {
     this._sortTransparentEmphasisBins(bins);
   }
 
-  private _classifyMesh(meshState: RendererMesh, view: View, meshManager: MeshManager, bins: RenderBins): void {
+  private _classifyMesh(meshState: RendererMesh, view: View, meshManager: MeshManager, bins: RenderBins, cameraCulling = false): void {
     if (meshState.mesh.bin === "overlayPicker") {
       return;
     }
     if (!meshManager.isMeshVisibleInView(meshState, view)) {
+      return;
+    }
+    if (cameraCulling && !this._isMeshInCameraView(meshState, view, meshManager)) {
       return;
     }
 
@@ -225,6 +228,25 @@ export class RenderBinClassifier {
     bins.selectedEdgesTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
   }
 
+  private _isMeshInCameraView(meshState: RendererMesh, view: View, meshManager: MeshManager): boolean {
+    const meshClipBounds = this._getMeshWorldAABBClipBounds(meshState, view, meshManager);
+    if (!meshClipBounds) {
+      return true;
+    }
+    if (this._memoryConfigs.frustumCulling && this._isOutsideFrustum(meshClipBounds)) {
+      this._stats.frustumCulled++;
+      return false;
+    }
+    if (
+      this._memoryConfigs.minProjectedCanvasSize > 0 &&
+      this._isBelowProjectedCanvasSize(meshClipBounds, view, this._memoryConfigs.minProjectedCanvasSize)
+    ) {
+      this._stats.projectedSizeCulled++;
+      return false;
+    }
+    return true;
+  }
+
   private _nextDrawItem(): DrawItem {
     let drawItem = this._drawItemPool[this._drawItemPoolCount];
     if (!drawItem) {
@@ -255,6 +277,34 @@ export class RenderBinClassifier {
         for (let zIndex = 0; zIndex < 2; zIndex++) {
           const z = worldAABB[zIndex === 0 ? 2 : 5];
           this._projectWorldPoint(viewMatrix, projectionMatrix, x, y, z);
+          growClipBounds(bounds, this._clipPoint);
+        }
+      }
+    }
+
+    return bounds.valid ? bounds : null;
+  }
+
+  private _getMeshWorldAABBClipBounds(meshState: RendererMesh, view: View, meshManager: MeshManager): ClipBounds | null {
+    const localAABB = meshState.geometryState.geometry.aabb;
+    if (!localAABB) {
+      return null;
+    }
+    const worldMatrix = meshManager.getMeshWorldMatrix(meshState);
+    const viewMatrix = (view.camera?.viewMatrix ?? IDENTITY_MATRIX) as Mat4;
+    const projectionMatrix = (view.camera?.projMatrix ?? IDENTITY_MATRIX) as Mat4;
+    const bounds = createClipBounds();
+
+    for (let xIndex = 0; xIndex < 2; xIndex++) {
+      const x = localAABB[xIndex === 0 ? 0 : 3];
+      for (let yIndex = 0; yIndex < 2; yIndex++) {
+        const y = localAABB[yIndex === 0 ? 1 : 4];
+        for (let zIndex = 0; zIndex < 2; zIndex++) {
+          const z = localAABB[zIndex === 0 ? 2 : 5];
+          const worldX = worldMatrix[0] * x + worldMatrix[4] * y + worldMatrix[8] * z + worldMatrix[12];
+          const worldY = worldMatrix[1] * x + worldMatrix[5] * y + worldMatrix[9] * z + worldMatrix[13];
+          const worldZ = worldMatrix[2] * x + worldMatrix[6] * y + worldMatrix[10] * z + worldMatrix[14];
+          this._projectWorldPoint(viewMatrix, projectionMatrix, worldX, worldY, worldZ);
           growClipBounds(bounds, this._clipPoint);
         }
       }

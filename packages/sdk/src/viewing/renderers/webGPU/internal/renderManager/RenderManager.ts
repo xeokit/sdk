@@ -32,6 +32,9 @@ const nowMs = (): number => {
   const performanceLike = (globalThis as {performance?: {now?: () => number}}).performance;
   return performanceLike?.now ? performanceLike.now() : Date.now();
 };
+const APPEND_ONLY_REPACK_IDLE_DELAY_MS = 2000;
+const CAMERA_CULLING_IDLE_REBUILD_DELAY_MS = 250;
+const MEANINGFUL_TRANSPARENT_INDEX_FRACTION = 0.05;
 
 const tempViewProjectionMatrix = createMat4Float64();
 const tempWebGPUViewProjectionMatrix = createMat4Float64();
@@ -46,6 +49,7 @@ interface ViewRenderCache {
   renderEffectKey: string;
   cameraViewVersion: number;
   cameraMatrixSnapshot: number[] | null;
+  lastCameraMatrixChangeMs: number;
   hasTransparent: boolean;
   totalInstances: number;
   instanceFrame: InstanceBufferFrame | null;
@@ -60,6 +64,14 @@ interface ViewRenderCache {
   meshStateCount: number;
   builtSegmentCount: number;
   pendingSegmentCount: number;
+  appendOnlyRepackPending: boolean;
+  appendOnlyRepackBuilding: boolean;
+  appendOnlyRepackCommitPending: boolean;
+  appendOnlyRepackAfterMs: number;
+  appendOnlyRepackedStructureVersion: number;
+  cameraCullingDirty: boolean;
+  cameraCullingRebuildAfterMs: number;
+  cameraCullingRenderScheduled: boolean;
   cullStats: RenderCullStats;
   transparentBins: TransparentRenderBinCache;
 }
@@ -576,7 +588,8 @@ export class RenderManager {
           instanceBindGroup: instanceBindGroupResult!.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: false
+          transparent: false,
+          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
         });
         if (emphasizedOpaqueResult.ok === false) {
           return emphasizedOpaqueResult;
@@ -756,7 +769,8 @@ export class RenderManager {
           instanceBindGroup: instanceBindGroupResult!.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: true
+          transparent: true,
+          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
         });
         if (emphasizedTransparentResult.ok === false) {
           return emphasizedTransparentResult;
@@ -1393,12 +1407,29 @@ export class RenderManager {
     const renderEffectKey = createRenderEffectKey(view);
     const cameraViewVersion = this._meshManager.getCameraViewVersion(view);
     const cameraMatrixChanged = cache.cameraViewVersion !== cameraViewVersion && !this._isCameraMatrixUnchanged(cache, view);
+    const now = nowMs();
+    if (cameraMatrixChanged) {
+      cache.lastCameraMatrixChangeMs = now;
+      if (this._usesCameraCulling()) {
+        this._markCameraCullingRebuildPending(cache, view, now);
+      }
+      if (cache.appendOnlyRepackPending) {
+        cache.appendOnlyRepackAfterMs = now + APPEND_ONLY_REPACK_IDLE_DELAY_MS;
+      }
+      if (cache.appendOnlyRepackBuilding) {
+        this._instanceBatcher.cancelBackgroundRepack();
+        cache.appendOnlyRepackBuilding = false;
+      }
+    }
+    const needsAppendOnlyRepack = this._needsAppendOnlyRepack(cache, structureVersion);
+    const needsCameraCullingRebuild = this._needsCameraCullingRebuild(cache);
     const needsFullRebuild =
+      needsAppendOnlyRepack ||
+      needsCameraCullingRebuild ||
       cache.structureVersion !== structureVersion ||
       cache.instanceDataVersion !== instanceDataVersion ||
       cache.viewStateVersion !== viewStateVersion ||
       cache.renderEffectKey !== renderEffectKey ||
-      (this._usesCameraCulling() && cameraMatrixChanged) ||
       (cache.totalInstances > 0 && !cache.instanceFrame?.buffer);
     const needsTransparentSort =
       cache.hasTransparent &&
@@ -1509,14 +1540,27 @@ export class RenderManager {
       }
     }
 
+    if (needsAppendOnlyRepack) {
+      const backgroundRepackResult = this._advanceAppendOnlyBackgroundRepack({
+        cache,
+        view,
+        structureVersion
+      });
+      if (backgroundRepackResult) {
+        return backgroundRepackResult;
+      }
+    }
+
     const batchingStart = nowMs();
     const renderReason = this._getFullRebuildReason({
       cache,
+      appendOnlyRepack: needsAppendOnlyRepack,
       structureVersion,
       instanceDataVersion,
       viewStateVersion,
       renderEffectKey,
-      cameraMatrixChanged
+      cameraMatrixChanged,
+      cameraCullingRebuild: needsCameraCullingRebuild
     });
     const prepareStart = nowMs();
     const batchSetResult = this._instanceBatcher.prepareBatchSet(this._meshManager, this._getRenderFrameBatchPrepareOptions());
@@ -1571,6 +1615,7 @@ export class RenderManager {
       this._rememberCameraMatrix(cache, view);
       cache.builtSegmentCount = batchSet.builtSegmentCount;
       cache.pendingSegmentCount = batchSet.pendingSegmentCount;
+      this._markAppendOnlyRepackPending(cache, batchSet, structureVersion);
       this._renderInspector.setCullStats(cache.cullStats);
       this._renderInspector.setRenderReason("empty");
       this._instanceBufferManager.destroyFrame(view.id);
@@ -1640,8 +1685,20 @@ export class RenderManager {
     cache.renderEffectKey = renderEffectKey;
     cache.cameraViewVersion = cameraViewVersion;
     this._rememberCameraMatrix(cache, view);
+    cache.cameraCullingDirty = false;
+    cache.cameraCullingRebuildAfterMs = 0;
+    cache.cameraCullingRenderScheduled = false;
     cache.builtSegmentCount = batchSet.builtSegmentCount;
     cache.pendingSegmentCount = batchSet.pendingSegmentCount;
+    if (needsAppendOnlyRepack || cache.appendOnlyRepackCommitPending) {
+      cache.appendOnlyRepackPending = false;
+      cache.appendOnlyRepackBuilding = false;
+      cache.appendOnlyRepackCommitPending = false;
+      cache.appendOnlyRepackAfterMs = 0;
+      cache.appendOnlyRepackedStructureVersion = structureVersion;
+    } else {
+      this._markAppendOnlyRepackPending(cache, batchSet, structureVersion);
+    }
     this._renderInspector.setCullStats(cache.cullStats);
     this._renderInspector.setRenderReason(renderReason);
     this._rememberMeshSlots(cache, batchSet);
@@ -1954,6 +2011,7 @@ export class RenderManager {
     this._rememberCameraMatrix(cache, view);
     cache.builtSegmentCount = batchSetResult.value.builtSegmentCount;
     cache.pendingSegmentCount = batchSetResult.value.pendingSegmentCount;
+    this._markAppendOnlyRepackPending(cache, batchSetResult.value, params.structureVersion);
     this._rememberMeshSlots(cache, batchSetResult.value);
     this._rememberMeshStates(cache, meshStates);
     return {
@@ -2005,6 +2063,7 @@ export class RenderManager {
       cache.cameraViewVersion = params.cameraViewVersion;
       cache.builtSegmentCount = batchSet.builtSegmentCount;
       cache.pendingSegmentCount = batchSet.pendingSegmentCount;
+      this._markAppendOnlyRepackPending(cache, batchSet, params.structureVersion);
       this._rememberCameraMatrix(cache, view);
       this._renderInspector.setCullStats(cache.cullStats);
       this._renderInspector.setRenderReason("pendingSegmentAppend");
@@ -2128,6 +2187,7 @@ export class RenderManager {
     this._rememberCameraMatrix(cache, view);
     cache.builtSegmentCount = batchSet.builtSegmentCount;
     cache.pendingSegmentCount = batchSet.pendingSegmentCount;
+    this._markAppendOnlyRepackPending(cache, batchSet, params.structureVersion);
     this._rememberMeshSlotsForSegments(cache, newSegments);
     return {
       ok: true,
@@ -2182,7 +2242,7 @@ export class RenderManager {
       this._renderInspector.addCPUTime("batchingMs", nowMs() - batchingStart);
       this._renderInspector.addSegments(this._countBatches(cache.batches));
       this._renderInspector.setCullStats(cache.cullStats);
-      this._renderInspector.setRenderReason("transparentSegmentBatch");
+      this._renderInspector.setRenderReason(this._getSegmentBatchReuseReason(cache.batches));
       cache.hasTransparent = true;
       cache.structureVersion = params.structureVersion;
       cache.instanceDataVersion = params.instanceDataVersion;
@@ -2230,12 +2290,12 @@ export class RenderManager {
     this._renderInspector.addCPUTime("batchingMs", nowMs() - batchingStart);
     this._renderInspector.addSegments(this._countBatches(cache.batches));
     this._renderInspector.setCullStats(cache.cullStats);
+    cache.hasTransparent = this._hasTransparentBatches(cache.batches);
     this._renderInspector.setRenderReason(
       this._renderContext.renderConfigs.transparentSortStrategy === "object"
         ? "transparentSort"
-        : "transparentSegmentBatch"
+        : this._getSegmentBatchReuseReason(cache.batches)
     );
-    cache.hasTransparent = this._hasTransparentBatches(cache.batches);
     cache.structureVersion = params.structureVersion;
     cache.instanceDataVersion = params.instanceDataVersion;
     cache.objectViewStateVersion = params.objectViewStateVersion;
@@ -2250,10 +2310,11 @@ export class RenderManager {
     };
   }
 
-  private _getRenderFrameBatchPrepareOptions(): TriangleBatchPrepareOptions {
+  private _getRenderFrameBatchPrepareOptions(params: {forceRepack?: boolean} = {}): TriangleBatchPrepareOptions {
     return {
       buildPendingSegments: true,
-      buildAllPendingSegments: true
+      buildAllPendingSegments: true,
+      forceRepack: params.forceRepack === true
     };
   }
 
@@ -2269,6 +2330,7 @@ export class RenderManager {
         renderEffectKey: "",
         cameraViewVersion: -1,
         cameraMatrixSnapshot: null,
+        lastCameraMatrixChangeMs: nowMs(),
         hasTransparent: false,
         totalInstances: 0,
         instanceFrame: null,
@@ -2301,6 +2363,14 @@ export class RenderManager {
         meshStateCount: 0,
         builtSegmentCount: 0,
         pendingSegmentCount: 0,
+        appendOnlyRepackPending: false,
+        appendOnlyRepackBuilding: false,
+        appendOnlyRepackCommitPending: false,
+        appendOnlyRepackAfterMs: 0,
+        appendOnlyRepackedStructureVersion: -1,
+        cameraCullingDirty: false,
+        cameraCullingRebuildAfterMs: 0,
+        cameraCullingRenderScheduled: false,
         cullStats: emptyCullStats(),
         transparentBins: createTransparentRenderBinCache()
       };
@@ -2407,6 +2477,8 @@ export class RenderManager {
 
   private _getFullRebuildReason(params: {
     cache: ViewRenderCache;
+    appendOnlyRepack?: boolean;
+    cameraCullingRebuild?: boolean;
     structureVersion: number;
     instanceDataVersion: number;
     viewStateVersion: number;
@@ -2414,6 +2486,9 @@ export class RenderManager {
     cameraMatrixChanged: boolean;
   }): string {
     const {cache, structureVersion, instanceDataVersion, viewStateVersion, renderEffectKey, cameraMatrixChanged} = params;
+    if (params.appendOnlyRepack || cache.appendOnlyRepackCommitPending) {
+      return "appendOnlyRepack";
+    }
     if (cache.pendingSegmentCount > 0 || cache.structureVersion < 0) {
       return "pendingSegmentBuild";
     }
@@ -2429,13 +2504,120 @@ export class RenderManager {
     if (cache.renderEffectKey !== renderEffectKey) {
       return "renderEffects";
     }
-    if (this._usesCameraCulling() && cameraMatrixChanged) {
+    if (params.cameraCullingRebuild || (this._usesCameraCulling() && cameraMatrixChanged)) {
       return "cameraCullingRebuild";
     }
     if (cache.totalInstances > 0 && !cache.instanceFrame?.buffer) {
       return "instanceBufferRecreated";
     }
     return "fullRebuild";
+  }
+
+  private _markAppendOnlyRepackPending(cache: ViewRenderCache, batchSet: TriangleBatchSet, structureVersion: number): void {
+    if (
+      batchSet.pendingSegmentCount === 0 &&
+      batchSet.builtSegmentCount > 1 &&
+      this._hasStreamSegments(batchSet) &&
+      cache.appendOnlyRepackedStructureVersion !== structureVersion
+    ) {
+      cache.appendOnlyRepackPending = true;
+      cache.appendOnlyRepackAfterMs = Math.max(nowMs(), cache.lastCameraMatrixChangeMs) + APPEND_ONLY_REPACK_IDLE_DELAY_MS;
+    }
+  }
+
+  private _needsAppendOnlyRepack(cache: ViewRenderCache, structureVersion: number): boolean {
+    return (
+      cache.appendOnlyRepackPending &&
+      cache.appendOnlyRepackedStructureVersion !== structureVersion &&
+      cache.appendOnlyRepackAfterMs > 0 &&
+      nowMs() >= cache.appendOnlyRepackAfterMs &&
+      cache.pendingSegmentCount === 0 &&
+      cache.batchSet !== null &&
+      cache.batchSet.builtSegmentCount > 1 &&
+      cache.structureVersion === structureVersion &&
+      !cache.hasTransparent &&
+      !this._usesCameraCulling()
+    );
+  }
+
+  private _markCameraCullingRebuildPending(cache: ViewRenderCache, view: View, now: number): void {
+    cache.cameraCullingDirty = true;
+    cache.cameraCullingRebuildAfterMs = now + CAMERA_CULLING_IDLE_REBUILD_DELAY_MS;
+    if (cache.cameraCullingRenderScheduled) {
+      return;
+    }
+    cache.cameraCullingRenderScheduled = true;
+    const setTimeoutFn = (globalThis as {setTimeout?: (handler: () => void, timeout?: number) => unknown}).setTimeout;
+    if (!setTimeoutFn) {
+      return;
+    }
+    setTimeoutFn(() => {
+      cache.cameraCullingRenderScheduled = false;
+      if (cache.cameraCullingDirty) {
+        view.needsRender();
+      }
+    }, CAMERA_CULLING_IDLE_REBUILD_DELAY_MS);
+  }
+
+  private _needsCameraCullingRebuild(cache: ViewRenderCache): boolean {
+    return (
+      this._usesCameraCulling() &&
+      cache.cameraCullingDirty &&
+      cache.cameraCullingRebuildAfterMs > 0 &&
+      nowMs() >= cache.cameraCullingRebuildAfterMs
+    );
+  }
+
+  private _advanceAppendOnlyBackgroundRepack(params: {
+    cache: ViewRenderCache;
+    view: View;
+    structureVersion: number;
+  }): SDKResult<ViewRenderCache> | null {
+    const {cache, view, structureVersion} = params;
+    if (!cache.appendOnlyRepackBuilding) {
+      const beginResult = this._instanceBatcher.beginBackgroundRepack(this._meshManager);
+      if (beginResult.ok === false) {
+        return beginResult;
+      }
+      cache.appendOnlyRepackBuilding = true;
+    }
+
+    const buildResult = this._instanceBatcher.buildBackgroundRepackSegment(this._meshManager);
+    if (buildResult.ok === false) {
+      cache.appendOnlyRepackBuilding = false;
+      this._instanceBatcher.cancelBackgroundRepack();
+      return buildResult;
+    }
+    const batchSet = buildResult.value;
+    if (!batchSet || batchSet.pendingSegmentCount > 0) {
+      this._renderInspector.setSegmentQueueStats({
+        built: batchSet?.builtSegmentCount ?? cache.builtSegmentCount,
+        pending: batchSet?.pendingSegmentCount ?? cache.pendingSegmentCount,
+        buildTelemetry: batchSet?.buildTelemetry ?? cache.batchSet?.buildTelemetry
+      });
+      this._renderInspector.setCullStats(cache.cullStats);
+      this._renderInspector.setRenderReason("appendOnlyRepackBuild");
+      view.needsRender();
+      return {
+        ok: true,
+        value: cache
+      };
+    }
+
+    this._instanceBatcher.commitBackgroundRepack();
+    cache.appendOnlyRepackBuilding = false;
+    cache.appendOnlyRepackCommitPending = true;
+    cache.structureVersion = -1;
+    return null;
+  }
+
+  private _hasStreamSegments(batchSet: TriangleBatchSet): boolean {
+    for (let i = 0, len = batchSet.segments.length; i < len; i++) {
+      if (batchSet.segments[i].baseKey.includes("|stream")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private _rememberCameraMatrix(cache: ViewRenderCache, view: View): void {
@@ -2503,6 +2685,46 @@ export class RenderManager {
       batches.highlightedEdgesTransparent.length > 0 ||
       batches.selectedTransparent.length > 0 ||
       batches.selectedEdgesTransparent.length > 0;
+  }
+
+  private _getSegmentBatchReuseReason(batches: InstancedDrawBatches): "transparentSegmentBatch" | "segmentBatchReuse" {
+    return this._hasMeaningfulTransparentBatchLoad(batches) ? "transparentSegmentBatch" : "segmentBatchReuse";
+  }
+
+  private _hasMeaningfulTransparentBatchLoad(batches: InstancedDrawBatches): boolean {
+    const transparentIndexCount = this._countBatchIndices([
+      ...batches.transparent,
+      ...batches.overlayTransparent,
+      ...batches.xrayedTransparent,
+      ...batches.xrayedEdgesTransparent,
+      ...batches.highlightedTransparent,
+      ...batches.highlightedEdgesTransparent,
+      ...batches.selectedTransparent,
+      ...batches.selectedEdgesTransparent
+    ]);
+    if (transparentIndexCount === 0) {
+      return false;
+    }
+    const opaqueIndexCount = this._countBatchIndices([
+      ...batches.opaque,
+      ...batches.edges,
+      ...batches.overlayOpaque,
+      ...batches.xrayedOpaque,
+      ...batches.xrayedEdgesOpaque,
+      ...batches.highlightedOpaque,
+      ...batches.highlightedEdgesOpaque,
+      ...batches.selectedOpaque,
+      ...batches.selectedEdgesOpaque
+    ]);
+    return opaqueIndexCount === 0 || transparentIndexCount / (opaqueIndexCount + transparentIndexCount) >= MEANINGFUL_TRANSPARENT_INDEX_FRACTION;
+  }
+
+  private _countBatchIndices(batches: InstancedDrawBatch[]): number {
+    let count = 0;
+    for (let i = 0, len = batches.length; i < len; i++) {
+      count += batches[i].packedBatch.indexCount || 0;
+    }
+    return count;
   }
 
   private _getSectionPlanesForCaps(view: View): SectionPlaneCap[] {

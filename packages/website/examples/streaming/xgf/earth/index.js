@@ -37,6 +37,10 @@ const COUNTRY_BOUNDARY_LAYER_ID = "countryBoundaries";
 const COUNTRY_REGION_LAYER_ID = "countryRegions";
 const SATELLITE_ORBIT_LAYER_ID = "satelliteOrbits";
 const LAUNCH_TRAJECTORY_LAYER_ID = "launchTrajectories";
+const EARTH_OVERLAY_VISIBILITY = {
+  satelliteOrbits: false,
+  launchTrajectories: false
+};
 const LAND_COLOR = [0.340, 0.750, 0.275];
 const OCEAN_COLOR = [0.105, 0.320, 0.680];
 const COUNTRY_BOUNDARY_COLOR = [0.58, 0.55, 0.34];
@@ -246,6 +250,24 @@ const LAUNCH_TRAJECTORIES = [
     lineWidth: 1.7
   }
 ];
+const REENTRY_CORRIDORS = [
+  {
+    id: "capeCanaveralShuttleReentry",
+    name: "Cape Canaveral shuttle re-entry",
+    landingLon: -80.6945,
+    landingLat: 28.615,
+    inboundBearingDegrees: 315,
+    downrangeDegrees: 54,
+    entryAltitudeMeters: 122000,
+    terminalAltitudeMeters: 12000,
+    altitudeScale: 8.0,
+    entryWidthDegrees: 10.5,
+    terminalWidthDegrees: 0.35,
+    color: [1.0, 0.46, 0.28],
+    opacity: 0.86,
+    lineWidth: 2.2
+  }
+];
 const SHOW_COUNTRY_REGIONS = new URLSearchParams(window.location.search).get("physical") !== "1";
 const ENABLE_COUNTRY_SEMANTICS = true;
 const COUNTRY_PROPERTY_DISPLAY = [
@@ -288,7 +310,9 @@ async function main() {
     chunkProgress: document.getElementById("chunkProgress"),
     status: document.getElementById("status"),
     countryName: document.getElementById("countryName"),
-    countryProperties: document.getElementById("countryProperties")
+    countryProperties: document.getElementById("countryProperties"),
+    satellitesToggle: document.getElementById("satellitesToggle"),
+    launchTrajectoriesToggle: document.getElementById("launchTrajectoriesToggle")
   };
 
   try {
@@ -335,6 +359,7 @@ async function main() {
     window.__earthView = view;
     window.__earthRenderer = renderer;
     ensureEarthLayers(view);
+    wireOverlayControls(view, ui);
     view.backgroundColor = [0, 0, 0];
     view.effects.atmosphere.enabled = false;
     view.effects.sky.enabled = false;
@@ -365,6 +390,7 @@ async function main() {
     });
     createSatelliteOrbits(scene);
     createLaunchTrajectories(scene);
+    applyEarthOverlayVisibility(view);
     createOcean(scene, OCEAN_RADIUS);
     const sceneModel = must(scene.createModel({
       id: MODEL_ID,
@@ -391,6 +417,7 @@ async function main() {
       ? await loadWaterRegions(scene, loader, view, state, ui)
       : false;
     setEarthMapMode(view, countryRegionsLoaded && waterLoaded ? "countries" : "physical");
+    applyEarthOverlayVisibility(view);
     const countrySemantics = countryRegionsLoaded && ENABLE_COUNTRY_SEMANTICS ? await loadCountrySemantics(ui) : null;
     if (countrySemantics) {
       createCountryLabels(scene, countrySemantics.dataModel);
@@ -836,8 +863,47 @@ function getSurfaceScale(materialId) {
 function ensureEarthLayers(view) {
   ensureLayer(view, COUNTRY_BOUNDARY_LAYER_ID, true);
   ensureLayer(view, COUNTRY_REGION_LAYER_ID, false);
-  ensureLayer(view, SATELLITE_ORBIT_LAYER_ID, true);
-  ensureLayer(view, LAUNCH_TRAJECTORY_LAYER_ID, true);
+  ensureLayer(view, SATELLITE_ORBIT_LAYER_ID, EARTH_OVERLAY_VISIBILITY.satelliteOrbits);
+  ensureLayer(view, LAUNCH_TRAJECTORY_LAYER_ID, EARTH_OVERLAY_VISIBILITY.launchTrajectories);
+}
+
+function wireOverlayControls(view, ui) {
+  if (ui.satellitesToggle) {
+    ui.satellitesToggle.checked = EARTH_OVERLAY_VISIBILITY.satelliteOrbits;
+    ui.satellitesToggle.addEventListener("change", () => {
+      EARTH_OVERLAY_VISIBILITY.satelliteOrbits = ui.satellitesToggle.checked;
+      applyEarthOverlayVisibility(view);
+    });
+  }
+  if (ui.launchTrajectoriesToggle) {
+    ui.launchTrajectoriesToggle.checked = EARTH_OVERLAY_VISIBILITY.launchTrajectories;
+    ui.launchTrajectoriesToggle.addEventListener("change", () => {
+      EARTH_OVERLAY_VISIBILITY.launchTrajectories = ui.launchTrajectoriesToggle.checked;
+      applyEarthOverlayVisibility(view);
+    });
+  }
+}
+
+function applyEarthOverlayVisibility(view) {
+  setEarthOverlayVisible(
+    view,
+    SATELLITE_ORBIT_LAYER_ID,
+    ["earth.satelliteOrbit."],
+    EARTH_OVERLAY_VISIBILITY.satelliteOrbits
+  );
+  setEarthOverlayVisible(
+    view,
+    LAUNCH_TRAJECTORY_LAYER_ID,
+    ["earth.launchTrajectory."],
+    EARTH_OVERLAY_VISIBILITY.launchTrajectories
+  );
+}
+
+function setEarthOverlayVisible(view, layerId, prefixes, visible) {
+  setObjectsVisibleByPrefix(view, prefixes, visible);
+  if (view.layers?.[layerId]) {
+    setLayerObjectsVisible(view.layers[layerId], visible);
+  }
 }
 
 function configureEarthLighting(view) {
@@ -895,20 +961,13 @@ function setEarthMapMode(view, mode) {
   setObjectsVisibleByPrefix(view, ["earth.coastline."], true);
   setObjectsVisibleByPrefix(view, ["earth.water.", "earth.countryRegion."], countryMode);
   setObjectsVisibleByPrefix(view, ["earth.graticule."], true);
-  setObjectsVisibleByPrefix(view, ["earth.satelliteOrbit."], true);
-  setObjectsVisibleByPrefix(view, ["earth.launchTrajectory."], true);
   if (view.layers?.[COUNTRY_REGION_LAYER_ID]) {
     setLayerObjectsVisible(view.layers[COUNTRY_REGION_LAYER_ID], countryMode);
   }
   if (view.layers?.[COUNTRY_BOUNDARY_LAYER_ID]) {
     setLayerObjectsVisible(view.layers[COUNTRY_BOUNDARY_LAYER_ID], countryMode);
   }
-  if (view.layers?.[SATELLITE_ORBIT_LAYER_ID]) {
-    setLayerObjectsVisible(view.layers[SATELLITE_ORBIT_LAYER_ID], true);
-  }
-  if (view.layers?.[LAUNCH_TRAJECTORY_LAYER_ID]) {
-    setLayerObjectsVisible(view.layers[LAUNCH_TRAJECTORY_LAYER_ID], true);
-  }
+  applyEarthOverlayVisibility(view);
 }
 
 function setLayerObjectsVisible(layer, visible) {
@@ -1220,6 +1279,7 @@ function createLaunchTrajectories(scene) {
       pickable: false
     }));
   }
+  createReentryCorridors(model);
 
   window.__earthLaunchTrajectories = LAUNCH_TRAJECTORIES.map((trajectory) => ({
     id: trajectory.id,
@@ -1230,6 +1290,80 @@ function createLaunchTrajectories(scene) {
     apogeeMeters: trajectory.apogeeMeters,
     targetOrbitAltitudeMeters: trajectory.targetOrbitAltitudeMeters
   }));
+  window.__earthReentryCorridors = REENTRY_CORRIDORS.map((corridor) => ({
+    id: corridor.id,
+    name: corridor.name,
+    landingLon: corridor.landingLon,
+    landingLat: corridor.landingLat,
+    inboundBearingDegrees: corridor.inboundBearingDegrees,
+    entryAltitudeMeters: corridor.entryAltitudeMeters
+  }));
+}
+
+function createReentryCorridors(model) {
+  for (const corridor of REENTRY_CORRIDORS) {
+    const centerGeometryId = `reentryCorridorCenterGeometry.${corridor.id}`;
+    const centerMeshId = `reentryCorridorCenterMesh.${corridor.id}`;
+    const funnelGeometryId = `reentryCorridorFunnelGeometry.${corridor.id}`;
+    const funnelMeshId = `reentryCorridorFunnelMesh.${corridor.id}`;
+    const runwayGeometryId = `reentryCorridorRunwayGeometry.${corridor.id}`;
+    const runwayMeshId = `reentryCorridorRunwayMesh.${corridor.id}`;
+    const labelMeshId = createArcBillboardLabel(model, {
+      id: `reentryCorridor.${corridor.id}`,
+      text: corridor.name,
+      position: reentryCorridorLabelPosition(corridor),
+      size: TRAJECTORY_LABEL_SIZE,
+      color: corridor.color,
+      opacity: Math.min(1.0, corridor.opacity + 0.18),
+      lineWidth: 1.0
+    });
+
+    must(model.createGeometry({
+      id: centerGeometryId,
+      primitive: xeokit.base.constants.LinesPrimitive,
+      ...buildReentryCorridorCenterLine(corridor, 180)
+    }));
+    must(model.createMesh({
+      id: centerMeshId,
+      geometryId: centerGeometryId,
+      color: [1.0, 0.72, 0.36],
+      opacity: Math.min(1.0, corridor.opacity + 0.08),
+      lineWidth: corridor.lineWidth + 0.5
+    }));
+
+    must(model.createGeometry({
+      id: funnelGeometryId,
+      primitive: xeokit.base.constants.LinesPrimitive,
+      ...buildReentryCorridorFunnelLines(corridor, 180)
+    }));
+    must(model.createMesh({
+      id: funnelMeshId,
+      geometryId: funnelGeometryId,
+      color: corridor.color,
+      opacity: corridor.opacity * 0.62,
+      lineWidth: corridor.lineWidth
+    }));
+
+    must(model.createGeometry({
+      id: runwayGeometryId,
+      primitive: xeokit.base.constants.LinesPrimitive,
+      ...buildReentryRunwayMarker(corridor)
+    }));
+    must(model.createMesh({
+      id: runwayMeshId,
+      geometryId: runwayGeometryId,
+      color: [1.0, 0.92, 0.62],
+      opacity: 0.96,
+      lineWidth: corridor.lineWidth + 0.8
+    }));
+
+    must(model.createObject({
+      id: `earth.launchTrajectory.${corridor.id}`,
+      meshIds: [centerMeshId, funnelMeshId, runwayMeshId, labelMeshId],
+      clippable: false,
+      pickable: false
+    }));
+  }
 }
 
 function buildLaunchTrajectoryLine(trajectory, segments) {
@@ -1253,6 +1387,109 @@ function buildLaunchTrajectoryLine(trajectory, segments) {
     positions: new Float32Array(positions),
     indices: new Uint32Array(indices)
   };
+}
+
+function buildReentryCorridorCenterLine(corridor, segments) {
+  const positions = [];
+  const indices = [];
+  for (let i = 0; i <= segments; i++) {
+    const point = reentryCorridorPoint(corridor, i / segments, 0);
+    positions.push(...point);
+    if (i > 0) {
+      indices.push(i - 1, i);
+    }
+  }
+  return {
+    positions: new Float32Array(positions),
+    indices: new Uint32Array(indices)
+  };
+}
+
+function buildReentryCorridorFunnelLines(corridor, segments) {
+  const positions = [];
+  const indices = [];
+  const lanes = [-1, -0.62, -0.28, 0.28, 0.62, 1];
+  for (const lane of lanes) {
+    addReentryCorridorLane(positions, indices, corridor, segments, lane);
+  }
+  for (let i = 0; i <= 9; i++) {
+    addReentryCorridorRib(positions, indices, corridor, i / 9);
+  }
+  return {
+    positions: new Float32Array(positions),
+    indices: new Uint32Array(indices)
+  };
+}
+
+function addReentryCorridorLane(positions, indices, corridor, segments, lane) {
+  const startIndex = positions.length / 3;
+  for (let i = 0; i <= segments; i++) {
+    positions.push(...reentryCorridorPoint(corridor, i / segments, lane));
+    if (i > 0) {
+      indices.push(startIndex + i - 1, startIndex + i);
+    }
+  }
+}
+
+function addReentryCorridorRib(positions, indices, corridor, t) {
+  const samples = 16;
+  const startIndex = positions.length / 3;
+  for (let i = 0; i <= samples; i++) {
+    const lane = -1 + (2 * i) / samples;
+    positions.push(...reentryCorridorPoint(corridor, t, lane));
+    if (i > 0) {
+      indices.push(startIndex + i - 1, startIndex + i);
+    }
+  }
+}
+
+function reentryCorridorPoint(corridor, t, lane) {
+  const distance = corridor.downrangeDegrees * Math.pow(1 - t, 1.06);
+  const width = reentryCorridorWidthDegrees(corridor, t) * lane;
+  const ground = destinationLonLat(
+    corridor.landingLon,
+    corridor.landingLat,
+    corridor.inboundBearingDegrees + 180 + width,
+    distance
+  );
+  const altitude = reentryCorridorAltitude(corridor, t);
+  return lonLatToXYZ(ground.lon, ground.lat, EARTH_RADIUS + LAND_LIFT + 9000 + altitude * corridor.altitudeScale);
+}
+
+function reentryCorridorWidthDegrees(corridor, t) {
+  const taper = Math.pow(1 - t, 1.85);
+  return corridor.terminalWidthDegrees + (corridor.entryWidthDegrees - corridor.terminalWidthDegrees) * taper;
+}
+
+function reentryCorridorAltitude(corridor, t) {
+  const descent = Math.pow(1 - t, 1.35);
+  return corridor.terminalAltitudeMeters + (corridor.entryAltitudeMeters - corridor.terminalAltitudeMeters) * descent;
+}
+
+function buildReentryRunwayMarker(corridor) {
+  const center = lonLatToXYZ(corridor.landingLon, corridor.landingLat, EARTH_RADIUS + LAND_LIFT + 21000);
+  const aheadLonLat = destinationLonLat(corridor.landingLon, corridor.landingLat, corridor.inboundBearingDegrees, 0.35);
+  const ahead = lonLatToXYZ(aheadLonLat.lon, aheadLonLat.lat, EARTH_RADIUS + LAND_LIFT + 21000);
+  const along = normalize3(subtract3(ahead, center));
+  const up = normalize3(center);
+  const across = normalize3(cross3(up, along));
+  const length = 230000;
+  const width = 52000;
+  const positions = [
+    ...addScaled3(center, along, -length), ...addScaled3(center, along, length),
+    ...addScaled3(addScaled3(center, along, -length * 0.66), across, -width),
+    ...addScaled3(addScaled3(center, along, -length * 0.66), across, width),
+    ...addScaled3(addScaled3(center, along, length * 0.66), across, -width),
+    ...addScaled3(addScaled3(center, along, length * 0.66), across, width)
+  ];
+  return {
+    positions: new Float32Array(positions),
+    indices: new Uint32Array([0, 1, 2, 3, 4, 5])
+  };
+}
+
+function reentryCorridorLabelPosition(corridor) {
+  return reentryCorridorPoint(corridor, 0.44, -0.32);
 }
 
 function buildLaunchTargetOrbitLine(trajectory, segments) {

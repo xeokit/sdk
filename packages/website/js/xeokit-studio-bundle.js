@@ -217504,7 +217504,9 @@ var SPLAT_PARAMS_UNIFORM_OFFSET = VIEW_MATRIX_UNIFORM_OFFSET + 16;
 var HEMISPHERE_SKY_UNIFORM_OFFSET = SPLAT_PARAMS_UNIFORM_OFFSET + 4;
 var HEMISPHERE_GROUND_UNIFORM_OFFSET = HEMISPHERE_SKY_UNIFORM_OFFSET + 4;
 var HEMISPHERE_UP_UNIFORM_OFFSET = HEMISPHERE_GROUND_UNIFORM_OFFSET + 4;
-var FRAME_UNIFORM_FLOATS = HEMISPHERE_UP_UNIFORM_OFFSET + 4;
+var EDGE_PARAMS_UNIFORM_OFFSET = HEMISPHERE_UP_UNIFORM_OFFSET + 4;
+var EDGE_COLOR_UNIFORM_OFFSET = EDGE_PARAMS_UNIFORM_OFFSET + 4;
+var FRAME_UNIFORM_FLOATS = EDGE_COLOR_UNIFORM_OFFSET + 4;
 var FRAME_UNIFORM_BYTES = FRAME_UNIFORM_FLOATS * 4;
 var RTC_TILE_FLOATS = 20;
 var RTC_TILE_BYTES = RTC_TILE_FLOATS * 4;
@@ -219623,6 +219625,14 @@ struct FrameUniforms {
   sectionPlanes: array<vec4<f32>, 8>,
   sectionPlaneCapColors: array<vec4<f32>, 8>,
   depthParams: vec4<f32>,
+  pointParams0: vec4<f32>,
+  pointParams1: vec4<f32>,
+  lineParams: vec4<f32>,
+  viewMatrix: mat4x4<f32>,
+  splatParams: vec4<f32>,
+  hemisphereSky: vec4<f32>,
+  hemisphereGround: vec4<f32>,
+  hemisphereUp: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: FrameUniforms;
@@ -219649,7 +219659,9 @@ struct VertexInput {
 struct VertexOutput {
   @builtin(position) position: vec4<f32>,
   @location(0) color: vec4<f32>,
-${triangleLogDepthVertexField(logDepth, 1)}
+  @location(1) worldPos: vec3<f32>,
+  @location(2) rtcPos: vec3<f32>,
+${triangleLogDepthVertexField(logDepth, 3)}
 };
 
 @vertex
@@ -219661,6 +219673,8 @@ fn vs_main(input: VertexInput) -> VertexOutput {
   var output: VertexOutput;
   output.position = rtcTile.viewProjection * rtcWorldPos;
   output.color = instance.color;
+  output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
+  output.rtcPos = rtcWorldPos.xyz / rtcWorldPos.w;
 ${triangleLogDepthVertexWrite(logDepth)}
   return output;
 }
@@ -219668,10 +219682,31 @@ ${triangleLogDepthVertexWrite(logDepth)}
 ${triangleLogDepthFragmentOutputStruct(logDepth, true)}
 
 @fragment
-fn fs_main(input: VertexOutput) -> ${triangleLogDepthReturnType(logDepth, true)} {
+fn fs_main(input: VertexOutput, @builtin(front_facing) frontFacing: bool) -> ${triangleLogDepthReturnType(logDepth, true)} {
+  let dpdxRTC = dpdx(input.rtcPos);
+  let dpdyRTC = dpdy(input.rtcPos);
+  var normal = normalize(cross(dpdyRTC, dpdxRTC));
+  let normalView = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz);
+  let viewPos = (frame.viewMatrix * vec4<f32>(input.worldPos, 1.0)).xyz;
+  let viewDir = normalize(-viewPos);
+  if (dot(normalView, viewDir) < 0.0) {
+    normal = -normal;
+  }
+  let worldNormal = normalize(normal);
+  let viewNormal = normalize((frame.viewMatrix * vec4<f32>(normal, 0.0)).xyz);
+  let baseColor = input.color.rgb;
+  let flatAmbientColor = frame.ambientLight.rgb * frame.ambientLight.a * baseColor;
+  let hemisphereFacing = clamp(dot(worldNormal, normalize(frame.hemisphereUp.xyz)) * 0.5 + 0.5, 0.0, 1.0);
+  let hemisphereAmbient = mix(frame.hemisphereGround.rgb, frame.hemisphereSky.rgb, hemisphereFacing);
+  let hemisphereColor = hemisphereAmbient * max(frame.hemisphereSky.a, 0.0) * baseColor;
+  let lightDirWorld = frame.dirLightDirections[0].xyz;
+  let lightDir = normalize((frame.viewMatrix * vec4<f32>(lightDirWorld, 0.0)).xyz);
+  let lightColor = frame.dirLightColors[0];
+  let lambertian = max(dot(viewNormal, normalize(-lightDir)), 0.0);
+  let directColor = baseColor * lightColor.rgb * lightColor.a * lambertian;
+  let litColor = flatAmbientColor + hemisphereColor + directColor;
   let alpha = input.color.a;
-  let color = pow(max(input.color.rgb, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2));
-  return ${triangleLogDepthReturn(logDepth, "vec4<f32>(color * alpha, alpha)")};
+  return ${triangleLogDepthReturn(logDepth, "vec4<f32>(litColor * alpha, alpha)")};
 }
 `;
 }
@@ -219814,6 +219849,16 @@ struct FrameUniforms {
   sectionPlanes: array<vec4<f32>, 8>,
   sectionPlaneCapColors: array<vec4<f32>, 8>,
   depthParams: vec4<f32>,
+  pointParams0: vec4<f32>,
+  pointParams1: vec4<f32>,
+  lineParams: vec4<f32>,
+  viewMatrix: mat4x4<f32>,
+  splatParams: vec4<f32>,
+  hemisphereSky: vec4<f32>,
+  hemisphereGround: vec4<f32>,
+  hemisphereUp: vec4<f32>,
+  edgeParams: vec4<f32>,
+  edgeColor: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: FrameUniforms;
@@ -219851,9 +219896,11 @@ fn vs_main(input: VertexInput) -> VertexOutput {
   let rtcTile = getInstanceRTCTile(instance);
   let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
   let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  let meshEdgeColor = vec4<f32>(instance.color.rgb * frame.edgeParams.x, frame.edgeParams.y);
+  let uniformEdgeColor = vec4<f32>(frame.edgeColor.rgb, frame.edgeColor.a);
   var output: VertexOutput;
   output.position = rtcTile.viewProjection * rtcWorldPos;
-  output.color = vec4<f32>(instance.color.rgb * 0.25, instance.color.a);
+  output.color = select(uniformEdgeColor, meshEdgeColor, frame.edgeParams.z > 0.5);
   output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
   output.clippable = instance.flags.x;
 ${triangleLogDepthVertexWrite(logDepth)}
@@ -225578,11 +225625,15 @@ var TriangleBatchManager = class {
   prepare(meshManager, options = {}) {
     const buildPendingSegments = options.buildPendingSegments ?? true;
     const buildAllPendingSegments = options.buildAllPendingSegments ?? false;
+    const forceRepack = options.forceRepack === true;
     const structureVersion = meshManager.structureVersion;
-    if (this._batchSet?.structureVersion === structureVersion) {
+    if (forceRepack) {
+      this._clearPackedSegmentsForRepack();
+    }
+    if (!forceRepack && this._batchSet?.structureVersion === structureVersion) {
       let builtSegments = [];
       if (buildPendingSegments) {
-        const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+        const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments, options.maxBuildSegments);
         if (pendingResult.ok === false) {
           return pendingResult;
         }
@@ -225594,9 +225645,11 @@ var TriangleBatchManager = class {
         value: this._batchSet
       };
     }
-    const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments);
-    if (appendOnlyResult) {
-      return appendOnlyResult;
+    if (!forceRepack) {
+      const appendOnlyResult = this._prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments, options.maxBuildSegments);
+      if (appendOnlyResult) {
+        return appendOnlyResult;
+      }
     }
     this._pendingSegmentJobs.length = 0;
     const liveMeshStatesById = /* @__PURE__ */ new Map();
@@ -225648,7 +225701,7 @@ var TriangleBatchManager = class {
       this._enqueueSegments(structureVersion, baseKey, meshStates);
     }
     if (buildPendingSegments) {
-      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments, options.maxBuildSegments);
       if (pendingResult.ok === false) {
         return pendingResult;
       }
@@ -225664,13 +225717,13 @@ var TriangleBatchManager = class {
       value: this._batchSet
     };
   }
-  buildPendingSegments(meshManager) {
+  buildPendingSegments(meshManager, options = {}) {
     const prepareResult = this.prepare(meshManager, { buildPendingSegments: false });
     if (prepareResult.ok === false) {
       return prepareResult;
     }
     const structureVersion = meshManager.structureVersion;
-    const pendingResult = this._buildPendingSegmentJobs(structureVersion);
+    const pendingResult = this._buildPendingSegmentJobs(structureVersion, options.buildAllPendingSegments === true, options.maxBuildSegments);
     if (pendingResult.ok === false) {
       return pendingResult;
     }
@@ -225680,7 +225733,7 @@ var TriangleBatchManager = class {
       value: this._batchSet
     };
   }
-  _prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments) {
+  _prepareAppendOnly(meshManager, structureVersion, buildPendingSegments, buildAllPendingSegments, maxBuildSegments) {
     if (!this._batchSet) {
       return null;
     }
@@ -225695,7 +225748,7 @@ var TriangleBatchManager = class {
       this._enqueueSegments(structureVersion, baseKey, meshStates);
     }
     if (buildPendingSegments) {
-      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments);
+      const pendingResult = this._buildPendingSegmentJobs(structureVersion, buildAllPendingSegments, maxBuildSegments);
       if (pendingResult.ok === false) {
         return pendingResult;
       }
@@ -225754,7 +225807,7 @@ var TriangleBatchManager = class {
     }
     flushPage();
   }
-  _buildPendingSegmentJobs(structureVersion, buildAllSegments = false) {
+  _buildPendingSegmentJobs(structureVersion, buildAllSegments = false, maxBuildSegments = -1) {
     const startedAt = nowMs3();
     let builtCount = 0;
     let buildMs = 0;
@@ -225767,6 +225820,9 @@ var TriangleBatchManager = class {
       if (job.structureVersion !== structureVersion) {
         this._pendingSegmentJobs.shift();
         continue;
+      }
+      if (!buildAllSegments && builtCount > 0 && maxBuildSegments >= 0 && builtCount >= maxBuildSegments) {
+        break;
       }
       if (!buildAllSegments && builtCount > 0 && this._memoryConfigs.maxBatchBuildTimeMs >= 0 && nowMs3() - startedAt >= this._memoryConfigs.maxBatchBuildTimeMs) {
         break;
@@ -226616,6 +226672,30 @@ var TriangleBatchManager = class {
     this._bufferPagesByKey.clear();
     this._currentBufferPageByKey.clear();
     this._textureBindGroupManager.destroy();
+    this._nextSlot = 0;
+    this._batchSet = null;
+  }
+  _clearPackedSegmentsForRepack() {
+    for (const segment of this._segmentsByKey.values()) {
+      this._destroySegment(segment);
+    }
+    this._segmentsByKey.clear();
+    this._segmentByMeshId.clear();
+    this._pageCountersByBaseKey.clear();
+    this._freeSlotRanges.length = 0;
+    this._pendingSegmentJobs.length = 0;
+    for (const batch of this._partialDrawBatchCache.values()) {
+      batch.packedBatch.destroy();
+    }
+    this._partialDrawBatchCache.clear();
+    for (const page of this._bufferPagesByKey.values()) {
+      try {
+        page.destroy();
+      } catch {
+      }
+    }
+    this._bufferPagesByKey.clear();
+    this._currentBufferPageByKey.clear();
     this._nextSlot = 0;
     this._batchSet = null;
   }
@@ -229087,6 +229167,7 @@ var FrameUniformManager = class {
     this._writeLineUniforms(view, this._frameUniformData, LINE_PARAMS_UNIFORM_OFFSET);
     this._writeViewMatrixUniforms(view, this._frameUniformData, VIEW_MATRIX_UNIFORM_OFFSET);
     this._writeSplatUniforms(view, this._frameUniformData, SPLAT_PARAMS_UNIFORM_OFFSET);
+    this._writeEdgeUniforms(view, this._frameUniformData, EDGE_PARAMS_UNIFORM_OFFSET);
     this._renderContext.device.queue.writeBuffer(this._uniformBuffer, 0, this._frameUniformData);
     return bindGroupResult;
   }
@@ -229241,6 +229322,18 @@ var FrameUniformManager = class {
     target[offset + 2] = Math.max(1, Number(view.boundary?.[3] || view.htmlElement?.clientHeight || 1));
     target[offset + 3] = 0;
   }
+  _writeEdgeUniforms(view, target, offset) {
+    const edgeMaterial = view.effects?.edges;
+    const edgeColor = edgeMaterial?.edgeColor || [0, 0, 0];
+    target[offset + 0] = Math.max(0, Math.min(1, Number(edgeMaterial?.edgeDarken ?? 0.25)));
+    target[offset + 1] = Math.max(0, Math.min(1, Number(edgeMaterial?.edgeAlpha ?? 1)));
+    target[offset + 2] = edgeMaterial?.useMeshColor ? 1 : 0;
+    target[offset + 3] = 0;
+    target[EDGE_COLOR_UNIFORM_OFFSET + 0] = Number(edgeColor[0] ?? 0);
+    target[EDGE_COLOR_UNIFORM_OFFSET + 1] = Number(edgeColor[1] ?? 0);
+    target[EDGE_COLOR_UNIFORM_OFFSET + 2] = Number(edgeColor[2] ?? 0);
+    target[EDGE_COLOR_UNIFORM_OFFSET + 3] = Math.max(0, Math.min(1, Number(edgeMaterial?.edgeAlpha ?? 1)));
+  }
   _writeViewMatrixUniforms(view, target, offset) {
     const viewMatrix = view.camera?.viewMatrix ?? IDENTITY_MATRIX4;
     for (let i = 0; i < 16; i++) {
@@ -229264,7 +229357,10 @@ var FrameUniformManager = class {
 // ../sdk/src/viewing/renderers/webGPU/internal/renderManager/InstanceBatcher.ts
 var InstanceBatcher = class {
   _renderContext;
+  _bindGroupLayoutManager;
+  _rtcTileManager;
   _triangleBatchManager;
+  _repackTriangleBatchManager = null;
   _batches = {
     opaque: [],
     edges: [],
@@ -229286,12 +229382,9 @@ var InstanceBatcher = class {
   };
   constructor(params) {
     this._renderContext = params.renderContext;
-    this._triangleBatchManager = new TriangleBatchManager({
-      renderContext: params.renderContext,
-      bindGroupLayoutManager: params.bindGroupLayoutManager,
-      memoryConfigs: params.renderContext.memoryConfigs,
-      rtcTileResolver: params.rtcTileManager
-    });
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._rtcTileManager = params.rtcTileManager;
+    this._triangleBatchManager = this._createTriangleBatchManager();
   }
   get batches() {
     return this._batches;
@@ -229317,6 +229410,38 @@ var InstanceBatcher = class {
   }
   buildPendingSegments(meshManager) {
     return this._triangleBatchManager.buildPendingSegments(meshManager);
+  }
+  beginBackgroundRepack(meshManager) {
+    this.cancelBackgroundRepack();
+    this._repackTriangleBatchManager = this._createTriangleBatchManager();
+    return this._repackTriangleBatchManager.prepare(meshManager, {
+      buildPendingSegments: false,
+      forceRepack: true
+    });
+  }
+  buildBackgroundRepackSegment(meshManager) {
+    if (!this._repackTriangleBatchManager) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    return this._repackTriangleBatchManager.buildPendingSegments(meshManager, {
+      maxBuildSegments: 1
+    });
+  }
+  commitBackgroundRepack() {
+    if (!this._repackTriangleBatchManager) {
+      return;
+    }
+    const previous = this._triangleBatchManager;
+    this._triangleBatchManager = this._repackTriangleBatchManager;
+    this._repackTriangleBatchManager = null;
+    previous.destroy();
+  }
+  cancelBackgroundRepack() {
+    this._repackTriangleBatchManager?.destroy();
+    this._repackTriangleBatchManager = null;
   }
   writeInstances(params) {
     this._triangleBatchManager.writeInstances(params);
@@ -229787,6 +229912,15 @@ var InstanceBatcher = class {
     this._destroyBatches(this._batches);
     this._clear();
     this._triangleBatchManager.destroy();
+    this.cancelBackgroundRepack();
+  }
+  _createTriangleBatchManager() {
+    return new TriangleBatchManager({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager,
+      memoryConfigs: this._renderContext.memoryConfigs,
+      rtcTileResolver: this._rtcTileManager
+    });
   }
 };
 function filterDrawItemsByOverlay(drawItems, overlay) {
@@ -230646,23 +230780,26 @@ var RenderBinClassifier2 = class {
           continue;
         }
       }
-      if (this._tryAppendFullOpaqueSegment({ segment, view, meshManager, bins })) {
+      if ((!cameraCulling || !segmentClipBounds || segmentClipBounds.allInsideFrustum) && this._tryAppendFullOpaqueSegment({ segment, view, meshManager, bins })) {
         this._stats.segmentFullyDrawn++;
         continue;
       }
       this._stats.segmentPartiallyRefined++;
       for (let i = 0, len = segment.slots.length; i < len; i++) {
-        this._classifyMesh(segment.slots[i].meshState, view, meshManager, bins);
+        this._classifyMesh(segment.slots[i].meshState, view, meshManager, bins, cameraCulling);
       }
     }
     bins.normalFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
     this._sortTransparentEmphasisBins(bins);
   }
-  _classifyMesh(meshState, view, meshManager, bins) {
+  _classifyMesh(meshState, view, meshManager, bins, cameraCulling = false) {
     if (meshState.mesh.bin === "overlayPicker") {
       return;
     }
     if (!meshManager.isMeshVisibleInView(meshState, view)) {
+      return;
+    }
+    if (cameraCulling && !this._isMeshInCameraView(meshState, view, meshManager)) {
       return;
     }
     const opacity = meshManager.getMeshOpacityInView(meshState, view);
@@ -230741,6 +230878,21 @@ var RenderBinClassifier2 = class {
     bins.selectedFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
     bins.selectedEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
   }
+  _isMeshInCameraView(meshState, view, meshManager) {
+    const meshClipBounds = this._getMeshWorldAABBClipBounds(meshState, view, meshManager);
+    if (!meshClipBounds) {
+      return true;
+    }
+    if (this._memoryConfigs.frustumCulling && this._isOutsideFrustum(meshClipBounds)) {
+      this._stats.frustumCulled++;
+      return false;
+    }
+    if (this._memoryConfigs.minProjectedCanvasSize > 0 && this._isBelowProjectedCanvasSize(meshClipBounds, view, this._memoryConfigs.minProjectedCanvasSize)) {
+      this._stats.projectedSizeCulled++;
+      return false;
+    }
+    return true;
+  }
   _nextDrawItem() {
     let drawItem = this._drawItemPool[this._drawItemPoolCount];
     if (!drawItem) {
@@ -230768,6 +230920,31 @@ var RenderBinClassifier2 = class {
         for (let zIndex = 0; zIndex < 2; zIndex++) {
           const z = worldAABB[zIndex === 0 ? 2 : 5];
           this._projectWorldPoint(viewMatrix, projectionMatrix, x, y, z);
+          growClipBounds(bounds, this._clipPoint);
+        }
+      }
+    }
+    return bounds.valid ? bounds : null;
+  }
+  _getMeshWorldAABBClipBounds(meshState, view, meshManager) {
+    const localAABB = meshState.geometryState.geometry.aabb;
+    if (!localAABB) {
+      return null;
+    }
+    const worldMatrix = meshManager.getMeshWorldMatrix(meshState);
+    const viewMatrix = view.camera?.viewMatrix ?? IDENTITY_MATRIX6;
+    const projectionMatrix = view.camera?.projMatrix ?? IDENTITY_MATRIX6;
+    const bounds = createClipBounds();
+    for (let xIndex = 0; xIndex < 2; xIndex++) {
+      const x = localAABB[xIndex === 0 ? 0 : 3];
+      for (let yIndex = 0; yIndex < 2; yIndex++) {
+        const y = localAABB[yIndex === 0 ? 1 : 4];
+        for (let zIndex = 0; zIndex < 2; zIndex++) {
+          const z = localAABB[zIndex === 0 ? 2 : 5];
+          const worldX = worldMatrix[0] * x + worldMatrix[4] * y + worldMatrix[8] * z + worldMatrix[12];
+          const worldY = worldMatrix[1] * x + worldMatrix[5] * y + worldMatrix[9] * z + worldMatrix[13];
+          const worldZ = worldMatrix[2] * x + worldMatrix[6] * y + worldMatrix[10] * z + worldMatrix[14];
+          this._projectWorldPoint(viewMatrix, projectionMatrix, worldX, worldY, worldZ);
           growClipBounds(bounds, this._clipPoint);
         }
       }
@@ -231279,8 +231456,8 @@ var TriangleDrawBinSubmitter = class {
     return drawResult;
   }
   drawEmphasisBatchLists(params) {
-    const fillDrawOp = params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque;
-    const fillTechnique = "TrianglesDrawColorTechnique";
+    const fillDrawOp = params.flatColorMode ? params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque : params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque;
+    const fillTechnique = params.flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique";
     const fillMissingMessage = params.transparent ? "[RenderManager.renderView] Transparent triangle draw operation was not initialized." : "[RenderManager.renderView] Opaque triangle draw operation was not initialized.";
     const entries = params.transparent ? [
       ["XRAYED_TRANSPARENT", params.batches.xrayedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
@@ -235442,6 +235619,9 @@ var nowMs5 = () => {
   const performanceLike = globalThis.performance;
   return performanceLike?.now ? performanceLike.now() : Date.now();
 };
+var APPEND_ONLY_REPACK_IDLE_DELAY_MS = 2e3;
+var CAMERA_CULLING_IDLE_REBUILD_DELAY_MS = 250;
+var MEANINGFUL_TRANSPARENT_INDEX_FRACTION = 0.05;
 var tempViewProjectionMatrix = createMat4Float64();
 var tempWebGPUViewProjectionMatrix = createMat4Float64();
 var tempSnapCropMatrix = createMat4Float64();
@@ -235889,7 +236069,8 @@ var RenderManager3 = class {
           instanceBindGroup: instanceBindGroupResult.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: false
+          transparent: false,
+          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
         });
         if (emphasizedOpaqueResult.ok === false) {
           return emphasizedOpaqueResult;
@@ -236065,7 +236246,8 @@ var RenderManager3 = class {
           instanceBindGroup: instanceBindGroupResult.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: true
+          transparent: true,
+          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
         });
         if (emphasizedTransparentResult.ok === false) {
           return emphasizedTransparentResult;
@@ -236636,7 +236818,23 @@ var RenderManager3 = class {
     const renderEffectKey = createRenderEffectKey(view);
     const cameraViewVersion = this._meshManager.getCameraViewVersion(view);
     const cameraMatrixChanged = cache2.cameraViewVersion !== cameraViewVersion && !this._isCameraMatrixUnchanged(cache2, view);
-    const needsFullRebuild = cache2.structureVersion !== structureVersion || cache2.instanceDataVersion !== instanceDataVersion || cache2.viewStateVersion !== viewStateVersion || cache2.renderEffectKey !== renderEffectKey || this._usesCameraCulling() && cameraMatrixChanged || cache2.totalInstances > 0 && !cache2.instanceFrame?.buffer;
+    const now3 = nowMs5();
+    if (cameraMatrixChanged) {
+      cache2.lastCameraMatrixChangeMs = now3;
+      if (this._usesCameraCulling()) {
+        this._markCameraCullingRebuildPending(cache2, view, now3);
+      }
+      if (cache2.appendOnlyRepackPending) {
+        cache2.appendOnlyRepackAfterMs = now3 + APPEND_ONLY_REPACK_IDLE_DELAY_MS;
+      }
+      if (cache2.appendOnlyRepackBuilding) {
+        this._instanceBatcher.cancelBackgroundRepack();
+        cache2.appendOnlyRepackBuilding = false;
+      }
+    }
+    const needsAppendOnlyRepack = this._needsAppendOnlyRepack(cache2, structureVersion);
+    const needsCameraCullingRebuild = this._needsCameraCullingRebuild(cache2);
+    const needsFullRebuild = needsAppendOnlyRepack || needsCameraCullingRebuild || cache2.structureVersion !== structureVersion || cache2.instanceDataVersion !== instanceDataVersion || cache2.viewStateVersion !== viewStateVersion || cache2.renderEffectKey !== renderEffectKey || cache2.totalInstances > 0 && !cache2.instanceFrame?.buffer;
     const needsTransparentSort = cache2.hasTransparent && cameraMatrixChanged;
     if (!needsFullRebuild) {
       if (needsTransparentSort) {
@@ -236713,14 +236911,26 @@ var RenderManager3 = class {
         return appendOnlyResult;
       }
     }
+    if (needsAppendOnlyRepack) {
+      const backgroundRepackResult = this._advanceAppendOnlyBackgroundRepack({
+        cache: cache2,
+        view,
+        structureVersion
+      });
+      if (backgroundRepackResult) {
+        return backgroundRepackResult;
+      }
+    }
     const batchingStart = nowMs5();
     const renderReason = this._getFullRebuildReason({
       cache: cache2,
+      appendOnlyRepack: needsAppendOnlyRepack,
       structureVersion,
       instanceDataVersion,
       viewStateVersion,
       renderEffectKey,
-      cameraMatrixChanged
+      cameraMatrixChanged,
+      cameraCullingRebuild: needsCameraCullingRebuild
     });
     const prepareStart = nowMs5();
     const batchSetResult = this._instanceBatcher.prepareBatchSet(this._meshManager, this._getRenderFrameBatchPrepareOptions());
@@ -236773,6 +236983,7 @@ var RenderManager3 = class {
       this._rememberCameraMatrix(cache2, view);
       cache2.builtSegmentCount = batchSet.builtSegmentCount;
       cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+      this._markAppendOnlyRepackPending(cache2, batchSet, structureVersion);
       this._renderInspector.setCullStats(cache2.cullStats);
       this._renderInspector.setRenderReason("empty");
       this._instanceBufferManager.destroyFrame(view.id);
@@ -236840,8 +237051,20 @@ var RenderManager3 = class {
     cache2.renderEffectKey = renderEffectKey;
     cache2.cameraViewVersion = cameraViewVersion;
     this._rememberCameraMatrix(cache2, view);
+    cache2.cameraCullingDirty = false;
+    cache2.cameraCullingRebuildAfterMs = 0;
+    cache2.cameraCullingRenderScheduled = false;
     cache2.builtSegmentCount = batchSet.builtSegmentCount;
     cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+    if (needsAppendOnlyRepack || cache2.appendOnlyRepackCommitPending) {
+      cache2.appendOnlyRepackPending = false;
+      cache2.appendOnlyRepackBuilding = false;
+      cache2.appendOnlyRepackCommitPending = false;
+      cache2.appendOnlyRepackAfterMs = 0;
+      cache2.appendOnlyRepackedStructureVersion = structureVersion;
+    } else {
+      this._markAppendOnlyRepackPending(cache2, batchSet, structureVersion);
+    }
     this._renderInspector.setCullStats(cache2.cullStats);
     this._renderInspector.setRenderReason(renderReason);
     this._rememberMeshSlots(cache2, batchSet);
@@ -237118,6 +237341,7 @@ var RenderManager3 = class {
     this._rememberCameraMatrix(cache2, view);
     cache2.builtSegmentCount = batchSetResult.value.builtSegmentCount;
     cache2.pendingSegmentCount = batchSetResult.value.pendingSegmentCount;
+    this._markAppendOnlyRepackPending(cache2, batchSetResult.value, params.structureVersion);
     this._rememberMeshSlots(cache2, batchSetResult.value);
     this._rememberMeshStates(cache2, meshStates);
     return {
@@ -237157,6 +237381,7 @@ var RenderManager3 = class {
       cache2.cameraViewVersion = params.cameraViewVersion;
       cache2.builtSegmentCount = batchSet.builtSegmentCount;
       cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+      this._markAppendOnlyRepackPending(cache2, batchSet, params.structureVersion);
       this._rememberCameraMatrix(cache2, view);
       this._renderInspector.setCullStats(cache2.cullStats);
       this._renderInspector.setRenderReason("pendingSegmentAppend");
@@ -237271,6 +237496,7 @@ var RenderManager3 = class {
     this._rememberCameraMatrix(cache2, view);
     cache2.builtSegmentCount = batchSet.builtSegmentCount;
     cache2.pendingSegmentCount = batchSet.pendingSegmentCount;
+    this._markAppendOnlyRepackPending(cache2, batchSet, params.structureVersion);
     this._rememberMeshSlotsForSegments(cache2, newSegments);
     return {
       ok: true,
@@ -237312,7 +237538,7 @@ var RenderManager3 = class {
       this._renderInspector.addCPUTime("batchingMs", nowMs5() - batchingStart);
       this._renderInspector.addSegments(this._countBatches(cache2.batches));
       this._renderInspector.setCullStats(cache2.cullStats);
-      this._renderInspector.setRenderReason("transparentSegmentBatch");
+      this._renderInspector.setRenderReason(this._getSegmentBatchReuseReason(cache2.batches));
       cache2.hasTransparent = true;
       cache2.structureVersion = params.structureVersion;
       cache2.instanceDataVersion = params.instanceDataVersion;
@@ -237358,10 +237584,10 @@ var RenderManager3 = class {
     this._renderInspector.addCPUTime("batchingMs", nowMs5() - batchingStart);
     this._renderInspector.addSegments(this._countBatches(cache2.batches));
     this._renderInspector.setCullStats(cache2.cullStats);
-    this._renderInspector.setRenderReason(
-      this._renderContext.renderConfigs.transparentSortStrategy === "object" ? "transparentSort" : "transparentSegmentBatch"
-    );
     cache2.hasTransparent = this._hasTransparentBatches(cache2.batches);
+    this._renderInspector.setRenderReason(
+      this._renderContext.renderConfigs.transparentSortStrategy === "object" ? "transparentSort" : this._getSegmentBatchReuseReason(cache2.batches)
+    );
     cache2.structureVersion = params.structureVersion;
     cache2.instanceDataVersion = params.instanceDataVersion;
     cache2.objectViewStateVersion = params.objectViewStateVersion;
@@ -237374,10 +237600,11 @@ var RenderManager3 = class {
       value: cache2
     };
   }
-  _getRenderFrameBatchPrepareOptions() {
+  _getRenderFrameBatchPrepareOptions(params = {}) {
     return {
       buildPendingSegments: true,
-      buildAllPendingSegments: true
+      buildAllPendingSegments: true,
+      forceRepack: params.forceRepack === true
     };
   }
   _getViewRenderCache(view) {
@@ -237392,6 +237619,7 @@ var RenderManager3 = class {
         renderEffectKey: "",
         cameraViewVersion: -1,
         cameraMatrixSnapshot: null,
+        lastCameraMatrixChangeMs: nowMs5(),
         hasTransparent: false,
         totalInstances: 0,
         instanceFrame: null,
@@ -237424,6 +237652,14 @@ var RenderManager3 = class {
         meshStateCount: 0,
         builtSegmentCount: 0,
         pendingSegmentCount: 0,
+        appendOnlyRepackPending: false,
+        appendOnlyRepackBuilding: false,
+        appendOnlyRepackCommitPending: false,
+        appendOnlyRepackAfterMs: 0,
+        appendOnlyRepackedStructureVersion: -1,
+        cameraCullingDirty: false,
+        cameraCullingRebuildAfterMs: 0,
+        cameraCullingRenderScheduled: false,
         cullStats: emptyCullStats(),
         transparentBins: createTransparentRenderBinCache()
       };
@@ -237518,6 +237754,9 @@ var RenderManager3 = class {
   }
   _getFullRebuildReason(params) {
     const { cache: cache2, structureVersion, instanceDataVersion, viewStateVersion, renderEffectKey, cameraMatrixChanged } = params;
+    if (params.appendOnlyRepack || cache2.appendOnlyRepackCommitPending) {
+      return "appendOnlyRepack";
+    }
     if (cache2.pendingSegmentCount > 0 || cache2.structureVersion < 0) {
       return "pendingSegmentBuild";
     }
@@ -237533,13 +237772,87 @@ var RenderManager3 = class {
     if (cache2.renderEffectKey !== renderEffectKey) {
       return "renderEffects";
     }
-    if (this._usesCameraCulling() && cameraMatrixChanged) {
+    if (params.cameraCullingRebuild || this._usesCameraCulling() && cameraMatrixChanged) {
       return "cameraCullingRebuild";
     }
     if (cache2.totalInstances > 0 && !cache2.instanceFrame?.buffer) {
       return "instanceBufferRecreated";
     }
     return "fullRebuild";
+  }
+  _markAppendOnlyRepackPending(cache2, batchSet, structureVersion) {
+    if (batchSet.pendingSegmentCount === 0 && batchSet.builtSegmentCount > 1 && this._hasStreamSegments(batchSet) && cache2.appendOnlyRepackedStructureVersion !== structureVersion) {
+      cache2.appendOnlyRepackPending = true;
+      cache2.appendOnlyRepackAfterMs = Math.max(nowMs5(), cache2.lastCameraMatrixChangeMs) + APPEND_ONLY_REPACK_IDLE_DELAY_MS;
+    }
+  }
+  _needsAppendOnlyRepack(cache2, structureVersion) {
+    return cache2.appendOnlyRepackPending && cache2.appendOnlyRepackedStructureVersion !== structureVersion && cache2.appendOnlyRepackAfterMs > 0 && nowMs5() >= cache2.appendOnlyRepackAfterMs && cache2.pendingSegmentCount === 0 && cache2.batchSet !== null && cache2.batchSet.builtSegmentCount > 1 && cache2.structureVersion === structureVersion && !cache2.hasTransparent && !this._usesCameraCulling();
+  }
+  _markCameraCullingRebuildPending(cache2, view, now3) {
+    cache2.cameraCullingDirty = true;
+    cache2.cameraCullingRebuildAfterMs = now3 + CAMERA_CULLING_IDLE_REBUILD_DELAY_MS;
+    if (cache2.cameraCullingRenderScheduled) {
+      return;
+    }
+    cache2.cameraCullingRenderScheduled = true;
+    const setTimeoutFn = globalThis.setTimeout;
+    if (!setTimeoutFn) {
+      return;
+    }
+    setTimeoutFn(() => {
+      cache2.cameraCullingRenderScheduled = false;
+      if (cache2.cameraCullingDirty) {
+        view.needsRender();
+      }
+    }, CAMERA_CULLING_IDLE_REBUILD_DELAY_MS);
+  }
+  _needsCameraCullingRebuild(cache2) {
+    return this._usesCameraCulling() && cache2.cameraCullingDirty && cache2.cameraCullingRebuildAfterMs > 0 && nowMs5() >= cache2.cameraCullingRebuildAfterMs;
+  }
+  _advanceAppendOnlyBackgroundRepack(params) {
+    const { cache: cache2, view, structureVersion } = params;
+    if (!cache2.appendOnlyRepackBuilding) {
+      const beginResult = this._instanceBatcher.beginBackgroundRepack(this._meshManager);
+      if (beginResult.ok === false) {
+        return beginResult;
+      }
+      cache2.appendOnlyRepackBuilding = true;
+    }
+    const buildResult = this._instanceBatcher.buildBackgroundRepackSegment(this._meshManager);
+    if (buildResult.ok === false) {
+      cache2.appendOnlyRepackBuilding = false;
+      this._instanceBatcher.cancelBackgroundRepack();
+      return buildResult;
+    }
+    const batchSet = buildResult.value;
+    if (!batchSet || batchSet.pendingSegmentCount > 0) {
+      this._renderInspector.setSegmentQueueStats({
+        built: batchSet?.builtSegmentCount ?? cache2.builtSegmentCount,
+        pending: batchSet?.pendingSegmentCount ?? cache2.pendingSegmentCount,
+        buildTelemetry: batchSet?.buildTelemetry ?? cache2.batchSet?.buildTelemetry
+      });
+      this._renderInspector.setCullStats(cache2.cullStats);
+      this._renderInspector.setRenderReason("appendOnlyRepackBuild");
+      view.needsRender();
+      return {
+        ok: true,
+        value: cache2
+      };
+    }
+    this._instanceBatcher.commitBackgroundRepack();
+    cache2.appendOnlyRepackBuilding = false;
+    cache2.appendOnlyRepackCommitPending = true;
+    cache2.structureVersion = -1;
+    return null;
+  }
+  _hasStreamSegments(batchSet) {
+    for (let i = 0, len = batchSet.segments.length; i < len; i++) {
+      if (batchSet.segments[i].baseKey.includes("|stream")) {
+        return true;
+      }
+    }
+    return false;
   }
   _rememberCameraMatrix(cache2, view) {
     const camera = view.camera;
@@ -237570,6 +237883,43 @@ var RenderManager3 = class {
   }
   _hasTransparentBatches(batches) {
     return batches.transparent.length > 0 || batches.overlayTransparent.length > 0 || batches.xrayedTransparent.length > 0 || batches.xrayedEdgesTransparent.length > 0 || batches.highlightedTransparent.length > 0 || batches.highlightedEdgesTransparent.length > 0 || batches.selectedTransparent.length > 0 || batches.selectedEdgesTransparent.length > 0;
+  }
+  _getSegmentBatchReuseReason(batches) {
+    return this._hasMeaningfulTransparentBatchLoad(batches) ? "transparentSegmentBatch" : "segmentBatchReuse";
+  }
+  _hasMeaningfulTransparentBatchLoad(batches) {
+    const transparentIndexCount = this._countBatchIndices([
+      ...batches.transparent,
+      ...batches.overlayTransparent,
+      ...batches.xrayedTransparent,
+      ...batches.xrayedEdgesTransparent,
+      ...batches.highlightedTransparent,
+      ...batches.highlightedEdgesTransparent,
+      ...batches.selectedTransparent,
+      ...batches.selectedEdgesTransparent
+    ]);
+    if (transparentIndexCount === 0) {
+      return false;
+    }
+    const opaqueIndexCount = this._countBatchIndices([
+      ...batches.opaque,
+      ...batches.edges,
+      ...batches.overlayOpaque,
+      ...batches.xrayedOpaque,
+      ...batches.xrayedEdgesOpaque,
+      ...batches.highlightedOpaque,
+      ...batches.highlightedEdgesOpaque,
+      ...batches.selectedOpaque,
+      ...batches.selectedEdgesOpaque
+    ]);
+    return opaqueIndexCount === 0 || transparentIndexCount / (opaqueIndexCount + transparentIndexCount) >= MEANINGFUL_TRANSPARENT_INDEX_FRACTION;
+  }
+  _countBatchIndices(batches) {
+    let count = 0;
+    for (let i = 0, len = batches.length; i < len; i++) {
+      count += batches[i].packedBatch.indexCount || 0;
+    }
+    return count;
   }
   _getSectionPlanesForCaps(view) {
     if (!view.effects?.sectionPlaneCaps?.applied) {

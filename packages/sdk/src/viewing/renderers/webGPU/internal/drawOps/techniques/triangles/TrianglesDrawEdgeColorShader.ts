@@ -23,6 +23,16 @@ struct FrameUniforms {
   sectionPlanes: array<vec4<f32>, 8>,
   sectionPlaneCapColors: array<vec4<f32>, 8>,
   depthParams: vec4<f32>,
+  pointParams0: vec4<f32>,
+  pointParams1: vec4<f32>,
+  lineParams: vec4<f32>,
+  viewMatrix: mat4x4<f32>,
+  splatParams: vec4<f32>,
+  hemisphereSky: vec4<f32>,
+  hemisphereGround: vec4<f32>,
+  hemisphereUp: vec4<f32>,
+  edgeParams: vec4<f32>,
+  edgeColor: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: FrameUniforms;
@@ -60,9 +70,11 @@ fn vs_main(input: VertexInput) -> VertexOutput {
   let rtcTile = getInstanceRTCTile(instance);
   let localPosition = decodePackedPosition(input.packedPosition, input.vertexMetadata.y);
   let rtcWorldPos = instance.modelMatrix * vec4<f32>(localPosition, 1.0);
+  let meshEdgeColor = vec4<f32>(instance.color.rgb * frame.edgeParams.x, frame.edgeParams.y);
+  let uniformEdgeColor = vec4<f32>(frame.edgeColor.rgb, frame.edgeColor.a);
   var output: VertexOutput;
   output.position = rtcTile.viewProjection * rtcWorldPos;
-  output.color = vec4<f32>(instance.color.rgb * 0.25, instance.color.a);
+  output.color = select(uniformEdgeColor, meshEdgeColor, frame.edgeParams.z > 0.5);
   output.worldPos = (rtcWorldPos.xyz / rtcWorldPos.w) + rtcTile.center.xyz;
   output.clippable = instance.flags.x;
 ${triangleLogDepthVertexWrite(logDepth)}

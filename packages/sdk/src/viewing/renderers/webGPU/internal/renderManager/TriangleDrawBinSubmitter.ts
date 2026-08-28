@@ -62,9 +62,12 @@ export class TriangleDrawBinSubmitter {
     triangleDrawOps: RenderPassDrawOps;
     batches: InstancedDrawBatches;
     transparent: boolean;
+    flatColorMode: boolean;
   }): SDKResult<void> {
-    const fillDrawOp = params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque;
-    const fillTechnique = "TrianglesDrawColorTechnique";
+    const fillDrawOp = params.flatColorMode
+      ? (params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque)
+      : (params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque);
+    const fillTechnique = params.flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique";
     const fillMissingMessage = params.transparent
       ? "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
       : "[RenderManager.renderView] Opaque triangle draw operation was not initialized.";

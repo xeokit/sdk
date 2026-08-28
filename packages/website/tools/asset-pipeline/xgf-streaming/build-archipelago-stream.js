@@ -63,7 +63,7 @@ async function main() {
       utils: {yieldToHost}
     },
     model: {
-      procgen: {buildGeometry: {buildBox}},
+      generation: {buildGeometry: {buildBox}},
       scene: {buildMat4}
     }
   };
@@ -97,7 +97,7 @@ async function main() {
     id: "ferry",
     src: "packages/website/models/Ferry/xgf/model.xgf",
     coordinateSystem: {
-      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      basis: [1, 0, 0, 0, 1, 0, 0, 0, -1],
       origin: [UTM_EAST + 8500, SEA_LEVEL, UTM_NORTH - 8500],
       units: "meters",
       scaleToMeters: 1

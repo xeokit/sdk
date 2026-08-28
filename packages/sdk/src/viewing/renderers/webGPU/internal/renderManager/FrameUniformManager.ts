@@ -17,6 +17,8 @@ import {
   LINE_PARAMS_UNIFORM_OFFSET,
   VIEW_MATRIX_UNIFORM_OFFSET,
   SPLAT_PARAMS_UNIFORM_OFFSET,
+  EDGE_PARAMS_UNIFORM_OFFSET,
+  EDGE_COLOR_UNIFORM_OFFSET,
   WEBGPU_CLIP_SPACE_MATRIX
 } from "../constants";
 import {LightingManager} from "./LightingManager";
@@ -85,6 +87,7 @@ export class FrameUniformManager {
     this._writeLineUniforms(view, this._frameUniformData, LINE_PARAMS_UNIFORM_OFFSET);
     this._writeViewMatrixUniforms(view, this._frameUniformData, VIEW_MATRIX_UNIFORM_OFFSET);
     this._writeSplatUniforms(view, this._frameUniformData, SPLAT_PARAMS_UNIFORM_OFFSET);
+    this._writeEdgeUniforms(view, this._frameUniformData, EDGE_PARAMS_UNIFORM_OFFSET);
     this._renderContext.device.queue.writeBuffer(this._uniformBuffer!, 0, this._frameUniformData);
 
     return bindGroupResult;
@@ -257,6 +260,19 @@ export class FrameUniformManager {
     target[offset + 1] = Math.max(1, Number(view.boundary?.[2] || view.htmlElement?.clientWidth || 1));
     target[offset + 2] = Math.max(1, Number(view.boundary?.[3] || view.htmlElement?.clientHeight || 1));
     target[offset + 3] = 0;
+  }
+
+  private _writeEdgeUniforms(view: View, target: Float32Array, offset: number): void {
+    const edgeMaterial = view.effects?.edges;
+    const edgeColor = edgeMaterial?.edgeColor || [0, 0, 0];
+    target[offset + 0] = Math.max(0, Math.min(1, Number(edgeMaterial?.edgeDarken ?? 0.25)));
+    target[offset + 1] = Math.max(0, Math.min(1, Number(edgeMaterial?.edgeAlpha ?? 1)));
+    target[offset + 2] = edgeMaterial?.useMeshColor ? 1 : 0;
+    target[offset + 3] = 0;
+    target[EDGE_COLOR_UNIFORM_OFFSET + 0] = Number(edgeColor[0] ?? 0);
+    target[EDGE_COLOR_UNIFORM_OFFSET + 1] = Number(edgeColor[1] ?? 0);
+    target[EDGE_COLOR_UNIFORM_OFFSET + 2] = Number(edgeColor[2] ?? 0);
+    target[EDGE_COLOR_UNIFORM_OFFSET + 3] = Math.max(0, Math.min(1, Number(edgeMaterial?.edgeAlpha ?? 1)));
   }
 
   private _writeViewMatrixUniforms(view: View, target: Float32Array, offset: number): void {

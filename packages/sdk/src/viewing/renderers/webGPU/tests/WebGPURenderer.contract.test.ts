@@ -4542,15 +4542,15 @@ describe("WebGPURenderer contract", () => {
     testViewer.onViewUpdated.emit(view, view);
 
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
-    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
     expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
-      numCullCandidates: 2,
-      numRenderedMeshes: 2,
-      numFrustumCulledMeshes: 0,
+      numCullCandidates: 1,
+      numRenderedMeshes: 1,
+      numFrustumCulledMeshes: 1,
       numCullSegmentCandidates: 1,
-      numFullyDrawnSegments: 1,
-      numPartiallyRefinedSegments: 0,
-      numTemporaryIndexBuffers: 0
+      numFullyDrawnSegments: 0,
+      numPartiallyRefinedSegments: 1,
+      numTemporaryIndexBuffers: 1
     });
 
     gpu.passEncoder.drawIndexed.mockClear();
@@ -4562,7 +4562,7 @@ describe("WebGPURenderer contract", () => {
     });
   });
 
-  test("camera-dependent frustum culling rebuilds draw batches without repacking triangle storage", () => {
+  test("camera-dependent frustum culling rebuilds draw batches after camera idle without repacking triangle storage", async () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
@@ -4599,6 +4599,10 @@ describe("WebGPURenderer contract", () => {
     gpu.passEncoder.drawIndexed.mockClear();
     view.camera.viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -5, 0, 0, 1];
     testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+    await new Promise(resolve => setTimeout(resolve, 275));
     testViewer.onViewUpdated.emit(view, view);
 
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
@@ -4648,14 +4652,14 @@ describe("WebGPURenderer contract", () => {
 
     testViewer.onViewUpdated.emit(view, view);
     expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
-      numTemporaryIndexBuffers: 0
+      numTemporaryIndexBuffers: 1
     });
 
     gpu.passEncoder.drawIndexed.mockClear();
     testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
     testViewer.onViewUpdated.emit(view, view);
 
-    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(6, 1, 0, 0, 0);
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
     expect(inspectorResult.value.renderStats.views?.[0]).toMatchObject({
       numTemporaryIndexBuffers: 0
     });
@@ -5164,6 +5168,115 @@ describe("WebGPURenderer contract", () => {
     expect(instanceWrite[3]).toBe(3 * INSTANCE_FLOATS);
     expect(instanceWrite[4]).toBe(INSTANCE_FLOATS);
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(8);
+  });
+
+  test("repackages stable append-only stream segments once after the debounce", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    let now = 0;
+    const nowSpy = jest.spyOn(globalThis.performance, "now").mockImplementation(() => now);
+    const model = {
+      id: "model",
+      lifecycle: "streaming",
+      memoryPolicy: "stream",
+      building: false,
+      geometries: {},
+      meshes: {},
+      objects: {}
+    };
+    const addMesh = (meshId: string) => {
+      const {geometry, mesh} = createTriangleMesh(meshId);
+      geometry.id = `${meshId}Geometry`;
+      geometry.uniqueId = `model__${meshId}Geometry`;
+      mesh.geometry = geometry;
+      mesh.uniqueId = `model__${meshId}`;
+      (geometry as any).model = model;
+      (mesh as any).model = model;
+      (model.geometries as any)[geometry.id] = geometry;
+      (model.meshes as any)[mesh.id] = mesh;
+      return {geometry, mesh};
+    };
+
+    try {
+      addMesh("meshA");
+      testViewer.viewer.scene.models = {model};
+      testViewer.viewer.viewList.push(view);
+
+      const renderer = new WebGPURenderer({
+        device: gpu.device,
+        contextFormat: "rgba8unorm",
+        logging: false,
+        memoryConfigs: {
+          compactStreamPages: true,
+          maxBatchBuildSegments: -1
+        }
+      });
+      const result = renderer.attachViewer(testViewer.viewer as any);
+      expect(result.ok).toBe(true);
+      const inspectorResult = renderer.getRenderInspector();
+      expect(inspectorResult.ok).toBe(true);
+      if (!inspectorResult.ok) {
+        throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+      }
+      inspectorResult.value.enabled = true;
+
+      const {geometry: geometryB, mesh: meshB} = addMesh("meshB");
+      testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometryB);
+      testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, meshB);
+      testViewer.onViewUpdated.emit(view, view);
+
+      const {geometry: geometryC, mesh: meshC} = addMesh("meshC");
+      now = 100;
+      testViewer.onSceneGeometryCreated.emit(testViewer.viewer.scene, geometryC);
+      testViewer.onSceneMeshCreated.emit(testViewer.viewer.scene, meshC);
+      testViewer.onViewUpdated.emit(view, view);
+
+      expect(renderer.getMemoryStats()?.packedTrianglePages).toBe(3);
+
+      now = 700;
+      gpu.passEncoder.drawIndexed.mockClear();
+      testViewer.onViewUpdated.emit(view, view);
+
+      expect(inspectorResult.value.renderStats.views?.[0]?.renderReason).toBe("cacheReuse");
+      expect(renderer.getMemoryStats()?.packedTrianglePages).toBe(3);
+
+      now = 2200;
+      view.camera.viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 0, 1];
+      testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+      gpu.passEncoder.drawIndexed.mockClear();
+      testViewer.onViewUpdated.emit(view, view);
+
+      expect(inspectorResult.value.renderStats.views?.[0]?.renderReason).toBe("cameraOnlyReuse");
+      expect(renderer.getMemoryStats()?.packedTrianglePages).toBe(3);
+
+      now = 4300;
+      gpu.passEncoder.drawIndexed.mockClear();
+      testViewer.onViewUpdated.emit(view, view);
+
+      expect(inspectorResult.value.renderStats.views?.[0]?.renderReason).toBe("appendOnlyRepack");
+      expect(renderer.getMemoryStats()?.packedTrianglePageDetails).toEqual([
+        expect.objectContaining({
+          segmentCount: 1,
+          vertexCapacity: 9,
+          usedVertices: 9,
+          indexCapacity: 9,
+          usedIndices: 9,
+          edgeIndexCapacity: 18,
+          usedEdgeIndices: 18,
+          positionDecodeCapacity: 1,
+          usedPositionDecodes: 1
+        })
+      ]);
+      expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
+
+      gpu.passEncoder.drawIndexed.mockClear();
+      testViewer.onViewUpdated.emit(view, view);
+      expect(inspectorResult.value.renderStats.views?.[0]?.renderReason).toBe("cacheReuse");
+      expect(renderer.getMemoryStats()?.packedTrianglePages).toBe(1);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 
   test("uses segment rebuilds instead of append-only cache updates when camera culling is enabled", () => {
@@ -6002,6 +6115,60 @@ describe("WebGPURenderer contract", () => {
     ]);
   });
 
+  test("labels opaque-heavy cached segment redraws without blaming tiny transparent batches", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry: opaqueGeometry, mesh: opaqueMesh} = createTriangleMesh("opaqueMesh");
+    const {geometry: transparentGeometry, mesh: transparentMesh} = createTriangleMesh("transparentMesh");
+
+    opaqueGeometry.id = "opaqueGeometry";
+    opaqueGeometry.uniqueId = "model__opaqueGeometry";
+    opaqueGeometry.indices = new Uint16Array(300);
+    for (let i = 0; i < opaqueGeometry.indices.length; i += 3) {
+      opaqueGeometry.indices.set([0, 1, 2], i);
+    }
+    opaqueMesh.geometry = opaqueGeometry;
+    opaqueMesh.uniqueId = "model__opaqueMesh";
+    transparentGeometry.id = "transparentGeometry";
+    transparentGeometry.uniqueId = "model__transparentGeometry";
+    transparentMesh.geometry = transparentGeometry;
+    transparentMesh.uniqueId = "model__transparentMesh";
+    transparentMesh.opacity = 0.5;
+    transparentMesh.effectiveOpacity = 0.5;
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [opaqueMesh.id]: opaqueMesh,
+          [transparentMesh.id]: transparentMesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    view.camera.viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 0, 1];
+    testViewer.onCameraViewMatrixUpdated.emit(view, view.camera);
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(inspectorResult.value.renderStats.views?.[0]?.renderReason).toBe("segmentBatchReuse");
+  });
+
   test("draws opaque meshes before transparent meshes", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
@@ -6173,6 +6340,9 @@ describe("WebGPURenderer contract", () => {
     const renderer = new WebGPURenderer({
       device: gpu.device,
       contextFormat: "rgba8unorm",
+      renderConfigs: {
+        triangleColorMode: "flat"
+      },
       logging: false
     });
     const attachResult = renderer.attachViewer(testViewer.viewer as any);
@@ -6198,6 +6368,7 @@ describe("WebGPURenderer contract", () => {
       "SELECTED_TRANSPARENT",
       "SELECTED_EDGES_TRANSPARENT"
     ]);
+    expect(frameStats?.renderBins[0]?.drawCalls[0]?.technique).toBe("TrianglesDrawColorFlatTechnique");
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
   });
 

@@ -9,15 +9,19 @@ const CAMERA_DEBOUNCE_MS = 140;
 const CACHE_XGF_FILE_BYTES = true;
 const MAX_CACHED_XGF_FILE_BYTES = 128 * 1024 * 1024;
 const FAR_CLIP = 200000;
-
-const UTM_EAST = 267000.0;
-const UTM_NORTH = 6550000.0;
-const ARCH_COORDINATE_SYSTEM = {
-  basis: [1, 0, 0, 0, 0, 1, 0, 1, 0],
-  origin: [UTM_EAST, 0.0, UTM_NORTH],
-  units: "meters",
-  scaleToMeters: 1
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const RENDERER = URL_PARAMS.get("renderer") || "auto";
+const OUTDOOR_DAYLIGHT = {
+  iblIntensity: 0.42,
+  hemisphereIntensity: 0.12,
+  hemisphereSkyColor: [0.72, 0.84, 0.96],
+  hemisphereGroundColor: [0.44, 0.45, 0.40],
+  ambientIntensity: 0.08,
+  sunDir: [-0.42, -0.62, -0.72],
+  sunColor: [1.0, 0.96, 0.88],
+  sunIntensity: 1.18
 };
+let outdoorDaylightHDRBuffer = null;
 
 const VIEWPOINTS = [
   {
@@ -63,7 +67,9 @@ let startupSpinnerDismissed = false;
 
 sdkProgress.setPhase("Loading...");
 
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({
+  renderer: RENDERER
+});
 const viewpointCards = createViewpointCards(document.getElementById("viewpointCards"), VIEWPOINTS);
 
 studio.init().then(async () => {
@@ -80,7 +86,7 @@ studio.init().then(async () => {
 
   const view = studio.viewManager.createView({
     id: "demoView",
-    adaptiveQuality: true,
+    adaptiveQuality: false,
     backgroundColor: [0.76, 0.85, 0.91],
     effects: {
       edges: {
@@ -96,12 +102,15 @@ studio.init().then(async () => {
       }
     },
     camera: {
-      perspectiveProjection: {fov: INITIAL_VIEWPOINT.fov, near: 0.001, far: FAR_CLIP},
+      perspectiveProjection: {fov: INITIAL_VIEWPOINT.fov, near: 0.1, far: FAR_CLIP},
       eye: INITIAL_VIEWPOINT.eye,
       look: INITIAL_VIEWPOINT.look,
       up: INITIAL_VIEWPOINT.up
     }
   });
+  studio.viewProfiles?.setActiveProfile(null);
+  disableExpensiveEffects(view);
+  configureArchipelagoDaylight(view, OUTDOOR_DAYLIGHT);
 
   try {
     setStatus(ui, "Preparing stream index");
@@ -111,7 +120,7 @@ studio.init().then(async () => {
     const sceneModel = must(scene.createModel({
       id: "Archipelago",
       updateHint: "dynamic",
-      coordinateSystem: ARCH_COORDINATE_SYSTEM
+      coordinateSystem: index.coordinateSystem
     }));
 
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
@@ -214,6 +223,85 @@ function setStatus(ui, status) {
   if (ui.streamStatus) {
     ui.streamStatus.textContent = status;
   }
+}
+
+function disableExpensiveEffects(view) {
+  const effects = view.effects || {};
+  for (const effectId of [
+    "sao",
+    "shadows",
+    "atmosphere",
+    "bloom",
+    "depthOfField",
+    "colorGrading",
+    "tonemap",
+    "antiAliasing"
+  ]) {
+    if (effects[effectId]) {
+      effects[effectId].enabled = false;
+    }
+  }
+}
+
+function configureArchipelagoDaylight(view, config) {
+  if (view.lights?.ibl) {
+    view.lights.ibl.enabled = config.iblIntensity > 0;
+    view.lights.ibl.intensity = config.iblIntensity ?? 0.42;
+    if (view.lights.ibl.enabled) {
+      const iblResult = applyOutdoorIBLEnvironment(view, config);
+      if (!iblResult) {
+        view.lights.ibl.enabled = false;
+        view.lights.ibl.intensity = 0;
+      }
+    }
+  }
+  if (view.lights?.hemispheric) {
+    view.lights.hemispheric.enabled = config.hemisphereIntensity > 0;
+    view.lights.hemispheric.intensity = config.hemisphereIntensity ?? 0.12;
+    view.lights.hemispheric.skyColor = config.hemisphereSkyColor || [0.72, 0.84, 0.96];
+    view.lights.hemispheric.groundColor = config.hemisphereGroundColor || [0.44, 0.45, 0.40];
+    view.lights.hemispheric.worldUp = [0, 0, 1];
+  }
+  view.clearLights();
+  new xeokit.viewing.viewer.AmbientLight(view, {
+    id: "archipelagoAmbient",
+    color: [1.0, 1.0, 1.0],
+    intensity: config.ambientIntensity ?? 0.08
+  });
+  new xeokit.viewing.viewer.DirLight(view, {
+    id: "archipelagoSun",
+    dir: config.sunDir || [-0.42, -0.62, -0.72],
+    color: config.sunColor || [1.0, 0.96, 0.88],
+    intensity: config.sunIntensity ?? 1.18,
+    space: "world"
+  });
+}
+
+function applyOutdoorIBLEnvironment(view, config) {
+  const paint = xeokit.model?.generation?.paintEnvironments;
+  if (!paint?.paintSunSkyHDR || !paint?.encodeRadianceHDR) {
+    return false;
+  }
+  if (!outdoorDaylightHDRBuffer) {
+    const sunDirection = normalizeVec3(config.sunDirection || negateVec3(config.sunDir || [-0.42, -0.62, -0.72]));
+    const hdrPixels = paint.paintSunSkyHDR(512, 256, {sunDirection});
+    outdoorDaylightHDRBuffer = paint.encodeRadianceHDR(hdrPixels, 512, 256);
+  }
+  const result = view.lights.ibl.setEnvironmentHDRBuffer(outdoorDaylightHDRBuffer);
+  if (!result.ok) {
+    console.warn("[streaming/xgf/archipelago] Outdoor IBL setup failed:", result.error);
+    return false;
+  }
+  return true;
+}
+
+function negateVec3(value) {
+  return [-value[0], -value[1], -value[2]];
+}
+
+function normalizeVec3(value) {
+  const length = Math.hypot(value[0], value[1], value[2]) || 1;
+  return [value[0] / length, value[1] / length, value[2] / length];
 }
 
 function bindCameraStreaming(studio, view, streamController) {

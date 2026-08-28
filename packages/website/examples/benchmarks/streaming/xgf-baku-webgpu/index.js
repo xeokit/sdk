@@ -24,6 +24,8 @@ const GPU_TIMESTAMPS = new URLSearchParams(window.location.search).get("timestam
 const PROFILE_PANEL = new URLSearchParams(window.location.search).get("profile") === "1";
 const BENCHMARK_PANEL = new URLSearchParams(window.location.search).get("benchmark") === "1";
 const RTC_TILE_SIZE = getPositiveNumberParam("tileSize", 1000);
+const FRUSTUM_CULLING = new URLSearchParams(window.location.search).get("cull") === "1";
+const MIN_PROJECTED_CANVAS_SIZE = getNonNegativeNumberParam("minProjectedCanvasSize", 5);
 const BACKPRESSURE_ENABLED = new URLSearchParams(window.location.search).get("backpressure") === "1";
 const BACKPRESSURE_DEFAULTS = getBackpressureDefaults(MEMORY_PROFILE);
 const BACKPRESSURE_PAUSE_PENDING_SEGMENTS = getPositiveNumberParam("pausePendingSegments", BACKPRESSURE_DEFAULTS.pausePendingSegments);
@@ -325,6 +327,7 @@ async function main() {
         label: "Baku WebGPU XGF stream",
         dataset: DATASET,
         memoryProfile: MEMORY_PROFILE,
+        minProjectedCanvasSize: MEMORY_CONFIGS.minProjectedCanvasSize,
         memoryConfigs: MEMORY_CONFIGS,
         loadedChunks: streamController.loadedChunkIds.size,
         loadingChunks: streamController.loadingChunkIds.size,
@@ -344,6 +347,7 @@ async function main() {
       viewer,
       view,
       renderer,
+      renderInspector,
       streamController,
       inputController,
       index,
@@ -433,6 +437,7 @@ function renderStatus({streamController, index, renderer, renderInspector, view,
     adapterHTML +
     `<span>Memory profile: ${MEMORY_PROFILE}.</span>` +
     `<span>RTC tile size: ${formatCount(MEMORY_CONFIGS.tileSize)} world units.</span>` +
+    `<span>Projected-size culling: ${MEMORY_CONFIGS.minProjectedCanvasSize > 0 ? `enabled at ${formatCount(MEMORY_CONFIGS.minProjectedCanvasSize)} px` : "disabled"}.</span>` +
     `<span>Depth prepass: ${DEPTH_PREPASS ? "enabled" : "disabled"}.</span>` +
     `<span>Edge pass: ${EDGE_PASS ? "enabled" : "disabled"}.</span>` +
     `<span>GPU timestamps: ${GPU_TIMESTAMPS ? "enabled" : "disabled"}.</span>` +
@@ -517,8 +522,8 @@ function getMemoryConfigs(profile, dataset) {
       maxBatchBuildTimeMs: 12,
       maxBatchBuildSegments: dataset === "200" ? -1 : 1,
       tileSize: RTC_TILE_SIZE,
-      frustumCulling: false,
-      minProjectedCanvasSize: 0,
+      frustumCulling: FRUSTUM_CULLING,
+      minProjectedCanvasSize: MIN_PROJECTED_CANVAS_SIZE,
       compactStreamPages: true,
       compactSealedStreamPages: false
     };
@@ -532,8 +537,8 @@ function getMemoryConfigs(profile, dataset) {
       maxBatchPrims: 900000,
       maxBatchBuildTimeMs: 16,
       tileSize: RTC_TILE_SIZE,
-      frustumCulling: false,
-      minProjectedCanvasSize: 0,
+      frustumCulling: FRUSTUM_CULLING,
+      minProjectedCanvasSize: MIN_PROJECTED_CANVAS_SIZE,
       compactStreamPages: true
     };
   }
@@ -546,8 +551,8 @@ function getMemoryConfigs(profile, dataset) {
       maxBatchPrims: 300000,
       maxBatchBuildTimeMs: 10,
       tileSize: RTC_TILE_SIZE,
-      frustumCulling: false,
-      minProjectedCanvasSize: 0,
+      frustumCulling: FRUSTUM_CULLING,
+      minProjectedCanvasSize: MIN_PROJECTED_CANVAS_SIZE,
       compactStreamPages: true
     };
   }
@@ -559,8 +564,8 @@ function getMemoryConfigs(profile, dataset) {
     maxBatchPrims: 75000,
     maxBatchBuildTimeMs: 4,
     tileSize: RTC_TILE_SIZE,
-    frustumCulling: false,
-    minProjectedCanvasSize: 0,
+    frustumCulling: FRUSTUM_CULLING,
+    minProjectedCanvasSize: MIN_PROJECTED_CANVAS_SIZE,
     compactStreamPages: true
   };
 }
@@ -613,6 +618,11 @@ function getBakuIndexURL(dataset) {
 function getPositiveNumberParam(name, fallback) {
   const value = Number(new URLSearchParams(window.location.search).get(name));
   return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function getNonNegativeNumberParam(name, fallback) {
+  const value = Number(new URLSearchParams(window.location.search).get(name));
+  return Number.isFinite(value) && value >= 0 ? value : fallback;
 }
 
 function resolveIndexRelativeChunkUris(index, indexUrl) {

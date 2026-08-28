@@ -23,7 +23,10 @@ import type {RTCTileManager} from "./RTCTileManager";
 export class InstanceBatcher {
 
   private readonly _renderContext: RenderContext;
-  private readonly _triangleBatchManager: TriangleBatchManager;
+  private readonly _bindGroupLayoutManager: BindGroupLayoutManager;
+  private readonly _rtcTileManager: RTCTileManager;
+  private _triangleBatchManager: TriangleBatchManager;
+  private _repackTriangleBatchManager: TriangleBatchManager | null = null;
   private readonly _batches: InstancedDrawBatches = {
     opaque: [],
     edges: [],
@@ -50,12 +53,9 @@ export class InstanceBatcher {
     rtcTileManager: RTCTileManager;
   }) {
     this._renderContext = params.renderContext;
-    this._triangleBatchManager = new TriangleBatchManager({
-      renderContext: params.renderContext,
-      bindGroupLayoutManager: params.bindGroupLayoutManager,
-      memoryConfigs: params.renderContext.memoryConfigs,
-      rtcTileResolver: params.rtcTileManager
-    });
+    this._bindGroupLayoutManager = params.bindGroupLayoutManager;
+    this._rtcTileManager = params.rtcTileManager;
+    this._triangleBatchManager = this._createTriangleBatchManager();
   }
 
   public get batches(): InstancedDrawBatches {
@@ -87,6 +87,42 @@ export class InstanceBatcher {
 
   public buildPendingSegments(meshManager: MeshManager): SDKResult<TriangleBatchSet> {
     return this._triangleBatchManager.buildPendingSegments(meshManager);
+  }
+
+  public beginBackgroundRepack(meshManager: MeshManager): SDKResult<TriangleBatchSet> {
+    this.cancelBackgroundRepack();
+    this._repackTriangleBatchManager = this._createTriangleBatchManager();
+    return this._repackTriangleBatchManager.prepare(meshManager, {
+      buildPendingSegments: false,
+      forceRepack: true
+    });
+  }
+
+  public buildBackgroundRepackSegment(meshManager: MeshManager): SDKResult<TriangleBatchSet | null> {
+    if (!this._repackTriangleBatchManager) {
+      return {
+        ok: true,
+        value: null
+      };
+    }
+    return this._repackTriangleBatchManager.buildPendingSegments(meshManager, {
+      maxBuildSegments: 1
+    });
+  }
+
+  public commitBackgroundRepack(): void {
+    if (!this._repackTriangleBatchManager) {
+      return;
+    }
+    const previous = this._triangleBatchManager;
+    this._triangleBatchManager = this._repackTriangleBatchManager;
+    this._repackTriangleBatchManager = null;
+    previous.destroy();
+  }
+
+  public cancelBackgroundRepack(): void {
+    this._repackTriangleBatchManager?.destroy();
+    this._repackTriangleBatchManager = null;
   }
 
   public writeInstances(params: {
@@ -668,6 +704,16 @@ export class InstanceBatcher {
     this._destroyBatches(this._batches);
     this._clear();
     this._triangleBatchManager.destroy();
+    this.cancelBackgroundRepack();
+  }
+
+  private _createTriangleBatchManager(): TriangleBatchManager {
+    return new TriangleBatchManager({
+      renderContext: this._renderContext,
+      bindGroupLayoutManager: this._bindGroupLayoutManager,
+      memoryConfigs: this._renderContext.memoryConfigs,
+      rtcTileResolver: this._rtcTileManager
+    });
   }
 }
 

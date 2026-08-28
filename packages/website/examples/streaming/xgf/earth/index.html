@@ -80,6 +80,25 @@
       color: #bec8d6;
     }
 
+    .layer-controls {
+      display: grid;
+      gap: 6px;
+      border-top: 1px solid rgba(148, 163, 184, 0.18);
+      padding-top: 8px;
+    }
+
+    .layer-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #d7dde7;
+    }
+
+    .layer-toggle input {
+      accent-color: #7ba6a0;
+    }
+
     .semantic-panel {
       border-top: 1px solid rgba(148, 163, 184, 0.18);
       padding-top: 8px;
@@ -123,6 +142,16 @@
     <div class="metric"><span>Meshes</span><strong id="meshCount">0</strong></div>
     <progress id="chunkProgress" max="1" value="0"></progress>
     <div id="status">Initializing...</div>
+    <div class="layer-controls">
+      <label class="layer-toggle" for="satellitesToggle">
+        <span>Satellites</span>
+        <input type="checkbox" id="satellitesToggle">
+      </label>
+      <label class="layer-toggle" for="launchTrajectoriesToggle">
+        <span>Launch and re-entry plots</span>
+        <input type="checkbox" id="launchTrajectoriesToggle">
+      </label>
+    </div>
     <div class="semantic-panel">
       <p class="semantic-title" id="countryName">Country</p>
       <dl class="semantic-grid" id="countryProperties">

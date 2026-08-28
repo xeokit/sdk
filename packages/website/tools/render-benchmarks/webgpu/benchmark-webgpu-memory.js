@@ -20,22 +20,28 @@ const DEFAULTS = {
   interactionFrames: 0,
   includeExpensive: false,
   onlyExpensive: false,
+  bakuProjectedSizeComparison: false,
+  targetChunks: null,
+  postTargetSettleMs: 750,
   bakuTargetChunks: 16,
   exampleFilter: "",
+  query: "",
   outputPath: "",
   chromeGpuBackend: "vulkan",
+  headless: true,
+  chromePath: getDefaultChromePath(),
 };
 
 const DEFAULT_EXAMPLES = [
   {
     name: "xgf-procedural-city-compact",
-    path: "/examples/import/xgf/procedural-city/index.html?renderer=webgpu&stats=1&memory=compact&depth=0&edges=0&tileSize=1000",
+    path: "/examples/import/xgf/procedural-city/index.html?renderer=webgpu&stats=1&profile=1&memory=compact&depth=0&edges=0&tileSize=1000",
     demoName: "webgpuProceduralCityXGFStreamDemo",
     streaming: true,
   },
   {
     name: "xgf-procedural-city-large-static",
-    path: "/examples/import/xgf/procedural-city/index.html?renderer=webgpu&stats=1&memory=largeStatic&depth=0&edges=0&tileSize=1000",
+    path: "/examples/import/xgf/procedural-city/index.html?renderer=webgpu&stats=1&profile=1&memory=largeStatic&depth=0&edges=0&tileSize=1000",
     demoName: "webgpuProceduralCityXGFStreamDemo",
     streaming: true,
   },
@@ -71,6 +77,14 @@ const EXPENSIVE_EXAMPLES = [
   },
 ];
 
+const BAKU_PROJECTED_SIZE_COMPARISON_EXAMPLES = [0, 5, 10].map((minProjectedCanvasSize) => ({
+  name: `xgf-baku-200-compact-min-projected-${minProjectedCanvasSize}`,
+  path: `/examples/benchmarks/streaming/xgf-baku-webgpu/index.html?stats=1&dataset=200&memory=compact&depth=0&edges=0&tileSize=1000&minProjectedCanvasSize=${minProjectedCanvasSize}`,
+  demoName: "webgpuBakuStadiumXGFStreamDemo",
+  streaming: true,
+  targetChunks: "bakuTargetChunks",
+}));
+
 function parseArgs(argv) {
   const args = {...DEFAULTS};
   for (let i = 0; i < argv.length; i++) {
@@ -94,12 +108,27 @@ function parseArgs(argv) {
     } else if (arg === "--only-expensive") {
       args.onlyExpensive = true;
       args.includeExpensive = true;
+    } else if (arg === "--baku-projected-size-comparison") {
+      args.bakuProjectedSizeComparison = true;
+      args.includeExpensive = true;
+    } else if (arg === "--target-chunks") {
+      args.targetChunks = parsePositiveInt(argv[++i], "target chunks");
+    } else if (arg === "--post-target-settle-ms") {
+      args.postTargetSettleMs = parseNonNegativeInt(argv[++i], "post-target settle time");
     } else if (arg === "--baku-target-chunks") {
       args.bakuTargetChunks = parsePositiveInt(argv[++i], "Baku target chunks");
     } else if (arg === "--example") {
       args.exampleFilter = argv[++i] || "";
+    } else if (arg === "--query") {
+      args.query = argv[++i] || "";
     } else if (arg === "--chrome-gpu-backend") {
       args.chromeGpuBackend = parseChromeGpuBackend(argv[++i] || "");
+    } else if (arg === "--chrome" || arg === "--chrome-path") {
+      args.chromePath = argv[++i] || null;
+    } else if (arg === "--headful" || arg === "--no-headless") {
+      args.headless = false;
+    } else if (arg === "--headless") {
+      args.headless = true;
     } else if (arg === "--help" || arg === "-h") {
       printHelp();
       process.exit(0);
@@ -119,11 +148,29 @@ Options:
   --interaction-frames <n>     Rotate camera and summarize n rendered frames. Default ${DEFAULTS.interactionFrames}.
   --include-expensive          Include slow-loading stress examples such as Baku Stadium.
   --only-expensive             Run only expensive stress examples.
-  --baku-target-chunks <n>     Loaded chunk target for bounded Baku profiling. Default ${DEFAULTS.bakuTargetChunks}.
+  --baku-projected-size-comparison
+                               Run Baku compact at minProjectedCanvasSize 0, 5, and 10.
+  --target-chunks <n>          Loaded chunk target for bounded streaming profiling.
+  --post-target-settle-ms <n>  Extra wait after target chunks before interaction sampling. Default ${DEFAULTS.postTargetSettleMs}.
+  --baku-target-chunks <n>     Alias/default for Baku profiling. Default ${DEFAULTS.bakuTargetChunks}.
   --example <name>             Run one matching example name.
+  --query <params>             Append query params to each example URL, for example cull=1.
   --chrome-gpu-backend <name>  Chrome GPU flags: default, vulkan, angle-vulkan, swiftshader. Default ${DEFAULTS.chromeGpuBackend}.
+  --headful                    Run Chrome visibly instead of headless.
+  --chrome <path>              Chrome executable path.
   --output <path>              Optional JSON output path.
 `);
+}
+
+function getDefaultChromePath() {
+  const candidates = [
+    process.env.CHROME_BIN,
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser"
+  ];
+  return candidates.find((candidate) => candidate && fs.existsSync(candidate)) || null;
 }
 
 function parseChromeGpuBackend(value) {
@@ -251,7 +298,7 @@ async function runExample(browser, baseUrl, example, args) {
   const pageErrors = [];
   const consoleErrors = [];
   const httpErrors = [];
-  const url = `${baseUrl}${example.path}`;
+  const url = `${baseUrl}${appendQueryParams(example.path, args.query)}`;
   try {
     await page.setViewport({
       width: args.viewportWidth,
@@ -297,12 +344,22 @@ async function runExample(browser, baseUrl, example, args) {
       };
     }
 
+    const maintenanceSamples = [];
+
     if (example.streaming) {
       await waitForStreamSettled(page, example, args.settleTimeoutMs, getExampleTargetChunks(example, args));
     }
     await waitForRendererSettled(page, example, Math.min(args.settleTimeoutMs, 60000), getExampleTargetChunks(example, args));
     await renderCameraFrame(page, example);
     await waitForRendererSettled(page, example, 30000, getExampleTargetChunks(example, args));
+    if (args.postTargetSettleMs > 0) {
+      const beforeMaintenance = await sample(page, example);
+      await delay(args.postTargetSettleMs);
+      await renderIdleFrame(page, example);
+      await waitForRendererSettled(page, example, 30000, getExampleTargetChunks(example, args));
+      const afterMaintenance = await sample(page, example);
+      maintenanceSamples.push(createMaintenanceSample("postTargetSettle", beforeMaintenance, afterMaintenance));
+    }
 
     const interaction = args.interactionFrames > 0
       ? await runInteractionBenchmark(page, example, args.interactionFrames)
@@ -314,6 +371,7 @@ async function runExample(browser, baseUrl, example, args) {
       url,
       ...finalSample,
       interaction,
+      maintenanceSamples: maintenanceSamples.filter(Boolean),
       pageErrors,
       consoleErrors,
       httpErrors,
@@ -322,6 +380,49 @@ async function runExample(browser, baseUrl, example, args) {
   } finally {
     await page.close();
   }
+}
+
+function appendQueryParams(url, query) {
+  if (!query) {
+    return url;
+  }
+  const trimmed = query.startsWith("?") ? query.slice(1) : query;
+  if (!trimmed) {
+    return url;
+  }
+  return `${url}${url.includes("?") ? "&" : "?"}${trimmed}`;
+}
+
+function createMaintenanceSample(label, before, after) {
+  if (!after?.frame) {
+    return null;
+  }
+  const beforeMemory = before?.memoryStats || {};
+  const afterMemory = after?.memoryStats || {};
+  const beforeFrame = before?.frame || {};
+  const afterFrame = after.frame;
+  const cpu = afterFrame.cpuTime || {};
+  return {
+    label,
+    renderReason: afterFrame.renderReason || "",
+    frameMs: cpu.frameMs,
+    prepareMs: cpu.prepareMs,
+    binningMs: cpu.binningMs,
+    drawBatchMs: cpu.drawBatchMs,
+    uploadMs: cpu.uploadMs,
+    commandEncodingMs: cpu.commandEncodingMs,
+    submitMs: cpu.submitMs,
+    beforeDrawCalls: beforeFrame.numDrawCalls || before?.renderSummary?.numDrawCalls || 0,
+    afterDrawCalls: afterFrame.numDrawCalls || after?.renderSummary?.numDrawCalls || 0,
+    beforePages: beforeMemory.packedTrianglePages || 0,
+    afterPages: afterMemory.packedTrianglePages || 0,
+    beforeSegments: beforeMemory.packedTriangleSegments || 0,
+    afterSegments: afterMemory.packedTriangleSegments || 0,
+    beforePackedBytes: beforeMemory.packedTriangleBytes || 0,
+    afterPackedBytes: afterMemory.packedTriangleBytes || 0,
+    beforeRenderBinBreakdown: before?.renderBinBreakdown || null,
+    afterRenderBinBreakdown: after?.renderBinBreakdown || null,
+  };
 }
 
 async function collectPageWebGPUDiagnostics(page) {
@@ -517,6 +618,18 @@ async function renderCameraFrame(page, example) {
   }), example.demoName);
 }
 
+async function renderIdleFrame(page, example) {
+  await page.evaluate((demoName) => new Promise(resolve => {
+    const demo = window[demoName];
+    if (!demo) {
+      resolve();
+      return;
+    }
+    demo.view.needsRender();
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  }), example.demoName);
+}
+
 async function runInteractionBenchmark(page, example, frames) {
   return page.evaluate(async (demoName, frameCount) => {
     const demo = window[demoName];
@@ -573,7 +686,7 @@ async function runInteractionBenchmark(page, example, frames) {
 }
 
 async function sample(page, example) {
-  return page.evaluate((demoName, streaming) => {
+  const result = await page.evaluate((demoName, streaming) => {
     const demo = window[demoName];
     if (!demo) {
       return {
@@ -595,6 +708,7 @@ async function sample(page, example) {
       chunks: streamController?.chunkManifests?.length ?? null,
       objects: streamController?.loadedTotals?.objects ?? countKeys(demo.sceneModel?.objects),
       meshes: streamController?.loadedTotals?.meshes ?? countKeys(demo.sceneModel?.meshes),
+      memoryConfigs: demo.memoryConfigs || null,
       renderSummary,
       frame: frame ? {
         renderReason: frame.renderReason || "",
@@ -603,7 +717,14 @@ async function sample(page, example) {
         numBatches: frame.numBatches || renderSummary?.numBatches || 0,
         numBuiltSegments: frame.numBuiltSegments || 0,
         numPendingSegments: frame.numPendingSegments || 0,
+        numCullCandidates: frame.numCullCandidates || 0,
         numRenderedMeshes: frame.numRenderedMeshes || 0,
+        numFrustumCulledMeshes: frame.numFrustumCulledMeshes || 0,
+        numProjectedSizeCulledMeshes: frame.numProjectedSizeCulledMeshes || 0,
+        numCullSegmentCandidates: frame.numCullSegmentCandidates || 0,
+        numFrustumCulledSegments: frame.numFrustumCulledSegments || 0,
+        numFullyDrawnSegments: frame.numFullyDrawnSegments || 0,
+        numPartiallyRefinedSegments: frame.numPartiallyRefinedSegments || 0,
         numMeshesUsingRTCFallback: frame.numMeshesUsingRTCFallback || renderSummary?.numMeshesUsingRTCFallback || 0,
         cpuTime: frame.cpuTime || null,
         instanceUpload: frame.instanceUpload || null,
@@ -697,6 +818,90 @@ async function sample(page, example) {
       return result;
     }
   }, example.demoName, example.streaming);
+  if (result?.ready) {
+    result.renderBinBreakdown = summarizeRenderBins(result.frame, result.renderSummary);
+  }
+  return result;
+}
+
+function summarizeRenderBins(frame, renderSummary) {
+  const bins = frame?.renderBins?.length ? frame.renderBins : renderSummary?.renderBins || [];
+  const breakdown = {
+    depthDrawCalls: 0,
+    depthPrims: 0,
+    depthSegments: 0,
+    opaqueDrawCalls: 0,
+    opaquePrims: 0,
+    opaqueSegments: 0,
+    transparentDrawCalls: 0,
+    transparentPrims: 0,
+    transparentSegments: 0,
+    edgeDrawCalls: 0,
+    edgePrims: 0,
+    edgeSegments: 0,
+    otherDrawCalls: 0,
+    otherPrims: 0,
+    otherSegments: 0,
+    transparentSortPath: classifyTransparentSortPath(frame)
+  };
+  const segmentKeys = {
+    depth: new Set(),
+    opaque: new Set(),
+    transparent: new Set(),
+    edge: new Set(),
+    other: new Set()
+  };
+
+  for (const bin of bins) {
+    const group = classifyRenderBin(bin?.name);
+    const drawCalls = Array.isArray(bin?.drawCalls) ? bin.drawCalls : null;
+    if (drawCalls) {
+      breakdown[`${group}DrawCalls`] += drawCalls.length;
+      for (const draw of drawCalls) {
+        breakdown[`${group}Prims`] += Number(draw?.numPrims || 0);
+        if (draw?.segmentKey) {
+          segmentKeys[group].add(draw.segmentKey);
+        }
+      }
+      continue;
+    }
+    breakdown[`${group}DrawCalls`] += Number(bin?.numDrawCalls || 0);
+    breakdown[`${group}Prims`] += Number(bin?.numPrimitives || 0);
+  }
+
+  for (const group of Object.keys(segmentKeys)) {
+    breakdown[`${group}Segments`] = segmentKeys[group].size || null;
+  }
+  return breakdown;
+}
+
+function classifyRenderBin(name) {
+  const upperName = String(name || "").toUpperCase();
+  if (upperName.includes("DEPTH")) {
+    return "depth";
+  }
+  if (upperName.includes("TRANSPARENT")) {
+    return "transparent";
+  }
+  if (upperName.includes("EDGE")) {
+    return "edge";
+  }
+  if (upperName.includes("OPAQUE")) {
+    return "opaque";
+  }
+  return "other";
+}
+
+function classifyTransparentSortPath(frame) {
+  const reason = frame?.renderReason || "";
+  if (reason === "transparentSegmentBatch") {
+    return "segment";
+  }
+  if (reason === "transparentSort") {
+    return "object";
+  }
+  const hasTransparentBin = (frame?.renderBins || []).some(bin => classifyRenderBin(bin?.name) === "transparent");
+  return hasTransparentBin ? "bin" : "none";
 }
 
 function printWebGPUDiagnostics(results) {
@@ -737,6 +942,7 @@ function printTable(results) {
     "draws",
     "pages",
     "segments",
+    "projected px",
     "reason",
     "rendered",
     "tmp idx",
@@ -774,6 +980,7 @@ function printTable(results) {
         formatInt(frame.numDrawCalls || result.renderSummary?.numDrawCalls),
         formatInt(memory.packedTrianglePages),
         formatInt(memory.packedTriangleSegments),
+        formatNumberCompact(result.memoryConfigs?.minProjectedCanvasSize),
         frame.renderReason || "n/a",
         formatInt(frame.numRenderedMeshes),
         formatInt(frame.numTemporaryIndexBuffers),
@@ -798,6 +1005,96 @@ function printTable(results) {
     }),
   ];
   printMatrix("", matrix);
+}
+
+function printRenderBinBreakdownTable(results) {
+  const rows = results
+    .filter(result => result.renderBinBreakdown)
+    .map(result => ({
+      name: result.name,
+      breakdown: result.renderBinBreakdown
+    }));
+  if (rows.length === 0) {
+    return;
+  }
+
+  const matrix = [
+    [
+      "example",
+      "sort",
+      "depth draws",
+      "depth prims",
+      "opaque draws",
+      "opaque prims",
+      "opaque segs",
+      "transparent draws",
+      "transparent prims",
+      "transparent segs",
+      "edge draws",
+      "edge prims",
+      "other draws"
+    ],
+    ...rows.map(row => {
+      const breakdown = row.breakdown;
+      return [
+        row.name,
+        breakdown.transparentSortPath || "n/a",
+        formatInt(breakdown.depthDrawCalls),
+        formatInt(breakdown.depthPrims),
+        formatInt(breakdown.opaqueDrawCalls),
+        formatInt(breakdown.opaquePrims),
+        formatInt(breakdown.opaqueSegments),
+        formatInt(breakdown.transparentDrawCalls),
+        formatInt(breakdown.transparentPrims),
+        formatInt(breakdown.transparentSegments),
+        formatInt(breakdown.edgeDrawCalls),
+        formatInt(breakdown.edgePrims),
+        formatInt(breakdown.otherDrawCalls)
+      ];
+    })
+  ];
+  printMatrix("Render-bin breakdown:", matrix);
+}
+
+function printCullBreakdownTable(results) {
+  const rows = results
+    .filter(result => result.frame)
+    .map(result => ({
+      name: result.name,
+      frame: result.frame
+    }));
+  if (rows.length === 0) {
+    return;
+  }
+
+  const matrix = [
+    [
+      "example",
+      "mesh candidates",
+      "rendered meshes",
+      "frustum culled",
+      "projected culled",
+      "segment candidates",
+      "segment culled",
+      "full segments",
+      "refined segments"
+    ],
+    ...rows.map(row => {
+      const frame = row.frame;
+      return [
+        row.name,
+        formatInt(frame.numCullCandidates),
+        formatInt(frame.numRenderedMeshes),
+        formatInt(frame.numFrustumCulledMeshes),
+        formatInt(frame.numProjectedSizeCulledMeshes),
+        formatInt(frame.numCullSegmentCandidates),
+        formatInt(frame.numFrustumCulledSegments),
+        formatInt(frame.numFullyDrawnSegments),
+        formatInt(frame.numPartiallyRefinedSegments)
+      ];
+    })
+  ];
+  printMatrix("Cull breakdown:", matrix);
 }
 
 function printInteractionTable(results) {
@@ -853,6 +1150,52 @@ function printInteractionTable(results) {
     ])
   ];
   printMatrix("Interaction benchmark:", matrix);
+}
+
+function printMaintenanceTable(results) {
+  const rows = results.flatMap(result => (result.maintenanceSamples || [])
+    .filter(sample => sample?.renderReason)
+    .map(sample => ({name: result.name, sample})));
+  if (rows.length === 0) {
+    return;
+  }
+
+  const matrix = [
+    [
+      "example",
+      "sample",
+      "reason",
+      "frame",
+      "prepare",
+      "bin",
+      "draw batches",
+      "upload",
+      "commands",
+      "draws",
+      "pages",
+      "segments",
+      "packed alloc"
+    ],
+    ...rows.map(row => {
+      const sample = row.sample;
+      return [
+        row.name,
+        sample.label,
+        sample.renderReason,
+        formatMs(sample.frameMs),
+        formatMs(sample.prepareMs),
+        formatMs(sample.binningMs),
+        formatMs(sample.drawBatchMs),
+        formatMs(sample.uploadMs),
+        formatMs(sample.commandEncodingMs),
+        `${formatInt(sample.beforeDrawCalls)} -> ${formatInt(sample.afterDrawCalls)}`,
+        `${formatInt(sample.beforePages)} -> ${formatInt(sample.afterPages)}`,
+        `${formatInt(sample.beforeSegments)} -> ${formatInt(sample.afterSegments)}`,
+        `${formatBytes(sample.beforePackedBytes)} -> ${formatBytes(sample.afterPackedBytes)}`
+      ];
+    })
+  ];
+  printMatrix("Maintenance frames:", matrix);
 }
 
 function printMatrix(title, matrix) {
@@ -934,6 +1277,10 @@ function formatNumber(value) {
   return Number.isFinite(value) ? value.toFixed(1) : "n/a";
 }
 
+function formatNumberCompact(value) {
+  return Number.isFinite(value) ? Number(value).toLocaleString("en-US") : "n/a";
+}
+
 function formatPercent(value) {
   return Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : "n/a";
 }
@@ -970,12 +1317,14 @@ async function main() {
     ensureChromeBackendFlags(chromeLaunchArgs, args.chromeGpuBackend);
     const requestedChromeLaunchArgs = chromeLaunchArgs.slice();
     browser = await puppeteer.launch({
-      headless: true,
+      headless: args.headless,
+      executablePath: args.chromePath || undefined,
       protocolTimeout: 240000,
       args: chromeLaunchArgs,
     });
     const browserDiagnostics = await collectBrowserDiagnostics(browser);
     console.log(`Chrome GPU backend flags: ${args.chromeGpuBackend} (${requestedChromeLaunchArgs.join(" ")})`);
+    console.log(`Chrome launch mode: ${args.headless ? "headless" : "headful"}, executable: ${args.chromePath || "Puppeteer default"}`);
     if (browserDiagnostics?.version?.product) {
       console.log(`Chrome: ${browserDiagnostics.version.product}`);
     }
@@ -988,6 +1337,9 @@ async function main() {
       : args.includeExpensive
         ? [...DEFAULT_EXAMPLES, ...EXPENSIVE_EXAMPLES]
         : DEFAULT_EXAMPLES;
+    if (args.bakuProjectedSizeComparison) {
+      examples = BAKU_PROJECTED_SIZE_COMPARISON_EXAMPLES;
+    }
     if (args.exampleFilter) {
       examples = examples.filter(example => example.name === args.exampleFilter);
       if (examples.length === 0) {
@@ -1000,6 +1352,9 @@ async function main() {
     }
     printWebGPUDiagnostics(results);
     printTable(results);
+    printRenderBinBreakdownTable(results);
+    printCullBreakdownTable(results);
+    printMaintenanceTable(results);
     printInteractionTable(results);
     const payload = {
       generatedAt: new Date().toISOString(),
@@ -1046,6 +1401,9 @@ function ensureChromeBackendFlags(chromeArgs, backendName) {
 }
 
 function getExampleTargetChunks(example, args) {
+  if (Number.isFinite(args.targetChunks) && args.targetChunks > 0) {
+    return args.targetChunks;
+  }
   if (!example.targetChunks) {
     return null;
   }

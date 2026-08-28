@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>xeokit SDK — Technical Whitepaper</title>
+  <style>
+    :root { color-scheme: light; --ink: #172033; --muted: #5f6b7a; --line: #d9e0ea; --paper: #ffffff; --bg: #f4f6f9; --accent: #1d5f9f; --code-bg: #101827; --code-ink: #eef4ff; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .shell { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 42px; max-width: 1240px; margin: 0 auto; padding: 48px 32px 72px; }
+    article { min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 54px 64px 64px; box-shadow: 0 14px 40px rgba(20, 32, 52, 0.08); }
+    aside { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow: auto; padding: 18px 0 18px 22px; border-left: 1px solid var(--line); color: var(--muted); }
+    .toc-title { margin: 0 0 10px; color: var(--ink); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    aside a { display: block; color: var(--muted); text-decoration: none; font-size: 13px; line-height: 1.35; padding: 5px 0; } aside a:hover { color: var(--accent); } .toc-l3 { padding-left: 14px; font-size: 12px; }
+    h1, h2, h3, h4 { color: var(--ink); line-height: 1.16; letter-spacing: 0; } h1 { margin: 0 0 14px; font-size: clamp(34px, 5vw, 56px); } h2 { margin: 48px 0 14px; padding-top: 8px; font-size: 30px; border-top: 1px solid var(--line); } h3 { margin: 32px 0 10px; font-size: 21px; } h4 { margin: 24px 0 8px; font-size: 17px; }
+    p { margin: 0 0 17px; } h1 + p { color: var(--muted); font-size: 19px; } hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; } a { color: var(--accent); } ul, ol { margin: 0 0 18px 24px; padding: 0; } li { margin: 7px 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: .92em; background: #eef3f8; border-radius: 4px; padding: 1px 5px; } pre { margin: 18px 0 24px; padding: 18px 20px; overflow: auto; border-radius: 8px; background: var(--code-bg); color: var(--code-ink); } pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; line-height: 1.55; }
+    .table-wrap { overflow-x: auto; margin: 18px 0 24px; border: 1px solid var(--line); border-radius: 8px; } table { width: 100%; border-collapse: collapse; font-size: 14px; } th, td { padding: 10px 12px; vertical-align: top; border-bottom: 1px solid var(--line); } th { text-align: left; background: #f0f4f8; font-weight: 700; } tr:last-child td { border-bottom: 0; }
+    @media (max-width: 980px) { .shell { display: block; padding: 24px 16px 48px; } article { padding: 34px 24px 42px; } aside { position: static; max-height: none; margin-top: 20px; padding-left: 0; border-left: 0; } }
+    @media print { body { background: #fff; } .shell { display: block; max-width: none; padding: 0; } article { border: 0; box-shadow: none; padding: 0; } aside { display: none; } a { color: inherit; } pre { white-space: pre-wrap; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <article>
+<h1 id="xeokit-sdk-technical-whitepaper">xeokit SDK — Technical Whitepaper</h1>
+<p><em>A developer-focused summary of the SDK architecture and the technical choices that matter for AECO applications.</em></p>
+<hr>
+<h2 id="tl-dr">TL;DR</h2>
+<p>xeokit SDK is a TypeScript SDK for building browser and Node.js AECO tools: BIM viewers, digital twins, coordination systems, model analytics, and operational dashboards.</p>
+<p>Two design choices define the SDK:</p>
+<ol>
+<li><strong>Float64 scene placement with automatic renderer RTC.</strong> Models keep their source-coordinate meaning in the scene graph: basis, origin, units, and world-space transforms are represented in double precision. The renderer derives fine-grained Relative-To-Center (RTC) regions from the content it draws, so applications do not choose RTC origins, create RTC tiles, or rebase geometry when objects move. The GPU sees stable Float32 offsets even when source coordinates are UTM-scale.</li>
+<li><strong>Data-texture batching.</strong> Per-object and per-mesh render state lives in GPU textures. Visibility, selection, x-ray, opacity, color, and transform updates are texture writes, not geometry rebuilds.</li>
+</ol>
+<p>Around those two foundations, the SDK separates geometry from semantic data, exposes result-monad error handling, and keeps viewing state per <code>View</code> so multiple views can share one scene without duplicating model geometry.</p>
+<hr>
+<h2 id="why-it-matters-for-bim">Why It Matters For BIM</h2>
+<h3 id="large-coordinates">Large Coordinates</h3>
+<p>IFC and infrastructure models often use surveyed real-world coordinates. Moving everything near the origin avoids GPU precision loss, but breaks federation, GIS alignment, round-tripping, and control-point workflows.</p>
+<p>xeokit keeps model placement meaningful in the scene graph:</p>
+<pre><code class="language-ts">scene.createModel({
+  id: "siteA",
+  coordinateSystem: {
+    basis:  [1, 0, 0,  0, 0, 1,  0, 1, 0],
+    origin: [465120.8, 5429331.4, 0],
+    units:  "meters",
+    scaleToMeters: 1,
+  },
+});</code></pre>
+<p>Precision is handled by the renderer:</p>
+<ul>
+<li>geometry is quantized relative to per-geometry bounds</li>
+<li>mesh/world transforms are Float64</li>
+<li>render submissions are assigned to renderer-owned RTC regions</li>
+<li>moving content keeps precision without app-managed rebasing</li>
+</ul>
+<p>Result: a model 10 km from world origin renders like the same model centered at origin, while still retaining source-coordinate meaning.</p>
+<h3 id="large-state-changes">Large State Changes</h3>
+<p>BIM interaction is state-heavy: hide/show, isolate, select, recolor, x-ray, section, and animate thousands of objects. Traditional WebGL designs often turn those operations into buffer updates or draw-call churn.</p>
+<p>xeokit batches compatible meshes and stores per-mesh state in fixed-size GPU data textures:</p>
+<ul>
+<li>matrices and RTC placement</li>
+<li>material values</li>
+<li>visibility, selection, x-ray, highlight, clippable, pickable flags</li>
+<li>compressed geometry references</li>
+</ul>
+<p>A single draw call can process thousands of meshes. Changing 50,000 object flags becomes a set of texture-row writes plus a render request.</p>
+<hr>
+<h2 id="architecture">Architecture</h2>
+<h3 id="module-buckets">Module Buckets</h3>
+<div class="table-wrap"><table><thead><tr><th>Bucket</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>base/</code></td><td>Math, compression, core result/event/task types, WebGL helpers, IO, locale, constants.</td></tr>
+<tr><td><code>model/</code></td><td>Scene graph, semantic data graph, procedural geometry/material helpers, streaming.</td></tr>
+<tr><td><code>viewing/</code></td><td>Viewer, View, Camera, SectionPlane, lights, effects, WebGL renderer, controls.</td></tr>
+<tr><td><code>formats/</code></td><td>Import/export for BIM, CAD, point cloud, drawing, reality-capture, and native JSON formats.</td></tr>
+<tr><td><code>spatial/</code></td><td>Picking, snapping, collision/BVH, AABB and region queries.</td></tr>
+<tr><td><code>inspect/</code></td><td>Scene/data validation and issue reporting.</td></tr>
+<tr><td><code>tools/</code></td><td>Interactive measurements.</td></tr>
+<tr><td><code>simulation/</code></td><td>Optional physics hooks.</td></tr>
+<tr><td><code>interop/</code></td><td>BCF viewpoint import/export.</td></tr>
+<tr><td><code>convert/</code></td><td>Conversion pipelines and CLI tooling.</td></tr>
+<tr><td><code>ui/</code></td><td>Plain-DOM UI primitives.</td></tr>
+<tr><td><code>studio/</code></td><td>Optional demo/workbench integration layer.</td></tr>
+</tbody></table></div>
+<h3 id="scene-and-data">Scene And Data</h3>
+<p>The SDK keeps two graphs side by side:</p>
+<ul>
+<li><code>Scene</code> -&gt; <code>SceneModel</code> -&gt; <code>SceneObject</code> -&gt; <code>SceneMesh</code> -&gt; <code>SceneGeometry</code> / <code>SceneMaterial</code></li>
+<li><code>Data</code> -&gt; <code>DataModel</code> -&gt; <code>DataObject</code> -&gt; properties and relationships</li>
+</ul>
+<p>Objects are joined by shared IDs. A BIM query can run against the data graph, then apply visibility or selection changes to matching scene objects without the renderer knowing anything about IFC semantics.</p>
+<h3 id="view-and-scene">View And Scene</h3>
+<p><code>Scene</code> owns loaded content. <code>View</code> owns render state: camera, per-object visibility, selection, x-ray, section planes, effects, and canvas. Multiple views can share one scene with no geometry duplication.</p>
+<h3 id="error-handling">Error Handling</h3>
+<p>Fallible APIs return <code>SDKResult&lt;T&gt;</code>:</p>
+<pre><code class="language-ts">type SDKResult&lt;T&gt; =
+  | { ok: true;  value: T }
+  | { ok: false; type: SDKErrorType; error: string };</code></pre>
+<p>Expected failures are values: duplicate IDs, bad parameters, malformed input, and IO errors are handled at call sites instead of being thrown across module boundaries.</p>
+<hr>
+<h2 id="api-shape">API Shape</h2>
+<pre><code class="language-ts">import { Scene } from "@xeokit/sdk/model/scene";
+import { Data, searchObjects } from "@xeokit/sdk/model/data";
+import { Viewer } from "@xeokit/sdk/viewing/viewer";
+import { WebGLRenderer } from "@xeokit/sdk/viewing/renderers/webGL";
+import { IFCLoader } from "@xeokit/sdk/formats/ifc";
+
+const scene = new Scene();
+const data = new Data();
+const viewer = new Viewer({ scene });
+new WebGLRenderer({ viewer });
+
+const viewResult = viewer.createView({ id: "main", elementId: "canvas" });
+if (!viewResult.ok) throw new Error(viewResult.error);
+const view = viewResult.value;
+
+const sceneModel = scene.createModel({ id: "duplex" }).value!;
+const dataModel = data.createModel({ id: "duplex" }).value!;
+
+const ifcLoader = new IFCLoader();
+const bytes = await fetch("model.ifc").then(r =&gt; r.arrayBuffer());
+await ifcLoader.load({ fileData: bytes, sceneModel, dataModel });
+
+const wallIds: string[] = [];
+const q = searchObjects(data, {
+  startObjectId: "38aOKO8_DDkBd1FHm_lVXz",
+  includeObjects: ["IfcWall"],
+  includeRelated: ["IfcRelAggregates"],
+  resultObjectIds: wallIds,
+});
+if (q.ok) view.setObjectsSelected(wallIds, true);</code></pre>
+<p>The common flow is: create <code>Scene</code> and <code>Data</code>, attach a <code>Viewer</code> and renderer, create one or more <code>View</code>s, load scene/data models, then operate through view state.</p>
+<hr>
+<h2 id="core-capabilities">Core Capabilities</h2>
+<h3 id="coordinate-precision">Coordinate Precision</h3>
+<ul>
+<li>Float64 scene/model/object placement.</li>
+<li>Per-model source frame: basis, origin, units, scale.</li>
+<li>Renderer-owned RTC regions derived from current render-space bounds.</li>
+<li>Quantized geometry and logarithmic depth for large-coordinate scenes.</li>
+</ul>
+<h3 id="scene-graph">Scene Graph</h3>
+<ul>
+<li>Scene/model/object/mesh/geometry/material hierarchy.</li>
+<li>Triangles, lines, thick lines, and points.</li>
+<li>Runtime transforms and transform hierarchies.</li>
+<li>Per-object visibility, selection, x-ray, highlight, opacity, color, clippable, pickable, and edge state.</li>
+<li>Layers and bulk object operations.</li>
+</ul>
+<h3 id="data-graph">Data Graph</h3>
+<ul>
+<li>Data models with typed objects, property sets, properties, and relationships.</li>
+<li>IFC-style relationship traversal via <code>searchObjects</code>.</li>
+<li>Shared IDs between data objects and scene objects.</li>
+<li>Schema-aware ingest for IFC entity data.</li>
+</ul>
+<h3 id="renderer">Renderer</h3>
+<ul>
+<li>WebGL 2 renderer behind a renderer interface.</li>
+<li>Data-texture batching for mesh state.</li>
+<li>Texture atlas support for PBR materials.</li>
+<li>Section planes, section caps, edge overlays, silhouettes, x-ray, SAO, bloom, shadows, FXAA/MSAA, tonemapping.</li>
+<li>Per-view state and render invalidation.</li>
+</ul>
+<h3 id="spatial-and-interaction">Spatial And Interaction</h3>
+<ul>
+<li>Ray and canvas-position picking.</li>
+<li>Surface picking and snap picking.</li>
+<li>BVH-backed scene/object AABB queries.</li>
+<li>Marquee selection.</li>
+<li>Distance and angle measurements.</li>
+<li>Camera controls, camera flights, NavCube, and transform controls.</li>
+</ul>
+<h3 id="inspection">Inspection</h3>
+<ul>
+<li>Scene-model and data-model validators.</li>
+<li>Issue codes, labels, descriptions, severities, and fix hooks.</li>
+<li>Useful for loader development, QA, and model-health tooling.</li>
+</ul>
+<hr>
+<h2 id="format-support">Format Support</h2>
+<p>Supported formats include:</p>
+<div class="table-wrap"><table><thead><tr><th>Format</th><th>Direction</th><th>Module</th></tr></thead><tbody>
+<tr><td>IFC</td><td>Import/export</td><td><code>formats/ifc</code></td></tr>
+<tr><td>glTF / GLB</td><td>Import/export</td><td><code>formats/gltf</code></td></tr>
+<tr><td>XGF</td><td>Import/export</td><td><code>formats/xgf</code></td></tr>
+<tr><td>XKT</td><td>Import/export</td><td><code>formats/xkt</code></td></tr>
+<tr><td>dotbim</td><td>Import/export</td><td><code>formats/dotbim</code></td></tr>
+<tr><td>CityJSON</td><td>Import/export</td><td><code>formats/cityjson</code></td></tr>
+<tr><td>3D Tiles</td><td>Import/streaming</td><td><code>formats/threedtiles</code></td></tr>
+<tr><td>3DXML</td><td>Import/export</td><td><code>formats/threedxml</code></td></tr>
+<tr><td>LAS / LAZ</td><td>Import</td><td><code>formats/las</code></td></tr>
+<tr><td>E57</td><td>Import/export</td><td><code>formats/e57</code></td></tr>
+<tr><td>3D Gaussian Splatting</td><td>Import/export</td><td><code>formats/gaussiansplat</code></td></tr>
+<tr><td>OBJ / MTL</td><td>Import/export</td><td><code>formats/obj</code>, <code>formats/mtl</code></td></tr>
+<tr><td>FBX</td><td>Import/export</td><td><code>formats/fbx</code></td></tr>
+<tr><td>USDZ</td><td>Import/export</td><td><code>formats/usdz</code></td></tr>
+<tr><td>FDS</td><td>Import/export</td><td><code>formats/fds</code></td></tr>
+<tr><td>PDF</td><td>Import</td><td><code>formats/pdf</code></td></tr>
+<tr><td>DWG</td><td>Import</td><td><code>formats/dwg</code></td></tr>
+<tr><td>DXF</td><td>Import/export</td><td><code>formats/dxf</code></td></tr>
+<tr><td>SVG</td><td>Import/export</td><td><code>formats/svg</code></td></tr>
+<tr><td>MetaModel</td><td>Import</td><td><code>formats/legacy/metamodel</code></td></tr>
+<tr><td>Scene/Data JSON</td><td>Import/export</td><td><code>formats/scenemodel</code>, <code>formats/datamodel</code></td></tr>
+</tbody></table></div>
+<p>Conversion tooling includes IFC -&gt; glTF -&gt; XGF and generic format-to-format conversion through <code>convert/xeoconvert</code> and <code>convert/modelConverter</code>.</p>
+<hr>
+<h2 id="studio-and-tooling">Studio And Tooling</h2>
+<p><code>studio/</code> is optional. It provides the demo/workbench shell: toolbar, panel registry, model loading helpers, diagnostics, and runtime UI used by the website examples. Applications can use the SDK core without instantiating Studio.</p>
+<p>The SDK also uses:</p>
+<ul>
+<li><code>SDKTaskRunner</code> for staged per-frame work</li>
+<li>typed events for observable state</li>
+<li><code>destroy()</code> / <code>destroyed</code> conventions for long-lived objects</li>
+<li>TSDoc-generated API reference from the exported source</li>
+</ul>
+<hr>
+<h2 id="how-this-sdk-was-built">How This SDK Was Built</h2>
+<p>The core architecture — Scene, Data, Viewer, WebGLRenderer, coordinate handling, data-texture batching, and result-monad conventions — was designed from prior WebGL SDK experience.</p>
+<p>AI assistance was used later to accelerate implementation of additional loaders, exporters, and renderer features against that architecture, with xeokit V2 as a reference. Contributions were reviewed, tested, inspected, and revised before being kept.</p>
+<hr>
+<h2 id="reading-order">Reading Order</h2>
+<ol>
+<li>Root <code>README.md</code> for module buckets and import paths.</li>
+<li>The minimal scene/view example in the README.</li>
+<li>The IFC model viewer example for loader + data graph flow.</li>
+<li><code>packages/website/examples/</code> for focused examples by prefix: <code>viewing_<em></code>, <code>formats_</em></code>, <code>building_*</code>.</li>
+<li>The generated API reference at <code>https://xeokit.github.io/sdk/docs/api/</code>.</li>
+</ol>
+    </article>
+    <aside aria-label="Table of contents">
+      <div class="toc-title">On This Page</div>
+<a class="toc-l2" href="#tl-dr">TL;DR</a>
+<a class="toc-l2" href="#why-it-matters-for-bim">Why It Matters For BIM</a>
+<a class="toc-l3" href="#large-coordinates">Large Coordinates</a>
+<a class="toc-l3" href="#large-state-changes">Large State Changes</a>
+<a class="toc-l2" href="#architecture">Architecture</a>
+<a class="toc-l3" href="#module-buckets">Module Buckets</a>
+<a class="toc-l3" href="#scene-and-data">Scene And Data</a>
+<a class="toc-l3" href="#view-and-scene">View And Scene</a>
+<a class="toc-l3" href="#error-handling">Error Handling</a>
+<a class="toc-l2" href="#api-shape">API Shape</a>
+<a class="toc-l2" href="#core-capabilities">Core Capabilities</a>
+<a class="toc-l3" href="#coordinate-precision">Coordinate Precision</a>
+<a class="toc-l3" href="#scene-graph">Scene Graph</a>
+<a class="toc-l3" href="#data-graph">Data Graph</a>
+<a class="toc-l3" href="#renderer">Renderer</a>
+<a class="toc-l3" href="#spatial-and-interaction">Spatial And Interaction</a>
+<a class="toc-l3" href="#inspection">Inspection</a>
+<a class="toc-l2" href="#format-support">Format Support</a>
+<a class="toc-l2" href="#studio-and-tooling">Studio And Tooling</a>
+<a class="toc-l2" href="#how-this-sdk-was-built">How This SDK Was Built</a>
+<a class="toc-l2" href="#reading-order">Reading Order</a>
+    </aside>
+  </main>
+</body>
+</html>

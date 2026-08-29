@@ -262,5 +262,5 @@ AI assistance was used later to accelerate implementation of additional loaders,
 2. The minimal scene/view example in the README.
 3. The IFC model viewer example for loader + data graph flow.
 4. `packages/website/examples/` for focused examples by prefix: `viewing_*`, `formats_*`, `building_*`.
-5. `packages/sdk/assets/whitepapers/scene-update-hints.md` for static/dynamic `SceneModel.updateHint` behavior and XGF renderer storage examples.
+5. The Tutorial Index for task-focused tutorials and reference notes, including static/dynamic `SceneModel.updateHint` behavior and XGF renderer storage examples.
 6. The generated API reference at `https://xeokit.github.io/sdk/docs/api/`.

@@ -129,3 +129,12 @@ TypeScript or JavaScript.
     `author-scenemodel-metadata-properties.md`
     Define stable IDs, property sets, semantic relationships, schema checks and
     paired visual/semantic exports.
+
+---
+
+## 4. Reference Notes
+
+23. **[SceneModel updateHint - Runtime Value Uploads](https://github.com/xeokit/sdk/blob/develop/packages/sdk/assets/whitepapers/scene-update-hints.md)**
+    `scene-update-hints.md`
+    Understand static and dynamic `SceneModel.updateHint` behavior, including
+    how the hints affect renderer-side storage and runtime value uploads.

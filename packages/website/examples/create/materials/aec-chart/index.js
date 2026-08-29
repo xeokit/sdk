@@ -115,7 +115,7 @@ const MATERIALS = [
 // ---------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({ renderer: "webgl" });
 
 studio.init().then(() => {
   const status = document.getElementById("status");
@@ -123,8 +123,10 @@ studio.init().then(() => {
   try {
     buildScene();
     status.style.display = "none";
-    studio.openInfoPanelFromMeta();
-    studio.finished();
+    studio.openInfoPanelFromMeta().then(info => {
+      info.hide();
+      studio.finished();
+    });
   } catch (err) {
     status.textContent = `Init failed: ${err.message || err}`;
     console.error(err);
@@ -314,10 +316,10 @@ function buildScene() {
   const view = studio.viewManager.createView({
     camera: {
       // Stack reaches z ≈ 2 * CUBE_HALF + 2 * SPHERE_R; pull the eye
-      // back and up so all 16 cube/sphere pairs sit comfortably in
-      // frame. Look-at lands roughly at the cube/sphere joint.
-      eye:  [-halfX * 0.9, halfY * 3.0, 6.0],
-      look: [0, 0, CUBE_HALF + SPHERE_R * 0.4],
+      // back and up so the material grid fills the tutorial thumbnail
+      // without clipping the front or rear rows.
+      eye:  [-halfX * 0.65, halfY * 2.1, 4.4],
+      look: [0, -0.6, CUBE_HALF + SPHERE_R * 0.35],
       up:   [0, 0, 1]
     },
     effects: {

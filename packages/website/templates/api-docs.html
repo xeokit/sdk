@@ -52,20 +52,50 @@ root: "@@base"
 
   iframe.style.height = "15000px";
 
+  function getIframeLocation() {
+    try {
+      return iframeWindow.location;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function openExternalLinksOutsideIframe() {
+    let doc;
+    try {
+      doc = iframeWindow.document;
+    } catch (e) {
+      return;
+    }
+
+    doc.querySelectorAll('a[href^="http://"], a[href^="https://"]').forEach((link) => {
+      if (link.origin !== window.location.origin) {
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      }
+    });
+  }
+
   function setIFrameToWindowHash() {
     const newSrc = window.location.hash.substring(1);
-    if (newSrc !== "" && newSrc !== iframeWindow.location.pathname) {
+    const iframeLocation = getIframeLocation();
+    if (newSrc !== "" && (!iframeLocation || newSrc !== iframeLocation.pathname)) {
       iframe.src = newSrc;
     }
   }
 
   iframe.onload = () => {
-    const iframeHash = iframeWindow.location.hash.substring(1);
+    const iframeLocation = getIframeLocation();
+    if (!iframeLocation) {
+      return;
+    }
+    openExternalLinksOutsideIframe();
+    const iframeHash = iframeLocation.hash.substring(1);
     if (iframeHash === "") {
       window.scrollTo(0, 0);
       iframeWindow.scrollTo(0, 0);
     }
-    const newHash = iframeWindow.location.pathname;
+    const newHash = iframeLocation.pathname;
     if (newHash !== window.location.hash.substring(1)) {
       window.location.hash = newHash;
     }

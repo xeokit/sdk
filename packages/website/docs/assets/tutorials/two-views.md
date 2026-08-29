@@ -28,6 +28,13 @@ belong to the same `Viewer`. Camera movement and object emphasis can be kept
 independent, or you can explicitly synchronize them when your application needs
 linked panes.
 
+[![Sports car XGF model displayed in multiple views](https://xeokit.github.io/sdk/examples/import/xgf/sports-car/index.png)](https://xeokit.github.io/sdk/examples/index.html#import/xgf/sports-car)
+
+The live
+[XGF Sports Car - Multiple Views](https://xeokit.github.io/sdk/examples/index.html#import/xgf/sports-car)
+example shows the same shared-scene pattern with an XGF model rendered into
+multiple views.
+
 ---
 
 ## 1. Add Two Canvases

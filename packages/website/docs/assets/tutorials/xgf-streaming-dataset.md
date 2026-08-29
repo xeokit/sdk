@@ -44,6 +44,14 @@ This is the usual shape for large BIM, CAD and city datasets: load enough of the
 current view quickly, continue loading as the camera moves, and avoid blocking the
 main thread with one monolithic file.
 
+[![Baku Stadium loaded with XGF streaming](https://xeokit.github.io/sdk/images/bakuStadium2.png)](https://xeokit.github.io/sdk/examples/index.html#benchmarks/streaming/xgf-baku-2000-dynamic)
+
+The live
+[Streamed XGF Stadium, 2K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/index.html#benchmarks/streaming/xgf-baku-2000-dynamic)
+example shows this pattern on the Baku Stadium dataset. It uses a streamed XGF
+package and camera-prioritized loading so useful visible context appears before
+the whole model has finished loading.
+
 ---
 
 ## 1. Install the SDK

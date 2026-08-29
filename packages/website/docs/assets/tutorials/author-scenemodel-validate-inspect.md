@@ -26,6 +26,13 @@ Use all three layers in build scripts and tests. Immediate validation gives
 precise failure points, inspection gives model-level diagnostics, and a
 round-trip catches mismatches between authoring code and runtime assets.
 
+[![Scene model health inspection example](https://xeokit.github.io/sdk/examples/inspect/scene/inspector/index.png)](https://xeokit.github.io/sdk/examples/index.html#inspect/scene/inspector)
+
+The live
+[Scene Model Health Inspection](https://xeokit.github.io/sdk/examples/index.html#inspect/scene/inspector)
+example opens the scene-health tooling used to inspect model structure and
+optimization issues.
+
 ---
 
 ## 1. Set Up a Checked Authoring Script

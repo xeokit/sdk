@@ -26,6 +26,12 @@ them stable IDs, then use those same IDs in the `DataModel`. Keep source-system
 IDs in `originalSystemId` when you need to round-trip back to IFC, CAD, PLM or
 another external system.
 
+[![Authored table with semantic data](https://xeokit.github.io/sdk/examples/create/data/table-with-semantics/index.png)](https://xeokit.github.io/sdk/examples/index.html#create/data/table-with-semantics)
+
+The live
+[Creating a Model with Semantic Data](https://xeokit.github.io/sdk/examples/index.html#create/data/table-with-semantics)
+example shows stable IDs connecting renderable objects with semantic data.
+
 ---
 
 ## 1. Create Matching Scene and Data Models

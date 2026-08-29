@@ -41,6 +41,13 @@ visual XGF and semantic DataModel JSON.
 `ModelConverter.convert()` returns the converted output data in memory. Your
 code decides where to write it, upload it or pass it next.
 
+[![DotBIM conversion pipeline example](https://xeokit.github.io/sdk/examples/export/dotbim/to-json-pipeline/index.png)](https://xeokit.github.io/sdk/examples/index.html#export/dotbim/to-json-pipeline)
+
+The live
+[Convert DotBIM to JSON with Conversion Pipeline](https://xeokit.github.io/sdk/examples/index.html#export/dotbim/to-json-pipeline)
+example demonstrates the same programmatic conversion pattern: load source
+model data, export SDK JSON params, then view the converted result.
+
 ---
 
 ## 1. Configure a Converter

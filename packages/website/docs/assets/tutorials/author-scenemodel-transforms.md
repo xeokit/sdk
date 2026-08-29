@@ -29,6 +29,12 @@ Use direct mesh transforms for simple independent objects. Use
 `SceneTransform`s when a set of meshes should share placement, move as a group,
 represent a source hierarchy, or be reparented without rebuilding geometry.
 
+[![Table model built with transform hierarchy](https://xeokit.github.io/sdk/examples/create/transforms/table/index.png)](https://xeokit.github.io/sdk/examples/index.html#create/transforms/table)
+
+The live
+[Creating a Model with Transforms](https://xeokit.github.io/sdk/examples/index.html#create/transforms/table)
+example builds a small model with a transform hierarchy.
+
 ---
 
 ## 1. Create the Viewer and Model

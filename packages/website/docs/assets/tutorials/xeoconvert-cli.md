@@ -41,6 +41,13 @@ Use `xeoconvert` when you want those conversion components from a terminal; use
 `ModelConverter` when conversion belongs inside your own application or service
 code.
 
+[![DotBIM conversion pipeline example](https://xeokit.github.io/sdk/examples/export/dotbim/to-json-pipeline/index.png)](https://xeokit.github.io/sdk/examples/index.html#export/dotbim/to-json-pipeline)
+
+The live
+[Convert DotBIM to JSON with Conversion Pipeline](https://xeokit.github.io/sdk/examples/index.html#export/dotbim/to-json-pipeline)
+example shows the same loader/exporter pipeline idea in a browser-facing
+example: convert source data into SDK JSON params, then view the result.
+
 A typical conversion run follows this sequence:
 
 1. Read input files from disk.

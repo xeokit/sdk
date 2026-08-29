@@ -31,6 +31,13 @@ Keeping these files side by side lets the viewer load the visual model quickly
 while resolving IFC object IDs, types, relationships and properties into xeokit's
 data model.
 
+[![West Riverside Hospital loaded from XGF](https://xeokit.github.io/sdk/examples/import/xgf/west-river-side-hospital/index.png)](https://xeokit.github.io/sdk/examples/index.html#import/xgf/west-river-side-hospital)
+
+The live
+[XGF West Riverside Hospital](https://xeokit.github.io/sdk/examples/index.html#import/xgf/west-river-side-hospital)
+example shows the kind of prepared runtime XGF model this conversion workflow
+produces for browser loading.
+
 ---
 
 ## 1. Install the SDK

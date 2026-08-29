@@ -38,6 +38,13 @@ These choices keep the mental model simple: load or author the model in a way
 that creates batchable renderer input, then make the active view cheap to draw
 while the user is moving.
 
+[![Procedural cityscape benchmark with many objects](https://xeokit.github.io/sdk/examples/benchmarks/scene/procedural-cityscape/index.png)](https://xeokit.github.io/sdk/examples/index.html#benchmarks/scene/procedural-cityscape)
+
+The live
+[Benchmark - Procedural Cityscape](https://xeokit.github.io/sdk/examples/index.html#benchmarks/scene/procedural-cityscape)
+example shows a large generated scene built from repeated geometry, useful for
+comparing many-object interactivity choices.
+
 ---
 
 ## 1. Use Runtime Assets

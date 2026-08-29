@@ -30,6 +30,13 @@ picker and a renderer picker behind one API, then chooses the backend that can
 answer each request. You get cheap BVH picks for hover, filtered and ray-driven
 tools, and GPU snapping only when you ask for vertex or edge precision.
 
+[![Pointer snapping on triangle meshes](https://xeokit.github.io/sdk/examples/interact/snapping/table/index.png)](https://xeokit.github.io/sdk/examples/index.html#interact/snapping/table)
+
+The live
+[Pointer Snapping on Triangle Meshes](https://xeokit.github.io/sdk/examples/index.html#interact/snapping/table)
+example shows vertex, edge and surface snap feedback on authored triangle
+geometry.
+
 ---
 
 ## 1. Pick the Right API

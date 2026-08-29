@@ -26,6 +26,13 @@ Run repair while the authored model is still open. Some fixes create, destroy
 or reconnect `SceneModel` components and therefore need the same construction
 phase as your authoring code.
 
+[![Scene model health inspection example](https://xeokit.github.io/sdk/examples/inspect/scene/inspector/index.png)](https://xeokit.github.io/sdk/examples/index.html#inspect/scene/inspector)
+
+The live
+[Scene Model Health Inspection](https://xeokit.github.io/sdk/examples/index.html#inspect/scene/inspector)
+example shows the inspection side of the repair workflow: model issues become a
+concrete worklist before fixes or optimization are applied.
+
 ---
 
 ## 1. Import the Repair APIs

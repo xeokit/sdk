@@ -40,12 +40,12 @@ they run both renderers side by side against the same scene or diagnostic setup.
 
 | Example | Use It For |
 | --- | --- |
-| [![Shared scene](packages/website/examples/view/renderers/webgl-webgpu-shared-scene/index.png)](packages/website/examples/view/renderers/webgl-webgpu-shared-scene/)<br>[WebGL + WebGPU - Shared Scene](packages/website/examples/view/renderers/webgl-webgpu-shared-scene/) | Baseline WebGL/WebGPU parity on the same `Scene` and `Data` graph. |
-| [![Material parity](packages/website/examples/view/renderers/webgl-webgpu-material-parity/index.png)](packages/website/examples/view/renderers/webgl-webgpu-material-parity/)<br>[Material Feature Parity](packages/website/examples/view/renderers/webgl-webgpu-material-parity/) | Material and lighting cost: IBL, metal, rough dielectric, clearcoat, alpha, emissive and sheen paths. |
-| [![SAO quality](packages/website/examples/view/renderers/webgl-webgpu-sao-quality/index.png)](packages/website/examples/view/renderers/webgl-webgpu-sao-quality/)<br>[SAO Quality](packages/website/examples/view/renderers/webgl-webgpu-sao-quality/) | SAO cost and quality, including depth, normals, raw occlusion, blur and final factor views. |
-| [![Shadow quality](packages/website/examples/view/renderers/webgl-webgpu-shadow-quality/index.png)](packages/website/examples/view/renderers/webgl-webgpu-shadow-quality/)<br>[Shadow Quality](packages/website/examples/view/renderers/webgl-webgpu-shadow-quality/) | Shadow quality and cost for opaque, thin, alpha-masked and transparent casters. |
-| [![Transparency quality](packages/website/examples/view/renderers/webgl-webgpu-transparency-quality/index.png)](packages/website/examples/view/renderers/webgl-webgpu-transparency-quality/)<br>[Transparency Quality](packages/website/examples/view/renderers/webgl-webgpu-transparency-quality/) | Sorting, overdraw and visual quality for alpha-mask foliage, glass and overlapping transparent layers. |
-| [![Style bins](packages/website/examples/view/renderers/webgl-webgpu-style-bins/index.png)](packages/website/examples/view/renderers/webgl-webgpu-style-bins/)<br>[Style Bins](packages/website/examples/view/renderers/webgl-webgpu-style-bins/) | Runtime object state changes with user-defined style bins on WebGL and WebGPU. |
+| [![Shared scene](sdk-performance-evaluation-guide/shared-scene.png)](../../../../packages/website/examples/view/renderers/webgl-webgpu-shared-scene/)<br>[WebGL + WebGPU - Shared Scene](../../../../packages/website/examples/view/renderers/webgl-webgpu-shared-scene/) | Baseline WebGL/WebGPU parity on the same `Scene` and `Data` graph. |
+| [![Material parity](sdk-performance-evaluation-guide/material-parity.png)](../../../../packages/website/examples/view/renderers/webgl-webgpu-material-parity/)<br>[Material Feature Parity](../../../../packages/website/examples/view/renderers/webgl-webgpu-material-parity/) | Material and lighting cost: IBL, metal, rough dielectric, clearcoat, alpha, emissive and sheen paths. |
+| [![SAO quality](sdk-performance-evaluation-guide/sao-quality.png)](../../../../packages/website/examples/view/renderers/webgl-webgpu-sao-quality/)<br>[SAO Quality](../../../../packages/website/examples/view/renderers/webgl-webgpu-sao-quality/) | SAO cost and quality, including depth, normals, raw occlusion, blur and final factor views. |
+| [![Shadow quality](sdk-performance-evaluation-guide/shadow-quality.png)](../../../../packages/website/examples/view/renderers/webgl-webgpu-shadow-quality/)<br>[Shadow Quality](../../../../packages/website/examples/view/renderers/webgl-webgpu-shadow-quality/) | Shadow quality and cost for opaque, thin, alpha-masked and transparent casters. |
+| [![Transparency quality](sdk-performance-evaluation-guide/transparency-quality.png)](../../../../packages/website/examples/view/renderers/webgl-webgpu-transparency-quality/)<br>[Transparency Quality](../../../../packages/website/examples/view/renderers/webgl-webgpu-transparency-quality/) | Sorting, overdraw and visual quality for alpha-mask foliage, glass and overlapping transparent layers. |
+| [![Style bins](sdk-performance-evaluation-guide/style-bins.png)](../../../../packages/website/examples/view/renderers/webgl-webgpu-style-bins/)<br>[Style Bins](../../../../packages/website/examples/view/renderers/webgl-webgpu-style-bins/) | Runtime object state changes with user-defined style bins on WebGL and WebGPU. |
 
 ## Streaming And Large-Model Examples
 
@@ -55,13 +55,13 @@ storage variants.
 
 | Example | Renderer Coverage | Use It For |
 | --- | --- | --- |
-| [![Baku 200 static](packages/website/examples/streaming/xgf/baku-200-static/index.png)](packages/website/examples/streaming/xgf/baku-200-static/)<br>[Baku Stadium, 200 Chunks, Static](packages/website/examples/streaming/xgf/baku-200-static/) | WebGL static VBO | Coarse partitioning baseline and static VBO upload cost. |
-| [![Baku 2K dynamic](packages/website/examples/benchmarks/streaming/xgf-baku-2000-dynamic/index.png)](packages/website/examples/benchmarks/streaming/xgf-baku-2000-dynamic/)<br>[Baku Stadium, 2K Chunks, Dynamic](packages/website/examples/benchmarks/streaming/xgf-baku-2000-dynamic/) | WebGL dynamic/DTX | Fast-load streaming baseline, cache limits, first-frustum latency and camera-stall tuning. |
-| [![Baku 4K dynamic](packages/website/examples/benchmarks/streaming/xgf-baku-4000-dynamic/index.png)](packages/website/examples/benchmarks/streaming/xgf-baku-4000-dynamic/)<br>[Baku Stadium, 4K Chunks, Dynamic](packages/website/examples/benchmarks/streaming/xgf-baku-4000-dynamic/) | WebGL dynamic/DTX | High chunk-count request fan-out and memory pressure. |
-| [![Baku 4K static](packages/website/examples/benchmarks/streaming/xgf-baku-4000-static/index.png)](packages/website/examples/benchmarks/streaming/xgf-baku-4000-static/)<br>[Baku Stadium, 4K Chunks, Static](packages/website/examples/benchmarks/streaming/xgf-baku-4000-static/) | WebGL static VBO | Small-chunk scheduling and settled static-rendering behavior. |
-| [WebGPU - Streaming Baku Stadium as XGF](packages/website/examples/benchmarks/streaming/xgf-baku-webgpu/) | WebGPU | WebGPU dynamic SceneModel streaming with `XGFViewStreamController`. |
-| [![Recursive XGF](packages/website/examples/streaming/xgf/recursive/index.png)](packages/website/examples/streaming/xgf/recursive/)<br>[Recursive Streaming - Nested Model Set](packages/website/examples/streaming/xgf/recursive/) | WebGL | Multi-model stream scheduling with independent child stream bounds. |
-| [![Hospital stream](packages/website/examples/streaming/xgf/west-river-side-hospital-static/index.png)](packages/website/examples/streaming/xgf/west-river-side-hospital-static/)<br>[West Riverside Hospital Static](packages/website/examples/streaming/xgf/west-river-side-hospital-static/) | WebGL static VBO | Building-scale stream scheduling, review viewpoints and static model navigation. |
+| [![Baku 200 static](sdk-performance-evaluation-guide/baku-200-static.png)](../../../../packages/website/examples/streaming/xgf/baku-200-static/)<br>[Baku Stadium, 200 Chunks, Static](../../../../packages/website/examples/streaming/xgf/baku-200-static/) | WebGL static VBO | Coarse partitioning baseline and static VBO upload cost. |
+| [![Baku 2K dynamic](sdk-performance-evaluation-guide/baku-2000-dynamic.png)](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-2000-dynamic/)<br>[Baku Stadium, 2K Chunks, Dynamic](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-2000-dynamic/) | WebGL dynamic/DTX | Fast-load streaming baseline, cache limits, first-frustum latency and camera-stall tuning. |
+| [![Baku 4K dynamic](sdk-performance-evaluation-guide/baku-4000-dynamic.png)](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-4000-dynamic/)<br>[Baku Stadium, 4K Chunks, Dynamic](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-4000-dynamic/) | WebGL dynamic/DTX | High chunk-count request fan-out and memory pressure. |
+| [![Baku 4K static](sdk-performance-evaluation-guide/baku-4000-static.png)](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-4000-static/)<br>[Baku Stadium, 4K Chunks, Static](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-4000-static/) | WebGL static VBO | Small-chunk scheduling and settled static-rendering behavior. |
+| [WebGPU - Streaming Baku Stadium as XGF](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-webgpu/) | WebGPU | WebGPU dynamic SceneModel streaming with `XGFViewStreamController`. |
+| [![Recursive XGF](sdk-performance-evaluation-guide/recursive-streaming.png)](../../../../packages/website/examples/streaming/xgf/recursive/)<br>[Recursive Streaming - Nested Model Set](../../../../packages/website/examples/streaming/xgf/recursive/) | WebGL | Multi-model stream scheduling with independent child stream bounds. |
+| [![Hospital stream](sdk-performance-evaluation-guide/hospital-static.png)](../../../../packages/website/examples/streaming/xgf/west-river-side-hospital-static/)<br>[West Riverside Hospital Static](../../../../packages/website/examples/streaming/xgf/west-river-side-hospital-static/) | WebGL static VBO | Building-scale stream scheduling, review viewpoints and static model navigation. |
 
 ## Scene And Mutation Benchmarks
 
@@ -69,10 +69,10 @@ These are useful for runtime mutation, object count and scene-model overhead.
 
 | Example | Renderer Coverage | Use It For |
 | --- | --- | --- |
-| [![Procedural cityscape](packages/website/examples/benchmarks/scene/procedural-cityscape/index.png)](packages/website/examples/benchmarks/scene/procedural-cityscape/)<br>[Procedural Cityscape](packages/website/examples/benchmarks/scene/procedural-cityscape/) | WebGL | Repeated geometry, high object count and city-scale navigation. |
-| [![Create and destroy](packages/website/examples/benchmarks/scene/stress-test/index.png)](packages/website/examples/benchmarks/scene/stress-test/)<br>[Create & Destroy Meshes](packages/website/examples/benchmarks/scene/stress-test/) | WebGL | SceneModel, Viewer and renderer churn under continuous mesh creation/deletion. |
-| [WebGPU - Creating a 3D Model Benchmark](packages/website/examples/benchmarks/scene/stress-test-webgpu/) | WebGPU | WebGPU dynamic geometry, mesh and object creation/deletion. |
-| [![Adaptive quality](packages/website/examples/view/profiles/adaptive-quality/index.png)](packages/website/examples/view/profiles/adaptive-quality/)<br>[AdaptiveQuality - ViewProfiles](packages/website/examples/view/profiles/adaptive-quality/) | WebGL | Profile switching cost while navigating versus at rest. |
+| [![Procedural cityscape](sdk-performance-evaluation-guide/procedural-cityscape.png)](../../../../packages/website/examples/benchmarks/scene/procedural-cityscape/)<br>[Procedural Cityscape](../../../../packages/website/examples/benchmarks/scene/procedural-cityscape/) | WebGL | Repeated geometry, high object count and city-scale navigation. |
+| [![Create and destroy](sdk-performance-evaluation-guide/create-destroy.png)](../../../../packages/website/examples/benchmarks/scene/stress-test/)<br>[Create & Destroy Meshes](../../../../packages/website/examples/benchmarks/scene/stress-test/) | WebGL | SceneModel, Viewer and renderer churn under continuous mesh creation/deletion. |
+| [WebGPU - Creating a 3D Model Benchmark](../../../../packages/website/examples/benchmarks/scene/stress-test-webgpu/) | WebGPU | WebGPU dynamic geometry, mesh and object creation/deletion. |
+| [![Adaptive quality](sdk-performance-evaluation-guide/adaptive-quality.png)](../../../../packages/website/examples/view/profiles/adaptive-quality/)<br>[AdaptiveQuality - ViewProfiles](../../../../packages/website/examples/view/profiles/adaptive-quality/) | WebGL | Profile switching cost while navigating versus at rest. |
 
 ## WebGPU-Specific Checks
 
@@ -81,20 +81,20 @@ WebGPU behavior.
 
 | Example | Use It For |
 | --- | --- |
-| [Render Path Matrix Controls](packages/website/examples/view/webgpu/render-path-matrix/) | Switch geometry, material, effect and renderer-backend combinations interactively. |
-| [Render Path Tests](packages/website/examples/view/webgpu/render-path-matrix-gallery/) | Compare captured WebGPU and WebGL render-path permutations. |
-| [WebGPU Object States](packages/website/examples/view/webgpu/object-states/) | Per-object style-bin, colorize, opacity and visibility updates. |
-| [WebGPU RTC Tiles](packages/website/examples/view/webgpu/rtc-tiles/) | Large-coordinate RTC tile assignment and per-mesh updates without geometry rebuild. |
-| [WebGPU Table Shadows](packages/website/examples/view/webgpu/table-shadows/) | Simple generated shadow scene for a quick WebGPU sanity check. |
+| [Render Path Matrix Controls](../../../../packages/website/examples/view/webgpu/render-path-matrix/) | Switch geometry, material, effect and renderer-backend combinations interactively. |
+| [Render Path Tests](../../../../packages/website/examples/view/webgpu/render-path-matrix-gallery/) | Compare captured WebGPU and WebGL render-path permutations. |
+| [WebGPU Object States](../../../../packages/website/examples/view/webgpu/object-states/) | Per-object style-bin, colorize, opacity and visibility updates. |
+| [WebGPU RTC Tiles](../../../../packages/website/examples/view/webgpu/rtc-tiles/) | Large-coordinate RTC tile assignment and per-mesh updates without geometry rebuild. |
+| [WebGPU Table Shadows](../../../../packages/website/examples/view/webgpu/table-shadows/) | Simple generated shadow scene for a quick WebGPU sanity check. |
 
 ## Suggested Evaluation Order
 
-1. Start with [Shared Scene](packages/website/examples/view/renderers/webgl-webgpu-shared-scene/) to confirm both renderers initialize on the machine.
-2. Run [Material Feature Parity](packages/website/examples/view/renderers/webgl-webgpu-material-parity/) with expensive features toggled off, then on.
-3. Run [SAO Quality](packages/website/examples/view/renderers/webgl-webgpu-sao-quality/) and [Shadow Quality](packages/website/examples/view/renderers/webgl-webgpu-shadow-quality/) independently before combining effects in application scenes.
-4. Run [Baku 2K Dynamic](packages/website/examples/benchmarks/streaming/xgf-baku-2000-dynamic/) and [WebGPU Baku](packages/website/examples/benchmarks/streaming/xgf-baku-webgpu/) for streaming behavior.
-5. Compare [Baku 4K Dynamic](packages/website/examples/benchmarks/streaming/xgf-baku-4000-dynamic/) against [Baku 4K Static](packages/website/examples/benchmarks/streaming/xgf-baku-4000-static/) to understand DTX versus VBO tradeoffs.
-6. Use [Create & Destroy Meshes](packages/website/examples/benchmarks/scene/stress-test/) and [WebGPU Creating a 3D Model Benchmark](packages/website/examples/benchmarks/scene/stress-test-webgpu/) for mutation-heavy applications.
+1. Start with [Shared Scene](../../../../packages/website/examples/view/renderers/webgl-webgpu-shared-scene/) to confirm both renderers initialize on the machine.
+2. Run [Material Feature Parity](../../../../packages/website/examples/view/renderers/webgl-webgpu-material-parity/) with expensive features toggled off, then on.
+3. Run [SAO Quality](../../../../packages/website/examples/view/renderers/webgl-webgpu-sao-quality/) and [Shadow Quality](../../../../packages/website/examples/view/renderers/webgl-webgpu-shadow-quality/) independently before combining effects in application scenes.
+4. Run [Baku 2K Dynamic](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-2000-dynamic/) and [WebGPU Baku](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-webgpu/) for streaming behavior.
+5. Compare [Baku 4K Dynamic](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-4000-dynamic/) against [Baku 4K Static](../../../../packages/website/examples/benchmarks/streaming/xgf-baku-4000-static/) to understand DTX versus VBO tradeoffs.
+6. Use [Create & Destroy Meshes](../../../../packages/website/examples/benchmarks/scene/stress-test/) and [WebGPU Creating a 3D Model Benchmark](../../../../packages/website/examples/benchmarks/scene/stress-test-webgpu/) for mutation-heavy applications.
 
 ## Recording Results
 

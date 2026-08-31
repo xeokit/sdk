@@ -18,7 +18,7 @@ The core concepts are:
 - `PointsPrimitive` draws one point per position. Point geometry does not need
   indices.
 - `SceneObject` is still the interaction boundary. Lines and points can be
-  pickable, visible, highlighted, x-rayed, colorized and grouped into layers.
+  pickable, visible, placed in style bins, colorized and grouped into layers.
 - `SceneObject.clippable: false` is useful for annotations and tool overlays
   that should remain visible when section planes cut the model.
 
@@ -375,7 +375,7 @@ Use stable object IDs when the overlay should be selectable or editable, and
 destroy the overlay model when the tool session ends.
 
 ```javascript
-view.setObjectsHighlighted(["slab-width-measurement"], true);
+view.setObjectsInStyleBin("highlighted", ["slab-width-measurement"], true);
 view.setObjectsPickable(["local-axes"], false);
 view.setObjectsCollidable(["local-axes", "control-points"], false);
 ```
@@ -395,7 +395,7 @@ const overlayLayer = view.layers.overlays;
 const measurementLayer = view.layers.measurements;
 
 overlayLayer.setObjectsVisible(overlayLayer.objectIds, true);
-measurementLayer.setObjectsXRayed(measurementLayer.objectIds, false);
+measurementLayer.setObjectsInStyleBin("xrayed", measurementLayer.objectIds, false);
 measurementLayer.setObjectsPickable(measurementLayer.objectIds, true);
 ```
 

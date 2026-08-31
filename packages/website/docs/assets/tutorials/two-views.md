@@ -24,7 +24,7 @@ The important concept is that xeokit separates model data from presentation:
   renderer can render both canvases from the same scene.
 
 The model is loaded once into the `Scene`. Both views see it because both views
-belong to the same `Viewer`. Camera movement and object emphasis can be kept
+belong to the same `Viewer`. Camera movement and object style-bin membership can be kept
 independent, or you can explicitly synchronize them when your application needs
 linked panes.
 
@@ -203,16 +203,16 @@ without being selected in the other.
 function selectOnlyInPlanView(objectId, planView) {
   const planObject = planView.objects[objectId];
   if (planObject) {
-    planObject.selected = true;
-    planObject.highlighted = false;
+    planObject.setStyleBin("selected", true);
+    planObject.setStyleBin("highlighted", false);
   }
 }
 
 function highlightOnlyInPerspectiveView(objectId, perspectiveView) {
   const perspectiveObject = perspectiveView.objects[objectId];
   if (perspectiveObject) {
-    perspectiveObject.highlighted = true;
-    perspectiveObject.selected = false;
+    perspectiveObject.setStyleBin("highlighted", true);
+    perspectiveObject.setStyleBin("selected", false);
   }
 }
 ```
@@ -281,7 +281,7 @@ perspectiveView.htmlElement.addEventListener("click", (event) => {
 
   const objectInPlan = planView.objects[result.objectId];
   if (objectInPlan) {
-    objectInPlan.selected = true;
+    objectInPlan.setStyleBin("selected", true);
   }
 });
 ```
@@ -312,7 +312,7 @@ its own camera, canvas dimensions and render state.
 ## 7. When to Use Two Viewers Instead
 
 Use one `Viewer` with multiple `View` instances when both panes should show the
-same scene with different cameras or per-view emphasis state. This is the most
+same scene with different cameras or per-view style-bin state. This is the most
 direct setup for split view, overview/detail, plan/3D and comparison layouts.
 
 Use two `Viewer` instances only when the panes need separate scenes or separate

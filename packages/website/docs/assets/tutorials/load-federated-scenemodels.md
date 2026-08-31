@@ -17,7 +17,7 @@ The important concept is that federation is a runtime composition problem:
   loaded, unloaded, inspected and replaced independently.
 - Each loaded `DataModel` is the semantic companion for one visual package. It
   contains object types, names, property sets and relationships.
-- `View` presents the shared scene. Selection, visibility, highlighting, x-ray,
+- `View` presents the shared scene. Style-layer membership, visibility,
   colorization and opacity are per-view `ViewObject` state, even when the
   underlying `SceneObject`s come from many models.
 
@@ -376,13 +376,13 @@ if (!searchResult.ok) {
   throw new Error(searchResult.error);
 }
 
-view.setObjectsSelected(serviceObjectIds, true);
+view.setObjectsInStyleBin("selected", serviceObjectIds, true);
 ```
 
 Because the object IDs are federated, this works across package boundaries. The
-same IDs can be passed to `setObjectsVisible`, `setObjectsHighlighted`,
-`setObjectsXRayed`, `setObjectsColorized`, `setObjectsOpacity`,
-`setObjectsPickable` and `setObjectsClippable`.
+same IDs can be passed to `setObjectsVisible`, `setObjectsInStyleBin`,
+`setObjectsColorized`, `setObjectsOpacity`, `setObjectsPickable` and
+`setObjectsClippable`.
 
 ---
 

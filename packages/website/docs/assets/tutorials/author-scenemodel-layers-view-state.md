@@ -227,8 +227,8 @@ const facadeLayer = view.layers.facade;
 const servicesLayer = view.layers.services;
 const annotationsLayer = view.layers.annotations;
 
-structureLayer.setObjectsSelected(structureLayer.objectIds, true);
-facadeLayer.setObjectsXRayed(facadeLayer.objectIds, true);
+structureLayer.setObjectsInStyleBin("selected", structureLayer.objectIds, true);
+facadeLayer.setObjectsInStyleBin("xrayed", facadeLayer.objectIds, true);
 servicesLayer.setObjectsVisible(servicesLayer.objectIds, false);
 annotationsLayer.setObjectsPickable(annotationsLayer.objectIds, false);
 ```
@@ -249,7 +249,7 @@ You can update individual objects through `view.objects`, or update many objects
 with `View` batch methods.
 
 ```javascript
-view.objects["service-riser"].highlighted = true;
+view.objects["service-riser"].setStyleBin("highlighted", true);
 
 view.setObjectsColorized(
   ["window-0-0", "window-0-1", "window-0-2", "window-0-3"],
@@ -257,7 +257,7 @@ view.setObjectsColorized(
 );
 
 view.setObjectsOpacity(["core"], 0.35);
-view.setObjectsXRayed(["core"], true);
+view.setObjectsInStyleBin("xrayed", ["core"], true);
 ```
 
 This state belongs to the `ViewObject`. It is presentation state, not source

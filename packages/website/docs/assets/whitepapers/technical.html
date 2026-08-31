@@ -130,7 +130,7 @@ const q = searchObjects(data, {
   includeRelated: ["IfcRelAggregates"],
   resultObjectIds: wallIds,
 });
-if (q.ok) view.setObjectsSelected(wallIds, true);</code></pre>
+if (q.ok) view.setObjectsInStyleBin("selected", wallIds, true);</code></pre>
 <p>The common flow is: create <code>Scene</code> and <code>Data</code>, attach a <code>Viewer</code> and renderer, create one or more <code>View</code>s, load scene/data models, then operate through view state.</p>
 <hr>
 <h2 id="core-capabilities">Core Capabilities</h2>

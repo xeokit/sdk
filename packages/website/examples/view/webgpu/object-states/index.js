@@ -33,6 +33,32 @@ async function main() {
     id: "webgpuObjectStatesView",
     htmlElement: canvas,
     backgroundColor: [0.06, 0.10, 0.13],
+    styleBins: [
+      {
+        id: "selected",
+        priority: 300,
+        fill: true,
+        fillColor: [0.1, 0.7, 1.0],
+        fillAlpha: 0.4,
+        edges: true
+      },
+      {
+        id: "highlighted",
+        priority: 200,
+        fill: true,
+        fillColor: [1.0, 0.78, 0.25],
+        fillAlpha: 0.4,
+        edges: true
+      },
+      {
+        id: "xrayed",
+        priority: 100,
+        fill: true,
+        fillColor: [0.85, 0.9, 1.0],
+        fillAlpha: 0.35,
+        edges: true
+      }
+    ],
     camera: {
       projection: "perspective",
       far: 1000000,
@@ -94,13 +120,13 @@ async function main() {
     const yellowLeg = view.objects.yellowLeg;
 
     if (tableTop) {
-      tableTop.selected = selectedToggle.checked;
+      tableTop.setStyleBin("selected", selectedToggle.checked);
     }
     if (greenLeg) {
-      greenLeg.highlighted = highlightedToggle.checked;
+      greenLeg.setStyleBin("highlighted", highlightedToggle.checked);
     }
     if (blueLeg) {
-      blueLeg.xrayed = xrayedToggle.checked;
+      blueLeg.setStyleBin("xrayed", xrayedToggle.checked);
     }
     if (redLeg) {
       redLeg.colorize = colorizeToggle.checked ? [0.95, 0.18, 0.12] : null;
@@ -137,9 +163,9 @@ function renderStatus(view) {
   panel.dataset.state = "ok";
   opacityValue.textContent = Number(opacitySlider.value).toFixed(2);
   const states = [
-    ["top", view.objects.purpleTableTop?.selected ? "selected" : "normal"],
-    ["green", view.objects.greenLeg?.highlighted ? "highlighted" : "normal"],
-    ["blue", view.objects.blueLeg?.xrayed ? "xrayed" : "normal"],
+    ["top", view.objects.purpleTableTop?.hasStyleBin("selected") ? "selected" : "normal"],
+    ["green", view.objects.greenLeg?.hasStyleBin("highlighted") ? "highlighted" : "normal"],
+    ["blue", view.objects.blueLeg?.hasStyleBin("xrayed") ? "xrayed" : "normal"],
     ["red", view.objects.redLeg?.colorize ? "colorized" : "normal"],
     ["yellow", view.objects.yellowLeg?.visible === false ? "hidden" : `opacity ${Number(opacitySlider.value).toFixed(2)}`]
   ];

@@ -8,37 +8,73 @@ type StubViewObject = {
   originalSystemId: string;
   layer?: { id: string };
   visible: boolean;
-  selected: boolean;
-  highlighted: boolean;
-  xrayed: boolean;
   opacity: number;
   colorize?: number[];
+  styleBinIds: Set<string>;
+  hasStyleBin: (id: string) => boolean;
+  setStyleBin: (id: string, membership: boolean) => {ok: true; value: boolean};
 };
 
 function makeViewObject(id: string, originalSystemId = id, layerId?: string): StubViewObject {
-  return {
+  const styleBinIds = new Set<string>();
+  const viewObject = {
     id,
     originalSystemId,
     layer: layerId ? {id: layerId} : undefined,
     visible: true,
-    selected: false,
-    highlighted: false,
-    xrayed: false,
     opacity: 1,
+    styleBinIds,
+    hasStyleBin: (id: string) => styleBinIds.has(id),
+    setStyleBin: (id: string, membership: boolean) => {
+      if (membership) {
+        styleBinIds.add(id);
+      } else {
+        styleBinIds.delete(id);
+      }
+      return {ok: true, value: true};
+    },
+  };
+  return viewObject;
+}
+
+function makeStyleBins(objects: Record<string, StubViewObject>) {
+  const bins: Record<string, any> = {};
+  return {
+    create: (params: any) => {
+      if (bins[params.id]) {
+        return {ok: false, type: SDKErrorType.InvalidInput, error: "duplicate"};
+      }
+      bins[params.id] = {
+        id: params.id,
+        material: {
+          fillAlpha: params.fillAlpha ?? 1,
+          edgeAlpha: params.edgeAlpha ?? 1
+        }
+      };
+      return {ok: true, value: bins[params.id]};
+    },
+    get: (id: string) => bins[id] ?? null,
+    getObjectIds: (id: string) => Object.keys(objects).filter((objectId) => objects[objectId].hasStyleBin(id))
   };
 }
 
 function makeSaveView(overrides: Record<string, any> = {}) {
   const wall = makeViewObject("wall-runtime", "ifc-wall", "foreground");
   wall.colorize = [1, 0, 0];
-  wall.xrayed = true;
+  wall.setStyleBin("xrayed", true);
+  wall.setStyleBin("selected", true);
   const door = makeViewObject("door-runtime", "ifc-door", "background");
   door.colorize = [0, 0, 1];
+  door.setStyleBin("xrayed", true);
+  door.setStyleBin("selected", true);
 
   const objects: Record<string, StubViewObject> = {
     [wall.id]: wall,
     [door.id]: door,
   };
+  const styleBins = makeStyleBins(objects);
+  styleBins.create({id: "xrayed", fillAlpha: 0.25, edgeAlpha: 0});
+  styleBins.create({id: "selected"});
 
   return {
     destroyed: false,
@@ -62,11 +98,9 @@ function makeSaveView(overrides: Record<string, any> = {}) {
       [door.id]: false,
     },
     visibleObjectIds: [wall.id],
-    selectedObjectIds: [wall.id, door.id],
-    xrayedObjectIds: [wall.id, door.id],
+    styleBins,
     opacityObjectIds: [],
     colorizedObjectIds: [wall.id, door.id],
-    xrayMaterial: {fillAlpha: 0.25, edgeAlpha: 0},
     ...overrides,
   } as any;
 }
@@ -83,27 +117,14 @@ function makeLoadView() {
   const layer = {
     id: "foreground",
     objectIds: Object.keys(objects),
-    selectedObjectIds: [door.id],
-    highlightedObjectIds: [wall.id],
-    xrayedObjectIds: [opening.id],
     setObjectsVisible: (ids: string[], visible: boolean) => {
       for (const id of ids) {
         objects[id].visible = visible;
       }
     },
-    setObjectsSelected: (ids: string[], selected: boolean) => {
+    setObjectsInStyleBin: (styleBinId: string, ids: string[], membership: boolean) => {
       for (const id of ids) {
-        objects[id].selected = selected;
-      }
-    },
-    setObjectsHighlighted: (ids: string[], highlighted: boolean) => {
-      for (const id of ids) {
-        objects[id].highlighted = highlighted;
-      }
-    },
-    setObjectsXRayed: (ids: string[], xrayed: boolean) => {
-      for (const id of ids) {
-        objects[id].xrayed = xrayed;
+        objects[id]?.setStyleBin(styleBinId, membership);
       }
     },
   };
@@ -122,7 +143,9 @@ function makeLoadView() {
       },
       objects,
       layers: {[layer.id]: layer},
-      xrayedObjectIds: [opening.id],
+      styleBins: {
+        ...makeStyleBins(objects),
+      },
       clearSectionPlanes: jest.fn(() => {
         sectionPlanes.length = 0;
       }),
@@ -132,9 +155,9 @@ function makeLoadView() {
           dir: Array.from(params.dir),
         });
       }),
-      setObjectsXRayed: (ids: string[], xrayed: boolean) => {
+      setObjectsInStyleBin: (styleBinId: string, ids: string[], membership: boolean) => {
         for (const id of ids) {
-          objects[id].xrayed = xrayed;
+          objects[id]?.setStyleBin(styleBinId, membership);
         }
       },
     } as any,
@@ -327,8 +350,8 @@ describe("BCF viewpoint interop", () => {
 
     expect(objects["wall-runtime"].visible).toBe(true);
     expect(objects["door-runtime"].visible).toBe(false);
-    expect(objects["door-runtime"].selected).toBe(true);
-    expect(objects["opening-runtime"].xrayed).toBe(true);
+    expect(objects["door-runtime"].hasStyleBin("selected")).toBe(true);
+    expect(objects["opening-runtime"].hasStyleBin("xrayed")).toBe(true);
     expect(objects["wall-runtime"].colorize).toEqual([255 / 256, 0, 0]);
     expect(objects["wall-runtime"].opacity).toBeCloseTo(0.5, 6);
 

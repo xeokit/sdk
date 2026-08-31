@@ -110,7 +110,7 @@ import type {Vec3} from "../../base/math/vector";
  * environmentLayer.setObjectsVisible(environmentLayer.objectIds, true);
 
  * const modelLayer = view1.layers["model"];
- * modelLayer.setObjectsSelected(modelLayer.objectIds, true);
+ * modelLayer.setObjectsInStyleBin("selected", modelLayer.objectIds, true);
  * ````
  *
  * <br>
@@ -332,33 +332,6 @@ class ViewLayer {
   readonly visibleObjects: { [key: string]: ViewObject };
 
   /**
-   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  readonly xrayedObjects: { [key: string]: ViewObject };
-
-  /**
-   * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  readonly highlightedObjects: { [key: string]: ViewObject };
-
-  /**
-   * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is selected when {@link ViewObject.selected} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  readonly selectedObjects: { [key: string]: ViewObject };
-
-  /**
    * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
    *
    * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
@@ -383,12 +356,6 @@ class ViewLayer {
   private _objectIds: string[] | null;
   private _numVisibleObjects: number;
   private _visibleObjectIds: string[] | null;
-  private _numXRayedObjects: number;
-  private _xrayedObjectIds: string[] | null;
-  private _numHighlightedObjects: number;
-  private _highlightedObjectIds: string[] | null;
-  private _numSelectedObjects: number;
-  private _selectedObjectIds: string[] | null;
   private _numColorizedObjects: number;
   private _colorizedObjectIds: string[] | null;
   private _numOpacityObjects: number;
@@ -414,9 +381,6 @@ class ViewLayer {
 
     this.objects = {};
     this.visibleObjects = {};
-    this.xrayedObjects = {};
-    this.highlightedObjects = {};
-    this.selectedObjects = {};
     this.colorizedObjects = {};
     this.opacityObjects = {};
 
@@ -424,9 +388,6 @@ class ViewLayer {
 
     this._numObjects = 0;
     this._numVisibleObjects = 0;
-    this._numXRayedObjects = 0;
-    this._numHighlightedObjects = 0;
-    this._numSelectedObjects = 0;
     this._numColorizedObjects = 0;
     this._numOpacityObjects = 0;
   }
@@ -453,21 +414,6 @@ class ViewLayer {
       delete this.visibleObjects[objectId];
       this._numVisibleObjects--;
       this._visibleObjectIds = null;
-    }
-    if (this.xrayedObjects[objectId]) {
-      delete this.xrayedObjects[objectId];
-      this._numXRayedObjects--;
-      this._xrayedObjectIds = null;
-    }
-    if (this.highlightedObjects[objectId]) {
-      delete this.highlightedObjects[objectId];
-      this._numHighlightedObjects--;
-      this._highlightedObjectIds = null;
-    }
-    if (this.selectedObjects[objectId]) {
-      delete this.selectedObjects[objectId];
-      this._numSelectedObjects--;
-      this._selectedObjectIds = null;
     }
     if (this.colorizedObjects[objectId]) {
       delete this.colorizedObjects[objectId];
@@ -523,57 +469,6 @@ class ViewLayer {
   }
 
   /**
-   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numXRayedObjects(): number {
-    return this._numXRayedObjects;
-  }
-
-  /**
-   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get xrayedObjectIds(): string[] {
-    if (!this._xrayedObjectIds) {
-      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
-    }
-    return this._xrayedObjectIds;
-  }
-
-  /**
-   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numHighlightedObjects(): number {
-    return this._numHighlightedObjects;
-  }
-
-  /**
-   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get highlightedObjectIds(): string[] {
-    if (!this._highlightedObjectIds) {
-      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
-    }
-    return this._highlightedObjectIds;
-  }
-
-  /**
-   * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numSelectedObjects(): number {
-    return this._numSelectedObjects;
-  }
-
-  /**
-   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get selectedObjectIds(): string[] {
-    if (!this._selectedObjectIds) {
-      this._selectedObjectIds = Object.keys(this.selectedObjects);
-    }
-    return this._selectedObjectIds;
-  }
-
-  /**
    * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numColorizedObjects(): number {
@@ -625,51 +520,11 @@ class ViewLayer {
   }
 
   /**
-   * Called by ViewObject.xrayed setter.
+   * Called by ViewObject.setStyleBin.
    * @private
    */
-  objectXRayedUpdated(viewObject: ViewObject, xrayed: boolean) {
-    if (xrayed) {
-      this.xrayedObjects[viewObject.id] = viewObject;
-      this._numXRayedObjects++;
-    } else {
-      delete this.xrayedObjects[viewObject.id];
-      this._numXRayedObjects--;
-    }
-    this._xrayedObjectIds = null; // Lazy regenerate
-    this.view.objectXRayedUpdated(viewObject, xrayed);
-  }
-
-  /**
-   * Called by ViewObject.highlighted setter.
-   * @private
-   */
-  objectHighlightedUpdated(viewObject: ViewObject, highlighted: boolean) {
-    if (highlighted) {
-      this.highlightedObjects[viewObject.id] = viewObject;
-      this._numHighlightedObjects++;
-    } else {
-      delete this.highlightedObjects[viewObject.id];
-      this._numHighlightedObjects--;
-    }
-    this._highlightedObjectIds = null; // Lazy regenerate
-    this.view.objectHighlightedUpdated(viewObject, highlighted);
-  }
-
-  /**
-   * Called by ViewObject.selected setter.
-   * @private
-   */
-  objectSelectedUpdated(viewObject: ViewObject, selected: boolean) {
-    if (selected) {
-      this.selectedObjects[viewObject.id] = viewObject;
-      this._numSelectedObjects++;
-    } else {
-      delete this.selectedObjects[viewObject.id];
-      this._numSelectedObjects--;
-    }
-    this._selectedObjectIds = null; // Lazy regenerate
-    this.view.objectSelectedUpdated(viewObject, selected);
+  objectStyleBinUpdated(viewObject: ViewObject, styleBinId: string, membership: boolean) {
+    this.view.objectStyleBinUpdated(viewObject, styleBinId, membership);
   }
 
   /**
@@ -813,16 +668,9 @@ class ViewLayer {
   }
 
   /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * Adds or removes the given ViewObjects from a named style bin.
    */
-  setObjectsSelected(objectIds: string[], selected: boolean): boolean {
+  setObjectsInStyleBin(styleBinId: string, objectIds: readonly string[], membership: boolean): SDKResult<boolean> {
     let changed = false;
     const objects = this.objects;
 
@@ -831,69 +679,16 @@ class ViewLayer {
       if (!viewObject) {
         continue;
       }
-      if (viewObject.selected !== selected) {
-        viewObject.selected = selected; // Triggers ViewLayer.objectSelectedUpdated
+      const result = viewObject.setStyleBin(styleBinId, membership);
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
         changed = true;
       }
     }
 
-    return changed;
-  }
-
-  /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsHighlighted(objectIds: string[], highlighted: boolean): boolean {
-    let changed = false;
-    const objects = this.objects;
-
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.highlighted !== highlighted) {
-        viewObject.highlighted = highlighted; // Triggers ViewLayer.objectHighlightedUpdated
-        changed = true;
-      }
-    }
-
-    return changed;
-  }
-
-  /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsXRayed(objectIds: string[], xrayed: boolean): boolean {
-    let changed = false;
-    const objects = this.objects;
-
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.xrayed !== xrayed) {
-        viewObject.xrayed = xrayed; // Triggers ViewLayer.objectXRayedUpdated
-        changed = true;
-      }
-    }
-
-    return changed;
+    return {ok: true, value: changed};
   }
 
   /**

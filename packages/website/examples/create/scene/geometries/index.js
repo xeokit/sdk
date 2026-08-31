@@ -363,8 +363,8 @@ studio.init().then(() => {
   // aggregated SceneObject. That ViewObject can be used to control the
   // appearance of the generated content within the View.
 
-  // view.objects["geometriesObject"].highlighted = true;
-  // view.setObjectsHighlighted(view.highlightedObjectIds, false);
+  // view.objects["geometriesObject"].setStyleBin("highlighted", true);
+  // view.setObjectsInStyleBin("highlighted", view.styleBins.getObjectIds("highlighted"), false);
 
   // studio.viewFit();
   // studio.orbit();

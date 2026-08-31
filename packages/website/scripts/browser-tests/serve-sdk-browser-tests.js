@@ -3,7 +3,7 @@
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
-const {spawn} = require("child_process");
+const {execFileSync, spawn} = require("child_process");
 const {URL} = require("url");
 
 const repoRoot = path.resolve(__dirname, "..", "..", "..", "..");
@@ -39,7 +39,13 @@ const server = http.createServer((req, res) => {
     }
 
     if (requestUrl.pathname === "/__sdk_browser_tests/health") {
-        sendJSON(res, 200, {ok: true, active: Boolean(activeRun)});
+        sendJSON(res, 200, buildHealthPayload());
+        return;
+    }
+
+    if (requestUrl.pathname === "/favicon.ico") {
+        res.writeHead(204, {"cache-control": "no-store"});
+        res.end();
         return;
     }
 
@@ -95,11 +101,29 @@ function runTests(req, res, requestUrl) {
             ...process.env,
             CI: process.env.CI || "1"
         },
+        detached: true,
         stdio: ["ignore", "pipe", "pipe"]
     });
 
     let closed = false;
-    activeRun = {child, outputFile};
+    let heartbeat = null;
+    const startedAt = Date.now();
+    activeRun = {child, outputFile, startedAt};
+
+    sendEvent(res, "status", {
+        message: `Started process ${child.pid}. Waiting for Jest output.`,
+        outputFile,
+        elapsedMs: 0
+    });
+
+    heartbeat = setInterval(() => {
+        const elapsedMs = Date.now() - startedAt;
+        sendEvent(res, "status", {
+            message: `Still running (${Math.round(elapsedMs / 1000)}s).`,
+            outputFile,
+            elapsedMs
+        });
+    }, 10000);
 
     child.stdout.on("data", (chunk) => {
         sendEvent(res, "log", {stream: "stdout", text: chunk.toString("utf8")});
@@ -110,10 +134,19 @@ function runTests(req, res, requestUrl) {
     });
 
     child.on("error", (err) => {
+        if (heartbeat) {
+            clearInterval(heartbeat);
+            heartbeat = null;
+        }
         sendEvent(res, "errorMessage", {message: err.message});
+        activeRun = null;
     });
 
     child.on("close", (code, signal) => {
+        if (heartbeat) {
+            clearInterval(heartbeat);
+            heartbeat = null;
+        }
         closed = true;
         const summary = readSummary(outputFile);
         sendEvent(res, "done", {
@@ -130,9 +163,20 @@ function runTests(req, res, requestUrl) {
 
     req.on("close", () => {
         if (!closed && activeRun?.child === child) {
-            child.kill("SIGTERM");
+            stopChild(activeRun.child);
         }
     });
+}
+
+function buildHealthPayload() {
+    return {
+        ok: true,
+        active: Boolean(activeRun),
+        pid: activeRun?.child.pid || null,
+        startedAt: activeRun?.startedAt || null,
+        outputFile: activeRun?.outputFile || null,
+        elapsedMs: activeRun ? Date.now() - activeRun.startedAt : null
+    };
 }
 
 function stopTests(res) {
@@ -140,8 +184,58 @@ function stopTests(res) {
         sendJSON(res, 200, {ok: true, stopped: false});
         return;
     }
-    activeRun.child.kill("SIGTERM");
+    stopChild(activeRun.child);
+    activeRun = null;
     sendJSON(res, 200, {ok: true, stopped: true});
+}
+
+function stopChild(child) {
+    if (!child || !child.pid) {
+        return;
+    }
+    for (const pgid of findDescendantProcessGroups(child.pid)) {
+        killProcessGroup(pgid);
+    }
+    killProcessGroup(child.pid);
+}
+
+function killProcessGroup(pgid) {
+    try {
+        process.kill(-pgid, "SIGTERM");
+    } catch (err) {
+        // The process group may already be gone.
+    }
+}
+
+function findDescendantProcessGroups(rootPid) {
+    try {
+        const output = execFileSync("ps", ["-eo", "pid=,ppid=,pgid="], {encoding: "utf8"});
+        const childrenByParent = new Map();
+        for (const line of output.trim().split(/\n+/)) {
+            const [pidText, ppidText, pgidText] = line.trim().split(/\s+/);
+            const pid = Number(pidText);
+            const ppid = Number(ppidText);
+            const pgid = Number(pgidText);
+            if (!Number.isFinite(pid) || !Number.isFinite(ppid) || !Number.isFinite(pgid)) {
+                continue;
+            }
+            const children = childrenByParent.get(ppid) || [];
+            children.push({pid, pgid});
+            childrenByParent.set(ppid, children);
+        }
+
+        const processGroups = new Set();
+        const stack = [...(childrenByParent.get(rootPid) || [])];
+        while (stack.length > 0) {
+            const child = stack.pop();
+            processGroups.add(child.pgid);
+            stack.push(...(childrenByParent.get(child.pid) || []));
+        }
+        processGroups.delete(rootPid);
+        return [...processGroups].sort((a, b) => b - a);
+    } catch (err) {
+        return [];
+    }
 }
 
 function serveStatic(urlPath, res) {

@@ -96,8 +96,8 @@ export class Viewer {
   // reaction — ViewObject lifecycle (so each View can sync its
   // ViewObjects), SceneModel lifecycle, and the mesh / object /
   // geometry / transform / material mutations that affect what's
-  // drawn (each one nudges View.needsRender() on every attached
-  // View). Texture imageData changes have their own atlas-aware
+  // drawn (each one requests a render on every attached View).
+  // Texture imageData changes have their own atlas-aware
   // path inside the renderer's ViewManager and aren't routed here.
   private _onSceneDestroyed?: () => void;
   private _onSceneObjectCreated?: () => void;
@@ -640,9 +640,9 @@ export class Viewer {
   }
 
   /**
-   * Trigger needsRender of all {@link View | Views} belonging to this Viewer.
+   * Requests a render from all {@link View | Views} belonging to this Viewer.
    *
-   * @private
+   * @internal
    */
   needsRender(): void {
     const viewList = this.viewList;

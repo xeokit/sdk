@@ -106,11 +106,11 @@ studio.init().then(async () => {
       if (!record) return;
       if (selectedId && selectedId !== id) {
         const previous = recordById.get(selectedId);
-        if (previous?.viewObject) previous.viewObject.highlighted = false;
+        if (previous?.viewObject) previous.viewObject.setStyleBin("highlighted", false);
         buttonsById.get(selectedId)?.classList.remove("selected");
       }
       selectedId = id;
-      if (record.viewObject) record.viewObject.highlighted = true;
+      if (record.viewObject) record.viewObject.setStyleBin("highlighted", true);
       buttonsById.get(id)?.classList.add("selected");
       details.innerHTML = [
         `<div class="detailHeader"><span class="swatch" style="background:${record.color}"></span><span class="detailTitle">${record.label}</span></div>`,

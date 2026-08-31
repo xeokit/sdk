@@ -6,16 +6,8 @@ export interface InstancedDrawBatches {
   transparent: InstancedDrawBatch[];
   overlayOpaque: InstancedDrawBatch[];
   overlayTransparent: InstancedDrawBatch[];
-  xrayedOpaque: InstancedDrawBatch[];
-  xrayedEdgesOpaque: InstancedDrawBatch[];
-  xrayedTransparent: InstancedDrawBatch[];
-  xrayedEdgesTransparent: InstancedDrawBatch[];
-  highlightedOpaque: InstancedDrawBatch[];
-  highlightedEdgesOpaque: InstancedDrawBatch[];
-  highlightedTransparent: InstancedDrawBatch[];
-  highlightedEdgesTransparent: InstancedDrawBatch[];
-  selectedOpaque: InstancedDrawBatch[];
-  selectedEdgesOpaque: InstancedDrawBatch[];
-  selectedTransparent: InstancedDrawBatch[];
-  selectedEdgesTransparent: InstancedDrawBatch[];
+  styleBinOpaque: InstancedDrawBatch[];
+  styleBinEdgesOpaque: InstancedDrawBatch[];
+  styleBinTransparent: InstancedDrawBatch[];
+  styleBinEdgesTransparent: InstancedDrawBatch[];
 }

@@ -1,7 +1,7 @@
 import type {Vec3} from "../../base/math/vector";
 import type {SceneObject} from "../../model/scene";
 import type {ViewLayer} from "./ViewLayer";
-import {SDKErrorType} from "../../base/core";
+import {SDKErrorType, type SDKResult} from "../../base/core";
 import {View} from "./View";
 import {ViewTransform} from "./ViewTransform";
 
@@ -56,6 +56,7 @@ export class ViewObject {
     public viewTransform: ViewTransform;
 
     private _flags: number;
+    private _styleBinIds: Set<string> | null = null;
     // RGBA: [0..2] colorize, [3] opacity. Lazily allocated — most ViewObjects
     // are never colorized or opacity-overridden, and a Float32Array(4) costs
     // ~230 B in V8 (object + ArrayBuffer overhead), dwarfing its 16 B of data.
@@ -73,11 +74,8 @@ export class ViewObject {
     private static readonly PICKABLE = 1 << 2;
     private static readonly CLIPPABLE = 1 << 3;
     private static readonly COLLIDABLE = 1 << 4;
-    private static readonly XRAYED = 1 << 5;
-    private static readonly SELECTED = 1 << 6;
-    private static readonly HIGHLIGHTED = 1 << 7;
-    private static readonly COLORIZED = 1 << 8;
-    private static readonly OPACITY_UPDATED = 1 << 9;
+    private static readonly COLORIZED = 1 << 5;
+    private static readonly OPACITY_UPDATED = 1 << 6;
 
     /**
      * @private
@@ -182,99 +180,51 @@ export class ViewObject {
     // }
 
     /**
-     * Gets if this ViewObject is X-rayed.
-     *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * Returns true when this ViewObject belongs to a named style bin.
      */
-    get xrayed(): boolean {
-        return (this._flags & ViewObject.XRAYED) !== 0;
+    hasStyleBin(styleBinId: string): boolean {
+        return this._styleBinIds?.has(styleBinId) === true;
     }
 
     /**
-     * Sets if this ViewObject is X-rayed.
-     *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * Adds or removes this ViewObject from a named style bin.
      */
-    set xrayed(xrayed: boolean) {
+    setStyleBin(styleBinId: string, membership: boolean): SDKResult<boolean> {
         if (this.destroyed) {
-            this.layer.view.viewer.logError({
+            return {
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
-                error: "[ViewObject.xrayed] ViewObject already destroyed"
-            });
-            return;
+                error: "[ViewObject.setStyleBin] ViewObject already destroyed"
+            };
         }
-        if (this.xrayed === xrayed) {
-            return;
-        }
-        this._setFlag(ViewObject.XRAYED, xrayed);
-        this.layer.objectXRayedUpdated(this, xrayed);
-    }
-
-    /**
-     * Gets if this ViewObject is highlighted.
-     *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-     */
-    get highlighted(): boolean {
-        return (this._flags & ViewObject.HIGHLIGHTED) !== 0;
-    }
-
-    /**
-     * Sets if this ViewObject is highlighted.
-     *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-     */
-    set highlighted(highlighted: boolean) {
-        if (this.destroyed) {
-            this.layer.view.viewer.logError({
+        if (!this.view.styleBins.get(styleBinId)) {
+            return {
                 ok: false,
-                type: SDKErrorType.InvalidOperation,
-                error: "[ViewObject.highlighted] ViewObject already destroyed"
-            });
-            return;
+                type: SDKErrorType.InvalidInput,
+                error: `[ViewObject.setStyleBin] Style bin not found: ${styleBinId}`
+            };
         }
-        if (highlighted === this.highlighted) {
-            return;
+        const styleBinIds = this._styleBinIds ?? (this._styleBinIds = new Set());
+        if (styleBinIds.has(styleBinId) === membership) {
+            return {ok: true, value: false};
         }
-        this._setFlag(ViewObject.HIGHLIGHTED, highlighted);
-        this.layer.objectHighlightedUpdated(this, highlighted);
+        if (membership) {
+            styleBinIds.add(styleBinId);
+        } else {
+            styleBinIds.delete(styleBinId);
+            if (styleBinIds.size === 0) {
+                this._styleBinIds = null;
+            }
+        }
+        this.layer.objectStyleBinUpdated(this, styleBinId, membership);
+        return {ok: true, value: true};
     }
 
     /**
-     * Gets if this ViewObject is selected.
-     *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+     * Gets the IDs of style bins this ViewObject currently belongs to.
      */
-    get selected(): boolean {
-        return (this._flags & ViewObject.SELECTED) !== 0;
-    }
-
-    /**
-     * Sets if this ViewObject is selected.
-     *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
-     */
-    set selected(selected: boolean) {
-        if (this.destroyed) {
-            this.layer.view.viewer.logError({
-                ok: false,
-                type: SDKErrorType.InvalidOperation,
-                error: "[ViewObject.selected] ViewObject already destroyed"
-            });
-            return;
-        }
-        if (selected === this.selected) {
-            return;
-        }
-        this._setFlag(ViewObject.SELECTED, selected);
-        this.layer.objectSelectedUpdated(this, selected);
+    get styleBinIds(): readonly string[] {
+        return this._styleBinIds ? Array.from(this._styleBinIds) : [];
     }
 
     /**
@@ -513,15 +463,6 @@ export class ViewObject {
         // View/ViewLayer object maps.
         if (this.visible) {
             this.layer.objectVisibilityUpdated(this, false, false);
-        }
-        if (this.xrayed) {
-            this.layer.objectXRayedUpdated(this, false);
-        }
-        if (this.selected) {
-            this.layer.objectSelectedUpdated(this, false);
-        }
-        if (this.highlighted) {
-            this.layer.objectHighlightedUpdated(this, false);
         }
         if (this.colorized) {
             this.layer.objectColorizeUpdated(this, false);

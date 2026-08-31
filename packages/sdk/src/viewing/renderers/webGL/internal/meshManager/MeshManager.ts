@@ -5,7 +5,7 @@ import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";
 import {MeshBatchImpl} from "./MeshBatchImpl";
 import {type MeshBatch} from "./MeshBatch";
-import type {Camera, View, ViewObject} from "../../../../viewer";
+import type {Camera, View, ViewObject, ViewStyleBin} from "../../../../viewer";
 import type {SceneTransform} from "../../../../../model/scene/SceneTransform";
 import {GPUMemoryCheckResult, GPUMemoryManager, type GPUTile} from "../gpuMemoryManager";
 import {SceneGeometry} from "../../../../../model/scene";
@@ -528,14 +528,12 @@ export class MeshManager {
 
   private _viewObjectStateNeedsInitialSync(viewObject: ViewObject): boolean {
     return !viewObject.visible
-      || viewObject.xrayed
-      || viewObject.highlighted
-      || viewObject.selected
       || viewObject.culled
       || !viewObject.pickable
       || !viewObject.clippable
       || viewObject.colorize !== null
-      || viewObject.opacityUpdated;
+      || viewObject.opacityUpdated
+      || viewObject.styleBinIds.length > 0;
   }
 
   /**
@@ -933,26 +931,71 @@ export class MeshManager {
   private _synchronizeRendererMeshWithViewObject(rendererMesh: RendererMesh, viewObject: ViewObject): void {
     const viewIndex = viewObject.layer.view.viewIndex;
     rendererMesh.setObjectVisible(viewIndex, viewObject.visible);
-    rendererMesh.setXRayed(viewIndex, viewObject.xrayed);
-    rendererMesh.setHighlighted(viewIndex, viewObject.highlighted);
-    rendererMesh.setSelected(viewIndex, viewObject.selected);
     rendererMesh.setCulled(viewIndex, viewObject.culled);
     rendererMesh.setPickable(viewIndex, viewObject.pickable);
     rendererMesh.setClippable(viewIndex, viewObject.clippable);
+    const styleBin = this._resolveStyleBin(viewObject);
+    if (styleBin) {
+      this._applyStyleBin(rendererMesh, viewIndex, styleBin);
+      return;
+    }
+    rendererMesh.clearStyleBin(viewIndex);
     rendererMesh.setColorInView(viewIndex, viewObject.colorize);
     rendererMesh.setOpacityInView(viewIndex, viewObject.opacityUpdated ? viewObject.opacity : null);
   }
 
   private _synchronizeRendererMeshWithDefaultObjectState(rendererMesh: RendererMesh, viewIndex: number, sceneObject: SceneObject): void {
     rendererMesh.setObjectVisible(viewIndex, true);
-    rendererMesh.setXRayed(viewIndex, false);
-    rendererMesh.setHighlighted(viewIndex, false);
-    rendererMesh.setSelected(viewIndex, false);
+    rendererMesh.clearStyleBin(viewIndex);
     rendererMesh.setCulled(viewIndex, false);
     rendererMesh.setPickable(viewIndex, true);
     rendererMesh.setClippable(viewIndex, sceneObject.clippable !== false);
     rendererMesh.setColorInView(viewIndex, null);
     rendererMesh.setOpacityInView(viewIndex, null);
+  }
+
+  private _resolveStyleBin(viewObject: ViewObject): ViewStyleBin | null {
+    const styleBins = viewObject.layer.view.styleBins.list;
+    let resolvedBin: ViewStyleBin | null = null;
+    for (let i = 0, len = styleBins.length; i < len; i++) {
+      const styleBin = styleBins[i];
+      if (styleBin.enabled && viewObject.hasStyleBin(styleBin.id)) {
+        resolvedBin = styleBin;
+      }
+    }
+    return resolvedBin;
+  }
+
+  private _applyStyleBin(rendererMesh: RendererMesh, viewIndex: number, styleBin: ViewStyleBin): void {
+    const material = styleBin.material;
+    rendererMesh.setStyleBin(
+      viewIndex,
+      material.fillColor,
+      material.fill === false ? 0 : material.fillAlpha,
+      material.edges !== false,
+      material.clearDepthBefore === true
+    );
+  }
+
+  private _synchronizeRendererObjectWithViewObject(rendererObject: RendererObject | undefined, viewObject: ViewObject): void {
+    if (!rendererObject) {
+      return;
+    }
+    const viewIndex = viewObject.layer.view.viewIndex;
+    const styleBin = this._resolveStyleBin(viewObject);
+    if (styleBin) {
+      rendererObject.setStyleBin(
+        viewIndex,
+        styleBin.material.fillColor,
+        styleBin.material.fill === false ? 0 : styleBin.material.fillAlpha,
+        styleBin.material.edges !== false,
+        styleBin.material.clearDepthBefore === true
+      );
+      return;
+    }
+    rendererObject.clearStyleBin(viewIndex);
+    rendererObject.setColorize(viewIndex, viewObject.colorize);
+    rendererObject.setOpacity(viewIndex, viewObject.opacityUpdated ? viewObject.opacity : undefined);
   }
 
   private _detachRendererMeshFromObject(rendererObject: RendererObject, rendererMesh: RendererMesh): void {
@@ -1069,15 +1112,6 @@ export class MeshManager {
   }
 
   /**
-   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s x-ray state.
-   *
-   * Updates the per-view x-ray flag on the owning {@link RendererObject}.
-   */
-  public viewObjectXRayedChanged(viewObject: ViewObject): void {
-    this._rendererObjects[viewObject.id]?.setXRayed(viewObject.layer.view.viewIndex, viewObject.xrayed);
-  }
-
-  /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s clippable state.
    *
    * Updates the per-view clippable flag on the owning
@@ -1100,30 +1134,12 @@ export class MeshManager {
   }
 
   /**
-   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s highlighted state.
-   *
-   * Updates the per-view highlighted flag on the owning {@link RendererObject}.
-   */
-  public viewObjectHighlightedChanged(viewObject: ViewObject): void {
-    this._rendererObjects[viewObject.id]?.setHighlighted(viewObject.layer.view.viewIndex, viewObject.highlighted);
-  }
-
-  /**
-   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s selected state.
-   *
-   * Updates the per-view selected flag on the owning {@link RendererObject}.
-   */
-  public viewObjectSelectedChanged(viewObject: ViewObject): void {
-    this._rendererObjects[viewObject.id]?.setSelected(viewObject.layer.view.viewIndex, viewObject.selected);
-  }
-
-  /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s colorize state.
    *
    * Updates the per-view colorize flag on the owning {@link RendererObject}.
    */
   public viewObjectColorizeChanged(viewObject: ViewObject): void {
-    this._rendererObjects[viewObject.id]?.setColorize(viewObject.layer.view.viewIndex, viewObject.colorize);
+    this._synchronizeRendererObjectWithViewObject(this._rendererObjects[viewObject.id], viewObject);
   }
 
   /**
@@ -1146,10 +1162,15 @@ export class MeshManager {
    * gating happens here, at the bridge, not in the getter.
    */
   public viewObjectOpacityChanged(viewObject: ViewObject): void {
-    this._rendererObjects[viewObject.id]?.setOpacity(
-      viewObject.layer.view.viewIndex,
-      viewObject.opacityUpdated ? viewObject.opacity : undefined,
-    );
+    this._synchronizeRendererObjectWithViewObject(this._rendererObjects[viewObject.id], viewObject);
+  }
+
+  /**
+   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s style-bin membership
+   * or to the resolved style-bin definition for that object.
+   */
+  public viewObjectStyleBinChanged(viewObject: ViewObject): void {
+    this._synchronizeRendererObjectWithViewObject(this._rendererObjects[viewObject.id], viewObject);
   }
 
   /**

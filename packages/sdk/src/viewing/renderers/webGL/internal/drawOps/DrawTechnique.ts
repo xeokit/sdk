@@ -337,7 +337,7 @@ export abstract class DrawTechnique {
    * primitive/index/position/matrix data-texture fetches.
    *
    * The mesh/material/view state still comes from DTX so visibility,
-   * selection/highlight/xray routing, colors, UVs, normals and material
+   * style-bin routing, colors, UVs, normals and material
    * atlas attributes stay in the existing update path.
    */
   public vboGeometry: boolean;
@@ -360,6 +360,12 @@ export abstract class DrawTechnique {
    * the per-mesh hatch slot check or hatch-pattern texture fetches.
    */
   public bodyHatch: boolean;
+
+  /**
+   * When true, silhouette shaders draw only meshes whose resolved style bin
+   * requests a depth-cleared overlay pass.
+   */
+  public styleBinOverlay: boolean;
 
   /**
    * Vertex shader source code. Available after `init()` is called.
@@ -542,6 +548,7 @@ export abstract class DrawTechnique {
     vboTileUniform?: boolean,
     vboViewAttributes?: boolean,
     bodyHatch?: boolean,
+    styleBinOverlay?: boolean,
     /**
      * Permutation flag. When `true`, the technique's vertex
      * shader rewrites `gl_Position.z` so the depth-buffer mapping
@@ -569,6 +576,7 @@ export abstract class DrawTechnique {
     vboTileUniform: false,
     vboViewAttributes: false,
     bodyHatch: false,
+    styleBinOverlay: false,
     logDepth: false,
   }) {
     if (cfg.picking && cfg.edges) { // Edges are an un-pickable visual effect
@@ -602,6 +610,7 @@ export abstract class DrawTechnique {
     this.vboTileUniform = cfg.vboTileUniform === true;
     this.vboViewAttributes = cfg.vboViewAttributes === true;
     this.bodyHatch = cfg.bodyHatch === true;
+    this.styleBinOverlay = cfg.styleBinOverlay === true;
     this.logDepth = cfg.logDepth === true;
     this._program = null;
   }
@@ -2334,15 +2343,32 @@ void main(void) {`);
    * @protected
    */
   protected vsSilhouetteLogic() {
-    this._vertSrcBuf.push(`
-    // Edge / silhouette colour. In "darkenedMesh" mode (base edges only, set
-    // via uEdgeColorMode) each edge takes its own mesh's colour scaled by
-    // uEdgeDarken, keeping the silhouette uniform's alpha (edgeAlpha).
-    if (uEdgeColorMode > 0.5) {
+    if (this.styleBinOverlay) {
+      this._vertSrcBuf.push(`
+    if (meshViewAttributes.renderFlags.a == 0u) {
+      vColor = vec4(0.0);
+    } else {
+      vColor = vec4(meshViewAttributes.color) / 255.0;
+    }`);
+    } else {
+      this._vertSrcBuf.push(`
+    // Resolved style-bin passes use each mesh's per-view style color/alpha.
+    // Base edges can optionally use darkened mesh color; ordinary silhouettes
+    // use the configured uniform color.
+    if (uRenderPass == ${RENDER_PASSES.STYLE_BIN_OPAQUE} || uRenderPass == ${RENDER_PASSES.STYLE_BIN_TRANSPARENT}) {
+      vColor = vec4(meshViewAttributes.color) / 255.0;
+    } else if (uEdgeColorMode > 0.5) {
       vColor = vec4(vec3(meshViewAttributes.color.rgb) / 255.0 * uEdgeDarken, uSilhouetteColor.a);
     } else {
       vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);
     }`);
+    }
+    if (this.edges) {
+      this._vertSrcBuf.push(`
+    if (meshViewAttributes.renderFlags.b == 0u) {
+      vColor.a = 0.0;
+    }`);
+    }
   }
 
   /**
@@ -3503,7 +3529,9 @@ flat out int  vHatchSpace;
    * Assigns the interpolated vertex color to the working color variable.
    */
   protected fsSilhouetteLogic() {
-    this._fragSrcBuf.push("color = vColor;");
+    this._fragSrcBuf.push(
+      "color = vColor;",
+      "if (color.a <= 0.0) discard;");
   }
 
   /**
@@ -4874,52 +4902,23 @@ float shadowWeightedPCF(int cascade, vec2 shadowUv, float refDepth, float texel,
 
     if (uniforms.silhouetteColor) {
       if (this.edges) {
-        if (renderPass === RENDER_PASSES.XRAYED) {
-          const material = view.xrayMaterial;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
-          const material = view.highlightMaterial;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        } else if (renderPass === RENDER_PASSES.SELECTED) {
-          const material = view.selectedMaterial;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        } else {
-          const material = view.effects.edges;
-          const color = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
-        }
+        const material = view.effects.edges;
+        const color = material.edgeColor;
+        gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
       } else {
-        if (renderPass === RENDER_PASSES.XRAYED) {
-          const material = view.xrayMaterial;
-          const color = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
-        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
-          const material = view.highlightMaterial;
-          const color = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
-        } else if (renderPass === RENDER_PASSES.SELECTED) {
-          const material = view.selectedMaterial;
-          const color = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
-        } else {
-          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
-        }
+        gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
       }
     }
 
     // Base-edges "use mesh colour" mode. Only the base edges pass honours it —
-    // x-ray / highlight / selected edges keep their emphasis colour, and every
+    // Style-bin edges keep their configured color, and every
     // fill pass keeps mode off — so the shader's mesh-colour branch is gated to
     // exactly that one case.
     if (uniforms.edgeColorMode) {
       const e = view.effects.edges;
       const baseEdgesPass = this.edges
-        && renderPass !== RENDER_PASSES.XRAYED
-        && renderPass !== RENDER_PASSES.HIGHLIGHTED
-        && renderPass !== RENDER_PASSES.SELECTED;
+        && renderPass !== RENDER_PASSES.STYLE_BIN_OPAQUE
+        && renderPass !== RENDER_PASSES.STYLE_BIN_TRANSPARENT;
       gl.uniform1f(uniforms.edgeColorMode, (baseEdgesPass && e.useMeshColor) ? 1 : 0);
       if (uniforms.edgeDarken) {
         gl.uniform1f(uniforms.edgeDarken, e.edgeDarken);

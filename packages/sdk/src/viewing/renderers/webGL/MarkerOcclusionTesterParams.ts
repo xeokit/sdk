@@ -56,10 +56,10 @@ export interface MarkerOcclusionTesterParams {
   includeTransparent?: boolean;
 
   /**
-   * X-rayed objects still count as occluders when this is `true`.
-   * Defaults to `false`.
+   * Objects in any of these View style bins are ignored as occluders.
+   * Defaults to `[]`.
    */
-  includeXRayed?: boolean;
+  excludeStyleBinIds?: readonly string[];
 
   /**
    * Respect active SectionPlanes by continuing past clipped ray hits.

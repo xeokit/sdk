@@ -44,7 +44,7 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
  * resulting per-object state to the view via the same data-texture
  * bulk-setter API a tree-view click would use
  * (`view.setObjectsVisible / setObjectsColorized / setObjectsOpacity /
- * setObjectsXRayed`). No buffer rebuilds, no per-frame allocation
+ * setObjectsInStyleBin`). No buffer rebuilds, no per-frame allocation
  * inside the apply path beyond a handful of work arrays.
  *
  * ## Conflict resolution
@@ -363,12 +363,12 @@ export class SchedulePlayer {
 
     // Pass 3: bulk apply state to the view. Each setObjects* call
     // routes through `setObjectsVisible / setObjectsColorized /
-    // setObjectsOpacity / setObjectsXRayed` — each is one data-texture
+    // setObjectsOpacity / setObjectsInStyleBin` — each is one data-texture
     // write per id.
     if (pending.length > 0) {
       if (this.ghostUpcoming) {
         view.setObjectsVisible(pending, true);
-        view.setObjectsXRayed(pending, true);
+        view.setObjectsInStyleBin("xrayed", pending, true);
         view.setObjectsColorized(pending, this.ghostColor as any);
         view.setObjectsOpacity(pending, this.ghostOpacity);
       } else {
@@ -379,14 +379,14 @@ export class SchedulePlayer {
     for (const [key, ids] of inProgress) {
       const color = key.split(",").map(Number) as [number, number, number];
       view.setObjectsVisible(ids, true);
-      view.setObjectsXRayed(ids, false);
+      view.setObjectsInStyleBin("xrayed", ids, false);
       view.setObjectsColorized(ids, color as any);
       view.setObjectsOpacity(ids, this.inProgressOpacity);
     }
 
     if (complete.length > 0) {
       view.setObjectsVisible(complete, true);
-      view.setObjectsXRayed(complete, false);
+      view.setObjectsInStyleBin("xrayed", complete, false);
       // Pass `null` (not `[1,1,1]` / `1`) so the COLORIZED and
       // OPACITY_UPDATED flags are *cleared* on each ViewObject.
       // Truthy values to `setObjectsColorized` / `setObjectsOpacity`

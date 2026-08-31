@@ -1565,9 +1565,8 @@ export class Toolbar extends FloatingPanelBase {
       if (next === "hide") {
         viewObject.visible = false;
       } else if (next === "select") {
-        // Toggle selection — clicking an already-selected object
-        // deselects, matching the Photoshop / Figma convention.
-        viewObject.selected = !viewObject.selected;
+        // Toggle membership in the Studio selection style bin.
+        viewObject.setStyleBin("selected", !viewObject.hasStyleBin("selected"));
       }
     };
 

@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 1659.5,
-    "endTime": 4595.399999856949,
-    "elapsedTime": 2935.899999856949,
+    "startTime": 1572.2000000029802,
+    "endTime": 98795.10000000149,
+    "elapsedTime": 97222.89999999851,
     "aabb": [
       1374.8310852050781,
       -247.84991455078125,
@@ -30,8 +30,8 @@
       "numPropertySets": 0
     },
     "memory": {
-      "allocatedMB": 415.4600830078125,
-      "usedMB": 75.60881042480469
+      "allocatedMB": 378.6534423828125,
+      "usedMB": 71.7979965209961
     },
     "renderer": {
       "tiles": {
@@ -49,7 +49,7 @@
       },
       "views": [
         {
-          "viewId": "da3ed813-578f-42c9-9a7d-4b57418f9b3f",
+          "viewId": "03267408-0f08-455f-8929-64b230217a75",
           "canvasSize": [
             0,
             0
@@ -67,10 +67,13 @@
                     "numPrims": 78083
                   },
                   "timeMs": {
-                    "start": 4907.899999856949,
-                    "end": 4908.199999809265,
-                    "duration": 0.2999999523162842
-                  }
+                    "start": 51795.30000000447,
+                    "end": 51795.60000000149,
+                    "duration": 0.29999999701976776
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesDrawColorTechnique"
                 },
                 {
                   "batchIndex": 1,
@@ -81,16 +84,19 @@
                     "numPrims": 5927
                   },
                   "timeMs": {
-                    "start": 4908.199999809265,
-                    "end": 4933.5,
-                    "duration": 25.300000190734863
-                  }
+                    "start": 51795.60000000149,
+                    "end": 51969.5,
+                    "duration": 173.89999999850988
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesDrawColorTechnique"
                 }
               ],
               "timeMs": {
-                "start": 4906.399999856949,
-                "end": 4933.5,
-                "duration": 27.100000143051147
+                "start": 51793.10000000149,
+                "end": 51969.5,
+                "duration": 176.39999999850988
               }
             },
             {
@@ -105,10 +111,13 @@
                     "numPrims": 78083
                   },
                   "timeMs": {
-                    "start": 4941.5,
-                    "end": 4941.5,
-                    "duration": 0
-                  }
+                    "start": 51978.30000000447,
+                    "end": 51978.5,
+                    "duration": 0.19999999552965164
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
                 },
                 {
                   "batchIndex": 1,
@@ -119,10 +128,30 @@
                     "numPrims": 5927
                   },
                   "timeMs": {
-                    "start": 4941.5,
-                    "end": 4942.299999952316,
-                    "duration": 0.7999999523162842
-                  }
+                    "start": 51978.5,
+                    "end": 51978.5,
+                    "duration": 0
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 78083,
+                    "numPrims": 8804
+                  },
+                  "timeMs": {
+                    "start": 51978.5,
+                    "end": 51980.70000000298,
+                    "duration": 2.2000000029802322
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
                 },
                 {
                   "batchIndex": 0,
@@ -133,10 +162,13 @@
                     "numPrims": 78083
                   },
                   "timeMs": {
-                    "start": 4942.299999952316,
-                    "end": 4942.399999856949,
-                    "duration": 0.09999990463256836
-                  }
+                    "start": 51980.70000000298,
+                    "end": 51980.90000000596,
+                    "duration": 0.20000000298023224
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
                 },
                 {
                   "batchIndex": 1,
@@ -147,10 +179,81 @@
                     "numPrims": 5927
                   },
                   "timeMs": {
-                    "start": 4942.399999856949,
-                    "end": 4942.899999856949,
+                    "start": 51980.90000000596,
+                    "end": 51980.90000000596,
+                    "duration": 0
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 78083,
+                    "numPrims": 8804
+                  },
+                  "timeMs": {
+                    "start": 51980.90000000596,
+                    "end": 51982.60000000149,
+                    "duration": 1.6999999955296516
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 78083
+                  },
+                  "timeMs": {
+                    "start": 51982.60000000149,
+                    "end": 51982.60000000149,
+                    "duration": 0
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
+                },
+                {
+                  "batchIndex": 1,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 5927
+                  },
+                  "timeMs": {
+                    "start": 51982.60000000149,
+                    "end": 51982.70000000298,
+                    "duration": 0.10000000149011612
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 78083,
+                    "numPrims": 8804
+                  },
+                  "timeMs": {
+                    "start": 51982.70000000298,
+                    "end": 51983.20000000298,
                     "duration": 0.5
-                  }
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
                 },
                 {
                   "batchIndex": 0,
@@ -161,10 +264,13 @@
                     "numPrims": 78083
                   },
                   "timeMs": {
-                    "start": 4942.899999856949,
-                    "end": 4942.899999856949,
-                    "duration": 0
-                  }
+                    "start": 51983.20000000298,
+                    "end": 51983.30000000447,
+                    "duration": 0.10000000149011612
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
                 },
                 {
                   "batchIndex": 1,
@@ -175,44 +281,80 @@
                     "numPrims": 5927
                   },
                   "timeMs": {
-                    "start": 4942.899999856949,
-                    "end": 4943.5,
-                    "duration": 0.6000001430511475
-                  }
+                    "start": 51983.30000000447,
+                    "end": 51983.30000000447,
+                    "duration": 0
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
                 },
                 {
                   "batchIndex": 0,
-                  "renderPass": "OPAQUE",
+                  "renderPass": "TRANSPARENT",
                   "primitive": "TRIANGLES",
                   "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 78083
+                    "firstPrim": 78083,
+                    "numPrims": 8804
                   },
                   "timeMs": {
-                    "start": 4943.5,
-                    "end": 4943.5,
+                    "start": 51983.30000000447,
+                    "end": 51983.30000000447,
                     "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 5927
                   },
-                  "timeMs": {
-                    "start": 4943.5,
-                    "end": 4943.5,
-                    "duration": 0
-                  }
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesShadowDepthTechnique"
                 }
               ],
               "timeMs": {
-                "start": 4933.5,
-                "end": 4943.5,
-                "duration": 10
+                "start": 51969.5,
+                "end": 51983.30000000447,
+                "duration": 13.800000004470348
+              }
+            },
+            {
+              "name": "sceneDepthPrep",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 78083
+                  },
+                  "timeMs": {
+                    "start": 51983.5,
+                    "end": 51983.60000000149,
+                    "duration": 0.10000000149011612
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesDrawColorTechnique"
+                },
+                {
+                  "batchIndex": 1,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 5927
+                  },
+                  "timeMs": {
+                    "start": 51983.60000000149,
+                    "end": 51983.60000000149,
+                    "duration": 0
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesDrawColorTechnique"
+                }
+              ],
+              "timeMs": {
+                "start": 51983.30000000447,
+                "end": 51983.60000000149,
+                "duration": 0.29999999701976776
               }
             },
             {
@@ -227,10 +369,13 @@
                     "numPrims": 78083
                   },
                   "timeMs": {
-                    "start": 4943.699999809265,
-                    "end": 4943.799999952316,
-                    "duration": 0.10000014305114746
-                  }
+                    "start": 51983.90000000596,
+                    "end": 51984,
+                    "duration": 0.09999999403953552
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesDrawColorSAOShadowTechnique"
                 },
                 {
                   "batchIndex": 1,
@@ -241,78 +386,19 @@
                     "numPrims": 5927
                   },
                   "timeMs": {
-                    "start": 4943.799999952316,
-                    "end": 4943.899999856949,
-                    "duration": 0.09999990463256836
-                  }
+                    "start": 51984,
+                    "end": 51984.10000000149,
+                    "duration": 0.10000000149011612
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesDrawColorSAOShadowTechnique"
                 }
               ],
               "timeMs": {
-                "start": 4943.5,
-                "end": 4943.899999856949,
-                "duration": 0.39999985694885254
-              }
-            },
-            {
-              "name": "edgesColorOpaque",
-              "drawCalls": [
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 61379
-                  },
-                  "timeMs": {
-                    "start": 4944.099999904633,
-                    "end": 4944.099999904633,
-                    "duration": 0
-                  }
-                },
-                {
-                  "batchIndex": 1,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 3468
-                  },
-                  "timeMs": {
-                    "start": 4944.099999904633,
-                    "end": 4944.099999904633,
-                    "duration": 0
-                  }
-                }
-              ],
-              "timeMs": {
-                "start": 4943.899999856949,
-                "end": 4944.099999904633,
-                "duration": 0.20000004768371582
-              }
-            },
-            {
-              "name": "edgesColorTransparent",
-              "drawCalls": [
-                {
-                  "batchIndex": 0,
-                  "renderPass": "TRANSPARENT",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 61379,
-                    "numPrims": 7888
-                  },
-                  "timeMs": {
-                    "start": 4944.199999809265,
-                    "end": 4944.199999809265,
-                    "duration": 0
-                  }
-                }
-              ],
-              "timeMs": {
-                "start": 4944.099999904633,
-                "end": 4944.199999809265,
-                "duration": 0.09999990463256836
+                "start": 51983.70000000298,
+                "end": 51984.10000000149,
+                "duration": 0.3999999985098839
               }
             },
             {
@@ -327,26 +413,108 @@
                     "numPrims": 8804
                   },
                   "timeMs": {
-                    "start": 4944.199999809265,
-                    "end": 4944.199999809265,
+                    "start": 51984.20000000298,
+                    "end": 51984.20000000298,
                     "duration": 0
-                  }
+                  },
+                  "drawPath": "dtx",
+                  "batchStorage": "dtx",
+                  "technique": "TrianglesDrawColorTechnique"
                 }
               ],
               "timeMs": {
-                "start": 4944.199999809265,
-                "end": 4944.199999809265,
+                "start": 51984.20000000298,
+                "end": 51984.20000000298,
                 "duration": 0
               }
             }
           ],
           "timeMs": {
-            "start": 4866.399999856949,
-            "end": 4953.299999952316,
-            "duration": 86.90000009536743
+            "start": 51767.40000000596,
+            "end": 51985.5,
+            "duration": 218.09999999403954
           },
-          "numDrawCalls": 16,
-          "numPrims": 585599
+          "numDrawCalls": 19,
+          "numPrims": 632090,
+          "drawPaths": {
+            "dtxDrawCalls": 19,
+            "vboDrawCalls": 0,
+            "dtxPrims": 632090,
+            "vboPrims": 0,
+            "dtxBatches": [
+              0,
+              1
+            ],
+            "vboBatches": [],
+            "byTechnique": {
+              "TrianglesDrawColorTechnique|dtx|dtx|normals|noUVs|surface|draw|snap0": {
+                "drawCalls": 3,
+                "prims": 164970,
+                "path": "dtx",
+                "batchStorage": "dtx",
+                "hasNormals": true,
+                "hasUVs": false,
+                "edges": false,
+                "picking": false,
+                "snap": 0
+              },
+              "TrianglesDrawColorTechnique|dtx|dtx|normals|uvs|surface|draw|snap0": {
+                "drawCalls": 2,
+                "prims": 11854,
+                "path": "dtx",
+                "batchStorage": "dtx",
+                "hasNormals": true,
+                "hasUVs": true,
+                "edges": false,
+                "picking": false,
+                "snap": 0
+              },
+              "TrianglesShadowDepthTechnique|dtx|dtx|normals|noUVs|surface|draw|snap0": {
+                "drawCalls": 8,
+                "prims": 347548,
+                "path": "dtx",
+                "batchStorage": "dtx",
+                "hasNormals": true,
+                "hasUVs": false,
+                "edges": false,
+                "picking": false,
+                "snap": 0
+              },
+              "TrianglesShadowDepthTechnique|dtx|dtx|normals|uvs|surface|draw|snap0": {
+                "drawCalls": 4,
+                "prims": 23708,
+                "path": "dtx",
+                "batchStorage": "dtx",
+                "hasNormals": true,
+                "hasUVs": true,
+                "edges": false,
+                "picking": false,
+                "snap": 0
+              },
+              "TrianglesDrawColorSAOShadowTechnique|dtx|dtx|normals|noUVs|surface|draw|snap0": {
+                "drawCalls": 1,
+                "prims": 78083,
+                "path": "dtx",
+                "batchStorage": "dtx",
+                "hasNormals": true,
+                "hasUVs": false,
+                "edges": false,
+                "picking": false,
+                "snap": 0
+              },
+              "TrianglesDrawColorSAOShadowTechnique|dtx|dtx|normals|uvs|surface|draw|snap0": {
+                "drawCalls": 1,
+                "prims": 5927,
+                "path": "dtx",
+                "batchStorage": "dtx",
+                "hasNormals": true,
+                "hasUVs": true,
+                "edges": false,
+                "picking": false,
+                "snap": 0
+              }
+            }
+          }
         }
       ]
     }

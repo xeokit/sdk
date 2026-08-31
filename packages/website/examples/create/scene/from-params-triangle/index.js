@@ -69,7 +69,7 @@ studio
       // SceneObject. That ViewObject can be used to control the appearance
       // of the triangle within the View.
 
-      // view.objects["triangleObject"].highlighted = true;
+      // view.objects["triangleObject"].setStyleBin("highlighted", true);
 
       // Signal that the demo has finished initializing.
       studio.openInfoPanelFromMeta();

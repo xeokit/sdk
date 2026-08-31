@@ -618,6 +618,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       opacity?: number;  // float 0..1
       clippable?: boolean;
       pickable?: boolean;
+      styleBinEdges?: boolean;
+      styleBinClearDepthBefore?: boolean;
     }
   ) {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];

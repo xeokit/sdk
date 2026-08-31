@@ -82,6 +82,8 @@ studio.init().then(async () => {
     render(ui, streamController);
     streamController.schedule("Load HousePlan stream");
     bindCameraStreaming(studio, streamController);
+    const info = await studio.openInfoPanelFromMeta();
+    info.destroy();
     studio.finished();
   } catch (error) {
     console.error(error);

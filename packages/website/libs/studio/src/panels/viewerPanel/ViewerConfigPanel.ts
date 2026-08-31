@@ -1212,7 +1212,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
         defaultOpen: false,
       });
       // Each known group's live counterpart sits at `liveView[g.key]`
-      // (camera, effects, lights, selectedMaterial, …). If that
+      // (camera, effects, lights, pointsMaterial, …). If that
       // object has its own `fromParams` (Camera, Material,
       // ResolutionScale, …), we route edits straight through it; if
       // it doesn't (effects is just a container — its children carry
@@ -1726,9 +1726,6 @@ const KNOWN_GROUPS = new Set<string>([
   "camera",
   "effects",
   "lights",
-  "selectedMaterial",
-  "highlightMaterial",
-  "xrayMaterial",
   "pointsMaterial",
   "resolutionScale",
   "sectionPlanes",
@@ -1738,9 +1735,6 @@ const KNOWN_GROUPS_LABELS: Record<string, string> = {
   camera:            "Camera",
   effects:           "Effects",
   lights:            "Lights",
-  selectedMaterial:  "Selected Material",
-  highlightMaterial: "Highlight Material",
-  xrayMaterial:      "X-Ray Material",
   pointsMaterial:    "Points Material",
   resolutionScale:   "Resolution Scale",
   sectionPlanes:     "Section Planes",
@@ -1881,7 +1875,7 @@ function looksLikeIBL(params: any, liveTarget?: any): boolean {
  *      world-space vectors that happen to be normalised.
  *   3. The key name contains "color" (case-insensitive). Catches
  *      `color`, `backgroundColor`, `fillColor`, `edgeColor`,
- *      `selectedMaterial.fillColor`, etc., without false-firing
+ *      `styleBins[].fillColor`, etc., without false-firing
  *      on `up`, `eye`, `look`, `worldUp`, etc.
  */
 function looksLikeColor(key: string | number, arr: number[]): boolean {

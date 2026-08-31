@@ -146,10 +146,10 @@
  *          {
  *             title: "Select Object",
  *             getEnabled: (context) => {
- *                 return (!context.entity.selected); // Can't select an entity that's already selected
+ *                 return (!context.entity.hasStyleBin("selected")); // Already in the application selection bin
  *             },
  *             doAction: function (context) {
- *                 context.entity.selected = true;
+ *                 context.entity.setStyleBin("selected", true);
  *             }
  *          }
  *       ],
@@ -157,10 +157,10 @@
  *          {
  *             title: "X-Ray Object",
  *             getEnabled: (context) => {
- *                 return (!context.entity.xrayed); // Can't X-ray an entity that's already X-rayed
+ *                 return (!context.entity.hasStyleBin("xrayed")); // Already in the application x-ray bin
  *             },
  *             doAction: (context) => {
- *                 context.entity.xrayed = true;
+ *                 context.entity.setStyleBin("xrayed", true);
  *             }
  *          }
  *       ]
@@ -223,19 +223,22 @@
  *       [
  *          {
  *              getTitle: (context) => {
- *                  return (!context.entity.selected) ? "Select" : "Undo Select";
+ *                  return (!context.entity.hasStyleBin("selected")) ? "Select" : "Undo Select";
  *              },
  *              doAction: function (context) {
- *                  context.entity.selected = !context.entity.selected;
+ *                  context.entity.setStyleBin("selected", !context.entity.hasStyleBin("selected"));
  *              }
  *          },
  *          {
  *              title: "Clear Selection",
  *              getEnabled: function (context) {
- *                  return (context.viewer.scene.numSelectedObjects > 0);
+ *                  return (context.viewer.view.styleBins.getObjectIds("selected").length > 0);
  *              },
  *              doAction: function (context) {
- *                  context.viewer.scene.setObjectsSelected(context.viewer.scene.selectedObjectIds, false);
+ *                  context.viewer.view.setObjectsInStyleBin(
+ *                      "selected",
+ *                      context.viewer.view.styleBins.getObjectIds("selected"),
+ *                      false);
  *              }
  *          }
  *       ]

@@ -54,7 +54,7 @@ export class TriangleDrawBinSubmitter {
     return drawResult;
   }
 
-  public drawEmphasisBatchLists(params: {
+  public drawStyleBinBatchLists(params: {
     passEncoder: WebGPURenderPassEncoderLike;
     commandStateTracker: CommandStateTracker;
     frameBindGroup: WebGPUBindGroupLike;
@@ -62,34 +62,40 @@ export class TriangleDrawBinSubmitter {
     triangleDrawOps: RenderPassDrawOps;
     batches: InstancedDrawBatches;
     transparent: boolean;
-    flatColorMode: boolean;
   }): SDKResult<void> {
-    const fillDrawOp = params.flatColorMode
-      ? (params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque)
-      : (params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque);
-    const fillTechnique = params.flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique";
     const fillMissingMessage = params.transparent
       ? "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
       : "[RenderManager.renderView] Opaque triangle draw operation was not initialized.";
     const entries = params.transparent
       ? [
-          ["XRAYED_TRANSPARENT", params.batches.xrayedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
-          ["XRAYED_EDGES_TRANSPARENT", params.batches.xrayedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-          ["HIGHLIGHTED_TRANSPARENT", params.batches.highlightedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
-          ["HIGHLIGHTED_EDGES_TRANSPARENT", params.batches.highlightedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-          ["SELECTED_TRANSPARENT", params.batches.selectedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
-          ["SELECTED_EDGES_TRANSPARENT", params.batches.selectedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
+          ["STYLE_BIN_TRANSPARENT", params.batches.styleBinTransparent, fillMissingMessage],
+          ["STYLE_BIN_EDGES_TRANSPARENT", params.batches.styleBinEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
         ] as const
       : [
-          ["XRAYED_OPAQUE", params.batches.xrayedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
-          ["XRAYED_EDGES_OPAQUE", params.batches.xrayedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-          ["HIGHLIGHTED_OPAQUE", params.batches.highlightedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
-          ["HIGHLIGHTED_EDGES_OPAQUE", params.batches.highlightedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-          ["SELECTED_OPAQUE", params.batches.selectedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
-          ["SELECTED_EDGES_OPAQUE", params.batches.selectedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
+          ["STYLE_BIN_OPAQUE", params.batches.styleBinOpaque, fillMissingMessage],
+          ["STYLE_BIN_EDGES_OPAQUE", params.batches.styleBinEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
         ] as const;
 
-    for (const [renderPass, batches, technique, drawOp, missingMessage] of entries) {
+    for (const entry of entries) {
+      if (entry.length === 3) {
+        const [renderPass, batches, missingMessage] = entry;
+        const result = this._drawTriangleFillBatchList({
+          passEncoder: params.passEncoder,
+          commandStateTracker: params.commandStateTracker,
+          frameBindGroup: params.frameBindGroup,
+          instanceBindGroup: params.instanceBindGroup,
+          triangleDrawOps: params.triangleDrawOps,
+          batches,
+          renderPass,
+          transparent: params.transparent,
+          missingMessage
+        });
+        if (result.ok === false) {
+          return result;
+        }
+        continue;
+      }
+      const [renderPass, batches, technique, drawOp, missingMessage] = entry;
       const result = this.drawBatchList({
         passEncoder: params.passEncoder,
         commandStateTracker: params.commandStateTracker,
@@ -97,6 +103,61 @@ export class TriangleDrawBinSubmitter {
         instanceBindGroup: params.instanceBindGroup,
         batches,
         renderPass,
+        technique,
+        drawOp,
+        missingMessage
+      });
+      if (result.ok === false) {
+        return result;
+      }
+    }
+
+    return this._ok();
+  }
+
+  private _drawTriangleFillBatchList(params: {
+    passEncoder: WebGPURenderPassEncoderLike;
+    commandStateTracker: CommandStateTracker;
+    frameBindGroup: WebGPUBindGroupLike;
+    instanceBindGroup: WebGPUBindGroupLike;
+    triangleDrawOps: RenderPassDrawOps;
+    batches: InstancedDrawBatch[];
+    renderPass: string;
+    transparent: boolean;
+    missingMessage: string;
+  }): SDKResult<void> {
+    const flatBatches = params.batches.filter((batch) => batch.packedBatch.triangleRenderClass === "flat");
+    const noNormalsBatches = params.batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals !== true);
+    const pbrBatches = params.batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals === true);
+    const entries = [
+      [
+        flatBatches,
+        "TrianglesDrawColorFlatTechnique",
+        params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque,
+        params.missingMessage
+      ],
+      [
+        noNormalsBatches,
+        "TrianglesDrawColorNoNormalsTechnique",
+        params.transparent ? params.triangleDrawOps.noNormalsTransparent : params.triangleDrawOps.noNormalsOpaque,
+        params.missingMessage
+      ],
+      [
+        pbrBatches,
+        "TrianglesDrawColorTechnique",
+        params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque,
+        params.missingMessage
+      ]
+    ] as const;
+
+    for (const [batches, technique, drawOp, missingMessage] of entries) {
+      const result = this.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches,
+        renderPass: params.renderPass,
         technique,
         drawOp,
         missingMessage

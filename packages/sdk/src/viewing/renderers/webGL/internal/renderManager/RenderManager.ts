@@ -49,16 +49,16 @@ interface ExtensionHandles {
  * `RenderManager` is responsible for:
  * - Translating {@link MeshBatch} state into concrete WebGL draw calls
  * - Managing GPU state (depth, blending, culling) across render phases
- * - Executing multi-pass rendering (opaque, transparent, edges, x-ray, highlight, selection)
+ * - Executing multi-pass rendering (opaque, transparent, edges, and style-bin rendering)
  * - Binding draw programs via {@link DrawOps}
  *
  * ### Rendering model
  * Rendering is performed in phases:
  * 1. Opaque geometry
  * 2. Opaque edges
- * 3. X-ray / highlighted / selected silhouettes (opaque)
+ * 3. Style-bin silhouettes (opaque)
  * 4. Transparent geometry & edges (with blending)
- * 5. X-ray / highlighted / selected silhouettes (transparent)
+ * 5. Style-bin silhouettes (transparent)
  *
  * Meshes are grouped into bins per phase to ensure correct ordering and
  * minimal GPU state changes.
@@ -114,18 +114,12 @@ export class RenderManager {
     normalEdgesOpaque: [],
     normalFillTransparent: [],
     normalEdgesTransparent: [],
-    xrayedSilhouetteOpaque: [],
-    xrayEdgesOpaque: [],
-    xrayedSilhouetteTransparent: [],
-    xrayEdgesTransparent: [],
-    highlightedSilhouetteOpaque: [],
-    highlightedEdgesOpaque: [],
-    highlightedSilhouetteTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedSilhouetteOpaque: [],
-    selectedEdgesOpaque: [],
-    selectedSilhouetteTransparent: [],
-    selectedEdgesTransparent: [],
+    styleBinFillOpaque: [],
+    styleBinOverlayOpaque: [],
+    styleBinEdgesOpaque: [],
+    styleBinFillTransparent: [],
+    styleBinOverlayTransparent: [],
+    styleBinEdgesTransparent: [],
   };
 
   /** Sorts mesh batches into {@link _bins} once per frame. Stateless helper. */
@@ -966,8 +960,9 @@ export class RenderManager {
     renderContext.shadowCascadeCount = 0;
 
     this._drawEdgeBin(bins.normalEdgesOpaque, "opaqueEdges", "opaqueEdgesThick", RENDER_BINS.EDGES_OPAQUE, view);
-    this._drawBin(bins.xrayedSilhouetteOpaque, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
-    this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
+    this._drawBin(bins.styleBinFillOpaque, "styleBin", RENDER_BINS.STYLE_BIN_FILL_OPAQUE);
+    this._drawBin(bins.styleBinEdgesOpaque, "styleBinEdges", RENDER_BINS.STYLE_BIN_EDGES_OPAQUE);
+    this._drawStyleBinClearDepthBeforeOverlays(view);
 
     // Gaussian splats: after opaque (so they depth-test against it), before the
     // transparent mesh pass. Lazily compile the optional splat program only
@@ -982,27 +977,6 @@ export class RenderManager {
     this._renderTransparents(view);
 
     gl.disable(gl.CULL_FACE);
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-
-    // Always-on-top opaque silhouettes (highlighted/selected). Each edge bin
-    // clears the depth buffer first so its lines aren't z-occluded by the
-    // silhouette fill we just laid down.
-    this._drawBin(bins.highlightedSilhouetteOpaque, "highlighted", RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE);
-    if (bins.highlightedEdgesOpaque.length) gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.highlightedEdgesOpaque, "highlightedEdges");
-    this._drawBin(bins.selectedSilhouetteOpaque, "selected");
-    if (bins.selectedEdgesOpaque.length) gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.selectedEdgesOpaque, "selectedEdges");
-
-    // Always-on-top transparent silhouettes.
-    gl.enable(gl.BLEND);
-    this._drawBin(bins.highlightedSilhouetteTransparent, "highlighted", RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
-    if (bins.highlightedEdgesTransparent.length) gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.highlightedEdgesTransparent, "highlightedEdges");
-    this._drawBin(bins.selectedSilhouetteTransparent, "selected", RENDER_BINS.SELECTED_SILHOUETTE_TRANSPARENT);
-    if (bins.selectedEdgesTransparent.length) gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.selectedEdgesTransparent, "selectedEdges");
-    gl.disable(gl.BLEND);
 
     // SceneMesh.bin overlay batches used to render here, into the
     // HDR scene target. They now render *after*
@@ -1062,6 +1036,34 @@ export class RenderManager {
     depthBuffer.unbind();
     renderContext.sceneDepthTexture = depthBuffer.getDepthTexture();
     renderContext.lastProgramId = -1;
+  }
+
+  private _drawStyleBinClearDepthBeforeOverlays(view: import("../../../../viewer").View): void {
+    const bins = this._bins;
+    if (!bins.styleBinOverlayOpaque.length) {
+      return;
+    }
+    const gl = this._renderContext.gl;
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.GREATER);
+    gl.depthMask(false);
+    this._drawBin(bins.styleBinOverlayOpaque, "styleBinOverlay", RENDER_BINS.STYLE_BIN_FILL_OPAQUE);
+    this._drawEdgeBin(bins.styleBinOverlayOpaque, "styleBinOverlayEdges", "styleBinOverlayEdges", RENDER_BINS.STYLE_BIN_EDGES_OPAQUE, view);
+    gl.depthFunc(gl.LEQUAL);
+    gl.depthMask(true);
+  }
+
+  private _drawStyleBinClearDepthBeforeTransparentOverlays(): void {
+    const bins = this._bins;
+    if (!bins.styleBinOverlayTransparent.length) {
+      return;
+    }
+    const gl = this._renderContext.gl;
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.GREATER);
+    gl.depthMask(false);
+    this._drawBin(bins.styleBinOverlayTransparent, "styleBinOverlayTransparent", RENDER_BINS.STYLE_BIN_FILL_TRANSPARENT);
+    gl.depthFunc(gl.LEQUAL);
   }
 
   private _ensureGaussianSplats(): boolean {
@@ -1347,8 +1349,9 @@ export class RenderManager {
     if (
       !bins.normalFillTransparent.length &&
       !bins.normalEdgesTransparent.length &&
-      !bins.xrayedSilhouetteTransparent.length &&
-      !bins.xrayEdgesTransparent.length
+      !bins.styleBinFillTransparent.length &&
+      !bins.styleBinOverlayTransparent.length &&
+      !bins.styleBinEdgesTransparent.length
     ) {
       return;
     }
@@ -1362,8 +1365,8 @@ export class RenderManager {
     renderContext.backfaces = false;
     gl.depthMask(false);
 
-    this._drawBin(bins.xrayEdgesTransparent, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_TRANSPARENT);
-    this._drawBin(bins.xrayedSilhouetteTransparent, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_TRANSPARENT);
+    this._drawBin(bins.styleBinEdgesTransparent, "styleBinEdgesTransparent", RENDER_BINS.STYLE_BIN_EDGES_TRANSPARENT);
+    this._drawBin(bins.styleBinFillTransparent, "styleBinTransparent", RENDER_BINS.STYLE_BIN_FILL_TRANSPARENT);
 
     if (bins.normalEdgesTransparent.length || bins.normalFillTransparent.length) {
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -1371,6 +1374,7 @@ export class RenderManager {
 
     this._drawEdgeBin(bins.normalEdgesTransparent, "transparentEdges", "transparentEdgesThick", RENDER_BINS.EDGES_TRANSPARENT, view);
     this._drawBin(bins.normalFillTransparent, "transparent", RENDER_BINS.TRANSPARENT);
+    this._drawStyleBinClearDepthBeforeTransparentOverlays();
 
     gl.disable(gl.BLEND);
     gl.depthMask(true);

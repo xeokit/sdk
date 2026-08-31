@@ -627,7 +627,8 @@ export class ExplorerPanel extends FloatingPanelBase {
   // ── Per-row actions (Select / Frame) ─────────────────────────
 
   /**
-   * Toggle selection for every {@link viewing!viewer.ViewObject | ViewObject} under
+   * Toggle membership in the Studio "selected" style bin for every
+   * {@link viewing!viewer.ViewObject | ViewObject} under
    * `node`. If *any* matching view-object is currently
    * unselected, the action selects them all; otherwise it
    * deselects. Walks `node.childNodes` recursively so a
@@ -636,9 +637,11 @@ export class ExplorerPanel extends FloatingPanelBase {
   private _toggleSelectionForNode(node: TreeViewNode): void {
     const objs = this._collectViewObjectsUnderNode(node);
     if (objs.length === 0) return;
-    const allSelected = objs.every((o) => o.selected);
+    const allSelected = objs.every((o) => o.hasStyleBin("selected"));
     const next = !allSelected;
-    for (const o of objs) o.selected = next;
+    for (const o of objs) {
+      o.setStyleBin("selected", next);
+    }
   }
 
   /**
@@ -909,4 +912,3 @@ function unionAABB(objs: ReadonlyArray<ViewObject>): Float64Array | null {
   if (!hit) return null;
   return new Float64Array([minX, minY, minZ, maxX, maxY, maxZ]);
 }
-

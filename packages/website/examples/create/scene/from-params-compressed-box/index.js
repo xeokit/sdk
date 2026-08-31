@@ -83,8 +83,8 @@ studio.init().then(() => {
   // SceneObject. That ViewObject can be used to control the appearance
   // of the box within the View.
 
-  // view.objects["boxObject"].highlighted = true;
-  // view.setObjectsHighlighted(view.highlightedObjectIds, false);
+  // view.objects["boxObject"].setStyleBin("highlighted", true);
+  // view.setObjectsInStyleBin("highlighted", view.styleBins.getObjectIds("highlighted"), false);
 
   // Signal that the demo has finished initializing.
   studio.openInfoPanelFromMeta();

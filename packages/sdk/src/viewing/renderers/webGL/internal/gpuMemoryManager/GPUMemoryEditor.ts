@@ -115,6 +115,8 @@ export interface GPUMemoryEditor {
       opacity?: number; // float 0..1
       clippable?: boolean;
       pickable?: boolean;
+      styleBinEdges?: boolean;
+      styleBinClearDepthBefore?: boolean;
     }
   ): void;
 

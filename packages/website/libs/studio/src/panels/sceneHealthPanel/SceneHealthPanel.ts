@@ -2886,10 +2886,10 @@ export class SceneHealthPanel extends FloatingPanelBase {
     if (!this._view || objectIds.length === 0) return;
     const view = this._view;
     const allIds = Object.keys(view.objects);
-    view.setObjectsHighlighted(allIds, false);
-    view.setObjectsXRayed(allIds, true);
-    view.setObjectsXRayed(objectIds, false);
-    view.setObjectsHighlighted(objectIds, true);
+    view.setObjectsInStyleBin("highlighted", allIds, false);
+    view.setObjectsInStyleBin("xrayed", allIds, true);
+    view.setObjectsInStyleBin("xrayed", objectIds, false);
+    view.setObjectsInStyleBin("highlighted", objectIds, true);
 
     if (!this._studio) return;
     const idx = this._studio.picking.collisionIndex;
@@ -2917,8 +2917,8 @@ export class SceneHealthPanel extends FloatingPanelBase {
   private _clearLocate(): void {
     if (!this._view) return;
     const allIds = Object.keys(this._view.objects);
-    this._view.setObjectsHighlighted(allIds, false);
-    this._view.setObjectsXRayed(allIds, false);
+    this._view.setObjectsInStyleBin("highlighted", allIds, false);
+    this._view.setObjectsInStyleBin("xrayed", allIds, false);
   }
 
 

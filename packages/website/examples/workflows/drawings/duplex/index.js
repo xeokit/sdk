@@ -514,8 +514,8 @@ studio.init().then(() => {
               break;
             }
           }
-          view.setObjectsSelected(view.selectedObjectIds, false);
-          if (srcId) view.setObjectsSelected([srcId], true);
+          view.setObjectsInStyleBin("selected", view.styleBins.getObjectIds("selected"), false);
+          if (srcId) view.setObjectsInStyleBin("selected", [srcId], true);
         });
 
         studio.finished();

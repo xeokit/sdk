@@ -151,6 +151,9 @@ export class MeshBatchImpl implements MeshBatch {
    */
   public readonly gpuMemoryBatchIndex: number;
 
+  private readonly _styleBinClearDepthBeforeCounts: Uint32Array;
+  private readonly _styleBinClearDepthBeforeFlags: Uint8Array;
+
   /**
    * Creates a new MeshBatchImpl instance.
    * @param batchParams
@@ -172,6 +175,8 @@ export class MeshBatchImpl implements MeshBatch {
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
+    this._styleBinClearDepthBeforeCounts = new Uint32Array(renderContext.memoryConfigs.maxViews);
+    this._styleBinClearDepthBeforeFlags = new Uint8Array(renderContext.memoryConfigs.maxViews * renderContext.memoryConfigs.maxBatchMeshes);
     this.primitive = primitive;
     this.hasNormals = hasNormals === true;
     this.hasUVs = hasUVs === true;
@@ -237,6 +242,10 @@ export class MeshBatchImpl implements MeshBatch {
     return batchViewResources.renderPassPrimitiveRanges.get(<number>renderPass)?.numPrims! > 0;
   }
 
+  public hasStyleBinClearDepthBefore(viewIndex: number): boolean {
+    return this._styleBinClearDepthBeforeCounts[viewIndex] > 0;
+  }
+
   /**
    * Checks if there are any meshes in this batch that should be rendered in the edge render pass for the given view.
    *
@@ -292,6 +301,13 @@ export class MeshBatchImpl implements MeshBatch {
   public removeMesh(meshHandle: MeshBatchMeshHandle): void {
     const gpuMeshHandle = meshHandle as GPUMemoryMeshHandle;
     const sceneMesh = this._gpuMemoryManager.getMeshAtIndex(this.gpuMemoryBatchIndex, gpuMeshHandle.meshIndex);
+    for (let viewIndex = 0; viewIndex < this._styleBinClearDepthBeforeCounts.length; viewIndex++) {
+      const stateIndex = viewIndex * this._renderContext.memoryConfigs.maxBatchMeshes + gpuMeshHandle.meshIndex;
+      if (this._styleBinClearDepthBeforeFlags[stateIndex]) {
+        this._styleBinClearDepthBeforeFlags[stateIndex] = 0;
+        this._styleBinClearDepthBeforeCounts[viewIndex]--;
+      }
+    }
     this._gpuMemoryManager.removeMesh(gpuMeshHandle);
     if (sceneMesh) {
       this.numIndices -= getMeshIndexCount(sceneMesh);
@@ -377,39 +393,44 @@ export class MeshBatchImpl implements MeshBatch {
   }
 
   /**
-   * Sets per-view mesh highlight state.
+   * Routes a mesh to the generic style-bin render pass for this view.
    */
-  public setMeshHighlighted(viewIndex: number, meshHandle: MeshBatchMeshHandle, highlighted: boolean, transparent: boolean): void {
-    if (highlighted) {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.HIGHLIGHTED);
-    } else {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
-        transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE);
-    }
+  public setMeshStyleBin(viewIndex: number, meshHandle: MeshBatchMeshHandle, transparent: boolean): void {
+    this._gpuMemoryManager.setMeshRenderPass(
+      meshHandle as GPUMemoryMeshHandle,
+      viewIndex,
+      transparent ? RENDER_PASSES.STYLE_BIN_TRANSPARENT : RENDER_PASSES.STYLE_BIN_OPAQUE
+    );
   }
 
   /**
-   * Sets per-view mesh x-ray state.
+   * Sets whether this mesh should draw edges when routed through a style-bin pass.
    */
-  public setMeshXRayed(viewIndex: number, meshHandle: MeshBatchMeshHandle, xrayed: boolean, transparent: boolean): void {
-    if (xrayed) {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex, RENDER_PASSES.XRAYED);
-    } else {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
-        transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE);
-    }
+  public setMeshStyleBinEdges(viewIndex: number, meshHandle: MeshBatchMeshHandle, edges: boolean): void {
+    this._gpuMemoryManager.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
+      styleBinEdges: edges
+    });
   }
 
   /**
-   * Sets per-view mesh selected state.
+   * Sets whether this mesh participates in the style-bin depth-cleared overlay.
    */
-  public setMeshSelected(viewIndex: number, meshHandle: MeshBatchMeshHandle, selected: boolean, transparent: boolean): void {
-    if (selected) {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.SELECTED);
-    } else {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
-        transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE);
+  public setMeshStyleBinClearDepthBefore(viewIndex: number, meshHandle: MeshBatchMeshHandle, clearDepthBefore: boolean): void {
+    const meshIndex = (meshHandle as GPUMemoryMeshHandle).meshIndex;
+    const stateIndex = viewIndex * this._renderContext.memoryConfigs.maxBatchMeshes + meshIndex;
+    const next = clearDepthBefore ? 1 : 0;
+    const prev = this._styleBinClearDepthBeforeFlags[stateIndex];
+    if (prev !== next) {
+      this._styleBinClearDepthBeforeFlags[stateIndex] = next;
+      if (next) {
+        this._styleBinClearDepthBeforeCounts[viewIndex]++;
+      } else {
+        this._styleBinClearDepthBeforeCounts[viewIndex]--;
+      }
     }
+    this._gpuMemoryManager.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
+      styleBinClearDepthBefore: clearDepthBefore
+    });
   }
 
   // (setMeshClippable defined above — clippable state writes

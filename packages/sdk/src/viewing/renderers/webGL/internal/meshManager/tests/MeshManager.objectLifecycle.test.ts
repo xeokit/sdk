@@ -21,9 +21,8 @@ function createRendererMesh(numViews = 2) {
     setObjectVisible: jest.fn((viewIndex: number, visible: boolean) => {
       objectVisible[viewIndex] = visible;
     }),
-    setXRayed: jest.fn(),
-    setHighlighted: jest.fn(),
-    setSelected: jest.fn(),
+    setStyleBin: jest.fn(),
+    clearStyleBin: jest.fn(),
     setCulled: jest.fn(),
     setPickable: jest.fn(),
     setClippable: jest.fn(),

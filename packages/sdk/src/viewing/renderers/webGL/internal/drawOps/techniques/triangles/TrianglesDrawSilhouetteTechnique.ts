@@ -1,7 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Draw technique for rendering triangle mesh silhouettes (xray / highlight / selected fill).
+ * Draw technique for rendering triangle mesh style-bin silhouettes.
  * Applies a flat uniform color over all triangles; no lighting is computed.
  * @internal
  */
@@ -12,12 +12,13 @@ export class TrianglesDrawSilhouetteTechnique extends DrawTechnique {
   constructor(
     renderContext,
     gpuMemoryReader,
-    opts: { vboGeometry?: boolean; vboTileUniform?: boolean; vboViewAttributes?: boolean; logDepth?: boolean } = {},
+    opts: { vboGeometry?: boolean; vboTileUniform?: boolean; vboViewAttributes?: boolean; logDepth?: boolean; styleBinOverlay?: boolean } = {},
   ) {
     super(renderContext, gpuMemoryReader, {
       vboGeometry: opts.vboGeometry === true,
       vboTileUniform: opts.vboTileUniform === true,
       vboViewAttributes: opts.vboViewAttributes === true,
+      styleBinOverlay: opts.styleBinOverlay === true,
       logDepth: opts.logDepth === true,
     });
   }

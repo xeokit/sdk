@@ -245,6 +245,8 @@ export class TriangleGeometryVBOBatch {
     const opacities = new Uint8Array(this._maxViews);
     const pickables = new Uint8Array(this._maxViews);
     const clippables = new Uint8Array(this._maxViews);
+    const styleBinEdges = new Uint8Array(this._maxViews);
+    const styleBinClearDepthBefore = new Uint8Array(this._maxViews);
     for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
       colors.push(new Uint8Array([
         clampTriangleGeometryVBOByte(params.color[0], 255),
@@ -254,6 +256,8 @@ export class TriangleGeometryVBOBatch {
       opacities[viewIndex] = clampTriangleGeometryVBOByte(params.opacity, 255);
       pickables[viewIndex] = 1;
       clippables[viewIndex] = 1;
+      styleBinEdges[viewIndex] = 1;
+      styleBinClearDepthBefore[viewIndex] = 0;
     }
 
     const record: TriangleGeometryVBOMeshRecord = {
@@ -269,6 +273,8 @@ export class TriangleGeometryVBOBatch {
       opacities,
       pickables,
       clippables,
+      styleBinEdges,
+      styleBinClearDepthBefore,
       meshViewStates: this._views.map(() => ({
         renderPass: RENDER_PASSES.OPAQUE,
         visible: true
@@ -365,6 +371,8 @@ export class TriangleGeometryVBOBatch {
       opacity?: number;
       pickable?: boolean;
       clippable?: boolean;
+      styleBinEdges?: boolean;
+      styleBinClearDepthBefore?: boolean;
     }
   ): void {
     const record = this._meshRecords.get(meshIndex);
@@ -397,6 +405,16 @@ export class TriangleGeometryVBOBatch {
       const clippable = params.clippable ? 1 : 0;
       dirty = dirty || record.clippables[viewIndex] !== clippable;
       record.clippables[viewIndex] = clippable;
+    }
+    if (params.styleBinEdges !== undefined) {
+      const styleBinEdges = params.styleBinEdges ? 1 : 0;
+      dirty = dirty || record.styleBinEdges[viewIndex] !== styleBinEdges;
+      record.styleBinEdges[viewIndex] = styleBinEdges;
+    }
+    if (params.styleBinClearDepthBefore !== undefined) {
+      const styleBinClearDepthBefore = params.styleBinClearDepthBefore ? 1 : 0;
+      dirty = dirty || record.styleBinClearDepthBefore[viewIndex] !== styleBinClearDepthBefore;
+      record.styleBinClearDepthBefore[viewIndex] = styleBinClearDepthBefore;
     }
     if (dirty) {
       this._writeMeshViewAttributes(record, viewIndex);
@@ -802,8 +820,8 @@ export class TriangleGeometryVBOBatch {
       colors[offset + 3] = opacity;
       renderFlags[offset] = record.pickables[viewIndex];
       renderFlags[offset + 1] = record.clippables[viewIndex];
-      renderFlags[offset + 2] = 0;
-      renderFlags[offset + 3] = 0;
+      renderFlags[offset + 2] = record.styleBinEdges[viewIndex];
+      renderFlags[offset + 3] = record.styleBinClearDepthBefore[viewIndex];
     }
     this._buffers.markColorDirty(view, record.vertexBase, record.vertexCount);
     this._buffers.markRenderFlagDirty(view, record.vertexBase, record.vertexCount);

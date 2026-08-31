@@ -570,7 +570,8 @@ export class MeshManager {
   ): void {
     const meshState = drawItem.meshState;
     const viewObject = this._getViewObject(meshState.mesh, view);
-    const color = this.getMeshDrawStyleInView(meshState, view).color;
+    const style = drawItem.style ?? this.getMeshDrawStyleInView(meshState, view);
+    const color = style.color;
 
     this._ensureMeshMatrices(meshState);
 

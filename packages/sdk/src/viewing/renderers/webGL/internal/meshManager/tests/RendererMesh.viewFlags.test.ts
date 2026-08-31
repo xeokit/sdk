@@ -14,8 +14,12 @@ function createRendererMesh(maxViews: number) {
   const meshBatch = {
     removeMesh: jest.fn(),
     setMeshMatrix: jest.fn(),
+    setMeshColorInView: jest.fn(),
     setMeshOpacityInView: jest.fn(),
     setMeshPlacement: jest.fn(),
+    setMeshStyleBin: jest.fn(),
+    setMeshStyleBinEdges: jest.fn(),
+    setMeshStyleBinClearDepthBefore: jest.fn(),
     setMeshTile: jest.fn(),
     setMeshTransparent: jest.fn(),
     setMeshVisible: jest.fn(),
@@ -60,5 +64,43 @@ describe("RendererMesh view flags", () => {
 
     expect((rendererMesh as any)._viewFlags).toBeInstanceOf(Uint8Array);
     expect((rendererMesh as any)._viewFlags).toHaveLength(2);
+  });
+
+  test("style-bin color and opacity stay on the normal render-pass route", () => {
+    const {rendererMesh, meshBatch, meshHandle} = createRendererMesh(1);
+
+    rendererMesh.setStyleBin(0, [0.25, 0.5, 1], 1, true, true);
+
+    expect(meshBatch.setMeshColorInView).toHaveBeenCalledWith(0, meshHandle, [63, 127, 255]);
+    expect(meshBatch.setMeshOpacityInView).toHaveBeenCalledWith(0, meshHandle, 1);
+    expect(meshBatch.setMeshStyleBinEdges).toHaveBeenCalledWith(0, meshHandle, true);
+    expect(meshBatch.setMeshStyleBinClearDepthBefore).toHaveBeenCalledWith(0, meshHandle, true);
+    expect(meshBatch.setMeshTransparent).toHaveBeenCalledWith(0, meshHandle, false);
+    expect(meshBatch.setMeshStyleBin).not.toHaveBeenCalled();
+  });
+
+  test("transparent style-bin opacity uses the normal transparent route", () => {
+    const {rendererMesh, meshBatch, meshHandle} = createRendererMesh(1);
+
+    rendererMesh.setStyleBin(0, [1, 0.5, 0.25], 0.4, false, false);
+
+    expect(meshBatch.setMeshOpacityInView).toHaveBeenCalledWith(0, meshHandle, 0.4);
+    expect(meshBatch.setMeshStyleBinEdges).toHaveBeenCalledWith(0, meshHandle, false);
+    expect(meshBatch.setMeshStyleBinClearDepthBefore).toHaveBeenCalledWith(0, meshHandle, false);
+    expect(meshBatch.setMeshTransparent).toHaveBeenCalledWith(0, meshHandle, true);
+    expect(meshBatch.setMeshStyleBin).not.toHaveBeenCalled();
+  });
+
+  test("clearing a style bin restores the saved base transparent route", () => {
+    const {rendererMesh, meshBatch, meshHandle} = createRendererMesh(1);
+
+    rendererMesh.setOpacity(0.5);
+    jest.clearAllMocks();
+
+    rendererMesh.setStyleBin(0, [0.25, 0.5, 1], 1, true, true);
+    rendererMesh.clearStyleBin(0);
+
+    expect(meshBatch.setMeshStyleBinClearDepthBefore).toHaveBeenLastCalledWith(0, meshHandle, false);
+    expect(meshBatch.setMeshTransparent).toHaveBeenLastCalledWith(0, meshHandle, true);
   });
 });

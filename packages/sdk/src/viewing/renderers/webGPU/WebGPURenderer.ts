@@ -457,7 +457,7 @@ export class WebGPURenderer implements Renderer {
   /**
    * Captures the current contents of a View as an image data URL.
    *
-   * Snapshots are not implemented until the WebGPU rendering pipeline exists.
+   * Snapshot capture is not implemented for the WebGPU backend yet.
    *
    * @param view - View to snapshot.
    * @returns An SDK error result.
@@ -686,9 +686,9 @@ export class WebGPURenderer implements Renderer {
           viewManager.viewObjectVisibilityChanged(viewObject);
         }
       }),
-      viewerEvents.onViewObjectXRayedChanged.subscribe((_view, viewObject) => {
+      viewerEvents.onViewObjectStyleBinChanged.subscribe((_view, event) => {
         if (this._viewManager === viewManager) {
-          viewManager.viewObjectXRayedChanged(viewObject);
+          viewManager.viewObjectStyleBinChanged(event.viewObject, event.styleBinId, event.membership);
         }
       }),
       viewerEvents.onViewObjectClippableChanged.subscribe((_view, viewObject) => {
@@ -699,16 +699,6 @@ export class WebGPURenderer implements Renderer {
       viewerEvents.onViewObjectCulledChanged.subscribe((_view, viewObject) => {
         if (this._viewManager === viewManager) {
           viewManager.viewObjectCulledChanged(viewObject);
-        }
-      }),
-      viewerEvents.onViewObjectHighlightedChanged.subscribe((_view, viewObject) => {
-        if (this._viewManager === viewManager) {
-          viewManager.viewObjectHighlightedChanged(viewObject);
-        }
-      }),
-      viewerEvents.onViewObjectSelectedChanged.subscribe((_view, viewObject) => {
-        if (this._viewManager === viewManager) {
-          viewManager.viewObjectSelectedChanged(viewObject);
         }
       }),
       viewerEvents.onViewObjectColorizeChanged.subscribe((_view, viewObject) => {

@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebGL + WebGPU - Style Bins</title>
+    <link rel="icon" href="data:,">
+    <link href="../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #101820;
+            color: #172033;
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        #styleBinBar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: minmax(180px, 260px) minmax(0, 1fr) minmax(280px, 520px);
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            min-height: 74px;
+            padding: 10px 14px;
+            box-sizing: border-box;
+            background: rgba(248, 250, 252, 0.96);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.2);
+        }
+
+        #styleBinTitle {
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        #styleBinSummary {
+            margin-top: 4px;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 650;
+            line-height: 1.25;
+        }
+
+        #styleBinControls {
+            display: flex;
+            flex: 1 1 auto;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        #styleBinControls button {
+            height: 32px;
+            padding: 0 11px;
+            border: 1px solid rgba(15, 23, 42, 0.24);
+            border-radius: 4px;
+            background: #ffffff;
+            color: #172033;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+            cursor: pointer;
+        }
+
+        #styleBinControls button[aria-pressed="true"] {
+            border-color: #176b5d;
+            background: #176b5d;
+            color: #ffffff;
+        }
+
+        #styleBinLegend {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .bin-card {
+            min-width: 0;
+            padding: 7px 8px;
+            border: 1px solid rgba(15, 23, 42, 0.16);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.86);
+        }
+
+        .bin-card[data-enabled="false"] {
+            opacity: 0.48;
+        }
+
+        .bin-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 850;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
+
+        .swatch {
+            flex: 0 0 auto;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            border: 1px solid rgba(15, 23, 42, 0.28);
+        }
+
+        .bin-meta {
+            margin-top: 4px;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 650;
+            line-height: 1.25;
+            white-space: nowrap;
+        }
+
+        #layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            width: 100%;
+            height: 100%;
+            padding-top: 74px;
+            box-sizing: border-box;
+        }
+
+        .viewport {
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            border-right: 1px solid rgba(15, 23, 42, 0.35);
+        }
+
+        .viewport:last-child {
+            border-right: 0;
+        }
+
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #edf2f7;
+        }
+
+        .label {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            z-index: 2;
+            padding: 7px 11px;
+            border-radius: 4px;
+            background: rgba(2, 6, 23, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: 0;
+            pointer-events: none;
+        }
+
+        .status {
+            position: absolute;
+            left: 14px;
+            bottom: 14px;
+            z-index: 2;
+            max-width: min(460px, calc(100% - 28px));
+            padding: 8px 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(15, 23, 42, 0.18);
+            color: #172033;
+            font-size: 12px;
+            line-height: 1.35;
+            pointer-events: none;
+        }
+
+        .status[data-state="error"] {
+            border-color: rgba(185, 28, 28, 0.5);
+            color: #7f1d1d;
+        }
+
+        .status[data-state="warn"] {
+            border-color: rgba(180, 83, 9, 0.45);
+            color: #78350f;
+        }
+
+        @media (max-width: 1080px) {
+            #styleBinBar {
+                grid-template-columns: minmax(0, 1fr);
+                min-height: 156px;
+                align-items: flex-start;
+                gap: 7px;
+            }
+
+            #layout {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+                padding-top: 156px;
+            }
+
+            .viewport {
+                border-right: 0;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.35);
+            }
+        }
+
+        @media (max-width: 640px) {
+            #styleBinBar {
+                min-height: 210px;
+            }
+
+            #layout {
+                padding-top: 210px;
+            }
+
+            #styleBinLegend {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<header id="styleBinBar">
+    <div>
+        <div id="styleBinTitle">Style bins: click-tool demo</div>
+        <div id="styleBinSummary">Pick Xray, Select, Highlight, or Clear, then click car parts in either renderer.</div>
+    </div>
+    <div id="styleBinControls" aria-label="Shared style-bin controls"></div>
+    <div id="styleBinLegend" aria-label="Style-bin legend"></div>
+</header>
+<div id="layout">
+    <section id="webglViewport" class="viewport">
+        <canvas id="webglCanvas"></canvas>
+        <div class="label">WebGL</div>
+        <div id="webglStatus" class="status" data-state="ok">Starting WebGL.</div>
+    </section>
+    <section id="webgpuViewport" class="viewport">
+        <canvas id="webgpuCanvas"></canvas>
+        <div class="label">WebGPU</div>
+        <div id="webgpuStatus" class="status" data-state="warn">Starting WebGPU.</div>
+    </section>
+</div>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

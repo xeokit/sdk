@@ -328,14 +328,11 @@ export class RenderInspector {
       case RENDER_PASSES.TRANSPARENT:
         renderBinName = "TRANSPARENT";
         break;
-      case RENDER_PASSES.HIGHLIGHTED:
-        renderBinName = "HIGHLIGHTED";
+      case RENDER_PASSES.STYLE_BIN_OPAQUE:
+        renderBinName = "STYLE_BIN_OPAQUE";
         break;
-      case RENDER_PASSES.SELECTED:
-        renderBinName = "SELECTED";
-        break;
-      case RENDER_PASSES.XRAYED:
-        renderBinName = "XRAYED";
+      case RENDER_PASSES.STYLE_BIN_TRANSPARENT:
+        renderBinName = "STYLE_BIN_TRANSPARENT";
         break;
       case RENDER_PASSES.PICK:
         renderBinName = "PICK";

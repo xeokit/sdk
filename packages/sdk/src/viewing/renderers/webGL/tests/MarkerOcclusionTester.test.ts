@@ -29,7 +29,7 @@ function makeView(overrides: Partial<any> = {}) {
     wall: makeViewObject(),
     hidden: makeViewObject({visible: false}),
     culled: makeViewObject({culled: true}),
-    xrayed: makeViewObject({xrayed: true}),
+    ghosted: makeViewObject({styleBinIds: ["ghosted"]}),
     transparent: makeViewObject({opacityUpdated: true, opacity: 0.5}),
     global: makeViewObject(),
     global2: makeViewObject(),
@@ -54,7 +54,10 @@ function makeViewObject(overrides: Partial<any> = {}) {
   return {
     visible: true,
     culled: false,
-    xrayed: false,
+    styleBinIds: [],
+    hasStyleBin(styleBinId: string) {
+      return this.styleBinIds.includes(styleBinId);
+    },
     opacityUpdated: false,
     opacity: 1,
     clippable: true,
@@ -155,6 +158,7 @@ describe("MarkerOcclusionTester", () => {
       raycaster,
       params: {
         excludeObjectIds: ["global"],
+        excludeStyleBinIds: ["ghosted"],
         occluderFilter: (objectId) => objectId !== "global2"
       }
     });
@@ -171,7 +175,7 @@ describe("MarkerOcclusionTester", () => {
     expect(filter("wall")).toBe(true);
     expect(filter("hidden")).toBe(false);
     expect(filter("culled")).toBe(false);
-    expect(filter("xrayed")).toBe(false);
+    expect(filter("ghosted")).toBe(false);
     expect(filter("transparent")).toBe(false);
     expect(filter("global")).toBe(false);
     expect(filter("global2")).toBe(false);

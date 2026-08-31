@@ -52,6 +52,8 @@ export type TriangleGeometryVBOMeshRecord = {
   opacities: Uint8Array;
   pickables: Uint8Array;
   clippables: Uint8Array;
+  styleBinEdges: Uint8Array;
+  styleBinClearDepthBefore: Uint8Array;
   meshViewStates: TriangleGeometryVBOMeshViewState[];
 };
 
@@ -104,9 +106,8 @@ export type TriangleGeometryVBOViewState = {
 export const TRIANGLE_GEOMETRY_VBO_PASS_ORDER: RenderPassValue[] = [
   RENDER_PASSES.OPAQUE,
   RENDER_PASSES.TRANSPARENT,
-  RENDER_PASSES.HIGHLIGHTED,
-  RENDER_PASSES.SELECTED,
-  RENDER_PASSES.XRAYED
+  RENDER_PASSES.STYLE_BIN_OPAQUE,
+  RENDER_PASSES.STYLE_BIN_TRANSPARENT
 ];
 
 export const TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length;

@@ -4,7 +4,7 @@ import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
 
 // Create the demo helper. This helper initializes the shared rendering
 // context and provides utilities for configuring and running the demo.
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({ renderer: "webgl" });
 
 // Define a large world-space offset. This is used to position the model
 // far from the origin while keeping its local transforms simple.
@@ -38,7 +38,8 @@ studio
                 0, 1, 0, // Up
                 0, 0, 1  // Forward
               ],
-              origin: [0, 0, 0]
+              origin: [0, 0, 0],
+              units: "meters"
             }
         });
 

@@ -28,8 +28,8 @@ export interface EdgesParams {
    * the fixed {@link EdgesParams.edgeColor | edgeColor} — so edges read as a
    * shaded outline of each object rather than one uniform colour.
    *
-   * Only affects the base edges effect — x-ray / highlight / selected edges
-   * always use their emphasis material's colour.
+   * Only affects the base edges effect. Edges drawn by a style bin use that
+   * bin's edge colour.
    *
    * Default value is ````true````.
    */

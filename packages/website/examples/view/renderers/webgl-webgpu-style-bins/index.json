@@ -1,0 +1,33 @@
+{
+  "id": "view/renderers/webgl-webgpu-style-bins",
+  "title": "WebGL + WebGPU - Style Bins",
+  "description": "Runs WebGL and WebGPU viewers against the SportsCar XGF model with ordinary style bins named xrayed, selected, and highlighted, applied by click tools.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Viewing",
+    "Style Bins",
+    "WebGL",
+    "WebGPU"
+  ],
+  "visualAudit": {
+    "enabled": true,
+    "selectors": [
+      "#webglViewport",
+      "#webgpuViewport"
+    ],
+    "minUniqueBuckets": 10,
+    "minNonBackgroundRatio": 0.04,
+    "maskSelectors": [
+      "#styleBinBar",
+      ".label",
+      ".status"
+    ],
+    "comparePairs": [
+      {
+        "a": "#webglViewport",
+        "b": "#webgpuViewport"
+      }
+    ]
+  }
+}

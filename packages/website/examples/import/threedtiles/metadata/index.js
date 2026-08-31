@@ -172,13 +172,13 @@ studio.init().then(async () => {
         return;
       }
       if (selectedRecord?.objectIds?.length) {
-        view.setObjectsHighlighted(selectedRecord.objectIds, false);
+        view.setObjectsInStyleBin("highlighted", selectedRecord.objectIds, false);
         view.setObjectsColorized(selectedRecord.objectIds, null);
       }
       selectedRecord = record;
       if (record.objectIds.length) {
         view.setObjectsColorized(record.objectIds, record.colorize);
-        view.setObjectsHighlighted(record.objectIds, true);
+        view.setObjectsInStyleBin("highlighted", record.objectIds, true);
       }
       [...tiles.querySelectorAll(".tileButton")].forEach((button) => {
         button.classList.toggle("selected", Number(button.dataset.index) === index + 1);

@@ -33,6 +33,7 @@ const enum ViewStateBits {
   ObjectVisible = 1 << 3,
   MeshVisible = 1 << 4,
   LODSuppressed = 1 << 5,
+  StyleBin = 1 << 6,
 }
 
 /**
@@ -45,7 +46,7 @@ const enum ViewStateBits {
  * - `RendererMesh` instances are managed and batched by {@link MeshBatchImpl}, which organizes compatible meshes for efficient GPU upload and draw calls.
  * - The {@link MeshManager} (or MeshBatchRegistry) coordinates the creation, update, and removal of `RendererMesh` instances, responding to scene/view changes and synchronizing with the GPU memory manager.
  * - Maintains a reference to its assigned {@link GPUTile}, which defines the mesh's RTC (Relative To Center) coordinate system for high-precision rendering.
- * - Tracks per-view state such as color, opacity, visibility, highlighting, selection, and x-ray status.
+ * - Tracks per-view state such as color, opacity, visibility, and resolved style-bin treatment.
  * - Handles updates to transformation matrices and notifies the GPU memory manager when changes require re-upload.
  * - All tiling, RTC, and GPU memory logic is encapsulated by the memory management layer.
  *
@@ -171,7 +172,7 @@ export class RendererMesh {
   setColor(color: Vec3) {
     const q = quantizeColor3(color, tempQuantizedRGB);
     for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
-      if (!this._hasFlag(viewIndex, ViewStateBits.Colorizing)) {
+      if (!this._hasFlag(viewIndex, ViewStateBits.Colorizing) && !this._hasFlag(viewIndex, ViewStateBits.StyleBin)) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, q);
       }
     }
@@ -192,10 +193,11 @@ export class RendererMesh {
   setOpacity(opacity: number) {
     const transparent = opacity < 1.0;
     for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
-      if (!this._hasFlag(viewIndex, ViewStateBits.ColoringOpacity)) {
+      if (!this._hasFlag(viewIndex, ViewStateBits.ColoringOpacity) && !this._hasFlag(viewIndex, ViewStateBits.StyleBin)) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       }
-      if (this._hasFlag(viewIndex, ViewStateBits.Transparent) !== transparent) {
+      if (!this._hasFlag(viewIndex, ViewStateBits.StyleBin) &&
+          this._hasFlag(viewIndex, ViewStateBits.Transparent) !== transparent) {
         this._setFlag(viewIndex, ViewStateBits.Transparent, transparent);
         this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
       }
@@ -276,54 +278,53 @@ export class RendererMesh {
   setOpacityInView(viewIndex: number, opacity: number | null) {
     this._assertViewIndex(viewIndex, "setOpacityInView");
     if (opacity !== null) {
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       this._setFlag(viewIndex, ViewStateBits.ColoringOpacity, true);
+      if (!this._hasFlag(viewIndex, ViewStateBits.StyleBin)) {
+        this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
+        const transparent = opacity < 1.0;
+        this._setFlag(viewIndex, ViewStateBits.Transparent, transparent);
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
+      }
     } else {
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.effectiveOpacity);
       this._setFlag(viewIndex, ViewStateBits.ColoringOpacity, false);
+      if (!this._hasFlag(viewIndex, ViewStateBits.StyleBin)) {
+        const opacityDefault = this._sceneMesh.effectiveOpacity;
+        this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacityDefault);
+        const transparent = opacityDefault < 1.0;
+        this._setFlag(viewIndex, ViewStateBits.Transparent, transparent);
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
+      }
     }
   }
 
   /**
-   * Sets the highlight state of the mesh for a specific view.
-   * Called by {@link RendererObject.setHighlighted}.
+   * Applies the resolved style-bin treatment for a specific view.
    */
-  setHighlighted(viewIndex: number, highlighted: boolean) {
-    this._assertViewIndex(viewIndex, "setHighlighted");
-    this._meshBatch.setMeshHighlighted(
-      viewIndex,
-      this._meshHandle,
-      highlighted,
-      this._hasFlag(viewIndex, ViewStateBits.Transparent)
-    );
+  setStyleBin(viewIndex: number, color: Vec3, opacity: number, edges: boolean, clearDepthBefore: boolean) {
+    this._assertViewIndex(viewIndex, "setStyleBin");
+    const q = quantizeColor3(color, tempQuantizedRGB);
+    const clampedOpacity = Math.max(0, Math.min(1, opacity));
+    const transparent = clampedOpacity < 1.0;
+    this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, q);
+    this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, clampedOpacity);
+    this._meshBatch.setMeshStyleBinEdges(viewIndex, this._meshHandle, edges);
+    this._meshBatch.setMeshStyleBinClearDepthBefore(viewIndex, this._meshHandle, clearDepthBefore);
+    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
+    this._setFlag(viewIndex, ViewStateBits.StyleBin, true);
   }
 
   /**
-   * Sets the x-ray state of the mesh for a specific view.
-   * Called by {@link RendererObject.setXRayed}.
+   * Clears the resolved style-bin treatment for a specific view.
    */
-  setXRayed(viewIndex: number, xrayed: boolean) {
-    this._assertViewIndex(viewIndex, "setXRayed");
-    this._meshBatch.setMeshXRayed(
-      viewIndex,
-      this._meshHandle,
-      xrayed,
-      this._hasFlag(viewIndex, ViewStateBits.Transparent)
-    );
-  }
-
-  /**
-   * Sets the selection state of the mesh for a specific view.
-   * Called by {@link RendererObject.setSelected}.
-   */
-  setSelected(viewIndex: number, selected: boolean) {
-    this._assertViewIndex(viewIndex, "setSelected");
-    this._meshBatch.setMeshSelected(
-      viewIndex,
-      this._meshHandle,
-      selected,
-      this._hasFlag(viewIndex, ViewStateBits.Transparent)
-    );
+  clearStyleBin(viewIndex: number) {
+    this._assertViewIndex(viewIndex, "clearStyleBin");
+    if (!this._hasFlag(viewIndex, ViewStateBits.StyleBin)) {
+      return;
+    }
+    this._setFlag(viewIndex, ViewStateBits.StyleBin, false);
+    this._meshBatch.setMeshStyleBinEdges(viewIndex, this._meshHandle, true);
+    this._meshBatch.setMeshStyleBinClearDepthBefore(viewIndex, this._meshHandle, false);
+    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, this._hasFlag(viewIndex, ViewStateBits.Transparent));
   }
 
   /**

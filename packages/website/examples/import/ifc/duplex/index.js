@@ -115,7 +115,7 @@ studio.init().then(() => {
 
                   // Select the matching furnishing objects in the View so that
                   // they are visually distinguished in the loaded model.
-                  view.setObjectsSelected(resultObjectIds, true);
+                  view.setObjectsInStyleBin("selected", resultObjectIds, true);
                 }
 
                 // Signal that loading and setup have completed.

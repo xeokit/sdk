@@ -16,6 +16,16 @@ import {ViewTransform} from "./ViewTransform";
 import {Effect} from "./Effect";
 
 /**
+ * Event payload emitted when a {@link ViewObject | ViewObject}'s membership in
+ * a style bin changes.
+ */
+export interface ViewObjectStyleBinChangedEvent {
+  viewObject: ViewObject;
+  styleBinId: string;
+  membership: boolean;
+}
+
+/**
  * Events emitted by a {@link viewing!viewer.Viewer | Viewer}.
  */
 export class ViewerEvents {
@@ -103,28 +113,10 @@ export class ViewerEvents {
   readonly onViewObjectVisibleChanged: EventEmitter<View, ViewObject>;
 
   /**
-   * Emits an event each time the selected state of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
-   *
-   * ViewObjects are selected with {@link View.setObjectsSelected},
-   * {@link ViewLayer.setObjectsSelected} or {@link ViewObject.selected}.
+   * Emits an event each time a {@link viewing!viewer.ViewObject | ViewObject}'s
+   * membership in a named style bin changes.
    */
-  readonly onViewObjectSelectedChanged: EventEmitter<View, ViewObject>;
-
-  /**
-   * Emits an event each time the highlight state of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
-   *
-   * ViewObjects are highlighted with {@link View.setObjectsHighlighted},
-   * {@link ViewLayer.setObjectsHighlighted} or {@link ViewObject.highlighted}.
-   */
-  readonly onViewObjectHighlightedChanged: EventEmitter<View, ViewObject>;
-
-  /**
-   * Emits an event each time the X-ray state of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
-   *
-   * ViewObjects are X-rayed with {@link View.setObjectsXRayed},
-   * {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
-   */
-  readonly onViewObjectXRayedChanged: EventEmitter<View, ViewObject>;
+  readonly onViewObjectStyleBinChanged: EventEmitter<View, ViewObjectStyleBinChangedEvent>;
 
   /**
    * Emits an event each time the clippable state of a
@@ -297,9 +289,7 @@ export class ViewerEvents {
     this.onViewObjectCreated = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectDestroyed = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectVisibleChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
-    this.onViewObjectSelectedChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
-    this.onViewObjectHighlightedChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
-    this.onViewObjectXRayedChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
+    this.onViewObjectStyleBinChanged = new EventEmitter(new EventDispatcher<View, ViewObjectStyleBinChangedEvent>());
     this.onViewObjectClippableChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectCulledChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectColorizeChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
@@ -342,11 +332,9 @@ export class ViewerEvents {
     this.onViewObjectCreated.clear();
     this.onViewObjectDestroyed.clear();
     this.onViewObjectVisibleChanged.clear();
-    this.onViewObjectXRayedChanged.clear();
+    this.onViewObjectStyleBinChanged.clear();
     this.onViewObjectClippableChanged.clear();
     this.onViewObjectCulledChanged.clear();
-    this.onViewObjectSelectedChanged.clear();
-    this.onViewObjectHighlightedChanged.clear();
     this.onViewObjectColorizeChanged.clear();
     this.onViewObjectOpacityChanged.clear();
     this.onViewObjectPickableChanged.clear();

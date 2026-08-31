@@ -7,7 +7,6 @@ import {Camera} from "./Camera";
 import {createUUID} from "../../base/utils";
 import {createVec3Float64} from "../../base/math/vector";
 import {DirLight} from "./DirLight";
-import {Effect} from "./Effect";
 import {LinesMaterial} from "./LinesMaterial";
 import type {PointLight} from "./PointLight";
 import {PointsMaterial} from "./PointsMaterial";
@@ -36,12 +35,13 @@ import type {EdgesParams} from "./EdgesParams";
 import type {IBLParams} from "./IBLParams";
 import type {HemisphereAmbientParams} from "./HemisphereAmbientParams";
 import type {SkyParams} from "./SkyParams";
-import type {EffectParams} from "./EffectParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 import type {TexturingParams} from "./TexturingParams";
 import {ViewTransformParams} from "./ViewTransformParams";
 import {ViewTransform} from "./ViewTransform";
+import {ViewStyleBins} from "./ViewStyleBins";
+import type {ViewStyleBinParams} from "./ViewStyleBinParams";
 
 function getSceneObjectLayerId(sceneObject: SceneObject): string {
   return sceneObject.layerId || "default";
@@ -134,19 +134,12 @@ class View {
   public readonly texturing: Texturing;
 
   /**
-   * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
+   * User-defined bins that style ViewObjects in this View.
+   *
+   * No style-bin ID is created automatically or treated specially by the
+   * viewer. Applications define whichever bins they need.
    */
-  readonly xrayMaterial: Effect;
-
-  /**
-   * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
-   */
-  readonly highlightMaterial: Effect;
-
-  /**
-   * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
-   */
-  readonly selectedMaterial: Effect;
+  public readonly styleBins: ViewStyleBins;
 
   /**
    * Configures resolution scaling for this View.
@@ -182,32 +175,6 @@ class View {
    */
   readonly visibleObjects: { [key: string]: ViewObject };
 
-  /**
-   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
-   *
-   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  readonly xrayedObjects: { [key: string]: ViewObject };
-
-  /**
-   * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
-   *
-   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  readonly highlightedObjects: { [key: string]: ViewObject };
-
-  /**
-   * Map of currently selected {@link ViewObject | ViewObjects} in this View.
-   *
-   * A ViewObject is selected when {@link ViewObject.selected} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  readonly selectedObjects: { [key: string]: ViewObject };
 
   /**
    * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
@@ -284,12 +251,6 @@ class View {
   private _objectIds: string[] | null;
   private _numVisibleObjects: number;
   private _visibleObjectIds: string[] | null;
-  private _numXRayedObjects: number;
-  private _xrayedObjectIds: string[] | null;
-  private _numHighlightedObjects: number;
-  private _highlightedObjectIds: string[] | null;
-  private _numSelectedObjects: number;
-  private _selectedObjectIds: string[] | null;
   private _numColorizedObjects: number;
   private _colorizedObjectIds: string[] | null;
   private _numOpacityObjects: number;
@@ -341,9 +302,6 @@ class View {
     this.viewIndex = 0;
     this.objects = {};
     this.visibleObjects = {};
-    this.xrayedObjects = {};
-    this.highlightedObjects = {};
-    this.selectedObjects = {};
     this.colorizedObjects = {};
     this.opacityObjects = {};
     this.sectionPlanes = {};
@@ -357,12 +315,6 @@ class View {
     this._objectIds = null;
     this._numVisibleObjects = 0;
     this._visibleObjectIds = null;
-    this._numXRayedObjects = 0;
-    this._xrayedObjectIds = null;
-    this._numHighlightedObjects = 0;
-    this._highlightedObjectIds = null;
-    this._numSelectedObjects = 0;
-    this._selectedObjectIds = null;
     this._numColorizedObjects = 0;
     this._colorizedObjectIds = null;
     this._numOpacityObjects = 0;
@@ -384,10 +336,6 @@ class View {
     //     premultipliedAlpha: !!viewParams.premultipliedAlpha
     // });
     //
-    // this.canvas.viewCanvasBoundary.subscribe(() => {
-    //     this.needsRender();
-    // });
-
     // this.viewCanvasBoundary = new EventEmitter(
     //   new EventDispatcher<View, IntArrayParam>()
     // );
@@ -421,42 +369,7 @@ class View {
 
     this.texturing = new Texturing(this, viewParams.texturing || {});
 
-    this.xrayMaterial = new Effect(this, viewParams.xrayMaterial || {
-      // Conventional "x-ray ghost" — cool pale-blue body, translucent enough
-      // to see through but solid enough not to wash out, with fully-opaque
-      // dark edges so silhouettes read clearly through stacked geometry.
-      fill: true,
-      fillColor: [0.85, 0.9, 1.0],
-      fillAlpha: 0.35,
-      edges: true,
-      edgeColor: [0.1, 0.15, 0.25],
-      edgeAlpha: 1.0,
-      edgeWidth: 1,
-    });
-
-    this.highlightMaterial = new Effect(this, viewParams.highlightMaterial || {
-      // Warm amber "hover" — less harsh than pure yellow, with a darker
-      // same-hue edge so the silhouette reads on any background.
-      fill: true,
-      fillColor: [1.0, 0.78, 0.25],
-      fillAlpha: 0.4,
-      edges: true,
-      edgeColor: [0.55, 0.35, 0.05],
-      edgeAlpha: 1.0,
-      edgeWidth: 1,
-    });
-
-    this.selectedMaterial = new Effect(this, viewParams.selectedMaterial || {
-      // Cool teal "committed" — pairs with the warm highlight (warm = hot/
-      // hovered, cool = locked-in). Darker teal edge for clean silhouettes.
-      fill: true,
-      fillColor: [0.1, 0.7, 1.0],
-      fillAlpha: 0.4,
-      edges: true,
-      edgeColor: [0.05, 0.3, 0.55],
-      edgeAlpha: 1.0,
-      edgeWidth: 1,
-    });
+    this.styleBins = new ViewStyleBins(this, viewParams.styleBins || []);
 
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
       enabled: false,
@@ -645,21 +558,6 @@ class View {
       delete this.visibleObjects[objectId];
       this._numVisibleObjects--;
       this._visibleObjectIds = null;
-    }
-    if (this.xrayedObjects[objectId]) {
-      delete this.xrayedObjects[objectId];
-      this._numXRayedObjects--;
-      this._xrayedObjectIds = null;
-    }
-    if (this.highlightedObjects[objectId]) {
-      delete this.highlightedObjects[objectId];
-      this._numHighlightedObjects--;
-      this._highlightedObjectIds = null;
-    }
-    if (this.selectedObjects[objectId]) {
-      delete this.selectedObjects[objectId];
-      this._numSelectedObjects--;
-      this._selectedObjectIds = null;
     }
     if (this.colorizedObjects[objectId]) {
       delete this.colorizedObjects[objectId];
@@ -868,57 +766,6 @@ class View {
   }
 
   /**
-   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
-   */
-  get numXRayedObjects(): number {
-    return this._numXRayedObjects;
-  }
-
-  /**
-   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
-   */
-  get xrayedObjectIds(): string[] {
-    if (!this._xrayedObjectIds) {
-      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
-    }
-    return this._xrayedObjectIds;
-  }
-
-  /**
-   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
-   */
-  get numHighlightedObjects(): number {
-    return this._numHighlightedObjects;
-  }
-
-  /**
-   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
-   */
-  get highlightedObjectIds(): string[] {
-    if (!this._highlightedObjectIds) {
-      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
-    }
-    return this._highlightedObjectIds;
-  }
-
-  /**
-   * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
-   */
-  get numSelectedObjects(): number {
-    return this._numSelectedObjects;
-  }
-
-  /**
-   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
-   */
-  get selectedObjectIds(): string[] {
-    if (!this._selectedObjectIds) {
-      this._selectedObjectIds = Object.keys(this.selectedObjects);
-    }
-    return this._selectedObjectIds;
-  }
-
-  /**
    * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
    */
   get numColorizedObjects(): number {
@@ -976,29 +823,6 @@ class View {
   }
 
   /**
-   * Called by ViewObject.xrayed setter.
-   * @private
-   */
-  objectXRayedUpdated(
-      viewObject: ViewObject,
-      xrayed: boolean,
-      notify: boolean = true
-  ) {
-    if (xrayed) {
-      this.xrayedObjects[viewObject.id] = viewObject;
-      this._numXRayedObjects++;
-    } else {
-      delete this.xrayedObjects[viewObject.id];
-      this._numXRayedObjects--;
-    }
-    this._xrayedObjectIds = null; // Lazy regenerate
-    if (notify) {
-      this.viewer.events.onViewObjectXRayedChanged.dispatch(this, viewObject);
-    }
-    this.needsRender();
-  }
-
-  /**
    * Called by ViewObject.clippable setter.
    * @private
    */
@@ -1038,46 +862,20 @@ class View {
   }
 
   /**
-   * Called by ViewObject.highlighted setter.
+   * Called by ViewObject.setStyleBin.
    * @private
    */
-  objectHighlightedUpdated(
+  objectStyleBinUpdated(
       viewObject: ViewObject,
-      highlighted: boolean,
-      notify: boolean = true) {
-    if (highlighted) {
-      this.highlightedObjects[viewObject.id] = viewObject;
-      this._numHighlightedObjects++;
-    } else {
-      delete this.highlightedObjects[viewObject.id];
-      this._numHighlightedObjects--;
-    }
-    this._highlightedObjectIds = null; // Lazy regenerate
-    if (notify) {
-      this.viewer.events.onViewObjectHighlightedChanged.dispatch(this, viewObject);
-    }
-    this.needsRender();
-  }
-
-  /**
-   * Called by ViewObject.selected setter.
-   * @private
-   */
-  objectSelectedUpdated(
-      viewObject: ViewObject,
-      selected: boolean,
-      notify: boolean = true) {
-    if (selected) {
-      this.selectedObjects[viewObject.id] = viewObject;
-      this._numSelectedObjects++;
-    } else {
-      delete this.selectedObjects[viewObject.id];
-      this._numSelectedObjects--;
-    }
-    this._selectedObjectIds = null; // Lazy regenerate
-    if (notify) {
-      this.viewer.events.onViewObjectSelectedChanged.dispatch(this, viewObject);
-    }
+      styleBinId: string,
+      membership: boolean
+  ) {
+    this.styleBins._objectMembershipUpdated(styleBinId, viewObject, membership);
+    this.viewer.events.onViewObjectStyleBinChanged.dispatch(this, {
+      viewObject,
+      styleBinId,
+      membership
+    });
     this.needsRender();
   }
 
@@ -1306,7 +1104,7 @@ class View {
   }
 
   /**
-   * @private
+   * @internal
    */
   needsRender() {
     if (this._needsRender) {
@@ -1441,23 +1239,15 @@ class View {
   }
 
   /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
-   *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-   * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * Adds or removes the given ViewObjects from a named style bin.
    */
-  setObjectsSelected(objectIds: string[], selected: boolean): boolean {
+  setObjectsInStyleBin(styleBinId: string, objectIds: readonly string[], membership: boolean): SDKResult<boolean> {
     if (this.destroyed) {
-      this.viewer.logError({
+      return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[View.setObjectsSelected] View already destroyed"
-      });
-      return;
+        error: "[View.setObjectsInStyleBin] View already destroyed"
+      };
     }
 
     let changed = false;
@@ -1468,87 +1258,16 @@ class View {
       if (!viewObject) {
         continue;
       }
-      if (viewObject.selected !== selected) {
-        viewObject.selected = selected;
+      const result = viewObject.setStyleBin(styleBinId, membership);
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
         changed = true;
       }
     }
 
-    return changed;
-  }
-
-  /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
-   *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-   * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsHighlighted(objectIds: string[], highlighted: boolean): boolean {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[View.setObjectsHighlighted] View already destroyed"
-      });
-      return;
-    }
-
-    let changed = false;
-    const objects = this.objects;
-
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.highlighted !== highlighted) {
-        viewObject.highlighted = highlighted;
-        changed = true;
-      }
-    }
-
-    return changed;
-  }
-
-  /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
-   *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-   * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsXRayed(objectIds: string[], xrayed: boolean): boolean {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[View.setObjectsXRayed] View already destroyed"
-      });
-      return;
-    }
-
-    let changed = false;
-    const objects = this.objects;
-
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.xrayed !== xrayed) {
-        viewObject.xrayed = xrayed;
-        changed = true;
-      }
-    }
-
-    return changed;
+    return {ok: true, value: changed};
   }
 
   /**
@@ -2057,22 +1776,20 @@ class View {
         return result;
       }
     }
-    if (viewParams.highlightMaterial) {
-      const result = this.highlightMaterial.fromParams(viewParams.highlightMaterial);
-      if (result.ok === false) {
-        return result;
-      }
-    }
-    if (viewParams.selectedMaterial) {
-      const result = this.selectedMaterial.fromParams(viewParams.selectedMaterial);
-      if (result.ok === false) {
-        return result;
-      }
-    }
-    if (viewParams.xrayMaterial) {
-      const result = this.xrayMaterial.fromParams(viewParams.xrayMaterial);
-      if (result.ok === false) {
-        return result;
+    if (viewParams.styleBins) {
+      for (const styleBinParams of viewParams.styleBins) {
+        const existing = this.styleBins.get(styleBinParams.id);
+        if (existing) {
+          const result = existing.fromParams(styleBinParams);
+          if (result.ok === false) {
+            return result;
+          }
+        } else {
+          const result = this.styleBins.create(styleBinParams);
+          if (result.ok === false) {
+            return result as SDKResult<void>;
+          }
+        }
       }
     }
     if (viewParams.pointsMaterial) {
@@ -2124,9 +1841,7 @@ class View {
           hemispheric:      (<{ value: HemisphereAmbientParams   }>this.lights.hemispheric.toParams()).value
         },
         texturing: (<{ value: TexturingParams }>this.texturing.toParams()).value,
-        highlightMaterial: (<{ value: EffectParams }>this.highlightMaterial.toParams()).value,
-        selectedMaterial: (<{ value: EffectParams }>this.selectedMaterial.toParams()).value,
-        xrayMaterial: (<{ value: EffectParams }>this.xrayMaterial.toParams()).value,
+        styleBins: (<{ value: ViewStyleBinParams[] }>this.styleBins.toParams()).value,
         pointsMaterial: (<{ value: PointsMaterialParams }>this.pointsMaterial.toParams()).value,
         resolutionScale: (<{ value: ResolutionScaleParams }>this.resolutionScale.toParams()).value
       }
@@ -2182,6 +1897,10 @@ class View {
 
   private _destroyViewObject(viewObject: ViewObject, autoDestroyLayer: boolean = true) {
     const viewLayer = viewObject.layer;
+    const styleBinIds = viewObject.styleBinIds;
+    for (let i = 0, len = styleBinIds.length; i < len; i++) {
+      viewObject.setStyleBin(styleBinIds[i], false);
+    }
     this._deattachViewObject(viewObject);
     viewLayer._deattachViewObject(viewObject);
     viewObject.destroyed = true;

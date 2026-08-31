@@ -816,13 +816,11 @@ export class WebGLRenderer implements Renderer {
       // ViewObject visual state changes
 
       viewerEvents.onViewObjectVisibleChanged.subscribe((view, viewObject) => viewManager.viewObjectVisibilityChanged(viewObject)),
-      viewerEvents.onViewObjectXRayedChanged.subscribe((view, viewObject) => viewManager.viewObjectXRayedChanged(viewObject)),
       viewerEvents.onViewObjectClippableChanged.subscribe((view, viewObject) => viewManager.viewObjectClippableChanged(viewObject)),
       viewerEvents.onViewObjectCulledChanged.subscribe((view, viewObject) => viewManager.viewObjectCulledChanged(viewObject)),
-      viewerEvents.onViewObjectHighlightedChanged.subscribe((view, viewObject) => viewManager.viewObjectHighlightedChanged(viewObject)),
-      viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
       viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),
       viewerEvents.onViewObjectOpacityChanged.subscribe((view, viewObject) => viewManager.viewObjectOpacityChanged(viewObject)),
+      viewerEvents.onViewObjectStyleBinChanged.subscribe((_view, event) => viewManager.viewObjectStyleBinChanged(event.viewObject, event.styleBinId, event.membership)),
       viewerEvents.onViewObjectPickableChanged.subscribe((view, viewObject) => viewManager.viewObjectPickableChanged(viewObject)),
 
       // Camera updates

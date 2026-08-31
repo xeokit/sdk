@@ -124,7 +124,7 @@ studio.init().then(() => {
 
                   // Apply an X-ray effect to all objects in the third view,
                   // making them semi-transparent for inspection.
-                  view3.setObjectsXRayed(view3.objectIds, true);
+                  view3.setObjectsInStyleBin("xrayed", view3.objectIds, true);
 
                   // Signal that loading and setup have completed.
                   studio.openInfoPanelFromMeta();

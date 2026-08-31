@@ -45,18 +45,10 @@ export class RenderBinClassifier {
     bins.normalDrawOpaque.length = 0;
     bins.normalEdgesOpaque.length = 0;
     bins.normalFillTransparent.length = 0;
-    bins.xrayedFillOpaque.length = 0;
-    bins.xrayedEdgesOpaque.length = 0;
-    bins.xrayedFillTransparent.length = 0;
-    bins.xrayedEdgesTransparent.length = 0;
-    bins.highlightedFillOpaque.length = 0;
-    bins.highlightedEdgesOpaque.length = 0;
-    bins.highlightedFillTransparent.length = 0;
-    bins.highlightedEdgesTransparent.length = 0;
-    bins.selectedFillOpaque.length = 0;
-    bins.selectedEdgesOpaque.length = 0;
-    bins.selectedFillTransparent.length = 0;
-    bins.selectedEdgesTransparent.length = 0;
+    bins.styleBinFillOpaque.length = 0;
+    bins.styleBinEdgesOpaque.length = 0;
+    bins.styleBinFillTransparent.length = 0;
+    bins.styleBinEdgesTransparent.length = 0;
     this._drawItemPoolCount = 0;
     resetCullStats(this._stats);
   }
@@ -74,7 +66,7 @@ export class RenderBinClassifier {
     }
 
     bins.normalFillTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
-    this._sortTransparentEmphasisBins(bins);
+    this._sortTransparentStyleBinBins(bins);
   }
 
   public classifySegments(params: {
@@ -125,7 +117,7 @@ export class RenderBinClassifier {
     }
 
     bins.normalFillTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
-    this._sortTransparentEmphasisBins(bins);
+    this._sortTransparentStyleBinBins(bins);
   }
 
   private _classifyMesh(meshState: RendererMesh, view: View, meshManager: MeshManager, bins: RenderBins, cameraCulling = false): void {
@@ -139,13 +131,8 @@ export class RenderBinClassifier {
       return;
     }
 
-    const opacity = meshManager.getMeshOpacityInView(meshState, view);
-    if (opacity <= 0) {
-      return;
-    }
-
     this._stats.considered++;
-    this._appendDrawItem(meshState, opacity, view, meshManager, bins);
+    this._appendDrawItem(meshState, 1, view, meshManager, bins);
   }
 
   private _tryAppendFullOpaqueSegment(params: {
@@ -164,7 +151,7 @@ export class RenderBinClassifier {
         return false;
       }
       const style = meshManager.getMeshDrawStyleInView(meshState, view);
-      if (style.opacity < 1 || style.alphaMode === 2) {
+      if (style.styleBinId !== null || style.opacity < 1 || style.alphaMode === 2) {
         return false;
       }
     }
@@ -177,12 +164,17 @@ export class RenderBinClassifier {
   }
 
   private _appendDrawItem(meshState: RendererMesh, opacity: number, view: View, meshManager: MeshManager, bins: RenderBins): void {
+    const style = meshManager.getMeshDrawStyleInView(meshState, view);
+    const resolvedOpacity = clamp01(opacity * style.opacity);
+    if (resolvedOpacity <= 0 && !style.drawEdges) {
+      return;
+    }
     const drawItem = this._nextDrawItem();
     drawItem.meshState = meshState;
-    drawItem.opacity = opacity;
+    drawItem.opacity = resolvedOpacity;
+    drawItem.style = style;
     this._stats.rendered++;
-    const style = meshManager.getMeshDrawStyleInView(meshState, view);
-    const isOpaque = opacity >= 1 && style.alphaMode !== 2;
+    const isOpaque = resolvedOpacity >= 1 && style.alphaMode !== 2;
     const hasEdges = style.drawEdges && meshState.geometryState.edgeIndexCount > 0;
 
     if (isOpaque) {
@@ -191,41 +183,22 @@ export class RenderBinClassifier {
       drawItem.viewDepth = meshManager.getMeshViewDepth(meshState, view);
     }
 
-    switch (style.emphasis) {
-      case "xrayed":
-        (isOpaque ? bins.xrayedFillOpaque : bins.xrayedFillTransparent).push(drawItem);
-        if (hasEdges) {
-          (isOpaque ? bins.xrayedEdgesOpaque : bins.xrayedEdgesTransparent).push(drawItem);
-        }
-        break;
-      case "highlighted":
-        (isOpaque ? bins.highlightedFillOpaque : bins.highlightedFillTransparent).push(drawItem);
-        if (hasEdges) {
-          (isOpaque ? bins.highlightedEdgesOpaque : bins.highlightedEdgesTransparent).push(drawItem);
-        }
-        break;
-      case "selected":
-        (isOpaque ? bins.selectedFillOpaque : bins.selectedFillTransparent).push(drawItem);
-        if (hasEdges) {
-          (isOpaque ? bins.selectedEdgesOpaque : bins.selectedEdgesTransparent).push(drawItem);
-        }
-        break;
-      default:
-        (isOpaque ? bins.normalDrawOpaque : bins.normalFillTransparent).push(drawItem);
-        if (isOpaque && hasEdges) {
-          bins.normalEdgesOpaque.push(drawItem);
-        }
-        break;
+    if (style.styleBinId !== null) {
+      (isOpaque ? bins.styleBinFillOpaque : bins.styleBinFillTransparent).push(drawItem);
+      if (hasEdges) {
+        (isOpaque ? bins.styleBinEdgesOpaque : bins.styleBinEdgesTransparent).push(drawItem);
       }
+    } else {
+      (isOpaque ? bins.normalDrawOpaque : bins.normalFillTransparent).push(drawItem);
+      if (isOpaque && hasEdges) {
+        bins.normalEdgesOpaque.push(drawItem);
+      }
+    }
   }
 
-  private _sortTransparentEmphasisBins(bins: RenderBins): void {
-    bins.xrayedFillTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
-    bins.xrayedEdgesTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
-    bins.highlightedFillTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
-    bins.highlightedEdgesTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
-    bins.selectedFillTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
-    bins.selectedEdgesTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
+  private _sortTransparentStyleBinBins(bins: RenderBins): void {
+    bins.styleBinFillTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
+    bins.styleBinEdgesTransparent.sort((a, b) => a.viewDepth - b.viewDepth);
   }
 
   private _isMeshInCameraView(meshState: RendererMesh, view: View, meshManager: MeshManager): boolean {
@@ -253,7 +226,8 @@ export class RenderBinClassifier {
       drawItem = {
         meshState: null as any,
         opacity: 1,
-        viewDepth: 0
+        viewDepth: 0,
+        style: null
       };
       this._drawItemPool.push(drawItem);
     }
@@ -371,6 +345,10 @@ export class RenderBinClassifier {
     const projectedHeight = Math.max(0, (bounds.maxNdcY - bounds.minNdcY) * 0.5 * height);
     return Math.max(projectedWidth, projectedHeight) < threshold;
   }
+}
+
+function clamp01(value: number): number {
+  return Math.max(0, Math.min(1, value));
 }
 
 interface ClipBounds {

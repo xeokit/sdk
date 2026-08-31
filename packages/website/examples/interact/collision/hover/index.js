@@ -10,7 +10,7 @@
 //      Y-flip subtleties of unproject()'s near/far behaviour.
 //   3. asks the BVH for every object whose world AABB intersects that ray;
 //   4. picks the nearest visible+pickable hit (BVH returns hits sorted by
-//      tEnter ascending) and routes it through view.objects[id].highlighted.
+//      tEnter ascending) and routes it through the "highlighted" style bin.
 //
 // Highlighting is at AABB granularity, not triangle precision — fast enough
 // for every-frame hover, and it doesn't need the GPU pick framebuffer.
@@ -35,11 +35,12 @@ studio.init().then(() => {
 
   // Configure highlight so the hovered object reads clearly against the
   // standard IFC palette.
-  view.highlightMaterial.fillColor   = [1.0, 0.78, 0.25];
-  view.highlightMaterial.fillAlpha   = 0.8;
-  view.highlightMaterial.fill        = true;
-  view.highlightMaterial.edgeColor   = [0.55, 0.35, 0.05];
-  view.highlightMaterial.edgeAlpha   = 1.0;
+  const highlightBin = view.styleBins.get("highlighted");
+  highlightBin.material.fillColor = [1.0, 0.78, 0.25];
+  highlightBin.material.fillAlpha = 0.8;
+  highlightBin.material.fill = true;
+  highlightBin.material.edgeColor = [0.55, 0.35, 0.05];
+  highlightBin.material.edgeAlpha = 1.0;
 
   const sceneModelResult = scene.createModel({
     id: "demoModel",
@@ -152,13 +153,13 @@ studio.init().then(() => {
 
           if (highlightedId !== null) {
             const prev = view.objects[highlightedId];
-            if (prev) prev.highlighted = false;
+            if (prev) prev.setStyleBin("highlighted", false);
           }
 
           highlightedId = pickedId;
 
           if (pickedId !== null) {
-            view.objects[pickedId].highlighted = true;
+            view.objects[pickedId].setStyleBin("highlighted", true);
             statusObjectId.textContent = pickedId;
             statusObjectId.className   = "value";
           } else {
@@ -172,7 +173,7 @@ studio.init().then(() => {
         canvas.addEventListener("mouseleave", () => {
           if (highlightedId !== null) {
             const prev = view.objects[highlightedId];
-            if (prev) prev.highlighted = false;
+            if (prev) prev.setStyleBin("highlighted", false);
             highlightedId = null;
           }
           statusObjectId.textContent = "— move mouse over model —";

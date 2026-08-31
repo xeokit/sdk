@@ -146,6 +146,8 @@ export type BatchGeometryMeshViewAttribs = {
   opacity?: number;
   pickable?: boolean;
   clippable?: boolean;
+  styleBinEdges?: boolean;
+  styleBinClearDepthBefore?: boolean;
 };
 
 /**

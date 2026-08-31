@@ -491,15 +491,7 @@ export class ViewManager {
     this.viewObjectChanged(viewObject);
   }
 
-  public viewObjectXRayedChanged(viewObject: ViewObject): void {
-    this.viewObjectChanged(viewObject);
-  }
-
-  public viewObjectHighlightedChanged(viewObject: ViewObject): void {
-    this.viewObjectChanged(viewObject);
-  }
-
-  public viewObjectSelectedChanged(viewObject: ViewObject): void {
+  public viewObjectStyleBinChanged(viewObject: ViewObject, _styleBinId: string, _membership: boolean): void {
     this.viewObjectChanged(viewObject);
   }
 

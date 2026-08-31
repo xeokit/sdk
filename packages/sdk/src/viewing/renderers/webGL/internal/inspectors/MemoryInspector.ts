@@ -13,7 +13,7 @@ import type { View } from "../../../../viewer";
  * - **RendererGPUResources** → a top-level container for GPU resources.
  * - **Batches** → groups of meshes by compatible draw state / primitive type.
  * - **Views** → per-view/per-pass state (eg. camera view, picking, etc.).
- * - **Render passes** → opaque/translucent/selected/highlighted/xrayed, etc., each with its own draw range.
+ * - **Render passes** → opaque/translucent/style-bin, etc., each with its own draw range.
  *
  * ## Example
  *
@@ -122,7 +122,7 @@ import type { View } from "../../../../viewer";
  *           console.error("Error: vertex position mismatch between data textures and scene geometry");
  *         }
  *
- *         // Lookup view-dependent mesh attributes (e.g. visibility, selection)
+ *         // Lookup view-dependent mesh attributes (e.g. visibility and style)
  *         const meshViewAttribs = batchViewResources.meshViewAttributeTexture.getItem(meshIndex);
  *
  *         const colorize = meshViewAttribs.color;
@@ -135,11 +135,9 @@ import type { View } from "../../../../viewer";
  *             break;
  *           case 1: // TRANSLUCENT
  *             break;
- *           case 2: // SELECTED
+ *           case 2: // STYLE_BIN_OPAQUE
  *             break;
- *           case 3: // HIGHLIGHTED
- *             break;
- *           case 4: // XRAYED
+ *           case 3: // STYLE_BIN_TRANSPARENT
  *             break;
  *           default:
  *             console.error("Error: unknown render pass");

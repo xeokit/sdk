@@ -11,18 +11,10 @@ function createBins(): RenderBins {
     normalDrawOpaque: [],
     normalEdgesOpaque: [],
     normalFillTransparent: [],
-    xrayedFillOpaque: [],
-    xrayedEdgesOpaque: [],
-    xrayedFillTransparent: [],
-    xrayedEdgesTransparent: [],
-    highlightedFillOpaque: [],
-    highlightedEdgesOpaque: [],
-    highlightedFillTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedFillOpaque: [],
-    selectedEdgesOpaque: [],
-    selectedFillTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinFillOpaque: [],
+    styleBinEdgesOpaque: [],
+    styleBinFillTransparent: [],
+    styleBinEdgesTransparent: []
   };
 }
 
@@ -72,7 +64,7 @@ describe("WebGPU RenderBinClassifier representation LOD", () => {
         opacity: 1,
         alphaMode: 0,
         drawEdges: false,
-        emphasis: "normal"
+        styleBinId: null
       }))
     } as unknown as MeshManager;
     const bins = createBins();
@@ -119,7 +111,7 @@ describe("WebGPU RenderBinClassifier representation LOD", () => {
         opacity: 1,
         alphaMode: 2,
         drawEdges: false,
-        emphasis: "normal"
+        styleBinId: null
       })),
       getMeshViewDepth: jest.fn(() => -10)
     } as unknown as MeshManager;

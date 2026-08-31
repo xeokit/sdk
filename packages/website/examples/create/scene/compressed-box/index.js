@@ -109,10 +109,10 @@ studio.init().then(() => {
   // The View now contains a corresponding ViewObject with the same ID as
   // the SceneObject. This allows the View to control how the object is
   // presented within that specific View.
-  view.objects["boxObject"].highlighted = true;
+  view.objects["boxObject"].setStyleBin("highlighted", true);
 
   // Immediately clear the highlight state for demonstration purposes.
-  view.setObjectsHighlighted(view.highlightedObjectIds, false);
+  view.setObjectsInStyleBin("highlighted", view.styleBins.getObjectIds("highlighted"), false);
 
   // Signal that the demo has finished initializing. This typically hides
   // any loading indicators managed by the Studio.

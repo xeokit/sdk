@@ -5,12 +5,11 @@ import type {Vec3} from "../../base/math/vector";
 import {createVec3Float32} from "../../base/math/vector";
 
 /**
- * Configures the appearance of {@link ViewObject | ViewObjects} when they are xrayed, highlighted or selected.
+ * Configures the appearance of {@link ViewObject | ViewObjects} that belong to a {@link ViewStyleBin | ViewStyleBin}.
  *
- * * Located at {@link View.xrayMaterial}, {@link View.highlightMaterial} and {@link View.selectedMaterial}.
- * * XRay a {@link viewing!viewer.ViewObject | ViewObject} by setting {@link ViewObject.xrayed} ````true````.
- * * Highlight a {@link viewing!viewer.ViewObject | ViewObject} by setting {@link ViewObject.highlighted} ````true````.
- * * Select a {@link viewing!viewer.ViewObject | ViewObject} by setting {@link ViewObject.selected} ````true````.
+ * * Located at {@link ViewStyleBin.material | ViewStyleBin.material}.
+ * * Add a {@link viewing!viewer.ViewObject | ViewObject} to a style bin with {@link ViewObject.setStyleBin | ViewObject.setStyleBin}.
+ * * Add multiple {@link viewing!viewer.ViewObject | ViewObjects} to a style bin with {@link View.setObjectsInStyleBin | View.setObjectsInStyleBin}.
  */
 class Effect {
 
@@ -27,8 +26,9 @@ class Effect {
   private _edges: boolean;
   private _fillAlpha: number;
   private _fill: boolean;
-  private _glowThrough: boolean;
+  private _clearDepthBefore: boolean;
   private _destroyed: boolean = false;
+  private readonly _onUpdated?: () => void;
 
   /**
    * @private
@@ -42,12 +42,13 @@ class Effect {
     edges?: boolean;
     fillAlpha?: number;
     fill?: boolean;
-    glowThrough?: boolean;
-  } = {}) {
+    clearDepthBefore?: boolean;
+  } = {}, onUpdated?: () => void) {
 
     this.view = view;
+    this._onUpdated = onUpdated;
 
-    this._fill = !!options.fill;
+    this._fill = options.fill !== false;
     this._fillColor = createVec3Float32(options.fillColor || [0.4, 0.4, 0.4]);
     this._fillAlpha = (options.fillAlpha !== undefined && options.fillAlpha !== null) ? options.fillAlpha : 0.2;
     this._edges = options.edges !== false;
@@ -55,11 +56,16 @@ class Effect {
     this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5;
     this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
     this._backfaces = !!options.backfaces;
-    this._glowThrough = !!options.glowThrough;
+    this._clearDepthBefore = options.clearDepthBefore === true;
+  }
+
+  private _updated(): void {
+    this.view.needsRender();
+    this._onUpdated?.();
   }
 
   /**
-   * Sets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
+   * Sets if style-bin surfaces are filled with color.
    *
    * Default is ````true````.
    */
@@ -68,11 +74,11 @@ class Effect {
       return;
     }
     this._fill = value;
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
+   * Gets if style-bin surfaces are filled with color.
    *
    * Default is ````true````.
    */
@@ -81,7 +87,7 @@ class Effect {
   }
 
   /**
-   * Sets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   * Sets the RGB surface fill color for style-bin surfaces.
    *
    * Default is ````[0.4, 0.4, 0.4]````.
    */
@@ -101,11 +107,11 @@ class Effect {
     fillColor[0] = value[0];
     fillColor[1] = value[1];
     fillColor[2] = value[2];
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   * Gets the RGB surface fill color for style-bin surfaces.
    *
    * Default is ````[0.4, 0.4, 0.4]````.
    */
@@ -114,7 +120,7 @@ class Effect {
   }
 
   /**
-   * Sets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   * Sets the transparency of style-bin surfaces.
    *
    * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
    *
@@ -125,11 +131,11 @@ class Effect {
       return;
     }
     this._fillAlpha = value;
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   * Gets the transparency of style-bin surfaces.
    *
    * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
    *
@@ -140,7 +146,7 @@ class Effect {
   }
 
   /**
-   * Sets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
+   * Sets if style-bin edges are visible.
    *
    * Default is ````true````.
    */
@@ -149,11 +155,11 @@ class Effect {
       return;
     }
     this._edges = value;
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
+   * Gets if style-bin edges are visible.
    *
    * Default is ````true````.
    */
@@ -162,7 +168,7 @@ class Effect {
   }
 
   /**
-   * Sets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
+   * Sets the RGB color of style-bin edges.
    *
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
@@ -182,11 +188,11 @@ class Effect {
     edgeColor[0] = value[0];
     edgeColor[1] = value[1];
     edgeColor[2] = value[2];
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
+   * Gets the RGB color of style-bin edges.
    *
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
@@ -195,7 +201,7 @@ class Effect {
   }
 
   /**
-   * Sets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
+   * Sets the transparency of style-bin edges.
    *
    * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
    *
@@ -206,11 +212,11 @@ class Effect {
       return;
     }
     this._edgeAlpha = value;
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
+   * Gets the transparency of style-bin edges.
    *
    * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
    *
@@ -221,17 +227,17 @@ class Effect {
   }
 
   /**
-   * Sets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
+   * Sets the width of style-bin edges.
    *
    * Default value is ````1.0```` pixels.
    */
   set edgeWidth(value: number) {
     this._edgeWidth = value;
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
+   * Gets the width of style-bin edges.
    *
    * This is not supported by WebGL implementations based on DirectX [2019].
    *
@@ -242,7 +248,7 @@ class Effect {
   }
 
   /**
-   * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
+   * Sets whether to render backfaces for style-bin surfaces when {@link Effect.fill} is ````true````.
    *
    * Default is ````false````.
    */
@@ -251,11 +257,11 @@ class Effect {
       return;
     }
     this._backfaces = value;
-    this.view.needsRender();
+    this._updated();
   }
 
   /**
-   * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
+   * Gets whether to render backfaces for style-bin surfaces when {@link Effect.fill} is ````true````.
    *
    * Default is ````false````.
    */
@@ -264,32 +270,37 @@ class Effect {
   }
 
   /**
-   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+   * Sets whether to clear the depth buffer before rendering this style bin.
    *
-   * Default is ````true````.
+   * When ````true````, objects in this style bin are also rendered in a
+   * depth-cleared style-bin pass, making the bin treatment visible through
+   * occluding geometry while leaving the object's normal rendering treatment
+   * intact.
    *
-   * Note: updating this property will not affect the appearance of objects that are already emphasized.
+   * Default is ````false````.
+   *
+   * Note: updating this property marks the View dirty but does not change membership.
    *
    * @type {Boolean}
    */
-  set glowThrough(value) {
-    value = (value !== false);
-    if (this._glowThrough === value) {
+  set clearDepthBefore(value: boolean) {
+    value = (value === true);
+    if (this._clearDepthBefore === value) {
       return;
     }
-    this._glowThrough = value;
-    this.view.needsRender();
+    this._clearDepthBefore = value;
+    this._updated();
   }
 
   /**
-   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+   * Gets whether to clear the depth buffer before rendering this style bin.
    *
-   * Default is ````true````.
+   * Default is ````false````.
    *
    * @type {Boolean}
    */
-  get glowThrough() {
-    return this._glowThrough;
+  get clearDepthBefore(): boolean {
+    return this._clearDepthBefore;
   }
 
   /**
@@ -301,9 +312,9 @@ class Effect {
 
   /**
    * Configures this Effect.
-   * @param emphasisMaterialParams
+   * @param effectParams
    */
-  fromParams(emphasisMaterialParams: EffectParams): SDKResult<any> {
+  fromParams(effectParams: EffectParams): SDKResult<any> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,
@@ -311,32 +322,32 @@ class Effect {
         error: "[Effect.fromParams] Effect has been destroyed."
       });
     }
-    if (emphasisMaterialParams.fillColor !== undefined) {
-      this.fillColor = emphasisMaterialParams.fillColor;
+    if (effectParams.fillColor !== undefined) {
+      this.fillColor = effectParams.fillColor;
     }
-    if (emphasisMaterialParams.edgeColor !== undefined) {
-      this.edgeColor = emphasisMaterialParams.edgeColor;
+    if (effectParams.edgeColor !== undefined) {
+      this.edgeColor = effectParams.edgeColor;
     }
-    if (emphasisMaterialParams.edgeWidth !== undefined) {
-      this.edgeWidth = emphasisMaterialParams.edgeWidth;
+    if (effectParams.edgeWidth !== undefined) {
+      this.edgeWidth = effectParams.edgeWidth;
     }
-    if (emphasisMaterialParams.edgeAlpha !== undefined) {
-      this.edgeAlpha = emphasisMaterialParams.edgeAlpha;
+    if (effectParams.edgeAlpha !== undefined) {
+      this.edgeAlpha = effectParams.edgeAlpha;
     }
-    if (emphasisMaterialParams.edges !== undefined) {
-      this.edges = emphasisMaterialParams.edges;
+    if (effectParams.edges !== undefined) {
+      this.edges = effectParams.edges;
     }
-    if (emphasisMaterialParams.fillAlpha !== undefined) {
-      this.fillAlpha = emphasisMaterialParams.fillAlpha;
+    if (effectParams.fillAlpha !== undefined) {
+      this.fillAlpha = effectParams.fillAlpha;
     }
-    if (emphasisMaterialParams.fill !== undefined) {
-      this.fill = emphasisMaterialParams.fill;
+    if (effectParams.fill !== undefined) {
+      this.fill = effectParams.fill;
     }
-    if (emphasisMaterialParams.backfaces !== undefined) {
-      this.backfaces = emphasisMaterialParams.backfaces;
+    if (effectParams.backfaces !== undefined) {
+      this.backfaces = effectParams.backfaces;
     }
-    if (emphasisMaterialParams.glowThrough !== undefined) {
-      this.glowThrough = emphasisMaterialParams.glowThrough;
+    if (effectParams.clearDepthBefore !== undefined) {
+      this.clearDepthBefore = effectParams.clearDepthBefore;
     }
     return {
       ok: true,
@@ -359,7 +370,7 @@ class Effect {
         edges: this._edges,
         fillAlpha: this._fillAlpha,
         fill: this._fill,
-        glowThrough: this._glowThrough
+        clearDepthBefore: this._clearDepthBefore
       }
     };
   }

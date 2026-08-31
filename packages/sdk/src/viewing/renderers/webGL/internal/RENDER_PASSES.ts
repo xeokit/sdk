@@ -26,28 +26,20 @@ export const RENDER_PASSES = {
   TRANSPARENT: 2,
 
   /**
-   * Render highlighted silhouettes.
-   * Used to accentuate objects that are highlighted.
+   * Render opaque objects using their resolved ViewStyleBin treatment.
    */
-  HIGHLIGHTED: 3,
+  STYLE_BIN_OPAQUE: 3,
 
   /**
-   * Render selected silhouettes.
-   * Used to accentuate objects that are selected.
+   * Render transparent objects using their resolved ViewStyleBin treatment.
    */
-  SELECTED: 4,
-
-  /**
-   * Render x-rayed silhouettes.
-   * Used to render objects with an x-ray effect.
-   */
-  XRAYED: 5,
+  STYLE_BIN_TRANSPARENT: 4,
 
   /**
    * Picking pass.
    * Used for object picking to determine which object is under the cursor or selected.
    */
-  PICK: 6,
+  PICK: 5,
 
   /**
    * Snap-init pass — populates the snap framebuffer's depth and view-position
@@ -55,7 +47,7 @@ export const RENDER_PASSES = {
    * centred on the cursor so the subsequent {@link RENDER_PASSES.SNAP} pass
    * can z-test vertex / edge primitives against real geometry.
    */
-  SNAP_INIT: 7,
+  SNAP_INIT: 6,
 
   /**
    * Snap pass — rasterises vertices (as 1-pixel points) or edges (as
@@ -64,7 +56,7 @@ export const RENDER_PASSES = {
    * the high-precision view-space position so JS can read back and pick
    * the nearest snap target to the cursor.
    */
-  SNAP: 8,
+  SNAP: 7,
 };
 
 

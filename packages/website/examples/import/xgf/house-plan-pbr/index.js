@@ -8,7 +8,7 @@ const {DEFAULT_VIEW_PROFILES} = xeokit.viewing.profiles;
 const PROFILE_SUN_ID = "__xeokit_studio_profile_sun";
 const XGF_URL = "../../../../models/HousePlan/xgf/model.xgf";
 
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({ renderer: "webgl" });
 
 studio.init().then(async () => {
 
@@ -37,8 +37,6 @@ studio.init().then(async () => {
   syncProfileSun(view);
 
   const status = document.getElementById("status");
-  const panel  = document.getElementById("panel");
-
   try {
     const xgfResp = await fetch(XGF_URL);
     if (!xgfResp.ok) {
@@ -69,8 +67,8 @@ studio.init().then(async () => {
     view.lights.ibl.setEnvironmentHDRBuffer(hdrBuf);
 
     status.style.display = "none";
-    panel.style.display = "block";
-    wireUpPanel(view, profiles);
+    const info = await studio.openInfoPanelFromMeta();
+    info.destroy();
     studio.finished();
   } catch (err) {
     status.textContent = `Failed to load HousePlan XGF: ${err.message || err}`;

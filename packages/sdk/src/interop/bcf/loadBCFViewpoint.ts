@@ -35,6 +35,8 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
   const reverseClippingPlanes = (params.reverseClippingPlanes === true);
   const bcfViewpoint = params.bcfViewpoint;
 
+  ensureBCFStyleBins(view);
+
   view.clearSectionPlanes();
 
   if (bcfViewpoint.clipping_planes) {
@@ -222,9 +224,9 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
 
   if (reset) {
     withFilteredViewLayers(viewLayer => {
-      viewLayer.setObjectsXRayed(viewLayer.xrayedObjectIds, false);
-      viewLayer.setObjectsHighlighted(viewLayer.highlightedObjectIds, false);
-      viewLayer.setObjectsSelected(viewLayer.selectedObjectIds, false);
+      viewLayer.setObjectsInStyleBin("xrayed", view.styleBins.getObjectIds("xrayed"), false);
+      viewLayer.setObjectsInStyleBin("highlighted", view.styleBins.getObjectIds("highlighted"), false);
+      viewLayer.setObjectsInStyleBin("selected", view.styleBins.getObjectIds("selected"), false);
     });
   }
 
@@ -263,7 +265,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         }
         if (view_setup_hints.spaces_translucent !== undefined) { // X-ray IfcSpaces
           withViewObjectsOfType("IfcSpace", viewObject => {
-            viewObject.xrayed = true;
+            viewObject.setStyleBin("xrayed", true);
           });
         }
         if (view_setup_hints.space_boundaries_visible !== undefined) {
@@ -279,27 +281,27 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         }
         if (view_setup_hints.openings_translucent !== undefined) { // X-ray IfcOpeningElements
           withViewObjectsOfType("IfcOpeningElement", viewObject => {
-            viewObject.xrayed = true;
+            viewObject.setStyleBin("xrayed", true);
           });
         }
       }
     }
     if (bcfViewpoint.components.selection) {
       withFilteredViewLayers(viewLayer => {
-        viewLayer.setObjectsSelected(viewLayer.selectedObjectIds, false);
+        viewLayer.setObjectsInStyleBin("selected", view.styleBins.getObjectIds("selected"), false);
       });
       bcfViewpoint.components.selection.forEach(
         component => withBCFComponent(component,
           viewObject => {
-            viewObject.selected = true;
+            viewObject.setStyleBin("selected", true);
           }));
     }
     if (bcfViewpoint.components.translucency) {
-      view.setObjectsXRayed(view.xrayedObjectIds, false);
+      view.setObjectsInStyleBin("xrayed", view.styleBins.getObjectIds("xrayed"), false);
       bcfViewpoint.components.translucency.forEach(
         component => withBCFComponent(component,
           viewObject => {
-            viewObject.xrayed = true;
+            viewObject.setStyleBin("xrayed", true);
           }));
     }
     if (bcfViewpoint.components.coloring) {
@@ -370,6 +372,45 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
     camera.look = look;
     camera.up = up;
     camera.projectionType = projection;
+  }
+}
+
+function ensureBCFStyleBins(view: LoadBCFViewpointParams["view"]): void {
+  if (!view.styleBins.get("xrayed")) {
+    view.styleBins.create({
+      id: "xrayed",
+      priority: 100,
+      fill: true,
+      fillColor: [0.85, 0.9, 1.0],
+      fillAlpha: 0.35,
+      edges: true,
+      edgeColor: [0.1, 0.15, 0.25],
+      edgeAlpha: 1.0
+    });
+  }
+  if (!view.styleBins.get("highlighted")) {
+    view.styleBins.create({
+      id: "highlighted",
+      priority: 200,
+      fill: true,
+      fillColor: [1.0, 0.78, 0.25],
+      fillAlpha: 0.4,
+      edges: true,
+      edgeColor: [0.55, 0.35, 0.05],
+      edgeAlpha: 1.0
+    });
+  }
+  if (!view.styleBins.get("selected")) {
+    view.styleBins.create({
+      id: "selected",
+      priority: 300,
+      fill: true,
+      fillColor: [0.1, 0.7, 1.0],
+      fillAlpha: 0.4,
+      edges: true,
+      edgeColor: [0.05, 0.3, 0.55],
+      edgeAlpha: 1.0
+    });
   }
 }
 

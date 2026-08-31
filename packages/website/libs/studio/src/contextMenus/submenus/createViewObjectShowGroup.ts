@@ -39,9 +39,9 @@ export function createViewObjectShowGroup() {
         },
         {
           getTitle: () => "X-Ray Object",
-          getEnabled: (context: ViewObjectContextMenuContext) => !context.viewObject.xrayed,
+          getEnabled: (context: ViewObjectContextMenuContext) => !context.viewObject.hasStyleBin("xrayed"),
           doAction: (context: ViewObjectContextMenuContext) => {
-            context.viewObject.xrayed = true;
+            context.viewObject.setStyleBin("xrayed", true);
           }
         },
         {
@@ -49,17 +49,17 @@ export function createViewObjectShowGroup() {
           doAction: (context: ViewObjectContextMenuContext) => {
             const {viewObject} = context;
             const {view} = viewObject;
-            view.setObjectsXRayed(view.objectIds, true);
-            viewObject.xrayed = false;
+            view.setObjectsInStyleBin("xrayed", view.objectIds, true);
+            viewObject.setStyleBin("xrayed", false);
           }
         },
         {
           // Single dynamic toggle instead of two rows where one
           // is always disabled — fewer visual distractions.
           getTitle: (context: ViewObjectContextMenuContext) =>
-            context.viewObject.selected ? "Deselect" : "Select",
+            context.viewObject.hasStyleBin("selected") ? "Deselect" : "Select",
           doAction: (context: ViewObjectContextMenuContext) => {
-            context.viewObject.selected = !context.viewObject.selected;
+            context.viewObject.setStyleBin("selected", !context.viewObject.hasStyleBin("selected"));
           }
         },
       ],
@@ -69,30 +69,31 @@ export function createViewObjectShowGroup() {
           getTitle: () => "Show All",
           getEnabled: (context: ViewObjectContextMenuContext) => {
             const {view} = context;
-            return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+            return view.numVisibleObjects < view.numObjects || view.styleBins.getObjectIds("xrayed").length > 0;
           },
           doAction: (context: ViewObjectContextMenuContext) => {
             const {view} = context;
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
             view.setObjectsVisible(view.objectIds, true);
-            view.setObjectsPickable(view.xrayedObjectIds, true);
-            view.setObjectsXRayed(view.xrayedObjectIds, false);
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
           getTitle: () => "Clear X-Ray",
-          getEnabled: (context: ViewObjectContextMenuContext) => context.view.numXRayedObjects > 0,
+          getEnabled: (context: ViewObjectContextMenuContext) => context.view.styleBins.getObjectIds("xrayed").length > 0,
           doAction: (context: ViewObjectContextMenuContext) => {
             const {view} = context;
-            const {xrayedObjectIds} = view;
-            view.setObjectsPickable(xrayedObjectIds, true);
-            view.setObjectsXRayed(xrayedObjectIds, false);
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
           getTitle: () => "Clear Selection",
-          getEnabled: (context: ViewObjectContextMenuContext) => context.view.numSelectedObjects > 0,
+          getEnabled: (context: ViewObjectContextMenuContext) => context.view.styleBins.getObjectIds("selected").length > 0,
           doAction: (context: ViewObjectContextMenuContext) => {
-            context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+            context.view.setObjectsInStyleBin("selected", context.view.styleBins.getObjectIds("selected"), false);
           }
         },
       ],

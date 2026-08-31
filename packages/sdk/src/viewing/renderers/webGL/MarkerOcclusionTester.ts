@@ -104,6 +104,7 @@ export class MarkerOcclusionTester {
     "mode" | "excludeObjectIds" | "occluderFilter">> & Pick<MarkerOcclusionTesterParams,
     "excludeObjectIds" | "occluderFilter">;
   private readonly _globalExcludeObjectIds: Set<string>;
+  private readonly _excludeStyleBinIds: readonly string[];
   private readonly _history = new Map<string, MarkerHistory>();
   private _markers: MarkerOcclusionMarker[] = [];
   private _results: MarkerOcclusionResult[] = [];
@@ -116,7 +117,7 @@ export class MarkerOcclusionTester {
     this._params = {
       depthBias: finiteNumber(params.depthBias, DEFAULT_DEPTH_BIAS),
       includeTransparent: params.includeTransparent === true,
-      includeXRayed: params.includeXRayed === true,
+      excludeStyleBinIds: params.excludeStyleBinIds ?? [],
       respectSectionPlanes: params.respectSectionPlanes !== false,
       hideDelayFrames: nonNegativeInteger(params.hideDelayFrames, DEFAULT_HIDE_DELAY_FRAMES),
       showDelayFrames: nonNegativeInteger(params.showDelayFrames, DEFAULT_SHOW_DELAY_FRAMES),
@@ -125,6 +126,7 @@ export class MarkerOcclusionTester {
       occluderFilter: params.occluderFilter
     };
     this._globalExcludeObjectIds = new Set(params.excludeObjectIds ?? []);
+    this._excludeStyleBinIds = params.excludeStyleBinIds ?? [];
   }
 
   /**
@@ -302,8 +304,10 @@ export class MarkerOcclusionTester {
     if (!viewObject || !viewObject.visible || viewObject.culled) {
       return false;
     }
-    if (!this._params.includeXRayed && viewObject.xrayed) {
-      return false;
+    for (let i = 0, len = this._excludeStyleBinIds.length; i < len; i++) {
+      if (viewObject.hasStyleBin(this._excludeStyleBinIds[i])) {
+        return false;
+      }
     }
     if (!this._params.includeTransparent && viewObject.opacityUpdated && viewObject.opacity < 1) {
       return false;

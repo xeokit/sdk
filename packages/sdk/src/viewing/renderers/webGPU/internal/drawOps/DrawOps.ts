@@ -29,8 +29,8 @@ import {
 /**
  * Owns WebGPU draw techniques and exposes primitive/render-pass draw ops.
  *
- * This is the WebGPU counterpart to WebGL DrawOps. It is intentionally small
- * for now because the WebGPU backend only has a single triangle color path.
+ * This is the WebGPU counterpart to WebGL DrawOps. It keeps pass routing
+ * separate from the concrete triangle, point, line, and splat techniques.
  *
  * @internal
  */

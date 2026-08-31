@@ -1101,10 +1101,6 @@ export class ViewManager {
     this._meshManager.viewObjectVisibilityChanged(viewObject);
   }
 
-  /**
-   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s x-ray flag changed.
-   * Forwards to {@link MeshManager} to queue GPU updates.
-   */
   public viewObjectClippableChanged(viewObject: ViewObject): void {
     this._meshManager.viewObjectClippableChanged(viewObject);
   }
@@ -1118,35 +1114,6 @@ export class ViewManager {
       return;
     }
     this._meshManager.viewObjectCulledChanged(viewObject);
-  }
-
-  public viewObjectXRayedChanged(viewObject: ViewObject): void {
-    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
-      return;
-    }
-    this._meshManager.viewObjectXRayedChanged(viewObject);
-  }
-
-  /**
-   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s highlight flag changed.
-   * Forwards to {@link MeshManager} to queue GPU updates.
-   */
-  public viewObjectHighlightedChanged(viewObject: ViewObject): void {
-    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
-      return;
-    }
-    this._meshManager.viewObjectHighlightedChanged(viewObject);
-  }
-
-  /**
-   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s selection flag changed.
-   * Forwards to {@link MeshManager} to queue GPU updates.
-   */
-  public viewObjectSelectedChanged(viewObject: ViewObject): void {
-    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
-      return;
-    }
-    this._meshManager.viewObjectSelectedChanged(viewObject);
   }
 
   /**
@@ -1169,6 +1136,17 @@ export class ViewManager {
       return;
     }
     this._meshManager.viewObjectOpacityChanged(viewObject);
+  }
+
+  /**
+   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s style-bin membership
+   * or resolved style-bin definition changed.
+   */
+  public viewObjectStyleBinChanged(viewObject: ViewObject, _styleBinId?: string, _membership?: boolean): void {
+    if (viewObject.layer.view.viewIndex >= this._rendererViewsList.length) {
+      return;
+    }
+    this._meshManager.viewObjectStyleBinChanged(viewObject);
   }
 
   /**

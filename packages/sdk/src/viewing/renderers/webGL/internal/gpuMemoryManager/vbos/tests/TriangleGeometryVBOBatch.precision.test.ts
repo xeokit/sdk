@@ -42,9 +42,8 @@ type DebugTriangleGeometryVBOBatch = {
 const TEST_PASS_ORDER = [
   RENDER_PASSES.OPAQUE,
   RENDER_PASSES.TRANSPARENT,
-  RENDER_PASSES.HIGHLIGHTED,
-  RENDER_PASSES.SELECTED,
-  RENDER_PASSES.XRAYED
+  RENDER_PASSES.STYLE_BIN_OPAQUE,
+  RENDER_PASSES.STYLE_BIN_TRANSPARENT
 ];
 const TEST_PICK_REGION_INDEX = TEST_PASS_ORDER.length;
 
@@ -288,8 +287,8 @@ describe("TriangleGeometryVBOBatch RTC precision", () => {
       opacity: 255
     }).ok).toBe(true);
 
-    batch.setMeshRenderPass(1, 0, RENDER_PASSES.SELECTED);
-    batch.setMeshRenderPass(2, 0, RENDER_PASSES.XRAYED);
+    batch.setMeshRenderPass(1, 0, RENDER_PASSES.STYLE_BIN_OPAQUE);
+    batch.setMeshRenderPass(2, 0, RENDER_PASSES.STYLE_BIN_TRANSPARENT);
     expect(batch.uploadChanges()).toBe(true);
 
     expect(batch.getDrawState(0, RENDER_PASSES.OPAQUE, "hybrid")).toBeNull();
@@ -419,30 +418,30 @@ describe("TriangleGeometryVBOBatch RTC precision", () => {
 
     const view = getDebugInternals(batch)._views[0];
     const opaqueIndex = TEST_PASS_ORDER.indexOf(RENDER_PASSES.OPAQUE);
-    const selectedIndex = TEST_PASS_ORDER.indexOf(RENDER_PASSES.SELECTED);
+    const styleBinIndex = TEST_PASS_ORDER.indexOf(RENDER_PASSES.STYLE_BIN_OPAQUE);
     expect(view.passPrimCounts[opaqueIndex]).toBe(3);
     expect(view.edgePassPrimCounts[opaqueIndex]).toBe(4);
     expect(view.pickPrimCount).toBe(3);
     expect(view.pickEdgePrimCount).toBe(4);
 
-    batch.setMeshRenderPass(2, 0, RENDER_PASSES.SELECTED);
+    batch.setMeshRenderPass(2, 0, RENDER_PASSES.STYLE_BIN_OPAQUE);
     expect(view.passPrimCounts[opaqueIndex]).toBe(1);
-    expect(view.passPrimCounts[selectedIndex]).toBe(2);
+    expect(view.passPrimCounts[styleBinIndex]).toBe(2);
     expect(view.edgePassPrimCounts[opaqueIndex]).toBe(0);
-    expect(view.edgePassPrimCounts[selectedIndex]).toBe(4);
+    expect(view.edgePassPrimCounts[styleBinIndex]).toBe(4);
     expect(batch.getRenderPassPrimitiveRange(0, RENDER_PASSES.OPAQUE)).toEqual({firstPrim: 0, numPrims: 1});
-    expect(batch.getRenderPassPrimitiveRange(0, RENDER_PASSES.SELECTED)).toEqual({firstPrim: 0, numPrims: 2});
+    expect(batch.getRenderPassPrimitiveRange(0, RENDER_PASSES.STYLE_BIN_OPAQUE)).toEqual({firstPrim: 0, numPrims: 2});
 
     batch.setMeshVisible(1, 0, false);
     expect(view.passPrimCounts[opaqueIndex]).toBe(0);
-    expect(view.passPrimCounts[selectedIndex]).toBe(2);
+    expect(view.passPrimCounts[styleBinIndex]).toBe(2);
     expect(view.pickPrimCount).toBe(2);
     expect(view.pickEdgePrimCount).toBe(4);
 
     batch.removeMesh(2);
     expect(view.passPrimCounts[opaqueIndex]).toBe(0);
-    expect(view.passPrimCounts[selectedIndex]).toBe(0);
-    expect(view.edgePassPrimCounts[selectedIndex]).toBe(0);
+    expect(view.passPrimCounts[styleBinIndex]).toBe(0);
+    expect(view.edgePassPrimCounts[styleBinIndex]).toBe(0);
     expect(view.pickPrimCount).toBe(0);
     expect(view.pickEdgePrimCount).toBe(0);
   });
@@ -505,16 +504,16 @@ describe("TriangleGeometryVBOBatch RTC precision", () => {
       opacity: 255
     }).ok).toBe(true);
 
-    batch.setMeshRenderPass(3, 0, RENDER_PASSES.SELECTED);
+    batch.setMeshRenderPass(3, 0, RENDER_PASSES.STYLE_BIN_OPAQUE);
     expect(batch.uploadChanges()).toBe(true);
 
     const internals = getDebugInternals(batch);
     const record = internals._meshRecords.get(3);
     expect(record).toBeDefined();
     expect(Array.from(record!.edgeVertexIndices)).toEqual([0, 1, 1, 2, 2, 5, 5, 0]);
-    const selectedEdgeBase = edgeIndexRegionBase(8, TEST_PASS_ORDER.indexOf(RENDER_PASSES.SELECTED));
+    const styleBinEdgeBase = edgeIndexRegionBase(8, TEST_PASS_ORDER.indexOf(RENDER_PASSES.STYLE_BIN_OPAQUE));
     const pickEdgeBase = edgeIndexRegionBase(8, TEST_PICK_REGION_INDEX);
-    expect(Array.from(internals._views[0].edgeIndices!.subarray(selectedEdgeBase, selectedEdgeBase + 8))).toEqual([0, 1, 1, 2, 2, 5, 5, 0]);
+    expect(Array.from(internals._views[0].edgeIndices!.subarray(styleBinEdgeBase, styleBinEdgeBase + 8))).toEqual([0, 1, 1, 2, 2, 5, 5, 0]);
     expect(Array.from(internals._views[0].edgeIndices!.subarray(pickEdgeBase, pickEdgeBase + 8))).toEqual([0, 1, 1, 2, 2, 5, 5, 0]);
 
     const edgeState = batch.getPickEdgeDrawState(0, "hybrid");
@@ -524,16 +523,16 @@ describe("TriangleGeometryVBOBatch RTC precision", () => {
     expect(edgeState!.primRange).toEqual({firstPrim: 0, numPrims: 4});
     expect(batch.getPickEdgePrimitiveRange(0)).toEqual({firstPrim: 0, numPrims: 4});
     expect(batch.getEdgeDrawState(0, RENDER_PASSES.OPAQUE, "hybrid")).toBeNull();
-    const selectedEdgeState = batch.getEdgeDrawState(0, RENDER_PASSES.SELECTED, "hybrid");
-    expect(selectedEdgeState).not.toBeNull();
-    expect(selectedEdgeState!.firstIndex).toBe(selectedEdgeBase);
-    expect(selectedEdgeState!.indexCount).toBe(12);
-    expect(selectedEdgeState!.primRange).toEqual({firstPrim: 0, numPrims: 4});
+    const styleBinEdgeState = batch.getEdgeDrawState(0, RENDER_PASSES.STYLE_BIN_OPAQUE, "hybrid");
+    expect(styleBinEdgeState).not.toBeNull();
+    expect(styleBinEdgeState!.firstIndex).toBe(styleBinEdgeBase);
+    expect(styleBinEdgeState!.indexCount).toBe(12);
+    expect(styleBinEdgeState!.primRange).toEqual({firstPrim: 0, numPrims: 4});
 
     batch.setMeshVisible(3, 0, false);
     expect(batch.uploadChanges()).toBe(true);
     expect(batch.getPickEdgeDrawState(0, "hybrid")).toBeNull();
-    expect(batch.getEdgeDrawState(0, RENDER_PASSES.SELECTED, "hybrid")).toBeNull();
+    expect(batch.getEdgeDrawState(0, RENDER_PASSES.STYLE_BIN_OPAQUE, "hybrid")).toBeNull();
     expect(batch.getPickEdgePrimitiveRange(0)).toEqual({firstPrim: 0, numPrims: 0});
   });
 
@@ -557,17 +556,17 @@ describe("TriangleGeometryVBOBatch RTC precision", () => {
       opacity: 255
     }).ok).toBe(true);
 
-    batch.setMeshRenderPass(4, 0, RENDER_PASSES.SELECTED);
+    batch.setMeshRenderPass(4, 0, RENDER_PASSES.STYLE_BIN_OPAQUE);
     expect(batch.uploadChanges()).toBe(true);
 
-    const selectedEdgeBase = edgeIndexRegionBase(8, TEST_PASS_ORDER.indexOf(RENDER_PASSES.SELECTED));
-    const selectedEdgeTileState = batch.getTileDrawStates(0, RENDER_PASSES.SELECTED, "lean-static", "edges");
-    expect(selectedEdgeTileState).not.toBeNull();
-    expect(selectedEdgeTileState!.primRange).toEqual({firstPrim: 0, numPrims: 4});
-    expect(selectedEdgeTileState!.tileDrawStates).toEqual([{
+    const styleBinEdgeBase = edgeIndexRegionBase(8, TEST_PASS_ORDER.indexOf(RENDER_PASSES.STYLE_BIN_OPAQUE));
+    const styleBinEdgeTileState = batch.getTileDrawStates(0, RENDER_PASSES.STYLE_BIN_OPAQUE, "lean-static", "edges");
+    expect(styleBinEdgeTileState).not.toBeNull();
+    expect(styleBinEdgeTileState!.primRange).toEqual({firstPrim: 0, numPrims: 4});
+    expect(styleBinEdgeTileState!.tileDrawStates).toEqual([{
       tileIndex: 7,
       spans: [{
-        firstIndex: selectedEdgeBase,
+        firstIndex: styleBinEdgeBase,
         indexCount: 8,
         primCount: 4
       }]

@@ -5,7 +5,7 @@
 jest.mock("../webGL", () => ({
   WEBGL_INFO: {MAX_TEXTURE_UNITS: 8},
 }));
-jest.mock("../../../viewer", () => ({
+jest.mock("../../../../viewer", () => ({
   Camera: class {},
   Effect: class {},
   View: class {},

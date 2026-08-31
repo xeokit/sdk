@@ -1,5 +1,4 @@
 import type {CameraParams} from "./CameraParams";
-import type {EffectParams} from "./EffectParams";
 import type {EffectsParams} from "./EffectsParams";
 import type {FloatArrayParam} from "../../base/math";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
@@ -8,6 +7,7 @@ import type {LightsParams} from "./LightsParams";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
 import type {TexturingParams} from "./TexturingParams";
 import type {ViewLayerParams} from "./ViewLayerParams";
+import type {ViewStyleBinParams} from "./ViewStyleBinParams";
 
 /**
  * Parameters for a {@link viewing!viewer.View | View}.
@@ -57,8 +57,8 @@ export interface ViewParams {
   backgroundColorFromAmbientLight?: boolean;
 
   /**
-   * Whether the {@link View | View} performs alpha composition with premultiplied alpha. Highlighting and selection works best when
-   * this is ````false````.
+   * Whether the {@link View | View} performs alpha composition with premultiplied alpha.
+   * Translucent style bins are usually clearest when this is ````false````.
    *
    * Default value is `false`.
    */
@@ -114,19 +114,12 @@ export interface ViewParams {
   texturing?: TexturingParams;
 
   /**
-   * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are selected.
+   * Parameters for the View's user-defined object style bins.
+   *
+   * Style-bin definitions are serialized here. Runtime ViewObject membership
+   * is transient presentation state and is not serialized in ViewParams.
    */
-  selectedMaterial?: EffectParams;
-
-  /**
-   * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are highlighted.
-   */
-  highlightMaterial?: EffectParams;
-
-  /**
-   * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are X-rayed.
-   */
-  xrayMaterial?: EffectParams;
+  styleBins?: ViewStyleBinParams[];
 
   /**
    * Parameters for the {@link View | View's} {@link PointsMaterial}.

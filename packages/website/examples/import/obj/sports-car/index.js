@@ -124,9 +124,9 @@ studio.init().then(() => {
       exploder._sliderContainer = null;
       exploder._sliderElement = null;
 
-      view2.setObjectsXRayed(view2.objectIds, true);
+      view2.setObjectsInStyleBin("xrayed", view2.objectIds, true);
 
-      view2.setObjectsXRayed(view2.objectIds.slice(30,40), false);
+      view2.setObjectsInStyleBin("xrayed", view2.objectIds.slice(30, 40), false);
 
       const info = await studio.openInfoPanelFromMeta();
       info.addSlider({

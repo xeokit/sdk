@@ -78,12 +78,8 @@ interface ViewRenderCache {
 
 interface TransparentRenderBinCache {
   normalFillTransparent: DrawItem[];
-  xrayedFillTransparent: DrawItem[];
-  xrayedEdgesTransparent: DrawItem[];
-  highlightedFillTransparent: DrawItem[];
-  highlightedEdgesTransparent: DrawItem[];
-  selectedFillTransparent: DrawItem[];
-  selectedEdgesTransparent: DrawItem[];
+  styleBinFillTransparent: DrawItem[];
+  styleBinEdgesTransparent: DrawItem[];
 }
 
 export interface GPUPickMeshHit {
@@ -122,18 +118,10 @@ export class RenderManager {
     normalDrawOpaque: [],
     normalEdgesOpaque: [],
     normalFillTransparent: [],
-    xrayedFillOpaque: [],
-    xrayedEdgesOpaque: [],
-    xrayedFillTransparent: [],
-    xrayedEdgesTransparent: [],
-    highlightedFillOpaque: [],
-    highlightedEdgesOpaque: [],
-    highlightedFillTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedFillOpaque: [],
-    selectedEdgesOpaque: [],
-    selectedFillTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinFillOpaque: [],
+    styleBinEdgesOpaque: [],
+    styleBinFillTransparent: [],
+    styleBinEdgesTransparent: []
   };
   private readonly _binClassifier: RenderBinClassifier;
   private readonly _instanceBatcher: InstanceBatcher;
@@ -292,9 +280,10 @@ export class RenderManager {
         return splatRefreshResult;
       }
       const totalInstances = renderCache.totalInstances;
+      const triangleBatches = this._filterBatchesByPrimitive(renderCache.batches, TrianglesPrimitive);
       if (totalInstances > 0) {
         const iblResult = this._iblManager.prepare(view, {
-          active: this._renderContext.renderConfigs.triangleColorMode !== "flat"
+          active: this._hasPBRTriangleColorBatches(triangleBatches)
         });
         if (iblResult.ok === false) {
           return iblResult;
@@ -358,7 +347,6 @@ export class RenderManager {
       const pointDrawOps = this._drawOps.prims[PointsPrimitive];
       const lineDrawOps = this._drawOps.prims[LinesPrimitive];
       const splatDrawOps = this._drawOps.prims[GaussianSplatsPrimitive];
-      const triangleBatches = this._filterBatchesByPrimitive(renderCache.batches, TrianglesPrimitive);
       const pointBatches = this._filterBatchesByPrimitive(renderCache.batches, PointsPrimitive);
       const lineBatches = this._filterBatchesByPrimitive(renderCache.batches, LinesPrimitive);
       const splatBatches = renderCache.splatBatches;
@@ -471,57 +459,18 @@ export class RenderManager {
       }
 
       if (triangleBatches.opaque.length > 0) {
-        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
-        if (flatColorMode) {
-          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-            passEncoder,
-            commandStateTracker: passCommandState,
-            frameBindGroup: frameBindGroupResult!.value,
-            instanceBindGroup: instanceBindGroupResult!.value,
-            batches: triangleBatches.opaque,
-            renderPass: "OPAQUE",
-            technique: "TrianglesDrawColorFlatTechnique",
-            drawOp: triangleDrawOps.flatOpaque,
-            missingMessage: "[RenderManager.renderView] Opaque flat triangle draw operation was not initialized."
-          });
-          if (drawResult.ok === false) {
-            return drawResult;
-          }
-        } else {
-          const noNormalsBatches = this._getNoNormalsTriangleColorBatches(view, triangleBatches.opaque);
-          const pbrBatches = this._getPBRTriangleColorBatches(view, triangleBatches.opaque);
-          if (noNormalsBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult!.value,
-              instanceBindGroup: instanceBindGroupResult!.value,
-              batches: noNormalsBatches,
-              renderPass: "OPAQUE",
-              technique: "TrianglesDrawColorNoNormalsTechnique",
-              drawOp: triangleDrawOps.noNormalsOpaque,
-              missingMessage: "[RenderManager.renderView] Opaque no-normal triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
-          if (pbrBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult!.value,
-              instanceBindGroup: instanceBindGroupResult!.value,
-              batches: pbrBatches,
-              renderPass: "OPAQUE",
-              technique: "TrianglesDrawColorTechnique",
-              drawOp: triangleDrawOps.opaque,
-              missingMessage: "[RenderManager.renderView] Opaque triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
+        const drawResult = this._drawTriangleColorBatches({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult!.value,
+          instanceBindGroup: instanceBindGroupResult!.value,
+          triangleDrawOps,
+          batches: triangleBatches.opaque,
+          renderPass: "OPAQUE",
+          transparent: false
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
         }
       }
       if (pointDrawOps?.opaque) {
@@ -581,18 +530,17 @@ export class RenderManager {
       }
 
       if (totalInstances > 0) {
-        const emphasizedOpaqueResult = this._triangleDrawBinSubmitter.drawEmphasisBatchLists({
+        const styleBinOpaqueResult = this._triangleDrawBinSubmitter.drawStyleBinBatchLists({
           passEncoder,
           commandStateTracker: passCommandState,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: false,
-          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
+          transparent: false
         });
-        if (emphasizedOpaqueResult.ok === false) {
-          return emphasizedOpaqueResult;
+        if (styleBinOpaqueResult.ok === false) {
+          return styleBinOpaqueResult;
         }
       }
 
@@ -653,57 +601,18 @@ export class RenderManager {
       }
 
       if (triangleBatches.transparent.length > 0) {
-        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
-        if (flatColorMode) {
-          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-            passEncoder,
-            commandStateTracker: passCommandState,
-            frameBindGroup: frameBindGroupResult!.value,
-            instanceBindGroup: instanceBindGroupResult!.value,
-            batches: triangleBatches.transparent,
-            renderPass: "TRANSPARENT",
-            technique: "TrianglesDrawColorFlatTechnique",
-            drawOp: triangleDrawOps.flatTransparent,
-            missingMessage: "[RenderManager.renderView] Transparent flat triangle draw operation was not initialized."
-          });
-          if (drawResult.ok === false) {
-            return drawResult;
-          }
-        } else {
-          const noNormalsBatches = this._getNoNormalsTriangleColorBatches(view, triangleBatches.transparent);
-          const pbrBatches = this._getPBRTriangleColorBatches(view, triangleBatches.transparent);
-          if (noNormalsBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult!.value,
-              instanceBindGroup: instanceBindGroupResult!.value,
-              batches: noNormalsBatches,
-              renderPass: "TRANSPARENT",
-              technique: "TrianglesDrawColorNoNormalsTechnique",
-              drawOp: triangleDrawOps.noNormalsTransparent,
-              missingMessage: "[RenderManager.renderView] Transparent no-normal triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
-          if (pbrBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult!.value,
-              instanceBindGroup: instanceBindGroupResult!.value,
-              batches: pbrBatches,
-              renderPass: "TRANSPARENT",
-              technique: "TrianglesDrawColorTechnique",
-              drawOp: triangleDrawOps.transparent,
-              missingMessage: "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
+        const drawResult = this._drawTriangleColorBatches({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult!.value,
+          instanceBindGroup: instanceBindGroupResult!.value,
+          triangleDrawOps,
+          batches: triangleBatches.transparent,
+          renderPass: "TRANSPARENT",
+          transparent: true
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
         }
       }
       if (pointDrawOps?.transparent) {
@@ -762,18 +671,17 @@ export class RenderManager {
       }
 
       if (totalInstances > 0) {
-        const emphasizedTransparentResult = this._triangleDrawBinSubmitter.drawEmphasisBatchLists({
+        const styleBinTransparentResult = this._triangleDrawBinSubmitter.drawStyleBinBatchLists({
           passEncoder,
           commandStateTracker: passCommandState,
           frameBindGroup: frameBindGroupResult!.value,
           instanceBindGroup: instanceBindGroupResult!.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: true,
-          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
+          transparent: true
         });
-        if (emphasizedTransparentResult.ok === false) {
-          return emphasizedTransparentResult;
+        if (styleBinTransparentResult.ok === false) {
+          return styleBinTransparentResult;
         }
       }
 
@@ -858,6 +766,76 @@ export class RenderManager {
     } finally {
       if (frameStarted) {
         this._renderInspector.frameEnded();
+      }
+    }
+
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  private _drawTriangleColorBatches(params: {
+    passEncoder: WebGPURenderPassEncoderLike;
+    commandStateTracker: CommandStateTracker;
+    frameBindGroup: WebGPUBindGroupLike;
+    instanceBindGroup: WebGPUBindGroupLike;
+    triangleDrawOps: NonNullable<DrawOps["prims"][typeof TrianglesPrimitive]>;
+    batches: InstancedDrawBatch[];
+    renderPass: "OPAQUE" | "TRANSPARENT";
+    transparent: boolean;
+  }): SDKResult<void> {
+    const flatBatches = this._getFlatTriangleColorBatches(params.batches);
+    if (flatBatches.length > 0) {
+      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: flatBatches,
+        renderPass: params.renderPass,
+        technique: "TrianglesDrawColorFlatTechnique",
+        drawOp: params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque,
+        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} flat triangle draw operation was not initialized.`
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
+      }
+    }
+
+    const noNormalsBatches = this._getNoNormalsTriangleColorBatches(params.batches);
+    if (noNormalsBatches.length > 0) {
+      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: noNormalsBatches,
+        renderPass: params.renderPass,
+        technique: "TrianglesDrawColorNoNormalsTechnique",
+        drawOp: params.transparent ? params.triangleDrawOps.noNormalsTransparent : params.triangleDrawOps.noNormalsOpaque,
+        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} no-normal triangle draw operation was not initialized.`
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
+      }
+    }
+
+    const pbrBatches = this._getPBRTriangleColorBatches(params.batches);
+    if (pbrBatches.length > 0) {
+      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: pbrBatches,
+        renderPass: params.renderPass,
+        technique: "TrianglesDrawColorTechnique",
+        drawOp: params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque,
+        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} triangle draw operation was not initialized.`
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
       }
     }
 
@@ -1912,7 +1890,7 @@ export class RenderManager {
     });
     this._renderInspector.addCPUTime("binningMs", nowMs() - binningStart);
     const newCullStats = cloneCullStats(this._binClassifier.stats);
-    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
+    if (this._hasTransparentDrawItems(this._bins) || this._hasStyleBinDrawItems(this._bins)) {
       return null;
     }
     const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSetResult.value), view.id);
@@ -2095,7 +2073,7 @@ export class RenderManager {
     });
     this._renderInspector.addCPUTime("binningMs", nowMs() - binningStart);
     const newCullStats = cloneCullStats(this._binClassifier.stats);
-    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
+    if (this._hasTransparentDrawItems(this._bins) || this._hasStyleBinDrawItems(this._bins)) {
       return null;
     }
 
@@ -2269,12 +2247,8 @@ export class RenderManager {
 
     this._replaceBatches(transparentBatchesResult.value.transparent, cache.batches.transparent);
     this._replaceBatches(transparentBatchesResult.value.overlayTransparent, cache.batches.overlayTransparent);
-    this._replaceBatches(transparentBatchesResult.value.xrayedTransparent, cache.batches.xrayedTransparent);
-    this._replaceBatches(transparentBatchesResult.value.xrayedEdgesTransparent, cache.batches.xrayedEdgesTransparent);
-    this._replaceBatches(transparentBatchesResult.value.highlightedTransparent, cache.batches.highlightedTransparent);
-    this._replaceBatches(transparentBatchesResult.value.highlightedEdgesTransparent, cache.batches.highlightedEdgesTransparent);
-    this._replaceBatches(transparentBatchesResult.value.selectedTransparent, cache.batches.selectedTransparent);
-    this._replaceBatches(transparentBatchesResult.value.selectedEdgesTransparent, cache.batches.selectedEdgesTransparent);
+    this._replaceBatches(transparentBatchesResult.value.styleBinTransparent, cache.batches.styleBinTransparent);
+    this._replaceBatches(transparentBatchesResult.value.styleBinEdgesTransparent, cache.batches.styleBinEdgesTransparent);
     transparentBatchesResult.value.opaque.length = 0;
     transparentBatchesResult.value.edges.length = 0;
     const shadowBatchesResult = this._buildShadowBatches({
@@ -2341,18 +2315,10 @@ export class RenderManager {
           transparent: [],
           overlayOpaque: [],
           overlayTransparent: [],
-          xrayedOpaque: [],
-          xrayedEdgesOpaque: [],
-          xrayedTransparent: [],
-          xrayedEdgesTransparent: [],
-          highlightedOpaque: [],
-          highlightedEdgesOpaque: [],
-          highlightedTransparent: [],
-          highlightedEdgesTransparent: [],
-          selectedOpaque: [],
-          selectedEdgesOpaque: [],
-          selectedTransparent: [],
-          selectedEdgesTransparent: []
+          styleBinOpaque: [],
+          styleBinEdgesOpaque: [],
+          styleBinTransparent: [],
+          styleBinEdgesTransparent: []
         },
         shadowBatches: [],
         snapEdgeBatches: [],
@@ -2643,48 +2609,28 @@ export class RenderManager {
   private _countVisibleDrawItems(bins: RenderBins): number {
     return bins.normalDrawOpaque.length +
       bins.normalFillTransparent.length +
-      bins.xrayedFillOpaque.length +
-      bins.xrayedFillTransparent.length +
-      bins.highlightedFillOpaque.length +
-      bins.highlightedFillTransparent.length +
-      bins.selectedFillOpaque.length +
-      bins.selectedFillTransparent.length;
+      bins.styleBinFillOpaque.length +
+      bins.styleBinFillTransparent.length;
   }
 
   private _hasTransparentDrawItems(bins: RenderBins): boolean {
     return bins.normalFillTransparent.length > 0 ||
-      bins.xrayedFillTransparent.length > 0 ||
-      bins.xrayedEdgesTransparent.length > 0 ||
-      bins.highlightedFillTransparent.length > 0 ||
-      bins.highlightedEdgesTransparent.length > 0 ||
-      bins.selectedFillTransparent.length > 0 ||
-      bins.selectedEdgesTransparent.length > 0;
+      bins.styleBinFillTransparent.length > 0 ||
+      bins.styleBinEdgesTransparent.length > 0;
   }
 
-  private _hasEmphasisDrawItems(bins: RenderBins): boolean {
-    return bins.xrayedFillOpaque.length > 0 ||
-      bins.xrayedEdgesOpaque.length > 0 ||
-      bins.xrayedFillTransparent.length > 0 ||
-      bins.xrayedEdgesTransparent.length > 0 ||
-      bins.highlightedFillOpaque.length > 0 ||
-      bins.highlightedEdgesOpaque.length > 0 ||
-      bins.highlightedFillTransparent.length > 0 ||
-      bins.highlightedEdgesTransparent.length > 0 ||
-      bins.selectedFillOpaque.length > 0 ||
-      bins.selectedEdgesOpaque.length > 0 ||
-      bins.selectedFillTransparent.length > 0 ||
-      bins.selectedEdgesTransparent.length > 0;
+  private _hasStyleBinDrawItems(bins: RenderBins): boolean {
+    return bins.styleBinFillOpaque.length > 0 ||
+      bins.styleBinEdgesOpaque.length > 0 ||
+      bins.styleBinFillTransparent.length > 0 ||
+      bins.styleBinEdgesTransparent.length > 0;
   }
 
   private _hasTransparentBatches(batches: InstancedDrawBatches): boolean {
     return batches.transparent.length > 0 ||
       batches.overlayTransparent.length > 0 ||
-      batches.xrayedTransparent.length > 0 ||
-      batches.xrayedEdgesTransparent.length > 0 ||
-      batches.highlightedTransparent.length > 0 ||
-      batches.highlightedEdgesTransparent.length > 0 ||
-      batches.selectedTransparent.length > 0 ||
-      batches.selectedEdgesTransparent.length > 0;
+      batches.styleBinTransparent.length > 0 ||
+      batches.styleBinEdgesTransparent.length > 0;
   }
 
   private _getSegmentBatchReuseReason(batches: InstancedDrawBatches): "transparentSegmentBatch" | "segmentBatchReuse" {
@@ -2695,12 +2641,8 @@ export class RenderManager {
     const transparentIndexCount = this._countBatchIndices([
       ...batches.transparent,
       ...batches.overlayTransparent,
-      ...batches.xrayedTransparent,
-      ...batches.xrayedEdgesTransparent,
-      ...batches.highlightedTransparent,
-      ...batches.highlightedEdgesTransparent,
-      ...batches.selectedTransparent,
-      ...batches.selectedEdgesTransparent
+      ...batches.styleBinTransparent,
+      ...batches.styleBinEdgesTransparent
     ]);
     if (transparentIndexCount === 0) {
       return false;
@@ -2709,12 +2651,8 @@ export class RenderManager {
       ...batches.opaque,
       ...batches.edges,
       ...batches.overlayOpaque,
-      ...batches.xrayedOpaque,
-      ...batches.xrayedEdgesOpaque,
-      ...batches.highlightedOpaque,
-      ...batches.highlightedEdgesOpaque,
-      ...batches.selectedOpaque,
-      ...batches.selectedEdgesOpaque
+      ...batches.styleBinOpaque,
+      ...batches.styleBinEdgesOpaque
     ]);
     return opaqueIndexCount === 0 || transparentIndexCount / (opaqueIndexCount + transparentIndexCount) >= MEANINGFUL_TRANSPARENT_INDEX_FRACTION;
   }
@@ -2759,18 +2697,10 @@ export class RenderManager {
       batches.transparent.length +
       batches.overlayOpaque.length +
       batches.overlayTransparent.length +
-      batches.xrayedOpaque.length +
-      batches.xrayedEdgesOpaque.length +
-      batches.xrayedTransparent.length +
-      batches.xrayedEdgesTransparent.length +
-      batches.highlightedOpaque.length +
-      batches.highlightedEdgesOpaque.length +
-      batches.highlightedTransparent.length +
-      batches.highlightedEdgesTransparent.length +
-      batches.selectedOpaque.length +
-      batches.selectedEdgesOpaque.length +
-      batches.selectedTransparent.length +
-      batches.selectedEdgesTransparent.length;
+      batches.styleBinOpaque.length +
+      batches.styleBinEdgesOpaque.length +
+      batches.styleBinTransparent.length +
+      batches.styleBinEdgesTransparent.length;
   }
 
   private _getPickSurfaceBatches(batches: InstancedDrawBatches): InstancedDrawBatch[] {
@@ -2779,39 +2709,44 @@ export class RenderManager {
       ...batches.transparent,
       ...batches.overlayOpaque,
       ...batches.overlayTransparent,
-      ...batches.xrayedOpaque,
-      ...batches.xrayedTransparent,
-      ...batches.highlightedOpaque,
-      ...batches.highlightedTransparent,
-      ...batches.selectedOpaque,
-      ...batches.selectedTransparent
+      ...batches.styleBinOpaque,
+      ...batches.styleBinTransparent
     ];
   }
 
   private _getOpaqueSurfaceBatches(batches: InstancedDrawBatches): InstancedDrawBatch[] {
     return [
       ...batches.opaque,
-      ...batches.xrayedOpaque,
-      ...batches.highlightedOpaque,
-      ...batches.selectedOpaque
+      ...batches.styleBinOpaque
     ];
   }
 
   private _getTransparentSurfaceBatches(batches: InstancedDrawBatches): InstancedDrawBatch[] {
     return [
       ...batches.transparent,
-      ...batches.xrayedTransparent,
-      ...batches.highlightedTransparent,
-      ...batches.selectedTransparent
+      ...batches.styleBinTransparent
     ];
   }
 
-  private _getNoNormalsTriangleColorBatches(_view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
-    return batches.filter((batch) => batch.packedBatch.hasNormals !== true);
+  private _hasPBRTriangleColorBatches(batches: InstancedDrawBatches): boolean {
+    return [
+      batches.opaque,
+      batches.transparent,
+      batches.styleBinOpaque,
+      batches.styleBinTransparent
+    ].some((batchList) => batchList.some((batch) => batch.packedBatch.triangleRenderClass === "pbr"));
   }
 
-  private _getPBRTriangleColorBatches(_view: View, batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
-    return batches.filter((batch) => batch.packedBatch.hasNormals === true);
+  private _getFlatTriangleColorBatches(batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
+    return batches.filter((batch) => batch.packedBatch.triangleRenderClass === "flat");
+  }
+
+  private _getNoNormalsTriangleColorBatches(batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
+    return batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals !== true);
+  }
+
+  private _getPBRTriangleColorBatches(batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
+    return batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals === true);
   }
 
   private _filterBatchesByPrimitive(
@@ -2824,18 +2759,10 @@ export class RenderManager {
       transparent: this._filterBatchListByPrimitive(batches.transparent, primitive),
       overlayOpaque: this._filterBatchListByPrimitive(batches.overlayOpaque, primitive),
       overlayTransparent: this._filterBatchListByPrimitive(batches.overlayTransparent, primitive),
-      xrayedOpaque: this._filterBatchListByPrimitive(batches.xrayedOpaque, primitive),
-      xrayedEdgesOpaque: this._filterBatchListByPrimitive(batches.xrayedEdgesOpaque, primitive),
-      xrayedTransparent: this._filterBatchListByPrimitive(batches.xrayedTransparent, primitive),
-      xrayedEdgesTransparent: this._filterBatchListByPrimitive(batches.xrayedEdgesTransparent, primitive),
-      highlightedOpaque: this._filterBatchListByPrimitive(batches.highlightedOpaque, primitive),
-      highlightedEdgesOpaque: this._filterBatchListByPrimitive(batches.highlightedEdgesOpaque, primitive),
-      highlightedTransparent: this._filterBatchListByPrimitive(batches.highlightedTransparent, primitive),
-      highlightedEdgesTransparent: this._filterBatchListByPrimitive(batches.highlightedEdgesTransparent, primitive),
-      selectedOpaque: this._filterBatchListByPrimitive(batches.selectedOpaque, primitive),
-      selectedEdgesOpaque: this._filterBatchListByPrimitive(batches.selectedEdgesOpaque, primitive),
-      selectedTransparent: this._filterBatchListByPrimitive(batches.selectedTransparent, primitive),
-      selectedEdgesTransparent: this._filterBatchListByPrimitive(batches.selectedEdgesTransparent, primitive)
+      styleBinOpaque: this._filterBatchListByPrimitive(batches.styleBinOpaque, primitive),
+      styleBinEdgesOpaque: this._filterBatchListByPrimitive(batches.styleBinEdgesOpaque, primitive),
+      styleBinTransparent: this._filterBatchListByPrimitive(batches.styleBinTransparent, primitive),
+      styleBinEdgesTransparent: this._filterBatchListByPrimitive(batches.styleBinEdgesTransparent, primitive)
     };
   }
 
@@ -2850,12 +2777,8 @@ export class RenderManager {
     return [
       ...bins.normalDrawOpaque,
       ...bins.normalFillTransparent,
-      ...bins.xrayedFillOpaque,
-      ...bins.xrayedFillTransparent,
-      ...bins.highlightedFillOpaque,
-      ...bins.highlightedFillTransparent,
-      ...bins.selectedFillOpaque,
-      ...bins.selectedFillTransparent
+      ...bins.styleBinFillOpaque,
+      ...bins.styleBinFillTransparent
     ];
   }
 
@@ -2865,44 +2788,28 @@ export class RenderManager {
 
   private _rememberTransparentBins(cache: ViewRenderCache, bins: RenderBins): void {
     copyDrawItems(bins.normalFillTransparent, cache.transparentBins.normalFillTransparent);
-    copyDrawItems(bins.xrayedFillTransparent, cache.transparentBins.xrayedFillTransparent);
-    copyDrawItems(bins.xrayedEdgesTransparent, cache.transparentBins.xrayedEdgesTransparent);
-    copyDrawItems(bins.highlightedFillTransparent, cache.transparentBins.highlightedFillTransparent);
-    copyDrawItems(bins.highlightedEdgesTransparent, cache.transparentBins.highlightedEdgesTransparent);
-    copyDrawItems(bins.selectedFillTransparent, cache.transparentBins.selectedFillTransparent);
-    copyDrawItems(bins.selectedEdgesTransparent, cache.transparentBins.selectedEdgesTransparent);
+    copyDrawItems(bins.styleBinFillTransparent, cache.transparentBins.styleBinFillTransparent);
+    copyDrawItems(bins.styleBinEdgesTransparent, cache.transparentBins.styleBinEdgesTransparent);
   }
 
   private _restoreTransparentBins(cache: ViewRenderCache, view: View): void {
     clearRenderBins(this._bins);
     restoreTransparentDrawItems(cache.transparentBins.normalFillTransparent, this._bins.normalFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache.transparentBins.xrayedFillTransparent, this._bins.xrayedFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache.transparentBins.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache.transparentBins.highlightedFillTransparent, this._bins.highlightedFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache.transparentBins.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache.transparentBins.selectedFillTransparent, this._bins.selectedFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache.transparentBins.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache.transparentBins.styleBinFillTransparent, this._bins.styleBinFillTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache.transparentBins.styleBinEdgesTransparent, this._bins.styleBinEdgesTransparent, view, this._meshManager);
   }
 
   private _restoreTransparentSegmentBins(cache: ViewRenderCache, view: View, batchSet: TriangleBatchSet): void {
     clearRenderBins(this._bins);
     restoreTransparentSegmentDrawItems(cache.transparentBins.normalFillTransparent, this._bins.normalFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache.transparentBins.xrayedFillTransparent, this._bins.xrayedFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache.transparentBins.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache.transparentBins.highlightedFillTransparent, this._bins.highlightedFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache.transparentBins.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache.transparentBins.selectedFillTransparent, this._bins.selectedFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache.transparentBins.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache.transparentBins.styleBinFillTransparent, this._bins.styleBinFillTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache.transparentBins.styleBinEdgesTransparent, this._bins.styleBinEdgesTransparent, view, batchSet);
   }
 
   private _sortCachedTransparentSegmentBatches(cache: ViewRenderCache, batchSet: TriangleBatchSet): void {
     this._sortCachedBatchListByDrawItems(cache.batches.transparent, this._bins.normalFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache.batches.xrayedTransparent, this._bins.xrayedFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache.batches.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache.batches.highlightedTransparent, this._bins.highlightedFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache.batches.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache.batches.selectedTransparent, this._bins.selectedFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache.batches.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache.batches.styleBinTransparent, this._bins.styleBinFillTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache.batches.styleBinEdgesTransparent, this._bins.styleBinEdgesTransparent, batchSet);
   }
 
   private _sortCachedBatchListByDrawItems(
@@ -2937,18 +2844,10 @@ export class RenderManager {
     this._replaceBatches(source.transparent, target.transparent);
     this._replaceBatches(source.overlayOpaque, target.overlayOpaque);
     this._replaceBatches(source.overlayTransparent, target.overlayTransparent);
-    this._replaceBatches(source.xrayedOpaque, target.xrayedOpaque);
-    this._replaceBatches(source.xrayedEdgesOpaque, target.xrayedEdgesOpaque);
-    this._replaceBatches(source.xrayedTransparent, target.xrayedTransparent);
-    this._replaceBatches(source.xrayedEdgesTransparent, target.xrayedEdgesTransparent);
-    this._replaceBatches(source.highlightedOpaque, target.highlightedOpaque);
-    this._replaceBatches(source.highlightedEdgesOpaque, target.highlightedEdgesOpaque);
-    this._replaceBatches(source.highlightedTransparent, target.highlightedTransparent);
-    this._replaceBatches(source.highlightedEdgesTransparent, target.highlightedEdgesTransparent);
-    this._replaceBatches(source.selectedOpaque, target.selectedOpaque);
-    this._replaceBatches(source.selectedEdgesOpaque, target.selectedEdgesOpaque);
-    this._replaceBatches(source.selectedTransparent, target.selectedTransparent);
-    this._replaceBatches(source.selectedEdgesTransparent, target.selectedEdgesTransparent);
+    this._replaceBatches(source.styleBinOpaque, target.styleBinOpaque);
+    this._replaceBatches(source.styleBinEdgesOpaque, target.styleBinEdgesOpaque);
+    this._replaceBatches(source.styleBinTransparent, target.styleBinTransparent);
+    this._replaceBatches(source.styleBinEdgesTransparent, target.styleBinEdgesTransparent);
   }
 
   private _replaceSnapEdgeBatches(cache: ViewRenderCache, batches: InstancedDrawBatch[]): void {
@@ -2990,18 +2889,10 @@ export class RenderManager {
     this._clearBatchList(batches.transparent);
     this._clearBatchList(batches.overlayOpaque);
     this._clearBatchList(batches.overlayTransparent);
-    this._clearBatchList(batches.xrayedOpaque);
-    this._clearBatchList(batches.xrayedEdgesOpaque);
-    this._clearBatchList(batches.xrayedTransparent);
-    this._clearBatchList(batches.xrayedEdgesTransparent);
-    this._clearBatchList(batches.highlightedOpaque);
-    this._clearBatchList(batches.highlightedEdgesOpaque);
-    this._clearBatchList(batches.highlightedTransparent);
-    this._clearBatchList(batches.highlightedEdgesTransparent);
-    this._clearBatchList(batches.selectedOpaque);
-    this._clearBatchList(batches.selectedEdgesOpaque);
-    this._clearBatchList(batches.selectedTransparent);
-    this._clearBatchList(batches.selectedEdgesTransparent);
+    this._clearBatchList(batches.styleBinOpaque);
+    this._clearBatchList(batches.styleBinEdgesOpaque);
+    this._clearBatchList(batches.styleBinTransparent);
+    this._clearBatchList(batches.styleBinEdgesTransparent);
   }
 
   private _replaceBatches(source: InstancedDrawBatch[], target: InstancedDrawBatch[]): void {
@@ -3091,12 +2982,8 @@ function addCullStats(a: RenderCullStats, b: RenderCullStats): RenderCullStats {
 function createTransparentRenderBinCache(): TransparentRenderBinCache {
   return {
     normalFillTransparent: [],
-    xrayedFillTransparent: [],
-    xrayedEdgesTransparent: [],
-    highlightedFillTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedFillTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinFillTransparent: [],
+    styleBinEdgesTransparent: []
   };
 }
 
@@ -3107,7 +2994,8 @@ function copyDrawItems(source: DrawItem[], target: DrawItem[]): void {
     target.push({
       meshState: item.meshState,
       opacity: item.opacity,
-      viewDepth: item.viewDepth
+      viewDepth: item.viewDepth,
+      style: item.style
     });
   }
 }
@@ -3190,28 +3078,16 @@ function compareDrawItemDepth(a: DrawItem, b: DrawItem): number {
 
 function clearTransparentRenderBinCache(cache: TransparentRenderBinCache): void {
   cache.normalFillTransparent.length = 0;
-  cache.xrayedFillTransparent.length = 0;
-  cache.xrayedEdgesTransparent.length = 0;
-  cache.highlightedFillTransparent.length = 0;
-  cache.highlightedEdgesTransparent.length = 0;
-  cache.selectedFillTransparent.length = 0;
-  cache.selectedEdgesTransparent.length = 0;
+  cache.styleBinFillTransparent.length = 0;
+  cache.styleBinEdgesTransparent.length = 0;
 }
 
 function clearRenderBins(bins: RenderBins): void {
   bins.normalDrawOpaque.length = 0;
   bins.normalEdgesOpaque.length = 0;
   bins.normalFillTransparent.length = 0;
-  bins.xrayedFillOpaque.length = 0;
-  bins.xrayedEdgesOpaque.length = 0;
-  bins.xrayedFillTransparent.length = 0;
-  bins.xrayedEdgesTransparent.length = 0;
-  bins.highlightedFillOpaque.length = 0;
-  bins.highlightedEdgesOpaque.length = 0;
-  bins.highlightedFillTransparent.length = 0;
-  bins.highlightedEdgesTransparent.length = 0;
-  bins.selectedFillOpaque.length = 0;
-  bins.selectedEdgesOpaque.length = 0;
-  bins.selectedFillTransparent.length = 0;
-  bins.selectedEdgesTransparent.length = 0;
+  bins.styleBinFillOpaque.length = 0;
+  bins.styleBinEdgesOpaque.length = 0;
+  bins.styleBinFillTransparent.length = 0;
+  bins.styleBinEdgesTransparent.length = 0;
 }

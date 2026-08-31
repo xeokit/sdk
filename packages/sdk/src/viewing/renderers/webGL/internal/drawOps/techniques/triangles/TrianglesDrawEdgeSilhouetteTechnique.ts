@@ -14,13 +14,14 @@ export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
   constructor(
     renderContext: RenderContext,
     gpuMemoryReader: GPUMemoryReader,
-    opts: { vboGeometry?: boolean; vboTileUniform?: boolean; vboViewAttributes?: boolean; logDepth?: boolean } = {},
+    opts: { vboGeometry?: boolean; vboTileUniform?: boolean; vboViewAttributes?: boolean; logDepth?: boolean; styleBinOverlay?: boolean } = {},
   ) {
     super(renderContext, gpuMemoryReader, {
       edges: true,
       vboGeometry: opts.vboGeometry === true,
       vboTileUniform: opts.vboTileUniform === true,
       vboViewAttributes: opts.vboViewAttributes === true,
+      styleBinOverlay: opts.styleBinOverlay === true,
       logDepth: opts.logDepth === true,
     });
   }

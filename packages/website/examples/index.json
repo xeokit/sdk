@@ -1506,6 +1506,51 @@
       ]
     }
   },
+  "view/renderers/webgl-webgpu-style-bins": {
+    "id": "view/renderers/webgl-webgpu-style-bins",
+    "title": "WebGL + WebGPU - Style Bins",
+    "description": "Runs WebGL and WebGPU viewers against the SportsCar XGF model with ordinary style bins named xrayed, selected, and highlighted, applied by click tools.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "categories": [
+      "Viewing",
+      "Style Bins",
+      "WebGL",
+      "WebGPU"
+    ],
+    "visualAudit": {
+      "enabled": true,
+      "selectors": [
+        "#webglViewport",
+        "#webgpuViewport"
+      ],
+      "minUniqueBuckets": 10,
+      "minNonBackgroundRatio": 0.04,
+      "maskSelectors": [
+        "#styleBinBar",
+        ".label",
+        ".status"
+      ],
+      "comparePairs": [
+        {
+          "a": "#webglViewport",
+          "b": "#webgpuViewport"
+        }
+      ]
+    }
+  },
+  "view/style-bins/xray-highlight": {
+    "id": "view/style-bins/xray-highlight",
+    "title": "Style Bins - Highlight Within X-Ray",
+    "description": "Programmatically applies user-defined xrayed and highlighted style bins to the SportsCar XGF model without Studio.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Style Bins",
+      "WebGL"
+    ]
+  },
   "view/renderers/webgl-webgpu-transparency-quality": {
     "id": "view/renderers/webgl-webgpu-transparency-quality",
     "title": "WebGL + WebGPU - Transparency Quality",
@@ -1571,7 +1616,7 @@
   "view/webgpu/object-states": {
     "id": "view/webgpu/object-states",
     "title": "WebGPU renderer object states",
-    "description": "Shows WebGPU per-object selected, highlighted, xrayed, colorize, opacity, and visibility state updates.",
+    "description": "Shows WebGPU per-object style-bin, colorize, opacity, and visibility state updates.",
     "isTutorial": false,
     "isVisualTest": false,
     "categories": [

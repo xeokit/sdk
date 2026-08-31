@@ -2,7 +2,8 @@ import type { Vec3 } from "../../../../../../base/math/vector";
 import { ItemDataTexture } from "./ItemDataTexture";
 
 /**
- * Stores per-view-mesh attributes: color, opacity, pickability, clippability.
+ * Stores per-view-mesh attributes: color, opacity, pickability, clippability,
+ * style-bin edge visibility and style-bin depth-cleared overlay membership.
  */
 export class MeshViewAttributeTexture extends ItemDataTexture {
   static readonly itemSizeInBytes = 16; // 4 × uint32 per uvec4
@@ -34,6 +35,8 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
     opacity?: number;
     pickable?: boolean;
     clippable?: boolean;
+    styleBinEdges?: boolean;
+    styleBinClearDepthBefore?: boolean;
   }): void {
     const base = itemIndex * this.elementsPerItem;
     const buf = this.buffer;
@@ -45,6 +48,8 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
     if (item.opacity !== undefined) buf[base + 3] = item.opacity;
     if (item.pickable !== undefined) buf[base + 4] = item.pickable ? 1 : 0;
     if (item.clippable !== undefined) buf[base + 5] = item.clippable ? 1 : 0;
+    if (item.styleBinEdges !== undefined) buf[base + 6] = item.styleBinEdges ? 1 : 0;
+    if (item.styleBinClearDepthBefore !== undefined) buf[base + 7] = item.styleBinClearDepthBefore ? 1 : 0;
     this.setItemDirty(itemIndex);
   }
 
@@ -53,6 +58,8 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
     opacity: number;
     pickable: boolean;
     clippable: boolean;
+    styleBinEdges: boolean;
+    styleBinClearDepthBefore: boolean;
   } {
     const base = itemIndex * this.elementsPerItem;
     const buf = this.buffer;
@@ -61,6 +68,8 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
       opacity: buf[base + 3],
       pickable: buf[base + 4] !== 0,
       clippable: buf[base + 5] !== 0,
+      styleBinEdges: buf[base + 6] !== 0,
+      styleBinClearDepthBefore: buf[base + 7] !== 0,
     };
   }
 }

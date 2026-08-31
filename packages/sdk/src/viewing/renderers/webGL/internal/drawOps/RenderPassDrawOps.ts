@@ -4,7 +4,7 @@ import {DrawOp} from "./DrawOp";
  * Collection of draw operations for all render passes, for a specific primitive type.
  *
  * Each property represents a {@link DrawOp} used to render the given primitive type within a particular pass,
- * such as opaque, transparent, highlighted, selected, x-rayed, edge rendering, and picking.
+ * such as opaque, transparent, style-bin rendering, edge rendering, and picking.
  *
  * @internal
  */
@@ -88,35 +88,26 @@ export interface RenderPassDrawOps {
    */
   transparentEdgesThick?: DrawOp;
 
-  /**
-   * Draw operation for rendering highlighted silhouettes.
-   */
-  highlighted?: DrawOp;
+  /** Draw operation for rendering resolved style-bin fills. */
+  styleBin?: DrawOp;
 
-  /**
-   * Draw operation for rendering selected silhouettes.
-   */
-  selected?: DrawOp;
+  /** Draw operation for depth-cleared style-bin overlays. */
+  styleBinOverlay?: DrawOp;
 
-  /**
-   * Draw operation for rendering x-rayed silhouettes.
-   */
-  xrayed?: DrawOp;
+  /** Transparent variant of {@link styleBin}. */
+  styleBinTransparent?: DrawOp;
 
-  /**
-   * Draw operation for rendering highlighted silhouette edges.
-   */
-  highlightedEdges?: DrawOp;
+  /** Transparent variant of {@link styleBinOverlay}. */
+  styleBinOverlayTransparent?: DrawOp;
 
-  /**
-   * Draw operation for rendering selected silhouette edges.
-   */
-  selectedEdges?: DrawOp;
+  /** Draw operation for rendering resolved style-bin edges. */
+  styleBinEdges?: DrawOp;
 
-  /**
-   * Draw operation for rendering x-rayed silhouette edges.
-   */
-  xrayedEdges?: DrawOp;
+  /** Draw operation for depth-cleared style-bin overlay edges. */
+  styleBinOverlayEdges?: DrawOp;
+
+  /** Transparent variant of {@link styleBinEdges}. */
+  styleBinEdgesTransparent?: DrawOp;
 
   /**
    * Draw operation for mesh picking (renders mesh IDs to pick buffer).

@@ -1,11 +1,11 @@
 import type {Vec3} from "../../base/math/vector";
 
 /**
- * Parameters for a View's selected, highlighted and x-ray effects.
+ * Parameters for a {@link ViewStyleBin | ViewStyleBin} material.
  *
  * * Returned by {@link Effect.toParams | Effect.toParams}
  * * Passed to {@link Effect.fromParams | Effect.fromParams}
- * * Located at {@link ViewParams.highlightMaterial | ViewParams.highlightMaterial}, {@link ViewParams.selectedMaterial | ViewParams.selectedMaterial} and {@link ViewParams.xrayMaterial | ViewParams.xrayMaterial}
+ * * Located at {@link ViewStyleBinParams.material | ViewStyleBinParams.material} and {@link ViewParams.styleBins | ViewParams.styleBins}
  */
 export interface EffectParams {
 
@@ -70,13 +70,18 @@ export interface EffectParams {
   fill?: boolean;
 
   /**
-   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+   * Sets whether to clear the depth buffer before rendering this style bin.
    *
-   * Default is ````true````.
+   * When ````true````, objects in this style bin are also rendered in a
+   * depth-cleared style-bin pass, making the bin treatment visible through
+   * occluding geometry while leaving the object's normal rendering treatment
+   * intact.
    *
-   * Note: updating this property will not affect the appearance of objects that are already emphasized.
+   * Default is ````false````.
+   *
+   * Note: updating this property marks the View dirty but does not change membership.
    *
    * @type {Boolean}
    */
-  glowThrough?: boolean;
+  clearDepthBefore?: boolean;
 }

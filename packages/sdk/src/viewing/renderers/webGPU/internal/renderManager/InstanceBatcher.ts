@@ -33,18 +33,10 @@ export class InstanceBatcher {
     transparent: [],
     overlayOpaque: [],
     overlayTransparent: [],
-    xrayedOpaque: [],
-    xrayedEdgesOpaque: [],
-    xrayedTransparent: [],
-    xrayedEdgesTransparent: [],
-    highlightedOpaque: [],
-    highlightedEdgesOpaque: [],
-    highlightedTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedOpaque: [],
-    selectedEdgesOpaque: [],
-    selectedTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinOpaque: [],
+    styleBinEdgesOpaque: [],
+    styleBinTransparent: [],
+    styleBinEdgesTransparent: []
   };
 
   constructor(params: {
@@ -253,21 +245,13 @@ export class InstanceBatcher {
       return overlayTransparentBatchResult;
     }
 
-    const emphasisResults = [
-      this._appendOpaqueBatches({batchSet: triangleBatch, drawItems: bins.xrayedFillOpaque, viewId: view.id, pass: "xrayedOpaque", target: this._batches.xrayedOpaque}),
-      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.xrayedEdgesOpaque, viewId: view.id, pass: "xrayedEdgesOpaque", target: this._batches.xrayedEdgesOpaque}) : null,
-      this._appendTransparentBatches({batchSet: triangleBatch, drawItems: bins.xrayedFillTransparent, viewId: view.id, pass: "xrayedTransparent", target: this._batches.xrayedTransparent}),
-      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.xrayedEdgesTransparent, viewId: view.id, pass: "xrayedEdgesTransparent", target: this._batches.xrayedEdgesTransparent}) : null,
-      this._appendOpaqueBatches({batchSet: triangleBatch, drawItems: bins.highlightedFillOpaque, viewId: view.id, pass: "highlightedOpaque", target: this._batches.highlightedOpaque}),
-      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.highlightedEdgesOpaque, viewId: view.id, pass: "highlightedEdgesOpaque", target: this._batches.highlightedEdgesOpaque}) : null,
-      this._appendTransparentBatches({batchSet: triangleBatch, drawItems: bins.highlightedFillTransparent, viewId: view.id, pass: "highlightedTransparent", target: this._batches.highlightedTransparent}),
-      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.highlightedEdgesTransparent, viewId: view.id, pass: "highlightedEdgesTransparent", target: this._batches.highlightedEdgesTransparent}) : null,
-      this._appendOpaqueBatches({batchSet: triangleBatch, drawItems: bins.selectedFillOpaque, viewId: view.id, pass: "selectedOpaque", target: this._batches.selectedOpaque}),
-      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.selectedEdgesOpaque, viewId: view.id, pass: "selectedEdgesOpaque", target: this._batches.selectedEdgesOpaque}) : null,
-      this._appendTransparentBatches({batchSet: triangleBatch, drawItems: bins.selectedFillTransparent, viewId: view.id, pass: "selectedTransparent", target: this._batches.selectedTransparent}),
-      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.selectedEdgesTransparent, viewId: view.id, pass: "selectedEdgesTransparent", target: this._batches.selectedEdgesTransparent}) : null
+    const styleBinResults = [
+      this._appendOpaqueBatches({batchSet: triangleBatch, drawItems: bins.styleBinFillOpaque, viewId: view.id, pass: "styleBinOpaque", target: this._batches.styleBinOpaque}),
+      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.styleBinEdgesOpaque, viewId: view.id, pass: "styleBinEdgesOpaque", target: this._batches.styleBinEdgesOpaque}) : null,
+      this._appendTransparentBatches({batchSet: triangleBatch, drawItems: bins.styleBinFillTransparent, viewId: view.id, pass: "styleBinTransparent", target: this._batches.styleBinTransparent}),
+      includeEdges ? this._appendEdgeBatches({batchSet: triangleBatch, drawItems: bins.styleBinEdgesTransparent, viewId: view.id, pass: "styleBinEdgesTransparent", target: this._batches.styleBinEdgesTransparent}) : null
     ];
-    for (const result of emphasisResults) {
+    for (const result of styleBinResults) {
       if (result === null) {
         continue;
       }
@@ -344,15 +328,11 @@ export class InstanceBatcher {
       return overlayTransparentBatchResult;
     }
 
-    const emphasisResults = [
-      this._appendTransparentBatches({batchSet, drawItems: bins.xrayedFillTransparent, viewId: view.id, pass: "xrayedTransparent", target: this._batches.xrayedTransparent}),
-      includeEdges ? this._appendEdgeBatches({batchSet, drawItems: bins.xrayedEdgesTransparent, viewId: view.id, pass: "xrayedEdgesTransparent", target: this._batches.xrayedEdgesTransparent}) : null,
-      this._appendTransparentBatches({batchSet, drawItems: bins.highlightedFillTransparent, viewId: view.id, pass: "highlightedTransparent", target: this._batches.highlightedTransparent}),
-      includeEdges ? this._appendEdgeBatches({batchSet, drawItems: bins.highlightedEdgesTransparent, viewId: view.id, pass: "highlightedEdgesTransparent", target: this._batches.highlightedEdgesTransparent}) : null,
-      this._appendTransparentBatches({batchSet, drawItems: bins.selectedFillTransparent, viewId: view.id, pass: "selectedTransparent", target: this._batches.selectedTransparent}),
-      includeEdges ? this._appendEdgeBatches({batchSet, drawItems: bins.selectedEdgesTransparent, viewId: view.id, pass: "selectedEdgesTransparent", target: this._batches.selectedEdgesTransparent}) : null
+    const styleBinResults = [
+      this._appendTransparentBatches({batchSet, drawItems: bins.styleBinFillTransparent, viewId: view.id, pass: "styleBinTransparent", target: this._batches.styleBinTransparent}),
+      includeEdges ? this._appendEdgeBatches({batchSet, drawItems: bins.styleBinEdgesTransparent, viewId: view.id, pass: "styleBinEdgesTransparent", target: this._batches.styleBinEdgesTransparent}) : null
     ];
-    for (const result of emphasisResults) {
+    for (const result of styleBinResults) {
       if (result === null) {
         continue;
       }
@@ -641,18 +621,10 @@ export class InstanceBatcher {
     this._batches.transparent.length = 0;
     this._batches.overlayOpaque.length = 0;
     this._batches.overlayTransparent.length = 0;
-    this._batches.xrayedOpaque.length = 0;
-    this._batches.xrayedEdgesOpaque.length = 0;
-    this._batches.xrayedTransparent.length = 0;
-    this._batches.xrayedEdgesTransparent.length = 0;
-    this._batches.highlightedOpaque.length = 0;
-    this._batches.highlightedEdgesOpaque.length = 0;
-    this._batches.highlightedTransparent.length = 0;
-    this._batches.highlightedEdgesTransparent.length = 0;
-    this._batches.selectedOpaque.length = 0;
-    this._batches.selectedEdgesOpaque.length = 0;
-    this._batches.selectedTransparent.length = 0;
-    this._batches.selectedEdgesTransparent.length = 0;
+    this._batches.styleBinOpaque.length = 0;
+    this._batches.styleBinEdgesOpaque.length = 0;
+    this._batches.styleBinTransparent.length = 0;
+    this._batches.styleBinEdgesTransparent.length = 0;
   }
 
   private _getDrawBatchCacheKey(
@@ -681,18 +653,10 @@ export class InstanceBatcher {
     for (const batchList of [
       batches.overlayOpaque,
       batches.overlayTransparent,
-      batches.xrayedOpaque,
-      batches.xrayedEdgesOpaque,
-      batches.xrayedTransparent,
-      batches.xrayedEdgesTransparent,
-      batches.highlightedOpaque,
-      batches.highlightedEdgesOpaque,
-      batches.highlightedTransparent,
-      batches.highlightedEdgesTransparent,
-      batches.selectedOpaque,
-      batches.selectedEdgesOpaque,
-      batches.selectedTransparent,
-      batches.selectedEdgesTransparent
+      batches.styleBinOpaque,
+      batches.styleBinEdgesOpaque,
+      batches.styleBinTransparent,
+      batches.styleBinEdgesTransparent
     ]) {
       for (let i = 0, len = batchList.length; i < len; i++) {
         batchList[i].packedBatch.destroy();

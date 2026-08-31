@@ -129,7 +129,7 @@
  *
  * view.setObjectsVisible(view.objectIds, false);
  * view.setObjectsVisible(["myObject1", "myObject2"], true);
- * view.setObjectsXRayed(["myObject1"], true);
+ * view.setObjectsInStyleBin("xrayed", ["myObject1"], true);
  *
  * const bcfViewpointResult = saveBCFViewpoint({ view });
  * const bcfViewpoint = bcfViewpointResult.value;

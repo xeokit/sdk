@@ -28,13 +28,18 @@ export interface WebGPURenderConfigs {
   /**
    * Selects the triangle color path.
    *
+   * - `"auto"` classifies triangle batches internally. Plain instance-colored
+   *   triangles use flat packing and drawing; triangles that need PBR material
+   *   state, textures, vertex colors, emissive terms, or alpha-mask material
+   *   state use PBR packing and drawing.
    * - `"pbr"` uploads material, normal and texture coordinate streams for
    *   physically based shading.
-   * - `"flat"` uploads only the streams needed for unlit per-object color.
+   * - `"flat"` uploads only the streams needed for lean per-object color
+   *   shading.
    *   This is intended for very large streamed models that would otherwise
    *   exceed available GPU memory.
    */
-  triangleColorMode: "pbr" | "flat";
+  triangleColorMode: "auto" | "pbr" | "flat";
 
   /**
    * Enables optional WebGPU timestamp queries for render-pass GPU timings.

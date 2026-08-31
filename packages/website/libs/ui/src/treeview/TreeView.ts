@@ -325,7 +325,7 @@ export class TreeView {
   private _onSceneModelCreated: () => void;
   private _onSceneModelDestroyed: () => void;
   private _onViewObjectVisibility: () => void;
-  private _onViewObjectXRayed: () => void;
+  private _onViewObjectStyleBin: () => void;
   private _onDataObjectCreated: () => void;
   private _onDataObjectDestroyed: () => void;
 
@@ -430,17 +430,21 @@ export class TreeView {
       this._muteTreeEvents = false;
     });
 
-    this._onViewObjectXRayed = this.view.viewer.events.onViewObjectXRayedChanged.subscribe((view: View, viewObject: ViewObject) => {
+    this._onViewObjectStyleBin = this.view.viewer.events.onViewObjectStyleBinChanged.subscribe((view, event) => {
       if (this._muteSceneEvents) {
         return;
       }
+      if (event.styleBinId !== "xrayed") {
+        return;
+      }
+      const viewObject = event.viewObject;
       const objectId = viewObject.id;
       const node = this._objectNodes[objectId];
       if (!node) {
         return;
       }
 
-      const xrayed = viewObject.xrayed;
+      const xrayed = event.membership;
       if (xrayed === node.xrayed) {
         return;
       }
@@ -759,7 +763,7 @@ export class TreeView {
 
     const viewerEvents = this.view.viewer.events;
     viewerEvents.onViewObjectVisibleChanged.unsubscribe(this._onViewObjectVisibility);
-    viewerEvents.onViewObjectXRayedChanged.unsubscribe(this._onViewObjectXRayed);
+    viewerEvents.onViewObjectStyleBinChanged.unsubscribe(this._onViewObjectStyleBin);
 
     this.data.events.onDataObjectCreated.unsubscribe(this._onDataObjectCreated);
     this.data.events.onDataObjectDestroyed.unsubscribe(this._onDataObjectDestroyed);
@@ -1545,7 +1549,7 @@ export class TreeView {
 
       const visible = viewObject.visible;
       node.numViewObjects = 1;
-      node.xrayed = viewObject.xrayed;
+      node.xrayed = viewObject.hasStyleBin("xrayed");
       if (visible) {
         node.numVisibleViewObjects = 1;
         node.checked = true;
@@ -1811,7 +1815,7 @@ export class TreeView {
     }
 
     node.numViewObjects = 1;
-    node.xrayed = viewObject.xrayed;
+    node.xrayed = viewObject.hasStyleBin("xrayed");
     node.checked = !!viewObject.visible;
     node.numVisibleViewObjects = viewObject.visible ? 1 : 0;
   }

@@ -16,26 +16,6 @@ export const RENDER_BINS = {
   EDGES_OPAQUE: "edgesColorOpaque",
 
   /**
-   * Meshes rendered in X-rayed state as transparent, monochrome silhouettes.
-   */
-  XRAYED_SILHOUETTE_OPAQUE: "xrayedSilhouetteOpaque",
-
-  /**
-   * Meshes rendered in X-rayed state as opaque, monochrome silhouettes (unusual).
-   */
-  XRAYED_EDGES_OPAQUE: "xrayedEdgesOpaque",
-
-  /**
-   * Triangle mesh edges in X-rayed state rendered as transparent.
-   */
-  XRAYED_EDGES_TRANSPARENT: "xrayedEdgesTransparent",
-
-  /**
-   * Meshes in X-rayed state rendered as transparent, monochrome silhouettes.
-   */
-  XRAYED_SILHOUETTE_TRANSPARENT: "xrayedSilhouetteTransparent",
-
-  /**
    * Triangle mesh edges rendered as transparent, normal color.
    */
   EDGES_TRANSPARENT: "edgesColorTransparent",
@@ -46,28 +26,27 @@ export const RENDER_BINS = {
   TRANSPARENT: "normalFillTransparent",
 
   /**
-   * Meshes rendered in highlighted state as opaque, monochrome silhouettes.
+   * Meshes rendered with an opaque resolved style-bin treatment.
    */
-  HIGHLIGHTED_SILHOUETTE_OPAQUE: "highlightedSilhouetteOpaque",
+  STYLE_BIN_FILL_OPAQUE: "styleBinFillOpaque",
 
   /**
-   * Meshes rendered in selected state as opaque, monochrome silhouettes.
+   * Edges rendered with an opaque resolved style-bin treatment.
    */
-  SELECTED_SILHOUETTE_OPAQUE: "selectedSilhouetteOpaque",
+  STYLE_BIN_EDGES_OPAQUE: "styleBinEdgesOpaque",
 
   /**
-   * Meshes rendered in highlighted state as transparent, monochrome silhouettes.
+   * Meshes rendered with a transparent resolved style-bin treatment.
    */
-  HIGHLIGHTED_SILHOUETTE_TRANSPARENT: "highlightedSilhouetteTransparent",
+  STYLE_BIN_FILL_TRANSPARENT: "styleBinFillTransparent",
 
   /**
-   * Meshes rendered in selected state as transparent, monochrome silhouettes.
+   * Edges rendered with a transparent resolved style-bin treatment.
    */
-  SELECTED_SILHOUETTE_TRANSPARENT: "selectedSilhouetteTransparent",
+  STYLE_BIN_EDGES_TRANSPARENT: "styleBinEdgesTransparent",
 
   /**
    * Meshes rendered for picking (renders mesh IDs to pick buffer).
    */
   PICK: "pick"
 };
-

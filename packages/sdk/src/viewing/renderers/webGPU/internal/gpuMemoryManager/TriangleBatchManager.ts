@@ -20,6 +20,7 @@ import type {LODRepMembership} from "../../../../lod/LODVisibility";
 
 const TRIANGLE_MATERIAL_FLOATS_PER_VERTEX = 12;
 const TRIANGLE_MATERIAL_VERTEX_STRIDE_BYTES = TRIANGLE_MATERIAL_FLOATS_PER_VERTEX * 4;
+type TriangleRenderClass = "flat" | "pbr";
 
 interface InstanceWriteState {
   bufferVersion: number;
@@ -46,6 +47,7 @@ export interface TriangleBatchSegment {
   signature: string;
   primitive: number;
   hasNormals: boolean;
+  triangleRenderClass: TriangleRenderClass;
   baseSlot: number;
   slotCount: number;
   slotEnd: number;
@@ -718,7 +720,8 @@ export class TriangleBatchManager {
     const isLines = primitive === LinesPrimitive;
     const isTriangles = !isPoints && !isLines;
     const hasNormals = isTriangles && !!meshStates[0]?.geometryState.normals;
-    const pbrTriangleColor = isTriangles && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+    const triangleRenderClass = isTriangles ? getTriangleRenderClassFromBaseKey(baseKey) : "flat";
+    const pbrTriangleColor = isTriangles && triangleRenderClass === "pbr";
     const includeEdges = isTriangles && this._renderContext.renderConfigs.edges;
     for (let i = 0, len = meshStates.length; i < len; i++) {
       const geometryState = meshStates[i].geometryState;
@@ -1013,6 +1016,7 @@ export class TriangleBatchManager {
         signature,
         primitive: isPoints ? PointsPrimitive : (isLines ? LinesPrimitive : TrianglesPrimitive),
         hasNormals,
+        triangleRenderClass,
         baseSlot,
         slotCount: slots.length,
         slotEnd: baseSlot + slots.length,
@@ -1140,7 +1144,8 @@ export class TriangleBatchManager {
         const drawItem: DrawItem = {
           meshState,
           opacity: meshManager.getMeshOpacityInView(meshState, view),
-          viewDepth: 0
+          viewDepth: 0,
+          style: null
         };
         meshManager.writeInstanceData(drawItem, view, instanceFrame.data, slot.globalSlot * INSTANCE_FLOATS, this._rtcTileResolver);
         slot.instanceWriteStateByViewId[view.id] = {
@@ -1302,6 +1307,7 @@ export class TriangleBatchManager {
           packedBatch: {
             primitive: segment.primitive,
             hasNormals: segment.hasNormals,
+            triangleRenderClass: segment.triangleRenderClass,
             label: params.label,
             segmentKey: segment.key,
             bufferPageKey: segment.bufferPageKey,
@@ -1396,6 +1402,7 @@ export class TriangleBatchManager {
           label: params.label,
           primitive: segment.primitive,
           hasNormals: segment.hasNormals,
+          triangleRenderClass: segment.triangleRenderClass,
           segmentKey: segment.key,
           bufferPageKey: segment.bufferPageKey,
           renderStateKey,
@@ -1687,7 +1694,7 @@ export class TriangleBatchManager {
       const isPointPage = pageKey.includes(`primitive:${PointsPrimitive}`);
       const isLinePage = pageKey.includes(`primitive:${LinesPrimitive}`);
       const isTrianglePage = !isPointPage && !isLinePage;
-      const pbrTrianglePage = isTrianglePage && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+      const pbrTrianglePage = isTrianglePage && getTriangleRenderClassFromBaseKey(pageKey) === "pbr";
       const colorBuffer = isPointPage || isLinePage || pbrTrianglePage
         ? this._renderContext.createEmptyGPUBuffer(
             `xeokit-webgpu-packed-colors:${isTrianglePage ? "triangles" : (isLinePage ? "lines" : "points")}:${segmentLabel}`,
@@ -1849,6 +1856,10 @@ export class TriangleBatchManager {
     }
     const hasNormals = !!meshState.geometryState.normals;
     const textureKey = getPBRTextureTupleKey(this._textureBindGroupManager, meshState.mesh);
+    const triangleRenderClass = getTriangleRenderClass(this._renderContext.renderConfigs.triangleColorMode, meshState);
+    if (triangleRenderClass === "flat") {
+      return `${baseKey}|color:flat|hasNormals:${hasNormals ? 1 : 0}`;
+    }
     const triangleBaseKey = `${baseKey}|hasNormals:${hasNormals ? 1 : 0}`;
     return textureKey === DEFAULT_TEXTURE_KEY ? triangleBaseKey : `${triangleBaseKey}|texture:${textureKey}`;
   }
@@ -2063,12 +2074,44 @@ function getMeshWorldMatrix(meshState: RendererMesh): ArrayLike<number> {
   return meshState.mesh.worldMatrix ?? meshState.mesh.matrix ?? IDENTITY_MATRIX;
 }
 
+function getTriangleRenderClass(mode: "auto" | "pbr" | "flat", meshState: RendererMesh): TriangleRenderClass {
+  if (mode === "flat" || mode === "pbr") {
+    return mode;
+  }
+  return meshNeedsPBRTriangleColor(meshState) ? "pbr" : "flat";
+}
+
+function getTriangleRenderClassFromBaseKey(baseKey: string): TriangleRenderClass {
+  return baseKey.includes("|color:flat") ? "flat" : "pbr";
+}
+
+function meshNeedsPBRTriangleColor(meshState: RendererMesh): boolean {
+  const mesh = meshState.mesh;
+  const geometry = meshState.geometryState.geometry;
+  const emissive = getEffectiveEmissiveColor(mesh);
+  return (
+    meshHasAnyPBRTexture(mesh) ||
+    !!geometry.colorsCompressed ||
+    getEffectiveRoughness(mesh) !== 1.0 ||
+    getEffectiveMetallic(mesh) !== 0.0 ||
+    emissive[0] !== 0 ||
+    emissive[1] !== 0 ||
+    emissive[2] !== 0 ||
+    getEffectiveClearcoat(mesh) !== 0.0 ||
+    getEffectiveClearcoatRoughness(mesh) !== 0.0 ||
+    getEffectiveSheen(mesh) !== 0.0 ||
+    getEffectiveSheenRoughness(mesh) !== 0.5 ||
+    getEffectiveAlphaMode(mesh) !== 0
+  );
+}
+
 function cloneCachedDrawBatch(batch: InstancedDrawBatch, createdThisFrame: boolean): InstancedDrawBatch {
   const packedBatch = batch.packedBatch;
   return {
     packedBatch: {
       primitive: packedBatch.primitive,
       hasNormals: packedBatch.hasNormals,
+      triangleRenderClass: packedBatch.triangleRenderClass,
       label: packedBatch.label,
       segmentKey: packedBatch.segmentKey,
       bufferPageKey: packedBatch.bufferPageKey,

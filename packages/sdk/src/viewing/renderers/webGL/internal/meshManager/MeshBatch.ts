@@ -146,4 +146,11 @@ export interface MeshBatch {
    * @param renderPass
    */
   hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue ): boolean;
+
+  /**
+   * True when this batch contains at least one mesh whose resolved style bin
+   * requests a depth-cleared overlay pass for the given view.
+   * @param viewIndex
+   */
+  hasStyleBinClearDepthBefore(viewIndex: number): boolean;
 }

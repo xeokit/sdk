@@ -166362,6 +166362,8 @@ __export(viewer_exports, {
   View: () => View2,
   ViewLayer: () => ViewLayer,
   ViewObject: () => ViewObject,
+  ViewStyleBin: () => ViewStyleBin,
+  ViewStyleBins: () => ViewStyleBins,
   ViewTransform: () => ViewTransform,
   ViewTransformParams: () => ViewTransformParams,
   Viewer: () => Viewer,
@@ -168303,330 +168305,6 @@ var DirLight = class {
   }
 };
 
-// ../sdk/src/viewing/viewer/Effect.ts
-var Effect = class {
-  /**
-   * The View to which this Effect belongs.
-   */
-  view;
-  _fillColor;
-  _backfaces;
-  _edgeColor;
-  _edgeWidth;
-  _edgeAlpha;
-  _edges;
-  _fillAlpha;
-  _fill;
-  _glowThrough;
-  _destroyed = false;
-  /**
-   * @private
-   */
-  constructor(view, options = {}) {
-    this.view = view;
-    this._fill = !!options.fill;
-    this._fillColor = createVec3Float32(options.fillColor || [0.4, 0.4, 0.4]);
-    this._fillAlpha = options.fillAlpha !== void 0 && options.fillAlpha !== null ? options.fillAlpha : 0.2;
-    this._edges = options.edges !== false;
-    this._edgeColor = createVec3Float32(options.edgeColor || [0.2, 0.2, 0.2]);
-    this._edgeAlpha = options.edgeAlpha !== void 0 && options.edgeAlpha !== null ? options.edgeAlpha : 0.5;
-    this._edgeWidth = options.edgeWidth !== void 0 && options.edgeWidth !== null ? options.edgeWidth : 1;
-    this._backfaces = !!options.backfaces;
-    this._glowThrough = !!options.glowThrough;
-  }
-  /**
-   * Sets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
-   *
-   * Default is ````true````.
-   */
-  set fill(value) {
-    if (this._fill === value) {
-      return;
-    }
-    this._fill = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
-   *
-   * Default is ````true````.
-   */
-  get fill() {
-    return this._fill;
-  }
-  /**
-   * Sets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * Default is ````[0.4, 0.4, 0.4]````.
-   */
-  set fillColor(value) {
-    if (!value || value.length < 3) {
-      this.view.viewer.logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: "[Effect set fillColor] Invalid color parameter."
-      });
-      return;
-    }
-    const fillColor = this._fillColor;
-    if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
-      return;
-    }
-    fillColor[0] = value[0];
-    fillColor[1] = value[1];
-    fillColor[2] = value[2];
-    this.view.needsRender();
-  }
-  /**
-   * Gets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * Default is ````[0.4, 0.4, 0.4]````.
-   */
-  get fillColor() {
-    return this._fillColor;
-  }
-  /**
-   * Sets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-   *
-   * Default is ````0.2````.
-   */
-  set fillAlpha(value) {
-    if (this._fillAlpha === value) {
-      return;
-    }
-    this._fillAlpha = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-   *
-   * Default is ````0.2````.
-   */
-  get fillAlpha() {
-    return this._fillAlpha;
-  }
-  /**
-   * Sets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
-   *
-   * Default is ````true````.
-   */
-  set edges(value) {
-    if (this._edges === value) {
-      return;
-    }
-    this._edges = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
-   *
-   * Default is ````true````.
-   */
-  get edges() {
-    return this._edges;
-  }
-  /**
-   * Sets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * Default is ```` [0.2, 0.2, 0.2]````.
-   */
-  set edgeColor(value) {
-    if (!value || value.length < 3) {
-      this.view.viewer.logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: "[Effect set edgeColor] Invalid color parameter."
-      });
-      return;
-    }
-    const edgeColor = this._edgeColor;
-    if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
-      return;
-    }
-    edgeColor[0] = value[0];
-    edgeColor[1] = value[1];
-    edgeColor[2] = value[2];
-    this.view.needsRender();
-  }
-  /**
-   * Gets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * Default is ```` [0.2, 0.2, 0.2]````.
-   */
-  get edgeColor() {
-    return this._edgeColor;
-  }
-  /**
-   * Sets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-   *
-   * Default is ````0.2````.
-   */
-  set edgeAlpha(value) {
-    if (this._edgeAlpha === value) {
-      return;
-    }
-    this._edgeAlpha = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-   *
-   * Default is ````0.2````.
-   */
-  get edgeAlpha() {
-    return this._edgeAlpha;
-  }
-  /**
-   * Sets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * Default value is ````1.0```` pixels.
-   */
-  set edgeWidth(value) {
-    this._edgeWidth = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
-   *
-   * This is not supported by WebGL implementations based on DirectX [2019].
-   *
-   * Default value is ````1.0```` pixels.
-   */
-  get edgeWidth() {
-    return this._edgeWidth;
-  }
-  /**
-   * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
-   *
-   * Default is ````false````.
-   */
-  set backfaces(value) {
-    if (this._backfaces === value) {
-      return;
-    }
-    this._backfaces = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
-   *
-   * Default is ````false````.
-   */
-  get backfaces() {
-    return this._backfaces;
-  }
-  /**
-   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
-   *
-   * Default is ````true````.
-   *
-   * Note: updating this property will not affect the appearance of objects that are already emphasized.
-   *
-   * @type {Boolean}
-   */
-  set glowThrough(value) {
-    value = value !== false;
-    if (this._glowThrough === value) {
-      return;
-    }
-    this._glowThrough = value;
-    this.view.needsRender();
-  }
-  /**
-   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
-   *
-   * Default is ````true````.
-   *
-   * @type {Boolean}
-   */
-  get glowThrough() {
-    return this._glowThrough;
-  }
-  /**
-   * @private
-   */
-  get hash() {
-    return "";
-  }
-  /**
-   * Configures this Effect.
-   * @param emphasisMaterialParams
-   */
-  fromParams(emphasisMaterialParams) {
-    if (this._destroyed) {
-      return this.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[Effect.fromParams] Effect has been destroyed."
-      });
-    }
-    if (emphasisMaterialParams.fillColor !== void 0) {
-      this.fillColor = emphasisMaterialParams.fillColor;
-    }
-    if (emphasisMaterialParams.edgeColor !== void 0) {
-      this.edgeColor = emphasisMaterialParams.edgeColor;
-    }
-    if (emphasisMaterialParams.edgeWidth !== void 0) {
-      this.edgeWidth = emphasisMaterialParams.edgeWidth;
-    }
-    if (emphasisMaterialParams.edgeAlpha !== void 0) {
-      this.edgeAlpha = emphasisMaterialParams.edgeAlpha;
-    }
-    if (emphasisMaterialParams.edges !== void 0) {
-      this.edges = emphasisMaterialParams.edges;
-    }
-    if (emphasisMaterialParams.fillAlpha !== void 0) {
-      this.fillAlpha = emphasisMaterialParams.fillAlpha;
-    }
-    if (emphasisMaterialParams.fill !== void 0) {
-      this.fill = emphasisMaterialParams.fill;
-    }
-    if (emphasisMaterialParams.backfaces !== void 0) {
-      this.backfaces = emphasisMaterialParams.backfaces;
-    }
-    if (emphasisMaterialParams.glowThrough !== void 0) {
-      this.glowThrough = emphasisMaterialParams.glowThrough;
-    }
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  /**
-   * Gets the current configuration of this Effect.
-   */
-  toParams() {
-    return {
-      ok: true,
-      value: {
-        fillColor: Array.from(this._fillColor),
-        backfaces: this._backfaces,
-        edgeColor: Array.from(this._edgeColor),
-        edgeWidth: this._edgeWidth,
-        edgeAlpha: this._edgeAlpha,
-        edges: this._edges,
-        fillAlpha: this._fillAlpha,
-        fill: this._fill,
-        glowThrough: this._glowThrough
-      }
-    };
-  }
-  /**
-   * @private
-   */
-  destroy() {
-    this._destroyed = true;
-  }
-};
-
 // ../sdk/src/viewing/viewer/LinesMaterial.ts
 var LinesMaterial = class {
   /**
@@ -169561,8 +169239,8 @@ var Edges = class {
    * colour darkened by {@link Edges.edgeDarken | edgeDarken}, instead of the
    * fixed {@link Edges.edgeColor | edgeColor}.
    *
-   * Only affects the base edges effect — x-ray / highlight / selected edges
-   * always use their emphasis material's colour.
+   * Only affects the base edges effect. Edges drawn by a style bin use that
+   * bin's edge colour.
    *
    * Default value is ````true````.
    */
@@ -172593,30 +172271,6 @@ var ViewLayer = class {
    */
   visibleObjects;
   /**
-   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  xrayedObjects;
-  /**
-   * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  highlightedObjects;
-  /**
-   * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is selected when {@link ViewObject.selected} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  selectedObjects;
-  /**
    * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
    *
    * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
@@ -172638,12 +172292,6 @@ var ViewLayer = class {
   _objectIds;
   _numVisibleObjects;
   _visibleObjectIds;
-  _numXRayedObjects;
-  _xrayedObjectIds;
-  _numHighlightedObjects;
-  _highlightedObjectIds;
-  _numSelectedObjects;
-  _selectedObjectIds;
   _numColorizedObjects;
   _colorizedObjectIds;
   _numOpacityObjects;
@@ -172659,17 +172307,11 @@ var ViewLayer = class {
     this.view = options.view;
     this.objects = {};
     this.visibleObjects = {};
-    this.xrayedObjects = {};
-    this.highlightedObjects = {};
-    this.selectedObjects = {};
     this.colorizedObjects = {};
     this.opacityObjects = {};
     this.autoDestroy = options.autoDestroy !== false;
     this._numObjects = 0;
     this._numVisibleObjects = 0;
-    this._numXRayedObjects = 0;
-    this._numHighlightedObjects = 0;
-    this._numSelectedObjects = 0;
     this._numColorizedObjects = 0;
     this._numOpacityObjects = 0;
   }
@@ -172693,21 +172335,6 @@ var ViewLayer = class {
       delete this.visibleObjects[objectId];
       this._numVisibleObjects--;
       this._visibleObjectIds = null;
-    }
-    if (this.xrayedObjects[objectId]) {
-      delete this.xrayedObjects[objectId];
-      this._numXRayedObjects--;
-      this._xrayedObjectIds = null;
-    }
-    if (this.highlightedObjects[objectId]) {
-      delete this.highlightedObjects[objectId];
-      this._numHighlightedObjects--;
-      this._highlightedObjectIds = null;
-    }
-    if (this.selectedObjects[objectId]) {
-      delete this.selectedObjects[objectId];
-      this._numSelectedObjects--;
-      this._selectedObjectIds = null;
     }
     if (this.colorizedObjects[objectId]) {
       delete this.colorizedObjects[objectId];
@@ -172757,51 +172384,6 @@ var ViewLayer = class {
     return this._visibleObjectIds;
   }
   /**
-   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numXRayedObjects() {
-    return this._numXRayedObjects;
-  }
-  /**
-   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get xrayedObjectIds() {
-    if (!this._xrayedObjectIds) {
-      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
-    }
-    return this._xrayedObjectIds;
-  }
-  /**
-   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numHighlightedObjects() {
-    return this._numHighlightedObjects;
-  }
-  /**
-   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get highlightedObjectIds() {
-    if (!this._highlightedObjectIds) {
-      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
-    }
-    return this._highlightedObjectIds;
-  }
-  /**
-   * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numSelectedObjects() {
-    return this._numSelectedObjects;
-  }
-  /**
-   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get selectedObjectIds() {
-    if (!this._selectedObjectIds) {
-      this._selectedObjectIds = Object.keys(this.selectedObjects);
-    }
-    return this._selectedObjectIds;
-  }
-  /**
    * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numColorizedObjects() {
@@ -172847,49 +172429,11 @@ var ViewLayer = class {
     this.view.objectVisibilityUpdated(viewObject, visible, notify);
   }
   /**
-   * Called by ViewObject.xrayed setter.
+   * Called by ViewObject.setStyleBin.
    * @private
    */
-  objectXRayedUpdated(viewObject, xrayed) {
-    if (xrayed) {
-      this.xrayedObjects[viewObject.id] = viewObject;
-      this._numXRayedObjects++;
-    } else {
-      delete this.xrayedObjects[viewObject.id];
-      this._numXRayedObjects--;
-    }
-    this._xrayedObjectIds = null;
-    this.view.objectXRayedUpdated(viewObject, xrayed);
-  }
-  /**
-   * Called by ViewObject.highlighted setter.
-   * @private
-   */
-  objectHighlightedUpdated(viewObject, highlighted) {
-    if (highlighted) {
-      this.highlightedObjects[viewObject.id] = viewObject;
-      this._numHighlightedObjects++;
-    } else {
-      delete this.highlightedObjects[viewObject.id];
-      this._numHighlightedObjects--;
-    }
-    this._highlightedObjectIds = null;
-    this.view.objectHighlightedUpdated(viewObject, highlighted);
-  }
-  /**
-   * Called by ViewObject.selected setter.
-   * @private
-   */
-  objectSelectedUpdated(viewObject, selected) {
-    if (selected) {
-      this.selectedObjects[viewObject.id] = viewObject;
-      this._numSelectedObjects++;
-    } else {
-      delete this.selectedObjects[viewObject.id];
-      this._numSelectedObjects--;
-    }
-    this._selectedObjectIds = null;
-    this.view.objectSelectedUpdated(viewObject, selected);
+  objectStyleBinUpdated(viewObject, styleBinId, membership) {
+    this.view.objectStyleBinUpdated(viewObject, styleBinId, membership);
   }
   /**
    * Called by ViewObject.colorized setter.
@@ -173018,16 +172562,9 @@ var ViewLayer = class {
     return changed;
   }
   /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * Adds or removes the given ViewObjects from a named style bin.
    */
-  setObjectsSelected(objectIds, selected) {
+  setObjectsInStyleBin(styleBinId, objectIds, membership) {
     let changed = false;
     const objects = this.objects;
     for (let i = 0, len = objectIds.length; i < len; i++) {
@@ -173035,62 +172572,15 @@ var ViewLayer = class {
       if (!viewObject) {
         continue;
       }
-      if (viewObject.selected !== selected) {
-        viewObject.selected = selected;
+      const result = viewObject.setStyleBin(styleBinId, membership);
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
         changed = true;
       }
     }
-    return changed;
-  }
-  /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsHighlighted(objectIds, highlighted) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.highlighted !== highlighted) {
-        viewObject.highlighted = highlighted;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsXRayed(objectIds, xrayed) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.xrayed !== xrayed) {
-        viewObject.xrayed = xrayed;
-        changed = true;
-      }
-    }
-    return changed;
+    return { ok: true, value: changed };
   }
   /**
    * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -173657,6 +173147,7 @@ var ViewObject = class _ViewObject {
    */
   viewTransform;
   _flags;
+  _styleBinIds = null;
   // RGBA: [0..2] colorize, [3] opacity. Lazily allocated — most ViewObjects
   // are never colorized or opacity-overridden, and a Float32Array(4) costs
   // ~230 B in V8 (object + ArrayBuffer overhead), dwarfing its 16 B of data.
@@ -173672,11 +173163,8 @@ var ViewObject = class _ViewObject {
   static PICKABLE = 1 << 2;
   static CLIPPABLE = 1 << 3;
   static COLLIDABLE = 1 << 4;
-  static XRAYED = 1 << 5;
-  static SELECTED = 1 << 6;
-  static HIGHLIGHTED = 1 << 7;
-  static COLORIZED = 1 << 8;
-  static OPACITY_UPDATED = 1 << 9;
+  static COLORIZED = 1 << 5;
+  static OPACITY_UPDATED = 1 << 6;
   /**
    * @private
    */
@@ -173764,94 +173252,49 @@ var ViewObject = class _ViewObject {
   //     this.layer.objectMeshVisibilityUpdated(this, meshIndex, visible);
   // }
   /**
-   * Gets if this ViewObject is X-rayed.
-   *
-   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+   * Returns true when this ViewObject belongs to a named style bin.
    */
-  get xrayed() {
-    return (this._flags & _ViewObject.XRAYED) !== 0;
+  hasStyleBin(styleBinId) {
+    return this._styleBinIds?.has(styleBinId) === true;
   }
   /**
-   * Sets if this ViewObject is X-rayed.
-   *
-   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+   * Adds or removes this ViewObject from a named style bin.
    */
-  set xrayed(xrayed) {
+  setStyleBin(styleBinId, membership) {
     if (this.destroyed) {
-      this.layer.view.viewer.logError({
+      return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[ViewObject.xrayed] ViewObject already destroyed"
-      });
-      return;
+        error: "[ViewObject.setStyleBin] ViewObject already destroyed"
+      };
     }
-    if (this.xrayed === xrayed) {
-      return;
-    }
-    this._setFlag(_ViewObject.XRAYED, xrayed);
-    this.layer.objectXRayedUpdated(this, xrayed);
-  }
-  /**
-   * Gets if this ViewObject is highlighted.
-   *
-   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-   */
-  get highlighted() {
-    return (this._flags & _ViewObject.HIGHLIGHTED) !== 0;
-  }
-  /**
-   * Sets if this ViewObject is highlighted.
-   *
-   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-   */
-  set highlighted(highlighted) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
+    if (!this.view.styleBins.get(styleBinId)) {
+      return {
         ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.highlighted] ViewObject already destroyed"
-      });
-      return;
+        type: 2 /* InvalidInput */,
+        error: `[ViewObject.setStyleBin] Style bin not found: ${styleBinId}`
+      };
     }
-    if (highlighted === this.highlighted) {
-      return;
+    const styleBinIds = this._styleBinIds ?? (this._styleBinIds = /* @__PURE__ */ new Set());
+    if (styleBinIds.has(styleBinId) === membership) {
+      return { ok: true, value: false };
     }
-    this._setFlag(_ViewObject.HIGHLIGHTED, highlighted);
-    this.layer.objectHighlightedUpdated(this, highlighted);
+    if (membership) {
+      styleBinIds.add(styleBinId);
+    } else {
+      styleBinIds.delete(styleBinId);
+      if (styleBinIds.size === 0) {
+        this._styleBinIds = null;
+      }
+    }
+    this.layer.objectStyleBinUpdated(this, styleBinId, membership);
+    return { ok: true, value: true };
   }
   /**
-   * Gets if this ViewObject is selected.
-   *
-   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+   * Gets the IDs of style bins this ViewObject currently belongs to.
    */
-  get selected() {
-    return (this._flags & _ViewObject.SELECTED) !== 0;
-  }
-  /**
-   * Sets if this ViewObject is selected.
-   *
-   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
-   */
-  set selected(selected) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.selected] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (selected === this.selected) {
-      return;
-    }
-    this._setFlag(_ViewObject.SELECTED, selected);
-    this.layer.objectSelectedUpdated(this, selected);
+  get styleBinIds() {
+    return this._styleBinIds ? Array.from(this._styleBinIds) : [];
   }
   /**
    * Gets if this ViewObject is culled.
@@ -174058,15 +173501,6 @@ var ViewObject = class _ViewObject {
     if (this.visible) {
       this.layer.objectVisibilityUpdated(this, false, false);
     }
-    if (this.xrayed) {
-      this.layer.objectXRayedUpdated(this, false);
-    }
-    if (this.selected) {
-      this.layer.objectSelectedUpdated(this, false);
-    }
-    if (this.highlighted) {
-      this.layer.objectHighlightedUpdated(this, false);
-    }
     if (this.colorized) {
       this.layer.objectColorizeUpdated(this, false);
     }
@@ -174139,6 +173573,613 @@ var ViewTransformParams = class {
   parentTransformId;
 };
 
+// ../sdk/src/viewing/viewer/Effect.ts
+var Effect = class {
+  /**
+   * The View to which this Effect belongs.
+   */
+  view;
+  _fillColor;
+  _backfaces;
+  _edgeColor;
+  _edgeWidth;
+  _edgeAlpha;
+  _edges;
+  _fillAlpha;
+  _fill;
+  _clearDepthBefore;
+  _destroyed = false;
+  _onUpdated;
+  /**
+   * @private
+   */
+  constructor(view, options = {}, onUpdated) {
+    this.view = view;
+    this._onUpdated = onUpdated;
+    this._fill = options.fill !== false;
+    this._fillColor = createVec3Float32(options.fillColor || [0.4, 0.4, 0.4]);
+    this._fillAlpha = options.fillAlpha !== void 0 && options.fillAlpha !== null ? options.fillAlpha : 0.2;
+    this._edges = options.edges !== false;
+    this._edgeColor = createVec3Float32(options.edgeColor || [0.2, 0.2, 0.2]);
+    this._edgeAlpha = options.edgeAlpha !== void 0 && options.edgeAlpha !== null ? options.edgeAlpha : 0.5;
+    this._edgeWidth = options.edgeWidth !== void 0 && options.edgeWidth !== null ? options.edgeWidth : 1;
+    this._backfaces = !!options.backfaces;
+    this._clearDepthBefore = options.clearDepthBefore === true;
+  }
+  _updated() {
+    this.view.needsRender();
+    this._onUpdated?.();
+  }
+  /**
+   * Sets if style-bin surfaces are filled with color.
+   *
+   * Default is ````true````.
+   */
+  set fill(value) {
+    if (this._fill === value) {
+      return;
+    }
+    this._fill = value;
+    this._updated();
+  }
+  /**
+   * Gets if style-bin surfaces are filled with color.
+   *
+   * Default is ````true````.
+   */
+  get fill() {
+    return this._fill;
+  }
+  /**
+   * Sets the RGB surface fill color for style-bin surfaces.
+   *
+   * Default is ````[0.4, 0.4, 0.4]````.
+   */
+  set fillColor(value) {
+    if (!value || value.length < 3) {
+      this.view.viewer.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[Effect set fillColor] Invalid color parameter."
+      });
+      return;
+    }
+    const fillColor = this._fillColor;
+    if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
+      return;
+    }
+    fillColor[0] = value[0];
+    fillColor[1] = value[1];
+    fillColor[2] = value[2];
+    this._updated();
+  }
+  /**
+   * Gets the RGB surface fill color for style-bin surfaces.
+   *
+   * Default is ````[0.4, 0.4, 0.4]````.
+   */
+  get fillColor() {
+    return this._fillColor;
+  }
+  /**
+   * Sets the transparency of style-bin surfaces.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
+  set fillAlpha(value) {
+    if (this._fillAlpha === value) {
+      return;
+    }
+    this._fillAlpha = value;
+    this._updated();
+  }
+  /**
+   * Gets the transparency of style-bin surfaces.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
+  get fillAlpha() {
+    return this._fillAlpha;
+  }
+  /**
+   * Sets if style-bin edges are visible.
+   *
+   * Default is ````true````.
+   */
+  set edges(value) {
+    if (this._edges === value) {
+      return;
+    }
+    this._edges = value;
+    this._updated();
+  }
+  /**
+   * Gets if style-bin edges are visible.
+   *
+   * Default is ````true````.
+   */
+  get edges() {
+    return this._edges;
+  }
+  /**
+   * Sets the RGB color of style-bin edges.
+   *
+   * Default is ```` [0.2, 0.2, 0.2]````.
+   */
+  set edgeColor(value) {
+    if (!value || value.length < 3) {
+      this.view.viewer.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[Effect set edgeColor] Invalid color parameter."
+      });
+      return;
+    }
+    const edgeColor = this._edgeColor;
+    if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
+      return;
+    }
+    edgeColor[0] = value[0];
+    edgeColor[1] = value[1];
+    edgeColor[2] = value[2];
+    this._updated();
+  }
+  /**
+   * Gets the RGB color of style-bin edges.
+   *
+   * Default is ```` [0.2, 0.2, 0.2]````.
+   */
+  get edgeColor() {
+    return this._edgeColor;
+  }
+  /**
+   * Sets the transparency of style-bin edges.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
+  set edgeAlpha(value) {
+    if (this._edgeAlpha === value) {
+      return;
+    }
+    this._edgeAlpha = value;
+    this._updated();
+  }
+  /**
+   * Gets the transparency of style-bin edges.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
+  get edgeAlpha() {
+    return this._edgeAlpha;
+  }
+  /**
+   * Sets the width of style-bin edges.
+   *
+   * Default value is ````1.0```` pixels.
+   */
+  set edgeWidth(value) {
+    this._edgeWidth = value;
+    this._updated();
+  }
+  /**
+   * Gets the width of style-bin edges.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0```` pixels.
+   */
+  get edgeWidth() {
+    return this._edgeWidth;
+  }
+  /**
+   * Sets whether to render backfaces for style-bin surfaces when {@link Effect.fill} is ````true````.
+   *
+   * Default is ````false````.
+   */
+  set backfaces(value) {
+    if (this._backfaces === value) {
+      return;
+    }
+    this._backfaces = value;
+    this._updated();
+  }
+  /**
+   * Gets whether to render backfaces for style-bin surfaces when {@link Effect.fill} is ````true````.
+   *
+   * Default is ````false````.
+   */
+  get backfaces() {
+    return this._backfaces;
+  }
+  /**
+   * Sets whether to clear the depth buffer before rendering this style bin.
+   *
+   * When ````true````, objects in this style bin are also rendered in a
+   * depth-cleared style-bin pass, making the bin treatment visible through
+   * occluding geometry while leaving the object's normal rendering treatment
+   * intact.
+   *
+   * Default is ````false````.
+   *
+   * Note: updating this property marks the View dirty but does not change membership.
+   *
+   * @type {Boolean}
+   */
+  set clearDepthBefore(value) {
+    value = value === true;
+    if (this._clearDepthBefore === value) {
+      return;
+    }
+    this._clearDepthBefore = value;
+    this._updated();
+  }
+  /**
+   * Gets whether to clear the depth buffer before rendering this style bin.
+   *
+   * Default is ````false````.
+   *
+   * @type {Boolean}
+   */
+  get clearDepthBefore() {
+    return this._clearDepthBefore;
+  }
+  /**
+   * @private
+   */
+  get hash() {
+    return "";
+  }
+  /**
+   * Configures this Effect.
+   * @param effectParams
+   */
+  fromParams(effectParams) {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[Effect.fromParams] Effect has been destroyed."
+      });
+    }
+    if (effectParams.fillColor !== void 0) {
+      this.fillColor = effectParams.fillColor;
+    }
+    if (effectParams.edgeColor !== void 0) {
+      this.edgeColor = effectParams.edgeColor;
+    }
+    if (effectParams.edgeWidth !== void 0) {
+      this.edgeWidth = effectParams.edgeWidth;
+    }
+    if (effectParams.edgeAlpha !== void 0) {
+      this.edgeAlpha = effectParams.edgeAlpha;
+    }
+    if (effectParams.edges !== void 0) {
+      this.edges = effectParams.edges;
+    }
+    if (effectParams.fillAlpha !== void 0) {
+      this.fillAlpha = effectParams.fillAlpha;
+    }
+    if (effectParams.fill !== void 0) {
+      this.fill = effectParams.fill;
+    }
+    if (effectParams.backfaces !== void 0) {
+      this.backfaces = effectParams.backfaces;
+    }
+    if (effectParams.clearDepthBefore !== void 0) {
+      this.clearDepthBefore = effectParams.clearDepthBefore;
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Gets the current configuration of this Effect.
+   */
+  toParams() {
+    return {
+      ok: true,
+      value: {
+        fillColor: Array.from(this._fillColor),
+        backfaces: this._backfaces,
+        edgeColor: Array.from(this._edgeColor),
+        edgeWidth: this._edgeWidth,
+        edgeAlpha: this._edgeAlpha,
+        edges: this._edges,
+        fillAlpha: this._fillAlpha,
+        fill: this._fill,
+        clearDepthBefore: this._clearDepthBefore
+      }
+    };
+  }
+  /**
+   * @private
+   */
+  destroy() {
+    this._destroyed = true;
+  }
+};
+
+// ../sdk/src/viewing/viewer/ViewStyleBin.ts
+var ViewStyleBin = class {
+  view;
+  id;
+  material;
+  _objects = {};
+  _objectIds = null;
+  _numObjects = 0;
+  _priority;
+  _enabled;
+  destroyed = false;
+  constructor(view, params) {
+    this.view = view;
+    this.id = params.id;
+    this.material = new Effect(view, params, () => this._definitionUpdated());
+    this._priority = params.priority ?? 0;
+    this._enabled = params.enabled !== false;
+  }
+  /**
+   * Map of ViewObjects that currently belong to this style bin.
+   *
+   * This is a read-only mirror of per-ViewObject style-bin membership.
+   * Use {@link ViewStyleBin.setObjects | setObjects},
+   * {@link View.setObjectsInStyleBin | View.setObjectsInStyleBin} or
+   * {@link ViewObject.setStyleBin | ViewObject.setStyleBin} to update it.
+   */
+  get objects() {
+    return this._objects;
+  }
+  get objectIds() {
+    if (!this._objectIds) {
+      this._objectIds = Object.keys(this._objects);
+    }
+    return this._objectIds;
+  }
+  get numObjects() {
+    return this._numObjects;
+  }
+  get priority() {
+    return this._priority;
+  }
+  set priority(value) {
+    if (this._priority === value) {
+      return;
+    }
+    this._priority = value;
+    this.view.styleBins._sort();
+    this._definitionUpdated();
+    this.view.needsRender();
+  }
+  get enabled() {
+    return this._enabled;
+  }
+  set enabled(value) {
+    if (this._enabled === value) {
+      return;
+    }
+    this._enabled = value;
+    this._definitionUpdated();
+    this.view.needsRender();
+  }
+  setObjects(objectIds, membership) {
+    let changed = false;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = this.view.objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      const result = viewObject.setStyleBin(this.id, membership);
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
+        changed = true;
+      }
+    }
+    return { ok: true, value: changed };
+  }
+  clear() {
+    return this.setObjects(this.objectIds.slice(), false);
+  }
+  hasObject(objectId) {
+    return !!this._objects[objectId];
+  }
+  _objectMembershipUpdated(viewObject, membership) {
+    const objectId = viewObject.id;
+    if (membership) {
+      if (this._objects[objectId]) {
+        return;
+      }
+      this._objects[objectId] = viewObject;
+      this._numObjects++;
+    } else {
+      if (!this._objects[objectId]) {
+        return;
+      }
+      delete this._objects[objectId];
+      this._numObjects--;
+    }
+    this._objectIds = null;
+  }
+  _definitionUpdated() {
+    const objectIds = this.objectIds;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = this._objects[objectIds[i]];
+      if (viewObject) {
+        this.view.viewer.events.onViewObjectStyleBinChanged.dispatch(this.view, {
+          viewObject,
+          styleBinId: this.id,
+          membership: true
+        });
+      }
+    }
+  }
+  fromParams(params) {
+    if (params.id !== void 0 && params.id !== this.id) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[ViewStyleBin.fromParams] Style bin ID cannot be changed"
+      };
+    }
+    if (params.priority !== void 0)
+      this.priority = params.priority;
+    if (params.enabled !== void 0)
+      this.enabled = params.enabled;
+    const materialResult = this.material.fromParams(params);
+    if (materialResult.ok === false) {
+      return materialResult;
+    }
+    return { ok: true, value: void 0 };
+  }
+  toParams() {
+    const materialParams = this.material.toParams();
+    if (materialParams.ok === false) {
+      return materialParams;
+    }
+    return {
+      ok: true,
+      value: {
+        ...materialParams.value,
+        id: this.id,
+        priority: this.priority,
+        enabled: this.enabled
+      }
+    };
+  }
+  destroy() {
+    if (this.destroyed) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewStyleBin.destroy] ViewStyleBin already destroyed"
+      };
+    }
+    const clearResult = this.clear();
+    if (clearResult.ok === false) {
+      return clearResult;
+    }
+    this.destroyed = true;
+    return { ok: true, value: void 0 };
+  }
+};
+
+// ../sdk/src/viewing/viewer/ViewStyleBins.ts
+var ViewStyleBins = class {
+  view;
+  bins = {};
+  _list = [];
+  constructor(view, params = []) {
+    this.view = view;
+    for (const binParams of params) {
+      const result = this.create(binParams);
+      if (result.ok === false) {
+        this.view.viewer.logError(result);
+      }
+    }
+  }
+  get list() {
+    return this._list;
+  }
+  create(params) {
+    if (!params.id) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[ViewStyleBins.create] Style bin ID expected"
+      };
+    }
+    const existing = this.bins[params.id];
+    if (existing) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[ViewStyleBins.create] Style bin already exists: ${params.id}`
+      };
+    }
+    const bin = new ViewStyleBin(this.view, params);
+    const result = bin.fromParams(params);
+    if (result.ok === false) {
+      bin.destroy();
+      return result;
+    }
+    this.bins[bin.id] = bin;
+    this._list.push(bin);
+    this._sort();
+    this.view.needsRender();
+    return { ok: true, value: bin };
+  }
+  get(id) {
+    return this.bins[id] ?? null;
+  }
+  destroy(id) {
+    const bin = this.bins[id];
+    if (!bin) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[ViewStyleBins.destroy] Style bin not found: ${id}`
+      };
+    }
+    const result = bin.destroy();
+    if (result.ok === false) {
+      return result;
+    }
+    delete this.bins[id];
+    const index = this._list.indexOf(bin);
+    if (index !== -1) {
+      this._list.splice(index, 1);
+    }
+    this.view.needsRender();
+    return { ok: true, value: true };
+  }
+  setObjects(id, objectIds, membership) {
+    const bin = this.bins[id];
+    if (!bin) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[ViewStyleBins.setObjects] Style bin not found: ${id}`
+      };
+    }
+    return bin.setObjects(objectIds, membership);
+  }
+  getObjectIds(id) {
+    return this.bins[id]?.objectIds ?? [];
+  }
+  /**
+   * @internal
+   */
+  _objectMembershipUpdated(styleBinId, viewObject, membership) {
+    this.bins[styleBinId]?._objectMembershipUpdated(viewObject, membership);
+  }
+  /**
+   * @internal
+   */
+  _sort() {
+    this._list.sort((a2, b4) => a2.priority - b4.priority || a2.id.localeCompare(b4.id));
+  }
+  toParams() {
+    const value = [];
+    for (const bin of this._list) {
+      const result = bin.toParams();
+      if (result.ok === false) {
+        return result;
+      }
+      value.push(result.value);
+    }
+    return { ok: true, value };
+  }
+};
+
 // ../sdk/src/viewing/viewer/View.ts
 function getSceneObjectLayerId(sceneObject) {
   return sceneObject.layerId || "default";
@@ -174198,17 +174239,12 @@ var View2 = class {
    */
   texturing;
   /**
-   * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
+   * User-defined bins that style ViewObjects in this View.
+   *
+   * No style-bin ID is created automatically or treated specially by the
+   * viewer. Applications define whichever bins they need.
    */
-  xrayMaterial;
-  /**
-   * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
-   */
-  highlightMaterial;
-  /**
-   * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
-   */
-  selectedMaterial;
+  styleBins;
   /**
    * Configures resolution scaling for this View.
    */
@@ -174238,30 +174274,6 @@ var View2 = class {
    * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
    */
   visibleObjects;
-  /**
-   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
-   *
-   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  xrayedObjects;
-  /**
-   * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
-   *
-   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  highlightedObjects;
-  /**
-   * Map of currently selected {@link ViewObject | ViewObjects} in this View.
-   *
-   * A ViewObject is selected when {@link ViewObject.selected} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  selectedObjects;
   /**
    * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
    *
@@ -174326,12 +174338,6 @@ var View2 = class {
   _objectIds;
   _numVisibleObjects;
   _visibleObjectIds;
-  _numXRayedObjects;
-  _xrayedObjectIds;
-  _numHighlightedObjects;
-  _highlightedObjectIds;
-  _numSelectedObjects;
-  _selectedObjectIds;
   _numColorizedObjects;
   _colorizedObjectIds;
   _numOpacityObjects;
@@ -174377,9 +174383,6 @@ var View2 = class {
     this.viewIndex = 0;
     this.objects = {};
     this.visibleObjects = {};
-    this.xrayedObjects = {};
-    this.highlightedObjects = {};
-    this.selectedObjects = {};
     this.colorizedObjects = {};
     this.opacityObjects = {};
     this.sectionPlanes = {};
@@ -174392,12 +174395,6 @@ var View2 = class {
     this._objectIds = null;
     this._numVisibleObjects = 0;
     this._visibleObjectIds = null;
-    this._numXRayedObjects = 0;
-    this._xrayedObjectIds = null;
-    this._numHighlightedObjects = 0;
-    this._highlightedObjectIds = null;
-    this._numSelectedObjects = 0;
-    this._selectedObjectIds = null;
     this._numColorizedObjects = 0;
     this._colorizedObjectIds = null;
     this._numOpacityObjects = 0;
@@ -174429,40 +174426,7 @@ var View2 = class {
       this.lights.ibl.fromParams(viewParams.effects.ibl);
     }
     this.texturing = new Texturing(this, viewParams.texturing || {});
-    this.xrayMaterial = new Effect(this, viewParams.xrayMaterial || {
-      // Conventional "x-ray ghost" — cool pale-blue body, translucent enough
-      // to see through but solid enough not to wash out, with fully-opaque
-      // dark edges so silhouettes read clearly through stacked geometry.
-      fill: true,
-      fillColor: [0.85, 0.9, 1],
-      fillAlpha: 0.35,
-      edges: true,
-      edgeColor: [0.1, 0.15, 0.25],
-      edgeAlpha: 1,
-      edgeWidth: 1
-    });
-    this.highlightMaterial = new Effect(this, viewParams.highlightMaterial || {
-      // Warm amber "hover" — less harsh than pure yellow, with a darker
-      // same-hue edge so the silhouette reads on any background.
-      fill: true,
-      fillColor: [1, 0.78, 0.25],
-      fillAlpha: 0.4,
-      edges: true,
-      edgeColor: [0.55, 0.35, 0.05],
-      edgeAlpha: 1,
-      edgeWidth: 1
-    });
-    this.selectedMaterial = new Effect(this, viewParams.selectedMaterial || {
-      // Cool teal "committed" — pairs with the warm highlight (warm = hot/
-      // hovered, cool = locked-in). Darker teal edge for clean silhouettes.
-      fill: true,
-      fillColor: [0.1, 0.7, 1],
-      fillAlpha: 0.4,
-      edges: true,
-      edgeColor: [0.05, 0.3, 0.55],
-      edgeAlpha: 1,
-      edgeWidth: 1
-    });
+    this.styleBins = new ViewStyleBins(this, viewParams.styleBins || []);
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
       enabled: false,
       resolutionScale: 0.5
@@ -174620,21 +174584,6 @@ var View2 = class {
       delete this.visibleObjects[objectId];
       this._numVisibleObjects--;
       this._visibleObjectIds = null;
-    }
-    if (this.xrayedObjects[objectId]) {
-      delete this.xrayedObjects[objectId];
-      this._numXRayedObjects--;
-      this._xrayedObjectIds = null;
-    }
-    if (this.highlightedObjects[objectId]) {
-      delete this.highlightedObjects[objectId];
-      this._numHighlightedObjects--;
-      this._highlightedObjectIds = null;
-    }
-    if (this.selectedObjects[objectId]) {
-      delete this.selectedObjects[objectId];
-      this._numSelectedObjects--;
-      this._selectedObjectIds = null;
     }
     if (this.colorizedObjects[objectId]) {
       delete this.colorizedObjects[objectId];
@@ -174825,51 +174774,6 @@ var View2 = class {
     return this._visibleObjectIds;
   }
   /**
-   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
-   */
-  get numXRayedObjects() {
-    return this._numXRayedObjects;
-  }
-  /**
-   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
-   */
-  get xrayedObjectIds() {
-    if (!this._xrayedObjectIds) {
-      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
-    }
-    return this._xrayedObjectIds;
-  }
-  /**
-   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
-   */
-  get numHighlightedObjects() {
-    return this._numHighlightedObjects;
-  }
-  /**
-   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
-   */
-  get highlightedObjectIds() {
-    if (!this._highlightedObjectIds) {
-      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
-    }
-    return this._highlightedObjectIds;
-  }
-  /**
-   * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
-   */
-  get numSelectedObjects() {
-    return this._numSelectedObjects;
-  }
-  /**
-   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
-   */
-  get selectedObjectIds() {
-    if (!this._selectedObjectIds) {
-      this._selectedObjectIds = Object.keys(this.selectedObjects);
-    }
-    return this._selectedObjectIds;
-  }
-  /**
    * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
    */
   get numColorizedObjects() {
@@ -174918,24 +174822,6 @@ var View2 = class {
     this.needsRender();
   }
   /**
-   * Called by ViewObject.xrayed setter.
-   * @private
-   */
-  objectXRayedUpdated(viewObject, xrayed, notify = true) {
-    if (xrayed) {
-      this.xrayedObjects[viewObject.id] = viewObject;
-      this._numXRayedObjects++;
-    } else {
-      delete this.xrayedObjects[viewObject.id];
-      this._numXRayedObjects--;
-    }
-    this._xrayedObjectIds = null;
-    if (notify) {
-      this.viewer.events.onViewObjectXRayedChanged.dispatch(this, viewObject);
-    }
-    this.needsRender();
-  }
-  /**
    * Called by ViewObject.clippable setter.
    * @private
    */
@@ -174956,39 +174842,16 @@ var View2 = class {
     this.needsRender();
   }
   /**
-   * Called by ViewObject.highlighted setter.
+   * Called by ViewObject.setStyleBin.
    * @private
    */
-  objectHighlightedUpdated(viewObject, highlighted, notify = true) {
-    if (highlighted) {
-      this.highlightedObjects[viewObject.id] = viewObject;
-      this._numHighlightedObjects++;
-    } else {
-      delete this.highlightedObjects[viewObject.id];
-      this._numHighlightedObjects--;
-    }
-    this._highlightedObjectIds = null;
-    if (notify) {
-      this.viewer.events.onViewObjectHighlightedChanged.dispatch(this, viewObject);
-    }
-    this.needsRender();
-  }
-  /**
-   * Called by ViewObject.selected setter.
-   * @private
-   */
-  objectSelectedUpdated(viewObject, selected, notify = true) {
-    if (selected) {
-      this.selectedObjects[viewObject.id] = viewObject;
-      this._numSelectedObjects++;
-    } else {
-      delete this.selectedObjects[viewObject.id];
-      this._numSelectedObjects--;
-    }
-    this._selectedObjectIds = null;
-    if (notify) {
-      this.viewer.events.onViewObjectSelectedChanged.dispatch(this, viewObject);
-    }
+  objectStyleBinUpdated(viewObject, styleBinId, membership) {
+    this.styleBins._objectMembershipUpdated(styleBinId, viewObject, membership);
+    this.viewer.events.onViewObjectStyleBinChanged.dispatch(this, {
+      viewObject,
+      styleBinId,
+      membership
+    });
     this.needsRender();
   }
   /**
@@ -175198,7 +175061,7 @@ var View2 = class {
     return this._lightsHash;
   }
   /**
-   * @private
+   * @internal
    */
   needsRender() {
     if (this._needsRender) {
@@ -175318,23 +175181,15 @@ var View2 = class {
     return changed;
   }
   /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
-   *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-   * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * Adds or removes the given ViewObjects from a named style bin.
    */
-  setObjectsSelected(objectIds, selected) {
+  setObjectsInStyleBin(styleBinId, objectIds, membership) {
     if (this.destroyed) {
-      this.viewer.logError({
+      return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[View.setObjectsSelected] View already destroyed"
-      });
-      return;
+        error: "[View.setObjectsInStyleBin] View already destroyed"
+      };
     }
     let changed = false;
     const objects = this.objects;
@@ -175343,78 +175198,15 @@ var View2 = class {
       if (!viewObject) {
         continue;
       }
-      if (viewObject.selected !== selected) {
-        viewObject.selected = selected;
+      const result = viewObject.setStyleBin(styleBinId, membership);
+      if (result.ok === false) {
+        return result;
+      }
+      if (result.value) {
         changed = true;
       }
     }
-    return changed;
-  }
-  /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
-   *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-   * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsHighlighted(objectIds, highlighted) {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[View.setObjectsHighlighted] View already destroyed"
-      });
-      return;
-    }
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.highlighted !== highlighted) {
-        viewObject.highlighted = highlighted;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
-   *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-   * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsXRayed(objectIds, xrayed) {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[View.setObjectsXRayed] View already destroyed"
-      });
-      return;
-    }
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.xrayed !== xrayed) {
-        viewObject.xrayed = xrayed;
-        changed = true;
-      }
-    }
-    return changed;
+    return { ok: true, value: changed };
   }
   /**
    * Colorizes the given {@link ViewObject | ViewObjects} in this View.
@@ -175869,22 +175661,20 @@ var View2 = class {
         return result;
       }
     }
-    if (viewParams.highlightMaterial) {
-      const result = this.highlightMaterial.fromParams(viewParams.highlightMaterial);
-      if (result.ok === false) {
-        return result;
-      }
-    }
-    if (viewParams.selectedMaterial) {
-      const result = this.selectedMaterial.fromParams(viewParams.selectedMaterial);
-      if (result.ok === false) {
-        return result;
-      }
-    }
-    if (viewParams.xrayMaterial) {
-      const result = this.xrayMaterial.fromParams(viewParams.xrayMaterial);
-      if (result.ok === false) {
-        return result;
+    if (viewParams.styleBins) {
+      for (const styleBinParams of viewParams.styleBins) {
+        const existing = this.styleBins.get(styleBinParams.id);
+        if (existing) {
+          const result = existing.fromParams(styleBinParams);
+          if (result.ok === false) {
+            return result;
+          }
+        } else {
+          const result = this.styleBins.create(styleBinParams);
+          if (result.ok === false) {
+            return result;
+          }
+        }
       }
     }
     if (viewParams.pointsMaterial) {
@@ -175934,9 +175724,7 @@ var View2 = class {
           hemispheric: this.lights.hemispheric.toParams().value
         },
         texturing: this.texturing.toParams().value,
-        highlightMaterial: this.highlightMaterial.toParams().value,
-        selectedMaterial: this.selectedMaterial.toParams().value,
-        xrayMaterial: this.xrayMaterial.toParams().value,
+        styleBins: this.styleBins.toParams().value,
         pointsMaterial: this.pointsMaterial.toParams().value,
         resolutionScale: this.resolutionScale.toParams().value
       }
@@ -175988,6 +175776,10 @@ var View2 = class {
   }
   _destroyViewObject(viewObject, autoDestroyLayer = true) {
     const viewLayer = viewObject.layer;
+    const styleBinIds = viewObject.styleBinIds;
+    for (let i = 0, len = styleBinIds.length; i < len; i++) {
+      viewObject.setStyleBin(styleBinIds[i], false);
+    }
     this._deattachViewObject(viewObject);
     viewLayer._deattachViewObject(viewObject);
     viewObject.destroyed = true;
@@ -176067,26 +175859,10 @@ var ViewerEvents = class {
    */
   onViewObjectVisibleChanged;
   /**
-   * Emits an event each time the selected state of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
-   *
-   * ViewObjects are selected with {@link View.setObjectsSelected},
-   * {@link ViewLayer.setObjectsSelected} or {@link ViewObject.selected}.
+   * Emits an event each time a {@link viewing!viewer.ViewObject | ViewObject}'s
+   * membership in a named style bin changes.
    */
-  onViewObjectSelectedChanged;
-  /**
-   * Emits an event each time the highlight state of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
-   *
-   * ViewObjects are highlighted with {@link View.setObjectsHighlighted},
-   * {@link ViewLayer.setObjectsHighlighted} or {@link ViewObject.highlighted}.
-   */
-  onViewObjectHighlightedChanged;
-  /**
-   * Emits an event each time the X-ray state of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
-   *
-   * ViewObjects are X-rayed with {@link View.setObjectsXRayed},
-   * {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
-   */
-  onViewObjectXRayedChanged;
+  onViewObjectStyleBinChanged;
   /**
    * Emits an event each time the clippable state of a
    * {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
@@ -176229,9 +176005,7 @@ var ViewerEvents = class {
     this.onViewObjectCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectVisibleChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
-    this.onViewObjectSelectedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
-    this.onViewObjectHighlightedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
-    this.onViewObjectXRayedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectStyleBinChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectClippableChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectCulledChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectColorizeChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
@@ -176273,11 +176047,9 @@ var ViewerEvents = class {
     this.onViewObjectCreated.clear();
     this.onViewObjectDestroyed.clear();
     this.onViewObjectVisibleChanged.clear();
-    this.onViewObjectXRayedChanged.clear();
+    this.onViewObjectStyleBinChanged.clear();
     this.onViewObjectClippableChanged.clear();
     this.onViewObjectCulledChanged.clear();
-    this.onViewObjectSelectedChanged.clear();
-    this.onViewObjectHighlightedChanged.clear();
     this.onViewObjectColorizeChanged.clear();
     this.onViewObjectOpacityChanged.clear();
     this.onViewObjectPickableChanged.clear();
@@ -176363,8 +176135,8 @@ var Viewer = class {
   // reaction — ViewObject lifecycle (so each View can sync its
   // ViewObjects), SceneModel lifecycle, and the mesh / object /
   // geometry / transform / material mutations that affect what's
-  // drawn (each one nudges View.needsRender() on every attached
-  // View). Texture imageData changes have their own atlas-aware
+  // drawn (each one requests a render on every attached View).
+  // Texture imageData changes have their own atlas-aware
   // path inside the renderer's ViewManager and aren't routed here.
   _onSceneDestroyed;
   _onSceneObjectCreated;
@@ -176849,9 +176621,9 @@ var Viewer = class {
     this.events.onViewDestroyed.dispatch(this, view);
   }
   /**
-   * Trigger needsRender of all {@link View | Views} belonging to this Viewer.
+   * Requests a render from all {@link View | Views} belonging to this Viewer.
    *
-   * @private
+   * @internal
    */
   needsRender() {
     const viewList = this.viewList;
@@ -188327,32 +188099,25 @@ var RENDER_PASSES = {
    */
   TRANSPARENT: 2,
   /**
-   * Render highlighted silhouettes.
-   * Used to accentuate objects that are highlighted.
+   * Render opaque objects using their resolved ViewStyleBin treatment.
    */
-  HIGHLIGHTED: 3,
+  STYLE_BIN_OPAQUE: 3,
   /**
-   * Render selected silhouettes.
-   * Used to accentuate objects that are selected.
+   * Render transparent objects using their resolved ViewStyleBin treatment.
    */
-  SELECTED: 4,
-  /**
-   * Render x-rayed silhouettes.
-   * Used to render objects with an x-ray effect.
-   */
-  XRAYED: 5,
+  STYLE_BIN_TRANSPARENT: 4,
   /**
    * Picking pass.
    * Used for object picking to determine which object is under the cursor or selected.
    */
-  PICK: 6,
+  PICK: 5,
   /**
    * Snap-init pass — populates the snap framebuffer's depth and view-position
    * outputs from triangle surfaces. Sets up the scene under a small viewport
    * centred on the cursor so the subsequent {@link RENDER_PASSES.SNAP} pass
    * can z-test vertex / edge primitives against real geometry.
    */
-  SNAP_INIT: 7,
+  SNAP_INIT: 6,
   /**
    * Snap pass — rasterises vertices (as 1-pixel points) or edges (as
    * 1-pixel lines) into the same FBO populated by {@link RENDER_PASSES.SNAP_INIT},
@@ -188360,7 +188125,7 @@ var RENDER_PASSES = {
    * the high-precision view-space position so JS can read back and pick
    * the nearest snap target to the cursor.
    */
-  SNAP: 8
+  SNAP: 7
 };
 
 // ../sdk/src/viewing/renderers/webGL/internal/RENDER_BINS.ts
@@ -188374,22 +188139,6 @@ var RENDER_BINS = {
    */
   EDGES_OPAQUE: "edgesColorOpaque",
   /**
-   * Meshes rendered in X-rayed state as transparent, monochrome silhouettes.
-   */
-  XRAYED_SILHOUETTE_OPAQUE: "xrayedSilhouetteOpaque",
-  /**
-   * Meshes rendered in X-rayed state as opaque, monochrome silhouettes (unusual).
-   */
-  XRAYED_EDGES_OPAQUE: "xrayedEdgesOpaque",
-  /**
-   * Triangle mesh edges in X-rayed state rendered as transparent.
-   */
-  XRAYED_EDGES_TRANSPARENT: "xrayedEdgesTransparent",
-  /**
-   * Meshes in X-rayed state rendered as transparent, monochrome silhouettes.
-   */
-  XRAYED_SILHOUETTE_TRANSPARENT: "xrayedSilhouetteTransparent",
-  /**
    * Triangle mesh edges rendered as transparent, normal color.
    */
   EDGES_TRANSPARENT: "edgesColorTransparent",
@@ -188398,21 +188147,21 @@ var RENDER_BINS = {
    */
   TRANSPARENT: "normalFillTransparent",
   /**
-   * Meshes rendered in highlighted state as opaque, monochrome silhouettes.
+   * Meshes rendered with an opaque resolved style-bin treatment.
    */
-  HIGHLIGHTED_SILHOUETTE_OPAQUE: "highlightedSilhouetteOpaque",
+  STYLE_BIN_FILL_OPAQUE: "styleBinFillOpaque",
   /**
-   * Meshes rendered in selected state as opaque, monochrome silhouettes.
+   * Edges rendered with an opaque resolved style-bin treatment.
    */
-  SELECTED_SILHOUETTE_OPAQUE: "selectedSilhouetteOpaque",
+  STYLE_BIN_EDGES_OPAQUE: "styleBinEdgesOpaque",
   /**
-   * Meshes rendered in highlighted state as transparent, monochrome silhouettes.
+   * Meshes rendered with a transparent resolved style-bin treatment.
    */
-  HIGHLIGHTED_SILHOUETTE_TRANSPARENT: "highlightedSilhouetteTransparent",
+  STYLE_BIN_FILL_TRANSPARENT: "styleBinFillTransparent",
   /**
-   * Meshes rendered in selected state as transparent, monochrome silhouettes.
+   * Edges rendered with a transparent resolved style-bin treatment.
    */
-  SELECTED_SILHOUETTE_TRANSPARENT: "selectedSilhouetteTransparent",
+  STYLE_BIN_EDGES_TRANSPARENT: "styleBinEdgesTransparent",
   /**
    * Meshes rendered for picking (renders mesh IDs to pick buffer).
    */
@@ -188664,14 +188413,11 @@ var RenderInspector = class _RenderInspector {
       case RENDER_PASSES.TRANSPARENT:
         renderBinName = "TRANSPARENT";
         break;
-      case RENDER_PASSES.HIGHLIGHTED:
-        renderBinName = "HIGHLIGHTED";
+      case RENDER_PASSES.STYLE_BIN_OPAQUE:
+        renderBinName = "STYLE_BIN_OPAQUE";
         break;
-      case RENDER_PASSES.SELECTED:
-        renderBinName = "SELECTED";
-        break;
-      case RENDER_PASSES.XRAYED:
-        renderBinName = "XRAYED";
+      case RENDER_PASSES.STYLE_BIN_TRANSPARENT:
+        renderBinName = "STYLE_BIN_TRANSPARENT";
         break;
       case RENDER_PASSES.PICK:
         renderBinName = "PICK";
@@ -192715,6 +192461,10 @@ var MeshViewAttributeTexture = class _MeshViewAttributeTexture extends ItemDataT
       buf[base + 4] = item.pickable ? 1 : 0;
     if (item.clippable !== void 0)
       buf[base + 5] = item.clippable ? 1 : 0;
+    if (item.styleBinEdges !== void 0)
+      buf[base + 6] = item.styleBinEdges ? 1 : 0;
+    if (item.styleBinClearDepthBefore !== void 0)
+      buf[base + 7] = item.styleBinClearDepthBefore ? 1 : 0;
     this.setItemDirty(itemIndex);
   }
   getItem(itemIndex) {
@@ -192724,7 +192474,9 @@ var MeshViewAttributeTexture = class _MeshViewAttributeTexture extends ItemDataT
       color: [buf[base], buf[base + 1], buf[base + 2]],
       opacity: buf[base + 3],
       pickable: buf[base + 4] !== 0,
-      clippable: buf[base + 5] !== 0
+      clippable: buf[base + 5] !== 0,
+      styleBinEdges: buf[base + 6] !== 0,
+      styleBinClearDepthBefore: buf[base + 7] !== 0
     };
   }
 };
@@ -192806,28 +192558,14 @@ var RendererObject = class {
       this._rendererMeshes[i].setLODSuppressed(viewIndex, suppressed);
     }
   }
-  /**
-   * Sets the highlighted state of the object in a specific view.
-   */
-  setHighlighted(viewIndex, highlighted) {
+  setStyleBin(viewIndex, color2, opacity, edges, clearDepthBefore) {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setHighlighted(viewIndex, highlighted);
+      this._rendererMeshes[i].setStyleBin(viewIndex, color2, opacity, edges, clearDepthBefore);
     }
   }
-  /**
-   * Sets the XRayed state of the object in a specific view.
-   */
-  setXRayed(viewIndex, xrayed) {
+  clearStyleBin(viewIndex) {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setXRayed(viewIndex, xrayed);
-    }
-  }
-  /**
-   * Sets the selected state of the object in a specific view.
-   */
-  setSelected(viewIndex, selected) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setSelected(viewIndex, selected);
+      this._rendererMeshes[i].clearStyleBin(viewIndex);
     }
   }
   /**
@@ -192911,9 +192649,8 @@ var RendererObject = class {
         opacity = 0;
       else if (opacity > 1)
         opacity = 1;
-      const opacityQuantized = Math.floor(opacity * 255);
       for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-        this._rendererMeshes[i].setOpacityInView(viewIndex, opacityQuantized);
+        this._rendererMeshes[i].setOpacityInView(viewIndex, opacity);
       }
     } else {
       for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
@@ -193562,9 +193299,8 @@ function forEachPerViewHandle(handles, numViews, callback) {
 var TRIANGLE_GEOMETRY_VBO_PASS_ORDER = [
   RENDER_PASSES.OPAQUE,
   RENDER_PASSES.TRANSPARENT,
-  RENDER_PASSES.HIGHLIGHTED,
-  RENDER_PASSES.SELECTED,
-  RENDER_PASSES.XRAYED
+  RENDER_PASSES.STYLE_BIN_OPAQUE,
+  RENDER_PASSES.STYLE_BIN_TRANSPARENT
 ];
 var TRIANGLE_GEOMETRY_VBO_PICK_REGION_INDEX = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length;
 var TRIANGLE_GEOMETRY_VBO_INDEX_REGION_COUNT = TRIANGLE_GEOMETRY_VBO_PASS_ORDER.length + 1;
@@ -194768,6 +194504,8 @@ var TriangleGeometryVBOBatch = class {
     const opacities = new Uint8Array(this._maxViews);
     const pickables = new Uint8Array(this._maxViews);
     const clippables = new Uint8Array(this._maxViews);
+    const styleBinEdges = new Uint8Array(this._maxViews);
+    const styleBinClearDepthBefore = new Uint8Array(this._maxViews);
     for (let viewIndex = 0; viewIndex < this._maxViews; viewIndex++) {
       colors.push(new Uint8Array([
         clampTriangleGeometryVBOByte(params.color[0], 255),
@@ -194777,6 +194515,8 @@ var TriangleGeometryVBOBatch = class {
       opacities[viewIndex] = clampTriangleGeometryVBOByte(params.opacity, 255);
       pickables[viewIndex] = 1;
       clippables[viewIndex] = 1;
+      styleBinEdges[viewIndex] = 1;
+      styleBinClearDepthBefore[viewIndex] = 0;
     }
     const record = {
       meshIndex: params.meshIndex,
@@ -194791,6 +194531,8 @@ var TriangleGeometryVBOBatch = class {
       opacities,
       pickables,
       clippables,
+      styleBinEdges,
+      styleBinClearDepthBefore,
       meshViewStates: this._views.map(() => ({
         renderPass: RENDER_PASSES.OPAQUE,
         visible: true
@@ -194903,6 +194645,16 @@ var TriangleGeometryVBOBatch = class {
       const clippable = params.clippable ? 1 : 0;
       dirty = dirty || record.clippables[viewIndex] !== clippable;
       record.clippables[viewIndex] = clippable;
+    }
+    if (params.styleBinEdges !== void 0) {
+      const styleBinEdges = params.styleBinEdges ? 1 : 0;
+      dirty = dirty || record.styleBinEdges[viewIndex] !== styleBinEdges;
+      record.styleBinEdges[viewIndex] = styleBinEdges;
+    }
+    if (params.styleBinClearDepthBefore !== void 0) {
+      const styleBinClearDepthBefore = params.styleBinClearDepthBefore ? 1 : 0;
+      dirty = dirty || record.styleBinClearDepthBefore[viewIndex] !== styleBinClearDepthBefore;
+      record.styleBinClearDepthBefore[viewIndex] = styleBinClearDepthBefore;
     }
     if (dirty) {
       this._writeMeshViewAttributes(record, viewIndex);
@@ -195256,8 +195008,8 @@ var TriangleGeometryVBOBatch = class {
       colors[offset + 3] = opacity;
       renderFlags[offset] = record.pickables[viewIndex];
       renderFlags[offset + 1] = record.clippables[viewIndex];
-      renderFlags[offset + 2] = 0;
-      renderFlags[offset + 3] = 0;
+      renderFlags[offset + 2] = record.styleBinEdges[viewIndex];
+      renderFlags[offset + 3] = record.styleBinClearDepthBefore[viewIndex];
     }
     this._buffers.markColorDirty(view, record.vertexBase, record.vertexCount);
     this._buffers.markRenderFlagDirty(view, record.vertexBase, record.vertexCount);
@@ -196126,9 +195878,8 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
       bins: [
         RENDER_PASSES.OPAQUE,
         RENDER_PASSES.TRANSPARENT,
-        RENDER_PASSES.HIGHLIGHTED,
-        RENDER_PASSES.SELECTED,
-        RENDER_PASSES.XRAYED
+        RENDER_PASSES.STYLE_BIN_OPAQUE,
+        RENDER_PASSES.STYLE_BIN_TRANSPARENT
       ],
       getNumGeometries: () => this._numGeometries,
       hasNormals: this.hasNormals
@@ -196652,7 +196403,9 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
         color: color2,
         opacity,
         pickable: true,
-        clippable: true
+        clippable: true,
+        styleBinEdges: true,
+        styleBinClearDepthBefore: false
       });
     }
   }
@@ -196739,7 +196492,7 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
    * Sets the modeling transform matrix for a mesh.
    * The modeling transform is relative to the center of the meshes tile.
    *
-   * Sets RenderContext.viewFlags[...].needsRender to true.
+   * Marks all view flags dirty.
    *
    * @param meshIndex
    * @param matrix
@@ -196755,7 +196508,7 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
   /**
    * Sets attributes for e mesh to apply across all Views.
    *
-   * Sets RenderContext.viewFlags[...].needsRender to true.
+   * Marks all view flags dirty.
    *
    * @param meshIndex
    * @param params
@@ -196786,7 +196539,7 @@ var GPUMemoryBatch = class _GPUMemoryBatch {
   /**
    * Sets attributes for a mesh within a specific View.
    *
-   * Sets RenderContext.viewFlags[viewIndex].needsRender to true.
+   * Marks the view flags dirty for the specified view.
    *
    * @param meshIndex
    * @param viewIndex
@@ -197769,7 +197522,7 @@ var RendererMesh = class {
   setColor(color2) {
     const q = quantizeColor3(color2, tempQuantizedRGB);
     for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
-      if (!this._hasFlag(viewIndex, 1 /* Colorizing */)) {
+      if (!this._hasFlag(viewIndex, 1 /* Colorizing */) && !this._hasFlag(viewIndex, 64 /* StyleBin */)) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, q);
       }
     }
@@ -197788,10 +197541,10 @@ var RendererMesh = class {
   setOpacity(opacity) {
     const transparent = opacity < 1;
     for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
-      if (!this._hasFlag(viewIndex, 2 /* ColoringOpacity */)) {
+      if (!this._hasFlag(viewIndex, 2 /* ColoringOpacity */) && !this._hasFlag(viewIndex, 64 /* StyleBin */)) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       }
-      if (this._hasFlag(viewIndex, 4 /* Transparent */) !== transparent) {
+      if (!this._hasFlag(viewIndex, 64 /* StyleBin */) && this._hasFlag(viewIndex, 4 /* Transparent */) !== transparent) {
         this._setFlag(viewIndex, 4 /* Transparent */, transparent);
         this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
       }
@@ -197865,51 +197618,51 @@ var RendererMesh = class {
   setOpacityInView(viewIndex, opacity) {
     this._assertViewIndex(viewIndex, "setOpacityInView");
     if (opacity !== null) {
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       this._setFlag(viewIndex, 2 /* ColoringOpacity */, true);
+      if (!this._hasFlag(viewIndex, 64 /* StyleBin */)) {
+        this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
+        const transparent = opacity < 1;
+        this._setFlag(viewIndex, 4 /* Transparent */, transparent);
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
+      }
     } else {
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.effectiveOpacity);
       this._setFlag(viewIndex, 2 /* ColoringOpacity */, false);
+      if (!this._hasFlag(viewIndex, 64 /* StyleBin */)) {
+        const opacityDefault = this._sceneMesh.effectiveOpacity;
+        this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacityDefault);
+        const transparent = opacityDefault < 1;
+        this._setFlag(viewIndex, 4 /* Transparent */, transparent);
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
+      }
     }
   }
   /**
-   * Sets the highlight state of the mesh for a specific view.
-   * Called by {@link RendererObject.setHighlighted}.
+   * Applies the resolved style-bin treatment for a specific view.
    */
-  setHighlighted(viewIndex, highlighted) {
-    this._assertViewIndex(viewIndex, "setHighlighted");
-    this._meshBatch.setMeshHighlighted(
-      viewIndex,
-      this._meshHandle,
-      highlighted,
-      this._hasFlag(viewIndex, 4 /* Transparent */)
-    );
+  setStyleBin(viewIndex, color2, opacity, edges, clearDepthBefore) {
+    this._assertViewIndex(viewIndex, "setStyleBin");
+    const q = quantizeColor3(color2, tempQuantizedRGB);
+    const clampedOpacity = Math.max(0, Math.min(1, opacity));
+    const transparent = clampedOpacity < 1;
+    this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, q);
+    this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, clampedOpacity);
+    this._meshBatch.setMeshStyleBinEdges(viewIndex, this._meshHandle, edges);
+    this._meshBatch.setMeshStyleBinClearDepthBefore(viewIndex, this._meshHandle, clearDepthBefore);
+    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
+    this._setFlag(viewIndex, 64 /* StyleBin */, true);
   }
   /**
-   * Sets the x-ray state of the mesh for a specific view.
-   * Called by {@link RendererObject.setXRayed}.
+   * Clears the resolved style-bin treatment for a specific view.
    */
-  setXRayed(viewIndex, xrayed) {
-    this._assertViewIndex(viewIndex, "setXRayed");
-    this._meshBatch.setMeshXRayed(
-      viewIndex,
-      this._meshHandle,
-      xrayed,
-      this._hasFlag(viewIndex, 4 /* Transparent */)
-    );
-  }
-  /**
-   * Sets the selection state of the mesh for a specific view.
-   * Called by {@link RendererObject.setSelected}.
-   */
-  setSelected(viewIndex, selected) {
-    this._assertViewIndex(viewIndex, "setSelected");
-    this._meshBatch.setMeshSelected(
-      viewIndex,
-      this._meshHandle,
-      selected,
-      this._hasFlag(viewIndex, 4 /* Transparent */)
-    );
+  clearStyleBin(viewIndex) {
+    this._assertViewIndex(viewIndex, "clearStyleBin");
+    if (!this._hasFlag(viewIndex, 64 /* StyleBin */)) {
+      return;
+    }
+    this._setFlag(viewIndex, 64 /* StyleBin */, false);
+    this._meshBatch.setMeshStyleBinEdges(viewIndex, this._meshHandle, true);
+    this._meshBatch.setMeshStyleBinClearDepthBefore(viewIndex, this._meshHandle, false);
+    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, this._hasFlag(viewIndex, 4 /* Transparent */));
   }
   /**
    * Sets the clippable state of the mesh for a specific view.
@@ -198096,6 +197849,8 @@ var MeshBatchImpl = class {
    * The index of this batch in the GPUMemoryManager system.
    */
   gpuMemoryBatchIndex;
+  _styleBinClearDepthBeforeCounts;
+  _styleBinClearDepthBeforeFlags;
   /**
    * Creates a new MeshBatchImpl instance.
    * @param batchParams
@@ -198105,6 +197860,8 @@ var MeshBatchImpl = class {
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
+    this._styleBinClearDepthBeforeCounts = new Uint32Array(renderContext.memoryConfigs.maxViews);
+    this._styleBinClearDepthBeforeFlags = new Uint8Array(renderContext.memoryConfigs.maxViews * renderContext.memoryConfigs.maxBatchMeshes);
     this.primitive = primitive;
     this.hasNormals = hasNormals === true;
     this.hasUVs = hasUVs === true;
@@ -198149,6 +197906,9 @@ var MeshBatchImpl = class {
       return this.primitive === LinesPrimitive ? batchViewResources.pickPrimitiveRange.numPrims > 0 : batchViewResources.pickEdgePrimitiveRange.numPrims > 0;
     }
     return batchViewResources.renderPassPrimitiveRanges.get(renderPass)?.numPrims > 0;
+  }
+  hasStyleBinClearDepthBefore(viewIndex) {
+    return this._styleBinClearDepthBeforeCounts[viewIndex] > 0;
   }
   /**
    * Checks if there are any meshes in this batch that should be rendered in the edge render pass for the given view.
@@ -198197,6 +197957,13 @@ var MeshBatchImpl = class {
   removeMesh(meshHandle) {
     const gpuMeshHandle = meshHandle;
     const sceneMesh = this._gpuMemoryManager.getMeshAtIndex(this.gpuMemoryBatchIndex, gpuMeshHandle.meshIndex);
+    for (let viewIndex = 0; viewIndex < this._styleBinClearDepthBeforeCounts.length; viewIndex++) {
+      const stateIndex = viewIndex * this._renderContext.memoryConfigs.maxBatchMeshes + gpuMeshHandle.meshIndex;
+      if (this._styleBinClearDepthBeforeFlags[stateIndex]) {
+        this._styleBinClearDepthBeforeFlags[stateIndex] = 0;
+        this._styleBinClearDepthBeforeCounts[viewIndex]--;
+      }
+    }
     this._gpuMemoryManager.removeMesh(gpuMeshHandle);
     if (sceneMesh) {
       this.numIndices -= getMeshIndexCount(sceneMesh);
@@ -198267,46 +198034,42 @@ var MeshBatchImpl = class {
     }
   }
   /**
-   * Sets per-view mesh highlight state.
+   * Routes a mesh to the generic style-bin render pass for this view.
    */
-  setMeshHighlighted(viewIndex, meshHandle, highlighted, transparent) {
-    if (highlighted) {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex, RENDER_PASSES.HIGHLIGHTED);
-    } else {
-      this._gpuMemoryManager.setMeshRenderPass(
-        meshHandle,
-        viewIndex,
-        transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE
-      );
-    }
+  setMeshStyleBin(viewIndex, meshHandle, transparent) {
+    this._gpuMemoryManager.setMeshRenderPass(
+      meshHandle,
+      viewIndex,
+      transparent ? RENDER_PASSES.STYLE_BIN_TRANSPARENT : RENDER_PASSES.STYLE_BIN_OPAQUE
+    );
   }
   /**
-   * Sets per-view mesh x-ray state.
+   * Sets whether this mesh should draw edges when routed through a style-bin pass.
    */
-  setMeshXRayed(viewIndex, meshHandle, xrayed, transparent) {
-    if (xrayed) {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex, RENDER_PASSES.XRAYED);
-    } else {
-      this._gpuMemoryManager.setMeshRenderPass(
-        meshHandle,
-        viewIndex,
-        transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE
-      );
-    }
+  setMeshStyleBinEdges(viewIndex, meshHandle, edges) {
+    this._gpuMemoryManager.setMeshViewAttribs(meshHandle, viewIndex, {
+      styleBinEdges: edges
+    });
   }
   /**
-   * Sets per-view mesh selected state.
+   * Sets whether this mesh participates in the style-bin depth-cleared overlay.
    */
-  setMeshSelected(viewIndex, meshHandle, selected, transparent) {
-    if (selected) {
-      this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex, RENDER_PASSES.SELECTED);
-    } else {
-      this._gpuMemoryManager.setMeshRenderPass(
-        meshHandle,
-        viewIndex,
-        transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE
-      );
+  setMeshStyleBinClearDepthBefore(viewIndex, meshHandle, clearDepthBefore) {
+    const meshIndex = meshHandle.meshIndex;
+    const stateIndex = viewIndex * this._renderContext.memoryConfigs.maxBatchMeshes + meshIndex;
+    const next = clearDepthBefore ? 1 : 0;
+    const prev = this._styleBinClearDepthBeforeFlags[stateIndex];
+    if (prev !== next) {
+      this._styleBinClearDepthBeforeFlags[stateIndex] = next;
+      if (next) {
+        this._styleBinClearDepthBeforeCounts[viewIndex]++;
+      } else {
+        this._styleBinClearDepthBeforeCounts[viewIndex]--;
+      }
     }
+    this._gpuMemoryManager.setMeshViewAttribs(meshHandle, viewIndex, {
+      styleBinClearDepthBefore: clearDepthBefore
+    });
   }
   // (setMeshClippable defined above — clippable state writes
   // through to MeshViewAttributeTexture so the FS clip loop
@@ -199118,7 +198881,7 @@ var MeshManager = class {
     return false;
   }
   _viewObjectStateNeedsInitialSync(viewObject) {
-    return !viewObject.visible || viewObject.xrayed || viewObject.highlighted || viewObject.selected || viewObject.culled || !viewObject.pickable || !viewObject.clippable || viewObject.colorize !== null || viewObject.opacityUpdated;
+    return !viewObject.visible || viewObject.culled || !viewObject.pickable || !viewObject.clippable || viewObject.colorize !== null || viewObject.opacityUpdated || viewObject.styleBinIds.length > 0;
   }
   /**
    * Creates (or reuses) a compatible {@link MeshBatchImpl} and registers the given {@link model!scene.SceneMesh | SceneMesh}
@@ -199454,25 +199217,67 @@ var MeshManager = class {
   _synchronizeRendererMeshWithViewObject(rendererMesh, viewObject) {
     const viewIndex = viewObject.layer.view.viewIndex;
     rendererMesh.setObjectVisible(viewIndex, viewObject.visible);
-    rendererMesh.setXRayed(viewIndex, viewObject.xrayed);
-    rendererMesh.setHighlighted(viewIndex, viewObject.highlighted);
-    rendererMesh.setSelected(viewIndex, viewObject.selected);
     rendererMesh.setCulled(viewIndex, viewObject.culled);
     rendererMesh.setPickable(viewIndex, viewObject.pickable);
     rendererMesh.setClippable(viewIndex, viewObject.clippable);
+    const styleBin = this._resolveStyleBin(viewObject);
+    if (styleBin) {
+      this._applyStyleBin(rendererMesh, viewIndex, styleBin);
+      return;
+    }
+    rendererMesh.clearStyleBin(viewIndex);
     rendererMesh.setColorInView(viewIndex, viewObject.colorize);
     rendererMesh.setOpacityInView(viewIndex, viewObject.opacityUpdated ? viewObject.opacity : null);
   }
   _synchronizeRendererMeshWithDefaultObjectState(rendererMesh, viewIndex, sceneObject) {
     rendererMesh.setObjectVisible(viewIndex, true);
-    rendererMesh.setXRayed(viewIndex, false);
-    rendererMesh.setHighlighted(viewIndex, false);
-    rendererMesh.setSelected(viewIndex, false);
+    rendererMesh.clearStyleBin(viewIndex);
     rendererMesh.setCulled(viewIndex, false);
     rendererMesh.setPickable(viewIndex, true);
     rendererMesh.setClippable(viewIndex, sceneObject.clippable !== false);
     rendererMesh.setColorInView(viewIndex, null);
     rendererMesh.setOpacityInView(viewIndex, null);
+  }
+  _resolveStyleBin(viewObject) {
+    const styleBins = viewObject.layer.view.styleBins.list;
+    let resolvedBin = null;
+    for (let i = 0, len = styleBins.length; i < len; i++) {
+      const styleBin = styleBins[i];
+      if (styleBin.enabled && viewObject.hasStyleBin(styleBin.id)) {
+        resolvedBin = styleBin;
+      }
+    }
+    return resolvedBin;
+  }
+  _applyStyleBin(rendererMesh, viewIndex, styleBin) {
+    const material = styleBin.material;
+    rendererMesh.setStyleBin(
+      viewIndex,
+      material.fillColor,
+      material.fill === false ? 0 : material.fillAlpha,
+      material.edges !== false,
+      material.clearDepthBefore === true
+    );
+  }
+  _synchronizeRendererObjectWithViewObject(rendererObject, viewObject) {
+    if (!rendererObject) {
+      return;
+    }
+    const viewIndex = viewObject.layer.view.viewIndex;
+    const styleBin = this._resolveStyleBin(viewObject);
+    if (styleBin) {
+      rendererObject.setStyleBin(
+        viewIndex,
+        styleBin.material.fillColor,
+        styleBin.material.fill === false ? 0 : styleBin.material.fillAlpha,
+        styleBin.material.edges !== false,
+        styleBin.material.clearDepthBefore === true
+      );
+      return;
+    }
+    rendererObject.clearStyleBin(viewIndex);
+    rendererObject.setColorize(viewIndex, viewObject.colorize);
+    rendererObject.setOpacity(viewIndex, viewObject.opacityUpdated ? viewObject.opacity : void 0);
   }
   _detachRendererMeshFromObject(rendererObject, rendererMesh) {
     rendererObject.removeRendererMesh(rendererMesh);
@@ -199578,14 +199383,6 @@ var MeshManager = class {
     this._rendererObjects[viewObject.id]?.setVisible(viewObject.layer.view.viewIndex, viewObject.visible);
   }
   /**
-   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s x-ray state.
-   *
-   * Updates the per-view x-ray flag on the owning {@link RendererObject}.
-   */
-  viewObjectXRayedChanged(viewObject) {
-    this._rendererObjects[viewObject.id]?.setXRayed(viewObject.layer.view.viewIndex, viewObject.xrayed);
-  }
-  /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s clippable state.
    *
    * Updates the per-view clippable flag on the owning
@@ -199606,28 +199403,12 @@ var MeshManager = class {
     this._rendererObjects[viewObject.id]?.setCulled(viewObject.layer.view.viewIndex, viewObject.culled);
   }
   /**
-   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s highlighted state.
-   *
-   * Updates the per-view highlighted flag on the owning {@link RendererObject}.
-   */
-  viewObjectHighlightedChanged(viewObject) {
-    this._rendererObjects[viewObject.id]?.setHighlighted(viewObject.layer.view.viewIndex, viewObject.highlighted);
-  }
-  /**
-   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s selected state.
-   *
-   * Updates the per-view selected flag on the owning {@link RendererObject}.
-   */
-  viewObjectSelectedChanged(viewObject) {
-    this._rendererObjects[viewObject.id]?.setSelected(viewObject.layer.view.viewIndex, viewObject.selected);
-  }
-  /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s colorize state.
    *
    * Updates the per-view colorize flag on the owning {@link RendererObject}.
    */
   viewObjectColorizeChanged(viewObject) {
-    this._rendererObjects[viewObject.id]?.setColorize(viewObject.layer.view.viewIndex, viewObject.colorize);
+    this._synchronizeRendererObjectWithViewObject(this._rendererObjects[viewObject.id], viewObject);
   }
   /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s opacity override.
@@ -199649,10 +199430,14 @@ var MeshManager = class {
    * gating happens here, at the bridge, not in the getter.
    */
   viewObjectOpacityChanged(viewObject) {
-    this._rendererObjects[viewObject.id]?.setOpacity(
-      viewObject.layer.view.viewIndex,
-      viewObject.opacityUpdated ? viewObject.opacity : void 0
-    );
+    this._synchronizeRendererObjectWithViewObject(this._rendererObjects[viewObject.id], viewObject);
+  }
+  /**
+   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s style-bin membership
+   * or to the resolved style-bin definition for that object.
+   */
+  viewObjectStyleBinChanged(viewObject) {
+    this._synchronizeRendererObjectWithViewObject(this._rendererObjects[viewObject.id], viewObject);
   }
   /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s pickable state.
@@ -200132,7 +199917,7 @@ var DrawTechnique = class {
    * primitive/index/position/matrix data-texture fetches.
    *
    * The mesh/material/view state still comes from DTX so visibility,
-   * selection/highlight/xray routing, colors, UVs, normals and material
+   * style-bin routing, colors, UVs, normals and material
    * atlas attributes stay in the existing update path.
    */
   vboGeometry;
@@ -200152,6 +199937,11 @@ var DrawTechnique = class {
    * the per-mesh hatch slot check or hatch-pattern texture fetches.
    */
   bodyHatch;
+  /**
+   * When true, silhouette shaders draw only meshes whose resolved style bin
+   * requests a depth-cleared overlay pass.
+   */
+  styleBinOverlay;
   /**
    * Vertex shader source code. Available after `init()` is called.
    */
@@ -200218,6 +200008,7 @@ var DrawTechnique = class {
     vboTileUniform: false,
     vboViewAttributes: false,
     bodyHatch: false,
+    styleBinOverlay: false,
     logDepth: false
   }) {
     if (cfg.picking && cfg.edges) {
@@ -200251,6 +200042,7 @@ var DrawTechnique = class {
     this.vboTileUniform = cfg.vboTileUniform === true;
     this.vboViewAttributes = cfg.vboViewAttributes === true;
     this.bodyHatch = cfg.bodyHatch === true;
+    this.styleBinOverlay = cfg.styleBinOverlay === true;
     this.logDepth = cfg.logDepth === true;
     this._program = null;
   }
@@ -201803,15 +201595,32 @@ void main(void) {`);
    * @protected
    */
   vsSilhouetteLogic() {
-    this._vertSrcBuf.push(`
-    // Edge / silhouette colour. In "darkenedMesh" mode (base edges only, set
-    // via uEdgeColorMode) each edge takes its own mesh's colour scaled by
-    // uEdgeDarken, keeping the silhouette uniform's alpha (edgeAlpha).
-    if (uEdgeColorMode > 0.5) {
+    if (this.styleBinOverlay) {
+      this._vertSrcBuf.push(`
+    if (meshViewAttributes.renderFlags.a == 0u) {
+      vColor = vec4(0.0);
+    } else {
+      vColor = vec4(meshViewAttributes.color) / 255.0;
+    }`);
+    } else {
+      this._vertSrcBuf.push(`
+    // Resolved style-bin passes use each mesh's per-view style color/alpha.
+    // Base edges can optionally use darkened mesh color; ordinary silhouettes
+    // use the configured uniform color.
+    if (uRenderPass == ${RENDER_PASSES.STYLE_BIN_OPAQUE} || uRenderPass == ${RENDER_PASSES.STYLE_BIN_TRANSPARENT}) {
+      vColor = vec4(meshViewAttributes.color) / 255.0;
+    } else if (uEdgeColorMode > 0.5) {
       vColor = vec4(vec3(meshViewAttributes.color.rgb) / 255.0 * uEdgeDarken, uSilhouetteColor.a);
     } else {
       vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);
     }`);
+    }
+    if (this.edges) {
+      this._vertSrcBuf.push(`
+    if (meshViewAttributes.renderFlags.b == 0u) {
+      vColor.a = 0.0;
+    }`);
+    }
   }
   /**
    * Declares the thick-line uniforms (`uLineWidth`,
@@ -202934,7 +202743,10 @@ flat out int  vHatchSpace;
    * Assigns the interpolated vertex color to the working color variable.
    */
   fsSilhouetteLogic() {
-    this._fragSrcBuf.push("color = vColor;");
+    this._fragSrcBuf.push(
+      "color = vColor;",
+      "if (color.a <= 0.0) discard;"
+    );
   }
   /**
    * Declares the flat color varying read by flat-shaded color logic.
@@ -204214,44 +204026,16 @@ float shadowWeightedPCF(int cascade, vec2 shadowUv, float refDepth, float texel,
     }
     if (uniforms.silhouetteColor) {
       if (this.edges) {
-        if (renderPass === RENDER_PASSES.XRAYED) {
-          const material = view.xrayMaterial;
-          const color2 = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.edgeAlpha);
-        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
-          const material = view.highlightMaterial;
-          const color2 = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.edgeAlpha);
-        } else if (renderPass === RENDER_PASSES.SELECTED) {
-          const material = view.selectedMaterial;
-          const color2 = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.edgeAlpha);
-        } else {
-          const material = view.effects.edges;
-          const color2 = material.edgeColor;
-          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.edgeAlpha);
-        }
+        const material = view.effects.edges;
+        const color2 = material.edgeColor;
+        gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.edgeAlpha);
       } else {
-        if (renderPass === RENDER_PASSES.XRAYED) {
-          const material = view.xrayMaterial;
-          const color2 = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.fillAlpha);
-        } else if (renderPass === RENDER_PASSES.HIGHLIGHTED) {
-          const material = view.highlightMaterial;
-          const color2 = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.fillAlpha);
-        } else if (renderPass === RENDER_PASSES.SELECTED) {
-          const material = view.selectedMaterial;
-          const color2 = material.fillColor;
-          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.fillAlpha);
-        } else {
-          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
-        }
+        gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
       }
     }
     if (uniforms.edgeColorMode) {
       const e = view.effects.edges;
-      const baseEdgesPass = this.edges && renderPass !== RENDER_PASSES.XRAYED && renderPass !== RENDER_PASSES.HIGHLIGHTED && renderPass !== RENDER_PASSES.SELECTED;
+      const baseEdgesPass = this.edges && renderPass !== RENDER_PASSES.STYLE_BIN_OPAQUE && renderPass !== RENDER_PASSES.STYLE_BIN_TRANSPARENT;
       gl.uniform1f(uniforms.edgeColorMode, baseEdgesPass && e.useMeshColor ? 1 : 0);
       if (uniforms.edgeDarken) {
         gl.uniform1f(uniforms.edgeDarken, e.edgeDarken);
@@ -205245,6 +205029,7 @@ var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
       vboGeometry: opts.vboGeometry === true,
       vboTileUniform: opts.vboTileUniform === true,
       vboViewAttributes: opts.vboViewAttributes === true,
+      styleBinOverlay: opts.styleBinOverlay === true,
       logDepth: opts.logDepth === true
     });
   }
@@ -205379,6 +205164,7 @@ var TrianglesDrawSilhouetteTechnique = class extends DrawTechnique {
       vboGeometry: opts.vboGeometry === true,
       vboTileUniform: opts.vboTileUniform === true,
       vboViewAttributes: opts.vboViewAttributes === true,
+      styleBinOverlay: opts.styleBinOverlay === true,
       logDepth: opts.logDepth === true
     });
   }
@@ -205735,6 +205521,7 @@ var DrawOps = class {
     const LOG_DEPTH = true;
     const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2, { logDepth: LOG_DEPTH }));
     const trianglesSilhouetteDTX = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
+    const trianglesStyleBinOverlayDTX = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH, styleBinOverlay: true }));
     const lambertVariants = (Cls, baseCfg = {}) => ({
       technique: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, logDepth: LOG_DEPTH })),
       withBodyHatch: saveForCleanup(new Cls(renderContext, gpuMemoryReader, { ...baseCfg, bodyHatch: true, logDepth: LOG_DEPTH })),
@@ -205755,6 +205542,7 @@ var DrawOps = class {
     const trianglesDrawColorShadowVBO = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOTileUniformCfg);
     const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOTileUniformCfg);
     const trianglesSilhouetteVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
+    const trianglesStyleBinOverlayVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH, styleBinOverlay: true }));
     const trianglesDrawColorFlatDTX = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesDrawColorFlatVBO = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
     const shadowDepthVariants = (cfg = {}) => ({
@@ -205765,6 +205553,8 @@ var DrawOps = class {
     const trianglesShadowDepthVBO = shadowDepthVariants(triangleVBOTileUniformCfg);
     const trianglesDrawEdgeSilhouetteDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeStyleBinOverlayDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH, styleBinOverlay: true }));
+    const trianglesDrawEdgeStyleBinOverlayVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH, styleBinOverlay: true }));
     const trianglesDrawEdgeColorDTX = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesDrawEdgeColorVBO = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { ...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH }));
     const trianglesDrawEdgeColorThickDTX = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
@@ -205800,7 +205590,7 @@ var DrawOps = class {
     }
     this._linkMs = performance.now() - tStart;
     this._finalizePending = true;
-    const { OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK, SNAP_INIT, SNAP } = RENDER_PASSES;
+    const { OPAQUE, TRANSPARENT, STYLE_BIN_OPAQUE, STYLE_BIN_TRANSPARENT, PICK, SNAP_INIT, SNAP } = RENDER_PASSES;
     const triangleSurfaceOp = (dtxVariants, vboVariants, renderPass) => new TriangleSurfaceDrawOp({
       renderContext,
       gpuMemoryReader,
@@ -205843,12 +205633,13 @@ var DrawOps = class {
         transparent: triangleSurfaceOp(trianglesDrawColorDTX, trianglesDrawColorVBO, TRANSPARENT),
         transparentEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorDTX, trianglesDrawEdgeColorVBO, TRANSPARENT),
         transparentEdgesThick: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorThickDTX, trianglesDrawEdgeColorVBO, TRANSPARENT),
-        highlighted: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, HIGHLIGHTED),
-        highlightedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, HIGHLIGHTED),
-        selected: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, SELECTED),
-        selectedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, SELECTED),
-        xrayed: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, XRAYED),
-        xrayedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, XRAYED),
+        styleBin: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, STYLE_BIN_OPAQUE),
+        styleBinOverlay: triangleSurfaceSingleOp(trianglesStyleBinOverlayDTX, trianglesStyleBinOverlayVBO, OPAQUE),
+        styleBinEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, STYLE_BIN_OPAQUE),
+        styleBinOverlayEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeStyleBinOverlayDTX, trianglesDrawEdgeStyleBinOverlayVBO, OPAQUE),
+        styleBinTransparent: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, STYLE_BIN_TRANSPARENT),
+        styleBinOverlayTransparent: triangleSurfaceSingleOp(trianglesStyleBinOverlayDTX, trianglesStyleBinOverlayVBO, TRANSPARENT),
+        styleBinEdgesTransparent: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, STYLE_BIN_TRANSPARENT),
         pick: new TriangleGeometryStorageDrawOp({
           dtxDrawOp: trianglesPickDTX,
           vboGeometryDrawOp: trianglesPickVBO,
@@ -205883,9 +205674,8 @@ var DrawOps = class {
       [LinesPrimitive]: {
         opaque: new DrawOp(linesDrawColor, OPAQUE),
         transparent: new DrawOp(linesDrawColor, TRANSPARENT),
-        highlighted: new DrawOp(linesDrawSilhouette, HIGHLIGHTED),
-        selected: new DrawOp(linesDrawSilhouette, SELECTED),
-        xrayed: new DrawOp(linesDrawSilhouette, XRAYED),
+        styleBin: new DrawOp(linesDrawSilhouette, STYLE_BIN_OPAQUE),
+        styleBinTransparent: new DrawOp(linesDrawSilhouette, STYLE_BIN_TRANSPARENT),
         pick: new DrawOp(linesPickMesh, PICK),
         // Line batches don't carry surface triangles, so they don't
         // contribute a depth baseline themselves — they rely on any
@@ -205899,9 +205689,6 @@ var DrawOps = class {
       [PointsPrimitive]: {
         opaque: new DrawOp(pointsDrawColor, OPAQUE),
         transparent: new DrawOp(pointsDrawColor, TRANSPARENT),
-        // highlighted: new DrawOp(pointsSilhouette, HIGHLIGHTED),
-        // selected: new DrawOp(pointsSilhouette, SELECTED),
-        // xrayed: new DrawOp(pointsSilhouette, XRAYED),
         pick: new DrawOp(pointsPickMesh, PICK)
       }
     };
@@ -212255,18 +212042,12 @@ var RenderBinClassifier = class {
     bins.normalEdgesOpaque.length = 0;
     bins.normalFillTransparent.length = 0;
     bins.normalEdgesTransparent.length = 0;
-    bins.xrayedSilhouetteOpaque.length = 0;
-    bins.xrayEdgesOpaque.length = 0;
-    bins.xrayedSilhouetteTransparent.length = 0;
-    bins.xrayEdgesTransparent.length = 0;
-    bins.highlightedSilhouetteOpaque.length = 0;
-    bins.highlightedEdgesOpaque.length = 0;
-    bins.highlightedSilhouetteTransparent.length = 0;
-    bins.highlightedEdgesTransparent.length = 0;
-    bins.selectedSilhouetteOpaque.length = 0;
-    bins.selectedEdgesOpaque.length = 0;
-    bins.selectedSilhouetteTransparent.length = 0;
-    bins.selectedEdgesTransparent.length = 0;
+    bins.styleBinFillOpaque.length = 0;
+    bins.styleBinOverlayOpaque.length = 0;
+    bins.styleBinEdgesOpaque.length = 0;
+    bins.styleBinFillTransparent.length = 0;
+    bins.styleBinOverlayTransparent.length = 0;
+    bins.styleBinEdgesTransparent.length = 0;
   }
   /**
    * Walks `meshBatches` and pushes each into every bin it qualifies for.
@@ -212275,23 +212056,19 @@ var RenderBinClassifier = class {
   classify(params) {
     const { meshBatches, view, viewIndex, bins, flags } = params;
     const edgeMaterial = view.effects.edges;
-    const xrayMaterial = view.xrayMaterial;
-    const highlightMaterial = view.highlightMaterial;
-    const selectedMaterial = view.selectedMaterial;
     const lodVisibility = view.viewer?.lodVisibility;
     for (const meshBatch of meshBatches) {
       if (lodVisibility?.isRepMembershipSuppressed(view.id, meshBatch.lodRepMemberships)) {
         continue;
       }
-      this._classifyBatch(meshBatch, viewIndex, bins, flags, edgeMaterial, xrayMaterial, highlightMaterial, selectedMaterial);
+      this._classifyBatch(meshBatch, viewIndex, bins, flags, edgeMaterial);
     }
   }
-  _classifyBatch(meshBatch, viewIndex, bins, flags, edgeMaterial, xrayMaterial, highlightMaterial, selectedMaterial) {
+  _classifyBatch(meshBatch, viewIndex, bins, flags, edgeMaterial) {
     const opaque = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.OPAQUE);
     const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
-    const xray = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.XRAYED);
-    const highlight = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.HIGHLIGHTED);
-    const select = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SELECTED);
+    const styleBinOpaque = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.STYLE_BIN_OPAQUE);
+    const styleBinTransparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.STYLE_BIN_TRANSPARENT);
     const supportsEdgePasses = meshBatch.primitive === TrianglesPrimitive && (meshBatch.geometryStorage === "dtx" || meshBatch.geometryStorage === "vbo");
     if (opaque) {
       if (meshBatch.bin !== void 0) {
@@ -212316,29 +212093,29 @@ var RenderBinClassifier = class {
         bins.normalShadowTransparent.push(meshBatch);
       }
     }
-    if (xray && xrayMaterial.fill) {
-      (xrayMaterial.fillAlpha < 1 ? bins.xrayedSilhouetteTransparent : bins.xrayedSilhouetteOpaque).push(meshBatch);
-    }
-    if (highlight && highlightMaterial.fill) {
-      (highlightMaterial.fillAlpha < 1 ? bins.highlightedSilhouetteTransparent : bins.highlightedSilhouetteOpaque).push(meshBatch);
-    }
-    if (select && selectedMaterial.fill) {
-      (selectedMaterial.fillAlpha < 1 ? bins.selectedSilhouetteTransparent : bins.selectedSilhouetteOpaque).push(meshBatch);
-    }
     if (supportsEdgePasses && edgeMaterial.applied) {
       if (opaque)
         bins.normalEdgesOpaque.push(meshBatch);
       if (transparent)
         bins.normalEdgesTransparent.push(meshBatch);
     }
-    if (supportsEdgePasses && xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
-      (xrayMaterial.edgeAlpha < 1 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
+    if (meshBatch.hasStyleBinClearDepthBefore(viewIndex)) {
+      if (opaque)
+        bins.styleBinOverlayOpaque.push(meshBatch);
+      if (transparent)
+        bins.styleBinOverlayTransparent.push(meshBatch);
     }
-    if (supportsEdgePasses && highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
-      (highlightMaterial.edgeAlpha < 1 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
+    if (styleBinOpaque) {
+      bins.styleBinFillOpaque.push(meshBatch);
+      if (supportsEdgePasses) {
+        bins.styleBinEdgesOpaque.push(meshBatch);
+      }
     }
-    if (supportsEdgePasses && select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
-      (selectedMaterial.edgeAlpha < 1 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
+    if (styleBinTransparent) {
+      bins.styleBinFillTransparent.push(meshBatch);
+      if (supportsEdgePasses) {
+        bins.styleBinEdgesTransparent.push(meshBatch);
+      }
     }
   }
 };
@@ -212617,18 +212394,12 @@ var RenderManager = class _RenderManager {
     normalEdgesOpaque: [],
     normalFillTransparent: [],
     normalEdgesTransparent: [],
-    xrayedSilhouetteOpaque: [],
-    xrayEdgesOpaque: [],
-    xrayedSilhouetteTransparent: [],
-    xrayEdgesTransparent: [],
-    highlightedSilhouetteOpaque: [],
-    highlightedEdgesOpaque: [],
-    highlightedSilhouetteTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedSilhouetteOpaque: [],
-    selectedEdgesOpaque: [],
-    selectedSilhouetteTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinFillOpaque: [],
+    styleBinOverlayOpaque: [],
+    styleBinEdgesOpaque: [],
+    styleBinFillTransparent: [],
+    styleBinOverlayTransparent: [],
+    styleBinEdgesTransparent: []
   };
   /** Sorts mesh batches into {@link _bins} once per frame. Stateless helper. */
   _binClassifier = new RenderBinClassifier();
@@ -213291,8 +213062,9 @@ var RenderManager = class _RenderManager {
     }
     renderContext.shadowCascadeCount = 0;
     this._drawEdgeBin(bins.normalEdgesOpaque, "opaqueEdges", "opaqueEdgesThick", RENDER_BINS.EDGES_OPAQUE, view);
-    this._drawBin(bins.xrayedSilhouetteOpaque, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
-    this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
+    this._drawBin(bins.styleBinFillOpaque, "styleBin", RENDER_BINS.STYLE_BIN_FILL_OPAQUE);
+    this._drawBin(bins.styleBinEdgesOpaque, "styleBinEdges", RENDER_BINS.STYLE_BIN_EDGES_OPAQUE);
+    this._drawStyleBinClearDepthBeforeOverlays(view);
     const splatBatch = this._meshManager.getSplatBatch();
     if (splatBatch && splatBatch.numSplats > 0 && this._ensureGaussianSplats()) {
       ri?.renderBinStarted("gaussianSplats");
@@ -213300,25 +213072,6 @@ var RenderManager = class _RenderManager {
     }
     this._renderTransparents(view);
     gl.disable(gl.CULL_FACE);
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.highlightedSilhouetteOpaque, "highlighted", RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE);
-    if (bins.highlightedEdgesOpaque.length)
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.highlightedEdgesOpaque, "highlightedEdges");
-    this._drawBin(bins.selectedSilhouetteOpaque, "selected");
-    if (bins.selectedEdgesOpaque.length)
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.selectedEdgesOpaque, "selectedEdges");
-    gl.enable(gl.BLEND);
-    this._drawBin(bins.highlightedSilhouetteTransparent, "highlighted", RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
-    if (bins.highlightedEdgesTransparent.length)
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.highlightedEdgesTransparent, "highlightedEdges");
-    this._drawBin(bins.selectedSilhouetteTransparent, "selected", RENDER_BINS.SELECTED_SILHOUETTE_TRANSPARENT);
-    if (bins.selectedEdgesTransparent.length)
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-    this._drawBin(bins.selectedEdgesTransparent, "selectedEdges");
-    gl.disable(gl.BLEND);
   }
   /**
    * Renders a depth-only scene prepass for depth-aware post-processing.
@@ -213368,6 +213121,32 @@ var RenderManager = class _RenderManager {
     depthBuffer.unbind();
     renderContext.sceneDepthTexture = depthBuffer.getDepthTexture();
     renderContext.lastProgramId = -1;
+  }
+  _drawStyleBinClearDepthBeforeOverlays(view) {
+    const bins = this._bins;
+    if (!bins.styleBinOverlayOpaque.length) {
+      return;
+    }
+    const gl = this._renderContext.gl;
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.GREATER);
+    gl.depthMask(false);
+    this._drawBin(bins.styleBinOverlayOpaque, "styleBinOverlay", RENDER_BINS.STYLE_BIN_FILL_OPAQUE);
+    this._drawEdgeBin(bins.styleBinOverlayOpaque, "styleBinOverlayEdges", "styleBinOverlayEdges", RENDER_BINS.STYLE_BIN_EDGES_OPAQUE, view);
+    gl.depthFunc(gl.LEQUAL);
+    gl.depthMask(true);
+  }
+  _drawStyleBinClearDepthBeforeTransparentOverlays() {
+    const bins = this._bins;
+    if (!bins.styleBinOverlayTransparent.length) {
+      return;
+    }
+    const gl = this._renderContext.gl;
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.GREATER);
+    gl.depthMask(false);
+    this._drawBin(bins.styleBinOverlayTransparent, "styleBinOverlayTransparent", RENDER_BINS.STYLE_BIN_FILL_TRANSPARENT);
+    gl.depthFunc(gl.LEQUAL);
   }
   _ensureGaussianSplats() {
     if (this.gaussianSplats) {
@@ -213584,7 +213363,7 @@ var RenderManager = class _RenderManager {
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
     const bins = this._bins;
-    if (!bins.normalFillTransparent.length && !bins.normalEdgesTransparent.length && !bins.xrayedSilhouetteTransparent.length && !bins.xrayEdgesTransparent.length) {
+    if (!bins.normalFillTransparent.length && !bins.normalEdgesTransparent.length && !bins.styleBinFillTransparent.length && !bins.styleBinOverlayTransparent.length && !bins.styleBinEdgesTransparent.length) {
       return;
     }
     gl.enable(gl.CULL_FACE);
@@ -213593,13 +213372,14 @@ var RenderManager = class _RenderManager {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     renderContext.backfaces = false;
     gl.depthMask(false);
-    this._drawBin(bins.xrayEdgesTransparent, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_TRANSPARENT);
-    this._drawBin(bins.xrayedSilhouetteTransparent, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_TRANSPARENT);
+    this._drawBin(bins.styleBinEdgesTransparent, "styleBinEdgesTransparent", RENDER_BINS.STYLE_BIN_EDGES_TRANSPARENT);
+    this._drawBin(bins.styleBinFillTransparent, "styleBinTransparent", RENDER_BINS.STYLE_BIN_FILL_TRANSPARENT);
     if (bins.normalEdgesTransparent.length || bins.normalFillTransparent.length) {
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
     this._drawEdgeBin(bins.normalEdgesTransparent, "transparentEdges", "transparentEdgesThick", RENDER_BINS.EDGES_TRANSPARENT, view);
     this._drawBin(bins.normalFillTransparent, "transparent", RENDER_BINS.TRANSPARENT);
+    this._drawStyleBinClearDepthBeforeTransparentOverlays();
     gl.disable(gl.BLEND);
     gl.depthMask(true);
   }
@@ -215660,10 +215440,6 @@ var ViewManager2 = class {
     }
     this._meshManager.viewObjectVisibilityChanged(viewObject);
   }
-  /**
-   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s x-ray flag changed.
-   * Forwards to {@link MeshManager} to queue GPU updates.
-   */
   viewObjectClippableChanged(viewObject) {
     this._meshManager.viewObjectClippableChanged(viewObject);
   }
@@ -215676,32 +215452,6 @@ var ViewManager2 = class {
       return;
     }
     this._meshManager.viewObjectCulledChanged(viewObject);
-  }
-  viewObjectXRayedChanged(viewObject) {
-    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
-      return;
-    }
-    this._meshManager.viewObjectXRayedChanged(viewObject);
-  }
-  /**
-   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s highlight flag changed.
-   * Forwards to {@link MeshManager} to queue GPU updates.
-   */
-  viewObjectHighlightedChanged(viewObject) {
-    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
-      return;
-    }
-    this._meshManager.viewObjectHighlightedChanged(viewObject);
-  }
-  /**
-   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s selection flag changed.
-   * Forwards to {@link MeshManager} to queue GPU updates.
-   */
-  viewObjectSelectedChanged(viewObject) {
-    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
-      return;
-    }
-    this._meshManager.viewObjectSelectedChanged(viewObject);
   }
   /**
    * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s colorize state changed.
@@ -215722,6 +215472,16 @@ var ViewManager2 = class {
       return;
     }
     this._meshManager.viewObjectOpacityChanged(viewObject);
+  }
+  /**
+   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s style-bin membership
+   * or resolved style-bin definition changed.
+   */
+  viewObjectStyleBinChanged(viewObject, _styleBinId, _membership) {
+    if (viewObject.layer.view.viewIndex >= this._rendererViewsList.length) {
+      return;
+    }
+    this._meshManager.viewObjectStyleBinChanged(viewObject);
   }
   /**
    * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s pickable flag changed.
@@ -215890,6 +215650,7 @@ var MarkerOcclusionTester = class {
   _raycaster;
   _params;
   _globalExcludeObjectIds;
+  _excludeStyleBinIds;
   _history = /* @__PURE__ */ new Map();
   _markers = [];
   _results = [];
@@ -215901,7 +215662,7 @@ var MarkerOcclusionTester = class {
     this._params = {
       depthBias: finiteNumber(params.depthBias, DEFAULT_DEPTH_BIAS),
       includeTransparent: params.includeTransparent === true,
-      includeXRayed: params.includeXRayed === true,
+      excludeStyleBinIds: params.excludeStyleBinIds ?? [],
       respectSectionPlanes: params.respectSectionPlanes !== false,
       hideDelayFrames: nonNegativeInteger(params.hideDelayFrames, DEFAULT_HIDE_DELAY_FRAMES),
       showDelayFrames: nonNegativeInteger(params.showDelayFrames, DEFAULT_SHOW_DELAY_FRAMES),
@@ -215910,6 +215671,7 @@ var MarkerOcclusionTester = class {
       occluderFilter: params.occluderFilter
     };
     this._globalExcludeObjectIds = new Set(params.excludeObjectIds ?? []);
+    this._excludeStyleBinIds = params.excludeStyleBinIds ?? [];
   }
   /**
    * Replaces the marker set tested by subsequent {@link update} calls.
@@ -216065,8 +215827,10 @@ var MarkerOcclusionTester = class {
     if (!viewObject || !viewObject.visible || viewObject.culled) {
       return false;
     }
-    if (!this._params.includeXRayed && viewObject.xrayed) {
-      return false;
+    for (let i = 0, len = this._excludeStyleBinIds.length; i < len; i++) {
+      if (viewObject.hasStyleBin(this._excludeStyleBinIds[i])) {
+        return false;
+      }
     }
     if (!this._params.includeTransparent && viewObject.opacityUpdated && viewObject.opacity < 1) {
       return false;
@@ -216883,13 +216647,11 @@ var WebGLRenderer3 = class {
       sceneEvents.onSceneObjectMeshRemoved.subscribe((sceneObject, sceneMesh) => this.logError(viewManager.sceneObjectMeshRemoved(sceneObject, sceneMesh))),
       // ViewObject visual state changes
       viewerEvents.onViewObjectVisibleChanged.subscribe((view, viewObject) => viewManager.viewObjectVisibilityChanged(viewObject)),
-      viewerEvents.onViewObjectXRayedChanged.subscribe((view, viewObject) => viewManager.viewObjectXRayedChanged(viewObject)),
       viewerEvents.onViewObjectClippableChanged.subscribe((view, viewObject) => viewManager.viewObjectClippableChanged(viewObject)),
       viewerEvents.onViewObjectCulledChanged.subscribe((view, viewObject) => viewManager.viewObjectCulledChanged(viewObject)),
-      viewerEvents.onViewObjectHighlightedChanged.subscribe((view, viewObject) => viewManager.viewObjectHighlightedChanged(viewObject)),
-      viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
       viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),
       viewerEvents.onViewObjectOpacityChanged.subscribe((view, viewObject) => viewManager.viewObjectOpacityChanged(viewObject)),
+      viewerEvents.onViewObjectStyleBinChanged.subscribe((_view, event) => viewManager.viewObjectStyleBinChanged(event.viewObject, event.styleBinId, event.membership)),
       viewerEvents.onViewObjectPickableChanged.subscribe((view, viewObject) => viewManager.viewObjectPickableChanged(viewObject)),
       // Camera updates
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
@@ -224010,30 +223772,43 @@ var GeometryBufferManager = class {
 // ../sdk/src/viewing/renderers/webGPU/internal/meshManager/resolveMeshDrawStyle.ts
 var DEFAULT_COLOR2 = [1, 1, 1];
 function resolveMeshDrawStyle(mesh, view, viewObject) {
-  if (viewObject?.selected) {
-    return resolveEffectStyle(view.selectedMaterial, "selected");
-  }
-  if (viewObject?.highlighted) {
-    return resolveEffectStyle(view.highlightMaterial, "highlighted");
-  }
-  if (viewObject?.xrayed) {
-    return resolveEffectStyle(view.xrayMaterial, "xrayed");
-  }
+  const styleBin = resolveStyleBin(view, viewObject);
+  return styleBin ? resolveStyleBinStyle(styleBin) : resolveBaseMeshDrawStyle(mesh, view, viewObject);
+}
+function resolveBaseMeshDrawStyle(mesh, view, viewObject) {
   const opacity = viewObject?.opacityUpdated ? viewObject.opacity : mesh.effectiveOpacity ?? mesh.opacity ?? 1;
   return {
     color: viewObject?.colorize ?? mesh.effectiveColor ?? mesh.color ?? DEFAULT_COLOR2,
     opacity: clamp016(opacity),
     alphaMode: Number.isFinite(mesh.effectiveAlphaMode) ? mesh.effectiveAlphaMode : 0,
-    emphasis: "normal",
+    styleBinId: null,
     drawEdges: !!view.effects?.edges?.applied
   };
 }
-function resolveEffectStyle(effect, emphasis) {
+function resolveStyleBin(view, viewObject) {
+  if (!viewObject) {
+    return null;
+  }
+  const styleBins = view.styleBins.list;
+  let resolvedBin = null;
+  for (let i = 0, len = styleBins.length; i < len; i++) {
+    const styleBin = styleBins[i];
+    if (!styleBin.enabled) {
+      continue;
+    }
+    if (viewObject.hasStyleBin(styleBin.id)) {
+      resolvedBin = styleBin;
+    }
+  }
+  return resolvedBin;
+}
+function resolveStyleBinStyle(styleBin) {
+  const effect = styleBin.material;
   return {
     color: effect?.fillColor ?? DEFAULT_COLOR2,
     opacity: clamp016(effect?.fill === false ? 0 : effect?.fillAlpha ?? 1),
     alphaMode: 0,
-    emphasis,
+    styleBinId: styleBin.id,
     drawEdges: effect?.edges !== false
   };
 }
@@ -224477,7 +224252,8 @@ var MeshManager4 = class {
   writeInstanceData(drawItem, view, target, targetOffset, rtcTileResolver) {
     const meshState = drawItem.meshState;
     const viewObject = this._getViewObject(meshState.mesh, view);
-    const color2 = this.getMeshDrawStyleInView(meshState, view).color;
+    const style = drawItem.style ?? this.getMeshDrawStyleInView(meshState, view);
+    const color2 = style.color;
     this._ensureMeshMatrices(meshState);
     const rtcTile = rtcTileResolver ? rtcTileResolver.assignMesh(meshState.mesh.uniqueId, this._getMeshWorldCenter(meshState)) : null;
     for (let i = 0; i < 16; i++) {
@@ -225963,7 +225739,8 @@ var TriangleBatchManager = class {
     const isLines = primitive === LinesPrimitive;
     const isTriangles = !isPoints && !isLines;
     const hasNormals = isTriangles && !!meshStates[0]?.geometryState.normals;
-    const pbrTriangleColor = isTriangles && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+    const triangleRenderClass = isTriangles ? getTriangleRenderClassFromBaseKey(baseKey) : "flat";
+    const pbrTriangleColor = isTriangles && triangleRenderClass === "pbr";
     const includeEdges = isTriangles && this._renderContext.renderConfigs.edges;
     for (let i = 0, len = meshStates.length; i < len; i++) {
       const geometryState = meshStates[i].geometryState;
@@ -226244,6 +226021,7 @@ var TriangleBatchManager = class {
         signature,
         primitive: isPoints ? PointsPrimitive : isLines ? LinesPrimitive : TrianglesPrimitive,
         hasNormals,
+        triangleRenderClass,
         baseSlot,
         slotCount: slots.length,
         slotEnd: baseSlot + slots.length,
@@ -226356,7 +226134,8 @@ var TriangleBatchManager = class {
         const drawItem = {
           meshState,
           opacity: meshManager.getMeshOpacityInView(meshState, view),
-          viewDepth: 0
+          viewDepth: 0,
+          style: null
         };
         meshManager.writeInstanceData(drawItem, view, instanceFrame.data, slot.globalSlot * INSTANCE_FLOATS, this._rtcTileResolver);
         slot.instanceWriteStateByViewId[view.id] = {
@@ -226492,6 +226271,7 @@ var TriangleBatchManager = class {
           packedBatch: {
             primitive: segment.primitive,
             hasNormals: segment.hasNormals,
+            triangleRenderClass: segment.triangleRenderClass,
             label: params.label,
             segmentKey: segment.key,
             bufferPageKey: segment.bufferPageKey,
@@ -226578,6 +226358,7 @@ var TriangleBatchManager = class {
           label: params.label,
           primitive: segment.primitive,
           hasNormals: segment.hasNormals,
+          triangleRenderClass: segment.triangleRenderClass,
           segmentKey: segment.key,
           bufferPageKey: segment.bufferPageKey,
           renderStateKey,
@@ -226817,7 +226598,7 @@ var TriangleBatchManager = class {
       const isPointPage = pageKey.includes(`primitive:${PointsPrimitive}`);
       const isLinePage = pageKey.includes(`primitive:${LinesPrimitive}`);
       const isTrianglePage = !isPointPage && !isLinePage;
-      const pbrTrianglePage = isTrianglePage && this._renderContext.renderConfigs.triangleColorMode === "pbr";
+      const pbrTrianglePage = isTrianglePage && getTriangleRenderClassFromBaseKey(pageKey) === "pbr";
       const colorBuffer = isPointPage || isLinePage || pbrTrianglePage ? this._renderContext.createEmptyGPUBuffer(
         `xeokit-webgpu-packed-colors:${isTrianglePage ? "triangles" : isLinePage ? "lines" : "points"}:${segmentLabel}`,
         vertexCapacity * 4,
@@ -226964,6 +226745,10 @@ var TriangleBatchManager = class {
     }
     const hasNormals = !!meshState.geometryState.normals;
     const textureKey = getPBRTextureTupleKey(this._textureBindGroupManager, meshState.mesh);
+    const triangleRenderClass = getTriangleRenderClass(this._renderContext.renderConfigs.triangleColorMode, meshState);
+    if (triangleRenderClass === "flat") {
+      return `${baseKey}|color:flat|hasNormals:${hasNormals ? 1 : 0}`;
+    }
     const triangleBaseKey = `${baseKey}|hasNormals:${hasNormals ? 1 : 0}`;
     return textureKey === DEFAULT_TEXTURE_KEY2 ? triangleBaseKey : `${triangleBaseKey}|texture:${textureKey}`;
   }
@@ -227150,12 +226935,28 @@ function expandWorldAABB(worldAABB, localAABB, worldMatrix) {
 function getMeshWorldMatrix2(meshState) {
   return meshState.mesh.worldMatrix ?? meshState.mesh.matrix ?? IDENTITY_MATRIX5;
 }
+function getTriangleRenderClass(mode, meshState) {
+  if (mode === "flat" || mode === "pbr") {
+    return mode;
+  }
+  return meshNeedsPBRTriangleColor(meshState) ? "pbr" : "flat";
+}
+function getTriangleRenderClassFromBaseKey(baseKey) {
+  return baseKey.includes("|color:flat") ? "flat" : "pbr";
+}
+function meshNeedsPBRTriangleColor(meshState) {
+  const mesh = meshState.mesh;
+  const geometry = meshState.geometryState.geometry;
+  const emissive = getEffectiveEmissiveColor(mesh);
+  return meshHasAnyPBRTexture(mesh) || !!geometry.colorsCompressed || getEffectiveRoughness(mesh) !== 1 || getEffectiveMetallic(mesh) !== 0 || emissive[0] !== 0 || emissive[1] !== 0 || emissive[2] !== 0 || getEffectiveClearcoat(mesh) !== 0 || getEffectiveClearcoatRoughness(mesh) !== 0 || getEffectiveSheen(mesh) !== 0 || getEffectiveSheenRoughness(mesh) !== 0.5 || getEffectiveAlphaMode(mesh) !== 0;
+}
 function cloneCachedDrawBatch(batch, createdThisFrame) {
   const packedBatch = batch.packedBatch;
   return {
     packedBatch: {
       primitive: packedBatch.primitive,
       hasNormals: packedBatch.hasNormals,
+      triangleRenderClass: packedBatch.triangleRenderClass,
       label: packedBatch.label,
       segmentKey: packedBatch.segmentKey,
       bufferPageKey: packedBatch.bufferPageKey,
@@ -229367,18 +229168,10 @@ var InstanceBatcher = class {
     transparent: [],
     overlayOpaque: [],
     overlayTransparent: [],
-    xrayedOpaque: [],
-    xrayedEdgesOpaque: [],
-    xrayedTransparent: [],
-    xrayedEdgesTransparent: [],
-    highlightedOpaque: [],
-    highlightedEdgesOpaque: [],
-    highlightedTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedOpaque: [],
-    selectedEdgesOpaque: [],
-    selectedTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinOpaque: [],
+    styleBinEdgesOpaque: [],
+    styleBinTransparent: [],
+    styleBinEdgesTransparent: []
   };
   constructor(params) {
     this._renderContext = params.renderContext;
@@ -229539,21 +229332,13 @@ var InstanceBatcher = class {
       this._clear();
       return overlayTransparentBatchResult;
     }
-    const emphasisResults = [
-      this._appendOpaqueBatches({ batchSet: triangleBatch, drawItems: bins.xrayedFillOpaque, viewId: view.id, pass: "xrayedOpaque", target: this._batches.xrayedOpaque }),
-      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.xrayedEdgesOpaque, viewId: view.id, pass: "xrayedEdgesOpaque", target: this._batches.xrayedEdgesOpaque }) : null,
-      this._appendTransparentBatches({ batchSet: triangleBatch, drawItems: bins.xrayedFillTransparent, viewId: view.id, pass: "xrayedTransparent", target: this._batches.xrayedTransparent }),
-      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.xrayedEdgesTransparent, viewId: view.id, pass: "xrayedEdgesTransparent", target: this._batches.xrayedEdgesTransparent }) : null,
-      this._appendOpaqueBatches({ batchSet: triangleBatch, drawItems: bins.highlightedFillOpaque, viewId: view.id, pass: "highlightedOpaque", target: this._batches.highlightedOpaque }),
-      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.highlightedEdgesOpaque, viewId: view.id, pass: "highlightedEdgesOpaque", target: this._batches.highlightedEdgesOpaque }) : null,
-      this._appendTransparentBatches({ batchSet: triangleBatch, drawItems: bins.highlightedFillTransparent, viewId: view.id, pass: "highlightedTransparent", target: this._batches.highlightedTransparent }),
-      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.highlightedEdgesTransparent, viewId: view.id, pass: "highlightedEdgesTransparent", target: this._batches.highlightedEdgesTransparent }) : null,
-      this._appendOpaqueBatches({ batchSet: triangleBatch, drawItems: bins.selectedFillOpaque, viewId: view.id, pass: "selectedOpaque", target: this._batches.selectedOpaque }),
-      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.selectedEdgesOpaque, viewId: view.id, pass: "selectedEdgesOpaque", target: this._batches.selectedEdgesOpaque }) : null,
-      this._appendTransparentBatches({ batchSet: triangleBatch, drawItems: bins.selectedFillTransparent, viewId: view.id, pass: "selectedTransparent", target: this._batches.selectedTransparent }),
-      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.selectedEdgesTransparent, viewId: view.id, pass: "selectedEdgesTransparent", target: this._batches.selectedEdgesTransparent }) : null
+    const styleBinResults = [
+      this._appendOpaqueBatches({ batchSet: triangleBatch, drawItems: bins.styleBinFillOpaque, viewId: view.id, pass: "styleBinOpaque", target: this._batches.styleBinOpaque }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.styleBinEdgesOpaque, viewId: view.id, pass: "styleBinEdgesOpaque", target: this._batches.styleBinEdgesOpaque }) : null,
+      this._appendTransparentBatches({ batchSet: triangleBatch, drawItems: bins.styleBinFillTransparent, viewId: view.id, pass: "styleBinTransparent", target: this._batches.styleBinTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet: triangleBatch, drawItems: bins.styleBinEdgesTransparent, viewId: view.id, pass: "styleBinEdgesTransparent", target: this._batches.styleBinEdgesTransparent }) : null
     ];
-    for (const result of emphasisResults) {
+    for (const result of styleBinResults) {
       if (result === null) {
         continue;
       }
@@ -229610,15 +229395,11 @@ var InstanceBatcher = class {
       this._clear();
       return overlayTransparentBatchResult;
     }
-    const emphasisResults = [
-      this._appendTransparentBatches({ batchSet, drawItems: bins.xrayedFillTransparent, viewId: view.id, pass: "xrayedTransparent", target: this._batches.xrayedTransparent }),
-      includeEdges ? this._appendEdgeBatches({ batchSet, drawItems: bins.xrayedEdgesTransparent, viewId: view.id, pass: "xrayedEdgesTransparent", target: this._batches.xrayedEdgesTransparent }) : null,
-      this._appendTransparentBatches({ batchSet, drawItems: bins.highlightedFillTransparent, viewId: view.id, pass: "highlightedTransparent", target: this._batches.highlightedTransparent }),
-      includeEdges ? this._appendEdgeBatches({ batchSet, drawItems: bins.highlightedEdgesTransparent, viewId: view.id, pass: "highlightedEdgesTransparent", target: this._batches.highlightedEdgesTransparent }) : null,
-      this._appendTransparentBatches({ batchSet, drawItems: bins.selectedFillTransparent, viewId: view.id, pass: "selectedTransparent", target: this._batches.selectedTransparent }),
-      includeEdges ? this._appendEdgeBatches({ batchSet, drawItems: bins.selectedEdgesTransparent, viewId: view.id, pass: "selectedEdgesTransparent", target: this._batches.selectedEdgesTransparent }) : null
+    const styleBinResults = [
+      this._appendTransparentBatches({ batchSet, drawItems: bins.styleBinFillTransparent, viewId: view.id, pass: "styleBinTransparent", target: this._batches.styleBinTransparent }),
+      includeEdges ? this._appendEdgeBatches({ batchSet, drawItems: bins.styleBinEdgesTransparent, viewId: view.id, pass: "styleBinEdgesTransparent", target: this._batches.styleBinEdgesTransparent }) : null
     ];
-    for (const result of emphasisResults) {
+    for (const result of styleBinResults) {
       if (result === null) {
         continue;
       }
@@ -229857,18 +229638,10 @@ var InstanceBatcher = class {
     this._batches.transparent.length = 0;
     this._batches.overlayOpaque.length = 0;
     this._batches.overlayTransparent.length = 0;
-    this._batches.xrayedOpaque.length = 0;
-    this._batches.xrayedEdgesOpaque.length = 0;
-    this._batches.xrayedTransparent.length = 0;
-    this._batches.xrayedEdgesTransparent.length = 0;
-    this._batches.highlightedOpaque.length = 0;
-    this._batches.highlightedEdgesOpaque.length = 0;
-    this._batches.highlightedTransparent.length = 0;
-    this._batches.highlightedEdgesTransparent.length = 0;
-    this._batches.selectedOpaque.length = 0;
-    this._batches.selectedEdgesOpaque.length = 0;
-    this._batches.selectedTransparent.length = 0;
-    this._batches.selectedEdgesTransparent.length = 0;
+    this._batches.styleBinOpaque.length = 0;
+    this._batches.styleBinEdgesOpaque.length = 0;
+    this._batches.styleBinTransparent.length = 0;
+    this._batches.styleBinEdgesTransparent.length = 0;
   }
   _getDrawBatchCacheKey(viewId, pass, segment, drawItems) {
     const meshIds = [];
@@ -229890,18 +229663,10 @@ var InstanceBatcher = class {
     for (const batchList of [
       batches.overlayOpaque,
       batches.overlayTransparent,
-      batches.xrayedOpaque,
-      batches.xrayedEdgesOpaque,
-      batches.xrayedTransparent,
-      batches.xrayedEdgesTransparent,
-      batches.highlightedOpaque,
-      batches.highlightedEdgesOpaque,
-      batches.highlightedTransparent,
-      batches.highlightedEdgesTransparent,
-      batches.selectedOpaque,
-      batches.selectedEdgesOpaque,
-      batches.selectedTransparent,
-      batches.selectedEdgesTransparent
+      batches.styleBinOpaque,
+      batches.styleBinEdgesOpaque,
+      batches.styleBinTransparent,
+      batches.styleBinEdgesTransparent
     ]) {
       for (let i = 0, len = batchList.length; i < len; i++) {
         batchList[i].packedBatch.destroy();
@@ -230734,18 +230499,10 @@ var RenderBinClassifier2 = class {
     bins.normalDrawOpaque.length = 0;
     bins.normalEdgesOpaque.length = 0;
     bins.normalFillTransparent.length = 0;
-    bins.xrayedFillOpaque.length = 0;
-    bins.xrayedEdgesOpaque.length = 0;
-    bins.xrayedFillTransparent.length = 0;
-    bins.xrayedEdgesTransparent.length = 0;
-    bins.highlightedFillOpaque.length = 0;
-    bins.highlightedEdgesOpaque.length = 0;
-    bins.highlightedFillTransparent.length = 0;
-    bins.highlightedEdgesTransparent.length = 0;
-    bins.selectedFillOpaque.length = 0;
-    bins.selectedEdgesOpaque.length = 0;
-    bins.selectedFillTransparent.length = 0;
-    bins.selectedEdgesTransparent.length = 0;
+    bins.styleBinFillOpaque.length = 0;
+    bins.styleBinEdgesOpaque.length = 0;
+    bins.styleBinFillTransparent.length = 0;
+    bins.styleBinEdgesTransparent.length = 0;
     this._drawItemPoolCount = 0;
     resetCullStats(this._stats);
   }
@@ -230755,7 +230512,7 @@ var RenderBinClassifier2 = class {
       this._classifyMesh(meshState, view, meshManager, bins);
     }
     bins.normalFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
-    this._sortTransparentEmphasisBins(bins);
+    this._sortTransparentStyleBinBins(bins);
   }
   classifySegments(params) {
     const { batchSet, view, meshManager, bins } = params;
@@ -230790,7 +230547,7 @@ var RenderBinClassifier2 = class {
       }
     }
     bins.normalFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
-    this._sortTransparentEmphasisBins(bins);
+    this._sortTransparentStyleBinBins(bins);
   }
   _classifyMesh(meshState, view, meshManager, bins, cameraCulling = false) {
     if (meshState.mesh.bin === "overlayPicker") {
@@ -230802,12 +230559,8 @@ var RenderBinClassifier2 = class {
     if (cameraCulling && !this._isMeshInCameraView(meshState, view, meshManager)) {
       return;
     }
-    const opacity = meshManager.getMeshOpacityInView(meshState, view);
-    if (opacity <= 0) {
-      return;
-    }
     this._stats.considered++;
-    this._appendDrawItem(meshState, opacity, view, meshManager, bins);
+    this._appendDrawItem(meshState, 1, view, meshManager, bins);
   }
   _tryAppendFullOpaqueSegment(params) {
     const { segment, view, meshManager, bins } = params;
@@ -230820,7 +230573,7 @@ var RenderBinClassifier2 = class {
         return false;
       }
       const style = meshManager.getMeshDrawStyleInView(meshState, view);
-      if (style.opacity < 1 || style.alphaMode === 2) {
+      if (style.styleBinId !== null || style.opacity < 1 || style.alphaMode === 2) {
         return false;
       }
     }
@@ -230831,52 +230584,38 @@ var RenderBinClassifier2 = class {
     return true;
   }
   _appendDrawItem(meshState, opacity, view, meshManager, bins) {
+    const style = meshManager.getMeshDrawStyleInView(meshState, view);
+    const resolvedOpacity = clamp017(opacity * style.opacity);
+    if (resolvedOpacity <= 0 && !style.drawEdges) {
+      return;
+    }
     const drawItem = this._nextDrawItem();
     drawItem.meshState = meshState;
-    drawItem.opacity = opacity;
+    drawItem.opacity = resolvedOpacity;
+    drawItem.style = style;
     this._stats.rendered++;
-    const style = meshManager.getMeshDrawStyleInView(meshState, view);
-    const isOpaque = opacity >= 1 && style.alphaMode !== 2;
+    const isOpaque = resolvedOpacity >= 1 && style.alphaMode !== 2;
     const hasEdges = style.drawEdges && meshState.geometryState.edgeIndexCount > 0;
     if (isOpaque) {
       drawItem.viewDepth = 0;
     } else {
       drawItem.viewDepth = meshManager.getMeshViewDepth(meshState, view);
     }
-    switch (style.emphasis) {
-      case "xrayed":
-        (isOpaque ? bins.xrayedFillOpaque : bins.xrayedFillTransparent).push(drawItem);
-        if (hasEdges) {
-          (isOpaque ? bins.xrayedEdgesOpaque : bins.xrayedEdgesTransparent).push(drawItem);
-        }
-        break;
-      case "highlighted":
-        (isOpaque ? bins.highlightedFillOpaque : bins.highlightedFillTransparent).push(drawItem);
-        if (hasEdges) {
-          (isOpaque ? bins.highlightedEdgesOpaque : bins.highlightedEdgesTransparent).push(drawItem);
-        }
-        break;
-      case "selected":
-        (isOpaque ? bins.selectedFillOpaque : bins.selectedFillTransparent).push(drawItem);
-        if (hasEdges) {
-          (isOpaque ? bins.selectedEdgesOpaque : bins.selectedEdgesTransparent).push(drawItem);
-        }
-        break;
-      default:
-        (isOpaque ? bins.normalDrawOpaque : bins.normalFillTransparent).push(drawItem);
-        if (isOpaque && hasEdges) {
-          bins.normalEdgesOpaque.push(drawItem);
-        }
-        break;
+    if (style.styleBinId !== null) {
+      (isOpaque ? bins.styleBinFillOpaque : bins.styleBinFillTransparent).push(drawItem);
+      if (hasEdges) {
+        (isOpaque ? bins.styleBinEdgesOpaque : bins.styleBinEdgesTransparent).push(drawItem);
+      }
+    } else {
+      (isOpaque ? bins.normalDrawOpaque : bins.normalFillTransparent).push(drawItem);
+      if (isOpaque && hasEdges) {
+        bins.normalEdgesOpaque.push(drawItem);
+      }
     }
   }
-  _sortTransparentEmphasisBins(bins) {
-    bins.xrayedFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
-    bins.xrayedEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
-    bins.highlightedFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
-    bins.highlightedEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
-    bins.selectedFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
-    bins.selectedEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+  _sortTransparentStyleBinBins(bins) {
+    bins.styleBinFillTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
+    bins.styleBinEdgesTransparent.sort((a2, b4) => a2.viewDepth - b4.viewDepth);
   }
   _isMeshInCameraView(meshState, view, meshManager) {
     const meshClipBounds = this._getMeshWorldAABBClipBounds(meshState, view, meshManager);
@@ -230899,7 +230638,8 @@ var RenderBinClassifier2 = class {
       drawItem = {
         meshState: null,
         opacity: 1,
-        viewDepth: 0
+        viewDepth: 0,
+        style: null
       };
       this._drawItemPool.push(drawItem);
     }
@@ -230991,6 +230731,9 @@ var RenderBinClassifier2 = class {
     return Math.max(projectedWidth, projectedHeight) < threshold;
   }
 };
+function clamp017(value) {
+  return Math.max(0, Math.min(1, value));
+}
 function createEmptyCullStats() {
   return {
     considered: 0,
@@ -231455,26 +231198,35 @@ var TriangleDrawBinSubmitter = class {
     }
     return drawResult;
   }
-  drawEmphasisBatchLists(params) {
-    const fillDrawOp = params.flatColorMode ? params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque : params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque;
-    const fillTechnique = params.flatColorMode ? "TrianglesDrawColorFlatTechnique" : "TrianglesDrawColorTechnique";
+  drawStyleBinBatchLists(params) {
     const fillMissingMessage = params.transparent ? "[RenderManager.renderView] Transparent triangle draw operation was not initialized." : "[RenderManager.renderView] Opaque triangle draw operation was not initialized.";
     const entries = params.transparent ? [
-      ["XRAYED_TRANSPARENT", params.batches.xrayedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
-      ["XRAYED_EDGES_TRANSPARENT", params.batches.xrayedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-      ["HIGHLIGHTED_TRANSPARENT", params.batches.highlightedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
-      ["HIGHLIGHTED_EDGES_TRANSPARENT", params.batches.highlightedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-      ["SELECTED_TRANSPARENT", params.batches.selectedTransparent, fillTechnique, fillDrawOp, fillMissingMessage],
-      ["SELECTED_EDGES_TRANSPARENT", params.batches.selectedEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
+      ["STYLE_BIN_TRANSPARENT", params.batches.styleBinTransparent, fillMissingMessage],
+      ["STYLE_BIN_EDGES_TRANSPARENT", params.batches.styleBinEdgesTransparent, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
     ] : [
-      ["XRAYED_OPAQUE", params.batches.xrayedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
-      ["XRAYED_EDGES_OPAQUE", params.batches.xrayedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-      ["HIGHLIGHTED_OPAQUE", params.batches.highlightedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
-      ["HIGHLIGHTED_EDGES_OPAQUE", params.batches.highlightedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."],
-      ["SELECTED_OPAQUE", params.batches.selectedOpaque, fillTechnique, fillDrawOp, fillMissingMessage],
-      ["SELECTED_EDGES_OPAQUE", params.batches.selectedEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
+      ["STYLE_BIN_OPAQUE", params.batches.styleBinOpaque, fillMissingMessage],
+      ["STYLE_BIN_EDGES_OPAQUE", params.batches.styleBinEdgesOpaque, "TrianglesDrawEdgeColorTechnique", params.triangleDrawOps.edges, "[RenderManager.renderView] Edge triangle draw operation was not initialized."]
     ];
-    for (const [renderPass, batches, technique, drawOp, missingMessage] of entries) {
+    for (const entry of entries) {
+      if (entry.length === 3) {
+        const [renderPass2, batches2, missingMessage2] = entry;
+        const result2 = this._drawTriangleFillBatchList({
+          passEncoder: params.passEncoder,
+          commandStateTracker: params.commandStateTracker,
+          frameBindGroup: params.frameBindGroup,
+          instanceBindGroup: params.instanceBindGroup,
+          triangleDrawOps: params.triangleDrawOps,
+          batches: batches2,
+          renderPass: renderPass2,
+          transparent: params.transparent,
+          missingMessage: missingMessage2
+        });
+        if (result2.ok === false) {
+          return result2;
+        }
+        continue;
+      }
+      const [renderPass, batches, technique, drawOp, missingMessage] = entry;
       const result = this.drawBatchList({
         passEncoder: params.passEncoder,
         commandStateTracker: params.commandStateTracker,
@@ -231482,6 +231234,48 @@ var TriangleDrawBinSubmitter = class {
         instanceBindGroup: params.instanceBindGroup,
         batches,
         renderPass,
+        technique,
+        drawOp,
+        missingMessage
+      });
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    return this._ok();
+  }
+  _drawTriangleFillBatchList(params) {
+    const flatBatches = params.batches.filter((batch) => batch.packedBatch.triangleRenderClass === "flat");
+    const noNormalsBatches = params.batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals !== true);
+    const pbrBatches = params.batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals === true);
+    const entries = [
+      [
+        flatBatches,
+        "TrianglesDrawColorFlatTechnique",
+        params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque,
+        params.missingMessage
+      ],
+      [
+        noNormalsBatches,
+        "TrianglesDrawColorNoNormalsTechnique",
+        params.transparent ? params.triangleDrawOps.noNormalsTransparent : params.triangleDrawOps.noNormalsOpaque,
+        params.missingMessage
+      ],
+      [
+        pbrBatches,
+        "TrianglesDrawColorTechnique",
+        params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque,
+        params.missingMessage
+      ]
+    ];
+    for (const [batches, technique, drawOp, missingMessage] of entries) {
+      const result = this.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches,
+        renderPass: params.renderPass,
         technique,
         drawOp,
         missingMessage
@@ -235651,18 +235445,10 @@ var RenderManager3 = class {
     normalDrawOpaque: [],
     normalEdgesOpaque: [],
     normalFillTransparent: [],
-    xrayedFillOpaque: [],
-    xrayedEdgesOpaque: [],
-    xrayedFillTransparent: [],
-    xrayedEdgesTransparent: [],
-    highlightedFillOpaque: [],
-    highlightedEdgesOpaque: [],
-    highlightedFillTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedFillOpaque: [],
-    selectedEdgesOpaque: [],
-    selectedFillTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinFillOpaque: [],
+    styleBinEdgesOpaque: [],
+    styleBinFillTransparent: [],
+    styleBinEdgesTransparent: []
   };
   _binClassifier;
   _instanceBatcher;
@@ -235806,9 +235592,10 @@ var RenderManager3 = class {
         return splatRefreshResult;
       }
       const totalInstances = renderCache.totalInstances;
+      const triangleBatches = this._filterBatchesByPrimitive(renderCache.batches, TrianglesPrimitive);
       if (totalInstances > 0) {
         const iblResult = this._iblManager.prepare(view, {
-          active: this._renderContext.renderConfigs.triangleColorMode !== "flat"
+          active: this._hasPBRTriangleColorBatches(triangleBatches)
         });
         if (iblResult.ok === false) {
           return iblResult;
@@ -235862,7 +235649,6 @@ var RenderManager3 = class {
       const pointDrawOps = this._drawOps.prims[PointsPrimitive];
       const lineDrawOps = this._drawOps.prims[LinesPrimitive];
       const splatDrawOps = this._drawOps.prims[GaussianSplatsPrimitive];
-      const triangleBatches = this._filterBatchesByPrimitive(renderCache.batches, TrianglesPrimitive);
       const pointBatches = this._filterBatchesByPrimitive(renderCache.batches, PointsPrimitive);
       const lineBatches = this._filterBatchesByPrimitive(renderCache.batches, LinesPrimitive);
       const splatBatches = renderCache.splatBatches;
@@ -235954,57 +235740,18 @@ var RenderManager3 = class {
         return gridResult;
       }
       if (triangleBatches.opaque.length > 0) {
-        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
-        if (flatColorMode) {
-          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-            passEncoder,
-            commandStateTracker: passCommandState,
-            frameBindGroup: frameBindGroupResult.value,
-            instanceBindGroup: instanceBindGroupResult.value,
-            batches: triangleBatches.opaque,
-            renderPass: "OPAQUE",
-            technique: "TrianglesDrawColorFlatTechnique",
-            drawOp: triangleDrawOps.flatOpaque,
-            missingMessage: "[RenderManager.renderView] Opaque flat triangle draw operation was not initialized."
-          });
-          if (drawResult.ok === false) {
-            return drawResult;
-          }
-        } else {
-          const noNormalsBatches = this._getNoNormalsTriangleColorBatches(view, triangleBatches.opaque);
-          const pbrBatches = this._getPBRTriangleColorBatches(view, triangleBatches.opaque);
-          if (noNormalsBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult.value,
-              instanceBindGroup: instanceBindGroupResult.value,
-              batches: noNormalsBatches,
-              renderPass: "OPAQUE",
-              technique: "TrianglesDrawColorNoNormalsTechnique",
-              drawOp: triangleDrawOps.noNormalsOpaque,
-              missingMessage: "[RenderManager.renderView] Opaque no-normal triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
-          if (pbrBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult.value,
-              instanceBindGroup: instanceBindGroupResult.value,
-              batches: pbrBatches,
-              renderPass: "OPAQUE",
-              technique: "TrianglesDrawColorTechnique",
-              drawOp: triangleDrawOps.opaque,
-              missingMessage: "[RenderManager.renderView] Opaque triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
+        const drawResult = this._drawTriangleColorBatches({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          triangleDrawOps,
+          batches: triangleBatches.opaque,
+          renderPass: "OPAQUE",
+          transparent: false
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
         }
       }
       if (pointDrawOps?.opaque) {
@@ -236062,18 +235809,17 @@ var RenderManager3 = class {
         }
       }
       if (totalInstances > 0) {
-        const emphasizedOpaqueResult = this._triangleDrawBinSubmitter.drawEmphasisBatchLists({
+        const styleBinOpaqueResult = this._triangleDrawBinSubmitter.drawStyleBinBatchLists({
           passEncoder,
           commandStateTracker: passCommandState,
           frameBindGroup: frameBindGroupResult.value,
           instanceBindGroup: instanceBindGroupResult.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: false,
-          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
+          transparent: false
         });
-        if (emphasizedOpaqueResult.ok === false) {
-          return emphasizedOpaqueResult;
+        if (styleBinOpaqueResult.ok === false) {
+          return styleBinOpaqueResult;
         }
       }
       if (usePostProcess && postProcessSourceView && hasTransparentSurfaceBatches && this._postProcess.needsSAO(view)) {
@@ -236131,57 +235877,18 @@ var RenderManager3 = class {
         });
       }
       if (triangleBatches.transparent.length > 0) {
-        const flatColorMode = this._renderContext.renderConfigs.triangleColorMode === "flat";
-        if (flatColorMode) {
-          const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-            passEncoder,
-            commandStateTracker: passCommandState,
-            frameBindGroup: frameBindGroupResult.value,
-            instanceBindGroup: instanceBindGroupResult.value,
-            batches: triangleBatches.transparent,
-            renderPass: "TRANSPARENT",
-            technique: "TrianglesDrawColorFlatTechnique",
-            drawOp: triangleDrawOps.flatTransparent,
-            missingMessage: "[RenderManager.renderView] Transparent flat triangle draw operation was not initialized."
-          });
-          if (drawResult.ok === false) {
-            return drawResult;
-          }
-        } else {
-          const noNormalsBatches = this._getNoNormalsTriangleColorBatches(view, triangleBatches.transparent);
-          const pbrBatches = this._getPBRTriangleColorBatches(view, triangleBatches.transparent);
-          if (noNormalsBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult.value,
-              instanceBindGroup: instanceBindGroupResult.value,
-              batches: noNormalsBatches,
-              renderPass: "TRANSPARENT",
-              technique: "TrianglesDrawColorNoNormalsTechnique",
-              drawOp: triangleDrawOps.noNormalsTransparent,
-              missingMessage: "[RenderManager.renderView] Transparent no-normal triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
-          if (pbrBatches.length > 0) {
-            const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-              passEncoder,
-              commandStateTracker: passCommandState,
-              frameBindGroup: frameBindGroupResult.value,
-              instanceBindGroup: instanceBindGroupResult.value,
-              batches: pbrBatches,
-              renderPass: "TRANSPARENT",
-              technique: "TrianglesDrawColorTechnique",
-              drawOp: triangleDrawOps.transparent,
-              missingMessage: "[RenderManager.renderView] Transparent triangle draw operation was not initialized."
-            });
-            if (drawResult.ok === false) {
-              return drawResult;
-            }
-          }
+        const drawResult = this._drawTriangleColorBatches({
+          passEncoder,
+          commandStateTracker: passCommandState,
+          frameBindGroup: frameBindGroupResult.value,
+          instanceBindGroup: instanceBindGroupResult.value,
+          triangleDrawOps,
+          batches: triangleBatches.transparent,
+          renderPass: "TRANSPARENT",
+          transparent: true
+        });
+        if (drawResult.ok === false) {
+          return drawResult;
         }
       }
       if (pointDrawOps?.transparent) {
@@ -236239,18 +235946,17 @@ var RenderManager3 = class {
         }
       }
       if (totalInstances > 0) {
-        const emphasizedTransparentResult = this._triangleDrawBinSubmitter.drawEmphasisBatchLists({
+        const styleBinTransparentResult = this._triangleDrawBinSubmitter.drawStyleBinBatchLists({
           passEncoder,
           commandStateTracker: passCommandState,
           frameBindGroup: frameBindGroupResult.value,
           instanceBindGroup: instanceBindGroupResult.value,
           triangleDrawOps,
           batches: triangleBatches,
-          transparent: true,
-          flatColorMode: this._renderContext.renderConfigs.triangleColorMode === "flat"
+          transparent: true
         });
-        if (emphasizedTransparentResult.ok === false) {
-          return emphasizedTransparentResult;
+        if (styleBinTransparentResult.ok === false) {
+          return styleBinTransparentResult;
         }
       }
       const hasTriangleOverlay = triangleBatches.overlayOpaque.length > 0 || triangleBatches.overlayTransparent.length > 0;
@@ -236333,6 +236039,63 @@ var RenderManager3 = class {
     } finally {
       if (frameStarted) {
         this._renderInspector.frameEnded();
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _drawTriangleColorBatches(params) {
+    const flatBatches = this._getFlatTriangleColorBatches(params.batches);
+    if (flatBatches.length > 0) {
+      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: flatBatches,
+        renderPass: params.renderPass,
+        technique: "TrianglesDrawColorFlatTechnique",
+        drawOp: params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque,
+        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} flat triangle draw operation was not initialized.`
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
+      }
+    }
+    const noNormalsBatches = this._getNoNormalsTriangleColorBatches(params.batches);
+    if (noNormalsBatches.length > 0) {
+      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: noNormalsBatches,
+        renderPass: params.renderPass,
+        technique: "TrianglesDrawColorNoNormalsTechnique",
+        drawOp: params.transparent ? params.triangleDrawOps.noNormalsTransparent : params.triangleDrawOps.noNormalsOpaque,
+        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} no-normal triangle draw operation was not initialized.`
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
+      }
+    }
+    const pbrBatches = this._getPBRTriangleColorBatches(params.batches);
+    if (pbrBatches.length > 0) {
+      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
+        passEncoder: params.passEncoder,
+        commandStateTracker: params.commandStateTracker,
+        frameBindGroup: params.frameBindGroup,
+        instanceBindGroup: params.instanceBindGroup,
+        batches: pbrBatches,
+        renderPass: params.renderPass,
+        technique: "TrianglesDrawColorTechnique",
+        drawOp: params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque,
+        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} triangle draw operation was not initialized.`
+      });
+      if (drawResult.ok === false) {
+        return drawResult;
       }
     }
     return {
@@ -237245,7 +237008,7 @@ var RenderManager3 = class {
     });
     this._renderInspector.addCPUTime("binningMs", nowMs5() - binningStart);
     const newCullStats = cloneCullStats(this._binClassifier.stats);
-    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
+    if (this._hasTransparentDrawItems(this._bins) || this._hasStyleBinDrawItems(this._bins)) {
       return null;
     }
     const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSetResult.value), view.id);
@@ -237411,7 +237174,7 @@ var RenderManager3 = class {
     });
     this._renderInspector.addCPUTime("binningMs", nowMs5() - binningStart);
     const newCullStats = cloneCullStats(this._binClassifier.stats);
-    if (this._hasTransparentDrawItems(this._bins) || this._hasEmphasisDrawItems(this._bins)) {
+    if (this._hasTransparentDrawItems(this._bins) || this._hasStyleBinDrawItems(this._bins)) {
       return null;
     }
     const instanceFrameResult = this._instanceBufferManager.beginFrame(this._getInstanceFrameCapacity(batchSet), view.id);
@@ -237563,12 +237326,8 @@ var RenderManager3 = class {
     }
     this._replaceBatches(transparentBatchesResult.value.transparent, cache2.batches.transparent);
     this._replaceBatches(transparentBatchesResult.value.overlayTransparent, cache2.batches.overlayTransparent);
-    this._replaceBatches(transparentBatchesResult.value.xrayedTransparent, cache2.batches.xrayedTransparent);
-    this._replaceBatches(transparentBatchesResult.value.xrayedEdgesTransparent, cache2.batches.xrayedEdgesTransparent);
-    this._replaceBatches(transparentBatchesResult.value.highlightedTransparent, cache2.batches.highlightedTransparent);
-    this._replaceBatches(transparentBatchesResult.value.highlightedEdgesTransparent, cache2.batches.highlightedEdgesTransparent);
-    this._replaceBatches(transparentBatchesResult.value.selectedTransparent, cache2.batches.selectedTransparent);
-    this._replaceBatches(transparentBatchesResult.value.selectedEdgesTransparent, cache2.batches.selectedEdgesTransparent);
+    this._replaceBatches(transparentBatchesResult.value.styleBinTransparent, cache2.batches.styleBinTransparent);
+    this._replaceBatches(transparentBatchesResult.value.styleBinEdgesTransparent, cache2.batches.styleBinEdgesTransparent);
     transparentBatchesResult.value.opaque.length = 0;
     transparentBatchesResult.value.edges.length = 0;
     const shadowBatchesResult = this._buildShadowBatches({
@@ -237630,18 +237389,10 @@ var RenderManager3 = class {
           transparent: [],
           overlayOpaque: [],
           overlayTransparent: [],
-          xrayedOpaque: [],
-          xrayedEdgesOpaque: [],
-          xrayedTransparent: [],
-          xrayedEdgesTransparent: [],
-          highlightedOpaque: [],
-          highlightedEdgesOpaque: [],
-          highlightedTransparent: [],
-          highlightedEdgesTransparent: [],
-          selectedOpaque: [],
-          selectedEdgesOpaque: [],
-          selectedTransparent: [],
-          selectedEdgesTransparent: []
+          styleBinOpaque: [],
+          styleBinEdgesOpaque: [],
+          styleBinTransparent: [],
+          styleBinEdgesTransparent: []
         },
         shadowBatches: [],
         snapEdgeBatches: [],
@@ -237873,16 +237624,16 @@ var RenderManager3 = class {
     return memoryConfigs.frustumCulling || memoryConfigs.minProjectedCanvasSize > 0;
   }
   _countVisibleDrawItems(bins) {
-    return bins.normalDrawOpaque.length + bins.normalFillTransparent.length + bins.xrayedFillOpaque.length + bins.xrayedFillTransparent.length + bins.highlightedFillOpaque.length + bins.highlightedFillTransparent.length + bins.selectedFillOpaque.length + bins.selectedFillTransparent.length;
+    return bins.normalDrawOpaque.length + bins.normalFillTransparent.length + bins.styleBinFillOpaque.length + bins.styleBinFillTransparent.length;
   }
   _hasTransparentDrawItems(bins) {
-    return bins.normalFillTransparent.length > 0 || bins.xrayedFillTransparent.length > 0 || bins.xrayedEdgesTransparent.length > 0 || bins.highlightedFillTransparent.length > 0 || bins.highlightedEdgesTransparent.length > 0 || bins.selectedFillTransparent.length > 0 || bins.selectedEdgesTransparent.length > 0;
+    return bins.normalFillTransparent.length > 0 || bins.styleBinFillTransparent.length > 0 || bins.styleBinEdgesTransparent.length > 0;
   }
-  _hasEmphasisDrawItems(bins) {
-    return bins.xrayedFillOpaque.length > 0 || bins.xrayedEdgesOpaque.length > 0 || bins.xrayedFillTransparent.length > 0 || bins.xrayedEdgesTransparent.length > 0 || bins.highlightedFillOpaque.length > 0 || bins.highlightedEdgesOpaque.length > 0 || bins.highlightedFillTransparent.length > 0 || bins.highlightedEdgesTransparent.length > 0 || bins.selectedFillOpaque.length > 0 || bins.selectedEdgesOpaque.length > 0 || bins.selectedFillTransparent.length > 0 || bins.selectedEdgesTransparent.length > 0;
+  _hasStyleBinDrawItems(bins) {
+    return bins.styleBinFillOpaque.length > 0 || bins.styleBinEdgesOpaque.length > 0 || bins.styleBinFillTransparent.length > 0 || bins.styleBinEdgesTransparent.length > 0;
   }
   _hasTransparentBatches(batches) {
-    return batches.transparent.length > 0 || batches.overlayTransparent.length > 0 || batches.xrayedTransparent.length > 0 || batches.xrayedEdgesTransparent.length > 0 || batches.highlightedTransparent.length > 0 || batches.highlightedEdgesTransparent.length > 0 || batches.selectedTransparent.length > 0 || batches.selectedEdgesTransparent.length > 0;
+    return batches.transparent.length > 0 || batches.overlayTransparent.length > 0 || batches.styleBinTransparent.length > 0 || batches.styleBinEdgesTransparent.length > 0;
   }
   _getSegmentBatchReuseReason(batches) {
     return this._hasMeaningfulTransparentBatchLoad(batches) ? "transparentSegmentBatch" : "segmentBatchReuse";
@@ -237891,12 +237642,8 @@ var RenderManager3 = class {
     const transparentIndexCount = this._countBatchIndices([
       ...batches.transparent,
       ...batches.overlayTransparent,
-      ...batches.xrayedTransparent,
-      ...batches.xrayedEdgesTransparent,
-      ...batches.highlightedTransparent,
-      ...batches.highlightedEdgesTransparent,
-      ...batches.selectedTransparent,
-      ...batches.selectedEdgesTransparent
+      ...batches.styleBinTransparent,
+      ...batches.styleBinEdgesTransparent
     ]);
     if (transparentIndexCount === 0) {
       return false;
@@ -237905,12 +237652,8 @@ var RenderManager3 = class {
       ...batches.opaque,
       ...batches.edges,
       ...batches.overlayOpaque,
-      ...batches.xrayedOpaque,
-      ...batches.xrayedEdgesOpaque,
-      ...batches.highlightedOpaque,
-      ...batches.highlightedEdgesOpaque,
-      ...batches.selectedOpaque,
-      ...batches.selectedEdgesOpaque
+      ...batches.styleBinOpaque,
+      ...batches.styleBinEdgesOpaque
     ]);
     return opaqueIndexCount === 0 || transparentIndexCount / (opaqueIndexCount + transparentIndexCount) >= MEANINGFUL_TRANSPARENT_INDEX_FRACTION;
   }
@@ -237941,7 +237684,7 @@ var RenderManager3 = class {
     return activePlanes;
   }
   _countBatches(batches) {
-    return batches.opaque.length + batches.edges.length + batches.transparent.length + batches.overlayOpaque.length + batches.overlayTransparent.length + batches.xrayedOpaque.length + batches.xrayedEdgesOpaque.length + batches.xrayedTransparent.length + batches.xrayedEdgesTransparent.length + batches.highlightedOpaque.length + batches.highlightedEdgesOpaque.length + batches.highlightedTransparent.length + batches.highlightedEdgesTransparent.length + batches.selectedOpaque.length + batches.selectedEdgesOpaque.length + batches.selectedTransparent.length + batches.selectedEdgesTransparent.length;
+    return batches.opaque.length + batches.edges.length + batches.transparent.length + batches.overlayOpaque.length + batches.overlayTransparent.length + batches.styleBinOpaque.length + batches.styleBinEdgesOpaque.length + batches.styleBinTransparent.length + batches.styleBinEdgesTransparent.length;
   }
   _getPickSurfaceBatches(batches) {
     return [
@@ -237949,35 +237692,38 @@ var RenderManager3 = class {
       ...batches.transparent,
       ...batches.overlayOpaque,
       ...batches.overlayTransparent,
-      ...batches.xrayedOpaque,
-      ...batches.xrayedTransparent,
-      ...batches.highlightedOpaque,
-      ...batches.highlightedTransparent,
-      ...batches.selectedOpaque,
-      ...batches.selectedTransparent
+      ...batches.styleBinOpaque,
+      ...batches.styleBinTransparent
     ];
   }
   _getOpaqueSurfaceBatches(batches) {
     return [
       ...batches.opaque,
-      ...batches.xrayedOpaque,
-      ...batches.highlightedOpaque,
-      ...batches.selectedOpaque
+      ...batches.styleBinOpaque
     ];
   }
   _getTransparentSurfaceBatches(batches) {
     return [
       ...batches.transparent,
-      ...batches.xrayedTransparent,
-      ...batches.highlightedTransparent,
-      ...batches.selectedTransparent
+      ...batches.styleBinTransparent
     ];
   }
-  _getNoNormalsTriangleColorBatches(_view, batches) {
-    return batches.filter((batch) => batch.packedBatch.hasNormals !== true);
+  _hasPBRTriangleColorBatches(batches) {
+    return [
+      batches.opaque,
+      batches.transparent,
+      batches.styleBinOpaque,
+      batches.styleBinTransparent
+    ].some((batchList) => batchList.some((batch) => batch.packedBatch.triangleRenderClass === "pbr"));
   }
-  _getPBRTriangleColorBatches(_view, batches) {
-    return batches.filter((batch) => batch.packedBatch.hasNormals === true);
+  _getFlatTriangleColorBatches(batches) {
+    return batches.filter((batch) => batch.packedBatch.triangleRenderClass === "flat");
+  }
+  _getNoNormalsTriangleColorBatches(batches) {
+    return batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals !== true);
+  }
+  _getPBRTriangleColorBatches(batches) {
+    return batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals === true);
   }
   _filterBatchesByPrimitive(batches, primitive) {
     return {
@@ -237986,18 +237732,10 @@ var RenderManager3 = class {
       transparent: this._filterBatchListByPrimitive(batches.transparent, primitive),
       overlayOpaque: this._filterBatchListByPrimitive(batches.overlayOpaque, primitive),
       overlayTransparent: this._filterBatchListByPrimitive(batches.overlayTransparent, primitive),
-      xrayedOpaque: this._filterBatchListByPrimitive(batches.xrayedOpaque, primitive),
-      xrayedEdgesOpaque: this._filterBatchListByPrimitive(batches.xrayedEdgesOpaque, primitive),
-      xrayedTransparent: this._filterBatchListByPrimitive(batches.xrayedTransparent, primitive),
-      xrayedEdgesTransparent: this._filterBatchListByPrimitive(batches.xrayedEdgesTransparent, primitive),
-      highlightedOpaque: this._filterBatchListByPrimitive(batches.highlightedOpaque, primitive),
-      highlightedEdgesOpaque: this._filterBatchListByPrimitive(batches.highlightedEdgesOpaque, primitive),
-      highlightedTransparent: this._filterBatchListByPrimitive(batches.highlightedTransparent, primitive),
-      highlightedEdgesTransparent: this._filterBatchListByPrimitive(batches.highlightedEdgesTransparent, primitive),
-      selectedOpaque: this._filterBatchListByPrimitive(batches.selectedOpaque, primitive),
-      selectedEdgesOpaque: this._filterBatchListByPrimitive(batches.selectedEdgesOpaque, primitive),
-      selectedTransparent: this._filterBatchListByPrimitive(batches.selectedTransparent, primitive),
-      selectedEdgesTransparent: this._filterBatchListByPrimitive(batches.selectedEdgesTransparent, primitive)
+      styleBinOpaque: this._filterBatchListByPrimitive(batches.styleBinOpaque, primitive),
+      styleBinEdgesOpaque: this._filterBatchListByPrimitive(batches.styleBinEdgesOpaque, primitive),
+      styleBinTransparent: this._filterBatchListByPrimitive(batches.styleBinTransparent, primitive),
+      styleBinEdgesTransparent: this._filterBatchListByPrimitive(batches.styleBinEdgesTransparent, primitive)
     };
   }
   _filterBatchListByPrimitive(batches, primitive) {
@@ -238007,12 +237745,8 @@ var RenderManager3 = class {
     return [
       ...bins.normalDrawOpaque,
       ...bins.normalFillTransparent,
-      ...bins.xrayedFillOpaque,
-      ...bins.xrayedFillTransparent,
-      ...bins.highlightedFillOpaque,
-      ...bins.highlightedFillTransparent,
-      ...bins.selectedFillOpaque,
-      ...bins.selectedFillTransparent
+      ...bins.styleBinFillOpaque,
+      ...bins.styleBinFillTransparent
     ];
   }
   _filterDrawItemsByOverlay(drawItems, overlay) {
@@ -238020,41 +237754,25 @@ var RenderManager3 = class {
   }
   _rememberTransparentBins(cache2, bins) {
     copyDrawItems(bins.normalFillTransparent, cache2.transparentBins.normalFillTransparent);
-    copyDrawItems(bins.xrayedFillTransparent, cache2.transparentBins.xrayedFillTransparent);
-    copyDrawItems(bins.xrayedEdgesTransparent, cache2.transparentBins.xrayedEdgesTransparent);
-    copyDrawItems(bins.highlightedFillTransparent, cache2.transparentBins.highlightedFillTransparent);
-    copyDrawItems(bins.highlightedEdgesTransparent, cache2.transparentBins.highlightedEdgesTransparent);
-    copyDrawItems(bins.selectedFillTransparent, cache2.transparentBins.selectedFillTransparent);
-    copyDrawItems(bins.selectedEdgesTransparent, cache2.transparentBins.selectedEdgesTransparent);
+    copyDrawItems(bins.styleBinFillTransparent, cache2.transparentBins.styleBinFillTransparent);
+    copyDrawItems(bins.styleBinEdgesTransparent, cache2.transparentBins.styleBinEdgesTransparent);
   }
   _restoreTransparentBins(cache2, view) {
     clearRenderBins(this._bins);
     restoreTransparentDrawItems(cache2.transparentBins.normalFillTransparent, this._bins.normalFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache2.transparentBins.xrayedFillTransparent, this._bins.xrayedFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache2.transparentBins.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache2.transparentBins.highlightedFillTransparent, this._bins.highlightedFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache2.transparentBins.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache2.transparentBins.selectedFillTransparent, this._bins.selectedFillTransparent, view, this._meshManager);
-    restoreTransparentDrawItems(cache2.transparentBins.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.styleBinFillTransparent, this._bins.styleBinFillTransparent, view, this._meshManager);
+    restoreTransparentDrawItems(cache2.transparentBins.styleBinEdgesTransparent, this._bins.styleBinEdgesTransparent, view, this._meshManager);
   }
   _restoreTransparentSegmentBins(cache2, view, batchSet) {
     clearRenderBins(this._bins);
     restoreTransparentSegmentDrawItems(cache2.transparentBins.normalFillTransparent, this._bins.normalFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache2.transparentBins.xrayedFillTransparent, this._bins.xrayedFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache2.transparentBins.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache2.transparentBins.highlightedFillTransparent, this._bins.highlightedFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache2.transparentBins.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache2.transparentBins.selectedFillTransparent, this._bins.selectedFillTransparent, view, batchSet);
-    restoreTransparentSegmentDrawItems(cache2.transparentBins.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.styleBinFillTransparent, this._bins.styleBinFillTransparent, view, batchSet);
+    restoreTransparentSegmentDrawItems(cache2.transparentBins.styleBinEdgesTransparent, this._bins.styleBinEdgesTransparent, view, batchSet);
   }
   _sortCachedTransparentSegmentBatches(cache2, batchSet) {
     this._sortCachedBatchListByDrawItems(cache2.batches.transparent, this._bins.normalFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache2.batches.xrayedTransparent, this._bins.xrayedFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache2.batches.xrayedEdgesTransparent, this._bins.xrayedEdgesTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache2.batches.highlightedTransparent, this._bins.highlightedFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache2.batches.highlightedEdgesTransparent, this._bins.highlightedEdgesTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache2.batches.selectedTransparent, this._bins.selectedFillTransparent, batchSet);
-    this._sortCachedBatchListByDrawItems(cache2.batches.selectedEdgesTransparent, this._bins.selectedEdgesTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.styleBinTransparent, this._bins.styleBinFillTransparent, batchSet);
+    this._sortCachedBatchListByDrawItems(cache2.batches.styleBinEdgesTransparent, this._bins.styleBinEdgesTransparent, batchSet);
   }
   _sortCachedBatchListByDrawItems(batches, drawItems, batchSet) {
     if (batches.length < 2 || drawItems.length === 0) {
@@ -238083,18 +237801,10 @@ var RenderManager3 = class {
     this._replaceBatches(source.transparent, target.transparent);
     this._replaceBatches(source.overlayOpaque, target.overlayOpaque);
     this._replaceBatches(source.overlayTransparent, target.overlayTransparent);
-    this._replaceBatches(source.xrayedOpaque, target.xrayedOpaque);
-    this._replaceBatches(source.xrayedEdgesOpaque, target.xrayedEdgesOpaque);
-    this._replaceBatches(source.xrayedTransparent, target.xrayedTransparent);
-    this._replaceBatches(source.xrayedEdgesTransparent, target.xrayedEdgesTransparent);
-    this._replaceBatches(source.highlightedOpaque, target.highlightedOpaque);
-    this._replaceBatches(source.highlightedEdgesOpaque, target.highlightedEdgesOpaque);
-    this._replaceBatches(source.highlightedTransparent, target.highlightedTransparent);
-    this._replaceBatches(source.highlightedEdgesTransparent, target.highlightedEdgesTransparent);
-    this._replaceBatches(source.selectedOpaque, target.selectedOpaque);
-    this._replaceBatches(source.selectedEdgesOpaque, target.selectedEdgesOpaque);
-    this._replaceBatches(source.selectedTransparent, target.selectedTransparent);
-    this._replaceBatches(source.selectedEdgesTransparent, target.selectedEdgesTransparent);
+    this._replaceBatches(source.styleBinOpaque, target.styleBinOpaque);
+    this._replaceBatches(source.styleBinEdgesOpaque, target.styleBinEdgesOpaque);
+    this._replaceBatches(source.styleBinTransparent, target.styleBinTransparent);
+    this._replaceBatches(source.styleBinEdgesTransparent, target.styleBinEdgesTransparent);
   }
   _replaceSnapEdgeBatches(cache2, batches) {
     this._clearBatchList(cache2.snapEdgeBatches);
@@ -238128,18 +237838,10 @@ var RenderManager3 = class {
     this._clearBatchList(batches.transparent);
     this._clearBatchList(batches.overlayOpaque);
     this._clearBatchList(batches.overlayTransparent);
-    this._clearBatchList(batches.xrayedOpaque);
-    this._clearBatchList(batches.xrayedEdgesOpaque);
-    this._clearBatchList(batches.xrayedTransparent);
-    this._clearBatchList(batches.xrayedEdgesTransparent);
-    this._clearBatchList(batches.highlightedOpaque);
-    this._clearBatchList(batches.highlightedEdgesOpaque);
-    this._clearBatchList(batches.highlightedTransparent);
-    this._clearBatchList(batches.highlightedEdgesTransparent);
-    this._clearBatchList(batches.selectedOpaque);
-    this._clearBatchList(batches.selectedEdgesOpaque);
-    this._clearBatchList(batches.selectedTransparent);
-    this._clearBatchList(batches.selectedEdgesTransparent);
+    this._clearBatchList(batches.styleBinOpaque);
+    this._clearBatchList(batches.styleBinEdgesOpaque);
+    this._clearBatchList(batches.styleBinTransparent);
+    this._clearBatchList(batches.styleBinEdgesTransparent);
   }
   _replaceBatches(source, target) {
     this._clearBatchList(target);
@@ -238220,12 +237922,8 @@ function addCullStats(a2, b4) {
 function createTransparentRenderBinCache() {
   return {
     normalFillTransparent: [],
-    xrayedFillTransparent: [],
-    xrayedEdgesTransparent: [],
-    highlightedFillTransparent: [],
-    highlightedEdgesTransparent: [],
-    selectedFillTransparent: [],
-    selectedEdgesTransparent: []
+    styleBinFillTransparent: [],
+    styleBinEdgesTransparent: []
   };
 }
 function copyDrawItems(source, target) {
@@ -238235,7 +237933,8 @@ function copyDrawItems(source, target) {
     target.push({
       meshState: item.meshState,
       opacity: item.opacity,
-      viewDepth: item.viewDepth
+      viewDepth: item.viewDepth,
+      style: item.style
     });
   }
 }
@@ -238304,29 +238003,17 @@ function compareDrawItemDepth(a2, b4) {
 }
 function clearTransparentRenderBinCache(cache2) {
   cache2.normalFillTransparent.length = 0;
-  cache2.xrayedFillTransparent.length = 0;
-  cache2.xrayedEdgesTransparent.length = 0;
-  cache2.highlightedFillTransparent.length = 0;
-  cache2.highlightedEdgesTransparent.length = 0;
-  cache2.selectedFillTransparent.length = 0;
-  cache2.selectedEdgesTransparent.length = 0;
+  cache2.styleBinFillTransparent.length = 0;
+  cache2.styleBinEdgesTransparent.length = 0;
 }
 function clearRenderBins(bins) {
   bins.normalDrawOpaque.length = 0;
   bins.normalEdgesOpaque.length = 0;
   bins.normalFillTransparent.length = 0;
-  bins.xrayedFillOpaque.length = 0;
-  bins.xrayedEdgesOpaque.length = 0;
-  bins.xrayedFillTransparent.length = 0;
-  bins.xrayedEdgesTransparent.length = 0;
-  bins.highlightedFillOpaque.length = 0;
-  bins.highlightedEdgesOpaque.length = 0;
-  bins.highlightedFillTransparent.length = 0;
-  bins.highlightedEdgesTransparent.length = 0;
-  bins.selectedFillOpaque.length = 0;
-  bins.selectedEdgesOpaque.length = 0;
-  bins.selectedFillTransparent.length = 0;
-  bins.selectedEdgesTransparent.length = 0;
+  bins.styleBinFillOpaque.length = 0;
+  bins.styleBinEdgesOpaque.length = 0;
+  bins.styleBinFillTransparent.length = 0;
+  bins.styleBinEdgesTransparent.length = 0;
 }
 
 // ../sdk/src/viewing/renderers/webGPU/internal/snapManager/SnapManager.ts
@@ -239164,13 +238851,7 @@ var ViewManager3 = class {
   viewObjectCulledChanged(viewObject) {
     this.viewObjectChanged(viewObject);
   }
-  viewObjectXRayedChanged(viewObject) {
-    this.viewObjectChanged(viewObject);
-  }
-  viewObjectHighlightedChanged(viewObject) {
-    this.viewObjectChanged(viewObject);
-  }
-  viewObjectSelectedChanged(viewObject) {
+  viewObjectStyleBinChanged(viewObject, _styleBinId, _membership) {
     this.viewObjectChanged(viewObject);
   }
   sectionPlanesChanged(view) {
@@ -239843,7 +239524,7 @@ var WebGPURenderer = class _WebGPURenderer {
   /**
    * Captures the current contents of a View as an image data URL.
    *
-   * Snapshots are not implemented until the WebGPU rendering pipeline exists.
+   * Snapshot capture is not implemented for the WebGPU backend yet.
    *
    * @param view - View to snapshot.
    * @returns An SDK error result.
@@ -240045,9 +239726,9 @@ var WebGPURenderer = class _WebGPURenderer {
           viewManager.viewObjectVisibilityChanged(viewObject);
         }
       }),
-      viewerEvents.onViewObjectXRayedChanged.subscribe((_view, viewObject) => {
+      viewerEvents.onViewObjectStyleBinChanged.subscribe((_view, event) => {
         if (this._viewManager === viewManager) {
-          viewManager.viewObjectXRayedChanged(viewObject);
+          viewManager.viewObjectStyleBinChanged(event.viewObject, event.styleBinId, event.membership);
         }
       }),
       viewerEvents.onViewObjectClippableChanged.subscribe((_view, viewObject) => {
@@ -240058,16 +239739,6 @@ var WebGPURenderer = class _WebGPURenderer {
       viewerEvents.onViewObjectCulledChanged.subscribe((_view, viewObject) => {
         if (this._viewManager === viewManager) {
           viewManager.viewObjectCulledChanged(viewObject);
-        }
-      }),
-      viewerEvents.onViewObjectHighlightedChanged.subscribe((_view, viewObject) => {
-        if (this._viewManager === viewManager) {
-          viewManager.viewObjectHighlightedChanged(viewObject);
-        }
-      }),
-      viewerEvents.onViewObjectSelectedChanged.subscribe((_view, viewObject) => {
-        if (this._viewManager === viewManager) {
-          viewManager.viewObjectSelectedChanged(viewObject);
         }
       }),
       viewerEvents.onViewObjectColorizeChanged.subscribe((_view, viewObject) => {
@@ -242135,6 +241806,7 @@ function loadBCFViewpoint(params) {
   const realWorldOffset = createVec3Float64();
   const reverseClippingPlanes = params.reverseClippingPlanes === true;
   const bcfViewpoint = params.bcfViewpoint;
+  ensureBCFStyleBins(view);
   view.clearSectionPlanes();
   if (bcfViewpoint.clipping_planes) {
     bcfViewpoint.clipping_planes.forEach((e) => {
@@ -242291,9 +241963,9 @@ function loadBCFViewpoint(params) {
   }
   if (reset) {
     withFilteredViewLayers((viewLayer) => {
-      viewLayer.setObjectsXRayed(viewLayer.xrayedObjectIds, false);
-      viewLayer.setObjectsHighlighted(viewLayer.highlightedObjectIds, false);
-      viewLayer.setObjectsSelected(viewLayer.selectedObjectIds, false);
+      viewLayer.setObjectsInStyleBin("xrayed", view.styleBins.getObjectIds("xrayed"), false);
+      viewLayer.setObjectsInStyleBin("highlighted", view.styleBins.getObjectIds("highlighted"), false);
+      viewLayer.setObjectsInStyleBin("selected", view.styleBins.getObjectIds("selected"), false);
     });
   }
   if (bcfViewpoint.components) {
@@ -242336,7 +242008,7 @@ function loadBCFViewpoint(params) {
         }
         if (view_setup_hints.spaces_translucent !== void 0) {
           withViewObjectsOfType("IfcSpace", (viewObject) => {
-            viewObject.xrayed = true;
+            viewObject.setStyleBin("xrayed", true);
           });
         }
         if (view_setup_hints.space_boundaries_visible !== void 0) {
@@ -242350,31 +242022,31 @@ function loadBCFViewpoint(params) {
         }
         if (view_setup_hints.openings_translucent !== void 0) {
           withViewObjectsOfType("IfcOpeningElement", (viewObject) => {
-            viewObject.xrayed = true;
+            viewObject.setStyleBin("xrayed", true);
           });
         }
       }
     }
     if (bcfViewpoint.components.selection) {
       withFilteredViewLayers((viewLayer) => {
-        viewLayer.setObjectsSelected(viewLayer.selectedObjectIds, false);
+        viewLayer.setObjectsInStyleBin("selected", view.styleBins.getObjectIds("selected"), false);
       });
       bcfViewpoint.components.selection.forEach(
         (component) => withBCFComponent(
           component,
           (viewObject) => {
-            viewObject.selected = true;
+            viewObject.setStyleBin("selected", true);
           }
         )
       );
     }
     if (bcfViewpoint.components.translucency) {
-      view.setObjectsXRayed(view.xrayedObjectIds, false);
+      view.setObjectsInStyleBin("xrayed", view.styleBins.getObjectIds("xrayed"), false);
       bcfViewpoint.components.translucency.forEach(
         (component) => withBCFComponent(
           component,
           (viewObject) => {
-            viewObject.xrayed = true;
+            viewObject.setStyleBin("xrayed", true);
           }
         )
       );
@@ -242438,6 +242110,44 @@ function loadBCFViewpoint(params) {
     camera.look = look;
     camera.up = up;
     camera.projectionType = projection;
+  }
+}
+function ensureBCFStyleBins(view) {
+  if (!view.styleBins.get("xrayed")) {
+    view.styleBins.create({
+      id: "xrayed",
+      priority: 100,
+      fill: true,
+      fillColor: [0.85, 0.9, 1],
+      fillAlpha: 0.35,
+      edges: true,
+      edgeColor: [0.1, 0.15, 0.25],
+      edgeAlpha: 1
+    });
+  }
+  if (!view.styleBins.get("highlighted")) {
+    view.styleBins.create({
+      id: "highlighted",
+      priority: 200,
+      fill: true,
+      fillColor: [1, 0.78, 0.25],
+      fillAlpha: 0.4,
+      edges: true,
+      edgeColor: [0.55, 0.35, 0.05],
+      edgeAlpha: 1
+    });
+  }
+  if (!view.styleBins.get("selected")) {
+    view.styleBins.create({
+      id: "selected",
+      priority: 300,
+      fill: true,
+      fillColor: [0.1, 0.7, 1],
+      fillAlpha: 0.4,
+      edges: true,
+      edgeColor: [0.05, 0.3, 0.55],
+      edgeAlpha: 1
+    });
   }
 }
 function xyzObjectToArray(xyz, arry) {
@@ -242555,17 +242265,18 @@ function saveBCFViewpoint(params) {
     }
   };
   const opacityObjectIds = new Set(view.opacityObjectIds);
-  const xrayedObjectIds = new Set(view.xrayedObjectIds);
+  const xrayedObjectIds = new Set(view.styleBins.getObjectIds("xrayed"));
   const colorizedObjectIds = new Set(view.colorizedObjectIds);
   const coloringMap = Object.values(view.objects).filter((viewObject) => !viewObject.layer || (!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) && (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)) && (opacityObjectIds.has(viewObject.id) || colorizedObjectIds.has(viewObject.id) || xrayedObjectIds.has(viewObject.id))).reduce((coloringMap2, viewObject) => {
     if (viewObject.colorize) {
       let color2 = colorizeToRGB(viewObject.colorize);
       let alpha;
-      if (viewObject.xrayed) {
-        if (view.xrayMaterial.fillAlpha === 0 && view.xrayMaterial.edgeAlpha !== 0) {
+      if (viewObject.hasStyleBin("xrayed")) {
+        const xrayedStyle = view.styleBins.get("xrayed").material;
+        if (xrayedStyle.fillAlpha === 0 && xrayedStyle.edgeAlpha !== 0) {
           alpha = 0.1;
         } else {
-          alpha = view.xrayMaterial.fillAlpha;
+          alpha = xrayedStyle.fillAlpha;
         }
         alpha = Math.round(alpha * 255).toString(16).padStart(2, "0");
         color2 = alpha + color2;
@@ -242597,7 +242308,7 @@ function saveBCFViewpoint(params) {
   const visibleObjects = view.visibleObjects;
   const visibleObjectIds = view.visibleObjectIds;
   const invisibleObjectIds = objectIds.filter((id) => !visibleObjects[id]);
-  const selectedObjectIds = view.selectedObjectIds;
+  const selectedObjectIds = view.styleBins.getObjectIds("selected");
   if (params.defaultInvisible || visibleObjectIds.length < invisibleObjectIds.length) {
     bcfViewpoint.components.visibility.exceptions = createBCFComponents(visibleObjectIds);
     bcfViewpoint.components.visibility.default_visibility = false;
@@ -242606,7 +242317,7 @@ function saveBCFViewpoint(params) {
     bcfViewpoint.components.visibility.default_visibility = true;
   }
   bcfViewpoint.components.selection = createBCFComponents(selectedObjectIds);
-  bcfViewpoint.components.translucency = createBCFComponents(view.xrayedObjectIds);
+  bcfViewpoint.components.translucency = createBCFComponents(view.styleBins.getObjectIds("xrayed"));
   if (params.snapshot !== false && params.renderer) {
     const snap = params.renderer.getSnapshot(view);
     if (snap.ok === false) {
@@ -244621,7 +244332,7 @@ var TreeView = class _TreeView {
   _onSceneModelCreated;
   _onSceneModelDestroyed;
   _onViewObjectVisibility;
-  _onViewObjectXRayed;
+  _onViewObjectStyleBin;
   _onDataObjectCreated;
   _onDataObjectDestroyed;
   _dataObjectSceneObjectCounts;
@@ -244709,16 +244420,20 @@ var TreeView = class _TreeView {
       }
       this._muteTreeEvents = false;
     });
-    this._onViewObjectXRayed = this.view.viewer.events.onViewObjectXRayedChanged.subscribe((view, viewObject) => {
+    this._onViewObjectStyleBin = this.view.viewer.events.onViewObjectStyleBinChanged.subscribe((view, event) => {
       if (this._muteSceneEvents) {
         return;
       }
+      if (event.styleBinId !== "xrayed") {
+        return;
+      }
+      const viewObject = event.viewObject;
       const objectId = viewObject.id;
       const node = this._objectNodes[objectId];
       if (!node) {
         return;
       }
-      const xrayed = viewObject.xrayed;
+      const xrayed = event.membership;
       if (xrayed === node.xrayed) {
         return;
       }
@@ -244996,7 +244711,7 @@ var TreeView = class _TreeView {
     sceneEvents.onSceneModelDestroyed.unsubscribe(this._onSceneModelDestroyed);
     const viewerEvents = this.view.viewer.events;
     viewerEvents.onViewObjectVisibleChanged.unsubscribe(this._onViewObjectVisibility);
-    viewerEvents.onViewObjectXRayedChanged.unsubscribe(this._onViewObjectXRayed);
+    viewerEvents.onViewObjectStyleBinChanged.unsubscribe(this._onViewObjectStyleBin);
     this.data.events.onDataObjectCreated.unsubscribe(this._onDataObjectCreated);
     this.data.events.onDataObjectDestroyed.unsubscribe(this._onDataObjectDestroyed);
     this._containerElement.classList.remove("xeokit-tree-view");
@@ -245670,7 +245385,7 @@ var TreeView = class _TreeView {
       }
       const visible = viewObject.visible;
       node.numViewObjects = 1;
-      node.xrayed = viewObject.xrayed;
+      node.xrayed = viewObject.hasStyleBin("xrayed");
       if (visible) {
         node.numVisibleViewObjects = 1;
         node.checked = true;
@@ -245903,7 +245618,7 @@ var TreeView = class _TreeView {
       return;
     }
     node.numViewObjects = 1;
-    node.xrayed = viewObject.xrayed;
+    node.xrayed = viewObject.hasStyleBin("xrayed");
     node.checked = !!viewObject.visible;
     node.numVisibleViewObjects = viewObject.visible ? 1 : 0;
   }
@@ -251658,7 +251373,7 @@ var SchedulePlayer = class {
     if (pending.length > 0) {
       if (this.ghostUpcoming) {
         view.setObjectsVisible(pending, true);
-        view.setObjectsXRayed(pending, true);
+        view.setObjectsInStyleBin("xrayed", pending, true);
         view.setObjectsColorized(pending, this.ghostColor);
         view.setObjectsOpacity(pending, this.ghostOpacity);
       } else {
@@ -251668,13 +251383,13 @@ var SchedulePlayer = class {
     for (const [key, ids2] of inProgress) {
       const color2 = key.split(",").map(Number);
       view.setObjectsVisible(ids2, true);
-      view.setObjectsXRayed(ids2, false);
+      view.setObjectsInStyleBin("xrayed", ids2, false);
       view.setObjectsColorized(ids2, color2);
       view.setObjectsOpacity(ids2, this.inProgressOpacity);
     }
     if (complete.length > 0) {
       view.setObjectsVisible(complete, true);
-      view.setObjectsXRayed(complete, false);
+      view.setObjectsInStyleBin("xrayed", complete, false);
       view.setObjectsColorized(complete, null);
       view.setObjectsOpacity(complete, null);
     }
@@ -252330,7 +252045,7 @@ var SunStudy = class _SunStudy {
     this._driveSky = params.driveSky !== false;
     this._driveSkyPalette = params.driveSkyPalette !== false;
     this._driveExposure = params.driveExposure !== false;
-    this._nightExposureFactor = clamp017(params.nightExposureFactor ?? 0.15);
+    this._nightExposureFactor = clamp018(params.nightExposureFactor ?? 0.15);
     this._nightSkyColor = params.nightSkyColor ?? [0.02, 0.03, 0.08];
     this._nightHorizonColor = params.nightHorizonColor ?? [0.04, 0.05, 0.1];
     this._nightGroundColor = params.nightGroundColor ?? [0.01, 0.01, 0.02];
@@ -252431,7 +252146,7 @@ var SunStudy = class _SunStudy {
   set nightExposureFactor(v) {
     if (this._destroyed)
       return;
-    v = clamp017(v);
+    v = clamp018(v);
     if (v === this._nightExposureFactor)
       return;
     this._nightExposureFactor = v;
@@ -252552,7 +252267,7 @@ function defaultStartDate() {
   const now3 = /* @__PURE__ */ new Date();
   return new Date(Date.UTC(now3.getUTCFullYear(), 5, 21, 12, 0, 0));
 }
-function clamp017(v) {
+function clamp018(v) {
   if (!Number.isFinite(v))
     return 0;
   if (v < 0)
@@ -257252,9 +256967,9 @@ function createViewObjectShowGroup() {
         },
         {
           getTitle: () => "X-Ray Object",
-          getEnabled: (context) => !context.viewObject.xrayed,
+          getEnabled: (context) => !context.viewObject.hasStyleBin("xrayed"),
           doAction: (context) => {
-            context.viewObject.xrayed = true;
+            context.viewObject.setStyleBin("xrayed", true);
           }
         },
         {
@@ -257262,16 +256977,16 @@ function createViewObjectShowGroup() {
           doAction: (context) => {
             const { viewObject } = context;
             const { view } = viewObject;
-            view.setObjectsXRayed(view.objectIds, true);
-            viewObject.xrayed = false;
+            view.setObjectsInStyleBin("xrayed", view.objectIds, true);
+            viewObject.setStyleBin("xrayed", false);
           }
         },
         {
           // Single dynamic toggle instead of two rows where one
           // is always disabled — fewer visual distractions.
-          getTitle: (context) => context.viewObject.selected ? "Deselect" : "Select",
+          getTitle: (context) => context.viewObject.hasStyleBin("selected") ? "Deselect" : "Select",
           doAction: (context) => {
-            context.viewObject.selected = !context.viewObject.selected;
+            context.viewObject.setStyleBin("selected", !context.viewObject.hasStyleBin("selected"));
           }
         }
       ],
@@ -257281,30 +256996,31 @@ function createViewObjectShowGroup() {
           getTitle: () => "Show All",
           getEnabled: (context) => {
             const { view } = context;
-            return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+            return view.numVisibleObjects < view.numObjects || view.styleBins.getObjectIds("xrayed").length > 0;
           },
           doAction: (context) => {
             const { view } = context;
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
             view.setObjectsVisible(view.objectIds, true);
-            view.setObjectsPickable(view.xrayedObjectIds, true);
-            view.setObjectsXRayed(view.xrayedObjectIds, false);
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
           getTitle: () => "Clear X-Ray",
-          getEnabled: (context) => context.view.numXRayedObjects > 0,
+          getEnabled: (context) => context.view.styleBins.getObjectIds("xrayed").length > 0,
           doAction: (context) => {
             const { view } = context;
-            const { xrayedObjectIds } = view;
-            view.setObjectsPickable(xrayedObjectIds, true);
-            view.setObjectsXRayed(xrayedObjectIds, false);
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
           getTitle: () => "Clear Selection",
-          getEnabled: (context) => context.view.numSelectedObjects > 0,
+          getEnabled: (context) => context.view.styleBins.getObjectIds("selected").length > 0,
           doAction: (context) => {
-            context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+            context.view.setObjectsInStyleBin("selected", context.view.styleBins.getObjectIds("selected"), false);
           }
         }
       ]
@@ -259647,13 +259363,14 @@ function createCanvasShowGroup() {
           getTitle: () => "Show All",
           getEnabled: (context) => {
             const { view } = context;
-            return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+            return view.numVisibleObjects < view.numObjects || view.styleBins.getObjectIds("xrayed").length > 0;
           },
           doAction: (context) => {
             const { view } = context;
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
             view.setObjectsVisible(view.objectIds, true);
-            view.setObjectsPickable(view.xrayedObjectIds, true);
-            view.setObjectsXRayed(view.xrayedObjectIds, false);
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
@@ -259665,28 +259382,28 @@ function createCanvasShowGroup() {
         },
         {
           getTitle: () => "X-Ray All",
-          getEnabled: (context) => context.view.numXRayedObjects < context.view.numObjects,
+          getEnabled: (context) => context.view.styleBins.getObjectIds("xrayed").length < context.view.numObjects,
           doAction: (context) => {
             const { view } = context;
             view.setObjectsVisible(view.objectIds, true);
-            view.setObjectsXRayed(view.objectIds, true);
+            view.setObjectsInStyleBin("xrayed", view.objectIds, true);
           }
         },
         {
           getTitle: () => "Clear X-Ray",
-          getEnabled: (context) => context.view.numXRayedObjects > 0,
+          getEnabled: (context) => context.view.styleBins.getObjectIds("xrayed").length > 0,
           doAction: (context) => {
             const { view } = context;
-            const { xrayedObjectIds } = view;
-            view.setObjectsPickable(xrayedObjectIds, true);
-            view.setObjectsXRayed(xrayedObjectIds, false);
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
           getTitle: () => "Clear Selection",
-          getEnabled: (context) => context.view.numSelectedObjects > 0,
+          getEnabled: (context) => context.view.styleBins.getObjectIds("selected").length > 0,
           doAction: (context) => {
-            context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+            context.view.setObjectsInStyleBin("selected", context.view.styleBins.getObjectIds("selected"), false);
           }
         }
       ]
@@ -263404,10 +263121,10 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
       return;
     const view = this._view;
     const allIds = Object.keys(view.objects);
-    view.setObjectsHighlighted(allIds, false);
-    view.setObjectsXRayed(allIds, true);
-    view.setObjectsXRayed(objectIds, false);
-    view.setObjectsHighlighted(objectIds, true);
+    view.setObjectsInStyleBin("highlighted", allIds, false);
+    view.setObjectsInStyleBin("xrayed", allIds, true);
+    view.setObjectsInStyleBin("xrayed", objectIds, false);
+    view.setObjectsInStyleBin("highlighted", objectIds, true);
     if (!this._studio)
       return;
     const idx = this._studio.picking.collisionIndex;
@@ -263442,8 +263159,8 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     if (!this._view)
       return;
     const allIds = Object.keys(this._view.objects);
-    this._view.setObjectsHighlighted(allIds, false);
-    this._view.setObjectsXRayed(allIds, false);
+    this._view.setObjectsInStyleBin("highlighted", allIds, false);
+    this._view.setObjectsInStyleBin("xrayed", allIds, false);
   }
   // ── Stats ─────────────────────────────────────────────────────
   _collectStats() {
@@ -272446,9 +272163,6 @@ var KNOWN_GROUPS = /* @__PURE__ */ new Set([
   "camera",
   "effects",
   "lights",
-  "selectedMaterial",
-  "highlightMaterial",
-  "xrayMaterial",
   "pointsMaterial",
   "resolutionScale",
   "sectionPlanes"
@@ -272457,9 +272171,6 @@ var KNOWN_GROUPS_LABELS = {
   camera: "Camera",
   effects: "Effects",
   lights: "Lights",
-  selectedMaterial: "Selected Material",
-  highlightMaterial: "Highlight Material",
-  xrayMaterial: "X-Ray Material",
   pointsMaterial: "Points Material",
   resolutionScale: "Resolution Scale",
   sectionPlanes: "Section Planes"
@@ -277111,7 +276822,8 @@ var ExplorerPanel = class _ExplorerPanel extends FloatingPanelBase {
   }
   // ── Per-row actions (Select / Frame) ─────────────────────────
   /**
-   * Toggle selection for every {@link viewing!viewer.ViewObject | ViewObject} under
+   * Toggle membership in the Studio "selected" style bin for every
+   * {@link viewing!viewer.ViewObject | ViewObject} under
    * `node`. If *any* matching view-object is currently
    * unselected, the action selects them all; otherwise it
    * deselects. Walks `node.childNodes` recursively so a
@@ -277121,10 +276833,11 @@ var ExplorerPanel = class _ExplorerPanel extends FloatingPanelBase {
     const objs = this._collectViewObjectsUnderNode(node);
     if (objs.length === 0)
       return;
-    const allSelected = objs.every((o) => o.selected);
+    const allSelected = objs.every((o) => o.hasStyleBin("selected"));
     const next = !allSelected;
-    for (const o of objs)
-      o.selected = next;
+    for (const o of objs) {
+      o.setStyleBin("selected", next);
+    }
   }
   /**
    * Jump the camera to the union AABB of every
@@ -291000,7 +290713,7 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       if (next === "hide") {
         viewObject.visible = false;
       } else if (next === "select") {
-        viewObject.selected = !viewObject.selected;
+        viewObject.setStyleBin("selected", !viewObject.hasStyleBin("selected"));
       }
     };
     canvas3.addEventListener("click", handler);
@@ -294563,6 +294276,44 @@ var LoadingSpinner = class _LoadingSpinner {
 };
 
 // libs/studio/src/viewManager/ViewManager.ts
+var DEFAULT_STUDIO_STYLE_BINS = [
+  {
+    id: "xrayed",
+    priority: 100,
+    composition: "replace",
+    fill: true,
+    fillColor: [0.85, 0.9, 1],
+    fillAlpha: 0.35,
+    edges: true,
+    edgeColor: [0.1, 0.15, 0.25],
+    edgeAlpha: 1,
+    edgeWidth: 1
+  },
+  {
+    id: "highlighted",
+    priority: 200,
+    composition: "overlay",
+    fill: true,
+    fillColor: [1, 0.78, 0.25],
+    fillAlpha: 0.4,
+    edges: true,
+    edgeColor: [0.55, 0.35, 0.05],
+    edgeAlpha: 1,
+    edgeWidth: 1
+  },
+  {
+    id: "selected",
+    priority: 300,
+    composition: "overlay",
+    fill: true,
+    fillColor: [0.1, 0.7, 1],
+    fillAlpha: 0.4,
+    edges: true,
+    edgeColor: [0.05, 0.3, 0.55],
+    edgeAlpha: 1,
+    edgeWidth: 1
+  }
+];
 var ViewManager4 = class _ViewManager {
   constructor(ctx2, hooks = {}, options = {}) {
     this.ctx = ctx2;
@@ -294639,7 +294390,8 @@ var ViewManager4 = class _ViewManager {
       id: sdkViewParams.id || createUUID(),
       backgroundColor: [0, 0, 0],
       transparent: false,
-      ...sdkViewParams
+      ...sdkViewParams,
+      styleBins: sdkViewParams.styleBins ?? DEFAULT_STUDIO_STYLE_BINS
     };
     const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);
     let autoCreatedCanvas = null;

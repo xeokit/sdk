@@ -1,7 +1,7 @@
 /**
  * # xeokit WebGPU Renderer
  *
- * Experimental WebGPU renderer backend for xeokit Viewers.
+ * WebGPU renderer backend for xeokit Viewers.
  *
  * WebGPURenderer is the WebGPU rendering backend for
  * {@link viewing!viewer.Viewer | Viewer}. It owns WebGPU device acquisition,
@@ -73,7 +73,7 @@
  *   renderConfigs: {
  *     depthPrepass: true,
  *     edges: true,
- *     triangleColorMode: "pbr",
+ *     triangleColorMode: "auto",
  *     transparentSortStrategy: "segment"
  *   }
  * });

@@ -278,9 +278,8 @@ export class GPUMemoryBatch {
       bins: [
         RENDER_PASSES.OPAQUE,
         RENDER_PASSES.TRANSPARENT,
-        RENDER_PASSES.HIGHLIGHTED,
-        RENDER_PASSES.SELECTED,
-        RENDER_PASSES.XRAYED
+        RENDER_PASSES.STYLE_BIN_OPAQUE,
+        RENDER_PASSES.STYLE_BIN_TRANSPARENT
       ],
       getNumGeometries: () => this._numGeometries,
       hasNormals: this.hasNormals
@@ -888,7 +887,9 @@ export class GPUMemoryBatch {
         color,
         opacity,
         pickable: true,
-        clippable: true
+        clippable: true,
+        styleBinEdges: true,
+        styleBinClearDepthBefore: false
       });
     }
   }
@@ -988,7 +989,7 @@ export class GPUMemoryBatch {
    * Sets the modeling transform matrix for a mesh.
    * The modeling transform is relative to the center of the meshes tile.
    *
-   * Sets RenderContext.viewFlags[...].needsRender to true.
+   * Marks all view flags dirty.
    *
    * @param meshIndex
    * @param matrix
@@ -1007,7 +1008,7 @@ export class GPUMemoryBatch {
   /**
    * Sets attributes for e mesh to apply across all Views.
    *
-   * Sets RenderContext.viewFlags[...].needsRender to true.
+   * Marks all view flags dirty.
    *
    * @param meshIndex
    * @param params
@@ -1045,7 +1046,7 @@ export class GPUMemoryBatch {
   /**
    * Sets attributes for a mesh within a specific View.
    *
-   * Sets RenderContext.viewFlags[viewIndex].needsRender to true.
+   * Marks the view flags dirty for the specified view.
    *
    * @param meshIndex
    * @param viewIndex
@@ -1059,6 +1060,8 @@ export class GPUMemoryBatch {
       opacity?: number; // byte 0..255
       pickable?: boolean;
       clippable?: boolean;
+      styleBinEdges?: boolean;
+      styleBinClearDepthBefore?: boolean;
     }) {
     if (viewIndex < 0 || viewIndex >= this._meshViewAttributeTexture.length) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);

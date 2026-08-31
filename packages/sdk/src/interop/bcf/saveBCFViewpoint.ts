@@ -197,7 +197,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
   };
 
   const opacityObjectIds = new Set(view.opacityObjectIds);
-  const xrayedObjectIds = new Set(view.xrayedObjectIds);
+  const xrayedObjectIds = new Set(view.styleBins.getObjectIds("xrayed"));
   const colorizedObjectIds = new Set(view.colorizedObjectIds);
 
   // @ts-ignore
@@ -214,12 +214,13 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
 
         let alpha;
 
-        if (viewObject.xrayed) {
-          if (view.xrayMaterial.fillAlpha === 0.0 && view.xrayMaterial.edgeAlpha !== 0.0) {
-            // BCF can't deal with edges. If xRay is implemented only with edges, set an arbitrary opacity
+        if (viewObject.hasStyleBin("xrayed")) {
+          const xrayedStyle = view.styleBins.get("xrayed")!.material;
+          if (xrayedStyle.fillAlpha === 0.0 && xrayedStyle.edgeAlpha !== 0.0) {
+            // BCF cannot encode edges. If this BCF "xrayed" style bin uses edges only, preserve translucency.
             alpha = 0.1;
           } else {
-            alpha = view.xrayMaterial.fillAlpha;
+            alpha = xrayedStyle.fillAlpha;
           }
           // @ts-ignore
           alpha = Math.round(alpha * 255).toString(16).padStart(2, "0");
@@ -262,7 +263,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
   const visibleObjects = view.visibleObjects;
   const visibleObjectIds = view.visibleObjectIds;
   const invisibleObjectIds = objectIds.filter(id => !visibleObjects[id]);
-  const selectedObjectIds = view.selectedObjectIds;
+  const selectedObjectIds = view.styleBins.getObjectIds("selected");
 
   if (params.defaultInvisible || visibleObjectIds.length < invisibleObjectIds.length) {
     bcfViewpoint.components.visibility.exceptions = createBCFComponents(visibleObjectIds);
@@ -274,7 +275,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
 
   bcfViewpoint.components.selection = createBCFComponents(selectedObjectIds);
 
-  bcfViewpoint.components.translucency = createBCFComponents(view.xrayedObjectIds);
+  bcfViewpoint.components.translucency = createBCFComponents(view.styleBins.getObjectIds("xrayed"));
 
   if (params.snapshot !== false && params.renderer) {
     const snap = params.renderer.getSnapshot(view);

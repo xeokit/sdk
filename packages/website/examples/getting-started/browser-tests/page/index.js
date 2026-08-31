@@ -1,4 +1,4 @@
-const endpointBase = "/__getting-started/browser-tests/page";
+const endpointBase = "/__sdk_browser_tests";
 
 const els = {
     run: document.getElementById("run"),
@@ -18,6 +18,7 @@ const els = {
 
 let source = null;
 let startedAt = 0;
+let statusPoll = null;
 
 els.run.addEventListener("click", runTests);
 els.stop.addEventListener("click", stopTests);
@@ -36,10 +37,12 @@ checkServer().then((available) => {
 
 async function runTests() {
     closeSource();
+    stopStatusPoll();
     clearOutput();
     startedAt = performance.now();
     setRunning(true);
     setState("Running", "running");
+    setPendingSummary();
     appendLog("Starting browser test run...\n");
 
     const testPath = els.testPath.value.trim();
@@ -54,6 +57,7 @@ async function runTests() {
         if (data.message) {
             appendLog(`${data.message}\n`);
         }
+        renderStatus(data);
     });
 
     source.addEventListener("log", (event) => {
@@ -91,6 +95,27 @@ async function stopTests() {
         appendLog("\nStopping active test run...\n");
     } catch (err) {
         appendLog(`\nStop failed: ${err.message}\n`);
+    }
+    stopStatusPoll();
+}
+
+function setPendingSummary() {
+    els.suites.textContent = "Running";
+    els.tests.textContent = "Running";
+    els.passed.textContent = "-";
+    els.failed.textContent = "-";
+    els.time.textContent = "0.0s";
+    els.json.textContent = "-";
+}
+
+function renderStatus(data) {
+    if (typeof data.elapsedMs === "number" && Number.isFinite(data.elapsedMs)) {
+        els.time.textContent = `${(data.elapsedMs / 1000).toFixed(1)}s`;
+    } else if (startedAt) {
+        els.time.textContent = `${((performance.now() - startedAt) / 1000).toFixed(1)}s`;
+    }
+    if (data.outputFile) {
+        els.json.textContent = data.outputFile;
     }
 }
 
@@ -178,6 +203,37 @@ function closeSource() {
     }
 }
 
+function startStatusPoll() {
+    stopStatusPoll();
+    statusPoll = setInterval(async () => {
+        try {
+            const response = await fetch(`${endpointBase}/health`, {cache: "no-store"});
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            if (!data.active) {
+                stopStatusPoll();
+                setRunning(false);
+                setState("Idle", "");
+                appendLog("No active test run.\n");
+                return;
+            }
+            renderStatus(data);
+        } catch (err) {
+            stopStatusPoll();
+            appendLog(`Status check failed: ${err.message}\n`);
+        }
+    }, 2000);
+}
+
+function stopStatusPoll() {
+    if (statusPoll) {
+        clearInterval(statusPoll);
+        statusPoll = null;
+    }
+}
+
 function parseEvent(event) {
     try {
         return JSON.parse(event.data || "{}");
@@ -193,7 +249,19 @@ async function checkServer() {
             throw new Error(`HTTP ${response.status}`);
         }
         const data = await response.json();
-        appendLog(data.active ? "Ready. A test run is already active.\n" : "Ready.\n");
+        if (data.active) {
+            startedAt = data.startedAt ? performance.now() - (Date.now() - data.startedAt) : performance.now();
+            setRunning(true);
+            setState("Running", "running");
+            setPendingSummary();
+            renderStatus(data);
+            appendLog(data.pid
+                ? `Ready. A test run is already active in process ${data.pid}.\n`
+                : "Ready. A test run is already active.\n");
+            startStatusPoll();
+        } else {
+            appendLog("Ready.\n");
+        }
         return true;
     } catch (err) {
         appendLog("Browser test server is not available.\nRun `pnpm sdk-test:browser:page`, then open this page from the printed URL.\n");

@@ -16,7 +16,7 @@
  * * {@link model!scene | @xeokit/sdk/model/scene} for geometry/material content, and
  * * {@link model!data | @xeokit/sdk/model/data} for semantic graphs you can attach to models.
  *
- * This Viewer module focuses on the interactive layer: Views, Cameras, picking, emphasis effects (highlight/selection/x-ray),
+ * This Viewer module focuses on the interactive layer: Views, Cameras, picking, style bins,
  * section planes, lighting, and render profiles.
  *
  * <br>
@@ -45,7 +45,7 @@
  *       +lights       : Lights
  *       +effects      : Effects
  *       +htmlElement  : HTMLCanvasElement
- *       +setObjectsVisible / Highlighted / Selected / XRayed / Clippable / Pickable
+ *       +setObjectsVisible / InStyleBin / Clippable / Pickable
  *     }
  *     class Camera {
  *       +eye / look / up
@@ -54,7 +54,7 @@
  *     }
  *     class ViewObject {
  *       +id / sceneObject
- *       +visible / highlighted / selected / xrayed
+ *       +visible / styleBinIds
  *       +color / opacity
  *     }
  *     class ViewLayer {
@@ -86,7 +86,7 @@
  *   for multi-pane workflows (plan + elevation + 3D side-by-side).
  * - **Per-object state** — every Scene object surfaces as a
  *   {@link ViewObject | ViewObject} per View with independent
- *   visible / highlighted / selected / xrayed / clippable /
+ *   visible / style-bin membership / clippable /
  *   pickable / colour / opacity flags. Toggle one object in one View
  *   without disturbing another.
  * - **ViewLayers** — group ViewObjects into named
@@ -96,9 +96,9 @@
  * - **Section planes** — arbitrary world-space clipping planes per
  *   View; pair with {@link presentations!sectionCaps | sectionCaps}
  *   to fill the cuts.
- * - **Emphasis effects** — highlight, selection, x-ray, edges, all
- *   driven by per-object boolean flags and a per-View material
- *   palette.
+ * - **Style bins** — named bins such as highlight, selection and
+ *   x-ray, driven by per-object style-bin membership and per-View
+ *   layer definitions.
  * - **Lighting + IBL + tonemap** — directional / point / ambient
  *   lights plus image-based lighting; HDR pipeline with bloom +
  *   FXAA/SMAA + tonemap (Reinhard / ACES / linear).
@@ -155,7 +155,7 @@
  * {@link model!scene | @xeokit/sdk/model/scene}.
  *
  * Next, create a {@link viewing!viewer.Viewer | Viewer}. The Viewer is the browser-facing facade for interactive viewing: it manages one or more
- * {@link View | Views} (canvases), user interaction state (camera control, picking, emphasis effects, section planes,
+ * {@link View | Views} (canvases), user interaction state (camera control, picking, style bins, section planes,
  * etc), and it provides a Viewer-centric event stream that reflects interactions and viewer-side changes.
  *
  * Finally, attach a {@link viewing!renderers.webGL.WebGLRenderer | WebGLRenderer}. The WebGLRenderer is the rendering backend that
@@ -165,7 +165,7 @@
  *
  * * The Scene emits events when its content changes (models loaded, objects created/destroyed, transforms updated, etc).
  * * The Viewer receives those Scene changes (via the attached Scene) and emits Viewer events as user interaction and
- *   view configuration changes occur (camera moves, section planes added, objects highlighted/selected/x-rayed, etc).
+ *   view configuration changes occur (camera moves, section planes added, object style-bin membership changes, etc).
  * * The WebGLRenderer listens to both streams to keep GPU resources in sync and re-render Views whenever something changes.
  *
  * ````javascript
@@ -327,23 +327,39 @@
  *
  * <br>
  *
- * ## 8) Emphasis effects: highlight, select, x-ray, and colorize
+ * ## 8) Style bins and colorize
  *
- * Toggle effects in batches:
+ * Define the style bins your application needs, then toggle membership in batches:
  *
  * ````javascript
- * view1.setObjectsHighlighted(["myObject1"], true);
- * view1.setObjectsSelected(["myObject2"], true);
- * view1.setObjectsXRayed(["myObject3"], true);
+ * view1.styleBins.create({
+ *   id: "search-result",
+ *   priority: 200,
+ *   fill: true,
+ *   fillColor: [1, 0.78, 0.25],
+ *   fillAlpha: 0.4,
+ *   edges: true
+ * });
+ *
+ * view1.styleBins.create({
+ *   id: "ghosted",
+ *   priority: 50,
+ *   fill: true,
+ *   fillAlpha: 0.2
+ * });
+ * ````
+ *
+ * ````javascript
+ * view1.setObjectsInStyleBin("search-result", ["myObject1"], true);
+ * view1.setObjectsInStyleBin("ghosted", ["myObject3"], true);
  * view1.setObjectsColorized(["myObject1"], [1, 0, 0]);
  * ````
  *
  * Or set state directly on a {@link viewing!viewer.ViewObject | ViewObject}:
  *
  * ````javascript
- * view1.objects["myObject1"].highlighted = true;
- * view1.objects["myObject2"].selected = true;
- * view1.objects["myObject3"].xrayed = true;
+ * view1.objects["myObject1"].setStyleBin("search-result", true);
+ * view1.objects["myObject3"].setStyleBin("ghosted", true);
  *
  * view1.objects["myObject1"].colorize = [1, 0, 0];
  * view1.objects["myObject1"].colorize = null; // clear
@@ -448,7 +464,16 @@
  *   view: view2
  * });
  *
- * view2.objects["myObject1"].highlighted = true;
+ * view2.styleBins.create({
+ *   id: "search-result",
+ *   priority: 200,
+ *   fill: true,
+ *   fillColor: [1, 0.78, 0.25],
+ *   fillAlpha: 0.4,
+ *   edges: true
+ * });
+ *
+ * view2.objects["myObject1"].setStyleBin("search-result", true);
  * ````
  *
  * <br>
@@ -589,6 +614,9 @@ export * from "./ViewParams";
 export * from "./ViewLayer";
 export * from "./ViewLayerParams";
 export * from "./ViewObject";
+export * from "./ViewStyleBin";
+export * from "./ViewStyleBinParams";
+export * from "./ViewStyleBins";
 export * from "./ViewTransform";
 export * from "./ViewTransformParams";
 export * from "./SectionPlane";

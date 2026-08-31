@@ -9,7 +9,7 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
  * @remarks
  * - `RendererObject` is the GPU-side container for all meshes that make up a single scene/model object.
  * - Each `RendererObject` owns one or more {@link RendererMesh} instances, each representing a distinct mesh or geometry part of the object.
- * - Provides APIs to control visual and interaction state (visibility, highlighting, selection, x-ray, culling, clipping, collision, picking) across all its meshes and views.
+ * - Provides APIs to control visual and interaction state (visibility, resolved style-bin treatment, culling, clipping, collision, picking) across all its meshes and views.
  * - Delegates all geometry, GPU memory, and RTC tiling logic to its {@link RendererMesh} instances.
  * - `RendererMesh` instances are managed and batched by {@link MeshBatchImpl}, which organizes compatible meshes for efficient GPU upload and draw calls.
  * - The {@link MeshManager} (or MeshBatchRegistry) coordinates creation, update, and removal of `RendererObject` and `RendererMesh` instances, responding to scene/view changes and synchronizing with the GPU memory manager.
@@ -73,30 +73,15 @@ export class RendererObject  {
     }
   }
 
-  /**
-   * Sets the highlighted state of the object in a specific view.
-   */
-  setHighlighted(viewIndex: number, highlighted: boolean): void {
+  setStyleBin(viewIndex: number, color: Vec3, opacity: number, edges: boolean, clearDepthBefore: boolean): void {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setHighlighted(viewIndex, highlighted);
+      this._rendererMeshes[i].setStyleBin(viewIndex, color, opacity, edges, clearDepthBefore);
     }
   }
 
-  /**
-   * Sets the XRayed state of the object in a specific view.
-   */
-  setXRayed(viewIndex: number, xrayed: boolean): void {
-      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setXRayed(viewIndex, xrayed);
-    }
-  }
-
-  /**
-   * Sets the selected state of the object in a specific view.
-   */
-  setSelected(viewIndex: number, selected: boolean): void {
+  clearStyleBin(viewIndex: number): void {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setSelected(viewIndex,selected);
+      this._rendererMeshes[i].clearStyleBin(viewIndex);
     }
   }
 
@@ -184,9 +169,8 @@ export class RendererObject  {
     if (opacity !== null && opacity !== undefined) {
       if (opacity < 0) opacity = 0;
       else if (opacity > 1) opacity = 1;
-      const opacityQuantized = Math.floor(opacity * 255.0);
       for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-        this._rendererMeshes[i].setOpacityInView(viewIndex, opacityQuantized);
+        this._rendererMeshes[i].setOpacityInView(viewIndex, opacity);
       }
     } else {
       // Forward null to the mesh-level setter so it falls back to

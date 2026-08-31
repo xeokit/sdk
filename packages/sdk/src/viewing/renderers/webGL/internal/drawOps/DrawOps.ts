@@ -39,7 +39,7 @@ import {TriangleGeometryStorageDrawOp} from "./TriangleGeometryStorageDrawOp";
  * - One {@link DrawOps} exists per {@link WebGLRenderer} / viewer.
  * - Draw operations are organized:
  *   1. by **primitive type** (triangles, lines, points)
- *   2. then by **render pass** (opaque, transparent, highlighted, selected, xrayed, pick, etc.)
+ *   2. then by **render pass** (opaque, transparent, style-bin, pick, etc.)
  *
  * Each leaf entry is a {@link DrawOp}, which binds a {@link DrawTechnique} to a
  * specific render pass.
@@ -178,7 +178,6 @@ export class DrawOps {
 
     // Some draw techniques are shared between multiple draw ops.
     // A draw op applies a draw technique to a specific render pass.
-    // E.g. the silhouetteTechnique draw technique is used for highlighted, selected and xrayed triangles.
 
     // Logarithmic depth buffer — opt every camera-visible
     // technique (colour, edges, silhouette, lines, points) into
@@ -192,6 +191,7 @@ export class DrawOps {
 
     const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2, {logDepth: LOG_DEPTH}));
     const trianglesSilhouetteDTX = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
+    const trianglesStyleBinOverlayDTX = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH, styleBinOverlay: true}));
     // Lambert colour techniques exist as 6-way variants on the
     // `(hasNormals, hasUVs, triplanar)` axes (`hasUVs && triplanar`
     // excluded by construction). The DrawOp picks at draw time via
@@ -222,6 +222,7 @@ export class DrawOps {
     const trianglesDrawColorShadowVBO    = lambertVariants(TrianglesDrawColorShadowTechnique, triangleVBOTileUniformCfg);
     const trianglesDrawColorSAOShadowVBO = lambertVariants(TrianglesDrawColorSAOShadowTechnique, triangleVBOTileUniformCfg);
     const trianglesSilhouetteVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
+    const trianglesStyleBinOverlayVBO = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH, styleBinOverlay: true}));
     // Unlit pure-colour technique for the overlay bin (gizmos, HUD chrome).
     // No Lambert / PBR, no SAO, no shadow — fragment colour comes straight
     // from `MeshViewAttributes.color`. Single variant (none of the
@@ -236,6 +237,8 @@ export class DrawOps {
     const trianglesShadowDepthVBO = shadowDepthVariants(triangleVBOTileUniformCfg);
     const trianglesDrawEdgeSilhouetteDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeSilhouetteVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
+    const trianglesDrawEdgeStyleBinOverlayDTX = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH, styleBinOverlay: true}));
+    const trianglesDrawEdgeStyleBinOverlayVBO = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH, styleBinOverlay: true}));
     const trianglesDrawEdgeColorDTX = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeColorVBO = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {...triangleVBOTileUniformCfg, logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeColorThickDTX = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
@@ -300,7 +303,7 @@ export class DrawOps {
     this._linkMs = performance.now() - tStart;
     this._finalizePending = true;
 
-    const {OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK, SNAP_INIT, SNAP} = RENDER_PASSES;
+    const {OPAQUE, TRANSPARENT, STYLE_BIN_OPAQUE, STYLE_BIN_TRANSPARENT, PICK, SNAP_INIT, SNAP} = RENDER_PASSES;
 
     // DrawOp instances are just thin wrappers around DrawTechniques for specific render passes.
 
@@ -349,12 +352,13 @@ export class DrawOps {
         transparent: triangleSurfaceOp(trianglesDrawColorDTX, trianglesDrawColorVBO, TRANSPARENT),
         transparentEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorDTX, trianglesDrawEdgeColorVBO, TRANSPARENT),
         transparentEdgesThick: triangleGeometryStorageSingleOp(trianglesDrawEdgeColorThickDTX, trianglesDrawEdgeColorVBO, TRANSPARENT),
-        highlighted: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, HIGHLIGHTED),
-        highlightedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, HIGHLIGHTED),
-        selected: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, SELECTED),
-        selectedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, SELECTED),
-        xrayed: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, XRAYED),
-        xrayedEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, XRAYED),
+        styleBin: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, STYLE_BIN_OPAQUE),
+        styleBinOverlay: triangleSurfaceSingleOp(trianglesStyleBinOverlayDTX, trianglesStyleBinOverlayVBO, OPAQUE),
+        styleBinEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, STYLE_BIN_OPAQUE),
+        styleBinOverlayEdges: triangleGeometryStorageSingleOp(trianglesDrawEdgeStyleBinOverlayDTX, trianglesDrawEdgeStyleBinOverlayVBO, OPAQUE),
+        styleBinTransparent: triangleSurfaceSingleOp(trianglesSilhouetteDTX, trianglesSilhouetteVBO, STYLE_BIN_TRANSPARENT),
+        styleBinOverlayTransparent: triangleSurfaceSingleOp(trianglesStyleBinOverlayDTX, trianglesStyleBinOverlayVBO, TRANSPARENT),
+        styleBinEdgesTransparent: triangleGeometryStorageSingleOp(trianglesDrawEdgeSilhouetteDTX, trianglesDrawEdgeSilhouetteVBO, STYLE_BIN_TRANSPARENT),
         pick: new TriangleGeometryStorageDrawOp({
           dtxDrawOp: trianglesPickDTX,
           vboGeometryDrawOp: trianglesPickVBO,
@@ -390,9 +394,8 @@ export class DrawOps {
       [LinesPrimitive]: {
         opaque: new DrawOp(linesDrawColor, OPAQUE),
         transparent: new DrawOp(linesDrawColor, TRANSPARENT),
-        highlighted: new DrawOp(linesDrawSilhouette, HIGHLIGHTED),
-        selected: new DrawOp(linesDrawSilhouette, SELECTED),
-        xrayed: new DrawOp(linesDrawSilhouette, XRAYED),
+        styleBin: new DrawOp(linesDrawSilhouette, STYLE_BIN_OPAQUE),
+        styleBinTransparent: new DrawOp(linesDrawSilhouette, STYLE_BIN_TRANSPARENT),
         pick: new DrawOp(linesPickMesh, PICK),
         // Line batches don't carry surface triangles, so they don't
         // contribute a depth baseline themselves — they rely on any
@@ -407,9 +410,6 @@ export class DrawOps {
       [PointsPrimitive]: {
         opaque: new DrawOp(pointsDrawColor, OPAQUE),
         transparent: new DrawOp(pointsDrawColor, TRANSPARENT),
-        // highlighted: new DrawOp(pointsSilhouette, HIGHLIGHTED),
-        // selected: new DrawOp(pointsSilhouette, SELECTED),
-        // xrayed: new DrawOp(pointsSilhouette, XRAYED),
         pick: new DrawOp(pointsPickMesh, PICK)
       }
     };

@@ -95,8 +95,8 @@ class Edges {
      * colour darkened by {@link Edges.edgeDarken | edgeDarken}, instead of the
      * fixed {@link Edges.edgeColor | edgeColor}.
      *
-     * Only affects the base edges effect — x-ray / highlight / selected edges
-     * always use their emphasis material's colour.
+     * Only affects the base edges effect. Edges drawn by a style bin use that
+     * bin's edge colour.
      *
      * Default value is ````true````.
      */

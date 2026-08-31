@@ -114,11 +114,9 @@ function createViewer(hasScene: boolean) {
   const onViewUpdated = createSubscribable();
   const onViewDestroyed = createSubscribable();
   const onViewObjectVisibleChanged = createSubscribable();
-  const onViewObjectXRayedChanged = createSubscribable();
+  const onViewObjectStyleBinChanged = createSubscribable();
   const onViewObjectClippableChanged = createSubscribable();
   const onViewObjectCulledChanged = createSubscribable();
-  const onViewObjectHighlightedChanged = createSubscribable();
-  const onViewObjectSelectedChanged = createSubscribable();
   const onViewObjectColorizeChanged = createSubscribable();
   const onViewObjectOpacityChanged = createSubscribable();
   const onViewObjectPickableChanged = createSubscribable();
@@ -202,11 +200,9 @@ function createViewer(hasScene: boolean) {
       onViewUpdated: onViewUpdated.event,
       onViewDestroyed: onViewDestroyed.event,
       onViewObjectVisibleChanged: onViewObjectVisibleChanged.event,
-      onViewObjectXRayedChanged: onViewObjectXRayedChanged.event,
+      onViewObjectStyleBinChanged: onViewObjectStyleBinChanged.event,
       onViewObjectClippableChanged: onViewObjectClippableChanged.event,
       onViewObjectCulledChanged: onViewObjectCulledChanged.event,
-      onViewObjectHighlightedChanged: onViewObjectHighlightedChanged.event,
-      onViewObjectSelectedChanged: onViewObjectSelectedChanged.event,
       onViewObjectColorizeChanged: onViewObjectColorizeChanged.event,
       onViewObjectOpacityChanged: onViewObjectOpacityChanged.event,
       onViewObjectPickableChanged: onViewObjectPickableChanged.event,
@@ -244,11 +240,9 @@ function createViewer(hasScene: boolean) {
     onViewUpdated,
     onViewDestroyed,
     onViewObjectVisibleChanged,
-    onViewObjectXRayedChanged,
+    onViewObjectStyleBinChanged,
     onViewObjectClippableChanged,
     onViewObjectCulledChanged,
-    onViewObjectHighlightedChanged,
-    onViewObjectSelectedChanged,
     onViewObjectColorizeChanged,
     onViewObjectOpacityChanged,
     onViewObjectPickableChanged,
@@ -497,6 +491,36 @@ function createView(viewer: any, context: any, transparent = false) {
     toJSON: () => ({})
   }));
 
+  const styleBinList: any[] = [];
+  const styleBinMap: Record<string, any> = {};
+  const createStyleBin = (params: any) => {
+    const material = {
+      fill: params.fill !== false,
+      fillColor: params.fillColor,
+      fillAlpha: params.fillAlpha ?? 1,
+      edges: params.edges !== false,
+      edgeColor: params.edgeColor,
+      edgeAlpha: params.edgeAlpha ?? 1,
+      edgeWidth: params.edgeWidth ?? 1
+    };
+    const bin = {
+      id: params.id,
+      priority: params.priority ?? 0,
+      enabled: params.enabled !== false,
+      material,
+      fromParams: (next: any) => {
+        Object.assign(material, next);
+        if (next.priority !== undefined) bin.priority = next.priority;
+        if (next.enabled !== undefined) bin.enabled = next.enabled;
+        styleBinList.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
+        return {ok: true, value: undefined};
+      }
+    };
+    styleBinMap[bin.id] = bin;
+    styleBinList.push(bin);
+    styleBinList.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
+    return bin;
+  };
   const view: any = {
     id: "view",
     viewer,
@@ -507,6 +531,11 @@ function createView(viewer: any, context: any, transparent = false) {
       projMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
     },
     objects: {},
+    styleBins: {
+      list: styleBinList,
+      get: (id: string) => styleBinMap[id] ?? null,
+      create: createStyleBin
+    },
     pointsMaterial: {
       pointSize: 5,
       roundPoints: true,
@@ -900,7 +929,8 @@ function attachMeshToObject(mesh: any, view: any, model: any, objectId = `${mesh
     meshes: [mesh],
     destroyed: false
   };
-  const viewObject = {
+  const styleBinIds = new Set<string>();
+  const viewObject: any = {
     id: sceneObject.id,
     view,
     sceneObject,
@@ -909,7 +939,16 @@ function attachMeshToObject(mesh: any, view: any, model: any, objectId = `${mesh
     pickable: true,
     colorize: null as number[] | null,
     opacityUpdated: false,
-    opacity: 1
+    opacity: 1,
+    hasStyleBin: (id: string) => styleBinIds.has(id),
+    setStyleBin: (id: string, membership: boolean) => {
+      if (membership) {
+        styleBinIds.add(id);
+      } else {
+        styleBinIds.delete(id);
+      }
+      return {ok: true, value: true};
+    }
   };
 
   mesh.object = sceneObject;
@@ -3034,6 +3073,57 @@ describe("WebGPURenderer contract", () => {
     expect(frameStats?.renderBins.map((bin) => bin.name)).toEqual(["OPAQUE"]);
   });
 
+  test("classifies mixed triangle content into flat and PBR batches automatically", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {geometry: plainGeometry, mesh: plainMesh} = createTriangleMesh("plainMesh");
+    const {geometry: colorGeometry, mesh: colorMesh} = createTriangleMesh("colorMesh");
+    plainGeometry.id = "plainGeometry";
+    plainGeometry.uniqueId = "model__plainGeometry";
+    colorGeometry.id = "colorGeometry";
+    colorGeometry.uniqueId = "model__colorGeometry";
+    (colorGeometry as any).colorsCompressed = new Uint8Array([
+      0, 0, 0, 255,
+      128, 64, 32, 255,
+      255, 255, 255, 255
+    ]);
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [plainMesh.id]: plainMesh,
+          [colorMesh.id]: colorMesh
+        }
+      }
+    };
+    testViewer.viewer.viewList.push(view);
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      },
+      renderConfigs: {
+        depthPrepass: false,
+        edges: false,
+        triangleColorMode: "auto"
+      }
+    });
+
+    const result = renderer.attachViewer(testViewer.viewer as any);
+
+    expect(result.ok).toBe(true);
+    const pipelineLabels = gpu.device.createRenderPipeline.mock.calls.map((call: any[]) => call[0]?.label);
+    expect(pipelineLabels).toContain("xeokit-webgpu-triangles-draw-flat-color-scene-opaque-pipeline");
+    expect(pipelineLabels).toContain("xeokit-webgpu-triangles-draw-color-no-normals-opaque-pipeline");
+    expect(gpu.buffers.some((buffer) => buffer.descriptor?.label === "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_color_flat_page_0")).toBe(true);
+    expect(gpu.buffers.some((buffer) => buffer.descriptor?.label === "xeokit-webgpu-packed-materials:triangles:unowned_dynamic_stream_page_0")).toBe(true);
+    expect(gpu.buffers.some((buffer) => buffer.descriptor?.label === "xeokit-webgpu-packed-normals:triangles:unowned_dynamic_stream_color_flat_page_0")).toBe(false);
+  });
+
   test("skips the depth prepass for alpha-masked opaque triangles", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
@@ -3073,6 +3163,7 @@ describe("WebGPURenderer contract", () => {
     expect(createWebGPURenderConfigs({}).logDepth).toBe(false);
     expect(createWebGPURenderConfigs({logDepth: true}).logDepth).toBe(true);
     expect(createWebGPURenderConfigs({}).triangleColorMode).toBe("pbr");
+    expect(createWebGPURenderConfigs({triangleColorMode: "pbr"}).triangleColorMode).toBe("pbr");
     expect(createWebGPURenderConfigs({triangleColorMode: "flat"}).triangleColorMode).toBe("flat");
     expect(createMemoryConfigs({grossMemoryMB: 128, device: "medium", utilization: 0.5}).compactStreamPages).toBe(false);
     expect(createMemoryConfigs({
@@ -3186,9 +3277,9 @@ describe("WebGPURenderer contract", () => {
       }
     ]);
     const bufferLabels = gpu.buffers.map((buffer) => buffer.descriptor?.label);
-    expect(bufferLabels).toContain("xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0");
-    expect(bufferLabels).toContain("xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0");
-    expect(bufferLabels).toContain("xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_page_0");
+    expect(bufferLabels).toContain("xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_color_flat_page_0");
+    expect(bufferLabels).toContain("xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_color_flat_page_0");
+    expect(bufferLabels).toContain("xeokit-webgpu-packed-indices:triangles:unowned_dynamic_stream_color_flat_page_0");
     expect(bufferLabels).not.toContain("xeokit-webgpu-packed-materials:triangles:unowned_dynamic_stream_page_0");
     expect(bufferLabels).not.toContain("xeokit-webgpu-packed-normals:triangles:unowned_dynamic_stream_page_0");
     expect(bufferLabels).not.toContain("xeokit-webgpu-packed-edge-indices:triangles:unowned_dynamic_stream_page_0");
@@ -3197,8 +3288,8 @@ describe("WebGPURenderer contract", () => {
     expect(textureLabels).toContain("xeokit-webgpu-ibl-placeholder-prefiltered-cubemap");
     expect(textureLabels).not.toContain("xeokit-webgpu-ibl-irradiance-cubemap");
     expect(textureLabels).not.toContain("xeokit-webgpu-ibl-prefiltered-cubemap");
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_page_0"));
-    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_page_0"));
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(0, getBufferByLabel(gpu, "xeokit-webgpu-packed-positions:triangles:unowned_dynamic_stream_color_flat_page_0"));
+    expect(gpu.passEncoder.setVertexBuffer).toHaveBeenCalledWith(1, getBufferByLabel(gpu, "xeokit-webgpu-packed-vertex-metadata:triangles:unowned_dynamic_stream_color_flat_page_0"));
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
   });
 
@@ -3277,7 +3368,7 @@ describe("WebGPURenderer contract", () => {
       batches: [
         createPackedTriangleBatch("a0", "segmentA0", vertexBufferA, vertexMetadataBufferA, decodeBindGroupA, indexBufferA, "pageA", "fill"),
         createPackedTriangleBatch("b0", "segmentB0", vertexBufferB, vertexMetadataBufferB, decodeBindGroupB, indexBufferB0, "pageB", "fill"),
-        createPackedTriangleBatch("a1", "segmentA1", vertexBufferA, vertexMetadataBufferA, decodeBindGroupA, indexBufferA, "pageA", "emphasis")
+        createPackedTriangleBatch("a1", "segmentA1", vertexBufferA, vertexMetadataBufferA, decodeBindGroupA, indexBufferA, "pageA", "style-bin")
       ]
     });
 
@@ -6235,6 +6326,7 @@ describe("WebGPURenderer contract", () => {
       id: "object",
       meshes: [mesh]
     };
+    const styleBinIds = new Set<string>();
     const viewObject = {
       id: sceneObject.id,
       view,
@@ -6243,7 +6335,16 @@ describe("WebGPURenderer contract", () => {
       culled: false,
       colorize: null as number[] | null,
       opacityUpdated: false,
-      opacity: 1
+      opacity: 1,
+      hasStyleBin: (id: string) => styleBinIds.has(id),
+      setStyleBin: (id: string, membership: boolean) => {
+        if (membership) {
+          styleBinIds.add(id);
+        } else {
+          styleBinIds.delete(id);
+        }
+        return true;
+      }
     };
 
     mesh.object = sceneObject as any;
@@ -6274,8 +6375,9 @@ describe("WebGPURenderer contract", () => {
     viewObject.opacityUpdated = true;
     viewObject.opacity = 0.35;
 
+    testViewer.onViewObjectVisibleChanged.emit(view, viewObject);
     testViewer.onViewObjectColorizeChanged.emit(view, viewObject);
-    expect(view.needsRender).toHaveBeenCalledTimes(1);
+    expect(view.needsRender).toHaveBeenCalledTimes(2);
 
     testViewer.onViewUpdated.emit(view, view);
 
@@ -6295,28 +6397,34 @@ describe("WebGPURenderer contract", () => {
     expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
   });
 
-  test("routes emphasized view objects through WebGPU state bins and packs emphasis style", () => {
+  test("routes arbitrary style-bin view objects through WebGPU state bins and packs style", () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
-    (view as any).xrayMaterial = {
+    view.styleBins.create({
+      id: "ghosted",
+      priority: 100,
       fill: true,
       fillColor: [0.85, 0.9, 1.0],
       fillAlpha: 0.35,
       edges: true
-    };
-    (view as any).highlightMaterial = {
+    });
+    view.styleBins.create({
+      id: "search-result",
+      priority: 200,
       fill: true,
       fillColor: [1.0, 0.78, 0.25],
       fillAlpha: 0.4,
       edges: true
-    };
-    (view as any).selectedMaterial = {
+    });
+    view.styleBins.create({
+      id: "clash-warning",
+      priority: 300,
       fill: true,
       fillColor: [0.1, 0.7, 1.0],
       fillAlpha: 0.4,
       edges: true
-    };
+    });
     const {mesh} = createTriangleMesh();
     const model = {
       id: "model",
@@ -6327,9 +6435,9 @@ describe("WebGPURenderer contract", () => {
       objects: {}
     };
     const {viewObject} = attachMeshToObject(mesh, view, model);
-    viewObject.xrayed = true;
-    viewObject.highlighted = true;
-    viewObject.selected = true;
+    viewObject.setStyleBin("ghosted", true);
+    viewObject.setStyleBin("search-result", true);
+    viewObject.setStyleBin("clash-warning", true);
     viewObject.colorize = [1, 0, 0];
     viewObject.opacityUpdated = true;
     viewObject.opacity = 1;
@@ -6365,23 +6473,24 @@ describe("WebGPURenderer contract", () => {
 
     const frameStats = inspectorResult.value.renderStats.views?.[0];
     expect(frameStats?.renderBins.map((bin) => bin.name)).toEqual([
-      "SELECTED_TRANSPARENT",
-      "SELECTED_EDGES_TRANSPARENT"
+      "STYLE_BIN_TRANSPARENT",
+      "STYLE_BIN_EDGES_TRANSPARENT"
     ]);
     expect(frameStats?.renderBins[0]?.drawCalls[0]?.technique).toBe("TrianglesDrawColorFlatTechnique");
     expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledTimes(2);
   });
 
-  test("keeps emphasized WebGPU objects available to GPU picking", async () => {
+  test("keeps styled WebGPU objects available to GPU picking", async () => {
     const gpu = createWebGPUHarness();
     const testViewer = createViewer(true);
     const view = createView(testViewer.viewer, gpu.context);
-    (view as any).selectedMaterial = {
+    view.styleBins.create({
+      id: "pick-target",
       fill: true,
       fillColor: [0.1, 0.7, 1.0],
       fillAlpha: 1,
       edges: false
-    };
+    });
     const {geometry, mesh} = createTriangleMesh();
     const model = {
       id: "model",
@@ -6394,8 +6503,8 @@ describe("WebGPURenderer contract", () => {
       },
       objects: {}
     };
-    const {viewObject} = attachMeshToObject(mesh, view, model, "selectedObject");
-    viewObject.selected = true;
+    const {viewObject} = attachMeshToObject(mesh, view, model, "pickedObject");
+    viewObject.setStyleBin("pick-target", true);
 
     testViewer.viewer.scene.models = {model};
     testViewer.viewer.viewList.push(view);
@@ -6415,7 +6524,7 @@ describe("WebGPURenderer contract", () => {
       throw new Error(pickResult.error);
     }
     expect(pickResult.value?.sceneMesh).toBe(mesh);
-    expect(pickResult.value?.viewObject?.id).toBe("selectedObject");
+    expect(pickResult.value?.viewObject?.id).toBe("pickedObject");
   });
 
   test("picks a visible triangle mesh through the WebGPU renderer", () => {

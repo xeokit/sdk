@@ -18,13 +18,14 @@ export function createCanvasShowGroup() {
           getTitle: () => "Show All",
           getEnabled: (context: CanvasContextMenuContext) => {
             const {view} = context;
-            return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+            return view.numVisibleObjects < view.numObjects || view.styleBins.getObjectIds("xrayed").length > 0;
           },
           doAction: (context: CanvasContextMenuContext) => {
             const {view} = context;
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
             view.setObjectsVisible(view.objectIds, true);
-            view.setObjectsPickable(view.xrayedObjectIds, true);
-            view.setObjectsXRayed(view.xrayedObjectIds, false);
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
@@ -37,28 +38,28 @@ export function createCanvasShowGroup() {
         {
           getTitle: () => "X-Ray All",
           getEnabled: (context: CanvasContextMenuContext) =>
-            context.view.numXRayedObjects < context.view.numObjects,
+            context.view.styleBins.getObjectIds("xrayed").length < context.view.numObjects,
           doAction: (context: CanvasContextMenuContext) => {
             const {view} = context;
             view.setObjectsVisible(view.objectIds, true);
-            view.setObjectsXRayed(view.objectIds, true);
+            view.setObjectsInStyleBin("xrayed", view.objectIds, true);
           }
         },
         {
           getTitle: () => "Clear X-Ray",
-          getEnabled: (context: CanvasContextMenuContext) => context.view.numXRayedObjects > 0,
+          getEnabled: (context: CanvasContextMenuContext) => context.view.styleBins.getObjectIds("xrayed").length > 0,
           doAction: (context: CanvasContextMenuContext) => {
             const {view} = context;
-            const {xrayedObjectIds} = view;
-            view.setObjectsPickable(xrayedObjectIds, true);
-            view.setObjectsXRayed(xrayedObjectIds, false);
+            const xrayedObjectIds = view.styleBins.getObjectIds("xrayed");
+            view.setObjectsPickable([...xrayedObjectIds], true);
+            view.setObjectsInStyleBin("xrayed", xrayedObjectIds, false);
           }
         },
         {
           getTitle: () => "Clear Selection",
-          getEnabled: (context: CanvasContextMenuContext) => context.view.numSelectedObjects > 0,
+          getEnabled: (context: CanvasContextMenuContext) => context.view.styleBins.getObjectIds("selected").length > 0,
           doAction: (context: CanvasContextMenuContext) => {
-            context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+            context.view.setObjectsInStyleBin("selected", context.view.styleBins.getObjectIds("selected"), false);
           }
         },
       ],

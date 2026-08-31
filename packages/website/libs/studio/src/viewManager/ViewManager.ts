@@ -18,6 +18,45 @@ import {
 import {confirmDialog} from "../dialogs/ConfirmDialog";
 import type {StudioCreateViewParams} from "../StudioCreateViewParams";
 
+const DEFAULT_STUDIO_STYLE_BINS: NonNullable<ViewParams["styleBins"]> = [
+  {
+    id: "xrayed",
+    priority: 100,
+    composition: "replace",
+    fill: true,
+    fillColor: [0.85, 0.9, 1.0],
+    fillAlpha: 0.35,
+    edges: true,
+    edgeColor: [0.1, 0.15, 0.25],
+    edgeAlpha: 1.0,
+    edgeWidth: 1
+  },
+  {
+    id: "highlighted",
+    priority: 200,
+    composition: "overlay",
+    fill: true,
+    fillColor: [1.0, 0.78, 0.25],
+    fillAlpha: 0.4,
+    edges: true,
+    edgeColor: [0.55, 0.35, 0.05],
+    edgeAlpha: 1.0,
+    edgeWidth: 1
+  },
+  {
+    id: "selected",
+    priority: 300,
+    composition: "overlay",
+    fill: true,
+    fillColor: [0.1, 0.7, 1.0],
+    fillAlpha: 0.4,
+    edges: true,
+    edgeColor: [0.05, 0.3, 0.55],
+    edgeAlpha: 1.0,
+    edgeWidth: 1
+  }
+];
+
 /**
  * One record per live View. Every consumer reads `cameraFlight`
  * and/or `modelNavigation` off it.
@@ -181,6 +220,7 @@ export class ViewManager {
       backgroundColor: [0, 0, 0],
       transparent: false,
       ...sdkViewParams,
+      styleBins: sdkViewParams.styleBins ?? DEFAULT_STUDIO_STYLE_BINS,
     };
 
     const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);

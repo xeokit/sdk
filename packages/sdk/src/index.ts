@@ -6,9 +6,9 @@
  * topical bucket: `model/scene`, `model/data`, `viewing/viewer`, …
  *
  * @module @xeokit/sdk
- * @document ../../../WHITEPAPER.md
- * @document ../../../WHITEPAPER_EXEC.md
- * @document ../../../WHITEPAPER_SCENEMODEL_UPDATE_HINTS.md
+ * @document ../assets/whitepapers/technical.md
+ * @document ../assets/whitepapers/executive.md
+ * @document ../assets/tutorials/index.md
  */
 export * as base          from "./base";
 export * as model         from "./model";

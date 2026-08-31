@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoaded, signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 const status = document.getElementById("status");
 const canvas = document.getElementById("demoCanvas");
@@ -84,6 +85,7 @@ async function main() {
   });
 
   renderReady();
+  signalExampleLoadedOnNextRender(renderer, view);
   view.needsRender();
 
   window.addEventListener("resize", () => {
@@ -341,6 +343,7 @@ function formatVec(value, digits) {
 function reportError(message) {
   status.dataset.state = "error";
   status.innerHTML = `<strong>WebGPU Edge Snap</strong><span>${escapeHTML(message)}</span>`;
+  signalExampleLoaded();
   console.error("[view/webgpu/snap-edge]", message);
 }
 

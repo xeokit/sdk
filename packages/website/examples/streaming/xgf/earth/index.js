@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 const {Scene} = xeokit.model.scene;
 const {Viewer} = xeokit.viewing.viewer;
@@ -425,6 +426,7 @@ async function main() {
     installCountryHover(picker, view, countrySemantics, ui);
     state.total = state.loaded;
     render(ui, state);
+    signalExampleLoadedOnNextRender(renderer, view);
   } catch (error) {
     console.error(error);
     setStatus(ui, String(error?.message || error));

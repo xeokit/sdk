@@ -8,5 +8,6 @@
     "Viewing",
     "WebGPU",
     "WebGL"
-  ]
+  ],
+  "snapshotFullPage": false
 }

@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 globalThis.XEOKIT_LOG_USED_VERTEX_SHADERS = true;
 
@@ -110,6 +111,7 @@ async function main() {
   window.addEventListener("resize", () => view.needsRender?.());
 
   updateStatus(`${REQUESTED_RENDERER.label} renderer ready. Drop a model file or XGF stream folder onto the canvas.`);
+  signalExampleLoadedOnNextRender(renderer, view);
 
   window.bareBonesModelFileDrop = {
     scene,

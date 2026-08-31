@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoaded, signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 const status = document.getElementById("status");
 const canvas = document.getElementById("demoCanvas");
@@ -135,6 +136,7 @@ async function main() {
   });
 
   view.needsRender();
+  signalExampleLoadedOnNextRender(renderer, view);
 
   window.addEventListener("resize", () => {
     view.needsRender();
@@ -301,6 +303,7 @@ function mustOk(result) {
 function reportError(message) {
   status.dataset.state = "error";
   status.innerHTML = `<strong>WebGPU Table Shadows</strong><span>${escapeHTML(message)}</span>`;
+  signalExampleLoaded();
   console.error("[view/webgpu/table-shadows]", message);
 }
 

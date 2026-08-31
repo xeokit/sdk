@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoaded, signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 const TILE_SIZE = 200;
 const WORLD_BASE = [1000000, 5173200, 0];
@@ -135,6 +136,7 @@ async function main() {
     }
   });
   renderStatus({renderer, renderInspector, view, sceneModel, movingMesh, activePosition});
+  signalExampleLoadedOnNextRender(renderer, view);
   view.needsRender();
 
   window.addEventListener("resize", () => {
@@ -274,5 +276,6 @@ function mustOk(result) {
 function reportError(message) {
   panel.dataset.state = "error";
   status.textContent = message;
+  signalExampleLoaded();
   console.error("[view/webgpu/rtc-tiles]", message);
 }

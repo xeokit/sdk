@@ -34054,6 +34054,7 @@ function parseTexture(ctx2, texture) {
       minFilter = LinearMipMapLinearFilter;
       break;
   }
+  const mipmap = isMipmapMinFilter(minFilter);
   let magFilter = LinearFilter;
   switch (texture.sampler.magFilter) {
     case 9728:
@@ -34119,7 +34120,8 @@ function parseTexture(ctx2, texture) {
     wrapT,
     wrapR,
     flipY: !!texture.flipY,
-    encoding: isColorSpaceTexture(ctx2, texture) ? sRGBEncoding : void 0
+    encoding: isColorSpaceTexture(ctx2, texture) ? sRGBEncoding : void 0,
+    mipmap
   });
   if (result.ok === false) {
     ctx2.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
@@ -34127,6 +34129,9 @@ function parseTexture(ctx2, texture) {
   }
   texture._textureId = textureId;
   return true;
+}
+function isMipmapMinFilter(minFilter) {
+  return minFilter === NearestMipMapNearestFilter || minFilter === NearestMipMapLinearFilter || minFilter === LinearMipMapNearestFilter || minFilter === LinearMipMapLinearFilter;
 }
 function isColorSpaceTexture(ctx2, texture) {
   const materials = ctx2.gltfData?.materials || [];
@@ -112785,6 +112790,13 @@ var SAMPLER_DECODE = {
   8: NearestMipMapLinearFilter,
   9: LinearMipMapLinearFilter
 };
+var MIPMAP_MIN_FILTERS = /* @__PURE__ */ new Set([
+  NearestMipMapNearestFilter,
+  LinearMipMapNearestFilter,
+  NearestMipMapLinearFilter,
+  LinearMipMapLinearFilter
+]);
+var usesMipmappedMinFilter = (minFilter) => MIPMAP_MIN_FILTERS.has(minFilter);
 var MEDIA_TYPE_DECODE = {
   0: PNGMediaType,
   1: JPEGMediaType,
@@ -112870,12 +112882,14 @@ async function xgfToModel(params) {
     );
     const samplerParamsFor = (i) => {
       const sBase = i * NUM_TEXTURE_SAMPLER_BYTES;
+      const minFilter = SAMPLER_DECODE[eachTextureSampler[sBase]] || LinearMipMapLinearFilter;
       return {
-        minFilter: SAMPLER_DECODE[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
+        minFilter,
         magFilter: SAMPLER_DECODE[eachTextureSampler[sBase + 1]] || LinearFilter,
         wrapS: SAMPLER_DECODE[eachTextureSampler[sBase + 2]] || RepeatWrapping,
         wrapT: SAMPLER_DECODE[eachTextureSampler[sBase + 3]] || RepeatWrapping,
         wrapR: SAMPLER_DECODE[eachTextureSampler[sBase + 4]] || RepeatWrapping,
+        mipmap: usesMipmappedMinFilter(minFilter),
         width: eachTextureWidth[i],
         height: eachTextureHeight[i]
       };
@@ -113149,6 +113163,13 @@ var SAMPLER_DECODE2 = {
   8: NearestMipMapLinearFilter,
   9: LinearMipMapLinearFilter
 };
+var MIPMAP_MIN_FILTERS2 = /* @__PURE__ */ new Set([
+  NearestMipMapNearestFilter,
+  LinearMipMapNearestFilter,
+  NearestMipMapLinearFilter,
+  LinearMipMapLinearFilter
+]);
+var usesMipmappedMinFilter2 = (minFilter) => MIPMAP_MIN_FILTERS2.has(minFilter);
 var MEDIA_TYPE_DECODE2 = {
   0: PNGMediaType,
   1: JPEGMediaType,
@@ -113274,12 +113295,14 @@ async function xgfToModel2(params) {
     );
     const samplerParamsFor = (i) => {
       const sBase = i * NUM_TEXTURE_SAMPLER_BYTES2;
+      const minFilter = SAMPLER_DECODE2[eachTextureSampler[sBase]] || LinearMipMapLinearFilter;
       return {
-        minFilter: SAMPLER_DECODE2[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
+        minFilter,
         magFilter: SAMPLER_DECODE2[eachTextureSampler[sBase + 1]] || LinearFilter,
         wrapS: SAMPLER_DECODE2[eachTextureSampler[sBase + 2]] || RepeatWrapping,
         wrapT: SAMPLER_DECODE2[eachTextureSampler[sBase + 3]] || RepeatWrapping,
         wrapR: SAMPLER_DECODE2[eachTextureSampler[sBase + 4]] || RepeatWrapping,
+        mipmap: usesMipmappedMinFilter2(minFilter),
         width: eachTextureWidth[i],
         height: eachTextureHeight[i]
       };
@@ -185161,6 +185184,13 @@ var DEFAULT_COAST_DECELERATION = 5;
 var DEFAULT_TURN_RATE_DEGREES_PER_SECOND = 95;
 var DEFAULT_KEY_STEER_INITIAL_SCALE = 0.28;
 var DEFAULT_KEY_STEER_RAMP_SECONDS = 1.45;
+var MIN_GROUND_TURN_SPEED_SCALE = 0.65;
+var MAX_GROUND_TURN_SPEED_SCALE = 1.85;
+var MIN_LEAN_SPEED_SCALE = 0.08;
+var MAX_LEAN_RESPONSE_SPEED_SCALE = 1.35;
+var DEFAULT_SLOPE_PITCH_FACTOR = 0.42;
+var DEFAULT_SLOPE_PITCH_SMOOTHING = 5.5;
+var MAX_SLOPE_PITCH_RADIANS = degreesToRadians2(10);
 var DEFAULT_LEAN_DEGREES = 18;
 var DEFAULT_LEAN_SMOOTHING = 8;
 var DEFAULT_MAX_PITCH_DEGREES2 = 18;
@@ -185243,6 +185273,8 @@ var VehicleNavigationController = class {
   #leanRadians;
   #leanSmoothing;
   #currentLean = 0;
+  #currentSlopePitch = 0;
+  #groundNormal = null;
   #maxPitchRadians;
   #maxFlightPitchRadians;
   #flightTakeoffHeight;
@@ -185391,7 +185423,7 @@ var VehicleNavigationController = class {
     this.#flying = flying;
     if (flying) {
       const up = this.#worldUp();
-      const basis = cameraBasis2(this.view.camera.eye, this.view.camera.look, up);
+      const basis = cameraBasis2(this.view.camera.eye, this.view.camera.look, up, this.#currentSlopePitch);
       this.#flightVelocity = mul3(basis.flatForward, Math.max(this.#speed, this.#effectiveMinGlideSpeed()));
       this.#fallSpeed = 0;
       this.#landingAfterFlight = false;
@@ -185675,7 +185707,7 @@ var VehicleNavigationController = class {
     }
     const up = this.#worldUp();
     const camera = this.view.camera;
-    const basis = cameraBasis2(camera.eye, camera.look, up);
+    const basis = cameraBasis2(camera.eye, camera.look, up, this.#currentSlopePitch);
     const throttle = this.#throttleInput();
     if (!this.#flying) {
       this.#updateSpeed(throttle, elapsedSeconds);
@@ -185694,8 +185726,8 @@ var VehicleNavigationController = class {
       -1,
       1
     );
-    const controlTurnScaleFloor = Math.abs(yawControl) > 1e-4 ? Math.max(this.#keySteerInitialScale, 0.55) : 0;
-    const turnSpeedScale = Math.max(controlTurnScaleFloor, clamp5(speedRatio * 1.4, 0, 1));
+    const turnSpeedScale = this.#flying ? clamp5(speedRatio * 1.4, 0.55, 1) : groundTurnSpeedScale(speedRatio);
+    const leanSpeedScale = this.#flying ? clamp5(speedRatio * 1.15, MIN_LEAN_SPEED_SCALE, 1) : groundLeanSpeedScale(speedRatio);
     const directionSign = this.#flying ? dot6(this.#flightVelocity, basis.flatForward) < 0 ? -1 : 1 : this.#speed < 0 ? -1 : 1;
     const yaw = -yawControl * this.#turnRateRadiansPerSecond * elapsedSeconds * turnSpeedScale * directionSign;
     const flatForward = normalize5(rotateAroundAxis3(basis.flatForward, up, yaw));
@@ -185720,7 +185752,7 @@ var VehicleNavigationController = class {
     } else {
       move = mul3(flatForward, this.#speed * elapsedSeconds);
     }
-    this.#move(move, direction, up, yawControl, turnSpeedScale, elapsedSeconds);
+    this.#move(move, direction, up, yawControl, leanSpeedScale, elapsedSeconds);
   }
   #updateFlightVelocity(throttle, direction, up, pitchControlActive, elapsedSeconds) {
     if (throttle > 0) {
@@ -185816,7 +185848,7 @@ var VehicleNavigationController = class {
   #mouseDragPitchTargetInput() {
     return clamp5(this.#relativePitchInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
   }
-  #move(move, viewDirection, up, steering, turnSpeedScale, elapsedSeconds) {
+  #move(move, viewDirection, up, steering, leanSpeedScale, elapsedSeconds) {
     const camera = this.view.camera;
     const oldEye = [...camera.eye];
     const oldGround = sub3(oldEye, mul3(up, this.#cameraHeight));
@@ -185846,13 +185878,26 @@ var VehicleNavigationController = class {
     }
     const newEye2 = add3(ground, mul3(up, this.#cameraHeight));
     const lookDistance = Math.max(distance2(camera.eye, camera.look), MIN_LOOK_DISTANCE2);
-    const desiredLean = steering * this.#leanRadians * turnSpeedScale;
-    const leanT = clamp5(this.#leanSmoothing * elapsedSeconds, 0, 1);
+    this.#updateSlopePitch(move, viewDirection, up, elapsedSeconds);
+    const displayDirection = slopeAdjustedDirection(viewDirection, up, this.#currentSlopePitch);
+    const desiredLean = steering * this.#leanRadians * leanSpeedScale;
+    const leanT = clamp5(this.#leanSmoothing * Math.min(1, leanSpeedScale * MAX_LEAN_RESPONSE_SPEED_SCALE) * elapsedSeconds, 0, 1);
     this.#currentLean += (desiredLean - this.#currentLean) * leanT;
-    const rollAxis = flatDirection(viewDirection, up);
+    const rollAxis = flatDirection(displayDirection, up);
     camera.eye = newEye2;
-    camera.look = add3(newEye2, mul3(viewDirection, lookDistance));
+    camera.look = add3(newEye2, mul3(displayDirection, lookDistance));
     camera.up = normalize5(rotateAroundAxis3(up, rollAxis, this.#currentLean));
+  }
+  #updateSlopePitch(move, viewDirection, up, elapsedSeconds) {
+    let targetPitch = 0;
+    if (!this.#flying && this.#groundNormal) {
+      const moveDistance = length4(move);
+      const travelDirection = moveDistance > 1e-4 ? normalize5(move) : flatDirection(viewDirection, up);
+      targetPitch = slopePitchForTravel(travelDirection, this.#groundNormal, up) * DEFAULT_SLOPE_PITCH_FACTOR;
+      targetPitch = clamp5(targetPitch, -MAX_SLOPE_PITCH_RADIANS, MAX_SLOPE_PITCH_RADIANS);
+    }
+    const t = clamp5(DEFAULT_SLOPE_PITCH_SMOOTHING * elapsedSeconds, 0, 1);
+    this.#currentSlopePitch += (targetPitch - this.#currentSlopePitch) * t;
   }
   #flightLandingSurface(oldGround, move, up) {
     const downwardDistance = Math.max(0, -dot6(move, up));
@@ -185986,9 +186031,11 @@ var VehicleNavigationController = class {
     const surface = this.#driveSurfaceAt(candidateGround, this.#stepHeight + Math.max(this.#maxFall, fallDistance), up);
     if (surface) {
       this.#fallSpeed = 0;
-      return surface;
+      this.#groundNormal = surface.normal;
+      return surface.point;
     }
     this.#fallSpeed = nextFallSpeed;
+    this.#groundNormal = null;
     return add3(candidateGround, mul3(up, -fallDistance));
   }
   #driveSurfaceAt(candidateGround, verticalRange, up) {
@@ -186003,7 +186050,10 @@ var VehicleNavigationController = class {
       filter: this.#driveSurfaceFilter
     });
     if (result.ok && result.value.hit && result.value.worldPos && this.#isDriveableNormal(result.value.worldNormal, up)) {
-      return [...result.value.worldPos];
+      return {
+        point: [...result.value.worldPos],
+        normal: normalize5(result.value.worldNormal)
+      };
     }
     return null;
   }
@@ -186017,11 +186067,11 @@ var VehicleNavigationController = class {
     return normalize5(this.view.viewer.scene.coordinateSystem.worldUp);
   }
 };
-function cameraBasis2(eye, look, up) {
+function cameraBasis2(eye, look, up, slopePitch = 0) {
   const direction = normalize5(sub3(look, eye));
   const flatForward = flatDirection(direction, up);
   const right = normalize5(cross6(flatForward, up));
-  const pitch = Math.asin(clamp5(dot6(direction, up), -1, 1));
+  const pitch = Math.asin(clamp5(dot6(direction, up), -1, 1)) - slopePitch;
   return { direction, flatForward, right, pitch };
 }
 function flatDirection(direction, up) {
@@ -186067,6 +186117,32 @@ function lerp(a2, b4, t) {
 function lerpNumber(a2, b4, t) {
   const clampedT = clamp5(t, 0, 1);
   return a2 + (b4 - a2) * clampedT;
+}
+function groundTurnSpeedScale(speedRatio) {
+  const t = clamp5(speedRatio, 0, 1);
+  return MIN_GROUND_TURN_SPEED_SCALE + (MAX_GROUND_TURN_SPEED_SCALE - MIN_GROUND_TURN_SPEED_SCALE) * (1 - t);
+}
+function groundLeanSpeedScale(speedRatio) {
+  const t = clamp5(speedRatio, 0, 1);
+  return MIN_LEAN_SPEED_SCALE + (1 - MIN_LEAN_SPEED_SCALE) * t;
+}
+function slopeAdjustedDirection(direction, up, slopePitch) {
+  if (Math.abs(slopePitch) < 1e-6) {
+    return direction;
+  }
+  const flatForward = flatDirection(direction, up);
+  const basePitch = Math.asin(clamp5(dot6(direction, up), -1, 1));
+  const pitch = basePitch + slopePitch;
+  return normalize5(add3(mul3(flatForward, Math.cos(pitch)), mul3(up, Math.sin(pitch))));
+}
+function slopePitchForTravel(travelDirection, surfaceNormal, up) {
+  const normal2 = dot6(surfaceNormal, up) < 0 ? mul3(surfaceNormal, -1) : surfaceNormal;
+  const surfaceTravel = sub3(travelDirection, mul3(normal2, dot6(travelDirection, normal2)));
+  if (length4(surfaceTravel) < 1e-6) {
+    return 0;
+  }
+  const tangent = normalize5(surfaceTravel);
+  return Math.asin(clamp5(dot6(tangent, up), -1, 1));
 }
 function degreesToRadians2(degrees) {
   return degrees * Math.PI / 180;
@@ -191478,12 +191554,11 @@ var TextureAtlas = class _TextureAtlas {
    * Gutter (pixels) around each entry on a mipmapped atlas. Each
    * mip level halves the entry's footprint, so adjacent entries
    * can bleed across the original level-0 boundary at higher
-   * levels — `8` covers entries down to ~16-pixel level-0 sizes
-   * cleanly. Larger entries waste a small fraction of the atlas;
-   * smaller entries (~tens of pixels) might still bleed at the
-   * tiniest mips, which is acceptable for first-cut Phase 1.
+   * levels. `32` keeps large repeated road/building textures from
+   * averaging against the neutral atlas fill through most visible mip
+   * levels, while still wasting only a small fraction of a 4096 atlas.
    */
-  static DEFAULT_PADDING_MIPMAP = 8;
+  static DEFAULT_PADDING_MIPMAP = 32;
   /**
    * Per-GL-context cache of the resources used by the sRGB
    * mip-pass downsample (see {@link _generateSRGBMipmapsViaShader}).
@@ -191519,18 +191594,26 @@ var TextureAtlas = class _TextureAtlas {
   /** True when {@link allocate} has succeeded. */
   allocated = false;
   /**
-   * `true` when the atlas was allocated with a full mip pyramid
-   * (`floor(log2(size)) + 1` levels) and is sampled trilinearly.
-   * Set from the constructor option; `false` keeps the cheap
-   * single-level path.
+   * `true` when the atlas allocates a capped mip chain and samples
+   * it trilinearly. Set from the constructor option; `false` keeps
+   * the cheap single-level path.
    */
   mipmap = false;
+  /**
+   * Number of mip levels allocated for this atlas. Mipmapped atlases
+   * intentionally stop at the deepest level where the entry gutter still
+   * protects sub-rect samples; beyond that level, atlas entries can bleed
+   * into neighbours or sentinel fill.
+   */
+  _mipLevels = 1;
+  /** Highest mip level the sampler is allowed to use. */
+  _maxSampleMipLevel = 0;
   /**
    * Set by `addTexture` / `updateTexture` when a level-0 write
    * has happened since the last `gl.generateMipmap`; cleared by
    * {@link flushMipmaps}. Lets the atlas batch many level-0
-   * mutations and pay one full-pyramid regeneration per draw
-   * instead of N regenerations during the burst.
+   * mutations and pay one capped-chain regeneration per draw instead
+   * of N regenerations during the burst.
    */
   _mipsDirty = false;
   /**
@@ -191550,6 +191633,14 @@ var TextureAtlas = class _TextureAtlas {
     this.padding = options.padding ?? defaultPadding;
     this.internalFormat = options.internalFormat ?? options.gl.SRGB8_ALPHA8;
     this.sentinelColor = options.sentinelColor ?? [255, 255, 255, 255];
+    if (this.mipmap) {
+      const fullMipLevels = Math.floor(Math.log2(this.size)) + 1;
+      this._maxSampleMipLevel = Math.min(
+        fullMipLevels - 1,
+        Math.max(0, Math.floor(Math.log2(Math.max(1, this.padding))))
+      );
+      this._mipLevels = this._maxSampleMipLevel + 1;
+    }
   }
   /**
    * Creates the GPU texture and stamps the sentinel white block. Required
@@ -191580,8 +191671,9 @@ var TextureAtlas = class _TextureAtlas {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      const mipLevels = this.mipmap ? Math.floor(Math.log2(this.size)) + 1 : 1;
-      gl.texStorage2D(gl.TEXTURE_2D, mipLevels, this.internalFormat, this.size, this.size);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, this._maxSampleMipLevel);
+      gl.texStorage2D(gl.TEXTURE_2D, this._mipLevels, this.internalFormat, this.size, this.size);
       this._fillSentinel();
       this._stampSentinel();
       gl.bindTexture(gl.TEXTURE_2D, null);
@@ -191713,8 +191805,11 @@ var TextureAtlas = class _TextureAtlas {
    * Build an extruded copy of `source` sized
    * `(w + 2 * padding) × (h + 2 * padding)`, with the source
    * centred at `(padding, padding)` and the surrounding gutter
-   * filled with replicated edge pixels (one 1-px slice per side
-   * stretched across the gutter, plus four corner stamps).
+   * filled with pixels that match the texture's wrap mode (one
+   * 1-px slice per side stretched across the gutter, plus four
+   * corner stamps). `RepeatWrapping` gutters are filled from the
+   * opposite edge so mip generation preserves tile continuity.
+   * Other wrap modes use the local edge, matching clamp semantics.
    *
    * Why extrude: each atlas entry has a CLAMP_TO_EDGE-style
    * border requirement so that bilinear filtering at the entry's
@@ -191731,7 +191826,7 @@ var TextureAtlas = class _TextureAtlas {
    * — same behaviour as before this fix, just without the bleed
    * protection.
    */
-  _extrudeWithGutter(source, w2, h2) {
+  _extrudeWithGutter(source, w2, h2, options = {}) {
     const p = this.padding;
     if (p <= 0)
       return source;
@@ -191758,14 +191853,20 @@ var TextureAtlas = class _TextureAtlas {
       } else {
         ctx2.drawImage(source, p, p, w2, h2);
       }
-      ctx2.drawImage(canvas3, p, p, w2, 1, p, 0, w2, p);
-      ctx2.drawImage(canvas3, p, p + h2 - 1, w2, 1, p, p + h2, w2, p);
-      ctx2.drawImage(canvas3, p, p, 1, h2, 0, p, p, h2);
-      ctx2.drawImage(canvas3, p + w2 - 1, p, 1, h2, p + w2, p, p, h2);
-      ctx2.drawImage(canvas3, p, p, 1, 1, 0, 0, p, p);
-      ctx2.drawImage(canvas3, p + w2 - 1, p, 1, 1, p + w2, 0, p, p);
-      ctx2.drawImage(canvas3, p, p + h2 - 1, 1, 1, 0, p + h2, p, p);
-      ctx2.drawImage(canvas3, p + w2 - 1, p + h2 - 1, 1, 1, p + w2, p + h2, p, p);
+      const repeatS = options.wrapS === RepeatWrapping;
+      const repeatT = options.wrapT === RepeatWrapping;
+      const leftSourceX = repeatS ? p + w2 - 1 : p;
+      const rightSourceX = repeatS ? p : p + w2 - 1;
+      const topSourceY = repeatT ? p + h2 - 1 : p;
+      const bottomSourceY = repeatT ? p : p + h2 - 1;
+      ctx2.drawImage(canvas3, p, topSourceY, w2, 1, p, 0, w2, p);
+      ctx2.drawImage(canvas3, p, bottomSourceY, w2, 1, p, p + h2, w2, p);
+      ctx2.drawImage(canvas3, leftSourceX, p, 1, h2, 0, p, p, h2);
+      ctx2.drawImage(canvas3, rightSourceX, p, 1, h2, p + w2, p, p, h2);
+      ctx2.drawImage(canvas3, leftSourceX, topSourceY, 1, 1, 0, 0, p, p);
+      ctx2.drawImage(canvas3, rightSourceX, topSourceY, 1, 1, p + w2, 0, p, p);
+      ctx2.drawImage(canvas3, leftSourceX, bottomSourceY, 1, 1, 0, p + h2, p, p);
+      ctx2.drawImage(canvas3, rightSourceX, bottomSourceY, 1, 1, p + w2, p + h2, p, p);
     } catch (e) {
       return null;
     }
@@ -191816,7 +191917,7 @@ var TextureAtlas = class _TextureAtlas {
     if (options.sanitizeAlphaMaskRGB === true) {
       uploadSource = this._sanitizeAlphaMaskedColorSource(uploadSource, w2, h2) ?? uploadSource;
     }
-    const extruded = this._extrudeWithGutter(uploadSource, w2, h2);
+    const extruded = this._extrudeWithGutter(uploadSource, w2, h2, options);
     const uploadX = extruded ? placed.x - this.padding : placed.x;
     const uploadY = extruded ? placed.y - this.padding : placed.y;
     const finalUpload = extruded ?? uploadSource;
@@ -191857,6 +191958,8 @@ var TextureAtlas = class _TextureAtlas {
       height: h2,
       source: uploadSource,
       sanitizeAlphaMaskRGB: options.sanitizeAlphaMaskRGB === true,
+      wrapS: options.wrapS,
+      wrapT: options.wrapT,
       ...transform
     });
     this.onUpdated.dispatch(this, void 0);
@@ -191900,7 +192003,11 @@ var TextureAtlas = class _TextureAtlas {
       if (entry.sanitizeAlphaMaskRGB) {
         uploadSource = this._sanitizeAlphaMaskedColorSource(uploadSource, entry.width, entry.height) ?? uploadSource;
       }
-      const extruded = this._extrudeWithGutter(uploadSource, entry.width, entry.height);
+      const extruded = this._extrudeWithGutter(uploadSource, entry.width, entry.height, {
+        sanitizeAlphaMaskRGB: entry.sanitizeAlphaMaskRGB,
+        wrapS: entry.wrapS,
+        wrapT: entry.wrapT
+      });
       const uploadX = extruded ? entry.x - this.padding : entry.x;
       const uploadY = extruded ? entry.y - this.padding : entry.y;
       const finalUpload = extruded ?? uploadSource;
@@ -191966,8 +192073,11 @@ var TextureAtlas = class _TextureAtlas {
       return "too-big";
     }
     const target = this._targetDimensions(w2, h2);
-    const padW = target.w + this.padding;
-    const padH = target.h + this.padding;
+    const padW = target.w + 2 * this.padding;
+    const padH = target.h + 2 * this.padding;
+    if (padW > this.size || padH > this.size) {
+      return "too-big";
+    }
     for (const shelf of this._shelves) {
       if (shelf.height >= padH && shelf.usedWidth + padW <= this.size) {
         return "fits";
@@ -192010,7 +192120,11 @@ var TextureAtlas = class _TextureAtlas {
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     for (const [entryKey, entry] of this._entries) {
-      const extruded = this._extrudeWithGutter(entry.source, entry.width, entry.height);
+      const extruded = this._extrudeWithGutter(entry.source, entry.width, entry.height, {
+        sanitizeAlphaMaskRGB: entry.sanitizeAlphaMaskRGB,
+        wrapS: entry.wrapS,
+        wrapT: entry.wrapT
+      });
       const uploadX = extruded ? entry.x - this.padding : entry.x;
       const uploadY = extruded ? entry.y - this.padding : entry.y;
       const finalUpload = extruded ?? entry.source;
@@ -192193,7 +192307,7 @@ var TextureAtlas = class _TextureAtlas {
       gl.bindTexture(gl.TEXTURE_2D, null);
       return;
     }
-    const mipLevels = Math.floor(Math.log2(this.size)) + 1;
+    const mipLevels = this._mipLevels;
     const prevFbo = gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING);
     const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
     const prevVao = gl.getParameter(gl.VERTEX_ARRAY_BINDING);
@@ -192234,7 +192348,7 @@ var TextureAtlas = class _TextureAtlas {
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, mipLevels - 1);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, this._maxSampleMipLevel);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
     gl.bindTexture(gl.TEXTURE_2D, prevTextureUnit0);
@@ -195248,6 +195362,13 @@ function createBatchGeometryStorage(params) {
 
 // ../sdk/src/viewing/renderers/webGL/internal/gpuMemoryManager/materials/BatchMaterialResources.ts
 var ZERO_ATLAS_TRANSFORM = { uOffset: 0, vOffset: 0, uScale: 0, vScale: 0 };
+function getAtlasUploadOptions(sceneTexture, options = {}) {
+  return sceneTexture ? {
+    ...options,
+    wrapS: sceneTexture.wrapS,
+    wrapT: sceneTexture.wrapT
+  } : options;
+}
 function atlasOverflow(atlas, sceneTexture, options = {}) {
   if (!atlas || !sceneTexture)
     return false;
@@ -195256,7 +195377,7 @@ function atlasOverflow(atlas, sceneTexture, options = {}) {
   const h2 = (source && source.height) ?? sceneTexture.height ?? 0;
   if (w2 <= 0 || h2 <= 0)
     return false;
-  return atlas.canFitTexture(sceneTexture.id, w2, h2, options) === "would-fit-in-fresh-atlas";
+  return atlas.canFitTexture(sceneTexture.id, w2, h2, getAtlasUploadOptions(sceneTexture, options)) === "would-fit-in-fresh-atlas";
 }
 function resolveAtlasTransform(atlas, sceneTexture, label, options = {}) {
   if (!atlas) {
@@ -195265,7 +195386,7 @@ function resolveAtlasTransform(atlas, sceneTexture, label, options = {}) {
   if (sceneTexture) {
     const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
     if (source) {
-      const t = atlas.addTexture(sceneTexture.id, source, options);
+      const t = atlas.addTexture(sceneTexture.id, source, getAtlasUploadOptions(sceneTexture, options));
       if (t)
         return t;
       console.warn(`GPUMemoryBatch.addMesh: ${label} atlas full or upload failed for SceneTexture '${sceneTexture.id}' - falling back to sentinel`);
@@ -202955,8 +203076,11 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // outside [0, 1]) into a single tile before the atlas transform \u2014
     // without it, the linear sub-rect map would push UVs off the atlas
     // and CLAMP_TO_EDGE would pin every fragment to a single edge column.
-    // Visible cost is a 1-pixel seam at integer UV boundaries; for the
-    // tiled materials this fixes, that's almost imperceptible.
+    // Use derivatives from the original unwrapped UVs for mip selection:
+    // derivatives of fract(vUV) spike at integer tile boundaries and make
+    // mipmapped atlas samples collapse toward coarse, seam-prone levels.
+    vec2 dxUV = dFdx(vUV);
+    vec2 dyUV = dFdy(vUV);
     vec2 wrappedUV = fract(vUV);
     // Atlas sub-rect: wrappedUV maps from [0, 1) into the mesh's sub-rect
     // of the per-batch atlas via the flat-varying transform written in
@@ -202964,7 +203088,7 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // white-sentinel, so this collapses to a constant white and \`albedo\`
     // is just \`vColor.rgb\`.
     vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
-    vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
+    vec4 albedoSample = textureGrad(uAlbedoAtlas, albedoAtlasUV, dxUV * vAlbedoUVScale, dyUV * vAlbedoUVScale);
     vec3 albedo = albedoSample.rgb * vColor.rgb;
     float albedoAlpha = albedoSample.a * vColor.a;
 
@@ -202993,12 +203117,12 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // unchanged. With a real texture and a material set to 1.0/1.0, the
     // texture drives the values directly.
     vec2 mrAtlasUV = wrappedUV * vMRUVScale + vMRUVOffset;
-    vec4 mrSample = texture(uMetallicRoughnessAtlas, mrAtlasUV);
+    vec4 mrSample = textureGrad(uMetallicRoughnessAtlas, mrAtlasUV, dxUV * vMRUVScale, dyUV * vMRUVScale);
     float mrRoughnessFactor = mrSample.g;
     float mrMetallicFactor  = mrSample.b;
     // Emissive (sRGB atlas) \xD7 per-mesh factor; ambient occlusion (R channel).
-    g_emissive = texture(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset).rgb * vEmissiveColor;
-    g_ao = texture(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset).r;` : this.triplanar ? `// Triplanar (world-space) sampling. Built per-fragment from
+    g_emissive = textureGrad(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset, dxUV * vEmissiveUVScale, dyUV * vEmissiveUVScale).rgb * vEmissiveColor;
+    g_ao = textureGrad(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset, dxUV * vOcclusionUVScale, dyUV * vOcclusionUVScale).r;` : this.triplanar ? `// Triplanar (world-space) sampling. Built per-fragment from
     // vWorldPos and the world-space normal \u2014 independent of any vertex
     // UV attribute, so it works on BIM, sweeps and any other geometry
     // the loader produced without UVs.
@@ -203126,12 +203250,12 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // Reuses wrappedUV from the albedo block above \u2014 the same fract() applied
     // there is what makes tiled normal maps line up with their albedo siblings.
     vec2 normalAtlasUV = wrappedUV * vNormalUVScale + vNormalUVOffset;
-    vec3 nm_tangent = texture(uNormalMapAtlas, normalAtlasUV).xyz * 2.0 - 1.0;
+    vec3 nm_tangent = textureGrad(uNormalMapAtlas, normalAtlasUV, dxUV * vNormalUVScale, dyUV * vNormalUVScale).xyz * 2.0 - 1.0;
 
     vec3 dp1 = dFdx(vViewPos);
     vec3 dp2 = dFdy(vViewPos);
-    vec2 duv1 = dFdx(vUV);
-    vec2 duv2 = dFdy(vUV);
+    vec2 duv1 = dxUV;
+    vec2 duv2 = dyUV;
     // Robust frame: project dp1/dp2 onto the plane perpendicular to
     // N_smooth, then build T/B from those + the UV gradient.
     vec3 dp2perp = cross(dp2, N_smooth);
@@ -203308,9 +203432,11 @@ float F_SchlickScalar(float F0, float cosTheta) {
     }
     this._fragSrcBuf.push(`
     // Flat-shaded path. ${this.hasUVs ? "UV-bearing variant: sample the albedo atlas just like the\n    // smooth-shaded path so geometries that ship without per-vertex\n    // normals (typical IFC) still pick up textured materials. The\n    // alias keeps shared shadow logic able to reference `albedo`." : this.triplanar ? "Triplanar variant: derive the world-space face normal from\n    // dFdx/dFdy(vWorldPos) so the blend weights are valid even on\n    // UV-less geometry without per-vertex normals (BIM, sweeps).\n    // Three texture samples, blended." : "No UVs, no texture \u2014 vColor IS the albedo. The alias\n    // keeps shared shadow logic able to reference `albedo`."}
-    ${this.hasUVs ? `vec2 wrappedUV = fract(vUV);
+    ${this.hasUVs ? `vec2 dxUV = dFdx(vUV);
+    vec2 dyUV = dFdy(vUV);
+    vec2 wrappedUV = fract(vUV);
     vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
-    vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
+    vec4 albedoSample = textureGrad(uAlbedoAtlas, albedoAtlasUV, dxUV * vAlbedoUVScale, dyUV * vAlbedoUVScale);
     vec3 albedo = albedoSample.rgb * vColor.rgb;
     float albedoAlpha = albedoSample.a * vColor.a;
 
@@ -203324,8 +203450,8 @@ float F_SchlickScalar(float F0, float cosTheta) {
       float aaAlpha = (albedoAlpha - vAlphaCutoff) / max(fwidth(albedoAlpha), 1e-4) + 0.5;
       if (aaAlpha < 0.5) discard;
     }
-    g_emissive = texture(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset).rgb * vEmissiveColor;
-    g_ao = texture(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset).r;` : this.triplanar ? `// World-space face normal from screen-space derivatives.
+    g_emissive = textureGrad(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset, dxUV * vEmissiveUVScale, dyUV * vEmissiveUVScale).rgb * vEmissiveColor;
+    g_ao = textureGrad(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset, dxUV * vOcclusionUVScale, dyUV * vOcclusionUVScale).r;` : this.triplanar ? `// World-space face normal from screen-space derivatives.
     vec3 triNorm = normalize(cross(dFdx(vWorldPos), dFdy(vWorldPos)));
     vec3 triAbs = abs(triNorm);
     vec3 triW = pow(triAbs, vec3(4.0));

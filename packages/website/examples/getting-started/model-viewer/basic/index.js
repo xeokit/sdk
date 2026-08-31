@@ -7,7 +7,9 @@ const formats = (params.get("format") || "xgf")
   .map(format => format.trim())
   .filter(Boolean);
 
-const studio = new xeokit.studio.Studio({});
+const studio = new xeokit.studio.Studio({
+  modelsDir: "../../../../models"
+});
 
 studio.init({logging: false}).then(async () => {
   studio.viewManager.createView({

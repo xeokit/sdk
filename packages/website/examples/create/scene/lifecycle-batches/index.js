@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 const {TrianglesPrimitive} = xeokit.base.constants;
 const {Scene} = xeokit.model.scene;
@@ -50,6 +51,7 @@ const view = unwrap(viewer.createView({
   }
 }));
 const renderer = new WebGLRenderer({viewer});
+signalExampleLoadedOnNextRender(renderer, view);
 new ModelNavigationController(view, {
   followPointer: false,
   doublePickFlyTo: false,

@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoaded, signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 const status = document.getElementById("status");
 const canvas = document.getElementById("demoCanvas");
@@ -94,6 +95,7 @@ async function main() {
     created: createdCount,
     destroyed: destroyedCount
   });
+  signalExampleLoadedOnNextRender(renderer, view);
 
   window.webgpuSceneModelStressTestDemo = {
     scene,
@@ -210,6 +212,7 @@ function mustOk(result) {
 function reportError(message) {
   status.dataset.state = "error";
   status.innerHTML = `<strong>WebGPU Renderer</strong><span>${escapeHTML(message)}</span>`;
+  signalExampleLoaded();
   console.error("[benchmarks/scene/stress-test_webGPU]", message);
 }
 

@@ -5,6 +5,7 @@
 // and persistent packed triangle storage as the stream incrementally adds
 // chunks to a large BIM-oriented model.
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoaded} from "../../../utils/snapshotReady.js";
 import {
   collectWebGPUAdapterDiagnostics,
   installVisibleBrowserBenchmark,
@@ -283,6 +284,7 @@ async function main() {
       updateStreamingBackpressure();
       sealModelWhenComplete();
       refreshStatus("Rendering resident WebGPU batches");
+      signalExampleLoaded();
     });
     const backpressureRefresh = BACKPRESSURE_ENABLED
       ? window.setInterval(updateStreamingBackpressure, BACKPRESSURE_CHECK_INTERVAL_MS)
@@ -685,6 +687,7 @@ function updateStatusHTML(html) {
 function reportError(message) {
   status.dataset.state = "error";
   status.innerHTML = `<strong>WebGPU Renderer</strong><span>${escapeHTML(message)}</span>`;
+  signalExampleLoaded();
   console.error("[benchmarks/streaming/xgf-baku-webgpu]", message);
 }
 

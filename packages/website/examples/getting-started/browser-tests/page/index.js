@@ -1,3 +1,5 @@
+import {signalExampleLoaded} from "../../../utils/snapshotReady.js";
+
 const endpointBase = "/__sdk_browser_tests";
 
 const els = {
@@ -33,6 +35,7 @@ checkServer().then((available) => {
     if (available && new URLSearchParams(location.search).get("auto") === "1") {
         runTests();
     }
+    signalExampleLoaded();
 });
 
 async function runTests() {

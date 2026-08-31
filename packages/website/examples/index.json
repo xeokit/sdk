@@ -470,7 +470,7 @@
   "getting-started/model-file-drop/barebones": {
     "id": "getting-started/model-file-drop/barebones",
     "title": "Bare-Bones Model File Drop",
-    "description": "Non-Studio viewer that loads a model file dropped onto the canvas, choosing the loader from the file extension.",
+    "description": "Non-Studio viewer that loads a model file dropped onto the canvas, choosing the loader from the file extension and the renderer from ?renderer=webgl or ?renderer=webgpu, with BVH-backed navigation picking.",
     "isTutorial": true,
     "isVisualTest": false,
     "categories": [
@@ -565,6 +565,18 @@
       "Buildings"
     ]
   },
+  "import/gltf/city-infrastructure-base-map": {
+    "id": "import/gltf/city-infrastructure-base-map",
+    "title": "glTF City Infrastructure Base Map",
+    "description": "Loads the City Infrastructure Base Map GLB with a non-Studio viewer, URL-selectable WebGL/WebGPU renderer, vehicle and model navigation, and BVH-backed picking.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "City Models",
+      "Infrastructure"
+    ]
+  },
   "import/gltf/damaged-helmet": {
     "id": "import/gltf/damaged-helmet",
     "title": "glTF Damaged Helmet",
@@ -573,6 +585,17 @@
     "isVisualTest": false,
     "categories": [
       "glTF"
+    ]
+  },
+  "import/gltf/glassware": {
+    "id": "import/gltf/glassware",
+    "title": "glTF Glassware",
+    "description": "Loads a specular glassware glTF model with realistic rendering, ACES tonemapping and studio HDR IBL.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "glTF",
+      "Materials"
     ]
   },
   "import/gltf/house-plan-pbr": {
@@ -834,6 +857,18 @@
       "USDZ",
       "Buildings",
       "Featured"
+    ]
+  },
+  "import/xgf/city-infrastructure-base-map": {
+    "id": "import/xgf/city-infrastructure-base-map",
+    "title": "XGF City Infrastructure Base Map",
+    "description": "Loads the City Infrastructure Base Map XGF with a non-Studio viewer, URL-selectable WebGL/WebGPU renderer, vehicle and model navigation, and BVH-backed picking.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "categories": [
+      "XGF",
+      "City Models",
+      "Infrastructure"
     ]
   },
   "import/xgf/house-plan-pbr": {
@@ -1539,18 +1574,6 @@
       ]
     }
   },
-  "view/style-bins/xray-highlight": {
-    "id": "view/style-bins/xray-highlight",
-    "title": "Style Bins - Highlight Within X-Ray",
-    "description": "Programmatically applies user-defined xrayed and highlighted style bins to the SportsCar XGF model without Studio.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "categories": [
-      "Viewing",
-      "Style Bins",
-      "WebGL"
-    ]
-  },
   "view/renderers/webgl-webgpu-transparency-quality": {
     "id": "view/renderers/webgl-webgpu-transparency-quality",
     "title": "WebGL + WebGPU - Transparency Quality",
@@ -1601,6 +1624,18 @@
     "isVisualTest": false,
     "categories": [
       "Slicing"
+    ]
+  },
+  "view/style-bins/xray-highlight": {
+    "id": "view/style-bins/xray-highlight",
+    "title": "Style Bins - Highlight Within X-Ray",
+    "description": "Programmatically applies user-defined xrayed and highlighted style bins to the SportsCar XGF model without Studio.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "categories": [
+      "Viewing",
+      "Style Bins",
+      "WebGL"
     ]
   },
   "view/texture-matrix/render-paths": {

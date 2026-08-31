@@ -1,0 +1,12 @@
+{
+  "id": "import/xgf/city-infrastructure-base-map",
+  "title": "XGF City Infrastructure Base Map",
+  "description": "Loads the City Infrastructure Base Map XGF with a non-Studio viewer, URL-selectable WebGL/WebGPU renderer, vehicle and model navigation, and BVH-backed picking.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "City Models",
+    "Infrastructure"
+  ]
+}

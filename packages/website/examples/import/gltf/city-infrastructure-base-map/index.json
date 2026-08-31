@@ -1,0 +1,12 @@
+{
+  "id": "import/gltf/city-infrastructure-base-map",
+  "title": "glTF City Infrastructure Base Map",
+  "description": "Loads the City Infrastructure Base Map GLB with a non-Studio viewer, URL-selectable WebGL/WebGPU renderer, vehicle and model navigation, and BVH-backed picking.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "glTF",
+    "City Models",
+    "Infrastructure"
+  ]
+}

@@ -338,7 +338,7 @@ view state.
 const southWindow = view.objects["south-window-1-2"];
 
 if (southWindow) {
-  southWindow.highlighted = true;
+  southWindow.setStyleBin("highlighted", true);
 }
 
 const columns = ["column-0", "column-1", "column-2", "column-3"];
@@ -346,7 +346,7 @@ const columns = ["column-0", "column-1", "column-2", "column-3"];
 for (const objectId of columns) {
   const viewObject = view.objects[objectId];
   if (viewObject) {
-    viewObject.xrayed = true;
+    viewObject.setStyleBin("xrayed", true);
   }
 }
 ```

@@ -322,7 +322,7 @@ Select all objects of a known IFC type:
 
 ```js
 const wallIds = Object.keys(data.objectsByType.IfcWall ?? {});
-view.setObjectsSelected(wallIds, true);
+view.setObjectsInStyleBin("selected", wallIds, true);
 ```
 
 ---

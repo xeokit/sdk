@@ -117,13 +117,13 @@ view.htmlElement.addEventListener("pointermove", (event) => {
   }
 
   if (highlightedObjectId && view.objects[highlightedObjectId]) {
-    view.objects[highlightedObjectId].highlighted = false;
+    view.objects[highlightedObjectId].setStyleBin("highlighted", false);
   }
 
   highlightedObjectId = objectId;
 
   if (objectId && view.objects[objectId]) {
-    view.objects[objectId].highlighted = true;
+    view.objects[objectId].setStyleBin("highlighted", true);
   }
 });
 ```

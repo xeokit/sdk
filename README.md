@@ -335,7 +335,17 @@ new WebGLRenderer({ viewer });
 
 const view = viewer.createView({
     id: "myView",
-    elementId: "myCanvas" // Ensure this element exists
+    elementId: "myCanvas", // Ensure this element exists
+    styleBins: [
+        {
+            id: "selected",
+            priority: 300,
+            composition: "overlay",
+            fillColor: [0.1, 0.7, 1.0],
+            fillAlpha: 0.4,
+            edges: true
+        }
+    ]
 }).value;
 
 // Position the camera
@@ -394,11 +404,10 @@ fetch("model.ifc")
         return;
       }
 
-      // If the query succeeded, go ahead and mark whatever
-      // objects we found as selected. Now all the IfcWall objects
-      // in the Viewer will appear selected and glowing.
+      // If the query succeeded, add the matching objects to the
+      // application-defined "selected" style bin.
 
-      view.setObjectsSelected(resultObjectIds, true);
+      view.setObjectsInStyleBin("selected", resultObjectIds, true);
     })
     .catch((err) => {
         // Clean up on failure

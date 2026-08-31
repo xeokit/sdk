@@ -258,7 +258,7 @@ per-view presentation state.
 const roofViewObject = view.objects["building-roof"];
 
 if (roofViewObject) {
-  roofViewObject.highlighted = true;
+  roofViewObject.setStyleBin("highlighted", true);
 }
 ```
 

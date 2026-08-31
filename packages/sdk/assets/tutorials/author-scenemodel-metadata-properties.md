@@ -307,8 +307,7 @@ createRelationship("Contains", "storey-01", "window-01");
 
 Use relationships for domain structure, not for renderer state. Containment,
 aggregation, system membership and classification links belong in the
-`DataModel`. Visibility, x-ray, highlighting and selection belong in the
-viewer.
+`DataModel`. Visibility and style-bin membership belong in the viewer.
 
 ---
 
@@ -332,7 +331,7 @@ if (!searchResult.ok) {
   throw new Error(searchResult.error);
 }
 
-view.setObjectsHighlighted(containedWalls, true);
+view.setObjectsInStyleBin("highlighted", containedWalls, true);
 ```
 
 This pattern keeps application logic clear: semantic queries return object IDs,

@@ -395,13 +395,13 @@ if (!searchResult.ok) {
   throw new Error(searchResult.error);
 }
 
-view.setObjectsSelected(wallIds, true);
+view.setObjectsInStyleBin("selected", wallIds, true);
 ```
 
 `searchObjects()` traverses relationships in the `Data` graph. The resulting IDs
 are also `ViewObject` IDs, so they can be passed to view-state methods such as
-`setObjectsSelected()`, `setObjectsHighlighted()`, `setObjectsXRayed()`,
-`setObjectsVisible()` and `setObjectsColorized()`.
+`setObjectsInStyleBin()`, `setObjectsVisible()` and
+`setObjectsColorized()`.
 
 You can also go the other way after picking:
 

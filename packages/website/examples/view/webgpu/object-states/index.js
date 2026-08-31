@@ -1,4 +1,5 @@
 import * as xeokit from "../../../../js/xeokit-studio-bundle.js";
+import {signalExampleLoaded, signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
 
 const status = document.getElementById("status");
 const panel = document.getElementById("panel");
@@ -145,6 +146,7 @@ async function main() {
 
   update();
   view.needsRender();
+  signalExampleLoadedOnNextRender(renderer, view);
 
   window.addEventListener("resize", () => {
     view.needsRender();
@@ -285,6 +287,7 @@ function mustOk(result) {
 function reportError(message) {
   panel.dataset.state = "error";
   status.innerHTML = `<span>${escapeHTML(message)}</span>`;
+  signalExampleLoaded();
   console.error("[view/webgpu/object-states]", message);
 }
 

@@ -12,6 +12,10 @@ const progressBar = document.getElementById("progressBar");
 const fpsValue = document.getElementById("fpsValue");
 const frameMsValue = document.getElementById("frameMsValue");
 const rafValue = document.getElementById("rafValue");
+const rendererBadge = document.getElementById("rendererBadge");
+
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const REQUESTED_RENDERER = normalizeRenderer(URL_PARAMS.get("renderer") || URL_PARAMS.get("backend") || "webgl");
 
 const COORDINATE_SYSTEM = {
   basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -24,6 +28,7 @@ let viewer;
 let view;
 let renderer;
 let inputController;
+let picker;
 let activeSceneModel = null;
 let activeDataModel = null;
 let activeModelSerial = 0;
@@ -36,8 +41,14 @@ async function main() {
   const {Scene} = xeokit.model.scene;
   const {Data} = xeokit.model.data;
   const {Viewer} = xeokit.viewing.viewer;
-  const {WebGLRenderer} = xeokit.viewing.renderers.webGL;
+  const WebGLRenderer = xeokit.viewing.renderers.webGL?.WebGLRenderer;
+  const WebGPURenderer = xeokit.viewing.renderers.webGPU?.WebGPURenderer;
   const {ModelNavigationController} = xeokit.viewing.navigation.model;
+  const {BVHPickStrategy} = xeokit.spatial.picking;
+
+  rendererBadge.textContent = REQUESTED_RENDERER.label;
+  rendererBadge.dataset.renderer = REQUESTED_RENDERER.id;
+  updateStatus(`Initializing ${REQUESTED_RENDERER.label} renderer...`);
 
   const data = new Data();
   scene = new Scene({logging: false});
@@ -74,12 +85,21 @@ async function main() {
       enabled: false
     }
   }));
-  renderer = new WebGLRenderer({viewer});
+  renderer = await createRenderer({
+    viewer,
+    WebGLRenderer,
+    WebGPURenderer,
+    requestedRenderer: REQUESTED_RENDERER
+  });
   const fpsMeter = startFpsMeter(view, renderer);
+  picker = new BVHPickStrategy(scene);
   inputController = new ModelNavigationController(view, {
-    pick: noPick,
-    followPointer: false,
-    doublePickFlyTo: false,
+    pick: createModelNavigationPickAdapter(picker),
+    followPointer: true,
+    rotationInertia: 0,
+    panInertia: 0,
+    dollyInertia: 0,
+    doublePickFlyTo: true,
     keyboardDollyRate: 12,
     keyboardPanRate: 5,
     mouseWheelDollyRate: 90,
@@ -89,14 +109,63 @@ async function main() {
   wireDropTarget(data);
   window.addEventListener("resize", () => view.needsRender?.());
 
+  updateStatus(`${REQUESTED_RENDERER.label} renderer ready. Drop a model file or XGF stream folder onto the canvas.`);
+
   window.bareBonesModelFileDrop = {
     scene,
     data,
     viewer,
     view,
     renderer,
+    picker,
     inputController,
     fpsMeter
+  };
+}
+
+async function createRenderer({viewer, WebGLRenderer, WebGPURenderer, requestedRenderer}) {
+  if (requestedRenderer.id === "webgpu") {
+    if (!WebGPURenderer?.create) {
+      throw new Error("WebGPU renderer is not available in this bundle.");
+    }
+    const result = await WebGPURenderer.create({
+      viewer,
+      logging: false
+    });
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
+    return result.value;
+  }
+  return new WebGLRenderer({
+    viewer,
+    logging: false
+  });
+}
+
+function createModelNavigationPickAdapter(picker) {
+  return (_view, pickParams) => adaptPickResult(_view, picker.pick({
+    view: _view,
+    ...pickParams
+  }));
+}
+
+function adaptPickResult(view, pickResult) {
+  if (!pickResult || !pickResult.hit) {
+    return {
+      ok: true,
+      value: null
+    };
+  }
+  return {
+    ok: true,
+    value: {
+      ...pickResult,
+      viewObject: pickResult.objectId ? view.objects[pickResult.objectId] || null : null,
+      snappedToVertex: pickResult.snap?.type === "vertex",
+      snappedToEdge: pickResult.snap?.type === "edge",
+      snappedCanvasPos: pickResult.snap?.canvasPos || null
+    }
   };
 }
 
@@ -602,18 +671,25 @@ function nextFrame() {
   return new Promise((resolve) => requestAnimationFrame(resolve));
 }
 
-function noPick() {
-  return {
-    ok: true,
-    value: null
-  };
-}
-
 function mustOk(result) {
   if (!result.ok) {
     throw new Error(result.error);
   }
   return result.value;
+}
+
+function normalizeRenderer(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (normalized === "webgpu" || normalized === "gpu") {
+    return {
+      id: "webgpu",
+      label: "WebGPU"
+    };
+  }
+  return {
+    id: "webgl",
+    label: "WebGL"
+  };
 }
 
 function updateStatus(message) {

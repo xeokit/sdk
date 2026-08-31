@@ -65,6 +65,20 @@
             font-size: 13px;
         }
 
+        #prompt .rendererLinks {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        #prompt .rendererLinks a {
+            color: #1d4ed8;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(29, 78, 216, 0.45);
+        }
+
         #status {
             position: fixed;
             left: 14px;
@@ -157,6 +171,28 @@
             white-space: nowrap;
         }
 
+        #rendererBadge {
+            position: fixed;
+            right: 14px;
+            bottom: 14px;
+            z-index: 2147483647;
+            min-width: 72px;
+            padding: 7px 10px;
+            border: 1px solid rgba(15, 23, 42, 0.18);
+            background: rgba(15, 23, 42, 0.88);
+            color: #f8fafc;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        #rendererBadge[data-renderer="webgpu"] {
+            background: rgba(30, 64, 175, 0.9);
+        }
+
         @keyframes progress-slide {
             0% {
                 left: -36%;
@@ -173,6 +209,10 @@
     <div id="prompt">
         <strong>Drop a model file or XGF stream folder onto the canvas</strong>
         <span>Supported single-file formats: XGF, XKT, GLB, glTF, IFC, dotBIM, LAS/LAZ, PLY, FBX, USDZ, CityJSON, DXF, DWG, 3DXML, SPLAT. For XGF streams, drop the folder containing a .runtime.json index.</span>
+        <span class="rendererLinks">
+            <a href="?renderer=webgl">WebGL</a>
+            <a href="?renderer=webgpu">WebGPU</a>
+        </span>
     </div>
 </div>
 <div id="status">Initializing viewer...</div>
@@ -185,6 +225,7 @@
     <span id="frameMsValue">-- ms/frame, -- draws</span>
     <span id="rafValue">-- RAF</span>
 </div>
+<div id="rendererBadge">WebGL</div>
 </body>
 <script type="module" src="./index.js"></script>
 </html>

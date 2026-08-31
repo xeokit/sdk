@@ -19,10 +19,74 @@ For WebGPU, use a WebGPU-capable browser and adapter. When comparing renderers,
 use the same machine, browser build, display scale, window size, camera path and
 effect settings.
 
+Select the renderer backend with `?renderer=webgl` or `?renderer=webgpu`.
+Studio-backed examples default to WebGPU when the browser supports it, so use
+`?renderer=webgl` when you need an explicit WebGL run.
+
+## Start With Large Models
+
+Most xeokit evaluations start with one question: how does the SDK behave with
+large models, many objects and real application data? Use these examples first
+to measure load latency, object count, chunk scheduling, memory pressure,
+camera stalls and settled frame rate.
+
+| Example | Renderer Coverage | Use It For |
+| --- | --- | --- |
+| [![Model file drop](sdk-performance-evaluation-guide/model-file-drop.png)](https://xeokit.github.io/sdk/examples/getting-started/model-file-drop/barebones/?renderer=webgl)<br>[Drop Your Own Model - WebGL](https://xeokit.github.io/sdk/examples/getting-started/model-file-drop/barebones/?renderer=webgl)<br>[Drop Your Own Model - WebGPU](https://xeokit.github.io/sdk/examples/getting-started/model-file-drop/barebones/?renderer=webgpu) | WebGL or WebGPU, selected by URL | First-pass evaluation with the evaluator's own XGF, XKT, glTF, IFC, dotBIM, LAS/LAZ, PLY, FBX, USDZ, CityJSON, DXF, DWG, 3DXML, SPLAT or XGF stream data. |
+| [![Baku 2K dynamic](sdk-performance-evaluation-guide/baku-2000-dynamic.png)](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-2000-dynamic/?renderer=webgl)<br>[Baku Stadium, 2K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-2000-dynamic/?renderer=webgl) | WebGL dynamic/DTX | Fast-load streaming baseline, cache limits, first-frustum latency and camera-stall tuning. |
+| [![Baku 4K dynamic](sdk-performance-evaluation-guide/baku-4000-dynamic.png)](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-dynamic/?renderer=webgl)<br>[Baku Stadium, 4K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-dynamic/?renderer=webgl) | WebGL dynamic/DTX | High chunk-count request fan-out, scheduling overhead and memory pressure. |
+| [![Baku 4K static](sdk-performance-evaluation-guide/baku-4000-static.png)](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-static/?renderer=webgl)<br>[Baku Stadium, 4K Chunks, Static](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-static/?renderer=webgl) | WebGL static VBO | Static VBO behavior with many small chunks after load has settled. |
+| [WebGPU - Streaming Baku Stadium as XGF](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-webgpu/?renderer=webgpu) | WebGPU | WebGPU dynamic SceneModel streaming with `XGFViewStreamController`. |
+| [![Procedural cityscape](sdk-performance-evaluation-guide/procedural-cityscape.png)](https://xeokit.github.io/sdk/examples/benchmarks/scene/procedural-cityscape/?renderer=webgl)<br>[Procedural Cityscape](https://xeokit.github.io/sdk/examples/benchmarks/scene/procedural-cityscape/?renderer=webgl) | WebGL | Repeated geometry, high object count and city-scale navigation. |
+| [![Baku 200 static](sdk-performance-evaluation-guide/baku-200-static.png)](https://xeokit.github.io/sdk/examples/streaming/xgf/baku-200-static/?renderer=webgl)<br>[Baku Stadium, 200 Chunks, Static](https://xeokit.github.io/sdk/examples/streaming/xgf/baku-200-static/?renderer=webgl) | WebGL static VBO | Coarse partitioning baseline and static VBO upload cost. |
+| [![Recursive XGF](sdk-performance-evaluation-guide/recursive-streaming.png)](https://xeokit.github.io/sdk/examples/streaming/xgf/recursive/?renderer=webgl)<br>[Recursive Streaming - Nested Model Set](https://xeokit.github.io/sdk/examples/streaming/xgf/recursive/?renderer=webgl) | WebGL | Multi-model stream scheduling with independent child stream bounds. |
+| [![Hospital stream](sdk-performance-evaluation-guide/hospital-static.png)](https://xeokit.github.io/sdk/examples/streaming/xgf/west-river-side-hospital-static/?renderer=webgl)<br>[West Riverside Hospital Static](https://xeokit.github.io/sdk/examples/streaming/xgf/west-river-side-hospital-static/?renderer=webgl) | WebGL static VBO | Building-scale stream scheduling, review viewpoints and static model navigation. |
+
+## Object Mutation And State
+
+Use these when the workload creates, destroys or changes many objects after the
+viewer is already running.
+
+| Example | Renderer Coverage | Use It For |
+| --- | --- | --- |
+| [![Create and destroy](sdk-performance-evaluation-guide/create-destroy.png)](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test/?renderer=webgl)<br>[Create & Destroy Meshes](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test/?renderer=webgl) | WebGL | SceneModel, Viewer and renderer churn under continuous mesh creation/deletion. |
+| [WebGPU - Creating a 3D Model Benchmark](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test-webgpu/?renderer=webgpu) | WebGPU | WebGPU dynamic geometry, mesh and object creation/deletion. |
+| [WebGPU Object States](https://xeokit.github.io/sdk/examples/view/webgpu/object-states/?renderer=webgpu) | WebGPU | Per-object style-bin, colorize, opacity and visibility updates. |
+
+## Renderer Comparison
+
+These pages compare WebGL and WebGPU visually because they run both renderers
+side by side against the same scene or diagnostic setup. They are not selected
+with `?renderer=...`; the page itself displays both backends.
+
+| Example | Renderer Coverage | Use It For |
+| --- | --- | --- |
+| [![Shared scene](sdk-performance-evaluation-guide/shared-scene.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shared-scene/)<br>[WebGL + WebGPU - Shared Scene](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shared-scene/) | Both, side by side | Baseline WebGL/WebGPU parity on the same `Scene` and `Data` graph. |
+| [![Material parity](sdk-performance-evaluation-guide/material-parity.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-material-parity/)<br>[Material Feature Parity](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-material-parity/) | Both, side by side | Material and lighting cost: IBL, metal, rough dielectric, clearcoat, alpha, emissive and sheen paths. |
+| [![SAO quality](sdk-performance-evaluation-guide/sao-quality.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-sao-quality/)<br>[SAO Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-sao-quality/) | Both, side by side | SAO cost and quality, including depth, normals, raw occlusion, blur and final factor views. |
+| [![Shadow quality](sdk-performance-evaluation-guide/shadow-quality.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shadow-quality/)<br>[Shadow Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shadow-quality/) | Both, side by side | Shadow quality and cost for opaque, thin, alpha-masked and transparent casters. |
+| [![Transparency quality](sdk-performance-evaluation-guide/transparency-quality.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-transparency-quality/)<br>[Transparency Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-transparency-quality/) | Both, side by side | Sorting, overdraw and visual quality for alpha-mask foliage, glass and overlapping transparent layers. |
+| [![Style bins](sdk-performance-evaluation-guide/style-bins.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-style-bins/)<br>[Style Bins](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-style-bins/) | Both, side by side | Runtime object state changes with user-defined style bins on WebGL and WebGPU. |
+
+## Renderer-Specific Checks
+
+Use these after the large-model and side-by-side pages when the evaluator needs
+to isolate a renderer-specific path.
+
+| Example | Renderer Coverage | Use It For |
+| --- | --- | --- |
+| [![Adaptive quality](sdk-performance-evaluation-guide/adaptive-quality.png)](https://xeokit.github.io/sdk/examples/view/profiles/adaptive-quality/?renderer=webgl)<br>[AdaptiveQuality - ViewProfiles](https://xeokit.github.io/sdk/examples/view/profiles/adaptive-quality/?renderer=webgl) | WebGL | Profile switching cost while navigating versus at rest. |
+| [Render Path Matrix Controls](https://xeokit.github.io/sdk/examples/view/webgpu/render-path-matrix/?renderer=webgpu) | WebGPU | Switch geometry, material, effect and renderer-backend combinations interactively. |
+| [Render Path Tests](https://xeokit.github.io/sdk/examples/view/webgpu/render-path-matrix-gallery/?renderer=webgpu) | WebGPU | Compare captured WebGPU and WebGL render-path permutations. |
+| [WebGPU RTC Tiles](https://xeokit.github.io/sdk/examples/view/webgpu/rtc-tiles/?renderer=webgpu) | WebGPU | Large-coordinate RTC tile assignment and per-mesh updates without geometry rebuild. |
+| [WebGPU Table Shadows](https://xeokit.github.io/sdk/examples/view/webgpu/table-shadows/?renderer=webgpu) | WebGPU | Simple generated shadow scene for a quick WebGPU sanity check. |
+
 ## What To Measure
 
 - **Startup:** time to first canvas, time to first model content, time to stable
   frame rate after load.
+- **Scale:** object count, mesh count, triangle count, chunk count, draw calls
+  and whether the model is static VBO, dynamic/DTX or WebGPU dynamic.
 - **Navigation:** FPS and frame-time spikes while orbiting, panning, zooming and
   walking through dense areas.
 - **Streaming:** time to first visible chunks, request fan-out, memory growth,
@@ -33,68 +97,15 @@ effect settings.
 - **Memory:** JS heap, GPU memory where available, loaded chunk count, draw-count
   stability and whether resources are released after unloading or destroying.
 
-## Renderer Comparison Examples
-
-These pages are the fastest way to compare WebGL and WebGPU visually because
-they run both renderers side by side against the same scene or diagnostic setup.
-
-| Example | Use It For |
-| --- | --- |
-| [![Shared scene](sdk-performance-evaluation-guide/shared-scene.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shared-scene/)<br>[WebGL + WebGPU - Shared Scene](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shared-scene/) | Baseline WebGL/WebGPU parity on the same `Scene` and `Data` graph. |
-| [![Material parity](sdk-performance-evaluation-guide/material-parity.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-material-parity/)<br>[Material Feature Parity](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-material-parity/) | Material and lighting cost: IBL, metal, rough dielectric, clearcoat, alpha, emissive and sheen paths. |
-| [![SAO quality](sdk-performance-evaluation-guide/sao-quality.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-sao-quality/)<br>[SAO Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-sao-quality/) | SAO cost and quality, including depth, normals, raw occlusion, blur and final factor views. |
-| [![Shadow quality](sdk-performance-evaluation-guide/shadow-quality.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shadow-quality/)<br>[Shadow Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shadow-quality/) | Shadow quality and cost for opaque, thin, alpha-masked and transparent casters. |
-| [![Transparency quality](sdk-performance-evaluation-guide/transparency-quality.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-transparency-quality/)<br>[Transparency Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-transparency-quality/) | Sorting, overdraw and visual quality for alpha-mask foliage, glass and overlapping transparent layers. |
-| [![Style bins](sdk-performance-evaluation-guide/style-bins.png)](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-style-bins/)<br>[Style Bins](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-style-bins/) | Runtime object state changes with user-defined style bins on WebGL and WebGPU. |
-
-## Streaming And Large-Model Examples
-
-Use these to evaluate load latency, chunk scheduling, memory pressure and camera
-stall behavior. The Baku set is useful because it has multiple partitioning and
-storage variants.
-
-| Example | Renderer Coverage | Use It For |
-| --- | --- | --- |
-| [![Baku 200 static](sdk-performance-evaluation-guide/baku-200-static.png)](https://xeokit.github.io/sdk/examples/streaming/xgf/baku-200-static/)<br>[Baku Stadium, 200 Chunks, Static](https://xeokit.github.io/sdk/examples/streaming/xgf/baku-200-static/) | WebGL static VBO | Coarse partitioning baseline and static VBO upload cost. |
-| [![Baku 2K dynamic](sdk-performance-evaluation-guide/baku-2000-dynamic.png)](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-2000-dynamic/)<br>[Baku Stadium, 2K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-2000-dynamic/) | WebGL dynamic/DTX | Fast-load streaming baseline, cache limits, first-frustum latency and camera-stall tuning. |
-| [![Baku 4K dynamic](sdk-performance-evaluation-guide/baku-4000-dynamic.png)](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-dynamic/)<br>[Baku Stadium, 4K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-dynamic/) | WebGL dynamic/DTX | High chunk-count request fan-out and memory pressure. |
-| [![Baku 4K static](sdk-performance-evaluation-guide/baku-4000-static.png)](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-static/)<br>[Baku Stadium, 4K Chunks, Static](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-static/) | WebGL static VBO | Small-chunk scheduling and settled static-rendering behavior. |
-| [WebGPU - Streaming Baku Stadium as XGF](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-webgpu/) | WebGPU | WebGPU dynamic SceneModel streaming with `XGFViewStreamController`. |
-| [![Recursive XGF](sdk-performance-evaluation-guide/recursive-streaming.png)](https://xeokit.github.io/sdk/examples/streaming/xgf/recursive/)<br>[Recursive Streaming - Nested Model Set](https://xeokit.github.io/sdk/examples/streaming/xgf/recursive/) | WebGL | Multi-model stream scheduling with independent child stream bounds. |
-| [![Hospital stream](sdk-performance-evaluation-guide/hospital-static.png)](https://xeokit.github.io/sdk/examples/streaming/xgf/west-river-side-hospital-static/)<br>[West Riverside Hospital Static](https://xeokit.github.io/sdk/examples/streaming/xgf/west-river-side-hospital-static/) | WebGL static VBO | Building-scale stream scheduling, review viewpoints and static model navigation. |
-
-## Scene And Mutation Benchmarks
-
-These are useful for runtime mutation, object count and scene-model overhead.
-
-| Example | Renderer Coverage | Use It For |
-| --- | --- | --- |
-| [![Procedural cityscape](sdk-performance-evaluation-guide/procedural-cityscape.png)](https://xeokit.github.io/sdk/examples/benchmarks/scene/procedural-cityscape/)<br>[Procedural Cityscape](https://xeokit.github.io/sdk/examples/benchmarks/scene/procedural-cityscape/) | WebGL | Repeated geometry, high object count and city-scale navigation. |
-| [![Create and destroy](sdk-performance-evaluation-guide/create-destroy.png)](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test/)<br>[Create & Destroy Meshes](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test/) | WebGL | SceneModel, Viewer and renderer churn under continuous mesh creation/deletion. |
-| [WebGPU - Creating a 3D Model Benchmark](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test-webgpu/) | WebGPU | WebGPU dynamic geometry, mesh and object creation/deletion. |
-| [![Adaptive quality](sdk-performance-evaluation-guide/adaptive-quality.png)](https://xeokit.github.io/sdk/examples/view/profiles/adaptive-quality/)<br>[AdaptiveQuality - ViewProfiles](https://xeokit.github.io/sdk/examples/view/profiles/adaptive-quality/) | WebGL | Profile switching cost while navigating versus at rest. |
-
-## WebGPU-Specific Checks
-
-Use these after the side-by-side pages when the evaluator wants to isolate
-WebGPU behavior.
-
-| Example | Use It For |
-| --- | --- |
-| [Render Path Matrix Controls](https://xeokit.github.io/sdk/examples/view/webgpu/render-path-matrix/) | Switch geometry, material, effect and renderer-backend combinations interactively. |
-| [Render Path Tests](https://xeokit.github.io/sdk/examples/view/webgpu/render-path-matrix-gallery/) | Compare captured WebGPU and WebGL render-path permutations. |
-| [WebGPU Object States](https://xeokit.github.io/sdk/examples/view/webgpu/object-states/) | Per-object style-bin, colorize, opacity and visibility updates. |
-| [WebGPU RTC Tiles](https://xeokit.github.io/sdk/examples/view/webgpu/rtc-tiles/) | Large-coordinate RTC tile assignment and per-mesh updates without geometry rebuild. |
-| [WebGPU Table Shadows](https://xeokit.github.io/sdk/examples/view/webgpu/table-shadows/) | Simple generated shadow scene for a quick WebGPU sanity check. |
-
 ## Suggested Evaluation Order
 
-1. Start with [Shared Scene](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shared-scene/) to confirm both renderers initialize on the machine.
-2. Run [Material Feature Parity](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-material-parity/) with expensive features toggled off, then on.
-3. Run [SAO Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-sao-quality/) and [Shadow Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shadow-quality/) independently before combining effects in application scenes.
-4. Run [Baku 2K Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-2000-dynamic/) and [WebGPU Baku](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-webgpu/) for streaming behavior.
-5. Compare [Baku 4K Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-dynamic/) against [Baku 4K Static](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-static/) to understand DTX versus VBO tradeoffs.
-6. Use [Create & Destroy Meshes](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test/) and [WebGPU Creating a 3D Model Benchmark](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test-webgpu/) for mutation-heavy applications.
+1. Start with [Drop Your Own Model - WebGL](https://xeokit.github.io/sdk/examples/getting-started/model-file-drop/barebones/?renderer=webgl) and [Drop Your Own Model - WebGPU](https://xeokit.github.io/sdk/examples/getting-started/model-file-drop/barebones/?renderer=webgpu) using the evaluator's own largest representative file.
+2. Run [Baku 2K Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-2000-dynamic/?renderer=webgl), [Baku 4K Dynamic](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-dynamic/?renderer=webgl) and [Baku 4K Static](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-4000-static/?renderer=webgl) to compare WebGL dynamic/DTX and static VBO tradeoffs.
+3. Run [WebGPU Baku](https://xeokit.github.io/sdk/examples/benchmarks/streaming/xgf-baku-webgpu/?renderer=webgpu) to isolate WebGPU streaming behavior.
+4. Use [Procedural Cityscape](https://xeokit.github.io/sdk/examples/benchmarks/scene/procedural-cityscape/?renderer=webgl) for high object counts and repeated geometry.
+5. Use [Shared Scene](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shared-scene/) and [Material Feature Parity](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-material-parity/) to compare renderer parity after baseline scale tests.
+6. Run [SAO Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-sao-quality/), [Shadow Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-shadow-quality/), [Transparency Quality](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-transparency-quality/) and [Style Bins](https://xeokit.github.io/sdk/examples/view/renderers/webgl-webgpu-style-bins/) for effect-specific cost and visual correctness.
+7. Use [Create & Destroy Meshes](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test/?renderer=webgl) and [WebGPU Creating a 3D Model Benchmark](https://xeokit.github.io/sdk/examples/benchmarks/scene/stress-test-webgpu/?renderer=webgpu) for mutation-heavy applications.
 
 ## Recording Results
 

@@ -1,7 +1,7 @@
 {
   "id": "getting-started/model-file-drop/barebones",
   "title": "Bare-Bones Model File Drop",
-  "description": "Non-Studio viewer that loads a model file dropped onto the canvas, choosing the loader from the file extension.",
+  "description": "Non-Studio viewer that loads a model file dropped onto the canvas, choosing the loader from the file extension and the renderer from ?renderer=webgl or ?renderer=webgpu, with BVH-backed navigation picking.",
   "isTutorial": true,
   "isVisualTest": false,
   "categories": [

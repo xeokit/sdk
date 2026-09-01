@@ -60,7 +60,7 @@
  *    frame; the workaround is to apply a transform to the SceneModel.
  *  - **Soft masks, transparency groups, blend modes** — ignored.
  */
-import {LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import {NearestFilter, LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {type SDKResult, SDKErrorType} from "../../../../base/core";
 import type {SceneModel} from "../../../../model/scene";
 // Reuse the in-tree earcut port (used by section caps + drawing
@@ -691,8 +691,9 @@ export async function parse(input: PDFLoadInput, options: PDFLoadOptions & PDFLo
             flipY: true,
             // Drawings are pixel-art-ish at sheet scale; nearest filter
             // keeps line strokes crisp instead of muddy under bilinear.
-            magFilter: undefined,
-            minFilter: undefined,
+            magFilter: NearestFilter,
+            minFilter: NearestFilter,
+            mipmap: false,
           };
           if (pixels.bitmap) {
             texParams.image = pixels.bitmap;
@@ -864,6 +865,9 @@ export async function parse(input: PDFLoadInput, options: PDFLoadOptions & PDFLo
                       height: atlasDims.height,
                     },
                     flipY: true,
+                    minFilter: NearestFilter,
+                    magFilter: NearestFilter,
+                    mipmap: false,
                   })
                 : {ok: false as const, type: SDKErrorType.InvalidOperation, error: "no pixel data"};
               if (tRes.ok === false) {

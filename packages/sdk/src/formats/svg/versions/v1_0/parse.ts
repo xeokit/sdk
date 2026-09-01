@@ -45,7 +45,7 @@
  * before calling (e.g. `linkedom`, `xmldom`).
  */
 
-import {LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import {LinearFilter, LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
 import type {SceneModel} from "../../../../model/scene";
 
@@ -277,6 +277,9 @@ export async function parse(
         // linking of the flag would invert the texture cleanly —
         // re-test by flipping the V values below.
         flipY: true,
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        mipmap: false,
         imageData: {data: imgData.data, width: imgData.width, height: imgData.height},
       });
       if (tRes.ok === false) {

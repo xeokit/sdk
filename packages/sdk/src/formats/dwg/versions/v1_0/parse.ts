@@ -61,7 +61,7 @@
  * `DWGDocument`). External code should go through `DWGLoader` /
  * `DXFLoader` and never deep-import from this directory.
  */
-import {LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
+import {LinearFilter, LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
 import type {SceneModel} from "../../../../model/scene";
 
@@ -375,6 +375,9 @@ export async function emit(input: DWGEmitInput, options: DWGLoadOptions = {}): P
         // and SVGLoader for the same finding). UV V values below
         // compensate.
         flipY: true,
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        mipmap: false,
         imageData: {data: imgData.data, width: imgData.width, height: imgData.height},
       });
       if (tRes.ok === false) {

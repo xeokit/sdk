@@ -16,7 +16,7 @@
  *
  * @internal
  */
-import {TrianglesPrimitive} from "../../../../base/constants";
+import {LinearFilter, TrianglesPrimitive} from "../../../../base/constants";
 import type {ModelParseParams} from "../../../ModelParseParams";
 import {readFBXBinary} from "../../fbxBinaryReader";
 import {findChild, type FBXNode} from "../../FBXNode";
@@ -410,7 +410,9 @@ async function predecodeDiffuseTextures(
       }
       const id = `fbx-tex-${texIds[i]}`;
       const bitmap = bitmaps[i - chunkStart];
-      const textureParams = bitmap ? { id, image: bitmap } : { id, buffers: [buf] };
+      const textureParams = bitmap
+        ? { id, image: bitmap, minFilter: LinearFilter, magFilter: LinearFilter, mipmap: false }
+        : { id, buffers: [buf], minFilter: LinearFilter, magFilter: LinearFilter, mipmap: false };
       const r = sceneModel.createTexture(textureParams);
       if ((r as any).ok === false) {
         console.warn(`[FBXLoader] createTexture failed:`, (r as any).error);

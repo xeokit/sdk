@@ -3,7 +3,7 @@ import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, TrianglesPrimi
 import {createMat4Float64, mulMat4, type Mat4} from "../../../../../base/math/matrix";
 import type {View} from "../../../../viewer";
 import type {SceneTexture} from "../../../../../model/scene";
-import type {WebGPUBindGroupLike, WebGPURenderPassEncoderLike} from "../../core";
+import type {WebGPUBindGroupLike, WebGPUDeviceLike, WebGPURenderPassEncoderLike} from "../../core";
 import type {WebGPUMemoryStats} from "../../WebGPUMemoryStats";
 import {CommandStateTracker, DrawOps, type InstancedDrawBatch, type InstancedDrawBatches} from "../drawOps";
 import {BindGroupLayoutManager, InstanceBufferManager, SplatBatchManager, type InstanceBufferFrame, type SplatBatchSet, type TriangleBatchPrepareOptions, type TriangleBatchSegment, type TriangleBatchSet} from "../gpuMemoryManager";
@@ -20,7 +20,7 @@ import {RenderBinClassifier, type RenderCullStats} from "./RenderBinClassifier";
 import {SectionPlaneCapRenderer, type SectionPlaneCap} from "./SectionPlaneCapRenderer";
 import {SnapPassRenderer} from "./SnapPassRenderer";
 import {TriangleDrawBinSubmitter} from "./TriangleDrawBinSubmitter";
-import {WEBGPU_CLIP_SPACE_MATRIX} from "../constants";
+import {DEPTH_FORMAT, WEBGPU_CLIP_SPACE_MATRIX} from "../constants";
 import {RTCTileManager} from "./RTCTileManager";
 import {WebGPUPostProcessChain} from "./postprocess";
 import {WebGPUShadowPipeline} from "./shadows/WebGPUShadowPipeline";
@@ -467,7 +467,14 @@ export class RenderManager {
           triangleDrawOps,
           batches: triangleBatches.opaque,
           renderPass: "OPAQUE",
-          transparent: false
+          transparent: false,
+          renderBundle: this._renderContext.renderConfigs.renderBundleCaching
+            ? {
+                device: this._renderContext.device,
+                colorFormat: this._renderContext.colorTargetFormat,
+                depthStencilFormat: DEPTH_FORMAT
+              }
+            : undefined
         });
         if (drawResult.ok === false) {
           return drawResult;
@@ -784,65 +791,24 @@ export class RenderManager {
     batches: InstancedDrawBatch[];
     renderPass: "OPAQUE" | "TRANSPARENT";
     transparent: boolean;
-  }): SDKResult<void> {
-    const flatBatches = this._getFlatTriangleColorBatches(params.batches);
-    if (flatBatches.length > 0) {
-      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-        passEncoder: params.passEncoder,
-        commandStateTracker: params.commandStateTracker,
-        frameBindGroup: params.frameBindGroup,
-        instanceBindGroup: params.instanceBindGroup,
-        batches: flatBatches,
-        renderPass: params.renderPass,
-        technique: "TrianglesDrawColorFlatTechnique",
-        drawOp: params.transparent ? params.triangleDrawOps.flatTransparent : params.triangleDrawOps.flatOpaque,
-        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} flat triangle draw operation was not initialized.`
-      });
-      if (drawResult.ok === false) {
-        return drawResult;
-      }
-    }
-
-    const noNormalsBatches = this._getNoNormalsTriangleColorBatches(params.batches);
-    if (noNormalsBatches.length > 0) {
-      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-        passEncoder: params.passEncoder,
-        commandStateTracker: params.commandStateTracker,
-        frameBindGroup: params.frameBindGroup,
-        instanceBindGroup: params.instanceBindGroup,
-        batches: noNormalsBatches,
-        renderPass: params.renderPass,
-        technique: "TrianglesDrawColorNoNormalsTechnique",
-        drawOp: params.transparent ? params.triangleDrawOps.noNormalsTransparent : params.triangleDrawOps.noNormalsOpaque,
-        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} no-normal triangle draw operation was not initialized.`
-      });
-      if (drawResult.ok === false) {
-        return drawResult;
-      }
-    }
-
-    const pbrBatches = this._getPBRTriangleColorBatches(params.batches);
-    if (pbrBatches.length > 0) {
-      const drawResult = this._triangleDrawBinSubmitter.drawBatchList({
-        passEncoder: params.passEncoder,
-        commandStateTracker: params.commandStateTracker,
-        frameBindGroup: params.frameBindGroup,
-        instanceBindGroup: params.instanceBindGroup,
-        batches: pbrBatches,
-        renderPass: params.renderPass,
-        technique: "TrianglesDrawColorTechnique",
-        drawOp: params.transparent ? params.triangleDrawOps.transparent : params.triangleDrawOps.opaque,
-        missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} triangle draw operation was not initialized.`
-      });
-      if (drawResult.ok === false) {
-        return drawResult;
-      }
-    }
-
-    return {
-      ok: true,
-      value: undefined
+    renderBundle?: {
+      device: WebGPUDeviceLike;
+      colorFormat: string;
+      depthStencilFormat: string;
     };
+  }): SDKResult<void> {
+    return this._triangleDrawBinSubmitter.drawTriangleFillBatchList({
+      passEncoder: params.passEncoder,
+      commandStateTracker: params.commandStateTracker,
+      frameBindGroup: params.frameBindGroup,
+      instanceBindGroup: params.instanceBindGroup,
+      triangleDrawOps: params.triangleDrawOps,
+      batches: params.batches,
+      renderPass: params.renderPass,
+      transparent: params.transparent,
+      missingMessage: `[RenderManager.renderView] ${params.transparent ? "Transparent" : "Opaque"} triangle draw operation was not initialized.`,
+      renderBundle: params.renderBundle
+    });
   }
 
   private _drawTriangleOverlayBatches(params: {
@@ -2735,18 +2701,6 @@ export class RenderManager {
       batches.styleBinOpaque,
       batches.styleBinTransparent
     ].some((batchList) => batchList.some((batch) => batch.packedBatch.triangleRenderClass === "pbr"));
-  }
-
-  private _getFlatTriangleColorBatches(batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
-    return batches.filter((batch) => batch.packedBatch.triangleRenderClass === "flat");
-  }
-
-  private _getNoNormalsTriangleColorBatches(batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
-    return batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals !== true);
-  }
-
-  private _getPBRTriangleColorBatches(batches: InstancedDrawBatch[]): InstancedDrawBatch[] {
-    return batches.filter((batch) => batch.packedBatch.triangleRenderClass !== "flat" && batch.packedBatch.hasNormals === true);
   }
 
   private _filterBatchesByPrimitive(

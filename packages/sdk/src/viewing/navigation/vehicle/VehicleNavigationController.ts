@@ -21,7 +21,7 @@ const MIN_LEAN_SPEED_SCALE = 0.08;
 const MAX_LEAN_RESPONSE_SPEED_SCALE = 1.35;
 const DEFAULT_SLOPE_PITCH_FACTOR = 0.42;
 const DEFAULT_SLOPE_PITCH_SMOOTHING = 5.5;
-const MAX_SLOPE_PITCH_RADIANS = degreesToRadians(10);
+const DEFAULT_MAX_SLOPE_PITCH_DEGREES = 10;
 const DEFAULT_LEAN_DEGREES = 18;
 const DEFAULT_LEAN_SMOOTHING = 8;
 const DEFAULT_MAX_PITCH_DEGREES = 18;
@@ -126,6 +126,9 @@ export class VehicleNavigationController {
     #leanSmoothing: number;
     #currentLean = 0;
     #currentSlopePitch = 0;
+    #slopePitchFactor: number;
+    #slopePitchSmoothing: number;
+    #maxSlopePitchRadians: number;
     #groundNormal: Vec3 | null = null;
     #maxPitchRadians: number;
     #maxFlightPitchRadians: number;
@@ -187,6 +190,9 @@ export class VehicleNavigationController {
         this.#keySteerRampSeconds = Math.max(0.001, params.keySteerRampSeconds ?? DEFAULT_KEY_STEER_RAMP_SECONDS);
         this.#leanRadians = degreesToRadians(params.leanDegrees ?? DEFAULT_LEAN_DEGREES);
         this.#leanSmoothing = Math.max(0, params.leanSmoothing ?? DEFAULT_LEAN_SMOOTHING);
+        this.#slopePitchFactor = Math.max(0, params.slopePitchFactor ?? DEFAULT_SLOPE_PITCH_FACTOR);
+        this.#slopePitchSmoothing = Math.max(0, params.slopePitchSmoothing ?? DEFAULT_SLOPE_PITCH_SMOOTHING);
+        this.#maxSlopePitchRadians = degreesToRadians(Math.max(0, params.maxSlopePitchDegrees ?? DEFAULT_MAX_SLOPE_PITCH_DEGREES));
         this.#maxPitchRadians = degreesToRadians(params.maxPitchDegrees ?? DEFAULT_MAX_PITCH_DEGREES);
         this.#maxFlightPitchRadians = degreesToRadians(params.maxFlightPitchDegrees ?? DEFAULT_MAX_FLIGHT_PITCH_DEGREES);
         this.#flightTakeoffHeight = Math.max(0, params.flightTakeoffHeight ?? DEFAULT_FLIGHT_TAKEOFF_HEIGHT);
@@ -396,6 +402,28 @@ export class VehicleNavigationController {
 
     get flightMinGlideSpeed(): number {
         return this.#flightMinGlideSpeed;
+    }
+
+    /**
+     * Height gained automatically after entering flight mode.
+     */
+    set flightTakeoffHeight(flightTakeoffHeight: number) {
+        this.#flightTakeoffHeight = Math.max(0, flightTakeoffHeight);
+    }
+
+    get flightTakeoffHeight(): number {
+        return this.#flightTakeoffHeight;
+    }
+
+    /**
+     * Vertical lift speed after entering flight mode.
+     */
+    set flightTakeoffSpeed(flightTakeoffSpeed: number) {
+        this.#flightTakeoffSpeed = Math.max(0, flightTakeoffSpeed);
+    }
+
+    get flightTakeoffSpeed(): number {
+        return this.#flightTakeoffSpeed;
     }
 
     /**
@@ -831,10 +859,10 @@ export class VehicleNavigationController {
         if (!this.#flying && this.#groundNormal) {
             const moveDistance = length(move);
             const travelDirection = moveDistance > 0.0001 ? normalize(move) : flatDirection(viewDirection, up);
-            targetPitch = slopePitchForTravel(travelDirection, this.#groundNormal, up) * DEFAULT_SLOPE_PITCH_FACTOR;
-            targetPitch = clamp(targetPitch, -MAX_SLOPE_PITCH_RADIANS, MAX_SLOPE_PITCH_RADIANS);
+            targetPitch = slopePitchForTravel(travelDirection, this.#groundNormal, up) * this.#slopePitchFactor;
+            targetPitch = clamp(targetPitch, -this.#maxSlopePitchRadians, this.#maxSlopePitchRadians);
         }
-        const t = clamp(DEFAULT_SLOPE_PITCH_SMOOTHING * elapsedSeconds, 0, 1);
+        const t = clamp(this.#slopePitchSmoothing * elapsedSeconds, 0, 1);
         this.#currentSlopePitch += (targetPitch - this.#currentSlopePitch) * t;
     }
 

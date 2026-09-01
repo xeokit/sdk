@@ -227,6 +227,14 @@ function getSubmissionOrder(
     };
   }
 
+  const orderedInspection = inspectOpaqueSubmissionOrder(batches);
+  if (!orderedInspection.needsReorder) {
+    return {
+      batches,
+      groups: orderedInspection.groups
+    };
+  }
+
   const pageGroups = new Map<string, Map<string, InstancedDrawBatch[]>>();
   for (const batch of batches) {
     const pageKey = getOpaqueBufferPageGroupKey(batch.packedBatch);
@@ -258,6 +266,73 @@ function getSubmissionOrder(
     groups: {
       submissionGroups: renderStateGroups,
       bufferPageGroups: pageGroups.size,
+      renderStateGroups
+    }
+  };
+}
+
+function inspectOpaqueSubmissionOrder(batches: InstancedDrawBatch[]): {
+  needsReorder: boolean;
+  groups: {
+    submissionGroups: number;
+    bufferPageGroups: number;
+    renderStateGroups: number;
+  };
+} {
+  if (batches.length === 0) {
+    return {
+      needsReorder: false,
+      groups: {
+        submissionGroups: 0,
+        bufferPageGroups: 0,
+        renderStateGroups: 0
+      }
+    };
+  }
+
+  let needsReorder = false;
+  let bufferPageGroups = 1;
+  let renderStateGroups = 1;
+  let lastPageKey = getOpaqueBufferPageGroupKey(batches[0].packedBatch);
+  let lastStateKey = getOpaqueRenderStateGroupKey(batches[0].packedBatch);
+  const closedPageKeys = new Set<string>();
+  const closedStateKeysByPage = new Map<string, Set<string>>();
+
+  for (let i = 1, len = batches.length; i < len; i++) {
+    const batch = batches[i].packedBatch;
+    const pageKey = getOpaqueBufferPageGroupKey(batch);
+    const stateKey = getOpaqueRenderStateGroupKey(batch);
+    if (pageKey !== lastPageKey) {
+      closedPageKeys.add(lastPageKey);
+      if (closedPageKeys.has(pageKey)) {
+        needsReorder = true;
+      }
+      bufferPageGroups++;
+      renderStateGroups++;
+      lastPageKey = pageKey;
+      lastStateKey = stateKey;
+      continue;
+    }
+    if (stateKey !== lastStateKey) {
+      let closedStateKeys = closedStateKeysByPage.get(pageKey);
+      if (!closedStateKeys) {
+        closedStateKeys = new Set<string>();
+        closedStateKeysByPage.set(pageKey, closedStateKeys);
+      }
+      closedStateKeys.add(lastStateKey);
+      if (closedStateKeys.has(stateKey)) {
+        needsReorder = true;
+      }
+      renderStateGroups++;
+      lastStateKey = stateKey;
+    }
+  }
+
+  return {
+    needsReorder,
+    groups: {
+      submissionGroups: renderStateGroups,
+      bufferPageGroups,
       renderStateGroups
     }
   };

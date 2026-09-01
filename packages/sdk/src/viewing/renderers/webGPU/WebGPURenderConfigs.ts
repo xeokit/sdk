@@ -51,6 +51,15 @@ export interface WebGPURenderConfigs {
   gpuTimestamps: boolean;
 
   /**
+   * Enables experimental render bundle caching for stable packed draw lists.
+   *
+   * Disabled by default. When enabled, the renderer may record repeatable
+   * opaque draw command sequences into WebGPU render bundles and replay them
+   * on later frames when the underlying batch state is unchanged.
+   */
+  renderBundleCaching: boolean;
+
+  /**
    * Selects how transparent triangle meshes are batched.
    *
    * - `"segment"` groups transparent draws by packed geometry segment. This is
@@ -61,3 +70,25 @@ export interface WebGPURenderConfigs {
    */
   transparentSortStrategy: "segment" | "object";
 }
+
+/**
+ * Named WebGPU render-configuration profile IDs.
+ */
+export type WebGPURenderConfigProfileId = "largeModel";
+
+/**
+ * Built-in WebGPU renderer-owned profiles.
+ *
+ * These complement {@link viewing!profiles.DEFAULT_VIEW_PROFILES}: use
+ * `DEFAULT_VIEW_PROFILES.fast` for runtime View effects, then spread
+ * `WEBGPU_RENDER_CONFIG_PROFILES.largeModel` into WebGPURenderer render
+ * configs when constructing a renderer for very large streamed models.
+ */
+export const WEBGPU_RENDER_CONFIG_PROFILES: Record<WebGPURenderConfigProfileId, Partial<WebGPURenderConfigs>> = {
+  largeModel: {
+    depthPrepass: false,
+    edges: false,
+    triangleColorMode: "flat",
+    transparentSortStrategy: "segment"
+  }
+};

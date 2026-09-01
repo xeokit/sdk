@@ -1,5 +1,6 @@
 import type {WebGPUBindGroupLike} from "./WebGPUBindGroupLike";
 import type {WebGPUBufferLike} from "./WebGPUBufferLike";
+import type {WebGPURenderBundleLike} from "./WebGPURenderBundleLike";
 import type {WebGPURenderPipelineLike} from "./WebGPURenderPipelineLike";
 
 /**
@@ -13,6 +14,7 @@ export interface WebGPURenderPassEncoderLike {
   drawIndexed?(indexCount: number, instanceCount?: number, firstIndex?: number, baseVertex?: number, firstInstance?: number): void;
   drawIndexedIndirect?(indirectBuffer: WebGPUBufferLike, indirectOffset: number): void;
   multiDrawIndexedIndirect?(indirectBuffer: WebGPUBufferLike, indirectOffset: number, drawCount: number): void;
+  executeBundles?(bundles: WebGPURenderBundleLike[]): void;
   draw?(vertexCount: number, instanceCount?: number, firstVertex?: number, firstInstance?: number): void;
   end?(): void;
   endPass?(): void;

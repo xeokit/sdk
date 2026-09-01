@@ -28,6 +28,16 @@ export interface WebGPUViewRenderCPUTimeStats {
   drawBatchMs: number;
 
   /**
+   * CPU time spent classifying triangle fill batches by draw technique, in milliseconds.
+   */
+  triangleFillClassificationMs: number;
+
+  /**
+   * CPU time spent inside draw-operation batch submission, in milliseconds.
+   */
+  drawSubmissionMs: number;
+
+  /**
    * CPU time spent uploading changed GPU buffer data, in milliseconds.
    */
   uploadMs: number;
@@ -64,6 +74,31 @@ export interface WebGPUViewRenderBinStats {
 }
 
 /**
+ * Render-bundle cache activity for one WebGPU frame.
+ */
+export interface WebGPUViewRenderBundleStats {
+  /**
+   * Number of render bundles recorded during the frame.
+   */
+  records: number;
+
+  /**
+   * Number of cached render bundles replayed during the frame.
+   */
+  replays: number;
+
+  /**
+   * Number of requested render-bundle submissions that fell back to direct encoding.
+   */
+  fallbacks: number;
+
+  /**
+   * Number of cached render bundles replaced because their batch key changed.
+   */
+  invalidations: number;
+}
+
+/**
  * Compact render summary for the last WebGPU frame rendered for one View.
  */
 export interface WebGPUViewRenderStats {
@@ -86,6 +121,11 @@ export interface WebGPUViewRenderStats {
    * Per-bin draw-call and primitive counts.
    */
   renderBins: WebGPUViewRenderBinStats[];
+
+  /**
+   * Render-bundle cache activity for the View.
+   */
+  renderBundleStats: WebGPUViewRenderBundleStats;
 
   /**
    * Number of RTC tiles tracked for the rendered frame.

@@ -6,6 +6,7 @@ import type {WebGPUDeviceLostInfoLike} from "./WebGPUDeviceLostInfoLike";
 import type {WebGPUPipelineLayoutLike} from "./WebGPUPipelineLayoutLike";
 import type {WebGPUQueueLike} from "./WebGPUQueueLike";
 import type {WebGPURenderPipelineLike} from "./WebGPURenderPipelineLike";
+import type {WebGPURenderBundleEncoderLike} from "./WebGPURenderBundleEncoderLike";
 import type {WebGPUShaderModuleLike} from "./WebGPUShaderModuleLike";
 import type {WebGPUTextureLike} from "./WebGPUTextureLike";
 
@@ -78,6 +79,11 @@ export interface WebGPUDeviceLike {
    * Creates a render pipeline.
    */
   createRenderPipeline(descriptor: object): WebGPURenderPipelineLike;
+
+  /**
+   * Creates a render bundle encoder, when supported by the device wrapper.
+   */
+  createRenderBundleEncoder?(descriptor: object): WebGPURenderBundleEncoderLike;
 
   /**
    * Creates a bind group.

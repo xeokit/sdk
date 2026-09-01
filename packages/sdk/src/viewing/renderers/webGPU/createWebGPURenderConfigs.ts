@@ -10,6 +10,7 @@ export function createWebGPURenderConfigs(user: Partial<WebGPURenderConfigs> = {
     edges: user.edges ?? true,
     triangleColorMode: user.triangleColorMode ?? "pbr",
     gpuTimestamps: user.gpuTimestamps ?? false,
+    renderBundleCaching: user.renderBundleCaching ?? false,
     transparentSortStrategy: user.transparentSortStrategy ?? "segment"
   };
 }

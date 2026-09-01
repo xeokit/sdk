@@ -11,6 +11,8 @@ export * from "./GlobalWithOptionalWebGPU";
 export * from "./WebGPUPipelineLayoutLike";
 export * from "./WebGPUQueueLike";
 export * from "./WebGPURenderPassEncoderLike";
+export * from "./WebGPURenderBundleEncoderLike";
+export * from "./WebGPURenderBundleLike";
 export * from "./WebGPURenderPipelineLike";
 export * from "./WebGPURequestAdapterOptions";
 export * from "./WebGPUShaderModuleLike";

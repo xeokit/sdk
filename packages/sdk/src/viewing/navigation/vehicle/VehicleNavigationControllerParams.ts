@@ -141,6 +141,33 @@ export interface VehicleNavigationControllerParams {
     leanSmoothing?: number;
 
     /**
+     * Fraction of the current drive-surface incline/decline pitch applied to
+     * the camera while ground driving.
+     *
+     * Values below ``1`` keep the rider partly upright instead of exactly
+     * matching the surface.
+     *
+     * Default is ``0.42``.
+     */
+    slopePitchFactor?: number;
+
+    /**
+     * Response factor used when easing camera pitch toward the current
+     * drive-surface incline/decline.
+     *
+     * Default is ``5.5``.
+     */
+    slopePitchSmoothing?: number;
+
+    /**
+     * Maximum camera pitch contributed by drive-surface incline/decline, in
+     * degrees.
+     *
+     * Default is ``10``.
+     */
+    maxSlopePitchDegrees?: number;
+
+    /**
      * Maximum cursor-controlled up/down look pitch, in degrees.
      *
      * Default is ``18``.

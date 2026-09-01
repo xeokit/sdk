@@ -72,6 +72,12 @@ export class RenderInspector {
       numFullyDrawnSegments: 0,
       numPartiallyRefinedSegments: 0,
       numTemporaryIndexBuffers: 0,
+      renderBundleStats: {
+        records: 0,
+        replays: 0,
+        fallbacks: 0,
+        invalidations: 0
+      },
       instanceUpload: createEmptyInstanceBufferUploadStats(),
       commandState: createCommandEncoderStats(),
       cpuTime: {
@@ -80,6 +86,8 @@ export class RenderInspector {
         binningMs: 0,
         batchingMs: 0,
         drawBatchMs: 0,
+        triangleFillClassificationMs: 0,
+        drawSubmissionMs: 0,
         uploadMs: 0,
         commandEncodingMs: 0,
         submitMs: 0
@@ -246,6 +254,30 @@ export class RenderInspector {
   public addCPUTime(name: keyof ViewRenderStats["cpuTime"], durationMs: number): void {
     if (this.enabled && this._currentFrame) {
       this._currentFrame.cpuTime[name] += durationMs;
+    }
+  }
+
+  public renderBundleRecorded(): void {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.renderBundleStats.records++;
+    }
+  }
+
+  public renderBundleReplayed(): void {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.renderBundleStats.replays++;
+    }
+  }
+
+  public renderBundleFallback(): void {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.renderBundleStats.fallbacks++;
+    }
+  }
+
+  public renderBundleInvalidated(): void {
+    if (this.enabled && this._currentFrame) {
+      this._currentFrame.renderBundleStats.invalidations++;
     }
   }
 

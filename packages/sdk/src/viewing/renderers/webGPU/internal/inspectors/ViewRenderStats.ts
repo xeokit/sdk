@@ -35,6 +35,12 @@ export interface ViewRenderStats {
   numFullyDrawnSegments: number;
   numPartiallyRefinedSegments: number;
   numTemporaryIndexBuffers: number;
+  renderBundleStats: {
+    records: number;
+    replays: number;
+    fallbacks: number;
+    invalidations: number;
+  };
   instanceUpload: InstanceBufferUploadStats;
   commandState: CommandEncoderStats;
   cpuTime: {
@@ -43,6 +49,8 @@ export interface ViewRenderStats {
     binningMs: number;
     batchingMs: number;
     drawBatchMs: number;
+    triangleFillClassificationMs: number;
+    drawSubmissionMs: number;
     uploadMs: number;
     commandEncodingMs: number;
     submitMs: number;

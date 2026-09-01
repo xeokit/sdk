@@ -61,7 +61,7 @@
  * ## Render And Memory Configuration
  *
  * ```ts
- * import {WebGPURenderer} from "@xeokit/sdk/viewing/renderers/webGPU";
+ * import {WebGPURenderer, WEBGPU_RENDER_CONFIG_PROFILES} from "@xeokit/sdk/viewing/renderers/webGPU";
  *
  * const result = await WebGPURenderer.create({
  *   viewer,
@@ -71,13 +71,15 @@
  *     compactSealedStreamPages: true
  *   },
  *   renderConfigs: {
- *     depthPrepass: true,
- *     edges: true,
- *     triangleColorMode: "auto",
- *     transparentSortStrategy: "segment"
+ *     ...WEBGPU_RENDER_CONFIG_PROFILES.largeModel,
+ *     renderBundleCaching: true
  *   }
  * });
  * ```
+ *
+ * `WEBGPU_RENDER_CONFIG_PROFILES.largeModel` is renderer construction state.
+ * Pair it with `DEFAULT_VIEW_PROFILES.fast` when runtime View effects should
+ * also use the low-cost profile while navigating.
  *
  * ## Diagnostics
  *

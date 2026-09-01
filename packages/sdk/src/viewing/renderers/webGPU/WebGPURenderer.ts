@@ -438,6 +438,7 @@ export class WebGPURenderer implements Renderer {
         numDrawCalls: bin.drawCalls.length,
         numPrimitives: bin.drawCalls.reduce((sum, drawCall) => sum + drawCall.numPrims, 0)
       })),
+      renderBundleStats: stats.renderBundleStats,
       numRTCTiles: stats.numRTCTiles,
       numRTCTileMatrixUploads: stats.numRTCTileMatrixUploads,
       numMeshesWithRTCTile: stats.numMeshesWithRTCTile,

@@ -42,6 +42,7 @@ import {TextureBindGroupManager} from "../internal/gpuMemoryManager/TextureBindG
 import {WebGPUPickBuffer, WebGPUSnapBufferCache} from "../internal/webGPU";
 import {createMemoryConfigs} from "../createMemoryConfigs";
 import {createWebGPURenderConfigs} from "../createWebGPURenderConfigs";
+import {WEBGPU_RENDER_CONFIG_PROFILES} from "../WebGPURenderConfigs";
 
 type Handler = (...args: any[]) => void;
 
@@ -293,6 +294,7 @@ function createWebGPUHarness() {
   const renderPipelines: any[] = [];
   const bindGroups: any[] = [];
   const buffers: any[] = [];
+  const renderBundles: any[] = [];
   const querySets: any[] = [];
   const pickReadbackBytes = new Uint8Array(4);
   const depthTextures: any[] = [];
@@ -303,8 +305,22 @@ function createWebGPUHarness() {
     setIndexBuffer: jest.fn(),
     setBindGroup: jest.fn(),
     drawIndexed: jest.fn(),
+    executeBundles: jest.fn(),
     draw: jest.fn(),
     end: jest.fn()
+  };
+  const renderBundle = {};
+  const renderBundleEncoder = {
+    setPipeline: jest.fn(),
+    setVertexBuffer: jest.fn(),
+    setIndexBuffer: jest.fn(),
+    setBindGroup: jest.fn(),
+    drawIndexed: jest.fn(),
+    draw: jest.fn(),
+    finish: jest.fn(() => {
+      renderBundles.push(renderBundle);
+      return renderBundle;
+    })
   };
   const commandBuffer = {};
   const commandEncoder = {
@@ -419,6 +435,7 @@ function createWebGPUHarness() {
       renderPipelines.push(pipeline);
       return pipeline;
     }),
+    createRenderBundleEncoder: jest.fn(() => renderBundleEncoder),
     createBindGroup: jest.fn(() => {
       const group = bindGroups.length === 0 ? bindGroup : {};
       bindGroups.push(group);
@@ -438,6 +455,7 @@ function createWebGPUHarness() {
     createPipelineLayout: jest.Mock;
     createSampler: jest.Mock;
     createRenderPipeline: jest.Mock;
+    createRenderBundleEncoder: jest.Mock;
     createBindGroup: jest.Mock;
     createCommandEncoder: jest.Mock;
     destroy: jest.Mock;
@@ -454,6 +472,9 @@ function createWebGPUHarness() {
 
   return {
     passEncoder,
+    renderBundleEncoder,
+    renderBundle,
+    renderBundles,
     commandBuffer,
     commandEncoder,
     pickReadbackBytes,
@@ -3165,6 +3186,14 @@ describe("WebGPURenderer contract", () => {
     expect(createWebGPURenderConfigs({}).triangleColorMode).toBe("pbr");
     expect(createWebGPURenderConfigs({triangleColorMode: "pbr"}).triangleColorMode).toBe("pbr");
     expect(createWebGPURenderConfigs({triangleColorMode: "flat"}).triangleColorMode).toBe("flat");
+    expect(createWebGPURenderConfigs({}).renderBundleCaching).toBe(false);
+    expect(createWebGPURenderConfigs({renderBundleCaching: true}).renderBundleCaching).toBe(true);
+    expect(createWebGPURenderConfigs(WEBGPU_RENDER_CONFIG_PROFILES.largeModel)).toMatchObject({
+      depthPrepass: false,
+      edges: false,
+      triangleColorMode: "flat",
+      transparentSortStrategy: "segment"
+    });
     expect(createMemoryConfigs({grossMemoryMB: 128, device: "medium", utilization: 0.5}).compactStreamPages).toBe(false);
     expect(createMemoryConfigs({
       grossMemoryMB: 128,
@@ -3211,6 +3240,125 @@ describe("WebGPURenderer contract", () => {
     const frameUpload = getLastWriteBufferData(gpu, "xeokit-webgpu-frame-uniforms");
     expect(frameUpload[DEPTH_PARAMS_UNIFORM_OFFSET]).toBeCloseTo(2 / Math.log2(1000));
     expect(frameUpload[DEPTH_PARAMS_UNIFORM_OFFSET + 1]).toBe(1);
+  });
+
+  test("can cache stable opaque triangle color draws in a render bundle", () => {
+    const gpu = createWebGPUHarness();
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      },
+      renderConfigs: {
+        depthPrepass: false,
+        renderBundleCaching: true
+      }
+    });
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    view.viewIndex = 0;
+    testViewer.viewer.viewList.push(view);
+    view.needsRender = jest.fn();
+    testViewer.onViewCreated.emit(testViewer.viewer, view);
+    testViewer.onViewUpdated.emit(view, view);
+    expect(gpu.device.createRenderBundleEncoder).toHaveBeenCalledTimes(1);
+    expect(gpu.renderBundleEncoder.drawIndexed).toHaveBeenCalledTimes(1);
+    expect(gpu.passEncoder.executeBundles).toHaveBeenCalledWith([gpu.renderBundle]);
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+    expect(renderer.getViewRenderStats(0)?.renderBundleStats).toEqual({
+      records: 1,
+      replays: 0,
+      fallbacks: 0,
+      invalidations: 0
+    });
+
+    gpu.passEncoder.executeBundles.mockClear();
+    gpu.renderBundleEncoder.drawIndexed.mockClear();
+    gpu.device.createRenderBundleEncoder.mockClear();
+    testViewer.onViewUpdated.emit(view, view);
+
+    expect(gpu.device.createRenderBundleEncoder).not.toHaveBeenCalled();
+    expect(gpu.renderBundleEncoder.drawIndexed).not.toHaveBeenCalled();
+    expect(gpu.passEncoder.executeBundles).toHaveBeenCalledWith([gpu.renderBundle]);
+    expect(gpu.passEncoder.drawIndexed).not.toHaveBeenCalled();
+    expect(renderer.getViewRenderStats(0)?.renderBundleStats).toEqual({
+      records: 0,
+      replays: 1,
+      fallbacks: 0,
+      invalidations: 0
+    });
+  });
+
+  test("reports render-bundle fallback when bundle replay is unavailable", () => {
+    const gpu = createWebGPUHarness();
+    delete (gpu.passEncoder as any).executeBundles;
+    const testViewer = createViewer(true);
+    const view = createView(testViewer.viewer, gpu.context);
+    const {mesh} = createTriangleMesh();
+
+    testViewer.viewer.scene.models = {
+      model: {
+        meshes: {
+          [mesh.id]: mesh
+        }
+      }
+    };
+
+    const renderer = new WebGPURenderer({
+      device: gpu.device,
+      contextFormat: "rgba8unorm",
+      logging: false,
+      memoryConfigs: {
+        maxBatchBuildSegments: -1
+      },
+      renderConfigs: {
+        depthPrepass: false,
+        renderBundleCaching: true
+      }
+    });
+    const result = renderer.attachViewer(testViewer.viewer as any);
+    expect(result.ok).toBe(true);
+    const inspectorResult = renderer.getRenderInspector();
+    expect(inspectorResult.ok).toBe(true);
+    if (!inspectorResult.ok) {
+      throw new Error("Expected WebGPURenderer.getRenderInspector to succeed");
+    }
+    inspectorResult.value.enabled = true;
+
+    view.viewIndex = 0;
+    testViewer.viewer.viewList.push(view);
+    view.needsRender = jest.fn();
+    testViewer.onViewCreated.emit(testViewer.viewer, view);
+    testViewer.onViewUpdated.emit(view, view);
+    expect(gpu.device.createRenderBundleEncoder).not.toHaveBeenCalled();
+    expect(gpu.passEncoder.drawIndexed).toHaveBeenCalledWith(3, 1, 0, 0, 0);
+    expect(renderer.getViewRenderStats(0)?.renderBundleStats).toEqual({
+      records: 0,
+      replays: 0,
+      fallbacks: 1,
+      invalidations: 0
+    });
   });
 
   test("uses flat triangle color mode without PBR-only vertex streams", () => {
@@ -3400,6 +3548,50 @@ describe("WebGPURenderer contract", () => {
       submissionGroups: 3,
       bufferPageGroups: 2,
       renderStateGroups: 3
+    });
+  });
+
+  test("keeps already grouped packed triangle batches in caller order", () => {
+    const gpu = createWebGPUHarness();
+    const vertexBufferA = {label: "vertexA"} as any;
+    const vertexMetadataBufferA = {label: "vertexMetadataA"} as any;
+    const decodeBindGroupA = {label: "decodeA"} as any;
+    const vertexBufferB = {label: "vertexB"} as any;
+    const vertexMetadataBufferB = {label: "vertexMetadataB"} as any;
+    const decodeBindGroupB = {label: "decodeB"} as any;
+    const indexBufferA = {label: "indexA"} as any;
+    const indexBufferB = {label: "indexB"} as any;
+    const commandStats = {
+      pipelineBound: jest.fn(),
+      vertexBufferBound: jest.fn(),
+      indexBufferBound: jest.fn(),
+      bindGroupBound: jest.fn(),
+      submissionGroupsSubmitted: jest.fn()
+    };
+
+    const result = encodePackedTriangleBatches({
+      device: gpu.device,
+      passEncoder: gpu.passEncoder,
+      renderPass: RENDER_PASSES.OPAQUE,
+      validateLabel: "test",
+      commandStats,
+      batches: [
+        createPackedTriangleBatch("a0", "segmentA0", vertexBufferA, vertexMetadataBufferA, decodeBindGroupA, indexBufferA, "pageA", "fill"),
+        createPackedTriangleBatch("a1", "segmentA1", vertexBufferA, vertexMetadataBufferA, decodeBindGroupA, indexBufferA, "pageA", "fill"),
+        createPackedTriangleBatch("b0", "segmentB0", vertexBufferB, vertexMetadataBufferB, decodeBindGroupB, indexBufferB, "pageB", "fill")
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(gpu.passEncoder.drawIndexed.mock.calls).toEqual([
+      [3, 1, 0, 0, 0],
+      [6, 1, 0, 0, 0],
+      [9, 1, 0, 0, 0]
+    ]);
+    expect(commandStats.submissionGroupsSubmitted).toHaveBeenCalledWith({
+      submissionGroups: 2,
+      bufferPageGroups: 2,
+      renderStateGroups: 2
     });
   });
 
@@ -3709,10 +3901,22 @@ describe("WebGPURenderer contract", () => {
       indexCount: 3,
       numPrims: 1
     });
+    expect(frameStats?.cpuTime.triangleFillClassificationMs).toBeGreaterThanOrEqual(0);
+    expect(frameStats?.cpuTime.drawSubmissionMs).toBeGreaterThanOrEqual(0);
     expect(renderer.getViewRenderStats(0)).toMatchObject({
       numDrawCalls: 2,
       numPrimitives: 2,
-      numBatches: 2
+      numBatches: 2,
+      renderBundleStats: {
+        records: 0,
+        replays: 0,
+        fallbacks: 0,
+        invalidations: 0
+      },
+      cpuTime: {
+        triangleFillClassificationMs: expect.any(Number),
+        drawSubmissionMs: expect.any(Number)
+      }
     });
 
     view.camera.viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 0, 1];

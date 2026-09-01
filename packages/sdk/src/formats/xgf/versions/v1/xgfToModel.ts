@@ -45,6 +45,15 @@ const SAMPLER_DECODE: Record<number, number> = {
   9: LinearMipMapLinearFilter
 };
 
+const MIPMAP_MIN_FILTERS = new Set([
+  NearestMipMapNearestFilter,
+  LinearMipMapNearestFilter,
+  NearestMipMapLinearFilter,
+  LinearMipMapLinearFilter
+]);
+
+const usesMipmappedMinFilter = (minFilter: number): boolean => MIPMAP_MIN_FILTERS.has(minFilter);
+
 const MEDIA_TYPE_DECODE: Record<number, number> = {
   0: PNGMediaType,
   1: JPEGMediaType,
@@ -169,12 +178,14 @@ export async function xgfToModel(params: {
 
     const samplerParamsFor = (i: number) => {
       const sBase = i * NUM_TEXTURE_SAMPLER_BYTES;
+      const minFilter = SAMPLER_DECODE[eachTextureSampler[sBase]] || LinearMipMapLinearFilter;
       return {
-        minFilter: SAMPLER_DECODE[eachTextureSampler[sBase]]     || LinearMipMapLinearFilter,
+        minFilter,
         magFilter: SAMPLER_DECODE[eachTextureSampler[sBase + 1]] || LinearFilter,
         wrapS:     SAMPLER_DECODE[eachTextureSampler[sBase + 2]] || RepeatWrapping,
         wrapT:     SAMPLER_DECODE[eachTextureSampler[sBase + 3]] || RepeatWrapping,
         wrapR:     SAMPLER_DECODE[eachTextureSampler[sBase + 4]] || RepeatWrapping,
+        mipmap: usesMipmappedMinFilter(minFilter),
         width:  eachTextureWidth[i],
         height: eachTextureHeight[i]
       } as any;

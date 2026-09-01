@@ -1,6 +1,15 @@
 import {encode as encodeV4} from "../versions/v1/encode";
 import {parse as parseV4} from "../versions/v1/parse";
-import {TrianglesPrimitive, PNGMediaType, sRGBEncoding, LinearEncoding} from "../../../base/constants";
+import {encode as encodeV2} from "../versions/v2/encode";
+import {parse as parseV2} from "../versions/v2/parse";
+import {
+  LinearEncoding,
+  LinearFilter,
+  LinearMipMapLinearFilter,
+  PNGMediaType,
+  sRGBEncoding,
+  TrianglesPrimitive
+} from "../../../base/constants";
 import {Scene} from "../../../model/scene/Scene";
 
 const TRI = {positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], indices: [0, 1, 2]};
@@ -13,11 +22,17 @@ function capturingScene() {
   const sceneModel: any = {
     id: "dst",
     geometries: {} as Record<string, any>,
+    textures: {} as Record<string, any>,
+    materials: {} as Record<string, any>,
+    meshes: {} as Record<string, any>,
+    objects: {} as Record<string, any>,
+    transforms: {} as Record<string, any>,
     createGeometryCompressed: (p: any) => { sceneModel.geometries[p.id] = p; },
-    createMesh: () => {},
-    createObject: () => {},
-    createTexture: (p: any) => calls.texture.push(p),
-    createMaterial: () => {},
+    createMesh: (p: any) => { sceneModel.meshes[p.id] = p; },
+    createObject: (p: any) => { sceneModel.objects[p.id] = p; },
+    createTexture: (p: any) => { calls.texture.push(p); sceneModel.textures[p.id] = p; },
+    createMaterial: (p: any) => { sceneModel.materials[p.id] = p; },
+    createTransform: (p: any) => { sceneModel.transforms[p.id] = p; },
   };
   return {sceneModel, calls};
 }
@@ -41,5 +56,62 @@ describe("xgf v1 — texture encoding", () => {
     const normal = calls.texture.find((t: any) => t.id === "normal");
     expect(albedo.encoding).toBe(sRGBEncoding);
     expect(normal.encoding).toBe(LinearEncoding);
+  });
+
+  it("derives mipmap opt-in from mipmapped texture minification filters", async () => {
+    const src = new Scene().createModel({id: "m"}).value!;
+    src.createGeometry({id: "g", primitive: TrianglesPrimitive, ...TRI});
+    src.createTexture({
+      id: "mipped",
+      buffers: [PNG()],
+      mediaType: PNGMediaType,
+      minFilter: LinearMipMapLinearFilter
+    });
+    src.createTexture({
+      id: "linear",
+      buffers: [PNG()],
+      mediaType: PNGMediaType,
+      minFilter: LinearFilter
+    });
+    src.createMaterial({id: "mat", colorTextureId: "mipped", emissiveTextureId: "linear"});
+    src.createMesh({id: "mesh", geometryId: "g", materialId: "mat"});
+    src.createObject({id: "obj", meshIds: ["mesh"]});
+
+    const buffer = await encodeV4({sceneModel: src} as any, {});
+    const {sceneModel: dst, calls} = capturingScene();
+    await parseV4({fileData: buffer, sceneModel: dst} as any, {});
+
+    expect(calls.texture.find((t: any) => t.id === "mipped").mipmap).toBe(true);
+    expect(calls.texture.find((t: any) => t.id === "linear").mipmap).toBe(false);
+  });
+});
+
+describe("xgf v2 — texture sampler state", () => {
+
+  it("derives mipmap opt-in from mipmapped texture minification filters", async () => {
+    const src = new Scene().createModel({id: "m"}).value!;
+    src.createGeometry({id: "g", primitive: TrianglesPrimitive, ...TRI});
+    src.createTexture({
+      id: "mipped",
+      buffers: [PNG()],
+      mediaType: PNGMediaType,
+      minFilter: LinearMipMapLinearFilter
+    });
+    src.createTexture({
+      id: "linear",
+      buffers: [PNG()],
+      mediaType: PNGMediaType,
+      minFilter: LinearFilter
+    });
+    src.createMaterial({id: "mat", colorTextureId: "mipped", emissiveTextureId: "linear"});
+    src.createMesh({id: "mesh", geometryId: "g", materialId: "mat"});
+    src.createObject({id: "obj", meshIds: ["mesh"]});
+
+    const buffer = await encodeV2({sceneModel: src} as any, {});
+    const {sceneModel: dst, calls} = capturingScene();
+    await parseV2({fileData: buffer, sceneModel: dst} as any, {});
+
+    expect(calls.texture.find((t: any) => t.id === "mipped").mipmap).toBe(true);
+    expect(calls.texture.find((t: any) => t.id === "linear").mipmap).toBe(false);
   });
 });

@@ -316,6 +316,7 @@ function parseTexture(ctx: any, texture: any): boolean {
       minFilter = LinearMipMapLinearFilter;
       break;
   }
+  const mipmap = isMipmapMinFilter(minFilter);
   let magFilter = LinearFilter;
   switch (texture.sampler.magFilter) {
     case 9728:
@@ -393,7 +394,8 @@ function parseTexture(ctx: any, texture: any): boolean {
     wrapT,
     wrapR,
     flipY: !!texture.flipY,
-    encoding: isColorSpaceTexture(ctx, texture) ? sRGBEncoding : undefined
+    encoding: isColorSpaceTexture(ctx, texture) ? sRGBEncoding : undefined,
+    mipmap
   });
   if (result.ok === false) {
     ctx.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
@@ -401,6 +403,13 @@ function parseTexture(ctx: any, texture: any): boolean {
   }
   texture._textureId = textureId;
   return true;
+}
+
+function isMipmapMinFilter(minFilter: number): boolean {
+  return minFilter === NearestMipMapNearestFilter ||
+    minFilter === NearestMipMapLinearFilter ||
+    minFilter === LinearMipMapNearestFilter ||
+    minFilter === LinearMipMapLinearFilter;
 }
 
 function isColorSpaceTexture(ctx: any, texture: any): boolean {

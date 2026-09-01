@@ -1,6 +1,7 @@
 import {GLTFExporter} from "../GLTFExporter";
 import {GLTFLoader} from "../GLTFLoader";
-import {LinesPrimitive, TrianglesPrimitive} from "../../../base/constants";
+import {LinearFilter, LinesPrimitive, PNGMediaType, TrianglesPrimitive} from "../../../base/constants";
+import {Scene} from "../../../model/scene";
 
 // Quantise positions to uint16 the way SceneGeometry stores them — the inverse
 // of the exporter's decompressPoint3WithAABB3.
@@ -17,9 +18,11 @@ function quantize(positions: number[], aabb: number[]): Uint16Array {
 
 // A unit quad (2 triangles) in the XY plane.
 const QUAD_POSITIONS = [0, 0, 0,  1, 0, 0,  1, 1, 0,  0, 1, 0];
+const QUAD_UVS = [0, 0,  1, 0,  1, 1,  0, 1];
 const QUAD_AABB = [0, 0, 0, 1, 1, 1];
 const QUAD_INDICES = new Uint32Array([0, 1, 2, 0, 2, 3]);
 const IDENTITY = [1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1];
+const PNG = () => new Uint8Array([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10]).buffer;
 
 // The exporter reads geometry attributes (positionsCompressed/aabb/indices/
 // primitive), reuses one accessor bundle per geom.id, and walks
@@ -50,6 +53,12 @@ function buildSource(matrix: number[], color: number[], opacity: number) {
 // ModelLoader.load requires `fileData instanceof ArrayBuffer`.
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
   return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+}
+
+function readGLBJSON(glb: Uint8Array): any {
+  const view = new DataView(glb.buffer, glb.byteOffset, glb.byteLength);
+  const jsonChunkLen = view.getUint32(12, true);
+  return JSON.parse(new TextDecoder().decode(glb.subarray(20, 20 + jsonChunkLen)));
 }
 
 function align4(length: number): number {
@@ -140,6 +149,42 @@ describe("GLTFExporter / GLTFLoader", () => {
     expect(json.accessors.length).toBeGreaterThan(0);
     expect(json.nodes.some((n: any) => n.name === "Building1")).toBe(true);
     expect(json.nodes.some((n: any) => n.name === "mesh1")).toBe(true);
+  });
+
+  it("exports default SceneTexture mipmap opt-in as a non-mipmapped min filter", async () => {
+    const sceneModel = new Scene().createModel({id: "model1"}).value!;
+    sceneModel.createGeometry({id: "g", primitive: TrianglesPrimitive, positions: QUAD_POSITIONS, uvs: QUAD_UVS, indices: Array.from(QUAD_INDICES)});
+    sceneModel.createTexture({id: "tex", buffers: [PNG()], mediaType: PNGMediaType});
+    sceneModel.createMaterial({id: "mat", colorTextureId: "tex"});
+    sceneModel.createMesh({id: "mesh", geometryId: "g", materialId: "mat"});
+    sceneModel.createObject({id: "obj", meshIds: ["mesh"]});
+
+    const glb = await new GLTFExporter().write({sceneModel} as any);
+    const json = readGLBJSON(glb);
+    const samplerIndex = json.textures[0].sampler;
+
+    expect(json.samplers[samplerIndex].minFilter).toBe(9729);
+  });
+
+  it("exports explicit SceneTexture mipmap opt-in as a mipmapped min filter", async () => {
+    const sceneModel = new Scene().createModel({id: "model1"}).value!;
+    sceneModel.createGeometry({id: "g", primitive: TrianglesPrimitive, positions: QUAD_POSITIONS, uvs: QUAD_UVS, indices: Array.from(QUAD_INDICES)});
+    sceneModel.createTexture({
+      id: "tex",
+      buffers: [PNG()],
+      mediaType: PNGMediaType,
+      minFilter: LinearFilter,
+      mipmap: true
+    });
+    sceneModel.createMaterial({id: "mat", colorTextureId: "tex"});
+    sceneModel.createMesh({id: "mesh", geometryId: "g", materialId: "mat"});
+    sceneModel.createObject({id: "obj", meshIds: ["mesh"]});
+
+    const glb = await new GLTFExporter().write({sceneModel} as any);
+    const json = readGLBJSON(glb);
+    const samplerIndex = json.textures[0].sampler;
+
+    expect(json.samplers[samplerIndex].minFilter).toBe(9987);
   });
 
   it("round-trips geometry + colour back through the GLTFLoader", async () => {

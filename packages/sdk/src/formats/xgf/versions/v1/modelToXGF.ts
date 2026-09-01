@@ -57,6 +57,23 @@ const MEDIA_TYPE_CODE: Record<number, number> = {
 const samplerCode = (v?: number): number =>
   (v !== undefined && SAMPLER_CODE[v] !== undefined) ? SAMPLER_CODE[v] : 0;
 
+const normalizeMipmapMinFilter = (minFilter: number | undefined, mipmap: boolean): number => {
+  switch (minFilter) {
+    case NearestMipMapNearestFilter:
+    case NearestMipMapLinearFilter:
+      return mipmap ? minFilter : NearestFilter;
+    case LinearMipMapNearestFilter:
+    case LinearMipMapLinearFilter:
+      return mipmap ? minFilter : LinearFilter;
+    case NearestFilter:
+      return mipmap ? NearestMipMapLinearFilter : NearestFilter;
+    case LinearFilter:
+      return mipmap ? LinearMipMapLinearFilter : LinearFilter;
+    default:
+      return mipmap ? LinearMipMapLinearFilter : LinearFilter;
+  }
+};
+
 /**
  * Encode a SceneModel into the XGF v1 payload.
  *
@@ -178,7 +195,7 @@ export async function modelToXGF(params: {
     textureWidths.push(tex.width || (tex.imageData?.width ?? (tex.image as any)?.width ?? 0));
     textureHeights.push(tex.height || (tex.imageData?.height ?? (tex.image as any)?.height ?? 0));
     textureSamplers.push(
-      samplerCode(tex.minFilter),
+      samplerCode(normalizeMipmapMinFilter(tex.minFilter, tex.mipmap)),
       samplerCode(tex.magFilter),
       samplerCode(tex.wrapS),
       samplerCode(tex.wrapT),

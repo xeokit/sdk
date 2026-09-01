@@ -58,14 +58,15 @@ describe("xgf v1 — texture encoding", () => {
     expect(normal.encoding).toBe(LinearEncoding);
   });
 
-  it("derives mipmap opt-in from mipmapped texture minification filters", async () => {
+  it("preserves explicit mipmap opt-in through mipmapped texture minification filters", async () => {
     const src = new Scene().createModel({id: "m"}).value!;
     src.createGeometry({id: "g", primitive: TrianglesPrimitive, ...TRI});
     src.createTexture({
       id: "mipped",
       buffers: [PNG()],
       mediaType: PNGMediaType,
-      minFilter: LinearMipMapLinearFilter
+      minFilter: LinearMipMapLinearFilter,
+      mipmap: true
     });
     src.createTexture({
       id: "linear",
@@ -84,18 +85,36 @@ describe("xgf v1 — texture encoding", () => {
     expect(calls.texture.find((t: any) => t.id === "mipped").mipmap).toBe(true);
     expect(calls.texture.find((t: any) => t.id === "linear").mipmap).toBe(false);
   });
+
+  it("keeps default texture mipmap opt-in disabled on export round-trip", async () => {
+    const src = new Scene().createModel({id: "m"}).value!;
+    src.createGeometry({id: "g", primitive: TrianglesPrimitive, ...TRI});
+    src.createTexture({id: "default", buffers: [PNG()], mediaType: PNGMediaType});
+    src.createMaterial({id: "mat", colorTextureId: "default"});
+    src.createMesh({id: "mesh", geometryId: "g", materialId: "mat"});
+    src.createObject({id: "obj", meshIds: ["mesh"]});
+
+    const buffer = await encodeV4({sceneModel: src} as any, {});
+    const {sceneModel: dst, calls} = capturingScene();
+    await parseV4({fileData: buffer, sceneModel: dst} as any, {});
+
+    const texture = calls.texture.find((t: any) => t.id === "default");
+    expect(texture.minFilter).toBe(LinearFilter);
+    expect(texture.mipmap).toBe(false);
+  });
 });
 
 describe("xgf v2 — texture sampler state", () => {
 
-  it("derives mipmap opt-in from mipmapped texture minification filters", async () => {
+  it("preserves explicit mipmap opt-in through mipmapped texture minification filters", async () => {
     const src = new Scene().createModel({id: "m"}).value!;
     src.createGeometry({id: "g", primitive: TrianglesPrimitive, ...TRI});
     src.createTexture({
       id: "mipped",
       buffers: [PNG()],
       mediaType: PNGMediaType,
-      minFilter: LinearMipMapLinearFilter
+      minFilter: LinearMipMapLinearFilter,
+      mipmap: true
     });
     src.createTexture({
       id: "linear",
@@ -113,5 +132,22 @@ describe("xgf v2 — texture sampler state", () => {
 
     expect(calls.texture.find((t: any) => t.id === "mipped").mipmap).toBe(true);
     expect(calls.texture.find((t: any) => t.id === "linear").mipmap).toBe(false);
+  });
+
+  it("keeps default texture mipmap opt-in disabled on export round-trip", async () => {
+    const src = new Scene().createModel({id: "m"}).value!;
+    src.createGeometry({id: "g", primitive: TrianglesPrimitive, ...TRI});
+    src.createTexture({id: "default", buffers: [PNG()], mediaType: PNGMediaType});
+    src.createMaterial({id: "mat", colorTextureId: "default"});
+    src.createMesh({id: "mesh", geometryId: "g", materialId: "mat"});
+    src.createObject({id: "obj", meshIds: ["mesh"]});
+
+    const buffer = await encodeV2({sceneModel: src} as any, {});
+    const {sceneModel: dst, calls} = capturingScene();
+    await parseV2({fileData: buffer, sceneModel: dst} as any, {});
+
+    const texture = calls.texture.find((t: any) => t.id === "default");
+    expect(texture.minFilter).toBe(LinearFilter);
+    expect(texture.mipmap).toBe(false);
   });
 });

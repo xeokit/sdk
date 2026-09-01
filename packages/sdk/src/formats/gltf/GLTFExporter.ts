@@ -465,7 +465,7 @@ function bindTexture(
 function applySampler(info: GLTFTextureInfo | null, sceneTex: SceneTexture): void {
   if (!info) return;
   const mag = xeokitFilterToGLTF(sceneTex.magFilter, /*allowMipmap=*/false);
-  const min = xeokitFilterToGLTF(sceneTex.minFilter, /*allowMipmap=*/true);
+  const min = xeokitFilterToGLTF(normalizeMipmapMinFilter(sceneTex.minFilter, sceneTex.mipmap), /*allowMipmap=*/true);
   if (mag !== null) info.setMagFilter(mag as any);
   if (min !== null) info.setMinFilter(min as any);
   info.setWrapS(xeokitWrapToGLTF(sceneTex.wrapS) as any);
@@ -611,6 +611,23 @@ function xeokitFilterToGLTF(filter: number, allowMipmap: boolean): number | null
     case NearestMipMapLinearFilter:    return allowMipmap ? 9986 : 9728;
     case LinearMipMapLinearFilter:     return allowMipmap ? 9987 : 9729;
     default:                           return null;
+  }
+}
+
+function normalizeMipmapMinFilter(minFilter: number, mipmap: boolean): number {
+  switch (minFilter) {
+    case NearestMipMapNearestFilter:
+    case NearestMipMapLinearFilter:
+      return mipmap ? minFilter : NearestFilter;
+    case LinearMipMapNearestFilter:
+    case LinearMipMapLinearFilter:
+      return mipmap ? minFilter : LinearFilter;
+    case NearestFilter:
+      return mipmap ? NearestMipMapLinearFilter : NearestFilter;
+    case LinearFilter:
+      return mipmap ? LinearMipMapLinearFilter : LinearFilter;
+    default:
+      return mipmap ? LinearMipMapLinearFilter : LinearFilter;
   }
 }
 

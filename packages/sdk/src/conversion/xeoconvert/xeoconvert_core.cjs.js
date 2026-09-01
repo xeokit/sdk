@@ -1214,11 +1214,11 @@ var require_stream_writable = __commonJS({
 // ../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_transform.js
 var require_stream_transform = __commonJS({
   "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_transform.js"(exports2, module2) {
-    module2.exports = Transform;
+    module2.exports = Transform2;
     var Duplex = require_stream_duplex();
     var util = require_util();
     util.inherits = require_inherits();
-    util.inherits(Transform, Duplex);
+    util.inherits(Transform2, Duplex);
     function TransformState(options, stream2) {
       this.afterTransform = function(er2, data) {
         return afterTransform(stream2, er2, data);
@@ -1246,9 +1246,9 @@ var require_stream_transform = __commonJS({
         stream2._read(rs.highWaterMark);
       }
     }
-    function Transform(options) {
-      if (!(this instanceof Transform))
-        return new Transform(options);
+    function Transform2(options) {
+      if (!(this instanceof Transform2))
+        return new Transform2(options);
       Duplex.call(this, options);
       var ts = this._transformState = new TransformState(options, this);
       var stream2 = this;
@@ -1263,14 +1263,14 @@ var require_stream_transform = __commonJS({
           done(stream2);
       });
     }
-    Transform.prototype.push = function(chunk, encoding) {
+    Transform2.prototype.push = function(chunk, encoding) {
       this._transformState.needTransform = false;
       return Duplex.prototype.push.call(this, chunk, encoding);
     };
-    Transform.prototype._transform = function(chunk, encoding, cb2) {
+    Transform2.prototype._transform = function(chunk, encoding, cb2) {
       throw new Error("not implemented");
     };
-    Transform.prototype._write = function(chunk, encoding, cb2) {
+    Transform2.prototype._write = function(chunk, encoding, cb2) {
       var ts = this._transformState;
       ts.writecb = cb2;
       ts.writechunk = chunk;
@@ -1281,7 +1281,7 @@ var require_stream_transform = __commonJS({
           this._read(rs.highWaterMark);
       }
     };
-    Transform.prototype._read = function(n2) {
+    Transform2.prototype._read = function(n2) {
       var ts = this._transformState;
       if (ts.writechunk !== null && ts.writecb && !ts.transforming) {
         ts.transforming = true;
@@ -1309,14 +1309,14 @@ var require_stream_transform = __commonJS({
 var require_stream_passthrough = __commonJS({
   "../../node_modules/.pnpm/readable-stream@1.0.34/node_modules/readable-stream/lib/_stream_passthrough.js"(exports2, module2) {
     module2.exports = PassThrough;
-    var Transform = require_stream_transform();
+    var Transform2 = require_stream_transform();
     var util = require_util();
     util.inherits = require_inherits();
-    util.inherits(PassThrough, Transform);
+    util.inherits(PassThrough, Transform2);
     function PassThrough(options) {
       if (!(this instanceof PassThrough))
         return new PassThrough(options);
-      Transform.call(this, options);
+      Transform2.call(this, options);
     }
     PassThrough.prototype._transform = function(chunk, encoding, cb2) {
       cb2(null, chunk);
@@ -2337,11 +2337,11 @@ var require_stream_readable2 = __commonJS({
 // ../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_transform.js
 var require_stream_transform2 = __commonJS({
   "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_transform.js"(exports2, module2) {
-    module2.exports = Transform;
+    module2.exports = Transform2;
     var Duplex = require_stream_duplex2();
     var util = require_util();
     util.inherits = require_inherits();
-    util.inherits(Transform, Duplex);
+    util.inherits(Transform2, Duplex);
     function TransformState(options, stream2) {
       this.afterTransform = function(er2, data) {
         return afterTransform(stream2, er2, data);
@@ -2369,9 +2369,9 @@ var require_stream_transform2 = __commonJS({
         stream2._read(rs.highWaterMark);
       }
     }
-    function Transform(options) {
-      if (!(this instanceof Transform))
-        return new Transform(options);
+    function Transform2(options) {
+      if (!(this instanceof Transform2))
+        return new Transform2(options);
       Duplex.call(this, options);
       this._transformState = new TransformState(options, this);
       var stream2 = this;
@@ -2386,14 +2386,14 @@ var require_stream_transform2 = __commonJS({
           done(stream2);
       });
     }
-    Transform.prototype.push = function(chunk, encoding) {
+    Transform2.prototype.push = function(chunk, encoding) {
       this._transformState.needTransform = false;
       return Duplex.prototype.push.call(this, chunk, encoding);
     };
-    Transform.prototype._transform = function(chunk, encoding, cb2) {
+    Transform2.prototype._transform = function(chunk, encoding, cb2) {
       throw new Error("not implemented");
     };
-    Transform.prototype._write = function(chunk, encoding, cb2) {
+    Transform2.prototype._write = function(chunk, encoding, cb2) {
       var ts = this._transformState;
       ts.writecb = cb2;
       ts.writechunk = chunk;
@@ -2404,7 +2404,7 @@ var require_stream_transform2 = __commonJS({
           this._read(rs.highWaterMark);
       }
     };
-    Transform.prototype._read = function(n2) {
+    Transform2.prototype._read = function(n2) {
       var ts = this._transformState;
       if (!util.isNull(ts.writechunk) && ts.writecb && !ts.transforming) {
         ts.transforming = true;
@@ -2431,14 +2431,14 @@ var require_stream_transform2 = __commonJS({
 var require_stream_passthrough2 = __commonJS({
   "../../node_modules/.pnpm/readable-stream@1.1.14/node_modules/readable-stream/lib/_stream_passthrough.js"(exports2, module2) {
     module2.exports = PassThrough;
-    var Transform = require_stream_transform2();
+    var Transform2 = require_stream_transform2();
     var util = require_util();
     util.inherits = require_inherits();
-    util.inherits(PassThrough, Transform);
+    util.inherits(PassThrough, Transform2);
     function PassThrough(options) {
       if (!(this instanceof PassThrough))
         return new PassThrough(options);
-      Transform.call(this, options);
+      Transform2.call(this, options);
     }
     PassThrough.prototype._transform = function(chunk, encoding, cb2) {
       cb2(null, chunk);
@@ -4663,7 +4663,7 @@ var require_decoder = __commonJS({
         var blocksPerLine = component.blocksPerLine;
         var blocksPerColumn = component.blocksPerColumn;
         var samplesPerLine = blocksPerLine << 3;
-        var R3 = new Int32Array(64), r2 = new Uint8Array(64);
+        var R4 = new Int32Array(64), r2 = new Uint8Array(64);
         function quantizeAndInverse(zz, dataOut, dataIn) {
           var qt2 = component.quantizationTable;
           var v0, v1, v2, v3, v4, v5, v6, v7, t2;
@@ -4793,7 +4793,7 @@ var require_decoder = __commonJS({
           for (i2 = 0; i2 < 8; i2++)
             lines.push(new Uint8Array(samplesPerLine));
           for (var blockCol = 0; blockCol < blocksPerLine; blockCol++) {
-            quantizeAndInverse(component.blocks[blockRow][blockCol], r2, R3);
+            quantizeAndInverse(component.blocks[blockRow][blockCol], r2, R4);
             var offset = 0, sample = blockCol << 3;
             for (j2 = 0; j2 < 8; j2++) {
               var line = lines[scanLine + j2];
@@ -5109,7 +5109,7 @@ var require_decoder = __commonJS({
           var component1Line, component2Line, component3Line, component4Line;
           var x2, y2;
           var offset = 0;
-          var Y2, Cb, Cr2, K2, C2, M2, Ye2, R3, G3, B3;
+          var Y2, Cb, Cr2, K2, C2, M2, Ye2, R4, G4, B4;
           var colorTransform;
           var dataLength = width * height * this.components.length;
           requestMemoryAllocation(dataLength);
@@ -5154,20 +5154,20 @@ var require_decoder = __commonJS({
                 component3Line = component3.lines[0 | y2 * component3.scaleY * scaleY];
                 for (x2 = 0; x2 < width; x2++) {
                   if (!colorTransform) {
-                    R3 = component1Line[0 | x2 * component1.scaleX * scaleX];
-                    G3 = component2Line[0 | x2 * component2.scaleX * scaleX];
-                    B3 = component3Line[0 | x2 * component3.scaleX * scaleX];
+                    R4 = component1Line[0 | x2 * component1.scaleX * scaleX];
+                    G4 = component2Line[0 | x2 * component2.scaleX * scaleX];
+                    B4 = component3Line[0 | x2 * component3.scaleX * scaleX];
                   } else {
                     Y2 = component1Line[0 | x2 * component1.scaleX * scaleX];
                     Cb = component2Line[0 | x2 * component2.scaleX * scaleX];
                     Cr2 = component3Line[0 | x2 * component3.scaleX * scaleX];
-                    R3 = clampTo8bit(Y2 + 1.402 * (Cr2 - 128));
-                    G3 = clampTo8bit(Y2 - 0.3441363 * (Cb - 128) - 0.71413636 * (Cr2 - 128));
-                    B3 = clampTo8bit(Y2 + 1.772 * (Cb - 128));
+                    R4 = clampTo8bit(Y2 + 1.402 * (Cr2 - 128));
+                    G4 = clampTo8bit(Y2 - 0.3441363 * (Cb - 128) - 0.71413636 * (Cr2 - 128));
+                    B4 = clampTo8bit(Y2 + 1.772 * (Cb - 128));
                   }
-                  data[offset++] = R3;
-                  data[offset++] = G3;
-                  data[offset++] = B3;
+                  data[offset++] = R4;
+                  data[offset++] = G4;
+                  data[offset++] = B4;
                 }
               }
               break;
@@ -5220,7 +5220,7 @@ var require_decoder = __commonJS({
           var imageDataArray = imageData2.data;
           var data = this.getData(width, height);
           var i2 = 0, j2 = 0, x2, y2;
-          var Y2, K2, C2, M2, R3, G3, B3;
+          var Y2, K2, C2, M2, R4, G4, B4;
           switch (this.components.length) {
             case 1:
               for (y2 = 0; y2 < height; y2++) {
@@ -5238,12 +5238,12 @@ var require_decoder = __commonJS({
             case 3:
               for (y2 = 0; y2 < height; y2++) {
                 for (x2 = 0; x2 < width; x2++) {
-                  R3 = data[i2++];
-                  G3 = data[i2++];
-                  B3 = data[i2++];
-                  imageDataArray[j2++] = R3;
-                  imageDataArray[j2++] = G3;
-                  imageDataArray[j2++] = B3;
+                  R4 = data[i2++];
+                  G4 = data[i2++];
+                  B4 = data[i2++];
+                  imageDataArray[j2++] = R4;
+                  imageDataArray[j2++] = G4;
+                  imageDataArray[j2++] = B4;
                   if (formatAsRGBA) {
                     imageDataArray[j2++] = 255;
                   }
@@ -5257,12 +5257,12 @@ var require_decoder = __commonJS({
                   M2 = data[i2++];
                   Y2 = data[i2++];
                   K2 = data[i2++];
-                  R3 = 255 - clampTo8bit(C2 * (1 - K2 / 255) + K2);
-                  G3 = 255 - clampTo8bit(M2 * (1 - K2 / 255) + K2);
-                  B3 = 255 - clampTo8bit(Y2 * (1 - K2 / 255) + K2);
-                  imageDataArray[j2++] = R3;
-                  imageDataArray[j2++] = G3;
-                  imageDataArray[j2++] = B3;
+                  R4 = 255 - clampTo8bit(C2 * (1 - K2 / 255) + K2);
+                  G4 = 255 - clampTo8bit(M2 * (1 - K2 / 255) + K2);
+                  B4 = 255 - clampTo8bit(Y2 * (1 - K2 / 255) + K2);
+                  imageDataArray[j2++] = R4;
+                  imageDataArray[j2++] = G4;
+                  imageDataArray[j2++] = B4;
                   if (formatAsRGBA) {
                     imageDataArray[j2++] = 255;
                   }
@@ -5444,27 +5444,27 @@ var require_chunkstream = __commonJS({
       this._buffers = null;
       this.emit("close");
     };
-    ChunkStream.prototype._processReadAllowingLess = function(read2) {
+    ChunkStream.prototype._processReadAllowingLess = function(read3) {
       this._reads.shift();
       var smallerBuf = this._buffers[0];
-      if (smallerBuf.length > read2.length) {
-        this._buffered -= read2.length;
-        this._buffers[0] = smallerBuf.slice(read2.length);
-        read2.func.call(this, smallerBuf.slice(0, read2.length));
+      if (smallerBuf.length > read3.length) {
+        this._buffered -= read3.length;
+        this._buffers[0] = smallerBuf.slice(read3.length);
+        read3.func.call(this, smallerBuf.slice(0, read3.length));
       } else {
         this._buffered -= smallerBuf.length;
         this._buffers.shift();
-        read2.func.call(this, smallerBuf);
+        read3.func.call(this, smallerBuf);
       }
     };
-    ChunkStream.prototype._processRead = function(read2) {
+    ChunkStream.prototype._processRead = function(read3) {
       this._reads.shift();
       var pos = 0;
       var count = 0;
-      var data = new Buffer(read2.length);
-      while (pos < read2.length) {
+      var data = new Buffer(read3.length);
+      while (pos < read3.length) {
         var buf = this._buffers[count++];
-        var len = Math.min(buf.length, read2.length - pos);
+        var len = Math.min(buf.length, read3.length - pos);
         buf.copy(data, pos, 0, len);
         pos += len;
         if (len !== buf.length) {
@@ -5474,17 +5474,17 @@ var require_chunkstream = __commonJS({
       if (count > 0) {
         this._buffers.splice(0, count);
       }
-      this._buffered -= read2.length;
-      read2.func.call(this, data);
+      this._buffered -= read3.length;
+      read3.func.call(this, data);
     };
     ChunkStream.prototype._process = function() {
       try {
         while (this._buffered > 0 && this._reads && this._reads.length > 0) {
-          var read2 = this._reads[0];
-          if (read2.allowLess) {
-            this._processReadAllowingLess(read2);
-          } else if (this._buffered >= read2.length) {
-            this._processRead(read2);
+          var read3 = this._reads[0];
+          if (read3.allowLess) {
+            this._processReadAllowingLess(read3);
+          } else if (this._buffered >= read3.length) {
+            this._processRead(read3);
           } else {
             break;
           }
@@ -6732,12 +6732,12 @@ var require_sync_reader = __commonJS({
     };
     SyncReader.prototype.process = function() {
       while (this._reads.length > 0 && this._buffer.length) {
-        var read2 = this._reads[0];
-        if (this._buffer.length && (this._buffer.length >= read2.length || read2.allowLess)) {
+        var read3 = this._reads[0];
+        if (this._buffer.length && (this._buffer.length >= read3.length || read3.allowLess)) {
           this._reads.shift();
           var buf = this._buffer;
-          this._buffer = buf.slice(read2.length);
-          read2.func.call(this, buf.slice(0, read2.length));
+          this._buffer = buf.slice(read3.length);
+          read3.func.call(this, buf.slice(0, read3.length));
         } else {
           break;
         }
@@ -8666,27 +8666,27 @@ var require_chunkstream2 = __commonJS({
       this._buffers = null;
       this.emit("close");
     };
-    ChunkStream.prototype._processReadAllowingLess = function(read2) {
+    ChunkStream.prototype._processReadAllowingLess = function(read3) {
       this._reads.shift();
       var smallerBuf = this._buffers[0];
-      if (smallerBuf.length > read2.length) {
-        this._buffered -= read2.length;
-        this._buffers[0] = smallerBuf.slice(read2.length);
-        read2.func.call(this, smallerBuf.slice(0, read2.length));
+      if (smallerBuf.length > read3.length) {
+        this._buffered -= read3.length;
+        this._buffers[0] = smallerBuf.slice(read3.length);
+        read3.func.call(this, smallerBuf.slice(0, read3.length));
       } else {
         this._buffered -= smallerBuf.length;
         this._buffers.shift();
-        read2.func.call(this, smallerBuf);
+        read3.func.call(this, smallerBuf);
       }
     };
-    ChunkStream.prototype._processRead = function(read2) {
+    ChunkStream.prototype._processRead = function(read3) {
       this._reads.shift();
       var pos = 0;
       var count = 0;
-      var data = new Buffer(read2.length);
-      while (pos < read2.length) {
+      var data = new Buffer(read3.length);
+      while (pos < read3.length) {
         var buf = this._buffers[count++];
-        var len = Math.min(buf.length, read2.length - pos);
+        var len = Math.min(buf.length, read3.length - pos);
         buf.copy(data, pos, 0, len);
         pos += len;
         if (len !== buf.length) {
@@ -8696,17 +8696,17 @@ var require_chunkstream2 = __commonJS({
       if (count > 0) {
         this._buffers.splice(0, count);
       }
-      this._buffered -= read2.length;
-      read2.func.call(this, data);
+      this._buffered -= read3.length;
+      read3.func.call(this, data);
     };
     ChunkStream.prototype._process = function() {
       try {
         while (this._buffered > 0 && this._reads && this._reads.length > 0) {
-          var read2 = this._reads[0];
-          if (read2.allowLess) {
-            this._processReadAllowingLess(read2);
-          } else if (this._buffered >= read2.length) {
-            this._processRead(read2);
+          var read3 = this._reads[0];
+          if (read3.allowLess) {
+            this._processReadAllowingLess(read3);
+          } else if (this._buffered >= read3.length) {
+            this._processRead(read3);
           } else {
             break;
           }
@@ -10283,12 +10283,12 @@ var require_sync_reader2 = __commonJS({
     };
     SyncReader.prototype.process = function() {
       while (this._reads.length > 0 && this._buffer.length) {
-        var read2 = this._reads[0];
-        if (this._buffer.length && (this._buffer.length >= read2.length || read2.allowLess)) {
+        var read3 = this._reads[0];
+        if (this._buffer.length && (this._buffer.length >= read3.length || read3.allowLess)) {
           this._reads.shift();
           var buf = this._buffer;
-          this._buffer = buf.slice(read2.length);
-          read2.func.call(this, buf.slice(0, read2.length));
+          this._buffer = buf.slice(read3.length);
+          read3.func.call(this, buf.slice(0, read3.length));
         } else {
           break;
         }
@@ -11288,11 +11288,11 @@ var require_bitmap = __commonJS({
       return this.coreHeader.__height__;
     };
     Bitmap.prototype.read = function(buf, offset, limit) {
-      var read2 = [];
+      var read3 = [];
       for (var i2 = offset, len = offset + limit; i2 < len; ++i2) {
-        read2.push(buf.readInt8(i2));
+        read3.push(buf.readInt8(i2));
       }
-      return new Buffer(read2);
+      return new Buffer(read3);
     };
     Bitmap.prototype.readFileHeader = function() {
       var bfType = this.read(this.buffer, 0, 2);
@@ -11894,7 +11894,7 @@ var require_psl = __commonJS({
       if (F2)
         return O2;
       F2 = 1;
-      const e2 = 2147483647, s2 = 36, c3 = 1, o2 = 26, t2 = 38, d2 = 700, z2 = 72, y2 = 128, g2 = "-", P2 = /^xn--/, V2 = /[^\0-\x7F]/, G3 = /[\x2E\u3002\uFF0E\uFF61]/g, W2 = { overflow: "Overflow: input needs wider integers to process", "not-basic": "Illegal input >= 0x80 (not a basic code point)", "invalid-input": "Invalid input" }, C2 = s2 - c3, h3 = Math.floor, I2 = String.fromCharCode;
+      const e2 = 2147483647, s2 = 36, c3 = 1, o2 = 26, t2 = 38, d2 = 700, z2 = 72, y2 = 128, g2 = "-", P2 = /^xn--/, V2 = /[^\0-\x7F]/, G4 = /[\x2E\u3002\uFF0E\uFF61]/g, W2 = { overflow: "Overflow: input needs wider integers to process", "not-basic": "Illegal input >= 0x80 (not a basic code point)", "invalid-input": "Invalid input" }, C2 = s2 - c3, h3 = Math.floor, I2 = String.fromCharCode;
       function v2(a3) {
         throw new RangeError(W2[a3]);
       }
@@ -11908,7 +11908,7 @@ var require_psl = __commonJS({
       function S2(a3, i2) {
         const m2 = a3.split("@");
         let n2 = "";
-        m2.length > 1 && (n2 = m2[0] + "@", a3 = m2[1]), a3 = a3.replace(G3, ".");
+        m2.length > 1 && (n2 = m2[0] + "@", a3 = m2[1]), a3 = a3.replace(G4, ".");
         const r2 = a3.split("."), p2 = U2(r2, i2).join(".");
         return n2 + p2;
       }
@@ -11957,7 +11957,7 @@ var require_psl = __commonJS({
           p2 = T2(n2 - k2, f2, k2 == 0), h3(n2 / f2) > e2 - r2 && v2("overflow"), r2 += h3(n2 / f2), n2 %= f2, i2.splice(n2++, 0, r2);
         }
         return String.fromCodePoint(...i2);
-      }, B3 = function(a3) {
+      }, B4 = function(a3) {
         const i2 = [];
         a3 = L2(a3);
         const m2 = a3.length;
@@ -11988,9 +11988,9 @@ var require_psl = __commonJS({
         }
         return i2.join("");
       };
-      return O2 = { version: "2.3.1", ucs2: { decode: L2, encode: $2 }, decode: E2, encode: B3, toASCII: function(a3) {
+      return O2 = { version: "2.3.1", ucs2: { decode: L2, encode: $2 }, decode: E2, encode: B4, toASCII: function(a3) {
         return S2(a3, function(i2) {
-          return V2.test(i2) ? "xn--" + B3(i2) : i2;
+          return V2.test(i2) ? "xn--" + B4(i2) : i2;
         });
       }, toUnicode: function(a3) {
         return S2(a3, function(i2) {
@@ -11999,16 +11999,16 @@ var require_psl = __commonJS({
       } }, O2;
     }
     var X2 = Q2();
-    var A3 = K2(X2);
+    var A4 = K2(X2);
     var Y2 = ["ac", "com.ac", "edu.ac", "gov.ac", "mil.ac", "net.ac", "org.ac", "ad", "ae", "ac.ae", "co.ae", "gov.ae", "mil.ae", "net.ae", "org.ae", "sch.ae", "aero", "airline.aero", "airport.aero", "accident-investigation.aero", "accident-prevention.aero", "aerobatic.aero", "aeroclub.aero", "aerodrome.aero", "agents.aero", "air-surveillance.aero", "air-traffic-control.aero", "aircraft.aero", "airtraffic.aero", "ambulance.aero", "association.aero", "author.aero", "ballooning.aero", "broker.aero", "caa.aero", "cargo.aero", "catering.aero", "certification.aero", "championship.aero", "charter.aero", "civilaviation.aero", "club.aero", "conference.aero", "consultant.aero", "consulting.aero", "control.aero", "council.aero", "crew.aero", "design.aero", "dgca.aero", "educator.aero", "emergency.aero", "engine.aero", "engineer.aero", "entertainment.aero", "equipment.aero", "exchange.aero", "express.aero", "federation.aero", "flight.aero", "freight.aero", "fuel.aero", "gliding.aero", "government.aero", "groundhandling.aero", "group.aero", "hanggliding.aero", "homebuilt.aero", "insurance.aero", "journal.aero", "journalist.aero", "leasing.aero", "logistics.aero", "magazine.aero", "maintenance.aero", "marketplace.aero", "media.aero", "microlight.aero", "modelling.aero", "navigation.aero", "parachuting.aero", "paragliding.aero", "passenger-association.aero", "pilot.aero", "press.aero", "production.aero", "recreation.aero", "repbody.aero", "res.aero", "research.aero", "rotorcraft.aero", "safety.aero", "scientist.aero", "services.aero", "show.aero", "skydiving.aero", "software.aero", "student.aero", "taxi.aero", "trader.aero", "trading.aero", "trainer.aero", "union.aero", "workinggroup.aero", "works.aero", "af", "com.af", "edu.af", "gov.af", "net.af", "org.af", "ag", "co.ag", "com.ag", "net.ag", "nom.ag", "org.ag", "ai", "com.ai", "net.ai", "off.ai", "org.ai", "al", "com.al", "edu.al", "gov.al", "mil.al", "net.al", "org.al", "am", "co.am", "com.am", "commune.am", "net.am", "org.am", "ao", "co.ao", "ed.ao", "edu.ao", "gov.ao", "gv.ao", "it.ao", "og.ao", "org.ao", "pb.ao", "aq", "ar", "bet.ar", "com.ar", "coop.ar", "edu.ar", "gob.ar", "gov.ar", "int.ar", "mil.ar", "musica.ar", "mutual.ar", "net.ar", "org.ar", "senasa.ar", "tur.ar", "arpa", "e164.arpa", "home.arpa", "in-addr.arpa", "ip6.arpa", "iris.arpa", "uri.arpa", "urn.arpa", "as", "gov.as", "asia", "at", "ac.at", "sth.ac.at", "co.at", "gv.at", "or.at", "au", "asn.au", "com.au", "edu.au", "gov.au", "id.au", "net.au", "org.au", "conf.au", "oz.au", "act.au", "nsw.au", "nt.au", "qld.au", "sa.au", "tas.au", "vic.au", "wa.au", "act.edu.au", "catholic.edu.au", "nsw.edu.au", "nt.edu.au", "qld.edu.au", "sa.edu.au", "tas.edu.au", "vic.edu.au", "wa.edu.au", "qld.gov.au", "sa.gov.au", "tas.gov.au", "vic.gov.au", "wa.gov.au", "schools.nsw.edu.au", "aw", "com.aw", "ax", "az", "biz.az", "com.az", "edu.az", "gov.az", "info.az", "int.az", "mil.az", "name.az", "net.az", "org.az", "pp.az", "pro.az", "ba", "com.ba", "edu.ba", "gov.ba", "mil.ba", "net.ba", "org.ba", "bb", "biz.bb", "co.bb", "com.bb", "edu.bb", "gov.bb", "info.bb", "net.bb", "org.bb", "store.bb", "tv.bb", "*.bd", "be", "ac.be", "bf", "gov.bf", "bg", "0.bg", "1.bg", "2.bg", "3.bg", "4.bg", "5.bg", "6.bg", "7.bg", "8.bg", "9.bg", "a.bg", "b.bg", "c.bg", "d.bg", "e.bg", "f.bg", "g.bg", "h.bg", "i.bg", "j.bg", "k.bg", "l.bg", "m.bg", "n.bg", "o.bg", "p.bg", "q.bg", "r.bg", "s.bg", "t.bg", "u.bg", "v.bg", "w.bg", "x.bg", "y.bg", "z.bg", "bh", "com.bh", "edu.bh", "gov.bh", "net.bh", "org.bh", "bi", "co.bi", "com.bi", "edu.bi", "or.bi", "org.bi", "biz", "bj", "africa.bj", "agro.bj", "architectes.bj", "assur.bj", "avocats.bj", "co.bj", "com.bj", "eco.bj", "econo.bj", "edu.bj", "info.bj", "loisirs.bj", "money.bj", "net.bj", "org.bj", "ote.bj", "restaurant.bj", "resto.bj", "tourism.bj", "univ.bj", "bm", "com.bm", "edu.bm", "gov.bm", "net.bm", "org.bm", "bn", "com.bn", "edu.bn", "gov.bn", "net.bn", "org.bn", "bo", "com.bo", "edu.bo", "gob.bo", "int.bo", "mil.bo", "net.bo", "org.bo", "tv.bo", "web.bo", "academia.bo", "agro.bo", "arte.bo", "blog.bo", "bolivia.bo", "ciencia.bo", "cooperativa.bo", "democracia.bo", "deporte.bo", "ecologia.bo", "economia.bo", "empresa.bo", "indigena.bo", "industria.bo", "info.bo", "medicina.bo", "movimiento.bo", "musica.bo", "natural.bo", "nombre.bo", "noticias.bo", "patria.bo", "plurinacional.bo", "politica.bo", "profesional.bo", "pueblo.bo", "revista.bo", "salud.bo", "tecnologia.bo", "tksat.bo", "transporte.bo", "wiki.bo", "br", "9guacu.br", "abc.br", "adm.br", "adv.br", "agr.br", "aju.br", "am.br", "anani.br", "aparecida.br", "app.br", "arq.br", "art.br", "ato.br", "b.br", "barueri.br", "belem.br", "bet.br", "bhz.br", "bib.br", "bio.br", "blog.br", "bmd.br", "boavista.br", "bsb.br", "campinagrande.br", "campinas.br", "caxias.br", "cim.br", "cng.br", "cnt.br", "com.br", "contagem.br", "coop.br", "coz.br", "cri.br", "cuiaba.br", "curitiba.br", "def.br", "des.br", "det.br", "dev.br", "ecn.br", "eco.br", "edu.br", "emp.br", "enf.br", "eng.br", "esp.br", "etc.br", "eti.br", "far.br", "feira.br", "flog.br", "floripa.br", "fm.br", "fnd.br", "fortal.br", "fot.br", "foz.br", "fst.br", "g12.br", "geo.br", "ggf.br", "goiania.br", "gov.br", "ac.gov.br", "al.gov.br", "am.gov.br", "ap.gov.br", "ba.gov.br", "ce.gov.br", "df.gov.br", "es.gov.br", "go.gov.br", "ma.gov.br", "mg.gov.br", "ms.gov.br", "mt.gov.br", "pa.gov.br", "pb.gov.br", "pe.gov.br", "pi.gov.br", "pr.gov.br", "rj.gov.br", "rn.gov.br", "ro.gov.br", "rr.gov.br", "rs.gov.br", "sc.gov.br", "se.gov.br", "sp.gov.br", "to.gov.br", "gru.br", "imb.br", "ind.br", "inf.br", "jab.br", "jampa.br", "jdf.br", "joinville.br", "jor.br", "jus.br", "leg.br", "leilao.br", "lel.br", "log.br", "londrina.br", "macapa.br", "maceio.br", "manaus.br", "maringa.br", "mat.br", "med.br", "mil.br", "morena.br", "mp.br", "mus.br", "natal.br", "net.br", "niteroi.br", "*.nom.br", "not.br", "ntr.br", "odo.br", "ong.br", "org.br", "osasco.br", "palmas.br", "poa.br", "ppg.br", "pro.br", "psc.br", "psi.br", "pvh.br", "qsl.br", "radio.br", "rec.br", "recife.br", "rep.br", "ribeirao.br", "rio.br", "riobranco.br", "riopreto.br", "salvador.br", "sampa.br", "santamaria.br", "santoandre.br", "saobernardo.br", "saogonca.br", "seg.br", "sjc.br", "slg.br", "slz.br", "sorocaba.br", "srv.br", "taxi.br", "tc.br", "tec.br", "teo.br", "the.br", "tmp.br", "trd.br", "tur.br", "tv.br", "udi.br", "vet.br", "vix.br", "vlog.br", "wiki.br", "zlg.br", "bs", "com.bs", "edu.bs", "gov.bs", "net.bs", "org.bs", "bt", "com.bt", "edu.bt", "gov.bt", "net.bt", "org.bt", "bv", "bw", "co.bw", "org.bw", "by", "gov.by", "mil.by", "com.by", "of.by", "bz", "co.bz", "com.bz", "edu.bz", "gov.bz", "net.bz", "org.bz", "ca", "ab.ca", "bc.ca", "mb.ca", "nb.ca", "nf.ca", "nl.ca", "ns.ca", "nt.ca", "nu.ca", "on.ca", "pe.ca", "qc.ca", "sk.ca", "yk.ca", "gc.ca", "cat", "cc", "cd", "gov.cd", "cf", "cg", "ch", "ci", "ac.ci", "a\xE9roport.ci", "asso.ci", "co.ci", "com.ci", "ed.ci", "edu.ci", "go.ci", "gouv.ci", "int.ci", "net.ci", "or.ci", "org.ci", "*.ck", "!www.ck", "cl", "co.cl", "gob.cl", "gov.cl", "mil.cl", "cm", "co.cm", "com.cm", "gov.cm", "net.cm", "cn", "ac.cn", "com.cn", "edu.cn", "gov.cn", "mil.cn", "net.cn", "org.cn", "\u516C\u53F8.cn", "\u7DB2\u7D61.cn", "\u7F51\u7EDC.cn", "ah.cn", "bj.cn", "cq.cn", "fj.cn", "gd.cn", "gs.cn", "gx.cn", "gz.cn", "ha.cn", "hb.cn", "he.cn", "hi.cn", "hk.cn", "hl.cn", "hn.cn", "jl.cn", "js.cn", "jx.cn", "ln.cn", "mo.cn", "nm.cn", "nx.cn", "qh.cn", "sc.cn", "sd.cn", "sh.cn", "sn.cn", "sx.cn", "tj.cn", "tw.cn", "xj.cn", "xz.cn", "yn.cn", "zj.cn", "co", "com.co", "edu.co", "gov.co", "mil.co", "net.co", "nom.co", "org.co", "com", "coop", "cr", "ac.cr", "co.cr", "ed.cr", "fi.cr", "go.cr", "or.cr", "sa.cr", "cu", "com.cu", "edu.cu", "gob.cu", "inf.cu", "nat.cu", "net.cu", "org.cu", "cv", "com.cv", "edu.cv", "id.cv", "int.cv", "net.cv", "nome.cv", "org.cv", "publ.cv", "cw", "com.cw", "edu.cw", "net.cw", "org.cw", "cx", "gov.cx", "cy", "ac.cy", "biz.cy", "com.cy", "ekloges.cy", "gov.cy", "ltd.cy", "mil.cy", "net.cy", "org.cy", "press.cy", "pro.cy", "tm.cy", "cz", "de", "dj", "dk", "dm", "co.dm", "com.dm", "edu.dm", "gov.dm", "net.dm", "org.dm", "do", "art.do", "com.do", "edu.do", "gob.do", "gov.do", "mil.do", "net.do", "org.do", "sld.do", "web.do", "dz", "art.dz", "asso.dz", "com.dz", "edu.dz", "gov.dz", "net.dz", "org.dz", "pol.dz", "soc.dz", "tm.dz", "ec", "com.ec", "edu.ec", "fin.ec", "gob.ec", "gov.ec", "info.ec", "k12.ec", "med.ec", "mil.ec", "net.ec", "org.ec", "pro.ec", "edu", "ee", "aip.ee", "com.ee", "edu.ee", "fie.ee", "gov.ee", "lib.ee", "med.ee", "org.ee", "pri.ee", "riik.ee", "eg", "ac.eg", "com.eg", "edu.eg", "eun.eg", "gov.eg", "info.eg", "me.eg", "mil.eg", "name.eg", "net.eg", "org.eg", "sci.eg", "sport.eg", "tv.eg", "*.er", "es", "com.es", "edu.es", "gob.es", "nom.es", "org.es", "et", "biz.et", "com.et", "edu.et", "gov.et", "info.et", "name.et", "net.et", "org.et", "eu", "fi", "aland.fi", "fj", "ac.fj", "biz.fj", "com.fj", "gov.fj", "info.fj", "mil.fj", "name.fj", "net.fj", "org.fj", "pro.fj", "*.fk", "fm", "com.fm", "edu.fm", "net.fm", "org.fm", "fo", "fr", "asso.fr", "com.fr", "gouv.fr", "nom.fr", "prd.fr", "tm.fr", "avoues.fr", "cci.fr", "greta.fr", "huissier-justice.fr", "ga", "gb", "gd", "edu.gd", "gov.gd", "ge", "com.ge", "edu.ge", "gov.ge", "net.ge", "org.ge", "pvt.ge", "school.ge", "gf", "gg", "co.gg", "net.gg", "org.gg", "gh", "com.gh", "edu.gh", "gov.gh", "mil.gh", "org.gh", "gi", "com.gi", "edu.gi", "gov.gi", "ltd.gi", "mod.gi", "org.gi", "gl", "co.gl", "com.gl", "edu.gl", "net.gl", "org.gl", "gm", "gn", "ac.gn", "com.gn", "edu.gn", "gov.gn", "net.gn", "org.gn", "gov", "gp", "asso.gp", "com.gp", "edu.gp", "mobi.gp", "net.gp", "org.gp", "gq", "gr", "com.gr", "edu.gr", "gov.gr", "net.gr", "org.gr", "gs", "gt", "com.gt", "edu.gt", "gob.gt", "ind.gt", "mil.gt", "net.gt", "org.gt", "gu", "com.gu", "edu.gu", "gov.gu", "guam.gu", "info.gu", "net.gu", "org.gu", "web.gu", "gw", "gy", "co.gy", "com.gy", "edu.gy", "gov.gy", "net.gy", "org.gy", "hk", "com.hk", "edu.hk", "gov.hk", "idv.hk", "net.hk", "org.hk", "\u4E2A\u4EBA.hk", "\u500B\u4EBA.hk", "\u516C\u53F8.hk", "\u653F\u5E9C.hk", "\u654E\u80B2.hk", "\u6559\u80B2.hk", "\u7B87\u4EBA.hk", "\u7D44\u7E54.hk", "\u7D44\u7EC7.hk", "\u7DB2\u7D61.hk", "\u7DB2\u7EDC.hk", "\u7EC4\u7E54.hk", "\u7EC4\u7EC7.hk", "\u7F51\u7D61.hk", "\u7F51\u7EDC.hk", "hm", "hn", "com.hn", "edu.hn", "gob.hn", "mil.hn", "net.hn", "org.hn", "hr", "com.hr", "from.hr", "iz.hr", "name.hr", "ht", "adult.ht", "art.ht", "asso.ht", "com.ht", "coop.ht", "edu.ht", "firm.ht", "gouv.ht", "info.ht", "med.ht", "net.ht", "org.ht", "perso.ht", "pol.ht", "pro.ht", "rel.ht", "shop.ht", "hu", "2000.hu", "agrar.hu", "bolt.hu", "casino.hu", "city.hu", "co.hu", "erotica.hu", "erotika.hu", "film.hu", "forum.hu", "games.hu", "hotel.hu", "info.hu", "ingatlan.hu", "jogasz.hu", "konyvelo.hu", "lakas.hu", "media.hu", "news.hu", "org.hu", "priv.hu", "reklam.hu", "sex.hu", "shop.hu", "sport.hu", "suli.hu", "szex.hu", "tm.hu", "tozsde.hu", "utazas.hu", "video.hu", "id", "ac.id", "biz.id", "co.id", "desa.id", "go.id", "mil.id", "my.id", "net.id", "or.id", "ponpes.id", "sch.id", "web.id", "ie", "gov.ie", "il", "ac.il", "co.il", "gov.il", "idf.il", "k12.il", "muni.il", "net.il", "org.il", "\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05D0\u05E7\u05D3\u05DE\u05D9\u05D4.\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05D9\u05E9\u05D5\u05D1.\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05E6\u05D4\u05DC.\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05DE\u05DE\u05E9\u05DC.\u05D9\u05E9\u05E8\u05D0\u05DC", "im", "ac.im", "co.im", "ltd.co.im", "plc.co.im", "com.im", "net.im", "org.im", "tt.im", "tv.im", "in", "5g.in", "6g.in", "ac.in", "ai.in", "am.in", "bihar.in", "biz.in", "business.in", "ca.in", "cn.in", "co.in", "com.in", "coop.in", "cs.in", "delhi.in", "dr.in", "edu.in", "er.in", "firm.in", "gen.in", "gov.in", "gujarat.in", "ind.in", "info.in", "int.in", "internet.in", "io.in", "me.in", "mil.in", "net.in", "nic.in", "org.in", "pg.in", "post.in", "pro.in", "res.in", "travel.in", "tv.in", "uk.in", "up.in", "us.in", "info", "int", "eu.int", "io", "co.io", "com.io", "edu.io", "gov.io", "mil.io", "net.io", "nom.io", "org.io", "iq", "com.iq", "edu.iq", "gov.iq", "mil.iq", "net.iq", "org.iq", "ir", "ac.ir", "co.ir", "gov.ir", "id.ir", "net.ir", "org.ir", "sch.ir", "\u0627\u06CC\u0631\u0627\u0646.ir", "\u0627\u064A\u0631\u0627\u0646.ir", "is", "it", "edu.it", "gov.it", "abr.it", "abruzzo.it", "aosta-valley.it", "aostavalley.it", "bas.it", "basilicata.it", "cal.it", "calabria.it", "cam.it", "campania.it", "emilia-romagna.it", "emiliaromagna.it", "emr.it", "friuli-v-giulia.it", "friuli-ve-giulia.it", "friuli-vegiulia.it", "friuli-venezia-giulia.it", "friuli-veneziagiulia.it", "friuli-vgiulia.it", "friuliv-giulia.it", "friulive-giulia.it", "friulivegiulia.it", "friulivenezia-giulia.it", "friuliveneziagiulia.it", "friulivgiulia.it", "fvg.it", "laz.it", "lazio.it", "lig.it", "liguria.it", "lom.it", "lombardia.it", "lombardy.it", "lucania.it", "mar.it", "marche.it", "mol.it", "molise.it", "piedmont.it", "piemonte.it", "pmn.it", "pug.it", "puglia.it", "sar.it", "sardegna.it", "sardinia.it", "sic.it", "sicilia.it", "sicily.it", "taa.it", "tos.it", "toscana.it", "trentin-sud-tirol.it", "trentin-s\xFCd-tirol.it", "trentin-sudtirol.it", "trentin-s\xFCdtirol.it", "trentin-sued-tirol.it", "trentin-suedtirol.it", "trentino.it", "trentino-a-adige.it", "trentino-aadige.it", "trentino-alto-adige.it", "trentino-altoadige.it", "trentino-s-tirol.it", "trentino-stirol.it", "trentino-sud-tirol.it", "trentino-s\xFCd-tirol.it", "trentino-sudtirol.it", "trentino-s\xFCdtirol.it", "trentino-sued-tirol.it", "trentino-suedtirol.it", "trentinoa-adige.it", "trentinoaadige.it", "trentinoalto-adige.it", "trentinoaltoadige.it", "trentinos-tirol.it", "trentinostirol.it", "trentinosud-tirol.it", "trentinos\xFCd-tirol.it", "trentinosudtirol.it", "trentinos\xFCdtirol.it", "trentinosued-tirol.it", "trentinosuedtirol.it", "trentinsud-tirol.it", "trentins\xFCd-tirol.it", "trentinsudtirol.it", "trentins\xFCdtirol.it", "trentinsued-tirol.it", "trentinsuedtirol.it", "tuscany.it", "umb.it", "umbria.it", "val-d-aosta.it", "val-daosta.it", "vald-aosta.it", "valdaosta.it", "valle-aosta.it", "valle-d-aosta.it", "valle-daosta.it", "valleaosta.it", "valled-aosta.it", "valledaosta.it", "vallee-aoste.it", "vall\xE9e-aoste.it", "vallee-d-aoste.it", "vall\xE9e-d-aoste.it", "valleeaoste.it", "vall\xE9eaoste.it", "valleedaoste.it", "vall\xE9edaoste.it", "vao.it", "vda.it", "ven.it", "veneto.it", "ag.it", "agrigento.it", "al.it", "alessandria.it", "alto-adige.it", "altoadige.it", "an.it", "ancona.it", "andria-barletta-trani.it", "andria-trani-barletta.it", "andriabarlettatrani.it", "andriatranibarletta.it", "ao.it", "aosta.it", "aoste.it", "ap.it", "aq.it", "aquila.it", "ar.it", "arezzo.it", "ascoli-piceno.it", "ascolipiceno.it", "asti.it", "at.it", "av.it", "avellino.it", "ba.it", "balsan.it", "balsan-sudtirol.it", "balsan-s\xFCdtirol.it", "balsan-suedtirol.it", "bari.it", "barletta-trani-andria.it", "barlettatraniandria.it", "belluno.it", "benevento.it", "bergamo.it", "bg.it", "bi.it", "biella.it", "bl.it", "bn.it", "bo.it", "bologna.it", "bolzano.it", "bolzano-altoadige.it", "bozen.it", "bozen-sudtirol.it", "bozen-s\xFCdtirol.it", "bozen-suedtirol.it", "br.it", "brescia.it", "brindisi.it", "bs.it", "bt.it", "bulsan.it", "bulsan-sudtirol.it", "bulsan-s\xFCdtirol.it", "bulsan-suedtirol.it", "bz.it", "ca.it", "cagliari.it", "caltanissetta.it", "campidano-medio.it", "campidanomedio.it", "campobasso.it", "carbonia-iglesias.it", "carboniaiglesias.it", "carrara-massa.it", "carraramassa.it", "caserta.it", "catania.it", "catanzaro.it", "cb.it", "ce.it", "cesena-forli.it", "cesena-forl\xEC.it", "cesenaforli.it", "cesenaforl\xEC.it", "ch.it", "chieti.it", "ci.it", "cl.it", "cn.it", "co.it", "como.it", "cosenza.it", "cr.it", "cremona.it", "crotone.it", "cs.it", "ct.it", "cuneo.it", "cz.it", "dell-ogliastra.it", "dellogliastra.it", "en.it", "enna.it", "fc.it", "fe.it", "fermo.it", "ferrara.it", "fg.it", "fi.it", "firenze.it", "florence.it", "fm.it", "foggia.it", "forli-cesena.it", "forl\xEC-cesena.it", "forlicesena.it", "forl\xECcesena.it", "fr.it", "frosinone.it", "ge.it", "genoa.it", "genova.it", "go.it", "gorizia.it", "gr.it", "grosseto.it", "iglesias-carbonia.it", "iglesiascarbonia.it", "im.it", "imperia.it", "is.it", "isernia.it", "kr.it", "la-spezia.it", "laquila.it", "laspezia.it", "latina.it", "lc.it", "le.it", "lecce.it", "lecco.it", "li.it", "livorno.it", "lo.it", "lodi.it", "lt.it", "lu.it", "lucca.it", "macerata.it", "mantova.it", "massa-carrara.it", "massacarrara.it", "matera.it", "mb.it", "mc.it", "me.it", "medio-campidano.it", "mediocampidano.it", "messina.it", "mi.it", "milan.it", "milano.it", "mn.it", "mo.it", "modena.it", "monza.it", "monza-brianza.it", "monza-e-della-brianza.it", "monzabrianza.it", "monzaebrianza.it", "monzaedellabrianza.it", "ms.it", "mt.it", "na.it", "naples.it", "napoli.it", "no.it", "novara.it", "nu.it", "nuoro.it", "og.it", "ogliastra.it", "olbia-tempio.it", "olbiatempio.it", "or.it", "oristano.it", "ot.it", "pa.it", "padova.it", "padua.it", "palermo.it", "parma.it", "pavia.it", "pc.it", "pd.it", "pe.it", "perugia.it", "pesaro-urbino.it", "pesarourbino.it", "pescara.it", "pg.it", "pi.it", "piacenza.it", "pisa.it", "pistoia.it", "pn.it", "po.it", "pordenone.it", "potenza.it", "pr.it", "prato.it", "pt.it", "pu.it", "pv.it", "pz.it", "ra.it", "ragusa.it", "ravenna.it", "rc.it", "re.it", "reggio-calabria.it", "reggio-emilia.it", "reggiocalabria.it", "reggioemilia.it", "rg.it", "ri.it", "rieti.it", "rimini.it", "rm.it", "rn.it", "ro.it", "roma.it", "rome.it", "rovigo.it", "sa.it", "salerno.it", "sassari.it", "savona.it", "si.it", "siena.it", "siracusa.it", "so.it", "sondrio.it", "sp.it", "sr.it", "ss.it", "s\xFCdtirol.it", "suedtirol.it", "sv.it", "ta.it", "taranto.it", "te.it", "tempio-olbia.it", "tempioolbia.it", "teramo.it", "terni.it", "tn.it", "to.it", "torino.it", "tp.it", "tr.it", "trani-andria-barletta.it", "trani-barletta-andria.it", "traniandriabarletta.it", "tranibarlettaandria.it", "trapani.it", "trento.it", "treviso.it", "trieste.it", "ts.it", "turin.it", "tv.it", "ud.it", "udine.it", "urbino-pesaro.it", "urbinopesaro.it", "va.it", "varese.it", "vb.it", "vc.it", "ve.it", "venezia.it", "venice.it", "verbania.it", "vercelli.it", "verona.it", "vi.it", "vibo-valentia.it", "vibovalentia.it", "vicenza.it", "viterbo.it", "vr.it", "vs.it", "vt.it", "vv.it", "je", "co.je", "net.je", "org.je", "*.jm", "jo", "agri.jo", "ai.jo", "com.jo", "edu.jo", "eng.jo", "fm.jo", "gov.jo", "mil.jo", "net.jo", "org.jo", "per.jo", "phd.jo", "sch.jo", "tv.jo", "jobs", "jp", "ac.jp", "ad.jp", "co.jp", "ed.jp", "go.jp", "gr.jp", "lg.jp", "ne.jp", "or.jp", "aichi.jp", "akita.jp", "aomori.jp", "chiba.jp", "ehime.jp", "fukui.jp", "fukuoka.jp", "fukushima.jp", "gifu.jp", "gunma.jp", "hiroshima.jp", "hokkaido.jp", "hyogo.jp", "ibaraki.jp", "ishikawa.jp", "iwate.jp", "kagawa.jp", "kagoshima.jp", "kanagawa.jp", "kochi.jp", "kumamoto.jp", "kyoto.jp", "mie.jp", "miyagi.jp", "miyazaki.jp", "nagano.jp", "nagasaki.jp", "nara.jp", "niigata.jp", "oita.jp", "okayama.jp", "okinawa.jp", "osaka.jp", "saga.jp", "saitama.jp", "shiga.jp", "shimane.jp", "shizuoka.jp", "tochigi.jp", "tokushima.jp", "tokyo.jp", "tottori.jp", "toyama.jp", "wakayama.jp", "yamagata.jp", "yamaguchi.jp", "yamanashi.jp", "\u4E09\u91CD.jp", "\u4EAC\u90FD.jp", "\u4F50\u8CC0.jp", "\u5175\u5EAB.jp", "\u5317\u6D77\u9053.jp", "\u5343\u8449.jp", "\u548C\u6B4C\u5C71.jp", "\u57FC\u7389.jp", "\u5927\u5206.jp", "\u5927\u962A.jp", "\u5948\u826F.jp", "\u5BAE\u57CE.jp", "\u5BAE\u5D0E.jp", "\u5BCC\u5C71.jp", "\u5C71\u53E3.jp", "\u5C71\u5F62.jp", "\u5C71\u68A8.jp", "\u5C90\u961C.jp", "\u5CA1\u5C71.jp", "\u5CA9\u624B.jp", "\u5CF6\u6839.jp", "\u5E83\u5CF6.jp", "\u5FB3\u5CF6.jp", "\u611B\u5A9B.jp", "\u611B\u77E5.jp", "\u65B0\u6F5F.jp", "\u6771\u4EAC.jp", "\u6803\u6728.jp", "\u6C96\u7E04.jp", "\u6ECB\u8CC0.jp", "\u718A\u672C.jp", "\u77F3\u5DDD.jp", "\u795E\u5948\u5DDD.jp", "\u798F\u4E95.jp", "\u798F\u5CA1.jp", "\u798F\u5CF6.jp", "\u79CB\u7530.jp", "\u7FA4\u99AC.jp", "\u8328\u57CE.jp", "\u9577\u5D0E.jp", "\u9577\u91CE.jp", "\u9752\u68EE.jp", "\u9759\u5CA1.jp", "\u9999\u5DDD.jp", "\u9AD8\u77E5.jp", "\u9CE5\u53D6.jp", "\u9E7F\u5150\u5CF6.jp", "*.kawasaki.jp", "!city.kawasaki.jp", "*.kitakyushu.jp", "!city.kitakyushu.jp", "*.kobe.jp", "!city.kobe.jp", "*.nagoya.jp", "!city.nagoya.jp", "*.sapporo.jp", "!city.sapporo.jp", "*.sendai.jp", "!city.sendai.jp", "*.yokohama.jp", "!city.yokohama.jp", "aisai.aichi.jp", "ama.aichi.jp", "anjo.aichi.jp", "asuke.aichi.jp", "chiryu.aichi.jp", "chita.aichi.jp", "fuso.aichi.jp", "gamagori.aichi.jp", "handa.aichi.jp", "hazu.aichi.jp", "hekinan.aichi.jp", "higashiura.aichi.jp", "ichinomiya.aichi.jp", "inazawa.aichi.jp", "inuyama.aichi.jp", "isshiki.aichi.jp", "iwakura.aichi.jp", "kanie.aichi.jp", "kariya.aichi.jp", "kasugai.aichi.jp", "kira.aichi.jp", "kiyosu.aichi.jp", "komaki.aichi.jp", "konan.aichi.jp", "kota.aichi.jp", "mihama.aichi.jp", "miyoshi.aichi.jp", "nishio.aichi.jp", "nisshin.aichi.jp", "obu.aichi.jp", "oguchi.aichi.jp", "oharu.aichi.jp", "okazaki.aichi.jp", "owariasahi.aichi.jp", "seto.aichi.jp", "shikatsu.aichi.jp", "shinshiro.aichi.jp", "shitara.aichi.jp", "tahara.aichi.jp", "takahama.aichi.jp", "tobishima.aichi.jp", "toei.aichi.jp", "togo.aichi.jp", "tokai.aichi.jp", "tokoname.aichi.jp", "toyoake.aichi.jp", "toyohashi.aichi.jp", "toyokawa.aichi.jp", "toyone.aichi.jp", "toyota.aichi.jp", "tsushima.aichi.jp", "yatomi.aichi.jp", "akita.akita.jp", "daisen.akita.jp", "fujisato.akita.jp", "gojome.akita.jp", "hachirogata.akita.jp", "happou.akita.jp", "higashinaruse.akita.jp", "honjo.akita.jp", "honjyo.akita.jp", "ikawa.akita.jp", "kamikoani.akita.jp", "kamioka.akita.jp", "katagami.akita.jp", "kazuno.akita.jp", "kitaakita.akita.jp", "kosaka.akita.jp", "kyowa.akita.jp", "misato.akita.jp", "mitane.akita.jp", "moriyoshi.akita.jp", "nikaho.akita.jp", "noshiro.akita.jp", "odate.akita.jp", "oga.akita.jp", "ogata.akita.jp", "semboku.akita.jp", "yokote.akita.jp", "yurihonjo.akita.jp", "aomori.aomori.jp", "gonohe.aomori.jp", "hachinohe.aomori.jp", "hashikami.aomori.jp", "hiranai.aomori.jp", "hirosaki.aomori.jp", "itayanagi.aomori.jp", "kuroishi.aomori.jp", "misawa.aomori.jp", "mutsu.aomori.jp", "nakadomari.aomori.jp", "noheji.aomori.jp", "oirase.aomori.jp", "owani.aomori.jp", "rokunohe.aomori.jp", "sannohe.aomori.jp", "shichinohe.aomori.jp", "shingo.aomori.jp", "takko.aomori.jp", "towada.aomori.jp", "tsugaru.aomori.jp", "tsuruta.aomori.jp", "abiko.chiba.jp", "asahi.chiba.jp", "chonan.chiba.jp", "chosei.chiba.jp", "choshi.chiba.jp", "chuo.chiba.jp", "funabashi.chiba.jp", "futtsu.chiba.jp", "hanamigawa.chiba.jp", "ichihara.chiba.jp", "ichikawa.chiba.jp", "ichinomiya.chiba.jp", "inzai.chiba.jp", "isumi.chiba.jp", "kamagaya.chiba.jp", "kamogawa.chiba.jp", "kashiwa.chiba.jp", "katori.chiba.jp", "katsuura.chiba.jp", "kimitsu.chiba.jp", "kisarazu.chiba.jp", "kozaki.chiba.jp", "kujukuri.chiba.jp", "kyonan.chiba.jp", "matsudo.chiba.jp", "midori.chiba.jp", "mihama.chiba.jp", "minamiboso.chiba.jp", "mobara.chiba.jp", "mutsuzawa.chiba.jp", "nagara.chiba.jp", "nagareyama.chiba.jp", "narashino.chiba.jp", "narita.chiba.jp", "noda.chiba.jp", "oamishirasato.chiba.jp", "omigawa.chiba.jp", "onjuku.chiba.jp", "otaki.chiba.jp", "sakae.chiba.jp", "sakura.chiba.jp", "shimofusa.chiba.jp", "shirako.chiba.jp", "shiroi.chiba.jp", "shisui.chiba.jp", "sodegaura.chiba.jp", "sosa.chiba.jp", "tako.chiba.jp", "tateyama.chiba.jp", "togane.chiba.jp", "tohnosho.chiba.jp", "tomisato.chiba.jp", "urayasu.chiba.jp", "yachimata.chiba.jp", "yachiyo.chiba.jp", "yokaichiba.chiba.jp", "yokoshibahikari.chiba.jp", "yotsukaido.chiba.jp", "ainan.ehime.jp", "honai.ehime.jp", "ikata.ehime.jp", "imabari.ehime.jp", "iyo.ehime.jp", "kamijima.ehime.jp", "kihoku.ehime.jp", "kumakogen.ehime.jp", "masaki.ehime.jp", "matsuno.ehime.jp", "matsuyama.ehime.jp", "namikata.ehime.jp", "niihama.ehime.jp", "ozu.ehime.jp", "saijo.ehime.jp", "seiyo.ehime.jp", "shikokuchuo.ehime.jp", "tobe.ehime.jp", "toon.ehime.jp", "uchiko.ehime.jp", "uwajima.ehime.jp", "yawatahama.ehime.jp", "echizen.fukui.jp", "eiheiji.fukui.jp", "fukui.fukui.jp", "ikeda.fukui.jp", "katsuyama.fukui.jp", "mihama.fukui.jp", "minamiechizen.fukui.jp", "obama.fukui.jp", "ohi.fukui.jp", "ono.fukui.jp", "sabae.fukui.jp", "sakai.fukui.jp", "takahama.fukui.jp", "tsuruga.fukui.jp", "wakasa.fukui.jp", "ashiya.fukuoka.jp", "buzen.fukuoka.jp", "chikugo.fukuoka.jp", "chikuho.fukuoka.jp", "chikujo.fukuoka.jp", "chikushino.fukuoka.jp", "chikuzen.fukuoka.jp", "chuo.fukuoka.jp", "dazaifu.fukuoka.jp", "fukuchi.fukuoka.jp", "hakata.fukuoka.jp", "higashi.fukuoka.jp", "hirokawa.fukuoka.jp", "hisayama.fukuoka.jp", "iizuka.fukuoka.jp", "inatsuki.fukuoka.jp", "kaho.fukuoka.jp", "kasuga.fukuoka.jp", "kasuya.fukuoka.jp", "kawara.fukuoka.jp", "keisen.fukuoka.jp", "koga.fukuoka.jp", "kurate.fukuoka.jp", "kurogi.fukuoka.jp", "kurume.fukuoka.jp", "minami.fukuoka.jp", "miyako.fukuoka.jp", "miyama.fukuoka.jp", "miyawaka.fukuoka.jp", "mizumaki.fukuoka.jp", "munakata.fukuoka.jp", "nakagawa.fukuoka.jp", "nakama.fukuoka.jp", "nishi.fukuoka.jp", "nogata.fukuoka.jp", "ogori.fukuoka.jp", "okagaki.fukuoka.jp", "okawa.fukuoka.jp", "oki.fukuoka.jp", "omuta.fukuoka.jp", "onga.fukuoka.jp", "onojo.fukuoka.jp", "oto.fukuoka.jp", "saigawa.fukuoka.jp", "sasaguri.fukuoka.jp", "shingu.fukuoka.jp", "shinyoshitomi.fukuoka.jp", "shonai.fukuoka.jp", "soeda.fukuoka.jp", "sue.fukuoka.jp", "tachiarai.fukuoka.jp", "tagawa.fukuoka.jp", "takata.fukuoka.jp", "toho.fukuoka.jp", "toyotsu.fukuoka.jp", "tsuiki.fukuoka.jp", "ukiha.fukuoka.jp", "umi.fukuoka.jp", "usui.fukuoka.jp", "yamada.fukuoka.jp", "yame.fukuoka.jp", "yanagawa.fukuoka.jp", "yukuhashi.fukuoka.jp", "aizubange.fukushima.jp", "aizumisato.fukushima.jp", "aizuwakamatsu.fukushima.jp", "asakawa.fukushima.jp", "bandai.fukushima.jp", "date.fukushima.jp", "fukushima.fukushima.jp", "furudono.fukushima.jp", "futaba.fukushima.jp", "hanawa.fukushima.jp", "higashi.fukushima.jp", "hirata.fukushima.jp", "hirono.fukushima.jp", "iitate.fukushima.jp", "inawashiro.fukushima.jp", "ishikawa.fukushima.jp", "iwaki.fukushima.jp", "izumizaki.fukushima.jp", "kagamiishi.fukushima.jp", "kaneyama.fukushima.jp", "kawamata.fukushima.jp", "kitakata.fukushima.jp", "kitashiobara.fukushima.jp", "koori.fukushima.jp", "koriyama.fukushima.jp", "kunimi.fukushima.jp", "miharu.fukushima.jp", "mishima.fukushima.jp", "namie.fukushima.jp", "nango.fukushima.jp", "nishiaizu.fukushima.jp", "nishigo.fukushima.jp", "okuma.fukushima.jp", "omotego.fukushima.jp", "ono.fukushima.jp", "otama.fukushima.jp", "samegawa.fukushima.jp", "shimogo.fukushima.jp", "shirakawa.fukushima.jp", "showa.fukushima.jp", "soma.fukushima.jp", "sukagawa.fukushima.jp", "taishin.fukushima.jp", "tamakawa.fukushima.jp", "tanagura.fukushima.jp", "tenei.fukushima.jp", "yabuki.fukushima.jp", "yamato.fukushima.jp", "yamatsuri.fukushima.jp", "yanaizu.fukushima.jp", "yugawa.fukushima.jp", "anpachi.gifu.jp", "ena.gifu.jp", "gifu.gifu.jp", "ginan.gifu.jp", "godo.gifu.jp", "gujo.gifu.jp", "hashima.gifu.jp", "hichiso.gifu.jp", "hida.gifu.jp", "higashishirakawa.gifu.jp", "ibigawa.gifu.jp", "ikeda.gifu.jp", "kakamigahara.gifu.jp", "kani.gifu.jp", "kasahara.gifu.jp", "kasamatsu.gifu.jp", "kawaue.gifu.jp", "kitagata.gifu.jp", "mino.gifu.jp", "minokamo.gifu.jp", "mitake.gifu.jp", "mizunami.gifu.jp", "motosu.gifu.jp", "nakatsugawa.gifu.jp", "ogaki.gifu.jp", "sakahogi.gifu.jp", "seki.gifu.jp", "sekigahara.gifu.jp", "shirakawa.gifu.jp", "tajimi.gifu.jp", "takayama.gifu.jp", "tarui.gifu.jp", "toki.gifu.jp", "tomika.gifu.jp", "wanouchi.gifu.jp", "yamagata.gifu.jp", "yaotsu.gifu.jp", "yoro.gifu.jp", "annaka.gunma.jp", "chiyoda.gunma.jp", "fujioka.gunma.jp", "higashiagatsuma.gunma.jp", "isesaki.gunma.jp", "itakura.gunma.jp", "kanna.gunma.jp", "kanra.gunma.jp", "katashina.gunma.jp", "kawaba.gunma.jp", "kiryu.gunma.jp", "kusatsu.gunma.jp", "maebashi.gunma.jp", "meiwa.gunma.jp", "midori.gunma.jp", "minakami.gunma.jp", "naganohara.gunma.jp", "nakanojo.gunma.jp", "nanmoku.gunma.jp", "numata.gunma.jp", "oizumi.gunma.jp", "ora.gunma.jp", "ota.gunma.jp", "shibukawa.gunma.jp", "shimonita.gunma.jp", "shinto.gunma.jp", "showa.gunma.jp", "takasaki.gunma.jp", "takayama.gunma.jp", "tamamura.gunma.jp", "tatebayashi.gunma.jp", "tomioka.gunma.jp", "tsukiyono.gunma.jp", "tsumagoi.gunma.jp", "ueno.gunma.jp", "yoshioka.gunma.jp", "asaminami.hiroshima.jp", "daiwa.hiroshima.jp", "etajima.hiroshima.jp", "fuchu.hiroshima.jp", "fukuyama.hiroshima.jp", "hatsukaichi.hiroshima.jp", "higashihiroshima.hiroshima.jp", "hongo.hiroshima.jp", "jinsekikogen.hiroshima.jp", "kaita.hiroshima.jp", "kui.hiroshima.jp", "kumano.hiroshima.jp", "kure.hiroshima.jp", "mihara.hiroshima.jp", "miyoshi.hiroshima.jp", "naka.hiroshima.jp", "onomichi.hiroshima.jp", "osakikamijima.hiroshima.jp", "otake.hiroshima.jp", "saka.hiroshima.jp", "sera.hiroshima.jp", "seranishi.hiroshima.jp", "shinichi.hiroshima.jp", "shobara.hiroshima.jp", "takehara.hiroshima.jp", "abashiri.hokkaido.jp", "abira.hokkaido.jp", "aibetsu.hokkaido.jp", "akabira.hokkaido.jp", "akkeshi.hokkaido.jp", "asahikawa.hokkaido.jp", "ashibetsu.hokkaido.jp", "ashoro.hokkaido.jp", "assabu.hokkaido.jp", "atsuma.hokkaido.jp", "bibai.hokkaido.jp", "biei.hokkaido.jp", "bifuka.hokkaido.jp", "bihoro.hokkaido.jp", "biratori.hokkaido.jp", "chippubetsu.hokkaido.jp", "chitose.hokkaido.jp", "date.hokkaido.jp", "ebetsu.hokkaido.jp", "embetsu.hokkaido.jp", "eniwa.hokkaido.jp", "erimo.hokkaido.jp", "esan.hokkaido.jp", "esashi.hokkaido.jp", "fukagawa.hokkaido.jp", "fukushima.hokkaido.jp", "furano.hokkaido.jp", "furubira.hokkaido.jp", "haboro.hokkaido.jp", "hakodate.hokkaido.jp", "hamatonbetsu.hokkaido.jp", "hidaka.hokkaido.jp", "higashikagura.hokkaido.jp", "higashikawa.hokkaido.jp", "hiroo.hokkaido.jp", "hokuryu.hokkaido.jp", "hokuto.hokkaido.jp", "honbetsu.hokkaido.jp", "horokanai.hokkaido.jp", "horonobe.hokkaido.jp", "ikeda.hokkaido.jp", "imakane.hokkaido.jp", "ishikari.hokkaido.jp", "iwamizawa.hokkaido.jp", "iwanai.hokkaido.jp", "kamifurano.hokkaido.jp", "kamikawa.hokkaido.jp", "kamishihoro.hokkaido.jp", "kamisunagawa.hokkaido.jp", "kamoenai.hokkaido.jp", "kayabe.hokkaido.jp", "kembuchi.hokkaido.jp", "kikonai.hokkaido.jp", "kimobetsu.hokkaido.jp", "kitahiroshima.hokkaido.jp", "kitami.hokkaido.jp", "kiyosato.hokkaido.jp", "koshimizu.hokkaido.jp", "kunneppu.hokkaido.jp", "kuriyama.hokkaido.jp", "kuromatsunai.hokkaido.jp", "kushiro.hokkaido.jp", "kutchan.hokkaido.jp", "kyowa.hokkaido.jp", "mashike.hokkaido.jp", "matsumae.hokkaido.jp", "mikasa.hokkaido.jp", "minamifurano.hokkaido.jp", "mombetsu.hokkaido.jp", "moseushi.hokkaido.jp", "mukawa.hokkaido.jp", "muroran.hokkaido.jp", "naie.hokkaido.jp", "nakagawa.hokkaido.jp", "nakasatsunai.hokkaido.jp", "nakatombetsu.hokkaido.jp", "nanae.hokkaido.jp", "nanporo.hokkaido.jp", "nayoro.hokkaido.jp", "nemuro.hokkaido.jp", "niikappu.hokkaido.jp", "niki.hokkaido.jp", "nishiokoppe.hokkaido.jp", "noboribetsu.hokkaido.jp", "numata.hokkaido.jp", "obihiro.hokkaido.jp", "obira.hokkaido.jp", "oketo.hokkaido.jp", "okoppe.hokkaido.jp", "otaru.hokkaido.jp", "otobe.hokkaido.jp", "otofuke.hokkaido.jp", "otoineppu.hokkaido.jp", "oumu.hokkaido.jp", "ozora.hokkaido.jp", "pippu.hokkaido.jp", "rankoshi.hokkaido.jp", "rebun.hokkaido.jp", "rikubetsu.hokkaido.jp", "rishiri.hokkaido.jp", "rishirifuji.hokkaido.jp", "saroma.hokkaido.jp", "sarufutsu.hokkaido.jp", "shakotan.hokkaido.jp", "shari.hokkaido.jp", "shibecha.hokkaido.jp", "shibetsu.hokkaido.jp", "shikabe.hokkaido.jp", "shikaoi.hokkaido.jp", "shimamaki.hokkaido.jp", "shimizu.hokkaido.jp", "shimokawa.hokkaido.jp", "shinshinotsu.hokkaido.jp", "shintoku.hokkaido.jp", "shiranuka.hokkaido.jp", "shiraoi.hokkaido.jp", "shiriuchi.hokkaido.jp", "sobetsu.hokkaido.jp", "sunagawa.hokkaido.jp", "taiki.hokkaido.jp", "takasu.hokkaido.jp", "takikawa.hokkaido.jp", "takinoue.hokkaido.jp", "teshikaga.hokkaido.jp", "tobetsu.hokkaido.jp", "tohma.hokkaido.jp", "tomakomai.hokkaido.jp", "tomari.hokkaido.jp", "toya.hokkaido.jp", "toyako.hokkaido.jp", "toyotomi.hokkaido.jp", "toyoura.hokkaido.jp", "tsubetsu.hokkaido.jp", "tsukigata.hokkaido.jp", "urakawa.hokkaido.jp", "urausu.hokkaido.jp", "uryu.hokkaido.jp", "utashinai.hokkaido.jp", "wakkanai.hokkaido.jp", "wassamu.hokkaido.jp", "yakumo.hokkaido.jp", "yoichi.hokkaido.jp", "aioi.hyogo.jp", "akashi.hyogo.jp", "ako.hyogo.jp", "amagasaki.hyogo.jp", "aogaki.hyogo.jp", "asago.hyogo.jp", "ashiya.hyogo.jp", "awaji.hyogo.jp", "fukusaki.hyogo.jp", "goshiki.hyogo.jp", "harima.hyogo.jp", "himeji.hyogo.jp", "ichikawa.hyogo.jp", "inagawa.hyogo.jp", "itami.hyogo.jp", "kakogawa.hyogo.jp", "kamigori.hyogo.jp", "kamikawa.hyogo.jp", "kasai.hyogo.jp", "kasuga.hyogo.jp", "kawanishi.hyogo.jp", "miki.hyogo.jp", "minamiawaji.hyogo.jp", "nishinomiya.hyogo.jp", "nishiwaki.hyogo.jp", "ono.hyogo.jp", "sanda.hyogo.jp", "sannan.hyogo.jp", "sasayama.hyogo.jp", "sayo.hyogo.jp", "shingu.hyogo.jp", "shinonsen.hyogo.jp", "shiso.hyogo.jp", "sumoto.hyogo.jp", "taishi.hyogo.jp", "taka.hyogo.jp", "takarazuka.hyogo.jp", "takasago.hyogo.jp", "takino.hyogo.jp", "tamba.hyogo.jp", "tatsuno.hyogo.jp", "toyooka.hyogo.jp", "yabu.hyogo.jp", "yashiro.hyogo.jp", "yoka.hyogo.jp", "yokawa.hyogo.jp", "ami.ibaraki.jp", "asahi.ibaraki.jp", "bando.ibaraki.jp", "chikusei.ibaraki.jp", "daigo.ibaraki.jp", "fujishiro.ibaraki.jp", "hitachi.ibaraki.jp", "hitachinaka.ibaraki.jp", "hitachiomiya.ibaraki.jp", "hitachiota.ibaraki.jp", "ibaraki.ibaraki.jp", "ina.ibaraki.jp", "inashiki.ibaraki.jp", "itako.ibaraki.jp", "iwama.ibaraki.jp", "joso.ibaraki.jp", "kamisu.ibaraki.jp", "kasama.ibaraki.jp", "kashima.ibaraki.jp", "kasumigaura.ibaraki.jp", "koga.ibaraki.jp", "miho.ibaraki.jp", "mito.ibaraki.jp", "moriya.ibaraki.jp", "naka.ibaraki.jp", "namegata.ibaraki.jp", "oarai.ibaraki.jp", "ogawa.ibaraki.jp", "omitama.ibaraki.jp", "ryugasaki.ibaraki.jp", "sakai.ibaraki.jp", "sakuragawa.ibaraki.jp", "shimodate.ibaraki.jp", "shimotsuma.ibaraki.jp", "shirosato.ibaraki.jp", "sowa.ibaraki.jp", "suifu.ibaraki.jp", "takahagi.ibaraki.jp", "tamatsukuri.ibaraki.jp", "tokai.ibaraki.jp", "tomobe.ibaraki.jp", "tone.ibaraki.jp", "toride.ibaraki.jp", "tsuchiura.ibaraki.jp", "tsukuba.ibaraki.jp", "uchihara.ibaraki.jp", "ushiku.ibaraki.jp", "yachiyo.ibaraki.jp", "yamagata.ibaraki.jp", "yawara.ibaraki.jp", "yuki.ibaraki.jp", "anamizu.ishikawa.jp", "hakui.ishikawa.jp", "hakusan.ishikawa.jp", "kaga.ishikawa.jp", "kahoku.ishikawa.jp", "kanazawa.ishikawa.jp", "kawakita.ishikawa.jp", "komatsu.ishikawa.jp", "nakanoto.ishikawa.jp", "nanao.ishikawa.jp", "nomi.ishikawa.jp", "nonoichi.ishikawa.jp", "noto.ishikawa.jp", "shika.ishikawa.jp", "suzu.ishikawa.jp", "tsubata.ishikawa.jp", "tsurugi.ishikawa.jp", "uchinada.ishikawa.jp", "wajima.ishikawa.jp", "fudai.iwate.jp", "fujisawa.iwate.jp", "hanamaki.iwate.jp", "hiraizumi.iwate.jp", "hirono.iwate.jp", "ichinohe.iwate.jp", "ichinoseki.iwate.jp", "iwaizumi.iwate.jp", "iwate.iwate.jp", "joboji.iwate.jp", "kamaishi.iwate.jp", "kanegasaki.iwate.jp", "karumai.iwate.jp", "kawai.iwate.jp", "kitakami.iwate.jp", "kuji.iwate.jp", "kunohe.iwate.jp", "kuzumaki.iwate.jp", "miyako.iwate.jp", "mizusawa.iwate.jp", "morioka.iwate.jp", "ninohe.iwate.jp", "noda.iwate.jp", "ofunato.iwate.jp", "oshu.iwate.jp", "otsuchi.iwate.jp", "rikuzentakata.iwate.jp", "shiwa.iwate.jp", "shizukuishi.iwate.jp", "sumita.iwate.jp", "tanohata.iwate.jp", "tono.iwate.jp", "yahaba.iwate.jp", "yamada.iwate.jp", "ayagawa.kagawa.jp", "higashikagawa.kagawa.jp", "kanonji.kagawa.jp", "kotohira.kagawa.jp", "manno.kagawa.jp", "marugame.kagawa.jp", "mitoyo.kagawa.jp", "naoshima.kagawa.jp", "sanuki.kagawa.jp", "tadotsu.kagawa.jp", "takamatsu.kagawa.jp", "tonosho.kagawa.jp", "uchinomi.kagawa.jp", "utazu.kagawa.jp", "zentsuji.kagawa.jp", "akune.kagoshima.jp", "amami.kagoshima.jp", "hioki.kagoshima.jp", "isa.kagoshima.jp", "isen.kagoshima.jp", "izumi.kagoshima.jp", "kagoshima.kagoshima.jp", "kanoya.kagoshima.jp", "kawanabe.kagoshima.jp", "kinko.kagoshima.jp", "kouyama.kagoshima.jp", "makurazaki.kagoshima.jp", "matsumoto.kagoshima.jp", "minamitane.kagoshima.jp", "nakatane.kagoshima.jp", "nishinoomote.kagoshima.jp", "satsumasendai.kagoshima.jp", "soo.kagoshima.jp", "tarumizu.kagoshima.jp", "yusui.kagoshima.jp", "aikawa.kanagawa.jp", "atsugi.kanagawa.jp", "ayase.kanagawa.jp", "chigasaki.kanagawa.jp", "ebina.kanagawa.jp", "fujisawa.kanagawa.jp", "hadano.kanagawa.jp", "hakone.kanagawa.jp", "hiratsuka.kanagawa.jp", "isehara.kanagawa.jp", "kaisei.kanagawa.jp", "kamakura.kanagawa.jp", "kiyokawa.kanagawa.jp", "matsuda.kanagawa.jp", "minamiashigara.kanagawa.jp", "miura.kanagawa.jp", "nakai.kanagawa.jp", "ninomiya.kanagawa.jp", "odawara.kanagawa.jp", "oi.kanagawa.jp", "oiso.kanagawa.jp", "sagamihara.kanagawa.jp", "samukawa.kanagawa.jp", "tsukui.kanagawa.jp", "yamakita.kanagawa.jp", "yamato.kanagawa.jp", "yokosuka.kanagawa.jp", "yugawara.kanagawa.jp", "zama.kanagawa.jp", "zushi.kanagawa.jp", "aki.kochi.jp", "geisei.kochi.jp", "hidaka.kochi.jp", "higashitsuno.kochi.jp", "ino.kochi.jp", "kagami.kochi.jp", "kami.kochi.jp", "kitagawa.kochi.jp", "kochi.kochi.jp", "mihara.kochi.jp", "motoyama.kochi.jp", "muroto.kochi.jp", "nahari.kochi.jp", "nakamura.kochi.jp", "nankoku.kochi.jp", "nishitosa.kochi.jp", "niyodogawa.kochi.jp", "ochi.kochi.jp", "okawa.kochi.jp", "otoyo.kochi.jp", "otsuki.kochi.jp", "sakawa.kochi.jp", "sukumo.kochi.jp", "susaki.kochi.jp", "tosa.kochi.jp", "tosashimizu.kochi.jp", "toyo.kochi.jp", "tsuno.kochi.jp", "umaji.kochi.jp", "yasuda.kochi.jp", "yusuhara.kochi.jp", "amakusa.kumamoto.jp", "arao.kumamoto.jp", "aso.kumamoto.jp", "choyo.kumamoto.jp", "gyokuto.kumamoto.jp", "kamiamakusa.kumamoto.jp", "kikuchi.kumamoto.jp", "kumamoto.kumamoto.jp", "mashiki.kumamoto.jp", "mifune.kumamoto.jp", "minamata.kumamoto.jp", "minamioguni.kumamoto.jp", "nagasu.kumamoto.jp", "nishihara.kumamoto.jp", "oguni.kumamoto.jp", "ozu.kumamoto.jp", "sumoto.kumamoto.jp", "takamori.kumamoto.jp", "uki.kumamoto.jp", "uto.kumamoto.jp", "yamaga.kumamoto.jp", "yamato.kumamoto.jp", "yatsushiro.kumamoto.jp", "ayabe.kyoto.jp", "fukuchiyama.kyoto.jp", "higashiyama.kyoto.jp", "ide.kyoto.jp", "ine.kyoto.jp", "joyo.kyoto.jp", "kameoka.kyoto.jp", "kamo.kyoto.jp", "kita.kyoto.jp", "kizu.kyoto.jp", "kumiyama.kyoto.jp", "kyotamba.kyoto.jp", "kyotanabe.kyoto.jp", "kyotango.kyoto.jp", "maizuru.kyoto.jp", "minami.kyoto.jp", "minamiyamashiro.kyoto.jp", "miyazu.kyoto.jp", "muko.kyoto.jp", "nagaokakyo.kyoto.jp", "nakagyo.kyoto.jp", "nantan.kyoto.jp", "oyamazaki.kyoto.jp", "sakyo.kyoto.jp", "seika.kyoto.jp", "tanabe.kyoto.jp", "uji.kyoto.jp", "ujitawara.kyoto.jp", "wazuka.kyoto.jp", "yamashina.kyoto.jp", "yawata.kyoto.jp", "asahi.mie.jp", "inabe.mie.jp", "ise.mie.jp", "kameyama.mie.jp", "kawagoe.mie.jp", "kiho.mie.jp", "kisosaki.mie.jp", "kiwa.mie.jp", "komono.mie.jp", "kumano.mie.jp", "kuwana.mie.jp", "matsusaka.mie.jp", "meiwa.mie.jp", "mihama.mie.jp", "minamiise.mie.jp", "misugi.mie.jp", "miyama.mie.jp", "nabari.mie.jp", "shima.mie.jp", "suzuka.mie.jp", "tado.mie.jp", "taiki.mie.jp", "taki.mie.jp", "tamaki.mie.jp", "toba.mie.jp", "tsu.mie.jp", "udono.mie.jp", "ureshino.mie.jp", "watarai.mie.jp", "yokkaichi.mie.jp", "furukawa.miyagi.jp", "higashimatsushima.miyagi.jp", "ishinomaki.miyagi.jp", "iwanuma.miyagi.jp", "kakuda.miyagi.jp", "kami.miyagi.jp", "kawasaki.miyagi.jp", "marumori.miyagi.jp", "matsushima.miyagi.jp", "minamisanriku.miyagi.jp", "misato.miyagi.jp", "murata.miyagi.jp", "natori.miyagi.jp", "ogawara.miyagi.jp", "ohira.miyagi.jp", "onagawa.miyagi.jp", "osaki.miyagi.jp", "rifu.miyagi.jp", "semine.miyagi.jp", "shibata.miyagi.jp", "shichikashuku.miyagi.jp", "shikama.miyagi.jp", "shiogama.miyagi.jp", "shiroishi.miyagi.jp", "tagajo.miyagi.jp", "taiwa.miyagi.jp", "tome.miyagi.jp", "tomiya.miyagi.jp", "wakuya.miyagi.jp", "watari.miyagi.jp", "yamamoto.miyagi.jp", "zao.miyagi.jp", "aya.miyazaki.jp", "ebino.miyazaki.jp", "gokase.miyazaki.jp", "hyuga.miyazaki.jp", "kadogawa.miyazaki.jp", "kawaminami.miyazaki.jp", "kijo.miyazaki.jp", "kitagawa.miyazaki.jp", "kitakata.miyazaki.jp", "kitaura.miyazaki.jp", "kobayashi.miyazaki.jp", "kunitomi.miyazaki.jp", "kushima.miyazaki.jp", "mimata.miyazaki.jp", "miyakonojo.miyazaki.jp", "miyazaki.miyazaki.jp", "morotsuka.miyazaki.jp", "nichinan.miyazaki.jp", "nishimera.miyazaki.jp", "nobeoka.miyazaki.jp", "saito.miyazaki.jp", "shiiba.miyazaki.jp", "shintomi.miyazaki.jp", "takaharu.miyazaki.jp", "takanabe.miyazaki.jp", "takazaki.miyazaki.jp", "tsuno.miyazaki.jp", "achi.nagano.jp", "agematsu.nagano.jp", "anan.nagano.jp", "aoki.nagano.jp", "asahi.nagano.jp", "azumino.nagano.jp", "chikuhoku.nagano.jp", "chikuma.nagano.jp", "chino.nagano.jp", "fujimi.nagano.jp", "hakuba.nagano.jp", "hara.nagano.jp", "hiraya.nagano.jp", "iida.nagano.jp", "iijima.nagano.jp", "iiyama.nagano.jp", "iizuna.nagano.jp", "ikeda.nagano.jp", "ikusaka.nagano.jp", "ina.nagano.jp", "karuizawa.nagano.jp", "kawakami.nagano.jp", "kiso.nagano.jp", "kisofukushima.nagano.jp", "kitaaiki.nagano.jp", "komagane.nagano.jp", "komoro.nagano.jp", "matsukawa.nagano.jp", "matsumoto.nagano.jp", "miasa.nagano.jp", "minamiaiki.nagano.jp", "minamimaki.nagano.jp", "minamiminowa.nagano.jp", "minowa.nagano.jp", "miyada.nagano.jp", "miyota.nagano.jp", "mochizuki.nagano.jp", "nagano.nagano.jp", "nagawa.nagano.jp", "nagiso.nagano.jp", "nakagawa.nagano.jp", "nakano.nagano.jp", "nozawaonsen.nagano.jp", "obuse.nagano.jp", "ogawa.nagano.jp", "okaya.nagano.jp", "omachi.nagano.jp", "omi.nagano.jp", "ookuwa.nagano.jp", "ooshika.nagano.jp", "otaki.nagano.jp", "otari.nagano.jp", "sakae.nagano.jp", "sakaki.nagano.jp", "saku.nagano.jp", "sakuho.nagano.jp", "shimosuwa.nagano.jp", "shinanomachi.nagano.jp", "shiojiri.nagano.jp", "suwa.nagano.jp", "suzaka.nagano.jp", "takagi.nagano.jp", "takamori.nagano.jp", "takayama.nagano.jp", "tateshina.nagano.jp", "tatsuno.nagano.jp", "togakushi.nagano.jp", "togura.nagano.jp", "tomi.nagano.jp", "ueda.nagano.jp", "wada.nagano.jp", "yamagata.nagano.jp", "yamanouchi.nagano.jp", "yasaka.nagano.jp", "yasuoka.nagano.jp", "chijiwa.nagasaki.jp", "futsu.nagasaki.jp", "goto.nagasaki.jp", "hasami.nagasaki.jp", "hirado.nagasaki.jp", "iki.nagasaki.jp", "isahaya.nagasaki.jp", "kawatana.nagasaki.jp", "kuchinotsu.nagasaki.jp", "matsuura.nagasaki.jp", "nagasaki.nagasaki.jp", "obama.nagasaki.jp", "omura.nagasaki.jp", "oseto.nagasaki.jp", "saikai.nagasaki.jp", "sasebo.nagasaki.jp", "seihi.nagasaki.jp", "shimabara.nagasaki.jp", "shinkamigoto.nagasaki.jp", "togitsu.nagasaki.jp", "tsushima.nagasaki.jp", "unzen.nagasaki.jp", "ando.nara.jp", "gose.nara.jp", "heguri.nara.jp", "higashiyoshino.nara.jp", "ikaruga.nara.jp", "ikoma.nara.jp", "kamikitayama.nara.jp", "kanmaki.nara.jp", "kashiba.nara.jp", "kashihara.nara.jp", "katsuragi.nara.jp", "kawai.nara.jp", "kawakami.nara.jp", "kawanishi.nara.jp", "koryo.nara.jp", "kurotaki.nara.jp", "mitsue.nara.jp", "miyake.nara.jp", "nara.nara.jp", "nosegawa.nara.jp", "oji.nara.jp", "ouda.nara.jp", "oyodo.nara.jp", "sakurai.nara.jp", "sango.nara.jp", "shimoichi.nara.jp", "shimokitayama.nara.jp", "shinjo.nara.jp", "soni.nara.jp", "takatori.nara.jp", "tawaramoto.nara.jp", "tenkawa.nara.jp", "tenri.nara.jp", "uda.nara.jp", "yamatokoriyama.nara.jp", "yamatotakada.nara.jp", "yamazoe.nara.jp", "yoshino.nara.jp", "aga.niigata.jp", "agano.niigata.jp", "gosen.niigata.jp", "itoigawa.niigata.jp", "izumozaki.niigata.jp", "joetsu.niigata.jp", "kamo.niigata.jp", "kariwa.niigata.jp", "kashiwazaki.niigata.jp", "minamiuonuma.niigata.jp", "mitsuke.niigata.jp", "muika.niigata.jp", "murakami.niigata.jp", "myoko.niigata.jp", "nagaoka.niigata.jp", "niigata.niigata.jp", "ojiya.niigata.jp", "omi.niigata.jp", "sado.niigata.jp", "sanjo.niigata.jp", "seiro.niigata.jp", "seirou.niigata.jp", "sekikawa.niigata.jp", "shibata.niigata.jp", "tagami.niigata.jp", "tainai.niigata.jp", "tochio.niigata.jp", "tokamachi.niigata.jp", "tsubame.niigata.jp", "tsunan.niigata.jp", "uonuma.niigata.jp", "yahiko.niigata.jp", "yoita.niigata.jp", "yuzawa.niigata.jp", "beppu.oita.jp", "bungoono.oita.jp", "bungotakada.oita.jp", "hasama.oita.jp", "hiji.oita.jp", "himeshima.oita.jp", "hita.oita.jp", "kamitsue.oita.jp", "kokonoe.oita.jp", "kuju.oita.jp", "kunisaki.oita.jp", "kusu.oita.jp", "oita.oita.jp", "saiki.oita.jp", "taketa.oita.jp", "tsukumi.oita.jp", "usa.oita.jp", "usuki.oita.jp", "yufu.oita.jp", "akaiwa.okayama.jp", "asakuchi.okayama.jp", "bizen.okayama.jp", "hayashima.okayama.jp", "ibara.okayama.jp", "kagamino.okayama.jp", "kasaoka.okayama.jp", "kibichuo.okayama.jp", "kumenan.okayama.jp", "kurashiki.okayama.jp", "maniwa.okayama.jp", "misaki.okayama.jp", "nagi.okayama.jp", "niimi.okayama.jp", "nishiawakura.okayama.jp", "okayama.okayama.jp", "satosho.okayama.jp", "setouchi.okayama.jp", "shinjo.okayama.jp", "shoo.okayama.jp", "soja.okayama.jp", "takahashi.okayama.jp", "tamano.okayama.jp", "tsuyama.okayama.jp", "wake.okayama.jp", "yakage.okayama.jp", "aguni.okinawa.jp", "ginowan.okinawa.jp", "ginoza.okinawa.jp", "gushikami.okinawa.jp", "haebaru.okinawa.jp", "higashi.okinawa.jp", "hirara.okinawa.jp", "iheya.okinawa.jp", "ishigaki.okinawa.jp", "ishikawa.okinawa.jp", "itoman.okinawa.jp", "izena.okinawa.jp", "kadena.okinawa.jp", "kin.okinawa.jp", "kitadaito.okinawa.jp", "kitanakagusuku.okinawa.jp", "kumejima.okinawa.jp", "kunigami.okinawa.jp", "minamidaito.okinawa.jp", "motobu.okinawa.jp", "nago.okinawa.jp", "naha.okinawa.jp", "nakagusuku.okinawa.jp", "nakijin.okinawa.jp", "nanjo.okinawa.jp", "nishihara.okinawa.jp", "ogimi.okinawa.jp", "okinawa.okinawa.jp", "onna.okinawa.jp", "shimoji.okinawa.jp", "taketomi.okinawa.jp", "tarama.okinawa.jp", "tokashiki.okinawa.jp", "tomigusuku.okinawa.jp", "tonaki.okinawa.jp", "urasoe.okinawa.jp", "uruma.okinawa.jp", "yaese.okinawa.jp", "yomitan.okinawa.jp", "yonabaru.okinawa.jp", "yonaguni.okinawa.jp", "zamami.okinawa.jp", "abeno.osaka.jp", "chihayaakasaka.osaka.jp", "chuo.osaka.jp", "daito.osaka.jp", "fujiidera.osaka.jp", "habikino.osaka.jp", "hannan.osaka.jp", "higashiosaka.osaka.jp", "higashisumiyoshi.osaka.jp", "higashiyodogawa.osaka.jp", "hirakata.osaka.jp", "ibaraki.osaka.jp", "ikeda.osaka.jp", "izumi.osaka.jp", "izumiotsu.osaka.jp", "izumisano.osaka.jp", "kadoma.osaka.jp", "kaizuka.osaka.jp", "kanan.osaka.jp", "kashiwara.osaka.jp", "katano.osaka.jp", "kawachinagano.osaka.jp", "kishiwada.osaka.jp", "kita.osaka.jp", "kumatori.osaka.jp", "matsubara.osaka.jp", "minato.osaka.jp", "minoh.osaka.jp", "misaki.osaka.jp", "moriguchi.osaka.jp", "neyagawa.osaka.jp", "nishi.osaka.jp", "nose.osaka.jp", "osakasayama.osaka.jp", "sakai.osaka.jp", "sayama.osaka.jp", "sennan.osaka.jp", "settsu.osaka.jp", "shijonawate.osaka.jp", "shimamoto.osaka.jp", "suita.osaka.jp", "tadaoka.osaka.jp", "taishi.osaka.jp", "tajiri.osaka.jp", "takaishi.osaka.jp", "takatsuki.osaka.jp", "tondabayashi.osaka.jp", "toyonaka.osaka.jp", "toyono.osaka.jp", "yao.osaka.jp", "ariake.saga.jp", "arita.saga.jp", "fukudomi.saga.jp", "genkai.saga.jp", "hamatama.saga.jp", "hizen.saga.jp", "imari.saga.jp", "kamimine.saga.jp", "kanzaki.saga.jp", "karatsu.saga.jp", "kashima.saga.jp", "kitagata.saga.jp", "kitahata.saga.jp", "kiyama.saga.jp", "kouhoku.saga.jp", "kyuragi.saga.jp", "nishiarita.saga.jp", "ogi.saga.jp", "omachi.saga.jp", "ouchi.saga.jp", "saga.saga.jp", "shiroishi.saga.jp", "taku.saga.jp", "tara.saga.jp", "tosu.saga.jp", "yoshinogari.saga.jp", "arakawa.saitama.jp", "asaka.saitama.jp", "chichibu.saitama.jp", "fujimi.saitama.jp", "fujimino.saitama.jp", "fukaya.saitama.jp", "hanno.saitama.jp", "hanyu.saitama.jp", "hasuda.saitama.jp", "hatogaya.saitama.jp", "hatoyama.saitama.jp", "hidaka.saitama.jp", "higashichichibu.saitama.jp", "higashimatsuyama.saitama.jp", "honjo.saitama.jp", "ina.saitama.jp", "iruma.saitama.jp", "iwatsuki.saitama.jp", "kamiizumi.saitama.jp", "kamikawa.saitama.jp", "kamisato.saitama.jp", "kasukabe.saitama.jp", "kawagoe.saitama.jp", "kawaguchi.saitama.jp", "kawajima.saitama.jp", "kazo.saitama.jp", "kitamoto.saitama.jp", "koshigaya.saitama.jp", "kounosu.saitama.jp", "kuki.saitama.jp", "kumagaya.saitama.jp", "matsubushi.saitama.jp", "minano.saitama.jp", "misato.saitama.jp", "miyashiro.saitama.jp", "miyoshi.saitama.jp", "moroyama.saitama.jp", "nagatoro.saitama.jp", "namegawa.saitama.jp", "niiza.saitama.jp", "ogano.saitama.jp", "ogawa.saitama.jp", "ogose.saitama.jp", "okegawa.saitama.jp", "omiya.saitama.jp", "otaki.saitama.jp", "ranzan.saitama.jp", "ryokami.saitama.jp", "saitama.saitama.jp", "sakado.saitama.jp", "satte.saitama.jp", "sayama.saitama.jp", "shiki.saitama.jp", "shiraoka.saitama.jp", "soka.saitama.jp", "sugito.saitama.jp", "toda.saitama.jp", "tokigawa.saitama.jp", "tokorozawa.saitama.jp", "tsurugashima.saitama.jp", "urawa.saitama.jp", "warabi.saitama.jp", "yashio.saitama.jp", "yokoze.saitama.jp", "yono.saitama.jp", "yorii.saitama.jp", "yoshida.saitama.jp", "yoshikawa.saitama.jp", "yoshimi.saitama.jp", "aisho.shiga.jp", "gamo.shiga.jp", "higashiomi.shiga.jp", "hikone.shiga.jp", "koka.shiga.jp", "konan.shiga.jp", "kosei.shiga.jp", "koto.shiga.jp", "kusatsu.shiga.jp", "maibara.shiga.jp", "moriyama.shiga.jp", "nagahama.shiga.jp", "nishiazai.shiga.jp", "notogawa.shiga.jp", "omihachiman.shiga.jp", "otsu.shiga.jp", "ritto.shiga.jp", "ryuoh.shiga.jp", "takashima.shiga.jp", "takatsuki.shiga.jp", "torahime.shiga.jp", "toyosato.shiga.jp", "yasu.shiga.jp", "akagi.shimane.jp", "ama.shimane.jp", "gotsu.shimane.jp", "hamada.shimane.jp", "higashiizumo.shimane.jp", "hikawa.shimane.jp", "hikimi.shimane.jp", "izumo.shimane.jp", "kakinoki.shimane.jp", "masuda.shimane.jp", "matsue.shimane.jp", "misato.shimane.jp", "nishinoshima.shimane.jp", "ohda.shimane.jp", "okinoshima.shimane.jp", "okuizumo.shimane.jp", "shimane.shimane.jp", "tamayu.shimane.jp", "tsuwano.shimane.jp", "unnan.shimane.jp", "yakumo.shimane.jp", "yasugi.shimane.jp", "yatsuka.shimane.jp", "arai.shizuoka.jp", "atami.shizuoka.jp", "fuji.shizuoka.jp", "fujieda.shizuoka.jp", "fujikawa.shizuoka.jp", "fujinomiya.shizuoka.jp", "fukuroi.shizuoka.jp", "gotemba.shizuoka.jp", "haibara.shizuoka.jp", "hamamatsu.shizuoka.jp", "higashiizu.shizuoka.jp", "ito.shizuoka.jp", "iwata.shizuoka.jp", "izu.shizuoka.jp", "izunokuni.shizuoka.jp", "kakegawa.shizuoka.jp", "kannami.shizuoka.jp", "kawanehon.shizuoka.jp", "kawazu.shizuoka.jp", "kikugawa.shizuoka.jp", "kosai.shizuoka.jp", "makinohara.shizuoka.jp", "matsuzaki.shizuoka.jp", "minamiizu.shizuoka.jp", "mishima.shizuoka.jp", "morimachi.shizuoka.jp", "nishiizu.shizuoka.jp", "numazu.shizuoka.jp", "omaezaki.shizuoka.jp", "shimada.shizuoka.jp", "shimizu.shizuoka.jp", "shimoda.shizuoka.jp", "shizuoka.shizuoka.jp", "susono.shizuoka.jp", "yaizu.shizuoka.jp", "yoshida.shizuoka.jp", "ashikaga.tochigi.jp", "bato.tochigi.jp", "haga.tochigi.jp", "ichikai.tochigi.jp", "iwafune.tochigi.jp", "kaminokawa.tochigi.jp", "kanuma.tochigi.jp", "karasuyama.tochigi.jp", "kuroiso.tochigi.jp", "mashiko.tochigi.jp", "mibu.tochigi.jp", "moka.tochigi.jp", "motegi.tochigi.jp", "nasu.tochigi.jp", "nasushiobara.tochigi.jp", "nikko.tochigi.jp", "nishikata.tochigi.jp", "nogi.tochigi.jp", "ohira.tochigi.jp", "ohtawara.tochigi.jp", "oyama.tochigi.jp", "sakura.tochigi.jp", "sano.tochigi.jp", "shimotsuke.tochigi.jp", "shioya.tochigi.jp", "takanezawa.tochigi.jp", "tochigi.tochigi.jp", "tsuga.tochigi.jp", "ujiie.tochigi.jp", "utsunomiya.tochigi.jp", "yaita.tochigi.jp", "aizumi.tokushima.jp", "anan.tokushima.jp", "ichiba.tokushima.jp", "itano.tokushima.jp", "kainan.tokushima.jp", "komatsushima.tokushima.jp", "matsushige.tokushima.jp", "mima.tokushima.jp", "minami.tokushima.jp", "miyoshi.tokushima.jp", "mugi.tokushima.jp", "nakagawa.tokushima.jp", "naruto.tokushima.jp", "sanagochi.tokushima.jp", "shishikui.tokushima.jp", "tokushima.tokushima.jp", "wajiki.tokushima.jp", "adachi.tokyo.jp", "akiruno.tokyo.jp", "akishima.tokyo.jp", "aogashima.tokyo.jp", "arakawa.tokyo.jp", "bunkyo.tokyo.jp", "chiyoda.tokyo.jp", "chofu.tokyo.jp", "chuo.tokyo.jp", "edogawa.tokyo.jp", "fuchu.tokyo.jp", "fussa.tokyo.jp", "hachijo.tokyo.jp", "hachioji.tokyo.jp", "hamura.tokyo.jp", "higashikurume.tokyo.jp", "higashimurayama.tokyo.jp", "higashiyamato.tokyo.jp", "hino.tokyo.jp", "hinode.tokyo.jp", "hinohara.tokyo.jp", "inagi.tokyo.jp", "itabashi.tokyo.jp", "katsushika.tokyo.jp", "kita.tokyo.jp", "kiyose.tokyo.jp", "kodaira.tokyo.jp", "koganei.tokyo.jp", "kokubunji.tokyo.jp", "komae.tokyo.jp", "koto.tokyo.jp", "kouzushima.tokyo.jp", "kunitachi.tokyo.jp", "machida.tokyo.jp", "meguro.tokyo.jp", "minato.tokyo.jp", "mitaka.tokyo.jp", "mizuho.tokyo.jp", "musashimurayama.tokyo.jp", "musashino.tokyo.jp", "nakano.tokyo.jp", "nerima.tokyo.jp", "ogasawara.tokyo.jp", "okutama.tokyo.jp", "ome.tokyo.jp", "oshima.tokyo.jp", "ota.tokyo.jp", "setagaya.tokyo.jp", "shibuya.tokyo.jp", "shinagawa.tokyo.jp", "shinjuku.tokyo.jp", "suginami.tokyo.jp", "sumida.tokyo.jp", "tachikawa.tokyo.jp", "taito.tokyo.jp", "tama.tokyo.jp", "toshima.tokyo.jp", "chizu.tottori.jp", "hino.tottori.jp", "kawahara.tottori.jp", "koge.tottori.jp", "kotoura.tottori.jp", "misasa.tottori.jp", "nanbu.tottori.jp", "nichinan.tottori.jp", "sakaiminato.tottori.jp", "tottori.tottori.jp", "wakasa.tottori.jp", "yazu.tottori.jp", "yonago.tottori.jp", "asahi.toyama.jp", "fuchu.toyama.jp", "fukumitsu.toyama.jp", "funahashi.toyama.jp", "himi.toyama.jp", "imizu.toyama.jp", "inami.toyama.jp", "johana.toyama.jp", "kamiichi.toyama.jp", "kurobe.toyama.jp", "nakaniikawa.toyama.jp", "namerikawa.toyama.jp", "nanto.toyama.jp", "nyuzen.toyama.jp", "oyabe.toyama.jp", "taira.toyama.jp", "takaoka.toyama.jp", "tateyama.toyama.jp", "toga.toyama.jp", "tonami.toyama.jp", "toyama.toyama.jp", "unazuki.toyama.jp", "uozu.toyama.jp", "yamada.toyama.jp", "arida.wakayama.jp", "aridagawa.wakayama.jp", "gobo.wakayama.jp", "hashimoto.wakayama.jp", "hidaka.wakayama.jp", "hirogawa.wakayama.jp", "inami.wakayama.jp", "iwade.wakayama.jp", "kainan.wakayama.jp", "kamitonda.wakayama.jp", "katsuragi.wakayama.jp", "kimino.wakayama.jp", "kinokawa.wakayama.jp", "kitayama.wakayama.jp", "koya.wakayama.jp", "koza.wakayama.jp", "kozagawa.wakayama.jp", "kudoyama.wakayama.jp", "kushimoto.wakayama.jp", "mihama.wakayama.jp", "misato.wakayama.jp", "nachikatsuura.wakayama.jp", "shingu.wakayama.jp", "shirahama.wakayama.jp", "taiji.wakayama.jp", "tanabe.wakayama.jp", "wakayama.wakayama.jp", "yuasa.wakayama.jp", "yura.wakayama.jp", "asahi.yamagata.jp", "funagata.yamagata.jp", "higashine.yamagata.jp", "iide.yamagata.jp", "kahoku.yamagata.jp", "kaminoyama.yamagata.jp", "kaneyama.yamagata.jp", "kawanishi.yamagata.jp", "mamurogawa.yamagata.jp", "mikawa.yamagata.jp", "murayama.yamagata.jp", "nagai.yamagata.jp", "nakayama.yamagata.jp", "nanyo.yamagata.jp", "nishikawa.yamagata.jp", "obanazawa.yamagata.jp", "oe.yamagata.jp", "oguni.yamagata.jp", "ohkura.yamagata.jp", "oishida.yamagata.jp", "sagae.yamagata.jp", "sakata.yamagata.jp", "sakegawa.yamagata.jp", "shinjo.yamagata.jp", "shirataka.yamagata.jp", "shonai.yamagata.jp", "takahata.yamagata.jp", "tendo.yamagata.jp", "tozawa.yamagata.jp", "tsuruoka.yamagata.jp", "yamagata.yamagata.jp", "yamanobe.yamagata.jp", "yonezawa.yamagata.jp", "yuza.yamagata.jp", "abu.yamaguchi.jp", "hagi.yamaguchi.jp", "hikari.yamaguchi.jp", "hofu.yamaguchi.jp", "iwakuni.yamaguchi.jp", "kudamatsu.yamaguchi.jp", "mitou.yamaguchi.jp", "nagato.yamaguchi.jp", "oshima.yamaguchi.jp", "shimonoseki.yamaguchi.jp", "shunan.yamaguchi.jp", "tabuse.yamaguchi.jp", "tokuyama.yamaguchi.jp", "toyota.yamaguchi.jp", "ube.yamaguchi.jp", "yuu.yamaguchi.jp", "chuo.yamanashi.jp", "doshi.yamanashi.jp", "fuefuki.yamanashi.jp", "fujikawa.yamanashi.jp", "fujikawaguchiko.yamanashi.jp", "fujiyoshida.yamanashi.jp", "hayakawa.yamanashi.jp", "hokuto.yamanashi.jp", "ichikawamisato.yamanashi.jp", "kai.yamanashi.jp", "kofu.yamanashi.jp", "koshu.yamanashi.jp", "kosuge.yamanashi.jp", "minami-alps.yamanashi.jp", "minobu.yamanashi.jp", "nakamichi.yamanashi.jp", "nanbu.yamanashi.jp", "narusawa.yamanashi.jp", "nirasaki.yamanashi.jp", "nishikatsura.yamanashi.jp", "oshino.yamanashi.jp", "otsuki.yamanashi.jp", "showa.yamanashi.jp", "tabayama.yamanashi.jp", "tsuru.yamanashi.jp", "uenohara.yamanashi.jp", "yamanakako.yamanashi.jp", "yamanashi.yamanashi.jp", "ke", "ac.ke", "co.ke", "go.ke", "info.ke", "me.ke", "mobi.ke", "ne.ke", "or.ke", "sc.ke", "kg", "com.kg", "edu.kg", "gov.kg", "mil.kg", "net.kg", "org.kg", "*.kh", "ki", "biz.ki", "com.ki", "edu.ki", "gov.ki", "info.ki", "net.ki", "org.ki", "km", "ass.km", "com.km", "edu.km", "gov.km", "mil.km", "nom.km", "org.km", "prd.km", "tm.km", "asso.km", "coop.km", "gouv.km", "medecin.km", "notaires.km", "pharmaciens.km", "presse.km", "veterinaire.km", "kn", "edu.kn", "gov.kn", "net.kn", "org.kn", "kp", "com.kp", "edu.kp", "gov.kp", "org.kp", "rep.kp", "tra.kp", "kr", "ac.kr", "co.kr", "es.kr", "go.kr", "hs.kr", "kg.kr", "mil.kr", "ms.kr", "ne.kr", "or.kr", "pe.kr", "re.kr", "sc.kr", "busan.kr", "chungbuk.kr", "chungnam.kr", "daegu.kr", "daejeon.kr", "gangwon.kr", "gwangju.kr", "gyeongbuk.kr", "gyeonggi.kr", "gyeongnam.kr", "incheon.kr", "jeju.kr", "jeonbuk.kr", "jeonnam.kr", "seoul.kr", "ulsan.kr", "kw", "com.kw", "edu.kw", "emb.kw", "gov.kw", "ind.kw", "net.kw", "org.kw", "ky", "com.ky", "edu.ky", "net.ky", "org.ky", "kz", "com.kz", "edu.kz", "gov.kz", "mil.kz", "net.kz", "org.kz", "la", "com.la", "edu.la", "gov.la", "info.la", "int.la", "net.la", "org.la", "per.la", "lb", "com.lb", "edu.lb", "gov.lb", "net.lb", "org.lb", "lc", "co.lc", "com.lc", "edu.lc", "gov.lc", "net.lc", "org.lc", "li", "lk", "ac.lk", "assn.lk", "com.lk", "edu.lk", "gov.lk", "grp.lk", "hotel.lk", "int.lk", "ltd.lk", "net.lk", "ngo.lk", "org.lk", "sch.lk", "soc.lk", "web.lk", "lr", "com.lr", "edu.lr", "gov.lr", "net.lr", "org.lr", "ls", "ac.ls", "biz.ls", "co.ls", "edu.ls", "gov.ls", "info.ls", "net.ls", "org.ls", "sc.ls", "lt", "gov.lt", "lu", "lv", "asn.lv", "com.lv", "conf.lv", "edu.lv", "gov.lv", "id.lv", "mil.lv", "net.lv", "org.lv", "ly", "com.ly", "edu.ly", "gov.ly", "id.ly", "med.ly", "net.ly", "org.ly", "plc.ly", "sch.ly", "ma", "ac.ma", "co.ma", "gov.ma", "net.ma", "org.ma", "press.ma", "mc", "asso.mc", "tm.mc", "md", "me", "ac.me", "co.me", "edu.me", "gov.me", "its.me", "net.me", "org.me", "priv.me", "mg", "co.mg", "com.mg", "edu.mg", "gov.mg", "mil.mg", "nom.mg", "org.mg", "prd.mg", "mh", "mil", "mk", "com.mk", "edu.mk", "gov.mk", "inf.mk", "name.mk", "net.mk", "org.mk", "ml", "com.ml", "edu.ml", "gouv.ml", "gov.ml", "net.ml", "org.ml", "presse.ml", "*.mm", "mn", "edu.mn", "gov.mn", "org.mn", "mo", "com.mo", "edu.mo", "gov.mo", "net.mo", "org.mo", "mobi", "mp", "mq", "mr", "gov.mr", "ms", "com.ms", "edu.ms", "gov.ms", "net.ms", "org.ms", "mt", "com.mt", "edu.mt", "net.mt", "org.mt", "mu", "ac.mu", "co.mu", "com.mu", "gov.mu", "net.mu", "or.mu", "org.mu", "museum", "mv", "aero.mv", "biz.mv", "com.mv", "coop.mv", "edu.mv", "gov.mv", "info.mv", "int.mv", "mil.mv", "museum.mv", "name.mv", "net.mv", "org.mv", "pro.mv", "mw", "ac.mw", "biz.mw", "co.mw", "com.mw", "coop.mw", "edu.mw", "gov.mw", "int.mw", "net.mw", "org.mw", "mx", "com.mx", "edu.mx", "gob.mx", "net.mx", "org.mx", "my", "biz.my", "com.my", "edu.my", "gov.my", "mil.my", "name.my", "net.my", "org.my", "mz", "ac.mz", "adv.mz", "co.mz", "edu.mz", "gov.mz", "mil.mz", "net.mz", "org.mz", "na", "alt.na", "co.na", "com.na", "gov.na", "net.na", "org.na", "name", "nc", "asso.nc", "nom.nc", "ne", "net", "nf", "arts.nf", "com.nf", "firm.nf", "info.nf", "net.nf", "other.nf", "per.nf", "rec.nf", "store.nf", "web.nf", "ng", "com.ng", "edu.ng", "gov.ng", "i.ng", "mil.ng", "mobi.ng", "name.ng", "net.ng", "org.ng", "sch.ng", "ni", "ac.ni", "biz.ni", "co.ni", "com.ni", "edu.ni", "gob.ni", "in.ni", "info.ni", "int.ni", "mil.ni", "net.ni", "nom.ni", "org.ni", "web.ni", "nl", "no", "fhs.no", "folkebibl.no", "fylkesbibl.no", "idrett.no", "museum.no", "priv.no", "vgs.no", "dep.no", "herad.no", "kommune.no", "mil.no", "stat.no", "aa.no", "ah.no", "bu.no", "fm.no", "hl.no", "hm.no", "jan-mayen.no", "mr.no", "nl.no", "nt.no", "of.no", "ol.no", "oslo.no", "rl.no", "sf.no", "st.no", "svalbard.no", "tm.no", "tr.no", "va.no", "vf.no", "gs.aa.no", "gs.ah.no", "gs.bu.no", "gs.fm.no", "gs.hl.no", "gs.hm.no", "gs.jan-mayen.no", "gs.mr.no", "gs.nl.no", "gs.nt.no", "gs.of.no", "gs.ol.no", "gs.oslo.no", "gs.rl.no", "gs.sf.no", "gs.st.no", "gs.svalbard.no", "gs.tm.no", "gs.tr.no", "gs.va.no", "gs.vf.no", "akrehamn.no", "\xE5krehamn.no", "algard.no", "\xE5lg\xE5rd.no", "arna.no", "bronnoysund.no", "br\xF8nn\xF8ysund.no", "brumunddal.no", "bryne.no", "drobak.no", "dr\xF8bak.no", "egersund.no", "fetsund.no", "floro.no", "flor\xF8.no", "fredrikstad.no", "hokksund.no", "honefoss.no", "h\xF8nefoss.no", "jessheim.no", "jorpeland.no", "j\xF8rpeland.no", "kirkenes.no", "kopervik.no", "krokstadelva.no", "langevag.no", "langev\xE5g.no", "leirvik.no", "mjondalen.no", "mj\xF8ndalen.no", "mo-i-rana.no", "mosjoen.no", "mosj\xF8en.no", "nesoddtangen.no", "orkanger.no", "osoyro.no", "os\xF8yro.no", "raholt.no", "r\xE5holt.no", "sandnessjoen.no", "sandnessj\xF8en.no", "skedsmokorset.no", "slattum.no", "spjelkavik.no", "stathelle.no", "stavern.no", "stjordalshalsen.no", "stj\xF8rdalshalsen.no", "tananger.no", "tranby.no", "vossevangen.no", "aarborte.no", "aejrie.no", "afjord.no", "\xE5fjord.no", "agdenes.no", "nes.akershus.no", "aknoluokta.no", "\xE1k\u014Boluokta.no", "al.no", "\xE5l.no", "alaheadju.no", "\xE1laheadju.no", "alesund.no", "\xE5lesund.no", "alstahaug.no", "alta.no", "\xE1lt\xE1.no", "alvdal.no", "amli.no", "\xE5mli.no", "amot.no", "\xE5mot.no", "andasuolo.no", "andebu.no", "andoy.no", "and\xF8y.no", "ardal.no", "\xE5rdal.no", "aremark.no", "arendal.no", "\xE5s.no", "aseral.no", "\xE5seral.no", "asker.no", "askim.no", "askoy.no", "ask\xF8y.no", "askvoll.no", "asnes.no", "\xE5snes.no", "audnedaln.no", "aukra.no", "aure.no", "aurland.no", "aurskog-holand.no", "aurskog-h\xF8land.no", "austevoll.no", "austrheim.no", "averoy.no", "aver\xF8y.no", "badaddja.no", "b\xE5d\xE5ddj\xE5.no", "b\xE6rum.no", "bahcavuotna.no", "b\xE1hcavuotna.no", "bahccavuotna.no", "b\xE1hccavuotna.no", "baidar.no", "b\xE1id\xE1r.no", "bajddar.no", "b\xE1jddar.no", "balat.no", "b\xE1l\xE1t.no", "balestrand.no", "ballangen.no", "balsfjord.no", "bamble.no", "bardu.no", "barum.no", "batsfjord.no", "b\xE5tsfjord.no", "bearalvahki.no", "bearalv\xE1hki.no", "beardu.no", "beiarn.no", "berg.no", "bergen.no", "berlevag.no", "berlev\xE5g.no", "bievat.no", "biev\xE1t.no", "bindal.no", "birkenes.no", "bjarkoy.no", "bjark\xF8y.no", "bjerkreim.no", "bjugn.no", "bodo.no", "bod\xF8.no", "bokn.no", "bomlo.no", "b\xF8mlo.no", "bremanger.no", "bronnoy.no", "br\xF8nn\xF8y.no", "budejju.no", "nes.buskerud.no", "bygland.no", "bykle.no", "cahcesuolo.no", "\u010D\xE1hcesuolo.no", "davvenjarga.no", "davvenj\xE1rga.no", "davvesiida.no", "deatnu.no", "dielddanuorri.no", "divtasvuodna.no", "divttasvuotna.no", "donna.no", "d\xF8nna.no", "dovre.no", "drammen.no", "drangedal.no", "dyroy.no", "dyr\xF8y.no", "eid.no", "eidfjord.no", "eidsberg.no", "eidskog.no", "eidsvoll.no", "eigersund.no", "elverum.no", "enebakk.no", "engerdal.no", "etne.no", "etnedal.no", "evenassi.no", "even\xE1\u0161\u0161i.no", "evenes.no", "evje-og-hornnes.no", "farsund.no", "fauske.no", "fedje.no", "fet.no", "finnoy.no", "finn\xF8y.no", "fitjar.no", "fjaler.no", "fjell.no", "fla.no", "fl\xE5.no", "flakstad.no", "flatanger.no", "flekkefjord.no", "flesberg.no", "flora.no", "folldal.no", "forde.no", "f\xF8rde.no", "forsand.no", "fosnes.no", "fr\xE6na.no", "frana.no", "frei.no", "frogn.no", "froland.no", "frosta.no", "froya.no", "fr\xF8ya.no", "fuoisku.no", "fuossko.no", "fusa.no", "fyresdal.no", "gaivuotna.no", "g\xE1ivuotna.no", "galsa.no", "g\xE1ls\xE1.no", "gamvik.no", "gangaviika.no", "g\xE1\u014Bgaviika.no", "gaular.no", "gausdal.no", "giehtavuoatna.no", "gildeskal.no", "gildesk\xE5l.no", "giske.no", "gjemnes.no", "gjerdrum.no", "gjerstad.no", "gjesdal.no", "gjovik.no", "gj\xF8vik.no", "gloppen.no", "gol.no", "gran.no", "grane.no", "granvin.no", "gratangen.no", "grimstad.no", "grong.no", "grue.no", "gulen.no", "guovdageaidnu.no", "ha.no", "h\xE5.no", "habmer.no", "h\xE1bmer.no", "hadsel.no", "h\xE6gebostad.no", "hagebostad.no", "halden.no", "halsa.no", "hamar.no", "hamaroy.no", "hammarfeasta.no", "h\xE1mm\xE1rfeasta.no", "hammerfest.no", "hapmir.no", "h\xE1pmir.no", "haram.no", "hareid.no", "harstad.no", "hasvik.no", "hattfjelldal.no", "haugesund.no", "os.hedmark.no", "valer.hedmark.no", "v\xE5ler.hedmark.no", "hemne.no", "hemnes.no", "hemsedal.no", "hitra.no", "hjartdal.no", "hjelmeland.no", "hobol.no", "hob\xF8l.no", "hof.no", "hol.no", "hole.no", "holmestrand.no", "holtalen.no", "holt\xE5len.no", "os.hordaland.no", "hornindal.no", "horten.no", "hoyanger.no", "h\xF8yanger.no", "hoylandet.no", "h\xF8ylandet.no", "hurdal.no", "hurum.no", "hvaler.no", "hyllestad.no", "ibestad.no", "inderoy.no", "inder\xF8y.no", "iveland.no", "ivgu.no", "jevnaker.no", "jolster.no", "j\xF8lster.no", "jondal.no", "kafjord.no", "k\xE5fjord.no", "karasjohka.no", "k\xE1r\xE1\u0161johka.no", "karasjok.no", "karlsoy.no", "karmoy.no", "karm\xF8y.no", "kautokeino.no", "klabu.no", "kl\xE6bu.no", "klepp.no", "kongsberg.no", "kongsvinger.no", "kraanghke.no", "kr\xE5anghke.no", "kragero.no", "krager\xF8.no", "kristiansand.no", "kristiansund.no", "krodsherad.no", "kr\xF8dsherad.no", "kv\xE6fjord.no", "kv\xE6nangen.no", "kvafjord.no", "kvalsund.no", "kvam.no", "kvanangen.no", "kvinesdal.no", "kvinnherad.no", "kviteseid.no", "kvitsoy.no", "kvits\xF8y.no", "laakesvuemie.no", "l\xE6rdal.no", "lahppi.no", "l\xE1hppi.no", "lardal.no", "larvik.no", "lavagis.no", "lavangen.no", "leangaviika.no", "lea\u014Bgaviika.no", "lebesby.no", "leikanger.no", "leirfjord.no", "leka.no", "leksvik.no", "lenvik.no", "lerdal.no", "lesja.no", "levanger.no", "lier.no", "lierne.no", "lillehammer.no", "lillesand.no", "lindas.no", "lind\xE5s.no", "lindesnes.no", "loabat.no", "loab\xE1t.no", "lodingen.no", "l\xF8dingen.no", "lom.no", "loppa.no", "lorenskog.no", "l\xF8renskog.no", "loten.no", "l\xF8ten.no", "lund.no", "lunner.no", "luroy.no", "lur\xF8y.no", "luster.no", "lyngdal.no", "lyngen.no", "malatvuopmi.no", "m\xE1latvuopmi.no", "malselv.no", "m\xE5lselv.no", "malvik.no", "mandal.no", "marker.no", "marnardal.no", "masfjorden.no", "masoy.no", "m\xE5s\xF8y.no", "matta-varjjat.no", "m\xE1tta-v\xE1rjjat.no", "meland.no", "meldal.no", "melhus.no", "meloy.no", "mel\xF8y.no", "meraker.no", "mer\xE5ker.no", "midsund.no", "midtre-gauldal.no", "moareke.no", "mo\xE5reke.no", "modalen.no", "modum.no", "molde.no", "heroy.more-og-romsdal.no", "sande.more-og-romsdal.no", "her\xF8y.m\xF8re-og-romsdal.no", "sande.m\xF8re-og-romsdal.no", "moskenes.no", "moss.no", "mosvik.no", "muosat.no", "muos\xE1t.no", "naamesjevuemie.no", "n\xE5\xE5mesjevuemie.no", "n\xE6r\xF8y.no", "namdalseid.no", "namsos.no", "namsskogan.no", "nannestad.no", "naroy.no", "narviika.no", "narvik.no", "naustdal.no", "navuotna.no", "n\xE1vuotna.no", "nedre-eiker.no", "nesna.no", "nesodden.no", "nesseby.no", "nesset.no", "nissedal.no", "nittedal.no", "nord-aurdal.no", "nord-fron.no", "nord-odal.no", "norddal.no", "nordkapp.no", "bo.nordland.no", "b\xF8.nordland.no", "heroy.nordland.no", "her\xF8y.nordland.no", "nordre-land.no", "nordreisa.no", "nore-og-uvdal.no", "notodden.no", "notteroy.no", "n\xF8tter\xF8y.no", "odda.no", "oksnes.no", "\xF8ksnes.no", "omasvuotna.no", "oppdal.no", "oppegard.no", "oppeg\xE5rd.no", "orkdal.no", "orland.no", "\xF8rland.no", "orskog.no", "\xF8rskog.no", "orsta.no", "\xF8rsta.no", "osen.no", "osteroy.no", "oster\xF8y.no", "valer.ostfold.no", "v\xE5ler.\xF8stfold.no", "ostre-toten.no", "\xF8stre-toten.no", "overhalla.no", "ovre-eiker.no", "\xF8vre-eiker.no", "oyer.no", "\xF8yer.no", "oygarden.no", "\xF8ygarden.no", "oystre-slidre.no", "\xF8ystre-slidre.no", "porsanger.no", "porsangu.no", "pors\xE1\u014Bgu.no", "porsgrunn.no", "rade.no", "r\xE5de.no", "radoy.no", "rad\xF8y.no", "r\xE6lingen.no", "rahkkeravju.no", "r\xE1hkker\xE1vju.no", "raisa.no", "r\xE1isa.no", "rakkestad.no", "ralingen.no", "rana.no", "randaberg.no", "rauma.no", "rendalen.no", "rennebu.no", "rennesoy.no", "rennes\xF8y.no", "rindal.no", "ringebu.no", "ringerike.no", "ringsaker.no", "risor.no", "ris\xF8r.no", "rissa.no", "roan.no", "rodoy.no", "r\xF8d\xF8y.no", "rollag.no", "romsa.no", "romskog.no", "r\xF8mskog.no", "roros.no", "r\xF8ros.no", "rost.no", "r\xF8st.no", "royken.no", "r\xF8yken.no", "royrvik.no", "r\xF8yrvik.no", "ruovat.no", "rygge.no", "salangen.no", "salat.no", "s\xE1lat.no", "s\xE1l\xE1t.no", "saltdal.no", "samnanger.no", "sandefjord.no", "sandnes.no", "sandoy.no", "sand\xF8y.no", "sarpsborg.no", "sauda.no", "sauherad.no", "sel.no", "selbu.no", "selje.no", "seljord.no", "siellak.no", "sigdal.no", "siljan.no", "sirdal.no", "skanit.no", "sk\xE1nit.no", "skanland.no", "sk\xE5nland.no", "skaun.no", "skedsmo.no", "ski.no", "skien.no", "skierva.no", "skierv\xE1.no", "skiptvet.no", "skjak.no", "skj\xE5k.no", "skjervoy.no", "skjerv\xF8y.no", "skodje.no", "smola.no", "sm\xF8la.no", "snaase.no", "sn\xE5ase.no", "snasa.no", "sn\xE5sa.no", "snillfjord.no", "snoasa.no", "sogndal.no", "sogne.no", "s\xF8gne.no", "sokndal.no", "sola.no", "solund.no", "somna.no", "s\xF8mna.no", "sondre-land.no", "s\xF8ndre-land.no", "songdalen.no", "sor-aurdal.no", "s\xF8r-aurdal.no", "sor-fron.no", "s\xF8r-fron.no", "sor-odal.no", "s\xF8r-odal.no", "sor-varanger.no", "s\xF8r-varanger.no", "sorfold.no", "s\xF8rfold.no", "sorreisa.no", "s\xF8rreisa.no", "sortland.no", "sorum.no", "s\xF8rum.no", "spydeberg.no", "stange.no", "stavanger.no", "steigen.no", "steinkjer.no", "stjordal.no", "stj\xF8rdal.no", "stokke.no", "stor-elvdal.no", "stord.no", "stordal.no", "storfjord.no", "strand.no", "stranda.no", "stryn.no", "sula.no", "suldal.no", "sund.no", "sunndal.no", "surnadal.no", "sveio.no", "svelvik.no", "sykkylven.no", "tana.no", "bo.telemark.no", "b\xF8.telemark.no", "time.no", "tingvoll.no", "tinn.no", "tjeldsund.no", "tjome.no", "tj\xF8me.no", "tokke.no", "tolga.no", "tonsberg.no", "t\xF8nsberg.no", "torsken.no", "tr\xE6na.no", "trana.no", "tranoy.no", "tran\xF8y.no", "troandin.no", "trogstad.no", "tr\xF8gstad.no", "tromsa.no", "tromso.no", "troms\xF8.no", "trondheim.no", "trysil.no", "tvedestrand.no", "tydal.no", "tynset.no", "tysfjord.no", "tysnes.no", "tysv\xE6r.no", "tysvar.no", "ullensaker.no", "ullensvang.no", "ulvik.no", "unjarga.no", "unj\xE1rga.no", "utsira.no", "vaapste.no", "vadso.no", "vads\xF8.no", "v\xE6r\xF8y.no", "vaga.no", "v\xE5g\xE5.no", "vagan.no", "v\xE5gan.no", "vagsoy.no", "v\xE5gs\xF8y.no", "vaksdal.no", "valle.no", "vang.no", "vanylven.no", "vardo.no", "vard\xF8.no", "varggat.no", "v\xE1rgg\xE1t.no", "varoy.no", "vefsn.no", "vega.no", "vegarshei.no", "veg\xE5rshei.no", "vennesla.no", "verdal.no", "verran.no", "vestby.no", "sande.vestfold.no", "vestnes.no", "vestre-slidre.no", "vestre-toten.no", "vestvagoy.no", "vestv\xE5g\xF8y.no", "vevelstad.no", "vik.no", "vikna.no", "vindafjord.no", "voagat.no", "volda.no", "voss.no", "*.np", "nr", "biz.nr", "com.nr", "edu.nr", "gov.nr", "info.nr", "net.nr", "org.nr", "nu", "nz", "ac.nz", "co.nz", "cri.nz", "geek.nz", "gen.nz", "govt.nz", "health.nz", "iwi.nz", "kiwi.nz", "maori.nz", "m\u0101ori.nz", "mil.nz", "net.nz", "org.nz", "parliament.nz", "school.nz", "om", "co.om", "com.om", "edu.om", "gov.om", "med.om", "museum.om", "net.om", "org.om", "pro.om", "onion", "org", "pa", "abo.pa", "ac.pa", "com.pa", "edu.pa", "gob.pa", "ing.pa", "med.pa", "net.pa", "nom.pa", "org.pa", "sld.pa", "pe", "com.pe", "edu.pe", "gob.pe", "mil.pe", "net.pe", "nom.pe", "org.pe", "pf", "com.pf", "edu.pf", "org.pf", "*.pg", "ph", "com.ph", "edu.ph", "gov.ph", "i.ph", "mil.ph", "net.ph", "ngo.ph", "org.ph", "pk", "ac.pk", "biz.pk", "com.pk", "edu.pk", "fam.pk", "gkp.pk", "gob.pk", "gog.pk", "gok.pk", "gon.pk", "gop.pk", "gos.pk", "gov.pk", "net.pk", "org.pk", "web.pk", "pl", "com.pl", "net.pl", "org.pl", "agro.pl", "aid.pl", "atm.pl", "auto.pl", "biz.pl", "edu.pl", "gmina.pl", "gsm.pl", "info.pl", "mail.pl", "media.pl", "miasta.pl", "mil.pl", "nieruchomosci.pl", "nom.pl", "pc.pl", "powiat.pl", "priv.pl", "realestate.pl", "rel.pl", "sex.pl", "shop.pl", "sklep.pl", "sos.pl", "szkola.pl", "targi.pl", "tm.pl", "tourism.pl", "travel.pl", "turystyka.pl", "gov.pl", "ap.gov.pl", "griw.gov.pl", "ic.gov.pl", "is.gov.pl", "kmpsp.gov.pl", "konsulat.gov.pl", "kppsp.gov.pl", "kwp.gov.pl", "kwpsp.gov.pl", "mup.gov.pl", "mw.gov.pl", "oia.gov.pl", "oirm.gov.pl", "oke.gov.pl", "oow.gov.pl", "oschr.gov.pl", "oum.gov.pl", "pa.gov.pl", "pinb.gov.pl", "piw.gov.pl", "po.gov.pl", "pr.gov.pl", "psp.gov.pl", "psse.gov.pl", "pup.gov.pl", "rzgw.gov.pl", "sa.gov.pl", "sdn.gov.pl", "sko.gov.pl", "so.gov.pl", "sr.gov.pl", "starostwo.gov.pl", "ug.gov.pl", "ugim.gov.pl", "um.gov.pl", "umig.gov.pl", "upow.gov.pl", "uppo.gov.pl", "us.gov.pl", "uw.gov.pl", "uzs.gov.pl", "wif.gov.pl", "wiih.gov.pl", "winb.gov.pl", "wios.gov.pl", "witd.gov.pl", "wiw.gov.pl", "wkz.gov.pl", "wsa.gov.pl", "wskr.gov.pl", "wsse.gov.pl", "wuoz.gov.pl", "wzmiuw.gov.pl", "zp.gov.pl", "zpisdn.gov.pl", "augustow.pl", "babia-gora.pl", "bedzin.pl", "beskidy.pl", "bialowieza.pl", "bialystok.pl", "bielawa.pl", "bieszczady.pl", "boleslawiec.pl", "bydgoszcz.pl", "bytom.pl", "cieszyn.pl", "czeladz.pl", "czest.pl", "dlugoleka.pl", "elblag.pl", "elk.pl", "glogow.pl", "gniezno.pl", "gorlice.pl", "grajewo.pl", "ilawa.pl", "jaworzno.pl", "jelenia-gora.pl", "jgora.pl", "kalisz.pl", "karpacz.pl", "kartuzy.pl", "kaszuby.pl", "katowice.pl", "kazimierz-dolny.pl", "kepno.pl", "ketrzyn.pl", "klodzko.pl", "kobierzyce.pl", "kolobrzeg.pl", "konin.pl", "konskowola.pl", "kutno.pl", "lapy.pl", "lebork.pl", "legnica.pl", "lezajsk.pl", "limanowa.pl", "lomza.pl", "lowicz.pl", "lubin.pl", "lukow.pl", "malbork.pl", "malopolska.pl", "mazowsze.pl", "mazury.pl", "mielec.pl", "mielno.pl", "mragowo.pl", "naklo.pl", "nowaruda.pl", "nysa.pl", "olawa.pl", "olecko.pl", "olkusz.pl", "olsztyn.pl", "opoczno.pl", "opole.pl", "ostroda.pl", "ostroleka.pl", "ostrowiec.pl", "ostrowwlkp.pl", "pila.pl", "pisz.pl", "podhale.pl", "podlasie.pl", "polkowice.pl", "pomorskie.pl", "pomorze.pl", "prochowice.pl", "pruszkow.pl", "przeworsk.pl", "pulawy.pl", "radom.pl", "rawa-maz.pl", "rybnik.pl", "rzeszow.pl", "sanok.pl", "sejny.pl", "skoczow.pl", "slask.pl", "slupsk.pl", "sosnowiec.pl", "stalowa-wola.pl", "starachowice.pl", "stargard.pl", "suwalki.pl", "swidnica.pl", "swiebodzin.pl", "swinoujscie.pl", "szczecin.pl", "szczytno.pl", "tarnobrzeg.pl", "tgory.pl", "turek.pl", "tychy.pl", "ustka.pl", "walbrzych.pl", "warmia.pl", "warszawa.pl", "waw.pl", "wegrow.pl", "wielun.pl", "wlocl.pl", "wloclawek.pl", "wodzislaw.pl", "wolomin.pl", "wroclaw.pl", "zachpomor.pl", "zagan.pl", "zarow.pl", "zgora.pl", "zgorzelec.pl", "pm", "pn", "co.pn", "edu.pn", "gov.pn", "net.pn", "org.pn", "post", "pr", "biz.pr", "com.pr", "edu.pr", "gov.pr", "info.pr", "isla.pr", "name.pr", "net.pr", "org.pr", "pro.pr", "ac.pr", "est.pr", "prof.pr", "pro", "aaa.pro", "aca.pro", "acct.pro", "avocat.pro", "bar.pro", "cpa.pro", "eng.pro", "jur.pro", "law.pro", "med.pro", "recht.pro", "ps", "com.ps", "edu.ps", "gov.ps", "net.ps", "org.ps", "plo.ps", "sec.ps", "pt", "com.pt", "edu.pt", "gov.pt", "int.pt", "net.pt", "nome.pt", "org.pt", "publ.pt", "pw", "belau.pw", "co.pw", "ed.pw", "go.pw", "or.pw", "py", "com.py", "coop.py", "edu.py", "gov.py", "mil.py", "net.py", "org.py", "qa", "com.qa", "edu.qa", "gov.qa", "mil.qa", "name.qa", "net.qa", "org.qa", "sch.qa", "re", "asso.re", "com.re", "ro", "arts.ro", "com.ro", "firm.ro", "info.ro", "nom.ro", "nt.ro", "org.ro", "rec.ro", "store.ro", "tm.ro", "www.ro", "rs", "ac.rs", "co.rs", "edu.rs", "gov.rs", "in.rs", "org.rs", "ru", "rw", "ac.rw", "co.rw", "coop.rw", "gov.rw", "mil.rw", "net.rw", "org.rw", "sa", "com.sa", "edu.sa", "gov.sa", "med.sa", "net.sa", "org.sa", "pub.sa", "sch.sa", "sb", "com.sb", "edu.sb", "gov.sb", "net.sb", "org.sb", "sc", "com.sc", "edu.sc", "gov.sc", "net.sc", "org.sc", "sd", "com.sd", "edu.sd", "gov.sd", "info.sd", "med.sd", "net.sd", "org.sd", "tv.sd", "se", "a.se", "ac.se", "b.se", "bd.se", "brand.se", "c.se", "d.se", "e.se", "f.se", "fh.se", "fhsk.se", "fhv.se", "g.se", "h.se", "i.se", "k.se", "komforb.se", "kommunalforbund.se", "komvux.se", "l.se", "lanbib.se", "m.se", "n.se", "naturbruksgymn.se", "o.se", "org.se", "p.se", "parti.se", "pp.se", "press.se", "r.se", "s.se", "t.se", "tm.se", "u.se", "w.se", "x.se", "y.se", "z.se", "sg", "com.sg", "edu.sg", "gov.sg", "net.sg", "org.sg", "sh", "com.sh", "gov.sh", "mil.sh", "net.sh", "org.sh", "si", "sj", "sk", "sl", "com.sl", "edu.sl", "gov.sl", "net.sl", "org.sl", "sm", "sn", "art.sn", "com.sn", "edu.sn", "gouv.sn", "org.sn", "perso.sn", "univ.sn", "so", "com.so", "edu.so", "gov.so", "me.so", "net.so", "org.so", "sr", "ss", "biz.ss", "co.ss", "com.ss", "edu.ss", "gov.ss", "me.ss", "net.ss", "org.ss", "sch.ss", "st", "co.st", "com.st", "consulado.st", "edu.st", "embaixada.st", "mil.st", "net.st", "org.st", "principe.st", "saotome.st", "store.st", "su", "sv", "com.sv", "edu.sv", "gob.sv", "org.sv", "red.sv", "sx", "gov.sx", "sy", "com.sy", "edu.sy", "gov.sy", "mil.sy", "net.sy", "org.sy", "sz", "ac.sz", "co.sz", "org.sz", "tc", "td", "tel", "tf", "tg", "th", "ac.th", "co.th", "go.th", "in.th", "mi.th", "net.th", "or.th", "tj", "ac.tj", "biz.tj", "co.tj", "com.tj", "edu.tj", "go.tj", "gov.tj", "int.tj", "mil.tj", "name.tj", "net.tj", "nic.tj", "org.tj", "test.tj", "web.tj", "tk", "tl", "gov.tl", "tm", "co.tm", "com.tm", "edu.tm", "gov.tm", "mil.tm", "net.tm", "nom.tm", "org.tm", "tn", "com.tn", "ens.tn", "fin.tn", "gov.tn", "ind.tn", "info.tn", "intl.tn", "mincom.tn", "nat.tn", "net.tn", "org.tn", "perso.tn", "tourism.tn", "to", "com.to", "edu.to", "gov.to", "mil.to", "net.to", "org.to", "tr", "av.tr", "bbs.tr", "bel.tr", "biz.tr", "com.tr", "dr.tr", "edu.tr", "gen.tr", "gov.tr", "info.tr", "k12.tr", "kep.tr", "mil.tr", "name.tr", "net.tr", "org.tr", "pol.tr", "tel.tr", "tsk.tr", "tv.tr", "web.tr", "nc.tr", "gov.nc.tr", "tt", "biz.tt", "co.tt", "com.tt", "edu.tt", "gov.tt", "info.tt", "mil.tt", "name.tt", "net.tt", "org.tt", "pro.tt", "tv", "tw", "club.tw", "com.tw", "ebiz.tw", "edu.tw", "game.tw", "gov.tw", "idv.tw", "mil.tw", "net.tw", "org.tw", "tz", "ac.tz", "co.tz", "go.tz", "hotel.tz", "info.tz", "me.tz", "mil.tz", "mobi.tz", "ne.tz", "or.tz", "sc.tz", "tv.tz", "ua", "com.ua", "edu.ua", "gov.ua", "in.ua", "net.ua", "org.ua", "cherkassy.ua", "cherkasy.ua", "chernigov.ua", "chernihiv.ua", "chernivtsi.ua", "chernovtsy.ua", "ck.ua", "cn.ua", "cr.ua", "crimea.ua", "cv.ua", "dn.ua", "dnepropetrovsk.ua", "dnipropetrovsk.ua", "donetsk.ua", "dp.ua", "if.ua", "ivano-frankivsk.ua", "kh.ua", "kharkiv.ua", "kharkov.ua", "kherson.ua", "khmelnitskiy.ua", "khmelnytskyi.ua", "kiev.ua", "kirovograd.ua", "km.ua", "kr.ua", "kropyvnytskyi.ua", "krym.ua", "ks.ua", "kv.ua", "kyiv.ua", "lg.ua", "lt.ua", "lugansk.ua", "luhansk.ua", "lutsk.ua", "lv.ua", "lviv.ua", "mk.ua", "mykolaiv.ua", "nikolaev.ua", "od.ua", "odesa.ua", "odessa.ua", "pl.ua", "poltava.ua", "rivne.ua", "rovno.ua", "rv.ua", "sb.ua", "sebastopol.ua", "sevastopol.ua", "sm.ua", "sumy.ua", "te.ua", "ternopil.ua", "uz.ua", "uzhgorod.ua", "uzhhorod.ua", "vinnica.ua", "vinnytsia.ua", "vn.ua", "volyn.ua", "yalta.ua", "zakarpattia.ua", "zaporizhzhe.ua", "zaporizhzhia.ua", "zhitomir.ua", "zhytomyr.ua", "zp.ua", "zt.ua", "ug", "ac.ug", "co.ug", "com.ug", "go.ug", "ne.ug", "or.ug", "org.ug", "sc.ug", "uk", "ac.uk", "co.uk", "gov.uk", "ltd.uk", "me.uk", "net.uk", "nhs.uk", "org.uk", "plc.uk", "police.uk", "*.sch.uk", "us", "dni.us", "fed.us", "isa.us", "kids.us", "nsn.us", "ak.us", "al.us", "ar.us", "as.us", "az.us", "ca.us", "co.us", "ct.us", "dc.us", "de.us", "fl.us", "ga.us", "gu.us", "hi.us", "ia.us", "id.us", "il.us", "in.us", "ks.us", "ky.us", "la.us", "ma.us", "md.us", "me.us", "mi.us", "mn.us", "mo.us", "ms.us", "mt.us", "nc.us", "nd.us", "ne.us", "nh.us", "nj.us", "nm.us", "nv.us", "ny.us", "oh.us", "ok.us", "or.us", "pa.us", "pr.us", "ri.us", "sc.us", "sd.us", "tn.us", "tx.us", "ut.us", "va.us", "vi.us", "vt.us", "wa.us", "wi.us", "wv.us", "wy.us", "k12.ak.us", "k12.al.us", "k12.ar.us", "k12.as.us", "k12.az.us", "k12.ca.us", "k12.co.us", "k12.ct.us", "k12.dc.us", "k12.fl.us", "k12.ga.us", "k12.gu.us", "k12.ia.us", "k12.id.us", "k12.il.us", "k12.in.us", "k12.ks.us", "k12.ky.us", "k12.la.us", "k12.ma.us", "k12.md.us", "k12.me.us", "k12.mi.us", "k12.mn.us", "k12.mo.us", "k12.ms.us", "k12.mt.us", "k12.nc.us", "k12.ne.us", "k12.nh.us", "k12.nj.us", "k12.nm.us", "k12.nv.us", "k12.ny.us", "k12.oh.us", "k12.ok.us", "k12.or.us", "k12.pa.us", "k12.pr.us", "k12.sc.us", "k12.tn.us", "k12.tx.us", "k12.ut.us", "k12.va.us", "k12.vi.us", "k12.vt.us", "k12.wa.us", "k12.wi.us", "cc.ak.us", "lib.ak.us", "cc.al.us", "lib.al.us", "cc.ar.us", "lib.ar.us", "cc.as.us", "lib.as.us", "cc.az.us", "lib.az.us", "cc.ca.us", "lib.ca.us", "cc.co.us", "lib.co.us", "cc.ct.us", "lib.ct.us", "cc.dc.us", "lib.dc.us", "cc.de.us", "cc.fl.us", "cc.ga.us", "cc.gu.us", "cc.hi.us", "cc.ia.us", "cc.id.us", "cc.il.us", "cc.in.us", "cc.ks.us", "cc.ky.us", "cc.la.us", "cc.ma.us", "cc.md.us", "cc.me.us", "cc.mi.us", "cc.mn.us", "cc.mo.us", "cc.ms.us", "cc.mt.us", "cc.nc.us", "cc.nd.us", "cc.ne.us", "cc.nh.us", "cc.nj.us", "cc.nm.us", "cc.nv.us", "cc.ny.us", "cc.oh.us", "cc.ok.us", "cc.or.us", "cc.pa.us", "cc.pr.us", "cc.ri.us", "cc.sc.us", "cc.sd.us", "cc.tn.us", "cc.tx.us", "cc.ut.us", "cc.va.us", "cc.vi.us", "cc.vt.us", "cc.wa.us", "cc.wi.us", "cc.wv.us", "cc.wy.us", "k12.wy.us", "lib.fl.us", "lib.ga.us", "lib.gu.us", "lib.hi.us", "lib.ia.us", "lib.id.us", "lib.il.us", "lib.in.us", "lib.ks.us", "lib.ky.us", "lib.la.us", "lib.ma.us", "lib.md.us", "lib.me.us", "lib.mi.us", "lib.mn.us", "lib.mo.us", "lib.ms.us", "lib.mt.us", "lib.nc.us", "lib.nd.us", "lib.ne.us", "lib.nh.us", "lib.nj.us", "lib.nm.us", "lib.nv.us", "lib.ny.us", "lib.oh.us", "lib.ok.us", "lib.or.us", "lib.pa.us", "lib.pr.us", "lib.ri.us", "lib.sc.us", "lib.sd.us", "lib.tn.us", "lib.tx.us", "lib.ut.us", "lib.va.us", "lib.vi.us", "lib.vt.us", "lib.wa.us", "lib.wi.us", "lib.wy.us", "chtr.k12.ma.us", "paroch.k12.ma.us", "pvt.k12.ma.us", "ann-arbor.mi.us", "cog.mi.us", "dst.mi.us", "eaton.mi.us", "gen.mi.us", "mus.mi.us", "tec.mi.us", "washtenaw.mi.us", "uy", "com.uy", "edu.uy", "gub.uy", "mil.uy", "net.uy", "org.uy", "uz", "co.uz", "com.uz", "net.uz", "org.uz", "va", "vc", "com.vc", "edu.vc", "gov.vc", "mil.vc", "net.vc", "org.vc", "ve", "arts.ve", "bib.ve", "co.ve", "com.ve", "e12.ve", "edu.ve", "firm.ve", "gob.ve", "gov.ve", "info.ve", "int.ve", "mil.ve", "net.ve", "nom.ve", "org.ve", "rar.ve", "rec.ve", "store.ve", "tec.ve", "web.ve", "vg", "vi", "co.vi", "com.vi", "k12.vi", "net.vi", "org.vi", "vn", "ac.vn", "ai.vn", "biz.vn", "com.vn", "edu.vn", "gov.vn", "health.vn", "id.vn", "info.vn", "int.vn", "io.vn", "name.vn", "net.vn", "org.vn", "pro.vn", "angiang.vn", "bacgiang.vn", "backan.vn", "baclieu.vn", "bacninh.vn", "baria-vungtau.vn", "bentre.vn", "binhdinh.vn", "binhduong.vn", "binhphuoc.vn", "binhthuan.vn", "camau.vn", "cantho.vn", "caobang.vn", "daklak.vn", "daknong.vn", "danang.vn", "dienbien.vn", "dongnai.vn", "dongthap.vn", "gialai.vn", "hagiang.vn", "haiduong.vn", "haiphong.vn", "hanam.vn", "hanoi.vn", "hatinh.vn", "haugiang.vn", "hoabinh.vn", "hungyen.vn", "khanhhoa.vn", "kiengiang.vn", "kontum.vn", "laichau.vn", "lamdong.vn", "langson.vn", "laocai.vn", "longan.vn", "namdinh.vn", "nghean.vn", "ninhbinh.vn", "ninhthuan.vn", "phutho.vn", "phuyen.vn", "quangbinh.vn", "quangnam.vn", "quangngai.vn", "quangninh.vn", "quangtri.vn", "soctrang.vn", "sonla.vn", "tayninh.vn", "thaibinh.vn", "thainguyen.vn", "thanhhoa.vn", "thanhphohochiminh.vn", "thuathienhue.vn", "tiengiang.vn", "travinh.vn", "tuyenquang.vn", "vinhlong.vn", "vinhphuc.vn", "yenbai.vn", "vu", "com.vu", "edu.vu", "net.vu", "org.vu", "wf", "ws", "com.ws", "edu.ws", "gov.ws", "net.ws", "org.ws", "yt", "\u0627\u0645\u0627\u0631\u0627\u062A", "\u0570\u0561\u0575", "\u09AC\u09BE\u0982\u09B2\u09BE", "\u0431\u0433", "\u0627\u0644\u0628\u062D\u0631\u064A\u0646", "\u0431\u0435\u043B", "\u4E2D\u56FD", "\u4E2D\u570B", "\u0627\u0644\u062C\u0632\u0627\u0626\u0631", "\u0645\u0635\u0631", "\u0435\u044E", "\u03B5\u03C5", "\u0645\u0648\u0631\u064A\u062A\u0627\u0646\u064A\u0627", "\u10D2\u10D4", "\u03B5\u03BB", "\u9999\u6E2F", "\u500B\u4EBA.\u9999\u6E2F", "\u516C\u53F8.\u9999\u6E2F", "\u653F\u5E9C.\u9999\u6E2F", "\u6559\u80B2.\u9999\u6E2F", "\u7D44\u7E54.\u9999\u6E2F", "\u7DB2\u7D61.\u9999\u6E2F", "\u0CAD\u0CBE\u0CB0\u0CA4", "\u0B2D\u0B3E\u0B30\u0B24", "\u09AD\u09BE\u09F0\u09A4", "\u092D\u093E\u0930\u0924\u092E\u094D", "\u092D\u093E\u0930\u094B\u0924", "\u0680\u0627\u0631\u062A", "\u0D2D\u0D3E\u0D30\u0D24\u0D02", "\u092D\u093E\u0930\u0924", "\u0628\u0627\u0631\u062A", "\u0628\u06BE\u0627\u0631\u062A", "\u0C2D\u0C3E\u0C30\u0C24\u0C4D", "\u0AAD\u0ABE\u0AB0\u0AA4", "\u0A2D\u0A3E\u0A30\u0A24", "\u09AD\u09BE\u09B0\u09A4", "\u0B87\u0BA8\u0BCD\u0BA4\u0BBF\u0BAF\u0BBE", "\u0627\u06CC\u0631\u0627\u0646", "\u0627\u064A\u0631\u0627\u0646", "\u0639\u0631\u0627\u0642", "\u0627\u0644\u0627\u0631\u062F\u0646", "\uD55C\uAD6D", "\u049B\u0430\u0437", "\u0EA5\u0EB2\u0EA7", "\u0DBD\u0D82\u0D9A\u0DCF", "\u0B87\u0BB2\u0B99\u0BCD\u0B95\u0BC8", "\u0627\u0644\u0645\u063A\u0631\u0628", "\u043C\u043A\u0434", "\u043C\u043E\u043D", "\u6FB3\u9580", "\u6FB3\u95E8", "\u0645\u0644\u064A\u0633\u064A\u0627", "\u0639\u0645\u0627\u0646", "\u067E\u0627\u06A9\u0633\u062A\u0627\u0646", "\u067E\u0627\u0643\u0633\u062A\u0627\u0646", "\u0641\u0644\u0633\u0637\u064A\u0646", "\u0441\u0440\u0431", "\u0430\u043A.\u0441\u0440\u0431", "\u043E\u0431\u0440.\u0441\u0440\u0431", "\u043E\u0434.\u0441\u0440\u0431", "\u043E\u0440\u0433.\u0441\u0440\u0431", "\u043F\u0440.\u0441\u0440\u0431", "\u0443\u043F\u0440.\u0441\u0440\u0431", "\u0440\u0444", "\u0642\u0637\u0631", "\u0627\u0644\u0633\u0639\u0648\u062F\u064A\u0629", "\u0627\u0644\u0633\u0639\u0648\u062F\u06CC\u0629", "\u0627\u0644\u0633\u0639\u0648\u062F\u06CC\u06C3", "\u0627\u0644\u0633\u0639\u0648\u062F\u064A\u0647", "\u0633\u0648\u062F\u0627\u0646", "\u65B0\u52A0\u5761", "\u0B9A\u0BBF\u0B99\u0BCD\u0B95\u0BAA\u0BCD\u0BAA\u0BC2\u0BB0\u0BCD", "\u0633\u0648\u0631\u064A\u0629", "\u0633\u0648\u0631\u064A\u0627", "\u0E44\u0E17\u0E22", "\u0E17\u0E2B\u0E32\u0E23.\u0E44\u0E17\u0E22", "\u0E18\u0E38\u0E23\u0E01\u0E34\u0E08.\u0E44\u0E17\u0E22", "\u0E40\u0E19\u0E47\u0E15.\u0E44\u0E17\u0E22", "\u0E23\u0E31\u0E10\u0E1A\u0E32\u0E25.\u0E44\u0E17\u0E22", "\u0E28\u0E36\u0E01\u0E29\u0E32.\u0E44\u0E17\u0E22", "\u0E2D\u0E07\u0E04\u0E4C\u0E01\u0E23.\u0E44\u0E17\u0E22", "\u062A\u0648\u0646\u0633", "\u53F0\u7063", "\u53F0\u6E7E", "\u81FA\u7063", "\u0443\u043A\u0440", "\u0627\u0644\u064A\u0645\u0646", "xxx", "ye", "com.ye", "edu.ye", "gov.ye", "mil.ye", "net.ye", "org.ye", "ac.za", "agric.za", "alt.za", "co.za", "edu.za", "gov.za", "grondar.za", "law.za", "mil.za", "net.za", "ngo.za", "nic.za", "nis.za", "nom.za", "org.za", "school.za", "tm.za", "web.za", "zm", "ac.zm", "biz.zm", "co.zm", "com.zm", "edu.zm", "gov.zm", "info.zm", "mil.zm", "net.zm", "org.zm", "sch.zm", "zw", "ac.zw", "co.zw", "gov.zw", "mil.zw", "org.zw", "aaa", "aarp", "abb", "abbott", "abbvie", "abc", "able", "abogado", "abudhabi", "academy", "accenture", "accountant", "accountants", "aco", "actor", "ads", "adult", "aeg", "aetna", "afl", "africa", "agakhan", "agency", "aig", "airbus", "airforce", "airtel", "akdn", "alibaba", "alipay", "allfinanz", "allstate", "ally", "alsace", "alstom", "amazon", "americanexpress", "americanfamily", "amex", "amfam", "amica", "amsterdam", "analytics", "android", "anquan", "anz", "aol", "apartments", "app", "apple", "aquarelle", "arab", "aramco", "archi", "army", "art", "arte", "asda", "associates", "athleta", "attorney", "auction", "audi", "audible", "audio", "auspost", "author", "auto", "autos", "aws", "axa", "azure", "baby", "baidu", "banamex", "band", "bank", "bar", "barcelona", "barclaycard", "barclays", "barefoot", "bargains", "baseball", "basketball", "bauhaus", "bayern", "bbc", "bbt", "bbva", "bcg", "bcn", "beats", "beauty", "beer", "bentley", "berlin", "best", "bestbuy", "bet", "bharti", "bible", "bid", "bike", "bing", "bingo", "bio", "black", "blackfriday", "blockbuster", "blog", "bloomberg", "blue", "bms", "bmw", "bnpparibas", "boats", "boehringer", "bofa", "bom", "bond", "boo", "book", "booking", "bosch", "bostik", "boston", "bot", "boutique", "box", "bradesco", "bridgestone", "broadway", "broker", "brother", "brussels", "build", "builders", "business", "buy", "buzz", "bzh", "cab", "cafe", "cal", "call", "calvinklein", "cam", "camera", "camp", "canon", "capetown", "capital", "capitalone", "car", "caravan", "cards", "care", "career", "careers", "cars", "casa", "case", "cash", "casino", "catering", "catholic", "cba", "cbn", "cbre", "center", "ceo", "cern", "cfa", "cfd", "chanel", "channel", "charity", "chase", "chat", "cheap", "chintai", "christmas", "chrome", "church", "cipriani", "circle", "cisco", "citadel", "citi", "citic", "city", "claims", "cleaning", "click", "clinic", "clinique", "clothing", "cloud", "club", "clubmed", "coach", "codes", "coffee", "college", "cologne", "commbank", "community", "company", "compare", "computer", "comsec", "condos", "construction", "consulting", "contact", "contractors", "cooking", "cool", "corsica", "country", "coupon", "coupons", "courses", "cpa", "credit", "creditcard", "creditunion", "cricket", "crown", "crs", "cruise", "cruises", "cuisinella", "cymru", "cyou", "dad", "dance", "data", "date", "dating", "datsun", "day", "dclk", "dds", "deal", "dealer", "deals", "degree", "delivery", "dell", "deloitte", "delta", "democrat", "dental", "dentist", "desi", "design", "dev", "dhl", "diamonds", "diet", "digital", "direct", "directory", "discount", "discover", "dish", "diy", "dnp", "docs", "doctor", "dog", "domains", "dot", "download", "drive", "dtv", "dubai", "dunlop", "dupont", "durban", "dvag", "dvr", "earth", "eat", "eco", "edeka", "education", "email", "emerck", "energy", "engineer", "engineering", "enterprises", "epson", "equipment", "ericsson", "erni", "esq", "estate", "eurovision", "eus", "events", "exchange", "expert", "exposed", "express", "extraspace", "fage", "fail", "fairwinds", "faith", "family", "fan", "fans", "farm", "farmers", "fashion", "fast", "fedex", "feedback", "ferrari", "ferrero", "fidelity", "fido", "film", "final", "finance", "financial", "fire", "firestone", "firmdale", "fish", "fishing", "fit", "fitness", "flickr", "flights", "flir", "florist", "flowers", "fly", "foo", "food", "football", "ford", "forex", "forsale", "forum", "foundation", "fox", "free", "fresenius", "frl", "frogans", "frontier", "ftr", "fujitsu", "fun", "fund", "furniture", "futbol", "fyi", "gal", "gallery", "gallo", "gallup", "game", "games", "gap", "garden", "gay", "gbiz", "gdn", "gea", "gent", "genting", "george", "ggee", "gift", "gifts", "gives", "giving", "glass", "gle", "global", "globo", "gmail", "gmbh", "gmo", "gmx", "godaddy", "gold", "goldpoint", "golf", "goo", "goodyear", "goog", "google", "gop", "got", "grainger", "graphics", "gratis", "green", "gripe", "grocery", "group", "gucci", "guge", "guide", "guitars", "guru", "hair", "hamburg", "hangout", "haus", "hbo", "hdfc", "hdfcbank", "health", "healthcare", "help", "helsinki", "here", "hermes", "hiphop", "hisamitsu", "hitachi", "hiv", "hkt", "hockey", "holdings", "holiday", "homedepot", "homegoods", "homes", "homesense", "honda", "horse", "hospital", "host", "hosting", "hot", "hotels", "hotmail", "house", "how", "hsbc", "hughes", "hyatt", "hyundai", "ibm", "icbc", "ice", "icu", "ieee", "ifm", "ikano", "imamat", "imdb", "immo", "immobilien", "inc", "industries", "infiniti", "ing", "ink", "institute", "insurance", "insure", "international", "intuit", "investments", "ipiranga", "irish", "ismaili", "ist", "istanbul", "itau", "itv", "jaguar", "java", "jcb", "jeep", "jetzt", "jewelry", "jio", "jll", "jmp", "jnj", "joburg", "jot", "joy", "jpmorgan", "jprs", "juegos", "juniper", "kaufen", "kddi", "kerryhotels", "kerrylogistics", "kerryproperties", "kfh", "kia", "kids", "kim", "kindle", "kitchen", "kiwi", "koeln", "komatsu", "kosher", "kpmg", "kpn", "krd", "kred", "kuokgroup", "kyoto", "lacaixa", "lamborghini", "lamer", "lancaster", "land", "landrover", "lanxess", "lasalle", "lat", "latino", "latrobe", "law", "lawyer", "lds", "lease", "leclerc", "lefrak", "legal", "lego", "lexus", "lgbt", "lidl", "life", "lifeinsurance", "lifestyle", "lighting", "like", "lilly", "limited", "limo", "lincoln", "link", "lipsy", "live", "living", "llc", "llp", "loan", "loans", "locker", "locus", "lol", "london", "lotte", "lotto", "love", "lpl", "lplfinancial", "ltd", "ltda", "lundbeck", "luxe", "luxury", "madrid", "maif", "maison", "makeup", "man", "management", "mango", "map", "market", "marketing", "markets", "marriott", "marshalls", "mattel", "mba", "mckinsey", "med", "media", "meet", "melbourne", "meme", "memorial", "men", "menu", "merck", "merckmsd", "miami", "microsoft", "mini", "mint", "mit", "mitsubishi", "mlb", "mls", "mma", "mobile", "moda", "moe", "moi", "mom", "monash", "money", "monster", "mormon", "mortgage", "moscow", "moto", "motorcycles", "mov", "movie", "msd", "mtn", "mtr", "music", "nab", "nagoya", "navy", "nba", "nec", "netbank", "netflix", "network", "neustar", "new", "news", "next", "nextdirect", "nexus", "nfl", "ngo", "nhk", "nico", "nike", "nikon", "ninja", "nissan", "nissay", "nokia", "norton", "now", "nowruz", "nowtv", "nra", "nrw", "ntt", "nyc", "obi", "observer", "office", "okinawa", "olayan", "olayangroup", "ollo", "omega", "one", "ong", "onl", "online", "ooo", "open", "oracle", "orange", "organic", "origins", "osaka", "otsuka", "ott", "ovh", "page", "panasonic", "paris", "pars", "partners", "parts", "party", "pay", "pccw", "pet", "pfizer", "pharmacy", "phd", "philips", "phone", "photo", "photography", "photos", "physio", "pics", "pictet", "pictures", "pid", "pin", "ping", "pink", "pioneer", "pizza", "place", "play", "playstation", "plumbing", "plus", "pnc", "pohl", "poker", "politie", "porn", "pramerica", "praxi", "press", "prime", "prod", "productions", "prof", "progressive", "promo", "properties", "property", "protection", "pru", "prudential", "pub", "pwc", "qpon", "quebec", "quest", "racing", "radio", "read", "realestate", "realtor", "realty", "recipes", "red", "redstone", "redumbrella", "rehab", "reise", "reisen", "reit", "reliance", "ren", "rent", "rentals", "repair", "report", "republican", "rest", "restaurant", "review", "reviews", "rexroth", "rich", "richardli", "ricoh", "ril", "rio", "rip", "rocks", "rodeo", "rogers", "room", "rsvp", "rugby", "ruhr", "run", "rwe", "ryukyu", "saarland", "safe", "safety", "sakura", "sale", "salon", "samsclub", "samsung", "sandvik", "sandvikcoromant", "sanofi", "sap", "sarl", "sas", "save", "saxo", "sbi", "sbs", "scb", "schaeffler", "schmidt", "scholarships", "school", "schule", "schwarz", "science", "scot", "search", "seat", "secure", "security", "seek", "select", "sener", "services", "seven", "sew", "sex", "sexy", "sfr", "shangrila", "sharp", "shell", "shia", "shiksha", "shoes", "shop", "shopping", "shouji", "show", "silk", "sina", "singles", "site", "ski", "skin", "sky", "skype", "sling", "smart", "smile", "sncf", "soccer", "social", "softbank", "software", "sohu", "solar", "solutions", "song", "sony", "soy", "spa", "space", "sport", "spot", "srl", "stada", "staples", "star", "statebank", "statefarm", "stc", "stcgroup", "stockholm", "storage", "store", "stream", "studio", "study", "style", "sucks", "supplies", "supply", "support", "surf", "surgery", "suzuki", "swatch", "swiss", "sydney", "systems", "tab", "taipei", "talk", "taobao", "target", "tatamotors", "tatar", "tattoo", "tax", "taxi", "tci", "tdk", "team", "tech", "technology", "temasek", "tennis", "teva", "thd", "theater", "theatre", "tiaa", "tickets", "tienda", "tips", "tires", "tirol", "tjmaxx", "tjx", "tkmaxx", "tmall", "today", "tokyo", "tools", "top", "toray", "toshiba", "total", "tours", "town", "toyota", "toys", "trade", "trading", "training", "travel", "travelers", "travelersinsurance", "trust", "trv", "tube", "tui", "tunes", "tushu", "tvs", "ubank", "ubs", "unicom", "university", "uno", "uol", "ups", "vacations", "vana", "vanguard", "vegas", "ventures", "verisign", "versicherung", "vet", "viajes", "video", "vig", "viking", "villas", "vin", "vip", "virgin", "visa", "vision", "viva", "vivo", "vlaanderen", "vodka", "volvo", "vote", "voting", "voto", "voyage", "wales", "walmart", "walter", "wang", "wanggou", "watch", "watches", "weather", "weatherchannel", "webcam", "weber", "website", "wed", "wedding", "weibo", "weir", "whoswho", "wien", "wiki", "williamhill", "win", "windows", "wine", "winners", "wme", "wolterskluwer", "woodside", "work", "works", "world", "wow", "wtc", "wtf", "xbox", "xerox", "xihuan", "xin", "\u0915\u0949\u092E", "\u30BB\u30FC\u30EB", "\u4F5B\u5C71", "\u6148\u5584", "\u96C6\u56E2", "\u5728\u7EBF", "\u70B9\u770B", "\u0E04\u0E2D\u0E21", "\u516B\u5366", "\u0645\u0648\u0642\u0639", "\u516C\u76CA", "\u516C\u53F8", "\u9999\u683C\u91CC\u62C9", "\u7F51\u7AD9", "\u79FB\u52A8", "\u6211\u7231\u4F60", "\u043C\u043E\u0441\u043A\u0432\u0430", "\u043A\u0430\u0442\u043E\u043B\u0438\u043A", "\u043E\u043D\u043B\u0430\u0439\u043D", "\u0441\u0430\u0439\u0442", "\u8054\u901A", "\u05E7\u05D5\u05DD", "\u65F6\u5C1A", "\u5FAE\u535A", "\u6DE1\u9A6C\u9521", "\u30D5\u30A1\u30C3\u30B7\u30E7\u30F3", "\u043E\u0440\u0433", "\u0928\u0947\u091F", "\u30B9\u30C8\u30A2", "\u30A2\u30DE\u30BE\u30F3", "\uC0BC\uC131", "\u5546\u6807", "\u5546\u5E97", "\u5546\u57CE", "\u0434\u0435\u0442\u0438", "\u30DD\u30A4\u30F3\u30C8", "\u65B0\u95FB", "\u5BB6\u96FB", "\u0643\u0648\u0645", "\u4E2D\u6587\u7F51", "\u4E2D\u4FE1", "\u5A31\u4E50", "\u8C37\u6B4C", "\u96FB\u8A0A\u76C8\u79D1", "\u8D2D\u7269", "\u30AF\u30E9\u30A6\u30C9", "\u901A\u8CA9", "\u7F51\u5E97", "\u0938\u0902\u0917\u0920\u0928", "\u9910\u5385", "\u7F51\u7EDC", "\u043A\u043E\u043C", "\u4E9A\u9A6C\u900A", "\u98DF\u54C1", "\u98DE\u5229\u6D66", "\u624B\u673A", "\u0627\u0631\u0627\u0645\u0643\u0648", "\u0627\u0644\u0639\u0644\u064A\u0627\u0646", "\u0628\u0627\u0632\u0627\u0631", "\u0627\u0628\u0648\u0638\u0628\u064A", "\u0643\u0627\u062B\u0648\u0644\u064A\u0643", "\u0647\u0645\u0631\u0627\u0647", "\uB2F7\uCEF4", "\u653F\u5E9C", "\u0634\u0628\u0643\u0629", "\u0628\u064A\u062A\u0643", "\u0639\u0631\u0628", "\u673A\u6784", "\u7EC4\u7EC7\u673A\u6784", "\u5065\u5EB7", "\u62DB\u8058", "\u0440\u0443\u0441", "\u5927\u62FF", "\u307F\u3093\u306A", "\u30B0\u30FC\u30B0\u30EB", "\u4E16\u754C", "\u66F8\u7C4D", "\u7F51\u5740", "\uB2F7\uB137", "\u30B3\u30E0", "\u5929\u4E3B\u6559", "\u6E38\u620F", "verm\xF6gensberater", "verm\xF6gensberatung", "\u4F01\u4E1A", "\u4FE1\u606F", "\u5609\u91CC\u5927\u9152\u5E97", "\u5609\u91CC", "\u5E7F\u4E1C", "\u653F\u52A1", "xyz", "yachts", "yahoo", "yamaxun", "yandex", "yodobashi", "yoga", "yokohama", "you", "youtube", "yun", "zappos", "zara", "zero", "zip", "zone", "zuerich", "co.krd", "edu.krd", "art.pl", "gliwice.pl", "krakow.pl", "poznan.pl", "wroc.pl", "zakopane.pl", "lib.de.us", "12chars.dev", "12chars.it", "12chars.pro", "cc.ua", "inf.ua", "ltd.ua", "611.to", "a2hosted.com", "cpserver.com", "aaa.vodka", "*.on-acorn.io", "activetrail.biz", "adaptable.app", "adobeaemcloud.com", "*.dev.adobeaemcloud.com", "aem.live", "hlx.live", "adobeaemcloud.net", "aem.page", "hlx.page", "hlx3.page", "adobeio-static.net", "adobeioruntime.net", "africa.com", "beep.pl", "airkitapps.com", "airkitapps-au.com", "airkitapps.eu", "aivencloud.com", "akadns.net", "akamai.net", "akamai-staging.net", "akamaiedge.net", "akamaiedge-staging.net", "akamaihd.net", "akamaihd-staging.net", "akamaiorigin.net", "akamaiorigin-staging.net", "akamaized.net", "akamaized-staging.net", "edgekey.net", "edgekey-staging.net", "edgesuite.net", "edgesuite-staging.net", "barsy.ca", "*.compute.estate", "*.alces.network", "kasserver.com", "altervista.org", "alwaysdata.net", "myamaze.net", "execute-api.cn-north-1.amazonaws.com.cn", "execute-api.cn-northwest-1.amazonaws.com.cn", "execute-api.af-south-1.amazonaws.com", "execute-api.ap-east-1.amazonaws.com", "execute-api.ap-northeast-1.amazonaws.com", "execute-api.ap-northeast-2.amazonaws.com", "execute-api.ap-northeast-3.amazonaws.com", "execute-api.ap-south-1.amazonaws.com", "execute-api.ap-south-2.amazonaws.com", "execute-api.ap-southeast-1.amazonaws.com", "execute-api.ap-southeast-2.amazonaws.com", "execute-api.ap-southeast-3.amazonaws.com", "execute-api.ap-southeast-4.amazonaws.com", "execute-api.ap-southeast-5.amazonaws.com", "execute-api.ca-central-1.amazonaws.com", "execute-api.ca-west-1.amazonaws.com", "execute-api.eu-central-1.amazonaws.com", "execute-api.eu-central-2.amazonaws.com", "execute-api.eu-north-1.amazonaws.com", "execute-api.eu-south-1.amazonaws.com", "execute-api.eu-south-2.amazonaws.com", "execute-api.eu-west-1.amazonaws.com", "execute-api.eu-west-2.amazonaws.com", "execute-api.eu-west-3.amazonaws.com", "execute-api.il-central-1.amazonaws.com", "execute-api.me-central-1.amazonaws.com", "execute-api.me-south-1.amazonaws.com", "execute-api.sa-east-1.amazonaws.com", "execute-api.us-east-1.amazonaws.com", "execute-api.us-east-2.amazonaws.com", "execute-api.us-gov-east-1.amazonaws.com", "execute-api.us-gov-west-1.amazonaws.com", "execute-api.us-west-1.amazonaws.com", "execute-api.us-west-2.amazonaws.com", "cloudfront.net", "auth.af-south-1.amazoncognito.com", "auth.ap-east-1.amazoncognito.com", "auth.ap-northeast-1.amazoncognito.com", "auth.ap-northeast-2.amazoncognito.com", "auth.ap-northeast-3.amazoncognito.com", "auth.ap-south-1.amazoncognito.com", "auth.ap-south-2.amazoncognito.com", "auth.ap-southeast-1.amazoncognito.com", "auth.ap-southeast-2.amazoncognito.com", "auth.ap-southeast-3.amazoncognito.com", "auth.ap-southeast-4.amazoncognito.com", "auth.ca-central-1.amazoncognito.com", "auth.ca-west-1.amazoncognito.com", "auth.eu-central-1.amazoncognito.com", "auth.eu-central-2.amazoncognito.com", "auth.eu-north-1.amazoncognito.com", "auth.eu-south-1.amazoncognito.com", "auth.eu-south-2.amazoncognito.com", "auth.eu-west-1.amazoncognito.com", "auth.eu-west-2.amazoncognito.com", "auth.eu-west-3.amazoncognito.com", "auth.il-central-1.amazoncognito.com", "auth.me-central-1.amazoncognito.com", "auth.me-south-1.amazoncognito.com", "auth.sa-east-1.amazoncognito.com", "auth.us-east-1.amazoncognito.com", "auth-fips.us-east-1.amazoncognito.com", "auth.us-east-2.amazoncognito.com", "auth-fips.us-east-2.amazoncognito.com", "auth-fips.us-gov-west-1.amazoncognito.com", "auth.us-west-1.amazoncognito.com", "auth-fips.us-west-1.amazoncognito.com", "auth.us-west-2.amazoncognito.com", "auth-fips.us-west-2.amazoncognito.com", "*.compute.amazonaws.com.cn", "*.compute.amazonaws.com", "*.compute-1.amazonaws.com", "us-east-1.amazonaws.com", "emrappui-prod.cn-north-1.amazonaws.com.cn", "emrnotebooks-prod.cn-north-1.amazonaws.com.cn", "emrstudio-prod.cn-north-1.amazonaws.com.cn", "emrappui-prod.cn-northwest-1.amazonaws.com.cn", "emrnotebooks-prod.cn-northwest-1.amazonaws.com.cn", "emrstudio-prod.cn-northwest-1.amazonaws.com.cn", "emrappui-prod.af-south-1.amazonaws.com", "emrnotebooks-prod.af-south-1.amazonaws.com", "emrstudio-prod.af-south-1.amazonaws.com", "emrappui-prod.ap-east-1.amazonaws.com", "emrnotebooks-prod.ap-east-1.amazonaws.com", "emrstudio-prod.ap-east-1.amazonaws.com", "emrappui-prod.ap-northeast-1.amazonaws.com", "emrnotebooks-prod.ap-northeast-1.amazonaws.com", "emrstudio-prod.ap-northeast-1.amazonaws.com", "emrappui-prod.ap-northeast-2.amazonaws.com", "emrnotebooks-prod.ap-northeast-2.amazonaws.com", "emrstudio-prod.ap-northeast-2.amazonaws.com", "emrappui-prod.ap-northeast-3.amazonaws.com", "emrnotebooks-prod.ap-northeast-3.amazonaws.com", "emrstudio-prod.ap-northeast-3.amazonaws.com", "emrappui-prod.ap-south-1.amazonaws.com", "emrnotebooks-prod.ap-south-1.amazonaws.com", "emrstudio-prod.ap-south-1.amazonaws.com", "emrappui-prod.ap-south-2.amazonaws.com", "emrnotebooks-prod.ap-south-2.amazonaws.com", "emrstudio-prod.ap-south-2.amazonaws.com", "emrappui-prod.ap-southeast-1.amazonaws.com", "emrnotebooks-prod.ap-southeast-1.amazonaws.com", "emrstudio-prod.ap-southeast-1.amazonaws.com", "emrappui-prod.ap-southeast-2.amazonaws.com", "emrnotebooks-prod.ap-southeast-2.amazonaws.com", "emrstudio-prod.ap-southeast-2.amazonaws.com", "emrappui-prod.ap-southeast-3.amazonaws.com", "emrnotebooks-prod.ap-southeast-3.amazonaws.com", "emrstudio-prod.ap-southeast-3.amazonaws.com", "emrappui-prod.ap-southeast-4.amazonaws.com", "emrnotebooks-prod.ap-southeast-4.amazonaws.com", "emrstudio-prod.ap-southeast-4.amazonaws.com", "emrappui-prod.ca-central-1.amazonaws.com", "emrnotebooks-prod.ca-central-1.amazonaws.com", "emrstudio-prod.ca-central-1.amazonaws.com", "emrappui-prod.ca-west-1.amazonaws.com", "emrnotebooks-prod.ca-west-1.amazonaws.com", "emrstudio-prod.ca-west-1.amazonaws.com", "emrappui-prod.eu-central-1.amazonaws.com", "emrnotebooks-prod.eu-central-1.amazonaws.com", "emrstudio-prod.eu-central-1.amazonaws.com", "emrappui-prod.eu-central-2.amazonaws.com", "emrnotebooks-prod.eu-central-2.amazonaws.com", "emrstudio-prod.eu-central-2.amazonaws.com", "emrappui-prod.eu-north-1.amazonaws.com", "emrnotebooks-prod.eu-north-1.amazonaws.com", "emrstudio-prod.eu-north-1.amazonaws.com", "emrappui-prod.eu-south-1.amazonaws.com", "emrnotebooks-prod.eu-south-1.amazonaws.com", "emrstudio-prod.eu-south-1.amazonaws.com", "emrappui-prod.eu-south-2.amazonaws.com", "emrnotebooks-prod.eu-south-2.amazonaws.com", "emrstudio-prod.eu-south-2.amazonaws.com", "emrappui-prod.eu-west-1.amazonaws.com", "emrnotebooks-prod.eu-west-1.amazonaws.com", "emrstudio-prod.eu-west-1.amazonaws.com", "emrappui-prod.eu-west-2.amazonaws.com", "emrnotebooks-prod.eu-west-2.amazonaws.com", "emrstudio-prod.eu-west-2.amazonaws.com", "emrappui-prod.eu-west-3.amazonaws.com", "emrnotebooks-prod.eu-west-3.amazonaws.com", "emrstudio-prod.eu-west-3.amazonaws.com", "emrappui-prod.il-central-1.amazonaws.com", "emrnotebooks-prod.il-central-1.amazonaws.com", "emrstudio-prod.il-central-1.amazonaws.com", "emrappui-prod.me-central-1.amazonaws.com", "emrnotebooks-prod.me-central-1.amazonaws.com", "emrstudio-prod.me-central-1.amazonaws.com", "emrappui-prod.me-south-1.amazonaws.com", "emrnotebooks-prod.me-south-1.amazonaws.com", "emrstudio-prod.me-south-1.amazonaws.com", "emrappui-prod.sa-east-1.amazonaws.com", "emrnotebooks-prod.sa-east-1.amazonaws.com", "emrstudio-prod.sa-east-1.amazonaws.com", "emrappui-prod.us-east-1.amazonaws.com", "emrnotebooks-prod.us-east-1.amazonaws.com", "emrstudio-prod.us-east-1.amazonaws.com", "emrappui-prod.us-east-2.amazonaws.com", "emrnotebooks-prod.us-east-2.amazonaws.com", "emrstudio-prod.us-east-2.amazonaws.com", "emrappui-prod.us-gov-east-1.amazonaws.com", "emrnotebooks-prod.us-gov-east-1.amazonaws.com", "emrstudio-prod.us-gov-east-1.amazonaws.com", "emrappui-prod.us-gov-west-1.amazonaws.com", "emrnotebooks-prod.us-gov-west-1.amazonaws.com", "emrstudio-prod.us-gov-west-1.amazonaws.com", "emrappui-prod.us-west-1.amazonaws.com", "emrnotebooks-prod.us-west-1.amazonaws.com", "emrstudio-prod.us-west-1.amazonaws.com", "emrappui-prod.us-west-2.amazonaws.com", "emrnotebooks-prod.us-west-2.amazonaws.com", "emrstudio-prod.us-west-2.amazonaws.com", "*.cn-north-1.airflow.amazonaws.com.cn", "*.cn-northwest-1.airflow.amazonaws.com.cn", "*.af-south-1.airflow.amazonaws.com", "*.ap-east-1.airflow.amazonaws.com", "*.ap-northeast-1.airflow.amazonaws.com", "*.ap-northeast-2.airflow.amazonaws.com", "*.ap-northeast-3.airflow.amazonaws.com", "*.ap-south-1.airflow.amazonaws.com", "*.ap-south-2.airflow.amazonaws.com", "*.ap-southeast-1.airflow.amazonaws.com", "*.ap-southeast-2.airflow.amazonaws.com", "*.ap-southeast-3.airflow.amazonaws.com", "*.ap-southeast-4.airflow.amazonaws.com", "*.ca-central-1.airflow.amazonaws.com", "*.ca-west-1.airflow.amazonaws.com", "*.eu-central-1.airflow.amazonaws.com", "*.eu-central-2.airflow.amazonaws.com", "*.eu-north-1.airflow.amazonaws.com", "*.eu-south-1.airflow.amazonaws.com", "*.eu-south-2.airflow.amazonaws.com", "*.eu-west-1.airflow.amazonaws.com", "*.eu-west-2.airflow.amazonaws.com", "*.eu-west-3.airflow.amazonaws.com", "*.il-central-1.airflow.amazonaws.com", "*.me-central-1.airflow.amazonaws.com", "*.me-south-1.airflow.amazonaws.com", "*.sa-east-1.airflow.amazonaws.com", "*.us-east-1.airflow.amazonaws.com", "*.us-east-2.airflow.amazonaws.com", "*.us-west-1.airflow.amazonaws.com", "*.us-west-2.airflow.amazonaws.com", "s3.dualstack.cn-north-1.amazonaws.com.cn", "s3-accesspoint.dualstack.cn-north-1.amazonaws.com.cn", "s3-website.dualstack.cn-north-1.amazonaws.com.cn", "s3.cn-north-1.amazonaws.com.cn", "s3-accesspoint.cn-north-1.amazonaws.com.cn", "s3-deprecated.cn-north-1.amazonaws.com.cn", "s3-object-lambda.cn-north-1.amazonaws.com.cn", "s3-website.cn-north-1.amazonaws.com.cn", "s3.dualstack.cn-northwest-1.amazonaws.com.cn", "s3-accesspoint.dualstack.cn-northwest-1.amazonaws.com.cn", "s3.cn-northwest-1.amazonaws.com.cn", "s3-accesspoint.cn-northwest-1.amazonaws.com.cn", "s3-object-lambda.cn-northwest-1.amazonaws.com.cn", "s3-website.cn-northwest-1.amazonaws.com.cn", "s3.dualstack.af-south-1.amazonaws.com", "s3-accesspoint.dualstack.af-south-1.amazonaws.com", "s3-website.dualstack.af-south-1.amazonaws.com", "s3.af-south-1.amazonaws.com", "s3-accesspoint.af-south-1.amazonaws.com", "s3-object-lambda.af-south-1.amazonaws.com", "s3-website.af-south-1.amazonaws.com", "s3.dualstack.ap-east-1.amazonaws.com", "s3-accesspoint.dualstack.ap-east-1.amazonaws.com", "s3.ap-east-1.amazonaws.com", "s3-accesspoint.ap-east-1.amazonaws.com", "s3-object-lambda.ap-east-1.amazonaws.com", "s3-website.ap-east-1.amazonaws.com", "s3.dualstack.ap-northeast-1.amazonaws.com", "s3-accesspoint.dualstack.ap-northeast-1.amazonaws.com", "s3-website.dualstack.ap-northeast-1.amazonaws.com", "s3.ap-northeast-1.amazonaws.com", "s3-accesspoint.ap-northeast-1.amazonaws.com", "s3-object-lambda.ap-northeast-1.amazonaws.com", "s3-website.ap-northeast-1.amazonaws.com", "s3.dualstack.ap-northeast-2.amazonaws.com", "s3-accesspoint.dualstack.ap-northeast-2.amazonaws.com", "s3-website.dualstack.ap-northeast-2.amazonaws.com", "s3.ap-northeast-2.amazonaws.com", "s3-accesspoint.ap-northeast-2.amazonaws.com", "s3-object-lambda.ap-northeast-2.amazonaws.com", "s3-website.ap-northeast-2.amazonaws.com", "s3.dualstack.ap-northeast-3.amazonaws.com", "s3-accesspoint.dualstack.ap-northeast-3.amazonaws.com", "s3-website.dualstack.ap-northeast-3.amazonaws.com", "s3.ap-northeast-3.amazonaws.com", "s3-accesspoint.ap-northeast-3.amazonaws.com", "s3-object-lambda.ap-northeast-3.amazonaws.com", "s3-website.ap-northeast-3.amazonaws.com", "s3.dualstack.ap-south-1.amazonaws.com", "s3-accesspoint.dualstack.ap-south-1.amazonaws.com", "s3-website.dualstack.ap-south-1.amazonaws.com", "s3.ap-south-1.amazonaws.com", "s3-accesspoint.ap-south-1.amazonaws.com", "s3-object-lambda.ap-south-1.amazonaws.com", "s3-website.ap-south-1.amazonaws.com", "s3.dualstack.ap-south-2.amazonaws.com", "s3-accesspoint.dualstack.ap-south-2.amazonaws.com", "s3-website.dualstack.ap-south-2.amazonaws.com", "s3.ap-south-2.amazonaws.com", "s3-accesspoint.ap-south-2.amazonaws.com", "s3-object-lambda.ap-south-2.amazonaws.com", "s3-website.ap-south-2.amazonaws.com", "s3.dualstack.ap-southeast-1.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-1.amazonaws.com", "s3-website.dualstack.ap-southeast-1.amazonaws.com", "s3.ap-southeast-1.amazonaws.com", "s3-accesspoint.ap-southeast-1.amazonaws.com", "s3-object-lambda.ap-southeast-1.amazonaws.com", "s3-website.ap-southeast-1.amazonaws.com", "s3.dualstack.ap-southeast-2.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-2.amazonaws.com", "s3-website.dualstack.ap-southeast-2.amazonaws.com", "s3.ap-southeast-2.amazonaws.com", "s3-accesspoint.ap-southeast-2.amazonaws.com", "s3-object-lambda.ap-southeast-2.amazonaws.com", "s3-website.ap-southeast-2.amazonaws.com", "s3.dualstack.ap-southeast-3.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-3.amazonaws.com", "s3-website.dualstack.ap-southeast-3.amazonaws.com", "s3.ap-southeast-3.amazonaws.com", "s3-accesspoint.ap-southeast-3.amazonaws.com", "s3-object-lambda.ap-southeast-3.amazonaws.com", "s3-website.ap-southeast-3.amazonaws.com", "s3.dualstack.ap-southeast-4.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-4.amazonaws.com", "s3-website.dualstack.ap-southeast-4.amazonaws.com", "s3.ap-southeast-4.amazonaws.com", "s3-accesspoint.ap-southeast-4.amazonaws.com", "s3-object-lambda.ap-southeast-4.amazonaws.com", "s3-website.ap-southeast-4.amazonaws.com", "s3.dualstack.ap-southeast-5.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-5.amazonaws.com", "s3-website.dualstack.ap-southeast-5.amazonaws.com", "s3.ap-southeast-5.amazonaws.com", "s3-accesspoint.ap-southeast-5.amazonaws.com", "s3-deprecated.ap-southeast-5.amazonaws.com", "s3-object-lambda.ap-southeast-5.amazonaws.com", "s3-website.ap-southeast-5.amazonaws.com", "s3.dualstack.ca-central-1.amazonaws.com", "s3-accesspoint.dualstack.ca-central-1.amazonaws.com", "s3-accesspoint-fips.dualstack.ca-central-1.amazonaws.com", "s3-fips.dualstack.ca-central-1.amazonaws.com", "s3-website.dualstack.ca-central-1.amazonaws.com", "s3.ca-central-1.amazonaws.com", "s3-accesspoint.ca-central-1.amazonaws.com", "s3-accesspoint-fips.ca-central-1.amazonaws.com", "s3-fips.ca-central-1.amazonaws.com", "s3-object-lambda.ca-central-1.amazonaws.com", "s3-website.ca-central-1.amazonaws.com", "s3.dualstack.ca-west-1.amazonaws.com", "s3-accesspoint.dualstack.ca-west-1.amazonaws.com", "s3-accesspoint-fips.dualstack.ca-west-1.amazonaws.com", "s3-fips.dualstack.ca-west-1.amazonaws.com", "s3-website.dualstack.ca-west-1.amazonaws.com", "s3.ca-west-1.amazonaws.com", "s3-accesspoint.ca-west-1.amazonaws.com", "s3-accesspoint-fips.ca-west-1.amazonaws.com", "s3-fips.ca-west-1.amazonaws.com", "s3-object-lambda.ca-west-1.amazonaws.com", "s3-website.ca-west-1.amazonaws.com", "s3.dualstack.eu-central-1.amazonaws.com", "s3-accesspoint.dualstack.eu-central-1.amazonaws.com", "s3-website.dualstack.eu-central-1.amazonaws.com", "s3.eu-central-1.amazonaws.com", "s3-accesspoint.eu-central-1.amazonaws.com", "s3-object-lambda.eu-central-1.amazonaws.com", "s3-website.eu-central-1.amazonaws.com", "s3.dualstack.eu-central-2.amazonaws.com", "s3-accesspoint.dualstack.eu-central-2.amazonaws.com", "s3-website.dualstack.eu-central-2.amazonaws.com", "s3.eu-central-2.amazonaws.com", "s3-accesspoint.eu-central-2.amazonaws.com", "s3-object-lambda.eu-central-2.amazonaws.com", "s3-website.eu-central-2.amazonaws.com", "s3.dualstack.eu-north-1.amazonaws.com", "s3-accesspoint.dualstack.eu-north-1.amazonaws.com", "s3.eu-north-1.amazonaws.com", "s3-accesspoint.eu-north-1.amazonaws.com", "s3-object-lambda.eu-north-1.amazonaws.com", "s3-website.eu-north-1.amazonaws.com", "s3.dualstack.eu-south-1.amazonaws.com", "s3-accesspoint.dualstack.eu-south-1.amazonaws.com", "s3-website.dualstack.eu-south-1.amazonaws.com", "s3.eu-south-1.amazonaws.com", "s3-accesspoint.eu-south-1.amazonaws.com", "s3-object-lambda.eu-south-1.amazonaws.com", "s3-website.eu-south-1.amazonaws.com", "s3.dualstack.eu-south-2.amazonaws.com", "s3-accesspoint.dualstack.eu-south-2.amazonaws.com", "s3-website.dualstack.eu-south-2.amazonaws.com", "s3.eu-south-2.amazonaws.com", "s3-accesspoint.eu-south-2.amazonaws.com", "s3-object-lambda.eu-south-2.amazonaws.com", "s3-website.eu-south-2.amazonaws.com", "s3.dualstack.eu-west-1.amazonaws.com", "s3-accesspoint.dualstack.eu-west-1.amazonaws.com", "s3-website.dualstack.eu-west-1.amazonaws.com", "s3.eu-west-1.amazonaws.com", "s3-accesspoint.eu-west-1.amazonaws.com", "s3-deprecated.eu-west-1.amazonaws.com", "s3-object-lambda.eu-west-1.amazonaws.com", "s3-website.eu-west-1.amazonaws.com", "s3.dualstack.eu-west-2.amazonaws.com", "s3-accesspoint.dualstack.eu-west-2.amazonaws.com", "s3.eu-west-2.amazonaws.com", "s3-accesspoint.eu-west-2.amazonaws.com", "s3-object-lambda.eu-west-2.amazonaws.com", "s3-website.eu-west-2.amazonaws.com", "s3.dualstack.eu-west-3.amazonaws.com", "s3-accesspoint.dualstack.eu-west-3.amazonaws.com", "s3-website.dualstack.eu-west-3.amazonaws.com", "s3.eu-west-3.amazonaws.com", "s3-accesspoint.eu-west-3.amazonaws.com", "s3-object-lambda.eu-west-3.amazonaws.com", "s3-website.eu-west-3.amazonaws.com", "s3.dualstack.il-central-1.amazonaws.com", "s3-accesspoint.dualstack.il-central-1.amazonaws.com", "s3-website.dualstack.il-central-1.amazonaws.com", "s3.il-central-1.amazonaws.com", "s3-accesspoint.il-central-1.amazonaws.com", "s3-object-lambda.il-central-1.amazonaws.com", "s3-website.il-central-1.amazonaws.com", "s3.dualstack.me-central-1.amazonaws.com", "s3-accesspoint.dualstack.me-central-1.amazonaws.com", "s3-website.dualstack.me-central-1.amazonaws.com", "s3.me-central-1.amazonaws.com", "s3-accesspoint.me-central-1.amazonaws.com", "s3-object-lambda.me-central-1.amazonaws.com", "s3-website.me-central-1.amazonaws.com", "s3.dualstack.me-south-1.amazonaws.com", "s3-accesspoint.dualstack.me-south-1.amazonaws.com", "s3.me-south-1.amazonaws.com", "s3-accesspoint.me-south-1.amazonaws.com", "s3-object-lambda.me-south-1.amazonaws.com", "s3-website.me-south-1.amazonaws.com", "s3.amazonaws.com", "s3-1.amazonaws.com", "s3-ap-east-1.amazonaws.com", "s3-ap-northeast-1.amazonaws.com", "s3-ap-northeast-2.amazonaws.com", "s3-ap-northeast-3.amazonaws.com", "s3-ap-south-1.amazonaws.com", "s3-ap-southeast-1.amazonaws.com", "s3-ap-southeast-2.amazonaws.com", "s3-ca-central-1.amazonaws.com", "s3-eu-central-1.amazonaws.com", "s3-eu-north-1.amazonaws.com", "s3-eu-west-1.amazonaws.com", "s3-eu-west-2.amazonaws.com", "s3-eu-west-3.amazonaws.com", "s3-external-1.amazonaws.com", "s3-fips-us-gov-east-1.amazonaws.com", "s3-fips-us-gov-west-1.amazonaws.com", "mrap.accesspoint.s3-global.amazonaws.com", "s3-me-south-1.amazonaws.com", "s3-sa-east-1.amazonaws.com", "s3-us-east-2.amazonaws.com", "s3-us-gov-east-1.amazonaws.com", "s3-us-gov-west-1.amazonaws.com", "s3-us-west-1.amazonaws.com", "s3-us-west-2.amazonaws.com", "s3-website-ap-northeast-1.amazonaws.com", "s3-website-ap-southeast-1.amazonaws.com", "s3-website-ap-southeast-2.amazonaws.com", "s3-website-eu-west-1.amazonaws.com", "s3-website-sa-east-1.amazonaws.com", "s3-website-us-east-1.amazonaws.com", "s3-website-us-gov-west-1.amazonaws.com", "s3-website-us-west-1.amazonaws.com", "s3-website-us-west-2.amazonaws.com", "s3.dualstack.sa-east-1.amazonaws.com", "s3-accesspoint.dualstack.sa-east-1.amazonaws.com", "s3-website.dualstack.sa-east-1.amazonaws.com", "s3.sa-east-1.amazonaws.com", "s3-accesspoint.sa-east-1.amazonaws.com", "s3-object-lambda.sa-east-1.amazonaws.com", "s3-website.sa-east-1.amazonaws.com", "s3.dualstack.us-east-1.amazonaws.com", "s3-accesspoint.dualstack.us-east-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-east-1.amazonaws.com", "s3-fips.dualstack.us-east-1.amazonaws.com", "s3-website.dualstack.us-east-1.amazonaws.com", "s3.us-east-1.amazonaws.com", "s3-accesspoint.us-east-1.amazonaws.com", "s3-accesspoint-fips.us-east-1.amazonaws.com", "s3-deprecated.us-east-1.amazonaws.com", "s3-fips.us-east-1.amazonaws.com", "s3-object-lambda.us-east-1.amazonaws.com", "s3-website.us-east-1.amazonaws.com", "s3.dualstack.us-east-2.amazonaws.com", "s3-accesspoint.dualstack.us-east-2.amazonaws.com", "s3-accesspoint-fips.dualstack.us-east-2.amazonaws.com", "s3-fips.dualstack.us-east-2.amazonaws.com", "s3-website.dualstack.us-east-2.amazonaws.com", "s3.us-east-2.amazonaws.com", "s3-accesspoint.us-east-2.amazonaws.com", "s3-accesspoint-fips.us-east-2.amazonaws.com", "s3-deprecated.us-east-2.amazonaws.com", "s3-fips.us-east-2.amazonaws.com", "s3-object-lambda.us-east-2.amazonaws.com", "s3-website.us-east-2.amazonaws.com", "s3.dualstack.us-gov-east-1.amazonaws.com", "s3-accesspoint.dualstack.us-gov-east-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-gov-east-1.amazonaws.com", "s3-fips.dualstack.us-gov-east-1.amazonaws.com", "s3.us-gov-east-1.amazonaws.com", "s3-accesspoint.us-gov-east-1.amazonaws.com", "s3-accesspoint-fips.us-gov-east-1.amazonaws.com", "s3-fips.us-gov-east-1.amazonaws.com", "s3-object-lambda.us-gov-east-1.amazonaws.com", "s3-website.us-gov-east-1.amazonaws.com", "s3.dualstack.us-gov-west-1.amazonaws.com", "s3-accesspoint.dualstack.us-gov-west-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-gov-west-1.amazonaws.com", "s3-fips.dualstack.us-gov-west-1.amazonaws.com", "s3.us-gov-west-1.amazonaws.com", "s3-accesspoint.us-gov-west-1.amazonaws.com", "s3-accesspoint-fips.us-gov-west-1.amazonaws.com", "s3-fips.us-gov-west-1.amazonaws.com", "s3-object-lambda.us-gov-west-1.amazonaws.com", "s3-website.us-gov-west-1.amazonaws.com", "s3.dualstack.us-west-1.amazonaws.com", "s3-accesspoint.dualstack.us-west-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-west-1.amazonaws.com", "s3-fips.dualstack.us-west-1.amazonaws.com", "s3-website.dualstack.us-west-1.amazonaws.com", "s3.us-west-1.amazonaws.com", "s3-accesspoint.us-west-1.amazonaws.com", "s3-accesspoint-fips.us-west-1.amazonaws.com", "s3-fips.us-west-1.amazonaws.com", "s3-object-lambda.us-west-1.amazonaws.com", "s3-website.us-west-1.amazonaws.com", "s3.dualstack.us-west-2.amazonaws.com", "s3-accesspoint.dualstack.us-west-2.amazonaws.com", "s3-accesspoint-fips.dualstack.us-west-2.amazonaws.com", "s3-fips.dualstack.us-west-2.amazonaws.com", "s3-website.dualstack.us-west-2.amazonaws.com", "s3.us-west-2.amazonaws.com", "s3-accesspoint.us-west-2.amazonaws.com", "s3-accesspoint-fips.us-west-2.amazonaws.com", "s3-deprecated.us-west-2.amazonaws.com", "s3-fips.us-west-2.amazonaws.com", "s3-object-lambda.us-west-2.amazonaws.com", "s3-website.us-west-2.amazonaws.com", "labeling.ap-northeast-1.sagemaker.aws", "labeling.ap-northeast-2.sagemaker.aws", "labeling.ap-south-1.sagemaker.aws", "labeling.ap-southeast-1.sagemaker.aws", "labeling.ap-southeast-2.sagemaker.aws", "labeling.ca-central-1.sagemaker.aws", "labeling.eu-central-1.sagemaker.aws", "labeling.eu-west-1.sagemaker.aws", "labeling.eu-west-2.sagemaker.aws", "labeling.us-east-1.sagemaker.aws", "labeling.us-east-2.sagemaker.aws", "labeling.us-west-2.sagemaker.aws", "notebook.af-south-1.sagemaker.aws", "notebook.ap-east-1.sagemaker.aws", "notebook.ap-northeast-1.sagemaker.aws", "notebook.ap-northeast-2.sagemaker.aws", "notebook.ap-northeast-3.sagemaker.aws", "notebook.ap-south-1.sagemaker.aws", "notebook.ap-south-2.sagemaker.aws", "notebook.ap-southeast-1.sagemaker.aws", "notebook.ap-southeast-2.sagemaker.aws", "notebook.ap-southeast-3.sagemaker.aws", "notebook.ap-southeast-4.sagemaker.aws", "notebook.ca-central-1.sagemaker.aws", "notebook-fips.ca-central-1.sagemaker.aws", "notebook.ca-west-1.sagemaker.aws", "notebook-fips.ca-west-1.sagemaker.aws", "notebook.eu-central-1.sagemaker.aws", "notebook.eu-central-2.sagemaker.aws", "notebook.eu-north-1.sagemaker.aws", "notebook.eu-south-1.sagemaker.aws", "notebook.eu-south-2.sagemaker.aws", "notebook.eu-west-1.sagemaker.aws", "notebook.eu-west-2.sagemaker.aws", "notebook.eu-west-3.sagemaker.aws", "notebook.il-central-1.sagemaker.aws", "notebook.me-central-1.sagemaker.aws", "notebook.me-south-1.sagemaker.aws", "notebook.sa-east-1.sagemaker.aws", "notebook.us-east-1.sagemaker.aws", "notebook-fips.us-east-1.sagemaker.aws", "notebook.us-east-2.sagemaker.aws", "notebook-fips.us-east-2.sagemaker.aws", "notebook.us-gov-east-1.sagemaker.aws", "notebook-fips.us-gov-east-1.sagemaker.aws", "notebook.us-gov-west-1.sagemaker.aws", "notebook-fips.us-gov-west-1.sagemaker.aws", "notebook.us-west-1.sagemaker.aws", "notebook-fips.us-west-1.sagemaker.aws", "notebook.us-west-2.sagemaker.aws", "notebook-fips.us-west-2.sagemaker.aws", "notebook.cn-north-1.sagemaker.com.cn", "notebook.cn-northwest-1.sagemaker.com.cn", "studio.af-south-1.sagemaker.aws", "studio.ap-east-1.sagemaker.aws", "studio.ap-northeast-1.sagemaker.aws", "studio.ap-northeast-2.sagemaker.aws", "studio.ap-northeast-3.sagemaker.aws", "studio.ap-south-1.sagemaker.aws", "studio.ap-southeast-1.sagemaker.aws", "studio.ap-southeast-2.sagemaker.aws", "studio.ap-southeast-3.sagemaker.aws", "studio.ca-central-1.sagemaker.aws", "studio.eu-central-1.sagemaker.aws", "studio.eu-north-1.sagemaker.aws", "studio.eu-south-1.sagemaker.aws", "studio.eu-south-2.sagemaker.aws", "studio.eu-west-1.sagemaker.aws", "studio.eu-west-2.sagemaker.aws", "studio.eu-west-3.sagemaker.aws", "studio.il-central-1.sagemaker.aws", "studio.me-central-1.sagemaker.aws", "studio.me-south-1.sagemaker.aws", "studio.sa-east-1.sagemaker.aws", "studio.us-east-1.sagemaker.aws", "studio.us-east-2.sagemaker.aws", "studio.us-gov-east-1.sagemaker.aws", "studio-fips.us-gov-east-1.sagemaker.aws", "studio.us-gov-west-1.sagemaker.aws", "studio-fips.us-gov-west-1.sagemaker.aws", "studio.us-west-1.sagemaker.aws", "studio.us-west-2.sagemaker.aws", "studio.cn-north-1.sagemaker.com.cn", "studio.cn-northwest-1.sagemaker.com.cn", "*.experiments.sagemaker.aws", "analytics-gateway.ap-northeast-1.amazonaws.com", "analytics-gateway.ap-northeast-2.amazonaws.com", "analytics-gateway.ap-south-1.amazonaws.com", "analytics-gateway.ap-southeast-1.amazonaws.com", "analytics-gateway.ap-southeast-2.amazonaws.com", "analytics-gateway.eu-central-1.amazonaws.com", "analytics-gateway.eu-west-1.amazonaws.com", "analytics-gateway.us-east-1.amazonaws.com", "analytics-gateway.us-east-2.amazonaws.com", "analytics-gateway.us-west-2.amazonaws.com", "amplifyapp.com", "*.awsapprunner.com", "webview-assets.aws-cloud9.af-south-1.amazonaws.com", "vfs.cloud9.af-south-1.amazonaws.com", "webview-assets.cloud9.af-south-1.amazonaws.com", "webview-assets.aws-cloud9.ap-east-1.amazonaws.com", "vfs.cloud9.ap-east-1.amazonaws.com", "webview-assets.cloud9.ap-east-1.amazonaws.com", "webview-assets.aws-cloud9.ap-northeast-1.amazonaws.com", "vfs.cloud9.ap-northeast-1.amazonaws.com", "webview-assets.cloud9.ap-northeast-1.amazonaws.com", "webview-assets.aws-cloud9.ap-northeast-2.amazonaws.com", "vfs.cloud9.ap-northeast-2.amazonaws.com", "webview-assets.cloud9.ap-northeast-2.amazonaws.com", "webview-assets.aws-cloud9.ap-northeast-3.amazonaws.com", "vfs.cloud9.ap-northeast-3.amazonaws.com", "webview-assets.cloud9.ap-northeast-3.amazonaws.com", "webview-assets.aws-cloud9.ap-south-1.amazonaws.com", "vfs.cloud9.ap-south-1.amazonaws.com", "webview-assets.cloud9.ap-south-1.amazonaws.com", "webview-assets.aws-cloud9.ap-southeast-1.amazonaws.com", "vfs.cloud9.ap-southeast-1.amazonaws.com", "webview-assets.cloud9.ap-southeast-1.amazonaws.com", "webview-assets.aws-cloud9.ap-southeast-2.amazonaws.com", "vfs.cloud9.ap-southeast-2.amazonaws.com", "webview-assets.cloud9.ap-southeast-2.amazonaws.com", "webview-assets.aws-cloud9.ca-central-1.amazonaws.com", "vfs.cloud9.ca-central-1.amazonaws.com", "webview-assets.cloud9.ca-central-1.amazonaws.com", "webview-assets.aws-cloud9.eu-central-1.amazonaws.com", "vfs.cloud9.eu-central-1.amazonaws.com", "webview-assets.cloud9.eu-central-1.amazonaws.com", "webview-assets.aws-cloud9.eu-north-1.amazonaws.com", "vfs.cloud9.eu-north-1.amazonaws.com", "webview-assets.cloud9.eu-north-1.amazonaws.com", "webview-assets.aws-cloud9.eu-south-1.amazonaws.com", "vfs.cloud9.eu-south-1.amazonaws.com", "webview-assets.cloud9.eu-south-1.amazonaws.com", "webview-assets.aws-cloud9.eu-west-1.amazonaws.com", "vfs.cloud9.eu-west-1.amazonaws.com", "webview-assets.cloud9.eu-west-1.amazonaws.com", "webview-assets.aws-cloud9.eu-west-2.amazonaws.com", "vfs.cloud9.eu-west-2.amazonaws.com", "webview-assets.cloud9.eu-west-2.amazonaws.com", "webview-assets.aws-cloud9.eu-west-3.amazonaws.com", "vfs.cloud9.eu-west-3.amazonaws.com", "webview-assets.cloud9.eu-west-3.amazonaws.com", "webview-assets.aws-cloud9.il-central-1.amazonaws.com", "vfs.cloud9.il-central-1.amazonaws.com", "webview-assets.aws-cloud9.me-south-1.amazonaws.com", "vfs.cloud9.me-south-1.amazonaws.com", "webview-assets.cloud9.me-south-1.amazonaws.com", "webview-assets.aws-cloud9.sa-east-1.amazonaws.com", "vfs.cloud9.sa-east-1.amazonaws.com", "webview-assets.cloud9.sa-east-1.amazonaws.com", "webview-assets.aws-cloud9.us-east-1.amazonaws.com", "vfs.cloud9.us-east-1.amazonaws.com", "webview-assets.cloud9.us-east-1.amazonaws.com", "webview-assets.aws-cloud9.us-east-2.amazonaws.com", "vfs.cloud9.us-east-2.amazonaws.com", "webview-assets.cloud9.us-east-2.amazonaws.com", "webview-assets.aws-cloud9.us-west-1.amazonaws.com", "vfs.cloud9.us-west-1.amazonaws.com", "webview-assets.cloud9.us-west-1.amazonaws.com", "webview-assets.aws-cloud9.us-west-2.amazonaws.com", "vfs.cloud9.us-west-2.amazonaws.com", "webview-assets.cloud9.us-west-2.amazonaws.com", "awsapps.com", "cn-north-1.eb.amazonaws.com.cn", "cn-northwest-1.eb.amazonaws.com.cn", "elasticbeanstalk.com", "af-south-1.elasticbeanstalk.com", "ap-east-1.elasticbeanstalk.com", "ap-northeast-1.elasticbeanstalk.com", "ap-northeast-2.elasticbeanstalk.com", "ap-northeast-3.elasticbeanstalk.com", "ap-south-1.elasticbeanstalk.com", "ap-southeast-1.elasticbeanstalk.com", "ap-southeast-2.elasticbeanstalk.com", "ap-southeast-3.elasticbeanstalk.com", "ca-central-1.elasticbeanstalk.com", "eu-central-1.elasticbeanstalk.com", "eu-north-1.elasticbeanstalk.com", "eu-south-1.elasticbeanstalk.com", "eu-west-1.elasticbeanstalk.com", "eu-west-2.elasticbeanstalk.com", "eu-west-3.elasticbeanstalk.com", "il-central-1.elasticbeanstalk.com", "me-south-1.elasticbeanstalk.com", "sa-east-1.elasticbeanstalk.com", "us-east-1.elasticbeanstalk.com", "us-east-2.elasticbeanstalk.com", "us-gov-east-1.elasticbeanstalk.com", "us-gov-west-1.elasticbeanstalk.com", "us-west-1.elasticbeanstalk.com", "us-west-2.elasticbeanstalk.com", "*.elb.amazonaws.com.cn", "*.elb.amazonaws.com", "awsglobalaccelerator.com", "*.private.repost.aws", "eero.online", "eero-stage.online", "apigee.io", "panel.dev", "siiites.com", "appspacehosted.com", "appspaceusercontent.com", "appudo.net", "on-aptible.com", "f5.si", "arvanedge.ir", "user.aseinet.ne.jp", "gv.vc", "d.gv.vc", "user.party.eus", "pimienta.org", "poivron.org", "potager.org", "sweetpepper.org", "myasustor.com", "cdn.prod.atlassian-dev.net", "translated.page", "myfritz.link", "myfritz.net", "onavstack.net", "*.awdev.ca", "*.advisor.ws", "ecommerce-shop.pl", "b-data.io", "balena-devices.com", "base.ec", "official.ec", "buyshop.jp", "fashionstore.jp", "handcrafted.jp", "kawaiishop.jp", "supersale.jp", "theshop.jp", "shopselect.net", "base.shop", "beagleboard.io", "*.beget.app", "pages.gay", "bnr.la", "bitbucket.io", "blackbaudcdn.net", "of.je", "bluebite.io", "boomla.net", "boutir.com", "boxfuse.io", "square7.ch", "bplaced.com", "bplaced.de", "square7.de", "bplaced.net", "square7.net", "*.s.brave.io", "shop.brendly.hr", "shop.brendly.rs", "browsersafetymark.io", "radio.am", "radio.fm", "uk0.bigv.io", "dh.bytemark.co.uk", "vm.bytemark.co.uk", "cafjs.com", "canva-apps.cn", "*.my.canvasite.cn", "canva-apps.com", "*.my.canva.site", "drr.ac", "uwu.ai", "carrd.co", "crd.co", "ju.mp", "api.gov.uk", "cdn77-storage.com", "rsc.contentproxy9.cz", "r.cdn77.net", "cdn77-ssl.net", "c.cdn77.org", "rsc.cdn77.org", "ssl.origin.cdn77-secure.org", "za.bz", "br.com", "cn.com", "de.com", "eu.com", "jpn.com", "mex.com", "ru.com", "sa.com", "uk.com", "us.com", "za.com", "com.de", "gb.net", "hu.net", "jp.net", "se.net", "uk.net", "ae.org", "com.se", "cx.ua", "discourse.group", "discourse.team", "clerk.app", "clerkstage.app", "*.lcl.dev", "*.lclstage.dev", "*.stg.dev", "*.stgstage.dev", "cleverapps.cc", "*.services.clever-cloud.com", "cleverapps.io", "cleverapps.tech", "clickrising.net", "cloudns.asia", "cloudns.be", "cloud-ip.biz", "cloudns.biz", "cloudns.cc", "cloudns.ch", "cloudns.cl", "cloudns.club", "dnsabr.com", "ip-ddns.com", "cloudns.cx", "cloudns.eu", "cloudns.in", "cloudns.info", "ddns-ip.net", "dns-cloud.net", "dns-dynamic.net", "cloudns.nz", "cloudns.org", "ip-dynamic.org", "cloudns.ph", "cloudns.pro", "cloudns.pw", "cloudns.us", "c66.me", "cloud66.ws", "cloud66.zone", "jdevcloud.com", "wpdevcloud.com", "cloudaccess.host", "freesite.host", "cloudaccess.net", "*.cloudera.site", "cf-ipfs.com", "cloudflare-ipfs.com", "trycloudflare.com", "pages.dev", "r2.dev", "workers.dev", "cloudflare.net", "cdn.cloudflare.net", "cdn.cloudflareanycast.net", "cdn.cloudflarecn.net", "cdn.cloudflareglobal.net", "cust.cloudscale.ch", "objects.lpg.cloudscale.ch", "objects.rma.cloudscale.ch", "wnext.app", "cnpy.gdn", "*.otap.co", "co.ca", "co.com", "codeberg.page", "csb.app", "preview.csb.app", "co.nl", "co.no", "webhosting.be", "hosting-cluster.nl", "ctfcloud.net", "convex.site", "ac.ru", "edu.ru", "gov.ru", "int.ru", "mil.ru", "test.ru", "dyn.cosidns.de", "dnsupdater.de", "dynamisches-dns.de", "internet-dns.de", "l-o-g-i-n.de", "dynamic-dns.info", "feste-ip.net", "knx-server.net", "static-access.net", "craft.me", "realm.cz", "on.crisp.email", "*.cryptonomic.net", "curv.dev", "cfolks.pl", "cyon.link", "cyon.site", "platform0.app", "fnwk.site", "folionetwork.site", "biz.dk", "co.dk", "firm.dk", "reg.dk", "store.dk", "dyndns.dappnode.io", "builtwithdark.com", "darklang.io", "demo.datadetect.com", "instance.datadetect.com", "edgestack.me", "dattolocal.com", "dattorelay.com", "dattoweb.com", "mydatto.com", "dattolocal.net", "mydatto.net", "ddnss.de", "dyn.ddnss.de", "dyndns.ddnss.de", "dyn-ip24.de", "dyndns1.de", "home-webserver.de", "dyn.home-webserver.de", "myhome-server.de", "ddnss.org", "debian.net", "definima.io", "definima.net", "deno.dev", "deno-staging.dev", "dedyn.io", "deta.app", "deta.dev", "dfirma.pl", "dkonto.pl", "you2.pl", "ondigitalocean.app", "*.digitaloceanspaces.com", "us.kg", "rss.my.id", "diher.solutions", "discordsays.com", "discordsez.com", "jozi.biz", "dnshome.de", "online.th", "shop.th", "drayddns.com", "shoparena.pl", "dreamhosters.com", "durumis.com", "mydrobo.com", "drud.io", "drud.us", "duckdns.org", "dy.fi", "tunk.org", "dyndns.biz", "for-better.biz", "for-more.biz", "for-some.biz", "for-the.biz", "selfip.biz", "webhop.biz", "ftpaccess.cc", "game-server.cc", "myphotos.cc", "scrapping.cc", "blogdns.com", "cechire.com", "dnsalias.com", "dnsdojo.com", "doesntexist.com", "dontexist.com", "doomdns.com", "dyn-o-saur.com", "dynalias.com", "dyndns-at-home.com", "dyndns-at-work.com", "dyndns-blog.com", "dyndns-free.com", "dyndns-home.com", "dyndns-ip.com", "dyndns-mail.com", "dyndns-office.com", "dyndns-pics.com", "dyndns-remote.com", "dyndns-server.com", "dyndns-web.com", "dyndns-wiki.com", "dyndns-work.com", "est-a-la-maison.com", "est-a-la-masion.com", "est-le-patron.com", "est-mon-blogueur.com", "from-ak.com", "from-al.com", "from-ar.com", "from-ca.com", "from-ct.com", "from-dc.com", "from-de.com", "from-fl.com", "from-ga.com", "from-hi.com", "from-ia.com", "from-id.com", "from-il.com", "from-in.com", "from-ks.com", "from-ky.com", "from-ma.com", "from-md.com", "from-mi.com", "from-mn.com", "from-mo.com", "from-ms.com", "from-mt.com", "from-nc.com", "from-nd.com", "from-ne.com", "from-nh.com", "from-nj.com", "from-nm.com", "from-nv.com", "from-oh.com", "from-ok.com", "from-or.com", "from-pa.com", "from-pr.com", "from-ri.com", "from-sc.com", "from-sd.com", "from-tn.com", "from-tx.com", "from-ut.com", "from-va.com", "from-vt.com", "from-wa.com", "from-wi.com", "from-wv.com", "from-wy.com", "getmyip.com", "gotdns.com", "hobby-site.com", "homelinux.com", "homeunix.com", "iamallama.com", "is-a-anarchist.com", "is-a-blogger.com", "is-a-bookkeeper.com", "is-a-bulls-fan.com", "is-a-caterer.com", "is-a-chef.com", "is-a-conservative.com", "is-a-cpa.com", "is-a-cubicle-slave.com", "is-a-democrat.com", "is-a-designer.com", "is-a-doctor.com", "is-a-financialadvisor.com", "is-a-geek.com", "is-a-green.com", "is-a-guru.com", "is-a-hard-worker.com", "is-a-hunter.com", "is-a-landscaper.com", "is-a-lawyer.com", "is-a-liberal.com", "is-a-libertarian.com", "is-a-llama.com", "is-a-musician.com", "is-a-nascarfan.com", "is-a-nurse.com", "is-a-painter.com", "is-a-personaltrainer.com", "is-a-photographer.com", "is-a-player.com", "is-a-republican.com", "is-a-rockstar.com", "is-a-socialist.com", "is-a-student.com", "is-a-teacher.com", "is-a-techie.com", "is-a-therapist.com", "is-an-accountant.com", "is-an-actor.com", "is-an-actress.com", "is-an-anarchist.com", "is-an-artist.com", "is-an-engineer.com", "is-an-entertainer.com", "is-certified.com", "is-gone.com", "is-into-anime.com", "is-into-cars.com", "is-into-cartoons.com", "is-into-games.com", "is-leet.com", "is-not-certified.com", "is-slick.com", "is-uberleet.com", "is-with-theband.com", "isa-geek.com", "isa-hockeynut.com", "issmarterthanyou.com", "likes-pie.com", "likescandy.com", "neat-url.com", "saves-the-whales.com", "selfip.com", "sells-for-less.com", "sells-for-u.com", "servebbs.com", "simple-url.com", "space-to-rent.com", "teaches-yoga.com", "writesthisblog.com", "ath.cx", "fuettertdasnetz.de", "isteingeek.de", "istmein.de", "lebtimnetz.de", "leitungsen.de", "traeumtgerade.de", "barrel-of-knowledge.info", "barrell-of-knowledge.info", "dyndns.info", "for-our.info", "groks-the.info", "groks-this.info", "here-for-more.info", "knowsitall.info", "selfip.info", "webhop.info", "forgot.her.name", "forgot.his.name", "at-band-camp.net", "blogdns.net", "broke-it.net", "buyshouses.net", "dnsalias.net", "dnsdojo.net", "does-it.net", "dontexist.net", "dynalias.net", "dynathome.net", "endofinternet.net", "from-az.net", "from-co.net", "from-la.net", "from-ny.net", "gets-it.net", "ham-radio-op.net", "homeftp.net", "homeip.net", "homelinux.net", "homeunix.net", "in-the-band.net", "is-a-chef.net", "is-a-geek.net", "isa-geek.net", "kicks-ass.net", "office-on-the.net", "podzone.net", "scrapper-site.net", "selfip.net", "sells-it.net", "servebbs.net", "serveftp.net", "thruhere.net", "webhop.net", "merseine.nu", "mine.nu", "shacknet.nu", "blogdns.org", "blogsite.org", "boldlygoingnowhere.org", "dnsalias.org", "dnsdojo.org", "doesntexist.org", "dontexist.org", "doomdns.org", "dvrdns.org", "dynalias.org", "dyndns.org", "go.dyndns.org", "home.dyndns.org", "endofinternet.org", "endoftheinternet.org", "from-me.org", "game-host.org", "gotdns.org", "hobby-site.org", "homedns.org", "homeftp.org", "homelinux.org", "homeunix.org", "is-a-bruinsfan.org", "is-a-candidate.org", "is-a-celticsfan.org", "is-a-chef.org", "is-a-geek.org", "is-a-knight.org", "is-a-linux-user.org", "is-a-patsfan.org", "is-a-soxfan.org", "is-found.org", "is-lost.org", "is-saved.org", "is-very-bad.org", "is-very-evil.org", "is-very-good.org", "is-very-nice.org", "is-very-sweet.org", "isa-geek.org", "kicks-ass.org", "misconfused.org", "podzone.org", "readmyblog.org", "selfip.org", "sellsyourhome.org", "servebbs.org", "serveftp.org", "servegame.org", "stuff-4-sale.org", "webhop.org", "better-than.tv", "dyndns.tv", "on-the-web.tv", "worse-than.tv", "is-by.us", "land-4-sale.us", "stuff-4-sale.us", "dyndns.ws", "mypets.ws", "ddnsfree.com", "ddnsgeek.com", "giize.com", "gleeze.com", "kozow.com", "loseyourip.com", "ooguy.com", "theworkpc.com", "casacam.net", "dynu.net", "accesscam.org", "camdvr.org", "freeddns.org", "mywire.org", "webredirect.org", "myddns.rocks", "dynv6.net", "e4.cz", "easypanel.app", "easypanel.host", "*.ewp.live", "twmail.cc", "twmail.net", "twmail.org", "mymailer.com.tw", "url.tw", "at.emf.camp", "rt.ht", "elementor.cloud", "elementor.cool", "en-root.fr", "mytuleap.com", "tuleap-partners.com", "encr.app", "encoreapi.com", "eu.encoway.cloud", "eu.org", "al.eu.org", "asso.eu.org", "at.eu.org", "au.eu.org", "be.eu.org", "bg.eu.org", "ca.eu.org", "cd.eu.org", "ch.eu.org", "cn.eu.org", "cy.eu.org", "cz.eu.org", "de.eu.org", "dk.eu.org", "edu.eu.org", "ee.eu.org", "es.eu.org", "fi.eu.org", "fr.eu.org", "gr.eu.org", "hr.eu.org", "hu.eu.org", "ie.eu.org", "il.eu.org", "in.eu.org", "int.eu.org", "is.eu.org", "it.eu.org", "jp.eu.org", "kr.eu.org", "lt.eu.org", "lu.eu.org", "lv.eu.org", "me.eu.org", "mk.eu.org", "mt.eu.org", "my.eu.org", "net.eu.org", "ng.eu.org", "nl.eu.org", "no.eu.org", "nz.eu.org", "pl.eu.org", "pt.eu.org", "ro.eu.org", "ru.eu.org", "se.eu.org", "si.eu.org", "sk.eu.org", "tr.eu.org", "uk.eu.org", "us.eu.org", "eurodir.ru", "eu-1.evennode.com", "eu-2.evennode.com", "eu-3.evennode.com", "eu-4.evennode.com", "us-1.evennode.com", "us-2.evennode.com", "us-3.evennode.com", "us-4.evennode.com", "relay.evervault.app", "relay.evervault.dev", "expo.app", "staging.expo.app", "onfabrica.com", "ru.net", "adygeya.ru", "bashkiria.ru", "bir.ru", "cbg.ru", "com.ru", "dagestan.ru", "grozny.ru", "kalmykia.ru", "kustanai.ru", "marine.ru", "mordovia.ru", "msk.ru", "mytis.ru", "nalchik.ru", "nov.ru", "pyatigorsk.ru", "spb.ru", "vladikavkaz.ru", "vladimir.ru", "abkhazia.su", "adygeya.su", "aktyubinsk.su", "arkhangelsk.su", "armenia.su", "ashgabad.su", "azerbaijan.su", "balashov.su", "bashkiria.su", "bryansk.su", "bukhara.su", "chimkent.su", "dagestan.su", "east-kazakhstan.su", "exnet.su", "georgia.su", "grozny.su", "ivanovo.su", "jambyl.su", "kalmykia.su", "kaluga.su", "karacol.su", "karaganda.su", "karelia.su", "khakassia.su", "krasnodar.su", "kurgan.su", "kustanai.su", "lenug.su", "mangyshlak.su", "mordovia.su", "msk.su", "murmansk.su", "nalchik.su", "navoi.su", "north-kazakhstan.su", "nov.su", "obninsk.su", "penza.su", "pokrovsk.su", "sochi.su", "spb.su", "tashkent.su", "termez.su", "togliatti.su", "troitsk.su", "tselinograd.su", "tula.su", "tuva.su", "vladikavkaz.su", "vladimir.su", "vologda.su", "channelsdvr.net", "u.channelsdvr.net", "edgecompute.app", "fastly-edge.com", "fastly-terrarium.com", "freetls.fastly.net", "map.fastly.net", "a.prod.fastly.net", "global.prod.fastly.net", "a.ssl.fastly.net", "b.ssl.fastly.net", "global.ssl.fastly.net", "fastlylb.net", "map.fastlylb.net", "*.user.fm", "fastvps-server.com", "fastvps.host", "myfast.host", "fastvps.site", "myfast.space", "conn.uk", "copro.uk", "hosp.uk", "fedorainfracloud.org", "fedorapeople.org", "cloud.fedoraproject.org", "app.os.fedoraproject.org", "app.os.stg.fedoraproject.org", "mydobiss.com", "fh-muenster.io", "filegear.me", "firebaseapp.com", "fldrv.com", "flutterflow.app", "fly.dev", "shw.io", "edgeapp.net", "forgeblocks.com", "id.forgerock.io", "framer.ai", "framer.app", "framercanvas.com", "framer.media", "framer.photos", "framer.website", "framer.wiki", "0e.vc", "freebox-os.com", "freeboxos.com", "fbx-os.fr", "fbxos.fr", "freebox-os.fr", "freeboxos.fr", "freedesktop.org", "freemyip.com", "*.frusky.de", "wien.funkfeuer.at", "daemon.asia", "dix.asia", "mydns.bz", "0am.jp", "0g0.jp", "0j0.jp", "0t0.jp", "mydns.jp", "pgw.jp", "wjg.jp", "keyword-on.net", "live-on.net", "server-on.net", "mydns.tw", "mydns.vc", "*.futurecms.at", "*.ex.futurecms.at", "*.in.futurecms.at", "futurehosting.at", "futuremailing.at", "*.ex.ortsinfo.at", "*.kunden.ortsinfo.at", "*.statics.cloud", "aliases121.com", "campaign.gov.uk", "service.gov.uk", "independent-commission.uk", "independent-inquest.uk", "independent-inquiry.uk", "independent-panel.uk", "independent-review.uk", "public-inquiry.uk", "royal-commission.uk", "gehirn.ne.jp", "usercontent.jp", "gentapps.com", "gentlentapis.com", "lab.ms", "cdn-edges.net", "localcert.net", "localhostcert.net", "gsj.bz", "githubusercontent.com", "githubpreview.dev", "github.io", "gitlab.io", "gitapp.si", "gitpage.si", "glitch.me", "nog.community", "co.ro", "shop.ro", "lolipop.io", "angry.jp", "babyblue.jp", "babymilk.jp", "backdrop.jp", "bambina.jp", "bitter.jp", "blush.jp", "boo.jp", "boy.jp", "boyfriend.jp", "but.jp", "candypop.jp", "capoo.jp", "catfood.jp", "cheap.jp", "chicappa.jp", "chillout.jp", "chips.jp", "chowder.jp", "chu.jp", "ciao.jp", "cocotte.jp", "coolblog.jp", "cranky.jp", "cutegirl.jp", "daa.jp", "deca.jp", "deci.jp", "digick.jp", "egoism.jp", "fakefur.jp", "fem.jp", "flier.jp", "floppy.jp", "fool.jp", "frenchkiss.jp", "girlfriend.jp", "girly.jp", "gloomy.jp", "gonna.jp", "greater.jp", "hacca.jp", "heavy.jp", "her.jp", "hiho.jp", "hippy.jp", "holy.jp", "hungry.jp", "icurus.jp", "itigo.jp", "jellybean.jp", "kikirara.jp", "kill.jp", "kilo.jp", "kuron.jp", "littlestar.jp", "lolipopmc.jp", "lolitapunk.jp", "lomo.jp", "lovepop.jp", "lovesick.jp", "main.jp", "mods.jp", "mond.jp", "mongolian.jp", "moo.jp", "namaste.jp", "nikita.jp", "nobushi.jp", "noor.jp", "oops.jp", "parallel.jp", "parasite.jp", "pecori.jp", "peewee.jp", "penne.jp", "pepper.jp", "perma.jp", "pigboat.jp", "pinoko.jp", "punyu.jp", "pupu.jp", "pussycat.jp", "pya.jp", "raindrop.jp", "readymade.jp", "sadist.jp", "schoolbus.jp", "secret.jp", "staba.jp", "stripper.jp", "sub.jp", "sunnyday.jp", "thick.jp", "tonkotsu.jp", "under.jp", "upper.jp", "velvet.jp", "verse.jp", "versus.jp", "vivian.jp", "watson.jp", "weblike.jp", "whitesnow.jp", "zombie.jp", "heteml.net", "graphic.design", "goip.de", "blogspot.ae", "blogspot.al", "blogspot.am", "*.hosted.app", "*.run.app", "web.app", "blogspot.com.ar", "blogspot.co.at", "blogspot.com.au", "blogspot.ba", "blogspot.be", "blogspot.bg", "blogspot.bj", "blogspot.com.br", "blogspot.com.by", "blogspot.ca", "blogspot.cf", "blogspot.ch", "blogspot.cl", "blogspot.com.co", "*.0emm.com", "appspot.com", "*.r.appspot.com", "blogspot.com", "codespot.com", "googleapis.com", "googlecode.com", "pagespeedmobilizer.com", "withgoogle.com", "withyoutube.com", "blogspot.cv", "blogspot.com.cy", "blogspot.cz", "blogspot.de", "*.gateway.dev", "blogspot.dk", "blogspot.com.ee", "blogspot.com.eg", "blogspot.com.es", "blogspot.fi", "blogspot.fr", "cloud.goog", "translate.goog", "*.usercontent.goog", "blogspot.gr", "blogspot.hk", "blogspot.hr", "blogspot.hu", "blogspot.co.id", "blogspot.ie", "blogspot.co.il", "blogspot.in", "blogspot.is", "blogspot.it", "blogspot.jp", "blogspot.co.ke", "blogspot.kr", "blogspot.li", "blogspot.lt", "blogspot.lu", "blogspot.md", "blogspot.mk", "blogspot.com.mt", "blogspot.mx", "blogspot.my", "cloudfunctions.net", "blogspot.com.ng", "blogspot.nl", "blogspot.no", "blogspot.co.nz", "blogspot.pe", "blogspot.pt", "blogspot.qa", "blogspot.re", "blogspot.ro", "blogspot.rs", "blogspot.ru", "blogspot.se", "blogspot.sg", "blogspot.si", "blogspot.sk", "blogspot.sn", "blogspot.td", "blogspot.com.tr", "blogspot.tw", "blogspot.ug", "blogspot.co.uk", "blogspot.com.uy", "blogspot.vn", "blogspot.co.za", "goupile.fr", "pymnt.uk", "cloudapps.digital", "london.cloudapps.digital", "gov.nl", "grafana-dev.net", "grayjayleagues.com", "g\xFCnstigbestellen.de", "g\xFCnstigliefern.de", "fin.ci", "free.hr", "caa.li", "ua.rs", "conf.se", "h\xE4kkinen.fi", "hrsn.dev", "hashbang.sh", "hasura.app", "hasura-app.io", "hatenablog.com", "hatenadiary.com", "hateblo.jp", "hatenablog.jp", "hatenadiary.jp", "hatenadiary.org", "pages.it.hs-heilbronn.de", "pages-research.it.hs-heilbronn.de", "heiyu.space", "helioho.st", "heliohost.us", "hepforge.org", "herokuapp.com", "herokussl.com", "heyflow.page", "heyflow.site", "ravendb.cloud", "ravendb.community", "development.run", "ravendb.run", "homesklep.pl", "*.kin.one", "*.id.pub", "*.kin.pub", "secaas.hk", "hoplix.shop", "orx.biz", "biz.gl", "biz.ng", "co.biz.ng", "dl.biz.ng", "go.biz.ng", "lg.biz.ng", "on.biz.ng", "col.ng", "firm.ng", "gen.ng", "ltd.ng", "ngo.ng", "plc.ng", "ie.ua", "hostyhosting.io", "hf.space", "static.hf.space", "hypernode.io", "iobb.net", "co.cz", "*.moonscale.io", "moonscale.net", "gr.com", "iki.fi", "ibxos.it", "iliadboxos.it", "smushcdn.com", "wphostedmail.com", "wpmucdn.com", "tempurl.host", "wpmudev.host", "dyn-berlin.de", "in-berlin.de", "in-brb.de", "in-butter.de", "in-dsl.de", "in-vpn.de", "in-dsl.net", "in-vpn.net", "in-dsl.org", "in-vpn.org", "biz.at", "info.at", "info.cx", "ac.leg.br", "al.leg.br", "am.leg.br", "ap.leg.br", "ba.leg.br", "ce.leg.br", "df.leg.br", "es.leg.br", "go.leg.br", "ma.leg.br", "mg.leg.br", "ms.leg.br", "mt.leg.br", "pa.leg.br", "pb.leg.br", "pe.leg.br", "pi.leg.br", "pr.leg.br", "rj.leg.br", "rn.leg.br", "ro.leg.br", "rr.leg.br", "rs.leg.br", "sc.leg.br", "se.leg.br", "sp.leg.br", "to.leg.br", "pixolino.com", "na4u.ru", "apps-1and1.com", "live-website.com", "apps-1and1.net", "websitebuilder.online", "app-ionos.space", "iopsys.se", "*.dweb.link", "ipifony.net", "ir.md", "is-a-good.dev", "is-a.dev", "iservschule.de", "mein-iserv.de", "schulplattform.de", "schulserver.de", "test-iserv.de", "iserv.dev", "mel.cloudlets.com.au", "cloud.interhostsolutions.be", "alp1.ae.flow.ch", "appengine.flow.ch", "es-1.axarnet.cloud", "diadem.cloud", "vip.jelastic.cloud", "jele.cloud", "it1.eur.aruba.jenv-aruba.cloud", "it1.jenv-aruba.cloud", "keliweb.cloud", "cs.keliweb.cloud", "oxa.cloud", "tn.oxa.cloud", "uk.oxa.cloud", "primetel.cloud", "uk.primetel.cloud", "ca.reclaim.cloud", "uk.reclaim.cloud", "us.reclaim.cloud", "ch.trendhosting.cloud", "de.trendhosting.cloud", "jele.club", "dopaas.com", "paas.hosted-by-previder.com", "rag-cloud.hosteur.com", "rag-cloud-ch.hosteur.com", "jcloud.ik-server.com", "jcloud-ver-jpc.ik-server.com", "demo.jelastic.com", "paas.massivegrid.com", "jed.wafaicloud.com", "ryd.wafaicloud.com", "j.scaleforce.com.cy", "jelastic.dogado.eu", "fi.cloudplatform.fi", "demo.datacenter.fi", "paas.datacenter.fi", "jele.host", "mircloud.host", "paas.beebyte.io", "sekd1.beebyteapp.io", "jele.io", "jc.neen.it", "jcloud.kz", "cloudjiffy.net", "fra1-de.cloudjiffy.net", "west1-us.cloudjiffy.net", "jls-sto1.elastx.net", "jls-sto2.elastx.net", "jls-sto3.elastx.net", "fr-1.paas.massivegrid.net", "lon-1.paas.massivegrid.net", "lon-2.paas.massivegrid.net", "ny-1.paas.massivegrid.net", "ny-2.paas.massivegrid.net", "sg-1.paas.massivegrid.net", "jelastic.saveincloud.net", "nordeste-idc.saveincloud.net", "j.scaleforce.net", "sdscloud.pl", "unicloud.pl", "mircloud.ru", "enscaled.sg", "jele.site", "jelastic.team", "orangecloud.tn", "j.layershift.co.uk", "phx.enscaled.us", "mircloud.us", "myjino.ru", "*.hosting.myjino.ru", "*.landing.myjino.ru", "*.spectrum.myjino.ru", "*.vps.myjino.ru", "jotelulu.cloud", "webadorsite.com", "jouwweb.site", "*.cns.joyent.com", "*.triton.zone", "js.org", "kaas.gg", "khplay.nl", "kapsi.fi", "ezproxy.kuleuven.be", "kuleuven.cloud", "keymachine.de", "kinghost.net", "uni5.net", "knightpoint.systems", "koobin.events", "webthings.io", "krellian.net", "oya.to", "git-repos.de", "lcube-server.de", "svn-repos.de", "leadpages.co", "lpages.co", "lpusercontent.com", "lelux.site", "libp2p.direct", "runcontainers.dev", "co.business", "co.education", "co.events", "co.financial", "co.network", "co.place", "co.technology", "linkyard-cloud.ch", "linkyard.cloud", "members.linode.com", "*.nodebalancer.linode.com", "*.linodeobjects.com", "ip.linodeusercontent.com", "we.bs", "filegear-sg.me", "ggff.net", "*.user.localcert.dev", "lodz.pl", "pabianice.pl", "plock.pl", "sieradz.pl", "skierniewice.pl", "zgierz.pl", "loginline.app", "loginline.dev", "loginline.io", "loginline.services", "loginline.site", "lohmus.me", "servers.run", "krasnik.pl", "leczna.pl", "lubartow.pl", "lublin.pl", "poniatowa.pl", "swidnik.pl", "glug.org.uk", "lug.org.uk", "lugs.org.uk", "barsy.bg", "barsy.club", "barsycenter.com", "barsyonline.com", "barsy.de", "barsy.dev", "barsy.eu", "barsy.gr", "barsy.in", "barsy.info", "barsy.io", "barsy.me", "barsy.menu", "barsyonline.menu", "barsy.mobi", "barsy.net", "barsy.online", "barsy.org", "barsy.pro", "barsy.pub", "barsy.ro", "barsy.rs", "barsy.shop", "barsyonline.shop", "barsy.site", "barsy.store", "barsy.support", "barsy.uk", "barsy.co.uk", "barsyonline.co.uk", "*.magentosite.cloud", "hb.cldmail.ru", "matlab.cloud", "modelscape.com", "mwcloudnonprod.com", "polyspace.com", "mayfirst.info", "mayfirst.org", "mazeplay.com", "mcdir.me", "mcdir.ru", "vps.mcdir.ru", "mcpre.ru", "mediatech.by", "mediatech.dev", "hra.health", "medusajs.app", "miniserver.com", "memset.net", "messerli.app", "atmeta.com", "apps.fbsbx.com", "*.cloud.metacentrum.cz", "custom.metacentrum.cz", "flt.cloud.muni.cz", "usr.cloud.muni.cz", "meteorapp.com", "eu.meteorapp.com", "co.pl", "*.azurecontainer.io", "azure-api.net", "azure-mobile.net", "azureedge.net", "azurefd.net", "azurestaticapps.net", "1.azurestaticapps.net", "2.azurestaticapps.net", "3.azurestaticapps.net", "4.azurestaticapps.net", "5.azurestaticapps.net", "6.azurestaticapps.net", "7.azurestaticapps.net", "centralus.azurestaticapps.net", "eastasia.azurestaticapps.net", "eastus2.azurestaticapps.net", "westeurope.azurestaticapps.net", "westus2.azurestaticapps.net", "azurewebsites.net", "cloudapp.net", "trafficmanager.net", "blob.core.windows.net", "servicebus.windows.net", "routingthecloud.com", "sn.mynetname.net", "routingthecloud.net", "routingthecloud.org", "csx.cc", "mydbserver.com", "webspaceconfig.de", "mittwald.info", "mittwaldserver.info", "typo3server.info", "project.space", "modx.dev", "bmoattachments.org", "net.ru", "org.ru", "pp.ru", "hostedpi.com", "caracal.mythic-beasts.com", "customer.mythic-beasts.com", "fentiger.mythic-beasts.com", "lynx.mythic-beasts.com", "ocelot.mythic-beasts.com", "oncilla.mythic-beasts.com", "onza.mythic-beasts.com", "sphinx.mythic-beasts.com", "vs.mythic-beasts.com", "x.mythic-beasts.com", "yali.mythic-beasts.com", "cust.retrosnub.co.uk", "ui.nabu.casa", "cloud.nospamproxy.com", "netfy.app", "netlify.app", "4u.com", "nfshost.com", "ipfs.nftstorage.link", "ngo.us", "ngrok.app", "ngrok-free.app", "ngrok.dev", "ngrok-free.dev", "ngrok.io", "ap.ngrok.io", "au.ngrok.io", "eu.ngrok.io", "in.ngrok.io", "jp.ngrok.io", "sa.ngrok.io", "us.ngrok.io", "ngrok.pizza", "ngrok.pro", "torun.pl", "nh-serv.co.uk", "nimsite.uk", "mmafan.biz", "myftp.biz", "no-ip.biz", "no-ip.ca", "fantasyleague.cc", "gotdns.ch", "3utilities.com", "blogsyte.com", "ciscofreak.com", "damnserver.com", "ddnsking.com", "ditchyourip.com", "dnsiskinky.com", "dynns.com", "geekgalaxy.com", "health-carereform.com", "homesecuritymac.com", "homesecuritypc.com", "myactivedirectory.com", "mysecuritycamera.com", "myvnc.com", "net-freaks.com", "onthewifi.com", "point2this.com", "quicksytes.com", "securitytactics.com", "servebeer.com", "servecounterstrike.com", "serveexchange.com", "serveftp.com", "servegame.com", "servehalflife.com", "servehttp.com", "servehumour.com", "serveirc.com", "servemp3.com", "servep2p.com", "servepics.com", "servequake.com", "servesarcasm.com", "stufftoread.com", "unusualperson.com", "workisboring.com", "dvrcam.info", "ilovecollege.info", "no-ip.info", "brasilia.me", "ddns.me", "dnsfor.me", "hopto.me", "loginto.me", "noip.me", "webhop.me", "bounceme.net", "ddns.net", "eating-organic.net", "mydissent.net", "myeffect.net", "mymediapc.net", "mypsx.net", "mysecuritycamera.net", "nhlfan.net", "no-ip.net", "pgafan.net", "privatizehealthinsurance.net", "redirectme.net", "serveblog.net", "serveminecraft.net", "sytes.net", "cable-modem.org", "collegefan.org", "couchpotatofries.org", "hopto.org", "mlbfan.org", "myftp.org", "mysecuritycamera.org", "nflfan.org", "no-ip.org", "read-books.org", "ufcfan.org", "zapto.org", "no-ip.co.uk", "golffan.us", "noip.us", "pointto.us", "stage.nodeart.io", "*.developer.app", "noop.app", "*.northflank.app", "*.build.run", "*.code.run", "*.database.run", "*.migration.run", "noticeable.news", "notion.site", "dnsking.ch", "mypi.co", "n4t.co", "001www.com", "myiphost.com", "forumz.info", "soundcast.me", "tcp4.me", "dnsup.net", "hicam.net", "now-dns.net", "ownip.net", "vpndns.net", "dynserv.org", "now-dns.org", "x443.pw", "now-dns.top", "ntdll.top", "freeddns.us", "nsupdate.info", "nerdpol.ovh", "nyc.mn", "prvcy.page", "obl.ong", "observablehq.cloud", "static.observableusercontent.com", "omg.lol", "cloudycluster.net", "omniwe.site", "123webseite.at", "123website.be", "simplesite.com.br", "123website.ch", "simplesite.com", "123webseite.de", "123hjemmeside.dk", "123miweb.es", "123kotisivu.fi", "123siteweb.fr", "simplesite.gr", "123homepage.it", "123website.lu", "123website.nl", "123hjemmeside.no", "service.one", "simplesite.pl", "123paginaweb.pt", "123minsida.se", "is-a-fullstack.dev", "is-cool.dev", "is-not-a.dev", "localplayer.dev", "is-local.org", "opensocial.site", "opencraft.hosting", "16-b.it", "32-b.it", "64-b.it", "orsites.com", "operaunite.com", "*.customer-oci.com", "*.oci.customer-oci.com", "*.ocp.customer-oci.com", "*.ocs.customer-oci.com", "*.oraclecloudapps.com", "*.oraclegovcloudapps.com", "*.oraclegovcloudapps.uk", "tech.orange", "can.re", "authgear-staging.com", "authgearapps.com", "skygearapp.com", "outsystemscloud.com", "*.hosting.ovh.net", "*.webpaas.ovh.net", "ownprovider.com", "own.pm", "*.owo.codes", "ox.rs", "oy.lc", "pgfog.com", "pagexl.com", "gotpantheon.com", "pantheonsite.io", "*.paywhirl.com", "*.xmit.co", "xmit.dev", "madethis.site", "srv.us", "gh.srv.us", "gl.srv.us", "lk3.ru", "mypep.link", "perspecta.cloud", "on-web.fr", "*.upsun.app", "upsunapp.com", "ent.platform.sh", "eu.platform.sh", "us.platform.sh", "*.platformsh.site", "*.tst.site", "platter-app.com", "platter-app.dev", "platterp.us", "pley.games", "onporter.run", "co.bn", "postman-echo.com", "pstmn.io", "mock.pstmn.io", "httpbin.org", "prequalifyme.today", "xen.prgmr.com", "priv.at", "protonet.io", "chirurgiens-dentistes-en-france.fr", "byen.site", "pubtls.org", "pythonanywhere.com", "eu.pythonanywhere.com", "qa2.com", "qcx.io", "*.sys.qcx.io", "myqnapcloud.cn", "alpha-myqnapcloud.com", "dev-myqnapcloud.com", "mycloudnas.com", "mynascloud.com", "myqnapcloud.com", "qoto.io", "qualifioapp.com", "ladesk.com", "qbuser.com", "*.quipelements.com", "vapor.cloud", "vaporcloud.io", "rackmaze.com", "rackmaze.net", "cloudsite.builders", "myradweb.net", "servername.us", "web.in", "in.net", "myrdbx.io", "site.rb-hosting.io", "*.on-rancher.cloud", "*.on-k3s.io", "*.on-rio.io", "ravpage.co.il", "readthedocs-hosted.com", "readthedocs.io", "rhcloud.com", "instances.spawn.cc", "onrender.com", "app.render.com", "replit.app", "id.replit.app", "firewalledreplit.co", "id.firewalledreplit.co", "repl.co", "id.repl.co", "replit.dev", "archer.replit.dev", "bones.replit.dev", "canary.replit.dev", "global.replit.dev", "hacker.replit.dev", "id.replit.dev", "janeway.replit.dev", "kim.replit.dev", "kira.replit.dev", "kirk.replit.dev", "odo.replit.dev", "paris.replit.dev", "picard.replit.dev", "pike.replit.dev", "prerelease.replit.dev", "reed.replit.dev", "riker.replit.dev", "sisko.replit.dev", "spock.replit.dev", "staging.replit.dev", "sulu.replit.dev", "tarpit.replit.dev", "teams.replit.dev", "tucker.replit.dev", "wesley.replit.dev", "worf.replit.dev", "repl.run", "resindevice.io", "devices.resinstaging.io", "hzc.io", "adimo.co.uk", "itcouldbewor.se", "aus.basketball", "nz.basketball", "git-pages.rit.edu", "rocky.page", "rub.de", "ruhr-uni-bochum.de", "io.noc.ruhr-uni-bochum.de", "\u0431\u0438\u0437.\u0440\u0443\u0441", "\u043A\u043E\u043C.\u0440\u0443\u0441", "\u043A\u0440\u044B\u043C.\u0440\u0443\u0441", "\u043C\u0438\u0440.\u0440\u0443\u0441", "\u043C\u0441\u043A.\u0440\u0443\u0441", "\u043E\u0440\u0433.\u0440\u0443\u0441", "\u0441\u0430\u043C\u0430\u0440\u0430.\u0440\u0443\u0441", "\u0441\u043E\u0447\u0438.\u0440\u0443\u0441", "\u0441\u043F\u0431.\u0440\u0443\u0441", "\u044F.\u0440\u0443\u0441", "ras.ru", "nyat.app", "180r.com", "dojin.com", "sakuratan.com", "sakuraweb.com", "x0.com", "2-d.jp", "bona.jp", "crap.jp", "daynight.jp", "eek.jp", "flop.jp", "halfmoon.jp", "jeez.jp", "matrix.jp", "mimoza.jp", "ivory.ne.jp", "mail-box.ne.jp", "mints.ne.jp", "mokuren.ne.jp", "opal.ne.jp", "sakura.ne.jp", "sumomo.ne.jp", "topaz.ne.jp", "netgamers.jp", "nyanta.jp", "o0o0.jp", "rdy.jp", "rgr.jp", "rulez.jp", "s3.isk01.sakurastorage.jp", "s3.isk02.sakurastorage.jp", "saloon.jp", "sblo.jp", "skr.jp", "tank.jp", "uh-oh.jp", "undo.jp", "rs.webaccel.jp", "user.webaccel.jp", "websozai.jp", "xii.jp", "squares.net", "jpn.org", "kirara.st", "x0.to", "from.tv", "sakura.tv", "*.builder.code.com", "*.dev-builder.code.com", "*.stg-builder.code.com", "*.001.test.code-builder-stg.platform.salesforce.com", "*.d.crm.dev", "*.w.crm.dev", "*.wa.crm.dev", "*.wb.crm.dev", "*.wc.crm.dev", "*.wd.crm.dev", "*.we.crm.dev", "*.wf.crm.dev", "sandcats.io", "logoip.com", "logoip.de", "fr-par-1.baremetal.scw.cloud", "fr-par-2.baremetal.scw.cloud", "nl-ams-1.baremetal.scw.cloud", "cockpit.fr-par.scw.cloud", "fnc.fr-par.scw.cloud", "functions.fnc.fr-par.scw.cloud", "k8s.fr-par.scw.cloud", "nodes.k8s.fr-par.scw.cloud", "s3.fr-par.scw.cloud", "s3-website.fr-par.scw.cloud", "whm.fr-par.scw.cloud", "priv.instances.scw.cloud", "pub.instances.scw.cloud", "k8s.scw.cloud", "cockpit.nl-ams.scw.cloud", "k8s.nl-ams.scw.cloud", "nodes.k8s.nl-ams.scw.cloud", "s3.nl-ams.scw.cloud", "s3-website.nl-ams.scw.cloud", "whm.nl-ams.scw.cloud", "cockpit.pl-waw.scw.cloud", "k8s.pl-waw.scw.cloud", "nodes.k8s.pl-waw.scw.cloud", "s3.pl-waw.scw.cloud", "s3-website.pl-waw.scw.cloud", "scalebook.scw.cloud", "smartlabeling.scw.cloud", "dedibox.fr", "schokokeks.net", "gov.scot", "service.gov.scot", "scrysec.com", "client.scrypted.io", "firewall-gateway.com", "firewall-gateway.de", "my-gateway.de", "my-router.de", "spdns.de", "spdns.eu", "firewall-gateway.net", "my-firewall.org", "myfirewall.org", "spdns.org", "seidat.net", "sellfy.store", "minisite.ms", "senseering.net", "servebolt.cloud", "biz.ua", "co.ua", "pp.ua", "as.sh.cn", "sheezy.games", "shiftedit.io", "myshopblocks.com", "myshopify.com", "shopitsite.com", "shopware.shop", "shopware.store", "mo-siemens.io", "1kapp.com", "appchizi.com", "applinzi.com", "sinaapp.com", "vipsinaapp.com", "siteleaf.net", "small-web.org", "aeroport.fr", "avocat.fr", "chambagri.fr", "chirurgiens-dentistes.fr", "experts-comptables.fr", "medecin.fr", "notaires.fr", "pharmacien.fr", "port.fr", "veterinaire.fr", "vp4.me", "*.snowflake.app", "*.privatelink.snowflake.app", "streamlit.app", "streamlitapp.com", "try-snowplow.com", "mafelo.net", "playstation-cloud.com", "srht.site", "apps.lair.io", "*.stolos.io", "spacekit.io", "ind.mom", "customer.speedpartner.de", "myspreadshop.at", "myspreadshop.com.au", "myspreadshop.be", "myspreadshop.ca", "myspreadshop.ch", "myspreadshop.com", "myspreadshop.de", "myspreadshop.dk", "myspreadshop.es", "myspreadshop.fi", "myspreadshop.fr", "myspreadshop.ie", "myspreadshop.it", "myspreadshop.net", "myspreadshop.nl", "myspreadshop.no", "myspreadshop.pl", "myspreadshop.se", "myspreadshop.co.uk", "w-corp-staticblitz.com", "w-credentialless-staticblitz.com", "w-staticblitz.com", "stackhero-network.com", "runs.onstackit.cloud", "stackit.gg", "stackit.rocks", "stackit.run", "stackit.zone", "musician.io", "novecore.site", "api.stdlib.com", "feedback.ac", "forms.ac", "assessments.cx", "calculators.cx", "funnels.cx", "paynow.cx", "quizzes.cx", "researched.cx", "tests.cx", "surveys.so", "storebase.store", "storipress.app", "storj.farm", "strapiapp.com", "media.strapiapp.com", "vps-host.net", "atl.jelastic.vps-host.net", "njs.jelastic.vps-host.net", "ric.jelastic.vps-host.net", "streak-link.com", "streaklinks.com", "streakusercontent.com", "soc.srcf.net", "user.srcf.net", "utwente.io", "temp-dns.com", "supabase.co", "supabase.in", "supabase.net", "syncloud.it", "dscloud.biz", "direct.quickconnect.cn", "dsmynas.com", "familyds.com", "diskstation.me", "dscloud.me", "i234.me", "myds.me", "synology.me", "dscloud.mobi", "dsmynas.net", "familyds.net", "dsmynas.org", "familyds.org", "direct.quickconnect.to", "vpnplus.to", "mytabit.com", "mytabit.co.il", "tabitorder.co.il", "taifun-dns.de", "ts.net", "*.c.ts.net", "gda.pl", "gdansk.pl", "gdynia.pl", "med.pl", "sopot.pl", "taveusercontent.com", "p.tawk.email", "p.tawkto.email", "site.tb-hosting.com", "edugit.io", "s3.teckids.org", "telebit.app", "telebit.io", "*.telebit.xyz", "*.firenet.ch", "*.svc.firenet.ch", "reservd.com", "thingdustdata.com", "cust.dev.thingdust.io", "reservd.dev.thingdust.io", "cust.disrec.thingdust.io", "reservd.disrec.thingdust.io", "cust.prod.thingdust.io", "cust.testing.thingdust.io", "reservd.testing.thingdust.io", "tickets.io", "arvo.network", "azimuth.network", "tlon.network", "torproject.net", "pages.torproject.net", "townnews-staging.com", "12hp.at", "2ix.at", "4lima.at", "lima-city.at", "12hp.ch", "2ix.ch", "4lima.ch", "lima-city.ch", "trafficplex.cloud", "de.cool", "12hp.de", "2ix.de", "4lima.de", "lima-city.de", "1337.pictures", "clan.rip", "lima-city.rocks", "webspace.rocks", "lima.zone", "*.transurl.be", "*.transurl.eu", "site.transip.me", "*.transurl.nl", "tuxfamily.org", "dd-dns.de", "dray-dns.de", "draydns.de", "dyn-vpn.de", "dynvpn.de", "mein-vigor.de", "my-vigor.de", "my-wan.de", "syno-ds.de", "synology-diskstation.de", "synology-ds.de", "diskstation.eu", "diskstation.org", "typedream.app", "pro.typeform.com", "*.uberspace.de", "uber.space", "hk.com", "inc.hk", "ltd.hk", "hk.org", "it.com", "unison-services.cloud", "virtual-user.de", "virtualuser.de", "name.pm", "sch.tf", "biz.wf", "sch.wf", "org.yt", "rs.ba", "bielsko.pl", "upli.io", "urown.cloud", "dnsupdate.info", "us.org", "v.ua", "express.val.run", "web.val.run", "vercel.app", "v0.build", "vercel.dev", "vusercontent.net", "now.sh", "2038.io", "router.management", "v-info.info", "voorloper.cloud", "*.vultrobjects.com", "wafflecell.com", "webflow.io", "webflowtest.io", "*.webhare.dev", "bookonline.app", "hotelwithflight.com", "reserve-online.com", "reserve-online.net", "cprapid.com", "pleskns.com", "wp2.host", "pdns.page", "plesk.page", "wpsquared.site", "*.wadl.top", "remotewd.com", "box.ca", "pages.wiardweb.com", "toolforge.org", "wmcloud.org", "wmflabs.org", "wdh.app", "panel.gg", "daemon.panel.gg", "wixsite.com", "wixstudio.com", "editorx.io", "wixstudio.io", "wix.run", "messwithdns.com", "woltlab-demo.com", "myforum.community", "community-pro.de", "diskussionsbereich.de", "community-pro.net", "meinforum.net", "affinitylottery.org.uk", "raffleentry.org.uk", "weeklylottery.org.uk", "wpenginepowered.com", "js.wpenginepowered.com", "half.host", "xnbay.com", "u2.xnbay.com", "u2-local.xnbay.com", "cistron.nl", "demon.nl", "xs4all.space", "yandexcloud.net", "storage.yandexcloud.net", "website.yandexcloud.net", "official.academy", "yolasite.com", "yombo.me", "ynh.fr", "nohost.me", "noho.st", "za.net", "za.org", "zap.cloud", "zeabur.app", "bss.design", "basicserver.io", "virtualserver.io", "enterprisecloud.nu"];
     var Z2 = Y2.reduce((e2, s2) => {
-      const c3 = s2.replace(/^(\*\.|\!)/, ""), o2 = A3.toASCII(c3), t2 = s2.charAt(0);
+      const c3 = s2.replace(/^(\*\.|\!)/, ""), o2 = A4.toASCII(c3), t2 = s2.charAt(0);
       if (e2.has(o2))
         throw new Error(`Multiple rules found for ${s2} (${o2})`);
       return e2.set(o2, { rule: s2, suffix: c3, punySuffix: o2, wildcard: t2 === "*", exception: t2 === "!" }), e2;
     }, /* @__PURE__ */ new Map());
     var aa = (e2) => {
-      const c3 = A3.toASCII(e2).split(".");
+      const c3 = A4.toASCII(e2).split(".");
       for (let o2 = 0; o2 < c3.length; o2++) {
         const t2 = c3.slice(o2).join("."), d2 = Z2.get(t2);
         if (d2)
@@ -12018,7 +12018,7 @@ var require_psl = __commonJS({
     };
     var H2 = { DOMAIN_TOO_SHORT: "Domain name too short.", DOMAIN_TOO_LONG: "Domain name too long. It should be no more than 255 chars.", LABEL_STARTS_WITH_DASH: "Domain name label can not start with a dash.", LABEL_ENDS_WITH_DASH: "Domain name label can not end with a dash.", LABEL_TOO_LONG: "Domain name label should be at most 63 chars long.", LABEL_TOO_SHORT: "Domain name label should be at least 1 character long.", LABEL_INVALID_CHARS: "Domain name label can only contain alphanumeric characters or dashes." };
     var oa = (e2) => {
-      const s2 = A3.toASCII(e2);
+      const s2 = A4.toASCII(e2);
       if (s2.length < 1)
         return "DOMAIN_TOO_SHORT";
       if (s2.length > 255)
@@ -12049,7 +12049,7 @@ var require_psl = __commonJS({
       const o2 = { input: e2, tld: null, sld: null, domain: null, subdomain: null, listed: false }, t2 = s2.split(".");
       if (t2[t2.length - 1] === "local")
         return o2;
-      const d2 = () => (/xn--/.test(s2) && (o2.domain && (o2.domain = A3.toASCII(o2.domain)), o2.subdomain && (o2.subdomain = A3.toASCII(o2.subdomain))), o2), z2 = aa(s2);
+      const d2 = () => (/xn--/.test(s2) && (o2.domain && (o2.domain = A4.toASCII(o2.domain)), o2.subdomain && (o2.subdomain = A4.toASCII(o2.subdomain))), o2), z2 = aa(s2);
       if (!z2)
         return t2.length < 2 ? o2 : (o2.tld = t2.pop(), o2.sld = t2.pop(), o2.domain = [o2.sld, o2.tld].join("."), t2.length && (o2.subdomain = t2.pop()), d2());
       o2.listed = true;
@@ -12057,15 +12057,15 @@ var require_psl = __commonJS({
       return z2.exception && g2.push(y2.shift()), o2.tld = y2.join("."), !g2.length || (z2.wildcard && (y2.unshift(g2.pop()), o2.tld = y2.join(".")), !g2.length) || (o2.sld = g2.pop(), o2.domain = [o2.sld, o2.tld].join("."), g2.length && (o2.subdomain = g2.join("."))), d2();
     };
     var N2 = (e2) => e2 && _2(e2).domain || null;
-    var R3 = (e2) => {
+    var R4 = (e2) => {
       const s2 = _2(e2);
       return !!(s2.domain && s2.listed);
     };
-    var sa = { parse: _2, get: N2, isValid: R3 };
+    var sa = { parse: _2, get: N2, isValid: R4 };
     exports2.default = sa;
     exports2.errorCodes = H2;
     exports2.get = N2;
-    exports2.isValid = R3;
+    exports2.isValid = R4;
     exports2.parse = _2;
   }
 });
@@ -16458,17 +16458,17 @@ var require_ec = __commonJS({
       var e2 = k2;
       var h3 = e2.multiply(new BigInteger("3"));
       var neg = this.negate();
-      var R3 = this;
+      var R4 = this;
       var i2;
       for (i2 = h3.bitLength() - 2; i2 > 0; --i2) {
-        R3 = R3.twice();
+        R4 = R4.twice();
         var hBit = h3.testBit(i2);
         var eBit = e2.testBit(i2);
         if (hBit != eBit) {
-          R3 = R3.add(hBit ? this : neg);
+          R4 = R4.add(hBit ? this : neg);
         }
       }
-      return R3;
+      return R4;
     }
     function pointFpMultiplyTwo(j2, x2, k2) {
       var i2;
@@ -16476,24 +16476,24 @@ var require_ec = __commonJS({
         i2 = j2.bitLength() - 1;
       else
         i2 = k2.bitLength() - 1;
-      var R3 = this.curve.getInfinity();
+      var R4 = this.curve.getInfinity();
       var both = this.add(x2);
       while (i2 >= 0) {
-        R3 = R3.twice();
+        R4 = R4.twice();
         if (j2.testBit(i2)) {
           if (k2.testBit(i2)) {
-            R3 = R3.add(both);
+            R4 = R4.add(both);
           } else {
-            R3 = R3.add(this);
+            R4 = R4.add(this);
           }
         } else {
           if (k2.testBit(i2)) {
-            R3 = R3.add(x2);
+            R4 = R4.add(x2);
           }
         }
         --i2;
       }
-      return R3;
+      return R4;
     }
     ECPointFp.prototype.getX = pointFpGetX;
     ECPointFp.prototype.getY = pointFpGetY;
@@ -17531,7 +17531,7 @@ var require_nacl_fast = __commonJS({
           o2[i2] = n2[2 * i2] + (n2[2 * i2 + 1] << 8);
         o2[15] &= 32767;
       }
-      function A3(o2, a3, b5) {
+      function A4(o2, a3, b5) {
         for (var i2 = 0; i2 < 16; i2++)
           o2[i2] = a3[i2] + b5[i2];
       }
@@ -17992,20 +17992,20 @@ var require_nacl_fast = __commonJS({
           r2 = z2[i2 >>> 3] >>> (i2 & 7) & 1;
           sel25519(a3, b5, r2);
           sel25519(c3, d2, r2);
-          A3(e2, a3, c3);
+          A4(e2, a3, c3);
           Z2(a3, a3, c3);
-          A3(c3, b5, d2);
+          A4(c3, b5, d2);
           Z2(b5, b5, d2);
           S2(d2, e2);
           S2(f2, a3);
           M2(a3, c3, a3);
           M2(c3, b5, e2);
-          A3(e2, a3, c3);
+          A4(e2, a3, c3);
           Z2(a3, a3, c3);
           S2(b5, a3);
           Z2(c3, d2, f2);
           M2(a3, c3, _121665);
-          A3(a3, a3, d2);
+          A4(a3, a3, d2);
           M2(c3, c3, a3);
           M2(a3, d2, f2);
           M2(d2, b5, x2);
@@ -18545,17 +18545,17 @@ var require_nacl_fast = __commonJS({
         Z2(a3, p2[1], p2[0]);
         Z2(t2, q3[1], q3[0]);
         M2(a3, a3, t2);
-        A3(b5, p2[0], p2[1]);
-        A3(t2, q3[0], q3[1]);
+        A4(b5, p2[0], p2[1]);
+        A4(t2, q3[0], q3[1]);
         M2(b5, b5, t2);
         M2(c3, p2[3], q3[3]);
         M2(c3, c3, D22);
         M2(d2, p2[2], q3[2]);
-        A3(d2, d2, d2);
+        A4(d2, d2, d2);
         Z2(e2, b5, a3);
         Z2(f2, d2, c3);
-        A3(g2, d2, c3);
-        A3(h3, b5, a3);
+        A4(g2, d2, c3);
+        A4(h3, b5, a3);
         M2(p2[0], e2, f2);
         M2(p2[1], h3, g2);
         M2(p2[2], g2, f2);
@@ -18687,7 +18687,7 @@ var require_nacl_fast = __commonJS({
         S2(num6, r2[1]);
         M2(den, num6, D2);
         Z2(num6, num6, r2[2]);
-        A3(den, r2[2], den);
+        A4(den, r2[2], den);
         S2(den2, den);
         S2(den4, den2);
         M2(den6, den4, den2);
@@ -19333,9 +19333,9 @@ var require_utils = __commonJS({
       var a3 = new jsbn(params.a);
       var b5 = new jsbn(params.b);
       var curve = new ec.ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex(params.G.toString("hex"));
+      var G4 = curve.decodePointHex(params.G.toString("hex"));
       var d2 = new jsbn(mpNormalize(priv));
-      var pub = G3.multiply(d2);
+      var pub = G4.multiply(d2);
       pub = Buffer2.from(curve.encodePointHex(pub), "hex");
       var parts = [];
       parts.push({ name: "curve", data: Buffer2.from(curveName) });
@@ -19829,8 +19829,8 @@ var require_sec = __commonJS({
       var n2 = fromHex("FFFFFFFE0000000075A30D1B9038A115");
       var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex("04161FF7528B899B2D0C28607CA52C5B86CF5AC8395BAFEB13C02DA292DDED7A83");
-      return new X9ECParameters(curve, G3, n2, h3);
+      var G4 = curve.decodePointHex("04161FF7528B899B2D0C28607CA52C5B86CF5AC8395BAFEB13C02DA292DDED7A83");
+      return new X9ECParameters(curve, G4, n2, h3);
     }
     function secp160k1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFAC73");
@@ -19839,8 +19839,8 @@ var require_sec = __commonJS({
       var n2 = fromHex("0100000000000000000001B8FA16DFAB9ACA16B6B3");
       var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex("043B4C382CE37AA192A4019E763036F4F5DD4D7EBB938CF935318FDCED6BC28286531733C3F03C4FEE");
-      return new X9ECParameters(curve, G3, n2, h3);
+      var G4 = curve.decodePointHex("043B4C382CE37AA192A4019E763036F4F5DD4D7EBB938CF935318FDCED6BC28286531733C3F03C4FEE");
+      return new X9ECParameters(curve, G4, n2, h3);
     }
     function secp160r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFF");
@@ -19849,8 +19849,8 @@ var require_sec = __commonJS({
       var n2 = fromHex("0100000000000000000001F4C8F927AED3CA752257");
       var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex("044A96B5688EF573284664698968C38BB913CBFC8223A628553168947D59DCC912042351377AC5FB32");
-      return new X9ECParameters(curve, G3, n2, h3);
+      var G4 = curve.decodePointHex("044A96B5688EF573284664698968C38BB913CBFC8223A628553168947D59DCC912042351377AC5FB32");
+      return new X9ECParameters(curve, G4, n2, h3);
     }
     function secp192k1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFEE37");
@@ -19859,8 +19859,8 @@ var require_sec = __commonJS({
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D");
       var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex("04DB4FF10EC057E9AE26B07D0280B7F4341DA5D1B1EAE06C7D9B2F2F6D9C5628A7844163D015BE86344082AA88D95E2F9D");
-      return new X9ECParameters(curve, G3, n2, h3);
+      var G4 = curve.decodePointHex("04DB4FF10EC057E9AE26B07D0280B7F4341DA5D1B1EAE06C7D9B2F2F6D9C5628A7844163D015BE86344082AA88D95E2F9D");
+      return new X9ECParameters(curve, G4, n2, h3);
     }
     function secp192r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF");
@@ -19869,8 +19869,8 @@ var require_sec = __commonJS({
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831");
       var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex("04188DA80EB03090F67CBF20EB43A18800F4FF0AFD82FF101207192B95FFC8DA78631011ED6B24CDD573F977A11E794811");
-      return new X9ECParameters(curve, G3, n2, h3);
+      var G4 = curve.decodePointHex("04188DA80EB03090F67CBF20EB43A18800F4FF0AFD82FF101207192B95FFC8DA78631011ED6B24CDD573F977A11E794811");
+      return new X9ECParameters(curve, G4, n2, h3);
     }
     function secp224r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000000001");
@@ -19879,8 +19879,8 @@ var require_sec = __commonJS({
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D");
       var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex("04B70E0CBD6BB4BF7F321390B94A03C1D356C21122343280D6115C1D21BD376388B5F723FB4C22DFE6CD4375A05A07476444D5819985007E34");
-      return new X9ECParameters(curve, G3, n2, h3);
+      var G4 = curve.decodePointHex("04B70E0CBD6BB4BF7F321390B94A03C1D356C21122343280D6115C1D21BD376388B5F723FB4C22DFE6CD4375A05A07476444D5819985007E34");
+      return new X9ECParameters(curve, G4, n2, h3);
     }
     function secp256r1() {
       var p2 = fromHex("FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF");
@@ -19889,8 +19889,8 @@ var require_sec = __commonJS({
       var n2 = fromHex("FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551");
       var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex("046B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5");
-      return new X9ECParameters(curve, G3, n2, h3);
+      var G4 = curve.decodePointHex("046B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5");
+      return new X9ECParameters(curve, G4, n2, h3);
     }
     module2.exports = {
       "secp128r1": secp128r1,
@@ -20209,9 +20209,9 @@ var require_dhe = __commonJS({
       var n2 = new jsbn(params.n);
       var h3 = jsbn.ONE;
       var curve = new ec.ECCurveFp(p2, a3, b5);
-      var G3 = curve.decodePointHex(params.G.toString("hex"));
+      var G4 = curve.decodePointHex(params.G.toString("hex"));
       this.curve = curve;
-      this.g = G3;
+      this.g = G4;
       this.n = n2;
       this.h = h3;
     }
@@ -20389,7 +20389,7 @@ var require_ed_compat = __commonJS({
 var require_pkcs8 = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs8.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       readPkcs8,
       write,
       writePkcs8,
@@ -20405,7 +20405,7 @@ var require_pkcs8 = __commonJS({
     var Key = require_key();
     var PrivateKey = require_private_key();
     var pem = require_pem();
-    function read2(buf, options) {
+    function read3(buf, options) {
       return pem.read(buf, options, "pkcs8");
     }
     function write(key, options) {
@@ -20683,21 +20683,21 @@ var require_pkcs8 = __commonJS({
     function readPkcs8EdDSAPublic(der) {
       if (der.peek() === 0)
         der.readByte();
-      var A3 = utils.readBitString(der);
+      var A4 = utils.readBitString(der);
       var key = {
         type: "ed25519",
         parts: [
-          { name: "A", data: utils.zeroPadToLength(A3, 32) }
+          { name: "A", data: utils.zeroPadToLength(A4, 32) }
         ]
       };
       return new Key(key);
     }
     function readPkcs8X25519Public(der) {
-      var A3 = utils.readBitString(der);
+      var A4 = utils.readBitString(der);
       var key = {
         type: "curve25519",
         parts: [
-          { name: "A", data: utils.zeroPadToLength(A3, 32) }
+          { name: "A", data: utils.zeroPadToLength(A4, 32) }
         ]
       };
       return new Key(key);
@@ -20708,21 +20708,21 @@ var require_pkcs8 = __commonJS({
       der.readSequence(asn1.Ber.OctetString);
       var k2 = der.readString(asn1.Ber.OctetString, true);
       k2 = utils.zeroPadToLength(k2, 32);
-      var A3, tag;
+      var A4, tag;
       while ((tag = der.peek()) !== null) {
         if (tag === (asn1.Ber.Context | 1)) {
-          A3 = utils.readBitString(der, tag);
+          A4 = utils.readBitString(der, tag);
         } else {
           der.readSequence(tag);
           der._offset += der.length;
         }
       }
-      if (A3 === void 0)
-        A3 = utils.calculateED25519Public(k2);
+      if (A4 === void 0)
+        A4 = utils.calculateED25519Public(k2);
       var key = {
         type: "ed25519",
         parts: [
-          { name: "A", data: utils.zeroPadToLength(A3, 32) },
+          { name: "A", data: utils.zeroPadToLength(A4, 32) },
           { name: "k", data: utils.zeroPadToLength(k2, 32) }
         ]
       };
@@ -20734,11 +20734,11 @@ var require_pkcs8 = __commonJS({
       der.readSequence(asn1.Ber.OctetString);
       var k2 = der.readString(asn1.Ber.OctetString, true);
       k2 = utils.zeroPadToLength(k2, 32);
-      var A3 = utils.calculateX25519Public(k2);
+      var A4 = utils.calculateX25519Public(k2);
       var key = {
         type: "curve25519",
         parts: [
-          { name: "A", data: utils.zeroPadToLength(A3, 32) },
+          { name: "A", data: utils.zeroPadToLength(A4, 32) },
           { name: "k", data: utils.zeroPadToLength(k2, 32) }
         ]
       };
@@ -20919,7 +20919,7 @@ var require_pkcs8 = __commonJS({
 var require_pkcs1 = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pkcs1.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       readPkcs1,
       write,
       writePkcs1
@@ -20934,7 +20934,7 @@ var require_pkcs1 = __commonJS({
     var pem = require_pem();
     var pkcs8 = require_pkcs8();
     var readECDSACurve = pkcs8.readECDSACurve;
-    function read2(buf, options) {
+    function read3(buf, options) {
       return pem.read(buf, options, "pkcs1");
     }
     function write(key, options) {
@@ -21044,11 +21044,11 @@ var require_pkcs1 = __commonJS({
       var oid = der.readOID();
       assert7.strictEqual(oid, "1.3.101.112", "the ed25519 curve identifier");
       der.readSequence(161);
-      var A3 = utils.readBitString(der);
+      var A4 = utils.readBitString(der);
       var key = {
         type: "ed25519",
         parts: [
-          { name: "A", data: utils.zeroPadToLength(A3, 32) },
+          { name: "A", data: utils.zeroPadToLength(A4, 32) },
           { name: "k", data: k2 }
         ]
       };
@@ -21229,13 +21229,13 @@ var require_pkcs1 = __commonJS({
 var require_rfc4253 = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/rfc4253.js"(exports2, module2) {
     module2.exports = {
-      read: read2.bind(void 0, false, void 0),
-      readType: read2.bind(void 0, false),
+      read: read3.bind(void 0, false, void 0),
+      readType: read3.bind(void 0, false),
       write,
       /* semi-private api, used by sshpk-agent */
-      readPartial: read2.bind(void 0, true),
+      readPartial: read3.bind(void 0, true),
       /* shared with ssh format */
-      readInternal: read2,
+      readInternal: read3,
       keyTypeToAlg,
       algToKeyType
     };
@@ -21276,7 +21276,7 @@ var require_rfc4253 = __commonJS({
       else
         throw new Error("Unknown key type " + key.type);
     }
-    function read2(partial, type, buf, options) {
+    function read3(partial, type, buf, options) {
       if (typeof buf === "string")
         buf = Buffer2.from(buf);
       assert7.buffer(buf, "buf");
@@ -22625,7 +22625,7 @@ var require_bcrypt_pbkdf = __commonJS({
 var require_ssh_private = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh-private.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       readSSHPrivate,
       write
     };
@@ -22642,7 +22642,7 @@ var require_ssh_private = __commonJS({
     var SSHBuffer = require_ssh_buffer();
     var errors = require_errors();
     var bcrypt;
-    function read2(buf, options) {
+    function read3(buf, options) {
       return pem.read(buf, options);
     }
     var MAGIC2 = "openssh-key-v1";
@@ -22871,7 +22871,7 @@ var require_ssh_private = __commonJS({
 var require_pem = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/pem.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       write
     };
     var assert7 = require_assert();
@@ -22907,7 +22907,7 @@ var require_pem = __commonJS({
     Object.keys(OID_TO_HASH).forEach(function(k2) {
       HASH_TO_OID[OID_TO_HASH[k2]] = k2;
     });
-    function read2(buf, options, forceType) {
+    function read3(buf, options, forceType) {
       var input = buf;
       if (typeof buf !== "string") {
         assert7.buffer(buf, "buf");
@@ -23131,7 +23131,7 @@ var require_pem = __commonJS({
 var require_ssh = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/ssh.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       write
     };
     var assert7 = require_assert();
@@ -23143,7 +23143,7 @@ var require_ssh = __commonJS({
     var sshpriv = require_ssh_private();
     var SSHKEY_RE = /^([a-z0-9-]+)[ \t]+([a-zA-Z0-9+\/]+[=]*)([ \t]+([^ \t][^\n]*[\n]*)?)?$/;
     var SSHKEY_RE2 = /^([a-z0-9-]+)[ \t\n]+([a-zA-Z0-9+\/][a-zA-Z0-9+\/ \t\n=]*)([^a-zA-Z0-9+\/ \t\n=].*)?$/;
-    function read2(buf, options) {
+    function read3(buf, options) {
       if (typeof buf !== "string") {
         assert7.buffer(buf, "buf");
         buf = buf.toString("ascii");
@@ -23208,7 +23208,7 @@ var require_ssh = __commonJS({
 var require_dnssec = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/dnssec.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       write
     };
     var assert7 = require_assert();
@@ -23234,7 +23234,7 @@ var require_dnssec = __commonJS({
     Object.keys(supportedAlgos).forEach(function(k2) {
       supportedAlgosById[supportedAlgos[k2]] = k2.toUpperCase();
     });
-    function read2(buf, options) {
+    function read3(buf, options) {
       if (typeof buf !== "string") {
         assert7.buffer(buf, "buf");
         buf = buf.toString("ascii");
@@ -23461,7 +23461,7 @@ var require_dnssec = __commonJS({
 var require_putty = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/putty.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       write
     };
     var assert7 = require_assert();
@@ -23472,7 +23472,7 @@ var require_putty = __commonJS({
     var crypto3 = require("crypto");
     var PrivateKey = require_private_key();
     var errors = require_errors();
-    function read2(buf, options) {
+    function read3(buf, options) {
       var lines = buf.toString("ascii").split(/[\r\n]+/);
       var found = false;
       var parts;
@@ -23642,7 +23642,7 @@ var require_putty = __commonJS({
 var require_auto = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/auto.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       write
     };
     var assert7 = require_assert();
@@ -23656,7 +23656,7 @@ var require_auto = __commonJS({
     var dnssec = require_dnssec();
     var putty = require_putty();
     var DNSSEC_PRIVKEY_HEADER_PREFIX = "Private-key-format: v1";
-    function read2(buf, options) {
+    function read3(buf, options) {
       if (typeof buf === "string") {
         if (buf.trim().match(/^[-]+[ ]*BEGIN/))
           return pem.read(buf, options);
@@ -24257,7 +24257,7 @@ var require_identity = __commonJS({
 var require_openssh_cert = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/openssh-cert.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       verify,
       sign,
       signAsync,
@@ -24289,7 +24289,7 @@ var require_openssh_cert = __commonJS({
       TYPES2[TYPES2[k2]] = k2;
     });
     var ECDSA_ALGO = /^ecdsa-sha2-([^@-]+)-cert-v01@openssh.com$/;
-    function read2(buf, options) {
+    function read3(buf, options) {
       if (Buffer2.isBuffer(buf))
         buf = buf.toString("ascii");
       var parts = buf.trim().split(/[ \t\n]+/g);
@@ -24543,7 +24543,7 @@ var require_openssh_cert = __commonJS({
 var require_x509 = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509.js"(exports2, module2) {
     module2.exports = {
-      read: read2,
+      read: read3,
       verify,
       sign,
       signAsync,
@@ -24617,7 +24617,7 @@ var require_x509 = __commonJS({
       "keyUsage": "2.5.29.15",
       "extKeyUsage": "2.5.29.37"
     };
-    function read2(buf, options) {
+    function read3(buf, options) {
       if (typeof buf === "string") {
         buf = Buffer2.from(buf, "binary");
       }
@@ -25175,7 +25175,7 @@ var require_x509_pem = __commonJS({
   "../../node_modules/.pnpm/sshpk@1.18.0/node_modules/sshpk/lib/formats/x509-pem.js"(exports2, module2) {
     var x509 = require_x509();
     module2.exports = {
-      read: read2,
+      read: read3,
       verify: x509.verify,
       sign: x509.sign,
       write
@@ -25191,7 +25191,7 @@ var require_x509_pem = __commonJS({
     var Identity = require_identity();
     var Signature = require_signature();
     var Certificate = require_certificate();
-    function read2(buf, options) {
+    function read3(buf, options) {
       if (typeof buf !== "string") {
         assert7.buffer(buf, "buf");
         buf = buf.toString("ascii");
@@ -120993,7 +120993,7 @@ __export(xeoconvert_core_exports, {
   applyInspectionConfig: () => applyInspectionConfig,
   applyOptimizationConfig: () => applyOptimizationConfig,
   applyRuleConfig: () => applyRuleConfig,
-  pipeline: () => pipeline,
+  modelConverter: () => modelConverter,
   reporters: () => reporters,
   resolveExporterId: () => resolveExporterId,
   resolveLoaderId: () => resolveLoaderId,
@@ -125943,11 +125943,11 @@ function ir(t2, r2, o2, n2, a3, i2) {
         return void v2();
       i2.addEventListener("abort", v2);
     }
-    var w3, R3, T2;
-    if (P2(t2, l2._closedPromise, (e2) => (n2 ? E2(true, e2) : q3(() => wt(r2, e2), true, e2), null)), P2(r2, s2._closedPromise, (e2) => (a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2), null)), w3 = t2, R3 = l2._closedPromise, T2 = () => (o2 ? E2() : q3(() => function(e2) {
+    var w3, R4, T2;
+    if (P2(t2, l2._closedPromise, (e2) => (n2 ? E2(true, e2) : q3(() => wt(r2, e2), true, e2), null)), P2(r2, s2._closedPromise, (e2) => (a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2), null)), w3 = t2, R4 = l2._closedPromise, T2 = () => (o2 ? E2() : q3(() => function(e2) {
       const t3 = e2._ownerWritableStream, r3 = t3._state;
       return qt(t3) || "closed" === r3 ? c(void 0) : "errored" === r3 ? d(t3._storedError) : Bt(e2);
-    }(s2)), null), "closed" === w3._state ? T2() : h2(R3, T2), qt(r2) || "closed" === r2._state) {
+    }(s2)), null), "closed" === w3._state ? T2() : h2(R4, T2), qt(r2) || "closed" === r2._state) {
       const e2 = new TypeError("the destination writable stream closed before all data could be piped to it");
       a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2);
     }
@@ -126174,7 +126174,7 @@ function yr(e2, t2) {
       }
       return h3;
     }
-    function R3(o3) {
+    function R4(o3) {
       if (b5 = true, r2 = o3, f2) {
         const o4 = ne([t3, r2]), n3 = Or(e3, o4);
         a3(n3);
@@ -126183,7 +126183,7 @@ function yr(e2, t2) {
     }
     function T2() {
     }
-    return o2 = Pr(T2, g2, w3), n2 = Pr(T2, v2, R3), _2(i2), [o2, n2];
+    return o2 = Pr(T2, g2, w3), n2 = Pr(T2, v2, R4), _2(i2), [o2, n2];
   }(e2) : function(e3) {
     const t3 = H(e3);
     let r2, o2, n2, a3, i2, l2 = false, s2 = false, d2 = false, f2 = false;
@@ -128329,7 +128329,7 @@ var DataModel = class {
    * - A `PropertySet` ID **must be unique within a single `DataModel`** but can be shared between multiple `DataModels`.
    * - Triggers an event via {@link DataEvents.onPropertySetCreated | DataEvents.onPropertySetCreated}.
    *
-   * See {@link data | @xeokit/sdk/model/data} for usage.
+   * See {@link model!data | @xeokit/sdk/model/data} for usage.
    *
    * @param propertySetCfg - Configuration parameters for the new `PropertySet`.
    * @returns A result containing the created `PropertySet` on success, or an error message on failure.
@@ -128399,7 +128399,7 @@ var DataModel = class {
    *  - A `DataObject` ID **must be unique within a single `DataModel`** but can be shared between multiple `DataModels`.
    *  - Triggers an event via {@link DataEvents.onDataObjectCreated | DataEvents.onObjectCreated}.
    *
-   * See {@link data | @xeokit/sdk/model/data} for usage.
+   * See {@link model!data | @xeokit/sdk/model/data} for usage.
    *
    * @param dataObjectParams - Configuration parameters for the new `DataObject`.
    * @returns A result containing the created `DataObject` on success, or an error message on failure.
@@ -128505,7 +128505,7 @@ var DataModel = class {
    * - The new `Relationship` is stored in {@link DataModel.relationships | DataModel.relationships}.
    * - Triggers an event via {@link DataEvents.onRelationshipCreated | DataEvents.onRelationshipCreated}.
    *
-   * See {@link data | @xeokit/sdk/model/data} for usage
+   * See {@link model!data | @xeokit/sdk/model/data} for usage
    *
    * @param relationshipParams - Configuration parameters for the new `Relationship`.
    * @returns A result containing the created `Relationship` on success, or an error message on failure.
@@ -129307,7 +129307,7 @@ var Data2 = class {
   /**
    * Creates a new Data.
    *
-   * See {@link data | @xeokit/sdk/model/data}   for usage.
+   * See {@link model!data | @xeokit/sdk/model/data}   for usage.
    *
    * @param dataParams Parameters for creating this Data.
    * @param dataParams.logging Indicates whether to log errors to the console for this Data.
@@ -131945,28 +131945,28 @@ function marchingSquares2D(mask, width, height) {
       if (code === 0 || code === 15)
         continue;
       const T2 = [cx + 1, cy + 0.5];
-      const R3 = [cx + 1.5, cy + 1];
-      const B3 = [cx + 1, cy + 1.5];
+      const R4 = [cx + 1.5, cy + 1];
+      const B4 = [cx + 1, cy + 1.5];
       const L2 = [cx + 0.5, cy + 1];
       switch (code) {
         case 1:
-          addSeg(B3, L2);
+          addSeg(B4, L2);
           break;
         case 2:
-          addSeg(R3, B3);
+          addSeg(R4, B4);
           break;
         case 3:
-          addSeg(R3, L2);
+          addSeg(R4, L2);
           break;
         case 4:
-          addSeg(T2, R3);
+          addSeg(T2, R4);
           break;
         case 5:
-          addSeg(T2, R3);
-          addSeg(B3, L2);
+          addSeg(T2, R4);
+          addSeg(B4, L2);
           break;
         case 6:
-          addSeg(T2, B3);
+          addSeg(T2, B4);
           break;
         case 7:
           addSeg(T2, L2);
@@ -131975,23 +131975,23 @@ function marchingSquares2D(mask, width, height) {
           addSeg(L2, T2);
           break;
         case 9:
-          addSeg(B3, T2);
+          addSeg(B4, T2);
           break;
         case 10:
           addSeg(L2, T2);
-          addSeg(R3, B3);
+          addSeg(R4, B4);
           break;
         case 11:
-          addSeg(R3, T2);
+          addSeg(R4, T2);
           break;
         case 12:
-          addSeg(L2, R3);
+          addSeg(L2, R4);
           break;
         case 13:
-          addSeg(B3, R3);
+          addSeg(B4, R4);
           break;
         case 14:
-          addSeg(L2, B3);
+          addSeg(L2, B4);
           break;
       }
     }
@@ -132020,6 +132020,208 @@ function marchingSquares2D(mask, width, height) {
   return loops;
 }
 
+// src/base/math/shadows.ts
+var shadows_exports = {};
+__export(shadows_exports, {
+  computeShadowCascadeSplits: () => computeShadowCascadeSplits,
+  fitShadowCascadeToCamera: () => fitShadowCascadeToCamera,
+  isFiniteShadowAABB: () => isFiniteShadowAABB,
+  stabilizeShadowOrthoBounds: () => stabilizeShadowOrthoBounds
+});
+function computeShadowCascadeSplits(params) {
+  var _a2;
+  const count = Math.max(1, Math.floor(params.cascadeCount));
+  const near = Math.max(1e-6, params.nearDistance);
+  const far = Math.max(near + 1e-6, params.farDistance);
+  const lambda = clamp01(params.lambda);
+  const target = (_a2 = params.target) != null ? _a2 : new Float32Array(count + 1);
+  target[0] = near;
+  for (let i2 = 1; i2 <= count; i2++) {
+    const p2 = i2 / count;
+    const log2 = near * Math.pow(far / near, p2);
+    const uniform2 = near + (far - near) * p2;
+    target[i2] = lambda * log2 + (1 - lambda) * uniform2;
+  }
+  return target;
+}
+function stabilizeShadowOrthoBounds(params) {
+  const resolution = Math.max(1, Math.floor(params.resolution));
+  const extentX = params.right - params.left;
+  const extentY = params.top - params.bottom;
+  const fallbackTexelWorldSize = Math.max(1e-6, Math.max(extentX, extentY) / resolution);
+  if (!Number.isFinite(extentX) || !Number.isFinite(extentY) || extentX <= 0 || extentY <= 0) {
+    return {
+      left: params.left,
+      right: params.right,
+      bottom: params.bottom,
+      top: params.top,
+      texelWorldSize: fallbackTexelWorldSize
+    };
+  }
+  const stableExtent = Math.max(extentX, extentY) * (1 + 2 / resolution);
+  const texelWorldSize = Math.max(1e-6, stableExtent / resolution);
+  const centerX = (params.left + params.right) * 0.5;
+  const centerY = (params.bottom + params.top) * 0.5;
+  const anchorX = Number.isFinite(params.anchorX) ? Number(params.anchorX) : 0;
+  const anchorY = Number.isFinite(params.anchorY) ? Number(params.anchorY) : 0;
+  const snappedCenterX = Math.round((centerX - anchorX) / texelWorldSize) * texelWorldSize + anchorX;
+  const snappedCenterY = Math.round((centerY - anchorY) / texelWorldSize) * texelWorldSize + anchorY;
+  const halfExtent = stableExtent * 0.5;
+  return {
+    left: snappedCenterX - halfExtent,
+    right: snappedCenterX + halfExtent,
+    bottom: snappedCenterY - halfExtent,
+    top: snappedCenterY + halfExtent,
+    texelWorldSize
+  };
+}
+function fitShadowCascadeToCamera(params) {
+  var _a2, _b;
+  const aspect = Math.max(1e-6, params.canvasHeight > 0 ? params.canvasWidth / params.canvasHeight : 1);
+  const nearDistance = Math.max(1e-6, params.nearDistance);
+  const farDistance = Math.max(nearDistance + 1e-6, params.farDistance);
+  const { halfNearW, halfNearH, halfFarW, halfFarH } = getFrustumHalfExtents(
+    params.projection,
+    aspect,
+    nearDistance,
+    farDistance
+  );
+  const corners = [
+    [-halfNearW, -halfNearH, -nearDistance],
+    [halfNearW, -halfNearH, -nearDistance],
+    [-halfNearW, halfNearH, -nearDistance],
+    [halfNearW, halfNearH, -nearDistance],
+    [-halfFarW, -halfFarH, -farDistance],
+    [halfFarW, -halfFarH, -farDistance],
+    [-halfFarW, halfFarH, -farDistance],
+    [halfFarW, halfFarH, -farDistance]
+  ];
+  const lightView = params.lightViewMatrix;
+  const inverseView = params.cameraInverseViewMatrix;
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  let minZ = Infinity;
+  let maxZ = -Infinity;
+  for (const corner of corners) {
+    const wx = inverseView[0] * corner[0] + inverseView[4] * corner[1] + inverseView[8] * corner[2] + inverseView[12];
+    const wy = inverseView[1] * corner[0] + inverseView[5] * corner[1] + inverseView[9] * corner[2] + inverseView[13];
+    const wz = inverseView[2] * corner[0] + inverseView[6] * corner[1] + inverseView[10] * corner[2] + inverseView[14];
+    const lx = lightView[0] * wx + lightView[4] * wy + lightView[8] * wz + lightView[12];
+    const ly = lightView[1] * wx + lightView[5] * wy + lightView[9] * wz + lightView[13];
+    const lz = lightView[2] * wx + lightView[6] * wy + lightView[10] * wz + lightView[14];
+    minX = Math.min(minX, lx);
+    maxX = Math.max(maxX, lx);
+    minY = Math.min(minY, ly);
+    maxY = Math.max(maxY, ly);
+    minZ = Math.min(minZ, lz);
+    maxZ = Math.max(maxZ, lz);
+  }
+  const sceneAABB = params.sceneAABB;
+  if (sceneAABB && isFiniteShadowAABB(sceneAABB)) {
+    let sceneMinX = Infinity;
+    let sceneMaxX = -Infinity;
+    let sceneMinY = Infinity;
+    let sceneMaxY = -Infinity;
+    let sceneMinZ = Infinity;
+    let sceneMaxZ = -Infinity;
+    for (let cornerIdx = 0; cornerIdx < 8; cornerIdx++) {
+      const wx = cornerIdx & 1 ? sceneAABB[3] : sceneAABB[0];
+      const wy = cornerIdx & 2 ? sceneAABB[4] : sceneAABB[1];
+      const wz = cornerIdx & 4 ? sceneAABB[5] : sceneAABB[2];
+      const lx = lightView[0] * wx + lightView[4] * wy + lightView[8] * wz + lightView[12];
+      const ly = lightView[1] * wx + lightView[5] * wy + lightView[9] * wz + lightView[13];
+      const lz = lightView[2] * wx + lightView[6] * wy + lightView[10] * wz + lightView[14];
+      sceneMinX = Math.min(sceneMinX, lx);
+      sceneMaxX = Math.max(sceneMaxX, lx);
+      sceneMinY = Math.min(sceneMinY, ly);
+      sceneMaxY = Math.max(sceneMaxY, ly);
+      sceneMinZ = Math.min(sceneMinZ, lz);
+      sceneMaxZ = Math.max(sceneMaxZ, lz);
+    }
+    const intersectMinX = Math.max(minX, sceneMinX);
+    const intersectMaxX = Math.min(maxX, sceneMaxX);
+    const intersectMinY = Math.max(minY, sceneMinY);
+    const intersectMaxY = Math.min(maxY, sceneMaxY);
+    const intersectMinZ = Math.max(minZ, sceneMinZ);
+    const intersectMaxZ = Math.min(maxZ, sceneMaxZ);
+    if (intersectMinX < intersectMaxX && intersectMinY < intersectMaxY && intersectMinZ < intersectMaxZ) {
+      minX = intersectMinX;
+      maxX = intersectMaxX;
+      minY = intersectMinY;
+      maxY = intersectMaxY;
+      minZ = intersectMinZ;
+      maxZ = intersectMaxZ;
+    }
+  }
+  const padMul = Math.max(1, params.padding);
+  const padX = (maxX - minX) * (padMul - 1) * 0.5;
+  const padY = (maxY - minY) * (padMul - 1) * 0.5;
+  const stableBounds = stabilizeShadowOrthoBounds({
+    left: minX - padX,
+    right: maxX + padX,
+    bottom: minY - padY,
+    top: maxY + padY,
+    resolution: params.resolution,
+    anchorX: (_a2 = params.anchorX) != null ? _a2 : lightView[12],
+    anchorY: (_b = params.anchorY) != null ? _b : lightView[13]
+  });
+  const near = Math.max(0.01, -maxZ);
+  const far = -minZ + farDistance;
+  return {
+    left: stableBounds.left,
+    right: stableBounds.right,
+    bottom: stableBounds.bottom,
+    top: stableBounds.top,
+    near,
+    far,
+    depthRange: Math.max(1e-3, far - near),
+    texelWorldSize: stableBounds.texelWorldSize
+  };
+}
+function isFiniteShadowAABB(aabb) {
+  return aabb[0] <= aabb[3] && aabb[1] <= aabb[4] && aabb[2] <= aabb[5] && Number.isFinite(aabb[0]) && Number.isFinite(aabb[3]) && Number.isFinite(aabb[1]) && Number.isFinite(aabb[4]) && Number.isFinite(aabb[2]) && Number.isFinite(aabb[5]);
+}
+function getFrustumHalfExtents(projection, aspect, nearDistance, farDistance) {
+  if (projection.type === "perspective") {
+    const fovRad = projection.fovDegrees * Math.PI / 180;
+    const tanHalfFov = Math.tan(fovRad * 0.5);
+    if (aspect >= 1) {
+      const halfNearH2 = tanHalfFov * nearDistance;
+      const halfFarH = tanHalfFov * farDistance;
+      return {
+        halfNearW: halfNearH2 * aspect,
+        halfNearH: halfNearH2,
+        halfFarW: halfFarH * aspect,
+        halfFarH
+      };
+    }
+    const halfNearW2 = tanHalfFov * nearDistance;
+    const halfFarW = tanHalfFov * farDistance;
+    return {
+      halfNearW: halfNearW2,
+      halfNearH: halfNearW2 / aspect,
+      halfFarW,
+      halfFarH: halfFarW / aspect
+    };
+  }
+  const halfNearH = projection.scale * 0.5;
+  const halfNearW = halfNearH * aspect;
+  return {
+    halfNearW,
+    halfNearH,
+    halfFarW: halfNearW,
+    halfFarH: halfNearH
+  };
+}
+function clamp01(value) {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+  return value < 0 ? 0 : value > 1 ? 1 : value;
+}
+
 // src/base/math/index.ts
 var MIN_DOUBLE = -Number.MAX_SAFE_INTEGER;
 var MAX_DOUBLE = Number.MAX_SAFE_INTEGER;
@@ -132027,7 +132229,7 @@ var DEGTORAD = 0.0174532925;
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
-function clamp01(value) {
+function clamp012(value) {
   return value < 0 ? 0 : value > 1 ? 1 : value;
 }
 function newFloatArray(values) {
@@ -132814,6 +133016,7 @@ var LinearFilter = 1006;
 var LinearMipMapNearestFilter = 1007;
 var LinearMipMapLinearFilter = 1008;
 var LinearEncoding = 3e3;
+var sRGBEncoding = 3001;
 var GIFMediaType = 1e4;
 var JPEGMediaType = 10001;
 var PNGMediaType = 10002;
@@ -134122,6 +134325,10 @@ var SceneTransform = class {
 // src/model/scene/SceneMesh.ts
 var DEFAULT_ROUGHNESS = 0.6;
 var DEFAULT_METALLIC = 0;
+var DEFAULT_CLEARCOAT = 0;
+var DEFAULT_CLEARCOAT_ROUGHNESS = 0;
+var DEFAULT_SHEEN = 0;
+var DEFAULT_SHEEN_ROUGHNESS = 0.5;
 var DEFAULT_TRIPLANAR_SCALE = 1;
 var DEFAULT_LINE_WIDTH = 0;
 var SHARED_IDENTITY_MATRIX = identityMat4();
@@ -134410,6 +134617,34 @@ var SceneMesh = class {
    */
   get effectiveMetallic() {
     return this.material ? this.material.metallic : DEFAULT_METALLIC;
+  }
+  /**
+   * Effective scalar clearcoat strength — the material's clearcoat if a
+   * material is attached, otherwise no clearcoat.
+   */
+  get effectiveClearcoat() {
+    return this.material ? this.material.clearcoat : DEFAULT_CLEARCOAT;
+  }
+  /**
+   * Effective scalar clearcoat roughness — the material's clearcoat
+   * roughness if a material is attached, otherwise mirror-smooth.
+   */
+  get effectiveClearcoatRoughness() {
+    return this.material ? this.material.clearcoatRoughness : DEFAULT_CLEARCOAT_ROUGHNESS;
+  }
+  /**
+   * Effective scalar sheen strength — the material's sheen if a material is
+   * attached, otherwise no sheen.
+   */
+  get effectiveSheen() {
+    return this.material ? this.material.sheen : DEFAULT_SHEEN;
+  }
+  /**
+   * Effective scalar sheen roughness — the material's sheen roughness if a
+   * material is attached, otherwise moderately broad.
+   */
+  get effectiveSheenRoughness() {
+    return this.material ? this.material.sheenRoughness : DEFAULT_SHEEN_ROUGHNESS;
   }
   /**
    * Effective albedo (colour) texture — the material's `colorTexture`
@@ -135473,10 +135708,10 @@ function normaliseHatchPattern(value, out) {
   const g2 = color && color[1] !== void 0 ? color[1] : 0;
   const b5 = color && color[2] !== void 0 ? color[2] : 0;
   const a3 = opacity !== void 0 ? opacity : 1;
-  out.color[0] = clamp01(r2);
-  out.color[1] = clamp01(g2);
-  out.color[2] = clamp01(b5);
-  out.color[3] = clamp01(a3);
+  out.color[0] = clamp012(r2);
+  out.color[1] = clamp012(g2);
+  out.color[2] = clamp012(b5);
+  out.color[3] = clamp012(a3);
   out.space = space === "world" ? 1 : space === "tangent" ? 2 : 0;
   return out;
 }
@@ -135528,6 +135763,10 @@ var SceneMaterial = class {
     __publicField(this, "_opacity");
     __publicField(this, "_roughness");
     __publicField(this, "_metallic");
+    __publicField(this, "_clearcoat");
+    __publicField(this, "_clearcoatRoughness");
+    __publicField(this, "_sheen");
+    __publicField(this, "_sheenRoughness");
     /**
      * Alpha-handling mode encoded as a small integer:
      * `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`. Matches the glTF 2.0
@@ -135625,15 +135864,27 @@ var SceneMaterial = class {
     this.uniqueId = `${model.id}__${this.id}`;
     this._color = createVec3Float32(materialParams.color || [1, 1, 1]);
     this._opacity = materialParams.opacity !== void 0 && materialParams.opacity !== null ? materialParams.opacity : 1;
-    this._roughness = clamp01(
+    this._roughness = clamp012(
       materialParams.roughness !== void 0 && materialParams.roughness !== null ? materialParams.roughness : 0.6
     );
-    this._metallic = clamp01(
+    this._metallic = clamp012(
       materialParams.metallic !== void 0 && materialParams.metallic !== null ? materialParams.metallic : 0
+    );
+    this._clearcoat = clamp012(
+      materialParams.clearcoat !== void 0 && materialParams.clearcoat !== null ? materialParams.clearcoat : 0
+    );
+    this._clearcoatRoughness = clamp012(
+      materialParams.clearcoatRoughness !== void 0 && materialParams.clearcoatRoughness !== null ? materialParams.clearcoatRoughness : 0
+    );
+    this._sheen = clamp012(
+      materialParams.sheen !== void 0 && materialParams.sheen !== null ? materialParams.sheen : 0
+    );
+    this._sheenRoughness = clamp012(
+      materialParams.sheenRoughness !== void 0 && materialParams.sheenRoughness !== null ? materialParams.sheenRoughness : 0.5
     );
     const alphaMode = materialParams.alphaMode;
     this._alphaMode = alphaMode === "MASK" ? 1 : alphaMode === "BLEND" ? 2 : 0;
-    this._alphaCutoff = clamp01(
+    this._alphaCutoff = clamp012(
       materialParams.alphaCutoff !== void 0 && materialParams.alphaCutoff !== null ? materialParams.alphaCutoff : 0.5
     );
     {
@@ -135773,6 +136024,31 @@ var SceneMaterial = class {
    */
   get metallic() {
     return this._metallic;
+  }
+  /**
+   * Scalar dielectric clearcoat strength consumed by the Cook-Torrance
+   * BRDF. `0` disables the coat; `1` applies the full coat layer.
+   */
+  get clearcoat() {
+    return this._clearcoat;
+  }
+  /**
+   * Microfacet roughness for the scalar clearcoat layer.
+   */
+  get clearcoatRoughness() {
+    return this._clearcoatRoughness;
+  }
+  /**
+   * Scalar sheen strength consumed by the Cook-Torrance render path.
+   */
+  get sheen() {
+    return this._sheen;
+  }
+  /**
+   * Roughness for the scalar sheen lobe.
+   */
+  get sheenRoughness() {
+    return this._sheenRoughness;
   }
   /**
    * Alpha-handling mode: `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`.
@@ -135935,6 +136211,10 @@ var SceneMaterial = class {
       opacity: this._opacity,
       roughness: this._roughness,
       metallic: this._metallic,
+      clearcoat: this._clearcoat,
+      clearcoatRoughness: this._clearcoatRoughness,
+      sheen: this._sheen,
+      sheenRoughness: this._sheenRoughness,
       alphaMode: this._alphaMode === 1 ? "MASK" : this._alphaMode === 2 ? "BLEND" : "OPAQUE",
       alphaCutoff: this._alphaCutoff,
       triplanarScale: this._triplanarScale,
@@ -136796,7 +137076,7 @@ var SceneModel2 = class {
    * const textureAgain = sceneModel.textures["myColorTexture"];
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene} for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene} for more usage info.
    *
    * @param textureParams - SceneTexture creation parameters.
    * @returns SDKResult with:
@@ -136889,7 +137169,7 @@ var SceneModel2 = class {
    * const materialAgain = sceneModel.materials["myMaterial"];
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param materialParams SceneMaterial creation parameters.
    *
@@ -137061,7 +137341,7 @@ var SceneModel2 = class {
    * const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param geometryParams Non-compressed geometry parameters.
    * @returns SDKResult with:
@@ -137248,7 +137528,7 @@ var SceneModel2 = class {
    * }
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param geometryCompressedParams Pre-compressed geometry parameters.
    *
@@ -137530,7 +137810,7 @@ var SceneModel2 = class {
    * }
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param meshParams Pre-compressed mesh parameters.
    * @returns SDKResult with:
@@ -138001,7 +138281,7 @@ var SceneModel2 = class {
    * }
    * ````
    *
-   * See {@link scene | @xeokit/sdk/model/scene}   for more usage info.
+   * See {@link model!scene | @xeokit/sdk/model/scene}   for more usage info.
    *
    * @param objectParams SceneObject parameters.
    * @returns SDKResult with:
@@ -138124,7 +138404,7 @@ var SceneModel2 = class {
   /**
    * Creates components in this SceneModel from {@link SceneModelParams}.
    *
-   * See {@link scene | @xeokit/sdk/model/scene} for usage.
+   * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
    *
    * @param sceneModelParams The batch of components to create.
    * @returns SDKResult with:
@@ -138240,7 +138520,7 @@ var SceneModel2 = class {
    * Currently serializes: `transforms`, `geometriesCompressed`, `meshes`, and `objects`.
    * (Textures and materials are intentionally omitted/commented.)
    *
-   * See {@link scene | @xeokit/sdk/model/scene} for usage.
+   * See {@link model!scene | @xeokit/sdk/model/scene} for usage.
    */
   toParams() {
     if (this.destroyed) {
@@ -146297,6 +146577,7 @@ function parseTextures(ctx2) {
   const textures = gltfData.textures;
   if (textures) {
     for (let i2 = 0, len = textures.length; i2 < len; i2++) {
+      textures[i2]._textureIndex = i2;
       if (!parseTexture(ctx2, textures[i2])) {
         return false;
       }
@@ -146395,8 +146676,8 @@ function parseTexture(ctx2, texture) {
     wrapS,
     wrapT,
     wrapR,
-    flipY: !!texture.flipY
-    //     encoding: "sRGB"
+    flipY: !!texture.flipY,
+    encoding: isColorSpaceTexture(ctx2, texture) ? sRGBEncoding : void 0
   });
   if (result.ok === false) {
     ctx2.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
@@ -146404,6 +146685,33 @@ function parseTexture(ctx2, texture) {
   }
   texture._textureId = textureId;
   return true;
+}
+function isColorSpaceTexture(ctx2, texture) {
+  var _a2, _b, _c;
+  const materials = ((_a2 = ctx2.gltfData) == null ? void 0 : _a2.materials) || [];
+  for (let i2 = 0, len = materials.length; i2 < len; i2++) {
+    const material = materials[i2];
+    const metallicPBR = material.pbrMetallicRoughness;
+    if (textureInfoReferencesTexture((metallicPBR == null ? void 0 : metallicPBR.baseColorTexture) || (metallicPBR == null ? void 0 : metallicPBR.colorTexture), texture) || textureInfoReferencesTexture(material.emissiveTexture, texture) || textureInfoReferencesTexture((_c = (_b = material.extensions) == null ? void 0 : _b.KHR_materials_pbrSpecularGlossiness) == null ? void 0 : _c.diffuseTexture, texture)) {
+      return true;
+    }
+  }
+  return false;
+}
+function textureInfoReferencesTexture(textureInfo, texture) {
+  if (!textureInfo) {
+    return false;
+  }
+  if (textureInfo.texture === texture) {
+    return true;
+  }
+  if (textureInfo.index === texture) {
+    return true;
+  }
+  if (typeof textureInfo.index === "number") {
+    return textureInfo.index === texture._textureIndex;
+  }
+  return false;
 }
 function extractEncodedImageBytes(source) {
   var _a2;
@@ -146467,7 +146775,7 @@ function parseMaterials(ctx2) {
   return true;
 }
 function parseMaterial(ctx2, material) {
-  var _a2, _b, _c, _d, _e2;
+  var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j;
   const materialCfg = {
     id: `material-${ctx2.baseId}-${ctx2.nextId++}`,
     color: [1, 1, 1],
@@ -146497,6 +146805,25 @@ function parseMaterial(ctx2, material) {
       materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx2, metallicPBR.metallicRoughnessTexture);
     }
   }
+  const clearcoatPBR = (_b = material.extensions) == null ? void 0 : _b.KHR_materials_clearcoat;
+  if (clearcoatPBR) {
+    if (clearcoatPBR.clearcoatFactor !== void 0 && clearcoatPBR.clearcoatFactor !== null) {
+      materialCfg.clearcoat = clearcoatPBR.clearcoatFactor;
+    }
+    if (clearcoatPBR.clearcoatRoughnessFactor !== void 0 && clearcoatPBR.clearcoatRoughnessFactor !== null) {
+      materialCfg.clearcoatRoughness = clearcoatPBR.clearcoatRoughnessFactor;
+    }
+  }
+  const sheenPBR = (_c = material.extensions) == null ? void 0 : _c.KHR_materials_sheen;
+  if (sheenPBR) {
+    if (sheenPBR.sheenColorFactor !== void 0 && sheenPBR.sheenColorFactor !== null) {
+      const sheenColor = sheenPBR.sheenColorFactor;
+      materialCfg.sheen = Math.max((_d = sheenColor[0]) != null ? _d : 0, (_e2 = sheenColor[1]) != null ? _e2 : 0, (_f = sheenColor[2]) != null ? _f : 0);
+    }
+    if (sheenPBR.sheenRoughnessFactor !== void 0 && sheenPBR.sheenRoughnessFactor !== null) {
+      materialCfg.sheenRoughness = sheenPBR.sheenRoughnessFactor;
+    }
+  }
   if (material.alphaMode === "MASK" || material.alphaMode === "BLEND") {
     materialCfg.alphaMode = material.alphaMode;
   }
@@ -146513,7 +146840,7 @@ function parseMaterial(ctx2, material) {
     materialCfg.emissiveTextureId = resolveTextureId(ctx2, material.emissiveTexture);
   }
   if (material.emissiveFactor) {
-    const strength = (_d = (_c = (_b = material.extensions) == null ? void 0 : _b.KHR_materials_emissive_strength) == null ? void 0 : _c.emissiveStrength) != null ? _d : 1;
+    const strength = (_i = (_h = (_g = material.extensions) == null ? void 0 : _g.KHR_materials_emissive_strength) == null ? void 0 : _h.emissiveStrength) != null ? _i : 1;
     materialCfg.emissiveColor = [
       Math.min(1, material.emissiveFactor[0] * strength),
       Math.min(1, material.emissiveFactor[1] * strength),
@@ -146527,7 +146854,7 @@ function parseMaterial(ctx2, material) {
       const diffuseFactor = specularPBR.diffuseFactor;
       if (diffuseFactor) {
         materialCfg.color = [diffuseFactor[0], diffuseFactor[1], diffuseFactor[2]];
-        materialCfg.opacity = (_e2 = diffuseFactor[3]) != null ? _e2 : materialCfg.opacity;
+        materialCfg.opacity = (_j = diffuseFactor[3]) != null ? _j : materialCfg.opacity;
       }
       if (specularPBR.diffuseTexture && !materialCfg.colorTextureId) {
         materialCfg.colorTextureId = resolveTextureId(ctx2, specularPBR.diffuseTexture);
@@ -148009,6 +148336,15 @@ function length(a3) {
   var z2 = a3[2];
   return Math.hypot(x2, y2, z2);
 }
+function transformMat42(out, a3, m2) {
+  var x2 = a3[0], y2 = a3[1], z2 = a3[2];
+  var w3 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 + m2[15];
+  w3 = w3 || 1;
+  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2 + m2[12]) / w3;
+  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2 + m2[13]) / w3;
+  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2 + m2[14]) / w3;
+  return out;
+}
 (function() {
   var vec = create3();
   return function(a3, stride, offset, count, fn, arg) {
@@ -148036,6 +148372,53 @@ function length(a3) {
     return a3;
   };
 })();
+function getBounds(node) {
+  const resultBounds = createBounds();
+  const parents = node.propertyType === PropertyType.NODE ? [node] : node.listChildren();
+  for (const parent of parents) {
+    parent.traverse((node2) => {
+      const mesh = node2.getMesh();
+      if (!mesh)
+        return;
+      const meshBounds = getMeshBounds(mesh, node2.getWorldMatrix());
+      if (meshBounds.min.every(isFinite) && meshBounds.max.every(isFinite)) {
+        expandBounds(meshBounds.min, resultBounds);
+        expandBounds(meshBounds.max, resultBounds);
+      }
+    });
+  }
+  return resultBounds;
+}
+function getMeshBounds(mesh, worldMatrix) {
+  const meshBounds = createBounds();
+  for (const prim of mesh.listPrimitives()) {
+    const position = prim.getAttribute("POSITION");
+    const indices = prim.getIndices();
+    if (!position)
+      continue;
+    let localPos = [0, 0, 0];
+    let worldPos = [0, 0, 0];
+    for (let i2 = 0, il = indices ? indices.getCount() : position.getCount(); i2 < il; i2++) {
+      const index2 = indices ? indices.getScalar(i2) : i2;
+      localPos = position.getElement(index2, localPos);
+      worldPos = transformMat42(worldPos, localPos, worldMatrix);
+      expandBounds(worldPos, meshBounds);
+    }
+  }
+  return meshBounds;
+}
+function expandBounds(point, target) {
+  for (let i2 = 0; i2 < 3; i2++) {
+    target.min[i2] = Math.min(point[i2], target.min[i2]);
+    target.max[i2] = Math.max(point[i2], target.max[i2]);
+  }
+}
+function createBounds() {
+  return {
+    min: [Infinity, Infinity, Infinity],
+    max: [-Infinity, -Infinity, -Infinity]
+  };
+}
 var NULL_DOMAIN = "https://null.example";
 var HTTPUtils = class {
   static dirname(path2) {
@@ -152510,6 +152893,4183 @@ var WebIO = class extends PlatformIO {
   }
 };
 
+// ../../node_modules/.pnpm/ktx-parse@1.1.0/node_modules/ktx-parse/dist/ktx-parse.modern.js
+var KHR_SUPERCOMPRESSION_NONE = 0;
+var KHR_DF_KHR_DESCRIPTORTYPE_BASICFORMAT = 0;
+var KHR_DF_VENDORID_KHRONOS = 0;
+var KHR_DF_VERSION = 2;
+var KHR_DF_MODEL_UNSPECIFIED = 0;
+var KHR_DF_MODEL_ETC1S = 163;
+var KHR_DF_MODEL_UASTC = 166;
+var KHR_DF_FLAG_ALPHA_STRAIGHT = 0;
+var KHR_DF_TRANSFER_SRGB = 2;
+var KHR_DF_PRIMARIES_BT709 = 1;
+var KHR_DF_SAMPLE_DATATYPE_SIGNED = 64;
+var VK_FORMAT_UNDEFINED = 0;
+function createDefaultContainer() {
+  return {
+    vkFormat: VK_FORMAT_UNDEFINED,
+    typeSize: 1,
+    pixelWidth: 0,
+    pixelHeight: 0,
+    pixelDepth: 0,
+    layerCount: 0,
+    faceCount: 1,
+    levelCount: 0,
+    supercompressionScheme: KHR_SUPERCOMPRESSION_NONE,
+    levels: [],
+    dataFormatDescriptor: [{
+      vendorId: KHR_DF_VENDORID_KHRONOS,
+      descriptorType: KHR_DF_KHR_DESCRIPTORTYPE_BASICFORMAT,
+      versionNumber: KHR_DF_VERSION,
+      colorModel: KHR_DF_MODEL_UNSPECIFIED,
+      colorPrimaries: KHR_DF_PRIMARIES_BT709,
+      transferFunction: KHR_DF_TRANSFER_SRGB,
+      flags: KHR_DF_FLAG_ALPHA_STRAIGHT,
+      texelBlockDimension: [0, 0, 0, 0],
+      bytesPlane: [0, 0, 0, 0, 0, 0, 0, 0],
+      samples: []
+    }],
+    keyValue: {},
+    globalData: null
+  };
+}
+var BufferReader = class {
+  constructor(data, byteOffset, byteLength, littleEndian) {
+    this._dataView = void 0;
+    this._littleEndian = void 0;
+    this._offset = void 0;
+    this._dataView = new DataView(data.buffer, data.byteOffset + byteOffset, byteLength);
+    this._littleEndian = littleEndian;
+    this._offset = 0;
+  }
+  _nextUint8() {
+    const value = this._dataView.getUint8(this._offset);
+    this._offset += 1;
+    return value;
+  }
+  _nextUint16() {
+    const value = this._dataView.getUint16(this._offset, this._littleEndian);
+    this._offset += 2;
+    return value;
+  }
+  _nextUint32() {
+    const value = this._dataView.getUint32(this._offset, this._littleEndian);
+    this._offset += 4;
+    return value;
+  }
+  _nextUint64() {
+    const left = this._dataView.getUint32(this._offset, this._littleEndian);
+    const right = this._dataView.getUint32(this._offset + 4, this._littleEndian);
+    const value = left + 2 ** 32 * right;
+    this._offset += 8;
+    return value;
+  }
+  _nextInt32() {
+    const value = this._dataView.getInt32(this._offset, this._littleEndian);
+    this._offset += 4;
+    return value;
+  }
+  _nextUint8Array(len) {
+    const value = new Uint8Array(this._dataView.buffer, this._dataView.byteOffset + this._offset, len);
+    this._offset += len;
+    return value;
+  }
+  _skip(bytes) {
+    this._offset += bytes;
+    return this;
+  }
+  _scan(maxByteLength, term = 0) {
+    const byteOffset = this._offset;
+    let byteLength = 0;
+    while (this._dataView.getUint8(this._offset) !== term && byteLength < maxByteLength) {
+      byteLength++;
+      this._offset++;
+    }
+    if (byteLength < maxByteLength)
+      this._offset++;
+    return new Uint8Array(this._dataView.buffer, this._dataView.byteOffset + byteOffset, byteLength);
+  }
+};
+var NUL = new Uint8Array([0]);
+var KTX2_ID2 = [
+  // '´', 'K', 'T', 'X', '2', '0', 'ª', '\r', '\n', '\x1A', '\n'
+  171,
+  75,
+  84,
+  88,
+  32,
+  50,
+  48,
+  187,
+  13,
+  10,
+  26,
+  10
+];
+function decodeText(buffer) {
+  return new TextDecoder().decode(buffer);
+}
+function read2(data) {
+  const id = new Uint8Array(data.buffer, data.byteOffset, KTX2_ID2.length);
+  if (id[0] !== KTX2_ID2[0] || // '´'
+  id[1] !== KTX2_ID2[1] || // 'K'
+  id[2] !== KTX2_ID2[2] || // 'T'
+  id[3] !== KTX2_ID2[3] || // 'X'
+  id[4] !== KTX2_ID2[4] || // ' '
+  id[5] !== KTX2_ID2[5] || // '2'
+  id[6] !== KTX2_ID2[6] || // '0'
+  id[7] !== KTX2_ID2[7] || // 'ª'
+  id[8] !== KTX2_ID2[8] || // '\r'
+  id[9] !== KTX2_ID2[9] || // '\n'
+  id[10] !== KTX2_ID2[10] || // '\x1A'
+  id[11] !== KTX2_ID2[11]) {
+    throw new Error("Missing KTX 2.0 identifier.");
+  }
+  const container = createDefaultContainer();
+  const headerByteLength = 17 * Uint32Array.BYTES_PER_ELEMENT;
+  const headerReader = new BufferReader(data, KTX2_ID2.length, headerByteLength, true);
+  container.vkFormat = headerReader._nextUint32();
+  container.typeSize = headerReader._nextUint32();
+  container.pixelWidth = headerReader._nextUint32();
+  container.pixelHeight = headerReader._nextUint32();
+  container.pixelDepth = headerReader._nextUint32();
+  container.layerCount = headerReader._nextUint32();
+  container.faceCount = headerReader._nextUint32();
+  container.levelCount = headerReader._nextUint32();
+  container.supercompressionScheme = headerReader._nextUint32();
+  const dfdByteOffset = headerReader._nextUint32();
+  const dfdByteLength = headerReader._nextUint32();
+  const kvdByteOffset = headerReader._nextUint32();
+  const kvdByteLength = headerReader._nextUint32();
+  const sgdByteOffset = headerReader._nextUint64();
+  const sgdByteLength = headerReader._nextUint64();
+  const levelByteLength = Math.max(container.levelCount, 1) * 3 * 8;
+  const levelReader = new BufferReader(data, KTX2_ID2.length + headerByteLength, levelByteLength, true);
+  for (let i2 = 0, il = Math.max(container.levelCount, 1); i2 < il; i2++) {
+    container.levels.push({
+      levelData: new Uint8Array(data.buffer, data.byteOffset + levelReader._nextUint64(), levelReader._nextUint64()),
+      uncompressedByteLength: levelReader._nextUint64()
+    });
+  }
+  const dfdReader = new BufferReader(data, dfdByteOffset, dfdByteLength, true);
+  dfdReader._skip(4);
+  const vendorId = dfdReader._nextUint16();
+  const descriptorType = dfdReader._nextUint16();
+  const versionNumber = dfdReader._nextUint16();
+  const descriptorBlockSize = dfdReader._nextUint16();
+  const colorModel = dfdReader._nextUint8();
+  const colorPrimaries = dfdReader._nextUint8();
+  const transferFunction = dfdReader._nextUint8();
+  const flags = dfdReader._nextUint8();
+  const texelBlockDimension = [dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8()];
+  const bytesPlane = [dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8()];
+  const samples = [];
+  const dfd = {
+    vendorId,
+    descriptorType,
+    versionNumber,
+    colorModel,
+    colorPrimaries,
+    transferFunction,
+    flags,
+    texelBlockDimension,
+    bytesPlane,
+    samples
+  };
+  const sampleStart = 6;
+  const sampleWords = 4;
+  const numSamples = (descriptorBlockSize / 4 - sampleStart) / sampleWords;
+  for (let i2 = 0; i2 < numSamples; i2++) {
+    const sample = {
+      bitOffset: dfdReader._nextUint16(),
+      bitLength: dfdReader._nextUint8(),
+      channelType: dfdReader._nextUint8(),
+      samplePosition: [dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8(), dfdReader._nextUint8()],
+      sampleLower: Number.NEGATIVE_INFINITY,
+      sampleUpper: Number.POSITIVE_INFINITY
+    };
+    if (sample.channelType & KHR_DF_SAMPLE_DATATYPE_SIGNED) {
+      sample.sampleLower = dfdReader._nextInt32();
+      sample.sampleUpper = dfdReader._nextInt32();
+    } else {
+      sample.sampleLower = dfdReader._nextUint32();
+      sample.sampleUpper = dfdReader._nextUint32();
+    }
+    dfd.samples[i2] = sample;
+  }
+  container.dataFormatDescriptor.length = 0;
+  container.dataFormatDescriptor.push(dfd);
+  const kvdReader = new BufferReader(data, kvdByteOffset, kvdByteLength, true);
+  while (kvdReader._offset < kvdByteLength) {
+    const keyValueByteLength = kvdReader._nextUint32();
+    const keyData = kvdReader._scan(keyValueByteLength);
+    const key = decodeText(keyData);
+    container.keyValue[key] = kvdReader._nextUint8Array(keyValueByteLength - keyData.byteLength - 1);
+    if (key.match(/^ktx/i)) {
+      const text = decodeText(container.keyValue[key]);
+      container.keyValue[key] = text.substring(0, text.lastIndexOf("\0"));
+    }
+    const kvPadding = keyValueByteLength % 4 ? 4 - keyValueByteLength % 4 : 0;
+    kvdReader._skip(kvPadding);
+  }
+  if (sgdByteLength <= 0)
+    return container;
+  const sgdReader = new BufferReader(data, sgdByteOffset, sgdByteLength, true);
+  const endpointCount = sgdReader._nextUint16();
+  const selectorCount = sgdReader._nextUint16();
+  const endpointsByteLength = sgdReader._nextUint32();
+  const selectorsByteLength = sgdReader._nextUint32();
+  const tablesByteLength = sgdReader._nextUint32();
+  const extendedByteLength = sgdReader._nextUint32();
+  const imageDescs = [];
+  for (let i2 = 0, il = Math.max(container.levelCount, 1); i2 < il; i2++) {
+    imageDescs.push({
+      imageFlags: sgdReader._nextUint32(),
+      rgbSliceByteOffset: sgdReader._nextUint32(),
+      rgbSliceByteLength: sgdReader._nextUint32(),
+      alphaSliceByteOffset: sgdReader._nextUint32(),
+      alphaSliceByteLength: sgdReader._nextUint32()
+    });
+  }
+  const endpointsByteOffset = sgdByteOffset + sgdReader._offset;
+  const selectorsByteOffset = endpointsByteOffset + endpointsByteLength;
+  const tablesByteOffset = selectorsByteOffset + selectorsByteLength;
+  const extendedByteOffset = tablesByteOffset + tablesByteLength;
+  const endpointsData = new Uint8Array(data.buffer, data.byteOffset + endpointsByteOffset, endpointsByteLength);
+  const selectorsData = new Uint8Array(data.buffer, data.byteOffset + selectorsByteOffset, selectorsByteLength);
+  const tablesData = new Uint8Array(data.buffer, data.byteOffset + tablesByteOffset, tablesByteLength);
+  const extendedData = new Uint8Array(data.buffer, data.byteOffset + extendedByteOffset, extendedByteLength);
+  container.globalData = {
+    endpointCount,
+    selectorCount,
+    imageDescs,
+    endpointsData,
+    selectorsData,
+    tablesData,
+    extendedData
+  };
+  return container;
+}
+
+// ../../node_modules/.pnpm/@gltf-transform+extensions@4.2.1/node_modules/@gltf-transform/extensions/dist/index.modern.js
+var EXT_MESH_GPU_INSTANCING = "EXT_mesh_gpu_instancing";
+var EXT_MESHOPT_COMPRESSION2 = "EXT_meshopt_compression";
+var EXT_TEXTURE_WEBP2 = "EXT_texture_webp";
+var EXT_TEXTURE_AVIF = "EXT_texture_avif";
+var KHR_DRACO_MESH_COMPRESSION2 = "KHR_draco_mesh_compression";
+var KHR_LIGHTS_PUNCTUAL2 = "KHR_lights_punctual";
+var KHR_MATERIALS_ANISOTROPY = "KHR_materials_anisotropy";
+var KHR_MATERIALS_CLEARCOAT = "KHR_materials_clearcoat";
+var KHR_MATERIALS_DIFFUSE_TRANSMISSION = "KHR_materials_diffuse_transmission";
+var KHR_MATERIALS_DISPERSION = "KHR_materials_dispersion";
+var KHR_MATERIALS_EMISSIVE_STRENGTH = "KHR_materials_emissive_strength";
+var KHR_MATERIALS_IOR = "KHR_materials_ior";
+var KHR_MATERIALS_IRIDESCENCE = "KHR_materials_iridescence";
+var KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS = "KHR_materials_pbrSpecularGlossiness";
+var KHR_MATERIALS_SHEEN = "KHR_materials_sheen";
+var KHR_MATERIALS_SPECULAR = "KHR_materials_specular";
+var KHR_MATERIALS_TRANSMISSION = "KHR_materials_transmission";
+var KHR_MATERIALS_UNLIT2 = "KHR_materials_unlit";
+var KHR_MATERIALS_VOLUME = "KHR_materials_volume";
+var KHR_MATERIALS_VARIANTS = "KHR_materials_variants";
+var KHR_MESH_QUANTIZATION = "KHR_mesh_quantization";
+var KHR_TEXTURE_BASISU2 = "KHR_texture_basisu";
+var KHR_TEXTURE_TRANSFORM2 = "KHR_texture_transform";
+var KHR_XMP_JSON_LD = "KHR_xmp_json_ld";
+var INSTANCE_ATTRIBUTE = "INSTANCE_ATTRIBUTE";
+var InstancedMesh = class extends ExtensionProperty {
+  init() {
+    this.extensionName = EXT_MESH_GPU_INSTANCING;
+    this.propertyType = "InstancedMesh";
+    this.parentTypes = [PropertyType.NODE];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      attributes: new RefMap()
+    });
+  }
+  /** Returns an instance attribute as an {@link Accessor}. */
+  getAttribute(semantic) {
+    return this.getRefMap("attributes", semantic);
+  }
+  /**
+   * Sets an instance attribute to an {@link Accessor}. All attributes must have the same
+   * instance count.
+   */
+  setAttribute(semantic, accessor) {
+    return this.setRefMap("attributes", semantic, accessor, {
+      usage: INSTANCE_ATTRIBUTE
+    });
+  }
+  /**
+   * Lists all instance attributes {@link Accessor}s associated with the InstancedMesh. Order
+   * will be consistent with the order returned by {@link .listSemantics}().
+   */
+  listAttributes() {
+    return this.listRefMapValues("attributes");
+  }
+  /**
+   * Lists all instance attribute semantics associated with the primitive. Order will be
+   * consistent with the order returned by {@link .listAttributes}().
+   */
+  listSemantics() {
+    return this.listRefMapKeys("attributes");
+  }
+};
+InstancedMesh.EXTENSION_NAME = EXT_MESH_GPU_INSTANCING;
+var EXTMeshGPUInstancing = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = EXT_MESH_GPU_INSTANCING;
+    this.provideTypes = [PropertyType.NODE];
+    this.prewriteTypes = [PropertyType.ACCESSOR];
+  }
+  /** Creates a new InstancedMesh property for use on a {@link Node}. */
+  createInstancedMesh() {
+    return new InstancedMesh(this.document.getGraph());
+  }
+  /** @hidden */
+  read(context) {
+    const jsonDoc = context.jsonDoc;
+    const nodeDefs = jsonDoc.json.nodes || [];
+    nodeDefs.forEach((nodeDef, nodeIndex) => {
+      if (!nodeDef.extensions || !nodeDef.extensions[EXT_MESH_GPU_INSTANCING])
+        return;
+      const instancedMeshDef = nodeDef.extensions[EXT_MESH_GPU_INSTANCING];
+      const instancedMesh = this.createInstancedMesh();
+      for (const semantic in instancedMeshDef.attributes) {
+        instancedMesh.setAttribute(semantic, context.accessors[instancedMeshDef.attributes[semantic]]);
+      }
+      context.nodes[nodeIndex].setExtension(EXT_MESH_GPU_INSTANCING, instancedMesh);
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    context.accessorUsageGroupedByParent.add(INSTANCE_ATTRIBUTE);
+    for (const prop2 of this.properties) {
+      for (const attribute of prop2.listAttributes()) {
+        context.addAccessorToUsageGroup(attribute, INSTANCE_ATTRIBUTE);
+      }
+    }
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listNodes().forEach((node) => {
+      const instancedMesh = node.getExtension(EXT_MESH_GPU_INSTANCING);
+      if (instancedMesh) {
+        const nodeIndex = context.nodeIndexMap.get(node);
+        const nodeDef = jsonDoc.json.nodes[nodeIndex];
+        const instancedMeshDef = {
+          attributes: {}
+        };
+        instancedMesh.listSemantics().forEach((semantic) => {
+          const attribute = instancedMesh.getAttribute(semantic);
+          instancedMeshDef.attributes[semantic] = context.accessorIndexMap.get(attribute);
+        });
+        nodeDef.extensions = nodeDef.extensions || {};
+        nodeDef.extensions[EXT_MESH_GPU_INSTANCING] = instancedMeshDef;
+      }
+    });
+    return this;
+  }
+};
+EXTMeshGPUInstancing.EXTENSION_NAME = EXT_MESH_GPU_INSTANCING;
+function _extends3() {
+  return _extends3 = Object.assign ? Object.assign.bind() : function(n2) {
+    for (var e2 = 1; e2 < arguments.length; e2++) {
+      var t2 = arguments[e2];
+      for (var r2 in t2)
+        ({}).hasOwnProperty.call(t2, r2) && (n2[r2] = t2[r2]);
+    }
+    return n2;
+  }, _extends3.apply(null, arguments);
+}
+var EncoderMethod$1;
+(function(EncoderMethod2) {
+  EncoderMethod2["QUANTIZE"] = "quantize";
+  EncoderMethod2["FILTER"] = "filter";
+})(EncoderMethod$1 || (EncoderMethod$1 = {}));
+var MeshoptMode;
+(function(MeshoptMode2) {
+  MeshoptMode2["ATTRIBUTES"] = "ATTRIBUTES";
+  MeshoptMode2["TRIANGLES"] = "TRIANGLES";
+  MeshoptMode2["INDICES"] = "INDICES";
+})(MeshoptMode || (MeshoptMode = {}));
+var MeshoptFilter;
+(function(MeshoptFilter2) {
+  MeshoptFilter2["NONE"] = "NONE";
+  MeshoptFilter2["OCTAHEDRAL"] = "OCTAHEDRAL";
+  MeshoptFilter2["QUATERNION"] = "QUATERNION";
+  MeshoptFilter2["EXPONENTIAL"] = "EXPONENTIAL";
+})(MeshoptFilter || (MeshoptFilter = {}));
+function isFallbackBuffer(bufferDef) {
+  if (!bufferDef.extensions || !bufferDef.extensions[EXT_MESHOPT_COMPRESSION2])
+    return false;
+  const fallbackDef = bufferDef.extensions[EXT_MESHOPT_COMPRESSION2];
+  return !!fallbackDef.fallback;
+}
+var {
+  BYTE,
+  SHORT,
+  FLOAT
+} = Accessor.ComponentType;
+var {
+  encodeNormalizedInt,
+  decodeNormalizedInt
+} = MathUtils;
+function prepareAccessor(accessor, encoder, mode, filterOptions) {
+  const {
+    filter,
+    bits
+  } = filterOptions;
+  const result = {
+    array: accessor.getArray(),
+    byteStride: accessor.getElementSize() * accessor.getComponentSize(),
+    componentType: accessor.getComponentType(),
+    normalized: accessor.getNormalized()
+  };
+  if (mode !== MeshoptMode.ATTRIBUTES)
+    return result;
+  if (filter !== MeshoptFilter.NONE) {
+    let array = accessor.getNormalized() ? decodeNormalizedIntArray(accessor) : new Float32Array(result.array);
+    switch (filter) {
+      case MeshoptFilter.EXPONENTIAL:
+        result.byteStride = accessor.getElementSize() * 4;
+        result.componentType = FLOAT;
+        result.normalized = false;
+        result.array = encoder.encodeFilterExp(array, accessor.getCount(), result.byteStride, bits);
+        break;
+      case MeshoptFilter.OCTAHEDRAL:
+        result.byteStride = bits > 8 ? 8 : 4;
+        result.componentType = bits > 8 ? SHORT : BYTE;
+        result.normalized = true;
+        array = accessor.getElementSize() === 3 ? padNormals(array) : array;
+        result.array = encoder.encodeFilterOct(array, accessor.getCount(), result.byteStride, bits);
+        break;
+      case MeshoptFilter.QUATERNION:
+        result.byteStride = 8;
+        result.componentType = SHORT;
+        result.normalized = true;
+        result.array = encoder.encodeFilterQuat(array, accessor.getCount(), result.byteStride, bits);
+        break;
+      default:
+        throw new Error("Invalid filter.");
+    }
+    result.min = accessor.getMin([]);
+    result.max = accessor.getMax([]);
+    if (accessor.getNormalized()) {
+      result.min = result.min.map((v2) => decodeNormalizedInt(v2, accessor.getComponentType()));
+      result.max = result.max.map((v2) => decodeNormalizedInt(v2, accessor.getComponentType()));
+    }
+    if (result.normalized) {
+      result.min = result.min.map((v2) => encodeNormalizedInt(v2, result.componentType));
+      result.max = result.max.map((v2) => encodeNormalizedInt(v2, result.componentType));
+    }
+  } else if (result.byteStride % 4) {
+    result.array = padArrayElements(result.array, accessor.getElementSize());
+    result.byteStride = result.array.byteLength / accessor.getCount();
+  }
+  return result;
+}
+function decodeNormalizedIntArray(attribute) {
+  const componentType = attribute.getComponentType();
+  const srcArray = attribute.getArray();
+  const dstArray = new Float32Array(srcArray.length);
+  for (let i2 = 0; i2 < srcArray.length; i2++) {
+    dstArray[i2] = decodeNormalizedInt(srcArray[i2], componentType);
+  }
+  return dstArray;
+}
+function padArrayElements(srcArray, elementSize) {
+  const byteStride = BufferUtils.padNumber(srcArray.BYTES_PER_ELEMENT * elementSize);
+  const elementStride = byteStride / srcArray.BYTES_PER_ELEMENT;
+  const elementCount = srcArray.length / elementSize;
+  const dstArray = new srcArray.constructor(elementCount * elementStride);
+  for (let i2 = 0; i2 * elementSize < srcArray.length; i2++) {
+    for (let j2 = 0; j2 < elementSize; j2++) {
+      dstArray[i2 * elementStride + j2] = srcArray[i2 * elementSize + j2];
+    }
+  }
+  return dstArray;
+}
+function padNormals(srcArray) {
+  const dstArray = new Float32Array(srcArray.length * 4 / 3);
+  for (let i2 = 0, il = srcArray.length / 3; i2 < il; i2++) {
+    dstArray[i2 * 4] = srcArray[i2 * 3];
+    dstArray[i2 * 4 + 1] = srcArray[i2 * 3 + 1];
+    dstArray[i2 * 4 + 2] = srcArray[i2 * 3 + 2];
+  }
+  return dstArray;
+}
+function getMeshoptMode(accessor, usage) {
+  if (usage === WriterContext.BufferViewUsage.ELEMENT_ARRAY_BUFFER) {
+    const isTriangles = accessor.listParents().some((parent) => {
+      return parent instanceof Primitive && parent.getMode() === Primitive.Mode.TRIANGLES;
+    });
+    return isTriangles ? MeshoptMode.TRIANGLES : MeshoptMode.INDICES;
+  }
+  return MeshoptMode.ATTRIBUTES;
+}
+function getMeshoptFilter(accessor, doc) {
+  const refs = doc.getGraph().listParentEdges(accessor).filter((edge) => !(edge.getParent() instanceof Root));
+  for (const ref of refs) {
+    const refName = ref.getName();
+    const refKey = ref.getAttributes().key || "";
+    const isDelta = ref.getParent().propertyType === PropertyType.PRIMITIVE_TARGET;
+    if (refName === "indices")
+      return {
+        filter: MeshoptFilter.NONE
+      };
+    if (refName === "attributes") {
+      if (refKey === "POSITION")
+        return {
+          filter: MeshoptFilter.NONE
+        };
+      if (refKey === "TEXCOORD_0")
+        return {
+          filter: MeshoptFilter.NONE
+        };
+      if (refKey.startsWith("JOINTS_"))
+        return {
+          filter: MeshoptFilter.NONE
+        };
+      if (refKey.startsWith("WEIGHTS_"))
+        return {
+          filter: MeshoptFilter.NONE
+        };
+      if (refKey === "NORMAL" || refKey === "TANGENT") {
+        return isDelta ? {
+          filter: MeshoptFilter.NONE
+        } : {
+          filter: MeshoptFilter.OCTAHEDRAL,
+          bits: 8
+        };
+      }
+    }
+    if (refName === "output") {
+      const targetPath = getTargetPath(accessor);
+      if (targetPath === "rotation")
+        return {
+          filter: MeshoptFilter.QUATERNION,
+          bits: 16
+        };
+      if (targetPath === "translation")
+        return {
+          filter: MeshoptFilter.EXPONENTIAL,
+          bits: 12
+        };
+      if (targetPath === "scale")
+        return {
+          filter: MeshoptFilter.EXPONENTIAL,
+          bits: 12
+        };
+      return {
+        filter: MeshoptFilter.NONE
+      };
+    }
+    if (refName === "input")
+      return {
+        filter: MeshoptFilter.NONE
+      };
+    if (refName === "inverseBindMatrices")
+      return {
+        filter: MeshoptFilter.NONE
+      };
+  }
+  return {
+    filter: MeshoptFilter.NONE
+  };
+}
+function getTargetPath(accessor) {
+  for (const sampler of accessor.listParents()) {
+    if (!(sampler instanceof AnimationSampler))
+      continue;
+    for (const channel of sampler.listParents()) {
+      if (!(channel instanceof AnimationChannel))
+        continue;
+      return channel.getTargetPath();
+    }
+  }
+  return null;
+}
+var DEFAULT_ENCODER_OPTIONS$1 = {
+  method: EncoderMethod$1.QUANTIZE
+};
+var EXTMeshoptCompression = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = EXT_MESHOPT_COMPRESSION2;
+    this.prereadTypes = [PropertyType.BUFFER, PropertyType.PRIMITIVE];
+    this.prewriteTypes = [PropertyType.BUFFER, PropertyType.ACCESSOR];
+    this.readDependencies = ["meshopt.decoder"];
+    this.writeDependencies = ["meshopt.encoder"];
+    this._decoder = null;
+    this._decoderFallbackBufferMap = /* @__PURE__ */ new Map();
+    this._encoder = null;
+    this._encoderOptions = DEFAULT_ENCODER_OPTIONS$1;
+    this._encoderFallbackBuffer = null;
+    this._encoderBufferViews = {};
+    this._encoderBufferViewData = {};
+    this._encoderBufferViewAccessors = {};
+  }
+  /** @hidden */
+  install(key, dependency) {
+    if (key === "meshopt.decoder") {
+      this._decoder = dependency;
+    }
+    if (key === "meshopt.encoder") {
+      this._encoder = dependency;
+    }
+    return this;
+  }
+  /**
+   * Configures Meshopt options for quality/compression tuning. The two methods rely on different
+   * pre-processing before compression, and should be compared on the basis of (a) quality/loss
+   * and (b) final asset size after _also_ applying a lossless compression such as gzip or brotli.
+   *
+   * - QUANTIZE: Default. Pre-process with {@link quantize quantize()} (lossy to specified
+   * 	precision) before applying lossless Meshopt compression. Offers a considerable compression
+   * 	ratio with or without further supercompression. Equivalent to `gltfpack -c`.
+   * - FILTER: Pre-process with lossy filters to improve compression, before applying lossless
+   *	Meshopt compression. While output may initially be larger than with the QUANTIZE method,
+   *	this method will benefit more from supercompression (e.g. gzip or brotli). Equivalent to
+   * 	`gltfpack -cc`.
+   *
+   * Output with the FILTER method will generally be smaller after supercompression (e.g. gzip or
+   * brotli) is applied, but may be larger than QUANTIZE output without it. Decoding is very fast
+   * with both methods.
+   *
+   * Example:
+   *
+   * ```ts
+   * import { EXTMeshoptCompression } from '@gltf-transform/extensions';
+   *
+   * doc.createExtension(EXTMeshoptCompression)
+   * 	.setRequired(true)
+   * 	.setEncoderOptions({
+   * 		method: EXTMeshoptCompression.EncoderMethod.QUANTIZE
+   * 	});
+   * ```
+   */
+  setEncoderOptions(options) {
+    this._encoderOptions = _extends3({}, DEFAULT_ENCODER_OPTIONS$1, options);
+    return this;
+  }
+  /**********************************************************************************************
+   * Decoding.
+   */
+  /** @internal Checks preconditions, decodes buffer views, and creates decoded primitives. */
+  preread(context, propertyType) {
+    if (!this._decoder) {
+      if (!this.isRequired())
+        return this;
+      throw new Error(`[${EXT_MESHOPT_COMPRESSION2}] Please install extension dependency, "meshopt.decoder".`);
+    }
+    if (!this._decoder.supported) {
+      if (!this.isRequired())
+        return this;
+      throw new Error(`[${EXT_MESHOPT_COMPRESSION2}]: Missing WASM support.`);
+    }
+    if (propertyType === PropertyType.BUFFER) {
+      this._prereadBuffers(context);
+    } else if (propertyType === PropertyType.PRIMITIVE) {
+      this._prereadPrimitives(context);
+    }
+    return this;
+  }
+  /** @internal Decode buffer views. */
+  _prereadBuffers(context) {
+    const jsonDoc = context.jsonDoc;
+    const viewDefs = jsonDoc.json.bufferViews || [];
+    viewDefs.forEach((viewDef, index2) => {
+      if (!viewDef.extensions || !viewDef.extensions[EXT_MESHOPT_COMPRESSION2])
+        return;
+      const meshoptDef = viewDef.extensions[EXT_MESHOPT_COMPRESSION2];
+      const byteOffset = meshoptDef.byteOffset || 0;
+      const byteLength = meshoptDef.byteLength || 0;
+      const count = meshoptDef.count;
+      const stride = meshoptDef.byteStride;
+      const result = new Uint8Array(count * stride);
+      const bufferDef = jsonDoc.json.buffers[meshoptDef.buffer];
+      const resource = bufferDef.uri ? jsonDoc.resources[bufferDef.uri] : jsonDoc.resources[GLB_BUFFER];
+      const source = BufferUtils.toView(resource, byteOffset, byteLength);
+      this._decoder.decodeGltfBuffer(result, count, stride, source, meshoptDef.mode, meshoptDef.filter);
+      context.bufferViews[index2] = result;
+    });
+  }
+  /**
+   * Mark fallback buffers and replacements.
+   *
+   * Note: Alignment with primitives is arbitrary; this just needs to happen
+   * after Buffers have been parsed.
+   * @internal
+   */
+  _prereadPrimitives(context) {
+    const jsonDoc = context.jsonDoc;
+    const viewDefs = jsonDoc.json.bufferViews || [];
+    viewDefs.forEach((viewDef) => {
+      if (!viewDef.extensions || !viewDef.extensions[EXT_MESHOPT_COMPRESSION2])
+        return;
+      const meshoptDef = viewDef.extensions[EXT_MESHOPT_COMPRESSION2];
+      const buffer = context.buffers[meshoptDef.buffer];
+      const fallbackBuffer = context.buffers[viewDef.buffer];
+      const fallbackBufferDef = jsonDoc.json.buffers[viewDef.buffer];
+      if (isFallbackBuffer(fallbackBufferDef)) {
+        this._decoderFallbackBufferMap.set(fallbackBuffer, buffer);
+      }
+    });
+  }
+  /** @hidden Removes Fallback buffers, if extension is required. */
+  read(_context) {
+    if (!this.isRequired())
+      return this;
+    for (const [fallbackBuffer, buffer] of this._decoderFallbackBufferMap) {
+      for (const parent of fallbackBuffer.listParents()) {
+        if (parent instanceof Accessor) {
+          parent.swap(fallbackBuffer, buffer);
+        }
+      }
+      fallbackBuffer.dispose();
+    }
+    return this;
+  }
+  /**********************************************************************************************
+   * Encoding.
+   */
+  /** @internal Claims accessors that can be compressed and writes compressed buffer views. */
+  prewrite(context, propertyType) {
+    if (propertyType === PropertyType.ACCESSOR) {
+      this._prewriteAccessors(context);
+    } else if (propertyType === PropertyType.BUFFER) {
+      this._prewriteBuffers(context);
+    }
+    return this;
+  }
+  /** @internal Claims accessors that can be compressed. */
+  _prewriteAccessors(context) {
+    const json = context.jsonDoc.json;
+    const encoder = this._encoder;
+    const options = this._encoderOptions;
+    const graph = this.document.getGraph();
+    const fallbackBuffer = this.document.createBuffer();
+    const fallbackBufferIndex = this.document.getRoot().listBuffers().indexOf(fallbackBuffer);
+    let nextID = 1;
+    const parentToID = /* @__PURE__ */ new Map();
+    const getParentID = (property) => {
+      for (const parent of graph.listParents(property)) {
+        if (parent.propertyType === PropertyType.ROOT)
+          continue;
+        let id = parentToID.get(property);
+        if (id === void 0)
+          parentToID.set(property, id = nextID++);
+        return id;
+      }
+      return -1;
+    };
+    this._encoderFallbackBuffer = fallbackBuffer;
+    this._encoderBufferViews = {};
+    this._encoderBufferViewData = {};
+    this._encoderBufferViewAccessors = {};
+    for (const accessor of this.document.getRoot().listAccessors()) {
+      if (getTargetPath(accessor) === "weights")
+        continue;
+      if (accessor.getSparse())
+        continue;
+      const usage = context.getAccessorUsage(accessor);
+      const parentID = context.accessorUsageGroupedByParent.has(usage) ? getParentID(accessor) : null;
+      const mode = getMeshoptMode(accessor, usage);
+      const filter = options.method === EncoderMethod$1.FILTER ? getMeshoptFilter(accessor, this.document) : {
+        filter: MeshoptFilter.NONE
+      };
+      const preparedAccessor = prepareAccessor(accessor, encoder, mode, filter);
+      const {
+        array,
+        byteStride
+      } = preparedAccessor;
+      const buffer = accessor.getBuffer();
+      if (!buffer)
+        throw new Error(`${EXT_MESHOPT_COMPRESSION2}: Missing buffer for accessor.`);
+      const bufferIndex = this.document.getRoot().listBuffers().indexOf(buffer);
+      const key = [usage, parentID, mode, filter.filter, byteStride, bufferIndex].join(":");
+      let bufferView = this._encoderBufferViews[key];
+      let bufferViewData = this._encoderBufferViewData[key];
+      let bufferViewAccessors = this._encoderBufferViewAccessors[key];
+      if (!bufferView || !bufferViewData) {
+        bufferViewAccessors = this._encoderBufferViewAccessors[key] = [];
+        bufferViewData = this._encoderBufferViewData[key] = [];
+        bufferView = this._encoderBufferViews[key] = {
+          buffer: fallbackBufferIndex,
+          target: WriterContext.USAGE_TO_TARGET[usage],
+          byteOffset: 0,
+          byteLength: 0,
+          byteStride: usage === WriterContext.BufferViewUsage.ARRAY_BUFFER ? byteStride : void 0,
+          extensions: {
+            [EXT_MESHOPT_COMPRESSION2]: {
+              buffer: bufferIndex,
+              byteOffset: 0,
+              byteLength: 0,
+              mode,
+              filter: filter.filter !== MeshoptFilter.NONE ? filter.filter : void 0,
+              byteStride,
+              count: 0
+            }
+          }
+        };
+      }
+      const accessorDef = context.createAccessorDef(accessor);
+      accessorDef.componentType = preparedAccessor.componentType;
+      accessorDef.normalized = preparedAccessor.normalized;
+      accessorDef.byteOffset = bufferView.byteLength;
+      if (accessorDef.min && preparedAccessor.min)
+        accessorDef.min = preparedAccessor.min;
+      if (accessorDef.max && preparedAccessor.max)
+        accessorDef.max = preparedAccessor.max;
+      context.accessorIndexMap.set(accessor, json.accessors.length);
+      json.accessors.push(accessorDef);
+      bufferViewAccessors.push(accessorDef);
+      bufferViewData.push(new Uint8Array(array.buffer, array.byteOffset, array.byteLength));
+      bufferView.byteLength += array.byteLength;
+      bufferView.extensions.EXT_meshopt_compression.count += accessor.getCount();
+    }
+  }
+  /** @internal Writes compressed buffer views. */
+  _prewriteBuffers(context) {
+    const encoder = this._encoder;
+    for (const key in this._encoderBufferViews) {
+      const bufferView = this._encoderBufferViews[key];
+      const bufferViewData = this._encoderBufferViewData[key];
+      const buffer = this.document.getRoot().listBuffers()[bufferView.extensions[EXT_MESHOPT_COMPRESSION2].buffer];
+      const otherBufferViews = context.otherBufferViews.get(buffer) || [];
+      const {
+        count,
+        byteStride,
+        mode
+      } = bufferView.extensions[EXT_MESHOPT_COMPRESSION2];
+      const srcArray = BufferUtils.concat(bufferViewData);
+      const dstArray = encoder.encodeGltfBuffer(srcArray, count, byteStride, mode);
+      const compressedData = BufferUtils.pad(dstArray);
+      bufferView.extensions[EXT_MESHOPT_COMPRESSION2].byteLength = dstArray.byteLength;
+      bufferViewData.length = 0;
+      bufferViewData.push(compressedData);
+      otherBufferViews.push(compressedData);
+      context.otherBufferViews.set(buffer, otherBufferViews);
+    }
+  }
+  /** @hidden Puts encoded data into glTF output. */
+  write(context) {
+    let fallbackBufferByteOffset = 0;
+    for (const key in this._encoderBufferViews) {
+      const bufferView = this._encoderBufferViews[key];
+      const bufferViewData = this._encoderBufferViewData[key][0];
+      const bufferViewIndex = context.otherBufferViewsIndexMap.get(bufferViewData);
+      const bufferViewAccessors = this._encoderBufferViewAccessors[key];
+      for (const accessorDef of bufferViewAccessors) {
+        accessorDef.bufferView = bufferViewIndex;
+      }
+      const finalBufferViewDef = context.jsonDoc.json.bufferViews[bufferViewIndex];
+      const compressedByteOffset = finalBufferViewDef.byteOffset || 0;
+      Object.assign(finalBufferViewDef, bufferView);
+      finalBufferViewDef.byteOffset = fallbackBufferByteOffset;
+      const bufferViewExtensionDef = finalBufferViewDef.extensions[EXT_MESHOPT_COMPRESSION2];
+      bufferViewExtensionDef.byteOffset = compressedByteOffset;
+      fallbackBufferByteOffset += BufferUtils.padNumber(bufferView.byteLength);
+    }
+    const fallbackBuffer = this._encoderFallbackBuffer;
+    const fallbackBufferIndex = context.bufferIndexMap.get(fallbackBuffer);
+    const fallbackBufferDef = context.jsonDoc.json.buffers[fallbackBufferIndex];
+    fallbackBufferDef.byteLength = fallbackBufferByteOffset;
+    fallbackBufferDef.extensions = {
+      [EXT_MESHOPT_COMPRESSION2]: {
+        fallback: true
+      }
+    };
+    fallbackBuffer.dispose();
+    return this;
+  }
+};
+EXTMeshoptCompression.EXTENSION_NAME = EXT_MESHOPT_COMPRESSION2;
+EXTMeshoptCompression.EncoderMethod = EncoderMethod$1;
+var AVIFImageUtils = class {
+  match(array) {
+    return array.length >= 12 && BufferUtils.decodeText(array.slice(4, 12)) === "ftypavif";
+  }
+  /**
+   * Probes size of AVIF or HEIC image. Assumes a single static image, without
+   * orientation or other metadata that would affect dimensions.
+   */
+  getSize(array) {
+    if (!this.match(array))
+      return null;
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    let box = unbox(view, 0);
+    if (!box)
+      return null;
+    let offset = box.end;
+    while (box = unbox(view, offset)) {
+      if (box.type === "meta") {
+        offset = box.start + 4;
+      } else if (box.type === "iprp" || box.type === "ipco") {
+        offset = box.start;
+      } else if (box.type === "ispe") {
+        return [view.getUint32(box.start + 4), view.getUint32(box.start + 8)];
+      } else if (box.type === "mdat") {
+        break;
+      } else {
+        offset = box.end;
+      }
+    }
+    return null;
+  }
+  getChannels(_buffer) {
+    return 4;
+  }
+};
+var EXTTextureAVIF = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = EXT_TEXTURE_AVIF;
+    this.prereadTypes = [PropertyType.TEXTURE];
+  }
+  /** @hidden */
+  static register() {
+    ImageUtils.registerFormat("image/avif", new AVIFImageUtils());
+  }
+  /** @hidden */
+  preread(context) {
+    const textureDefs = context.jsonDoc.json.textures || [];
+    textureDefs.forEach((textureDef) => {
+      if (textureDef.extensions && textureDef.extensions[EXT_TEXTURE_AVIF]) {
+        textureDef.source = textureDef.extensions[EXT_TEXTURE_AVIF].source;
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listTextures().forEach((texture) => {
+      if (texture.getMimeType() === "image/avif") {
+        const imageIndex = context.imageIndexMap.get(texture);
+        const textureDefs = jsonDoc.json.textures || [];
+        textureDefs.forEach((textureDef) => {
+          if (textureDef.source === imageIndex) {
+            textureDef.extensions = textureDef.extensions || {};
+            textureDef.extensions[EXT_TEXTURE_AVIF] = {
+              source: textureDef.source
+            };
+            delete textureDef.source;
+          }
+        });
+      }
+    });
+    return this;
+  }
+};
+EXTTextureAVIF.EXTENSION_NAME = EXT_TEXTURE_AVIF;
+function unbox(data, offset) {
+  if (data.byteLength < 4 + offset)
+    return null;
+  const size = data.getUint32(offset);
+  if (data.byteLength < size + offset || size < 8)
+    return null;
+  return {
+    type: BufferUtils.decodeText(new Uint8Array(data.buffer, data.byteOffset + offset + 4, 4)),
+    start: offset + 8,
+    end: offset + size
+  };
+}
+var WEBPImageUtils = class {
+  match(array) {
+    return array.length >= 12 && array[8] === 87 && array[9] === 69 && array[10] === 66 && array[11] === 80;
+  }
+  getSize(array) {
+    const RIFF = BufferUtils.decodeText(array.slice(0, 4));
+    const WEBP = BufferUtils.decodeText(array.slice(8, 12));
+    if (RIFF !== "RIFF" || WEBP !== "WEBP")
+      return null;
+    const view = new DataView(array.buffer, array.byteOffset);
+    let offset = 12;
+    while (offset < view.byteLength) {
+      const chunkId = BufferUtils.decodeText(new Uint8Array([view.getUint8(offset), view.getUint8(offset + 1), view.getUint8(offset + 2), view.getUint8(offset + 3)]));
+      const chunkByteLength = view.getUint32(offset + 4, true);
+      if (chunkId === "VP8 ") {
+        const width = view.getInt16(offset + 14, true) & 16383;
+        const height = view.getInt16(offset + 16, true) & 16383;
+        return [width, height];
+      } else if (chunkId === "VP8L") {
+        const b0 = view.getUint8(offset + 9);
+        const b1 = view.getUint8(offset + 10);
+        const b22 = view.getUint8(offset + 11);
+        const b32 = view.getUint8(offset + 12);
+        const width = 1 + ((b1 & 63) << 8 | b0);
+        const height = 1 + ((b32 & 15) << 10 | b22 << 2 | (b1 & 192) >> 6);
+        return [width, height];
+      }
+      offset += 8 + chunkByteLength + chunkByteLength % 2;
+    }
+    return null;
+  }
+  getChannels(_buffer) {
+    return 4;
+  }
+};
+var EXTTextureWebP = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = EXT_TEXTURE_WEBP2;
+    this.prereadTypes = [PropertyType.TEXTURE];
+  }
+  /** @hidden */
+  static register() {
+    ImageUtils.registerFormat("image/webp", new WEBPImageUtils());
+  }
+  /** @hidden */
+  preread(context) {
+    const textureDefs = context.jsonDoc.json.textures || [];
+    textureDefs.forEach((textureDef) => {
+      if (textureDef.extensions && textureDef.extensions[EXT_TEXTURE_WEBP2]) {
+        textureDef.source = textureDef.extensions[EXT_TEXTURE_WEBP2].source;
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listTextures().forEach((texture) => {
+      if (texture.getMimeType() === "image/webp") {
+        const imageIndex = context.imageIndexMap.get(texture);
+        const textureDefs = jsonDoc.json.textures || [];
+        textureDefs.forEach((textureDef) => {
+          if (textureDef.source === imageIndex) {
+            textureDef.extensions = textureDef.extensions || {};
+            textureDef.extensions[EXT_TEXTURE_WEBP2] = {
+              source: textureDef.source
+            };
+            delete textureDef.source;
+          }
+        });
+      }
+    });
+    return this;
+  }
+};
+EXTTextureWebP.EXTENSION_NAME = EXT_TEXTURE_WEBP2;
+var decoderModule;
+var COMPONENT_ARRAY;
+var DATA_TYPE;
+function decodeGeometry(decoder, data) {
+  const buffer = new decoderModule.DecoderBuffer();
+  try {
+    buffer.Init(data, data.length);
+    const geometryType = decoder.GetEncodedGeometryType(buffer);
+    if (geometryType !== decoderModule.TRIANGULAR_MESH) {
+      throw new Error(`[${KHR_DRACO_MESH_COMPRESSION2}] Unknown geometry type.`);
+    }
+    const dracoMesh = new decoderModule.Mesh();
+    const status = decoder.DecodeBufferToMesh(buffer, dracoMesh);
+    if (!status.ok() || dracoMesh.ptr === 0) {
+      throw new Error(`[${KHR_DRACO_MESH_COMPRESSION2}] Decoding failure.`);
+    }
+    return dracoMesh;
+  } finally {
+    decoderModule.destroy(buffer);
+  }
+}
+function decodeIndex(decoder, mesh) {
+  const numFaces2 = mesh.num_faces();
+  const numIndices = numFaces2 * 3;
+  let ptr;
+  let indices;
+  if (mesh.num_points() <= 65534) {
+    const byteLength = numIndices * Uint16Array.BYTES_PER_ELEMENT;
+    ptr = decoderModule._malloc(byteLength);
+    decoder.GetTrianglesUInt16Array(mesh, byteLength, ptr);
+    indices = new Uint16Array(decoderModule.HEAPU16.buffer, ptr, numIndices).slice();
+  } else {
+    const byteLength = numIndices * Uint32Array.BYTES_PER_ELEMENT;
+    ptr = decoderModule._malloc(byteLength);
+    decoder.GetTrianglesUInt32Array(mesh, byteLength, ptr);
+    indices = new Uint32Array(decoderModule.HEAPU32.buffer, ptr, numIndices).slice();
+  }
+  decoderModule._free(ptr);
+  return indices;
+}
+function decodeAttribute(decoder, mesh, attribute, accessorDef) {
+  const dataType = DATA_TYPE[accessorDef.componentType];
+  const ArrayCtor = COMPONENT_ARRAY[accessorDef.componentType];
+  const numComponents = attribute.num_components();
+  const numPoints = mesh.num_points();
+  const numValues = numPoints * numComponents;
+  const byteLength = numValues * ArrayCtor.BYTES_PER_ELEMENT;
+  const ptr = decoderModule._malloc(byteLength);
+  decoder.GetAttributeDataArrayForAllPoints(mesh, attribute, dataType, byteLength, ptr);
+  const array = new ArrayCtor(decoderModule.HEAPF32.buffer, ptr, numValues).slice();
+  decoderModule._free(ptr);
+  return array;
+}
+function initDecoderModule(_decoderModule) {
+  decoderModule = _decoderModule;
+  COMPONENT_ARRAY = {
+    [Accessor.ComponentType.FLOAT]: Float32Array,
+    [Accessor.ComponentType.UNSIGNED_INT]: Uint32Array,
+    [Accessor.ComponentType.UNSIGNED_SHORT]: Uint16Array,
+    [Accessor.ComponentType.UNSIGNED_BYTE]: Uint8Array,
+    [Accessor.ComponentType.SHORT]: Int16Array,
+    [Accessor.ComponentType.BYTE]: Int8Array
+  };
+  DATA_TYPE = {
+    [Accessor.ComponentType.FLOAT]: decoderModule.DT_FLOAT32,
+    [Accessor.ComponentType.UNSIGNED_INT]: decoderModule.DT_UINT32,
+    [Accessor.ComponentType.UNSIGNED_SHORT]: decoderModule.DT_UINT16,
+    [Accessor.ComponentType.UNSIGNED_BYTE]: decoderModule.DT_UINT8,
+    [Accessor.ComponentType.SHORT]: decoderModule.DT_INT16,
+    [Accessor.ComponentType.BYTE]: decoderModule.DT_INT8
+  };
+}
+var encoderModule;
+var EncoderMethod;
+(function(EncoderMethod2) {
+  EncoderMethod2[EncoderMethod2["EDGEBREAKER"] = 1] = "EDGEBREAKER";
+  EncoderMethod2[EncoderMethod2["SEQUENTIAL"] = 0] = "SEQUENTIAL";
+})(EncoderMethod || (EncoderMethod = {}));
+var AttributeEnum;
+(function(AttributeEnum2) {
+  AttributeEnum2["POSITION"] = "POSITION";
+  AttributeEnum2["NORMAL"] = "NORMAL";
+  AttributeEnum2["COLOR"] = "COLOR";
+  AttributeEnum2["TEX_COORD"] = "TEX_COORD";
+  AttributeEnum2["GENERIC"] = "GENERIC";
+})(AttributeEnum || (AttributeEnum = {}));
+var DEFAULT_QUANTIZATION_BITS = {
+  [AttributeEnum.POSITION]: 14,
+  [AttributeEnum.NORMAL]: 10,
+  [AttributeEnum.COLOR]: 8,
+  [AttributeEnum.TEX_COORD]: 12,
+  [AttributeEnum.GENERIC]: 12
+};
+var DEFAULT_ENCODER_OPTIONS = {
+  decodeSpeed: 5,
+  encodeSpeed: 5,
+  method: EncoderMethod.EDGEBREAKER,
+  quantizationBits: DEFAULT_QUANTIZATION_BITS,
+  quantizationVolume: "mesh"
+};
+function initEncoderModule(_encoderModule) {
+  encoderModule = _encoderModule;
+}
+function encodeGeometry(prim, _options2 = DEFAULT_ENCODER_OPTIONS) {
+  const options = _extends3({}, DEFAULT_ENCODER_OPTIONS, _options2);
+  options.quantizationBits = _extends3({}, DEFAULT_QUANTIZATION_BITS, _options2.quantizationBits);
+  const builder = new encoderModule.MeshBuilder();
+  const mesh = new encoderModule.Mesh();
+  const encoder = new encoderModule.ExpertEncoder(mesh);
+  const attributeIDs = {};
+  const dracoBuffer = new encoderModule.DracoInt8Array();
+  const hasMorphTargets = prim.listTargets().length > 0;
+  let hasSparseAttributes = false;
+  for (const semantic of prim.listSemantics()) {
+    const attribute = prim.getAttribute(semantic);
+    if (attribute.getSparse()) {
+      hasSparseAttributes = true;
+      continue;
+    }
+    const attributeEnum = getAttributeEnum(semantic);
+    const attributeID = addAttribute(builder, attribute.getComponentType(), mesh, encoderModule[attributeEnum], attribute.getCount(), attribute.getElementSize(), attribute.getArray());
+    if (attributeID === -1)
+      throw new Error(`Error compressing "${semantic}" attribute.`);
+    attributeIDs[semantic] = attributeID;
+    if (options.quantizationVolume === "mesh" || semantic !== "POSITION") {
+      encoder.SetAttributeQuantization(attributeID, options.quantizationBits[attributeEnum]);
+    } else if (typeof options.quantizationVolume === "object") {
+      const {
+        quantizationVolume
+      } = options;
+      const range = Math.max(quantizationVolume.max[0] - quantizationVolume.min[0], quantizationVolume.max[1] - quantizationVolume.min[1], quantizationVolume.max[2] - quantizationVolume.min[2]);
+      encoder.SetAttributeExplicitQuantization(attributeID, options.quantizationBits[attributeEnum], attribute.getElementSize(), quantizationVolume.min, range);
+    } else {
+      throw new Error("Invalid quantization volume state.");
+    }
+  }
+  const indices = prim.getIndices();
+  if (!indices)
+    throw new EncodingError("Primitive must have indices.");
+  builder.AddFacesToMesh(mesh, indices.getCount() / 3, indices.getArray());
+  encoder.SetSpeedOptions(options.encodeSpeed, options.decodeSpeed);
+  encoder.SetTrackEncodedProperties(true);
+  if (options.method === EncoderMethod.SEQUENTIAL || hasMorphTargets || hasSparseAttributes) {
+    encoder.SetEncodingMethod(encoderModule.MESH_SEQUENTIAL_ENCODING);
+  } else {
+    encoder.SetEncodingMethod(encoderModule.MESH_EDGEBREAKER_ENCODING);
+  }
+  const byteLength = encoder.EncodeToDracoBuffer(!(hasMorphTargets || hasSparseAttributes), dracoBuffer);
+  if (byteLength <= 0)
+    throw new EncodingError("Error applying Draco compression.");
+  const data = new Uint8Array(byteLength);
+  for (let i2 = 0; i2 < byteLength; ++i2) {
+    data[i2] = dracoBuffer.GetValue(i2);
+  }
+  const numVertices = encoder.GetNumberOfEncodedPoints();
+  const numIndices = encoder.GetNumberOfEncodedFaces() * 3;
+  encoderModule.destroy(dracoBuffer);
+  encoderModule.destroy(mesh);
+  encoderModule.destroy(builder);
+  encoderModule.destroy(encoder);
+  return {
+    numVertices,
+    numIndices,
+    data,
+    attributeIDs
+  };
+}
+function getAttributeEnum(semantic) {
+  if (semantic === "POSITION") {
+    return AttributeEnum.POSITION;
+  } else if (semantic === "NORMAL") {
+    return AttributeEnum.NORMAL;
+  } else if (semantic.startsWith("COLOR_")) {
+    return AttributeEnum.COLOR;
+  } else if (semantic.startsWith("TEXCOORD_")) {
+    return AttributeEnum.TEX_COORD;
+  }
+  return AttributeEnum.GENERIC;
+}
+function addAttribute(builder, componentType, mesh, attribute, count, itemSize, array) {
+  switch (componentType) {
+    case Accessor.ComponentType.UNSIGNED_BYTE:
+      return builder.AddUInt8Attribute(mesh, attribute, count, itemSize, array);
+    case Accessor.ComponentType.BYTE:
+      return builder.AddInt8Attribute(mesh, attribute, count, itemSize, array);
+    case Accessor.ComponentType.UNSIGNED_SHORT:
+      return builder.AddUInt16Attribute(mesh, attribute, count, itemSize, array);
+    case Accessor.ComponentType.SHORT:
+      return builder.AddInt16Attribute(mesh, attribute, count, itemSize, array);
+    case Accessor.ComponentType.UNSIGNED_INT:
+      return builder.AddUInt32Attribute(mesh, attribute, count, itemSize, array);
+    case Accessor.ComponentType.FLOAT:
+      return builder.AddFloatAttribute(mesh, attribute, count, itemSize, array);
+    default:
+      throw new Error(`Unexpected component type, "${componentType}".`);
+  }
+}
+var EncodingError = class extends Error {
+};
+var KHRDracoMeshCompression = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_DRACO_MESH_COMPRESSION2;
+    this.prereadTypes = [PropertyType.PRIMITIVE];
+    this.prewriteTypes = [PropertyType.ACCESSOR];
+    this.readDependencies = ["draco3d.decoder"];
+    this.writeDependencies = ["draco3d.encoder"];
+    this._decoderModule = null;
+    this._encoderModule = null;
+    this._encoderOptions = {};
+  }
+  /** @hidden */
+  install(key, dependency) {
+    if (key === "draco3d.decoder") {
+      this._decoderModule = dependency;
+      initDecoderModule(this._decoderModule);
+    }
+    if (key === "draco3d.encoder") {
+      this._encoderModule = dependency;
+      initEncoderModule(this._encoderModule);
+    }
+    return this;
+  }
+  /**
+   * Sets Draco compression options. Compression does not take effect until the Document is
+   * written with an I/O class.
+   *
+   * Defaults:
+   * ```
+   * decodeSpeed?: number = 5;
+   * encodeSpeed?: number = 5;
+   * method?: EncoderMethod = EncoderMethod.EDGEBREAKER;
+   * quantizationBits?: {[ATTRIBUTE_NAME]: bits};
+   * quantizationVolume?: 'mesh' | 'scene' | bbox = 'mesh';
+   * ```
+   */
+  setEncoderOptions(options) {
+    this._encoderOptions = options;
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    if (!this._decoderModule) {
+      throw new Error(`[${KHR_DRACO_MESH_COMPRESSION2}] Please install extension dependency, "draco3d.decoder".`);
+    }
+    const logger = this.document.getLogger();
+    const jsonDoc = context.jsonDoc;
+    const dracoMeshes = /* @__PURE__ */ new Map();
+    try {
+      const meshDefs = jsonDoc.json.meshes || [];
+      for (const meshDef of meshDefs) {
+        for (const primDef of meshDef.primitives) {
+          if (!primDef.extensions || !primDef.extensions[KHR_DRACO_MESH_COMPRESSION2])
+            continue;
+          const dracoDef = primDef.extensions[KHR_DRACO_MESH_COMPRESSION2];
+          let [decoder, dracoMesh] = dracoMeshes.get(dracoDef.bufferView) || [];
+          if (!dracoMesh || !decoder) {
+            const bufferViewDef = jsonDoc.json.bufferViews[dracoDef.bufferView];
+            const bufferDef = jsonDoc.json.buffers[bufferViewDef.buffer];
+            const resource = bufferDef.uri ? jsonDoc.resources[bufferDef.uri] : jsonDoc.resources[GLB_BUFFER];
+            const byteOffset = bufferViewDef.byteOffset || 0;
+            const byteLength = bufferViewDef.byteLength;
+            const compressedData = BufferUtils.toView(resource, byteOffset, byteLength);
+            decoder = new this._decoderModule.Decoder();
+            dracoMesh = decodeGeometry(decoder, compressedData);
+            dracoMeshes.set(dracoDef.bufferView, [decoder, dracoMesh]);
+            logger.debug(`[${KHR_DRACO_MESH_COMPRESSION2}] Decompressed ${compressedData.byteLength} bytes.`);
+          }
+          for (const semantic in dracoDef.attributes) {
+            const accessorDef = context.jsonDoc.json.accessors[primDef.attributes[semantic]];
+            const dracoAttribute = decoder.GetAttributeByUniqueId(dracoMesh, dracoDef.attributes[semantic]);
+            const attributeArray = decodeAttribute(decoder, dracoMesh, dracoAttribute, accessorDef);
+            context.accessors[primDef.attributes[semantic]].setArray(attributeArray);
+          }
+          if (primDef.indices !== void 0) {
+            context.accessors[primDef.indices].setArray(decodeIndex(decoder, dracoMesh));
+          }
+        }
+      }
+    } finally {
+      for (const [decoder, dracoMesh] of Array.from(dracoMeshes.values())) {
+        this._decoderModule.destroy(decoder);
+        this._decoderModule.destroy(dracoMesh);
+      }
+    }
+    return this;
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  prewrite(context, _propertyType) {
+    if (!this._encoderModule) {
+      throw new Error(`[${KHR_DRACO_MESH_COMPRESSION2}] Please install extension dependency, "draco3d.encoder".`);
+    }
+    const logger = this.document.getLogger();
+    logger.debug(`[${KHR_DRACO_MESH_COMPRESSION2}] Compression options: ${JSON.stringify(this._encoderOptions)}`);
+    const primitiveHashMap = listDracoPrimitives(this.document);
+    const primitiveEncodingMap = /* @__PURE__ */ new Map();
+    let quantizationVolume = "mesh";
+    if (this._encoderOptions.quantizationVolume === "scene") {
+      if (this.document.getRoot().listScenes().length !== 1) {
+        logger.warn(`[${KHR_DRACO_MESH_COMPRESSION2}]: quantizationVolume=scene requires exactly 1 scene.`);
+      } else {
+        quantizationVolume = getBounds(this.document.getRoot().listScenes().pop());
+      }
+    }
+    for (const prim of Array.from(primitiveHashMap.keys())) {
+      const primHash = primitiveHashMap.get(prim);
+      if (!primHash)
+        throw new Error("Unexpected primitive.");
+      if (primitiveEncodingMap.has(primHash)) {
+        primitiveEncodingMap.set(primHash, primitiveEncodingMap.get(primHash));
+        continue;
+      }
+      const indices = prim.getIndices();
+      const accessorDefs = context.jsonDoc.json.accessors;
+      let encodedPrim;
+      try {
+        encodedPrim = encodeGeometry(prim, _extends3({}, this._encoderOptions, {
+          quantizationVolume
+        }));
+      } catch (e2) {
+        if (e2 instanceof EncodingError) {
+          logger.warn(`[${KHR_DRACO_MESH_COMPRESSION2}]: ${e2.message} Skipping primitive compression.`);
+          continue;
+        }
+        throw e2;
+      }
+      primitiveEncodingMap.set(primHash, encodedPrim);
+      const indicesDef = context.createAccessorDef(indices);
+      indicesDef.count = encodedPrim.numIndices;
+      context.accessorIndexMap.set(indices, accessorDefs.length);
+      accessorDefs.push(indicesDef);
+      if (encodedPrim.numVertices > 65534 && Accessor.getComponentSize(indicesDef.componentType) <= 2) {
+        indicesDef.componentType = Accessor.ComponentType.UNSIGNED_INT;
+      } else if (encodedPrim.numVertices > 254 && Accessor.getComponentSize(indicesDef.componentType) <= 1) {
+        indicesDef.componentType = Accessor.ComponentType.UNSIGNED_SHORT;
+      }
+      for (const semantic of prim.listSemantics()) {
+        const attribute = prim.getAttribute(semantic);
+        if (encodedPrim.attributeIDs[semantic] === void 0)
+          continue;
+        const attributeDef = context.createAccessorDef(attribute);
+        attributeDef.count = encodedPrim.numVertices;
+        context.accessorIndexMap.set(attribute, accessorDefs.length);
+        accessorDefs.push(attributeDef);
+      }
+      const buffer = prim.getAttribute("POSITION").getBuffer() || this.document.getRoot().listBuffers()[0];
+      if (!context.otherBufferViews.has(buffer))
+        context.otherBufferViews.set(buffer, []);
+      context.otherBufferViews.get(buffer).push(encodedPrim.data);
+    }
+    logger.debug(`[${KHR_DRACO_MESH_COMPRESSION2}] Compressed ${primitiveHashMap.size} primitives.`);
+    context.extensionData[KHR_DRACO_MESH_COMPRESSION2] = {
+      primitiveHashMap,
+      primitiveEncodingMap
+    };
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const dracoContext = context.extensionData[KHR_DRACO_MESH_COMPRESSION2];
+    for (const mesh of this.document.getRoot().listMeshes()) {
+      const meshDef = context.jsonDoc.json.meshes[context.meshIndexMap.get(mesh)];
+      for (let i2 = 0; i2 < mesh.listPrimitives().length; i2++) {
+        const prim = mesh.listPrimitives()[i2];
+        const primDef = meshDef.primitives[i2];
+        const primHash = dracoContext.primitiveHashMap.get(prim);
+        if (!primHash)
+          continue;
+        const encodedPrim = dracoContext.primitiveEncodingMap.get(primHash);
+        if (!encodedPrim)
+          continue;
+        primDef.extensions = primDef.extensions || {};
+        primDef.extensions[KHR_DRACO_MESH_COMPRESSION2] = {
+          bufferView: context.otherBufferViewsIndexMap.get(encodedPrim.data),
+          attributes: encodedPrim.attributeIDs
+        };
+      }
+    }
+    if (!dracoContext.primitiveHashMap.size) {
+      const json = context.jsonDoc.json;
+      json.extensionsUsed = (json.extensionsUsed || []).filter((name12) => name12 !== KHR_DRACO_MESH_COMPRESSION2);
+      json.extensionsRequired = (json.extensionsRequired || []).filter((name12) => name12 !== KHR_DRACO_MESH_COMPRESSION2);
+    }
+    return this;
+  }
+};
+KHRDracoMeshCompression.EXTENSION_NAME = KHR_DRACO_MESH_COMPRESSION2;
+KHRDracoMeshCompression.EncoderMethod = EncoderMethod;
+function listDracoPrimitives(doc) {
+  const logger = doc.getLogger();
+  const included = /* @__PURE__ */ new Set();
+  const excluded = /* @__PURE__ */ new Set();
+  let nonIndexed = 0;
+  let nonTriangles = 0;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      if (!prim.getIndices()) {
+        excluded.add(prim);
+        nonIndexed++;
+      } else if (prim.getMode() !== Primitive.Mode.TRIANGLES) {
+        excluded.add(prim);
+        nonTriangles++;
+      } else {
+        included.add(prim);
+      }
+    }
+  }
+  if (nonIndexed > 0) {
+    logger.warn(`[${KHR_DRACO_MESH_COMPRESSION2}] Skipping Draco compression of ${nonIndexed} non-indexed primitives.`);
+  }
+  if (nonTriangles > 0) {
+    logger.warn(`[${KHR_DRACO_MESH_COMPRESSION2}] Skipping Draco compression of ${nonTriangles} non-TRIANGLES primitives.`);
+  }
+  const accessors = doc.getRoot().listAccessors();
+  const accessorIndices = /* @__PURE__ */ new Map();
+  for (let i2 = 0; i2 < accessors.length; i2++)
+    accessorIndices.set(accessors[i2], i2);
+  const includedAccessors = /* @__PURE__ */ new Map();
+  const includedHashKeys = /* @__PURE__ */ new Set();
+  const primToHashKey = /* @__PURE__ */ new Map();
+  for (const prim of Array.from(included)) {
+    let hashKey = createHashKey(prim, accessorIndices);
+    if (includedHashKeys.has(hashKey)) {
+      primToHashKey.set(prim, hashKey);
+      continue;
+    }
+    if (includedAccessors.has(prim.getIndices())) {
+      const indices = prim.getIndices();
+      const dstIndices = indices.clone();
+      accessorIndices.set(dstIndices, doc.getRoot().listAccessors().length - 1);
+      prim.swap(indices, dstIndices);
+    }
+    for (const attribute of prim.listAttributes()) {
+      if (includedAccessors.has(attribute)) {
+        const dstAttribute = attribute.clone();
+        accessorIndices.set(dstAttribute, doc.getRoot().listAccessors().length - 1);
+        prim.swap(attribute, dstAttribute);
+      }
+    }
+    hashKey = createHashKey(prim, accessorIndices);
+    includedHashKeys.add(hashKey);
+    primToHashKey.set(prim, hashKey);
+    includedAccessors.set(prim.getIndices(), hashKey);
+    for (const attribute of prim.listAttributes()) {
+      includedAccessors.set(attribute, hashKey);
+    }
+  }
+  for (const accessor of Array.from(includedAccessors.keys())) {
+    const parentTypes = new Set(accessor.listParents().map((prop2) => prop2.propertyType));
+    if (parentTypes.size !== 2 || !parentTypes.has(PropertyType.PRIMITIVE) || !parentTypes.has(PropertyType.ROOT)) {
+      throw new Error(`[${KHR_DRACO_MESH_COMPRESSION2}] Compressed accessors must only be used as indices or vertex attributes.`);
+    }
+  }
+  for (const prim of Array.from(included)) {
+    const hashKey = primToHashKey.get(prim);
+    const indices = prim.getIndices();
+    if (includedAccessors.get(indices) !== hashKey || prim.listAttributes().some((attr) => includedAccessors.get(attr) !== hashKey)) {
+      throw new Error(`[${KHR_DRACO_MESH_COMPRESSION2}] Draco primitives must share all, or no, accessors.`);
+    }
+  }
+  for (const prim of Array.from(excluded)) {
+    const indices = prim.getIndices();
+    if (includedAccessors.has(indices) || prim.listAttributes().some((attr) => includedAccessors.has(attr))) {
+      throw new Error(`[${KHR_DRACO_MESH_COMPRESSION2}] Accessor cannot be shared by compressed and uncompressed primitives.`);
+    }
+  }
+  return primToHashKey;
+}
+function createHashKey(prim, indexMap) {
+  const hashElements = [];
+  const indices = prim.getIndices();
+  hashElements.push(indexMap.get(indices));
+  for (const attribute of prim.listAttributes()) {
+    hashElements.push(indexMap.get(attribute));
+  }
+  return hashElements.sort().join("|");
+}
+var Light = class _Light extends ExtensionProperty {
+  /**********************************************************************************************
+   * INSTANCE.
+   */
+  init() {
+    this.extensionName = KHR_LIGHTS_PUNCTUAL2;
+    this.propertyType = "Light";
+    this.parentTypes = [PropertyType.NODE];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      color: [1, 1, 1],
+      intensity: 1,
+      type: _Light.Type.POINT,
+      range: null,
+      innerConeAngle: 0,
+      outerConeAngle: Math.PI / 4
+    });
+  }
+  /**********************************************************************************************
+   * COLOR.
+   */
+  /** Light color; Linear-sRGB components. */
+  getColor() {
+    return this.get("color");
+  }
+  /** Light color; Linear-sRGB components. */
+  setColor(color) {
+    return this.set("color", color);
+  }
+  /**********************************************************************************************
+   * INTENSITY.
+   */
+  /**
+   * Brightness of light. Units depend on the type of light: point and spot lights use luminous
+   * intensity in candela (lm/sr) while directional lights use illuminance in lux (lm/m2).
+   */
+  getIntensity() {
+    return this.get("intensity");
+  }
+  /**
+   * Brightness of light. Units depend on the type of light: point and spot lights use luminous
+   * intensity in candela (lm/sr) while directional lights use illuminance in lux (lm/m2).
+   */
+  setIntensity(intensity) {
+    return this.set("intensity", intensity);
+  }
+  /**********************************************************************************************
+   * TYPE.
+   */
+  /** Type. */
+  getType() {
+    return this.get("type");
+  }
+  /** Type. */
+  setType(type) {
+    return this.set("type", type);
+  }
+  /**********************************************************************************************
+   * RANGE.
+   */
+  /**
+   * Hint defining a distance cutoff at which the light's intensity may be considered to have
+   * reached zero. Supported only for point and spot lights. Must be > 0. When undefined, range
+   * is assumed to be infinite.
+   */
+  getRange() {
+    return this.get("range");
+  }
+  /**
+   * Hint defining a distance cutoff at which the light's intensity may be considered to have
+   * reached zero. Supported only for point and spot lights. Must be > 0. When undefined, range
+   * is assumed to be infinite.
+   */
+  setRange(range) {
+    return this.set("range", range);
+  }
+  /**********************************************************************************************
+   * SPOT LIGHT PROPERTIES
+   */
+  /**
+   * Angle, in radians, from centre of spotlight where falloff begins. Must be >= 0 and
+   * < outerConeAngle.
+   */
+  getInnerConeAngle() {
+    return this.get("innerConeAngle");
+  }
+  /**
+   * Angle, in radians, from centre of spotlight where falloff begins. Must be >= 0 and
+   * < outerConeAngle.
+   */
+  setInnerConeAngle(angle2) {
+    return this.set("innerConeAngle", angle2);
+  }
+  /**
+   * Angle, in radians, from centre of spotlight where falloff ends. Must be > innerConeAngle and
+   * <= PI / 2.0.
+   */
+  getOuterConeAngle() {
+    return this.get("outerConeAngle");
+  }
+  /**
+   * Angle, in radians, from centre of spotlight where falloff ends. Must be > innerConeAngle and
+   * <= PI / 2.0.
+   */
+  setOuterConeAngle(angle2) {
+    return this.set("outerConeAngle", angle2);
+  }
+};
+Light.EXTENSION_NAME = KHR_LIGHTS_PUNCTUAL2;
+Light.Type = {
+  POINT: "point",
+  SPOT: "spot",
+  DIRECTIONAL: "directional"
+};
+var KHRLightsPunctual = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_LIGHTS_PUNCTUAL2;
+  }
+  /** Creates a new punctual Light property for use on a {@link Node}. */
+  createLight(name12 = "") {
+    return new Light(this.document.getGraph(), name12);
+  }
+  /** @hidden */
+  read(context) {
+    const jsonDoc = context.jsonDoc;
+    if (!jsonDoc.json.extensions || !jsonDoc.json.extensions[KHR_LIGHTS_PUNCTUAL2])
+      return this;
+    const rootDef = jsonDoc.json.extensions[KHR_LIGHTS_PUNCTUAL2];
+    const lightDefs = rootDef.lights || [];
+    const lights = lightDefs.map((lightDef) => {
+      var _lightDef$spot, _lightDef$spot2;
+      const light = this.createLight().setName(lightDef.name || "").setType(lightDef.type);
+      if (lightDef.color !== void 0)
+        light.setColor(lightDef.color);
+      if (lightDef.intensity !== void 0)
+        light.setIntensity(lightDef.intensity);
+      if (lightDef.range !== void 0)
+        light.setRange(lightDef.range);
+      if (((_lightDef$spot = lightDef.spot) == null ? void 0 : _lightDef$spot.innerConeAngle) !== void 0) {
+        light.setInnerConeAngle(lightDef.spot.innerConeAngle);
+      }
+      if (((_lightDef$spot2 = lightDef.spot) == null ? void 0 : _lightDef$spot2.outerConeAngle) !== void 0) {
+        light.setOuterConeAngle(lightDef.spot.outerConeAngle);
+      }
+      return light;
+    });
+    jsonDoc.json.nodes.forEach((nodeDef, nodeIndex) => {
+      if (!nodeDef.extensions || !nodeDef.extensions[KHR_LIGHTS_PUNCTUAL2])
+        return;
+      const lightNodeDef = nodeDef.extensions[KHR_LIGHTS_PUNCTUAL2];
+      context.nodes[nodeIndex].setExtension(KHR_LIGHTS_PUNCTUAL2, lights[lightNodeDef.light]);
+    });
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const jsonDoc = context.jsonDoc;
+    if (this.properties.size === 0)
+      return this;
+    const lightDefs = [];
+    const lightIndexMap = /* @__PURE__ */ new Map();
+    for (const property of this.properties) {
+      const light = property;
+      const lightDef = {
+        type: light.getType()
+      };
+      if (!MathUtils.eq(light.getColor(), [1, 1, 1]))
+        lightDef.color = light.getColor();
+      if (light.getIntensity() !== 1)
+        lightDef.intensity = light.getIntensity();
+      if (light.getRange() != null)
+        lightDef.range = light.getRange();
+      if (light.getName())
+        lightDef.name = light.getName();
+      if (light.getType() === Light.Type.SPOT) {
+        lightDef.spot = {
+          innerConeAngle: light.getInnerConeAngle(),
+          outerConeAngle: light.getOuterConeAngle()
+        };
+      }
+      lightDefs.push(lightDef);
+      lightIndexMap.set(light, lightDefs.length - 1);
+    }
+    this.document.getRoot().listNodes().forEach((node) => {
+      const light = node.getExtension(KHR_LIGHTS_PUNCTUAL2);
+      if (light) {
+        const nodeIndex = context.nodeIndexMap.get(node);
+        const nodeDef = jsonDoc.json.nodes[nodeIndex];
+        nodeDef.extensions = nodeDef.extensions || {};
+        nodeDef.extensions[KHR_LIGHTS_PUNCTUAL2] = {
+          light: lightIndexMap.get(light)
+        };
+      }
+    });
+    jsonDoc.json.extensions = jsonDoc.json.extensions || {};
+    jsonDoc.json.extensions[KHR_LIGHTS_PUNCTUAL2] = {
+      lights: lightDefs
+    };
+    return this;
+  }
+};
+KHRLightsPunctual.EXTENSION_NAME = KHR_LIGHTS_PUNCTUAL2;
+var {
+  R: R$7,
+  G: G$7,
+  B: B$5
+} = TextureChannel;
+var Anisotropy = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_ANISOTROPY;
+    this.propertyType = "Anisotropy";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      anisotropyStrength: 0,
+      anisotropyRotation: 0,
+      anisotropyTexture: null,
+      anisotropyTextureInfo: new TextureInfo(this.graph, "anisotropyTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Anisotropy strength.
+   */
+  /** Anisotropy strength. */
+  getAnisotropyStrength() {
+    return this.get("anisotropyStrength");
+  }
+  /** Anisotropy strength. */
+  setAnisotropyStrength(strength) {
+    return this.set("anisotropyStrength", strength);
+  }
+  /**********************************************************************************************
+   * Anisotropy rotation.
+   */
+  /** Anisotropy rotation; linear multiplier. */
+  getAnisotropyRotation() {
+    return this.get("anisotropyRotation");
+  }
+  /** Anisotropy rotation; linear multiplier. */
+  setAnisotropyRotation(rotation) {
+    return this.set("anisotropyRotation", rotation);
+  }
+  /**********************************************************************************************
+   * Anisotropy texture.
+   */
+  /**
+   * Anisotropy texture. Red and green channels represent the anisotropy
+   * direction in [-1, 1] tangent, bitangent space, to be rotated by
+   * anisotropyRotation. The blue channel contains strength as [0, 1] to be
+   * multiplied by anisotropyStrength.
+   */
+  getAnisotropyTexture() {
+    return this.getRef("anisotropyTexture");
+  }
+  /**
+   * Settings affecting the material's use of its anisotropy texture. If no
+   * texture is attached, {@link TextureInfo} is `null`.
+   */
+  getAnisotropyTextureInfo() {
+    return this.getRef("anisotropyTexture") ? this.getRef("anisotropyTextureInfo") : null;
+  }
+  /** Anisotropy texture. See {@link Anisotropy.getAnisotropyTexture getAnisotropyTexture}. */
+  setAnisotropyTexture(texture) {
+    return this.setRef("anisotropyTexture", texture, {
+      channels: R$7 | G$7 | B$5
+    });
+  }
+};
+Anisotropy.EXTENSION_NAME = KHR_MATERIALS_ANISOTROPY;
+var KHRMaterialsAnisotropy = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_ANISOTROPY;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Anisotropy property for use on a {@link Material}. */
+  createAnisotropy() {
+    return new Anisotropy(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_ANISOTROPY]) {
+        const anisotropy = this.createAnisotropy();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_ANISOTROPY, anisotropy);
+        const anisotropyDef = materialDef.extensions[KHR_MATERIALS_ANISOTROPY];
+        if (anisotropyDef.anisotropyStrength !== void 0) {
+          anisotropy.setAnisotropyStrength(anisotropyDef.anisotropyStrength);
+        }
+        if (anisotropyDef.anisotropyRotation !== void 0) {
+          anisotropy.setAnisotropyRotation(anisotropyDef.anisotropyRotation);
+        }
+        if (anisotropyDef.anisotropyTexture !== void 0) {
+          const textureInfoDef = anisotropyDef.anisotropyTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          anisotropy.setAnisotropyTexture(texture);
+          context.setTextureInfo(anisotropy.getAnisotropyTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const anisotropy = material.getExtension(KHR_MATERIALS_ANISOTROPY);
+      if (anisotropy) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const anisotropyDef = materialDef.extensions[KHR_MATERIALS_ANISOTROPY] = {};
+        if (anisotropy.getAnisotropyStrength() > 0) {
+          anisotropyDef.anisotropyStrength = anisotropy.getAnisotropyStrength();
+        }
+        if (anisotropy.getAnisotropyRotation() !== 0) {
+          anisotropyDef.anisotropyRotation = anisotropy.getAnisotropyRotation();
+        }
+        if (anisotropy.getAnisotropyTexture()) {
+          const texture = anisotropy.getAnisotropyTexture();
+          const textureInfo = anisotropy.getAnisotropyTextureInfo();
+          anisotropyDef.anisotropyTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsAnisotropy.EXTENSION_NAME = KHR_MATERIALS_ANISOTROPY;
+var {
+  R: R$6,
+  G: G$6,
+  B: B$4
+} = TextureChannel;
+var Clearcoat = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_CLEARCOAT;
+    this.propertyType = "Clearcoat";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      clearcoatFactor: 0,
+      clearcoatTexture: null,
+      clearcoatTextureInfo: new TextureInfo(this.graph, "clearcoatTextureInfo"),
+      clearcoatRoughnessFactor: 0,
+      clearcoatRoughnessTexture: null,
+      clearcoatRoughnessTextureInfo: new TextureInfo(this.graph, "clearcoatRoughnessTextureInfo"),
+      clearcoatNormalScale: 1,
+      clearcoatNormalTexture: null,
+      clearcoatNormalTextureInfo: new TextureInfo(this.graph, "clearcoatNormalTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Clearcoat.
+   */
+  /** Clearcoat; linear multiplier. See {@link Clearcoat.getClearcoatTexture getClearcoatTexture}. */
+  getClearcoatFactor() {
+    return this.get("clearcoatFactor");
+  }
+  /** Clearcoat; linear multiplier. See {@link Clearcoat.getClearcoatTexture getClearcoatTexture}. */
+  setClearcoatFactor(factor) {
+    return this.set("clearcoatFactor", factor);
+  }
+  /**
+   * Clearcoat texture; linear multiplier. The `r` channel of this texture specifies an amount
+   * [0-1] of coating over the surface of the material, which may have its own roughness and
+   * normal map properties.
+   */
+  getClearcoatTexture() {
+    return this.getRef("clearcoatTexture");
+  }
+  /**
+   * Settings affecting the material's use of its clearcoat texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getClearcoatTextureInfo() {
+    return this.getRef("clearcoatTexture") ? this.getRef("clearcoatTextureInfo") : null;
+  }
+  /** Sets clearcoat texture. See {@link Clearcoat.getClearcoatTexture getClearcoatTexture}. */
+  setClearcoatTexture(texture) {
+    return this.setRef("clearcoatTexture", texture, {
+      channels: R$6
+    });
+  }
+  /**********************************************************************************************
+   * Clearcoat roughness.
+   */
+  /**
+   * Clearcoat roughness; linear multiplier.
+   * See {@link Clearcoat.getClearcoatRoughnessTexture getClearcoatRoughnessTexture}.
+   */
+  getClearcoatRoughnessFactor() {
+    return this.get("clearcoatRoughnessFactor");
+  }
+  /**
+   * Clearcoat roughness; linear multiplier.
+   * See {@link Clearcoat.getClearcoatRoughnessTexture getClearcoatRoughnessTexture}.
+   */
+  setClearcoatRoughnessFactor(factor) {
+    return this.set("clearcoatRoughnessFactor", factor);
+  }
+  /**
+   * Clearcoat roughness texture; linear multiplier. The `g` channel of this texture specifies
+   * roughness, independent of the base layer's roughness.
+   */
+  getClearcoatRoughnessTexture() {
+    return this.getRef("clearcoatRoughnessTexture");
+  }
+  /**
+   * Settings affecting the material's use of its clearcoat roughness texture. If no texture is
+   * attached, {@link TextureInfo} is `null`.
+   */
+  getClearcoatRoughnessTextureInfo() {
+    return this.getRef("clearcoatRoughnessTexture") ? this.getRef("clearcoatRoughnessTextureInfo") : null;
+  }
+  /**
+   * Sets clearcoat roughness texture.
+   * See {@link Clearcoat.getClearcoatRoughnessTexture getClearcoatRoughnessTexture}.
+   */
+  setClearcoatRoughnessTexture(texture) {
+    return this.setRef("clearcoatRoughnessTexture", texture, {
+      channels: G$6
+    });
+  }
+  /**********************************************************************************************
+   * Clearcoat normals.
+   */
+  /** Clearcoat normal scale. See {@link Clearcoat.getClearcoatNormalTexture getClearcoatNormalTexture}. */
+  getClearcoatNormalScale() {
+    return this.get("clearcoatNormalScale");
+  }
+  /** Clearcoat normal scale. See {@link Clearcoat.getClearcoatNormalTexture getClearcoatNormalTexture}. */
+  setClearcoatNormalScale(scale3) {
+    return this.set("clearcoatNormalScale", scale3);
+  }
+  /**
+   * Clearcoat normal map. Independent of the material base layer normal map.
+   */
+  getClearcoatNormalTexture() {
+    return this.getRef("clearcoatNormalTexture");
+  }
+  /**
+   * Settings affecting the material's use of its clearcoat normal texture. If no texture is
+   * attached, {@link TextureInfo} is `null`.
+   */
+  getClearcoatNormalTextureInfo() {
+    return this.getRef("clearcoatNormalTexture") ? this.getRef("clearcoatNormalTextureInfo") : null;
+  }
+  /** Sets clearcoat normal texture. See {@link Clearcoat.getClearcoatNormalTexture getClearcoatNormalTexture}. */
+  setClearcoatNormalTexture(texture) {
+    return this.setRef("clearcoatNormalTexture", texture, {
+      channels: R$6 | G$6 | B$4
+    });
+  }
+};
+Clearcoat.EXTENSION_NAME = KHR_MATERIALS_CLEARCOAT;
+var KHRMaterialsClearcoat = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_CLEARCOAT;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Clearcoat property for use on a {@link Material}. */
+  createClearcoat() {
+    return new Clearcoat(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_CLEARCOAT]) {
+        const clearcoat = this.createClearcoat();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_CLEARCOAT, clearcoat);
+        const clearcoatDef = materialDef.extensions[KHR_MATERIALS_CLEARCOAT];
+        if (clearcoatDef.clearcoatFactor !== void 0) {
+          clearcoat.setClearcoatFactor(clearcoatDef.clearcoatFactor);
+        }
+        if (clearcoatDef.clearcoatRoughnessFactor !== void 0) {
+          clearcoat.setClearcoatRoughnessFactor(clearcoatDef.clearcoatRoughnessFactor);
+        }
+        if (clearcoatDef.clearcoatTexture !== void 0) {
+          const textureInfoDef = clearcoatDef.clearcoatTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          clearcoat.setClearcoatTexture(texture);
+          context.setTextureInfo(clearcoat.getClearcoatTextureInfo(), textureInfoDef);
+        }
+        if (clearcoatDef.clearcoatRoughnessTexture !== void 0) {
+          const textureInfoDef = clearcoatDef.clearcoatRoughnessTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          clearcoat.setClearcoatRoughnessTexture(texture);
+          context.setTextureInfo(clearcoat.getClearcoatRoughnessTextureInfo(), textureInfoDef);
+        }
+        if (clearcoatDef.clearcoatNormalTexture !== void 0) {
+          const textureInfoDef = clearcoatDef.clearcoatNormalTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          clearcoat.setClearcoatNormalTexture(texture);
+          context.setTextureInfo(clearcoat.getClearcoatNormalTextureInfo(), textureInfoDef);
+          if (textureInfoDef.scale !== void 0) {
+            clearcoat.setClearcoatNormalScale(textureInfoDef.scale);
+          }
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const clearcoat = material.getExtension(KHR_MATERIALS_CLEARCOAT);
+      if (clearcoat) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const clearcoatDef = materialDef.extensions[KHR_MATERIALS_CLEARCOAT] = {
+          clearcoatFactor: clearcoat.getClearcoatFactor(),
+          clearcoatRoughnessFactor: clearcoat.getClearcoatRoughnessFactor()
+        };
+        if (clearcoat.getClearcoatTexture()) {
+          const texture = clearcoat.getClearcoatTexture();
+          const textureInfo = clearcoat.getClearcoatTextureInfo();
+          clearcoatDef.clearcoatTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+        if (clearcoat.getClearcoatRoughnessTexture()) {
+          const texture = clearcoat.getClearcoatRoughnessTexture();
+          const textureInfo = clearcoat.getClearcoatRoughnessTextureInfo();
+          clearcoatDef.clearcoatRoughnessTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+        if (clearcoat.getClearcoatNormalTexture()) {
+          const texture = clearcoat.getClearcoatNormalTexture();
+          const textureInfo = clearcoat.getClearcoatNormalTextureInfo();
+          clearcoatDef.clearcoatNormalTexture = context.createTextureInfoDef(texture, textureInfo);
+          if (clearcoat.getClearcoatNormalScale() !== 1) {
+            clearcoatDef.clearcoatNormalTexture.scale = clearcoat.getClearcoatNormalScale();
+          }
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsClearcoat.EXTENSION_NAME = KHR_MATERIALS_CLEARCOAT;
+var {
+  R: R$5,
+  G: G$5,
+  B: B$3,
+  A: A$3
+} = TextureChannel;
+var DiffuseTransmission = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_DIFFUSE_TRANSMISSION;
+    this.propertyType = "DiffuseTransmission";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      diffuseTransmissionFactor: 0,
+      diffuseTransmissionTexture: null,
+      diffuseTransmissionTextureInfo: new TextureInfo(this.graph, "diffuseTransmissionTextureInfo"),
+      diffuseTransmissionColorFactor: [1, 1, 1],
+      diffuseTransmissionColorTexture: null,
+      diffuseTransmissionColorTextureInfo: new TextureInfo(this.graph, "diffuseTransmissionColorTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Diffuse transmission.
+   */
+  /**
+   * Percentage of reflected, non-specularly reflected light that is transmitted through the
+   * surface via the Lambertian diffuse transmission, i.e., the strength of the diffuse
+   * transmission effect.
+   */
+  getDiffuseTransmissionFactor() {
+    return this.get("diffuseTransmissionFactor");
+  }
+  /**
+   * Percentage of reflected, non-specularly reflected light that is transmitted through the
+   * surface via the Lambertian diffuse transmission, i.e., the strength of the diffuse
+   * transmission effect.
+   */
+  setDiffuseTransmissionFactor(factor) {
+    return this.set("diffuseTransmissionFactor", factor);
+  }
+  /**
+   * Texture that defines the strength of the diffuse transmission effect, stored in the alpha (A)
+   * channel. Will be multiplied by the diffuseTransmissionFactor.
+   */
+  getDiffuseTransmissionTexture() {
+    return this.getRef("diffuseTransmissionTexture");
+  }
+  /**
+   * Settings affecting the material's use of its diffuse transmission texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getDiffuseTransmissionTextureInfo() {
+    return this.getRef("diffuseTransmissionTexture") ? this.getRef("diffuseTransmissionTextureInfo") : null;
+  }
+  /**
+   * Texture that defines the strength of the diffuse transmission effect, stored in the alpha (A)
+   * channel. Will be multiplied by the diffuseTransmissionFactor.
+   */
+  setDiffuseTransmissionTexture(texture) {
+    return this.setRef("diffuseTransmissionTexture", texture, {
+      channels: A$3
+    });
+  }
+  /**********************************************************************************************
+   * Diffuse transmission color.
+   */
+  /** Color of the transmitted light; Linear-sRGB components. */
+  getDiffuseTransmissionColorFactor() {
+    return this.get("diffuseTransmissionColorFactor");
+  }
+  /** Color of the transmitted light; Linear-sRGB components. */
+  setDiffuseTransmissionColorFactor(factor) {
+    return this.set("diffuseTransmissionColorFactor", factor);
+  }
+  /**
+   * Texture that defines the color of the transmitted light, stored in the RGB channels and
+   * encoded in sRGB. This texture will be multiplied by diffuseTransmissionColorFactor.
+   */
+  getDiffuseTransmissionColorTexture() {
+    return this.getRef("diffuseTransmissionColorTexture");
+  }
+  /**
+   * Settings affecting the material's use of its diffuse transmission color texture. If no
+   * texture is attached, {@link TextureInfo} is `null`.
+   */
+  getDiffuseTransmissionColorTextureInfo() {
+    return this.getRef("diffuseTransmissionColorTexture") ? this.getRef("diffuseTransmissionColorTextureInfo") : null;
+  }
+  /**
+   * Texture that defines the color of the transmitted light, stored in the RGB channels and
+   * encoded in sRGB. This texture will be multiplied by diffuseTransmissionColorFactor.
+   */
+  setDiffuseTransmissionColorTexture(texture) {
+    return this.setRef("diffuseTransmissionColorTexture", texture, {
+      channels: R$5 | G$5 | B$3
+    });
+  }
+};
+DiffuseTransmission.EXTENSION_NAME = KHR_MATERIALS_DIFFUSE_TRANSMISSION;
+var KHRMaterialsDiffuseTransmission = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_DIFFUSE_TRANSMISSION;
+  }
+  /** Creates a new DiffuseTransmission property for use on a {@link Material}. */
+  createDiffuseTransmission() {
+    return new DiffuseTransmission(this.document.getGraph());
+  }
+  /** @hidden */
+  read(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_DIFFUSE_TRANSMISSION]) {
+        const transmission = this.createDiffuseTransmission();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_DIFFUSE_TRANSMISSION, transmission);
+        const transmissionDef = materialDef.extensions[KHR_MATERIALS_DIFFUSE_TRANSMISSION];
+        if (transmissionDef.diffuseTransmissionFactor !== void 0) {
+          transmission.setDiffuseTransmissionFactor(transmissionDef.diffuseTransmissionFactor);
+        }
+        if (transmissionDef.diffuseTransmissionColorFactor !== void 0) {
+          transmission.setDiffuseTransmissionColorFactor(transmissionDef.diffuseTransmissionColorFactor);
+        }
+        if (transmissionDef.diffuseTransmissionTexture !== void 0) {
+          const textureInfoDef = transmissionDef.diffuseTransmissionTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          transmission.setDiffuseTransmissionTexture(texture);
+          context.setTextureInfo(transmission.getDiffuseTransmissionTextureInfo(), textureInfoDef);
+        }
+        if (transmissionDef.diffuseTransmissionColorTexture !== void 0) {
+          const textureInfoDef = transmissionDef.diffuseTransmissionColorTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          transmission.setDiffuseTransmissionColorTexture(texture);
+          context.setTextureInfo(transmission.getDiffuseTransmissionColorTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const jsonDoc = context.jsonDoc;
+    for (const material of this.document.getRoot().listMaterials()) {
+      const transmission = material.getExtension(KHR_MATERIALS_DIFFUSE_TRANSMISSION);
+      if (!transmission)
+        continue;
+      const materialIndex = context.materialIndexMap.get(material);
+      const materialDef = jsonDoc.json.materials[materialIndex];
+      materialDef.extensions = materialDef.extensions || {};
+      const transmissionDef = materialDef.extensions[KHR_MATERIALS_DIFFUSE_TRANSMISSION] = {
+        diffuseTransmissionFactor: transmission.getDiffuseTransmissionFactor(),
+        diffuseTransmissionColorFactor: transmission.getDiffuseTransmissionColorFactor()
+      };
+      if (transmission.getDiffuseTransmissionTexture()) {
+        const texture = transmission.getDiffuseTransmissionTexture();
+        const textureInfo = transmission.getDiffuseTransmissionTextureInfo();
+        transmissionDef.diffuseTransmissionTexture = context.createTextureInfoDef(texture, textureInfo);
+      }
+      if (transmission.getDiffuseTransmissionColorTexture()) {
+        const texture = transmission.getDiffuseTransmissionColorTexture();
+        const textureInfo = transmission.getDiffuseTransmissionColorTextureInfo();
+        transmissionDef.diffuseTransmissionColorTexture = context.createTextureInfoDef(texture, textureInfo);
+      }
+    }
+    return this;
+  }
+};
+KHRMaterialsDiffuseTransmission.EXTENSION_NAME = KHR_MATERIALS_DIFFUSE_TRANSMISSION;
+var Dispersion = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_DISPERSION;
+    this.propertyType = "Dispersion";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      dispersion: 0
+    });
+  }
+  /**********************************************************************************************
+   * Dispersion.
+   */
+  /** Dispersion. */
+  getDispersion() {
+    return this.get("dispersion");
+  }
+  /** Dispersion. */
+  setDispersion(dispersion) {
+    return this.set("dispersion", dispersion);
+  }
+};
+Dispersion.EXTENSION_NAME = KHR_MATERIALS_DISPERSION;
+var KHRMaterialsDispersion = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_DISPERSION;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Dispersion property for use on a {@link Material}. */
+  createDispersion() {
+    return new Dispersion(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_DISPERSION]) {
+        const dispersion = this.createDispersion();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_DISPERSION, dispersion);
+        const dispersionDef = materialDef.extensions[KHR_MATERIALS_DISPERSION];
+        if (dispersionDef.dispersion !== void 0) {
+          dispersion.setDispersion(dispersionDef.dispersion);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const dispersion = material.getExtension(KHR_MATERIALS_DISPERSION);
+      if (dispersion) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        materialDef.extensions[KHR_MATERIALS_DISPERSION] = {
+          dispersion: dispersion.getDispersion()
+        };
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsDispersion.EXTENSION_NAME = KHR_MATERIALS_DISPERSION;
+var EmissiveStrength = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_EMISSIVE_STRENGTH;
+    this.propertyType = "EmissiveStrength";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      emissiveStrength: 1
+    });
+  }
+  /**********************************************************************************************
+   * EmissiveStrength.
+   */
+  /** EmissiveStrength. */
+  getEmissiveStrength() {
+    return this.get("emissiveStrength");
+  }
+  /** EmissiveStrength. */
+  setEmissiveStrength(strength) {
+    return this.set("emissiveStrength", strength);
+  }
+};
+EmissiveStrength.EXTENSION_NAME = KHR_MATERIALS_EMISSIVE_STRENGTH;
+var KHRMaterialsEmissiveStrength = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_EMISSIVE_STRENGTH;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new EmissiveStrength property for use on a {@link Material}. */
+  createEmissiveStrength() {
+    return new EmissiveStrength(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_EMISSIVE_STRENGTH]) {
+        const emissiveStrength = this.createEmissiveStrength();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_EMISSIVE_STRENGTH, emissiveStrength);
+        const emissiveStrengthDef = materialDef.extensions[KHR_MATERIALS_EMISSIVE_STRENGTH];
+        if (emissiveStrengthDef.emissiveStrength !== void 0) {
+          emissiveStrength.setEmissiveStrength(emissiveStrengthDef.emissiveStrength);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const emissiveStrength = material.getExtension(KHR_MATERIALS_EMISSIVE_STRENGTH);
+      if (emissiveStrength) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        materialDef.extensions[KHR_MATERIALS_EMISSIVE_STRENGTH] = {
+          emissiveStrength: emissiveStrength.getEmissiveStrength()
+        };
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsEmissiveStrength.EXTENSION_NAME = KHR_MATERIALS_EMISSIVE_STRENGTH;
+var IOR = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_IOR;
+    this.propertyType = "IOR";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      ior: 1.5
+    });
+  }
+  /**********************************************************************************************
+   * IOR.
+   */
+  /** IOR. */
+  getIOR() {
+    return this.get("ior");
+  }
+  /** IOR. */
+  setIOR(ior) {
+    return this.set("ior", ior);
+  }
+};
+IOR.EXTENSION_NAME = KHR_MATERIALS_IOR;
+var KHRMaterialsIOR = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_IOR;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new IOR property for use on a {@link Material}. */
+  createIOR() {
+    return new IOR(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_IOR]) {
+        const ior = this.createIOR();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_IOR, ior);
+        const iorDef = materialDef.extensions[KHR_MATERIALS_IOR];
+        if (iorDef.ior !== void 0) {
+          ior.setIOR(iorDef.ior);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const ior = material.getExtension(KHR_MATERIALS_IOR);
+      if (ior) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        materialDef.extensions[KHR_MATERIALS_IOR] = {
+          ior: ior.getIOR()
+        };
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsIOR.EXTENSION_NAME = KHR_MATERIALS_IOR;
+var {
+  R: R$4,
+  G: G$4
+} = TextureChannel;
+var Iridescence = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_IRIDESCENCE;
+    this.propertyType = "Iridescence";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      iridescenceFactor: 0,
+      iridescenceTexture: null,
+      iridescenceTextureInfo: new TextureInfo(this.graph, "iridescenceTextureInfo"),
+      iridescenceIOR: 1.3,
+      iridescenceThicknessMinimum: 100,
+      iridescenceThicknessMaximum: 400,
+      iridescenceThicknessTexture: null,
+      iridescenceThicknessTextureInfo: new TextureInfo(this.graph, "iridescenceThicknessTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Iridescence.
+   */
+  /** Iridescence; linear multiplier. See {@link Iridescence.getIridescenceTexture getIridescenceTexture}. */
+  getIridescenceFactor() {
+    return this.get("iridescenceFactor");
+  }
+  /** Iridescence; linear multiplier. See {@link Iridescence.getIridescenceTexture getIridescenceTexture}. */
+  setIridescenceFactor(factor) {
+    return this.set("iridescenceFactor", factor);
+  }
+  /**
+   * Iridescence intensity.
+   *
+   * Only the red (R) channel is used for iridescence intensity, but this texture may optionally
+   * be packed with additional data in the other channels.
+   */
+  getIridescenceTexture() {
+    return this.getRef("iridescenceTexture");
+  }
+  /**
+   * Settings affecting the material's use of its iridescence texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getIridescenceTextureInfo() {
+    return this.getRef("iridescenceTexture") ? this.getRef("iridescenceTextureInfo") : null;
+  }
+  /** Iridescence intensity. See {@link Iridescence.getIridescenceTexture getIridescenceTexture}. */
+  setIridescenceTexture(texture) {
+    return this.setRef("iridescenceTexture", texture, {
+      channels: R$4
+    });
+  }
+  /**********************************************************************************************
+   * Iridescence IOR.
+   */
+  /** Index of refraction of the dielectric thin-film layer. */
+  getIridescenceIOR() {
+    return this.get("iridescenceIOR");
+  }
+  /** Index of refraction of the dielectric thin-film layer. */
+  setIridescenceIOR(ior) {
+    return this.set("iridescenceIOR", ior);
+  }
+  /**********************************************************************************************
+   * Iridescence thickness.
+   */
+  /** Minimum thickness of the thin-film layer, in nanometers (nm). */
+  getIridescenceThicknessMinimum() {
+    return this.get("iridescenceThicknessMinimum");
+  }
+  /** Minimum thickness of the thin-film layer, in nanometers (nm). */
+  setIridescenceThicknessMinimum(thickness) {
+    return this.set("iridescenceThicknessMinimum", thickness);
+  }
+  /** Maximum thickness of the thin-film layer, in nanometers (nm). */
+  getIridescenceThicknessMaximum() {
+    return this.get("iridescenceThicknessMaximum");
+  }
+  /** Maximum thickness of the thin-film layer, in nanometers (nm). */
+  setIridescenceThicknessMaximum(thickness) {
+    return this.set("iridescenceThicknessMaximum", thickness);
+  }
+  /**
+   * The green channel of this texture defines the thickness of the
+   * thin-film layer by blending between the minimum and maximum thickness.
+   */
+  getIridescenceThicknessTexture() {
+    return this.getRef("iridescenceThicknessTexture");
+  }
+  /**
+   * Settings affecting the material's use of its iridescence thickness texture.
+   * If no texture is attached, {@link TextureInfo} is `null`.
+   */
+  getIridescenceThicknessTextureInfo() {
+    return this.getRef("iridescenceThicknessTexture") ? this.getRef("iridescenceThicknessTextureInfo") : null;
+  }
+  /**
+   * Sets iridescence thickness texture.
+   * See {@link Iridescence.getIridescenceThicknessTexture getIridescenceThicknessTexture}.
+   */
+  setIridescenceThicknessTexture(texture) {
+    return this.setRef("iridescenceThicknessTexture", texture, {
+      channels: G$4
+    });
+  }
+};
+Iridescence.EXTENSION_NAME = KHR_MATERIALS_IRIDESCENCE;
+var KHRMaterialsIridescence = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_IRIDESCENCE;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Iridescence property for use on a {@link Material}. */
+  createIridescence() {
+    return new Iridescence(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_IRIDESCENCE]) {
+        const iridescence = this.createIridescence();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_IRIDESCENCE, iridescence);
+        const iridescenceDef = materialDef.extensions[KHR_MATERIALS_IRIDESCENCE];
+        if (iridescenceDef.iridescenceFactor !== void 0) {
+          iridescence.setIridescenceFactor(iridescenceDef.iridescenceFactor);
+        }
+        if (iridescenceDef.iridescenceIor !== void 0) {
+          iridescence.setIridescenceIOR(iridescenceDef.iridescenceIor);
+        }
+        if (iridescenceDef.iridescenceThicknessMinimum !== void 0) {
+          iridescence.setIridescenceThicknessMinimum(iridescenceDef.iridescenceThicknessMinimum);
+        }
+        if (iridescenceDef.iridescenceThicknessMaximum !== void 0) {
+          iridescence.setIridescenceThicknessMaximum(iridescenceDef.iridescenceThicknessMaximum);
+        }
+        if (iridescenceDef.iridescenceTexture !== void 0) {
+          const textureInfoDef = iridescenceDef.iridescenceTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          iridescence.setIridescenceTexture(texture);
+          context.setTextureInfo(iridescence.getIridescenceTextureInfo(), textureInfoDef);
+        }
+        if (iridescenceDef.iridescenceThicknessTexture !== void 0) {
+          const textureInfoDef = iridescenceDef.iridescenceThicknessTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          iridescence.setIridescenceThicknessTexture(texture);
+          context.setTextureInfo(iridescence.getIridescenceThicknessTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const iridescence = material.getExtension(KHR_MATERIALS_IRIDESCENCE);
+      if (iridescence) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const iridescenceDef = materialDef.extensions[KHR_MATERIALS_IRIDESCENCE] = {};
+        if (iridescence.getIridescenceFactor() > 0) {
+          iridescenceDef.iridescenceFactor = iridescence.getIridescenceFactor();
+        }
+        if (iridescence.getIridescenceIOR() !== 1.3) {
+          iridescenceDef.iridescenceIor = iridescence.getIridescenceIOR();
+        }
+        if (iridescence.getIridescenceThicknessMinimum() !== 100) {
+          iridescenceDef.iridescenceThicknessMinimum = iridescence.getIridescenceThicknessMinimum();
+        }
+        if (iridescence.getIridescenceThicknessMaximum() !== 400) {
+          iridescenceDef.iridescenceThicknessMaximum = iridescence.getIridescenceThicknessMaximum();
+        }
+        if (iridescence.getIridescenceTexture()) {
+          const texture = iridescence.getIridescenceTexture();
+          const textureInfo = iridescence.getIridescenceTextureInfo();
+          iridescenceDef.iridescenceTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+        if (iridescence.getIridescenceThicknessTexture()) {
+          const texture = iridescence.getIridescenceThicknessTexture();
+          const textureInfo = iridescence.getIridescenceThicknessTextureInfo();
+          iridescenceDef.iridescenceThicknessTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsIridescence.EXTENSION_NAME = KHR_MATERIALS_IRIDESCENCE;
+var {
+  R: R$3,
+  G: G$3,
+  B: B$2,
+  A: A$2
+} = TextureChannel;
+var PBRSpecularGlossiness = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS;
+    this.propertyType = "PBRSpecularGlossiness";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      diffuseFactor: [1, 1, 1, 1],
+      diffuseTexture: null,
+      diffuseTextureInfo: new TextureInfo(this.graph, "diffuseTextureInfo"),
+      specularFactor: [1, 1, 1],
+      glossinessFactor: 1,
+      specularGlossinessTexture: null,
+      specularGlossinessTextureInfo: new TextureInfo(this.graph, "specularGlossinessTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Diffuse.
+   */
+  /** Diffuse; Linear-sRGB components. See {@link PBRSpecularGlossiness.getDiffuseTexture getDiffuseTexture}. */
+  getDiffuseFactor() {
+    return this.get("diffuseFactor");
+  }
+  /** Diffuse; Linear-sRGB components. See {@link PBRSpecularGlossiness.getDiffuseTexture getDiffuseTexture}. */
+  setDiffuseFactor(factor) {
+    return this.set("diffuseFactor", factor);
+  }
+  /**
+   * Diffuse texture; sRGB. Alternative to baseColorTexture, used within the
+   * spec/gloss PBR workflow.
+   */
+  getDiffuseTexture() {
+    return this.getRef("diffuseTexture");
+  }
+  /**
+   * Settings affecting the material's use of its diffuse texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getDiffuseTextureInfo() {
+    return this.getRef("diffuseTexture") ? this.getRef("diffuseTextureInfo") : null;
+  }
+  /** Sets diffuse texture. See {@link PBRSpecularGlossiness.getDiffuseTexture getDiffuseTexture}. */
+  setDiffuseTexture(texture) {
+    return this.setRef("diffuseTexture", texture, {
+      channels: R$3 | G$3 | B$2 | A$2,
+      isColor: true
+    });
+  }
+  /**********************************************************************************************
+   * Specular.
+   */
+  /** Specular; linear multiplier. */
+  getSpecularFactor() {
+    return this.get("specularFactor");
+  }
+  /** Specular; linear multiplier. */
+  setSpecularFactor(factor) {
+    return this.set("specularFactor", factor);
+  }
+  /**********************************************************************************************
+   * Glossiness.
+   */
+  /** Glossiness; linear multiplier. */
+  getGlossinessFactor() {
+    return this.get("glossinessFactor");
+  }
+  /** Glossiness; linear multiplier. */
+  setGlossinessFactor(factor) {
+    return this.set("glossinessFactor", factor);
+  }
+  /**********************************************************************************************
+   * Specular/Glossiness.
+   */
+  /** Spec/gloss texture; linear multiplier. */
+  getSpecularGlossinessTexture() {
+    return this.getRef("specularGlossinessTexture");
+  }
+  /**
+   * Settings affecting the material's use of its spec/gloss texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getSpecularGlossinessTextureInfo() {
+    return this.getRef("specularGlossinessTexture") ? this.getRef("specularGlossinessTextureInfo") : null;
+  }
+  /** Spec/gloss texture; linear multiplier. */
+  setSpecularGlossinessTexture(texture) {
+    return this.setRef("specularGlossinessTexture", texture, {
+      channels: R$3 | G$3 | B$2 | A$2
+    });
+  }
+};
+PBRSpecularGlossiness.EXTENSION_NAME = KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS;
+var KHRMaterialsPBRSpecularGlossiness = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new PBRSpecularGlossiness property for use on a {@link Material}. */
+  createPBRSpecularGlossiness() {
+    return new PBRSpecularGlossiness(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS]) {
+        const specGloss = this.createPBRSpecularGlossiness();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS, specGloss);
+        const specGlossDef = materialDef.extensions[KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS];
+        if (specGlossDef.diffuseFactor !== void 0) {
+          specGloss.setDiffuseFactor(specGlossDef.diffuseFactor);
+        }
+        if (specGlossDef.specularFactor !== void 0) {
+          specGloss.setSpecularFactor(specGlossDef.specularFactor);
+        }
+        if (specGlossDef.glossinessFactor !== void 0) {
+          specGloss.setGlossinessFactor(specGlossDef.glossinessFactor);
+        }
+        if (specGlossDef.diffuseTexture !== void 0) {
+          const textureInfoDef = specGlossDef.diffuseTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          specGloss.setDiffuseTexture(texture);
+          context.setTextureInfo(specGloss.getDiffuseTextureInfo(), textureInfoDef);
+        }
+        if (specGlossDef.specularGlossinessTexture !== void 0) {
+          const textureInfoDef = specGlossDef.specularGlossinessTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          specGloss.setSpecularGlossinessTexture(texture);
+          context.setTextureInfo(specGloss.getSpecularGlossinessTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const specGloss = material.getExtension(KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS);
+      if (specGloss) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const specGlossDef = materialDef.extensions[KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS] = {
+          diffuseFactor: specGloss.getDiffuseFactor(),
+          specularFactor: specGloss.getSpecularFactor(),
+          glossinessFactor: specGloss.getGlossinessFactor()
+        };
+        if (specGloss.getDiffuseTexture()) {
+          const texture = specGloss.getDiffuseTexture();
+          const textureInfo = specGloss.getDiffuseTextureInfo();
+          specGlossDef.diffuseTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+        if (specGloss.getSpecularGlossinessTexture()) {
+          const texture = specGloss.getSpecularGlossinessTexture();
+          const textureInfo = specGloss.getSpecularGlossinessTextureInfo();
+          specGlossDef.specularGlossinessTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsPBRSpecularGlossiness.EXTENSION_NAME = KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS;
+var {
+  R: R$2,
+  G: G$2,
+  B: B$1,
+  A: A$1
+} = TextureChannel;
+var Sheen = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_SHEEN;
+    this.propertyType = "Sheen";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      sheenColorFactor: [0, 0, 0],
+      sheenColorTexture: null,
+      sheenColorTextureInfo: new TextureInfo(this.graph, "sheenColorTextureInfo"),
+      sheenRoughnessFactor: 0,
+      sheenRoughnessTexture: null,
+      sheenRoughnessTextureInfo: new TextureInfo(this.graph, "sheenRoughnessTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Sheen color.
+   */
+  /** Sheen; linear multiplier. */
+  getSheenColorFactor() {
+    return this.get("sheenColorFactor");
+  }
+  /** Sheen; linear multiplier. */
+  setSheenColorFactor(factor) {
+    return this.set("sheenColorFactor", factor);
+  }
+  /**
+   * Sheen color texture, in sRGB colorspace.
+   */
+  getSheenColorTexture() {
+    return this.getRef("sheenColorTexture");
+  }
+  /**
+   * Settings affecting the material's use of its sheen color texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getSheenColorTextureInfo() {
+    return this.getRef("sheenColorTexture") ? this.getRef("sheenColorTextureInfo") : null;
+  }
+  /** Sets sheen color texture. See {@link Sheen.getSheenColorTexture getSheenColorTexture}. */
+  setSheenColorTexture(texture) {
+    return this.setRef("sheenColorTexture", texture, {
+      channels: R$2 | G$2 | B$1,
+      isColor: true
+    });
+  }
+  /**********************************************************************************************
+   * Sheen roughness.
+   */
+  /** Sheen roughness; linear multiplier. See {@link Sheen.getSheenRoughnessTexture getSheenRoughnessTexture}. */
+  getSheenRoughnessFactor() {
+    return this.get("sheenRoughnessFactor");
+  }
+  /** Sheen roughness; linear multiplier. See {@link Sheen.getSheenRoughnessTexture getSheenRoughnessTexture}. */
+  setSheenRoughnessFactor(factor) {
+    return this.set("sheenRoughnessFactor", factor);
+  }
+  /**
+   * Sheen roughness texture; linear multiplier. The `a` channel of this texture specifies
+   * roughness, independent of the base layer's roughness.
+   */
+  getSheenRoughnessTexture() {
+    return this.getRef("sheenRoughnessTexture");
+  }
+  /**
+   * Settings affecting the material's use of its sheen roughness texture. If no texture is
+   * attached, {@link TextureInfo} is `null`.
+   */
+  getSheenRoughnessTextureInfo() {
+    return this.getRef("sheenRoughnessTexture") ? this.getRef("sheenRoughnessTextureInfo") : null;
+  }
+  /**
+   * Sets sheen roughness texture.  The `a` channel of this texture specifies
+   * roughness, independent of the base layer's roughness.
+   */
+  setSheenRoughnessTexture(texture) {
+    return this.setRef("sheenRoughnessTexture", texture, {
+      channels: A$1
+    });
+  }
+};
+Sheen.EXTENSION_NAME = KHR_MATERIALS_SHEEN;
+var KHRMaterialsSheen = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_SHEEN;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Sheen property for use on a {@link Material}. */
+  createSheen() {
+    return new Sheen(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_SHEEN]) {
+        const sheen = this.createSheen();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_SHEEN, sheen);
+        const sheenDef = materialDef.extensions[KHR_MATERIALS_SHEEN];
+        if (sheenDef.sheenColorFactor !== void 0) {
+          sheen.setSheenColorFactor(sheenDef.sheenColorFactor);
+        }
+        if (sheenDef.sheenRoughnessFactor !== void 0) {
+          sheen.setSheenRoughnessFactor(sheenDef.sheenRoughnessFactor);
+        }
+        if (sheenDef.sheenColorTexture !== void 0) {
+          const textureInfoDef = sheenDef.sheenColorTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          sheen.setSheenColorTexture(texture);
+          context.setTextureInfo(sheen.getSheenColorTextureInfo(), textureInfoDef);
+        }
+        if (sheenDef.sheenRoughnessTexture !== void 0) {
+          const textureInfoDef = sheenDef.sheenRoughnessTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          sheen.setSheenRoughnessTexture(texture);
+          context.setTextureInfo(sheen.getSheenRoughnessTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const sheen = material.getExtension(KHR_MATERIALS_SHEEN);
+      if (sheen) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const sheenDef = materialDef.extensions[KHR_MATERIALS_SHEEN] = {
+          sheenColorFactor: sheen.getSheenColorFactor(),
+          sheenRoughnessFactor: sheen.getSheenRoughnessFactor()
+        };
+        if (sheen.getSheenColorTexture()) {
+          const texture = sheen.getSheenColorTexture();
+          const textureInfo = sheen.getSheenColorTextureInfo();
+          sheenDef.sheenColorTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+        if (sheen.getSheenRoughnessTexture()) {
+          const texture = sheen.getSheenRoughnessTexture();
+          const textureInfo = sheen.getSheenRoughnessTextureInfo();
+          sheenDef.sheenRoughnessTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsSheen.EXTENSION_NAME = KHR_MATERIALS_SHEEN;
+var {
+  R: R$1,
+  G: G$1,
+  B: B3,
+  A: A3
+} = TextureChannel;
+var Specular = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_SPECULAR;
+    this.propertyType = "Specular";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      specularFactor: 1,
+      specularTexture: null,
+      specularTextureInfo: new TextureInfo(this.graph, "specularTextureInfo"),
+      specularColorFactor: [1, 1, 1],
+      specularColorTexture: null,
+      specularColorTextureInfo: new TextureInfo(this.graph, "specularColorTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Specular.
+   */
+  /** Specular; linear multiplier. See {@link Specular.getSpecularTexture getSpecularTexture}. */
+  getSpecularFactor() {
+    return this.get("specularFactor");
+  }
+  /** Specular; linear multiplier. See {@link Specular.getSpecularTexture getSpecularTexture}. */
+  setSpecularFactor(factor) {
+    return this.set("specularFactor", factor);
+  }
+  /** Specular color; Linear-sRGB components. See {@link Specular.getSpecularTexture getSpecularTexture}. */
+  getSpecularColorFactor() {
+    return this.get("specularColorFactor");
+  }
+  /** Specular color; Linear-sRGB components. See {@link Specular.getSpecularTexture getSpecularTexture}. */
+  setSpecularColorFactor(factor) {
+    return this.set("specularColorFactor", factor);
+  }
+  /**
+   * Specular texture; linear multiplier. Configures the strength of the specular reflection in
+   * the dielectric BRDF. A value of zero disables the specular reflection, resulting in a pure
+   * diffuse material.
+   *
+   * Only the alpha (A) channel is used for specular strength, but this texture may optionally
+   * be packed with specular color (RGB) into a single texture.
+   */
+  getSpecularTexture() {
+    return this.getRef("specularTexture");
+  }
+  /**
+   * Settings affecting the material's use of its specular texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getSpecularTextureInfo() {
+    return this.getRef("specularTexture") ? this.getRef("specularTextureInfo") : null;
+  }
+  /** Sets specular texture. See {@link Specular.getSpecularTexture getSpecularTexture}. */
+  setSpecularTexture(texture) {
+    return this.setRef("specularTexture", texture, {
+      channels: A3
+    });
+  }
+  /**
+   * Specular color texture; linear multiplier. Defines the F0 color of the specular reflection
+   * (RGB channels, encoded in sRGB) in the the dielectric BRDF.
+   *
+   * Only RGB channels are used here, but this texture may optionally be packed with a specular
+   * factor (A) into a single texture.
+   */
+  getSpecularColorTexture() {
+    return this.getRef("specularColorTexture");
+  }
+  /**
+   * Settings affecting the material's use of its specular color texture. If no texture is
+   * attached, {@link TextureInfo} is `null`.
+   */
+  getSpecularColorTextureInfo() {
+    return this.getRef("specularColorTexture") ? this.getRef("specularColorTextureInfo") : null;
+  }
+  /** Sets specular color texture. See {@link Specular.getSpecularColorTexture getSpecularColorTexture}. */
+  setSpecularColorTexture(texture) {
+    return this.setRef("specularColorTexture", texture, {
+      channels: R$1 | G$1 | B3,
+      isColor: true
+    });
+  }
+};
+Specular.EXTENSION_NAME = KHR_MATERIALS_SPECULAR;
+var KHRMaterialsSpecular = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_SPECULAR;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Specular property for use on a {@link Material}. */
+  createSpecular() {
+    return new Specular(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_SPECULAR]) {
+        const specular = this.createSpecular();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_SPECULAR, specular);
+        const specularDef = materialDef.extensions[KHR_MATERIALS_SPECULAR];
+        if (specularDef.specularFactor !== void 0) {
+          specular.setSpecularFactor(specularDef.specularFactor);
+        }
+        if (specularDef.specularColorFactor !== void 0) {
+          specular.setSpecularColorFactor(specularDef.specularColorFactor);
+        }
+        if (specularDef.specularTexture !== void 0) {
+          const textureInfoDef = specularDef.specularTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          specular.setSpecularTexture(texture);
+          context.setTextureInfo(specular.getSpecularTextureInfo(), textureInfoDef);
+        }
+        if (specularDef.specularColorTexture !== void 0) {
+          const textureInfoDef = specularDef.specularColorTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          specular.setSpecularColorTexture(texture);
+          context.setTextureInfo(specular.getSpecularColorTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const specular = material.getExtension(KHR_MATERIALS_SPECULAR);
+      if (specular) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const specularDef = materialDef.extensions[KHR_MATERIALS_SPECULAR] = {};
+        if (specular.getSpecularFactor() !== 1) {
+          specularDef.specularFactor = specular.getSpecularFactor();
+        }
+        if (!MathUtils.eq(specular.getSpecularColorFactor(), [1, 1, 1])) {
+          specularDef.specularColorFactor = specular.getSpecularColorFactor();
+        }
+        if (specular.getSpecularTexture()) {
+          const texture = specular.getSpecularTexture();
+          const textureInfo = specular.getSpecularTextureInfo();
+          specularDef.specularTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+        if (specular.getSpecularColorTexture()) {
+          const texture = specular.getSpecularColorTexture();
+          const textureInfo = specular.getSpecularColorTextureInfo();
+          specularDef.specularColorTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsSpecular.EXTENSION_NAME = KHR_MATERIALS_SPECULAR;
+var {
+  R: R3
+} = TextureChannel;
+var Transmission = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_TRANSMISSION;
+    this.propertyType = "Transmission";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      transmissionFactor: 0,
+      transmissionTexture: null,
+      transmissionTextureInfo: new TextureInfo(this.graph, "transmissionTextureInfo")
+    });
+  }
+  /**********************************************************************************************
+   * Transmission.
+   */
+  /** Transmission; linear multiplier. See {@link Transmission.getTransmissionTexture getTransmissionTexture}. */
+  getTransmissionFactor() {
+    return this.get("transmissionFactor");
+  }
+  /** Transmission; linear multiplier. See {@link Transmission.getTransmissionTexture getTransmissionTexture}. */
+  setTransmissionFactor(factor) {
+    return this.set("transmissionFactor", factor);
+  }
+  /**
+   * Transmission texture; linear multiplier. The `r` channel of this texture specifies
+   * transmission [0-1] of the material's surface. By default this is a thin transparency
+   * effect, but volume effects (refraction, subsurface scattering) may be introduced with the
+   * addition of the `KHR_materials_volume` extension.
+   */
+  getTransmissionTexture() {
+    return this.getRef("transmissionTexture");
+  }
+  /**
+   * Settings affecting the material's use of its transmission texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getTransmissionTextureInfo() {
+    return this.getRef("transmissionTexture") ? this.getRef("transmissionTextureInfo") : null;
+  }
+  /** Sets transmission texture. See {@link Transmission.getTransmissionTexture getTransmissionTexture}. */
+  setTransmissionTexture(texture) {
+    return this.setRef("transmissionTexture", texture, {
+      channels: R3
+    });
+  }
+};
+Transmission.EXTENSION_NAME = KHR_MATERIALS_TRANSMISSION;
+var KHRMaterialsTransmission = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_TRANSMISSION;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Transmission property for use on a {@link Material}. */
+  createTransmission() {
+    return new Transmission(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_TRANSMISSION]) {
+        const transmission = this.createTransmission();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_TRANSMISSION, transmission);
+        const transmissionDef = materialDef.extensions[KHR_MATERIALS_TRANSMISSION];
+        if (transmissionDef.transmissionFactor !== void 0) {
+          transmission.setTransmissionFactor(transmissionDef.transmissionFactor);
+        }
+        if (transmissionDef.transmissionTexture !== void 0) {
+          const textureInfoDef = transmissionDef.transmissionTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          transmission.setTransmissionTexture(texture);
+          context.setTextureInfo(transmission.getTransmissionTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const transmission = material.getExtension(KHR_MATERIALS_TRANSMISSION);
+      if (transmission) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const transmissionDef = materialDef.extensions[KHR_MATERIALS_TRANSMISSION] = {
+          transmissionFactor: transmission.getTransmissionFactor()
+        };
+        if (transmission.getTransmissionTexture()) {
+          const texture = transmission.getTransmissionTexture();
+          const textureInfo = transmission.getTransmissionTextureInfo();
+          transmissionDef.transmissionTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsTransmission.EXTENSION_NAME = KHR_MATERIALS_TRANSMISSION;
+var Unlit = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_UNLIT2;
+    this.propertyType = "Unlit";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+};
+Unlit.EXTENSION_NAME = KHR_MATERIALS_UNLIT2;
+var KHRMaterialsUnlit = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_UNLIT2;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Unlit property for use on a {@link Material}. */
+  createUnlit() {
+    return new Unlit(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const materialDefs = context.jsonDoc.json.materials || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_UNLIT2]) {
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_UNLIT2, this.createUnlit());
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      if (material.getExtension(KHR_MATERIALS_UNLIT2)) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        materialDef.extensions[KHR_MATERIALS_UNLIT2] = {};
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsUnlit.EXTENSION_NAME = KHR_MATERIALS_UNLIT2;
+var Mapping = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_VARIANTS;
+    this.propertyType = "Mapping";
+    this.parentTypes = ["MappingList"];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      material: null,
+      variants: new RefSet()
+    });
+  }
+  /** The {@link Material} designated for this {@link Primitive}, under the given variants. */
+  getMaterial() {
+    return this.getRef("material");
+  }
+  /** The {@link Material} designated for this {@link Primitive}, under the given variants. */
+  setMaterial(material) {
+    return this.setRef("material", material);
+  }
+  /** Adds a {@link Variant} to this mapping. */
+  addVariant(variant) {
+    return this.addRef("variants", variant);
+  }
+  /** Removes a {@link Variant} from this mapping. */
+  removeVariant(variant) {
+    return this.removeRef("variants", variant);
+  }
+  /** Lists {@link Variant}s in this mapping. */
+  listVariants() {
+    return this.listRefs("variants");
+  }
+};
+Mapping.EXTENSION_NAME = KHR_MATERIALS_VARIANTS;
+var MappingList = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_VARIANTS;
+    this.propertyType = "MappingList";
+    this.parentTypes = [PropertyType.PRIMITIVE];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      mappings: new RefSet()
+    });
+  }
+  /** Adds a {@link Mapping} to this mapping. */
+  addMapping(mapping) {
+    return this.addRef("mappings", mapping);
+  }
+  /** Removes a {@link Mapping} from the list for this {@link Primitive}. */
+  removeMapping(mapping) {
+    return this.removeRef("mappings", mapping);
+  }
+  /** Lists {@link Mapping}s in this {@link Primitive}. */
+  listMappings() {
+    return this.listRefs("mappings");
+  }
+};
+MappingList.EXTENSION_NAME = KHR_MATERIALS_VARIANTS;
+var Variant = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_VARIANTS;
+    this.propertyType = "Variant";
+    this.parentTypes = ["MappingList"];
+  }
+};
+Variant.EXTENSION_NAME = KHR_MATERIALS_VARIANTS;
+var KHRMaterialsVariants = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_VARIANTS;
+  }
+  /** Creates a new MappingList property. */
+  createMappingList() {
+    return new MappingList(this.document.getGraph());
+  }
+  /** Creates a new Variant property. */
+  createVariant(name12 = "") {
+    return new Variant(this.document.getGraph(), name12);
+  }
+  /** Creates a new Mapping property. */
+  createMapping() {
+    return new Mapping(this.document.getGraph());
+  }
+  /** Lists all Variants on the current Document. */
+  listVariants() {
+    return Array.from(this.properties).filter((prop2) => prop2 instanceof Variant);
+  }
+  /** @hidden */
+  read(context) {
+    const jsonDoc = context.jsonDoc;
+    if (!jsonDoc.json.extensions || !jsonDoc.json.extensions[KHR_MATERIALS_VARIANTS])
+      return this;
+    const variantsRootDef = jsonDoc.json.extensions[KHR_MATERIALS_VARIANTS];
+    const variantDefs = variantsRootDef.variants || [];
+    const variants = variantDefs.map((variantDef) => this.createVariant().setName(variantDef.name || ""));
+    const meshDefs = jsonDoc.json.meshes || [];
+    meshDefs.forEach((meshDef, meshIndex) => {
+      const mesh = context.meshes[meshIndex];
+      const primDefs = meshDef.primitives || [];
+      primDefs.forEach((primDef, primIndex) => {
+        if (!primDef.extensions || !primDef.extensions[KHR_MATERIALS_VARIANTS]) {
+          return;
+        }
+        const mappingList = this.createMappingList();
+        const variantPrimDef = primDef.extensions[KHR_MATERIALS_VARIANTS];
+        for (const mappingDef of variantPrimDef.mappings) {
+          const mapping = this.createMapping();
+          if (mappingDef.material !== void 0) {
+            mapping.setMaterial(context.materials[mappingDef.material]);
+          }
+          for (const variantIndex of mappingDef.variants || []) {
+            mapping.addVariant(variants[variantIndex]);
+          }
+          mappingList.addMapping(mapping);
+        }
+        mesh.listPrimitives()[primIndex].setExtension(KHR_MATERIALS_VARIANTS, mappingList);
+      });
+    });
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const jsonDoc = context.jsonDoc;
+    const variants = this.listVariants();
+    if (!variants.length)
+      return this;
+    const variantDefs = [];
+    const variantIndexMap = /* @__PURE__ */ new Map();
+    for (const variant of variants) {
+      variantIndexMap.set(variant, variantDefs.length);
+      variantDefs.push(context.createPropertyDef(variant));
+    }
+    for (const mesh of this.document.getRoot().listMeshes()) {
+      const meshIndex = context.meshIndexMap.get(mesh);
+      mesh.listPrimitives().forEach((prim, primIndex) => {
+        const mappingList = prim.getExtension(KHR_MATERIALS_VARIANTS);
+        if (!mappingList)
+          return;
+        const primDef = context.jsonDoc.json.meshes[meshIndex].primitives[primIndex];
+        const mappingDefs = mappingList.listMappings().map((mapping) => {
+          const mappingDef = context.createPropertyDef(mapping);
+          const material = mapping.getMaterial();
+          if (material) {
+            mappingDef.material = context.materialIndexMap.get(material);
+          }
+          mappingDef.variants = mapping.listVariants().map((variant) => variantIndexMap.get(variant));
+          return mappingDef;
+        });
+        primDef.extensions = primDef.extensions || {};
+        primDef.extensions[KHR_MATERIALS_VARIANTS] = {
+          mappings: mappingDefs
+        };
+      });
+    }
+    jsonDoc.json.extensions = jsonDoc.json.extensions || {};
+    jsonDoc.json.extensions[KHR_MATERIALS_VARIANTS] = {
+      variants: variantDefs
+    };
+    return this;
+  }
+};
+KHRMaterialsVariants.EXTENSION_NAME = KHR_MATERIALS_VARIANTS;
+var {
+  G: G3
+} = TextureChannel;
+var Volume = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_MATERIALS_VOLUME;
+    this.propertyType = "Volume";
+    this.parentTypes = [PropertyType.MATERIAL];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      thicknessFactor: 0,
+      thicknessTexture: null,
+      thicknessTextureInfo: new TextureInfo(this.graph, "thicknessTexture"),
+      attenuationDistance: Infinity,
+      attenuationColor: [1, 1, 1]
+    });
+  }
+  /**********************************************************************************************
+   * Thickness.
+   */
+  /**
+   * Thickness of the volume beneath the surface in meters in the local coordinate system of the
+   * node. If the value is 0 the material is thin-walled. Otherwise the material is a volume
+   * boundary. The doubleSided property has no effect on volume boundaries.
+   */
+  getThicknessFactor() {
+    return this.get("thicknessFactor");
+  }
+  /**
+   * Thickness of the volume beneath the surface in meters in the local coordinate system of the
+   * node. If the value is 0 the material is thin-walled. Otherwise the material is a volume
+   * boundary. The doubleSided property has no effect on volume boundaries.
+   */
+  setThicknessFactor(factor) {
+    return this.set("thicknessFactor", factor);
+  }
+  /**
+   * Texture that defines the thickness, stored in the G channel. This will be multiplied by
+   * thicknessFactor.
+   */
+  getThicknessTexture() {
+    return this.getRef("thicknessTexture");
+  }
+  /**
+   * Settings affecting the material's use of its thickness texture. If no texture is attached,
+   * {@link TextureInfo} is `null`.
+   */
+  getThicknessTextureInfo() {
+    return this.getRef("thicknessTexture") ? this.getRef("thicknessTextureInfo") : null;
+  }
+  /**
+   * Texture that defines the thickness, stored in the G channel. This will be multiplied by
+   * thicknessFactor.
+   */
+  setThicknessTexture(texture) {
+    return this.setRef("thicknessTexture", texture, {
+      channels: G3
+    });
+  }
+  /**********************************************************************************************
+   * Attenuation.
+   */
+  /**
+   * Density of the medium given as the average distance in meters that light travels in the
+   * medium before interacting with a particle.
+   */
+  getAttenuationDistance() {
+    return this.get("attenuationDistance");
+  }
+  /**
+   * Density of the medium given as the average distance in meters that light travels in the
+   * medium before interacting with a particle.
+   */
+  setAttenuationDistance(distance) {
+    return this.set("attenuationDistance", distance);
+  }
+  /**
+   * Color (linear) that white light turns into due to absorption when reaching the attenuation
+   * distance.
+   */
+  getAttenuationColor() {
+    return this.get("attenuationColor");
+  }
+  /**
+   * Color (linear) that white light turns into due to absorption when reaching the attenuation
+   * distance.
+   */
+  setAttenuationColor(color) {
+    return this.set("attenuationColor", color);
+  }
+};
+Volume.EXTENSION_NAME = KHR_MATERIALS_VOLUME;
+var KHRMaterialsVolume = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MATERIALS_VOLUME;
+    this.prereadTypes = [PropertyType.MESH];
+    this.prewriteTypes = [PropertyType.MESH];
+  }
+  /** Creates a new Volume property for use on a {@link Material}. */
+  createVolume() {
+    return new Volume(this.document.getGraph());
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(_context) {
+    return this;
+  }
+  /** @hidden */
+  preread(context) {
+    const jsonDoc = context.jsonDoc;
+    const materialDefs = jsonDoc.json.materials || [];
+    const textureDefs = jsonDoc.json.textures || [];
+    materialDefs.forEach((materialDef, materialIndex) => {
+      if (materialDef.extensions && materialDef.extensions[KHR_MATERIALS_VOLUME]) {
+        const volume = this.createVolume();
+        context.materials[materialIndex].setExtension(KHR_MATERIALS_VOLUME, volume);
+        const volumeDef = materialDef.extensions[KHR_MATERIALS_VOLUME];
+        if (volumeDef.thicknessFactor !== void 0) {
+          volume.setThicknessFactor(volumeDef.thicknessFactor);
+        }
+        if (volumeDef.attenuationDistance !== void 0) {
+          volume.setAttenuationDistance(volumeDef.attenuationDistance);
+        }
+        if (volumeDef.attenuationColor !== void 0) {
+          volume.setAttenuationColor(volumeDef.attenuationColor);
+        }
+        if (volumeDef.thicknessTexture !== void 0) {
+          const textureInfoDef = volumeDef.thicknessTexture;
+          const texture = context.textures[textureDefs[textureInfoDef.index].source];
+          volume.setThicknessTexture(texture);
+          context.setTextureInfo(volume.getThicknessTextureInfo(), textureInfoDef);
+        }
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  prewrite(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listMaterials().forEach((material) => {
+      const volume = material.getExtension(KHR_MATERIALS_VOLUME);
+      if (volume) {
+        const materialIndex = context.materialIndexMap.get(material);
+        const materialDef = jsonDoc.json.materials[materialIndex];
+        materialDef.extensions = materialDef.extensions || {};
+        const volumeDef = materialDef.extensions[KHR_MATERIALS_VOLUME] = {};
+        if (volume.getThicknessFactor() > 0) {
+          volumeDef.thicknessFactor = volume.getThicknessFactor();
+        }
+        if (Number.isFinite(volume.getAttenuationDistance())) {
+          volumeDef.attenuationDistance = volume.getAttenuationDistance();
+        }
+        if (!MathUtils.eq(volume.getAttenuationColor(), [1, 1, 1])) {
+          volumeDef.attenuationColor = volume.getAttenuationColor();
+        }
+        if (volume.getThicknessTexture()) {
+          const texture = volume.getThicknessTexture();
+          const textureInfo = volume.getThicknessTextureInfo();
+          volumeDef.thicknessTexture = context.createTextureInfoDef(texture, textureInfo);
+        }
+      }
+    });
+    return this;
+  }
+};
+KHRMaterialsVolume.EXTENSION_NAME = KHR_MATERIALS_VOLUME;
+var KHRMeshQuantization = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_MESH_QUANTIZATION;
+  }
+  /** @hidden */
+  read(_2) {
+    return this;
+  }
+  /** @hidden */
+  write(_2) {
+    return this;
+  }
+};
+KHRMeshQuantization.EXTENSION_NAME = KHR_MESH_QUANTIZATION;
+var KTX2ImageUtils = class {
+  match(array) {
+    return array[0] === 171 && array[1] === 75 && array[2] === 84 && array[3] === 88 && array[4] === 32 && array[5] === 50 && array[6] === 48 && array[7] === 187 && array[8] === 13 && array[9] === 10 && array[10] === 26 && array[11] === 10;
+  }
+  getSize(array) {
+    const container = read2(array);
+    return [container.pixelWidth, container.pixelHeight];
+  }
+  getChannels(array) {
+    const container = read2(array);
+    const dfd = container.dataFormatDescriptor[0];
+    if (dfd.colorModel === KHR_DF_MODEL_ETC1S) {
+      return dfd.samples.length === 2 && (dfd.samples[1].channelType & 15) === 15 ? 4 : 3;
+    } else if (dfd.colorModel === KHR_DF_MODEL_UASTC) {
+      return (dfd.samples[0].channelType & 15) === 3 ? 4 : 3;
+    }
+    throw new Error(`Unexpected KTX2 colorModel, "${dfd.colorModel}".`);
+  }
+  getVRAMByteLength(array) {
+    const container = read2(array);
+    const hasAlpha = this.getChannels(array) > 3;
+    let uncompressedBytes = 0;
+    for (let i2 = 0; i2 < container.levels.length; i2++) {
+      const level = container.levels[i2];
+      if (level.uncompressedByteLength) {
+        uncompressedBytes += level.uncompressedByteLength;
+      } else {
+        const levelWidth = Math.max(1, Math.floor(container.pixelWidth / Math.pow(2, i2)));
+        const levelHeight = Math.max(1, Math.floor(container.pixelHeight / Math.pow(2, i2)));
+        const blockSize = hasAlpha ? 16 : 8;
+        uncompressedBytes += levelWidth / 4 * (levelHeight / 4) * blockSize;
+      }
+    }
+    return uncompressedBytes;
+  }
+};
+var KHRTextureBasisu = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_TEXTURE_BASISU2;
+    this.prereadTypes = [PropertyType.TEXTURE];
+  }
+  /** @hidden */
+  static register() {
+    ImageUtils.registerFormat("image/ktx2", new KTX2ImageUtils());
+  }
+  /** @hidden */
+  preread(context) {
+    context.jsonDoc.json.textures.forEach((textureDef) => {
+      if (textureDef.extensions && textureDef.extensions[KHR_TEXTURE_BASISU2]) {
+        const basisuDef = textureDef.extensions[KHR_TEXTURE_BASISU2];
+        textureDef.source = basisuDef.source;
+      }
+    });
+    return this;
+  }
+  /** @hidden */
+  read(_context) {
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const jsonDoc = context.jsonDoc;
+    this.document.getRoot().listTextures().forEach((texture) => {
+      if (texture.getMimeType() === "image/ktx2") {
+        const imageIndex = context.imageIndexMap.get(texture);
+        jsonDoc.json.textures.forEach((textureDef) => {
+          if (textureDef.source === imageIndex) {
+            textureDef.extensions = textureDef.extensions || {};
+            textureDef.extensions[KHR_TEXTURE_BASISU2] = {
+              source: textureDef.source
+            };
+            delete textureDef.source;
+          }
+        });
+      }
+    });
+    return this;
+  }
+};
+KHRTextureBasisu.EXTENSION_NAME = KHR_TEXTURE_BASISU2;
+var Transform = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_TEXTURE_TRANSFORM2;
+    this.propertyType = "Transform";
+    this.parentTypes = [PropertyType.TEXTURE_INFO];
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      offset: [0, 0],
+      rotation: 0,
+      scale: [1, 1],
+      texCoord: null
+    });
+  }
+  getOffset() {
+    return this.get("offset");
+  }
+  setOffset(offset) {
+    return this.set("offset", offset);
+  }
+  getRotation() {
+    return this.get("rotation");
+  }
+  setRotation(rotation) {
+    return this.set("rotation", rotation);
+  }
+  getScale() {
+    return this.get("scale");
+  }
+  setScale(scale3) {
+    return this.set("scale", scale3);
+  }
+  getTexCoord() {
+    return this.get("texCoord");
+  }
+  setTexCoord(texCoord) {
+    return this.set("texCoord", texCoord);
+  }
+};
+Transform.EXTENSION_NAME = KHR_TEXTURE_TRANSFORM2;
+var KHRTextureTransform = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_TEXTURE_TRANSFORM2;
+  }
+  /** Creates a new Transform property for use on a {@link TextureInfo}. */
+  createTransform() {
+    return new Transform(this.document.getGraph());
+  }
+  /** @hidden */
+  read(context) {
+    for (const [textureInfo, textureInfoDef] of Array.from(context.textureInfos.entries())) {
+      if (!textureInfoDef.extensions || !textureInfoDef.extensions[KHR_TEXTURE_TRANSFORM2])
+        continue;
+      const transform = this.createTransform();
+      const transformDef = textureInfoDef.extensions[KHR_TEXTURE_TRANSFORM2];
+      if (transformDef.offset !== void 0)
+        transform.setOffset(transformDef.offset);
+      if (transformDef.rotation !== void 0)
+        transform.setRotation(transformDef.rotation);
+      if (transformDef.scale !== void 0)
+        transform.setScale(transformDef.scale);
+      if (transformDef.texCoord !== void 0)
+        transform.setTexCoord(transformDef.texCoord);
+      textureInfo.setExtension(KHR_TEXTURE_TRANSFORM2, transform);
+    }
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const textureInfoEntries = Array.from(context.textureInfoDefMap.entries());
+    for (const [textureInfo, textureInfoDef] of textureInfoEntries) {
+      const transform = textureInfo.getExtension(KHR_TEXTURE_TRANSFORM2);
+      if (!transform)
+        continue;
+      textureInfoDef.extensions = textureInfoDef.extensions || {};
+      const transformDef = {};
+      const eq = MathUtils.eq;
+      if (!eq(transform.getOffset(), [0, 0]))
+        transformDef.offset = transform.getOffset();
+      if (transform.getRotation() !== 0)
+        transformDef.rotation = transform.getRotation();
+      if (!eq(transform.getScale(), [1, 1]))
+        transformDef.scale = transform.getScale();
+      if (transform.getTexCoord() != null)
+        transformDef.texCoord = transform.getTexCoord();
+      textureInfoDef.extensions[KHR_TEXTURE_TRANSFORM2] = transformDef;
+    }
+    return this;
+  }
+};
+KHRTextureTransform.EXTENSION_NAME = KHR_TEXTURE_TRANSFORM2;
+var PARENT_TYPES = [PropertyType.ROOT, PropertyType.SCENE, PropertyType.NODE, PropertyType.MESH, PropertyType.MATERIAL, PropertyType.TEXTURE, PropertyType.ANIMATION];
+var Packet = class extends ExtensionProperty {
+  init() {
+    this.extensionName = KHR_XMP_JSON_LD;
+    this.propertyType = "Packet";
+    this.parentTypes = PARENT_TYPES;
+  }
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      context: {},
+      properties: {}
+    });
+  }
+  /**********************************************************************************************
+   * Context.
+   */
+  /**
+   * Returns the XMP context definition URL for the given term.
+   * See: https://json-ld.org/spec/latest/json-ld/#the-context
+   * @param term Case-sensitive term. Usually a concise, lowercase, alphanumeric identifier.
+   */
+  getContext() {
+    return this.get("context");
+  }
+  /**
+   * Sets the XMP context definition URL for the given term.
+   * See: https://json-ld.org/spec/latest/json-ld/#the-context
+   *
+   * Example:
+   *
+   * ```typescript
+   * packet.setContext({
+   *   dc: 'http://purl.org/dc/elements/1.1/',
+   *   model3d: 'https://schema.khronos.org/model3d/xsd/1.0/',
+   * });
+   * ```
+   *
+   * @param term Case-sensitive term. Usually a concise, lowercase, alphanumeric identifier.
+   * @param definition URI for XMP namespace.
+   */
+  setContext(context) {
+    return this.set("context", _extends3({}, context));
+  }
+  /**********************************************************************************************
+   * Properties.
+   */
+  /**
+   * Lists properties defined in this packet.
+   *
+   * Example:
+   *
+   * ```typescript
+   * packet.listProperties(); // → ['dc:Language', 'dc:Creator', 'xmp:CreateDate']
+   * ```
+   */
+  listProperties() {
+    return Object.keys(this.get("properties"));
+  }
+  /**
+   * Returns the value of a property, as a literal or JSONLD object.
+   *
+   * Example:
+   *
+   * ```typescript
+   * packet.getProperty('dc:Creator'); // → {"@list": ["Acme, Inc."]}
+   * packet.getProperty('dc:Title'); // → {"@type": "rdf:Alt", "rdf:_1": {"@language": "en-US", "@value": "Lamp"}}
+   * packet.getProperty('xmp:CreateDate'); // → "2022-01-01"
+   * ```
+   */
+  getProperty(name12) {
+    const properties = this.get("properties");
+    return name12 in properties ? properties[name12] : null;
+  }
+  /**
+   * Sets the value of a property, as a literal or JSONLD object.
+   *
+   * Example:
+   *
+   * ```typescript
+   * packet.setProperty('dc:Creator', {'@list': ['Acme, Inc.']});
+   * packet.setProperty('dc:Title', {
+   * 	'@type': 'rdf:Alt',
+   * 	'rdf:_1': {'@language': 'en-US', '@value': 'Lamp'}
+   * });
+   * packet.setProperty('model3d:preferredSurfaces', {'@list': ['vertical']});
+   * ```
+   */
+  setProperty(name12, value) {
+    this._assertContext(name12);
+    const properties = _extends3({}, this.get("properties"));
+    if (value) {
+      properties[name12] = value;
+    } else {
+      delete properties[name12];
+    }
+    return this.set("properties", properties);
+  }
+  /**********************************************************************************************
+   * Serialize / Deserialize.
+   */
+  /**
+   * Serializes the packet context and properties to a JSONLD object.
+   */
+  toJSONLD() {
+    const context = copyJSON(this.get("context"));
+    const properties = copyJSON(this.get("properties"));
+    return _extends3({
+      "@context": context
+    }, properties);
+  }
+  /**
+   * Deserializes a JSONLD packet, then overwrites existing context and properties with
+   * the new values.
+   */
+  fromJSONLD(jsonld) {
+    jsonld = copyJSON(jsonld);
+    const context = jsonld["@context"];
+    if (context)
+      this.set("context", context);
+    delete jsonld["@context"];
+    return this.set("properties", jsonld);
+  }
+  /**********************************************************************************************
+   * Validation.
+   */
+  /** @hidden */
+  _assertContext(name12) {
+    const prefix = name12.split(":")[0];
+    if (!(prefix in this.get("context"))) {
+      throw new Error(`${KHR_XMP_JSON_LD}: Missing context for term, "${name12}".`);
+    }
+  }
+};
+Packet.EXTENSION_NAME = KHR_XMP_JSON_LD;
+function copyJSON(object) {
+  return JSON.parse(JSON.stringify(object));
+}
+var KHRXMP = class extends Extension {
+  constructor(...args) {
+    super(...args);
+    this.extensionName = KHR_XMP_JSON_LD;
+  }
+  /** Creates a new XMP packet, to be linked with a {@link Document} or {@link Property Properties}. */
+  createPacket() {
+    return new Packet(this.document.getGraph());
+  }
+  /** Lists XMP packets currently defined in a {@link Document}. */
+  listPackets() {
+    return Array.from(this.properties);
+  }
+  /** @hidden */
+  read(context) {
+    var _context$jsonDoc$json;
+    const extensionDef = (_context$jsonDoc$json = context.jsonDoc.json.extensions) == null ? void 0 : _context$jsonDoc$json[KHR_XMP_JSON_LD];
+    if (!extensionDef || !extensionDef.packets)
+      return this;
+    const json = context.jsonDoc.json;
+    const root = this.document.getRoot();
+    const packets = extensionDef.packets.map((packetDef) => this.createPacket().fromJSONLD(packetDef));
+    const defLists = [[json.asset], json.scenes, json.nodes, json.meshes, json.materials, json.images, json.animations];
+    const propertyLists = [[root], root.listScenes(), root.listNodes(), root.listMeshes(), root.listMaterials(), root.listTextures(), root.listAnimations()];
+    for (let i2 = 0; i2 < defLists.length; i2++) {
+      const defs = defLists[i2] || [];
+      for (let j2 = 0; j2 < defs.length; j2++) {
+        const def = defs[j2];
+        if (def.extensions && def.extensions[KHR_XMP_JSON_LD]) {
+          const xmpDef = def.extensions[KHR_XMP_JSON_LD];
+          propertyLists[i2][j2].setExtension(KHR_XMP_JSON_LD, packets[xmpDef.packet]);
+        }
+      }
+    }
+    return this;
+  }
+  /** @hidden */
+  write(context) {
+    const {
+      json
+    } = context.jsonDoc;
+    const packetDefs = [];
+    for (const packet of this.properties) {
+      packetDefs.push(packet.toJSONLD());
+      for (const parent of packet.listParents()) {
+        let parentDef;
+        switch (parent.propertyType) {
+          case PropertyType.ROOT:
+            parentDef = json.asset;
+            break;
+          case PropertyType.SCENE:
+            parentDef = json.scenes[context.sceneIndexMap.get(parent)];
+            break;
+          case PropertyType.NODE:
+            parentDef = json.nodes[context.nodeIndexMap.get(parent)];
+            break;
+          case PropertyType.MESH:
+            parentDef = json.meshes[context.meshIndexMap.get(parent)];
+            break;
+          case PropertyType.MATERIAL:
+            parentDef = json.materials[context.materialIndexMap.get(parent)];
+            break;
+          case PropertyType.TEXTURE:
+            parentDef = json.images[context.imageIndexMap.get(parent)];
+            break;
+          case PropertyType.ANIMATION:
+            parentDef = json.animations[context.animationIndexMap.get(parent)];
+            break;
+          default:
+            parentDef = null;
+            this.document.getLogger().warn(`[${KHR_XMP_JSON_LD}]: Unsupported parent property, "${parent.propertyType}"`);
+            break;
+        }
+        if (!parentDef)
+          continue;
+        parentDef.extensions = parentDef.extensions || {};
+        parentDef.extensions[KHR_XMP_JSON_LD] = {
+          packet: packetDefs.length - 1
+        };
+      }
+    }
+    if (packetDefs.length > 0) {
+      json.extensions = json.extensions || {};
+      json.extensions[KHR_XMP_JSON_LD] = {
+        packets: packetDefs
+      };
+    }
+    return this;
+  }
+};
+KHRXMP.EXTENSION_NAME = KHR_XMP_JSON_LD;
+var KHRONOS_EXTENSIONS = [KHRDracoMeshCompression, KHRLightsPunctual, KHRMaterialsAnisotropy, KHRMaterialsClearcoat, KHRMaterialsDiffuseTransmission, KHRMaterialsDispersion, KHRMaterialsEmissiveStrength, KHRMaterialsIOR, KHRMaterialsIridescence, KHRMaterialsPBRSpecularGlossiness, KHRMaterialsSpecular, KHRMaterialsSheen, KHRMaterialsTransmission, KHRMaterialsUnlit, KHRMaterialsVariants, KHRMaterialsVolume, KHRMeshQuantization, KHRTextureBasisu, KHRTextureTransform, KHRXMP];
+var ALL_EXTENSIONS = [EXTMeshGPUInstancing, EXTMeshoptCompression, EXTTextureAVIF, EXTTextureWebP, ...KHRONOS_EXTENSIONS];
+
 // src/formats/findTriplanarTextureSkip.ts
 var TEXTURE_REFS = [
   "colorTexture",
@@ -152645,11 +157205,27 @@ async function encode22(params, options) {
   }
   const materialMap = /* @__PURE__ */ new Map();
   const materialIds = Object.keys(sceneModel.materials);
+  const clearcoatExtension = materialIds.some((id) => {
+    var _a3, _b;
+    const sceneMat = sceneModel.materials[id];
+    return ((_a3 = sceneMat.clearcoat) != null ? _a3 : 0) > 0 || ((_b = sceneMat.clearcoatRoughness) != null ? _b : 0) > 0;
+  }) ? doc.createExtension(KHRMaterialsClearcoat) : null;
+  const sheenExtension = materialIds.some((id) => {
+    var _a3, _b;
+    const sceneMat = sceneModel.materials[id];
+    return ((_a3 = sceneMat.sheen) != null ? _a3 : 0) > 0 || ((_b = sceneMat.sheenRoughness) != null ? _b : 0.5) !== 0.5;
+  }) ? doc.createExtension(KHRMaterialsSheen) : null;
+  if (clearcoatExtension) {
+    io.registerExtensions([KHRMaterialsClearcoat]);
+  }
+  if (sheenExtension) {
+    io.registerExtensions([KHRMaterialsSheen]);
+  }
   for (let mi = 0; mi < materialIds.length; mi++) {
     if ((mi & 63) === 0)
       await step2("Encoding materials", mi, materialIds.length);
     const sceneMat = sceneModel.materials[materialIds[mi]];
-    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap, triplanarSkip.materialIds.has(sceneMat.id)));
+    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap, triplanarSkip.materialIds.has(sceneMat.id), clearcoatExtension, sheenExtension));
   }
   const accessorCache = /* @__PURE__ */ new Map();
   function getAccessors(geom) {
@@ -152755,8 +157331,8 @@ async function encode22(params, options) {
   await step2("Writing glTF binary", objectIds.length, objectIds.length);
   return await io.writeBinary(doc);
 }
-function buildGltfMaterial(doc, sceneMat, textureMap, skipTextures) {
-  var _a2, _b, _c;
+function buildGltfMaterial(doc, sceneMat, textureMap, skipTextures, clearcoatExtension, sheenExtension) {
+  var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k;
   const mat = doc.createMaterial(sceneMat.id);
   const c3 = sceneMat.color;
   const opacity = sceneMat.opacity !== void 0 && sceneMat.opacity !== null ? sceneMat.opacity : 1;
@@ -152767,10 +157343,19 @@ function buildGltfMaterial(doc, sceneMat, textureMap, skipTextures) {
   if (em) {
     mat.setEmissiveFactor([em[0], em[1], em[2]]);
   }
+  if (clearcoatExtension && (((_c = sceneMat.clearcoat) != null ? _c : 0) > 0 || ((_d = sceneMat.clearcoatRoughness) != null ? _d : 0) > 0)) {
+    const clearcoat = clearcoatExtension.createClearcoat().setClearcoatFactor((_e2 = sceneMat.clearcoat) != null ? _e2 : 0).setClearcoatRoughnessFactor((_f = sceneMat.clearcoatRoughness) != null ? _f : 0);
+    mat.setExtension("KHR_materials_clearcoat", clearcoat);
+  }
+  if (sheenExtension && (((_g = sceneMat.sheen) != null ? _g : 0) > 0 || ((_h = sceneMat.sheenRoughness) != null ? _h : 0.5) !== 0.5)) {
+    const sheen = (_i = sceneMat.sheen) != null ? _i : 0;
+    const gltfSheen = sheenExtension.createSheen().setSheenColorFactor([sheen, sheen, sheen]).setSheenRoughnessFactor((_j = sceneMat.sheenRoughness) != null ? _j : 0.5);
+    mat.setExtension("KHR_materials_sheen", gltfSheen);
+  }
   const alphaMode = sceneMat.alphaMode === 1 ? "MASK" : sceneMat.alphaMode === 2 ? "BLEND" : "OPAQUE";
   mat.setAlphaMode(alphaMode);
   if (alphaMode === "MASK") {
-    mat.setAlphaCutoff((_c = sceneMat.alphaCutoff) != null ? _c : 0.5);
+    mat.setAlphaCutoff((_k = sceneMat.alphaCutoff) != null ? _k : 0.5);
   }
   if (!skipTextures) {
     bindTexture(mat, "BaseColor", sceneMat.colorTexture, textureMap);
@@ -164583,7 +169168,7 @@ function getModule() {
     /** @suppress {uselessCode} */
     function(global2, env, buffer2) {
       ;
-      var a3 = new global2.Int8Array(buffer2), b5 = new global2.Int16Array(buffer2), c3 = new global2.Int32Array(buffer2), d2 = new global2.Uint8Array(buffer2), e2 = new global2.Uint16Array(buffer2), f2 = new global2.Float32Array(buffer2), g2 = new global2.Float64Array(buffer2), h3 = env.D | 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q3 = global2.Math.imul, r2 = global2.Math.clz32, s2 = env.a, t2 = env.b, u2 = env.c, v2 = env.d, w3 = env.e, x2 = env.f, y2 = env.g, z2 = env.h, A3 = env.i, B3 = env.j, C2 = env.k, D2 = env.l, E2 = env.m, F2 = env.n, G3 = env.o, H2 = env.p, I2 = env.q, J2 = env.r, K2 = env.s, L2 = env.t, M2 = env.u, N2 = env.v, O2 = env.w, P2 = env.x, Q2 = env.y, R3 = env.z, S2 = env.A, T2 = env.B, U2 = env.C, V2 = 22384, W2 = 5265264, X2 = 0;
+      var a3 = new global2.Int8Array(buffer2), b5 = new global2.Int16Array(buffer2), c3 = new global2.Int32Array(buffer2), d2 = new global2.Uint8Array(buffer2), e2 = new global2.Uint16Array(buffer2), f2 = new global2.Float32Array(buffer2), g2 = new global2.Float64Array(buffer2), h3 = env.D | 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q3 = global2.Math.imul, r2 = global2.Math.clz32, s2 = env.a, t2 = env.b, u2 = env.c, v2 = env.d, w3 = env.e, x2 = env.f, y2 = env.g, z2 = env.h, A4 = env.i, B4 = env.j, C2 = env.k, D2 = env.l, E2 = env.m, F2 = env.n, G4 = env.o, H2 = env.p, I2 = env.q, J2 = env.r, K2 = env.s, L2 = env.t, M2 = env.u, N2 = env.v, O2 = env.w, P2 = env.x, Q2 = env.y, R4 = env.z, S2 = env.A, T2 = env.B, U2 = env.C, V2 = 22384, W2 = 5265264, X2 = 0;
       function ia() {
         em();
         fm();
@@ -170147,19 +174732,19 @@ function getModule() {
       function eg(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, u3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0;
-        B4 = V2;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, u3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A5 = 0, B5 = 0, C3 = 0;
+        B5 = V2;
         V2 = V2 + 64 | 0;
-        v3 = B4 + 52 | 0;
-        u3 = B4 + 48 | 0;
-        w4 = B4 + 28 | 0;
-        x3 = B4 + 24 | 0;
-        y3 = B4 + 20 | 0;
-        p3 = B4;
+        v3 = B5 + 52 | 0;
+        u3 = B5 + 48 | 0;
+        w4 = B5 + 28 | 0;
+        x3 = B5 + 24 | 0;
+        y3 = B5 + 20 | 0;
+        p3 = B5;
         z3 = a4 + 8 | 0;
         d3 = c3[z3 >> 2] | 0;
-        A4 = a4 + 4 | 0;
-        j3 = c3[A4 >> 2] | 0;
+        A5 = a4 + 4 | 0;
+        j3 = c3[A5 >> 2] | 0;
         s3 = ((d3 | 0) == (j3 | 0) & 1) + b6 | 0;
         h4 = (s3 >>> 0) / 93 | 0;
         h4 = h4 + ((s3 - (h4 * 93 | 0) | 0) != 0 & 1) | 0;
@@ -170184,7 +174769,7 @@ function getModule() {
                 while (1) {
                   h4 = c3[e3 >> 2] | 0;
                   g3 = e3 + 4 | 0;
-                  c3[A4 >> 2] = g3;
+                  c3[A5 >> 2] = g3;
                   t3 = c3[i3 >> 2] | 0;
                   e3 = t3;
                   do
@@ -170195,7 +174780,7 @@ function getModule() {
                         d3 = e3 - d3 | 0;
                         d3 = (d3 | 0) == 0 ? 1 : d3 >> 1;
                         qg(w4, d3, d3 >>> 2, k3);
-                        c3[x3 >> 2] = c3[A4 >> 2];
+                        c3[x3 >> 2] = c3[A5 >> 2];
                         c3[y3 >> 2] = c3[z3 >> 2];
                         c3[u3 >> 2] = c3[x3 >> 2];
                         c3[v3 >> 2] = c3[y3 >> 2];
@@ -170203,8 +174788,8 @@ function getModule() {
                         d3 = c3[a4 >> 2] | 0;
                         c3[a4 >> 2] = c3[w4 >> 2];
                         c3[w4 >> 2] = d3;
-                        d3 = c3[A4 >> 2] | 0;
-                        c3[A4 >> 2] = c3[l3 >> 2];
+                        d3 = c3[A5 >> 2] | 0;
+                        c3[A5 >> 2] = c3[l3 >> 2];
                         c3[l3 >> 2] = d3;
                         d3 = c3[z3 >> 2] | 0;
                         c3[z3 >> 2] = c3[m3 >> 2];
@@ -170224,11 +174809,11 @@ function getModule() {
                         d3 = f3;
                       else {
                         vr2(f3 | 0, g3 | 0, e3 | 0) | 0;
-                        d3 = (c3[A4 >> 2] | 0) + (d3 << 2) | 0;
+                        d3 = (c3[A5 >> 2] | 0) + (d3 << 2) | 0;
                       }
                       t3 = f3 + (e3 >> 2 << 2) | 0;
                       c3[z3 >> 2] = t3;
-                      c3[A4 >> 2] = d3;
+                      c3[A5 >> 2] = d3;
                       d3 = t3;
                     }
                   while (0);
@@ -170238,7 +174823,7 @@ function getModule() {
                   b6 = b6 + -1 | 0;
                   if (!b6)
                     break a;
-                  e3 = c3[A4 >> 2] | 0;
+                  e3 = c3[A5 >> 2] | 0;
                 }
               }
             } else {
@@ -170256,7 +174841,7 @@ function getModule() {
                   b6 = b6 + -1 | 0;
                 } while ((b6 | 0) != 0);
                 if (!r3)
-                  d3 = c3[A4 >> 2] | 0;
+                  d3 = c3[A5 >> 2] | 0;
                 else {
                   i3 = p3 + 8 | 0;
                   j3 = p3 + 12 | 0;
@@ -170267,7 +174852,7 @@ function getModule() {
                   o3 = w4 + 12 | 0;
                   h4 = r3;
                   b6 = c3[i3 >> 2] | 0;
-                  d3 = c3[A4 >> 2] | 0;
+                  d3 = c3[A5 >> 2] | 0;
                   do {
                     g3 = c3[j3 >> 2] | 0;
                     e3 = g3;
@@ -170320,8 +174905,8 @@ function getModule() {
                     c3[b6 >> 2] = c3[d3 >> 2];
                     b6 = (c3[i3 >> 2] | 0) + 4 | 0;
                     c3[i3 >> 2] = b6;
-                    d3 = (c3[A4 >> 2] | 0) + 4 | 0;
-                    c3[A4 >> 2] = d3;
+                    d3 = (c3[A5 >> 2] | 0) + 4 | 0;
+                    c3[A5 >> 2] = d3;
                     h4 = h4 + -1 | 0;
                   } while ((h4 | 0) != 0);
                 }
@@ -170330,7 +174915,7 @@ function getModule() {
                   do {
                     b6 = b6 + -4 | 0;
                     sg(p3, b6);
-                    d3 = c3[A4 >> 2] | 0;
+                    d3 = c3[A5 >> 2] | 0;
                   } while ((b6 | 0) != (d3 | 0));
                   b6 = c3[z3 >> 2] | 0;
                 }
@@ -170338,15 +174923,15 @@ function getModule() {
                 c3[a4 >> 2] = c3[p3 >> 2];
                 c3[p3 >> 2] = C3;
                 C3 = p3 + 4 | 0;
-                c3[A4 >> 2] = c3[C3 >> 2];
+                c3[A5 >> 2] = c3[C3 >> 2];
                 c3[C3 >> 2] = d3;
                 C3 = p3 + 8 | 0;
                 c3[z3 >> 2] = c3[C3 >> 2];
                 c3[C3 >> 2] = b6;
                 C3 = p3 + 12 | 0;
-                A4 = c3[t3 >> 2] | 0;
+                A5 = c3[t3 >> 2] | 0;
                 c3[t3 >> 2] = c3[C3 >> 2];
-                c3[C3 >> 2] = A4;
+                c3[C3 >> 2] = A5;
                 c3[s3 >> 2] = (c3[s3 >> 2] | 0) + (q3(r3, -93) | 0);
                 tg(p3);
                 break;
@@ -170378,7 +174963,7 @@ function getModule() {
                     c3[v3 >> 2] = eq(4092) | 0;
                     pg(a4, v3);
                     d3 = d3 + -1 | 0;
-                    f3 = (((c3[z3 >> 2] | 0) - (c3[A4 >> 2] | 0) | 0) == 4 ? 92 : 93) + (c3[s3 >> 2] | 0) | 0;
+                    f3 = (((c3[z3 >> 2] | 0) - (c3[A5 >> 2] | 0) | 0) == 4 ? 92 : 93) + (c3[s3 >> 2] | 0) | 0;
                     c3[s3 >> 2] = f3;
                   } while ((d3 | 0) != 0);
                   d3 = b6 + -1 - e3 | 0;
@@ -170393,10 +174978,10 @@ function getModule() {
                 l3 = w4 + 12 | 0;
                 b6 = c3[z3 >> 2] | 0;
                 do {
-                  g3 = c3[A4 >> 2] | 0;
+                  g3 = c3[A5 >> 2] | 0;
                   h4 = c3[g3 >> 2] | 0;
                   g3 = g3 + 4 | 0;
-                  c3[A4 >> 2] = g3;
+                  c3[A5 >> 2] = g3;
                   C3 = c3[t3 >> 2] | 0;
                   e3 = C3;
                   do
@@ -170407,7 +174992,7 @@ function getModule() {
                         b6 = e3 - b6 | 0;
                         b6 = (b6 | 0) == 0 ? 1 : b6 >> 1;
                         qg(w4, b6, b6 >>> 2, i3);
-                        c3[x3 >> 2] = c3[A4 >> 2];
+                        c3[x3 >> 2] = c3[A5 >> 2];
                         c3[y3 >> 2] = c3[z3 >> 2];
                         c3[u3 >> 2] = c3[x3 >> 2];
                         c3[v3 >> 2] = c3[y3 >> 2];
@@ -170415,8 +175000,8 @@ function getModule() {
                         b6 = c3[a4 >> 2] | 0;
                         c3[a4 >> 2] = c3[w4 >> 2];
                         c3[w4 >> 2] = b6;
-                        b6 = c3[A4 >> 2] | 0;
-                        c3[A4 >> 2] = c3[j3 >> 2];
+                        b6 = c3[A5 >> 2] | 0;
+                        c3[A5 >> 2] = c3[j3 >> 2];
                         c3[j3 >> 2] = b6;
                         b6 = c3[z3 >> 2] | 0;
                         c3[z3 >> 2] = c3[k3 >> 2];
@@ -170436,11 +175021,11 @@ function getModule() {
                         b6 = f3;
                       else {
                         vr2(f3 | 0, g3 | 0, e3 | 0) | 0;
-                        b6 = (c3[A4 >> 2] | 0) + (b6 << 2) | 0;
+                        b6 = (c3[A5 >> 2] | 0) + (b6 << 2) | 0;
                       }
                       C3 = f3 + (e3 >> 2 << 2) | 0;
                       c3[z3 >> 2] = C3;
-                      c3[A4 >> 2] = b6;
+                      c3[A5 >> 2] = b6;
                       b6 = C3;
                     }
                   while (0);
@@ -170452,7 +175037,7 @@ function getModule() {
               }
             }
           while (0);
-        V2 = B4;
+        V2 = B5;
         return;
       }
       function fg(a4, b6) {
@@ -174008,7 +178593,7 @@ function getModule() {
         L2(ym() | 0, 4, 18809);
         L2(zm() | 0, 2, 18822);
         L2(Am() | 0, 4, 18837);
-        G3(Bm() | 0, 18852);
+        G4(Bm() | 0, 18852);
         Cm(18868);
         Dm(18898);
         Em(18935);
@@ -174860,13 +179445,13 @@ function getModule() {
         g3 = g3 | 0;
         h4 = h4 | 0;
         i3 = i3 | 0;
-        var j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G4 = 0, H3 = 0;
+        var j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A5 = 0, B5 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G5 = 0, H3 = 0;
         H3 = V2;
         V2 = V2 + 560 | 0;
         l3 = H3 + 32 | 0;
         w4 = H3 + 536 | 0;
-        G4 = H3;
-        F3 = G4;
+        G5 = H3;
+        F3 = G5;
         m3 = H3 + 540 | 0;
         c3[w4 >> 2] = 0;
         E3 = m3 + 12 | 0;
@@ -174884,11 +179469,11 @@ function getModule() {
         }
         do
           if (true & (j3 & 2146435072 | 0) == 2146435072) {
-            G4 = (i3 & 32 | 0) != 0;
+            G5 = (i3 & 32 | 0) != 0;
             j3 = D3 + 3 | 0;
             zo(b6, 32, f3, j3, h4 & -65537);
             to2(b6, C3, D3);
-            to2(b6, e3 != e3 | false ? G4 ? 20274 : 20278 : G4 ? 20266 : 20270, 3);
+            to2(b6, e3 != e3 | false ? G5 ? 20274 : 20278 : G5 ? 20266 : 20270, 3);
             zo(b6, 32, f3, j3, h4 ^ 8192);
           } else {
             r3 = +Eo(e3, w4) * 2;
@@ -174930,7 +179515,7 @@ function getModule() {
               a3[n3 >> 0] = i3 + 15;
               k3 = (g3 | 0) < 1;
               l3 = (h4 & 8 | 0) == 0;
-              m3 = G4;
+              m3 = G5;
               do {
                 D3 = ~~e3;
                 j3 = m3 + 1 | 0;
@@ -174956,10 +179541,10 @@ function getModule() {
               to2(b6, s3, p3);
               zo(b6, 48, f3, E3, h4 ^ 65536);
               F3 = m3 - F3 | 0;
-              to2(b6, G4, F3);
-              G4 = k3 - l3 | 0;
-              zo(b6, 48, j3 - (F3 + G4) | 0, 0, 0);
-              to2(b6, n3, G4);
+              to2(b6, G5, F3);
+              G5 = k3 - l3 | 0;
+              zo(b6, 48, j3 - (F3 + G5) | 0, 0, 0);
+              to2(b6, n3, G5);
               zo(b6, 32, f3, E3, h4 ^ 8192);
               j3 = E3;
               break;
@@ -174973,17 +179558,17 @@ function getModule() {
               e3 = r3;
               j3 = c3[w4 >> 2] | 0;
             }
-            B4 = (j3 | 0) < 0 ? l3 : l3 + 288 | 0;
-            l3 = B4;
+            B5 = (j3 | 0) < 0 ? l3 : l3 + 288 | 0;
+            l3 = B5;
             do {
               z3 = ~~e3 >>> 0;
               c3[l3 >> 2] = z3;
               l3 = l3 + 4 | 0;
               e3 = (e3 - +(z3 >>> 0)) * 1e9;
             } while (e3 != 0);
-            z3 = B4;
+            z3 = B5;
             if ((j3 | 0) > 0) {
-              o3 = B4;
+              o3 = B5;
               while (1) {
                 n3 = (j3 | 0) < 29 ? j3 : 29;
                 j3 = l3 + -4 | 0;
@@ -175033,7 +179618,7 @@ function getModule() {
                   break;
               }
             } else
-              m3 = B4;
+              m3 = B5;
             if ((j3 | 0) < 0) {
               g3 = ((k3 + 25 | 0) / 9 | 0) + 1 | 0;
               t3 = (v3 | 0) == 102;
@@ -175058,7 +179643,7 @@ function getModule() {
                   }
                 } else
                   m3 = (c3[m3 >> 2] | 0) == 0 ? m3 + 4 | 0 : m3;
-                j3 = t3 ? B4 : m3;
+                j3 = t3 ? B5 : m3;
                 l3 = (l3 - j3 >> 2 | 0) > (g3 | 0) ? j3 + (g3 << 2) | 0 : l3;
                 j3 = (c3[w4 >> 2] | 0) + s3 | 0;
                 c3[w4 >> 2] = j3;
@@ -175084,7 +179669,7 @@ function getModule() {
             if ((m3 | 0) < (((l3 - z3 >> 2) * 9 | 0) + -9 | 0)) {
               w4 = m3 + 9216 | 0;
               m3 = (w4 | 0) / 9 | 0;
-              g3 = B4 + 4 + (m3 + -1024 << 2) | 0;
+              g3 = B5 + 4 + (m3 + -1024 << 2) | 0;
               m3 = w4 - (m3 * 9 | 0) | 0;
               if ((m3 | 0) < 8) {
                 n3 = 10;
@@ -175194,14 +179779,14 @@ function getModule() {
                   k3 = k3 + -1 | 0;
                 }
                 if (!(h4 & 8)) {
-                  if (v3 ? (A4 = c3[w4 + -4 >> 2] | 0, (A4 | 0) != 0) : 0)
-                    if (!((A4 >>> 0) % 10 | 0)) {
+                  if (v3 ? (A5 = c3[w4 + -4 >> 2] | 0, (A5 | 0) != 0) : 0)
+                    if (!((A5 >>> 0) % 10 | 0)) {
                       m3 = 0;
                       l3 = 10;
                       do {
                         l3 = l3 * 10 | 0;
                         m3 = m3 + 1 | 0;
-                      } while (!((A4 >>> 0) % (l3 >>> 0) | 0 | 0));
+                      } while (!((A5 >>> 0) % (l3 >>> 0) | 0 | 0));
                     } else
                       m3 = 0;
                   else
@@ -175248,10 +179833,10 @@ function getModule() {
             to2(b6, C3, D3);
             zo(b6, 48, f3, j3, h4 ^ 65536);
             if (s3) {
-              p3 = n3 >>> 0 > B4 >>> 0 ? B4 : n3;
-              s3 = G4 + 9 | 0;
+              p3 = n3 >>> 0 > B5 >>> 0 ? B5 : n3;
+              s3 = G5 + 9 | 0;
               n3 = s3;
-              o3 = G4 + 8 | 0;
+              o3 = G5 + 8 | 0;
               m3 = p3;
               do {
                 l3 = yo(c3[m3 >> 2] | 0, 0, s3) | 0;
@@ -175260,25 +179845,25 @@ function getModule() {
                     a3[o3 >> 0] = 48;
                     l3 = o3;
                   }
-                } else if (l3 >>> 0 > G4 >>> 0) {
-                  wr2(G4 | 0, 48, l3 - F3 | 0) | 0;
+                } else if (l3 >>> 0 > G5 >>> 0) {
+                  wr2(G5 | 0, 48, l3 - F3 | 0) | 0;
                   do
                     l3 = l3 + -1 | 0;
-                  while (l3 >>> 0 > G4 >>> 0);
+                  while (l3 >>> 0 > G5 >>> 0);
                 }
                 to2(b6, l3, n3 - l3 | 0);
                 m3 = m3 + 4 | 0;
-              } while (m3 >>> 0 <= B4 >>> 0);
+              } while (m3 >>> 0 <= B5 >>> 0);
               if (!((h4 & 8 | 0) == 0 & (t3 ^ 1)))
                 to2(b6, 20282, 1);
               if (m3 >>> 0 < w4 >>> 0 & (k3 | 0) > 0)
                 while (1) {
                   l3 = yo(c3[m3 >> 2] | 0, 0, s3) | 0;
-                  if (l3 >>> 0 > G4 >>> 0) {
-                    wr2(G4 | 0, 48, l3 - F3 | 0) | 0;
+                  if (l3 >>> 0 > G5 >>> 0) {
+                    wr2(G5 | 0, 48, l3 - F3 | 0) | 0;
                     do
                       l3 = l3 + -1 | 0;
-                    while (l3 >>> 0 > G4 >>> 0);
+                    while (l3 >>> 0 > G5 >>> 0);
                   }
                   to2(b6, l3, (k3 | 0) < 9 ? k3 : 9);
                   m3 = m3 + 4 | 0;
@@ -175293,11 +179878,11 @@ function getModule() {
             } else {
               w4 = v3 ? w4 : n3 + 4 | 0;
               if (n3 >>> 0 < w4 >>> 0 & (k3 | 0) > -1) {
-                g3 = G4 + 9 | 0;
+                g3 = G5 + 9 | 0;
                 t3 = (h4 & 8 | 0) == 0;
                 v3 = g3;
                 p3 = 0 - F3 | 0;
-                s3 = G4 + 8 | 0;
+                s3 = G5 + 8 | 0;
                 o3 = n3;
                 do {
                   l3 = yo(c3[o3 >> 2] | 0, 0, g3) | 0;
@@ -175316,12 +179901,12 @@ function getModule() {
                       to2(b6, 20282, 1);
                       l3 = m3;
                     } else {
-                      if (l3 >>> 0 <= G4 >>> 0)
+                      if (l3 >>> 0 <= G5 >>> 0)
                         break;
-                      wr2(G4 | 0, 48, l3 + p3 | 0) | 0;
+                      wr2(G5 | 0, 48, l3 + p3 | 0) | 0;
                       do
                         l3 = l3 + -1 | 0;
-                      while (l3 >>> 0 > G4 >>> 0);
+                      while (l3 >>> 0 > G5 >>> 0);
                     }
                   while (0);
                   F3 = v3 - l3 | 0;
@@ -175421,19 +180006,19 @@ function getModule() {
         i3 = i3 | 0;
         j3 = j3 | 0;
         k3 = k3 | 0;
-        var l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G4 = 0, H3 = 0, I3 = 0, J3 = 0, K3 = 0;
+        var l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A5 = 0, B5 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G5 = 0, H3 = 0, I3 = 0, J3 = 0, K3 = 0;
         J3 = V2;
         V2 = V2 + 64 | 0;
-        G4 = J3 + 56 | 0;
+        G5 = J3 + 56 | 0;
         I3 = J3 + 40 | 0;
-        B4 = J3;
+        B5 = J3;
         D3 = J3 + 48 | 0;
         E3 = J3 + 60 | 0;
-        c3[G4 >> 2] = e3;
+        c3[G5 >> 2] = e3;
         y3 = (d3 | 0) != 0;
-        z3 = B4 + 40 | 0;
-        A4 = z3;
-        B4 = B4 + 39 | 0;
+        z3 = B5 + 40 | 0;
+        A5 = z3;
+        B5 = B5 + 39 | 0;
         C3 = D3 + 4 | 0;
         l3 = 0;
         e3 = 0;
@@ -175452,7 +180037,7 @@ function getModule() {
                     break;
                   }
               while (0);
-              r3 = c3[G4 >> 2] | 0;
+              r3 = c3[G5 >> 2] | 0;
               l3 = a3[r3 >> 0] | 0;
               if (!(l3 << 24 >> 24)) {
                 x3 = 92;
@@ -175474,7 +180059,7 @@ function getModule() {
                     }
                   }
                   w4 = m3 + 1 | 0;
-                  c3[G4 >> 2] = w4;
+                  c3[G5 >> 2] = w4;
                   l3 = a3[w4 >> 0] | 0;
                   m3 = w4;
                 }
@@ -175488,7 +180073,7 @@ function getModule() {
                         break c;
                       l3 = l3 + 1 | 0;
                       m3 = m3 + 2 | 0;
-                      c3[G4 >> 2] = m3;
+                      c3[G5 >> 2] = m3;
                     } while ((a3[m3 >> 0] | 0) == 37);
                   }
                 while (0);
@@ -175496,8 +180081,8 @@ function getModule() {
               if (y3)
                 to2(d3, r3, l3);
             } while ((l3 | 0) != 0);
-            w4 = (bo(a3[(c3[G4 >> 2] | 0) + 1 >> 0] | 0) | 0) == 0;
-            m3 = c3[G4 >> 2] | 0;
+            w4 = (bo(a3[(c3[G5 >> 2] | 0) + 1 >> 0] | 0) | 0) == 0;
+            m3 = c3[G5 >> 2] | 0;
             if (!w4 ? (a3[m3 + 2 >> 0] | 0) == 36 : 0) {
               t3 = (a3[m3 + 1 >> 0] | 0) + -48 | 0;
               p3 = 1;
@@ -175508,7 +180093,7 @@ function getModule() {
               l3 = 1;
             }
             l3 = m3 + l3 | 0;
-            c3[G4 >> 2] = l3;
+            c3[G5 >> 2] = l3;
             m3 = a3[l3 >> 0] | 0;
             n3 = (m3 << 24 >> 24) + -32 | 0;
             if (n3 >>> 0 > 31 | (1 << n3 & 75913 | 0) == 0)
@@ -175518,13 +180103,13 @@ function getModule() {
               do {
                 o3 = 1 << n3 | o3;
                 l3 = l3 + 1 | 0;
-                c3[G4 >> 2] = l3;
+                c3[G5 >> 2] = l3;
                 m3 = a3[l3 >> 0] | 0;
                 n3 = (m3 << 24 >> 24) + -32 | 0;
               } while (!(n3 >>> 0 > 31 | (1 << n3 & 75913 | 0) == 0));
             }
             if (m3 << 24 >> 24 == 42) {
-              if ((bo(a3[l3 + 1 >> 0] | 0) | 0) != 0 ? (H3 = c3[G4 >> 2] | 0, (a3[H3 + 2 >> 0] | 0) == 36) : 0) {
+              if ((bo(a3[l3 + 1 >> 0] | 0) | 0) != 0 ? (H3 = c3[G5 >> 2] | 0, (a3[H3 + 2 >> 0] | 0) == 36) : 0) {
                 l3 = H3 + 1 | 0;
                 c3[i3 + ((a3[l3 >> 0] | 0) + -48 << 2) >> 2] = 10;
                 l3 = c3[h4 + ((a3[l3 >> 0] | 0) + -48 << 3) >> 2] | 0;
@@ -175542,38 +180127,38 @@ function getModule() {
                 } else
                   l3 = 0;
                 n3 = 0;
-                m3 = (c3[G4 >> 2] | 0) + 1 | 0;
+                m3 = (c3[G5 >> 2] | 0) + 1 | 0;
               }
-              c3[G4 >> 2] = m3;
+              c3[G5 >> 2] = m3;
               w4 = (l3 | 0) < 0;
               v3 = w4 ? 0 - l3 | 0 : l3;
               o3 = w4 ? o3 | 8192 : o3;
               w4 = n3;
             } else {
-              l3 = uo(G4) | 0;
+              l3 = uo(G5) | 0;
               if ((l3 | 0) < 0) {
                 e3 = -1;
                 break;
               }
               v3 = l3;
               w4 = p3;
-              m3 = c3[G4 >> 2] | 0;
+              m3 = c3[G5 >> 2] | 0;
             }
             do
               if ((a3[m3 >> 0] | 0) == 46) {
                 l3 = m3 + 1 | 0;
                 if ((a3[l3 >> 0] | 0) != 42) {
-                  c3[G4 >> 2] = l3;
-                  l3 = uo(G4) | 0;
-                  m3 = c3[G4 >> 2] | 0;
+                  c3[G5 >> 2] = l3;
+                  l3 = uo(G5) | 0;
+                  m3 = c3[G5 >> 2] | 0;
                   break;
                 }
-                if (bo(a3[m3 + 2 >> 0] | 0) | 0 ? (F3 = c3[G4 >> 2] | 0, (a3[F3 + 3 >> 0] | 0) == 36) : 0) {
+                if (bo(a3[m3 + 2 >> 0] | 0) | 0 ? (F3 = c3[G5 >> 2] | 0, (a3[F3 + 3 >> 0] | 0) == 36) : 0) {
                   l3 = F3 + 2 | 0;
                   c3[i3 + ((a3[l3 >> 0] | 0) + -48 << 2) >> 2] = 10;
                   l3 = c3[h4 + ((a3[l3 >> 0] | 0) + -48 << 3) >> 2] | 0;
                   m3 = F3 + 4 | 0;
-                  c3[G4 >> 2] = m3;
+                  c3[G5 >> 2] = m3;
                   break;
                 }
                 if (w4 | 0) {
@@ -175586,8 +180171,8 @@ function getModule() {
                   c3[f3 >> 2] = s3 + 4;
                 } else
                   l3 = 0;
-                m3 = (c3[G4 >> 2] | 0) + 2 | 0;
-                c3[G4 >> 2] = m3;
+                m3 = (c3[G5 >> 2] | 0) + 2 | 0;
+                c3[G5 >> 2] = m3;
               } else
                 l3 = -1;
             while (0);
@@ -175599,7 +180184,7 @@ function getModule() {
               }
               n3 = m3;
               m3 = m3 + 1 | 0;
-              c3[G4 >> 2] = m3;
+              c3[G5 >> 2] = m3;
               n3 = a3[(a3[n3 >> 0] | 0) + -65 + (176 + (s3 * 58 | 0)) >> 0] | 0;
               p3 = n3 & 255;
               if ((p3 + -1 | 0) >>> 0 >= 8)
@@ -175635,7 +180220,7 @@ function getModule() {
                   break a;
                 }
                 vo(I3, p3, f3, k3);
-                m3 = c3[G4 >> 2] | 0;
+                m3 = c3[G5 >> 2] | 0;
                 x3 = 55;
               }
             while (0);
@@ -175719,7 +180304,7 @@ function getModule() {
                         case 111: {
                           q4 = I3;
                           q4 = xo(c3[q4 >> 2] | 0, c3[q4 + 4 >> 2] | 0, z3) | 0;
-                          n3 = A4 - q4 | 0;
+                          n3 = A5 - q4 | 0;
                           o3 = 0;
                           p3 = 20230;
                           l3 = (t3 & 8 | 0) == 0 | (l3 | 0) > (n3 | 0) ? l3 : n3 + 1 | 0;
@@ -175759,13 +180344,13 @@ function getModule() {
                           break;
                         }
                         case 99: {
-                          a3[B4 >> 0] = c3[I3 >> 2];
-                          r3 = B4;
+                          a3[B5 >> 0] = c3[I3 >> 2];
+                          r3 = B5;
                           o3 = 0;
                           p3 = 20230;
                           q4 = 1;
                           m3 = n3;
-                          l3 = A4;
+                          l3 = A5;
                           break;
                         }
                         case 115: {
@@ -175816,7 +180401,7 @@ function getModule() {
                           p3 = 20230;
                           q4 = l3;
                           m3 = t3;
-                          l3 = A4;
+                          l3 = A5;
                         }
                       }
                     while (0);
@@ -175895,11 +180480,11 @@ function getModule() {
                     m3 = I3;
                     m3 = (c3[m3 >> 2] | 0) != 0 | (c3[m3 + 4 >> 2] | 0) != 0;
                     K3 = (l3 | 0) != 0 | m3;
-                    m3 = A4 - q4 + ((m3 ^ 1) & 1) | 0;
+                    m3 = A5 - q4 + ((m3 ^ 1) & 1) | 0;
                     r3 = K3 ? q4 : z3;
                     q4 = K3 ? (l3 | 0) > (m3 | 0) ? l3 : m3 : 0;
                     m3 = (l3 | 0) > -1 ? n3 & -65537 : n3;
-                    l3 = A4;
+                    l3 = A5;
                   } else if ((x3 | 0) == 89) {
                     x3 = 0;
                     zo(d3, 32, v3, l3, t3 ^ 8192);
@@ -179665,7 +184250,7 @@ function getModule() {
         d3 = b6 + e3 | 0;
         do
           if ((e3 | 0) < 1 | d3 >>> 0 > b6 >>> 0) {
-            if (d3 >>> 0 > (R3() | 0) >>> 0 ? (T2(d3 | 0) | 0) == 0 : 0)
+            if (d3 >>> 0 > (R4() | 0) >>> 0 ? (T2(d3 | 0) | 0) == 0 : 0)
               break;
             c3[a4 >> 2] = d3;
             e3 = b6;
@@ -190016,7 +194601,7 @@ async function encode20(params, options) {
     }
     const color = mesh.color || [1, 1, 1];
     const opacity = (_a2 = mesh.opacity) != null ? _a2 : 1;
-    const dissolve = clamp012(opacity);
+    const dissolve = clamp013(opacity);
     lines.push(`newmtl ${sanitizeMTLName2(fallbackMaterialId)}`);
     lines.push(`Kd ${formatNum3(color[0])} ${formatNum3(color[1])} ${formatNum3(color[2])}`);
     lines.push(`Ka 0.000000 0.000000 0.000000`);
@@ -190035,7 +194620,7 @@ function writeSceneMaterial(lines, materialName, material) {
   var _a2, _b, _c, _d;
   const color = material.color || [1, 1, 1];
   const opacity = (_a2 = material.opacity) != null ? _a2 : 1;
-  const dissolve = clamp012(opacity);
+  const dissolve = clamp013(opacity);
   lines.push(`newmtl ${sanitizeMTLName2(materialName)}`);
   lines.push(`Kd ${formatNum3(color[0])} ${formatNum3(color[1])} ${formatNum3(color[2])}`);
   lines.push(`Ka 0.000000 0.000000 0.000000`);
@@ -190068,7 +194653,7 @@ function sanitizeMTLName2(name12) {
 function sanitizeTexturePath(path2) {
   return String(path2 || "").trim();
 }
-function clamp012(value) {
+function clamp013(value) {
   if (!isFinite(value)) {
     return 1;
   }
@@ -193644,9 +198229,9 @@ function mergeStyle(parent, attrs, opts, classMap) {
   const dasharrayStr = pick2("stroke-dasharray");
   const rawStroke = strokeStr === void 0 ? parent.stroke : strokeStr === "none" ? null : (_a2 = parseColor(strokeStr)) != null ? _a2 : parent.stroke;
   const rawFill = fillStr === void 0 ? parent.fill : fillStr === "none" ? null : (_b = parseColor(fillStr)) != null ? _b : parent.fill;
-  const fillOpacityOwn = clamp013(parseFloatOr(fillOpacityStr, 1));
-  const strokeOpacityOwn = clamp013(parseFloatOr(strokeOpacityStr, 1));
-  const opacityOwn = clamp013(parseFloatOr(opacityStr, 1));
+  const fillOpacityOwn = clamp014(parseFloatOr(fillOpacityStr, 1));
+  const strokeOpacityOwn = clamp014(parseFloatOr(strokeOpacityStr, 1));
+  const opacityOwn = clamp014(parseFloatOr(opacityStr, 1));
   const fillOpacity = parent.fillOpacity * fillOpacityOwn * opacityOwn;
   const strokeOpacity = parent.strokeOpacity * strokeOpacityOwn * opacityOwn;
   const dasharray = dasharrayStr === void 0 ? parent.dasharray : dasharrayStr === "none" ? null : (_c = parseDashArray(dasharrayStr)) != null ? _c : parent.dasharray;
@@ -193659,7 +198244,7 @@ function mergeStyle(parent, attrs, opts, classMap) {
     dasharray
   };
 }
-function clamp013(n2) {
+function clamp014(n2) {
   return n2 < 0 ? 0 : n2 > 1 ? 1 : n2;
 }
 function parseFloatOr(s2, fallback) {
@@ -202947,7 +207532,7 @@ function invertRigidMat4(M2, dest) {
   dest[14] = -(r02 * tx + r12 * ty + r22 * tz);
   dest[15] = 1;
 }
-function jacobiEigen4(A3, V2) {
+function jacobiEigen4(A4, V2) {
   for (let i2 = 0; i2 < 16; i2++)
     V2[i2] = 0;
   for (let i2 = 0; i2 < 4; i2++)
@@ -202958,7 +207543,7 @@ function jacobiEigen4(A3, V2) {
     let off = 0;
     for (let i2 = 0; i2 < 4; i2++) {
       for (let j2 = i2 + 1; j2 < 4; j2++) {
-        const v2 = A3[i2 * 4 + j2];
+        const v2 = A4[i2 * 4 + j2];
         off += v2 * v2;
       }
     }
@@ -202966,28 +207551,28 @@ function jacobiEigen4(A3, V2) {
       break;
     for (let p2 = 0; p2 < 4; p2++) {
       for (let q3 = p2 + 1; q3 < 4; q3++) {
-        const apq = A3[p2 * 4 + q3];
+        const apq = A4[p2 * 4 + q3];
         if (Math.abs(apq) < 1e-16)
           continue;
-        const app = A3[p2 * 4 + p2];
-        const aqq = A3[q3 * 4 + q3];
+        const app = A4[p2 * 4 + p2];
+        const aqq = A4[q3 * 4 + q3];
         const theta = (aqq - app) / (2 * apq);
         const t2 = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(1 + theta * theta));
         const c3 = 1 / Math.sqrt(1 + t2 * t2);
         const s2 = t2 * c3;
-        A3[p2 * 4 + p2] = app - t2 * apq;
-        A3[q3 * 4 + q3] = aqq + t2 * apq;
-        A3[p2 * 4 + q3] = 0;
-        A3[q3 * 4 + p2] = 0;
+        A4[p2 * 4 + p2] = app - t2 * apq;
+        A4[q3 * 4 + q3] = aqq + t2 * apq;
+        A4[p2 * 4 + q3] = 0;
+        A4[q3 * 4 + p2] = 0;
         for (let i2 = 0; i2 < 4; i2++) {
           if (i2 === p2 || i2 === q3)
             continue;
-          const aip = A3[i2 * 4 + p2];
-          const aiq = A3[i2 * 4 + q3];
-          A3[i2 * 4 + p2] = c3 * aip - s2 * aiq;
-          A3[p2 * 4 + i2] = A3[i2 * 4 + p2];
-          A3[i2 * 4 + q3] = s2 * aip + c3 * aiq;
-          A3[q3 * 4 + i2] = A3[i2 * 4 + q3];
+          const aip = A4[i2 * 4 + p2];
+          const aiq = A4[i2 * 4 + q3];
+          A4[i2 * 4 + p2] = c3 * aip - s2 * aiq;
+          A4[p2 * 4 + i2] = A4[i2 * 4 + p2];
+          A4[i2 * 4 + q3] = s2 * aip + c3 * aiq;
+          A4[q3 * 4 + i2] = A4[i2 * 4 + q3];
         }
         for (let i2 = 0; i2 < 4; i2++) {
           const vip = V2[i2 * 4 + p2];
@@ -202998,7 +207583,7 @@ function jacobiEigen4(A3, V2) {
       }
     }
   }
-  return new Float64Array([A3[0], A3[5], A3[10], A3[15]]);
+  return new Float64Array([A4[0], A4[5], A4[10], A4[15]]);
 }
 function aabbDiagonal(aabb) {
   const dx = aabb[3] - aabb[0];
@@ -205377,7 +209962,7 @@ var ModelConverter = class {
       const scene = new Scene();
       const data = new Data2();
       const pipelineResult = {
-        pipeline: this,
+        modelConverter: this,
         pipeline: pipelineId,
         scene,
         data,
@@ -205779,14 +210364,14 @@ __export(manifest_exports, {
 });
 
 // src/conversion/pipeline/reporters/manifest/createManifestReport.ts
-var createManifestReport = (pipelineResult) => {
+var createManifestReport = (modelConverterResult) => {
   return {
-    files: getEntries(pipelineResult)
+    files: getEntries(modelConverterResult)
   };
 };
-function getEntries(pipelineResult) {
+function getEntries(modelConverterResult) {
   const entries = [];
-  const inputEntries = !pipelineResult.outputs || Object.keys(pipelineResult.outputs).length === 0 ? pipelineResult.inputs : pipelineResult.outputs;
+  const inputEntries = !modelConverterResult.outputs || Object.keys(modelConverterResult.outputs).length === 0 ? modelConverterResult.inputs : modelConverterResult.outputs;
   for (let id in inputEntries) {
     const inputEntry = inputEntries[id];
     entries.push({
@@ -205797,7 +210382,7 @@ function getEntries(pipelineResult) {
       fileDataType: inputEntry.fileDataType,
       options: inputEntry.options
       //,
-      //aabb: Array.from(Array.from(pipelineResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
+      //aabb: Array.from(Array.from(modelConverterResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
     });
   }
   return entries;
@@ -205956,8 +210541,8 @@ function collectFileSizes(result) {
 }
 
 // src/conversion/pipeline/reporters/optimization/createOptimizationReport.ts
-var createOptimizationReport = (pipelineResult) => {
-  const inspection = pipelineResult.inspection;
+var createOptimizationReport = (modelConverterResult) => {
+  const inspection = modelConverterResult.inspection;
   if (!inspection)
     return null;
   const counts = { sceneModels: 0, fixed: 0, skipped: 0, errors: 0 };
@@ -205980,13 +210565,13 @@ var createOptimizationReport = (pipelineResult) => {
   const outputs = {};
   let bytesIn = 0;
   let bytesOut = 0;
-  for (const id of Object.keys(pipelineResult.inputs || {})) {
-    const i2 = pipelineResult.inputs[id];
+  for (const id of Object.keys(modelConverterResult.inputs || {})) {
+    const i2 = modelConverterResult.inputs[id];
     inputs[id] = { filePath: i2.filePath, fileFormat: i2.fileFormat, fileDataSizeBytes: i2.fileDataSizeBytes };
     bytesIn += i2.fileDataSizeBytes || 0;
   }
-  for (const id of Object.keys(pipelineResult.outputs || {})) {
-    const o2 = pipelineResult.outputs[id];
+  for (const id of Object.keys(modelConverterResult.outputs || {})) {
+    const o2 = modelConverterResult.outputs[id];
     outputs[id] = { filePath: o2.filePath, fileFormat: o2.fileFormat, fileDataSizeBytes: o2.fileDataSizeBytes };
     bytesOut += o2.fileDataSizeBytes || 0;
   }
@@ -205995,8 +210580,8 @@ var createOptimizationReport = (pipelineResult) => {
 };
 
 // src/conversion/pipeline/reporters/conversion/createConversionReport.ts
-var createConversionReport = (pipelineResult) => {
-  const outputIds = Object.keys(pipelineResult.outputs);
+var createConversionReport = (modelConverterResult) => {
+  const outputIds = Object.keys(modelConverterResult.outputs);
   if (outputIds.length === 0)
     return null;
   const summary = {
@@ -206011,7 +210596,7 @@ var createConversionReport = (pipelineResult) => {
   const warnings = [];
   const errors = [];
   for (const id of outputIds) {
-    const output = pipelineResult.outputs[id];
+    const output = modelConverterResult.outputs[id];
     const status = output.errors.length ? "failed" : output.warnings.length ? "lossy" : "ok";
     summary.outputs++;
     summary[status]++;
@@ -206031,7 +210616,7 @@ var createConversionReport = (pipelineResult) => {
       errors.push({ output: id, message });
     }
   }
-  for (const message of pipelineResult.errors) {
+  for (const message of modelConverterResult.errors) {
     summary.errors++;
     errors.push({ output: null, message });
   }
@@ -206188,7 +210773,7 @@ var CoordinateSystems = {
     scaleToMeters: 1
   }
 };
-var pipeline = new ModelConverter({
+var modelConverter = new ModelConverter({
   loaders: {
     "ifc": new IFCLoader(),
     "dotbim": new DotBIMLoader(),
@@ -206866,7 +211451,7 @@ var pipeline = new ModelConverter({
   applyInspectionConfig,
   applyOptimizationConfig,
   applyRuleConfig,
-  pipeline,
+  modelConverter,
   reporters,
   resolveExporterId,
   resolveLoaderId,

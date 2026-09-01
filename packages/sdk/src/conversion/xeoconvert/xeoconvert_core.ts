@@ -91,7 +91,7 @@ export const CoordinateSystems = {
  * them. (Their DXF/SVG *exporters* do conform and are registered, so the
  * converter can write those formats even though it can't read them.)
  */
-export const pipeline = new ModelConverter({
+export const modelConverter = new ModelConverter({
 
   loaders: {
     "ifc": new IFCLoader(),

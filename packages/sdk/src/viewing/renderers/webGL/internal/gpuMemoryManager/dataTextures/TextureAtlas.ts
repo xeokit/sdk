@@ -1,4 +1,5 @@
 import {EventEmitter, SDKErrorType, type SDKResult} from "../../../../../../base/core";
+import {RepeatWrapping} from "../../../../../../base/constants";
 import {EventDispatcher} from "strongly-typed-events";
 import {
   createSanitizedAlphaMaskedColorImageData,
@@ -24,6 +25,8 @@ export type ImageSource = HTMLImageElement | HTMLCanvasElement | ImageBitmap | O
 
 export type TextureAtlasUploadOptions = {
   sanitizeAlphaMaskRGB?: boolean;
+  wrapS?: number;
+  wrapT?: number;
 };
 
 interface Shelf {
@@ -43,6 +46,8 @@ interface AtlasEntry {
   height: number;
   source: ImageSource;
   sanitizeAlphaMaskRGB: boolean;
+  wrapS?: number;
+  wrapT?: number;
 }
 
 const ALPHA_MASK_RGB_ENTRY_SUFFIX = "::alphaMaskRGB";
@@ -116,12 +121,11 @@ export class TextureAtlas {
    * Gutter (pixels) around each entry on a mipmapped atlas. Each
    * mip level halves the entry's footprint, so adjacent entries
    * can bleed across the original level-0 boundary at higher
-   * levels — `8` covers entries down to ~16-pixel level-0 sizes
-   * cleanly. Larger entries waste a small fraction of the atlas;
-   * smaller entries (~tens of pixels) might still bleed at the
-   * tiniest mips, which is acceptable for first-cut Phase 1.
+   * levels. `32` keeps large repeated road/building textures from
+   * averaging against the neutral atlas fill through most visible mip
+   * levels, while still wasting only a small fraction of a 4096 atlas.
    */
-  public static readonly DEFAULT_PADDING_MIPMAP = 8;
+  public static readonly DEFAULT_PADDING_MIPMAP = 32;
 
   /**
    * Per-GL-context cache of the resources used by the sRGB
@@ -163,19 +167,29 @@ export class TextureAtlas {
   public allocated: boolean = false;
 
   /**
-   * `true` when the atlas was allocated with a full mip pyramid
-   * (`floor(log2(size)) + 1` levels) and is sampled trilinearly.
-   * Set from the constructor option; `false` keeps the cheap
-   * single-level path.
+   * `true` when the atlas allocates a capped mip chain and samples
+   * it trilinearly. Set from the constructor option; `false` keeps
+   * the cheap single-level path.
    */
   public mipmap: boolean = false;
+
+  /**
+   * Number of mip levels allocated for this atlas. Mipmapped atlases
+   * intentionally stop at the deepest level where the entry gutter still
+   * protects sub-rect samples; beyond that level, atlas entries can bleed
+   * into neighbours or sentinel fill.
+   */
+  private _mipLevels: number = 1;
+
+  /** Highest mip level the sampler is allowed to use. */
+  private _maxSampleMipLevel: number = 0;
 
   /**
    * Set by `addTexture` / `updateTexture` when a level-0 write
    * has happened since the last `gl.generateMipmap`; cleared by
    * {@link flushMipmaps}. Lets the atlas batch many level-0
-   * mutations and pay one full-pyramid regeneration per draw
-   * instead of N regenerations during the burst.
+   * mutations and pay one capped-chain regeneration per draw instead
+   * of N regenerations during the burst.
    */
   private _mipsDirty: boolean = false;
 
@@ -207,12 +221,10 @@ export class TextureAtlas {
      */
     sentinelColor?: [number, number, number, number];
     /**
-     * Allocate the atlas with a full mip pyramid and sample
-     * trilinearly. Default `false`. When `true`, every successful
-     * `addTexture` triggers `gl.generateMipmap` to refresh the
-     * pyramid for the entire atlas — fine when textures upload
-     * once at load, scales with atlas size as more textures
-     * stream in.
+     * Allocate the atlas with a capped mip chain and sample
+     * trilinearly. Default `false`. When `true`, texture uploads
+     * mark the chain dirty and the next draw refreshes it once for
+     * the atlas.
      */
     mipmap?: boolean;
   }) {
@@ -227,6 +239,14 @@ export class TextureAtlas {
     this.padding = options.padding ?? defaultPadding;
     this.internalFormat = options.internalFormat ?? options.gl.SRGB8_ALPHA8;
     this.sentinelColor = options.sentinelColor ?? [255, 255, 255, 255];
+    if (this.mipmap) {
+      const fullMipLevels = Math.floor(Math.log2(this.size)) + 1;
+      this._maxSampleMipLevel = Math.min(
+        fullMipLevels - 1,
+        Math.max(0, Math.floor(Math.log2(Math.max(1, this.padding))))
+      );
+      this._mipLevels = this._maxSampleMipLevel + 1;
+    }
   }
 
   /**
@@ -254,7 +274,9 @@ export class TextureAtlas {
       // bilinear samples away from neighbours so we don't bleed.
       // Min-filter switches based on mipmap opt-in: trilinear when
       // mipmapped (samples blend between two adjacent mip levels),
-      // bilinear otherwise (single-level filtered sample).
+      // bilinear otherwise (single-level filtered sample). Mipmapped
+      // atlas sampling is capped to the deepest level where an entry's
+      // gutter still protects sub-rects from neighbour/sentinel bleed.
       gl.texParameteri(
         gl.TEXTURE_2D,
         gl.TEXTURE_MIN_FILTER,
@@ -263,13 +285,12 @@ export class TextureAtlas {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, this._maxSampleMipLevel);
       // Internal format dictates whether the GPU sRGB-decodes on sample.
       // Albedo uses SRGB8_ALPHA8 (sRGB-encoded source → linear sample);
       // MR / normals / occlusion use RGBA8 (linear all the way).
-      const mipLevels = this.mipmap
-        ? (Math.floor(Math.log2(this.size)) + 1)
-        : 1;
-      gl.texStorage2D(gl.TEXTURE_2D, mipLevels, this.internalFormat, this.size, this.size);
+      gl.texStorage2D(gl.TEXTURE_2D, this._mipLevels, this.internalFormat, this.size, this.size);
       // Pre-fill every level-0 texel with `sentinelColor`. Without
       // this, `texStorage2D` leaves contents undefined (zeros on
       // every browser we've shipped against), which on a mipmapped
@@ -435,8 +456,11 @@ export class TextureAtlas {
    * Build an extruded copy of `source` sized
    * `(w + 2 * padding) × (h + 2 * padding)`, with the source
    * centred at `(padding, padding)` and the surrounding gutter
-   * filled with replicated edge pixels (one 1-px slice per side
-   * stretched across the gutter, plus four corner stamps).
+   * filled with pixels that match the texture's wrap mode (one
+   * 1-px slice per side stretched across the gutter, plus four
+   * corner stamps). `RepeatWrapping` gutters are filled from the
+   * opposite edge so mip generation preserves tile continuity.
+   * Other wrap modes use the local edge, matching clamp semantics.
    *
    * Why extrude: each atlas entry has a CLAMP_TO_EDGE-style
    * border requirement so that bilinear filtering at the entry's
@@ -453,7 +477,7 @@ export class TextureAtlas {
    * — same behaviour as before this fix, just without the bleed
    * protection.
    */
-  private _extrudeWithGutter(source: ImageSource, w: number, h: number): ImageSource | null {
+  private _extrudeWithGutter(source: ImageSource, w: number, h: number, options: TextureAtlasUploadOptions = {}): ImageSource | null {
     const p = this.padding;
     if (p <= 0) return source;
     const ew = w + 2 * p;
@@ -491,16 +515,23 @@ export class TextureAtlas {
       } else {
         ctx.drawImage(source as any, p, p, w, h);
       }
+      const repeatS = options.wrapS === RepeatWrapping;
+      const repeatT = options.wrapT === RepeatWrapping;
+      const leftSourceX = repeatS ? p + w - 1 : p;
+      const rightSourceX = repeatS ? p : p + w - 1;
+      const topSourceY = repeatT ? p + h - 1 : p;
+      const bottomSourceY = repeatT ? p : p + h - 1;
+
       // Edges — 1-px-wide source slices stretched across the gutter.
-      ctx.drawImage(canvas as any, p, p,           w, 1, p,     0,     w, p); // top
-      ctx.drawImage(canvas as any, p, p + h - 1,   w, 1, p,     p + h, w, p); // bottom
-      ctx.drawImage(canvas as any, p, p,           1, h, 0,     p,     p, h); // left
-      ctx.drawImage(canvas as any, p + w - 1, p,   1, h, p + w, p,     p, h); // right
+      ctx.drawImage(canvas as any, p,            topSourceY,    w, 1, p,     0,     w, p); // top
+      ctx.drawImage(canvas as any, p,            bottomSourceY, w, 1, p,     p + h, w, p); // bottom
+      ctx.drawImage(canvas as any, leftSourceX,  p,            1, h, 0,     p,     p, h); // left
+      ctx.drawImage(canvas as any, rightSourceX, p,            1, h, p + w, p,     p, h); // right
       // Corners — 1-px corner samples stretched into p×p quadrants.
-      ctx.drawImage(canvas as any, p,         p,         1, 1, 0,     0,     p, p); // TL
-      ctx.drawImage(canvas as any, p + w - 1, p,         1, 1, p + w, 0,     p, p); // TR
-      ctx.drawImage(canvas as any, p,         p + h - 1, 1, 1, 0,     p + h, p, p); // BL
-      ctx.drawImage(canvas as any, p + w - 1, p + h - 1, 1, 1, p + w, p + h, p, p); // BR
+      ctx.drawImage(canvas as any, leftSourceX,  topSourceY,    1, 1, 0,     0,     p, p); // TL
+      ctx.drawImage(canvas as any, rightSourceX, topSourceY,    1, 1, p + w, 0,     p, p); // TR
+      ctx.drawImage(canvas as any, leftSourceX,  bottomSourceY, 1, 1, 0,     p + h, p, p); // BL
+      ctx.drawImage(canvas as any, rightSourceX, bottomSourceY, 1, 1, p + w, p + h, p, p); // BR
     } catch (e) {
       // Anything else (an unknown source shape, a Worker context
       // where one of the calls isn't supported) — fall back silently
@@ -566,7 +597,7 @@ export class TextureAtlas {
     if (options.sanitizeAlphaMaskRGB === true) {
       uploadSource = this._sanitizeAlphaMaskedColorSource(uploadSource, w, h) ?? uploadSource;
     }
-    const extruded = this._extrudeWithGutter(uploadSource, w, h);
+    const extruded = this._extrudeWithGutter(uploadSource, w, h, options);
     const uploadX = extruded ? placed.x - this.padding : placed.x;
     const uploadY = extruded ? placed.y - this.padding : placed.y;
     const finalUpload = extruded ?? uploadSource;
@@ -618,6 +649,8 @@ export class TextureAtlas {
       height: h,
       source: uploadSource,
       sanitizeAlphaMaskRGB: options.sanitizeAlphaMaskRGB === true,
+      wrapS: options.wrapS,
+      wrapT: options.wrapT,
       ...transform
     });
     this.onUpdated.dispatch(this, undefined);
@@ -670,7 +703,11 @@ export class TextureAtlas {
       // Re-build the edge-extruded copy at the cached entry's size
       // so the gutter ring around the entry contains the NEW source's
       // edge pixels rather than the stale ones from the first add.
-      const extruded = this._extrudeWithGutter(uploadSource, entry.width, entry.height);
+      const extruded = this._extrudeWithGutter(uploadSource, entry.width, entry.height, {
+        sanitizeAlphaMaskRGB: entry.sanitizeAlphaMaskRGB,
+        wrapS: entry.wrapS,
+        wrapT: entry.wrapT
+      });
       const uploadX = extruded ? entry.x - this.padding : entry.x;
       const uploadY = extruded ? entry.y - this.padding : entry.y;
       const finalUpload = extruded ?? uploadSource;
@@ -746,8 +783,11 @@ export class TextureAtlas {
       return "too-big";
     }
     const target = this._targetDimensions(w, h);
-    const padW = target.w + this.padding;
-    const padH = target.h + this.padding;
+    const padW = target.w + 2 * this.padding;
+    const padH = target.h + 2 * this.padding;
+    if (padW > this.size || padH > this.size) {
+      return "too-big";
+    }
     // Replay shelf-pack without mutating state.
     for (const shelf of this._shelves) {
       if (shelf.height >= padH && shelf.usedWidth + padW <= this.size) {
@@ -796,7 +836,11 @@ export class TextureAtlas {
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     for (const [entryKey, entry] of this._entries) {
-      const extruded = this._extrudeWithGutter(entry.source, entry.width, entry.height);
+      const extruded = this._extrudeWithGutter(entry.source, entry.width, entry.height, {
+        sanitizeAlphaMaskRGB: entry.sanitizeAlphaMaskRGB,
+        wrapS: entry.wrapS,
+        wrapT: entry.wrapT
+      });
       const uploadX = extruded ? entry.x - this.padding : entry.x;
       const uploadY = extruded ? entry.y - this.padding : entry.y;
       const finalUpload = extruded ?? entry.source;
@@ -1000,7 +1044,7 @@ export class TextureAtlas {
       return;
     }
 
-    const mipLevels = Math.floor(Math.log2(this.size)) + 1;
+    const mipLevels = this._mipLevels;
 
     // Snapshot every piece of GL state the pass touches. The
     // renderer's per-draw bind path doesn't reset all of these
@@ -1048,11 +1092,9 @@ export class TextureAtlas {
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
-    // Restore the texture-side parameters to what allocate() set —
-    // the renderer assumes trilinear filtering across the full
-    // pyramid on every subsequent bind.
+    // Restore the texture-side parameters to what allocate() set.
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, mipLevels - 1);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, this._maxSampleMipLevel);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
     // Detach the atlas from the cached FBO so it isn't keeping a

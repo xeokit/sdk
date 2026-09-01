@@ -15,6 +15,13 @@ const DEFAULT_COAST_DECELERATION = 5;
 const DEFAULT_TURN_RATE_DEGREES_PER_SECOND = 95;
 const DEFAULT_KEY_STEER_INITIAL_SCALE = 0.28;
 const DEFAULT_KEY_STEER_RAMP_SECONDS = 1.45;
+const MIN_GROUND_TURN_SPEED_SCALE = 0.65;
+const MAX_GROUND_TURN_SPEED_SCALE = 1.85;
+const MIN_LEAN_SPEED_SCALE = 0.08;
+const MAX_LEAN_RESPONSE_SPEED_SCALE = 1.35;
+const DEFAULT_SLOPE_PITCH_FACTOR = 0.42;
+const DEFAULT_SLOPE_PITCH_SMOOTHING = 5.5;
+const MAX_SLOPE_PITCH_RADIANS = degreesToRadians(10);
 const DEFAULT_LEAN_DEGREES = 18;
 const DEFAULT_LEAN_SMOOTHING = 8;
 const DEFAULT_MAX_PITCH_DEGREES = 18;
@@ -68,11 +75,14 @@ const HANDLED_KEYS = new Set([
  * ``VehicleNavigationController`` keeps a current speed instead of applying
  * instant walk steps. ``W``/``S`` accelerate and brake, ``A``/``D`` and the
  * left/right arrow keys ramp into turns, and click-drag steers yaw/pitch like
- * the procedural city vehicle demo. The camera rolls into turns like a bicycle
- * or motorcycle. ``Space`` toggles flight mode: the vehicle detaches and lifts
- * off, then can glide on its own momentum and softly land on a drive surface.
- * It can also follow drive surfaces and block movement through obstacles using
- * Scene raycasts.
+ * the procedural city vehicle demo. Ground steering is more responsive at low
+ * speed, while camera bank grows and settles faster as speed increases, giving
+ * a skateboard-like carve. While following a sloped drive surface, the view
+ * eases a little into uphill and downhill gradients instead of staying fully
+ * erect. ``Space`` toggles flight mode: the vehicle detaches and lifts off,
+ * then can glide on its own momentum and softly land on a drive surface. It can
+ * also follow drive surfaces and block movement through obstacles using Scene
+ * raycasts.
  */
 export class VehicleNavigationController {
 
@@ -115,6 +125,8 @@ export class VehicleNavigationController {
     #leanRadians: number;
     #leanSmoothing: number;
     #currentLean = 0;
+    #currentSlopePitch = 0;
+    #groundNormal: Vec3 | null = null;
     #maxPitchRadians: number;
     #maxFlightPitchRadians: number;
     #flightTakeoffHeight: number;
@@ -268,7 +280,7 @@ export class VehicleNavigationController {
         this.#flying = flying;
         if (flying) {
             const up = this.#worldUp();
-            const basis = cameraBasis(this.view.camera.eye, this.view.camera.look, up);
+            const basis = cameraBasis(this.view.camera.eye, this.view.camera.look, up, this.#currentSlopePitch);
             this.#flightVelocity = mul(basis.flatForward, Math.max(this.#speed, this.#effectiveMinGlideSpeed()));
             this.#fallSpeed = 0;
             this.#landingAfterFlight = false;
@@ -596,7 +608,7 @@ export class VehicleNavigationController {
 
         const up = this.#worldUp();
         const camera = this.view.camera;
-        const basis = cameraBasis(camera.eye, camera.look, up);
+        const basis = cameraBasis(camera.eye, camera.look, up, this.#currentSlopePitch);
         const throttle = this.#throttleInput();
         if (!this.#flying) {
             this.#updateSpeed(throttle, elapsedSeconds);
@@ -618,10 +630,12 @@ export class VehicleNavigationController {
             -1,
             1
         );
-        const controlTurnScaleFloor = Math.abs(yawControl) > 0.0001
-            ? Math.max(this.#keySteerInitialScale, 0.55)
-            : 0;
-        const turnSpeedScale = Math.max(controlTurnScaleFloor, clamp(speedRatio * 1.4, 0, 1));
+        const turnSpeedScale = this.#flying
+            ? clamp(speedRatio * 1.4, 0.55, 1)
+            : groundTurnSpeedScale(speedRatio);
+        const leanSpeedScale = this.#flying
+            ? clamp(speedRatio * 1.15, MIN_LEAN_SPEED_SCALE, 1)
+            : groundLeanSpeedScale(speedRatio);
         const directionSign = this.#flying
             ? (dot(this.#flightVelocity, basis.flatForward) < 0 ? -1 : 1)
             : (this.#speed < 0 ? -1 : 1);
@@ -650,7 +664,7 @@ export class VehicleNavigationController {
             move = mul(flatForward, this.#speed * elapsedSeconds);
         }
 
-        this.#move(move, direction, up, yawControl, turnSpeedScale, elapsedSeconds);
+        this.#move(move, direction, up, yawControl, leanSpeedScale, elapsedSeconds);
     }
 
     #updateFlightVelocity(throttle: number, direction: Vec3, up: Vec3, pitchControlActive: boolean, elapsedSeconds: number): void {
@@ -765,7 +779,7 @@ export class VehicleNavigationController {
         return clamp(this.#relativePitchInput, -this.#maxMouseDragInputPerFrame, this.#maxMouseDragInputPerFrame);
     }
 
-    #move(move: Vec3, viewDirection: Vec3, up: Vec3, steering: number, turnSpeedScale: number, elapsedSeconds: number): void {
+    #move(move: Vec3, viewDirection: Vec3, up: Vec3, steering: number, leanSpeedScale: number, elapsedSeconds: number): void {
         const camera = this.view.camera;
         const oldEye = [...camera.eye] as Vec3;
         const oldGround = sub(oldEye, mul(up, this.#cameraHeight));
@@ -800,14 +814,28 @@ export class VehicleNavigationController {
 
         const newEye = add(ground, mul(up, this.#cameraHeight));
         const lookDistance = Math.max(distance(camera.eye, camera.look), MIN_LOOK_DISTANCE);
-        const desiredLean = steering * this.#leanRadians * turnSpeedScale;
-        const leanT = clamp(this.#leanSmoothing * elapsedSeconds, 0, 1);
+        this.#updateSlopePitch(move, viewDirection, up, elapsedSeconds);
+        const displayDirection = slopeAdjustedDirection(viewDirection, up, this.#currentSlopePitch);
+        const desiredLean = steering * this.#leanRadians * leanSpeedScale;
+        const leanT = clamp(this.#leanSmoothing * Math.min(1, leanSpeedScale * MAX_LEAN_RESPONSE_SPEED_SCALE) * elapsedSeconds, 0, 1);
         this.#currentLean += (desiredLean - this.#currentLean) * leanT;
-        const rollAxis = flatDirection(viewDirection, up);
+        const rollAxis = flatDirection(displayDirection, up);
 
         camera.eye = newEye;
-        camera.look = add(newEye, mul(viewDirection, lookDistance));
+        camera.look = add(newEye, mul(displayDirection, lookDistance));
         camera.up = normalize(rotateAroundAxis(up, rollAxis, this.#currentLean));
+    }
+
+    #updateSlopePitch(move: Vec3, viewDirection: Vec3, up: Vec3, elapsedSeconds: number): void {
+        let targetPitch = 0;
+        if (!this.#flying && this.#groundNormal) {
+            const moveDistance = length(move);
+            const travelDirection = moveDistance > 0.0001 ? normalize(move) : flatDirection(viewDirection, up);
+            targetPitch = slopePitchForTravel(travelDirection, this.#groundNormal, up) * DEFAULT_SLOPE_PITCH_FACTOR;
+            targetPitch = clamp(targetPitch, -MAX_SLOPE_PITCH_RADIANS, MAX_SLOPE_PITCH_RADIANS);
+        }
+        const t = clamp(DEFAULT_SLOPE_PITCH_SMOOTHING * elapsedSeconds, 0, 1);
+        this.#currentSlopePitch += (targetPitch - this.#currentSlopePitch) * t;
     }
 
     #flightLandingSurface(oldGround: Vec3, move: Vec3, up: Vec3): Vec3 | null {
@@ -950,13 +978,15 @@ export class VehicleNavigationController {
         const surface = this.#driveSurfaceAt(candidateGround, this.#stepHeight + Math.max(this.#maxFall, fallDistance), up);
         if (surface) {
             this.#fallSpeed = 0;
-            return surface;
+            this.#groundNormal = surface.normal;
+            return surface.point;
         }
         this.#fallSpeed = nextFallSpeed;
+        this.#groundNormal = null;
         return add(candidateGround, mul(up, -fallDistance));
     }
 
-    #driveSurfaceAt(candidateGround: Vec3, verticalRange: number, up: Vec3): Vec3 | null {
+    #driveSurfaceAt(candidateGround: Vec3, verticalRange: number, up: Vec3): { point: Vec3; normal: Vec3 } | null {
         const rayOrigin = add(candidateGround, mul(up, this.#stepHeight + DOWN_RAY_CLEARANCE));
         const rayDirection = mul(up, -1);
         const result = this.raycaster.pick({
@@ -968,7 +998,10 @@ export class VehicleNavigationController {
             filter: this.#driveSurfaceFilter
         });
         if (result.ok && result.value.hit && result.value.worldPos && this.#isDriveableNormal(result.value.worldNormal, up)) {
-            return [...result.value.worldPos] as Vec3;
+            return {
+                point: [...result.value.worldPos] as Vec3,
+                normal: normalize(result.value.worldNormal)
+            };
         }
         return null;
     }
@@ -985,11 +1018,11 @@ export class VehicleNavigationController {
     }
 }
 
-function cameraBasis(eye: Vec3, look: Vec3, up: Vec3): { direction: Vec3; flatForward: Vec3; right: Vec3; pitch: number } {
+function cameraBasis(eye: Vec3, look: Vec3, up: Vec3, slopePitch = 0): { direction: Vec3; flatForward: Vec3; right: Vec3; pitch: number } {
     const direction = normalize(sub(look, eye));
     const flatForward = flatDirection(direction, up);
     const right = normalize(cross(flatForward, up));
-    const pitch = Math.asin(clamp(dot(direction, up), -1, 1));
+    const pitch = Math.asin(clamp(dot(direction, up), -1, 1)) - slopePitch;
     return {direction, flatForward, right, pitch};
 }
 
@@ -1042,6 +1075,36 @@ function lerp(a: Vec3, b: Vec3, t: number): Vec3 {
 function lerpNumber(a: number, b: number, t: number): number {
     const clampedT = clamp(t, 0, 1);
     return a + (b - a) * clampedT;
+}
+
+function groundTurnSpeedScale(speedRatio: number): number {
+    const t = clamp(speedRatio, 0, 1);
+    return MIN_GROUND_TURN_SPEED_SCALE + (MAX_GROUND_TURN_SPEED_SCALE - MIN_GROUND_TURN_SPEED_SCALE) * (1 - t);
+}
+
+function groundLeanSpeedScale(speedRatio: number): number {
+    const t = clamp(speedRatio, 0, 1);
+    return MIN_LEAN_SPEED_SCALE + (1 - MIN_LEAN_SPEED_SCALE) * t;
+}
+
+function slopeAdjustedDirection(direction: Vec3, up: Vec3, slopePitch: number): Vec3 {
+    if (Math.abs(slopePitch) < 0.000001) {
+        return direction;
+    }
+    const flatForward = flatDirection(direction, up);
+    const basePitch = Math.asin(clamp(dot(direction, up), -1, 1));
+    const pitch = basePitch + slopePitch;
+    return normalize(add(mul(flatForward, Math.cos(pitch)), mul(up, Math.sin(pitch))));
+}
+
+function slopePitchForTravel(travelDirection: Vec3, surfaceNormal: Vec3, up: Vec3): number {
+    const normal = dot(surfaceNormal, up) < 0 ? mul(surfaceNormal, -1) : surfaceNormal;
+    const surfaceTravel = sub(travelDirection, mul(normal, dot(travelDirection, normal)));
+    if (length(surfaceTravel) < 0.000001) {
+        return 0;
+    }
+    const tangent = normalize(surfaceTravel);
+    return Math.asin(clamp(dot(tangent, up), -1, 1));
 }
 
 function degreesToRadians(degrees: number): number {

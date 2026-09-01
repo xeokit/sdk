@@ -78,7 +78,11 @@ export interface VehicleNavigationControllerParams {
     coastDeceleration?: number;
 
     /**
-     * Maximum steering yaw rate at speed, in degrees per second.
+     * Base steering yaw rate, in degrees per second.
+     *
+     * Ground steering is scaled by speed: low speeds turn above this base rate
+     * for tight carving, while high speeds turn below it for stability. Flight
+     * steering keeps speed-proportional aircraft-like behavior.
      *
      * Default is ``95``.
      */
@@ -119,12 +123,18 @@ export interface VehicleNavigationControllerParams {
     /**
      * Maximum camera roll into a turn, in degrees.
      *
+     * Ground roll is scaled by speed, so slow steering stays upright and faster
+     * carving banks more visibly.
+     *
      * Default is ``18``.
      */
     leanDegrees?: number;
 
     /**
      * Camera-roll smoothing factor, in response units per second.
+     *
+     * Ground roll response is also scaled by speed, so banking snaps in more at
+     * speed than while creeping.
      *
      * Default is ``8``.
      */

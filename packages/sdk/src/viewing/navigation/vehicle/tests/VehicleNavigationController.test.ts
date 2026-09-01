@@ -141,6 +141,37 @@ function makeSideObstacleRaycaster(minSideOffset = 0.75) {
     };
 }
 
+function makeSlopedSurfaceRaycaster(slopeX: number) {
+    const normalLength = Math.hypot(slopeX, 1);
+    const normal = [-slopeX / normalLength, 0, 1 / normalLength];
+    return {
+        pick: jest.fn(({ray, tMax}: any) => {
+            if (ray.dir[2] >= 0) {
+                return missPick(ray);
+            }
+            const surfaceZ = slopeX * ray.origin[0];
+            const t = ray.origin[2] - surfaceZ;
+            if (t < 0 || t > tMax) {
+                return missPick(ray);
+            }
+            return {
+                ok: true,
+                value: {
+                    hit: true,
+                    objectId: "sloped-drive-surface",
+                    meshId: "sloped-drive-surface.mesh",
+                    worldPos: [ray.origin[0], ray.origin[1], surfaceZ],
+                    worldNormal: normal,
+                    tHit: t,
+                    triangleIndex: 0,
+                    rayOrigin: ray.origin,
+                    rayDir: ray.dir
+                }
+            };
+        })
+    };
+}
+
 function missPick(ray: any) {
     return {
         ok: true,
@@ -436,6 +467,119 @@ describe("VehicleNavigationController", () => {
         expect(directionY).toBeLessThan(-0.01);
 
         release("ArrowRight", "ArrowRight");
+        controller.destroy();
+        jest.advanceTimersByTime(20);
+    });
+
+    it("turns more sharply at low ground speed than at high ground speed", () => {
+        const turnAtSpeed = (speed: number) => {
+            const view = makeView();
+            const controller = new VehicleNavigationController(view, {
+                active: true,
+                raycaster: makeMissRaycaster() as any,
+                keyboardEnabledOnlyOnMouseover: false,
+                collision: false,
+                gravity: false,
+                maxForwardSpeed: 10,
+                coastDeceleration: 0,
+                turnRateDegreesPerSecond: 90,
+                keySteerInitialScale: 1,
+                keySteerRampSeconds: 0.001,
+                leanDegrees: 0,
+                cameraHeight: 1.45
+            });
+            controller.speed = speed;
+            press("ArrowRight", "ArrowRight");
+            now += 100;
+            jest.advanceTimersByTime(20);
+            const directionY = view.camera.look[1] - view.camera.eye[1];
+            release("ArrowRight", "ArrowRight");
+            controller.destroy();
+            jest.advanceTimersByTime(20);
+            return Math.abs(directionY);
+        };
+
+        const slowTurn = turnAtSpeed(1);
+        const fastTurn = turnAtSpeed(10);
+
+        expect(slowTurn).toBeGreaterThan(fastTurn * 1.8);
+    });
+
+    it("banks more quickly and deeply at higher ground speed", () => {
+        const leanAtSpeed = (speed: number) => {
+            const view = makeView();
+            const controller = new VehicleNavigationController(view, {
+                active: true,
+                raycaster: makeMissRaycaster() as any,
+                keyboardEnabledOnlyOnMouseover: false,
+                collision: false,
+                gravity: false,
+                maxForwardSpeed: 10,
+                coastDeceleration: 0,
+                turnRateDegreesPerSecond: 90,
+                keySteerInitialScale: 1,
+                keySteerRampSeconds: 0.001,
+                leanDegrees: 20,
+                leanSmoothing: 8,
+                cameraHeight: 1.45
+            });
+            controller.speed = speed;
+            press("ArrowRight", "ArrowRight");
+            now += 100;
+            jest.advanceTimersByTime(20);
+            const lean = Math.abs(view.camera.up[1]);
+            release("ArrowRight", "ArrowRight");
+            controller.destroy();
+            jest.advanceTimersByTime(20);
+            return lean;
+        };
+
+        const slowLean = leanAtSpeed(1);
+        const fastLean = leanAtSpeed(10);
+
+        expect(fastLean).toBeGreaterThan(slowLean * 8);
+    });
+
+    it("eases view pitch upward while travelling up a drive-surface gradient", () => {
+        const view = makeView();
+        const controller = new VehicleNavigationController(view, {
+            active: true,
+            raycaster: makeSlopedSurfaceRaycaster(0.5) as any,
+            keyboardEnabledOnlyOnMouseover: false,
+            collision: true,
+            gravity: true,
+            maxForwardSpeed: 10,
+            coastDeceleration: 0,
+            cameraHeight: 1.45
+        });
+
+        controller.speed = 5;
+        now += 100;
+        jest.advanceTimersByTime(20);
+
+        expect(view.camera.look[2] - view.camera.eye[2]).toBeGreaterThan(0.05);
+        controller.destroy();
+        jest.advanceTimersByTime(20);
+    });
+
+    it("eases view pitch downward while travelling down a drive-surface gradient", () => {
+        const view = makeView();
+        const controller = new VehicleNavigationController(view, {
+            active: true,
+            raycaster: makeSlopedSurfaceRaycaster(-0.5) as any,
+            keyboardEnabledOnlyOnMouseover: false,
+            collision: true,
+            gravity: true,
+            maxForwardSpeed: 10,
+            coastDeceleration: 0,
+            cameraHeight: 1.45
+        });
+
+        controller.speed = 5;
+        now += 100;
+        jest.advanceTimersByTime(20);
+
+        expect(view.camera.look[2] - view.camera.eye[2]).toBeLessThan(-0.05);
         controller.destroy();
         jest.advanceTimersByTime(20);
     });

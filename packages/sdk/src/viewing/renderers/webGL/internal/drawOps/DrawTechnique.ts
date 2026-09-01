@@ -3784,8 +3784,11 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // outside [0, 1]) into a single tile before the atlas transform —
     // without it, the linear sub-rect map would push UVs off the atlas
     // and CLAMP_TO_EDGE would pin every fragment to a single edge column.
-    // Visible cost is a 1-pixel seam at integer UV boundaries; for the
-    // tiled materials this fixes, that's almost imperceptible.
+    // Use derivatives from the original unwrapped UVs for mip selection:
+    // derivatives of fract(vUV) spike at integer tile boundaries and make
+    // mipmapped atlas samples collapse toward coarse, seam-prone levels.
+    vec2 dxUV = dFdx(vUV);
+    vec2 dyUV = dFdy(vUV);
     vec2 wrappedUV = fract(vUV);
     // Atlas sub-rect: wrappedUV maps from [0, 1) into the mesh's sub-rect
     // of the per-batch atlas via the flat-varying transform written in
@@ -3793,7 +3796,7 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // white-sentinel, so this collapses to a constant white and \`albedo\`
     // is just \`vColor.rgb\`.
     vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
-    vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
+    vec4 albedoSample = textureGrad(uAlbedoAtlas, albedoAtlasUV, dxUV * vAlbedoUVScale, dyUV * vAlbedoUVScale);
     vec3 albedo = albedoSample.rgb * vColor.rgb;
     float albedoAlpha = albedoSample.a * vColor.a;
 
@@ -3822,12 +3825,12 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // unchanged. With a real texture and a material set to 1.0/1.0, the
     // texture drives the values directly.
     vec2 mrAtlasUV = wrappedUV * vMRUVScale + vMRUVOffset;
-    vec4 mrSample = texture(uMetallicRoughnessAtlas, mrAtlasUV);
+    vec4 mrSample = textureGrad(uMetallicRoughnessAtlas, mrAtlasUV, dxUV * vMRUVScale, dyUV * vMRUVScale);
     float mrRoughnessFactor = mrSample.g;
     float mrMetallicFactor  = mrSample.b;
     // Emissive (sRGB atlas) × per-mesh factor; ambient occlusion (R channel).
-    g_emissive = texture(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset).rgb * vEmissiveColor;
-    g_ao = texture(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset).r;`
+    g_emissive = textureGrad(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset, dxUV * vEmissiveUVScale, dyUV * vEmissiveUVScale).rgb * vEmissiveColor;
+    g_ao = textureGrad(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset, dxUV * vOcclusionUVScale, dyUV * vOcclusionUVScale).r;`
         : this.triplanar
         ? `// Triplanar (world-space) sampling. Built per-fragment from
     // vWorldPos and the world-space normal — independent of any vertex
@@ -3960,12 +3963,12 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // Reuses wrappedUV from the albedo block above — the same fract() applied
     // there is what makes tiled normal maps line up with their albedo siblings.
     vec2 normalAtlasUV = wrappedUV * vNormalUVScale + vNormalUVOffset;
-    vec3 nm_tangent = texture(uNormalMapAtlas, normalAtlasUV).xyz * 2.0 - 1.0;
+    vec3 nm_tangent = textureGrad(uNormalMapAtlas, normalAtlasUV, dxUV * vNormalUVScale, dyUV * vNormalUVScale).xyz * 2.0 - 1.0;
 
     vec3 dp1 = dFdx(vViewPos);
     vec3 dp2 = dFdy(vViewPos);
-    vec2 duv1 = dFdx(vUV);
-    vec2 duv2 = dFdy(vUV);
+    vec2 duv1 = dxUV;
+    vec2 duv2 = dyUV;
     // Robust frame: project dp1/dp2 onto the plane perpendicular to
     // N_smooth, then build T/B from those + the UV gradient.
     vec3 dp2perp = cross(dp2, N_smooth);
@@ -4149,9 +4152,11 @@ float F_SchlickScalar(float F0, float cosTheta) {
       ? "Triplanar variant: derive the world-space face normal from\n    // dFdx/dFdy(vWorldPos) so the blend weights are valid even on\n    // UV-less geometry without per-vertex normals (BIM, sweeps).\n    // Three texture samples, blended."
       : "No UVs, no texture — vColor IS the albedo. The alias\n    // keeps shared shadow logic able to reference `albedo`."}
     ${this.hasUVs
-      ? `vec2 wrappedUV = fract(vUV);
+      ? `vec2 dxUV = dFdx(vUV);
+    vec2 dyUV = dFdy(vUV);
+    vec2 wrappedUV = fract(vUV);
     vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
-    vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
+    vec4 albedoSample = textureGrad(uAlbedoAtlas, albedoAtlasUV, dxUV * vAlbedoUVScale, dyUV * vAlbedoUVScale);
     vec3 albedo = albedoSample.rgb * vColor.rgb;
     float albedoAlpha = albedoSample.a * vColor.a;
 
@@ -4165,8 +4170,8 @@ float F_SchlickScalar(float F0, float cosTheta) {
       float aaAlpha = (albedoAlpha - vAlphaCutoff) / max(fwidth(albedoAlpha), 1e-4) + 0.5;
       if (aaAlpha < 0.5) discard;
     }
-    g_emissive = texture(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset).rgb * vEmissiveColor;
-    g_ao = texture(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset).r;`
+    g_emissive = textureGrad(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset, dxUV * vEmissiveUVScale, dyUV * vEmissiveUVScale).rgb * vEmissiveColor;
+    g_ao = textureGrad(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset, dxUV * vOcclusionUVScale, dyUV * vOcclusionUVScale).r;`
       : this.triplanar
       ? `// World-space face normal from screen-space derivatives.
     vec3 triNorm = normalize(cross(dFdx(vWorldPos), dFdy(vWorldPos)));

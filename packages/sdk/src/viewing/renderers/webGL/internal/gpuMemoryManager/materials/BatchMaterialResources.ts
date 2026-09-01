@@ -8,6 +8,8 @@ type SceneTextureLike = {
   imageData?: any;
   width?: number;
   height?: number;
+  wrapS?: number;
+  wrapT?: number;
 };
 
 type BatchMaterialResourcesOptions = {
@@ -46,6 +48,19 @@ export type BatchMaterialTextureTransforms = {
 
 const ZERO_ATLAS_TRANSFORM: AtlasTransform = { uOffset: 0, vOffset: 0, uScale: 0, vScale: 0 };
 
+function getAtlasUploadOptions(
+  sceneTexture: SceneTextureLike | undefined,
+  options: TextureAtlasUploadOptions = {}
+): TextureAtlasUploadOptions {
+  return sceneTexture
+    ? {
+      ...options,
+      wrapS: sceneTexture.wrapS,
+      wrapT: sceneTexture.wrapT
+    }
+    : options;
+}
+
 /**
  * Probe used before adding a mesh to decide whether the mesh's texture would
  * fit in this batch atlas. Returns true only when a fresh same-size atlas would
@@ -62,7 +77,7 @@ function atlasOverflow(
   const w = (source && source.width)  ?? sceneTexture.width  ?? 0;
   const h = (source && source.height) ?? sceneTexture.height ?? 0;
   if (w <= 0 || h <= 0) return false;
-  return atlas.canFitTexture(sceneTexture.id, w, h, options) === "would-fit-in-fresh-atlas";
+  return atlas.canFitTexture(sceneTexture.id, w, h, getAtlasUploadOptions(sceneTexture, options)) === "would-fit-in-fresh-atlas";
 }
 
 /**
@@ -82,7 +97,7 @@ function resolveAtlasTransform(
   if (sceneTexture) {
     const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
     if (source) {
-      const t = atlas.addTexture(sceneTexture.id, source, options);
+      const t = atlas.addTexture(sceneTexture.id, source, getAtlasUploadOptions(sceneTexture, options));
       if (t) return t;
       console.warn(`GPUMemoryBatch.addMesh: ${label} atlas full or upload failed for SceneTexture '${sceneTexture.id}' - falling back to sentinel`);
     }

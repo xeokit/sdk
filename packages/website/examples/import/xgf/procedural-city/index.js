@@ -26,6 +26,7 @@ const STREAM_LABEL = EXAMPLE_CONFIG.streamLabel || "procedural city";
 const WIND_SOUND = !!EXAMPLE_CONFIG.windSound;
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const RENDERER = URL_PARAMS.get("renderer") || EXAMPLE_CONFIG.renderer || "webgl";
+const BARE_METAL_WEBGPU = RENDERER === "webgpu" && urlFlag(URL_PARAMS, "bareMetal", false);
 const BENCHMARK_START_PAUSED = urlFlag(URL_PARAMS, "benchmarkStartPaused", false);
 const ENABLE_SDK_FLIGHT_SIM = urlFlag(URL_PARAMS, "sdkFlight", false);
 const VEHICLE_CONFIG = createVehicleConfig(EXAMPLE_CONFIG.vehicle || null);
@@ -38,16 +39,19 @@ const SHOW_PANEL = EXAMPLE_CONFIG.panel !== false && EXAMPLE_CONFIG.showPanel !=
 const ENABLE_BUILDING_PICKING = EXAMPLE_CONFIG.buildingPicking !== false;
 const SIGNAL_STUDIO_FINISHED = EXAMPLE_CONFIG.signalStudioFinished !== false;
 const PROFILE_PANEL = new URLSearchParams(window.location.search).get("profile") === "1";
+const RENDER_BUNDLE_CACHING = getRenderBundleCachingOverride(URL_PARAMS);
 const ENABLE_REPRESENTATION_LOD = urlFlag(URL_PARAMS, "lod", EXAMPLE_CONFIG.representationLOD === true || EXAMPLE_CONFIG.lod === true);
 const MEMORY_PROFILE = getMemoryProfile();
 const RTC_TILE_SIZE = getPositiveNumberParam("tileSize", 1000);
 const MEMORY_CONFIGS = getMemoryConfigs(MEMORY_PROFILE);
-const AUTO_BATCH_SIZE = 12;
-const FETCH_CONCURRENCY = 10;
+const AUTO_BATCH_SIZE = getPositiveNumberParam("batchSize", 12);
+const FETCH_CONCURRENCY = getPositiveNumberParam("fetchConcurrency", 10);
+const PREFETCH_CHUNKS = getPositiveNumberParam("prefetchChunks", AUTO_BATCH_SIZE * 2);
 const CHUNK_COMMIT_FRAME_BUDGET_MS = 4;
 const CAMERA_DEBOUNCE_MS = 140;
 const CACHE_XGF_FILE_BYTES = true;
 const MAX_CACHED_XGF_FILE_BYTES = 256 * 1024 * 1024;
+const BENCHMARK_TARGET_CHUNKS = getNonNegativeNumberParam("benchmarkTargetChunks", 0);
 const DEFAULT_PROCEDURAL_CITY_RENDER_CONFIG = {
   adaptiveQuality: false,
   effects: {
@@ -116,6 +120,7 @@ const VIEW_LIGHTS = normalizeProfileConfig(EXAMPLE_CONFIG.lights || BASE_RENDER_
 const VIEW_ADAPTIVE_QUALITY = normalizeAdaptiveQuality(EXAMPLE_CONFIG.adaptiveQuality ?? BASE_RENDER_CONFIG.adaptiveQuality);
 const ACTIVE_VIEW_PROFILE = EXAMPLE_CONFIG.viewProfile || EXAMPLE_CONFIG.activeProfile || null;
 const {DEFAULT_VIEW_PROFILES} = xeokit.viewing.profiles;
+const {WEBGPU_RENDER_CONFIG_PROFILES} = xeokit.viewing.renderers.webGPU;
 const WEBGPU_CONFIG = {
   ...EXAMPLE_CONFIG.webGPU,
   memoryConfigs: {
@@ -123,8 +128,12 @@ const WEBGPU_CONFIG = {
     ...EXAMPLE_CONFIG.webGPU?.memoryConfigs
   },
   renderConfigs: {
+    ...WEBGPU_RENDER_CONFIG_PROFILES.largeModel,
     ...EXAMPLE_CONFIG.webGPU?.renderConfigs,
-    logDepth: EXAMPLE_CONFIG.webGPU?.renderConfigs?.logDepth ?? true
+    logDepth: EXAMPLE_CONFIG.webGPU?.renderConfigs?.logDepth ?? true,
+    renderBundleCaching: RENDER_BUNDLE_CACHING
+      ?? EXAMPLE_CONFIG.webGPU?.renderConfigs?.renderBundleCaching
+      ?? WEBGPU_RENDER_CONFIG_PROFILES.largeModel.renderBundleCaching
   }
 };
 const CAMERA_PRESETS = {
@@ -163,12 +172,24 @@ const LAND_USE_COLORS = {
   Civic: [0.72, 0.64, 0.42]
 };
 
-const studio = new xeokit.studio.Studio({
-  renderer: RENDERER,
-  webGPU: WEBGPU_CONFIG
-});
+const studio = BARE_METAL_WEBGPU
+  ? null
+  : new xeokit.studio.Studio({
+    renderer: RENDERER,
+    webGPU: WEBGPU_CONFIG
+  });
 
-studio.init().then(async () => {
+if (BARE_METAL_WEBGPU) {
+  runBareMetalWebGPU().catch((error) => {
+    const status = document.getElementById("status");
+    if (status) {
+      status.textContent = `Failed to load ${STREAM_LABEL}: ${error.message || error}`;
+      status.dataset.state = "error";
+    }
+    console.error(error);
+  });
+} else {
+  studio.init().then(async () => {
   const status = document.getElementById("status");
   const panel = document.getElementById("panel");
   const {scene} = studio;
@@ -218,6 +239,7 @@ studio.init().then(async () => {
 
     const byLayer = indexObjectsByLayer(manifest);
     const loader = new xeokit.formats.xgfstream.XGFStreamingLoader();
+    const benchmarkChunkFilter = createBenchmarkChunkFilter(index);
     let renderScheduled = false;
     let streamController;
     const scheduleRender = () => {
@@ -242,6 +264,7 @@ studio.init().then(async () => {
       commitFrameBudgetMs: CHUNK_COMMIT_FRAME_BUDGET_MS,
       cameraDebounceMs: CAMERA_DEBOUNCE_MS,
       frustumOnly: STREAM_FRUSTUM_ONLY,
+      chunkFilter: benchmarkChunkFilter,
       cacheFileData: CACHE_XGF_FILE_BYTES,
       maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
       onStatus: (streamStatus) => {
@@ -252,6 +275,7 @@ studio.init().then(async () => {
         }
       },
       onProgress: (progress) => {
+        pauseAtBenchmarkTarget(streamController);
         scheduleRender();
         initialReady(progress, studio, status, panel);
       },
@@ -299,7 +323,7 @@ studio.init().then(async () => {
       });
       window.addEventListener("pagehide", () => aircraftHUD?.destroy(), {once: true});
     }
-    streamController.prefetchInitial(AUTO_BATCH_SIZE * 2);
+    streamController.prefetchInitial(Math.min(PREFETCH_CHUNKS, streamController.chunkManifests.length));
     streamController.schedule(`Initial ${STREAM_LABEL} frustum`);
     bindCameraStreaming(studio, view, streamController);
     renderStreamProgress(streamController);
@@ -347,12 +371,208 @@ studio.init().then(async () => {
     status.textContent = `Failed to load ${STREAM_LABEL}: ${error.message || error}`;
     console.error(error);
   }
-});
+  });
+}
+
+async function runBareMetalWebGPU() {
+  if (!navigator.gpu) {
+    throw new Error("This browser does not expose navigator.gpu. Use a WebGPU-enabled browser to run this example.");
+  }
+  const status = document.getElementById("status");
+  const panel = document.getElementById("panel");
+  const canvas = document.getElementById("demoCanvas");
+  const {Scene} = xeokit.model.scene;
+  const {Viewer, AmbientLight, DirLight} = xeokit.viewing.viewer;
+  const {WebGPURenderer} = xeokit.viewing.renderers.webGPU;
+  const {XGFStreamingLoader, XGFViewStreamController} = xeokit.formats.xgfstream;
+
+  const scene = new Scene({logging: false});
+  const viewer = new Viewer({scene, logging: false});
+  const view = must(viewer.createView({
+    id: VIEW_ID,
+    htmlElement: canvas,
+    backgroundColor: FAST_VISUALS.backgroundColor || [0.48, 0.68, 0.84],
+    camera: CAMERA_PRESETS.aerial,
+    effects: VIEW_EFFECTS,
+    lights: VIEW_LIGHTS
+  }));
+  view.camera.perspectiveProjection.far = 10000;
+  disableExpensiveEffects(view);
+  applyCamera(view, "aerial");
+  view.clearLights();
+  new AmbientLight(view, {
+    id: "bareMetalAmbient",
+    color: [1, 1, 1],
+    intensity: 0.85
+  });
+  new DirLight(view, {
+    id: "bareMetalSun",
+    dir: normalizeVec3(negateVec3(OUTDOOR_DAYLIGHT.sunDir)),
+    color: OUTDOOR_DAYLIGHT.sunColor,
+    intensity: OUTDOOR_DAYLIGHT.sunIntensity
+  });
+  focusViewSurface(view);
+
+  const adapter = await navigator.gpu.requestAdapter();
+  if (!adapter) {
+    throw new Error("This browser could not create a WebGPU adapter.");
+  }
+  const rendererResult = await WebGPURenderer.create({
+    adapter,
+    viewer,
+    logging: false,
+    memoryConfigs: WEBGPU_CONFIG.memoryConfigs,
+    renderConfigs: WEBGPU_CONFIG.renderConfigs
+  });
+  const renderer = must(rendererResult);
+  renderer.events.onError.subscribe((_renderer, error) => {
+    if (status) {
+      status.textContent = error.error;
+      status.dataset.state = "error";
+    }
+    console.error(error.error);
+  });
+  const renderInspectorResult = renderer.getRenderInspector?.();
+  const renderInspector = renderInspectorResult?.ok ? renderInspectorResult.value : null;
+  if (renderInspector) {
+    renderInspector.enabled = true;
+  }
+
+  if (status) {
+    status.textContent = `Loading ${STREAM_LABEL} stream index...`;
+  }
+  const [index, manifest, report] = await Promise.all([
+    fetchStreamingIndex(INDEX_URL),
+    fetchJSON(METADATA_URL),
+    fetchJSONOptional(REPORT_URL)
+  ]);
+  const benchmarkChunkFilter = createBenchmarkChunkFilter(index);
+  const sceneModel = must(scene.createModel({
+    id: MODEL_ID,
+    updateHint: "static",
+    coordinateSystem: index.coordinateSystem
+  }));
+  const byLayer = indexObjectsByLayer(manifest);
+  const loader = new XGFStreamingLoader();
+  let renderScheduled = false;
+  let streamController;
+  const scheduleRender = () => {
+    if (renderScheduled || !streamController) {
+      return;
+    }
+    renderScheduled = true;
+    window.requestAnimationFrame(() => {
+      renderScheduled = false;
+      renderStreamProgress(streamController);
+      applyActiveDisplay(view, manifest, byLayer);
+    });
+  };
+  streamController = new XGFViewStreamController({
+    index,
+    loader,
+    sceneModel,
+    view,
+    batchSize: AUTO_BATCH_SIZE,
+    fetchConcurrency: FETCH_CONCURRENCY,
+    commitFrameBudgetMs: CHUNK_COMMIT_FRAME_BUDGET_MS,
+    cameraDebounceMs: CAMERA_DEBOUNCE_MS,
+    frustumOnly: STREAM_FRUSTUM_ONLY,
+    chunkFilter: benchmarkChunkFilter,
+    cacheFileData: CACHE_XGF_FILE_BYTES,
+    maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
+    onStatus: (streamStatus) => {
+      if (status) {
+        status.textContent = streamStatus;
+      }
+      const label = document.getElementById("streamStatus");
+      if (label) {
+        label.textContent = streamStatus;
+      }
+    },
+    onProgress: (progress) => {
+      pauseAtBenchmarkTarget(streamController);
+      scheduleRender();
+      initialBareMetalReady(progress, status, panel);
+    },
+    onChunksLoading: () => {
+      if (SHOW_PANEL && panel) {
+        panel.style.display = "block";
+      }
+    },
+    onError: (error) => {
+      if (status) {
+        status.textContent = `Failed to stream ${STREAM_LABEL}: ${error.message || error}`;
+        status.dataset.state = "error";
+      }
+      console.error(error);
+      scheduleRender();
+    }
+  });
+
+  if (SHOW_PANEL) {
+    wirePanel({view, studio: {viewer, renderer}, manifest, report, byLayer, streamController});
+  }
+  setStats(manifest, report);
+  setReport(report);
+  setPatterns(manifest);
+  setEvaluation(report, manifest);
+  streamController.prefetchInitial(Math.min(PREFETCH_CHUNKS, streamController.chunkManifests.length));
+  streamController.schedule(`Initial ${STREAM_LABEL} frustum`);
+  bindViewerCameraStreaming(viewer, view, streamController);
+  renderStreamProgress(streamController);
+  if (SHOW_PANEL && panel) {
+    panel.style.display = "block";
+  }
+  const interactionProfiler = installRendererInteractionProfiler({
+    label: "WebGPU",
+    renderer,
+    viewer,
+    view,
+    renderInspector,
+    enabled: PROFILE_PANEL
+  });
+  window.addEventListener("pagehide", () => {
+    interactionProfiler?.destroy();
+    renderer.destroy();
+  }, {once: true});
+  window.proceduralCityXGFStreamDemo = {
+    studio: null,
+    renderer,
+    scene,
+    view,
+    profiles: null,
+    representationLODSelector: null,
+    streamController,
+    vehicleController: null,
+    aircraftHUD: null,
+    index,
+    manifest,
+    report,
+    interactionProfiler,
+    runInteractionLatencyProfile: (options = {}) => runRendererInteractionLatencyProfile({
+      renderer,
+      view,
+      frames: Number(options.frames || 24),
+      radius: Number(options.radius || 1250),
+      angleStep: Number(options.angleStep || 0.045),
+      timeoutMs: Number(options.timeoutMs || 1000)
+    })
+  };
+  window.webgpuProceduralCityXGFStreamDemo = window.proceduralCityXGFStreamDemo;
+}
 
 function urlFlag(params, name, fallback = false) {
   const value = params.get(name);
   if (value === null) {
     return fallback;
+  }
+  return value !== "0" && value !== "false" && value !== "off";
+}
+
+function getRenderBundleCachingOverride(params) {
+  const value = params.get("renderBundles");
+  if (value === null) {
+    return null;
   }
   return value !== "0" && value !== "false" && value !== "off";
 }
@@ -419,6 +639,34 @@ function getPositiveNumberParam(name, fallback) {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
+function getNonNegativeNumberParam(name, fallback) {
+  const value = Number(URL_PARAMS.get(name));
+  return Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
+function pauseAtBenchmarkTarget(streamController) {
+  if (BENCHMARK_TARGET_CHUNKS <= 0 || streamController.paused) {
+    return;
+  }
+  const target = Math.min(BENCHMARK_TARGET_CHUNKS, streamController.chunkManifests.length);
+  if (streamController.loadedChunkIds.size >= target) {
+    streamController.pause();
+  }
+}
+
+function createBenchmarkChunkFilter(index) {
+  if (BENCHMARK_TARGET_CHUNKS <= 0) {
+    return undefined;
+  }
+  const benchmarkChunkIds = new Set(
+    (index.chunks || [])
+      .filter((chunk) => chunk.role === "referencesOnly")
+      .slice(0, BENCHMARK_TARGET_CHUNKS)
+      .map((chunk) => chunk.id)
+  );
+  return (chunk) => benchmarkChunkIds.has(chunk.id);
+}
+
 function createVehicleConfig(config) {
   if (!config) {
     return null;
@@ -463,7 +711,7 @@ function wirePanel({view, studio, manifest, report, byLayer, streamController}) 
     applyColorMode(view, manifest, event.target.value);
   });
 
-  if (!ENABLE_BUILDING_PICKING || !meta) {
+  if (!ENABLE_BUILDING_PICKING || !meta || !studio.picking?.picker) {
     return;
   }
 
@@ -2016,14 +2264,18 @@ function applyCameraParams(view, preset) {
 }
 
 function bindCameraStreaming(studio, view, streamController) {
+  bindViewerCameraStreaming(studio.viewer, view, streamController);
+}
+
+function bindViewerCameraStreaming(viewer, view, streamController) {
   const onCamera = (camera) => {
     if (camera && camera !== view.camera) {
       return;
     }
     streamController.schedule("Camera changed");
   };
-  studio.viewer.events.onCameraViewMatrixUpdated.subscribe(onCamera);
-  studio.viewer.events.onCameraProjMatrixUpdated.subscribe(onCamera);
+  viewer.events.onCameraViewMatrixUpdated.subscribe(onCamera);
+  viewer.events.onCameraProjMatrixUpdated.subscribe(onCamera);
 }
 
 function applyActiveDisplay(view, manifest, byLayer) {
@@ -2106,6 +2358,20 @@ function initialReady(progress, studio, status, panel) {
   if (SIGNAL_STUDIO_FINISHED) {
     studio.finished();
   }
+}
+
+function initialBareMetalReady(progress, status, panel) {
+  if (initialBareMetalReady.done || !progress || progress.queued <= 0 || progress.loaded < progress.queued) {
+    return;
+  }
+  initialBareMetalReady.done = true;
+  if (status) {
+    status.style.display = "none";
+  }
+  if (SHOW_PANEL && panel) {
+    panel.style.display = "block";
+  }
+  signalReady();
 }
 
 async function fetchJSONOptional(url) {

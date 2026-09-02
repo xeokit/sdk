@@ -174,6 +174,28 @@
             background: rgba(30, 64, 175, 0.9);
         }
 
+        #minimap {
+            position: fixed;
+            right: 14px;
+            bottom: 52px;
+            z-index: 2147483647;
+            width: 320px;
+            height: 200px;
+            border: 1px solid rgba(15, 23, 42, 0.24);
+            background: rgba(248, 250, 252, 0.9);
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.14);
+            pointer-events: none;
+        }
+
+        @media (max-width: 680px) {
+            #minimap {
+                width: 220px;
+                height: 138px;
+                right: 10px;
+                bottom: 48px;
+            }
+        }
+
         @keyframes progress-slide {
             0% {
                 left: -36%;
@@ -197,13 +219,18 @@
     <a href="?renderer=webgl&nav=vehicle">WebGL vehicle</a>
     <a href="?renderer=webgpu&nav=vehicle">WebGPU vehicle</a>
     <a href="?renderer=webgl&nav=model">Model nav</a>
-    <label><input id="skateboardSound" type="checkbox" checked> Wind audio</label>
+    <label><input id="buildingsToggle" type="checkbox" checked> Buildings</label>
+    <label><input id="shadowsToggle" type="checkbox"> Shadows</label>
+    <label><input id="saoToggle" type="checkbox" checked> SAO</label>
+    <label><input id="streetLamps" type="checkbox" checked> Street lamps</label>
+    <label><input id="skateboardSound" type="checkbox" checked> Skate audio</label>
 </div>
 <div id="fpsMeter">
     <strong id="fpsValue">-- FPS</strong>
     <span id="frameMsValue">-- ms/frame</span>
     <span id="rafValue">-- RAF</span>
 </div>
+<canvas id="minimap" width="320" height="200" aria-label="Skater minimap"></canvas>
 <div id="rendererBadge">WEBGL</div>
 <script type="module" src="index.js"></script>
 </body>

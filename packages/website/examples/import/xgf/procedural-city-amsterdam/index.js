@@ -113,7 +113,7 @@ window.PROCEDURAL_CITY_STREAM_CONFIG = {
     "coastDeceleration": 1.2,
     "startSpeed": 44,
     "flightSimulation": {
-      "enabled": false,
+      "enabled": true,
       "mass": 850,
       "inertiaBody": [
         800, 0, 0,

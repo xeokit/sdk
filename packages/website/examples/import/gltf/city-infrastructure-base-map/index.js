@@ -179,6 +179,7 @@ async function main() {
     if (result && result.ok === false) {
       throw new Error(result.error);
     }
+    configureDriveSurfaceShadowCasting(sceneModel, view);
     mustOk(sceneModel.seal());
   } catch (error) {
     sceneModel.destroy();
@@ -412,6 +413,26 @@ function getDriveSurfaceAABB(collisionIndex, sceneModel) {
 
 function isDriveSurfaceObjectId(objectId) {
   return isRoadSurfaceObjectId(objectId) || isGrassSurfaceObjectId(objectId);
+}
+
+function configureDriveSurfaceShadowCasting(sceneModel, view) {
+  const sceneObjects = sceneModel.objects || {};
+  for (const objectId of Object.keys(sceneObjects)) {
+    if (!isDriveSurfaceObjectId(objectId)) {
+      continue;
+    }
+    const sceneObject = sceneObjects[objectId];
+    sceneObject.castsShadow = false;
+    const viewObject = view.objects?.[objectId];
+    if (viewObject) {
+      viewObject.castsShadow = false;
+    }
+    for (const mesh of Object.values(sceneObject.meshes || {})) {
+      if (mesh) {
+        mesh.castsShadow = false;
+      }
+    }
+  }
 }
 
 function isRoadSurfaceObjectId(objectId) {

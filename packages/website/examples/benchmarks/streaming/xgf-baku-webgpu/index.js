@@ -14,14 +14,15 @@ import {
 } from "../../../utils/rendererInteractionProfiler.js";
 const DATASET = getBakuDataset();
 const INDEX_URL = getBakuIndexURL(DATASET);
-const AUTO_BATCH_SIZE = 8;
-const FETCH_CONCURRENCY = 8;
-const PREFETCH_CHUNKS = 24;
+const AUTO_BATCH_SIZE = getPositiveNumberParam("batchSize", 8);
+const FETCH_CONCURRENCY = getPositiveNumberParam("fetchConcurrency", 8);
+const PREFETCH_CHUNKS = getPositiveNumberParam("prefetchChunks", 24);
 const MAX_CACHED_XGF_FILE_BYTES = 256 * 1024 * 1024;
 const MEMORY_PROFILE = getMemoryProfile();
 const EDGE_PASS = new URLSearchParams(window.location.search).get("edges") === "1";
 const DEPTH_PREPASS = new URLSearchParams(window.location.search).get("depth") === "1";
 const GPU_TIMESTAMPS = new URLSearchParams(window.location.search).get("timestamps") === "1";
+const RENDER_BUNDLE_CACHING = getRenderBundleCachingOverride();
 const PROFILE_PANEL = new URLSearchParams(window.location.search).get("profile") === "1";
 const BENCHMARK_PANEL = new URLSearchParams(window.location.search).get("benchmark") === "1";
 const RTC_TILE_SIZE = getPositiveNumberParam("tileSize", 1000);
@@ -33,6 +34,7 @@ const BACKPRESSURE_PAUSE_PENDING_SEGMENTS = getPositiveNumberParam("pausePending
 const BACKPRESSURE_RESUME_PENDING_SEGMENTS = getPositiveNumberParam("resumePendingSegments", BACKPRESSURE_DEFAULTS.resumePendingSegments);
 const BACKPRESSURE_CHECK_INTERVAL_MS = getPositiveNumberParam("backpressureIntervalMs", 250);
 const MEMORY_CONFIGS = getMemoryConfigs(MEMORY_PROFILE, DATASET);
+const BENCHMARK_TARGET_CHUNKS = getNonNegativeNumberParam("benchmarkTargetChunks", 0);
 
 const status = document.getElementById("status");
 const canvas = document.getElementById("demoCanvas");
@@ -50,7 +52,7 @@ async function main() {
   const {Scene} = xeokit.model.scene;
   const {Viewer} = xeokit.viewing.viewer;
   const {ModelNavigationController: InputController} = xeokit.viewing.navigation.model;
-  const {WebGPURenderer} = xeokit.viewing.renderers.webGPU;
+  const {WebGPURenderer, WEBGPU_RENDER_CONFIG_PROFILES} = xeokit.viewing.renderers.webGPU;
   const {XGFStreamingLoader, XGFViewStreamController, readXGFStreamingRuntimeIndex} = xeokit.formats.xgfstream;
 
   updateStatus("Requesting WebGPU adapter...");
@@ -84,10 +86,12 @@ async function main() {
     logging: true,
     memoryConfigs: MEMORY_CONFIGS,
     renderConfigs: {
+      ...WEBGPU_RENDER_CONFIG_PROFILES.largeModel,
       depthPrepass: DEPTH_PREPASS,
       edges: EDGE_PASS,
       triangleColorMode: "flat",
-      gpuTimestamps: GPU_TIMESTAMPS
+      gpuTimestamps: GPU_TIMESTAMPS,
+      renderBundleCaching: RENDER_BUNDLE_CACHING ?? WEBGPU_RENDER_CONFIG_PROFILES.largeModel.renderBundleCaching
     }
   });
   if (!rendererResult.ok) {
@@ -137,6 +141,7 @@ async function main() {
       throw new Error(indexResult.error);
     }
     const index = resolveIndexRelativeChunkUris(indexResult.value, indexUrl);
+    const benchmarkChunkFilter = createBenchmarkChunkFilter(index);
 
     const sceneModel = mustOk(scene.createModel({
       id: "WebGPUBakuStadiumXGFStream",
@@ -182,11 +187,13 @@ async function main() {
       commitFrameBudgetMs: 0,
       cameraDebounceMs: 0,
       frustumOnly: false,
+      chunkFilter: benchmarkChunkFilter,
       chunkPriorityTarget: "eye",
       cacheFileData: true,
       maxCachedFileBytes: MAX_CACHED_XGF_FILE_BYTES,
       onStatus: (message) => refreshStatus(message),
       onProgress: () => {
+        pauseAtBenchmarkTarget(streamController);
         lastProgressAt = performance.now();
         sealModelWhenComplete();
         scheduleRender();
@@ -418,8 +425,12 @@ function renderStatus({streamController, index, renderer, renderInspector, view,
       `<span>Segment batching: ${formatCount(frameStats.numCullSegmentCandidates)} candidates, ${formatCount(frameStats.numFrustumCulledSegments)} frustum culled, ${formatCount(frameStats.numProjectedSizeCulledMeshes)} projected-size culled, ${formatCount(frameStats.numFullyDrawnSegments)} fully drawn, ${formatCount(frameStats.numPartiallyRefinedSegments)} refined to meshes, ${formatCount(frameStats.numTemporaryIndexBuffers)} temporary index buffers created.</span>`
     : "";
   const timingHTML = frameStats
-    ? `<span>CPU phases: binning ${frameStats.cpuTime.binningMs.toFixed(2)} ms, batching ${frameStats.cpuTime.batchingMs.toFixed(2)} ms, upload ${frameStats.cpuTime.uploadMs.toFixed(2)} ms, commands ${frameStats.cpuTime.commandEncodingMs.toFixed(2)} ms.</span>`
+    ? `<span>CPU phases: binning ${frameStats.cpuTime.binningMs.toFixed(2)} ms, fill class ${frameStats.cpuTime.triangleFillClassificationMs.toFixed(2)} ms, batching ${frameStats.cpuTime.batchingMs.toFixed(2)} ms, draw submit ${frameStats.cpuTime.drawSubmissionMs.toFixed(2)} ms, upload ${frameStats.cpuTime.uploadMs.toFixed(2)} ms, commands ${frameStats.cpuTime.commandEncodingMs.toFixed(2)} ms.</span>`
     : "";
+  const renderBundleStats = frameStats?.renderBundleStats || null;
+  const renderBundleHTML = frameStats
+    ? `<span>Render bundles: ${RENDER_BUNDLE_CACHING ? "enabled" : "disabled"}; records ${formatCount(renderBundleStats?.records)}, replays ${formatCount(renderBundleStats?.replays)}, fallbacks ${formatCount(renderBundleStats?.fallbacks)}, invalidations ${formatCount(renderBundleStats?.invalidations)}.</span>`
+    : `<span>Render bundles: ${RENDER_BUNDLE_CACHING ? "enabled" : "disabled"}.</span>`;
   const commandStateHTML = frameStats
     ? `<span>Command encoding: ${formatCommandState(frameStats.commandState)}.</span>`
     : "";
@@ -443,6 +454,7 @@ function renderStatus({streamController, index, renderer, renderInspector, view,
     `<span>Depth prepass: ${DEPTH_PREPASS ? "enabled" : "disabled"}.</span>` +
     `<span>Edge pass: ${EDGE_PASS ? "enabled" : "disabled"}.</span>` +
     `<span>GPU timestamps: ${GPU_TIMESTAMPS ? "enabled" : "disabled"}.</span>` +
+    renderBundleHTML +
     `<span>${escapeHTML(message)}. ${streamController.loadedChunkIds.size}/${chunkCount} chunks loaded from ${index.rootChunkIds.length} root chunks.</span>` +
     `<span>${objectCount.toLocaleString()} objects and ${meshCount.toLocaleString()} meshes currently resident. Last queue: ${escapeHTML(lastQueuedLabel)}. Last progress: ${secondsSinceProgress.toFixed(1)}s ago.</span>` +
     renderStatsHTML +
@@ -580,6 +592,14 @@ function getMemoryProfile() {
   return "stream";
 }
 
+function getRenderBundleCachingOverride() {
+  const value = new URLSearchParams(window.location.search).get("renderBundles");
+  if (value === null) {
+    return null;
+  }
+  return value !== "0" && value !== "false" && value !== "off";
+}
+
 function getBackpressureDefaults(profile) {
   if (profile === "mediumPacked") {
     return {
@@ -625,6 +645,29 @@ function getPositiveNumberParam(name, fallback) {
 function getNonNegativeNumberParam(name, fallback) {
   const value = Number(new URLSearchParams(window.location.search).get(name));
   return Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
+function pauseAtBenchmarkTarget(streamController) {
+  if (BENCHMARK_TARGET_CHUNKS <= 0 || streamController.paused) {
+    return;
+  }
+  const target = Math.min(BENCHMARK_TARGET_CHUNKS, streamController.chunkManifests.length);
+  if (streamController.loadedChunkIds.size >= target) {
+    streamController.pause();
+  }
+}
+
+function createBenchmarkChunkFilter(index) {
+  if (BENCHMARK_TARGET_CHUNKS <= 0) {
+    return undefined;
+  }
+  const benchmarkChunkIds = new Set(
+    (index.chunks || [])
+      .filter((chunk) => chunk.role === "referencesOnly")
+      .slice(0, BENCHMARK_TARGET_CHUNKS)
+      .map((chunk) => chunk.id)
+  );
+  return (chunk) => benchmarkChunkIds.has(chunk.id);
 }
 
 function resolveIndexRelativeChunkUris(index, indexUrl) {

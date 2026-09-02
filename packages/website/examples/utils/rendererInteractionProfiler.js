@@ -310,6 +310,7 @@ export async function runVisibleBrowserBenchmark({
     await nextAnimationFrame();
     const frameStats = getFrameStats({renderer, view});
     const cpu = frameStats?.cpuTime || {};
+    const renderBundleStats = frameStats?.renderBundleStats || {};
     const instanceUpload = frameStats?.instanceUpload || {};
     const segmentBuildTelemetry = frameStats?.segmentBuildTelemetry || {};
     const slowestSegment = segmentBuildTelemetry.slowestSamples?.[0] || null;
@@ -322,6 +323,10 @@ export async function runVisibleBrowserBenchmark({
       binningMs: cpu.binningMs ?? null,
       batchingMs: cpu.batchingMs ?? null,
       drawBatchMs: cpu.drawBatchMs ?? null,
+      triangleFillClassificationMs: cpu.triangleFillClassificationMs ?? null,
+      drawSubmissionMs: cpu.drawSubmissionMs ?? null,
+      renderBundleRecordMs: cpu.renderBundleRecordMs ?? null,
+      renderBundleReplayMs: cpu.renderBundleReplayMs ?? null,
       uploadMs: cpu.uploadMs ?? null,
       instanceUploadBytes: instanceUpload.byteLength ?? null,
       instanceUploadWrites: instanceUpload.writeCount ?? null,
@@ -330,7 +335,13 @@ export async function runVisibleBrowserBenchmark({
       instanceUploadFull: instanceUpload.fullUpload ?? null,
       instanceUploadCopiedBytes: instanceUpload.copiedByteLength ?? null,
       commandEncodingMs: cpu.commandEncodingMs ?? null,
+      renderPassEncodingMs: cpu.renderPassEncodingMs ?? null,
       submitMs: cpu.submitMs ?? null,
+      renderBundleRecords: renderBundleStats.records ?? null,
+      renderBundleReplays: renderBundleStats.replays ?? null,
+      renderBundleFallbacks: renderBundleStats.fallbacks ?? null,
+      renderBundleSkips: renderBundleStats.skipped ?? null,
+      renderBundleInvalidations: renderBundleStats.invalidations ?? null,
       numDrawCalls: frameStats?.numDrawCalls ?? null,
       numBatches: frameStats?.numBatches ?? null,
       numBuiltSegments: frameStats?.numBuiltSegments ?? null,
@@ -579,6 +590,7 @@ function updatePanel(panel, state) {
   const frameStats = state.lastFrameStats;
   const cpuTime = frameStats?.cpuTime || {};
   const commandState = frameStats?.commandState || {};
+  const renderBundleStats = frameStats?.renderBundleStats || {};
   panel.innerHTML = `
     <strong>${escapeHTML(panel.querySelector("strong")?.textContent || "Interaction")}</strong>
     <div>
@@ -593,9 +605,16 @@ function updatePanel(panel, state) {
       <span>Draws ${formatCount(frameStats?.numDrawCalls)}</span>
       <span>Batches ${formatCount(frameStats?.numBatches)}</span>
       <span>CPU bin ${formatMs(cpuTime.binningMs)}</span>
+      <span>fill ${formatMs(cpuTime.triangleFillClassificationMs)}</span>
       <span>batch ${formatMs(cpuTime.batchingMs)}</span>
+      <span>draw ${formatMs(cpuTime.drawSubmissionMs)}</span>
+      <span>bundle rec ${formatMs(cpuTime.renderBundleRecordMs)}</span>
+      <span>bundle replay ${formatMs(cpuTime.renderBundleReplayMs)}</span>
       <span>upload ${formatMs(cpuTime.uploadMs)}</span>
+      <span>pass ${formatMs(cpuTime.renderPassEncodingMs)}</span>
       <span>cmd ${formatMs(cpuTime.commandEncodingMs)}</span>
+      <span>Bundles ${formatCount(renderBundleStats.records)}/${formatCount(renderBundleStats.replays)}/${formatCount(renderBundleStats.fallbacks)}/${formatCount(renderBundleStats.skipped)}</span>
+      <span>Multi ${formatCount(commandState.numMultiDrawIndexedIndirectCalls)}/${formatCount(commandState.numMultiDrawIndexedIndirectDraws)}</span>
       <span>Binds ${formatCount(commandState.numPipelineBinds)}/${formatCount(commandState.numVertexBufferBinds)}/${formatCount(commandState.numIndexBufferBinds)}/${formatCount(commandState.numBindGroupBinds)}</span>
       <span>GPU ${formatGPU(frameStats)}</span>
     </div>
@@ -619,9 +638,19 @@ function summarizeBenchmarkSamples(samples) {
     binningMs: get("binningMs"),
     batchingMs: get("batchingMs"),
     drawBatchMs: get("drawBatchMs"),
+    triangleFillClassificationMs: get("triangleFillClassificationMs"),
+    drawSubmissionMs: get("drawSubmissionMs"),
+    renderBundleRecordMs: get("renderBundleRecordMs"),
+    renderBundleReplayMs: get("renderBundleReplayMs"),
     uploadMs: get("uploadMs"),
+    renderPassEncodingMs: get("renderPassEncodingMs"),
     commandEncodingMs: get("commandEncodingMs"),
     submitMs: get("submitMs"),
+    renderBundleRecords: get("renderBundleRecords"),
+    renderBundleReplays: get("renderBundleReplays"),
+    renderBundleFallbacks: get("renderBundleFallbacks"),
+    renderBundleSkips: get("renderBundleSkips"),
+    renderBundleInvalidations: get("renderBundleInvalidations"),
     numDrawCalls: get("numDrawCalls"),
     numBuiltSegments: get("numBuiltSegments"),
     numPendingSegments: get("numPendingSegments"),
@@ -780,8 +809,13 @@ function formatBenchmarkResult(result) {
     <span>CPU med ${formatNullableMs(summary.frameMs?.median)}</span>
     <span>CPU p95 ${formatNullableMs(summary.frameMs?.p95)}</span>
     <span>Batch med ${formatNullableMs(summary.batchingMs?.median)}</span>
+    <span>Draw med ${formatNullableMs(summary.drawSubmissionMs?.median)}</span>
+    <span>Bundle rec med ${formatNullableMs(summary.renderBundleRecordMs?.median)}</span>
+    <span>Bundle replay ms med ${formatNullableMs(summary.renderBundleReplayMs?.median)}</span>
     <span>Upload med ${formatNullableMs(summary.uploadMs?.median)}</span>
+    <span>Pass med ${formatNullableMs(summary.renderPassEncodingMs?.median)}</span>
     <span>Cmd med ${formatNullableMs(summary.commandEncodingMs?.median)}</span>
+    <span>Bundle replay med ${formatNullableCount(summary.renderBundleReplays?.median)}</span>
     <span>Draws med ${formatNullableCount(summary.numDrawCalls?.median)}</span>
     <span>Built seg med ${formatNullableCount(summary.numBuiltSegments?.median)}</span>
     <span>Pending med ${formatNullableCount(summary.numPendingSegments?.median)}</span>

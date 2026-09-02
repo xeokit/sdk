@@ -185283,6 +185283,7 @@ var DEFAULT_MAX_FALL_SPEED2 = 35;
 var DEFAULT_MAX_SLOPE_DEGREES2 = 55;
 var MIN_LOOK_DISTANCE2 = 0.01;
 var MAX_FRAME_SECONDS2 = 0.1;
+var MAX_GROUNDED_SWEEP_STEP = 0.2;
 var DOWN_RAY_CLEARANCE2 = 0.05;
 var FORWARD_KEYS2 = /* @__PURE__ */ new Set(["KeyW", "w", "W"]);
 var BACKWARD_KEYS2 = /* @__PURE__ */ new Set(["KeyS", "s", "S"]);
@@ -185957,9 +185958,8 @@ var VehicleNavigationController = class {
     const oldGround = sub3(oldEye, mul3(up, this.#cameraHeight));
     const moveDistance = length4(move);
     let ground = moveDistance === 0 ? oldGround : add3(oldGround, move);
-    if (!this.#flying && moveDistance > 0 && this.#collision && this.#isBlocked(oldGround, move, moveDistance, up)) {
-      ground = oldGround;
-      this.#speed = 0;
+    if (!this.#flying && moveDistance > 0) {
+      ground = this.#groundedTravel(oldGround, move, moveDistance, up, elapsedSeconds);
     }
     if (this.#flying && dot6(move, up) <= 0) {
       const landedGround = this.#flightLandingSurface(oldGround, move, up);
@@ -185973,7 +185973,7 @@ var VehicleNavigationController = class {
       this.#flightVelocity = [0, 0, 0];
       this.#speed = 0;
     }
-    if (!this.#flying && (this.#gravity || this.#landingAfterFlight)) {
+    if (!this.#flying && moveDistance === 0 && (this.#gravity || this.#landingAfterFlight)) {
       ground = this.#groundedPoint(ground, up, elapsedSeconds);
       if (this.#fallSpeed === 0) {
         this.#landingAfterFlight = false;
@@ -185994,6 +185994,27 @@ var VehicleNavigationController = class {
       camera.look = newLook2;
       camera.up = newUp2;
     }
+  }
+  #groundedTravel(oldGround, move, moveDistance, up, elapsedSeconds) {
+    const steps = Math.max(1, Math.ceil(moveDistance / MAX_GROUNDED_SWEEP_STEP));
+    const stepMove = mul3(move, 1 / steps);
+    const stepDistance = moveDistance / steps;
+    const stepSeconds = elapsedSeconds / steps;
+    let ground = oldGround;
+    for (let i = 0; i < steps; i++) {
+      if (this.#collision && this.#isBlocked(ground, stepMove, stepDistance, up)) {
+        this.#speed = 0;
+        return ground;
+      }
+      ground = add3(ground, stepMove);
+      if (this.#gravity || this.#landingAfterFlight) {
+        ground = this.#groundedPoint(ground, up, stepSeconds);
+        if (this.#fallSpeed === 0) {
+          this.#landingAfterFlight = false;
+        }
+      }
+    }
+    return ground;
   }
   #updateSlopePitch(move, viewDirection, up, elapsedSeconds) {
     let targetPitch = this.#currentSlopePitch;

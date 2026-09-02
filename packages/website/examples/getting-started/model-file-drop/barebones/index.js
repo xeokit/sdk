@@ -17,6 +17,7 @@ const rendererBadge = document.getElementById("rendererBadge");
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const REQUESTED_RENDERER = normalizeRenderer(URL_PARAMS.get("renderer") || URL_PARAMS.get("backend") || "webgl");
+const {WEBGPU_RENDER_CONFIG_PROFILES} = xeokit.viewing.renderers.webGPU;
 
 const COORDINATE_SYSTEM = {
   basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -84,6 +85,10 @@ async function main() {
     },
     texturing: {
       enabled: false
+    },
+    resolutionScale: {
+      enabled: true,
+      resolutionScale: 0.72
     }
   }));
   renderer = await createRenderer({
@@ -132,7 +137,10 @@ async function createRenderer({viewer, WebGLRenderer, WebGPURenderer, requestedR
     }
     const result = await WebGPURenderer.create({
       viewer,
-      logging: false
+      logging: false,
+      renderConfigs: {
+        ...WEBGPU_RENDER_CONFIG_PROFILES.largeModel
+      }
     });
     if (!result.ok) {
       throw new Error(result.error);

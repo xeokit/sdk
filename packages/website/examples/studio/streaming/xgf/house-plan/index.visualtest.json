@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 428.39999997615814,
-    "endTime": 1009.3999999761581,
-    "elapsedTime": 581,
+    "startTime": 392.7999999821186,
+    "endTime": 503.2999999821186,
+    "elapsedTime": 110.5,
     "aabb": [],
     "scene": {
       "numTransforms": 0,

@@ -1,0 +1,28 @@
+{
+  "stats": {
+    "startTime": 371.5,
+    "endTime": 474.90000000596046,
+    "elapsedTime": 103.40000000596046,
+    "aabb": [],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 0,
+      "numMeshes": 0,
+      "numGeometries": 0,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 0,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 0,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": null,
+    "renderer": null
+  }
+}

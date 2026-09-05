@@ -26,6 +26,8 @@ async function main() {
   const view = mustOk(viewer.createView({
     id: "demoView",
     htmlElement: mustElement("demoCanvas"),
+    backgroundColor: [1, 1, 1],
+    backgroundColorFromAmbientLight: false,
     camera: {
       projection: "perspective",
       eye: [cx, cy, 22],

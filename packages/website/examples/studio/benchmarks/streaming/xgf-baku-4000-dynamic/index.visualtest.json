@@ -1,0 +1,35 @@
+{
+  "stats": {
+    "startTime": 406.69999998807907,
+    "endTime": 1892,
+    "elapsedTime": 1485.300000011921,
+    "aabb": [
+      -167.7880401611328,
+      -175.80615983212357,
+      -2.509135000601532,
+      167.7880401611328,
+      167.78803267275924,
+      55.1493899822023
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 5490,
+      "numMeshes": 8812,
+      "numGeometries": 6881,
+      "numTextures": 0,
+      "numMaterials": 15,
+      "numTriangles": 1781076,
+      "numLines": 4,
+      "numPoints": 0,
+      "numVertices": 898454,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": null,
+    "renderer": null
+  }
+}

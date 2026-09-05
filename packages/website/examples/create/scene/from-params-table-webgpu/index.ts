@@ -1,0 +1,205 @@
+import {TrianglesPrimitive} from "@xeokit/sdk/base/constants";
+import {Scene} from "@xeokit/sdk/model/scene";
+import {ModelNavigationController as InputController} from "@xeokit/sdk/viewing/navigation/model";
+import {Viewer} from "@xeokit/sdk/viewing/viewer";
+import {RoutingPickStrategy} from "@xeokit/sdk/spatial/picking";
+import {signalExampleLoaded, signalExampleLoadedOnNextRender} from "../../../utils/snapshotReady.js";
+import {createExampleRenderer, createModelNavigationPickAdapter} from "../../../utils/standaloneRuntime.js";
+
+const status = document.getElementById("status");
+const canvas = document.getElementById("demoCanvas");
+
+main().catch((error) => {
+  reportError(error instanceof Error ? error.message : String(error));
+});
+
+async function main() {
+  const scene = new Scene({logging: true});
+  const viewer = new Viewer({scene, logging: true});
+  const view = mustOk(viewer.createView({
+    id: "webgpuFromParamsTableView",
+    htmlElement: canvas,
+    backgroundColor: [0.97, 0.98, 0.99],
+    camera: {
+      projection: "perspective",
+      far: 1000000,
+      eye: [14, 14, 10],
+      look: [0, 0, 3],
+      up: [0, 0, 1]
+    }
+  }));
+
+  const renderer = await createExampleRenderer(viewer, {logging: true});
+  renderer.events.onError.subscribe((_renderer, error) => {
+    reportError(error.error);
+  });
+  const picker = new RoutingPickStrategy(scene, renderer);
+  const inputController = createInputController(InputController, view, picker, {
+    keyboardDollyRate: 10,
+    keyboardPanRate: 4,
+    mouseWheelDollyRate: 70,
+    touchDollyRate: 0.16
+  });
+  renderer.events.onViewRendered.subscribe(() => {
+    status.dataset.state = "ok";
+    status.innerHTML =
+      "<strong>WebGPU Renderer</strong>" +
+      "<span>Rendering a table-shaped SceneModel populated with SceneModel.fromParams().</span>";
+  });
+
+  const sceneModel = mustOk(scene.createModel({
+    id: "webgpuTableModel"
+  }));
+
+  mustOk(sceneModel.fromParams(createTableModelParams()));
+
+  signalExampleLoadedOnNextRender(renderer, view);
+
+  window.addEventListener("resize", () => {
+  });
+
+  window.webgpuFromParamsTableDemo = {
+    scene,
+    viewer,
+    view,
+    renderer,
+    inputController,
+    sceneModel
+  };
+}
+
+function createInputController(InputController, view, picker, cfg = {}) {
+  return new InputController(view, {
+    pick: createModelNavigationPickAdapter(view, picker),
+    followPointer: true,
+    rotationInertia: 0,
+    panInertia: 0,
+    dollyInertia: 0,
+    doublePickFlyTo: false,
+    ...cfg
+  });
+}
+
+function createTableModelParams() {
+  return {
+    geometries: [
+      {
+        id: "demoBoxGeometry",
+        primitive: TrianglesPrimitive,
+        positions: [
+          1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1,
+          -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1,
+          -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
+        ],
+        uvs: [
+          1, 0, 0, 0, 0, 1, 1, 1,
+          0, 0, 0, 1, 1, 1, 1, 0,
+          1, 1, 1, 0, 0, 0, 0, 1,
+          1, 0, 0, 0, 0, 1, 1, 1,
+          0, 1, 1, 1, 1, 0, 0, 0,
+          0, 1, 1, 1, 1, 0, 0, 0
+        ],
+        indices: [
+          0, 1, 2, 0, 2, 3,
+          4, 5, 6, 4, 6, 7,
+          8, 9, 10, 8, 10, 11,
+          12, 13, 14, 12, 14, 15,
+          16, 17, 18, 16, 18, 19,
+          20, 21, 22, 20, 22, 23
+        ],
+        edgeIndices: [
+          0, 1, 1, 2, 2, 3, 3, 0,
+          9, 10, 10, 14, 14, 17, 17, 9,
+          0, 9, 1, 10, 2, 14, 3, 17
+        ]
+      }
+    ],
+    meshes: [
+      {
+        id: "redLeg-mesh",
+        geometryId: "demoBoxGeometry",
+        position: [-4, -4, 3],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [1, 0.3, 0.3]
+      },
+      {
+        id: "greenLeg-mesh",
+        geometryId: "demoBoxGeometry",
+        position: [4, -4, 3],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [0.3, 1.0, 0.3]
+      },
+      {
+        id: "blueLeg-mesh",
+        geometryId: "demoBoxGeometry",
+        position: [4, 4, 3],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [0.3, 0.3, 1.0]
+      },
+      {
+        id: "yellowLeg-mesh",
+        geometryId: "demoBoxGeometry",
+        position: [-4, 4, 3],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [1.0, 1.0, 0.0]
+      },
+      {
+        id: "tableTop-mesh",
+        geometryId: "demoBoxGeometry",
+        position: [0, 0, 6],
+        scale: [6, 6, 0.5],
+        rotation: [0, 0, 0],
+        color: [1.0, 0.3, 1.0]
+      }
+    ],
+    objects: [
+      {
+        id: "redLeg",
+        meshIds: ["redLeg-mesh"]
+      },
+      {
+        id: "greenLeg",
+        meshIds: ["greenLeg-mesh"]
+      },
+      {
+        id: "blueLeg",
+        meshIds: ["blueLeg-mesh"]
+      },
+      {
+        id: "yellowLeg",
+        meshIds: ["yellowLeg-mesh"]
+      },
+      {
+        id: "purpleTableTop",
+        meshIds: ["tableTop-mesh"]
+      }
+    ]
+  };
+}
+
+function mustOk(result) {
+  if (!result.ok) {
+    throw new Error(result.error);
+  }
+  return result.value;
+}
+
+function reportError(message) {
+  status.dataset.state = "error";
+  status.innerHTML = `<strong>WebGPU Renderer</strong><span>${escapeHTML(message)}</span>`;
+  signalExampleLoaded();
+  console.error("[create/scene/from-params-table_webGPU]", message);
+}
+
+function escapeHTML(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

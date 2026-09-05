@@ -9140,10 +9140,13 @@ function compressRGBColors(colors) {
   return compressed;
 }
 function quantizeColor3(src, dest = new Array(3)) {
-  dest[0] = Math.floor((src[0] ?? 0) * 255);
-  dest[1] = Math.floor((src[1] ?? 0) * 255);
-  dest[2] = Math.floor((src[2] ?? 0) * 255);
+  dest[0] = clampColorByte((src[0] ?? 0) * 255);
+  dest[1] = clampColorByte((src[1] ?? 0) * 255);
+  dest[2] = clampColorByte((src[2] ?? 0) * 255);
   return dest;
+}
+function clampColorByte(value) {
+  return value < 0 ? 0 : value > 255 ? 255 : Math.floor(value);
 }
 function packUVsToFloat32(uvs) {
   if (uvs instanceof Float32Array) {
@@ -156196,7 +156199,11 @@ var TilesetStreamer = class {
     this.#maxSSE = params.maxScreenSpaceError ?? 16;
     this.#maxLoadedTiles = params.maxLoadedTiles ?? 512;
     this.#concurrency = params.concurrency ?? 6;
-    this.#options = { signal: params.signal, dracoModule: params.dracoModule };
+    this.#options = {
+      signal: params.signal,
+      dracoModule: params.dracoModule,
+      coordinateSystem: params.coordinateSystem
+    };
   }
   /** Number of tiles currently loaded into the scene. */
   get loadedCount() {
@@ -156266,6 +156273,7 @@ var TilesetStreamer = class {
         return;
       const res = this.#scene.createModel({
         id: `tilestream-${node.id}`,
+        coordinateSystem: this.#options.coordinateSystem,
         globalizedIds: true,
         updateHint: "static",
         lifecycle: "streaming",
@@ -203483,30 +203491,31 @@ float F_SchlickScalar(float F0, float cosTheta) {
     // inverse (the matrix is a pure rotation, so transpose suffices).
     // textureGrad with the pre-fract derivatives \u2014 same anti-seam
     // reasoning as the albedo/MR triplanar samples above.
-    vec3 nmX = textureGrad(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset, dxX * vNormalUVScale, dyX * vNormalUVScale).xyz * 2.0 - 1.0;
-    vec3 nmY = textureGrad(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset, dxY * vNormalUVScale, dyY * vNormalUVScale).xyz * 2.0 - 1.0;
-    vec3 nmZ = textureGrad(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset, dxZ * vNormalUVScale, dyZ * vNormalUVScale).xyz * 2.0 - 1.0;
-    // Mirror the tangent-x channel on negative-axis-facing fragments to
-    // match the per-plane UV mirroring above; otherwise the perturbation
-    // appears reversed on opposing faces.
-    if (triNorm.x < 0.0) nmX.x = -nmX.x;
-    if (triNorm.y < 0.0) nmY.x = -nmY.x;
-    if (triNorm.z < 0.0) nmZ.x = -nmZ.x;
-    // Whiteout swizzle: each axis contributes (tangent_x, tangent_y, 0)
-    // in its own local frame, mapped into world coords by axis swap.
-    //   X-projection (yz plane): sample (x,y) \u2192 world (z,y), normal is X
-    //   Y-projection (xz plane): sample (x,y) \u2192 world (x,z), normal is Y
-    //   Z-projection (xy plane): sample (x,y) \u2192 world (x,y), normal is Z
-    vec3 nmWorld = (vec3(0.0,    nmX.y,  nmX.x)) * triW.x
-                 + (vec3(nmY.x,  0.0,    nmY.y)) * triW.y
-                 + (vec3(nmZ.x,  nmZ.y,  0.0))   * triW.z;
-    // Blend the perturbation onto the geometric world normal, then
-    // bring back into view space. Sentinel \`(0, 0, 1)\` from untextured
-    // mesh slots contributes a zero-tangent perturbation, so untextured
-    // triplanar meshes fall back to plain \`N_smooth\` automatically.
-    vec3 N_world = normalize(triNorm + nmWorld);
-    vec3 N = normalize(transpose(uIBLViewToWorldRot) * N_world);
-    if (dot(N, vViewPos) > 0.0) N = -N;` : `vec3 N = N_smooth;`}
+    vec3 N = N_smooth;
+    if (max(vNormalUVScale.x, vNormalUVScale.y) > 0.0) {
+      vec3 nmX = textureGrad(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset, dxX * vNormalUVScale, dyX * vNormalUVScale).xyz * 2.0 - 1.0;
+      vec3 nmY = textureGrad(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset, dxY * vNormalUVScale, dyY * vNormalUVScale).xyz * 2.0 - 1.0;
+      vec3 nmZ = textureGrad(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset, dxZ * vNormalUVScale, dyZ * vNormalUVScale).xyz * 2.0 - 1.0;
+      // Mirror the tangent-x channel on negative-axis-facing fragments to
+      // match the per-plane UV mirroring above; otherwise the perturbation
+      // appears reversed on opposing faces.
+      if (triNorm.x < 0.0) nmX.x = -nmX.x;
+      if (triNorm.y < 0.0) nmY.x = -nmY.x;
+      if (triNorm.z < 0.0) nmZ.x = -nmZ.x;
+      // Whiteout swizzle: each axis contributes (tangent_x, tangent_y, 0)
+      // in its own local frame, mapped into world coords by axis swap.
+      //   X-projection (yz plane): sample (x,y) \u2192 world (z,y), normal is X
+      //   Y-projection (xz plane): sample (x,y) \u2192 world (x,z), normal is Y
+      //   Z-projection (xy plane): sample (x,y) \u2192 world (x,y), normal is Z
+      vec3 nmWorld = (vec3(0.0,    nmX.y,  nmX.x)) * triW.x
+                   + (vec3(nmY.x,  0.0,    nmY.y)) * triW.y
+                   + (vec3(nmZ.x,  nmZ.y,  0.0))   * triW.z;
+      // Blend the perturbation onto the geometric world normal, then
+      // bring back into view space.
+      vec3 N_world = normalize(triNorm + nmWorld);
+      N = normalize(transpose(uIBLViewToWorldRot) * N_world);
+      if (dot(N, vViewPos) > 0.0) N = -N;
+    }` : `vec3 N = N_smooth;`}
     // View direction in view space (camera at origin \u2192 fragment).
     vec3 V = normalize(-vViewPos);
     // Light direction the light travels along; surface-to-light is its
@@ -203716,18 +203725,20 @@ ${this.triplanar ? `
       // textureGrad with the pre-fract derivatives \u2014 mip selection
       // is consistent across tile seams. dxX/dyX/etc. are in scope
       // from the flat-triplanar albedo block above.
-      vec3 nmX = textureGrad(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset, dxX * vNormalUVScale, dyX * vNormalUVScale).xyz * 2.0 - 1.0;
-      vec3 nmY = textureGrad(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset, dxY * vNormalUVScale, dyY * vNormalUVScale).xyz * 2.0 - 1.0;
-      vec3 nmZ = textureGrad(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset, dxZ * vNormalUVScale, dyZ * vNormalUVScale).xyz * 2.0 - 1.0;
-      if (triNorm.x < 0.0) nmX.x = -nmX.x;
-      if (triNorm.y < 0.0) nmY.x = -nmY.x;
-      if (triNorm.z < 0.0) nmZ.x = -nmZ.x;
-      vec3 nmWorld = (vec3(0.0,    nmX.y,  nmX.x)) * triW.x
-                   + (vec3(nmY.x,  0.0,    nmY.y)) * triW.y
-                   + (vec3(nmZ.x,  nmZ.y,  0.0))   * triW.z;
-      vec3 N_world = normalize(triNorm + nmWorld);
-      normal = normalize(transpose(uIBLViewToWorldRot) * N_world);
-      if (dot(normal, vViewPos) > 0.0) normal = -normal;
+      if (max(vNormalUVScale.x, vNormalUVScale.y) > 0.0) {
+        vec3 nmX = textureGrad(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset, dxX * vNormalUVScale, dyX * vNormalUVScale).xyz * 2.0 - 1.0;
+        vec3 nmY = textureGrad(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset, dxY * vNormalUVScale, dyY * vNormalUVScale).xyz * 2.0 - 1.0;
+        vec3 nmZ = textureGrad(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset, dxZ * vNormalUVScale, dyZ * vNormalUVScale).xyz * 2.0 - 1.0;
+        if (triNorm.x < 0.0) nmX.x = -nmX.x;
+        if (triNorm.y < 0.0) nmY.x = -nmY.x;
+        if (triNorm.z < 0.0) nmZ.x = -nmZ.x;
+        vec3 nmWorld = (vec3(0.0,    nmX.y,  nmX.x)) * triW.x
+                     + (vec3(nmY.x,  0.0,    nmY.y)) * triW.y
+                     + (vec3(nmZ.x,  nmZ.y,  0.0))   * triW.z;
+        vec3 N_world = normalize(triNorm + nmWorld);
+        normal = normalize(transpose(uIBLViewToWorldRot) * N_world);
+        if (dot(normal, vViewPos) > 0.0) normal = -normal;
+      }
     }
 ` : ``}
     // Lambert diffuse term (N\xB7L), clamped to [0,1]. Light direction is
@@ -224489,6 +224500,9 @@ var MeshManager4 = class {
     }
     this._viewStateVersions[view.id] = (this._viewStateVersions[view.id] ?? 0) + 1;
   }
+  viewObjectColorizeChanged(viewObject) {
+    this._markViewObjectMeshesInstanceDataDirty(viewObject);
+  }
   viewStateChanged(view) {
     this._viewStateVersions[view.id] = (this._viewStateVersions[view.id] ?? 0) + 1;
   }
@@ -224780,6 +224794,25 @@ var MeshManager4 = class {
   _markMeshInstanceDataDirty(meshState, markGlobal = true) {
     meshState.instanceDataVersion++;
     if (markGlobal) {
+      this._markInstanceDataDirty();
+    }
+  }
+  _markViewObjectMeshesInstanceDataDirty(viewObject) {
+    const sceneObject = viewObject.sceneObject;
+    if (!sceneObject) {
+      return;
+    }
+    let dirty = false;
+    const meshes = sceneObject.meshes;
+    for (let i = 0, len = meshes.length; i < len; i++) {
+      const meshState = this._meshStates[meshes[i].uniqueId];
+      if (!meshState) {
+        continue;
+      }
+      this._markMeshInstanceDataDirty(meshState, false);
+      dirty = true;
+    }
+    if (dirty) {
       this._markInstanceDataDirty();
     }
   }
@@ -225762,6 +225795,8 @@ var nowMs3 = () => {
 var IDENTITY_MATRIX5 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var TRIANGLE_BUFFER_PAGE_SEGMENT_MULTIPLIER = 4;
 var MAX_SEGMENT_BUILD_SAMPLES = 16;
+var MIN_PACKED_POSITION_DECODE_EXTENT = 1024;
+var PACKED_POSITION_DECODE_TILE_EXTENT_MULTIPLIER = 8;
 var DEFAULT_TEXTURE_KEY2 = "default";
 var TriangleBatchManager = class {
   _renderContext;
@@ -225950,9 +225985,11 @@ var TriangleBatchManager = class {
   }
   _enqueueSegments(structureVersion, baseKey, meshStates) {
     const pageMeshStates = [];
+    const pagePositionAABB = createEmptyAABB();
     let pageVertexCount = 0;
     let pageIndexCount = 0;
     let pageEdgeIndexCount = 0;
+    const maxPositionDecodeExtent = this._getMaxPackedPositionDecodeExtent();
     const flushPage = () => {
       if (pageMeshStates.length === 0) {
         return;
@@ -225967,6 +226004,7 @@ var TriangleBatchManager = class {
         signature: this._getSegmentSignature(meshStatesForJob)
       });
       pageMeshStates.length = 0;
+      resetAABB(pagePositionAABB);
       pageVertexCount = 0;
       pageIndexCount = 0;
       pageEdgeIndexCount = 0;
@@ -225981,15 +226019,21 @@ var TriangleBatchManager = class {
       const vertexCount2 = isPoints ? sourceVertexCount * 6 : isLines ? lineSegmentCount * 6 : sourceVertexCount;
       const indexCount = isPoints ? sourceVertexCount * 6 : isLines ? lineSegmentCount * 6 : meshState.geometryState.indices.length;
       const edgeIndexCount = isPoints || isLines ? 0 : meshState.geometryState.edgeIndexCount;
-      if (pageMeshStates.length > 0 && (pageMeshStates.length >= this._memoryConfigs.maxBatchMeshes || pageMeshStates.length >= this._memoryConfigs.maxBatchGeometries || pageVertexCount + vertexCount2 > this._memoryConfigs.maxBatchVertices || pageIndexCount + indexCount > this._memoryConfigs.maxBatchIndices || pageEdgeIndexCount + edgeIndexCount > this._memoryConfigs.maxBatchIndices || Math.floor((pageIndexCount + indexCount) / 3) > this._memoryConfigs.maxBatchPrims)) {
+      if (pageMeshStates.length > 0 && (pageMeshStates.length >= this._memoryConfigs.maxBatchMeshes || pageMeshStates.length >= this._memoryConfigs.maxBatchGeometries || pageVertexCount + vertexCount2 > this._memoryConfigs.maxBatchVertices || pageIndexCount + indexCount > this._memoryConfigs.maxBatchIndices || pageEdgeIndexCount + edgeIndexCount > this._memoryConfigs.maxBatchIndices || Math.floor((pageIndexCount + indexCount) / 3) > this._memoryConfigs.maxBatchPrims || wouldExceedPackedPositionDecodeExtent(pagePositionAABB, meshState, maxPositionDecodeExtent))) {
         flushPage();
       }
       pageMeshStates.push(meshState);
+      expandAABB(pagePositionAABB, meshState.geometryState.geometry.aabb);
       pageVertexCount += vertexCount2;
       pageIndexCount += indexCount;
       pageEdgeIndexCount += edgeIndexCount;
     }
     flushPage();
+  }
+  _getMaxPackedPositionDecodeExtent() {
+    const tileSize = this._memoryConfigs.tileSize;
+    const tileExtent = Number.isFinite(tileSize) && tileSize > 0 ? tileSize * PACKED_POSITION_DECODE_TILE_EXTENT_MULTIPLIER : 0;
+    return Math.max(MIN_PACKED_POSITION_DECODE_EXTENT, tileExtent);
   }
   _buildPendingSegmentJobs(structureVersion, buildAllSegments = false, maxBuildSegments = -1) {
     const startedAt = nowMs3();
@@ -227314,6 +227358,14 @@ function createEmptyAABB() {
     Number.NEGATIVE_INFINITY
   ]);
 }
+function resetAABB(aabb) {
+  aabb[0] = Number.POSITIVE_INFINITY;
+  aabb[1] = Number.POSITIVE_INFINITY;
+  aabb[2] = Number.POSITIVE_INFINITY;
+  aabb[3] = Number.NEGATIVE_INFINITY;
+  aabb[4] = Number.NEGATIVE_INFINITY;
+  aabb[5] = Number.NEGATIVE_INFINITY;
+}
 function expandWorldAABB(worldAABB, localAABB, worldMatrix) {
   if (!localAABB) {
     return;
@@ -227455,6 +227507,42 @@ function createPackedPositionAABB(meshStates) {
     aabb.set([0, 0, 0, 0, 0, 0]);
   }
   return aabb;
+}
+function wouldExceedPackedPositionDecodeExtent(currentAABB, meshState, maxExtent) {
+  const meshAABB = meshState.geometryState.geometry.aabb;
+  if (!meshAABB) {
+    return false;
+  }
+  const minX = Math.min(currentAABB[0], meshAABB[0]);
+  const minY = Math.min(currentAABB[1], meshAABB[1]);
+  const minZ = Math.min(currentAABB[2], meshAABB[2]);
+  const maxX = Math.max(currentAABB[3], meshAABB[3]);
+  const maxY = Math.max(currentAABB[4], meshAABB[4]);
+  const maxZ = Math.max(currentAABB[5], meshAABB[5]);
+  return Math.max(maxX - minX, maxY - minY, maxZ - minZ) > maxExtent;
+}
+function expandAABB(target, source) {
+  if (!source) {
+    return;
+  }
+  if (source[0] < target[0]) {
+    target[0] = source[0];
+  }
+  if (source[1] < target[1]) {
+    target[1] = source[1];
+  }
+  if (source[2] < target[2]) {
+    target[2] = source[2];
+  }
+  if (source[3] > target[3]) {
+    target[3] = source[3];
+  }
+  if (source[4] > target[4]) {
+    target[4] = source[4];
+  }
+  if (source[5] > target[5]) {
+    target[5] = source[5];
+  }
 }
 function createPositionDecodeUniform(aabb) {
   const uniform2 = new Float32Array(TRIANGLE_POSITION_DECODE_UNIFORM_FLOATS);
@@ -231157,7 +231245,7 @@ var RenderBinClassifier2 = class {
     if (segment.boundsVersion === boundsVersion) {
       return;
     }
-    resetAABB(segment.worldAABB);
+    resetAABB2(segment.worldAABB);
     for (let i = 0, len = segment.slots.length; i < len; i++) {
       const meshState = segment.slots[i].meshState;
       expandWorldAABB2(segment.worldAABB, meshState.geometryState.geometry.aabb, meshManager.getMeshWorldMatrix(meshState));
@@ -231270,7 +231358,7 @@ function getSegmentBoundsVersion(segment) {
   }
   return parts.join("|");
 }
-function resetAABB(aabb) {
+function resetAABB2(aabb) {
   aabb[0] = Number.POSITIVE_INFINITY;
   aabb[1] = Number.POSITIVE_INFINITY;
   aabb[2] = Number.POSITIVE_INFINITY;
@@ -237267,6 +237355,17 @@ var RenderManager3 = class {
         return visibilityRefreshResult;
       }
     }
+    if (cache2.batchSet && cache2.instanceFrame?.buffer && cache2.structureVersion === structureVersion && cache2.instanceDataVersion !== instanceDataVersion && cache2.viewStateVersion === viewStateVersion && cache2.renderEffectKey === renderEffectKey && !cameraMatrixChanged && !needsAppendOnlyRepack && !this._needsAppendOnlyRepackCommit(cache2) && !needsCameraCullingRebuild && cache2.splatBatches.length === 0) {
+      const instanceRefreshResult = this._refreshInstanceDataViewRenderCache({
+        cache: cache2,
+        viewRenderState,
+        instanceDataVersion,
+        cameraViewVersion
+      });
+      if (instanceRefreshResult) {
+        return instanceRefreshResult;
+      }
+    }
     if (!this._usesCameraCulling() && cache2.pendingSegmentCount > 0 && cache2.batchSet?.structureVersion === structureVersion && cache2.instanceDataVersion === instanceDataVersion && cache2.viewStateVersion === viewStateVersion && cache2.renderEffectKey === renderEffectKey && !cache2.hasTransparent && cache2.instanceFrame?.buffer) {
       const pendingAppendResult = this._tryAppendPendingSegmentsViewRenderCache({
         cache: cache2,
@@ -237744,6 +237843,37 @@ var RenderManager3 = class {
     this._markAppendOnlyRepackPending(cache2, batchSetResult.value, params.structureVersion);
     this._rememberMeshSlots(cache2, batchSetResult.value);
     this._rememberMeshStates(cache2, meshStates);
+    return {
+      ok: true,
+      value: cache2
+    };
+  }
+  _refreshInstanceDataViewRenderCache(params) {
+    const { cache: cache2, viewRenderState } = params;
+    const view = viewRenderState.view;
+    if (!cache2.batchSet || !cache2.instanceFrame?.buffer) {
+      return null;
+    }
+    const uploadStart = nowMs6();
+    this._instanceBatcher.writeInstances({
+      batchSet: cache2.batchSet,
+      view,
+      meshManager: this._meshManager,
+      instanceFrame: cache2.instanceFrame
+    });
+    this._renderInspector.setInstanceUploadStats(this._instanceBufferManager.upload(cache2.instanceFrame));
+    this._renderInspector.addCPUTime("uploadMs", nowMs6() - uploadStart);
+    this._renderInspector.setSegmentQueueStats({
+      built: cache2.builtSegmentCount,
+      pending: cache2.pendingSegmentCount,
+      buildTelemetry: cache2.batchSet.buildTelemetry
+    });
+    this._renderInspector.setCullStats(cache2.cullStats);
+    this._renderInspector.addSegments(this._countBatches(cache2.batches));
+    cache2.instanceDataVersion = params.instanceDataVersion;
+    cache2.cameraViewVersion = params.cameraViewVersion;
+    this._rememberCameraMatrix(cache2, view);
+    this._renderInspector.setRenderReason("instanceDataRefresh");
     return {
       ok: true,
       value: cache2
@@ -239605,7 +239735,14 @@ var ViewManager3 = class {
     view.needsRender();
   }
   viewObjectColorizeChanged(viewObject) {
-    this.viewObjectChanged(viewObject);
+    if (viewObject.view.viewer !== this._viewer) {
+      return;
+    }
+    if (!this._views[viewObject.view.id]) {
+      return;
+    }
+    this._meshManager?.viewObjectColorizeChanged(viewObject);
+    viewObject.view.needsRender();
   }
   viewObjectOpacityChanged(viewObject) {
     this.viewObjectChanged(viewObject);
@@ -289230,7 +289367,6 @@ var SectionPlanesController = class _SectionPlanesController {
     tc.setShowY(true);
     tc.setShowZ(true);
     tc.setMode(mode);
-    this.view.needsRender();
   }
   _openTransformControls() {
     return this._transformControlsFactory?.(this.view) ?? TransformControls.getFor(this.view) ?? TransformControls.openFor({ view: this.view });
@@ -294638,7 +294774,6 @@ var ViewPanel = class extends FloatingPanelBase {
    *
    * Each `pointermove` fires {@link FloatingPanelBase.onLayoutChanged}
    * so hosts that track the panel's viewport rect (the Studio
-   * forwards this to the hosted View's `needsRender()` so the
    * shared WebGL canvas re-aligns) update in lockstep with the
    * resize.
    */
@@ -295069,6 +295204,15 @@ var DEFAULT_STUDIO_STYLE_BINS = [
     edgeWidth: 1
   }
 ];
+var DEFAULT_STUDIO_BACKGROUND_COLOR = [0.78, 0.86, 0.94];
+var DEFAULT_STUDIO_SKY = {
+  enabled: true,
+  skyColor: [0.58, 0.74, 0.92],
+  horizonColor: [0.78, 0.86, 0.92],
+  groundColor: [0.5, 0.54, 0.5],
+  horizonBlend: 0.42,
+  sunGlowIntensity: 0.12
+};
 var ViewManager4 = class _ViewManager {
   constructor(ctx2, hooks = {}, options = {}) {
     this.ctx = ctx2;
@@ -295143,9 +295287,13 @@ var ViewManager4 = class _ViewManager {
     } = viewParams;
     const resolvedViewParams = {
       id: sdkViewParams.id || createUUID(),
-      backgroundColor: [0, 0, 0],
+      backgroundColor: DEFAULT_STUDIO_BACKGROUND_COLOR,
       transparent: false,
       ...sdkViewParams,
+      effects: {
+        ...sdkViewParams.effects || {},
+        ...sdkViewParams.effects?.sky === void 0 ? { sky: { ...DEFAULT_STUDIO_SKY } } : {}
+      },
       styleBins: sdkViewParams.styleBins ?? DEFAULT_STUDIO_STYLE_BINS
     };
     const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);
@@ -295164,7 +295312,7 @@ var ViewManager4 = class _ViewManager {
       autoCreatedCanvas.style.padding = "0";
       autoCreatedCanvas.style.outline = "none";
       autoCreatedCanvas.style.boxSizing = "border-box";
-      autoCreatedCanvas.style.background = "black";
+      autoCreatedCanvas.style.background = "#c7dbef";
       autoCreatedCanvas.style.position = "relative";
       autoCreatedCanvas.style.pointerEvents = "auto";
       autoCreatedCanvas.style.userSelect = "none";
@@ -295210,7 +295358,6 @@ var ViewManager4 = class _ViewManager {
         this._floatingPanelByViewId[view.id] = floatingPanel;
         this._isPinnedByViewId[view.id] = false;
         floatingPanel.setTitle(`View \u2014 ${view.id}`);
-        floatingPanel.onLayoutChanged.subscribe(() => view.needsRender());
         this._wireDragToDock(view.id, floatingPanel);
       } else {
         this._isPinnedByViewId[view.id] = true;
@@ -295324,7 +295471,6 @@ var ViewManager4 = class _ViewManager {
     }
     this._isPinnedByViewId[viewId] = true;
     this._updateAutoCanvasLayout();
-    record.view.needsRender();
   }
   /**
    * Move a pinned View out of the flow-layout grid and into a fresh
@@ -295365,12 +295511,10 @@ var ViewManager4 = class _ViewManager {
     const panel = new ViewPanel(panelParams);
     panel.body.appendChild(canvas3);
     this._floatingPanelByViewId[viewId] = panel;
-    panel.onLayoutChanged.subscribe(() => record.view.needsRender());
     this._wireDragToDock(viewId, panel);
     panel.show();
     this._isPinnedByViewId[viewId] = false;
     this._updateAutoCanvasLayout();
-    record.view.needsRender();
   }
   /**
    * Build the `xkt-view-cell` grid wrapper that hosts a pinned
@@ -295942,20 +296086,51 @@ var Studio = class _Studio {
     }
     const backend = backendResult.value;
     if (backend === "webgpu") {
-      const { viewer: _viewer, ...webGPUParams } = cfg.webGPU ?? {};
-      const result = await WebGPURenderer.create(webGPUParams);
-      if (result.ok === false) {
-        return result;
-      }
-      return {
-        ok: true,
-        value: result.value
-      };
+      return this._createWebGPURenderer(cfg);
     }
     if (backend === "webgl") {
+      return this._createWebGLRenderer(cfg);
+    }
+    if (backend === "auto") {
+      if (WebGPURenderer.isSupported()) {
+        const result = await this._createWebGPURenderer(cfg);
+        if (result.ok === true) {
+          return result;
+        }
+        console.warn(`[Studio.init] WebGPU unavailable, falling back to WebGL: ${result.error}`);
+      }
+      return this._createWebGLRenderer(cfg);
+    }
+    return {
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: `[Studio.init] Unsupported renderer backend '${String(cfg.renderer)}'. Expected 'auto', 'webgl', or 'webgpu'.`
+    };
+  }
+  async _createWebGPURenderer(cfg) {
+    const { viewer: _viewer, ...webGPUParams } = cfg.webGPU ?? {};
+    const result = await WebGPURenderer.create(webGPUParams);
+    if (result.ok === false) {
       return {
-        ok: true,
-        value: new WebGLRenderer3({
+        ok: false,
+        type: result.type,
+        error: result.error
+      };
+    }
+    return {
+      ok: true,
+      value: {
+        backend: "webgpu",
+        renderer: result.value
+      }
+    };
+  }
+  _createWebGLRenderer(cfg) {
+    return {
+      ok: true,
+      value: {
+        backend: "webgl",
+        renderer: new WebGLRenderer3({
           debugging: this.debug,
           memoryConfigs: {
             tileSize: 200,
@@ -295967,15 +296142,10 @@ var Studio = class _Studio {
             maxBatchMeshes: 2e4,
             maxBatchPrims: 4e5,
             ...cfg.memoryConfigs || {},
-            maxViews: this.viewManager.maxViews
+            maxViews: cfg.maxViews ?? 1
           }
         })
-      };
-    }
-    return {
-      ok: false,
-      type: 2 /* InvalidInput */,
-      error: `[Studio.init] Unsupported renderer backend '${String(cfg.renderer)}'. Expected 'auto', 'webgl', or 'webgpu'.`
+      }
     };
   }
   /**
@@ -295986,13 +296156,7 @@ var Studio = class _Studio {
    */
   _resolveRendererBackend(cfg) {
     const backend = cfg.renderer ?? this._getURLRendererBackend() ?? "auto";
-    if (backend === "auto") {
-      return {
-        ok: true,
-        value: WebGPURenderer.isSupported() ? "webgpu" : "webgl"
-      };
-    }
-    if (backend === "webgl" || backend === "webgpu") {
+    if (backend === "auto" || backend === "webgl" || backend === "webgpu") {
       return {
         ok: true,
         value: backend
@@ -296067,11 +296231,13 @@ var Studio = class _Studio {
     this.scene = new Scene2();
     this.data = new Data2();
     this.viewer = new Viewer();
-    const rendererBackendResult = this._resolveRendererBackend(merged);
-    if (rendererBackendResult.ok === false) {
-      throw rendererBackendResult.error;
+    sdkProgress.setPhase("Creating renderer");
+    const rendererResult = await this._createRenderer(merged);
+    if (rendererResult.ok === false) {
+      throw rendererResult.error;
     }
-    const rendererBackend = rendererBackendResult.value;
+    const rendererBackend = rendererResult.value.backend;
+    this.renderer = rendererResult.value.renderer;
     sdkProgress.setPhase("Creating view manager");
     this.viewManager = new ViewManager4(
       {
@@ -296090,12 +296256,6 @@ var Studio = class _Studio {
         autoElementType: rendererBackend === "webgpu" ? "canvas" : "image"
       }
     );
-    sdkProgress.setPhase(`Creating ${rendererBackend.toUpperCase()} renderer`);
-    const rendererResult = await this._createRenderer(merged);
-    if (rendererResult.ok === false) {
-      throw rendererResult.error;
-    }
-    this.renderer = rendererResult.value;
     const log2 = (eventName, sender, args) => {
       console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
     };
@@ -296162,11 +296322,9 @@ var Studio = class _Studio {
     this._canvasContextMenu = new CanvasContextMenu({ debug: this.debug });
     this._canvasContextMenu.on("hidden", () => {
       taskRunner2.unsuspend();
-      this._requestViewsRender();
     });
     this._viewObjectContextMenu.on("hidden", () => {
       taskRunner2.unsuspend();
-      this._requestViewsRender();
     });
     this._loadingSpinner = new LoadingSpinner({
       autoHide: true,
@@ -296496,15 +296654,6 @@ var Studio = class _Studio {
    */
   _getInspectorView() {
     return this.viewer?.viewList?.[0];
-  }
-  _requestViewsRender() {
-    const views = this.viewer?.viewList;
-    if (!views) {
-      return;
-    }
-    for (let i = 0, len = views.length; i < len; i++) {
-      views[i]?.needsRender();
-    }
   }
   /**
    * Gets a default scene model for canvas-level actions.

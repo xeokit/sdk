@@ -7,6 +7,12 @@
     <title>Inverse-gravity Duplex (Rapier)</title>
     <link href="../../../../css/example-page.css" rel="stylesheet"/>
     <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
         body {
             background-color: white;
             overflow: hidden;
@@ -15,9 +21,11 @@
         }
 
         #demoCanvas {
-            width: 100%;
-            height: 100%;
             position: absolute;
+            inset: 0;
+            display: block;
+            width: 100vw;
+            height: 100vh;
             background: white;
             border: 0;
         }

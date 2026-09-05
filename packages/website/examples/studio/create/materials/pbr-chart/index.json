@@ -1,0 +1,11 @@
+{
+  "id": "studio/create/materials/pbr-chart",
+  "title": "Metallic vs Roughness Chart",
+  "description": "Shows a PBR material chart comparing metallic and roughness settings under shared lighting.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Modeling",
+    "Materials"
+  ]
+}

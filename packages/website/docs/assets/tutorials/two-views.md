@@ -28,10 +28,10 @@ belong to the same `Viewer`. Camera movement and object style-bin membership can
 independent, or you can explicitly synchronize them when your application needs
 linked panes.
 
-[![Sports car XGF model displayed in multiple views](https://xeokit.github.io/sdk/examples/import/xgf/sports-car/index.png)](https://xeokit.github.io/sdk/examples/index.html#import/xgf/sports-car)
+[![Sports car XGF model displayed in multiple views](https://xeokit.github.io/sdk/examples/sdk/import/xgf/sports-car/index.png)](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/sports-car)
 
 The live
-[XGF Sports Car - Multiple Views](https://xeokit.github.io/sdk/examples/index.html#import/xgf/sports-car)
+[XGF Sports Car - Multiple Views](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/sports-car)
 example shows the same shared-scene pattern with an XGF model rendered into
 multiple views.
 

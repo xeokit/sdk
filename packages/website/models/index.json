@@ -98,6 +98,16 @@
       "scaleToMeters": 1
     }
   },
+  "CityInfrastructureBaseMap": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters",
+      "scaleToMeters": 1
+    },
+    "formats": ["gltf", "xgf"],
+    "dataset": ["xgf", "gltf"]
+  },
   "DamagedHelmet": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -151,6 +161,16 @@
       "units": "meters"
     },
     "formats": ["dwg", "dxf", "pdf", "svg"]
+  },
+  "Glassware": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters",
+      "scaleToMeters": 1
+    },
+    "formats": ["gltf"],
+    "dataset": ["gltf"]
   },
   "HousePlan": {
     "coordSys": {

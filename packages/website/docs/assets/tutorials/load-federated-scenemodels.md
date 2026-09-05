@@ -25,10 +25,10 @@ The viewer does not need one giant file. It can load a set of XGF/DataModel JSON
 pairs, keep their package boundaries, and still let users search, pick and
 filter across the combined project.
 
-[![Nested XGF stream model set](https://xeokit.github.io/sdk/examples/streaming/xgf/recursive/index.png)](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/recursive)
+[![Nested XGF stream model set](https://xeokit.github.io/sdk/examples/studio/streaming/xgf/recursive/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/recursive)
 
 The live
-[XGF Recursive Streaming - Nested Model Set](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/recursive)
+[XGF Recursive Streaming - Nested Model Set](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/recursive)
 example shows related runtime composition: several independent child streams are
 kept as separate model packages and loaded into one scene as their bounds enter
 the view.

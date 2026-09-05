@@ -139,7 +139,6 @@ export function createFastJetExampleRuntime({view, rootTransform, exhaust, confi
       applyFlightSnapshot(runtime, simulation.sampleRenderState(), config, worldUp, dt);
       updateCameraFromFlightState(runtime, view, config, worldUp, dt);
       exhaust?.update(config, runtime.sdkController.speed, state, dt);
-      view.needsRender?.();
     },
     applyWorldOffset(offset) {
       translateFlightSimulation(simulation, offset);

@@ -1,0 +1,10 @@
+{
+  "id": "studio/getting-started/empty-view/basic",
+  "title": "Empty Studio View",
+  "description": "Creates a Studio instance with one view and no loaded model.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Tools"
+  ]
+}

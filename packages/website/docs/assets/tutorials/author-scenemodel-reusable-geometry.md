@@ -22,10 +22,10 @@ Keeping these concepts separate avoids duplicating vertex arrays for repeated
 parts. It also gives renderers a better chance to pack compatible meshes into
 large GPU batches while preserving object-level interaction.
 
-[![Table model built from reusable scene parameters](https://xeokit.github.io/sdk/examples/create/scene/from-params-table/index.png)](https://xeokit.github.io/sdk/examples/index.html#create/scene/from-params-table)
+[![Table model built from reusable scene parameters](https://xeokit.github.io/sdk/examples/studio/create/scene/from-params-table/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/create/scene/from-params-table)
 
 The live
-[Creating a Model from JSON](https://xeokit.github.io/sdk/examples/index.html#create/scene/from-params-table)
+[Creating a Model from JSON](https://xeokit.github.io/sdk/examples/index.html#studio/create/scene/from-params-table)
 example shows the same reusable geometry and mesh-instance structure in a small
 authored model.
 

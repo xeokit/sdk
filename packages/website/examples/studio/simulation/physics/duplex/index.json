@@ -1,0 +1,11 @@
+{
+  "id": "studio/simulation/physics/duplex",
+  "title": "Duplex Model with Rapier Physics Engine",
+  "description": "Shows a building model driven by Rapier physics, with gravity controls that animate the model parts.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Physics",
+    "Featured"
+  ]
+}

@@ -22,10 +22,10 @@ generate only what they need. A high-performance viewer can show geometry
 without a property graph, while a BIM-style application can pair the same
 geometry with rich metadata, relationships and property sets.
 
-[![Authored table with semantic data](https://xeokit.github.io/sdk/examples/create/data/table-with-semantics/index.png)](https://xeokit.github.io/sdk/examples/index.html#create/data/table-with-semantics)
+[![Authored table with semantic data](https://xeokit.github.io/sdk/examples/studio/create/data/table-with-semantics/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/create/data/table-with-semantics)
 
 The live
-[Creating a Model with Semantic Data](https://xeokit.github.io/sdk/examples/index.html#create/data/table-with-semantics)
+[Creating a Model with Semantic Data](https://xeokit.github.io/sdk/examples/index.html#studio/create/data/table-with-semantics)
 example pairs a generated `SceneModel` with a matching `DataModel`.
 
 ---

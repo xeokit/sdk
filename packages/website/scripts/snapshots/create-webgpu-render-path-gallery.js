@@ -18,9 +18,9 @@ const puppeteer = websiteRequire("puppeteer");
 const httpServer = websiteRequire("http-server");
 const sharp = require("sharp");
 
-const EXAMPLE_ID = "view/webgpu/render-path-matrix";
+const EXAMPLE_ID = "sdk/view/webgpu/render-path-matrix";
 const EXAMPLE_DIR = path.join(websiteRoot, "examples", EXAMPLE_ID);
-const GALLERY_EXAMPLE_ID = "view/webgpu/render-path-matrix-gallery";
+const GALLERY_EXAMPLE_ID = "sdk/view/webgpu/render-path-matrix-gallery";
 const DEFAULT_OUTPUT_DIR = path.join(websiteRoot, "examples", GALLERY_EXAMPLE_ID);
 const DEFAULT_VIEWPORT = {width: 1280, height: 900};
 const DEFAULT_TIMEOUT_MS = 90000;

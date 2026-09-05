@@ -1,10 +1,3 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-
 // libs/examples/src/aircraft/AircraftAudio.ts
 function createAircraftNoiseBuffer(context, { durationSeconds = 2, seed = 2654435769 } = {}) {
   const sampleCount = Math.max(1, Math.floor(context.sampleRate * durationSeconds));
@@ -199,6 +192,24 @@ var VEHICLE_EXTERIOR_CAMERA_PRESETS = /* @__PURE__ */ new Set([
   "rearWide"
 ]);
 var AircraftController = class {
+  /** Stable controller type string for diagnostics and app-level routing. */
+  type = "vehicle-navigation-aircraft";
+  /** Mutable physical, visual and camera state. */
+  state;
+  /** Underlying SDK vehicle navigation controller. */
+  sdkController;
+  /** Proxy View passed to {@link VehicleNavigationController}. */
+  vehicleView;
+  /** Update loop implementation. Currently always `"sdk-task"`. */
+  updateMode;
+  view;
+  params;
+  config;
+  vehicleCamera;
+  unbindCameraPresetKeys;
+  animationFrame = 0;
+  task = null;
+  destroyed = false;
   /**
    * Creates an aircraft controller for a View.
    *
@@ -207,31 +218,6 @@ var AircraftController = class {
    * flight/camera configuration.
    */
   constructor(view, params) {
-    /** Stable controller type string for diagnostics and app-level routing. */
-    __publicField(this, "type", "vehicle-navigation-aircraft");
-    /** Mutable physical, visual and camera state. */
-    __publicField(this, "state");
-    /** Underlying SDK vehicle navigation controller. */
-    __publicField(this, "sdkController");
-    /** Proxy View passed to {@link VehicleNavigationController}. */
-    __publicField(this, "vehicleView");
-    /** Update loop implementation. Currently always `"sdk-task"`. */
-    __publicField(this, "updateMode");
-    __publicField(this, "view");
-    __publicField(this, "params");
-    __publicField(this, "config");
-    __publicField(this, "vehicleCamera");
-    __publicField(this, "unbindCameraPresetKeys");
-    __publicField(this, "animationFrame", 0);
-    __publicField(this, "task", null);
-    __publicField(this, "destroyed", false);
-    __publicField(this, "animate", () => {
-      if (this.destroyed) {
-        return;
-      }
-      this.update();
-      this.animationFrame = window.requestAnimationFrame(this.animate);
-    });
     this.view = view;
     this.params = params;
     this.config = params.config || {};
@@ -269,8 +255,7 @@ var AircraftController = class {
       htmlElement: view.htmlElement,
       camera: this.vehicleCamera,
       objects: view.objects,
-      viewer: view.viewer,
-      needsRender: () => view.needsRender?.()
+      viewer: view.viewer
     };
     const maxForwardSpeed = Number(this.config.maxForwardSpeed ?? 135);
     const objectFilter = params.objectFilter || ((objectId) => !isAircraftObjectId(objectId, this.config.modelId));
@@ -348,7 +333,6 @@ var AircraftController = class {
   setCameraPreset(preset) {
     this.state.cameraPreset = preset;
     this.snapCameraToPreset();
-    this.view.needsRender?.();
   }
   /**
    * Moves the active exterior camera closer or farther from the aircraft.
@@ -370,7 +354,6 @@ var AircraftController = class {
       Number(this.config.cameraExteriorMaxDistanceScale ?? 2.5)
     );
     this.snapCameraToPreset();
-    this.view.needsRender?.();
   }
   /**
    * Stops updates, unbinds keyboard handlers and destroys the underlying
@@ -389,6 +372,13 @@ var AircraftController = class {
     this.unbindCameraPresetKeys();
     this.sdkController.destroy();
   }
+  animate = () => {
+    if (this.destroyed) {
+      return;
+    }
+    this.update();
+    this.animationFrame = window.requestAnimationFrame(this.animate);
+  };
   bindCameraPresetKeys() {
     const onKeyDown = (event) => {
       if (event.defaultPrevented || isTextInputEvent(event)) {
@@ -470,7 +460,6 @@ var AircraftController = class {
       forwardAxis: this.config.forwardAxis || "-Z"
     });
     this.updateCamera(worldUp, dt);
-    this.view.needsRender?.();
     return dt;
   }
   updateVisualState(dt) {
@@ -715,6 +704,44 @@ function stableAircraftCameraAxes(state, worldUp) {
 // libs/examples/src/aircraft/AircraftExhaustTrail.ts
 var DEFAULT_TRIANGLES_PRIMITIVE = 20002;
 var AircraftExhaustTrail = class {
+  /** Generated dynamic SceneModel containing trail and flame geometry. */
+  sceneModel;
+  /** All generated SceneObject IDs. */
+  objectIds = [];
+  /** Generated trail SceneObject IDs. */
+  trailObjectIds = [];
+  /** Generated afterburner SceneObject IDs. */
+  afterburnerObjectIds = [];
+  /** Mutable transforms for trail segments. */
+  trailTransforms = [];
+  /** Aircraft-local exhaust emitter offset. */
+  offset;
+  /** Local aircraft axis used as the forward direction. */
+  axis;
+  /** Number of trail segments. */
+  trailSegments;
+  /** Target spacing between generated trail samples. */
+  segmentSpacing;
+  /** Fraction of emitter movement carried by existing samples. */
+  trailAdvection;
+  /** Tether strength pulling samples back toward the emitter path. */
+  trailTether;
+  /** Base trail radius. */
+  radius;
+  /** Radius growth along the trail. */
+  trailExpansion;
+  /** Sideways trail curl amount. */
+  wander;
+  /** Speed used to normalize trail/afterburner intensity. */
+  maxForwardSpeed;
+  /** Resolved afterburner config, or `null` when disabled. */
+  afterburner;
+  afterburnerLayers = [];
+  history = [];
+  lastEmitter = null;
+  lastEmissionPosition = null;
+  pulsePhase = 0;
+  sampleSerial = 0;
   /**
    * Creates generated trail geometry and materials.
    */
@@ -726,44 +753,6 @@ var AircraftExhaustTrail = class {
     trianglesPrimitive = DEFAULT_TRIANGLES_PRIMITIVE,
     compressGeometryParams = (params) => params
   }) {
-    /** Generated dynamic SceneModel containing trail and flame geometry. */
-    __publicField(this, "sceneModel");
-    /** All generated SceneObject IDs. */
-    __publicField(this, "objectIds", []);
-    /** Generated trail SceneObject IDs. */
-    __publicField(this, "trailObjectIds", []);
-    /** Generated afterburner SceneObject IDs. */
-    __publicField(this, "afterburnerObjectIds", []);
-    /** Mutable transforms for trail segments. */
-    __publicField(this, "trailTransforms", []);
-    /** Aircraft-local exhaust emitter offset. */
-    __publicField(this, "offset");
-    /** Local aircraft axis used as the forward direction. */
-    __publicField(this, "axis");
-    /** Number of trail segments. */
-    __publicField(this, "trailSegments");
-    /** Target spacing between generated trail samples. */
-    __publicField(this, "segmentSpacing");
-    /** Fraction of emitter movement carried by existing samples. */
-    __publicField(this, "trailAdvection");
-    /** Tether strength pulling samples back toward the emitter path. */
-    __publicField(this, "trailTether");
-    /** Base trail radius. */
-    __publicField(this, "radius");
-    /** Radius growth along the trail. */
-    __publicField(this, "trailExpansion");
-    /** Sideways trail curl amount. */
-    __publicField(this, "wander");
-    /** Speed used to normalize trail/afterburner intensity. */
-    __publicField(this, "maxForwardSpeed");
-    /** Resolved afterburner config, or `null` when disabled. */
-    __publicField(this, "afterburner");
-    __publicField(this, "afterburnerLayers", []);
-    __publicField(this, "history", []);
-    __publicField(this, "lastEmitter", null);
-    __publicField(this, "lastEmissionPosition", null);
-    __publicField(this, "pulsePhase", 0);
-    __publicField(this, "sampleSerial", 0);
     const exhaustConfig = typeof config.exhaustPlume === "object" && config.exhaustPlume ? config.exhaustPlume : config.exhaust || {};
     const exhaustModelId = exhaustConfig?.modelId || `${modelId}Exhaust`;
     this.sceneModel = unwrapResult(scene.createModel({

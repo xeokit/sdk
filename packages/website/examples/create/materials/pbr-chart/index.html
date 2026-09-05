@@ -22,10 +22,33 @@
             background: white;
             border: 0;
         }
+
+        #status {
+            position: fixed;
+            left: 16px;
+            bottom: 16px;
+            max-width: min(420px, calc(100vw - 32px));
+            padding: 10px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #1f2933;
+            font: 13px/1.35 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+        }
+
+        #status strong,
+        #status span {
+            display: block;
+        }
+
+        #status[data-state="error"] {
+            color: #8a1f17;
+        }
     </style>
 </head>
 <body>
 <canvas id="demoCanvas"></canvas>
+<div id="status"><strong>Loading</strong><span>Creating PBR material chart.</span></div>
 </body>
 <script type="module" src="./index.js"></script>
 </html>

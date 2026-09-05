@@ -305,7 +305,6 @@ export async function runVisibleBrowserBenchmark({
       560 + Math.sin(angle * 0.5) * 60
     ];
     camera.look = [0, 0, 32];
-    view.needsRender?.();
     const rafAt = await nextAnimationFrame();
     await nextAnimationFrame();
     const frameStats = getFrameStats({renderer, view});
@@ -364,7 +363,6 @@ export async function runVisibleBrowserBenchmark({
   if (originalEye) camera.eye = originalEye;
   if (originalLook) camera.look = originalLook;
   if (originalUp) camera.up = originalUp;
-  view.needsRender?.();
 
   const extraStats = typeof getExtraStats === "function" ? getExtraStats() : null;
   const frameStats = getFrameStats({renderer, view});
@@ -460,7 +458,6 @@ function profileInteractionFrame({renderer, view, frameIndex, radius, angleStep,
       560 + Math.sin(angle * 0.5) * 60
     ];
     camera.look = [0, 0, 32];
-    view.needsRender?.();
   });
 }
 
@@ -710,7 +707,6 @@ async function waitForSettledBenchmarkState({renderer, view, getSettledState, ti
   let finalState = null;
 
   while (performance.now() - startedAt <= timeoutMs) {
-    view.needsRender?.();
     await nextAnimationFrame();
     await nextAnimationFrame();
 

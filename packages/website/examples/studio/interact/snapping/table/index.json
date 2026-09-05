@@ -1,0 +1,11 @@
+{
+  "id": "studio/interact/snapping/table",
+  "title": "Pointer Snapping on Triangle Meshes",
+  "description": "Shows pointer snapping on triangle meshes, with markers for vertex, edge, and surface hits.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Picking",
+    "Featured"
+  ]
+}

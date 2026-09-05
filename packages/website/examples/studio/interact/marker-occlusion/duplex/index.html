@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Marker Occlusion for HTML Annotations</title>
+    <link href="../../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        html, body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            height: 100%;
+            user-select: none;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: #111;
+        }
+
+        #demoCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border: 0;
+        }
+
+        #markerLayer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 200000;
+        }
+
+        .marker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, calc(-100% - 16px));
+            opacity: 0;
+            transition: opacity 140ms ease, filter 140ms ease;
+            will-change: left, top, opacity;
+        }
+
+        .marker[data-visible="true"] {
+            opacity: 1;
+        }
+
+        .marker[data-visible="false"] {
+            filter: blur(2px);
+        }
+
+        .marker .label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 112px;
+            padding: 6px 9px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(20, 24, 32, 0.16);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+            color: #1b2430;
+            font-size: 12px;
+            font-weight: 650;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .marker .swatch {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+        }
+
+        .marker .leader {
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 1px;
+            height: 16px;
+            background: rgba(31, 41, 55, 0.45);
+        }
+
+        .marker .pin {
+            position: absolute;
+            left: 50%;
+            top: calc(100% + 14px);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 1px 3px rgba(0, 0, 0, 0.35);
+        }
+
+        #status {
+            position: absolute;
+            top: 120px;
+            right: 12px;
+            z-index: 200000;
+            min-width: 250px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: rgba(15, 17, 22, 0.85);
+            color: #e7e7e7;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.45;
+            pointer-events: none;
+        }
+
+        #status .label  { color: #aaa; }
+        #status .value  { color: #ffe7b3; }
+        #status .number { color: #b3e6c7; }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="markerLayer"></div>
+<div id="status">
+    <div><span class="label">Backend:&nbsp;</span><span id="backend" class="value">BVH</span></div>
+    <div><span class="label">Visible markers:&nbsp;</span><span id="visibleCount" class="number">0</span></div>
+    <div><span class="label">Hidden markers:&nbsp;</span><span id="hiddenCount" class="number">0</span></div>
+    <div><span class="label">Last update:&nbsp;</span><span id="updateMs" class="number">0.00</span> ms</div>
+</div>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

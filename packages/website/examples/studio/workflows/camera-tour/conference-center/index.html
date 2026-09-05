@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Automatic camera walkthrough of the Duplex IFC model</title>
+    <link href="../../../../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+        /* Top-left HUD — `top: 120` keeps it clear of the `<< INDEX`
+           button injected by the example shell at top: 15px. */
+        #info {
+            position: absolute;
+            top: 120px;
+            left: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.93);
+            color: #1f2937;
+            font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace;
+            border-radius: 6px;
+            max-width: 320px;
+            pointer-events: none;
+            z-index: 200000;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        #info b      { color: #15803d; }
+        #info .room  { color: #1d4ed8; font-weight: 600; }
+        #info .muted { color: #6b7280; }
+        #info .fail  { color: #b91c1c; }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="info">Loading Duplex IFC…</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

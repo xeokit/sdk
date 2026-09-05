@@ -333,6 +333,4 @@ export interface AircraftControllerViewProxy {
   camera: any;
   objects: any;
   viewer: any;
-  /** Marks the real View dirty when vehicle navigation changes the proxy camera. */
-  needsRender?: () => void;
 }

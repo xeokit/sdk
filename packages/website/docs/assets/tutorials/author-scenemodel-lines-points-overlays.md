@@ -26,10 +26,10 @@ Use overlays as normal `SceneObject`s when they need picking, visibility,
 semantic lookup or view state. Use a separate generated `SceneModel` for tool
 graphics and analysis output when you do not want to mutate an imported model.
 
-[![Authored 3D point model](https://xeokit.github.io/sdk/examples/create/scene/points/index.png)](https://xeokit.github.io/sdk/examples/index.html#create/scene/points)
+[![Authored 3D point model](https://xeokit.github.io/sdk/examples/studio/create/scene/points/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/create/scene/points)
 
 The live
-[Creating 3D Points](https://xeokit.github.io/sdk/examples/index.html#create/scene/points)
+[Creating 3D Points](https://xeokit.github.io/sdk/examples/index.html#studio/create/scene/points)
 example shows non-surface authored point geometry in the viewer.
 
 ---

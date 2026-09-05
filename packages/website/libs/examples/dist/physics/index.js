@@ -1,32 +1,3 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-var __accessCheck = (obj, member, msg) => {
-  if (!member.has(obj))
-    throw TypeError("Cannot " + msg);
-};
-var __privateGet = (obj, member, getter) => {
-  __accessCheck(obj, member, "read from private field");
-  return getter ? getter.call(obj) : member.get(obj);
-};
-var __privateAdd = (obj, member, value) => {
-  if (member.has(obj))
-    throw TypeError("Cannot add the same private member more than once");
-  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-};
-var __privateSet = (obj, member, value, setter) => {
-  __accessCheck(obj, member, "write to private field");
-  setter ? setter.call(obj, value) : member.set(obj, value);
-  return value;
-};
-var __privateMethod = (obj, member, method) => {
-  __accessCheck(obj, member, "access private method");
-  return method;
-};
-
 // libs/examples/src/physics/PhysicsMath.ts
 function createAABB3Float64() {
   return [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
@@ -166,95 +137,52 @@ function inverseMat4(a, out = createMat4Float64()) {
 }
 
 // libs/examples/src/physics/ScenePhysics.ts
-var _rapier, _autoCreate, _bodies, _pending, _unsubscribers, _scratchBodyMat, _scratchMeshMat, _scratchInvMat, _scratchAABB, _scratchMeshAABB, _detachMeshFromBody, detachMeshFromBody_fn, _attachMeshToBody, attachMeshToBody_fn, _computeInvParent, computeInvParent_fn, _createBody, createBody_fn, _computeObjectAABB, computeObjectAABB_fn;
 var ScenePhysics = class {
+  /** The Scene this engine drives. */
+  scene;
+  /**
+   * The Rapier `World` instance. Exposed for advanced users who want to
+   * reach in and use Rapier directly (e.g. add joints, queries, sensors).
+   */
+  world;
+  #rapier;
+  #autoCreate;
+  /** objectId → BodyRecord. */
+  #bodies = /* @__PURE__ */ new Map();
+  /** objectIds queued for default-body creation on the next step. */
+  #pending = /* @__PURE__ */ new Set();
+  #unsubscribers = [];
+  /** Reusable scratch — never read between iterations of step(). */
+  #scratchBodyMat = createMat4Float64();
+  #scratchMeshMat = createMat4Float64();
+  #scratchInvMat = createMat4Float64();
+  #scratchAABB = createAABB3Float64();
+  #scratchMeshAABB = createAABB3Float64();
   constructor(scene, params) {
-    // ------------------------------------------------------------------
-    // Internals
-    // ------------------------------------------------------------------
-    /**
-     * Drops `mesh` from the body's `meshRelMatrices` if present.
-     * Triggered by `onSceneObjectMeshRemoved` so the per-step writeback
-     * stops touching meshes that are no longer part of the SceneObject
-     * (which would either NPE on a destroyed mesh or move an orphan
-     * no longer attached to the Scene).
-     */
-    __privateAdd(this, _detachMeshFromBody);
-    /**
-     * Appends `mesh` to the body's `meshRelMatrices` with its rest pose
-     * derived from the body's *current* world transform. Triggered by
-     * `onSceneObjectMeshAdded` so a re-style cycle (destroy old mesh →
-     * create new mesh on the same SceneObject) immediately re-attaches
-     * the new mesh to the body — the new mesh tracks the body from the
-     * very next `step()` instead of being silently dropped.
-     *
-     * Idempotent: if `mesh` is already in the list (some loader paths
-     * fire add twice during a transactional reskin), the second call is
-     * a no-op.
-     */
-    __privateAdd(this, _attachMeshToBody);
-    /**
-     * Inverse of the mesh's parent-world transform — the matrix that maps a
-     * world matrix back to `SceneMesh.matrix`'s local frame. Derived purely
-     * from public API: `worldMatrix = parentWorld · matrix`, so
-     * `parentWorld = worldMatrix · inv(matrix)` and
-     * `inv(parentWorld) = matrix · inv(worldMatrix)`. Identity when the model's
-     * coordinate-system matrix (and any parent transform) is identity, in which
-     * case the world-space body transform is written straight to the local matrix.
-     */
-    __privateAdd(this, _computeInvParent);
-    __privateAdd(this, _createBody);
-    /**
-     * World-space AABB unioned across every mesh of `sceneObject`. Returns
-     * `null` for objects with no usable geometry. Same construction as the
-     * BVH's per-object AABB so the body sizing matches what spatial queries
-     * see.
-     */
-    __privateAdd(this, _computeObjectAABB);
-    /** The Scene this engine drives. */
-    __publicField(this, "scene");
-    /**
-     * The Rapier `World` instance. Exposed for advanced users who want to
-     * reach in and use Rapier directly (e.g. add joints, queries, sensors).
-     */
-    __publicField(this, "world");
-    __privateAdd(this, _rapier, void 0);
-    __privateAdd(this, _autoCreate, void 0);
-    /** objectId → BodyRecord. */
-    __privateAdd(this, _bodies, /* @__PURE__ */ new Map());
-    /** objectIds queued for default-body creation on the next step. */
-    __privateAdd(this, _pending, /* @__PURE__ */ new Set());
-    __privateAdd(this, _unsubscribers, []);
-    /** Reusable scratch — never read between iterations of step(). */
-    __privateAdd(this, _scratchBodyMat, createMat4Float64());
-    __privateAdd(this, _scratchMeshMat, createMat4Float64());
-    __privateAdd(this, _scratchInvMat, createMat4Float64());
-    __privateAdd(this, _scratchAABB, createAABB3Float64());
-    __privateAdd(this, _scratchMeshAABB, createAABB3Float64());
     this.scene = scene;
-    __privateSet(this, _rapier, params.rapier);
-    __privateSet(this, _autoCreate, params.autoCreateBodies !== false);
+    this.#rapier = params.rapier;
+    this.#autoCreate = params.autoCreateBodies !== false;
     const g = params.gravity ?? [0, 0, -9.81];
-    this.world = new (__privateGet(this, _rapier)).World({ x: g[0], y: g[1], z: g[2] });
-    if (__privateGet(this, _autoCreate)) {
+    this.world = new this.#rapier.World({ x: g[0], y: g[1], z: g[2] });
+    if (this.#autoCreate) {
       const objects = scene.objects;
       for (const id in objects)
-        __privateGet(this, _pending).add(id);
+        this.#pending.add(id);
     }
-    __privateGet(this, _unsubscribers).push(
+    this.#unsubscribers.push(
       scene.events.onSceneObjectCreated.subscribe((_, obj) => {
-        if (__privateGet(this, _autoCreate))
-          __privateGet(this, _pending).add(obj.id);
+        if (this.#autoCreate)
+          this.#pending.add(obj.id);
       }),
       scene.events.onSceneObjectDestroyed.subscribe((_, obj) => {
         this.removeBody(obj.id);
-        __privateGet(this, _pending).delete(obj.id);
+        this.#pending.delete(obj.id);
       }),
       scene.events.onSceneModelDestroyed.subscribe((_, model) => {
         const objs = model.objects;
         for (const id in objs) {
           this.removeBody(id);
-          __privateGet(this, _pending).delete(id);
+          this.#pending.delete(id);
         }
       }),
       // Mesh-membership events. The re-style flow used by
@@ -270,10 +198,10 @@ var ScenePhysics = class {
       // recomputed against the body's current world transform so
       // the swap is seamless mid-simulation).
       scene.events.onSceneObjectMeshRemoved.subscribe((obj, mesh) => {
-        __privateMethod(this, _detachMeshFromBody, detachMeshFromBody_fn).call(this, obj.id, mesh);
+        this.#detachMeshFromBody(obj.id, mesh);
       }),
       scene.events.onSceneObjectMeshAdded.subscribe((obj, mesh) => {
-        __privateMethod(this, _attachMeshToBody, attachMeshToBody_fn).call(this, obj.id, mesh);
+        this.#attachMeshToBody(obj.id, mesh);
       })
     );
   }
@@ -295,20 +223,20 @@ var ScenePhysics = class {
     const sceneObject = this.scene.objects[objectId];
     if (!sceneObject)
       return null;
-    if (__privateGet(this, _bodies).has(objectId))
+    if (this.#bodies.has(objectId))
       this.removeBody(objectId);
-    __privateGet(this, _pending).delete(objectId);
-    return __privateMethod(this, _createBody, createBody_fn).call(this, sceneObject, params);
+    this.#pending.delete(objectId);
+    return this.#createBody(sceneObject, params);
   }
   /**
    * Removes the body for an object. No-op if there's no body.
    */
   removeBody(objectId) {
-    const record = __privateGet(this, _bodies).get(objectId);
+    const record = this.#bodies.get(objectId);
     if (!record)
       return;
     this.world.removeRigidBody(record.body);
-    __privateGet(this, _bodies).delete(objectId);
+    this.#bodies.delete(objectId);
   }
   /**
    * Returns the underlying Rapier `RigidBody`, or `null` if there's none.
@@ -316,7 +244,7 @@ var ScenePhysics = class {
    * additional colliders, ...).
    */
   getBody(objectId) {
-    return __privateGet(this, _bodies).get(objectId)?.body ?? null;
+    return this.#bodies.get(objectId)?.body ?? null;
   }
   /**
    * Applies an instantaneous impulse at the body's centre of mass.
@@ -324,7 +252,7 @@ var ScenePhysics = class {
    * bodies.
    */
   applyImpulse(objectId, impulse) {
-    const record = __privateGet(this, _bodies).get(objectId);
+    const record = this.#bodies.get(objectId);
     if (!record || !record.isDynamic)
       return;
     record.body.applyImpulse({ x: impulse[0], y: impulse[1], z: impulse[2] }, true);
@@ -333,7 +261,7 @@ var ScenePhysics = class {
    * Sets a dynamic body's linear velocity outright.
    */
   setLinvel(objectId, vel) {
-    const record = __privateGet(this, _bodies).get(objectId);
+    const record = this.#bodies.get(objectId);
     if (!record || !record.isDynamic)
       return;
     record.body.setLinvel({ x: vel[0], y: vel[1], z: vel[2] }, true);
@@ -342,7 +270,7 @@ var ScenePhysics = class {
    * Number of bodies currently in the world.
    */
   get size() {
-    return __privateGet(this, _bodies).size;
+    return this.#bodies.size;
   }
   /**
    * Advances the simulation one step and writes the new world transforms
@@ -358,25 +286,25 @@ var ScenePhysics = class {
    * `1/60` s.
    */
   step(dt) {
-    if (__privateGet(this, _pending).size > 0) {
-      const ids = Array.from(__privateGet(this, _pending));
-      __privateGet(this, _pending).clear();
+    if (this.#pending.size > 0) {
+      const ids = Array.from(this.#pending);
+      this.#pending.clear();
       for (let i = 0; i < ids.length; i++) {
         const id = ids[i];
-        if (__privateGet(this, _bodies).has(id))
+        if (this.#bodies.has(id))
           continue;
         const obj = this.scene.objects[id];
         if (obj)
-          __privateMethod(this, _createBody, createBody_fn).call(this, obj, {});
+          this.#createBody(obj, {});
       }
     }
     if (dt !== void 0 && dt > 0) {
       this.world.timestep = dt;
     }
     this.world.step();
-    const bodyMat = __privateGet(this, _scratchBodyMat);
-    const meshMat = __privateGet(this, _scratchMeshMat);
-    for (const record of __privateGet(this, _bodies).values()) {
+    const bodyMat = this.#scratchBodyMat;
+    const meshMat = this.#scratchMeshMat;
+    for (const record of this.#bodies.values()) {
       if (!record.isDynamic && !record.isKinematic)
         continue;
       const t = record.body.translation();
@@ -400,150 +328,172 @@ var ScenePhysics = class {
    * call the engine is unusable.
    */
   destroy() {
-    for (const u of __privateGet(this, _unsubscribers))
+    for (const u of this.#unsubscribers)
       u();
-    __privateGet(this, _unsubscribers).length = 0;
-    __privateGet(this, _bodies).clear();
-    __privateGet(this, _pending).clear();
+    this.#unsubscribers.length = 0;
+    this.#bodies.clear();
+    this.#pending.clear();
     if (typeof this.world.free === "function")
       this.world.free();
   }
-};
-_rapier = new WeakMap();
-_autoCreate = new WeakMap();
-_bodies = new WeakMap();
-_pending = new WeakMap();
-_unsubscribers = new WeakMap();
-_scratchBodyMat = new WeakMap();
-_scratchMeshMat = new WeakMap();
-_scratchInvMat = new WeakMap();
-_scratchAABB = new WeakMap();
-_scratchMeshAABB = new WeakMap();
-_detachMeshFromBody = new WeakSet();
-detachMeshFromBody_fn = function(objectId, mesh) {
-  const record = __privateGet(this, _bodies).get(objectId);
-  if (!record)
-    return;
-  const list = record.meshRelMatrices;
-  for (let i = 0, n = list.length; i < n; i++) {
-    if (list[i].mesh === mesh) {
-      list.splice(i, 1);
+  // ------------------------------------------------------------------
+  // Internals
+  // ------------------------------------------------------------------
+  /**
+   * Drops `mesh` from the body's `meshRelMatrices` if present.
+   * Triggered by `onSceneObjectMeshRemoved` so the per-step writeback
+   * stops touching meshes that are no longer part of the SceneObject
+   * (which would either NPE on a destroyed mesh or move an orphan
+   * no longer attached to the Scene).
+   */
+  #detachMeshFromBody(objectId, mesh) {
+    const record = this.#bodies.get(objectId);
+    if (!record)
       return;
+    const list = record.meshRelMatrices;
+    for (let i = 0, n = list.length; i < n; i++) {
+      if (list[i].mesh === mesh) {
+        list.splice(i, 1);
+        return;
+      }
     }
   }
-};
-_attachMeshToBody = new WeakSet();
-attachMeshToBody_fn = function(objectId, mesh) {
-  const record = __privateGet(this, _bodies).get(objectId);
-  if (!record)
-    return;
-  const list = record.meshRelMatrices;
-  for (let i = 0, n = list.length; i < n; i++) {
-    if (list[i].mesh === mesh)
+  /**
+   * Appends `mesh` to the body's `meshRelMatrices` with its rest pose
+   * derived from the body's *current* world transform. Triggered by
+   * `onSceneObjectMeshAdded` so a re-style cycle (destroy old mesh →
+   * create new mesh on the same SceneObject) immediately re-attaches
+   * the new mesh to the body — the new mesh tracks the body from the
+   * very next `step()` instead of being silently dropped.
+   *
+   * Idempotent: if `mesh` is already in the list (some loader paths
+   * fire add twice during a transactional reskin), the second call is
+   * a no-op.
+   */
+  #attachMeshToBody(objectId, mesh) {
+    const record = this.#bodies.get(objectId);
+    if (!record)
       return;
-  }
-  const t = record.body.translation();
-  const r = record.body.rotation();
-  composeMat4(
-    [t.x, t.y, t.z],
-    [r.x, r.y, r.z, r.w],
-    [1, 1, 1],
-    __privateGet(this, _scratchBodyMat)
-  );
-  inverseMat4(__privateGet(this, _scratchBodyMat), __privateGet(this, _scratchInvMat));
-  const rel = createMat4Float64();
-  mulMat4(__privateGet(this, _scratchInvMat), mesh.worldMatrix, rel);
-  list.push({ mesh, rel, invParent: __privateMethod(this, _computeInvParent, computeInvParent_fn).call(this, mesh) });
-};
-_computeInvParent = new WeakSet();
-computeInvParent_fn = function(mesh) {
-  const invWorld = inverseMat4(mesh.worldMatrix, createMat4Float64());
-  return mulMat4(mesh.matrix, invWorld, createMat4Float64());
-};
-_createBody = new WeakSet();
-createBody_fn = function(sceneObject, params) {
-  const aabb = __privateMethod(this, _computeObjectAABB, computeObjectAABB_fn).call(this, sceneObject);
-  if (!aabb)
-    return null;
-  const cx = (aabb[0] + aabb[3]) * 0.5;
-  const cy = (aabb[1] + aabb[4]) * 0.5;
-  const cz = (aabb[2] + aabb[5]) * 0.5;
-  const hx = Math.max((aabb[3] - aabb[0]) * 0.5, 1e-4);
-  const hy = Math.max((aabb[4] - aabb[1]) * 0.5, 1e-4);
-  const hz = Math.max((aabb[5] - aabb[2]) * 0.5, 1e-4);
-  const RAPIER = __privateGet(this, _rapier);
-  const type = params.type ?? "fixed";
-  let bodyDesc;
-  switch (type) {
-    case "dynamic":
-      bodyDesc = RAPIER.RigidBodyDesc.dynamic();
-      break;
-    case "kinematicPositionBased":
-      bodyDesc = RAPIER.RigidBodyDesc.kinematicPositionBased();
-      break;
-    case "fixed":
-    default:
-      bodyDesc = RAPIER.RigidBodyDesc.fixed();
-      break;
-  }
-  bodyDesc.setTranslation(cx, cy, cz);
-  const body = this.world.createRigidBody(bodyDesc);
-  let colliderDesc;
-  switch (params.shape ?? "cuboid") {
-    case "ball":
-      colliderDesc = RAPIER.ColliderDesc.ball(Math.max(hx, hy, hz));
-      break;
-    case "cuboid":
-    default:
-      colliderDesc = RAPIER.ColliderDesc.cuboid(hx, hy, hz);
-      break;
-  }
-  if (params.density !== void 0)
-    colliderDesc.setDensity(params.density);
-  if (params.friction !== void 0)
-    colliderDesc.setFriction(params.friction);
-  if (params.restitution !== void 0)
-    colliderDesc.setRestitution(params.restitution);
-  const collider = this.world.createCollider(colliderDesc, body);
-  const initialBodyMat = identityMat4();
-  initialBodyMat[12] = cx;
-  initialBodyMat[13] = cy;
-  initialBodyMat[14] = cz;
-  inverseMat4(initialBodyMat, __privateGet(this, _scratchInvMat));
-  const meshRelMatrices = [];
-  const meshes = sceneObject.meshes;
-  for (let i = 0, n = meshes.length; i < n; i++) {
-    const mesh = meshes[i];
+    const list = record.meshRelMatrices;
+    for (let i = 0, n = list.length; i < n; i++) {
+      if (list[i].mesh === mesh)
+        return;
+    }
+    const t = record.body.translation();
+    const r = record.body.rotation();
+    composeMat4(
+      [t.x, t.y, t.z],
+      [r.x, r.y, r.z, r.w],
+      [1, 1, 1],
+      this.#scratchBodyMat
+    );
+    inverseMat4(this.#scratchBodyMat, this.#scratchInvMat);
     const rel = createMat4Float64();
-    mulMat4(__privateGet(this, _scratchInvMat), mesh.worldMatrix, rel);
-    meshRelMatrices.push({ mesh, rel, invParent: __privateMethod(this, _computeInvParent, computeInvParent_fn).call(this, mesh) });
+    mulMat4(this.#scratchInvMat, mesh.worldMatrix, rel);
+    list.push({ mesh, rel, invParent: this.#computeInvParent(mesh) });
   }
-  const record = {
-    body,
-    collider,
-    meshRelMatrices,
-    isDynamic: type === "dynamic",
-    isKinematic: type === "kinematicPositionBased"
-  };
-  __privateGet(this, _bodies).set(sceneObject.id, record);
-  return body;
-};
-_computeObjectAABB = new WeakSet();
-computeObjectAABB_fn = function(sceneObject) {
-  const out = __privateGet(this, _scratchAABB);
-  collapseAABB3(out);
-  let found = false;
-  const meshes = sceneObject.meshes;
-  for (let i = 0, n = meshes.length; i < n; i++) {
-    const mesh = meshes[i];
-    const geom = mesh.geometry;
-    if (!geom)
-      continue;
-    transformAABB3(geom.aabb, mesh.worldMatrix, __privateGet(this, _scratchMeshAABB));
-    expandAABB3(out, __privateGet(this, _scratchMeshAABB));
-    found = true;
+  /**
+   * Inverse of the mesh's parent-world transform — the matrix that maps a
+   * world matrix back to `SceneMesh.matrix`'s local frame. Derived purely
+   * from public API: `worldMatrix = parentWorld · matrix`, so
+   * `parentWorld = worldMatrix · inv(matrix)` and
+   * `inv(parentWorld) = matrix · inv(worldMatrix)`. Identity when the model's
+   * coordinate-system matrix (and any parent transform) is identity, in which
+   * case the world-space body transform is written straight to the local matrix.
+   */
+  #computeInvParent(mesh) {
+    const invWorld = inverseMat4(mesh.worldMatrix, createMat4Float64());
+    return mulMat4(mesh.matrix, invWorld, createMat4Float64());
   }
-  return found ? out : null;
+  #createBody(sceneObject, params) {
+    const aabb = this.#computeObjectAABB(sceneObject);
+    if (!aabb)
+      return null;
+    const cx = (aabb[0] + aabb[3]) * 0.5;
+    const cy = (aabb[1] + aabb[4]) * 0.5;
+    const cz = (aabb[2] + aabb[5]) * 0.5;
+    const hx = Math.max((aabb[3] - aabb[0]) * 0.5, 1e-4);
+    const hy = Math.max((aabb[4] - aabb[1]) * 0.5, 1e-4);
+    const hz = Math.max((aabb[5] - aabb[2]) * 0.5, 1e-4);
+    const RAPIER = this.#rapier;
+    const type = params.type ?? "fixed";
+    let bodyDesc;
+    switch (type) {
+      case "dynamic":
+        bodyDesc = RAPIER.RigidBodyDesc.dynamic();
+        break;
+      case "kinematicPositionBased":
+        bodyDesc = RAPIER.RigidBodyDesc.kinematicPositionBased();
+        break;
+      case "fixed":
+      default:
+        bodyDesc = RAPIER.RigidBodyDesc.fixed();
+        break;
+    }
+    bodyDesc.setTranslation(cx, cy, cz);
+    const body = this.world.createRigidBody(bodyDesc);
+    let colliderDesc;
+    switch (params.shape ?? "cuboid") {
+      case "ball":
+        colliderDesc = RAPIER.ColliderDesc.ball(Math.max(hx, hy, hz));
+        break;
+      case "cuboid":
+      default:
+        colliderDesc = RAPIER.ColliderDesc.cuboid(hx, hy, hz);
+        break;
+    }
+    if (params.density !== void 0)
+      colliderDesc.setDensity(params.density);
+    if (params.friction !== void 0)
+      colliderDesc.setFriction(params.friction);
+    if (params.restitution !== void 0)
+      colliderDesc.setRestitution(params.restitution);
+    const collider = this.world.createCollider(colliderDesc, body);
+    const initialBodyMat = identityMat4();
+    initialBodyMat[12] = cx;
+    initialBodyMat[13] = cy;
+    initialBodyMat[14] = cz;
+    inverseMat4(initialBodyMat, this.#scratchInvMat);
+    const meshRelMatrices = [];
+    const meshes = sceneObject.meshes;
+    for (let i = 0, n = meshes.length; i < n; i++) {
+      const mesh = meshes[i];
+      const rel = createMat4Float64();
+      mulMat4(this.#scratchInvMat, mesh.worldMatrix, rel);
+      meshRelMatrices.push({ mesh, rel, invParent: this.#computeInvParent(mesh) });
+    }
+    const record = {
+      body,
+      collider,
+      meshRelMatrices,
+      isDynamic: type === "dynamic",
+      isKinematic: type === "kinematicPositionBased"
+    };
+    this.#bodies.set(sceneObject.id, record);
+    return body;
+  }
+  /**
+   * World-space AABB unioned across every mesh of `sceneObject`. Returns
+   * `null` for objects with no usable geometry. Same construction as the
+   * BVH's per-object AABB so the body sizing matches what spatial queries
+   * see.
+   */
+  #computeObjectAABB(sceneObject) {
+    const out = this.#scratchAABB;
+    collapseAABB3(out);
+    let found = false;
+    const meshes = sceneObject.meshes;
+    for (let i = 0, n = meshes.length; i < n; i++) {
+      const mesh = meshes[i];
+      const geom = mesh.geometry;
+      if (!geom)
+        continue;
+      transformAABB3(geom.aabb, mesh.worldMatrix, this.#scratchMeshAABB);
+      expandAABB3(out, this.#scratchMeshAABB);
+      found = true;
+    }
+    return found ? out : null;
+  }
 };
 function transformAABB3(local, matrix, out) {
   const minX = local[0], minY = local[1], minZ = local[2];

@@ -25,10 +25,10 @@ Keep XGF and DataModel JSON as separate files. Many viewers only need the XGF
 geometry path. Applications that need object trees, property panels, search or
 domain relationships can load the matching DataModel JSON alongside it.
 
-[![House plan loaded from XGF](https://xeokit.github.io/sdk/examples/import/xgf/house-plan-pbr/index.png)](https://xeokit.github.io/sdk/examples/index.html#import/xgf/house-plan-pbr)
+[![House plan loaded from XGF](https://xeokit.github.io/sdk/examples/sdk/import/xgf/house-plan-pbr/index.png)](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/house-plan-pbr)
 
 The live
-[XGF House Plan](https://xeokit.github.io/sdk/examples/index.html#import/xgf/house-plan-pbr)
+[XGF House Plan](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/house-plan-pbr)
 example shows the runtime side of this workflow: prepared XGF content loaded
 directly into a viewer.
 

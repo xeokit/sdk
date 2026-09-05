@@ -14,6 +14,7 @@
 //                      passing the pattern as a positional argument.
 //   --only-stale       Process only examples whose `index.png` is missing
 //                      or older than `index.js` / `index.html` / `index.json`.
+//   --missing-only     Process only examples whose `index.png` is missing.
 //   --workers <n>      Number of parallel pages (default 4). Each worker
 //                      processes a slice of the queue with its own page +
 //                      error bin; the headless browser is shared.
@@ -25,6 +26,7 @@
 // Per-example tuning:
 //   Set `snapshotTimeoutMs` (number) in any example's `index.json` to
 //   override the default 15s page-load + #ExampleLoaded wait timeout.
+//   Set `snapshotFullPage: false` to capture only the viewport.
 //   Heavy IFC loaders (Karhumaki) typically need 30000.
 
 const fs = require("fs");
@@ -59,6 +61,7 @@ function parseArgs(argv) {
   const args = {
     filter: null,
     onlyStale: false,
+    missingOnly: false,
     workers: DEFAULT_WORKERS,
     headless: true,
     chromePath: getDefaultChromePath()
@@ -75,6 +78,8 @@ function parseArgs(argv) {
       args.headless = true;
     } else if (a === "--only-stale" || a === "--incremental") {
       args.onlyStale = true;
+    } else if (a === "--missing-only" || a === "--only-missing") {
+      args.missingOnly = true;
     } else if (a === "--workers" || a === "-w") {
       const n = parseInt(argv[++i], 10);
       if (!Number.isFinite(n) || n < 1) {
@@ -100,6 +105,7 @@ Options:
   --filter <pat>    Process only example ids matching <pat>. \`*\` is a wildcard.
   --only-stale      Process only examples whose index.png is missing or older
                     than index.js / index.html / index.json.
+  --missing-only    Process only examples whose index.png is missing.
   --workers <n>     Number of parallel pages (default ${DEFAULT_WORKERS}).
   --headful         Run Chrome visibly instead of headless.
                     Use this for WebGPU comparison examples when headless
@@ -109,7 +115,8 @@ Options:
   -h, --help        Print this message.
 
 Per-example tuning: set "snapshotTimeoutMs" in index.json to override the
-default ${DEFAULT_TIMEOUT_MS} ms page-load timeout for heavy examples.`);
+default ${DEFAULT_TIMEOUT_MS} ms page-load timeout for heavy examples. Set
+"snapshotFullPage": false to capture only the viewport.`);
 }
 
 function matchesFilter(id, filter) {
@@ -156,6 +163,10 @@ function isStale(dir) {
     }
   }
   return false;
+}
+
+function isMissingSnapshot(dir) {
+  return !fs.existsSync(path.join(dir, "index.png"));
 }
 
 
@@ -209,7 +220,7 @@ async function captureExample(page, dir, timeoutMs, meta) {
 
   await page.screenshot({
     path: path.join(dir, "index.png"),
-    fullPage: true,
+    fullPage: meta.snapshotFullPage !== false,
   });
 
   const visualErrors = await validateSnapshotVisualTargets(page, meta.visualAudit);
@@ -398,6 +409,7 @@ async function captureSnapshots(args) {
     const dir = path.join(examplesDir, exampleId);
     const meta = readJson(path.join(dir, "index.json"));
     if (!meta) { missingMeta++; continue; }
+    if (args.missingOnly && !isMissingSnapshot(dir)) { skippedFresh++; continue; }
     if (args.onlyStale && !isStale(dir)) { skippedFresh++; continue; }
     eligible.push({ id: exampleId, dir, meta });
   }
@@ -406,9 +418,10 @@ async function captureSnapshots(args) {
   console.log(
     `${eligible.length} example(s) to capture, ${effectiveWorkers} worker(s)` +
     (args.filter   ? ` [filter: ${args.filter}]`     : "") +
+    (args.missingOnly ? " [missing-only]"            : "") +
     (args.onlyStale ? " [stale-only]"                : ""),
   );
-  if (skippedFresh       > 0) console.log(`  ${skippedFresh} skipped (PNG up-to-date)`);
+  if (skippedFresh       > 0) console.log(`  ${skippedFresh} skipped (${args.missingOnly ? "PNG exists" : "PNG up-to-date"})`);
   if (filteredOut        > 0) console.log(`  ${filteredOut} filtered out`);
   if (missingMeta        > 0) console.log(`  ${missingMeta} skipped (missing or invalid index.json)`);
   if (eligible.length === 0) return;

@@ -70,7 +70,7 @@ async function main() {
     return;
   }
 
-  for (const {entry, outfile} of entries) {
+  for (const {entry, outfile, example} of entries) {
     console.log(`Building example lib: ${path.relative(websiteRoot, entry)} -> ${path.relative(websiteRoot, outfile)}`);
     await build({
       entryPoints: [entry],
@@ -78,7 +78,8 @@ async function main() {
       bundle: true,
       format: "esm",
       platform: "browser",
-      target: "es2020",
+      target: "es2022",
+      minify: example === true,
       sourcemap: true,
       logLevel: "info",
       plugins: [sdkSourceAliasPlugin, websiteLibAliasPlugin],
@@ -97,21 +98,34 @@ function findExampleEntries() {
     return [];
   }
   const entries = [];
-  for (const name of fs.readdirSync(examplesRoot)) {
-    const exampleDir = path.join(examplesRoot, name);
-    if (!fs.statSync(exampleDir).isDirectory()) {
-      continue;
-    }
-    const entry = path.join(exampleDir, "src", "index.ts");
-    if (!fs.existsSync(entry)) {
-      continue;
-    }
-    entries.push({
-      entry,
-      outfile: path.join(exampleDir, "index.js")
-    });
-  }
+  visit(examplesRoot);
   return entries;
+
+  function visit(dir) {
+    for (const name of fs.readdirSync(dir)) {
+      const file = path.join(dir, name);
+      const stat = fs.statSync(file);
+      if (stat.isDirectory()) {
+        if (name === "node_modules") {
+          continue;
+        }
+        if (name === "chunks" && !fs.existsSync(path.join(file, "index.ts"))) {
+          continue;
+        }
+        visit(file);
+        continue;
+      }
+      if (name !== "index.ts") {
+        continue;
+      }
+      const exampleDir = path.basename(dir) === "src" ? path.dirname(dir) : dir;
+      entries.push({
+        entry: file,
+        outfile: path.join(exampleDir, "index.js"),
+        example: true
+      });
+    }
+  }
 }
 
 const sdkSourceAliasPlugin = {

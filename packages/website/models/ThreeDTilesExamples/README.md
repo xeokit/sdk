@@ -1,7 +1,7 @@
 # 3D Tiles Example Datasets
 
 These small datasets back the website examples under
-`packages/website/examples/import/threedtiles/*`.
+`packages/website/examples/sdk/import/threedtiles/*`.
 
 Generated local fixtures:
 

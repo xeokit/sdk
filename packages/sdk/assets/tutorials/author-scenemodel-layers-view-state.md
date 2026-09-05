@@ -27,10 +27,10 @@ This split matters when the same model is shown in multiple views. The
 state. One view can show services as x-rayed while another hides them. One view
 can show annotations while another ignores annotation layers completely.
 
-[![Viewer with manually managed ViewLayers](https://xeokit.github.io/sdk/examples/view/layers/manual/index.png)](https://xeokit.github.io/sdk/examples/index.html#view/layers/manual)
+[![Viewer with manually managed ViewLayers](https://xeokit.github.io/sdk/examples/studio/view/layers/manual/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/view/layers/manual)
 
 The live
-[Creating a Viewer with manual ViewLayers](https://xeokit.github.io/sdk/examples/index.html#view/layers/manual)
+[Creating a Viewer with manual ViewLayers](https://xeokit.github.io/sdk/examples/index.html#studio/view/layers/manual)
 example demonstrates explicit layer composition and per-view layer control.
 
 ---

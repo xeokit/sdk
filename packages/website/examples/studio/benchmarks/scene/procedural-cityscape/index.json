@@ -1,0 +1,10 @@
+{
+  "id": "studio/benchmarks/scene/procedural-cityscape",
+  "title": "Benchmark - Procedural Cityscape",
+  "description": "Benchmarks a large procedural city built from repeated geometry.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Benchmarks"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "studio/streaming/xgf/chunks",
+  "title": "Manual XGF Chunk Streaming",
+  "description": "Loads shared XGF asset libraries once, then streams references-only tiles on demand.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming"
+  ]
+}

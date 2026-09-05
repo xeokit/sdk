@@ -57,6 +57,16 @@ const DEFAULT_STUDIO_STYLE_BINS: NonNullable<ViewParams["styleBins"]> = [
   }
 ];
 
+const DEFAULT_STUDIO_BACKGROUND_COLOR: NonNullable<ViewParams["backgroundColor"]> = [0.78, 0.86, 0.94];
+const DEFAULT_STUDIO_SKY: NonNullable<NonNullable<ViewParams["effects"]>["sky"]> = {
+  enabled: true,
+  skyColor: [0.58, 0.74, 0.92],
+  horizonColor: [0.78, 0.86, 0.92],
+  groundColor: [0.5, 0.54, 0.5],
+  horizonBlend: 0.42,
+  sunGlowIntensity: 0.12
+};
+
 /**
  * One record per live View. Every consumer reads `cameraFlight`
  * and/or `modelNavigation` off it.
@@ -217,9 +227,13 @@ export class ViewManager {
 
     const resolvedViewParams: ViewParams = {
       id: sdkViewParams.id || createUUID(),
-      backgroundColor: [0, 0, 0],
+      backgroundColor: DEFAULT_STUDIO_BACKGROUND_COLOR,
       transparent: false,
       ...sdkViewParams,
+      effects: {
+        ...(sdkViewParams.effects || {}),
+        ...(sdkViewParams.effects?.sky === undefined ? {sky: {...DEFAULT_STUDIO_SKY}} : {})
+      },
       styleBins: sdkViewParams.styleBins ?? DEFAULT_STUDIO_STYLE_BINS,
     };
 
@@ -243,7 +257,7 @@ export class ViewManager {
       autoCreatedCanvas.style.padding = "0";
       autoCreatedCanvas.style.outline = "none";
       autoCreatedCanvas.style.boxSizing = "border-box";
-      autoCreatedCanvas.style.background = "black";
+      autoCreatedCanvas.style.background = "#c7dbef";
       autoCreatedCanvas.style.position = "relative";
       autoCreatedCanvas.style.pointerEvents = "auto";
       autoCreatedCanvas.style.userSelect = "none";
@@ -302,13 +316,6 @@ export class ViewManager {
         this._floatingPanelByViewId[view.id] = floatingPanel;
         this._isPinnedByViewId[view.id] = false;
         floatingPanel.setTitle(`View — ${view.id}`);
-        // Panel drag changes the panel's CSS left/top but no
-        // descendant resizes, so the renderer's ResizeObserver
-        // on the View's element never fires. Forward the panel's
-        // own onLayoutChanged to view.needsRender() so the shared
-        // WebGL canvas re-aligns on every drag pointermove and
-        // viewport clamp.
-        floatingPanel.onLayoutChanged.subscribe(() => view.needsRender());
         // Drag-to-dock: watches header drags and pins the View
         // into the grid when the user releases near the top.
         this._wireDragToDock(view.id, floatingPanel);
@@ -447,7 +454,6 @@ export class ViewManager {
 
     this._isPinnedByViewId[viewId] = true;
     this._updateAutoCanvasLayout();
-    record.view.needsRender();
   }
 
   /**
@@ -494,8 +500,6 @@ export class ViewManager {
     const panel = new ViewPanel(panelParams);
     panel.body.appendChild(canvas);
     this._floatingPanelByViewId[viewId] = panel;
-    // Same panel-drag → no descendant-resize setup as createView.
-    panel.onLayoutChanged.subscribe(() => record.view.needsRender());
     // Drag-to-dock works on re-floated panels too, so a panel
     // can round-trip docked → floating → docked freely.
     this._wireDragToDock(viewId, panel);
@@ -507,7 +511,6 @@ export class ViewManager {
 
     this._isPinnedByViewId[viewId] = false;
     this._updateAutoCanvasLayout();
-    record.view.needsRender();
   }
 
   /**

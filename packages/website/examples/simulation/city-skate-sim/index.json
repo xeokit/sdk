@@ -1,0 +1,13 @@
+{
+  "id": "simulation/city-skate-sim",
+  "title": "City Skate Sim",
+  "description": "Runs a skateboard-style city simulation over the City Infrastructure Base Map XGF with URL-selectable WebGL/WebGPU renderer, vehicle and model navigation, minimap, and BVH-backed picking.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Simulation",
+    "XGF",
+    "City Models",
+    "Infrastructure"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "studio/view/effects/duplex",
+  "title": "Duplex Model with Configurable Rendering Effects",
+  "description": "Shows configurable rendering effects on a duplex building model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Effects"
+  ]
+}

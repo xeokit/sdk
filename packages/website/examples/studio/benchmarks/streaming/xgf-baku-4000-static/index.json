@@ -1,0 +1,13 @@
+{
+  "id": "studio/benchmarks/streaming/xgf-baku-4000-static",
+  "title": "Streamed XGF Stadium, 4K Chunks, Static",
+  "description": "Streams the roughly 4000-chunk Baku Stadium model with static VBO geometry, stressing small-chunk scheduling and VBO upload cadence to find the sweet spot between initial visibility, fetch fan-out, and settled navigation.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM",
+    "Benchmarks"
+  ]
+}

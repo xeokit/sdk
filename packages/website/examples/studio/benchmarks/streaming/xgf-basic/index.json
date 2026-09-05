@@ -1,0 +1,12 @@
+{
+  "id": "studio/benchmarks/streaming/xgf-basic",
+  "title": "XGF Streaming Benchmark",
+  "description": "Streams all 961 generated city chunks from shared XGF asset libraries, prioritizing chunks near the current view first.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "Benchmark"
+  ]
+}

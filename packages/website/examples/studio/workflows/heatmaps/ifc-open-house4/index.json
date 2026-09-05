@@ -1,0 +1,10 @@
+{
+  "id": "studio/workflows/heatmaps/ifc-open-house4",
+  "title": "IfcOpenHouse4 Model Heat Map",
+  "description": "Shows a vertical heat map applied across the IfcOpenHouse4 building model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Heat Maps"
+  ]
+}

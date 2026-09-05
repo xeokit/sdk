@@ -1,10 +1,3 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-
 // libs/examples/src/hud/CombatJetHUD.ts
 var STYLE_ID = "xeokit-combat-jet-hud-style";
 var SVG_NS = "http://www.w3.org/2000/svg";
@@ -51,17 +44,17 @@ function createCombatJetHUD(params) {
   return new CombatJetHUD(params);
 }
 var CombatJetHUD = class {
+  view;
+  readState;
+  modalRenderer;
+  visibleWhen;
+  enabled;
+  destroyed;
+  raf;
+  root;
+  svg;
+  refs;
   constructor({ view, readState, modalRenderer = null, enabled = true, visibleWhen = defaultVisibleWhen, id = "combatJetHUD" } = {}) {
-    __publicField(this, "view");
-    __publicField(this, "readState");
-    __publicField(this, "modalRenderer");
-    __publicField(this, "visibleWhen");
-    __publicField(this, "enabled");
-    __publicField(this, "destroyed");
-    __publicField(this, "raf");
-    __publicField(this, "root");
-    __publicField(this, "svg");
-    __publicField(this, "refs");
     this.view = view;
     this.readState = readState || (() => ({}));
     this.modalRenderer = modalRenderer;

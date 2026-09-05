@@ -68,6 +68,10 @@ function escapeHtmlForInfoPanel(s: string): string {
  */
 export type StudioRendererBackend = "auto" | "webgl" | "webgpu";
 type ResolvedStudioRendererBackend = "webgl" | "webgpu";
+type CreatedStudioRenderer = {
+  backend: ResolvedStudioRendererBackend;
+  renderer: Renderer;
+};
 
 const STUDIO_RENDERER_BACKENDS = new Set<StudioRendererBackend>(["auto", "webgl", "webgpu"]);
 
@@ -317,7 +321,7 @@ export class Studio {
    * Create the configured renderer backend. WebGL is synchronous; WebGPU may
    * need to request an adapter/device, so Studio keeps the factory async.
    */
-  private async _createRenderer(cfg: StudioConfig): Promise<SDKResult<Renderer>> {
+  private async _createRenderer(cfg: StudioConfig): Promise<SDKResult<CreatedStudioRenderer>> {
     const backendResult = this._resolveRendererBackend(cfg);
     if (backendResult.ok === false) {
       return backendResult;
@@ -325,21 +329,56 @@ export class Studio {
     const backend = backendResult.value;
 
     if (backend === "webgpu") {
-      const {viewer: _viewer, ...webGPUParams} = (cfg.webGPU ?? {}) as WebGPURendererParams;
-      const result = await WebGPURenderer.create(webGPUParams);
-      if (result.ok === false) {
-        return result;
-      }
-      return {
-        ok: true,
-        value: result.value
-      };
+      return this._createWebGPURenderer(cfg);
     }
 
     if (backend === "webgl") {
+      return this._createWebGLRenderer(cfg);
+    }
+
+    if (backend === "auto") {
+      if (WebGPURenderer.isSupported()) {
+        const result = await this._createWebGPURenderer(cfg);
+        if (result.ok === true) {
+          return result;
+        }
+        console.warn(`[Studio.init] WebGPU unavailable, falling back to WebGL: ${result.error}`);
+      }
+      return this._createWebGLRenderer(cfg);
+    }
+
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: `[Studio.init] Unsupported renderer backend '${String(cfg.renderer)}'. Expected 'auto', 'webgl', or 'webgpu'.`
+    };
+  }
+
+  private async _createWebGPURenderer(cfg: StudioConfig): Promise<SDKResult<CreatedStudioRenderer>> {
+    const {viewer: _viewer, ...webGPUParams} = (cfg.webGPU ?? {}) as WebGPURendererParams;
+    const result = await WebGPURenderer.create(webGPUParams);
+    if (result.ok === false) {
       return {
-        ok: true,
-        value: new WebGLRenderer({
+        ok: false,
+        type: result.type,
+        error: result.error
+      };
+    }
+    return {
+      ok: true,
+      value: {
+        backend: "webgpu",
+        renderer: result.value
+      }
+    };
+  }
+
+  private _createWebGLRenderer(cfg: StudioConfig): SDKResult<CreatedStudioRenderer> {
+    return {
+      ok: true,
+      value: {
+        backend: "webgl",
+        renderer: new WebGLRenderer({
           debugging: this.debug,
           memoryConfigs: {
             tileSize: 200,
@@ -351,16 +390,10 @@ export class Studio {
             maxBatchMeshes: 20000,
             maxBatchPrims: 400000,
             ...(cfg.memoryConfigs || {}),
-            maxViews: this.viewManager.maxViews,
+            maxViews: cfg.maxViews ?? 1,
           }
         })
-      };
-    }
-
-    return {
-      ok: false,
-      type: SDKErrorType.InvalidInput,
-      error: `[Studio.init] Unsupported renderer backend '${String(cfg.renderer)}'. Expected 'auto', 'webgl', or 'webgpu'.`
+      }
     };
   }
 
@@ -370,15 +403,9 @@ export class Studio {
    * exposes the WebGPU entry point; explicit `"webgpu"` remains strict and lets
    * {@link WebGPURenderer.create} report device/adapter failures.
    */
-  private _resolveRendererBackend(cfg: StudioConfig): SDKResult<ResolvedStudioRendererBackend> {
+  private _resolveRendererBackend(cfg: StudioConfig): SDKResult<StudioRendererBackend> {
     const backend = cfg.renderer ?? this._getURLRendererBackend() ?? "auto";
-    if (backend === "auto") {
-      return {
-        ok: true,
-        value: WebGPURenderer.isSupported() ? "webgpu" : "webgl"
-      };
-    }
-    if (backend === "webgl" || backend === "webgpu") {
+    if (backend === "auto" || backend === "webgl" || backend === "webgpu") {
       return {
         ok: true,
         value: backend
@@ -469,11 +496,13 @@ export class Studio {
     this.data = new Data();
     this.viewer = new Viewer();
 
-    const rendererBackendResult = this._resolveRendererBackend(merged);
-    if (rendererBackendResult.ok === false) {
-      throw rendererBackendResult.error;
+    sdkProgress.setPhase("Creating renderer");
+    const rendererResult = await this._createRenderer(merged);
+    if (rendererResult.ok === false) {
+      throw rendererResult.error;
     }
-    const rendererBackend = rendererBackendResult.value;
+    const rendererBackend = rendererResult.value.backend;
+    this.renderer = rendererResult.value.renderer;
 
     sdkProgress.setPhase("Creating view manager");
     this.viewManager = new ViewManager({
@@ -492,13 +521,6 @@ export class Studio {
         autoElementType: rendererBackend === "webgpu" ? "canvas" : "image",
       },
     );
-
-    sdkProgress.setPhase(`Creating ${rendererBackend.toUpperCase()} renderer`);
-    const rendererResult = await this._createRenderer(merged);
-    if (rendererResult.ok === false) {
-      throw rendererResult.error;
-    }
-    this.renderer = rendererResult.value;
 
     const log = (eventName: string, sender: any, args: any) => {
       console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
@@ -583,12 +605,10 @@ export class Studio {
 
     this._canvasContextMenu.on("hidden", () => {
       taskRunner.unsuspend();
-      this._requestViewsRender();
     });
 
     this._viewObjectContextMenu.on("hidden", () => {
       taskRunner.unsuspend();
-      this._requestViewsRender();
     });
 
     this._loadingSpinner = new LoadingSpinner({
@@ -1010,16 +1030,6 @@ export class Studio {
    */
   private _getInspectorView(): View | undefined {
     return this.viewer?.viewList?.[0];
-  }
-
-  private _requestViewsRender(): void {
-    const views = this.viewer?.viewList;
-    if (!views) {
-      return;
-    }
-    for (let i = 0, len = views.length; i < len; i++) {
-      views[i]?.needsRender();
-    }
   }
 
   /**

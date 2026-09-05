@@ -1,10 +1,3 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-
 // libs/examples/src/flight/FlightMath.ts
 var EPSILON = 1e-9;
 function vec3(x = 0, y = 0, z = 0) {
@@ -399,10 +392,8 @@ var FlightUnits = Object.freeze({
 
 // libs/examples/src/flight/ForceMomentAccumulator.ts
 var ForceMomentAccumulator = class {
-  constructor() {
-    __publicField(this, "forceWorld", vec3());
-    __publicField(this, "momentBody", vec3());
-  }
+  forceWorld = vec3();
+  momentBody = vec3();
   clear() {
     this.forceWorld = vec3();
     this.momentBody = vec3();
@@ -437,19 +428,19 @@ var DEFAULT_FIXED_DT = 1 / 120;
 var DEFAULT_GRAVITY = 9.80665;
 var ZERO_CONTROLS = { throttle: 0, stickPitch: 0, stickRoll: 0, rudder: 0 };
 var FixedStepFlightSimulation = class {
+  fixedDt;
+  coordinateSystem;
+  accumulatorMaxSeconds = 0.25;
+  previous;
+  current;
+  accumulator = 0;
+  params;
+  inverseInertiaBody;
+  forceMomentAccumulator = new ForceMomentAccumulator();
+  actuatorState = emptyActuatorState();
+  controlOutput = { actuatorCommands: {}, limitState: { ...NO_LIMITS } };
+  simulationTime = 0;
   constructor(params) {
-    __publicField(this, "fixedDt");
-    __publicField(this, "coordinateSystem");
-    __publicField(this, "accumulatorMaxSeconds", 0.25);
-    __publicField(this, "previous");
-    __publicField(this, "current");
-    __publicField(this, "accumulator", 0);
-    __publicField(this, "params");
-    __publicField(this, "inverseInertiaBody");
-    __publicField(this, "forceMomentAccumulator", new ForceMomentAccumulator());
-    __publicField(this, "actuatorState", emptyActuatorState());
-    __publicField(this, "controlOutput", { actuatorCommands: {}, limitState: { ...NO_LIMITS } });
-    __publicField(this, "simulationTime", 0);
     this.params = {
       atmosphere: new StandardAtmosphereModel(),
       wind: new ConstantWindModel(),
@@ -823,7 +814,6 @@ function createFastJetExampleRuntime({ view, rootTransform, exhaust, config, rec
       applyFlightSnapshot(runtime, simulation.sampleRenderState(), config, worldUp, dt);
       updateCameraFromFlightState(runtime, view, config, worldUp, dt);
       exhaust?.update(config, runtime.sdkController.speed, state, dt);
-      view.needsRender?.();
     },
     applyWorldOffset(offset) {
       translateFlightSimulation(simulation, offset);

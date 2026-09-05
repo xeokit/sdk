@@ -27,10 +27,10 @@ building from outside, switch to a top-down plan, double-click a component to fl
 to it, then enter a walk mode for interior review. In xeokit those are not
 separate viewers. They are different ways of updating the same `View.camera`.
 
-[![Interior walk navigation example](https://xeokit.github.io/sdk/examples/view/navigation/walk-interior/index.png)](https://xeokit.github.io/sdk/examples/index.html#view/navigation/walk-interior)
+[![Interior walk navigation example](https://xeokit.github.io/sdk/examples/sdk/view/navigation/walk-interior/index.png)](https://xeokit.github.io/sdk/examples/index.html#sdk/view/navigation/walk-interior)
 
 The live
-[Walk Navigation - Interior](https://xeokit.github.io/sdk/examples/index.html#view/navigation/walk-interior)
+[Walk Navigation - Interior](https://xeokit.github.io/sdk/examples/index.html#sdk/view/navigation/walk-interior)
 example shows a building interior navigated with a standard model navigation
 controller and an opt-in walk controller.
 

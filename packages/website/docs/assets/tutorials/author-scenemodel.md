@@ -27,10 +27,10 @@ There is no separate `build()` or `finalize()` call for normal SceneModel
 authoring. Each successful `create*` call registers the component and emits the
 scene event that viewers and renderers use to update their internal state.
 
-[![Authored table-shaped SceneModel](https://xeokit.github.io/sdk/examples/create/scene/from-params-table/index.png)](https://xeokit.github.io/sdk/examples/index.html#create/scene/from-params-table)
+[![Authored table-shaped SceneModel](https://xeokit.github.io/sdk/examples/studio/create/scene/from-params-table/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/create/scene/from-params-table)
 
 The live
-[Creating a Model from JSON](https://xeokit.github.io/sdk/examples/index.html#create/scene/from-params-table)
+[Creating a Model from JSON](https://xeokit.github.io/sdk/examples/index.html#studio/create/scene/from-params-table)
 example shows a small authored `SceneModel` loaded from SDK params and rendered
 directly in the viewer.
 

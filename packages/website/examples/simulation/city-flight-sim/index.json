@@ -1,0 +1,15 @@
+{
+  "id": "simulation/city-flight-sim",
+  "title": "City Flight Sim",
+  "description": "Runs a flight simulation through the Amsterdam procedural city XGF stream, with a streamed city model, aircraft controls, HUD, and URL-selectable renderer support.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "categories": [
+    "Simulation",
+    "XGF",
+    "XGF Stream",
+    "Procedural generation",
+    "SceneModel"
+  ],
+  "snapshotTimeoutMs": 240000
+}

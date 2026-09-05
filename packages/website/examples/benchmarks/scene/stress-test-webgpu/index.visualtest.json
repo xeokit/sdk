@@ -1,4 +1,0 @@
-{
-  "waitFor": "#status[data-state='ok']",
-  "timeout": 5000
-}

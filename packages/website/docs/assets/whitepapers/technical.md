@@ -23,7 +23,7 @@ Around those two foundations, the SDK separates geometry from semantic data, exp
 
 ![Baku Stadium loaded with XGF streaming](https://xeokit.github.io/sdk/images/bakuStadium2.png)
 
-The [Baku Stadium XGF streaming example](https://xeokit.github.io/sdk/examples/index.html#benchmarks/streaming/xgf-baku-2000-dynamic) demonstrates viewpoint-driven loading on a large BIM dataset. As reviewers select simulated BCF issues, xeokit streams the XGF chunks visible from each issue viewpoint first, allowing useful review context to appear before the whole model has loaded.
+The [Baku Stadium XGF streaming example](https://xeokit.github.io/sdk/examples/index.html#studio/benchmarks/streaming/xgf-baku-2000-dynamic) demonstrates viewpoint-driven loading on a large BIM dataset. As reviewers select simulated BCF issues, xeokit streams the XGF chunks visible from each issue viewpoint first, allowing useful review context to appear before the whole model has loaded.
 
 ---
 

@@ -30,10 +30,10 @@ picker and a renderer picker behind one API, then chooses the backend that can
 answer each request. You get cheap BVH picks for hover, filtered and ray-driven
 tools, and GPU snapping only when you ask for vertex or edge precision.
 
-[![Pointer snapping on triangle meshes](https://xeokit.github.io/sdk/examples/interact/snapping/table/index.png)](https://xeokit.github.io/sdk/examples/index.html#interact/snapping/table)
+[![Pointer snapping on triangle meshes](https://xeokit.github.io/sdk/examples/studio/interact/snapping/table/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/interact/snapping/table)
 
 The live
-[Pointer Snapping on Triangle Meshes](https://xeokit.github.io/sdk/examples/index.html#interact/snapping/table)
+[Pointer Snapping on Triangle Meshes](https://xeokit.github.io/sdk/examples/index.html#studio/interact/snapping/table)
 example shows vertex, edge and surface snap feedback on authored triangle
 geometry.
 
@@ -344,10 +344,10 @@ If picking misses unexpectedly:
 
 Existing examples worth comparing against:
 
-- `packages/website/examples/interact/collision/hover`
-- `packages/website/examples/interact/collision/hit-point`
-- `packages/website/examples/interact/snapping/table`
-- `packages/website/examples/interact/snapping/thick-lines`
-- `packages/website/examples/view/webgpu/pick-surface`
-- `packages/website/examples/view/webgpu/snap-vertex`
-- `packages/website/examples/view/webgpu/snap-edge`
+- `packages/website/examples/studio/interact/collision/hover`
+- `packages/website/examples/studio/interact/collision/hit-point`
+- `packages/website/examples/studio/interact/snapping/table`
+- `packages/website/examples/studio/interact/snapping/thick-lines`
+- `packages/website/examples/sdk/view/webgpu/pick-surface`
+- `packages/website/examples/sdk/view/webgpu/snap-vertex`
+- `packages/website/examples/sdk/view/webgpu/snap-edge`

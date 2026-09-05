@@ -1,0 +1,10 @@
+{
+  "id": "studio/workflows/heatmaps/solar-pipes",
+  "title": "Animated Thermography Heat Map",
+  "description": "Shows an animated thermography heat map on process equipment.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Heat Maps"
+  ]
+}

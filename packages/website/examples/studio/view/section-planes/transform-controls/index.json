@@ -1,0 +1,10 @@
+{
+  "id": "studio/view/section-planes/transform-controls",
+  "title": "SectionPlane driven by TransformControls",
+  "description": "Shows a transform gizmo controlling a section plane on a duplex model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Slicing"
+  ]
+}

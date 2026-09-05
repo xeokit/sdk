@@ -648,7 +648,6 @@ export class ViewPanel extends FloatingPanelBase {
    *
    * Each `pointermove` fires {@link FloatingPanelBase.onLayoutChanged}
    * so hosts that track the panel's viewport rect (the Studio
-   * forwards this to the hosted View's `needsRender()` so the
    * shared WebGL canvas re-aligns) update in lockstep with the
    * resize.
    */

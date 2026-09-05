@@ -31,10 +31,10 @@ starting points for visual review and marketing-grade screenshots, but they are
 more expensive than the defaults. For very large production models, tune shadow
 resolution, SAO samples, bloom and render scale against the target hardware.
 
-[![glTF house plan rendered with PBR materials](https://xeokit.github.io/sdk/examples/import/gltf/house-plan-pbr/index.png)](https://xeokit.github.io/sdk/examples/index.html#import/gltf/house-plan-pbr)
+[![glTF house plan rendered with PBR materials](https://xeokit.github.io/sdk/examples/sdk/import/gltf/house-plan-pbr/index.png)](https://xeokit.github.io/sdk/examples/index.html#sdk/import/gltf/house-plan-pbr)
 
 The live
-[glTF House Plan](https://xeokit.github.io/sdk/examples/index.html#import/gltf/house-plan-pbr)
+[glTF House Plan](https://xeokit.github.io/sdk/examples/index.html#sdk/import/gltf/house-plan-pbr)
 example loads the same kind of PBR house-plan content this tutorial uses for
 realistic rendering setup.
 

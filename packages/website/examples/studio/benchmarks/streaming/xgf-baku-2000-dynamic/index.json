@@ -1,0 +1,14 @@
+{
+  "id": "studio/benchmarks/streaming/xgf-baku-2000-dynamic",
+  "title": "Streamed XGF Stadium, 2K Chunks, Dynamic",
+  "description": "Streams the 2000-chunk Baku Stadium model with dynamic renderer storage, providing the fast-load baseline we use to tune streaming budgets, cache limits, camera-stall behavior, and model partitioning sweet spots.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "BIM",
+    "Benchmarks",
+    "Featured"
+  ]
+}

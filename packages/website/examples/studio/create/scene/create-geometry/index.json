@@ -1,0 +1,11 @@
+{
+  "id": "studio/create/scene/create-geometry",
+  "title": "Creating Geometries",
+  "description": "This example demonstrates how to use the xeokit SDK to create and display various geometries.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "categories": [
+    "Modeling",
+    "Geometry"
+  ]
+}

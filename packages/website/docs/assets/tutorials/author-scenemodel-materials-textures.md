@@ -28,10 +28,10 @@ from files, and any appearance you want to keep consistent across many meshes.
 Use mesh-local `color` and `opacity` for quick generated overlays, simple debug
 geometry and one-off objects.
 
-[![AEC material chart](../../../website/examples/create/materials/aec-chart/index.png)](https://xeokit.github.io/sdk/examples/index.html#create/materials/aec-chart)
+[![AEC material chart](../../../website/examples/studio/create/materials/aec-chart/index.png)](https://xeokit.github.io/sdk/examples/index.html#studio/create/materials/aec-chart)
 
 The live
-[Physically-Based Materials for AEC](https://xeokit.github.io/sdk/examples/index.html#create/materials/aec-chart)
+[Physically-Based Materials for AEC](https://xeokit.github.io/sdk/examples/index.html#studio/create/materials/aec-chart)
 example shows authored AEC materials under shared lighting.
 
 ---

@@ -431,7 +431,6 @@ export class SectionPlanesController {
     tc.setShowY(true);
     tc.setShowZ(true);
     tc.setMode(mode);
-    this.view.needsRender();
   }
 
   private _openTransformControls(): TransformControls {

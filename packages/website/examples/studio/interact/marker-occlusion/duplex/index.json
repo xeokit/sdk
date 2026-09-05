@@ -1,0 +1,11 @@
+{
+  "id": "studio/interact/marker-occlusion/duplex",
+  "title": "Duplex Model with Annotation Labels",
+  "description": "Shows annotation labels that hide correctly when occluded by the building model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Annotations",
+    "Featured"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "studio/streaming/xgf/archipelago",
+  "title": "XGF Streamed Archipelago",
+  "description": "Streams the same geolocated archipelago scene as one merged XGF chunk set, including the procedural islands, Duplex, IfcOpenHouse4, and Ferry.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "XGF",
+    "Streaming",
+    "Geolocation",
+    "Terrains",
+    "Buildings",
+    "Ships"
+  ]
+}

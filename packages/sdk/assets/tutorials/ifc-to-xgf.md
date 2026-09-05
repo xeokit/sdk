@@ -31,10 +31,10 @@ Keeping these files side by side lets the viewer load the visual model quickly
 while resolving IFC object IDs, types, relationships and properties into xeokit's
 data model.
 
-[![West Riverside Hospital loaded from XGF](https://xeokit.github.io/sdk/examples/import/xgf/west-river-side-hospital/index.png)](https://xeokit.github.io/sdk/examples/index.html#import/xgf/west-river-side-hospital)
+[![West Riverside Hospital loaded from XGF](https://xeokit.github.io/sdk/examples/sdk/import/xgf/west-river-side-hospital/index.png)](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/west-river-side-hospital)
 
 The live
-[XGF West Riverside Hospital](https://xeokit.github.io/sdk/examples/index.html#import/xgf/west-river-side-hospital)
+[XGF West Riverside Hospital](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/west-river-side-hospital)
 example shows the kind of prepared runtime XGF model this conversion workflow
 produces for browser loading.
 

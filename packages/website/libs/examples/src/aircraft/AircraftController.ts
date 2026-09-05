@@ -161,8 +161,7 @@ export class AircraftController {
       htmlElement: view.htmlElement,
       camera: this.vehicleCamera as never,
       objects: view.objects,
-      viewer: view.viewer,
-      needsRender: () => view.needsRender?.()
+      viewer: view.viewer
     };
 
     const maxForwardSpeed = Number(this.config.maxForwardSpeed ?? 135);
@@ -244,7 +243,6 @@ export class AircraftController {
   setCameraPreset(preset: AircraftCameraPreset): void {
     this.state.cameraPreset = preset;
     this.snapCameraToPreset();
-    this.view.needsRender?.();
   }
 
   /**
@@ -267,7 +265,6 @@ export class AircraftController {
       Number(this.config.cameraExteriorMaxDistanceScale ?? 2.5)
     );
     this.snapCameraToPreset();
-    this.view.needsRender?.();
   }
 
   /**
@@ -384,7 +381,6 @@ export class AircraftController {
     });
 
     this.updateCamera(worldUp, dt);
-    this.view.needsRender?.();
     return dt;
   }
 

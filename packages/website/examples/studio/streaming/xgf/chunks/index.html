@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual XGF Chunk Streaming</title>
+  <link href="../../../../../css/example-page.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: #f5f6f2;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #demoCanvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: #f5f6f2;
+      border: 0;
+    }
+
+    #streamPanel {
+      position: fixed !important;
+      top: 44px !important;
+      right: 16px !important;
+      width: min(380px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.93);
+      border: 1px solid rgba(30, 35, 42, 0.18);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(28, 34, 42, 0.18);
+      color: #1f2933;
+      z-index: 3000000;
+    }
+
+    .panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(30, 35, 42, 0.12);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .panel-header p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #52606d;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(30, 35, 42, 0.12);
+    }
+
+    button {
+      min-height: 34px;
+      border: 1px solid rgba(30, 35, 42, 0.22);
+      border-radius: 6px;
+      background: #ffffff;
+      color: #1f2933;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #eef2f5;
+    }
+
+    button:disabled {
+      cursor: default;
+      color: #9aa5b1;
+      background: #f3f5f7;
+    }
+
+    #chunkList {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .chunk {
+      border: 1px solid rgba(30, 35, 42, 0.14);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 10px;
+    }
+
+    .chunk-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chunk-title {
+      font-size: 13px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .chunk-meta {
+      margin-top: 6px;
+      font-size: 11px;
+      line-height: 1.45;
+      color: #52606d;
+      overflow-wrap: anywhere;
+    }
+
+    .state {
+      display: inline-flex;
+      align-items: center;
+      min-width: 62px;
+      justify-content: center;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #43505c;
+      background: #edf1f5;
+    }
+
+    .state.loaded {
+      color: #0f5132;
+      background: #d8f3e5;
+    }
+
+    .chunk-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    #status {
+      padding: 0 16px 14px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #52606d;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="streamPanel">
+  <div class="panel-header">
+    <h1>Manual XGF Chunk Streaming</h1>
+    <p>Loads shared XGF asset libraries once, then streams references-only tiles on demand.</p>
+  </div>
+  <div class="toolbar">
+    <button id="loadNearest">Load in view</button>
+    <button id="unloadAll">Unload chunks</button>
+  </div>
+  <div id="chunkList"></div>
+  <div id="status">Initializing...</div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

@@ -1,0 +1,12 @@
+{
+  "id": "studio/workflows/sun-study/duplex",
+  "title": "Sun Study — Duplex (Vancouver)",
+  "description": "Shows an interactive sun study on a duplex model, with time controls that animate daylight and shadows.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "categories": [
+    "Heat Maps",
+    "Solar Analysis",
+    "Featured"
+  ]
+}

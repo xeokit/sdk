@@ -30,10 +30,10 @@ The geometry and semantic data are deliberately written separately. Rendering
 can load `model.xgf` quickly into a `SceneModel`, while application features can
 load `datamodel.json` into a `DataModel` only when they need BIM semantics.
 
-[![West Riverside Hospital loaded from XGF](https://xeokit.github.io/sdk/examples/import/xgf/west-river-side-hospital/index.png)](https://xeokit.github.io/sdk/examples/index.html#import/xgf/west-river-side-hospital)
+[![West Riverside Hospital loaded from XGF](https://xeokit.github.io/sdk/examples/sdk/import/xgf/west-river-side-hospital/index.png)](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/west-river-side-hospital)
 
 The live
-[XGF West Riverside Hospital](https://xeokit.github.io/sdk/examples/index.html#import/xgf/west-river-side-hospital)
+[XGF West Riverside Hospital](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/west-river-side-hospital)
 example shows the runtime side of this workflow: a prepared XGF model loaded
 directly into a browser viewer.
 

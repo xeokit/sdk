@@ -129,22 +129,22 @@ Single-file XGF examples with explicit hints:
 
 | Example | Hint | Notes |
 |---|---|---|
-| [XGF West Riverside Hospital Static](https://xeokit.github.io/sdk/examples/index.html#import/xgf/west-river-side-hospital) | `static` | Loads a hospital XGF into a static `SceneModel`. |
-| [XGF Sports Car - Multiple Views](https://xeokit.github.io/sdk/examples/index.html#import/xgf/sports-car) | `dynamic` | Loads XGF into a dynamic `SceneModel` for a multi-view setup. |
+| [XGF West Riverside Hospital Static](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/west-river-side-hospital) | `static` | Loads a hospital XGF into a static `SceneModel`. |
+| [XGF Sports Car - Multiple Views](https://xeokit.github.io/sdk/examples/index.html#sdk/import/xgf/sports-car) | `dynamic` | Loads XGF into a dynamic `SceneModel` for a multi-view setup. |
 
 Streaming XGF configuration examples:
 
 | Example | Hint | What it is used to compare |
 |---|---|---|
-| [Streamed XGF Stadium, 2K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/index.html#benchmarks/streaming/xgf-baku-2000-dynamic) | `dynamic` | Fast-load baseline for streaming budgets, cache limits, camera stalling, and model partitioning. |
-| [Streamed XGF Stadium, 200 Chunks, Static](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/baku-200-static) | `static` | Coarse model partitioning versus VBO upload cost. |
-| [Streamed XGF Stadium, 4K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/index.html#benchmarks/streaming/xgf-baku-4000-dynamic) | `dynamic` | High-chunk-count data-texture baseline for first-frustum loading and request fan-out. |
-| [Streamed XGF Stadium, 4K Chunks, Static](https://xeokit.github.io/sdk/examples/index.html#benchmarks/streaming/xgf-baku-4000-static) | `static` | Static VBO uploads under many small streamed chunks. |
-| [XGF Stream West Riverside Hospital Static](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/west-river-side-hospital-static) | `static` | Hospital stream with review viewpoints and camera-move stream stalling. |
-| [XGF Recursive Streaming - Nested Model Set](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/recursive) | `static` | Recursive child streams with independent view-prioritized loading. |
-| [XGF Streamed LoD2 Lyon](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/lyon) | `static` | City-scale streamed chunk set. |
-| [XGF Streamed Archipelago](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/archipelago) | `dynamic` | Geolocated merged stream with mixed terrain, building, and ship content. |
-| [XGF Streaming OTC Conference Center](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/otc) | `dynamic` | Viewpoint-driven review loading where visible chunks are prioritized. |
-| [XGF Stream House Plan](https://xeokit.github.io/sdk/examples/index.html#streaming/xgf/house-plan) | `dynamic` | Small building stream using the update-friendly path. |
+| [Streamed XGF Stadium, 2K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/index.html#studio/benchmarks/streaming/xgf-baku-2000-dynamic) | `dynamic` | Fast-load baseline for streaming budgets, cache limits, camera stalling, and model partitioning. |
+| [Streamed XGF Stadium, 200 Chunks, Static](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/baku-200-static) | `static` | Coarse model partitioning versus VBO upload cost. |
+| [Streamed XGF Stadium, 4K Chunks, Dynamic](https://xeokit.github.io/sdk/examples/index.html#studio/benchmarks/streaming/xgf-baku-4000-dynamic) | `dynamic` | High-chunk-count data-texture baseline for first-frustum loading and request fan-out. |
+| [Streamed XGF Stadium, 4K Chunks, Static](https://xeokit.github.io/sdk/examples/index.html#studio/benchmarks/streaming/xgf-baku-4000-static) | `static` | Static VBO uploads under many small streamed chunks. |
+| [XGF Stream West Riverside Hospital Static](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/west-river-side-hospital-static) | `static` | Hospital stream with review viewpoints and camera-move stream stalling. |
+| [XGF Recursive Streaming - Nested Model Set](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/recursive) | `static` | Recursive child streams with independent view-prioritized loading. |
+| [XGF Streamed LoD2 Lyon](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/lyon) | `static` | City-scale streamed chunk set. |
+| [XGF Streamed Archipelago](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/archipelago) | `dynamic` | Geolocated merged stream with mixed terrain, building, and ship content. |
+| [XGF Streaming OTC Conference Center](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/otc) | `dynamic` | Viewpoint-driven review loading where visible chunks are prioritized. |
+| [XGF Stream House Plan](https://xeokit.github.io/sdk/examples/index.html#studio/streaming/xgf/house-plan) | `dynamic` | Small building stream using the update-friendly path. |
 
 These examples are intentionally varied. They are used to find practical sweet spots across model partitioning, first-frustum dependency layout, request fan-out, VBO upload cadence, data-texture update cost, and settled navigation performance. There is no universal fastest setting independent of the model and loading pattern.
